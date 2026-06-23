@@ -1,7 +1,7 @@
 # Mindrian Canon
 
-Version: 1.14
-Date: 2026-06-22
+Version: 1.15
+Date: 2026-06-23
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
 
@@ -410,7 +410,11 @@ full Parts; the thing that decides what gets reached for is the same altitude.
 
 - **The two wires.** A capability has a KNOWLEDGE wire (a `:Framework` node, Part 8) and a TRIGGER wire
   (a connector mapping a navigator CONTEXT to the capability). The system reaches only for capabilities
-  that have the TRIGGER wire. Knowledge without trigger is a dark capability.
+  that have the TRIGGER wire. Knowledge without trigger is a dark capability. The two wires are a
+  capability-vs-permission distinction: the KNOWLEDGE wire is the CAPABILITY (the system COULD reach
+  for it), the TRIGGER wire is the PERMISSION-TO-BE-REACHED (the system MAY reach for it in a context).
+  A dark capability is therefore a capability WITHOUT permission-to-be-reached - present in knowledge,
+  absent from the governed reach path.
 - **The dual graph (control plane / data plane).** The remote orchestration projection (Part 8,
   Appendix D entry 19) is the CONTROL plane - generic machinery topology, every node tagged
   methodology_tier (pws | mindrian-operation). The local room.db is the DATA plane. The invariant is
@@ -439,7 +443,12 @@ warn/aspirational, so no unproven number is frozen as hard law.
 - **R1** Two states, no third - WIRED (`connector:` block) or EXCLUDED (`connector:{excluded,reason}`).
   EXCLUDED-with-reason is a first-class conformant terminal state, NOT "dark". Unit of coverage: a
   surface = one command file, one skill SKILL.md, one agent file; sub-behaviors are not independently
-  counted (finer granularity is a named future amendment - SEED-024).
+  counted (finer granularity is a named future amendment - SEED-024). Every governed surface also
+  carries exactly one CLASS - mechanical (a non-framework command/operation), framework (a pws
+  methodology), intelligence (an engine/sensor/analysis surface), or pipeline (a chain/workflow). The
+  four classes are the invocation governance ISA; each is subject to the same born-wired R1/R2
+  treatment, and the gate is class-aware. This mints no new edge/node/reach and opens no Brain wire -
+  it names existing surface types.
 - **R2** Born-wired - a new/modified surface fails the gate CLOSED unless it satisfies R1.
 - **R3** Context-triggered - trigger keys on navigator problem-state (LOCAL via the navigation.cjs
   chokepoint, Part 9; enum/scalar only, Part 8); keyword is a fallback tier, not the basis. Triggers
@@ -464,7 +473,11 @@ warn/aspirational, so no unproven number is frozen as hard law.
 - **R9** Enforced, not aspirational - the gate is wired into pre-commit + release + doctor (the Phase
   150.9 doctor --drift engine) + the ingest pipeline; warn->report, then hard-FAIL once the baseline is
   wired/excluded. Three non-overlapping timeframes: born-gate (merge), doctor --drift (periodic),
-  forward-declaration (planning).
+  forward-declaration (planning). The hard-FAIL flip landed Phase 172-13 (both gates exit non-zero on a
+  surface neither WIRED nor EXCLUDED, wired into pre-commit + install-pre-commit + release.sh + doctor
+  --acceptance). `doctor --drift` is the SCHEDULED (periodic) reconciliation surface that sits beside
+  the merge gate - the Wiz/HashiCorp two-timeframe pattern (catch drift at merge AND on a schedule);
+  full continuous Brain-sync stays deferred to Phase 137.
 - **R10** Lockstep on change - any add/modify/update/remove re-runs the gate and keeps the projection in
   lockstep (drift-detection over the machinery).
 - **R11** Fractal coverage (DEFERRED-ENFORCEMENT) - coverage + chain monitoring rolls up across nested
@@ -609,6 +622,8 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 25. **Part 11 (The Invocation Constitution / CIRS) ratified (2026-06-22).** A new constitutional Part - the invocation/reachability layer, peer to Part 8 (Boundary) and Part 9 (Memory) - establishing the Command Invocation Ruling System (CIRS R1-R14) as a closed ruling set governing the lifecycle (born/modified/updated/removed) of every invocable surface (command, skill, agent). Until now invocation doctrine was scattered across Parts 2/3/8 + entries 15/19 and regressed repeatedly (Phases 143.x, 144.1) because the governing contract lived nowhere but an orphaned WARN-only gate. Proposed in the /gsd-discuss-phase 172 session after a 14-stream research fan-out, then put through a three-reviewer adversarial pass: A (canon-compliance) = CANON-COMPLIANT-WITH-CONSTRAINTS (C1-C6); B (adversarial) = OVERSPECIFIED, argued fold-into-Part-8; C (integration) = RECONCILES-WITH-GAPS, keep-as-Part (fold-in would re-scatter). The navigator ratified the synthesized disciplined-minimal form: KEEP as Part 11 (A+C altitude verdict), with R6 (earned chains) + R11 (fractal rollup) DECLARED-but-DEFERRED-ENFORCEMENT (hard-FAIL gated on substrate existing - answers B's premature-freeze attack), constraints C1-C6 (reaches/postures frozen; Shape F scalars frozen; R6 confidence on the PROJECTION FEEDS_INTO not the navigation edge; R5 counterpart is a projection node not a room.db node; no new Brain wire; cross-room NESTED_WITHIN aggregation forbidden) and the gap fixes (R13 retirement state, R14 trigger-overlap, autonomous_safe governed, R6 ranking-deferral to Part 3, R1 unit-of-coverage, R12 = canon_parts specialization keyed on slug) folded into the Part text. Part 11 mints NO new edge type, NO new node type, NO new reach, and opens NO new Brain wire - every primitive it leans on is already canon; what is NEW is the closed ruling set + the born-wired lifecycle gate. Navigator-LOCKED 2026-06-22, applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring Parts 9 and 10 (entries 12/20). Implementing phase: 172 (with Phase 166 runChain as the runtime; 170/171 as first conformance targets). Header/footer Version 1.13 -> 1.14. Evidence: docs/CANON-PART-11-PROPOSAL-invocation-constitution.md + docs/CANON-PART-11-REVIEW-SYNTHESIS.md.
 
+26. **Part 11 R1 four-class governance-ISA sharpening + the born-wired gate flipped to hard-FAIL (Phase 172-13, 2026-06-23).** Phase 172 Plan 13 sharpened Part 11 R1's unit-of-coverage to enumerate the FOUR governed surface classes - mechanical (a non-framework command/operation), framework (a pws methodology), intelligence (an engine/sensor/analysis surface), and pipeline (a chain/workflow) - as a one-line R1 amendment, AND flipped the CIRS coverage gate from WARN to hard-FAIL across all four enforcement surfaces. The four classes are the invocation governance ISA; each is subject to the same born-wired R1/R2 treatment, and the gate is class-aware. This MINTS no new edge/node/reach and opens no Brain wire - it NAMES existing surface types (the `class` enum is purely additive metadata on the coverage ledger; the wired/excluded/gap COUNTS are unchanged). The amendment is externally grounded in the ArbiterOS "governance-as-constitution" / governance-ISA paradigm (arXiv 2510.13857; research/172-GOVERNOR-RESEARCH.md): CIRS R1-R14 + the born-wired gate IS the governance ISA, and the git/CI chokepoint is the separated enforcement kernel. Two prose clarifications landed alongside: the two-wires doctrine now states the capability-vs-permission distinction (a dark capability = a capability WITHOUT permission-to-be-reached - present in knowledge, absent from the governed reach path), and R9 records `doctor --drift` as the SCHEDULED (periodic) reconciliation surface beside the merge gate (the Wiz/HashiCorp two-timeframe pattern; continuous Brain-sync stays Phase 137). The hard-FAIL flip itself: both generators' `--check` (build-connector-registry.cjs + build-orchestration-projection.cjs) now exit non-zero on any surface neither WIRED nor EXCLUDED (and any command counterpart neither ranked nor excluded), wired into pre-commit + install-pre-commit + release.sh + doctor --acceptance - the structural cure for the recurring 143.x/144.1 regression (R2/R9/INV-10 step 3/INV-14). The flip landed AFTER Plan 172-16 wired/excluded the baseline and this plan reconciled the projection command-ledger to gap=0 (a command counterpart whose surface is EXCLUDED in the connector layer now PROPAGATES to EXCLUDED in the projection), so CI never went RED mid-sweep. This was a navigator-gated AND navigator-approved decision (2026-06-23 "go on!"; the R1 amendment wording confirmed verbatim) applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/18/19/21/22/23/24/25. The amendment landed as ONE atomic lockstep wave so CI never went RED: the R1 four-class sentence + the two-wires + R9 prose clarifications + this Appendix D entry 26 + the header/footer Version 1.14 -> 1.15 + the CANON-PHASE-MAP version-history row + the four-class FLOOR test (`tests/test-cirs-four-class-floor.cjs`, registered in tests/run-all-172.sh) + the coverageReport() `class` enum (counts unchanged), all moving together. Canon version bumped to 1.15.
+
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit. Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate (2026-05-12).
 
 ---
@@ -663,6 +678,6 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.14 - MindrianOS Plugin_
+_Mindrian Canon v1.15 - MindrianOS Plugin_
 
 _Version history is maintained inline in docs/CANON-PHASE-MAP.md (Version history table)._

@@ -414,6 +414,74 @@ function serializeRegistry(reg) {
 }
 
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// The four governed surface CLASSES (Canon Part 11 R1 four-class amendment,
+// navigator-LOCKED 2026-06-23; externally grounded in the ArbiterOS
+// governance-ISA paradigm, research/172-GOVERNOR-RESEARCH.md). Every governed
+// surface carries EXACTLY ONE class. The four classes are the invocation
+// governance ISA; the gate is class-aware. A fifth label, `utility-excluded`,
+// is NOT one of the four governance classes -- it is the class slot for an
+// EXCLUDED utility surface (the first-class conformant terminal state, R1), kept
+// distinct so an excluded utility is never mis-counted as a governed class.
+// This MINTS no new edge/node/reach and opens no Brain wire -- it NAMES existing
+// surface types. The wired/excluded/gap COUNTS are UNCHANGED by the class field.
+//   mechanical   -- a non-framework command/operation (plumbing that triggers a
+//                   reach but is not itself a pws methodology).
+//   framework    -- a pws methodology (declares frameworks: or a resolvable
+//                   connector.framework).
+//   intelligence -- an engine/sensor/analysis surface (rs-* / find-* / score-* /
+//                   whitespace / diagnostics / radar / the intelligence
+//                   orchestrator / analysis agents).
+//   pipeline     -- a chain/workflow surface (act / discover / ingest / a
+//                   multi-step orchestrated flow).
+// ---------------------------------------------------------------------------
+const FOUR_CLASSES = Object.freeze(['mechanical', 'framework', 'intelligence', 'pipeline']);
+const CLASS_UTILITY_EXCLUDED = 'utility-excluded';
+const SURFACE_CLASS_ENUM = Object.freeze(FOUR_CLASSES.concat([CLASS_UTILITY_EXCLUDED]));
+
+// The intelligence-surface name prefixes/markers (engine/sensor/analysis). A
+// surface whose base matches one of these is an intelligence class. Generic
+// machinery handles only (Part 8).
+const INTELLIGENCE_MARKERS = Object.freeze([
+  'rs-', 'find-', 'score-', 'whitespace', 'diagnostics', 'radar',
+  'breakthrough', 'reverse-salient', 'analyze-', 'detect-',
+  'intelligence-orchestrator', 'lens', 'sensor',
+]);
+
+// The pipeline-surface name markers (chain/workflow). A multi-step orchestrated
+// flow.
+const PIPELINE_MARKERS = Object.freeze([
+  'act', 'discover', 'ingest', 'pipeline', 'chain', 'workflow', 'run-chain', 'runchain',
+]);
+
+// ---------------------------------------------------------------------------
+// classifySurfaceClass(src, fm, state) -- derive the one governed class for a
+// surface (Canon Part 11 R1 four-class amendment). EXCLUDED surfaces take the
+// `utility-excluded` slot. Otherwise: a surface that declares a frameworks:
+// block or a resolvable connector.framework is `framework`; an intelligence
+// marker base is `intelligence`; a pipeline marker base is `pipeline`;
+// everything else is `mechanical`. Deterministic + pure (reads only the passed
+// frontmatter + base name). The order is framework -> pipeline -> intelligence
+// -> mechanical so an act-like pipeline that also declares a framework is named
+// by its strongest signal (framework methodology wins). Zero Brain/network.
+// ---------------------------------------------------------------------------
+function classifySurfaceClass(src, fm, state) {
+  if (state === 'excluded') return CLASS_UTILITY_EXCLUDED;
+  const base = (src && typeof src.base === 'string') ? src.base.toLowerCase() : '';
+  const conn = fm && fm.connector && typeof fm.connector === 'object' && !Array.isArray(fm.connector)
+    ? fm.connector
+    : null;
+  const hasFrameworksBlock = Array.isArray(fm && fm.frameworks) && fm.frameworks.length > 0;
+  const hasConnFramework =
+    conn && typeof conn.framework === 'string' && conn.framework.trim().length > 0;
+  if (hasFrameworksBlock || hasConnFramework) return 'framework';
+  if (PIPELINE_MARKERS.indexOf(base) !== -1) return 'pipeline';
+  if (INTELLIGENCE_MARKERS.some(function (m) { return base.indexOf(m) === 0 || base === m; })) {
+    return 'intelligence';
+  }
+  return 'mechanical';
+}
+
 // classifySurface(src) -- the pure per-surface classifier shared by
 // coverageReport(). Reads ONE source file's connector frontmatter and returns
 // the R1 (Canon Part 11) terminal state:
@@ -445,7 +513,13 @@ function classifySurface(src) {
   if (hasConn && conn.excluded === true) {
     const reason =
       typeof conn.reason === 'string' && conn.reason.trim() ? conn.reason.trim() : null;
-    const out = { surface: surfaceName, source: src.kind, state: 'excluded', reason };
+    const out = {
+      surface: surfaceName,
+      source: src.kind,
+      state: 'excluded',
+      reason,
+      class: classifySurfaceClass(src, fm, 'excluded'),
+    };
     if (!reason) {
       out.error =
         'connector ' + surfaceName +
@@ -455,10 +529,20 @@ function classifySurface(src) {
   }
 
   if (hasConn && conn.connects_to_spine === true) {
-    return { surface: surfaceName, source: src.kind, state: 'wired' };
+    return {
+      surface: surfaceName,
+      source: src.kind,
+      state: 'wired',
+      class: classifySurfaceClass(src, fm, 'wired'),
+    };
   }
 
-  return { surface: surfaceName, source: src.kind, state: 'gap' };
+  return {
+    surface: surfaceName,
+    source: src.kind,
+    state: 'gap',
+    class: classifySurfaceClass(src, fm, 'gap'),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -478,7 +562,7 @@ function coverageReport() {
   const errors = [];
   for (const src of listSourceFiles()) {
     const c = classifySurface(src);
-    surfaces.push({ surface: c.surface, source: c.source, state: c.state });
+    surfaces.push({ surface: c.surface, source: c.source, state: c.state, class: c.class });
     counts[c.state] += 1;
     if (c.error) errors.push(c.error);
   }
@@ -496,7 +580,10 @@ function coverageReport() {
 // ---------------------------------------------------------------------------
 function serializeLedger(report) {
   const surfaces = Array.isArray(report && report.surfaces)
-    ? report.surfaces.slice().sort((a, b) => a.surface.localeCompare(b.surface))
+    ? report.surfaces
+        .slice()
+        .map((s) => ({ surface: s.surface, source: s.source, state: s.state, class: s.class }))
+        .sort((a, b) => a.surface.localeCompare(b.surface))
     : [];
   const counts =
     report && report.counts
@@ -819,8 +906,12 @@ if (require.main === module) {
     validateConnectors,
     methodologyCommandsMissingConnector,
     classifySurface,
+    classifySurfaceClass,
     coverageReport,
     serializeLedger,
     listSourceFiles,
+    FOUR_CLASSES,
+    SURFACE_CLASS_ENUM,
+    CLASS_UTILITY_EXCLUDED,
   };
 }

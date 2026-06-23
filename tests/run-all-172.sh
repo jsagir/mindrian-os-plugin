@@ -40,6 +40,7 @@ CJS_SUITES=(
   test-act-standing-suggestion.cjs
   test-170-171-cirs-conformance.cjs
   test-coverage-gate-hardfail.cjs
+  test-cirs-four-class-floor.cjs
   test-diffusion-adoption-sensor.cjs
   test-reach-ids-drift.cjs
   test-posture-ids-drift.cjs
