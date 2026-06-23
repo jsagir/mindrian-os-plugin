@@ -12,6 +12,29 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 172-12 connector frontmatter (CIRS R1 WIRED / R2 born-wired) ---
+# /mos:ingest-methodology is the maintainer surface for the CIRS born-wired
+# pipeline itself (lib/core/methodology-ingest.cjs ingestPlan step-5). It is WIRED
+# to the spine so the pipeline that makes every FUTURE methodology born-wired is
+# itself first-class in the coverage gate (the last gap -> 0). It is an admin
+# maintainer command (disable-model-invocation: true, autonomous_safe: false), so
+# it carries no sensor trigger (sensor_triggers: []) -- it declares the reach but
+# is not navigator-sensor-fired. It reuses the FROZEN brain_consult reach (the
+# methodology-lookup reach); NO 7th reach minted. framework:null (additive-degrade,
+# CONNECTOR-CONTRACT section 4) because the pipeline is methodology-agnostic -- it
+# ingests ANY framework, so no single resolvable :Framework name applies.
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: brain_consult
+  sub_mode: methodology-ingest
+  framework: null
+  posture: push_forward
+  hierarchy_rank: 60
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:ingest-methodology
@@ -51,11 +74,17 @@ venture's data.
    (the framework home) AND `core` (the namespace `brain_search` reads). Records
    carry flat scalar/array metadata only (Part 8). Verify with `brain_search`.
 
-5. **Trigger + chain.** If the spec defines a trigger, add a sensor under
-   `lib/core/sensors/` reusing a FROZEN reach_id (never mint a new one), register
-   it in `lib/core/insight-sensors.cjs`, and add the dispatch handle to
-   `data/dispatch-framework-map.json`. Give the framework a connector home
-   (a command with a `connector:` block) so it is first-class in the spine.
+5. **Born-wired (CIRS R2 - Canon Part 11).** `ingestPlan(spec)` step-5 is a THIN
+   CALLER of the CIRS born-wired wiring rules: it emits the exact `connector:`
+   block (`step.connector`) the framework's command surface must carry to be born
+   contextually-invocable, and asserts it would pass the coverage gate
+   (`step.coverage_gate.gate_pass`). The block reuses a FROZEN reach_id (default
+   `brain_consult`, the SENS-09 precedent - never mint a new one). Apply it: add
+   the `connector:` block to the framework's command home, add a sensor under
+   `lib/core/sensors/` (reusing that frozen reach), register it in
+   `lib/core/insight-sensors.cjs`, add the dispatch handle to
+   `data/dispatch-framework-map.json`, and chain FEEDS_INTO neighbors. The
+   methodology is now born WIRED, not dark.
 
 6. **Register the phase.** Add the framework name to `data/framework-names.json`
    (curated_extras if not yet FEEDS_INTO-linked). Create the phase CONTEXT.md,

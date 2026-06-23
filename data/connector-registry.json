@@ -550,6 +550,21 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:ingest-methodology",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "brain_consult",
+      "sub_mode": "methodology-ingest",
+      "framework": null,
+      "posture": "push_forward",
+      "hierarchy_rank": 60,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:jtbd",
       "source": "command",
       "connects_to_spine": true,
