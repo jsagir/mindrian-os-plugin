@@ -1,3 +1,5 @@
+## [Unreleased] -- v1.14.0-beta.6 (in progress)
+
 ## [1.14.0-beta.5] - 2026-06-23
 
 The v1.14.0-beta train: Canon Part 11 (the Invocation Constitution) ratified and shipped as a born-wired hard coverage gate, the four-class governance-ISA (canon v1.15), /mos:act made governed + always-on + intent-calibrated, cross-class command-to-pipeline-to-framework chaining, the rs-* family + presentation surfaces wired, Phases 170 (ACE/diffusion) + 171 (methodology-ingest) reconciled to CIRS-conformance, and Phase 173 (the /mos:show JTBD need-selector front door).
