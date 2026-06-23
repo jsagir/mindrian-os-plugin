@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 172 Plan 09 COMPLETE (INV-19 -- /mos:act always-on pinned standing suggestion on the dial host)
-last_updated: "2026-06-23T11:00:00.000Z"
+stopped_at: Phase 172 Plan 02 COMPLETE (CIRS R12 forward-declaration contract + gate hook)
+last_updated: "2026-06-23T10:09:21.888Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
   completed_phases: 6
-  total_plans: 41
-  completed_plans: 41
+  total_plans: 39
+  completed_plans: 39
   percent: 100
 ---
 
@@ -875,6 +875,7 @@ Progress: [█████████░] 92%
 | Phase 160 P05 | 22 | 2 tasks | 5 files |
 | Phase 160 P06 | 8min | 3 tasks | 8 files |
 | Phase 163 P02 | 1 session | 2 tasks | 4 files |
+| Phase 172 P15 | 38min | 2 tasks | 9 files |
 | Phase 163 P05 | 1 session | 2 tasks | 6 files |
 | Phase 166 P05 | 6m | 3 tasks | 5 files |
 | Phase 166 P06 | 8m | 2 tasks | 3 files |
@@ -1193,6 +1194,8 @@ Progress: [█████████░] 92%
 
 ### Decisions
 
+- [Phase 172 P15]: transform is a SHORT generic handoff descriptor (enum/scalar machinery string, e.g. diverge-to-scenario) on the curated_chains entry + the materialized projection FEEDS_INTO edge; never user content (Part 8). Carried BOTH confidence and transform onto the projection edge so the LOCAL projection faithfully mirrors the verified Brain {confidence, transform} edge.
+- [Phase 172 P15]: multi-hop chain confidence composes MULTIPLICATIVELY via the verified SPFO reduce formula (reduce c*=coalesce(r.confidence,0.5)), ordered by hops then composed-confidence DESC, in a NEW recommendMultiHopChains() export (single-edge recommendChainCandidates unchanged); a missing hop transform is positionally null, never dropped. transform rides the PROJECTION edge only; navigation ALLOWED_EDGE_TYPES untouched (Part 11 R6 constraint C3).
 - v1.9.3: APPROVE/REJECT/DEFER cascade, mid-session intelligence, filing completeness all shipped
 - v1.9.4: Three-layer dependency order: OPP (engine) -> CONV (entry) -> ONBD (teaching)
 - v1.9.4: 5 phases for 15 requirements -- OPP splits into engine+graph, CONV splits into routing+capture
@@ -1808,6 +1811,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-23T08:17:57.736Z
-Stopped at: Phase 172 Plan 02 COMPLETE (CIRS R12 forward-declaration contract + gate hook)
-Resume path: Phase 172 Plan 01 (CIRS R1/R2 gate substrate) is COMPLETE -- the EXCLUDE state + the wired-XOR-excluded coverage ledger (data/connector-coverage-ledger.json) + the warn-only gap report are shipped and test-fenced (commits 8471aa3b, 0e6fe19c, 6a0b52b0). Next: `/gsd-execute-phase 172` Plan 02 (R12 cirs_relationship contract + CANON-PHASE-MAP CIRS column + gate hook, per the 172 plan map). The hard-FAIL flip of the RETRO-07 coverage gate is Wave-7 / Plan 172-13 -- do NOT make `--check` exit non-zero on gaps before then.
+Last session: 2026-06-23T10:09:21.852Z
+Stopped at: Phase 172 Plan 15 COMPLETE (transform on curated_chains + projection FEEDS_INTO; multiplicative multi-hop chain-confidence composition; DI-172-09-01 projection STALE cleared)
+Resume path: Phase 172 Plan 15 is COMPLETE (commits 8149ed0c transform-on-edges, 2c53b155 RED composition test, 3d9f5cbb GREEN multiplicative composition). The LOCAL chain model now mirrors the verified Brain {confidence, transform} FEEDS_INTO schema and composes multi-hop confidence multiplicatively (SPFO reduce); `node scripts/build-orchestration-projection.cjs --check` exits 0 (DI-172-09-01 cleared by the regen picking up the 172-12 ingest-methodology counterpart); `bash tests/run-all-172.sh` 16/16. The hard-FAIL flip of the RETRO-07 coverage gate is still Wave-7 / Plan 172-13 -- `--check` must NOT exit non-zero on the WARN-only command-gaps before then.
