@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: executing
-stopped_at: Phase 172 Plan 11 COMPLETE (R11/INV-16 fractal coverage rollup + INV-09 projection monitor)
-last_updated: "2026-06-23T05:30:00.000Z"
+stopped_at: Phase 172 Plan 04 COMPLETE (INV-02 -- rs-* reverse-salient family wired, Engine-1 pillar; gap 62 -> 58)
+last_updated: "2026-06-23T06:15:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -16,7 +16,15 @@ progress:
 
 # Project State
 
-## Latest (2026-06-23) -- Phase 172 Plan 11 COMPLETE (R11/INV-16 fractal coverage rollup + INV-09 projection monitor)
+## Latest (2026-06-23) -- Phase 172 Plan 04 COMPLETE (INV-02 -- rs-* reverse-salient family wired; Engine-1 pillar; coverage gap 62 -> 58)
+
+**Phase 172 Plan 04 (this session):** wired the reverse-salient rs-* family (rs-fetch/rs-explain/rs-experts/rs-thesis) -- the Canon Engine-1 pillar that was entirely dark -- into the `context_block` reach via `pull_back`, the single largest thinking-surface gap (INV-02, D-172-c). Task 1 (6e9b813e): added a `# --- Phase 143.3 connector frontmatter ---` delimited `connector:` block to all four rs-* command files -- `connects_to_spine:true`, `sensor_triggers:[SENS-02]` (the shipped lagging-component sensor that already fires context_block), `reach_id:context_block` (frozen 6, no 7th reach minted), `framework:"Reverse Salient Analysis"` (EXACT match to each file's existing `frameworks:` value, the WFL-01 resolver key), `posture:pull_back` (frozen 3), `filing:fileEvidenceWithReadback`, `plan_gated:false`, `web_scope:null`, `surface:F.1`. To clear the validateConnectors check-4 `(sensor,reach,sub_mode)` tuple collision (all four share SENS-02 + context_block), each carries a distinct sub_mode -- `reverse-salient-fetch`/`-explain`/`-experts`/`-thesis` -- plus distinct hierarchy_rank 2/3/4/5. Task 2 (887590ba): regenerated `data/connector-registry.json` (66 connectors, was 62) + `data/connector-coverage-ledger.json` (66 wired / 0 excluded / 58 gap, was 62/0/62 -- exactly -4 on gap, the rs-* family) via the generator (never hand-edited); `--check` exits 0 (gap + methodology-nudge WARNs are warn-only this stage, hard-FAIL deferred to Plan 172-13). Rule-3 deviation: the pre-commit `harness-manifest` STALE tripwire fired because `data/harness-manifest.json` digests the connector-registry (source_count 62 -> 66); regenerated it via `node scripts/build-harness-manifest.cjs` and committed in lockstep. INV-02 complete. Zero new deps, zero canon amendment, zero new edge/node/reach type, zero new Brain wire, zero em-dashes. 2 atomic commits (6e9b813e/887590ba) + this docs commit. See 172-04-SUMMARY.md.
+
+**Next:** Phase 172 Plan 05 (W3) -- wire causal/diagnostics/hat-briefing/persona + the hats engine case [INV-02], continuing to shrink the gap set. Via `/gsd-execute-phase 172`.
+
+---
+
+## Prior (2026-06-23) -- Phase 172 Plan 11 COMPLETE (R11/INV-16 fractal coverage rollup + INV-09 projection monitor)
 
 **Phase 172 Plan 11 (this session):** shipped the CIRS R11/INV-16 scale-invariant fractal coverage rollup over NESTED_WITHIN plus the INV-09 projection-level coverage + chain-health monitor, both WARN/aspirational per deferred-enforcement. Task 1 (RED b2cca80c -> GREEN b9fa4f3f, tdd): `lib/core/coverage-rollup.cjs` exports `rollupCoverage(room, opts)` + `DEPTH_CAP=3` -- ONE scale-invariant operator that reads a room's LOCAL coverage scalars (`.mindrian/coverage.json` { counts: {wired,excluded,gap} }), walks DOWN its NESTED_WITHIN children to depth 3 inclusive (root depth 0), aggregates every in-cap room's scalars by SUM, normalizes by subtree size into a coverage_ratio, and reports depth_capped when deeper rooms exist beyond the cap. It REUSES the Phase 169 NESTED_WITHIN child-DISCOVERY walk idiom (`_directChildSlugs` + `_childDirForSlug` from graph-derivation.cjs, Part 7), but deliberately NOT `rollupSubRooms` itself -- that ATTACHes child EDGES across the boundary, which Appendix D entry 23 forbids for cross-room AGGREGATION; here ONLY scalars cross the boundary, never a child edge row. Task 2 (729d2607): `lib/core/coverage-monitor.cjs` exports `monitorCoverage(projection)` returning `{unwired, unranked, stale, command_gaps, chain_reachability, counts}` -- a PURE in-memory composition of the validateProjection UN-WIRED/UN-RANKED/COMMAND-GAP categories (Part 7 reuse) plus a chain-reachability check over FEEDS_INTO/CHAINS/PREREQUISITE edges (a dangling target/source node is flagged, R13). Zero Brain, zero network (Part 8/INV-12), proven by a static source-scan in the test. On the live projection it reports 23 unwired + 46 command_gaps WITHOUT hard-failing (deferred-enforcement). Rule-1 deviation: one stale Test 4 leaf assertion (Test 2 mutated the shared fixture by attaching a depth-4 room) re-pointed to the genuine leaf; no implementation change. Fences: `tests/test-coverage-rollup.cjs` 9/9, `tests/run-all-172.sh` 9/9 (frozen reach/posture drift + all prior 172 suites green). INV-09/INV-16 complete. Zero new deps, zero canon amendment, zero new edge/node/reach type, zero new Brain wire, zero em-dashes. RED + 2 GREEN atomic commits (b2cca80c/b9fa4f3f/729d2607) + this docs commit. See 172-11-SUMMARY.md.
 
