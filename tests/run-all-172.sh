@@ -7,9 +7,10 @@
 # to completion and exits non-zero if any failed.
 #
 # It composes:
-#   (a) the CI tripwire as a direct invocation (registry not stale + ledger not
-#       stale + the four CONN-03 validations + the warn-only gap report):
+#   (a) BOTH CI tripwires as direct invocations (registry/ledger not stale + the
+#       four CONN-03 validations + the now-HARD gap gate on BOTH ledgers):
 #         node scripts/build-connector-registry.cjs --check
+#         node scripts/build-orchestration-projection.cjs --check
 #   (b) the CJS suites:
 #         test-connector-coverage-ledger.cjs  -> Phase 172-01 ledger XOR + EXCLUDE
 #         test-connector-tripwire.cjs          -> the carried four-validation tripwire
@@ -41,6 +42,7 @@ CJS_SUITES=(
   test-170-171-cirs-conformance.cjs
   test-coverage-gate-hardfail.cjs
   test-cirs-four-class-floor.cjs
+  test-cirs-adversarial-verify.cjs
   test-diffusion-adoption-sensor.cjs
   test-reach-ids-drift.cjs
   test-posture-ids-drift.cjs
@@ -57,15 +59,26 @@ echo "========================================"
 echo ""
 
 # ---------------------------------------------------------------------------
-# (a) The CI tripwire -- direct invocation (registry + ledger must not be stale;
-#     every connector must pass the four CONN-03 validations; gaps WARN only).
+# (a) BOTH CI tripwires -- direct invocations. The registry + ledger must not be
+#     stale, every connector must pass the four CONN-03 validations, AND the gap
+#     gate is now HARD on BOTH ledgers (172-13): a surface neither WIRED nor
+#     EXCLUDED, or a command counterpart neither ranked nor excluded, exits 1.
 # ---------------------------------------------------------------------------
 ((TOTAL++))
-echo "--- Running: connector-registry --check (CI tripwire) ---"
+echo "--- Running: connector-registry --check (CI tripwire, hard gap gate) ---"
 if node "$REPO_ROOT/scripts/build-connector-registry.cjs" --check; then
   ((PASSED++)); echo ">>> connector-registry --check: PASSED"
 else
   ((FAILED++)); FAILED_TESTS+=("connector-registry --check"); echo ">>> connector-registry --check: FAILED"
+fi
+echo ""
+
+((TOTAL++))
+echo "--- Running: orchestration-projection --check (CI tripwire, hard gap gate) ---"
+if node "$REPO_ROOT/scripts/build-orchestration-projection.cjs" --check; then
+  ((PASSED++)); echo ">>> orchestration-projection --check: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("orchestration-projection --check"); echo ">>> orchestration-projection --check: FAILED"
 fi
 echo ""
 
