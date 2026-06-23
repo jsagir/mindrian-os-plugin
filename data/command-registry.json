@@ -1770,5 +1770,84 @@
       "/mos:structure-argument"
     ]
   },
-  "curated_chains": []
+  "curated_chains": [
+    {
+      "kind": "feeds_into",
+      "from": "S-Curve Analysis",
+      "to": "Adoption-Capacity Theory",
+      "confidence": 0.82
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Reverse Salient Analysis",
+      "to": "Adoption-Capacity Theory",
+      "confidence": 0.78
+    },
+    {
+      "kind": "feeds_into",
+      "from": "PEST Analysis",
+      "to": "Adoption-Capacity Theory",
+      "confidence": 0.7
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Sustaining vs Disruptive Innovation",
+      "to": "Adoption-Capacity Theory",
+      "confidence": 0.8
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Adoption-Capacity Theory",
+      "to": "Scenario Planning",
+      "confidence": 0.74
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Adoption-Capacity Theory",
+      "to": "Mullins Model",
+      "confidence": 0.77
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Adoption-Capacity Theory",
+      "to": "PWS Triple Validation Compass",
+      "confidence": 0.72
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Adoption-Capacity Theory",
+      "to": "Self-Selling Loop",
+      "confidence": 0.85
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Cynefin Framework",
+      "to": "Wicked Problem Detection Framework",
+      "confidence": 0.68
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Jobs to Be Done (JTBD)",
+      "to": "Lean Canvas",
+      "confidence": 0.76
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Reverse Salient Analysis",
+      "to": "Scenario Planning",
+      "confidence": 0.65
+    },
+    {
+      "kind": "chain",
+      "from": "Problem Definition Transformation Framework",
+      "to": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+      "confidence": 0.71
+    },
+    {
+      "kind": "prerequisite",
+      "from": "S-Curve Analysis",
+      "to": "Strategic Inflection Point",
+      "confidence": 0.69
+    }
+  ]
 }
