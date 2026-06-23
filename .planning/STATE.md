@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 172 Plan 16 COMPLETE (navigator-directed presentation-surface reclassification; 7 surfaces EXCLUDE -> WIRE; gap stays 0)
-last_updated: "2026-06-23T00:00:00.000Z"
+stopped_at: Phase 173 context gathered (split; selector scope)
+last_updated: "2026-06-23T11:30:26.168Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -25,6 +25,7 @@ progress:
 **Phase 172 Plan 13 STOPPED before any commit.** Task 1's literal action is to flip BOTH generators' gap WARN to hard-FAIL: `build-connector-registry.cjs` (connector coverage ledger) AND `build-orchestration-projection.cjs` (`command_gaps`). The plan's own Task-1 guard + the navigator-approval note + the executor STOP instruction all require: confirm the live ledgers show ZERO un-decided gaps FIRST; if any genuine gap remains, STOP rather than ship a RED gate.
 
 **Finding (two distinct coverage planes):**
+
 - `data/connector-coverage-ledger.json` = **81 wired / 43 excluded / 0 gap** -- the moat-surface (command/skill/agent) plane. `node scripts/build-connector-registry.cjs --check` exits 0. THIS is the gap=0 baseline the navigator approval references verbatim. Flipping THIS gate is safe.
 - `data/orchestration-command-ledger.json` = **69 ranked / 17 excluded / 15 gap** -- the `mindrian-operation` command-counterpart plane (R5). 15 bare commands neither ranked nor excluded: /mos:brain-derive, /mos:correct-reference-now, /mos:explain-decision, /mos:feynman-timeline-refresh, /mos:heal, /mos:onboard, /mos:organize, /mos:present, /mos:query, /mos:radar, /mos:room, /mos:speakers, /mos:vault, /mos:visualize, /mos:wiki. `build-orchestration-projection.cjs --check` reports these WARN-only today; flipping `command_gaps` to hard-FAIL turns this gate RED (exit 1), and Task 2 wires it into pre-commit + release.sh + doctor --acceptance -> CI RED at every merge.
 
@@ -1834,6 +1835,8 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-23T10:09:21.852Z
-Stopped at: Phase 172 Plan 15 COMPLETE (transform on curated_chains + projection FEEDS_INTO; multiplicative multi-hop chain-confidence composition; DI-172-09-01 projection STALE cleared)
-Resume path: Phase 172 Plan 15 is COMPLETE (commits 8149ed0c transform-on-edges, 2c53b155 RED composition test, 3d9f5cbb GREEN multiplicative composition). The LOCAL chain model now mirrors the verified Brain {confidence, transform} FEEDS_INTO schema and composes multi-hop confidence multiplicatively (SPFO reduce); `node scripts/build-orchestration-projection.cjs --check` exits 0 (DI-172-09-01 cleared by the regen picking up the 172-12 ingest-methodology counterpart); `bash tests/run-all-172.sh` 16/16. The hard-FAIL flip of the RETRO-07 coverage gate is still Wave-7 / Plan 172-13 -- `--check` must NOT exit non-zero on the WARN-only command-gaps before then.
+Last session: 2026-06-23T11:30:26.134Z
+Stopped at: Phase 172 Plan 13 COMPLETE (the full flip: both gates hard-FAIL + four-class canon v1.15)
+Resume path: Phase 172 Plan 13 is COMPLETE (commits 7858e79f flip+propagate, 34160b84 four-surface wiring, 75451e52 hard-fail proof, 74b0b8c1 four-class canon v1.15). BOTH CIRS coverage gates now hard-FAIL: build-connector-registry.cjs + build-orchestration-projection.cjs `--check` exit non-zero on any surface neither WIRED nor EXCLUDED (and any command counterpart neither ranked nor excluded), wired into pre-commit + install-pre-commit + release.sh (Step 2.4) + doctor --acceptance (coverage-gate point). The projection-exclude reconciliation propagated the 10 connector-EXCLUDED bare-command counterparts into the projection (projection now 76 ranked / 25 excluded / 0 gap); BOTH ledgers gap=0 (connector 88/36/0). Canon Part 11 R1 carries the verbatim four-class governance-ISA sentence (mechanical/framework/intelligence/pipeline); coverageReport() carries a per-surface class enum (counts unchanged); canon v1.14 -> v1.15 (Appendix D entry 26 + CANON-PHASE-MAP row). Fences: tests/test-coverage-gate-hardfail.cjs 14/14, tests/test-cirs-four-class-floor.cjs 23/23, bash tests/run-all-172.sh 18/18. The born-wired hard gate is now enforced at every merge -- the structural cure for the 143.x/144.1 regression. See 172-13-SUMMARY.md.
+
+**Phase 172 Plan 13 (this session):** the navigator-approved "full flip" (2026-06-23 "go on!"). Task 1 (7858e79f): flipped the gap WARN to hard-FAIL in BOTH generators + the projection-exclude reconciliation (classifyCommandNode reads the connector-coverage-ledger excluded set; the 10 bare-command gaps -- brain-derive/correct-reference-now/feynman-timeline-refresh/heal/onboard/organize/query/radar/vault/visualize -- were ALL connector-excluded, propagated to projection-excluded, gap 10 -> 0). Task 2 (34160b84): wired both --check gates into all four enforcement surfaces (pre-commit connector-guard broadened to agents/*.md + coverage-ledger; install-pre-commit splice + fresh-hook body; release.sh Step 2.4; doctor --acceptance coverage-gate point). Task 3 (75451e52): tests/test-coverage-gate-hardfail.cjs (14) proves a dark fixture trips the gate RED -- copied into commands/ under a temp probe, spawned, removed in finally (zero tracked-file mutation). Task 4 (74b0b8c1): four-class governance-ISA atomic lockstep wave -- Part 11 R1 verbatim four-class sentence + two-wires capability-vs-permission + R9 doctor --drift scheduled surface + Appendix D entry 26 + version 1.14->1.15 + CANON-PHASE-MAP row + coverageReport() class enum (counts unchanged 88/36/0) + tests/test-cirs-four-class-floor.cjs (23). No new edge/node/reach/Brain-wire; no em-dashes. 4 atomic commits + this docs commit. See 172-13-SUMMARY.md.
