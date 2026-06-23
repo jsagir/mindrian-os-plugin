@@ -1848,6 +1848,18 @@
       "from": "S-Curve Analysis",
       "to": "Dominant Design",
       "confidence": 0.69
+    },
+    {
+      "kind": "feeds_into",
+      "from": "command:/mos:find-bottlenecks",
+      "to": "command:/mos:pipeline",
+      "confidence": 0.68
+    },
+    {
+      "kind": "feeds_into",
+      "from": "command:/mos:pipeline",
+      "to": "framework:Scenario Planning",
+      "confidence": 0.64
     }
   ]
 }

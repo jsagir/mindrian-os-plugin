@@ -35,6 +35,7 @@ CJS_SUITES=(
   test-coverage-rollup.cjs
   test-curated-chains-ranking.cjs
   test-act-governed-selection.cjs
+  test-act-cross-class-chain.cjs
   test-reach-ids-drift.cjs
   test-posture-ids-drift.cjs
 )

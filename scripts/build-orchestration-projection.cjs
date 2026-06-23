@@ -498,28 +498,47 @@ function makeAddEdge(nodeIds, edges, seen) {
 }
 
 // ---------------------------------------------------------------------------
-// curatedChainEdges(commandReg, addEdge) -- emit CHAINS / FEEDS_INTO /
+// curatedChainEdges(commandReg, ..., addEdge) -- emit CHAINS / FEEDS_INTO /
 // PREREQUISITE edges from command-registry.curated_chains, where present. Each
 // curated_chains entry is { kind, from, to } with kind in CHAIN_KIND_TO_EDGE_TYPE
 // (chain -> CHAINS, feeds_into -> FEEDS_INTO, prerequisite -> PREREQUISITE) and
-// from/to being framework names (framework -> framework) OR reach ids
-// (reach -> reach, for FEEDS_INTO progressions). The from/to strings are mapped
-// to node ids: a known framework name -> framework:<name>, a known reach id ->
-// reach:<id>. addEdge throws on a dangling endpoint, so a curated_chains entry
-// that references an unknown framework/reach FAILS the build (referential
-// integrity). curated_chains is EMPTY today, so this emits ZERO chaining edges;
-// the empty-state is made LEGIBLE by the projection's generated_note (NOT
-// silent). Returns the count emitted.
+// from/to being:
+//   - a framework name (framework -> framework), OR
+//   - a reach id (reach -> reach, for FEEDS_INTO progressions), OR
+//   - a COMMAND / counterpart endpoint (Phase 172-08 cross-class chaining,
+//     navigator directive 2026-06-23): an EXPLICIT `command:/mos:<slug>` id
+//     (the exact counterpart-node id the projection already carries from Plan
+//     03), so a curated_chains entry may connect a command/pipeline counterpart
+//     to a framework -- realizing command -> pipeline -> framework.
+// The from/to strings are mapped to node ids: a bareword known framework name ->
+// framework:<name>, a bareword known reach id -> reach:<id>, an EXPLICIT
+// `command:<slug>` that matches a real command node -> that node id. addEdge
+// THROWS on a dangling endpoint, so a curated_chains entry that references an
+// unknown framework/reach/command STILL FAILS the build (referential integrity
+// is PRESERVED, not weakened: only the set of resolvable endpoint KINDS grows;
+// an endpoint that resolves to no projection node still throws). Returns the
+// count emitted.
 // ---------------------------------------------------------------------------
-function curatedChainEdges(commandReg, frameworkNodeIds, reachNodeIds, addEdge) {
+function curatedChainEdges(commandReg, frameworkNodeIds, reachNodeIds, commandNodeIds, addEdge) {
   const chains = commandReg && Array.isArray(commandReg.curated_chains)
     ? commandReg.curated_chains
     : [];
+  const cmdIds = (commandNodeIds && typeof commandNodeIds.has === 'function')
+    ? commandNodeIds
+    : new Set();
   let emitted = 0;
-  // Resolve an endpoint string to a node id: prefer a framework node, then a
-  // reach node. addEdge() rejects anything that resolves to no node.
+  // Resolve an endpoint string to a node id. An EXPLICIT `command:` prefix
+  // resolves against the command counterpart node set (cross-class endpoint);
+  // a bareword resolves as a framework name, then a reach id (back-compat). An
+  // endpoint that resolves to no node returns the raw string so addEdge throws a
+  // clear dangling-endpoint error (referential integrity preserved).
   const resolve = (s) => {
     if (typeof s !== 'string' || !s) return null;
+    // Cross-class: an explicit command/counterpart endpoint id.
+    if (s.indexOf('command:') === 0) {
+      if (cmdIds.has(s)) return s;
+      return s; // unknown command counterpart -> addEdge throws (dangling)
+    }
     const fwId = 'framework:' + s;
     if (frameworkNodeIds.has(fwId)) return fwId;
     const reachId = 'reach:' + s;
@@ -717,7 +736,7 @@ function buildProjection() {
   // CHAINS / FEEDS_INTO / PREREQUISITE: from command-registry.curated_chains
   // (EMPTY today -> zero edges + the chain-layer note below). Never fabricated.
   const curatedChainCount = curatedChainEdges(
-    commandReg, frameworkNodeIds, reachNodeIds, addEdge
+    commandReg, frameworkNodeIds, reachNodeIds, commandNodeIds, addEdge
   );
 
   // CROSS_DOMAIN_ANALOGUE: one edge per cross-domain-analogues.json pair (>=2,
