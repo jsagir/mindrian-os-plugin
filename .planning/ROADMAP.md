@@ -2999,7 +2999,14 @@ Plans:
 
 **Related research (mindrianOS Data Room):** `solution-design/design-mcp-room-deck-and-palette-binding.md` (inline-view parity gap), `product-evolution/design-mcp-connector-authoring-path.md` (design-system brand backend, DesignSync writable path + the live MindrianOS Design System). Per Canon Part 6, mirror the phase intent into the Data Room solution-design section.
 
-**Status:** SPEC.md written + committed 2026-06-23 (14 requirements, ambiguity 0.16, gate passed; commit 4961af7f). Next: `/gsd-discuss-phase 173`.
+**Plans:** 3 plans in 2 waves (planned 2026-06-23). Scope: R1-R7 + R12 (the selector). R8-R11/R13-R14 deferred to Phase 175.
+
+Plans:
+- [ ] 173-01-PLAN.md — data/publish-needs.json need->command map (R2) + show-the-unseen tag (R7) + --check validator + role_blend->lane mapper (R6)
+- [ ] 173-02-PLAN.md — /mos:show F.1 JTBD selector front door (R1, R3 resolution) + born-wired CIRS connector + cirs_relationship (R5, R12)
+- [ ] 173-03-PLAN.md — show/share trigger sensor SENS-SHOW (R4) + dispatchSensors registration + cross-surface note (R12) + end-to-end R1-R7 flow test
+
+**Status:** PLANNED 2026-06-23 (3 plans, 2 waves; SPEC.md committed 4961af7f). Next: `/gsd-execute-phase 173`.
 
 ### Phase 174 - Hypothesis-Based Ignite Starting Point (SEEDED 2026-06-23 - spec later)
 
