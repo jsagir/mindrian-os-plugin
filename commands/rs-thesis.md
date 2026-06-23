@@ -18,6 +18,19 @@ allowed-tools:
   # mcp__mindrian-brain__read_neo4j_cypher intentionally removed (BUG 2 fix):
   # RSDiscovery is USER DATA (Canon Part 8 -- LOCAL -> BRAIN: NO). The remote
   # Brain must never be called from this command. Always uses Tier 0 SQLite.
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-02]
+  reach_id: context_block
+  sub_mode: reverse-salient-thesis
+  framework: "Reverse Salient Analysis"   # MUST match the existing frameworks: value
+  posture: pull_back
+  hierarchy_rank: 5
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:rs-thesis
