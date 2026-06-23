@@ -112,8 +112,8 @@ const TIER_OP = 'mindrian-operation';
 // hard-FAIL flip is Wave 4 / Plan 172-13.
 const EXCLUDED_COMMANDS = Object.freeze({
   '/mos:doctor': 'Health-check / diagnostic utility; runs the install + acceptance gates. Pure machinery with no thinking-surface trigger, chain, or monitor; warrants no mindrian-operation counterpart.',
-  '/mos:dashboard': 'Render-only De Stijl dashboard view over room/. A presentation utility, not a reach-dispatched thinking surface.',
-  '/mos:admin': 'Destructive administrative utility (room/registry maintenance). System plumbing, never a context-triggered reach.',
+  '/mos:dashboard': 'Render-only De Stijl dashboard view over the room folder. A presentation utility, not a reach-dispatched thinking surface.',
+  '/mos:admin': 'Destructive administrative utility (room and registry maintenance). System plumbing, never a context-triggered reach.',
   '/mos:models': 'Model-profile inspection utility. Configuration surface, not a thinking-surface trigger.',
   '/mos:setup': 'One-time setup / connection utility (graph, brain). Bootstrap plumbing, not a reach.',
   '/mos:help': 'Help / command-listing utility. Discovery surface, not a thinking-surface trigger.',

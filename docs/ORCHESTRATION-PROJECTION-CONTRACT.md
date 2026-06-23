@@ -130,6 +130,46 @@ The wired-XOR-allowlisted ledger `data/orchestration-unwired-allowlist.json` is 
 
 A deliberately un-wired fixture (`tests/fixtures/orchestration-unwired/UNWIRED-FIXTURE.md`) declares a framework with NO `connector:` block and proves `validateProjection` flags it UN-WIRED. The fixture lives under `tests/fixtures/` and is NEVER walked by the live generator's `listSourceFiles()` (which walks `commands/` + `skills/` + `agents/` only), so the real-repo `--check` stays exit 0.
 
+## 4e. The mindrian-operation counterpart node + the R8 promotion path (Phase 172-03, INV-04/05/06)
+
+Phase 157 made the projection FRAMEWORK-grained: the `--check` UN-WIRED leg fires on a framework that reaches no reach. That left a hole: a NON-framework command (`/mos:act`, `/mos:causal`, the `rs-*` thinking family) could ship DARK because it carries no `:Framework` node to be UN-WIRED against, and the UN-RANKED leg early-continued on any node lacking `reach_id`. Phase 172-03 closes the hole at the COMMAND grain (Canon Part 11 R1/R5/R8).
+
+### The mindrian-operation COUNTERPART node (INV-05)
+
+A non-framework command that SHOULD participate in trigger / chain / monitor gets a `mindrian-operation` COUNTERPART node in the projection. The counterpart is NOT a `pws` framework node and it is NOT a room.db Part-9 node (Canon Part 11 R5: the counterpart lives in the CONTROL-plane projection, the methodology_tier-tagged generic-machinery graph, never the DATA-plane room.db). It carries ONLY the connector ranking inputs the projection already allows for any command node:
+
+- `reach_id` (one of the frozen 6), `hierarchy_rank`, `posture` (one of the frozen 3), `sensor_triggers` (SENS ids), and the `chain_provenance` block.
+
+So a counterpart CHAINS via the existing `OPERATES` / `CHAINS` / `PREREQUISITE` edges (section 3) even WITHOUT a `pws` framework behind it. It is generic machinery metadata throughout (a command slug, a reach_id, ranking enums); it NEVER carries user content (Part 8, T-172-05).
+
+### The command-grained wired-XOR-excluded ledger (INV-04)
+
+Every command-kind node is classified into EXACTLY one of three states, mirroring the framework-grained wired-XOR-allowlisted ledger (`data/orchestration-unwired-allowlist.json`) at the COMMAND grain:
+
+| State | Meaning |
+|-------|---------|
+| `ranked` | The command carries `reach_id` + `hierarchy_rank` + `posture` - a wired `mindrian-operation` counterpart. |
+| `excluded` | The command is a utility (doctor / dashboard / setup / help / export / publish / rooms / snapshot / admin / models / ...) listed with a documented REASON. A first-class CONFORMANT terminal state (R1), NEVER dark. An excluded command REQUIRES a reason (T-172-06: it can never be silently both-excluded-and-reasonless). |
+| `gap` | A bare command (no `reach_id`) that is NOT excluded: a DARK command that warrants a counterpart but has none yet. These surface in `validateProjection().command_gaps` instead of silently shipping (the INVERSION of the old early-continue). |
+
+The ledger is `data/orchestration-command-ledger.json`: `{ generated_note, counts:{ranked, excluded, gap, total}, commands:[{command, source, state}] }`, sorted by command, GENERATED (never hand-authored, BOG-03) and STALE-byte-checked in `--check`. The XOR invariant holds by construction: `counts.ranked + counts.excluded + counts.gap === counts.total === the command-node count`. At THIS stage `command_gaps` is reported WARN-only (D-172-e); the hard-FAIL flip is Wave 4 / Plan 172-13.
+
+### The PROMOTION PATH (R8 / INV-06)
+
+A capability moves along a single explicit, navigator-gated path:
+
+```
+dark command  ->  mindrian-operation counterpart  ->  pws frontier framework
+   (a gap)          (this phase: wire a connector,        (if it earns a methodology,
+                     it ranks + chains in the              via the Phase 171 ingest
+                     projection)                           pipeline)
+```
+
+1. **dark -> counterpart.** A `gap` command is wired with a connector (reach_id + ranking inputs) OR explicitly excluded with a reason. It then ranks and chains as a `mindrian-operation` node in the SANCTIONED projection.
+2. **counterpart -> frontier framework.** A PROVEN counterpart that earns a real methodology is promoted to a `pws` frontier `:Framework` via the Phase 171 methodology-ingest pipeline (`lib/core/methodology-ingest.cjs` `ingestPlan` - the 6-step plan: encode -> boundary-gate -> graph-write -> vector-write -> trigger -> register; `commands/ingest-methodology.md` is the maintainer surface). The ingest step 5 (`trigger`) wires the sensor/reach + dispatch map, exactly the counterpart's ranking inputs.
+
+Promotion is navigator-gated (Canon Part 3 Decision Gate + Part 9 role 5: the human confirms truth). It is METADATA RECLASSIFICATION within the already-sanctioned projection: a node's `methodology_tier` moves `mindrian-operation -> pws` when the ingest lands its `:Framework`. **Promotion mints NO NEW NODE TYPE** (Canon Part 11 constraint): the projection's closed node-kind set (`command | skill | agent | framework | reach | sub_mode`) and its closed `ALLOWED_EDGE_TYPES` are UNCHANGED; promotion reuses the `framework` kind that already exists. No new Brain wire opens; the projection stays a Brain-derived LOCAL cache (section 4c).
+
 ## 4b. The hats reach + the sensor-firability assumption
 
 **The hats reach is a first-class PRE-SCORED reach node, NOT an un-wired orphan.** Do NOT write "hats has no sensor" -- that is FALSE. `/mos:think-hats` carries `sensor_triggers: [SENS-05]` and `reach_id: hats` in `data/connector-registry.json` (Phase 148 D-09 minted `hats` as the real 6th machine reach_id). `hats` is one of the 6 frozen `REACH_IDS` and is NEVER silently dropped from the projection or the wiring-completeness matrix; it appears as a `mindrian-operation` reach node like the other five.
