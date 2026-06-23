@@ -1082,6 +1082,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:show",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-SHOW"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "jtbd-need-selector",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 53,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:speakers",
       "source": "command",
       "connects_to_spine": true,
@@ -1578,6 +1595,9 @@
       "/mos:file-meeting",
       "/mos:map-unknowns",
       "/mos:memory-cortex-reach"
+    ],
+    "SENS-SHOW": [
+      "/mos:show"
     ]
   },
   "framework_index": {
