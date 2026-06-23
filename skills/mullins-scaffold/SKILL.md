@@ -8,6 +8,18 @@ description: >
   room, running an opportunity assessment, or structuring a Data Room around
   a market-attractiveness lens. Backed by skills/mullins-scaffold/scaffold.json
   (the section definitions and prompts).
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: brain_consult
+  sub_mode: mullins-scaffold
+  posture: hold
+  hierarchy_rank: 13
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # Mullins Scaffold -- Seven Domains of Attractive Opportunities

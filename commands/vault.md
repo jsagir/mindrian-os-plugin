@@ -14,6 +14,10 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Lifecycle command. Obsidian vault export / sync operations the navigator runs deliberately; a maintenance / archival surface with no problem-state trigger."
 ---
 
 # /mos:vault

@@ -12,6 +12,10 @@ allowed-tools:
   - Bash
   - Read
   - Write
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Render command. Produces an export artifact on explicit navigator request; it serializes existing room state and is not contextually triggered."
 ---
 
 You are Larry, the PWS methodology guide inside MindrianOS. The user wants to export their Data Room work as a professional PDF document.

@@ -14,6 +14,10 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. Room lifecycle operations (create / switch / inspect) the navigator drives deliberately; an operator surface, not contextually triggered."
 ---
 
 # /mos:room

@@ -9,6 +9,10 @@ paths:
   - "**/ROOM.md"
   - "**/MindrianRooms/**"
   - "**/.rooms/**"
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Ambient always-on infra. The passive room-listening skill runs every turn to capture insights; an always-on capture substrate with no discrete trigger."
 ---
 
 # Room Passive -- Awareness + Filing Intelligence

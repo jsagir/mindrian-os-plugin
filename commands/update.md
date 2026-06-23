@@ -10,6 +10,10 @@ allowed-tools:
   - Bash
   - Read
   - AskUserQuestion
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Lifecycle command. Plugin update / upgrade surface the navigator runs deliberately; a maintenance action with no problem-state trigger."
 ---
 
 # /mos:update

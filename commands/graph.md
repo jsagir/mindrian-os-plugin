@@ -10,6 +10,18 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: graph-explore
+  posture: hold
+  hierarchy_rank: 9
+  filing: none
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:graph

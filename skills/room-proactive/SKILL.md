@@ -9,6 +9,10 @@ paths:
   - "**/ROOM.md"
   - "**/MindrianRooms/**"
   - "**/.rooms/**"
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Ambient always-on infra. The proactive cross-relationship scan runs after every filing as part of the ambient loop; a continuous substrate, not a single problem-state reach."
 ---
 
 # Room Proactive -- Gap, Contradiction, and Convergence Detection

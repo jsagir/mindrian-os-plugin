@@ -5,6 +5,10 @@ description: >
   modes (Just Talk, Explore+Capture, Build a Room) with persona detection and
   framework chain selection for Mode 2.
 activation: no_room
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Ambient always-on infra. The Shape F.1 lane-picker / mode-selection skill runs every turn to set the conversational mode; substrate, not a triggered reach."
 ---
 
 # Conversation Mode -- No-Room Session Behavior

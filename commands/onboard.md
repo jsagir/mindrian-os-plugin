@@ -14,6 +14,10 @@ allowed-tools:
   - Write
   - Bash
   - WebFetch
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Lifecycle command. The onboarding / first-run flow; a one-time setup surface driven by install state, not by a navigator problem-state trigger."
 ---
 
 # /mos:onboard

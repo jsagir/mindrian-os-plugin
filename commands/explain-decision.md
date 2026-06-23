@@ -7,6 +7,10 @@ serves_jtbd: ["audit-room"]
 teaching: "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it."
 disable-model-invocation: true
 allowed-tools: Bash(node *)
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. Explains a prior decision as a graph path on explicit navigator request; a read-only explainability surface today. INV-06 promotion candidate (a future contextual trigger on a contested decision is plausible), excluded for now."
 ---
 
 # /mos:explain-decision

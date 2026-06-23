@@ -3,6 +3,10 @@ name: context-engine
 description: >
   Session context management and user memory. Relevant for managing USER.md,
   tracking user preferences, and providing context-aware greetings across sessions.
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Ambient always-on infra. Assembles conversational context every turn; a continuous substrate skill with no discrete problem-state trigger."
 ---
 
 # Context Engine -- Session Continuity

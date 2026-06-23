@@ -14,6 +14,10 @@ allowed-tools:
   - Bash
   - Read
   - Write
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Lifecycle command. Repairs / heals room or install state when the navigator or recovery flow runs it; a maintenance action, not a navigator problem-state reach."
 ---
 
 # /mos:heal

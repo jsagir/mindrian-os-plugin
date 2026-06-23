@@ -12,6 +12,10 @@ teaching: "Deprecated alias. Use /mos:graph to ask natural-language questions of
 allowed-tools:
   - Read
   - Bash
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Deprecated command. Superseded by /mos:graph for natural-language room queries; retained only for compatibility, so it carries no problem-state trigger. INV-06 promotion candidacy is moot given deprecation."
 ---
 
 # /mos:query

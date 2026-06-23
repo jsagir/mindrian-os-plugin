@@ -6,6 +6,18 @@ state-file: ~/.mindrian/mva/<session-id>.json
 state-condition: pending && !running
 interactive_first_reward: instant_brief
 canon_parts: [Part 2, Part 8, Part 10]
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: mva-pipeline
+  posture: push_forward
+  hierarchy_rank: 12
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # The 30-second MVA skill

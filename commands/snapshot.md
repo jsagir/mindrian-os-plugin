@@ -14,6 +14,10 @@ requires: room
 allowed-tools:
   - Bash
   - Read
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Lifecycle command. Captures a room snapshot on explicit navigator request or schedule; a maintenance / archival action, not contextually triggered."
 ---
 
 # /mos:snapshot

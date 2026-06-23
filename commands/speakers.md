@@ -10,6 +10,10 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
   - Bash
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. Speaker / diarization management for meeting capture, run on explicit navigator request; a capture-config surface, not contextually triggered."
 ---
 
 # /mos:speakers

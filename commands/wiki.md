@@ -9,6 +9,10 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Render command. Opens the localhost wiki view of the room on explicit navigator request; a read-only render surface with no problem-state trigger."
 ---
 # /mos:wiki
 

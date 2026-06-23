@@ -15,6 +15,10 @@ allowed-tools:
   - WebSearch
   - mcp__tavily__tavily-search
   - mcp__mindrian-brain__brain_query
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Lifecycle command. Manages scheduled / background sweeps; a scheduler-config surface run by the navigator or cron, not a contextual reach."
 ---
 
 # Cowork Scheduled Tasks

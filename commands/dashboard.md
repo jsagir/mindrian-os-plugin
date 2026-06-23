@@ -10,6 +10,10 @@ argument-hint: [live|stop|open]
 allowed-tools:
   - Bash
   - Read
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Render command. Opens the De Stijl room dashboard on explicit navigator request; it visualizes existing state and carries no problem-state trigger."
 ---
 
 <!-- License: BUSL-1.1. MindrianOS Plugin, Jonathan Sagir, 2026. -->

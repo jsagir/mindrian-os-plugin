@@ -10,6 +10,10 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Render command. Builds a presentation view on explicit navigator request; it renders existing artifacts and carries no problem-state trigger."
 ---
 
 # /mos:present

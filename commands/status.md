@@ -10,6 +10,10 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash(node scripts/mos-status.cjs:*)
   - Read
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Render command. Shows current room status on explicit navigator request; a read-only status render, not a contextual reach."
 ---
 
 # /mos:status
