@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
-status: executing
-stopped_at: Phase 172 Plan 05 COMPLETE (INV-02 -- half-wired set emptied: causal/diagnostics->context_block, hat-briefing/persona->hats + the hats engine case; gap 58 -> 54)
-last_updated: "2026-06-23T07:40:00.000Z"
+status: verifying
+stopped_at: Phase 172 Plan 02 COMPLETE (CIRS R12 forward-declaration contract + gate hook)
+last_updated: "2026-06-23T08:18:02.681Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
   completed_phases: 6
-  total_plans: 40
-  completed_plans: 40
+  total_plans: 39
+  completed_plans: 39
   percent: 100
 ---
 
@@ -355,7 +355,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 172 (contextual-invocation-coverage) — EXECUTING
-Plan: 3 of 14 (Plans 01 + 02 COMPLETE)
+Plan: 4 of 14 (Plans 01 + 02 COMPLETE)
 
 ### Phase 172 Plan 02 (CIRS R12 forward-declaration contract + gate hook, Wave 1, autonomous) COMPLETE
 
@@ -851,6 +851,7 @@ Progress: [█████████░] 92%
 | Phase 166 P07 | 5min | 2 tasks | 4 files |
 | Phase 167 P01 | 25min | 3 tasks | 7 files |
 | Phase 167 P02 | 20min | 2 tasks | 3 files |
+| Phase 172 P06 | ~25min | 2 tasks | 55 files |
 
 ## Accumulated Context
 
@@ -1736,6 +1737,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 163-02: domain/subdomain/focus_area minted as first-class typed nodes via typed-domain.cjs; truth-claim domains land proposed (Part 9 role 5), pure-taxonomy domains system-confirmed (v1.5 carve-out); linkDomainToRelated writes the four domain edges via the navigation.writeEdge chokepoint only
 - [Phase ?]: Phase 167 Plan 01: harness manifest is a 3-MAP DIGEST (data/harness-manifest.json via build-harness-manifest.cjs) naming the three maps by role+path+sha256-digest+source_count, never per-surface; recipe-maps loadManifest() wraps not retires (D-167-02); --check + planted-secret Part 8 scan gate it; run-all-167.sh 6/6 green
 - [Phase ?]: Phase 167 Plan 02 (D-167-03 BOTH): the harness-manifest --check is now a LIVE commit-time gate -- a path-scoped guard (manifest + generator + the three named source maps) in BOTH the untracked .git/hooks/pre-commit (beside the command-registry + brain-packet-schema guards) AND the tracked scripts/install-pre-commit.sh template (both splice + fresh-file HOOK_BODY branches, idempotency extended) so a fresh clone inherits it; exit-2 (live) / exit-1 (template) on drift with a regenerate recovery line; proven to fire RED on staged staleness + reject a real commit end-to-end, then restored. STRONGER than the connector/projection precedent (whose --checks run only in test aggregators). tests/test-harness-manifest-precommit-wiring.cjs (6 checks) fences the template wiring; run-all-167.sh 7/7 green (the Wave-1 --check CI leg satisfies BOTH)
+- [Phase ?]: 172-06: residual dark surface set exhaustively classified 79 wired / 43 excluded-with-reason; only /mos:act + /mos:ingest-methodology remain gap (Plans 08/12 own them); gate WARN-only until Plan 13 hard flip
 
 ### Pending Todos
 
@@ -1776,6 +1778,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-23T07:10:00.000Z
+Last session: 2026-06-23T08:17:57.736Z
 Stopped at: Phase 172 Plan 02 COMPLETE (CIRS R12 forward-declaration contract + gate hook)
 Resume path: Phase 172 Plan 01 (CIRS R1/R2 gate substrate) is COMPLETE -- the EXCLUDE state + the wired-XOR-excluded coverage ledger (data/connector-coverage-ledger.json) + the warn-only gap report are shipped and test-fenced (commits 8471aa3b, 0e6fe19c, 6a0b52b0). Next: `/gsd-execute-phase 172` Plan 02 (R12 cirs_relationship contract + CANON-PHASE-MAP CIRS column + gate hook, per the 172 plan map). The hard-FAIL flip of the RETRO-07 coverage gate is Wave-7 / Plan 172-13 -- do NOT make `--check` exit non-zero on gaps before then.
