@@ -418,7 +418,22 @@
       "id": "command:/mos:dashboard",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:dashboard"
+      "name": "/mos:dashboard",
+      "reach_id": "context_block",
+      "sub_mode": "room-dashboard",
+      "hierarchy_rank": 11,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:dashboard",
+        "reach_id": "context_block",
+        "sub_mode": "room-dashboard"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "room-dashboard",
+        "hierarchy_rank": 11,
+        "posture": "hold"
+      }
     },
     {
       "id": "command:/mos:deep-grade",
@@ -676,7 +691,22 @@
       "id": "command:/mos:explain-decision",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:explain-decision"
+      "name": "/mos:explain-decision",
+      "reach_id": "context_block",
+      "sub_mode": "decision-explain",
+      "hierarchy_rank": 16,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:explain-decision",
+        "reach_id": "context_block",
+        "sub_mode": "decision-explain"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "decision-explain",
+        "hierarchy_rank": 16,
+        "posture": "hold"
+      }
     },
     {
       "id": "command:/mos:explore-domains",
@@ -1678,7 +1708,22 @@
       "id": "command:/mos:present",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:present"
+      "name": "/mos:present",
+      "reach_id": "context_block",
+      "sub_mode": "room-present",
+      "hierarchy_rank": 13,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:present",
+        "reach_id": "context_block",
+        "sub_mode": "room-present"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "room-present",
+        "hierarchy_rank": 13,
+        "posture": "hold"
+      }
     },
     {
       "id": "command:/mos:publish",
@@ -1765,7 +1810,22 @@
       "id": "command:/mos:room",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:room"
+      "name": "/mos:room",
+      "reach_id": "context_block",
+      "sub_mode": "room-view",
+      "hierarchy_rank": 15,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:room",
+        "reach_id": "context_block",
+        "sub_mode": "room-view"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "room-view",
+        "hierarchy_rank": 15,
+        "posture": "hold"
+      }
     },
     {
       "id": "command:/mos:rooms",
@@ -2059,7 +2119,22 @@
       "id": "command:/mos:speakers",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:speakers"
+      "name": "/mos:speakers",
+      "reach_id": "context_block",
+      "sub_mode": "meeting-speakers",
+      "hierarchy_rank": 17,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:speakers",
+        "reach_id": "context_block",
+        "sub_mode": "meeting-speakers"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "meeting-speakers",
+        "hierarchy_rank": 17,
+        "posture": "hold"
+      }
     },
     {
       "id": "command:/mos:splash",
@@ -2071,7 +2146,22 @@
       "id": "command:/mos:status",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:status"
+      "name": "/mos:status",
+      "reach_id": "context_block",
+      "sub_mode": "room-status",
+      "hierarchy_rank": 14,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:status",
+        "reach_id": "context_block",
+        "sub_mode": "room-status"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "room-status",
+        "hierarchy_rank": 14,
+        "posture": "hold"
+      }
     },
     {
       "id": "command:/mos:structure-argument",
@@ -2383,7 +2473,22 @@
       "id": "command:/mos:wiki",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:wiki"
+      "name": "/mos:wiki",
+      "reach_id": "context_block",
+      "sub_mode": "room-wiki",
+      "hierarchy_rank": 12,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:wiki",
+        "reach_id": "context_block",
+        "sub_mode": "room-wiki"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "room-wiki",
+        "hierarchy_rank": 12,
+        "posture": "hold"
+      }
     },
     {
       "id": "skill:MOSDeckEngine",
@@ -2986,6 +3091,12 @@
       "name": "cross-domain-connect"
     },
     {
+      "id": "sub_mode:decision-explain",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "decision-explain"
+    },
+    {
       "id": "sub_mode:deck-engine",
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
@@ -3110,6 +3221,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "macro-pest"
+    },
+    {
+      "id": "sub_mode:meeting-speakers",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "meeting-speakers"
     },
     {
       "id": "sub_mode:memory-cortex-bridge",
@@ -3278,6 +3395,36 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "reverse-salient-thesis"
+    },
+    {
+      "id": "sub_mode:room-dashboard",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "room-dashboard"
+    },
+    {
+      "id": "sub_mode:room-present",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "room-present"
+    },
+    {
+      "id": "sub_mode:room-status",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "room-status"
+    },
+    {
+      "id": "sub_mode:room-view",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "room-view"
+    },
+    {
+      "id": "sub_mode:room-wiki",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "room-wiki"
     },
     {
       "id": "sub_mode:root-cause-5why",

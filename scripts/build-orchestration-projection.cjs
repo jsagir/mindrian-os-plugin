@@ -65,6 +65,16 @@ const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
 const AGENTS_DIR = path.join(REPO_ROOT, 'agents');
 
 const CONNECTOR_REGISTRY_PATH = path.join(DATA_DIR, 'connector-registry.json');
+// The connector-layer coverage ledger (Phase 172-03 / 143.3). The CONNECTOR
+// generator (build-connector-registry.cjs) is the authority for whether a
+// SURFACE is WIRED or EXCLUDED at the connector layer. Phase 172-13 reconciles
+// the projection to it: a command counterpart whose surface is EXCLUDED in the
+// connector layer is EXCLUDED in the projection command-ledger too (the
+// connector EXCLUDE decision PROPAGATES down), so a deprecated/utility surface
+// excluded once (in its own connector:{excluded} frontmatter, distilled into
+// this ledger) is never re-surfaced as an un-ranked projection gap. Read-only,
+// zero Brain/network (Part 8).
+const CONNECTOR_COVERAGE_LEDGER_PATH = path.join(DATA_DIR, 'connector-coverage-ledger.json');
 const COMMAND_REGISTRY_PATH = path.join(DATA_DIR, 'command-registry.json');
 const ANALOGUES_PATH = path.join(DATA_DIR, 'cross-domain-analogues.json');
 const PROJECTION_PATH = path.join(DATA_DIR, 'brain-orchestration-projection.json');
@@ -130,6 +140,51 @@ const EXCLUDED_COMMANDS = Object.freeze({
   '/mos:scheduled-tasks': 'Scheduled-task management utility. Scheduling plumbing, not a thinking surface.',
   '/mos:mos': 'Top-level command-group alias / router. Dispatch plumbing, not a reach.',
 });
+
+// ---------------------------------------------------------------------------
+// loadConnectorExcludedCommands() -- the projection-exclude RECONCILIATION
+// (Phase 172-13, the navigator-approved "full flip" 2026-06-23). Reads the
+// connector-layer coverage ledger (data/connector-coverage-ledger.json, the
+// distillation of every surface's connector:{excluded:true,reason} frontmatter)
+// and returns the Set of COMMAND surfaces classified `excluded` there. This is
+// the source of truth for PROPAGATING the connector EXCLUDE decision into the
+// projection: a command excluded at the connector layer (a deprecated redirect,
+// a render/utility surface) is excluded in the projection command-ledger too,
+// never re-counted as a bare-command gap. The projection's own EXCLUDED_COMMANDS
+// table stays the AUTHORITATIVE local reason source for projection-native
+// exclusions (doctor/setup/help and the like); the connector-excluded set is an
+// ADDITIVE propagation on top of it (their union is the projection-excluded
+// set). Degrades to an empty Set on any read failure (mirrors readJson). ZERO
+// Brain/network (Part 8).
+// ---------------------------------------------------------------------------
+function loadConnectorExcludedCommands() {
+  const ledger = readJson(CONNECTOR_COVERAGE_LEDGER_PATH);
+  const out = new Set();
+  if (!ledger || !Array.isArray(ledger.surfaces)) return out;
+  for (const s of ledger.surfaces) {
+    if (
+      s &&
+      s.source === 'command' &&
+      s.state === 'excluded' &&
+      typeof s.surface === 'string'
+    ) {
+      out.add(s.surface);
+    }
+  }
+  return out;
+}
+
+// Memoized connector-excluded command Set, lazily loaded once per process so the
+// repeated classifier calls (commandCoverageReport + validateProjection) do not
+// re-read the ledger file. A test may pass an explicit Set to the classifier to
+// bypass the cache.
+let _connectorExcludedCache = null;
+function connectorExcludedCommands() {
+  if (_connectorExcludedCache === null) {
+    _connectorExcludedCache = loadConnectorExcludedCommands();
+  }
+  return _connectorExcludedCache;
+}
 
 // The closed set of node kinds (file-level grain, BOG-04). framework nodes are
 // pws; every other kind is mindrian-operation machinery.
@@ -827,11 +882,24 @@ function loadUnwiredAllowlist() {
 // A ranked-BUT-excluded command is impossible by construction here (a connector
 // surface declares a reach_id; the utility commands declare none), but ranked
 // wins if both ever held, so the XOR stays a true partition.
+//
+// Phase 172-13 (the navigator-approved "full flip" 2026-06-23) PROPAGATES the
+// connector EXCLUDE decision: a command counterpart whose surface is EXCLUDED in
+// the connector layer (in the connector-coverage-ledger excluded set) is
+// `excluded` in the projection too, even if it is not in the projection-native
+// EXCLUDED_COMMANDS table. The projection-excluded set is therefore the UNION of
+// (a) EXCLUDED_COMMANDS (projection-native reasons: doctor/setup/help) and
+// (b) the connector-excluded command set (deprecated redirects, render/utility
+// surfaces excluded in their own connector frontmatter). `connectorExcluded` is
+// an optional Set override for tests; it defaults to the memoized ledger read.
 // ---------------------------------------------------------------------------
-function classifyCommandNode(node) {
+function classifyCommandNode(node, connectorExcluded) {
   if (!node || node.kind !== 'command') return null;
   if (typeof node.reach_id === 'string' && node.reach_id) return 'ranked';
   if (Object.prototype.hasOwnProperty.call(EXCLUDED_COMMANDS, node.name)) return 'excluded';
+  const excludedSet =
+    connectorExcluded instanceof Set ? connectorExcluded : connectorExcludedCommands();
+  if (excludedSet.has(node.name)) return 'excluded';
   return 'gap';
 }
 
@@ -1066,19 +1134,14 @@ function validateProjection(projection) {
 function runCheck() {
   const proj = buildProjection();
   const { stale, unwired, unranked, command_gaps } = validateProjection(proj);
-  // command_gaps is WARN-only at THIS stage (D-172-e): it is reported to stderr
-  // but does NOT exit non-zero, so CI does not go RED mid-sweep while dark
-  // commands are wired across Wave 2/3. The hard-FAIL flip is Wave 4 / Plan
-  // 172-13. STALE / UN-WIRED / UN-RANKED stay hard failures.
-  const all = [...stale, ...unwired, ...unranked];
-  if (Array.isArray(command_gaps) && command_gaps.length) {
-    console.error(
-      'WARN: ' + command_gaps.length + ' command gap(s) (bare commands not ' +
-        'ranked and not excluded). WARN-only this stage (hard-FAIL flips in ' +
-        'Plan 172-13). Wire a counterpart or exclude with a reason:'
-    );
-    console.error(command_gaps.join('\n'));
-  }
+  // Phase 172-13 (the navigator-approved "full flip" 2026-06-23): command_gaps
+  // is now a HARD FAIL, joining STALE / UN-WIRED / UN-RANKED. A bare command
+  // counterpart that is neither ranked NOR excluded (in EXCLUDED_COMMANDS or
+  // propagated from the connector-excluded set) makes --check exit non-zero. The
+  // flip is safe because Plan 172-16 wired/excluded the baseline and this plan
+  // reconciled the projection to gap=0 FIRST, so a clean repo stays exit 0; only
+  // an accidental-dark counterpart trips it. R2/R9/INV-10 step 3.
+  const all = [...stale, ...unwired, ...unranked, ...command_gaps];
   if (all.length) {
     console.error(all.join('\n'));
     console.error(

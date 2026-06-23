@@ -743,6 +743,23 @@ function main() {
     // collision). Any failure is a hard exit 1.
     for (const e of validateConnectors(reg)) errs.push(e);
 
+    // The R9 gap HARD-FAIL (Canon Part 11 R2/R9 / INV-10 step 3; the
+    // navigator-approved "full flip" 2026-06-23). A `gap` surface (neither WIRED
+    // via a connector: block NOR EXCLUDED via connector:{excluded:true,reason})
+    // now makes --check exit non-zero -- it no longer merely warns. The flip is
+    // safe because Plan 172-16 wired/excluded the baseline (counts.gap === 0), so
+    // a clean repo stays exit 0; only an accidental-dark surface trips it. Each
+    // gap names itself + the recovery line (wire it or exclude it with a reason).
+    const gaps = report.surfaces.filter((s) => s.state === 'gap');
+    for (const g of gaps) {
+      errs.push(
+        'GAP: surface "' + g.surface + '" (' + g.source + ') is neither WIRED ' +
+          '(a connector: block) nor EXCLUDED (connector:{excluded:true,reason}). ' +
+          'Wire it or exclude it with a reason. ' +
+          'Run: node scripts/build-connector-registry.cjs'
+      );
+    }
+
     if (errs.length) {
       console.error(errs.join('\n'));
       console.error('Recovery: fix the connector frontmatter (or run --refresh-names), then regenerate: node scripts/build-connector-registry.cjs');
@@ -766,24 +783,8 @@ function main() {
       );
     }
 
-    // The R9 gap WARN+report (Canon Part 11 / D-172-e step 1). For each `gap`
-    // surface, emit a STDERR WARN line naming it. This is WARN-ONLY at this
-    // stage: a gap does NOT exit non-zero. The hard-FAIL flip is Wave 4 / Plan
-    // 172-09; do NOT make a gap fail here. Mirrors the orchestration-unwired
-    // WARN idiom.
-    const gaps = report.surfaces.filter((s) => s.state === 'gap');
-    if (gaps.length > 0) {
-      const preview = gaps.slice(0, 5).map((s) => s.surface).join(', ');
-      const ellipsis = gaps.length > 5 ? '...' : '';
-      process.stderr.write(
-        '[build-connector-registry] WARNING: ' +
-          gaps.length +
-          ' gap surface(s) not wired or excluded (coverage report, warn-only this stage): ' +
-          preview +
-          ellipsis +
-          '\n'
-      );
-    }
+    // (The R9 gap check is now a HARD FAIL folded into `errs` above, before this
+    // success path; a gap surface exits non-zero. Canon Part 11 R2/R9.)
 
     console.log('connector-registry: OK');
     return;
