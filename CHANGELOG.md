@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.14.0-beta.7 (in progress)
+## [1.14.0-beta.7] - 2026-06-23
 
 The v1.14.0-beta train continues: the deck surface consolidates onto one born-wired front door (Phase 175) and Scenario Planning is wired into its canon chain (Phase 176), on top of the beta.5 payload (Canon Part 11 / CIRS, ACE/diffusion, methodology-ingest, /mos:show).
 
