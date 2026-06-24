@@ -90,3 +90,70 @@ whitelist; scope the GA-4 interceptor here vs sibling; the hypothesis blueprint 
   (a stopgap; the SPEC supersedes it).
 - The 4-agent reuse-research fan-out (2026-06-25): captured in 179-RESEARCH.md.
 - Phase 174 seed (174-RESEARCH.md + 174-HANDOFF.md): the hypothesis door, now Door 3 here.
+
+---
+
+## Implementation Decisions (discuss-phase, 2026-06-25)
+
+> The registration frame above is preserved. SPEC.md (`179-SPEC.md`) locked the WHAT
+> (12 requirements, ambiguity 0.125). This section captures the HOW decisions from the
+> discuss-phase interview, for the researcher + planner.
+
+### Spec lock
+`179-SPEC.md` locks 12 requirements (Goal / Boundaries / Constraints / Acceptance). Downstream
+agents MUST read it before planning and treat its requirements + boundaries as fixed. Do NOT
+re-derive WHAT or WHY; this phase is HOW-only from here.
+
+### Decisions captured (HOW)
+
+1. **GA-4 detection signal: registry-keyed PRIMARY + output-text BACKSTOP.** The Stop-hook
+   interceptor's primary signal is the Phase 178 render-coverage registry
+   (`data/render-coverage-registry.json` gate-reaching `entries[]`): a registered gate-reaching
+   surface ran this turn with no AskUserQuestion fired -> intercept. Backstop: scan the turn
+   output for the ASCII-box gate glyphs, catching the literal anti-pattern even for an off-registry
+   surface. Home = the existing `hooks/hooks.json` Stop block. Force = exit-2 block +
+   additionalContext re-prompt; bounded retries then degrade (log + allow) so a card-incapable
+   surface cannot trap the navigator.
+
+2. **Abstraction gate fires ALWAYS (every Door 3 hypothesis), not conditional.** Brain-grounded
+   (brain_ask 2026-06-25): the instances-vs-structures distinction is a Systems Thinking move (the
+   iceberg: events -> patterns -> structure). The lift to structure must be DELIBERATELY surfaced
+   because navigators default to instances and are blind to structure; an ambiguity-detector would
+   trust a heuristic to catch the exact blindspot the navigator already has. Always-fire also kills
+   the net-new classifier risk on the phase's riskiest surface. The 3rd option ("unsure") absorbs
+   the genuinely-undecided navigator.
+
+3. **Hypothesis blueprint family section set: LOCKED as specced.** sections = problem-definition
+   (seeded with the hypothesis) + assumptions + opportunity-bank; default_methodologies =
+   structure-argument / challenge-assumptions / validate / research. Matches the falsify-a-belief
+   job; CI-green via `check-room-blueprints.cjs`. No dedicated `hypotheses` section this phase.
+
+### Wave order (from SPEC; planner refines)
+Wave 1 = the GA-4 interceptor (the R-1 cure precedes everything that depends on a card firing).
+Then: widen the scratchpad whitelist -> 4-door persona-first B1 -> hypothesis family + truth-claim
+filing -> abstraction gate -> CV multiSelect + auto-fire Engine 1 (gate results) -> reconcile the
+two B1 specs. One surface per wave to keep CI green.
+
+### Canonical refs (MANDATORY — full relative paths)
+- `.planning/phases/179-ignite-b1-starting-point-fix/179-SPEC.md` — Locked requirements; MUST read before planning
+- `.planning/phases/179-ignite-b1-starting-point-fix/179-RESEARCH.md` — file:line reuse map (4-agent fan-out)
+- `.planning/phases/179-ignite-b1-starting-point-fix/fanout/persona-hypothesis-archaeology.json` — reuse + persona/CV/hypothesis verdicts + 12 decisions
+- `.planning/phases/179-ignite-b1-starting-point-fix/fanout/render-slip-investigation.json` — the R-1 diagnosis (5-agent)
+- `.planning/phases/174-hypothesis-based-ignite/174-RESEARCH.md` + `174-HANDOFF.md` — Door 3 (absorbed) seed
+- `docs/MINDRIAN-CANON.md` — Parts 1, 2, 2a, 3, 5, 7, 8, 9, 10, 11
+- `scripts/check-render-coverage.cjs` + `scripts/build-render-coverage.cjs` + `data/render-coverage-registry.json` — Phase 178 R15 substrate the GA-4 interceptor keys off
+
+### Code context (reuse map highlights — verified live 2026-06-25)
+- `lib/core/persona-override.cjs` ROLE_BLEND_KEYS — frozen 7-key vocab; import, never redefine
+- `lib/core/scratchpad-ops.cjs` `writeScratchpadBirthAnswer:225-226` — widen whitelist (+role_blend, +blueprint_family, +hypothesis_text)
+- `lib/core/navigation/room-birth.cjs:420-433` — role_blend write at birth; 7-step txn + approvedBy gate UNTOUCHED
+- `lib/core/shallow-doc-parser.cjs` — extractShallow / parseRoleHints (4-of-7) / blendFromCanonicalRole (single-axis) / extractDomains
+- `data/room-blueprints.json` (+`hypothesis` family) + `scripts/check-room-blueprints.cjs` (CI gate)
+- `commands/ignite.md` B1 (canonical, persona-first) / `commands/new-project.md` (demote to B2 scaffold backend)
+- `hooks/hooks.json` Stop block — GA-4 interceptor registration point
+
+### Deferred ideas (preserved, not in scope)
+- Weighted multi-axis role_blend computer + the 3 missing CV detectors (Mentor/Domain Expert/Student) — fast-follow
+- Journey-stage inference — Phase 91
+- Cross-room expert/persona reuse — Part-8-gated deferred amendment
+- Hypothesis sub-hypotheses / meta-hypothesis reframe — Door 3 captures a single falsifiable statement this phase
