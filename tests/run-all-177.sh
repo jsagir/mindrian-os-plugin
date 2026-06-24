@@ -49,6 +49,11 @@ run "bch-08 signal-tier (W4)"         node tests/test-bch-08-signal-tier.cjs
 run "bch-09 forced-material (W5)"     node tests/test-bch-09-forced-material.cjs
 run "bch-14 part8-egress (cross)"     node tests/test-bch-14-part8-egress.cjs
 
+# (a2) Wave-2 deterministic turn-stage seams (Plan 177-04, over the BCH-S1 turn_count).
+#      These are GREEN once 177-04 lands (the eligibility gate + saturation predicate).
+[ -f tests/test-bch-s5-turn-stage-eligibility.cjs ] && run "bch-s5 turn-stage-eligibility (W2)" node tests/test-bch-s5-turn-stage-eligibility.cjs
+[ -f tests/test-bch-s4a-saturation.cjs ]            && run "bch-s4a saturation (W2)"            node tests/test-bch-s4a-saturation.cjs
+
 # (b) carried frozen-set drift fences (additive phase -- these stay GREEN)
 [ -f tests/test-reach-ids-drift.cjs ]   && run "reach-ids-drift (frozen 6)"   node tests/test-reach-ids-drift.cjs
 [ -f tests/test-posture-ids-drift.cjs ] && run "posture-ids-drift (frozen 3)" node tests/test-posture-ids-drift.cjs
