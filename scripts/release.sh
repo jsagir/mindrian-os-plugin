@@ -276,7 +276,7 @@ echo -e "${GREEN}All verification checks passed${NC}"
 # here too keeps the release pipeline self-documenting. Canon Part 8: both
 # regenerate in memory from LOCAL sources; zero Brain / network.
 echo ""
-echo "=== Step 2.4: coverage gates (connector + orchestration-projection --check) ==="
+echo "=== Step 2.4: coverage gates (connector + orchestration-projection + render-coverage --check) ==="
 if ! node "$PLUGIN_DIR/scripts/build-connector-registry.cjs" --check; then
   echo -e "${RED}ABORT: connector coverage gate failed -- a surface is neither WIRED nor EXCLUDED.${NC}"
   echo "  Recovery: node scripts/build-connector-registry.cjs"
@@ -285,6 +285,15 @@ fi
 if ! node "$PLUGIN_DIR/scripts/build-orchestration-projection.cjs" --check; then
   echo -e "${RED}ABORT: orchestration-projection coverage gate failed -- a command counterpart is neither ranked nor excluded.${NC}"
   echo "  Recovery: node scripts/build-orchestration-projection.cjs"
+  exit 1
+fi
+# Phase 178-03 (Canon Part 11 render twin, C-3): the render-coverage gate rides the
+# SAME release surface as the two CIRS gates. A render GAP (a reachable Decision-Gate
+# surface not routed through the SEED-020 card-emission door) is a HARD ABORT before
+# any version mutation -- HARD-FAIL, never WARN (R-5).
+if ! node "$PLUGIN_DIR/scripts/check-render-coverage.cjs" --check; then
+  echo -e "${RED}ABORT: render-coverage gate failed -- a reachable gate surface lacks card-emission routing.${NC}"
+  echo "  Recovery: node scripts/build-render-coverage.cjs"
   exit 1
 fi
 echo -e "${GREEN}  coverage gates passed (no dark surface)${NC}"

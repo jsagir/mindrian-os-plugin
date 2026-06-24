@@ -34,7 +34,7 @@ if [ -f "$HOOK_PATH" ]; then
   # Idempotency: consider the hook fully installed only when ALL guards wired
   # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard +
   # the Phase 172-13 coverage gates: connector --check + projection --check).
-  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH"; then
+  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH"; then
     echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates). No changes."
     exit 0
   fi
@@ -120,6 +120,26 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.
 fi
 HOOK_TRAILER_PROJECTION
   fi
+  if ! grep -q "check-render-coverage.cjs --check" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_RENDER'
+
+# Phase 178-03 (Canon Part 11 render twin, C-3) - render-coverage gate (born-wired
+# HARD-FAIL). The render-plane twin of the connector/projection gates above: when
+# any render entry point (lib/hmi/*, lib/agents/*, lib/render/*, lib/core render
+# surfaces) or the render registry is staged, run the deterministic card-emission
+# predicate and reject the commit on STALE OR any render GAP (a reachable
+# Decision-Gate surface not routed through the SEED-020 card-emission door). A
+# WARN-only render gate is the SKILL fence with extra steps (R-5) and rots like
+# 143.x/144.1 did before the CIRS R9 flip; this is HARD-FAIL (exit 1), never WARN.
+# Canon Part 8: zero Brain calls (a local byte-compare + source scan).
+# Recovery on drift / dark surface: node scripts/build-render-coverage.cjs
+if git diff --cached --name-only | grep -qE '^(lib/hmi/.*\.cjs|lib/agents/.*\.cjs|lib/render/.*\.cjs|lib/core/.*\.cjs|scripts/intent-classifier\.cjs|data/render-coverage-registry\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/scripts/check-render-coverage.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/scripts/check-render-coverage.cjs" --check || { echo "render-coverage drift / dark surface -- run: node scripts/build-render-coverage.cjs" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_RENDER
+  fi
   # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
   # guards in just before it; otherwise append to the end of the hook.
   LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
@@ -177,6 +197,13 @@ fi
 if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/connector-coverage-ledger\.json|data/command-registry\.json|data/cross-domain-analogues\.json|data/orchestration-unwired-allowlist\.json|data/brain-orchestration-projection\.json|data/orchestration-command-ledger\.json)\$'; then
   if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-orchestration-projection.cjs" ]; then
     node "$REPO_ROOT/scripts/build-orchestration-projection.cjs" --check || { echo "orchestration-projection drift / command gap -- run: node scripts/build-orchestration-projection.cjs" >&2; exit 1; }
+  fi
+fi
+# Phase 178-03 (Canon Part 11 render twin, C-3) - render-coverage gate (born-wired HARD-FAIL).
+# Recovery on drift / dark surface: node scripts/build-render-coverage.cjs
+if git diff --cached --name-only | grep -qE '^(lib/hmi/.*\.cjs|lib/agents/.*\.cjs|lib/render/.*\.cjs|lib/core/.*\.cjs|scripts/intent-classifier\.cjs|data/render-coverage-registry\.json)\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-render-coverage.cjs" ]; then
+    node "$REPO_ROOT/scripts/check-render-coverage.cjs" --check || { echo "render-coverage drift / dark surface -- run: node scripts/build-render-coverage.cjs" >&2; exit 1; }
   fi
 fi
 HOOK_BODY

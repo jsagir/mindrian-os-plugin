@@ -2725,7 +2725,7 @@ function buildAcceptanceChecklist(ctx) {
       // surface aborts here. Canon Part 8: both --check gates regenerate in
       // memory from LOCAL sources; zero Brain / network.
       id: 'coverage-gate',
-      label: 'connector + orchestration-projection coverage gates pass (no dark surface)',
+      label: 'connector + orchestration-projection + render-coverage gates pass (no dark surface)',
       severity: 'blocker',
       applies_to: ['pre-tag', 'full'],
       run: async function () {
@@ -2736,6 +2736,11 @@ function buildAcceptanceChecklist(ctx) {
         const gates = [
           { id: 'connector', script: 'build-connector-registry.cjs' },
           { id: 'projection', script: 'build-orchestration-projection.cjs' },
+          // Phase 178-03 (Canon Part 11 render twin, C-3): the render-coverage gate
+          // rides the SAME doctor --acceptance organ as the two CIRS gates. A render
+          // GAP (a reachable Decision-Gate surface not routed through the SEED-020
+          // card-emission door) is a blocker here too -- HARD-FAIL, never WARN (R-5).
+          { id: 'render', script: 'check-render-coverage.cjs' },
         ];
         const results = [];
         for (const g of gates) {
