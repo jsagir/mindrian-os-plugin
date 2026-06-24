@@ -101,9 +101,21 @@ ok('--check prints the OK line', /render-coverage: OK/.test(clean.stdout || ''))
 // ---------------------------------------------------------------------------
 // Assertion 7: C-2 / Part 8 -- no LLM/model/network symbol in the hard gate.
 // ---------------------------------------------------------------------------
+// Mirror the plan's authoritative C-2 / Part 8 grep gate: scan for an LLM-judge /
+// network symbol, but EXCLUDE comment lines and the allowed tokens
+// (askuserquestion_marker, appendAskUserQuestionTrailer, the "card-emission door"
+// prose). A symbol surviving that exclusion in the HARD gate is a breach.
 const src = fs.readFileSync(GATE, 'utf8');
-const banned = /\b(anthropic|brain-client|llm)\b|fetch\s*\(|require\s*\(\s*['"]node:https?['"]/i;
-ok('the gate references no LLM/model/network symbol (C-2 / Part 8)', !banned.test(src));
+const banned = /(AskUserQuestion|model|anthropic|fetch\(|http\b|brain-client|llm|judge)/i;
+const allowed = /askuserquestion_marker|appendAskUserQuestionTrailer|card-emission door/i;
+const offending = src.split(/\r?\n/).filter((line) => {
+  const trimmed = line.trim();
+  if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return false;
+  if (!banned.test(line)) return false;
+  if (allowed.test(line)) return false;
+  return true;
+});
+ok('the gate references no LLM/model/network symbol in non-comment code (C-2 / Part 8)', offending.length === 0);
 
 console.log('\nPASS test-check-render-coverage (' + pass + ' assertions)');
 console.log('>>> test-check-render-coverage.cjs: PASSED');
