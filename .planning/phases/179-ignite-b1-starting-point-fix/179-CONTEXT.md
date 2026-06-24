@@ -9,7 +9,7 @@ absorbs: [174]
 depends_on: [178, 115, 122, 166]
 cirs_relationship:
   surfaces_added:
-    - check-card-fire (GA-4 PostToolUse interceptor)
+    - check-card-fire (GA-4 Stop-hook-class interceptor)
     - cv-second-select (Shape F multiSelect)
     - hypothesis-arrival-door
   surfaces_modified:
@@ -31,7 +31,7 @@ cirs_relationship:
     - lib/core/shallow-doc-parser.cjs
     - data/room-blueprints.json
     - lib/core/room-skeleton-scaffold.cjs
-  gate_impact: "Two coupled fixes to the ignite B1 starting gate. (1) The R-1 card-fire residual: on beta.3 (with R15 shipped) B1 still rendered as flat ASCII instead of firing AskUserQuestion, proving a prose fence does not force the card. The true cure is a GA-4 PostToolUse interceptor that detects a reached-gate turn with no fired card and forces it (the named R-1 debt from Phase 178). (2) The B1 redesign as a persona-first + CV + hypothesis starting point (4 doors), ~80% reuse of the existing role_blend / Phase 115 dual-path / blueprint-family systems, ~15-20% net-new. Absorbs Phase 174 (hypothesis door becomes Door 3). No new reach/edge/node; frozen Part 3 contracts untouched; Part 8 clean."
+  gate_impact: "Two coupled fixes to the ignite B1 starting gate. (1) The R-1 card-fire residual: on beta.3 (with R15 shipped) B1 still rendered as flat ASCII instead of firing AskUserQuestion, proving a prose fence does not force the card. The true cure is a GA-4 Stop-hook-class interceptor (registered in the hooks.json Stop block, NOT PostToolUse -- earlier drafts said PostToolUse; that was doc drift, reconciled in Plan 179-08 IN-01) that detects a reached-gate turn with no fired card and forces it via a decision:'block' Stop-block envelope on exit 0 (a valid Stop-block path, NOT an exit-2 block). It reads the turn by parsing the Stop stdin transcript_path (mirroring scripts/on-stop), the named R-1 debt from Phase 178. (2) The B1 redesign as a persona-first + CV + hypothesis starting point (4 doors), ~80% reuse of the existing role_blend / Phase 115 dual-path / blueprint-family systems, ~15-20% net-new. Absorbs Phase 174 (hypothesis door becomes Door 3). No new reach/edge/node; frozen Part 3 contracts untouched; Part 8 clean."
   explanation: "WHEN / WHICH / SEQUENCE at the front door. The starting gate is where persona (role-blend x journey-stage, Part 2a), arrival (blueprintFamily), and the first hypothesis all get captured. Today B1 renders flat (R-1) and offers only solution/domain/venture. This phase makes B1 fire the card AND captures who-you-are + your-CV + your-hypothesis, threaded into the existing birthRoom contract, so the whole downstream (Engine 1, the team, the first win) is shaped from the real navigator."
 status: context-captured
 severity: NORMAL
@@ -52,8 +52,25 @@ sequence: "Follows Phase 178 (R15 render gate). Absorbs the seeded Phase 174 (hy
    build-fail if it is not wired to emit a card, but it cannot force the model to fire the card at
    runtime - the named R-1 debt. A prose stopgap shipped (commit e22b9ea4) but a prose fence is
    not a guarantee (the agent already ignored the prior "no card, no picture" fence). The true
-   cure is the **GA-4 PostToolUse interceptor**: detect a reached-gate turn with no fired card and
-   force it. This is the load-bearing fix.
+   cure is the **GA-4 Stop-hook-class interceptor** (registered in the hooks.json Stop block,
+   NOT PostToolUse -- the "PostToolUse" label in earlier drafts was doc drift, reconciled in
+   Plan 179-08 IN-01; the route is a `decision:'block'` Stop-block envelope on exit 0, not an
+   exit-2 block): it reads the turn by parsing the Stop stdin `transcript_path` (mirroring
+   scripts/on-stop:33), detects a reached-gate turn with no fired card, and forces it. This is
+   the load-bearing fix.
+
+   > **WR-04 doctrine honesty (Plan 179-08).** The interceptor ships TWO detectors with
+   > DIFFERENT live status. The BACKSTOP (transcript ASCII-box text detection) is the LIVE
+   > detector this phase ships -- a Stop-hook transcript yields the last assistant TEXT, which
+   > is exactly the BACKSTOP signal. The PRIMARY (registry-keyed reached-gate detection) is
+   > DEFERRED: it depends on a `ran_entries` / `reached_gate_entries` SET recording which
+   > registry gate-reaching surfaces ran the turn, and a repo-wide grep finds ZERO producers of
+   > that field outside check-card-fire.cjs and its tests. A transcript cannot yield a
+   > reached-entries set, so PRIMARY stays INERT until a side-channel writer ships (a
+   > PreToolUse/PostToolUse hook that records reached-gate entries for the Stop hook to read).
+   > The PRIMARY code path is retained and correct (it activates the instant a producer lands),
+   > but it is NOT presented as the live cure. The side-channel writer is a named, deferred
+   > follow-on, OUT of scope this phase.
 
 2. **B1 persona + CV + hypothesis redesign.** B1 should be persona-first (researcher / student /
    founder-business / operator / investor / domain-expert) + a "Paste my CV" path + a
