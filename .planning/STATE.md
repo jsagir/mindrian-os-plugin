@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
-status: verifying
-stopped_at: "Phase 178 Plan 04 COMPLETE (CIRS R15 Render Coverage minted into Canon Part 11; canon v1.16; PHASE 178 COMPLETE 4/4)"
-last_updated: "2026-06-24T20:30:00.000Z"
+status: in-progress
+stopped_at: "Phase 179 Plan 01 COMPLETE (the GA-4 card-fire interceptor -- the R-1 cure, Wave 1)"
+last_updated: "2026-06-24T22:22:00.000Z"
 last_activity: 2026-06-24
 progress:
   total_phases: 6
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-24) -- Phase 178 Plan 04 COMPLETE -- PHASE 178 COMPLETE 4/4 (CIRS R15 Render Coverage minted into Canon Part 11; canon v1.16)
+## Latest (2026-06-24) -- Phase 179 Plan 01 COMPLETE -- the GA-4 card-fire interceptor (the R-1 cure, Wave 1)
+
+The R-1 residual (R15 proves a gate is WIRED to emit a card but cannot force the model to FIRE it at runtime) is now cured structurally. `scripts/check-card-fire.cjs` is a deterministic Stop-hook turn-scan: registry-keyed PRIMARY (a `data/render-coverage-registry.json` card-emission surface ran this turn with no AskUserQuestion fired) + ASCII-box output-text BACKSTOP ("type 1, 2, or 3" / `[1] [2] [3]` / the box glyph). On intercept it emits an exit-2 `decision: 'block'` envelope with `hookSpecificOutput.additionalContext` re-prompting the card fire; after `MAX_FORCE_RETRIES` (3) consecutive intercepts on the same turn-context (tracked in a LOCAL `~/.mindrian/card-fire-retries.json` side-file) it degrades to `{ continue: true }` so a card-incapable surface cannot be trapped. Registered additively in the `hooks.json` Stop block (length 5 -> 6, existing entries byte-preserved). Part 8 LOCAL-only (zero Brain/network); no reach/posture/edge/node minted; Phase 178 render-coverage `--check` stays OK. TDD: RED 1757cc47, GREEN c269276e, wiring 93a6db03. Suite 22/22; `bash tests/run-all-179.sh` 5 pass / 0 fail / 6 skip (later waves guarded). SUMMARY: `.planning/phases/179-ignite-b1-starting-point-fix/179-01-SUMMARY.md`. NEXT: 179-02 (widen the scratchpad whitelist).
+
+## Prior (2026-06-24) -- Phase 178 Plan 04 COMPLETE -- PHASE 178 COMPLETE 4/4 (CIRS R15 Render Coverage minted into Canon Part 11; canon v1.16)
 
 **Phase 178 Plan 04 (this session):** minted CIRS **R15 (Render Coverage)** into Canon Part 11 as the render-plane peer of R2 (born-wired) + R9 (enforced-not-aspirational), DISTINCT from R3 (the trigger wire), landed as ONE ATOMIC LOCKSTEP WAVE so CI never went RED (mirroring Phase 148 + 172-13). The navigator RATIFIED Option A (ratify-r15) at the blocking checkpoint (navigator-LOCKED 2026-06-24); the executor proceeded past the checkpoint and applied the staged "RATIFIED amendment text" verbatim from docs/CANON-PART-11-RENDER-TWIN-PROPOSAL.md. ONE commit `189b5336`: (1) MINDRIAN-CANON.md Part 11 appends **R15** to the closed ruling set + updates the two enumerating "R1-R14" references to "R1-R15" + the Part 3 relationship note; (2) Appendix D entry 27; (3) header + footer Version 1.15 -> 1.16; (4) CANON-PHASE-MAP.md v1.16 reference + the Phase 178 CIRS-column row + the v1.16 version-history row; (5) tests/test-cirs-render-coverage-floor.cjs -- the R15 FLOOR test (33 assertions: R15 canon-text membership + R1-R14 preserved + frozen-set "R1-R15" bound + the byte-stable covered/excluded/gap counting contract via a class-blind recount + a reachable-undeclared-surface NEGATIVE the gate rejects via the RENDER_COVERAGE_REGISTRY override; NEVER .size), registered in run-all-178.sh; (6) the GA-4 R-1 PostToolUse-interceptor SPIKE (tests/test-r1-posttooluse-interceptor-spike.cjs, 9 assertions) -- verdict **PARTIAL** (the CLI PostToolUse substrate CAN observe an AskUserQuestion tool-call, but the reached-gate marker is concatenated as opaque turn TEXT giving no structured reached-gate correlation signal, and Desktop/Cowork have no hook substrate -- Tri-Polar R-4); R-1 stays a NAMED, ACCEPTED debt (the gate proves WIRED-to-emit, not fired-this-turn), no enforcement wired, no Brain wire; (7) CANON-PART-11-RENDER-TWIN-PROPOSAL.md Status -> RATIFIED + APPLIED. R15 mints NO reach/posture/edge/node and opens NO Brain wire; the closed-set move is R1-R14 -> R1-R15 ONLY; frozen Part 3 contracts (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the 6-reach bank, the glyphs) UNCHANGED. Two Rule-fix deviations (a stale 178-04 placeholder filename in run-all-178.sh; a literal-grep false-trip on a negating doc-comment in the spike), neither altering the deliverable. Verify: `bash tests/run-all-178.sh` fully GREEN (10 pass / 0 fail / 0 skip); `bash tests/run-all-172.sh` 20/20 (prior closed-set intact); `node scripts/check-render-coverage.cjs --check` exit 0; both CIRS --check gates exit 0; em-dash gate clean across all six touched files; canon is v1.16. See 178-04-SUMMARY.md.
 
@@ -452,12 +456,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 173 - publish-jtbd-need-selector
+**Current focus:** Phase 179 — ignite-b1-starting-point-fix
 
 ## Current Position
 
-Phase: 173 (publish-jtbd-need-selector) - EXECUTING
-Plan: 3 of 3
+Phase: 179 (ignite-b1-starting-point-fix) — EXECUTING
+Plan: 1 of 7
 
 ### Phase 172 Plan 02 (CIRS R12 forward-declaration contract + gate hook, Wave 1, autonomous) COMPLETE
 
