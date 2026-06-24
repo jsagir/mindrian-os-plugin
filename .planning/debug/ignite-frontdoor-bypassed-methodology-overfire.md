@@ -4,8 +4,10 @@ slug: ignite-frontdoor-bypassed-methodology-overfire
 title: "Larry bypasses ignite's F.1 front door and over-fires a methodology orchestrator on an explore-invitation"
 created: 2026-06-24
 severity: HIGH
-status: open
+status: partially-fixed
 classification: NEW FAILURE (regression surfaced post v1.14.0)
+fix_landed: "7868dfbb (2026-06-24) - activation + doctrine: trending-to-absurd description tightened to explicit-intent-only (closes the native skill-auto-loader bypass of the governed CIRS path); When-does-NOT-activate restraint + follow-the-learner-on-horizons + no-compliment; conversation-mode Mode 2 scaffold-follows-learner."
+fix_remaining: "(1) orchestrator.cjs code-level honor-the-chosen-horizon (stop mechanically forcing near/mid/long); (2) SYSTEMIC sweep: other methodology skills for the same loose-description bypass (CIRS R4 no-second-selection-brain); (3) land the parked Brain pedagogy write (needs admin key) for the prose no-compliment principle; (4) re-run tester Test 4 to confirm the clean ignite-F.1 first-touch is restored."
 canon_parts: [3, 7, 10]
 related: 177-larry-behavioral-channel (engine-side enabler; NOT the fix for this defect)
 ---
