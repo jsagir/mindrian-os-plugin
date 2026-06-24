@@ -1,0 +1,15 @@
+CR-02 PRE-FIX PROOF: growing-transcript livelock (current code)
+MAX_FORCE_RETRIES=3
+
+run 1: BLOCK
+run 2: BLOCK
+run 3: BLOCK
+run 4: BLOCK
+
+side-file keys: 4
+  40e772910cf4a5eb -> count=1
+  835a101aaf6d1f24 -> count=1
+  01b1f7f27daef758 -> count=1
+  ea6159fd356077d1 -> count=1
+
+VERDICT: LIVELOCK -- 4 DISTINCT keys each count:1, never converges

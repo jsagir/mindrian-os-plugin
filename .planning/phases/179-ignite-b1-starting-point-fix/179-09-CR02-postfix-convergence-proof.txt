@@ -1,0 +1,11 @@
+CR-02 POST-FIX PROOF: growing-transcript convergence (fixed code)
+MAX_FORCE_RETRIES=3  (same session_id, same last-USER message, GROWING transcript)
+
+run 1: BLOCK  | side-file: 1 key(s) [cddef5545c8f=>count:1]
+run 2: BLOCK  | side-file: 1 key(s) [cddef5545c8f=>count:2]
+run 3: BLOCK  | side-file: 1 key(s) [cddef5545c8f=>count:3]
+run 4: DEGRADE | side-file: 0 key(s) [(empty -- cleared on degrade)]
+
+AT THE CEILING (run 3): 1 key, count=3 -- ONE converging key, NOT 3 distinct.
+blockedRuns(1..3)=3  degradedAt(MAX+1)=true
+VERDICT: CONVERGES -- ONE key climbed to 3 then degraded+cleared at MAX+1
