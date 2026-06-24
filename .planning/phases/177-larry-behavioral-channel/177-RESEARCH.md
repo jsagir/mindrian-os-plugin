@@ -209,6 +209,18 @@ BCH-REG control path, BCH-S5 turn-gating) need runtime state that does not exist
 BCH-14 (Part 8 fence) and the BCH-12 badge seam (signature change on render-v2) are buildable
 without new runtime substrate. BCH-14 landed test-first as the first real green (2026-06-24).
 
+## 5c. LOCKED design decisions (navigator, 2026-06-24)
+
+- D-177-Q5 (canonical investment number): investment_level (engine-owned,
+  projections.computeInvestmentLevel) IS the single canonical runtime number. BCH-S1
+  extends it to fold in turn_count (a NEW runtime counter) + the jump conditions (escape
+  hatch / saturation / pushback / evidence) on top of the existing framework_invocations
+  term. The ranker already reads it (f-selector-ranker.cjs:394, unchanged consumer). The
+  prose Ask-Tell dial is INJECTED from it in Pass 2, NOT computed by the model. This honors
+  the bright line (engine owns the composed decision; model emits observations only) and
+  realizes "one read, two consumers." The prompt-prose dial curve becomes a derived display,
+  not a second source of truth.
+
 ## 6. Biggest risk to Wave 1
 
 The persona leg (BCH-17/18) rests on premises the bundle marked as gaps that are actually
