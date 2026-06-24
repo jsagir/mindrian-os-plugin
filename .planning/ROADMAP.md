@@ -3121,6 +3121,13 @@ Plans:
 
 **Open decisions (resolve in the SPEC FIRST):** 12, in 179-RESEARCH.md - weighted blend now vs single-axis stub; the abstraction-level Shape F.x gate (highest leverage + risk, domain-neutral fixture, AION specifics stay user-local); reconcile the two B1 specs; widen the scratchpad whitelist; scope the GA-4 interceptor here vs sibling; the hypothesis family section set.
 
-**Plans:** TBD. NEXT: /gsd-spec-phase 179 (the SPEC resolves the 12 open decisions before any build - this is the front-door-gate class that has slipped repeatedly, so spec-first is mandatory).
+**Plans:** 7 plans across 7 waves (one surface per wave for CI-green lockstep):
+- [ ] 179-01-PLAN.md -- WAVE 1 (REQ-01): the GA-4 card-fire interceptor (scripts/check-card-fire.cjs, Stop-hook turn-scan, registry-keyed PRIMARY + ASCII-box BACKSTOP, exit-2 block + bounded escape) registered in hooks.json Stop block + tests/run-all-179.sh
+- [ ] 179-02-PLAN.md -- WAVE 2 (REQ-09): widen the writeScratchpadBirthAnswer whitelist (+role_blend +blueprint_family +hypothesis_text); round-trip across a session boundary
+- [ ] 179-03-PLAN.md -- WAVE 3 (REQ-02/03/12): the canonical persona-first 4-door B1 card in ignite.md (single-axis role_blend, keyboard/checkbox contract via AskUserQuestion, frozen ROLE_BLEND_KEYS imported; birth txn byte-unchanged)
+- [ ] 179-04-PLAN.md -- WAVE 4 (REQ-05/07): the hypothesis blueprint family + check-room-blueprints 8->9 lockstep + writeClaimNode proposed truth-claim + per-role Door 3 framing
+- [ ] 179-05-PLAN.md -- WAVE 5 (REQ-06): the instances-vs-structures 3-option abstraction gate (always-fire) + committed domain-neutral fixture + neutrality grep gate
+- [ ] 179-06-PLAN.md -- WAVE 6 (REQ-04/08): the CV-second-select multiSelect:true checkbox over extractDomains + arrival auto-fire Engine 1, gate the results
+- [ ] 179-07-PLAN.md -- WAVE 7 (REQ-10/11): reconcile the two B1 specs (ignite.md canonical; new-project.md -> B2 backend) + the cross-cutting Part 8 sweep + CIRS R12 conformance
 
-**Status:** REGISTERED 2026-06-25 (CONTEXT + RESEARCH + raw fan-out captured). Not yet specced.
+**Status:** PLANNED 2026-06-25. 7 plans, 7 waves, all 12 SPEC requirements covered (REQ-01..12 each in exactly one wave). NEXT: /gsd-execute-phase 179.
