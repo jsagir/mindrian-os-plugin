@@ -77,25 +77,34 @@ B1 MUST be surfaced by FIRING the AskUserQuestion tool (the interactive up/down 
 
 You may NOT render the gate as an ASCII box (the `■ ... [1] [2] [3]` block) and ask the navigator to "type 1, 2, or 3". Drawing the picture without firing the card is the silent-degrade the render-coverage gate (Canon Part 11 R15) exists to kill: no card, no picture (SEED-021). If you draw the gate, you fire the card. The "type a/b/c" form in the Tri-Polar line below is ONLY for a surface that genuinely cannot fire the tool (never the CLI).
 
-### The options -- persona-first, with a CV path (Phase 115)
+### The keyboard / checkbox contract (Canon Part 3 F.1, Phase 88.2 invariant)
 
-Fire AskUserQuestion with header "Arrival" and the question "Who are you arriving as?" The navigator's pick sets `role_blend` (Phase 115 persona-aware first touch) and derives `blueprintFamily` for B2:
+Every single-pick gate in this block (the Door 1 persona pick and the Door 4 free-text routing) renders as an ARROW-KEY-navigable single-select AskUserQuestion card. The navigator moves with the up/down arrows and confirms one option; it is NOT an ASCII box the navigator "types 1, 2, or 3" into. No card, no picture (SEED-021): if you draw the gate you fire the card, never an ASCII box only -- the Wave-1 GA-4 card-fire interceptor (scripts/check-card-fire.cjs) catches a reached-gate turn that did not fire the card. The frozen F.1 keyboard contract is honored here, never redefined.
 
-  - Researcher          -- role_blend=researcher,   blueprintFamily=exploration
-  - Student             -- role_blend=student,       blueprintFamily=exploration
-  - Founder / business  -- role_blend=founder,       blueprintFamily=venture
-  - Operator            -- role_blend=operator,      blueprintFamily=venture
-  - Investor            -- role_blend=investor,      blueprintFamily=venture
-  - Domain expert       -- role_blend=domain_expert, blueprintFamily=exploration
-  - Paste my CV         -- arrival_asset=cv-upload; run the dual-path shallow parse
+### The four doors -- persona-first (one canonical card)
 
-The AskUserQuestion free-text/Other row is the open path: the navigator describes their start, or pastes a CV inline. If they pick "Paste my CV" or paste CV text, run the Phase 115 dual-path: detect_dual_path -> extract_shallow (shallow-doc-parser) to pull canonical_role (-> role_blend), venture (-> blueprintFamily), and domains, then reflect it back ("Got it -- you are a [role] working on [venture]. What decision is stuck?").
+Fire ONE AskUserQuestion card with header "Arrival" and the question "Who are you arriving as?" The card carries four doors, and every door resolves the same {role_blend, blueprintFamily, arrival_asset} tuple that threads into B2's birthRoom opts. role_blend is a single-axis {key:1.0} blend drawn ONLY from the frozen 7-key vocabulary ROLE_BLEND_KEYS (lib/core/persona-override.cjs); the doctrine cites that frozen set by name and NEVER redefines it inline. blueprintFamily derives from the captured role: researcher / student / domain_expert -> exploration; founder / operator / investor -> venture.
+
+**Door 1 -- Persona pick (default, single-select arrow-key).** The six persona options, each setting role_blend from ROLE_BLEND_KEYS and deriving blueprintFamily:
+
+  - Researcher          -- role_blend={researcher:1.0},    blueprintFamily=exploration
+  - Student             -- role_blend={student:1.0},       blueprintFamily=exploration
+  - Founder / business  -- role_blend={founder:1.0},       blueprintFamily=venture
+  - Operator            -- role_blend={operator:1.0},      blueprintFamily=venture
+  - Investor            -- role_blend={investor:1.0},      blueprintFamily=venture
+  - Domain expert       -- role_blend={domain_expert:1.0}, blueprintFamily=exploration
+
+**Door 2 -- CV (arrival_asset=cv-upload).** When the navigator picks "Paste my CV" or pastes CV text inline, run the Phase 115 dual-path: detect_dual_path -> extract_shallow (shallow-doc-parser, reuse verbatim) to pull canonical_role, venture, and domains. Resolve role_blend via blendFromCanonicalRole (single-axis {key:1.0}, drawn from the same frozen ROLE_BLEND_KEYS); a parsed venture derives blueprintFamily=venture. Reflect it back ("Got it -- you are a [role] working on [venture]. What decision is stuck?").
+
+**Door 3 -- Hypothesis (arrival_asset=hypothesis-arrival).** The navigator arrives with a falsifiable belief. Capture ONE "I believe ___" statement (the hypothesis_text). Set arrival_asset=hypothesis-arrival and route role_blend if the navigator's role is known from the conversation (otherwise role_blend stays empty and blueprintFamily falls back to the frozen SECTION_NAMES default). The hypothesis blueprint family + the truth-claim filing + the instances-vs-structures abstraction gate land in the following waves (Waves 4-5); here Door 3 captures the statement, sets arrival_asset=hypothesis-arrival, and threads hypothesis_text into the scratchpad.
+
+**Door 4 -- Free-Text (the AskUserQuestion Other / free-text row).** The open path: the navigator describes their start in their own words. Larry interprets the free text and routes it to one of Doors 1-3, or asks one disambiguating question. This routing is itself a single-pick gate -- it renders as an arrow-key single-select AskUserQuestion card, never an ASCII box only.
 
 ### Record the answer
 
-After the navigator picks, call writeScratchpadBirthAnswer({gate_id: 'B1', option_key: selectedKey, canonical_verb: 'arriving-with', alias_label: selectedAlias, role_blend: selectedRoleBlend, blueprint_family: derivedFamily, arrival_asset: selectedAsset, ts: Date.now()}). For the CV path, thread the parsed role_blend + venture into the same scratchpad write. Capture free-text answers with the free_text field populated.
+After the navigator picks, call writeScratchpadBirthAnswer({gate_id: 'B1', option_key: selectedKey, canonical_verb: 'arriving-with', alias_label: selectedAlias, role_blend: selectedRoleBlend, blueprint_family: derivedFamily, arrival_asset: selectedAsset, hypothesis_text: capturedHypothesis, ts: Date.now()}). For the CV path (Door 2), thread the parsed role_blend + the venture-derived blueprint_family into the same scratchpad write. For the Hypothesis path (Door 3), populate hypothesis_text. Capture Door 4 free-text answers with the free_text field populated. The Wave-2 widened whitelist (scratchpad-ops.cjs) persists role_blend + blueprint_family + hypothesis_text so the B1 signal survives to B2.
 
-Tri-Polar (card-incapable surfaces ONLY): "Who are you arriving as? (a) researcher, (b) student, (c) founder/business, (d) operator, (e) investor, (f) domain expert, (g) paste your CV -- type a letter, or paste your CV."
+Tri-Polar (card-incapable surfaces ONLY): "Who are you arriving as? (a) researcher, (b) student, (c) founder/business, (d) operator, (e) investor, (f) domain expert, (g) paste your CV, (h) state a hypothesis you want to test -- type a letter, paste your CV, or describe your start."
 
 ## Gate B2 -- Blueprint (F.0, pre-room -- THE Part 9 promotion moment)
 

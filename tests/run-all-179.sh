@@ -68,7 +68,7 @@ run "179-01 check-card-fire registered in Stop block (W1)" \
 #     hypothesis family, the abstraction gate, the CV multiSelect + auto-fire Engine 1,
 #     the B1-spec reconciliation. Guarded SKIP until each lands.
 run_if "179-02 scratchpad-whitelist (W2)"        tests/test-scratchpad-birth-whitelist-179.cjs node tests/test-scratchpad-birth-whitelist-179.cjs
-run_if "179-03 persona-first-4-door-b1 (W3)"     tests/test-persona-first-b1-179.cjs           node tests/test-persona-first-b1-179.cjs
+run_if "179-03 persona-first-4-door-b1 (W3)"     tests/test-b1-four-door-contract.cjs          node tests/test-b1-four-door-contract.cjs
 run_if "179-04 hypothesis-family-truth-claim (W4)" tests/test-hypothesis-blueprint-family-179.cjs node tests/test-hypothesis-blueprint-family-179.cjs
 run_if "179-05 abstraction-gate (W5)"            tests/test-abstraction-gate-179.cjs           node tests/test-abstraction-gate-179.cjs
 run_if "179-06 cv-multiselect-engine1 (W6)"      tests/test-cv-multiselect-179.cjs             node tests/test-cv-multiselect-179.cjs

@@ -156,9 +156,11 @@ try {
 check('ROLE_BLEND_KEYS imports as the frozen length-7 vocabulary', keysOk);
 
 // ----- (9) no em-dashes in the B1 doctrine -----
+// Use unicode escapes for the dash detection so this test file is itself free of
+// literal em/en-dash bytes (mirrors the Phase 175 self-consistency fix).
 check(
   'B1 doctrine carries no em-dashes or en-dashes (CLAUDE.md HARD RULE)',
-  !/[—–]/.test(b1),
+  !/[\u2014\u2013]/.test(b1),
   'found an em-dash or en-dash in the B1 block'
 );
 
