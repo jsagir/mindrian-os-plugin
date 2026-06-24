@@ -3103,4 +3103,24 @@ Plans:
 - [x] 178-03-PLAN.md -- WAVE 3: hard-FAIL wiring into pre-commit + install-pre-commit + release.sh + doctor --acceptance (C-3) + promote the SEED-020 door to the verified chokepoint (route F.7-dial through card-emission, gap=0 green baseline)
 - [ ] 178-04-PLAN.md -- WAVE 4 (navigator-gated): mint CIRS R15 (Render Coverage) into Canon Part 11 as one atomic lockstep wave (canon + Appendix D entry 27 + v1.15->1.16 + map row + FLOOR test) + the GA-4 PostToolUse-interceptor spike for R-1 (named debt)
 
-**Status:** PLANNED 2026-06-24. 4 plans across 4 waves. Navigator ratified Option A (mint CIRS R15) + the one-ledger-two-columns design (the render plane is a render_coverage column on the existing CIRS coverage ledger, dissolving R-3). NEXT: /gsd-execute-phase 178.
+**Status:** PLANNED 2026-06-24. 4 plans across 4 waves. Navigator ratified Option A (mint CIRS R15) + the one-ledger-two-columns design (the render plane is a render_coverage column on the existing CIRS coverage ledger, dissolving R-3). NEXT: /gsd-execute-phase 178. (Executed + shipped in v1.15.0-beta.3; per-wave verification PASS - see 178-VERIFICATION.md.)
+
+### Phase 179 - Ignite B1 Starting-Point Fix (ignite-b1-starting-point-fix) - REGISTERED 2026-06-25
+
+**Why it is here:** A live v1.15.0-beta.3 repro (statusline-confirmed) showed `/mos:ignite` B1 rendering as a flat ASCII box ("type 1, 2, or 3") instead of firing the interactive selector card - on the SAME build that shipped the Phase 178 R15 render-coverage gate. That is the named **R-1 residual** made concrete: R15 build-fails a gate surface that is not WIRED to emit a card, but it cannot force the model to FIRE the card at runtime. A prose stopgap shipped (commit e22b9ea4) and the agent ignored it - proving a prose fence is not a guarantee. Separately, the navigator wants B1 to stop being solution/domain/venture and become a **persona-first + CV + hypothesis** starting point.
+
+**What it needs to fix (two coupled problems):**
+1. **The flat gate (R-1).** Build the **GA-4 PostToolUse card-fire interceptor**: detect a reached-gate turn with no fired AskUserQuestion card and force it. This is the true cure (diagnosed by the render-slip investigation, captured in fanout/render-slip-investigation.json + Phase 178 docs).
+2. **B1 persona + CV + hypothesis redesign.** ONE persona-first B1 with 4 doors - Persona pick (researcher/student/founder-business/operator/investor/domain-expert), CV (Phase 115 dual-path + the deferred CV-second-select multiSelect), Hypothesis (the seeded Phase 174 door + the instances-vs-structures abstraction-level gate), Free-Text - each resolving to {role_blend, blueprintFamily, arrival_asset} threaded into the existing birthRoom contract.
+
+**Reuse posture:** ~80% reuse / ~15-20% net-new. The 7-key role_blend taxonomy (persona-taxonomy.cjs), the USER.md chokepoint (user-md-ops.cjs), the birth transaction (room-birth.cjs), the Phase 115 CV dual-path, and the blueprint-family + scaffold system ALL already exist. Net-new: the GA-4 interceptor, the weighted-blend computer, the CV-second-select gate, the per-persona first-win resolver, the hypothesis blueprint family + abstraction-level gate, widen the scratchpad whitelist (today role_blend + blueprint_family are silently dropped), and reconcile the two divergent B1 specs (ignite.md persona-first vs new-project.md arriving-with).
+
+**Fan-out data captured (all of it):** `.planning/phases/179-ignite-b1-starting-point-fix/fanout/persona-hypothesis-archaeology.json` (the 4-agent reuse map + persona/CV/hypothesis verdicts + recommended 4-door design + 12 open decisions) and `fanout/render-slip-investigation.json` (the 5-agent R-1 diagnosis: AskUserQuestion is invoked as a tool call NOWHERE in lib/ or scripts/; card-firing is agent-honored prose, not machine-enforced). Synthesized in 179-RESEARCH.md; framed in 179-CONTEXT.md (canon_parts 1/2/3/5/7/9/10/11; absorbs 174; depends_on 178/115/122/166).
+
+**Absorbs:** Phase 174 (hypothesis-based ignite, seeded; 174-RESEARCH.md + 174-HANDOFF.md) becomes Door 3 here.
+
+**Open decisions (resolve in the SPEC FIRST):** 12, in 179-RESEARCH.md - weighted blend now vs single-axis stub; the abstraction-level Shape F.x gate (highest leverage + risk, domain-neutral fixture, AION specifics stay user-local); reconcile the two B1 specs; widen the scratchpad whitelist; scope the GA-4 interceptor here vs sibling; the hypothesis family section set.
+
+**Plans:** TBD. NEXT: /gsd-spec-phase 179 (the SPEC resolves the 12 open decisions before any build - this is the front-door-gate class that has slipped repeatedly, so spec-first is mandatory).
+
+**Status:** REGISTERED 2026-06-25 (CONTEXT + RESEARCH + raw fan-out captured). Not yet specced.
