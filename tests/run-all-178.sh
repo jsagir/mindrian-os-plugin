@@ -76,8 +76,14 @@ run "178-01 render-registry-exhaustive (W1)"  node tests/test-render-registry-ex
 run "178-02 check-render-coverage (W2)"        node tests/test-check-render-coverage.cjs
 run "178-02 render-coverage-gate-hardfail (W2)" node tests/test-render-coverage-gate-hardfail.cjs
 
-# (c)(d) later-wave suites -- tolerated as not-yet-present.
-run_if "178-03 render-coverage-wiring (W3)" tests/test-render-coverage-wiring.cjs node tests/test-render-coverage-wiring.cjs
+# (c) Plan 178-03 Wave 3 -- the F.7-dial gap=0 confirmation (Task 1, host-appended
+#     via the PRODUCTION engine arm; dial-selector.cjs byte-unchanged) + the
+#     four-enforcement-surface wiring proof (Task 2; HARD-FAIL, not WARN). Both
+#     land in Wave 3 (real runs once present; guarded SKIP until they land).
+run_if "178-03 f7-dial-gap-zero-confirm (W3)" tests/test-f7-dial-gap-zero-confirm.cjs node tests/test-f7-dial-gap-zero-confirm.cjs
+run_if "178-03 render-gate-wiring (W3)"       tests/test-render-gate-wiring.cjs       node tests/test-render-gate-wiring.cjs
+
+# (d) later-wave suite -- tolerated as not-yet-present.
 run_if "178-04 render-coverage-r15 (W4)"    tests/test-render-coverage-r15.cjs   node tests/test-render-coverage-r15.cjs
 
 # (e) carried frozen-set drift fences (additive phase -- these stay GREEN; 178
@@ -88,6 +94,6 @@ run_if "178-04 render-coverage-r15 (W4)"    tests/test-render-coverage-r15.cjs  
 echo "========================================"
 echo "  Summary (178 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"
-echo "  NOTE: 178-03/04 suites are RED-by-design (SKIPPED) until their waves land."
+echo "  NOTE: 178-03 suites LANDED (Wave 3); the 178-04 suite is RED-by-design (SKIPPED) until its wave lands."
 echo "========================================"
 [ "$FAIL" -eq 0 ]
