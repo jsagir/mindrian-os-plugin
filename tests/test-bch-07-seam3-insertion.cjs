@@ -87,15 +87,18 @@ const fsSensor = engine.resolveFireSkill(null, 0.0, 'tier_0', [{ reach_id: 'cont
 ok(fsSensor === "Devil's Advocate",
   'Test 2b: a fired sensor reach still maps to its canonical verb (Devil\'s Advocate); sensor branch precedes the dormant seam');
 
-// (b) decide() determinism + dormant-path stability across two identical calls.
-const turn = { sectionPath: null, text: 'we should reconsider the framing' };
+// (b) decide() byte-identical at the decide() boundary. A turn that fires a
+//     Phase 143 sensor reach resolves through the sensor branch -- which sits
+//     BEFORE the dormant seam -- so the seam never intercepts. We prove the
+//     decide() output is (i) deterministic across two identical calls and (ii)
+//     carries exactly the legacy sensor verb (the pre-seam behavior).
+const turn = { signals: ['first_material'], sectionPath: null };
 const context = {
-  quadruple: {
-    governing_thought: 'gt',
-    feynman: 'f',
-    minto: 'm',
-    brain: brainModeA,
-  },
+  quadruple: null,
+  brainAvailable: false,
+  problem_type: 'innovation',
+  complexity: 'complex',
+  stage: 'discovery',
 };
 const d1 = engine.decide(turn, context);
 const d2 = engine.decide(turn, context);
@@ -104,14 +107,15 @@ function stripVolatile(d) {
   const c = JSON.parse(JSON.stringify(d));
   if (c && c._meta) delete c._meta;
   if (c && c.decision_trace && c.decision_trace._meta) delete c.decision_trace._meta;
+  if (c && c.decision_trace && c.decision_trace.latencies_ms) delete c.decision_trace.latencies_ms;
   return c;
 }
 const s1 = JSON.stringify(stripVolatile(d1));
 const s2 = JSON.stringify(stripVolatile(d2));
 ok(s1 === s2,
   'Test 2c: decide() output is byte-identical across two dormant-seam calls (no semantic contribution)');
-ok(d1.fire_skill === 'methodology-router',
-  'Test 2d: decide() fire_skill is the legacy mode_a verb family; the dormant seam left fire_skill unchanged');
+ok(d1.fire_skill === 'Run Methodology',
+  'Test 2d: decide() fire_skill is the legacy sensor verb (Run Methodology); the dormant seam left fire_skill unchanged (got: ' + d1.fire_skill + ')');
 
 // ---------------------------------------------------------------------------
 // Test 3 -- routing_source stays legacy in the dormant path. For a turn where
