@@ -88,11 +88,29 @@ const REGISTRY_PATH = path.join(REPO_ROOT, 'data', 'render-coverage-registry.jso
 // walk. This require pulls in pure code only (the generator is Part-8 LOCAL-only).
 const generator = require('./build-render-coverage.cjs');
 
+// resolveRegistryPath() -- the registry the gate reads. Defaults to the tracked
+// REGISTRY_PATH. The RENDER_COVERAGE_REGISTRY env var lets the FLOOR/hard-fail test
+// (tests/test-render-coverage-gate-hardfail.cjs) point --check at a SYNTHESIZED
+// fixture registry under tests/fixtures/ so the gap path is exercised end-to-end on
+// a synthesized dark entry WITHOUT ever mutating the tracked registry. The override
+// is a LOCAL file path only -- it opens no wire and is irrelevant to the live CI
+// path (which never sets it). When the override is active the STALE byte-compare is
+// skipped (a synthetic fixture registry is not the derived live tree), leaving the
+// gap hard-fail loop as the sole, faithful gate behavior.
+function resolveRegistryPath() {
+  const ov = process.env.RENDER_COVERAGE_REGISTRY;
+  if (typeof ov === 'string' && ov.trim().length > 0) {
+    return path.isAbsolute(ov) ? ov : path.join(REPO_ROOT, ov);
+  }
+  return REGISTRY_PATH;
+}
+
 // ---------------------------------------------------------------------------
-// loadRegistry() -- read the on-disk render registry. Pure read; no network.
+// loadRegistry() -- read the render registry (the override-resolved path). Pure
+// read; no network.
 // ---------------------------------------------------------------------------
 function loadRegistry() {
-  const raw = fs.readFileSync(REGISTRY_PATH, 'utf8');
+  const raw = fs.readFileSync(resolveRegistryPath(), 'utf8');
   return JSON.parse(raw);
 }
 
@@ -220,21 +238,28 @@ function main() {
 
   if (argv.includes('--check')) {
     const errs = [];
+    const usingOverride =
+      typeof process.env.RENDER_COVERAGE_REGISTRY === 'string' &&
+      process.env.RENDER_COVERAGE_REGISTRY.trim().length > 0;
 
     // The STALE byte-compare of data/render-coverage-registry.json: regenerate the
     // registry in memory via the 178-01 generator and fail if the on-disk file
     // drifted (a new render entry point appeared in code but is absent from the
     // registry, or the registry was hand-edited). Mirrors
-    // build-connector-registry.cjs:813-818.
-    const reg = generator.buildRegistry();
-    const next = generator.serializeRegistry(reg);
-    const onDisk = fs.existsSync(REGISTRY_PATH) ? fs.readFileSync(REGISTRY_PATH, 'utf8') : '';
-    if (onDisk !== next) {
-      errs.push(
-        'data/render-coverage-registry.json is STALE (a render entry point appeared ' +
-          'in code but is absent from the registry, OR the registry drifted). ' +
-          'Run: node scripts/build-render-coverage.cjs'
-      );
+    // build-connector-registry.cjs:813-818. Skipped under the test-only registry
+    // override (a synthetic fixture registry is not the derived live tree, so a byte-
+    // compare against it is meaningless; the gap hard-fail loop is the faithful gate).
+    if (!usingOverride) {
+      const reg = generator.buildRegistry();
+      const next = generator.serializeRegistry(reg);
+      const onDisk = fs.existsSync(REGISTRY_PATH) ? fs.readFileSync(REGISTRY_PATH, 'utf8') : '';
+      if (onDisk !== next) {
+        errs.push(
+          'data/render-coverage-registry.json is STALE (a render entry point appeared ' +
+            'in code but is absent from the registry, OR the registry drifted). ' +
+            'Run: node scripts/build-render-coverage.cjs'
+        );
+      }
     }
 
     // The render GAP HARD-FAIL loop (Canon Part 11 render twin; C-3 begins). Each
@@ -269,6 +294,7 @@ if (require.main === module) {
   main();
 } else {
   module.exports = {
+    resolveRegistryPath,
     loadRegistry,
     hasCallSite,
     routesThroughCardEmissionDoor,

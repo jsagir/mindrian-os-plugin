@@ -21,8 +21,15 @@
 #                                                  code-present-but-registry-absent
 #                                                  pickShape call site FAILS the
 #                                                  build (R-3 dissolved)
-#   (b) Plan 178-02 (deterministic predicate + FLOOR/hard-fail) [later wave]:
-#         test-check-render-coverage*.cjs       -> guarded; SKIP until it lands
+#   (b) Plan 178-02 (deterministic predicate + FLOOR/hard-fail) [LANDED, Wave 2]:
+#         test-check-render-coverage.cjs        -> the C-2 deterministic predicate:
+#                                                  XOR classify covered/excluded/gap,
+#                                                  gap=0 live baseline, --check exit 0,
+#                                                  no inference / network in the gate
+#         test-render-coverage-gate-hardfail.cjs-> the C-3 FLOOR: a synthesized dark
+#                                                  render entry trips the gate RED;
+#                                                  excluded-with-reason is conformant;
+#                                                  the live repo is GREEN
 #   (c) Plan 178-03 (wiring + F.7-dial gap=0 confirmation) [later wave]:
 #         test-render-coverage-wiring*.cjs      -> guarded; SKIP until it lands
 #   (d) Plan 178-04 (R15 FLOOR + R-1 spike) [later wave]:
@@ -64,8 +71,12 @@ run_if() {
 run "178-01 render-registry-build (W1)"       node tests/test-render-registry-build.cjs
 run "178-01 render-registry-exhaustive (W1)"  node tests/test-render-registry-exhaustive.cjs
 
-# (b)(c)(d) later-wave suites -- tolerated as not-yet-present.
-run_if "178-02 check-render-coverage (W2)" tests/test-check-render-coverage.cjs node tests/test-check-render-coverage.cjs
+# (b) Plan 178-02 Wave 2 -- the deterministic card-emission predicate + the
+#     FLOOR/hard-fail adversarial test (now LANDED; real runs, not guarded SKIPs).
+run "178-02 check-render-coverage (W2)"        node tests/test-check-render-coverage.cjs
+run "178-02 render-coverage-gate-hardfail (W2)" node tests/test-render-coverage-gate-hardfail.cjs
+
+# (c)(d) later-wave suites -- tolerated as not-yet-present.
 run_if "178-03 render-coverage-wiring (W3)" tests/test-render-coverage-wiring.cjs node tests/test-render-coverage-wiring.cjs
 run_if "178-04 render-coverage-r15 (W4)"    tests/test-render-coverage-r15.cjs   node tests/test-render-coverage-r15.cjs
 
@@ -77,6 +88,6 @@ run_if "178-04 render-coverage-r15 (W4)"    tests/test-render-coverage-r15.cjs  
 echo "========================================"
 echo "  Summary (178 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"
-echo "  NOTE: 178-02/03/04 suites are RED-by-design (SKIPPED) until their waves land."
+echo "  NOTE: 178-03/04 suites are RED-by-design (SKIPPED) until their waves land."
 echo "========================================"
 [ "$FAIL" -eq 0 ]
