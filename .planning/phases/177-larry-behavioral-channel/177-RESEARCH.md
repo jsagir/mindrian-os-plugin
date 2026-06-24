@@ -182,6 +182,33 @@ MEDIUM (Waves 2-3 / cross-surface):
 - Q12 (AUC_MIN 0.65 / SLOPE_MIN 0.15 empirical check once Wave-2 shadow data exists).
 - Q13 (degraded named badge [BUILD]/[CHALLENGE] injection point on non-TTY Desktop/Cowork).
 
+## 5b. HIGH open questions RESOLVED against live code (2026-06-24, in-loop recon)
+
+- Q1 (does every turn hit decide?): YES. `scripts/intent-classifier.cjs` is the
+  UserPromptSubmit hook; it reads the quadruple + USER.md and calls
+  navigation-engine.decide(), rendering the NAVIGATION DECISION block every turn. SEAM 3's
+  466/468 site IS on the live per-turn path.
+- Q11 (hook contract): ride the existing UserPromptSubmit hook (intent-classifier.cjs). Do
+  NOT add a new hook; the observation emit + compose must thread through this one.
+- Q3 (escape-hatch parse site): THERE IS NONE in code. "just tell me" / "bottom line" live
+  only in PROMPT prose (larry-server-instructions.md:30) and the directive-envelope map
+  (directive-envelope.cjs:74). The model reads them; the engine never parses them at a
+  runtime gate. CONSEQUENCE: BCH-16's "the Up arrow shares the same pre-compose gate as the
+  typed phrase" has no existing gate to share - that synchronous control path is greenfield,
+  not a hook-in. This is a re-scope flag for BCH-REG/16.
+- Q5 (canonical investment value + turn_count): investment_level is computed only INSIDE the
+  ranker (f-selector-ranker.cjs:394, from framework_invocations/10). There is NO runtime
+  turn counter feeding the engine (only venture-shape-nudge derives a turn_count from
+  venture_classified nodes). The Ask-Tell dial is pure prompt prose. CONSEQUENCE: BCH-S1 is
+  not wiring - it must BUILD a canonical runtime investment value (and likely a turn
+  counter), and DECIDE which number is canonical. This is the navigator's Q5 design call,
+  the true first move of Wave 1.
+
+Net: three Wave-1 seams the bundle billed "deterministic, ship now, low risk" (BCH-S1, the
+BCH-REG control path, BCH-S5 turn-gating) need runtime state that does not exist yet. Only
+BCH-14 (Part 8 fence) and the BCH-12 badge seam (signature change on render-v2) are buildable
+without new runtime substrate. BCH-14 landed test-first as the first real green (2026-06-24).
+
 ## 6. Biggest risk to Wave 1
 
 The persona leg (BCH-17/18) rests on premises the bundle marked as gaps that are actually
