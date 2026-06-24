@@ -167,6 +167,15 @@
             "timeout": 3000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-card-fire.cjs\"",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "PreToolUse": [
