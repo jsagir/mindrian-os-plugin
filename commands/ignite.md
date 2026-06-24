@@ -96,7 +96,17 @@ Fire ONE AskUserQuestion card with header "Arrival" and the question "Who are yo
 
 **Door 2 -- CV (arrival_asset=cv-upload).** When the navigator picks "Paste my CV" or pastes CV text inline, run the Phase 115 dual-path: detect_dual_path -> extract_shallow (shallow-doc-parser, reuse verbatim) to pull canonical_role, venture, and domains. Resolve role_blend via blendFromCanonicalRole (single-axis {key:1.0}, drawn from the same frozen ROLE_BLEND_KEYS); a parsed venture derives blueprintFamily=venture. Reflect it back ("Got it -- you are a [role] working on [venture]. What decision is stuck?").
 
-**Door 3 -- Hypothesis (arrival_asset=hypothesis-arrival).** The navigator arrives with a falsifiable belief. Capture ONE "I believe ___" statement (the hypothesis_text). Set arrival_asset=hypothesis-arrival and route role_blend if the navigator's role is known from the conversation (otherwise role_blend stays empty and blueprintFamily falls back to the frozen SECTION_NAMES default). The hypothesis blueprint family + the truth-claim filing + the instances-vs-structures abstraction gate land in the following waves (Waves 4-5); here Door 3 captures the statement, sets arrival_asset=hypothesis-arrival, and threads hypothesis_text into the scratchpad.
+**Door 3 -- Hypothesis (arrival_asset=hypothesis-arrival).** The navigator arrives with a falsifiable belief. Capture ONE "I believe ___" statement (the hypothesis_text). Set arrival_asset=hypothesis-arrival and resolve blueprintFamily to the `hypothesis` family (data/room-blueprints.json: sections problem-definition seeded with the hypothesis + assumptions + opportunity-bank; default_methodologies structure-argument / challenge-assumptions / validate / research). Route role_blend if the navigator's role is known from the conversation (otherwise role_blend stays empty and blueprintFamily falls back to the frozen SECTION_NAMES default). Here Door 3 captures the statement, sets arrival_asset=hypothesis-arrival, and threads hypothesis_text into the scratchpad.
+
+**Per-role hypothesis framing (auto-selected from role_blend).** The Door 3 prompt frames the "I believe ___" ask from the role_blend captured in Door 1 (or inferred from the conversation). The framing map:
+
+  - researcher -> "state your testable claim" (the falsifiable hypothesis as a testable claim)
+  - founder    -> "state your market bet" (the hypothesis as a market bet)
+  - investor   -> "state your thesis precondition" (the hypothesis as a thesis precondition)
+
+When role_blend is empty or the role is unknown, fall back to the generic prompt: "I believe ___ because ___". Reuse the Door 1 role_blend; do NOT re-ask the navigator their role.
+
+**Truth-claim filing doctrine (Part 9 role 5).** Once captured, file the hypothesis_text as a truth-claim node via writeClaimNode (lib/core/navigation/typed-claim.cjs, re-exported on lib/core/navigation.cjs) with knowledge_type 'assumption' and review_status proposed. The node is NEVER auto-confirmed: per Canon Part 9 role 5 only a human byUser promotes a truth-claim from proposed to confirmed at a Decision Gate. Initial evidence tier is None or Practitioner (Canon Part 5; the hypothesis is an unsupported belief until tested). Part 8: the hypothesis_text is LOCAL only -- it files to room.db via writeClaimNode and rides the Wave-2 scratchpad whitelist for B2 replay; it NEVER egresses to Brain.
 
 **Door 4 -- Free-Text (the AskUserQuestion Other / free-text row).** The open path: the navigator describes their start in their own words. Larry interprets the free text and routes it to one of Doors 1-3, or asks one disambiguating question. This routing is itself a single-pick gate -- it renders as an arrow-key single-select AskUserQuestion card, never an ASCII box only.
 
