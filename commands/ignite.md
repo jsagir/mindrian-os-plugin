@@ -69,28 +69,33 @@ Three entry doors per BIRTH-FLOW-BRIEF.md Section 2:
 
 ## Gate B1 -- Starting Point (F.1, pre-room)
 
-B1 fires for Just Talk and ambiguous Directive paths. Directive paths with determinable arrival_asset (--express with strong context, --from-brief with a clear venture type) bypass B1.
+B1 fires for Just Talk and ambiguous Directive paths. Directive paths with a determinable role/venture (--express with strong context, --from-brief, or a pasted CV) bypass B1.
 
-Call pickShape('F.1') with the following payload.verbs (arrival_asset options from BIRTH-FLOW-BRIEF.md Section 2):
+### FIRE THE CARD -- mandatory, this is the whole gate
 
-```
-[CONTEXT] -- ignite -- BIRTH - STARTING POINT - decision gate
-LOCAL / arrival context / pre-room
+B1 MUST be surfaced by FIRING the AskUserQuestion tool (the interactive up/down selector card). On any card-capable surface (Claude Code CLI, Cowork) you MUST call AskUserQuestion in this same turn.
 
-Choose what you are arriving with:
+You may NOT render the gate as an ASCII box (the `■ ... [1] [2] [3]` block) and ask the navigator to "type 1, 2, or 3". Drawing the picture without firing the card is the silent-degrade the render-coverage gate (Canon Part 11 R15) exists to kill: no card, no picture (SEED-021). If you draw the gate, you fire the card. The "type a/b/c" form in the Tri-Polar line below is ONLY for a surface that genuinely cannot fire the tool (never the CLI).
 
-  1. A solution looking for its problem  -- arrival_asset=solution-looking-for-problem, blueprintFamily=solution-first
-  2. A domain or interest to explore     -- arrival_asset=domain-or-interest, blueprintFamily=exploration
-  3. A defined venture or business case  -- arrival_asset=defined-venture, blueprintFamily=venture
+### The options -- persona-first, with a CV path (Phase 115)
 
-  [free-text] Describe your starting point in your own words.
-```
+Fire AskUserQuestion with header "Arrival" and the question "Who are you arriving as?" The navigator's pick sets `role_blend` (Phase 115 persona-aware first touch) and derives `blueprintFamily` for B2:
 
-After the user answers, call writeScratchpadBirthAnswer({gate_id: 'B1', option_key: selectedKey, canonical_verb: 'arriving-with', alias_label: selectedAlias, arrival_asset: selectedAsset, ts: Date.now()}).
+  - Researcher          -- role_blend=researcher,   blueprintFamily=exploration
+  - Student             -- role_blend=student,       blueprintFamily=exploration
+  - Founder / business  -- role_blend=founder,       blueprintFamily=venture
+  - Operator            -- role_blend=operator,      blueprintFamily=venture
+  - Investor            -- role_blend=investor,      blueprintFamily=venture
+  - Domain expert       -- role_blend=domain_expert, blueprintFamily=exploration
+  - Paste my CV         -- arrival_asset=cv-upload; run the dual-path shallow parse
 
-The F.1 trailer appends a Free-Text option last automatically. Capture free-text answers via the same writeScratchpadBirthAnswer call with free_text field populated.
+The AskUserQuestion free-text/Other row is the open path: the navigator describes their start, or pastes a CV inline. If they pick "Paste my CV" or paste CV text, run the Phase 115 dual-path: detect_dual_path -> extract_shallow (shallow-doc-parser) to pull canonical_role (-> role_blend), venture (-> blueprintFamily), and domains, then reflect it back ("Got it -- you are a [role] working on [venture]. What decision is stuck?").
 
-Tri-Polar Desktop degradation: "Which best describes what you are arriving with? (a) solution looking for its problem, (b) domain or interest to explore, (c) defined venture or business case -- type a, b, or c."
+### Record the answer
+
+After the navigator picks, call writeScratchpadBirthAnswer({gate_id: 'B1', option_key: selectedKey, canonical_verb: 'arriving-with', alias_label: selectedAlias, role_blend: selectedRoleBlend, blueprint_family: derivedFamily, arrival_asset: selectedAsset, ts: Date.now()}). For the CV path, thread the parsed role_blend + venture into the same scratchpad write. Capture free-text answers with the free_text field populated.
+
+Tri-Polar (card-incapable surfaces ONLY): "Who are you arriving as? (a) researcher, (b) student, (c) founder/business, (d) operator, (e) investor, (f) domain expert, (g) paste your CV -- type a letter, or paste your CV."
 
 ## Gate B2 -- Blueprint (F.0, pre-room -- THE Part 9 promotion moment)
 
