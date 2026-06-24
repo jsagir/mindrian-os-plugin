@@ -58,6 +58,15 @@ run_if() {
 # (a) Plan 179-01 Wave 1 -- the GA-4 card-fire interceptor (the R-1 cure).
 run "179-01 ga4-card-fire-interceptor (W1)" node tests/test-ga4-card-fire-interceptor.cjs
 
+# (a2) Plan 179-08 GAP-CLOSURE (W8) -- the LOAD-BEARING end-to-end test: a realistic Stop
+#      stdin piped through the ACTUAL script against a fixture transcript_path. This is the
+#      test the original suite was missing (it only fed synthetic turns to the pure
+#      predicate, never crossing deriveTurnSignals/main). It blocks on an ascii-box transcript
+#      (no card), no-ops on a card-fired transcript, fail-safes on a missing transcript, and
+#      proves the WR-01 stable-identity retry convergence + the WR-02 TTL store prune. Fails
+#      against the pre-fix runtime-no-op; passes after the BL-01 transcript wiring.
+run "179-08 ga4-card-fire-e2e (W8, BL-01 + WR-01 + WR-02)" node tests/test-ga4-card-fire-e2e-179.cjs
+
 # (b) hooks.json sanity: valid JSON + the check-card-fire Stop-block registration.
 run "179-01 hooks.json valid JSON (W1)" \
   node -e "JSON.parse(require('fs').readFileSync('hooks/hooks.json','utf8'))"

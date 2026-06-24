@@ -10,32 +10,73 @@
  * model to FIRE the card at runtime (the named R-1 residual). A prose fence shipped
  * (commit e22b9ea4) and the agent ignored it. This interceptor is the structural cure:
  * a deterministic turn-scan the LLM has no say in. On a reached-Decision-Gate turn with
- * no fired AskUserQuestion card it emits an exit-2 block + additionalContext re-prompt
- * forcing the card; after MAX_FORCE_RETRIES bounded retries it degrades gracefully
- * (log + allow) so a genuinely card-incapable surface cannot trap the navigator.
+ * no fired AskUserQuestion card it emits a Stop-block (decision:'block') +
+ * additionalContext re-prompt forcing the card; after MAX_FORCE_RETRIES bounded retries
+ * it degrades gracefully (log + allow) so a genuinely card-incapable surface cannot trap
+ * the navigator.
+ *
+ * Hook class: this runs on the Stop event (hooks/hooks.json Stop block), NOT PostToolUse.
+ * The block route is a JSON envelope `{ decision:'block', continue:false, ... }` written
+ * to stdout on exit 0 -- a valid Stop-block path (the Claude Code Stop hook honors a
+ * decision:'block' envelope to re-prompt the turn). It is NOT an exit-2 block; earlier
+ * drafts of this header and 179-CONTEXT called it an "exit-2 PostToolUse interceptor" --
+ * that was doc drift, reconciled here (IN-01) to match the shipped Stop-block-on-exit-0
+ * route.
+ *
+ * Stop-stdin contract (BL-01, the live cure): the real Claude Code Stop hook delivers
+ * `{ hook_event_name, transcript_path, stop_hook_active, session_id, ... }` -- it does
+ * NOT deliver output_text / ran_entries / askuserquestion_fired directly. The interceptor
+ * READS the turn by parsing `transcript_path` (mirroring scripts/on-stop:33): it extracts
+ * the LAST assistant message text (drives the BACKSTOP) and scans the transcript's
+ * tool-use records for an AskUserQuestion invocation (drives askuserquestion_fired). If
+ * the envelope already carries the normalized signals directly (the unit-test shape),
+ * those are used as-is (backward-compatible). An unreadable/missing transcript yields
+ * empty signals -> a safe no-op (never throws, never blocks spuriously).
  *
  * Detection (CONTEXT decision 1: registry-keyed PRIMARY + output-text BACKSTOP):
- *   PRIMARY  -- a render-coverage-registry gate-reaching surface
- *               (data/render-coverage-registry.json entries[] with render_coverage
- *               'card-emission') ran this turn AND no AskUserQuestion tool-call fired.
- *               The enumeration is DERIVED from the registry, never hand-maintained.
- *   BACKSTOP -- the turn output text carries the ASCII-box gate glyphs
- *               (the `[1] [2] [3]` / "type 1, 2, or 3" anti-pattern) with no fired
- *               card -- intercepted even for an OFF-registry surface.
+ *   PRIMARY  (DEFERRED -- see doctrine note below) -- a render-coverage-registry
+ *               gate-reaching surface (data/render-coverage-registry.json entries[] with
+ *               render_coverage 'card-emission') ran this turn AND no AskUserQuestion
+ *               tool-call fired. The enumeration is DERIVED from the registry, never
+ *               hand-maintained.
+ *   BACKSTOP (LIVE -- the detector this phase ships) -- the turn output text carries the
+ *               ASCII-box gate glyphs (the `[1] [2] [3]` / "type 1, 2, or 3" anti-pattern)
+ *               with no fired card -- intercepted even for an OFF-registry surface.
+ *
+ * DOCTRINE HONESTY (WR-04): PRIMARY is DEFERRED, not live. PRIMARY keys off a `ran_entries`
+ * / `reached_gate_entries` set that records which registry gate-reaching surfaces ran this
+ * turn. A Stop-hook transcript yields assistant TEXT (the BACKSTOP signal), NOT a
+ * reached-entries SET, and a repo-wide grep finds ZERO producers of `ran_entries` /
+ * `reached_gate_entries` outside this file and its tests. So until a side-channel writer
+ * exists (a PreToolUse/PostToolUse hook that records reached-gate registry entries during
+ * the turn for the Stop hook to read), PRIMARY has no live source and stays INERT. The
+ * BACKSTOP (transcript ASCII-box text detection) is the LIVE detector this phase ships.
+ * The PRIMARY code path is retained (it stays correct the instant a producer lands and the
+ * unit tests exercise it via direct-field envelopes), but it is NOT presented as the live
+ * cure. The side-channel writer is a named, deferred follow-on.
  *
  * Bounded escape (T-179-01 DoS mitigation): a LOCAL retry side-file
- * (~/.mindrian/card-fire-retries.json) keyed by turn-context hash counts consecutive
- * intercepts; at MAX_FORCE_RETRIES the predicate returns degrade=true and the envelope
- * is { continue: true, suppressOutput: true } (log to stderr, allow the turn).
+ * (~/.mindrian/card-fire-retries.json) keyed by a STABLE turn identity (the Stop stdin
+ * session_id + a stable gate identity -- the reached-gate entry set when present, else a
+ * turn/message counter from the transcript) counts consecutive intercepts (WR-01: NOT the
+ * volatile output_text hash, so a re-worded re-prompt on the SAME stuck gate increments the
+ * SAME counter and MAX_FORCE_RETRIES is actually reachable). The store is pruned on write
+ * by a TTL (WR-02: each entry carries { count, ts }; entries older than RETRY_TTL_MS are
+ * evicted, so the side-file cannot grow without bound). At MAX_FORCE_RETRIES the predicate
+ * returns degrade=true and the envelope is { continue: true, suppressOutput: true } (log to
+ * stderr, allow the turn).
  *
  * Envelope schema (Phase 95 BASH-95-01 invariant): top-level keys are a subset of
  * { decision, reason, continue, stopReason, suppressOutput, systemMessage,
  *   hookSpecificOutput }. additionalContext lives ONLY inside hookSpecificOutput.
  *
  * Canon Part 8 (The Graph Boundary): LOCAL-only. Reads the local registry + the hook
- * stdin envelope + the local retry side-file; makes ZERO Brain reads/writes and ZERO
- * network calls. The interceptor opens no remote wire and loads no Brain module. The
- * turn content the interceptor reads (an untrusted model turn) is NEVER echoed to Brain.
+ * stdin envelope + the LOCAL transcript file (transcript_path is a local path, same as
+ * scripts/on-stop reads it) + the local retry side-file; makes ZERO Brain reads/writes
+ * and ZERO network calls. The interceptor opens no remote wire and loads no Brain module.
+ * The transcript content the interceptor reads (an untrusted model turn) stays LOCAL and
+ * is NEVER echoed to Brain or sent anywhere -- it is read, scanned for glyphs/tool-use,
+ * and discarded.
  *
  * Additive only: mints no reach / posture / edge / node; the frozen Part 3 contracts
  * (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the 6-reach bank, the glyphs) are
@@ -73,6 +114,12 @@ function retryFilePath() {
 // on the same turn-context, degrade to log + allow so a card-incapable surface cannot
 // trap the navigator.
 const MAX_FORCE_RETRIES = 3;
+
+// WR-02: the retry side-file TTL. Each store entry carries { count, ts }; on every write
+// entries older than this are evicted, so the LOCAL ~/.mindrian/card-fire-retries.json
+// cannot grow without bound over a long-lived install. 24h is generous: a stuck gate
+// resolves within one turn; an abandoned key is dead long before a day passes.
+const RETRY_TTL_MS = 24 * 60 * 60 * 1000;
 
 // The ASCII-box gate glyphs / literal anti-pattern the BACKSTOP scans for. A reached
 // gate that renders as flat text instead of firing the card carries these.
@@ -123,16 +170,35 @@ function gateReachingEntries(registry) {
 }
 
 // ---------------------------------------------------------------------------
-// turnContextHash(turn) -- a stable LOCAL key for the bounded-escape retry counter.
-// Hashes the gate-reaching signal of the turn (the ran-entries set + a short prefix of
-// the output text) so consecutive intercepts on the SAME stuck turn-context increment
-// the same counter. Part 8: a local sha256 over local turn signals; never egresses.
+// turnContextHash(turn) -- a STABLE LOCAL key for the bounded-escape retry counter.
+//
+// WR-01: the key MUST be stable across re-worded re-prompts on the SAME stuck gate, or
+// MAX_FORCE_RETRIES is never reachable (the model re-emits the same gate with different
+// prose, so an output_text-derived key would mint a fresh key every retry and the counter
+// would never climb -- a card-incapable surface could be re-prompted indefinitely). So the
+// key is derived from STABLE turn IDENTITY, NOT volatile output text:
+//   - session_id   : the Stop stdin session_id (the same conversation across retries).
+//   - gate identity: the reached-gate entry SET when present (PRIMARY signal), else a
+//                    stable turn/message counter from the transcript (gate_turn_index).
+// The output text is deliberately EXCLUDED from the key so a re-worded retry on the same
+// session+gate increments the SAME counter. Part 8: a local sha256 over local stable
+// identity scalars; never egresses.
 // ---------------------------------------------------------------------------
 function turnContextHash(turn) {
   const t = turn && typeof turn === 'object' ? turn : {};
-  const ran = Array.isArray(t.ran_entries) ? t.ran_entries.slice().sort().join('|') : '';
-  const txt = typeof t.output_text === 'string' ? t.output_text.slice(0, 256) : '';
-  return crypto.createHash('sha256').update(ran + ' ' + txt).digest('hex').slice(0, 16);
+  const session = typeof t.session_id === 'string' ? t.session_id : '';
+  // Gate identity: prefer the reached-gate entry set (stable across re-wording); fall
+  // back to a stable turn/message index from the transcript. NEVER the output text.
+  const ran = Array.isArray(t.ran_entries) && t.ran_entries.length > 0
+    ? t.ran_entries.slice().sort().join('|')
+    : '';
+  const gateIndex = Number.isFinite(t.gate_turn_index) ? String(t.gate_turn_index) : '';
+  const gateIdentity = ran || gateIndex;
+  return crypto
+    .createHash('sha256')
+    .update('s:' + session + '|g:' + gateIdentity)
+    .digest('hex')
+    .slice(0, 16);
 }
 
 // ---------------------------------------------------------------------------
@@ -259,11 +325,40 @@ function readRetryStore() {
   }
 }
 
+// pruneRetryStore(store, now) -- WR-02: evict entries older than RETRY_TTL_MS so the
+// side-file cannot grow without bound. Each entry is { count, ts }; a legacy bare-integer
+// entry (pre-WR-02 format) is normalized to { count, ts: now } on read so it is not lost
+// but does become subject to the TTL going forward. Pure; returns a fresh pruned store.
+function pruneRetryStore(store, now) {
+  const t = Number.isFinite(now) ? now : Date.now();
+  const out = {};
+  const src = store && typeof store === 'object' ? store : {};
+  for (const k of Object.keys(src)) {
+    const e = normalizeRetryEntry(src[k], t);
+    if (e && (t - e.ts) <= RETRY_TTL_MS) {
+      out[k] = e;
+    }
+  }
+  return out;
+}
+
+// normalizeRetryEntry(v, now) -- coerce a store value to { count, ts }. Tolerates the
+// legacy bare-integer shape (pre-WR-02) and the { count, ts } shape; anything else -> null.
+function normalizeRetryEntry(v, now) {
+  const t = Number.isFinite(now) ? now : Date.now();
+  if (Number.isFinite(v)) return { count: v, ts: t };
+  if (v && typeof v === 'object' && Number.isFinite(v.count)) {
+    return { count: v.count, ts: Number.isFinite(v.ts) ? v.ts : t };
+  }
+  return null;
+}
+
 function writeRetryStore(store) {
   try {
     const fp = retryFilePath();
     fs.mkdirSync(path.dirname(fp), { recursive: true });
-    fs.writeFileSync(fp, JSON.stringify(store), 'utf8');
+    // WR-02: prune on every write.
+    fs.writeFileSync(fp, JSON.stringify(pruneRetryStore(store, Date.now())), 'utf8');
   } catch (_e) {
     /* best-effort; never block on a side-file write */
   }
@@ -271,15 +366,18 @@ function writeRetryStore(store) {
 
 function readRetryCount(ctxHash) {
   const store = readRetryStore();
-  const v = store[ctxHash];
-  return Number.isFinite(v) ? v : 0;
+  const e = normalizeRetryEntry(store[ctxHash], Date.now());
+  return e ? e.count : 0;
 }
 
 function bumpRetryCount(ctxHash) {
   const store = readRetryStore();
-  store[ctxHash] = (Number.isFinite(store[ctxHash]) ? store[ctxHash] : 0) + 1;
+  const now = Date.now();
+  const e = normalizeRetryEntry(store[ctxHash], now);
+  const next = (e ? e.count : 0) + 1;
+  store[ctxHash] = { count: next, ts: now };
   writeRetryStore(store);
-  return store[ctxHash];
+  return next;
 }
 
 function clearRetryCount(ctxHash) {
@@ -319,27 +417,138 @@ function silentSuccess() {
 }
 
 // ---------------------------------------------------------------------------
-// deriveTurnSignals(env) -- best-effort extraction of the normalized turn signals
-// from the Stop-hook stdin envelope. The CLI hook substrate concatenates the
-// reached-gate marker as opaque turn TEXT (the Phase 178 GA-4 spike finding), so the
-// PRIMARY ran-entries signal is read from the side-channel when present and the
-// output text drives the BACKSTOP. Tolerant of missing fields (Tier 0). Never throws.
+// readTranscriptTurn(transcriptPath) -- parse the Stop-hook transcript JSONL and extract
+// the signals a transcript can yield. Mirrors the scripts/on-stop:33 idiom: the Stop hook
+// delivers a `transcript_path` (a LOCAL .jsonl file, one JSON object per line); we read it,
+// walk the lines, and pull:
+//   - output_text         : the text of the LAST assistant message (drives the BACKSTOP).
+//   - askuserquestion_fired: true if ANY tool-use record names the AskUserQuestion tool.
+//   - gate_turn_index      : a stable count of assistant messages (a stable gate identity
+//                            fallback for the WR-01 retry key when no ran_entries set exists).
+// Defensive (Part 8 / on-stop discipline): a missing / unreadable / malformed transcript
+// returns empty signals; NEVER throws. The transcript content stays LOCAL -- read, scanned,
+// discarded; never egressed.
+// ---------------------------------------------------------------------------
+function readTranscriptTurn(transcriptPath) {
+  const empty = { output_text: '', askuserquestion_fired: false, gate_turn_index: 0 };
+  if (typeof transcriptPath !== 'string' || !transcriptPath.trim()) return empty;
+  let raw;
+  try {
+    raw = fs.readFileSync(transcriptPath, 'utf8');
+  } catch (_e) {
+    return empty;
+  }
+  let lastAssistantText = '';
+  let askFired = false;
+  let assistantCount = 0;
+  const lines = raw.split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    let obj;
+    try {
+      obj = JSON.parse(trimmed);
+    } catch (_e) {
+      continue; // skip a malformed line, never throw
+    }
+    if (!obj || typeof obj !== 'object') continue;
+    const msg = obj.message && typeof obj.message === 'object' ? obj.message : obj;
+    const role = msg.role || obj.type;
+    if (role === 'assistant') {
+      assistantCount += 1;
+      const text = extractAssistantText(msg.content);
+      if (text) lastAssistantText = text;
+      if (scanContentForAskUserQuestion(msg.content)) askFired = true;
+    }
+    // A tool_use can also surface as a top-level record in some transcript shapes.
+    if (scanContentForAskUserQuestion(obj.content)) askFired = true;
+  }
+  return {
+    output_text: lastAssistantText,
+    askuserquestion_fired: askFired,
+    gate_turn_index: assistantCount,
+  };
+}
+
+// extractAssistantText(content) -- flatten an assistant message's content into text. Content
+// is either a plain string or an array of blocks; we concatenate the text blocks. Never throws.
+function extractAssistantText(content) {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  const parts = [];
+  for (const block of content) {
+    if (typeof block === 'string') { parts.push(block); continue; }
+    if (block && typeof block === 'object' && typeof block.text === 'string') {
+      parts.push(block.text);
+    }
+  }
+  return parts.join('\n');
+}
+
+// scanContentForAskUserQuestion(content) -- true if any tool_use block names the
+// AskUserQuestion tool. Tolerates string content, a single block, or an array. Never throws.
+function scanContentForAskUserQuestion(content) {
+  if (!content) return false;
+  const blocks = Array.isArray(content) ? content : [content];
+  for (const block of blocks) {
+    if (!block || typeof block !== 'object') continue;
+    const isToolUse = block.type === 'tool_use' || typeof block.name === 'string';
+    const name = typeof block.name === 'string' ? block.name : '';
+    if (isToolUse && /AskUserQuestion/i.test(name)) return true;
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// deriveTurnSignals(env) -- normalize the turn signals from the Stop-hook stdin envelope.
+//
+// BL-01 (the live cure): the REAL Stop-hook stdin delivers a `transcript_path`, NOT the
+// normalized fields. So when the envelope carries `transcript_path`, we PARSE the transcript
+// (readTranscriptTurn, mirroring scripts/on-stop:33): the last assistant text drives the
+// BACKSTOP and an AskUserQuestion tool-use drives askuserquestion_fired.
+//
+// BACKWARD-COMPAT: if the envelope already carries the normalized signals directly
+// (output_text / last_assistant_text / ran_entries / askuserquestion_fired -- the unit-test
+// shape), those are used as-is, so the 22 existing predicate assertions stay green.
+//
+// session_id + gate_turn_index thread through for the WR-01 stable retry key. PRIMARY's
+// ran_entries stays read from the envelope (it has no transcript source -- the WR-04 deferred
+// note). Tolerant of missing fields; never throws.
 // ---------------------------------------------------------------------------
 function deriveTurnSignals(env) {
   const e = env && typeof env === 'object' ? env : {};
+
+  // PRIMARY ran-entries: side-channel only (no transcript source -- WR-04 deferred).
   const ranEntries = Array.isArray(e.ran_entries)
     ? e.ran_entries
     : (Array.isArray(e.reached_gate_entries) ? e.reached_gate_entries : []);
-  const outputText =
+
+  // Direct-field signals (the unit-test / side-channel shape).
+  const directText =
     typeof e.output_text === 'string' ? e.output_text
-      : (typeof e.last_assistant_text === 'string' ? e.last_assistant_text : '');
-  const askFired =
-    e.askuserquestion_fired === true ||
-    e.ask_user_question_fired === true;
+      : (typeof e.last_assistant_text === 'string' ? e.last_assistant_text : null);
+  const directAsk =
+    e.askuserquestion_fired === true || e.ask_user_question_fired === true;
+
+  // If no direct text was supplied but a transcript_path is present, parse the transcript
+  // (the REAL Stop contract). Direct fields take precedence (backward-compat).
+  let txn = null;
+  if (directText === null && typeof e.transcript_path === 'string') {
+    txn = readTranscriptTurn(e.transcript_path);
+  }
+
+  const outputText = directText !== null ? directText : (txn ? txn.output_text : '');
+  const askFired = directAsk || (txn ? txn.askuserquestion_fired : false);
+  const gateTurnIndex = Number.isFinite(e.gate_turn_index)
+    ? e.gate_turn_index
+    : (txn ? txn.gate_turn_index : 0);
+
   return {
     ran_entries: ranEntries,
     askuserquestion_fired: askFired,
     output_text: outputText,
+    session_id: typeof e.session_id === 'string' ? e.session_id : '',
+    gate_turn_index: gateTurnIndex,
   };
 }
 
@@ -383,11 +592,15 @@ function main() {
 
 module.exports = {
   MAX_FORCE_RETRIES,
+  RETRY_TTL_MS,
   classifyCardFire,
   buildEnforcementEnvelope,
   gateReachingEntries,
   turnContextHash,
   deriveTurnSignals,
+  readTranscriptTurn,
+  pruneRetryStore,
+  normalizeRetryEntry,
   loadRegistry,
 };
 
