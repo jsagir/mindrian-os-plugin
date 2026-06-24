@@ -13,3 +13,10 @@
 
 ## DI-177-CALIB-LABEL (2026-06-24) - calibration_observations missing ground_truth_label
 177-05's calibration_observations table (memory-ops.cjs:156-166) has id/turn_id/turn_count/cue_kind/confidence/cue_disposition/band/created_by/created_at - but NO ground_truth_label (and no labeled_at). The BCH-CAL discrimination gate computes ROC-AUC of confidence vs ground_truth_label; without that column the LIVE calibration path can never run on real shadow data (the 177-08 harness works around it with synthetic labeled arrays). REQUIRED before live threshold-pinning: add ground_truth_label + labeled_at columns (idempotent ALTER/CREATE migration) + a labeling mechanism (human annotation of a sampled subset per SPEC PART 2, or a downstream proxy). Scope: small 177-05 addendum. Does NOT block the synthetic-proven harness or the all-waves machinery build.
+## [177-10] Pre-existing circular-dependency warning (calibration-gate <-> f-selector-ranker)
+
+- **Found during:** 177-10 Task 1 (wiring the lazy calibration-gate read into chain-executor).
+- **Symptom:** `Warning: Accessing non-existent property 'BEHAVIORAL_CHANNEL_FLOOR'/'BEHAVIORAL_CHANNEL_CEILING' of module exports inside circular dependency`.
+- **Root cause:** PRE-EXISTING. Reproduces with `require('lib/core/navigation/calibration-gate.cjs')` alone (which requires f-selector-ranker.cjs). Does NOT involve chain-executor; my lazy require only surfaces it when the re-exported BEHAVIORAL_CHANNEL_ARMED getter is first read.
+- **Impact:** None on correctness -- ARMED resolves to false, FLOOR=0.5, CEILING=0.85 all resolve correctly. Cosmetic stderr noise only.
+- **Disposition:** OUT OF SCOPE for 177-10 (not caused by this task's changes; scope boundary). Left untouched.
