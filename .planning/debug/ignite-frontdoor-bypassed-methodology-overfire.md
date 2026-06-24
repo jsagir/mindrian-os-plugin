@@ -5,7 +5,8 @@ title: "Larry bypasses ignite's F.1 front door and over-fires a methodology orch
 created: 2026-06-24
 severity: HIGH
 status: partially-fixed
-classification: NEW FAILURE (regression surfaced post v1.14.0)
+classification: NEW FAILURE (regression)
+introduced_in: "v1.14.0-beta.3 (2026-06-19, commit b526d20a) - Phase 163 shipped /mos:trending-to-absurd with a loose auto-activating description. Latent from beta.3 onward (present in beta.7 AND beta.9). Run 1 (clean) was v1.13.1, BEFORE the skill existed. beta.9 (Phase 177 Wave 1: dial/HUD/persona-prior) is NOT the cause - orthogonal plumbing, never touched skill activation. The bad run surfaced on beta.9 = the build now finalized to stable 1.14.0, so the regression is LIVE to all users until the fix ships in 1.15.0 (navigator chose roll-into-1.15.0, no hotfix)."
 fix_landed: "7868dfbb (2026-06-24) - activation + doctrine: trending-to-absurd description tightened to explicit-intent-only (closes the native skill-auto-loader bypass of the governed CIRS path); When-does-NOT-activate restraint + follow-the-learner-on-horizons + no-compliment; conversation-mode Mode 2 scaffold-follows-learner."
 fix_remaining: "(1) orchestrator.cjs code-level honor-the-chosen-horizon (stop mechanically forcing near/mid/long); (2) SYSTEMIC sweep: other methodology skills for the same loose-description bypass (CIRS R4 no-second-selection-brain); (3) land the parked Brain pedagogy write (needs admin key) for the prose no-compliment principle; (4) re-run tester Test 4 to confirm the clean ignite-F.1 first-touch is restored."
 canon_parts: [3, 7, 10]
