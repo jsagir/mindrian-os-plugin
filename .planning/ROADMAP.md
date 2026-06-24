@@ -3046,6 +3046,7 @@ Plans:
 **Plans:** 3 plans in 2 waves
 
 Plans:
+
 - [x] 175-01-PLAN.md - commands/deck.md: the consolidated /mos:deck command (born-wired connector: + cirs_relationship:), the F.1 Feynman/HEART/mesh style selector, the per-section accept/reshape/skip build flow, the WARN-first deck-design ruleset doctrine (R1-R5, R7, R8) -- COMPLETE 2026-06-23 (commits 2db22068 deck-styles.json, 3bda31f1 deck.md + 6 derived registries; /mos:deck born WIRED + RANKED gap=0; data/deck-styles.json asserts 3 styles / 5 HEART sections / 6 Feynman stages; rank 54 not 15 [Rule-3 collision]; run-all-172 20/20 + run-all-173 7/7; REACH_IDS stays 6)
 - [x] 175-02-PLAN.md - the deck-design ruleset --check (WARN-first): lib/core/deck-design-rules.cjs + scripts/check-deck-design.cjs proving source-link + AI-image-provenance + brand-binding warnings without failing (R6, R7, R8) -- COMPLETE 2026-06-23 (commits e8ecb708 rule lib + tests, e26d2736 CLI; 3 pure WARN-severity checkers checkSourceLinks/checkImageProvenance/checkBrandBinding + DESIGN_SYSTEM logo_link https://mindrian-os.com + PROVENANCE_FORMAT bottom-right/8-10pt/AI:<tool>,<year>; CLI exits 0 with warnings, --strict RESERVED, missing-file exit 2; tests/test-deck-design-check.cjs 8/8; pure CJS zero Brain/network Part 8; targeted staging, release Commit-B untouched; zero em-dashes)
 - [x] 175-03-PLAN.md - alias MOSDeckEngine + feynman-engine to /mos:deck (deprecate-not-delete), repoint the /mos:show make-land lane to /mos:deck, regenerate the connector + orchestration registries so /mos:deck is WIRED + ranked, and the behavior + 172/173 regression suite (R1, R9, all-behavior tests) -- COMPLETE 2026-06-23 (commits 0327f17f alias + make-land repoint, 288a4bc5 behavior suite + run-all-175.sh; data/deck-aliases.json maps both handles -> /mos:deck top-level; skills/MOSDeckEngine/SKILL.md retained as a deprecation redirect with its connector: block intact [stays WIRED]; data/publish-needs.json make-land job resolves_to MOSDeckEngine -> /mos:deck + commands/show.md doctrine updated; Task 2 a no-op re-assert [175-01 already regenerated the registries, byte-stable]; /mos:deck WIRED gap=0 + RANKED gap=0; tests/test-deck-consolidation.cjs 8/8 [3 distinct routes, HEART 5 sections, Feynman determinism, ruleset WARN-not-FAIL, make-land repoint, alias resolution, Part 8 boundary, no em-dashes]; bash tests/run-all-175.sh GREEN composing both --check gates + run-all-172 20/20 + run-all-173 7/7; REACH_IDS stays 6; check-publish-needs OK; targeted staging, release Commit-B untouched; zero em-dashes)
@@ -3067,6 +3068,7 @@ Plans:
 **Plans:** 4 plans (Wave 1 planned 2026-06-24; Waves 2-5 block on Wave 3 BCH-CAL and are out of this run's scope)
 
 Plans:
+
 - [x] 177-01-PLAN.md -- Wave 1: BCH-S1 canonical investment_level + turn_count term, BCH-05/06 floor/ceiling/band consts (BEHAVIORAL_CHANNEL_CEILING == 0.85 computed from RECOMMENDED_CONFIDENCE_FLOOR+0.15), BCH-PERSONA/17 ignite-persona dial seed -- COMPLETE 2026-06-24 (commits 1bbe4d5b/277e3935/dc9f9df2; test-bch-17 GREEN 20/20; consumer regressions 20/20 + 34/34)
 - [x] 177-02-PLAN.md -- Wave 1: BCH-REG/16 greenfield 4-arrow HUD (lib/hmi/dial-selector.cjs) + synchronous pre-compose CONTROL path, BCH-10 arrows mutate investment_level/posture -- COMPLETE 2026-06-24 (commits eff224ae/4d42d565; test-bch-10 + test-bch-16 GREEN; F.7-dial dispatcher branch, prior 7 sub-shapes byte-stable)
 - [x] 177-03-PLAN.md -- Wave 1: BCH-18 re-scoped single-axis role_blend producer threaded to birthRoom opts.roleBlend (GAP 1 stale, no duplicate producer) -- COMPLETE 2026-06-24 (commits 5a009ddc/ef55b230; test-bch-18 GREEN 17/17; executor dropped mid-Task-2 on a connection error, finished in-loop via the GSD spot-check fallback; self-heal regression 4/4)
@@ -3094,8 +3096,9 @@ Plans:
 
 **Deferred to a separate phase:** CV-second-select in F.7 for every persona + per-persona JTBD (researcher/student/venture/entrepreneur). Navigator: "fix first, feature second."
 
-**Plans:** 4 plans in 4 waves (planned 2026-06-24). One-ledger-two-columns design (navigator steer): the render plane is a render_coverage COLUMN on the existing CIRS ledger, not a parallel registry, which dissolves R-3.
-- [ ] 178-01-PLAN.md -- WAVE 1: add the render_coverage column to data/connector-coverage-ledger.json via an exhaustive AST/grep walk of F_SUBSHAPES + the F.7-dial branch + the 13 pickShape + 2 renderDial callers (C-1; R-3 dissolved structurally)
+**Plans:** 1/4 plans executed
+
+- [x] 178-01-PLAN.md -- WAVE 1: add the render_coverage column to data/connector-coverage-ledger.json via an exhaustive AST/grep walk of F_SUBSHAPES + the F.7-dial branch + the 13 pickShape + 2 renderDial callers (C-1; R-3 dissolved structurally)
 - [ ] 178-02-PLAN.md -- WAVE 2: scripts/check-render-coverage.cjs deterministic card-emission predicate over the shared ledger render column (C-2, no LLM-judge) + the FLOOR/hard-fail adversarial test mirroring test-coverage-gate-hardfail.cjs
 - [ ] 178-03-PLAN.md -- WAVE 3: hard-FAIL wiring into pre-commit + install-pre-commit + release.sh + doctor --acceptance (C-3) + promote the SEED-020 door to the verified chokepoint (route F.7-dial through card-emission, gap=0 green baseline)
 - [ ] 178-04-PLAN.md -- WAVE 4 (navigator-gated): mint CIRS R15 (Render Coverage) into Canon Part 11 as one atomic lockstep wave (canon + Appendix D entry 27 + v1.15->1.16 + map row + FLOOR test) + the GA-4 PostToolUse-interceptor spike for R-1 (named debt)

@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: "Completed 175-03-PLAN.md (PHASE 175 COMPLETE 3/3): deck consolidation wiring + regression gate -- data/deck-aliases.json (MOSDeckEngine + feynman-engine -> /mos:deck, deprecate-not-delete D-04b) + skills/MOSDeckEngine/SKILL.md rewritten as a deprecation redirect (connector: block preserved, surface stays WIRED) + data/publish-needs.json make-land lane repointed to /mos:deck (R9) + commands/show.md doctrine updated + tests/test-deck-consolidation.cjs 8/8 + tests/run-all-175.sh GREEN (both born-wired --check gates + run-all-172 20/20 + run-all-173 7/7). /mos:deck WIRED + RANKED gap=0; REACH_IDS stays 6; check-publish-needs OK. Task 2 a no-op re-assert (175-01 had already regenerated the byte-stable registries). Targeted staging (release Commit-B untouched)."
-last_updated: "2026-06-23T18:05:00.000Z"
-last_activity: 2026-06-23
+stopped_at: "Phase 172 Plan 13 COMPLETE (the full flip: both gates hard-FAIL + four-class canon v1.15)"
+last_updated: "2026-06-24T19:10:33.106Z"
+last_activity: 2026-06-24
 progress:
   total_phases: 6
   completed_phases: 6
@@ -449,7 +449,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 173 (publish-jtbd-need-selector) - EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ### Phase 172 Plan 02 (CIRS R12 forward-declaration contract + gate hook, Wave 1, autonomous) COMPLETE
 
@@ -566,7 +566,7 @@ Phase 143.3-01 outcome (2026-06-07): shipped the Connector Contract FOUNDATION -
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-06-23
+Last activity: 2026-06-24
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -950,6 +950,7 @@ Progress: [█████████░] 92%
 | Phase 173 P01 | 20m | 2 tasks | 4 files |
 | Phase 173 P02 | ~25m | 2 tasks | 6 files |
 | Phase 173 P03 | ~20m | 2 tasks | 5 files |
+| Phase 178 P01 | 10min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -1838,6 +1839,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 167 Plan 01: harness manifest is a 3-MAP DIGEST (data/harness-manifest.json via build-harness-manifest.cjs) naming the three maps by role+path+sha256-digest+source_count, never per-surface; recipe-maps loadManifest() wraps not retires (D-167-02); --check + planted-secret Part 8 scan gate it; run-all-167.sh 6/6 green
 - [Phase ?]: Phase 167 Plan 02 (D-167-03 BOTH): the harness-manifest --check is now a LIVE commit-time gate -- a path-scoped guard (manifest + generator + the three named source maps) in BOTH the untracked .git/hooks/pre-commit (beside the command-registry + brain-packet-schema guards) AND the tracked scripts/install-pre-commit.sh template (both splice + fresh-file HOOK_BODY branches, idempotency extended) so a fresh clone inherits it; exit-2 (live) / exit-1 (template) on drift with a regenerate recovery line; proven to fire RED on staged staleness + reject a real commit end-to-end, then restored. STRONGER than the connector/projection precedent (whose --checks run only in test aggregators). tests/test-harness-manifest-precommit-wiring.cjs (6 checks) fences the template wiring; run-all-167.sh 7/7 green (the Wave-1 --check CI leg satisfies BOTH)
 - [Phase ?]: 172-06: residual dark surface set exhaustively classified 79 wired / 43 excluded-with-reason; only /mos:act + /mos:ingest-methodology remain gap (Plans 08/12 own them); gate WARN-only until Plan 13 hard flip
+- [Phase ?]: Phase 178-01: render-coverage is a SEPARATE registry keyed on the 15 .cjs render entry points; the connector ledger is a distinct keyspace and stays byte-stable at 90/36/0
+- [Phase ?]: Phase 178-01: canonical render-entry-point count is 15 (13 real pickShape + 2 renderDial), DERIVED by the exhaustive walk; the plan's 16 over-counted the SEED-020-exempt intent-classifier comment (C-1)
+- [Phase ?]: Phase 178-01: R-3 is dissolved by an EXHAUSTIVENESS FLOOR test, not co-residency: a code-present-but-registry-absent render entry point FAILS the build
 
 ### Pending Todos
 
@@ -1878,7 +1882,7 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-23T11:44:22.260Z
+Last session: 2026-06-24T19:10:04.834Z
 Stopped at: Phase 172 Plan 13 COMPLETE (the full flip: both gates hard-FAIL + four-class canon v1.15)
 Resume path: Phase 172 Plan 13 is COMPLETE (commits 7858e79f flip+propagate, 34160b84 four-surface wiring, 75451e52 hard-fail proof, 74b0b8c1 four-class canon v1.15). BOTH CIRS coverage gates now hard-FAIL: build-connector-registry.cjs + build-orchestration-projection.cjs `--check` exit non-zero on any surface neither WIRED nor EXCLUDED (and any command counterpart neither ranked nor excluded), wired into pre-commit + install-pre-commit + release.sh (Step 2.4) + doctor --acceptance (coverage-gate point). The projection-exclude reconciliation propagated the 10 connector-EXCLUDED bare-command counterparts into the projection (projection now 76 ranked / 25 excluded / 0 gap); BOTH ledgers gap=0 (connector 88/36/0). Canon Part 11 R1 carries the verbatim four-class governance-ISA sentence (mechanical/framework/intelligence/pipeline); coverageReport() carries a per-surface class enum (counts unchanged); canon v1.14 -> v1.15 (Appendix D entry 26 + CANON-PHASE-MAP row). Fences: tests/test-coverage-gate-hardfail.cjs 14/14, tests/test-cirs-four-class-floor.cjs 23/23, bash tests/run-all-172.sh 18/18. The born-wired hard gate is now enforced at every merge -- the structural cure for the 143.x/144.1 regression. See 172-13-SUMMARY.md.
 
