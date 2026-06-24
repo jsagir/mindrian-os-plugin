@@ -3096,11 +3096,11 @@ Plans:
 
 **Deferred to a separate phase:** CV-second-select in F.7 for every persona + per-persona JTBD (researcher/student/venture/entrepreneur). Navigator: "fix first, feature second."
 
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 
 - [x] 178-01-PLAN.md -- WAVE 1: add the render_coverage column to data/connector-coverage-ledger.json via an exhaustive AST/grep walk of F_SUBSHAPES + the F.7-dial branch + the 13 pickShape + 2 renderDial callers (C-1; R-3 dissolved structurally)
 - [x] 178-02-PLAN.md -- WAVE 2: scripts/check-render-coverage.cjs deterministic card-emission predicate over the shared ledger render column (C-2, no LLM-judge) + the FLOOR/hard-fail adversarial test mirroring test-coverage-gate-hardfail.cjs
-- [ ] 178-03-PLAN.md -- WAVE 3: hard-FAIL wiring into pre-commit + install-pre-commit + release.sh + doctor --acceptance (C-3) + promote the SEED-020 door to the verified chokepoint (route F.7-dial through card-emission, gap=0 green baseline)
+- [x] 178-03-PLAN.md -- WAVE 3: hard-FAIL wiring into pre-commit + install-pre-commit + release.sh + doctor --acceptance (C-3) + promote the SEED-020 door to the verified chokepoint (route F.7-dial through card-emission, gap=0 green baseline)
 - [ ] 178-04-PLAN.md -- WAVE 4 (navigator-gated): mint CIRS R15 (Render Coverage) into Canon Part 11 as one atomic lockstep wave (canon + Appendix D entry 27 + v1.15->1.16 + map row + FLOOR test) + the GA-4 PostToolUse-interceptor spike for R-1 (named debt)
 
 **Status:** PLANNED 2026-06-24. 4 plans across 4 waves. Navigator ratified Option A (mint CIRS R15) + the one-ledger-two-columns design (the render plane is a render_coverage column on the existing CIRS coverage ledger, dissolving R-3). NEXT: /gsd-execute-phase 178.
