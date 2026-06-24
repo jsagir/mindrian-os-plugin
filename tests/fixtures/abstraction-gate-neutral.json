@@ -1,0 +1,22 @@
+{
+  "_comment": "Phase 179-05 -- the committed DOMAIN-NEUTRAL abstraction-gate fixture. A generic 'I believe X drives Y' example with ZERO venture/user-specific content. This file is tracked and public-leaning; it MUST carry no venture-specific or real-name strings (no-real-names HARD RULE + Canon Part 8). The neutrality grep gate (scripts/check-abstraction-fixture-neutral.cjs) fails CLOSED if any banned domain token appears here.",
+  "hypothesis_text": "I believe X drives Y.",
+  "abstraction_options": [
+    {
+      "key": "instances",
+      "label": "INSTANCES",
+      "description": "I am testing specific instances (concrete cases of X and Y)."
+    },
+    {
+      "key": "structure",
+      "label": "STRUCTURE",
+      "description": "I am testing the general structure (the rule that relates X to Y)."
+    },
+    {
+      "key": "unsure",
+      "label": "unsure",
+      "description": "I am not yet sure which level I am testing."
+    }
+  ],
+  "expected_pick_keys": ["instances", "structure", "unsure"]
+}
