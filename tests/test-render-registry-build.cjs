@@ -4,12 +4,20 @@
  *
  * Proves the SEPARATE render-coverage registry (data/render-coverage-registry.json)
  * is minted by scripts/build-render-coverage.cjs as a DERIVED, exhaustive AST/grep
- * walk over the .cjs render ENTRY POINTS (C-1): the 14 pickShape callers (including
+ * walk over the .cjs render ENTRY POINTS (C-1): the 13 pickShape callers (including
  * the lib/hmi/selector-dispatcher.cjs dispatcher self-call) + the 2 renderDial
- * callers = 16 entry points. Each entry is a two-state render_coverage value
+ * callers = 15 entry points. Each entry is a two-state render_coverage value
  * ('card-emission' | 'render-only-excluded'); a render-only-excluded entry REQUIRES
  * a non-empty reason. The F.7-dial / dial-selector entry declares card-emission
  * (host-appended via pickShape's isFShape branch).
+ *
+ * RECONCILIATION (Rule 1, navigator-approved Option A): the plan's grep-derived
+ * "16" counted scripts/intent-classifier.cjs as a pickShape caller, but it has ZERO
+ * real pickShape call sites -- its pickShape mentions are comments, one of them the
+ * documented SEED-020 pickShape EXEMPTION at :865-868 (the dial render deliberately
+ * does NOT fold through pickShape). intent-classifier is therefore a renderDial-only
+ * entry point. The DERIVED exhaustive walk is the source of truth (C-1: derived, not
+ * hand-listed), so the canonical count is 15.
  *
  * This is the BUILD test (the registry exists, is exhaustive, two-state, and the
  * --check byte-compare is stable). The exhaustiveness FLOOR (a code-present-but-
@@ -43,15 +51,26 @@ const entries = reg.entries;
 ok('registry has an entries array', Array.isArray(entries));
 
 // ---------------------------------------------------------------------------
-// Exactly 16 render entry-point records (14 pickShape incl. dispatcher self-call
+// Exactly 15 render entry-point records (13 pickShape incl. dispatcher self-call
 // + 2 renderDial).
 // ---------------------------------------------------------------------------
-ok('registry has exactly 16 render entry points', entries.length === 16);
+ok('registry has exactly 15 render entry points', entries.length === 15);
 
 const pickShapeEntries = entries.filter((e) => e.kind === 'pickShape');
 const renderDialEntries = entries.filter((e) => e.kind === 'renderDial');
-ok('14 pickShape entry points', pickShapeEntries.length === 14);
+ok('13 pickShape entry points', pickShapeEntries.length === 13);
 ok('2 renderDial entry points', renderDialEntries.length === 2);
+
+// intent-classifier is renderDial-only (the SEED-020 pickShape exemption): it
+// must NOT appear as a pickShape entry point.
+ok(
+  'scripts/intent-classifier.cjs is NOT a pickShape entry point (SEED-020 exemption)',
+  !entries.some((e) => e.entry === 'scripts/intent-classifier.cjs' && e.kind === 'pickShape')
+);
+ok(
+  'scripts/intent-classifier.cjs IS a renderDial entry point',
+  entries.some((e) => e.entry === 'scripts/intent-classifier.cjs' && e.kind === 'renderDial')
+);
 
 // The dispatcher self-call is a real call site reached at runtime -- it MUST be
 // enumerated (the LOW reconciliation: 13 external + 1 dispatcher self-call).
@@ -88,8 +107,8 @@ ok('the F.7-dial / dial-selector entry declares card-emission', dialEntry && dia
 // ---------------------------------------------------------------------------
 ok('registry carries a render_counts block', reg.render_counts && typeof reg.render_counts === 'object');
 ok(
-  'render_counts.card_emission + render_only_excluded === 16',
-  (reg.render_counts.card_emission + reg.render_counts.render_only_excluded) === 16
+  'render_counts.card_emission + render_only_excluded === 15',
+  (reg.render_counts.card_emission + reg.render_counts.render_only_excluded) === 15
 );
 
 // ---------------------------------------------------------------------------
