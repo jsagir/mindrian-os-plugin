@@ -32,8 +32,12 @@ const { pickShape, _internal } = dispatcherMod;
 test('T1: F_SUBSHAPES contains F.7 as the 8th entry', () => {
   const subShapes = _internal.F_SUBSHAPES;
   assert.ok(Array.isArray(subShapes));
-  assert.equal(subShapes.length, 8);
+  // Phase 177-02 additively appended 'F.7-dial' (the four-arrow register HUD
+  // branch, BCH-10/BCH-16) as the 9th entry. F.7 stays the 8th entry (index 7)
+  // and the prior 7 stay byte-stable, so the 120-01 R1 invariant holds.
+  assert.equal(subShapes.length, 9);
   assert.equal(subShapes[7], 'F.7');
+  assert.equal(subShapes[8], 'F.7-dial');
   // Pre-existing 7 entries preserved byte-stable (R1 invariant).
   assert.deepEqual(subShapes.slice(0, 7), ['F.0', 'F.1', 'F.2', 'F.3', 'F.4', 'F.5', 'F.6']);
 });
