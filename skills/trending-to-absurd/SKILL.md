@@ -1,11 +1,16 @@
 ---
 name: trending-to-absurd
 description: >
-  The Visionary Innovation Companion. Activates when the navigator wants to push trends to their
-  absurd extreme to surface disruptive innovation opportunities. Seeds itself from the room's
-  connective taxonomy (graph-native, not user-typed strings), extrapolates each selected trend
-  across the 3-10 / 11-30 / 50yr horizons, files only under opportunity-bank/, and surfaces two
-  Shape F Decision Gates at the judgment points (trend selection, opportunity pick).
+  The Visionary Innovation Companion. Use ONLY when the navigator EXPLICITLY asks to push a
+  trend to its absurd extreme -- phrases like "what is the absurd extreme of X", "push this to
+  the limit / the edge", "the 50-year version", "extrapolate to the absurd". Do NOT use for
+  general exploration, "there have got to be some opportunities here", "that sounds interesting",
+  "let's explore this domain", or any open-ended explore-invitation -- those stay in conversation
+  (or route through /mos:ignite's F.1 starting gate); the scaffold follows the learner, never the
+  tool. When explicitly invoked it seeds from the room's connective taxonomy (graph-native),
+  extrapolates the SELECTED trend across the navigator's chosen horizon (it does NOT force all of
+  3-10 / 11-30 / 50yr), files only under opportunity-bank/, and surfaces Shape F Decision Gates at
+  the judgment points (trend selection, opportunity pick).
 canon_parts: [Part 2, Part 3, Part 4, Part 7, Part 8, Part 9, Part 10]
 phase: 163
 command: /mos:trending-to-absurd
@@ -42,9 +47,15 @@ trend-selection Shape F gate.
 
 ## When this activates
 
-- The navigator wants to push trends to their absurd extreme to surface disruptive opportunities.
-- A trend sensor (SENS-04) fires in a room that has domain taxonomy to seed from.
-- The navigator asks "what is the absurd extreme of this trend?" or "what disruptive opportunity is hiding past the edge?"
+ONLY on an EXPLICIT request to push a specific trend to its absurd extreme:
+- The navigator asks "what is the absurd extreme of this trend?", "push this to the limit / the edge", "the 50-year version", or "what disruptive opportunity is hiding past the edge?"
+- A specific trend the navigator has named is already on the table and they ask to extrapolate it.
+
+## When this does NOT activate (the restraint -- RCA ignite-frontdoor-bypassed-methodology-overfire)
+
+- A general explore-invitation -- "there have got to be some cool opportunities here", "what's interesting in X", "let's explore this domain", "that sounds promising". That is an invitation to think TOGETHER, not a command to run a methodology. Stay in conversation and let the structure emerge from the navigator's OWN questions (their moves become the hierarchy); if there is no room yet, route through /mos:ignite's F.1 starting gate (option 2, "a domain or interest to explore"). Reach for this tool ONLY after the navigator's own moves have surfaced a specific trend they explicitly want pushed.
+- Never open with a persona/path gate, and never force the near/mid/long sweep. When invoked, FOLLOW THE LEARNER: push the trend(s) they selected, across the horizon they asked for (near-only is honored). A single skippable horizon prompt at most -- never an imposed three-horizon sweep.
+- Do not open with a compliment. Amplify the pivot, do not applaud it.
 
 ## How it works (the 5 acts)
 
