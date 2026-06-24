@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: in-progress
-stopped_at: "Phase 179 Plan 02 COMPLETE (widen the scratchpad birth-answer whitelist -- role_blend + blueprint_family + hypothesis_text, Wave 2 / REQ-09)"
-last_updated: "2026-06-25T00:00:00.000Z"
+stopped_at: "Phase 179 Plan 03 COMPLETE (canonical persona-first 4-door B1 card + single-axis role_blend threading, Wave 3 / REQ-02 + REQ-03 + REQ-12)"
+last_updated: "2026-06-24T22:45:00.000Z"
 last_activity: 2026-06-25
 progress:
   total_phases: 6
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-25) -- Phase 179 Plan 02 COMPLETE -- widen the scratchpad birth-answer whitelist (Wave 2 / REQ-09)
+## Latest (2026-06-25) -- Phase 179 Plan 03 COMPLETE -- canonical persona-first 4-door B1 card (Wave 3 / REQ-02 + REQ-03 + REQ-12)
+
+ignite B1 is now ONE persona-first AskUserQuestion card with four doors. `commands/ignite.md` B1 was rewritten from the prose stopgap (e22b9ea4) into the canonical 4-door form: Door 1 Persona pick (single-select arrow-key, six personas each `role_blend={key:1.0}` from the frozen `ROLE_BLEND_KEYS`, deriving `blueprintFamily` -- researcher/student/domain_expert -> exploration, founder/operator/investor -> venture), Door 2 CV (arrival_asset=cv-upload, Phase 115 dual-path + `blendFromCanonicalRole` single-axis), Door 3 Hypothesis (arrival_asset=hypothesis-arrival, captures one falsifiable "I believe ___" as `hypothesis_text`; the hypothesis blueprint family + truth-claim filing + abstraction gate are Waves 4-5), Door 4 Free-Text (the AskUserQuestion Other row, Larry routes). Every door resolves the same `{role_blend, blueprintFamily, arrival_asset}` tuple threaded through the Wave-2 widened `writeScratchpadBirthAnswer` whitelist (role_blend + blueprint_family + arrival_asset + hypothesis_text) into B2's birthRoom opts. The keyboard contract is enforced: single-pick gates render as arrow-key single-select AskUserQuestion cards, never an ASCII box only (the Wave-1 GA-4 interceptor catches a reached-gate-no-card turn). The frozen ROLE_BLEND_KEYS are imported, never redefined inline. `lib/core/navigation/room-birth.cjs` is BYTE-UNCHANGED (`git diff --quiet HEAD` exits 0 -- the 7-step txn + approvedBy gate untouched); frozen Part 3 contracts (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the 6-reach bank, the glyphs) unchanged; Part 8 LOCAL-clean (role_blend weights + user_id never to Brain). TDD: RED `d0be4713`, GREEN `c3380f14`. Suite `tests/test-b1-four-door-contract.cjs` 23/23. `bash tests/run-all-179.sh` 7 pass / 0 fail / 4 skip (Wave 1 + Wave 2 + Wave 3 now passing; reach-ids 6 + posture-ids 3 frozen fences green); `node scripts/check-render-coverage.cjs --check` exit 0; `node tests/test-ignite-on-runchain.cjs` 5/6 no regression. SUMMARY: `.planning/phases/179-ignite-b1-starting-point-fix/179-03-SUMMARY.md`. NEXT: 179-04 (the hypothesis blueprint family + truth-claim filing, Wave 4).
+
+## Prior (2026-06-25) -- Phase 179 Plan 02 COMPLETE -- widen the scratchpad birth-answer whitelist (Wave 2 / REQ-09)
 
 The B1 persona/hypothesis signal no longer dies before B2. `writeScratchpadBirthAnswer` (lib/core/scratchpad-ops.cjs) previously persisted ONLY `free_text` + `arrival_asset`; `ignite.md` already passed `role_blend` + `blueprint_family` but they were silently dropped. This plan widened the optional-field whitelist ADDITIVELY: `role_blend` (plain non-null non-array object guard), `blueprint_family` + `hypothesis_text` (typeof-string guards mirroring the existing idiom). The function signature, the always-present fields (gate_id/option_key/canonical_verb/alias_label/ts), and `_writeAtomic` are untouched; `lib/core/navigation/room-birth.cjs` (the drain side) is BYTE-UNCHANGED -- it reads the whole entry object so the additive keys ride for free (asserted by the test, not by mutating the drain). Absent fields leave the entry byte-identical to today (keys absent, not present-as-null). Part 8 LOCAL-only: role_blend weights + hypothesis_text are journaled to the local scratchpad, never to Brain (LOCAL sweep clean). TDD: RED `5f815954`, GREEN `ef3e41d5`. Suite `tests/test-scratchpad-birth-whitelist-179.cjs` 16/16 (session-boundary round-trip + additive shape + existing-field invariance + type discipline). `bash tests/run-all-179.sh` 6 pass / 0 fail / 5 skip (Wave 1 still green; Wave 2 now passing; reach-ids 6 + posture-ids 3 frozen fences green); pre-existing 155-01 suite no regression. SUMMARY: `.planning/phases/179-ignite-b1-starting-point-fix/179-02-SUMMARY.md`. NEXT: 179-03 (the canonical persona-first 4-door B1 card).
 
