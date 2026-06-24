@@ -5,7 +5,9 @@
  * Phase 155-05 Task 1 -- Blueprint family CI schema checker.
  *
  * Validates data/room-blueprints.json against three invariants:
- *   (1) exactly 8 blueprint families present (no drift, no extras)
+ *   (1) exactly EXPECTED_FAMILY_COUNT blueprint families present (no drift, no
+ *       extras). Phase 155-05 froze 8; Phase 179-04 moved it to 9 (the
+ *       hypothesis Door 3 family).
  *   (2) every family has sections (non-empty array), default_methodologies
  *       (non-empty array), and arrival_assets (non-empty array)
  *   (3) all section slugs in every family appear in VALID_SECTION_SLUGS
@@ -37,8 +39,11 @@ const EXPECTED_FAMILIES = new Set([
   'venture',
   'program',
   'case-study',
+  // Phase 179-04: the hypothesis-driven Door 3 family (data, not a frozen-set
+  // move per Canon Part 11). LOCKED section set per CONTEXT decision 3.
+  'hypothesis',
 ]);
-const EXPECTED_FAMILY_COUNT = 8;
+const EXPECTED_FAMILY_COUNT = 9;
 
 // Read VALID_SECTION_SLUGS from the frozen SECTION_NAMES table in the scaffold.
 // Require the scaffold module and pull the exported SECTION_NAMES array.
@@ -88,7 +93,14 @@ function loadValidSectionSlugs() {
 // set for the CI check to include the opportunity-bank slug (it is a real
 // directory the room uses, even if the scaffold creates it differently).
 // This is documented here so future audits understand the design boundary.
-const EXTENDED_VALID_SLUGS_FOR_CHECK = new Set(['opportunity-bank']);
+//
+// Phase 179-04: the "assumptions" slug is extended in the SAME way and for the
+// SAME reason. The hypothesis blueprint family (Door 3) uses assumptions as a
+// persona-conditional section (the navigator's "I believe ___" surfaces the
+// assumptions to challenge). Like opportunity-bank it is a real directory the
+// room uses but is NOT in the frozen SECTION_NAMES scaffold table; the scaffold
+// skips it gracefully while the CI check accepts it as a valid blueprint slug.
+const EXTENDED_VALID_SLUGS_FOR_CHECK = new Set(['opportunity-bank', 'assumptions']);
 
 function validate() {
   const errors = [];
@@ -202,7 +214,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log('[' + label + '] PASS: 8 families, all section slugs valid, all arrays non-empty.');
+  console.log('[' + label + '] PASS: ' + EXPECTED_FAMILY_COUNT + ' families, all section slugs valid, all arrays non-empty.');
   process.exit(0);
 }
 

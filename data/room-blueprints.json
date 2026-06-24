@@ -132,5 +132,21 @@
       "lean-canvas",
       "find-analogies"
     ]
+  },
+  "hypothesis": {
+    "description": "Hypothesis-driven persona (Door 3): the navigator arrives with a falsifiable belief ('I believe ___') and needs to structure, challenge, and test it before committing.",
+    "arrival_assets": ["hypothesis-arrival"],
+    "sections": [
+      "problem-definition",
+      "assumptions",
+      "opportunity-bank"
+    ],
+    "_sections_note": "Phase 179-04 LOCKED set (CONTEXT decision 3). problem-definition is seeded with the captured hypothesis. assumptions + opportunity-bank are non-frozen slugs (not in the SECTION_NAMES frozen table); the scaffold skips them gracefully and the check-room-blueprints CI gate accepts them via EXTENDED_VALID_SLUGS_FOR_CHECK. No dedicated hypotheses section this phase.",
+    "default_methodologies": [
+      "structure-argument",
+      "challenge-assumptions",
+      "validate",
+      "research"
+    ]
   }
 }
