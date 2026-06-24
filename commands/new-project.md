@@ -135,67 +135,25 @@ This is a CONVERSATION, not a form. Explore naturally through questions:
 
 ### When to Move On
 
-After sufficient exploration (user has shared enough for meaningful room context), first surface
-the B1 STARTING POINT gate (unless --express or --from-brief already resolved it), then surface
-the B2 blueprint gate.
+After sufficient exploration (user has shared enough for meaningful room context), surface
+the B2 blueprint gate (unless --express or --from-brief already resolved the blueprintFamily).
 
-<!-- B1 GATE -- birth - STARTING POINT - decision gate -->
-<!-- BIRTH-FLOW-BRIEF.md Section 2: F.1 shape, pre-room; answers journal to scratchpad -->
-<!-- directive entry pre-answers (arrival_asset inferred); B1 shown only if ambiguous -->
-<!-- SEED-022 Tier-0 exemption: B1 renders full F.1 pre-room via payload.verbs path -->
+<!-- Phase 179 Req 10 (reconcile the two B1 specs): the canonical starting-point B1 -->
+<!-- is the persona-first 4-door card in commands/ignite.md (Gate B1). new-project.md -->
+<!-- is the B2 scaffold backend that ignite delegates to; it no longer renders a -->
+<!-- competing B1 gate. /mos:new-project is entered AT B2 with blueprintFamily already -->
+<!-- resolved (by ignite's B1, by --express/--from-brief context, or by the -->
+<!-- --from-opportunity umbilical). See commands/ignite.md Gate B1 for the one canonical -->
+<!-- persona-first starting point. -->
 
-**B1: STARTING POINT GATE (Shape F.1, pre-room)**
-
-<!-- --express / --from-brief bypass note: when --express or --from-brief is active, B1 is -->
-<!-- pre-answered from context (arrival_asset inferred from session material or brief content). -->
-<!-- Show B1 only if the material is ambiguous (e.g. a CV that could map to exploration OR -->
-<!-- solution-first). When pre-answered, skip to B2 with blueprintFamily already resolved. -->
-<!-- Per BIRTH-FLOW-BRIEF.md Section 2: "directive entry pre-answers and shows B1 only if ambiguous." -->
-
-Display the starting-point header before calling pickShape:
-
-```
-birth - STARTING POINT - decision gate
-LOCAL / BRAIN / SIGNAL
-
-What are you arriving with?
-```
-
-Call `pickShape('F.1', { operator: currentOperator, tier: resolveTier(), payload: { header: 'birth - STARTING POINT - decision gate', verbs: [ { key: 'a', label: 'A solution looking for its problem', alias_label: 'solution-first', canonical_verb: 'RunMethodology' }, { key: 'b', label: 'A domain or interest to explore', alias_label: 'exploration', canonical_verb: 'RunMethodology' }, { key: 'c', label: 'A defined venture or business case', alias_label: 'venture', canonical_verb: 'RunMethodology' } ] } })`.
-
-The F.1 dispatcher appends Free-Text as the last option automatically (Tier-0 trailer).
-
-After B1 answer is received, journal to scratchpad:
-```javascript
-writeScratchpadBirthAnswer({
-  gate_id: 'B1',
-  option_key: answer.option_key,        // 'a', 'b', 'c', or 'free_text'
-  canonical_verb: answer.canonical_verb,
-  alias_label: answer.alias_label,
-  arrival_asset: resolvedArrivalAsset,  // see mapping below
-  blueprintFamily: resolvedFamily,       // see mapping below
-  ts: Date.now()
-})
-```
-
-Arrival asset and blueprintFamily mapping from B1 answer:
-- Option A ('a' / 'solution-first'): arrival_asset = 'solution-looking-for-problem', blueprintFamily = 'solution-first'
-- Option B ('b' / 'exploration'): arrival_asset = 'domain-or-interest', blueprintFamily = 'exploration'
-- Option C ('c' / 'venture'): arrival_asset = 'defined-venture', blueprintFamily = 'venture'
-- Free-Text: keep arrival_asset = null, blueprintFamily = 'venture' (default; re-infer from response)
-
-Pass blueprintFamily into the B2 display (the "Section set" field) and into the birthRoom call
-so scaffoldRoomSkeleton consumes it from data/room-blueprints.json.
-
-<!-- Tri-Polar degradation script for B1 (Desktop / no AskUserQuestion card guarantee): -->
-<!-- Desktop: render as: -->
-<!--   "Which best describes what you are arriving with? -->
-<!--    (a) A solution looking for its problem -->
-<!--    (b) A domain or interest to explore -->
-<!--    (c) A defined venture or business case -->
-<!--    -- type a, b, or c." -->
-<!-- CLI: pickShape fires the AskUserQuestion card normally via selector-dispatcher. -->
-<!-- Cowork: same as CLI; hook fires the card in the shared context. -->
+**Starting point (B1):** resolved upstream. The single canonical starting-point gate is the
+persona-first 4-door card in `commands/ignite.md` (Gate B1). `/mos:new-project` is the B2
+scaffold backend ignite delegates to; it does not render a starting-point gate of its own.
+The caller arrives here with `blueprintFamily` already resolved -- from ignite's B1, from
+`--express` / `--from-brief` session context, or from the `--from-opportunity` umbilical.
+Proceed directly to the B2 blueprint gate below; the resolved `blueprintFamily` flows into
+the B2 display ("Section set" field) and into the `birthRoom` call so `scaffoldRoomSkeleton`
+consumes it from `data/room-blueprints.json`.
 
 <!-- B2 GATE -- birth - ROOM BLUEPRINT - decision gate -->
 <!-- BIRTH-FLOW-BRIEF.md Section 2 + Canon Part 9 (promotion moment) + Canon Part 3 (F.0) -->
