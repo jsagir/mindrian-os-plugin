@@ -173,6 +173,18 @@ contracts (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the 6-reach bank, the gl
 - D-178-07 Name every residual honestly (below); do not let the gate's scope quietly expand
   to claim it covers them.
 
+## Authoritative requirement set (traceability reconciliation, 2026-06-24)
+
+The plans' `requirements:` frontmatter keys on the AUTHORITATIVE requirement set defined HERE:
+the three non-negotiables C-1 (registry-driven) / C-2 (deterministic code-evaluated) / C-3
+(hard-FAIL from day one) from D-178-03, plus the locked decisions D-178-01..D-178-07 and the
+gray-area GA-4 (the R-1 PostToolUse-interceptor spike). Earlier draft `RND-*` IDs were NOT defined
+in any source artifact and have been REMOVED; do not reintroduce them. Plan-to-requirement map:
+178-01 = C-1 (+ D-178-02 reuse, D-178-04 additive, D-178-07 residual-honesty);
+178-02 = C-2 + C-3-exit-contract (+ D-178-01 gate-not-test, D-178-04, D-178-07);
+178-03 = C-3 hard-FAIL wiring (+ D-178-04, D-178-05 one-governed-path);
+178-04 = D-178-06 canon amendment + GA-4 spike (+ D-178-07, C-3 enforced-tier).
+
 ## Residual risks (named, not hidden)
 
 - R-1 Irreducible agent-honored residual: the gate makes the REACHED-gate

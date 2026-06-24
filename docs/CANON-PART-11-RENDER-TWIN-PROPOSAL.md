@@ -40,14 +40,18 @@ The navigator's surface list maps onto both planes: commands / skills / agents /
 Brain are the invocation surfaces (CIRS); any of them that surfaces a Decision Gate is ALSO a
 render surface (R15). Same registry-driven, hard-FAIL discipline on both planes.
 
-**Design consequence (one ledger, two columns).** Because a gate-surfacing capability lives on
-both planes, R15's render declaration should NOT be a second, separate registry that can drift
-from the CIRS one. The cleanest expression is one surface ledger where each surface declares its
-connector: (invocation: WIRED/excluded) AND its render coverage (card-emission /
-render-only-excluded). check-render-coverage.cjs reads the same ledger as
-build-connector-registry.cjs. This makes the two-plane symmetry STRUCTURAL, not just conceptual,
-and dissolves residual R-3 (registry-completeness drift): a surface cannot be present in one
-registry and missing from the other when there is only one.
+**Design consequence (separate render registry - CORRECTED 2026-06-24).** An initial "one
+ledger, two columns" framing was rejected after the plan-checker verified it against the live
+tree: the CIRS ledger is keyed on MARKDOWN surfaces (commands/skills/agents), but render entry
+points are `.cjs` call sites in lib/ and scripts/ (the ~16 pickShape/renderDial sites), and 10
+of 16 have NO owning markdown surface. The render plane is a DISTINCT keyspace; co-residency is
+undefined for it. The corrected design: a dedicated render-coverage registry keyed on the `.cjs`
+render entry points, walked by exhaustive AST/grep enumeration. The two-plane symmetry stays
+STRUCTURAL in DISCIPLINE (same born-wired, hard-FAIL, registry-driven mechanism) but uses two
+registries. Residual R-3 (registry-completeness drift) is dissolved NOT by co-residency but by
+an EXHAUSTIVENESS FLOOR test: a render entry point that exists in the code but is absent from the
+registry FAILS the build. That exhaustiveness check is the structural guarantee co-residency was
+meant to provide.
 
 **Two honest gaps (named, not papered over).** (1) CIRS invocation coverage is the target the
 gate ENFORCES GOING FORWARD, not a claim every legacy surface is green today (Phase 172 baseline
