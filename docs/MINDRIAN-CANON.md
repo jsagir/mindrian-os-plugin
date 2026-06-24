@@ -1,7 +1,7 @@
 # Mindrian Canon
 
-Version: 1.15
-Date: 2026-06-23
+Version: 1.16
+Date: 2026-06-24
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
 
@@ -434,7 +434,7 @@ full Parts; the thing that decides what gets reached for is the same altitude.
 ### The Command Invocation Ruling System (CIRS) - the closed ruling set
 
 A closed constitution, the invocation-layer counterpart of Part 3's closed verb vocabulary and Part 4's
-closed edge vocabulary. Every invocable surface MUST satisfy R1-R14; the gate enforces them; a change to
+closed edge vocabulary. Every invocable surface MUST satisfy R1-R15; the gate enforces them; a change to
 the closed set is a canon amendment (Part 6 mechanism), not a per-phase edit. Two rules (R6, R11) are
 DECLARED-but-DEFERRED-ENFORCEMENT: the direction is law, but hard-FAIL enforcement is gated on substrate
 existing (curated chain confidences; the scale-invariant rollup operator) - until then they hold as
@@ -497,6 +497,20 @@ warn/aspirational, so no unproven number is frozen as hard law.
   coverage-quality defect; the gate detects overlap (WARN minimum) and arbitration defers to the Part 3
   MAX_K ranker. (`autonomous_safe` is a required field of the R1 WIRED connector block, gate-governed -
   it decides auto-run-vs-halt for the post-gate runChain handoff, Part 3.)
+- **R15** Render coverage - every surface that can REACH a Decision Gate (Part 3 Shape F) declares at
+  the registry/type level either (a) it routes through atomic interactive-card emission (the single
+  SEED-020 construction door), or (b) it is render-only and EXCLUDED. The render-coverage gate fails
+  the build CLOSED (hard-FAIL, nonzero exit) on a reachable gate surface that declares neither. The
+  declaration is DERIVED by exhaustive enumeration of render entry points, never a hand-maintained
+  list; the coverage predicate is deterministic and code-evaluated, never an LLM-judge. R15 is the
+  render-plane peer of R2 (born-wired) + R9 (enforced-not-aspirational); it governs whether a REACHED
+  gate FIRES its interactive card, distinct from R3's trigger wire (whether a surface gets reached).
+  The terminal LLM tool-call residual is a named debt (the gate proves WIRED-to-emit, not
+  fired-this-turn). Frozen Part 3 contracts (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the 6-reach
+  bank, the glyphs) are UNCHANGED. The mechanism reuses the CIRS generator+--check pattern as
+  scripts/check-render-coverage.cjs wired into pre-commit + install-pre-commit + release.sh +
+  doctor --acceptance (the R9 enforcement surfaces). Implementing phase: 178
+  (universal-gate-chokepoint); the gate is scripts/check-render-coverage.cjs.
 
 ### Relationship to the existing Parts (what this PULLS TOGETHER, what it does NOT change)
 
@@ -505,7 +519,10 @@ warn/aspirational, so no unproven number is frozen as hard law.
   0.70/0.15 gate, the single-marker body glyph, the F.1 keyboard contract are frozen. Part 11 governs the
   SUPPLY (which capabilities exist, are wired, trigger, chain); Part 3 governs the DEMAND-side decision
   surface (how the eligible set is ranked, rendered, chosen, recorded). A /mos:act standing suggestion
-  below 0.70 carries NO RECOMMENDED marker and NO second body glyph.
+  below 0.70 carries NO RECOMMENDED marker and NO second body glyph. R15 (render coverage) governs
+  whether a REACHED gate FIRES its interactive card; Part 3's render contracts (MAX_K=3,
+  DIAL_REACH_K=6, the 0.70/0.15 gate, the glyphs) are UNCHANGED by R15 -- the render twin verifies the
+  card-emission ROUTING exists, it does not touch the render contracts themselves.
 - **Part 4** - chains/counterparts reuse existing edge vocabularies; Part 11 mints NO new edge type.
 - **Part 7** - Part 11 is the structural expression of Reuse-Before-Build at the invocation layer:
   capabilities are repointed and wired, not rebuilt; the moat is made self-extending.
@@ -518,7 +535,9 @@ warn/aspirational, so no unproven number is frozen as hard law.
 
 ### Implementing phase
 
-Phase 172 (contextual-invocation-coverage) is the implementing phase - it ships CIRS R1-R14 as code.
+Phase 172 (contextual-invocation-coverage) is the implementing phase - it ships CIRS R1-R14 as code;
+Phase 178 (universal-gate-chokepoint) ships R15 (the render-plane peer) as the born-wired
+render-coverage gate (scripts/check-render-coverage.cjs).
 Phase 166 (gated-chain-executor / runChain - shipped on disk) is the runtime R4/R6 lean on. Per Part 6
 (Product-as-Venture) the canon names the phase that implements the canon. 170 + 171 are the first
 conformance targets, gated before release. The Part binds on ratification; 172 implements it over time
@@ -624,6 +643,8 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 26. **Part 11 R1 four-class governance-ISA sharpening + the born-wired gate flipped to hard-FAIL (Phase 172-13, 2026-06-23).** Phase 172 Plan 13 sharpened Part 11 R1's unit-of-coverage to enumerate the FOUR governed surface classes - mechanical (a non-framework command/operation), framework (a pws methodology), intelligence (an engine/sensor/analysis surface), and pipeline (a chain/workflow) - as a one-line R1 amendment, AND flipped the CIRS coverage gate from WARN to hard-FAIL across all four enforcement surfaces. The four classes are the invocation governance ISA; each is subject to the same born-wired R1/R2 treatment, and the gate is class-aware. This MINTS no new edge/node/reach and opens no Brain wire - it NAMES existing surface types (the `class` enum is purely additive metadata on the coverage ledger; the wired/excluded/gap COUNTS are unchanged). The amendment is externally grounded in the ArbiterOS "governance-as-constitution" / governance-ISA paradigm (arXiv 2510.13857; research/172-GOVERNOR-RESEARCH.md): CIRS R1-R14 + the born-wired gate IS the governance ISA, and the git/CI chokepoint is the separated enforcement kernel. Two prose clarifications landed alongside: the two-wires doctrine now states the capability-vs-permission distinction (a dark capability = a capability WITHOUT permission-to-be-reached - present in knowledge, absent from the governed reach path), and R9 records `doctor --drift` as the SCHEDULED (periodic) reconciliation surface beside the merge gate (the Wiz/HashiCorp two-timeframe pattern; continuous Brain-sync stays Phase 137). The hard-FAIL flip itself: both generators' `--check` (build-connector-registry.cjs + build-orchestration-projection.cjs) now exit non-zero on any surface neither WIRED nor EXCLUDED (and any command counterpart neither ranked nor excluded), wired into pre-commit + install-pre-commit + release.sh + doctor --acceptance - the structural cure for the recurring 143.x/144.1 regression (R2/R9/INV-10 step 3/INV-14). The flip landed AFTER Plan 172-16 wired/excluded the baseline and this plan reconciled the projection command-ledger to gap=0 (a command counterpart whose surface is EXCLUDED in the connector layer now PROPAGATES to EXCLUDED in the projection), so CI never went RED mid-sweep. This was a navigator-gated AND navigator-approved decision (2026-06-23 "go on!"; the R1 amendment wording confirmed verbatim) applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/18/19/21/22/23/24/25. The amendment landed as ONE atomic lockstep wave so CI never went RED: the R1 four-class sentence + the two-wires + R9 prose clarifications + this Appendix D entry 26 + the header/footer Version 1.14 -> 1.15 + the CANON-PHASE-MAP version-history row + the four-class FLOOR test (`tests/test-cirs-four-class-floor.cjs`, registered in tests/run-all-172.sh) + the coverageReport() `class` enum (counts unchanged), all moving together. Canon version bumped to 1.15.
 
+27. **Part 11 R15 (Render Coverage) minted - the render-plane born-wired twin (Phase 178, 2026-06-24).** Phase 178 (universal-gate-chokepoint) amended Part 11's closed ruling set, adding R15 (Render Coverage) as the render-plane peer of R2 (born-wired) + R9 (enforced-not-aspirational). CIRS governed only the TRIGGER wire (whether a surface gets REACHED) and explicitly excluded render (build-orchestration-projection.cjs:113-138). A 5-agent investigation (HIGH confidence, survived adversarial refutation) proved the F.7 gate-render slipped across five phases (143.1/144.1/148/150.5/177) because the terminal step (the model firing the AskUserQuestion card) was AGENT-HONORED, not machine-enforced (AskUserQuestion is a tool call NOWHERE in lib/ or scripts/; the sole enforcement was one SKILL prose line). R15 makes "a reachable gate surface must declare its card-emission routing or break the build" a closed-set guarantee. The closed-set move R1-R14 -> R1-R15 is a navigator-LOCKED frozen-set amendment (mirroring entries 15/26) applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism; it mints NO reach/posture/edge/node, opens NO Brain wire (the render registry is LOCAL generic machinery metadata), and leaves every frozen Part 3 contract unchanged. Landed as ONE atomic lockstep wave: R15 text + Appendix D entry 27 + the FLOOR test (tests/test-cirs-render-coverage-floor.cjs, mirroring tests/test-cirs-four-class-floor.cjs) + header/footer Version 1.15 -> 1.16 + the CANON-PHASE-MAP version-history row, all moving together so CI never went RED. The irreducible terminal-tool-call residual is a named debt (Phase 178 GA-4). Canon version bumped to 1.16.
+
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit. Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate (2026-05-12).
 
 ---
@@ -678,6 +699,6 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.15 - MindrianOS Plugin_
+_Mindrian Canon v1.16 - MindrianOS Plugin_
 
 _Version history is maintained inline in docs/CANON-PHASE-MAP.md (Version history table)._

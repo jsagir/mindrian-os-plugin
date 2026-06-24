@@ -83,8 +83,14 @@ run "178-02 render-coverage-gate-hardfail (W2)" node tests/test-render-coverage-
 run_if "178-03 f7-dial-gap-zero-confirm (W3)" tests/test-f7-dial-gap-zero-confirm.cjs node tests/test-f7-dial-gap-zero-confirm.cjs
 run_if "178-03 render-gate-wiring (W3)"       tests/test-render-gate-wiring.cjs       node tests/test-render-gate-wiring.cjs
 
-# (d) later-wave suite -- tolerated as not-yet-present.
-run_if "178-04 render-coverage-r15 (W4)"    tests/test-render-coverage-r15.cjs   node tests/test-render-coverage-r15.cjs
+# (d) Plan 178-04 Wave 4 (final) -- the CIRS R15 (Render Coverage) FLOOR test (the
+#     render-plane peer of R2 + R9; canon Part 11 R15 membership + R1-R14 preserved +
+#     frozen-set + the byte-stable counting contract + a reachable-undeclared-surface
+#     negative, never .size) + the GA-4 R-1 PostToolUse-interceptor spike (the honest
+#     FEASIBLE/INFEASIBLE/PARTIAL verdict; R-1 stays a named, accepted debt). Both
+#     LANDED in Wave 4 (real runs).
+run "178-04 cirs-render-coverage-floor (W4)"      node tests/test-cirs-render-coverage-floor.cjs
+run "178-04 r1-posttooluse-interceptor-spike (W4)" node tests/test-r1-posttooluse-interceptor-spike.cjs
 
 # (e) carried frozen-set drift fences (additive phase -- these stay GREEN; 178
 #     mints NO reach and NO posture).
@@ -94,6 +100,6 @@ run_if "178-04 render-coverage-r15 (W4)"    tests/test-render-coverage-r15.cjs  
 echo "========================================"
 echo "  Summary (178 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"
-echo "  NOTE: 178-03 suites LANDED (Wave 3); the 178-04 suite is RED-by-design (SKIPPED) until its wave lands."
+echo "  NOTE: all four waves LANDED (W1 registry+floor, W2 predicate+hardfail, W3 wiring+F.7-dial, W4 R15 floor + R-1 spike)."
 echo "========================================"
 [ "$FAIL" -eq 0 ]

@@ -1,6 +1,6 @@
 # Canon Proposal: The Render-Coverage Twin (CIRS render-side born-wired gate)
 
-Status: RATIFIED - Option A (R15), navigator-LOCKED 2026-06-24. Lands as an atomic lockstep wave WITH Phase 178 (canon text + FLOOR test + version bump together; never piecemeal).
+Status: RATIFIED + APPLIED - Option A (R15), navigator-LOCKED 2026-06-24. APPLIED to docs/MINDRIAN-CANON.md (Part 11 R15 + Appendix D entry 27 + Version 1.15 -> 1.16) + docs/CANON-PHASE-MAP.md (v1.16 reference + the Phase 178 CIRS row + the v1.16 version-history row) + tests/test-cirs-render-coverage-floor.cjs (the FLOOR test) + tests/test-r1-posttooluse-interceptor-spike.cjs (the GA-4 R-1 spike, verdict PARTIAL), all in ONE atomic lockstep wave (Phase 178 plan 178-04) so CI never went RED. Landed as an atomic lockstep wave WITH Phase 178 (canon text + FLOOR test + version bump together; never piecemeal).
 Date: 2026-06-24
 Author: Jonathan Sagir with Claude-as-Larry
 Implementing phase: 178 (universal-gate-chokepoint)
