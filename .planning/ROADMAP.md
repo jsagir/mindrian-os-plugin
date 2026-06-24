@@ -3123,11 +3123,11 @@ Plans:
 
 **Plans:** 7 plans across 7 waves (one surface per wave for CI-green lockstep):
 - [x] 179-01-PLAN.md -- WAVE 1 (REQ-01): the GA-4 card-fire interceptor (scripts/check-card-fire.cjs, Stop-hook turn-scan, registry-keyed PRIMARY + ASCII-box BACKSTOP, exit-2 block + bounded escape) registered in hooks.json Stop block + tests/run-all-179.sh -- complete 2026-06-24 (commits 1757cc47 RED + c269276e GREEN + 93a6db03 wiring; suite 22/22; run-all-179.sh 5 pass 0 fail 6 skip; render-coverage --check still OK; Stop length 6 additive)
-- [ ] 179-02-PLAN.md -- WAVE 2 (REQ-09): widen the writeScratchpadBirthAnswer whitelist (+role_blend +blueprint_family +hypothesis_text); round-trip across a session boundary
+- [x] 179-02-PLAN.md -- WAVE 2 (REQ-09): widen the writeScratchpadBirthAnswer whitelist (+role_blend +blueprint_family +hypothesis_text); round-trip across a session boundary -- complete 2026-06-25 (commits 5f815954 RED + ef3e41d5 GREEN; tests/test-scratchpad-birth-whitelist-179.cjs 16/16; run-all-179.sh 6 pass 0 fail 5 skip; room-birth.cjs drain byte-unchanged; Part 8 LOCAL sweep clean; no em-dashes)
 - [ ] 179-03-PLAN.md -- WAVE 3 (REQ-02/03/12): the canonical persona-first 4-door B1 card in ignite.md (single-axis role_blend, keyboard/checkbox contract via AskUserQuestion, frozen ROLE_BLEND_KEYS imported; birth txn byte-unchanged)
 - [ ] 179-04-PLAN.md -- WAVE 4 (REQ-05/07): the hypothesis blueprint family + check-room-blueprints 8->9 lockstep + writeClaimNode proposed truth-claim + per-role Door 3 framing
 - [ ] 179-05-PLAN.md -- WAVE 5 (REQ-06): the instances-vs-structures 3-option abstraction gate (always-fire) + committed domain-neutral fixture + neutrality grep gate
 - [ ] 179-06-PLAN.md -- WAVE 6 (REQ-04/08): the CV-second-select multiSelect:true checkbox over extractDomains + arrival auto-fire Engine 1, gate the results
 - [ ] 179-07-PLAN.md -- WAVE 7 (REQ-10/11): reconcile the two B1 specs (ignite.md canonical; new-project.md -> B2 backend) + the cross-cutting Part 8 sweep + CIRS R12 conformance
 
-**Status:** IN PROGRESS. 1 of 7 plans complete (179-01 Wave 1 / REQ-01: the GA-4 card-fire interceptor -- the R-1 cure -- shipped 2026-06-24). NEXT: execute 179-02 (widen the scratchpad whitelist).
+**Status:** IN PROGRESS. 2 of 7 plans complete (179-01 Wave 1 / REQ-01: the GA-4 card-fire interceptor; 179-02 Wave 2 / REQ-09: widen the scratchpad birth-answer whitelist -- the B1 persona/hypothesis signal now survives to B2 -- shipped 2026-06-25). NEXT: execute 179-03 (the canonical persona-first 4-door B1 card).

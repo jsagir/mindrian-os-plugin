@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: in-progress
-stopped_at: "Phase 179 Plan 01 COMPLETE (the GA-4 card-fire interceptor -- the R-1 cure, Wave 1)"
-last_updated: "2026-06-24T22:22:00.000Z"
-last_activity: 2026-06-24
+stopped_at: "Phase 179 Plan 02 COMPLETE (widen the scratchpad birth-answer whitelist -- role_blend + blueprint_family + hypothesis_text, Wave 2 / REQ-09)"
+last_updated: "2026-06-25T00:00:00.000Z"
+last_activity: 2026-06-25
 progress:
   total_phases: 6
   completed_phases: 6
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-24) -- Phase 179 Plan 01 COMPLETE -- the GA-4 card-fire interceptor (the R-1 cure, Wave 1)
+## Latest (2026-06-25) -- Phase 179 Plan 02 COMPLETE -- widen the scratchpad birth-answer whitelist (Wave 2 / REQ-09)
+
+The B1 persona/hypothesis signal no longer dies before B2. `writeScratchpadBirthAnswer` (lib/core/scratchpad-ops.cjs) previously persisted ONLY `free_text` + `arrival_asset`; `ignite.md` already passed `role_blend` + `blueprint_family` but they were silently dropped. This plan widened the optional-field whitelist ADDITIVELY: `role_blend` (plain non-null non-array object guard), `blueprint_family` + `hypothesis_text` (typeof-string guards mirroring the existing idiom). The function signature, the always-present fields (gate_id/option_key/canonical_verb/alias_label/ts), and `_writeAtomic` are untouched; `lib/core/navigation/room-birth.cjs` (the drain side) is BYTE-UNCHANGED -- it reads the whole entry object so the additive keys ride for free (asserted by the test, not by mutating the drain). Absent fields leave the entry byte-identical to today (keys absent, not present-as-null). Part 8 LOCAL-only: role_blend weights + hypothesis_text are journaled to the local scratchpad, never to Brain (LOCAL sweep clean). TDD: RED `5f815954`, GREEN `ef3e41d5`. Suite `tests/test-scratchpad-birth-whitelist-179.cjs` 16/16 (session-boundary round-trip + additive shape + existing-field invariance + type discipline). `bash tests/run-all-179.sh` 6 pass / 0 fail / 5 skip (Wave 1 still green; Wave 2 now passing; reach-ids 6 + posture-ids 3 frozen fences green); pre-existing 155-01 suite no regression. SUMMARY: `.planning/phases/179-ignite-b1-starting-point-fix/179-02-SUMMARY.md`. NEXT: 179-03 (the canonical persona-first 4-door B1 card).
+
+## Prior (2026-06-24) -- Phase 179 Plan 01 COMPLETE -- the GA-4 card-fire interceptor (the R-1 cure, Wave 1)
 
 The R-1 residual (R15 proves a gate is WIRED to emit a card but cannot force the model to FIRE it at runtime) is now cured structurally. `scripts/check-card-fire.cjs` is a deterministic Stop-hook turn-scan: registry-keyed PRIMARY (a `data/render-coverage-registry.json` card-emission surface ran this turn with no AskUserQuestion fired) + ASCII-box output-text BACKSTOP ("type 1, 2, or 3" / `[1] [2] [3]` / the box glyph). On intercept it emits an exit-2 `decision: 'block'` envelope with `hookSpecificOutput.additionalContext` re-prompting the card fire; after `MAX_FORCE_RETRIES` (3) consecutive intercepts on the same turn-context (tracked in a LOCAL `~/.mindrian/card-fire-retries.json` side-file) it degrades to `{ continue: true }` so a card-incapable surface cannot be trapped. Registered additively in the `hooks.json` Stop block (length 5 -> 6, existing entries byte-preserved). Part 8 LOCAL-only (zero Brain/network); no reach/posture/edge/node minted; Phase 178 render-coverage `--check` stays OK. TDD: RED 1757cc47, GREEN c269276e, wiring 93a6db03. Suite 22/22; `bash tests/run-all-179.sh` 5 pass / 0 fail / 6 skip (later waves guarded). SUMMARY: `.planning/phases/179-ignite-b1-starting-point-fix/179-01-SUMMARY.md`. NEXT: 179-02 (widen the scratchpad whitelist).
 
