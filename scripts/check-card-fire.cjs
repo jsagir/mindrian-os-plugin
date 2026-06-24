@@ -56,11 +56,18 @@
  * cure. The side-channel writer is a named, deferred follow-on.
  *
  * Bounded escape (T-179-01 DoS mitigation): a LOCAL retry side-file
- * (~/.mindrian/card-fire-retries.json) keyed by a STABLE turn identity (the Stop stdin
- * session_id + a stable gate identity -- the reached-gate entry set when present, else a
- * turn/message counter from the transcript) counts consecutive intercepts (WR-01: NOT the
- * volatile output_text hash, so a re-worded re-prompt on the SAME stuck gate increments the
- * SAME counter and MAX_FORCE_RETRIES is actually reachable). The store is pruned on write
+ * (~/.mindrian/card-fire-retries.json) keyed by a TRANSCRIPT-GROWTH-INVARIANT turn identity
+ * (the Stop stdin session_id + a stable gate identity -- the reached-gate entry set when
+ * present, else the LAST USER message anchor from the transcript) counts consecutive
+ * intercepts. The key is invariant across BOTH (WR-01) a re-worded re-prompt (the gate
+ * identity excludes the volatile output_text) AND (CR-02) a GROWING transcript: the model
+ * appends an assistant turn every time it re-emits the blocked gate, so any transcript-LENGTH
+ * value (e.g. an assistant-message counter) would mint a fresh key every retry and the bounded
+ * escape would NEVER converge -- a production livelock. The last-USER-message anchor stays
+ * FIXED across all assistant re-emissions of the same stuck gate, so consecutive intercepts of
+ * the SAME gate increment the SAME counter and MAX_FORCE_RETRIES is actually reachable. (The
+ * assistant-message counter is retained only as a LOWEST-precedence legacy fallback for the
+ * direct-field unit-test shape; it is never the live gate identity.) The store is pruned on write
  * by a TTL (WR-02: each entry carries { count, ts }; entries older than RETRY_TTL_MS are
  * evicted, so the side-file cannot grow without bound). At MAX_FORCE_RETRIES the predicate
  * returns degrade=true and the envelope is { continue: true, suppressOutput: true } (log to
@@ -172,28 +179,45 @@ function gateReachingEntries(registry) {
 // ---------------------------------------------------------------------------
 // turnContextHash(turn) -- a STABLE LOCAL key for the bounded-escape retry counter.
 //
-// WR-01: the key MUST be stable across re-worded re-prompts on the SAME stuck gate, or
-// MAX_FORCE_RETRIES is never reachable (the model re-emits the same gate with different
-// prose, so an output_text-derived key would mint a fresh key every retry and the counter
-// would never climb -- a card-incapable surface could be re-prompted indefinitely). So the
-// key is derived from STABLE turn IDENTITY, NOT volatile output text:
-//   - session_id   : the Stop stdin session_id (the same conversation across retries).
-//   - gate identity: the reached-gate entry SET when present (PRIMARY signal), else a
-//                    stable turn/message counter from the transcript (gate_turn_index).
-// The output text is deliberately EXCLUDED from the key so a re-worded retry on the same
-// session+gate increments the SAME counter. Part 8: a local sha256 over local stable
-// identity scalars; never egresses.
+// WR-01 + CR-02: the key MUST be stable across re-PROMPTS on the SAME stuck gate, or
+// MAX_FORCE_RETRIES is never reachable. There are TWO ways the key can drift, and both
+// are fatal to convergence:
+//   - WR-01 (re-worded prose): the model re-emits the same gate with different PROSE, so
+//     an output_text-derived key would mint a fresh key every retry.
+//   - CR-02 (transcript GROWTH): on the LIVE BACKSTOP path the model APPENDS one assistant
+//     turn every time the interceptor blocks and it re-emits, so any transcript-LENGTH-
+//     derived identity (e.g. an assistant-message counter) ALSO mints a fresh key every
+//     retry -- a production livelock, the same failure class as WR-01.
+// So the gate identity must be invariant across BOTH re-wording AND transcript growth:
+//   - session_id        : the Stop stdin session_id (the same conversation across retries).
+//   - gate identity (in precedence order, each transcript-growth-INVARIANT):
+//       1. the reached-gate entry SET when present (PRIMARY signal -- deferred, no producer).
+//       2. the LAST USER message anchor (last_user_anchor): a hash of the index + content of
+//          the last user message. The model APPENDS assistant turns on re-prompt; the last
+//          USER message stays FIXED across all retries of the same stuck response, and is
+//          per-gate (a different user request -> a different anchor -> a different counter).
+//       3. (legacy) a stable gate_turn_index ONLY if no anchor exists (direct-field shape).
+//   NEVER the output text (WR-01), NEVER assistantCount / any transcript-length value (CR-02).
+// Part 8: a local sha256 over local stable identity scalars; never egresses.
 // ---------------------------------------------------------------------------
 function turnContextHash(turn) {
   const t = turn && typeof turn === 'object' ? turn : {};
   const session = typeof t.session_id === 'string' ? t.session_id : '';
-  // Gate identity: prefer the reached-gate entry set (stable across re-wording); fall
-  // back to a stable turn/message index from the transcript. NEVER the output text.
+  // Gate identity, in precedence order. Each candidate is invariant across BOTH a re-worded
+  // re-prompt (WR-01) AND a growing transcript (CR-02). NEVER the output text, NEVER a
+  // transcript-length-derived counter as the PRIMARY identity.
   const ran = Array.isArray(t.ran_entries) && t.ran_entries.length > 0
     ? t.ran_entries.slice().sort().join('|')
     : '';
+  // last_user_anchor: the transcript-growth-INVARIANT gate identity for the LIVE BACKSTOP
+  // path. It keys off the LAST USER message (fixed across all assistant re-emissions of the
+  // same stuck gate), so consecutive intercepts of the SAME gate increment the SAME counter.
+  const userAnchor = typeof t.last_user_anchor === 'string' ? t.last_user_anchor : '';
+  // gate_turn_index is retained ONLY as a last-resort legacy fallback (direct-field unit-test
+  // shape). It is NOT used when a user anchor is present, because assistantCount grows as the
+  // transcript grows (CR-02). It is intentionally LOWEST precedence.
   const gateIndex = Number.isFinite(t.gate_turn_index) ? String(t.gate_turn_index) : '';
-  const gateIdentity = ran || gateIndex;
+  const gateIdentity = ran || userAnchor || gateIndex;
   return crypto
     .createHash('sha256')
     .update('s:' + session + '|g:' + gateIdentity)
@@ -205,7 +229,7 @@ function turnContextHash(turn) {
 // classifyCardFire(turn, registry) -- THE deterministic predicate.
 //
 // Returns { intercept, reason, degrade }:
-//   - intercept=true  : a reached gate fired no card; force it (exit-2 re-prompt).
+//   - intercept=true  : a reached gate fired no card; force it (decision:block-on-exit-0 re-prompt).
 //   - intercept=false : ordinary turn, card already fired, or degraded.
 //   - degrade=true    : the bounded escape released (retry_count >= MAX_FORCE_RETRIES);
 //                       stop forcing, log + allow.
@@ -266,7 +290,7 @@ function classifyCardFire(turn, registry) {
 // buildEnforcementEnvelope(verdict) -- shape the Stop-hook output envelope from a
 // classifyCardFire verdict.
 //   - degrade  -> { continue: true, suppressOutput: true } (log + allow; no loop).
-//   - intercept-> the exit-2 block: { decision:'block', ..., hookSpecificOutput:
+//   - intercept-> the decision:block-on-exit-0 block: { decision:'block', ..., hookSpecificOutput:
 //                 { additionalContext: <re-prompt to fire the AskUserQuestion card> } }.
 //   - neither  -> { continue: true, suppressOutput: true } (nothing to do).
 // additionalContext lives ONLY inside hookSpecificOutput. Returns a key-filtered
@@ -422,15 +446,30 @@ function silentSuccess() {
 // delivers a `transcript_path` (a LOCAL .jsonl file, one JSON object per line); we read it,
 // walk the lines, and pull:
 //   - output_text         : the text of the LAST assistant message (drives the BACKSTOP).
-//   - askuserquestion_fired: true if ANY tool-use record names the AskUserQuestion tool.
-//   - gate_turn_index      : a stable count of assistant messages (a stable gate identity
-//                            fallback for the WR-01 retry key when no ran_entries set exists).
+//   - askuserquestion_fired: true ONLY if the LAST assistant message fired the AskUserQuestion
+//                            card. Scoped to the SAME message that produced output_text (WR-06):
+//                            a STALE earlier card must NOT suppress interception of the CURRENT
+//                            (last) box turn -- the two signals MUST share the same turn scope.
+//   - last_user_anchor     : a transcript-growth-INVARIANT gate identity for the WR-01/CR-02
+//                            retry key -- a hash of the LAST USER message's index + content.
+//                            The model APPENDS assistant turns on re-prompt, so the last USER
+//                            message stays FIXED across all retries of the same stuck gate
+//                            (unlike an assistant counter, which grows -- CR-02). Per-gate:
+//                            a different user request yields a different anchor.
+//   - gate_turn_index      : a count of assistant messages, retained ONLY as a legacy
+//                            last-resort fallback for the WR-01 key (NOT used when an anchor
+//                            exists; it grows with the transcript -- CR-02).
 // Defensive (Part 8 / on-stop discipline): a missing / unreadable / malformed transcript
 // returns empty signals; NEVER throws. The transcript content stays LOCAL -- read, scanned,
-// discarded; never egressed.
+// discarded; never egressed (last_user_anchor is a sha256 hash, not the user text itself).
 // ---------------------------------------------------------------------------
 function readTranscriptTurn(transcriptPath) {
-  const empty = { output_text: '', askuserquestion_fired: false, gate_turn_index: 0 };
+  const empty = {
+    output_text: '',
+    askuserquestion_fired: false,
+    gate_turn_index: 0,
+    last_user_anchor: '',
+  };
   if (typeof transcriptPath !== 'string' || !transcriptPath.trim()) return empty;
   let raw;
   try {
@@ -439,8 +478,18 @@ function readTranscriptTurn(transcriptPath) {
     return empty;
   }
   let lastAssistantText = '';
-  let askFired = false;
+  // WR-06: askFired is the AskUserQuestion state of the LAST assistant message ONLY, not an
+  // OR across the whole conversation. We track the last assistant message's content object and
+  // evaluate scanContentForAskUserQuestion on IT ALONE after the walk, so a stale earlier card
+  // cannot mask the current box turn. (The old whole-transcript `|= true` accumulation is the
+  // exact cross-turn bleed WR-06 flagged; removed.)
+  let lastAssistantContent = null;
   let assistantCount = 0;
+  // CR-02: track the last USER message's index + content for the transcript-growth-invariant
+  // gate anchor. Index is the user-message ordinal (stable across appended assistant turns).
+  let userIndex = 0;
+  let lastUserIndex = 0;
+  let lastUserText = '';
   const lines = raw.split('\n');
   for (const line of lines) {
     const trimmed = line.trim();
@@ -458,15 +507,36 @@ function readTranscriptTurn(transcriptPath) {
       assistantCount += 1;
       const text = extractAssistantText(msg.content);
       if (text) lastAssistantText = text;
-      if (scanContentForAskUserQuestion(msg.content)) askFired = true;
+      // Record THIS assistant message's content as the current last; askFired is decided from
+      // the last one after the walk (WR-06 scoping). Prefer the message.content; fall back to
+      // a top-level obj.content only when this same record carries it (no cross-turn bleed).
+      lastAssistantContent = (msg.content !== undefined && msg.content !== null)
+        ? msg.content
+        : (obj.content !== undefined ? obj.content : null);
+    } else if (role === 'user') {
+      userIndex += 1;
+      const utext = extractAssistantText(msg.content);
+      lastUserIndex = userIndex;
+      lastUserText = typeof utext === 'string' ? utext : '';
     }
-    // A tool_use can also surface as a top-level record in some transcript shapes.
-    if (scanContentForAskUserQuestion(obj.content)) askFired = true;
+  }
+  // WR-06: evaluate the card-fired signal on the LAST assistant message's content ALONE.
+  const askFired = scanContentForAskUserQuestion(lastAssistantContent);
+  // CR-02: the anchor is a sha256 over the last-user index + content (Part 8: a hash, the raw
+  // user text never leaves this function). Empty when there is no user message.
+  let lastUserAnchor = '';
+  if (lastUserIndex > 0) {
+    lastUserAnchor = crypto
+      .createHash('sha256')
+      .update('u:' + lastUserIndex + '|' + lastUserText)
+      .digest('hex')
+      .slice(0, 24);
   }
   return {
     output_text: lastAssistantText,
     askuserquestion_fired: askFired,
     gate_turn_index: assistantCount,
+    last_user_anchor: lastUserAnchor,
   };
 }
 
@@ -511,9 +581,9 @@ function scanContentForAskUserQuestion(content) {
 // (output_text / last_assistant_text / ran_entries / askuserquestion_fired -- the unit-test
 // shape), those are used as-is, so the 22 existing predicate assertions stay green.
 //
-// session_id + gate_turn_index thread through for the WR-01 stable retry key. PRIMARY's
-// ran_entries stays read from the envelope (it has no transcript source -- the WR-04 deferred
-// note). Tolerant of missing fields; never throws.
+// session_id + last_user_anchor (CR-02) + gate_turn_index (legacy fallback) thread through
+// for the WR-01/CR-02 stable retry key. PRIMARY's ran_entries stays read from the envelope (it
+// has no transcript source -- the WR-04 deferred note). Tolerant of missing fields; never throws.
 // ---------------------------------------------------------------------------
 function deriveTurnSignals(env) {
   const e = env && typeof env === 'object' ? env : {};
@@ -542,6 +612,13 @@ function deriveTurnSignals(env) {
   const gateTurnIndex = Number.isFinite(e.gate_turn_index)
     ? e.gate_turn_index
     : (txn ? txn.gate_turn_index : 0);
+  // CR-02: the transcript-growth-invariant gate anchor. A direct-field envelope may carry
+  // last_user_anchor explicitly (test/side-channel shape); otherwise it comes from the parsed
+  // transcript's last USER message. This is the gate identity the WR-01/CR-02 retry key prefers
+  // over gate_turn_index (which grows with the transcript).
+  const lastUserAnchor = typeof e.last_user_anchor === 'string'
+    ? e.last_user_anchor
+    : (txn ? txn.last_user_anchor : '');
 
   return {
     ran_entries: ranEntries,
@@ -549,6 +626,7 @@ function deriveTurnSignals(env) {
     output_text: outputText,
     session_id: typeof e.session_id === 'string' ? e.session_id : '',
     gate_turn_index: gateTurnIndex,
+    last_user_anchor: lastUserAnchor,
   };
 }
 
@@ -580,7 +658,7 @@ function main() {
   }
 
   if (verdict.intercept === true) {
-    // Force the card: bump the bounded-escape counter and emit the exit-2 block.
+    // Force the card: bump the bounded-escape counter and emit the Stop-block (decision:block-on-exit-0).
     bumpRetryCount(ctxHash);
     return emitEnvelope(buildEnforcementEnvelope(verdict));
   }

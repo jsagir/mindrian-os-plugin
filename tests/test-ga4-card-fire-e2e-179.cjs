@@ -249,6 +249,150 @@ ok('(WR-02) a legacy bare-integer entry is normalized to { count, ts } and kept'
 ok('(WR-02) the pruned store never grows past its input key set',
   Object.keys(pruned).length <= Object.keys(mixedStore).length);
 
+// ---------------------------------------------------------------------------
+// (CR-02) GROWING-transcript convergence -- the LIVE BACKSTOP-path proof.
+//
+// This is the anti-test-theater assertion the prior fixture was MISSING. The prior
+// "convergence" test (above) held assistantCount constant at 1 per fixture, so it could not
+// catch the production livelock: on the live BACKSTOP path the model APPENDS one assistant
+// turn every time the interceptor blocks and re-emits, so any transcript-LENGTH-derived gate
+// identity (the old gate_turn_index = assistantCount) mints a FRESH key every retry and the
+// bounded escape NEVER converges. Here we reproduce the PRODUCTION shape: the SAME session,
+// the SAME fixed last-USER message, but a GROWING transcript (run k = k prior assistant turns
+// + the box turn). Runs 1..MAX MUST block (the counter climbs on ONE stable key), and run
+// MAX+1 MUST degrade (continue:true, no block). This FAILS against the pre-fix
+// gate_turn_index identity (5 distinct count:1 keys, blocks forever) and PASSES after the
+// last_user_anchor fix (one key climbs to MAX then degrades).
+// ---------------------------------------------------------------------------
+const GROW_HOME = path.join(TMP, 'grow-home');
+fs.mkdirSync(GROW_HOME, { recursive: true });
+
+// growingTranscript(run) -- a transcript with a FIXED last-user message and `run` prior
+// assistant turns BEFORE the final box turn, so assistantCount GROWS by one each run (the
+// exact production shape the reviewer used to prove the livelock). Each turn carries unique
+// prose so a volatile-output key would also drift -- only a growth-invariant gate identity
+// converges.
+function growingTranscript(run) {
+  const lines = [
+    { type: 'user', message: { role: 'user', content: 'I want to start a venture' } },
+  ];
+  for (let i = 0; i < run; i++) {
+    lines.push({
+      type: 'assistant',
+      message: { role: 'assistant', content: [{ type: 'text', text: 'prior re-emission ' + i + ' ' + Math.random() }] },
+    });
+  }
+  lines.push({
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [{
+        type: 'text',
+        text: 'Choose your starting point:\n  [1] a\n  [2] b\n  [3] c\ntype 1, 2, or 3\n' + Math.random(),
+      }],
+    },
+  });
+  return writeTranscript('grow-' + run + '.jsonl', lines);
+}
+function runGrow(run) {
+  const fp = growingTranscript(run);
+  const res = spawnSync('node', [INTERCEPTOR_PATH], {
+    input: JSON.stringify({ hook_event_name: 'Stop', transcript_path: fp, session_id: 'grow-sess' }),
+    encoding: 'utf8',
+    env: Object.assign({}, process.env, { MINDRIAN_HOME: GROW_HOME }),
+  });
+  try { return JSON.parse((res.stdout || '').trim()); } catch (_e) { return null; }
+}
+function growStore() {
+  try { return JSON.parse(fs.readFileSync(path.join(GROW_HOME, 'card-fire-retries.json'), 'utf8')); }
+  catch (_e) { return {}; }
+}
+let growBlocked = 0;
+let growKeysAtCeiling = [];
+for (let run = 1; run <= m.MAX_FORCE_RETRIES; run++) {
+  const env = runGrow(run);
+  if (env && env.decision === 'block') growBlocked += 1;
+  if (run === m.MAX_FORCE_RETRIES) growKeysAtCeiling = Object.keys(growStore());
+}
+const growPastCeiling = runGrow(m.MAX_FORCE_RETRIES + 1);
+const growDegraded = !!(growPastCeiling && growPastCeiling.continue === true && growPastCeiling.decision === undefined);
+ok('(CR-02) a GROWING transcript blocks runs 1..MAX (counter climbs on a growth-invariant key)',
+  growBlocked === m.MAX_FORCE_RETRIES);
+ok('(CR-02) at the ceiling the side-file holds exactly ONE converging key (not MAX distinct keys)',
+  growKeysAtCeiling.length === 1);
+ok('(CR-02) past MAX the GROWING-transcript gate DEGRADES (continue:true, no block) -- no livelock',
+  growDegraded);
+
+// ---------------------------------------------------------------------------
+// (WR-06) a STALE earlier AskUserQuestion must NOT suppress interception of the CURRENT box.
+// The card-fired signal MUST be scoped to the LAST assistant message, same scope as
+// output_text. Earlier-turn fires a card, last turn renders a flat box -> MUST block.
+// FAILS pre-fix (askFired was OR'd across the whole transcript) / PASSES post-fix.
+// ---------------------------------------------------------------------------
+const STALE_CARD_THEN_BOX = writeTranscript('stale-card-then-box.jsonl', [
+  { type: 'user', message: { role: 'user', content: 'I want to start a venture' } },
+  {
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [
+        { type: 'text', text: 'Earlier turn that correctly fired the card.' },
+        { type: 'tool_use', name: 'AskUserQuestion', input: { questions: [] } },
+      ],
+    },
+  },
+  { type: 'user', message: { role: 'user', content: 'option 2 please' } },
+  {
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [{
+        type: 'text',
+        text: 'Choose your next starting point:\n  [1] a\n  [2] b\n  [3] c\ntype 1, 2, or 3',
+      }],
+    },
+  },
+]);
+const rStale = runInterceptor({
+  hook_event_name: 'Stop',
+  transcript_path: STALE_CARD_THEN_BOX,
+  session_id: 'e2e-sess-stale',
+});
+ok('(WR-06) the script exits 0 on the stale-card-then-box transcript', rStale.res.status === 0);
+ok('(WR-06) a stale EARLIER card does NOT suppress the CURRENT box -- it BLOCKS (decision:block)',
+  rStale.env && rStale.env.decision === 'block' && rStale.env.continue === false);
+
+// And the converse stays correct: a card fired on the LAST (current) turn still no-ops, even
+// when an earlier turn rendered a box (proves the scope is genuinely last-turn, not first-match).
+const BOX_THEN_CARD = writeTranscript('box-then-card.jsonl', [
+  { type: 'user', message: { role: 'user', content: 'go' } },
+  {
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'old box:\n  [1] a\n  [2] b\ntype 1, 2, or 3' }],
+    },
+  },
+  { type: 'user', message: { role: 'user', content: 'continue' } },
+  {
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [
+        { type: 'text', text: 'Now I fire the card.' },
+        { type: 'tool_use', name: 'AskUserQuestion', input: { questions: [] } },
+      ],
+    },
+  },
+]);
+const rBoxThenCard = runInterceptor({
+  hook_event_name: 'Stop',
+  transcript_path: BOX_THEN_CARD,
+  session_id: 'e2e-sess-boxthencard',
+});
+ok('(WR-06) a card fired on the LAST turn no-ops even after an earlier box (last-turn scope)',
+  rBoxThenCard.env && rBoxThenCard.env.continue === true && rBoxThenCard.env.decision === undefined);
+
 // Cleanup (best-effort; tmp dirs are disposable).
 try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
 
