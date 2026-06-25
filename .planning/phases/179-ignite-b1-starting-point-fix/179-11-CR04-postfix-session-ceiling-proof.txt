@@ -1,0 +1,15 @@
+MAX_FORCE_RETRIES=3  MAX_SESSION_INTERCEPTS=12
+run  1 -> BLOCK         | session_count=1 per-gate-keys=1
+run  2 -> BLOCK         | session_count=2 per-gate-keys=2
+run  3 -> BLOCK         | session_count=3 per-gate-keys=3
+run  4 -> BLOCK         | session_count=4 per-gate-keys=4
+run  5 -> BLOCK         | session_count=5 per-gate-keys=5
+run  6 -> BLOCK         | session_count=6 per-gate-keys=6
+run  7 -> BLOCK         | session_count=7 per-gate-keys=7
+run  8 -> BLOCK         | session_count=8 per-gate-keys=8
+run  9 -> BLOCK         | session_count=9 per-gate-keys=9
+run 10 -> BLOCK         | session_count=10 per-gate-keys=10
+run 11 -> BLOCK         | session_count=11 per-gate-keys=11
+run 12 -> BLOCK         | session_count=12 per-gate-keys=12
+run 13 -> DEGRADE/allow | session_count=0 per-gate-keys=12
+run 14 -> BLOCK         | session_count=1 per-gate-keys=13
