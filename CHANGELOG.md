@@ -1,7 +1,17 @@
 ## [Unreleased] -- v1.15.0-beta.4 (in progress)
 
 ### Added
-- 
+- **Phase 179 - Ignite B1 persona-first starting point.** `/mos:ignite` B1 is now ONE canonical persona-first card with four doors: Persona pick (researcher / student / founder-business / operator / investor / domain-expert), Paste-my-CV, Hypothesis ("I believe ___"), and Free-Text. Each door resolves `{role_blend, blueprintFamily, arrival_asset}` threaded into the existing room-birth contract. ~80% reuse of the shipped role_blend / Phase 115 CV dual-path / blueprint-family systems.
+- **GA-4 card-fire interceptor (the R-1 cure).** A Stop-hook interceptor (`scripts/check-card-fire.cjs`) detects a turn that reached a Decision Gate but rendered a flat ASCII box instead of firing the interactive AskUserQuestion card, and forces the card via a `decision:block` Stop-block envelope. Machine enforcement replaces the prose fence that B1 kept ignoring. Bounded-escape is provably convergent (a content-independent session-wide intercept ceiling guarantees no infinite loop, hardened across an adversarial review loop).
+- **Hypothesis blueprint family (Door 3, absorbs Phase 174).** A new `hypothesis` room-blueprint family; the falsifiable "I believe ___" files as a truth-claim node at `review_status: proposed` (Part 9, human-confirmed). Per-role framing (researcher = testable claim / founder = market bet / investor = thesis precondition). An always-fire instances-vs-structures abstraction-level Shape F gate, grounded in systems-thinking (the iceberg: structure must be deliberately surfaced), with a domain-neutral fixture.
+- **CV-second-select + auto-fire intelligence.** The CV door fires a `multiSelect` checkbox over the navigator's detected domains, then auto-fires the Act 1 triple-filter (decomposition / whitespace / reverse-salient); findings surface at a Decision Gate for APPROVE / REJECT / DEFER, never silently cascaded.
+
+### Fixed
+- The two divergent B1 specs are reconciled: `commands/ignite.md` is the one canonical persona-first B1; `commands/new-project.md` is demoted to a pure B2 scaffold backend.
+- The ignite scratchpad whitelist now persists `role_blend` + `blueprint_family` + `hypothesis_text`, so the B1 starting-point signal survives across the B1 to B2 boundary (previously silently dropped).
+
+### Known follow-ons
+- WR-09 (non-blocking, fail-safe): when a Stop envelope lacks `session_id`, the GA-4 session ceiling shares one counter across such turns. It still converges and never hangs; a per-transcript-path fallback is a tracked follow-on.
 
 ## [1.15.0-beta.3] - 2026-06-24
 
