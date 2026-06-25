@@ -324,6 +324,195 @@ ok('(CR-02) past MAX the GROWING-transcript gate DEGRADES (continue:true, no blo
   growDegraded);
 
 // ---------------------------------------------------------------------------
+// (CR-03) GROWING transcript with NO `role:user` record -- the no-anchor livelock the CR-02
+// last-user-anchor fix left open. After a compaction the early user turns become a
+// `type:'summary'` record (NOT `role:'user'`), and this codebase's own Phase 114/117 auto-fire
+// flows can drive a Decision Gate before the navigator types a `role:user` turn. On those shapes
+// the prior fix's last-user anchor was EMPTY and fell back to `assistantCount` (the growing
+// counter), re-blocking forever. The ROOT fix anchors the retry key on the GATE-IDENTIFYING
+// CONTENT (gate_signature), which has no such hole. This fixture writes NO `role:user` line (a
+// `type:'summary'` lead stands in), grows the transcript by one assistant turn per run, and
+// asserts ONE converging key + degrade-by-(MAX+1). FAILS pre-fix (the CR-03 livelock: MAX+1
+// distinct count:1 keys, never degrades) / PASSES post-fix. Per the hard rule, the fixture writes
+// NO `role:user` first line.
+// ---------------------------------------------------------------------------
+const NOUSER_HOME = path.join(TMP, 'nouser-home');
+fs.mkdirSync(NOUSER_HOME, { recursive: true });
+
+// growingNoUserTranscript(run) -- a transcript with NO `role:user` record (a `type:'summary'`
+// compaction lead) and `run` prior assistant turns before the final box turn, so assistantCount
+// GROWS by one each run. Each turn carries unique prose so a volatile-output key would also drift
+// -- only a growth-invariant GATE-content identity converges here.
+function growingNoUserTranscript(run) {
+  const lines = [
+    { type: 'summary', summary: 'compacted earlier conversation about a venture ' + Math.random() },
+  ];
+  for (let i = 0; i < run; i++) {
+    lines.push({
+      type: 'assistant',
+      message: { role: 'assistant', content: [{ type: 'text', text: 'prior re-emission ' + i + ' ' + Math.random() }] },
+    });
+  }
+  lines.push({
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [{
+        type: 'text',
+        text: 'Choose your starting point:\n  [1] a\n  [2] b\n  [3] c\ntype 1, 2, or 3\n' + Math.random(),
+      }],
+    },
+  });
+  return writeTranscript('nouser-grow-' + run + '.jsonl', lines);
+}
+function runNoUser(run) {
+  const fp = growingNoUserTranscript(run);
+  const res = spawnSync('node', [INTERCEPTOR_PATH], {
+    input: JSON.stringify({ hook_event_name: 'Stop', transcript_path: fp, session_id: 'nouser-sess' }),
+    encoding: 'utf8',
+    env: Object.assign({}, process.env, { MINDRIAN_HOME: NOUSER_HOME }),
+  });
+  try { return JSON.parse((res.stdout || '').trim()); } catch (_e) { return null; }
+}
+function noUserStore() {
+  try { return JSON.parse(fs.readFileSync(path.join(NOUSER_HOME, 'card-fire-retries.json'), 'utf8')); }
+  catch (_e) { return {}; }
+}
+let noUserBlocked = 0;
+let noUserKeysAtCeiling = [];
+for (let run = 1; run <= m.MAX_FORCE_RETRIES; run++) {
+  const env = runNoUser(run);
+  if (env && env.decision === 'block') noUserBlocked += 1;
+  if (run === m.MAX_FORCE_RETRIES) noUserKeysAtCeiling = Object.keys(noUserStore());
+}
+const noUserPastCeiling = runNoUser(m.MAX_FORCE_RETRIES + 1);
+const noUserDegraded = !!(noUserPastCeiling && noUserPastCeiling.continue === true && noUserPastCeiling.decision === undefined);
+ok('(CR-03) a GROWING NO-role:user transcript blocks runs 1..MAX (gate-content key, not user-anchor)',
+  noUserBlocked === m.MAX_FORCE_RETRIES);
+ok('(CR-03) at the ceiling the side-file holds exactly ONE converging key (no growing-counter livelock)',
+  noUserKeysAtCeiling.length === 1);
+ok('(CR-03) past MAX the NO-role:user gate DEGRADES (continue:true, no block) -- the livelock is dead',
+  noUserDegraded);
+
+// A bare box-as-first-and-only message (ZERO prior records) must ALSO converge, not livelock on
+// a transcript-length key (the degenerate floor: session_id alone via the gate signature).
+const BARE_BOX = writeTranscript('bare-box.jsonl', [
+  {
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'Choose:\n  [1] a\n  [2] b\n  [3] c\ntype 1, 2, or 3' }],
+    },
+  },
+]);
+const rBare = runInterceptor({ hook_event_name: 'Stop', transcript_path: BARE_BOX, session_id: 'bare-sess' });
+ok('(CR-03) a bare box-as-first-message still BLOCKS (gate detected; no role:user needed)',
+  rBare.env && rBare.env.decision === 'block');
+
+// ---------------------------------------------------------------------------
+// (WR-07) two genuinely DIFFERENT gates in ONE session must get INDEPENDENT counters -- no
+// cross-gate budget bleed. The prior user-anchor key merged any two gates that shared (or both
+// lacked) a user message onto one counter, so gate B inherited gate A's spent budget. The
+// gate-content anchor gives each distinct gate its own key. Drive gate A twice, then gate B once,
+// in the same session: gate B must mint a NEW key at count 1, and gate A's counter must be
+// UNTOUCHED. FAILS pre-fix (one merged key) / PASSES post-fix (two independent keys).
+// ---------------------------------------------------------------------------
+const WR07_HOME = path.join(TMP, 'wr07-home');
+fs.mkdirSync(WR07_HOME, { recursive: true });
+function gateBoxTranscript(name, labels) {
+  // NO role:user -- proves the GATE CONTENT, not the user message, drives the per-gate counter.
+  return writeTranscript(name, [
+    { type: 'summary', summary: 'compacted' },
+    {
+      type: 'assistant',
+      message: {
+        role: 'assistant',
+        content: [{
+          type: 'text',
+          text: 'Choose:\n  [1] ' + labels[0] + '\n  [2] ' + labels[1] + '\n  [3] ' + labels[2] +
+            '\ntype 1, 2, or 3\n' + Math.random(),
+        }],
+      },
+    },
+  ]);
+}
+function fireGate(name, labels) {
+  const fp = gateBoxTranscript(name, labels);
+  const res = spawnSync('node', [INTERCEPTOR_PATH], {
+    input: JSON.stringify({ hook_event_name: 'Stop', transcript_path: fp, session_id: 'wr07-sess' }),
+    encoding: 'utf8',
+    env: Object.assign({}, process.env, { MINDRIAN_HOME: WR07_HOME }),
+  });
+  try { return JSON.parse((res.stdout || '').trim()); } catch (_e) { return null; }
+}
+function wr07Store() {
+  try { return JSON.parse(fs.readFileSync(path.join(WR07_HOME, 'card-fire-retries.json'), 'utf8')); }
+  catch (_e) { return {}; }
+}
+const GATE_A_LABELS = ['alpha', 'beta', 'gamma'];
+const GATE_B_LABELS = ['delta', 'epsilon', 'zeta'];
+fireGate('wr07-a1.jsonl', GATE_A_LABELS);
+fireGate('wr07-a2.jsonl', GATE_A_LABELS);
+const wr07AfterA = Object.assign({}, wr07Store());
+fireGate('wr07-b1.jsonl', GATE_B_LABELS);
+const wr07AfterB = wr07Store();
+const wr07KeysA = Object.keys(wr07AfterA);
+const wr07KeysB = Object.keys(wr07AfterB);
+const wr07NewKey = wr07KeysB.filter((k) => !wr07KeysA.includes(k));
+ok('(WR-07) gate A intercepted twice yields exactly ONE key at count 2',
+  wr07KeysA.length === 1 && wr07AfterA[wr07KeysA[0]].count === 2);
+ok('(WR-07) a DISTINCT gate B mints a NEW independent key (two keys total, no merge)',
+  wr07KeysB.length === 2 && wr07NewKey.length === 1);
+ok('(WR-07) gate B starts fresh at count 1 (it does NOT inherit gate A spent budget)',
+  wr07NewKey.length === 1 && wr07AfterB[wr07NewKey[0]].count === 1);
+ok('(WR-07) gate A counter is UNTOUCHED by gate B (no cross-gate clear or bleed)',
+  wr07KeysA.every((k) => wr07AfterB[k] && wr07AfterB[k].count === wr07AfterA[k].count));
+
+// ---------------------------------------------------------------------------
+// (WR-08) the transcript read is size-capped: readTranscriptTail reads at most the LAST
+// TRANSCRIPT_TAIL_BYTES, so a pathological huge transcript cannot stall the 3000ms hook.
+// Detection semantics are UNCHANGED -- the box turn at the tail is still detected and blocks.
+// We build a transcript padded with megabytes of leading filler assistant turns, then the box at
+// the very end; the cap must drop the leading filler yet STILL block on the tail box turn.
+// ---------------------------------------------------------------------------
+ok('(WR-08) TRANSCRIPT_TAIL_BYTES is exported as a positive number',
+  Number.isFinite(m.TRANSCRIPT_TAIL_BYTES) && m.TRANSCRIPT_TAIL_BYTES > 0);
+ok('(WR-08) readTranscriptTail is exported', typeof m.readTranscriptTail === 'function');
+
+const HUGE_PATH = path.join(FIX_DIR, 'huge.jsonl');
+{
+  // Synchronous append so the file is fully flushed before the read below (no createWriteStream
+  // async-flush race). Leading filler well past the cap, then the tail box turn.
+  const fd = fs.openSync(HUGE_PATH, 'w');
+  const fillerLine = JSON.stringify({
+    type: 'assistant',
+    message: { role: 'assistant', content: [{ type: 'text', text: 'x'.repeat(4000) }] },
+  }) + '\n';
+  const targetBytes = m.TRANSCRIPT_TAIL_BYTES + (1 * 1024 * 1024); // 1 MiB past the cap
+  let written = 0;
+  while (written < targetBytes) { fs.writeSync(fd, fillerLine); written += fillerLine.length; }
+  // The tail box turn (the only gate-bearing line) at the very end.
+  fs.writeSync(fd, JSON.stringify({
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'Choose:\n  [1] a\n  [2] b\n  [3] c\ntype 1, 2, or 3' }],
+    },
+  }) + '\n');
+  fs.closeSync(fd);
+}
+const hugeStat = (() => { try { return fs.statSync(HUGE_PATH); } catch (_e) { return null; } })();
+ok('(WR-08) the huge fixture exceeds the byte cap on disk',
+  hugeStat && hugeStat.size > m.TRANSCRIPT_TAIL_BYTES);
+const rHuge = runInterceptor({
+  hook_event_name: 'Stop',
+  transcript_path: HUGE_PATH,
+  session_id: 'e2e-sess-huge',
+});
+ok('(WR-08) a capped read still detects the TAIL box turn and BLOCKS (semantics unchanged)',
+  rHuge.env && rHuge.env.decision === 'block' && rHuge.env.continue === false);
+
+// ---------------------------------------------------------------------------
 // (WR-06) a STALE earlier AskUserQuestion must NOT suppress interception of the CURRENT box.
 // The card-fired signal MUST be scoped to the LAST assistant message, same scope as
 // output_text. Earlier-turn fires a card, last turn renders a flat box -> MUST block.
