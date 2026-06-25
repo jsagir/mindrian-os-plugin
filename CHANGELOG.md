@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.0-beta.4 (in progress)
+## [1.15.0-beta.5] - 2026-06-25
 
 ### Added
 - **Phase 179 - Ignite B1 persona-first starting point.** `/mos:ignite` B1 is now ONE canonical persona-first card with four doors: Persona pick (researcher / student / founder-business / operator / investor / domain-expert), Paste-my-CV, Hypothesis ("I believe ___"), and Free-Text. Each door resolves `{role_blend, blueprintFamily, arrival_asset}` threaded into the existing room-birth contract. ~80% reuse of the shipped role_blend / Phase 115 CV dual-path / blueprint-family systems.
