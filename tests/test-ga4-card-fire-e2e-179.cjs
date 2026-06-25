@@ -312,13 +312,17 @@ let growKeysAtCeiling = [];
 for (let run = 1; run <= m.MAX_FORCE_RETRIES; run++) {
   const env = runGrow(run);
   if (env && env.decision === 'block') growBlocked += 1;
-  if (run === m.MAX_FORCE_RETRIES) growKeysAtCeiling = Object.keys(growStore());
+  // Count PER-GATE keys only (exclude the CR-04 `__session__:` session-counter entry, which is a
+  // legitimate second key the session-wide ceiling adds).
+  if (run === m.MAX_FORCE_RETRIES) {
+    growKeysAtCeiling = Object.keys(growStore()).filter((k) => k.indexOf(m.SESSION_KEY_PREFIX) !== 0);
+  }
 }
 const growPastCeiling = runGrow(m.MAX_FORCE_RETRIES + 1);
 const growDegraded = !!(growPastCeiling && growPastCeiling.continue === true && growPastCeiling.decision === undefined);
 ok('(CR-02) a GROWING transcript blocks runs 1..MAX (counter climbs on a growth-invariant key)',
   growBlocked === m.MAX_FORCE_RETRIES);
-ok('(CR-02) at the ceiling the side-file holds exactly ONE converging key (not MAX distinct keys)',
+ok('(CR-02) at the ceiling the side-file holds exactly ONE converging PER-GATE key (not MAX distinct keys)',
   growKeysAtCeiling.length === 1);
 ok('(CR-02) past MAX the GROWING-transcript gate DEGRADES (continue:true, no block) -- no livelock',
   growDegraded);
@@ -383,13 +387,16 @@ let noUserKeysAtCeiling = [];
 for (let run = 1; run <= m.MAX_FORCE_RETRIES; run++) {
   const env = runNoUser(run);
   if (env && env.decision === 'block') noUserBlocked += 1;
-  if (run === m.MAX_FORCE_RETRIES) noUserKeysAtCeiling = Object.keys(noUserStore());
+  // Count PER-GATE keys only (exclude the CR-04 `__session__:` session-counter entry).
+  if (run === m.MAX_FORCE_RETRIES) {
+    noUserKeysAtCeiling = Object.keys(noUserStore()).filter((k) => k.indexOf(m.SESSION_KEY_PREFIX) !== 0);
+  }
 }
 const noUserPastCeiling = runNoUser(m.MAX_FORCE_RETRIES + 1);
 const noUserDegraded = !!(noUserPastCeiling && noUserPastCeiling.continue === true && noUserPastCeiling.decision === undefined);
 ok('(CR-03) a GROWING NO-role:user transcript blocks runs 1..MAX (gate-content key, not user-anchor)',
   noUserBlocked === m.MAX_FORCE_RETRIES);
-ok('(CR-03) at the ceiling the side-file holds exactly ONE converging key (no growing-counter livelock)',
+ok('(CR-03) at the ceiling the side-file holds exactly ONE converging PER-GATE key (no growing-counter livelock)',
   noUserKeysAtCeiling.length === 1);
 ok('(CR-03) past MAX the NO-role:user gate DEGRADES (continue:true, no block) -- the livelock is dead',
   noUserDegraded);
@@ -446,8 +453,16 @@ function fireGate(name, labels) {
   try { return JSON.parse((res.stdout || '').trim()); } catch (_e) { return null; }
 }
 function wr07Store() {
-  try { return JSON.parse(fs.readFileSync(path.join(WR07_HOME, 'card-fire-retries.json'), 'utf8')); }
+  // Return PER-GATE entries only -- strip the CR-04 `__session__:` session-counter entry so the
+  // per-gate key-count assertions below (which predate the session ceiling) stay exact.
+  let raw;
+  try { raw = JSON.parse(fs.readFileSync(path.join(WR07_HOME, 'card-fire-retries.json'), 'utf8')); }
   catch (_e) { return {}; }
+  const out = {};
+  for (const k of Object.keys(raw)) {
+    if (k.indexOf(m.SESSION_KEY_PREFIX) !== 0) out[k] = raw[k];
+  }
+  return out;
 }
 const GATE_A_LABELS = ['alpha', 'beta', 'gamma'];
 const GATE_B_LABELS = ['delta', 'epsilon', 'zeta'];
@@ -581,6 +596,213 @@ const rBoxThenCard = runInterceptor({
 });
 ok('(WR-06) a card fired on the LAST turn no-ops even after an earlier box (last-turn scope)',
   rBoxThenCard.env && rBoxThenCard.env.continue === true && rBoxThenCard.env.decision === undefined);
+
+// ---------------------------------------------------------------------------
+// (CR-04) FLAPPING-LABELS -- the SESSION-WIDE intercept ceiling is the TERMINAL convergence
+// floor. This is the anti-test-theater fixture the prior suite was MISSING: every prior green
+// fixture above holds the option labels BYTE-CONSTANT (`[1] a [2] b [3] c`), so none of them can
+// see the flap. Here each retry's box carries GENUINELY DIFFERENT option labels, so the per-gate
+// gate_signature flaps to a fresh NON-empty key every run (count:1 each, never reaching
+// MAX_FORCE_RETRIES). The per-gate counter therefore NEVER converges -- only the content-
+// INDEPENDENT session counter does. We drive the REAL script MORE than MAX_SESSION_INTERCEPTS
+// times on the SAME session_id and assert: runs 1..MAX_SESSION_INTERCEPTS BLOCK (the session
+// counter climbs), the per-gate side-file holds MANY distinct count:1 keys (proving the flap is
+// real), the session counter reaches the ceiling, and run MAX_SESSION_INTERCEPTS+1 DEGRADES.
+// FAILS pre-fix (livelocks forever -- blocks on every run, no session ceiling exists) / PASSES
+// post-fix (degrades at the session ceiling).
+// ---------------------------------------------------------------------------
+ok('(CR-04) MAX_SESSION_INTERCEPTS is exported as a positive number above MAX_FORCE_RETRIES',
+  Number.isFinite(m.MAX_SESSION_INTERCEPTS) && m.MAX_SESSION_INTERCEPTS > m.MAX_FORCE_RETRIES);
+
+const FLAP_HOME = path.join(TMP, 'flap-home');
+fs.mkdirSync(FLAP_HOME, { recursive: true });
+
+// flappingLabelsTranscript(run) -- a GROWING transcript whose box carries GENUINELY DIFFERENT
+// option labels every run (`opt-<run>-a/b/c`), so the per-gate signature flaps to a fresh key
+// each retry. Same session_id throughout.
+function flappingLabelsTranscript(run) {
+  const lines = [
+    { type: 'user', message: { role: 'user', content: 'I want to start a venture' } },
+  ];
+  for (let i = 0; i < run; i++) {
+    lines.push({
+      type: 'assistant',
+      message: { role: 'assistant', content: [{ type: 'text', text: 'prior re-emission ' + i + ' ' + Math.random() }] },
+    });
+  }
+  lines.push({
+    type: 'assistant',
+    message: {
+      role: 'assistant',
+      content: [{
+        type: 'text',
+        text: 'Choose your starting point:\n  [1] opt-' + run + '-aaa\n  [2] opt-' + run +
+          '-bbb\n  [3] opt-' + run + '-ccc\ntype 1, 2, or 3\n' + Math.random(),
+      }],
+    },
+  });
+  return writeTranscript('flap-' + run + '.jsonl', lines);
+}
+function runFlap(run) {
+  const fp = flappingLabelsTranscript(run);
+  const res = spawnSync('node', [INTERCEPTOR_PATH], {
+    input: JSON.stringify({ hook_event_name: 'Stop', transcript_path: fp, session_id: 'flap-sess' }),
+    encoding: 'utf8',
+    env: Object.assign({}, process.env, { MINDRIAN_HOME: FLAP_HOME }),
+  });
+  try { return JSON.parse((res.stdout || '').trim()); } catch (_e) { return null; }
+}
+function flapStore() {
+  try { return JSON.parse(fs.readFileSync(path.join(FLAP_HOME, 'card-fire-retries.json'), 'utf8')); }
+  catch (_e) { return {}; }
+}
+function flapSessionCount() {
+  const e = flapStore()[m.SESSION_KEY_PREFIX + 'flap-sess'];
+  return e && Number.isFinite(e.count) ? e.count : 0;
+}
+function flapPerGateKeyCount() {
+  return Object.keys(flapStore()).filter((k) => k.indexOf(m.SESSION_KEY_PREFIX) !== 0).length;
+}
+let flapBlocked = 0;
+let flapDistinctKeysAtCeiling = 0;
+for (let run = 1; run <= m.MAX_SESSION_INTERCEPTS; run++) {
+  const env = runFlap(run);
+  if (env && env.decision === 'block') flapBlocked += 1;
+  if (run === m.MAX_SESSION_INTERCEPTS) flapDistinctKeysAtCeiling = flapPerGateKeyCount();
+}
+const flapSessionAtCeiling = flapSessionCount();
+const flapPastCeiling = runFlap(m.MAX_SESSION_INTERCEPTS + 1);
+const flapDegraded = !!(flapPastCeiling && flapPastCeiling.continue === true && flapPastCeiling.decision === undefined);
+ok('(CR-04) flapping labels: runs 1..MAX_SESSION_INTERCEPTS all BLOCK (the per-gate key flaps; session counter climbs)',
+  flapBlocked === m.MAX_SESSION_INTERCEPTS);
+ok('(CR-04) flapping labels: the side-file holds MANY distinct per-gate count:1 keys (the flap is real, not a single converging key)',
+  flapDistinctKeysAtCeiling >= m.MAX_SESSION_INTERCEPTS);
+ok('(CR-04) flapping labels: the SESSION counter reaches the ceiling (the content-independent floor climbs regardless of the flap)',
+  flapSessionAtCeiling === m.MAX_SESSION_INTERCEPTS);
+ok('(CR-04) flapping labels: past MAX_SESSION_INTERCEPTS the session ceiling DEGRADES (continue:true) -- the livelock is dead even with distinct keys',
+  flapDegraded);
+ok('(CR-04) flapping labels: the degrade RESETS the session counter (a fresh run starts clean)',
+  flapSessionCount() === 0);
+
+// ---------------------------------------------------------------------------
+// (CR-04 realistic-paraphrase) the SAME three semantic options RE-WORDED the way an LLM
+// naturally paraphrases on a re-emit ("Solution-first" -> "Start from the solution" -> ...). A
+// role:user IS present (the MAINLINE path, not an edge shape). The realistic paraphrase cycle
+// partially collides under normalization, so a few per-gate keys recur and may even reach the
+// per-gate ceiling LATE; the load-bearing guarantee is that the run is BOUNDED -- it must DEGRADE
+// (via whichever floor fires first, per-gate OR session) within MAX_SESSION_INTERCEPTS+1 runs,
+// instead of the pre-fix livelock that blocked on EVERY run forever. Pre-fix this cycle blocked
+// indefinitely (no single key reached MAX every cycle, and no session ceiling existed); post-fix
+// it is bounded. We drive an UNBROKEN run and assert a degrade lands no later than the session
+// ceiling -- and that EVERY run up to the first degrade was a block (so the cap is the ONLY thing
+// that stopped it, not a spurious early no-op).
+// ---------------------------------------------------------------------------
+const PARA_HOME = path.join(TMP, 'para-home');
+fs.mkdirSync(PARA_HOME, { recursive: true });
+// A cycle of natural paraphrases of the SAME three semantic options.
+const PARAPHRASES = [
+  ['Solution-first', 'Domain-first', 'Venture-first'],
+  ['Start from the solution', 'Start from the domain', 'Start from the venture'],
+  ['Solution first', 'Domain first', 'Venture first'],
+  ['The solution-first path', 'The domain-first path', 'The venture-first path'],
+  ['Begin with a solution', 'Begin with a domain', 'Begin with a venture'],
+  ['Lead with the solution', 'Lead with the domain', 'Lead with the venture'],
+];
+function paraphraseTranscript(run) {
+  const labels = PARAPHRASES[run % PARAPHRASES.length];
+  return writeTranscript('para-' + run + '.jsonl', [
+    { type: 'user', message: { role: 'user', content: 'I want to start a venture' } },
+    {
+      type: 'assistant',
+      message: {
+        role: 'assistant',
+        content: [{
+          type: 'text',
+          text: 'Choose your starting point:\n  [1] ' + labels[0] + '\n  [2] ' + labels[1] +
+            '\n  [3] ' + labels[2] + '\ntype 1, 2, or 3\n' + Math.random(),
+        }],
+      },
+    },
+  ]);
+}
+function runPara(run) {
+  const fp = paraphraseTranscript(run);
+  const res = spawnSync('node', [INTERCEPTOR_PATH], {
+    input: JSON.stringify({ hook_event_name: 'Stop', transcript_path: fp, session_id: 'para-sess' }),
+    encoding: 'utf8',
+    env: Object.assign({}, process.env, { MINDRIAN_HOME: PARA_HOME }),
+  });
+  try { return JSON.parse((res.stdout || '').trim()); } catch (_e) { return null; }
+}
+// Drive the cycle until the FIRST degrade, capping at MAX_SESSION_INTERCEPTS+1 runs. The run is
+// bounded if a degrade lands within that window; every run before it must have been a block.
+let paraFirstDegradeRun = -1;
+let paraAllBlockedBeforeDegrade = true;
+for (let run = 1; run <= m.MAX_SESSION_INTERCEPTS + 1 && paraFirstDegradeRun === -1; run++) {
+  const env = runPara(run);
+  if (env && env.continue === true && env.decision === undefined) {
+    paraFirstDegradeRun = run;
+  } else if (!(env && env.decision === 'block')) {
+    // Anything that is neither a degrade nor a block before the cap is a spurious result.
+    paraAllBlockedBeforeDegrade = false;
+  }
+}
+ok('(CR-04 paraphrase) the realistic same-options paraphrase cycle is BOUNDED -- it DEGRADES no later than the session ceiling (pre-fix it livelocked forever)',
+  paraFirstDegradeRun !== -1 && paraFirstDegradeRun <= m.MAX_SESSION_INTERCEPTS + 1);
+ok('(CR-04 paraphrase) every run before the degrade was a BLOCK (the cap is what stopped it, not a spurious early no-op)',
+  paraAllBlockedBeforeDegrade);
+
+// ---------------------------------------------------------------------------
+// (CR-04 WR-07-coexist) the session ceiling must NOT break the legitimate two-distinct-gates
+// case: two genuinely-different gates, each forced to the PER-GATE degrade (MAX_FORCE_RETRIES),
+// must BOTH degrade via the per-gate counter BEFORE the session ceiling fires. With
+// MAX_SESSION_INTERCEPTS (12) well above 2 x MAX_FORCE_RETRIES (6), two gates each reaching their
+// per-gate degrade consume only 2 x MAX_FORCE_RETRIES session intercepts -- under the ceiling --
+// so the per-gate degrade is what fires, not the session ceiling.
+// ---------------------------------------------------------------------------
+ok('(CR-04 WR-07-coexist) MAX_SESSION_INTERCEPTS is well above 2 x MAX_FORCE_RETRIES (per-gate degrade fires first for distinct gates)',
+  m.MAX_SESSION_INTERCEPTS > 2 * m.MAX_FORCE_RETRIES);
+
+const COEX_HOME = path.join(TMP, 'coex-home');
+fs.mkdirSync(COEX_HOME, { recursive: true });
+// A STABLE-label gate (constant labels each run) so the per-gate signature does NOT flap -- the
+// per-gate counter converges and the per-gate degrade fires. Two such distinct gates in one
+// session.
+function stableGateTranscript(name, labels) {
+  return writeTranscript(name, [
+    { type: 'summary', summary: 'compacted' },
+    {
+      type: 'assistant',
+      message: {
+        role: 'assistant',
+        content: [{
+          type: 'text',
+          text: 'Choose:\n  [1] ' + labels[0] + '\n  [2] ' + labels[1] + '\n  [3] ' + labels[2] +
+            '\ntype 1, 2, or 3\n' + Math.random(),
+        }],
+      },
+    },
+  ]);
+}
+function runStableGate(name, labels) {
+  const fp = stableGateTranscript(name, labels);
+  const res = spawnSync('node', [INTERCEPTOR_PATH], {
+    input: JSON.stringify({ hook_event_name: 'Stop', transcript_path: fp, session_id: 'coex-sess' }),
+    encoding: 'utf8',
+    env: Object.assign({}, process.env, { MINDRIAN_HOME: COEX_HOME }),
+  });
+  try { return JSON.parse((res.stdout || '').trim()); } catch (_e) { return null; }
+}
+// Gate A: force it MAX_FORCE_RETRIES times (block), then the MAX+1 run must degrade PER-GATE.
+let coexAblocked = 0;
+for (let i = 0; i < m.MAX_FORCE_RETRIES; i++) {
+  const env = runStableGate('coex-a' + i + '.jsonl', ['alpha', 'beta', 'gamma']);
+  if (env && env.decision === 'block') coexAblocked += 1;
+}
+const coexAdegrade = runStableGate('coex-a-deg.jsonl', ['alpha', 'beta', 'gamma']);
+const coexAdegraded = !!(coexAdegrade && coexAdegrade.continue === true && coexAdegrade.decision === undefined);
+ok('(CR-04 WR-07-coexist) a STABLE-label gate A still converges via the PER-GATE counter (blocks MAX, then per-gate degrade) -- the session ceiling did not steal its budget',
+  coexAblocked === m.MAX_FORCE_RETRIES && coexAdegraded);
 
 // Cleanup (best-effort; tmp dirs are disposable).
 try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* ignore */ }

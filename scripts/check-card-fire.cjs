@@ -87,6 +87,21 @@
  * MAX_FORCE_RETRIES the predicate returns degrade=true and the envelope is
  * { continue: true, suppressOutput: true } (log to stderr, allow the turn).
  *
+ * CR-04 (the TERMINAL convergence floor -- the session-wide intercept ceiling): the per-gate
+ * counter above keys on the gate-identifying CONTENT (gate_signature), which is MODEL-controlled.
+ * When the model re-emits the SAME stuck gate with DIFFERENT option labels each retry (the most
+ * natural LLM behavior under this interceptor's own "re-emit this turn" re-prompt), the per-gate
+ * signature FLAPS to a fresh key every retry, no single per-gate key ever reaches
+ * MAX_FORCE_RETRIES, and the bounded escape livelocks forever. ANY key derived from model-emitted
+ * content can be flapped; the ONLY identity that cannot be flapped is the SESSION itself. So a
+ * SECOND, session-wide counter keyed on session_id ALONE (content-INDEPENDENT, stored at
+ * `__session__:<id>` in the same TTL-pruned side-file) is bumped on EVERY intercept, with its own
+ * hard ceiling MAX_SESSION_INTERCEPTS (set generously above the per-gate cap so normal multi-gate
+ * sessions are unaffected). The predicate degrades if EITHER ceiling is reached. The session
+ * ceiling is the load-bearing guarantee: a continuous run of intercepts in ONE session is bounded
+ * by MAX_SESSION_INTERCEPTS REGARDLESS of how the gate content / per-gate key flaps. A degrade or
+ * a no-intercept Stop turn resets the session counter (the navigator got unstuck).
+ *
  * WR-08 (transcript read cap): readTranscriptTurn reads only the LAST TRANSCRIPT_TAIL_BYTES
  * of the transcript file (a pathological multi-hundred-MB transcript cannot stall the 3000ms
  * hook). The detection semantics are unchanged -- the LAST assistant message and the gate
@@ -138,9 +153,37 @@ function retryFilePath() {
 }
 
 // The bounded-escape ceiling (named constant). After this many consecutive intercepts
-// on the same turn-context, degrade to log + allow so a card-incapable surface cannot
-// trap the navigator.
+// on the same turn-context (the per-gate key), degrade to log + allow so a card-incapable
+// surface cannot trap the navigator. This is the per-gate counter: it gives good UX (each
+// genuinely-distinct gate gets forced up to N times before we give up on it).
 const MAX_FORCE_RETRIES = 3;
+
+// CR-04 (the TERMINAL convergence floor): the SESSION-WIDE intercept ceiling. The per-gate
+// counter above keys on the gate-identifying CONTENT (gate_signature), which is MODEL-
+// CONTROLLED: when the model re-emits the SAME stuck gate with DIFFERENT option labels each
+// retry (the single most natural LLM behavior under this interceptor's own "re-emit this
+// turn" re-prompt), the per-gate signature FLAPS to a fresh key every retry, no single per-
+// gate key ever reaches MAX_FORCE_RETRIES, and the bounded escape LIVELOCKS forever. ANY key
+// derived from model-emitted content can be flapped; the ONLY identity that cannot be flapped
+// is the SESSION itself. So we add a second, session-wide counter keyed on session_id ALONE
+// (content-INDEPENDENT, un-flappable) with its own hard ceiling. On each intercept we bump
+// BOTH counters and degrade if EITHER ceiling is reached. The session ceiling is the load-
+// bearing guarantee: an unbroken run of intercepts in ONE session is bounded by
+// MAX_SESSION_INTERCEPTS REGARDLESS of how the gate content / per-gate key flaps.
+//
+// It is set GENEROUSLY above the per-gate cap (4x MAX_FORCE_RETRIES, well above 2x) so that
+// a normal multi-gate session is unaffected: the per-gate degrade fires first for each
+// genuinely-distinct gate (WR-07's two-distinct-gates case degrades per-gate long before the
+// session total reaches 12), and ONLY a flapping single-gate livelock -- which the per-gate
+// counter cannot catch -- is bounded by this ceiling.
+const MAX_SESSION_INTERCEPTS = 12;
+
+// The session-counter key prefix in the shared side-file. A session entry lives at
+// `__session__:<session_id>` alongside the per-gate `<ctxHash>` entries; both are { count, ts }
+// shaped and both are TTL-pruned identically (WR-02), so the side-file still cannot grow
+// without bound. The `__session__:` prefix cannot collide with a per-gate ctxHash (a 16-hex
+// sha256 slice never starts with `__session__:`).
+const SESSION_KEY_PREFIX = '__session__:';
 
 // WR-02: the retry side-file TTL. Each store entry carries { count, ts }; on every write
 // entries older than this are evicted, so the LOCAL ~/.mindrian/card-fire-retries.json
@@ -215,9 +258,19 @@ function gateReachingEntries(registry) {
 // BACKSTOP fires on) and (b) the option labels as a lowercased, prose/whitespace-stripped,
 // SORTED token set. The labels are the `[1] foo`, `[2] bar` option bodies; we take the label
 // TEXT after each `[n]` marker, normalize it, and sort the resulting set so option re-ordering
-// does not flap the key. If the model MATERIALLY changes the option labels each retry the key
-// may flap -- that is acceptable ONLY because the degenerate session-alone floor (see
-// turnContextHash) still bounds it; this is the documented residual.
+// does not flap the key.
+//
+// CR-04 (corrected -- this comment previously claimed the empty-only session-alone floor bounds
+// the flap; it does NOT, and that false claim is DELETED). If the model MATERIALLY changes the
+// option labels each retry, this per-gate signature DOES flap to a fresh key every retry, and
+// the EMPTY-only degenerate floor in turnContextHash (which fires only when BOTH glyph span and
+// labels are empty) provably NEVER catches a flapping NON-empty signature. The flap is bounded
+// instead by the SESSION-WIDE intercept ceiling (MAX_SESSION_INTERCEPTS, applied in main): the
+// session counter is keyed on session_id ALONE and is content-INDEPENDENT, so it climbs to its
+// ceiling regardless of how this per-gate signature flaps, and degrades the run. The per-gate
+// signature stays the GOOD-UX granularity for the common stable case (each genuinely-distinct
+// gate gets its own per-gate budget); the session ceiling is the un-flappable convergence floor
+// behind it.
 //
 // Returns '' (degenerate) when no gate content is recoverable; turnContextHash then falls back
 // to session_id ALONE -- NEVER to a growing value. Part 8: pure local string work; the result
@@ -321,7 +374,17 @@ function turnContextHash(turn) {
 //
 // turn shape (the normalized turn signals a Stop hook derives):
 //   { ran_entries: string[], askuserquestion_fired: bool, output_text: string,
-//     retry_count?: number }
+//     retry_count?: number, session_count?: number }
+//
+// Bounded escape (CR-04): degrade when EITHER ceiling is reached --
+//   - retry_count   >= MAX_FORCE_RETRIES     (the per-gate counter; good UX, per-gate granularity)
+//   - session_count >= MAX_SESSION_INTERCEPTS (the SESSION-wide ceiling; the content-INDEPENDENT,
+//                                              un-flappable convergence floor that catches a
+//                                              flapping per-gate key the per-gate counter cannot).
+// The session ceiling is the load-bearing guarantee: an unbroken run of intercepts in ONE
+// session cannot exceed MAX_SESSION_INTERCEPTS regardless of how the gate content / per-gate key
+// flaps. Both ceilings are checked; the session ceiling is reported distinctly so the degrade
+// reason names WHICH floor fired.
 //
 // Pure code, deterministic, no network, no clock, no random. Never throws.
 // ---------------------------------------------------------------------------
@@ -350,8 +413,19 @@ function classifyCardFire(turn, registry) {
       return { intercept: false, reason: 'no-gate-signal', degrade: false };
     }
 
-    // A reached gate with no fired card is a candidate intercept. Apply the bounded
-    // escape: if the retry count for this turn-context has hit the ceiling, degrade.
+    // A reached gate with no fired card is a candidate intercept. Apply the bounded escape:
+    // degrade if EITHER the per-gate counter OR the SESSION-wide counter has hit its ceiling.
+    const sessionCount = Number.isFinite(t.session_count) ? t.session_count : 0;
+    if (sessionCount >= MAX_SESSION_INTERCEPTS) {
+      // The CR-04 convergence floor: the session ceiling catches a flapping per-gate key that
+      // the per-gate counter never reaches. Content-INDEPENDENT, so it ALWAYS converges.
+      return {
+        intercept: false,
+        degrade: true,
+        reason: 'session-intercept-ceiling-reached-after-' + MAX_SESSION_INTERCEPTS + '-intercepts',
+      };
+    }
+
     const retryCount = Number.isFinite(t.retry_count) ? t.retry_count : 0;
     if (retryCount >= MAX_FORCE_RETRIES) {
       return {
@@ -493,6 +567,51 @@ function clearRetryCount(ctxHash) {
   const store = readRetryStore();
   if (ctxHash in store) {
     delete store[ctxHash];
+    writeRetryStore(store);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CR-04 SESSION-WIDE intercept ceiling -- the content-INDEPENDENT convergence floor.
+//
+// sessionKey(sessionId) / readSessionCount(sessionId) / bumpSessionCount(sessionId) /
+// clearSessionCount(sessionId) -- the session counter lives in the SAME side-file as the per-
+// gate entries, at `__session__:<sessionId>`, { count, ts } shaped, TTL-pruned identically
+// (WR-02). It is keyed on the OPAQUE session_id ALONE (no model-emitted content), so it cannot
+// be flapped: a continuous run of intercepts in ONE session climbs the SAME session counter
+// REGARDLESS of how the per-gate signature moves, and MAX_SESSION_INTERCEPTS hard-bounds it.
+//
+// Part 8: session_id is an opaque conversation identifier (not user content / not artifact
+// text). The key is `__session__:<opaque-id>`; the value is a scalar count + timestamp. No raw
+// text egress; the side-file is LOCAL (~/.mindrian) only. Best-effort like the per-gate helpers.
+// ---------------------------------------------------------------------------
+function sessionKey(sessionId) {
+  const s = typeof sessionId === 'string' ? sessionId : '';
+  return SESSION_KEY_PREFIX + s;
+}
+
+function readSessionCount(sessionId) {
+  const store = readRetryStore();
+  const e = normalizeRetryEntry(store[sessionKey(sessionId)], Date.now());
+  return e ? e.count : 0;
+}
+
+function bumpSessionCount(sessionId) {
+  const store = readRetryStore();
+  const now = Date.now();
+  const key = sessionKey(sessionId);
+  const e = normalizeRetryEntry(store[key], now);
+  const next = (e ? e.count : 0) + 1;
+  store[key] = { count: next, ts: now };
+  writeRetryStore(store);
+  return next;
+}
+
+function clearSessionCount(sessionId) {
+  const store = readRetryStore();
+  const key = sessionKey(sessionId);
+  if (key in store) {
+    delete store[key];
     writeRetryStore(store);
   }
 }
@@ -736,35 +855,51 @@ function main() {
 
   const registry = loadRegistry();
   const turn = deriveTurnSignals(env);
+  const sessionId = turn.session_id;
   const ctxHash = turnContextHash(turn);
+  // Feed BOTH counters into the predicate: the per-gate counter (per-gate UX granularity) and
+  // the SESSION-wide counter (the CR-04 content-independent convergence floor). The predicate
+  // degrades if EITHER ceiling is reached.
   turn.retry_count = readRetryCount(ctxHash);
+  turn.session_count = readSessionCount(sessionId);
 
   const verdict = classifyCardFire(turn, registry);
 
   if (verdict.degrade === true) {
-    // Bounded escape released: log + allow + clear the counter so the next genuinely
-    // distinct turn-context starts fresh.
+    // Bounded escape released (per-gate ceiling OR the CR-04 session ceiling): log + allow.
+    // Clear BOTH the per-gate counter AND the session counter -- the navigator is being let
+    // through, so the session is "unstuck" and the next continuous run starts fresh. Clearing
+    // the session counter here is the sane reset: a continuous run of intercepts is bounded by
+    // MAX_SESSION_INTERCEPTS, and a degrade ENDS that run.
     process.stderr.write(
-      '[check-card-fire] bounded escape released after ' + MAX_FORCE_RETRIES +
-        ' retries; allowing turn (' + verdict.reason + ')\n'
+      '[check-card-fire] bounded escape released; allowing turn (' + verdict.reason + ')\n'
     );
     clearRetryCount(ctxHash);
+    clearSessionCount(sessionId);
     return emitEnvelope(buildEnforcementEnvelope(verdict));
   }
 
   if (verdict.intercept === true) {
-    // Force the card: bump the bounded-escape counter and emit the Stop-block (decision:block-on-exit-0).
+    // Force the card: bump BOTH the per-gate counter AND the session-wide counter, then emit
+    // the Stop-block (decision:block-on-exit-0). Bumping the session counter on EVERY intercept
+    // is what makes a flapping per-gate key (CR-04) still converge: the session counter climbs
+    // regardless of which per-gate key the intercept landed on.
     bumpRetryCount(ctxHash);
+    bumpSessionCount(sessionId);
     return emitEnvelope(buildEnforcementEnvelope(verdict));
   }
 
-  // The card fired (or no gate signal): clear any stale counter and allow.
+  // The card fired (or no gate signal): the navigator got unstuck this turn, so clear the per-
+  // gate counter AND reset the session counter (a no-intercept Stop turn ends any intercept run).
   clearRetryCount(ctxHash);
+  clearSessionCount(sessionId);
   return silentSuccess();
 }
 
 module.exports = {
   MAX_FORCE_RETRIES,
+  MAX_SESSION_INTERCEPTS,
+  SESSION_KEY_PREFIX,
   RETRY_TTL_MS,
   TRANSCRIPT_TAIL_BYTES,
   classifyCardFire,
@@ -777,6 +912,7 @@ module.exports = {
   readTranscriptTail,
   pruneRetryStore,
   normalizeRetryEntry,
+  sessionKey,
   loadRegistry,
 };
 
