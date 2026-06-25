@@ -1,0 +1,6 @@
+=== CR-03 proof (growing NO-role:user transcript, type:summary lead) ===
+MAX_FORCE_RETRIES=3
+blocked runs 1..MAX = 3  (expect 3)
+keys at ceiling = 1 -> ["7e5dad025e4381ca"]
+past-ceiling degraded = true
+VERDICT: CONVERGES (ONE key, degrades at MAX+1) -- CR-03 FIXED

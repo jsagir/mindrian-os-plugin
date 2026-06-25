@@ -1,0 +1,7 @@
+=== WR-07 proof (two distinct gates, one session, no cross-clear) ===
+after gate A x2: keys={"514c2baaf201072d":{"count":2,"ts":1782345594814}}
+after gate B x1: keys={"514c2baaf201072d":{"count":2,"ts":1782345594814},"eea160f4571b6678":{"count":1,"ts":1782345594840}}
+gate B minted a NEW independent key = true
+gate A counter UNTOUCHED by gate B = true
+two independent keys total = true
+VERDICT: TWO INDEPENDENT KEYS, no cross-clear -- WR-07 FIXED
