@@ -76,7 +76,9 @@ function renderMarkdown(src) {
   const nodes = groupThousands(m.neo4j_nodes);
   const frameworks = groupThousands(m.frameworks);
   const vectors = groupThousands(m.pinecone_vectors);
-  const dim = groupThousands(src.pinecone_dim);
+  // Dimensionality is an embedding-width label (canonically "1024-dim"), not a
+  // corpus magnitude, so it is NOT grouped-thousands - it reads 1024, not 1,024.
+  const dim = String(src.pinecone_dim);
 
   const lines = [
     '# Corpus Stats (Generated)',
@@ -152,7 +154,7 @@ function main() {
       groupThousands(src.magnitudes.neo4j_nodes) + ' nodes / ' +
       groupThousands(src.magnitudes.frameworks) + ' frameworks / ' +
       groupThousands(src.magnitudes.pinecone_vectors) + ' Pinecone vectors (' +
-      groupThousands(src.pinecone_dim) + '-dim)'
+      String(src.pinecone_dim) + '-dim)'
   );
 }
 
