@@ -1551,6 +1551,29 @@ function runNavigationEngine(roomDir, sessionId) {
                     });
                   }
                 }
+                // Phase 183-01 METER-01 (gate_reached): one OBSERVATION per gate
+                // render, beside the reach_presented loop, on THIS surface-shared
+                // engine arm (NOT a CLI-only fork) so Desktop/Cowork gate-reaches are
+                // counted too. Exactly ONE per gate (NOT one-per-reach): reach_count
+                // = offered.length. Guarded by offered.length > 0. Deduped on the
+                // turn-start handle (startedAt) so a re-entrant arm cannot
+                // double-count one gate (the 60s logEvent idempotency window). The
+                // payload is enum/scalar only -- counts + enums + the dedupe handle,
+                // never prose, never a framework string, never user content (Part 8).
+                // This is an OBSERVATION beside the render; it changes NOTHING about
+                // what is offered (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the
+                // 6-reach bank, appendAskUserQuestionTrailer all untouched).
+                // framework_invoked fires at ~0 production sites today, so the Gauge-1
+                // density basis leans on reach_presented + gate_reached.
+                if (offered.length > 0) {
+                  navigationMod.logMemoryEvent(roomDb, 'gate_reached', {
+                    reach_count: offered.length,
+                    routing_source: 'engine',
+                    source_path: 'gate:reached',
+                    created_by: 'system',
+                    dedupe_key: 'gate:' + startedAt,
+                  });
+                }
               }
             }
           } catch (_reachEmitErr) {
