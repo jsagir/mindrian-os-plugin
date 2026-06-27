@@ -42,6 +42,27 @@ ok('volume-up-quality-flat is labeled regression',
 ok('quality-up-by-starving-volume is labeled regression',
   /quality-up-by-starving-volume/.test(src));
 
+// CORRECTION A -- subject_class is stamped on every reading and is one of the allowed
+// enum values { maintainer, navigator, unknown }. Only navigator clears the entry-31
+// self-binding clause; a maintainer reading proves the instrument fires, not the bind.
+ok('subject_class is present', !!r && Object.prototype.hasOwnProperty.call(r, 'subject_class'));
+ok('subject_class is an allowed enum value',
+  !!r && ['maintainer', 'navigator', 'unknown'].includes(r.subject_class));
+ok('source carries the entry-31 self-binding guard comment',
+  /Only subject_class==navigator/.test(src)
+  && /does NOT clear the self-bind|does not clear the self-bind|not clear the self-bind/.test(src));
+
+// CORRECTION B -- the uninstrumented THIRD state. On a null db the transfer substrate is
+// EMPTY, so the read reports transfer=null + transfer_state='uninstrumented' (NEVER a
+// fabricated transfer=0), distinct from a flat reading.
+ok('transfer_state is present', !!r && Object.prototype.hasOwnProperty.call(r, 'transfer_state'));
+ok('cold-start transfer is null (not a zero)', !!r && r.transfer === null);
+ok('cold-start transfer_state is uninstrumented', !!r && r.transfer_state === 'uninstrumented');
+ok('cold-start verdict is transfer_uninstrumented (no regression verdict licensed)',
+  !!r && r.verdict === 'transfer_uninstrumented');
+ok('source treats uninstrumented as DISTINCT from flat',
+  /DISTINCT state from flat/.test(src) && /blindfolded/.test(src));
+
 console.log('');
 console.log('PASS ' + pass + ' assertions');
 console.log('>>> test-meter-two-gauge-weld.cjs: PASSED');
