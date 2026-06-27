@@ -3179,6 +3179,9 @@ E1. Add `EvidenceClaim` to `TRUTH_CLAIM_TYPES` (lib/core/navigation/transitions.
 INV-2a gate-exposure meter + D2 transfer meter. LOCAL-only, emitted as memory_event via lib/core/navigation.cjs. Records per session: gate-reach, invocation density, insight-to-validated-decision latency. Answers open-question-1 (does anyone reach the gate?), sets the invocation-density baseline, is INV-2b's R1 source + Gauge 2. REQ: METER-01, METER-02.
 - **Acceptance:** per-session gate-reach + invocation count + transfer pairing emitted locally; reading the meter answers "does a navigator reach the gate."
 - **GATES Phase 184:** if METER shows nobody reaches the gate, 184 never opens (the leak is the trigger, not the grounding -- Hooked Section 5).
+- **Plans:** 2 plans (planned 2026-06-27)
+  - [ ] 183-01-PLAN.md (wave 1, METER-01) -- gate_reached EVENT_TYPES member + the single engine-arm emit + the Gauge-1 invocation-density reader + the phase Wave-0 test scaffold (run-all-183.sh)
+  - [ ] 183-02-PLAN.md (wave 2, METER-01+02) -- the three named-debt transfer proxies + the WELDED two-gauge read (readTwoGauge returns the pair or throws; no bare-density export) + the navigation.cjs one-door re-export
 
 ### Phase 184 - READER Decide-Time Projection Offer (reader-decide-projection-offer) - REGISTERED 2026-06-27
 
