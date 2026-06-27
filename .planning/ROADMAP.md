@@ -3181,7 +3181,7 @@ INV-2a gate-exposure meter + D2 transfer meter. LOCAL-only, emitted as memory_ev
 - **GATES Phase 184:** if METER shows nobody reaches the gate, 184 never opens (the leak is the trigger, not the grounding -- Hooked Section 5).
 - **Plans:** 2 plans (planned 2026-06-27)
   - [x] 183-01-PLAN.md (wave 1, METER-01) -- gate_reached EVENT_TYPES member + the single engine-arm emit + the Gauge-1 invocation-density reader + the phase Wave-0 test scaffold (run-all-183.sh) [COMPLETE 2026-06-27: 3 tasks, commits 0d08fff3/e0d46f51/3d650ede; run-all-183.sh 6/8 (the 2 RED are the Plan-02 transfer + two-gauge-weld pins by design); EVENT_TYPES 86 -> 87; Part 8 sweep clean; reach-ids/posture-ids drift fences green]
-  - [ ] 183-02-PLAN.md (wave 2, METER-01+02) -- the three named-debt transfer proxies + the WELDED two-gauge read (readTwoGauge returns the pair or throws; no bare-density export) + the navigation.cjs one-door re-export
+  - [x] 183-02-PLAN.md (wave 2, METER-01+02) -- the three named-debt transfer proxies + the WELDED two-gauge read (readTwoGauge returns the pair or throws; no bare-density export) + the navigation.cjs one-door re-export [COMPLETE 2026-06-27: 2 tasks, commits cf2f2865/607738fe; run-all-183.sh 8/8 GREEN (both Wave-1 RED pins now pass); CORRECTION A subject_class {maintainer|navigator|unknown} stamped read-time Part-8-clean; CORRECTION B transfer_uninstrumented third state distinct from flat; proxies labelled named-debt; Part 8 sweep clean; reach-ids/posture-ids drift fences green]
 
 ### Phase 184 - READER Decide-Time Projection Offer (reader-decide-projection-offer) - REGISTERED 2026-06-27
 
