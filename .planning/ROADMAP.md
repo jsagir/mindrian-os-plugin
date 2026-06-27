@@ -3171,6 +3171,12 @@ E1. Add `EvidenceClaim` to `TRUTH_CLAIM_TYPES` (lib/core/navigation/transitions.
 
 (a) **F.7 gate always renders -- ALREADY SHIPPED via Phase 179 GA-4 interceptor (7 plans + 4 fix-waves, green 2026-06-25).** This phase VERIFIES and leans on 179, it does NOT rebuild it. (b) **NET-NEW:** every Larry turn wears a De Stijl color mark in the CLI (blue=building, red=challenging, yellow=contradiction, black=gate, white=invisibility) so the navigator can always distinguish Larry from the native host; a turn with no mark is detectable as native-host (Part 12 Voice Signature HARD requirement). REQ: SIGNAL-01 (verify), SIGNAL-02 (voice-color, build).
 - **Acceptance:** the R15 render-coverage gate still passes (179 lean); a Larry CLI turn missing its color mark is caught by a test.
+**Plans:** 2 plans in 2 waves (planned 2026-06-27)
+
+Plans:
+- [ ] 182-01-PLAN.md - Wave 1: SIGNAL-01 verify (R15 gate green, lean on 179) + SIGNAL-02 build (lib/hmi/voice-color-mark.cjs + the Voice Signature doctrine on larry-personality/ui-system SKILL.md)
+- [ ] 182-02-PLAN.md - Wave 2: SIGNAL-02 the missing-mark + doctrine-declaration drift test (tests/test-larry-voice-mark-182.cjs) + tests/run-all-182.sh aggregator
+
 
 ### Phase 183 - METER Gate-Exposure + Transfer (meter-gate-exposure-transfer) - REGISTERED 2026-06-27
 
