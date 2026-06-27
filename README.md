@@ -63,7 +63,7 @@ A raw AI is brilliant for one turn and forgets the next. Ask it the same venture
 MindrianOS adds the four things a raw model structurally cannot be:
 
 - **It remembers.** Your venture lives in a room that persists across every session. The contradiction you found three weeks ago is still there, still checking today's input.
-- **It knows when.** Not just which framework exists, but which one fits this stage and this problem, chained in the right order, calibrated from decades of teaching.
+- **It knows when.** The moat was never the frameworks; anyone can list those. It is knowing which one you need at the stage you are in, and reaching for it the moment you are stuck, so you never have to know its name. When to use which, in what order, is the timing that decades of teaching calibrate.
 - **It pushes back.** It blocks you when the evidence is thin and surfaces the conflict between your pricing and your market. A co-founder tells you when you are wrong. A chatbot tells you that you are brilliant.
 - **It keeps your data yours.** The teaching that travels is generic methodology. Your specifics never leave your machine. You get smarter-from-the-world intelligence without becoming the product.
 

@@ -3136,3 +3136,79 @@ Plans:
 - [x] 179-11 FIX-WAVE (re-review iteration 4 CR-04 BLOCKER -- the TERMINAL bounded-escape cure): the 179-10 gate-content anchor's per-gate key is derived from the GATE content (glyph span + option-label SET), which is MODEL-CONTROLLED -- when the model re-emits the same stuck gate with DIFFERENT option labels each retry (the most natural LLM behavior under the interceptor's own re-emit re-prompt), the per-gate signature FLAPS to a fresh non-empty key every retry, no single key reaches MAX_FORCE_RETRIES, and the bounded escape LIVELOCKS forever; the empty-only floor never catches a flapping non-empty signature (the false :218-220 claim). The FOURTH recurrence of the BL-01/CR-02/CR-03 class. ROOT TRUTH: any key from model-emitted content can be flapped; only the SESSION cannot. FIX: add a SESSION-WIDE intercept ceiling MAX_SESSION_INTERCEPTS=12 keyed on session_id ALONE (content-independent, un-flappable), stored at __session__:<id> in the same TTL-pruned side-file; bump BOTH per-gate AND session on intercept, DEGRADE if EITHER ceiling reached; reset on degrade/no-intercept. Per-gate counter kept for UX; 12=4x MAX_FORCE_RETRIES so the WR-07 two-distinct-gates case per-gate-degrades before the session ceiling. Corrected the false :218-220 comment. FLAPPING-LABELS e2e (distinct per-gate keys each retry, session climbs to 12, DEGRADES at 13 + resets to 0) fails pre-fix (node exit 1, livelock 7+ distinct count:1 keys no degrade) / passes post-fix; realistic-paraphrase bounded; WR-07-coexist stable gate still per-gate-degrades -- complete 2026-06-25 (commit d4676a42; e2e 37->47; unit 22/22; run-all-179.sh 12 pass 0 fail 0 skip; run-all-178 10/10; run-all-172 20/20; live proof side-files 179-11-CR04-prefix-livelock + 179-11-CR04-postfix-session-ceiling; frozen edges/transitions/room-birth byte-unchanged; Part 8 clean -- session_id opaque, scalar count, LOCAL side-file; no em-dashes; BL-01/CR-02/CR-03 stay fixed)
 
 **Status:** PHASE COMPLETE 7/7 + 4 fix-waves (179-08 + 179-09 + 179-10 + 179-11 closed the post-review BL-01, re-review CR-02, iteration-3 CR-03/WR-07/WR-08, and iteration-4 CR-04 blockers on the GA-4 interceptor; the bounded escape now converges on EVERY reachable transcript shape including no-role:user AND under a flapping per-gate key -- the session-wide intercept ceiling is the terminal content-independent convergence floor). All seven plans complete (179-01 Wave 1 / REQ-01: the GA-4 card-fire interceptor; 179-02 Wave 2 / REQ-09: widen the scratchpad birth-answer whitelist; 179-03 Wave 3 / REQ-02+03+12: the canonical persona-first 4-door B1 card; 179-04 Wave 4 / REQ-05+07: the hypothesis blueprint family + truth-claim filing + per-role Door 3 framing; 179-05 Wave 5 / REQ-06: the instances-vs-structures 3-option always-fire abstraction gate + domain-neutral fixture + adversarial neutrality grep gate; 179-06 Wave 6 / REQ-04+08: the CV-second-select multiSelect:true checkbox over extractDomains + arrival auto-fire Engine 1, gate the results; 179-07 Wave 7 FINAL / REQ-10+11: reconcile the two B1 specs + the cross-cutting Part 8 sweep + CIRS R12 close -- shipped 2026-06-25, 3fca23eb). `bash tests/run-all-179.sh` FULLY GREEN (11 pass / 0 fail / 0 skip across all seven waves; no SKIPs remaining). ignite.md is the ONE canonical persona-first B1; new-project.md is the pure B2 scaffold backend it delegates to. NEXT: navigator-gated phase CLOSE + the v1.14.0-beta train merge/release.
+
+---
+
+# Milestone v1.15.0 GA -- "Cure Under-Invocation"
+
+**Source:** Canon Recalibration Brief v4 (room/ artifacts: problem-definition/inv2-thesis-minto, competitive-analysis/inv2-thesis-devils-advocate, financial-model/inv2-investment-thesis, product-evolution/discovery-brief-the-navigator).
+
+**Master finding:** everything is built and nothing fires enough. The dark operation tier, INV-2, and dormant Brain usage are three masks on ONE reverse salient -- under-invocation. Invocation is the moat (CLAUDE.md: the graph that knows WHEN to use WHICH); the moat is the thing under-performing.
+
+**Goal (navigator-set):** establish the new canon FIRST, then fix the code to reflect it. Canon leads, code follows -- the Part 6 dog-fooding mandate.
+
+**Cross-cutting constraints (every phase):** Part 8 (LOCAL only; adoption figures AGGREGATE-ONLY, no roster, "thin but nonzero"); the read/grab ruling (decide() READS to ground the offer, NEVER fires; Part 12 invisibility holds; turn ends at a gate); Part 7 (no new Parts/KPIs); the two-gauge metric is NEVER reported as one number.
+
+### Phase 180 - CANON-31 Establish Two-Gauge Canon (canon-31-two-gauge-metric) - REGISTERED 2026-06-27
+
+**Class:** CANON | **Priority:** P0 | **Depends on:** none (leads the milestone) | **Navigator-LOCKED**
+
+The governing act; everything downstream reflects it. Draft Appendix D entry 31: retire the Hooked ratification gate; write the WELDED TWO-GAUGE instrument into Part 5 + Part 10 (Gauge 1 invocation density must rise; Gauge 2 transfer-per-invocation must hold/climb; reported TOGETHER; volume-up-quality-flat AND quality-up-by-starving-volume BOTH log as regressions); keep the Manipulation Matrix; add the self-binding clause (no entry 32 until entry 31 returns a real two-gauge reading from a live navigator on the gate). Lockstep wave + FLOOR test per the canon's own amendment pattern. REQ: CANON-31-01.
+- **Acceptance:** entry 31 lands with header/footer version bump + CANON-PHASE-MAP row + floor test green; navigator ratifies at a blocking checkpoint before bytes land.
+
+### Phase 181 - SEC EvidenceClaim Structural Bar (sec-evidenceclaim-bar) - REGISTERED 2026-06-27
+
+**Class:** CODE | **Priority:** P0 | **Depends on:** none
+
+E1. Add `EvidenceClaim` to `TRUTH_CLAIM_TYPES` (lib/core/navigation/transitions.cjs:42) so promotion is structurally blocked, OR document never-promotable with a structural guard; add an ingest instruction-stripping pass (current sanitizer strips only email/URL PII). REQ: SEC-01, SEC-02.
+- **Acceptance:** poison sentinel (tests/test-part8-poison-transcript.cjs:48) cannot reach room.db un-stripped AND an agent-attributed EvidenceClaim confirm is structurally rejected. Vector OPEN today.
+- **Plans:** 1 plan (Wave 1)
+  - [ ] 181-01-PLAN.md - SEC-01 EvidenceClaim NON_PROMOTABLE guard (D-181-01, no frozen-set move) + SEC-02 ingest instruction-strip + run-all-181 gate
+
+### Phase 182 - SIGNAL Voice Color + Render Verify (signal-voice-color-render) - REGISTERED 2026-06-27
+
+**Class:** CODE | **Priority:** P0 | **Depends on:** Phase 179 (GA-4 interceptor, already shipped)
+
+(a) **F.7 gate always renders -- ALREADY SHIPPED via Phase 179 GA-4 interceptor (7 plans + 4 fix-waves, green 2026-06-25).** This phase VERIFIES and leans on 179, it does NOT rebuild it. (b) **NET-NEW:** every Larry turn wears a De Stijl color mark in the CLI (blue=building, red=challenging, yellow=contradiction, black=gate, white=invisibility) so the navigator can always distinguish Larry from the native host; a turn with no mark is detectable as native-host (Part 12 Voice Signature HARD requirement). REQ: SIGNAL-01 (verify), SIGNAL-02 (voice-color, build).
+- **Acceptance:** the R15 render-coverage gate still passes (179 lean); a Larry CLI turn missing its color mark is caught by a test.
+
+### Phase 183 - METER Gate-Exposure + Transfer (meter-gate-exposure-transfer) - REGISTERED 2026-06-27
+
+**Class:** CODE | **Priority:** P0 (build-first keystone) | **Depends on:** none
+
+INV-2a gate-exposure meter + D2 transfer meter. LOCAL-only, emitted as memory_event via lib/core/navigation.cjs. Records per session: gate-reach, invocation density, insight-to-validated-decision latency. Answers open-question-1 (does anyone reach the gate?), sets the invocation-density baseline, is INV-2b's R1 source + Gauge 2. REQ: METER-01, METER-02.
+- **Acceptance:** per-session gate-reach + invocation count + transfer pairing emitted locally; reading the meter answers "does a navigator reach the gate."
+- **GATES Phase 184:** if METER shows nobody reaches the gate, 184 never opens (the leak is the trigger, not the grounding -- Hooked Section 5).
+
+### Phase 184 - READER Decide-Time Projection Offer (reader-decide-projection-offer) - REGISTERED 2026-06-27
+
+**Class:** CODE | **Priority:** P0 (CONDITIONAL) | **Depends on:** Phase 183 (METER must confirm a gate subject)
+
+decide() at lib/core/navigation-engine.cjs:768 gains the read it lacks: import projection (data/brain-orchestration-projection.json, 249) + connector registry (data/connector-registry.json, 90) + recipe-maps.cjs; rank capabilities for the navigator context; surface as Shape F Decision-Gate OPTIONS. Calls NEITHER runChain NOR act-command (a third reader, not a third firer). REQ: READER-01..04.
+- **Acceptance (AS ACCEPTANCE, no criterion no ship):** R1 mandatory A/B (grounded vs ungrounded, choice-shift + latency); R2 projection-correctness gate on the 249 BEFORE read; R3 ambient-turn latency+context budget that FAILS the build; R4 structural guard making decide() INCAPABLE of firing.
+
+### Phase 185 - DRIFT Runtime Reachability (drift-runtime-reachability) - REGISTERED 2026-06-27
+
+**Class:** CODE | **Priority:** P2 (fast-follow) | **Depends on:** Phase 184 (READER)
+
+Add a runtime-reachability assertion to doctor --drift (today merge-time marking only; canon concedes at R7/entries 19/27). Testable once READER lands. REQ: DRIFT-01.
+- **Acceptance:** doctor --drift fails when a wired capability is unreachable by decide() at runtime.
+
+### Phase 186 - CORPUS Stats Hygiene (corpus-stats-hygiene) - REGISTERED 2026-06-27
+
+**Class:** CODE | **Priority:** P1 | **Depends on:** none
+
+A1/A3. One generated stats artifact (docs/CORPUS-STATS.generated.*) + --check tripwire; repoint stale literals. Live: 27,904 nodes / 177 frameworks / 12,485 vectors. Tripwire: 275+, 313, 23K, 748, 27,804, 12,413 (and PROJECT.md's stale "21K+ nodes"). REQ: CORPUS-01, CORPUS-02.
+- **Acceptance:** zero hardcoded count hits outside the artifact.
+
+## Dependency graph
+180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).
+
+## Folded seeds
+- **SEED-008 intelligence-layer-activation-gap-close-the-loop** -- IN SCOPE; this milestone is its thesis.
+- **SEED-009 learned-ranker-weights-from-outcome-edges** -- FORWARD-DECLARED next (the deferred future the two-gauge meter enables; not in-scope this milestone).
+
+## Held / deferred (assert nothing -- v4 directional-only caveat)
+B dark-frameworks (magnitudes 176/76/56/383 have ZERO source-of-truth; no gate until a write-capable Brain key or Phase-137 snapshot reproduces them); INV-3/4 (Neo4j Phase-137 sync; SyntheticExpert persona-gateway); F citations (P3).
+
+**Status:** SCAFFOLDED 2026-06-27. Phases 180-186 registered. NEXT: /gsd-plan-phase 180 (or 181 SEC for the fastest no-dependency win).

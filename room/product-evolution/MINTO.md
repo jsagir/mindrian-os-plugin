@@ -4,7 +4,7 @@ section: product-evolution
 governing_thought: The room surface exists to make the user feel their work ecosystem deepening through Mindrian, because a felt moat is invested in and an invested moat compounds.
 created: 2026-04-30
 license: BSL-1.1
-last_artifact_write_seen_at: "2026-05-31T07:37:27Z"
+last_artifact_write_seen_at: "2026-06-26T21:27:26Z"
 ---
 
 # Governing Thought
