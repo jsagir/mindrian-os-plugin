@@ -3203,6 +3203,11 @@ Add a runtime-reachability assertion to doctor --drift (today merge-time marking
 
 A1/A3. One generated stats artifact (docs/CORPUS-STATS.generated.*) + --check tripwire; repoint stale literals. Live: 27,904 nodes / 177 frameworks / 12,485 vectors. Tripwire: 275+, 313, 23K, 748, 27,804, 12,413 (and PROJECT.md's stale "21K+ nodes"). REQ: CORPUS-01, CORPUS-02.
 - **Acceptance:** zero hardcoded count hits outside the artifact.
+**Plans:** 2 plans in 2 waves (planned 2026-06-27)
+
+Plans:
+- [ ] 186-01-PLAN.md — Wave 1: committed magnitude source + local generator (scripts/build-corpus-stats.cjs) emitting the generated-stamped docs/CORPUS-STATS.generated.md + .json sibling (CORPUS-01; Brain-free per T-186-01)
+- [ ] 186-02-PLAN.md — Wave 2: --check tripwire (LIVE-surface scan + documented historical-provenance exclude list) + LIVE-surface repoint to 27,904 / 177 / 12,485 + pre-commit/release wiring + tests/run-all-186.sh (CORPUS-02)
 
 ## Dependency graph
 180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).
