@@ -34,8 +34,8 @@ if [ -f "$HOOK_PATH" ]; then
   # Idempotency: consider the hook fully installed only when ALL guards wired
   # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard +
   # the Phase 172-13 coverage gates: connector --check + projection --check).
-  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH"; then
-    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates). No changes."
+  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH"; then
+    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats). No changes."
     exit 0
   fi
   echo "WARNING: $HOOK_PATH exists but is missing one or more MindrianOS guards."
@@ -140,6 +140,25 @@ if git diff --cached --name-only | grep -qE '^(lib/hmi/.*\.cjs|lib/agents/.*\.cj
 fi
 HOOK_TRAILER_RENDER
   fi
+  if ! grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_CORPUS'
+
+# Phase 186-02 (CORPUS-02) - corpus-stats coverage gate (Canon Part 8 / D5).
+# When any LIVE corpus-fact surface or the committed magnitude source / generated
+# artifact is staged, regenerate the artifact in memory and reject the commit on a
+# STALE artifact OR any stale corpus literal on a LIVE surface (historical
+# provenance is allow-listed via the script's documented excludedRegion). Canon
+# Part 8: the check reads only LOCAL files (the source + the live surfaces); zero
+# Brain calls, zero network.
+# Recovery on drift / stale literal: repoint the live surface to the three live
+# magnitudes, or regenerate: node scripts/build-corpus-stats.cjs
+if git diff --cached --name-only | grep -qE '^(CLAUDE\.md|\.claude/includes/moat\.md|docs/THE-BRAIN\.md|docs/brain-setup\.md|\.planning/PROJECT\.md|docs/MINDRIAN-CANON\.md|docs/CANON-PHASE-MAP\.md|data/corpus-stats-source\.json|docs/CORPUS-STATS\.generated\.md)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/scripts/build-corpus-stats.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/scripts/build-corpus-stats.cjs" --check || { echo "corpus-stats drift / stale literal -- run: node scripts/build-corpus-stats.cjs" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_CORPUS
+  fi
   # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
   # guards in just before it; otherwise append to the end of the hook.
   LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
@@ -206,10 +225,17 @@ if git diff --cached --name-only | grep -qE '^(lib/hmi/.*\.cjs|lib/agents/.*\.cj
     node "$REPO_ROOT/scripts/check-render-coverage.cjs" --check || { echo "render-coverage drift / dark surface -- run: node scripts/build-render-coverage.cjs" >&2; exit 1; }
   fi
 fi
+# Phase 186-02 (CORPUS-02) - corpus-stats coverage gate (Canon Part 8 / D5).
+# Recovery on drift / stale literal: node scripts/build-corpus-stats.cjs
+if git diff --cached --name-only | grep -qE '^(CLAUDE\.md|\.claude/includes/moat\.md|docs/THE-BRAIN\.md|docs/brain-setup\.md|\.planning/PROJECT\.md|docs/MINDRIAN-CANON\.md|docs/CANON-PHASE-MAP\.md|data/corpus-stats-source\.json|docs/CORPUS-STATS\.generated\.md)\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-corpus-stats.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-corpus-stats.cjs" --check || { echo "corpus-stats drift / stale literal -- run: node scripts/build-corpus-stats.cjs" >&2; exit 1; }
+  fi
+fi
 HOOK_BODY
 fi
 
 chmod +x "$HOOK_PATH"
-echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate guards)."
+echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats)."
 echo "To bypass for emergency commits: git commit --no-verify"
 echo "  (per Phase 108 social convention: open a canon-amendment PR within 24 hours)"

@@ -296,6 +296,15 @@ if ! node "$PLUGIN_DIR/scripts/check-render-coverage.cjs" --check; then
   echo "  Recovery: node scripts/build-render-coverage.cjs"
   exit 1
 fi
+# Phase 186-02 (CORPUS-02, Canon Part 8 / D5): the corpus-stats tripwire rides the
+# SAME release surface as the CIRS gates. A stale corpus literal on a LIVE fact
+# surface (or a STALE generated artifact) is a HARD ABORT before any version
+# mutation -- the check reads only LOCAL files (zero Brain, zero network).
+if ! node "$PLUGIN_DIR"/scripts/build-corpus-stats.cjs --check; then
+  echo -e "${RED}ABORT: corpus-stats gate failed -- a stale corpus literal on a live surface.${NC}"
+  echo "  Recovery: repoint the live surface to the three live magnitudes, or run: node scripts/build-corpus-stats.cjs"
+  exit 1
+fi
 echo -e "${GREEN}  coverage gates passed (no dark surface)${NC}"
 
 # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
