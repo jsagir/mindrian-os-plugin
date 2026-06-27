@@ -1,7 +1,16 @@
 ## [Unreleased] -- v1.15.0-beta.6 (in progress)
 
 ### Added
-- 
+- **Phase 183 - METER: the welded two-gauge meter (the milestone keystone).** LOCAL telemetry over the Part 9 navigation.cjs chokepoint. Adds `gate_reached` to the frozen EVENT_TYPES set (the single sanctioned additive, 86 to 87) and a single surface-shared emit beside the live reach_presented loop. Gauge 1 (invocation density) reads reach_presented + gate_reached; Gauge 2 (transfer) is three named-debt proxies (reject-reason-capture-rate, insight-to-validated-decision latency to status_promoted, independence-trend), each labelled named-debt, never a real transfer delta (Canon Part 5). `readTwoGauge` is WELDED: it returns the density+transfer pair or throws (no bare-density export), the two-directional regression guard names both volume-up-quality-flat (the Dealer quadrant) and quality-up-by-starving-volume. Two navigator-review corrections built in: a `subject_class` stamp (maintainer | navigator | unknown, derived read-time, Part-8-clean) where only `navigator` clears the entry-31 self-binding clause, and a `transfer_uninstrumented` third state so an empty substrate reads as unmeasured, never as flat. run-all-183.sh 8/8.
+- **Phase 182 - SIGNAL: the Part 12 Voice Signature in the CLI.** Every Larry CLI turn wears one De Stijl color mark naming the pedagogical move (blue=building, red=challenging, yellow=contradiction, black=gate, white=invisibility); a turn with no mark is legible as the native host. `lib/hmi/voice-color-mark.cjs` (detectVoiceMark) + doctrine on both voice SKILL surfaces, anchored to the 5 existing palette primaries (no new color minted). SIGNAL-01 verifies the Phase 179 GA-4 F.7 interceptor + R15 render-coverage gate still pass (lean, not rebuilt). Enforcement is the declared convention + a missing-mark drift test, not a per-token runtime recolor (the honest named residual). run-all-182.sh 5/5.
+- **Phase 186 - CORPUS: stats hygiene.** One generated single-source-of-truth artifact (docs/CORPUS-STATS.generated.md + json) from a committed Brain-free generator, plus a --check tripwire (wired into pre-commit + release.sh Step 2.4) that scans LIVE fact surfaces and skips historical provenance via a documented excludedRegion (the canon Appendix D dated entries, version-history rows, and .planning/ dated artifacts stay frozen). LIVE corpus literals repointed to 27,904 nodes / 177 frameworks / 12,485 Pinecone vectors. run-all-186.sh 3/3.
+
+### Changed
+- Canon v1.18 to v1.19 (Appendix D entry 31, the welded two-gauge headline metric + the Hooked-gate retirement + the self-binding clause) landed earlier in this milestone; METER is the instrument that entry 31 requires.
+
+### Known follow-ons
+- METER first reading is `subject_class: unknown` / `transfer_uninstrumented` (newborn instrument, no live-navigator gate-reach observed yet). The entry-31 self-binding clause stays UNCLEARED until a navigator-class reading exists; Appendix D entry 32 and the ProblemType freeze remain parked by design. Honest state: instrument live, awaiting a navigator.
+- Phase 184 READER + Phase 185 DRIFT deferred: READER is conditional on METER confirming a gate subject (unmet), and DRIFT depends on READER.
 
 ## [1.15.0-beta.5] - 2026-06-25
 
