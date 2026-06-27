@@ -7,7 +7,7 @@
 
 ## What CANNOT be copied -- Larry's Brain:
 
-**1. The Teaching Graph (Neo4j -- 15,298 nodes, 19,713 relationships)**
+**1. The Teaching Graph (Neo4j -- 27,904 nodes, 19,987 relationships)**
 Not a catalog. A MAP of how frameworks CONNECT, CHAIN, and APPLY.
 
 **2. The Grading Intelligence**
@@ -17,7 +17,7 @@ Calibrated from 100+ real student projects: component weights, grade distributio
 Tuned from 30+ years of real classroom teaching: 40:30:20:10 distribution.
 
 **4. The Curriculum Graph**
-59 books + 59 tools + 12,401 embeddings. Not a list -- a semantic web.
+59 books + 59 tools + 12,485 Pinecone vectors. Not a list -- a semantic web.
 
 **5. Cross-User Intelligence (Future)**
 Anonymized patterns from all users improve the Brain for everyone.

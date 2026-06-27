@@ -126,6 +126,205 @@ function serializeArtifactJson(src) {
   return JSON.stringify(clean, null, 2) + '\n';
 }
 
+// ===========================================================================
+// Plan 02 (CORPUS-02) - the --check tripwire: the artifact STALE byte-compare
+// PLUS a LIVE-surface stale-literal scan with a DOCUMENTED historical-provenance
+// exclude list. Mirrors the build-connector-registry.cjs --check shape (a pure,
+// exported, array-of-error-strings scanner so tests exercise it without spawning
+// a subprocess).
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// LIVE_SURFACES - the explicit, D4-named set of LIVE fact surfaces the tripwire
+// scans AND the repoint touches. .claude/includes/moat.md is included because it
+// is @included into CLAUDE.md and renders as the CLAUDE.md moat block.
+// ---------------------------------------------------------------------------
+const LIVE_SURFACES = [
+  'CLAUDE.md',
+  '.claude/includes/moat.md',
+  'docs/THE-BRAIN.md',
+  'docs/brain-setup.md',
+  '.planning/PROJECT.md',
+  'docs/MINDRIAN-CANON.md',
+  'docs/CANON-PHASE-MAP.md',
+];
+
+// ---------------------------------------------------------------------------
+// THE EXCLUDE CONTRACT (Canon D4 - historical provenance is FROZEN).
+//
+// The scan touches LIVE fact surfaces ONLY. The following regions/files carry
+// dated history or aspirational design figures and are DELIBERATELY out of the
+// enforced LIVE set. A blind repo-wide scan that fired on these would be a
+// DEFECT - Appendix D entries 13/16 record the OLD numbers ON PURPOSE.
+//
+// Excluded BY REGION (inside a scanned LIVE surface), via excludedRegion():
+//   - docs/MINDRIAN-CANON.md: every line at/after the "## Appendix D" heading
+//     (entries 13/16 deliberately record the OLD numbers as dated history).
+//   - docs/CANON-PHASE-MAP.md: every line at/after the "### Appendix D" heading
+//     OR the "## Version history" table (whichever comes first) - the dated
+//     amendment ledger + the version-history rows that quote the superseded sets.
+//
+// Excluded BY OMISSION (never added to LIVE_SURFACES, documented here so the
+// policy is self-describing exactly as the connector generator documents its
+// Part 8 posture):
+//   - All .planning/ DATED artifacts: SESSION / HANDOFF / *-SUMMARY.md /
+//     *-VERIFICATION.md / *-AUDIT / milestones / debug autopsies. (PROJECT.md /
+//     ROADMAP.md / STATE.md are NOT dated artifacts and stay LIVE; only
+//     PROJECT.md carries asserted magnitudes, so only PROJECT.md is scanned.)
+//   - docs/autopsies/*, docs/testers/* (dated reads that cite 12,401 / 12,413 as
+//     the live figure AT THAT DATE).
+//   - The generated artifact itself: docs/CORPUS-STATS.generated.md +
+//     data/corpus-stats.generated.json (rendered FROM the source, not a surface).
+//   - Named non-authoritative design / marketing / research docs that carry
+//     aspirational or dated figures and are NOT live-fact surfaces:
+//     docs/MOAT-MANDATE.md, docs/MWP-SPECIFICATION.md, docs/IDEA-DOCUMENT.md,
+//     docs/BUSINESS-MODEL-AND-MOAT.md, docs/POWERHOUSE-1.6.0-SPEC.md,
+//     docs/BACKEND-MAP.md, docs/research/*, docs/superpowers/*. These are out of
+//     the enforced LIVE set to keep the phase lean (historical/aspirational
+//     design docs, not authoritative fact surfaces).
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// STALE_PATTERNS - the CONTEXT-ANCHORED stale-literal rules. Each stale token is
+// bound to its magnitude NOUN in MAGNITUDE FORM (number-then-noun), so a bare
+// 313 / 748 / 12,401 cannot false-fire on a line count, an edge count, a
+// per-label node count rendered as "Framework (748)", or a directional
+// sub-count. Each rule:
+//   kind     - node | framework | vector (for the error string).
+//   re       - fires when a stale value sits directly before its magnitude noun.
+//              Group 1 captures the stale number (so the current-value guard can
+//              compare it against loadSource()).
+//   suppress - (optional) a per-line context where the SAME literal is the
+//              legitimate directional value and must NOT fire (Canon D2).
+//
+// The three CURRENT magnitudes (27,904 / 177 / 12,485) are NEVER listed here, so
+// a future magnitude bump never makes the current numbers look stale; the
+// current-value guard in scanLiveSurfaces() (reading loadSource()) is the belt to
+// this suspenders.
+//
+// Directional sub-counts (Canon D2) are NEVER enforced and NEVER appear below:
+// the relationship counts (19,987 / 19,713 / 65K), the directional teaching
+// sub-counts (176 / 76 / 56 / 383 / 203 / 171), the MethodologyChunk substrate
+// label (12,401-as-substrate), and the per-namespace / per-label splits.
+// ---------------------------------------------------------------------------
+const NODE_STALE = '(?:27,804|15,298|23K|21K)';
+const FW_STALE = '(?:748|313|275)';
+const VEC_STALE = '(?:12,413|1,427|12K)';
+// 12,401-as-substrate suppression: the literal is BOTH the MethodologyChunk
+// substrate constant (Canon D2 directional, legitimately 12,401) AND a stale
+// Pinecone-vector form. It fires ONLY as a vector form and ONLY when the line
+// carries NO substrate / semantic-index framing (where 12,401 is the methodology
+// -node count, not the 12,485 vector total).
+const SUBSTRATE_CONTEXT =
+  /MethodologyChunk|substrate|methodology nodes?|teaching.graph|semantic (?:index|search)/i;
+
+const STALE_PATTERNS = [
+  {
+    kind: 'node',
+    re: new RegExp('(' + NODE_STALE + ')\\+?[\\s-]*nodes?\\b', 'i'),
+  },
+  {
+    // Number-then-framework-noun ONLY: "748 :Framework", "748 frameworks",
+    // "275 frameworks". Never "Framework (748)" (noun-then-number paren form) and
+    // never "23/748 pre-cleanup" (no framework noun after the number).
+    kind: 'framework',
+    re: new RegExp('(' + FW_STALE + ')\\+?[\\s-]*:?[Ff]rameworks?\\b'),
+  },
+  {
+    kind: 'vector',
+    re: new RegExp(
+      '(' + VEC_STALE + ')\\+?[\\s-]*(?:vectors?|embeddings?|[Pp]inecone)\\b',
+      'i'
+    ),
+  },
+  {
+    kind: 'vector',
+    re: /(12,401)\+?[\s-]*(?:vectors?|embeddings?|[Pp]inecone)\b/i,
+    suppress: SUBSTRATE_CONTEXT,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// excludedRegion(file, lineIndex, lines) - returns true for the documented
+// historical regions inside a scanned LIVE surface (Canon D4 frozen provenance).
+// `file` is the repo-relative path; `lineIndex` is 0-based.
+// ---------------------------------------------------------------------------
+function excludedRegion(file, lineIndex, lines) {
+  const base = String(file).replace(/\\/g, '/');
+
+  if (base.endsWith('docs/MINDRIAN-CANON.md')) {
+    const start = lines.findIndex((l) => /^##\s+Appendix D\b/.test(l));
+    if (start !== -1 && lineIndex >= start) return true;
+  }
+
+  if (base.endsWith('docs/CANON-PHASE-MAP.md')) {
+    let start = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (
+        /^#{2,3}\s+Appendix D\b/.test(lines[i]) ||
+        /^##\s+Version history\b/.test(lines[i])
+      ) {
+        start = i;
+        break;
+      }
+    }
+    if (start !== -1 && lineIndex >= start) return true;
+  }
+
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// scanLiveSurfaces() - a pure, exported function. Reads each LIVE_SURFACES file
+// line by line, skips excludedRegion lines, applies STALE_PATTERNS, and returns
+// an array of "path:line stale <kind> literal ..." strings (empty = clean). It
+// reads the CURRENT magnitudes from loadSource() so a future magnitude bump never
+// makes the current numbers look stale.
+// ---------------------------------------------------------------------------
+function scanLiveSurfaces() {
+  let current = new Set();
+  try {
+    const src = loadSource();
+    current = new Set([
+      String(src.magnitudes.neo4j_nodes),
+      groupThousands(src.magnitudes.neo4j_nodes),
+      String(src.magnitudes.frameworks),
+      groupThousands(src.magnitudes.frameworks),
+      String(src.magnitudes.pinecone_vectors),
+      groupThousands(src.magnitudes.pinecone_vectors),
+    ]);
+  } catch (_e) {
+    current = new Set();
+  }
+
+  const hits = [];
+  for (const rel of LIVE_SURFACES) {
+    const abs = path.join(REPO_ROOT, rel);
+    let content;
+    try {
+      content = fs.readFileSync(abs, 'utf8');
+    } catch (_e) {
+      continue; // a missing live surface is not a stale-literal failure
+    }
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      if (excludedRegion(rel, i, lines)) continue;
+      const line = lines[i];
+      for (const rule of STALE_PATTERNS) {
+        if (rule.suppress && rule.suppress.test(line)) continue;
+        const m = rule.re.exec(line);
+        if (!m) continue;
+        const num = m[1] || m[0];
+        if (current.has(num)) continue; // belt: never flag a CURRENT magnitude
+        hits.push(
+          rel + ':' + (i + 1) + ' stale ' + rule.kind + ' literal "' + num + '"'
+        );
+      }
+    }
+  }
+  return hits;
+}
+
 // ---------------------------------------------------------------------------
 // main() - three-branch (mirrors build-connector-registry.cjs).
 // ---------------------------------------------------------------------------
@@ -133,12 +332,48 @@ function main() {
   const argv = process.argv.slice(2);
 
   if (argv.includes('--check')) {
-    // Reserved for Plan 02 (the stale-artifact byte-compare tripwire). For now
-    // re-render in memory and exit 0 - Plan 02 owns the real --check logic.
+    // CORPUS-02 tripwire (mirrors build-connector-registry.cjs --check):
+    //   (a) regenerate the artifact in memory and fail on a byte drift (STALE);
+    //   (b) fail on every scanLiveSurfaces() hit (a stale literal on a LIVE
+    //       fact surface, historical provenance excluded via excludedRegion).
+    // Canon Part 8 / D5: LOCAL files only (the committed source + the live
+    // surfaces); no Brain client, no network module; a commit/release never
+    // hangs on or egresses to the Brain.
     const src = loadSource();
-    renderMarkdown(src);
-    serializeArtifactJson(src);
-    console.log('corpus-stats: --check stub (Plan 02 owns the tripwire)');
+    const errs = [];
+
+    const nextMd = renderMarkdown(src);
+    const nextJson = serializeArtifactJson(src);
+    const onDiskMd = fs.existsSync(MD_PATH) ? fs.readFileSync(MD_PATH, 'utf8') : '';
+    const onDiskJson = fs.existsSync(JSON_PATH)
+      ? fs.readFileSync(JSON_PATH, 'utf8')
+      : '';
+    if (onDiskMd !== nextMd) {
+      errs.push(
+        'docs/CORPUS-STATS.generated.md is STALE. Run: node scripts/build-corpus-stats.cjs'
+      );
+    }
+    if (onDiskJson !== nextJson) {
+      errs.push(
+        'data/corpus-stats.generated.json is STALE. Run: node scripts/build-corpus-stats.cjs'
+      );
+    }
+
+    for (const h of scanLiveSurfaces()) errs.push(h);
+
+    if (errs.length) {
+      console.error(errs.join('\n'));
+      console.error(
+        'Recovery: repoint the live surface to ' +
+          groupThousands(src.magnitudes.neo4j_nodes) + ' / ' +
+          groupThousands(src.magnitudes.frameworks) + ' / ' +
+          groupThousands(src.magnitudes.pinecone_vectors) +
+          ', or regenerate the artifact: node scripts/build-corpus-stats.cjs'
+      );
+      process.exit(1);
+    }
+
+    console.log('corpus-stats: OK');
     return;
   }
 
@@ -158,7 +393,15 @@ function main() {
   );
 }
 
-module.exports = { loadSource, renderMarkdown, serializeArtifactJson };
+module.exports = {
+  loadSource,
+  renderMarkdown,
+  serializeArtifactJson,
+  scanLiveSurfaces,
+  excludedRegion,
+  LIVE_SURFACES,
+  STALE_PATTERNS,
+};
 
 if (require.main === module) {
   main();

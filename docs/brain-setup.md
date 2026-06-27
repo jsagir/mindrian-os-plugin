@@ -4,11 +4,11 @@
 
 Brain is MindrianOS's knowledge graph and semantic search layer. It contains:
 
-- **27,804 nodes** in Neo4j -- frameworks, tools, connections, and teaching intelligence (incl. 12,401 MethodologyChunk substrate; ~15.4K teaching-graph core)
+- **27,904 nodes** in Neo4j -- frameworks, tools, connections, and teaching intelligence (incl. 12,401 MethodologyChunk substrate; ~15.4K teaching-graph core)
 - **19,987 relationships** in Neo4j -- how frameworks chain, overlap, and apply
-- **12,413 vectors** in Pinecone (pws-brain, 1024-dim) -- semantic vectors across the PWS curriculum
+- **12,485 vectors** in Pinecone (pws-brain, 1024-dim) -- semantic vectors across the PWS curriculum
 
-(Live read 2026-06-11 -- see docs/MINDRIAN-CANON.md Appendix D.)
+(Live read 2026-06-27 -- see docs/MINDRIAN-CANON.md Appendix D.)
 
 Brain is a paid-tier feature. Contact Jonathan for an API key.
 

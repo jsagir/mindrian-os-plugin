@@ -12,11 +12,11 @@ The Brain is Larry -- not as text, but as accumulated judgment.
 
 ## The Five Layers
 
-### Layer 1: The Framework Graph (Neo4j -- 27,804 nodes, 19,987 relationships)
+### Layer 1: The Framework Graph (Neo4j -- 27,904 nodes, 19,987 relationships)
 
 Not a list of frameworks. A GRAPH of how innovation methodology works.
 
-The 27,804-node total includes 12,401 MethodologyChunk substrate nodes (the Phase 127.1 GraphRAG collapse moved the chunk corpus into Neo4j); the teaching-graph core is ~15.4K nodes. (Live read 2026-06-11 -- see MINDRIAN-CANON.md Appendix D.)
+The 27,904-node total includes 12,401 MethodologyChunk substrate nodes (the Phase 127.1 GraphRAG collapse moved the chunk corpus into Neo4j); the teaching-graph core is ~15.4K nodes. (Live read 2026-06-27 -- see MINDRIAN-CANON.md Appendix D.)
 
 Node types (top labels, live read 2026-06-11): MethodologyChunk (12,401), Concept (9,131), __Entity__ (4,357), Framework (748), Product (1,289), Chunk (1,167), Event (1,013), ProcessStep (650), Person (624), plus Phase, ProblemType, Book, Tool, Technique, Course, Example -- 27 canonical labels total (see mindrian-deploy/docs/BRAIN-SCHEMA.md section 1).
 
@@ -32,11 +32,11 @@ Critical relationship types (the moat):
 
 Why unreplicable: Built from 30+ years of teaching. Relationships DISCOVERED through watching 100+ students apply frameworks. Chaining rules come from real classroom observation, not theory.
 
-### Layer 2: The Semantic Embeddings (Pinecone pws-brain -- 12,413 vectors, 1024-dim + Neo4j framework index)
+### Layer 2: The Semantic Embeddings (Pinecone pws-brain -- 12,485 vectors, 1024-dim + Neo4j framework index)
 
 1024-dimensional embeddings of the teaching corpus across five namespaces (live read 2026-06-11): core (8,555), materials (1,775), reference (1,690), tools (242), graphrag (144), books (7). Enables meaning-matching, not keyword-matching. Combined with graph: semantics finds WHAT, graph finds WHY and WHAT NEXT.
 
-Separately, the Neo4j `framework_embeddings` vector index (384-dim, COSINE) now covers all 748 :Framework nodes -- re-embedded in brain-cleanup Phase 5 QUAL-03 using all-MiniLM-L6-v2 (was 6/100 / 23/748 pre-cleanup). The Pinecone pws-brain index (12,413 vectors) and the Neo4j framework vector index are distinct; the former is the semantic search surface, the latter powers framework similarity lookups directly on the graph.
+Separately, the Neo4j `framework_embeddings` vector index (384-dim, COSINE) now covers all 177 :Framework nodes -- re-embedded in brain-cleanup Phase 5 QUAL-03 using all-MiniLM-L6-v2 (was 6/100 / 23/748 pre-cleanup). The Pinecone pws-brain index (12,485 vectors) and the Neo4j framework vector index are distinct; the former is the semantic search surface, the latter powers framework similarity lookups directly on the graph.
 
 ### Layer 3: The Grading Engine
 
@@ -69,7 +69,7 @@ The user never sees a tool call. They see Larry being brilliant.
 
 ## Without Brain (Tier 0)
 
-Everything works. Embedded references/ has a curated subset (~275) of the live graph's 748 :Framework nodes as text, plus static chain suggestions and the mode algorithm. Tier 0 Larry is good. Tier 1 Larry (with Brain) is a master teacher. The difference is textbook vs professor.
+Everything works. Embedded references/ has a curated subset of the live graph's 177 :Framework nodes as text, plus static chain suggestions and the mode algorithm. Tier 0 Larry is good. Tier 1 Larry (with Brain) is a master teacher. The difference is textbook vs professor.
 
 ## The Flywheel
 
