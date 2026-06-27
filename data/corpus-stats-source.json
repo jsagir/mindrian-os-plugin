@@ -1,0 +1,11 @@
+{
+  "corpus_stats_note": "Hand-edited source of truth for the three asserted corpus magnitudes (Canon D1). Edited ONLY when a new live Brain read is recorded; the generator (scripts/build-corpus-stats.cjs) renders docs/CORPUS-STATS.generated.md + data/corpus-stats.generated.json from this file. NO live Brain query runs on the hot path (Canon Part 8 / threat T-186-01): the generator reads only this committed file, never the remote Brain. To refresh, record a fresh live read of the production substrates, update read_date + magnitudes here, and re-run the generator.",
+  "read_date": "2026-06-27",
+  "magnitudes": {
+    "neo4j_nodes": 27904,
+    "frameworks": 177,
+    "pinecone_vectors": 12485
+  },
+  "pinecone_dim": 1024,
+  "directional_only_note": "Sub-counts (teaching-graph core, MethodologyChunk substrate, per-namespace vector splits, relationship counts such as 19,987) are DIRECTIONAL ONLY (Canon D2): zero source-of-truth, admin-gated, NEVER asserted as fact, and NEVER enforced by the tripwire. They are deliberately omitted from the rendered artifact."
+}
