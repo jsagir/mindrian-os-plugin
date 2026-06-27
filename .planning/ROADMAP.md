@@ -3206,7 +3206,7 @@ A1/A3. One generated stats artifact (docs/CORPUS-STATS.generated.*) + --check tr
 **Plans:** 2 plans in 2 waves (planned 2026-06-27)
 
 Plans:
-- [ ] 186-01-PLAN.md — Wave 1: committed magnitude source + local generator (scripts/build-corpus-stats.cjs) emitting the generated-stamped docs/CORPUS-STATS.generated.md + .json sibling (CORPUS-01; Brain-free per T-186-01)
+- [x] 186-01-PLAN.md — Wave 1: committed magnitude source + local generator (scripts/build-corpus-stats.cjs) emitting the generated-stamped docs/CORPUS-STATS.generated.md + .json sibling (CORPUS-01; Brain-free per T-186-01) — COMPLETE 2026-06-27 (298ca727, bdbebcc7)
 - [ ] 186-02-PLAN.md — Wave 2: --check tripwire (LIVE-surface scan + documented historical-provenance exclude list) + LIVE-surface repoint to 27,904 / 177 / 12,485 + pre-commit/release wiring + tests/run-all-186.sh (CORPUS-02)
 
 ## Dependency graph
