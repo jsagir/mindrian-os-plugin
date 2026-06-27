@@ -377,6 +377,14 @@ Source-of-truth definitions: `lib/render/JTBD-PALETTES.md` (the Phase 102 canoni
 
 The CANONICAL De Stijl hex values used across `scripts/banner`, `lib/core/visual-ops.cjs` (`DS_HEX`), `templates/destijl-base.css`, `templates/shared.css`, and `references/vault-kit/snippets/mindrian-destijl.css` will consolidate to `references/visual/palette.json` per Sub-plan D of Phase 121.5. This SKILL.md surface treats `palette.json` as the canonical reference once it lands.
 
+### The voice-color mark (Part 12 Voice Signature, render-contract side)
+
+The Part 12 Voice Signature gives every Larry CLI turn one De Stijl color mark naming the pedagogical move (blue=building, red=challenging, yellow=contradiction, black=gate, white=invisibility). On the render side the contract is exact and minimal:
+
+- The voice-color mark is ONE of the 5 EXISTING De Stijl Mondrian colors (red / yellow / blue / black / white), anchored at `references/visual/palette.json` (`base.mondrian_*`). NO new color is minted (D2 / D4). The detector module `lib/hmi/voice-color-mark.cjs` (`MARK_COLORS`) is a frozen 5-member set, so a sixth color is structurally impossible.
+- The mark is ADDITIVE legibility and alters NO frozen render contract. The 12-glyph vocabulary, the 4-zone anatomy, MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the 6-reach bank, and R15 render coverage are ALL unchanged. The mark layers a single move-named color onto Larry's turn; it does not touch the Shape F selector, the dial, or any glyph.
+- A turn with no mark is the native host speaking (the absence is the signal). The mark uses the De Stijl glyph + ANSI already shipped in `lib/core/visual-ops.cjs`; it mints no new glyph.
+
 ## 5. Session Start Contract
 
 Three variants based on room state:
