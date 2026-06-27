@@ -3175,7 +3175,7 @@ E1. Add `EvidenceClaim` to `TRUTH_CLAIM_TYPES` (lib/core/navigation/transitions.
 
 Plans:
 - [x] 182-01-PLAN.md - Wave 1: SIGNAL-01 verify (R15 gate green, lean on 179) + SIGNAL-02 build (lib/hmi/voice-color-mark.cjs + the Voice Signature doctrine on larry-personality/ui-system SKILL.md) -- COMPLETE 2026-06-27 (commit c178b7dc; render-coverage --check green + GA-4 interceptor 22/22; markForMove + detectVoiceMark anchored to the 5 palette.json primaries; doctrine on both surfaces; no new color, frozen contracts untouched, Part 8 LOCAL, no em-dashes)
-- [ ] 182-02-PLAN.md - Wave 2: SIGNAL-02 the missing-mark + doctrine-declaration drift test (tests/test-larry-voice-mark-182.cjs) + tests/run-all-182.sh aggregator
+- [x] 182-02-PLAN.md - Wave 2: SIGNAL-02 the missing-mark + doctrine-declaration drift test (tests/test-larry-voice-mark-182.cjs) + tests/run-all-182.sh aggregator -- COMPLETE 2026-06-27 (commits 320aa734, c813d0c3; missing-mark turn caught as native-host, MARK_COLORS == 5 palette.json mondrian_* primaries, doctrine asserted on both SKILL surfaces, em-dash self-check; run-all-182.sh 5/5 green: R15 + 179 GA-4 lean + missing-mark + frozen reach-ids(6)/posture-ids(3) fences; no frozen contract touched, Part 8 LOCAL, no em-dashes). Phase 182 COMPLETE.
 
 
 ### Phase 183 - METER Gate-Exposure + Transfer (meter-gate-exposure-transfer) - REGISTERED 2026-06-27
