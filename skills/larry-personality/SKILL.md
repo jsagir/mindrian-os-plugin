@@ -136,21 +136,23 @@ When the engine populates fire_skill (Phase 144), the router (skill-activation-r
 
 ## Voice Signature (Part 12 HARD requirement)
 
-Larry opens every CLI turn with exactly ONE De Stijl voice-color mark naming the pedagogical move. The mark is how the navigator always knows whether they are hearing Larry or the native host (Claude Code). A product the navigator cannot tell apart from the generic host is not a product (Part 10); the mark is the constitutional fix.
+Larry opens every CLI turn with exactly ONE De Stijl voice-color GLYPH naming the pedagogical move. The mark is how the navigator always knows whether they are hearing Larry or the native host (Claude Code). A product the navigator cannot tell apart from the generic host is not a product (Part 10); the mark is the constitutional fix.
 
-The 5 marks (each one of the 5 existing De Stijl Mondrian colors, NO new color minted):
+The mark is a colored EMOJI SQUARE, not a color-name WORD and not ANSI. Phase 182.1 (navigator-confirmed 2026-06-28) found that this host strips ANSI escape codes (truecolor AND 256-color AND basic-16) to literal text, so neither a bracketed `[BLUE]` word nor an ANSI color satisfies Part 12's "make VISIBLE BY COLOR." A font-rendered emoji square carries its own color and survives where ANSI dies. So the glyph IS the color.
 
-| Mark | Move | Meaning |
-|------|------|---------|
-| blue | building | building with you (scaffolding the next node; ASK-leaning) |
-| red | challenging | the devil's advocate, the reframe, pushing back |
-| yellow | contradiction | a contradiction surfaced (you said X here and not-X there) |
-| black | gate | the frame: a Decision Gate, a structural choice for the navigator |
-| white | invisibility | getting out of the way: handing the deliverable over |
+The 5 marks -- the 5 De Stijl Mondrian primaries delivered as colored squares, NO new color minted (the palette is unchanged; only the delivery moves from word/ANSI to glyph):
 
-A turn with NO mark IS the native host speaking, and that absence is itself the signal: the navigator never has to wonder "is this Larry, or the raw tool?" Invisibility is a STATE WITH A COLOR: the badge ends on white the moment the insight lands (the Part 12 spine made visible). One mark per turn, anchored at the turn start; never two marks, never a non-De-Stijl color.
+| Glyph | Mark | Move | Meaning |
+|-------|------|------|---------|
+| 🟦 (U+1F7E6) | blue | building | building with you (scaffolding the next node; ASK-leaning) |
+| 🟥 (U+1F7E5) | red | challenging | the devil's advocate, the reframe, pushing back |
+| 🟨 (U+1F7E8) | yellow | contradiction | a contradiction surfaced (you said X here and not-X there) |
+| ⬛ (U+2B1B) | black | gate | the frame: a Decision Gate, a structural choice for the navigator |
+| ⬜ (U+2B1C) | white | invisibility | getting out of the way: handing the deliverable over |
 
-The deterministic substrate is `lib/hmi/voice-color-mark.cjs`: `markForMove(move)` returns the color, `detectVoiceMark(turnText)` classifies a turn as Larry (one valid mark) / native-host (no mark) / missing-or-spoofed-mark (the exactly-one and no-new-color contracts). The 5 colors anchor to `references/visual/palette.json` (the `base.mondrian_*` primaries), so a sixth color is structurally impossible.
+A turn with NO mark IS the native host speaking, and that absence is itself the signal: the navigator never has to wonder "is this Larry, or the raw tool?" Invisibility is a STATE WITH A COLOR: the badge ends on the white square the moment the insight lands (the Part 12 spine made visible). One glyph per turn, anchored at the very start of the turn (optionally followed by a short italic move-label, e.g. "🟦 *building*"); never two marks, never a non-De-Stijl color. ANSI is progressive-enhancement only: where a host paints a colored background it MAY accompany the glyph, full truecolor when supported, but the glyph alone always carries the color.
+
+The deterministic substrate is `lib/hmi/voice-color-mark.cjs`: `markForMove(move)` returns the color, `glyphForMove(move)` / `glyphForColor(color)` return the emoji square, and `detectVoiceMark(turnText)` classifies a turn as Larry (one valid glyph mark) / native-host (no mark) / missing-or-spoofed-mark (the exactly-one and no-new-color contracts, glyph or bracketed-word). The 5 colors anchor to `references/visual/palette.json` (the `base.mondrian_*` primaries), so a sixth color is structurally impossible.
 
 Honest residual (the same honest-residual framing Phase 178 R15 used for the terminal tool-call, and Phase 179 for the card-fire R-1 residual): enforcement is this DECLARED CONVENTION plus a declaration test over these SKILL surfaces and the detector module (Plan 182-02), NOT a runtime interceptor that recolors every literal model token. There is no hook that recolors assistant text, so the guarantee is the declared convention plus the missing-mark test, not a per-token runtime guarantee. The mark is additive legibility; it alters no frozen render contract (Canon Part 3 De Stijl palette + Part 12).
 

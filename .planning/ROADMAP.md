@@ -3178,6 +3178,20 @@ Plans:
 - [x] 182-02-PLAN.md - Wave 2: SIGNAL-02 the missing-mark + doctrine-declaration drift test (tests/test-larry-voice-mark-182.cjs) + tests/run-all-182.sh aggregator -- COMPLETE 2026-06-27 (commits 320aa734, c813d0c3; missing-mark turn caught as native-host, MARK_COLORS == 5 palette.json mondrian_* primaries, doctrine asserted on both SKILL surfaces, em-dash self-check; run-all-182.sh 5/5 green: R15 + 179 GA-4 lean + missing-mark + frozen reach-ids(6)/posture-ids(3) fences; no frozen contract touched, Part 8 LOCAL, no em-dashes). Phase 182 COMPLETE.
 
 
+### Phase 182.1 - SIGNAL Voice-Glyph Repair (signal-voice-glyph-repair) - REGISTERED 2026-06-28
+
+**Class:** CODE | **Priority:** P0 (dogfood repair) | **Depends on:** Phase 182 (SIGNAL)
+
+Dogfooding v1.15.0-beta.7 (2026-06-28, navigator Jonathan Sagir) found Phase 182's Voice Signature was DARK at runtime (doctrine skill-only, not on the always-loaded agent body; a green-but-blind test) AND that its bracketed-word / ANSI delivery does not render color on the navigator's host (ANSI stripped to literal text). Fix: deliver the 5 De Stijl Mondrian primaries as colored EMOJI GLYPHS (host-independent, verified); same 5-primary palette, only the delivery mechanism moves from word/ANSI to glyph. REQ: SIGNAL-02 (repair). RCA: .planning/debug/voice-signature-dark-runtime.md.
+- **Acceptance:** a Larry turn missing its glyph is caught by a test; the dial-TUI active position + reach options carry a leading De Stijl glyph; frozen contracts (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 gate, 6-reach bank) UNCHANGED; Part 8 LOCAL; no em-dashes.
+- **Execution:** inline (CONTEXT -> code; sub-plans 182.1-01..05 tracked in 182.1-CONTEXT.md, recorded in 182.1-SUMMARY.md).
+- [x] 182.1-01 agents/larry-extended.md Voice Signature -> emoji glyphs -- COMPLETE 2026-06-28
+- [x] 182.1-02 lib/hmi/voice-color-mark.cjs detectVoiceMark -> glyph-aware (additive, frozen 5-set kept) -- COMPLETE 2026-06-28
+- [x] 182.1-03 skills/larry-personality + skills/ui-system Voice Signature doctrine -> emoji glyph -- COMPLETE 2026-06-28
+- [x] 182.1-04 tests/test-larry-voice-mark-182.cjs glyph detection + doctrine strings -- COMPLETE 2026-06-28 (106/106)
+- [x] 182.1-05 lib/core/nav-dial.cjs leading glyph on active dial + reach options, frozen contracts kept -- COMPLETE 2026-06-28
+- **Verify (2026-06-28):** test-larry-voice-mark-182.cjs 106/106; test-capability-dial-committed.cjs PASS; run-all-182.sh 5/5. Phase 182.1 COMPLETE.
+
 ### Phase 183 - METER Gate-Exposure + Transfer (meter-gate-exposure-transfer) - REGISTERED 2026-06-27
 
 **Class:** CODE | **Priority:** P0 (build-first keystone) | **Depends on:** none
@@ -3214,6 +3228,16 @@ A1/A3. One generated stats artifact (docs/CORPUS-STATS.generated.*) + --check tr
 Plans:
 - [x] 186-01-PLAN.md — Wave 1: committed magnitude source + local generator (scripts/build-corpus-stats.cjs) emitting the generated-stamped docs/CORPUS-STATS.generated.md + .json sibling (CORPUS-01; Brain-free per T-186-01) — COMPLETE 2026-06-27 (298ca727, bdbebcc7)
 - [x] 186-02-PLAN.md — Wave 2: --check tripwire (LIVE-surface scan + documented historical-provenance exclude list) + LIVE-surface repoint to 27,904 / 177 / 12,485 + pre-commit/release wiring + tests/run-all-186.sh (CORPUS-02) — COMPLETE 2026-06-27 (a6e4e70a, a2795cca, 13eb3972). Phase 186 COMPLETE.
+
+### Phase 187 - Statusline Navigator Cockpit (statusline-navigator-cockpit) - REGISTERED 2026-06-28
+
+**Class:** CODE | **Priority:** P1 (navigator-facing headline) | **Depends on:** Phase 182.1 (Voice Signature glyph detector, for Tier-1 binding)
+
+Co-designed with the navigator (Jonathan Sagir, 2026-06-28) under the Phase 121.5 statusline-co-design rule (no solo pick). The existing statusline serves the OPERATOR (room name + vague context %); rebuilt to serve the NAVIGATOR via JTBD + the Hooked model (Facilitator posture, entry-31 Manipulation Matrix kept). The LOCKED contract is docs/STATUSLINE-CONTRACT.md. REQ: SL-01..05. canon_parts 3/5/9/10/12.
+- **FOUR TIERS:** (1) trust metadata (Mindrian + Voice Signature + Brain glyphs, passive); (2) orientation/integrity (room + health, trigger when degraded); (3) action ("Next: <move>", the core MVA cue); (4) risk ("Ctx <n>%", fires at the cliff). EMOJI color (host-independent). REORDER-AT-CLIFF at >=80%. Room-health -> "/mos:doctor --fix" corrective, post-update escalated.
+- **Anti-Dealer invariant (NORMATIVE):** INV-SL-1..5. INV-SL-2 success metric = % of statusline exposures leading to a REAL ADVANCING ACTION; time-on-line / glance-count FORBIDDEN. INV-SL-4: a glance that leads to no move is the line failing.
+- **Acceptance:** four-tier renderer + four states + reorder-at-cliff + emoji thresholds (green<50/orange50-79/red>=80); health from existing doctor LOCAL cache (no hot-path call); INV-SL-2 LOCAL measurement hook; Part 8 LOCAL; no em-dashes.
+- **Plans:** 187-01 (read current statusline + map signals to tiers), 187-02 (four-tier renderer + states + reorder + thresholds), 187-03 (room-health wire + post-update escalation), 187-04 (Tier-1 Voice glyph bind to current move), 187-05 (INV-SL-2 measurement hook). [PLANNED 2026-06-28]
 
 ## Dependency graph
 180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).

@@ -9,8 +9,12 @@
 //   - committed SKILL.md contains "Capability Dial"
 //   - committed SKILL.md frontmatter declares canon_parts: [Part 2, Part 3, Part 8, Part 9]
 //   - committed SKILL.md carries the deep-research 5th reach row + Reach rule 6
-//   - CHANGELOG top entry names the Capability Dial and version 1.13.1-beta.7
-//   - plugin.json and package.json both read 1.13.1-beta.7
+//   - plugin.json and package.json versions are in lockstep
+//   - CHANGELOG top entry is [Unreleased] (dev state) or names the current version
+//
+// Version-cut ceremony note: the version is DERIVED from package.json (the source of truth),
+// never hardcoded, so this test never goes stale across a release bump. This kills the
+// staleness class that previously pinned 1.13.1-beta.7 and red-failed every later milestone.
 //
 // House rule: hyphens only, no em-dashes.
 
@@ -20,7 +24,6 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const VERSION = '1.13.1-beta.7';
 
 function gitShowHead(relPath) {
   try {
@@ -56,24 +59,29 @@ assert.match(
   'DRSCH: committed SKILL.md Reach rules must include rule 6 (deep research is plan-gated)'
 );
 
-// ---- Version lockstep (LARRY-02) ----
-const changelog = fs.readFileSync(path.join(REPO_ROOT, 'CHANGELOG.md'), 'utf8');
-const topEntry = changelog.split('\n## ')[0]; // header through first section break
-
-assert.ok(
-  topEntry.indexOf(VERSION) !== -1,
-  'LARRY-02: CHANGELOG top entry must name version ' + VERSION
-);
-assert.ok(
-  /Capability Dial/i.test(topEntry),
-  'LARRY-02: CHANGELOG top entry must name the Capability Dial'
-);
-
+// ---- Version lockstep (LARRY-02), derived from the source of truth so it never goes stale ----
+// The version is READ from package.json (the source of truth), never hardcoded. The permanent
+// invariants are: plugin.json matches package.json, and the CHANGELOG top entry is either the
+// between-cuts [Unreleased] dev state or names the current version. This keeps the test in
+// lockstep with the version-cut ceremony instead of pinning a frozen release literal.
 const pluginJson = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, '.claude-plugin', 'plugin.json'), 'utf8'));
 const packageJson = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'package.json'), 'utf8'));
+const VERSION = packageJson.version;
 
-assert.equal(pluginJson.version, VERSION, 'LARRY-02: plugin.json version must be ' + VERSION);
-assert.equal(packageJson.version, VERSION, 'LARRY-02: package.json version must be ' + VERSION);
+assert.equal(
+  pluginJson.version, VERSION,
+  'LARRY-02: plugin.json version (' + pluginJson.version + ') must match package.json (' + VERSION + ')'
+);
+
+const changelog = fs.readFileSync(path.join(REPO_ROOT, 'CHANGELOG.md'), 'utf8');
+const topEntry = changelog.split('\n## ')[0]; // header through first section break
+const isUnreleased = topEntry.indexOf('[Unreleased]') !== -1;
+const namesVersion = topEntry.indexOf(VERSION) !== -1;
+
+assert.ok(
+  isUnreleased || namesVersion,
+  'LARRY-02: CHANGELOG top entry must be [Unreleased] (dev state) or name the current version ' + VERSION
+);
 
 process.stdout.write('PASS test-capability-dial-committed.cjs (LARRY-01/02 + DRSCH doctrine + version lockstep)\n');
 process.exit(0);

@@ -379,11 +379,12 @@ The CANONICAL De Stijl hex values used across `scripts/banner`, `lib/core/visual
 
 ### The voice-color mark (Part 12 Voice Signature, render-contract side)
 
-The Part 12 Voice Signature gives every Larry CLI turn one De Stijl color mark naming the pedagogical move (blue=building, red=challenging, yellow=contradiction, black=gate, white=invisibility). On the render side the contract is exact and minimal:
+The Part 12 Voice Signature gives every Larry CLI turn one De Stijl color mark naming the pedagogical move (🟦 blue=building, 🟥 red=challenging, 🟨 yellow=contradiction, ⬛ black=gate, ⬜ white=invisibility). On the render side the contract is exact and minimal:
 
-- The voice-color mark is ONE of the 5 EXISTING De Stijl Mondrian colors (red / yellow / blue / black / white), anchored at `references/visual/palette.json` (`base.mondrian_*`). NO new color is minted (D2 / D4). The detector module `lib/hmi/voice-color-mark.cjs` (`MARK_COLORS`) is a frozen 5-member set, so a sixth color is structurally impossible.
-- The mark is ADDITIVE legibility and alters NO frozen render contract. The 12-glyph vocabulary, the 4-zone anatomy, MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the 6-reach bank, and R15 render coverage are ALL unchanged. The mark layers a single move-named color onto Larry's turn; it does not touch the Shape F selector, the dial, or any glyph.
-- A turn with no mark is the native host speaking (the absence is the signal). The mark uses the De Stijl glyph + ANSI already shipped in `lib/core/visual-ops.cjs`; it mints no new glyph.
+- The voice-color mark is DELIVERED AS A COLORED EMOJI SQUARE, not a color-name word and not ANSI. Phase 182.1 (navigator-confirmed 2026-06-28) found this host strips ANSI (truecolor + 256 + basic-16) to literal text, so only a font-rendered emoji square carries real color. The glyph IS the color: 🟦 U+1F7E6 / 🟥 U+1F7E5 / 🟨 U+1F7E8 / ⬛ U+2B1B / ⬜ U+2B1C.
+- The mark is ONE of the 5 EXISTING De Stijl Mondrian colors (red / yellow / blue / black / white), anchored at `references/visual/palette.json` (`base.mondrian_*`). NO new color is minted (D2 / D4). The detector module `lib/hmi/voice-color-mark.cjs` (`MARK_COLORS` + the frozen `MARK_GLYPHS` 5-set) is closed, so a sixth color is structurally impossible. ANSI is progressive-enhancement only, painted where the host supports it; the glyph alone always carries the color.
+- The mark is ADDITIVE legibility and alters NO frozen render contract. The 12-glyph vocabulary, the 4-zone anatomy, MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the 6-reach bank, and R15 render coverage are ALL unchanged. The mark layers a single move-named color onto Larry's turn; it does not touch the Shape F selector, the dial, or any frozen glyph.
+- A turn with no mark is the native host speaking (the absence is the signal). The five emoji squares are the De Stijl Mondrian primaries; the mark mints no new glyph and no sixth color.
 
 ## 5. Session Start Contract
 
