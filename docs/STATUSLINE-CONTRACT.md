@@ -108,3 +108,108 @@ Facilitator and Dealer, downstream of canon entry 31 (welded two-gauge).
 4. Bind the Voice Signature glyph (Tier 1) to the current turn's move once the voice-mark
    detector is glyph-aware (the parallel SIGNAL fix).
 5. INV-SL-2..4 need a LOCAL, honest measurement hook (exposures -> advancing-action), Part 8 clean.
+
+---
+
+## The Voice-Switch Tripwire + F.7 Recalibration Dial (PROPOSED v2 -- 2026-06-29)
+
+Status: PROPOSED (navigator-directed 2026-06-29; "spec the tripwire first"). Extends the LOCKED v1
+contract above; does NOT re-open it. This is an APPLICATION of Canon Part 12 (Voice Signature +
+Modality Remote + F.1-as-Decision-Gate) and Part 3 (the F.7 dial), so it requires NO canon amendment.
+Folds into Phase 182.1 (voice glyph) + Phase 187 (cockpit). House rule: hyphens only.
+
+### Why this exists
+
+Part 12 makes a HARD requirement of two things the statusline already half-carries: the navigator must
+always be able to SEE whether they are hearing Larry or the native host (the Voice Signature glyph,
+Tier 1), and the navigator must always be able to CHANGE Larry's modality (the Modality Remote: the
+4-arrow ASK/TELL x challenge/converge control). Today the bar SHOWS the voice glyph but does nothing
+when the voice SWITCHES. The switch is the most decision-relevant moment of all -- it is exactly when
+the navigator might say "wait, I wanted Larry, not the raw tool" (or the reverse). This spec wires the
+switch to a recalibration gate.
+
+### The tripwire (detection)
+
+A tripwire fires on the VOICE TRANSITION, in BOTH directions:
+
+- `larry -> claude` (a Larry turn was followed by a native-host turn: the voice glyph went absent)
+- `claude -> larry` (the host was speaking, now a Larry mark appears)
+
+Detection source is the existing LOCAL voice-mark side-channel (`~/.mindrian/voice-mark.json`, read via
+`lib/hmi/voice-color-mark.cjs`; Phase 182.1). The tripwire compares the PRIOR turn's resolved voice
+state to the CURRENT one; a change (present<->absent, or one of the 5 De Stijl moves<->host) is the
+event. No new wire, no new color, no new reach: the transition is computed from data already on disk.
+Part 8 clean (LOCAL only; the side-channel never egresses).
+
+### What the tripwire invokes (the F.7 recalibration dial)
+
+On fire, the system invokes the **F.7 selector dial** -- the Modality Remote made explicit as a
+tri-context Decision Gate (Part 3 Shape F.7). This is the canonical realization of the Part 12 line
+"the arrows are the navigator grabbing the wheel on a read Larry is already making."
+
+ARCHITECTURAL CONSTRAINT (load-bearing): the STATUSLINE is a passive render surface (re-drawn every
+~300ms, cannot capture arrow-keys/Enter). It therefore does NOT host the dial. The split is:
+
+- STATUSLINE (passive): shows the switch happened -- e.g. `○ now: host (not Larry)` in Tier 1 -- and
+  hints the recalibration is available. Detection + display only.
+- CONVERSATION (interactive): the F.7 dial FIRES here as the AskUserQuestion gate. The dial is the
+  decision surface; the bar is the signal.
+
+### The dial contents
+
+The dial recalibrates the navigator's intent about WHO they want and HOW. Drawn from the Part 12
+Modality Remote + the canonical verb vocabulary; the free-text "Other / explain" slot is ALWAYS last
+(the F.1/F.7 human-in-the-loop guarantee):
+
+- WHO (the switch itself): `Back to Larry` (thinking partner) / `Stay with Claude` (raw tool).
+- HOW, when Larry (the Modality Remote, the 4 arrows):
+  - UP    = tell me / give me the call    (more TELL)
+  - DOWN  = draw it out of me, slow down   (more ASK)
+  - LEFT  = challenge me, re-open it        (pull back)
+  - RIGHT = I am ready, advance / converge  (push forward)
+- EXTRAS (optional, multi-select checkboxes; the "or more things?" the navigator asked for): zero or
+  more modality flags layered on the pick (e.g. "shorter", "show your reasoning", "stay in this room").
+- EXPLAIN (free-text, always last): the navigator types intent in their own words; Larry interprets and
+  routes. This is the Part 3 Free-Text verb and the F.1 "Other / something else" standing preference.
+
+### State update (Part 4 / Part 9)
+
+Every recalibration is graph data. On commit the dial writes through the navigation.cjs chokepoint
+(Part 9), using the EXISTING F.7 state-update hook -- no new edge type is minted:
+
+- A modality/who pick that AGREES with the current read commits SELECTED_REACH (the resting-detent
+  in-sync signal) + a `memory_event`.
+- A pick that DISAGREES (the navigator overrides the read) commits PIVOTED (chosen vs declined) with
+  ENUM-only props + the investment-scaled pivot decay, AND SELECTED_REACH to the chosen lane.
+- Defer / Free-Text route through the existing selector-decisions path (DEFERRED / recordSelectorMiss).
+
+This is the calibration discipline of Part 12: the override is the LOCAL, replayable record that proves
+(or refutes) Larry's read before that read is allowed to steer.
+
+### Invariants carried (anti-Dealer)
+
+INV-SL-1..5 (above) apply unchanged. Specifically INV-SL-2: the tripwire's success metric is the
+percentage of fires that lead to a REAL advancing action (a confirmed recalibration that changes the
+next turn), NEVER fire-count or dial-interaction-rate. A tripwire that fires often and changes nothing
+is the Dealer quadrant and is logged as a regression. The tripwire MUST be debounced so a normal
+Larry-led session (where the host rarely speaks) does not nag: it fires on a genuine voice SWITCH, not
+on every turn.
+
+### What this does NOT change (frozen contracts)
+
+Mints no new reach (the dial reuses the frozen F.7 / 6-reach bank), no new edge/node type (reuses
+PIVOTED / SELECTED_REACH), no new De Stijl color (reuses the 5 Mondrian primaries), and opens no Brain
+wire (LOCAL only). MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the single-marker body glyph, and the
+F.1 keyboard contract are UNCHANGED. This is why no canon amendment is required: it is Part 12 + Part 3
+applied, not extended.
+
+### Open items (build, AFTER this spec locks)
+
+1. The voice-mark WRITE-side hook (records Larry's last-turn move to `voice-mark.json`) -- the shared
+   prerequisite with Phase 182.1; without it the tripwire cannot see a transition.
+2. The transition detector (prior-vs-current voice state) + the debounce rule.
+3. The Tier-1 statusline display of the switch (`○ now: host (not Larry)`), passive.
+4. The F.7 recalibration dial wired to the existing AskUserQuestion / selector-dispatcher path, with the
+   WHO + 4-arrow + checkbox + free-text slate.
+5. The state-update binding (SELECTED_REACH / PIVOTED via navigation.cjs) + the INV-SL-2 honest
+   exposures-to-advancing-action measurement for the tripwire specifically.

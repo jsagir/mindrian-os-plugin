@@ -82,6 +82,10 @@ const HEALTH_DRIFT = '⚠';
 const FOLDER = String.fromCodePoint(0x1F4C2);
 const BRAIN = String.fromCodePoint(0x1F9E0);
 const HEX = '⬡';
+const PERSON = String.fromCodePoint(0x1F464);   // 👤 Larry
+const ROBOT = String.fromCodePoint(0x1F916);    // 🤖 the host
+const BATTERY = String.fromCodePoint(0x1F50B);  // 🔋 memory remaining
+const BATTERY_LOW = String.fromCodePoint(0x1FAAB); // 🪫 memory cliff
 
 // The three EXCLUSIVE carve-out glyphs the cockpit module must NEVER contain
 // (tests/test-statusline-glyph-isolation.cjs Class F fence).
@@ -104,14 +108,38 @@ test('Test 1: HEALTHY state renders identity + room ✅ + Next + green Ctx', () 
   });
   assert(out.indexOf(HEX) !== -1, 'identity hexagon present');
   assert(out.indexOf(VOICE_BLUE) !== -1, 'Tier-1 blue voice square present');
+  assert(out.indexOf(PERSON + ' Larry') !== -1, 'WHO segment 👤 Larry present (default speaker)');
   assert(out.indexOf(FOLDER + ' product-evolution') !== -1, 'room breadcrumb present');
   assert(out.indexOf(HEALTH_OK) !== -1, 'room-health ✅ present');
   assert(out.indexOf(BRAIN) !== -1, 'Brain backing glyph present');
   assert(out.indexOf('Next: validate edits') !== -1, 'Next-move cue present');
-  assert(out.indexOf(CTX_GREEN + ' Ctx 36%') !== -1, 'green Ctx chip at 36%');
+  assert(out.indexOf(BATTERY + ' 64% memory left') !== -1, 'battery shows 64% memory LEFT at 36% used');
   const a = cockpit.analyze({ health: 'sound', ctx_pct: 36 });
   assert(a.state === 'healthy', 'classified healthy (got ' + a.state + ')');
   assert(a.has_fix === false, 'healthy carries no fix');
+});
+
+// ===========================================================================
+// Test 1b: a VOICE SWITCH (Phase 187.1-03) REPLACES the WHO glyph with a passive
+// announcement; it never adds a 4th chip (MAX_K=3).
+// ===========================================================================
+test('Test 1b: voice switch to host shows passive announcement, replaces WHO glyph', () => {
+  const out = cockpit.renderCockpit({
+    room: 'product-evolution', health: 'sound', ctx_pct: 20,
+    next_move: 'validate edits', who: 'claude', agent_label: 'Claude',
+    voice_switched: true, switch_direction: 'larry-to-claude',
+  });
+  assert(out.indexOf(cockpit.SWITCH_MARK) !== -1, 'switch marker present');
+  assert(out.indexOf('now: Claude (not Larry)') !== -1, 'passive switch announcement present');
+  assert(out.indexOf(PERSON + ' Larry') === -1, 'steady 👤 Larry glyph replaced, not added');
+  assert(out.indexOf(BRAIN) === -1, 'no Brain glyph for a host turn');
+
+  const back = cockpit.renderCockpit({
+    room: 'product-evolution', health: 'sound', ctx_pct: 20,
+    next_move: 'validate edits', who: 'larry',
+    voice_switched: true, switch_direction: 'claude-to-larry',
+  });
+  assert(back.indexOf('now: Larry (back)') !== -1, 'switch-back-to-Larry announcement present');
 });
 
 // ===========================================================================
@@ -124,7 +152,7 @@ test('Test 2: CAUTION state (50-79%) renders orange Ctx, no fix', () => {
     ctx_pct: 64,
     next_move: 'validate edits',
   });
-  assert(out.indexOf(CTX_ORANGE + ' Ctx 64%') !== -1, 'orange Ctx chip at 64%');
+  assert(out.indexOf(BATTERY + ' 36% memory left') !== -1, 'battery shows 36% memory LEFT at 64% used');
   assert(out.indexOf('Next: validate edits') !== -1, 'still the Next hero below the cliff');
   assert(out.indexOf('/mos:doctor') === -1, 'caution carries no doctor-fix');
   assert(out.indexOf(cockpit.CLIFF_MSG) === -1, 'caution carries no cliff message');
@@ -144,11 +172,10 @@ test('Test 3: CONTEXT-CLIFF (>=80%) promotes the warning to the hero (REORDER-AT
     ctx_pct: 84,
     next_move: 'validate edits',
   });
-  assert(out.indexOf(CTX_RED) !== -1, 'red Ctx glyph present at cliff');
-  assert(out.indexOf('Ctx 84%') !== -1, 'cliff percentage present');
-  assert(out.indexOf(cockpit.CLIFF_MSG) !== -1, 'the cliff one-tap fix (file this insight) present');
-  // The hero is the risk warning: the rendered line STARTS with the red Ctx.
-  assert(out.indexOf(CTX_RED) === 0, 'the cliff warning is the hero (line starts with red Ctx)');
+  assert(out.indexOf(BATTERY_LOW) !== -1, 'low-battery glyph present at cliff');
+  assert(out.indexOf(cockpit.CLIFF_MSG) !== -1, 'the plain-language cliff message (save your work now) present');
+  // The hero is the memory warning: the rendered line STARTS with the low battery.
+  assert(out.indexOf(BATTERY_LOW) === 0, 'the cliff warning is the hero (line starts with low battery)');
   // Orientation demoted: the Next cue is dropped, room is still shown (truncated).
   assert(out.indexOf('Next:') === -1, 'Next cue demoted at the cliff');
   assert(out.indexOf(FOLDER) !== -1, 'room still shown (demoted) at the cliff');
@@ -170,7 +197,7 @@ test('Test 4: POST-UPDATE-DRIFT promotes the doctor-fix corrective', () => {
   assert(out.indexOf(cockpit.DOCTOR_FIX) !== -1, 'doctor-fix corrective present (-> run /mos:doctor --fix)');
   assert(out.indexOf('/mos:doctor --fix') !== -1, 'the exact doctor-fix command present');
   assert(out.indexOf(HEALTH_DRIFT) !== -1, 'health escalated to drift glyph (post-update)');
-  assert(out.indexOf(CTX_GREEN + ' Ctx 31%') !== -1, 'green Ctx 31% still shown');
+  assert(out.indexOf(BATTERY + ' 69% memory left') !== -1, 'battery shows 69% memory left at 31% used');
   assert(out.indexOf(HEX) === 0, 'identity hexagon leads the corrective line');
   const a = cockpit.analyze({ health: 'sound', post_update: true, ctx_pct: 31 });
   assert(a.state === 'post_update_drift', 'classified post_update_drift (got ' + a.state + ')');
