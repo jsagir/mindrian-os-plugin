@@ -3209,12 +3209,13 @@ INV-2a gate-exposure meter + D2 transfer meter. LOCAL-only, emitted as memory_ev
 
 decide() at lib/core/navigation-engine.cjs:768 gains the read it lacks: import projection (data/brain-orchestration-projection.json, 249) + connector registry (data/connector-registry.json, 90) + recipe-maps.cjs; rank capabilities for the navigator context; surface as Shape F Decision-Gate OPTIONS. Calls NEITHER runChain NOR act-command (a third reader, not a third firer). REQ: READER-01..04.
 - **Acceptance (AS ACCEPTANCE, no criterion no ship):** R1 mandatory A/B (grounded vs ungrounded, choice-shift + latency); R2 projection-correctness gate on the 249 BEFORE read; R3 ambient-turn latency+context budget that FAILS the build; R4 structural guard making decide() INCAPABLE of firing.
+- **STATUS: COMPLETE 2026-06-28 (NAVIGATOR-AUTHORITY OVERRIDE).** The navigator (Jonathan Sagir, 2026-06-28) overrode the evidence-before-steel deferral and directed 184 be built into v1.15.0-beta.9. Recorded truthfully per the entry-20 override pattern: the deferral reason did NOT vanish -- R1's LIVE grounded-vs-ungrounded A/B remains a NAMED DEBT (subject_class=unknown / live_ab uninstrumented; a maintainer reading does NOT clear it; no fabricated live pass). Built: lib/core/reader/decide-projection-reader.cjs (READER-01..04 + R2 projection-correctness gate + R3 ambient latency/context budget) + lib/core/reader/ab-harness.cjs (R1 harness, named-debt third state) + decide() read at lib/core/navigation-engine.cjs:852 (trace.projection_offer; touches neither fire_skill nor any frozen contract) + navigation-engine-shared.cjs projection_offer:null default. R4 structural guard proven (decide() has no code path to runChain/act-command; tests/test-reader-r4-structural-184.cjs). READER_MAX_OPTIONS=5 is an option-CONTENT cap, NOT a render constant; frozen MAX_K=3 / DIAL_REACH_K=6 / 0.70-0.15 / 6-reach bank UNCHANGED. Part 8 LOCAL (the projection is a local cache). No em-dashes. Verify 2026-06-28: run-all-184.sh 2/2 (39+23 assertions); run-all-144.sh 5/5 (no decide() regression). CONTEXT/SUMMARY in .planning/phases/184-reader-decide-projection-offer/.
 
 ### Phase 185 - DRIFT Runtime Reachability (drift-runtime-reachability) - REGISTERED 2026-06-27
 
 **Class:** CODE | **Priority:** P2 (fast-follow) | **Depends on:** Phase 184 (READER)
 
-Add a runtime-reachability assertion to doctor --drift (today merge-time marking only; canon concedes at R7/entries 19/27). Testable once READER lands. REQ: DRIFT-01.
+Add a runtime-reachability assertion to doctor --drift (today merge-time marking only; canon concedes at R7/entries 19/27). Testable once READER lands. REQ: DRIFT-01. STATUS: navigator directed into the v1.15.0-beta.9 cut (2026-06-28); builds on the 184 decide() reader.
 - **Acceptance:** doctor --drift fails when a wired capability is unreachable by decide() at runtime.
 
 ### Phase 186 - CORPUS Stats Hygiene (corpus-stats-hygiene) - REGISTERED 2026-06-27
