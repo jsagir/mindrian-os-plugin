@@ -464,6 +464,50 @@ function getBridgeFile(roomDir) {
 const twoRowRenderer = require('../lib/statusline/two-row-renderer.cjs');
 const versionResolver = require('../lib/statusline/version-resolver.cjs');
 
+// Phase 187 (statusline-navigator-cockpit): the four-tier NAVIGATOR cockpit is
+// the navigator render path. The pure renderer + the LOCAL signal collector +
+// the INV-SL-2 measurement hook are lazy-required so a missing module on a
+// degraded install leaves the pre-187 two-row statusline byte-identical.
+// Canon Part 8 LOCAL-only: all three modules are zero-network, zero-Brain.
+let cockpitRenderer = null;
+let cockpitSignals = null;
+let cockpitTelemetry = null;
+try { cockpitRenderer = require('../lib/statusline/cockpit-renderer.cjs'); } catch (_e) { /* graceful */ }
+try { cockpitSignals = require('../lib/statusline/cockpit-signals.cjs'); } catch (_e) { /* graceful */ }
+try { cockpitTelemetry = require('../lib/statusline/cockpit-telemetry.cjs'); } catch (_e) { /* graceful */ }
+
+/**
+ * Phase 187 -- build the four-tier navigator cockpit line from collected state.
+ * Wrapped defensively: any failure returns '' so the caller keeps the pre-187
+ * two-row output unchanged (never blank, never throw the statusline).
+ *
+ * @param {Object} rowState - the two-row state already collected this render
+ * @param {string} roomName - resolved active room name
+ * @param {number|null} ctxPct - context-budget percentage (null before first API call)
+ * @returns {string} the rendered cockpit line, or '' on any failure
+ */
+function buildCockpitLine(rowState, roomName, ctxPct) {
+  if (!cockpitRenderer || !cockpitSignals) return '';
+  try {
+    const signalOpts = {
+      roomName: roomName,
+      ctxPct: ctxPct,
+      jtbd: rowState && rowState.jtbd,
+      governingThought: rowState && rowState.governing_thought,
+      brainConnected: rowState && rowState.brain_tier === 'BRAIN',
+    };
+    const cockpitState = cockpitSignals.collectSignals(signalOpts);
+    const line = cockpitRenderer.renderCockpit(cockpitState);
+    // INV-SL-2 measurement hook (best-effort, debounced, LOCAL-only).
+    if (cockpitTelemetry) {
+      try { cockpitTelemetry.recordExposure(cockpitState); } catch (_e) { /* best-effort */ }
+    }
+    return line || '';
+  } catch (_e) {
+    return '';
+  }
+}
+
 let input = '';
 const timeout = setTimeout(() => process.exit(0), 3000);
 process.stdin.setEncoding('utf8');
@@ -792,18 +836,41 @@ process.stdin.on('end', () => {
       // Graceful: keep rowState.current_version='unknown' from initialization.
     }
 
+    // Phase 187 -- the four-tier NAVIGATOR COCKPIT line (the navigator render
+    // path). Emitted as the hero line ABOVE the preserved two-row identity /
+    // situation block: the cockpit gives the navigator orientation + integrity
+    // warning + the lowest-friction next action at a glance, while the two rows
+    // below keep the SEED-007 version-of-record contract + the D-02 broadcast
+    // (📊 / 🎯 / ⚙️ / compaction-imminent) byte-identical. The cockpit line is
+    // additive and defensive: on any failure buildCockpitLine returns '' and the
+    // statusline degrades to exactly the pre-187 two-row output.
+    const cockpitLine = buildCockpitLine(rowState, rowState.room, ctxPct);
+
+    let twoRow;
     if (rowState.room || roomInfo) {
       // Two-row emission. The renderer handles all width-progressive
       // degradation + the blink-red at >=80% + the conditional update glyph.
-      process.stdout.write(twoRowRenderer.renderStatusline(rowState));
+      twoRow = twoRowRenderer.renderStatusline(rowState);
     } else {
       // No room AND no roomInfo. Still render Row 1 (version-of-record
       // contract per SEED-007 + D-03). Row 2 will render with the default
       // 'MindrianOS' room placeholder. This is intentionally minimal so the
       // user outside any room still sees who/runway, just not where/what.
-      process.stdout.write(twoRowRenderer.renderRow1(rowState));
+      twoRow = twoRowRenderer.renderRow1(rowState);
     }
+
+    process.stdout.write(cockpitLine ? cockpitLine + '\n' + twoRow : twoRow);
   } catch (e) {
-    // Silent fail
+    // Phase 187 -- graceful fallback: NEVER blank the statusline, even on
+    // malformed stdin. Emit a minimal safe navigator cockpit line (the renderer
+    // itself never throws and degrades to '⬡ MindrianOS' on bad input).
+    try {
+      if (cockpitRenderer && typeof cockpitRenderer.renderCockpit === 'function') {
+        process.stdout.write(cockpitRenderer.renderCockpit({}));
+      }
+    } catch (_e2) {
+      // Absolute last resort: still never blank.
+      try { process.stdout.write('⬡ MindrianOS'); } catch (_e3) { /* give up safely */ }
+    }
   }
 });
