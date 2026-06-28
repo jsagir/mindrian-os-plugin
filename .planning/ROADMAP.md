@@ -3215,8 +3215,9 @@ decide() at lib/core/navigation-engine.cjs:768 gains the read it lacks: import p
 
 **Class:** CODE | **Priority:** P2 (fast-follow) | **Depends on:** Phase 184 (READER)
 
-Add a runtime-reachability assertion to doctor --drift (today merge-time marking only; canon concedes at R7/entries 19/27). Testable once READER lands. REQ: DRIFT-01. STATUS: navigator directed into the v1.15.0-beta.9 cut (2026-06-28); builds on the 184 decide() reader.
+Add a runtime-reachability assertion to doctor --drift (today merge-time marking only; canon concedes at R7/entries 19/27). Testable once READER lands. REQ: DRIFT-01.
 - **Acceptance:** doctor --drift fails when a wired capability is unreachable by decide() at runtime.
+- **STATUS: COMPLETE 2026-06-28** (navigator directed into the v1.15.0-beta.9 cut). lib/core/drift-runtime-reachability.cjs + a Class R block in scripts/doctor.cjs under --drift (additive; narrow non-zero exit scoped to report.checks['runtime-reachability'] so real --drift/--all stay exit 0). PREDICATE: a capability is unreachable when it is WIRED in connector-registry (connects_to_spine) and reader-eligible (command/agent) but the Phase-184 reader's deterministic ranker emits no candidate for its projection node (node MISSING / no ranking block / R2-skip). Calibrated GREEN on shipped data: 85 WIRED command/agent caps all reader-emitted, 5 WIRED skills correctly scoped out. Part 8 LOCAL (node:fs + node:path + the 184 reader; zero egress). No em-dashes; frozen contracts untouched. Verify 2026-06-28: run-all-185.sh 1/1 (11 assertions); run-all-150.9.sh 6/6 (no doctor regression); run-all-184.sh 2/2. CONTEXT/SUMMARY in .planning/phases/185-drift-runtime-reachability/.
 
 ### Phase 186 - CORPUS Stats Hygiene (corpus-stats-hygiene) - REGISTERED 2026-06-27
 

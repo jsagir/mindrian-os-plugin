@@ -307,6 +307,12 @@ Class flags (combine freely; --all activates them all):
                            OPT-IN ONLY: independent of --all, NOT in the session-start
                            roster. Release/CI invokes it explicitly. LOCAL-only, zero
                            network. Phase 150.9 (FIX-13).
+                           + class R (runtime-reachability drift -- the RUNTIME
+                           assertion P/Q lack: FAILS NON-ZERO when a capability is
+                           WIRED in the connector registry but UNREACHABLE by
+                           decide() at runtime via the Phase-184 projection reader;
+                           deterministic, LOCAL-only, zero network. Phase 185
+                           DRIFT-01).
   --all                    activate all class flags
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
@@ -4630,6 +4636,49 @@ function main() {
     }
   }
 
+  // Class R: RUNTIME-REACHABILITY drift (Phase 185, DRIFT-01). The assertion
+  // Classes P + Q lack: P/Q do MERGE-TIME marking (prose-vs-code + gsd-record)
+  // only -- neither checks whether a WIRED capability is actually REACHABLE by
+  // decide() at runtime. Class R closes that gap (CIRS R9 -- doctor --drift is
+  // the SCHEDULED reconciliation surface): it FAILS when a capability is WIRED
+  // in the connector registry but the Phase-184 decide()-time projection READER
+  // can never surface it. Unlike P (report-only prose) this is a HARD signal --
+  // a runtime-unreachable WIRED capability flips doctor --drift to non-zero (the
+  // narrow exit branch in _finalizeAndExit keys on this check's 'warn' status).
+  //
+  // Pure LOCAL (Canon Part 8): reads the connector registry + the orchestration
+  // projection (both committed LOCAL artifacts) via the Phase-184 reader; zero
+  // network egress. Reachability is computed DETERMINISTICALLY in code,
+  // never by an LLM-judge. Soft-fail: a throw records an 'error' finding (exit
+  // stays 0 -- an indeterminate computation is not a drift FAIL), never crashes
+  // doctor. Hermetic test seams: MOS_TEST_REACHABILITY_REGISTRY /
+  // MOS_TEST_REACHABILITY_PROJECTION inject fixture artifact paths.
+  if (flags.drift) {
+    try {
+      const { checkRuntimeReachability } = require(
+        path.join(__dirname, '..', 'lib', 'core', 'drift-runtime-reachability.cjs'));
+      const rrOpts = {};
+      if (process.env.MOS_TEST_REACHABILITY_REGISTRY) {
+        rrOpts.registryPath = process.env.MOS_TEST_REACHABILITY_REGISTRY;
+      }
+      if (process.env.MOS_TEST_REACHABILITY_PROJECTION) {
+        rrOpts.projectionPath = process.env.MOS_TEST_REACHABILITY_PROJECTION;
+      }
+      const rr = checkRuntimeReachability(rrOpts);
+      report.checks['runtime-reachability'] = Object.assign({ class: 'R' }, rr);
+    } catch (err) {
+      report.checks['runtime-reachability'] = {
+        class: 'R',
+        status: 'error',
+        detail: (err && err.message) || 'class R threw',
+        wired_eligible: 0,
+        reachable: 0,
+        unreachable: [],
+        report_only: false,
+      };
+    }
+  }
+
   // --drift --fix HEAL ARM (D-03 heal-where-safe split). MECHANICAL drift
   // auto-heals: write the DRIFT.md baseline (root index + per-folder detail)
   // from the Class P + Class Q findings, and stub a missing SUMMARY for each
@@ -4991,6 +5040,22 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
   }
 
   // Exit code.
+  // Phase 185 (DRIFT-01): runtime-reachability is the ONE --drift check that
+  // produces a HARD non-zero signal. A capability WIRED in the connector
+  // registry but UNREACHABLE by decide() at runtime is a CIRS R9 drift FAIL, not
+  // a report-only warning -- so a 'warn' here flips doctor --drift to exit 1.
+  // This is evaluated BEFORE the classFlagsActive graceful-degradation exit-0,
+  // but it is narrowly scoped: report.checks['runtime-reachability'] is
+  // populated ONLY under flags.drift, so this branch can never alter the exit
+  // code of any other class-flag run (--all does not set --drift), and it leaves
+  // the marketplace-cache-drift-deadlock carve-out (Class A) untouched. A clean
+  // reachability check (status 'ok') OR an indeterminate one ('error') falls
+  // through to the normal exit-0 invariant, so the real registry+projection
+  // (fully reachable today) keeps doctor --drift at exit 0 -- no regression.
+  const reach = report.checks && report.checks['runtime-reachability'];
+  if (reach && reach.status === 'warn') {
+    process.exit(1);
+  }
   // When class flags are active we honor the graceful-degradation invariant
   // (Canon Part 8): the doctor run NEVER aborts with non-zero unless an
   // explicit --fix attempt failed. Tests rely on this for hermetic scratch-
