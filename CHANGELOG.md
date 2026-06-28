@@ -1,4 +1,4 @@
-## [Unreleased]
+## [1.15.0-beta.9] - 2026-06-28
 
 ### Added
 - **Phase 187 - Statusline navigator cockpit.** The statusline is rebuilt to serve the NAVIGATOR (not the operator), per the LOCKED `docs/STATUSLINE-CONTRACT.md` (Phase 121.5 co-design rule). Four tiers in a hierarchy: (1) trust metadata (Mindrian glyph + Voice Signature glyph + Brain), (2) orientation + room-health, (3) `Next: <move>` action cue, (4) `Ctx <n>%` risk. Color is carried by EMOJI GLYPHS (host-independent; this host strips ANSI). REORDER-AT-CLIFF: at >=80% context the line promotes "file this insight to the room before it compacts" to the hero slot; post-update drift promotes `-> run /mos:doctor --fix`. NORMATIVE anti-Dealer invariant INV-SL-1..5 (success metric = % of exposures that lead to a real advancing action, never time-on-line). `lib/statusline/cockpit-renderer.cjs` (pure) + `cockpit-signals.cjs` + `cockpit-telemetry.cjs` (LOCAL INV-SL-2 hook) wired into `scripts/context-monitor`; the two-row block is preserved. test-statusline-cockpit-187 14 tests/117 assertions; run-all-187 2/2.
