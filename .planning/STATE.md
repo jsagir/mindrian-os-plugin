@@ -1,24 +1,35 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.14.0-beta.2
-milestone_name: milestone
-status: verifying
-stopped_at: "Phase 183 Plan 02 COMPLETE (METER-02 welded two-gauge read + the three named-debt transfer proxies; run-all-183.sh 8/8)"
-last_updated: "2026-06-27T06:36:10.000Z"
-last_activity: 2026-06-27
+milestone: v1.15.0
+milestone_name: Cure Under-Invocation
+status: releasing
+stopped_at: "ALL FIVE navigator-directed phases COMPLETE + committed (182.1 voice-glyph 72615fdf; 187 statusline-cockpit f22e92d2; 184 READER navigator-override; 185 DRIFT runtime-reachability; 186 already shipped beta.7). Cutting v1.15.0-beta.9 (CHANGELOG filled, release.sh prerelease bump beta.8->beta.9). 184 R1 live A/B = named debt; entry-31 self-bind UNCLEARED by design."
+last_updated: "2026-06-28T00:00:00.000Z"
+last_activity: 2026-06-28
 stopped_at_182: "Phase 182 Plan 02 COMPLETE (SIGNAL-02 closed: tests/test-larry-voice-mark-182.cjs catches a Larry turn missing its De Stijl voice-color mark + asserts the doctrine declared on both SKILL surfaces + the no-new-color palette anchor; tests/run-all-182.sh one-command gate 5/5 green -- R15 + 179 GA-4 lean + missing-mark + frozen reach-ids(6)/posture-ids(3) fences; no em-dashes, Part 8 LOCAL, no frozen contract touched; commits 320aa734, c813d0c3). Phase 182 COMPLETE. Prior: Plan 01 (commit c178b7dc)."
 stopped_at_186: "Phase 186 Plan 02 COMPLETE (CORPUS-02: --check tripwire with the documented historical-provenance exclude list + LIVE-surface repoint to 27,904 / 177 / 12,485 + pre-commit/release wiring + run-all-186.sh 3/3; a6e4e70a, a2795cca, 13eb3972). Phase 186 COMPLETE."
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 39
-  completed_plans: 39
-  percent: 100
+  milestone_phases_shipped: "179, 180, 181, 182, 182.1, 183, 184, 185, 186, 187"
+  deferred_then_overridden: "184 READER + 185 DRIFT (navigator-authority override 2026-06-28; R1 live A/B = named debt)"
+  cutting: "v1.15.0-beta.9 (release.sh prerelease bump from beta.8 placeholder)"
 ---
 
 # Project State
 
-## Latest (2026-06-27) -- PHASE 186 Plan 02 COMPLETE -- CORPUS-02: --check tripwire + LIVE-surface repoint + pre-commit/release wiring (Wave 2); PHASE 186 COMPLETE
+## Latest (2026-06-28) -- ALL FIVE NAVIGATOR-DIRECTED PHASES COMPLETE; CUTTING v1.15.0-beta.9
+
+Navigator green light (2026-06-28): complete all remaining v1.15.0 phases, then cut a new beta with the full release ceremony. The navigator directed ALL FIVE into the cut -- 182.1, 184, 185, 186, 187 -- reversing the earlier keep-184/185-deferred decision. The milestone tops out at 187 (no 188-190 exist).
+
+ALL FIVE COMPLETE + committed (186 already shipped in beta.7):
+- **Phase 182.1 (SIGNAL voice-glyph repair)** `72615fdf` -- the Voice Signature was DARK at runtime + bracketed-word/ANSI did not render on the host; fix delivers the 5 De Stijl primaries as colored EMOJI GLYPHS (same palette, glyph delivery). voice-mark 106/106, dial PASS, run-all-182 5/5.
+- **Phase 187 (statusline navigator cockpit)** `f22e92d2` -- four-tier navigator statusline per the LOCKED docs/STATUSLINE-CONTRACT.md (emoji color, reorder-at-cliff, room-health + doctor-fix corrective, anti-Dealer INV-SL-1..5). 14 tests/117 assertions; run-all-187 2/2. Named debts: doctor room-health status cache + voice-glyph write-side hook unwired; next-move uses jtbd proxy.
+- **Phase 184 (READER decide-time projection offer)** -- NAVIGATOR-AUTHORITY OVERRIDE (entry-20 pattern, recorded truthfully). decide() ranks capabilities from the LOCAL projection + connector registry + recipe-maps and surfaces them as Shape F option content; a third READER never a firer (R4 structural guard). R2 projection-correctness gate + R3 latency budget. R1 LIVE A/B = NAMED DEBT (subject_class=unknown / uninstrumented; a maintainer reading does not clear it; no fabricated pass). run-all-184 2/2; run-all-144 5/5 (no decide() regression).
+- **Phase 185 (DRIFT runtime reachability)** -- doctor --drift now FAILS when a WIRED capability is unreachable by decide() at runtime; predicate via the 184 reader's deterministic ranker. Calibrated GREEN on shipped data (85 command/agent caps reader-emitted, 5 skills scoped out). run-all-185 1/1; run-all-150.9 6/6 (no doctor regression).
+- **Phase 186 (CORPUS stats hygiene)** -- already COMPLETE + shipped in v1.15.0-beta.7.
+
+NOW CUTTING v1.15.0-beta.9: CHANGELOG [Unreleased] filled (182.1/184/185/187); pre-flight gates all green (verify-release 26/0, coverage gates connector/projection/render-15-15/corpus all OK, doctor --acceptance --pre-flight pass). release.sh prerelease bump takes plugin.json beta.8 placeholder -> beta.9. The entry-31 self-binding clause stays UNCLEARED (no navigator-class two-gauge reading yet); Appendix D entry 32 parked by design.
+
+## Prior (2026-06-27) -- PHASE 186 Plan 02 COMPLETE -- CORPUS-02: --check tripwire + LIVE-surface repoint + pre-commit/release wiring (Wave 2); PHASE 186 COMPLETE
 
 The corpus literals stop drifting. `scripts/build-corpus-stats.cjs --check` now does two things: regenerate the artifact in memory and fail on a byte drift (STALE), then run `scanLiveSurfaces()` -- a pure, exported, CONTEXT-ANCHORED scanner that fires on stale magnitude literals on the seven LIVE surfaces and skips the documented historical regions. The crux (D4) holds by construction: `excludedRegion()` freezes everything at/after `## Appendix D` in the canon and the `### Appendix D` / `## Version history` region in the phase map (entries 13/16 byte-unchanged); the `STALE_PATTERNS` are number-then-noun so a per-label `Framework (748)` breakdown, the `23/748` pre-cleanup ratio, an edge/line count, and the directional sub-counts (176/76/56/383/203/171, 19,987 relationships) never false-fire; and 12,401 -- both the MethodologyChunk substrate constant (D2 directional, kept) and a stale Pinecone-vector form -- is suppressed on substrate / semantic-index lines and fires only as a bare curriculum-embeddings total. The LIVE fact surfaces (CLAUDE.md moat + Brain table, `.claude/includes/moat.md`, `docs/THE-BRAIN.md`, `docs/brain-setup.md`, `.planning/PROJECT.md`, the live CANON-PHASE-MAP Engine-1 row) now read 27,904 / 177 / 12,485 (1024-dim), live-read date 2026-06-27; `--check` exits 0. The tripwire is wired into `scripts/install-pre-commit.sh` (BOTH the splice + fresh paths, path-scoped) and `scripts/release.sh` Step 2.4 (HARD ABORT), mirroring the connector gate; the existing gates + release lockstep are untouched (Canon Part 8: zero Brain calls). `tests/run-all-186.sh` 3/3 green (artifact + both-direction tripwire + live --check). Three Rule-1 fixes on the surfaces I was already editing: aligned the oldest-set relationship companions (moat.md 19,713 / PROJECT.md 65K -> 19,987) to avoid a self-contradictory pair; converted em-dashes on the edited PROJECT.md lines to `--`; dropped THE-BRAIN.md's now-contradictory "(~275)" subset count. Canon Part 2 lines 40/48 (the Engine-1 12,401 methodology-node semantic index) were deliberately KEPT and suppressed, not repointed and not given a new Appendix D entry (the entry-31 self-binding clause forbids an entry 32). DI-186-01 logged (pre-existing install-hook idempotency duplication, out of scope). Self-check PASSED. Commits `a6e4e70a` (Task 1) / `a2795cca` (Task 2) / `13eb3972` (Task 3). SUMMARY: `.planning/phases/186-corpus-stats-hygiene/186-02-SUMMARY.md`. Phase 186 (CORPUS) is COMPLETE.
 
