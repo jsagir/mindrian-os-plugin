@@ -34,6 +34,10 @@ const ALLOWED_FILES = new Set([
   path.join(REPO_ROOT, 'scripts', 'context-monitor'),
   path.join(REPO_ROOT, 'lib', 'statusline', 'two-row-renderer.cjs'),
   path.join(REPO_ROOT, 'scripts', 'statusline-mos'),
+  // coherence-smoke-test renders the FULL statusline (cockpit + two-row) to smoke-test
+  // coherence, so it legitimately composes the carve-out glyphs -- a statusline-rendering
+  // surface, same class as the three above.
+  path.join(REPO_ROOT, 'scripts', 'coherence-smoke-test.cjs'),
 ]);
 // Back-compat alias: sanity-check loop below still expects ALLOWED_FILE.
 const ALLOWED_FILE = path.join(REPO_ROOT, 'scripts', 'context-monitor');

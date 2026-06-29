@@ -486,6 +486,25 @@ try { cockpitTelemetry = require('../lib/statusline/cockpit-telemetry.cjs'); } c
  * @param {number|null} ctxPct - context-budget percentage (null before first API call)
  * @returns {string} the rendered cockpit line, or '' on any failure
  */
+/**
+ * The Tier-4 visual gauge: 📊 + a 10-block bar + N%, ANSI-colored by band
+ * (green <50 / yellow 50-79 / red >=80) as progressive enhancement. Empty when
+ * no context data. The chart glyph 📊 is carve-out-reserved to this file +
+ * two-row-renderer (the glyph-isolation fence), so the cockpit renderer never
+ * holds it -- it only PLACES this pre-built string. The adjacent risk dot
+ * (🟢/🟠/🔴) carries the host-independent color; the bar's ANSI is enhancement.
+ * @param {number|null} pct
+ * @returns {string}
+ */
+function buildCtxBar(pct) {
+  if (pct === null || pct === undefined || typeof pct !== 'number' || Number.isNaN(pct)) return '';
+  const used = Math.max(0, Math.min(100, Math.round(pct)));
+  const filled = Math.max(0, Math.min(10, Math.round(used / 10)));
+  const blocks = '█'.repeat(filled) + '░'.repeat(10 - filled);
+  const col = used >= 80 ? '\x1b[31m' : (used >= 50 ? '\x1b[33m' : '\x1b[32m');
+  return '\u{1F4CA} ' + col + blocks + '\x1b[0m ' + used + '%';
+}
+
 function buildCockpitLine(rowState, roomName, ctxPct) {
   if (!cockpitRenderer || !cockpitSignals) return '';
   try {
@@ -499,6 +518,7 @@ function buildCockpitLine(rowState, roomName, ctxPct) {
       agentLabel: rowState && rowState.agent_label,
     };
     const cockpitState = cockpitSignals.collectSignals(signalOpts);
+    cockpitState.bar = buildCtxBar(ctxPct); // Tier-4 visual gauge (this file owns 📊; renderer just places it)
     const line = cockpitRenderer.renderCockpit(cockpitState);
     // INV-SL-2 measurement hook (best-effort, debounced, LOCAL-only).
     if (cockpitTelemetry) {
@@ -876,7 +896,13 @@ process.stdin.on('end', () => {
     const verSuffix = (rowState && rowState.current_version && rowState.current_version !== 'unknown')
       ? ' · v' + rowState.current_version
       : '';
-    process.stdout.write(cockpitLine ? cockpitLine + verSuffix : twoRow);
+    // D-02 broadcast preserved in the single line (navigator decision B, 2026-06-29):
+    // the operator (gear) and JTBD (target) facts ride the cockpit line when set, instead
+    // of a separate two-row block. JUST_TALK (the default operator) is suppressed (D-02 Test 6).
+    const jtbdSeg = (rowState && rowState.jtbd) ? ' · 🎯 ' + rowState.jtbd : '';
+    const operatorSeg = (rowState && rowState.operator && rowState.operator !== 'JUST_TALK')
+      ? ' · ⚙️ ' + rowState.operator : '';
+    process.stdout.write(cockpitLine ? cockpitLine + jtbdSeg + operatorSeg + verSuffix : twoRow);
   } catch (e) {
     // Phase 187 -- graceful fallback: NEVER blank the statusline, even on
     // malformed stdin. Emit a minimal safe navigator cockpit line (the renderer

@@ -321,10 +321,11 @@ test('Test 10: malformed stdin to context-monitor degrades gracefully (never bla
 });
 
 // ===========================================================================
-// Test 11: end-to-end -- context-monitor emits the cockpit line AS the hero
-// (first line) above the preserved two-row block, in a real room.
+// Test 11: end-to-end -- context-monitor emits ONE navigator cockpit line; the
+// two-row identity/situation block + the progress-bar row are RETIRED from the
+// render (hierarchy, not a pile; navigator-LOCKED 2026-06-29).
 // ===========================================================================
-test('Test 11: context-monitor emits the cockpit hero line above the two-row block', () => {
+test('Test 11: context-monitor emits ONE navigator cockpit line (two-row retired)', () => {
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cockpit-187-e2e-'));
   try {
     // Minimal legacy room so the resolver finds <home>/room.
@@ -341,10 +342,11 @@ test('Test 11: context-monitor emits the cockpit hero line above the two-row blo
       encoding: 'utf8',
     });
     assert(r.status === 0, 'exit 0 (stderr: ' + r.stderr + ')');
-    const lines = r.stdout.split('\n');
-    assert(lines.length >= 2, 'at least the cockpit line + a two-row line');
-    assert(lines[0].indexOf(HEX) !== -1, 'first line is the cockpit (carries the hexagon)');
-    assert(lines[0].indexOf('Next:') !== -1, 'cockpit hero carries the Next cue (healthy room)');
+    const lines = r.stdout.replace(/\n+$/, '').split('\n');
+    assert(lines.length === 1, 'exactly ONE navigator line (two-row + progress row retired), got ' + lines.length);
+    assert(lines[0].indexOf(HEX) !== -1, 'the line is the cockpit (carries the hexagon)');
+    assert(lines[0].indexOf('Next:') !== -1, 'cockpit carries the Next cue (healthy room)');
+    assert(lines[0].indexOf('\u{1F3E0}') === -1, 'no two-row home-row glyph (the pile is retired)');
     assert(r.stdout.indexOf(EM_DASH) === -1, 'no em-dash in the full e2e output');
   } finally {
     fs.rmSync(tmpHome, { recursive: true, force: true });

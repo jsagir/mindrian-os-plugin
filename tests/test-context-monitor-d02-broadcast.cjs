@@ -152,11 +152,14 @@ function payloadFor(room, usedPct) {
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
   assert.match(r.stdout, /📊/, 'token-budget glyph at warning band');
   assert.ok(/\d+%/.test(r.stdout), 'percentage rendered');
-  assert.match(r.stdout, /⚠ compaction-imminent/, 'warning text present');
+  // Single-line redesign (navigator-LOCKED 2026-06-29): the >=80% warning is now the
+  // cliff preservation message + the red dot (emoji color), replacing the two-row's
+  // "compaction-imminent" blink-red ANSI. Same threshold, navigator-language warning.
+  assert.match(r.stdout, /file this insight to the room before it compacts/, 'cliff preservation warning present');
+  assert.match(r.stdout, /🔴/, 'red cliff glyph carries the color (host-independent)');
   assert.ok(!r.stdout.includes('\u{1F480}'), 'no skull glyph');
-  assert.match(r.stdout, /\x1b\[5;31m/, 'blink-red ANSI present');
   rmTmp(room);
-  console.log('PASS: Test 3 (warning band shows compaction-imminent, no skull)');
+  console.log('PASS: Test 3 (warning band shows cliff preservation message, no skull)');
 }
 
 // Test 4: missing operator state -> no gear glyph
