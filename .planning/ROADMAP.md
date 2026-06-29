@@ -3243,6 +3243,24 @@ Co-designed with the navigator (Jonathan Sagir, 2026-06-28) under the Phase 121.
 - **Verify (2026-06-28):** tests/test-statusline-cockpit-187.cjs 14 tests/117 assertions; run-all-187.sh 2/2 GREEN (cockpit + D-02 broadcast fence 7/7). Part 8 clean, no em-dashes, frozen Part 3 contracts untouched. Phase 187 COMPLETE.
 - **Named debts (host signals not exposed on hot path):** (1) doctor does not write a room-health status cache yet (cockpit reads ~/.mindrian/room-health.json, defaults sound); (2) Voice-glyph WRITE side (turn-capture hook) not wired -- glyph read from ~/.mindrian/voice-mark.json side-channel; (3) next-move uses jtbd proxy; (4) post-update drift IS wired (post-update-restart-pending touch-file). Plus pre-existing: tests/test-statusline-glyph-isolation.cjs red on scripts/coherence-smoke-test.cjs (untouched here; resolve before release --acceptance).
 
+### Phase 187.2 - CLAUDE.md De-Bloat + Canon Symbiosis (claude-md-debloat-canon-symbiosis) - REGISTERED 2026-06-29
+
+**Class:** DOCS | **Priority:** P1 (context-budget integrity; dog-fooding) | **Depends on:** none
+
+The dev repo's own CLAUDE.md violates the canon it ships. A docu-optimizer audit (2026-06-29, 5-agent fan-out) measured the fully-expanded per-session load at ~50k-66k tokens (13x-16x the 5k context-rot threshold), driven by two `@`-pinned canon docs (`@docs/MINDRIAN-CANON.md` + `@docs/CANON-PHASE-MAP.md`, CLAUDE.md L372-373) that force-load ~45k tokens of provenance/changelog archive no agent reads to act, plus ~420 directive keywords (the ~150 reliable-adherence ceiling, anti-pattern #12). Per Canon Part 6 (dog-fooding) the over-stuffing is itself a CONTRADICTS edge: instruction overload buries the binding rules, so the bloat is what stops the agent honoring the canon, not the fix. The reconciliation makes CLAUDE.md and the v1.19 canon SYMBIOTES: CLAUDE.md becomes the always-loaded operational MEMBRANE (a distilled Canon Compliance Core - Part 8 boundary, Part 3 gate, Part 6 dog-fooding, Part 7 reuse, Part 9 locality, Part 11 born-wired, Part 12 voice/pedagogy, each one line + a Deep-Dive link); the full canon stays the load-on-demand BODY. Neither duplicates the other. REQ: CMD-01..06. canon_parts 6/7/8/10/12.
+- **Source-level fix (not the rendered file - sentinels repopulate):** `gsd-tools generate-claude-md` (gsd-core) rewrites 6 sentinel sections from source docs; the `@include` block (L366-373) sits OUTSIDE all sentinels and is hand-maintained. CMD-01 demote the 2 canon `@docs` pins to plain Deep-Dive path links (edits stay - nothing regenerates them). CMD-02 trim `.planning/research/STACK.md` (the v3.0 stack dump feeding GSD:stack L396-537) + `.planning/PROJECT.md` (49KB feeding GSD:project) to lean operational essence, then re-run generate-claude-md so sentinels repopulate small. CMD-03 resolve the empty conventions/architecture stubs (lean sources or drop the sentinel blocks). CMD-04 author the Canon Compliance Core block. CMD-05 add a Verification section with the real `tests/run-all-*.sh` command (lifts the verification score 1/5 -> 4/5).
+- **Drift cleanup (separate, folded in):** CMD-06 fix the stale Source-Material TODO table (Larry/25-prompts/mode-engine all shipped) + version drift (MCP SDK doc 1.27.1 vs package ^1.29.0; Node doc >=18 vs >=22.5.0; cheerio listed but absent) + the duplicated/stale decisions.md include (15 rows vs 16, missing #16).
+- **Acceptance:** fully-expanded CLAUDE.md load < 4k tokens (from ~50k); re-running `gsd-tools generate-claude-md` does NOT re-bloat (proves source-level fix); Canon Compliance Core binds every listed Part with a working Deep-Dive link (canon honored, not evicted); verification score >= 4/5; no broken doc references; no em-dashes; Part 8 clean (docs-only, zero Brain wire).
+- **Out of scope:** the canon docs themselves stay verbatim (the constitution); this phase only stops force-pinning them.
+- **Provenance:** scoped 2026-06-29 via docu-optimizer (kojott) audit + navigator reconciliation (Jonathan Sagir); navigator-selected decimal placement under v1.15.0; PRD express path.
+
+**Plans:** 3 plans (2 waves)
+
+Plans:
+- [ ] 187.2-01-PLAN.md -- Trim sentinel sources (STACK.md version-drift fix + PROJECT.md rendered sections) + lean codebase CONVENTIONS/ARCHITECTURE (Wave 1; CMD-02/03/06)
+- [ ] 187.2-02-PLAN.md -- Trim the four @-include membranes + complete decisions.md (add #16) (Wave 1; CMD-01/06)
+- [ ] 187.2-03-PLAN.md -- Rewrite CLAUDE.md membrane (demote canon pins, Canon Compliance Core, Verification) + regen durability proof + <4k budget (Wave 2; CMD-01/04/05/06)
+
 ## Dependency graph
 180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).
 
