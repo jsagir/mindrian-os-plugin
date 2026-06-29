@@ -1,34 +1,22 @@
 # Architecture Reference
 
-## ICM x Wicked Problem Management x Simon
+The folder structure IS the wicked problem, organized as a near-decomposable hierarchy (ICM x Rittel & Webber x Simon). The room is a Simon near-decomposable system; value concentrates at the weak edges between subsystems.
 
-ICM (Van Clief & McDermott 2026) says: folder structure IS the code. Rittel & Webber (1973) says: the venture IS a wicked problem. Simon (1962) says: complex systems persist through hierarchical near-decomposability. Combined: the folder structure IS the wicked problem, organized as a near-decomposable hierarchy.
+## ICM Layers 0-4
 
-ICM Layer 0 (Identity) = The venture's current problem formulation (STATE.md)
-ICM Layer 1 (Routing) = Problem type x wickedness -> which agent/skill responds
-ICM Layer 2 (Contracts) = Pipeline stage contracts encode cascade rules
-ICM Layer 3 (Reference) = Brain graph + methodology references + assumption registry
-ICM Layer 4 (Artifacts) = Room entries = claims with validity status + cross-refs
-
-## Simon's Architecture of Complexity -- The Basis Theorem
-
-| Simon | MindrianOS |
-|-------|-----------|
-| Near-decomposable systems | Room sections = subsystems with strong internal cohesion, weak external coupling |
-| Hierarchy as universal form | room/ -> sections -> artifacts -> claims |
-| Watchmaker parable | Skills, commands, agents -- each built independently, snapped together via hooks |
-| Perturbations absorbed within levels | Filing an artifact updates its section, not the whole room |
-| Innovation at boundaries | Cross-relationship discovery (INFORMS, CONTRADICTS, CONVERGES) |
-| Stable building blocks recombined | 25 methodology commands as reusable modules, pipeline chaining |
+- Layer 0 Identity = the venture's current problem formulation (STATE.md)
+- Layer 1 Routing = problem type x wickedness -> which agent/skill responds
+- Layer 2 Contracts = pipeline stage contracts encode cascade rules
+- Layer 3 Reference = Brain graph + methodology + assumption registry
+- Layer 4 Artifacts = room entries = claims with validity status + cross-refs
 
 ## Cross-Subsystem Cascade Rule
 
-When an artifact is filed that contradicts or changes an assumption in another section:
 1. Detect the impact (analyze-room or Brain)
 2. Generate soft edits for affected sections
 3. Present to user: APPROVE / REJECT (with reason) / DEFER
 4. Decision + reason become graph data
 
-## The Proactive Discovery Loop
+## Deep Dive
 
-Artifact filed -> cross-relationship scan -> new edges found -> Larry surfaces -> User decision -> Decision becomes graph data -> next scan is smarter
+See docs/MINDRIAN-CANON.md (Appendix B, ICM layers) and docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md (Simon, watchmaker, full grounding).
