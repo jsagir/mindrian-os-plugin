@@ -113,7 +113,8 @@ test('Test 1: HEALTHY state renders identity + room ✅ + Next + green Ctx', () 
   assert(out.indexOf(HEALTH_OK) !== -1, 'room-health ✅ present');
   assert(out.indexOf(BRAIN) !== -1, 'Brain backing glyph present');
   assert(out.indexOf('Next: validate edits') !== -1, 'Next-move cue present');
-  assert(out.indexOf(BATTERY + ' 64% memory left') !== -1, 'battery shows 64% memory LEFT at 36% used');
+  assert(out.indexOf(CTX_GREEN) !== -1, 'green dot present (quiet: all clear)');
+  assert(out.indexOf('Ctx') === -1, 'no operator "Ctx" label (lane A, navigator language)');
   const a = cockpit.analyze({ health: 'sound', ctx_pct: 36 });
   assert(a.state === 'healthy', 'classified healthy (got ' + a.state + ')');
   assert(a.has_fix === false, 'healthy carries no fix');
@@ -152,7 +153,7 @@ test('Test 2: CAUTION state (50-79%) renders orange Ctx, no fix', () => {
     ctx_pct: 64,
     next_move: 'validate edits',
   });
-  assert(out.indexOf(BATTERY + ' 36% memory left') !== -1, 'battery shows 36% memory LEFT at 64% used');
+  assert(out.indexOf(CTX_ORANGE + ' save soon') !== -1, 'orange chip is the action cue "save soon" (lane A)');
   assert(out.indexOf('Next: validate edits') !== -1, 'still the Next hero below the cliff');
   assert(out.indexOf('/mos:doctor') === -1, 'caution carries no doctor-fix');
   assert(out.indexOf(cockpit.CLIFF_MSG) === -1, 'caution carries no cliff message');
@@ -172,10 +173,9 @@ test('Test 3: CONTEXT-CLIFF (>=80%) promotes the warning to the hero (REORDER-AT
     ctx_pct: 84,
     next_move: 'validate edits',
   });
-  assert(out.indexOf(BATTERY_LOW) !== -1, 'low-battery glyph present at cliff');
-  assert(out.indexOf(cockpit.CLIFF_MSG) !== -1, 'the plain-language cliff message (save your work now) present');
-  // The hero is the memory warning: the rendered line STARTS with the low battery.
-  assert(out.indexOf(BATTERY_LOW) === 0, 'the cliff warning is the hero (line starts with low battery)');
+  assert(out.indexOf(CTX_RED) === 0, 'the cliff warning is the hero (line starts with the red dot)');
+  assert(out.indexOf(cockpit.CLIFF_MSG) !== -1, 'the cliff message (file this insight...) is the imperative');
+  assert(out.indexOf('Ctx') === -1, 'no operator "Ctx" label at the cliff (lane A)');
   // Orientation demoted: the Next cue is dropped, room is still shown (truncated).
   assert(out.indexOf('Next:') === -1, 'Next cue demoted at the cliff');
   assert(out.indexOf(FOLDER) !== -1, 'room still shown (demoted) at the cliff');
@@ -197,7 +197,7 @@ test('Test 4: POST-UPDATE-DRIFT promotes the doctor-fix corrective', () => {
   assert(out.indexOf(cockpit.DOCTOR_FIX) !== -1, 'doctor-fix corrective present (-> run /mos:doctor --fix)');
   assert(out.indexOf('/mos:doctor --fix') !== -1, 'the exact doctor-fix command present');
   assert(out.indexOf(HEALTH_DRIFT) !== -1, 'health escalated to drift glyph (post-update)');
-  assert(out.indexOf(BATTERY + ' 69% memory left') !== -1, 'battery shows 69% memory left at 31% used');
+  assert(out.indexOf(CTX_GREEN) !== -1, 'green dot present at drift (quiet ctx)');
   assert(out.indexOf(HEX) === 0, 'identity hexagon leads the corrective line');
   const a = cockpit.analyze({ health: 'sound', post_update: true, ctx_pct: 31 });
   assert(a.state === 'post_update_drift', 'classified post_update_drift (got ' + a.state + ')');

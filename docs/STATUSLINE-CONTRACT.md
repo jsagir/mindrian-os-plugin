@@ -7,6 +7,11 @@ Part 5 + Part 10 entry 31 (welded two-gauge; Facilitator not Dealer). No canon a
 required -- this is an APPLICATION of existing canon, so it does not trip the entry-31
 self-binding clause.
 
+Amended 2026-06-29 (navigator-LOCKED): Tier 4 copy moved from `Ctx <n>%` to NAVIGATOR language
+(lane A -- name the move, not the gauge). See "The four tiers" + "Rendered states" below. A
+copy/label change WITHIN the existing locked hierarchy and thresholds; the four tiers, the
+reorder-at-cliff behavior, and INV-SL-1..5 are UNCHANGED.
+
 ---
 
 ## Purpose
@@ -27,7 +32,7 @@ the line has hierarchy instead of equal-weight cues.
 | 1. Identity / trust metadata | `⬡` (Mindrian) · `🟦/🟥/🟨/⬛/⬜` (Voice Signature glyph) · `🧠` (Brain backing) | "Who is speaking, and what backs it." | NO -- passive trust calibration, never a hook |
 | 2. Orientation / integrity | `📂 <room>` · `✅/⚠/🔴` (room health) | "Where am I, and is it sound." | Trigger ONLY when degraded |
 | 3. Action | `Next: <move>` | "The next step to a validated decision." The core JTBD / MVA cue. | YES -- the action prompt |
-| 4. Risk trigger | `🟢/🟠/🔴 Ctx <n>%` | "Warn me before I lose my thinking." | YES -- fires at the cliff |
+| 4. Risk trigger | `🟢` (quiet) / `🟠 save soon` / `🔴 <file-move>` | "Warn me before I lose my thinking." | YES -- fires at the cliff |
 
 Color is carried by EMOJI GLYPHS (host-independent), matching the Voice Signature finding
 (2026-06-28: this host strips ANSI to literal text). ANSI background is progressive
@@ -39,10 +44,10 @@ alone always carries the color.
 ## Rendered states (promote ONE thing that matters now)
 
 ```
-healthy             ⬡ 🟦 · 📂 product-evolution ✅ · 🧠 · Next: validate edits · 🟢 Ctx 36%
-caution (50-79%)    ⬡ 🟦 · 📂 product-evolution ✅ · 🧠 · Next: validate edits · 🟠 Ctx 64%
-context cliff (>=80) 🔴 Ctx 84% -- file this insight to the room before it compacts · 📂 prod
-post-update drift    ⬡ 📂 product-evolution ⚠ · -> run /mos:doctor --fix · 🟢 Ctx 31%
+healthy             ⬡ 🟦 · 📂 product-evolution ✅ · 🧠 · Next: validate edits · 🟢
+caution (50-79%)    ⬡ 🟦 · 📂 product-evolution ✅ · 🧠 · Next: validate edits · 🟠 save soon
+context cliff (>=80) 🔴 file this insight to the room before it compacts · 📂 prod
+post-update drift    ⬡ 📂 product-evolution ⚠ · -> run /mos:doctor --fix · 🟢
 ```
 
 REORDER-AT-CLIFF (resolved): at >=80% context the line PROMOTES the warning to the hero slot
@@ -50,8 +55,14 @@ and demotes orientation, because at that moment "do not lose your insight" outra
 Below 80% the hero is `Next: <move>`. Post-update drift promotes the doctor-fix corrective.
 
 Context thresholds (navigator-set 2026-06-28): `<50% green 🟢` / `50-79% orange 🟠` /
-`>=80% red 🔴` (the cliff: file before compaction). The chip is labeled `Ctx`, never a bare
-`%` or "progress."
+`>=80% red 🔴` (the cliff: file before compaction). Tier-4 COPY is navigator language, not
+operator jargon (lane A, navigator-LOCKED 2026-06-29): the chip names the MOVE, not the gauge.
+Green is QUIET (the dot alone = all clear; no manufactured glance, INV-SL-2). Orange is
+`save soon`. Red is the imperative file-move (at the cliff, the file-message itself is the chip).
+NO `Ctx` / `context` / `memory` / `room` noun -- each collides with a Mindrian term of art (the
+Data Room, the 3 memory layers, the context window). The raw `%` is dropped: a navigator hires
+this chip to NOT lose a thought, not to read a buffer gauge. (Supersedes the original
+`Ctx <n>%` / "labeled Ctx, never a bare %" rule.)
 
 Room-health (Tier 2): `✅` sound / `⚠` drift / `🔴` broken. The `⚠`/`🔴` state ALWAYS carries
 its adjacent one-tap fix (`-> run /mos:doctor --fix`). Escalates loudest POST-UPDATE -- the
@@ -67,7 +78,7 @@ highest-drift moment (the install-cache / scaffold / statusline-visibility incid
 | `📂` + `✅/⚠` health | "keep me oriented; tell me my room is sound; fix it if not -- esp. post-update" | Trigger (corrective) -> Action (`/mos:doctor --fix`) |
 | `🧠` Brain | "how much help backs what Larry says" | Trust metadata (not a hook) |
 | `Next: <move>` | "the next step to a validated decision" (the core job) | Action prompt (the MVA cue) |
-| `🟢🟠🔴 Ctx` | "warn me before I lose my thinking" | Trigger (anxiety) -> Action (file) at the cliff |
+| `🟢 / 🟠 save soon / 🔴 file` | "warn me before I lose my thinking" | Trigger (anxiety) -> Action (file) at the cliff |
 
 The Hooked loop (Facilitator form): internal trigger = the navigator's itch ("am I advancing?
 about to lose this? is my room sound?"); action = the one-tap fix shown beside every non-healthy
