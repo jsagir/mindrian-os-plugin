@@ -1,7 +1,7 @@
 ## [Unreleased] -- v1.15.0-beta.14 (in progress)
 
 ### Added
-- 
+- **Phase 187.2 - CLAUDE.md de-bloat + canon symbiosis.** The plugin's own CLAUDE.md was violating the canon it ships: the fully-expanded per-session load was ~66k tokens (13x-16x the 5k context-rot threshold), ~80% of it canon provenance force-loaded by two `@docs/...` pins that no agent reads to act. An APPLICATION of Canon Parts 6/7/8/10/12 (dog-fooding the de-bloat; no amendment, mints no reach/edge/node, no Brain wire). Source-first fix (the GSD sentinel sections regenerate, so the rendered file is never edited inside a sentinel): trimmed the sentinel SOURCE docs (`.planning/research/STACK.md`, `.planning/PROJECT.md`) + the four `.claude/includes/*.md` membranes (13KB -> 5.4KB), demoted the two canon `@docs` pins to load-on-demand Deep-Dive links, and authored a **Canon Compliance Core** that binds all 7 binding Parts (8/3/6/7/9/11/12) each with a working `docs/MINDRIAN-CANON.md` deep-dive link (canon honored, not evicted). Result: fully-expanded load **~66k -> 3,899 tokens** (under the 4k gate), proven durable (`generate-claude-md` is idempotent, byte-delta 0 on re-run, so the source-level fix cannot refill). Folded the CMD-06 drift cleanup: stale Source-Material TODO table removed, version drift fixed at source (MCP SDK ^1.29.0, Node >=22.5.0, cheerio de-listed), `decisions.md` completed with #16. Docs-only, Part 8 clean, zero em-dashes. Forward seed (pressure-tested): `.planning/research/CANON-AS-SDK-V0-SEED.md` (Track B = `CANON-LEDGER.md` provenance carve-out is the real root-cause follow-on; Track A = canon-as-SDK parked until a second runtime exists).
 
 ## [1.15.0-beta.13] - 2026-06-29
 
