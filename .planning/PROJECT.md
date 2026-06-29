@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal Wisdom System) methodology as installable skills, commands, agents, and hooks. One-command install gives the user Larry (the AI teaching personality) plus a structured Data Room that passively captures insights and proactively surfaces gaps, contradictions, and convergence signals. It runs on Claude's native capabilities and optionally connects to the remote Brain for enriched guidance.
+A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wisdom System) methodology as installable skills, commands, agents, and hooks. One-command install gives the user Larry (the AI teaching personality) plus a structured Data Room that captures insights and surfaces gaps, contradictions, and convergence; it runs on Claude's native capabilities and optionally connects to the remote Brain for enrichment.
 
 ## Core Value
 
@@ -220,14 +220,14 @@ Compared against a third-party Notion "Problem Worth Solving" template the user 
 
 ---
 
-## v1.14.0 — "The Visible Room" (Captured 2026-05-07)
+## v1.14.0 - "The Visible Room" (Captured 2026-05-07)
 
 The next named arc after v1.13.0 "The Closed Loop." Claims the v1.14.0 slot
 explicitly with thesis, methodology spine, and hard release gate.
 
-**Thesis (updated 2026-05-07 evening with SnapshotHub fusion):** "Make the invisible visible — inside and outside the room. Wiki for the navigator (internal); SnapshotHub for everyone else (external). One rendering pipeline, two surfaces, same DNA."
+**Thesis (updated 2026-05-07 evening with SnapshotHub fusion):** "Make the invisible visible - inside and outside the room. Wiki for the navigator (internal); SnapshotHub for everyone else (external). One rendering pipeline, two surfaces, same DNA."
 
-**Why fuse SnapshotHub into v1.14.0:** Wiki and SnapshotHub share renderer DNA — both consume the same markdown source-of-truth, use the same `lib/wiki/page-renderer.cjs` + `@ig3/markdown-it-wikilinks` plugin + `lib/wiki/graph-links.cjs`, render with the same De Stijl tokens, and `dashboard/export-template.html` (2462 lines, shipped) already proves one pipeline serves both audiences. SnapshotHub IS the wiki "going public" — same artifact, packaged for external sharing. Splitting them would mean maintaining two renderer pipelines that should be one.
+**Why fuse SnapshotHub into v1.14.0:** Wiki and SnapshotHub share renderer DNA - both consume the same markdown source-of-truth, use the same `lib/wiki/page-renderer.cjs` + `@ig3/markdown-it-wikilinks` plugin + `lib/wiki/graph-links.cjs`, render with the same De Stijl tokens, and `dashboard/export-template.html` (2462 lines, shipped) already proves one pipeline serves both audiences. SnapshotHub IS the wiki "going public" - same artifact, packaged for external sharing. Splitting them would mean maintaining two renderer pipelines that should be one.
 
 **Scope (Phase 126 NEW per-room-wiki-completeness, 5 sub-plans, ~8 working days, PLUS Phase 104 finish 104-00 Wave 0; Phase 104 3/4 plans already shipped in v1.13.0):**
 - 126-01: wire `scripts/resolve-room` into serve-wiki / serve-dashboard / serve-presentation; ANSI strip; diagnostic empty-state. Closes Lawrence's P1 blocker open since 2026-03-31.
@@ -236,15 +236,15 @@ explicitly with thesis, methodology spine, and hard release gate.
 - 126-04: click-red-wikilink-to-research + Phase 32-02 chat tool-call wiring (Larry-in-the-wiki).
 - 126-05: 9-tier freshness frontmatter + content gap dashboard + multi-layout Cytoscape with clustering + neighborhood highlighting.
 
-**Plus deferred from Closed Loop / fused into v1.14.0:** Phase 124 (JTBD Inference Engine, was Phase 100), Phase 125 (Selector library JTBD-aware, was Phase 101), Phase 112 (GraphRAG retrieval + Room Budding), **Phase 123 (SnapshotHub MVP, FUSED 2026-05-07 — same renderer pipeline as wiki, consumes SEED-003 A5)**, SEED-001 (sub-room atomic wiring), SEED-004 (write-scope-check nested-room bug). **Splits to v1.14.5:** Phase 122 (Researcher Wedge /mos:gate, was Phase 107) — different thesis (opportunity-gating, not visibility).
+**Plus deferred from Closed Loop / fused into v1.14.0:** Phase 124 (JTBD Inference Engine, was Phase 100), Phase 125 (Selector library JTBD-aware, was Phase 101), Phase 112 (GraphRAG retrieval + Room Budding), **Phase 123 (SnapshotHub MVP, FUSED 2026-05-07 - same renderer pipeline as wiki, consumes SEED-003 A5)**, SEED-001 (sub-room atomic wiring), SEED-004 (write-scope-check nested-room bug). **Splits to v1.14.5:** Phase 122 (Researcher Wedge /mos:gate, was Phase 107) - different thesis (opportunity-gating, not visibility).
 
 **Methodology spine (Brain-validated 2026-05-07):** Design Thinking → JTBD (prereq) → User Journey Mapping (PRIMARY METHOD, TYPICAL_AT VentureStage "Opportunity Identified", REVEALS "Making the Invisible Visible") → Process Mapping → Reverse Salient Analysis (already shipped Phase 89). The four `HAS_PROCESS_STEP` nodes Brain returned for User Journey Mapping (Cast a Wide Net / Track Multiple Dimensions / Find Hidden Problems / Follow Workarounds) map 1:1 onto the four user-facing wiki sprint deliverables.
 
-**HARD release gate:** Lawrence Aronhime tester preview on a multi-room install confirming all 6 user-facing behaviors (room resolution, graph homepage, auto-create, section hyperlinks, cross-room links, red-link rendering). Without his sign-off, v1.14.0 ships only beta — not final. Per Canon Part 6 Dog-Fooding Mandate.
+**HARD release gate:** Lawrence Aronhime tester preview on a multi-room install confirming all 6 user-facing behaviors (room resolution, graph homepage, auto-create, section hyperlinks, cross-room links, red-link rendering). Without his sign-off, v1.14.0 ships only beta - not final. Per Canon Part 6 Dog-Fooding Mandate.
 
 **Trigger to expand into Phase 126 CONTEXT:** Path C closes (Phase 110 + Phase 114 both merged to main) AND user explicitly says "expand the wiki sprint memo into Phase 126 CONTEXT."
 
-**Provenance:** triggered by user reaction to LLM-Wiki repo (github.com/Oshayr/LLM-Wiki) on 2026-05-06 — "I tried such a wiki with /mos:wiki and wikilinks but this one looks better." 13/13 claim validation against current code 2026-05-07. Brand discipline + JTBD orientation is the moat, not feature parity.
+**Provenance:** triggered by user reaction to LLM-Wiki repo (github.com/Oshayr/LLM-Wiki) on 2026-05-06 - "I tried such a wiki with /mos:wiki and wikilinks but this one looks better." 13/13 claim validation against current code 2026-05-07. Brand discipline + JTBD orientation is the moat, not feature parity.
 
 **4-layer protection lock (planted 2026-05-07):**
 1. SEED-006: `.planning/seeds/SEED-006-mindrian-wiki-sprint-the-visible-room.md` (auto-surfaces during /gsd:new-milestone v1.14.0)
@@ -351,12 +351,12 @@ Deferred from v3.0:
 
 ### Out of Scope
 
-- Full-stack web UI (V2 approach) — plugin replaces the need for Next.js/FastAPI/CopilotKit
-- Mobile app — Claude surfaces handle this
-- Real-time collaboration features — Cowork handles this natively
-- Brain graph editing by users — users get intelligence, never see or modify the graph
-- Custom LLM integration — Claude-native only
-- Payment processing in plugin — handled externally via Anthropic marketplace / Stripe
+- Full-stack web UI (V2 approach) - plugin replaces the need for Next.js/FastAPI/CopilotKit
+- Mobile app - Claude surfaces handle this
+- Real-time collaboration features - Cowork handles this natively
+- Brain graph editing by users - users get intelligence, never see or modify the graph
+- Custom LLM integration - Claude-native only
+- Payment processing in plugin - handled externally via Anthropic marketplace / Stripe
 
 ## Context
 
@@ -364,17 +364,17 @@ Deferred from v3.0:
 - MindrianV2: 25 methodology prompts (Python), Larry personality (8 .md files), mode engine, router, 18 skills
 - MindrianOS: 16 Claude Desktop project specs with full methodology definitions, 5 design docs, grading rubrics
 - Brain: Neo4j Aura with 27,904 nodes, 19,987 relationships, 12,485 Pinecone embeddings -- deployed as MCP server at brain.mindrian.ai
-- ICM paper (2603.16021v2): Interpretable Context Methodology — folder structure as orchestration
+- ICM paper (2603.16021v2): Interpretable Context Methodology - folder structure as orchestration
 - GSD patterns from ~/.claude/get-shit-done/ for state management
 
 **Architecture decisions:**
 - ICM-native: no framework code, folder structure IS orchestration
-- "Configure the factory, not the product" — Layer 3 (reference/factory) is the IP, Layer 4 (working artifacts) is user's work
+- "Configure the factory, not the product" - Layer 3 (reference/factory) is the IP, Layer 4 (working artifacts) is user's work
 - Every output is an edit surface; plain text as universal interface
 - Fresh subagent contexts prevent context rot (GSD pattern)
 
 **Distribution:**
-- Anthropic marketplace — anyone with Claude can install
+- Anthropic marketplace - anyone with Claude can install
 - Break-even on Brain tier: 5-17 subscribers at $9/month
 
 ## Constraints
@@ -383,22 +383,21 @@ Deferred from v3.0:
 - **No server infrastructure**: runs entirely in Claude's environment; only the optional Brain MCP is remote.
 - **Brain IP protection**: the teaching graph, grading intelligence, and mode-engine calibration are proprietary, served via MCP, never distributed.
 - **Three surfaces**: every feature works across CLI, Desktop, and Cowork without surface-specific code.
-- **Reuse before build**: port and repoint existing assets (25 prompts, Larry, mode engine) before building net-new.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| ICM-native architecture | Folder structure as orchestration eliminates framework code; paper-backed methodology | — Pending |
-| GSD state management | STATE.md per room with master aggregation; proven pattern from GSD | — Pending |
-| Brain as remote MCP | IP stays on server; users get intelligence not data; MCP is Claude-native | — Pending |
-| LazyGraph optional | Enhances but never required; graceful degradation; Neo4j Aura Free is zero cost | — Pending |
-| Tier 0 fully functional | Free tier works completely; Brain adds enrichment not gatekeeping | — Pending |
-| Pipeline chaining through Room | Week 7 pattern; output becomes structured input; Room drives routing | — Pending |
-| Larry as default agent | Immediate personality; zero-config experience; mode engine differentiates | — Pending |
-| Three-surface compatibility | Same plugin, same workspace, same CLAUDE.md; Cowork gets 00_Context/ | — Pending |
-| One-command install | Zero config required; Larry talks immediately; optional enhancements later | — Pending |
-| Factory/Product separation | Layer 3 = IP (factory), Layer 4 = user work (product); clean ownership boundary | — Pending |
+| ICM-native architecture | Folder structure as orchestration eliminates framework code; paper-backed methodology | - Pending |
+| GSD state management | STATE.md per room with master aggregation; proven pattern from GSD | - Pending |
+| Brain as remote MCP | IP stays on server; users get intelligence not data; MCP is Claude-native | - Pending |
+| LazyGraph optional | Enhances but never required; graceful degradation; Neo4j Aura Free is zero cost | - Pending |
+| Tier 0 fully functional | Free tier works completely; Brain adds enrichment not gatekeeping | - Pending |
+| Pipeline chaining through Room | Week 7 pattern; output becomes structured input; Room drives routing | - Pending |
+| Larry as default agent | Immediate personality; zero-config experience; mode engine differentiates | - Pending |
+| Three-surface compatibility | Same plugin, same workspace, same CLAUDE.md; Cowork gets 00_Context/ | - Pending |
+| One-command install | Zero config required; Larry talks immediately; optional enhancements later | - Pending |
+| Factory/Product separation | Layer 3 = IP (factory), Layer 4 = user work (product); clean ownership boundary | - Pending |
 
 ## Evolution
 
@@ -413,12 +412,12 @@ This document evolves at phase transitions and milestone boundaries.
 
 **After each milestone** (via `/gsd:complete-milestone`):
 1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
+2. Core Value check - still the right priority?
+3. Audit Out of Scope - reasons still valid?
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-14 after Phase 126 (install-lifecycle-harness-gaps) completed — Wave 1 of `.planning/v1.13.1-EXECUTION-PLAN.md`. 7/7 plans shipped: renderer contract (Plan 01), marketplace-cache semver-prerelease ordering (Plan 02), acceptance-gate self-coverage (Plan 03), release-pipeline hardening with install-minisite HARD lockstep Step 9.6 + tag-push verify Step 5.5 + npx self-test Step 9.7 + Step 9.6→9.8 rename (Plan 04, the capstone), release-flight preflight absorbed into doctor --acceptance (Plan 05, caught + cleaned 2 orphan .bak files in the dev workspace during its own cut — Canon Part 6 dog-fooding in action), stale-backup cache prune with 30-day default (Plan 06), and install-state.json v1→v2 additive migration with future-version-warn-not-downgrade invariant (Plan 07). Pre-existing acc.5 ordering failure RESOLVED via Plan 04 rename. Family pre-mortem doc shipped at `docs/install-cache-family-premortem.md` (6-case history + 5 predicted next failure modes including Prediction E that retires the hardcoded minisite line-numbers via `NEXT_PUBLIC_MINDRIAN_VERSION` env var in v1.14.0+). Memory rule `feedback_install_minisite_lockstep.md` promoted from Soft to HARD tier. Verifier: 9/9 must-haves passed; status: human_needed (3 items in 126-HUMAN-UAT.md require live beta.15 release-cut observation — Step 9.6 end-to-end, tester upgrade path, Vercel live-deploy). Ships AS v1.13.0-beta.15 once `release.sh --prerelease` cuts; minisite repo `~/mindrianos-install-site/` needs one-time `git remote add origin <url> && git push -u origin main` bootstrap on first cut per Open Question 7 settlement. Next per v1.13.1-EXECUTION-PLAN.md: Wave 2 = Phase 118 (30-second-MVA, Part 10 sub-claim 3) → Phase 121 (trajectory-telemetry, parallel) → Phase 119 (room-as-receipt-invariant, depends on 118) → Phase 120 (breakthrough-scan-Category-G, parallel; depends only on 117 which shipped). v1.13.0 final closes with Wave 3 Phase 121.5 (terminal-coherence capstone, CONSOLIDATION ONLY per Canon Part 7). v1.13.1-beta.1 = Phase 127 (Brain MCP local stdio shim — the architectural anchor; design-locked 2026-05-14).*
+*Last updated: 2026-05-14 after Phase 126 (install-lifecycle-harness-gaps) completed - Wave 1 of `.planning/v1.13.1-EXECUTION-PLAN.md`. 7/7 plans shipped: renderer contract (Plan 01), marketplace-cache semver-prerelease ordering (Plan 02), acceptance-gate self-coverage (Plan 03), release-pipeline hardening with install-minisite HARD lockstep Step 9.6 + tag-push verify Step 5.5 + npx self-test Step 9.7 + Step 9.6→9.8 rename (Plan 04, the capstone), release-flight preflight absorbed into doctor --acceptance (Plan 05, caught + cleaned 2 orphan .bak files in the dev workspace during its own cut - Canon Part 6 dog-fooding in action), stale-backup cache prune with 30-day default (Plan 06), and install-state.json v1→v2 additive migration with future-version-warn-not-downgrade invariant (Plan 07). Pre-existing acc.5 ordering failure RESOLVED via Plan 04 rename. Family pre-mortem doc shipped at `docs/install-cache-family-premortem.md` (6-case history + 5 predicted next failure modes including Prediction E that retires the hardcoded minisite line-numbers via `NEXT_PUBLIC_MINDRIAN_VERSION` env var in v1.14.0+). Memory rule `feedback_install_minisite_lockstep.md` promoted from Soft to HARD tier. Verifier: 9/9 must-haves passed; status: human_needed (3 items in 126-HUMAN-UAT.md require live beta.15 release-cut observation - Step 9.6 end-to-end, tester upgrade path, Vercel live-deploy). Ships AS v1.13.0-beta.15 once `release.sh --prerelease` cuts; minisite repo `~/mindrianos-install-site/` needs one-time `git remote add origin <url> && git push -u origin main` bootstrap on first cut per Open Question 7 settlement. Next per v1.13.1-EXECUTION-PLAN.md: Wave 2 = Phase 118 (30-second-MVA, Part 10 sub-claim 3) → Phase 121 (trajectory-telemetry, parallel) → Phase 119 (room-as-receipt-invariant, depends on 118) → Phase 120 (breakthrough-scan-Category-G, parallel; depends only on 117 which shipped). v1.13.0 final closes with Wave 3 Phase 121.5 (terminal-coherence capstone, CONSOLIDATION ONLY per Canon Part 7). v1.13.1-beta.1 = Phase 127 (Brain MCP local stdio shim - the architectural anchor; design-locked 2026-05-14).*
 
 *Prior: 2026-05-13 after Phase 124 (FEYNMAN.md temporal awareness) completed -- the **Larry-explains face of `memory_event`** is now live. Each `FEYNMAN.md` (per-folder Phase-88 memory triple member) gains a sentinel-bounded `## Timeline (auto)` section regenerated from the Phase 109 `memory_event` log via the navigation chokepoint (the new `lib/core/navigation/insights.cjs::firstCapturedLastTouchedBySection` + `findRecentChanges` + `findStaleDecisions`); body BYTE-PRESERVED across regen (hard invariant). `lib/core/feynman/timeline-renderer.cjs` is the pure renderer (no fs, no Brain calls); `lib/core/feynman/timeline-runner.cjs` is the orchestrator with sentinel-bounded merge + atomic write + watermark check + idempotent re-run + `memory_event` log on success/failure. Hybrid hook trigger: `scripts/session-start` cascade slot (best-effort `|| true`, mirrors cache-prune) + manual `/mos:feynman-timeline-refresh [--all | --section <slug>]` command (Phase 122 frontmatter + Phase 104 `serves_jtbd: ["validate-idea", "audit-room"]`). `EVENT_TYPES` += `feynman_timeline_refreshed` / `feynman_timeline_refresh_failed` (additive +2; Phase 116-00 pattern). Canon Part 9 invariant test enforces: renderer + runner + dispatcher source has NO `brain-client` require / NO `fetch`/`http`/`https`; fs-instrument adversarial verified the runner reads only `FEYNMAN.md`/`room.db`-shaped paths. `docs/CANON-PHASE-MAP.md` Part 9 + version history rows added; `docs/MINDRIAN-CANON.md` Part 9 "Implementing phase" cross-references Phase 124 alongside Phase 109. Verification: 10/10 must-haves passed; `bash tests/run-all-124.sh` 4/4 green (20 assertions); `phase complete 124` ran with zero warnings. Ships in v1.13.0-beta.14 naturally (no version bump needed -- additive Larry-explains surface).
 
