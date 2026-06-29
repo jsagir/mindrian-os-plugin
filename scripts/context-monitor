@@ -866,7 +866,17 @@ process.stdin.on('end', () => {
       twoRow = twoRowRenderer.renderRow1(rowState);
     }
 
-    process.stdout.write(cockpitLine ? cockpitLine + '\n' + twoRow : twoRow);
+    // Navigator-LOCKED 2026-06-29: emit ONE navigator line -- the four-tier cockpit
+    // with the MindrianOS version trailing the Tier-4 chip (after the risk chip /
+    // "save soon"). The two-row identity/situation block + the 📊 progress bar are
+    // RETIRED from the render (hierarchy, not a pile). Claude Code's own native line
+    // (accept-edits / shift+tab) is emitted by the host below this and is untouched.
+    // twoRow remains ONLY as the degraded-install fallback (cockpit machinery absent)
+    // so the bar is never blank.
+    const verSuffix = (rowState && rowState.current_version && rowState.current_version !== 'unknown')
+      ? ' · v' + rowState.current_version
+      : '';
+    process.stdout.write(cockpitLine ? cockpitLine + verSuffix : twoRow);
   } catch (e) {
     // Phase 187 -- graceful fallback: NEVER blank the statusline, even on
     // malformed stdin. Emit a minimal safe navigator cockpit line (the renderer
