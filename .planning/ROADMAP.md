@@ -3284,8 +3284,18 @@ Room memory writes are today largely IMPLICIT - Larry files nuggets/claims/edges
 - **Acceptance:** a turn/meeting/grade with >=2 candidate memories surfaces an F.8 governance basket; one confirm writes N typed edges through navigation.cjs; toggled-OFF writes NOT_REMEMBERED_BECAUSE; multi-section soft-edits / multi-session conflicts surface an F.9 ordered reconcile; WHO/layer is explicit; nothing remembered pre-confirm; frozen scalars unchanged; no em-dashes; Part 8 clean.
 - **Provenance:** navigator-directed 2026-06-30 (Shape-F explainer session); promoted from `.planning/seeds/SEED-040-hitl-memory-governance.md`. NEXT: `/gsd-discuss-phase 189` (after F.8/F.9 machinery exists).
 
+### Phase 190 - Shape F Declaration Mandate (shape-f-declaration-mandate) - REGISTERED 2026-06-30 - **CANONICAL RULING**
+
+**Class:** CANON + CODE + PROCESS | **Priority:** P0 (canonical ruling - governs every future surface) | **Depends on:** Canon Part 11 (CIRS born-wired gate), Part 3 (Shape F), Phase 125 (f-selector-ranker), Phase 121.5 (body_shape orthogonality), Phase 188 (F.8)
+
+Adds the THIRD born-clause to Canon Part 11 (CIRS today: every invocable surface is born WIRED or EXCLUDED): **every invocable surface is also born with a DECLARED HITL SHAPE.** Any command/agent/pipeline/framework that reaches a genuine fork MUST declare in frontmatter which Shape F fires at its close (`hitl_shape: F.x`) and WHY (`hitl_why:`, one Feynman line), justified against the decision rule (ordered -> F.9/F.2; independent set -> F.8; branches -> F.5; single -> F.1/F.0; depth -> F.3; harvest -> F.4; plan/JTBD -> F.6; reaches -> F.7). The build FAILS CLOSED if a forking surface ships without a declared shape - mirroring the born-wired R1/R2 gate. This makes navigator authority structural and un-skippable: it prevents a future command from quietly deciding FOR the navigator (the GIX single-select-over-a-set bug that motivated Phase 188).
+- **Enforcement:** new `scripts/check-shape-declaration.cjs --check` (release-gate wired) fails on a missing OR f-selector-ranker-contradicting declaration; `body_shape` (layout) and `hitl_shape` (selector) stay orthogonal per Phase 121.5 decision 4. GSD wiring: `/gsd-discuss-phase` auto-asks the HITL-shape gray-area for command-introducing phases; `/gsd-plan-phase` template + `gsd-plan-checker` require it; `/gsd-verify` confirms shipped == planned.
+- **Backfill is cheap:** the full command->shape + framework->shape map already exists (the Shape-F explainer https://mindrian-f-shapes.vercel.app + this session's catalog: 103 commands, ~140 frameworks, the agents, the synthetic-expert surfaces).
+- **Canon:** Part 11 third born-clause + Appendix-D entry, navigator-gated; rides the entry-31 posture released in Phase 188; frozen Part 3 scalars (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15) UNCHANGED - mandates declaration, does not touch the shapes; Part 8 clean (LOCAL frontmatter, zero Brain wire); no em-dashes.
+- **Provenance:** navigator-directed 2026-06-30 ("any new command introduced to MindrianOS forever should declare its HITL F.shape and why, as a canonical ruling system enforced in GSD"). Promoted from `.planning/seeds/SEED-041-shape-f-declaration-mandate.md`. NEXT: `/gsd-discuss-phase 190`.
+
 ## Dependency graph
-189 (memory governance) depends-on 188 (F.8) + the F.9 seed (prerequisite machinery).
+190 (Shape F declaration mandate) is canonical/process - lands independently; backfill rides the existing catalog. 189 (memory governance) depends-on 188 (F.8) + the F.9 seed (prerequisite machinery).
 180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).
 
 ## Folded seeds
