@@ -3273,7 +3273,19 @@ When a reach/gate output is a SET of independent, non-mutually-exclusive actions
 - **Acceptance:** a multi-select toggleable card renders via the SEED-020 door + passes the R15 gate; each toggled item files an independent typed edge on confirm (Part 4); nothing material runs pre-confirm (Part 3 / runChain Phase 166); the Part 3 Shape-F amendment is ratified navigator-gated before code lands; frozen Part 3 scalars unchanged; CLAUDE.md Part-3 line remains accurate with no added bloat; no em-dashes; Part 8 clean (LOCAL render + LOCAL typed edges, zero Brain wire).
 - **Provenance:** navigator-directed 2026-06-29 out of the GIX deep-grade session; promoted from the Phase-178 seed to CRITICAL NEXT in the v1.15.0-beta train. NEXT: `/gsd-discuss-phase 188` (the Part-3 reconciliation is the first gate).
 
+### Phase 189 - Human-in-the-Loop Memory Governance (hitl-memory-governance) - REGISTERED 2026-06-30
+
+**Class:** CODE + CANON | **Priority:** P1 (after F.8/F.9 land - they are prerequisite machinery) | **Depends on:** Phase 188 (F.8 multi-select), the F.9 cascade/reconcile seed, SEED-039 (multi-session reconcile), Phase 109 (navigation.cjs Part-9 chokepoint), LarryReach bank (6 reaches)
+
+Room memory writes are today largely IMPLICIT - Larry files nuggets/claims/edges as a side-effect of conversation, so the navigator gets no structured say over the one thing that compounds: what the graph keeps. This is memory-layer under-invocation. F.8 (multi-select basket) + F.9 (ordered cascade/reconcile) ARE the governance surface; memory governance is not a new primitive, it is F.8/F.9 pointed at the write path. The human owns three decisions: **WHAT** gets written (F.8 basket; >=0.70 pre-checks, never auto-writes; toggled-OFF writes NOT_REMEMBERED_BECAUSE), **HOW** it is stored (per-item section + typed edge + truth-state, F.8 sub-toggles or F.9 cascade), **WHO** it is attributed to + which memory layer (within-session / across-session / cross-room; cross-room promotion never automatic; F.9 reconcile on multi-session conflict per SEED-039).
+- **Wiring (no new write path):** the governance gate inserts at the navigation.cjs Part-9 chokepoint - candidates surface, F.8/F.9 resolves, only confirmed items commit. LarryReach REUSES brain_consult for ranking (mint no 7th reach; SENS-09 precedent). Post-confirm re-enters decide(); runChain (Phase 166) halts on the offer (HITL safe-halt).
+- **Canon hook (navigator-gated):** rides the SAME entry-31 self-binding gate as F.8/F.9 (released for F.8 in Phase 188); new edge-property vocabulary REMEMBERED_AS / ATTRIBUTED_TO / MEMORY_LAYER / NOT_REMEMBERED_BECAUSE (Part 4 additive, no new node label).
+- **Part 8 STRUCTURAL:** WHAT/HOW/WHO over user content is CONTENT-SET (LOCAL only, zero Brain wire for bodies); only generic move handles (MOVE-SET) are Brain-eligible; brain_consult sees hashed/handle-level packets only.
+- **Acceptance:** a turn/meeting/grade with >=2 candidate memories surfaces an F.8 governance basket; one confirm writes N typed edges through navigation.cjs; toggled-OFF writes NOT_REMEMBERED_BECAUSE; multi-section soft-edits / multi-session conflicts surface an F.9 ordered reconcile; WHO/layer is explicit; nothing remembered pre-confirm; frozen scalars unchanged; no em-dashes; Part 8 clean.
+- **Provenance:** navigator-directed 2026-06-30 (Shape-F explainer session); promoted from `.planning/seeds/SEED-040-hitl-memory-governance.md`. NEXT: `/gsd-discuss-phase 189` (after F.8/F.9 machinery exists).
+
 ## Dependency graph
+189 (memory governance) depends-on 188 (F.8) + the F.9 seed (prerequisite machinery).
 180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).
 
 ## Folded seeds
