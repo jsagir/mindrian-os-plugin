@@ -102,11 +102,12 @@ const generator = require('./build-render-coverage.cjs');
 // this set off the dispatcher's F_SUBSHAPES, which mixes the F.7-dial variant).
 const CANONICAL_SHAPES = Object.freeze(['F.0', 'F.1', 'F.2', 'F.3', 'F.4', 'F.5', 'F.6', 'F.7', 'F.8', 'F.9']);
 
-// WAVE-ORDER gate (Pitfall 6): the ASSERTION set. F.8/F.9 renderers do not exist yet
-// (Wave C / 188-07 lands them), so asserting them NOW would fail the gate closed
-// mid-phase. This plan asserts F.0-F.7 ONLY; 188-07 flips this to the full
-// CANONICAL_SHAPES once the F.8/F.9 renderers + branches land.
-const SHAPES_UNDER_ASSERTION = Object.freeze(['F.0', 'F.1', 'F.2', 'F.3', 'F.4', 'F.5', 'F.6', 'F.7']);
+// WAVE-ORDER gate (Pitfall 6): the ASSERTION set. 188-03 asserted F.0-F.7 ONLY while
+// the F.8 (188-06) and F.9 (188-07) renderers + dispatch branches were still unbuilt.
+// Both have now landed, so 188-07 FLIPS this to the FULL closed ten F.0-F.9: every
+// canonical shape now resolves a renderer module AND a `requestedShape === 'F.x'`
+// dispatch branch, and the per-shape gate is fully GREEN over the complete set.
+const SHAPES_UNDER_ASSERTION = Object.freeze(CANONICAL_SHAPES.slice());
 
 // The shape -> renderer-module map. Each canonical shape resolves to the module the
 // dispatcher safeRequires for it (selector-dispatcher.cjs:681-771). F.7 = the DIAL
