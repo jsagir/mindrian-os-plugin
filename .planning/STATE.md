@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 188-01-PLAN.md (SFS-06 breakthrough collapse)
-last_updated: "2026-07-01T13:39:15.597Z"
+stopped_at: Completed 200-01-PLAN.md (SEED-018 RS corpus-quality bug fix)
+last_updated: "2026-07-01T16:20:00.000Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 16
@@ -16,7 +16,16 @@ progress:
 
 # Project State
 
-## Latest (2026-06-28) -- ALL FIVE NAVIGATOR-DIRECTED PHASES COMPLETE; CUTTING v1.15.0-beta.9
+## Latest (2026-07-01) -- PHASE 200 Plan 01 COMPLETE -- SEED-018 RS corpus-quality bug fix (H1 + H2 + H3)
+
+The SEED-018 degenerate-output bug is closed at both root causes, and locked against regression. This plan resumed after Tasks 1-2 (H1) had shipped in a prior session; this session finished Tasks 3-4 (H2 + H3) under navigator approval.
+
+- **H1 (Tasks 1-2, shipped `a50044e2` prior session):** the room-artifact walk lives in THREE Python walkers (rs_hybrid.py, rs_rooms.py, scripts/rs-engine.py), each with its OWN drifted `SKIP_DIRS` copy -- scripts/rs-engine.py had `.heal-backup` (Phase 140-02) but the other two did not, so `--mode hybrid` walked into `.heal-backup` and inflated room_count to 706. THE DRIFT WAS THE BUG. Fix: one shared source `lib/core/rs_corpus_exclude.py` imported by all three (no local literal), extended with the SEED-018 tokens. This is the GROUNDED correction to the original plan, which had targeted `research-corpus.cjs` / a `CORPUS_EXCLUDE` / `isExcludedCorpusPath` surface -- the wrong site (research-corpus.cjs is an external fetcher and never touches room_count). `tests/test-200-corpus-exclude.sh` green.
+- **H2 (Task 3, `d1b15623`):** the semantic-floor gate. External fetch is keyword-matched, so an atmospheric-remote-sensing paper scores high on a "multi-user team collaboration" topic on shared keywords alone; ungated it swamps the differential. Added additively at BOTH sites, keyed off `SEMANTIC_FLOOR` (default 0.15, tunable via `RS_SEMANTIC_FLOOR`): `lib/core/rs_corpus.py` gains `semantic_gate` + a `fetch_external` wrapper over fetch_corpus (backward compatible); `lib/core/rs-differential-scorer.cjs` gains `passesSemanticFloor` + `gateCandidatesBySemanticFloor` reusing rs-pinecone-bridge.cosineSimilarity (Part 7), appended WITHOUT touching the existing dual-floor score() logic (shared surface with the concurrent Phase-205 branch -- re-read immediately before editing). Off-topic candidates are dropped BEFORE the unified matrix.
+- **H3 (Task 4, `8632e930`):** the non-degenerate regression fixture. `tests/fixtures/rs-corpus/known-good-topic.json` (overlapping-but-distinct room artifacts + a topic with a non-degenerate expected_pair_shape) + an assertion in `tests/test-200-corpus-quality.cjs` that NOT every pair collapses to the boundary extreme (semantic 0.0 / lsa 1.0 / signed_diff -1.0) -- the literal SEED-018 symptom.
+- All new tests run OFFLINE with a deterministic fixed-vocabulary stub encoder -- no Brain, no live model, no network (Canon Part 8). `node tests/test-200-corpus-quality.cjs` = 6 assertions green; `bash tests/test-200-corpus-exclude.sh` green. Self-check PASSED (4 files + 3 commits verified). No em-dashes. H4/H5 (threshold ordering / encoder swap) remain deferred to the embedding-spine decision D-200-1 (Plans 200-02/03). SUMMARY: `.planning/phases/200-rs-engine-spine-corpus/200-01-SUMMARY.md`. NEXT: Phase 200 Plans 02/03 (RS spine + expert-graph reconcile; wire a topic embedding + encoder through so the H2 gate goes live in production).
+
+## Prior (2026-06-28) -- ALL FIVE NAVIGATOR-DIRECTED PHASES COMPLETE; CUTTING v1.15.0-beta.9
 
 Navigator green light (2026-06-28): complete all remaining v1.15.0 phases, then cut a new beta with the full release ceremony. The navigator directed ALL FIVE into the cut -- 182.1, 184, 185, 186, 187 -- reversing the earlier keep-184/185-deferred decision. The milestone tops out at 187 (no 188-190 exist).
 
@@ -1047,6 +1056,9 @@ Progress: [█████████░] 92%
 | Phase 194 P07 | 18 | 3 tasks | 5 files |
 | Phase 195 P01 | 18min | 2 tasks | 6 files |
 | Phase 195 P02 | 8min | 2 tasks | 7 files |
+| Phase 195 P03 | 42min | 3 tasks | 8 files |
+| Phase 195 P05 | 22min | 3 tasks | 6 files |
+| Phase 195 P06 | 10 min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -1951,6 +1963,13 @@ Progress: [█████████░] 92%
 - [Phase ?]: SEED-004 closed: targetRoomUnderRoot walk-up to deepest .room-root + registry reverse-match resolves the registered nested slug; fail-open preserved; cross-nested writes still BLOCK
 - [Phase ?]: Reused coverage-rollup DEPTH_CAP for the fractal reconcile walk (no second depth constant)
 - [Phase ?]: DRIFT registered as the 7th memory kind in code (writer accept-set + readSextuple); canon 6->7 amendment stays gated
+- [Phase 195]: Born-wired path is opt-in (opts.bornWired) so self-heal + top-level births stay byte-unchanged
+- [Phase 195]: NESTED_WITHIN written inside the STEP-2 ACID block; edge failure throws to trigger ROLLBACK + fs cleanup
+- [Phase 195]: Sub-room birth rejection recorded as subroom_birth_rejected memory_event in the parent room.db (rejection-is-data)
+- [Phase ?]: 195-05: shared_entity relevance 0.68 sits below the frozen 0.70 so a bare entity overlap never auto-pre-checks
+- [Phase ?]: 195-05: NOT_LINKED_BECAUSE persists to a separate registry rejection ledger, leaving the Plan-04 UMBILICAL_TO store untouched
+- [Phase ?]: 195-05: resumeTrigger is a cheap presence-only decision; the aggregator runs only on fire (T-195-17 DoS mitigation)
+- [Phase ?]: 195-06 (FCM-08): DRIFT ratified as the 7th per-folder memory kind under navigator authority; Part 9 six to seven, canon v1.21 to v1.22, frozen scalars untouched, no Brain wire.
 
 ### Pending Todos
 
@@ -1991,8 +2010,8 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-07-01T13:38:30.959Z
-Stopped at: Completed 188-01-PLAN.md (SFS-06 breakthrough collapse)
+Last session: 2026-07-01T14:55:29.085Z
+Stopped at: Completed 195-05-PLAN.md (cross-room umbilical cord)
 
 **Phase 183 Plan 01 (this session):** METER-01 gate-exposure + the Gauge-1 invocation-density reader, the build-first keystone of the v1.15.0 "Cure Under-Invocation" milestone. Task 1 (0d08fff3, test): the phase Wave-0 scaffold -- 5 meter RED pins (gate-reach, density, event-types-floor for Plan 01; transfer, two-gauge-weld for Plan 02) + tests/run-all-183.sh mirroring run-all-180.sh (5 node pins + the Part 8 grep-sweep over lib/core/meter/ and a BOUNDED gate_reached emit-seam window + the reach-ids/posture-ids drift fences). Task 2 (e0d46f51, feat): gate_reached added to the frozen EVENT_TYPES Set via the verbatim additive idiom (86 -> 87, mirrors the Phase 181-01 1-string precedent) + ONE gate_reached emit at scripts/intent-classifier.cjs beside the live reach_presented loop on the surface-shared engine arm, guarded by offered.length > 0, deduped on the turn-start handle (startedAt) with logEvent's 60s idempotency so a re-entrant arm cannot double-count; payload enum/scalar only (reach_count/routing_source/source_path/created_by/dedupe_key). Task 3 (3d650ede, feat): lib/core/meter/gate-density-reader.cjs -- computeInvocationDensity counts gate_reached + reach_presented + framework_invoked via navigation.findRecentChanges; density basis leans on reach_presented + gate_reached (framework_invoked verified UN-emitted at any production site today -- Open Question 1; carried as an additive term reading ~0); denominator_unit = 'gate_reached' (Open Question 2); roomState injection seam for db-free reads; cold-starts to a zeroed object, never throws, opens no db, makes no remote call; no bare-density export (T-183-04). run-all-183.sh 6/8 (the 2 RED are the Plan-02 transfer + two-gauge-weld pins BY DESIGN). The ONLY frozen-set change is the single gate_reached string; no new reach/node/edge/posture; frozen render contracts (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 gate, 6-reach bank, appendAskUserQuestionTrailer) untouched; Part 8 sweep clean; no em-dashes. One deviation (Rule 1, test-comment only): reworded a floor-test header comment that carried a literal ".size" token so the Task-1 grep-c acceptance returned 0; zero production impact. Next: Phase 183 Plan 02 (METER-02 transfer proxies + the welded two-gauge read) turns the 2 remaining RED pins green. See .planning/phases/183-meter-gate-exposure-transfer/183-01-SUMMARY.md.
 

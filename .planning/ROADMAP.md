@@ -3413,9 +3413,11 @@ Plans:
 - [x] 194-06-reconcile-lost-update-PLAN.md - Wave 4: last_modified_at repair + reconcile-guard + F.9 adapter (A1/A4 correction)
 - [x] 194-07-health-lifecycle-PLAN.md - Wave 5: doctor --bind-check + presence teardown BOTH + one-key reassign
 
-### Phase 195: Fractal + Cross-Room Memory (fractal-cross-room-memory) - REGISTERED 2026-07-01
+### Phase 195: Fractal + Cross-Room Memory (fractal-cross-room-memory) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-01**
 
 **Class:** CODE + CANON | **Priority:** P1 (the ICM fractal memory charter) | **Depends on:** Phase 194 (session binding), Phase 109 (chokepoint), the SEED-020 card door (F.8 gate from Phase 188)
+
+- **Status:** COMPLETE 2026-07-01 (6 plans / 6 waves, harness-as-code). Phase gate `bash tests/run-all-195.sh` = 13 passed / 0 failed / 0 skipped, exit 0; 195-VERIFICATION.md status: passed. The ICM fractal memory contract (SEED-022, folds SEED-001) + the cross-room umbilical cord (SEED-044) ship: (1) SEED-004 residual closed (write-scope-check targetRoomUnderRoot walk-up + registry reverse-match) - the born-wired-birth precondition; (2) reconcileMemoryArtifacts recurses ROOM.md-bearing dirs to DEPTH 3 (reuses coverage-rollup DEPTH_CAP, idempotent, depth-4 not projected, Part 11 R11 + Appendix D entry 23 aggregate-scalar-only); (3) .umbilical v2 inheritance map (flows-down USER + BRAIN-anchors-generic-only; locally-owned STATE/MINTO/FEYNMAN); (4) born-wired fail-closed sub-room birth = SEED-001's 5 side-effects VERBATIM + 6-file seeding, atomic with compensating rollback + a human-approval gate before mkdir + NESTED_WITHIN in the ACID block; (5) DRIFT.md = the 7th memory kind (code: BASENAME_TO_KIND + readSextuple; distinct from the .planning/DRIFT.md audit baseline, reconciler never walks .planning/); (6) cross-room UMBILICAL_TO peer-edge (additive to ALLOWED_EDGE_TYPES beside 205's SHARES_JOB/ELEVATES_TO) + a registry-level cross-room store + room-deletion reap; (7) the cross-room-aggregator relevance emitter (LOCAL, 4-tripwire fence intact, scalar+slug only) -> Phase-188 F.8 gate (0.70 pre-check, 1 confirm -> N UMBILICAL_TO, OFF -> NOT_LINKED_BECAUSE) + 3 triggers (room-open / resume-if-siblings-changed via 194 presence / mid-work). NAVIGATOR-GATED canon amendment (FCM-08): DRIFT.md 6->7 memory complement navigator-APPROVED at the Wave-5 blocking checkpoint BEFORE any canon byte; ratified atomically (Part 9 six->seven + Appendix D entry + CANON-PHASE-MAP row + floor-flip to assert 7), canon v1.21 -> v1.22. Frozen scalars byte-identical; ONE new edge + ONE new memory kind (Part 7 composition); Part 8 clean (zero Brain wire; DRIFT/umbilical/cross-room LOCAL only); no em-dashes. Commits: 195-01 seed004 (cc8789f9/ed530b63) -> 195-02 reconciler+DRIFT (11dab59f/9d6d8e1f) -> 195-03 umbilical+birth (8f1e2efc/f2b6c275/9f098b2c) -> 195-04 edge+store (a1ac61d7/781901b9/a4eba0cf) -> 195-05 crossroom cord (59f41661/cb8010f9/fbf4cd07) -> 195-06 canon (2abfe2c0, APPROVED). Branch feat/v1.15-shape-brain-phases; stacked cleanly over the parallel Phase-205 session.
 
 Cluster A charter. Implements the ICM fractal memory contract (SEED-022, folds SEED-001): identity-begets-memory, the 6-file complement to depth 3, `.umbilical` as the inheritance channel, born-wired / fail-closed sub-room birth (the 5 atomic side-effects), DRIFT.md as the 7th memory kind. PLUS the cross-room umbilical cord (SEED-044): an F.8 gate that links relevant items across rooms as typed UMBILICAL_TO edges, LOCAL only, cross-room promotion never automatic.
 
@@ -3423,14 +3425,14 @@ Cluster A charter. Implements the ICM fractal memory contract (SEED-022, folds S
 - **Canon:** Part 8 (LOCAL only; the Brain may suggest the TEMPLATE "scan own other rooms" but the local layer writes the edges, zero Brain wire), Part 9, Part 11 (born-wired sub-room). No em-dashes.
 - **Provenance:** Cluster-A graduation from SEED-022 (+ folded 001) + SEED-044. NEXT: `/gsd-execute-phase 195`.
 
-**Plans:** 2/6 plans executed
+**Plans:** 6/6 plans complete
 
 - [x] 195-01-seed004-foundation-PLAN.md - Wave 0: SKIP-safe run-all-195.sh + two FLOORs + shared depth-3 fixture + SEED-004 residual write-scope fix (gates born-wired birth)
 - [x] 195-02-recursive-reconciler-drift-code-PLAN.md - Wave 1: FCM-01/02 depth-3 recursive reconciler + FCM-07 DRIFT code registration (BASENAME_TO_KIND + readSextuple), no canon bytes
-- [ ] 195-03-umbilical-v2-born-wired-birth-PLAN.md - Wave 2: FCM-03/04 .umbilical v2 inheritance + FCM-05/06 born-wired fail-closed birth (5 SEED-001 side-effects verbatim, pre-mkdir gate)
-- [ ] 195-04-umbilical-edge-registry-store-PLAN.md - Wave 3: FCM-11 mint UMBILICAL_TO + registry-level cross-room store + room-deletion reconcile
-- [ ] 195-05-crossroom-cord-f8-triggers-PLAN.md - Wave 4: FCM-09 relevance emitter + FCM-10 F.8 gate (1 confirm -> N edges) + FCM-12 three triggers (rides 194 presence)
-- [ ] 195-06-canon-7th-kind-amendment-PLAN.md - Wave 5: FCM-08 navigator-gated canon 6->7 amendment (blocking checkpoint, atomic lockstep)
+- [x] 195-03-umbilical-v2-born-wired-birth-PLAN.md - Wave 2: FCM-03/04 .umbilical v2 inheritance + FCM-05/06 born-wired fail-closed birth (5 SEED-001 side-effects verbatim, pre-mkdir gate)
+- [x] 195-04-umbilical-edge-registry-store-PLAN.md - Wave 3: FCM-11 mint UMBILICAL_TO + registry-level cross-room store + room-deletion reconcile
+- [x] 195-05-crossroom-cord-f8-triggers-PLAN.md - Wave 4: FCM-09 relevance emitter + FCM-10 F.8 gate (1 confirm -> N edges) + FCM-12 three triggers (rides 194 presence)
+- [x] 195-06-canon-7th-kind-amendment-PLAN.md - Wave 5: FCM-08 navigator-gated canon 6->7 amendment (blocking checkpoint, atomic lockstep)
 
 ### Phase 196: Part-8 Runtime SLM Boundary Guardrail (part8-runtime-slm-guardrail) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-01** - **GATES 191/193**
 
@@ -3495,6 +3497,11 @@ Cluster E. Reconcile the Reverse-Salient pipeline onto the connector/runChain sp
 - **Canon:** Part 7 (reuse the spine + rs-experts substrate), Part 8. No em-dashes.
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for RS corpus degenerate-output regression. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-E graduation from SEED-030 + SEED-018. NEXT: `/gsd-discuss-phase 200`.
+
+**Progress (1 of 3 plans):**
+- [x] 200-01-PLAN.md -- SEED-018 corpus-quality bug fix. COMPLETE 2026-07-01. H1 (single-source exclude-list, kill walker drift) shipped via the grounded exclude-drift correction: three Python walkers (rs_hybrid.py, rs_rooms.py, scripts/rs-engine.py) import ONE shared `lib/core/rs_corpus_exclude.py`, killing the .heal-backup 706-inflation (a50044e2; NOT the originally-planned research-corpus.cjs site -- traced root cause was walker SKIP_DIRS drift). H2 (semantic-floor gate, default 0.15, tunable via RS_SEMANTIC_FLOOR) drops off-topic external returns BEFORE the differential matrix, added additively at both `rs_corpus.py` (semantic_gate + fetch_external wrapper) and the shared `rs-differential-scorer.cjs` (passesSemanticFloor + gate helper, Phase-205 logic untouched) (d1b15623). H3 non-degenerate regression fixture + assertion locks against the boundary-extreme collapse (semantic 0.0 / lsa 1.0 / signed_diff -1.0) (8632e930). Tests: `tests/test-200-corpus-quality.cjs` 6 green + `tests/test-200-corpus-exclude.sh` green; all offline stub-encoder (Canon Part 8). H4/H5 deferred to the embedding-spine decision D-200-1. See 200-01-SUMMARY.md.
+- [ ] 200-02-PLAN.md
+- [ ] 200-03-PLAN.md
 
 ### Phase 201: Harness-as-Code Manifest + Ralph-Loop Runtime (harness-as-code-manifest) - REGISTERED 2026-07-01 - **THE INTEGRATIVE SPINE**
 
