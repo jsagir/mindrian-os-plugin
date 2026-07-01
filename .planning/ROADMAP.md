@@ -3110,6 +3110,7 @@ Plans:
 **Why it is here:** A live v1.15.0-beta.3 repro (statusline-confirmed) showed `/mos:ignite` B1 rendering as a flat ASCII box ("type 1, 2, or 3") instead of firing the interactive selector card - on the SAME build that shipped the Phase 178 R15 render-coverage gate. That is the named **R-1 residual** made concrete: R15 build-fails a gate surface that is not WIRED to emit a card, but it cannot force the model to FIRE the card at runtime. A prose stopgap shipped (commit e22b9ea4) and the agent ignored it - proving a prose fence is not a guarantee. Separately, the navigator wants B1 to stop being solution/domain/venture and become a **persona-first + CV + hypothesis** starting point.
 
 **What it needs to fix (two coupled problems):**
+
 1. **The flat gate (R-1).** Build the **GA-4 PostToolUse card-fire interceptor**: detect a reached-gate turn with no fired AskUserQuestion card and force it. This is the true cure (diagnosed by the render-slip investigation, captured in fanout/render-slip-investigation.json + Phase 178 docs).
 2. **B1 persona + CV + hypothesis redesign.** ONE persona-first B1 with 4 doors - Persona pick (researcher/student/founder-business/operator/investor/domain-expert), CV (Phase 115 dual-path + the deferred CV-second-select multiSelect), Hypothesis (the seeded Phase 174 door + the instances-vs-structures abstraction-level gate), Free-Text - each resolving to {role_blend, blueprintFamily, arrival_asset} threaded into the existing birthRoom contract.
 
@@ -3122,6 +3123,7 @@ Plans:
 **Open decisions (resolve in the SPEC FIRST):** 12, in 179-RESEARCH.md - weighted blend now vs single-axis stub; the abstraction-level Shape F.x gate (highest leverage + risk, domain-neutral fixture, AION specifics stay user-local); reconcile the two B1 specs; widen the scratchpad whitelist; scope the GA-4 interceptor here vs sibling; the hypothesis family section set.
 
 **Plans:** 7 plans across 7 waves (one surface per wave for CI-green lockstep):
+
 - [x] 179-01-PLAN.md -- WAVE 1 (REQ-01): the GA-4 card-fire interceptor (scripts/check-card-fire.cjs, Stop-hook turn-scan, registry-keyed PRIMARY + ASCII-box BACKSTOP, exit-2 block + bounded escape) registered in hooks.json Stop block + tests/run-all-179.sh -- complete 2026-06-24 (commits 1757cc47 RED + c269276e GREEN + 93a6db03 wiring; suite 22/22; run-all-179.sh 5 pass 0 fail 6 skip; render-coverage --check still OK; Stop length 6 additive)
 - [x] 179-02-PLAN.md -- WAVE 2 (REQ-09): widen the writeScratchpadBirthAnswer whitelist (+role_blend +blueprint_family +hypothesis_text); round-trip across a session boundary -- complete 2026-06-25 (commits 5f815954 RED + ef3e41d5 GREEN; tests/test-scratchpad-birth-whitelist-179.cjs 16/16; run-all-179.sh 6 pass 0 fail 5 skip; room-birth.cjs drain byte-unchanged; Part 8 LOCAL sweep clean; no em-dashes)
 - [x] 179-03-PLAN.md -- WAVE 3 (REQ-02/03/12): the canonical persona-first 4-door B1 card in ignite.md (single-axis role_blend, keyboard/checkbox contract via AskUserQuestion, frozen ROLE_BLEND_KEYS imported; birth txn byte-unchanged) -- complete 2026-06-25 (commits d0be4713 RED + c3380f14 GREEN; tests/test-b1-four-door-contract.cjs 23/23; run-all-179.sh 7 pass 0 fail 4 skip; room-birth.cjs byte-unchanged; render-coverage --check OK; no em-dashes; Part 8 LOCAL-clean)
@@ -3136,8 +3138,6 @@ Plans:
 - [x] 179-11 FIX-WAVE (re-review iteration 4 CR-04 BLOCKER -- the TERMINAL bounded-escape cure): the 179-10 gate-content anchor's per-gate key is derived from the GATE content (glyph span + option-label SET), which is MODEL-CONTROLLED -- when the model re-emits the same stuck gate with DIFFERENT option labels each retry (the most natural LLM behavior under the interceptor's own re-emit re-prompt), the per-gate signature FLAPS to a fresh non-empty key every retry, no single key reaches MAX_FORCE_RETRIES, and the bounded escape LIVELOCKS forever; the empty-only floor never catches a flapping non-empty signature (the false :218-220 claim). The FOURTH recurrence of the BL-01/CR-02/CR-03 class. ROOT TRUTH: any key from model-emitted content can be flapped; only the SESSION cannot. FIX: add a SESSION-WIDE intercept ceiling MAX_SESSION_INTERCEPTS=12 keyed on session_id ALONE (content-independent, un-flappable), stored at __session__:<id> in the same TTL-pruned side-file; bump BOTH per-gate AND session on intercept, DEGRADE if EITHER ceiling reached; reset on degrade/no-intercept. Per-gate counter kept for UX; 12=4x MAX_FORCE_RETRIES so the WR-07 two-distinct-gates case per-gate-degrades before the session ceiling. Corrected the false :218-220 comment. FLAPPING-LABELS e2e (distinct per-gate keys each retry, session climbs to 12, DEGRADES at 13 + resets to 0) fails pre-fix (node exit 1, livelock 7+ distinct count:1 keys no degrade) / passes post-fix; realistic-paraphrase bounded; WR-07-coexist stable gate still per-gate-degrades -- complete 2026-06-25 (commit d4676a42; e2e 37->47; unit 22/22; run-all-179.sh 12 pass 0 fail 0 skip; run-all-178 10/10; run-all-172 20/20; live proof side-files 179-11-CR04-prefix-livelock + 179-11-CR04-postfix-session-ceiling; frozen edges/transitions/room-birth byte-unchanged; Part 8 clean -- session_id opaque, scalar count, LOCAL side-file; no em-dashes; BL-01/CR-02/CR-03 stay fixed)
 
 **Status:** PHASE COMPLETE 7/7 + 4 fix-waves (179-08 + 179-09 + 179-10 + 179-11 closed the post-review BL-01, re-review CR-02, iteration-3 CR-03/WR-07/WR-08, and iteration-4 CR-04 blockers on the GA-4 interceptor; the bounded escape now converges on EVERY reachable transcript shape including no-role:user AND under a flapping per-gate key -- the session-wide intercept ceiling is the terminal content-independent convergence floor). All seven plans complete (179-01 Wave 1 / REQ-01: the GA-4 card-fire interceptor; 179-02 Wave 2 / REQ-09: widen the scratchpad birth-answer whitelist; 179-03 Wave 3 / REQ-02+03+12: the canonical persona-first 4-door B1 card; 179-04 Wave 4 / REQ-05+07: the hypothesis blueprint family + truth-claim filing + per-role Door 3 framing; 179-05 Wave 5 / REQ-06: the instances-vs-structures 3-option always-fire abstraction gate + domain-neutral fixture + adversarial neutrality grep gate; 179-06 Wave 6 / REQ-04+08: the CV-second-select multiSelect:true checkbox over extractDomains + arrival auto-fire Engine 1, gate the results; 179-07 Wave 7 FINAL / REQ-10+11: reconcile the two B1 specs + the cross-cutting Part 8 sweep + CIRS R12 close -- shipped 2026-06-25, 3fca23eb). `bash tests/run-all-179.sh` FULLY GREEN (11 pass / 0 fail / 0 skip across all seven waves; no SKIPs remaining). ignite.md is the ONE canonical persona-first B1; new-project.md is the pure B2 scaffold backend it delegates to. NEXT: navigator-gated phase CLOSE + the v1.14.0-beta train merge/release.
-
----
 
 # Milestone v1.15.0 GA -- "Cure Under-Invocation"
 
@@ -3154,6 +3154,7 @@ Plans:
 **Class:** CANON | **Priority:** P0 | **Depends on:** none (leads the milestone) | **Navigator-LOCKED**
 
 The governing act; everything downstream reflects it. Draft Appendix D entry 31: retire the Hooked ratification gate; write the WELDED TWO-GAUGE instrument into Part 5 + Part 10 (Gauge 1 invocation density must rise; Gauge 2 transfer-per-invocation must hold/climb; reported TOGETHER; volume-up-quality-flat AND quality-up-by-starving-volume BOTH log as regressions); keep the Manipulation Matrix; add the self-binding clause (no entry 32 until entry 31 returns a real two-gauge reading from a live navigator on the gate). Lockstep wave + FLOOR test per the canon's own amendment pattern. REQ: CANON-31-01.
+
 - **Acceptance:** entry 31 lands with header/footer version bump + CANON-PHASE-MAP row + floor test green; navigator ratifies at a blocking checkpoint before bytes land.
 
 ### Phase 181 - SEC EvidenceClaim Structural Bar (sec-evidenceclaim-bar) - REGISTERED 2026-06-27
@@ -3161,6 +3162,7 @@ The governing act; everything downstream reflects it. Draft Appendix D entry 31:
 **Class:** CODE | **Priority:** P0 | **Depends on:** none
 
 E1. Add `EvidenceClaim` to `TRUTH_CLAIM_TYPES` (lib/core/navigation/transitions.cjs:42) so promotion is structurally blocked, OR document never-promotable with a structural guard; add an ingest instruction-stripping pass (current sanitizer strips only email/URL PII). REQ: SEC-01, SEC-02.
+
 - **Acceptance:** poison sentinel (tests/test-part8-poison-transcript.cjs:48) cannot reach room.db un-stripped AND an agent-attributed EvidenceClaim confirm is structurally rejected. Vector OPEN today.
 - **Plans:** 1 plan (Wave 1)
   - [ ] 181-01-PLAN.md - SEC-01 EvidenceClaim NON_PROMOTABLE guard (D-181-01, no frozen-set move) + SEC-02 ingest instruction-strip + run-all-181 gate
@@ -3170,19 +3172,22 @@ E1. Add `EvidenceClaim` to `TRUTH_CLAIM_TYPES` (lib/core/navigation/transitions.
 **Class:** CODE | **Priority:** P0 | **Depends on:** Phase 179 (GA-4 interceptor, already shipped)
 
 (a) **F.7 gate always renders -- ALREADY SHIPPED via Phase 179 GA-4 interceptor (7 plans + 4 fix-waves, green 2026-06-25).** This phase VERIFIES and leans on 179, it does NOT rebuild it. (b) **NET-NEW:** every Larry turn wears a De Stijl color mark in the CLI (blue=building, red=challenging, yellow=contradiction, black=gate, white=invisibility) so the navigator can always distinguish Larry from the native host; a turn with no mark is detectable as native-host (Part 12 Voice Signature HARD requirement). REQ: SIGNAL-01 (verify), SIGNAL-02 (voice-color, build).
+
 - **Acceptance:** the R15 render-coverage gate still passes (179 lean); a Larry CLI turn missing its color mark is caught by a test.
+
 **Plans:** 2 plans in 2 waves (planned 2026-06-27)
 
 Plans:
+
 - [x] 182-01-PLAN.md - Wave 1: SIGNAL-01 verify (R15 gate green, lean on 179) + SIGNAL-02 build (lib/hmi/voice-color-mark.cjs + the Voice Signature doctrine on larry-personality/ui-system SKILL.md) -- COMPLETE 2026-06-27 (commit c178b7dc; render-coverage --check green + GA-4 interceptor 22/22; markForMove + detectVoiceMark anchored to the 5 palette.json primaries; doctrine on both surfaces; no new color, frozen contracts untouched, Part 8 LOCAL, no em-dashes)
 - [x] 182-02-PLAN.md - Wave 2: SIGNAL-02 the missing-mark + doctrine-declaration drift test (tests/test-larry-voice-mark-182.cjs) + tests/run-all-182.sh aggregator -- COMPLETE 2026-06-27 (commits 320aa734, c813d0c3; missing-mark turn caught as native-host, MARK_COLORS == 5 palette.json mondrian_* primaries, doctrine asserted on both SKILL surfaces, em-dash self-check; run-all-182.sh 5/5 green: R15 + 179 GA-4 lean + missing-mark + frozen reach-ids(6)/posture-ids(3) fences; no frozen contract touched, Part 8 LOCAL, no em-dashes). Phase 182 COMPLETE.
-
 
 ### Phase 182.1 - SIGNAL Voice-Glyph Repair (signal-voice-glyph-repair) - REGISTERED 2026-06-28
 
 **Class:** CODE | **Priority:** P0 (dogfood repair) | **Depends on:** Phase 182 (SIGNAL)
 
 Dogfooding v1.15.0-beta.7 (2026-06-28, navigator Jonathan Sagir) found Phase 182's Voice Signature was DARK at runtime (doctrine skill-only, not on the always-loaded agent body; a green-but-blind test) AND that its bracketed-word / ANSI delivery does not render color on the navigator's host (ANSI stripped to literal text). Fix: deliver the 5 De Stijl Mondrian primaries as colored EMOJI GLYPHS (host-independent, verified); same 5-primary palette, only the delivery mechanism moves from word/ANSI to glyph. REQ: SIGNAL-02 (repair). RCA: .planning/debug/voice-signature-dark-runtime.md.
+
 - **Acceptance:** a Larry turn missing its glyph is caught by a test; the dial-TUI active position + reach options carry a leading De Stijl glyph; frozen contracts (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 gate, 6-reach bank) UNCHANGED; Part 8 LOCAL; no em-dashes.
 - **Execution:** inline (CONTEXT -> code; sub-plans 182.1-01..05 tracked in 182.1-CONTEXT.md, recorded in 182.1-SUMMARY.md).
 - [x] 182.1-01 agents/larry-extended.md Voice Signature -> emoji glyphs -- COMPLETE 2026-06-28
@@ -3197,6 +3202,7 @@ Dogfooding v1.15.0-beta.7 (2026-06-28, navigator Jonathan Sagir) found Phase 182
 **Class:** CODE | **Priority:** P0 (build-first keystone) | **Depends on:** none
 
 INV-2a gate-exposure meter + D2 transfer meter. LOCAL-only, emitted as memory_event via lib/core/navigation.cjs. Records per session: gate-reach, invocation density, insight-to-validated-decision latency. Answers open-question-1 (does anyone reach the gate?), sets the invocation-density baseline, is INV-2b's R1 source + Gauge 2. REQ: METER-01, METER-02.
+
 - **Acceptance:** per-session gate-reach + invocation count + transfer pairing emitted locally; reading the meter answers "does a navigator reach the gate."
 - **GATES Phase 184:** if METER shows nobody reaches the gate, 184 never opens (the leak is the trigger, not the grounding -- Hooked Section 5).
 - **Plans:** 2 plans (planned 2026-06-27)
@@ -3208,6 +3214,7 @@ INV-2a gate-exposure meter + D2 transfer meter. LOCAL-only, emitted as memory_ev
 **Class:** CODE | **Priority:** P0 (CONDITIONAL) | **Depends on:** Phase 183 (METER must confirm a gate subject)
 
 decide() at lib/core/navigation-engine.cjs:768 gains the read it lacks: import projection (data/brain-orchestration-projection.json, 249) + connector registry (data/connector-registry.json, 90) + recipe-maps.cjs; rank capabilities for the navigator context; surface as Shape F Decision-Gate OPTIONS. Calls NEITHER runChain NOR act-command (a third reader, not a third firer). REQ: READER-01..04.
+
 - **Acceptance (AS ACCEPTANCE, no criterion no ship):** R1 mandatory A/B (grounded vs ungrounded, choice-shift + latency); R2 projection-correctness gate on the 249 BEFORE read; R3 ambient-turn latency+context budget that FAILS the build; R4 structural guard making decide() INCAPABLE of firing.
 - **STATUS: COMPLETE 2026-06-28 (NAVIGATOR-AUTHORITY OVERRIDE).** The navigator (Jonathan Sagir, 2026-06-28) overrode the evidence-before-steel deferral and directed 184 be built into v1.15.0-beta.9. Recorded truthfully per the entry-20 override pattern: the deferral reason did NOT vanish -- R1's LIVE grounded-vs-ungrounded A/B remains a NAMED DEBT (subject_class=unknown / live_ab uninstrumented; a maintainer reading does NOT clear it; no fabricated live pass). Built: lib/core/reader/decide-projection-reader.cjs (READER-01..04 + R2 projection-correctness gate + R3 ambient latency/context budget) + lib/core/reader/ab-harness.cjs (R1 harness, named-debt third state) + decide() read at lib/core/navigation-engine.cjs:852 (trace.projection_offer; touches neither fire_skill nor any frozen contract) + navigation-engine-shared.cjs projection_offer:null default. R4 structural guard proven (decide() has no code path to runChain/act-command; tests/test-reader-r4-structural-184.cjs). READER_MAX_OPTIONS=5 is an option-CONTENT cap, NOT a render constant; frozen MAX_K=3 / DIAL_REACH_K=6 / 0.70-0.15 / 6-reach bank UNCHANGED. Part 8 LOCAL (the projection is a local cache). No em-dashes. Verify 2026-06-28: run-all-184.sh 2/2 (39+23 assertions); run-all-144.sh 5/5 (no decide() regression). CONTEXT/SUMMARY in .planning/phases/184-reader-decide-projection-offer/.
 
@@ -3216,6 +3223,7 @@ decide() at lib/core/navigation-engine.cjs:768 gains the read it lacks: import p
 **Class:** CODE | **Priority:** P2 (fast-follow) | **Depends on:** Phase 184 (READER)
 
 Add a runtime-reachability assertion to doctor --drift (today merge-time marking only; canon concedes at R7/entries 19/27). Testable once READER lands. REQ: DRIFT-01.
+
 - **Acceptance:** doctor --drift fails when a wired capability is unreachable by decide() at runtime.
 - **STATUS: COMPLETE 2026-06-28** (navigator directed into the v1.15.0-beta.9 cut). lib/core/drift-runtime-reachability.cjs + a Class R block in scripts/doctor.cjs under --drift (additive; narrow non-zero exit scoped to report.checks['runtime-reachability'] so real --drift/--all stay exit 0). PREDICATE: a capability is unreachable when it is WIRED in connector-registry (connects_to_spine) and reader-eligible (command/agent) but the Phase-184 reader's deterministic ranker emits no candidate for its projection node (node MISSING / no ranking block / R2-skip). Calibrated GREEN on shipped data: 85 WIRED command/agent caps all reader-emitted, 5 WIRED skills correctly scoped out. Part 8 LOCAL (node:fs + node:path + the 184 reader; zero egress). No em-dashes; frozen contracts untouched. Verify 2026-06-28: run-all-185.sh 1/1 (11 assertions); run-all-150.9.sh 6/6 (no doctor regression); run-all-184.sh 2/2. CONTEXT/SUMMARY in .planning/phases/185-drift-runtime-reachability/.
 
@@ -3224,10 +3232,13 @@ Add a runtime-reachability assertion to doctor --drift (today merge-time marking
 **Class:** CODE | **Priority:** P1 | **Depends on:** none
 
 A1/A3. One generated stats artifact (docs/CORPUS-STATS.generated.*) + --check tripwire; repoint stale literals. Live: 27,904 nodes / 177 frameworks / 12,485 vectors. Tripwire: 275+, 313, 23K, 748, 27,804, 12,413 (and PROJECT.md's stale "21K+ nodes"). REQ: CORPUS-01, CORPUS-02.
+
 - **Acceptance:** zero hardcoded count hits outside the artifact.
+
 **Plans:** 2 plans in 2 waves (planned 2026-06-27)
 
 Plans:
+
 - [x] 186-01-PLAN.md — Wave 1: committed magnitude source + local generator (scripts/build-corpus-stats.cjs) emitting the generated-stamped docs/CORPUS-STATS.generated.md + .json sibling (CORPUS-01; Brain-free per T-186-01) — COMPLETE 2026-06-27 (298ca727, bdbebcc7)
 - [x] 186-02-PLAN.md — Wave 2: --check tripwire (LIVE-surface scan + documented historical-provenance exclude list) + LIVE-surface repoint to 27,904 / 177 / 12,485 + pre-commit/release wiring + tests/run-all-186.sh (CORPUS-02) — COMPLETE 2026-06-27 (a6e4e70a, a2795cca, 13eb3972). Phase 186 COMPLETE.
 
@@ -3236,6 +3247,7 @@ Plans:
 **Class:** CODE | **Priority:** P1 (navigator-facing headline) | **Depends on:** Phase 182.1 (Voice Signature glyph detector, for Tier-1 binding)
 
 Co-designed with the navigator (Jonathan Sagir, 2026-06-28) under the Phase 121.5 statusline-co-design rule (no solo pick). The existing statusline serves the OPERATOR (room name + vague context %); rebuilt to serve the NAVIGATOR via JTBD + the Hooked model (Facilitator posture, entry-31 Manipulation Matrix kept). The LOCKED contract is docs/STATUSLINE-CONTRACT.md. REQ: SL-01..05. canon_parts 3/5/9/10/12.
+
 - **FOUR TIERS:** (1) trust metadata (Mindrian + Voice Signature + Brain glyphs, passive); (2) orientation/integrity (room + health, trigger when degraded); (3) action ("Next: <move>", the core MVA cue); (4) risk ("Ctx <n>%", fires at the cliff). EMOJI color (host-independent). REORDER-AT-CLIFF at >=80%. Room-health -> "/mos:doctor --fix" corrective, post-update escalated.
 - **Anti-Dealer invariant (NORMATIVE):** INV-SL-1..5. INV-SL-2 success metric = % of statusline exposures leading to a REAL ADVANCING ACTION; time-on-line / glance-count FORBIDDEN. INV-SL-4: a glance that leads to no move is the line failing.
 - **Acceptance:** four-tier renderer + four states + reorder-at-cliff + emoji thresholds (green<50/orange50-79/red>=80); health from existing doctor LOCAL cache (no hot-path call); INV-SL-2 LOCAL measurement hook; Part 8 LOCAL; no em-dashes.
@@ -3248,6 +3260,7 @@ Co-designed with the navigator (Jonathan Sagir, 2026-06-28) under the Phase 121.
 **Class:** DOCS | **Priority:** P1 (context-budget integrity; dog-fooding) | **Depends on:** none
 
 The dev repo's own CLAUDE.md violates the canon it ships. A docu-optimizer audit (2026-06-29, 5-agent fan-out) measured the fully-expanded per-session load at ~50k-66k tokens (13x-16x the 5k context-rot threshold), driven by two `@`-pinned canon docs (`@docs/MINDRIAN-CANON.md` + `@docs/CANON-PHASE-MAP.md`, CLAUDE.md L372-373) that force-load ~45k tokens of provenance/changelog archive no agent reads to act, plus ~420 directive keywords (the ~150 reliable-adherence ceiling, anti-pattern #12). Per Canon Part 6 (dog-fooding) the over-stuffing is itself a CONTRADICTS edge: instruction overload buries the binding rules, so the bloat is what stops the agent honoring the canon, not the fix. The reconciliation makes CLAUDE.md and the v1.19 canon SYMBIOTES: CLAUDE.md becomes the always-loaded operational MEMBRANE (a distilled Canon Compliance Core - Part 8 boundary, Part 3 gate, Part 6 dog-fooding, Part 7 reuse, Part 9 locality, Part 11 born-wired, Part 12 voice/pedagogy, each one line + a Deep-Dive link); the full canon stays the load-on-demand BODY. Neither duplicates the other. REQ: CMD-01..06. canon_parts 6/7/8/10/12.
+
 - **Source-level fix (not the rendered file - sentinels repopulate):** `gsd-tools generate-claude-md` (gsd-core) rewrites 6 sentinel sections from source docs; the `@include` block (L366-373) sits OUTSIDE all sentinels and is hand-maintained. CMD-01 demote the 2 canon `@docs` pins to plain Deep-Dive path links (edits stay - nothing regenerates them). CMD-02 trim `.planning/research/STACK.md` (the v3.0 stack dump feeding GSD:stack L396-537) + `.planning/PROJECT.md` (49KB feeding GSD:project) to lean operational essence, then re-run generate-claude-md so sentinels repopulate small. CMD-03 resolve the empty conventions/architecture stubs (lean sources or drop the sentinel blocks). CMD-04 author the Canon Compliance Core block. CMD-05 add a Verification section with the real `tests/run-all-*.sh` command (lifts the verification score 1/5 -> 4/5).
 - **Drift cleanup (separate, folded in):** CMD-06 fix the stale Source-Material TODO table (Larry/25-prompts/mode-engine all shipped) + version drift (MCP SDK doc 1.27.1 vs package ^1.29.0; Node doc >=18 vs >=22.5.0; cheerio listed but absent) + the duplicated/stale decisions.md include (15 rows vs 16, missing #16).
 - **Acceptance:** fully-expanded CLAUDE.md load < 4k tokens (from ~50k); re-running `gsd-tools generate-claude-md` does NOT re-bloat (proves source-level fix); Canon Compliance Core binds every listed Part with a working Deep-Dive link (canon honored, not evicted); verification score >= 4/5; no broken doc references; no em-dashes; Part 8 clean (docs-only, zero Brain wire).
@@ -3257,27 +3270,48 @@ The dev repo's own CLAUDE.md violates the canon it ships. A docu-optimizer audit
 **Plans:** 3 plans (2 waves)
 
 Plans:
+
 - [ ] 187.2-01-PLAN.md -- Trim sentinel sources (STACK.md version-drift fix + PROJECT.md rendered sections) + lean codebase CONVENTIONS/ARCHITECTURE (Wave 1; CMD-02/03/06)
 - [ ] 187.2-02-PLAN.md -- Trim the four @-include membranes + complete decisions.md (add #16) (Wave 1; CMD-01/06)
 - [ ] 187.2-03-PLAN.md -- Rewrite CLAUDE.md membrane (demote canon pins, Canon Compliance Core, Verification) + regen durability proof + <4k budget (Wave 2; CMD-01/04/05/06)
 
-### Phase 188 - F.7 Multi-Select Toggleable HITL Selector (f7-multiselect-toggleable-hitl) - REGISTERED 2026-06-29 - **CRITICAL NEXT (v1.15.0-beta)**
+### Phase 188 - Shape-F Selector System: full F.0-F.9 vocabulary + composition (shape-f-selector-system) - REGISTERED 2026-06-29 (RE-SCOPED 2026-07-01) - **CRITICAL NEXT (v1.15.0-beta)**
 
-**Class:** CODE | **Priority:** P0 (CRITICAL NEXT in the v1.15.0-beta train) | **Depends on:** Phase 178 (universal-gate-chokepoint / R15 card emission), Phase 166 (runChain HITL safe-halt)
+**Class:** CODE + CANON | **Priority:** P0 (CRITICAL NEXT; the FOUNDATION the whole Shape-F family rides) | **Depends on:** Phase 178 (R15 card emission), Phase 166 (runChain HITL safe-halt), Phase 143.1 (dial-TUI renderer)
 
-When a reach/gate output is a SET of independent, non-mutually-exclusive actions, the F.7 reach selector (and the F.1-family selectors) must be able to render as a MULTI-SELECT, TOGGLEABLE menu that is human-in-the-loop by construction: the navigator checks/unchecks which actions to apply, then ONE confirm; each toggled item becomes an independent typed edge / filing on confirm (Part 4); nothing material runs until the navigator confirms the set (Part 3 / runChain Phase 166). The primitive already exists - `AskUserQuestion` supports `multiSelect: true` - so this is wiring an existing capability into the reach-selector path (Part 7 reuse), not a new primitive. Motivating example (real, 2026-06-29): Larry's GIX-Intelligence deep-grade produced a SET of independent actions (12 meeting nuggets each routable to a different section, 3 independently-applicable pitch fixes, 2 filing offers), but the gate that surfaced was a single-select prose offer - the selector shape did not match the shape of the decision. REQ: F7MS-01..06. canon_parts 3/4/11/12.
-- **Canon hook (navigator-gated, ratify BEFORE code):** mints a multi-select-toggleable Shape-F sub-shape (candidate F.6 "multi-select action set") OR an explicit `multiSelect` MODE on F.1/F.7 - a navigator-LOCKED Part-3 Shape-F amendment ratified at a blocking checkpoint (mirrors Appendix D entries 25/27). The FROZEN Part 3 contract is UNCHANGED: MAX_K=3 (bounds RANKED next-moves, not the toggle-set), DIAL_REACH_K=6, the 0.70/0.15 gate, and the single-marker body glyph all stay; the toggle action-set is a DISTINCT object (likely uncapped/paged, no single RECOMMENDED marker - pre-checked defaults instead). The four reconciliation questions are enumerated in the seed.
-- **CLAUDE.md tie (do NOT re-bloat):** the new lean Canon Compliance Core Part 3 line ("rendered through Shape F (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 frozen)") stays accurate - the new sub-shape is ADDITIVE and the frozen scalars in the membrane are unchanged. The tie is a one-line accuracy check on the existing membrane, NOT new prose (Phase 187.2 just cut the bloat; this must not reintroduce it).
-- **First consumers:** Phase 150.8 meeting nugget-routing HITL table; deep-grade fix-application; opportunity-bank multi-ADD; Part 4 cascade soft-edit approval across multiple affected sections.
-- **Reuse / cross-refs:** rides the SEED-020 single interactive-card construction door + the Phase 178 R15 render-coverage gate. Cross-refs: Phase 148 (larryreach-selector-re-wire / toggleable components), Phase 173 (publish-jtbd-need-selector / F.1 as HITL gate), Phase 88.2 (uiux-selector-block / F.1-F.5), Phase 125 (f-selector-ranker). Seed: `.planning/phases/178-universal-gate-chokepoint/178-SEED-f7-multiselect-toggleable-hitl.md`.
-- **Acceptance:** a multi-select toggleable card renders via the SEED-020 door + passes the R15 gate; each toggled item files an independent typed edge on confirm (Part 4); nothing material runs pre-confirm (Part 3 / runChain Phase 166); the Part 3 Shape-F amendment is ratified navigator-gated before code lands; frozen Part 3 scalars unchanged; CLAUDE.md Part-3 line remains accurate with no added bloat; no em-dashes; Part 8 clean (LOCAL render + LOCAL typed edges, zero Brain wire).
-- **Provenance:** navigator-directed 2026-06-29 out of the GIX deep-grade session; promoted from the Phase-178 seed to CRITICAL NEXT in the v1.15.0-beta train. NEXT: `/gsd-discuss-phase 188` (the Part-3 reconciliation is the first gate).
+RE-SCOPED 2026-07-01 (navigator-directed against the f-shapes explainer https://mindrian-f-shapes.vercel.app + `~/mindrian-f-shapes/index.html`): the original "F.7 multi-select" title was a MISLABEL - multi-select is canonically F.8, and the entry omitted F.9 (ordered sibling) and the "an engine is a pipeline of shapes" composition model. 188 becomes the COMPLETE Shape-F selector system - all ten shapes F.0-F.9 real, declared, render-coverage-gated, plus the engine-as-pipeline composition. Code inventory 2026-07-01: F.0-F.7 live (F.3/F.4 thin stubs); F.8 + F.9 do NOT exist in code; bare F.7 collides with a non-canonical "Breakthrough Surface". All shapes ride the SEED-020 single construction door (`lib/hmi/selector-dispatcher.cjs` pickShape; 100% AskUserQuestion, no bespoke widget). REQ: SFS-01..12.
+
+- **(1) F.8 Multi-Select Action Set (core deliverable):** register F.8 in F_SUBSHAPES (`selector-dispatcher.cjs:341`); new `shape-f8-renderer.cjs` on the existing multiSelect archetype (`reach-component-map.json`); new array-capture adapter (clone `f1-pick-capture-cli.cjs`) + fan-out consumer (clone `f1-pick-consumer.cjs`) writing N independent typed edges on ONE confirm through `navigation.cjs`; pre-checked >=0.70 never auto-applied, no single recommended marker. Canon Part 3 entry-32 (navigator-gated).
+- **(2) F.9 Cascade / Reconcile Gate:** new `shape-f9-renderer.cjs` (ordered per-item APPROVE/REJECT/DEFER live widget; the `ordered` archetype is a stub today); depends on F.8 capture machinery; consumer SEED-039. Canon entry for F.9.
+- **(3) Collapse the F.7 collision (navigator-decided 2026-07-01):** fold `shape-f7-breakthrough-renderer.cjs` (a shape OUTSIDE the canonical 10) into the F.7 dial / F.1; free canonical F.7 = dial; update all call sites + dispatcher routing (`selector-dispatcher.cjs:736-771`).
+- **(4) Engine-as-pipeline-of-shapes (`hitl_stages`, NET-NEW):** a surface declares an ordered list of `{stage, shapes[], mode: parallel|ordered|gate}`; the 9 engine flows on the page are the spec (BONO, RS family, trending-to-absurd, research, 3 pipelines); composes F-shapes into staged flows (relate to, do NOT duplicate, runChain which chains commands). This is the contract Phase 190 enforces.
+- **(5) F.3 / F.4 parity (navigator-decided 2026-07-01, full ten-shape parity):** flesh the header-only stubs to first-class parity (depth-state wiring; progressive harvest scopes).
+- **(6) Per-shape coverage gate:** extend `scripts/check-render-coverage.cjs` (today gates door-routing only) to assert every canonical shape F.0-F.9 has a registered renderer + dispatcher route.
+- **(7) Canon v1.19 + CLAUDE.md awareness for ALL TEN shapes (navigator-directed 2026-07-01):** every shape F.0-F.9 carries an explicit Canon v1.19 currency reconciliation (the per-shape What/How/HITL + closed verb vocabulary checked against `docs/MINDRIAN-CANON.md` v1.19 Part 3 + Appendix D; new entries for F.8/F.9 ratified into the canon, the collapsed Breakthrough removed from any canon prose). The CLAUDE.md Part-3 membrane line (CLAUDE.md:46, "rendered through Shape F (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 frozen)") stays accurate and ADDITIVE - F.8/F.9 are new sub-shapes, the frozen scalars are unchanged; one-line accuracy check, NO re-bloat (Phase 187.2 discipline). Mirrors the SEED-021 "CANON v1.19 CURRENCY" pattern, applied across all ten.
+- **Reuse:** SEED-020 single door (`selector-dispatcher.cjs` pickShape:844 / appendAskUserQuestionTrailer:528); the archetype layer already encodes multiSelect/ordered; the capture/consume pair pattern.
+- **Acceptance:** F.8 renders + fans out N edges on one confirm via navigation.cjs; F.9 ordered per-item gate; all Breakthrough call sites route to the dial; F.3/F.4 at parity; per-shape coverage gate green for all ten; the Part-3 F.8/F.9 amendments ratified navigator-gated before code; frozen Part 3 scalars (MAX_K=3/DIAL_REACH_K=6/0.70-0.15) unchanged; no em-dashes; Part 8 clean (LOCAL render + LOCAL typed edges, zero Brain wire).
+- **First consumers:** Phase 150.8 meeting nugget-routing; deep-grade fix-application; opportunity-bank multi-ADD; Phase 189 memory governance (F.8/F.9 at the write path); Part 4 cascade soft-edit.
+- **Provenance:** navigator-directed 2026-06-29 (GIX deep-grade), RE-SCOPED 2026-07-01 to the full F.0-F.9 system against the f-shapes catalog. Seeds: SEED-020/021 + `.planning/phases/178-universal-gate-chokepoint/178-SEED-f7-multiselect-toggleable-hitl.md`. NEXT: `/gsd-discuss-phase 188` (the Part-3 F.8/F.9 reconciliation is the first gate).
+
+**Plans:** 8 plans (6 waves)
+
+Plans:
+
+- [ ] 188-00-test-scaffolding-PLAN.md -- Wave 0: phase runner + 7 module test stubs + 2 FLOOR tests (frozen scalars + per-shape coverage hard-fail) (Wave 1; Nyquist scaffold for SFS-01..12)
+- [ ] 188-01-breakthrough-collapse-PLAN.md -- SFS-06: collapse the non-canonical Breakthrough Surface into the F.7 dial / F.1 (6 grep-verified sites; free canonical F.7 = dial) (Wave 2)
+- [ ] 188-02-hitl-stages-PLAN.md -- SFS-07: hitl_stages declaration schema + pure-code validator + 9 engine-flow fixtures (registry-is-the-table; declaration-only) (Wave 2)
+- [ ] 188-03-coverage-gate-claude-check-PLAN.md -- SFS-10 (code) + SFS-12: per-shape coverage predicate (F.0-F.7 asserted, F.8/F.9 gated off) + CLAUDE.md:46 additive verify (Wave 2)
+- [ ] 188-04-f3-f4-parity-PLAN.md -- SFS-08/09: F.3 depth-state + F.4 progressive-harvest parity (capture+consumer+state; closed-vocab preserved) (Wave 3)
+- [ ] 188-05-canon-amendment-PLAN.md -- SFS-11 [NAVIGATOR-GATED]: blocking APPROVE checkpoint then the atomic canon lockstep (F.8+F.9 Appendix D, Breakthrough removed, frozen scalars byte-identical) (Wave 4)
+- [ ] 188-06-f8-multiselect-PLAN.md -- SFS-01/02/03: F.8 multiSelect renderer + array capture + fan-out consumer (N edges on one confirm via navigation.cjs; MAX_TOGGLE_N paged) (Wave 5)
+- [ ] 188-07-f9-cascade-gate-flip-PLAN.md -- SFS-04/05 + SFS-10 completion: F.9 ordered APPROVE/REJECT/DEFER gate + flip the per-shape gate to the full ten F.0-F.9 (Wave 6)
 
 ### Phase 189 - Human-in-the-Loop Memory Governance (hitl-memory-governance) - REGISTERED 2026-06-30
 
 **Class:** CODE + CANON | **Priority:** P1 (after F.8/F.9 land - they are prerequisite machinery) | **Depends on:** Phase 188 (F.8 multi-select), the F.9 cascade/reconcile seed, SEED-039 (multi-session reconcile), Phase 109 (navigation.cjs Part-9 chokepoint), LarryReach bank (6 reaches)
 
 Room memory writes are today largely IMPLICIT - Larry files nuggets/claims/edges as a side-effect of conversation, so the navigator gets no structured say over the one thing that compounds: what the graph keeps. This is memory-layer under-invocation. F.8 (multi-select basket) + F.9 (ordered cascade/reconcile) ARE the governance surface; memory governance is not a new primitive, it is F.8/F.9 pointed at the write path. The human owns three decisions: **WHAT** gets written (F.8 basket; >=0.70 pre-checks, never auto-writes; toggled-OFF writes NOT_REMEMBERED_BECAUSE), **HOW** it is stored (per-item section + typed edge + truth-state, F.8 sub-toggles or F.9 cascade), **WHO** it is attributed to + which memory layer (within-session / across-session / cross-room; cross-room promotion never automatic; F.9 reconcile on multi-session conflict per SEED-039).
+
 - **Wiring (no new write path):** the governance gate inserts at the navigation.cjs Part-9 chokepoint - candidates surface, F.8/F.9 resolves, only confirmed items commit. LarryReach REUSES brain_consult for ranking (mint no 7th reach; SENS-09 precedent). Post-confirm re-enters decide(); runChain (Phase 166) halts on the offer (HITL safe-halt).
 - **Canon hook (navigator-gated):** rides the SAME entry-31 self-binding gate as F.8/F.9 (released for F.8 in Phase 188); new edge-property vocabulary REMEMBERED_AS / ATTRIBUTED_TO / MEMORY_LAYER / NOT_REMEMBERED_BECAUSE (Part 4 additive, no new node label).
 - **Part 8 STRUCTURAL:** WHAT/HOW/WHO over user content is CONTENT-SET (LOCAL only, zero Brain wire for bodies); only generic move handles (MOVE-SET) are Brain-eligible; brain_consult sees hashed/handle-level packets only.
@@ -3289,20 +3323,189 @@ Room memory writes are today largely IMPLICIT - Larry files nuggets/claims/edges
 **Class:** CANON + CODE + PROCESS | **Priority:** P0 (canonical ruling - governs every future surface) | **Depends on:** Canon Part 11 (CIRS born-wired gate), Part 3 (Shape F), Phase 125 (f-selector-ranker), Phase 121.5 (body_shape orthogonality), Phase 188 (F.8)
 
 Adds the THIRD born-clause to Canon Part 11 (CIRS today: every invocable surface is born WIRED or EXCLUDED): **every invocable surface is also born with a DECLARED HITL SHAPE.** Any command/agent/pipeline/framework that reaches a genuine fork MUST declare in frontmatter which Shape F fires at its close (`hitl_shape: F.x`) and WHY (`hitl_why:`, one Feynman line), justified against the decision rule (ordered -> F.9/F.2; independent set -> F.8; branches -> F.5; single -> F.1/F.0; depth -> F.3; harvest -> F.4; plan/JTBD -> F.6; reaches -> F.7). The build FAILS CLOSED if a forking surface ships without a declared shape - mirroring the born-wired R1/R2 gate. This makes navigator authority structural and un-skippable: it prevents a future command from quietly deciding FOR the navigator (the GIX single-select-over-a-set bug that motivated Phase 188).
+
 - **Enforcement:** new `scripts/check-shape-declaration.cjs --check` (release-gate wired) fails on a missing OR f-selector-ranker-contradicting declaration; `body_shape` (layout) and `hitl_shape` (selector) stay orthogonal per Phase 121.5 decision 4. GSD wiring: `/gsd-discuss-phase` auto-asks the HITL-shape gray-area for command-introducing phases; `/gsd-plan-phase` template + `gsd-plan-checker` require it; `/gsd-verify` confirms shipped == planned.
 - **Backfill is cheap:** the full command->shape + framework->shape map already exists (the Shape-F explainer https://mindrian-f-shapes.vercel.app + this session's catalog: 103 commands, ~140 frameworks, the agents, the synthetic-expert surfaces).
 - **Canon:** Part 11 third born-clause + Appendix-D entry, navigator-gated; rides the entry-31 posture released in Phase 188; frozen Part 3 scalars (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15) UNCHANGED - mandates declaration, does not touch the shapes; Part 8 clean (LOCAL frontmatter, zero Brain wire); no em-dashes.
 - **Provenance:** navigator-directed 2026-06-30 ("any new command introduced to MindrianOS forever should declare its HITL F.shape and why, as a canonical ruling system enforced in GSD"). Promoted from `.planning/seeds/SEED-041-shape-f-declaration-mandate.md`. NEXT: `/gsd-discuss-phase 190`.
 
+### Phase 191 - Brain Orchestration Advisor (brain-orchestration-advisor) - REGISTERED 2026-07-01
+
+**Class:** CODE | **Priority:** P1 (Tier-1 high leverage; the moat-activation - substrate built-but-unconsumed) | **Depends on:** Phase 157 (orchestration-projection artifact), Phase 184 (decide-projection-reader), Phase 110 (typed packet), Phases 141/148/150 (dial + ranker + render), Phase 166 (gated chain executor); consolidated charter `.planning/seeds/SEED-045-brain-orchestration-advisor-thread.md`
+
+RE-SCOPED 2026-07-01 (navigator-directed): 191 is NARROWED to the LOCAL consumption wire only; the Brain write-side substrate hardening (framework-coverage live-population + canonicalize-at-ingest) splits OUT to Phase 193. The Brain ADVISES orchestration, never controls it. Investigation 2026-07-01 confirmed the substrate is built but DARK: the projection cache (249 nodes / 73 edges, 0 gap) is already READ at `decide()` time (Phase 184 reader `lib/core/reader/decide-projection-reader.cjs`) but every option is `fires:false`, so `routing_source` stays `legacy/tier_0` every turn. Connectivity is "correct shape" (52/103 graph-backed; the other 51 route over the graph by design; 1 true orphan `correct-reference-now`). The net-new is the single DEMAND-side consumption wire.
+
+- **CONSTITUTIONAL CORRECTION (C-1/C-3, BLOCKING):** the nav engine reads the LOCAL DERIVED CACHE (`data/brain-orchestration-projection.json` + the 103 Command nodes mirrored into room.db 2026-07-01), NEVER a live Brain query at decide()/rank time (Part 11 R7 + R4; Part 8 entry-19). The Brain's contribution is ONLY the offline-derived `brain_confidence` prior (existing f-selector-ranker D4 0.40 weight).
+- **Net-new build (3 wires):** (1) promote the reader's `projection_offer` from `fires:false` advisory content to an actual `fire_skill` candidate when confidence >= the frozen 0.70 gate and a reach/command matches - the `routing_source` flip then happens downstream at the skill-activation-router (it already flips legacy->engine on a canonical-verb fire_skill from a fired reach); (2) a command-recommendation `decide()` candidate returning `{command_slug, hitl_shape, confidence}` from the LOCAL command subgraph, feeding the F.7 dial; (3) per-problem-type memory-surfacing templates on the local cortex (Phase 150).
+- **HARD CONSTRAINT (B2, Phase 166):** do NOT change `decide()`'s return shape (many consumers); the candidate rides existing fields. recommend-not-trigger: navigator confirms in the dial, runChain (166) executes; nothing material auto-runs.
+- **Members folded (charter SEED-045):** scoring = SEED-043 + SEED-008 + SEED-031; memory = SEED-040 (Phase 189) + SEED-044 + SEED-009 (Phase 158). framework-coverage MOVED to Phase 193.
+- **Part 8 STRUCTURAL:** enums/handles only; no user content; never executes; degrades to local subgraph offline. Frozen Part 3 scalars unchanged; no em-dashes.
+- **Provenance:** navigator-directed 2026-07-01 ("Brain assists orchestration for LarryReach + memory"; lead-thread). Grounded by `.planning/seeds/BRAIN-RESEARCH-GROUNDING.md` + `CONTRADICTIONS.md`.
+- **Status:** COMPLETE 2026-07-01 (5 plans / 4 waves, harness-as-code). Phase gate `tests/run-all-191.sh` 5/5 suites, 112/112 assertions, exit 0; structured verdict PASS (191-VERDICT.md). decide() lifts the firing candidate from the LOCAL cache -> routing_source flips at the skill-activation-router -> renders on the F.7 dial. D-01..D-06 all proven; B2 (decide() shape unchanged) + Part-8 (zero live Brain at decide) + frozen Part-3 scalars all green. Commits: 1b62a248, cc1d5aef, 06461b17, f6487c8b, ee0baa2c, 3d0b341b, 55633023, be756343 (+ Wave-1 IFACE). Branch feat/v1.15-shape-brain-phases.
+
+**Plans:** 3/5 plans executed
+
+Plans:
+
+- [x] 191-01-PLAN.md -- WAVE 1 RECON/IFACE: write 191-IFACE.md (shared IFACE + RULES, contracts-on-disk citing file:line) + the RED lift-module test scaffold. No production code.
+- [x] 191-02-PLAN.md -- WAVE 2 FOUNDATION (tdd): lib/core/orchestration-candidate-lift.cjs -- liftFiringCandidate() + confidence-join (rankForSelector) + hitl_shape; imports the frozen RECOMMENDED_CONFIDENCE_FLOOR (0.70) + reachIdToSkillFamily (D-01/D-02/D-03).
+- [ ] 191-03-PLAN.md -- WAVE 3a SURFACE (fan-out): decide() lift wire in navigation-engine.cjs -- flip fire_skill to a canonical verb on >=0.70, enrich trace.projection_offer in place, return shape unchanged (B2), reader untouched (D-01), router flip downstream (D-06).
+- [x] 191-04-PLAN.md -- WAVE 3b SURFACE (fan-out): command-recommendation on the live F.7 dial -- navigation-engine-offer.cjs composes it onto brain_consult (no new reach, D-03) + dial-presenter.renderDial renders the recommended single ranked reach; DIAL_REACH_K=6 unchanged.
+- [ ] 191-05-PLAN.md -- WAVE 4 VERIFY: adversarial structured verdict -- tests/run-all-191.sh phase gate + routing-source-flip (D-06) + Part-8 leak sweep + frozen-scalar + B2 + em-dash sweeps + 191-VERDICT.md.
+
+### Phase 193 - Brain Substrate Hardening (brain-substrate-hardening) - REGISTERED 2026-07-01
+
+**Class:** CODE + DATA | **Priority:** P2 (deepens the cache 191 reads; sibling split out of 191) | **Depends on:** Phase 191 (the consumption wire that benefits), the live Brain `:Framework` population; admin Cypher key
+
+The Brain write-side substrate-quality work split out of Phase 191 (navigator decision 2026-07-01 - keep 191 pure-LOCAL and Part-8-safe). Deepens the QUALITY of the cache the advisor reasons over.
+
+- **(1) Framework-coverage live-population (SEED-framework-coverage-live-population):** drive the coverage-gate denominator from the live `:Framework` population (~177 nodes deduped via ALIAS_OF) so a framework no command references is no longer invisible to the gate and the advisor. Admin-Cypher-gated. Hard guard: do NOT restate "43% of 176 dark" as fact - measure live.
+- **(2) Canonicalize-at-ingest pass:** entity-resolution at ingest so dedup stops re-running after every ingest (root cause: per-document ingestion with no entity-resolution pass = dense core + sparse alias tail).
+- **(3) Orphan disposition:** decide `correct-reference-now` (the 1 true orphan) - wire or accept as an intentional one-shot utility; clear or document the 4 near-orphans (`hmi-status`, `organize`, `dogfood-flush`, `memory-cortex-reach`).
+- **Part 8:** this phase DOES touch the Brain write-side - every Cypher write is generic-framework-only, zero user content; gated behind an admin key. Frozen scalars unchanged; no em-dashes.
+- **Provenance:** split from Phase 191 (navigator decision 2026-07-01). Seeds: SEED-framework-coverage-live-population + the canonicalize-at-ingest note in SESSION-HANDOFF-2026-07-01. NEXT: `/gsd-discuss-phase 193` (after 191 ships).
+
+### Phase 192 - Shape-F HITL Selector Completion (shape-f-hitl-selector-completion) - REGISTERED 2026-07-01
+
+**Class:** CODE | **Priority:** P1 (completes the user-facing Shape-F surface; sibling to 188/190) | **Depends on:** Phase 190 (Shape-F declaration mandate - so the new posture gate declares a canon-legal hitl_shape), Phase 188 (F.8 multi-select), Phase 144 (F.7 dial engine arm), Phase 143.1 (dial-TUI reusable renderer), Phase 178 (R15 render-coverage)
+
+Completes the unbuilt Shape-F surface in three parts, all on the SEED-020 single interactive-card construction door (no bespoke widget; 100% AskUserQuestion). (a) SEED-020 GAP-CHECK + FINISH: verify whether SEED-020 graduated only on the internal dial (143.1) and left the user-facing chooser as bare text; render /mos:help (+ the menu sweep: mos, suggest-next, rooms, onboard next-step menus) as a LIVE three-tier AskUserQuestion selector (lane -> command -> run), keeping --list/--text as the non-interactive floor. (b) SEED-021 F.7-max: Finding 1 ATOMIC RENDER COUPLING (never emit the triangle/dial text unless the AskUserQuestion card fires in the same response - the Phase 144 acceptance criterion; verify-or-fix) + Finding 2 additive UX (De Stijl preview panel per reach, multiSelect checkbox modifier pane, confidence-bar glyphs, tier-0 honest cold card). (c) SEED-042 POSTURE DIAL: generalize the larry-personality Ask-Tell dial from an implicit 2-pole move to an explicit, navigator-flippable 4-POSTURE dial (research / tell-act / ask / redteam), OFFERED every turn (footer affordance = cross-surface baseline; statusline segment = CLI enhancement), each posture an F.0-class mini-gate declaring hitl_shape: F.0 under the Phase 190 mandate, riding the De Stijl voice glyphs (red=redteam, blue=act). REQ: SFC-01..09.
+
+- **Grounding (Brain consult 2026-07-01):** the posture dial is grounded in Situational Leadership (stance-by-learner-readiness: directing/coaching/supporting/delegating -> tell/ask/support/research). The Brain returned NO dedicated posture-dial framework (it reached for Tuckman Team Stages) - a framework-coverage gap cross-referenced to Phase 191 / SEED-framework-coverage-live-population.
+- **Reuse (Part 7):** the Phase 143.1 dial-TUI shipped the surface-agnostic reach-list/option-list core + shape-f1-renderer.cjs (renderShapeF1) + the label composer; /mos:help and the posture dial are NEW CONSUMERS of the same primitive, not new widgets. No second posture engine (connector-spine rule) - the toggle is a manual override of the existing dial position.
+- **Canon:** Part 3 (Shape F universal primitive; frozen MAX_K=3/DIAL_REACH_K=6/0.70-0.15 UNCHANGED), Part 10 (command menus render as live selectors, never bare text), Part 11 (R15 render-coverage; born-declared hitl_shape), Part 12 (the posture pole IS the voice glyph). Part 8 clean (LOCAL render + LOCAL session posture state, zero Brain wire); no em-dashes.
+- **Already-phased siblings (do NOT rebuild):** SEED-040=Phase 189, SEED-041=Phase 190, SEED-009=Phase 158, SEED-020 graduated (88.2/121.5/143.1/178).
+- **Provenance:** navigator-directed 2026-07-01 (Cluster-B graduation from seed consolidation). Promoted from SEED-020/021/042. NEXT: `/gsd-discuss-phase 192`.
+
+### Phase 194 - Per-Session Room Binding + Multi-Session Reconcile (per-session-room-binding) - REGISTERED 2026-07-01
+
+**Class:** CODE | **Priority:** P1 (Tier-1 concurrency substrate; prereq for 189/195) | **Depends on:** Phase 109 (navigation.cjs Part-9 chokepoint)
+
+Cluster A foundation. Bind each session to a room with a write-guard set-membership model + a lost-update fix, so concurrent sessions (Cowork especially) cannot clobber each other. This is the concurrency machinery the memory-governance (189) and cross-room (195) work assume. Multi-session write conflicts surface an F.9 ordered reconcile (approve/reject/defer per item; deferred keeps both as linked competing claims).
+
+- **Canon:** Part 8 (LOCAL session state, zero Brain wire), Part 9 (writes through the navigation.cjs chokepoint). Frozen scalars unchanged; no em-dashes.
+- **Provenance:** Cluster-A graduation from SEED-039. NEXT: `/gsd-discuss-phase 194`.
+
+### Phase 195 - Fractal + Cross-Room Memory (fractal-cross-room-memory) - REGISTERED 2026-07-01
+
+**Class:** CODE + CANON | **Priority:** P1 (the ICM fractal memory charter) | **Depends on:** Phase 194 (session binding), Phase 109 (chokepoint), the SEED-020 card door (F.8 gate from Phase 188)
+
+Cluster A charter. Implements the ICM fractal memory contract (SEED-022, folds SEED-001): identity-begets-memory, the 6-file complement to depth 3, `.umbilical` as the inheritance channel, born-wired / fail-closed sub-room birth (the 5 atomic side-effects), DRIFT.md as the 7th memory kind. PLUS the cross-room umbilical cord (SEED-044): an F.8 gate that links relevant items across rooms as typed UMBILICAL_TO edges, LOCAL only, cross-room promotion never automatic.
+
+- **Wiring:** sub-room birth writes 5 atomic side-effects or fails closed (SEED-001 spec preserved verbatim); cross-room links ride the F.8 basket (Phase 188), navigator-confirmed, written through navigation.cjs.
+- **Canon:** Part 8 (LOCAL only; the Brain may suggest the TEMPLATE "scan own other rooms" but the local layer writes the edges, zero Brain wire), Part 9, Part 11 (born-wired sub-room). No em-dashes.
+- **Provenance:** Cluster-A graduation from SEED-022 (+ folded 001) + SEED-044. NEXT: `/gsd-discuss-phase 195`.
+
+### Phase 196 - Part-8 Runtime SLM Boundary Guardrail (part8-runtime-slm-guardrail) - REGISTERED 2026-07-01 - **GATES 191/193**
+
+**Class:** CODE | **Priority:** P0 (gates the Brain-thread egress; build before 193, alongside 191) | **Depends on:** Phase 110 (typed packet), the Brain boundary (Part 8)
+
+Cluster F keystone. A runtime egress classifier (small language model / rules gate) that makes the Part-8 boundary ENFORCEABLE, not just doctrinal: every packet bound for the Brain is classified CONTENT-SET (LOCAL only, blocked) vs MOVE-SET (generic handles/enums, allowed) at the wire. This is the safe-egress guard the 191 command-recommendation + 193 regulator sensors (SEED-031) need to route safely.
+
+- **Canon:** Part 8 (the structural boundary made runtime-enforceable), Part 11 (R7 no live user egress). No em-dashes.
+- **Provenance:** Cluster-F graduation from SEED-019. NEXT: `/gsd-discuss-phase 196`.
+
+### Phase 197 - Brain MCP Separate Repo + Silent Identity (brain-mcp-separate-repo) - REGISTERED 2026-07-01
+
+**Class:** CODE + INFRA | **Priority:** P2 (the deployment/identity unit of the moat) | **Depends on:** Phase 196 (the boundary guard that makes separation enforceable), the Brain MCP (mindrian-brain.onrender.com)
+
+Cluster F. The constitutional-separation deployment vehicle: the Brain MCP as its own repo / deployment unit (SEED-014) so the teaching-graph IP ships independently of the plugin, plus a silent-identity install model (SEED-011) that drops the auth friction (identity resolved at install, not per-call).
+
+- **Canon:** Part 8 (IP separation is the moat), Part 11. No em-dashes.
+- **Provenance:** Cluster-F graduation from SEED-014 + SEED-011. NEXT: `/gsd-discuss-phase 197`.
+
+### Phase 198 - MCP-First Invocation Substrate then SDK (mcp-first-then-sdk) - REGISTERED 2026-07-01
+
+**Class:** CODE + ARCH | **Priority:** P2 (substrate unification; PROMOTED) | **Depends on:** the MCP server (v3.0), Phase 166 (runChain)
+
+Cluster F. Switch the governed invocation spine to an MCP-FIRST execution substrate - ONE path on every surface (CLI + Desktop + Cowork) - then transform that substrate into a distributable MindrianOS SDK. Kills the surface-specific invocation drift; the SDK is the packaging dividend.
+
+- **Canon:** Part 7 (reuse the one spine), Part 11 (one governed path). No em-dashes.
+- **Provenance:** Cluster-F graduation from SEED-038 (PROMOTED). NEXT: `/gsd-discuss-phase 198`.
+
+### Phase 199 - AgentShield Scanner + Stripe Pro Tier (agentshield-stripe-commercial) - REGISTERED 2026-07-01
+
+**Class:** CODE + COMMERCIAL | **Priority:** P3 (security + self-funding commercial layer) | **Depends on:** Phase 196 (boundary scan generalizes), Phase 197 (Brain infra to fund)
+
+Cluster F. AgentShield: a plugin-wide security scanner that generalizes the brain-boundary-scan gate to the whole plugin (SEED-016). Plus the hosted Pro-tier Stripe billing (SEED-017) - the commercial layer that self-funds Brain infra (the trained-Lawrence paid tier).
+
+- **Canon:** Part 8 (security enforces the boundary). No em-dashes.
+- **Provenance:** Cluster-F graduation from SEED-016 + SEED-017. NEXT: `/gsd-discuss-phase 199`.
+
+### Phase 200 - RS Engine Spine + Corpus Quality (rs-engine-spine-corpus) - REGISTERED 2026-07-01
+
+**Class:** CODE + BUGFIX | **Priority:** P2 | **Depends on:** Phase 161 (SEED-029 embedding spine), Phase 134 (SEED-013 CJS port), Phase 166 (runChain)
+
+Cluster E. Reconcile the Reverse-Salient pipeline onto the connector/runChain spine + reconcile the expert-graph (SEED-030), and fix the RS corpus-quality degenerate output on hybrid/multi-user topics (SEED-018: corpus exclude-list + semantic gate + regression). Rides the shipped 029/013 embedding substrate.
+
+- **DEEP COUPLING TO SYNTHETIC EXPERT (Phase 203, navigator-directed 2026-07-01):** the expert-graph this phase reconciles IS the substrate the synthetic expert (203) is fan-out-built onto and reads as a persona - build 200 + 203 as a coupled pair, as tightly bound as BONO is to its research fan-out. rs-experts (the synthetic panel) is the shared ancestor.
+- **Canon:** Part 7 (reuse the spine + rs-experts substrate), Part 8. No em-dashes.
+- **Provenance:** Cluster-E graduation from SEED-030 + SEED-018. NEXT: `/gsd-discuss-phase 200`.
+
+### Phase 201 - Harness-as-Code Manifest + Ralph-Loop Runtime (harness-as-code-manifest) - REGISTERED 2026-07-01 - **THE INTEGRATIVE SPINE**
+
+**Class:** CODE + ARCH | **Priority:** P1 (names/versions the harness the whole system already rides) | **Depends on:** Phase 166 (runChain), Phase 187 (statusline cockpit), Phases 141/143/144 (LarryReach dial), Phase 191 (Brain orchestration consumption)
+
+Cluster I foundation, and the integrative spine (navigator-directed 2026-07-01). SEED-032: name + version + rerun the agent harness already running (the Workflow harness + the runChain CJS spine) as a DECLARED manifest - resumable via scriptPath + resumeFromRunId, contracts-on-disk, exclusive ownership, adversarial verify. SEED-033 (folds SEED-028): the Ralph-loop runtime behaviors the manifest declares - verify-retry + propose-factcheck loops, bounded retry-with-backoff + resume-from-runId partial. THE POINT (navigator): this harness is the substrate that ties together statusline-live (187), LarryReaches (141/143/144), Larry-as-personality, the orchestration + command-triggering (191/166), and Brain-use - one declared, rerunnable harness under all of it, not four hand-rolled loops.
+
+- **Canon:** Part 7 (declare the harness that exists, do not add a framework), Part 11 (one governed path), Part 3 (halts at material gates). No em-dashes.
+- **Provenance:** Cluster-I graduation from SEED-032 + SEED-033 (+ merged 028); integrative framing navigator-directed 2026-07-01. NEXT: `/gsd-discuss-phase 201`.
+
+### Phase 202 - Agent-Lightning APO Lab Loop (agent-lightning-apo-lab) - REGISTERED 2026-07-01
+
+**Class:** CODE + LAB | **Priority:** P3 (lab-side; the trained-Lawrence arc) | **Depends on:** Phase 201 (harness manifest), the Brain teaching corpus
+
+Cluster I. The lab-side automatic-prompt-optimization loop (SEED-002): an APO lab that optimizes prompts against real teaching data, feeding the paid "trained Lawrence" model arc. Lab-side, not on the user hot path.
+
+- **Canon:** Part 8 (generic/teaching data only). No em-dashes.
+- **Provenance:** Cluster-I graduation from SEED-002. NEXT: `/gsd-discuss-phase 202`.
+
+### Phase 203 - Synthetic-Expert-as-Project-Skill (synthetic-expert-skill) - REGISTERED 2026-07-01
+
+**Class:** CODE | **Priority:** P2 (deeply coupled to the RS engine + BONO; the fan-out-built expert) | **Depends on:** Phase 201 (harness-as-code / fan-out research), Phase 200 (RS engine expert-graph reconcile), the /mos:skill front door; sibling to /mos:bono + /mos:rs-experts
+
+Cluster I. SyntheticExpert as a per-project Claude Code skill (SEED-035): Larry-reach-suggested, minted through a `/mos:skill` front door, so a room can spin up a domain-expert skill from its own graph.
+
+- **THE EXPERT IS BUILT BY FAN-OUT RESEARCH (navigator-directed 2026-07-01):** a synthetic expert is created IN and FROM many types / frameworks - the harness (201) fans out research agents (one per framework / lens / sub-domain), and their findings are synthesized into the expert. This is the SAME shape as BONO's research/debate engine (parallel cell fan-out then debate) and rs-experts (synthetic panel, F.8). The expert is not hand-authored; it is fan-out-composed.
+- **DEEP COUPLING TO CLUSTER E (SEED-030, Phase 200):** the RS engine's expert-graph reconcile IS the substrate the synthetic expert reads/writes - build 200 and 203 as a coupled pair (the expert-graph is where the fan-out findings land as typed nodes; the synthetic expert is the reader/persona over that graph). As tightly bound as BONO is to its research fan-out.
+- **Canon:** Part 7 (reuse the skill + harness + rs-experts substrate, do not add a new engine), Part 8 (LOCAL room graph; generic frameworks only). No em-dashes.
+- **Provenance:** Cluster-I graduation from SEED-035; fan-out-build + RS/BONO coupling navigator-directed 2026-07-01. NEXT: `/gsd-discuss-phase 203`.
+
+### Phase 204 - Ignite Room-Chooser + Persona-Differentiated Entry (Shape-F front door) (ignite-room-chooser-persona-entry) - REGISTERED 2026-07-01 - **FIRST CONSUMER OF 188**
+
+**Class:** CODE | **Priority:** P1 (the front door; makes 188 visible to the user on turn 1) | **Depends on:** Phase 188 (Shape-F selector system - the render primitive), Phase 179 (ignite persona-first B1 door), Phase 115 (persona-aware first-touch + dual-path + role_blend/persona_variants), the rooms registry (/mos:rooms), the conversation-mode skill (Just Talk / Explore+Capture / Build a Room)
+
+The `/mos:ignite` front door becomes a live Shape-F entry (navigator-directed 2026-07-01). It answers the very first question - what are we doing right now - as a rendered selector, not prose, and it is the first user-facing consumer of the 188 shape system.
+
+- **(1) Room-chooser branch (if prior rooms exist):** ignite reads the rooms registry; if the navigator has prior rooms, render an F.1 (or F.7 dial) selector to PICK a room to resume - each card = a room + its stage/last-focus. If no prior rooms, skip straight to the birth/talk branches (the Phase 179 B1 door).
+- **(2) "Just talk" branch (no room):** a no-room conversational entry rendered through Shape-F - routes into the conversation-mode skill (Just Talk / Explore+Capture / Build a Room). The navigator can think out loud without committing to a room; capture/build is offered later via an F-gate, never forced.
+- **(3) Persona-differentiated dialogue (navigator-directed):** the persona chosen at ignite (Phase 115 role_blend -> persona_variants: founder / researcher / investor / operator / mentor / domain_expert / student) SETS THE CONVERSATION REGISTER for the session - each persona is talked-with differently later (tone, depth, which reaches fire, which frameworks surface). The persona pick is itself an F.1/F.0 Shape-F card at the door.
+- **(4) Prompted INTO 188:** every branch above is a Shape-F card rendered through the 188 selector-dispatcher door (SEED-020), so ignite is the proof-of-life demo for the full shape system - lane/room/persona drill-down, each tier a Shape-F block, `--list` text floor for non-interactive surfaces.
+- **Canon:** Part 3 (Shape-F universal gate), Part 10 (conversation IS the surface; the front door is a live selector, not a command menu), Part 12 (persona/voice register), Part 8 (LOCAL room registry + LOCAL session persona state, zero Brain wire). No em-dashes.
+- **Interpretation flag:** "just talk f-shape" read as the no-room conversational entry rendered via Shape-F (branch 2); confirm if you meant an interactive TOUR/demo of the ten shapes instead.
+- **Provenance:** navigator-directed 2026-07-01 ("ignite with choose-room if prior rooms, or just talk; each persona talked-with differently later; prompted into the 188 part"). Extends Phase 179. NEXT: `/gsd-discuss-phase 204`.
+
 ## Dependency graph
-190 (Shape F declaration mandate) is canonical/process - lands independently; backfill rides the existing catalog. 189 (memory governance) depends-on 188 (F.8) + the F.9 seed (prerequisite machinery).
+
+SHAPE-F FAMILY LAYERING: 188 (full F.0-F.9 system + composition) is the FOUNDATION; 190 (declaration mandate) + 192 (consumers) + 189 (memory governance) all ride it.
+188 (Shape-F selector system) depends-on 178 (R15) + 166 (runChain) + 143.1 (dial renderer) - builds F.8 + F.9 net-new, collapses the F.7/Breakthrough collision, adds the hitl_stages composition model, F.3/F.4 to parity, all ten Canon v1.19 + CLAUDE.md aware.
+192 (Shape-F selector completion) depends-on 190 (declaration mandate) + 188 (F.8/F.9) + 144/143.1 (F.7 dial) + 178 (R15) - reuses the SEED-020 card door, no new widget.
+189 (memory governance) depends-on 188 (F.8/F.9 at the write path) + SEED-039.
+BRAIN THREAD (LEAD): 191 (LOCAL consumption wire) depends-on 157 (projection) + 184 (reader) + 166 (executor) - all shipped; net-new = flip the dark projection_offer to a firing candidate, routing_source legacy->engine, from the LOCAL cache, never live Brain (R7). 193 (Brain substrate hardening) depends-on 191 - framework-coverage live-population + canonicalize-at-ingest + orphan disposition (Brain write-side, admin-gated).
+190 (Shape F declaration mandate) is canonical/process - lands independently; backfill rides the existing catalog.
+ROOM/MEMORY (Cluster A): 194 (session binding) -> 195 (fractal + cross-room memory) -> feeds 189 (memory governance). 194 is the Tier-1 concurrency prereq.
+BRAIN DELIVERY (Cluster F): 196 (Part-8 SLM guardrail) GATES 191/193 (safe egress) and generalizes into 199 (AgentShield); 197 (separate repo + silent identity) needs 196; 198 (MCP-first -> SDK) is substrate unification; 199 (AgentShield + Stripe) needs 196 + 197.
+RS + EXPERT + HARNESS (Clusters E + I): 201 (harness-as-code / fan-out) is the INTEGRATIVE SPINE under statusline (187) + LarryReaches (141/143/144) + orchestration (191/166) + Brain-use. 200 (RS engine expert-graph) <-> 203 (synthetic expert) are a COUPLED PAIR built by fan-out research, the same shape as BONO + rs-experts; 203 depends-on 201 (fan-out) + 200 (expert-graph). 202 (agent-lightning APO lab) is lab-side on 201.
+FRONT DOOR: 204 (ignite room-chooser + persona entry) is the FIRST CONSUMER OF 188 - depends-on 188 (Shape-F render) + 179 (ignite B1) + 115 (persona/dual-path) + rooms registry + conversation-mode. It is the proof-of-life demo for the full shape system and makes 188 visible on turn 1.
 180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).
 
 ## Folded seeds
+
 - **SEED-008 intelligence-layer-activation-gap-close-the-loop** -- IN SCOPE; this milestone is its thesis.
 - **SEED-009 learned-ranker-weights-from-outcome-edges** -- FORWARD-DECLARED next (the deferred future the two-gauge meter enables; not in-scope this milestone).
 
 ## Held / deferred (assert nothing -- v4 directional-only caveat)
+
 B dark-frameworks (magnitudes 176/76/56/383 have ZERO source-of-truth; no gate until a write-capable Brain key or Phase-137 snapshot reproduces them); INV-3/4 (Neo4j Phase-137 sync; SyntheticExpert persona-gateway); F citations (P3).
 
 **Status:** SCAFFOLDED 2026-06-27. Phases 180-186 registered. NEXT: /gsd-plan-phase 180 (or 181 SEC for the fastest no-dependency win).
