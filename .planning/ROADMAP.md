@@ -3331,6 +3331,15 @@ Room memory writes are today largely IMPLICIT - Larry files nuggets/claims/edges
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for memory ranking quality on the memory set. No phase closes without a passing Plurai baseline.
 - **Provenance:** navigator-directed 2026-06-30 (Shape-F explainer session); promoted from `.planning/seeds/SEED-040-hitl-memory-governance.md`. NEXT: `/gsd-discuss-phase 189` (after F.8/F.9 machinery exists).
 
+**Plans:** 0/4 plans executed
+
+Plans:
+
+- [ ] 189-01-PLAN.md -- HMG-08: edge-vocabulary mint (REMEMBERED_AS/ATTRIBUTED_TO/NOT_REMEMBERED_BECAUSE) + governance-candidate contract + Wave-0 test harness + Plurai CSV/baseline (Wave 1)
+- [ ] 189-02-PLAN.md -- HMG-01/02/03: WHAT -- findGovernanceCandidates query + F.8 governance basket + closer (REMEMBERED_AS / NOT_REMEMBERED_BECAUSE) + reusable Plurai gate-check script (Wave 2)
+- [ ] 189-03-PLAN.md -- HMG-04: HOW (ordered) -- F.9 multi-section soft-edit cascade adapter, composing the shipped F.9 shape (Wave 2)
+- [ ] 189-04-PLAN.md -- HMG-05/06/07: WHO -- explicit attribution + memory_layer, cross-room second-confirm delegation to the Phase-195 umbilical gate, Phase-194 multi-session reconcile reuse proof, runChain halt assertion (Wave 3)
+
 ### Phase 190: Shape F Declaration Mandate (shape-f-declaration-mandate) - REGISTERED 2026-06-30 - **CANONICAL RULING**
 
 **Class:** CANON + CODE + PROCESS | **Priority:** P0 (canonical ruling - governs every future surface) | **Depends on:** Canon Part 11 (CIRS born-wired gate), Part 3 (Shape F), Phase 125 (f-selector-ranker), Phase 121.5 (body_shape orthogonality), Phase 188 (F.8)
@@ -3341,6 +3350,16 @@ Adds the THIRD born-clause to Canon Part 11 (CIRS today: every invocable surface
 - **Backfill is cheap:** the full command->shape + framework->shape map already exists (the Shape-F explainer https://mindrian-f-shapes.vercel.app + this session's catalog: 103 commands, ~140 frameworks, the agents, the synthetic-expert surfaces).
 - **Canon:** Part 11 third born-clause + Appendix-D entry, navigator-gated; rides the entry-31 posture released in Phase 188; frozen Part 3 scalars (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15) UNCHANGED - mandates declaration, does not touch the shapes; Part 8 clean (LOCAL frontmatter, zero Brain wire); no em-dashes.
 - **Provenance:** navigator-directed 2026-06-30 ("any new command introduced to MindrianOS forever should declare its HITL F.shape and why, as a canonical ruling system enforced in GSD"). Promoted from `.planning/seeds/SEED-041-shape-f-declaration-mandate.md`. NEXT: `/gsd-discuss-phase 190`.
+
+**Plans:** 0/5 plans executed
+
+Plans:
+
+- [ ] 190-01-PLAN.md -- Declaration contract + JSON schema + full 116-surface backfill data (Wave 1)
+- [ ] 190-02-PLAN.md -- Backfill generator + run against all commands/agents/pipelines (Wave 2)
+- [ ] 190-03-PLAN.md -- check-shape-declaration.cjs gate core + fixtures + tests (Wave 2)
+- [ ] 190-04-PLAN.md -- Wire gate into pre-commit/release/doctor + GSD wiring (CLAUDE.md/CIRS contract/CANON-PHASE-MAP) (Wave 3)
+- [ ] 190-05-PLAN.md -- [NAVIGATOR-GATED] Canon Part 11 R16 + Appendix D entry 36 amendment (Wave 4)
 
 ### Phase 191: Brain Orchestration Advisor (brain-orchestration-advisor) - REGISTERED 2026-07-01
 
@@ -3378,6 +3397,14 @@ The Brain write-side substrate-quality work split out of Phase 191 (navigator de
 - **Part 8:** this phase DOES touch the Brain write-side - every Cypher write is generic-framework-only, zero user content; gated behind an admin key. Frozen scalars unchanged; no em-dashes.
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for canonicalize-at-ingest + orphan disposition correctness. No phase closes without a passing Plurai baseline.
 - **Provenance:** split from Phase 191 (navigator decision 2026-07-01). Seeds: SEED-framework-coverage-live-population + the canonicalize-at-ingest note in SESSION-HANDOFF-2026-07-01. NEXT: `/gsd-discuss-phase 193` (after 191 ships).
+
+**Plans:** 0/5 plans planned
+
+- [ ] 193-01-PLAN.md - Wave 1: SKIP-safe run-all-193.sh test harness + the always-on hardcoded-magnitude guard
+- [ ] 193-02-PLAN.md - Wave 1: admin-Cypher-gated live :Framework population snapshot (ALIAS_OF-deduped) + the live-vs-local dark/covered coverage report
+- [ ] 193-03-PLAN.md - Wave 1: orphan disposition reconciliation (correct-reference-now + 4 near-orphans) + standing regression gate
+- [ ] 193-04-PLAN.md - Wave 2: canonicalize-at-ingest entity resolution (methodology-ingest.cjs) + admin-gated ALIAS_OF write tool
+- [ ] 193-05-PLAN.md - Wave 3: Plurai eval gate (canonicalize-at-ingest + orphan-disposition judge)
 
 ### Phase 192: Shape-F HITL Selector Completion (shape-f-hitl-selector-completion) - REGISTERED 2026-07-01
 
@@ -3489,6 +3516,17 @@ Cluster F. AgentShield: a plugin-wide security scanner that generalizes the brai
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for AgentShield scanner precision/recall on the boundary set. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-F graduation from SEED-016 (SEED-017 Stripe split out to the tail). NEXT: `/gsd-discuss-phase 199`.
 
+**Plans:** 7 plans across 5 waves (0-4)
+
+- [ ] 199-01-test-harness-PLAN.md -- Wave 0: SKIP-safe run-all-199.sh + 3 test stubs covering AS-01..AS-09
+- [ ] 199-02-cve-db-plurai-baseline-PLAN.md -- Wave 0: references/security/cve-db.json + 5-surface synthetic Plurai CSV + 199-baseline.json
+- [ ] 199-03-scanner-core-PLAN.md -- Wave 1: scanSurface() generalized engine (brain_egress delegate + 4 regex surfaces + supply_chain heuristic)
+- [ ] 199-04-surface-adapters-PLAN.md -- Wave 2: 5 gatherers + runAgentShieldScan() orchestrator
+- [ ] 199-05-command-born-wired-PLAN.md -- Wave 3: /mos:agentshield skill + command (Part 11 EXCLUDED) + doctor.cjs Class O
+- [ ] 199-06-sessionstart-gate-PLAN.md -- Wave 3: SessionStart continuous-scan hook + Shape F.1 drift gate
+- [ ] 199-07-pr-gate-final-eval-PLAN.md -- Wave 4: GitHub Actions PR-gate (baseline-delta) + final Plurai eval gate + e2e smoke
+
+
 ### Phase 200: RS Engine Spine + Corpus Quality (rs-engine-spine-corpus) - REGISTERED 2026-07-01
 
 **Class:** CODE + BUGFIX | **Priority:** P2 | **Depends on:** Phase 161 (SEED-029 embedding spine), Phase 134 (SEED-013 CJS port), Phase 166 (runChain)
@@ -3524,11 +3562,11 @@ Cluster I. The lab-side automatic-prompt-optimization loop (SEED-002): an APO la
 
 - **Canon:** Part 8 (generic/teaching data only). No em-dashes.
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for APO output quality vs the teaching corpus. No phase closes without a passing Plurai baseline.
-- **Provenance:** Cluster-I graduation from SEED-002. NEXT: `202-02` (APO propose->score->select loop).
+- **Provenance:** Cluster-I graduation from SEED-002. NEXT: `202-03` (Plurai eval gate: APO-output voice-contract judge).
 
 **Plans:**
 - [x] 202-01-PLAN.md (wave 1) -- Telemetry consumer: LOCAL read/group/reward-extract of the Phase 121 stream, >=100-event activation gate -- COMPLETE 2026-07-01 (commits `0b9d3b62`..`4c62678c`; `lab/apo/telemetry-consumer.cjs` + `lab/apo/reward-table.cjs`; 18/18 test PASS; closes the SEED-002 write-only open loop; zero network/Brain, append-only)
-- [ ] 202-02-PLAN.md (wave 2) -- APO loop core: propose -> score (grading corpus + telemetry) -> select an optimized commands/act.md candidate, human-ratify
+- [x] 202-02-PLAN.md (wave 2) -- APO loop core: propose -> score (grading corpus + telemetry) -> select an optimized commands/act.md candidate, human-ratify -- COMPLETE 2026-07-01 (commits `0377138b`..`28eb77cc`; `lab/apo/prompt-target.cjs` + `lab/apo/apo-loop.cjs` + `lab/apo/.gitignore`; 10/10 test PASS; quality-primary blend, telemetry gated on activation; runApo recommends + NEVER writes commands/act.md, span data gitignored; zero network/Brain, no em-dashes)
 - [ ] 202-03-PLAN.md (wave 3) -- Plurai eval gate: APO-output voice-contract judge
 
 ### Phase 203: Synthetic-Expert-as-Project-Skill (synthetic-expert-skill) - REGISTERED 2026-07-01
@@ -3556,6 +3594,15 @@ The `/mos:ignite` front door becomes a live Shape-F entry (navigator-directed 20
 - **Canon:** Part 3 (Shape-F universal gate), Part 10 (conversation IS the surface; the front door is a live selector, not a command menu), Part 12 (persona/voice register), Part 8 (LOCAL room registry + LOCAL session persona state, zero Brain wire). No em-dashes.
 - **Interpretation flag:** "just talk f-shape" read as the no-room conversational entry rendered via Shape-F (branch 2); confirm if you meant an interactive TOUR/demo of the ten shapes instead.
 - **Provenance:** navigator-directed 2026-07-01 ("ignite with choose-room if prior rooms, or just talk; each persona talked-with differently later; prompted into the 188 part"). Extends Phase 179. NEXT: `/gsd-discuss-phase 204`.
+
+**Plans:** 4 plans
+
+Plans:
+
+- [ ] 204-01-PLAN.md (wave 1) - Room-registry adapter + Shape-F.1 room-chooser card builder (lib/core/room-chooser.cjs)
+- [ ] 204-02-PLAN.md (wave 1) - role_blend session-register resolver (lib/core/session-register.cjs)
+- [ ] 204-03-PLAN.md (wave 2) - Wire Gate B0 + persona-register threading into commands/ignite.md + conversation-mode cross-reference
+- [ ] 204-04-PLAN.md (wave 2) - Plurai eval GATE leg: ignite-branch-gate.cjs + CSV + baseline + parity test
 
 ### Phase 205: Larry Loop Elevation (FUSION cross-frame + anti-circular gear-shift) (larry-loop-elevation) - REGISTERED 2026-07-01
 
