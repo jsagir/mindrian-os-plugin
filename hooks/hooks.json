@@ -188,6 +188,16 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "mcp__brain_.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/part8-egress-guard-hook.cjs\"",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PostToolUse": [
