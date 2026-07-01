@@ -385,6 +385,76 @@ def dedupe(docs: List[Dict]) -> List[Dict]:
     return out
 
 
+# --- Semantic-floor gate (SEED-018 H2) --------------------------------------
+#
+# The external fetch is keyword-matched (OpenAlex `search`, arXiv `all:`), so an
+# atmospheric-remote-sensing paper can score high on a "multi-user team
+# collaboration" topic purely on shared keywords. Left ungated, that noise enters
+# the unified differential matrix and swamps the signal (the SEED-018 H2 symptom).
+# The gate drops any candidate whose semantic similarity to the topic embedding is
+# below SEMANTIC_FLOOR, BEFORE the matrix. Default 0.15, tunable via
+# RS_SEMANTIC_FLOOR. Canon Part 8: the embedding is computed by the caller's
+# encode_fn (the embedding spine in production, a deterministic offline stub in
+# tests); this module never calls a model, the Brain, or the network for the gate.
+
+
+def _get_semantic_floor() -> float:
+    raw = os.environ.get("RS_SEMANTIC_FLOOR")
+    if raw:
+        try:
+            v = float(raw)
+            if 0.0 <= v <= 1.0:
+                return v
+        except ValueError:
+            pass
+    return 0.15
+
+
+SEMANTIC_FLOOR = _get_semantic_floor()
+
+
+def _cosine(a: List[float], b: List[float]) -> float:
+    """Pure cosine similarity on equal-length numeric vectors. Returns 0.0 on
+    shape mismatch or a degenerate (zero-norm) vector, so an off-topic candidate
+    with no overlap lands below any positive floor and is dropped."""
+    if not a or not b or len(a) != len(b):
+        return 0.0
+    dot = 0.0
+    norm_a = 0.0
+    norm_b = 0.0
+    for x, y in zip(a, b):
+        dot += x * y
+        norm_a += x * x
+        norm_b += y * y
+    if norm_a == 0.0 or norm_b == 0.0:
+        return 0.0
+    return dot / ((norm_a ** 0.5) * (norm_b ** 0.5))
+
+
+def semantic_gate(
+    topic_vec: List[float],
+    candidates: List[Dict],
+    encode_fn,
+    floor: Optional[float] = None,
+) -> List[Dict]:
+    """Drop candidates whose cosine similarity to `topic_vec` is below `floor`.
+
+    encode_fn maps a candidate dict to its embedding vector. When encode_fn is not
+    callable or topic_vec is empty, the gate is a no-op pass-through (backward
+    compatible). Never mutates the input list.
+    """
+    if floor is None:
+        floor = SEMANTIC_FLOOR
+    if not callable(encode_fn) or not topic_vec:
+        return list(candidates)
+    kept: List[Dict] = []
+    for cand in candidates:
+        vec = encode_fn(cand)
+        if _cosine(topic_vec, vec) >= floor:
+            kept.append(cand)
+    return kept
+
+
 # --- Orchestrator -----------------------------------------------------------
 
 def fetch_corpus(topic: str, target_n: int = 2000) -> List[Dict]:
@@ -428,6 +498,27 @@ def fetch_corpus(topic: str, target_n: int = 2000) -> List[Dict]:
     return results[:target_n]
 
 
+def fetch_external(
+    topic: str,
+    target_n: int = 2000,
+    topic_vec: Optional[List[float]] = None,
+    encode_fn=None,
+    floor: Optional[float] = None,
+) -> List[Dict]:
+    """Gated external fetch (SEED-018 H2). Wraps fetch_corpus, then applies the
+    semantic-floor gate so off-topic keyword matches are dropped BEFORE they reach
+    the unified differential matrix.
+
+    When topic_vec / encode_fn are omitted this returns exactly what fetch_corpus
+    returns (backward compatible). When supplied, candidates whose semantic
+    similarity to the topic is below `floor` (default SEMANTIC_FLOOR) are removed.
+    """
+    results = fetch_corpus(topic, target_n)
+    if topic_vec and callable(encode_fn):
+        results = semantic_gate(topic_vec, results, encode_fn, floor)
+    return results
+
+
 # --- Topic slug (shared with downstream writers) ----------------------------
 
 def topic_slug(topic: str) -> str:
@@ -444,12 +535,15 @@ def topic_slug(topic: str) -> str:
 
 __all__ = [
     "fetch_corpus",
+    "fetch_external",
     "fetch_openalex",
     "fetch_arxiv",
     "fetch_tavily",
     "invert_abstract",
     "dedupe",
     "topic_slug",
+    "semantic_gate",
+    "SEMANTIC_FLOOR",
 ]
 
 
