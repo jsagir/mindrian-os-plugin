@@ -3423,10 +3423,10 @@ Cluster A charter. Implements the ICM fractal memory contract (SEED-022, folds S
 - **Canon:** Part 8 (LOCAL only; the Brain may suggest the TEMPLATE "scan own other rooms" but the local layer writes the edges, zero Brain wire), Part 9, Part 11 (born-wired sub-room). No em-dashes.
 - **Provenance:** Cluster-A graduation from SEED-022 (+ folded 001) + SEED-044. NEXT: `/gsd-execute-phase 195`.
 
-**Plans:** 1/6 plans executed
+**Plans:** 2/6 plans executed
 
 - [x] 195-01-seed004-foundation-PLAN.md - Wave 0: SKIP-safe run-all-195.sh + two FLOORs + shared depth-3 fixture + SEED-004 residual write-scope fix (gates born-wired birth)
-- [ ] 195-02-recursive-reconciler-drift-code-PLAN.md - Wave 1: FCM-01/02 depth-3 recursive reconciler + FCM-07 DRIFT code registration (BASENAME_TO_KIND + readSextuple), no canon bytes
+- [x] 195-02-recursive-reconciler-drift-code-PLAN.md - Wave 1: FCM-01/02 depth-3 recursive reconciler + FCM-07 DRIFT code registration (BASENAME_TO_KIND + readSextuple), no canon bytes
 - [ ] 195-03-umbilical-v2-born-wired-birth-PLAN.md - Wave 2: FCM-03/04 .umbilical v2 inheritance + FCM-05/06 born-wired fail-closed birth (5 SEED-001 side-effects verbatim, pre-mkdir gate)
 - [ ] 195-04-umbilical-edge-registry-store-PLAN.md - Wave 3: FCM-11 mint UMBILICAL_TO + registry-level cross-room store + room-deletion reconcile
 - [ ] 195-05-crossroom-cord-f8-triggers-PLAN.md - Wave 4: FCM-09 relevance emitter + FCM-10 F.8 gate (1 confirm -> N edges) + FCM-12 three triggers (rides 194 presence)
