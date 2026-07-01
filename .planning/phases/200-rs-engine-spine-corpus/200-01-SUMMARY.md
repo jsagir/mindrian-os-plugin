@@ -127,6 +127,19 @@ None - no external service configuration required. `RS_SEMANTIC_FLOOR` is an opt
 - Commits verified: `a50044e2` (H1), `d1b15623` (H2), `8632e930` (H3) - all FOUND.
 - Verification: `node tests/test-200-corpus-quality.cjs` = 6 assertions green; `bash tests/test-200-corpus-exclude.sh` = green.
 
+## H2 live-wire (follow-up session, `23fc9b22`)
+
+The prior session shipped the gate but left it DORMANT: `semantic_gate` had no production caller, so off-topic external candidates still reached the differential. This follow-up (navigator-approved) wires it into the LIVE `scripts/rs-engine.py` Mode B path.
+
+- **Correct wire point.** The gate's original conceptual site (`fetch_external` wrapping `fetch_corpus`) does not fit the Pinecone cold path, because at the `fetch_corpus` call there are NO vectors yet - the engine upserts to Pinecone then RE-FETCHES (`_rs_cache_fetch_all`) so vectors come from Pinecone's server-side e5 embedding. So the gate runs at the two places where vectors actually exist:
+  - **Pinecone (warm/cold) path:** `_gate_records_pinecone(topic, records)` gates the raw `records` using the e5 vector each already carries (`record['values']`) against a topic vector from the SAME Pinecone inference (`_embed_topic_via_pinecone`, `input_type=query` to match e5's asymmetric query/passage embedding). Runs BEFORE `_records_to_artifacts`.
+  - **Local fallback path (Plan 89-02):** `_gate_docs_local(topic, docs)` gates the fetched `docs` with the reused local MiniLM encoder (`_embed_local_minilm`), batched so the model loads once. Clean no-op when sentence-transformers is absent.
+- **Both paths call the ONE gate.** They route through `_gate_with_starvation_guard`, whose actual floor filtering is delegated to `rs_corpus.semantic_gate` - so there is a single tested gate implementation and a grep-able production caller on both paths.
+- **Starvation guard (safe-by-default).** This is the core scoring input, so the gate can NEVER starve the differential (the engine early-outs under 2 artifacts). If applying the floor would drop the usable count below the minimum on an otherwise-sufficient corpus, the guard keeps the top-N by similarity instead and logs `[rs-engine] semantic gate skipped: would starve corpus (kept N)` to stderr. Worst case the gate is a no-op, never a regression. It is also a no-op when the topic vector cannot be obtained (Pinecone inference unavailable / MiniLM absent).
+- **Tunable floor, no new egress.** Reuses the existing `SEMANTIC_FLOOR` (default 0.15, `RS_SEMANTIC_FLOOR`). No new encoder, no new npm/pip package, and no new egress class was added - only the Pinecone inference and MiniLM encoders the engine already uses.
+- **CJS side.** The CJS gate functions (`gateCandidatesBySemanticFloor` / `passesSemanticFloor`) remain available and unit-tested, but the LIVE differential-matrix path being fixed here is the Python `rs-engine.py` Mode B path (the one that builds the unified matrix from Pinecone records). The CJS `rs-discovery-engine.cjs` pipeline scores per-pair over already-preprocessed concepts (not raw external candidates in a matrix) and its external fetchers already carry Canon Part 8 audit chokepoints, so it was intentionally left untouched.
+- **Test.** `tests/test-200-h2-live.cjs` is an OFFLINE, deterministic live-path regression (Canon Part 8): it imports the real `rs-engine.py` module, monkeypatches the two encoders with a fixed-vocabulary bag-of-words stub (no network, no model, no Brain), and proves the off-topic atmospheric-remote-sensing candidate is dropped from the artifacts that reach the differential while on-topic candidates survive, on BOTH the Pinecone-records and local-fallback paths, AND that a below-minimum (all-off-topic) corpus is NOT starved (guard fires and logs). Registered in `run-all-200.sh`; `Phase 200: PASS=6 FAIL=0 SKIP=0`.
+
 ---
 *Phase: 200-rs-engine-spine-corpus*
 *Completed: 2026-07-01*

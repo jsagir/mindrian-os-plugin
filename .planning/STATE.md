@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 195-05-PLAN.md (cross-room umbilical cord)
-last_updated: "2026-07-01T17:02:48.800Z"
+stopped_at: Completed 200-01 H2 live-wire (semantic-floor gate into live RS Mode B path)
+last_updated: "2026-07-01T20:10:00.000Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 16
@@ -16,7 +16,16 @@ progress:
 
 # Project State
 
-## Latest (2026-07-01) -- PHASE 200 Plan 01 COMPLETE -- SEED-018 RS corpus-quality bug fix (H1 + H2 + H3)
+## Latest (2026-07-01) -- PHASE 200 Plan 01 FOLLOW-UP -- H2 semantic-floor gate LIVE-WIRED (`23fc9b22`)
+
+The SEED-018 H2 gate was implemented + unit-tested in the prior session but DORMANT (no production caller) - off-topic external candidates still reached the differential. Navigator-approved follow-up wires it into the LIVE `scripts/rs-engine.py` Mode B path at the two places vectors actually exist:
+- **Pinecone (warm/cold) path:** `_gate_records_pinecone` gates raw `records` by the e5 vector each carries (`record['values']`) vs a topic vector from the SAME Pinecone inference (`_embed_topic_via_pinecone`, `input_type=query`), BEFORE `_records_to_artifacts`. The original `fetch_external`-wrapping-`fetch_corpus` site does NOT fit here because at `fetch_corpus` there are no vectors yet (the engine upserts then re-fetches server-side embeddings).
+- **Local fallback path (89-02):** `_gate_docs_local` gates `docs` with the reused local MiniLM encoder (`_embed_local_minilm`), batched.
+- Both route through `_gate_with_starvation_guard`, which delegates the floor filtering to `rs_corpus.semantic_gate` (one tested gate; grep-able caller on both paths).
+- **Safe-by-default:** STARVATION GUARD keeps top-N by similarity + logs `[rs-engine] semantic gate skipped: would starve corpus (kept N)` rather than ever pushing the corpus below the differential minimum (2). No-op when the topic vector is unavailable. Reuses `SEMANTIC_FLOOR` (0.15, `RS_SEMANTIC_FLOOR`). NO new encoder, NO new npm/pip package, NO new egress class.
+- **Test:** `tests/test-200-h2-live.cjs` - offline/deterministic live-path regression (monkeypatched encoders, no network/model/Brain): off-topic dropped + on-topic kept on BOTH paths + starvation guard fires on a below-minimum corpus. `bash tests/run-all-200.sh` = PASS=6 FAIL=0 SKIP=0 (no regression). SUMMARY updated with an "H2 live-wire" section. This supersedes the prior "NEXT" note that the gate was a no-op until a caller supplied a topic embedding - that caller now exists in production.
+
+## Prior-Latest (2026-07-01) -- PHASE 200 Plan 01 COMPLETE -- SEED-018 RS corpus-quality bug fix (H1 + H2 + H3)
 
 The SEED-018 degenerate-output bug is closed at both root causes, and locked against regression. This plan resumed after Tasks 1-2 (H1) had shipped in a prior session; this session finished Tasks 3-4 (H2 + H3) under navigator approval.
 
