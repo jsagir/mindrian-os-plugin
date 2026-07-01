@@ -4,7 +4,7 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Completed 188-01-PLAN.md (SFS-06 breakthrough collapse)
-last_updated: "2026-07-01T04:34:10.226Z"
+last_updated: "2026-07-01T08:13:12.245Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 7
@@ -1032,6 +1032,9 @@ Progress: [█████████░] 92%
 | Phase 188 P01 | 15 | 3 tasks | 10 files |
 | Phase 188 P02 | 18min | 3 tasks | 11 files |
 | Phase 188 P04 | 40m | 3 tasks | 7 files |
+| Phase 188 P05 | 7min | 2 tasks | 3 files |
+| Phase 188 P06 | 35m | 3 tasks | 6 files |
+| Phase 196 P01 | 4m | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -1928,6 +1931,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 188-00 Wave 0: stub module paths are the downstream implementation CONTRACT; per-shape gate pinned as gate.perShapeCoverageReport + --check-shapes; frozen-scalar FLOOR locks values not counts
 - [Phase ?]: 188-02: hitl_stages ships as declaration-only (schema + validator + fixtures); mode:gate is the single runChain seam, declared not wired (Phase 190 enforces).
 - [Phase ?]: 188-02: shape ids validated by closed F.0-F.9 vocabulary membership, decoupling the fixture wave from the F.8/F.9 renderer waves.
+- [Phase ?]: F.8 multiSelect uses MAX_TOGGLE_N (paged), distinct from frozen MAX_K=3; no single recommended marker; >=0.70 pre-checks are display-only
 
 ### Pending Todos
 
@@ -1968,7 +1972,7 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-07-01T04:20:02.820Z
+Last session: 2026-07-01T08:12:03.719Z
 Stopped at: Completed 188-01-PLAN.md (SFS-06 breakthrough collapse)
 
 **Phase 183 Plan 01 (this session):** METER-01 gate-exposure + the Gauge-1 invocation-density reader, the build-first keystone of the v1.15.0 "Cure Under-Invocation" milestone. Task 1 (0d08fff3, test): the phase Wave-0 scaffold -- 5 meter RED pins (gate-reach, density, event-types-floor for Plan 01; transfer, two-gauge-weld for Plan 02) + tests/run-all-183.sh mirroring run-all-180.sh (5 node pins + the Part 8 grep-sweep over lib/core/meter/ and a BOUNDED gate_reached emit-seam window + the reach-ids/posture-ids drift fences). Task 2 (e0d46f51, feat): gate_reached added to the frozen EVENT_TYPES Set via the verbatim additive idiom (86 -> 87, mirrors the Phase 181-01 1-string precedent) + ONE gate_reached emit at scripts/intent-classifier.cjs beside the live reach_presented loop on the surface-shared engine arm, guarded by offered.length > 0, deduped on the turn-start handle (startedAt) with logEvent's 60s idempotency so a re-entrant arm cannot double-count; payload enum/scalar only (reach_count/routing_source/source_path/created_by/dedupe_key). Task 3 (3d650ede, feat): lib/core/meter/gate-density-reader.cjs -- computeInvocationDensity counts gate_reached + reach_presented + framework_invoked via navigation.findRecentChanges; density basis leans on reach_presented + gate_reached (framework_invoked verified UN-emitted at any production site today -- Open Question 1; carried as an additive term reading ~0); denominator_unit = 'gate_reached' (Open Question 2); roomState injection seam for db-free reads; cold-starts to a zeroed object, never throws, opens no db, makes no remote call; no bare-density export (T-183-04). run-all-183.sh 6/8 (the 2 RED are the Plan-02 transfer + two-gauge-weld pins BY DESIGN). The ONLY frozen-set change is the single gate_reached string; no new reach/node/edge/posture; frozen render contracts (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 gate, 6-reach bank, appendAskUserQuestionTrailer) untouched; Part 8 sweep clean; no em-dashes. One deviation (Rule 1, test-comment only): reworded a floor-test header comment that carried a literal ".size" token so the Task-1 grep-c acceptance returned 0; zero production impact. Next: Phase 183 Plan 02 (METER-02 transfer proxies + the welded two-gauge read) turns the 2 remaining RED pins green. See .planning/phases/183-meter-gate-exposure-transfer/183-01-SUMMARY.md.
