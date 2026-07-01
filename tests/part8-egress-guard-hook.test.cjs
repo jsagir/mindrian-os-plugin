@@ -1,0 +1,147 @@
+#!/usr/bin/env node
+// Phase 196 -- part8-egress-guard-hook stdin -> exit-code test (PB8-04/05/07/08).
+//
+// WAVE 0 CONTRACT: authored before the hook lands (Nyquist). It checks for
+// scripts/part8-egress-guard-hook.cjs; while absent it prints SKIP and exits 0.
+// The F.1-gate and Brain-less-degrade legs are FURTHER guarded behind the gate
+// module (lib/hmi/part8-egress-gate.cjs, lands 196-05) so they stay SKIP-safe
+// until their surface exists.
+//
+// Hook contract (RESEARCH / write-scope-check clone):
+//   - non-Brain tool_name           -> exit 0 (passthrough, isBrainTool recheck)
+//   - verdict block (CONTENT-SET)    -> exit 2 + Part 8 stderr message (PB8-04)
+//   - clean MOVE-SET                 -> exit 0 (PB8-04)
+//   - malformed/garbage stdin        -> exit 0 fail-OPEN (A3 accepted risk)
+//   - ambiguous + Brain available    -> exit 2 after rendering the F.1 gate (PB8-07)
+//   - ambiguous + Brain-less         -> exit 0, LOCAL-log only, no gate (PB8-08, D-08a)
+//
+// Test seam for the isAvailable branch: the hook honors PART8_FORCE_BRAIN_AVAILABLE
+// ('1' -> available, '0' -> Brain-less) so the ambiguous branch is deterministically
+// exercisable without a live Brain wire. This env override is test-only.
+//
+// Zero-dep: child_process spawnSync with a JSON stdin envelope. CJS only. No em-dashes.
+
+'use strict';
+
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+const ROOT = path.join(__dirname, '..');
+const HOOK = path.join(ROOT, 'scripts', 'part8-egress-guard-hook.cjs');
+const GATE = path.join(ROOT, 'lib', 'hmi', 'part8-egress-gate.cjs');
+
+if (!fs.existsSync(HOOK)) {
+  console.log('SKIP: scripts/part8-egress-guard-hook.cjs not present (Wave 0) -- inert until 196-04 lands the hook');
+  process.exit(0);
+}
+
+// Run the hook with a stdin string and optional extra env; return { status, stderr }.
+function runHook(stdin, extraEnv) {
+  const env = Object.assign({}, process.env, extraEnv || {});
+  const res = spawnSync(process.execPath, [HOOK], { input: stdin, env: env, encoding: 'utf8' });
+  return { status: res.status, stderr: res.stderr || '' };
+}
+
+function envelope(obj) { return JSON.stringify(obj); }
+
+// Envelope shape (brain-response-sanitize-hook): { tool_name, tool_input, session_id }.
+const CONTENT_SET = envelope({
+  tool_name: 'mcp__brain_query',
+  tool_input: { cypher: 'note from jane@startup.com re: 2.3M ARR model' },
+  session_id: 's1',
+});
+const CLEAN_MOVE_SET = envelope({
+  tool_name: 'mcp__brain_query',
+  tool_input: {
+    packet_version: '1.0',
+    job: 'select_methodology',
+    privacy_mode: 'strict',
+    local_graph_summary: { nodes: [{ summary: 'sha256:' + 'a'.repeat(64) }] },
+  },
+  session_id: 's2',
+});
+const NON_BRAIN = envelope({ tool_name: 'Write', tool_input: { path: 'x.md' }, session_id: 's3' });
+const GARBAGE = 'this is not json at all }{';
+const AMBIGUOUS = envelope({
+  tool_name: 'mcp__brain_ask',
+  tool_input: { question: 'opaque blob with no clear content and no proven move-set shape' },
+  session_id: 's4',
+});
+
+// ---------------------------------------------------------------------------
+// PB8-04: CONTENT-SET on a Brain tool -> exit 2 with a Part 8 stderr message.
+// ---------------------------------------------------------------------------
+(function pb8_04_block() {
+  const r = runHook(CONTENT_SET);
+  assert.strictEqual(r.status, 2, 'PB8-04: CONTENT-SET on a Brain tool must exit 2 (block)');
+  assert.ok(/part 8/i.test(r.stderr), 'PB8-04: block must emit a Part 8 stderr message');
+})();
+
+// ---------------------------------------------------------------------------
+// PB8-04: clean MOVE-SET -> exit 0 (allow).
+// ---------------------------------------------------------------------------
+(function pb8_04_allow() {
+  const r = runHook(CLEAN_MOVE_SET);
+  assert.strictEqual(r.status, 0, 'PB8-04: clean MOVE-SET must exit 0 (allow)');
+})();
+
+// ---------------------------------------------------------------------------
+// Passthrough: non-Brain tool_name -> exit 0 (isBrainTool recheck, defense-in-depth).
+// ---------------------------------------------------------------------------
+(function passthrough() {
+  const r = runHook(NON_BRAIN);
+  assert.strictEqual(r.status, 0, 'non-Brain tool_name must exit 0 (passthrough)');
+})();
+
+// ---------------------------------------------------------------------------
+// A3: malformed/garbage stdin (infra error) -> exit 0 fail-OPEN.
+// ---------------------------------------------------------------------------
+(function fail_open() {
+  const r = runHook(GARBAGE);
+  assert.strictEqual(r.status, 0, 'A3: garbage stdin must fail-OPEN (exit 0), never brick a Brain call');
+})();
+
+// ---------------------------------------------------------------------------
+// PB8-07 / PB8-08: the ambiguous branch. Guarded behind the F.1 gate module so it
+// stays SKIP-safe until 196-05. When present, exercise both availability legs via
+// the PART8_FORCE_BRAIN_AVAILABLE test seam.
+// ---------------------------------------------------------------------------
+if (fs.existsSync(GATE)) {
+  // PB8-07: ambiguous + Brain available -> exit 2 after rendering the F.1 gate.
+  (function pb8_07_gate() {
+    const r = runHook(AMBIGUOUS, { PART8_FORCE_BRAIN_AVAILABLE: '1' });
+    assert.strictEqual(r.status, 2, 'PB8-07: ambiguous + Brain available must exit 2 (gate rendered)');
+  })();
+
+  // PB8-08: ambiguous + Brain-less -> exit 0, LOCAL-log only, no gate (D-08a).
+  (function pb8_08_degrade() {
+    const r = runHook(AMBIGUOUS, { PART8_FORCE_BRAIN_AVAILABLE: '0' });
+    assert.strictEqual(r.status, 0, 'PB8-08: ambiguous + Brain-less must exit 0 (LOCAL-log, no gate)');
+  })();
+
+  // PB8-07 contract: the F.1 gate offers {Reformulate, Cancel} and NO send-anyway
+  // verb. Assert directly against the gate renderer (in-process, surface-agnostic).
+  (function pb8_07_verbs() {
+    const gate = require(GATE);
+    const render = gate.renderGate || gate.render || gate.default;
+    assert.strictEqual(typeof render, 'function', 'part8-egress-gate must export a render function');
+    const out = render({ tier: 'A', class: 'personal_identifier' });
+    const contract = out && out.contract ? out.contract : out;
+    const verbs = (contract && contract.verbs) || [];
+    assert.ok(verbs.indexOf('Reformulate') !== -1, 'PB8-07: F.1 gate must offer Reformulate');
+    assert.ok(verbs.indexOf('Cancel') !== -1, 'PB8-07: F.1 gate must offer Cancel');
+    const forbidden = ['Send', 'SendAnyway', 'Send-Anyway', 'Approve', 'Override', 'Proceed'];
+    forbidden.forEach(function (v) {
+      assert.ok(verbs.indexOf(v) === -1,
+        'PB8-07: F.1 gate must NOT offer a send-anyway verb (found "' + v + '") -- honors D-01');
+    });
+  })();
+
+  console.log('PASS: part8-egress-guard-hook (PB8-04/05/07/08) -- exit codes + F.1 gate contract green');
+} else {
+  console.log('PARTIAL PASS: hook exit-code legs (PB8-04/05) green; F.1 gate + degrade SKIPPED (part8-egress-gate.cjs absent, lands 196-05)');
+}
+
+process.exit(0);
