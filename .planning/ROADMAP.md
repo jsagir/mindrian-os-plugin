@@ -3391,25 +3391,27 @@ Completes the unbuilt Shape-F surface in three parts, all on the SEED-020 single
 - **Already-phased siblings (do NOT rebuild):** SEED-040=Phase 189, SEED-041=Phase 190, SEED-009=Phase 158, SEED-020 graduated (88.2/121.5/143.1/178).
 - **Provenance:** navigator-directed 2026-07-01 (Cluster-B graduation from seed consolidation). Promoted from SEED-020/021/042. NEXT: `/gsd-discuss-phase 192`.
 
-### Phase 194: Per-Session Room Binding + Multi-Session Reconcile (per-session-room-binding) - REGISTERED 2026-07-01
+### Phase 194: Per-Session Room Binding + Multi-Session Reconcile (per-session-room-binding) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-01**
 
 **Class:** CODE | **Priority:** P1 (Tier-1 concurrency substrate; prereq for 189/195) | **Depends on:** Phase 109 (navigation.cjs Part-9 chokepoint)
+
+- **Status:** COMPLETE 2026-07-01 (7 plans / 6 waves, harness-as-code). Phase gate `bash tests/run-all-194.sh` = 14 passed / 0 failed / 0 skipped, exit 0; 194-VERIFICATION.md status: passed. Kills the single-global-active-room race: per-session binding file (bound SET + primary + sticky, `.rooms/sessions/<sessionId>.json`); session-aware precedence in resolve-active-room.cjs (`.room-root` walk-up -> primary -> reg.active demoted); the intent-classifier tripwire graduated to the Phase-188 F.8 binding gate (rooms + dev-repo/no-room option); write-guard flipped to set-membership (D-04, no-room false-block gone); lost-update reconcile at navigation.cjs on the shipped `last_modified_at` CAS token (D-05) gated behind a per-room presence fast-path, firing the Phase-188 F.9 ordered gate (APPROVE re-apply / REJECT NOT_APPLIED / DEFER CONTRADICTS); presence teardown BOTH (SessionEnd deregister + doctor stale-reap); doctor --bind-check; one-key primary reassign. LOAD-BEARING CORRECTION: the CAS-token discipline was repaired (4 read-merge-write UPDATEs now bump last_modified_at, 3 node-birth sites allowlisted, a hard discipline-floor test) BEFORE the guard was built on the token - pattern-map caught that only promoteNodeStatus bumped it. Composition only (F.8/F.9 from 188, no new shape); Part 8 clean (7/7 new modules zero Brain/network); every surface fails OPEN; no em-dashes; frozen scalars untouched. Forks: D-06 primary-as-default+reassign, D-07 prompt-each-time (async no-turn -> DEFER+surface), D-08 teardown both. Commits: 194-01 scaffold -> 194-02 primitives -> 194-03 resolution -> 194-04 gate -> 194-05 guard (4a005baa) -> 194-06 reconcile (5633aae4/5c068802/c788c19f) -> 194-07 health (c9b15f4c/fe897291/9f7a4e0f). Branch feat/v1.15-shape-brain-phases. NOTE: the fix ships but THIS running session predates it (unbound) - the spurious intent-mismatch warnings stop once a session binds via the F.8 gate.
 
 Cluster A foundation. Bind each session to a room with a write-guard set-membership model + a lost-update fix, so concurrent sessions (Cowork especially) cannot clobber each other. This is the concurrency machinery the memory-governance (189) and cross-room (195) work assume. Multi-session write conflicts surface an F.9 ordered reconcile (approve/reject/defer per item; deferred keeps both as linked competing claims).
 
 - **Canon:** Part 8 (LOCAL session state, zero Brain wire), Part 9 (writes through the navigation.cjs chokepoint). Frozen scalars unchanged; no em-dashes.
 - **Provenance:** Cluster-A graduation from SEED-039. NEXT: `/gsd-discuss-phase 194`.
-- **Plans:** 3/7 plans executed
+- **Plans:** 7/7 plans complete
 
 Plans:
 
 - [x] 194-01-test-scaffold-harness-PLAN.md - Wave 0: run-all-194.sh + SKIP-safe stubs + Part-8 local-only + last_modified_at coverage floors
 - [x] 194-02-session-presence-primitives-PLAN.md - Wave 1: session-binding.cjs + session-presence.cjs (atomic write, pid-liveness, 5m reap)
 - [x] 194-03-session-aware-resolution-PLAN.md - Wave 2: resolveWriteRoom + resolveSessionScope (reg.active demoted)
-- [ ] 194-04-binding-gate-PLAN.md - Wave 3: intent-classifier graduates to F.8 gate + session-binding-consumer (the spurious-warning fix)
-- [ ] 194-05-write-guard-set-membership-PLAN.md - Wave 3: write-scope-check set-membership (false no-room block removed)
-- [ ] 194-06-reconcile-lost-update-PLAN.md - Wave 4: last_modified_at repair + reconcile-guard + F.9 adapter (A1/A4 correction)
-- [ ] 194-07-health-lifecycle-PLAN.md - Wave 5: doctor --bind-check + presence teardown BOTH + one-key reassign
+- [x] 194-04-binding-gate-PLAN.md - Wave 3: intent-classifier graduates to F.8 gate + session-binding-consumer (the spurious-warning fix)
+- [x] 194-05-write-guard-set-membership-PLAN.md - Wave 3: write-scope-check set-membership (false no-room block removed)
+- [x] 194-06-reconcile-lost-update-PLAN.md - Wave 4: last_modified_at repair + reconcile-guard + F.9 adapter (A1/A4 correction)
+- [x] 194-07-health-lifecycle-PLAN.md - Wave 5: doctor --bind-check + presence teardown BOTH + one-key reassign
 
 ### Phase 195: Fractal + Cross-Room Memory (fractal-cross-room-memory) - REGISTERED 2026-07-01
 
@@ -3419,7 +3421,16 @@ Cluster A charter. Implements the ICM fractal memory contract (SEED-022, folds S
 
 - **Wiring:** sub-room birth writes 5 atomic side-effects or fails closed (SEED-001 spec preserved verbatim); cross-room links ride the F.8 basket (Phase 188), navigator-confirmed, written through navigation.cjs.
 - **Canon:** Part 8 (LOCAL only; the Brain may suggest the TEMPLATE "scan own other rooms" but the local layer writes the edges, zero Brain wire), Part 9, Part 11 (born-wired sub-room). No em-dashes.
-- **Provenance:** Cluster-A graduation from SEED-022 (+ folded 001) + SEED-044. NEXT: `/gsd-discuss-phase 195`.
+- **Provenance:** Cluster-A graduation from SEED-022 (+ folded 001) + SEED-044. NEXT: `/gsd-execute-phase 195`.
+
+**Plans:** 6 plans / 6 waves (Wave 5 = FCM-08 canon amendment, navigator-gated)
+
+- [ ] 195-01-seed004-foundation-PLAN.md - Wave 0: SKIP-safe run-all-195.sh + two FLOORs + shared depth-3 fixture + SEED-004 residual write-scope fix (gates born-wired birth)
+- [ ] 195-02-recursive-reconciler-drift-code-PLAN.md - Wave 1: FCM-01/02 depth-3 recursive reconciler + FCM-07 DRIFT code registration (BASENAME_TO_KIND + readSextuple), no canon bytes
+- [ ] 195-03-umbilical-v2-born-wired-birth-PLAN.md - Wave 2: FCM-03/04 .umbilical v2 inheritance + FCM-05/06 born-wired fail-closed birth (5 SEED-001 side-effects verbatim, pre-mkdir gate)
+- [ ] 195-04-umbilical-edge-registry-store-PLAN.md - Wave 3: FCM-11 mint UMBILICAL_TO + registry-level cross-room store + room-deletion reconcile
+- [ ] 195-05-crossroom-cord-f8-triggers-PLAN.md - Wave 4: FCM-09 relevance emitter + FCM-10 F.8 gate (1 confirm -> N edges) + FCM-12 three triggers (rides 194 presence)
+- [ ] 195-06-canon-7th-kind-amendment-PLAN.md - Wave 5: FCM-08 navigator-gated canon 6->7 amendment (blocking checkpoint, atomic lockstep)
 
 ### Phase 196: Part-8 Runtime SLM Boundary Guardrail (part8-runtime-slm-guardrail) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-01** - **GATES 191/193**
 
@@ -3543,6 +3554,7 @@ The `/mos:ignite` front door becomes a live Shape-F entry (navigator-directed 20
 **Plans:** 9 plans in 4 waves (planned 2026-07-01). Items 10 (Part 12 canon) + 11 (Shape-F elevation labels, Phase 188.1) already SHIPPED - not re-planned.
 
 Plans:
+
 - [ ] 205-01-PLAN.md (wave 1) - Routing fence: surface:navigator|internal tag on the CLI registry + MCP router parity (items 0, 0b; D-Q6)
 - [ ] 205-02-PLAN.md (wave 1) - Frame node + SHARES_JOB/ELEVATES_TO additive edges in room.db (D-Q5; FUSION substrate)
 - [ ] 205-03-PLAN.md (wave 1) - SENS-10 circularity sensor + clarify-vs-reframe ranker flip (item 2)
