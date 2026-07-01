@@ -123,6 +123,43 @@ Part 3 (GUIDED tri-context gate, hedging-always-on, offer-not-assert), Part 7 (w
 
 ROADMAP.md body edits for Phase 205 kept reverting to git HEAD after cascade-complete / plugin-reload (the phase DIRECTORY survived; the tracked ROADMAP body did not). Root cause to investigate: a PostToolUse cascade hook or the /reload-plugins resync appears to restore ROADMAP.md to committed state. Until fixed, this CONTEXT file is the durable source; re-add the ROADMAP heading via /gsd-phase and verify it persists.
 
+## Decision registry (parallel-session start-here, 2026-07-01)
+
+Everything a parallel session needs to start 205. All decisions navigator-approved this session.
+
+### Locked decisions (discuss-phase)
+- **D-Q5 frame boundary = MINT a first-class Frame node** in room.db (additive to node/knowledge types; mirror the CONTRADICTS/SELECTED_REACH additive idiom; update the drift test). Overrides the derive-lean.
+- **D-Q4 confidence threshold = start 0.70** (reuse the frozen Shape-F 0.70/0.15 detent), override below ~0.40 or requires_judgment; TUNABLE via the Bruce harness.
+- **D-Q6 surface tag = two-value `surface: navigator|internal`** spanning CLI + MCP; navigator-utility (funding/file-meeting/doctor/heal/deck/show/...) is navigator, plumbing (dogfood-flush/hmi-status/refresh/brain-derive/...) is internal.
+- **D-Q1 FUSION cadence = boundary-pass first**, add continuous only if the Bruce catch-rate is low.
+- **Keep the ASK/TELL/GRILL gears AND add the three elevation types alongside** (navigator-directed; not a rip-and-replace).
+
+### Doctrine SHIPPED this session (do not redo)
+- **Canon RATIFIED v1.21** (parallel session): Part 12 "three directions of elevation" + unified principle + four-check + hedged-tone + surface obligation; Appendix D entry 34; frozen scalars byte-identical.
+- **Larry behavior change SHIPPED** (commit 3861be05): `skills/larry-personality/SKILL.md` "Three Directions of Elevation (Part 12)" section (vertical/horizontal/lateral, persona-ratio, hedged-always, four-check, clarify-vs-reframe, artifact!=conversation, Shape-F vocabulary) + `agents/larry-extended.md` terse always-on pointer (single source of truth = the skill).
+- **188.1 SHIPPED** (parallel): Shape-F elevation labels in `lib/hmi/dial-label-composer.cjs` (kills the "No specific job" blank); tests 14/14.
+- **Drift guard SHIPPED**: `tests/test-205-elevation-doctrine-floor.cjs` (45 assertions; canon<->skill<->body consistency). Deterministic; run in CI.
+
+### Still to BUILD in 205 (the engine)
+- SENS-10 circularity sensor in `lib/core/insight-sensors.cjs` (SENS-09 taken by Phase 170); four-cause/four-exit selector.
+- The Frame node (D-Q5) + FUSION router (brain_ask DirectiveEnvelope -> JTBD job-test -> horizontal/lateral) + session-boundary quorum.
+- Ranker flip in `lib/workflow/f-selector-ranker.cjs::rankForSelector` (ASK-as-clarification never the recommended detent when SENS-10 fires).
+- GRILL two-arm (bias-consult + bono-fan validation, Tavily/WebFetch, plan-gated via deep_research).
+- The `surface:navigator|internal` registry tag (D-Q6).
+
+### Eval suite (LIVE, Plurai/IntellAgent, optimized LLM 2026-07-01)
+- cross-frame elevation `cross-topic-connection` 0.938 -> https://run.plurai.ai/ioa/v1/cross-topic-connection/1.0.0 (classifier 9e4b0f4e-11a0-4620-8f9f-44b9d751a378)
+- anti-circular `ai-turn-progress-evaluator` 0.938 -> .../ai-turn-progress-evaluator/1.0.0 (8b4d1181-1400-43d7-8593-f05322582d9e)
+- reach+gate `reach-gate-choice-classifier` 0.900 -> .../reach-gate-choice-classifier/1.0.0 (4f36e330-e968-4fc3-b2a6-a1c5af416714)
+- voice-signature `de-stijl-mark-classifier` 0.750 -> .../de-stijl-mark-classifier/1.0.0 (8c2ccc55-6407-43ca-92b6-16bf74982756). LAGGARD: make hybrid (deterministic detectVoiceMark for presence/placement/count; LLM only for color-move match). Golden data pending real Test 6 transcript (scrub PII first, Part 8).
+
+### Tester findings feeding 205 (docs/testers, gitignored)
+- N1 artifact!=conversation (clean deliverables + placeholders) -> filing layer.
+- N2 initial-target-market discipline (5 buyers not $47B TAM) -> /mos:mullins.
+- N3 portfolio-scale FUSION (batch-score N techs, surface the hidden gem) -> 205 + 200; possible new phase.
+- N4 naming: "Mindry" is the user-chosen name (Midjourney collision risk) -> branding, navigator's call.
+- Validation: anti-circular fix landing (Gaurav "it LED me to the conclusion"; Devoushka "not beating around the bush"); Lawrence field-confirms persona-ratio (Oliver session).
+
 ## Next
 
-`/gsd-discuss-phase 205` (reads this file), then `/gsd-plan-phase 205`.
+`/gsd-discuss-phase 205` (reads this file), then `/gsd-plan-phase 205`. Blocker for /gsd-plan-phase: roadmap-hygiene (get-phase found=false for all 196/188/200-205; relocate into `## Phase Details`) OR run 205 in a dedicated worktree.
