@@ -158,7 +158,10 @@ function readTelemetry(dir, opts) {
   const result = { activated, eventCount, events, highSignal, sessions, byRoom, shards };
 
   if (!activated) {
-    // Below-threshold state is SURFACED, never a silent thin table.
+    // Below-threshold state is SURFACED, never a silent thin table. Both a
+    // machine-readable flag AND a human-readable note are attached so callers
+    // cannot accidentally treat a pre-activation corpus as activated.
+    result.belowThreshold = true;
     const note = `telemetry below activation threshold (${eventCount}/${ACTIVATION_MIN})`;
     result.activationNote = note;
     if (!options.silent) {
