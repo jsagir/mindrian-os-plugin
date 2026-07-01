@@ -20,6 +20,34 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+const crypto = require('node:crypto');
+
+// The reserved dev-repo/no-room sentinel (mirrors intent-classifier NO_ROOM_SLUG).
+// A write whose session-aware resolution yields this (or yields no room at all)
+// is not room-scoped, so the set-membership guard must never block it.
+const NO_ROOM_SLUG = '__no_room__';
+
+// resolveSessionId -- COMPOSE the same precedence the intent-classifier uses
+// (intent-classifier.cjs:783 resolveSessionId), NOT a re-derived third guesser
+// (D-02 / the SEED-034 four-guessers lesson). CLAUDE_SESSION_ID is the shared
+// authority both guards read, so they converge on the SAME session file. The
+// hook payload's session_id is a better fallback than a day-hash when the env is
+// absent; the sha256(root+day) tail mirrors the classifier's last resort so a
+// missing env still lands on a stable per-day file. NEVER throws.
+function resolveSessionId(payload, root) {
+  const env = process.env.CLAUDE_SESSION_ID;
+  if (typeof env === 'string' && env.length > 0) return env;
+  const pid = payload && typeof payload.session_id === 'string' && payload.session_id.length > 0
+    ? payload.session_id
+    : null;
+  if (pid) return pid;
+  try {
+    const day = new Date().toISOString().slice(0, 10);
+    return crypto.createHash('sha256').update((root || '') + day).digest('hex').slice(0, 12);
+  } catch (_) {
+    return 'unknown';
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Helpers (inline per plan 83-06 task 2; may be factored to lib/core in 83-07).
