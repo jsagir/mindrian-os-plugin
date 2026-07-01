@@ -188,6 +188,31 @@ test('5. Part 12: highest-reward voice-violating candidate is NOT selected; comp
   }
 });
 
+// ================= Task 4: offline baseline parity =================
+
+test('6. baseline artifact exists with precision/recall keys and the local gate meets-or-beats it', () => {
+  assert.ok(fs.existsSync(BASELINE_PATH), 'evals/plurai/202-baseline.json must exist');
+  const baseline = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
+  // Baseline shape: precision/recall present (numbers), synthetic + deferred flags set.
+  assert.equal(typeof baseline.precision, 'number', 'baseline.precision must be a number');
+  assert.equal(typeof baseline.recall, 'number', 'baseline.recall must be a number');
+  assert.equal(baseline.baseline_deferred, true, 'Plurai is offline -> baseline_deferred must be true (Part 8)');
+  assert.equal(baseline.synthetic_only, true, 'synthetic_only must be true (Part 8)');
+  // The local gate is 100% on the mechanically-decidable hand-labeled rows,
+  // which meets-or-beats the hand-labeled baseline (precision/recall = 1).
+  const rows = loadCsvRows();
+  let correct = 0;
+  for (const r of rows) {
+    const res = gate.checkVoiceContract(r.agentResponse);
+    const expectPass = r.label === 'compliant';
+    if (res.pass === expectPass) correct++;
+  }
+  const localAccuracy = correct / rows.length;
+  assert.equal(localAccuracy, 1, 'the local gate must reproduce every hand-labeled row');
+  assert.ok(localAccuracy >= baseline.precision && localAccuracy >= baseline.recall,
+    'the local gate must meet-or-beat the baseline precision/recall');
+});
+
 // ---------- Summary ----------
 
 const failed = RESULTS.filter((r) => !r.ok);

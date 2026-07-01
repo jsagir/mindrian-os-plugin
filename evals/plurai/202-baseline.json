@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "ci-baseline",
+  "runtime_loaded": false,
+  "method": "hand-labeled",
+  "baseline_deferred": true,
+  "deferred_note": "Genuine Plurai precision/recall baseline deferred, same reason as 201-baseline.json / 200-baseline.json / 196-baseline.json: the Plurai eval is an interactive multi-turn MCP-tool flow (the /evals:eval ask_user model-choice step, README judge model fable) that cannot run non-interactively in the sequential executor, and Canon Part 8 keeps Plurai offline / build-CI / synthetic only. Per the plan DEGRADE path the rows are hand-labeled deterministically from the Label column (violation to flag, compliant to pass), and the local gate lab/apo/voice-contract-gate.cjs::checkVoiceContract reproduces every mechanically-decidable label exactly (parity test tests/test-202-voice-contract-gate.cjs test 2). Re-run /evals:eval interactively after /reload-plugins to replace this with a hosted Plurai baseline.",
+  "source_csv": "evals/plurai/09-apo-output-voice.csv",
+  "judge_prompt": "Classify whether an APO-optimized prompt OUTPUT honors Larry's teaching voice contract: it reframes and ends with a question or next step, stays roughly 3 to 8 sentences, does not dump an enumerated framework, carries exactly one De Stijl voice mark, and uses no em-dashes. Label compliant or violation.",
+  "canon_contract": "Canon Part 12 (Pedagogy / voice contract as a HARD disqualifier: reward can never buy a voice violation); Canon Part 8 (Plurai offline, synthetic only); Part 7 (reuse lab/eval/voice-mark-hybrid.cjs)",
+  "synthetic_only": true,
+  "precision": 1,
+  "recall": 1,
+  "accuracy": 1,
+  "f1": 1,
+  "row_count": 24,
+  "compliant_count": 12,
+  "violation_count": 12,
+  "local_gate": "lab/apo/voice-contract-gate.cjs",
+  "local_gate_accuracy": 1,
+  "mechanical_checks": ["too_long", "em_dash_present", "framework_dump", "missing_voice_mark"],
+  "subjective_llm_leg": "no_reframe_question (skipped offline, treated as pass unless a mechanical check already fails)",
+  "label_semantics": {
+    "compliant": "pass",
+    "violation": "flag"
+  }
+}
