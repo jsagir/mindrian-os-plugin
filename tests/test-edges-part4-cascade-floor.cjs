@@ -76,6 +76,8 @@ const FLOOR = [
   'AFFILIATED_WITH', 'PIVOTED', 'SELECTED_REACH', 'FEEDS_INTO', 'VALIDATES',
   'STATES', 'SUPPORTS', 'DESCRIBES', 'REFINES', 'ROOT_CAUSES', 'INSTANTIATES',
   'DECOMPOSED_INTO', 'PART_OF', 'TAGGED_WITH', 'RELATED_TO',
+  // Phase 169-00 room-lineage edge (added additively after the 168-01 baseline).
+  'NESTED_WITHIN',
 ];
 check('all prior FLOOR members preserved', () => {
   for (const t of FLOOR) {
