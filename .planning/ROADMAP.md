@@ -3387,6 +3387,16 @@ Cluster A foundation. Bind each session to a room with a write-guard set-members
 
 - **Canon:** Part 8 (LOCAL session state, zero Brain wire), Part 9 (writes through the navigation.cjs chokepoint). Frozen scalars unchanged; no em-dashes.
 - **Provenance:** Cluster-A graduation from SEED-039. NEXT: `/gsd-discuss-phase 194`.
+- **Plans:** 7 plans in 6 waves (planned 2026-07-01)
+
+Plans:
+- [ ] 194-01-test-scaffold-harness-PLAN.md - Wave 0: run-all-194.sh + SKIP-safe stubs + Part-8 local-only + last_modified_at coverage floors
+- [ ] 194-02-session-presence-primitives-PLAN.md - Wave 1: session-binding.cjs + session-presence.cjs (atomic write, pid-liveness, 5m reap)
+- [ ] 194-03-session-aware-resolution-PLAN.md - Wave 2: resolveWriteRoom + resolveSessionScope (reg.active demoted)
+- [ ] 194-04-binding-gate-PLAN.md - Wave 3: intent-classifier graduates to F.8 gate + session-binding-consumer (the spurious-warning fix)
+- [ ] 194-05-write-guard-set-membership-PLAN.md - Wave 3: write-scope-check set-membership (false no-room block removed)
+- [ ] 194-06-reconcile-lost-update-PLAN.md - Wave 4: last_modified_at repair + reconcile-guard + F.9 adapter (A1/A4 correction)
+- [ ] 194-07-health-lifecycle-PLAN.md - Wave 5: doctor --bind-check + presence teardown BOTH + one-key reassign
 
 ### Phase 195 - Fractal + Cross-Room Memory (fractal-cross-room-memory) - REGISTERED 2026-07-01
 
@@ -3398,22 +3408,24 @@ Cluster A charter. Implements the ICM fractal memory contract (SEED-022, folds S
 - **Canon:** Part 8 (LOCAL only; the Brain may suggest the TEMPLATE "scan own other rooms" but the local layer writes the edges, zero Brain wire), Part 9, Part 11 (born-wired sub-room). No em-dashes.
 - **Provenance:** Cluster-A graduation from SEED-022 (+ folded 001) + SEED-044. NEXT: `/gsd-discuss-phase 195`.
 
-### Phase 196 - Part-8 Runtime SLM Boundary Guardrail (part8-runtime-slm-guardrail) - REGISTERED 2026-07-01 - **GATES 191/193**
+### Phase 196 - Part-8 Runtime SLM Boundary Guardrail (part8-runtime-slm-guardrail) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-01** - **GATES 191/193**
 
 **Class:** CODE | **Priority:** P0 (gates the Brain-thread egress; build before 193, alongside 191) | **Depends on:** Phase 110 (typed packet), the Brain boundary (Part 8)
+
+- **Status:** COMPLETE 2026-07-01 (5 plans / 4 waves, harness-as-code). Phase gate `bash tests/run-all-196.sh` = 5 passed / 0 failed / 0 skipped, exit 0; 196-VERIFICATION.md status: passed (10/10 acceptance). Part 8 is now RUNTIME-ENFORCEABLE: a pure LOCAL rules-gate classify() (CONTENT-SET block / MOVE-SET allow / ambiguous) fires from a PreToolUse hook on the `mcp__brain_.*` matcher (block=exit 2, fail-OPEN on infra, fail-CLOSED on content); ambiguous -> Shape F.1 gate {Reformulate, Cancel} (no send-anyway verb, D-01); Brain-less degrade allows + LOCAL-logs; scalars-only ontology telemetry via navigation.cjs (Part 9). Reuse (Part 7): imports the shared FORBIDDEN_PATTERNS (no private copy), clones write-scope-check + shape-f1-renderer + run-all-188 aggregator. Zero network on the runtime path; frozen scalars untouched; no em-dashes; 16/16 CONTENT block + 16/16 MOVE allow on the synthetic parity set. Plurai (evals@plurai-plugins, installed+keyed+connected) is a BUILD/CI data-eval tool only (D-06/D-10a); 196-02 used the pre-authorized hand-labeled degrade (Plurai's genuine optimize run is interactive+paid, headless-executor-incompatible) - a validation upgrade deferrable to an interactive `/evals:eval` rerun, never a runtime dependency. Commits: 196-01 harness -> 196-02 baseline -> 196-03 classifier (f8c80ee4/31a7b18e) -> 196-04 hook+telemetry (a6f7d136/a589ca41/517b3366) -> 196-05 gate+degrade (b07b675c/c88662a8). Branch feat/v1.15-shape-brain-phases.
 
 Cluster F keystone. A runtime egress classifier (small language model / rules gate) that makes the Part-8 boundary ENFORCEABLE, not just doctrinal: every packet bound for the Brain is classified CONTENT-SET (LOCAL only, blocked) vs MOVE-SET (generic handles/enums, allowed) at the wire. This is the safe-egress guard the 191 command-recommendation + 193 regulator sensors (SEED-031) need to route safely.
 
 - **Canon:** Part 8 (the structural boundary made runtime-enforceable), Part 11 (R7 no live user egress). No em-dashes.
 - **Provenance:** Cluster-F graduation from SEED-019. NEXT: `/gsd-execute-phase 196`.
 
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 
 - [x] 196-01-test-harness-PLAN.md - Wave 0: SKIP-safe run-all-196.sh + 3 test stubs + CSV loader + grep-guard leg
 - [x] 196-02-plurai-baseline-PLAN.md - Wave 0: expand synthetic CSV, offline Plurai eval, persist 196-baseline.json
 - [x] 196-03-classifier-PLAN.md - Wave 1: pure classify() (CONTENT-SET block / MOVE-SET allow / ambiguous)
 - [x] 196-04-hook-telemetry-PLAN.md - Wave 2: PreToolUse hook + hooks.json + LOCAL-only ontology telemetry
-- [ ] 196-05-gate-degrade-PLAN.md - Wave 3: Shape F.1 ambiguous gate + Brain-less degrade + sendPacket belt
+- [x] 196-05-gate-degrade-PLAN.md - Wave 3: Shape F.1 ambiguous gate + Brain-less degrade + sendPacket belt
 
 ### Phase 197 - Brain MCP Separate Repo + Silent Identity (brain-mcp-separate-repo) - REGISTERED 2026-07-01
 
