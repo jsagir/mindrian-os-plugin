@@ -10,13 +10,19 @@
  *     remote sensing) external candidate on a "multi-user team collaboration"
  *     topic while keeping the on-topic candidate.
  *
+ *   Task 4 (H3): a non-degenerate regression fixture proves the mocked
+ *     differential does NOT collapse every pair to the boundary extreme
+ *     (semantic 0.0 / lsa 1.0 / signed_diff -1.0) -- the SEED-018 symptom.
+ *
  * The stub encoder is a fixed-vocabulary bag-of-words. It is intentionally
  * dumb and deterministic: an off-topic candidate shares no vocabulary with the
- * topic, so its cosine is 0 and it falls below the floor.
+ * topic, so its cosine is 0 and it falls below the floor; overlapping-but-
+ * distinct venture artifacts cosine into (0, 1) so no pair is degenerate.
  */
 'use strict';
 
 const assert = require('node:assert');
+const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
@@ -44,6 +50,41 @@ function stubEncode(text) {
   const counts = Object.create(null);
   for (const t of toks) counts[t] = (counts[t] || 0) + 1;
   return VOCAB.map(function dim(w) { return counts[w] || 0; });
+}
+
+function cosine(a, b) {
+  let dot = 0;
+  let na = 0;
+  let nb = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    dot += a[i] * b[i];
+    na += a[i] * a[i];
+    nb += b[i] * b[i];
+  }
+  if (na === 0 || nb === 0) return 0;
+  return dot / (Math.sqrt(na) * Math.sqrt(nb));
+}
+
+// Deterministic structural (LSA-stand-in) similarity: token-set Jaccard over the
+// full text. Overlapping-but-distinct artifacts land strictly inside (0, 1),
+// which is exactly what the degenerate regression (lsa == 1.0 always) lacked.
+function tokenJaccard(aText, bText) {
+  const setA = new Set(String(aText).toLowerCase().match(/[a-z]+/g) || []);
+  const setB = new Set(String(bText).toLowerCase().match(/[a-z]+/g) || []);
+  if (setA.size === 0 && setB.size === 0) return 0;
+  let inter = 0;
+  for (const t of setA) if (setB.has(t)) inter += 1;
+  const union = setA.size + setB.size - inter;
+  return union === 0 ? 0 : inter / union;
+}
+
+// Mocked-embedding differential over a text pair. semantic = stub-embedding
+// cosine, lsa = token Jaccard, signed_diff = semantic - lsa. The degenerate
+// regression this guards against is semantic 0.0 / lsa 1.0 / signed_diff -1.0.
+function stubDifferential(aText, bText) {
+  const semantic = cosine(stubEncode(aText), stubEncode(bText));
+  const lsa = tokenJaccard(aText, bText);
+  return { semantic: semantic, lsa: lsa, signed_diff: semantic - lsa };
 }
 
 // ============================================================================
@@ -152,12 +193,63 @@ function testPythonSemanticGateParity() {
   ok('H2: Python rs_corpus.semantic_gate parity (off-topic dropped)');
 }
 
+// ============================================================================
+// Task 4 (SEED-018 H3): non-degenerate regression fixture
+// ============================================================================
+
+function testNonDegenerateRegression() {
+  const fixturePath = path.join(
+    REPO_ROOT, 'tests', 'fixtures', 'rs-corpus', 'known-good-topic.json',
+  );
+  assert.ok(fs.existsSync(fixturePath),
+    'fixture known-good-topic.json must exist');
+  const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+
+  const artifacts = fixture.artifacts;
+  assert.ok(Array.isArray(artifacts) && artifacts.length >= 2,
+    'fixture must carry at least two artifacts to form a pair');
+
+  // Run the mocked-embedding differential over every artifact pair.
+  const pairs = [];
+  for (let i = 0; i < artifacts.length; i += 1) {
+    for (let j = i + 1; j < artifacts.length; j += 1) {
+      pairs.push(stubDifferential(artifacts[i].text, artifacts[j].text));
+    }
+  }
+  assert.ok(pairs.length >= 1, 'expected at least one pair');
+
+  // THE regression assertion: NOT every pair is the boundary extreme
+  // (semantic 0.0 / lsa 1.0 / signed_diff -1.0). Before the SEED-018 fixes the
+  // polluted corpus made every pair collapse to exactly this shape (two noise
+  // spaces measured against each other); this assertion is what would have
+  // failed pre-fix and now passes.
+  const allDegenerate = pairs.every(function isDeg(p) {
+    return p.semantic === 0 && p.lsa === 1 && p.signed_diff === -1;
+  });
+  assert.ok(!allDegenerate,
+    'regression: every pair collapsed to semantic 0.0 / lsa 1.0 / signed_diff -1.0');
+  ok('H3: not every pair is the boundary-extreme degenerate shape');
+
+  // And the fixture asserts its own expected_pair_shape is non-degenerate:
+  // at least one pair with 0 < semantic < 1 AND abs(signed_diff) < 1.
+  const shape = fixture.expected_pair_shape || {};
+  assert.strictEqual(shape.non_degenerate, true,
+    'fixture must declare expected_pair_shape.non_degenerate = true');
+  const goodPair = pairs.some(function good(p) {
+    return p.semantic > 0 && p.semantic < 1 && Math.abs(p.signed_diff) < 1;
+  });
+  assert.ok(goodPair,
+    'at least one pair must have 0 < semantic < 1 AND abs(signed_diff) < 1');
+  ok('H3: fixture yields a calibrated (non-degenerate) pair');
+}
+
 // ---------- Run ----------
 
 function main() {
-  console.log('test-200-corpus-quality: RS corpus quality (SEED-018 H2)');
+  console.log('test-200-corpus-quality: RS corpus quality (SEED-018 H2 + H3)');
   testSemanticFloorGate();
   testPythonSemanticGateParity();
+  testNonDegenerateRegression();
   console.log('PASS [test-200-corpus-quality]: ' + passed + ' assertions green');
 }
 

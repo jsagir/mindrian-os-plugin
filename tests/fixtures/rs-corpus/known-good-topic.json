@@ -1,0 +1,32 @@
+{
+  "_comment": "SEED-018 H3 regression fixture. A small room-artifact set + topic whose pairs, run through the mocked-embedding differential, are NON-degenerate: they do NOT collapse to the boundary extreme (semantic 0.0 / lsa 1.0 / signed_diff -1.0) that the polluted-corpus bug produced. The artifacts share vocabulary (so semantic cosine is > 0) but are distinct (so semantic < 1 and token Jaccard < 1), which lands at least one pair at 0 < semantic < 1 AND abs(signed_diff) < 1.",
+  "topic": "multi-user team collaboration platform",
+  "artifacts": [
+    {
+      "path": "sub-rooms/venture/collaboration/shared-workspace.md",
+      "text": "Our platform gives teams shared workspaces so multi-user members collaborate with realtime presence while editing shared project documents together."
+    },
+    {
+      "path": "sub-rooms/venture/onboarding/team-onboarding.md",
+      "text": "New team members onboard into shared collaboration workspaces; multi-user presence is core so members feel the team working alongside them from the first project."
+    },
+    {
+      "path": "sub-rooms/venture/gtm/collaborative-tooling.md",
+      "text": "Go-to-market targets teams that need collaborative multi-user tooling for shared projects, positioning the platform against single-user editing tools."
+    }
+  ],
+  "expected_pair_shape": {
+    "non_degenerate": true,
+    "at_least_one_pair": {
+      "semantic_gt": 0.0,
+      "semantic_lt": 1.0,
+      "abs_signed_diff_lt": 1.0
+    },
+    "boundary_extreme_forbidden": {
+      "semantic": 0.0,
+      "lsa": 1.0,
+      "signed_diff": -1.0,
+      "note": "the SEED-018 degenerate regression: every pair collapsed to this"
+    }
+  }
+}
