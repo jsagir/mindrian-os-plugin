@@ -3306,6 +3306,18 @@ Plans:
 - [ ] 188-06-f8-multiselect-PLAN.md -- SFS-01/02/03: F.8 multiSelect renderer + array capture + fan-out consumer (N edges on one confirm via navigation.cjs; MAX_TOGGLE_N paged) (Wave 5)
 - [ ] 188-07-f9-cascade-gate-flip-PLAN.md -- SFS-04/05 + SFS-10 completion: F.9 ordered APPROVE/REJECT/DEFER gate + flip the per-shape gate to the full ten F.0-F.9 (Wave 6)
 
+### Phase 188.1 - Shape-F elevation labels (shape-f-elevation-labels) - INSERTED 2026-07-01 - **COMPLETE**
+
+**Class:** CODE (quick) | **Priority:** P1 | **Parent:** Phase 188 (Shape-F selector) | **Depends on:** Phase 188 (the F.1/F.7 render + dial-label-composer), the Part 12 elevation taxonomy (Phase 205 canon deliverable; prototyped against the draft)
+
+Fixes the defect Lawrence Aronhime named: the LIVE Shape-F selector printed the mechanism-blank explore one_line ("No specific job - general thinking, talking, ranging.") on every degraded row, telling the navigator nothing about what they get or how their thinking improves. 188.1 repoints the degraded selector row to an ELEVATION-framed what-you-get default (Canon Part 12: vertical / horizontal / lateral), so every row names an elevation direction + a concrete outcome.
+
+- **Fix (one file):** `lib/hmi/dial-label-composer.cjs` gains an `elevation` dimension on all 7 families + `ELEVATION_DEFAULTS` + `elevationDefault()`; both degraded returns repoint from the generic explore line to the family's slot-free elevation line. `canonical_verb` still persists to the graph edge; zero presenter change (dial-presenter renders composeLabel output verbatim). `loadGenericFallback` stays as the deepest safety net.
+- **Relationship to 205:** 205 owns the elevation MODEL (Part 12 taxonomy + FUSION/gear engine); 188.1 is the UI slice that makes the SELECTOR speak the vocabulary now. Label wording is prototype copy pending the Part 12 amendment.
+- **Canon:** Part 12 (three directions of elevation + surface obligation), Part 3 (Shape-F render, frozen scalars untouched), Part 8 (labels carry no user egress). No em-dashes.
+- **Durable source:** `.planning/phases/188.1-shape-f-elevation-labels/188.1-CONTEXT.md`.
+- **Status:** COMPLETE 2026-07-01. Gate `tests/run-all-188.sh` 14/14 PASS (adds run_if leg `tests/test-188.1-elevation-labels.cjs`); existing dial tests green (drift, render-states 14/14, end-to-end 11 checks). Commit 47cadaab on feat/v1.15-shape-brain-phases.
+
 ### Phase 189 - Human-in-the-Loop Memory Governance (hitl-memory-governance) - REGISTERED 2026-06-30
 
 **Class:** CODE + CANON | **Priority:** P1 (after F.8/F.9 land - they are prerequisite machinery) | **Depends on:** Phase 188 (F.8 multi-select), the F.9 cascade/reconcile seed, SEED-039 (multi-session reconcile), Phase 109 (navigation.cjs Part-9 chokepoint), LarryReach bank (6 reaches)
