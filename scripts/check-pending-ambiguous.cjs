@@ -148,7 +148,11 @@ function throttleAndCollect(db) {
       continue;
     }
     try {
-      db.prepare('UPDATE nodes SET properties = ? WHERE id = ?').run(propsJson, row.id);
+      // Phase 194-06 Task 1 (PSB-08 pre-req): this maintenance read-merge-write on
+      // properties (surfacing_count) also bumps last_modified_at so the CAS token
+      // moves; the token must advance on every content mutation, even offline ones.
+      db.prepare('UPDATE nodes SET properties = ?, last_modified_at = ? WHERE id = ?')
+        .run(propsJson, Date.now(), row.id);
     } catch (_e) {
       continue;
     }

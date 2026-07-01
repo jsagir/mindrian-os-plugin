@@ -33,13 +33,12 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 
-// Wave-4 sentinel. Until the reconcile-guard lands, the read-merge-write sites
-// are unrepaired by design -> self-skip so Wave 0 stays clean.
-const WAVE4_SENTINEL = path.join(ROOT, 'lib/core/navigation/reconcile-guard.cjs');
-if (!fs.existsSync(WAVE4_SENTINEL)) {
-  console.log('SKIP: test-194-lastmod-discipline -- Wave-4 sentinel absent (lib/core/navigation/reconcile-guard.cjs); read-merge-write sites not yet repaired. Flips to a hard run after 194-06.');
-  process.exit(0);
-}
+// Phase 194-06 Task 1: FLIPPED to a HARD run. Wave 4 repaired the four
+// read-merge-write UPDATE sites (abstraction-claim + both breakthrough sites +
+// check-pending), so the last_modified_at coverage floor now runs unconditionally.
+// The former Wave-4 self-skip sentinel (lib/core/navigation/reconcile-guard.cjs)
+// is removed; this floor is the standing guardrail against a future writer
+// re-opening the lost-update hole (threat T-194-14).
 
 // The scan surface: every source .cjs in the navigation dir (which includes
 // abstraction-claim.cjs, transitions.cjs, typed-domain.cjs, room-birth.cjs)
@@ -60,6 +59,7 @@ scanFiles.push(path.join(ROOT, 'lib/core/breakthrough/scanner.cjs'));
 const ALLOWLIST = {
   'typed-domain.cjs': 'node-birth: blind review_status=confirmed on a just-typed domain node; no co-session readVersion can exist',
   'room-birth.cjs': 'room-birth bookkeeping: blind review_status=confirmed on a Section at room creation; no co-session readVersion can exist',
+  'typed-frame.cjs': 'node-birth: blind review_status=confirmed on a just-composed Frame node (type minted Phase 205, identical shape to typed-domain); no co-session readVersion can exist',
 };
 
 const CONTENT_TOKENS = ['properties', 'review_status'];

@@ -65,13 +65,12 @@ run "PSB Part 8 local-only floor (zero Brain/network token in new modules)" \
   node tests/test-194-local-only.test.cjs
 
 # ---------------------------------------------------------------------------
-# FLOOR 2 (last_modified_at coverage). run_if-gated on the Wave-4 sentinel so
-# it SKIPs until 194-06 repairs abstraction-claim + the two breakthrough
-# read-merge-write UPDATE sites; then it flips to a hard run. The test file
-# itself is also self-skip-safe on the same sentinel.
+# FLOOR 2 (last_modified_at coverage). Phase 194-06 Task 1 repaired the four
+# read-merge-write UPDATE sites (abstraction-claim + both breakthrough sites +
+# check-pending), so this floor is now a HARD run (flipped from run_if). It is
+# the standing guardrail against a future writer re-opening the lost-update hole.
 # ---------------------------------------------------------------------------
-run_if "PSB last_modified_at coverage floor (CAS token discipline)" \
-  lib/core/navigation/reconcile-guard.cjs \
+run "PSB last_modified_at coverage floor (CAS token discipline)" \
   node tests/test-194-lastmod-discipline.test.cjs
 
 # ---------------------------------------------------------------------------
