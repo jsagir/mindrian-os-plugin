@@ -16,6 +16,16 @@ progress:
 
 # Project State
 
+## (2026-07-02) -- PHASE 201 COMPLETE -- Harness-as-Code Manifest + Ralph-Loop Runtime (THE INTEGRATIVE SPINE)
+
+SEED-032 + SEED-033 closed: the agent harness the whole system already rides is now a DECLARED, drift-checkable manifest, plus the two Ralph-loop runtime behaviors it carries. All 4 plans coded + green; `bash tests/run-all-201.sh` = PASS=5 FAIL=0 SKIP=0; `node scripts/build-harness-manifest.cjs --check` exit 0. All four Canon invariants source-verified by an independent fable reassessment.
+
+- **201-01** -- `data/harness-manifest.json` now declares 4 runtime surfaces (runChain spine, navigation decide engine, statusline cockpit, brain-orchestration reader) as digest-only entries alongside the 3 data maps; `--check` fails closed on surface drift; `recipe-maps.cjs loadManifest()` reads it additively. A prior sibling-fork registry (`harness-runtime-manifest.json`) was consolidated away (Canon Part 7/11: one governed path, no second registry). Commits `5658c7b1 9cd97128`.
+- **201-02** -- bounded verify->retry loop on `autonomous_safe` steps only (RETRY_CAP=2, drawn from the SAME EXEC-06 budget); material + irreversible steps are provably unretriable and halt at the gate (Canon Part 3 B3 intact); an exhausted retry halts with a distinct reason (`retry_exhausted` vs `budget_brake`), never proceeds silently. Commits `70ae6f82 7ac6d3a3 6ff5e94e`.
+- **201-03** -- `lib/core/graph-refine-loop.cjs`: a propose->fact-check->refine loop over the LOCAL room.db; only fact-check-verified edges are written, all through the `navigation.cjs` chokepoint (Part 9), zero Brain wire (Part 8), `dryRun` default TRUE + human-gated, bounded by MAX_ROUNDS + a no-new-verified early stop. Commit `be05a77d`.
+- **201-04** -- the eval GATE: `lib/core/ralph-loop-gate.cjs` reproduces the Plurai judge offline as four FROZEN boolean invariants (material-retry / unbounded / unverified-write / silent-proceed = always incorrect, options arg ignored -- not a swept threshold); 18-row synthetic CSV, `evals/plurai/201-baseline.json` on the sanctioned `baseline_deferred` degrade path with 100% local parity; `tests/run-all-201.sh` aggregator. Reuses the Phase 196 pattern (Part 7). Commit `5ba0e932`.
+- **Doc closeout:** 201-03/201-04 SUMMARYs reconstructed from the shipped commits + the 4 PLAN.md and 201-CONTEXT.md force-added to match the Phase 196 tracking convention, committed clean at a quiet-tree boundary (`7fdb924f`) after a concurrent 202 session on the shared working tree forced a serialized commit.
+
 ## Latest (2026-07-01) -- PHASE 202 Plan 01 COMPLETE -- Phase 121 telemetry consumer + reward table (closes the SEED-002 open loop)
 
 The trajectory-telemetry stream has been write-only since v1.13; SEED-002 always named a consumer that was never built. This plan built it, lab-side and offline, in strict TDD (6 commits: 3 RED/GREEN pairs).

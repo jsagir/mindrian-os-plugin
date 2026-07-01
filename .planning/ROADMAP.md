@@ -3555,7 +3555,7 @@ Cluster E. Reconcile the Reverse-Salient pipeline onto the connector/runChain sp
 - [x] 200-02-PLAN.md
 - [ ] 200-03-PLAN.md
 
-### Phase 201: Harness-as-Code Manifest + Ralph-Loop Runtime (harness-as-code-manifest) - REGISTERED 2026-07-01 - **THE INTEGRATIVE SPINE**
+### Phase 201: Harness-as-Code Manifest + Ralph-Loop Runtime (harness-as-code-manifest) - COMPLETE 2026-07-02 - **THE INTEGRATIVE SPINE**
 
 **Class:** CODE + ARCH | **Priority:** P1 (names/versions the harness the whole system already rides) | **Depends on:** Phase 166 (runChain), Phase 187 (statusline cockpit), Phases 141/143/144 (LarryReach dial), Phase 191 (Brain orchestration consumption)
 
@@ -3563,7 +3563,13 @@ Cluster I foundation, and the integrative spine (navigator-directed 2026-07-01).
 
 - **Canon:** Part 7 (declare the harness that exists, do not add a framework), Part 11 (one governed path), Part 3 (halts at material gates). No em-dashes.
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for verify-retry / factcheck loop behavior. No phase closes without a passing Plurai baseline.
-- **Provenance:** Cluster-I graduation from SEED-032 + SEED-033 (+ merged 028); integrative framing navigator-directed 2026-07-01. NEXT: `/gsd-discuss-phase 201`.
+- **Provenance:** Cluster-I graduation from SEED-032 + SEED-033 (+ merged 028); integrative framing navigator-directed 2026-07-01.
+- **Status (COMPLETE 2026-07-02):** all 4 plans coded + green (`run-all-201.sh` PASS=5 FAIL=0; `build-harness-manifest.cjs --check` exit 0). All four Canon invariants source-verified by an independent fable reassessment.
+  - [x] 201-01 - extend harness manifest to declare 4 runtime surfaces (digest-only) + `--check` drift tripwire; sibling-fork registry removed (Part 7/11). Commits `5658c7b1 9cd97128`.
+  - [x] 201-02 - bounded verify->retry on autonomous_safe steps (cap 2, EXEC-06 budget); material steps never retried, B3 intact (Part 3). Commits `70ae6f82 7ac6d3a3 6ff5e94e`.
+  - [x] 201-03 - propose->fact-check->refine graph loop over LOCAL room.db via navigation chokepoint; verified-writes-only, zero Brain wire, bounded (Part 8/9). Commit `be05a77d`.
+  - [x] 201-04 - Plurai voice/loop eval GATE + local deterministic parity gate (hard invariants, not a swept threshold); `baseline_deferred` degrade path, 100% local parity. Commit `5ba0e932`.
+  - Doc closeout (SUMMARYs + tracked plans/context) committed `7fdb924f`.
 
 ### Phase 202: Agent-Lightning APO Lab Loop (agent-lightning-apo-lab) - REGISTERED 2026-07-01
 
