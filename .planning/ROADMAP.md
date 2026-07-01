@@ -3579,12 +3579,12 @@ Cluster I. The lab-side automatic-prompt-optimization loop (SEED-002): an APO la
 
 - **Canon:** Part 8 (generic/teaching data only). No em-dashes.
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for APO output quality vs the teaching corpus. No phase closes without a passing Plurai baseline.
-- **Provenance:** Cluster-I graduation from SEED-002. NEXT: `202-03` (Plurai eval gate: APO-output voice-contract judge).
+- **Provenance:** Cluster-I graduation from SEED-002. Phase 202 COMPLETE 2026-07-02 (all 3 waves): telemetry consumer + reward table (202-01), APO propose/score/select loop Path A (202-02), voice-contract eval gate as the Canon Part 12 hard disqualifier (202-03).
 
 **Plans:**
 - [x] 202-01-PLAN.md (wave 1) -- Telemetry consumer: LOCAL read/group/reward-extract of the Phase 121 stream, >=100-event activation gate -- COMPLETE 2026-07-01 (commits `0b9d3b62`..`4c62678c`; `lab/apo/telemetry-consumer.cjs` + `lab/apo/reward-table.cjs`; 18/18 test PASS; closes the SEED-002 write-only open loop; zero network/Brain, append-only)
 - [x] 202-02-PLAN.md (wave 2) -- APO loop core: propose -> score (grading corpus + telemetry) -> select an optimized commands/act.md candidate, human-ratify -- COMPLETE 2026-07-01 (commits `0377138b`..`28eb77cc`; `lab/apo/prompt-target.cjs` + `lab/apo/apo-loop.cjs` + `lab/apo/.gitignore`; 10/10 test PASS; quality-primary blend, telemetry gated on activation; runApo recommends + NEVER writes commands/act.md, span data gitignored; zero network/Brain, no em-dashes)
-- [ ] 202-03-PLAN.md (wave 3) -- Plurai eval gate: APO-output voice-contract judge
+- [x] 202-03-PLAN.md (wave 3) -- Plurai eval gate: APO-output voice-contract judge -- COMPLETE 2026-07-02 (commits `a11799ed`..`89553fb2`; `lab/apo/voice-contract-gate.cjs` + `evals/plurai/09-apo-output-voice.csv` + `evals/plurai/202-baseline.json` + `tests/run-all-202.sh`; run-all-202 3/3 legs PASS; Canon Part 12 hard disqualifier proven -- a higher-reward em-dash candidate is NOT selected, a compliant lower-reward candidate wins; reuses `lab/eval/voice-mark-hybrid.cjs` (Part 7); Plurai offline/synthetic, baseline_deferred (Part 8); zero network/Brain, no em-dashes)
 
 ### Phase 203: Synthetic-Expert-as-Project-Skill (synthetic-expert-skill) - REGISTERED 2026-07-01
 

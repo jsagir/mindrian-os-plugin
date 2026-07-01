@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 202-02-PLAN.md (APO loop core -- propose/score/select, Path A recommend-then-ratify)
+stopped_at: Completed 202-03-PLAN.md (APO voice-contract eval gate -- Canon Part 12 hard disqualifier; Phase 202 COMPLETE, all 3 waves)
 last_updated: "2026-07-02T00:00:00Z"
 last_activity: 2026-07-02
 progress:
@@ -34,6 +34,7 @@ The trajectory-telemetry stream has been write-only since v1.13; SEED-002 always
 - **`lab/apo/reward-table.cjs`** -- `buildRewardTable(events)` extracts the four reward-bearing fields into `{ [reach]: { rewardMean, n, signals } }`. The reward-field selection is OUR subset (schema.cjs exports only the full ALLOWED_FIELDS whitelist), so it holds its own `REWARD_FIELD` map and ASSERTS each name is present in `ALLOWED_FIELDS[event]` (throws `REWARD_FIELD_DRIFT` on a schema rename -- D2 anti-drift). Normalization (D3): ranker_confidence + domain_match_score direct; user_response resolve=1/defer=0.5/ignore=0; `hooked_axis_score.score_value` carried RAW in `signals` and EXCLUDED from `rewardMean` (unbounded per schema; normalization deferred to 202-02).
 - **Tests:** `tests/test-202-telemetry-consumer.cjs` (18 assertions) + committed fixture `tests/fixtures/apo/telemetry-sample.jsonl` (12 canonical rows, exact `writer.emit` envelope keys; the test stages them into a hermetic tmp dir as real week-shards, NEVER touching the real `~/.mindrian` path). `node tests/test-202-telemetry-consumer.cjs` = 18/18 PASS, exit 0.
 - **Canon Part 8:** LAB-side only, LOCAL read, zero network / zero Brain / zero egress, append-only (never writes back). Node built-ins only, no new deps, no em-dashes. Commits `0b9d3b62 8ed9f41e ca85c48a 00de7bdb 5f8b2427 4c62678c`. SUMMARY: `.planning/phases/202-agent-lightning-apo-lab/202-01-SUMMARY.md`. NEXT: 202-02 (APO propose->score->select loop over commands/act.md).
+- **202-03 COMPLETE (2026-07-02) -- Phase 202 done, all 3 waves.** The APO voice-contract eval gate: `lab/apo/voice-contract-gate.cjs::checkVoiceContract(outputText, opts) -> { pass, violations }` (four deterministic mechanical legs -- too_long/em_dash_present/framework_dump/missing_voice_mark; the mark leg REUSES `lab/eval/voice-mark-hybrid.cjs::scoreVoiceMark`, Part 7; the subjective reframe-plus-question is the only LLM leg, skipped offline). `runApo` now DISQUALIFIES any candidate whose declared output breaks the contract BEFORE `selectBest` -- Canon Part 12 hard disqualifier, proven: a quality-0.95 em-dash candidate loses to a quality-0.80 compliant one. Synthetic eval `evals/plurai/09-apo-output-voice.csv` (24 rows, 12 compliant / 12 violation, 02 quoted-JSON dialect, labels compliant/violation NOT honors/breaks). Plurai deferred offline -> `evals/plurai/202-baseline.json` baseline_deferred:true (Part 8). Aggregator `tests/run-all-202.sh` = 3/3 legs PASS (34 assertions). Commits `a11799ed 5e7cf3a5 b4b3ba11 4a312796 20a78072 89553fb2`. SUMMARY: `.planning/phases/202-agent-lightning-apo-lab/202-03-SUMMARY.md`.
 
 ## Prior-Latest (2026-07-01) -- PHASE 200 Plan 01 FOLLOW-UP -- H2 semantic-floor gate LIVE-WIRED (`23fc9b22`)
 
