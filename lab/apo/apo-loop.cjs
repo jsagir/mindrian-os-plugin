@@ -44,6 +44,11 @@ const { buildRewardTable } = require('./reward-table.cjs');
 // Load + render the target prompt (byte-lossless frontmatter split).
 const { loadTarget, renderCandidate } = require('./prompt-target.cjs');
 
+// Canon Part 12: the voice contract is a HARD disqualifier. A candidate whose
+// OUTPUT breaks the contract (framework dump, over-long, em-dash, missing De
+// Stijl mark) is removed BEFORE selection -- reward can never buy a violation.
+const { checkVoiceContract } = require('./voice-contract-gate.cjs');
+
 // The canon frozen signal weight (0.15). Telemetry is a SECONDARY term bounded
 // by this weight; quality (weight 1.0, implicit) is PRIMARY.
 const TELEMETRY_WEIGHT = 0.15;
@@ -178,7 +183,13 @@ function runApo(target, opts) {
   const requested = Number.isInteger(options.rounds) && options.rounds > 0 ? options.rounds : 1;
   const rounds = Math.min(requested, MAX_ROUNDS);
   const runsDir = options.runsDir || DEFAULT_RUNS_DIR;
-  const ctx = { qualityScoreFn: options.qualityScoreFn, telemetry: options.telemetry || null };
+  const ctx = {
+    qualityScoreFn: options.qualityScoreFn,
+    telemetry: options.telemetry || null,
+    // Forwarded to checkVoiceContract; carries an optional llmJudge for the
+    // subjective reframe-plus-question beat (omitted offline -> skipped).
+    voiceOpts: options.voiceOpts || {},
+  };
 
   const candidates = [];
   const roundRecords = [];
@@ -192,6 +203,15 @@ function runApo(target, opts) {
       const rendered = renderCandidate(loaded, bodyVariant); // string only; never written to disk here
       const quality = qualityTerm(c, ctx);
       const score = scoreCandidate(c, ctx);
+      // Canon Part 12 voice-contract gate. Only candidates that DECLARE an
+      // output string are checked; a candidate with no output is not
+      // disqualified (backward compatible with the 202-02 loop). A declared
+      // output that breaks the contract is disqualified BEFORE selection.
+      const output = c && c.output != null ? String(c.output) : null;
+      const voice = output != null
+        ? checkVoiceContract(output, ctx.voiceOpts || {})
+        : { pass: true, violations: [] };
+      const disqualified = voice.pass !== true;
       const entry = {
         id: c && c.id != null ? c.id : 'cand-' + r + '-' + scored.length,
         reachKey: c && c.reachKey != null ? c.reachKey : null,
@@ -199,16 +219,20 @@ function runApo(target, opts) {
         rendered,
         quality,
         score,
+        output,
+        voiceViolations: voice.violations,
+        disqualified,
         round: r,
       };
       scored.push(entry);
       candidates.push(entry);
     }
     roundRecords.push({ round: r, candidateIds: scored.map((s) => s.id) });
-    runningBest = selectBest(candidates);
+    // Selection only ever considers candidates that clear the voice contract.
+    runningBest = selectBest(candidates.filter((c) => !c.disqualified));
   }
 
-  const best = selectBest(candidates);
+  const best = selectBest(candidates.filter((c) => !c.disqualified));
 
   // Write span data to the gitignored runs dir (Part 8: never committed).
   fs.mkdirSync(runsDir, { recursive: true });
@@ -224,6 +248,8 @@ function runApo(target, opts) {
       quality: c.quality,
       score: c.score,
       round: c.round,
+      disqualified: c.disqualified,
+      voiceViolations: c.voiceViolations,
     })),
     best: best ? { id: best.id, quality: best.quality, score: best.score } : null,
     recommendedAt: new Date().toISOString(),
