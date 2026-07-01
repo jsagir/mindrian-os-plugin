@@ -70,7 +70,12 @@ function applySchema(db) {
     '  last_seen_at INTEGER NOT NULL, ' +
     '  source_section TEXT, ' +
     '  confirmed_by TEXT, ' +
-    '  confirmed_at INTEGER' +
+    '  confirmed_at INTEGER, ' +
+    // Phase 160-04 bitemporal migration added last_modified_at (the reconcile-guard
+    // CAS token). This fixture predated it; Phase 194-06 adds it so the fixture
+    // matches production and the content-UPDATE writers (which now bump the token)
+    // do not hit "no such column". Nullable -> pre-migration NULL semantics preserved.
+    '  last_modified_at INTEGER' +
     ');'
   );
   db.exec(
