@@ -3316,6 +3316,7 @@ Room memory writes are today largely IMPLICIT - Larry files nuggets/claims/edges
 - **Canon hook (navigator-gated):** rides the SAME entry-31 self-binding gate as F.8/F.9 (released for F.8 in Phase 188); new edge-property vocabulary REMEMBERED_AS / ATTRIBUTED_TO / MEMORY_LAYER / NOT_REMEMBERED_BECAUSE (Part 4 additive, no new node label).
 - **Part 8 STRUCTURAL:** WHAT/HOW/WHO over user content is CONTENT-SET (LOCAL only, zero Brain wire for bodies); only generic move handles (MOVE-SET) are Brain-eligible; brain_consult sees hashed/handle-level packets only.
 - **Acceptance:** a turn/meeting/grade with >=2 candidate memories surfaces an F.8 governance basket; one confirm writes N typed edges through navigation.cjs; toggled-OFF writes NOT_REMEMBERED_BECAUSE; multi-section soft-edits / multi-session conflicts surface an F.9 ordered reconcile; WHO/layer is explicit; nothing remembered pre-confirm; frozen scalars unchanged; no em-dashes; Part 8 clean.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for memory ranking quality on the memory set. No phase closes without a passing Plurai baseline.
 - **Provenance:** navigator-directed 2026-06-30 (Shape-F explainer session); promoted from `.planning/seeds/SEED-040-hitl-memory-governance.md`. NEXT: `/gsd-discuss-phase 189` (after F.8/F.9 machinery exists).
 
 ### Phase 190 - Shape F Declaration Mandate (shape-f-declaration-mandate) - REGISTERED 2026-06-30 - **CANONICAL RULING**
@@ -3363,6 +3364,7 @@ The Brain write-side substrate-quality work split out of Phase 191 (navigator de
 - **(2) Canonicalize-at-ingest pass:** entity-resolution at ingest so dedup stops re-running after every ingest (root cause: per-document ingestion with no entity-resolution pass = dense core + sparse alias tail).
 - **(3) Orphan disposition:** decide `correct-reference-now` (the 1 true orphan) - wire or accept as an intentional one-shot utility; clear or document the 4 near-orphans (`hmi-status`, `organize`, `dogfood-flush`, `memory-cortex-reach`).
 - **Part 8:** this phase DOES touch the Brain write-side - every Cypher write is generic-framework-only, zero user content; gated behind an admin key. Frozen scalars unchanged; no em-dashes.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for canonicalize-at-ingest + orphan disposition correctness. No phase closes without a passing Plurai baseline.
 - **Provenance:** split from Phase 191 (navigator decision 2026-07-01). Seeds: SEED-framework-coverage-live-population + the canonicalize-at-ingest note in SESSION-HANDOFF-2026-07-01. NEXT: `/gsd-discuss-phase 193` (after 191 ships).
 
 ### Phase 192 - Shape-F HITL Selector Completion (shape-f-hitl-selector-completion) - REGISTERED 2026-07-01
@@ -3405,21 +3407,24 @@ Cluster F keystone. A runtime egress classifier (small language model / rules ga
 - **Canon:** Part 8 (the structural boundary made runtime-enforceable), Part 11 (R7 no live user egress). No em-dashes.
 - **Provenance:** Cluster-F graduation from SEED-019. NEXT: `/gsd-execute-phase 196`.
 
-**Plans:** 2/5 plans executed
+**Plans:** 4/5 plans executed
 
 - [x] 196-01-test-harness-PLAN.md - Wave 0: SKIP-safe run-all-196.sh + 3 test stubs + CSV loader + grep-guard leg
 - [x] 196-02-plurai-baseline-PLAN.md - Wave 0: expand synthetic CSV, offline Plurai eval, persist 196-baseline.json
-- [ ] 196-03-classifier-PLAN.md - Wave 1: pure classify() (CONTENT-SET block / MOVE-SET allow / ambiguous)
-- [ ] 196-04-hook-telemetry-PLAN.md - Wave 2: PreToolUse hook + hooks.json + LOCAL-only ontology telemetry
+- [x] 196-03-classifier-PLAN.md - Wave 1: pure classify() (CONTENT-SET block / MOVE-SET allow / ambiguous)
+- [x] 196-04-hook-telemetry-PLAN.md - Wave 2: PreToolUse hook + hooks.json + LOCAL-only ontology telemetry
 - [ ] 196-05-gate-degrade-PLAN.md - Wave 3: Shape F.1 ambiguous gate + Brain-less degrade + sendPacket belt
 
 ### Phase 197 - Brain MCP Separate Repo + Silent Identity (brain-mcp-separate-repo) - REGISTERED 2026-07-01
 
-**Class:** CODE + INFRA | **Priority:** P2 (the deployment/identity unit of the moat) | **Depends on:** Phase 196 (the boundary guard that makes separation enforceable), the Brain MCP (mindrian-brain.onrender.com)
+**Class:** CODE + INFRA | **Priority:** P4 (NAVIGATOR-PARKED - tail of the milestone) | **Depends on:** Phase 196 (the boundary guard that makes separation enforceable), the Brain MCP (mindrian-brain.onrender.com)
+
+- **NAVIGATOR-PARKED 2026-07-01:** deferred to the tail of the milestone, revisit later. Nothing depends on 197 except the Stripe Pro tier (split out of 199, also parked at the tail).
 
 Cluster F. The constitutional-separation deployment vehicle: the Brain MCP as its own repo / deployment unit (SEED-014) so the teaching-graph IP ships independently of the plugin, plus a silent-identity install model (SEED-011) that drops the auth friction (identity resolved at install, not per-call).
 
 - **Canon:** Part 8 (IP separation is the moat), Part 11. No em-dashes.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for silent-identity + Part-8 boundary parity post-split. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-F graduation from SEED-014 + SEED-011. NEXT: `/gsd-discuss-phase 197`.
 
 ### Phase 198 - MCP-First Invocation Substrate then SDK (mcp-first-then-sdk) - REGISTERED 2026-07-01
@@ -3429,16 +3434,20 @@ Cluster F. The constitutional-separation deployment vehicle: the Brain MCP as it
 Cluster F. Switch the governed invocation spine to an MCP-FIRST execution substrate - ONE path on every surface (CLI + Desktop + Cowork) - then transform that substrate into a distributable MindrianOS SDK. Kills the surface-specific invocation drift; the SDK is the packaging dividend.
 
 - **Canon:** Part 7 (reuse the one spine), Part 11 (one governed path). No em-dashes.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for one-path invocation parity across CLI/Desktop/Cowork. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-F graduation from SEED-038 (PROMOTED). NEXT: `/gsd-discuss-phase 198`.
 
-### Phase 199 - AgentShield Scanner + Stripe Pro Tier (agentshield-stripe-commercial) - REGISTERED 2026-07-01
+### Phase 199 - AgentShield Scanner (agentshield-scanner) - REGISTERED 2026-07-01
 
-**Class:** CODE + COMMERCIAL | **Priority:** P3 (security + self-funding commercial layer) | **Depends on:** Phase 196 (boundary scan generalizes), Phase 197 (Brain infra to fund)
+**Class:** CODE | **Priority:** P3 (security layer) | **Depends on:** Phase 196 (boundary scan generalizes)
 
-Cluster F. AgentShield: a plugin-wide security scanner that generalizes the brain-boundary-scan gate to the whole plugin (SEED-016). Plus the hosted Pro-tier Stripe billing (SEED-017) - the commercial layer that self-funds Brain infra (the trained-Lawrence paid tier).
+SPLIT 2026-07-01 (navigator-directed, Option B): the Stripe Pro tier is carved OUT of this phase and parked at the tail (see the Held / deferred section). 199 is now the ACTIVE security half only, so a security gate is not held hostage by deferred billing.
+
+Cluster F. AgentShield: a plugin-wide security scanner that generalizes the brain-boundary-scan gate to the whole plugin (SEED-016).
 
 - **Canon:** Part 8 (security enforces the boundary). No em-dashes.
-- **Provenance:** Cluster-F graduation from SEED-016 + SEED-017. NEXT: `/gsd-discuss-phase 199`.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for AgentShield scanner precision/recall on the boundary set. No phase closes without a passing Plurai baseline.
+- **Provenance:** Cluster-F graduation from SEED-016 (SEED-017 Stripe split out to the tail). NEXT: `/gsd-discuss-phase 199`.
 
 ### Phase 200 - RS Engine Spine + Corpus Quality (rs-engine-spine-corpus) - REGISTERED 2026-07-01
 
@@ -3448,6 +3457,7 @@ Cluster E. Reconcile the Reverse-Salient pipeline onto the connector/runChain sp
 
 - **DEEP COUPLING TO SYNTHETIC EXPERT (Phase 203, navigator-directed 2026-07-01):** the expert-graph this phase reconciles IS the substrate the synthetic expert (203) is fan-out-built onto and reads as a persona - build 200 + 203 as a coupled pair, as tightly bound as BONO is to its research fan-out. rs-experts (the synthetic panel) is the shared ancestor.
 - **Canon:** Part 7 (reuse the spine + rs-experts substrate), Part 8. No em-dashes.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for RS corpus degenerate-output regression. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-E graduation from SEED-030 + SEED-018. NEXT: `/gsd-discuss-phase 200`.
 
 ### Phase 201 - Harness-as-Code Manifest + Ralph-Loop Runtime (harness-as-code-manifest) - REGISTERED 2026-07-01 - **THE INTEGRATIVE SPINE**
@@ -3457,6 +3467,7 @@ Cluster E. Reconcile the Reverse-Salient pipeline onto the connector/runChain sp
 Cluster I foundation, and the integrative spine (navigator-directed 2026-07-01). SEED-032: name + version + rerun the agent harness already running (the Workflow harness + the runChain CJS spine) as a DECLARED manifest - resumable via scriptPath + resumeFromRunId, contracts-on-disk, exclusive ownership, adversarial verify. SEED-033 (folds SEED-028): the Ralph-loop runtime behaviors the manifest declares - verify-retry + propose-factcheck loops, bounded retry-with-backoff + resume-from-runId partial. THE POINT (navigator): this harness is the substrate that ties together statusline-live (187), LarryReaches (141/143/144), Larry-as-personality, the orchestration + command-triggering (191/166), and Brain-use - one declared, rerunnable harness under all of it, not four hand-rolled loops.
 
 - **Canon:** Part 7 (declare the harness that exists, do not add a framework), Part 11 (one governed path), Part 3 (halts at material gates). No em-dashes.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for verify-retry / factcheck loop behavior. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-I graduation from SEED-032 + SEED-033 (+ merged 028); integrative framing navigator-directed 2026-07-01. NEXT: `/gsd-discuss-phase 201`.
 
 ### Phase 202 - Agent-Lightning APO Lab Loop (agent-lightning-apo-lab) - REGISTERED 2026-07-01
@@ -3466,6 +3477,7 @@ Cluster I foundation, and the integrative spine (navigator-directed 2026-07-01).
 Cluster I. The lab-side automatic-prompt-optimization loop (SEED-002): an APO lab that optimizes prompts against real teaching data, feeding the paid "trained Lawrence" model arc. Lab-side, not on the user hot path.
 
 - **Canon:** Part 8 (generic/teaching data only). No em-dashes.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for APO output quality vs the teaching corpus. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-I graduation from SEED-002. NEXT: `/gsd-discuss-phase 202`.
 
 ### Phase 203 - Synthetic-Expert-as-Project-Skill (synthetic-expert-skill) - REGISTERED 2026-07-01
@@ -3477,6 +3489,7 @@ Cluster I. SyntheticExpert as a per-project Claude Code skill (SEED-035): Larry-
 - **THE EXPERT IS BUILT BY FAN-OUT RESEARCH (navigator-directed 2026-07-01):** a synthetic expert is created IN and FROM many types / frameworks - the harness (201) fans out research agents (one per framework / lens / sub-domain), and their findings are synthesized into the expert. This is the SAME shape as BONO's research/debate engine (parallel cell fan-out then debate) and rs-experts (synthetic panel, F.8). The expert is not hand-authored; it is fan-out-composed.
 - **DEEP COUPLING TO CLUSTER E (SEED-030, Phase 200):** the RS engine's expert-graph reconcile IS the substrate the synthetic expert reads/writes - build 200 and 203 as a coupled pair (the expert-graph is where the fan-out findings land as typed nodes; the synthetic expert is the reader/persona over that graph). As tightly bound as BONO is to its research fan-out.
 - **Canon:** Part 7 (reuse the skill + harness + rs-experts substrate, do not add a new engine), Part 8 (LOCAL room graph; generic frameworks only). No em-dashes.
+- **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for fan-out synthetic-expert fidelity vs the RS expert-graph. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-I graduation from SEED-035; fan-out-build + RS/BONO coupling navigator-directed 2026-07-01. NEXT: `/gsd-discuss-phase 203`.
 
 ### Phase 204 - Ignite Room-Chooser + Persona-Differentiated Entry (Shape-F front door) (ignite-room-chooser-persona-entry) - REGISTERED 2026-07-01 - **FIRST CONSUMER OF 188**
@@ -3511,7 +3524,7 @@ SHAPE-F FAMILY LAYERING: 188 (full F.0-F.9 system + composition) is the FOUNDATI
 BRAIN THREAD (LEAD): 191 (LOCAL consumption wire) depends-on 157 (projection) + 184 (reader) + 166 (executor) - all shipped; net-new = flip the dark projection_offer to a firing candidate, routing_source legacy->engine, from the LOCAL cache, never live Brain (R7). 193 (Brain substrate hardening) depends-on 191 - framework-coverage live-population + canonicalize-at-ingest + orphan disposition (Brain write-side, admin-gated).
 190 (Shape F declaration mandate) is canonical/process - lands independently; backfill rides the existing catalog.
 ROOM/MEMORY (Cluster A): 194 (session binding) -> 195 (fractal + cross-room memory) -> feeds 189 (memory governance). 194 is the Tier-1 concurrency prereq.
-BRAIN DELIVERY (Cluster F): 196 (Part-8 SLM guardrail) GATES 191/193 (safe egress) and generalizes into 199 (AgentShield); 197 (separate repo + silent identity) needs 196; 198 (MCP-first -> SDK) is substrate unification; 199 (AgentShield + Stripe) needs 196 + 197.
+BRAIN DELIVERY (Cluster F): 196 (Part-8 SLM guardrail) GATES 191/193 (safe egress) and generalizes into 199 (AgentShield); 198 (MCP-first -> SDK) is substrate unification; 199 (AgentShield scanner) needs 196 ONLY. PARKED at the tail (navigator 2026-07-01): 197 (separate repo + silent identity, needs 196) and the Stripe Pro tier (split out of 199, needs 197, self-funds the separate Brain infra) - revisit later; nothing active depends on either.
 RS + EXPERT + HARNESS (Clusters E + I): 201 (harness-as-code / fan-out) is the INTEGRATIVE SPINE under statusline (187) + LarryReaches (141/143/144) + orchestration (191/166) + Brain-use. 200 (RS engine expert-graph) <-> 203 (synthetic expert) are a COUPLED PAIR built by fan-out research, the same shape as BONO + rs-experts; 203 depends-on 201 (fan-out) + 200 (expert-graph). 202 (agent-lightning APO lab) is lab-side on 201.
 FRONT DOOR: 204 (ignite room-chooser + persona entry) is the FIRST CONSUMER OF 188 - depends-on 188 (Shape-F render) + 179 (ignite B1) + 115 (persona/dual-path) + rooms registry + conversation-mode. It is the proof-of-life demo for the full shape system and makes 188 visible on turn 1.
 180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).
@@ -3522,6 +3535,11 @@ FRONT DOOR: 204 (ignite room-chooser + persona entry) is the FIRST CONSUMER OF 1
 - **SEED-009 learned-ranker-weights-from-outcome-edges** -- FORWARD-DECLARED next (the deferred future the two-gauge meter enables; not in-scope this milestone).
 
 ## Held / deferred (assert nothing -- v4 directional-only caveat)
+
+**NAVIGATOR-PARKED at the milestone tail (2026-07-01), revisit later:**
+
+- **Phase 197 - Brain MCP Separate Repo + Silent Identity** (P4). Depends on Phase 196. The full entry stays above with its Plurai eval gate; parked because nothing active depends on it.
+- **Stripe Pro tier** (split out of Phase 199 / SEED-017). Depends on Phase 197 (needs the separate Brain infra it self-funds). The hosted Pro-tier billing (the trained-Lawrence paid layer). Carries its own Plurai eval gate when it re-enters scope. AgentShield (the active half of 199) shipped separately on Phase 196 only.
 
 B dark-frameworks (magnitudes 176/76/56/383 have ZERO source-of-truth; no gate until a write-capable Brain key or Phase-137 snapshot reproduces them); INV-3/4 (Neo4j Phase-137 sync; SyntheticExpert persona-gateway); F citations (P3).
 
