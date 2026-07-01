@@ -2,6 +2,10 @@
 
 These CSVs turn MindrianOS's own behavioral contracts (the Mindrian Canon) into Plurai AI-Judge training sets. Upload one per task at https://app.plurai.ai/onboarding to vibe-train an eval, guardrail, or classifier calibrated to MindrianOS.
 
+## Judge model (navigator-set 2026-07-01): fable
+
+Every Plurai eval judge in this suite runs on **fable**. When `/evals:eval` prompts for the model at `start_evaluator` (the interactive `ask_user` model-choice step), select **fable**; this is the standing choice for all reach/behavior judges (the SLM-side, deployable-runtime-guardrail lane per the Phase 205 "Optimize model choice" question, resolved to fable). Caveat: if the hosted Plurai / IntellAgent service only accepts a concrete provider model ID rather than the `fable` alias, map fable to its underlying fast model at that step; the intent is the fast SLM tier, not opus/sonnet.
+
 ## Canon Part 8 rule (READ FIRST)
 
 Every sample in these files is **synthetic or dogfood**. NO real user-room content, NO real navigator artifacts, NO real personal identifiers or proprietary numbers. We evaluate Larry's BEHAVIOR with manufactured data. Uploading a live navigator's room content to a third party would breach Canon Part 8. When you bring your own samples, draw them from test fixtures and synthetic transcripts, never from a real room.

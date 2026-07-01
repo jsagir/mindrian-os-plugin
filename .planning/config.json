@@ -12,5 +12,15 @@
     "auto_advance": false,
     "_auto_chain_active": false,
     "use_worktrees": false
+  },
+  "model_profile_overrides": {
+    "claude": {
+      "sonnet": "claude-sonnet-5",
+      "haiku": "claude-sonnet-5"
+    }
+  },
+  "model_overrides": {
+    "gsd-planner": "fable",
+    "gsd-plan-checker": "fable"
   }
 }
