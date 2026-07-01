@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 200-01 H2 live-wire (semantic-floor gate into live RS Mode B path)
-last_updated: "2026-07-01T20:10:00.000Z"
+stopped_at: Completed 202-01-PLAN.md (Phase 121 telemetry consumer + reward table)
+last_updated: "2026-07-01T20:24:43Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 16
@@ -16,9 +16,19 @@ progress:
 
 # Project State
 
-## Latest (2026-07-01) -- PHASE 200 Plan 01 FOLLOW-UP -- H2 semantic-floor gate LIVE-WIRED (`23fc9b22`)
+## Latest (2026-07-01) -- PHASE 202 Plan 01 COMPLETE -- Phase 121 telemetry consumer + reward table (closes the SEED-002 open loop)
+
+The trajectory-telemetry stream has been write-only since v1.13; SEED-002 always named a consumer that was never built. This plan built it, lab-side and offline, in strict TDD (6 commits: 3 RED/GREEN pairs).
+
+- **`lab/apo/telemetry-consumer.cjs`** -- `readTelemetry(dir, opts)` LOCAL-reads `~/.mindrian/telemetry/v1.13/events-*.jsonl` (default via reused `telemetryDir()`), applies the Section-9 ANCHORED shard regex `/^events-\d{4}-W\d{2}\.jsonl$/` then `.sort()` (excludes legacy `mva.jsonl`/`selector.jsonl` + quarantine shards), dispatches by `event` + `schema_version` (skips future v2 rows, tolerates a trailing partial line), filters `command_invocation` OUT of the high-signal set while `eventCount` counts ALL, groups the high-signal set by `session_id` and `room_slug_sha256` with a `__no_room__` fallback bucket (D4: room_slug_sha256 is a payload field absent on command_invocation/empathy/mva.*), enforces `ACTIVATION_MIN=100` and surfaces below-threshold explicitly (`activated:false` + `belowThreshold:true` + a visible note, never a silent thin table).
+- **`lab/apo/reward-table.cjs`** -- `buildRewardTable(events)` extracts the four reward-bearing fields into `{ [reach]: { rewardMean, n, signals } }`. The reward-field selection is OUR subset (schema.cjs exports only the full ALLOWED_FIELDS whitelist), so it holds its own `REWARD_FIELD` map and ASSERTS each name is present in `ALLOWED_FIELDS[event]` (throws `REWARD_FIELD_DRIFT` on a schema rename -- D2 anti-drift). Normalization (D3): ranker_confidence + domain_match_score direct; user_response resolve=1/defer=0.5/ignore=0; `hooked_axis_score.score_value` carried RAW in `signals` and EXCLUDED from `rewardMean` (unbounded per schema; normalization deferred to 202-02).
+- **Tests:** `tests/test-202-telemetry-consumer.cjs` (18 assertions) + committed fixture `tests/fixtures/apo/telemetry-sample.jsonl` (12 canonical rows, exact `writer.emit` envelope keys; the test stages them into a hermetic tmp dir as real week-shards, NEVER touching the real `~/.mindrian` path). `node tests/test-202-telemetry-consumer.cjs` = 18/18 PASS, exit 0.
+- **Canon Part 8:** LAB-side only, LOCAL read, zero network / zero Brain / zero egress, append-only (never writes back). Node built-ins only, no new deps, no em-dashes. Commits `0b9d3b62 8ed9f41e ca85c48a 00de7bdb 5f8b2427 4c62678c`. SUMMARY: `.planning/phases/202-agent-lightning-apo-lab/202-01-SUMMARY.md`. NEXT: 202-02 (APO propose->score->select loop over commands/act.md).
+
+## Prior-Latest (2026-07-01) -- PHASE 200 Plan 01 FOLLOW-UP -- H2 semantic-floor gate LIVE-WIRED (`23fc9b22`)
 
 The SEED-018 H2 gate was implemented + unit-tested in the prior session but DORMANT (no production caller) - off-topic external candidates still reached the differential. Navigator-approved follow-up wires it into the LIVE `scripts/rs-engine.py` Mode B path at the two places vectors actually exist:
+
 - **Pinecone (warm/cold) path:** `_gate_records_pinecone` gates raw `records` by the e5 vector each carries (`record['values']`) vs a topic vector from the SAME Pinecone inference (`_embed_topic_via_pinecone`, `input_type=query`), BEFORE `_records_to_artifacts`. The original `fetch_external`-wrapping-`fetch_corpus` site does NOT fit here because at `fetch_corpus` there are no vectors yet (the engine upserts then re-fetches server-side embeddings).
 - **Local fallback path (89-02):** `_gate_docs_local` gates `docs` with the reused local MiniLM encoder (`_embed_local_minilm`), batched.
 - Both route through `_gate_with_starvation_guard`, which delegates the floor filtering to `rs_corpus.semantic_gate` (one tested gate; grep-able caller on both paths).
@@ -536,12 +546,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 183 — meter-gate-exposure-transfer
+**Current focus:** Phase 202 — agent-lightning-apo-lab
 
 ## Current Position
 
-Phase: 183 (meter-gate-exposure-transfer) — EXECUTING
-Plan: 2 of 2
+Phase: 202 (agent-lightning-apo-lab) — EXECUTING
+Plan: 1 of 3
 
 ### Phase 172 Plan 02 (CIRS R12 forward-declaration contract + gate hook, Wave 1, autonomous) COMPLETE
 

@@ -3524,7 +3524,12 @@ Cluster I. The lab-side automatic-prompt-optimization loop (SEED-002): an APO la
 
 - **Canon:** Part 8 (generic/teaching data only). No em-dashes.
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for APO output quality vs the teaching corpus. No phase closes without a passing Plurai baseline.
-- **Provenance:** Cluster-I graduation from SEED-002. NEXT: `/gsd-discuss-phase 202`.
+- **Provenance:** Cluster-I graduation from SEED-002. NEXT: `202-02` (APO propose->score->select loop).
+
+**Plans:**
+- [x] 202-01-PLAN.md (wave 1) -- Telemetry consumer: LOCAL read/group/reward-extract of the Phase 121 stream, >=100-event activation gate -- COMPLETE 2026-07-01 (commits `0b9d3b62`..`4c62678c`; `lab/apo/telemetry-consumer.cjs` + `lab/apo/reward-table.cjs`; 18/18 test PASS; closes the SEED-002 write-only open loop; zero network/Brain, append-only)
+- [ ] 202-02-PLAN.md (wave 2) -- APO loop core: propose -> score (grading corpus + telemetry) -> select an optimized commands/act.md candidate, human-ratify
+- [ ] 202-03-PLAN.md (wave 3) -- Plurai eval gate: APO-output voice-contract judge
 
 ### Phase 203: Synthetic-Expert-as-Project-Skill (synthetic-expert-skill) - REGISTERED 2026-07-01
 
