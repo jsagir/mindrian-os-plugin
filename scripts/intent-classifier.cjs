@@ -145,6 +145,21 @@ const { resolveActiveRoomDir: _chokepointResolveActiveRoomDir } = require(
 const detectStrictMode = strictModeMod.detectStrictMode;
 const STRICT_MODE_ROUTING_SOURCE = strictModeMod.STRICT_MODE_ROUTING_SOURCE;
 
+// Phase 194-04 (PSB-04/06): the F.8 binding-gate decision, composed from the shipped
+// session-binding-consumer. runBindingGate is the ONE session-scope test (D-02): the
+// single-equality `best.name === active` silence test is graduated to SET membership
+// in this session's binding. It FAILS OPEN by construction (a poisoned / unreadable
+// binding returns {degraded:true, blocked:false}), so a degraded gate degrades to the
+// legacy advisory and NEVER hard-blocks the turn (the 83-07 never-block contract).
+const { runBindingGate: _runBindingGate } = require(
+  path.join(__dirname, '..', 'lib', 'workflow', 'session-binding-consumer.cjs')
+);
+// The reserved dev-repo/no-room binding: a first-class F.8 option (label is human,
+// the slug is the sentinel). Selecting it binds the session to "no room" and kills
+// the false plugin-CLAUDE.md write-block (D-03/D-04).
+const NO_ROOM_SLUG = '__no_room__';
+const NO_ROOM_LABEL = 'dev repo / no room';
+
 function isSealed(root, roomName) {
   try {
     return fs.existsSync(path.join(root, roomName, 'GUARDRAIL.md'));
@@ -413,10 +428,25 @@ function main() {
     emitStrictModeOverride(strictMatch, active, root);
     return 0;
   }
-  // If strictMatch is non-null AND matches the active room, we silence
-  // (the user is just confirming the active room; no warning needed).
+  // If strictMatch is non-null AND matches the active room, route the silence
+  // through session scope too (PSB-04): do NOT leave a second single-active-room
+  // path alive. A BOUND session whose strict-named room is on-scope silences (the
+  // user is just confirming a bound room). An UNBOUND session falls THROUGH to the
+  // similarity path so the F.8 binding gate can bind it (naming the room explicitly
+  // is a strong bind signal). Fails open: any error preserves the legacy silence.
   if (strictMatch && active && strictMatch.slug === active) {
-    return 0;
+    let strictGate = null;
+    try {
+      const sessionId = resolveSessionId(resolveActiveRoomDir());
+      strictGate = _runBindingGate({ sessionId: sessionId, topRoom: strictMatch.slug, home: root });
+    } catch (_e) {
+      strictGate = null; // fail-open: preserve the legacy silence
+    }
+    // On-scope OR a degraded/unavailable gate -> legacy silence. Only a healthy
+    // off-scope gate falls through to bind.
+    if (!strictGate || strictGate.degraded || strictGate.onScope) {
+      return 0;
+    }
   }
   // strictMatch is null: continue to similarity heuristic (existing path).
   // ----- end Phase 94-06 strict-mode override -----
@@ -440,10 +470,12 @@ function main() {
 
   let best = null;
   let activeScore = null;
+  const scored = [];
   for (const roomName of corpus) {
     if (Date.now() > deadline) return 0;
     const fp = buildFingerprint(root, roomName, deadline);
     const s = scoreRoom(messageTokenSet, roomName, fp);
+    scored.push({ name: roomName, score: s.score });
     if (roomName === active) {
       activeScore = s;
     }
@@ -453,6 +485,48 @@ function main() {
   }
 
   if (!best || best.score === 0) return 0;
+
+  // ----- Phase 194-04 (PSB-04): graduate the tripwire to the F.8 binding gate -----
+  //
+  // The pre-194 silence test was a single-equality `best.name === active`: it went
+  // quiet ONLY when the top room WAS the one global active room -- the racy
+  // single-active-room brain this phase kills. The graduated test is SET membership
+  // in THIS session's binding (runBindingGate -> resolveSessionScope, the ONE
+  // on-scope test, D-02). resolveSessionId is COMPOSED (never re-derived). Pitfall 2
+  // degenerate case: with no CLAUDE_SESSION_ID the fallback hashes roomDir+day, so a
+  // CLI "session" is per-room-per-day -- acceptable per the plan.
+  let bindingGate = null;
+  try {
+    const sessionId = resolveSessionId(resolveActiveRoomDir());
+    bindingGate = _runBindingGate({ sessionId: sessionId, topRoom: best.name, home: root });
+  } catch (_e) {
+    bindingGate = null; // fail-open: fall through to the legacy advisory
+  }
+
+  // On-scope: the top room is a MEMBER of this session's bound SET -> SILENCE. This
+  // is the spurious "intent mismatch" warning fix. A degraded gate is NOT on-scope,
+  // so it correctly falls through to the legacy advisory below (never a hard block).
+  if (bindingGate && !bindingGate.degraded && bindingGate.onScope) return 0;
+
+  // Unbound / off-scope with a HEALTHY gate: render the F.8 multi-select binding gate
+  // (candidate rooms + a first-class 'dev repo / no room' option) instead of the
+  // legacy single-active-room nag. Fails open: a render/require error returns 0 and
+  // falls through to the legacy advisory (PSB-06).
+  if (bindingGate && !bindingGate.degraded && bindingGate.fire) {
+    try {
+      const roomDir = resolveActiveRoomDir();
+      const sessionId = resolveSessionId(roomDir);
+      if (emitBindingGate({ best: best, scored: scored, sealedRooms: sealedRooms, roomDir: roomDir, sessionId: sessionId })) {
+        return 0;
+      }
+      // emitBindingGate returned false (renderer unavailable) -> fall through to legacy.
+    } catch (_e) {
+      // fail-open: fall through to the legacy advisory.
+    }
+  }
+
+  // ----- legacy advisory (fail-open fallback: reached only when the gate degraded or
+  // the F.8 render was unavailable). Preserves the pre-194 racy behavior verbatim. --
   if (active && best.name === active) return 0;
 
   // Tie-break: prefer active. If active has same score as best, silence.
@@ -1817,16 +1891,253 @@ function consumePriorF1Pick(roomDir, sessionId, currentTurnAnswer) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Phase 194-04 (PSB-04): the F.8 binding-gate PRODUCER + the answer consumer.
+//
+// emitBindingGate COMPOSES the shipped shape-f8-renderer.renderShapeF8 (NO new
+// selector shape -- Part 11 born-wired, one governed path) to render the unbound /
+// off-scope binding gate: the scored candidate rooms (F.8 PAGES beyond its own
+// MAX_TOGGLE_N, never truncates) PLUS a first-class 'dev repo / no room' option. It
+// persists the offered option labels + their label->slug map on the decision trace
+// (the SAME turn-boundary bookkeeping f1_closer_payload rides) so the NEXT turn's
+// consumer can capture the confirmed answer. Fails open: a renderer / write fault
+// returns false so the caller falls through to the legacy advisory.
+//
+// consumePriorBindingAnswer mirrors consumePriorF1Pick: it reads the prior turn's
+// persisted binding-gate payload, COMPOSES captureCliActionSet (verbatim) to turn the
+// AskUserQuestion answer into the confirmed toggle set, translates the human labels
+// back to room slugs (the no-room label -> the reserved sentinel), and routes them to
+// the net-new consumeSessionBinding SINK which WRITES the session binding file. It is
+// best-effort by construction (a non-gate / cold turn is a no-op) and never throws.
+// ---------------------------------------------------------------------------
+function emitBindingGate(args) {
+  const a = (args && typeof args === 'object') ? args : {};
+  const best = a.best;
+  const scored = Array.isArray(a.scored) ? a.scored : [];
+  const sealedRooms = Array.isArray(a.sealedRooms) ? a.sealedRooms : [];
+  const roomDir = a.roomDir;
+  const sessionId = a.sessionId;
+  if (!best || typeof best.name !== 'string') return false;
+
+  // Compose the shipped F.8 renderer (lazy require; a load fault degrades to the
+  // legacy advisory).
+  let renderer = null;
+  try {
+    renderer = require(path.join(__dirname, '..', 'lib', 'hmi', 'shape-f8-renderer.cjs'));
+  } catch (_e) {
+    return false;
+  }
+  if (!renderer || typeof renderer.renderShapeF8 !== 'function') return false;
+
+  // Weak / dev-repo signal (the SAME test the legacy weak-match guard uses): a name
+  // match OR >=2 entity matches is a STRONG room signal; otherwise the top score is a
+  // dev-repo/weak match and the pre-check defaults to the reserved no-room sentinel.
+  const weak = !best.nameMatch && best.entityMatches < 2;
+  const preCheckLabel = weak ? NO_ROOM_LABEL : best.name;
+
+  // Candidate options: the scored rooms (desc, deduped) PLUS the first-class no-room
+  // option. renderShapeF8 pre-checks any option at/above the frozen 0.70 confidence,
+  // so the pre-check target is handed 0.71 (display-only; NEVER auto-applies -- the
+  // consumer only ever sees the CONFIRMED set) and the rest a low value.
+  const ranked = scored.slice().sort(function (x, y) { return y.score - x.score; });
+  const options = [];
+  const labelToSlug = {};
+  const seen = new Set();
+  for (const r of ranked) {
+    if (!r || typeof r.name !== 'string' || r.name.length === 0) continue;
+    if (seen.has(r.name)) continue;
+    seen.add(r.name);
+    labelToSlug[r.name] = r.name;
+    options.push({ label: r.name, confidence: (r.name === preCheckLabel) ? 0.71 : 0.10 });
+  }
+  labelToSlug[NO_ROOM_LABEL] = NO_ROOM_SLUG;
+  options.push({ label: NO_ROOM_LABEL, confidence: (preCheckLabel === NO_ROOM_LABEL) ? 0.71 : 0.10 });
+
+  let rendered = null;
+  try {
+    rendered = renderer.renderShapeF8({
+      options: options,
+      header: '-- mindrianOS -- bind session -- select rooms --',
+    });
+  } catch (_e) {
+    return false;
+  }
+  if (!rendered || !rendered.zones) return false;
+
+  const zones = rendered.zones;
+  const bodyLines = [];
+  if (zones.header) bodyLines.push(zones.header);
+  if (zones.body) bodyLines.push(zones.body);
+  if (zones.signals) bodyLines.push(zones.signals);
+  const guidance =
+    'This session is not yet bound to a room. Present these as a multi-select ' +
+    '(toggle every room this session may write to, pick ONE primary write target, ' +
+    'and offer a "remember for this session" toggle). Selecting "' + NO_ROOM_LABEL +
+    '" binds the session to no room (dev-repo work). Confirm the set with the user ' +
+    'before writing any room artifact; the confirmed set becomes this session binding.';
+  const additionalContext = bodyLines.join('\n') + '\n\n' + guidance;
+
+  const systemMessage = 'session unbound: choose which room(s) this session writes to';
+
+  // Persist the offered gate payload on the decision trace so the next turn's consumer
+  // can capture the answer (the SAME sink f1_closer_payload rides -- no new file family).
+  try {
+    if (roomDir && sessionId) {
+      persistDecisionTrace(roomDir, sessionId, {
+        ts: new Date().toISOString(),
+        kind: 'binding_gate',
+        binding_gate_payload: {
+          options: options.map(function (o) { return o.label; }),
+          labelToSlug: labelToSlug,
+          preChecked: preCheckLabel,
+        },
+      });
+    }
+  } catch (_e) { /* fire-and-forget: persistence is best-effort */ }
+
+  const envelope = {
+    hookSpecificOutput: {
+      hookEventName: 'UserPromptSubmit',
+      additionalContext: additionalContext,
+    },
+    systemMessage: systemMessage,
+  };
+  try {
+    process.stdout.write(JSON.stringify(envelope) + '\n');
+  } catch (_e) {
+    // Last-resort fallback: raw text (never throws back into the hook).
+    try { process.stdout.write(additionalContext + '\n'); } catch (_) {}
+  }
+  return true;
+}
+
+function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) {
+  try {
+    if (!roomDir || typeof roomDir !== 'string') return { ok: false, reason: 'no_room' };
+
+    // Read the most recent UN-consumed binding-gate payload. The producer persists it
+    // early in main(), but the engine block appends its OWN trace entry afterward, so
+    // the gate payload is NOT necessarily the last entry -- scan backwards. Stop at a
+    // 'binding_gate_consumed' marker (a prior turn already bound this offer), so the
+    // same answer is never re-consumed into a duplicate write.
+    let gatePayload = null;
+    try {
+      const filePath = path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.json');
+      const raw = fs.readFileSync(filePath, 'utf8');
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.traces)) {
+        for (let i = parsed.traces.length - 1; i >= 0; i--) {
+          const e = parsed.traces[i];
+          if (!e || typeof e !== 'object') continue;
+          if (e.kind === 'binding_gate_consumed') break; // already consumed -> no-op
+          if (e.binding_gate_payload && typeof e.binding_gate_payload === 'object') {
+            gatePayload = e.binding_gate_payload;
+            break;
+          }
+        }
+      }
+    } catch (_) { gatePayload = null; }
+
+    // Non-gate / cold turn: no prior gate payload -> no-op (byte-unchanged).
+    if (!gatePayload || !Array.isArray(gatePayload.options) || gatePayload.options.length === 0) {
+      return { ok: false, reason: 'no_gate_payload' };
+    }
+
+    // Lazy-require the shipped capture adapter + the net-new sink consumer (a load
+    // fault degrades to a no-op).
+    let captureMod;
+    let consumerMod;
+    try {
+      captureMod = require(path.join(__dirname, '..', 'lib', 'hmi', 'f8-action-capture-cli.cjs'));
+      consumerMod = require(path.join(__dirname, '..', 'lib', 'workflow', 'session-binding-consumer.cjs'));
+    } catch (_) {
+      return { ok: false, reason: 'consumer_unavailable' };
+    }
+    if (!captureMod || typeof captureMod.captureCliActionSet !== 'function'
+        || !consumerMod || typeof consumerMod.consumeSessionBinding !== 'function') {
+      return { ok: false, reason: 'consumer_unavailable' };
+    }
+
+    // Normalize the answer into the { selectedOptions:[...] } shape captureCliActionSet
+    // accepts. A structured AskUserQuestion answer passes through; a raw-text turn maps
+    // to a single selectedOption (best-effort, mirrors consumePriorF1Pick).
+    let answer = currentTurnAnswer;
+    if (typeof currentTurnAnswer === 'string') {
+      try {
+        const p = JSON.parse(currentTurnAnswer);
+        answer = (p && typeof p === 'object') ? p : { selectedOptions: [currentTurnAnswer] };
+      } catch (_) {
+        answer = { selectedOptions: [currentTurnAnswer] };
+      }
+    }
+    if (!answer || !Array.isArray(answer.selectedOptions)) {
+      return { ok: false, reason: 'no_selection' };
+    }
+
+    // COMPOSE captureCliActionSet verbatim: the gate's option labels are the "verbs".
+    const picks = captureMod.captureCliActionSet(answer, { verbs: gatePayload.options });
+    const labelToSlug = (gatePayload.labelToSlug && typeof gatePayload.labelToSlug === 'object')
+      ? gatePayload.labelToSlug : {};
+
+    // Translate the confirmed labels back to room slugs (the no-room label -> the
+    // reserved sentinel). A rejected toggle is dropped from the bound set.
+    const slugs = [];
+    for (const pk of picks) {
+      if (!pk || typeof pk.verb !== 'string' || pk.verb.length === 0) continue;
+      if (pk.outcome === 'reject') continue;
+      const slug = (typeof labelToSlug[pk.verb] === 'string') ? labelToSlug[pk.verb] : pk.verb;
+      if (slugs.indexOf(slug) === -1) slugs.push(slug);
+    }
+    if (slugs.length === 0) return { ok: false, reason: 'empty_confirm' };
+
+    // Primary + sticky: honor explicit answer fields, else default the primary to the
+    // first confirmed slug.
+    let primaryPick = null;
+    if (typeof answer.primary === 'string' && answer.primary.length > 0) {
+      primaryPick = (typeof labelToSlug[answer.primary] === 'string')
+        ? labelToSlug[answer.primary] : answer.primary;
+    }
+    if (!primaryPick) primaryPick = slugs[0];
+    const sticky = answer.sticky === true;
+
+    // Route to the net-new SINK: consumeSessionBinding WRITES the session binding file.
+    const res = consumerMod.consumeSessionBinding({
+      picks: slugs,
+      primaryPick: primaryPick,
+      sticky: sticky,
+      sessionId: sessionId,
+      home: home,
+    });
+
+    // Clear the consumed gate payload so the same answer is not re-consumed next turn
+    // (append a trace entry WITHOUT the payload -> it is no longer the last entry's).
+    try {
+      persistDecisionTrace(roomDir, sessionId, {
+        ts: new Date().toISOString(),
+        kind: 'binding_gate_consumed',
+      });
+    } catch (_e) { /* fire-and-forget */ }
+
+    return res;
+  } catch (_e) {
+    // Best-effort: a fault is a no-op, never a throw (the never-block contract).
+    return { ok: false, reason: 'consumer_threw' };
+  }
+}
+
 // Phase 150-06 (D-08): export the engine-decision render helpers so the
 // render-unlock suite can drive the dial wiring without self-executing the hook.
 // The self-execution below is gated on require.main === module so a require()
 // from a test (or any consumer) loads the module without firing the hook.
 // Phase 159-02 (HOW-4): export consumePriorF1Pick so the turn-start wiring suite
 // can drive the consumer without spawning the whole hook.
+// Phase 194-04 (PSB-04): export the F.8 binding-gate producer + answer consumer.
 module.exports = {
   renderEngineDecisionWithDial: renderEngineDecisionWithDial,
   formatEngineDecisionBlock: formatEngineDecisionBlock,
   consumePriorF1Pick: consumePriorF1Pick,
+  emitBindingGate: emitBindingGate,
+  consumePriorBindingAnswer: consumePriorBindingAnswer,
 };
 
 if (require.main === module) {
@@ -1864,6 +2175,15 @@ try {
           text: STDIN_MESSAGE,
         });
       } catch (_) { /* fire-and-forget: never disrupt the prompt (DCW-04) */ }
+      // Phase 194-04 (PSB-05): the F.8 binding-gate ANSWER consumer. Fire BEFORE the
+      // engine block persists its own trace (so the prior binding_gate_payload is
+      // still the last trace entry), reading the PRIOR turn's persisted gate offer and
+      // routing the confirmed set through captureCliActionSet -> consumeSessionBinding
+      // (the net-new session-file SINK). Best-effort: a non-gate / cold turn is a
+      // no-op, never a throw (PSB-06, the never-block contract).
+      try {
+        consumePriorBindingAnswer(roomDir, sessionId, STDIN_MESSAGE);
+      } catch (_) { /* fire-and-forget: never disrupt the prompt (PSB-06) */ }
       navP = emitEngineDecisionBlock(roomDir, sessionId).then(function (out) {
         if (!out || !out.decision) return null;
         // Phase 91-03: compose engine decision with legacy file-state +
