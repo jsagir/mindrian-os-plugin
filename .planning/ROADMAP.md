@@ -3403,7 +3403,14 @@ Cluster A charter. Implements the ICM fractal memory contract (SEED-022, folds S
 Cluster F keystone. A runtime egress classifier (small language model / rules gate) that makes the Part-8 boundary ENFORCEABLE, not just doctrinal: every packet bound for the Brain is classified CONTENT-SET (LOCAL only, blocked) vs MOVE-SET (generic handles/enums, allowed) at the wire. This is the safe-egress guard the 191 command-recommendation + 193 regulator sensors (SEED-031) need to route safely.
 
 - **Canon:** Part 8 (the structural boundary made runtime-enforceable), Part 11 (R7 no live user egress). No em-dashes.
-- **Provenance:** Cluster-F graduation from SEED-019. NEXT: `/gsd-discuss-phase 196`.
+- **Provenance:** Cluster-F graduation from SEED-019. NEXT: `/gsd-execute-phase 196`.
+
+**Plans:** 5 plans in 4 waves (planned 2026-07-01)
+- [ ] 196-01-test-harness-PLAN.md - Wave 0: SKIP-safe run-all-196.sh + 3 test stubs + CSV loader + grep-guard leg
+- [ ] 196-02-plurai-baseline-PLAN.md - Wave 0: expand synthetic CSV, offline Plurai eval, persist 196-baseline.json
+- [ ] 196-03-classifier-PLAN.md - Wave 1: pure classify() (CONTENT-SET block / MOVE-SET allow / ambiguous)
+- [ ] 196-04-hook-telemetry-PLAN.md - Wave 2: PreToolUse hook + hooks.json + LOCAL-only ontology telemetry
+- [ ] 196-05-gate-degrade-PLAN.md - Wave 3: Shape F.1 ambiguous gate + Brain-less degrade + sendPacket belt
 
 ### Phase 197 - Brain MCP Separate Repo + Silent Identity (brain-mcp-separate-repo) - REGISTERED 2026-07-01
 
