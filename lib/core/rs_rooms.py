@@ -40,11 +40,14 @@ from pathlib import Path
 from typing import Dict, List, Sequence
 
 
-# --- Constants (kept in sync with scripts/rs-engine.py discover_artifacts) ---
+# --- Constants: the ONE shared source (Phase 200-01, SEED-018). No local copy;
+# the drift between three copies was the corpus-pollution bug. Defensive import
+# for both bare (`rs_rooms`) and package (`lib.core.rs_rooms`) import contexts. ---
 
-SKIP_FILES = {"STATE.md", "ROOM.md", "MINTO.md"}
-SKIP_DIRS = {".lazygraph", ".git", ".mindrian", "node_modules", ".obsidian"}
-MIN_BODY_CHARS = 50
+try:  # pragma: no cover -- import-context shim
+    from rs_corpus_exclude import SKIP_DIRS, SKIP_FILES, MIN_BODY_CHARS
+except ImportError:  # pragma: no cover
+    from lib.core.rs_corpus_exclude import SKIP_DIRS, SKIP_FILES, MIN_BODY_CHARS
 
 
 # --- Helpers (minimal local copies so rs_rooms does not import from scripts/) -

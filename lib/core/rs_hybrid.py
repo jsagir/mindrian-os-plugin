@@ -65,14 +65,15 @@ except ImportError:
 
 # --- Shared constants mirrored from scripts/rs-engine.py --------------------
 
-# Files we never treat as artifacts (room identity / state, not content).
-SKIP_FILES = {"STATE.md", "ROOM.md", "MINTO.md"}
-# Directories we never descend into (metadata / tooling, not room artifacts).
-SKIP_DIRS = {".lazygraph", ".git", ".mindrian", "node_modules", ".obsidian"}
-# Minimum body length to treat a .md file as an artifact. Matches
-# scripts/rs-engine.py:discover_artifacts and scripts/compute-hsi.py so the
-# Mode A and Mode C corpora see identical artifact inclusion rules.
-MIN_BODY_CHARS = 50
+# SKIP_FILES / SKIP_DIRS / MIN_BODY_CHARS come from the ONE shared source
+# (Phase 200-01, SEED-018). Do not redefine them here -- the drift between three
+# local copies was the literal 706-inflation bug. Defensive import so this module
+# works both as bare `rs_hybrid` (lib/core on path) and as `lib.core.rs_hybrid`
+# (repo root on path).
+try:  # pragma: no cover -- import-context shim
+    from rs_corpus_exclude import SKIP_DIRS, SKIP_FILES, MIN_BODY_CHARS
+except ImportError:  # pragma: no cover
+    from lib.core.rs_corpus_exclude import SKIP_DIRS, SKIP_FILES, MIN_BODY_CHARS
 
 # Maximum external docs we will fold into the unified corpus. Plan 89-05
 # canonical value is 2000 (aligns with Pinecone rs-external namespace cap

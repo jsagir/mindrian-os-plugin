@@ -115,8 +115,9 @@ except Exception as _rs_cache_import_err:  # pragma: no cover -- defensive
 # --- Constants ---------------------------------------------------------------
 
 DEFAULT_EMBEDDING_MODEL = "multilingual-e5-large"
-SKIP_FILES = {"STATE.md", "ROOM.md", "MINTO.md"}
-SKIP_DIRS = {".lazygraph", ".git", ".mindrian", "node_modules", ".obsidian", ".heal-backup"}
+# SKIP_FILES / SKIP_DIRS from the ONE shared source (Phase 200-01, SEED-018).
+# Was a local copy that the other walkers drifted from; now single-sourced.
+from lib.core.rs_corpus_exclude import SKIP_DIRS, SKIP_FILES  # noqa: E402
 CACHE_FILENAME = ".rs-engine-cache.json"
 RESULTS_FILENAME = ".rs-engine-results.json"
 DEFAULT_TOPK = 100
