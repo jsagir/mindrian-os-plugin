@@ -153,13 +153,15 @@ function main() {
   }
 
   // Build the additionalContext payload. Plan 120-03 ships the Larry-voice
-  // narrative line per D-17; this scanner hook passes the rendered F.7
+  // narrative line per D-17; this scanner hook passes the rendered next-move
   // envelope through verbatim so all three surfaces (CLI / Desktop / Cowork)
   // can render uniformly per the tri-surface invariant.
+  // Phase 188-01 (SFS-06): the surface home is the F.1 next-move now (Breakthrough
+  // is a MOVE, not a shape -- bare F.7 is the canonical dial per D-10).
   let additionalContext;
   try {
     additionalContext = JSON.stringify({
-      shape: 'F.7',
+      shape: 'F.1',
       breakthrough: {
         id: scanResult.top.id,
         kind: scanResult.top.kind,
