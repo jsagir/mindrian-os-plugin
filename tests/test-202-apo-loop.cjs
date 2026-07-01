@@ -118,6 +118,75 @@ test('4. renderCandidate swaps the body while preserving frontmatter byte-identi
   assert.notEqual(rendered, raw, 'a swapped body must change the file');
 });
 
+// ================= Task 2: the scoring function (reward blend) =================
+
+// Build a high-signal selector_pick event set where each verb carries a known
+// mean ranker_confidence, so buildRewardTable(events)[verb].rewardMean is exact.
+function selectorEvents(verb, confidence, n) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    out.push({
+      event: 'selector_pick',
+      schema_version: 1,
+      timestamp: '2026-06-30T10:00:0' + (i % 10) + '.000Z',
+      session_id: 'sess-score',
+      verb_chosen: verb,
+      ranker_confidence: confidence,
+    });
+  }
+  return out;
+}
+
+test('5. telemetry NOT activated -> score === quality term only', () => {
+  assert.ok(apoLoop, 'lab/apo/apo-loop.cjs must be requireable');
+  assert.equal(typeof apoLoop.scoreCandidate, 'function', 'scoreCandidate must be exported');
+  const candidate = { id: 'c1', body: 'x', reachKey: 'explore' };
+  const ctx = {
+    qualityScoreFn: () => 0.7,
+    telemetry: { activated: false, events: selectorEvents('explore', 0.9, 4) },
+  };
+  const score = apoLoop.scoreCandidate(candidate, ctx);
+  assert.equal(score, 0.7, 'with telemetry inactive the score is exactly the quality term (no telemetry bonus)');
+});
+
+test('6. telemetry activated -> score === quality + weighted telemetry term', () => {
+  assert.equal(typeof apoLoop.TELEMETRY_WEIGHT, 'number', 'TELEMETRY_WEIGHT must be exported');
+  const w = apoLoop.TELEMETRY_WEIGHT;
+  const candidate = { id: 'c1', body: 'x', reachKey: 'explore' };
+  const events = selectorEvents('explore', 0.8, 4); // rewardMean('explore') === 0.8
+  const active = { qualityScoreFn: () => 0.5, telemetry: { activated: true, events } };
+  const inactive = { qualityScoreFn: () => 0.5, telemetry: { activated: false, events } };
+
+  const scoreActive = apoLoop.scoreCandidate(candidate, active);
+  const scoreInactive = apoLoop.scoreCandidate(candidate, inactive);
+
+  // The telemetry term is the reach's mean reward (0.8), weighted and ADDED.
+  assert.ok(Math.abs(scoreActive - (0.5 + w * 0.8)) < 1e-9,
+    'activated score must equal quality + TELEMETRY_WEIGHT * reachRewardMean');
+  assert.equal(scoreInactive, 0.5, 'the same candidate scores quality-only when telemetry is inactive');
+  assert.ok(scoreActive > scoreInactive, 'activation ADDS a secondary telemetry term, never subtracts');
+});
+
+test('7. quality-primary: telemetry-high/quality-low candidate does NOT auto-win', () => {
+  const events = selectorEvents('explore', 0.9, 4) // high-telemetry reach
+    .concat(selectorEvents('hold', 0.1, 4));        // low-telemetry reach
+  const ctx = { qualityScoreFn: (c) => c.quality, telemetry: { activated: true, events } };
+
+  const highQuality = { id: 'hq', quality: 0.8, reachKey: 'hold' };    // quality lead, weak telemetry
+  const highTelemetry = { id: 'ht', quality: 0.5, reachKey: 'explore' }; // strong telemetry, weak quality
+
+  const sHQ = apoLoop.scoreCandidate(highQuality, ctx);
+  const sHT = apoLoop.scoreCandidate(highTelemetry, ctx);
+
+  // Even though highTelemetry's reach reward (0.9) dwarfs highQuality's (0.1),
+  // the quality lead (0.3) exceeds the max telemetry swing (TELEMETRY_WEIGHT), so
+  // the higher-QUALITY candidate still scores higher. Quality is the primary term.
+  assert.ok(sHQ > sHT,
+    'a candidate that scores higher on telemetry but lower on quality must NOT auto-win (D-202-2)');
+  assert.ok(apoLoop.TELEMETRY_WEIGHT <= 0.3,
+    'TELEMETRY_WEIGHT must be bounded below a meaningful quality gap to keep quality primary');
+});
+
 // ---------- Summary ----------
 
 const failed = RESULTS.filter((r) => !r.ok);
