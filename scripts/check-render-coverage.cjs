@@ -88,6 +88,47 @@ const REGISTRY_PATH = path.join(REPO_ROOT, 'data', 'render-coverage-registry.jso
 // walk. This require pulls in pure code only (the generator is Part-8 LOCAL-only).
 const generator = require('./build-render-coverage.cjs');
 
+// ---------------------------------------------------------------------------
+// Phase 188-03 (SFS-10 code half) - the PER-SHAPE coverage predicate.
+// ===========================================================================
+// The per-entry-point loop above answers "does every card-emission ENTRY POINT
+// route through the door?". This second predicate answers the ORTHOGONAL born-wired
+// question (Canon Part 11): "does every canonical SHAPE have a renderer AND a
+// dispatch branch?" -- so a bespoke shape can never ship without routing through the
+// single door.
+//
+// The CLOSED CANONICAL TEN (Open Question 3): the vocabulary is F.0..F.9. F.7-dial is
+// F.7's RENDER PATH, NOT a separate shape -- so it is NOT a member here (do not drive
+// this set off the dispatcher's F_SUBSHAPES, which mixes the F.7-dial variant).
+const CANONICAL_SHAPES = Object.freeze(['F.0', 'F.1', 'F.2', 'F.3', 'F.4', 'F.5', 'F.6', 'F.7', 'F.8', 'F.9']);
+
+// WAVE-ORDER gate (Pitfall 6): the ASSERTION set. F.8/F.9 renderers do not exist yet
+// (Wave C / 188-07 lands them), so asserting them NOW would fail the gate closed
+// mid-phase. This plan asserts F.0-F.7 ONLY; 188-07 flips this to the full
+// CANONICAL_SHAPES once the F.8/F.9 renderers + branches land.
+const SHAPES_UNDER_ASSERTION = Object.freeze(['F.0', 'F.1', 'F.2', 'F.3', 'F.4', 'F.5', 'F.6', 'F.7']);
+
+// The shape -> renderer-module map. Each canonical shape resolves to the module the
+// dispatcher safeRequires for it (selector-dispatcher.cjs:681-771). F.7 = the DIAL
+// render path (dial-selector.cjs::renderDialShape) per Open Question 3; F.8/F.9 point
+// at their not-yet-authored renderers (absent today, which is why they are gated OUT
+// of SHAPES_UNDER_ASSERTION until 188-07).
+const SHAPE_RENDERER_MODULE = Object.freeze({
+  'F.0': 'lib/hmi/shape-f0-renderer.cjs',
+  'F.1': 'lib/hmi/shape-f1-renderer.cjs',
+  'F.2': 'lib/hmi/shape-f2-renderer.cjs',
+  'F.3': 'lib/hmi/shape-f3-renderer.cjs',
+  'F.4': 'lib/hmi/shape-f4-renderer.cjs',
+  'F.5': 'lib/hmi/shape-f5-renderer.cjs',
+  'F.6': 'lib/hmi/shape-f6-renderer.cjs',
+  'F.7': 'lib/hmi/dial-selector.cjs',
+  'F.8': 'lib/hmi/shape-f8-renderer.cjs',
+  'F.9': 'lib/hmi/shape-f9-renderer.cjs',
+});
+
+// The single dispatcher the per-shape branch check reads (read-only; 188-01 owns it).
+const DISPATCHER_REL = 'lib/hmi/selector-dispatcher.cjs';
+
 // resolveRegistryPath() -- the registry the gate reads. Defaults to the tracked
 // REGISTRY_PATH. The RENDER_COVERAGE_REGISTRY env var lets the FLOOR/hard-fail test
 // (tests/test-render-coverage-gate-hardfail.cjs) point --check at a SYNTHESIZED
@@ -230,10 +271,124 @@ function renderCoverageReport() {
 }
 
 // ---------------------------------------------------------------------------
+// hasDispatchBranch(dispatcherSrc, shape) -- comment-aware detector for a
+// `requestedShape === 'F.x'` dispatch branch. Mirrors the generator's hasCallSite
+// comment-awareness (skip `//` / `*` / `/*` lines, strip a trailing line comment)
+// so a doc-mention of `requestedShape:'F.7'` in a comment never counts as a live
+// branch. Pure string scan over the dispatcher source; zero I/O here. The literal
+// closing quote after the shape token keeps `F.7` from matching `F.7-dial`.
+// ---------------------------------------------------------------------------
+function hasDispatchBranch(dispatcherSrc, shape) {
+  const escaped = String(shape).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('requestedShape\\s*===\\s*[\'"]' + escaped + '[\'"]');
+  for (const rawLine of String(dispatcherSrc).split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (line.startsWith('//') || line.startsWith('*') || line.startsWith('/*')) continue;
+    const code = rawLine.replace(/\/\/.*$/, '');
+    if (re.test(code)) return true;
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// resolvePerShapeSet(opts) -- the shapes the per-shape predicate asserts over.
+// Precedence: explicit opts.shapes > the PER_SHAPE_COVERAGE_SHAPES env override
+// (comma list; the FLOOR/hard-fail test injects a synthetic missing shape this way
+// WITHOUT mutating a tracked file, mirroring the RENDER_COVERAGE_REGISTRY idiom) >
+// SHAPES_UNDER_ASSERTION (F.0-F.7 this plan; F.0-F.9 after 188-07).
+// ---------------------------------------------------------------------------
+function resolvePerShapeSet(opts) {
+  if (opts && Array.isArray(opts.shapes) && opts.shapes.length > 0) {
+    return opts.shapes.slice();
+  }
+  const env = process.env.PER_SHAPE_COVERAGE_SHAPES;
+  if (typeof env === 'string' && env.trim().length > 0) {
+    return env.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
+  }
+  return SHAPES_UNDER_ASSERTION.slice();
+}
+
+// ---------------------------------------------------------------------------
+// perShapeCoverageReport({ shapes?, dispatcherRel? }) -- the PER-SHAPE predicate
+// (the 188-00 stub contract). For each shape in the resolved set, a shape is a GAP
+// iff it lacks (1) a resolvable renderer module OR (2) a `requestedShape === 'F.x'`
+// dispatch branch in selector-dispatcher.cjs. Returns { shapes, gaps:[{shape,
+// reason}], ok }. Pure code: reads the dispatcher source + existsSync checks the
+// mapped renderer module; ZERO Brain, ZERO network (Canon Part 8).
+// ---------------------------------------------------------------------------
+function perShapeCoverageReport(opts) {
+  opts = opts || {};
+  const shapes = resolvePerShapeSet(opts);
+  const dispatcherRel =
+    typeof opts.dispatcherRel === 'string' && opts.dispatcherRel.length > 0
+      ? opts.dispatcherRel
+      : DISPATCHER_REL;
+
+  let dispatcherSrc = '';
+  try {
+    dispatcherSrc = fs.readFileSync(
+      path.join(REPO_ROOT, dispatcherRel.split('/').join(path.sep)),
+      'utf8'
+    );
+  } catch (_e) {
+    dispatcherSrc = '';
+  }
+
+  const gaps = [];
+  for (const shape of shapes) {
+    const moduleRel = SHAPE_RENDERER_MODULE[shape] || null;
+    const hasRenderer = moduleRel
+      ? fs.existsSync(path.join(REPO_ROOT, moduleRel.split('/').join(path.sep)))
+      : false;
+    const hasBranch = hasDispatchBranch(dispatcherSrc, shape);
+
+    if (!hasRenderer || !hasBranch) {
+      const missing = [];
+      if (!hasRenderer) {
+        missing.push(
+          moduleRel
+            ? 'no resolvable renderer module (' + moduleRel + ')'
+            : 'no renderer module mapped for shape ' + shape
+        );
+      }
+      if (!hasBranch) {
+        missing.push("no requestedShape === '" + shape + "' dispatch branch in " + dispatcherRel);
+      }
+      gaps.push({ shape, reason: missing.join('; ') });
+    }
+  }
+
+  return { shapes, gaps, ok: gaps.length === 0 };
+}
+
+// ---------------------------------------------------------------------------
 // main()
 // ---------------------------------------------------------------------------
 function main() {
   const argv = process.argv.slice(2);
+
+  // --check-shapes: the PER-SHAPE born-wired gate (SFS-10 code half). Exits 1 on any
+  // shape gap (missing renderer OR missing dispatch branch) with a self-naming error
+  // + a recovery line; on clean, prints the asserted set and exits 0. This is
+  // ORTHOGONAL to --check (the per-entry-point registry gate) and does not read the
+  // render registry at all.
+  if (argv.includes('--check-shapes')) {
+    const shapeReport = perShapeCoverageReport({});
+    if (!shapeReport.ok) {
+      for (const g of shapeReport.gaps) {
+        console.error('SHAPE COVERAGE GAP: shape ' + g.shape + ' -- ' + g.reason);
+      }
+      console.error(
+        'Recovery: add the shape renderer module + its `requestedShape === \'F.x\'` ' +
+          'dispatch branch, or keep the shape out of SHAPES_UNDER_ASSERTION until its ' +
+          'wave lands: node scripts/check-render-coverage.cjs --check-shapes'
+      );
+      process.exit(1);
+    }
+    console.log('render-coverage shapes: OK (' + shapeReport.shapes.join(', ') + ')');
+    return;
+  }
+
   const report = renderCoverageReport();
 
   if (argv.includes('--check')) {
@@ -299,5 +454,13 @@ if (require.main === module) {
     hasCallSite,
     routesThroughCardEmissionDoor,
     renderCoverageReport,
+    // Phase 188-03 (SFS-10 code half): the per-shape predicate + its authoring seams.
+    // 188-07 extends SHAPES_UNDER_ASSERTION to the full CANONICAL_SHAPES once the
+    // F.8/F.9 renderers land.
+    perShapeCoverageReport,
+    hasDispatchBranch,
+    CANONICAL_SHAPES,
+    SHAPES_UNDER_ASSERTION,
+    SHAPE_RENDERER_MODULE,
   };
 }
