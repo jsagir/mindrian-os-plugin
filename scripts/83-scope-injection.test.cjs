@@ -496,6 +496,129 @@ test('83-01 wrapper fallback when no cache exists', () => {
 });
 
 // ---------------------------------------------------------------------------
+// SEED-004 (Phase 195 Wave 0): write-scope nested-room resolution.
+//
+// scripts/write-scope-check.cjs::targetRoomUnderRoot used to return the FLAT
+// first path segment, so a write into a nested room (mindrian/mindrianOS)
+// resolved to the wrong parent-level slug ("mindrian") and 194's set-membership
+// guard false-blocked it. The fix walks UP to the deepest `.room-root` sentinel
+// and reverse-matches the registry `path` fields to recover the REGISTERED slug.
+// These three fixtures pin the behavior: 2-segment ALLOW, 4-segment ALLOW,
+// cross-nested BLOCK (no silent-allow over-correction).
+// ---------------------------------------------------------------------------
+
+const WRITE_SCOPE_CHECK = path.join(REPO_ROOT, 'scripts', 'write-scope-check.cjs');
+
+// Build a nested room under a MindrianRooms root: create the dir chain, drop a
+// .room-root sentinel in the leaf (the registered room), and seed a ROOM.md.
+// relPath is forward-slash relative to root (e.g. 'mindrian/mindrianOS').
+function mkNestedRoom(root, relPath) {
+  const dir = path.join(root, ...relPath.split('/'));
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, '.room-root'), '');
+  fs.writeFileSync(path.join(dir, 'ROOM.md'), '# ' + relPath + '\n');
+  return dir;
+}
+
+// Spawn scripts/write-scope-check.cjs as the PreToolUse hook with a Write payload
+// targeting targetFile. MINDRIAN_ROOMS_ROOT points at the fixture root; the
+// session is UNBOUND (no .rooms/sessions dir) so the guard uses the single
+// active-room equality path. Returns the exit code: 0 = allow, 2 = block.
+function runWriteScopeCheck(root, targetFile) {
+  const env = Object.assign({}, process.env, {
+    MINDRIAN_ROOMS_ROOT: root,
+    MINDRIAN_ROOMS_HOME: root
+  });
+  delete env.CLAUDE_SESSION_ID; // avoid inheriting a real session binding
+  const payload = JSON.stringify({
+    session_id: 'seed004-fixture',
+    tool_name: 'Write',
+    tool_input: { file_path: targetFile }
+  });
+  const res = spawnSync('node', [WRITE_SCOPE_CHECK], {
+    env: env,
+    input: payload,
+    encoding: 'utf8',
+    timeout: 10000
+  });
+  return res.status;
+}
+
+test('SEED-004 nested 2-segment write ALLOW (bound/active nested room)', () => {
+  const fx = mkFixtureDir('seed004-a');
+  try {
+    const root = mkFixtureMindrianRoomsRoot(fx, {
+      registry: {
+        active: 'mindrianOS',
+        rooms: { 'mindrianOS': { path: 'mindrian/mindrianOS' } }
+      }
+    });
+    mkNestedRoom(root, 'mindrian/mindrianOS');
+    const exit = runWriteScopeCheck(
+      root, path.join(root, 'mindrian', 'mindrianOS', 'notes.md')
+    );
+    // Pre-fix this false-blocked (targetRoom resolved to "mindrian" != active).
+    assert.strictEqual(
+      exit, 0,
+      'nested 2-segment write into the active room must ALLOW (exit 0)'
+    );
+  } finally {
+    cleanup(fx);
+  }
+});
+
+test('SEED-004 nested 4-segment write ALLOW (deep registered room)', () => {
+  const fx = mkFixtureDir('seed004-b');
+  try {
+    const relPath = 'mindrian/mindrianOS/sub-rooms/venture/opportunities';
+    const root = mkFixtureMindrianRoomsRoot(fx, {
+      registry: {
+        active: 'mindrian-opportunities',
+        rooms: { 'mindrian-opportunities': { path: relPath } }
+      }
+    });
+    mkNestedRoom(root, relPath);
+    const exit = runWriteScopeCheck(
+      root, path.join(root, ...relPath.split('/'), 'idea.md')
+    );
+    assert.strictEqual(
+      exit, 0,
+      'deep nested write into the active registered room must ALLOW (exit 0)'
+    );
+  } finally {
+    cleanup(fx);
+  }
+});
+
+test('SEED-004 cross-nested write BLOCK (different nested room than active)', () => {
+  const fx = mkFixtureDir('seed004-c');
+  try {
+    const root = mkFixtureMindrianRoomsRoot(fx, {
+      registry: {
+        active: 'room-a',
+        rooms: {
+          'room-a': { path: 'clients/room-a' },
+          'room-b': { path: 'clients/room-b' }
+        }
+      }
+    });
+    mkNestedRoom(root, 'clients/room-a');
+    mkNestedRoom(root, 'clients/room-b');
+    const exit = runWriteScopeCheck(
+      root, path.join(root, 'clients', 'room-b', 'steal.md')
+    );
+    // The fix must NOT over-correct to silent-allow: a write into a DIFFERENT
+    // nested room than the active one still BLOCKS (95.1 drift-class-C hazard).
+    assert.strictEqual(
+      exit, 2,
+      'write into a DIFFERENT nested room must BLOCK (exit 2, no silent-allow)'
+    );
+  } finally {
+    cleanup(fx);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // Runner
 // ---------------------------------------------------------------------------
 

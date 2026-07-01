@@ -132,14 +132,109 @@ function extractTargetPath(toolInput) {
   return null;
 }
 
+// MAX_DEPTH bounds the .room-root walk-up so a pathological path never spins.
+// 12 mirrors lib/core/room-root.cjs (the ONE shipped walk-up resolver we clone).
+const ROOM_ROOT_MAX_DEPTH = 12;
+
+// normSegments -- collapse a relative path to a forward-slash, segment-joined
+// canonical form so a registry `path` field ("mindrian/mindrianOS") and a
+// path.relative result compare equal regardless of separator or trailing slash.
+function normSegments(rel) {
+  if (typeof rel !== 'string') return '';
+  return rel.split(/[\\/]/).filter(Boolean).join('/');
+}
+
+// walkUpToRoomRoot -- SEED-004 clone of lib/core/room-root.cjs:79-89. Walk UP
+// from `start` (a resolved target path) to the nearest ancestor dir carrying a
+// `.room-root` FILE sentinel WITHOUT walking above `root` (the MindrianRooms
+// root). The FIRST sentinel hit is the DEEPEST room the write actually lands in,
+// so a write into a sub-sub-room resolves to that sub-sub-room, not a parent.
+// Tolerates unreadable dirs; returns null when no sentinel is found under root.
+// Never throws (the hook must keep its fail-open exit-0 degrade).
+function walkUpToRoomRoot(start, root) {
+  try {
+    let dir = start;
+    // If start is an existing file, begin at its dirname; else treat as a dir
+    // anchor (a not-yet-created leaf still walks up toward real ancestors).
+    try {
+      if (fs.existsSync(start) && fs.statSync(start).isFile()) {
+        dir = path.dirname(start);
+      }
+    } catch (_e) {
+      dir = start;
+    }
+    for (let hops = 0; hops < ROOM_ROOT_MAX_DEPTH; hops += 1) {
+      // Never resolve a sentinel at or above the rooms root itself.
+      const relToRoot = path.relative(root, dir);
+      if (!relToRoot || relToRoot.startsWith('..') || path.isAbsolute(relToRoot)) {
+        break;
+      }
+      try {
+        if (fs.existsSync(path.join(dir, '.room-root'))) return dir;
+      } catch (_e) { /* keep walking past an unreadable dir */ }
+      const parent = path.dirname(dir);
+      if (parent === dir) break; // hit the filesystem root
+      dir = parent;
+    }
+    return null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+// slugForRoomDir -- reverse-match a resolved room dir against the registry
+// `.rooms/registry.json` entry `path` fields and return the REGISTERED slug, or
+// null. Symmetric with readActiveRoom (which reads the same registry): active
+// resolution and target resolution now speak the same slug vocabulary. Never
+// throws.
+function slugForRoomDir(root, sentinelDir) {
+  try {
+    const relDir = normSegments(path.relative(root, sentinelDir));
+    if (!relDir) return null;
+    const regPath = path.join(root, '.rooms', 'registry.json');
+    const parsed = JSON.parse(fs.readFileSync(regPath, 'utf8'));
+    if (!parsed || !parsed.rooms || typeof parsed.rooms !== 'object') return null;
+    for (const [slug, spec] of Object.entries(parsed.rooms)) {
+      if (!spec || typeof spec.path !== 'string') continue;
+      if (normSegments(spec.path) === relDir) return slug;
+    }
+    return null;
+  } catch (_e) {
+    return null;
+  }
+}
+
 // Given a realpath'd MindrianRooms root and a realpath'd target, return the
-// first path segment under root, or null if target is not under root.
-// Uses path.relative + segment split to avoid substring false positives.
+// REGISTERED room slug the target write lands in, or null if target is not under
+// root.
+//
+// SEED-004 (Phase 195 Wave 0): the MindrianRooms tree is FRACTAL - a room can be
+// nested many segments deep (mindrian/mindrianOS/...). The original flat
+// first-segment split returned the TOP segment ("mindrian") for a nested write,
+// so 194's set-membership check received the WRONG slug and false-blocked every
+// write into a bound/active nested room (and would false-block born-wired
+// sub-room seeding in Wave 2). Fix: walk UP to the DEEPEST `.room-root` sentinel
+// (the room the write actually lands in), then reverse-match that dir against the
+// registry `path` fields to recover the REGISTERED slug. This does NOT
+// over-correct to silent-allow: a write into a DIFFERENT nested room than the
+// bound/active one resolves to THAT room's slug and still BLOCKS downstream
+// (the 95.1 drift-class-C hazard). Fail-open preserved: any resolution miss
+// falls back to the original flat first-segment split.
 function targetRoomUnderRoot(root, target) {
   const rel = path.relative(root, target);
   if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
     return null;
   }
+  // Preferred: walk-up to the deepest .room-root + registry reverse-match.
+  const sentinelDir = walkUpToRoomRoot(target, root);
+  if (sentinelDir) {
+    const slug = slugForRoomDir(root, sentinelDir);
+    if (slug) return slug;
+  }
+  // Fallback (fail-open toward the pre-194 behavior): no sentinel or no registry
+  // match -> the top segment, as before. Preserves semantics for flat
+  // single-segment rooms, unregistered dirs, and root-level files (which the
+  // downstream isRootLevelFile check classifies independently on the raw rel).
   const segments = rel.split(path.sep).filter(Boolean);
   if (segments.length === 0) return null;
   return segments[0];
