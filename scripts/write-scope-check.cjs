@@ -273,6 +273,32 @@ function main() {
     );
   }
 
+  // Session-aware set-membership (194-05, PSB-07 / D-04). A session may span
+  // rooms (bound is a SET), so block only when the target is OUTSIDE that set.
+  // isRoomInWriteScope also bypasses for a dev-repo/no-room binding, so a
+  // no-room session never false-blocks. An UNBOUND session degrades to the
+  // pre-194 single-active-room equality (safe fallback; the F.8 binding gate
+  // graduates it to a bound set). Any resolution error falls through to the
+  // equality path, never a hard block.
+  let binding = null;
+  try {
+    const sessionBinding = require('../lib/core/session-binding.cjs');
+    binding = sessionBinding.readSessionBinding(resolveSessionId(payload, realRoot));
+    const isBound = binding && Array.isArray(binding.bound) && binding.bound.length > 0;
+    if (isBound) {
+      if (sessionBinding.isRoomInWriteScope(targetRoom, binding)) {
+        return allow();
+      }
+      return block(
+        'Blocked: write to ' + targetRoom + ' denied. This session is bound to [' + binding.bound.join(', ') + '].\n' +
+        'To authorize, run: /mos:rooms switch ' + targetRoom + ' (or re-bind this session to include it).',
+        'blocked write to ' + targetRoom + ': not in session bound set [' + binding.bound.join(', ') + ']'
+      );
+    }
+  } catch (_) {
+    // fall through to the pre-194 equality fallback (never hard-block on error)
+  }
+
   if (targetRoom !== activeRoom) {
     return block(
       'Blocked: write to ' + targetRoom + ' denied. Active room is ' + activeRoom + '.\n' +
