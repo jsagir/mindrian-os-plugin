@@ -210,6 +210,8 @@ function parseArgs(argv) {
     drift: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
+    // Phase 194-07 (PSB-14): --bind-check <roomDir> local room-health job.
+    bindCheck: false, bindCheckDir: null,
   };
   for (const arg of argv) {
     if (arg === '--fix') flags.fix = true;
@@ -234,6 +236,12 @@ function parseArgs(argv) {
     else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
     else if (arg === '--claims') flags.claims = true;
     else if (arg === '--dry-run') flags.dryRun = true;
+    // Phase 194-07 (PSB-14 / D-10): --bind-check <roomDir> is a SIBLING flag (like
+    // --acceptance) with its OWN never-block exit-0 contract. It runs a LIGHTWEIGHT
+    // LOCAL structural room-health check + registers this session's presence at
+    // BIND-TIME (never per-turn, never a Brain call).
+    else if (arg === '--bind-check') flags.bindCheck = true;
+    else if (arg.startsWith('--bind-check=')) { flags.bindCheck = true; flags.bindCheckDir = arg.slice('--bind-check='.length); }
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
     else if (arg.startsWith('--scan-commands=')) flags.scanCommandsDir = arg.slice('--scan-commands='.length);
@@ -263,6 +271,15 @@ function parseArgs(argv) {
   // checks preTag first); --pre-flight is the strict-subset tier release.sh
   // Step 2.5 uses BEFORE Step 3 mutates the tree.
   if (flags.preFlight) flags.acceptance = true;
+  // Phase 194-07: capture the space-separated `--bind-check <roomDir>` value (the
+  // `=` form is captured inline above). The value is the arg following the flag,
+  // provided it is not itself a flag.
+  if (flags.bindCheck && !flags.bindCheckDir) {
+    const bcIdx = argv.indexOf('--bind-check');
+    if (bcIdx !== -1 && typeof argv[bcIdx + 1] === 'string' && !argv[bcIdx + 1].startsWith('--')) {
+      flags.bindCheckDir = argv[bcIdx + 1];
+    }
+  }
   return flags;
 }
 
@@ -314,6 +331,17 @@ Class flags (combine freely; --all activates them all):
                            deterministic, LOCAL-only, zero network. Phase 185
                            DRIFT-01).
   --all                    activate all class flags
+
+Bind-time lifecycle job (Phase 194-07 -- separate from class flags):
+  --bind-check <roomDir>   PSB-14 / D-10: a LIGHTWEIGHT LOCAL room-health check run
+                           at BIND-TIME (never per-turn, never a Brain call). Verifies
+                           the room dir exists + carries a .room-root sentinel +
+                           .mindrian/room.db opens with nodes/edges tables, and on a
+                           green report registers this session in the room's presence
+                           ledger (lib/core/session-presence.cjs). Rides the stale-reap
+                           cadence (dead-pid or mtime>5m presence files are reaped; a
+                           live pid never). NEVER-BLOCK: an unhealthy room degrades to an
+                           advisory and STILL exits 0 (binding is never hard-blocked).
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
   --acceptance             run the 7-point release-gate checklist (install-state +
@@ -3887,6 +3915,42 @@ function findPhaseDir(repoRoot, phaseToken) {
 
 function main() {
   const flags = parseArgs(process.argv.slice(2));
+
+  // Phase 194-07 (PSB-14 / PSB-13 / D-10): --bind-check <roomDir> runs the
+  // BIND-TIME local room-health job and rides the stale-reap cadence. Its
+  // contract is NEVER-BLOCK: it ALWAYS exits 0 (an unhealthy room degrades to an
+  // advisory; binding is never hard-blocked -- T-194-19). It composes
+  // session-presence.runBindCheck (LOCAL structural check + presence
+  // registerPresence on green) and session-presence.reap (dead/stale presence
+  // sweep). ZERO Brain call (Part 8): this is dispatched BEFORE the class-flag
+  // block and BEFORE --acceptance so the Brain-smoke never runs on a bind.
+  if (flags.bindCheck) {
+    const presence = require(path.join(__dirname, '..', 'lib', 'core', 'session-presence.cjs'));
+    const roomDir = flags.bindCheckDir;
+    const sessionId = process.env.CLAUDE_SESSION_ID || ('cli-' + process.pid);
+    const home = process.env.MINDRIAN_ROOMS_HOME || process.env.MINDRIAN_ROOMS_ROOT || undefined;
+    let report;
+    try {
+      report = presence.runBindCheck({ sessionId: sessionId, roomDir: roomDir, home: home });
+    } catch (_) {
+      report = { healthy: false, bound: [], primary: null, onScope: false, findings: ['bind-check-error'] };
+    }
+    if (flags.json) {
+      console.log(JSON.stringify(report));
+    } else {
+      console.log((report.healthy ? 'OK' : 'ADVISORY') + '  doctor --bind-check: ' + (roomDir || '(no room dir)'));
+      for (const f of (report.findings || [])) console.log('  - ' + f);
+      if (report.healthy) console.log('  presence registered for session ' + sessionId);
+    }
+    // Stale-reap on the bind-time cadence (D-08 half + T-194-21): drop dead-pid
+    // or mtime>5m presence files for this room. A live pid is never reaped. This
+    // is keyed to bind-time + reconcile, NEVER per-turn.
+    try {
+      if (roomDir) presence.reap({ roomDir: roomDir });
+    } catch (_) {}
+    process.exit(0); // never-block: an unhealthy bind still exits 0 (advisory).
+    return;
+  }
 
   // Phase 123 Plan-04: release-gate runner. --acceptance has its own exit-
   // code contract (0 = all points passed; 1 = any point failed); HARD ABORT
