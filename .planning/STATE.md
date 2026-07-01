@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 200-01-PLAN.md (SEED-018 RS corpus-quality bug fix)
-last_updated: "2026-07-01T16:20:00.000Z"
+stopped_at: Completed 195-05-PLAN.md (cross-room umbilical cord)
+last_updated: "2026-07-01T17:02:48.800Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 16
@@ -1059,6 +1059,7 @@ Progress: [█████████░] 92%
 | Phase 195 P03 | 42min | 3 tasks | 8 files |
 | Phase 195 P05 | 22min | 3 tasks | 6 files |
 | Phase 195 P06 | 10 min | 2 tasks | 6 files |
+| Phase 200 P2 | 1 | 4 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -1970,6 +1971,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 195-05: NOT_LINKED_BECAUSE persists to a separate registry rejection ledger, leaving the Plan-04 UMBILICAL_TO store untouched
 - [Phase ?]: 195-05: resumeTrigger is a cheap presence-only decision; the aggregator runs only on fire (T-195-17 DoS mitigation)
 - [Phase ?]: 195-06 (FCM-08): DRIFT ratified as the 7th per-folder memory kind under navigator authority; Part 9 six to seven, canon v1.21 to v1.22, frozen scalars untouched, no Brain wire.
+- [Phase ?]: D-200-2 resolved to (b): LOCAL-only Tier-0 expert base stays, plus an additive Part-8 fail-closed Brain generic-handle projection
 
 ### Pending Todos
 
@@ -2010,7 +2012,7 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-07-01T14:55:29.085Z
+Last session: 2026-07-01T17:01:55.299Z
 Stopped at: Completed 195-05-PLAN.md (cross-room umbilical cord)
 
 **Phase 183 Plan 01 (this session):** METER-01 gate-exposure + the Gauge-1 invocation-density reader, the build-first keystone of the v1.15.0 "Cure Under-Invocation" milestone. Task 1 (0d08fff3, test): the phase Wave-0 scaffold -- 5 meter RED pins (gate-reach, density, event-types-floor for Plan 01; transfer, two-gauge-weld for Plan 02) + tests/run-all-183.sh mirroring run-all-180.sh (5 node pins + the Part 8 grep-sweep over lib/core/meter/ and a BOUNDED gate_reached emit-seam window + the reach-ids/posture-ids drift fences). Task 2 (e0d46f51, feat): gate_reached added to the frozen EVENT_TYPES Set via the verbatim additive idiom (86 -> 87, mirrors the Phase 181-01 1-string precedent) + ONE gate_reached emit at scripts/intent-classifier.cjs beside the live reach_presented loop on the surface-shared engine arm, guarded by offered.length > 0, deduped on the turn-start handle (startedAt) with logEvent's 60s idempotency so a re-entrant arm cannot double-count; payload enum/scalar only (reach_count/routing_source/source_path/created_by/dedupe_key). Task 3 (3d650ede, feat): lib/core/meter/gate-density-reader.cjs -- computeInvocationDensity counts gate_reached + reach_presented + framework_invoked via navigation.findRecentChanges; density basis leans on reach_presented + gate_reached (framework_invoked verified UN-emitted at any production site today -- Open Question 1; carried as an additive term reading ~0); denominator_unit = 'gate_reached' (Open Question 2); roomState injection seam for db-free reads; cold-starts to a zeroed object, never throws, opens no db, makes no remote call; no bare-density export (T-183-04). run-all-183.sh 6/8 (the 2 RED are the Plan-02 transfer + two-gauge-weld pins BY DESIGN). The ONLY frozen-set change is the single gate_reached string; no new reach/node/edge/posture; frozen render contracts (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 gate, 6-reach bank, appendAskUserQuestionTrailer) untouched; Part 8 sweep clean; no em-dashes. One deviation (Rule 1, test-comment only): reworded a floor-test header comment that carried a literal ".size" token so the Task-1 grep-c acceptance returned 0; zero production impact. Next: Phase 183 Plan 02 (METER-02 transfer proxies + the welded two-gauge read) turns the 2 remaining RED pins green. See .planning/phases/183-meter-gate-exposure-transfer/183-01-SUMMARY.md.

@@ -3499,8 +3499,9 @@ Cluster E. Reconcile the Reverse-Salient pipeline onto the connector/runChain sp
 - **Provenance:** Cluster-E graduation from SEED-030 + SEED-018. NEXT: `/gsd-discuss-phase 200`.
 
 **Progress (1 of 3 plans):**
+
 - [x] 200-01-PLAN.md -- SEED-018 corpus-quality bug fix. COMPLETE 2026-07-01. H1 (single-source exclude-list, kill walker drift) shipped via the grounded exclude-drift correction: three Python walkers (rs_hybrid.py, rs_rooms.py, scripts/rs-engine.py) import ONE shared `lib/core/rs_corpus_exclude.py`, killing the .heal-backup 706-inflation (a50044e2; NOT the originally-planned research-corpus.cjs site -- traced root cause was walker SKIP_DIRS drift). H2 (semantic-floor gate, default 0.15, tunable via RS_SEMANTIC_FLOOR) drops off-topic external returns BEFORE the differential matrix, added additively at both `rs_corpus.py` (semantic_gate + fetch_external wrapper) and the shared `rs-differential-scorer.cjs` (passesSemanticFloor + gate helper, Phase-205 logic untouched) (d1b15623). H3 non-degenerate regression fixture + assertion locks against the boundary-extreme collapse (semantic 0.0 / lsa 1.0 / signed_diff -1.0) (8632e930). Tests: `tests/test-200-corpus-quality.cjs` 6 green + `tests/test-200-corpus-exclude.sh` green; all offline stub-encoder (Canon Part 8). H4/H5 deferred to the embedding-spine decision D-200-1. See 200-01-SUMMARY.md.
-- [ ] 200-02-PLAN.md
+- [x] 200-02-PLAN.md
 - [ ] 200-03-PLAN.md
 
 ### Phase 201: Harness-as-Code Manifest + Ralph-Loop Runtime (harness-as-code-manifest) - REGISTERED 2026-07-01 - **THE INTEGRATIVE SPINE**
@@ -3558,7 +3559,7 @@ The `/mos:ignite` front door becomes a live Shape-F entry (navigator-directed 20
 - **Full spec (durable source):** .planning/phases/205-larry-loop-elevation-fusion-cross-frame-anti-circular-gear-s/205-CONTEXT.md
 - **Provenance:** navigator-directed 2026-07-01 (FUSION PRD + Test 6 + Mordi/Eli feedback; three-elevation-types from Lawrence Aronhime Test 6; routing fence + Plurai suite same session). NEXT: /gsd-plan-phase 205.
 
-**Plans:** 9 plans in 4 waves (planned 2026-07-01). Items 10 (Part 12 canon) + 11 (Shape-F elevation labels, Phase 188.1) already SHIPPED - not re-planned.
+**Plans:** 2/3 plans executed
 
 Plans:
 
