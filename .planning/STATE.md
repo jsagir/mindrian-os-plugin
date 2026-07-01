@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 202-01-PLAN.md (Phase 121 telemetry consumer + reward table)
-last_updated: "2026-07-01T20:24:43Z"
-last_activity: 2026-07-01
+stopped_at: Completed 202-02-PLAN.md (APO loop core -- propose/score/select, Path A recommend-then-ratify)
+last_updated: "2026-07-02T00:00:00Z"
+last_activity: 2026-07-02
 progress:
   total_phases: 16
   completed_phases: 8
