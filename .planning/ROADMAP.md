@@ -3416,7 +3416,18 @@ Completes the unbuilt Shape-F surface in three parts, all on the SEED-020 single
 - **Reuse (Part 7):** the Phase 143.1 dial-TUI shipped the surface-agnostic reach-list/option-list core + shape-f1-renderer.cjs (renderShapeF1) + the label composer; /mos:help and the posture dial are NEW CONSUMERS of the same primitive, not new widgets. No second posture engine (connector-spine rule) - the toggle is a manual override of the existing dial position.
 - **Canon:** Part 3 (Shape F universal primitive; frozen MAX_K=3/DIAL_REACH_K=6/0.70-0.15 UNCHANGED), Part 10 (command menus render as live selectors, never bare text), Part 11 (R15 render-coverage; born-declared hitl_shape), Part 12 (the posture pole IS the voice glyph). Part 8 clean (LOCAL render + LOCAL session posture state, zero Brain wire); no em-dashes.
 - **Already-phased siblings (do NOT rebuild):** SEED-040=Phase 189, SEED-041=Phase 190, SEED-009=Phase 158, SEED-020 graduated (88.2/121.5/143.1/178).
-- **Provenance:** navigator-directed 2026-07-01 (Cluster-B graduation from seed consolidation). Promoted from SEED-020/021/042. NEXT: `/gsd-discuss-phase 192`.
+- **Provenance:** navigator-directed 2026-07-01 (Cluster-B graduation from seed consolidation). Promoted from SEED-020/021/042.
+- **Planning note (2026-07-02):** gap-check confirmed /mos:help and /mos:mos are already-shipped live selectors (no change needed); SEED-021 Finding 1 (atomic render coupling) reconfirmed green via the existing Phase 150.5 ACPT-06 suite (verify-only, zero code change). The new SEED-042 stance concept is named `stance` in code throughout (never `posture`) to avoid colliding with the existing frozen 3-value Hierarchical Navigator posture set (`push_forward`/`hold`/`pull_back`, drift-tested exactly-3, no 4th); user-facing prose may still call it "the posture dial" per this entry's language. Phase 190 (Shape F Declaration Mandate) has not shipped its enforcement script; `hitl_shape`/`hitl_why` are forward-declared on the new stance toggle per the documented convention regardless, so Phase 190 is NOT treated as a hard code dependency of this phase.
+
+**Plans:** 5 plans across 3 waves
+
+Plans:
+
+- [ ] 192-01-PLAN.md -- WAVE 1: SEED-020 selector sweep -- gap-check /mos:help + /mos:mos (already compliant), convert /mos:suggest-next + /mos:rooms (list/where) + /mos:onboard Step 1 to live F.1 AskUserQuestion selectors, --list/text floor preserved
+- [ ] 192-02-PLAN.md -- WAVE 1: SEED-021 F.7-max -- reverify Finding 1 (atomic coupling, already green) + build Finding 2 (De Stijl preview panel, confidence-bar glyphs, Q2 multiSelect modifier pane), tier-0 cold card reconfirmed
+- [ ] 192-03-PLAN.md -- WAVE 1: SEED-042 stance-dial core -- lib/core/stance-state.cjs + commands/stance.md (F.0-class cycle-and-confirm toggle) + every-turn footer-offer doctrine + locked redteam/tell-act voice-glyph mapping
+- [ ] 192-04-PLAN.md -- WAVE 2 (depends on 192-03): statusline [stance] chip (CLI enhancement) + Plurai eval GATE leg (posture-framing-fidelity)
+- [ ] 192-05-PLAN.md -- WAVE 3 (depends on 192-01..04): tests/run-all-192.sh phase-gate aggregator + adversarial 192-VERDICT.md
 
 ### Phase 194: Per-Session Room Binding + Multi-Session Reconcile (per-session-room-binding) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-01**
 
