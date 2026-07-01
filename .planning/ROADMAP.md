@@ -3405,10 +3405,10 @@ Cluster F keystone. A runtime egress classifier (small language model / rules ga
 - **Canon:** Part 8 (the structural boundary made runtime-enforceable), Part 11 (R7 no live user egress). No em-dashes.
 - **Provenance:** Cluster-F graduation from SEED-019. NEXT: `/gsd-execute-phase 196`.
 
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 - [x] 196-01-test-harness-PLAN.md - Wave 0: SKIP-safe run-all-196.sh + 3 test stubs + CSV loader + grep-guard leg
-- [ ] 196-02-plurai-baseline-PLAN.md - Wave 0: expand synthetic CSV, offline Plurai eval, persist 196-baseline.json
+- [x] 196-02-plurai-baseline-PLAN.md - Wave 0: expand synthetic CSV, offline Plurai eval, persist 196-baseline.json
 - [ ] 196-03-classifier-PLAN.md - Wave 1: pure classify() (CONTENT-SET block / MOVE-SET allow / ambiguous)
 - [ ] 196-04-hook-telemetry-PLAN.md - Wave 2: PreToolUse hook + hooks.json + LOCAL-only ontology telemetry
 - [ ] 196-05-gate-degrade-PLAN.md - Wave 3: Shape F.1 ambiguous gate + Brain-less degrade + sendPacket belt
@@ -3492,6 +3492,15 @@ The `/mos:ignite` front door becomes a live Shape-F entry (navigator-directed 20
 - **Canon:** Part 3 (Shape-F universal gate), Part 10 (conversation IS the surface; the front door is a live selector, not a command menu), Part 12 (persona/voice register), Part 8 (LOCAL room registry + LOCAL session persona state, zero Brain wire). No em-dashes.
 - **Interpretation flag:** "just talk f-shape" read as the no-room conversational entry rendered via Shape-F (branch 2); confirm if you meant an interactive TOUR/demo of the ten shapes instead.
 - **Provenance:** navigator-directed 2026-07-01 ("ignite with choose-room if prior rooms, or just talk; each persona talked-with differently later; prompted into the 188 part"). Extends Phase 179. NEXT: `/gsd-discuss-phase 204`.
+
+### Phase 205 - Larry Loop Elevation (FUSION cross-frame + anti-circular gear-shift) (larry-loop-elevation) - REGISTERED 2026-07-01
+
+**Class:** CODE + ARCH | **Priority:** P0 | **Depends on:** Phase 191 (brain_ask operator), Phase 201 (harness-as-code), Phase 202 (APO lab), Phase 200 (RS discriminator), Phase 196 (Part-8 guardrail + plurai-baseline), Phase 188 (Shape-F gates), Phase 166 (runChain), Phases 143.1/144 (dial), Phase 115 (persona).
+
+**Goal:** One decision stage for when the navigator is STUCK - across frames (FUSION cross-frame elevation, the Test 6 misses) or within a frame (the anti-circular gear-shift, the Mordi+Eli circular failure). One shared substrate; wire shipped pieces, mint no new reach (Canon Part 7). Carries the three elevation types (vertical/horizontal/lateral) alongside the ASK/TELL/GRILL gears, hedged-always as the invariant, the surface:navigator|internal routing fence, and the behavior harness as a Plurai eval suite (one judge per reach/behavior).
+
+- **Full spec (durable source):** .planning/phases/205-larry-loop-elevation-fusion-cross-frame-anti-circular-gear-s/205-CONTEXT.md
+- **Provenance:** navigator-directed 2026-07-01 (FUSION PRD + Test 6 + Mordi/Eli feedback; three-elevation-types from Lawrence Aronhime Test 6; routing fence + Plurai suite same session). NEXT: /gsd-plan-phase 205.
 
 ## Dependency graph
 
