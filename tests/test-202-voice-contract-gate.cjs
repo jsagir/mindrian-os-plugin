@@ -33,9 +33,12 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const os = require('node:os');
+
 const REPO = path.resolve(__dirname, '..');
 const GATE_PATH = path.join(REPO, 'lab/apo/voice-contract-gate.cjs');
 const LOOP_PATH = path.join(REPO, 'lab/apo/apo-loop.cjs');
+const ACT_MD = path.join(REPO, 'commands/act.md');
 const CSV_PATH = path.join(REPO, 'evals/plurai/09-apo-output-voice.csv');
 const BASELINE_PATH = path.join(REPO, 'evals/plurai/202-baseline.json');
 
@@ -57,6 +60,10 @@ function test(name, fn) {
 function freshRequire(p) {
   try { delete require.cache[require.resolve(p)]; } catch (_e) { /* not cached */ }
   try { return require(p); } catch (_e) { return null; }
+}
+
+function rmRf(p) {
+  try { fs.rmSync(p, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
 }
 
 // ---------- Minimal RFC4180 CSV parser (quoted fields, embedded commas,
@@ -143,6 +150,42 @@ test('4. a missing De Stijl mark is caught via the reused hybrid (isolated)', ()
   const res = gate.checkVoiceContract(noMark);
   assert.equal(res.pass, false, 'a missing voice mark must disqualify');
   assert.ok(res.violations.includes('missing_voice_mark'), 'missing_voice_mark must be flagged');
+});
+
+// ================= Task 3: voice-contract disqualifier in the loop =================
+
+const apoLoop = freshRequire(LOOP_PATH);
+
+test('5. Part 12: highest-reward voice-violating candidate is NOT selected; compliant lower-reward wins', () => {
+  assert.ok(apoLoop, 'lab/apo/apo-loop.cjs must be requireable');
+  assert.equal(typeof apoLoop.runApo, 'function', 'runApo must be exported');
+  const runsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apo-vc-'));
+  try {
+    // The highest-reward candidate carries an em-dash output (a Part 12
+    // violation); the lower-reward candidate honors the contract.
+    const highRewardViolation =
+      '[RED] Your idea is strong — the market is weak — so reconsider? Tell me more.';
+    const compliant =
+      '[RED] You are treating this as a marketing problem. What is the smallest test that would tell you? Start there.';
+    const proposeFn = () => ([
+      { id: 'high', body: 'x', output: highRewardViolation },
+      { id: 'low', body: 'y', output: compliant },
+    ]);
+    // qualityScoreFn makes 'high' the reward winner -- yet it must lose.
+    const qualityScoreFn = (c) => (c.id === 'high' ? 0.95 : 0.80);
+    const result = apoLoop.runApo(ACT_MD, { proposeFn, qualityScoreFn, runsDir });
+    assert.ok(result.best, 'runApo must return a best candidate');
+    // Sanity: 'high' really does out-score 'low' (the test is meaningful).
+    const high = result.candidates.find((c) => c.id === 'high');
+    const low = result.candidates.find((c) => c.id === 'low');
+    assert.ok(high && low, 'both candidates must be recorded');
+    assert.ok(high.quality > low.quality, 'the violating candidate must be the reward winner');
+    // The disqualifier: reward can never buy a voice violation (Canon Part 12).
+    assert.equal(result.best.id, 'low',
+      'the em-dash candidate has the highest reward but MUST be disqualified; the compliant lower-reward candidate wins');
+  } finally {
+    rmRf(runsDir);
+  }
 });
 
 // ---------- Summary ----------
