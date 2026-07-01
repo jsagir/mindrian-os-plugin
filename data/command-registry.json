@@ -1036,6 +1036,22 @@
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
+      "command": "/mos:mva-report",
+      "kind": "utility",
+      "surface": "navigator",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": "When you have finished a conversation with Larry and want to see whether it fired the right things at the right time -- did it reach a conclusion or circle, did it elevate across frames, did the gates fire -- run /mos:mva-report. It emits a clean structured report you can forward, not a chat log. The tester-cohort report surface (2026-07-01 standup promise).",
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+    },
+    {
       "command": "/mos:new-project",
       "kind": "utility",
       "surface": "navigator",
