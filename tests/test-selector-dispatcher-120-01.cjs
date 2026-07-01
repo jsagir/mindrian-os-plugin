@@ -3,15 +3,14 @@
  *
  * Phase 120-01 Task 2 -- dispatcher F.7 sub-shape integration test harness.
  *
- * Covers the 8 behavior tests from 120-01-PLAN.md Task 2:
- *   T1 F_SUBSHAPES extension: literal 'F.7' present as the 8th entry
- *   T2 dispatchShapeFSubShape F.7 happy path returns {shape:'F.7', rendered:{...}}
- *   T3 closed-vocab carve-out preserved (Free-Text NOT appended to F.7)
- *   T4 D-20 HARD FLOOR propagates through dispatcher as {shape:'error', rendered:{error:'provenance_required'}}
- *   T5 F.7 missing-renderer graceful degradation -- exercised indirectly via grep
- *   T6 F.6 plan-review byte-stability invariant -- existing path unchanged
- *   T7 umbrella 'F' dispatch unchanged -- F.7 NOT in JTBD fallback path
- *   T8 selector_presentation telemetry emitted with sub_shape='F.7' when opted in
+ * Phase 188-01 (SFS-06) REPOINT: bare 'F.7' is the CANONICAL DIAL now, NOT the
+ *   Breakthrough Surface (D-10 canonical ten). The breakthrough render CONTRACT
+ *   (closed-vocab 5 verbs verbatim + the D-20 provenance HARD FLOOR) is retained
+ *   in lib/hmi/shape-f7-breakthrough-renderer.cjs and is now tested DIRECTLY
+ *   against that module rather than through a bare-F.7 dispatch. The bare-F.7 ->
+ *   dial routing is covered by lib/hmi/selector-dispatcher.test.cjs (the SFS-06
+ *   canonical test). This file keeps the still-valid F_SUBSHAPES / F.6 / umbrella
+ *   invariants and repoints the breakthrough-contract tests to the module.
  *
  * Mirrors tests/test-selector-dispatcher-88-2-06.cjs (the F.6 plan-review precedent).
  *
@@ -27,6 +26,7 @@ const path = require('node:path');
 const DISPATCHER_PATH = path.resolve(__dirname, '..', 'lib', 'hmi', 'selector-dispatcher.cjs');
 const dispatcherMod = require('../lib/hmi/selector-dispatcher.cjs');
 const { pickShape, _internal } = dispatcherMod;
+const breakthroughRenderer = require('../lib/hmi/shape-f7-breakthrough-renderer.cjs');
 
 // --- T1: F_SUBSHAPES extension ---
 test('T1: F_SUBSHAPES contains F.7 as the 8th entry', () => {
@@ -49,79 +49,74 @@ test('T1b: F_SUBSHAPES literal "F.7" appears in selector-dispatcher.cjs source',
   assert.ok(matches.length >= 2, 'expected >= 2 occurrences of \'F.7\' in dispatcher source, got ' + matches.length);
 });
 
-test('T1c: shape-f7-breakthrough-renderer require landed in dispatcher source', () => {
+test('T1c: shape-f7-breakthrough-renderer referenced in dispatcher source (retained-module note)', () => {
   const src = fs.readFileSync(DISPATCHER_PATH, 'utf8');
+  // SFS-06: the retired-branch comment documents the historic route; the module
+  // stays live as the verb-set home even though bare F.7 no longer wires it.
   assert.match(src, /shape-f7-breakthrough-renderer/);
 });
 
-// --- T2: F.7 happy path ---
-test('T2: pickShape({requestedShape:F.7, ...}) returns {shape:F.7, rendered:{...}}', () => {
+// --- T2 (repointed): breakthrough render CONTRACT via the retained module ---
+test('T2: renderShapeF7Breakthrough returns the closed-vocab breakthrough contract', () => {
+  const out = breakthroughRenderer.renderShapeF7Breakthrough({
+    tier: 1,
+    breakthrough: {
+      id: 'bk:1',
+      kind: 'convergence',
+      theme: 'X',
+      artifact_ids: ['a1', 'a2', 'a3'],
+      detected_at: Date.now(),
+    },
+    more_count: 0,
+  });
+  assert.equal(out.contract.shape, 'F.7');
+  assert.deepEqual(out.contract.verbs, ['Explore deeper', 'Confirm', 'File as decision', 'Dismiss', 'Back']);
+  assert.equal(out.contract.breakthrough_id, 'bk:1');
+});
+
+// --- T2-dial (SFS-06): bare F.7 dispatch now yields the dial ---
+test('T2-dial: pickShape(F.7) returns the dial render (SFS-06 collapse)', () => {
   const out = pickShape({
     requestedShape: 'F.7',
     roomDir: '/tmp/non-existent-120-01-test-room',
     tier: 1,
-    payload: {
-      breakthrough: {
-        id: 'bk:1',
-        kind: 'convergence',
-        theme: 'X',
-        artifact_ids: ['a1', 'a2', 'a3'],
-        detected_at: Date.now(),
-      },
-      more_count: 0,
-    },
+    payload: { investment_level: 0.5, posture: 'hold' },
   });
   assert.equal(out.shape, 'F.7');
-  assert.equal(out.rendered.contract.shape, 'F.7');
-  assert.deepEqual(out.rendered.contract.verbs, ['Explore deeper', 'Confirm', 'File as decision', 'Dismiss', 'Back']);
-  assert.equal(out.rendered.contract.breakthrough_id, 'bk:1');
+  assert.equal(out.rendered.shape, 'F.7-dial');
+  assert.ok(out.rendered.hud);
 });
 
-// --- T3: closed-vocab carve-out preserved ---
+// --- T3 (repointed): closed-vocab carve-out preserved on the module ---
 test('T3: F.7 closed-vocab -- Free-Text NOT appended; exactly 5 verbs', () => {
-  const out = pickShape({
-    requestedShape: 'F.7',
-    roomDir: '/tmp/non-existent-120-01-test-room',
+  const out = breakthroughRenderer.renderShapeF7Breakthrough({
     tier: 1,
-    payload: {
-      breakthrough: {
-        id: 'bk:1',
-        kind: 'convergence',
-        theme: 'X',
-        artifact_ids: ['a1'],
-        detected_at: Date.now(),
-      },
-      more_count: 0,
+    breakthrough: {
+      id: 'bk:1',
+      kind: 'convergence',
+      theme: 'X',
+      artifact_ids: ['a1'],
+      detected_at: Date.now(),
     },
+    more_count: 0,
   });
-  assert.equal(out.rendered.contract.verbs.length, 5);
-  assert.equal(out.rendered.contract.verbs.indexOf('Free-Text'), -1);
-  assert.equal(out.rendered.contract.freeTextOffered, false);
+  assert.equal(out.contract.verbs.length, 5);
+  assert.equal(out.contract.verbs.indexOf('Free-Text'), -1);
+  assert.equal(out.contract.freeTextOffered, false);
 });
 
-// --- T4: D-20 HARD FLOOR propagation ---
-test('T4: F.7 empty artifact_ids -> {shape:error, rendered:{error:provenance_required}}', () => {
-  const out = pickShape({
-    requestedShape: 'F.7',
-    roomDir: '/tmp/non-existent-120-01-test-room',
+// --- T4 (repointed): D-20 HARD FLOOR on the retained module ---
+test('T4: F.7 empty artifact_ids -> {error:provenance_required}', () => {
+  const out = breakthroughRenderer.renderShapeF7Breakthrough({
     tier: 1,
-    payload: {
-      breakthrough: { id: 'bk:1', artifact_ids: [] },
-    },
+    breakthrough: { id: 'bk:1', artifact_ids: [] },
   });
-  assert.equal(out.shape, 'error');
-  assert.equal(out.rendered.error, 'provenance_required');
+  assert.equal(out.error, 'provenance_required');
 });
 
-test('T4b: F.7 missing breakthrough -> {shape:error, rendered:{error:provenance_required}}', () => {
-  const out = pickShape({
-    requestedShape: 'F.7',
-    roomDir: '/tmp/non-existent-120-01-test-room',
-    tier: 1,
-    payload: {},
-  });
-  assert.equal(out.shape, 'error');
-  assert.equal(out.rendered.error, 'provenance_required');
+test('T4b: F.7 missing breakthrough -> {error:provenance_required}', () => {
+  const out = breakthroughRenderer.renderShapeF7Breakthrough({ tier: 1 });
+  assert.equal(out.error, 'provenance_required');
 });
 
 // --- T6: F.6 plan-review byte-stability invariant ---
@@ -157,52 +152,18 @@ test('T7: umbrella F dispatch routes to F.1/F.6 only (NOT F.7)', () => {
   assert.notEqual(out.shape, 'F.7');
 });
 
-// --- T5: F.7 missing-renderer path (cannot easily simulate; verify source structure) ---
-test('T5: F.7 missing-renderer path has graceful degradation via safeRequire', () => {
+// --- T5 (repointed): bare F.7 branch delegates to the dial, not the renderer ---
+test('T5: bare F.7 branch wires dial-selector.cjs::renderDialShape (SFS-06)', () => {
   const src = fs.readFileSync(DISPATCHER_PATH, 'utf8');
-  // The F.7 branch lazy-requires via safeRequire -- inherits the no-subshape-renderer
-  // error envelope from the existing dispatcher path (lines around 359-367).
-  assert.match(src, /safeRequire\(['"]\.\/shape-f7-breakthrough-renderer\.cjs['"]\)/);
+  const branchIdx = src.indexOf("requestedShape === 'F.7'");
+  assert.ok(branchIdx !== -1);
+  const branch = src.slice(branchIdx, branchIdx + 900);
+  assert.match(branch, /safeRequire\(['"]\.\/dial-selector\.cjs['"]\)/);
+  assert.match(branch, /renderDialShape/);
 });
 
-// --- T8: telemetry mirror (recordPresentation called with sub_shape='F.7' when opted in) ---
-test('T8: F.7 dispatch emits selector_presentation telemetry with sub_shape=F.7 when emitTelemetry:true', () => {
-  // Monkey-patch the selector-telemetry module's cache entry so we can capture
-  // the call. The dispatcher pulls the module via safeRequire('./selector-telemetry.cjs')
-  // which goes through the standard require cache.
-  const telPath = path.resolve(__dirname, '..', 'lib', 'hmi', 'selector-telemetry.cjs');
-  const tel = require(telPath);
-  const original = tel.recordPresentation;
-  let captured = null;
-  tel.recordPresentation = function (roomDir, record) { captured = { roomDir: roomDir, record: record }; };
-  try {
-    pickShape({
-      requestedShape: 'F.7',
-      roomDir: '/tmp/non-existent-120-01-test-room',
-      tier: 1,
-      payload: {
-        emitTelemetry: true,
-        breakthrough: {
-          id: 'bk:1',
-          kind: 'convergence',
-          theme: 'X',
-          artifact_ids: ['a1'],
-          detected_at: Date.now(),
-        },
-        more_count: 0,
-      },
-    });
-  } finally {
-    tel.recordPresentation = original;
-  }
-  assert.ok(captured, 'recordPresentation must be called when emitTelemetry:true');
-  assert.equal(captured.record.sub_shape, 'F.7');
-  assert.equal(captured.record.options_count, 5);
-  assert.equal(captured.record.recommended_present, false);
-});
-
-// --- Bonus: Phase 120-01 provenance comment landed ---
-test('Bonus: Phase 120-01 provenance comment landed in dispatcher', () => {
+// --- Bonus: Phase 188-01 SFS-06 collapse comment landed ---
+test('Bonus: Phase 188-01 SFS-06 comment landed in dispatcher', () => {
   const src = fs.readFileSync(DISPATCHER_PATH, 'utf8');
-  assert.match(src, /Phase 120-01/);
+  assert.match(src, /188-01|SFS-06/);
 });
