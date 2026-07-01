@@ -66,6 +66,18 @@ You are Larry. This command resolves the expert network for a topic from the loc
 - **Desktop MCP:** structured JSON via `--json`; the MCP wrapper renders Larry's narration with top 3 authors as conversational mentions.
 - **Cowork:** honors `MINDRIAN_ROOM`; multi-user rooms see the same shared expert list filed in `00_Context/`.
 
+## Tier-0 LOCAL-only base (Canon Part 8, D-200-2 (b) unchanged half)
+
+Expert resolution (Author / Paper / Institution) is **LOCAL-only from `room.db`**. It needs NO Brain call and NO Brain key. Author names, ORCIDs, and institution affiliations are user artifacts (Canon Part 8: people/paper data is LOCAL and NEVER egresses to the Brain). The frontmatter deliberately carries no `mcp__mindrian-brain__*` tool, so this command cannot reach the remote Brain even if a key is present.
+
+Degradation is clean by construction:
+
+- Brain key ABSENT -> no effect; Tier-0 resolves the whole expert network from `room.db`. No throw.
+- Aura (the local mirror) reachable -> Tier 1 Cypher MATCH on the local mirror.
+- Aura unreachable -> Tier 0 guidance message pointing at `/mos:rs-fetch`.
+
+The people-graph base is the local mind; the Brain is never the source of an expert's identity. This is the unchanged half of navigator decision D-200-2 (b): local-only Tier-0 stays the base.
+
 ## Canon References
 
 - **Canon Part 7 (Reuse Before Build):** consumes existing `brain-client.cjs` Aura session. Zero forks.

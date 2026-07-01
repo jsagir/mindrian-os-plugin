@@ -66,6 +66,16 @@ You are Larry. This command looks up the thesis text for a prior `RSDiscovery` b
 - **Desktop MCP:** structured JSON via `--json`; MCP wrapper renders Larry's narration with the thesis as a quote.
 - **Cowork:** honors `MINDRIAN_ROOM` env var; the lookup runs against the active room's local SQLite mirror in shared `00_Context/`.
 
+## Tier-0 LOCAL-only base (Canon Part 8, D-200-2 (b) unchanged half)
+
+The thesis and its `RSDiscovery` / Author / Paper / Institution neighborhood are **LOCAL-only** user artifacts. Tier-0 resolution reads them straight from `room.db` with NO Brain call and NO Brain key (Canon Part 8: people/paper data is LOCAL and NEVER egresses). The frontmatter carries no `mcp__mindrian-brain__*` tool, so a missing Brain key changes nothing:
+
+- Brain key ABSENT -> Tier-0 SQLite read is authoritative (the writer is idempotent). No throw.
+- Aura reachable -> Tier 1 Cypher MATCH on the local mirror.
+- Aura unreachable -> Tier-0 SQLite fallback with a `DEGRADED_NOTE` marker.
+
+This is the unchanged half of navigator decision D-200-2 (b): the local-only Tier-0 stays the base; the Brain never holds a discovery's bytes.
+
 ## Canon References
 
 - **Canon Part 7 (Reuse Before Build):** consumes existing `lazygraph-ops.cjs` for SQLite reads and existing `brain-client.cjs` (Aura session) for Tier 1. Zero forks.
