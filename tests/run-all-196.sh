@@ -95,11 +95,16 @@ run_if "PB8-02 no private FORBIDDEN_PATTERNS copy" \
   noprivate_regex
 
 # ---------------------------------------------------------------------------
-# Wave 3 end-to-end synthetic smoke leg (owned by plan 196-05). Do NOT create it
-# here; 196-05 appends its own run_if leg for the full-path synthetic smoke test
-# once the gate + hook + ontology are all wired.
+# Wave 3 end-to-end synthetic smoke leg (owned by plan 196-05). Drives a
+# CONTENT-SET fixture and a MOVE-SET fixture through the LOCAL classify() path
+# (asserts block / allow) and renders the ambiguous F.1 gate {Reformulate,
+# Cancel} -- proving the full runtime path with no real room and no Brain wire.
+# run_if-guarded on the F.1 gate module (lands here in 196-05) so it stays
+# SKIP-safe if the gate is ever absent.
 # ---------------------------------------------------------------------------
-# run_if "Wave 3 e2e synthetic smoke (owned by 196-05)" <module> node <smoke.test.cjs>
+run_if "PB8-07/10 e2e synthetic smoke (CONTENT blocked, MOVE passes)" \
+  lib/hmi/part8-egress-gate.cjs \
+  node tests/part8-egress-e2e-smoke.test.cjs
 
 echo "========================================"
 echo "  Summary (196 verification)"
