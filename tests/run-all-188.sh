@@ -125,6 +125,16 @@ run_if "hitl-stages schema validator gate" \
 
 run "render-coverage gate (--check)" node scripts/check-render-coverage.cjs --check
 
+# ---------------------------------------------------------------------------
+# Phase 188.1 (quick phase under 188): Shape-F elevation labels. Repoints the
+# degraded selector row from the mechanism-blank explore one_line to an
+# elevation-framed what-you-get default (Canon Part 12). run_if until the test
+# lands.
+# ---------------------------------------------------------------------------
+run_if "188.1 elevation labels (no mechanism-blank selector rows)" \
+  tests/test-188.1-elevation-labels.cjs \
+  node tests/test-188.1-elevation-labels.cjs
+
 echo "========================================"
 echo "  Summary (188 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"
