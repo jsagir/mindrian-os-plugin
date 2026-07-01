@@ -3293,12 +3293,12 @@ RE-SCOPED 2026-07-01 (navigator-directed against the f-shapes explainer https://
 - **First consumers:** Phase 150.8 meeting nugget-routing; deep-grade fix-application; opportunity-bank multi-ADD; Phase 189 memory governance (F.8/F.9 at the write path); Part 4 cascade soft-edit.
 - **Provenance:** navigator-directed 2026-06-29 (GIX deep-grade), RE-SCOPED 2026-07-01 to the full F.0-F.9 system against the f-shapes catalog. Seeds: SEED-020/021 + `.planning/phases/178-universal-gate-chokepoint/178-SEED-f7-multiselect-toggleable-hitl.md`. NEXT: `/gsd-discuss-phase 188` (the Part-3 F.8/F.9 reconciliation is the first gate).
 
-**Plans:** 8 plans (6 waves)
+**Plans:** 2/8 plans executed
 
 Plans:
 
-- [ ] 188-00-test-scaffolding-PLAN.md -- Wave 0: phase runner + 7 module test stubs + 2 FLOOR tests (frozen scalars + per-shape coverage hard-fail) (Wave 1; Nyquist scaffold for SFS-01..12)
-- [ ] 188-01-breakthrough-collapse-PLAN.md -- SFS-06: collapse the non-canonical Breakthrough Surface into the F.7 dial / F.1 (6 grep-verified sites; free canonical F.7 = dial) (Wave 2)
+- [x] 188-00-test-scaffolding-PLAN.md -- Wave 0: phase runner + 7 module test stubs + 2 FLOOR tests (frozen scalars + per-shape coverage hard-fail) (Wave 1; Nyquist scaffold for SFS-01..12)
+- [x] 188-01-breakthrough-collapse-PLAN.md -- SFS-06: collapse the non-canonical Breakthrough Surface into the F.7 dial / F.1 (6 grep-verified sites; free canonical F.7 = dial) (Wave 2)
 - [ ] 188-02-hitl-stages-PLAN.md -- SFS-07: hitl_stages declaration schema + pure-code validator + 9 engine-flow fixtures (registry-is-the-table; declaration-only) (Wave 2)
 - [ ] 188-03-coverage-gate-claude-check-PLAN.md -- SFS-10 (code) + SFS-12: per-shape coverage predicate (F.0-F.7 asserted, F.8/F.9 gated off) + CLAUDE.md:46 additive verify (Wave 2)
 - [ ] 188-04-f3-f4-parity-PLAN.md -- SFS-08/09: F.3 depth-state + F.4 progressive-harvest parity (capture+consumer+state; closed-vocab preserved) (Wave 3)
