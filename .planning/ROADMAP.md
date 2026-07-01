@@ -3538,7 +3538,7 @@ Cluster F. AgentShield: a plugin-wide security scanner that generalizes the brai
 - [ ] 199-07-pr-gate-final-eval-PLAN.md -- Wave 4: GitHub Actions PR-gate (baseline-delta) + final Plurai eval gate + e2e smoke
 
 
-### Phase 200: RS Engine Spine + Corpus Quality (rs-engine-spine-corpus) - REGISTERED 2026-07-01
+### Phase 200: RS Engine Spine + Corpus Quality (rs-engine-spine-corpus) - COMPLETE 2026-07-02
 
 **Class:** CODE + BUGFIX | **Priority:** P2 | **Depends on:** Phase 161 (SEED-029 embedding spine), Phase 134 (SEED-013 CJS port), Phase 166 (runChain)
 
@@ -3547,13 +3547,14 @@ Cluster E. Reconcile the Reverse-Salient pipeline onto the connector/runChain sp
 - **DEEP COUPLING TO SYNTHETIC EXPERT (Phase 203, navigator-directed 2026-07-01):** the expert-graph this phase reconciles IS the substrate the synthetic expert (203) is fan-out-built onto and reads as a persona - build 200 + 203 as a coupled pair, as tightly bound as BONO is to its research fan-out. rs-experts (the synthetic panel) is the shared ancestor.
 - **Canon:** Part 7 (reuse the spine + rs-experts substrate), Part 8. No em-dashes.
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for RS corpus degenerate-output regression. No phase closes without a passing Plurai baseline.
-- **Provenance:** Cluster-E graduation from SEED-030 + SEED-018. NEXT: `/gsd-discuss-phase 200`.
+- **Provenance:** Cluster-E graduation from SEED-030 + SEED-018.
+- **Status (COMPLETE 2026-07-02):** all 3 plans coded + green (`run-all-200.sh` PASS=6 FAIL=0 SKIP=0, verified live). Unblocks 205-07 (191+200) and 205-08 (200).
 
-**Progress (1 of 3 plans):**
+**Progress (3 of 3 plans) - COMPLETE 2026-07-02:**
 
 - [x] 200-01-PLAN.md -- SEED-018 corpus-quality bug fix. COMPLETE 2026-07-01. H1 (single-source exclude-list, kill walker drift) shipped via the grounded exclude-drift correction: three Python walkers (rs_hybrid.py, rs_rooms.py, scripts/rs-engine.py) import ONE shared `lib/core/rs_corpus_exclude.py`, killing the .heal-backup 706-inflation (a50044e2; NOT the originally-planned research-corpus.cjs site -- traced root cause was walker SKIP_DIRS drift). H2 (semantic-floor gate, default 0.15, tunable via RS_SEMANTIC_FLOOR) drops off-topic external returns BEFORE the differential matrix, added additively at both `rs_corpus.py` (semantic_gate + fetch_external wrapper) and the shared `rs-differential-scorer.cjs` (passesSemanticFloor + gate helper, Phase-205 logic untouched) (d1b15623). H3 non-degenerate regression fixture + assertion locks against the boundary-extreme collapse (semantic 0.0 / lsa 1.0 / signed_diff -1.0) (8632e930). Tests: `tests/test-200-corpus-quality.cjs` 6 green + `tests/test-200-corpus-exclude.sh` green; all offline stub-encoder (Canon Part 8). H4/H5 deferred to the embedding-spine decision D-200-1. See 200-01-SUMMARY.md.
-- [x] 200-02-PLAN.md
-- [ ] 200-03-PLAN.md
+- [x] 200-02-PLAN.md -- RS chokepoint + expert-graph Brain boundary. COMPLETE 2026-07-01. Tier-0 expert-graph LOCAL-only base + Brain generic-handle projection with Part-8 fail-closed (D-200-2 (b)); RS Tier-0 writes routed through the navigation Part-9 chokepoint; DISCOVERED + AUTHORED_BY minted into the frozen edge set. Commits `2ff5f3ac f87b2d79 8b3492a3 483b9d48 4fefca18`. See 200-02-SUMMARY.md.
+- [x] 200-03-PLAN.md -- RS corpus-quality eval GATE (Plurai parity). COMPLETE 2026-07-01. Local deterministic degenerate-output detector reproducing the Plurai judge offline (reuses Phase 196 pattern); `run-all-200.sh` aggregator; `200-baseline.json` on the baseline_deferred degrade path. Commit `8a39004d`. See 200-03-SUMMARY.md.
 
 ### Phase 201: Harness-as-Code Manifest + Ralph-Loop Runtime (harness-as-code-manifest) - COMPLETE 2026-07-02 - **THE INTEGRATIVE SPINE**
 
