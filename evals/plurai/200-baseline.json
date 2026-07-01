@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "ci-baseline",
+  "runtime_loaded": false,
+  "method": "hand-labeled",
+  "baseline_deferred": true,
+  "deferred_note": "Genuine Plurai precision/recall baseline deferred, same reason as 196-baseline.json: the Plurai eval is an interactive multi-turn MCP-tool flow (start_evaluator plus ask_user model choice plus ScheduleWakeup plus get_results) that cannot run non-interactively in the sequential executor. Per the plan DEGRADE path the rows are hand-labeled deterministically from the Label column (degenerate to flag, calibrated to pass), and the local gate lib/core/rs-corpus-quality-gate.cjs::isDegeneratePairSet reproduces every label exactly (parity test tests/test-200-corpus-quality-gate.cjs). Re-run /evals:eval interactively after /reload-plugins to replace this with a hosted Plurai baseline.",
+  "source_csv": "evals/plurai/07-rs-corpus-quality.csv",
+  "judge_prompt": "Given a reverse-salient differential pair-set (each pair a semantic_score, lsa_score, and signed_diff), classify the SET as calibrated (the differential is discriminating real structure, pairs spread through the interior) or degenerate (nearly all pairs pinned at the max-lsa / min-semantic corner, the SEED-018 collapse where the two spaces measure noise against noise).",
+  "canon_contract": "SEED-018 corpus quality (local room graph, Part 8: Plurai synthetic/offline only)",
+  "synthetic_only": true,
+  "precision": 1,
+  "recall": 1,
+  "accuracy": 1,
+  "f1": 1,
+  "row_count": 24,
+  "degenerate_count": 12,
+  "calibrated_count": 12,
+  "local_gate": "lib/core/rs-corpus-quality-gate.cjs",
+  "local_gate_accuracy": 1,
+  "label_semantics": {
+    "degenerate": "flag",
+    "calibrated": "pass"
+  },
+  "verdict_map": {
+    "0": "flag", "1": "flag", "2": "flag", "3": "flag", "4": "flag", "5": "flag",
+    "6": "flag", "7": "flag", "8": "flag", "9": "flag", "10": "flag", "11": "flag",
+    "12": "pass", "13": "pass", "14": "pass", "15": "pass", "16": "pass", "17": "pass",
+    "18": "pass", "19": "pass", "20": "pass", "21": "pass", "22": "pass", "23": "pass"
+  }
+}

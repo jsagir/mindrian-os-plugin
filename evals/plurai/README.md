@@ -20,6 +20,7 @@ Columns: `Sample` (required, JSON-encoded), `Label` (optional, the expected clas
 | `04-dual-path-first-touch.csv` | Intent Detection / Routing | Phase 115 dual-path detector | "Classify the user's first-turn input as upload (a pasted CV, memo, or pitch), type (a conversational stuck-decision answer), or ambiguous." |
 | `05-problem-type-classification.csv` | User Response Classification | Engine 2 (BONO) problem axis | "Classify the problem statement by definition clarity per the PWS taxonomy: UDP (undefined), IDP (ill-defined), or WDP (well-defined)." |
 | `06-grading-calibration.csv` | Reference Evaluation | Part 5 + grading intelligence | "Compare the MindrianOS grade to the reference (calibrated) grade and classify correct, partially_correct, or incorrect." |
+| `07-rs-corpus-quality.csv` | Output Quality / Regression | SEED-018 (RS corpus quality) | "Given a reverse-salient differential pair-set (each pair a semantic_score, lsa_score, signed_diff), classify the SET as calibrated (pairs spread through the interior, the differential is discriminating) or degenerate (nearly all pairs pinned at the max-lsa / min-semantic corner, the SEED-018 collapse). Local parity gate: lib/core/rs-corpus-quality-gate.cjs." |
 
 ## The strategic one
 
