@@ -39,9 +39,11 @@
  *           assert each prior entry heading is still present per-number. (Entries
  *           17 and 18 are intentionally out of numeric order; assert per-number
  *           presence, NOT sequential ordering.)
- *   Test 9 (version bump): header /^Version: 1\.19$/m AND footer
- *           /_Mindrian Canon v1\.19 - MindrianOS Plugin_/.
- *   Test 10 (map row, light): docs/CANON-PHASE-MAP.md carries a "v1.19" token AND an
+ *   Test 9 (version bump): header /^Version: 1\.20$/m AND footer
+ *           /_Mindrian Canon v1\.20 - MindrianOS Plugin_/. (Canon moved 1.19 -> 1.20
+ *           at the Phase 188 F.8/F.9 amendment; entry 31's invariants are unchanged,
+ *           only the version anchor tracks the current canon.)
+ *   Test 10 (map row, light): docs/CANON-PHASE-MAP.md carries a "v1.20" token AND an
  *           "entry 31" / "two-gauge" reference.
  *
  * House rule: hyphens only, no em-dashes. Canon Part 8: zero Brain / network.
@@ -150,15 +152,15 @@ for (let n = 1; n <= 30; n++) {
 }
 
 // ---------------------------------------------------------------------------
-// Test 9: the header + footer version bump 1.18 -> 1.19.
+// Test 9: the header + footer version (canon at 1.20 after the Phase 188 F.8/F.9 amendment).
 // ---------------------------------------------------------------------------
-ok('header carries Version: 1.19', /^Version: 1\.19$/m.test(canon));
-ok('footer carries Mindrian Canon v1.19', /_Mindrian Canon v1\.19 - MindrianOS Plugin_/.test(canon));
+ok('header carries Version: 1.20', /^Version: 1\.20$/m.test(canon));
+ok('footer carries Mindrian Canon v1.20', /_Mindrian Canon v1\.20 - MindrianOS Plugin_/.test(canon));
 
 // ---------------------------------------------------------------------------
-// Test 10: the CANON-PHASE-MAP carries a v1.19 token + an entry-31 / two-gauge ref.
+// Test 10: the CANON-PHASE-MAP carries a v1.20 token + an entry-31 / two-gauge ref.
 // ---------------------------------------------------------------------------
-ok('CANON-PHASE-MAP carries a "v1.19" token', /v1\.19/.test(map));
+ok('CANON-PHASE-MAP carries a "v1.20" token', /v1\.20/.test(map));
 ok('CANON-PHASE-MAP references entry 31 / two-gauge',
   /entry 31/.test(map) && /two-gauge/.test(map));
 
