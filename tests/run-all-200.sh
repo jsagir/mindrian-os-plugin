@@ -39,6 +39,8 @@ run_if "200-01 corpus exclude-list (drift)" "lib/core/rs_corpus_exclude.py" \
   bash tests/test-200-corpus-exclude.sh
 run_if "200-01 corpus quality (semantic gate + regression)" "tests/test-200-corpus-quality.cjs" \
   node tests/test-200-corpus-quality.cjs
+run_if "200-01 H2 live-wire (gate called in rs-engine Mode B)" "tests/test-200-h2-live.cjs" \
+  node tests/test-200-h2-live.cjs
 
 # (2) Part-9 chokepoint reconcile
 run_if "200-02 RS edge vocab mint" "tests/test-200-02-rs-edge-vocab.cjs" \

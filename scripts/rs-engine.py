@@ -77,6 +77,8 @@ from lib.core.rs_math import (  # noqa: E402
 from lib.core.rs_corpus import (  # noqa: E402
     fetch_corpus,
     topic_slug,
+    semantic_gate,
+    SEMANTIC_FLOOR,
 )
 from lib.core.rs_rooms import (  # noqa: E402
     load_multi_room_corpus,
@@ -904,6 +906,186 @@ def _build_sem_matrix_from_records(artifacts: Sequence[Dict]) -> Optional[np.nda
     return semantic_similarity_matrix(matrix)
 
 
+# --- SEED-018 H2 semantic-floor gate: LIVE production wiring ----------------
+#
+# The gate itself lives in lib/core/rs_corpus.semantic_gate (implemented + unit
+# tested in Plan 200-01). Until this wiring it had NO production caller -- it was
+# dormant. The helpers below call it on the two live Mode B corpus paths:
+#
+#   1. Pinecone (warm/cold) path: gate the raw `records` (each carrying its
+#      server-side e5 vector in record['values']) against a topic vector from the
+#      SAME Pinecone inference, BEFORE _records_to_artifacts.
+#   2. Local fallback path (Plan 89-02): gate the fetched `docs` using the reused
+#      local MiniLM encoder (_embed_local_minilm), batched so the model loads once.
+#
+# Safe-by-default (this is the core scoring input):
+#   - No-op when the topic vector cannot be obtained (encode / inference absent).
+#   - Reuses SEMANTIC_FLOOR (default 0.15, tunable via RS_SEMANTIC_FLOOR).
+#   - STARVATION GUARD: never drops the usable count below the differential
+#     minimum (the engine early-outs under 2 artifacts). Worst case a no-op,
+#     never a regression.
+#   - Reuses the EXISTING encoders only (Pinecone inference + MiniLM). No new
+#     encoder, no new npm/pip package, no new egress class.
+
+# The engine early-outs when fewer than this many artifacts survive (see the
+# `len(artifacts) < 2` guard in run_mode_external). The gate must never push the
+# corpus below it.
+_DIFFERENTIAL_MIN_ARTIFACTS = 2
+
+
+def _semantic_cosine(a: Sequence[float], b: Sequence[float]) -> float:
+    """Minimal cosine similarity for the starvation-guard ranking. Returns 0.0
+    on shape mismatch or a zero-norm vector."""
+    if not a or not b or len(a) != len(b):
+        return 0.0
+    dot = 0.0
+    na = 0.0
+    nb = 0.0
+    for x, y in zip(a, b):
+        dot += x * y
+        na += x * x
+        nb += y * y
+    if na == 0.0 or nb == 0.0:
+        return 0.0
+    return dot / ((na ** 0.5) * (nb ** 0.5))
+
+
+def _gate_with_starvation_guard(
+    topic_vec: Optional[Sequence[float]],
+    candidates: List[Dict],
+    encode_fn,
+    floor: Optional[float] = None,
+    min_keep: int = _DIFFERENTIAL_MIN_ARTIFACTS,
+    label: str = "corpus",
+) -> List[Dict]:
+    """Apply the H2 semantic-floor gate with a mandatory starvation guard.
+
+    Delegates the actual floor filtering to rs_corpus.semantic_gate (the single
+    gate implementation) so both live paths share one tested code path. When the
+    floor would push the survivor count below the differential minimum on an
+    otherwise-sufficient corpus, keep the top-N candidates by similarity instead
+    of starving score(), and log the skip to stderr.
+    """
+    if not topic_vec or not callable(encode_fn):
+        # No usable topic vector / encoder -> safe no-op pass-through.
+        return list(candidates)
+
+    original_n = len(candidates)
+    # Production caller of the SEED-018 H2 gate (rs_corpus.semantic_gate).
+    kept = semantic_gate(topic_vec, candidates, encode_fn, floor)
+
+    if len(kept) >= min_keep or original_n < min_keep:
+        return kept
+
+    # Starvation guard: the floor would collapse the corpus below the
+    # differential minimum. Preserve the top-N most-similar candidates so the
+    # differential still runs. Worst case the gate is a no-op, never a
+    # regression that starves the scorer.
+    ranked = sorted(
+        candidates,
+        key=lambda c: _semantic_cosine(topic_vec, encode_fn(c)),
+        reverse=True,
+    )
+    keep_n = max(min_keep, len(kept))
+    guarded = ranked[:keep_n]
+    print(
+        f"[rs-engine] semantic gate skipped: would starve corpus "
+        f"(kept {len(guarded)})",
+        file=sys.stderr,
+    )
+    return guarded
+
+
+def _embed_topic_via_pinecone(topic: str) -> Optional[List[float]]:
+    """Embed `topic` into the rs-external e5 space via Pinecone inference.
+
+    Reuses the SAME multilingual-e5-large model the cold path upserts with, so
+    the topic vector is directly comparable to the record vectors already stored
+    in record['values']. `input_type=query` matches how Pinecone embeds a query
+    against passage-embedded records (e5 is asymmetric).
+
+    Returns a plain float list, or None on ANY failure (no key, SDK missing,
+    network error, unexpected shape) so the caller degrades to a safe no-op.
+    Adds no new encoder and no new egress class -- Pinecone inference is the
+    existing cold-path encoder.
+    """
+    if not _RS_CACHE_AVAILABLE:
+        return None
+    api_key = os.environ.get("PINECONE_API_KEY")
+    if not api_key:
+        return None
+    try:
+        from pinecone import Pinecone  # type: ignore
+        pc = Pinecone(api_key=api_key)
+        resp = pc.inference.embed(
+            model="multilingual-e5-large",
+            inputs=[topic],
+            parameters={"input_type": "query", "truncate": "END"},
+        )
+        item = resp[0]
+        # Dense embedding items expose `values` (attr) or ['values'] (dict-like).
+        if isinstance(item, dict):
+            values = item.get("values")
+        else:
+            values = getattr(item, "values", None)
+        if not values:
+            return None
+        return [float(x) for x in values]
+    except Exception as e:  # pragma: no cover -- live-only path
+        print(
+            f"[rs-engine] semantic gate: topic embed unavailable ({e}); "
+            f"gate no-op for this run.",
+            file=sys.stderr,
+        )
+        return None
+
+
+def _gate_records_pinecone(topic: str, records: List[Dict]) -> List[Dict]:
+    """Gate Pinecone `records` by the semantic floor before _records_to_artifacts.
+
+    Each record carries its e5 vector in record['values']; the topic vector comes
+    from the same Pinecone inference. No-op (returns records unchanged) when the
+    topic vector is unavailable.
+    """
+    if not records:
+        return records
+    topic_vec = _embed_topic_via_pinecone(topic)
+    if not topic_vec:
+        return records
+    return _gate_with_starvation_guard(
+        topic_vec,
+        records,
+        lambda rec: rec.get("values") or [],
+        label="pinecone-records",
+    )
+
+
+def _gate_docs_local(topic: str, docs: List[Dict]) -> List[Dict]:
+    """Gate local-fallback `docs` by the semantic floor using the reused local
+    MiniLM encoder. Batched so SentenceTransformer loads once. Clean no-op when
+    sentence-transformers is absent (encode returns None)."""
+    if not docs:
+        return docs
+    topic_arr = _embed_local_minilm([topic])
+    if topic_arr is None:
+        # sentence-transformers not installed -> safe no-op (Tri-Polar degrade).
+        return docs
+    texts = [
+        f"{d.get('title', '')}\n{d.get('abstract', '')}".strip() for d in docs
+    ]
+    cand_arr = _embed_local_minilm(texts)
+    if cand_arr is None or len(cand_arr) != len(docs):
+        return docs
+    topic_vec = [float(x) for x in topic_arr[0]]
+    vec_by_id = {id(d): [float(x) for x in cand_arr[i]] for i, d in enumerate(docs)}
+    return _gate_with_starvation_guard(
+        topic_vec,
+        docs,
+        lambda d: vec_by_id.get(id(d), []),
+        label="local-fallback",
+    )
+
+
 def run_mode_external(
     room_dir: Path,
     topic: str,
@@ -1022,12 +1204,20 @@ def run_mode_external(
 
     # Build artifacts + texts depending on path taken.
     if records:
+        # SEED-018 H2 LIVE-WIRE (Pinecone path): drop off-topic records using the
+        # e5 vectors they already carry vs a topic vector from the same Pinecone
+        # inference, BEFORE they become artifacts and reach the differential.
+        # Starvation-guarded + no-op when the topic vector is unavailable.
+        records = _gate_records_pinecone(topic, records)
         artifacts = _records_to_artifacts(records)
     else:
         # Fallback to Plan 89-02 behavior.
         if not docs:
             docs = fetch_corpus(topic, target_n=target_n)
             corpus_path = _write_corpus_jsonl(corpus_dir, docs)
+        # SEED-018 H2 LIVE-WIRE (local fallback): gate off-topic docs with the
+        # reused local MiniLM encoder before they reach the differential.
+        docs = _gate_docs_local(topic, docs)
         artifacts = _corpus_docs_to_artifacts(docs)
 
     # Early out if the usable-artifact count collapses.
