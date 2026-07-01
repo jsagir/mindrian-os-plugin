@@ -66,8 +66,10 @@ run "membrane grep (CLAUDE.md frozen-scalar line)" membrane_grep
 run "FCM-08 canon 7-kind FLOOR (six-kind complement now)" \
   node tests/test-195-canon-7-kind-floor.cjs
 
-run_if "FCM-11 UMBILICAL_TO edge FLOOR (membership, never .size)" \
-  tests/test-195-umbilical-edge-floor.cjs \
+# Wave 3 (195-04): UMBILICAL_TO is minted + the registry cross-room store landed;
+# this leg is now HARD (run, not run_if) -- membership floor + store round-trip +
+# purge + reap. Membership assertion only, never .size (205 concurrency-safe).
+run "FCM-11 UMBILICAL_TO edge FLOOR (membership, never .size) + cross-room store" \
   node tests/test-195-umbilical-edge-floor.cjs
 
 # ---------------------------------------------------------------------------
