@@ -5,6 +5,7 @@
     {
       "command": "/mos:act",
       "kind": "meta",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -20,6 +21,7 @@
     {
       "command": "/mos:admin",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -35,6 +37,7 @@
     {
       "command": "/mos:analyze-needs",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -54,6 +57,7 @@
     {
       "command": "/mos:analyze-systems",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Systems Thinking"
       ],
@@ -71,6 +75,7 @@
     {
       "command": "/mos:analyze-timing",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "S-Curve Analysis",
         "Adoption-Capacity Theory"
@@ -89,6 +94,7 @@
     {
       "command": "/mos:auto-explore",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -106,6 +112,7 @@
     {
       "command": "/mos:beautiful-question",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Beautiful Question Framework"
       ],
@@ -124,6 +131,7 @@
     {
       "command": "/mos:bono",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Six Thinking Hats"
       ],
@@ -142,6 +150,7 @@
     {
       "command": "/mos:brain-derive",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -157,6 +166,7 @@
     {
       "command": "/mos:build-knowledge",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Ackoff Pyramid"
       ],
@@ -174,6 +184,7 @@
     {
       "command": "/mos:build-thesis",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "PWS Value Proposition"
       ],
@@ -192,6 +203,7 @@
     {
       "command": "/mos:causal",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Root Cause Analysis"
       ],
@@ -210,6 +222,7 @@
     {
       "command": "/mos:challenge-assumptions",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Red Teaming"
       ],
@@ -228,6 +241,7 @@
     {
       "command": "/mos:compare-ventures",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "PWS Triple Validation Compass"
       ],
@@ -245,6 +259,7 @@
     {
       "command": "/mos:correct-reference-now",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -260,6 +275,7 @@
     {
       "command": "/mos:dashboard",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -276,6 +292,7 @@
     {
       "command": "/mos:deck",
       "kind": "mechanical",
+      "surface": "navigator",
       "frameworks": [],
       "produces": "",
       "inputs": [],
@@ -291,6 +308,7 @@
     {
       "command": "/mos:deep-grade",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "PWS Triple Validation Compass"
       ],
@@ -311,6 +329,7 @@
     {
       "command": "/mos:diagnose",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Problem Definition Transformation Framework"
       ],
@@ -328,6 +347,7 @@
     {
       "command": "/mos:diagnostics",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "HSI Semantic Surprise Analysis Assistant"
       ],
@@ -345,6 +365,7 @@
     {
       "command": "/mos:dial-memory-refresh",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": "room/*/FEYNMAN.md",
       "inputs": [],
@@ -361,6 +382,7 @@
     {
       "command": "/mos:diffusion",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Adoption-Capacity Theory"
       ],
@@ -378,6 +400,7 @@
     {
       "command": "/mos:discover",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -395,6 +418,7 @@
     {
       "command": "/mos:doctor",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -410,6 +434,7 @@
     {
       "command": "/mos:dogfood-flush",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": "~/MindrianRooms/mindrian/STATE.md",
       "inputs": [],
@@ -425,6 +450,7 @@
     {
       "command": "/mos:dominant-designs",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Dominant Design"
       ],
@@ -442,6 +468,7 @@
     {
       "command": "/mos:explain-decision",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -457,6 +484,7 @@
     {
       "command": "/mos:explore-domains",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Domain Selection"
       ],
@@ -476,6 +504,7 @@
     {
       "command": "/mos:explore-futures",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Scenario Planning"
       ],
@@ -494,6 +523,7 @@
     {
       "command": "/mos:explore-trends",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "S-Curve Analysis"
       ],
@@ -512,6 +542,7 @@
     {
       "command": "/mos:export",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -527,6 +558,7 @@
     {
       "command": "/mos:feynman-timeline-refresh",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": "room/*/FEYNMAN.md",
       "inputs": [],
@@ -543,6 +575,7 @@
     {
       "command": "/mos:file-meeting",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -558,6 +591,7 @@
     {
       "command": "/mos:find-analogies",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Four Lenses of Innovation"
       ],
@@ -575,6 +609,7 @@
     {
       "command": "/mos:find-bottlenecks",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -592,6 +627,7 @@
     {
       "command": "/mos:find-connections",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Usher's Model of Cumulative Synthesis"
       ],
@@ -609,6 +645,7 @@
     {
       "command": "/mos:funding",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -625,6 +662,7 @@
     {
       "command": "/mos:futures",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Futures Wheel"
       ],
@@ -643,6 +681,7 @@
     {
       "command": "/mos:grade",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "PWS Triple Validation Compass"
       ],
@@ -662,6 +701,7 @@
     {
       "command": "/mos:graph",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -678,6 +718,7 @@
     {
       "command": "/mos:hat-briefing",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Six Thinking Hats"
       ],
@@ -695,6 +736,7 @@
     {
       "command": "/mos:heal",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -710,6 +752,7 @@
     {
       "command": "/mos:help",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -725,6 +768,7 @@
     {
       "command": "/mos:hmi-status",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -740,6 +784,7 @@
     {
       "command": "/mos:ignite",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -756,6 +801,7 @@
     {
       "command": "/mos:ingest-methodology",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -769,6 +815,7 @@
     {
       "command": "/mos:jtbd",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -786,6 +833,7 @@
     {
       "command": "/mos:leadership",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Adaptive Leadership"
       ],
@@ -803,6 +851,7 @@
     {
       "command": "/mos:lean-canvas",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Lean Canvas"
       ],
@@ -821,6 +870,7 @@
     {
       "command": "/mos:macro-trends",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "PEST Analysis"
       ],
@@ -838,6 +888,7 @@
     {
       "command": "/mos:map-unknowns",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Knowns and Unknowns Matrix Framework"
       ],
@@ -855,6 +906,7 @@
     {
       "command": "/mos:memory-cortex-reach",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -870,6 +922,7 @@
     {
       "command": "/mos:memory",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -885,6 +938,7 @@
     {
       "command": "/mos:models",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -900,6 +954,7 @@
     {
       "command": "/mos:mos-reason",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "The Pyramid Principle"
       ],
@@ -917,6 +972,7 @@
     {
       "command": "/mos:mos",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -932,6 +988,7 @@
     {
       "command": "/mos:mullins",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Mullins Model"
       ],
@@ -949,6 +1006,7 @@
     {
       "command": "/mos:mva-brief",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -964,6 +1022,7 @@
     {
       "command": "/mos:mva-option",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -979,6 +1038,7 @@
     {
       "command": "/mos:new-project",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -994,6 +1054,7 @@
     {
       "command": "/mos:new-surface",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1009,6 +1070,7 @@
     {
       "command": "/mos:onboard",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1024,6 +1086,7 @@
     {
       "command": "/mos:operator",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1039,6 +1102,7 @@
     {
       "command": "/mos:opportunities",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1054,6 +1118,7 @@
     {
       "command": "/mos:organize",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1069,6 +1134,7 @@
     {
       "command": "/mos:persona",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Six Thinking Hats"
       ],
@@ -1086,6 +1152,7 @@
     {
       "command": "/mos:pipeline",
       "kind": "meta",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1101,6 +1168,7 @@
     {
       "command": "/mos:present",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1116,6 +1184,7 @@
     {
       "command": "/mos:publish",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1131,6 +1200,7 @@
     {
       "command": "/mos:query",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1147,6 +1217,7 @@
     {
       "command": "/mos:radar",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1162,6 +1233,7 @@
     {
       "command": "/mos:reanalyze",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1177,6 +1249,7 @@
     {
       "command": "/mos:research",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Hypothesis-Driven Problem Solving"
       ],
@@ -1195,6 +1268,7 @@
     {
       "command": "/mos:room",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1210,6 +1284,7 @@
     {
       "command": "/mos:rooms",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1225,6 +1300,7 @@
     {
       "command": "/mos:root-cause",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Root Cause Analysis"
       ],
@@ -1242,6 +1318,7 @@
     {
       "command": "/mos:rs-experts",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -1260,6 +1337,7 @@
     {
       "command": "/mos:rs-explain",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -1277,6 +1355,7 @@
     {
       "command": "/mos:rs-fetch",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -1295,6 +1374,7 @@
     {
       "command": "/mos:rs-thesis",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -1312,6 +1392,7 @@
     {
       "command": "/mos:scenario-plan",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Scenario Planning"
       ],
@@ -1330,6 +1411,7 @@
     {
       "command": "/mos:scheduled-tasks",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1345,6 +1427,7 @@
     {
       "command": "/mos:score-innovation",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "HSI Semantic Surprise Analysis Assistant"
       ],
@@ -1363,6 +1446,7 @@
     {
       "command": "/mos:scout",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1379,6 +1463,7 @@
     {
       "command": "/mos:setup",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1394,6 +1479,7 @@
     {
       "command": "/mos:show",
       "kind": "mechanical",
+      "surface": "navigator",
       "frameworks": [],
       "produces": "",
       "inputs": [],
@@ -1410,6 +1496,7 @@
     {
       "command": "/mos:snapshot",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1426,6 +1513,7 @@
     {
       "command": "/mos:speakers",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1441,6 +1529,7 @@
     {
       "command": "/mos:splash",
       "kind": "utility",
+      "surface": "internal",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1456,6 +1545,7 @@
     {
       "command": "/mos:status",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1472,6 +1562,7 @@
     {
       "command": "/mos:structure-argument",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "The Pyramid Principle",
         "MECE (Mutually Exclusive, Collectively Exhaustive)"
@@ -1491,6 +1582,7 @@
     {
       "command": "/mos:suggest-next",
       "kind": "meta",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1507,6 +1599,7 @@
     {
       "command": "/mos:systems-thinking",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Systems Thinking"
       ],
@@ -1524,6 +1617,7 @@
     {
       "command": "/mos:think-hats",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Six Thinking Hats"
       ],
@@ -1542,6 +1636,7 @@
     {
       "command": "/mos:trending-to-absurd",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "S-Curve Analysis"
       ],
@@ -1560,6 +1655,7 @@
     {
       "command": "/mos:update",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1575,6 +1671,7 @@
     {
       "command": "/mos:user-needs",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -1592,6 +1689,7 @@
     {
       "command": "/mos:validate",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -1611,6 +1709,7 @@
     {
       "command": "/mos:validate-proposition",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "PWS Value Proposition"
       ],
@@ -1629,6 +1728,7 @@
     {
       "command": "/mos:vault",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1644,6 +1744,7 @@
     {
       "command": "/mos:visualize",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
@@ -1660,6 +1761,7 @@
     {
       "command": "/mos:whitespace",
       "kind": "methodology",
+      "surface": "navigator",
       "frameworks": [
         "HSI Semantic Surprise Analysis Assistant"
       ],
@@ -1678,6 +1780,7 @@
     {
       "command": "/mos:wiki",
       "kind": "utility",
+      "surface": "navigator",
       "frameworks": [],
       "produces": null,
       "inputs": [],
