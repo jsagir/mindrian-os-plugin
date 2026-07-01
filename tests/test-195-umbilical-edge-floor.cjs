@@ -54,5 +54,71 @@ for (const t of FLOOR_MEMBERS) {
 ok('ALLOWED_EDGE_TYPES has ' + NEW_EDGE + ' (minted Wave 3, peer cross-room edge)',
   ALLOWED_EDGE_TYPES.has(NEW_EDGE));
 
+// ---------------------------------------------------------------------------
+// Wave 3 (195-04) Task 2: the registry-level cross-room store (FCM-11b). Exercised
+// against a throwaway .rooms/ under the OS tmp dir (never the real registry). The
+// store is the SINGLE write chokepoint for UMBILICAL_TO at registry level (D-03).
+// ---------------------------------------------------------------------------
+const fs = require('node:fs');
+const os = require('node:os');
+const store = require(path.join(REPO_ROOT, 'lib', 'core', 'cross-room-store.cjs'));
+
+function mkRoomsHome() {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'fcm11-xroom-'));
+  fs.mkdirSync(path.join(home, '.rooms'), { recursive: true });
+  return home;
+}
+
+// -- Round-trip: write then read back, enum/scalar-only props, bidirectional. --
+(function storeRoundTrip() {
+  const home = mkRoomsHome();
+  try {
+    const w = store.writeUmbilicalEdge(home, {
+      source_id: 'room:alpha:item-1',
+      target_id: 'room:beta:item-9',
+      source_room: 'alpha',
+      target_room: 'beta',
+      properties: { relevance: 0.82, signal: 'convergence', linked_at: 1751000000000, session_id: 'sess-abc' },
+    });
+    ok('store.writeUmbilicalEdge returns ok for a valid UMBILICAL_TO edge', w && w.ok === true);
+
+    // Bidirectional traversal: the edge is returned querying EITHER room.
+    const fromAlpha = store.edgesForRoom(home, 'alpha');
+    const fromBeta = store.edgesForRoom(home, 'beta');
+    ok('edgesForRoom(alpha) returns the edge (source side)',
+      fromAlpha.some(function (e) { return e.target_id === 'room:beta:item-9'; }));
+    ok('edgesForRoom(beta) returns the edge (target side, bidirectional)',
+      fromBeta.some(function (e) { return e.source_id === 'room:alpha:item-1'; }));
+
+    // Read-back preserves enum/scalar props only.
+    const edge = fromAlpha[0];
+    ok('read-back edge carries scalar relevance', typeof edge.properties.relevance === 'number');
+    ok('read-back edge carries enum signal', edge.properties.signal === 'convergence');
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+})();
+
+// -- Rejection: wrong type + prose property rejected WITHOUT throwing (Part 8). --
+(function storeRejects() {
+  const home = mkRoomsHome();
+  try {
+    const badType = store.writeUmbilicalEdge(home, {
+      source_id: 'room:a:x', target_id: 'room:b:y', source_room: 'a', target_room: 'b',
+      edge_type: 'NESTED_WITHIN', properties: { relevance: 0.5 },
+    });
+    ok('non-UMBILICAL_TO edge_type rejected (no throw)', badType && badType.ok === false);
+
+    const prose = store.writeUmbilicalEdge(home, {
+      source_id: 'room:a:x', target_id: 'room:b:y', source_room: 'a', target_room: 'b',
+      properties: { relevance: 0.5, note: 'a long freeform prose body that must never cross the fence' },
+    });
+    ok('prose (unknown-key) property rejected (Part 8 fence, no throw)', prose && prose.ok === false);
+    ok('rejected edge did NOT land in the store', store.edgesForRoom(home, 'a').length === 0);
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+})();
+
 console.log('\nPASS test-195-umbilical-edge-floor (' + pass + ' assertions)');
 console.log('>>> test-195-umbilical-edge-floor.cjs: PASSED');
