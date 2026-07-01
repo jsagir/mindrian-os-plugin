@@ -1,0 +1,11 @@
+{
+  "surface": "trending-to-absurd",
+  "_note": "Trending to the Absurd (/mos:trending-to-absurd), a 5-act futures harness: auto-runs the autonomous-safe stages, fans out absurd rings across three horizons in parallel, surfaces two judgment gates (trend selection, opportunity pick), chains to futures. Shape ids + generic flow handles only; no user content, no Brain wire (Part 8).",
+  "hitl_stages": [
+    { "stage": "Pick path (Quick / Full / Expert)", "shapes": ["F.3"], "mode": "gate" },
+    { "stage": "Select trend (graph-seeded)", "shapes": ["F.5"], "mode": "gate" },
+    { "stage": "Absurd rings across 3 horizons (near / mid / long)", "shapes": ["F.8"], "mode": "parallel" },
+    { "stage": "Pick opportunity", "shapes": ["F.8"], "mode": "gate" },
+    { "stage": "Chain to /mos:futures", "shapes": ["F.2"], "mode": "ordered" }
+  ]
+}

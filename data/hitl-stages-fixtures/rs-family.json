@@ -1,0 +1,11 @@
+{
+  "surface": "rs-family",
+  "_note": "Reverse Salient Family umbrella (/mos:rs-fetch chains 11 phases with an upstream pause-gate; the fetch fans out, the scoring chain runs in strict order). Members rs-reverse-salient and rs-convergence are their own fixtures. Shape ids + generic flow handles only; no user content, no Brain wire (Part 8).",
+  "hitl_stages": [
+    { "stage": "Phase 0 upstream pause-gate (chain-feeder)", "shapes": ["F.0"], "mode": "gate" },
+    { "stage": "Domain analysis to query matrix", "shapes": ["F.2"], "mode": "ordered" },
+    { "stage": "Fetchers (multi-source fan-out)", "shapes": ["F.8"], "mode": "parallel" },
+    { "stage": "Score, classify, breakthrough, thesis", "shapes": ["F.9"], "mode": "ordered" },
+    { "stage": "Commercial assess, output, chain feed", "shapes": ["F.2"], "mode": "ordered" }
+  ]
+}

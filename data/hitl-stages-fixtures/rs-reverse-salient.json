@@ -1,0 +1,10 @@
+{
+  "surface": "rs-reverse-salient",
+  "_note": "Reverse-salient detection member of the RS family (rs-fetch + find-bottlenecks): find the lagging component that holds the whole system back. Stage decomposition derived from the RS-family umbrella per the explainer, which separates the RS siblings (rs-fetch scoring chain, find-bottlenecks). Shape ids + generic flow handles only; no user content, no Brain wire (Part 8).",
+  "hitl_stages": [
+    { "stage": "Domain analysis to query matrix", "shapes": ["F.2"], "mode": "ordered" },
+    { "stage": "Multi-source fetch fan-out", "shapes": ["F.8"], "mode": "parallel" },
+    { "stage": "Score and classify to surface the reverse salient (bottleneck)", "shapes": ["F.9"], "mode": "ordered" },
+    { "stage": "Confirm the salient to pursue", "shapes": ["F.1"], "mode": "gate" }
+  ]
+}

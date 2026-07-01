@@ -1,0 +1,10 @@
+{
+  "surface": "rs-convergence",
+  "_note": "Convergence member of the RS family (rs-experts synthetic panel, F.8; rs-thesis ordered, F.9): the 'triple-converged from three independent panels' flow the explainer names as F.8's ordered sibling. Verdicts resolved against each other (F.5), explained (F.1). Stage decomposition derived from the rs-experts + rs-thesis siblings. Shape ids + generic flow handles only; no user content, no Brain wire (Part 8).",
+  "hitl_stages": [
+    { "stage": "Convene three independent expert panels", "shapes": ["F.8"], "mode": "parallel" },
+    { "stage": "Ordered thesis walk per panel", "shapes": ["F.9"], "mode": "ordered" },
+    { "stage": "Reconcile and converge the three verdicts", "shapes": ["F.5"], "mode": "gate" },
+    { "stage": "Explain the converged thesis", "shapes": ["F.1"], "mode": "gate" }
+  ]
+}

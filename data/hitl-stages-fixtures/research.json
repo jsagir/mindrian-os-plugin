@@ -1,0 +1,10 @@
+{
+  "surface": "research",
+  "_note": "Research Engine (/mos:research), a fixed 7-stage source pipeline: fan-out searches, then verify and synthesize in order, then govern what gets filed (Phase 189 file-gate). Shape ids + generic flow handles only; no user content, no Brain wire (Part 8).",
+  "hitl_stages": [
+    { "stage": "Fan-out source search", "shapes": ["F.8"], "mode": "parallel" },
+    { "stage": "Sequential verify / adversarial check", "shapes": ["F.9"], "mode": "ordered" },
+    { "stage": "Synthesize", "shapes": ["F.4"], "mode": "ordered" },
+    { "stage": "Govern what to file (Phase 189)", "shapes": ["F.8"], "mode": "gate" }
+  ]
+}
