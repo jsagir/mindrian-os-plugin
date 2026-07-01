@@ -120,5 +120,78 @@ function mkRoomsHome() {
   }
 })();
 
+// ---------------------------------------------------------------------------
+// Wave 3 (195-04) Task 3: room-deletion reconcile (FCM-11c). purge (cascade layer
+// 1) + periodic reap of edges to unregistered slugs (layer 2), and the discard
+// cascade integration that wires the purge into the ordered teardown.
+// ---------------------------------------------------------------------------
+
+// -- Purge: purgeRoomEdges removes every edge whose source OR target is the room. --
+(function storePurge() {
+  const home = mkRoomsHome();
+  try {
+    store.writeUmbilicalEdge(home, {
+      source_id: 'room:alpha:i1', target_id: 'room:beta:i2', source_room: 'alpha', target_room: 'beta',
+      properties: { relevance: 0.7, signal: 'informs', linked_at: 1, session_id: 's1' },
+    });
+    store.writeUmbilicalEdge(home, {
+      source_id: 'room:gamma:i3', target_id: 'room:alpha:i4', source_room: 'gamma', target_room: 'alpha',
+      properties: { relevance: 0.9, signal: 'informs', linked_at: 2, session_id: 's2' },
+    });
+    const purged = store.purgeRoomEdges(home, 'alpha');
+    ok('purgeRoomEdges(alpha) purges both edges touching alpha (source AND target)', purged >= 2);
+    ok('no dangling edge remains for alpha after purge', store.edgesForRoom(home, 'alpha').length === 0);
+    ok('gamma edge to alpha is also gone (target-side purge)', store.edgesForRoom(home, 'gamma').length === 0);
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+})();
+
+// -- Reap: sweeps edges pointing at slugs no longer in .rooms/registry.json. --
+(function storeReap() {
+  const home = mkRoomsHome();
+  try {
+    // Registry knows only 'alpha'. 'ghost' was deleted out-of-band.
+    fs.writeFileSync(path.join(home, '.rooms', 'registry.json'),
+      JSON.stringify({ active: 'alpha', rooms: { alpha: { slug: 'alpha' } } }, null, 2), 'utf8');
+    store.writeUmbilicalEdge(home, {
+      source_id: 'room:alpha:i1', target_id: 'room:ghost:i2', source_room: 'alpha', target_room: 'ghost',
+      properties: { relevance: 0.6, signal: 'informs', linked_at: 3, session_id: 's3' },
+    });
+    const reaped = store.reapOrphanEdges(home);
+    ok('reapOrphanEdges removes the edge pointing at the unregistered ghost slug', reaped >= 1);
+    ok('no edge to ghost remains after reap', store.edgesForRoom(home, 'ghost').length === 0);
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+})();
+
+// -- Cascade integration: discardPlaceholderRoom purges the room's cross-room edges. --
+(function cascadePurgesCrossRoom() {
+  const home = mkRoomsHome();
+  try {
+    // A discardable PLACEHOLDER slug (matches room-auto-create PLACEHOLDER_SLUG_RE:
+    // /^untitled-\d{4}-\d{2}-\d{2}-\d{4}(?:-\d{2})?(?:-[0-9a-f]{8})?$/).
+    const slug = 'untitled-1999-01-01-0000';
+    const roomDir = path.join(home, slug);
+    fs.mkdirSync(roomDir, { recursive: true });
+    fs.writeFileSync(path.join(home, '.rooms', 'registry.json'),
+      JSON.stringify({ active: '', rooms: { [slug]: { slug: slug }, keeper: { slug: 'keeper' } } }, null, 2), 'utf8');
+    store.writeUmbilicalEdge(home, {
+      source_id: 'room:' + slug + ':i1', target_id: 'room:keeper:i2', source_room: slug, target_room: 'keeper',
+      properties: { relevance: 0.75, signal: 'informs', linked_at: 4, session_id: 's4' },
+    });
+    const { discardPlaceholderRoom } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-discard-cascade.cjs'));
+    const res = discardPlaceholderRoom(home, slug, { decided_by: 'test' });
+    ok('discardPlaceholderRoom completes for the placeholder slug', res && res.ok === true);
+    ok('cascade purged the discarded room cross-room edge (no dangling)',
+      store.edgesForRoom(home, slug).length === 0);
+    ok('the surviving keeper room has no dangling edge to the discarded room',
+      store.edgesForRoom(home, 'keeper').length === 0);
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+})();
+
 console.log('\nPASS test-195-umbilical-edge-floor (' + pass + ' assertions)');
 console.log('>>> test-195-umbilical-edge-floor.cjs: PASSED');
