@@ -78,6 +78,19 @@ Degradation is clean by construction:
 
 The people-graph base is the local mind; the Brain is never the source of an expert's identity. This is the unchanged half of navigator decision D-200-2 (b): local-only Tier-0 stays the base.
 
+## Optional Mode-A Brain projection (Canon Part 8, D-200-2 (b) additive half)
+
+On top of the LOCAL-only base, `lib/core/rs-expert-brain-projection.cjs` exposes an ADDITIVE, optional reader: `projectExpertHandles(localExpertNode, opts)`. It reads the Brain expert-network as **GENERIC framework/enum handles ONLY** (framework names, methodology enums, domain slugs) - never a person's name, affiliation, ORCID, or any Author/Institution byte. It is the substrate the Phase 203 synthetic-expert reader consumes.
+
+Its Part-8 contract is load-bearing and enforced in code + proven by `tests/test-200-brain-projection.cjs`:
+
+- **Outbound:** only a tight whitelist of methodology-enum keys (`framework` / `domain` / `methodology` / `problem_type` / `enum` / `tier`) is ever read off the local expert node. Person keys are never read, so a person byte cannot enter the outbound payload by construction. A belt-and-suspenders token-level leak scan then fails the whole projection closed if any person byte still appears.
+- **Guard:** EVERY Brain call routes through the Phase 196 boundary guard (`part8-egress-guard.classify()`). A verdict that is not `allow` - or a guard throw - degrades to Tier-0 (returns `[]`), never an error.
+- **Inbound:** the read keeps only generic framework/enum handles; any returned handle that echoes a specific person's identity is dropped. If that leaves nothing, it returns `[]`.
+- **Degrade:** Brain absent (no key / no MCP) => `[]` (pure Tier-0 degrade), no throw.
+
+The projection reuses the shipped Phase 196 guard and `rs-brain-substrate` read surface (Canon Part 7); it adds no second Brain client.
+
 ## Canon References
 
 - **Canon Part 7 (Reuse Before Build):** consumes existing `brain-client.cjs` Aura session. Zero forks.
