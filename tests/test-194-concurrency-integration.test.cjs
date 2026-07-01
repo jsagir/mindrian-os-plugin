@@ -51,9 +51,82 @@ assert.strictEqual(b.status, 'conflict', 'second writer with a stale readVersion
 const gate = adapter.buildReconcileGate([{ nodeId: 'shared-node', readVersion: V0, current: V1 }]);
 assert.strictEqual(gate.shape, 'F.9', 'the lost update is reconciled through the F.9 human gate');
 
-// TODO (implementing wave): drive the full path through navigation.cjs against a
-// temp room.db (register presence for both sids, arm the guard, replay the two
-// writes) so the integration exercises real SQL, not just the pure classifier.
+// --- full SQL spine: presence -> guard -> lost_update -> F.9 (real room.db) ---
+// Gated on node:sqlite so a no-sqlite box still passes the pure-classifier legs.
+let sqliteOk = true;
+let DatabaseSync = null;
+try { ({ DatabaseSync } = require('node:sqlite')); } catch (_e) { sqliteOk = false; }
 
-console.log('PASS: test-194-concurrency-integration');
+if (sqliteOk) {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const REPO = path.resolve(__dirname, '..');
+  const { applySchema } = require(path.join(__dirname, 'claim-harness', 'build-fixture-room-db.cjs'));
+  const nav = require(path.join(REPO, 'lib', 'core', 'navigation.cjs'));
+  const presence = require(path.join(REPO, 'lib', 'core', 'session-presence.cjs'));
+
+  const roomsHome = fs.mkdtempSync(path.join(os.tmpdir(), 'psb-concur-'));
+  const room = 'shared';
+  const roomDir = path.join(roomsHome, room);
+  fs.mkdirSync(roomDir, { recursive: true });
+
+  const db = new DatabaseSync(':memory:');
+  applySchema(db);
+
+  // Seed a claim node whose CAS token starts at V0.
+  const NODE = 'claim:contested';
+  db.prepare(
+    'INSERT INTO nodes (id, type, properties, source_path, created_by, review_status, created_at, last_seen_at, last_modified_at) ' +
+    "VALUES (?, 'claim', '{}', 'test:seed', 'system', 'proposed', ?, ?, ?)"
+  ).run(NODE, V0, V0, V0);
+
+  // Two live co-sessions share the room (each armed against the other).
+  presence.registerPresence({ sessionId: 'sess-A', room, home: roomsHome });
+  presence.registerPresence({ sessionId: 'sess-B', room, home: roomsHome });
+  assert.strictEqual(presence.hasCoSession({ sessionId: 'sess-A', room, home: roomsHome }), true, 'A sees B live -> guard armed');
+
+  // Session A: reads at V0, writes -> no drift -> the token advances past V0.
+  const aWrite = nav.persistAbstractionLevel(db, {
+    nodeId: NODE, abstraction_level: 'structure',
+    readVersion: V0, roomDir, room, home: roomsHome, sessionId: 'sess-A',
+  });
+  assert.strictEqual(aWrite.ok, true, 'A (no drift) writes through the chokepoint');
+
+  const afterA = db.prepare('SELECT last_modified_at AS t FROM nodes WHERE id = ?').get(NODE);
+  assert.ok(afterA.t > V0, 'A bumped the CAS token past V0');
+
+  // Session B: still holds the stale V0 -> the guard catches the lost update.
+  const bWrite = nav.persistAbstractionLevel(db, {
+    nodeId: NODE, abstraction_level: 'instances',
+    readVersion: V0, roomDir, room, home: roomsHome, sessionId: 'sess-B',
+  });
+  assert.strictEqual(bWrite.ok, false, 'B is blocked from silently clobbering A');
+  assert.strictEqual(bWrite.reason, 'lost_update', 'B raises a lost_update, not a silent overwrite');
+  assert.strictEqual(bWrite.reconcile.nodeId, NODE, 'the reconcile payload names the contested node');
+
+  // Exactly one RECONCILE, rendered through the shipped F.9 gate.
+  const e2eGate = adapter.buildReconcileGate([{
+    nodeId: bWrite.reconcile.nodeId,
+    readVersion: bWrite.reconcile.readVersion,
+    current: bWrite.reconcile.currentVersion,
+  }]);
+  assert.strictEqual(e2eGate.shape, 'F.9', 'the end-to-end lost update surfaces one F.9 reconcile');
+  assert.strictEqual(e2eGate.items.length, 1, 'exactly one RECONCILE item');
+
+  // The single-session fast-path: with B deregistered, A alone pays zero guard cost
+  // (a stale readVersion no longer blocks -- the guard never arms).
+  presence.deregisterPresence({ sessionId: 'sess-B', room, home: roomsHome });
+  const soloWrite = nav.persistAbstractionLevel(db, {
+    nodeId: NODE, abstraction_level: 'unsure',
+    readVersion: V0, roomDir, room, home: roomsHome, sessionId: 'sess-A',
+  });
+  assert.strictEqual(soloWrite.ok, true, 'no co-session -> fast-path -> the guard never arms (PSB-12)');
+
+  db.close();
+  try { fs.rmSync(roomsHome, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
+  console.log('PASS: test-194-concurrency-integration (pure + full SQL spine)');
+} else {
+  console.log('PASS: test-194-concurrency-integration (pure classifier; node:sqlite absent so SQL spine skipped)');
+}
 process.exit(0);
