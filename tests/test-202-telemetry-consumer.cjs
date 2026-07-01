@@ -261,6 +261,37 @@ test('15. anti-drift: reward field names are asserted present in schema.cjs ALLO
   );
 });
 
+// ================= Task 3 (below-threshold is explicit, not silent) =================
+
+test('16. below threshold: activated false + belowThreshold flag + activationNote', () => {
+  const dir = stageDir();
+  try {
+    const r = readTelemetry(dir, { silent: true });
+    assert.equal(r.activated, false);
+    assert.equal(r.belowThreshold, true, 'below-threshold must be an explicit machine-readable flag');
+    assert.match(r.activationNote, /telemetry below activation threshold \(12\/100\)/);
+  } finally { rmRf(dir); }
+});
+
+test('17. below threshold logs a VISIBLE note (no silent thin table)', () => {
+  const dir = stageDir();
+  const logged = [];
+  try {
+    readTelemetry(dir, { logger: (m) => logged.push(m) });
+    assert.equal(logged.length, 1, 'a below-threshold read must surface exactly one visible note');
+    assert.match(logged[0], /telemetry below activation threshold \(12\/100\)/);
+  } finally { rmRf(dir); }
+});
+
+test('18. buildRewardTable is still callable below threshold (surfaced, not suppressed)', () => {
+  const events = highSignalEvents();
+  const table = buildRewardTable(events);
+  // The reward table is still produced from the real events; the caller is
+  // responsible for treating it as pre-activation. It is not silently emptied.
+  assert.ok(Object.keys(table).length > 0, 'reward table must reflect real events, not be blanked');
+  assert.equal(table.synthesize.n, 2);
+});
+
 // ---------- Summary ----------
 
 const failed = RESULTS.filter((r) => !r.ok);
