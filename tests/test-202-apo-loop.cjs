@@ -187,6 +187,83 @@ test('7. quality-primary: telemetry-high/quality-low candidate does NOT auto-win
     'TELEMETRY_WEIGHT must be bounded below a meaningful quality gap to keep quality primary');
 });
 
+// ================= Task 3: the loop + gated recommendation =================
+
+// A stub agent callback: returns 3 body variants with declared quality scores.
+function stubProposeFn() {
+  return [
+    { id: 'v1', quality: 0.40, body: '# /mos:act\n\nvariant one\n' },
+    { id: 'v2', quality: 0.85, body: '# /mos:act\n\nvariant two (best)\n' },
+    { id: 'v3', quality: 0.60, body: '# /mos:act\n\nvariant three\n' },
+  ];
+}
+const stubQualityScoreFn = (candidate) => candidate.quality;
+
+function isGitIgnored(absPath) {
+  try {
+    execFileSync('git', ['check-ignore', absPath], { cwd: REPO, stdio: 'pipe' });
+    return true; // exit 0 -> the path is ignored
+  } catch (_e) {
+    return false; // non-zero exit -> not ignored
+  }
+}
+
+test('8. runApo returns the highest-scoring variant as best', () => {
+  assert.ok(apoLoop, 'lab/apo/apo-loop.cjs must be requireable');
+  assert.equal(typeof apoLoop.runApo, 'function', 'runApo must be exported');
+  const runsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apo-runs-'));
+  try {
+    const result = apoLoop.runApo(ACT_MD, {
+      proposeFn: stubProposeFn,
+      qualityScoreFn: stubQualityScoreFn,
+      runsDir,
+    });
+    assert.ok(result && result.best, 'runApo must return a best recommendation');
+    assert.equal(result.best.id, 'v2', 'best must be the highest-scoring variant');
+    assert.equal(result.candidates.length, 3, 'all proposed candidates are recorded');
+    assert.ok(result.rounds >= 1, 'at least one round runs');
+    // best is a recommendation OBJECT, not a written file.
+    assert.equal(typeof result.best.id, 'string', 'best is a candidate object (a recommendation)');
+  } finally { rmRf(runsDir); }
+});
+
+test('9. runApo writes NO change to commands/act.md (byte-identical, Path A)', () => {
+  const before = fs.readFileSync(ACT_MD);
+  const runsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apo-runs-'));
+  try {
+    apoLoop.runApo(ACT_MD, {
+      proposeFn: stubProposeFn,
+      qualityScoreFn: stubQualityScoreFn,
+      runsDir,
+    });
+    const after = fs.readFileSync(ACT_MD);
+    assert.ok(before.equals(after),
+      'runApo must NEVER write commands/act.md -- it recommends, a human ratifies (Path A)');
+  } finally { rmRf(runsDir); }
+});
+
+test('10. span output lands under the runs dir and that path is gitignored', () => {
+  // Use the DEFAULT runs dir (lab/apo/runs/) to prove the shipped .gitignore
+  // actually ignores real span output (Part 8: never committed, never shipped).
+  const result = apoLoop.runApo(ACT_MD, {
+    proposeFn: stubProposeFn,
+    qualityScoreFn: stubQualityScoreFn,
+  });
+  try {
+    assert.equal(typeof result.spanPath, 'string', 'runApo must report the span file path');
+    assert.ok(fs.existsSync(result.spanPath), 'the span file must be written to disk');
+    assert.ok(result.spanPath.includes(path.join('lab', 'apo', 'runs')),
+      'span data must land under lab/apo/runs/');
+    assert.ok(isGitIgnored(result.spanPath),
+      'the span path must be gitignored (git check-ignore succeeds)');
+    // Sanity: the span records the recommendation, not an edit to act.md.
+    const span = JSON.parse(fs.readFileSync(result.spanPath, 'utf8'));
+    assert.ok(span.best && span.best.id === 'v2', 'span records the recommended candidate');
+  } finally {
+    rmRf(apoLoop.DEFAULT_RUNS_DIR);
+  }
+});
+
 // ---------- Summary ----------
 
 const failed = RESULTS.filter((r) => !r.ok);
