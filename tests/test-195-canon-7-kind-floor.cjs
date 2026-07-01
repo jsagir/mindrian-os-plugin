@@ -32,7 +32,10 @@ const CLAUDE_MD = path.join(REPO_ROOT, 'CLAUDE.md');
 
 // Wave-5 flip switch. Wave 0-3: false (six-kind complement is the floor). After
 // the FCM-08 amendment ratifies DRIFT as the 7th kind, set this to true.
-const REQUIRE_DRIFT = false;
+// FLIPPED in Wave 5 (Plan 195-06, 2026-07-01): the navigator-gated FCM-08
+// amendment ratified DRIFT as the 7th kind (Appendix D entry 35, canon v1.22),
+// so DRIFT is now REQUIRED alongside every prior kind.
+const REQUIRE_DRIFT = true;
 
 // The Part 9 memory complement. The first six are the CURRENT canon; DRIFT is the
 // gated 7th (asserted only once REQUIRE_DRIFT flips).

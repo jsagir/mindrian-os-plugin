@@ -14,8 +14,10 @@
  *   (4) No memory_artifact node is ever sourced from a `.planning/...DRIFT.md`
  *       path -- the per-folder memory-kind DRIFT.md is DISTINCT from the
  *       Phase-150.9 .planning/DRIFT.md audit baseline (Pitfall 5 / HARD).
- *   (5) NO canon bytes this wave: docs/MINDRIAN-CANON.md still carries no
- *       'DRIFT.md' (the amendment is GATED, Wave 5).
+ *   (5) The canon 6->7 amendment has LANDED (Wave 5, FCM-08): docs/MINDRIAN-CANON.md
+ *       now carries 'DRIFT.md' (Appendix D entry 35, canon v1.22). This Test 6
+ *       was FLIPPED from the Wave-1 gated-guard (carries NO DRIFT.md) once the
+ *       navigator-gated amendment ratified the 7th kind.
  *
  * node:sqlite SKIP-on-unavailable guard (exit 77) mirrors test-150-reconcile.cjs.
  * House rule: hyphens only, no em-dashes (asserted forbidden dash codepoints are
@@ -188,10 +190,14 @@ check('the reconciler never sources a memory_artifact node from a .planning/...D
   }
 });
 
-// --- Test 6: NO canon bytes written this wave ---
-check('docs/MINDRIAN-CANON.md still carries NO DRIFT.md (canon 6->7 amendment is GATED, Wave 5)', () => {
+// --- Test 6: the canon 6->7 amendment has LANDED (Wave 5, FCM-08) ---
+// FLIPPED in Wave 5 (Plan 195-06): the Wave-1 guard asserted the canon carried
+// NO DRIFT.md while the amendment was GATED. The navigator-gated FCM-08
+// amendment has now ratified DRIFT as the 7th kind (Appendix D entry 35, canon
+// v1.22), so the canon MUST now carry DRIFT.md (the companion of the FLOOR flip).
+check('docs/MINDRIAN-CANON.md now carries DRIFT.md (canon 6->7 amendment landed, Wave 5 FCM-08)', () => {
   const canon = fs.readFileSync(CANON_PATH, 'utf8');
-  assert.equal(canon.indexOf('DRIFT.md'), -1, 'no canon byte written for DRIFT this wave');
+  assert.notEqual(canon.indexOf('DRIFT.md'), -1, 'canon byte written for DRIFT (7th kind ratified)');
 });
 
 // --- Test 7: no em-dash / en-dash in the modified code files ---

@@ -39,10 +39,10 @@
  *           assert each prior entry heading is still present per-number. (Entries
  *           17 and 18 are intentionally out of numeric order; assert per-number
  *           presence, NOT sequential ordering.)
- *   Test 9 (version bump): header /^Version: 1\.21$/m AND footer
- *           /_Mindrian Canon v1\.21 - MindrianOS Plugin_/. (Canon moved 1.20 -> 1.21
- *           at the Phase 205 three-directions-of-elevation amendment, Appendix D entry
- *           34; entry 31's invariants are unchanged, only the version anchor tracks the
+ *   Test 9 (version bump): header /^Version: 1\.22$/m AND footer
+ *           /_Mindrian Canon v1\.22 - MindrianOS Plugin_/. (Canon moved 1.21 -> 1.22
+ *           at the Phase 195 FCM-08 seven-memory-kind amendment, Appendix D entry
+ *           35; entry 31's invariants are unchanged, only the version anchor tracks the
  *           current canon.)
  *   Test 10 (map row, light): docs/CANON-PHASE-MAP.md carries a "v1.21" token AND an
  *           "entry 31" / "two-gauge" reference.
@@ -153,10 +153,10 @@ for (let n = 1; n <= 30; n++) {
 }
 
 // ---------------------------------------------------------------------------
-// Test 9: the header + footer version (canon at 1.21 after the Phase 205 three-directions-of-elevation amendment).
+// Test 9: the header + footer version (canon at 1.22 after the Phase 195 FCM-08 seven-memory-kind amendment; anchor tracks the version forward, entry-31 invariants unchanged).
 // ---------------------------------------------------------------------------
-ok('header carries Version: 1.21', /^Version: 1\.21$/m.test(canon));
-ok('footer carries Mindrian Canon v1.21', /_Mindrian Canon v1\.21 - MindrianOS Plugin_/.test(canon));
+ok('header carries Version: 1.22', /^Version: 1\.22$/m.test(canon));
+ok('footer carries Mindrian Canon v1.22', /_Mindrian Canon v1\.22 - MindrianOS Plugin_/.test(canon));
 
 // ---------------------------------------------------------------------------
 // Test 10: the CANON-PHASE-MAP carries a v1.21 token + an entry-31 / two-gauge ref.
