@@ -3,8 +3,9 @@
 // ========================================================================
 // Asserts:
 //   (1) writeMemoryArtifactNode lands exactly one 'memory_artifact' row per
-//       kind for each of the 6 kinds (ROOM/STATE/MINTO/BRAIN/FEYNMAN/USER),
-//       with properties {section, kind, path, hash} correct.
+//       kind for each of the 7 kinds (ROOM/STATE/MINTO/BRAIN/FEYNMAN/USER +
+//       DRIFT, the Phase 195 FCM-07 addition), with properties {section, kind,
+//       path, hash} correct.
 //   (2) memory_artifact nodes are SYSTEM-BOOKKEEPING (created_by='system',
 //       review_status='confirmed') under the Canon Part 9 v1.5 audit-node
 //       carve-out -- they record WHICH memory files exist, not a truth claim.
@@ -76,7 +77,10 @@ check('writeMemoryArtifactNode lands one node per kind with correct properties',
   const db = new DatabaseSync(':memory:');
   applySchema(db);
   const kinds = writer.MEMORY_KINDS;
-  assert.equal(kinds.length, 6, 'MEMORY_KINDS must have 6 members');
+  // Phase 195 FCM-07: DRIFT is the 7th memory kind, registered in code now
+  // (canon 6->7 amendment is gated, FCM-08, Wave 5). The writer's accepted-kind
+  // set grows by one so a discovered DRIFT.md projects born-wired (Part 11).
+  assert.equal(kinds.length, 7, 'MEMORY_KINDS must have 7 members (6 + DRIFT)');
   for (const kind of kinds) {
     const res = writer.writeMemoryArtifactNode(db, {
       section: 'problem-definition',
@@ -87,7 +91,7 @@ check('writeMemoryArtifactNode lands one node per kind with correct properties',
     assert.equal(res.ok, true, kind + ' should write: ' + JSON.stringify(res));
   }
   const rows = db.prepare("SELECT * FROM nodes WHERE type = 'memory_artifact'").all();
-  assert.equal(rows.length, 6, 'exactly 6 memory_artifact nodes (one per kind)');
+  assert.equal(rows.length, 7, 'exactly 7 memory_artifact nodes (one per kind, incl DRIFT)');
   for (const row of rows) {
     const props = JSON.parse(row.properties);
     assert.ok(writer.MEMORY_KINDS.indexOf(props.kind) !== -1, 'props.kind in the closed set');
