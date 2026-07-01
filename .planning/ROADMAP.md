@@ -3453,7 +3453,7 @@ Cluster F keystone. A runtime egress classifier (small language model / rules ga
 - [x] 196-04-hook-telemetry-PLAN.md - Wave 2: PreToolUse hook + hooks.json + LOCAL-only ontology telemetry
 - [x] 196-05-gate-degrade-PLAN.md - Wave 3: Shape F.1 ambiguous gate + Brain-less degrade + sendPacket belt
 
-### Phase 197: Brain MCP Separate Repo + Silent Identity (brain-mcp-separate-repo) - REGISTERED 2026-07-01
+### Phase 197: Brain MCP Separate Repo + Silent Identity (brain-mcp-separate-repo) - REGISTERED 2026-07-01 - **NAVIGATOR-PARKED**
 
 **Class:** CODE + INFRA | **Priority:** P4 (NAVIGATOR-PARKED - tail of the milestone) | **Depends on:** Phase 196 (the boundary guard that makes separation enforceable), the Brain MCP (mindrian-brain.onrender.com)
 
