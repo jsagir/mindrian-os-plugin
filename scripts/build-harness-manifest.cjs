@@ -110,6 +110,50 @@ const MAP_BINDINGS = Object.freeze([
 ]);
 
 // ---------------------------------------------------------------------------
+// THE RUNTIME-SURFACE BINDINGS (Phase 201-01, SEED-032, D-201-1). The agent is
+// Model + Harness; the three maps above declare the harness's DATA, but SEED-032's
+// point is that the harness's RUNTIME surfaces - the code the harness runs ON -
+// belong in the SAME declared manifest too. These four bindings name each runtime
+// surface as { role, path, digest(sha256) } - DIGEST-ONLY (D-201-1, the RECOMMENDED
+// depth): a fixed-length fingerprint of the on-disk bytes, machinery metadata,
+// NEVER the file contents. There is NO source_count (these are code files, not
+// arrays of sources) and NO richer per-surface schema - a richer schema would turn
+// the read/descriptor into a second orchestration brain (Canon Part 11: one
+// governed path). This block is purely ADDITIVE: it DECLARES what already runs
+// (Part 7), retires no map (D-166-03), keeps maps at EXACTLY three, and opens no
+// Brain wire (Part 8). --check re-digests these files and fails closed on any drift
+// between the declared harness and the on-disk harness.
+//
+// role -> the runtime surface (the code file that IS that surface):
+//   orchestration_spine  lib/core/chain-executor.cjs         (the runChain spine)
+//   decide_engine        lib/core/navigation-engine.cjs      (the decide() engine)
+//   cockpit              lib/statusline/cockpit-renderer.cjs (the statusline cockpit)
+//   brain_orchestration  lib/core/directive-envelope.cjs     (the brain-orchestration reader)
+// ---------------------------------------------------------------------------
+const RUNTIME_SURFACE_BINDINGS = Object.freeze([
+  Object.freeze({
+    role: 'orchestration_spine',
+    relPath: 'lib/core/chain-executor.cjs',
+    absPath: path.join(REPO_ROOT, 'lib/core/chain-executor.cjs'),
+  }),
+  Object.freeze({
+    role: 'decide_engine',
+    relPath: 'lib/core/navigation-engine.cjs',
+    absPath: path.join(REPO_ROOT, 'lib/core/navigation-engine.cjs'),
+  }),
+  Object.freeze({
+    role: 'cockpit',
+    relPath: 'lib/statusline/cockpit-renderer.cjs',
+    absPath: path.join(REPO_ROOT, 'lib/statusline/cockpit-renderer.cjs'),
+  }),
+  Object.freeze({
+    role: 'brain_orchestration',
+    relPath: 'lib/core/directive-envelope.cjs',
+    absPath: path.join(REPO_ROOT, 'lib/core/directive-envelope.cjs'),
+  }),
+]);
+
+// ---------------------------------------------------------------------------
 // The Part 8 boundary-scan field allowlists (D-167-06, BOG-10 sibling). SINGLE
 // SOURCE OF TRUTH the Wave-1 boundary scan
 // (tests/test-harness-manifest-part8-boundary.cjs) asserts against. A top-level
@@ -125,6 +169,10 @@ const NODE_FIELD_ALLOWLIST = Object.freeze([
   'methodology_tier',
   'version',
   'maps',
+  // Phase 201-01: the additive runtime-surface digest block. Each entry is the
+  // generic { role, path, digest } machinery triple (a subset of
+  // ENTRY_FIELD_ALLOWLIST); no source_count, no user-content channel.
+  'runtime_surfaces',
 ]);
 
 // Every maps entry is EXACTLY { role, path, digest, source_count }. A maps-entry
@@ -197,6 +245,24 @@ function buildMapEntry(binding) {
 }
 
 // ---------------------------------------------------------------------------
+// buildSurfaceEntry(binding) -- build ONE { role, path, digest } runtime-surface
+// entry (Phase 201-01, D-201-1 digest-only). Reads the on-disk code bytes once and
+// sha256-digests them (machinery metadata, NOT contents). A missing surface yields
+// the stable empty-digest sentinel so the manifest stays byte-stable when a file is
+// absent; --check then flags the absence as UNRESOLVED. There is NO source_count:
+// a runtime surface is one code file, not an array of sources.
+// ---------------------------------------------------------------------------
+function buildSurfaceEntry(binding) {
+  const buf = readBytes(binding.absPath);
+  const digest = buf ? digestBytes(buf) : digestBytes(Buffer.from(''));
+  return {
+    role: binding.role,
+    path: binding.relPath,
+    digest: digest,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // buildManifest() -- the core. Emits the declared descriptor object:
 //   { ontology_ref, generated_note, methodology_tier, version, maps }
 // where maps is EXACTLY the three { role, path, digest, source_count } entries
@@ -205,6 +271,7 @@ function buildMapEntry(binding) {
 // ---------------------------------------------------------------------------
 function buildManifest() {
   const maps = MAP_BINDINGS.map((b) => buildMapEntry(b));
+  const runtime_surfaces = RUNTIME_SURFACE_BINDINGS.map((b) => buildSurfaceEntry(b));
   return {
     ontology_ref:
       'data/command-registry.json + data/connector-registry.json + ' +
@@ -213,6 +280,7 @@ function buildManifest() {
     methodology_tier: TIER_OP,
     version: MANIFEST_VERSION,
     maps: maps,
+    runtime_surfaces: runtime_surfaces,
   };
 }
 
@@ -233,6 +301,14 @@ function serializeManifest(manifest) {
       path: m.path,
       digest: m.digest,
       source_count: m.source_count,
+    })),
+    runtime_surfaces: (Array.isArray(manifest.runtime_surfaces)
+      ? manifest.runtime_surfaces
+      : []
+    ).map((s) => ({
+      role: s.role,
+      path: s.path,
+      digest: s.digest,
     })),
   };
   return JSON.stringify(clean, null, 2) + '\n';
@@ -337,6 +413,49 @@ function validateManifest(manifest) {
     }
   }
 
+  // ---- RUNTIME-SURFACE DRIFT (Phase 201-01, D-201-1, fail closed). Each
+  // declared runtime surface's committed digest must equal the sha256 of the
+  // on-disk code file. A missing surface file is UNRESOLVED; a digest that
+  // diverges from the file is STALE and NAMES THE ROLE, so --check fails closed
+  // the moment the declared harness and the running harness diverge. This reads
+  // the COMMITTED manifest (the byte-compare STALE above already covers a
+  // hand-edited / stale committed file); here we prove the declared surface
+  // fingerprints still match the code they fingerprint. Zero Brain/network. ----
+  let committed = null;
+  try {
+    committed = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+  } catch (_e) {
+    committed = null;
+  }
+  const committedSurfaces =
+    committed && Array.isArray(committed.runtime_surfaces)
+      ? committed.runtime_surfaces
+      : [];
+  for (const binding of RUNTIME_SURFACE_BINDINGS) {
+    if (!fs.existsSync(binding.absPath)) {
+      unresolved.push(
+        'UNRESOLVED: the ' + binding.role + ' runtime surface "' +
+          binding.relPath + '" does not exist on disk (a fabricated / missing ' +
+          'surface binding). ' + RECOVERY
+      );
+      continue;
+    }
+    const declared = committedSurfaces.find(
+      (s) => s && s.role === binding.role
+    );
+    // A committed manifest that never declared this surface is caught by the
+    // byte-compare STALE (the regeneration adds the missing entry); skip here.
+    if (!declared || typeof declared.digest !== 'string') continue;
+    const actual = digestBytes(fs.readFileSync(binding.absPath));
+    if (declared.digest !== actual) {
+      stale.push(
+        'STALE: the ' + binding.role + ' runtime surface (' + binding.relPath +
+          ') digest in the manifest drifts from the on-disk file - the DECLARED ' +
+          'harness and the RUNNING harness have diverged. ' + RECOVERY
+      );
+    }
+  }
+
   return { stale, unresolved, malformed };
 }
 
@@ -376,7 +495,9 @@ function writeManifest() {
   fs.writeFileSync(MANIFEST_PATH, serializeManifest(manifest));
   console.log(
     'Wrote data/harness-manifest.json (' + manifest.maps.length + ' map entries: ' +
-      manifest.maps.map((e) => e.role).join(', ') + ')'
+      manifest.maps.map((e) => e.role).join(', ') + '; ' +
+      manifest.runtime_surfaces.length + ' runtime surfaces: ' +
+      manifest.runtime_surfaces.map((e) => e.role).join(', ') + ')'
   );
 }
 
@@ -403,11 +524,13 @@ if (require.main === module) {
   module.exports = {
     buildManifest,
     buildMapEntry,
+    buildSurfaceEntry,
     serializeManifest,
     validateManifest,
     digestBytes,
     primaryArrayCount,
     MAP_BINDINGS,
+    RUNTIME_SURFACE_BINDINGS,
     NODE_FIELD_ALLOWLIST,
     ENTRY_FIELD_ALLOWLIST,
     MANIFEST_PATH,

@@ -22,5 +22,27 @@
       "digest": "78ef337ca2b95b4432882e232e61947842a135e8056fbb06f8dad9d1d7b57692",
       "source_count": 249
     }
+  ],
+  "runtime_surfaces": [
+    {
+      "role": "orchestration_spine",
+      "path": "lib/core/chain-executor.cjs",
+      "digest": "fbaf8fa83ebfae42bddafe0375a31c656988d1e18389f0b8c63e66e9b8321255"
+    },
+    {
+      "role": "decide_engine",
+      "path": "lib/core/navigation-engine.cjs",
+      "digest": "35a32e3b769b34092faba721846f33a49e12a0abd32764dd69a17a02f5f8cfdc"
+    },
+    {
+      "role": "cockpit",
+      "path": "lib/statusline/cockpit-renderer.cjs",
+      "digest": "8df04dcb09a7ec7e65dc4f6ccbbe82d35a925750248f37fb88572eb23d6352f0"
+    },
+    {
+      "role": "brain_orchestration",
+      "path": "lib/core/directive-envelope.cjs",
+      "digest": "ec07b7120664093f2f13f074b10383de22029e3da68b950371272fed1cf1f85d"
+    }
   ]
 }

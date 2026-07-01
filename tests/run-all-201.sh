@@ -2,8 +2,10 @@
 # Phase 201 verification aggregator -- the single PASS/FAIL/SKIP gate for the
 # harness-as-code-manifest cluster. Models on tests/run-all-200.sh / run-all-196.sh.
 #
-# Phase 201 lands: (01) a sibling runtime-surface manifest declaring the harness code
-# surfaces (leaving the LOCKED 3-map digest untouched); (02) SEED-033 L1 opt-in bounded
+# Phase 201 lands: (01) the harness manifest EXTENDED to declare the runtime code
+# surfaces (runChain spine, decide engine, cockpit, brain-orchestration reader) as
+# digest-only entries IN THE SAME data/harness-manifest.json, drift-checked by the same
+# generator (a descriptor, not a second registry - Canon Part 11); (02) SEED-033 L1 opt-in bounded
 # Ralph verify+retry on autonomous_safe steps in chain-executor.cjs (default OFF, token
 # economy preserved, B3 intact); (03) SEED-033 L2 the self-improving graph loop
 # (propose/fact-check/refine, LOCAL, human-gated, Part-9 chokepoint writes); (04) the
@@ -35,10 +37,10 @@ run_if() {
   fi
 }
 
-run_if "201-01 harness runtime manifest" "scripts/build-harness-runtime-manifest.cjs" \
-  node tests/test-201-harness-runtime-manifest.cjs
-run_if "201-01 runtime-manifest --check (drift tripwire)" "data/harness-runtime-manifest.json" \
-  node scripts/build-harness-runtime-manifest.cjs --check
+run_if "201-01 harness manifest (runtime surfaces declared)" "tests/test-201-harness-manifest.cjs" \
+  node tests/test-201-harness-manifest.cjs
+run_if "201-01 harness-manifest --check (surface drift tripwire)" "data/harness-manifest.json" \
+  node scripts/build-harness-manifest.cjs --check
 run_if "201-02 bounded Ralph retry (L1)" "tests/test-201-bounded-retry.cjs" \
   node tests/test-201-bounded-retry.cjs
 run_if "201-03 self-improving graph loop (L2)" "lib/core/graph-refine-loop.cjs" \
