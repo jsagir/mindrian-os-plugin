@@ -1,0 +1,26 @@
+{
+  "_doc": {
+    "purpose": "Phase 188-02 (SFS-07, D-11): the hitl_stages DECLARATION contract - 'an engine is a pipeline of shapes'. Registry-is-the-table: this file IS the schema (the vocabulary + the record shape inline), read by a resolver and checked by scripts/check-hitl-stages.cjs, mirroring lib/hmi/reach-component-map.json / data/render-coverage-registry.json. A surface declares an ordered list of {stage, shapes[], mode} composing the closed F.0-F.9 shape set into a staged flow. 188 ships the schema + validator + the 9 explainer engine flows as reference fixtures (data/hitl-stages-fixtures/*.json) and does NOTHING at build time; Phase 190 makes per-surface declaration mandatory and enforces it. DECLARATION ONLY: 188 does not execute a pipeline and does not re-implement runChain.",
+    "mode_vocabulary": ["parallel", "ordered", "gate"],
+    "mode_meaning": [
+      { "mode": "parallel", "meaning": "the stage's shapes fire independently; an F.8 unordered basket is the natural parallel primitive (a set of jobs with no ordering constraint)." },
+      { "mode": "ordered", "meaning": "the shapes fire in sequence; order is meaning; F.9 (ordered walk) / F.2 (path) are the ordered primitives (each step needs the last)." },
+      { "mode": "gate", "meaning": "a go/no-go human-judgment checkpoint. This is the ONLY seam to runChain: a gate stage MAY hand to runChain's safe-halt ({posture:'halt', autonomous_safe:false}). 188 DECLARES the seam; it does not wire it." }
+    ],
+    "shape_vocabulary": ["F.0", "F.1", "F.2", "F.3", "F.4", "F.5", "F.6", "F.7", "F.8", "F.9"],
+    "shape_vocabulary_note": "The closed ten canonical Shape-F set. Fixtures reference shape ids by VOCABULARY, independent of whether a given renderer has landed (F.8/F.9 land in later 188 waves); this decouples the fixture wave from the renderer wave.",
+    "dispatch_rule": "hitl_stages COMPOSES F-shapes; it does NOT chain commands. runChain (lib/core/chain-executor.cjs) is the ONE shared gated loop over COMMANDS; hitl_stages composes SHAPES. The two touch at exactly ONE seam: mode:gate (a gate stage MAY hand to runChain's safe-halt). Any second gated execution loop is a Part-11 scope breach. A new engine flow joins by adding a fixture here, never by editing validator code.",
+    "record_contract": {
+      "surface": "<engine slug: a non-empty string naming the engine/command>",
+      "hitl_stages": [
+        {
+          "stage": "<non-empty stage name>",
+          "shapes": ["F.x", "..."],
+          "mode": "parallel | ordered | gate"
+        }
+      ]
+    },
+    "validation_rule": "A fixture is valid when: surface is a non-empty string; hitl_stages is a non-empty ordered array; every stage has a non-empty name, a non-empty shapes[] whose every id is in shape_vocabulary, and a mode in mode_vocabulary. Any violation fails closed (scripts/check-hitl-stages.cjs exits 1 with a self-naming error + a recovery line).",
+    "default_on_miss": "reject (fail closed): an unknown shape id or an unknown mode is a hard error, not a silent pass."
+  }
+}
