@@ -40,7 +40,9 @@ const os = require('node:os');
 
 const REPO = path.resolve(__dirname, '..');
 const CONSUMER_PATH = path.join(REPO, 'lab/apo/telemetry-consumer.cjs');
+const REWARD_PATH = path.join(REPO, 'lab/apo/reward-table.cjs');
 const FIXTURE = path.join(REPO, 'tests/fixtures/apo/telemetry-sample.jsonl');
+const { ALLOWED_FIELDS } = require(path.join(REPO, 'lib/core/telemetry/schema.cjs'));
 
 const ROOM_A = 'a'.repeat(64);
 const ROOM_B = 'b'.repeat(64);
@@ -109,6 +111,21 @@ try {
 } catch (_e) { /* not cached yet */ }
 consumer = require(CONSUMER_PATH);
 const { readTelemetry, ACTIVATION_MIN } = consumer;
+
+let reward;
+try {
+  delete require.cache[require.resolve(REWARD_PATH)];
+} catch (_e) { /* not cached yet */ }
+reward = require(REWARD_PATH);
+const { buildRewardTable, REWARD_FIELD, assertRewardFieldsPresent } = reward;
+
+// Build the fixture's high-signal event set once for the reward tests.
+function highSignalEvents() {
+  const dir = stageDir();
+  try {
+    return readTelemetry(dir, { silent: true }).highSignal;
+  } finally { rmRf(dir); }
+}
 
 // ================= Task 1 =================
 
@@ -190,6 +207,58 @@ test('9. activation gate: 12 events -> activated false, eventCount 12', () => {
     assert.equal(r.activated, false);
     assert.equal(r.eventCount, 12);
   } finally { rmRf(dir); }
+});
+
+// ================= Task 2 (reward extraction) =================
+
+test('10. buildRewardTable exports + is a function', () => {
+  assert.equal(typeof buildRewardTable, 'function');
+  assert.equal(typeof assertRewardFieldsPresent, 'function');
+  assert.ok(REWARD_FIELD && typeof REWARD_FIELD === 'object');
+});
+
+test('11. per-key rewardMean: two selector_pick confidences 0.8, 0.6 -> mean 0.7, n 2', () => {
+  const table = buildRewardTable(highSignalEvents());
+  assert.ok(table.synthesize, 'expected a reward key for verb synthesize');
+  assert.equal(table.synthesize.n, 2);
+  assert.ok(Math.abs(table.synthesize.rewardMean - 0.7) < 1e-9, 'rewardMean ~= 0.7');
+  assert.deepEqual(table.synthesize.signals.ranker_confidence, [0.8, 0.6]);
+});
+
+test('12. tension_engagement mapped resolve=1 / defer=0.5 / ignore=0', () => {
+  const table = buildRewardTable(highSignalEvents());
+  assert.equal(table.contradicts.rewardMean, 1, 'resolve -> 1');
+  assert.equal(table.contradicts.n, 1);
+  assert.equal(table.converges.rewardMean, 0.5, 'defer -> 0.5');
+  assert.equal(table.invalidates.rewardMean, 0, 'ignore -> 0');
+});
+
+test('13. auto_explore_decision domain_match_score carried direct', () => {
+  const table = buildRewardTable(highSignalEvents());
+  assert.equal(table.whitespace.rewardMean, 0.9);
+  assert.equal(table.reverse_salient.rewardMean, 0.5);
+});
+
+test('14. hooked_axis_score.score_value carried RAW in signals, EXCLUDED from rewardMean', () => {
+  const table = buildRewardTable(highSignalEvents());
+  assert.ok(table.reward, 'expected a reward key for axis reward');
+  assert.deepEqual(table.reward.signals.score_value, [3.2], 'raw unbounded value carried');
+  assert.equal(table.reward.n, 0, 'score_value must not count toward n');
+  assert.equal(table.reward.rewardMean, 0, 'score_value excluded from rewardMean');
+});
+
+test('15. anti-drift: reward field names are asserted present in schema.cjs ALLOWED_FIELDS', () => {
+  // Real schema: no throw.
+  assert.doesNotThrow(() => assertRewardFieldsPresent(REWARD_FIELD, ALLOWED_FIELDS));
+  // Simulate a schema rename (mutate the constant): drop ranker_confidence from
+  // selector_pick. The presence-check MUST catch the drift and fail loud.
+  const drifted = Object.assign({}, ALLOWED_FIELDS, {
+    selector_pick: ALLOWED_FIELDS.selector_pick.filter((f) => f !== 'ranker_confidence'),
+  });
+  assert.throws(
+    () => assertRewardFieldsPresent(REWARD_FIELD, drifted),
+    (err) => err && err.code === 'REWARD_FIELD_DRIFT'
+  );
 });
 
 // ---------- Summary ----------
