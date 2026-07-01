@@ -3465,9 +3465,11 @@ Cluster F. The constitutional-separation deployment vehicle: the Brain MCP as it
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for silent-identity + Part-8 boundary parity post-split. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-F graduation from SEED-014 + SEED-011. NEXT: `/gsd-discuss-phase 197`.
 
-### Phase 198: MCP-First Invocation Substrate then SDK (mcp-first-then-sdk) - REGISTERED 2026-07-01
+### Phase 198: MCP-First Invocation Substrate then SDK (mcp-first-then-sdk) - REGISTERED 2026-07-01 - **NAVIGATOR-PARKED**
 
-**Class:** CODE + ARCH | **Priority:** P2 (substrate unification; PROMOTED) | **Depends on:** the MCP server (v3.0), Phase 166 (runChain)
+**Class:** CODE + ARCH | **Priority:** P4 (NAVIGATOR-PARKED - tail of the milestone) | **Depends on:** the MCP server (v3.0), Phase 166 (runChain)
+
+- **NAVIGATOR-PARKED 2026-07-01:** deferred to the tail of the milestone alongside Phase 197, revisit later. Nothing active depends on 198 (it is substrate unification, not a prerequisite of any other phase).
 
 Cluster F. Switch the governed invocation spine to an MCP-FIRST execution substrate - ONE path on every surface (CLI + Desktop + Cowork) - then transform that substrate into a distributable MindrianOS SDK. Kills the surface-specific invocation drift; the SDK is the packaging dividend.
 
@@ -3582,7 +3584,7 @@ SHAPE-F FAMILY LAYERING: 188 (full F.0-F.9 system + composition) is the FOUNDATI
 BRAIN THREAD (LEAD): 191 (LOCAL consumption wire) depends-on 157 (projection) + 184 (reader) + 166 (executor) - all shipped; net-new = flip the dark projection_offer to a firing candidate, routing_source legacy->engine, from the LOCAL cache, never live Brain (R7). 193 (Brain substrate hardening) depends-on 191 - framework-coverage live-population + canonicalize-at-ingest + orphan disposition (Brain write-side, admin-gated).
 190 (Shape F declaration mandate) is canonical/process - lands independently; backfill rides the existing catalog.
 ROOM/MEMORY (Cluster A): 194 (session binding) -> 195 (fractal + cross-room memory) -> feeds 189 (memory governance). 194 is the Tier-1 concurrency prereq.
-BRAIN DELIVERY (Cluster F): 196 (Part-8 SLM guardrail) GATES 191/193 (safe egress) and generalizes into 199 (AgentShield); 198 (MCP-first -> SDK) is substrate unification; 199 (AgentShield scanner) needs 196 ONLY. PARKED at the tail (navigator 2026-07-01): 197 (separate repo + silent identity, needs 196) and the Stripe Pro tier (split out of 199, needs 197, self-funds the separate Brain infra) - revisit later; nothing active depends on either.
+BRAIN DELIVERY (Cluster F): 196 (Part-8 SLM guardrail) GATES 191/193 (safe egress) and generalizes into 199 (AgentShield); 199 (AgentShield scanner) needs 196 ONLY. PARKED at the tail (navigator 2026-07-01): 197 (separate repo + silent identity, needs 196), 198 (MCP-first -> SDK, substrate unification), and the Stripe Pro tier (split out of 199, needs 197, self-funds the separate Brain infra) - revisit later; nothing active depends on any of them.
 RS + EXPERT + HARNESS (Clusters E + I): 201 (harness-as-code / fan-out) is the INTEGRATIVE SPINE under statusline (187) + LarryReaches (141/143/144) + orchestration (191/166) + Brain-use. 200 (RS engine expert-graph) <-> 203 (synthetic expert) are a COUPLED PAIR built by fan-out research, the same shape as BONO + rs-experts; 203 depends-on 201 (fan-out) + 200 (expert-graph). 202 (agent-lightning APO lab) is lab-side on 201.
 FRONT DOOR: 204 (ignite room-chooser + persona entry) is the FIRST CONSUMER OF 188 - depends-on 188 (Shape-F render) + 179 (ignite B1) + 115 (persona/dual-path) + rooms registry + conversation-mode. It is the proof-of-life demo for the full shape system and makes 188 visible on turn 1.
 180 (canon, leads) -> {181 SEC, 182 SIGNAL, 183 METER, 186 CORPUS} all independent code starts. 184 READER conditional-on 183 METER. 185 DRIFT after 184. Recommended first builds: 180 (establish canon) + 181 SEC (open vuln, zero deps) + 183 METER (evidence-before-steel keystone).
