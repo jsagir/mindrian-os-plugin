@@ -41,6 +41,9 @@ const path = require('node:path');
 // the telemetry reward table is a scoring term, added when activated (D-202-2).
 const { buildRewardTable } = require('./reward-table.cjs');
 
+// Load + render the target prompt (byte-lossless frontmatter split).
+const { loadTarget, renderCandidate } = require('./prompt-target.cjs');
+
 // The canon frozen signal weight (0.15). Telemetry is a SECONDARY term bounded
 // by this weight; quality (weight 1.0, implicit) is PRIMARY.
 const TELEMETRY_WEIGHT = 0.15;
@@ -123,10 +126,120 @@ function scoreCandidate(candidate, ctx) {
   return q;
 }
 
+/**
+ * selectBest(candidates) -> candidate | null
+ *
+ * Quality-lexicographic selection: the highest qualityTerm wins; the blended
+ * score breaks ties. This makes quality primacy STRUCTURAL (D-202-2) -- a higher
+ * telemetry term can only decide between candidates of equal quality.
+ */
+function selectBest(candidates) {
+  let best = null;
+  for (const c of candidates) {
+    if (best === null ||
+        c.quality > best.quality ||
+        (c.quality === best.quality && c.score > best.score)) {
+      best = c;
+    }
+  }
+  return best;
+}
+
+/**
+ * runApo(target, opts) -> { best, candidates, rounds, spanPath }
+ *
+ * The Path A optimization loop: propose -> score -> select, bounded rounds.
+ *
+ * target : a commands/*.md path (string) or a loadTarget() result.
+ * opts = {
+ *   proposeFn: (loadedTarget, { round, best }) => candidate[],  // REQUIRED agent callback
+ *   qualityScoreFn: (candidate) => number,                       // REQUIRED, offline stub ok
+ *   telemetry?: { activated, events },                           // optional secondary signal
+ *   rounds?: number,                                             // default 1, capped at MAX_ROUNDS
+ *   runsDir?: string,                                            // default lab/apo/runs/ (gitignored)
+ * }
+ *
+ * Each candidate: { id, body?, reachKey? }. `best` is a RECOMMENDATION object
+ * (the winning candidate plus its rendered full-file form), NOT a written file.
+ * Span data is written under runsDir (gitignored, Part 8). This function NEVER
+ * writes the target prompt (commands/act.md) -- Path A recommend-then-ratify.
+ */
+function runApo(target, opts) {
+  const options = opts || {};
+  const loaded = typeof target === 'string' ? loadTarget(target) : target;
+
+  if (typeof options.proposeFn !== 'function') {
+    throw new Error('runApo: opts.proposeFn (the injected variant generator) is required');
+  }
+  if (typeof options.qualityScoreFn !== 'function') {
+    throw new Error('runApo: opts.qualityScoreFn is required (an offline stub is allowed)');
+  }
+
+  const requested = Number.isInteger(options.rounds) && options.rounds > 0 ? options.rounds : 1;
+  const rounds = Math.min(requested, MAX_ROUNDS);
+  const runsDir = options.runsDir || DEFAULT_RUNS_DIR;
+  const ctx = { qualityScoreFn: options.qualityScoreFn, telemetry: options.telemetry || null };
+
+  const candidates = [];
+  const roundRecords = [];
+  let runningBest = null;
+
+  for (let r = 0; r < rounds; r++) {
+    const proposed = options.proposeFn(loaded, { round: r, best: runningBest }) || [];
+    const scored = [];
+    for (const c of proposed) {
+      const bodyVariant = c && c.body != null ? c.body : loaded.body;
+      const rendered = renderCandidate(loaded, bodyVariant); // string only; never written to disk here
+      const quality = qualityTerm(c, ctx);
+      const score = scoreCandidate(c, ctx);
+      const entry = {
+        id: c && c.id != null ? c.id : 'cand-' + r + '-' + scored.length,
+        reachKey: c && c.reachKey != null ? c.reachKey : null,
+        body: bodyVariant,
+        rendered,
+        quality,
+        score,
+        round: r,
+      };
+      scored.push(entry);
+      candidates.push(entry);
+    }
+    roundRecords.push({ round: r, candidateIds: scored.map((s) => s.id) });
+    runningBest = selectBest(candidates);
+  }
+
+  const best = selectBest(candidates);
+
+  // Write span data to the gitignored runs dir (Part 8: never committed).
+  fs.mkdirSync(runsDir, { recursive: true });
+  const stamp = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+  const spanPath = path.join(runsDir, 'apo-' + stamp + '.json');
+  const span = {
+    target: loaded.path || (typeof target === 'string' ? target : null),
+    rounds,
+    roundRecords,
+    candidates: candidates.map((c) => ({
+      id: c.id,
+      reachKey: c.reachKey,
+      quality: c.quality,
+      score: c.score,
+      round: c.round,
+    })),
+    best: best ? { id: best.id, quality: best.quality, score: best.score } : null,
+    recommendedAt: new Date().toISOString(),
+    note: 'RECOMMENDATION ONLY (SEED-002 Path A). commands/act.md was NOT modified; a human ratifies a candidate.',
+  };
+  fs.writeFileSync(spanPath, JSON.stringify(span, null, 2) + '\n');
+
+  return { best, candidates, rounds, spanPath };
+}
+
 module.exports = {
   scoreCandidate,
   qualityTerm,
   telemetryTerm,
+  selectBest,
+  runApo,
   TELEMETRY_WEIGHT,
   MAX_ROUNDS,
   DEFAULT_RUNS_DIR,
