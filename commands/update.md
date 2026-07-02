@@ -177,10 +177,22 @@ If it reports `ok: false`: surface the error to the user. They can manually
 run `/mos:doctor --fix` to re-attempt; if that also fails, file an RCA at
 `.planning/debug/post-update-activation-failure-<date>.md`.
 
-### Step 8: Verify and instruct restart
+### Step 8: Verify, then emit the LOUD restart banner (ALWAYS last)
 
-If all steps succeeded:
-> "Done. v{latest} installed via Claude Code's plugin loader and atomically swapped into the live install path. Registry, cache, and `enabledPlugins` are all in sync. User settings checked for stale paths. Restart Claude Code (close and reopen the terminal, or kill and re-run `claude`) so MCP servers reconnect against the new bytes. After restart, run `/mos:help` to confirm commands are reachable and look for the Mindrian statusline at the bottom of the terminal."
+If all steps succeeded, say briefly:
+> "Done. v{latest} installed via Claude Code's plugin loader and atomically swapped into the live install path. Registry, cache, and `enabledPlugins` are all in sync. User settings checked for stale paths."
+
+Then close the flow with the Mindrian mark FIRST, the loud restart banner SECOND. This block is the **LAST thing the user sees** (never a footnote, never buried under other prose), and it is mandatory on EVERY successful update path (standard, force, and in-version-hotfix).
+
+First render the Mindrian logo:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/lib/hmi/mindrian-ascii-logo.cjs"
+```
+
+Stream its output as-is (it is the De Stijl block-letter mark and degrades to plain when the terminal has no color). Then, immediately below the logo, emit the RESTART BANNER defined in the final section of this command **verbatim**.
+
+The reason the banner must be loud and last: the update swapped the install under this running session, and the slash-command registry was built once at session start, so `/mos:help` and every `/mos:*` command will read as "Unknown command" until the user restarts. That vanish looks like breakage; the banner is what tells the user it is expected.
 
 ## Force Mode
 
@@ -220,3 +232,23 @@ List the backed-up files. Guide the user on which to restore. (This flow is unch
 - Does NOT manually edit `installed_plugins.json` or `enabledPlugins` (Claude Code owns those files)
 
 The principle: **Reuse Before Build (Canon Part 7)**. We had a homegrown installer. The platform already had one that worked. We were maintaining a divergence, not a feature.
+
+## RESTART BANNER (the LAST thing the user sees on any successful update)
+
+Emit this block verbatim, exactly as written, as the final output of the update flow. Do not summarize it, do not move it above other text, do not soften it. Approved glyphs only (no emoji):
+
+```
+────────────────────────────────────────────────────────────
+⚠  RESTART THIS SESSION NOW
+────────────────────────────────────────────────────────────
+The update swapped the install under this running session.
+Slash commands ( /mos:help, /mos:* ) will read as MISSING
+until you restart. This is EXPECTED. Nothing is broken.
+
+  → Close and reopen the terminal, or kill and re-run `claude`
+  → Then run /mos:help to confirm commands are reachable, and
+    look for the Mindrian statusline at the bottom of the terminal
+────────────────────────────────────────────────────────────
+```
+
+Why this is loud and last: the command registry is built once at session start. `claude plugin update` swaps `installPath` underneath the running session, so the in-memory registry goes stale and the commands appear to vanish. Disk state is healthy the whole time; a restart fully restores them. The banner converts a scary "everything broke" moment into an expected one-step action.

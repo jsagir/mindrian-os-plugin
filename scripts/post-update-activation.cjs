@@ -49,6 +49,14 @@ const path = require('node:path');
 const os = require('node:os');
 const { spawnSync } = require('node:child_process');
 
+// The Mindrian block-letter logo opens the post-update banner (navigator rule,
+// 2026-07-02: the mark is visible after ANY update). Consumed as-is; degrades
+// to plain when NO_COLOR / non-TTY. Loaded defensively so a missing/renamed
+// module can never break the activation report.
+let buildLogo = null;
+try { ({ buildLogo } = require(path.join(__dirname, '..', 'lib', 'hmi', 'mindrian-ascii-logo.cjs'))); }
+catch (_) { buildLogo = null; }
+
 const HOME = process.env.HOME || process.env.USERPROFILE || os.homedir();
 const PLUGIN_HOME = process.env.MINDRIAN_PLUGIN_HOME || path.join(HOME, '.claude', 'plugins');
 const INSTALL_DIR = path.join(PLUGIN_HOME, 'mindrian-os');
@@ -247,6 +255,27 @@ async function activatePostUpdate(opts) {
 
 // -- Shape E action report rendering --------------------------------------
 
+// Loud, bordered restart banner -- the LAST thing the user sees after a swap.
+// The update swaps installPath under the running session, so the in-memory
+// slash-command registry goes stale until restart (F8). Approved glyphs only.
+function renderRestartBanner() {
+  const rule = '------------------------------------------------------------';
+  const lines = [];
+  lines.push('');
+  lines.push(`${C.yellow}${rule}${C.reset}`);
+  lines.push(`${C.yellow}⚠  RESTART THIS SESSION NOW${C.reset}`);
+  lines.push(`${C.yellow}${rule}${C.reset}`);
+  lines.push('The update swapped the install under this running session.');
+  lines.push('Slash commands ( /mos:help, /mos:* ) will read as MISSING');
+  lines.push('until you restart. This is EXPECTED. Nothing is broken.');
+  lines.push('');
+  lines.push('  -> Close and reopen the terminal, or kill and re-run `claude`');
+  lines.push('  -> Then run /mos:help to confirm commands are reachable');
+  lines.push(`${C.yellow}${rule}${C.reset}`);
+  lines.push('');
+  return lines.join('\n');
+}
+
 function renderActionReport(result) {
   const lines = [];
   lines.push(`${C.dim}-- MindrianOS -- post-update-activation --${C.reset}`);
@@ -259,9 +288,14 @@ function renderActionReport(result) {
     if (result.backupPath) {
       lines.push(`     ${C.dim}backup ${result.backupPath}${C.reset}`);
     }
-    lines.push('');
-    lines.push(`  ${C.yellow}⚠${C.reset} session restart required so MCP servers reconnect against new bytes.`);
     lines.push(`     ${C.dim}touch-file: ${result.touchFilePath}${C.reset}`);
+    // The Mindrian mark opens the banner, the loud RESTART banner closes it
+    // (the LAST thing the user sees). Logo is best-effort; never a hard dep.
+    if (typeof buildLogo === 'function') {
+      try { lines.push(''); lines.push(buildLogo({})); } catch (_) { /* skip logo on any render error */ }
+    }
+    lines.push(renderRestartBanner());
+    return lines.join('\n');
   } else if (result.ok && !result.swapped) {
     lines.push(`  ${C.green}■${C.reset} activation              ${C.green}✓${C.reset} ${result.message}`);
   } else {
