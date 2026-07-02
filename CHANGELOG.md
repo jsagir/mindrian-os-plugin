@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.0-beta.14 (in progress)
+## [1.15.0] - 2026-07-02
 
 ### Added
 - **Phase 190 - Shape-F Declaration Mandate (canon v1.23, Part 11 R16).** Every invocable surface (command, agent, pipeline, and qualifying skill) is now born with a declared HITL shape (`hitl_shape`/`hitl_why` or `hitl_stages`), enforced hard-fail at commit + release + `doctor --acceptance`. The full surface set was backfilled mechanically; the declaring count is enumerated from disk at runtime, never a frozen literal.
