@@ -2866,6 +2866,17 @@ Plans:
 
 **Outcome:** the dial decision loop now records to room.db in production and Phase 158's computeReachPenalties reads a REAL signal. The whole producer->consumer->penalty loop is proven LIVE behind the one-command run-all-159.sh gate (159 10/10; 158 14/14; 148 18/18). LIVE Desktop/Cowork conversational pick-capture is the one explicit deferral (DI-159-01; seam documented).
 
+### Phase 210: Revert persona-enforcement over-reach: selectively undo the mandatory/BINDING behaviors from Phase 192 (locked voice-glyph + stance-toggle footer), Phase 202 (voice-contract disqualifier), Phase 205 (elevation-taxonomy canon-governed decision tree), and Phase 209 (Shape-F Native Fire force-fire with no relevance check); relax Phase 190's build gate to advisory. Preserve everything else in the v1.15 window: Phase 194/196/200 data-boundary gates, Phase 188/189/191/195/199/201/203/204 capability work, and the 19 standalone fixes from the v1.15.0-beta.13..v1.15.2 diff. Provenance: navigator-reported regression 2026-07-02, root-caused via commit diff, confirmed live via repeated Stop-hook force-fires including one blocking an already-answered plain-text reply. Evidence: session memory feedback_1_15_enforcement_regression_watch.md.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 209
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 210 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
