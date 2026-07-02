@@ -50,3 +50,6 @@ Independently re-ran the phase gates for the COMPLETE-claimed 188-205 phases (in
 - ANOMALY - 199 (AgentShield): NO tests/run-all-199.sh exists, so the "5/5 COMPLETE" claim CANNOT be gate-verified. Confirm the roll-up aggregator (or per-sub-plan gates) before trusting the 199 checkbox.
 - 205 caveat: the green run-all-205.sh does NOT include the 205-08 grill test (deferred leg) and the in-flight 205-09 build will add Plurai legs - re-run after both land.
 - 205-08 worktree "dirty file" RESOLVED: it was node_modules (untracked build artifact), not work; never commit, zero merge impact.
+
+### CORRECTION to the audit above (199 anomaly RETRACTED)
+The "199 has no gate" flag was a STALE-WORKTREE false positive: the audit ran in the 205-08 worktree based on 74c7db7e, which predates tests/run-all-199.sh. On current main (e423d5bc) the gate EXISTS and passes: Passed 5 / Failed 0 / Skipped 0. 199 completion IS gate-verified; the handoff "5/5" claim is correct. Lesson: gate-verify on current main HEAD, not a stale worktree base - the other results (189/200/201/202/205) ran against gates that DID exist at 74c7db7e and produced real pass output, so they stand.
