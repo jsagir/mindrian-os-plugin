@@ -18,4 +18,6 @@ echo "== 205-05: two orthogonal decision axes + role_level + NO-CUTE-IRONY (item
 node "$DIR/test-205-decision-axes.cjs"
 echo "== 205-05: frozen-scalar floor (0.70 detent reused, mints nothing) =="
 node "$DIR/test-canon-frozen-scalars-floor.cjs"
+echo "== 205-07: FUSION cross-frame router (assemble/brain_ask/job-test/gate/horizontal + quorum + lateral scaffold) (item 1) =="
+node "$DIR/test-205-fusion-router.cjs"
 echo "ALL 205 TESTS PASS"
