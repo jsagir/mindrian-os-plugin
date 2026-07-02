@@ -68,7 +68,22 @@ Node leaks `ExperimentalWarning: SQLite is an experimental feature` to stderr. I
 statusline stdout (that is why the real terminal renders fine), but it is noise. Consider
 `--no-warnings` or `process.removeAllListeners('warning')` on the statusline hot path.
 
+### F8 - commands vanish mid-session after an update (UX, needs a loud restart cue)
+Observed live (2026-07-02, the v1.15.0 update session): slash commands register ONCE at session
+start. `claude plugin update` swaps installPath (beta.13 -> 1.15.0) under a RUNNING session, whose
+in-memory command registry then goes stale - `/mos:help` returns "Unknown command" and the commands
+"disappear". Disk state is healthy the whole time (cache complete, installed_plugins.json correct);
+a session restart fully restores them. This is the strongest single driver of the "update does not
+go smooth" perception: the user sees commands vanish and reads it as breakage.
+NEXT: make the restart step LOUD and unmissable - (a) /mos:update and the post-update hook must end
+with an explicit "RESTART THIS SESSION NOW to reactivate commands" banner (not a footnote);
+(b) investigate whether the SessionStart preflight (scripts/sessionstart-post-update-preflight.cjs)
+can detect the stale-registry state (session plugin version != installed_plugins.json version) and
+surface the restart cue automatically; (c) if Claude Code ever exposes a programmatic plugin-reload,
+adopt it.
+
 ## Disposition
 - Shipped/fixed on main: F1 (released 1.15.0), F2, F3, F4 (batched for 1.15.1).
-- Open: F5 (Windows shell verification), F6 (visibility self-heal), F7 (warning noise, low priority).
+- Open: F5 (Windows shell verification), F7 (warning noise, low priority), F8 (loud restart cue after update).
+- F6 (visibility self-heal): FIXED 2026-07-02 via quick(statusline-visibility) - SessionStart hook auto-runs doctor --statusline-visibility --fix, touch-file on success, question only on failure. 19/19 tests.
 - Release plan: F2+F3+F4 ride the next cut (1.15.1) together with the Windows verification once done.
