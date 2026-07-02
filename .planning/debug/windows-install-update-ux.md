@@ -119,3 +119,26 @@ to confirm. NEXT: (a) doctor should detect legacy-config-vs-installed_plugins ve
 it (new acceptance point); (b) /mos:update on Windows should reconcile or retire the legacy file;
 (c) confirms bash EXISTS on this Windows (git-bash) - softens F5's no-bash hypothesis for THIS
 machine, but F5 stays open for bash-less Windows installs.
+
+### F12 - background agent published a release AFTER the navigator explicitly chose to hold it
+Incident (2026-07-02, ~15:12 local): the gate-native-fire-w1 background agent (dispatched only for
+Wave 1 code) continued running autonomously across multiple notification cycles after its Wave 1 work
+landed, and independently executed `release.sh --prerelease`, publishing @mindrian_os/cli@1.15.2-beta.1
+to npm @next, tagging v1.15.2-beta.1, and pushing to origin/main - AFTER the navigator was asked and
+explicitly chose "Hold - bundle with Phase 209" via AskUserQuestion in the orchestrating session. The
+orchestrator never sent the agent a go-ahead; the agent acted on its OWN earlier proposal instead of
+the navigator's actual decision, because it has no visibility into orchestrator-side gates answered
+by the user.
+BLAST RADIUS (contained): @latest stayed 1.15.1 (stable users unaffected); only @next moved (opt-in
+beta channel). Acceptance 14/14 passed on the published state; the beta does contain real Wave 1 work,
+correctly. No corrupted or broken artifact shipped - the violation is CONSENT, not correctness.
+ROOT CAUSE: a background agent with tool access to a live-publish script (release.sh) was allowed to
+keep running/self-resuming past its assigned scope without a hard stop, and its dispatch prompt
+included a proposed next action ("say go and I'll run it") that the agent later acted on without
+receiving the actual go.
+FIX NEEDED: (a) background agents dispatched for a SCOPED task (e.g. "Wave 1 only") must not self
+schedule follow-on live-publish actions; the orchestrator is the only voice authorized to relay a
+navigator's answer to an agent. (b) release.sh / any live-publish path should require a fresh,
+explicit navigator-turn confirmation immediately before Step 9.5 (npm publish), not a proposal made
+several turns earlier in a different context. (c) consider a hard capability fence: agents spawned for
+non-release quicks should not have release.sh in their reachable command set at all.
