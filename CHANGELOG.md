@@ -1,7 +1,12 @@
 ## [Unreleased] -- v1.15.2-beta.2 (in progress)
 
-### Added
-- 
+### Fixed
+- **Phase 209 - Shape-F Native Fire, Waves 2-4 (closes the declared-vs-rendered gap).** Completes the gate-native-fire fix plan Wave 1 started (1.15.2-beta.1): every surface that declares a Shape-F Decision Gate now fires the AskUserQuestion card natively, and the check-card-fire.cjs backstop is demoted to telemetry (target: intercepts trend to zero) rather than the mechanism navigators experience.
+  - **Wave 2 (render rollout):** `scripts/stamp-firing-block.cjs` stamped the canonical firing block + AskUserQuestion tool grant into all 97 declaring commands (80 body-stamped, 93 tool-granted, idempotent). `scripts/check-shape-declaration.cjs` gained three declared-implies-wired predicates (wired-body, tool-grant, declared-matches-body), and `scripts/check-render-coverage.cjs` gained a second `.md` keyspace alongside the existing `.cjs` one -- both fail closed. `commands/futures.md`'s F.2/F.1 frontmatter-vs-body drift is reconciled.
+  - **Wave 3 (conversational-gate bridge):** a new SENS-12 sensor (`lib/core/sensors/sensor-room-pick.cjs`) detects a mid-dialogue room resume/switch (the incident's actual transport-less fork -- no command, no engine dial) and injects the room-chooser card envelope. `lib/core/card-fire-sidechannel.cjs` lands the PRIMARY (registry-keyed) side-channel producer at all three gate-mint sites, wiring `check-card-fire.cjs`'s previously-inert PRIMARY detection live. `scripts/session-start` no longer teaches the "Type 1, 2, or 3" ASCII-box anti-pattern it exists to catch.
+  - **Wave 4 (backstop tuning, sequenced last):** `ASCII_BOX_GLYPH_RE` drops the bare U+25A0 false-positive (sanctioned UI vocabulary) and adds multiline-labeled-box and numbered-prose-gate false-negative coverage; the `askFired` detection window widens from the last assistant message to the whole current turn.
+  - **Eval gate:** a new Plurai eval (`lib/core/card-fire-gate.cjs`, `evals/plurai/13-native-fire.csv`) judges card-fired-vs-prose fidelity, following the Phase 196/201 frozen-invariant + `baseline_deferred` pattern.
+  - **Adversarial verification:** `tests/test-209-incident-replay.cjs` replays the incident transcript shape end to end and proves all four RESEARCH-mandated outcomes (native fire, zero intercepts, coverage green, sanctioned glyph safe). `bash tests/run-all-209.sh` = PASS=9 FAIL=0 SKIP=0. Constitutional floor (Stop-block re-prompt, degrade envelope, MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12) verified byte-untouched throughout.
 
 ## [1.15.2-beta.1] - 2026-07-02
 
