@@ -210,7 +210,15 @@ function routesThroughCardEmissionDoor(entry) {
 // ---------------------------------------------------------------------------
 function renderCoverageReport() {
   const reg = loadRegistry();
-  const registryEntries = Array.isArray(reg.entries) ? reg.entries : [];
+  // Phase 209-03 (B3): the registry now carries TWO keyspaces (.cjs entries
+  // keyed on 'entry'/'kind', .md entries keyed on 'surface'/'declared_shape').
+  // This classification loop is .cjs-SPECIFIC (the covered/excluded/gap XOR
+  // invariant + routesThroughCardEmissionDoor predicate do not apply to a .md
+  // entry); filter to .cjs-shaped entries only. The .md keyspace has its own
+  // predicate, checkMdEntries(), called separately by main().
+  const registryEntries = (Array.isArray(reg.entries) ? reg.entries : []).filter(
+    (e) => e && typeof e.kind === 'string'
+  );
 
   const entries = [];
   const errors = [];
@@ -269,6 +277,60 @@ function renderCoverageReport() {
     counts: { covered, excluded, gap },
     errors,
   };
+}
+
+// ---------------------------------------------------------------------------
+// checkMdEntries(mdEntries) -- Phase 209-03 (B3). The fail-closed predicate
+// over the .md keyspace: declared_shape set + wired:false + no valid
+// exclusion is a violation naming the surface (declared-implies-rendered,
+// one plane up from the .cjs check above). Mirrors the .cjs
+// render-only-excluded model: excluded:true REQUIRES a non-empty reason, or
+// the entry counts as unwired anyway (fail closed, never a silent pass).
+// Pure: no I/O, operates on the entries array already produced by
+// generator.buildMdKeyspace() / a loaded registry. Returns { ok, violations,
+// counts: { wired, unwired, excluded } }.
+// ---------------------------------------------------------------------------
+function checkMdEntries(mdEntries) {
+  const entries = Array.isArray(mdEntries) ? mdEntries : [];
+  const violations = [];
+  let wired = 0;
+  let unwired = 0;
+  let excluded = 0;
+
+  for (const e of entries) {
+    if (!e || !e.declared_shape) continue;
+
+    const hasValidExclusion =
+      e.excluded === true && typeof e.reason === 'string' && e.reason.trim().length > 0;
+
+    if (hasValidExclusion) {
+      excluded += 1;
+      continue;
+    }
+
+    if (e.excluded === true && !hasValidExclusion) {
+      violations.push(
+        'RENDER GAP: surface ' + e.surface + ' is excluded:true but carries no reason ' +
+          '(declared-implies-rendered escape hatch requires a non-empty reason)'
+      );
+      unwired += 1;
+      continue;
+    }
+
+    if (e.wired === true) {
+      wired += 1;
+    } else {
+      unwired += 1;
+      violations.push(
+        'RENDER GAP: surface ' + e.surface + ' declares ' + e.declared_shape +
+          ' but is not wired (missing the canonical firing block/AskUserQuestion mention, ' +
+          'or a restrictive allowed-tools list omits the grant); stamp it: ' +
+          'node scripts/stamp-firing-block.cjs, or declare connector.excluded:true + a reason'
+      );
+    }
+  }
+
+  return { ok: violations.length === 0, violations, counts: { wired, unwired, excluded } };
 }
 
 // ---------------------------------------------------------------------------
@@ -422,6 +484,16 @@ function main() {
     // gap entry already pushed a self-naming error into report.errors; fold them in.
     for (const e of report.errors) errs.push(e);
 
+    // Phase 209-03 (B3): the .md keyspace fail-closed check, one plane up.
+    // Reads the SAME loaded registry (not a fresh build) so --check evaluates
+    // exactly what is on disk; the STALE byte-compare above already catches a
+    // registry that no longer reflects the live tree.
+    const mdEntries = (Array.isArray(loadRegistry().entries) ? loadRegistry().entries : []).filter(
+      (e) => e && typeof e.declared_shape === 'string'
+    );
+    const mdReport = checkMdEntries(mdEntries);
+    for (const v of mdReport.violations) errs.push(v);
+
     if (errs.length) {
       console.error(errs.join('\n'));
       console.error('Recovery: regenerate the render registry or wire/exclude the surface: node scripts/build-render-coverage.cjs');
@@ -444,6 +516,23 @@ function main() {
     for (const e of report.errors) console.error(e);
     process.exitCode = 1;
   }
+
+  // Phase 209-03 (B3): print the .md keyspace summary alongside the .cjs one.
+  const mdEntriesDefault = (Array.isArray(loadRegistry().entries) ? loadRegistry().entries : []).filter(
+    (e) => e && typeof e.declared_shape === 'string'
+  );
+  const mdReportDefault = checkMdEntries(mdEntriesDefault);
+  console.log(
+    'render-coverage md-keyspace: ' +
+      mdReportDefault.counts.wired + ' wired, ' +
+      mdReportDefault.counts.excluded + ' excluded, ' +
+      mdReportDefault.counts.unwired + ' unwired (' +
+      mdEntriesDefault.length + ' declaring commands)'
+  );
+  if (mdReportDefault.violations.length) {
+    for (const v of mdReportDefault.violations) console.error(v);
+    process.exitCode = 1;
+  }
 }
 
 if (require.main === module) {
@@ -463,5 +552,7 @@ if (require.main === module) {
     CANONICAL_SHAPES,
     SHAPES_UNDER_ASSERTION,
     SHAPE_RENDERER_MODULE,
+    // Phase 209-03 (B3): the .md keyspace fail-closed predicate.
+    checkMdEntries,
   };
 }

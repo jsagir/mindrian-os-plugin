@@ -149,8 +149,11 @@ const buildCoverage = require(path.join(REPO, 'scripts', 'build-render-coverage.
 const checkCoverage = require(path.join(REPO, 'scripts', 'check-render-coverage.cjs'));
 
 ok('Behavior 6: build enumerates every declaring command as { surface, declared_shape, wired }; .cjs entries unchanged', function () {
+  // .cjs entries are keyed on 'entry'/'kind' (never 'surface') - that is the
+  // discriminator between the two keyspaces in the unified entries array.
   const registryBefore = JSON.parse(fs.readFileSync(path.join(REPO, 'data', 'render-coverage-registry.json'), 'utf8'));
-  const cjsEntriesBefore = registryBefore.entries.filter((e) => String(e.surface || '').endsWith('.cjs'));
+  const cjsEntriesBefore = registryBefore.entries.filter((e) => typeof e.kind === 'string');
+  assert.equal(cjsEntriesBefore.length, 16, 'expected the 16 pre-existing .cjs render entry points');
 
   const tmpDir = writeFixtureTree({
     'wired.md': '---\nname: wired\nhitl_shape: "F.1"\n---\n\n' + STAMP_MARKER + '\nBody.\n',
@@ -166,7 +169,7 @@ ok('Behavior 6: build enumerates every declaring command as { surface, declared_
 
   // Regenerating on the live tree must leave .cjs entries byte-stable.
   const liveEntries = buildCoverage.buildRegistry();
-  const cjsEntriesAfter = liveEntries.entries.filter((e) => String(e.surface || '').endsWith('.cjs'));
+  const cjsEntriesAfter = liveEntries.entries.filter((e) => typeof e.kind === 'string');
   assert.deepStrictEqual(cjsEntriesAfter, cjsEntriesBefore);
 
   fs.rmSync(tmpDir, { recursive: true, force: true });
