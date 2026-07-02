@@ -5,6 +5,8 @@ Canon anchor: docs/MINDRIAN-CANON.md Part 11 R12 + Appendix D entry 25
 Implementing phase: 172 (contextual-invocation-coverage), Plan 02
 Gate hook: scripts/check-cirs-declaration.cjs
 
+See also: docs/HITL-SHAPE-DECLARATION-CONTRACT.md. R12 (this contract: forward-declare a touched surface in the PLAN.md frontmatter) and R16 (born-declare the Shape-F on the shipped surface, across all four surface classes -- commands, agents, pipelines, and qualifying skills) are SIBLING rules, not the same rule. R12 governs the phase-boundary declaration; R16 governs the surface-file declaration. A phase can satisfy R12's forward-declaration and still ship a surface that violates R16's born-shape mandate, and vice versa; both gates run.
+
 ---
 
 ## Why this contract exists
