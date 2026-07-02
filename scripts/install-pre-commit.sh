@@ -34,8 +34,8 @@ if [ -f "$HOOK_PATH" ]; then
   # Idempotency: consider the hook fully installed only when ALL guards wired
   # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard +
   # the Phase 172-13 coverage gates: connector --check + projection --check).
-  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH" && grep -q "check-shape-declaration.cjs --check" "$HOOK_PATH"; then
-    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats + shape-declaration). No changes."
+  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH" && grep -q "check-shape-declaration.cjs --check" "$HOOK_PATH" && grep -q "check-help-coverage.cjs" "$HOOK_PATH"; then
+    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats + shape-declaration + help-coverage). No changes."
     exit 0
   fi
   echo "WARNING: $HOOK_PATH exists but is missing one or more MindrianOS guards."
@@ -182,6 +182,28 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|agents/.*\.md|pip
 fi
 HOOK_TRAILER_SHAPE
   fi
+  if ! grep -q "check-help-coverage.cjs" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_HELP_COVERAGE'
+
+# Quick task 20260702-help-coverage-gate (Canon Part 11 born-listed exclusion) -
+# /mos:help coverage gate (HARD-FAIL). /mos:help promises EVERY user-facing
+# command appears; data/help-groups.json is hand-maintained and had silently
+# drifted (13 commands absent) because this gate shipped in 121.5-07 but was
+# never wired here. When any commands/*.md or data/help-groups.json is staged,
+# re-scan the tree and reject the commit on: a missing help_jtbd, a live
+# user-facing command absent from the manifest, a ghost (grouped/excluded name
+# with no file), or a deprecated:true command not born-listed in
+# deprecated_aliases. Canon Part 8: the check reads only LOCAL frontmatter +
+# the manifest; zero Brain calls, zero network.
+# Recovery: add the command to the correct group in data/help-groups.json, or
+# (if deprecating) list it in deprecated_aliases.
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|data/help-groups\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/scripts/check-help-coverage.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/scripts/check-help-coverage.cjs" || { echo "help-coverage gap -- add the command to data/help-groups.json, or list a deprecation in deprecated_aliases" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_HELP_COVERAGE
+  fi
   # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
   # guards in just before it; otherwise append to the end of the hook.
   LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
@@ -263,10 +285,22 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|agents/.*\.md|pip
     node "$REPO_ROOT/scripts/check-shape-declaration.cjs" --check || { echo "shape-declaration gap -- run: node scripts/backfill-hitl-shape.cjs, or declare hitl_shape/hitl_stages per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason" >&2; exit 1; }
   fi
 fi
+# Quick task 20260702-help-coverage-gate (Canon Part 11 born-listed exclusion) -
+# /mos:help coverage gate (HARD-FAIL). Rejects a commit where a user-facing
+# command is absent from data/help-groups.json, a grouped/excluded name has no
+# file (ghost), or a deprecated:true command is not born-listed in
+# deprecated_aliases. Canon Part 8: LOCAL frontmatter + manifest only.
+# Recovery: add the command to data/help-groups.json, or list a deprecation in
+# deprecated_aliases.
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|data/help-groups\.json)\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-help-coverage.cjs" ]; then
+    node "$REPO_ROOT/scripts/check-help-coverage.cjs" || { echo "help-coverage gap -- add the command to data/help-groups.json, or list a deprecation in deprecated_aliases" >&2; exit 1; }
+  fi
+fi
 HOOK_BODY
 fi
 
 chmod +x "$HOOK_PATH"
-echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats + shape-declaration)."
+echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats + shape-declaration + help-coverage)."
 echo "To bypass for emergency commits: git commit --no-verify"
 echo "  (per Phase 108 social convention: open a canon-amendment PR within 24 hours)"
