@@ -108,12 +108,27 @@ For each recommendation:
 - **Why this sequence:** Cite the relationship type from the graph (e.g., "Explore Domains FEEDS_INTO Analyze Needs with 0.85 confidence -- mapping the landscape first sharpens your customer discovery")
 - **What similar ventures did:** Reference co-occurrence data ("Projects that used Beautiful Question most commonly followed with Explore Domains or Map Unknowns")
 
-### 5. Present Through Larry's Voice
+### 5. Present Through Larry's Voice, Then Close With a Live F.1 Selector
 
-Frame recommendations conversationally. Not a ranked list -- a narrative:
+Frame the reasoning conversationally first. Not a wall of bullets -- a short narrative:
 > "Based on where you are, here's what I'd focus on next -- and the graph backs this up..."
 
-End with: "Want me to start any of these right now?"
+Then CLOSE with a live Shape F.1 (Next Move) selector, never a narrative-only "want me to start
+any of these?" question. The chooser IS the Canon Part 3 Decision Gate; a bare-text list of next
+moves is the "command-driven, not conversation-driven" anti-shape Canon Part 10 argues against.
+
+Use the AskUserQuestion tool to surface the selector. Compose it with the SAME verb/option shape
+`lib/hmi/shape-f1-renderer.cjs` (`renderShapeF1`) already produces and that
+`lib/hmi/selector-dispatcher.cjs` (`appendAskUserQuestionTrailer`) fires -- do NOT hand-build a
+bespoke AskUserQuestion JSON structure. One option per recommended `/mos:` command sequence entry:
+- **label** = the exact `/mos:` command the resolver returned (never typed from memory)
+- **description** = the one-line "why this sequence" reason already computed in step 4 (the
+  FEEDS_INTO relationship + confidence)
+
+Cap the options at the F.1 rule (2-3 ranked moves, up to 5), and append Free-Text LAST as the
+built-in "something else / just tell me more" floor (`renderShapeF1` appends Free-Text
+automatically -- never suppress it). The picked option routes straight to that `/mos:` command in
+the same turn; do not echo the pick and then ask the user to re-type the command.
 
 ## When the Room is Empty
 

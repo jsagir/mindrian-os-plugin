@@ -20,6 +20,16 @@ connector:
   reason: "Utility command. Multi-room registry management the navigator drives deliberately; an operator surface with no problem-state trigger."
 ---
 
+<!--
+Phase 192-01 (SEED-020 menu sweep): the `list` and `where` subcommands close with a live Shape F.1
+AskUserQuestion card (see each subcommand's Step 3), composed with the shape
+`lib/hmi/shape-f1-renderer.cjs` (renderShapeF1) produces and `lib/hmi/selector-dispatcher.cjs`
+(appendAskUserQuestionTrailer) fires -- no bespoke widget. The `new`, `open`, `close`, `archive`,
+`git-setup`, and `git-status` subcommands intentionally KEEP their 2-3 line text footers: they are
+single terminal confirmations, not multi-option next-move choices, so a future sweep should not
+re-flag them as an unexplained gap. The connector.excluded:true block below stays true.
+-->
+
 # /mos:rooms
 
 You are Larry. This command manages multiple project rooms using **Body Shape B (Semantic Tree)** per the UI Ruling System.
@@ -101,12 +111,22 @@ Symbol key:
 
 Compute "switched X ago" from the active room's `last_opened` timestamp relative to now.
 
-### Step 3: Action Footer (Zone 4)
+### Step 3: Action Footer (Zone 4) -- live F.1 selector
 
-Suggest 2-3 grounded next steps:
-- If parked rooms exist: `/mos:rooms open <name>` to switch to a parked room
-- Always: `/mos:rooms new` to create a new room
-- Always: `/mos:rooms where` for quick sanity check
+Do NOT close with a bare bullet list. Render the 2-3 grounded next steps as a live Shape F.1
+(Next Move) AskUserQuestion card so the navigator picks a move instead of re-typing a command.
+Use the AskUserQuestion tool composed with the SAME verb/option shape
+`lib/hmi/shape-f1-renderer.cjs` (`renderShapeF1`) produces and `lib/hmi/selector-dispatcher.cjs`
+(`appendAskUserQuestionTrailer`) fires -- no hand-built JSON.
+
+Options (each label = the command, description = the one-line why):
+- If parked rooms exist: `/mos:rooms open <name>` -- switch to a parked room
+- Always: `/mos:rooms new` -- create a new room
+- Always: `/mos:rooms where` -- quick sanity check
+- Free-Text (appended LAST, automatically) -- "something else / just tell me"
+
+The text bullet list above is preserved as the non-interactive floor for Desktop / Cowork /
+piped / non-TTY callers; the live card is the interactive close on top of it.
 
 ---
 
@@ -437,6 +457,15 @@ Run `bash scripts/room-registry read <active-name>` to get the full registry ent
 ```
 
 Display the path as `~/MindrianRooms/<name>/` (abbreviated with ~). For legacy rooms that haven't migrated, show the actual path (e.g., `./room/`).
+
+### Step 4: Close with the live F.1 selector
+
+The three footer options above (`/mos:status`, `/mos:rooms open`, `/mos:rooms list`) are the
+non-interactive text floor. On top of them, close with a live Shape F.1 (Next Move)
+AskUserQuestion card so the navigator picks a next move rather than re-typing a command. Use the
+AskUserQuestion tool composed with the SAME shape `lib/hmi/shape-f1-renderer.cjs` (`renderShapeF1`)
+produces and `lib/hmi/selector-dispatcher.cjs` (`appendAskUserQuestionTrailer`) fires -- no bespoke
+JSON. Free-Text is appended LAST automatically; never suppress it.
 
 ---
 
