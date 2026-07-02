@@ -86,7 +86,24 @@ Then proceed to Step 1.
 
 Very simply -- there are three ways to use MindrianOS. Pick the one that fits how you think.
 
-Present the three modes with their JTBD statements. These MUST match the session-start mode menu exactly:
+Present the three modes with their JTBD statements as a live Shape F.1 (Next Move) selector, NOT
+only the flat "Type 1, 2, or 3" text block. This mirrors the exact F.1 mechanism already shipped at
+Step 6 below (cite that section instead of re-deriving it): use the AskUserQuestion tool composed
+with the SAME verb/option shape `lib/hmi/shape-f1-renderer.cjs` (`renderShapeF1`) produces and
+`lib/hmi/selector-dispatcher.cjs` (`appendAskUserQuestionTrailer`) fires -- no hand-built JSON.
+
+Three options, one per mode (label = the mode name, description = its one-line JTBD framing below,
+reused verbatim -- do not rewrite the persona-example copy):
+- **Just Talk** -- "Help me think through something -- no strings attached"
+- **Explore + Capture** -- "Help me explore -- and catch the structure as it emerges"
+- **Build a Room** -- "I know what I am building -- let me set up the room first"
+
+The AskUserQuestion Other / free-text slot IS the "just start talking" no-wrong-door floor Canon
+Part 10 requires -- it is first-class, never demoted or suppressed. A bare conversational turn with
+no selector engagement still defaults to Mode 1 exactly as before.
+
+The text card below is preserved as the non-interactive floor for Desktop / Cowork / piped /
+non-TTY callers, and MUST match the session-start mode menu exactly:
 
 ```
 ======
@@ -109,7 +126,8 @@ Type 1, 2, or 3 -- or just start talking (defaults to Mode 1).
 ======
 ```
 
-After showing the menu, walk through each mode with persona-specific examples so the user sees themselves in one of them.
+After the card fires and the navigator picks (or types past it), walk through each mode with
+persona-specific examples so the user sees themselves in one of them.
 
 ### Mode 1: Just Talk
 
