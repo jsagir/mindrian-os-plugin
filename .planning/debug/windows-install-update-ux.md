@@ -105,3 +105,17 @@ v1.15.1 matches the PREFIX of v1.15.0-beta.13-style strings - poll must anchor t
 (or the site should prefer @latest). (d) Hand-typed site surfaces (hero eyebrow, about Today, canon
 version field) were 2 versions stale; reconciled fc073d2; roadmap milestone labels + command-count
 sweep (107 now) still owed - the VERSION-BUMP-CHECKLIST pass.
+
+### F11 - Windows: stale LEGACY plugins/config.json pin broke command registration (ROOT CAUSE for F5-class reports)
+Fresh native-Windows session (C:\Users\jsagi, CC v2.1.198, cache 1.15.1, 107 clean-LF commands,
+installed_plugins.json 1.15.1, enabledPlugins true, statusline rendering v1.15.1 via git-bash) still
+said "No commands match /mos:help". Diagnosis from WSL over /mnt/c: the LEGACY-format
+plugins/config.json (v1 plugin system, installedAt 2026-04-06) still pins mos version "1.8.2" - a
+release that no longer exists in the cache - while the modern installed_plugins.json says 1.15.1.
+Two config generations coexist; the legacy pin poisons command registration while newer subsystems
+(statusline via settings.json, agents) load fine. WSL has NO such legacy file - which is why the same
+plugin works there. FIX APPLIED: config.json pin updated 1.8.2 -> 1.15.1; restart the Windows session
+to confirm. NEXT: (a) doctor should detect legacy-config-vs-installed_plugins version drift and --fix
+it (new acceptance point); (b) /mos:update on Windows should reconcile or retire the legacy file;
+(c) confirms bash EXISTS on this Windows (git-bash) - softens F5's no-bash hypothesis for THIS
+machine, but F5 stays open for bash-less Windows installs.
