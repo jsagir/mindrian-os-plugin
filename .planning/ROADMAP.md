@@ -3622,7 +3622,7 @@ Plans:
 - [ ] 204-03-PLAN.md (wave 2) - Wire Gate B0 + persona-register threading into commands/ignite.md + conversation-mode cross-reference
 - [ ] 204-04-PLAN.md (wave 2) - Plurai eval GATE leg: ignite-branch-gate.cjs + CSV + baseline + parity test
 
-### Phase 205: Larry Loop Elevation (FUSION cross-frame + anti-circular gear-shift) (larry-loop-elevation) - REGISTERED 2026-07-01
+### Phase 205: Larry Loop Elevation (FUSION cross-frame + anti-circular gear-shift) (larry-loop-elevation) - COMPLETE 2026-07-02
 
 **Class:** CODE + ARCH | **Priority:** P0 | **Depends on:** Phase 191 (brain_ask operator), Phase 201 (harness-as-code), Phase 202 (APO lab), Phase 200 (RS discriminator), Phase 196 (Part-8 guardrail + plurai-baseline), Phase 188 (Shape-F gates), Phase 166 (runChain), Phases 143.1/144 (dial), Phase 115 (persona).
 
@@ -3635,15 +3635,15 @@ Plans:
 
 Plans:
 
-- [ ] 205-01-PLAN.md (wave 1) - Routing fence: surface:navigator|internal tag on the CLI registry + MCP router parity (items 0, 0b; D-Q6)
-- [ ] 205-02-PLAN.md (wave 1) - Frame node + SHARES_JOB/ELEVATES_TO additive edges in room.db (D-Q5; FUSION substrate)
-- [ ] 205-03-PLAN.md (wave 1) - SENS-10 circularity sensor + clarify-vs-reframe ranker flip (item 2)
-- [ ] 205-04-PLAN.md (wave 1) - Elevation companion axis alongside the gears + frozen-six drift guard (items 7, 8; has human-verify)
-- [ ] 205-05-PLAN.md (wave 2) - Two orthogonal axes (confidence x initiative) + role_level + NO-CUTE-IRONY (items 4, 5; D-Q4)
-- [ ] 205-06-PLAN.md (wave 2) - Pipelining: SENS-10 exits compose (recon prefix -> material gate -> TELL); GUIDED safe-halt (item 6)
-- [ ] 205-07-PLAN.md (wave 3, BLOCKED-UNTIL 191 + 200) - FUSION cross-frame router + session-end quorum (item 1; D-Q1)
-- [ ] 205-08-PLAN.md (wave 3, BLOCKED-UNTIL 200) - GRILL two arms: red-team + external validation (item 3)
-- [ ] 205-09-PLAN.md (wave 4, BLOCKED-UNTIL 201 + 202) - Plurai eval SUITE, one judge per reach/behavior (item 9)
+- [x] 205-01-PLAN.md (wave 1) - Routing fence: surface:navigator|internal tag on the CLI registry + MCP router parity (items 0, 0b; D-Q6)
+- [x] 205-02-PLAN.md (wave 1) - Frame node + SHARES_JOB/ELEVATES_TO additive edges in room.db (D-Q5; FUSION substrate)
+- [x] 205-03-PLAN.md (wave 1) - SENS-10 circularity sensor + clarify-vs-reframe ranker flip (item 2)
+- [x] 205-04-PLAN.md (wave 1) - Elevation companion axis alongside the gears + frozen-six drift guard (items 7, 8; has human-verify)
+- [x] 205-05-PLAN.md (wave 2) - Two orthogonal axes (confidence x initiative) + role_level + NO-CUTE-IRONY (items 4, 5; D-Q4)
+- [x] 205-06-PLAN.md (wave 2) - Pipelining: SENS-10 exits compose (recon prefix -> material gate -> TELL); GUIDED safe-halt (item 6)
+- [x] 205-07-PLAN.md (wave 3, BLOCKED-UNTIL 191 + 200) - FUSION cross-frame router + session-end quorum (item 1; D-Q1)
+- [x] 205-08-PLAN.md (wave 3, BLOCKED-UNTIL 200) - GRILL two arms: red-team + external validation (item 3)
+- [x] 205-09-PLAN.md (wave 4, BLOCKED-UNTIL 201 + 202) - Plurai eval SUITE, one judge per reach/behavior (item 9)
 
 ## Dependency graph
 
