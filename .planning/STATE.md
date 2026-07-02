@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 195-05-PLAN.md (cross-room umbilical cord)
+stopped_at: Completed 209-02-PLAN.md (B1 firing-block stamp: 80 body-stamped, 93 tool-granted)
 last_updated: "2026-07-02T13:35:26.987Z"
 last_activity: 2026-07-02
 progress:
@@ -15,6 +15,15 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-02) -- PHASE 209 Plan 02 COMPLETE -- B1 firing-block stamp (command plane flipped to wired)
+
+RC-4 closed: the Phase 190 backfill was frontmatter-only, so 99 commands DECLARED hitl_shape but their bodies never instructed the fire and zero granted AskUserQuestion. `scripts/stamp-firing-block.cjs` (idempotent two-part stamp, Canon Part 7 reuse of the backfill-hitl-shape.cjs strip-then-reinsert patcher) closed it in one apply pass.
+
+- **Exact counts:** 99 `hitl_shape:` lines; 97 genuinely declaring (agentshield.md + mva-report.md are `hitl_shape:"none"`); **80 bodies body-stamped** with the canonical firing block + `<!-- mos:firing-block v1 -->` marker; **93 allowed-tools lists tool-granted**; **95 files changed** (78 body+grant, 2 body-only, 15 grant-only); 17 pre-wired bodies (mention AskUserQuestion) correctly skipped for the body stamp.
+- **The marker doubles as plan 03's B3 wired predicate** (designed together). `grantTool` never creates an absent allowed-tools key (T-209-08: absent = unrestricted); `memory-cortex-reach.md` is the one declaring command with no list, left absent on the grant half.
+- **Ground-truth drift recorded (no code deviation):** live body-mention count is 17 not 18 (futures.md body does NOT mention the tool; there is no diagnose.md); futures.md already grants the tool in frontmatter so it was grant-skipped; its `hitl_shape:"F.2"` line is byte-unchanged (F.2/F.1 body drift left for plan 03 B2).
+- **Verification:** test 15/15 exit 0; `stamp --check` exit 0 (idempotent no-op on live tree); `check-shape-declaration --check` exit 0 (128 declared, 5 skill-exempt); `check-render-coverage` exit 0; no em-dashes; no deletions. TDD: 3 commits `068e46f2` (RED) `00f758ee` (GREEN) `b21eafa0` (stamp). SUMMARY: `.planning/phases/209-shape-f-native-fire/209-02-SUMMARY.md`. NEXT: 209-03 (B2+B3 declared-implies-wired gate ON green + futures.md reconcile).
 
 ## (2026-07-02) -- PHASE 200 COMPLETE -- RS Engine Spine + Corpus Quality (ledger flip)
 

@@ -3639,7 +3639,7 @@ Scope = Waves 2-4 of the research plan (Wave 1 shipped as quick(gate-native-fire
 Plans:
 
 - [x] 209-01-PLAN.md (wave 1) - E3+E4 (folds unshipped E2): slotContext threading + binding/contract serialization at the engine arm + emitBindingGate trailer/footer/AskUserQuestion guidance
-- [ ] 209-02-PLAN.md (wave 1) - B1: idempotent two-part stamp (canonical firing block + allowed-tools grant) across the 99 declaring commands
+- [x] 209-02-PLAN.md (wave 1) - B1: idempotent two-part stamp (canonical firing block + allowed-tools grant) across the 99 declaring commands (80 body-stamped, 93 tool-granted, 95 files)
 - [ ] 209-03-PLAN.md (wave 2) - B2+B3: declared-implies-wired predicates + .md render-coverage keyspace, gate ON green after B1; futures.md F.2/F.1 reconcile
 - [ ] 209-04-PLAN.md (wave 1) - Eval GATE: card-fire-gate.cjs frozen invariants + 13-native-fire.csv + 209-baseline.json (baseline_deferred) + parity test + run-all-209.sh
 - [ ] 209-05-PLAN.md (wave 2) - E5: room-pick sensor on the SENS spine + renderRoomChooserCard envelope + imperative trailer (the incident's fork)
