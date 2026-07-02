@@ -96,6 +96,18 @@
             "statusMessage": "Draining graph-derivation queue..."
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/agentshield-sessionstart-scan.cjs\"",
+            "timeout": 8000,
+            "async": false,
+            "statusMessage": "Scanning plugin surfaces for security drift..."
+          }
+        ]
       }
     ],
     "PreCompact": [
