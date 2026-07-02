@@ -3622,6 +3622,17 @@ Plans:
 - [ ] 204-03-PLAN.md (wave 2) - Wire Gate B0 + persona-register threading into commands/ignite.md + conversation-mode cross-reference
 - [ ] 204-04-PLAN.md (wave 2) - Plurai eval GATE leg: ignite-branch-gate.cjs + CSV + baseline + parity test
 
+### Phase 209: Shape-F Native Fire (shape-f-native-fire) - REGISTERED 2026-07-02 - **DECLARED IMPLIES RENDERED**
+
+**Class:** CODE | **Priority:** P1 (closes the declared-vs-rendered gap; the backstop hook currently corrects what should fire natively) | **Depends on:** 188 (F.0-F.9 vocabulary), 190 (declarations, R16), 192 (selector machinery); research plan .planning/research/2026-07-02-gate-native-fire-fix.md (5-lens fan-out, 25 causes adversarially verified 2026-07-02).
+
+Scope = Waves 2-4 of the research plan (Wave 1 shipped as quick(gate-native-fire-w1)):
+- **Wave 2 - render rollout:** stamp the canonical firing block + AskUserQuestion tool grant into the ~86 declared-but-unwired command bodies, REUSING the 190 backfill generator machinery (Part 7); extend scripts/check-render-coverage.cjs to the full declaring keyspace so "declared implies rendered" fails closed (the R16 pattern, one plane up).
+- **Wave 3 - conversational-gate bridge:** the engine emits READY-TO-FIRE card payloads instead of discarding rendered.contract at intent-classifier.cjs:1008 (RC-3); room-pick detector; fix session-start "Type 1, 2, or 3" anti-exemplar.
+- **Wave 4 - backstop as telemetry:** check-card-fire.cjs stays the constitutional floor; its intercept count becomes a success metric with target zero.
+- **Eval (GATE):** ships a Plurai eval per the ground rule (card-fired-vs-prose fidelity) + local parity gate.
+- **Canon:** Parts 3 (Shape F), 6 (dogfooding - the backstop caught Larry AND the orchestrator same-day), 7, 11, 12. No em-dashes.
+
 ### Phase 205: Larry Loop Elevation (FUSION cross-frame + anti-circular gear-shift) (larry-loop-elevation) - COMPLETE 2026-07-02
 
 **Class:** CODE + ARCH | **Priority:** P0 | **Depends on:** Phase 191 (brain_ask operator), Phase 201 (harness-as-code), Phase 202 (APO lab), Phase 200 (RS discriminator), Phase 196 (Part-8 guardrail + plurai-baseline), Phase 188 (Shape-F gates), Phase 166 (runChain), Phases 143.1/144 (dial), Phase 115 (persona).
