@@ -8,7 +8,7 @@ hitl_why: "The 30-second brief closes with a numbered option or free-text choice
 argument-hint: (no args -- reads pending state from UserPromptSubmit detection)
 serves_jtbd: ["explore"]
 teaching: "When you have just typed a venture sentence and want a brief in under a minute, /mos:mva-brief runs the 6-agent fan-out and deploys a shareable deck. The reward-before-investment surface of Phase 118."
-allowed-tools: Bash
+allowed-tools: Bash, AskUserQuestion
 interactive_first_reward: instant_brief
 # --- Phase 144.1 connector frontmatter ---
 connector:
@@ -23,6 +23,16 @@ connector:
   plan_gated: false
   web_scope: null
 ---
+
+<!-- mos:firing-block v1 -->
+At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a
+bare numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce
+the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion
+tool in this same response so the navigator picks a move instead of re-typing a command. Any text
+list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:mva-brief
 

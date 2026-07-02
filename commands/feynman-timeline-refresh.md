@@ -8,7 +8,7 @@ argument-hint: "[--all | --section <slug>]"
 serves_jtbd: ["validate-idea", "audit-room"]
 teaching: "When a section's FEYNMAN.md timeline feels stale, /mos:feynman-timeline-refresh rebuilds the auto-section from the memory event log. Human-authored prose stays byte-preserved."
 disable-model-invocation: false
-allowed-tools: Bash(node *)
+allowed-tools: Bash(node *), AskUserQuestion
 kind: utility
 frameworks: []
 produces: "room/*/FEYNMAN.md"
@@ -19,6 +19,16 @@ connector:
   excluded: true
   reason: "Lifecycle command. Regenerates the FEYNMAN.md auto-timeline; a maintenance refresh fired by the session-start cascade or manual run, not a contextual reach."
 ---
+
+<!-- mos:firing-block v1 -->
+At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a
+bare numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce
+the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion
+tool in this same response so the navigator picks a move instead of re-typing a command. Any text
+list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:feynman-timeline-refresh
 

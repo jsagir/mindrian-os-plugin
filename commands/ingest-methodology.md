@@ -14,6 +14,7 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+  - AskUserQuestion
 # --- Phase 172-12 connector frontmatter (CIRS R1 WIRED / R2 born-wired) ---
 # /mos:ingest-methodology is the maintainer surface for the CIRS born-wired
 # pipeline itself (lib/core/methodology-ingest.cjs ingestPlan step-5). It is WIRED
@@ -38,6 +39,16 @@ connector:
   web_scope: null
   surface: F.1
 ---
+
+<!-- mos:firing-block v1 -->
+At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a
+bare numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce
+the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion
+tool in this same response so the navigator picks a move instead of re-typing a command. Any text
+list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:ingest-methodology
 

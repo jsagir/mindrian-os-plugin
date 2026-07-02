@@ -12,6 +12,7 @@ teaching: "When you want to see or set how Larry should render right now, /mos:o
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 disable-model-invocation: false
 # --- Phase 143.3 connector frontmatter ---
 connector:

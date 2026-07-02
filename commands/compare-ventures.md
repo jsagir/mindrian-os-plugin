@@ -18,6 +18,7 @@ allowed-tools:
   - mcp__mindrian-brain__brain_query
   - mcp__mindrian-brain__read_neo4j_cypher
   - mcp__mindrian-brain__brain_search
+  - AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true
@@ -31,6 +32,16 @@ connector:
   plan_gated: false
   web_scope: null
 ---
+
+<!-- mos:firing-block v1 -->
+At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a
+bare numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce
+the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion
+tool in this same response so the navigator picks a move instead of re-typing a command. Any text
+list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:compare-ventures
 

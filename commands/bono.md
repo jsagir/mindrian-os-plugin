@@ -23,6 +23,7 @@ allowed-tools:
   - Glob
   - WebSearch
   - WebFetch
+  - AskUserQuestion
 # --- Phase 164-05 connector frontmatter (D-164-S4: the GENERATED front door) ---
 # --- /mos:bono rides the FROZEN hats reach with a NEW bono sub_mode. It is NEVER
 #     a 7th reach: the inter-hat debate IS a Six Thinking Hats surface, so it

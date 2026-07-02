@@ -17,11 +17,22 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true
   reason: "Lifecycle command. Inspects HMI / dial render status; an internal diagnostics surface the maintainer runs deliberately, not a contextual reach."
 ---
+
+<!-- mos:firing-block v1 -->
+At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a
+bare numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce
+the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion
+tool in this same response so the navigator picks a move instead of re-typing a command. Any text
+list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:hmi-status
 

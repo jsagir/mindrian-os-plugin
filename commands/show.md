@@ -17,6 +17,7 @@ allowed-tools:
   - Read
   - Bash
   - Glob
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -8,7 +8,7 @@ hitl_why: "Candidate options are surfaced as an independent set to weigh in any 
 argument-hint: <1|2|3> [<sha8>]
 serves_jtbd: ["explore"]
 teaching: "When the 3-option footer shows after an MVA brief, /mos:mva-option routes your pick (refine / build a room / iterate) into the right next move. The hand-off after the first reward."
-allowed-tools: Bash
+allowed-tools: Bash, AskUserQuestion
 interactive_first_reward: --none (scripting only)
 # --- Phase 144.1 connector frontmatter ---
 connector:
@@ -23,6 +23,16 @@ connector:
   plan_gated: false
   web_scope: null
 ---
+
+<!-- mos:firing-block v1 -->
+At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a
+bare numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce
+the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion
+tool in this same response so the navigator picks a move instead of re-typing a command. Any text
+list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:mva-option <N> [<sha8>]
 

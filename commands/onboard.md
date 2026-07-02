@@ -16,6 +16,7 @@ allowed-tools:
   - Write
   - Bash
   - WebFetch
+  - AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

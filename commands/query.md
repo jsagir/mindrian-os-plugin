@@ -14,11 +14,22 @@ teaching: "Deprecated alias. Use /mos:graph to ask natural-language questions of
 allowed-tools:
   - Read
   - Bash
+  - AskUserQuestion
 # --- Phase 172-16 CIRS R1 exclude (Canon Part 11; deprecated-redirect, navigator-directed 2026-06-23) ---
 connector:
   excluded: true
   reason: "Deprecated - superseded by /mos:graph for natural-language room queries; scheduled removal v1.14.0. Retained only for compatibility, so it carries no problem-state trigger."
 ---
+
+<!-- mos:firing-block v1 -->
+At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a
+bare numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce
+the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion
+tool in this same response so the navigator picks a move instead of re-typing a command. Any text
+list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:query
 

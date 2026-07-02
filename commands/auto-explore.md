@@ -10,6 +10,7 @@ teaching: "In the moment a new artifact lands, /mos:auto-explore kicks off the s
 allowed-tools:
   - "Bash"
   - "Read"
+  - AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

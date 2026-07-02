@@ -9,7 +9,7 @@ argument-hint: ""
 serves_jtbd: ["audit-room"]
 teaching: "When you want the plugin's own venture room to reflect your latest edits immediately, /mos:dogfood-flush drains the PostToolUse queue and regenerates the Live (auto) section in STATE.md. The automatic SessionStart drain handles the steady-state case."
 disable-model-invocation: false
-allowed-tools: Bash(node *)
+allowed-tools: Bash(node *), AskUserQuestion
 kind: utility
 frameworks: []
 produces: "~/MindrianRooms/mindrian/STATE.md"
@@ -20,6 +20,16 @@ connector:
   excluded: true
   reason: "Lifecycle command. A dog-fooding maintenance flush the maintainer runs deliberately; an internal upkeep action with no navigator problem-state trigger."
 ---
+
+<!-- mos:firing-block v1 -->
+At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a
+bare numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce
+the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion
+tool in this same response so the navigator picks a move instead of re-typing a command. Any text
+list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:dogfood-flush
 

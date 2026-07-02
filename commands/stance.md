@@ -11,6 +11,7 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
   - Bash
+  - AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

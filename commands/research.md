@@ -24,6 +24,7 @@ allowed-tools:
   - Agent
   - WebSearch
   - WebFetch
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

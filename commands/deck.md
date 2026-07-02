@@ -18,6 +18,7 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+  - AskUserQuestion
 # --- Phase 143.3 connector frontmatter (born WIRED, CIRS R1/R2) ---
 connector:
   connects_to_spine: true

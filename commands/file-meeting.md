@@ -15,6 +15,7 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+  - AskUserQuestion
 # --- Phase 165 connector (close the file-meeting orphan; D-165-07) ---
 # The meeting-filing event dispatches the blind-spot trigger sensors. Rides the
 # EXISTING 'contradiction' reach (a filed meeting that contradicts a confident
