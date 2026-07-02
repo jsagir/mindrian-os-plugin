@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "ci-baseline",
+  "phase": "203-synthetic-expert-skill",
+  "directive": "Directive 2: Plurai is THE acceptance gate, and it judges TWO surfaces",
+  "runtime_loaded": false,
+  "method": "hand-labeled",
+  "baseline_deferred": true,
+  "synthetic_only": true,
+  "judge_model": "fable",
+  "deferred_note": "Genuine hosted Plurai precision/recall baseline deferred, same reason as 200-baseline.json / 201-baseline.json: the Plurai eval is an interactive multi-turn MCP-tool flow (start_evaluator plus ask_user model=fable choice plus ScheduleWakeup plus get_results) that cannot run non-interactively in the sequential executor. Per the plan DEGRADE path the rows on BOTH surfaces are hand-labeled deterministically from the Label column, and the two local parity gates reproduce every label exactly (parity tests tests/test-203-construction-gate.cjs and tests/test-203-behavior-gate.cjs, each 100 percent). The live /evals:eval fable judge is DEFERRED and must be re-run interactively after /reload-plugins to replace this with a hosted Plurai baseline; it is never silently skipped.",
+  "canon_contract": "Phase 203 Directive 1 (fan-out-composed genesis) + Directive 2 (two-surface acceptance gate); Canon Part 7 (reuse), Part 8 (Plurai synthetic/offline only)",
+  "surfaces": [
+    {
+      "surface": "A",
+      "name": "construction-fidelity",
+      "source_csv": "evals/plurai/10-synthetic-expert-construction.csv",
+      "local_gate": "lib/core/synthetic-expert-construction-gate.cjs",
+      "judge_prompt": "Given a synthetic-expert GENESIS descriptor (hat, domain, subdomain, beautiful_question, research_approach, lens_count, distinct_source_count), classify it faithful (a valid de Bono hat, a coherent domain and subdomain, a GENUINE beautiful-question derived from the lens, a research-approach that cites the multi-lens fan-out, at least two lenses, and more than one distinct source) or hollow (any breach). A hollow construction is a costume and fails independently of how it later answers.",
+      "label_semantics": { "faithful": "pass", "hollow": "fail" },
+      "precision": 1,
+      "recall": 1,
+      "accuracy": 1,
+      "f1": 1,
+      "row_count": 24,
+      "faithful_count": 12,
+      "hollow_count": 12,
+      "local_gate_accuracy": 1
+    },
+    {
+      "surface": "B",
+      "name": "behavioral-fidelity",
+      "source_csv": "evals/plurai/11-synthetic-expert-behavior.csv",
+      "local_gate": "lib/core/synthetic-expert-behavior-gate.cjs",
+      "judge_prompt": "Given a synthetic INVOKED-skill transcript (hat, domain, prompt, response, in_lens, grounded, off_role), classify it faithful (in-character reasoning from the hat and domain lens, grounded in the RS expert-graph it reads, answering in-role, with no Part-8 leak and no banned dash) or costume (any breach: out-of-lens drift, an ungrounded claim, an off-role answer, a Part-8 leak, or a banned dash).",
+      "label_semantics": { "faithful": "pass", "costume": "fail" },
+      "precision": 1,
+      "recall": 1,
+      "accuracy": 1,
+      "f1": 1,
+      "row_count": 24,
+      "faithful_count": 12,
+      "costume_count": 12,
+      "local_gate_accuracy": 1
+    }
+  ],
+  "phase_gate": "BOTH surfaces must pass. A costume that only answers one prompt well FAILS surface A (construction) independently of surface B (behavior). The phase closes on both local parity gates green plus this baseline_deferred recorded, OR both live via /evals:eval (fable). Plurai-scored, not grep-scored: Plan 01 genesis iterates until both are green."
+}
