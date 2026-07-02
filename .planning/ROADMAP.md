@@ -3634,7 +3634,7 @@ Scope = Waves 2-4 of the research plan (Wave 1 shipped as quick(gate-native-fire
 - **Eval (GATE):** ships a Plurai eval per the ground rule (card-fired-vs-prose fidelity) + local parity gate.
 - **Canon:** Parts 3 (Shape F), 6 (dogfooding - the backstop caught Larry AND the orchestrator same-day), 7, 11, 12. No em-dashes.
 
-**Plans:** 5/7 plans executed
+**Plans:** 6/7 plans executed
 
 Plans:
 
@@ -3643,7 +3643,7 @@ Plans:
 - [x] 209-03-PLAN.md (wave 2) - B2+B3: declared-implies-wired predicates + .md render-coverage keyspace, gate ON green after B1; futures.md F.2/F.1 reconcile
 - [x] 209-04-PLAN.md (wave 1) - Eval GATE: card-fire-gate.cjs frozen invariants + 13-native-fire.csv + 209-baseline.json (baseline_deferred) + parity test + run-all-209.sh
 - [x] 209-05-PLAN.md (wave 2) - E5: room-pick sensor on the SENS spine + renderRoomChooserCard envelope + imperative trailer (the incident's fork)
-- [ ] 209-06-PLAN.md (wave 2) - H3+H4: PRIMARY side-channel producers x3 + consumer wire; session-start MODE_MENU/'Other rooms:' anti-exemplar fix
+- [x] 209-06-PLAN.md (wave 2) - H3+H4: PRIMARY side-channel producers x3 + consumer wire; session-start MODE_MENU/'Other rooms:' anti-exemplar fix
 - [ ] 209-07-PLAN.md (wave 3) - H1+H2: regex FP/FN tuning + WR-06 current-turn window + the adversarial incident-replay verification
 
 ### Phase 205: Larry Loop Elevation (FUSION cross-frame + anti-circular gear-shift) (larry-loop-elevation) - COMPLETE 2026-07-02
