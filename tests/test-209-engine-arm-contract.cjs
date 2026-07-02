@@ -148,6 +148,82 @@ function engineDecisionFixture() {
 })();
 
 // ---------------------------------------------------------------------------
+// Test 5 (E4): emitBindingGate carries zones.footer, the AskUserQuestion marker,
+// the BINDING line, and names AskUserQuestion in its guidance sentence.
+//
+// emitBindingGate writes its envelope to stdout as JSON; capture stdout for the
+// duration of the call and parse the additionalContext back out.
+// ---------------------------------------------------------------------------
+function captureStdout(fn) {
+  const chunks = [];
+  const orig = process.stdout.write;
+  process.stdout.write = function (chunk) { chunks.push(String(chunk)); return true; };
+  let ret;
+  try {
+    ret = fn();
+  } finally {
+    process.stdout.write = orig;
+  }
+  return { ret: ret, out: chunks.join('') };
+}
+
+(function testE4BindingGateTrailer() {
+  process.stdout.write('Test 5 (E4): emitBindingGate carries footer + trailer + AskUserQuestion guidance\n');
+  const args = {
+    best: { name: 'Pricing Room', nameMatch: true, entityMatches: 2 },
+    scored: [
+      { name: 'Pricing Room', score: 0.8 },
+      { name: 'Strategy Room', score: 0.4 },
+    ],
+    sealedRooms: [],
+    roomDir: null,
+    sessionId: null,
+  };
+  const captured = captureStdout(function () { return ic.emitBindingGate(args); });
+  ok(captured.ret === true, 'emitBindingGate returns true on a clean render');
+
+  let additionalContext = '';
+  try {
+    const env = JSON.parse(captured.out.trim().split('\n').pop());
+    additionalContext = (env.hookSpecificOutput && env.hookSpecificOutput.additionalContext) || '';
+  } catch (_e) {
+    additionalContext = captured.out;
+  }
+  ok(additionalContext.indexOf('[AskUserQuestion contract:') !== -1, 'additionalContext carries the marker');
+  ok(additionalContext.indexOf('[BINDING:') !== -1, 'additionalContext carries the BINDING line');
+  ok(additionalContext.indexOf('AskUserQuestion') !== -1, 'guidance names the AskUserQuestion tool');
+  ok(additionalContext.indexOf('remember for this session') !== -1, 'guidance keeps the session-toggle sentence');
+})();
+
+// ---------------------------------------------------------------------------
+// Test 6 (E4 degrade): a renderShapeF8 fault still returns false (legacy
+// advisory degrade unchanged). Force the fault by stubbing the renderer.
+// ---------------------------------------------------------------------------
+(function testE4Degrade() {
+  process.stdout.write('Test 6 (E4 degrade): a render fault returns false\n');
+  const rendererPath = path.join(__dirname, '..', 'lib', 'hmi', 'shape-f8-renderer.cjs');
+  const renderer = require(rendererPath);
+  const orig = renderer.renderShapeF8;
+  renderer.renderShapeF8 = function () { throw new Error('simulated F.8 fault'); };
+  let ret = null;
+  try {
+    const captured = captureStdout(function () {
+      return ic.emitBindingGate({
+        best: { name: 'Pricing Room', nameMatch: true, entityMatches: 2 },
+        scored: [{ name: 'Pricing Room', score: 0.8 }],
+        sealedRooms: [],
+        roomDir: null,
+        sessionId: null,
+      });
+    });
+    ret = captured.ret;
+  } finally {
+    renderer.renderShapeF8 = orig;
+  }
+  ok(ret === false, 'a renderShapeF8 fault degrades to false (legacy advisory)');
+})();
+
+// ---------------------------------------------------------------------------
 
 if (failures > 0) {
   process.stdout.write('\n' + failures + ' assertion(s) FAILED\n');
