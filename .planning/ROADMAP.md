@@ -3622,7 +3622,7 @@ Plans:
 - [ ] 204-03-PLAN.md (wave 2) - Wire Gate B0 + persona-register threading into commands/ignite.md + conversation-mode cross-reference
 - [ ] 204-04-PLAN.md (wave 2) - Plurai eval GATE leg: ignite-branch-gate.cjs + CSV + baseline + parity test
 
-### Phase 209: Shape-F Native Fire (shape-f-native-fire) - REGISTERED 2026-07-02 - **DECLARED IMPLIES RENDERED**
+### Phase 209: Shape-F Native Fire (shape-f-native-fire) - COMPLETE 2026-07-02 - **DECLARED IMPLIES RENDERED**
 
 **Class:** CODE | **Priority:** P1 (closes the declared-vs-rendered gap; the backstop hook currently corrects what should fire natively) | **Depends on:** 188 (F.0-F.9 vocabulary), 190 (declarations, R16), 192 (selector machinery); research plan .planning/research/2026-07-02-gate-native-fire-fix.md (5-lens fan-out, 25 causes adversarially verified 2026-07-02).
 
@@ -3634,7 +3634,7 @@ Scope = Waves 2-4 of the research plan (Wave 1 shipped as quick(gate-native-fire
 - **Eval (GATE):** ships a Plurai eval per the ground rule (card-fired-vs-prose fidelity) + local parity gate.
 - **Canon:** Parts 3 (Shape F), 6 (dogfooding - the backstop caught Larry AND the orchestrator same-day), 7, 11, 12. No em-dashes.
 
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 
@@ -3644,7 +3644,9 @@ Plans:
 - [x] 209-04-PLAN.md (wave 1) - Eval GATE: card-fire-gate.cjs frozen invariants + 13-native-fire.csv + 209-baseline.json (baseline_deferred) + parity test + run-all-209.sh
 - [x] 209-05-PLAN.md (wave 2) - E5: room-pick sensor on the SENS spine + renderRoomChooserCard envelope + imperative trailer (the incident's fork)
 - [x] 209-06-PLAN.md (wave 2) - H3+H4: PRIMARY side-channel producers x3 + consumer wire; session-start MODE_MENU/'Other rooms:' anti-exemplar fix
-- [ ] 209-07-PLAN.md (wave 3) - H1+H2: regex FP/FN tuning + WR-06 current-turn window + the adversarial incident-replay verification
+- [x] 209-07-PLAN.md (wave 3) - H1+H2: regex FP/FN tuning + WR-06 current-turn window + the adversarial incident-replay verification
+
+**Outcome:** the declared-vs-rendered gap is closed end to end. Wave 2 (B1/B2/B3) stamped and gated all 97 declaring commands wired (0 unwired); Wave 3 (E5/H3/H4) put a transport on the incident's actual conversational fork and made PRIMARY registry-keyed detection live at all three gate-mint sites; Wave 4 (H1/H2) tuned the backstop only after the native path validated, sequenced LAST per the LOCKED wave order. `bash tests/run-all-209.sh` -> PASS=9 FAIL=0 SKIP=0 (the phase-complete condition); the adversarial incident-replay test (209-07 Task 3) proves the native card fires before any backstop involvement. Constitutional floor (Stop-block, degrade envelope, MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12) verified byte-untouched throughout. Load-bearing correction discovered mid-phase and folded in rather than assumed: E2 (contract serialization) had NOT actually shipped in quick(gate-native-fire-w1) despite CONTEXT/RESEARCH claiming it did - closed in 209-01 at the same seam as E3.
 
 ### Phase 205: Larry Loop Elevation (FUSION cross-frame + anti-circular gear-shift) (larry-loop-elevation) - COMPLETE 2026-07-02
 

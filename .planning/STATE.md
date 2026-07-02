@@ -1,20 +1,29 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15.0
-milestone_name: "The Cockpit" milestone -- the UX/dial train
+milestone_name: The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 209-02-PLAN.md (B1 firing-block stamp: 80 body-stamped, 93 tool-granted)
-last_updated: "2026-07-02T13:35:26.987Z"
+stopped_at: Completed 209-07-PLAN.md (Phase 209 Shape-F Native Fire COMPLETE, all 7 plans, run-all-209 PASS=9 FAIL=0 SKIP=0)
+last_updated: "2026-07-02T00:00:00Z"
 last_activity: 2026-07-02
 progress:
-  total_phases: 16
-  completed_phases: 8
-  total_plans: 34
-  completed_plans: 34
-  percent: 50
+  total_phases: 17
+  completed_phases: 9
+  total_plans: 41
+  completed_plans: 41
+  percent: 53
 ---
 
 # Project State
+
+## (2026-07-02) -- PHASE 209 COMPLETE -- Shape-F Native Fire (all 7 plans, run-all-209 PASS=9 FAIL=0 SKIP=0)
+
+The declared-vs-rendered gap is closed end to end. Wave 1 (01/02/04): E3+E4 engine-arm/F.8-gate seam fixes (folding the never-shipped E2), the B1 command-plane firing-block stamp (99 declaring commands), and the mandatory Plurai eval gate. Wave 2 (03/05/06): B2+B3 made "declared implies wired" fail-closed and green (97 declaring commands, 0 unwired); E5 put a transport (the SENS-12 room-pick sensor) on the incident's actual conversational fork; H3 wired PRIMARY registry-keyed detection live at all three gate-mint sites + H4 fixed the session-start anti-exemplar. Wave 3 (07, deliberately LAST per the LOCKED wave order): H1+H2 tuned the backstop regex/window only after the native path validated, plus the phase's adversarial incident-replay verification (4 lettered assertions, all pass).
+
+- **Load-bearing correction folded in, not assumed:** E2 (engine-arm contract serialization) had NOT actually shipped in quick(gate-native-fire-w1) despite CONTEXT/RESEARCH claiming it did - discovered via pattern-mapping before planning, closed in 209-01 at the same seam as E3.
+- **Constitutional floor verified byte-untouched throughout:** Stop-block re-prompt, degrade envelope, MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12.
+- **Verification:** `bash tests/run-all-209.sh` = PASS=9 FAIL=0 SKIP=0; `bash tests/run-all-179.sh` = 12/12 unchanged; `check-render-coverage`/`check-shape-declaration` both exit 0; no em-dashes.
+- SUMMARYs: `.planning/phases/209-shape-f-native-fire/209-0{1..7}-SUMMARY.md`. ROADMAP.md heading flipped REGISTERED -> COMPLETE. NEXT: cut stable v1.15.2 release.
 
 ## (2026-07-02) -- PHASE 209 Plan 02 COMPLETE -- B1 firing-block stamp (command plane flipped to wired)
 
