@@ -2,7 +2,7 @@
 name: opportunities
 description: Discover and manage grants in the Opportunity Bank
 help_jtbd: "Browse banked opportunities by HSI score."
-argument-hint: [list|add|scan]
+argument-hint: "[list|add|scan]"
 body_shape: E (Action Report)
 hitl_shape: "F.8"
 hitl_why: "Opportunities are surfaced across multiple ADD signals as an independent any-order set."

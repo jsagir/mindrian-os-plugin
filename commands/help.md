@@ -2,7 +2,7 @@
 name: help
 description: "Browse the 4-lane command map: question-tabs, arrow to a command, run it (text view with --list)"
 help_jtbd: "Tab across the 4 lanes, arrow to a command, run it. The command menu as a selector."
-argument-hint: [command-name | --list]
+argument-hint: "[command-name | --list]"
 body_shape: F.1
 hitl_shape: "F.1"
 hitl_why: "Help offers one next move on where to go next."

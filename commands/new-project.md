@@ -5,7 +5,7 @@ help_jtbd: "Start a new room in ~/MindrianRooms/ from a conversation."
 body_shape: E
 hitl_shape: "F.1"
 hitl_why: "Creating a project offers one next move to confirm and enter it."
-argument-hint: [name]
+argument-hint: "[name]"
 serves_jtbd: ["explore"]
 teaching: "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey."
 # Per docs/reward-before-investment-rule.md line 56-58 remediation: first sentence -> Instant Brief pipeline (this phase's deliverable). Room creation is option 2 of the 3-option footer (Phase 119 wires fully in beta.18).

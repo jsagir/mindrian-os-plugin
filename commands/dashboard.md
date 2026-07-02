@@ -8,7 +8,7 @@ hitl_why: "The dashboard offers one next move on what to act on."
 serves_jtbd: ["audit-room", "prepare-pitch"]
 teaching: "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting."
 ui_reference: skills/ui-system/SKILL.md
-argument-hint: [live|stop|open]
+argument-hint: "[live|stop|open]"
 allowed-tools:
   - Bash
   - Read

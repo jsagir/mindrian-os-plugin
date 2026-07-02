@@ -2,7 +2,7 @@
 name: funding
 description: Track grant opportunities through their lifecycle
 help_jtbd: "See the grants and funding paths matching your room."
-argument-hint: [list|add|update]
+argument-hint: "[list|add|update]"
 body_shape: B (Semantic Tree)
 hitl_shape: "F.8"
 hitl_why: "Grant-lifecycle candidates are surfaced as an independent set the navigator triages in any order."

@@ -2,7 +2,7 @@
 name: rooms
 description: List, switch, or archive project rooms
 help_jtbd: "List, switch, archive, or organize rooms in ~/MindrianRooms/."
-argument-hint: [list|switch|archive|park]
+argument-hint: "[list|switch|archive|park]"
 body_shape: B (Semantic Tree)
 hitl_shape: "F.1"
 hitl_why: "Room switch or archive offers a single next move to pick one room."

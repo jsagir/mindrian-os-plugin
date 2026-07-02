@@ -2,7 +2,7 @@
 name: room
 description: View, launch, or navigate the Data Room
 help_jtbd: "Open your current room's view in this terminal."
-argument-hint: [overview|<section>]
+argument-hint: "[overview|<section>]"
 body_shape: C
 hitl_shape: "F.1"
 hitl_why: "Room navigation offers one next move from the current room."

@@ -2,7 +2,7 @@
 name: stance
 description: Flip Larry's conversational stance (research / tell-act / ask / redteam)
 help_jtbd: "Flip Larry's conversational stance with one reversible cycle-and-confirm pick."
-argument-hint: []
+argument-hint: "[]"
 body_shape: F.0
 hitl_shape: F.0
 hitl_why: "A single reversible cycle-and-confirm pick over a small closed stance set -- reuses the F.0 minimum-viable gate rather than a 4-way F.1 pick, because shape-f0-renderer.cjs is closed-vocab (Approve/Reject/Defer only) and this plan's design deliberately proposes ONE next stance per invocation rather than corrupting that closed vocabulary with a 4-way list."

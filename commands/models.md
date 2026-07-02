@@ -2,7 +2,7 @@
 name: models
 description: View or switch model-routing profiles
 help_jtbd: "Browse and apply 25 methodology models."
-argument-hint: [list|set|show]
+argument-hint: "[list|set|show]"
 body_shape: C (Information Card)
 hitl_shape: "F.1"
 hitl_why: "The routing profile offers a single next-move selection."
