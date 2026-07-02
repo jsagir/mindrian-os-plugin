@@ -63,11 +63,14 @@ const resB = closerMod.runGovernanceGate({
   db: {},
   nav: navB,
   byUser: 'jonathan',
-  candidates: [{ candidate_id: 'claim:hot', kind: 'claim', confidence: 0.85, target_section: 'strategy/hot' }],
+  candidates: [{ candidate_id: 'claim:hot', kind: 'claim', confidence: 0.85, target_section: 'strategy/hot', layer: 'within-session' }],
   accepted: ['claim:hot'],
 });
 ok('(b) gate ok', resB.ok === true);
-ok('(b) exactly one edge written', navB.edges.length === 1);
+// 189-04 WHO: an accepted candidate now writes REMEMBERED_AS + ATTRIBUTED_TO (two
+// edges), so count by type instead of a bare total.
+ok('(b) exactly one REMEMBERED_AS edge written', navB.edges.filter((e) => e.edge_type === 'REMEMBERED_AS').length === 1);
+ok('(b) exactly one ATTRIBUTED_TO edge written (WHO)', navB.edges.filter((e) => e.edge_type === 'ATTRIBUTED_TO').length === 1);
 ok('(b) the edge is REMEMBERED_AS', navB.edges[0].edge_type === 'REMEMBERED_AS');
 ok('(b) source_id is the candidate id', navB.edges[0].source_id === 'claim:hot');
 ok('(b) properties carry filed_as (defaults INFORMS)', navB.edges[0].properties.filed_as === 'INFORMS');
@@ -83,7 +86,7 @@ const resC = closerMod.runGovernanceGate({
   nav: navC,
   byUser: 'jonathan',
   candidates: [
-    { candidate_id: 'claim:keep', kind: 'claim', confidence: 0.9, target_section: 'strategy/keep' },
+    { candidate_id: 'claim:keep', kind: 'claim', confidence: 0.9, target_section: 'strategy/keep', layer: 'within-session' },
     { candidate_id: 'claim:drop', kind: 'claim', confidence: 0.9, target_section: 'strategy/drop' },
   ],
   accepted: ['claim:keep'],
@@ -101,7 +104,7 @@ const resD = closerMod.runGovernanceGate({
   db: {},
   nav: navD,
   byUser: 'jonathan',
-  candidates: [{ candidate_id: 'claim:promote', kind: 'claim', confidence: 0.95, target_section: 'strategy/promote', truth_state: 'confirmed' }],
+  candidates: [{ candidate_id: 'claim:promote', kind: 'claim', confidence: 0.95, target_section: 'strategy/promote', truth_state: 'confirmed', layer: 'within-session' }],
   accepted: ['claim:promote'],
 });
 ok('(d) gate ok', resD.ok === true);
@@ -116,7 +119,7 @@ const navD2 = makeNavSpy();
 closerMod.runGovernanceGate({
   db: {},
   nav: navD2,
-  candidates: [{ candidate_id: 'claim:nobyuser', kind: 'claim', confidence: 0.95, target_section: 'strategy/x', truth_state: 'confirmed' }],
+  candidates: [{ candidate_id: 'claim:nobyuser', kind: 'claim', confidence: 0.95, target_section: 'strategy/x', truth_state: 'confirmed', layer: 'within-session' }],
   accepted: ['claim:nobyuser'],
 });
 ok('(d) NEVER promotes when byUser absent', navD2.promotions.length === 0);
