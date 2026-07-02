@@ -2759,7 +2759,7 @@ function buildAcceptanceChecklist(ctx) {
       // surface aborts here. Canon Part 8: both --check gates regenerate in
       // memory from LOCAL sources; zero Brain / network.
       id: 'coverage-gate',
-      label: 'connector + orchestration-projection + render-coverage gates pass (no dark surface)',
+      label: 'connector + orchestration-projection + render-coverage + shape-declaration gates pass (no dark surface)',
       severity: 'blocker',
       applies_to: ['pre-tag', 'full'],
       run: async function () {
@@ -2775,6 +2775,13 @@ function buildAcceptanceChecklist(ctx) {
           // GAP (a reachable Decision-Gate surface not routed through the SEED-020
           // card-emission door) is a blocker here too -- HARD-FAIL, never WARN (R-5).
           { id: 'render', script: 'check-render-coverage.cjs' },
+          // Phase 190-04 (SFD-04/SFD-05, Canon Part 11 R16): the born-declared-shape
+          // gate rides the SAME doctor --acceptance organ as the three gates above.
+          // A surface across the four declaring classes (commands, agents, pipelines,
+          // qualifying skills) that lacks its Shape-F declaration AND lacks the
+          // connector.excluded skill exemption is a blocker here too -- HARD-FAIL,
+          // never WARN (R9). The gate enumerates the tree at run time; no hardcoded count.
+          { id: 'shape-declaration', script: 'check-shape-declaration.cjs' },
         ];
         const results = [];
         for (const g of gates) {

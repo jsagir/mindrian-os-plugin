@@ -305,6 +305,17 @@ if ! node "$PLUGIN_DIR"/scripts/build-corpus-stats.cjs --check; then
   echo "  Recovery: repoint the live surface to the three live magnitudes, or run: node scripts/build-corpus-stats.cjs"
   exit 1
 fi
+# Phase 190-04 (SFD-04/SFD-05, Canon Part 11 R16): the born-declared-shape gate rides
+# the SAME release surface as the CIRS gates. A surface across the four declaring
+# classes (commands, agents, pipelines, qualifying skills) that lacks a Shape-F
+# declaration (hitl_shape/hitl_why or hitl_stages) AND lacks the connector.excluded
+# skill exemption is a HARD ABORT before any version mutation -- HARD-FAIL, never WARN
+# (R9). The gate walks the tree at run time; it never trusts a hardcoded surface count.
+if ! node "$PLUGIN_DIR/scripts/check-shape-declaration.cjs" --check; then
+  echo -e "${RED}ABORT: shape-declaration gate failed -- a surface lacks its born Shape-F declaration (or a no-fork skill lacks its connector.excluded exemption).${NC}"
+  echo "  Recovery: node scripts/backfill-hitl-shape.cjs, or hand-author the declaration per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason"
+  exit 1
+fi
 echo -e "${GREEN}  coverage gates passed (no dark surface)${NC}"
 
 # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---

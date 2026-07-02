@@ -34,8 +34,8 @@ if [ -f "$HOOK_PATH" ]; then
   # Idempotency: consider the hook fully installed only when ALL guards wired
   # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard +
   # the Phase 172-13 coverage gates: connector --check + projection --check).
-  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH"; then
-    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats). No changes."
+  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH" && grep -q "check-shape-declaration.cjs --check" "$HOOK_PATH"; then
+    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats + shape-declaration). No changes."
     exit 0
   fi
   echo "WARNING: $HOOK_PATH exists but is missing one or more MindrianOS guards."
@@ -159,6 +159,29 @@ if git diff --cached --name-only | grep -qE '^(CLAUDE\.md|\.claude/includes/moat
 fi
 HOOK_TRAILER_CORPUS
   fi
+  if ! grep -q "check-shape-declaration.cjs --check" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_SHAPE'
+
+# Phase 190-04 (SFD-04/SFD-05, Canon Part 11 R16) - born-declared-shape gate
+# (HARD-FAIL). The fourth CIRS-family tripwire: when any invocable surface across
+# the FOUR declaring classes (commands/*.md, agents/*.md, pipelines/*/CHAIN.md,
+# skills/*/SKILL.md) is staged, re-scan the tree and reject the commit unless every
+# surface DECLARES its Shape-F (hitl_shape/hitl_why or hitl_stages) OR, for a
+# no-fork skill, carries the CIRS connector.excluded:true + reason exemption. A
+# surface silently missing both a Shape-F declaration and a CIRS exclusion can no
+# longer reach merge. A WARN-only shape gate is the 143.x/144.1 regression with
+# extra steps (R9); this is HARD-FAIL (exit 1), never WARN. Canon Part 8: the check
+# reads only LOCAL frontmatter; zero Brain calls, zero network.
+# Recovery: run node scripts/backfill-hitl-shape.cjs, hand-author the missing
+# declaration per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add
+# connector.excluded:true + reason if a new skill reaches no fork.
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|agents/.*\.md|pipelines/.*/CHAIN\.md|skills/.*/SKILL\.md)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/scripts/check-shape-declaration.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/scripts/check-shape-declaration.cjs" --check || { echo "shape-declaration gap -- run: node scripts/backfill-hitl-shape.cjs, or declare hitl_shape/hitl_stages per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_SHAPE
+  fi
   # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
   # guards in just before it; otherwise append to the end of the hook.
   LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
@@ -232,10 +255,18 @@ if git diff --cached --name-only | grep -qE '^(CLAUDE\.md|\.claude/includes/moat
     node "$REPO_ROOT/scripts/build-corpus-stats.cjs" --check || { echo "corpus-stats drift / stale literal -- run: node scripts/build-corpus-stats.cjs" >&2; exit 1; }
   fi
 fi
+# Phase 190-04 (SFD-04/SFD-05, Canon Part 11 R16) - born-declared-shape gate (HARD-FAIL).
+# Recovery: node scripts/backfill-hitl-shape.cjs, or declare hitl_shape/hitl_stages per
+# docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason.
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|agents/.*\.md|pipelines/.*/CHAIN\.md|skills/.*/SKILL\.md)\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-shape-declaration.cjs" ]; then
+    node "$REPO_ROOT/scripts/check-shape-declaration.cjs" --check || { echo "shape-declaration gap -- run: node scripts/backfill-hitl-shape.cjs, or declare hitl_shape/hitl_stages per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason" >&2; exit 1; }
+  fi
+fi
 HOOK_BODY
 fi
 
 chmod +x "$HOOK_PATH"
-echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats)."
+echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats + shape-declaration)."
 echo "To bypass for emergency commits: git commit --no-verify"
 echo "  (per Phase 108 social convention: open a canon-amendment PR within 24 hours)"
