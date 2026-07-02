@@ -31,6 +31,12 @@
       "name": "/mos:admin"
     },
     {
+      "id": "command:/mos:agentshield",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:agentshield"
+    },
+    {
       "id": "command:/mos:analyze-needs",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -1532,6 +1538,12 @@
           "SENS-05"
         ]
       }
+    },
+    {
+      "id": "command:/mos:mva-report",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:mva-report"
     },
     {
       "id": "command:/mos:new-project",
