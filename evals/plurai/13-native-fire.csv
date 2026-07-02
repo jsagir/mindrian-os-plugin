@@ -1,0 +1,26 @@
+"id","declared_gate","card_fired","output_text","trailer_present","Label","note"
+"nf-01","true","true","Rendering the room picker now.","true","pass","card fired at declared gate, clean"
+"nf-02","true","true","Here are your options, pick one.","true","pass","card fired, ordinary lead-in text"
+"nf-03","true","true","[1] a [2] b (recap only, tool already fired)","true","pass","card fired despite bracket-shaped recap text"
+"nf-04","false","false","status: ■ pending review","false","pass","bare U+25A0 glyph outside a gate, sanctioned UI vocabulary"
+"nf-05","false","false","The dashboard shows a ■ next to blocked items.","false","pass","another bare-glyph non-gate case"
+"nf-06","false","false","Just chatting, no decision needed right now.","false","pass","no gate declared, plain prose"
+"nf-07","false","false","Sure, that sounds like a solid plan going forward.","false","pass","no gate declared, conversational close"
+"nf-08","true","false","1. Option A
+2. Option B
+3. Option C","true","violation","hand-rolled numbered prose list at a declared gate"
+"nf-09","true","false","1) Room A
+2) Room B","true","violation","numbered list with paren style at a declared gate"
+"nf-10","true","false","[1] Option A [2] Option B","true","violation","same-line labeled ASCII box at a declared gate"
+"nf-11","true","false","[1] Option A
+[2] Option B
+[3] Option C","true","violation","multiline labeled ASCII box at a declared gate"
+"nf-12","true","false","Type 1, 2, or 3 to choose a room.","true","violation","the forbidden session-start MODE_MENU exemplar"
+"nf-13","true","false","Sounds good, want me to continue with that room?","true","violation","trailer present, card absent, no menu shape at all"
+"nf-14","true","false","Let me know which one you prefer.","true","violation","trailer present, card absent, bare prose question"
+"nf-15","true","false","I recommend room A, but let me know your pick.","false","violation","declared gate, no trailer, no card, still a floor violation"
+"nf-16","true","false","[1] a [2] b","false","violation","ascii box at gate even without a trailer in context"
+"nf-17","false","false","[1] a [2] b","false","violation","ascii box glyph is a violation even outside a declared gate"
+"nf-18","false","true","Card fired proactively ahead of a soft signal.","false","pass","card fired with no gate declared, still a pass"
+"nf-19","true","true","Type 1, 2, or 3 to choose a room.","true","pass","card fired even though the text also resembles the menu exemplar"
+"nf-20","false","false","Multiple ■ ■ glyphs in a status row, no menu shape.","false","pass","repeated bare glyphs still sanctioned outside a gate"
