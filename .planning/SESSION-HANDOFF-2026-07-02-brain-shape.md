@@ -41,3 +41,12 @@ This is NOT in the body above; a parallel session built it in its own isolated w
 - **What:** GRILL two-arm engine (SCOPE-3). Arm A LIVE (`brain_consult` bias red-team, Part-8 fenced via part8-egress-guard, content-stripped). Arm B SCAFFOLDED behind a single 200-gate seam (`BLOCKED_UNTIL_200` + `is200FanVerifyLive`, grill-engine.cjs:210/225), clean-degrades (no fabricated verdict/evidence, no throw). Mints no new reach. `test-205-grill-engine` 12/12 green standalone.
 - **Merge note:** low conflict - `grill-engine.cjs` is a new-file add; does NOT touch the dial/navigation-engine surfaces the `phase-205-eva` merge warns about.
 - **Deferred (named):** (1) wire `tests/test-205-grill-engine.cjs` into `tests/run-all-205.sh` (one-line leg, held back for per-file staging). (2) Arm B live-wiring needs 4 fixes (fable SEAM-ADJUST verdict, recorded verbatim in `205-08-SUMMARY.md`): adversarialVerify adapter (no Phase-200 counterpart - only `runCellFanout` async at `lib/core/bono/cell-fanout.cjs:195`), async ripple through armB/runGrill, hat/opts call-shape mapping, real MCP-ask + Part-8 guard on the live path. (3) `205-08` ROADMAP checkbox flip. (4) one non-gitignored dirty file in the worktree - confirm before merge.
+
+## GATE VERIFICATION AUDIT (read-only, appended post-handoff - flip stale headings safely)
+
+Independently re-ran the phase gates for the COMPLETE-claimed 188-205 phases (in the 205-08 worktree at cd8c2d1a). Use this to flip stale REGISTERED headings without re-verifying:
+- GREEN, completion confirmed - safe to flip heading to COMPLETE: 189 (Passed 5 / Failed 0 / Skipped 2), 200 (PASS 6/0), 201 (PASS 5/0), 202 (PASS 3/0), 205 (existing aggregator ALL PASS).
+- STALE HEADINGS (token says REGISTERED, phase is gate-green COMPLETE): at least 189, 202 (and 201 heading truncated but gate-green). Body lines already say COMPLETE; only the "### Phase N: ... - REGISTERED" token lags.
+- ANOMALY - 199 (AgentShield): NO tests/run-all-199.sh exists, so the "5/5 COMPLETE" claim CANNOT be gate-verified. Confirm the roll-up aggregator (or per-sub-plan gates) before trusting the 199 checkbox.
+- 205 caveat: the green run-all-205.sh does NOT include the 205-08 grill test (deferred leg) and the in-flight 205-09 build will add Plurai legs - re-run after both land.
+- 205-08 worktree "dirty file" RESOLVED: it was node_modules (untracked build artifact), not work; never commit, zero merge impact.
