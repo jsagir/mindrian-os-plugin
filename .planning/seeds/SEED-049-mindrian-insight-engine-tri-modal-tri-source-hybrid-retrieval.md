@@ -66,6 +66,22 @@ The constraint PART 2 names - "real BERT needs torch/transformers/GPU, can't run
 
 **Canonical example + the full-matrix shape (PART 4, 2026-07-02).** The clearest eureka in the source: `"circadian rhythm optimization"` (sleep science) vs `"manufacturing shift scheduling"` (factories) - LSA ~0 (no shared words), BERT high (both optimize around biological timing) -> big gap -> RS "Circadian-Optimized Manufacturing." Nobody connected them because the two fields never read each other's journals. Mechanically: build TWO N x N similarity matrices (lsa, bert), take `bert[i][j] - lsa[i][j]` over all pairs, keep `|diff| > 0.30`, sort by disagreement (biggest first), top-50 become RS-001..RS-050. Everything else (clustering, convergence hubs, breakthrough scoring) is scoring layered on that one core. NOTE - the source asserts a THIRD time that "BERT needs Python/transformers, no JS equivalent." That recurring assumption, across every module, is EXACTLY the barrier SEED-049 removes: transformers.js runs BERT-class embeddings in Node via ONNX (no Python, no torch, no GPU). The one thing every module says is impossible in JS is the thing the engine makes routine.
 
+## The 6-stage pipeline (correction, navigator 2026-07-02: the modules are STAGES, not repetition)
+
+The six modules are NOT one primitive shown six times - they are the six ORDERED STAGES of the Eureka pipeline, each a distinct lens on the shared differential, run by the Phase-201 harness with the local graph as the accumulating state:
+
+```
+M1 DECOMPOSE      break the domain into a 4-level hierarchy of systems/components (nodes)
+M2 REVERSE-SALIENT which component lags the system + bert-lsa cross-domain pairs
+M3 LIFECYCLE       map a product/process lifecycle; inefficiency -> opportunity per stage
+M4 TECH-EXTENSION  where else can this capability be sold (tech -> new industry)
+M5 SYNTHESIS       cross-domain pattern recognition: convergence hubs (graph centrality),
+                   innovation clusters (DBSCAN), paradigm-shift candidates
+M6 PORTFOLIO       score on weighted criteria; tier_1/2/3 by return x risk; the path forward
+```
+
+Same `differential` primitive at the core of M2/M4/M5; different STAGE and different lens at each. The prior "saturation" read pattern-matched on the recurring formula and under-read the structural variation - which is exactly the `LSA high, BERT low` error the engine exists to catch (surface vocabulary matched, meaning differed). Recorded here so the pipeline architecture is not lost: the Eureka Engine is the substrate; these six are the ordered lenses the harness pipelines over the graph.
+
 ## The lens family + the pipeline-as-graph-state (navigator PART 3, 2026-07-02)
 
 Module 4 (technology extension / market adjacency) is another LENS on the same RS differential, pointed at INDUSTRIES: "where else could this technology be sold?" `extractCoreTech -> findCurrentApplications -> findSemanticNeighbors (the RS gap) -> scoreMarketOpportunity -> buildStrategy`. The canonical eureka: an ML model for molecule-filter adhesion is the SAME math as drug-protein binding -> a $45B pharma adjacency. "Same math, new industry."
@@ -153,6 +169,72 @@ The Eureka Engine is not a feature - it is the realization of a decades-long que
 Live validation (a pharma venture-studio session, operators flying BLIND in a domain they did not understand): the engine ran deep-research + whitespace + reverse-salient and surfaced a real cross-domain target-combination opportunity ranked #1 of 25, each with its process + references. The methodology works in production. Its stated purpose: "not to give a solution - better questions, and a path forward." That is the hedged-offer + Decision-Gate framing (Part 12): the eureka is a QUESTION the human judges, not a verdict - the LarryReacts surfacing, confirmed by real use. The graph-is-the-product claim was stated verbatim ("we navigate the relationships between nodes and edges; the relationships create the queries; deep research files back as more nodes and edges") = the graph<->web moat loop from live use. Meeting microknowledge extraction (an agent flags critical-path items onto the graph with a question mark) is another compounding write-back source.
 
 The domain expert's critique = the EXACT gap the measured, graph-framed differential closes: the analysis had framed the differential over SURFACE entities (the drugs) instead of the STRUCTURAL ones (the pathways/targets and their synergistic signals) - a plausible hypothesis, not yet a defensible one. REQUIREMENT this adds (D6): the eureka differential MUST be framed by the DOMAIN GRAPH's entity TYPES - it operates over the right nodes (mechanisms, not surface tokens). This is precisely why the local typed graph must frame the analysis and generic keyword retrieval cannot: the eureka is a NON-OBVIOUS hypothesis (bert-high, lsa-low, "connections you need to hypothesize, not findable online") - the reverse-salient signal, framed on the RIGHT entities. Measured semantics turn a plausible eureka into a defensible one; domain-entity framing turns a generic one into a specific one.
+
+## What the Brain (Neo4j) already knows - the REMOTE leg is largely BUILT (2026-07-02)
+
+Queried the Brain teaching graph (brain_ask + brain_search, Part-8 generic-methodology only). It does not merely know the framework - it already carries the SCHEMA the Eureka Engine needs, which resolves D6 (domain-entity framing) concretely and supplies the REMOTE leg.
+
+The framework is canonical and grounded: Reverse Salient (Hughes - a component fallen behind / out of phase, limiting the whole system's growth), White Space Mapping (overlooked opportunities found by identifying system limits), and - the key one - Intersectional Innovation, defined verbatim as "novel approaches that COMBINE elements from DIFFERENT domains to address reverse salients in unexpected ways" - that IS the cross-domain eureka, in canon. Related: Blue Ocean ERRC / Four Actions, Meaning Innovation (Verganti), Life-Cycle Analysis, Red Teaming. Problem-to-framework map: ill-defined -> jtbd, domain, reverse_salient, bono. "Eureka Moment" and "Reverse Salient" are first-class Framework nodes - the engine composes existing teaching, mints no new theory.
+
+The Brain's Neo4j schema (mirror it LOCALLY in room.db; Part 8 = generic STRUCTURE only, never user data):
+
+```cypher
+// node types
+ReverseSalient   // bottleneck / lagging component; the HSI discovery pipeline
+CrossDomainInnovation, DomainBridge   // cross-domain connections
+LeveragePoint    // high-impact intervention point
+Bottleneck, Concept (~8000), Community (39)
+// relationships
+(:Concept)-[:CO_OCCURS]->(:Concept)        // 123K edges
+(:Concept)-[:BELONGS_TO]->(:Community)      // GraphRAG-Lite community detection
+(:ReverseSalient)-[:BRIDGES]->(:Domain)     // the cross-domain HSI bridge
+(:ReverseSalient)<-[:ADDRESSES]-(:LeveragePoint)
+```
+
+Three design unlocks:
+1. **D6 resolved - the domain-entity types ARE the Brain's PWS node types.** The local graph mints `ReverseSalient` / `DomainBridge` / `LeveragePoint` / `CrossDomainInnovation` typed nodes (mirroring the Brain), so the differential is framed over the RIGHT entities (mechanisms, not surface tokens) - exactly the pharma-validation critique.
+2. **The graph-native differential = a `BRIDGE` across non-co-occurring communities.** The Brain detects 39 communities over 123K `CO_OCCURS` edges; a cross-domain eureka is a connection that BRIDGES two communities that do NOT co-occur - the graph twin of "BERT-high, LSA-low." So the engine core can run over GRAPH STRUCTURE (community detection + bridge-finding via node2vec / centrality), not only text pairs. The Brain proves this at 123K-edge scale (GraphRAG-Lite, `tools/graphrag_lite.py`).
+3. **The methodology CHAIN is the lens pipeline, taught (FEEDS_INTO):** ill-defined -> reverse_salient -> `LeveragePoint` (ADDRESSES) -> intersectional-innovation opportunity (ERRC / JTBD / Four-Actions). The Eureka Engine runs the Brain's sequence.
+
+Part 8 confirmed live: `brain_ask` returned a GUIDED DirectiveEnvelope - it asked "what decision does applying Eureka Moment inform?" and named the framework, returning generic structure + a reframing question with ZERO user data. The REMOTE leg is Part-8-safe by construction.
+
+Net: the REMOTE leg of the tri-source engine is NOT to-be-invented - the Brain already carries the schema, the community-detection substrate, and the FEEDS_INTO methodology chain. The Eureka Engine mirrors this structure LOCALLY (room.db typed nodes) and fuses LOCAL + this REMOTE + ONLINE.
+
+## CAPSTONE: the Eureka Engine x LarryReacts x Phases 188-205 (fable synthesis, 2026-07-02)
+
+The punchline: the Eureka Engine is roughly 80% ALREADY SHIPPED across the recent phases. It is not a new build - it is a UNIFICATION + one encoder swap + the LarryReacts wiring. Grounded (fable recon, file:line):
+
+ALREADY SHIPPED (the engine's parts, scattered across phases):
+- **The differential primitive:** `lib/core/rs-differential-scorer.cjs:107-109` - `DIFF_FLOOR 0.3 / LSA_FLOOR 0.2 / BERT_FLOOR 0.2`. The `bert-lsa>0.30` core is in the codebase, in CJS. Phase 200 explicitly defers the transformers.js encoder swap to "the embedding-spine decision D-200-1" = THIS engine's phase.
+- **The write-back / moat loop:** 201-03 `runGraphRefine` (`lib/core/graph-refine-loop.cjs`) - propose -> fact-check -> refine through the navigation chokepoint.
+- **The injection sockets (205 pre-drilled them):** `ctx.lateralEngine` (`lib/core/fusion-router.cjs:283`, degrades `blocked_until_phase_200_rs`) and `BLOCKED_UNTIL_200` (`lib/core/grill-engine.cjs:210`, with a 4-fix live-wiring spec written). FUSION + GRILL are waiting for this engine.
+- **The cross-room eureka:** a one-signal upgrade to 195's FCM-09 emitter (`lib/core/cross-room-aggregator.cjs:835`, cosine -> differential).
+- **The governance / egress / Brain rails:** 188/190 Shape-F + the declaration mandate; 189 the HITL chokepoint basket (the write-back human gate); 196 `classify()` Part-8 guard (the online/remote fence); 191 DirectiveEnvelope (the Brain-advisory remote leg).
+
+USES / USED-BY (bidirectional - "their way and this way"):
+
+| Phase | Eureka Engine USES it | ...is USED-BY / enhanced by the engine |
+|---|---|---|
+| 188/190 Shape-F + mandate | surfaces the eureka through F.x gates; declares its `hitl_shape` | Shape-F gains a eureka trigger source |
+| 189 HITL governance | the human gate on eureka write-back (Part 9 truth-claim) | 189's chokepoint basket gets the eureka proposals |
+| 191 Brain advisor | the REMOTE leg (DirectiveEnvelope, generic handles) | Brain advice is scored by the differential |
+| 195 cross-room memory | cross-room eurekas (FCM-09 differential) | 195's emitter gains the bridge signal |
+| 196 Part-8 guard | the fence the online/remote legs pass | reused, not re-risked |
+| 200 RS spine | the differential (rs-differential-scorer) + corpus + the D-200-1 encoder hook | 200's RS lens becomes a consumer |
+| 201 harness + Ralph | the fan-out (research) + the 201-03 write-back | the harness pipelines the lenses |
+| 202 APO lab | tunes the thresholds (0.3/0.2/0.2), the RRF k, reach-firing from telemetry | the engine's calibration loop |
+| 203 synthetic expert | reads the eureka-enriched graph as a persona | fan-out-built from the engine's graph |
+| 205 FUSION / GRILL | the `lateralEngine` + GRILL sockets = eureka lenses; the sensors fire it | FUSION/GRILL become eureka lenses |
+
+THE EUREKA-REACH (the LarryReacts wiring - the last missing piece):
+- A sensor (SENS-11 "cross-domain-differential / eureka") fires when the graph yields a high-differential BRIDGE (two nodes in non-co-occurring communities, bert-high / lsa-low), reusing the SENS-02 lagging-component substrate + the community-bridge detector (the Brain's `BRIDGES` idiom).
+- It routes through the FROZEN `deep_research` reach (mints NO new reach_id; Canon Part 7/11) and surfaces as a Shape-F Decision Gate (a single F.1 offer, or F.5 when it branches).
+- Larry CONTEXTUALIZES it as a HEDGED offer (Part 12, offer-never-assert, matching FUSION 205-07): "X and Y are the same idea nobody has connected - here is the opportunity and the transfer direction (structural_transfer vs semantic_implementation). Want to pursue it?" The graph supplies the two bridged nodes + the differential + the direction; the human judges (the "better questions, path forward" doctrine confirmed in the live validation).
+- Part 8: only generic handles surface; local content stays local.
+
+BIND THE EUREKA TO DISCUSSION (navigator, 2026-07-02): a surfaced RS / whitespace / bridge is not offered raw - existing surfaces BIND it into structured discussion before the navigator commits. The DOMAIN EXTRACTOR (`lib/core/navigation/typed-domain.cjs` + `/mos:explore-domains` + `/mos:analyze-needs`, the Module-1 decompose) grounds the eureka in the domain hierarchy at the RIGHT entity level (D6). BONO's PERSONA CREATOR (Phase 164 `/mos:bono` + `/mos:persona` Six-Hats + `/mos:rs-experts` synthetic panel (F.8) + the Phase-203 synthetic expert) spins up synthetic domain-experts who DEBATE the RS / whitespace - stress-testing it the way the pharma domain expert did in the live validation (the drugs-vs-pathways critique), but AUTOMATICALLY, before the navigator sees it. So the eureka arrives already domain-grounded and already persona-debated - a defensible opportunity with multiple perspectives, not a raw score. BONO is both a PRODUCER (its research fan-out feeds the differential) and a CONSUMER (it debates the surfaced eureka) - the tightest two-way coupling; GRILL (205-08) validates, BONO debates, the domain extractor grounds.
+
+NET: build ONE thing - the encoder swap (transformers.js, D-200-1) that makes the shipped differential MEASURED, plus the SENS-11 eureka-reach and the graph-framed (Brain-schema) node types - and the engine LIGHTS UP across everything already built: the differential (200), the write-back (201-03), the FUSION/GRILL sockets (205), the cross-room signal (195), the domain extractor + BONO persona-debate (164/203), the governance rails (188/189/190/191/196), and the Brain's schema + community substrate (191). The Eureka Engine is the connective spine OF Phases 188-205, not beside them.
 
 ## Provenance - how we got here (navigator: "this is very important", 2026-07-02)
 
