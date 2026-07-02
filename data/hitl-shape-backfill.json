@@ -1,0 +1,777 @@
+{
+  "commands/lean-canvas.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "The nine canvas blocks are an independent any-order set the navigator fills in whatever sequence fits, so it renders an unordered basket."
+  },
+  "commands/mullins.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "The seven Mullins domains are examined independently in any order, an unordered basket of assessment jobs."
+  },
+  "commands/validate.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Each need is scored on importance and satisfaction independently, an any-order basket of scoring jobs."
+  },
+  "commands/score-innovation.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "The six HSI components are graded independently, an unordered basket of scoring jobs."
+  },
+  "commands/analyze-needs.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Candidate needs are surfaced as an independent set the navigator triages in any order."
+  },
+  "commands/user-needs.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "User needs are gathered as an any-order set with no ordering constraint between them."
+  },
+  "commands/value-proposition.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "The value-map and customer-profile fits are assessed as an independent set, an unordered basket."
+  },
+  "commands/explore-domains.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Candidate domains are mapped as an independent territory set the navigator ranks in any order."
+  },
+  "commands/find-analogies.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Cross-domain analogies are returned as an unordered set of candidates to pick from in any order."
+  },
+  "commands/map-unknowns.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Knowns and unknowns are laid out as an independent matrix set with no fixed order."
+  },
+  "commands/challenge-assumptions.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Each assumption is stress-tested independently, an any-order basket of challenges."
+  },
+  "commands/analyze-systems.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "System elements and leverage points are surfaced as an independent set examined in any order."
+  },
+  "commands/find-bottlenecks.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Reverse-salient bottlenecks are listed as an independent set the navigator prioritizes in any order."
+  },
+  "commands/systems-thinking.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Stocks, flows, and loops are surfaced as an independent set with no ordering constraint."
+  },
+  "commands/macro-trends.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "The PEST factors are scanned independently, an unordered basket of trend jobs."
+  },
+  "commands/deep-grade.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "The artifact is graded on independent components against the calibrated set, an any-order basket."
+  },
+  "commands/grade.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "The six grading components are scored independently, an unordered basket of scoring jobs."
+  },
+  "commands/find-connections.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Candidate connections across the room are returned as an independent set to pick from in any order."
+  },
+  "commands/whitespace.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Coverage gaps are surfaced as an independent set examined in any order."
+  },
+  "commands/research.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Research subquestions fan out independently and are verified as an any-order basket."
+  },
+  "commands/scout.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Sentinel scans run as an independent set of watches with no ordering constraint."
+  },
+  "commands/radar.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Tracked capabilities are surfaced as an independent watch set the navigator reviews in any order."
+  },
+  "commands/memory.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "The three memory layers are queried and written as an independent set of operations in any order."
+  },
+  "commands/file-meeting.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Extracted nuggets are routed as an independent set the navigator files in any order."
+  },
+  "commands/reanalyze.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Meetings are re-mined into an independent set of findings examined in any order."
+  },
+  "commands/opportunities.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Opportunities are surfaced across multiple ADD signals as an independent any-order set."
+  },
+  "commands/funding.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Grant-lifecycle candidates are surfaced as an independent set the navigator triages in any order."
+  },
+  "commands/mva-option.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Candidate options are surfaced as an independent set to weigh in any order before a pick."
+  },
+  "commands/organize.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Filing and tidy jobs are surfaced as an independent set with no ordering constraint."
+  },
+  "commands/setup.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Integrations are configured as an independent set the navigator connects in any order."
+  },
+  "commands/rs-experts.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "A synthetic expert panel is generated as an independent set consulted in any order."
+  },
+  "commands/hat-briefing.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Hat perspectives are consolidated from an independent set gathered in any order."
+  },
+  "commands/think-hats.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "The six thinking hats fire in a fixed sequence where the order is the method, an ordered walk."
+  },
+  "commands/structure-argument.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "The Minto pyramid is built top-down in a fixed order, an ordered walk where each level needs the last."
+  },
+  "commands/beautiful-question.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "The Why then What-if then How progression is a fixed-order walk."
+  },
+  "commands/diffusion.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "Adoption is traced through its ordered diffusion stages, a fixed-order walk."
+  },
+  "commands/root-cause.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "The 5-Whys and fishbone drill down in a fixed order, an ordered walk toward the root."
+  },
+  "commands/causal.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "Causes are extracted, traced, then predicted in a fixed order, an ordered walk."
+  },
+  "commands/build-thesis.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "The Ten Questions are answered in a fixed order that builds the thesis, an ordered walk."
+  },
+  "commands/rs-thesis.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "The reverse-salient thesis is assembled through ordered stages, a fixed-order walk."
+  },
+  "commands/mos-reason.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "The Feynman-MINTO reasoning proceeds in a fixed order, an ordered walk."
+  },
+  "commands/ingest-methodology.md": {
+    "hitl_shape": "F.9",
+    "hitl_why": "A methodology is parsed and registered through ordered steps, a fixed-order walk."
+  },
+  "commands/analyze-timing.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "S-curve timing resolves to a single next-move read the navigator confirms."
+  },
+  "commands/dominant-designs.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The dominant design is identified as a single next-move call."
+  },
+  "commands/leadership.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The leadership shape is diagnosed to a single next-move read."
+  },
+  "commands/suggest-next.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "It offers a short numbered set of next moves for the navigator to pick one."
+  },
+  "commands/ignite.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The front door offers a small set of starting moves for the navigator to pick one."
+  },
+  "commands/discover.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Discovery resolves to a single next move the navigator confirms."
+  },
+  "commands/rs-explain.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "It presents the reverse-salient explanation and one next move to take."
+  },
+  "commands/memory-cortex-reach.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "A memory reach resolves to a single next move on the recalled item."
+  },
+  "commands/graph.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Graph exploration offers one next move from the current node."
+  },
+  "commands/query.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "A natural-language graph query returns a result with one next move."
+  },
+  "commands/visualize.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "A rendered view offers one next move on what to open next."
+  },
+  "commands/speakers.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Speaker attribution resolves to a single next-move confirmation."
+  },
+  "commands/operator.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The operator view offers one next move on the current state."
+  },
+  "commands/mva-brief.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The 30-second brief closes with a numbered option or free-text choice, the canonical F.1 Next Move."
+  },
+  "commands/new-project.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Creating a project offers one next move to confirm and enter it."
+  },
+  "commands/rooms.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Room switch or archive offers a single next move to pick one room."
+  },
+  "commands/room.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Room navigation offers one next move from the current room."
+  },
+  "commands/jtbd.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Setting the active JTBD is a single next-move selection."
+  },
+  "commands/deck.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The governed deck flow closes with a single Next Move gate."
+  },
+  "commands/present.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The 6-view present offers one next move on which view to open."
+  },
+  "commands/dashboard.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The dashboard offers one next move on what to act on."
+  },
+  "commands/wiki.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The wiki view offers one next move on which article to open."
+  },
+  "commands/status.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Status offers one next move based on where the room stands."
+  },
+  "commands/export.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Export offers a single next move to confirm the export scope."
+  },
+  "commands/show.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "A show or splash view offers one next move on what to open next."
+  },
+  "commands/models.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The routing profile offers a single next-move selection."
+  },
+  "commands/admin.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Brain-key admin offers one next move to confirm an action."
+  },
+  "commands/diagnostics.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Diagnostics offers one next move on what to inspect."
+  },
+  "commands/hmi-status.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "HMI status offers one next move on the current interface state."
+  },
+  "commands/scheduled-tasks.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Scheduled tasks offers one next move to confirm a schedule change."
+  },
+  "commands/explain-decision.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "It explains a decision and offers one next move to take."
+  },
+  "commands/splash.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The banner splash offers one next move to enter the room."
+  },
+  "commands/help.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Help offers one next move on where to go next."
+  },
+  "commands/mos.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The entry command offers one next move into the system."
+  },
+  "commands/onboard.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Onboarding presents each step and offers one next move to continue."
+  },
+  "commands/brain-derive.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It surfaces one derived Brain packet for a single APPROVE, REJECT, or DEFER."
+  },
+  "commands/dial-memory-refresh.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It offers a single refresh action to approve or defer."
+  },
+  "commands/feynman-timeline-refresh.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It offers a single timeline-refresh action to approve or defer."
+  },
+  "commands/vault.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It surfaces one vault action for a single approve-or-defer decision."
+  },
+  "commands/new-surface.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It proposes one new surface for a single approve-or-reject decision."
+  },
+  "commands/publish.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It surfaces one publish action for a single approve-or-defer decision."
+  },
+  "commands/snapshot.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It offers one snapshot action to approve or defer."
+  },
+  "commands/doctor.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It surfaces one diagnosed repair for a single approve-or-defer decision."
+  },
+  "commands/heal.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It surfaces one drift repair for a single approve-or-defer decision."
+  },
+  "commands/update.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It offers one update action to approve or defer."
+  },
+  "commands/correct-reference-now.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It surfaces one reference correction for a single approve-or-reject decision."
+  },
+  "commands/dogfood-flush.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It offers one dogfood-flush action to approve or defer."
+  },
+  "commands/explore-trends.md": {
+    "hitl_shape": "F.3",
+    "hitl_why": "It pushes one trend toward its extreme and asks how far to go, a depth budget."
+  },
+  "commands/auto-explore.md": {
+    "hitl_shape": "F.3",
+    "hitl_why": "The rabbit-hole exploration asks how deep to keep going, a depth budget."
+  },
+  "commands/futures.md": {
+    "hitl_shape": "F.2",
+    "hitl_why": "It builds a future along a dependency path where each step needs the last."
+  },
+  "commands/scenario-plan.md": {
+    "hitl_shape": "F.5",
+    "hitl_why": "The 2x2 produces four parallel scenario branches the navigator resolves among."
+  },
+  "commands/compare-ventures.md": {
+    "hitl_shape": "F.5",
+    "hitl_why": "Ventures are compared as parallel branches the navigator resolves among."
+  },
+  "commands/bono.md": {
+    "hitl_shape": "F.5",
+    "hitl_why": "The research debate produces parallel positions the navigator resolves among."
+  },
+  "commands/build-knowledge.md": {
+    "hitl_stages": [
+      {
+        "stage": "climb-dikw-ladder",
+        "shapes": [
+          "F.9",
+          "F.2"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "The DIKW ladder is climbed in a fixed order (F.9) along a dependency path (F.2) where each rung needs the one below."
+  },
+  "commands/diagnose.md": {
+    "hitl_stages": [
+      {
+        "stage": "classify-problem",
+        "shapes": [
+          "F.0",
+          "F.1"
+        ],
+        "mode": "gate"
+      }
+    ],
+    "hitl_why": "Problem classification is a single decision-close that either confirms one reading (F.0) or picks one next move (F.1)."
+  },
+  "commands/trending-to-absurd.md": {
+    "hitl_stages": [
+      {
+        "stage": "trend-selection",
+        "shapes": [
+          "F.3"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "push-to-absurd",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "A depth-budget trend selection (F.3) then a fixed-order push toward the absurd (F.9), never collapsed into one silent step."
+  },
+  "commands/explore-futures.md": {
+    "hitl_stages": [
+      {
+        "stage": "build-path",
+        "shapes": [
+          "F.2"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "ordered-projection",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "A dependency path (F.2) then a fixed-order projection walk (F.9) combining TTA, scenario, and S-curve."
+  },
+  "commands/act.md": {
+    "hitl_stages": [
+      {
+        "stage": "best-pick",
+        "shapes": [
+          "F.7"
+        ],
+        "mode": "gate"
+      },
+      {
+        "stage": "ordered-chain",
+        "shapes": [
+          "F.2",
+          "F.9"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "parallel-swarm",
+        "shapes": [
+          "F.8"
+        ],
+        "mode": "parallel"
+      }
+    ],
+    "hitl_why": "Act has three modes in one file: a ranked best-pick dial (F.7), an ordered chain (F.2 then F.9), and a parallel swarm (F.8), each a distinct decision surface."
+  },
+  "commands/pipeline.md": {
+    "hitl_stages": [
+      {
+        "stage": "build-path",
+        "shapes": [
+          "F.2"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "ordered-stages",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "A multi-stage pipeline runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
+  },
+  "commands/rs-fetch.md": {
+    "hitl_stages": [
+      {
+        "stage": "build-path",
+        "shapes": [
+          "F.2"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "ordered-stages",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "The full reverse-salient pipeline runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
+  },
+  "commands/persona.md": {
+    "hitl_stages": [
+      {
+        "stage": "generate-experts",
+        "shapes": [
+          "F.8"
+        ],
+        "mode": "parallel"
+      },
+      {
+        "stage": "resolve-tension",
+        "shapes": [
+          "F.5"
+        ],
+        "mode": "gate"
+      }
+    ],
+    "hitl_why": "Synthetic experts are generated as an independent set (F.8) then their tensions are resolved among parallel branches (F.5)."
+  },
+  "commands/agentshield.md": {
+    "hitl_shape": "none",
+    "hitl_why": "A read-only security scan that reports per-surface status and takes no navigator decision, so it reaches no genuine fork (mirrors doctor as a deliberately-run diagnostic, but pure report with no repair gate)."
+  },
+  "commands/mva-report.md": {
+    "hitl_shape": "none",
+    "hitl_why": "A read-only conversation-flow report that emits a structured artifact and takes no navigator decision, so it reaches no genuine fork."
+  },
+  "agents/persona-analyst.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "De Bono hats are generated as an independent panel consulted in any order, an unordered basket."
+  },
+  "agents/investor.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The adversarial reviewer surfaces objections and one next move to address them."
+  },
+  "agents/reverse-salient-agent.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It surfaces each reverse-salient finding as an F.0 mini Decision Gate (APPROVE, REJECT with reason, or DEFER) per its own frontmatter."
+  },
+  "agents/grading.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Artifacts are graded on independent components against the calibrated set, an unordered basket."
+  },
+  "agents/opportunity-scanner.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Grant and funding matches are surfaced as an independent set reviewed in any order."
+  },
+  "agents/research.md": {
+    "hitl_shape": "F.8",
+    "hitl_why": "Research subquestions fan out independently and are verified as an any-order basket."
+  },
+  "agents/framework-runner.md": {
+    "hitl_stages": [
+      {
+        "stage": "build-path",
+        "shapes": [
+          "F.2"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "run-stage-sequence",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "It runs one methodology per invocation along a dependency path (F.2) as a fixed-order stage walk (F.9)."
+  },
+  "agents/brain-query.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "A single natural-language Brain lookup returns a synthesized result with one next move."
+  },
+  "agents/larry-extended.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "A persona-blended single response closes with one next move for the navigator to pick."
+  },
+  "pipelines/discovery/CHAIN.md": {
+    "hitl_stages": [
+      {
+        "stage": "explore-domains",
+        "shapes": [
+          "F.8"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "think-hats",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "analyze-needs",
+        "shapes": [
+          "F.8"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "Three ordered stages from territory to customer needs: explore-domains then think-hats then analyze-needs, each stage feeding the next."
+  },
+  "pipelines/thesis/CHAIN.md": {
+    "hitl_stages": [
+      {
+        "stage": "structure-argument",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "challenge-assumptions",
+        "shapes": [
+          "F.8"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "build-thesis",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "Three ordered stages from structured argument to stress-tested thesis: structure-argument then challenge-assumptions then build-thesis, each stage feeding the next."
+  },
+  "pipelines/analogy/CHAIN.md": {
+    "hitl_stages": [
+      {
+        "stage": "decompose",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "abstract",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "search",
+        "shapes": [
+          "F.8"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "transfer",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "validate",
+        "shapes": [
+          "F.8"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "Five ordered stages of cross-domain analogy: decompose then abstract then search then transfer then validate, each stage feeding the next."
+  },
+  "skills/MOSDeckEngine/SKILL.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Deprecated redirect to /mos:deck; inherits /mos:deck's F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own."
+  },
+  "skills/client-discovery-interview/SKILL.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Each of the six discovery movements closes with an F.1 Next Move choice (continue the movement, reframe, or move to the Discovery Brief), never silently auto-advancing."
+  },
+  "skills/mullins-scaffold/SKILL.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "Each of the seven domain folders is offered at an F.1 Decision Gate before creation, never auto-imposed on the room."
+  },
+  "skills/mva-pipeline/SKILL.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The 30-second brief closes with a numbered option-or-free-text choice (1/2/3/free-text), the canonical F.1 Next Move shape."
+  },
+  "skills/trending-to-absurd/SKILL.md": {
+    "hitl_stages": [
+      {
+        "stage": "trend-selection",
+        "shapes": [
+          "F.1"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "opportunity-pick",
+        "shapes": [
+          "F.1"
+        ],
+        "mode": "ordered"
+      }
+    ],
+    "hitl_why": "Two ordered Shape F Decision Gates per its own frontmatter description: trend selection then opportunity pick, never collapsed into one silent choice."
+  },
+  "skills/conversation-mode/SKILL.md": {
+    "hitl_shape": "F.1",
+    "hitl_why": "The lane picker (Just Talk / Explore+Capture / Build a Room) is an explicit F.1 Decision Gate, never an inferred persona classification."
+  },
+  "skills/intelligence-orchestrator/SKILL.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "Every dispatched reach is offered through the room-proactive APPROVE/REJECT/DEFER mini-gate (F.0) before the resolved command fires; the dispatched reach's own connector.surface governs only what happens after APPROVE."
+  },
+  "skills/room-proactive/SKILL.md": {
+    "hitl_stages": [
+      {
+        "stage": "proactive-finding-response",
+        "shapes": [
+          "F.0"
+        ],
+        "mode": "gate"
+      },
+      {
+        "stage": "filing-offer-close",
+        "shapes": [
+          "F.1"
+        ],
+        "mode": "gate"
+      }
+    ],
+    "hitl_why": "Two independent decision-close moments: an APPROVE/REJECT/DEFER mini-gate on a surfaced finding, and an F.1 Next Move gate when offering to file a conversation artifact."
+  },
+  "skills/larry-personality/SKILL.md": {
+    "hitl_stages": [
+      {
+        "stage": "contradiction-response",
+        "shapes": [
+          "F.0"
+        ],
+        "mode": "gate"
+      },
+      {
+        "stage": "deep-research-plan-approval",
+        "shapes": [
+          "F.1"
+        ],
+        "mode": "gate"
+      },
+      {
+        "stage": "conversation-artifact-filing-offer",
+        "shapes": [
+          "F.1"
+        ],
+        "mode": "gate"
+      },
+      {
+        "stage": "dial-reach-selection",
+        "shapes": [
+          "F.7"
+        ],
+        "mode": "gate"
+      }
+    ],
+    "hitl_why": "Four independent Decision-Gate moments: a contradiction mini-gate (F.0), a deep-research plan approval (F.1), a conversation-artifact filing offer (F.1), and the ranked-reach dial (F.7, implemented via lib/hmi/dial-reach-orchestrator.cjs).",
+    "implementation_script": "lib/hmi/dial-reach-orchestrator.cjs"
+  }
+}
