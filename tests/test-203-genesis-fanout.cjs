@@ -26,8 +26,42 @@ const genesisPath = path.join(REPO_ROOT, 'lib', 'core', 'expert-genesis.cjs');
 const genesis = require(genesisPath);
 const { resolveFanoutCap, FUTURES_FANOUT_CAP } = require(
   path.join(REPO_ROOT, 'lib', 'core', 'futures', 'orchestrator.cjs'));
-const { SYNTHETIC_EXPERT_FIELDS, HAT_COLORS } = require(
+const { SYNTHETIC_EXPERT_FIELDS, HAT_COLORS, writeSyntheticExpertNode } = require(
   path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'synthetic-expert.cjs'));
+
+// In-memory db with the Phase-109-migrated nodes schema (mirrors the shipped
+// tests/test-synthetic-expert-writer.cjs freshDb). No SKIP path.
+function freshDb() {
+  const { DatabaseSync } = require('node:sqlite');
+  const db = new DatabaseSync(':memory:');
+  db.exec(
+    'CREATE TABLE nodes (' +
+    '  id TEXT PRIMARY KEY, ' +
+    '  type TEXT NOT NULL, ' +
+    "  properties TEXT DEFAULT '{}', " +
+    '  source_path TEXT NOT NULL, ' +
+    "  created_by TEXT NOT NULL CHECK(created_by IN ('user','larry','import','brain','system')), " +
+    '  confidence REAL, ' +
+    "  review_status TEXT NOT NULL DEFAULT 'proposed' " +
+    "    CHECK(review_status IN ('proposed','confirmed','rejected','stale','superseded','needs_evidence','validated','invalidated')), " +
+    '  created_at INTEGER NOT NULL, ' +
+    '  last_seen_at INTEGER NOT NULL, ' +
+    '  last_modified_at INTEGER, ' +
+    '  source_section TEXT, ' +
+    '  confirmed_by TEXT, ' +
+    '  confirmed_at INTEGER, ' +
+    '  invalidated_at INTEGER, ' +
+    '  valid_to INTEGER' +
+    ')'
+  );
+  db.exec(
+    "CREATE TABLE edges (source TEXT NOT NULL, target TEXT NOT NULL, type TEXT NOT NULL, " +
+    "properties TEXT DEFAULT '{}', PRIMARY KEY(source, target, type));"
+  );
+  return db;
+}
+
+const TEMPLATE_STUB_QUESTION = 'What are the key considerations?';
 
 let pass = 0;
 let total = 0;
@@ -160,6 +194,90 @@ async function main() {
     assert.ok(Array.isArray(res.genericHandles), 'genericHandles is an array');
     assert.equal(res.genericHandles.length, 0, 'Brain absent -> [] (pure Tier-0 degrade)');
     assert.equal(res.cells.length, 4, 'the fan-out still proceeds with Brain absent');
+  });
+
+  // ---- TASK 2: synthesize the cells and write ONE proposed node ----
+
+  // Test 2a: synthesizeExpert produces a valid hat, a coherent domain/subdomain, a
+  //          GENUINE beautiful-question (not the template stub), and a
+  //          research-approach derived from the multi-lens cells.
+  await check('Test 2a -- synthesizeExpert produces a valid hat + genuine question + multi-lens approach', async () => {
+    const fan = await genesis.composeSyntheticExpert(null, BIG_SPEC, {
+      dispatchCell: distinctStub(),
+      write: false,
+    });
+    const synth = genesis.synthesizeExpert(fan.cells, BIG_SPEC, { distinctSourceCount: fan.distinctSourceCount });
+
+    assert.ok(HAT_COLORS.has(synth.hat), 'hat is a valid de Bono hat color: ' + synth.hat);
+    assert.ok(typeof synth.name === 'string' && synth.name.length > 0, 'name (main domain) is non-empty');
+    assert.ok(typeof synth.surname === 'string' && synth.surname.length > 0, 'surname (subdomain) is non-empty');
+
+    assert.ok(typeof synth.beautifulQuestion === 'string' && synth.beautifulQuestion.length > 0,
+      'beautiful_question is non-empty');
+    assert.notEqual(synth.beautifulQuestion, TEMPLATE_STUB_QUESTION,
+      'beautiful_question is NOT the template stub');
+    // The question is derived from the lenses: it references the domain.
+    assert.ok(synth.beautifulQuestion.toLowerCase().indexOf('regulatory') !== -1,
+      'beautiful_question is derived from the domain lens');
+
+    // The research approach names the distinct frameworks (multi-lens, not generic).
+    const approach = synth.researchApproach.toLowerCase();
+    assert.ok(approach.indexOf('fda') !== -1 || approach.indexOf('iso') !== -1 || approach.indexOf('mdr') !== -1,
+      'research_approach names the distinct frameworks (derived, not generic)');
+
+    // Every output key is inside the Part-8 allow-list (no venture byte can ride).
+    for (const key of Object.keys(synth)) {
+      assert.ok(SYNTHETIC_EXPERT_FIELDS.has(key),
+        'synthesizeExpert output key "' + key + '" is allow-listed (Part 8)');
+    }
+    // Provenance is coerced to scalars only.
+    assert.ok(synth.provenance && typeof synth.provenance === 'object', 'provenance is an object');
+    assert.ok(typeof synth.provenance.runId === 'string', 'provenance.runId is a scalar string');
+    assert.ok(Array.isArray(synth.provenance.domainNodeIds), 'provenance.domainNodeIds is an id array');
+  });
+
+  // Test 2b: composeSyntheticExpert calls writeSyntheticExpertNode EXACTLY ONCE and
+  //          the node lands review_status 'proposed' (never confirmed).
+  await check('Test 2b -- composeSyntheticExpert writes EXACTLY ONE proposed SyntheticExpert node', async () => {
+    const db = freshDb();
+    let writeCalls = 0;
+    const spyWrite = (dbh, params) => { writeCalls += 1; return writeSyntheticExpertNode(dbh, params); };
+
+    const res = await genesis.composeSyntheticExpert(db, SMALL_SPEC, {
+      dispatchCell: distinctStub(),
+      sessionId: 's203',
+      writeExpertFn: spyWrite,
+    });
+    assert.equal(writeCalls, 1, 'writeSyntheticExpertNode is called EXACTLY once');
+    assert.equal(res.ok, true, 'the write succeeded: ' + JSON.stringify(res.written));
+    assert.ok(typeof res.node_id === 'string' && res.node_id.length > 0, 'a node id is returned');
+
+    const rows = db.prepare("SELECT id, review_status FROM nodes WHERE type = 'SyntheticExpert'").all();
+    assert.equal(rows.length, 1, 'EXACTLY ONE SyntheticExpert node was written (never a raw insertNode loop)');
+    assert.equal(rows[0].review_status, 'proposed', "the node lands 'proposed' (only a human confirms)");
+    db.close();
+  });
+
+  // Test 2c: Part 8 -- a props bag carrying a forbidden key (a venture number) is
+  //          rejected forbidden_field by the writer, never inserted.
+  await check('Test 2c -- a forbidden venture field is rejected forbidden_field, never inserted (Part 8)', () => {
+    const db = freshDb();
+    const r = writeSyntheticExpertNode(db, {
+      hat: 'Black',
+      name: 'Regulatory',
+      surname: 'clinical trials',
+      beautifulQuestion: 'Where does clinical trials break under FDA 21 CFR?',
+      researchApproach: 'fan-out across FDA 21 CFR lenses',
+      evidenceTier: 'Operational',
+      sessionId: 's203',
+      provenance: { runId: 'run-203', domainNodeIds: ['domain:clinical trials'] },
+      ventureValuation: 4200000, // the forbidden venture byte.
+    });
+    assert.equal(r.ok, false, 'the writer rejects a non-allow-listed venture key');
+    assert.equal(r.reason, 'forbidden_field', 'the rejection names the Part-8 allow-list gate');
+    const cnt = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type = 'SyntheticExpert'").get();
+    assert.equal(cnt.n, 0, 'nothing was inserted (the gate fires before any write)');
+    db.close();
   });
 
   console.log(`\nPASS (${pass}/${total})`);
