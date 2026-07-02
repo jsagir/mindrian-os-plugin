@@ -70,3 +70,7 @@ references/user-research/
 # Phase 141 benchmark scratch artifacts (generated, not source)
 tests/fixtures/*-bench.db
 tests/fixtures/room-context-bench.db
+
+# Phase 205-09: Test-6 golden source carries real tester identifiers (no-real-names rule).
+# Local-only; the golden-loader degrades to pending on a fresh checkout by design.
+lab/plurai-suite/golden/
