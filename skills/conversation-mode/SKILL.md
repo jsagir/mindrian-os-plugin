@@ -35,7 +35,7 @@ Larry surfaces a Shape F.1 selector -- the SEED-020 host-native AskUserQuestion 
 
 The navigator picks the lane. The pick is a Decision Gate (Canon Part 3, GUIDED default) -- never a silent classification. Persona Detection (see below) still runs WITHIN the chosen lane to shape Larry's questions; it shapes HOW Larry asks, not WHICH lane the session is in.
 
-This re-uses the existing surfaces, it does not replace them. The implicit "offer to upgrade" line in Mode 1 ("Say '2' to switch to Explore+Capture mode.") and the "I am ready to build" transition in Mode 2 are the SAME lane-picker re-surfaced -- a re-pick, not a silent switch. Rules of re-surfacing:
+This re-uses the existing surfaces, it does not replace them. The implicit "offer to upgrade" line in Mode 1 ("Say '2' to switch to Explore+Capture mode.") and the "I am ready to build" transition in Mode 2 are the SAME lane-picker re-surfaced -- a re-pick, not a silent switch. /mos:ignite's Gate B0 "Just talk (no room)" pick is one more re-surface of this SAME Lane Picker (not a new lane, not a new selector): when a navigator with prior rooms picks Just Talk at the ignite room-chooser, ignite hands off here rather than birthing a room. Rules of re-surfacing:
 
 - One re-surface per turn-cluster. Do not nag the picker every turn.
 - Never auto-switch lanes. A lane change is always a navigator pick at the Decision Gate, never a unilateral Larry decision.
