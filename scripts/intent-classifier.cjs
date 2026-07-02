@@ -2065,17 +2065,50 @@ function emitBindingGate(args) {
   if (!rendered || !rendered.zones) return false;
 
   const zones = rendered.zones;
+
+  // Phase 209-01 (E4): mint the AskUserQuestion trailer through the SEED-020
+  // dispatcher-owned door (appendAskUserQuestionTrailer) so the F.8 gate carries
+  // the self-decoding marker + BINDING imperative, exactly like the engine arm.
+  //
+  // SEED-020 pickShape exemption (mirrors the 150.5-02 engine-arm decision): this
+  // gate does NOT route through pickShape('F.8'). pickShape applies the Canon
+  // Part 3 install-tier-0 refuse, which would KILL the session-unbound gate on a
+  // tier-0 room -- but a session that is not yet bound to a room MUST be able to
+  // fire its binding card regardless of tier (same rationale as the D-01 cold
+  // card). Routing through the trailer door reuses the single construction site
+  // with NO new dispatcher branch (Canon Part 7). Capture the F.8 footer BEFORE
+  // the trailer folds the marker + binding into zones.footer so the trailer is
+  // appended to additionalContext exactly once (no duplication).
+  const footerBase = (typeof zones.footer === 'string' && zones.footer.length > 0)
+    ? zones.footer : '';
+  try {
+    const dispatcher = require(path.join(__dirname, '..', 'lib', 'hmi', 'selector-dispatcher.cjs'));
+    dispatcher.appendAskUserQuestionTrailer(rendered, 'F.8');
+  } catch (_e) { /* trailer fault: degrade to the untrailed gate, never block */ }
+
   const bodyLines = [];
   if (zones.header) bodyLines.push(zones.header);
   if (zones.body) bodyLines.push(zones.body);
   if (zones.signals) bodyLines.push(zones.signals);
+  if (footerBase) bodyLines.push(footerBase); // E4: the F.8 stat-strip footer
   const guidance =
-    'This session is not yet bound to a room. Present these as a multi-select ' +
-    '(toggle every room this session may write to, pick ONE primary write target, ' +
-    'and offer a "remember for this session" toggle). Selecting "' + NO_ROOM_LABEL +
-    '" binds the session to no room (dev-repo work). Confirm the set with the user ' +
-    'before writing any room artifact; the confirmed set becomes this session binding.';
-  const additionalContext = bodyLines.join('\n') + '\n\n' + guidance;
+    'Fire the AskUserQuestion card with these rooms as a multi-select (toggle every ' +
+    'room this session may write to, pick ONE primary write target, and offer a ' +
+    '"remember for this session" toggle); never reproduce this block as text (SEED-021). ' +
+    'Selecting "' + NO_ROOM_LABEL + '" binds the session to no room (dev-repo work). ' +
+    'Confirm the set with the user before writing any room artifact; the confirmed set ' +
+    'becomes this session binding.';
+
+  // E4: append the trailer marker + binding to additionalContext, each guarded on
+  // its own presence (same idiom as the engine arm) so a missing field never
+  // renders 'undefined'.
+  const trailerLines = [];
+  const bindMarker = rendered.askuserquestion_marker;
+  const bindBinding = rendered.askuserquestion_binding;
+  if (typeof bindMarker === 'string' && bindMarker.length > 0) trailerLines.push(bindMarker);
+  if (typeof bindBinding === 'string' && bindBinding.length > 0) trailerLines.push(bindBinding);
+  const additionalContext = bodyLines.join('\n') + '\n\n' + guidance
+    + (trailerLines.length > 0 ? '\n\n' + trailerLines.join('\n') : '');
 
   const systemMessage = 'session unbound: choose which room(s) this session writes to';
 
