@@ -1,5 +1,5 @@
 ---
-seed: SEED-050
+seed: SEED-051
 slug: release-tag-verify-window-too-tight
 title: release.sh Step 5.5 tag-visibility verify races GitHub replication (false-alarm on a good push)
 status: captured
@@ -8,7 +8,7 @@ captured_during: v1.15.0 stable release ceremony
 canon_parts: [6]
 ---
 
-# SEED-050: release.sh tag-verify window too tight
+# SEED-051: release.sh tag-verify window too tight
 
 ## What happened (v1.15.0 release, 2026-07-02)
 
