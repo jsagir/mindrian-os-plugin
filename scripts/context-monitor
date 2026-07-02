@@ -565,21 +565,32 @@ process.stdin.on('end', () => {
     // bar composition + the >=80% blink-red wrap. We hand it just the scaled
     // percentage; the AUTO_COMPACT_BUFFER + remaining->used math is preserved
     // byte-identical so existing bridge-file readers see the same scalar.
+    // Quick-task 20260702 bucket-1(d): prefer the NATIVE context percentage the
+    // host exposes (context_window.used_percentage / exceeds_200k_tokens) over the
+    // local AUTO_COMPACT_BUFFER estimate, keeping the estimate (from
+    // remaining_percentage) as the FALLBACK for older CC / null-after-/compact.
+    // The resolver is pure + LOCAL (lib/statusline/ctx-window.cjs); lazy-required so
+    // a degraded install falls back to the inline estimate below and never blanks.
+    // ctxPct = null when NO data (fresh session before first API call) -> the
+    // renderer suppresses the bar (Phase 106-02 Test 7: no data = no bar).
     const AUTO_COMPACT_BUFFER = 16.5;
-    // ctxPct = null when remaining is missing (e.g. fresh session before first
-    // API call). Two-row-renderer's renderBar suppresses the bar segment in
-    // that case (preserves Phase 106-02 Test 7 contract: no data = no bar).
     let ctxPct = null;
-    if (remaining != null) {
-      const usableRemaining = Math.max(0, ((remaining - AUTO_COMPACT_BUFFER) / (100 - AUTO_COMPACT_BUFFER)) * 100);
-      ctxPct = Math.max(0, Math.min(100, Math.round(100 - usableRemaining)));
+    try {
+      const ctxWindow = require('../lib/statusline/ctx-window.cjs');
+      ctxPct = ctxWindow.resolveCtxPct(data.context_window).pct;
+    } catch (_ctxErr) {
+      // Graceful fallback: the pre-quick-task inline estimate (byte-identical math).
+      if (remaining != null) {
+        const usableRemaining = Math.max(0, ((remaining - AUTO_COMPACT_BUFFER) / (100 - AUTO_COMPACT_BUFFER)) * 100);
+        ctxPct = Math.max(0, Math.min(100, Math.round(100 - usableRemaining)));
+      }
     }
     // LEGACY: pre-121.5-03 colored bar composition retained ONLY for the
     // graceful-fallback path below (Tier 0 / no-room case). Once the two-row
     // renderer is the sole path, this block is dead. For now, keep both
     // representations available so the no-room fallback keeps the bar.
     let ctx = '';
-    if (remaining != null) {
+    if (ctxPct != null) {
       const used = ctxPct;
       const filled = Math.floor(used / 10);
       const bar = '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled);
