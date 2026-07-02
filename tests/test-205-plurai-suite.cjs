@@ -258,10 +258,18 @@ ok('every persona is synthetic (invented), no real tester name/email present', (
   for (const p of suite.personas) {
     assert.ok(/^synthetic-/.test(p.id), `persona ${p.id} must be marked synthetic`);
   }
-  // Part-8 negative guard: no real tester identifiers leak into the manifest
-  for (const needle of ['aronhime', 'jsagir@gmail.com', 'jhu.edu', 'mordi', 'eli', 'gaurav']) {
-    assert.ok(!blob.includes(needle), `manifest must not carry user identifier "${needle}"`);
-  }
+  // Part-8 negative guard: no real tester identifiers leak into the manifest.
+  // Checked by PATTERN, never literal names, so this test embeds no PII of its own
+  // (no-real-names-in-repo rule): assert there is no email address anywhere, and
+  // every persona id is synthetic-prefixed (the invented-persona contract above).
+  assert.ok(
+    !/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(blob),
+    'manifest must carry no email address (Part-8 / no-real-names)'
+  );
+  assert.ok(
+    !/\b(from|to|cc)\s*:/i.test(blob),
+    'manifest must carry no mail-header fragment (Part-8 / no-real-names)'
+  );
 });
 
 ok('the live re-seed follow-up is surfaced (navigator task, not this build)', () => {
