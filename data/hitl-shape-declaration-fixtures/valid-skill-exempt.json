@@ -1,0 +1,5 @@
+{
+  "surface": "skills/context-engine/SKILL.md",
+  "connector_excluded": true,
+  "connector_reason": "Ambient always-on infra. Assembles conversational context every turn; a continuous substrate skill with no discrete problem-state trigger."
+}

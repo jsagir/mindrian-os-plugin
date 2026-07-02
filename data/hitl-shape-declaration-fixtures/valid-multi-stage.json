@@ -1,0 +1,7 @@
+{
+  "surface": "commands/build-knowledge.md",
+  "hitl_stages": [
+    { "stage": "climb-dikw-ladder", "shapes": ["F.9", "F.2"], "mode": "ordered" }
+  ],
+  "hitl_why": "The DIKW ladder is climbed in a fixed order (F.9) along a dependency path (F.2) where each rung needs the one below."
+}

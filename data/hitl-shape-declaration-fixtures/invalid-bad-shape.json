@@ -1,0 +1,5 @@
+{
+  "surface": "commands/bad-shape.md",
+  "hitl_shape": "F.10",
+  "hitl_why": "Declares a shape outside the closed F.0-F.9 plus none set."
+}

@@ -1,0 +1,6 @@
+{
+  "surface": "skills/ranker-consumer-example/SKILL.md",
+  "hitl_shape": "F.1",
+  "hitl_why": "Claims a simple plan-approval gate while its implementation is a proven f-selector-ranker consumer that must reach the ranked dial (F.7).",
+  "implementation_script": "lib/hmi/dial-reach-orchestrator.cjs"
+}
