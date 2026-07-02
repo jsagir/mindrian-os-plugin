@@ -8,6 +8,19 @@ curated_for: making the next milestone-scoping conversation faster and more grou
 
 # MindrianOS SEEDs -- Authoritative Index
 
+## Flagship next work -- the EUREKA two-in-a-box (registered 2026-07-02)
+
+**SEED-049 and SEED-050 are the two MAJOR seeds slated next** (navigator-directed, 2026-07-02). They are a matched pair -- a generator and its critic -- and are built together: the generator run open-loop without the critic is a confident-noise fountain.
+
+| Seed | Role | What it is |
+|---|---|---|
+| **SEED-049** -- Mindrian EUREKA Engine | GENERATOR | Tri-modal room.db + tri-source hybrid retrieval; the measured (bert-lsa, reproducible) cross-domain differential + bridge/whitespace signal that PROPOSES eurekas. "One engine, many lenses." The graph<->web moat named. |
+| **SEED-050** -- The Eureka EVAL | CRITIC + TRUST | Salient-verifier judge + trustworthy synthetic data; verifies a proposed eureka is a REAL transferable salient (not confident noise) and proves the engine reaches a real insight FASTER. Instruments the Phase-208 gate; rides Plurai / IntellAgent. |
+
+**Target:** Phases 206-208 (the 206-20x plan, capstone thread from seed(049)). **Research backing:** `.planning/research/2026-07-02-eureka-eval-real-user-corpus-and-synthesis.md` (backs both). **HARD rule:** no real tester/advisor names in-repo -- role descriptors + pseudonyms only (ARCHIMEDES, DA VINCI, the pedagogy lead, the MIT founder, the TTO IP lead). Unrelated release-tooling note lives at SEED-051, not part of this cluster.
+
+> NOTE: the milestone/bundle tables below were last curated 2026-05-24 and only cover through ~SEED-023. Seeds 024-051 exist as committed files but are not yet folded into those tables; a curation pass is due. This flagship block is the authoritative pointer for 049/050 until then.
+
 ## Purpose
 
 The MindrianOS SEED system carries **deferred-but-load-bearing reasoning** forward across milestone boundaries so the next planning conversation does not have to re-discover the WHY of work that was previously scoped, brainstormed, or proven-with-a-spike but deliberately not executed yet. A seed is the artifact between "we had this thought" and "we have a phase planned for it."
