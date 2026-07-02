@@ -115,8 +115,10 @@ check('module: introduces NO new typed-edge vocabulary string (Canon Part 4 froz
     assert.equal(src.indexOf(edge), -1, 'the render module mints no new edge-vocabulary token "' + edge + '"');
   }
   // The module must NOT reach the navigation write chokepoint (no F.8 fan-out to
-  // N typed edges); it is render-only, zero graph writes.
-  assert.equal(src.indexOf('navigation.cjs'), -1, 'the render module never requires the navigation write chokepoint');
+  // N typed edges); it is render-only, zero graph writes. Target an actual
+  // require() import, not a prose mention in the doc comments.
+  const REQUIRES_NAV = /require\(\s*['"][^'"]*navigation[^'"]*['"]\s*\)/;
+  assert.ok(!REQUIRES_NAV.test(src), 'the render module never requires the navigation write chokepoint');
   // Also: the runtime contract must not smuggle an edge-type field.
   const out = renderDial(modeARl(), { slotContext: FULL_SLOTS, withModifiers: true });
   const keys = Object.keys(out.contract);
