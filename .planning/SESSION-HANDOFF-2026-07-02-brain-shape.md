@@ -53,3 +53,11 @@ Independently re-ran the phase gates for the COMPLETE-claimed 188-205 phases (in
 
 ### CORRECTION to the audit above (199 anomaly RETRACTED)
 The "199 has no gate" flag was a STALE-WORKTREE false positive: the audit ran in the 205-08 worktree based on 74c7db7e, which predates tests/run-all-199.sh. On current main (e423d5bc) the gate EXISTS and passes: Passed 5 / Failed 0 / Skipped 0. 199 completion IS gate-verified; the handoff "5/5" claim is correct. Lesson: gate-verify on current main HEAD, not a stale worktree base - the other results (189/200/201/202/205) ran against gates that DID exist at 74c7db7e and produced real pass output, so they stand.
+
+## UPDATE - Phase 205 hole CLOSED (205-08 GRILL merged + ledger flipped)
+The earlier "CLOSES Phase 205" folded in 205-07 + 205-09 but MISSED 205-08 (it lived in worktree workspace/phase-205-08-grill). Now reconciled:
+- MERGED 205-08 GRILL into feat/v1.15: merge b34f7bbb (lib/core/grill-engine.cjs 410 lines + tests/test-205-grill-engine.cjs; clean add, merge-tree exit 0, zero conflict, the 25 churn files left untouched).
+- WIRED the grill leg into tests/run-all-205.sh (commit 9d9bbd1e). Full phase gate now covers GRILL: run-all-205 ALL PASS incl test-205-grill-engine 12/12.
+- FLIPPED the ROADMAP 205 ledger (commit 7d19b4a9): heading REGISTERED -> COMPLETE 2026-07-02 + all 9 checkboxes [x] (all built, aggregator green). 205-04 "has human-verify" flipped too - covered by test-205-elevation-axis + frozen-six-guard, both green.
+- Phase 205 is now GENUINELY complete (9/9 plans, GRILL included). Still deferred (named, not gaps): Arm B live-wiring 4-fix spec in 205-08-SUMMARY.md; the stale REGISTERED headings on 189/199/202 (churn-zone, reconcile-pass owns).
+- Part-8 note: the parallel 205-09 chain correctly dropped real tester names (ac1b4f06) + gitignored lab/plurai-suite/golden (5239dbd5) - the synthetic-only boundary held.
