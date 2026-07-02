@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "ci-baseline",
+  "runtime_loaded": false,
+  "method": "hand-labeled",
+  "baseline_deferred": true,
+  "deferred_note": "Genuine Plurai precision/recall baseline deferred, same reason as 196-baseline.json / 201-baseline.json: the Plurai eval is an interactive multi-turn MCP-tool flow that cannot run non-interactively in the sequential executor. Per the plan DEGRADE path the rows are hand-labeled deterministically from the Label column (pass for a correctly-fired card or a legitimately card-free turn, violation for prose/ASCII-frame-at-gate or a declared gate that never fired), and the local gate lib/core/card-fire-gate.cjs::classifyCardFireTrace reproduces every label exactly (parity test tests/test-209-card-fire-gate.cjs). Re-run /evals:eval interactively after /reload-plugins to replace this with a hosted Plurai baseline.",
+  "source_csv": "evals/plurai/13-native-fire.csv",
+  "judge_prompt": "Given a Shape-F Decision Gate turn trace (declared_gate, card_fired, output_text, trailer_present), classify it pass (the AskUserQuestion card fired at a declared gate, or no gate was declared and no card was required) or violation (a declared gate produced prose or an ASCII-box menu instead of firing the card, a declared gate fired no card at all, or the self-decoding BINDING trailer was present in context and still no card fired). A bare U+25A0 glyph outside a gate is sanctioned UI vocabulary, never a violation on its own.",
+  "canon_contract": "SEED-021 (never reproduce the selector as text); Canon Part 3 (Shape F), Part 8, Part 11, Part 12",
+  "synthetic_only": true,
+  "precision": 1,
+  "recall": 1,
+  "accuracy": 1,
+  "f1": 1,
+  "row_count": 20,
+  "pass_count": 10,
+  "violation_count": 10,
+  "local_gate": "lib/core/card-fire-gate.cjs",
+  "local_gate_accuracy": 1,
+  "label_semantics": {
+    "pass": "pass",
+    "violation": "flag"
+  }
+}
