@@ -3537,7 +3537,6 @@ Cluster F. AgentShield: a plugin-wide security scanner that generalizes the brai
 - [ ] 199-06-sessionstart-gate-PLAN.md -- Wave 3: SessionStart continuous-scan hook + Shape F.1 drift gate
 - [ ] 199-07-pr-gate-final-eval-PLAN.md -- Wave 4: GitHub Actions PR-gate (baseline-delta) + final Plurai eval gate + e2e smoke
 
-
 ### Phase 200: RS Engine Spine + Corpus Quality (rs-engine-spine-corpus) - COMPLETE 2026-07-02
 
 **Class:** CODE + BUGFIX | **Priority:** P2 | **Depends on:** Phase 161 (SEED-029 embedding spine), Phase 134 (SEED-013 CJS port), Phase 166 (runChain)
@@ -3583,6 +3582,7 @@ Cluster I. The lab-side automatic-prompt-optimization loop (SEED-002): an APO la
 - **Provenance:** Cluster-I graduation from SEED-002. Phase 202 COMPLETE 2026-07-02 (all 3 waves): telemetry consumer + reward table (202-01), APO propose/score/select loop Path A (202-02), voice-contract eval gate as the Canon Part 12 hard disqualifier (202-03).
 
 **Plans:**
+
 - [x] 202-01-PLAN.md (wave 1) -- Telemetry consumer: LOCAL read/group/reward-extract of the Phase 121 stream, >=100-event activation gate -- COMPLETE 2026-07-01 (commits `0b9d3b62`..`4c62678c`; `lab/apo/telemetry-consumer.cjs` + `lab/apo/reward-table.cjs`; 18/18 test PASS; closes the SEED-002 write-only open loop; zero network/Brain, append-only)
 - [x] 202-02-PLAN.md (wave 2) -- APO loop core: propose -> score (grading corpus + telemetry) -> select an optimized commands/act.md candidate, human-ratify -- COMPLETE 2026-07-01 (commits `0377138b`..`28eb77cc`; `lab/apo/prompt-target.cjs` + `lab/apo/apo-loop.cjs` + `lab/apo/.gitignore`; 10/10 test PASS; quality-primary blend, telemetry gated on activation; runApo recommends + NEVER writes commands/act.md, span data gitignored; zero network/Brain, no em-dashes)
 - [x] 202-03-PLAN.md (wave 3) -- Plurai eval gate: APO-output voice-contract judge -- COMPLETE 2026-07-02 (commits `a11799ed`..`89553fb2`; `lab/apo/voice-contract-gate.cjs` + `evals/plurai/09-apo-output-voice.csv` + `evals/plurai/202-baseline.json` + `tests/run-all-202.sh`; run-all-202 3/3 legs PASS; Canon Part 12 hard disqualifier proven -- a higher-reward em-dash candidate is NOT selected, a compliant lower-reward candidate wins; reuses `lab/eval/voice-mark-hybrid.cjs` (Part 7); Plurai offline/synthetic, baseline_deferred (Part 8); zero network/Brain, no em-dashes)
@@ -3627,17 +3627,18 @@ Plans:
 **Class:** CODE | **Priority:** P1 (closes the declared-vs-rendered gap; the backstop hook currently corrects what should fire natively) | **Depends on:** 188 (F.0-F.9 vocabulary), 190 (declarations, R16), 192 (selector machinery); research plan .planning/research/2026-07-02-gate-native-fire-fix.md (5-lens fan-out, 25 causes adversarially verified 2026-07-02).
 
 Scope = Waves 2-4 of the research plan (Wave 1 shipped as quick(gate-native-fire-w1)):
+
 - **Wave 2 - render rollout:** stamp the canonical firing block + AskUserQuestion tool grant into the ~86 declared-but-unwired command bodies, REUSING the 190 backfill generator machinery (Part 7); extend scripts/check-render-coverage.cjs to the full declaring keyspace so "declared implies rendered" fails closed (the R16 pattern, one plane up).
 - **Wave 3 - conversational-gate bridge:** the engine emits READY-TO-FIRE card payloads instead of discarding rendered.contract at intent-classifier.cjs:1008 (RC-3); room-pick detector; fix session-start "Type 1, 2, or 3" anti-exemplar.
 - **Wave 4 - backstop as telemetry:** check-card-fire.cjs stays the constitutional floor; its intercept count becomes a success metric with target zero.
 - **Eval (GATE):** ships a Plurai eval per the ground rule (card-fired-vs-prose fidelity) + local parity gate.
 - **Canon:** Parts 3 (Shape F), 6 (dogfooding - the backstop caught Larry AND the orchestrator same-day), 7, 11, 12. No em-dashes.
 
-**Plans:** 7 plans
+**Plans:** 1/7 plans executed
 
 Plans:
 
-- [ ] 209-01-PLAN.md (wave 1) - E3+E4 (folds unshipped E2): slotContext threading + binding/contract serialization at the engine arm + emitBindingGate trailer/footer/AskUserQuestion guidance
+- [x] 209-01-PLAN.md (wave 1) - E3+E4 (folds unshipped E2): slotContext threading + binding/contract serialization at the engine arm + emitBindingGate trailer/footer/AskUserQuestion guidance
 - [ ] 209-02-PLAN.md (wave 1) - B1: idempotent two-part stamp (canonical firing block + allowed-tools grant) across the 99 declaring commands
 - [ ] 209-03-PLAN.md (wave 2) - B2+B3: declared-implies-wired predicates + .md render-coverage keyspace, gate ON green after B1; futures.md F.2/F.1 reconcile
 - [ ] 209-04-PLAN.md (wave 1) - Eval GATE: card-fire-gate.cjs frozen invariants + 13-native-fire.csv + 209-baseline.json (baseline_deferred) + parity test + run-all-209.sh
