@@ -3515,7 +3515,7 @@ Cluster F. Switch the governed invocation spine to an MCP-FIRST execution substr
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for one-path invocation parity across CLI/Desktop/Cowork. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-F graduation from SEED-038 (PROMOTED). NEXT: `/gsd-discuss-phase 198`.
 
-### Phase 199: AgentShield Scanner (agentshield-scanner) - REGISTERED 2026-07-01
+### Phase 199: AgentShield Scanner (agentshield-scanner) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-02**
 
 **Class:** CODE | **Priority:** P3 (security layer) | **Depends on:** Phase 196 (boundary scan generalizes)
 
