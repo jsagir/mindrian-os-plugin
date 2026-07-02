@@ -210,7 +210,26 @@ const TRANSCRIPT_TAIL_BYTES = 2 * 1024 * 1024;
 
 // The ASCII-box gate glyphs / literal anti-pattern the BACKSTOP scans for. A reached
 // gate that renders as flat text instead of firing the card carries these.
-const ASCII_BOX_GLYPH_RE = /\[\s*1\s*\]\s*.*\[\s*2\s*\]|type\s+1\s*,\s*2\s*,\s*or\s+3|\u25A0/i;
+//
+// Phase 209-07 (H1): tuned after H3 PRIMARY (209-06) went live, per the LOCKED wave
+// order (tune the floor only once the native path validates which branches still
+// fire). Four alternatives:
+//   1. Same-line labeled box: `[1] ... [2] ...` (unchanged from Wave 1).
+//   2. The literal `type 1, 2, or 3` exemplar (unchanged from Wave 1).
+//   3. Multiline labeled box: `[1] ...\n...\n[2] ...` (NEW -- verdict 25's exact
+//      false-negative shape: a gate whose options wrap onto separate lines).
+//   4. Numbered-prose gate: a line-anchored `1. <option>` followed by `2. <option>`
+//      within a 3-line span (NEW -- the incident's "hand-rolled numbered list
+//      instead of a card" shape). `(?:^|\n)` substitutes for per-line anchoring
+//      without an `m` flag, so this alternative matches anywhere inside a larger
+//      message, not only at the string's absolute start.
+// The bare U+25A0 alternative is DELETED: a lone U+25A0 in a status/dial row with
+// no option structure is SANCTIONED plugin UI vocabulary (selector-dispatcher.cjs:256,
+// ui-system SKILL.md:131, dial-presenter.cjs:134) and must never intercept a turn on
+// its own. A U+25A0 appearing WITHIN one of the four gate-shaped alternatives above
+// still counts (it is part of the matched gate content, not a bare occurrence).
+const ASCII_BOX_GLYPH_RE =
+  /\[\s*1\s*\]\s*.*\[\s*2\s*\]|type\s+1\s*,\s*2\s*,\s*or\s+3|\[\s*1\s*\][^\n]*\n[\s\S]*?\[\s*2\s*\]|(?:^|\n)\s{0,3}1[.)]\s+\S[^\n]*\n(?:[^\n]*\n)?\s{0,3}2[.)]\s+\S/i;
 
 // ----- envelope schema allowlist (Phase 95 BASH-95-01) -----
 
@@ -688,12 +707,26 @@ function readTranscriptTurn(transcriptPath) {
   const raw = readTranscriptTail(transcriptPath);
   if (raw === null) return empty;
   let lastAssistantText = '';
-  // WR-06: askFired is the AskUserQuestion state of the LAST assistant message ONLY, not an
-  // OR across the whole conversation. We track the last assistant message's content object and
-  // evaluate scanContentForAskUserQuestion on IT ALONE after the walk, so a stale earlier card
-  // cannot mask the current box turn. (The old whole-transcript `|= true` accumulation is the
-  // exact cross-turn bleed WR-06 flagged; removed.)
-  let lastAssistantContent = null;
+  // WR-06 (Phase 209-07, H2 widened): askFired is now an OR across every assistant
+  // message of the CURRENT TURN (since the last role:user record), not the LAST
+  // assistant message alone. The original Wave-1 fix (LAST-message-only) closed the
+  // whole-transcript cross-turn bleed but over-corrected: a turn where the card
+  // fires in an earlier assistant message and a LATER assistant message in the SAME
+  // turn happens to carry gate-shaped text (e.g. a recap) would classify as no-card.
+  // currentTurnAssistantContents collects every assistant message's content since
+  // the last user boundary and RESETS on each role:user record, so:
+  //   - fired-then-glyph within one turn -> askFired true (the fix).
+  //   - a stale card from turn N does NOT mask a no-card box in turn N+1 (the
+  //     original WR-06 cross-turn bleed stays fixed -- a user record resets the
+  //     window).
+  // CR-03 INVARIANT (unchanged, restated): user messages bound the WINDOW only.
+  // They are NEVER folded into gate_signature or turnContextHash -- the retry key
+  // is anchored on gate-identifying CONTENT alone (below), never on message counts
+  // or user-message presence/absence. A transcript with no role:user record (a
+  // compaction summary lead, or an auto-fire-before-the-user-types flow) is simply
+  // ONE window spanning the whole tail (the degenerate case: the reset never fires,
+  // so all assistant messages accumulate) -- this is intentional, not a gap.
+  let currentTurnAssistantContents = [];
   const lines = raw.split('\n');
   for (const line of lines) {
     const trimmed = line.trim();
@@ -707,23 +740,28 @@ function readTranscriptTurn(transcriptPath) {
     if (!obj || typeof obj !== 'object') continue;
     const msg = obj.message && typeof obj.message === 'object' ? obj.message : obj;
     const role = msg.role || obj.type;
+    if (role === 'user') {
+      // A user record resets the CURRENT-TURN window (T-209-29): a card fired in a
+      // PRIOR turn must never mask a no-card box in the NEXT turn. This is the ONLY
+      // use of the user record -- it bounds the window, it is NEVER part of the
+      // retry key (CR-03 above).
+      currentTurnAssistantContents = [];
+      continue;
+    }
     if (role === 'assistant') {
       const text = extractAssistantText(msg.content);
       if (text) lastAssistantText = text;
-      // Record THIS assistant message's content as the current last; askFired is decided from
-      // the last one after the walk (WR-06 scoping). Prefer the message.content; fall back to
-      // a top-level obj.content only when this same record carries it (no cross-turn bleed).
-      lastAssistantContent = (msg.content !== undefined && msg.content !== null)
+      // Prefer the message.content; fall back to a top-level obj.content only when
+      // this same record carries it (no cross-record bleed).
+      const content = (msg.content !== undefined && msg.content !== null)
         ? msg.content
         : (obj.content !== undefined ? obj.content : null);
+      currentTurnAssistantContents.push(content);
     }
-    // NOTE (CR-03): user messages are intentionally NOT tracked here. The retry key is anchored
-    // on the GATE content (gate_signature below), never the user message -- so a transcript with
-    // no role:user record (a compaction summary lead, or an auto-fire-before-the-user-types flow)
-    // has NO empty-anchor fallback to a growing counter. The user message is irrelevant to the key.
   }
-  // WR-06: evaluate the card-fired signal on the LAST assistant message's content ALONE.
-  const askFired = scanContentForAskUserQuestion(lastAssistantContent);
+  // H2: askFired is an OR across every assistant message since the last user
+  // boundary (the CURRENT turn), not the last message alone.
+  const askFired = currentTurnAssistantContents.some(scanContentForAskUserQuestion);
   // CR-03 / WR-07 ROOT ANCHOR: the gate signature over the LAST assistant message's
   // gate-identifying content (Part 8: a sha256 hash, the raw message text never leaves this
   // function). Growth-invariant, per-gate, present whenever a gate is detected.
@@ -935,6 +973,7 @@ module.exports = {
   SESSION_KEY_PREFIX,
   RETRY_TTL_MS,
   TRANSCRIPT_TAIL_BYTES,
+  ASCII_BOX_GLYPH_RE,
   classifyCardFire,
   buildEnforcementEnvelope,
   gateReachingEntries,
