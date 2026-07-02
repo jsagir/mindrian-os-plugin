@@ -3318,7 +3318,7 @@ Fixes the defect Lawrence Aronhime named: the LIVE Shape-F selector printed the 
 - **Durable source:** `.planning/phases/188.1-shape-f-elevation-labels/188.1-CONTEXT.md`.
 - **Status:** COMPLETE 2026-07-01. Gate `tests/run-all-188.sh` 14/14 PASS (adds run_if leg `tests/test-188.1-elevation-labels.cjs`); existing dial tests green (drift, render-states 14/14, end-to-end 11 checks). Commit 47cadaab on feat/v1.15-shape-brain-phases.
 
-### Phase 189: Human-in-the-Loop Memory Governance (hitl-memory-governance) - REGISTERED 2026-06-30
+### Phase 189: Human-in-the-Loop Memory Governance (hitl-memory-governance) - REGISTERED 2026-06-30 - **COMPLETE 2026-07-02**
 
 **Class:** CODE + CANON | **Priority:** P1 (after F.8/F.9 land - they are prerequisite machinery) | **Depends on:** Phase 188 (F.8 multi-select), the F.9 cascade/reconcile seed, SEED-039 (multi-session reconcile), Phase 109 (navigation.cjs Part-9 chokepoint), LarryReach bank (6 reaches)
 
@@ -3335,19 +3335,19 @@ Room memory writes are today largely IMPLICIT - Larry files nuggets/claims/edges
 
 Plans:
 
-- [ ] 189-01-PLAN.md -- HMG-08: edge-vocabulary mint (REMEMBERED_AS/ATTRIBUTED_TO/NOT_REMEMBERED_BECAUSE) + governance-candidate contract + Wave-0 test harness + Plurai CSV/baseline (Wave 1)
-- [ ] 189-02-PLAN.md -- HMG-01/02/03: WHAT -- findGovernanceCandidates query + F.8 governance basket + closer (REMEMBERED_AS / NOT_REMEMBERED_BECAUSE) + reusable Plurai gate-check script (Wave 2)
-- [ ] 189-03-PLAN.md -- HMG-04: HOW (ordered) -- F.9 multi-section soft-edit cascade adapter, composing the shipped F.9 shape (Wave 2)
-- [ ] 189-04-PLAN.md -- HMG-05/06/07: WHO -- explicit attribution + memory_layer, cross-room second-confirm delegation to the Phase-195 umbilical gate, Phase-194 multi-session reconcile reuse proof, runChain halt assertion (Wave 3)
+- [x] 189-01-PLAN.md -- HMG-08: edge-vocabulary mint (REMEMBERED_AS/ATTRIBUTED_TO/NOT_REMEMBERED_BECAUSE) + governance-candidate contract + Wave-0 test harness + Plurai CSV/baseline (Wave 1)
+- [x] 189-02-PLAN.md -- HMG-01/02/03: WHAT -- findGovernanceCandidates query + F.8 governance basket + closer (REMEMBERED_AS / NOT_REMEMBERED_BECAUSE) + reusable Plurai gate-check script (Wave 2)
+- [x] 189-03-PLAN.md -- HMG-04: HOW (ordered) -- F.9 multi-section soft-edit cascade adapter, composing the shipped F.9 shape (Wave 2)
+- [x] 189-04-PLAN.md -- HMG-05/06/07: WHO -- explicit attribution + memory_layer, cross-room second-confirm delegation to the Phase-195 umbilical gate, Phase-194 multi-session reconcile reuse proof, runChain halt assertion (Wave 3)
 
 ### Phase 190: Shape F Declaration Mandate (shape-f-declaration-mandate) - REGISTERED 2026-06-30 - **CANONICAL RULING**
 
 **Class:** CANON + CODE + PROCESS | **Priority:** P0 (canonical ruling - governs every future surface) | **Depends on:** Canon Part 11 (CIRS born-wired gate), Part 3 (Shape F), Phase 125 (f-selector-ranker), Phase 121.5 (body_shape orthogonality), Phase 188 (F.8)
 
-Adds the THIRD born-clause to Canon Part 11 (CIRS today: every invocable surface is born WIRED or EXCLUDED): **every invocable surface is also born with a DECLARED HITL SHAPE.** Any command/agent/pipeline/framework that reaches a genuine fork MUST declare in frontmatter which Shape F fires at its close (`hitl_shape: F.x`) and WHY (`hitl_why:`, one Feynman line), justified against the decision rule (ordered -> F.9/F.2; independent set -> F.8; branches -> F.5; single -> F.1/F.0; depth -> F.3; harvest -> F.4; plan/JTBD -> F.6; reaches -> F.7). The build FAILS CLOSED if a forking surface ships without a declared shape - mirroring the born-wired R1/R2 gate. This makes navigator authority structural and un-skippable: it prevents a future command from quietly deciding FOR the navigator (the GIX single-select-over-a-set bug that motivated Phase 188).
+Adds the THIRD born-clause to Canon Part 11 (CIRS today: every invocable surface is born WIRED or EXCLUDED): **every invocable surface is also born with a DECLARED HITL SHAPE.** Any command/agent/pipeline/framework, OR skill that reaches a genuine fork, MUST declare in frontmatter which Shape F fires at its close (`hitl_shape: F.x`) and WHY (`hitl_why:`, one Feynman line), justified against the decision rule (ordered -> F.9/F.2; independent set -> F.8; branches -> F.5; single -> F.1/F.0; depth -> F.3; harvest -> F.4; plan/JTBD -> F.6; reaches -> F.7). The build FAILS CLOSED if a forking surface ships without a declared shape - mirroring the born-wired R1/R2 gate. This makes navigator authority structural and un-skippable: it prevents a future command from quietly deciding FOR the navigator (the GIX single-select-over-a-set bug that motivated Phase 188).
 
 - **Enforcement:** new `scripts/check-shape-declaration.cjs --check` (release-gate wired) fails on a missing OR f-selector-ranker-contradicting declaration; `body_shape` (layout) and `hitl_shape` (selector) stay orthogonal per Phase 121.5 decision 4. GSD wiring: `/gsd-discuss-phase` auto-asks the HITL-shape gray-area for command-introducing phases; `/gsd-plan-phase` template + `gsd-plan-checker` require it; `/gsd-verify` confirms shipped == planned.
-- **Backfill is cheap:** the full command->shape + framework->shape map already exists (the Shape-F explainer https://mindrian-f-shapes.vercel.app + this session's catalog: 103 commands, ~140 frameworks, the agents, the synthetic-expert surfaces).
+- **Backfill is cheap:** the full command->shape + framework->shape map already exists (the Shape-F explainer https://mindrian-f-shapes.vercel.app + this session's catalog: 103 commands, ~140 frameworks, the agents, the synthetic-expert surfaces). Navigator-directed fold-in 2026-07-01: skills/*/SKILL.md join the mandate on the FORK TEST (does it reach a genuine Decision-Gate fork), not the CIRS-wiring test -- 9 of 14 skills qualify; the other 5 are exempt via their existing connector.excluded:true+reason. Total declaring surfaces = 104 commands + 9 agents + 3 pipelines + 9 qualifying skills = 125, always enumerated from disk, never hardcoded.
 - **Canon:** Part 11 third born-clause + Appendix-D entry, navigator-gated; rides the entry-31 posture released in Phase 188; frozen Part 3 scalars (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15) UNCHANGED - mandates declaration, does not touch the shapes; Part 8 clean (LOCAL frontmatter, zero Brain wire); no em-dashes.
 - **Provenance:** navigator-directed 2026-06-30 ("any new command introduced to MindrianOS forever should declare its HITL F.shape and why, as a canonical ruling system enforced in GSD"). Promoted from `.planning/seeds/SEED-041-shape-f-declaration-mandate.md`. NEXT: `/gsd-discuss-phase 190`.
 
@@ -3355,8 +3355,8 @@ Adds the THIRD born-clause to Canon Part 11 (CIRS today: every invocable surface
 
 Plans:
 
-- [ ] 190-01-PLAN.md -- Declaration contract + JSON schema + full 116-surface backfill data (Wave 1)
-- [ ] 190-02-PLAN.md -- Backfill generator + run against all commands/agents/pipelines (Wave 2)
+- [ ] 190-01-PLAN.md -- Declaration contract + JSON schema + full 125-surface backfill data: 104 commands + 9 agents + 3 pipelines + 9 qualifying skills (Wave 1)
+- [ ] 190-02-PLAN.md -- Backfill generator + run against all commands/agents/pipelines/qualifying skills (Wave 2)
 - [ ] 190-03-PLAN.md -- check-shape-declaration.cjs gate core + fixtures + tests (Wave 2)
 - [ ] 190-04-PLAN.md -- Wire gate into pre-commit/release/doctor + GSD wiring (CLAUDE.md/CIRS contract/CANON-PHASE-MAP) (Wave 3)
 - [ ] 190-05-PLAN.md -- [NAVIGATOR-GATED] Canon Part 11 R16 + Appendix D entry 36 amendment (Wave 4)
@@ -3572,7 +3572,7 @@ Cluster I foundation, and the integrative spine (navigator-directed 2026-07-01).
   - [x] 201-04 - Plurai voice/loop eval GATE + local deterministic parity gate (hard invariants, not a swept threshold); `baseline_deferred` degrade path, 100% local parity. Commit `5ba0e932`.
   - Doc closeout (SUMMARYs + tracked plans/context) committed `7fdb924f`.
 
-### Phase 202: Agent-Lightning APO Lab Loop (agent-lightning-apo-lab) - REGISTERED 2026-07-01
+### Phase 202: Agent-Lightning APO Lab Loop (agent-lightning-apo-lab) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-02**
 
 **Class:** CODE + LAB | **Priority:** P3 (lab-side; the trained-Lawrence arc) | **Depends on:** Phase 201 (harness manifest), the Brain teaching corpus
 
