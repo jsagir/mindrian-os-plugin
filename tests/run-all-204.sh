@@ -16,7 +16,8 @@
 #   - tests/test-204-ignite-wiring-grep.cjs    (Plan 204-03, ignite.md wiring)
 #   - tests/test-204-ignite-branch-gate.cjs    (Plan 204-04, branch gate)
 # Missing test files SKIP, they do not FAIL. As the Wave 2 plans land, each SKIP
-# flips to a run and the gate tightens.
+# flips to a run and the gate tightens. Plan 204-04 has landed: the branch-gate
+# leg below is now a HARD run (all four legs run, zero skips).
 #
 # bash only. No emoji. No em-dashes.
 
@@ -63,8 +64,7 @@ run_if "204 ignite wiring grep (Plan 204-03)" \
   tests/test-204-ignite-wiring-grep.cjs \
   node tests/test-204-ignite-wiring-grep.cjs
 
-run_if "204 ignite branch gate (Plan 204-04)" \
-  tests/test-204-ignite-branch-gate.cjs \
+run "204 ignite branch gate (Plan 204-04)" \
   node tests/test-204-ignite-branch-gate.cjs
 
 echo "========================================"
