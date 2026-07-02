@@ -43,17 +43,27 @@
  *               ASCII-box gate glyphs (the `[1] [2] [3]` / "type 1, 2, or 3" anti-pattern)
  *               with no fired card -- intercepted even for an OFF-registry surface.
  *
- * DOCTRINE HONESTY (WR-04): PRIMARY is DEFERRED, not live. PRIMARY keys off a `ran_entries`
- * / `reached_gate_entries` set that records which registry gate-reaching surfaces ran this
- * turn. A Stop-hook transcript yields assistant TEXT (the BACKSTOP signal), NOT a
- * reached-entries SET, and a repo-wide grep finds ZERO producers of `ran_entries` /
- * `reached_gate_entries` outside this file and its tests. So until a side-channel writer
- * exists (a PreToolUse/PostToolUse hook that records reached-gate registry entries during
- * the turn for the Stop hook to read), PRIMARY has no live source and stays INERT. The
- * BACKSTOP (transcript ASCII-box text detection) is the LIVE detector this phase ships.
- * The PRIMARY code path is retained (it stays correct the instant a producer lands and the
- * unit tests exercise it via direct-field envelopes), but it is NOT presented as the live
- * cure. The side-channel writer is a named, deferred follow-on.
+ * DOCTRINE UPDATE (Phase 209-06, H3): PRIMARY IS LIVE. WR-04 (below, historical record)
+ * documented PRIMARY as deferred because no producer of `ran_entries` / `reached_gate_entries`
+ * existed. That producer now exists: lib/core/card-fire-sidechannel.cjs (recordReachedGate /
+ * readReachedGates), wired at the THREE places that mint a Shape-F gate envelope --
+ * lib/hmi/selector-dispatcher.cjs's pickShape trailer door (gated on payload.emitTelemetry
+ * === true, Canon Part 8 fs_scope), and scripts/intent-classifier.cjs's engine arm +
+ * emitBindingGate (F.8). deriveTurnSignals (below) now reads the side file via
+ * readReachedGates(session_id) whenever the envelope does NOT already carry ran_entries /
+ * reached_gate_entries directly (direct-field envelopes -- the unit-test shape -- keep
+ * PRECEDENCE, so the 22 existing predicate assertions stay byte-identical). The BACKSTOP
+ * (transcript ASCII-box text detection) stays SECONDARY PERMANENTLY -- it is the only
+ * detector that still works when the side-channel writer itself fails (a missing, corrupt,
+ * or oversized side-file all degrade to [] inside readReachedGates, never throwing here).
+ *
+ * WR-04 (historical, PRE-209-06): "PRIMARY is DEFERRED, not live. PRIMARY keys off a
+ * `ran_entries` / `reached_gate_entries` set that records which registry gate-reaching
+ * surfaces ran this turn. A Stop-hook transcript yields assistant TEXT (the BACKSTOP
+ * signal), NOT a reached-entries SET, and a repo-wide grep finds ZERO producers of
+ * `ran_entries` / `reached_gate_entries` outside this file and its tests. So until a
+ * side-channel writer exists ... PRIMARY has no live source and stays INERT." -- superseded
+ * by the DOCTRINE UPDATE above; retained verbatim for the historical record.
  *
  * Bounded escape (T-179-01 DoS mitigation): a LOCAL retry side-file
  * (~/.mindrian/card-fire-retries.json) keyed by a TRANSCRIPT-GROWTH-INVARIANT turn identity
@@ -800,9 +810,32 @@ function deriveTurnSignals(env) {
   const e = env && typeof env === 'object' ? env : {};
 
   // PRIMARY ran-entries: side-channel only (no transcript source -- WR-04 deferred).
-  const ranEntries = Array.isArray(e.ran_entries)
+  // Phase 209-06 (H3): WR-04's doctrine note is UPDATED here, not just above --
+  // the producer now exists (lib/core/card-fire-sidechannel.cjs, wired at the
+  // pickShape trailer door + the two intent-classifier.cjs sites: the engine
+  // arm and emitBindingGate). Direct-field envelopes (the unit-test shape)
+  // keep PRECEDENCE: the side file is consulted ONLY when the envelope did
+  // NOT already carry ran_entries/reached_gate_entries, so the 22 existing
+  // predicate assertions stay green byte-for-byte. Regex BACKSTOP stays
+  // SECONDARY permanently -- it is the only detector when the side-channel
+  // writer itself fails (a missing/corrupt/oversized file all degrade to []
+  // inside readReachedGates, never throwing here).
+  let ranEntries = Array.isArray(e.ran_entries)
     ? e.ran_entries
     : (Array.isArray(e.reached_gate_entries) ? e.reached_gate_entries : []);
+
+  if (ranEntries.length === 0) {
+    try {
+      const sidechannel = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'card-fire-sidechannel.cjs'));
+      const sessionId = typeof e.session_id === 'string' ? e.session_id : '';
+      const fromSideChannel = sidechannel.readReachedGates(sessionId);
+      if (Array.isArray(fromSideChannel) && fromSideChannel.length > 0) {
+        ranEntries = fromSideChannel;
+      }
+    } catch (_e) {
+      /* degrade to empty ran_entries; BACKSTOP alone still applies */
+    }
+  }
 
   // Direct-field signals (the unit-test / side-channel shape).
   const directText =

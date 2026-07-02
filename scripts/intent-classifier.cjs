@@ -1090,6 +1090,24 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
           };
           block += '\n[AskUserQuestion payload: ' + JSON.stringify(compact) + ']';
         }
+        // Phase 209-06 (H3): the PRIMARY side-channel producer for the engine
+        // arm. Lazy-required inside its own try/catch so a writer fault never
+        // affects the rendered block. sessionId is threaded via ctx (the call
+        // site above passes resolveSessionId(roomDir)); when absent the
+        // record files under NO_SESSION_KEY (the module's documented
+        // degenerate-floor bucket, unioned into every session-scoped read).
+        try {
+          const sidechannel = require(
+            path.join(__dirname, '..', 'lib', 'core', 'card-fire-sidechannel.cjs')
+          );
+          sidechannel.recordReachedGate({
+            sessionId: (ctx && typeof ctx.sessionId === 'string') ? ctx.sessionId : undefined,
+            surface: 'scripts/intent-classifier.cjs',
+            shape: 'F.1',
+          });
+        } catch (_e) {
+          /* never let a side-channel fault affect the rendered block */
+        }
         return block;
       }
     }
@@ -2086,6 +2104,23 @@ function emitBindingGate(args) {
     dispatcher.appendAskUserQuestionTrailer(rendered, 'F.8');
   } catch (_e) { /* trailer fault: degrade to the untrailed gate, never block */ }
 
+  // Phase 209-06 (H3): the PRIMARY side-channel producer for the F.8 binding
+  // gate. sessionId is a direct arg here (unlike the pickShape door, which has
+  // none in scope). Lazy-required inside its own try/catch; a writer fault
+  // never affects the rendered gate.
+  try {
+    const sidechannel = require(
+      path.join(__dirname, '..', 'lib', 'core', 'card-fire-sidechannel.cjs')
+    );
+    sidechannel.recordReachedGate({
+      sessionId: sessionId,
+      surface: 'scripts/intent-classifier.cjs',
+      shape: 'F.8',
+    });
+  } catch (_e) {
+    /* never let a side-channel fault affect the rendered gate */
+  }
+
   const bodyLines = [];
   if (zones.header) bodyLines.push(zones.header);
   if (zones.body) bodyLines.push(zones.body);
@@ -2567,6 +2602,10 @@ try {
             // dial slot map resolves {topic}/{room_name} from live nodes.
             roomContext: out.room_context,
             roomDir: roomDir,
+            // Phase 209-06 (H3): threaded so the engine-arm PRIMARY side-channel
+            // producer can key its record by session (sessionId is already in
+            // scope in this closure via resolveSessionId(roomDir) above).
+            sessionId: sessionId,
             // Phase 158-03 (SC-07): the upstream-computed bounded reject penalty +
             // hard-suppression set, folded on the live arm (db open) and threaded
             // out on the resolved object. The render seam merges discountedScores
