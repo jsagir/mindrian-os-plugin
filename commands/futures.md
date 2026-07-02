@@ -76,7 +76,7 @@ The command loop is GUIDED BY RING. It does not flat-brainstorm. Each turn:
 1. Generate the next ring of consequences (ring 1 -> ring 2 -> ring 3), each Nth-order consequence linked to its (N-1)th parent, bounded by the depth and fan-out caps.
 2. Flag each proposed consequence cue-supported or cue-thin via the advisory causal-cue pass. Neither is auto-dropped; the navigator decides at the gate.
 3. Tag each consequence with horizon (near / mid / long), confidence (0.0-1.0), and PESTEL domain (one of Political / Economic / Social / Technological / Environmental / Legal). The orchestrator validates these.
-4. Surface the ring as a batch at a per-ring Decision Gate (Part 3, Shape F.1). The navigator APPROVE / REJECT(reason) / DEFER. Approved consequences reach confirmed; rejections become graph data.
+4. Surface the ring as a batch at a per-ring Decision Gate (Part 3, Shape F.2). The navigator APPROVE / REJECT(reason) / DEFER. Approved consequences reach confirmed; rejections become graph data.
 
 ## D-03 subsystem-PESTEL-map-default render
 

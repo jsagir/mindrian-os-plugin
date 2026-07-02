@@ -39,6 +39,11 @@ const path = require('node:path');
 // against the closed F.0-F.9 shape set + the {parallel, ordered, gate} mode set.
 const hitlStages = require('./check-hitl-stages.cjs');
 
+// Phase 209-03 (B2): ONE shared STAMP_MARKER constant, imported from the B1
+// stamp script rather than a second literal (T-209-10) - a drifted duplicate
+// would silently green the declared-implies-wired gate.
+const { STAMP_MARKER } = require('./stamp-firing-block.cjs');
+
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SCHEMA_PATH = path.join(REPO_ROOT, 'data', 'hitl-shape-declaration-schema.json');
 const FIXTURES_DIR = path.join(REPO_ROOT, 'data', 'hitl-shape-declaration-fixtures');
@@ -215,6 +220,67 @@ function check(fixture, opts) {
           script + ' is a proven ranker consumer (requires ' + RANKER_MODULES.join(' / ') +
           '), so it MUST declare F.7 (expected F.7, declared ' + declared + ')'
       );
+    }
+  }
+
+  // Phase 209-03 (B2): three declared-implies-wired predicates. Scoped to
+  // hasShape ONLY (single-fork hitl_shape), matching the B1 stamp's EXACT
+  // wiring domain (scripts/stamp-firing-block.cjs's getHitlShape() reads only
+  // the hitl_shape key) - a hitl_stages command is a multi-stage declaration
+  // where a single "canonical firing block" naming one shape does not apply,
+  // and B1 never touched that surface class. Wiring hitl_stages commands is
+  // out of this phase's scope (CONTEXT names only "hitl_shape-declaring
+  // commands"); scoping here to hasShape avoids red-flooding CI on a class B1
+  // was never asked to stamp.
+  //
+  // Each predicate applies ONLY when the fixture explicitly carries the
+  // corresponding body-derived field (checkTree() populates these for the
+  // live tree; hand-built fixtures in data/hitl-shape-declaration-fixtures/
+  // that omit them are UNAFFECTED - backward compatible by construction,
+  // never a silent scope creep). All three honor the SAME excluded:true +
+  // non-empty reason escape hatch as (5).
+  const excludedOk =
+    fixture &&
+    fixture.connector_excluded === true &&
+    typeof fixture.connector_reason === 'string' &&
+    fixture.connector_reason.trim().length > 0;
+
+  if (hasShape && !excludedOk) {
+    // (7) wired-body: the body must carry the canonical firing block
+    // (STAMP_MARKER, the B1 stamp) OR mention AskUserQuestion directly.
+    if (fixture && fixture.body_has_firing_block !== undefined) {
+      const wiredBody = fixture.body_has_firing_block === true || fixture.body_mentions_tool === true;
+      if (!wiredBody) {
+        violations.push(
+          'surface ' + label + ': declares ' + (hasShape ? fixture.hitl_shape : 'hitl_stages') +
+            ' but the body neither carries the canonical firing block (' + STAMP_MARKER +
+            ') nor mentions AskUserQuestion'
+        );
+      }
+    }
+
+    // (8) tool-grant: an ABSENT allowed-tools key is unrestricted (passes); a
+    // present list must include AskUserQuestion.
+    if (fixture && Object.prototype.hasOwnProperty.call(fixture, 'allowed_tools')) {
+      const allowedTools = fixture.allowed_tools;
+      if (allowedTools !== null && Array.isArray(allowedTools) && allowedTools.indexOf('AskUserQuestion') === -1) {
+        violations.push(
+          'surface ' + label + ': allowed-tools is restrictive and does not grant AskUserQuestion'
+        );
+      }
+    }
+
+    // (9) declared-matches-body: a body naming a DIFFERENT Shape-F than the
+    // declared one is a contradiction (the futures.md F.2-vs-F.1 case). A body
+    // with no shape mention at all passes (no contradiction detectable).
+    if (fixture && Array.isArray(fixture.body_shape_mentions) && fixture.body_shape_mentions.length > 0) {
+      const declaredShape = hasShape ? fixture.hitl_shape : null;
+      if (declaredShape && fixture.body_shape_mentions.indexOf(declaredShape) === -1) {
+        violations.push(
+          'surface ' + label + ': declares ' + declaredShape + ' but the body mentions Shape ' +
+            fixture.body_shape_mentions.join(', ') + ' (declared-vs-body shape contradiction)'
+        );
+      }
     }
   }
 
@@ -401,13 +467,48 @@ function parseFrontmatter(md) {
   return out;
 }
 
+// Matches the repo's canonical "Decision Gate (Part 3, Shape F.N)" citation
+// form ONLY (verified 2026-07-02: the unique, unambiguous phrasing a command
+// body uses to cite ITS OWN top-level Decision Gate against Canon Part 3),
+// BODY TEXT ONLY (never the frontmatter). A bare "Shape F.N" mention
+// elsewhere in a body (e.g. "render its Shape F.1 selector" describing a
+// nested helper gate, or a numbered sub-stage like "B2: ... (Shape F.0,
+// pre-room)") is a legitimate reference to a DIFFERENT, internal sub-decision
+// and is deliberately NOT treated as a contradiction signal - a live-tree
+// audit confirmed multiple such multi-gate commands (file-meeting.md,
+// memory.md, new-project.md, systems-thinking.md) that are correctly wired
+// and would otherwise false-positive under a naive "any Shape F.N mention"
+// scan. Only futures.md uses this exact citation form in the entire commands/
+// tree (grep-confirmed), which is why it is the phase's sole named drift case.
+// Distinct F.N tokens are deduplicated and returned as e.g. ["F.1", "F.2"].
+const BODY_SHAPE_MENTION_RE = /part\s+3,\s*shape\s+f\.(\d)/gi;
+
+function extractBodyShapeMentions(bodyText) {
+  const s = typeof bodyText === 'string' ? bodyText : '';
+  const seen = new Set();
+  let m;
+  BODY_SHAPE_MENTION_RE.lastIndex = 0;
+  while ((m = BODY_SHAPE_MENTION_RE.exec(s)) !== null) {
+    seen.add('F.' + m[1]);
+  }
+  return Array.from(seen).sort();
+}
+
 // ---------------------------------------------------------------------------
-// frontmatterToFixture(surface, fm) -- build a check() fixture from a parsed
-// surface frontmatter: lift hitl_shape/hitl_why/hitl_stages, and lift the nested
-// connector.excluded/connector.reason into the flat connector_excluded/
+// frontmatterToFixture(surface, fm, bodyText) -- build a check() fixture from a
+// parsed surface frontmatter: lift hitl_shape/hitl_why/hitl_stages, and lift the
+// nested connector.excluded/connector.reason into the flat connector_excluded/
 // connector_reason fields check() reads.
+//
+// Phase 209-03 (B2): when bodyText is provided (checkTree() always supplies
+// it for the live tree; callers that omit it get the old frontmatter-only
+// fixture, so this is additive and backward-compatible), also lift the three
+// declared-implies-wired signals: body_has_firing_block (the B1 STAMP_MARKER
+// present), body_mentions_tool ('AskUserQuestion' present), body_shape_mentions
+// (distinct "Shape F.N" tokens in the body), and allowed_tools (null when the
+// frontmatter key is absent - unrestricted - else the parsed list).
 // ---------------------------------------------------------------------------
-function frontmatterToFixture(surface, fm) {
+function frontmatterToFixture(surface, fm, bodyText) {
   const fixture = { surface };
   if (fm && fm.hitl_shape !== undefined) fixture.hitl_shape = fm.hitl_shape;
   if (fm && fm.hitl_why !== undefined) fixture.hitl_why = fm.hitl_why;
@@ -417,6 +518,30 @@ function frontmatterToFixture(surface, fm) {
     if (conn.excluded === true) fixture.connector_excluded = true;
     if (typeof conn.reason === 'string') fixture.connector_reason = conn.reason;
   }
+
+  if (typeof bodyText === 'string') {
+    fixture.body_has_firing_block = bodyText.indexOf(STAMP_MARKER) !== -1;
+    fixture.body_mentions_tool = bodyText.indexOf('AskUserQuestion') !== -1;
+    fixture.body_shape_mentions = extractBodyShapeMentions(bodyText);
+
+    const allowedToolsRaw = fm && fm['allowed-tools'];
+    if (allowedToolsRaw === undefined || allowedToolsRaw === null) {
+      fixture.allowed_tools = null;
+    } else if (Array.isArray(allowedToolsRaw)) {
+      fixture.allowed_tools = allowedToolsRaw;
+    } else {
+      // An inline scalar dialect: either a single tool ("Bash") or the B1
+      // stamp's comma-append grant form ("Bash(node *), AskUserQuestion" -
+      // bare comma-separated, no brackets - see scripts/stamp-firing-block.cjs
+      // grantTool's scalar branch). Split on top-level commas so both forms
+      // evaluate the same way as a multi-item list.
+      fixture.allowed_tools = String(allowedToolsRaw)
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+    }
+  }
+
   return fixture;
 }
 
@@ -560,7 +685,20 @@ function checkTree() {
       continue;
     }
     const fm = parseFrontmatter(md);
-    const fixture = frontmatterToFixture(s.surface, fm);
+    // Phase 209-03 (B2): the declared-implies-wired body/grant/shape-match
+    // predicates are scoped to the 'command' surface class ONLY, matching the
+    // B1 stamp's EXACT wiring domain (scripts/stamp-firing-block.cjs walks
+    // only commands/*.md). Agents, pipelines, and skills are a DIFFERENT
+    // wiring generation this phase does not touch; passing bodyText only for
+    // s.klass === 'command' means frontmatterToFixture leaves the new fields
+    // undefined for those classes, and check()'s predicates skip accordingly
+    // (backward-compatible by construction - see the predicate comment).
+    let bodyText;
+    if (s.klass === 'command') {
+      const fmMatch = /^---\r?\n[\s\S]*?\r?\n---/.exec(md);
+      bodyText = fmMatch ? md.slice(fmMatch[0].length) : md;
+    }
+    const fixture = frontmatterToFixture(s.surface, fm, bodyText);
     const r = check(fixture, { vocab });
     if (!r.valid) {
       for (const v of r.violations) violations.push(v);
@@ -672,4 +810,5 @@ module.exports = {
   collectSurfaces,
   checkTree,
   RANKER_MODULES,
+  extractBodyShapeMentions,
 };
