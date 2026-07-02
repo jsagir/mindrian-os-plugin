@@ -23,3 +23,13 @@
   untracked runtime caches under .mindrian/, or the cache writer should not embed the
   glyphs. Owner: statusline/brain-substrate maintainer.
 
+## 192-05 execution (aggregator + verdict)
+
+- **Pre-existing em-dash in `evals/plurai/README.md:1` (NOT a Phase-192 regression).**
+  The README TITLE line carries a single em-dash that predates Phase 192 (present at the
+  pre-phase ref `61606a56`). Phase 192 introduced ZERO em-dashes across its entire diff
+  (verified: `git diff 61606a56 e4b67e36 | grep '^+' | grep -c em-dash` = 0). Not fixed in
+  192-05 because `evals/plurai/README.md` is outside this plan's exclusive file ownership
+  (192-05 owns only `tests/run-all-192.sh` + `192-VERDICT.md`; R6). Fix: a future doc-scoped
+  pass should replace the title em-dash with a hyphen. Owner: evals/docs maintainer.
+
