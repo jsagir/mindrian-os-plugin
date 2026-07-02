@@ -107,6 +107,63 @@ function runDoctorSelfCheck() {
   }
 }
 
+// F6 self-heal (windows-install-update-ux.md). Auto-run the shipped repair
+// pipeline: `node <PLUGIN_ROOT>/scripts/doctor.cjs --statusline-visibility --fix
+// --json`. Canon Part 7 (reuse before build): doctor.cjs already implements the
+// class G (user-settings drift) + class H (install-incomplete: missing statusLine
+// block) detect+repair, so we do NOT reimplement the settings.json rewrite here.
+//
+// Exit code is NOT trusted: under class flags doctor honors the graceful-
+// degradation invariant and ALWAYS exits 0 (doctor.cjs _finalizeAndExit,
+// classFlagsActive branch). Health is read from the JSON check statuses instead:
+// resolved iff BOTH statusline-visibility (class G) AND install-incomplete
+// (class H) re-check to status 'ok' after --fix.
+//
+// Defensive: guarded by a timeout + try/catch. On doctor missing / spawn error /
+// no output / parse error / still-drift, returns { resolved:false } so the caller
+// degrades to the surface-the-question fallback -- never crashes, never blocks.
+function attemptStatuslineSelfHeal() {
+  try {
+    const doctorPath = path.join(PLUGIN_ROOT, 'scripts', 'doctor.cjs');
+    if (!fs.existsSync(doctorPath)) return { resolved: false, reason: 'doctor-missing' };
+    const r = spawnSync(process.execPath,
+      [doctorPath, '--statusline-visibility', '--fix', '--json'],
+      { timeout: 4000, encoding: 'utf8' });
+    if (!r || typeof r.stdout !== 'string' || r.stdout.length === 0) {
+      return { resolved: false, reason: 'no-output' };
+    }
+    let report;
+    try { report = JSON.parse(r.stdout); } catch (_e) { return { resolved: false, reason: 'parse-error' }; }
+    const checks = (report && report.checks) || {};
+    const g = checks['statusline-visibility'];
+    const h = checks['install-incomplete'];
+    const gOk = !!(g && g.status === 'ok');
+    const hOk = !!(h && h.status === 'ok');
+    if (gOk && hOk) return { resolved: true, reason: 'repaired' };
+    return { resolved: false, reason: 'still-drift' };
+  } catch (_e) {
+    return { resolved: false, reason: 'spawn-error' };
+  }
+}
+
+// Write the touch-file so the gate stops firing for this version. Same shape the
+// gate has always documented: { installed_version, completed_at }. Best-effort:
+// a write failure returns false and the caller still degrades safely (the gate
+// simply re-fires next session -- never blocks the hook chain).
+function writeTouchFile(ver) {
+  try {
+    const p = touchFilePath();
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    fs.writeFileSync(p, JSON.stringify({
+      installed_version: ver,
+      completed_at: new Date().toISOString(),
+    }, null, 2));
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
 function gateText(ver) {
   return [
     '⬡ MindrianOS v' + ver + ' is active. First-session check:',
@@ -222,6 +279,14 @@ function contributeOnboarding() {
   try {
     if (!shouldFire()) return fi.emptyFragment();
     const ver = readPluginVersion();
+    // F6 self-heal: attempt the shipped repair FIRST. If it resolves, record the
+    // touch-file and stay silent (loop closed). Only surface the manual question
+    // when the auto-fix could NOT resolve (doctor missing / errored / still drift).
+    const heal = attemptStatuslineSelfHeal();
+    if (heal.resolved) {
+      writeTouchFile(ver);
+      return fi.emptyFragment();
+    }
     let full = gateText(ver);
     const doctorLine = runDoctorSelfCheck();
     if (doctorLine) full = full + '\n\n' + doctorLine;
@@ -237,7 +302,14 @@ function contributeOnboarding() {
   }
 }
 
-module.exports = { contributeSealed, contributeOnboarding };
+module.exports = {
+  contributeSealed,
+  contributeOnboarding,
+  attemptStatuslineSelfHeal,
+  writeTouchFile,
+  touchFilePath,
+  shouldFire,
+};
 
 // Legacy bare-hook path -- preserved for backward compat, but hooks.json no longer
 // routes here; the coordinator calls contributeSealed/contributeOnboarding instead.
@@ -253,6 +325,13 @@ if (require.main === module) {
     clearTimeout(inputTimeout);
     if (!shouldFire()) return emitEmpty();
     const ver = readPluginVersion();
+    // F6 self-heal: run the shipped repair FIRST; on success record the touch-file
+    // and stay silent. Only surface the manual question when it could not resolve.
+    const heal = attemptStatuslineSelfHeal();
+    if (heal.resolved) {
+      writeTouchFile(ver);
+      return emitEmpty();
+    }
     let additionalContext = gateText(ver);
     // Phase 95.6 D-09: append the /mos:doctor self-check line (best-effort).
     const doctorLine = runDoctorSelfCheck();
