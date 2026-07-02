@@ -7,8 +7,8 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "abb0a5d38fc3792e027149ab8f2b228d76589870e1e7e3a28e2b008278b7b07c",
-      "source_count": 104
+      "digest": "d91498041d2100e85a28500205c914b86d3882c2c32e4569d748d5d718218aac",
+      "source_count": 105
     },
     {
       "role": "wiring",
