@@ -2173,6 +2173,36 @@
       }
     },
     {
+      "id": "command:/mos:skill",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:skill",
+      "reach_id": "context_block",
+      "sub_mode": "expert-skill",
+      "hierarchy_rank": 24,
+      "posture": "push_forward",
+      "sensor_triggers": [
+        "SENS-01"
+      ],
+      "chain_provenance": {
+        "command": "/mos:skill",
+        "reach_id": "context_block",
+        "sub_mode": "expert-skill",
+        "firing_sensors": [
+          "SENS-01"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "expert-skill",
+        "hierarchy_rank": 24,
+        "posture": "push_forward",
+        "sensor_triggers": [
+          "SENS-01"
+        ]
+      }
+    },
+    {
       "id": "command:/mos:snapshot",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -3200,6 +3230,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "dual-use-diffusion"
+    },
+    {
+      "id": "sub_mode:expert-skill",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "expert-skill"
     },
     {
       "id": "sub_mode:file-meeting",

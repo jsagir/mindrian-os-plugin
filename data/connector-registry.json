@@ -1114,6 +1114,23 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:skill",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-01"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "expert-skill",
+      "framework": null,
+      "posture": "push_forward",
+      "hierarchy_rank": 24,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:speakers",
       "source": "command",
       "connects_to_spine": true,
@@ -1568,7 +1585,8 @@
       "/mos:ignite",
       "/mos:mva-brief",
       "/mos:new-project",
-      "/mos:new-surface"
+      "/mos:new-surface",
+      "/mos:skill"
     ],
     "SENS-07": [
       "/mos:build-thesis",

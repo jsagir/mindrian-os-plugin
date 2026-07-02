@@ -1526,6 +1526,22 @@
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
+      "command": "/mos:skill",
+      "kind": "utility",
+      "surface": "navigator",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": "When you have a CONFIRMED SyntheticExpert in the graph and you want to talk to it as a persona anywhere in the room, /mos:skill projects that node's props (hat, name, beautiful question, research approach, evidence tier, provenance) into a room-scoped skills/<expert>/SKILL.md through the SHIPPED build-new-surface.cjs generator (kind=skill, --from-expert). The confirmed node is the source of truth; the skill is its projection.",
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+    },
+    {
       "command": "/mos:snapshot",
       "kind": "utility",
       "surface": "navigator",
