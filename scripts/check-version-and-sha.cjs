@@ -260,14 +260,47 @@ async function main() {
 }
 
 function compareSemver(a, b) {
-  const pa = String(a).split('.').map(n => parseInt(n, 10) || 0);
-  const pb = String(b).split('.').map(n => parseInt(n, 10) || 0);
-  const len = Math.max(pa.length, pb.length);
+  // Correct semver precedence, INCLUDING prerelease (bug fix 2026-07-02):
+  // the old split('.')-only form parsed "1.15.0-beta.13" as [1,15,0,13] and
+  // ranked a beta ABOVE its own stable release, so every beta tester was told
+  // "you're current" when the stable shipped. Split the prerelease off first.
+  const parse = (v) => {
+    const [main, pre = ''] = String(v).split('-');
+    const nums = main.split('.').map(n => parseInt(n, 10) || 0);
+    return { nums, pre };
+  };
+  const pa = parse(a);
+  const pb = parse(b);
+  // 1. Compare the numeric x.y.z core.
+  const len = Math.max(pa.nums.length, pb.nums.length);
   for (let i = 0; i < len; i++) {
-    const ai = pa[i] || 0;
-    const bi = pb[i] || 0;
+    const ai = pa.nums[i] || 0;
+    const bi = pb.nums[i] || 0;
     if (ai < bi) return -1;
     if (ai > bi) return 1;
+  }
+  // 2. Core equal -> a version WITHOUT a prerelease outranks one WITH it
+  //    (1.15.0 > 1.15.0-beta.13), per semver 11.3.
+  if (pa.pre === '' && pb.pre === '') return 0;
+  if (pa.pre === '') return 1;
+  if (pb.pre === '') return -1;
+  // 3. Both prerelease -> compare dot-separated identifiers left to right;
+  //    numeric identifiers compare numerically, and a shorter set is lower.
+  const ida = pa.pre.split('.');
+  const idb = pb.pre.split('.');
+  const l2 = Math.max(ida.length, idb.length);
+  for (let i = 0; i < l2; i++) {
+    if (ida[i] === undefined) return -1;
+    if (idb[i] === undefined) return 1;
+    const xn = parseInt(ida[i], 10);
+    const yn = parseInt(idb[i], 10);
+    const xIsNum = !Number.isNaN(xn) && String(xn) === ida[i];
+    const yIsNum = !Number.isNaN(yn) && String(yn) === idb[i];
+    if (xIsNum && yIsNum) {
+      if (xn !== yn) return xn < yn ? -1 : 1;
+    } else if (ida[i] !== idb[i]) {
+      return ida[i] < idb[i] ? -1 : 1;
+    }
   }
   return 0;
 }
