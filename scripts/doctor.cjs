@@ -4005,6 +4005,17 @@ function main() {
     } catch (_) {
       report = { healthy: false, bound: [], primary: null, onScope: false, findings: ['bind-check-error'] };
     }
+    // Quick-task 20260702: WRITE the LOCAL room-health cache the shipped
+    // cockpit-signals reader consumes, so the statusline health glyph goes LIVE
+    // (closes the 192-04 room-health NAMED DEBT: the READ path shipped, the WRITE
+    // path did not). Maps this bind-check report to sound|drift|broken. LOCAL only
+    // (Part 8), fully guarded so a persist failure never affects the never-block
+    // bind contract. Written to HOME/.mindrian (the reader's path), NOT the rooms
+    // home, so the hot-path reader picks it up unchanged.
+    try {
+      const roomHealthCache = require(path.join(__dirname, '..', 'lib', 'statusline', 'room-health-cache.cjs'));
+      roomHealthCache.persistRoomHealth(roomHealthCache.statusFromBindReport(report));
+    } catch (_healthErr) { /* graceful: reader keeps returning the byte-stable default */ }
     if (flags.json) {
       console.log(JSON.stringify(report));
     } else {
