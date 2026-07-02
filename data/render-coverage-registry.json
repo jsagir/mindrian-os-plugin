@@ -18,7 +18,7 @@
     "has_dial_branch": true
   },
   "render_counts": {
-    "card_emission": 15,
+    "card_emission": 16,
     "render_only_excluded": 0
   },
   "entries": [
@@ -54,6 +54,12 @@
     },
     {
       "entry": "lib/core/research-filing-selector.cjs",
+      "kind": "pickShape",
+      "render_coverage": "card-emission",
+      "note": "routes through pickShape isFShape host-append (the SEED-020 single construction door): a Shape F.* return gets the AskUserQuestion marker appended by the dispatcher"
+    },
+    {
+      "entry": "lib/core/room-chooser.cjs",
       "kind": "pickShape",
       "render_coverage": "card-emission",
       "note": "routes through pickShape isFShape host-append (the SEED-020 single construction door): a Shape F.* return gets the AskUserQuestion marker appended by the dispatcher"
