@@ -81,6 +81,10 @@ All F sub-shapes share a common envelope:
 
 The ten canonical verbs (from canon Part 3) are: Run Methodology / Reformulate / Spawn Sub-Agent / Navigate Graph / Devil's Advocate / Scenario Plan / Synthesize / Bank Opportunity / Defer / Free-Text. Each sub-shape below draws from this vocabulary.
 
+**Fire the card, never draw the box (SEED-021 -- the whole gate).** When a turn reaches a genuine Decision Gate, you FIRE the AskUserQuestion tool in THAT SAME turn with the gate's options. On any card-capable surface (Claude Code CLI, Cowork) firing the card is mandatory. You may NOT render the gate as an ASCII box (the `■ ... [1] [2] [3]` block) and ask the navigator to "type 1, 2, or 3" -- drawing the picture without firing the card is the silent-degrade the render-coverage gate (Canon Part 11 R15) exists to kill: no card, no picture (SEED-021). If you draw the gate, you fire the card.
+
+The `[AskUserQuestion contract: shape=F.X verbs=N]` trailer and its self-decoding `[BINDING: call the AskUserQuestion tool ...]` line (minted by the SEED-020 single door, `lib/hmi/selector-dispatcher.cjs` appendAskUserQuestionTrailer) are BINDING wherever they surface -- the engine dial, the room-chooser card, any Shape-F footer. When you see the trailer, dispatch the card with the shown shape and options; do NOT reproduce the block as text. This QUALIFIES the larry-personality "End with a question or next step" rule: AT a Decision Gate the question IS the AskUserQuestion card, never a prose question and never an ASCII box. The "type a/b/c" fallback is ONLY for a surface that genuinely cannot fire the tool (never the CLI).
+
 #### Shape F.0 - Mini Decision Gate
 
 Purpose: Tiny binary or trinary decision gate. Lighter than F.1 (which carries 3-5 options); F.0 is the minimum-viable gate when the navigator only needs a yes/no/defer call before the larger selector slate fires.
