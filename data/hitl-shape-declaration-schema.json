@@ -1,0 +1,34 @@
+{
+  "_doc": {
+    "purpose": "Phase 190-01 (SFD-01): the hitl_shape DECLARATION contract vocabulary - the closed Shape-F set every declaring invocable surface must draw from. Registry-is-the-table: this file IS the schema (the vocabulary enums inline), read by scripts/check-shape-declaration.cjs (ships Plan 03) and by the backfill authoring in data/hitl-shape-backfill.json. A single-fork surface carries hitl_shape (one member of shape_vocabulary) + hitl_why; a multi-stage surface carries hitl_stages using the shape shipped in data/hitl-stages-schema.json. This schema DECLARES the vocabulary; it does not execute a pipeline and does not re-implement runChain. The prose contract is docs/HITL-SHAPE-DECLARATION-CONTRACT.md.",
+    "shape_vocabulary": ["F.0", "F.1", "F.2", "F.3", "F.4", "F.5", "F.6", "F.7", "F.8", "F.9", "none"],
+    "shape_vocabulary_note": "The closed ten canonical Shape-F set (F.0 through F.9) plus the literal string 'none'. 'none' is a commands / agents / pipelines surface that reaches no genuine Decision-Gate fork (a diagnostic, a read-only report, a render-only view). Skills NEVER use 'none': a no-fork skill is exempt by virtue of its existing connector.excluded:true + reason (Canon Part 11 R1), so it is simply ABSENT from data/hitl-shape-backfill.json rather than declaring 'none'. Never invent an eleventh shape.",
+    "mode_vocabulary": ["parallel", "ordered", "gate"],
+    "mode_meaning": [
+      { "mode": "parallel", "meaning": "the stage's shapes fire independently; an F.8 unordered basket is the natural parallel primitive (a set of jobs with no ordering constraint)." },
+      { "mode": "ordered", "meaning": "the shapes fire in sequence; order is meaning; F.9 (ordered walk) / F.2 (path) are the ordered primitives (each step needs the last)." },
+      { "mode": "gate", "meaning": "a go/no-go human-judgment checkpoint. A decision-close shape (F.0 / F.5) maps to mode 'gate'. This is the ONLY seam to runChain: a gate stage MAY hand to runChain's safe-halt." }
+    ],
+    "mode_vocabulary_note": "Copied byte-identical from data/hitl-stages-schema.json's _doc.mode_vocabulary so the hitl_shape and hitl_stages contracts can never silently diverge on the mode enum (Canon Part 7, reuse before build).",
+    "declaration_forms": {
+      "form_a_single_fork": {
+        "hitl_shape": "<one member of shape_vocabulary>",
+        "hitl_why": "<one Feynman-simplified sentence explaining WHY that shape fires, no em-dashes>"
+      },
+      "form_b_multi_stage": {
+        "hitl_stages": [
+          {
+            "stage": "<non-empty stage name>",
+            "shapes": ["F.x", "..."],
+            "mode": "parallel | ordered | gate"
+          }
+        ],
+        "hitl_why": "<one Feynman-simplified sentence describing the staged flow as a whole>"
+      }
+    },
+    "trigger": "Four surface classes: every commands/*.md, every agents/*.md, every pipelines/*/CHAIN.md, and every QUALIFYING skills/*/SKILL.md (a skill that reaches a genuine Decision-Gate fork). A no-fork skill is exempt via its existing connector.excluded:true + reason.",
+    "surface_count_principle": "The total count of declaring surfaces is NEVER hardcoded. It is always count(commands/*.md) + count(agents/*.md) + count(pipelines/*/CHAIN.md) + count(qualifying skills/*/SKILL.md), enumerated from disk by the gate at check time.",
+    "validation_rule": "A single-fork declaration is valid when hitl_shape is a member of shape_vocabulary and hitl_why is a non-empty string. A multi-stage declaration is valid when hitl_stages is a non-empty ordered array, every stage has a non-empty stage name, a non-empty shapes[] whose every id is in shape_vocabulary, and a mode in mode_vocabulary, plus a non-empty hitl_why. Any violation fails closed.",
+    "default_on_miss": "reject (fail closed): an unknown shape id, an unknown mode, or a missing hitl_why is a hard error, not a silent pass. For skills only: an absent declaration is conformant if and only if the skill carries connector.excluded:true + reason."
+  }
+}
