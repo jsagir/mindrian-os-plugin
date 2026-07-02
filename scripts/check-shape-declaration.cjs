@@ -491,6 +491,176 @@ function checkPlanFrontmatter(fm) {
   return { ok: errors.length === 0, errors };
 }
 
+// ---------------------------------------------------------------------------
+// collectSurfaces() -- enumerate the FOUR declaring surface classes from disk,
+// deterministically sorted. Returns [{ surface, file, klass }]. The surface count
+// is whatever this walk finds; NO count is ever hardcoded (the
+// surface_count_principle in data/hitl-shape-declaration-schema.json).
+// ---------------------------------------------------------------------------
+function collectSurfaces() {
+  const surfaces = [];
+
+  if (fs.existsSync(COMMANDS_DIR)) {
+    for (const f of fs.readdirSync(COMMANDS_DIR).filter((x) => x.endsWith('.md')).sort()) {
+      surfaces.push({ surface: 'commands/' + f, file: path.join(COMMANDS_DIR, f), klass: 'command' });
+    }
+  }
+
+  if (fs.existsSync(AGENTS_DIR)) {
+    for (const f of fs.readdirSync(AGENTS_DIR).filter((x) => x.endsWith('.md')).sort()) {
+      surfaces.push({ surface: 'agents/' + f, file: path.join(AGENTS_DIR, f), klass: 'agent' });
+    }
+  }
+
+  if (fs.existsSync(PIPELINES_DIR)) {
+    for (const d of fs.readdirSync(PIPELINES_DIR).sort()) {
+      const chain = path.join(PIPELINES_DIR, d, 'CHAIN.md');
+      if (fs.existsSync(chain)) {
+        surfaces.push({ surface: 'pipelines/' + d + '/CHAIN.md', file: chain, klass: 'pipeline' });
+      }
+    }
+  }
+
+  if (fs.existsSync(SKILLS_DIR)) {
+    for (const d of fs.readdirSync(SKILLS_DIR).sort()) {
+      const skill = path.join(SKILLS_DIR, d, 'SKILL.md');
+      if (fs.existsSync(skill)) {
+        surfaces.push({ surface: 'skills/' + d + '/SKILL.md', file: skill, klass: 'skill' });
+      }
+    }
+  }
+
+  return surfaces;
+}
+
+// ---------------------------------------------------------------------------
+// checkTree() -- the --check sweep over the live four-class tree. Parses each
+// surface's frontmatter, builds a check() fixture, and classifies the pass
+// results into { declared, skillExempt }. Returns
+//   { ok, declared, skillExempt, scanned, violations[] }.
+// The counts are COMPUTED from enumeration, never a literal.
+// ---------------------------------------------------------------------------
+function checkTree() {
+  const vocab = loadSchema();
+  if (vocab.fatal) {
+    return { ok: false, declared: 0, skillExempt: 0, scanned: 0, violations: [vocab.fatal] };
+  }
+
+  const surfaces = collectSurfaces();
+  const violations = [];
+  let declared = 0;
+  let skillExempt = 0;
+
+  for (const s of surfaces) {
+    let md;
+    try {
+      md = fs.readFileSync(s.file, 'utf8');
+    } catch (_e) {
+      violations.push(s.surface + ': cannot read file');
+      continue;
+    }
+    const fm = parseFrontmatter(md);
+    const fixture = frontmatterToFixture(s.surface, fm);
+    const r = check(fixture, { vocab });
+    if (!r.valid) {
+      for (const v of r.violations) violations.push(v);
+      continue;
+    }
+    const hasDecl = fixture.hitl_shape !== undefined || fixture.hitl_stages !== undefined;
+    if (hasDecl) {
+      declared += 1;
+    } else {
+      skillExempt += 1;
+    }
+  }
+
+  return {
+    ok: violations.length === 0,
+    declared,
+    skillExempt,
+    scanned: surfaces.length,
+    violations,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// CLI: --check (scan the live four-class tree) | --check-plan <planpath...>
+// (scan PLAN.md frontmatter). Fail closed on any violation with a self-naming
+// error + a recovery line; on clean, print a one-line OK summary and exit 0.
+// ---------------------------------------------------------------------------
+function main() {
+  const argv = process.argv.slice(2);
+
+  if (argv.includes('--check-plan')) {
+    const idx = argv.indexOf('--check-plan');
+    const planPaths = argv.slice(idx + 1).filter((a) => !a.startsWith('--'));
+    if (planPaths.length === 0) {
+      console.error('usage: node scripts/check-shape-declaration.cjs --check-plan <planpath...>');
+      process.exit(2);
+      return;
+    }
+    const allErrors = [];
+    for (const p of planPaths) {
+      let md;
+      try {
+        md = fs.readFileSync(p, 'utf8');
+      } catch (_e) {
+        allErrors.push(p + ': cannot read plan file');
+        continue;
+      }
+      const fm = parseFrontmatter(md);
+      const res = checkPlanFrontmatter(fm);
+      if (!res.ok) {
+        for (const e of res.errors) allErrors.push(p + ': ' + e);
+      }
+    }
+    if (allErrors.length) {
+      console.error(allErrors.join('\n'));
+      console.error(
+        'Recovery: add a hitl_declarations: array to the plan frontmatter with one ' +
+          '{surface, hitl_shape, hitl_why} (or {surface, hitl_stages}, or {surface, ' +
+          'connector_excluded:true, connector_reason}) entry per surface in ' +
+          'cirs_relationship.surfaces_added, per docs/HITL-SHAPE-DECLARATION-CONTRACT.md.'
+      );
+      process.exit(1);
+      return;
+    }
+    console.log('check-shape-declaration: OK (' + planPaths.length + ' plan(s))');
+    return;
+  }
+
+  if (argv.includes('--check')) {
+    const report = checkTree();
+    if (!report.ok) {
+      console.error('SHAPE DECLARATION VIOLATION:');
+      for (const v of report.violations) console.error('  - ' + v);
+      console.error(
+        'Recovery: run node scripts/backfill-hitl-shape.cjs, or hand-author the ' +
+          'missing declaration per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add ' +
+          'connector.excluded:true + reason if this skill reaches no fork.'
+      );
+      process.exit(1);
+      return;
+    }
+    console.log(
+      'check-shape-declaration: OK (' +
+        report.declared + ' declared, ' +
+        report.skillExempt + ' skill-exempt, ' +
+        (report.declared + report.skillExempt) + ' scanned)'
+    );
+    return;
+  }
+
+  console.error(
+    'usage: node scripts/check-shape-declaration.cjs [--check | --check-plan <planpath...>]'
+  );
+  process.exit(2);
+}
+
+if (require.main === module) {
+  main();
+}
+
 module.exports = {
   loadSchema,
   check,
@@ -499,5 +669,7 @@ module.exports = {
   isRankerConsumer,
   parseFrontmatter,
   frontmatterToFixture,
+  collectSurfaces,
+  checkTree,
   RANKER_MODULES,
 };
