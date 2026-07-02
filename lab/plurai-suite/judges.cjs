@@ -75,7 +75,7 @@ const JUDGES = Object.freeze([
   }),
   Object.freeze({
     id: 'anti-circular',
-    behavior: 'within-frame anti-circular gear-shift (Mordi/Eli circling failure)',
+    behavior: 'within-frame anti-circular gear-shift (the tester-observed circling failure)',
     thread_id: '127f8f53-2e72-48d8-a771-4ae9d51e5a00',
     labels: Object.freeze(['circular', 'progressing']),
     primary: false,
