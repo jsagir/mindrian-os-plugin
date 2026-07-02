@@ -3,13 +3,9 @@
 ### Fixed
 - **Decision-Gate cards now fire natively (gate-native-fire Wave 1: E1 + P1 + P3).** Root cause of the "Larry draws an ASCII box instead of the selector card" incident: the AskUserQuestion trailer that reached the model was a bare structural marker with zero imperative, and the fire mandate was absent from every file Larry actually loads. Three fixes: (E1) the trailer minted by `lib/hmi/selector-dispatcher.cjs` is now SELF-DECODING -- it carries a `[BINDING: call the AskUserQuestion tool in THIS response with the N options above; do not reproduce this block as text (SEED-021)]` line on every Shape-F footer, so the trigger tells the model to fire the card; (P1) the larry-extended agent body gains the Decision-Gate fire mandate (mirrors the ignite.md doctrine) and the "End with a question or next step" rule is qualified -- at a gate the question IS the card; (P3) the auto-loaded ui-system skill's Shape-F section carries the same mandate globally. The Stop-hook backstop (`check-card-fire.cjs`) is unchanged and demoted to telemetry: its intercept counters should now trend to zero. Frozen contracts byte-unchanged (marker scalar, MAX_K=3, DIAL_REACH_K=6, 0.70/0.15). New fence: `tests/test-gate-native-fire-w1.cjs` 12/12. Waves 2-4 (declared-implies-rendered rollout, conversational-gate bridge, backstop tuning) are Phase 209.
 
-### Added
-- 
 
 ## [1.15.1] - 2026-07-02
 
-### Added
-- 
 
 ## [1.15.0] - 2026-07-02
 
@@ -24,8 +20,6 @@
 
 ## [1.15.0-beta.13] - 2026-06-29
 
-### Added
-- 
 
 ## [1.15.0-beta.11] - 2026-06-29
 
@@ -78,23 +72,15 @@
 
 ## [1.15.0-beta.3] - 2026-06-24
 
-### Added
-- 
 
 ## [1.15.0-beta.1] - 2026-06-24
 
-### Added
-- 
 
 ## [1.14.0] - 2026-06-24
 
-### Added
-- 
 
 ## [1.14.0-beta.9] - 2026-06-24
 
-### Added
-- 
 
 ## [1.14.0-beta.7] - 2026-06-23
 
@@ -153,8 +139,6 @@ The v1.14.0-beta train: Canon Part 11 (the Invocation Constitution) ratified and
 
 ## [1.13.1] - 2026-06-17
 
-### Added
-- 
 
 ## [1.13.1-beta.34] - 2026-06-17
 
@@ -166,18 +150,12 @@ The v1.14.0-beta train: Canon Part 11 (the Invocation Constitution) ratified and
 
 ## [1.13.1-beta.32] - 2026-06-17
 
-### Added
-- 
 
 ## [1.13.1-beta.30] - 2026-06-16
 
-### Added
-- 
 
 ## [1.13.1-beta.28] - 2026-06-16
 
-### Added
-- 
 
 ## [1.13.1-beta.26] - 2026-06-15
 
@@ -254,8 +232,6 @@ The v1.14.0-beta train: Canon Part 11 (the Invocation Constitution) ratified and
 
 ## [1.13.1-beta.12] - 2026-06-09
 
-### Added
-- 
 
 ## [1.13.1-beta.10] - 2026-06-08
 
@@ -346,13 +322,9 @@ Phase 139 doctor hotfix: stop doctor from scaffolding room artifacts in the wron
 ### Fixed (doctor: topology-blind install-health on marketplace-cache)
 - **`/mos:doctor --fix` no longer cries "cannot read state" and the post-update activator no longer false-fails on a healthy marketplace-cache install.** `checkInstallVersion()` returned `missing` when the legacy `~/.claude/plugins/mindrian-os/` dir was absent (correctly absent under marketplace-cache topology). Now topology-aware: reads the active cache root's plugin.json and reports healthy. One fix clears both the doctor warning and the activator's "activation failed: doctor exit 0". Regression test a.4; RCA `doctor-class-a-cannot-read-state-topology-blind`.
 
-### Added
-- 
 
 ## [1.13.0] - 2026-06-02
 
-### Added
-- 
 
 ## [1.13.0-beta.44] - 2026-06-02
 
@@ -612,13 +584,9 @@ If you previously ran a Larry session in a fresh room and `/mos:memory` reported
 
 ## [1.13.0-beta.16] - 2026-05-14
 
-### Added
-- 
 
 ## [1.13.0-beta.14] - 2026-05-14
 
-### Added
-- 
 
 # Changelog
 
