@@ -101,6 +101,12 @@ const CONNECTOR_KEYS = Object.freeze([
 
 const RECOVERY = 'Run: node scripts/build-new-surface.cjs';
 
+// The Part 11 R16 EXEMPTION reason stamped onto every emitted expert skill. The
+// emitted skills/<expert>/SKILL.md is a render-only capability lens (a pure
+// persona that reaches NO Decision-Gate fork), so it is born EXCLUDED -- distinct
+// from the born-WIRED commands/skill.md front door that materializes it.
+const EXPERT_SKILL_REASON = 'render-only expert capability lens (Part 11 R16 exemption)';
+
 // ---------------------------------------------------------------------------
 // surfacePath(kind, name, outDir) -- the SURFACE artifact path (distinct from
 // new-project's ROOM folders). A command -> commands/<name>.md ; an agent ->
@@ -184,6 +190,12 @@ function renderConnectorValue(key, v) {
 // given spec (idempotent re-emit).
 // ---------------------------------------------------------------------------
 function renderSurface(spec) {
+  // A render-only expert skill takes the EXCLUDED disposition (Part 11 R16
+  // exemption): no 11-key wired block, no reach_id, no hitl_shape. Its identity is
+  // the projected SyntheticExpert persona.
+  if (spec && spec.excluded === true && spec.kind === 'skill') {
+    return renderExcludedExpertSkill(spec);
+  }
   const lines = [];
   lines.push('---');
   lines.push('name: ' + spec.name);
@@ -211,6 +223,205 @@ function renderSurface(spec) {
   );
   lines.push('');
   return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// renderExcludedExpertSkill(spec) -- compose the render-only expert SKILL.md: a
+// minimal EXCLUDED connector block (excluded:true + reason, NO reach_id, NO 11
+// wired keys, NO hitl_shape) + a persona body carrying the projected props (hat,
+// beautiful_question, research_approach, evidence_tier, provenance). Byte-stable
+// for a given spec. This is the Part 11 R16 exemption disposition, on disk.
+// ---------------------------------------------------------------------------
+function renderExcludedExpertSkill(spec) {
+  const e = (spec && spec.expert && typeof spec.expert === 'object') ? spec.expert : {};
+  const hat = typeof e.hat === 'string' ? e.hat : '';
+  const persona = [e.name, e.surname].filter((x) => typeof x === 'string' && x).join(' ') || spec.name;
+  const description =
+    typeof spec.description === 'string' && spec.description
+      ? spec.description
+      : 'A render-only expert capability lens';
+  const reason = typeof spec.reason === 'string' && spec.reason ? spec.reason : EXPERT_SKILL_REASON;
+
+  const prov = (e.provenance && typeof e.provenance === 'object') ? e.provenance : {};
+  const runId = typeof prov.runId === 'string' && prov.runId ? prov.runId : '(none)';
+  const domainNodeIds = Array.isArray(prov.domainNodeIds) ? prov.domainNodeIds : [];
+
+  const lines = [];
+  lines.push('---');
+  lines.push('name: ' + spec.name);
+  lines.push('description: ' + description);
+  lines.push('# --- Phase 203-02 connector frontmatter: ' + EXPERT_SKILL_REASON + ' ---');
+  lines.push('connector:');
+  lines.push('  excluded: true');
+  lines.push('  reason: ' + renderConnectorValue('reason', reason));
+  lines.push('---');
+  lines.push('');
+  lines.push('# ' + persona + (typeof e.archetype === 'string' && e.archetype ? ' -- ' + e.archetype : ''));
+  lines.push('');
+  lines.push(
+    'You are ' + persona + ', a ' + (hat || 'synthetic') + '-hat synthetic expert. This ' +
+      'skill is a render-only capability lens: the projection of a CONFIRMED SyntheticExpert ' +
+      'graph node, invokable anywhere in the room. It reaches no Decision-Gate fork, so it is ' +
+      'born EXCLUDED (Part 11 R16 exemption); its reach lives on the /mos:skill front door ' +
+      'that materialized it.'
+  );
+  lines.push('');
+  lines.push('## Hat');
+  lines.push('');
+  lines.push(hat || '(unspecified)');
+  lines.push('');
+  lines.push('## Beautiful question');
+  lines.push('');
+  lines.push(typeof e.beautiful_question === 'string' && e.beautiful_question ? e.beautiful_question : '(none recorded)');
+  lines.push('');
+  lines.push('## Research approach');
+  lines.push('');
+  lines.push(typeof e.research_approach === 'string' && e.research_approach ? e.research_approach : '(none recorded)');
+  lines.push('');
+  lines.push('## Evidence tier');
+  lines.push('');
+  lines.push(typeof e.evidence_tier === 'string' && e.evidence_tier ? e.evidence_tier : 'None');
+  lines.push('');
+  lines.push('## Provenance');
+  lines.push('');
+  lines.push('runId: ' + runId + '; domainNodeIds: ' + (domainNodeIds.length ? domainNodeIds.join(', ') : '(none)'));
+  lines.push('');
+  lines.push('## Invocation (Tri-Polar)');
+  lines.push('');
+  lines.push(
+    'A .md skill is surface-neutral. On Claude Code CLI it loads as a skill file; on Claude ' +
+      'Desktop the navigator talks to this persona through Larry; on Cowork it is shared room ' +
+      'state every collaborator reaches.'
+  );
+  lines.push('');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// slugifyName(label) -- lowercase-slug a persona surname into a valid surface name
+// (matching the spec.name grammar ^[a-z0-9][a-z0-9-]*$). Non-alnum runs collapse to
+// a single hyphen; leading/trailing hyphens are trimmed.
+// ---------------------------------------------------------------------------
+function slugifyName(label) {
+  return String(label == null ? '' : label)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// ---------------------------------------------------------------------------
+// readConfirmedExpert(db, selector) -- read ONE CONFIRMED SyntheticExpert node
+// matching selector (by node id or props.surname, case-insensitive). The confirmed
+// filter (type='SyntheticExpert' AND review_status='confirmed') mirrors
+// lib/core/expert-library.cjs::rankExpertsForSlot -- only a human-kept node is
+// trusted (Canon Part 9 role 5). Returns { id, props } or null. Pure LOCAL read
+// over a caller-owned handle; ZERO Brain, ZERO network (Part 8).
+// ---------------------------------------------------------------------------
+function readConfirmedExpert(db, selector) {
+  let rows;
+  try {
+    rows = db.prepare(
+      "SELECT id, properties FROM nodes WHERE type = 'SyntheticExpert' AND review_status = 'confirmed'"
+    ).all();
+  } catch (_e) {
+    return null;
+  }
+  const sel = String(selector == null ? '' : selector).trim().toLowerCase();
+  if (!sel) return null;
+  for (const row of rows) {
+    let props = {};
+    try {
+      const p = JSON.parse(row.properties);
+      props = (p && typeof p === 'object' && !Array.isArray(p)) ? p : {};
+    } catch (_e) {
+      props = {};
+    }
+    const surname = typeof props.surname === 'string' ? props.surname.toLowerCase() : '';
+    if (String(row.id).toLowerCase() === sel || surname === sel) {
+      return { id: row.id, props };
+    }
+  }
+  return null;
+}
+
+// listConfirmedExperts(db) -- the candidate list for a miss (surname + hat), so the
+// front door can offer the confirmed choices. Same confirmed filter.
+function listConfirmedExperts(db) {
+  let rows;
+  try {
+    rows = db.prepare(
+      "SELECT id, properties FROM nodes WHERE type = 'SyntheticExpert' AND review_status = 'confirmed'"
+    ).all();
+  } catch (_e) {
+    return [];
+  }
+  const out = [];
+  for (const row of rows) {
+    let props = {};
+    try {
+      const p = JSON.parse(row.properties);
+      props = (p && typeof p === 'object' && !Array.isArray(p)) ? p : {};
+    } catch (_e) {
+      props = {};
+    }
+    out.push({ id: row.id, surname: typeof props.surname === 'string' ? props.surname : '', hat: typeof props.hat === 'string' ? props.hat : '' });
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// expertToSkillSpec(expert) -- project a confirmed SyntheticExpert node's props
+// into an EXCLUDED skill spec (kind=skill, born-EXCLUDED render-only lens). The
+// spec carries NO reach_id and NO connector keys -- only excluded:true + reason +
+// the persona props for the body.
+// ---------------------------------------------------------------------------
+function expertToSkillSpec(expert) {
+  const p = (expert && expert.props && typeof expert.props === 'object') ? expert.props : {};
+  const name = slugifyName(p.surname) || slugifyName(p.name) || 'expert';
+  const description =
+    typeof p.archetype === 'string' && p.archetype ? p.archetype : 'A render-only expert capability lens';
+  return {
+    kind: 'skill',
+    name,
+    description,
+    excluded: true,
+    reason: EXPERT_SKILL_REASON,
+    expert: {
+      hat: p.hat,
+      name: p.name,
+      surname: p.surname,
+      archetype: p.archetype,
+      beautiful_question: p.beautiful_question,
+      research_approach: p.research_approach,
+      evidence_tier: p.evidence_tier,
+      provenance: p.provenance,
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// materializeExpertSkill(db, selector, opts) -- the --from-expert orchestrator.
+// Reads the CONFIRMED node (refusing a proposed / absent one), projects its props
+// into an EXCLUDED skill spec, and emits skills/<surname>/SKILL.md through the
+// EXISTING emit path (write-only: a room-scoped skill never touches the plugin
+// registries, and an excluded surface never joins the wired registry anyway).
+// Returns { ok, path?, content?, name?, expert?, refused?, reason?, candidates? }.
+// ---------------------------------------------------------------------------
+function materializeExpertSkill(db, selector, opts) {
+  const o = opts || {};
+  const expert = readConfirmedExpert(db, selector);
+  if (!expert) {
+    return {
+      ok: false,
+      refused: true,
+      reason: 'no_confirmed_expert',
+      selector: String(selector == null ? '' : selector),
+      candidates: listConfirmedExperts(db),
+    };
+  }
+  const spec = expertToSkillSpec(expert);
+  const res = emitSurface(spec, { outDir: o.outDir });
+  return { ok: true, path: res.path, content: res.content, name: spec.name, expert, spec };
 }
 
 // ---------------------------------------------------------------------------
@@ -242,16 +453,48 @@ function regenerateDownstream(cwd) {
 // ---------------------------------------------------------------------------
 function emitSurface(spec, opts) {
   const o = opts || {};
-  validateSpec(spec);
+  const excluded = !!(spec && spec.excluded === true);
+  if (excluded) {
+    validateExcludedSpec(spec);
+  } else {
+    validateSpec(spec);
+  }
   const outDir = o.outDir || process.env.MINDRIAN_SURFACE_OUT_DIR || REPO_ROOT;
   const dest = surfacePath(spec.kind, spec.name, outDir);
   const content = renderSurface(spec);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, content);
-  if (o.cwd) {
+  // Only a WIRED surface regenerates the downstream registries (its real home). A
+  // render-only EXCLUDED skill is room-scoped and never joins the wired registry,
+  // so the emit is write-only even when a cwd is supplied.
+  if (o.cwd && !excluded) {
     regenerateDownstream(o.cwd);
   }
   return { path: dest, content: content };
+}
+
+// ---------------------------------------------------------------------------
+// validateExcludedSpec(spec) -- the born-EXCLUDED guard (Part 11 R16 exemption).
+// A render-only excluded skill is well-formed iff: it is a skill, has a valid
+// lowercase-slug name, carries a non-empty reason, and carries NO reach_id (no 7th
+// reach -- the reach lives on the WIRED front door). Throws on any violation.
+// ---------------------------------------------------------------------------
+function validateExcludedSpec(spec) {
+  if (!spec || typeof spec !== 'object' || Array.isArray(spec)) {
+    throw new Error('spec must be an object. ' + RECOVERY);
+  }
+  if (spec.kind !== 'skill') {
+    throw new Error('an excluded surface must be a skill (got ' + JSON.stringify(spec.kind) + '). ' + RECOVERY);
+  }
+  if (typeof spec.name !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(spec.name)) {
+    throw new Error('spec.name must be a lowercase-slug string (got ' + JSON.stringify(spec.name) + '). ' + RECOVERY);
+  }
+  if (typeof spec.reason !== 'string' || spec.reason.trim().length === 0) {
+    throw new Error('an excluded surface requires a non-empty reason (D-172-a: no surface dark by accident). ' + RECOVERY);
+  }
+  if ('reach_id' in spec && spec.reach_id != null) {
+    throw new Error('a render-only excluded skill carries NO reach_id (no 7th reach). ' + RECOVERY);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -272,6 +515,27 @@ function validateSurface(spec, opts) {
   const manifest_stale = [];
 
   const s = spec && typeof spec === 'object' && !Array.isArray(spec) ? spec : {};
+
+  // EXCLUDED branch (Part 11 R16 exemption): a render-only excluded surface is
+  // well-formed iff excluded:true carries a non-empty reason AND no reach_id (no
+  // 7th reach). It is DELIBERATELY absent from the wired registry, so the wired
+  // checks (11 keys / frozen banks / registry membership / manifest) do NOT apply.
+  if (s.excluded === true) {
+    const reason = typeof s.reason === 'string' && s.reason.trim() ? s.reason.trim() : '';
+    if (!reason) {
+      missing_key.push(
+        'MISSING_REASON: the surface declares excluded:true but no reason ' +
+          '(D-172-a: no surface dark by accident). ' + RECOVERY
+      );
+    }
+    if ('reach_id' in s && s.reach_id != null) {
+      off_frozen.push(
+        'OFF_FROZEN: a render-only excluded skill carries a reach_id but must not ' +
+          '(no 7th reach; the reach lives on the WIRED front door). ' + RECOVERY
+      );
+    }
+    return { missing_key, off_frozen, not_registered, manifest_stale };
+  }
 
   // MISSING_KEY: any of the 11 connector keys absent.
   for (const k of CONNECTOR_KEYS) {
@@ -452,11 +716,59 @@ function runCheck(argv) {
 // ---------------------------------------------------------------------------
 // main() -- the 3-branch entry: default emit (+ regenerate) / --check / --refresh.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// runFromExpert(argv) -- the --from-expert CLI mode. Open the room db through the
+// SANCTIONED room-db.cjs chokepoint (never a direct node:sqlite open -- Canon
+// Part 9 navigation chokepoint), read the CONFIRMED SyntheticExpert, project it
+// into an EXCLUDED skill, and emit skills/<surname>/SKILL.md (write-only). A
+// refused (proposed / absent) node exits non-zero with a recovery line + the
+// confirmed candidate list. --room <dir> overrides the default cwd room root.
+// ---------------------------------------------------------------------------
+function runFromExpert(argv) {
+  const i = argv.indexOf('--from-expert');
+  const selector = i !== -1 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : undefined;
+  if (!selector) {
+    console.error('--from-expert requires a <surname|nodeId>. ' + RECOVERY);
+    process.exit(1);
+    return;
+  }
+  const j = argv.indexOf('--room');
+  const roomDir = j !== -1 && argv[j + 1] && !argv[j + 1].startsWith('--') ? argv[j + 1] : process.cwd();
+  const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
+  const db = openRoomDb(roomDir);
+  let res;
+  try {
+    res = materializeExpertSkill(db, selector, {});
+  } finally {
+    try { closeRoomDb(db); } catch (_e) { /* ignore */ }
+  }
+  if (!res.ok) {
+    console.error(
+      'REFUSED: no CONFIRMED SyntheticExpert matches "' + selector + '". Only confirmed ' +
+        'nodes materialize (Canon Part 9 role 5: a human confirms the truth-claim first). ' + RECOVERY
+    );
+    if (Array.isArray(res.candidates) && res.candidates.length) {
+      console.error(
+        'Confirmed candidates: ' +
+          res.candidates.map((c) => (c.surname || c.id) + (c.hat ? ' (' + c.hat + ')' : '')).join(', ')
+      );
+    }
+    process.exit(1);
+    return;
+  }
+  console.log('Emitted render-only expert skill ' + res.path + ' (born EXCLUDED: ' + EXPERT_SKILL_REASON + ')');
+}
+
 function main() {
   const argv = process.argv.slice(2);
 
   if (argv.includes('--check')) {
     runCheck(argv);
+    return;
+  }
+
+  if (argv.includes('--from-expert')) {
+    runFromExpert(argv);
     return;
   }
 
@@ -477,9 +789,17 @@ if (require.main === module) {
     emitSurface,
     validateSurface,
     validateSpec,
+    validateExcludedSpec,
     renderSurface,
+    renderExcludedExpertSkill,
     surfacePath,
     specFromArgv,
     CONNECTOR_KEYS,
+    EXPERT_SKILL_REASON,
+    slugifyName,
+    readConfirmedExpert,
+    listConfirmedExperts,
+    expertToSkillSpec,
+    materializeExpertSkill,
   };
 }
