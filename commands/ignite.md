@@ -56,6 +56,28 @@ Note: /mos:ignite is the canonical front door for new room creation. /mos:new-pr
 
 Before any gate fires, check whether this session has already delivered an MVA brief reward. Read the mva_brief_pending flag from resolveOption2(null) in lib/core/mva-option-router.cjs. If brief_reward_pending is true: render the instant brief summary FIRST (from the session context or from the brief side-file) before B1. See docs/reward-before-investment-rule.md.
 
+## Gate B0 -- Room Chooser (F.1, pre-birth -- FIRST CONSUMER OF Phase 188)
+
+Gate B0 runs on EVERY /mos:ignite invocation, BEFORE any Entry Routing door fires. It is the pre-birth room-chooser: a navigator who already has prior rooms gets a chance to RESUME one instead of being dropped straight into a NEW-room birth flow. Gate B0 is an internal gate on the SAME already-wired ignite surface (Canon Part 11 CIRS); it mints no new reach, no new edge type, and opens no Brain wire. It is the FIRST user-facing consumer of the Phase 188 selector-dispatcher door (SEED-020) for a pre-birth, no-room decision.
+
+**Step 1 -- read the registry (LOCAL, Part 8).** Resolve PLUGIN_ROOT the new-project.md way (`PLUGIN_ROOT="$(dirname "$(dirname "$(readlink -f "$0")")")"`), then read the rooms registry through lib/core/room-chooser.cjs, invoked via a node -e call that mirrors the scratchpad-ops.cjs convention in commands/new-project.md:
+
+```bash
+CHOOSER_STATE=$(node -e "const rc = require('$PLUGIN_ROOT/lib/core/room-chooser.cjs'); const rooms = rc.listRegisteredRooms(); console.log(JSON.stringify({ rooms, resumable: rc.hasResumableRooms(rooms) }))" 2>/dev/null || echo '{"rooms":[],"resumable":false}')
+```
+
+listRegisteredRooms degrades to an empty list on ANY registry hiccup (missing script, non-zero exit, malformed JSON) and never throws, so Larry never blocks here (Canon Part 3 graceful-degradation).
+
+**Step 2 -- SKIP when there is nothing to resume.** When `resumable` is false (zero prior non-archived rooms), SKIP Gate B0 ENTIRELY and proceed straight into the UNCHANGED Entry Routing section below. Nothing else in this file changes for the no-prior-rooms case: the existing B1 four-door flow runs byte-for-byte as it does today. Gate B0 is a no-op skip for a first-time navigator.
+
+**Step 3 -- FIRE THE CARD when there is something to resume.** When `resumable` is true, call renderRoomChooserCard(rooms) (lib/core/room-chooser.cjs) and FIRE the returned AskUserQuestion contract exactly as Door 1 does today. This file's own FIRE THE CARD mandatory doctrine and the SEED-021 no-card-no-picture rule (below, under Gate B1) apply here unchanged: on any card-capable surface you MUST call AskUserQuestion in this same turn; you may NOT draw an ASCII box only. The card carries up to four most-recent rooms plus one bounded "Just talk (no room)" row; the renderer routes it through the SAME SEED-020 pickShape('F.1') door every other Shape-F surface uses.
+
+**Step 4 -- resolve the pick (three branches).** After the navigator answers, call resolvePick(selectedVerb, roomByVerb) (lib/core/room-chooser.cjs) and branch three ways:
+
+- **(a) action `resume`** -- run `bash scripts/room-registry set-active NAME` (the EXACT commands/rooms.md Subcommand: open Step 3 primitive; do not invent a second way to switch the active room). T-204-06: the NAME passed to set-active comes ONLY from resolvePick's `room` entry (itself sourced from the same listRegisteredRooms call), NEVER from raw navigator free text. Then readUserMd (lib/core/user-md-ops.cjs) on that room's USER.md to pull its already-stored role_blend, call resolveSessionRegister(role_blend) (lib/core/session-register.cjs) on the result, and greet the navigator back into the room using the room name plus its venture_stage plus the resolved persona register. Then STOP: ignite does NOT re-run B1/B2/B3 for a resumed room. The room's own ongoing reach machinery takes the next turn. Do NOT re-run the B1 persona pick for a resumed room; the room already stored its own role_blend.
+- **(b) action `just_talk`** -- do NOT birth a room. Explicitly hand off to the conversation-mode skill's Lane Picker (skills/conversation-mode/SKILL.md); do not re-describe or re-implement its logic here. The Just Talk pick is one more re-surface of that SAME Lane Picker, never a new lane.
+- **(c) action `free_text`** -- reuse this file's existing Door 4 free-text interpretation doctrine (under Gate B1): Larry interprets the free text and routes it to one of resume-by-name, Just Talk, or falling through into the Entry Routing section below.
+
 ## Entry Routing
 
 Three entry doors per BIRTH-FLOW-BRIEF.md Section 2:
@@ -120,6 +142,8 @@ When role_blend is empty or the role is unknown, fall back to the generic prompt
 
 After the navigator picks, call writeScratchpadBirthAnswer({gate_id: 'B1', option_key: selectedKey, canonical_verb: 'arriving-with', alias_label: selectedAlias, role_blend: selectedRoleBlend, blueprint_family: derivedFamily, arrival_asset: selectedAsset, hypothesis_text: capturedHypothesis, ts: Date.now()}). For the CV path (Door 2), thread the parsed role_blend + the venture-derived blueprint_family into the same scratchpad write. For the Hypothesis path (Door 3), populate hypothesis_text. Capture Door 4 free-text answers with the free_text field populated. The Wave-2 widened whitelist (scratchpad-ops.cjs) persists role_blend + blueprint_family + hypothesis_text so the B1 signal survives to B2.
 
+Once role_blend is captured by ANY door (1, 2, or 3), call resolveSessionRegister(role_blend) (lib/core/session-register.cjs) and carry its role_key forward as the SESSION's persona register for the rest of the conversation. This is ROADMAP Phase 204 branch 3: each persona is talked-with differently later (tone, depth, which reaches fire, which frameworks surface) per Canon Part 12. The register's voice reference is agents/larry-extended.md's existing persona_variants[role_key] string; no new copy is authored here, the frozen 10-key map is reused verbatim. resolveSessionRegister returns null on cold start (no role captured), and Larry falls back to the neutral voice; it never fabricates a default persona.
+
 Tri-Polar (card-incapable surfaces ONLY): "Who are you arriving as? (a) researcher, (b) student, (c) founder/business, (d) operator, (e) investor, (f) domain expert, (g) paste your CV, (h) state a hypothesis you want to test -- type a letter, paste your CV, or describe your start."
 
 ### Auto-fire the Engine 1 math; gate the results (Req 8; Part 10 sub-claim 5 + Part 3 gate)
@@ -150,7 +174,7 @@ Tri-Polar Desktop degradation: "Blueprint ready. Type: approve / adjust / defer"
 
 B3 fires ONLY after birthRoom succeeds (room.db exists, focus set, registry flipped to live). If birthRoom returns ok:false, B3 does not render. This is the T-155-06-01 mitigation: the Part 9 promotion moment must complete before the first in-room Decision Gate fires.
 
-After birthRoom succeeds, call pickShape('F.1') with the dial now LIVE. The room.db exists: use closeReach/recordSelectorDecision for the user's B3 pick -- this writes a SELECTED_REACH edge + a memory_event.
+After birthRoom succeeds, call pickShape('F.1') with the dial now LIVE, passing personaContext: composePersonaContext(roleBlend) (lib/core/session-register.cjs) into that call so the B3 first-move dial carries the resolved persona lens in its header. This is the first real caller of the Phase 88.2-03 personaContext seam on renderShapeF1: that parameter shipped but was never wired by anything in this repo until now, and threading the session register's display-form string through it is what makes ROADMAP Phase 204 branch 3 (persona-differentiated dialogue) visible at the first in-room gate. composePersonaContext returns null on cold start and renderShapeF1 no-ops on null, so a persona-less birth renders byte-identically to today. The room.db exists: use closeReach/recordSelectorDecision for the user's B3 pick -- this writes a SELECTED_REACH edge + a memory_event.
 
 Header:
 ```
