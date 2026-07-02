@@ -1335,13 +1335,37 @@ function deriveLowFillSections(roomContext) {
 
 function deriveConversationSeed(navMod, db) {
   // Returns Promise<string>. Never rejects -- a fault yields '' (empty seed).
+  //
+  // reach-gate-stale-turn-input FIX (2026-07-02): the CURRENT user turn
+  // (STDIN_MESSAGE) is the freshest and most decision-relevant fragment, but at
+  // UserPromptSubmit time it is NOT yet persisted to session history -- this hook
+  // (intent-classifier, UserPromptSubmit #2) fires BEFORE operator-update /
+  // jtbd-update store the turn. Without it the routing seed carried ONLY prior
+  // stored turns, so turn.userText fed to decide()/dispatchSensors AND the
+  // getRoomContext seedFragments were turn-independent: the engine decided on
+  // stale input and produced a byte-identical reach gate across materially
+  // different turns (the reach-gate-stale-turn-input defect). We now APPEND the
+  // current message as the freshest seed line so the engine decides on the actual
+  // turn. D-03a LOCAL-lane fence preserved: this string rides turn.userText +
+  // seedFragments (LOCAL routing lane) exactly as the history seed already did; it
+  // is NEVER threaded toward buildBrainPacket (Canon Part 8). When STDIN_MESSAGE is
+  // empty the output is byte-identical to the pre-fix history-only seed.
+  const currentTurn = (typeof STDIN_MESSAGE === 'string' && STDIN_MESSAGE.length > 0)
+    ? (STDIN_MESSAGE.length > SEED_CHAR_CAP ? STDIN_MESSAGE.slice(0, SEED_CHAR_CAP) : STDIN_MESSAGE)
+    : '';
+  function withCurrentTurn(historySeed) {
+    const parts = [];
+    if (typeof historySeed === 'string' && historySeed.length > 0) parts.push(historySeed);
+    if (currentTurn.length > 0) parts.push(currentTurn); // freshest turn last (resolveSeedNode + sensors prefer the tail)
+    return parts.join('\n');
+  }
   if (!navMod || !db || typeof navMod.getSessionHistory !== 'function') {
-    return Promise.resolve('');
+    return Promise.resolve(withCurrentTurn(''));
   }
   return Promise.resolve()
     .then(function () { return navMod.getSessionHistory(db, 1); })
     .then(function (sessions) {
-      if (!Array.isArray(sessions) || sessions.length === 0) return '';
+      if (!Array.isArray(sessions) || sessions.length === 0) return withCurrentTurn('');
       const frags = Array.isArray(sessions[0].fragments) ? sessions[0].fragments : [];
       const recent = frags.slice(-SEED_TURN_COUNT);
       const seed = recent
@@ -1351,9 +1375,9 @@ function deriveConversationSeed(navMod, db) {
         })
         .filter(function (c) { return c.length > 0; })
         .join('\n');
-      return seed;
+      return withCurrentTurn(seed);
     })
-    .catch(function () { return ''; });
+    .catch(function () { return withCurrentTurn(''); });
 }
 
 function runNavigationEngine(roomDir, sessionId) {
@@ -2307,6 +2331,9 @@ module.exports = {
   consumePriorF1Pick: consumePriorF1Pick,
   emitBindingGate: emitBindingGate,
   consumePriorBindingAnswer: consumePriorBindingAnswer,
+  // reach-gate-stale-turn-input: exported so the regression can assert the CURRENT
+  // turn (STDIN_MESSAGE) is threaded into the LOCAL routing seed (never the Brain).
+  deriveConversationSeed: deriveConversationSeed,
 };
 
 if (require.main === module) {
