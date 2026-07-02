@@ -3,6 +3,8 @@ name: rs-thesis
 description: Read the thesis for a prior Reverse Salient discovery
 help_jtbd: "Compose the thesis statement from your reverse salient findings."
 body_shape: E (Action Report)
+hitl_shape: "F.9"
+hitl_why: "The reverse-salient thesis is assembled through ordered stages, a fixed-order walk."
 serves_jtbd: ["find-bottleneck"]
 teaching: "When you ran a Reverse Salient discovery earlier and want the thesis read back, /mos:rs-thesis surfaces the analytic conclusion in plain language. Best for revisiting old findings before a meeting."
 # --- Phase 122 workflow-layer frontmatter ---

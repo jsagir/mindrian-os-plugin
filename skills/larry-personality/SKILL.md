@@ -10,6 +10,20 @@ canon_parts: [Part 2, Part 3, Part 8, Part 9]
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Ask-Tell dial / teaching personality runs on every conversational turn; it is the substrate the reaches render through, not a problem-state-triggered reach itself."
+hitl_stages:
+  - stage: "contradiction-response"
+    shapes: ["F.0"]
+    mode: "gate"
+  - stage: "deep-research-plan-approval"
+    shapes: ["F.1"]
+    mode: "gate"
+  - stage: "conversation-artifact-filing-offer"
+    shapes: ["F.1"]
+    mode: "gate"
+  - stage: "dial-reach-selection"
+    shapes: ["F.7"]
+    mode: "gate"
+hitl_why: "Four independent Decision-Gate moments: a contradiction mini-gate (F.0), a deep-research plan approval (F.1), a conversation-artifact filing offer (F.1), and the ranked-reach dial (F.7, implemented via lib/hmi/dial-reach-orchestrator.cjs)."
 ---
 
 # Larry Personality -- The Ask-Tell Dial

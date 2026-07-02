@@ -3,6 +3,8 @@ name: graph
 description: Explore the knowledge graph by asking questions
 help_jtbd: "Ask your room a question; get the answer as graph paths."
 body_shape: C (Room Card)
+hitl_shape: "F.1"
+hitl_why: "Graph exploration offers one next move from the current node."
 body_shape_detail: Query results as cards, graph stats as header
 serves_jtbd: ["audit-room", "explore"]
 teaching: "When you want to ask the knowledge graph a question without writing Cypher, /mos:graph translates plain English into the right traversal. Larry walks the edges so you do not have to."

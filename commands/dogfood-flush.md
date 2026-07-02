@@ -3,6 +3,8 @@ visibility: admin
 description: Drain the dog-food queue into the mindrian room and regenerate ## Live (auto)
 help_jtbd: "Manually flush captured plugin edits into the mindrian dataroom."
 body_shape: E
+hitl_shape: "F.0"
+hitl_why: "It offers one dogfood-flush action to approve or defer."
 argument-hint: ""
 serves_jtbd: ["audit-room"]
 teaching: "When you want the plugin's own venture room to reflect your latest edits immediately, /mos:dogfood-flush drains the PostToolUse queue and regenerates the Live (auto) section in STATE.md. The automatic SessionStart drain handles the steady-state case."

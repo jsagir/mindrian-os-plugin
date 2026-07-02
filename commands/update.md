@@ -3,6 +3,8 @@ name: update
 description: Check for MindrianOS updates and install via Claude Code's native plugin loader
 help_jtbd: "Update the plugin to the latest version."
 body_shape: E
+hitl_shape: "F.0"
+hitl_why: "It offers one update action to approve or defer."
 argument-hint: [check|reapply|force]
 serves_jtbd: ["audit-room"]
 teaching: "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs."

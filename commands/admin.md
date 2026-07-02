@@ -4,6 +4,8 @@ description: Manage Brain API keys from the admin panel
 help_jtbd: "Inspect plugin internals when you suspect something is off."
 argument-hint: [subcommand]
 body_shape: A (Mondrian Board)
+hitl_shape: "F.1"
+hitl_why: "Brain-key admin offers one next move to confirm an action."
 serves_jtbd: ["audit-room"]
 teaching: "When you need to inspect or rotate Brain API keys, /mos:admin opens the admin panel. Read-only by default; rotation is gated behind a confirm prompt."
 ui_reference: skills/ui-system/SKILL.md

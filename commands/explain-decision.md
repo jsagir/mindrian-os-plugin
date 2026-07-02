@@ -2,6 +2,8 @@
 description: Show Navigation Engine decision trace for last turn
 help_jtbd: "See why Larry recommended what he recommended."
 body_shape: F.1
+hitl_shape: "F.1"
+hitl_why: "It explains a decision and offers one next move to take."
 argument-hint: "[--last N] [--session SESSIONID]"
 serves_jtbd: ["audit-room"]
 teaching: "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it."

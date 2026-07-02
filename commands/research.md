@@ -3,6 +3,8 @@ name: research
 description: Research the web and wire findings as typed graph evidence
 help_jtbd: "Run context-aware research that files findings as typed EvidenceClaim graph nodes."
 body_shape: C
+hitl_shape: "F.8"
+hitl_why: "Research subquestions fan out independently and are verified as an any-order basket."
 argument-hint: [topic]
 serves_jtbd: ["explore", "understand-market"]
 teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume."

@@ -4,6 +4,8 @@ description: "Diagnose and optionally repair MindrianOS install: detects install
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
 argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
 body_shape: E (Action Report)
+hitl_shape: "F.0"
+hitl_why: "It surfaces one diagnosed repair for a single approve-or-defer decision."
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
 teaching: "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix."

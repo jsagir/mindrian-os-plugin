@@ -3,6 +3,8 @@ name: ignite
 description: "Start or excavate a room through one front door."
 help_jtbd: "Start (or excavate) a room through one front door."
 body_shape: E
+hitl_shape: "F.1"
+hitl_why: "The front door offers a small set of starting moves for the navigator to pick one."
 argument-hint: "[--express | --from-brief <sha8> | --from-opportunity <ref>]"
 serves_jtbd: ["explore", "build"]
 teaching: "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity."

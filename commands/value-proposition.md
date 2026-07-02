@@ -9,6 +9,8 @@ name: validate-proposition
 description: Score your value proposition against 3 VP gates
 help_jtbd: "Compose the value proposition canvas for your room."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "The value-map and customer-profile fits are assessed as an independent set, an unordered basket."
 serves_jtbd: ["validate-idea", "prepare-pitch"]
 teaching: "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math. A clean gate failure beats a vague pass."
 # --- Phase 122 workflow-layer frontmatter ---

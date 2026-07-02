@@ -3,6 +3,8 @@ name: diffusion
 description: Forecast whether a dual-use technology will diffuse and who adopts first
 help_jtbd: "Judge whether your technology will spread, who moves first, and how long the first-mover window stays open."
 body_shape: "methodology"
+hitl_shape: "F.9"
+hitl_why: "Adoption is traced through its ordered diffusion stages, a fixed-order walk."
 serves_jtbd: ["understand-market"]
 teaching: "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window."
 # --- Phase 122 workflow-layer frontmatter ---

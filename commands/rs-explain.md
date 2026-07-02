@@ -3,6 +3,8 @@ name: rs-explain
 description: Bidirectional NL-Graph entry point. NL question to graph queries to Larry-voiced explanation.
 help_jtbd: "Explain a reverse salient finding in plain language."
 body_shape: E (Action Report)
+hitl_shape: "F.1"
+hitl_why: "It presents the reverse-salient explanation and one next move to take."
 serves_jtbd: ["find-bottleneck"]
 teaching: "When you have a question about a Reverse Salient discovery, /mos:rs-explain takes natural language in and returns a Larry-voiced explanation grounded in the graph. Bidirectional NL to graph and back."
 # --- Phase 122 workflow-layer frontmatter ---

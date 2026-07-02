@@ -19,6 +19,8 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
+hitl_shape: "F.1"
+hitl_why: "Deprecated redirect to /mos:deck; inherits /mos:deck's F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own."
 ---
 
 # MOSDeckEngine -- DEPRECATED, consolidated into /mos:deck

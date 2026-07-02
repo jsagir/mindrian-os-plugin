@@ -4,6 +4,8 @@ description: Maintainer pipeline to add a methodology to the remote Brain safely
 help_jtbd: "Add a new methodology to the Brain so every user can reach it - without ever leaking user data."
 teaching: "Maintainer-only. When you want to teach the Brain a new methodology, /mos:ingest-methodology runs the 7-step pipeline - encode, Part-8 boundary gate, graph write, vector write, trigger + chain, register, local refresh - so the framework is reachable by every user and operable Local-Only, with zero user-data egress."
 body_shape: "action-report"
+hitl_shape: "F.9"
+hitl_why: "A methodology is parsed and registered through ordered steps, a fixed-order walk."
 kind: utility
 autonomous_safe: false
 disable-model-invocation: true

@@ -4,6 +4,8 @@ description: "[Deprecated] Heal a room's structural drift (use /mos:doctor --hea
 help_jtbd: "Repair drift in your room's structure (deprecated: use /mos:doctor --heal-room)."
 argument-hint: "[room-dir]"
 body_shape: E (Action Report)
+hitl_shape: "F.0"
+hitl_why: "It surfaces one drift repair for a single approve-or-defer decision."
 serves_jtbd: ["audit-room"]
 deprecated: true
 deprecated_redirect: "doctor --heal-room"

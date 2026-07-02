@@ -4,6 +4,8 @@ description: "Show, set, list, or inspect the active JTBD: the per-room signal t
 help_jtbd: "Surface the job-to-be-done you are in right now."
 argument-hint: "[set <jtbd> | clear | list | history] [--json]"
 body_shape: E (Action Report)
+hitl_shape: "F.1"
+hitl_why: "Setting the active JTBD is a single next-move selection."
 body_shape_detail: current state + last 5 history (default), 13 entries (list), full history (history), Shape F.1 picker (set with no arg), Shape E confirmation (clear, set <jtbd>)
 serves_jtbd: ["audit-room"]
 kind: methodology

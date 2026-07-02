@@ -13,6 +13,8 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
+hitl_shape: "F.1"
+hitl_why: "Each of the six discovery movements closes with an F.1 Next Move choice (continue the movement, reframe, or move to the Discovery Brief), never silently auto-advancing."
 ---
 
 # Client Discovery Interview

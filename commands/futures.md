@@ -3,6 +3,8 @@ name: futures
 description: Build a bounded multi-ring consequence wheel from a seed concept
 help_jtbd: "Trace the 1st/2nd/3rd-order consequences of a change and locate the hidden opportunities."
 body_shape: "methodology"
+hitl_shape: "F.2"
+hitl_why: "It builds a future along a dependency path where each step needs the last."
 serves_jtbd: ["find-problem", "connect-domains"]
 teaching: "When you need to see the invisible cross-domain ripples a linear mind misses, /mos:futures turns a seed concept into a bounded multi-ring consequence wheel, scans for hidden bridges with HSI, and banks the opportunities. Best when 'and then what?' matters more than a tidy diagram."
 # --- Phase 122 workflow-layer frontmatter ---

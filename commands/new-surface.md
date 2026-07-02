@@ -3,6 +3,8 @@ name: new-surface
 description: Generate a new command, agent, or skill surface with its connector wiring
 help_jtbd: "Scaffold a new /mos surface (command/agent/skill) with its 11-key connector frontmatter, then regenerate the registry and manifest."
 body_shape: E
+hitl_shape: "F.0"
+hitl_why: "It proposes one new surface for a single approve-or-reject decision."
 argument-hint: "[kind] [name]"
 serves_jtbd: ["explore"]
 teaching: "When you are adding a new command, agent, or skill to the harness, /mos:new-surface emits the surface .md with the correct 11-key connector frontmatter so its wiring is declared, never hand-written, then regenerates the connector-registry (its real home) and the harness-manifest wiring digest. Harness-as-code for surfaces."

@@ -3,6 +3,8 @@ name: find-connections
 description: Find cross-domain patterns that touch your work
 help_jtbd: "Surface non-obvious connections in your room's graph."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "Candidate connections across the room are returned as an independent set to pick from in any order."
 serves_jtbd: ["connect-domains"]
 teaching: "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for."
 # --- Phase 122 workflow-layer frontmatter ---

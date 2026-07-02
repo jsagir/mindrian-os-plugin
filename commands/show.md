@@ -3,6 +3,8 @@ name: show
 description: Name the job; Larry shows or shares your work
 help_jtbd: "Name the job; I'll show or share your work."
 body_shape: F.1
+hitl_shape: "F.1"
+hitl_why: "A show or splash view offers one next move on what to open next."
 serves_jtbd: ["prepare-pitch", "explore"]
 teaching: "When the room is full but you don't know which view answers your question, /mos:show asks your JOB in plain language -- know where I stand, find what's broken, make it land, get it into the world -- and runs the right view underneath. You name the need; the command stays hidden."
 # --- Phase 122 workflow-layer frontmatter ---

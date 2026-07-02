@@ -4,6 +4,8 @@ description: Discover and manage grants in the Opportunity Bank
 help_jtbd: "Browse banked opportunities by HSI score."
 argument-hint: [list|add|scan]
 body_shape: E (Action Report)
+hitl_shape: "F.8"
+hitl_why: "Opportunities are surfaced across multiple ADD signals as an independent any-order set."
 serves_jtbd: ["explore"]
 teaching: "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product."
 allowed-tools:

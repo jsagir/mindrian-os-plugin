@@ -3,6 +3,8 @@ name: explore-trends
 description: Push trends to extremes to surface future problems
 help_jtbd: "Surface the macro trends your venture is riding."
 body_shape: "methodology"
+hitl_shape: "F.3"
+hitl_why: "It pushes one trend toward its extreme and asks how far to go, a depth budget."
 serves_jtbd: ["understand-market", "explore"]
 teaching: "When today's trends could become tomorrow's problems, /mos:explore-trends pushes them to extremes to surface the second-order effects. The future shows up at the edges first."
 # --- Phase 122 workflow-layer frontmatter ---

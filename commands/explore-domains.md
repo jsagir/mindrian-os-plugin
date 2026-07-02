@@ -3,6 +3,8 @@ name: explore-domains
 description: Map domains through IKA + Feynman decomposition
 help_jtbd: "Get the 5-lens decomposition of your problem domain."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "Candidate domains are mapped as an independent territory set the navigator ranks in any order."
 serves_jtbd: ["find-problem", "understand-market", "explore"]
 teaching: "When the problem could live in any of several domains, /mos:explore-domains maps the territory through IKA and Feynman decomposition. Surfaces where to look before you commit."
 # --- Phase 122 workflow-layer frontmatter ---

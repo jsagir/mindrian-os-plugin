@@ -3,6 +3,8 @@ name: scenario-plan
 description: Build a 2x2 scenario matrix of plausible futures
 help_jtbd: "Branch into scenarios and compare outcomes."
 body_shape: "methodology"
+hitl_shape: "F.5"
+hitl_why: "The 2x2 produces four parallel scenario branches the navigator resolves among."
 serves_jtbd: ["compare-options", "plan-execution"]
 teaching: "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect."
 # --- Phase 122 workflow-layer frontmatter ---

@@ -3,6 +3,8 @@ name: macro-trends
 description: Map macro changes with PEST across a domain
 help_jtbd: "Identify the macro trends shaping your venture's window."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "The PEST factors are scanned independently, an unordered basket of trend jobs."
 serves_jtbd: ["understand-market"]
 teaching: "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in."
 # --- Phase 122 workflow-layer frontmatter ---

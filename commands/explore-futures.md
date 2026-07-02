@@ -3,6 +3,14 @@ name: explore-futures
 description: Synthesize TTA + Scenario + S-Curve futures
 help_jtbd: "Branch into future scenarios from where you stand today."
 body_shape: "methodology"
+hitl_stages:
+  - stage: "build-path"
+    shapes: ["F.2"]
+    mode: "ordered"
+  - stage: "ordered-projection"
+    shapes: ["F.9"]
+    mode: "ordered"
+hitl_why: "A dependency path (F.2) then a fixed-order projection walk (F.9) combining TTA, scenario, and S-curve."
 serves_jtbd: ["compare-options", "explore"]
 teaching: "When the path forward branches into multiple plausible futures, /mos:explore-futures synthesizes TTA, Scenario, and S-Curve views. Helps you choose without pretending you can predict."
 # --- Phase 122 workflow-layer frontmatter ---

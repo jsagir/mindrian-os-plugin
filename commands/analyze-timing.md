@@ -3,6 +3,8 @@ name: analyze-timing
 description: Place a technology on the S-Curve timing clock
 help_jtbd: "Find the timing window your venture sits inside."
 body_shape: "methodology"
+hitl_shape: "F.1"
+hitl_why: "S-curve timing resolves to a single next-move read the navigator confirms."
 serves_jtbd: ["understand-market"]
 teaching: "When you need to know if your technology is too early, too late, or right on time, /mos:analyze-timing places it on the S-Curve. Best before you commit to a launch window."
 # --- Phase 122 workflow-layer frontmatter ---

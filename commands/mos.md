@@ -3,6 +3,8 @@ name: mos
 description: State-aware router that picks the right next surface for the navigator
 help_jtbd: "Meet the navigator where they are: onboard, status, or next move."
 body_shape: E
+hitl_shape: "F.1"
+hitl_why: "The entry command offers one next move into the system."
 body_shape_detail: Action Report rendering of the routing decision (zone 2 names the resolved target + reason; zone 4 routes to that target as primary)
 serves_jtbd: ["explore"]
 teaching: "When you do not know which /mos:* surface to invoke, /mos:mos picks the right one. No room: onboard. Mostly empty room: status with a next-move hint. Populated room: suggest-next."

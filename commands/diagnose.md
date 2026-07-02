@@ -3,6 +3,11 @@ name: diagnose
 description: Classify problem type against the PWS matrix
 help_jtbd: "See where your room is weakest and what to do next."
 body_shape: A
+hitl_stages:
+  - stage: "classify-problem"
+    shapes: ["F.0", "F.1"]
+    mode: "gate"
+hitl_why: "Problem classification is a single decision-close that either confirms one reading (F.0) or picks one next move (F.1)."
 serves_jtbd: ["decide-pursue"]
 teaching: "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology."
 # --- Phase 122 workflow-layer frontmatter ---

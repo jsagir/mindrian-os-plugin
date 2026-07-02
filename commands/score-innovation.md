@@ -3,6 +3,8 @@ name: score-innovation
 description: Score cross-domain innovation via HSI
 help_jtbd: "Score the innovation potential of your venture."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "The six HSI components are graded independently, an unordered basket of scoring jobs."
 serves_jtbd: ["compare-options", "validate-idea"]
 teaching: "When you are choosing between cross-domain innovation candidates, /mos:score-innovation runs HSI scoring to rank them by semantic surprise. The math reveals which idea is actually novel."
 # --- Phase 122 workflow-layer frontmatter ---

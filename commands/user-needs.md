@@ -3,6 +3,8 @@ name: user-needs
 description: Map user needs with importance vs satisfaction
 help_jtbd: "Map user needs against your value proposition."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "User needs are gathered as an any-order set with no ordering constraint between them."
 serves_jtbd: ["find-problem"]
 teaching: "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives."
 # --- Phase 122 workflow-layer frontmatter ---

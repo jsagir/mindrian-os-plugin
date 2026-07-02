@@ -3,6 +3,8 @@ name: bono
 description: Run a BONO research debate over a what-if hypothesis
 help_jtbd: "Spawn a parallel research swarm, debate it as inter-hat arguments over a graph-proposed what-if, and land a navigator-confirmed synthesis."
 body_shape: B (Semantic Tree)
+hitl_shape: "F.5"
+hitl_why: "The research debate produces parallel positions the navigator resolves among."
 body_shape_detail: A Shape F selector front door, then a parallel cell fan-out, then a sequential inter-hat debate as nested decision gates
 serves_jtbd: ["explore", "decide-pursue"]
 teaching: "When you have a wicked question and need a structured argument rather than one opinion, /mos:bono spawns a parallel research swarm across the (subdomain x hat) grid, then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis. The navigator confirms the hypothesis and the ruling at two decision gates; the synthesis files only on APPROVE."

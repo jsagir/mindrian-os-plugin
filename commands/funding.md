@@ -4,6 +4,8 @@ description: Track grant opportunities through their lifecycle
 help_jtbd: "See the grants and funding paths matching your room."
 argument-hint: [list|add|update]
 body_shape: B (Semantic Tree)
+hitl_shape: "F.8"
+hitl_why: "Grant-lifecycle candidates are surfaced as an independent set the navigator triages in any order."
 serves_jtbd: ["prepare-pitch", "decide-pursue"]
 teaching: "When you need to track grants and investors as a real pipeline, /mos:funding manages the lifecycle from spotted to applied to decided. Funding is a process, not a one-shot event."
 allowed-tools:

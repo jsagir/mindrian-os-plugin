@@ -3,6 +3,8 @@ name: diagnostics
 description: "[Renaming to /mos:fingerprint v1.14.0] Run Wave-1 algorithmic fingerprint on the room"
 help_jtbd: "Run the 4 Wave-1 algorithms (Disruption Index, Blindspot, Novelty, Surprise). Renaming to /mos:fingerprint in v1.14.0."
 body_shape: E
+hitl_shape: "F.1"
+hitl_why: "Diagnostics offers one next move on what to inspect."
 serves_jtbd: ["audit-room"]
 renaming_to: fingerprint
 renaming_target_version: "v1.14.0"

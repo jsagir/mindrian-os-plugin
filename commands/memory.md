@@ -4,6 +4,8 @@ description: Inspect and operate on the three memory layers (within-session, acr
 help_jtbd: "Inspect what the room remembers about your sessions."
 argument-hint: "[query <jtbd> | cross-room | resume | park <jtbd> | complete <jtbd> | --opt-out]"
 body_shape: E (Action Report)
+hitl_shape: "F.8"
+hitl_why: "The three memory layers are queried and written as an independent set of operations in any order."
 body_shape_detail: 4-zone Shape E for default + park + complete + opt-out; Shape G (Comparison Matrix) for query when Phase 101 ships (Shape E fallback otherwise); Shape G Mode A or Shape E Mode B for cross-room depending on Brain availability; Shape F.6 (or F.1 fallback) for resume picker.
 serves_jtbd: ["audit-room"]
 teaching: "When you need to inspect what the room remembers, /mos:memory shows the three layers: within-session, across-session, and cross-room. Memory locality is a Canon Part 9 invariant."

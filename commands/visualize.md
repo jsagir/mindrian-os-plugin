@@ -4,6 +4,8 @@ description: "[Deprecated] Open room diagrams in the browser (use /mos:dashboard
 help_jtbd: "Generate visualizations of your room's graph (deprecated: use /mos:dashboard --mermaid)."
 argument-hint: "[structure|graph|chart]"
 body_shape: D (Document View)
+hitl_shape: "F.1"
+hitl_why: "A rendered view offers one next move on what to open next."
 serves_jtbd: ["audit-room", "prepare-pitch"]
 deprecated: true
 deprecated_redirect: "dashboard --mermaid"

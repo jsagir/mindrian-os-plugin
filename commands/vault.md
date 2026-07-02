@@ -5,6 +5,8 @@ help_jtbd: "Export your room as an Obsidian vault."
 argument-hint: '[<room-name>] [--path <dir>]'
 disable-model-invocation: true
 body_shape: E
+hitl_shape: "F.0"
+hitl_why: "It surfaces one vault action for a single approve-or-defer decision."
 body_shape_overview: E (Mini Report)
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact. Graph view comes free."

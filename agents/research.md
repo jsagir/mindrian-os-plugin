@@ -25,6 +25,8 @@ connector:
   plan_gated: true
   web_scope: green
   surface: F.1
+hitl_shape: "F.8"
+hitl_why: "Research subquestions fan out independently and are verified as an any-order basket."
 ---
 
 <!-- Phase 95.6 D-10: Brain + Tavily access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__* / mcp__tavily-mcp__*); no implicit MCP inheritance. -->

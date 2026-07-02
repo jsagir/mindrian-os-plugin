@@ -13,6 +13,14 @@ paths:
 connector:
   excluded: true
   reason: "Ambient always-on infra. The proactive cross-relationship scan runs after every filing as part of the ambient loop; a continuous substrate, not a single problem-state reach."
+hitl_stages:
+  - stage: "proactive-finding-response"
+    shapes: ["F.0"]
+    mode: "gate"
+  - stage: "filing-offer-close"
+    shapes: ["F.1"]
+    mode: "gate"
+hitl_why: "Two independent decision-close moments: an APPROVE/REJECT/DEFER mini-gate on a surfaced finding, and an F.1 Next Move gate when offering to file a conversation artifact."
 ---
 
 # Room Proactive -- Gap, Contradiction, and Convergence Detection

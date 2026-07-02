@@ -3,6 +3,8 @@ name: publish
 description: Publish the Data Room presentation to Vercel
 help_jtbd: "Publish your room to a live URL."
 body_shape: E
+hitl_shape: "F.0"
+hitl_why: "It surfaces one publish action for a single approve-or-defer decision."
 argument-hint: [--all|<view>]
 serves_jtbd: ["prepare-pitch"]
 teaching: "When the Data Room is ready to share publicly, /mos:publish deploys the presentation to Vercel with a one-click link. From local artifact to shareable URL in one move."

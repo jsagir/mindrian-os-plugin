@@ -6,6 +6,17 @@ stages: 3
 estimated_time: 45-90min
 venture_stages: [Pre-Opportunity, Discovery]
 problem_types: [undefined-complex, undefined-complicated, ill-defined-complex]
+hitl_stages:
+  - stage: "explore-domains"
+    shapes: ["F.8"]
+    mode: "ordered"
+  - stage: "think-hats"
+    shapes: ["F.9"]
+    mode: "ordered"
+  - stage: "analyze-needs"
+    shapes: ["F.8"]
+    mode: "ordered"
+hitl_why: "Three ordered stages from territory to customer needs: explore-domains then think-hats then analyze-needs, each stage feeding the next."
 ---
 
 # Discovery Pipeline

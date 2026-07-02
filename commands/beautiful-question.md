@@ -3,6 +3,8 @@ name: beautiful-question
 description: Reframe a challenge as Why / What-if / How
 help_jtbd: "Reformulate the problem before solving the wrong one."
 body_shape: "methodology"
+hitl_shape: "F.9"
+hitl_why: "The Why then What-if then How progression is a fixed-order walk."
 serves_jtbd: ["find-problem", "explore"]
 teaching: "When the framing feels stuck, /mos:beautiful-question reshapes the challenge as Why / What-if / How. The right question unlocks more progress than a better answer."
 # --- Phase 122 workflow-layer frontmatter ---

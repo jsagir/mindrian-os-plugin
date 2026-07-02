@@ -2,6 +2,8 @@
 description: Refresh the Dial Memory (auto) section in each room section's memory MD
 help_jtbd: "Refresh the human-readable Dial Memory section rendered from the graph."
 body_shape: E
+hitl_shape: "F.0"
+hitl_why: "It offers a single refresh action to approve or defer."
 argument-hint: "[--all | --section <slug>]"
 serves_jtbd: ["validate-idea", "audit-room"]
 teaching: "When a section's Dial Memory feels stale, /mos:dial-memory-refresh rebuilds the auto-section from the SELECTED_REACH / PIVOTED / DRSCH relationship layer. Human-authored prose stays byte-preserved."

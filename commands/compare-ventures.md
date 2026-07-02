@@ -3,6 +3,8 @@ name: compare-ventures
 description: Compare against ventures that tried this before
 help_jtbd: "Set two or more ventures side-by-side, scored."
 body_shape: "methodology"
+hitl_shape: "F.5"
+hitl_why: "Ventures are compared as parallel branches the navigator resolves among."
 serves_jtbd: ["compare-options"]
 teaching: "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons."
 # --- Phase 122 workflow-layer frontmatter ---

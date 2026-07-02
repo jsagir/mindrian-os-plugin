@@ -13,6 +13,14 @@ allowed-tools:
 connector:
   excluded: true
   reason: "Ambient always-on infra. The sub-agent that executes one framework per call when a reach dispatches it; it is invoked BY the spine as the executor, never a problem-state-triggered reach itself."
+hitl_stages:
+  - stage: "build-path"
+    shapes: ["F.2"]
+    mode: "ordered"
+  - stage: "run-stage-sequence"
+    shapes: ["F.9"]
+    mode: "ordered"
+hitl_why: "It runs one methodology per invocation along a dependency path (F.2) as a fixed-order stage walk (F.9)."
 ---
 
 <!-- Phase 95.6 D-10: NO Brain access by design -- the caller (/mos:act) does all Brain queries + framework selection before invoking this agent; it executes the chosen methodology from local references/methodology/*.md via Read/Bash. There is no implicit MCP inheritance to depend on. -->

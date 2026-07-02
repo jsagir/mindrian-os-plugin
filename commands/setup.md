@@ -3,6 +3,8 @@ name: setup
 description: Configure optional integrations (Brain, Velma)
 help_jtbd: "Add optional integrations: graph, Brain, MCP servers."
 body_shape: E
+hitl_shape: "F.8"
+hitl_why: "Integrations are configured as an independent set the navigator connects in any order."
 argument-hint: [brain|velma|graph]
 serves_jtbd: ["explore"]
 teaching: "When you want to wire optional integrations like Brain or Velma, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder."

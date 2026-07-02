@@ -4,6 +4,8 @@ description: Show governing thought per section + health glyphs
 help_jtbd: "See your room's section-by-section status at a glance."
 argument-hint: "[section] [--stale-only]"
 body_shape: E (Action Report)
+hitl_shape: "F.1"
+hitl_why: "Status offers one next move based on where the room stands."
 serves_jtbd: ["audit-room", "explore"]
 teaching: "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs. The 10-second status check."
 ui_reference: skills/ui-system/SKILL.md

@@ -6,6 +6,23 @@ stages: 5
 estimated_time: 90-180min
 venture_stages: [Discovery, Design, Investment]
 problem_types: [ill-defined-complex, well-defined-complex, well-defined-complicated]
+hitl_stages:
+  - stage: "decompose"
+    shapes: ["F.9"]
+    mode: "ordered"
+  - stage: "abstract"
+    shapes: ["F.9"]
+    mode: "ordered"
+  - stage: "search"
+    shapes: ["F.8"]
+    mode: "ordered"
+  - stage: "transfer"
+    shapes: ["F.9"]
+    mode: "ordered"
+  - stage: "validate"
+    shapes: ["F.8"]
+    mode: "ordered"
+hitl_why: "Five ordered stages of cross-domain analogy: decompose then abstract then search then transfer then validate, each stage feeding the next."
 ---
 
 # Design-by-Analogy Pipeline

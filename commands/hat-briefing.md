@@ -3,6 +3,8 @@ name: hat-briefing
 description: Consolidate Six Hats briefings from hat memory
 help_jtbd: "Get a per-hat briefing from the AI team on your venture."
 body_shape: C (Dashboard Grid)
+hitl_shape: "F.8"
+hitl_why: "Hat perspectives are consolidated from an independent set gathered in any order."
 body_shape_detail: 6-panel hat grid + synthesis strip
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review."

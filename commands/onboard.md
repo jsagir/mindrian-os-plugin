@@ -3,6 +3,8 @@ name: onboard
 description: Walk through MindrianOS and build your first room
 help_jtbd: "Walk through the first 15 minutes with Larry."
 body_shape: B (Semantic Tree)
+hitl_shape: "F.1"
+hitl_why: "Onboarding presents each step and offers one next move to continue."
 body_shape_detail: Steps as conversational flow, context building as nested nodes
 serves_jtbd: ["explore"]
 teaching: "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room. Designed so a stranger can self-activate without Larry holding their hand."

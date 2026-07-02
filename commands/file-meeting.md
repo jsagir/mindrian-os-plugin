@@ -3,6 +3,8 @@ name: file-meeting
 description: File a meeting transcript into the Data Room
 help_jtbd: "Turn a meeting recording into structured room intelligence."
 body_shape: E
+hitl_shape: "F.8"
+hitl_why: "Extracted nuggets are routed as an independent set the navigator files in any order."
 argument-hint: [--latest|--paste|<file>]
 serves_jtbd: ["file-meeting"]
 teaching: "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives."

@@ -3,6 +3,8 @@ name: causal
 description: Trace causal edges in the room's graph
 help_jtbd: "Trace cause-and-effect chains across your room's claims."
 body_shape: "methodology"
+hitl_shape: "F.9"
+hitl_why: "Causes are extracted, traced, then predicted in a fixed order, an ordered walk."
 argument-hint: [extract|trace|predict]
 serves_jtbd: ["find-problem", "find-bottleneck"]
 teaching: "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph. Surfaces the upstream causes worth fixing."

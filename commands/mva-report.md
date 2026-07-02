@@ -2,6 +2,8 @@
 description: Emit a clean structured conversation-flow report of the session so far (not a transcript)
 help_jtbd: "Get a clean, forwardable report of how this conversation actually flowed."
 body_shape: E
+hitl_shape: "none"
+hitl_why: "A read-only conversation-flow report that emits a structured artifact and takes no navigator decision, so it reaches no genuine fork."
 argument-hint: "(no args -- reads the conversation you just had)"
 serves_jtbd: ["audit-room"]
 teaching: "When you have finished a conversation with Larry and want to see whether it fired the right things at the right time -- did it reach a conclusion or circle, did it elevate across frames, did the gates fire -- run /mos:mva-report. It emits a clean structured report you can forward, not a chat log. The tester-cohort report surface (2026-07-01 standup promise)."

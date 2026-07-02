@@ -4,6 +4,8 @@ command: mos:reason
 description: Generate Feynman-MINTO reasoning for a section
 help_jtbd: "Get Larry's reasoning trace on a specific question."
 body_shape: C
+hitl_shape: "F.9"
+hitl_why: "The Feynman-MINTO reasoning proceeds in a fixed order, an ordered walk."
 usage: /mos:reason [--section <name>] [--regenerate-all]
 serves_jtbd: ["explore"]
 teaching: "When a section needs Feynman-MINTO reasoning generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface."

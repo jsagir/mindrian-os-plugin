@@ -4,6 +4,8 @@ description: View or switch model-routing profiles
 help_jtbd: "Browse and apply 25 methodology models."
 argument-hint: [list|set|show]
 body_shape: C (Information Card)
+hitl_shape: "F.1"
+hitl_why: "The routing profile offers a single next-move selection."
 serves_jtbd: ["compare-options"]
 teaching: "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile. Different tasks deserve different models."
 ui_reference: skills/ui-system/SKILL.md

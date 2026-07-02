@@ -3,6 +3,8 @@ name: think-hats
 description: Rotate through De Bono's Six Thinking Hats
 help_jtbd: "Get a six-thinking-hats pass from the AI team."
 body_shape: "methodology"
+hitl_shape: "F.9"
+hitl_why: "The six thinking hats fire in a fixed sequence where the order is the method, an ordered walk."
 serves_jtbd: ["explore", "compare-options"]
 teaching: "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives."
 # --- Phase 122 workflow-layer frontmatter ---

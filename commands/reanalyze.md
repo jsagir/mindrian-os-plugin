@@ -3,6 +3,8 @@ name: reanalyze
 description: Re-analyze filed meetings for new patterns
 help_jtbd: "Re-run analysis on a single artifact or section."
 body_shape: E (Action Report)
+hitl_shape: "F.8"
+hitl_why: "Meetings are re-mined into an independent set of findings examined in any order."
 body_shape_detail: Before/after delta showing new insights discovered
 serves_jtbd: ["file-meeting"]
 teaching: "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant."

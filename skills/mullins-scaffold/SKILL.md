@@ -20,6 +20,8 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
+hitl_shape: "F.1"
+hitl_why: "Each of the seven domain folders is offered at an F.1 Decision Gate before creation, never auto-imposed on the room."
 ---
 
 # Mullins Scaffold -- Seven Domains of Attractive Opportunities

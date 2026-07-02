@@ -3,6 +3,14 @@ name: rs-fetch
 description: Run the full Reverse Salient discovery pipeline for a topic
 help_jtbd: "Fetch the latest reverse salient analysis for your room."
 body_shape: E (Action Report)
+hitl_stages:
+  - stage: "build-path"
+    shapes: ["F.2"]
+    mode: "ordered"
+  - stage: "ordered-stages"
+    shapes: ["F.9"]
+    mode: "ordered"
+hitl_why: "The full reverse-salient pipeline runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
 serves_jtbd: ["find-bottleneck", "surface-contradiction"]
 teaching: "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample."
 # --- Phase 122 workflow-layer frontmatter ---

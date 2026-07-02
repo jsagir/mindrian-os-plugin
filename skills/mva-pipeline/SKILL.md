@@ -18,6 +18,8 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
+hitl_shape: "F.1"
+hitl_why: "The 30-second brief closes with a numbered option-or-free-text choice (1/2/3/free-text), the canonical F.1 Next Move shape."
 ---
 
 # The 30-second MVA skill

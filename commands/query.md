@@ -3,6 +3,8 @@ name: query
 description: "[Deprecated] Query the knowledge graph in natural language (use /mos:graph)"
 help_jtbd: "Ask your room any question; get the answer as graph paths (deprecated: use /mos:graph)."
 body_shape: D
+hitl_shape: "F.1"
+hitl_why: "A natural-language graph query returns a result with one next move."
 argument-hint: "[question]"
 serves_jtbd: ["audit-room", "explore"]
 deprecated: true

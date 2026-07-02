@@ -4,6 +4,8 @@ description: "Browse the 4-lane command map: question-tabs, arrow to a command, 
 help_jtbd: "Tab across the 4 lanes, arrow to a command, run it. The command menu as a selector."
 argument-hint: [command-name | --list]
 body_shape: F.1
+hitl_shape: "F.1"
+hitl_why: "Help offers one next move on where to go next."
 body_shape_detail: F.1 Next Move (two-axis lanes-as-tabs via one AskUserQuestion call)
 serves_jtbd: ["explore"]
 teaching: "When the surface feels overwhelming, /mos:help is a selector: the 4 lanes are question-tabs, each lane's commands are the options, and the one you pick runs. Add --list for the full text view."

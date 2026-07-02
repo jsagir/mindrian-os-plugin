@@ -4,6 +4,8 @@ description: "[Deprecated] Navigate room hierarchy with graph-aware tree (use /m
 help_jtbd: "Group rooms into portfolios (deprecated: use /mos:rooms organize)."
 argument-hint: "[tree|propose|move <room> <group>]"
 body_shape: B (Semantic Tree)
+hitl_shape: "F.8"
+hitl_why: "Filing and tidy jobs are surfaced as an independent set with no ordering constraint."
 serves_jtbd: ["audit-room"]
 deprecated: true
 deprecated_redirect: "rooms organize"

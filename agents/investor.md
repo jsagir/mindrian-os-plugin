@@ -20,6 +20,8 @@ connector:
   filing: none
   plan_gated: false
   web_scope: null
+hitl_shape: "F.1"
+hitl_why: "The adversarial reviewer surfaces objections and one next move to address them."
 ---
 
 <!-- Phase 95.6 D-10: Brain access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__*); no implicit MCP inheritance. -->

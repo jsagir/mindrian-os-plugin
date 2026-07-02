@@ -23,6 +23,8 @@ connector:
   filing: memory_event_only
   plan_gated: false
   web_scope: null
+hitl_shape: "F.8"
+hitl_why: "De Bono hats are generated as an independent panel consulted in any order, an unordered basket."
 ---
 
 <!-- Phase 164 D-164-S2/S3/S4 cell-agent upgrade: this agent now has TWO roles. (a) The BONO cell agent: per-(subdomain x hat) research returning a structured {stance, evidence, confidence}, dispatched in parallel by lib/core/bono/cell-fanout.cjs. (b) The debate consolidator: the Wave-5 onStep target that folds collected cell readings into the ruling. -->

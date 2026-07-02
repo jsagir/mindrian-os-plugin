@@ -3,6 +3,8 @@ name: systems-thinking
 description: Map feedback loops, stocks, and flows
 help_jtbd: "Apply systems-thinking lenses to a problem."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "Stocks, flows, and loops are surfaced as an independent set with no ordering constraint."
 serves_jtbd: ["find-bottleneck"]
 teaching: "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system."
 # --- Phase 122 workflow-layer frontmatter ---

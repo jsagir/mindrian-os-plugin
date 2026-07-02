@@ -3,6 +3,8 @@ name: snapshot
 description: Package a Data Room snapshot for sharing
 help_jtbd: "Capture a snapshot of your room at this moment."
 body_shape: E
+hitl_shape: "F.0"
+hitl_why: "It offers one snapshot action to approve or defer."
 argument-hint: '[<room-path>] [--open]'
 serves_jtbd: ["prepare-pitch", "audit-room"]
 teaching: "When you need a frozen Data Room artifact to share with someone outside the team, /mos:snapshot packages everything into a portable bundle. Read-only by design."

@@ -3,6 +3,8 @@ name: map-unknowns
 description: Map known, unknown, and unknowable (Rumsfeld)
 help_jtbd: "Map the unknowns your venture has not yet addressed."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "Knowns and unknowns are laid out as an independent matrix set with no fixed order."
 serves_jtbd: ["validate-idea"]
 teaching: "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives."
 # --- Phase 122 workflow-layer frontmatter ---

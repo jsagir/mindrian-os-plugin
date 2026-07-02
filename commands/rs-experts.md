@@ -3,6 +3,8 @@ name: rs-experts
 description: Resolve the expert network for a topic via Aura Cypher MATCH
 help_jtbd: "Surface the expert profiles for a reverse salient."
 body_shape: D (Comparison Matrix)
+hitl_shape: "F.8"
+hitl_why: "A synthetic expert panel is generated as an independent set consulted in any order."
 serves_jtbd: ["find-bottleneck", "connect-domains"]
 teaching: "When you need to know who in the world is working on a reverse salient you found, /mos:rs-experts resolves the expert network via Brain Cypher MATCH. Routes you to the people who already know."
 # --- Phase 122 workflow-layer frontmatter ---

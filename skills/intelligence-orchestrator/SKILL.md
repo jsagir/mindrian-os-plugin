@@ -21,6 +21,8 @@ allowed-tools: [Read, Bash, Agent, WebSearch, WebFetch, mcp__pinecone__search-do
 connector:
   excluded: true
   reason: "Ambient always-on infra. The ONE spine that READS the connector registry and dispatches reaches; the orchestrator itself is the dispatcher, never a dispatched reach, so it is excluded by construction."
+hitl_shape: "F.0"
+hitl_why: "Every dispatched reach is offered through the room-proactive APPROVE/REJECT/DEFER mini-gate (F.0) before the resolved command fires; the dispatched reach's own connector.surface governs only what happens after APPROVE."
 ---
 
 # Intelligence Orchestrator -- The Reach Dispatcher

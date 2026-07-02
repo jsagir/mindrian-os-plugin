@@ -4,6 +4,17 @@ description: Run Larry's best-pick methodology for your room state
 help_jtbd: "Run the next move Larry recommends, without typing the /mos: command yourself."
 argument-hint: '[--chain] [--swarm] [--dry-run]'
 body_shape: E (Action Report) + F.1 (Next-Move gate)
+hitl_stages:
+  - stage: "best-pick"
+    shapes: ["F.7"]
+    mode: "gate"
+  - stage: "ordered-chain"
+    shapes: ["F.2", "F.9"]
+    mode: "ordered"
+  - stage: "parallel-swarm"
+    shapes: ["F.8"]
+    mode: "parallel"
+hitl_why: "Act has three modes in one file: a ranked best-pick dial (F.7), an ordered chain (F.2 then F.9), and a parallel swarm (F.8), each a distinct decision surface."
 serves_jtbd: ["plan-execution"]
 teaching: "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis."
 # --- Phase 122 workflow-layer frontmatter ---

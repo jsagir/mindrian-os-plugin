@@ -3,6 +3,8 @@ name: validate
 description: Validate ideas via importance-satisfaction scoring
 help_jtbd: "Validate a specific claim or hypothesis against evidence."
 body_shape: C
+hitl_shape: "F.8"
+hitl_why: "Each need is scored on importance and satisfaction independently, an any-order basket of scoring jobs."
 serves_jtbd: ["validate-idea"]
 teaching: "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
 # --- Phase 122 workflow-layer frontmatter ---

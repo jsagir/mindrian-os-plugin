@@ -3,6 +3,14 @@ name: persona
 description: Generate Six-Hats lenses from room data
 help_jtbd: "Get a per-persona view of your venture (role-blend x journey-stage)."
 body_shape: C (Room Card)
+hitl_stages:
+  - stage: "generate-experts"
+    shapes: ["F.8"]
+    mode: "parallel"
+  - stage: "resolve-tension"
+    shapes: ["F.5"]
+    mode: "gate"
+hitl_why: "Synthetic experts are generated as an independent set (F.8) then their tensions are resolved among parallel branches (F.5)."
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds."
 # --- Phase 122 workflow-layer frontmatter ---

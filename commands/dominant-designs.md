@@ -3,6 +3,8 @@ name: dominant-designs
 description: Spot dominant designs with Utterback-Abernathy
 help_jtbd: "Identify the dominant designs in your market."
 body_shape: "methodology"
+hitl_shape: "F.1"
+hitl_why: "The dominant design is identified as a single next-move call."
 serves_jtbd: ["understand-market"]
 teaching: "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it."
 # --- Phase 122 workflow-layer frontmatter ---

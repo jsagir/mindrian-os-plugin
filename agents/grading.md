@@ -20,6 +20,8 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.0
+hitl_shape: "F.8"
+hitl_why: "Artifacts are graded on independent components against the calibrated set, an unordered basket."
 ---
 
 <!-- Phase 95.6 D-10: Brain access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__my-neo4j__*); no implicit MCP inheritance. -->

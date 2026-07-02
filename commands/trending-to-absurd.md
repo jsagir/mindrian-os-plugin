@@ -3,6 +3,14 @@ name: trending-to-absurd
 description: Push graph-seeded trends to their absurd extreme to surface disruptive opportunities
 help_jtbd: "Surface the disruptive opportunities hiding past the edge of today's trends."
 body_shape: "methodology"
+hitl_stages:
+  - stage: "trend-selection"
+    shapes: ["F.3"]
+    mode: "ordered"
+  - stage: "push-to-absurd"
+    shapes: ["F.9"]
+    mode: "ordered"
+hitl_why: "A depth-budget trend selection (F.3) then a fixed-order push toward the absurd (F.9), never collapsed into one silent step."
 serves_jtbd: ["understand-market", "explore"]
 teaching: "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons -- the disruptive opportunity shows up at the edge first."
 # --- Phase 122 workflow-layer frontmatter ---

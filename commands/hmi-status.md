@@ -4,6 +4,8 @@ description: "[Deprecated] Show the latest HMI compliance poll (use /mos:doctor 
 help_jtbd: "Audit UI Ruling System compliance (deprecated: use /mos:doctor --ui-compliance --json)."
 argument-hint: "[--json]"
 body_shape: E (Action Report)
+hitl_shape: "F.1"
+hitl_why: "HMI status offers one next move on the current interface state."
 serves_jtbd: ["audit-room"]
 deprecated: true
 deprecated_redirect: "doctor --ui-compliance --json"

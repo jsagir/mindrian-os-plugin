@@ -3,6 +3,8 @@ name: speakers
 description: Show who spoke in your meetings and their roles
 help_jtbd: "Surface speaker profiles from filed meetings."
 body_shape: C (Room Card)
+hitl_shape: "F.1"
+hitl_why: "Speaker attribution resolves to a single next-move confirmation."
 body_shape_detail: Each speaker as a card with role, expertise, meeting count
 serves_jtbd: ["file-meeting"]
 teaching: "When you have a meeting filed and want to know who said what, /mos:speakers shows the participants with their roles, attendance, and contribution patterns. The people layer of meeting intelligence."

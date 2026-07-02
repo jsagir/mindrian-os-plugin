@@ -3,6 +3,8 @@ name: mullins
 description: Run Mullins 7-Domains on a business opportunity
 help_jtbd: "Run the Mullins 7-domains evaluation."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "The seven Mullins domains are examined independently in any order, an unordered basket of assessment jobs."
 serves_jtbd: ["understand-market"]
 teaching: "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources."
 # --- Phase 122 workflow-layer frontmatter ---

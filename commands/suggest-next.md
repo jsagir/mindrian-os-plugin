@@ -3,6 +3,8 @@ name: suggest-next
 description: Suggest the next move using the room graph
 help_jtbd: "Get the next move Larry recommends, ranked."
 body_shape: B
+hitl_shape: "F.1"
+hitl_why: "It offers a short numbered set of next moves for the navigator to pick one."
 serves_jtbd: ["plan-execution", "explore"]
 teaching: "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible."
 # --- Phase 122 workflow-layer frontmatter ---

@@ -6,6 +6,17 @@ stages: 3
 estimated_time: 60-120min
 venture_stages: [Design, Investment]
 problem_types: [well-defined-complex, well-defined-complicated, ill-defined-complex]
+hitl_stages:
+  - stage: "structure-argument"
+    shapes: ["F.9"]
+    mode: "ordered"
+  - stage: "challenge-assumptions"
+    shapes: ["F.8"]
+    mode: "ordered"
+  - stage: "build-thesis"
+    shapes: ["F.9"]
+    mode: "ordered"
+hitl_why: "Three ordered stages from structured argument to stress-tested thesis: structure-argument then challenge-assumptions then build-thesis, each stage feeding the next."
 ---
 
 # Thesis Pipeline

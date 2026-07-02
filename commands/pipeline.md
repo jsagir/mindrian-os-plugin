@@ -3,6 +3,14 @@ name: pipeline
 description: Chain a multi-step methodology pipeline
 help_jtbd: "Chain methodologies stage-by-stage."
 body_shape: E
+hitl_stages:
+  - stage: "build-path"
+    shapes: ["F.2"]
+    mode: "ordered"
+  - stage: "ordered-stages"
+    shapes: ["F.9"]
+    mode: "ordered"
+hitl_why: "A multi-stage pipeline runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
 argument-hint: '[pipeline-name] [--from-problem-type <x>] [--from-framework <x>]'
 serves_jtbd: ["plan-execution"]
 teaching: "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern."

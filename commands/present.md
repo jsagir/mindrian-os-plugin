@@ -3,6 +3,8 @@ name: present
 description: Generate the 6-view presentation and open it
 help_jtbd: "Render your room as a presentation deck."
 body_shape: E (Action Report)
+hitl_shape: "F.1"
+hitl_why: "The 6-view present offers one next move on which view to open."
 body_shape_detail: Generation results as action items, 6 views listed as outputs
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you need to walk someone through the room visually, /mos:present generates the 6-view presentation and opens it. Dashboard, Wiki, Deck, Insights, Diagrams, Graph in one artifact."

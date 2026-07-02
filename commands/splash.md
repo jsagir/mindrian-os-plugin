@@ -3,6 +3,8 @@ name: splash
 description: Display the MindrianOS Mondrian banner
 help_jtbd: "See the MindrianOS welcome panel + version."
 body_shape: E
+hitl_shape: "F.1"
+hitl_why: "The banner splash offers one next move to enter the room."
 serves_jtbd: ["explore"]
 teaching: "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings."
 allowed-tools:

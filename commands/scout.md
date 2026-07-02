@@ -3,6 +3,8 @@ name: scout
 description: Run sentinel scans across the room
 help_jtbd: "Scout the competitive landscape for a specific axis."
 body_shape: E (Action Report)
+hitl_shape: "F.8"
+hitl_why: "Sentinel scans run as an independent set of watches with no ordering constraint."
 serves_jtbd: ["explore", "understand-market"]
 teaching: "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one."
 ui_reference: skills/ui-system/SKILL.md

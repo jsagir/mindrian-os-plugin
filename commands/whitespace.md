@@ -3,6 +3,8 @@ name: whitespace
 description: Detect whitespace gaps in the room's coverage
 help_jtbd: "Map the whitespace zones in your domain."
 body_shape: "methodology"
+hitl_shape: "F.8"
+hitl_why: "Coverage gaps are surfaced as an independent set examined in any order."
 serves_jtbd: ["connect-domains", "find-problem"]
 teaching: "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries."
 # --- Phase 122 workflow-layer frontmatter ---

@@ -3,6 +3,8 @@ name: deck
 description: Build an on-brand, source-cited deck through one governed flow
 help_jtbd: "Pick a deck style; Larry builds it section by section from your room and binds the brand."
 body_shape: F.1
+hitl_shape: "F.1"
+hitl_why: "The governed deck flow closes with a single Next Move gate."
 serves_jtbd: ["prepare-pitch"]
 teaching: "When your room is full but the story is not yet a deck, /mos:deck asks ONE thing -- which shape fits, Feynman to make it clear, HEART to make it land, or mesh to do both -- then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default. The 6-stage Feynman engine and the design system already exist; the command reaches for them, it never rebuilds them."
 # --- Phase 122 workflow-layer frontmatter ---
