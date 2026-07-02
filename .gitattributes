@@ -1,0 +1,27 @@
+# Cross-platform line-ending policy (Windows install/update hardening, 2026-07-02).
+# Without this, a Windows contributor/installer whose git has autocrlf=true gets
+# shell scripts checked out with CRLF, and bash rejects the \r (breaks shebangs,
+# hooks, and the .sh update flow). The plugin ships bash scripts that MUST stay
+# LF on every platform. See .planning/debug/windows-install-update-ux.md.
+* text=auto eol=lf
+
+# Be explicit for the files that break loudest under CRLF.
+*.sh    text eol=lf
+*.cjs   text eol=lf
+*.js    text eol=lf
+*.mjs   text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.template text eol=lf
+
+# Binaries: never normalize.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.db binary
+*.sqlite binary
+*.ico binary
+*.woff binary
+*.woff2 binary

@@ -1463,7 +1463,12 @@ function checkStatuslineVisibility() {
   // default statusline. We only fail when stdout is non-empty AND lacks
   // the brand prefix.
   if (out.length > 0) {
-    const validPrefix = out.startsWith('⬡ MindrianOS') || out.startsWith('🏠 MindrianOS');
+    // Validate on the BRAND HEXAGON lead, not a frozen word (fix 2026-07-02):
+    // the renderer now emits "⬡ 👤 Larry · 📂 <room> ..." (persona-led), so the
+    // old "⬡ MindrianOS" literal false-positived a perfectly healthy statusline
+    // as "script output unexpected". The invariant is the brand glyph, not the
+    // word after it. See .planning/debug/windows-install-update-ux.md.
+    const validPrefix = out.startsWith('⬡') || out.startsWith('🏠');
     if (!validPrefix) {
       return {
         status: 'warn',
