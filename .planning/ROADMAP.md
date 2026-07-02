@@ -3340,7 +3340,7 @@ Plans:
 - [x] 189-03-PLAN.md -- HMG-04: HOW (ordered) -- F.9 multi-section soft-edit cascade adapter, composing the shipped F.9 shape (Wave 2)
 - [x] 189-04-PLAN.md -- HMG-05/06/07: WHO -- explicit attribution + memory_layer, cross-room second-confirm delegation to the Phase-195 umbilical gate, Phase-194 multi-session reconcile reuse proof, runChain halt assertion (Wave 3)
 
-### Phase 190: Shape F Declaration Mandate (shape-f-declaration-mandate) - REGISTERED 2026-06-30 - **CANONICAL RULING**
+### Phase 190: Shape F Declaration Mandate (shape-f-declaration-mandate) - COMPLETE 2026-07-02 - **CANONICAL RULING (Part 11 R16, canon v1.23)**
 
 **Class:** CANON + CODE + PROCESS | **Priority:** P0 (canonical ruling - governs every future surface) | **Depends on:** Canon Part 11 (CIRS born-wired gate), Part 3 (Shape F), Phase 125 (f-selector-ranker), Phase 121.5 (body_shape orthogonality), Phase 188 (F.8)
 
@@ -3587,7 +3587,7 @@ Cluster I. The lab-side automatic-prompt-optimization loop (SEED-002): an APO la
 - [x] 202-02-PLAN.md (wave 2) -- APO loop core: propose -> score (grading corpus + telemetry) -> select an optimized commands/act.md candidate, human-ratify -- COMPLETE 2026-07-01 (commits `0377138b`..`28eb77cc`; `lab/apo/prompt-target.cjs` + `lab/apo/apo-loop.cjs` + `lab/apo/.gitignore`; 10/10 test PASS; quality-primary blend, telemetry gated on activation; runApo recommends + NEVER writes commands/act.md, span data gitignored; zero network/Brain, no em-dashes)
 - [x] 202-03-PLAN.md (wave 3) -- Plurai eval gate: APO-output voice-contract judge -- COMPLETE 2026-07-02 (commits `a11799ed`..`89553fb2`; `lab/apo/voice-contract-gate.cjs` + `evals/plurai/09-apo-output-voice.csv` + `evals/plurai/202-baseline.json` + `tests/run-all-202.sh`; run-all-202 3/3 legs PASS; Canon Part 12 hard disqualifier proven -- a higher-reward em-dash candidate is NOT selected, a compliant lower-reward candidate wins; reuses `lab/eval/voice-mark-hybrid.cjs` (Part 7); Plurai offline/synthetic, baseline_deferred (Part 8); zero network/Brain, no em-dashes)
 
-### Phase 203: Synthetic-Expert-as-Project-Skill (synthetic-expert-skill) - REGISTERED 2026-07-01
+### Phase 203: Synthetic-Expert-as-Project-Skill (synthetic-expert-skill) - COMPLETE 2026-07-02 - **PLURAI TWO-SURFACE GATE (construction + behavior)**
 
 **Class:** CODE | **Priority:** P2 (deeply coupled to the RS engine + BONO; the fan-out-built expert) | **Depends on:** Phase 201 (harness-as-code / fan-out research), Phase 200 (RS engine expert-graph reconcile), the /mos:skill front door; sibling to /mos:bono + /mos:rs-experts
 
@@ -3599,7 +3599,7 @@ Cluster I. SyntheticExpert as a per-project Claude Code skill (SEED-035): Larry-
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for fan-out synthetic-expert fidelity vs the RS expert-graph. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-I graduation from SEED-035; fan-out-build + RS/BONO coupling navigator-directed 2026-07-01. NEXT: `/gsd-discuss-phase 203`.
 
-### Phase 204: Ignite Room-Chooser + Persona-Differentiated Entry (Shape-F front door) (ignite-room-chooser-persona-entry) - REGISTERED 2026-07-01 - **FIRST CONSUMER OF 188**
+### Phase 204: Ignite Room-Chooser + Persona-Differentiated Entry (Shape-F front door) (ignite-room-chooser-persona-entry) - COMPLETE 2026-07-02 - **FIRST CONSUMER OF 188**
 
 **Class:** CODE | **Priority:** P1 (the front door; makes 188 visible to the user on turn 1) | **Depends on:** Phase 188 (Shape-F selector system - the render primitive), Phase 179 (ignite persona-first B1 door), Phase 115 (persona-aware first-touch + dual-path + role_blend/persona_variants), the rooms registry (/mos:rooms), the conversation-mode skill (Just Talk / Explore+Capture / Build a Room)
 
