@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.2-beta.2 (in progress)
+## [1.15.2] - 2026-07-02
 
 ### Fixed
 - **Phase 209 - Shape-F Native Fire, Waves 2-4 (closes the declared-vs-rendered gap).** Completes the gate-native-fire fix plan Wave 1 started (1.15.2-beta.1): every surface that declares a Shape-F Decision Gate now fires the AskUserQuestion card natively, and the check-card-fire.cjs backstop is demoted to telemetry (target: intercepts trend to zero) rather than the mechanism navigators experience.
