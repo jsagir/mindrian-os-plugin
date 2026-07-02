@@ -3406,7 +3406,7 @@ The Brain write-side substrate-quality work split out of Phase 191 (navigator de
 - [ ] 193-04-PLAN.md - Wave 2: canonicalize-at-ingest entity resolution (methodology-ingest.cjs) + admin-gated ALIAS_OF write tool
 - [ ] 193-05-PLAN.md - Wave 3: Plurai eval gate (canonicalize-at-ingest + orphan-disposition judge)
 
-### Phase 192: Shape-F HITL Selector Completion (shape-f-hitl-selector-completion) - REGISTERED 2026-07-01
+### Phase 192: Shape-F HITL Selector Completion (shape-f-hitl-selector-completion) - COMPLETE 2026-07-02 - **POSTURE DIAL + LIVE STATUSLINE**
 
 **Class:** CODE | **Priority:** P1 (completes the user-facing Shape-F surface; sibling to 188/190) | **Depends on:** Phase 190 (Shape-F declaration mandate - so the new posture gate declares a canon-legal hitl_shape), Phase 188 (F.8 multi-select), Phase 144 (F.7 dial engine arm), Phase 143.1 (dial-TUI reusable renderer), Phase 178 (R15 render-coverage)
 
