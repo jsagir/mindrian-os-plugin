@@ -3634,7 +3634,7 @@ Scope = Waves 2-4 of the research plan (Wave 1 shipped as quick(gate-native-fire
 - **Eval (GATE):** ships a Plurai eval per the ground rule (card-fired-vs-prose fidelity) + local parity gate.
 - **Canon:** Parts 3 (Shape F), 6 (dogfooding - the backstop caught Larry AND the orchestrator same-day), 7, 11, 12. No em-dashes.
 
-**Plans:** 1/7 plans executed
+**Plans:** 2/7 plans executed
 
 Plans:
 
