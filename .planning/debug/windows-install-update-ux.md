@@ -87,3 +87,21 @@ adopt it.
 - Open: F5 (Windows shell verification), F7 (warning noise, low priority), F8 (loud restart cue after update).
 - F6 (visibility self-heal): FIXED 2026-07-02 via quick(statusline-visibility) - SessionStart hook auto-runs doctor --statusline-visibility --fix, touch-file on success, question only on failure. 19/19 tests.
 - Release plan: F2+F3+F4 ride the next cut (1.15.1) together with the Windows verification once done.
+
+### F10 - release-tooling placeholder divergence + ceremony-kill recovery (2026-07-02, v1.15.1 cut)
+Three tools computed three different "next placeholder after 1.15.0": release.sh dry-run planned
+1.15.2-beta.0; the actual Step 7.5 bump produced 1.15.1-beta.1; verify-release EXPECTED_NEXT demands
+semver.inc(marketVer,'prerelease','beta') = 1.15.1-beta.0. The divergence tripped a DO-NOT-RELEASE
+abort on the next cut (correct behavior, wrong root). Symptom fixed by aligning plugin/package to the
+verify-release contract (commit d24d270a, raw chore commit - PROCESS VIOLATION: bypassed GSD, logged
+here as the record). ROOT CAUSE OPEN: release.sh Step 7.5's bump math must be made identical to
+verify-release's EXPECTED_NEXT (one shared helper, not two implementations).
+ALSO in this cut: (a) the host process restarted MID-CEREMONY after npm publish - recovery completed
+manually (push main+tags, marketplace push, Commit B, npx self-test, acceptance 14/14); ceremony
+should be resumable / idempotent per step. (b) The website live-poll false-positives: grep for
+v1.15.1 matches the PREFIX of v1.15.0-beta.13-style strings - poll must anchor the full version.
+(c) The site's AUTO version surfaces read npm dist-tags.NEXT, which nobody advances on a stable cut -
+@next sat at 1.15.0-beta.13 while @latest was 1.15.1; release.sh stable path should move @next too
+(or the site should prefer @latest). (d) Hand-typed site surfaces (hero eyebrow, about Today, canon
+version field) were 2 versions stale; reconciled fc073d2; roadmap milestone labels + command-count
+sweep (107 now) still owed - the VERSION-BUMP-CHECKLIST pass.
