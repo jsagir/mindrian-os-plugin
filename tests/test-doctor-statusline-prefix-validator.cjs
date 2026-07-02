@@ -1,6 +1,9 @@
 // Locks the 2026-07-02 doctor false-positive: the class-G statusline validator
-// must accept the persona-led renderer format ("⬡ 👤 Larry · ...") on the brand
-// hexagon lead, not the frozen literal "⬡ MindrianOS".
+// must accept the brand-hexagon-led renderer format ("⬡ · ...") on the brand
+// hexagon lead, not the frozen literal "⬡ MindrianOS". (The 2026-07-02
+// statusline-context-aware pass dropped the static "👤 Larry" persona chip per
+// Ruling 1; the hexagon alone now leads. The validator only anchors on the ⬡/🏠
+// brand lead, so it stays green across that format change.)
 const assert = require('node:assert');
 
 // The validator predicate as it now lives in doctor.cjs (brand-hexagon lead).
@@ -11,9 +14,10 @@ const oldPrefix = (out) => out.startsWith('⬡ MindrianOS') || out.startsWith('�
 let pass = 0, fail = 0;
 const chk = (cond, label) => { if (cond) pass++; else { fail++; console.log('  FAIL ' + label); } };
 
-// The real, current renderer output (persona-led).
-const live = '⬡ 👤 Larry · 📂 MindrianOS ✅ · Next: continue · 📊 ░░░░░░░░░░ 0% · 🟢 · v1.15.0';
-chk(validPrefix(live) === true,  'new validator ACCEPTS the persona-led statusline');
+// The real, current renderer output (brand-hexagon-led; persona chip dropped by
+// Ruling 1, binary 🧠on brain chip by Ruling 2, honest "Next: --" by Ruling 3c).
+const live = '⬡ · 📂 MindrianOS ✅ · 🧠on · Next: -- · 📊 ░░░░░░░░░░ 0% · 🟢 · v1.15.0';
+chk(validPrefix(live) === true,  'new validator ACCEPTS the brand-hexagon-led statusline');
 chk(oldPrefix(live)  === false,  'old validator REJECTED it (this was the shipped bug)');
 
 // Alt brand glyph + old word form still accepted.

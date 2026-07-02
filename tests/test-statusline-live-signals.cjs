@@ -5,9 +5,9 @@
 //   (1) deriveNextMove reflects a CHANGED routed next step (the live wire), and
 //       clears back to the jtbd proxy when the router abstains.
 //   (2) the room-health signal CHANGES when ~/.mindrian/room-health.json changes.
-//   (3) byte-stable degrade: with BOTH sources absent the statusline shows today's
-//       safe defaults (next_move 'continue', health 'sound') -- no crash, no
-//       regression.
+//   (3) byte-stable degrade: with BOTH sources absent the statusline shows the
+//       safe defaults (next_move honest "--" per Ruling 3c, health 'sound') -- no
+//       crash, no regression.
 //
 // LOCAL only (Part 8): every read/write is a HOME/.mindrian file; the test isolates
 // HOME to a temp dir. No em-dashes.
@@ -33,9 +33,9 @@ process.env.HOME = tmpHome;
 
 try {
   // ---- (3) byte-stable degrade: both sources absent ----
-  ok('byte-stable default: no cache -> next_move continue + health sound', function () {
+  ok('byte-stable default: no cache -> next_move honest "--" + health sound', function () {
     const st = signals.collectSignals({ roomName: 'demo', ctxPct: 30 });
-    assert.equal(st.next_move, 'continue', 'next_move defaults to continue when nothing is routed and no jtbd');
+    assert.equal(st.next_move, '--', 'next_move defaults to the honest "--" placeholder when nothing is routed and no jtbd (Ruling 3c)');
     assert.equal(st.health, 'sound', 'health defaults to sound when no doctor cache exists');
     assert.equal(signals.readRoutedNextMove(), null, 'no routed cache -> null');
     assert.equal(signals.readHealthStatus(), null, 'no health cache -> null');
@@ -66,7 +66,7 @@ try {
     nextMoveCache.persistNextMove(null);
     assert.equal(signals.readRoutedNextMove(), null, 'cache cleared on abstention');
     assert.equal(signals.deriveNextMove({ jtbd: 'validate' }), 'validate', 'falls back to jtbd');
-    assert.equal(signals.deriveNextMove({}), 'continue', 'falls back to the safe default');
+    assert.equal(signals.deriveNextMove({}), '--', 'falls back to the honest "--" placeholder (Ruling 3c)');
   });
 
   // ---- (2) LIVE health: CHANGES when room-health.json changes ----

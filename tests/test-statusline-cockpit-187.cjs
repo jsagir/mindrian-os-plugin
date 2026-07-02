@@ -108,10 +108,13 @@ test('Test 1: HEALTHY state renders identity + room ✅ + Next + green Ctx', () 
   });
   assert(out.indexOf(HEX) !== -1, 'identity hexagon present');
   assert(out.indexOf(VOICE_BLUE) !== -1, 'Tier-1 blue voice square present');
-  assert(out.indexOf(PERSON + ' Larry') !== -1, 'WHO segment 👤 Larry present (default speaker)');
+  // Ruling 1 (2026-07-02): the static "👤 Larry" persona chip is DROPPED -- the
+  // hexagon alone carries brand identity, a field that never changes earns no space.
+  assert(out.indexOf(PERSON + ' Larry') === -1, 'static 👤 Larry persona chip dropped (Ruling 1)');
   assert(out.indexOf(FOLDER + ' product-evolution') !== -1, 'room breadcrumb present');
   assert(out.indexOf(HEALTH_OK) !== -1, 'room-health ✅ present');
-  assert(out.indexOf(BRAIN) !== -1, 'Brain backing glyph present');
+  // Ruling 2 (2026-07-02): the Brain chip is BINARY -- connected renders "🧠on".
+  assert(out.indexOf(BRAIN + 'on') !== -1, 'Brain backing renders the binary 🧠on ON-form (Ruling 2)');
   assert(out.indexOf('Next: validate edits') !== -1, 'Next-move cue present');
   assert(out.indexOf(CTX_GREEN) !== -1, 'green dot present (quiet: all clear)');
   assert(out.indexOf('Ctx') === -1, 'no operator "Ctx" label (lane A, navigator language)');
@@ -402,10 +405,10 @@ test('Test 12: INV-SL-2 hook writes LOCAL scalar/enum exposures, debounced by st
 // the cockpit state honestly (next-move proxy + default-sound health).
 // ===========================================================================
 test('Test 13: cockpit-signals maps real signals (next-move proxy, default-sound health)', () => {
-  // next-move proxy: jtbd > governing-thought > 'continue'.
+  // next-move proxy: jtbd > governing-thought > honest "--" (Ruling 3c, 2026-07-02).
   assert(signals.deriveNextMove({ jtbd: 'find-bottleneck' }) === 'find-bottleneck', 'jtbd is the next-move proxy');
   assert(signals.deriveNextMove({ governingThought: 'ship the MVP' }) === 'ship the MVP', 'governing thought is the fallback');
-  assert(signals.deriveNextMove({}) === 'continue', 'continue is the safe default');
+  assert(signals.deriveNextMove({}) === '--', 'the honest "--" placeholder is the safe default (never the lying "continue")');
   // default-sound health when no cache exists.
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cockpit-187-sig-'));
   const savedHome = process.env.HOME;
