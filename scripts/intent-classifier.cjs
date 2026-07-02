@@ -1564,6 +1564,18 @@ function runNavigationEngine(roomDir, sessionId) {
               };
             }
           }
+          // Quick-task 20260702 (Ruling 3a): persist THIS turn's actionable cue to
+          // the LOCAL next-move side-channel so the statusline "Next:" goes live from
+          // the per-turn decision (fire_skill / offer_next_step), not just the offer-
+          // resolver. Runs HERE where the engine already runs (never in the hot
+          // statusline process). Reuses the shipped writer (no second cache). Fully
+          // guarded: any persist failure never affects the decision or the turn.
+          try {
+            const nextMoveCache = require(
+              path.join(__dirname, '..', 'lib', 'statusline', 'next-move-cache.cjs')
+            );
+            nextMoveCache.persistFromDecision(decision);
+          } catch (_persistErr) { /* graceful: the reader degrades to the jtbd proxy */ }
           const elapsedMs = Date.now() - startedAt;
           // Phase 150-06 (D-08 render unlock): thread the projected cortexNodes
           // (the Wave-2 legD field) out on the LOCAL routing lane so the decide()
