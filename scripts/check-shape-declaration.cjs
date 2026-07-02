@@ -1,0 +1,503 @@
+#!/usr/bin/env node
+'use strict';
+
+/*
+ * Phase 190-03 (SFD-04) - the born-declared-shape CI tripwire (the R16 gate core).
+ *
+ * Every invocable surface across FOUR classes -- commands, agents, pipeline
+ * CHAIN.md files, and QUALIFYING skill SKILL.md files -- must DECLARE the
+ * Shape-F it reaches, drawing only from the closed vocabulary shipped in
+ * data/hitl-shape-declaration-schema.json (F.0-F.9 plus the literal 'none').
+ * A no-fork skill is EXEMPT via its existing connector.excluded:true + reason
+ * (Canon Part 11 R1) -- the gate reuses that CIRS exclusion signal rather than
+ * minting a parallel skill-exemption field or a redundant hitl_shape:'none'.
+ *
+ * This module is the PURE validation core (Plan 03 Task 1). It is validated
+ * against synthetic fixtures under data/hitl-shape-declaration-fixtures/ before
+ * it ever touches the real tree. The --check / --check-plan CLI modes (Task 2)
+ * wire this core over the live surfaces.
+ *
+ * check(fixture, opts) -> { valid, surface, violations[] } mirrors
+ * scripts/check-hitl-stages.cjs's check() shape exactly, extended with the skill
+ * branch and the f-selector-ranker-contradiction predicate.
+ *
+ * Canon Part 8 (The Graph Boundary): LOCAL-only. node:fs + node:path ONLY. Makes
+ * ZERO Brain reads/writes and ZERO network calls; runs no inference and consults
+ * no agent. Deterministic: same schema + same fixtures -> same verdict.
+ *
+ * Part 7 (Reuse Before Build): the hitl_stages branch delegates wholesale to
+ * scripts/check-hitl-stages.cjs's exported check(); the skill-exempt branch reads
+ * the EXISTING connector.excluded/connector.reason fields.
+ *
+ * House rule: hyphens only, no em-dashes, no emoji. CJS, process.argv routing.
+ */
+
+const fs = require('node:fs');
+const path = require('node:path');
+
+// Part 7 reuse: the hitl_stages validator. Its check() validates a stages array
+// against the closed F.0-F.9 shape set + the {parallel, ordered, gate} mode set.
+const hitlStages = require('./check-hitl-stages.cjs');
+
+const REPO_ROOT = path.resolve(__dirname, '..');
+const SCHEMA_PATH = path.join(REPO_ROOT, 'data', 'hitl-shape-declaration-schema.json');
+const FIXTURES_DIR = path.join(REPO_ROOT, 'data', 'hitl-shape-declaration-fixtures');
+
+// The four surface classes the --check mode enumerates (Task 2). Declared here so
+// the gate's shape is self-documenting; the walk NEVER hardcodes a surface count.
+const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
+const AGENTS_DIR = path.join(REPO_ROOT, 'agents');
+const PIPELINES_DIR = path.join(REPO_ROOT, 'pipelines');
+const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
+
+// The RANKER-CONSUMER ALLOWLIST anchors: a surface whose implementation requires
+// (directly or transitively) any of these is a proven ranked-reach consumer and
+// MUST declare F.7 (the ranked dial). Static, code-evaluated -- never an LLM call.
+const RANKER_MODULES = Object.freeze([
+  'f-selector-ranker.cjs',
+  'dial-reach-orchestrator.cjs',
+  'navigation-engine.cjs',
+]);
+
+// ---------------------------------------------------------------------------
+// loadSchema() -- read the closed Shape-F vocabulary. Pure read; no network.
+// Returns { shapeVocabulary:Set } or { fatal }.
+// ---------------------------------------------------------------------------
+function loadSchema() {
+  if (!fs.existsSync(SCHEMA_PATH)) {
+    return { fatal: 'data/hitl-shape-declaration-schema.json not found' };
+  }
+  let schema;
+  try {
+    schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8'));
+  } catch (e) {
+    return { fatal: 'data/hitl-shape-declaration-schema.json is not valid JSON: ' + e.message };
+  }
+  const doc = schema && schema._doc;
+  if (!doc || !Array.isArray(doc.shape_vocabulary) || doc.shape_vocabulary.length === 0) {
+    return { fatal: 'data/hitl-shape-declaration-schema.json is missing _doc.shape_vocabulary' };
+  }
+  return { shapeVocabulary: new Set(doc.shape_vocabulary) };
+}
+
+// ---------------------------------------------------------------------------
+// isRankerConsumer(scriptRel, opts) -- the static grep predicate. Reads the
+// implementation file and returns true when it requires any RANKER_MODULES anchor.
+// Comment-aware (skips // and /* * lines). Pure read; returns false on a
+// missing/unreadable file. LOCAL-only (Canon Part 8).
+// ---------------------------------------------------------------------------
+function isRankerConsumer(scriptRel, opts) {
+  const root = (opts && opts.repoRoot) || REPO_ROOT;
+  const abs = path.isAbsolute(scriptRel)
+    ? scriptRel
+    : path.join(root, String(scriptRel).split('/').join(path.sep));
+  let src;
+  try {
+    src = fs.readFileSync(abs, 'utf8');
+  } catch (_e) {
+    return false;
+  }
+  for (const mod of RANKER_MODULES) {
+    const escaped = mod.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('require\\([^)]*' + escaped + '[^)]*\\)');
+    for (const rawLine of src.split(/\r?\n/)) {
+      const line = rawLine.trim();
+      if (line.startsWith('//') || line.startsWith('*') || line.startsWith('/*')) continue;
+      const code = rawLine.replace(/\/\/.*$/, '');
+      if (re.test(code)) return true;
+    }
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// check(fixture, opts) -- THE PINNED validation predicate over ONE surface
+// record. Pure code, deterministic, no LLM, no network. Returns
+//   { valid:boolean, surface:string, violations:string[] }.
+// opts.vocab (a { shapeVocabulary:Set }) short-circuits the schema read so a
+// caller can validate many fixtures against one load.
+// ---------------------------------------------------------------------------
+function check(fixture, opts) {
+  opts = opts || {};
+  const violations = [];
+
+  let shapeVocabulary;
+  if (opts.vocab && opts.vocab.shapeVocabulary) {
+    shapeVocabulary = opts.vocab.shapeVocabulary;
+  } else {
+    const loaded = loadSchema();
+    if (loaded.fatal) {
+      return { valid: false, surface: '', violations: [loaded.fatal] };
+    }
+    shapeVocabulary = loaded.shapeVocabulary;
+  }
+
+  const surface = fixture && typeof fixture.surface === 'string' ? fixture.surface : '';
+  const label = surface || '<unnamed>';
+
+  // (1) surface is a non-empty string.
+  if (!surface || surface.trim().length === 0) {
+    violations.push('surface is missing or not a non-empty string');
+  }
+
+  const hasShape =
+    fixture && fixture.hitl_shape !== undefined && fixture.hitl_shape !== null;
+  const hasStages =
+    fixture && fixture.hitl_stages !== undefined && fixture.hitl_stages !== null;
+
+  // (2) never both a single-fork shape AND a multi-stage declaration.
+  if (hasShape && hasStages) {
+    violations.push(
+      'surface ' + label + ': declares BOTH hitl_shape and hitl_stages (exactly one form is allowed)'
+    );
+  }
+
+  if (hasShape) {
+    // (3) hitl_shape is a member of the closed vocabulary AND hitl_why is present.
+    const shape = fixture.hitl_shape;
+    if (!shapeVocabulary.has(shape)) {
+      violations.push(
+        'surface ' + label + ': unknown hitl_shape "' + shape +
+          '" (not in the closed set F.0-F.9 plus "none")'
+      );
+    }
+    const why = fixture.hitl_why;
+    if (typeof why !== 'string' || why.trim().length === 0) {
+      violations.push('surface ' + label + ': hitl_why is missing or empty');
+    }
+  } else if (hasStages) {
+    // (4) delegate the stages array wholesale to check-hitl-stages.cjs (Part 7).
+    const stagesResult = hitlStages.check({ surface, hitl_stages: fixture.hitl_stages });
+    for (const v of stagesResult.violations) violations.push(v);
+    // The schema also requires a non-empty hitl_why for a multi-stage declaration.
+    const why = fixture.hitl_why;
+    if (typeof why !== 'string' || why.trim().length === 0) {
+      violations.push('surface ' + label + ': hitl_why is missing or empty for the staged flow');
+    }
+  } else {
+    // (5) NEITHER form: valid ONLY IF connector.excluded:true AND a non-empty
+    //     reason (the skill-exempt case, reusing the CIRS R1 exclusion signal).
+    const excluded = fixture && fixture.connector_excluded === true;
+    const reason = fixture ? fixture.connector_reason : undefined;
+    const hasReason = typeof reason === 'string' && reason.trim().length > 0;
+    if (!(excluded && hasReason)) {
+      violations.push(
+        'surface ' + label + ': declares NEITHER hitl_shape/hitl_stages NOR ' +
+          'connector.excluded:true + reason (a surface silently missing both a ' +
+          'Shape-F declaration and a CIRS exclusion is illegal, exactly like a CIRS gap)'
+      );
+    }
+  }
+
+  // (6) the f-selector-ranker-contradiction predicate. When an implementation_script
+  //     is a proven ranker consumer, F.7 MUST appear as the hitl_shape OR within at
+  //     least one hitl_stages[].shapes[] entry; absence from both is a contradiction.
+  const script = fixture && fixture.implementation_script;
+  if (typeof script === 'string' && script.trim().length > 0 && isRankerConsumer(script, opts)) {
+    let hasF7 = false;
+    if (hasShape && fixture.hitl_shape === 'F.7') hasF7 = true;
+    if (hasStages && Array.isArray(fixture.hitl_stages)) {
+      for (const st of fixture.hitl_stages) {
+        if (st && Array.isArray(st.shapes) && st.shapes.indexOf('F.7') !== -1) {
+          hasF7 = true;
+          break;
+        }
+      }
+    }
+    if (!hasF7) {
+      const declared = hasShape
+        ? String(fixture.hitl_shape)
+        : hasStages
+          ? 'stages without any F.7'
+          : '<no declaration>';
+      violations.push(
+        'surface ' + label + ': f-selector-ranker-contradiction -- implementation_script ' +
+          script + ' is a proven ranker consumer (requires ' + RANKER_MODULES.join(' / ') +
+          '), so it MUST declare F.7 (expected F.7, declared ' + declared + ')'
+      );
+    }
+  }
+
+  return { valid: violations.length === 0, surface, violations };
+}
+
+// ---------------------------------------------------------------------------
+// checkAll(fixturesDir) -- validate every *.json fixture in a directory (default
+// data/hitl-shape-declaration-fixtures/). Mirrors check-hitl-stages.cjs checkAll().
+// Returns { valid:boolean, fixtures:number, violations:string[] }.
+// ---------------------------------------------------------------------------
+function checkAll(fixturesDir) {
+  const dir = fixturesDir || FIXTURES_DIR;
+  const vocab = loadSchema();
+  if (vocab.fatal) {
+    return { valid: false, fixtures: 0, violations: [vocab.fatal] };
+  }
+  if (!fs.existsSync(dir)) {
+    return { valid: false, fixtures: 0, violations: [dir + ' not found'] };
+  }
+
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.json'))
+    .sort();
+
+  const violations = [];
+  for (const f of files) {
+    let fixture;
+    try {
+      fixture = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+    } catch (e) {
+      violations.push(f + ': not valid JSON: ' + e.message);
+      continue;
+    }
+    const r = check(fixture, { vocab });
+    for (const v of r.violations) violations.push(f + ': ' + v);
+  }
+
+  return { valid: violations.length === 0, fixtures: files.length, violations };
+}
+
+// ---------------------------------------------------------------------------
+// coerce(v) -- scalar/array coercion for the frontmatter parser: null, booleans,
+// integers, inline JSON arrays (e.g. ["F.9", "F.2"]), else quote-stripped string.
+// Mirrors the coerceScalar idiom in check-cirs-declaration.cjs.
+// ---------------------------------------------------------------------------
+function coerce(v) {
+  const s = String(v).trim();
+  if (s === '') return '';
+  if (s === 'null' || s === '~') return null;
+  if (s === 'true') return true;
+  if (s === 'false') return false;
+  if (/^-?\d+$/.test(s)) return parseInt(s, 10);
+  if (/^\[.*\]$/.test(s)) {
+    try {
+      return JSON.parse(s.replace(/'/g, '"'));
+    } catch (_e) {
+      // fall through to string strip
+    }
+  }
+  return s.replace(/^["']|["']$/g, '');
+}
+
+// ---------------------------------------------------------------------------
+// parseBlock(block) -- classify an indented sub-block as one of: an array of maps
+// (dash + key:value), a nested map (key:value), or an array of scalars (dash +
+// scalar). Comment-aware. Returns the parsed value.
+// ---------------------------------------------------------------------------
+function parseBlock(block) {
+  const lines = block
+    .map((l) => l.replace(/\s+$/, ''))
+    .filter((l) => l.trim() !== '' && !/^\s*#/.test(l));
+  if (lines.length === 0) return [];
+
+  const first = lines[0];
+  const isDashMap = /^\s*-\s+[A-Za-z0-9_-]+:\s*/.test(first);
+  const isDashScalar = /^\s*-\s+/.test(first) && !isDashMap;
+
+  if (isDashMap) {
+    const arr = [];
+    let cur = null;
+    for (const rawLine of lines) {
+      const line = rawLine.replace(/\s+#.*$/, '');
+      const dashKv = /^\s*-\s+([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
+      if (dashKv) {
+        cur = {};
+        cur[dashKv[1]] = coerce(dashKv[2]);
+        arr.push(cur);
+        continue;
+      }
+      const kv = /^\s+([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
+      if (kv && cur) {
+        cur[kv[1]] = coerce(kv[2]);
+      }
+    }
+    return arr;
+  }
+
+  if (isDashScalar) {
+    const arr = [];
+    for (const rawLine of lines) {
+      const line = rawLine.replace(/\s+#.*$/, '');
+      const dash = /^\s*-\s+(.*)$/.exec(line);
+      if (dash) arr.push(coerce(dash[1]));
+    }
+    return arr;
+  }
+
+  // Nested map.
+  const obj = {};
+  let subKey = null;
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\s+#.*$/, '');
+    const kv = /^\s*([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
+    if (kv) {
+      subKey = kv[1];
+      const sv = kv[2].trim();
+      obj[subKey] = sv === '' ? [] : coerce(sv);
+      continue;
+    }
+    const dash = /^\s*-\s+(.*)$/.exec(line);
+    if (dash && subKey) {
+      if (!Array.isArray(obj[subKey])) obj[subKey] = [];
+      obj[subKey].push(coerce(dash[1]));
+    }
+  }
+  return obj;
+}
+
+// ---------------------------------------------------------------------------
+// parseFrontmatter(md) -- a focused YAML-subset reader for the fields this gate
+// needs: top-level scalars (hitl_shape, hitl_why), nested maps (connector,
+// cirs_relationship), and arrays of maps (hitl_stages, hitl_declarations). An
+// empty-value top-level key gathers its indented block and hands it to
+// parseBlock. Reads LOCAL bytes only (Canon Part 8). Not a general YAML engine --
+// exactly the descent the four surface classes and the plan frontmatter use.
+// ---------------------------------------------------------------------------
+function parseFrontmatter(md) {
+  if (typeof md !== 'string') return {};
+  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(md);
+  if (!m) return {};
+  const lines = m[1].split(/\r?\n/);
+  const out = {};
+  let i = 0;
+  while (i < lines.length) {
+    const raw = lines[i];
+    const line = raw.replace(/\s+$/, '');
+    if (line.trim() === '' || /^\s*#/.test(line) || /^\s/.test(raw)) {
+      i += 1;
+      continue;
+    }
+    const kv = /^([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
+    if (!kv) {
+      i += 1;
+      continue;
+    }
+    const key = kv[1];
+    const val = kv[2].trim();
+    if (val !== '') {
+      out[key] = coerce(val);
+      i += 1;
+      continue;
+    }
+    // Empty value: gather the following more-indented block.
+    const block = [];
+    i += 1;
+    while (i < lines.length) {
+      const l = lines[i];
+      if (l.trim() === '') {
+        block.push('');
+        i += 1;
+        continue;
+      }
+      if (/^\s/.test(l)) {
+        block.push(l);
+        i += 1;
+        continue;
+      }
+      break;
+    }
+    out[key] = parseBlock(block);
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// frontmatterToFixture(surface, fm) -- build a check() fixture from a parsed
+// surface frontmatter: lift hitl_shape/hitl_why/hitl_stages, and lift the nested
+// connector.excluded/connector.reason into the flat connector_excluded/
+// connector_reason fields check() reads.
+// ---------------------------------------------------------------------------
+function frontmatterToFixture(surface, fm) {
+  const fixture = { surface };
+  if (fm && fm.hitl_shape !== undefined) fixture.hitl_shape = fm.hitl_shape;
+  if (fm && fm.hitl_why !== undefined) fixture.hitl_why = fm.hitl_why;
+  if (fm && fm.hitl_stages !== undefined) fixture.hitl_stages = fm.hitl_stages;
+  const conn = fm && fm.connector;
+  if (conn && typeof conn === 'object' && !Array.isArray(conn)) {
+    if (conn.excluded === true) fixture.connector_excluded = true;
+    if (typeof conn.reason === 'string') fixture.connector_reason = conn.reason;
+  }
+  return fixture;
+}
+
+// ---------------------------------------------------------------------------
+// checkPlanFrontmatter(fm) -- the pure --check-plan core (Task 2). Reuses the
+// EXISTING R12 signal (cirs_relationship.surfaces_added) as the trigger: when a
+// plan adds surfaces, it MUST carry a sibling hitl_declarations[] with one
+// conformant entry per added surface. Returns { ok, errors[] }.
+// ---------------------------------------------------------------------------
+function checkPlanFrontmatter(fm) {
+  const errors = [];
+  const f = fm && typeof fm === 'object' ? fm : {};
+  const rel = f.cirs_relationship;
+  const added =
+    rel && Array.isArray(rel.surfaces_added) ? rel.surfaces_added.filter((s) => typeof s === 'string' && s.trim() !== '') : [];
+
+  if (added.length === 0) {
+    return { ok: true, errors };
+  }
+
+  const decls = Array.isArray(f.hitl_declarations) ? f.hitl_declarations : null;
+  if (!decls) {
+    errors.push(
+      'cirs_relationship.surfaces_added is non-empty but hitl_declarations is missing ' +
+        '(every added surface must declare its Shape-F per docs/HITL-SHAPE-DECLARATION-CONTRACT.md)'
+    );
+    return { ok: false, errors };
+  }
+
+  const declared = new Set();
+  for (const d of decls) {
+    if (!d || typeof d !== 'object' || Array.isArray(d)) {
+      errors.push('hitl_declarations has an entry that is not a map');
+      continue;
+    }
+    const s = typeof d.surface === 'string' ? d.surface.trim() : '';
+    if (s === '') {
+      errors.push('hitl_declarations has an entry with no surface');
+      continue;
+    }
+    const hasShape = d.hitl_shape !== undefined && d.hitl_shape !== null;
+    const hasStages = d.hitl_stages !== undefined && d.hitl_stages !== null;
+    const exempt =
+      d.connector_excluded === true &&
+      typeof d.connector_reason === 'string' &&
+      d.connector_reason.trim() !== '';
+    if (hasShape) {
+      if (typeof d.hitl_why !== 'string' || d.hitl_why.trim() === '') {
+        errors.push('hitl_declarations for ' + s + ': hitl_shape is present but hitl_why is missing');
+      }
+    } else if (hasStages) {
+      // A stages declaration is accepted here; the surface-scan gate validates the array.
+    } else if (exempt) {
+      // A newly-added exempt skill is conformant via connector_excluded:true + reason.
+    } else {
+      errors.push(
+        'hitl_declarations for ' + s + ': needs hitl_shape + hitl_why, or hitl_stages, ' +
+          'or connector_excluded:true + connector_reason'
+      );
+    }
+    declared.add(s);
+  }
+
+  for (const s of added) {
+    if (!declared.has(s)) {
+      errors.push(
+        'surface ' + s + ' is in cirs_relationship.surfaces_added but has no hitl_declarations entry'
+      );
+    }
+  }
+
+  return { ok: errors.length === 0, errors };
+}
+
+module.exports = {
+  loadSchema,
+  check,
+  checkAll,
+  checkPlanFrontmatter,
+  isRankerConsumer,
+  parseFrontmatter,
+  frontmatterToFixture,
+  RANKER_MODULES,
+};
