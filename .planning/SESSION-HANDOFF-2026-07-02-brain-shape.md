@@ -32,3 +32,12 @@ Canon: v1.22 (195's 7-memory-kind amendment; my v1.21 entry-34 elevation doctrin
 - **205 worktree merge:** when merging `workspace/phase-205-eva` back, watch dial / navigation-engine surfaces (188.1 + 205-04 also touched those).
 - **Plurai baselines are DEGRADE-path** (hand-labeled from Label column); real Plurai is interactive/headless-incapable - re-run `/evals:eval` interactively (judge model = fable per evals/plurai/README.md).
 - **`.planning/` is gitignored** - plan/handoff files need `git add -f`.
+
+## ADDENDUM - 205-08 GRILL (separate worktree session, appended post-handoff)
+
+This is NOT in the body above; a parallel session built it in its own isolated worktree. Add it to the reconcile list.
+
+- **Where:** worktree `workspace/phase-205-08-grill` (branch of the same name), 4 commits off `74c7db7e`: `f1f17c4b` (RED) / `18475540` (GREEN) / `b6b2fb97` (plan docs) / `125a3966` (fable spec docs). Files: `lib/core/grill-engine.cjs` (NEW), `tests/test-205-grill-engine.cjs` (NEW), `205-08-SUMMARY.md`. Nothing else - no STATE/ROADMAP/seeds touched.
+- **What:** GRILL two-arm engine (SCOPE-3). Arm A LIVE (`brain_consult` bias red-team, Part-8 fenced via part8-egress-guard, content-stripped). Arm B SCAFFOLDED behind a single 200-gate seam (`BLOCKED_UNTIL_200` + `is200FanVerifyLive`, grill-engine.cjs:210/225), clean-degrades (no fabricated verdict/evidence, no throw). Mints no new reach. `test-205-grill-engine` 12/12 green standalone.
+- **Merge note:** low conflict - `grill-engine.cjs` is a new-file add; does NOT touch the dial/navigation-engine surfaces the `phase-205-eva` merge warns about.
+- **Deferred (named):** (1) wire `tests/test-205-grill-engine.cjs` into `tests/run-all-205.sh` (one-line leg, held back for per-file staging). (2) Arm B live-wiring needs 4 fixes (fable SEAM-ADJUST verdict, recorded verbatim in `205-08-SUMMARY.md`): adversarialVerify adapter (no Phase-200 counterpart - only `runCellFanout` async at `lib/core/bono/cell-fanout.cjs:195`), async ripple through armB/runGrill, hat/opts call-shape mapping, real MCP-ask + Part-8 guard on the live path. (3) `205-08` ROADMAP checkbox flip. (4) one non-gitignored dirty file in the worktree - confirm before merge.
