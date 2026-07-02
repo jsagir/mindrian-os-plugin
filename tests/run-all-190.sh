@@ -79,12 +79,15 @@ run_if "SFD-04 live gate (--check against the real four-class tree)" \
 
 # ---------------------------------------------------------------------------
 # Plan 05 canon FLOOR: the born-declared-shape canon amendment's guard test.
-# It does NOT exist in this wave (Plan 05 is gated behind the navigator canon
-# amendment), so it SKIPs cleanly here and flips to a run once Plan 05 lands.
+# Plan 05's navigator-gated canon amendment landed (Part 11 R16 + Appendix D
+# entry 36 + canon v1.23), so this leg now RUNS the real entry-36 FLOOR test
+# (R16 present naming all four surface classes, entry 36 naming hitl_shape + the
+# skills fold-in, prior entries 1-35 preserved, version 1.23, the count framed
+# enumerated-from-disk never a frozen scalar) instead of SKIPping.
 # ---------------------------------------------------------------------------
-run_if "SFD-06 canon FLOOR (born-declared-shape canon byte guard)" \
-  tests/test-shape-declaration-canon-floor.cjs \
-  node tests/test-shape-declaration-canon-floor.cjs
+run_if "SFD-06 canon FLOOR (entry 36 R16 born-declared-shape canon byte guard)" \
+  tests/test-canon-entry-36-shape-declaration-floor.cjs \
+  node tests/test-canon-entry-36-shape-declaration-floor.cjs
 
 echo "========================================"
 echo "  Summary (190 verification)"

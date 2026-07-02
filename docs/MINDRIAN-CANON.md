@@ -1,6 +1,6 @@
 # Mindrian Canon
 
-Version: 1.22
+Version: 1.23
 Date: 2026-06-25
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
@@ -451,7 +451,7 @@ full Parts; the thing that decides what gets reached for is the same altitude.
 ### The Command Invocation Ruling System (CIRS) - the closed ruling set
 
 A closed constitution, the invocation-layer counterpart of Part 3's closed verb vocabulary and Part 4's
-closed edge vocabulary. Every invocable surface MUST satisfy R1-R15; the gate enforces them; a change to
+closed edge vocabulary. Every invocable surface MUST satisfy R1-R16; the gate enforces them; a change to
 the closed set is a canon amendment (Part 6 mechanism), not a per-phase edit. Two rules (R6, R11) are
 DECLARED-but-DEFERRED-ENFORCEMENT: the direction is law, but hard-FAIL enforcement is gated on substrate
 existing (curated chain confidences; the scale-invariant rollup operator) - until then they hold as
@@ -528,6 +528,31 @@ warn/aspirational, so no unproven number is frozen as hard law.
   scripts/check-render-coverage.cjs wired into pre-commit + install-pre-commit + release.sh +
   doctor --acceptance (the R9 enforcement surfaces). Implementing phase: 178
   (universal-gate-chokepoint); the gate is scripts/check-render-coverage.cjs.
+- **R16** Born-declared shape - every invocable surface - a command, an agent, a pipeline, OR a skill
+  that reaches a genuine Decision-Gate fork - is ALSO born with a DECLARED HITL SHAPE: `hitl_shape: F.x`
+  (or the literal `none` with a reason, for commands/agents/pipelines only) plus `hitl_why:` for a
+  single-fork surface, or `hitl_stages:` (an ordered {stage, shapes[], mode} list) for a multi-stage
+  engine/pipeline/skill, justified against the closed decision rule (ordered/dependent -> F.9/F.2;
+  independent/any-order set -> F.8; parallel branches -> F.5; single move/yes-no -> F.1/F.0; depth
+  budget -> F.3; harvest scope -> F.4; plan review/JTBD -> F.6; ranked capability reaches -> F.7). A
+  pure-capability / render-only skill with NO fork is EXEMPT from declaring, provided it carries the
+  EXISTING `connector.excluded:true` + reason (R1) - reusing that CIRS exclusion signal rather than
+  minting a parallel exemption, never a fork it does not have. The gate
+  scripts/check-shape-declaration.cjs fails the build CLOSED (nonzero exit) on a missing or a
+  provably-contradicting declaration (the f-selector-ranker-consumer predicate) OR on a skill missing
+  BOTH a declaration and a connector.excluded exemption (a skill-gap), mirroring R2's born-wired
+  hard-FAIL and R9's enforced-not-aspirational wiring (pre-commit + release.sh + doctor --acceptance).
+  R16 is the SHAPE-plane peer of R2 (born-wired) + R9 (enforced) + R15 (render coverage): R3 governs
+  whether a surface gets REACHED, R15 governs whether a REACHED gate FIRES its interactive card, and
+  R16 governs whether the FIRED card's SHAPE is declared and justified. The total count of declaring
+  surfaces is NEVER a frozen scalar; it is ALWAYS enumerated from disk at run time as commands + agents
+  + pipelines + qualifying skills (126 as of this phase: 105 + 9 + 3 + 9, plus 5 skills exempt via
+  connector.excluded - an illustrative snapshot, not a canon-frozen constant a future gate may
+  hardcode). Frozen Part 3 scalars (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate) are UNCHANGED by R16;
+  it mandates DECLARATION, mints NO reach/edge/node, opens NO Brain wire, and does not touch the shapes
+  themselves. Implementing phase: 190 (shape-f-declaration-mandate); the gate is
+  scripts/check-shape-declaration.cjs, the contract docs/HITL-SHAPE-DECLARATION-CONTRACT.md, the
+  backfill data/hitl-shape-backfill.json.
 
 ### Relationship to the existing Parts (what this PULLS TOGETHER, what it does NOT change)
 
@@ -776,6 +801,8 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 35. **Memory-kind amendment: the per-folder complement moved SIX to SEVEN, DRIFT ratified as the 7th kind (Phase 195, FCM-08, 2026-07-01).** Phase 195 (fractal-cross-room-memory) amended Part 9's per-folder memory complement from SIX kinds (ROOM / STATE / MINTO / FEYNMAN / BRAIN / USER) to SEVEN, ratifying DRIFT.md as the seventh: a per-folder intent-vs-actual ledger that files each drift finding WHERE the drift lives (its home folder), the 2026-06-11 drift-audit shape made a first-class memory kind rather than an evaporating report. The CODE registration SHIPPED AUTONOMOUSLY in Plan 195-02 (FCM-07): `'DRIFT.md': 'DRIFT'` is a member of `BASENAME_TO_KIND` in `lib/core/memory/reconcile-memory-runner.cjs`, DRIFT projects a `memory_artifact` node, and the read family grew by one (`readSextuple`) to read it - so this amendment RATIFIES an already-wired basename: code and constitution are consistent the instant the amendment lands. Planning FCM-08 was autonomous-safe; RATIFYING it was NOT (D-01): the per-folder memory complement is a constitutional property (Part 9 renders the local mind against it, and the Part 6 dog-fooding mandate requires the plugin to honor its own canon), so a phase that MOVES the complement must amend the canon using the canon's own mechanism, isolated behind a blocking human gate. DRIFT.md is LOCAL only, exactly like the other six kinds: drift entries NEVER egress to the Brain (Part 8). The memory-kind DRIFT.md (a room-tree section artifact) is DISTINCT from the Phase-150.9 `.planning/DRIFT.md` audit baseline that `drift-baseline.cjs` writes; the reconciler never walks `.planning/`, so the two DRIFT.md surfaces never collide. The amendment MINTS NO new edge type, NO new reach (the frozen six - context_block, contradiction, cross_room, brain_consult, deep_research, hats - stay frozen), NO new node type, and opens NO Brain wire; it adds a memory KIND, not a Shape-F scalar. The frozen scalars are byte-identical: MAX_K=3, DIAL_REACH_K=6, and the 0.70/0.15 gate are UNTOUCHED, and the CLAUDE.md frozen-scalar membrane substring stays intact. This was navigator-APPROVED at a blocking `checkpoint:human-verify` on 2026-07-01 BEFORE any canon byte was written (the navigator confirmed the 6->7 amendment and the version target v1.21 -> v1.22), mirroring the Phase 169 D-169-11 room-lineage gate, the Phase 188 SFS-11 F.8/F.9 gate, and the Phase 205 elevation gate. Entry 31's self-binding clause (no further Appendix D entry until entry 31 returns a live two-gauge reading) was RELEASED for this amendment by the Part-10 navigator-authority override (entry 20), recorded truthfully - no two-gauge reading was taken or fabricated, the release rests on navigator authority, the deferred reading stays a named debt, mirroring entries 32/33/34. Applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/23/33. Landed as ONE atomic lockstep wave so CI never went RED (the CODE already registers the basename, so the canon now matches): the Part 9 six-to-seven complement edit + this Appendix D entry 35 + the CANON-PHASE-MAP v1.22 version-history row + the FLOOR test `tests/test-195-canon-7-kind-floor.cjs` flipped from asserting-6 to asserting-7 (REQUIRE_DRIFT true; membership of all seven kinds, prior kinds preserved, frozen scalars intact, never a raw count) + the entry-31 FLOOR test version anchor moved 1.21 -> 1.22 (its byte-for-byte scalar assertions on MAX_K=3 / DIAL_REACH_K=6 / 0.70 / 0.15 unweakened) + the frozen-scalar FLOOR test (`tests/test-canon-frozen-scalars-floor.cjs`) kept GREEN, all moving together. Implementing phase: 195 (FCM-07 code in 195-02, this canon ratification in 195-06). Header/footer Version 1.21 -> 1.22.
 
+36. **Part 11 R16 (Born-Declared Shape) minted -- the shape-plane born-wired twin, folded across all four surface classes including skills (Phase 190, 2026-07-02).** Phase 190 (shape-f-declaration-mandate) amended Part 11's closed CIRS ruling set, adding R16 (Born-Declared Shape) as the THIRD born-clause and the shape-plane peer of R2 (born-wired) + R9 (enforced-not-aspirational) + R15 (render coverage). CIRS R1/R2 govern whether a surface is born WIRED or EXCLUDED and R15 governs whether a REACHED gate FIRES its interactive card; neither guaranteed that the card's SHAPE was declared or justified. The motivating failure this closes is the Phase 188 GIX single-select bug: a Decision Gate that should have offered a multi-select basket (F.8) silently rendered a single-select slate because no surface DECLARED its intended HITL shape, so nothing could catch the mismatch. R16 makes "every invocable surface that reaches a genuine Decision-Gate fork must declare its HITL shape or break the build" a closed-set guarantee. The closed-set move R1-R15 -> R1-R16 is a navigator-gated frozen-set amendment (mirroring entries 25/26/27) applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism. The mandate spans ALL FOUR declaring surface classes -- commands, agents, pipelines, AND the navigator-directed skills fold-in (2026-07-01: of 14 skills, 9 QUALIFY on the FORK test -- they reach a genuine Decision-Gate fork -- and carry `hitl_shape`/`hitl_why` or `hitl_stages`; the other 5 are pure-capability / render-only, EXEMPT via their EXISTING `connector.excluded:true` + reason (R1), never a fork they do not have). The gate scripts/check-shape-declaration.cjs fails the build CLOSED on a missing declaration, a provably-contradicting declaration, or a skill missing BOTH a declaration and a connector.excluded exemption, wired HARD-FAIL into pre-commit + release.sh + doctor --acceptance (the R9 enforcement surfaces). The full backfill lives in data/hitl-shape-backfill.json and the shipped contract is docs/HITL-SHAPE-DECLARATION-CONTRACT.md. The count of declaring surfaces is NEVER a frozen scalar: it is ALWAYS enumerated from disk at run time as commands + agents + pipelines + qualifying skills (126 declaring as of this phase -- 105 + 9 + 3 + 9 -- plus 5 skills exempt; an illustrative snapshot, explicitly NOT a canon-frozen constant, so a future gate never hardcodes it). R16 mints NO reach/edge/node and opens NO Brain wire; it mandates DECLARATION, not a render/ranking change. The frozen Part 3 scalars are byte-identical: MAX_K=3, DIAL_REACH_K=6, and the 0.70/0.15 gate are UNCHANGED by R16. Code shipped and green in Plans 01-04 (the contract + schema in Plan 01, the four-class backfill in Plans 01-02, the gate + its unit tests in Plan 03, the pre-commit / release / doctor wiring in Plan 04); this Plan 05 gives the mandate its constitutional home (R16). This was navigator-APPROVED at the Task-1 blocking checkpoint on 2026-07-02 BEFORE any canon byte was written (the navigator confirmed the version target v1.22 -> v1.23), the one true human gate of Phase 190, mirroring the Phase 188 SFS-11 gate and the Phase 195 D-01 gate. Entry 31's self-binding clause (no further Appendix D entry until entry 31 returns a live two-gauge reading) was RELEASED for this amendment by the Part-10 navigator-authority override (entry 20), recorded truthfully -- no two-gauge reading was taken or fabricated, the release rests on navigator authority, the deferred reading stays a named debt, mirroring entries 32/33/34/35. Applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/25/26/27. Landed as ONE atomic lockstep wave so CI never went RED: the Part 11 R16 bullet + the R1-R15 -> R1-R16 closed-set reference + this Appendix D entry 36 + the header/footer Version 1.22 -> 1.23 + the CANON-PHASE-MAP v1.23 version-history row + the Phase 190 map row flipped from "planned" to "shipped" + the new canonical FLOOR test (tests/test-canon-entry-36-shape-declaration-floor.cjs, registered in tests/run-all-190.sh -- R16 present naming all four surface classes, entry 36 present naming `hitl_shape` and the skills fold-in, prior entries 1-35 preserved, version 1.23, the count framed as enumerated-from-disk never a frozen scalar) + the entry-31 FLOOR test version anchor moved 1.22 -> 1.23 (its byte-for-byte scalar assertions on MAX_K=3 / DIAL_REACH_K=6 / 0.70 / 0.15 unweakened) + the frozen-scalar FLOOR test (tests/test-canon-frozen-scalars-floor.cjs) kept GREEN, all moving together. Implementing phase: 190 (Plans 01-04 code, this Plan 05 canon ratification). Header/footer Version 1.22 -> 1.23. Canon version bumped to 1.23.
+
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit. Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate (2026-05-12).
 
 ---
@@ -830,6 +857,6 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.22 - MindrianOS Plugin_
+_Mindrian Canon v1.23 - MindrianOS Plugin_
 
 _Version history is maintained inline in docs/CANON-PHASE-MAP.md (Version history table)._
