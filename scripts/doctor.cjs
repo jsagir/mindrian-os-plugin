@@ -3114,6 +3114,69 @@ function buildAcceptanceChecklist(ctx) {
         }
       },
     },
+    {
+      // Phase 199-05 (AS-08) -- Class O acceptance point:
+      // "AgentShield reports zero flagged findings across all 5 plugin surfaces."
+      //
+      // Runs the shipped 199-04 orchestrator (runAgentShieldScan) over the SAME
+      // tree doctor.cjs lives in (dog-food, Canon Part 6 / AS-04) and fails the
+      // release gate if any of the five non-Brain config surfaces (MCP tool
+      // descriptions, hook commands, skill files, CLAUDE.md permissions,
+      // package.json deps) carries an unremediated FLAGGED finding. This catches
+      // a poisoned tool-description / hook / skill BEFORE the plugin ships,
+      // closing the born-wired security loop for the /mos:agentshield surface.
+      //
+      // ok is keyed ONLY on totalFlagged === 0. An `ambiguous` verdict WARNS via
+      // the finding string but does NOT trip the blocker (mirrors the
+      // warn-vs-blocker distinction used elsewhere in this file). The scan opens
+      // NO network wire and starts NO MCP server (Part 8): every gatherer reads
+      // plugin-local files READ-ONLY.
+      //
+      // applies_to: ['pre-tag','full'] -- the surfaces are all repo-local and
+      // present before tag, so this gates in both the pre-tag and full modes.
+      // ADD-ONLY: no existing checklist entry's logic is touched.
+      id: 'agentshield-all-surfaces-clean',
+      label: 'Class O: AgentShield reports zero flagged findings across all 5 plugin surfaces',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'agentshield-all-surfaces-clean') {
+          return { ok: false, finding: 'agentshield-all-surfaces-clean synthesized failure (test mode)', detail: {} };
+        }
+        try {
+          const runnerPath = path.join(__dirname, '..', 'lib', 'core', 'security', 'agentshield-run.cjs');
+          const { runAgentShieldScan } = require(runnerPath);
+          const result = runAgentShieldScan();
+          const ok = result.totalFlagged === 0;
+          let finding = null;
+          if (!ok) {
+            const first = Array.isArray(result.findings) && result.findings.length > 0
+              ? result.findings[0]
+              : null;
+            finding = 'AgentShield flagged ' + result.totalFlagged + ' finding(s); first: ' +
+              (first
+                ? (first.surface + '/' + first.id + ' (' + (first.ruleId || first.reason) + ')')
+                : 'unknown');
+          } else if (result.totalAmbiguous > 0) {
+            // WARN-not-fail: ambiguous surfaces surface via the finding string
+            // but the blocker stays green (only flagged findings fail the gate).
+            finding = 'WARN: ' + result.totalAmbiguous +
+              ' ambiguous finding(s) across surfaces (no flagged; blocker not tripped)';
+          }
+          return {
+            ok: ok,
+            finding: finding,
+            detail: {
+              totalFlagged: result.totalFlagged,
+              totalAmbiguous: result.totalAmbiguous,
+              surfaces: result.surfaces,
+            },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'agentshield-all-surfaces-clean threw: ' + e.message, detail: {} };
+        }
+      },
+    },
   ];
 }
 
