@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "ci-baseline",
+  "runtime_loaded": false,
+  "method": "hand-labeled",
+  "baseline_deferred": true,
+  "deferred_note": "Genuine Plurai precision/recall baseline deferred, same reason as 196-baseline.json and 201-baseline.json: the Plurai eval is an interactive multi-turn MCP-tool flow that cannot run non-interactively in the sequential executor. Per the plan DEGRADE path the rows are hand-labeled deterministically from the Label column (incorrect to flag, correct to pass), and the local gate lib/core/ignite-branch-gate.cjs::classifyIgniteBranch reproduces every label exactly (parity test tests/test-204-ignite-branch-gate.cjs). Re-run /evals:eval interactively after /reload-plugins to replace this with a hosted Plurai baseline.",
+  "source_csv": "evals/plurai/09-ignite-branch-routing.csv",
+  "judge_prompt": "Given an ignite front-door branch-routing trace, classify it correct (Gate B0 only fires when prior resumable rooms exist, a resumed room applies its own stored persona register and is never re-birthed, Just Talk never forces a room birth, and every fired gate renders through the pickShape SEED-020 door) or incorrect (any of those invariants breached). Local parity gate: lib/core/ignite-branch-gate.cjs.",
+  "canon_contract": "ROADMAP.md Phase 204; Canon Part 3, Part 8, Part 10, Part 12",
+  "synthetic_only": true,
+  "precision": 1,
+  "recall": 1,
+  "accuracy": 1,
+  "f1": 1,
+  "row_count": 18,
+  "correct_count": 8,
+  "incorrect_count": 10,
+  "local_gate": "lib/core/ignite-branch-gate.cjs",
+  "local_gate_accuracy": 1,
+  "label_semantics": {
+    "correct": "pass",
+    "incorrect": "flag"
+  }
+}
