@@ -2236,6 +2236,12 @@
       "name": "/mos:splash"
     },
     {
+      "id": "command:/mos:stance",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:stance"
+    },
+    {
       "id": "command:/mos:status",
       "kind": "command",
       "methodology_tier": "mindrian-operation",

@@ -7,8 +7,8 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "0f3cb51af087a1b1d3aba5946c4e5de397832a091a49aca19b7a6e72c3ffd6e4",
-      "source_count": 106
+      "digest": "0ca56c05e238833e0251dc11103051e13b9c67c7abcd8773e687827be2c86038",
+      "source_count": 107
     },
     {
       "role": "wiring",
@@ -19,8 +19,8 @@
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "064f33caaa624ac44b3331663cf72d265f4cb71f28a7fdc9fac9f9dbf96014cd",
-      "source_count": 253
+      "digest": "6fee465d144a32869edc89fb1aa5ad5387933a84bb9df3197d63ac9d629b8a99",
+      "source_count": 254
     }
   ],
   "runtime_surfaces": [
@@ -32,7 +32,7 @@
     {
       "role": "decide_engine",
       "path": "lib/core/navigation-engine.cjs",
-      "digest": "35a32e3b769b34092faba721846f33a49e12a0abd32764dd69a17a02f5f8cfdc"
+      "digest": "60c4ec3f2ffc29e80273b96593eaefdf2d21a866c7002fab6e226998d0c707cf"
     },
     {
       "role": "cockpit",
