@@ -3275,7 +3275,7 @@ Plans:
 - [ ] 187.2-02-PLAN.md -- Trim the four @-include membranes + complete decisions.md (add #16) (Wave 1; CMD-01/06)
 - [ ] 187.2-03-PLAN.md -- Rewrite CLAUDE.md membrane (demote canon pins, Canon Compliance Core, Verification) + regen durability proof + <4k budget (Wave 2; CMD-01/04/05/06)
 
-### Phase 188: Shape-F Selector System: full F.0-F.9 vocabulary + composition (shape-f-selector-system) - REGISTERED 2026-06-29 (RE-SCOPED 2026-07-01) - **CRITICAL NEXT (v1.15.0-beta)**
+### Phase 188: Shape-F Selector System: full F.0-F.9 vocabulary + composition (shape-f-selector-system) - COMPLETE 2026-07-01 - **THE SHAPE-F FOUNDATION**
 
 **Class:** CODE + CANON | **Priority:** P0 (CRITICAL NEXT; the FOUNDATION the whole Shape-F family rides) | **Depends on:** Phase 178 (R15 card emission), Phase 166 (runChain HITL safe-halt), Phase 143.1 (dial-TUI renderer)
 
@@ -3361,7 +3361,7 @@ Plans:
 - [ ] 190-04-PLAN.md -- Wire gate into pre-commit/release/doctor + GSD wiring (CLAUDE.md/CIRS contract/CANON-PHASE-MAP) (Wave 3)
 - [ ] 190-05-PLAN.md -- [NAVIGATOR-GATED] Canon Part 11 R16 + Appendix D entry 36 amendment (Wave 4)
 
-### Phase 191: Brain Orchestration Advisor (brain-orchestration-advisor) - REGISTERED 2026-07-01
+### Phase 191: Brain Orchestration Advisor (brain-orchestration-advisor) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-02**
 
 **Class:** CODE | **Priority:** P1 (Tier-1 high leverage; the moat-activation - substrate built-but-unconsumed) | **Depends on:** Phase 157 (orchestration-projection artifact), Phase 184 (decide-projection-reader), Phase 110 (typed packet), Phases 141/148/150 (dial + ranker + render), Phase 166 (gated chain executor); consolidated charter `.planning/seeds/SEED-045-brain-orchestration-advisor-thread.md`
 
