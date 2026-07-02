@@ -1,16 +1,17 @@
 {
   "version": 1,
-  "phase": "121.5-07",
+  "phase": "20260702-help-coverage-gate",
   "canon_parts": [
     "Part 3",
     "Part 7",
-    "Part 10"
+    "Part 10",
+    "Part 11"
   ],
   "decisions": [
     "D-06",
     "D-07"
   ],
-  "_note": "All user-facing commands appear in /mos:help (selector menu). EXCLUDED: visibility:admin commands (admin, dogfood-flush) and the deprecated_aliases (soft redirects). Each group carries lane: start|methodology|explore|view for the Level-1 selector; the renderer text view (--list) walks all groups.",
+  "_note": "All user-facing commands appear in /mos:help (selector menu). EXCLUDED, born-listed and machine-checkable by scripts/check-help-coverage.cjs: (1) visibility:admin commands (admin, dogfood-flush), detected from each command's frontmatter; (2) the deprecated_aliases map below, which IS the explicit exclusion registry -- every command whose frontmatter carries `deprecated: true` MUST appear as a key here (reason: deprecated soft-redirect), or the gate hard-fails. Each group carries lane: start|methodology|explore|view for the Level-1 selector; the renderer text view (--list) walks all groups.",
   "groups": [
     {
       "id": "getting-started",
@@ -25,7 +26,8 @@
         "help",
         "rooms",
         "room",
-        "mos"
+        "mos",
+        "stance"
       ],
       "lane": "start"
     },
@@ -102,7 +104,12 @@
         "causal",
         "auto-explore",
         "memory",
-        "memory-cortex-reach"
+        "memory-cortex-reach",
+        "bono",
+        "diffusion",
+        "futures",
+        "trending-to-absurd",
+        "skill"
       ],
       "lane": "explore"
     },
@@ -139,7 +146,8 @@
         "radar",
         "grade",
         "deep-grade",
-        "reanalyze"
+        "reanalyze",
+        "mva-report"
       ],
       "lane": "view"
     },
@@ -160,7 +168,9 @@
       "glyph": "↗",
       "commands": [
         "publish",
-        "present"
+        "present",
+        "deck",
+        "show"
       ],
       "lane": "view"
     },
@@ -183,13 +193,17 @@
         "setup",
         "update",
         "doctor",
-        "build-knowledge"
+        "build-knowledge",
+        "agentshield",
+        "correct-reference-now",
+        "ingest-methodology",
+        "new-surface"
       ],
       "lane": "view"
     }
   ],
   "deprecated_aliases": {
-    "_note": "Per Phase 121.5-08 Sub-plan J. Old commands stay as soft-alias stubs but do NOT appear in /mos:help groups -- they redirect to the canonical command.",
+    "_note": "Per Phase 121.5-08 Sub-plan J. Old commands stay as soft-alias stubs but do NOT appear in /mos:help groups -- they redirect to the canonical command. This map doubles as the EXCLUSION REGISTRY read by scripts/check-help-coverage.cjs: reason for every key is `deprecated`, cross-checked against each command's frontmatter `deprecated: true`. A deprecated command absent from this map is a hard-fail (unlisted_deprecated) so a deprecation can never silently vanish from coverage.",
     "heal": "doctor --heal-room",
     "query": "graph",
     "organize": "rooms organize",
