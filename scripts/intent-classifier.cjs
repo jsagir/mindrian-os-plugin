@@ -936,6 +936,58 @@ function formatEngineDecisionBlock(decision, routing, offerLine) {
  * ctx.cortexNodes: the legD projected cortex (array; defaults to []).
  * ctx.onRenderNote: optional fault-note callback (150.5-02 DIAL-ATOM-01).
  */
+// Phase 209-01 (E3): pick a human display-name off a LOCAL node row for the
+// {topic} dial slot. relevantNodes (getNeighborhood) rows carry id/type/... and
+// cortexNodes (legD) rows carry id/type/properties; neither guarantees a name
+// field, so we probe the common name-ish fields in order and fall back to the
+// raw node id. Returns a trimmed non-empty string or null (caller omits the slot
+// when null so the row degrades to the generic JTBD line rather than 'undefined').
+// Canon Part 8: reads a LOCAL node scalar for a render-time label only; the
+// egress-audited {framework} slot is NEVER sourced here (composer owns it).
+function pickNodeDisplayName(node) {
+  if (!node || typeof node !== 'object') return null;
+  const candidates = [node.name, node.label, node.title];
+  const props = (node.properties && typeof node.properties === 'object') ? node.properties : null;
+  if (props) { candidates.push(props.name, props.title, props.label); }
+  candidates.push(node.id);
+  for (let i = 0; i < candidates.length; i++) {
+    const c = candidates[i];
+    if (typeof c === 'string' && c.trim().length > 0) return c.trim();
+  }
+  return null;
+}
+
+// Phase 209-01 (E3): derive the flat composeLabel slot map from the LIVE room
+// context so the dial rows resolve {topic}/{room_name} instead of always
+// degrading to the ELEVATION_DEFAULTS fallback (the RC-3 defect: renderDial was
+// called with empty opts). Pure + non-throwing: any malformed input yields {}.
+//   room_name <- path.basename(roomDir) when roomDir is a non-empty string
+//   topic     <- the top relevantNodes display-name, else the first cortexNodes
+//                display-name; the key is OMITTED entirely when neither resolves
+// The {framework} slot is deliberately NOT set here (Part 8: the egress-audited
+// slot stays owned by dial-label-composer's auditFrameworkSlot chokepoint).
+function buildDialSlotContext(roomContext, roomDir) {
+  try {
+    const slots = {};
+    if (typeof roomDir === 'string' && roomDir.length > 0) {
+      const base = path.basename(roomDir);
+      if (base && base.length > 0) slots.room_name = base;
+    }
+    const rc = (roomContext && typeof roomContext === 'object') ? roomContext : null;
+    if (rc) {
+      const topNode = (Array.isArray(rc.relevantNodes) && rc.relevantNodes.length > 0)
+        ? rc.relevantNodes[0] : null;
+      const cortexNode = (Array.isArray(rc.cortexNodes) && rc.cortexNodes.length > 0)
+        ? rc.cortexNodes[0] : null;
+      const topic = pickNodeDisplayName(topNode) || pickNodeDisplayName(cortexNode);
+      if (typeof topic === 'string' && topic.length > 0) slots.topic = topic;
+    }
+    return slots;
+  } catch (_e) {
+    return {};
+  }
+}
+
 // SEED-020 pickShape exemption (150.5-02, documented decision): the dial render
 // stays on the shipped 143.1 renderShapeF1 resolve/format path and does NOT fold
 // through pickShape (its install-tier-0 refuse would kill the D-01 sensor-fired
@@ -990,24 +1042,55 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
       suppressedReachIds: suppressedReachIds,
     });
 
-    const rendered = presenter.renderDial(reachList, {});
+    // Phase 209-01 (E3): thread the LIVE room-context slot map so the dial rows
+    // resolve {topic}/{room_name} instead of degrading to ELEVATION_DEFAULTS.
+    // buildDialSlotContext never throws and returns {} on absent context, so a
+    // cold room renders byte-identically to the prior empty-opts behavior.
+    const rendered = presenter.renderDial(reachList, {
+      slotContext: buildDialSlotContext(ctx && ctx.roomContext, ctx && ctx.roomDir),
+    });
     if (rendered && typeof rendered.text === 'string' && rendered.text.length > 0) {
       // 150.5-02 (DIAL-ATOM-01): thread the AskUserQuestion contract through
       // the SEED-020 single construction door. The dispatcher mints the
-      // trailer onto the envelope's scalar marker; this caller only READS it
-      // positionally in the concatenation below (never composes the trailer
-      // string, never assigns the marker). The trailer rides EVERY engine arm
-      // including tier_0 -- that arm IS the D-01 (LOCKED 2026-06-09)
-      // sensor-fired cold card: buildReachList's tier_0 path already renders
-      // the S4 framing + the no-signal confidence column, and the live card
-      // contract now rides with them. No tier_mode gating on the trailer.
+      // trailer onto the envelope's scalar marker + binding + rendered.contract;
+      // this caller only READS those fields positionally in the concatenation
+      // below (never composes the trailer string, never assigns the marker).
+      // The trailer rides EVERY engine arm including tier_0 -- that arm IS the
+      // D-01 (LOCKED 2026-06-09) sensor-fired cold card: buildReachList's tier_0
+      // path already renders the S4 framing + the no-signal confidence column,
+      // and the live card contract now rides with them. No tier_mode gating.
+      //
+      // Phase 209-01 (E2/E3): the caller now reads marker + binding + contract
+      // positionally. Each appended line is guarded on its own presence so a
+      // missing field degrades to the prior marker-only behavior rather than
+      // emitting 'undefined'. The contract line is built field-by-field from
+      // rendered.contract and JSON.stringify'd -- never string-concat unescaped
+      // label text into the bracket line (T-209-01 tampering mitigation).
       const dispatcher = require(
         path.join(__dirname, '..', 'lib', 'hmi', 'selector-dispatcher.cjs')
       );
       dispatcher.appendAskUserQuestionTrailer(rendered, 'F.1');
       const marker = rendered.askuserquestion_marker;
       if (typeof marker === 'string' && marker.length > 0) {
-        return base + '\n\n' + rendered.text + '\n' + marker;
+        let block = base + '\n\n' + rendered.text + '\n' + marker;
+        const binding = rendered.askuserquestion_binding;
+        if (typeof binding === 'string' && binding.length > 0) {
+          block += '\n' + binding;
+        }
+        const contract = rendered.contract;
+        if (contract && typeof contract === 'object') {
+          const verbs = Array.isArray(contract.verbs)
+            ? contract.verbs.filter(function (v) { return typeof v === 'string'; })
+            : [];
+          const compact = {
+            shape: (typeof contract.shape === 'string') ? contract.shape : 'F.1',
+            mode: (typeof contract.mode === 'string') ? contract.mode : null,
+            verbs: verbs,
+            recommended: (typeof contract.recommended === 'string') ? contract.recommended : null,
+          };
+          block += '\n[AskUserQuestion payload: ' + JSON.stringify(compact) + ']';
+        }
+        return block;
       }
     }
   } catch (e) {
@@ -1711,6 +1794,11 @@ function runNavigationEngine(roomDir, sessionId) {
             elapsed_ms: elapsedMs,
             cortex_nodes: cortexNodes,
             reach_penalties: reachPenalties,
+            // Phase 209-01 (E3): thread the LIVE room context OUT so the render
+            // seam (db already closed) can derive the dial slot map from
+            // relevantNodes/cortexNodes. Presence-only LOCAL fields; never a
+            // Brain wire (Part 8). Absent -> null -> buildDialSlotContext {}.
+            room_context: context.roomContext || null,
           });
         })
         .catch(function () { resolve(null); })
@@ -2146,6 +2234,7 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
 // Phase 194-04 (PSB-04): export the F.8 binding-gate producer + answer consumer.
 module.exports = {
   renderEngineDecisionWithDial: renderEngineDecisionWithDial,
+  buildDialSlotContext: buildDialSlotContext,
   formatEngineDecisionBlock: formatEngineDecisionBlock,
   consumePriorF1Pick: consumePriorF1Pick,
   emitBindingGate: emitBindingGate,
@@ -2441,6 +2530,10 @@ try {
         const block = renderEngineDecisionWithDial(
           out.decision, routing, offerLine, {
             cortexNodes: out.cortex_nodes,
+            // Phase 209-01 (E3): the live room context + active room dir, so the
+            // dial slot map resolves {topic}/{room_name} from live nodes.
+            roomContext: out.room_context,
+            roomDir: roomDir,
             // Phase 158-03 (SC-07): the upstream-computed bounded reject penalty +
             // hard-suppression set, folded on the live arm (db open) and threaded
             // out on the resolved object. The render seam merges discountedScores
