@@ -11,6 +11,9 @@
   "cve_db": "references/security/cve-db.json",
   "canon_contract": "Part 8 (Graph Boundary) plus SEED-016 (AgentShield surface scanner)",
   "synthetic_only": true,
+  "phase_gate": "PASSED",
+  "phase_gate_note": "199-07 final gate. Both parity checks hold with zero mismatches (verified via `node lib/core/security/agentshield-scanner.test.cjs` and a direct diff): (a) brain_egress_parity_reference.verdict_map is byte-identical to evals/plurai/196-baseline.json (frozen scalars intact, generalizing the engine moved no 196 boundary verdict); (b) the SHIPPED 199-03 classifier round-trips every row of 02-agentshield-surface-guardrail.csv to the same verdict recorded in agentshield_surface_baseline.verdict_map, so no CVE-DB gap-closing pass in 199-03 changed a borderline row's true verdict -- no CSV Label reconciliation was required, the hand-labeled degrade already equals the shipped classifier. precision/recall/accuracy/f1 all 1.0 on both the 36-row surface set and the 32-row brain-egress frozen reference.",
+  "phase_gate_verified_at": "2026-07-02T00:52:43.000Z",
   "agentshield_surface_baseline": {
     "precision": 1,
     "recall": 1,

@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "agentshield-baseline",
+  "note": "Committed known/accepted AgentShield findings. The PR-gate CLI (scripts/agentshield-scan-cli.cjs) fails ONLY on a finding whose surface+id+ruleId triple is NOT in this list (baseline-delta mode). Regenerate ONLY via `node scripts/agentshield-scan-cli.cjs --write-baseline`; every change is PR-reviewable in the diff.",
+  "generated_at": "2026-07-02T00:52:43.075Z",
+  "generator": "199-07 agentshield-scan-cli --write-baseline",
+  "findings": []
+}

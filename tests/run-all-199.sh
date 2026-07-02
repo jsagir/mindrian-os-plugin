@@ -129,11 +129,14 @@ run_if "AS-02 no private per-surface pattern array (engine requires cve-db.json)
 # ---------------------------------------------------------------------------
 # AS-09 (Wave 4, owned by 199-07): the PR-gate CLI (paths-filtered GHA scan with
 # baseline-delta) + the final end-to-end smoke that drives all six surfaces
-# through runAgentShieldScan() with no network wire. 199-07 APPENDS its leg here.
-# Placeholder only.
-# run_if "AS-09 PR-gate CLI + final e2e smoke" \
-#   scripts/agentshield-pr-gate.cjs \
-#   node tests/agentshield-e2e-smoke.test.cjs
+# through scanSurface() (fixtures only, no live repo mutation, no network wire),
+# renders the drift gate {Investigate, Defer}, and asserts the shipped CLI exits 0
+# against the live repo (clean at the committed baseline). run_if guarded on the
+# scan-CLI module so it stays SKIP-safe if the CLI is ever absent.
+# ---------------------------------------------------------------------------
+run_if "AS-09 PR-gate CLI + final e2e smoke (6 surfaces, drift gate, live CLI exit 0)" \
+  scripts/agentshield-scan-cli.cjs \
+  node tests/agentshield-e2e-smoke.test.cjs
 
 echo "========================================"
 echo "  Summary (199 verification)"

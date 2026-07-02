@@ -1,0 +1,72 @@
+# Phase 199-07 (AS-09) -- the AgentShield PR-gate CI workflow.
+# ==========================================================================
+# This is a REPO-GOVERNANCE CI file, NOT a plugin-distributed artifact. It lives
+# under .github/workflows and runs on GitHub's runners against a PR; it NEVER
+# ships to an end user's `claude plugin install` (nothing under .github is part
+# of the plugin package). Do not treat it as a runtime surface.
+#
+# What it does: on any PR that touches a governed agent-config surface, it runs
+# the LOCAL AgentShield scan CLI (scripts/agentshield-scan-cli.cjs) in
+# baseline-delta mode. Only a finding NOT already recorded in
+# references/security/agentshield-baseline.json fails the job -- a legacy /
+# accepted finding in the committed baseline never retroactively blocks a PR, so
+# a false positive cannot wedge an unrelated change.
+#
+# Threat notes (see PLAN threat_model):
+#   T-199-07-01 (accept): a PR that edits THIS workflow to disable the gate is a
+#     repo-settings concern (branch protection / CODEOWNERS on .github/**), not a
+#     code deliverable -- flagged for navigator awareness.
+#   T-199-07-02 (mitigate): a PR that edits agentshield-baseline.json to hide a
+#     finding is exactly as visible in the PR diff as any other change.
+#   T-199-07-SC (mitigate): the GH Actions are pinned to major-version tags
+#     (@v4), never a floating @main, so a compromised action tip cannot silently
+#     execute in this job.
+#
+# NO em-dashes anywhere (CLAUDE.md HARD RULE). Hyphens only.
+
+name: AgentShield Scan (PR gate)
+
+on:
+  pull_request:
+    paths:
+      - '.mcp.json'
+      - 'hooks/**'
+      - '.claude/skills/**'
+      - 'skills/**'
+      - 'CLAUDE.md'
+      - '.claude/rules/**'
+      - 'package.json'
+      - 'agents/**'
+      - 'commands/**'
+
+jobs:
+  agentshield-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Pinned to the Node major matching package.json engines (>=22.5.0).
+          node-version: '22'
+
+      - name: Run AgentShield baseline-delta scan
+        # The CLI exits 1 on any finding NOT in references/security/agentshield-baseline.json;
+        # a non-zero exit fails the job (baseline-delta enforcement).
+        run: node scripts/agentshield-scan-cli.cjs
+
+      - name: Emit machine-readable scan report
+        # Always produce the JSON report for the artifact, even when the gate step
+        # above failed, so a reviewer can inspect the exact new findings.
+        if: always()
+        run: node scripts/agentshield-scan-cli.cjs --json > agentshield-scan-report.json || true
+
+      - name: Upload scan report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentshield-scan-report
+          path: agentshield-scan-report.json
+          if-no-files-found: warn
