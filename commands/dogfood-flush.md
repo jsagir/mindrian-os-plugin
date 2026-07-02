@@ -42,6 +42,21 @@ byte-preserved.
 This is the manual knob the user reaches for when the automatic SessionStart
 drain has not run recently -- explicit redraw, drain everything pending right now.
 
+## Admin Identity Check
+
+**A HARD, code-enforced gate already ran before you saw this body.** This command
+carries `visibility: admin`, so the `UserPromptSubmit` hook
+`scripts/admin-command-gate.cjs` (wired in `hooks/hooks.json`) intercepted the
+invocation, ran the deterministic checker `scripts/check-admin-identity.cjs`, and
+BLOCKED (exit 2) any non-admin caller BEFORE this body was expanded. If you are
+reading this, the code gate already PASSED.
+
+Defense in depth (restatement, not the only enforcement): the gate authorizes a
+user when `MOS_ADMIN=true`, when `$USER`/`$USERNAME` contains "jsagi"/"jonathan",
+when `$HOME` is `/home/jsagi`, or when the optional allowlist
+`~/.mindrian/admin-identity.json` names the identity. If, as a soft backstop, none
+of these hold, render `x Command not found: dogfood-flush` and STOP.
+
 ## Behavior
 
 Two-step pipeline:

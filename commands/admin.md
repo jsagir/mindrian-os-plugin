@@ -48,15 +48,25 @@ You are Larry. This is the hidden admin panel for Brain API key management. It w
 
 ## Step 1: Admin Identity Check
 
-Check if the current user is authorized to use this command.
+**A HARD, code-enforced gate already ran before you saw this body.** The
+`UserPromptSubmit` hook `scripts/admin-command-gate.cjs` (wired in
+`hooks/hooks.json`) intercepts every `/mos:admin` invocation, runs the
+deterministic checker `scripts/check-admin-identity.cjs`, and BLOCKS (exit 2,
+prompt dropped) any non-admin invocation BEFORE this command body is ever
+expanded. If you are reading this, the code gate already PASSED. You do not need
+to re-derive identity from the environment yourself.
 
-**Check in order:**
+**Defense in depth (restatement, not the only enforcement):** the deterministic
+gate authorizes a user when ANY of these hold, and the same conditions are the
+soft backstop if the hook is ever unavailable:
 
 1. Environment variable `MOS_ADMIN=true` is set
 2. Username contains "jsagi" or "jonathan" (check `$USER`, `$USERNAME`, or `whoami`)
 3. Home directory matches `/home/jsagi` (check `$HOME`)
+4. The optional allowlist `~/.mindrian/admin-identity.json` names the identity
 
-If **none** of these conditions are met, render the 3-line error and STOP:
+If, as a soft backstop, **none** of these conditions are met, render the 3-line
+error and STOP:
 
 ```
 x Command not found: admin
