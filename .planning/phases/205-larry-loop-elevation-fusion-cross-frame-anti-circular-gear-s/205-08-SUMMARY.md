@@ -112,3 +112,20 @@ To wire Arm B to live Phase 200: flip `BLOCKED_UNTIL_200` to `false`. The predic
 - `tests/test-205-grill-engine.cjs` - FOUND
 - Commit `f1f17c4b` (RED) - FOUND
 - Commit `18475540` (GREEN) - FOUND
+
+## Fable Reconciliation of Arm B (navigator-directed, verdict: SEAM-ADJUST)
+
+A fable-tier reconciliation pass reviewed the Arm B BLOCKED-UNTIL-200 seam against the now-live Phase 200 surfaces. Result: the seam is single-pointed and degrades cleanly (the shipped scaffold is correct), but the "one-point flip" claim is corrected - wiring Arm B live needs the four fixes below. This is the acceptance spec for the DEFERRED live-wiring plan; it does NOT affect this plan's green scaffold.
+
+Seam soundness (verified first-hand):
+- SINGLE-POINT: PASS - every external step keys on `is200FanVerifyLive(ctx)` (grill-engine.cjs:225); `BLOCKED_UNTIL_200=true` (:210) is the lone flip; `runLiveExternalPass` fails CLOSED (:348) if reached prematurely.
+- CLEAN DEGRADATION: PASS - gated path returns `status:'not_available'` (:322), no fabricated verdict, no evidence node, no throw.
+- MCP-GATE ORDER: PASS (structure) - `mcpStackAskGate` resolves first (:291) before the seam check (:314).
+
+Four fixes required before the flip is truly one-point (deferred live-wiring plan):
+1. adversarialVerify ADAPTER (grill-engine.cjs:229, :337-343). The seam expects `ctx.adversarialVerify` to be a function, but Phase 200 shipped NO standalone `adversarialVerify` export - only `runCellFanout` exists (lib/core/bono/cell-fanout.cjs:195). Author an adapter that wraps the bono verdict pipeline into the `adversarialVerify(claim, cells) -> {survives | flagged None-tier}` shape the seam assumes.
+2. ASYNC RIPPLE (armB grill-engine.cjs:285, runGrill :382, runLiveExternalPass :348). `runCellFanout` is `async` (cell-fanout.cjs:195); armB/runGrill are sync. The live path must `await`, so armB -> runGrill (and callers) become async. Plan the ripple, or wrap at the seam.
+3. HAT / CALL-SHAPE MAPPING (grill-engine.cjs:337). `runCellFanout(opts)` takes an OPTS OBJECT (subdomain x hat grid), not positional claim/hats. Map GRILL's claim + 4 hats (White/Black/Yellow/Green) to runCellFanout's `opts` shape (subdomains/hats/cap/fetchCorpus).
+4. REAL MCP-ASK + PART-8 GUARD ON LIVE PATH (grill-engine.cjs:261, :337-343). `mcpStackAskGate` is a scaffold that pushes a trace marker only; the live path needs the real MCP-stack-ask (Tavily-first / native-WebFetch-fallback) AND the part8-egress-guard call wrapping the actual external primitive (only generic handles / bias-shape cross, never claim content).
+
+Also deferred to the central pass: wire tests/test-205-grill-engine.cjs into tests/run-all-205.sh (the one-line leg was held back to honor exclusive-file staging; the test passes standalone 12/12).
