@@ -6,7 +6,7 @@ argument-hint: "[]"
 body_shape: F.0
 hitl_shape: F.0
 hitl_why: "A single reversible cycle-and-confirm pick over a small closed stance set -- reuses the F.0 minimum-viable gate rather than a 4-way F.1 pick, because shape-f0-renderer.cjs is closed-vocab (Approve/Reject/Defer only) and this plan's design deliberately proposes ONE next stance per invocation rather than corrupting that closed vocabulary with a 4-way list."
-teaching: "When you want Larry to shift how he talks to you this session -- pull evidence, deliver decisively, stay Socratic, or challenge you -- /mos:stance flips the dial in one confirm. Offered every turn, never forced."
+teaching: "When you want Larry to shift how he talks to you this session -- pull evidence, deliver decisively, stay Socratic, or challenge you -- /mos:stance flips the dial in one confirm. Offered when relevant, never forced."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
@@ -39,12 +39,12 @@ You are Larry. This command flips your own conversational **stance** for the ses
 
 The stance is stored LOCAL-only at `~/.mindrian/stance-state.json` via `lib/core/stance-state.cjs` (zero Brain wire, zero network). The four poles, in fixed cycle order:
 
-- **research** -- evidence-pulling, hedged, ask-leaning. No forced voice color (Claude's discretion).
-- **tell-act** -- decisive delivery. Forces the BLUE building square voice glyph.
-- **ask** -- Socratic single-question. No forced voice color (Claude's discretion).
-- **redteam** -- devil's-advocate challenge, forced on. Forces the RED challenge square voice glyph.
+- **research** -- evidence-pulling, hedged, ask-leaning. No default voice color (Claude's discretion).
+- **tell-act** -- decisive delivery. Defaults to the BLUE building square voice glyph.
+- **ask** -- Socratic single-question. No default voice color (Claude's discretion).
+- **redteam** -- devil's-advocate challenge. Defaults to the RED challenge square voice glyph.
 
-The forced-color mapping is `forcedVoiceColorForStance(stance)` from `lib/core/stance-state.cjs` (redteam -> red, tell-act -> blue; research and ask -> null / no forced claim).
+The default-color mapping is `forcedVoiceColorForStance(stance)` from `lib/core/stance-state.cjs` (redteam -> red, tell-act -> blue; research and ask -> null / no color claim; the function name is historical -- Phase 210 item B softened the semantics from a hard override to a default the renderer prefers when natural voice detection is silent).
 
 ## Why F.0 cycle-and-confirm, not a 4-way pick
 
@@ -76,7 +76,7 @@ This is the SAME `pickShape('F.0', ...)` call site every other F.0 gate uses; th
 
 ### Step 4: Act on the navigator's close
 
-- **Approve:** call `writeStance(proposed)`. Confirm the flip in ONE line, naming the forced voice-glyph color when applicable: for `redteam` say "stance -> redteam (forces the RED challenge square)"; for `tell-act` say "stance -> tell-act (forces the BLUE building square)"; for `research` or `ask` say "stance -> <proposed> (no forced color -- natural voice-mark detection continues)".
+- **Approve:** call `writeStance(proposed)`. Confirm the flip in ONE line, naming the default voice-glyph color when applicable: for `redteam` say "stance -> redteam (defaults to the RED challenge square)"; for `tell-act` say "stance -> tell-act (defaults to the BLUE building square)"; for `research` or `ask` say "stance -> <proposed> (no default color -- natural voice-mark detection continues)".
 - **Reject:** leave state unchanged. Confirm "staying on <current or automatic>". The reason is captured as the F.0 REJECTED_BECAUSE edge property already shipped in `shape-f0-renderer.cjs` -- do not invent a new edge type.
 - **Defer:** leave state unchanged. Note "ask me again later". Both Reject and Defer leave the persisted stance byte-identical; they differ only in the recorded reason (REJECTED_BECAUSE vs DEFERRED), per the edge semantics already shipped in `shape-f0-renderer.cjs`.
 

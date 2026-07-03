@@ -1,6 +1,7 @@
 'use strict';
-// Phase 192-03 Task 3 -- doctrine-presence suite for the every-turn stance-toggle footer offer +
-// the locked voice-glyph override mapping in skills/larry-personality/SKILL.md.
+// Phase 192-03 Task 3 (re-pointed by Phase 210 item B) -- doctrine-presence suite for the
+// relevance-conditioned stance-toggle footer offer + the default/recommended voice-glyph
+// mapping in skills/larry-personality/SKILL.md.
 //
 // This is a DOCUMENTATION-presence test (it asserts the doctrine narrates the mapping), NOT a
 // re-test of the pure forcedVoiceColorForStance function (Task 1's suite already proves that).
@@ -10,7 +11,9 @@
 //   (b) it states the redteam -> red / tell-act -> blue mapping verbatim
 //   (c) it explicitly distinguishes itself from BOTH the Modality Remote (Part 12) and the
 //       Hierarchical Navigator posture prose, by name
-//   (d) it states the every-turn offered-never-forced footer requirement
+//   (d) it states the offered-never-forced rule AND conditions the footer offer on genuine
+//       relevance (navigator mid-decision about conversational mode), not every turn
+//       (Phase 210 item B re-pointed this from the old every-turn requirement)
 //   (e) the pre-existing "The Two Modes" / "The Dial Curve" / "Larry as Hierarchical Navigator"
 //       headings are still present byte-for-byte (proving a pure addition, not an edit)
 //   (f) the pure function still agrees with the documented mapping (a thin cross-check, imported
@@ -66,9 +69,9 @@ check(/Modality Remote/.test(sectionText), 'stance section distinguishes itself 
 check(/Hierarchical Navigator/.test(sectionText), 'stance section distinguishes itself from the Hierarchical Navigator posture by name');
 check(/push_forward|pull_back/.test(sectionText), 'stance section cites the frozen posture ids as a DIFFERENT axis');
 
-// (d) every-turn offered-never-forced footer.
+// (d) relevance-conditioned offered-never-forced footer (Phase 210 item B re-point).
 check(/offered[^\n]*never forced|never forced|offered, never forced/i.test(sectionText), 'stance section states the offered-never-forced rule');
-check(/every[- ]turn|each turn|Action Footer|footer/i.test(sectionText), 'stance section states the every-turn footer-offer requirement');
+check(/genuinely mid-decision|mid-decision about conversational mode|NOT a default every-turn/i.test(sectionText), 'stance section conditions the footer offer on genuine relevance, not every turn (Phase 210 item B)');
 check(/\/mos:stance/.test(sectionText), 'stance section names the /mos:stance affordance');
 
 // (e) pre-existing headings still present byte-for-byte (pure addition).
@@ -90,7 +93,7 @@ check(stance.forcedVoiceColorForStance('tell-act') === 'blue', 'code agrees: tel
 check(stance.forcedVoiceColorForStance('research') === null && stance.forcedVoiceColorForStance('ask') === null, 'code agrees: research/ask -> no forced color');
 
 if (failures === 0) {
-  process.stdout.write('PASS test-stance-voice-glyph-override.cjs (stance footer doctrine + locked voice-color mapping)\n');
+  process.stdout.write('PASS test-stance-voice-glyph-override.cjs (relevance-conditioned stance footer doctrine + default voice-color mapping)\n');
   process.exit(0);
 } else {
   process.stdout.write('FAIL test-stance-voice-glyph-override.cjs (' + failures + ' failing assertion(s))\n');
