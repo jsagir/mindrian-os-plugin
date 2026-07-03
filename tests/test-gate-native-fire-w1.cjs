@@ -128,8 +128,16 @@ check('P1: the frontmatter is intact (excluded connector + hitl_shape preserved)
 check('P3: skills/ui-system/SKILL.md Shape-F section carries the fire mandate', function () {
   assert.ok(/Fire the card, never draw the box/i.test(UISYS), 'the fire-the-card mandate is present');
   assert.ok(/no card, no picture \(SEED-021\)/i.test(UISYS), 'the SEED-021 rule is cited');
-  assert.ok(/BINDING/.test(UISYS) && /appendAskUserQuestionTrailer/.test(UISYS),
+  // Phase 210-05 (item E-2b) re-pointed this doctrine-presence check: the mandate
+  // is now fire-if-genuine-fork, not unconditional-BINDING. The new doctrine must
+  // be present (the FIRE-IF-FORK trailer literal, the already-answered exception,
+  // the single-door attribution) AND the old unconditional phrasing must be GONE.
+  assert.ok(/FIRE-IF-FORK/.test(UISYS) && /appendAskUserQuestionTrailer/.test(UISYS),
     'the self-decoding trailer + its single-door source are documented');
+  assert.ok(/already plainly answered/i.test(UISYS),
+    'the fire-if-genuine-fork exception (already answered in plain text) is present in the doctrine');
+  assert.ok(!/are BINDING wherever they (appear|surface)/i.test(UISYS),
+    'the old unconditional dispatch-on-sight phrasing must be gone');
 });
 
 check('P3: ui-system qualifies "End with a question" -> at a gate the question IS the card', function () {

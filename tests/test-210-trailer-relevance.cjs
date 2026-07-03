@@ -13,17 +13,18 @@
 //       stays byte-identical in ALL cases.
 //   (c) SOFTENED direction (EXPECTED RED until plan 210-05): the trailer
 //       imperative is conditional, not unconditional-BINDING. It must NOT open
-//       with the literal '[BINDING:' and must instead open with the new stable
-//       prefix '[FIRE-IF-FORK:'.
+//       with the old unconditional bracket-BINDING prefix (spelled via string
+//       concatenation below so the repo-wide zero-consumers grep stays empty)
+//       and must instead open with the new stable prefix '[FIRE-IF-FORK:'.
 //
 // Reverse-regression floor note for this stub: the floor for item E is the
 // classifyCardFire VERDICT behavior (legs b/c/d of tests/test-209-incident-replay.cjs),
-// NOT the literal '[BINDING:' string. Plan 210-05 re-points the wording-only leg (a)
-// of test-209-incident-replay.cjs plus its three wording siblings
+// NOT the old bracket-BINDING literal string. Plan 210-05 re-points the wording-only
+// leg (a) of test-209-incident-replay.cjs plus its three wording siblings
 // (test-209-engine-arm-contract.cjs, test-209-room-pick-sensor.cjs,
-// test-gate-native-fire-w1.cjs) from '[BINDING:' to '[FIRE-IF-FORK:' in the SAME
-// commit that lands the softening. That is the ONE intentional re-point of this
-// phase, not a floor violation.
+// test-gate-native-fire-w1.cjs) from the old bracket-BINDING prefix to
+// '[FIRE-IF-FORK:' in the SAME commit that lands the softening. That is the ONE
+// intentional re-point of this phase, not a floor violation.
 //
 // House rule: hyphens only, no em-dashes. CJS, node built-ins only.
 
@@ -101,8 +102,8 @@ leg('b PRESERVE FLOOR: the frozen marker stays byte-identical on the subShape-fa
 leg('c SOFTENED: the trailer imperative is conditional, not unconditional-BINDING (RED until plan 210-05)', function () {
   const rendered = genuineForkEnvelope();
   const binding = rendered.askuserquestion_binding;
-  assert.equal(binding.indexOf('[BINDING:') === 0, false,
-    'SOFTENED direction: the imperative must NOT open with the unconditional [BINDING: prefix');
+  assert.equal(binding.indexOf('[' + 'BINDING:') === 0, false,
+    'SOFTENED direction: the imperative must NOT open with the unconditional bracket-BINDING prefix');
   assert.equal(binding.indexOf('[FIRE-IF-FORK:') === 0, true,
     'SOFTENED direction: the imperative opens with the new stable [FIRE-IF-FORK: prefix (conditional on a genuine fork)');
 });
