@@ -245,7 +245,10 @@ check('Test 10 -- Q2 job-test visibility: visible for learners, invisible for pe
 // Task 2: session-end quorum (D-Q1) + lateral scaffold (BLOCKED-UNTIL-200).
 // ---------------------------------------------------------------------------
 
-check('Test 11 -- session-end quorum forces EXACTLY ONE offered hypothesis when 2+ frames live and none fired', () => {
+// Test 11 INTENTIONALLY RE-POINTED by plan 210-04 (item 210-D): the quorum now
+// SUGGESTS its single cross-frame hypothesis (suggested:true, forced:false)
+// instead of forcing it. The T-205-07-E hypothesis floor is unchanged.
+check('Test 11 -- session-end quorum SUGGESTS exactly one offered hypothesis when 2+ frames live and none fired (210-D)', () => {
   const db = freshDb();
   seedTwoFrames(db, 's1');
   const q = fusion.sessionEndQuorum({
@@ -256,11 +259,12 @@ check('Test 11 -- session-end quorum forces EXACTLY ONE offered hypothesis when 
     ],
     horizontalFiredThisSession: false,
   });
-  assert.equal(q.forced, true, 'quorum forces a hypothesis');
+  assert.equal(q.forced, false, 'quorum never FORCES the pick (210-D: suggestion, not requirement)');
+  assert.equal(q.suggested, true, 'quorum SUGGESTS its hypothesis as a default (210-D)');
   assert.equal(q.count, 1, 'EXACTLY one offered hypothesis (D-Q1)');
   assert.equal(q.hypothesis.offered, true, 'the hypothesis is offered');
   assert.equal(q.hypothesis.committed, false, 'NEVER auto-committed as a decision (T-205-07-E)');
-  assert.equal(q.hypothesis.hedged, true, 'the forced hypothesis is hedged');
+  assert.equal(q.hypothesis.hedged, true, 'the suggested hypothesis is hedged');
   db.close();
 });
 
