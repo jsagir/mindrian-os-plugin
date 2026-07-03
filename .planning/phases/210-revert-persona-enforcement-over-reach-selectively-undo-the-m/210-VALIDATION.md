@@ -3,7 +3,7 @@ phase: 210
 slug: revert-persona-enforcement-over-reach-selectively-undo-the-m
 status: planned
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-07-03
 ---
 
@@ -68,13 +68,13 @@ Naming note: RESEARCH.md's provisional names `tests/test-210-relevance-gate.cjs`
 
 Created by plan 210-01 (wave 1), before any implementation task:
 
-- [ ] `tests/test-shape-declaration-advisory.cjs` - stub, both directions (still-detects-and-enumerates, warns-not-fails by default, --strict exits 1)
-- [ ] `tests/test-voice-glyph-advisory.cjs` - stub
-- [ ] `tests/test-voice-contract-signal.cjs` - stub
-- [ ] `tests/test-elevation-quorum-advisory.cjs` - stub
-- [ ] `tests/test-card-fire-relevance-gate.cjs` - stub, must include the already-answered-plain-text-yes replay case from this session's live incident
-- [ ] `tests/test-210-trailer-relevance.cjs` - stub (E-2, frozen-marker + conditional-imperative)
-- [ ] `tests/run-all-210.sh` - aggregator mirroring `run-all-209.sh`, all 14 legs pre-declared
+- [x] `tests/test-shape-declaration-advisory.cjs` - stub, both directions (still-detects-and-enumerates, warns-not-fails by default, --strict exits 1)
+- [x] `tests/test-voice-glyph-advisory.cjs` - stub
+- [x] `tests/test-voice-contract-signal.cjs` - stub
+- [x] `tests/test-elevation-quorum-advisory.cjs` - stub
+- [x] `tests/test-card-fire-relevance-gate.cjs` - stub, must include the already-answered-plain-text-yes replay case from this session's live incident
+- [x] `tests/test-210-trailer-relevance.cjs` - stub (E-2, frozen-marker + conditional-imperative)
+- [x] `tests/run-all-210.sh` - aggregator mirroring `run-all-209.sh`, all 14 legs pre-declared
 
 ---
 

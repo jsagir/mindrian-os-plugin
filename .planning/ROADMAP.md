@@ -2871,16 +2871,16 @@ Plans:
 **Goal:** Restore Larry's conversational judgment: soften the five v1.15 HARD-FAIL/BINDING persona-enforcement mechanisms (190 shape-declaration gate to advisory with --strict opt-in, 192 glyph mapping to default-not-locked plus relevance-conditional stance footer, 202 voice-contract disqualifier to score-not-veto, 205 sessionEndQuorum to suggest-not-force, 209 force-fire behind a relevance/already-answered gate) without deleting any underlying capability. Preserve the 194/196/200 data-boundary gates, all persona-neutral capability phases, and the 19 standalone fixes. Ship as a new version via scripts/release.sh with a real npm publish.
 **Requirements**: 210-A, 210-B, 210-C, 210-D, 210-E (the five lettered items from 210-CONTEXT.md)
 **Depends on:** Phase 209
-**Plans:** 7 plans
+**Plans:** 6/7 plans executed
 
 Plans:
 
-- [ ] 210-01-PLAN.md - Wave 0: two-directional test scaffolds for every softened gate + tests/run-all-210.sh aggregator (14 legs pre-declared)
-- [ ] 210-02-PLAN.md - Item A: check-shape-declaration.cjs advisory by default (+--strict), release.sh Step 2 + doctor --acceptance rewiring, doc shadows (canon deferred to plan 06)
-- [ ] 210-03-PLAN.md - Item B: voice-glyph mapping default-not-override at the renderer + SKILL.md footer conditional on genuine relevance
-- [ ] 210-04-PLAN.md - Items C+D: APO voice contract scores-not-vetoes (offline lab, small); sessionEndQuorum suggests-not-forces (hypothesis floor T-205-07-E intact)
-- [ ] 210-05-PLAN.md - Item E: lib/core/gate-relevance.cjs shared predicate, relevance-gated Stop-hook backstop (209 incident-replay floor UNMODIFIED), conditional trailer, mos:firing-block v2 sweep
-- [ ] 210-06-PLAN.md - Canon Part 11 R16 advisory amendment: navigator-gated blocking checkpoint, then atomic lockstep to canon v1.24 (NOT autonomous)
+- [x] 210-01-PLAN.md - Wave 0: two-directional test scaffolds for every softened gate + tests/run-all-210.sh aggregator (14 legs pre-declared)
+- [x] 210-02-PLAN.md - Item A: check-shape-declaration.cjs advisory by default (+--strict), release.sh Step 2 + doctor --acceptance rewiring, doc shadows (canon deferred to plan 06)
+- [x] 210-03-PLAN.md - Item B: voice-glyph mapping default-not-override at the renderer + SKILL.md footer conditional on genuine relevance
+- [x] 210-04-PLAN.md - Items C+D: APO voice contract scores-not-vetoes (offline lab, small); sessionEndQuorum suggests-not-forces (hypothesis floor T-205-07-E intact)
+- [x] 210-05-PLAN.md - Item E: lib/core/gate-relevance.cjs shared predicate, relevance-gated Stop-hook backstop (209 incident-replay floor UNMODIFIED), conditional trailer, mos:firing-block v2 sweep
+- [x] 210-06-PLAN.md - Canon Part 11 R16 advisory amendment: navigator-gated blocking checkpoint, then atomic lockstep to canon v1.24 (NOT autonomous)
 - [ ] 210-07-PLAN.md - Phase gate + release: run-all-210 + five prior aggregators + doctor --acceptance, then scripts/release.sh 1.15.3-beta.1 with the real npm publish
 
 ---
