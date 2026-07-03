@@ -2868,14 +2868,20 @@ Plans:
 
 ### Phase 210: Revert persona-enforcement over-reach: selectively undo the mandatory/BINDING behaviors from Phase 192 (locked voice-glyph + stance-toggle footer), Phase 202 (voice-contract disqualifier), Phase 205 (elevation-taxonomy canon-governed decision tree), and Phase 209 (Shape-F Native Fire force-fire with no relevance check); relax Phase 190's build gate to advisory. Preserve everything else in the v1.15 window: Phase 194/196/200 data-boundary gates, Phase 188/189/191/195/199/201/203/204 capability work, and the 19 standalone fixes from the v1.15.0-beta.13..v1.15.2 diff. Provenance: navigator-reported regression 2026-07-02, root-caused via commit diff, confirmed live via repeated Stop-hook force-fires including one blocking an already-answered plain-text reply. Evidence: session memory feedback_1_15_enforcement_regression_watch.md.
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Restore Larry's conversational judgment: soften the five v1.15 HARD-FAIL/BINDING persona-enforcement mechanisms (190 shape-declaration gate to advisory with --strict opt-in, 192 glyph mapping to default-not-locked plus relevance-conditional stance footer, 202 voice-contract disqualifier to score-not-veto, 205 sessionEndQuorum to suggest-not-force, 209 force-fire behind a relevance/already-answered gate) without deleting any underlying capability. Preserve the 194/196/200 data-boundary gates, all persona-neutral capability phases, and the 19 standalone fixes. Ship as a new version via scripts/release.sh with a real npm publish.
+**Requirements**: 210-A, 210-B, 210-C, 210-D, 210-E (the five lettered items from 210-CONTEXT.md)
 **Depends on:** Phase 209
-**Plans:** 0 plans
+**Plans:** 7 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 210 to break down)
+- [ ] 210-01-PLAN.md - Wave 0: two-directional test scaffolds for every softened gate + tests/run-all-210.sh aggregator (14 legs pre-declared)
+- [ ] 210-02-PLAN.md - Item A: check-shape-declaration.cjs advisory by default (+--strict), release.sh Step 2 + doctor --acceptance rewiring, doc shadows (canon deferred to plan 06)
+- [ ] 210-03-PLAN.md - Item B: voice-glyph mapping default-not-override at the renderer + SKILL.md footer conditional on genuine relevance
+- [ ] 210-04-PLAN.md - Items C+D: APO voice contract scores-not-vetoes (offline lab, small); sessionEndQuorum suggests-not-forces (hypothesis floor T-205-07-E intact)
+- [ ] 210-05-PLAN.md - Item E: lib/core/gate-relevance.cjs shared predicate, relevance-gated Stop-hook backstop (209 incident-replay floor UNMODIFIED), conditional trailer, mos:firing-block v2 sweep
+- [ ] 210-06-PLAN.md - Canon Part 11 R16 advisory amendment: navigator-gated blocking checkpoint, then atomic lockstep to canon v1.24 (NOT autonomous)
+- [ ] 210-07-PLAN.md - Phase gate + release: run-all-210 + five prior aggregators + doctor --acceptance, then scripts/release.sh 1.15.3-beta.1 with the real npm publish
 
 ---
 
