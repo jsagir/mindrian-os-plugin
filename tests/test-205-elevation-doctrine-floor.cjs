@@ -103,8 +103,8 @@ const skillElev = skill.slice(skill.indexOf('## The Three Directions of Elevatio
 ok(bodyElev.length < skillElev.length,
   'BODY elevation pointer must be terser than the SKILL section (no full-doctrine duplication)');
 
-// ---------- 9. Canon ratified with the Appendix D ledger entry (version anchor tracks forward: 1.22 after the Phase 195 FCM-08 seven-memory-kind amendment) ----------
-ok(/Version:\s*1\.22/.test(canon), 'CANON: header not at current v1.22');
+// ---------- 9. Canon ratified with the Appendix D ledger entry (version anchor tracks forward: 1.24 after the Phase 210 entry-37 R16 advisory amendment; was 1.22 post-Phase-195 FCM-08, 1.23 post-Phase-190) ----------
+ok(/Version:\s*1\.24/.test(canon), 'CANON: header not at current v1.24');
 ok(/34\.\s+\*\*The three directions of elevation ratified/.test(canon),
   'CANON: Appendix D entry 34 (ratification record) missing');
 
@@ -116,4 +116,4 @@ for (const [name, seg] of [['CANON', canon.slice(canon.indexOf('### The three di
   ok(!seg.includes('—'), `${name}: em-dash in the elevation section (house rule: hyphens only)`);
 }
 
-console.log(`PASS test-205-elevation-doctrine-floor.cjs (${checks} assertions: canon<->skill<->body elevation-doctrine consistency, 3 directions in all 3 surfaces, persona-ratio, hedged-always, four-check, clarify-vs-reframe, artifact!=conversation, single-source body-pointer, v1.22 + entry 34, zero em-dashes)`);
+console.log(`PASS test-205-elevation-doctrine-floor.cjs (${checks} assertions: canon<->skill<->body elevation-doctrine consistency, 3 directions in all 3 surfaces, persona-ratio, hedged-always, four-check, clarify-vs-reframe, artifact!=conversation, single-source body-pointer, v1.24 + entry 34, zero em-dashes)`);
