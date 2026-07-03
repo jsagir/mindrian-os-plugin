@@ -22,8 +22,12 @@
  *     regression). Handles all live dialects: multi-line YAML list, inline flow
  *     array (including empty []), and inline scalar.
  *
- * The STAMP_MARKER line ('<!-- mos:firing-block v1 -->') is machine-detectable:
- * it doubles as plan 03's B3 "wired" predicate token. No em-dashes anywhere in
+ * The STAMP_MARKER line ('<!-- mos:firing-block v2 -->') is machine-detectable:
+ * it doubles as plan 03's B3 "wired" predicate token. Phase 210-05 (item E-3)
+ * bumped the marker to v2 when it softened the block wording to
+ * fire-if-genuine-fork; runStamp's strip-then-reinsert recognizes ANY prior
+ * marker version, so the v2 sweep strip-and-replaces stale v1 blocks in one
+ * pass and a second run is a byte-stable no-op. No em-dashes anywhere in
  * emitted content or comments (double hyphen ok).
  *
  * Usage:
@@ -42,22 +46,34 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
 
 // The machine-detectable sentinel. Plan 03's B3 "wired" predicate keys on this
-// exact line; grep -rl "mos:firing-block v1" commands/ counts the stamped files.
-const STAMP_MARKER = '<!-- mos:firing-block v1 -->';
+// exact line (via the shared STAMP_MARKER import in check-shape-declaration.cjs,
+// T-209-10); grep -rl "mos:firing-block v2" commands/ counts the stamped files.
+// v2 (Phase 210-05, item E-3): the block bytes changed (softened to
+// fire-if-genuine-fork), so the marker version moved with them.
+const STAMP_MARKER = '<!-- mos:firing-block v2 -->';
 const STAMP_END = '<!-- /mos:firing-block -->';
 
-// The canonical firing paragraph, extracted once from the thrice-repeated
-// commands/rooms.md text (lines 24-27, 116-120, 463-468). Kept shape-generic: it
-// references "this command's declared hitl_shape" rather than hard-coding F.1, so
-// the same block is correct on an F.1, F.8, or F.9 command.
+// The canonical firing paragraph. v1 was extracted once from the thrice-repeated
+// commands/rooms.md text; v2 (Phase 210-05, item E-3) softens the unconditional
+// fire instruction to the same fire-if-genuine-fork semantics as the
+// [FIRE-IF-FORK: trailer in lib/hmi/selector-dispatcher.cjs: fire the card on a
+// genuine unanswered fork; do NOT fire when the navigator already answered in
+// plain text or the gate is off-topic; the SEED-021 never-reproduce-the-selector
+// render-hygiene line is kept (render hygiene is not over-reach). Kept
+// shape-generic: it references "this command's declared hitl_shape" rather than
+// hard-coding F.1, so the same block is correct on an F.1, F.8, or F.9 command.
 const CANONICAL_FIRING_BLOCK = [
-  "At this command's Decision Gate, fire the AskUserQuestion card natively rather than printing a",
-  'bare numbered menu or bullet list. Compose it with the SAME verb/option shape that',
+  "At this command's Decision Gate, when the fork is genuinely unanswered and relevant to the",
+  'current conversation, fire the AskUserQuestion card natively rather than printing a bare',
+  'numbered menu or bullet list. Compose it with the SAME verb/option shape that',
   'lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs',
-  "(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Never reproduce",
-  'the selector as text and never hand-build a bespoke widget (SEED-021): call the AskUserQuestion',
-  'tool in this same response so the navigator picks a move instead of re-typing a command. Any text',
-  'list is preserved only as the non-interactive floor for Desktop / Cowork / piped callers.',
+  "(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Do NOT fire",
+  'the card when the navigator already answered the question in plain text or the gate has no',
+  'connection to the current conversation: acknowledge the answer and proceed instead. Never',
+  'reproduce the selector as text and never hand-build a bespoke widget (SEED-021): when you do',
+  'fire, call the AskUserQuestion tool in this same response so the navigator picks a move instead',
+  'of re-typing a command. Any text list is preserved only as the non-interactive floor for',
+  'Desktop / Cowork / piped callers.',
 ].join('\n');
 
 // The exact substring stampBody injects right after the frontmatter close. A
@@ -67,7 +83,10 @@ const INJECT_BLOCK = '\n\n' + STAMP_MARKER + '\n' + CANONICAL_FIRING_BLOCK + '\n
 
 // Reverses INJECT_BLOCK exactly: matches the fixed "\n\n" + marker + (lazy body)
 // + end sentinel and removes it. One block per file, so no global flag needed.
-const STRIP_RE = /\n\n<!-- mos:firing-block v1 -->\n[\s\S]*?\n<!-- \/mos:firing-block -->/;
+// VERSION-TOLERANT (Phase 210-05): matches ANY `vN` marker version so the v2
+// sweep strip-and-replaces a stale v1 block in one pass (no command ever
+// carries both markers) and a second run stays a byte-stable no-op.
+const STRIP_RE = /\n\n<!-- mos:firing-block v\d+ -->\n[\s\S]*?\n<!-- \/mos:firing-block -->/;
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
