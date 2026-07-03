@@ -12,11 +12,22 @@
  * pure core). Pure, deterministic, LOCAL-only: node:fs + node:path + the gate
  * module; zero Brain, zero network.
  *
+ * Phase 210-02 (item 210-A) extension: spawn-level advisory exit-code assertions.
+ * The gate's --check CLI is advisory by default (WARN + exit 0 on violations)
+ * with --strict restoring the pre-210 hard-fail (exit 1). These legs drive the
+ * CLI against a SYNTHETIC violating tree via the CHECK_SHAPE_DECLARATION_ROOT
+ * env-var test seam (documented in the gate's own header): the seam overrides
+ * ONLY the scan root that collectSurfaces()/checkTree() walk; the schema still
+ * loads from the real repo. The pure-predicate fixtures above are untouched by
+ * the softening (only main()'s reporting/exit changed).
+ *
  * House rule: hyphens only, no em-dashes, no emoji.
  */
 
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const mod = require('./check-shape-declaration.cjs');
 const { check, checkAll, checkPlanFrontmatter } = mod;
@@ -129,6 +140,46 @@ ok(pr.ok, 'plan adding an exempt skill via connector_excluded is ok: ' + JSON.st
 const all = checkAll(FIX_DIR);
 ok(all.fixtures === 7, 'checkAll walks all 7 fixtures (saw ' + all.fixtures + ')');
 ok(!all.valid, 'checkAll is not clean over a dir that mixes valid and invalid fixtures');
+
+// ---------------------------------------------------------------------------
+// Phase 210-02 (item 210-A): advisory exit-code assertions over a synthetic
+// violating tree (one command with NEITHER a declaration NOR an exclusion),
+// driven through the CHECK_SHAPE_DECLARATION_ROOT spawn seam.
+// ---------------------------------------------------------------------------
+const SCRIPT = path.join(__dirname, 'check-shape-declaration.cjs');
+const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'shape-decl-advisory-'));
+fs.mkdirSync(path.join(tmpRoot, 'commands'), { recursive: true });
+fs.writeFileSync(
+  path.join(tmpRoot, 'commands', 'synthetic-210-violating.md'),
+  '---\ndescription: synthetic Phase 210 fixture - declares neither hitl_shape/hitl_stages nor a connector exclusion\n---\n\nSynthetic body.\n',
+  'utf8'
+);
+try {
+  const seamEnv = Object.assign({}, process.env, { CHECK_SHAPE_DECLARATION_ROOT: tmpRoot });
+
+  // Advisory default: --check WARNS and exits 0 on a violating tree; the
+  // violation is still enumerated and names the offending surface.
+  const adv = spawnSync(process.execPath, [SCRIPT, '--check'], { encoding: 'utf8', env: seamEnv });
+  const advOut = String(adv.stdout || '') + String(adv.stderr || '');
+  ok(adv.status === 0, 'advisory default: --check exits 0 on a violating tree (saw ' + adv.status + ')');
+  ok(/WARN:/.test(advOut), 'advisory output carries the WARN: prefix');
+  ok(
+    advOut.indexOf('synthetic-210-violating') !== -1,
+    'advisory output still ENUMERATES the violation and names the offending surface'
+  );
+
+  // Strict opt-in: --check --strict restores the pre-210 hard-fail contract.
+  const strict = spawnSync(process.execPath, [SCRIPT, '--check', '--strict'], { encoding: 'utf8', env: seamEnv });
+  const strictOut = String(strict.stdout || '') + String(strict.stderr || '');
+  ok(strict.status === 1, '--check --strict exits 1 on the same violating tree (saw ' + strict.status + ')');
+  ok(
+    /SHAPE DECLARATION VIOLATION/.test(strictOut),
+    'strict output keeps the SHAPE DECLARATION VIOLATION hard-fail block'
+  );
+  ok(/strict/i.test(strictOut), 'strict output names strict mode');
+} finally {
+  fs.rmSync(tmpRoot, { recursive: true, force: true });
+}
 
 console.log('check-shape-declaration.test: ' + pass + ' passed, ' + fail + ' failed');
 if (fail) process.exit(1);

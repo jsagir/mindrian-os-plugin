@@ -25,6 +25,20 @@
  * ZERO Brain reads/writes and ZERO network calls; runs no inference and consults
  * no agent. Deterministic: same schema + same fixtures -> same verdict.
  *
+ * Phase 210-02 (item 210-A, navigator decision, CONTEXT addendum 1): the --check
+ * CLI mode is ADVISORY BY DEFAULT. Every predicate still runs and every violation
+ * is still detected and enumerated (the lint signal survives), but a violation
+ * prints a WARN block and exits 0. The pre-210 hard-fail contract is preserved as
+ * an opt-in: --check --strict restores the SHAPE DECLARATION VIOLATION output and
+ * exit 1. This softening covers ALL FOUR checks together (the Phase 190 base
+ * declaration-exists check, predicate 5, AND the three Phase 209-03 predicates:
+ * wired-body, tool-grant, declared-matches-body).
+ *
+ * Test seam (Phase 210-02): the CHECK_SHAPE_DECLARATION_ROOT env var overrides
+ * the SCAN root that collectSurfaces()/checkTree() walk, so a spawn-level test
+ * can point --check at a synthetic violating tree. It defaults to the plugin
+ * root and changes NOTHING else (the schema still loads from the real repo).
+ *
  * Part 7 (Reuse Before Build): the hitl_stages branch delegates wholesale to
  * scripts/check-hitl-stages.cjs's exported check(); the skill-exempt branch reads
  * the EXISTING connector.excluded/connector.reason fields.
@@ -50,10 +64,13 @@ const FIXTURES_DIR = path.join(REPO_ROOT, 'data', 'hitl-shape-declaration-fixtur
 
 // The four surface classes the --check mode enumerates (Task 2). Declared here so
 // the gate's shape is self-documenting; the walk NEVER hardcodes a surface count.
-const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
-const AGENTS_DIR = path.join(REPO_ROOT, 'agents');
-const PIPELINES_DIR = path.join(REPO_ROOT, 'pipelines');
-const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
+// Phase 210-02 test seam: resolveScanRoot() honors CHECK_SHAPE_DECLARATION_ROOT
+// (spawn-level tests point the sweep at a synthetic tree); default is REPO_ROOT.
+function resolveScanRoot() {
+  const env = process.env.CHECK_SHAPE_DECLARATION_ROOT;
+  if (typeof env === 'string' && env.trim() !== '') return path.resolve(env.trim());
+  return REPO_ROOT;
+}
 
 // The RANKER-CONSUMER ALLOWLIST anchors: a surface whose implementation requires
 // (directly or transitively) any of these is a proven ranked-reach consumer and
@@ -624,31 +641,36 @@ function checkPlanFrontmatter(fm) {
 // ---------------------------------------------------------------------------
 function collectSurfaces() {
   const surfaces = [];
+  const root = resolveScanRoot();
+  const commandsDir = path.join(root, 'commands');
+  const agentsDir = path.join(root, 'agents');
+  const pipelinesDir = path.join(root, 'pipelines');
+  const skillsDir = path.join(root, 'skills');
 
-  if (fs.existsSync(COMMANDS_DIR)) {
-    for (const f of fs.readdirSync(COMMANDS_DIR).filter((x) => x.endsWith('.md')).sort()) {
-      surfaces.push({ surface: 'commands/' + f, file: path.join(COMMANDS_DIR, f), klass: 'command' });
+  if (fs.existsSync(commandsDir)) {
+    for (const f of fs.readdirSync(commandsDir).filter((x) => x.endsWith('.md')).sort()) {
+      surfaces.push({ surface: 'commands/' + f, file: path.join(commandsDir, f), klass: 'command' });
     }
   }
 
-  if (fs.existsSync(AGENTS_DIR)) {
-    for (const f of fs.readdirSync(AGENTS_DIR).filter((x) => x.endsWith('.md')).sort()) {
-      surfaces.push({ surface: 'agents/' + f, file: path.join(AGENTS_DIR, f), klass: 'agent' });
+  if (fs.existsSync(agentsDir)) {
+    for (const f of fs.readdirSync(agentsDir).filter((x) => x.endsWith('.md')).sort()) {
+      surfaces.push({ surface: 'agents/' + f, file: path.join(agentsDir, f), klass: 'agent' });
     }
   }
 
-  if (fs.existsSync(PIPELINES_DIR)) {
-    for (const d of fs.readdirSync(PIPELINES_DIR).sort()) {
-      const chain = path.join(PIPELINES_DIR, d, 'CHAIN.md');
+  if (fs.existsSync(pipelinesDir)) {
+    for (const d of fs.readdirSync(pipelinesDir).sort()) {
+      const chain = path.join(pipelinesDir, d, 'CHAIN.md');
       if (fs.existsSync(chain)) {
         surfaces.push({ surface: 'pipelines/' + d + '/CHAIN.md', file: chain, klass: 'pipeline' });
       }
     }
   }
 
-  if (fs.existsSync(SKILLS_DIR)) {
-    for (const d of fs.readdirSync(SKILLS_DIR).sort()) {
-      const skill = path.join(SKILLS_DIR, d, 'SKILL.md');
+  if (fs.existsSync(skillsDir)) {
+    for (const d of fs.readdirSync(skillsDir).sort()) {
+      const skill = path.join(skillsDir, d, 'SKILL.md');
       if (fs.existsSync(skill)) {
         surfaces.push({ surface: 'skills/' + d + '/SKILL.md', file: skill, klass: 'skill' });
       }
@@ -722,9 +744,10 @@ function checkTree() {
 }
 
 // ---------------------------------------------------------------------------
-// CLI: --check (scan the live four-class tree) | --check-plan <planpath...>
-// (scan PLAN.md frontmatter). Fail closed on any violation with a self-naming
-// error + a recovery line; on clean, print a one-line OK summary and exit 0.
+// CLI: --check (scan the live four-class tree; ADVISORY by default as of Phase
+// 210 - WARN and exit 0 on violations; --strict restores the pre-210 hard-fail
+// exit 1) | --check-plan <planpath...> (scan PLAN.md frontmatter). On clean,
+// print a one-line OK summary and exit 0.
 // ---------------------------------------------------------------------------
 function main() {
   const argv = process.argv.slice(2);
@@ -768,29 +791,50 @@ function main() {
   }
 
   if (argv.includes('--check')) {
+    const strict = argv.includes('--strict');
     const report = checkTree();
     if (!report.ok) {
-      console.error('SHAPE DECLARATION VIOLATION:');
-      for (const v of report.violations) console.error('  - ' + v);
+      if (strict) {
+        // The pre-210 hard-fail contract, preserved as the --strict opt-in.
+        console.error('SHAPE DECLARATION VIOLATION:');
+        for (const v of report.violations) console.error('  - ' + v);
+        console.error(
+          'Recovery: run node scripts/backfill-hitl-shape.cjs, or hand-author the ' +
+            'missing declaration per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add ' +
+            'connector.excluded:true + reason if this skill reaches no fork.'
+        );
+        console.error('strict mode: exiting 1 (--strict restores the pre-Phase-210 hard-fail contract)');
+        process.exit(1);
+        return;
+      }
+      // Phase 210-02 (item 210-A): advisory default. Every violation is still
+      // DETECTED and ENUMERATED (the lint signal survives, all four checks);
+      // only the exit-1 block is removed. Mirrors the doctor.cjs WARN-not-fail
+      // idiom (the agentshield acceptance entry).
+      console.error(
+        'WARN: shape-declaration advisory (Phase 210): ' + report.violations.length +
+          ' violation(s) detected; not blocking (run with --strict to restore hard-fail)'
+      );
+      for (const v of report.violations) console.error('WARN:   - ' + v);
       console.error(
         'Recovery: run node scripts/backfill-hitl-shape.cjs, or hand-author the ' +
           'missing declaration per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add ' +
           'connector.excluded:true + reason if this skill reaches no fork.'
       );
-      process.exit(1);
       return;
     }
     console.log(
       'check-shape-declaration: OK (' +
         report.declared + ' declared, ' +
         report.skillExempt + ' skill-exempt, ' +
-        (report.declared + report.skillExempt) + ' scanned)'
+        (report.declared + report.skillExempt) + ' scanned)' +
+        (strict ? ' [strict mode]' : '')
     );
     return;
   }
 
   console.error(
-    'usage: node scripts/check-shape-declaration.cjs [--check | --check-plan <planpath...>]'
+    'usage: node scripts/check-shape-declaration.cjs [--check [--strict] | --check-plan <planpath...>]'
   );
   process.exit(2);
 }
