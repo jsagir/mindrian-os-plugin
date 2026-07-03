@@ -57,6 +57,14 @@ Known artifacts already identified this session (starting points, not the full l
 - Run the phase's own `tests/run-all-210.sh` (create it, mirroring `run-all-209.sh`/`run-all-205.sh` pattern) plus `node scripts/doctor.cjs --acceptance` before calling this phase done.
 - Release at the end: version bump (new version number, NOT a reuse of 1.15.0-beta.13 or any existing published version), `scripts/release.sh <version>` for the full 5-gate lockstep including the real `npm publish` to `@mindrian_os/cli`.
 
+## Open questions resolved (post-research, 2026-07-03)
+
+RESEARCH.md flagged three scope ambiguities; navigator confirmed all three recommended paths:
+
+1. **Item A scope:** `scripts/check-shape-declaration.cjs` carries the original Phase 190 "declaration exists" check PLUS three stricter predicates (`wired-body`, `tool-grant`, `declared-matches-body`) added later by Phase 209-03 in the same file. CONTEXT.md's "declared implies rendered" language describes the 209-03 addition, not just the 190 original. DECISION: soften all four checks to advisory (190 base + all three 209-03 predicates) -- they are the same mechanism the navigator is complaining about.
+2. **Item C effort:** the Phase 202 voice-contract disqualifier (`lab/apo/apo-loop.cjs` + `voice-contract-gate.cjs`) runs only inside an offline, human-triggered prompt-optimization tool -- zero live-conversation code path, cannot be causing the reported regression. DECISION: still include as one small task (strip veto power, keep as score/signal) but do NOT give it a full plan wave -- low priority, not user-facing.
+3. **Item D target:** no clean match for "decision tree Larry must mechanically follow" in the elevation-taxonomy code itself (`persona-taxonomy.cjs` is already documented in its own comments as a soft bias, not a quota). Best candidate: `lib/core/fusion-router.cjs::sessionEndQuorum`, which mechanically force-picks exactly one hypothesis whenever 2+ Frame nodes are open. DECISION: target `sessionEndQuorum` as item D -- relax the force-pick to a suggestion/default, not a hard requirement.
+
 ## Provenance
 
 Navigator-directed 2026-07-02, full session context in local memory `feedback_1_15_enforcement_regression_watch.md`. Navigator instruction for execution: "use fable to research plan and execute and publish" -- research + planning agents run on the `fable` model per navigator's explicit request.
