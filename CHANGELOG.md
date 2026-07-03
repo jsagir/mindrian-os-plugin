@@ -1,7 +1,14 @@
 ## [Unreleased] -- v1.15.3-beta.1 (in progress)
 
-### Added
-- 
+### Changed
+- **Phase 210 - Revert persona-enforcement over-reach (restores Larry's conversational judgment).** Root cause of the navigator-reported "v1.15 behaves less like Larry" regression: five phases in the v1.15 window (2026-06-24 through 2026-07-02) turned voice/gate judgment calls into mechanical HARD-FAIL/BINDING checks. Each is now softened to advisory or relevance-gated behavior while its underlying capability stays intact:
+  - **(A) Shape-declaration gate is advisory (Phases 190 + 209-03).** `scripts/check-shape-declaration.cjs --check` now WARNs and exits 0 -- every violation is still detected and enumerated, so the lint signal survives; `--strict` restores the pre-210 hard-fail. Rewired at both call sites (release.sh Step 2, doctor --acceptance); the render-coverage, corpus-stats, connector, and projection gates keep their HARD-ABORT semantics.
+  - **(B) Voice-glyph mapping is a default, not a lock (Phase 192).** Natural voice detection wins when it yields a color; the stance color fills the default only when detection is silent. The stance-toggle footer is offered when the navigator is genuinely mid-decision about conversational mode, not on every turn.
+  - **(C) APO voice-contract scores, never vetoes (Phase 202).** The disqualifier filter is gone: violations dent the candidate's blended score (0.05 per violation, visible as voiceFlagged + voiceViolations on the record) while quality primacy stays structural. The detector itself is byte-untouched.
+  - **(D) Elevation quorum suggests, never forces (Phase 205).** `sessionEndQuorum` returns suggested:true / forced:false; the hedged hypothesis floor (offered, never committed, no edge written) is byte-preserved.
+  - **(E) Force-fire is relevance-gated (Phase 209).** The Stop-hook backstop no longer blocks when the navigator already plainly answered the question, or when the gate has zero subject connection to the current turn (new shared predicate `lib/core/gate-relevance.cjs`; conservative verdict: uncertainty still intercepts). The trailer imperative flips from unconditional `[BINDING:` to conditional `[FIRE-IF-FORK:`; all 80 body-stamped commands swept to the v2 firing block; both auto-loaded doctrine surfaces (larry-extended agent, ui-system skill) now teach fire-if-genuine-fork. A genuine, relevant, unanswered fork STILL fires the card -- proven in both directions by the phase's two-directional tests.
+  - **Canon v1.24.** Part 11 R16's enforcement clause amended (Appendix D entry 37, navigator-ratified) from unconditional HARD-FAIL to advisory-by-default with a --strict opt-in.
+  - **Preserve guarantees.** The Phase 194 session-room-binding gate, Phase 196 Brain-egress PreToolUse guardrail, and Phase 200 semantic-floor gate are byte-untouched (data-boundary, not persona); the 19 standalone v1.15 bug fixes and every underlying capability (declared-shape tracking, the glyph vocabulary, the elevation taxonomy, the AskUserQuestion primitive) survive. `tests/run-all-210.sh` PASS=14 FAIL=0 SKIP=0; the five softened phases' own aggregators (190/192/202/205/209) all green; doctor --acceptance 14/14.
 
 ## [1.15.2] - 2026-07-02
 
