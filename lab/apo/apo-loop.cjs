@@ -44,14 +44,28 @@ const { buildRewardTable } = require('./reward-table.cjs');
 // Load + render the target prompt (byte-lossless frontmatter split).
 const { loadTarget, renderCandidate } = require('./prompt-target.cjs');
 
-// Canon Part 12: the voice contract is a HARD disqualifier. A candidate whose
-// OUTPUT breaks the contract (framework dump, over-long, em-dash, missing De
-// Stijl mark) is removed BEFORE selection -- reward can never buy a violation.
+// Canon Part 12 via Phase 210-C: the voice contract is a SIGNAL, not a gate.
+// A candidate whose OUTPUT breaks the contract (framework dump, over-long,
+// em-dash, missing De Stijl mark) stays selectable -- violations dent its
+// blended score and are flagged VISIBLY (voiceFlagged + voiceViolations) so
+// the human who ratifies the recommendation always sees them. The detector
+// itself (checkVoiceContract) is unchanged; only its veto power in this loop
+// was removed (offline lab tool, human-ratified: judgment stays with the human).
 const { checkVoiceContract } = require('./voice-contract-gate.cjs');
 
 // The canon frozen signal weight (0.15). Telemetry is a SECONDARY term bounded
 // by this weight; quality (weight 1.0, implicit) is PRIMARY.
 const TELEMETRY_WEIGHT = 0.15;
+
+// Phase 210-C: per-violation dent applied to the blended SCORE (never to
+// quality). Coefficient choice: one third of TELEMETRY_WEIGHT, so among
+// EQUAL-quality candidates a single violation is a visible nudge that a strong
+// telemetry lead can still outweigh, while three-plus violations (>= 0.15)
+// outweigh the maximum possible telemetry bonus. Because selectBest is
+// quality-lexicographic (quality primary, score tiebreak), this dent can only
+// ever decide ties between equal-quality candidates -- quality primacy stays
+// structural, and the voice contract stays a signal, never a veto.
+const VOICE_SIGNAL_WEIGHT = 0.05;
 
 // Bounded optimization rounds -- the loop is finite by construction.
 const MAX_ROUNDS = 8;
@@ -202,16 +216,18 @@ function runApo(target, opts) {
       const bodyVariant = c && c.body != null ? c.body : loaded.body;
       const rendered = renderCandidate(loaded, bodyVariant); // string only; never written to disk here
       const quality = qualityTerm(c, ctx);
-      const score = scoreCandidate(c, ctx);
-      // Canon Part 12 voice-contract gate. Only candidates that DECLARE an
-      // output string are checked; a candidate with no output is not
-      // disqualified (backward compatible with the 202-02 loop). A declared
-      // output that breaks the contract is disqualified BEFORE selection.
+      // Canon Part 12 voice-contract SIGNAL (Phase 210-C). Only candidates
+      // that DECLARE an output string are checked; a candidate with no output
+      // carries zero violations (backward compatible with the 202-02 loop).
+      // Violations dent the blended SCORE (never quality) and flag the record;
+      // they never remove a candidate from selection.
       const output = c && c.output != null ? String(c.output) : null;
       const voice = output != null
         ? checkVoiceContract(output, ctx.voiceOpts || {})
         : { pass: true, violations: [] };
-      const disqualified = voice.pass !== true;
+      const voiceFlagged = voice.pass !== true;
+      const score = scoreCandidate(c, ctx)
+        - VOICE_SIGNAL_WEIGHT * voice.violations.length;
       const entry = {
         id: c && c.id != null ? c.id : 'cand-' + r + '-' + scored.length,
         reachKey: c && c.reachKey != null ? c.reachKey : null,
@@ -221,18 +237,18 @@ function runApo(target, opts) {
         score,
         output,
         voiceViolations: voice.violations,
-        disqualified,
+        voiceFlagged,
         round: r,
       };
       scored.push(entry);
       candidates.push(entry);
     }
     roundRecords.push({ round: r, candidateIds: scored.map((s) => s.id) });
-    // Selection only ever considers candidates that clear the voice contract.
-    runningBest = selectBest(candidates.filter((c) => !c.disqualified));
+    // Selection sees EVERY candidate (Phase 210-C: signal, not gate).
+    runningBest = selectBest(candidates);
   }
 
-  const best = selectBest(candidates.filter((c) => !c.disqualified));
+  const best = selectBest(candidates);
 
   // Write span data to the gitignored runs dir (Part 8: never committed).
   fs.mkdirSync(runsDir, { recursive: true });
@@ -248,7 +264,7 @@ function runApo(target, opts) {
       quality: c.quality,
       score: c.score,
       round: c.round,
-      disqualified: c.disqualified,
+      voiceFlagged: c.voiceFlagged,
       voiceViolations: c.voiceViolations,
     })),
     best: best ? { id: best.id, quality: best.quality, score: best.score } : null,
@@ -267,6 +283,7 @@ module.exports = {
   selectBest,
   runApo,
   TELEMETRY_WEIGHT,
+  VOICE_SIGNAL_WEIGHT,
   MAX_ROUNDS,
   DEFAULT_RUNS_DIR,
 };

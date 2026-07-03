@@ -13,8 +13,11 @@
  *   Task 2 -- a LOCAL deterministic gate (checkVoiceContract) reproduces the
  *             Plurai judge offline for the mechanical checks, reusing
  *             lab/eval/voice-mark-hybrid.cjs::scoreVoiceMark for the mark.
- *   Task 3 -- the loop REJECTS any candidate that scores higher on reward but
- *             breaks the voice contract; reward can never buy a violation.
+ *   Task 3 -- (re-pointed by Phase 210-C) the loop treats a voice-contract
+ *             violation as a SIGNAL, not a gate: the violating candidate stays
+ *             selectable, its blended score is dented, and the violation is
+ *             flagged visibly (voiceFlagged + voiceViolations) for the human
+ *             who ratifies the recommendation.
  *   Task 4 -- an offline baseline artifact exists and the local gate meets it.
  *
  * Hermetic + offline: zero network, zero Brain, zero MCP. The subjective
@@ -152,13 +155,19 @@ test('4. a missing De Stijl mark is caught via the reused hybrid (isolated)', ()
   assert.ok(res.violations.includes('missing_voice_mark'), 'missing_voice_mark must be flagged');
 });
 
-// ================= Task 3: voice-contract disqualifier in the loop =================
+// ================= Task 3: voice-contract SIGNAL in the loop (Phase 210-C) =================
+// INTENTIONAL RE-POINT (plan 210-04): the original Test 5 asserted that the
+// quality-0.95 em-dash candidate LOSES to the quality-0.80 compliant one (the
+// veto). Phase 210-C removed the veto: the violating candidate is selectable,
+// its blended score is dented by VOICE_SIGNAL_WEIGHT per violation, and the
+// flag stays visible on the record for the human who ratifies.
 
 const apoLoop = freshRequire(LOOP_PATH);
 
-test('5. Part 12: highest-reward voice-violating candidate is NOT selected; compliant lower-reward wins', () => {
+test('5. Part 12 as signal (210-C): violating reward-winner stays selectable; score dented; flag visible', () => {
   assert.ok(apoLoop, 'lab/apo/apo-loop.cjs must be requireable');
   assert.equal(typeof apoLoop.runApo, 'function', 'runApo must be exported');
+  assert.equal(typeof apoLoop.VOICE_SIGNAL_WEIGHT, 'number', 'VOICE_SIGNAL_WEIGHT must be exported');
   const runsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apo-vc-'));
   try {
     // The highest-reward candidate carries an em-dash output (a Part 12
@@ -171,18 +180,29 @@ test('5. Part 12: highest-reward voice-violating candidate is NOT selected; comp
       { id: 'high', body: 'x', output: highRewardViolation },
       { id: 'low', body: 'y', output: compliant },
     ]);
-    // qualityScoreFn makes 'high' the reward winner -- yet it must lose.
+    // qualityScoreFn makes 'high' the reward winner -- and it now WINS: the
+    // voice contract is a signal, not a gate (210-C).
     const qualityScoreFn = (c) => (c.id === 'high' ? 0.95 : 0.80);
     const result = apoLoop.runApo(ACT_MD, { proposeFn, qualityScoreFn, runsDir });
     assert.ok(result.best, 'runApo must return a best candidate');
-    // Sanity: 'high' really does out-score 'low' (the test is meaningful).
     const high = result.candidates.find((c) => c.id === 'high');
     const low = result.candidates.find((c) => c.id === 'low');
     assert.ok(high && low, 'both candidates must be recorded');
     assert.ok(high.quality > low.quality, 'the violating candidate must be the reward winner');
-    // The disqualifier: reward can never buy a voice violation (Canon Part 12).
-    assert.equal(result.best.id, 'low',
-      'the em-dash candidate has the highest reward but MUST be disqualified; the compliant lower-reward candidate wins');
+    // 210-C direction 1: no veto -- the higher-quality candidate is selectable and wins.
+    assert.equal(result.best.id, 'high',
+      'the violating reward-winner must be SELECTABLE (signal, not gate); quality decides');
+    // 210-C direction 2: the signal stays fully visible.
+    assert.equal(high.voiceFlagged, true, 'the violating candidate is flagged (voiceFlagged)');
+    assert.ok(high.voiceViolations.includes('em_dash_present'), 'the violation is named on the record');
+    // 210-C direction 3: the score is dented by exactly VOICE_SIGNAL_WEIGHT per violation
+    // (quality is untouched -- quality primacy in selectBest stays structural).
+    const expectedDent = apoLoop.VOICE_SIGNAL_WEIGHT * high.voiceViolations.length;
+    assert.ok(Math.abs((high.quality - high.score) - expectedDent) < 1e-9,
+      'the blended score must be dented by VOICE_SIGNAL_WEIGHT per violation, quality untouched');
+    assert.equal(low.voiceFlagged, false, 'the compliant candidate is not flagged');
+    assert.equal(low.voiceViolations.length, 0, 'the compliant candidate carries zero violations');
+    assert.equal(low.score, low.quality, 'a compliant candidate takes no dent');
   } finally {
     rmRf(runsDir);
   }

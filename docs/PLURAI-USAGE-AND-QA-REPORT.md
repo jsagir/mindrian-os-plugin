@@ -66,7 +66,7 @@ Fourteen eval sets are live today, each mapping a MindrianOS behavioral contract
 | `06-grading-calibration` | Reference Evaluation | Our grade matches a calibrated reference grade |
 | `07-rs-corpus-quality` | Output Quality / Regression | A reverse-salient differential set is discriminating, not degenerate |
 | `08-ralph-loop-behavior` | Behavior / Loop Correctness | An autonomous retry loop stays bounded and only writes verified edges |
-| `09-apo-output-voice` | Output Quality / Guardrail | An auto-optimized prompt still honors the voice contract (reward cannot buy a voice violation) |
+| `09-apo-output-voice` | Output Quality / Guardrail | An auto-optimized prompt is checked against the voice contract (violations dent the score and are flagged visibly; the human who ratifies sees the signal) |
 | `09-hitl-memory-governance-ranking` | Output Quality / Regression | Memory-governance pre-checks the decision-relevant candidates, not noise |
 | `09-ignite-branch-routing` | Intent Detection / Routing | The new-room front door routes the navigator to the right lane |
 | `10-synthetic-expert-construction` | Output Quality / Construction | A synthetic expert was *built* faithfully - real cognitive stance, coherent domain, genuine framing, distinct source frameworks (see section 5) |
