@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.0 (in progress)
+## [1.15.3-beta.1] - 2026-07-03
 
 ### Changed
 - **Phase 210 - Revert persona-enforcement over-reach (restores Larry's conversational judgment).** Root cause of the navigator-reported "v1.15 behaves less like Larry" regression: five phases in the v1.15 window (2026-06-24 through 2026-07-02) turned voice/gate judgment calls into mechanical HARD-FAIL/BINDING checks. Each is now softened to advisory or relevance-gated behavior while its underlying capability stays intact:
