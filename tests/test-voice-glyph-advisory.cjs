@@ -7,10 +7,10 @@
 //   Leg 1 (PRESERVE FLOOR, green now and after): the stance-state mapping itself
 //     is untouched capability -- redteam->red and tell-act->blue stay the DEFAULT
 //     (recommended) colors; research/ask/null force nothing.
-//   Leg 2 (SOFTENED direction, EXPECTED RED until plan 210-03): the renderer
-//     treats the stance color as a PREFERENCE, not an override. When natural
-//     voice detection yields a confident DIFFERENT color, natural detection wins
-//     (today the forced color overrides at cockpit-renderer.cjs's stance branch).
+//   Leg 2 (SOFTENED direction, green as of plan 210-03): the renderer treats
+//     the stance color as a PREFERENCE, not an override. When natural voice
+//     detection yields a confident DIFFERENT color, natural detection wins
+//     (the Phase 210 item B precedence at cockpit-renderer.cjs's stance branch).
 //   Leg 3 (PRESERVE FLOOR, green now and after): with NO natural voice signal the
 //     stance color still applies as the default glyph (the capability survives).
 //   Leg 4 (PRESERVE FLOOR, green now and after): a null stance degrades safely --

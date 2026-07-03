@@ -12,9 +12,12 @@
  *   (a) DEFAULT BYTE-STABILITY (R4): with no stance override active (stance
  *       null/absent), renderCockpit()'s output is byte-identical to the pre-plan
  *       render for the same input state -- no new segment, no color override.
- *   (b) redteam -> the line carries [redteam] AND the FORCED red voice glyph
- *       (never the naturally-detected color).
- *   (c) tell-act -> the line carries [tell-act] AND the FORCED blue voice glyph.
+ *   (b) redteam -> the line carries [redteam]; the DEFAULT red voice glyph renders
+ *       when natural detection is silent, and a confident natural detection WINS
+ *       over the stance color (Phase 210 item B re-pointed this from the old
+ *       forced-override precedence -- intentional Phase 210 change).
+ *   (c) tell-act -> the line carries [tell-act]; the DEFAULT blue voice glyph
+ *       renders when natural detection is silent (Phase 210 item B re-point).
  *   (d) research / ask -> the line carries the chip but does NOT force a color
  *       (natural voice detection, or none, still governs).
  *   (e) readStanceState() never throws: it degrades to
@@ -86,20 +89,28 @@ test('(a) default byte-stability: stance null/absent === pre-plan render', funct
 });
 
 // -------------------------------------------------------------------------
-test('(b) redteam: chip + FORCED red glyph, never the natural color', function () {
-  // voice_color yellow would naturally render a yellow square; the forced red must win.
-  const line = renderCockpit(Object.assign(baseState(), { stance: 'redteam', stance_forced_color: 'red' }));
+test('(b) redteam: chip + DEFAULT red glyph when natural detection is silent (Phase 210 re-point)', function () {
+  // Phase 210 item B: the stance color is a PREFERENCE, not an override. With no natural
+  // voice signal the stance default red renders (capability floor); with a confident
+  // natural yellow signal, natural detection wins.
+  const silent = baseState();
+  delete silent.voice_color;
+  const line = renderCockpit(Object.assign(silent, { stance: 'redteam', stance_forced_color: 'red' }));
   assert(line.indexOf('[redteam]') !== -1, 'redteam render must carry the [redteam] chip -- got ' + JSON.stringify(line));
-  assert(line.indexOf(RED_SQUARE) !== -1, 'redteam render must carry the forced red square');
-  assert(line.indexOf(YELLOW_SQUARE) === -1, 'redteam render must NOT carry the naturally-detected yellow square');
+  assert(line.indexOf(RED_SQUARE) !== -1, 'redteam render must carry the default red square when natural detection is silent');
+  const natural = renderCockpit(Object.assign(baseState(), { stance: 'redteam', stance_forced_color: 'red' }));
+  assert(natural.indexOf(YELLOW_SQUARE) !== -1, 'a confident natural yellow detection must WIN over the stance default (Phase 210 item B)');
 });
 
 // -------------------------------------------------------------------------
-test('(c) tell-act: chip + FORCED blue glyph', function () {
-  const line = renderCockpit(Object.assign(baseState(), { stance: 'tell-act', stance_forced_color: 'blue' }));
+test('(c) tell-act: chip + DEFAULT blue glyph when natural detection is silent (Phase 210 re-point)', function () {
+  const silent = baseState();
+  delete silent.voice_color;
+  const line = renderCockpit(Object.assign(silent, { stance: 'tell-act', stance_forced_color: 'blue' }));
   assert(line.indexOf('[tell-act]') !== -1, 'tell-act render must carry the [tell-act] chip');
-  assert(line.indexOf(BLUE_SQUARE) !== -1, 'tell-act render must carry the forced blue square');
-  assert(line.indexOf(YELLOW_SQUARE) === -1, 'tell-act render must NOT carry the naturally-detected yellow square');
+  assert(line.indexOf(BLUE_SQUARE) !== -1, 'tell-act render must carry the default blue square when natural detection is silent');
+  const natural = renderCockpit(Object.assign(baseState(), { stance: 'tell-act', stance_forced_color: 'blue' }));
+  assert(natural.indexOf(YELLOW_SQUARE) !== -1, 'a confident natural yellow detection must WIN over the stance default (Phase 210 item B)');
 });
 
 // -------------------------------------------------------------------------
