@@ -81,7 +81,7 @@ check('E1: the rendered FOOTER carries BOTH the marker AND the binding (shape/op
   const r = DISPATCHER.appendAskUserQuestionTrailer(freshRendered(), 'F.1');
   const footer = r.zones.footer;
   assert.ok(footer.indexOf(BARE_MARKER) !== -1, 'footer keeps the shape=F.X verbs=N marker payload');
-  assert.ok(footer.indexOf('[BINDING:') !== -1, 'footer now carries the binding imperative line');
+  assert.ok(footer.indexOf('[FIRE-IF-FORK:') !== -1, 'footer now carries the binding imperative line');
   assert.ok(footer.indexOf('call the AskUserQuestion tool') !== -1, 'footer is self-decoding');
 });
 

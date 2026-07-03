@@ -95,7 +95,7 @@ function engineDecisionFixture() {
     { cortexNodes: [] }
   );
   ok(typeof block === 'string' && block.length > 0, 'block renders');
-  ok(block.indexOf('[BINDING:') !== -1, 'block carries the BINDING line (E1, was dropped)');
+  ok(block.indexOf('[FIRE-IF-FORK:') !== -1, 'block carries the FIRE-IF-FORK line (E1, was dropped; 210-05 re-pointed the literal)');
 
   const m = block.match(/\[AskUserQuestion payload: (\{.*\})\]/);
   ok(!!m, 'block carries an [AskUserQuestion payload: {...}] contract line');
@@ -144,7 +144,7 @@ function engineDecisionFixture() {
     { cortexNodes: [] }
   );
   ok(block.indexOf('[AskUserQuestion contract:') !== -1, 'tier_0 carries the marker');
-  ok(block.indexOf('[BINDING:') !== -1, 'tier_0 carries the binding');
+  ok(block.indexOf('[FIRE-IF-FORK:') !== -1, 'tier_0 carries the binding');
 })();
 
 // ---------------------------------------------------------------------------
@@ -190,7 +190,7 @@ function captureStdout(fn) {
     additionalContext = captured.out;
   }
   ok(additionalContext.indexOf('[AskUserQuestion contract:') !== -1, 'additionalContext carries the marker');
-  ok(additionalContext.indexOf('[BINDING:') !== -1, 'additionalContext carries the BINDING line');
+  ok(additionalContext.indexOf('[FIRE-IF-FORK:') !== -1, 'additionalContext carries the FIRE-IF-FORK line');
   ok(additionalContext.indexOf('AskUserQuestion') !== -1, 'guidance names the AskUserQuestion tool');
   ok(additionalContext.indexOf('remember for this session') !== -1, 'guidance keeps the session-toggle sentence');
 })();

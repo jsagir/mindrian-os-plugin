@@ -58,7 +58,7 @@ ok('a: card fires natively turn-1 (the transport exists before emission)', funct
   const envelope = roomPick.evidence.envelope;
   assert.equal(typeof envelope, 'string');
   assert.equal(envelope.indexOf('[AskUserQuestion contract:') !== -1, true);
-  assert.equal(envelope.indexOf('[BINDING:') !== -1, true);
+  assert.equal(envelope.indexOf('[FIRE-IF-FORK:') !== -1, true);
 });
 
 // ---------------------------------------------------------------------------

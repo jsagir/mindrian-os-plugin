@@ -90,7 +90,7 @@ ok('Behavior 4: the fired envelope carries the marker, the binding, and the impe
   assert.notEqual(reach, null);
   const envelope = reach.evidence.envelope;
   assert.equal(envelope.indexOf('[AskUserQuestion contract:') !== -1, true, 'missing the marker');
-  assert.equal(envelope.indexOf('[BINDING:') !== -1, true, 'missing the BINDING line');
+  assert.equal(envelope.indexOf('[FIRE-IF-FORK:') !== -1, true, 'missing the FIRE-IF-FORK line');
   assert.equal(envelope.indexOf('INSTRUCTION FOR LARRY') !== -1, true, 'missing the imperative block');
   assert.equal(envelope.indexOf('AskUserQuestion') !== -1, true, 'instruction must name the tool');
 });
