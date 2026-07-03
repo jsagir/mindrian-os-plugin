@@ -151,6 +151,12 @@ const crypto = require('node:crypto');
 
 const PLUGIN_ROOT = path.resolve(__dirname, '..');
 
+// Phase 210-05 (item 210-E-1): the shared relevance predicate module. It owns the
+// option-label extraction (MOVED out of gateSignature below so there is exactly one
+// implementation) plus the two relevance verdicts classifyCardFire consults before
+// its final intercept. Pure LOCAL string work, never throws (Part 8).
+const gateRelevance = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'gate-relevance.cjs'));
+
 // data/render-coverage-registry.json is the Phase 178 R15 substrate. The interceptor
 // keys PRIMARY detection off its card-emission entries; it does NOT hand-maintain a
 // parallel gate list.
@@ -318,23 +324,13 @@ function gateSignature(outputText) {
   // (b) the option-label token SET. Pull the label TEXT after each `[n]` (or `n)` / `n.`)
   //     option marker, normalize each (lowercased, non-alphanumeric stripped), drop empties,
   //     dedupe, and SORT so option re-ordering does not flap the signature.
-  const labelSet = [];
-  const seen = new Set();
-  const lines = text.split('\n');
-  // An option-label line is `[n] text`, `n) text`, or `n. text` where n is a SINGLE low ordinal
-  // (1-9) AND a whitespace separator follows the marker. The whitespace requirement is load-
-  // bearing: it rejects a decimal number like `0.123456789` (no space after the dot) from being
-  // mistaken for an `n.` option marker, which would inject a volatile phantom label and flap the
-  // signature across retries (the exact bug that broke the growing-transcript convergence).
-  const OPTION_LABEL_RE = /^\s*(?:\[\s*[1-9]\s*\]|[1-9][).])\s+(.+?)\s*$/;
-  for (const line of lines) {
-    const mm = line.match(OPTION_LABEL_RE);
-    if (!mm) continue;
-    const norm = mm[1].toLowerCase().replace(/[^a-z0-9]+/g, '');
-    if (!norm || seen.has(norm)) continue;
-    seen.add(norm);
-    labelSet.push(norm);
-  }
+  //     Phase 210-05: the extraction itself (the OPTION_LABEL_RE loop, including its
+  //     load-bearing whitespace-separator requirement) MOVED verbatim to
+  //     lib/core/gate-relevance.cjs::extractOptionLabels so the retry-key signature and
+  //     the relevance predicate share exactly ONE implementation. Same regex, same
+  //     normalization, same encounter-order dedupe -- the signature output is
+  //     byte-equivalent across the move, so retry keys do not change.
+  const labelSet = gateRelevance.extractOptionLabels(text);
   labelSet.sort();
   const sig = 'glyph:' + glyphSpan + '|labels:' + labelSet.join(',');
   // Degenerate: no glyph span AND no labels recovered -> '' so the key floors to session alone.
@@ -462,6 +458,28 @@ function classifyCardFire(turn, registry) {
         degrade: true,
         reason: 'bounded-escape-released-after-' + MAX_FORCE_RETRIES + '-retries',
       };
+    }
+
+    // Phase 210-05 (item 210-E-1): the RELEVANCE GATE, inserted between the bounded
+    // escape above and the final intercept below. Two NARROW pass reasons only:
+    //   - 'gate-already-answered'  : the preceding user turn already plainly answered
+    //     the gate (the 2026-07-02 live incident: a plain-text "yes" to the question
+    //     the gate would re-ask).
+    //   - 'gate-irrelevant-to-turn': the gate's subject matter has ZERO token overlap
+    //     with the current conversation (the stale-artifact pattern).
+    // Empty/uncertain user text takes NEITHER pass (the conservative verdict inside
+    // gate-relevance.cjs) and falls through to the existing intercept -- the Phase 209
+    // guarantee (a genuine, relevant, unanswered fork still force-fires) is preserved.
+    // CR-03: preceding_user_text feeds ONLY this verdict, never the retry key.
+    const precedingUserText = typeof t.preceding_user_text === 'string'
+      ? t.preceding_user_text
+      : '';
+    const gateLabels = gateRelevance.extractOptionLabels(outputText);
+    if (gateRelevance.gateAlreadyAnswered(precedingUserText, gateLabels)) {
+      return { intercept: false, reason: 'gate-already-answered', degrade: false };
+    }
+    if (!gateRelevance.gateTopicallyRelevant(precedingUserText, outputText)) {
+      return { intercept: false, reason: 'gate-irrelevant-to-turn', degrade: false };
     }
 
     const reason = primaryHit
@@ -702,6 +720,7 @@ function readTranscriptTurn(transcriptPath) {
     output_text: '',
     askuserquestion_fired: false,
     gate_signature: '',
+    preceding_user_text: '',
   };
   if (typeof transcriptPath !== 'string' || !transcriptPath.trim()) return empty;
   const raw = readTranscriptTail(transcriptPath);
@@ -727,6 +746,11 @@ function readTranscriptTurn(transcriptPath) {
   // ONE window spanning the whole tail (the degenerate case: the reset never fires,
   // so all assistant messages accumulate) -- this is intentional, not a gap.
   let currentTurnAssistantContents = [];
+  // Phase 210-05 (item 210-E-1): capture the LAST role:user record's text so the
+  // relevance predicate can see the preceding user turn. Per the CR-03 invariant
+  // (restated above) this text feeds ONLY the relevance verdict in classifyCardFire;
+  // it is NEVER folded into gate_signature or turnContextHash.
+  let lastPrecedingUserText = '';
   const lines = raw.split('\n');
   for (const line of lines) {
     const trimmed = line.trim();
@@ -742,9 +766,14 @@ function readTranscriptTurn(transcriptPath) {
     const role = msg.role || obj.type;
     if (role === 'user') {
       // A user record resets the CURRENT-TURN window (T-209-29): a card fired in a
-      // PRIOR turn must never mask a no-card box in the NEXT turn. This is the ONLY
-      // use of the user record -- it bounds the window, it is NEVER part of the
-      // retry key (CR-03 above).
+      // PRIOR turn must never mask a no-card box in the NEXT turn. It is NEVER part
+      // of the retry key (CR-03 above). Phase 210-05 adds ONE more use: the LAST
+      // user record's text is captured for the relevance verdict (and ONLY that
+      // verdict -- never the signature, never the hash).
+      const userContent = (msg.content !== undefined && msg.content !== null)
+        ? msg.content
+        : (obj.content !== undefined ? obj.content : null);
+      lastPrecedingUserText = extractAssistantText(userContent);
       currentTurnAssistantContents = [];
       continue;
     }
@@ -770,6 +799,7 @@ function readTranscriptTurn(transcriptPath) {
     output_text: lastAssistantText,
     askuserquestion_fired: askFired,
     gate_signature: gateSig,
+    preceding_user_text: lastPrecedingUserText,
   };
 }
 
@@ -906,12 +936,21 @@ function deriveTurnSignals(env) {
     gateSig = gateSignature(outputText);
   }
 
+  // Phase 210-05 (item 210-E-1): thread the preceding user text through for the
+  // relevance verdict. Direct-field envelopes may supply it; the transcript path
+  // derives it. Absent on both -> '' (the conservative verdict: intercept). Per
+  // CR-03 it never feeds gate_signature or turnContextHash.
+  const precedingUserText = typeof e.preceding_user_text === 'string'
+    ? e.preceding_user_text
+    : (txn ? txn.preceding_user_text : '');
+
   return {
     ran_entries: ranEntries,
     askuserquestion_fired: askFired,
     output_text: outputText,
     session_id: typeof e.session_id === 'string' ? e.session_id : '',
     gate_signature: gateSig,
+    preceding_user_text: precedingUserText,
   };
 }
 
