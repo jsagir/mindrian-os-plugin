@@ -181,22 +181,28 @@ try {
   pass('Assertion 4 (help-renderer.cjs text view exits 0 and prints every non-admin command)');
 } catch (err) { failTest('Assertion 4 (help-renderer.cjs text view exits 0 and prints every non-admin command)', err); }
 
-// -- Assertion 5: commands/help.md default render is the TWO-AXIS lanes-as-tabs
-// selector, NOT the old sequential lane->group->command drill-down. SEED-020 is
-// the first user-facing application of Shape F as the universal Mindrian UI; this
-// assertion locks the new contract so a future edit cannot silently regress it
-// back to the sequential drill-down.
+// -- Assertion 5: commands/help.md default render is the 3-CARD 11-FAMILY Shape-F
+// selector (quick task 260705-jeq), NOT a flat list and NOT the retired 4-lane /
+// sequential drill-down framing. SEED-020 is the first user-facing application of
+// Shape F as the universal Mindrian UI; this assertion locks the CURRENT contract
+// so a future edit cannot silently regress it (updated from the 2-axis lanes-as-
+// tabs contract when help.md moved to the 11-family 3-card map).
 try {
   const md = fs.readFileSync(HELP_MD, 'utf8');
 
-  // The new contract: one AskUserQuestion call, 4 lanes as question-tabs, the
-  // two named axes, More->/Back pagination, run via the Skill tool, and an
-  // explicit honesty clause about NOT claiming host keybindings.
-  assert.ok(/two-axis/i.test(md), 'help.md names the two-axis model');
-  assert.ok(/ONE AskUserQuestion call/i.test(md), 'help.md renders ONE AskUserQuestion call with up to 4 questions (the 4 lanes as tabs)');
-  assert.ok(/LANE axis/i.test(md) && /COMMAND axis/i.test(md), 'help.md names both the LANE axis (tabs) and the COMMAND axis (options)');
-  assert.ok(/More ->/.test(md), 'help.md keeps the 3 + "More ->" pagination for lanes over 4 commands');
-  assert.ok(/\bBack\b/.test(md), 'help.md keeps a "Back" affordance in pagination');
+  // The current contract: 11 families as 3 sequential cards, each card its own
+  // AskUserQuestion call, sourced from data/help-groups.json (never hardcoded),
+  // the exact escape-hatch line for families over 4 commands, run via the Skill
+  // tool, and an explicit honesty clause about NOT claiming host keybindings.
+  assert.ok(/11 famil/i.test(md), 'help.md names the 11-family surface');
+  assert.ok(/3-card|3 cards|three cards|Card 1/i.test(md), 'help.md renders the 11 families as 3 cards');
+  assert.ok(/AskUserQuestion call/i.test(md), 'help.md renders each card as an AskUserQuestion call');
+  assert.ok(/more in this lane - type \/mos:help <family-id> to see all/.test(md),
+    'help.md keeps the exact escape-hatch line for families over 4 commands');
+  assert.ok(/help-renderer\.cjs --group/.test(md),
+    'help.md family text-list path delegates to help-renderer.cjs --group');
+  assert.ok(/data\/help-groups\.json/.test(md),
+    'help.md sources family contents from data/help-groups.json (one source of truth)');
   assert.ok(/Skill tool/i.test(md), 'help.md runs the selected command via the Skill tool');
 
   // Honest about the host keymap: must NOT instruct the navigator to press a
@@ -206,15 +212,17 @@ try {
   assert.ok(!/press Tab|press Left\/Right|press the Tab key/i.test(md),
     'help.md must NOT claim a specific tab-switch keybinding the plugin cannot control');
 
-  // The OLD sequential drill-down vocabulary must be gone (no "Level 1 -- lane"
-  // then "Level 2 -- group" then "Level 3 -- command" staircase).
+  // The retired framings must be gone: the stale 4-lane claim, the "one
+  // AskUserQuestion call" single-call phrasing, and the sequential drill-down.
+  assert.ok(!/4-lane|4 lanes/i.test(md), 'help.md no longer carries the stale "4-lane" claim');
+  assert.ok(!/one AskUserQuestion call/i.test(md), 'help.md no longer claims "one AskUserQuestion call" (the single-call model is retired)');
   assert.ok(!/Level 1 -- lane/i.test(md), 'help.md no longer uses the sequential "Level 1 -- lane" drill-down framing');
   assert.ok(!/Level 3 -- command/i.test(md), 'help.md no longer uses the sequential "Level 3 -- command" drill-down framing');
 
   // The text fallback must STILL delegate to the renderer verbatim (unchanged).
   assert.ok(/scripts\/help-renderer\.cjs/.test(md), 'help.md text fallback still delegates to scripts/help-renderer.cjs');
-  pass('Assertion 5 (help.md default render is the two-axis lanes-as-tabs selector; text fallback unchanged)');
-} catch (err) { failTest('Assertion 5 (help.md two-axis lanes-as-tabs contract)', err); }
+  pass('Assertion 5 (help.md default render is the 3-card 11-family selector; text fallback unchanged)');
+} catch (err) { failTest('Assertion 5 (help.md 3-card 11-family contract)', err); }
 
 if (failed > 0) {
   console.log('\n' + failed + ' assertion block(s) FAILED (' + passed + ' passed)');

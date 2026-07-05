@@ -227,11 +227,77 @@ function renderHelp(opts) {
   return renderHelpCards(groups, useColor);
 }
 
+// Quick task 260705-jeq (D-04): resolve a family by its id (case-insensitive),
+// so /mos:help <family-id> renders that one family's full command list. The
+// LLM layer (commands/help.md) also accepts the family LABEL as a courtesy and
+// resolves it to the id before calling this renderer.
+function findGroupById(groups, id) {
+  const lower = String(id == null ? '' : id).toLowerCase();
+  return groups.groups.find((g) => String(g.id).toLowerCase() === lower) || null;
+}
+
+// Render ONE family's full command list as plain scrollable text (the escape
+// hatch for families with more than 4 commands, D-03). Reuses loadGroups() +
+// jtbdFor() -- the SAME source of truth the card view uses, never a prose copy.
+function renderGroup(groups, group, useColor) {
+  const col = (key) => (useColor ? DS[key] : '');
+  const R = useColor ? RESET : '';
+  const B = useColor ? BOLD : '';
+  const laneKey = (LANE_META[group.lane] && LANE_META[group.lane].colorKey) || 'blue';
+  const live = group.commands.filter((c) => !isDeprecated(c));
+  const out = [];
+  out.push('');
+  out.push(
+    '  ' + col(laneKey) + B + (group.glyph || '·') + ' ' + group.label + R +
+      col('muted') + '  (' + live.length + ')' + R
+  );
+  out.push('');
+  for (const cmd of group.commands) {
+    if (isDeprecated(cmd)) continue;
+    out.push('  ' + col(laneKey) + B + '/mos:' + cmd + R);
+    const j = jtbdFor(cmd);
+    if (j) out.push('      ' + col('cream') + j + R);
+  }
+  return out.join('\n');
+}
+
+function renderGroupById(id, opts) {
+  const o = opts || {};
+  const groups = o.groups || loadGroups();
+  const group = findGroupById(groups, id);
+  if (!group) return null;
+  const capability = o.capability || probeCapability();
+  const useColor = capability === 'truecolor' || capability === '256color';
+  return renderGroup(groups, group, useColor);
+}
+
+function printValidGroupIds(groups) {
+  process.stderr.write('Unknown family id. Valid family ids:\n');
+  for (const g of groups.groups) {
+    process.stderr.write('  ' + g.id + '  (' + g.label + ')\n');
+  }
+}
+
 function main() {
+  const argv = process.argv.slice(2);
+  const gi = argv.indexOf('--group');
+  if (gi !== -1) {
+    const id = argv[gi + 1];
+    const groups = loadGroups();
+    const rendered = renderGroupById(id, { groups });
+    if (rendered === null) {
+      printValidGroupIds(groups);
+      process.exit(1);
+      return;
+    }
+    process.stdout.write(rendered + '\n');
+    process.exit(0);
+    return;
+  }
   process.stdout.write(renderHelp() + '\n');
   process.exit(0);
 }
 
 if (require.main === module) main();
 
-module.exports = { renderHelp, renderHelpCards, loadGroups };
+module.exports = { renderHelp, renderHelpCards, renderGroup, renderGroupById, findGroupById, loadGroups };
