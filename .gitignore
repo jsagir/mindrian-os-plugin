@@ -1,6 +1,10 @@
-# User workspace (private data)
-room/
-export/
+# User workspace (private data). Anchored to repo root (Phase quick-260705-ob7):
+# an unanchored pattern also matched skills/room/ and skills/export/ -- the
+# build-skill-mirrors.cjs generated command mirrors -- silently dropping them
+# from every commit with no gate catching it (gates check the filesystem, not
+# git-tracking status).
+/room/
+/export/
 
 # Dashboard generated data
 dashboard/graph.json
