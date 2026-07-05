@@ -1734,6 +1734,39 @@ function readInstalledPluginsVersion(home) {
   return 'unknown';
 }
 
+// F11 recurrence (twice on the same real Windows machine): the LEGACY v1
+// plugin-system file ~/.claude/plugins/config.json keeps a `mos.version` pin
+// that drifts away from the MODERN ~/.claude/plugins/installed_plugins.json
+// (schema v2, namespaced key `mos@mindrian-marketplace`). On 2026-07-02 it
+// pinned 1.8.2; on 2026-07-05 it pinned 1.15.1 -- both stale relative to the
+// active install -- and the stale pin poisons command registration while every
+// other subsystem looks healthy. The finding below detects that drift; because
+// the install-state acceptance point passes only on status === 'healthy', the
+// finding automatically rides doctor --acceptance (no new acceptance point).
+function readLegacyConfigPin(home) {
+  // Returns { version, key } for the mos pin in the legacy config.json, or null
+  // when the file is absent, unparseable, or carries no pin. Absence is the
+  // healthy fresh-install state (N/A), never an error -- the whole body is
+  // wrapped so a malformed legacy artifact degrades to a skip.
+  try {
+    const file = path.join(home, '.claude', 'plugins', 'config.json');
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!data || typeof data !== 'object') return null;
+    // Key resolution: top-level `mos`, then `mindrian-os`; defensive fallback
+    // to a `plugins`-wrapped generation (data.plugins.mos / .mindrian-os).
+    const candidates = [
+      ['mos', data.mos],
+      ['mindrian-os', data['mindrian-os']],
+      ['mos', data.plugins && data.plugins.mos],
+      ['mindrian-os', data.plugins && data.plugins['mindrian-os']],
+    ];
+    for (const [key, entry] of candidates) {
+      if (entry && entry.version) return { version: String(entry.version), key };
+    }
+  } catch (_) { /* absent / unparseable -> N/A */ }
+  return null;
+}
+
 function readInstalledPluginsInstallPath(home) {
   const file = path.join(home, '.claude', 'plugins', 'installed_plugins.json');
   try {
@@ -1930,6 +1963,27 @@ function checkInstallState(opts) {
         + ', installed_plugins.json says ' + liveAV + '; re-run session-start';
     }
   }
+  // 3b. Legacy-config-pin-drift (F11): the legacy plugins/config.json pins a
+  //     mos version that disagrees with the modern installed_plugins.json.
+  //     STRING inequality, same convention as the 6-way version-of-record.
+  //     Skip when config.json is absent, installed_plugins.json is
+  //     absent/unknown, or the versions match.
+  let legacyPinFinding = null;
+  const legacyPin = readLegacyConfigPin(home);
+  if (legacyPin && legacyPin.version) {
+    const modernVersion = readInstalledPluginsVersion(home);
+    if (modernVersion !== 'unknown' && legacyPin.version !== modernVersion) {
+      legacyPinFinding = {
+        id: 'legacy-config-pin-drift', status: 'warn', recoverable: true,
+        finding: 'legacy plugins/config.json pins mos ' + legacyPin.version
+          + ' but installed_plugins.json says ' + modernVersion
+          + ' -- stale legacy pin can poison command registration (F11); run with --fix to reconcile',
+        legacyVersion: legacyPin.version,
+        modernVersion: modernVersion,
+        legacyKey: legacyPin.key,
+      };
+    }
+  }
   // 4. Topology classification (D-11, BUG 7 fix). Each of marketplace-cache
   //    | dev-clone | legacy | not-found is VALID; only not-found is drift
   //    on its own, and `legacy` becomes a migration candidate iff a healthy
@@ -1978,6 +2032,9 @@ function checkInstallState(opts) {
       id: 'record-stale', status: 'warn', recoverable: false,
       finding: spotCheckFinding,
     });
+  }
+  if (legacyPinFinding) {
+    findings.push(legacyPinFinding);
   }
   if (topologyFinding) {
     findings.push({
@@ -2064,6 +2121,61 @@ function performClassIFix(check, opts) {
         recoveries.push({
           class: 'install-state', surface: 'mindrian-last-version',
           action: 'rewrite', ok: false, detail: err.message,
+        });
+      }
+      continue;
+    }
+    if (f.id === 'legacy-config-pin-drift') {
+      // F11 fix: back up the legacy config.json FIRST, then reconcile only its
+      // mos.version to the live installed_plugins.json version. Conservative --
+      // enabled/installedAt and every other field are left untouched. All
+      // best-effort; never throw out of the fix loop.
+      const file = path.join(home, '.claude', 'plugins', 'config.json');
+      try {
+        // 1. Back up first (mirror the installed_plugins.json repair pattern).
+        const ts = new Date().toISOString();
+        const backupsDir = path.join(home, '.mindrian', 'backups');
+        try { fs.mkdirSync(backupsDir, { recursive: true }); } catch (_) { /* ignore */ }
+        const backupPath = path.join(backupsDir, 'config.json.' + ts + '.bak');
+        fs.copyFileSync(file, backupPath);
+        // 2. Re-read the modern version LIVE (do not trust the stale payload).
+        const modernVersion = readInstalledPluginsVersion(home);
+        if (modernVersion === 'unknown') {
+          recoveries.push({
+            class: 'install-state', surface: 'legacy-config-json', action: 'skipped',
+            detail: 'installed_plugins.json version unknown -- nothing to reconcile to',
+          });
+          continue;
+        }
+        // 3. Parse, re-resolve the key defensively, set version, write back.
+        const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+        let key = f.legacyKey;
+        let entry = key ? data[key] : null;
+        if (!entry || !entry.version) {
+          const re = readLegacyConfigPin(home);
+          key = re ? re.key : key;
+          entry = key ? data[key] : null;
+        }
+        if (!entry) {
+          recoveries.push({
+            class: 'install-state', surface: 'legacy-config-json', action: 'skipped',
+            detail: 'could not re-resolve the mos pin key in config.json',
+            backup_path: backupPath,
+          });
+          continue;
+        }
+        entry.version = modernVersion;
+        fs.writeFileSync(file, JSON.stringify(data, null, 2));
+        recoveries.push({
+          class: 'install-state', surface: 'legacy-config-json',
+          action: 'version-reconciled', ok: true,
+          backup_path: backupPath, target_value: modernVersion,
+          note: 'restart Claude Code (full app restart) to re-register commands',
+        });
+      } catch (err) {
+        recoveries.push({
+          class: 'install-state', surface: 'legacy-config-json',
+          action: 'skipped', detail: err.message,
         });
       }
       continue;
