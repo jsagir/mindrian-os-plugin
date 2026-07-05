@@ -79,6 +79,11 @@ run_if "211-05 eureka-room-report offline smoke" "scripts/eureka-room-report.cjs
 run_if "260706-13z vector-store adapter" "tests/test-211-vector-store.cjs" \
   node tests/test-211-vector-store.cjs
 
+# (8) Class S eureka-smoke (260706-13z): 4-layer probe contract (mock seams +
+#     real doctor spawn), non-cascading, deterministic offline.
+run_if "260706-13z eureka-smoke (class S)" "tests/test-eureka-smoke.cjs" \
+  node tests/test-eureka-smoke.cjs
+
 echo "======================================"
 echo "Phase 211: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
 echo "======================================"

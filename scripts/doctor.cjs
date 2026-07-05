@@ -144,6 +144,12 @@ function parseArgs(argv) {
     // class-flag invariant applies (exit 0 even on FAIL). Letter M is the
     // next free letter after L (CONTEXT D4 text reads "K" but K is taken).
     brainSmoke: false,
+    // quick(260706-13z) D14: class S (Eureka local-embedding-stack smoke).
+    // 4-layer probe (deps present, vec backend, model cache, graceful degrade).
+    // Diagnostic-only; class-flag invariant applies (exit 0 even on FAIL). Never
+    // downloads a model unless MINDRIAN_EUREKA_SMOKE_ALLOW_DOWNLOAD=1. Letter S
+    // is the next free letter after R (runtime-reachability, Phase 185).
+    eurekaSmoke: false,
     // Phase 123 Plan-04 (HARNESS-123-11 + HARNESS-123-12): release-gate-as-a-
     // command. --acceptance runs the 7-point checklist; --pre-tag filters to
     // the 5 pre-tag-applicable points; --light-npx skips the mktemp HOME
@@ -235,6 +241,7 @@ function parseArgs(argv) {
     else if (arg === '--stale-first-touch') flags.staleFirstTouch = true;
     else if (arg === '--deprecated-usage') flags.deprecatedUsage = true;
     else if (arg === '--brain-smoke') flags.brainSmoke = true;
+    else if (arg === '--eureka-smoke') flags.eurekaSmoke = true;
     else if (arg === '--drift') flags.drift = true;
     else if (arg === '--acceptance') flags.acceptance = true;
     else if (arg === '--pre-tag') flags.preTag = true;
@@ -321,6 +328,11 @@ Class flags (combine freely; --all activates them all):
   --brain-smoke            class M (Brain end-to-end smoke: 5-layer probe -- plugin root,
                            key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema.
                            Diagnostic-only; reports the exact failing layer. Phase 127-02.)
+  --eureka-smoke           class S (Eureka local-embedding-stack smoke: 4-layer probe --
+                           deps present, vec backend, model cache, graceful degrade.
+                           NON-cascading; never downloads a model unless
+                           MINDRIAN_EUREKA_SMOKE_ALLOW_DOWNLOAD=1; rolls into --acceptance.
+                           Diagnostic-only; reports the exact stopping layer. quick 260706-13z.)
   class N                  plugin-enabled-state (DRIFT-12 / silent-disable detector): reads
                            ~/.claude/settings.json enabledPlugins + installed_plugins.json.
                            installed && enabled===false -> CRITICAL (re-enable hint); enabled
@@ -3382,6 +3394,63 @@ function buildAcceptanceChecklist(ctx) {
         }
       },
     },
+    {
+      // quick(260706-13z) D14(e) -- Class S acceptance point:
+      // "The local eureka embedding stack is ready (deps, vec backend, model
+      // cache, graceful degrade)." Spawns doctor --eureka-smoke --json against
+      // ourselves and gates on payload.ok === true with all 4 layers present.
+      // The probe NEVER downloads a model (cache miss is a graceful PASS), so
+      // this is safe inside a release gate on airgapped CI.
+      //
+      // applies_to: ['pre-tag','full'] -- the stack is entirely repo-local
+      // (node_modules + local model cache), present before tag, no publish
+      // needed. ADD-ONLY: no existing checklist entry's logic is touched.
+      // DOCTOR_SKIP_EUREKA_SMOKE=1 is the hermetic-CI opt-out (mirrors
+      // DOCTOR_SKIP_ACTIVATION_GATE) for a tree where the optional eureka deps
+      // were intentionally not installed.
+      id: 'eureka-smoke-stack-ready',
+      label: 'Class S: local eureka embedding stack ready (deps, vec backend, model cache, graceful degrade)',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'eureka-smoke-stack-ready') {
+          return { ok: false, finding: 'eureka-smoke-stack-ready synthesized failure (test mode)', detail: {} };
+        }
+        if (process.env.DOCTOR_SKIP_EUREKA_SMOKE === '1') {
+          return { ok: true, finding: null, detail: { skipped: true, reason: 'DOCTOR_SKIP_EUREKA_SMOKE=1' } };
+        }
+        const cp = require('child_process');
+        try {
+          const doctorPath = path.join(__dirname, 'doctor.cjs');
+          const r = cp.spawnSync('node', [doctorPath, '--eureka-smoke', '--json'], {
+            encoding: 'utf8', timeout: 30000,
+          });
+          if (!r || typeof r.stdout !== 'string') {
+            return { ok: false, finding: 'eureka-smoke spawn produced no stdout', detail: { stderr: (r && r.stderr || '').slice(-200) } };
+          }
+          let payload = null;
+          try { payload = JSON.parse(r.stdout); }
+          catch (_) { return { ok: false, finding: 'eureka-smoke stdout not parseable as JSON', detail: { stdoutTail: r.stdout.slice(-200) } }; }
+          if (!payload || !Array.isArray(payload.layers)) {
+            return { ok: false, finding: 'eureka-smoke payload missing layers array', detail: { payloadKeys: payload ? Object.keys(payload) : [] } };
+          }
+          if (payload.layers.length !== 4) {
+            return { ok: false, finding: 'eureka-smoke expected 4 layers, got ' + payload.layers.length, detail: { layerIds: payload.layers.map(function (l) { return l && l.id; }) } };
+          }
+          if (payload.ok !== true) {
+            const firstFail = payload.layers.find(function (l) { return l && !l.ok; });
+            return {
+              ok: false,
+              finding: 'eureka stack not ready: ' + (firstFail ? (firstFail.name + ' -- ' + firstFail.reason) : 'unknown layer'),
+              detail: { layers: payload.layers },
+            };
+          }
+          return { ok: true, finding: null, detail: { layers: payload.layers.map(function (l) { return { id: l.id, ok: l.ok }; }) } };
+        } catch (e) {
+          return { ok: false, finding: 'eureka-smoke-stack-ready threw: ' + e.message, detail: {} };
+        }
+      },
+    },
   ];
 }
 
@@ -4696,7 +4765,7 @@ function main() {
   // under it via a parallel promise chain, but for the standalone case
   // (which is the primary user surface) the doctor exits after Class M
   // alone. Class-flag invariant applies: exit 0 even on FAIL.
-  if (flags.brainSmoke && !flags.cascadeRooms && !flags.verifySurface
+  if (flags.brainSmoke && !flags.eurekaSmoke && !flags.cascadeRooms && !flags.verifySurface
       && !flags.roomMd && !flags.uiCompliance && !flags.statuslineVisibility
       && !flags.installState && !flags.staleFirstTouch && !flags.deprecatedUsage
       && !flags.all) {
@@ -4722,6 +4791,26 @@ function main() {
     return;
   }
 
+  // quick(260706-13z) D14: --eureka-smoke (class S) standalone dispatch. Mirrors
+  // the class-M block exactly, including the process.exitCode-not-process.exit
+  // Windows-safe teardown (2026-05-30 RCA) and the class-flag invariant (exit 0
+  // even on per-layer FAIL). The !flags.brainSmoke guard lets a combined
+  // --brain-smoke --eureka-smoke run fall through to the --all-style merge.
+  if (flags.eurekaSmoke && !flags.brainSmoke && !flags.cascadeRooms && !flags.verifySurface
+      && !flags.roomMd && !flags.uiCompliance && !flags.statuslineVisibility
+      && !flags.installState && !flags.staleFirstTouch && !flags.deprecatedUsage
+      && !flags.all) {
+    classSEurekaSmoke(flags).then(function (code) {
+      process.exitCode = code;
+    }).catch(function (e) {
+      console.error('class-s smoke threw: ' + (e && e.message));
+      if (flags.json) console.log(JSON.stringify({ class: 'S', ok: false, error: e && e.message, layers: [], overall_ms: 0 }, null, 2));
+      // Class-flag invariant: exit 0 even on internal error.
+      process.exitCode = 0;
+    });
+    return;
+  }
+
   const installResult = checkInstallVersion();
   const cacheResult = checkMarketplaceCache();
   const devResult = checkDevSourceConsistency();
@@ -4733,7 +4822,7 @@ function main() {
   const classFlagsActive = flags.cascadeRooms || flags.verifySurface
     || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility
     || flags.installState || flags.staleFirstTouch || flags.deprecatedUsage
-    || flags.brainSmoke || flags.drift;
+    || flags.brainSmoke || flags.eurekaSmoke || flags.drift;
     // ^ Phase 150.9 Plan-02: registering flags.drift here honors the
     //   graceful-degradation exit-0 invariant. This is what preserves the
     //   marketplace-cache-drift-deadlock carve-out automatically: that carve-out
@@ -5489,6 +5578,22 @@ function main() {
     return;
   }
 
+  // quick(260706-13z) D14: Class S (Eureka smoke) under combined runs (e.g. a
+  // --brain-smoke --eureka-smoke pair, or --all). The standalone --eureka-smoke
+  // path is handled earlier with its own canonical output; here we attach the
+  // result into report.checks['eureka-smoke'] beside the brain-smoke block.
+  if (flags.eurekaSmoke) {
+    const { checkEurekaSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-s-eureka-smoke.cjs'));
+    checkEurekaSmoke().then(function (result) {
+      report.checks['eureka-smoke'] = Object.assign({ class: 'S' }, result);
+      _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+    }).catch(function (err) {
+      report.checks['eureka-smoke'] = { class: 'S', status: 'error', detail: err && err.message };
+      _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+    });
+    return;
+  }
+
   _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
 }
 
@@ -5622,6 +5727,29 @@ async function classMBrainSmoke(flags) {
     console.log(JSON.stringify(Object.assign({ class: 'M' }, result), null, 2));
   } else {
     console.log('Class M -- Brain end-to-end smoke (5-layer probe)');
+    console.log('  Overall: ' + (result.ok ? 'PASS' : 'FAIL') + '  (' + result.overall_ms + 'ms)');
+    for (const layer of result.layers) {
+      const marker = layer.ok ? 'PASS' : 'FAIL';
+      console.log('    [' + marker + '] ' + layer.name + ' -- ' + layer.reason + ' (' + layer.ms + 'ms)');
+    }
+  }
+  // Class-flag invariant: exit 0 even on per-layer FAIL.
+  return 0;
+}
+
+// -- Class S dispatcher (quick 260706-13z) -----------------------------------
+//
+// Mirrors the Class M dispatcher shape. Returns the process exit code; per the
+// class-flag invariant this is 0 even on probe FAIL. The standalone
+// --eureka-smoke caller awaits this; the combined caller goes through
+// _finalizeAndExit instead.
+async function classSEurekaSmoke(flags) {
+  const { checkEurekaSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-s-eureka-smoke.cjs'));
+  const result = await checkEurekaSmoke();
+  if (flags.json) {
+    console.log(JSON.stringify(Object.assign({ class: 'S' }, result), null, 2));
+  } else {
+    console.log('Class S -- Eureka local-embedding-stack smoke (4-layer probe)');
     console.log('  Overall: ' + (result.ok ? 'PASS' : 'FAIL') + '  (' + result.overall_ms + 'ms)');
     for (const layer of result.layers) {
       const marker = layer.ok ? 'PASS' : 'FAIL';

@@ -71,6 +71,26 @@ export MINDRIAN_EMBED_DIM=768
 export MINDRIAN_MODEL_CACHE=/opt/mindrian/model-cache
 ```
 
+### MINDRIAN_EUREKA_SMOKE_TIMEOUT_MS
+
+**What:** Per-layer timebox (ms) for the `doctor --eureka-smoke` model probe (L3).
+**Default:** 20000 (20s).
+**Why:** L3 only embeds a real string when the model is already cached. The timebox is the safety net that turns a would-be silent hang into a reported FAIL, so the probe stays bounded inside a release gate.
+
+```bash
+export MINDRIAN_EUREKA_SMOKE_TIMEOUT_MS=30000
+```
+
+### MINDRIAN_EUREKA_SMOKE_ALLOW_DOWNLOAD
+
+**What:** Let `doctor --eureka-smoke` L3 trigger the real model download on a cache miss.
+**Default:** unset (a cache miss is a graceful PASS; the probe NEVER downloads).
+**Why:** By default the smoke probe refuses to fetch weights (safe on airgapped CI and release gates). Set to `1` only when you deliberately want to warm the cache and confirm a live download.
+
+```bash
+export MINDRIAN_EUREKA_SMOKE_ALLOW_DOWNLOAD=1
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
