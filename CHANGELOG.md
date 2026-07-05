@@ -1,7 +1,19 @@
+## [Unreleased]
+
+### Fixed
+- **`vunknown` version banner on Windows, root-caused.** `session-start`'s `$PLUGIN_ROOT` was a git-bash MSYS path (`/c/Users/...`), which Windows-native `node.exe` cannot resolve inside `require()` -- every version-resolution call on that platform silently failed to `unknown`. Normalized once via `cygpath -m` (no-op on Linux/macOS) and threaded through all 8 call sites in the script that previously passed the raw path.
+- **`check-card-fire.cjs` (the SEED-021 Stop hook) leaked its internal classification slug to the user as a fake "error".** A `decision:'block'` envelope with no `systemMessage` renders its `reason` field as "Stop hook error: <slug>" even when the hook is working correctly. Added a calm, fixed `systemMessage` on the intercept branch; the slug stays in `reason` for logs.
+- **The same hook over-fired on plain binary (yes/no) closers**, forcing a card for simple confirmations the same as a genuine multi-option fork. New `gate-is-simple-binary` pass-reason exempts exact 2-option closers while preserving the Phase 209 floor for genuine 3+-way forks.
+- **`/mos:help`'s last stale-copy residual** ("in this lane", "four color-coded lanes") reworded to match the real 11-family / 3-card design shipped in beta.3.
+
 ## [1.15.3-beta.3] - 2026-07-05
 
 ### Added
-- 
+- **`doctor --report-registration-bug`** -- a new diagnostic mode for the confirmed Claude Code host-side command-registration bug (commands fail to register while skills/MCP prompts load fine, reproduced across unrelated plugins). Rules out every locally-checkable cause first (install-cache drift, silent-disable, legacy config-pin drift, marketplace-clone dirty state, version-of-record agreement) before assembling a paste-ready report for Anthropic. Never claims "fixed" -- diagnostic only.
+- **`lib/core/command-registration-check.cjs`** -- a precondition sweep (frontmatter fences, YAML tabs, legal command names, case-insensitive collisions, description length) wired into the new doctor mode, the release gate, and pre-commit.
+- **`/mos:help` reshaped** from a stale "4-lane" claim to the real 11 command families, rendered as 3 native `AskUserQuestion` cards (4+4+3) instead of one artificially-merged card.
+- **The legacy `config.json` version-pin drift (F11)** is now detected and auto-repaired by `doctor --fix` -- confirmed recurring twice on the same real Windows machine before this fix; two Windows-specific correctness bugs in the fix itself (a missing config.json schema variant, a Windows-illegal `:` in a backup filename) were also found and fixed the same day.
+- The cold-start banner's command count is now computed live instead of a hardcoded literal that had drifted stale (last read "45" against an actual 107).
 
 ## [1.15.3-beta.1] - 2026-07-03
 
