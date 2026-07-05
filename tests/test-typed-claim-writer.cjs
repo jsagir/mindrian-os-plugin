@@ -119,6 +119,69 @@ check('re-filing same (sessionId, segment) is idempotent + no-downgrade', () => 
   db.close();
 });
 
+// (6a) The claim text is PERSISTED into the properties blob (the D15 fix): a
+// written claim node's parsed props carry the exact input sentence, so the
+// read-side props.text check can extract it.
+check('claim text is persisted into properties.text (D15 write-side fix)', () => {
+  const db = freshDb();
+  const sentence = 'The addressable market is 190M USD in year one';
+  const r = writeClaimNode(db, { knowledge_type: 'fact', text: sentence, sessionId: 'sD15' });
+  assert.equal(r.ok, true, `expected ok:true, got ${JSON.stringify(r)}`);
+  const row = db.prepare('SELECT properties FROM nodes WHERE id = ?').get(r.node_id);
+  const props = JSON.parse(row.properties);
+  assert.equal(props.text, sentence, 'the exact claim sentence must land in properties.text');
+  db.close();
+});
+
+// (6b) The idempotent re-file (check-6 shape) also UPDATES text on UPSERT while
+// still not downgrading a confirmed status -- this is the organic-backfill path
+// that recovers a pre-fix node's text when its transcript is re-filed.
+check('re-file updates properties.text on UPSERT + no status downgrade (organic backfill)', () => {
+  const db = freshDb();
+  const base = { knowledge_type: 'fact', text: 'first version of the claim', sessionId: 'sBackfill', sourceSegment: 'seg-9' };
+  const r1 = writeClaimNode(db, base);
+  assert.equal(r1.ok, true);
+  // Simulate a human confirming the claim.
+  db.prepare("UPDATE nodes SET review_status='confirmed' WHERE id = ?").run(r1.node_id);
+  // Re-file the SAME segment with a corrected sentence (same CLAIM_NODE_ID).
+  const corrected = 'corrected version of the claim after re-extraction';
+  const r2 = writeClaimNode(db, Object.assign({}, base, { text: corrected }));
+  assert.equal(r2.ok, true);
+  assert.equal(r2.node_id, r1.node_id, 'same segment must mint the same id');
+  const row = db.prepare('SELECT review_status, properties FROM nodes WHERE id = ?').get(r1.node_id);
+  assert.equal(row.review_status, 'confirmed', 'ON CONFLICT must NOT downgrade a confirmed claim');
+  assert.equal(JSON.parse(row.properties).text, corrected, 'properties.text must update on re-file');
+  db.close();
+});
+
+// (6c) The additive guarantee: text sits ALONGSIDE every pre-existing key, none
+// dropped or altered. Protects every existing consumer that parses the blob.
+check('text is additive: all pre-existing props keys still present + correct', () => {
+  const db = freshDb();
+  const r = writeClaimNode(db, {
+    knowledge_type: 'causal',
+    text: 'the claim sentence',
+    sessionId: 'sAdd',
+    sourceSegment: 'seg-add',
+    sourceSpeaker: 'Sharon',
+    conditions: 'when demand is high',
+    counter_conditions: 'unless supply constrained',
+    valid_from: '2026-01-01',
+    valid_until: '2026-12-31',
+  });
+  assert.equal(r.ok, true, `expected ok:true, got ${JSON.stringify(r)}`);
+  const props = JSON.parse(db.prepare('SELECT properties FROM nodes WHERE id = ?').get(r.node_id).properties);
+  assert.equal(props.knowledge_type, 'causal');
+  assert.equal(props.text, 'the claim sentence');
+  assert.equal(props.conditions, 'when demand is high');
+  assert.equal(props.counter_conditions, 'unless supply constrained');
+  assert.equal(props.valid_from, '2026-01-01');
+  assert.equal(props.valid_until, '2026-12-31');
+  assert.equal(props.source_speaker, 'Sharon');
+  assert.equal(props.source_segment, 'seg-add');
+  db.close();
+});
+
 // (7) KNOWLEDGE_TYPES is a frozen Set with exactly the 6 members.
 check('KNOWLEDGE_TYPES is a frozen Set with exactly the 6 members', () => {
   assert.equal(KNOWLEDGE_TYPES instanceof Set, true);
