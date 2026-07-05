@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "ci-baseline",
+  "baseline_deferred": true,
+  "reason": "plurai_endpoint_unreachable",
+  "detail": "transferable_call=HTTP 404 {\"message\":\"Route POST:/ioa/v1/cross-topic-connection/1.0.0 not found\",\"error\":\"Not Found\",\"statusCode\":404} | unrelated_call=HTTP 404 {\"message\":\"Route POST:/ioa/v1/cross-topic-connection/1.0.0 not found\",\"error\":\"Not Found\",\"statusCode\":404}",
+  "date": "2026-07-05",
+  "legs": [
+    "cross-topic-connection"
+  ],
+  "judge_slug": "cross-topic-connection",
+  "judge_labels": [
+    "No Connection",
+    "Hedged",
+    "Confident"
+  ],
+  "synthetic_only": true,
+  "deferred_note": "The deployed Cross-Topic Connection judge (elevation slug cross-topic-connection) scores ONLY the pseudonymous gold-card connection texts, never real-room content (Part 8 egress rule). A key resolved but the judge endpoint was unreachable (see detail). The cross-topic-connection route is not deployed at the expected URL as of build time; deferred honestly per the 201-baseline.json house pattern. Deploy or correct the endpoint, then re-run to replace this with a hosted Plurai baseline.",
+  "endpoint": "https://run.plurai.ai/ioa/v1/cross-topic-connection/1.0.0"
+}
