@@ -1,7 +1,10 @@
 ## [Unreleased] -- v1.15.3-beta.5 (in progress)
 
 ### Added
-- 
+- **Every `/mos:` command is now also reachable via the `skills/` loading path** (`scripts/build-skill-mirrors.cjs`, new generator, write + `--check` modes). Root cause: on a confirmed-affected Windows Claude Code install, this plugin's `commands/*.md` files fail to register ("No commands match") while `skills/` and MCP-server prompts from the same plugin load fine -- reproduced identically on an unrelated marketplace plugin on the same machine, and confirmed against Anthropic's own docs (commands/ is the legacy flat-file path; skills/ is the recommended one). `commands/*.md` stays the single, untouched source of truth -- this repo's own command-registry/render-coverage/help-coverage tooling all read commands/ only. 105 new byte-identical `skills/<name>/SKILL.md` mirrors generated (106 with the pilot's `help`); `trending-to-absurd` skip-listed (pre-existing hand-authored skill already covers it). One documented, precedented field exception: wired commands' `connector.sensor_triggers` is rewritten to `[]` on the mirror only (61 of 105) to avoid a duplicate-tuple collision in `build-connector-registry.cjs` -- the same pattern the pre-existing `trending-to-absurd` skill already used for the identical reason.
+
+### Fixed
+- Unanchored `.gitignore` patterns (`room/`, `export/`) were also matching the new `skills/room/` and `skills/export/` mirror directories, silently dropping them from commits with no CIRS gate catching it (gates check filesystem presence, not git-tracking status). Anchored both to repo root.
 
 ## [1.15.3-beta.4] - 2026-07-05
 
