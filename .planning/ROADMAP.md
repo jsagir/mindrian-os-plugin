@@ -2889,11 +2889,15 @@ Plans:
 **Requirements**: TBD
 **Depends on:** Phase 200 (RS Engine Spine)
 **Not blocked by:** the active curing-sequence debug track (`.planning/debug/beta13-curing-sequence-persona-and-commands-bisect.md`) - Phase 200 is untouched by it.
-**Plans:** 0 plans
+**Plans:** 5 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 211 to break down)
+- [ ] 211-01-PLAN.md - deps legitimacy gate + the embedding spine (D-200-1 encoder swap: Xenova/all-MiniLM-L6-v2 q8 via transformers.js)
+- [ ] 211-02-PLAN.md - tri-modal room.db: FTS5 lexical leg + sqlite-vec vector leg (CJS-cosine fallback) + RRF fusion (EUREKA_RRF_K=25) + FlashRank-model rerank
+- [ ] 211-03-PLAN.md - the MEASURED differential: scoreMeasured (signed, directional, provenance-tagged) + pure-CJS lexicalOverlap; legacy score() untouched
+- [ ] 211-04-PLAN.md - SEED-050 gold set front-load: 6 case cards + COMPRESSION formula + manual Larry baseline (human checkpoint)
+- [ ] 211-05-PLAN.md - real-room run (scripts/eureka-room-report.cjs) + run-all-211.sh + Cross-Topic Connection judge gate + eureka spot-check (human checkpoint)
 
 ### Phase 212: Eureka Substrate + Grounding Guard (eureka-substrate-grounding-guard) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seeds SEED-049 + SEED-050**
 
