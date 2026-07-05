@@ -1104,6 +1104,7 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
             sessionId: (ctx && typeof ctx.sessionId === 'string') ? ctx.sessionId : undefined,
             surface: 'scripts/intent-classifier.cjs',
             shape: 'F.1',
+            subjectText: (typeof rendered.text === 'string' ? rendered.text : ''),
           });
         } catch (_e) {
           /* never let a side-channel fault affect the rendered block */
@@ -2157,6 +2158,9 @@ function emitBindingGate(args) {
       sessionId: sessionId,
       surface: 'scripts/intent-classifier.cjs',
       shape: 'F.8',
+      subjectText: [zones.header, zones.body].filter(function (s) {
+        return typeof s === 'string' && s.length > 0;
+      }).join(' '),
     });
   } catch (_e) {
     /* never let a side-channel fault affect the rendered gate */
