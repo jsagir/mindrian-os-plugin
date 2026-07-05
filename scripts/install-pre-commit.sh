@@ -34,8 +34,8 @@ if [ -f "$HOOK_PATH" ]; then
   # Idempotency: consider the hook fully installed only when ALL guards wired
   # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard +
   # the Phase 172-13 coverage gates: connector --check + projection --check).
-  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH" && grep -q "check-shape-declaration.cjs --check" "$HOOK_PATH" && grep -q "check-help-coverage.cjs" "$HOOK_PATH"; then
-    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats + shape-declaration + help-coverage). No changes."
+  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH" && grep -q "check-shape-declaration.cjs --check" "$HOOK_PATH" && grep -q "check-help-coverage.cjs" "$HOOK_PATH" && grep -q "command-registration-check.cjs" "$HOOK_PATH"; then
+    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats + shape-declaration + help-coverage + command-registration). No changes."
     exit 0
   fi
   echo "WARNING: $HOOK_PATH exists but is missing one or more MindrianOS guards."
@@ -204,6 +204,24 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|data/help-groups\
 fi
 HOOK_TRAILER_HELP_COVERAGE
   fi
+  if ! grep -q "command-registration-check.cjs" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_CMD_REG'
+
+# Quick task 260705-jeq (Canon Part 7 / Part 11) - command-registration
+# precondition sweep (HARD-FAIL). Catches the static authoring mistakes that make
+# Claude Code SILENTLY skip a command file: a broken frontmatter fence, a tab in
+# the YAML block, an illegal command name, or a case-insensitive basename
+# collision. When any commands/*.md is staged, run the sweep and reject the commit
+# on any FAIL-class violation (WARN-class over-long descriptions never block).
+# Canon Part 8: LOCAL file reads only; zero Brain, zero network.
+# Recovery: fix the flagged frontmatter fence / tab / name / collision.
+if git diff --cached --name-only | grep -qE '^commands/.*\.md$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/lib/core/command-registration-check.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/lib/core/command-registration-check.cjs" || { echo "command-registration precondition FAIL - a command would silently not register" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_CMD_REG
+  fi
   # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
   # guards in just before it; otherwise append to the end of the hook.
   LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
@@ -297,10 +315,21 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|data/help-groups\
     node "$REPO_ROOT/scripts/check-help-coverage.cjs" || { echo "help-coverage gap -- add the command to data/help-groups.json, or list a deprecation in deprecated_aliases" >&2; exit 1; }
   fi
 fi
+# Quick task 260705-jeq (Canon Part 7 / Part 11) - command-registration
+# precondition sweep (HARD-FAIL). Catches the static authoring mistakes that make
+# Claude Code SILENTLY skip a command file: a broken frontmatter fence, a tab in
+# the YAML block, an illegal command name, or a case-insensitive basename
+# collision. Canon Part 8: LOCAL file reads only.
+# Recovery: fix the flagged frontmatter fence / tab / name / collision.
+if git diff --cached --name-only | grep -qE '^commands/.*\.md\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/lib/core/command-registration-check.cjs" ]; then
+    node "$REPO_ROOT/lib/core/command-registration-check.cjs" || { echo "command-registration precondition FAIL - a command would silently not register" >&2; exit 1; }
+  fi
+fi
 HOOK_BODY
 fi
 
 chmod +x "$HOOK_PATH"
-echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats + shape-declaration + help-coverage)."
+echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats + shape-declaration + help-coverage + command-registration)."
 echo "To bypass for emergency commits: git commit --no-verify"
 echo "  (per Phase 108 social convention: open a canon-amendment PR within 24 hours)"

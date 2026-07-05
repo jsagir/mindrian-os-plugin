@@ -202,6 +202,29 @@ else
 fi
 
 # ============================================================
+# 7b. COMMAND REGISTRATION PRECONDITIONS
+# ============================================================
+# Quick task 260705-jeq: the static precondition sweep catches the authoring
+# mistakes that make Claude Code SILENTLY skip a command file (broken frontmatter
+# fence, a tab in the YAML block, an illegal name, a case-insensitive collision).
+# A FAIL here blocks the release the same way it blocks a commit -- one sweep,
+# lib/core/command-registration-check.cjs, shared with the pre-commit hook.
+echo -e "\n${BOLD}7b. Command Registration Preconditions${NC}"
+
+REG_OUT=$(node "$PLUGIN_ROOT/lib/core/command-registration-check.cjs" 2>&1) && REG_CODE=0 || REG_CODE=$?
+if [ "$REG_CODE" -ne 0 ]; then
+  fail "Command-registration precondition sweep FAILED (a command would silently not register):"
+  echo "$REG_OUT" | grep '^FAIL' | head -10
+else
+  REG_WARNS=$(echo "$REG_OUT" | grep -c '^WARN' || true)
+  if [ "$REG_WARNS" -gt 0 ]; then
+    warn "Command-registration preconditions clean; $REG_WARNS render-quality warning(s) (over-long / missing description)"
+  else
+    pass "Command-registration preconditions clean (every command will register)"
+  fi
+fi
+
+# ============================================================
 # 8. ONBOARDING FLOW
 # ============================================================
 echo -e "\n${BOLD}8. Onboarding${NC}"
