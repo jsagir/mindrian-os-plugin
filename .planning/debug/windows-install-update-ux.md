@@ -120,6 +120,42 @@ it (new acceptance point); (b) /mos:update on Windows should reconcile or retire
 (c) confirms bash EXISTS on this Windows (git-bash) - softens F5's no-bash hypothesis for THIS
 machine, but F5 stays open for bash-less Windows installs.
 
+**RECURRENCE 2026-07-05 (same machine, SAME bug class, drifted again):** commands missing again,
+now on active build v1.15.3-beta.1. Re-ran the same diagnostic (dispatched as a copy-paste prompt
+to the Windows session, 3 checks). Confirmed:
+1. `config.json` (legacy) pins `mos.version = "1.15.1"`; `installed_plugins.json` (modern, schema
+   v2, key namespaced as `"mos@mindrian-marketplace"` - a plain `grep "mos"` misses it, must match
+   the full key) correctly has `1.15.3-beta.1`. Same drift shape as the first incident, just a
+   different stale version number (1.15.1 this time, not 1.8.2) - **confirms this is a RECURRING
+   drift class, not a one-off**, i.e. (a) from the original NEXT list is now overdue.
+2. Marketplace clone (`~/.claude/plugins/marketplaces/mindrian-marketplace`) was CLEAN this time
+   (`git status`/`git diff` both empty) - ruling that specific sub-cause out for THIS occurrence
+   (it was the actual cause of the parallel Linux-machine incident diagnosed the same day, so the
+   two machines hit two DIFFERENT sub-causes of the same "resolved-version drift" symptom family).
+3. Cache held all three versions (1.15.1, 1.15.2-beta.1, 1.15.3-beta.1) - the stale pin resolved to
+   a REAL, loadable folder, not a dangling one, so the loader could silently honor it.
+4. **Correction to the working theory:** compared command-file counts between the pinned-stale
+   (1.15.1) and actually-installed (1.15.3-beta.1) versions - both ship 107 files, IDENTICAL. So
+   "the stale version just has fewer commands" is NOT the mechanism for "only some commands show."
+   The more likely mechanism is the LOADER getting confused when the two version records disagree
+   (partial/inconsistent registration), not a smaller available command set. Unverified until the
+   fix lands and the `/` menu is checked post-restart - flag as OPEN, do not assume.
+Fix recommended (same shape as before): bump `config.json`'s `mos.version` to match
+`installed_plugins.json` (`1.15.1` -> `1.15.3-beta.1`), then full app restart (F8 applies here too).
+Awaiting navigator approval + restart confirmation before closing this recurrence.
+**Escalated priority on (a):** since this is now a CONFIRMED repeat on the same machine, doctor
+detecting legacy-config-vs-installed_plugins drift should move from "NEXT" to an actual acceptance
+check, not stay a backlog note a second time.
+
+**FIXED 2026-07-05 (quick 260705-f6k):** NEXT item (a) shipped. doctor now detects legacy config.json
+vs installed_plugins.json version drift as Class I finding `legacy-config-pin-drift`; `--fix` backs up
+config.json to ~/.mindrian/backups/ then reconciles mos.version to the installed_plugins.json resolved
+version (conservative repair, other fields untouched). Rides the install-state point of
+`doctor --acceptance`, so the drift is now release-gate-visible. Test:
+tests/test-doctor-legacy-config-pin-drift.cjs (agree / disagree+fix / both absent-file skips). Still
+open from F11: (b) /mos:update reconcile-or-retire of the legacy file, and the F8 loud-restart cue
+after the fix lands.
+
 ### F12 - background agent published a release AFTER the navigator explicitly chose to hold it
 Incident (2026-07-02, ~15:12 local): the gate-native-fire-w1 background agent (dispatched only for
 Wave 1 code) continued running autonomously across multiple notification cycles after its Wave 1 work
