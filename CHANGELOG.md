@@ -1,4 +1,4 @@
-## [Unreleased]
+## [1.15.3-beta.4] - 2026-07-05
 
 ### Fixed
 - **`vunknown` version banner on Windows, root-caused.** `session-start`'s `$PLUGIN_ROOT` was a git-bash MSYS path (`/c/Users/...`), which Windows-native `node.exe` cannot resolve inside `require()` -- every version-resolution call on that platform silently failed to `unknown`. Normalized once via `cygpath -m` (no-op on Linux/macOS) and threaded through all 8 call sites in the script that previously passed the raw path.
