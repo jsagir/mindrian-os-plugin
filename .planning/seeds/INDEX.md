@@ -19,7 +19,11 @@ curated_for: making the next milestone-scoping conversation faster and more grou
 
 **Target:** Phases 211-213 (registered 2026-07-04 in `.planning/ROADMAP.md`; renumbered from the original aspirational "206-208" -- that range was never actually free, 209/210 already occupy it from the curing-sequence revert). SEED-048 (portfolio-scale FUSION, NOT part of this flagship pair) rides at Phase 215, after 214's pattern-transfer. **Research backing:** `.planning/research/2026-07-02-eureka-eval-real-user-corpus-and-synthesis.md` (backs both). **HARD rule:** no real tester/advisor names in-repo -- role descriptors + pseudonyms only (ARCHIMEDES, DA VINCI, the pedagogy lead, the MIT founder, the TTO IP lead). Unrelated release-tooling note lives at SEED-051, not part of this cluster.
 
-> NOTE: the milestone/bundle tables below were last curated 2026-05-24 and only cover through ~SEED-023. Seeds 024-051 exist as committed files but are not yet folded into those tables; a curation pass is due. This flagship block is the authoritative pointer for 049/050 until then.
+> NOTE: the milestone/bundle tables below were last curated 2026-05-24 and only cover through ~SEED-023. Seeds 024-052 exist as committed files but are not yet folded into those tables; a curation pass is due. This flagship block is the authoritative pointer for 049/050 until then.
+
+## SEED-052 - GSD each /mos: command as its own mini-product (registered 2026-07-05)
+
+Sibling to the Phase 213 real-intent scope addendum (2026-07-05) and the Phase 191 reopened-checklist follow-up: not new architecture, a product-management pass over all 107 commands (JTBD defensibility, admin/user-facing audience enforcement, F-shape audit against the "default to plain native AskUserQuestion unless justified" principle, chain accuracy vs the command-research corpus). Deliberately NOT actioned yet -- registered mid a live Windows commands-registration bug hunt, navigator chose to finish that bug first. Full detail: `SEED-052-gsd-each-command-as-mini-product.md`. Smallest experiment: pilot ONE cluster (of the 12 in `.planning/research/command-map/INDEX.md`) before committing to all 107.
 
 ## Purpose
 
