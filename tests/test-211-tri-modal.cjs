@@ -173,6 +173,126 @@ async function main() {
     }
   });
 
+  // ===== Quick 260706-2xa (D15 read-side) tests =====
+
+  // Helper: fresh in-memory db with the minimal nodes table + a row inserter.
+  function freshNodesDb() {
+    const db = new DatabaseSync(':memory:');
+    db.exec('CREATE TABLE nodes (id TEXT PRIMARY KEY, type TEXT, properties TEXT)');
+    const ins = db.prepare('INSERT INTO nodes(id, type, properties) VALUES (?, ?, ?)');
+    return { db: db, ins: ins };
+  }
+
+  // ----- Test 9: a post-fix claim node's props.text is extracted + indexed -----
+  // No tri-modal special-casing for the claim type: the EXISTING props.text check
+  // already matches the writeClaimNode blob shape after the D15 write-side fix.
+  await test('Test 9: claim node (post-fix blob) is indexed + lexically findable via props.text', async function () {
+    const { db, ins } = freshNodesDb();
+    try {
+      // Mirror the post-fix writeClaimNode properties blob EXACTLY.
+      const claimProps = {
+        knowledge_type: 'fact',
+        text: 'The zephyrine addressable market is 190M USD in year one',
+        conditions: '',
+        counter_conditions: '',
+        valid_from: '',
+        valid_until: '',
+        source_speaker: '',
+        source_segment: '',
+      };
+      ins.run('claim:s1:abc', 'claim', JSON.stringify(claimProps));
+      // props.text is extracted with no roomDir and no special-casing.
+      assert.strictEqual(
+        tri.nodeText({ type: 'claim', properties: JSON.stringify(claimProps) }),
+        claimProps.text, 'claim props.text extracted by the existing key chain');
+      const r = await tri.indexNodes(db, { encodeFn: stubEncode });
+      assert.strictEqual(r.indexed, 1, 'the claim node is indexed');
+      const hits = tri.lexicalSearch(db, 'zephyrine', 5);
+      assert.ok(hits.some(function (h) { return h.node_id === 'claim:s1:abc'; }),
+        'the claim is found by a token from its sentence');
+    } finally {
+      try { db.close(); } catch (_) { /* ignore */ }
+    }
+  });
+
+  // ----- Test 10: WhitespaceZone hypothesis is in the key chain -----
+  await test('Test 10: WhitespaceZone hypothesis is extracted + indexed', async function () {
+    const { db, ins } = freshNodesDb();
+    try {
+      const zoneProps = { hypothesis: 'unexplored adjacency between quokkling and manufacturing' };
+      ins.run('zone1', 'WhitespaceZone', JSON.stringify(zoneProps));
+      assert.strictEqual(tri.nodeText({ type: 'WhitespaceZone', properties: JSON.stringify(zoneProps) }),
+        zoneProps.hypothesis, 'nodeText returns the hypothesis');
+      await tri.indexNodes(db, { encodeFn: stubEncode });
+      const hits = tri.lexicalSearch(db, 'quokkling', 5);
+      assert.ok(hits.some(function (h) { return h.node_id === 'zone1'; }),
+        'WhitespaceZone found by a hypothesis token');
+    } finally {
+      try { db.close(); } catch (_) { /* ignore */ }
+    }
+  });
+
+  // ----- Test 11: Artifact path-body fallback reads the real body (frontmatter stripped) -----
+  await test('Test 11: Artifact path-body fallback returns title + body, frontmatter stripped', async function () {
+    const roomDir = fs.mkdtempSync(path.join(os.tmpdir(), 'eureka-2xa-room-'));
+    const { db, ins } = freshNodesDb();
+    try {
+      const relPath = path.join('notes', 'deep.md');
+      const abs = path.join(roomDir, relPath);
+      fs.mkdirSync(path.dirname(abs), { recursive: true });
+      // A frontmatter block + a body with a distinctive token.
+      fs.writeFileSync(abs,
+        '---\ntitle: Deep Note\nsection: sleep-science\n---\n\n# Deep Note\n\nThe grobnak protocol governs circadian entrainment.\n');
+      const artProps = { title: 'circadian entrainment doc', path: relPath, section: 'sleep-science' };
+      ins.run('art1', 'Artifact', JSON.stringify(artProps));
+
+      const withBody = tri.nodeText({ type: 'Artifact', properties: JSON.stringify(artProps) }, { roomDir: roomDir });
+      assert.ok(withBody.indexOf('circadian entrainment doc') !== -1, 'title preserved first');
+      assert.ok(withBody.indexOf('grobnak') !== -1, 'body token present');
+      assert.strictEqual(withBody.indexOf('---'), -1, 'frontmatter delimiter stripped');
+      assert.strictEqual(withBody.indexOf('section:'), -1, 'frontmatter keys stripped');
+
+      await tri.indexNodes(db, { encodeFn: stubEncode, roomDir: roomDir });
+      const hits = tri.lexicalSearch(db, 'grobnak', 5);
+      assert.ok(hits.some(function (h) { return h.node_id === 'art1'; }),
+        'the artifact is found by a BODY token after indexing with roomDir');
+    } finally {
+      try { db.close(); } catch (_) { /* ignore */ }
+      try { fs.rmSync(roomDir, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+    }
+  });
+
+  // ----- Test 12: degrade trio, none may throw -----
+  await test('Test 12: path-body fallback degrades safely (missing file, traversal, single-arg)', function () {
+    const roomDir = fs.mkdtempSync(path.join(os.tmpdir(), 'eureka-2xa-degrade-'));
+    // Plant a decoy OUTSIDE roomDir to prove a traversal attempt never reads it.
+    const outsideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'eureka-2xa-outside-'));
+    try {
+      fs.writeFileSync(path.join(outsideDir, 'secret.md'), '# Secret\n\nThe forbiddo token must NEVER be read.\n');
+
+      // (a) path to a missing file -> title-only fallback, no throw.
+      const missingProps = { title: 'missing artifact', path: 'notes/nope.md' };
+      const missing = tri.nodeText({ type: 'Artifact', properties: JSON.stringify(missingProps) }, { roomDir: roomDir });
+      assert.strictEqual(missing, 'missing artifact', 'missing file -> title-only');
+
+      // (b) traversal attempt -> title-only, decoy NOT read.
+      const relTraversal = path.join('..', path.basename(outsideDir), 'secret.md');
+      const travProps = { title: 'traversal artifact', path: relTraversal };
+      const trav = tri.nodeText({ type: 'Artifact', properties: JSON.stringify(travProps) }, { roomDir: roomDir });
+      assert.strictEqual(trav, 'traversal artifact', 'traversal -> title-only fallback');
+      assert.strictEqual(trav.indexOf('forbiddo'), -1, 'the decoy file was NEVER read');
+
+      // (c) single-argument nodeText on the same rows -> today's behavior (title only).
+      assert.strictEqual(tri.nodeText({ type: 'Artifact', properties: JSON.stringify(missingProps) }), 'missing artifact',
+        'single-arg nodeText returns title only (byte-identical to pre-fallback)');
+      assert.strictEqual(tri.nodeText({ type: 'Artifact', properties: JSON.stringify(travProps) }), 'traversal artifact',
+        'single-arg nodeText returns title only');
+    } finally {
+      try { fs.rmSync(roomDir, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+      try { fs.rmSync(outsideDir, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+    }
+  });
+
   // ===== Task 2 tests (hybrid retrieve) appended below =====
   await hybridTests({ makeFixtureDb: makeFixtureDb, cleanup: cleanup, stubEncode: stubEncode, test: test, tri: tri });
 

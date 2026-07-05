@@ -298,8 +298,10 @@ async function main(argv) {
     db = openRoomDb(roomDir, { allowExtension: true });
 
     // (2) Build the tri-modal index: embed EACH node ONCE into the derived tables.
+    // roomDir threads into the Artifact/memory_artifact path-body fallback so the
+    // lexical + semantic legs index the real markdown body, not just the title.
     const encodeFn = opts.offline ? stubEncode : undefined;
-    const idx = await triModal.indexNodes(db, { encodeFn: encodeFn });
+    const idx = await triModal.indexNodes(db, { encodeFn: encodeFn, roomDir: roomDir });
 
     // (3) Load node rows + their text; read vectors back ONCE (embed once, score
     // many). CRITICAL: only trust vectors this run FRESHLY embedded (idx.embedded).
@@ -314,7 +316,9 @@ async function main(argv) {
     const nodes = [];
     if (idx.embedded === true) {
       for (let i = 0; i < rows.length; i += 1) {
-        const text = triModal.nodeText(rows[i]);
+        // Thread roomDir so the pair-text scored by the lexical leg is the SAME
+        // body text the vectors embedded (title-only would desync the two legs).
+        const text = triModal.nodeText(rows[i], { roomDir: roomDir });
         if (!text) continue;
         const vec = vectors.get(rows[i].id);
         if (!vec) continue; // no vector for this node -> cannot score
