@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Phase 211 verification aggregator -- the single PASS/FAIL/SKIP gate for the
-# eureka-generator-mvp cluster (tri-modal room.db + sqlite-vec + Xenova all-MiniLM).
+# eureka-generator-mvp cluster (tri-modal room.db + sqlite-vec + the local
+# embedding spine; default model MongoDB/mdbr-leaf-ir per quick(260706-13z) D3).
 # Models on tests/run-all-200.sh.
 #
 # The phase gate the ROADMAP names has three legs:
@@ -23,6 +24,12 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# ZERO-network guard (must-have #4): once the eureka deps are installed, a
+# networked machine could download a model and break the offline contract. This
+# preload flips transformers.js env.allowRemoteModels=false in every spawned leg
+# (and its children). No-op when the dep is absent. See eureka-offline-preload.cjs.
+export NODE_OPTIONS="${NODE_OPTIONS:-} --require ${ROOT}/tests/eureka-offline-preload.cjs"
+
 PASS=0
 FAIL=0
 SKIP=0
@@ -41,7 +48,7 @@ run_if() {
   fi
 }
 
-# (1) Embedding spine (211-01): local Xenova all-MiniLM encoder + graceful degrade.
+# (1) Embedding spine (211-01): local mdbr-leaf-ir encoder + graceful degrade.
 run_if "211-01 embedding spine" "tests/test-211-embedding-spine.cjs" \
   node tests/test-211-embedding-spine.cjs
 

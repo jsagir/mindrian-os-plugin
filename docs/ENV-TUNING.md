@@ -33,6 +33,44 @@ export MAX_THINKING_TOKENS=32768
 
 Note: 1M context is available for Opus 4.6 and Sonnet 4.6 via the [1m] model suffix. It uses beta header context-1m-2025-08-07.
 
+## Eureka Embedding Spine (local, no Python, no Brain)
+
+The eureka tri-modal index embeds room text LOCALLY with transformers.js. The
+only network touch is the one-time model-weight download (by model id only; no
+room bytes egress, Canon Part 8). These tune the model, its output dimension,
+and where weights cache.
+
+### MINDRIAN_EMBED_MODEL
+
+**What:** The transformers.js feature-extraction model id used for local embeddings.
+**Default:** `MongoDB/mdbr-leaf-ir` (the quick(260706-13z) D3 spike winner: Apache 2.0, 23M params, #1 on MTEB BEIR/RTEB <=100M params, measured 384-dim in transformers.js v4).
+**Alternatives:** `Xenova/bge-small-en-v1.5` (384-dim, the diligence's named fallback), `Xenova/all-MiniLM-L6-v2` (384-dim, the pre-13z default, kept for rollback).
+**Why:** A model swap is a config change plus a re-embed, never a schema edit. Set this, then reindex; the vec table rebuilds at the new model's dim automatically.
+
+```bash
+export MINDRIAN_EMBED_MODEL=Xenova/bge-small-en-v1.5
+```
+
+### MINDRIAN_EMBED_DIM
+
+**What:** Override the embedding output dimension (positive integer).
+**Default:** Resolved automatically: the model's known dim (from the built-in map) else the default model's dim. Not normally set.
+**Why:** Only needed when running an env-selected model whose dim is not in the built-in map. embedTexts always stamps the TRUE dim from the vector length, so a wrong hint is caught at index time rather than silently corrupting the store.
+
+```bash
+export MINDRIAN_EMBED_DIM=768
+```
+
+### MINDRIAN_MODEL_CACHE
+
+**What:** Directory where transformers.js caches downloaded model weights.
+**Default:** transformers.js `env.cacheDir` (the package's own cache under node_modules).
+**Why:** Point weight storage at a caller-chosen path (a shared cache, a larger disk). Set before the first embedding call; the one-time download honors it.
+
+```bash
+export MINDRIAN_MODEL_CACHE=/opt/mindrian/model-cache
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:

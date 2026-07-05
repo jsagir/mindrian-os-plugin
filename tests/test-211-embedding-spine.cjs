@@ -10,8 +10,9 @@
  *
  *   Test 1: encodeFn injection returns stub vectors + provenance.model 'stub';
  *           no model load is attempted.
- *   Test 2: encoderProvenance() resolves the model/dtype from env at call time
- *           (default Xenova/all-MiniLM-L6-v2 / q8; overridable).
+ *   Test 2: encoderProvenance() resolves the model/dtype/dim from env at call
+ *           time (default MongoDB/mdbr-leaf-ir / q8 / 384; model + dim
+ *           overridable; quick(260706-13z) D3 swap + schema-driven dim).
  *   Test 3: the _forceUnavailable hook makes embedTexts degrade with
  *           {success:false, error:'encoder_unavailable'} and NEVER throw.
  *   Test 4: cosineSimilarity is reference-equal to the rs-pinecone-bridge
@@ -52,25 +53,37 @@ async function run() {
   {
     const savedModel = process.env.MINDRIAN_EMBED_MODEL;
     const savedDtype = process.env.MINDRIAN_EMBED_DTYPE;
+    const savedDim = process.env.MINDRIAN_EMBED_DIM;
     try {
       delete process.env.MINDRIAN_EMBED_MODEL;
       delete process.env.MINDRIAN_EMBED_DTYPE;
+      delete process.env.MINDRIAN_EMBED_DIM;
       const def = spine.encoderProvenance();
-      assert.strictEqual(def.model, 'Xenova/all-MiniLM-L6-v2', 'Test 2: default model');
+      // quick(260706-13z) D3 swap: the default is now the spike winner
+      // MongoDB/mdbr-leaf-ir (measured 384-dim, still resolved not hardcoded).
+      assert.strictEqual(def.model, 'MongoDB/mdbr-leaf-ir', 'Test 2: default model');
       assert.strictEqual(def.dtype, 'q8', 'Test 2: default dtype');
-      assert.strictEqual(def.dim, 384, 'Test 2: default dim');
+      assert.strictEqual(def.dim, 384, 'Test 2: default dim (resolved from KNOWN_MODEL_DIMS)');
       assert.strictEqual(def.method, 'transformers.js-feature-extraction', 'Test 2: method');
 
       process.env.MINDRIAN_EMBED_MODEL = 'Xenova/bge-small-en-v1.5';
       const alt = spine.encoderProvenance();
       assert.strictEqual(alt.model, 'Xenova/bge-small-en-v1.5', 'Test 2: overridden model');
+
+      // Schema-driven dim: MINDRIAN_EMBED_DIM overrides the resolved dim so an
+      // env-selected model outside KNOWN_MODEL_DIMS still stamps the right width.
+      process.env.MINDRIAN_EMBED_DIM = '7';
+      assert.strictEqual(spine.encoderProvenance().dim, 7, 'Test 2: MINDRIAN_EMBED_DIM override');
+      assert.strictEqual(spine.resolveDim(), 7, 'Test 2: resolveDim honors env override');
     } finally {
       if (savedModel === undefined) delete process.env.MINDRIAN_EMBED_MODEL;
       else process.env.MINDRIAN_EMBED_MODEL = savedModel;
       if (savedDtype === undefined) delete process.env.MINDRIAN_EMBED_DTYPE;
       else process.env.MINDRIAN_EMBED_DTYPE = savedDtype;
+      if (savedDim === undefined) delete process.env.MINDRIAN_EMBED_DIM;
+      else process.env.MINDRIAN_EMBED_DIM = savedDim;
     }
-    ok('Test 2: encoderProvenance reflects env defaults and overrides');
+    ok('Test 2: encoderProvenance reflects env defaults, model + dim overrides');
   }
 
   // ---------- Test 3: _forceUnavailable degrades, never throws ----------
