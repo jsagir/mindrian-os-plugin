@@ -823,9 +823,11 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "action-report",
-      "serves_jtbd": [],
+      "serves_jtbd": [
+        "build"
+      ],
       "teaching": "Maintainer-only. When you want to teach the Brain a new methodology, /mos:ingest-methodology runs the 7-step pipeline - encode, Part-8 boundary gate, graph write, vector write, trigger + chain, register, local refresh - so the framework is reachable by every user and operable Local-Only, with zero user-data egress.",
-      "jtbd_label": null,
+      "jtbd_label": "Build",
       "jtbd_summary": null
     },
     {
@@ -1599,9 +1601,11 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "F.0",
-      "serves_jtbd": [],
+      "serves_jtbd": [
+        "navigate"
+      ],
       "teaching": "When you want Larry to shift how he talks to you this session -- pull evidence, deliver decisively, stay Socratic, or challenge you -- /mos:stance flips the dial in one confirm. Offered when relevant, never forced.",
-      "jtbd_label": null,
+      "jtbd_label": "Navigate",
       "jtbd_summary": null
     },
     {

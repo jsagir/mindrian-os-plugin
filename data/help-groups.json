@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "phase": "quick-260705-jeq",
+  "phase": "quick-260705-sd5",
   "canon_parts": [
     "Part 3",
     "Part 7",
@@ -11,7 +11,7 @@
     "D-06",
     "D-07"
   ],
-  "_note": "All user-facing commands appear in /mos:help (selector menu). The 11 families below are the real command surface, grouped as a 3-card F-shape selector (Card 1: Start Here / Rooms & Data Room / Frame the Problem / Run a Methodology; Card 2: Explore Futures & Trends / Intelligence & Research / Opportunities Funding & Meetings / Present & Publish; Card 3: Orchestrate & Automate / Memory State & Engine / System & Maintenance). EXCLUDED, born-listed and machine-checkable by scripts/check-help-coverage.cjs: (1) visibility:admin commands (admin, dogfood-flush), detected from each command's frontmatter; (2) the deprecated_aliases map below, which IS the explicit exclusion registry -- every command whose frontmatter carries `deprecated: true` MUST appear as a key here (reason: deprecated soft-redirect), or the gate hard-fails. Each family carries lane: start|methodology|explore|view for the renderer text view (--list), which walks all groups.",
+  "_note": "All user-facing commands appear in /mos:help (selector menu). The 11 families below are the real command surface, grouped as a 3-card F-shape selector (Card 1: Start Here / Rooms & Data Room / Frame & Validate / Run a Methodology; Card 2: Explore Futures & Trends / Intelligence & Research / Opportunities Funding & Meetings / Present & Publish; Card 3: Orchestrate & Automate / Memory State & Engine / System & Maintenance). Each family declares a jtbd: [] outcome list (the traceability artifact refined by quick-260705-sd5): every non-deprecated member command's serves_jtbd frontmatter intersects its family's jtbd, machine-enforced by scripts/check-help-coverage.cjs. EXCLUDED, born-listed and machine-checkable by scripts/check-help-coverage.cjs: (1) visibility:admin commands (admin, dogfood-flush), detected from each command's frontmatter; (2) the deprecated_aliases map below, which IS the explicit exclusion registry -- every command whose frontmatter carries `deprecated: true` MUST appear as a key here (reason: deprecated soft-redirect), or the gate hard-fails. Each family carries lane: start|methodology|explore|view for the renderer text view (--list), which walks all groups.",
   "groups": [
     {
       "id": "start-here",
@@ -28,7 +28,8 @@
         "splash",
         "update"
       ],
-      "lane": "start"
+      "lane": "start",
+      "jtbd": ["explore", "build", "audit-room"]
     },
     {
       "id": "rooms-data-room",
@@ -42,13 +43,16 @@
         "status",
         "show",
         "snapshot",
-        "vault"
+        "vault",
+        "grade",
+        "deep-grade"
       ],
-      "lane": "start"
+      "lane": "start",
+      "jtbd": ["audit-room", "prepare-pitch"]
     },
     {
       "id": "frame-the-problem",
-      "label": "Frame the Problem",
+      "label": "Frame & Validate",
       "glyph": "?",
       "commands": [
         "diagnose",
@@ -57,10 +61,13 @@
         "map-unknowns",
         "root-cause",
         "structure-argument",
-        "grade",
-        "deep-grade"
+        "validate",
+        "score-innovation",
+        "analyze-needs",
+        "user-needs"
       ],
-      "lane": "methodology"
+      "lane": "methodology",
+      "jtbd": ["find-problem", "validate-idea", "surface-contradiction", "decide-pursue"]
     },
     {
       "id": "run-a-methodology",
@@ -73,17 +80,11 @@
         "persona",
         "hat-briefing",
         "build-knowledge",
-        "analyze-needs",
-        "user-needs",
-        "validate",
         "value-proposition",
-        "score-innovation",
-        "find-analogies",
-        "systems-thinking",
-        "analyze-systems",
         "leadership"
       ],
-      "lane": "methodology"
+      "lane": "methodology",
+      "jtbd": ["prepare-pitch", "validate-idea", "understand-market", "explore"]
     },
     {
       "id": "explore-futures-trends",
@@ -101,7 +102,8 @@
         "analyze-timing",
         "diffusion"
       ],
-      "lane": "explore"
+      "lane": "explore",
+      "jtbd": ["understand-market", "explore", "plan-execution", "find-problem"]
     },
     {
       "id": "intelligence-research",
@@ -120,9 +122,13 @@
         "rs-explain",
         "rs-fetch",
         "rs-thesis",
-        "bono"
+        "bono",
+        "systems-thinking",
+        "analyze-systems",
+        "find-analogies"
       ],
-      "lane": "explore"
+      "lane": "explore",
+      "jtbd": ["find-bottleneck", "connect-domains", "explore", "decide-pursue", "compare-options", "find-problem"]
     },
     {
       "id": "opportunities-funding-meetings",
@@ -136,7 +142,8 @@
         "reanalyze",
         "speakers"
       ],
-      "lane": "explore"
+      "lane": "explore",
+      "jtbd": ["explore", "file-meeting", "decide-pursue"]
     },
     {
       "id": "present-publish",
@@ -149,7 +156,8 @@
         "deck",
         "radar"
       ],
-      "lane": "view"
+      "lane": "view",
+      "jtbd": ["prepare-pitch", "understand-market"]
     },
     {
       "id": "orchestrate-automate",
@@ -161,7 +169,8 @@
         "suggest-next",
         "scheduled-tasks"
       ],
-      "lane": "explore"
+      "lane": "explore",
+      "jtbd": ["plan-execution"]
     },
     {
       "id": "memory-state-engine",
@@ -184,7 +193,8 @@
         "feynman-timeline-refresh",
         "correct-reference-now"
       ],
-      "lane": "view"
+      "lane": "view",
+      "jtbd": ["audit-room", "navigate", "explore", "compare-options", "temporal-correction"]
     },
     {
       "id": "system-maintenance",
@@ -199,7 +209,8 @@
         "ingest-methodology",
         "auto-explore"
       ],
-      "lane": "view"
+      "lane": "view",
+      "jtbd": ["audit-room", "explore", "build"]
     }
   ],
   "deprecated_aliases": {

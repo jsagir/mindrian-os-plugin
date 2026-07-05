@@ -56,6 +56,34 @@ function parseFrontmatter(text) {
   return out;
 }
 
+// Parse serves_jtbd from a command's frontmatter as an array of tag strings.
+// Handles both the inline form (serves_jtbd: ["a", "b"]) and the YAML block
+// form (serves_jtbd:\n  - a\n  - b). Returns [] when the key is absent so the
+// coherence check can distinguish "no tags" (a hard fail inside a group) from a
+// legitimate tag set.
+function parseServesJtbd(text) {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) return [];
+  const fm = m[1];
+  const inline = fm.match(/^serves_jtbd:\s*\[([^\]]*)\]/m);
+  if (inline) {
+    return inline[1]
+      .split(',')
+      .map((s) => s.trim().replace(/^["']|["']$/g, ''))
+      .filter(Boolean);
+  }
+  const block = fm.match(/^serves_jtbd:\s*\n((?:[ \t]*-[ \t]*.+\n?)+)/m);
+  if (block) {
+    return block[1]
+      .split('\n')
+      .map((l) => l.match(/^[ \t]*-[ \t]*(.+?)\s*$/))
+      .filter(Boolean)
+      .map((x) => x[1].trim().replace(/^["']|["']$/g, ''))
+      .filter(Boolean);
+  }
+  return [];
+}
+
 // check(opts) -- opts.commandsDir + opts.groupsPath default to the live repo
 // paths, and are overridable so a test can point the SAME logic at an isolated
 // fixture tree (Part 7 -- one gate, exercised over fixtures, never a fork).
@@ -72,6 +100,9 @@ function check(opts) {
       unlisted_deprecated: [],
       deprecated_in_groups: [],
       orphan_excluded: [],
+      jtbd_missing_declaration: [],
+      jtbd_unknown_tag: [],
+      jtbd_incoherent: [],
       fatal: 'data/help-groups.json not found',
     };
   }
@@ -93,6 +124,13 @@ function check(opts) {
   const unlisted_deprecated = [];
   const deprecated_in_groups = [];
 
+  // Per-command metadata + the run-time JTBD vocabulary (union of every
+  // non-admin command's serves_jtbd read from disk -- never a frozen literal,
+  // so a drifted edit cannot silently satisfy the vocab check).
+  const servesByName = new Map(); // name -> string[] (non-admin commands)
+  const metaByName = new Map(); // name -> { admin, deprecated }
+  const vocab = new Set();
+
   for (const f of files) {
     const name = f.replace(/\.md$/, '');
     const text = fs.readFileSync(path.join(commandsDir, f), 'utf8');
@@ -100,6 +138,13 @@ function check(opts) {
     if (!fm || !fm.help_jtbd) missing_help_jtbd.push(f);
     const visibility = (fm && fm.visibility) || 'user';
     const isDeprecated = !!(fm && String(fm.deprecated).trim() === 'true');
+
+    metaByName.set(name, { admin: visibility === 'admin', deprecated: isDeprecated });
+    if (visibility !== 'admin') {
+      const serves = parseServesJtbd(text);
+      servesByName.set(name, serves);
+      for (const t of serves) vocab.add(t);
+    }
 
     // Admin surfaces are excluded by frontmatter; nothing more to check.
     if (visibility === 'admin') continue;
@@ -127,13 +172,53 @@ function check(opts) {
     if (!fileNames.has(excluded)) orphan_excluded.push(excluded);
   }
 
+  // --- Family-JTBD coherence gate (quick-260705-sd5) -----------------------
+  // Makes every family's membership traceable to a coherent JTBD outcome and a
+  // standing CI gate, so the map cannot drift back into vibes-based grouping:
+  //   (1) every group MUST declare a non-empty jtbd array (jtbd_missing_declaration).
+  //   (2) every declared jtbd tag MUST be in the run-time vocabulary built
+  //       above (jtbd_unknown_tag) -- vocab is the disk union, never a literal.
+  //   (3) every non-admin, non-deprecated member command's serves_jtbd MUST
+  //       intersect its family's jtbd (jtbd_incoherent); a member command with
+  //       NO serves_jtbd at all is a hard fail here too (this makes the missing
+  //       -tag gap class unrepresentable in the future).
+  // Admin + deprecated + orphan members are handled by the membership checks
+  // above; they are skipped here so a single command is never double-reported.
+  const jtbd_missing_declaration = [];
+  const jtbd_unknown_tag = [];
+  const jtbd_incoherent = [];
+  for (const g of groups.groups) {
+    const declared = Array.isArray(g.jtbd) ? g.jtbd : null;
+    if (!declared || declared.length === 0) {
+      jtbd_missing_declaration.push(g.id);
+      continue;
+    }
+    for (const tag of declared) {
+      if (!vocab.has(tag)) jtbd_unknown_tag.push(g.id + ':' + tag);
+    }
+    for (const c of g.commands) {
+      const meta = metaByName.get(c);
+      if (!meta || meta.admin || meta.deprecated) continue;
+      const serves = servesByName.get(c) || [];
+      if (serves.length === 0 || !serves.some((t) => declared.includes(t))) {
+        jtbd_incoherent.push(
+          c + ' [' + serves.join(',') + '] does not intersect ' +
+            g.id + ' [' + declared.join(',') + ']'
+        );
+      }
+    }
+  }
+
   const valid =
     missing_help_jtbd.length === 0 &&
     missing_from_groups.length === 0 &&
     orphan_in_groups.length === 0 &&
     unlisted_deprecated.length === 0 &&
     deprecated_in_groups.length === 0 &&
-    orphan_excluded.length === 0;
+    orphan_excluded.length === 0 &&
+    jtbd_missing_declaration.length === 0 &&
+    jtbd_unknown_tag.length === 0 &&
+    jtbd_incoherent.length === 0;
 
   return {
     valid,
@@ -143,6 +228,9 @@ function check(opts) {
     unlisted_deprecated,
     deprecated_in_groups,
     orphan_excluded,
+    jtbd_missing_declaration,
+    jtbd_unknown_tag,
+    jtbd_incoherent,
   };
 }
 
@@ -179,6 +267,19 @@ function main() {
       console.error(
         '  ORPHAN in deprecated_aliases (no command file): ' + c
       );
+    }
+    for (const c of result.jtbd_missing_declaration || []) {
+      console.error(
+        '  MISSING jtbd declaration on group (add a non-empty jtbd list): ' + c
+      );
+    }
+    for (const c of result.jtbd_unknown_tag || []) {
+      console.error(
+        '  UNKNOWN jtbd tag (not in the disk vocabulary): ' + c
+      );
+    }
+    for (const c of result.jtbd_incoherent || []) {
+      console.error('  INCOHERENT family membership: ' + c);
     }
   }
   process.exit(result.valid ? 0 : 1);

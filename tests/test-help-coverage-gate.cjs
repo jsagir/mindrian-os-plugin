@@ -27,6 +27,17 @@
  *   6. WIRING: scripts/install-pre-commit.sh wires the gate (idempotency grep +
  *      a guard block gated on commands/*.md or data/help-groups.json).
  *
+ * quick-260705-sd5 adds the family-JTBD coherence class (each family declares a
+ * jtbd outcome list; every member's serves_jtbd must intersect it):
+ *
+ *   7. RED (jtbd_incoherent): a member whose serves_jtbd shares nothing with its
+ *      family's declared jtbd is caught.
+ *   8. RED (jtbd_incoherent): a member with NO serves_jtbd at all is caught (the
+ *      Task 1 gap class, now unrepresentable).
+ *   9. RED (jtbd_missing_declaration): a family with no jtbd list is caught.
+ *  10. RED (jtbd_unknown_tag): a family jtbd tag outside the run-time disk
+ *      vocabulary (never a frozen literal) is caught.
+ *
  * The RED cases run the SAME shipped check() over an isolated fixture tree
  * (check({commandsDir, groupsPath})) -- one gate, exercised over fixtures, never
  * a fork (Canon Part 7). Mirrors the CJS pass/failTest counter pattern used by
@@ -74,12 +85,14 @@ function cleanup(fx) { fs.rmSync(fx.root, { recursive: true, force: true }); }
 // one admin command, one deprecated command listed in the exclusion registry.
 function baseline() {
   const cmds = {
-    alpha: { help_jtbd: '"Do alpha."' },
+    alpha: { help_jtbd: '"Do alpha."', serves_jtbd: '["explore"]' },
     admin: { visibility: 'admin', help_jtbd: '"Admin only."' },
     oldcmd: { deprecated: 'true', help_jtbd: '"Old (deprecated)."' },
   };
   const groups = {
-    groups: [{ id: 'g1', label: 'G1', commands: ['alpha'], lane: 'start' }],
+    groups: [
+      { id: 'g1', label: 'G1', commands: ['alpha'], lane: 'start', jtbd: ['explore'] },
+    ],
     deprecated_aliases: { _note: 'registry', oldcmd: 'alpha' },
   };
   return { cmds, groups };
@@ -183,6 +196,70 @@ try {
     'installer gates the check on staged commands/*.md or data/help-groups.json');
   pass('Test 7 (install-pre-commit.sh wires the help-coverage gate)');
 } catch (err) { failTest('Test 7 (pre-commit wiring)', err); }
+
+// --- Test 8: RED (jtbd_incoherent) -- member shares no JTBD with its family
+// quick-260705-sd5 coherence gate: a command placed in a family whose
+// serves_jtbd intersects nothing in the family's declared jtbd is caught.
+try {
+  const { cmds, groups } = baseline();
+  cmds.gamma = { help_jtbd: '"Do gamma."', serves_jtbd: '["build"]' };
+  groups.groups[0].commands.push('gamma'); // g1.jtbd=[explore], gamma serves [build]
+  const fx = makeFixture(cmds, groups);
+  try {
+    const r = check({ commandsDir: fx.commandsDir, groupsPath: fx.groupsPath });
+    assert.strictEqual(r.valid, false, 'gate fails when a member shares no JTBD with its family');
+    assert.ok(r.jtbd_incoherent.some((s) => s.startsWith('gamma ')),
+      'gamma is reported jtbd_incoherent; got ' + JSON.stringify(r.jtbd_incoherent));
+  } finally { cleanup(fx); }
+  pass('Test 8 (RED: family member sharing no JTBD with its family is caught)');
+} catch (err) { failTest('Test 8 (RED jtbd_incoherent)', err); }
+
+// --- Test 9: RED (jtbd_incoherent) -- member with NO serves_jtbd at all -----
+// This locks the Task 1 gap class (a command with zero serves_jtbd) as a hard
+// fail inside a family, so it can never silently return.
+try {
+  const { cmds, groups } = baseline();
+  cmds.delta = { help_jtbd: '"Do delta."' }; // no serves_jtbd frontmatter at all
+  groups.groups[0].commands.push('delta');
+  const fx = makeFixture(cmds, groups);
+  try {
+    const r = check({ commandsDir: fx.commandsDir, groupsPath: fx.groupsPath });
+    assert.strictEqual(r.valid, false, 'gate fails when a member has no serves_jtbd');
+    assert.ok(r.jtbd_incoherent.some((s) => s.startsWith('delta ')),
+      'delta is reported jtbd_incoherent; got ' + JSON.stringify(r.jtbd_incoherent));
+  } finally { cleanup(fx); }
+  pass('Test 9 (RED: family member with no serves_jtbd is caught)');
+} catch (err) { failTest('Test 9 (RED no serves_jtbd in a group)', err); }
+
+// --- Test 10: RED (jtbd_missing_declaration) -- group with no jtbd list ------
+try {
+  const { cmds, groups } = baseline();
+  delete groups.groups[0].jtbd; // strip the declaration
+  const fx = makeFixture(cmds, groups);
+  try {
+    const r = check({ commandsDir: fx.commandsDir, groupsPath: fx.groupsPath });
+    assert.strictEqual(r.valid, false, 'gate fails when a group declares no jtbd');
+    assert.ok(r.jtbd_missing_declaration.includes('g1'),
+      'g1 is reported jtbd_missing_declaration; got ' + JSON.stringify(r.jtbd_missing_declaration));
+  } finally { cleanup(fx); }
+  pass('Test 10 (RED: group missing its jtbd declaration is caught)');
+} catch (err) { failTest('Test 10 (RED missing jtbd declaration)', err); }
+
+// --- Test 11: RED (jtbd_unknown_tag) -- declared tag absent from disk vocab --
+// The vocabulary is the run-time union of every non-admin command's serves_jtbd,
+// never a frozen literal a drifted edit could silently satisfy (T-sd5-01).
+try {
+  const { cmds, groups } = baseline();
+  groups.groups[0].jtbd = ['not-a-real-tag']; // outside the disk vocabulary
+  const fx = makeFixture(cmds, groups);
+  try {
+    const r = check({ commandsDir: fx.commandsDir, groupsPath: fx.groupsPath });
+    assert.strictEqual(r.valid, false, 'gate fails when a group jtbd tag is outside the vocabulary');
+    assert.ok(r.jtbd_unknown_tag.some((s) => s.includes('not-a-real-tag')),
+      'unknown tag is reported jtbd_unknown_tag; got ' + JSON.stringify(r.jtbd_unknown_tag));
+  } finally { cleanup(fx); }
+  pass('Test 11 (RED: group jtbd tag outside the disk vocabulary is caught)');
+} catch (err) { failTest('Test 11 (RED unknown jtbd tag)', err); }
 
 if (failed > 0) {
   console.log('\n' + failed + ' test(s) FAILED (' + passed + ' passed)');
