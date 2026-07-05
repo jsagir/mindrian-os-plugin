@@ -2596,16 +2596,106 @@
       "name": "MOSDeckEngine"
     },
     {
+      "id": "skill:act",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "act"
+    },
+    {
+      "id": "skill:admin",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "admin"
+    },
+    {
+      "id": "skill:agentshield",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "agentshield"
+    },
+    {
+      "id": "skill:analyze-needs",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "analyze-needs"
+    },
+    {
+      "id": "skill:analyze-systems",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "analyze-systems"
+    },
+    {
+      "id": "skill:analyze-timing",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "analyze-timing"
+    },
+    {
+      "id": "skill:auto-explore",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "auto-explore"
+    },
+    {
+      "id": "skill:beautiful-question",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "beautiful-question"
+    },
+    {
+      "id": "skill:bono",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "bono"
+    },
+    {
       "id": "skill:brain-connector",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "brain-connector"
     },
     {
+      "id": "skill:brain-derive",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "brain-derive"
+    },
+    {
+      "id": "skill:build-knowledge",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "build-knowledge"
+    },
+    {
+      "id": "skill:build-thesis",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "build-thesis"
+    },
+    {
+      "id": "skill:causal",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "causal"
+    },
+    {
+      "id": "skill:challenge-assumptions",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "challenge-assumptions"
+    },
+    {
       "id": "skill:client-discovery-interview",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "client-discovery-interview"
+    },
+    {
+      "id": "skill:compare-ventures",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "compare-ventures"
     },
     {
       "id": "skill:context-engine",
@@ -2620,10 +2710,196 @@
       "name": "conversation-mode"
     },
     {
+      "id": "skill:correct-reference-now",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "correct-reference-now"
+    },
+    {
+      "id": "skill:dashboard",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "dashboard"
+    },
+    {
+      "id": "skill:deck",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "deck"
+    },
+    {
+      "id": "skill:deep-grade",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "deep-grade"
+    },
+    {
+      "id": "skill:diagnose",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "diagnose"
+    },
+    {
+      "id": "skill:diagnostics",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "diagnostics"
+    },
+    {
+      "id": "skill:dial-memory-refresh",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "dial-memory-refresh"
+    },
+    {
+      "id": "skill:diffusion",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "diffusion"
+    },
+    {
+      "id": "skill:discover",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "discover"
+    },
+    {
+      "id": "skill:doctor",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "doctor"
+    },
+    {
+      "id": "skill:dogfood-flush",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "dogfood-flush"
+    },
+    {
+      "id": "skill:dominant-designs",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "dominant-designs"
+    },
+    {
+      "id": "skill:explain-decision",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "explain-decision"
+    },
+    {
+      "id": "skill:explore-domains",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "explore-domains"
+    },
+    {
+      "id": "skill:explore-futures",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "explore-futures"
+    },
+    {
+      "id": "skill:explore-trends",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "explore-trends"
+    },
+    {
+      "id": "skill:export",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "export"
+    },
+    {
+      "id": "skill:feynman-timeline-refresh",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "feynman-timeline-refresh"
+    },
+    {
+      "id": "skill:file-meeting",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "file-meeting"
+    },
+    {
+      "id": "skill:find-analogies",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "find-analogies"
+    },
+    {
+      "id": "skill:find-bottlenecks",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "find-bottlenecks"
+    },
+    {
+      "id": "skill:find-connections",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "find-connections"
+    },
+    {
+      "id": "skill:funding",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "funding"
+    },
+    {
+      "id": "skill:futures",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "futures"
+    },
+    {
+      "id": "skill:grade",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "grade"
+    },
+    {
+      "id": "skill:graph",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "graph"
+    },
+    {
+      "id": "skill:hat-briefing",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "hat-briefing"
+    },
+    {
+      "id": "skill:heal",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "heal"
+    },
+    {
       "id": "skill:help",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "help"
+    },
+    {
+      "id": "skill:hmi-status",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "hmi-status"
+    },
+    {
+      "id": "skill:ignite",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "ignite"
+    },
+    {
+      "id": "skill:ingest-methodology",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "ingest-methodology"
     },
     {
       "id": "skill:intelligence-orchestrator",
@@ -2632,10 +2908,76 @@
       "name": "intelligence-orchestrator"
     },
     {
+      "id": "skill:jtbd",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "jtbd"
+    },
+    {
       "id": "skill:larry-personality",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "larry-personality"
+    },
+    {
+      "id": "skill:leadership",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "leadership"
+    },
+    {
+      "id": "skill:lean-canvas",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "lean-canvas"
+    },
+    {
+      "id": "skill:macro-trends",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "macro-trends"
+    },
+    {
+      "id": "skill:map-unknowns",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "map-unknowns"
+    },
+    {
+      "id": "skill:memory",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "memory"
+    },
+    {
+      "id": "skill:memory-cortex-reach",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "memory-cortex-reach"
+    },
+    {
+      "id": "skill:models",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "models"
+    },
+    {
+      "id": "skill:mos",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "mos"
+    },
+    {
+      "id": "skill:mos-reason",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "mos-reason"
+    },
+    {
+      "id": "skill:mullins",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "mullins"
     },
     {
       "id": "skill:mullins-scaffold",
@@ -2644,16 +2986,124 @@
       "name": "mullins-scaffold"
     },
     {
+      "id": "skill:mva-brief",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "mva-brief"
+    },
+    {
+      "id": "skill:mva-option",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "mva-option"
+    },
+    {
       "id": "skill:mva-pipeline",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "mva-pipeline"
     },
     {
+      "id": "skill:mva-report",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "mva-report"
+    },
+    {
+      "id": "skill:new-project",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "new-project"
+    },
+    {
+      "id": "skill:new-surface",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "new-surface"
+    },
+    {
+      "id": "skill:onboard",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "onboard"
+    },
+    {
+      "id": "skill:operator",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "operator"
+    },
+    {
+      "id": "skill:opportunities",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "opportunities"
+    },
+    {
+      "id": "skill:organize",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "organize"
+    },
+    {
+      "id": "skill:persona",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "persona"
+    },
+    {
+      "id": "skill:pipeline",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "pipeline"
+    },
+    {
+      "id": "skill:present",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "present"
+    },
+    {
+      "id": "skill:publish",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "publish"
+    },
+    {
       "id": "skill:pws-methodology",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "pws-methodology"
+    },
+    {
+      "id": "skill:query",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "query"
+    },
+    {
+      "id": "skill:radar",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "radar"
+    },
+    {
+      "id": "skill:reanalyze",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "reanalyze"
+    },
+    {
+      "id": "skill:research",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "research"
+    },
+    {
+      "id": "skill:room",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "room"
     },
     {
       "id": "skill:room-passive",
@@ -2668,6 +3118,138 @@
       "name": "room-proactive"
     },
     {
+      "id": "skill:rooms",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "rooms"
+    },
+    {
+      "id": "skill:root-cause",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "root-cause"
+    },
+    {
+      "id": "skill:rs-experts",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "rs-experts"
+    },
+    {
+      "id": "skill:rs-explain",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "rs-explain"
+    },
+    {
+      "id": "skill:rs-fetch",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "rs-fetch"
+    },
+    {
+      "id": "skill:rs-thesis",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "rs-thesis"
+    },
+    {
+      "id": "skill:scenario-plan",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "scenario-plan"
+    },
+    {
+      "id": "skill:scheduled-tasks",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "scheduled-tasks"
+    },
+    {
+      "id": "skill:score-innovation",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "score-innovation"
+    },
+    {
+      "id": "skill:scout",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "scout"
+    },
+    {
+      "id": "skill:setup",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "setup"
+    },
+    {
+      "id": "skill:show",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "show"
+    },
+    {
+      "id": "skill:skill",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "skill"
+    },
+    {
+      "id": "skill:snapshot",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "snapshot"
+    },
+    {
+      "id": "skill:speakers",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "speakers"
+    },
+    {
+      "id": "skill:splash",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "splash"
+    },
+    {
+      "id": "skill:stance",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "stance"
+    },
+    {
+      "id": "skill:status",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "status"
+    },
+    {
+      "id": "skill:structure-argument",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "structure-argument"
+    },
+    {
+      "id": "skill:suggest-next",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "suggest-next"
+    },
+    {
+      "id": "skill:systems-thinking",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "systems-thinking"
+    },
+    {
+      "id": "skill:think-hats",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "think-hats"
+    },
+    {
       "id": "skill:trending-to-absurd",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -2678,6 +3260,54 @@
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "ui-system"
+    },
+    {
+      "id": "skill:update",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "update"
+    },
+    {
+      "id": "skill:user-needs",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "user-needs"
+    },
+    {
+      "id": "skill:validate",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "validate"
+    },
+    {
+      "id": "skill:value-proposition",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "value-proposition"
+    },
+    {
+      "id": "skill:vault",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "vault"
+    },
+    {
+      "id": "skill:visualize",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "visualize"
+    },
+    {
+      "id": "skill:whitespace",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "whitespace"
+    },
+    {
+      "id": "skill:wiki",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "wiki"
     },
     {
       "id": "agent:brain-query",
