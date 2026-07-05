@@ -184,8 +184,79 @@ async function main() {
   process.exit(0);
 }
 
-// Placeholder; real hybrid tests are wired in Task 2. Defined here so the RED
-// run for Task 1 exercises only Tests 1-5.
-async function hybridTests() { /* Task 2 fills this in */ }
+// Task 2: hybrid retrieve (RRF fusion + FlashRank-model rerank). Requires
+// hybrid-retrieve lazily so Task 1 can run before that module exists.
+async function hybridTests(ctx) {
+  const hybrid = require('../lib/core/eureka/hybrid-retrieve.cjs');
+  const { makeFixtureDb, cleanup, stubEncode, test, tri } = ctx;
+
+  // ----- Test 6: rrfFuse ranking + exact formula + env clamp -----
+  await test('Test 6: rrfFuse ranks the shared doc first, exact 1/(k+rank) formula, env clamp', function () {
+    const fused = hybrid.rrfFuse([[{ id: 'a' }, { id: 'b' }], [{ id: 'b' }, { id: 'c' }]], 25);
+    assert.strictEqual(fused[0].node_id, 'b', 'b (in both lists) ranks first');
+    const expectedB = 1 / (25 + 2) + 1 / (25 + 1);
+    assert.ok(Math.abs(fused[0].rrf_score - expectedB) < 1e-9, 'exact RRF score for b');
+    const a = fused.find(function (r) { return r.node_id === 'a'; });
+    assert.ok(Math.abs(a.rrf_score - 1 / (25 + 1)) < 1e-9, 'exact RRF score for a');
+    // env clamp: invalid EUREKA_RRF_K falls back to 25
+    const prev = process.env.EUREKA_RRF_K;
+    process.env.EUREKA_RRF_K = 'not-a-number';
+    assert.strictEqual(hybrid._test.resolveRrfK(), 25, 'invalid env clamps to 25');
+    process.env.EUREKA_RRF_K = '40';
+    assert.strictEqual(hybrid._test.resolveRrfK(), 40, 'valid env honored');
+    if (prev === undefined) { delete process.env.EUREKA_RRF_K; } else { process.env.EUREKA_RRF_K = prev; }
+  });
+
+  // ----- Test 7: hybridRetrieve fuses both legs; degrades to lexical-only -----
+  await test('Test 7: hybridRetrieve fuses lexical+vector; encoder-unavailable -> lexical-only warning', async function () {
+    const f = makeFixtureDb();
+    try {
+      await tri.indexNodes(f.db, { encodeFn: stubEncode });
+      const out = await hybrid.hybridRetrieve(f.db, 'circadian', { encodeFn: stubEncode, k: 3 });
+      assert.ok(Array.isArray(out.results) && out.results.length >= 1, 'fused results returned');
+      out.results.forEach(function (r) {
+        assert.ok(typeof r.node_id === 'string', 'result has node_id');
+        assert.ok(typeof r.rrf_score === 'number', 'result has rrf_score');
+        assert.ok(Array.isArray(r.sources), 'result has sources array');
+      });
+      const n1 = out.results.find(function (r) { return r.node_id === 'n1'; });
+      assert.ok(n1, 'n1 (the circadian node) is in the fused set');
+      assert.ok(n1.sources.indexOf('lexical') !== -1 && n1.sources.indexOf('vector') !== -1,
+        'n1 fused from both legs');
+      assert.ok(!out.warning, 'no warning when both legs live');
+
+      // degrade: encoder unavailable -> lexical-only, warning, never throws
+      const deg = await hybrid.hybridRetrieve(f.db, 'circadian', { _forceUnavailable: true, k: 3 });
+      assert.strictEqual(deg.warning, 'vector_leg_unavailable', 'degradation warning set');
+      assert.ok(Array.isArray(deg.results) && deg.results.length >= 1, 'lexical results still returned');
+      deg.results.forEach(function (r) {
+        assert.deepStrictEqual(r.sources, ['lexical'], 'degraded results are lexical-only');
+      });
+    } finally {
+      cleanup(f);
+    }
+  });
+
+  // ----- Test 8: rerank reorders by stub; unavailable -> unchanged + warning -----
+  await test('Test 8: rerank reorders by rerankFn; model-unavailable returns input order with warning', async function () {
+    const candidates = [
+      { node_id: 'x', text: 'a distant unrelated candidate' },
+      { node_id: 'y', text: 'the exact relevant answer' },
+    ];
+    const stubRerank = function (query, cands) {
+      return cands.map(function (c) { return c.text.indexOf('relevant') !== -1 ? 0.95 : 0.05; });
+    };
+    const ranked = await hybrid.rerank('the relevant question', candidates, { rerankFn: stubRerank });
+    assert.strictEqual(ranked.results[0].node_id, 'y', 'higher-scored candidate first');
+    assert.ok(typeof ranked.results[0].rerank_score === 'number', 'rerank_score attached');
+    assert.ok(!ranked.warning, 'no warning on the injection path');
+
+    // no rerankFn + transformers not installed -> unchanged order + warning
+    const un = await hybrid.rerank('q', candidates, {});
+    assert.strictEqual(un.warning, 'rerank_unavailable', 'rerank_unavailable warning');
+    assert.strictEqual(un.results[0].node_id, 'x', 'input order preserved on failure');
+    assert.strictEqual(un.results[1].node_id, 'y', 'input order preserved on failure');
+  });
+}
 
 main();
