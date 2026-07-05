@@ -26,7 +26,7 @@ Two independent findings in `scripts/check-card-fire.cjs` (the Stop-hook that fo
 1. **Finding 1 (confirmed root cause, high-confidence fix):** the intercept branch of `buildEnforcementEnvelope()` (line ~505-524) sets `reason` to the raw internal classification slug (e.g. `ascii-box-backstop-no-card`) and never sets `systemMessage`. Claude Code surfaces a `decision:'block'` envelope's `reason` to the user as "Stop hook error" / "Stop hook feedback" when no `systemMessage` override is present, so an internal telemetry slug lands on the user's screen looking like a crash, even though the hook is working exactly as designed (it IS supposed to block and re-prompt the model to fire the card).
 2. **Finding 2 (behavioral threshold, LOW confidence on fix direction, needs a navigator decision, not just a patch):** the backstop's gate-detection intercepts a plain binary yes/no closer ("Want those?") the same way it intercepts a genuine multi-option fork. The two existing pass-reasons (`gate-already-answered`, `gate-irrelevant-to-turn`, lines ~478-482 in `classifyCardFire()`) do not exempt a simple binary. Whether this is a bug (binary closers should never require a card) or working-as-designed (SEED-021: forks belong in cards, so this is correctly training the model away from prose-forced yes/no offers) is a genuine product-behavior call, not something to patch on inspection alone.
 
-next_action: implement Finding 1's fix (clear, scoped, high-confidence) via a `/gsd-quick` pass; get the navigator's decision on Finding 2 before touching `classifyCardFire()`'s pass-reasons.
+next_action: navigator decided Finding 2 (2026-07-05): EXEMPT binary yes/no closers via a new pass-reason (`gate-is-simple-binary`), same shape as `gate-already-answered`/`gate-irrelevant-to-turn`. Implement both Finding 1 and Finding 2 together via a single `/gsd-quick` pass.
 
 ## Meta
 
@@ -75,10 +75,9 @@ started: observed 2026-07-05, on v1.15.3-beta.3 (current HEAD) -- not yet confir
 - Change: add a `systemMessage` key to the `raw` object on this branch (e.g. `systemMessage: 'Re-rendering your choices as a selectable card...'`), keeping `reason` (the slug) as-is for logs/telemetry but no longer the only human-facing text. `systemMessage` is already in `ALLOWED_ENVELOPE_KEYS` (confirmed present, ~line 242-249) so the envelope-schema allowlist needs no change -- this key is already permitted, just unused on this code path.
 - Do NOT touch the `degrade` branch or the `neither` (else) branch -- both already use `suppressOutput: true` correctly and are not implicated in either finding.
 
-## Required Code Changes (Finding 2 -- PENDING navigator decision, do not implement yet)
+## Required Code Changes (Finding 2 -- DECIDED 2026-07-05: exempt binaries)
 
-- IF the navigator decides binary yes/no closers should be exempt: add a new pass-reason in `classifyCardFire()` alongside `gate-already-answered` / `gate-irrelevant-to-turn` (~line 478-482), e.g. `gate-is-simple-binary`, that detects a 2-option (not 3+) closer and returns `{ intercept: false, reason: 'gate-is-simple-binary', degrade: false }`.
-- IF the navigator decides the hook is correct and the model's own behavior should change instead: no code change here -- the fix is in `agents/larry-extended.md` / `skills/ui-system/SKILL.md`'s existing SEED-021 guidance (already present per the gate-native-fire-w1 work), reinforcing that even binary offers should fire as a 2-option `AskUserQuestion` card, not prose.
+Navigator decision: simple binary (2-option) yes/no closers are EXEMPT from the card-fire requirement; the hook should only intercept genuine 3+-option forks. Add a new pass-reason in `classifyCardFire()` alongside `gate-already-answered` / `gate-irrelevant-to-turn` (~line 478-482), e.g. `gate-is-simple-binary`, that detects a 2-option (not 3+) closer and returns `{ intercept: false, reason: 'gate-is-simple-binary', degrade: false }`. Detection approach: reuse `gateRelevance.extractOptionLabels(outputText)` (already called just above this point for `gateLabels`) and check `gateLabels.length === 2` (or `<= 2`) before falling through to the existing intercept -- do not build a new option-extraction path, the labels are already extracted at this point in the function.
 
 ## Tests
 
