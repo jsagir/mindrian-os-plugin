@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.7 (in progress)
+## [1.15.3-beta.8] - 2026-07-05
 
 ### Added
 - **JTBD-driven regroup of the 11 `/mos:help` families** (refines the beta.6 3-card selector, not a redesign). Every family's membership is now traceable to a coherent Jobs-To-Be-Done outcome instead of ad-hoc navigational grouping: filled the 2 missing `serves_jtbd` tags (`ingest-methodology`, `stance`), reassigned 9 commands across 3 JTBD-coherent moves, renamed `frame-the-problem` to "Frame & Validate", and gave every family an explicit `jtbd: []` declaration. `scripts/check-help-coverage.cjs` now permanently machine-enforces this coherence (new `jtbd_missing_declaration` / `jtbd_unknown_tag` / `jtbd_incoherent` checks, vocabulary enumerated from disk) so the map can't silently drift back into vibes-based grouping.
