@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "phase": "20260702-help-coverage-gate",
+  "phase": "quick-260705-jeq",
   "canon_parts": [
     "Part 3",
     "Part 7",
@@ -11,193 +11,193 @@
     "D-06",
     "D-07"
   ],
-  "_note": "All user-facing commands appear in /mos:help (selector menu). EXCLUDED, born-listed and machine-checkable by scripts/check-help-coverage.cjs: (1) visibility:admin commands (admin, dogfood-flush), detected from each command's frontmatter; (2) the deprecated_aliases map below, which IS the explicit exclusion registry -- every command whose frontmatter carries `deprecated: true` MUST appear as a key here (reason: deprecated soft-redirect), or the gate hard-fails. Each group carries lane: start|methodology|explore|view for the Level-1 selector; the renderer text view (--list) walks all groups.",
+  "_note": "All user-facing commands appear in /mos:help (selector menu). The 11 families below are the real command surface, grouped as a 3-card F-shape selector (Card 1: Start Here / Rooms & Data Room / Frame the Problem / Run a Methodology; Card 2: Explore Futures & Trends / Intelligence & Research / Opportunities Funding & Meetings / Present & Publish; Card 3: Orchestrate & Automate / Memory State & Engine / System & Maintenance). EXCLUDED, born-listed and machine-checkable by scripts/check-help-coverage.cjs: (1) visibility:admin commands (admin, dogfood-flush), detected from each command's frontmatter; (2) the deprecated_aliases map below, which IS the explicit exclusion registry -- every command whose frontmatter carries `deprecated: true` MUST appear as a key here (reason: deprecated soft-redirect), or the gate hard-fails. Each family carries lane: start|methodology|explore|view for the renderer text view (--list), which walks all groups.",
   "groups": [
     {
-      "id": "getting-started",
-      "label": "Getting Started",
+      "id": "start-here",
+      "label": "Start Here",
       "glyph": "▶",
       "commands": [
+        "onboard",
         "ignite",
         "new-project",
-        "onboard",
-        "splash",
         "discover",
-        "help",
-        "rooms",
-        "room",
         "mos",
-        "stance"
+        "help",
+        "setup",
+        "splash",
+        "update"
       ],
       "lane": "start"
     },
     {
-      "id": "problem-discovery",
-      "label": "Problem Discovery",
+      "id": "rooms-data-room",
+      "label": "Rooms & Data Room",
+      "glyph": "⬡",
+      "commands": [
+        "room",
+        "rooms",
+        "dashboard",
+        "wiki",
+        "status",
+        "show",
+        "snapshot",
+        "vault"
+      ],
+      "lane": "start"
+    },
+    {
+      "id": "frame-the-problem",
+      "label": "Frame the Problem",
       "glyph": "?",
       "commands": [
+        "diagnose",
         "beautiful-question",
-        "root-cause",
-        "user-needs",
-        "analyze-needs",
-        "map-unknowns",
         "challenge-assumptions",
-        "jtbd"
+        "map-unknowns",
+        "root-cause",
+        "structure-argument",
+        "grade",
+        "deep-grade"
       ],
       "lane": "methodology"
     },
     {
-      "id": "structured-thinking",
-      "label": "Structured Thinking",
+      "id": "run-a-methodology",
+      "label": "Run a Methodology",
       "glyph": "□",
       "commands": [
-        "structure-argument",
         "lean-canvas",
-        "value-proposition",
         "mullins",
-        "build-thesis",
-        "mva-brief",
-        "mva-option",
-        "mos-reason"
-      ],
-      "lane": "methodology"
-    },
-    {
-      "id": "perspectives",
-      "label": "Perspectives + Creativity",
-      "glyph": "◆",
-      "commands": [
         "think-hats",
-        "hat-briefing",
         "persona",
-        "scenario-plan",
-        "compare-ventures",
+        "hat-briefing",
+        "build-knowledge",
+        "analyze-needs",
+        "user-needs",
+        "validate",
+        "value-proposition",
+        "score-innovation",
+        "find-analogies",
+        "systems-thinking",
+        "analyze-systems",
         "leadership"
       ],
       "lane": "methodology"
     },
     {
-      "id": "intelligence-brain",
-      "label": "Intelligence + Brain",
-      "glyph": "⚡",
+      "id": "explore-futures-trends",
+      "label": "Explore Futures & Trends",
+      "glyph": "↗",
       "commands": [
-        "brain-derive",
-        "find-analogies",
-        "find-bottlenecks",
-        "find-connections",
-        "rs-fetch",
-        "rs-thesis",
-        "rs-experts",
-        "rs-explain",
-        "diagnostics",
-        "score-innovation",
-        "whitespace",
         "explore-domains",
-        "explore-trends",
         "explore-futures",
-        "macro-trends",
-        "dominant-designs",
-        "models",
-        "systems-thinking",
-        "analyze-systems",
-        "analyze-timing",
-        "causal",
-        "auto-explore",
-        "memory",
-        "memory-cortex-reach",
-        "bono",
-        "diffusion",
+        "explore-trends",
+        "scenario-plan",
         "futures",
         "trending-to-absurd",
-        "skill"
+        "macro-trends",
+        "dominant-designs",
+        "analyze-timing",
+        "diffusion"
       ],
       "lane": "explore"
     },
     {
-      "id": "working",
-      "label": "Working",
-      "glyph": "▸",
+      "id": "intelligence-research",
+      "label": "Intelligence & Research",
+      "glyph": "⚡",
       "commands": [
-        "act",
-        "file-meeting",
-        "pipeline",
         "research",
-        "validate",
-        "operator",
-        "feynman-timeline-refresh",
-        "dial-memory-refresh",
+        "find-connections",
+        "build-thesis",
+        "compare-ventures",
+        "whitespace",
+        "causal",
         "graph",
-        "suggest-next",
-        "explain-decision",
-        "scout",
-        "speakers",
-        "opportunities",
-        "funding"
+        "find-bottlenecks",
+        "rs-experts",
+        "rs-explain",
+        "rs-fetch",
+        "rs-thesis",
+        "bono"
       ],
       "lane": "explore"
     },
     {
-      "id": "reviewing",
-      "label": "Reviewing",
-      "glyph": "✓",
+      "id": "opportunities-funding-meetings",
+      "label": "Opportunities, Funding & Meetings",
+      "glyph": "◆",
       "commands": [
-        "status",
-        "diagnose",
-        "radar",
-        "grade",
-        "deep-grade",
+        "opportunities",
+        "funding",
+        "scout",
+        "file-meeting",
         "reanalyze",
-        "mva-report"
+        "speakers"
       ],
-      "lane": "view"
+      "lane": "explore"
     },
     {
-      "id": "export",
-      "label": "Export",
+      "id": "present-publish",
+      "label": "Present & Publish",
       "glyph": "↓",
       "commands": [
         "export",
-        "vault",
-        "snapshot"
-      ],
-      "lane": "view"
-    },
-    {
-      "id": "publish",
-      "label": "Publish",
-      "glyph": "↗",
-      "commands": [
-        "publish",
         "present",
+        "publish",
         "deck",
-        "show"
+        "radar"
       ],
       "lane": "view"
     },
     {
-      "id": "hub",
-      "label": "Hub",
-      "glyph": "⬡",
+      "id": "orchestrate-automate",
+      "label": "Orchestrate & Automate",
+      "glyph": "▸",
       "commands": [
-        "dashboard",
-        "wiki",
+        "act",
+        "pipeline",
+        "suggest-next",
         "scheduled-tasks"
       ],
+      "lane": "explore"
+    },
+    {
+      "id": "memory-state-engine",
+      "label": "Memory, State & Engine",
+      "glyph": "✓",
+      "commands": [
+        "memory",
+        "memory-cortex-reach",
+        "jtbd",
+        "operator",
+        "stance",
+        "explain-decision",
+        "models",
+        "mva-brief",
+        "mva-option",
+        "mva-report",
+        "mos-reason",
+        "brain-derive",
+        "dial-memory-refresh",
+        "feynman-timeline-refresh",
+        "correct-reference-now"
+      ],
       "lane": "view"
     },
     {
-      "id": "infrastructure",
-      "label": "Infrastructure",
+      "id": "system-maintenance",
+      "label": "System & Maintenance",
       "glyph": "⚙",
       "commands": [
-        "setup",
-        "update",
         "doctor",
-        "build-knowledge",
+        "diagnostics",
         "agentshield",
-        "correct-reference-now",
+        "new-surface",
+        "skill",
         "ingest-methodology",
-        "new-surface"
+        "auto-explore"
       ],
       "lane": "view"
     }
