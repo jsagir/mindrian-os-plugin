@@ -173,6 +173,24 @@ When QA-ing a feature or investigating a defect, write findings to the MindrianO
 - **Clear the gates before calling a fix done:** Canon Part 8 Brain-boundary, Tri-Polar three-surface, cross-platform, release lockstep, no em-dashes, reuse-before-build.
 - **On resolve:** move the file to `.planning/debug/resolved/` and add a summary block to `.planning/debug/knowledge-base.md`.
 
+## Dev-Research Compositing (Rethinking Room)
+
+Every GSD phase or seed that touches MindrianOS's own architecture (not user-facing feature
+work) composites with the `rethinking-mindrianos` Data Room -- the standing MindrianOS-dev
+consultant room at `~/MindrianRooms/rethinking-mindrianos/`. Research and findings get filed
+in BOTH places, never just one:
+
+- The phase's own `.planning/phases/<N>-.../<N>-CONTEXT.md` (or the seed file) -- the
+  actionable plan the executor actually reads.
+- `rethinking-mindrianos/research/<dated-entry>/` -- the durable reasoning trail (audits,
+  web-researched diligence, cross-domain checks), mirrored to `mindrianOS/research/` as
+  source-of-record and cross-referenced back to the phase/seed it informs.
+
+Same finding, two homes, cross-linked. The dev repo gets the executable decision; the room
+gets the evidence and reasoning behind it. Neither substitutes for the other -- a phase
+CONTEXT.md that only says "per the room's research" without the citation, or a room entry
+that reaches a verdict and never lands in a phase/seed, both count as incomplete.
+
 <!-- GSD:profile-start -->
 
 ## Developer Profile
