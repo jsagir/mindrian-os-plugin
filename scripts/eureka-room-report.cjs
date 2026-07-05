@@ -301,18 +301,25 @@ async function main(argv) {
     const encodeFn = opts.offline ? stubEncode : undefined;
     const idx = await triModal.indexNodes(db, { encodeFn: encodeFn });
 
-    // (3) Load node rows + their text; read vectors back ONCE (embed once, score many).
+    // (3) Load node rows + their text; read vectors back ONCE (embed once, score
+    // many). CRITICAL: only trust vectors this run FRESHLY embedded (idx.embedded).
+    // The derived eureka_vec tables persist in room.db across runs, so an earlier
+    // offline (stub) run leaves stub vectors behind; if the live encoder then
+    // fails to embed (embedded === false), reading those stale rows would score a
+    // report labeled LIVE using STUB vectors. Gate on idx.embedded to refuse that.
     const rows = db.prepare('SELECT id, type, properties FROM nodes').all();
     const rootOf = buildRootDomainMap(rows);
-    const vectors = loadIndexVectors(db, idx.vec_backend);
+    const vectors = idx.embedded === true ? loadIndexVectors(db, idx.vec_backend) : new Map();
 
     const nodes = [];
-    for (let i = 0; i < rows.length; i += 1) {
-      const text = triModal.nodeText(rows[i]);
-      if (!text) continue;
-      const vec = vectors.get(rows[i].id);
-      if (!vec) continue; // no vector (encoder unavailable) -> cannot score
-      nodes.push({ id: rows[i].id, type: rows[i].type || 'unknown', text: text, root: rootOf(rows[i].id), vec: vec });
+    if (idx.embedded === true) {
+      for (let i = 0; i < rows.length; i += 1) {
+        const text = triModal.nodeText(rows[i]);
+        if (!text) continue;
+        const vec = vectors.get(rows[i].id);
+        if (!vec) continue; // no vector for this node -> cannot score
+        nodes.push({ id: rows[i].id, type: rows[i].type || 'unknown', text: text, root: rootOf(rows[i].id), vec: vec });
+      }
     }
 
     const prov = spine.encoderProvenance();
@@ -366,7 +373,7 @@ async function main(argv) {
     scored.sort(function (x, y) { return y.abs_diff - x.abs_diff; });
     const candidates = scored.slice(0, opts.top);
 
-    const encoderUnavailable = (nodes.length === 0 && rows.length > 0) || (idx.embedded === false && !opts.offline);
+    const encoderUnavailable = idx.embedded !== true;
 
     const report = renderReport({
       offline: opts.offline,
