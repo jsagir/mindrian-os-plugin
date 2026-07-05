@@ -2160,11 +2160,28 @@ function performClassIFix(check, opts) {
       const file = path.join(home, '.claude', 'plugins', 'config.json');
       try {
         // 1. Back up first (mirror the installed_plugins.json repair pattern).
-        const ts = new Date().toISOString();
+        // Timestamp MUST be filename-safe: a raw toISOString() contains ':',
+        // which is a reserved character on Windows (NTFS ADS separator) --
+        // copyFileSync throws EINVAL/ENOENT on it. Confirmed live on Windows
+        // 2026-07-05: the unsanitized form made --fix a SILENT no-op (the
+        // outer catch swallowed the throw, so neither backup nor the
+        // reconcile write ever landed). Same sanitization already used a few
+        // lines away in this file (~L609, ~L2247) -- this branch just missed it.
+        const ts = new Date().toISOString().replace(/[:.]/g, '').replace(/T/, '-').slice(0, 15);
         const backupsDir = path.join(home, '.mindrian', 'backups');
         try { fs.mkdirSync(backupsDir, { recursive: true }); } catch (_) { /* ignore */ }
         const backupPath = path.join(backupsDir, 'config.json.' + ts + '.bak');
-        fs.copyFileSync(file, backupPath);
+        // Isolate the backup step: a backup failure must NOT silently abort
+        // the reconcile write (the outer catch would swallow it and leave
+        // the drift unfixed with no visible reason). Report distinctly.
+        let backupOk = true;
+        let backupError = null;
+        try {
+          fs.copyFileSync(file, backupPath);
+        } catch (err) {
+          backupOk = false;
+          backupError = err.message;
+        }
         // 2. Re-read the modern version LIVE (do not trust the stale payload).
         const modernVersion = readInstalledPluginsVersion(home);
         if (modernVersion === 'unknown') {
@@ -2194,7 +2211,13 @@ function performClassIFix(check, opts) {
         recoveries.push({
           class: 'install-state', surface: 'legacy-config-json',
           action: 'version-reconciled', ok: true,
-          backup_path: backupPath, target_value: modernVersion,
+          // backup_path is only meaningful when the backup actually succeeded;
+          // a failed backup no longer blocks the reconcile write (above), but
+          // must stay VISIBLE rather than reported as if nothing went wrong.
+          backup_path: backupOk ? backupPath : null,
+          backup_ok: backupOk,
+          backup_error: backupOk ? undefined : backupError,
+          target_value: modernVersion,
           note: 'restart Claude Code (full app restart) to re-register commands',
         });
       } catch (err) {

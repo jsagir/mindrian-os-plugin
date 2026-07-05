@@ -209,6 +209,15 @@ try {
   assert.ok(fs.existsSync(backupsDir), 'backups dir created');
   const baks = fs.readdirSync(backupsDir).filter(f => /^config\.json\..*\.bak$/.test(f));
   assert.ok(baks.length >= 1, 'a config.json.*.bak backup exists; got ' + JSON.stringify(fs.readdirSync(backupsDir)));
+  // Filename-safety regression lock (2026-07-05 Windows finding): a raw
+  // toISOString() timestamp contains ':', a reserved character on Windows
+  // (NTFS) that makes fs.copyFileSync throw -- the outer catch swallowed it,
+  // so --fix silently no-op'd there (detection worked, repair did not).
+  // Asserted here so a future regression fails on EVERY platform, not only
+  // when someone happens to test on Windows.
+  for (const name of baks) {
+    assert.ok(!name.includes(':'), 'backup filename must not contain \':\' (Windows-illegal): ' + name);
+  }
 
   // Re-run: the fix is convergent -> no drift finding.
   res = runDoctor(home);
