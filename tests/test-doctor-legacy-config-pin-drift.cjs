@@ -15,15 +15,20 @@
  * healthy. doctor now flags this as the Class I finding `legacy-config-pin-drift`
  * and `--fix` backs up config.json then reconciles mos.version conservatively.
  *
- * Four scenarios:
+ * Five scenarios:
  *   1. agree   -- config.json.mos.version === installed_plugins.json version
  *                 -> NO legacy-config-pin-drift finding.
- *   2. disagree+fix -- versions differ -> finding present; --fix rewrites the
- *                 pin AND leaves a config.json.*.bak backup; re-run is clean
- *                 (fix is convergent).
+ *   2. disagree+fix -- versions differ (flat top-level schema) -> finding
+ *                 present; --fix rewrites the pin AND leaves a
+ *                 config.json.*.bak backup; re-run is clean (fix is convergent).
  *   3. config.json absent   -- legacy artifact absent (fresh install) is
  *                 healthy, not an error -> NO finding.
  *   4. installed_plugins.json absent -- nothing to compare against -> NO finding.
+ *   5. disagree+fix (repositories-nested schema) -- the OTHER config.json
+ *                 generation confirmed live via a direct cross-check against a
+ *                 real Windows install (2026-07-05): repositories.<mp>.plugins.
+ *                 <plugin>.version, not the flat top-level key. Locks that the
+ *                 shared resolver (not a `data[key]` shortcut) covers both.
  *
  * The sandbox will legitimately produce OTHER findings (record-absent, topology
  * not-found); we assert ONLY on presence/absence of the legacy-config-pin-drift
@@ -90,6 +95,23 @@ function writeLegacyConfigJson(home, version) {
   const file = path.join(home, '.claude', 'plugins', 'config.json');
   fs.writeFileSync(file, JSON.stringify({
     mos: { version, enabled: true, installedAt: '2026-04-06T00:00:00Z' }
+  }, null, 2));
+}
+
+// Write the OTHER legacy generation actually confirmed live on a real Windows
+// install (2026-07-05 cross-check): repositories.<mp>.plugins.<plugin>.version,
+// not the flat top-level `mos` key. A naive `data[key]` lookup misses this
+// entirely -- Test 5 below locks that the shared resolver (and --fix) covers it.
+function writeRepositoriesNestedConfigJson(home, version) {
+  const file = path.join(home, '.claude', 'plugins', 'config.json');
+  fs.writeFileSync(file, JSON.stringify({
+    repositories: {
+      'mindrian-marketplace': {
+        plugins: {
+          mos: { version, enabled: true }
+        }
+      }
+    }
   }, null, 2));
 }
 
@@ -220,6 +242,42 @@ try {
   rmTmp(home);
   pass('Test 4 (installed_plugins.json absent -> no finding)');
 } catch (err) { failTest('Test 4 (installed_plugins.json absent)', err); }
+
+// -- Test 5: repositories-nested schema -> finding + --fix reconciles -------
+// The generation actually confirmed live via a direct cross-check against a
+// real Windows install (2026-07-05). This is the schema Test 2 does NOT
+// cover (Test 2 uses the flat top-level shape) -- without the shared
+// resolver fix, --fix would silently skip with "could not re-resolve the
+// mos pin key" because `data.mos` does not exist in this generation.
+try {
+  const home = makeTmpHome('t5');
+  const MODERN = '1.15.3-beta.1';
+  const STALE = '1.15.1';
+  const mcDir = makeMarketplaceCache(home, MODERN);
+  writeInstalledPluginsJson(home, MODERN, mcDir);
+  writeRepositoriesNestedConfigJson(home, STALE);
+  seedInstallStateRecord(home, MODERN, mcDir);
+
+  let res = runDoctor(home);
+  const finding = findLegacyPinFinding(res.report);
+  assert.ok(finding, 'expected a legacy-config-pin-drift finding under the repositories-nested schema');
+  assert.strictEqual(finding.legacyVersion, STALE, 'finding carries the stale legacy version');
+  assert.strictEqual(finding.modernVersion, MODERN, 'finding carries the modern version');
+
+  runDoctor(home, ['--fix']);
+  const cfgAfter = JSON.parse(fs.readFileSync(path.join(home, '.claude', 'plugins', 'config.json'), 'utf8'));
+  assert.strictEqual(
+    cfgAfter.repositories['mindrian-marketplace'].plugins.mos.version,
+    MODERN,
+    'nested repositories.<mp>.plugins.mos.version reconciled to the modern version'
+  );
+  assert.strictEqual(cfgAfter.repositories['mindrian-marketplace'].plugins.mos.enabled, true, 'sibling field left untouched');
+
+  res = runDoctor(home);
+  assert.strictEqual(findLegacyPinFinding(res.report), null, 'no drift finding after --fix on the nested schema (convergent)');
+  rmTmp(home);
+  pass('Test 5 (repositories-nested schema -> finding + --fix reconciles)');
+} catch (err) { failTest('Test 5 (repositories-nested schema)', err); }
 
 if (failed > 0) {
   console.log('\n' + failed + ' test(s) FAILED (' + passed + ' passed)');

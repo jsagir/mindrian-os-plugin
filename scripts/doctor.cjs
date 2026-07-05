@@ -1743,6 +1743,43 @@ function readInstalledPluginsVersion(home) {
 // other subsystem looks healthy. The finding below detects that drift; because
 // the install-state acceptance point passes only on status === 'healthy', the
 // finding automatically rides doctor --acceptance (no new acceptance point).
+function resolveLegacyConfigPinEntry(data) {
+  // Shared resolver used by BOTH detection (readLegacyConfigPin) and the
+  // --fix writer, so a match found one way is guaranteed mutable the other
+  // way -- no `data[key]` shortcut that only covers the flat schema.
+  // Returns { entry, key } where `entry` is the ACTUAL nested object
+  // reference from `data` (mutating entry.version mutates `data` in place),
+  // or null if no pin found under any known generation.
+  //
+  // THREE known config.json generations coexist in the wild (confirmed via a
+  // live cross-check against a real Windows install, 2026-07-05) -- check all,
+  // first match wins:
+  //   (a) flat top-level:      { "mos": { "version": "X", ... } }
+  //   (b) plugins-wrapped:     { "plugins": { "mos": { "version": "X" } } }
+  //   (c) repositories-nested: { "repositories": { "<mp>": { "plugins":
+  //                              { "mos": { "version": "X" } } } } }
+  // (c) is the generation actually observed live; (a)/(b) are defensive
+  // fallbacks for other config.json shapes this file's own comments describe
+  // elsewhere -- keep all three rather than assuming one is authoritative.
+  if (!data || typeof data !== 'object') return null;
+  const candidates = [
+    ['mos', data.mos],
+    ['mindrian-os', data['mindrian-os']],
+    ['mos', data.plugins && data.plugins.mos],
+    ['mindrian-os', data.plugins && data.plugins['mindrian-os']],
+  ];
+  const repos = (data.repositories && typeof data.repositories === 'object') ? data.repositories : {};
+  for (const mp of Object.keys(repos)) {
+    const plugins = (repos[mp] && repos[mp].plugins) || {};
+    candidates.push(['mos', plugins.mos]);
+    candidates.push(['mindrian-os', plugins['mindrian-os']]);
+  }
+  for (const [key, entry] of candidates) {
+    if (entry && entry.version) return { entry, key };
+  }
+  return null;
+}
+
 function readLegacyConfigPin(home) {
   // Returns { version, key } for the mos pin in the legacy config.json, or null
   // when the file is absent, unparseable, or carries no pin. Absence is the
@@ -1751,18 +1788,8 @@ function readLegacyConfigPin(home) {
   try {
     const file = path.join(home, '.claude', 'plugins', 'config.json');
     const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (!data || typeof data !== 'object') return null;
-    // Key resolution: top-level `mos`, then `mindrian-os`; defensive fallback
-    // to a `plugins`-wrapped generation (data.plugins.mos / .mindrian-os).
-    const candidates = [
-      ['mos', data.mos],
-      ['mindrian-os', data['mindrian-os']],
-      ['mos', data.plugins && data.plugins.mos],
-      ['mindrian-os', data.plugins && data.plugins['mindrian-os']],
-    ];
-    for (const [key, entry] of candidates) {
-      if (entry && entry.version) return { version: String(entry.version), key };
-    }
+    const resolved = resolveLegacyConfigPinEntry(data);
+    if (resolved) return { version: String(resolved.entry.version), key: resolved.key };
   } catch (_) { /* absent / unparseable -> N/A */ }
   return null;
 }
@@ -2147,15 +2174,13 @@ function performClassIFix(check, opts) {
           });
           continue;
         }
-        // 3. Parse, re-resolve the key defensively, set version, write back.
+        // 3. Parse, re-resolve the entry via the SHARED resolver (covers
+        //    flat, plugins-wrapped, AND repositories-nested schemas -- a
+        //    plain `data[key]` lookup here would silently miss the nested
+        //    generation even though detection found it).
         const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-        let key = f.legacyKey;
-        let entry = key ? data[key] : null;
-        if (!entry || !entry.version) {
-          const re = readLegacyConfigPin(home);
-          key = re ? re.key : key;
-          entry = key ? data[key] : null;
-        }
+        const resolved = resolveLegacyConfigPinEntry(data);
+        const entry = resolved ? resolved.entry : null;
         if (!entry) {
           recoveries.push({
             class: 'install-state', surface: 'legacy-config-json', action: 'skipped',
