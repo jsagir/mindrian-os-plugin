@@ -171,6 +171,24 @@ ok('ENVELOPE: a degrade envelope is { continue: true } (no infinite loop)',
   degradeEnv && degradeEnv.continue === true);
 
 // ---------------------------------------------------------------------------
+// ENVELOPE (Finding 1, 2026-07-05 leaked-slug incident): the intercept envelope
+// must carry a FIXED human-readable systemMessage so Claude Code renders a calm
+// sentence, not the raw internal `reason` slug as "Stop hook error: <slug>". The
+// slug stays in `reason` unchanged for logs/telemetry. The degrade branch (a
+// suppressOutput path) must NOT carry a systemMessage.
+// ---------------------------------------------------------------------------
+const SLUG = 'ascii-box-backstop-no-card';
+const slugEnv = m.buildEnforcementEnvelope({ intercept: true, reason: SLUG, degrade: false });
+ok('ENVELOPE Finding 1: an intercept envelope carries a non-empty string systemMessage',
+  typeof slugEnv.systemMessage === 'string' && slugEnv.systemMessage.length > 0);
+ok('ENVELOPE Finding 1: the systemMessage does NOT leak the raw classification slug',
+  slugEnv.systemMessage.indexOf(SLUG) === -1);
+ok('ENVELOPE Finding 1: the reason field still carries the raw slug unchanged (telemetry)',
+  slugEnv.reason === SLUG);
+ok('ENVELOPE Finding 1: the degrade envelope carries NO systemMessage (suppressOutput path)',
+  degradeEnv.systemMessage === undefined);
+
+// ---------------------------------------------------------------------------
 // REGISTRY-KEYED: the gate-reaching enumeration is derived from the render-coverage
 // registry's card-emission entries, not a hand-maintained list. gateReachingEntries
 // is the exported enumerator.

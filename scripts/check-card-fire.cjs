@@ -496,11 +496,19 @@ function classifyCardFire(turn, registry) {
 // buildEnforcementEnvelope(verdict) -- shape the Stop-hook output envelope from a
 // classifyCardFire verdict.
 //   - degrade  -> { continue: true, suppressOutput: true } (log + allow; no loop).
-//   - intercept-> the decision:block-on-exit-0 block: { decision:'block', ..., hookSpecificOutput:
-//                 { additionalContext: <re-prompt to fire the AskUserQuestion card> } }.
+//   - intercept-> the decision:block-on-exit-0 block: { decision:'block', ..., systemMessage,
+//                 hookSpecificOutput: { additionalContext: <re-prompt to fire the card> } }.
 //   - neither  -> { continue: true, suppressOutput: true } (nothing to do).
 // additionalContext lives ONLY inside hookSpecificOutput. Returns a key-filtered
 // envelope. Never throws.
+//
+// The intercept branch now carries a FIXED, human-readable systemMessage (the
+// 2026-07-05 leaked-slug incident): Claude Code surfaces a decision:'block' envelope's
+// `reason` to the user as "Stop hook error: <reason>" when no systemMessage override is
+// present, so the internal telemetry slug (e.g. ascii-box-backstop-no-card) landed on
+// the user's screen looking like a crash even though the hook was working as designed.
+// The slug stays in `reason` for logs/telemetry; systemMessage is what the user reads.
+// The degrade and else branches keep suppressOutput: true and carry no systemMessage.
 // ---------------------------------------------------------------------------
 function buildEnforcementEnvelope(verdict) {
   const v = verdict && typeof verdict === 'object' ? verdict : {};
@@ -516,6 +524,10 @@ function buildEnforcementEnvelope(verdict) {
     raw = {
       decision: 'block',
       reason: typeof v.reason === 'string' ? v.reason : 'card-fire-intercept',
+      // FIXED human-facing line (never interpolated from transcript content or the reason
+      // slug; T-m9g-01). Claude Code renders this instead of the raw `reason` slug so the
+      // user sees a calm sentence, not "Stop hook error: ascii-box-backstop-no-card".
+      systemMessage: 'Re-rendering your choices as a selectable card...',
       continue: false,
       hookSpecificOutput: {
         hookEventName: 'Stop',
