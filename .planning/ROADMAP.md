@@ -2871,7 +2871,7 @@ Plans:
 **Goal:** Restore Larry's conversational judgment: soften the five v1.15 HARD-FAIL/BINDING persona-enforcement mechanisms (190 shape-declaration gate to advisory with --strict opt-in, 192 glyph mapping to default-not-locked plus relevance-conditional stance footer, 202 voice-contract disqualifier to score-not-veto, 205 sessionEndQuorum to suggest-not-force, 209 force-fire behind a relevance/already-answered gate) without deleting any underlying capability. Preserve the 194/196/200 data-boundary gates, all persona-neutral capability phases, and the 19 standalone fixes. Ship as a new version via scripts/release.sh with a real npm publish.
 **Requirements**: 210-A, 210-B, 210-C, 210-D, 210-E (the five lettered items from 210-CONTEXT.md)
 **Depends on:** Phase 209
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 
@@ -2881,7 +2881,65 @@ Plans:
 - [x] 210-04-PLAN.md - Items C+D: APO voice contract scores-not-vetoes (offline lab, small); sessionEndQuorum suggests-not-forces (hypothesis floor T-205-07-E intact)
 - [x] 210-05-PLAN.md - Item E: lib/core/gate-relevance.cjs shared predicate, relevance-gated Stop-hook backstop (209 incident-replay floor UNMODIFIED), conditional trailer, mos:firing-block v2 sweep
 - [x] 210-06-PLAN.md - Canon Part 11 R16 advisory amendment: navigator-gated blocking checkpoint, then atomic lockstep to canon v1.24 (NOT autonomous)
-- [ ] 210-07-PLAN.md - Phase gate + release: run-all-210 + five prior aggregators + doctor --acceptance, then scripts/release.sh 1.15.3-beta.1 with the real npm publish
+- [x] 210-07-PLAN.md - Phase gate + release: run-all-210 + five prior aggregators + doctor --acceptance, then scripts/release.sh 1.15.3-beta.1 with the real npm publish
+
+### Phase 211: Eureka Generator MVP (eureka-generator-mvp) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seed SEED-049**
+
+**Goal:** Tri-modal room.db (FTS5 lexical + sqlite-vec dense + RRF fusion, k~20-30 tuned for room-scale) using `Xenova/all-MiniLM-L6-v2` embeddings (q8/q4 quantized) and FlashRank local rerank, producing the measured cross-domain differential (bert-lsa, reproducible) that PROPOSES eurekas. Front-loads SEED-050's critic gold-set: write the 6 case cards (archimedes-uq, archimedes-sterling, archimedes-darkmatter Type-3 gold, davinci-salient, niche-foods null-control, 1 math case), run Larry manually on all, hand-score with the COMPRESSION formula as the first baseline. Renumbered from the seed's original aspirational "Phase 206" (206-208 were never free - 209/210 already occupy that range from the curing-sequence revert); see `.planning/seeds/INDEX.md`.
+**Requirements**: TBD
+**Depends on:** Phase 200 (RS Engine Spine)
+**Not blocked by:** the active curing-sequence debug track (`.planning/debug/beta13-curing-sequence-persona-and-commands-bisect.md`) - Phase 200 is untouched by it.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 211 to break down)
+
+### Phase 212: Eureka Substrate + Grounding Guard (eureka-substrate-grounding-guard) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seeds SEED-049 + SEED-050**
+
+**Goal:** Graph-framed substrate + whitespace/bridge signal detection over room.db (SEED-049), plus the cheapest critic judge first (SEED-050): `start_evaluator` for the salient-verifier / Grounding Guard (`transferable` vs `general_shallow` vs `pseudoscience` vs `restatement`), upload ~25 labeled insight-turns, `Optimize`, require >=0.85 accuracy + high pseudoscience recall. `restatement` is the guard's #1 job (high semantic-lexical differential can just be a paraphrase, not a cross-domain bridge).
+**Requirements**: TBD
+**Depends on:** Phase 211, Phase 191 (Brain Orchestration Advisor)
+**Not blocked by:** the curing-sequence debug track.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 212 to break down)
+
+### Phase 213: Eureka-Reach Wiring, THE KEY (eureka-reach-wiring) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seeds SEED-049 + SEED-050 - THE KEY**
+
+**Goal:** Wire the eureka-reach + LarryReacts into Phase 190's build-gate declaration, Phase 202's disqualifier, and Phase 205's elevation tree - gated by Phase 212's Grounding Guard passing calibration, plus the Arrival grader, status-quo label, and the deterministic COMPRESSION meter (SEED-050: `Score = CompressionDelta x GuardGate x StatusQuoGate`). Generator (049) + critic (050) = the two-in-a-box; neither ships trustworthy alone. **Sensor id correction (2026-07-04 audit):** the new eureka sensor is **SENS-13**, not SENS-11 as the original seed draft said - SENS-11 is already live (Phase 203-03 reusable-expert/save-as-skill, `lib/core/sensors/sensor-expert-skill.cjs`). Verify against `lib/core/insight-sensors.cjs` + `lib/core/sensors/` before assigning any id at build time.
+**Requirements**: TBD
+**Depends on:** Phase 212, Phase 188, Phase 189, Phase 190, Phase 202, Phase 205
+**BLOCKED UNTIL:** the active curing-sequence debug track (`.planning/debug/beta13-curing-sequence-persona-and-commands-bisect.md`) resolves - it is currently testing/fixing the exact 190/202/205 mechanisms this phase wires into. Do not start until that track has a verdict.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 213 to break down)
+
+### Phase 214: Eureka Pattern-Transfer + Find-Analogies (eureka-pattern-transfer) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seed SEED-049**
+
+**Goal:** The pattern-transfer / online leg (find-analogies), using `archimedes-darkmatter` (dark-matter <-> ppb-simulation, Type-3 find-analogies gold) as the validated transfer case from Phase 211's gold set.
+**Requirements**: TBD
+**Depends on:** Phase 213, Phase 200, Phase 201, Phase 202, Phase 203
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 214 to break down)
+
+### Phase 215: Eureka Portfolio-Scale FUSION (eureka-portfolio-fusion) - REGISTERED 2026-07-04 - **seed SEED-048 (the rider, NOT part of the 049/050 flagship pair)**
+
+**Goal:** Re-point lenses to portfolio scale. Three-dimension scoring (strategic fit / validated demand / technical-economic feasibility) via AHP pairwise weighting, explicitly flagging the low-attention/high-growth-rate quadrant per the weak-signal patent research (the gem hides in the tail nobody's watching) rather than just ranking top scorers.
+**Requirements**: TBD
+**Depends on:** Phases 211-214
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 215 to break down)
 
 ---
 
