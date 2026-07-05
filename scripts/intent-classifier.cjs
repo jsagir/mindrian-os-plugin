@@ -1695,11 +1695,28 @@ function runNavigationEngine(roomDir, sessionId) {
           // resolver. Runs HERE where the engine already runs (never in the hot
           // statusline process). Reuses the shipped writer (no second cache). Fully
           // guarded: any persist failure never affects the decision or the turn.
+          //
+          // Quick-task 260705-ui4: on the ABSTENTION leg (no routed offer / skill),
+          // surface the active room's highest-priority `proposed` ratification item
+          // as an enum/count-only cue instead of clearing to "Next: --". The provider
+          // is LAZY -- the research/ scan runs only when the engine abstained, and the
+          // scanner require is loaded inside the provider body so the common routed
+          // path never pays for it.
           try {
             const nextMoveCache = require(
               path.join(__dirname, '..', 'lib', 'statusline', 'next-move-cache.cjs')
             );
-            nextMoveCache.persistFromDecision(decision);
+            nextMoveCache.persistFromDecision(decision, {
+              fallbackProvider: function () {
+                try {
+                  const ratNext = require(
+                    path.join(__dirname, '..', 'lib', 'statusline', 'ratification-next.cjs')
+                  );
+                  const r = ratNext.scanRatificationNext();
+                  return r && typeof r.cue === 'string' ? r.cue : null;
+                } catch (_scanErr) { return null; }
+              },
+            });
           } catch (_persistErr) { /* graceful: the reader degrades to the jtbd proxy */ }
           const elapsedMs = Date.now() - startedAt;
           // Phase 150-06 (D-08 render unlock): thread the projected cortexNodes
