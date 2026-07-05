@@ -482,6 +482,21 @@ function classifyCardFire(turn, registry) {
       return { intercept: false, reason: 'gate-irrelevant-to-turn', degrade: false };
     }
 
+    // Navigator decision (2026-07-05): a plain 2-option yes/no closer is a SIMPLE
+    // BINARY, not a genuine multi-option Decision Gate, and is EXEMPT from the
+    // card-fire requirement -- only genuine 3+-option forks force-fire. This pass-
+    // reason sits AFTER the two relevance checks on purpose: placing it before
+    // gate-already-answered would relabel an already-answered 2-option gate (the
+    // relevance test's RELEASE_GATE is also 2-option) as gate-is-simple-binary and
+    // change that pass-reason's precedence. Reuse the gateLabels already extracted
+    // above (per the RCA: no new option-extraction path). The condition is EXACTLY
+    // length === 2, never <= 2: extractOptionLabels returns [] for glyph-only or
+    // PRIMARY-signal texts with no recoverable labels ("Here are your options.",
+    // "no card yet"), and a 0-label detection stays conservative and intercepts.
+    if (gateLabels.length === 2) {
+      return { intercept: false, reason: 'gate-is-simple-binary', degrade: false };
+    }
+
     const reason = primaryHit
       ? 'reached-registry-gate-no-card'
       : 'ascii-box-backstop-no-card';

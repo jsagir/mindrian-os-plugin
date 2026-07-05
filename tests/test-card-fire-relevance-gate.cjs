@@ -90,10 +90,14 @@ function classifyTranscript(records, sessionId) {
 
 // The incident-shaped room-pick gate (same fixture shape as
 // tests/test-209-incident-replay.cjs assertion b, WITHOUT the tool_use record).
+// A THIRD option is present on purpose: 2-option gates are now EXEMPT as simple
+// binaries (reason gate-is-simple-binary, navigator decision 2026-07-05), so the
+// PRESERVE-FLOOR leg needs a genuine 3+-option fork to assert the intercept floor.
 const ROOM_PICK_GATE = [
   'Ignite -- pick a room to resume, or start something new',
   '1. ALIGN - Well-Defined Problem - opened in the last day',
   '2. Just talk (no room)',
+  '3. Start a new room',
 ].join('\n');
 
 // A release go/no-go gate whose option labels a plain-text "yes" plainly answers.
