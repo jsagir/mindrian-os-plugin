@@ -12,11 +12,42 @@
  * Subcommands:
  *   session-start <roomDir>   Open db, startSession, write pointer, fetch
  *                             history, emit RECENT SESSIONS block on stdout.
- *   stop <roomDir>            Read pointer, addFragment(session-summary),
- *                             endSession, writeVoiceLogStub, delete pointer.
+ *   stop <roomDir>            Read pointer, incrementally ingest new
+ *                             transcript turns, upsert the session-summary
+ *                             fragment, endSession (idempotent refresh),
+ *                             write a FRESH voice_log row. Pointer is KEPT
+ *                             (see Stop cardinality fix below).
  *   pre-compact <roomDir>     Read pointer, endSession. Pointer kept.
  *   post-compact <roomDir>    startSession new id, overwrite pointer,
  *                             addFragment(role='post-compact') marker.
+ *
+ * Stop cardinality fix (debug session
+ * stale-voice-log-session-summary-banner-frozen-after-first-stop, 2026-07-06):
+ * Claude Code's Stop hook fires after EVERY assistant turn, not once per
+ * session (SessionStart:Stop is 1:N, not 1:1). cmdStop used to delete the
+ * session pointer unconditionally in `finally`, so only the FIRST Stop event
+ * of a session ever did real work; every later Stop found no pointer and
+ * silently no-op'd, freezing voice_log/fragments/summary at turn 1 forever.
+ * The fix: cmdStop no longer deletes the pointer. It is now safe -- and
+ * REQUIRED -- to run on every Stop event:
+ *   - ingestTranscriptFragments is INCREMENTAL (slices the parsed transcript
+ *     by how many user/assistant fragments already exist for this session),
+ *     so each call only inserts the NEW turns since the last Stop, never
+ *     re-inserting or skipping.
+ *   - the 'session-summary' fragment is UPSERTED (one row per session,
+ *     refreshed in place) so repeated per-turn Stops cannot grow it
+ *     unboundedly and pollute fragment-window readers (e.g.
+ *     navigation/room-context.cjs Leg B).
+ *   - memory.endSession is idempotent-safe to call every turn (a plain
+ *     UPDATE keyed on session id; verified no reader anywhere treats
+ *     `ended_at IS NULL` as a "session still live" signal), so it keeps
+ *     running per-turn rather than needing a separate termination signal.
+ *   - writeVoiceLogRow/writeVoiceLogStub already insert a new row per call,
+ *     which is exactly what makes the Stop-hook banner advance every turn.
+ * The pointer is only ever replaced (not deleted) at the next real
+ * SessionStart, which simply overwrites it with the new session's id --
+ * no orphan-cleanup pass is needed since endSession has already been kept
+ * fresh through the prior session's own per-turn Stops.
  *
  * Design notes:
  *   - The "role" values 'session-summary' and 'post-compact' are intentionally
@@ -125,6 +156,10 @@ function writePointer(roomDir, id, startedAt) {
   );
 }
 
+// Not called by cmdStop as of the Stop-cardinality fix (2026-07-06) -- Stop
+// no longer deletes the pointer (see cmdStop's finally block). Kept as a
+// utility for the session-start overwrite path and any future explicit
+// pointer-reset need.
 function deletePointer(roomDir) {
   try {
     fs.unlinkSync(pointerPath(roomDir));
@@ -207,12 +242,25 @@ const FRAGMENT_HARVEST_CAP = 500;
 
 // Quick task 260612-pkb: conversation intake helper. Reads MINDRIAN_TRANSCRIPT_PATH,
 // parses the transcript offline, and writes the real user/assistant turns into
-// the given session as 'user'/'assistant' fragments. Idempotent: a guard skips
-// ingest when conversation fragments already exist for the session (Stop /
-// PreCompact can fire more than once). Every path is graceful: no env var, an
-// unreadable transcript, or a per-fragment write error are silent no-ops.
-// LOCAL-only (Canon Part 8): the parser does pure local read+parse, and rows are
-// written only to the active room's room.db. No network, no Brain.
+// the given session as 'user'/'assistant' fragments.
+//
+// INCREMENTAL as of the Stop-cardinality fix (2026-07-06): Claude Code's
+// transcript file is cumulative (append-only across the whole session), so
+// parseTranscript(transcriptPath) always returns the FULL ordered turn list
+// from the start of the session through "now". Rather than a one-shot
+// all-or-nothing guard (which froze ingestion at turn 1 once cmdStop started
+// running every turn), this slices off the leading N turns already stored
+// (N = count of existing user/assistant fragments for this session) and
+// inserts only the DELTA. Safe to call every Stop event: turn 1 inserts
+// turns[0:], turn 2 inserts turns[N1:], etc. Never re-inserts, never skips.
+// (Edge case, accepted as out of scope: transcript-ingest.cjs caps parsed
+// output at MAX_FRAGMENTS=1000 turns; a session that blows past that cap
+// could desync the slice-by-count math. Not addressed here -- no session in
+// practice approaches 1000 turns.)
+// Every path is graceful: no env var, an unreadable transcript, or a
+// per-fragment write error are silent no-ops. LOCAL-only (Canon Part 8): the
+// parser does pure local read+parse, and rows are written only to the active
+// room's room.db. No network, no Brain.
 async function ingestTranscriptFragments(db, sessionId, memory, transcriptIngest) {
   const transcriptPath = process.env.MINDRIAN_TRANSCRIPT_PATH || '';
   if (!transcriptPath) return;
@@ -226,10 +274,10 @@ async function ingestTranscriptFragments(db, sessionId, memory, transcriptIngest
   } catch (_) {
     alreadyHas = 0;
   }
-  if (alreadyHas !== 0) return; // already ingested for this session
 
   const turns = transcriptIngest.parseTranscript(transcriptPath); // [] on any failure
-  for (const t of turns) {
+  const newTurns = turns.slice(alreadyHas); // only the delta since the last Stop
+  for (const t of newTurns) {
     if (!t || !t.content) continue;
     try {
       await memory.addFragment(db, {
@@ -238,6 +286,35 @@ async function ingestTranscriptFragments(db, sessionId, memory, transcriptIngest
         content: t.content,
       });
     } catch (_) { /* per-fragment graceful */ }
+  }
+}
+
+// Upsert the single 'session-summary' fragment for a session. One row per
+// session, refreshed in place on every Stop event -- NOT appended -- so a
+// long session with many Stop events cannot grow an unbounded number of
+// session-summary rows that would dilute fragment-window readers (e.g.
+// navigation/room-context.cjs Leg B's "last ~6 fragments" window). No other
+// reader in this codebase filters fragments by role='session-summary'
+// directly, so refreshing in place is a pure improvement with no downstream
+// consumer depending on the prior append-only history of this role.
+async function upsertSessionSummaryFragment(db, sessionId, content) {
+  const timestamp = new Date().toISOString();
+  const safeContent = typeof content === 'string' && content ? content : 'session ended';
+  try {
+    const existing = db.prepare(
+      "SELECT id FROM fragments WHERE session_id = ? AND role = 'session-summary' ORDER BY id DESC LIMIT 1"
+    ).get(sessionId);
+    if (existing && existing.id) {
+      db.prepare('UPDATE fragments SET content = ?, timestamp = ? WHERE id = ?')
+        .run(safeContent, timestamp, existing.id);
+      return { id: existing.id, session_id: sessionId, timestamp };
+    }
+    const info = db.prepare(
+      'INSERT INTO fragments (session_id, role, content, timestamp) VALUES (?, ?, ?, ?)'
+    ).run(sessionId, 'session-summary', safeContent, timestamp);
+    return { id: Number(info.lastInsertRowid), session_id: sessionId, timestamp };
+  } catch (_) {
+    return null; // advisory: never crash the Stop hook over the summary fragment
   }
 }
 
@@ -333,10 +410,11 @@ async function cmdStop(roomDir) {
   try {
     // Quick task 260612-pkb: conversation intake. Before summarizing, ingest
     // the real conversation turns from MINDRIAN_TRANSCRIPT_PATH (exported by
-    // scripts/on-stop) into the just-closing session. Idempotent: skip if real
-    // conversation fragments already exist for this session (Stop can fire more
-    // than once). LOCAL-only (Canon Part 8): parseTranscript reads a local file
-    // and the rows land in the active room's room.db; no Brain egress.
+    // scripts/on-stop) into the still-OPEN session. INCREMENTAL as of the
+    // Stop-cardinality fix: Stop fires every turn, so this only inserts the
+    // turns new since the last Stop (see ingestTranscriptFragments doc above).
+    // LOCAL-only (Canon Part 8): parseTranscript reads a local file and the
+    // rows land in the active room's room.db; no Brain egress.
     await ingestTranscriptFragments(handle.db, pointer.id, memory, transcriptIngest);
 
     // Summary: when real user/assistant fragments exist, build the extractive
@@ -346,11 +424,7 @@ async function cmdStop(roomDir) {
     const summary = convoForSummary.length > 0
       ? transcriptIngest.buildSummary(convoForSummary)
       : summarizeSession(handle.db, pointer.id);
-    await memory.addFragment(handle.db, {
-      session_id: pointer.id,
-      role: 'session-summary',
-      content: summary || 'session ended',
-    });
+    await upsertSessionSummaryFragment(handle.db, pointer.id, summary || 'session ended');
     await memory.endSession(handle.db, pointer.id, {
       summary: summary || null,
       key_decisions: [],
@@ -387,7 +461,13 @@ async function cmdStop(roomDir) {
     }
   } finally {
     await closeRoomDb(handle);
-    deletePointer(roomDir);
+    // Stop-cardinality fix: do NOT delete the pointer here. Stop fires once
+    // per assistant turn (not once per session); deleting the pointer after
+    // the FIRST Stop event made every later Stop in the same session a
+    // silent no-op (readPointer returns null -> early return above), which
+    // is the root cause this fix addresses. The pointer is only ever
+    // replaced by the NEXT session-start's writePointer call, mirroring
+    // cmdPreCompact's existing "pointer kept" pattern.
   }
 }
 
