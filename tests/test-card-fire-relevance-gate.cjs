@@ -14,6 +14,11 @@
 //   Leg 3 (PRESERVE FLOOR, green NOW and must STAY green): a genuine, relevant,
 //     unanswered fork still intercepts (the Phase 209 guarantee -- this phase must
 //     not turn the backstop off entirely; that would be 209's regression in reverse).
+//   Leg 4 (BINARY EXEMPTION, navigator decision 2026-07-05): a genuine, RELEVANT,
+//     UNANSWERED 2-option binary closer passes as intercept:false reason
+//     gate-is-simple-binary through the LIVE transcript path (not just the direct
+//     unit shape). Neither relevance pass-reason can claim it (it topically overlaps
+//     the gate and does not answer it), so it proves the binary exemption is reached.
 //
 // Harness idiom copied from tests/test-209-incident-replay.cjs: JSONL transcript
 // to a tmp dir, hook_event_name Stop + transcript_path env, MINDRIAN_HOME re-point
@@ -157,6 +162,37 @@ leg('leg 3 PRESERVE FLOOR: a genuine relevant unanswered fork still intercepts (
     'PRESERVE FLOOR: a genuine, relevant, unanswered fork must STILL intercept (Phase 209 guarantee)');
   assert.equal(out.verdict.degrade, false,
     'PRESERVE FLOOR: the intercept is a real force, not a bounded-escape degrade');
+});
+
+// A genuine 2-option BINARY closer whose labels are NOT yes/no shaped (so the
+// affirmation/negation branch of gateAlreadyAnswered cannot claim it) and whose
+// subject tokens overlap the preceding user turn (so gate-irrelevant-to-turn cannot
+// claim it either). The ONLY pass-reason that can fire is gate-is-simple-binary.
+const BINARY_DRAFT_GATE = [
+  'Which draft should I open next?',
+  '1. The revenue projection draft',
+  '2. The onboarding rewrite draft',
+].join('\n');
+
+// ---------------------------------------------------------------------------
+// Leg 4 -- BINARY EXEMPTION (navigator decision 2026-07-05): a genuine, relevant,
+// unanswered 2-option binary closer must pass as intercept:false with reason
+// gate-is-simple-binary. The preceding user turn topically overlaps the gate (so it
+// is not irrelevant) but does not answer it (no ordinal, no label match, not yes/no),
+// so neither existing relevance pass-reason can claim it -- the exemption is the only
+// path, reached through the live transcript, not the direct-field unit shape.
+// ---------------------------------------------------------------------------
+leg('leg 4 BINARY EXEMPTION: a relevant unanswered 2-option binary passes as gate-is-simple-binary', function () {
+  const out = classifyTranscript([
+    { type: 'user', message: { role: 'user', content: 'can you tell me about the revenue projection draft and the onboarding rewrite draft?' } },
+    { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: BINARY_DRAFT_GATE }] } },
+  ], 'gsd-260705-m9g-binary-exemption-session');
+  assert.equal(out.turn.askuserquestion_fired, false,
+    'BINARY EXEMPTION fixture sanity: no card fired on this turn');
+  assert.equal(out.verdict.intercept, false,
+    'BINARY EXEMPTION: a simple 2-option binary closer must NOT intercept');
+  assert.equal(out.verdict.reason, 'gate-is-simple-binary',
+    'BINARY EXEMPTION: the verdict must name the simple-binary pass-reason');
 });
 
 fs.rmSync(HERMETIC_TMP, { recursive: true, force: true });
