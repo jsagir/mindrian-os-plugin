@@ -303,6 +303,24 @@ done
 pass "All ${#REQUIRED_SKILLS[@]} required skills present"
 
 # ============================================================
+# 10b. SKILL MIRRORS
+# ============================================================
+# Quick task 260705-sy9: every command is mirrored into skills/ as the Windows
+# registration workaround (260705-ob7). A stale mirror ships a wrong command
+# body to affected machines, so drift blocks the release. The check also
+# verifies the SKIP_LIST skill (trending-to-absurd) is present and still
+# genuinely divergent from its command.
+echo -e "\n${BOLD}10b. Skill Mirrors${NC}"
+
+MIRROR_OUT=$(node "$PLUGIN_ROOT/scripts/build-skill-mirrors.cjs" --check 2>&1) && MIRROR_CODE=0 || MIRROR_CODE=$?
+if [ "$MIRROR_CODE" -ne 0 ]; then
+  fail "Skill-mirror check FAILED (stale/missing mirror or broken skip-list skill):"
+  echo "$MIRROR_OUT" | head -10
+else
+  pass "Skill mirrors in sync with commands/ (build-skill-mirrors --check)"
+fi
+
+# ============================================================
 # 11. SCRIPTS EXECUTABLE
 # ============================================================
 echo -e "\n${BOLD}11. Script Permissions${NC}"

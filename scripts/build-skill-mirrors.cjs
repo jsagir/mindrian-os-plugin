@@ -209,6 +209,44 @@ function writeMirrors() {
   return { created, unchanged, overwritten, skipped, desensitizedCount, pureCopyCount };
 }
 
+// Verify every SKIP_LIST name is still a genuine hand-authored skill, not a
+// silently-deleted or flattened one. The generator never writes skip-listed
+// names, so nothing else guards them; a skip-listed skill that vanishes or is
+// reverted to a plain copy of its command would strand the affected surface
+// (trending-to-absurd is the auto-invocable Visionary Innovation Companion).
+// For each name it enforces BOTH:
+//   (a) skillsDir/name/SKILL.md exists on disk, and
+//   (b) its bytes are NOT identical to commandsDir/name.md (raw source bytes,
+//       a plain Buffer.equals compare, no desensitize transform) - the skill
+//       must stay genuinely divergent from its command.
+// If the source command file itself is missing, condition (b) passes (there is
+// nothing to be a copy of) but (a) is still enforced. Empty array = healthy.
+// Canon Part 8: local byte compares only, zero Brain calls.
+function checkSkipList(opts) {
+  const skipList = (opts && opts.skipList) || SKIP_LIST;
+  const commandsDir = (opts && opts.commandsDir) || COMMANDS_DIR;
+  const skillsDir = (opts && opts.skillsDir) || SKILLS_DIR;
+  const failures = [];
+  for (const name of skipList) {
+    const skillFile = path.join(skillsDir, name, 'SKILL.md');
+    if (!fs.existsSync(skillFile)) {
+      failures.push(name + ' (SKIP-LIST MISSING: hand-authored skill deleted)');
+      continue;
+    }
+    const cmdFile = path.join(commandsDir, name + '.md');
+    if (!fs.existsSync(cmdFile)) {
+      // No source command to be a copy of: (b) passes, (a) already satisfied.
+      continue;
+    }
+    const skillBuf = fs.readFileSync(skillFile);
+    const cmdBuf = fs.readFileSync(cmdFile);
+    if (skillBuf.equals(cmdBuf)) {
+      failures.push(name + ' (SKIP-LIST NOT DIVERGENT: reverted to a plain copy of its command)');
+    }
+  }
+  return failures;
+}
+
 function checkMirrors() {
   const failing = [];
   let ok = 0;
@@ -227,6 +265,13 @@ function checkMirrors() {
     }
     ok++;
   }
+
+  // Append SKIP_LIST verification failures to the SAME failing array so --check
+  // exits 1 on either a stale/missing mirror OR a broken skip-listed skill.
+  const skipFailures = checkSkipList();
+  const mirrorFailureCount = failing.length;
+  for (const f of skipFailures) failing.push(f);
+
   if (failing.length) {
     console.error(
       'build-skill-mirrors --check: ' +
@@ -234,12 +279,25 @@ function checkMirrors() {
         ' mirror(s) missing or stale:'
     );
     for (const f of failing) console.error('  ' + f);
-    console.error(
-      'Recovery: node scripts/build-skill-mirrors.cjs'
-    );
+    if (mirrorFailureCount > 0) {
+      console.error(
+        'Recovery: node scripts/build-skill-mirrors.cjs'
+      );
+    }
+    if (skipFailures.length > 0) {
+      console.error(
+        'Recovery for SKIP-LIST failures: restore the hand-authored skills/<name>/SKILL.md from git history (the generator never writes skip-listed names)'
+      );
+    }
     return { ok, failing };
   }
-  console.log('build-skill-mirrors --check: OK (' + ok + ' mirrors match expected content)');
+  console.log(
+    'build-skill-mirrors --check: OK (' +
+      ok +
+      ' mirrors match expected content; skip-list verified: ' +
+      SKIP_LIST.join(', ') +
+      ')'
+  );
   return { ok, failing };
 }
 
@@ -253,4 +311,6 @@ function main() {
   process.exit(0);
 }
 
-main();
+module.exports = { SKIP_LIST, computeExpectedMirror, checkMirrors, checkSkipList };
+
+if (require.main === module) main();

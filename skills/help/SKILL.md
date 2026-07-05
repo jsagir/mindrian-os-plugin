@@ -32,7 +32,7 @@ Source the families and their commands from `data/help-groups.json` at run time 
 
 Bare `/mos:help` renders **Card 1** as a single AskUserQuestion call with up to 4 questions -- one question per Card-1 family:
 
-- **Card 1 families:** `start-here` (Start Here), `rooms-data-room` (Rooms & Data Room), `frame-the-problem` (Frame the Problem), `run-a-methodology` (Run a Methodology).
+- **Card 1 families:** `start-here` (Start Here), `rooms-data-room` (Rooms & Data Room), `frame-the-problem` (Frame & Validate), `run-a-methodology` (Run a Methodology).
 - Each question's `header` is the family's label + glyph; its `options` are that family's commands (up to 4), `label` = `/mos:<command>`, `description` = that command's `help_jtbd:`.
 
 **Escape hatch (families with more than 4 commands).** AskUserQuestion shows at most 4 options per question. When a family has more than 4 commands, show its first 4 commands as options and render this exact text line under that question's options:

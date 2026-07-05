@@ -2,6 +2,7 @@
 name: stance
 description: Flip Larry's conversational stance (research / tell-act / ask / redteam)
 help_jtbd: "Flip Larry's conversational stance with one reversible cycle-and-confirm pick."
+serves_jtbd: ["navigate"]
 argument-hint: "[]"
 body_shape: F.0
 hitl_shape: F.0

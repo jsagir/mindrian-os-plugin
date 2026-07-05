@@ -34,8 +34,8 @@ if [ -f "$HOOK_PATH" ]; then
   # Idempotency: consider the hook fully installed only when ALL guards wired
   # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard +
   # the Phase 172-13 coverage gates: connector --check + projection --check).
-  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH" && grep -q "check-shape-declaration.cjs --check" "$HOOK_PATH" && grep -q "check-help-coverage.cjs" "$HOOK_PATH" && grep -q "command-registration-check.cjs" "$HOOK_PATH"; then
-    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats + shape-declaration + help-coverage + command-registration). No changes."
+  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH" && grep -q "check-render-coverage.cjs --check" "$HOOK_PATH" && grep -q "build-corpus-stats.cjs --check" "$HOOK_PATH" && grep -q "check-shape-declaration.cjs --check" "$HOOK_PATH" && grep -q "check-help-coverage.cjs" "$HOOK_PATH" && grep -q "command-registration-check.cjs" "$HOOK_PATH" && grep -q "build-skill-mirrors.cjs --check" "$HOOK_PATH"; then
+    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates + corpus-stats + shape-declaration + help-coverage + command-registration + skill-mirrors). No changes."
     exit 0
   fi
   echo "WARNING: $HOOK_PATH exists but is missing one or more MindrianOS guards."
@@ -222,6 +222,24 @@ if git diff --cached --name-only | grep -qE '^commands/.*\.md$'; then
 fi
 HOOK_TRAILER_CMD_REG
   fi
+  if ! grep -q "build-skill-mirrors.cjs --check" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_SKILL_MIRRORS'
+
+# Quick task 260705-sy9 (Canon Part 8) - skill-mirror staleness gate (HARD-FAIL).
+# Every commands/<name>.md is mirrored into skills/<name>/SKILL.md (the Windows
+# commands-registration workaround, 260705-ob7). When any commands/*.md or
+# skills/*/SKILL.md is staged, run the mirror --check and reject the commit if
+# any mirror is missing/stale OR a SKIP_LIST skill was deleted or reverted to a
+# plain copy of its command. Canon Part 8: local byte compares only, zero Brain
+# calls.
+# Recovery on drift: node scripts/build-skill-mirrors.cjs
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/scripts/build-skill-mirrors.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/scripts/build-skill-mirrors.cjs" --check || { echo "skill-mirror drift -- run: node scripts/build-skill-mirrors.cjs" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_SKILL_MIRRORS
+  fi
   # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
   # guards in just before it; otherwise append to the end of the hook.
   LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
@@ -326,10 +344,20 @@ if git diff --cached --name-only | grep -qE '^commands/.*\.md\$'; then
     node "$REPO_ROOT/lib/core/command-registration-check.cjs" || { echo "command-registration precondition FAIL - a command would silently not register" >&2; exit 1; }
   fi
 fi
+# Quick task 260705-sy9 (Canon Part 8) - skill-mirror staleness gate (HARD-FAIL).
+# Every commands/<name>.md is mirrored into skills/<name>/SKILL.md (the Windows
+# commands-registration workaround, 260705-ob7). Canon Part 8: LOCAL byte
+# compares only.
+# Recovery on drift: node scripts/build-skill-mirrors.cjs
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md)\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-skill-mirrors.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-skill-mirrors.cjs" --check || { echo "skill-mirror drift -- run: node scripts/build-skill-mirrors.cjs" >&2; exit 1; }
+  fi
+fi
 HOOK_BODY
 fi
 
 chmod +x "$HOOK_PATH"
-echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats + shape-declaration + help-coverage + command-registration)."
+echo "Pre-commit hook installed at $HOOK_PATH (schema-aliases + substrate + coverage gates + corpus-stats + shape-declaration + help-coverage + command-registration + skill-mirrors)."
 echo "To bypass for emergency commits: git commit --no-verify"
 echo "  (per Phase 108 social convention: open a canon-amendment PR within 24 hours)"
