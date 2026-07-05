@@ -38,7 +38,7 @@ Bare `/mos:help` renders **Card 1** as a single AskUserQuestion call with up to 
 **Escape hatch (families with more than 4 commands).** AskUserQuestion shows at most 4 options per question. When a family has more than 4 commands, show its first 4 commands as options and render this exact text line under that question's options:
 
 ```
-N more in this lane - type /mos:help <family-id> to see all
+N more in this family - type /mos:help <family-id> to see all
 ```
 
 `N` is computed from the data at render time (the family's live command count minus 4), and `<family-id>` is that family's id (for example `run-a-methodology`). Selecting one of the shown options runs it; to see the full family, the navigator types `/mos:help <family-id>` (the family text-list path below).
@@ -84,7 +84,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/help-renderer.cjs"
 
 Fall back to `node ./scripts/help-renderer.cjs` if `CLAUDE_PLUGIN_ROOT` is unset. The renderer walks every family (all non-admin commands) and is the single source of truth for the TEXT view. DO NOT hand-compose the text view; DO NOT hardcode color escapes.
 
-The text view is a De Stijl CARD layout: the families grouped under four color-coded lanes (start / methodology / explore / view), each command a 2-line Mondrian-block card with its `help_jtbd:` one-liner. Truecolor terminals get the DS palette; piped / ASCII terminals get the same card layout with zero ANSI.
+The text view (`--list`) is a De Stijl CARD layout: this is the renderer's own internal color grouping (start / methodology / explore / view, each its own color, unrelated to and coarser than the 11 families the default interactive selector above uses), each command a 2-line Mondrian-block card with its `help_jtbd:` one-liner. Truecolor terminals get the DS palette; piped / ASCII terminals get the same card layout with zero ANSI.
 
 ## How the renderer composes output
 

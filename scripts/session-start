@@ -81,6 +81,22 @@ portable_stat_mtime() {
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+# 2026-07-05 Windows/git-bash fix: under git-bash (MSYS), `pwd` above returns an
+# MSYS-style path (e.g. /c/Users/jsagi/...). Every `node -e "...require('$PLUGIN_ROOT/...')..."`
+# call below passes this string straight into Node's require(), but Windows-native
+# node.exe does not understand MSYS paths -- it reads /c/Users/... literally and
+# fails with "Cannot find module", which the version-resolution catch (below) then
+# silently degrades to "unknown" (the confirmed live root cause of the
+# "[MindrianOS vunknown]" banner on a real Windows machine, 2026-07-05). Normalize
+# ONCE here to the Windows-native mixed form (C:/Users/... -- forward slashes, so
+# no backslash-escaping needed inside the node -e JS string literals below) via
+# git-bash's own cygpath, and use PLUGIN_ROOT_FOR_NODE everywhere a path gets
+# passed into a `require()` call. On Linux/macOS (no cygpath), this is a no-op.
+if command -v cygpath >/dev/null 2>&1; then
+  PLUGIN_ROOT_FOR_NODE="$(cygpath -m "$PLUGIN_ROOT" 2>/dev/null || echo "$PLUGIN_ROOT")"
+else
+  PLUGIN_ROOT_FOR_NODE="$PLUGIN_ROOT"
+fi
 
 # Determine working directory (where user's project is)
 WORK_DIR="${PWD}"
@@ -90,21 +106,19 @@ ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 # python3 is a Microsoft Store alias stub on Windows and produces "vunknown".
 # platform.cjs.readPluginJsonVersion is a fail-safe Node-native read.
 # 2026-07-05 fix: the catch previously swallowed the real error and printed
-# only 'unknown' to stdout, hiding WHY resolution failed (confirmed live on
-# Windows: readPluginJsonVersion works fine when called directly with the
-# correct root, so the live failure is in how $PLUGIN_ROOT/node itself gets
-# invoked at hook time, not the resolver logic -- but that root cause was
-# unfindable-by-inspection because the evidence was destroyed on every
-# occurrence). Now logs the actual thrown error to STDERR (never stdout, so
-# PLUGIN_VERSION capture stays clean) before falling back, so the NEXT
-# occurrence is diagnosable from the hook's own stderr instead of guessed at.
-PLUGIN_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT'))}catch(e){process.stderr.write('[session-start] PLUGIN_VERSION resolution failed: '+(e&&e.stack||e)+'\n');process.stdout.write('unknown')}" 2>>"${TMPDIR:-/tmp}/mindrian-session-start-version-errors.log" || echo "unknown")
+# only 'unknown' to stdout, hiding WHY resolution failed. That logging fix
+# then revealed the ACTUAL cause live on a real Windows machine: an MSYS-style
+# path (/c/Users/...) reaching node's require(), which node.exe cannot resolve
+# -- now fixed at the source via PLUGIN_ROOT_FOR_NODE above (cygpath -m
+# normalization). Both fixes land together: the path is correct AND, if
+# anything else ever throws here, the real error is logged instead of hidden.
+PLUGIN_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT_FOR_NODE/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT_FOR_NODE'))}catch(e){process.stderr.write('[session-start] PLUGIN_VERSION resolution failed: '+(e&&e.stack||e)+'\n');process.stdout.write('unknown')}" 2>>"${TMPDIR:-/tmp}/mindrian-session-start-version-errors.log" || echo "unknown")
 
 # plan 85-06 (WIN-FIX-H-02): resolve banner script path via platform.cjs so
 # future .cmd wrappers on win32 can be substituted without editing session-
 # start. On linux/darwin this returns ${PLUGIN_ROOT}/scripts/banner with a
 # forward slash; on win32 it returns the same with a backslash.
-BANNER_SCRIPT=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').resolveHookScript('banner','$PLUGIN_ROOT'))}catch(e){process.stdout.write('$SCRIPT_DIR/banner')}" 2>/dev/null || echo "${SCRIPT_DIR}/banner")
+BANNER_SCRIPT=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT_FOR_NODE/lib/core/platform.cjs').resolveHookScript('banner','$PLUGIN_ROOT_FOR_NODE'))}catch(e){process.stdout.write('$SCRIPT_DIR/banner')}" 2>/dev/null || echo "${SCRIPT_DIR}/banner")
 
 # Version marker for update detection (D-01, D-02)
 LAST_VERSION_FILE="$HOME/.mindrian-last-version"
@@ -171,7 +185,7 @@ _INSTALL_STATE_DIR="$HOME/.mindrian"
 _INSTALL_STATE_JSON="$_INSTALL_STATE_DIR/install-state.json"
 mkdir -p "$_INSTALL_STATE_DIR" 2>/dev/null || true
 env \
-  PLUGIN_ROOT_FOR_RESOLVE="$PLUGIN_ROOT" \
+  PLUGIN_ROOT_FOR_RESOLVE="$PLUGIN_ROOT_FOR_NODE" \
   PLUGIN_VERSION_FOR_RESOLVE="$PLUGIN_VERSION" \
   INSTALL_STATE_JSON_PATH="$_INSTALL_STATE_JSON" \
   LAST_VERSION_FILE_FOR_RESOLVE="$LAST_VERSION_FILE" \
@@ -431,7 +445,7 @@ if [ -d "$ROOM_DIR" ]; then
   OPP_BANK_DIR="${ROOM_DIR}/opportunity-bank"
   if [ -d "$OPP_BANK_DIR" ]; then
     OPP_BANK_JSON=$(node -e "
-      const ops = require('${PLUGIN_ROOT}/lib/core/opportunity-ops.cjs');
+      const ops = require('${PLUGIN_ROOT_FOR_NODE}/lib/core/opportunity-ops.cjs');
       const result = ops.listOpportunities('${ROOM_DIR}');
       const opps = result.opportunities || [];
       if (opps.length === 0) { console.log(''); process.exit(0); }
@@ -670,7 +684,7 @@ else
 
     # Read scratchpad for cross-session continuity (CONV-06)
     SCRATCHPAD_SUMMARY=""
-    SCRATCHPAD_JSON=$(node -e "const sp = require('${PLUGIN_ROOT}/lib/core/scratchpad-ops.cjs'); console.log(JSON.stringify(sp.readScratchpad()))" 2>/dev/null || echo "")
+    SCRATCHPAD_JSON=$(node -e "const sp = require('${PLUGIN_ROOT_FOR_NODE}/lib/core/scratchpad-ops.cjs'); console.log(JSON.stringify(sp.readScratchpad()))" 2>/dev/null || echo "")
     if [ -n "$SCRATCHPAD_JSON" ]; then
       SP_OPP_COUNT=$(echo "$SCRATCHPAD_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).opportunities.length||0)}catch(_){console.log(0)}})" 2>/dev/null || echo "0")
       SP_PERSONA=$(echo "$SCRATCHPAD_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).persona||'')}catch(_){console.log('')}})" 2>/dev/null || echo "")
@@ -1361,7 +1375,7 @@ fi
 # Phase 108 schema-alias drift-guard pre-commit hook via scripts/install-pre-
 # commit.sh. Skipped entirely on a non-dev-clone box.
 if [ "$PLUGIN_VERSION" != "$LAST_VERSION" ] || [ -z "$LAST_VERSION" ]; then
-  _MOS_TOPOLOGY=$(node -e 'try { var r = require(process.env.PLUGIN_ROOT_FOR_RESOLVE + "/lib/core/active-plugin-root.cjs").resolveActivePluginRoot(); process.stdout.write(r.topology || "not-found"); } catch (_) { process.stdout.write("not-found"); }' PLUGIN_ROOT_FOR_RESOLVE="$PLUGIN_ROOT" 2>/dev/null)
+  _MOS_TOPOLOGY=$(node -e 'try { var r = require(process.env.PLUGIN_ROOT_FOR_RESOLVE + "/lib/core/active-plugin-root.cjs").resolveActivePluginRoot(); process.stdout.write(r.topology || "not-found"); } catch (_) { process.stdout.write("not-found"); }' PLUGIN_ROOT_FOR_RESOLVE="$PLUGIN_ROOT_FOR_NODE" 2>/dev/null)
   if [ "$_MOS_TOPOLOGY" = "dev-clone" ] && [ -x "$PLUGIN_ROOT/scripts/install-pre-commit.sh" ]; then
     # Idempotent: scripts/install-pre-commit.sh checks for the marker before
     # appending; a hook that already invokes check-schema-aliases.cjs is a no-op.
@@ -1380,7 +1394,7 @@ fi
 # BEFORE sibling cache dirs get touched. Best-effort: a prune failure
 # (`|| true`) never blocks session startup.
 if [ "$PLUGIN_VERSION" != "$LAST_VERSION" ] || [ -z "$LAST_VERSION" ]; then
-  env PLUGIN_ROOT_FOR_PRUNE="$PLUGIN_ROOT" HOME_FOR_PRUNE="$HOME" node -e '
+  env PLUGIN_ROOT_FOR_PRUNE="$PLUGIN_ROOT_FOR_NODE" HOME_FOR_PRUNE="$HOME" node -e '
     try {
       var mod = require(process.env.PLUGIN_ROOT_FOR_PRUNE + "/lib/core/cache-prune.cjs");
       var r = mod.pruneMarketplaceCache({ home: process.env.HOME_FOR_PRUNE });
@@ -1405,7 +1419,7 @@ fi
 # active room is resolvable. The active room is resolved via the same registry
 # resolver used by scripts/brain-derive-command.cjs so the slot works even when
 # the surrounding session-start state does not export ROOM_DIR at this point.
-env PLUGIN_ROOT_FOR_FEYNMAN="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_FEYNMAN="${ROOM_DIR:-}" node -e '
+env PLUGIN_ROOT_FOR_FEYNMAN="$PLUGIN_ROOT_FOR_NODE" ACTIVE_ROOM_FOR_FEYNMAN="${ROOM_DIR:-}" node -e '
   try {
     var fs = require("node:fs");
     var path = require("node:path");
@@ -1454,7 +1468,7 @@ env PLUGIN_ROOT_FOR_FEYNMAN="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_FEYNMAN="${ROOM_DIR:-
 # SAME hybrid trigger as the Phase 124 timeline (session-start cascade + the
 # /mos:dial-memory-refresh manual command). Best-effort: a failure (`|| true`)
 # never blocks session startup. The slot is a no-op when no active room resolves.
-env PLUGIN_ROOT_FOR_DIAL="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_DIAL="${ROOM_DIR:-}" node -e '
+env PLUGIN_ROOT_FOR_DIAL="$PLUGIN_ROOT_FOR_NODE" ACTIVE_ROOM_FOR_DIAL="${ROOM_DIR:-}" node -e '
   try {
     var fs = require("node:fs");
     var path = require("node:path");

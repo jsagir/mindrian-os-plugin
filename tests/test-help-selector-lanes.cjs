@@ -197,8 +197,8 @@ try {
   assert.ok(/11 famil/i.test(md), 'help.md names the 11-family surface');
   assert.ok(/3-card|3 cards|three cards|Card 1/i.test(md), 'help.md renders the 11 families as 3 cards');
   assert.ok(/AskUserQuestion call/i.test(md), 'help.md renders each card as an AskUserQuestion call');
-  assert.ok(/more in this lane - type \/mos:help <family-id> to see all/.test(md),
-    'help.md keeps the exact escape-hatch line for families over 4 commands');
+  assert.ok(/more in this family - type \/mos:help <family-id> to see all/.test(md),
+    'help.md keeps the exact escape-hatch line for families over 4 commands (2026-07-05: reworded from "lane" to "family", the last stale-copy residual a live Windows QA pass caught)');
   assert.ok(/help-renderer\.cjs --group/.test(md),
     'help.md family text-list path delegates to help-renderer.cjs --group');
   assert.ok(/data\/help-groups\.json/.test(md),
