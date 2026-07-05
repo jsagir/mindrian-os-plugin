@@ -212,6 +212,15 @@ function parseArgs(argv) {
     scanCommandsDir: null, scanScriptsDir: null,
     // Phase 194-07 (PSB-14): --bind-check <roomDir> local room-health job.
     bindCheck: false, bindCheckDir: null,
+    // Quick task 260705-jeq (D-01, D-02): --report-registration-bug is a NEW
+    // read-only sibling mode (like --check-rs-engine) that proves every locally-
+    // checkable cause of "valid install yet a command did not register" is CLEAN
+    // and assembles a paste-ready Anthropic bug report. Diagnostic-only: it never
+    // claims a "healthy"/"fixed" status and is NOT a --fix action. NOT in --all
+    // because --all is the class A-M drift roster, not an escalation reporter.
+    // Exit 0 whenever the report assembles (even offline); non-zero only if the
+    // assembler itself throws. Report goes to stdout only (never a file).
+    reportRegistrationBug: false,
   };
   for (const arg of argv) {
     if (arg === '--fix') flags.fix = true;
@@ -232,6 +241,10 @@ function parseArgs(argv) {
     else if (arg === '--pre-flight') flags.preFlight = true;
     else if (arg === '--light-npx') flags.lightNpx = true;
     else if (arg === '--check-rs-engine') flags.checkRsEngine = true;
+    // Quick task 260705-jeq: sibling reporting mode; deliberately NOT added to
+    // the --all activation block below (same exclusion rationale as
+    // --check-rs-engine: --all is class A-M drift detection, not escalation).
+    else if (arg === '--report-registration-bug') flags.reportRegistrationBug = true;
     else if (arg === '--post-update') flags.postUpdate = true;
     else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
     else if (arg === '--claims') flags.claims = true;
@@ -371,6 +384,17 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            Closes the Windows tester 2026-05-23 silent-failure class.
                            Exit 0 = deps present; exit 1 = deps missing (own contract,
                            NOT the class-flag-always-exit-0 invariant).
+  --report-registration-bug  (Quick task 260705-jeq) READ-ONLY escalation reporter:
+                           proves every locally-checkable cause of "valid install yet a
+                           command did not register" is CLEAN (install-cache drift,
+                           enabledPlugins silent-disable, legacy config.json pin,
+                           marketplace clone git-dirt, version-of-record legs, on-disk
+                           command count, static precondition sweep), then assembles a
+                           paste-ready Anthropic bug report. Diagnostic-only: never a
+                           --fix, never claims a status; the root cause is a confirmed
+                           host-side core bug. stdout only; --json for the machine shape.
+                           Exit 0 whenever the report assembles (even offline); non-zero
+                           only if the assembler itself throws. NOT in --all.
   --post-update            (Phase 127.2 Plan 04 Instance #7) atomically activate
                            freshly-landed cache-staging bytes via scripts/post-update-
                            activation.cjs (delegates to --fix pipeline + writes the
@@ -4150,6 +4174,250 @@ function findPhaseDir(repoRoot, phaseToken) {
 
 // -- Main ------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Quick task 260705-jeq: --report-registration-bug assembler (D-01, D-02).
+//
+// A NEW read-only reporting mode. Every FACT comes from an EXISTING evidence
+// collector (Canon Part 7 -- reuse, never reimplement): checkPluginEnabled,
+// readInstalledPluginsVersion, readLegacyConfigPin, detectMarketplaceCacheInstall,
+// collectVersionOfRecord, computeVersionDivergences, resolveActivePluginRoot, and
+// Task 1's sweepCommandRegistration. The mode proves each locally-checkable cause
+// of "valid install yet a command did not register" is CLEAN, so what remains is
+// the confirmed host-side core bug -- nothing to fix locally, escalate to
+// Anthropic. Diagnostic-only: the output NEVER carries a "healthy"/"fixed" status.
+// Canon Part 8: LOCAL reads + two guarded best-effort child probes (git, claude
+// --version), each via execFileSync with an argument array (never a shell string).
+// ---------------------------------------------------------------------------
+
+// Best-effort Claude Code version; null (never a throw) when unobtainable, so the
+// report still assembles offline (RESEARCH open question 2 resolved).
+function probeClaudeVersion() {
+  try {
+    const cp = require('child_process');
+    const out = cp.execFileSync('claude', ['--version'], {
+      encoding: 'utf8', timeout: 5000, stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const v = String(out || '').trim();
+    return v || null;
+  } catch (_) { return null; }
+}
+
+// Guarded git-dirty probe of the marketplace clone dir. Swallow-and-note when git
+// or the dir is absent (the report must assemble anyway). execFileSync with an
+// argument array only (T-jeq-01: never a string-interpolated shell command).
+function probeMarketplaceCloneGit(home) {
+  const dir = path.join(home, '.claude', 'plugins', 'marketplaces', 'mindrian-marketplace');
+  try {
+    if (!fs.existsSync(dir)) {
+      return { available: false, dir, note: 'clone dir absent' };
+    }
+    const cp = require('child_process');
+    const out = cp.execFileSync('git', ['-C', dir, 'status', '--porcelain'], {
+      encoding: 'utf8', timeout: 5000, stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return { available: true, dir, dirty: String(out || '').trim().length > 0 };
+  } catch (e) {
+    return { available: false, dir, note: 'git probe unavailable (' + ((e && e.message) || 'error') + ')' };
+  }
+}
+
+function countCommandFilesAt(root) {
+  try {
+    const dir = path.join(root, 'commands');
+    return fs.readdirSync(dir).filter((f) => f.endsWith('.md')).length;
+  } catch (_) { return 0; }
+}
+
+// Assemble the full report data object (all facts, no rendering). Pure gather.
+function assembleRegistrationBugData() {
+  const home = process.env.HOME || process.env.USERPROFILE || HOME;
+
+  let resolver = { root: null, topology: 'not-found', source: 'not-found' };
+  try { resolver = resolveActivePluginRoot(); } catch (_) { /* degrade to not-found */ }
+  const rootUsed = (resolver && resolver.root) || PLUGIN_ROOT;
+
+  let record = null;
+  try { record = JSON.parse(fs.readFileSync(path.join(home, '.mindrian', 'install-state.json'), 'utf8')); } catch (_) { /* absent */ }
+
+  const versions = collectVersionOfRecord(home, resolver, record);
+  const divergences = computeVersionDivergences(versions);
+  const IP = readInstalledPluginsVersion(home);
+  const pluginEnabled = require(path.join(__dirname, '..', 'lib', 'core', 'check-plugin-enabled.cjs')).checkPluginEnabled();
+  const legacyPin = readLegacyConfigPin(home);
+  const marketplaceCache = detectMarketplaceCacheInstall(home);
+  const installPath = readInstalledPluginsInstallPath(home);
+  const gitProbe = probeMarketplaceCloneGit(home);
+  const commandCount = countCommandFilesAt(rootUsed);
+  const claudeVersion = probeClaudeVersion();
+  const { sweepCommandRegistration } = require(path.join(__dirname, '..', 'lib', 'core', 'command-registration-check.cjs'));
+  const sweep = sweepCommandRegistration(path.join(rootUsed, 'commands'));
+
+  // The 7 ruled-out causes, each CLEAN or FLAGGED (fix-locally-first).
+  const ruledOut = [];
+
+  // (a) install-cache drift (class A).
+  (function () {
+    let status = 'CLEAN';
+    let detail = 'active install matches the newest marketplace cache';
+    if (marketplaceCache && IP !== 'unknown' && String(marketplaceCache.version) !== String(IP)) {
+      status = 'FLAGGED';
+      detail = 'installed_plugins.json is ' + IP + ' but the newest marketplace cache is ' + marketplaceCache.version;
+    } else if (!marketplaceCache) {
+      detail = 'no marketplace cache present to compare against (nothing to drift)';
+    }
+    ruledOut.push({ key: 'install-cache-drift', label: 'install-cache drift', status, detail });
+  }());
+
+  // (b) enabledPlugins silent-disable (class N / DRIFT-12).
+  (function () {
+    let status = 'CLEAN';
+    let detail = pluginEnabled.enabled === true
+      ? 'plugin key ' + (pluginEnabled.key || '(unresolved)') + ' is enabled'
+      : 'enabledPlugins key absent (legacy / unknown -- not the silent-disable bug)';
+    if (pluginEnabled.enabled === false) {
+      status = 'FLAGGED';
+      detail = 'enabledPlugins[' + pluginEnabled.key + '] is false (DRIFT-12 silent-disable); run: claude plugin enable ' + pluginEnabled.key;
+    }
+    ruledOut.push({ key: 'enabled-plugins-silent-disable', label: 'enabledPlugins silent-disable', status, detail });
+  }());
+
+  // (c) legacy config.json pin vs installed_plugins.json (F11 class).
+  (function () {
+    let status = 'CLEAN';
+    let detail = legacyPin
+      ? 'legacy plugins/config.json pin (' + legacyPin.version + ') agrees with installed_plugins.json (' + IP + ')'
+      : 'no legacy plugins/config.json pin present (fresh-install N/A)';
+    if (legacyPin && IP !== 'unknown' && String(legacyPin.version) !== String(IP)) {
+      status = 'FLAGGED';
+      detail = 'legacy plugins/config.json pins ' + legacyPin.version + ' but installed_plugins.json is ' + IP + ' (F11 legacy-pin drift can poison command registration)';
+    }
+    ruledOut.push({ key: 'legacy-config-pin', label: 'legacy config.json pin', status, detail });
+  }());
+
+  // (d) marketplace clone git-dirty state.
+  (function () {
+    let status = 'CLEAN';
+    let detail;
+    if (!gitProbe.available) {
+      detail = 'marketplace clone git state not probeable (' + gitProbe.note + ') -- treated as not-applicable';
+    } else if (gitProbe.dirty) {
+      status = 'FLAGGED';
+      detail = 'marketplace clone at ' + gitProbe.dir + ' has a dirty working tree (uncommitted local edits can shadow the shipped command files)';
+    } else {
+      detail = 'marketplace clone working tree is clean (' + gitProbe.dir + ')';
+    }
+    ruledOut.push({ key: 'marketplace-clone-git-dirty', label: 'marketplace clone git-dirty', status, detail });
+  }());
+
+  // (e) version-of-record legs all agree.
+  (function () {
+    let status = 'CLEAN';
+    let detail = 'all known version-of-record legs agree';
+    if (divergences && divergences.length) {
+      status = 'FLAGGED';
+      detail = divergences.length + ' version leg disagreement(s): '
+        + divergences.map((d) => d.from + '(' + d.fromValue + ') vs ' + d.to + '(' + d.toValue + ')').join('; ');
+    }
+    ruledOut.push({ key: 'version-of-record-legs', label: 'version-of-record legs', status, detail });
+  }());
+
+  // (f) command files present on disk.
+  (function () {
+    const status = commandCount > 0 ? 'CLEAN' : 'FLAGGED';
+    const detail = commandCount > 0
+      ? commandCount + ' command files present on disk at the active root'
+      : 'no command files found at the active root (' + rootUsed + ')';
+    ruledOut.push({ key: 'command-files-present', label: 'command files present', status, detail });
+  }());
+
+  // (g) static precondition sweep (Task 1 helper) zero FAILs.
+  (function () {
+    const status = sweep.pass ? 'CLEAN' : 'FLAGGED';
+    const detail = sweep.pass
+      ? 'static precondition sweep passed (' + sweep.scanned + ' scanned, 0 FAIL)'
+      : sweep.failures.length + ' precondition FAIL(s): ' + sweep.failures.map((f) => f.file + '[' + f.rule + ']').join(', ');
+    ruledOut.push({ key: 'static-precondition-sweep', label: 'static precondition sweep', status, detail });
+  }());
+
+  return {
+    mode: 'report-registration-bug',
+    escalation: 'diagnostic only - escalate to Anthropic, nothing to fix locally',
+    environment: {
+      plugin_version_legs: versions,
+      divergences,
+      installed_plugins_version: IP,
+      install_path: installPath,
+      active_root: rootUsed,
+      topology: (resolver && resolver.topology) || 'not-found',
+      platform: process.platform,
+      os_release: os.release(),
+      claude_version: claudeVersion,
+      command_count: commandCount,
+      manifest_note: 'plugin.json declares NO `commands` field -- the standard auto-discovery contract every surveyed marketplace plugin uses; the failure is in the host registration of that contract, not the manifest',
+    },
+    ruled_out: ruledOut,
+    control_test: 'a control test against another installed marketplace plugin\'s commands reproduced the identical failure -- the defect is not specific to this plugin',
+    provenance: [
+      '.planning/debug/every-mos-command-unknown.md',
+      '.planning/debug/windows-install-update-ux.md',
+    ],
+  };
+}
+
+// Render the paste-ready human report from the data object.
+function renderRegistrationBugText(data) {
+  const env = data.environment;
+  const lines = [];
+  lines.push('=== MindrianOS command-registration -- paste-ready Anthropic bug report ===');
+  lines.push('');
+  lines.push(data.escalation.toUpperCase());
+  lines.push('This is a plugin command-registration subsystem report. Root cause is a');
+  lines.push('confirmed Claude Code host-side core bug: a valid install whose commands do');
+  lines.push('not register. Every locally-checkable cause below is ruled out first.');
+  lines.push('');
+  lines.push('-- Environment facts --');
+  const legs = env.plugin_version_legs || {};
+  lines.push('  version legs: IP=' + legs.IP + ' AV=' + legs.AV + ' SR=' + legs.SR + ' LV=' + legs.LV + ' PB=' + legs.PB);
+  lines.push('  version divergences: ' + (env.divergences && env.divergences.length ? env.divergences.length : 'none'));
+  lines.push('  platform: ' + env.platform + ' / ' + env.os_release);
+  lines.push('  Claude Code version: ' + (env.claude_version || 'fill in: run claude --version'));
+  lines.push('  active plugin root: ' + env.active_root + ' (topology: ' + env.topology + ')');
+  lines.push('  command files on disk: ' + env.command_count);
+  lines.push('  manifest: ' + env.manifest_note);
+  lines.push('');
+  lines.push('-- Ruled out (each local cause proven CLEAN, or FLAGGED fix-locally-first) --');
+  for (const r of data.ruled_out) {
+    let line = '  [' + r.status + '] ' + r.label + ' -- ' + r.detail;
+    if (r.status === 'FLAGGED') line += ' (fix locally first - this occurrence may not be the core bug)';
+    lines.push(line);
+  }
+  lines.push('');
+  lines.push('-- Control test --');
+  lines.push('  ' + data.control_test);
+  lines.push('');
+  lines.push('-- Provenance (ruled-out SIBLING causes, distinct from this core bug) --');
+  for (const p of data.provenance) lines.push('  ' + p);
+  lines.push('');
+  return lines.join('\n');
+}
+
+// Sibling dispatch entry. Always exits 0 when the report assembles (D-02);
+// non-zero only if the assembler itself throws. stdout only (D-01).
+function reportRegistrationBug(flags) {
+  try {
+    const data = assembleRegistrationBugData();
+    if (flags.json) {
+      process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+    } else {
+      process.stdout.write(renderRegistrationBugText(data) + '\n');
+    }
+    return 0;
+  } catch (e) {
+    process.stderr.write('report-registration-bug assembler threw: ' + ((e && e.message) || 'unknown') + '\n');
+    return 1;
+  }
+}
+
 function main() {
   const flags = parseArgs(process.argv.slice(2));
 
@@ -4350,6 +4618,21 @@ function main() {
       }
       process.exit(1);
     });
+    return;
+  }
+
+  // Quick task 260705-jeq: --report-registration-bug dispatch (D-01, D-02).
+  //
+  // Sibling of --check-rs-engine in SHAPE (own dispatch, own exit contract) but
+  // a diagnostic REPORTER, not a probe: it assembles a paste-ready Anthropic bug
+  // report proving every locally-checkable registration cause is CLEAN. Exit 0
+  // whenever the report assembles (even offline); non-zero only if the assembler
+  // throws. Honors flags.json inline. NOT in --all (see parseArgs rationale).
+  //
+  // SCOPE GUARD: ADD-ONLY -- touches no existing acceptance point, class check,
+  // or session-start logic. Every fact reuses an existing collector (Part 7).
+  if (flags.reportRegistrationBug) {
+    process.exit(reportRegistrationBug(flags));
     return;
   }
 

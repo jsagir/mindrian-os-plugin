@@ -1,8 +1,8 @@
 ---
 name: doctor
-description: "Diagnose and optionally repair MindrianOS install: detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, statusline visibility drift, and Brain end-to-end smoke"
+description: "Diagnose and optionally repair MindrianOS install: install-cache drift, sentinel gaps, active-room guard, surface-verification, ROOM.md drift, UI compliance, statusline visibility, Brain smoke, and a paste-ready command-registration bug report for Anthropic"
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
-argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
+argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--report-registration-bug] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
 body_shape: E (Action Report)
 hitl_shape: "F.0"
 hitl_why: "It surfaces one diagnosed repair for a single approve-or-defer decision."
@@ -67,10 +67,15 @@ Look at the user's invocation:
 - `/mos:doctor --stale-first-touch` → class K (Phase 121.5-05; SEED-007 absorption) -- scans `data/first-touch-surfaces.json`-declared greeting surfaces (banner, splash, onboard, sessionstart, operator-update, larry-extended) for stale version literals (older than the running plugin) and U+2014 em-dash violations on surfaces flagged `em_dash_check: true`
 - `/mos:doctor --deprecated-usage` → class L (Phase 121.5-08 Sub-plan J) -- scans last-7-days `~/.claude/projects/.../*.jsonl` session transcripts for `/mos:<deprecated>` patterns (heal/query/organize/hmi-status/visualize/diagnostics) and surfaces a per-command "use `/mos:<new>` instead" hint. Pure LOCAL scan; zero network, zero Brain. Also activated by `--all`.
 - `/mos:doctor --brain-smoke` → class M (Phase 127-02 BRAIN-MCP-127-08): 5-layer Brain end-to-end probe (plugin root resolver, key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema via the bundled shim). Diagnostic-only; reports the exact failing layer with fail-fast cascade. Detects 12 Phase 126 failure-mode rows in one composable test (the doctor's single Brain smoke).
+- `/mos:doctor --report-registration-bug` → READ-ONLY escalation reporter (Quick task 260705-jeq). Proves every locally-checkable cause of "valid install yet a command did not register" is CLEAN (install-cache drift, enabledPlugins silent-disable, legacy config.json pin, marketplace clone git-dirt, version-of-record legs, on-disk command count, static precondition sweep), then assembles a paste-ready Anthropic bug report. Diagnostic-only: it is NOT a `--fix` and never claims a status; the root cause is a confirmed host-side Claude Code core bug. stdout only; add `--json` for the machine shape. Exit 0 whenever the report assembles (even offline). NOT part of `--all`.
 - `/mos:doctor --fix` → diagnostic + auto-recovery for any class that supports --fix (class A, B, E, G)
 - `/mos:doctor --json` → machine-readable output (for hooks / regression tests)
 
 Combine flags freely: `/mos:doctor --all --json --fix`.
+
+## The `--report-registration-bug` mode (escalation reporter)
+
+When a user reports that `/mos:*` commands do not register despite a valid install, run `/mos:doctor --report-registration-bug`. It is a NEW read-only sibling mode (not a class flag, not part of `--all`, and NOT a `--fix`). It reuses the doctor's existing evidence collectors to prove every locally-checkable cause is CLEAN, then prints a paste-ready bug report for Anthropic. The root cause is a confirmed host-side Claude Code core bug (see `.planning/debug/every-mos-command-unknown.md`), so there is nothing to repair locally; the report is the deliverable the navigator pastes upstream. If a local cause is NOT clean (for example install-cache drift), that line is FLAGGED "fix locally first" and the mode still exits 0. Never a status claim; the report intentionally avoids declaring the install well or repaired.
 
 ## Step 2: Execute
 
