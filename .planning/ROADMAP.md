@@ -2889,15 +2889,15 @@ Plans:
 **Requirements**: TBD
 **Depends on:** Phase 200 (RS Engine Spine)
 **Not blocked by:** the active curing-sequence debug track (`.planning/debug/beta13-curing-sequence-persona-and-commands-bisect.md`) - Phase 200 is untouched by it.
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 
 Plans:
 
-- [ ] 211-01-PLAN.md - deps legitimacy gate + the embedding spine (D-200-1 encoder swap: Xenova/all-MiniLM-L6-v2 q8 via transformers.js)
-- [ ] 211-02-PLAN.md - tri-modal room.db: FTS5 lexical leg + sqlite-vec vector leg (CJS-cosine fallback) + RRF fusion (EUREKA_RRF_K=25) + FlashRank-model rerank
-- [ ] 211-03-PLAN.md - the MEASURED differential: scoreMeasured (signed, directional, provenance-tagged) + pure-CJS lexicalOverlap; legacy score() untouched
-- [ ] 211-04-PLAN.md - SEED-050 gold set front-load: 6 case cards + COMPRESSION formula + manual Larry baseline (human checkpoint)
-- [ ] 211-05-PLAN.md - real-room run (scripts/eureka-room-report.cjs) + run-all-211.sh + Cross-Topic Connection judge gate + eureka spot-check (human checkpoint)
+- [x] 211-01-PLAN.md - deps legitimacy gate + the embedding spine (D-200-1 encoder swap: Xenova/all-MiniLM-L6-v2 q8 via transformers.js)
+- [x] 211-02-PLAN.md - tri-modal room.db: FTS5 lexical leg + sqlite-vec vector leg (CJS-cosine fallback) + RRF fusion (EUREKA_RRF_K=25) + FlashRank-model rerank
+- [x] 211-03-PLAN.md - the MEASURED differential: scoreMeasured (signed, directional, provenance-tagged) + pure-CJS lexicalOverlap; legacy score() untouched
+- [x] 211-04-PLAN.md - SEED-050 gold set front-load: 6 case cards + COMPRESSION formula + manual Larry baseline (human checkpoint)
+- [x] 211-05-PLAN.md - real-room run (scripts/eureka-room-report.cjs) + run-all-211.sh + Cross-Topic Connection judge gate + eureka spot-check (human checkpoint)
 
 ### Phase 212: Eureka Substrate + Grounding Guard (eureka-substrate-grounding-guard) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seeds SEED-049 + SEED-050**
 
@@ -2916,6 +2916,7 @@ Plans:
 **Goal:** Wire the eureka-reach + LarryReacts into Phase 190's build-gate declaration, Phase 202's disqualifier, and Phase 205's elevation tree - gated by Phase 212's Grounding Guard passing calibration, plus the Arrival grader, status-quo label, and the deterministic COMPRESSION meter (SEED-050: `Score = CompressionDelta x GuardGate x StatusQuoGate`). Generator (049) + critic (050) = the two-in-a-box; neither ships trustworthy alone. **Sensor id correction (2026-07-04 audit):** the new eureka sensor is **SENS-13**, not SENS-11 as the original seed draft said - SENS-11 is already live (Phase 203-03 reusable-expert/save-as-skill, `lib/core/sensors/sensor-expert-skill.cjs`). Verify against `lib/core/insight-sensors.cjs` + `lib/core/sensors/` before assigning any id at build time.
 
 **Real-intent scope addendum (2026-07-05, navigator-clarified):** the actual purpose of the 188-205 arc was never just "file each command into a sub-room" - it was to use each command's specific JTBD, audience (admin vs user-facing), and declared F-shape to build a working LarryReacts that RECOMMENDS (never triggers) the right next command, with navigation between commands feeling like a natural conversational segue. That goal was not achieved by 209; what shipped instead drifted into over-strict enforcement (disqualifiers, forced cards) that Phase 210 partially reverted. Phase 213 IS where this gets finished. Research confirms the raw material already exists and does NOT need to be rebuilt:
+
 - JTBD + F-shape + admin/user-facing audience are ALREADY in the canonical source: `commands/*.md` frontmatter (`hitl_shape` on 99/107 files, `serves_jtbd`, `connector.excluded` for admin-only surfaces like `admin.md`) and its machine-readable projection `data/command-registry.json`. This is the source of truth for LarryReacts to read - not the research room.
 - Traversal/recommendation machinery ALREADY EXISTS: `lib/brain/chain-recommender.cjs` (`recommendFrameworkChain`, FEEDS_INTO traversal) + `lib/workflow/command-resolver.cjs` (`composeWorkflow`). Phase 213 wires INTO this, it does not build a traversal from scratch.
 - `room/command-research/` (116 ROOM.md sub-rooms) + `.planning/research/command-map/` (103 dossiers + INDEX.md) + `room/.mindrian/room.db` (confirmed live: 710 `RELATED_TO` edges) are real and rich, but they are a ONE-TIME ENRICHMENT INPUT (backfill thin `serves_jtbd`/`related` frontmatter fields from the dossiers where they're sparse), NOT a fourth live runtime data path. Querying three overlapping sources of command truth at runtime (frontmatter, dossiers, room.db edges) is the mistake to avoid - pick frontmatter/command-registry.json as canonical, enrich it once, then build the recommend-loop on that single source.
