@@ -89,7 +89,16 @@ ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 # Read current version from plugin.json via platform.cjs (plan 85-06 sweep).
 # python3 is a Microsoft Store alias stub on Windows and produces "vunknown".
 # platform.cjs.readPluginJsonVersion is a fail-safe Node-native read.
-PLUGIN_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT'))}catch(e){process.stdout.write('unknown')}" 2>/dev/null || echo "unknown")
+# 2026-07-05 fix: the catch previously swallowed the real error and printed
+# only 'unknown' to stdout, hiding WHY resolution failed (confirmed live on
+# Windows: readPluginJsonVersion works fine when called directly with the
+# correct root, so the live failure is in how $PLUGIN_ROOT/node itself gets
+# invoked at hook time, not the resolver logic -- but that root cause was
+# unfindable-by-inspection because the evidence was destroyed on every
+# occurrence). Now logs the actual thrown error to STDERR (never stdout, so
+# PLUGIN_VERSION capture stays clean) before falling back, so the NEXT
+# occurrence is diagnosable from the hook's own stderr instead of guessed at.
+PLUGIN_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT'))}catch(e){process.stderr.write('[session-start] PLUGIN_VERSION resolution failed: '+(e&&e.stack||e)+'\n');process.stdout.write('unknown')}" 2>>"${TMPDIR:-/tmp}/mindrian-session-start-version-errors.log" || echo "unknown")
 
 # plan 85-06 (WIN-FIX-H-02): resolve banner script path via platform.cjs so
 # future .cmd wrappers on win32 can be substituted without editing session-
@@ -624,7 +633,14 @@ else
   ONBOARD_STATUS=$("${SCRIPT_DIR}/check-onboard" 2>/dev/null || echo "CURRENT")
   ONBOARD_TYPE=$(echo "$ONBOARD_STATUS" | head -1)
 
-  COLD_START_MENU="---\nGet started:\n  /mos:new-project .... Start a new venture project\n  /mos:help ........... See what Larry can help with\n  /mos:diagnose ....... Classify your problem type\n\nOr just talk -- Larry is a thinking partner first.\nType /mos: to see all 45 commands.\n  /mos:update ......... Check for latest features\n---"
+  # Command count computed LIVE (was a hardcoded "45" literal that drifted
+  # stale across every command-count-adding phase -- confirmed 2026-07-05 via
+  # a real Windows cross-check: disk had 107 clean commands/*.md, the banner
+  # still advertised 45, and doc archaeology showed the same literal frozen at
+  # 71/66/72/83 at various earlier points. Never recompute by hand again.
+  LIVE_COMMAND_COUNT=$(ls -1 "${PLUGIN_ROOT}/commands/"*.md 2>/dev/null | wc -l | tr -d ' ')
+  if [ -z "$LIVE_COMMAND_COUNT" ] || [ "$LIVE_COMMAND_COUNT" = "0" ]; then LIVE_COMMAND_COUNT="all"; fi
+  COLD_START_MENU="---\nGet started:\n  /mos:new-project .... Start a new venture project\n  /mos:help ........... See what Larry can help with\n  /mos:diagnose ....... Classify your problem type\n\nOr just talk -- Larry is a thinking partner first.\nType /mos: to see ${LIVE_COMMAND_COUNT} commands.\n  /mos:update ......... Check for latest features\n---"
 
   # Enable auto-update by default for new installs
   if [ "$ONBOARD_TYPE" = "FIRST_INSTALL" ]; then
