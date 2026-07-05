@@ -471,6 +471,19 @@ function classifyCardFire(turn, registry) {
     // gate-relevance.cjs) and falls through to the existing intercept -- the Phase 209
     // guarantee (a genuine, relevant, unanswered fork still force-fires) is preserved.
     // CR-03: preceding_user_text feeds ONLY this verdict, never the retry key.
+    //
+    // 2026-07-05 relevance-gate PRIMARY-path fix: gateAlreadyAnswered's gateLabels
+    // (derived from outputText) is UNTOUCHED below -- only gateTopicallyRelevant's
+    // second argument changes. WHY: on the PRIMARY path, outputText is the CURRENT
+    // TURN's assistant reply, and the model naturally echoes the user's current
+    // topic back when answering it -- so comparing precedingUserText against
+    // outputText almost always looked "relevant" no matter what the stale reach
+    // was actually about (it was comparing the user's turn against the assistant's
+    // OWN reply to that turn, never against the reach's real subject). Now it
+    // compares against the reach's own recorded subject text (gate_subject_text,
+    // the gate's own rendered header/body/label content) when available, falling
+    // back to the prior outputText behavior only when no such subject text exists
+    // (the BACKSTOP path, where outputText legitimately IS the gate-shaped text).
     const precedingUserText = typeof t.preceding_user_text === 'string'
       ? t.preceding_user_text
       : '';
@@ -478,7 +491,10 @@ function classifyCardFire(turn, registry) {
     if (gateRelevance.gateAlreadyAnswered(precedingUserText, gateLabels)) {
       return { intercept: false, reason: 'gate-already-answered', degrade: false };
     }
-    if (!gateRelevance.gateTopicallyRelevant(precedingUserText, outputText)) {
+    const gateSubjectText = (typeof t.gate_subject_text === 'string' && t.gate_subject_text)
+      ? t.gate_subject_text
+      : outputText;
+    if (!gateRelevance.gateTopicallyRelevant(precedingUserText, gateSubjectText)) {
       return { intercept: false, reason: 'gate-irrelevant-to-turn', degrade: false };
     }
 
@@ -919,6 +935,13 @@ function deriveTurnSignals(env) {
     ? e.ran_entries
     : (Array.isArray(e.reached_gate_entries) ? e.reached_gate_entries : []);
 
+  // 2026-07-05 relevance-gate fix: the reach's OWN recorded subject text
+  // (side-channel only, populated ONLY when the side-channel itself supplied
+  // ranEntries -- i.e. the true PRIMARY path). '' on the BACKSTOP path (no
+  // side-channel producer runs there), so classifyCardFire falls back to its
+  // prior output_text comparison unchanged for that path.
+  let sideChannelSubjectText = '';
+
   if (ranEntries.length === 0) {
     try {
       const sidechannel = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'card-fire-sidechannel.cjs'));
@@ -926,6 +949,12 @@ function deriveTurnSignals(env) {
       const fromSideChannel = sidechannel.readReachedGates(sessionId);
       if (Array.isArray(fromSideChannel) && fromSideChannel.length > 0) {
         ranEntries = fromSideChannel;
+        try {
+          const subjects = sidechannel.readReachedGateSubjects(sessionId);
+          sideChannelSubjectText = Array.isArray(subjects) ? subjects.join(' ') : '';
+        } catch (_e2) {
+          sideChannelSubjectText = '';
+        }
       }
     } catch (_e) {
       /* degrade to empty ran_entries; BACKSTOP alone still applies */
@@ -978,6 +1007,12 @@ function deriveTurnSignals(env) {
     session_id: typeof e.session_id === 'string' ? e.session_id : '',
     gate_signature: gateSig,
     preceding_user_text: precedingUserText,
+    // 2026-07-05 relevance-gate fix: direct-field envelopes (the unit-test
+    // seam) keep precedence over the side-channel-derived subject text,
+    // mirroring the existing ran_entries precedence rule exactly.
+    gate_subject_text: (typeof e.gate_subject_text === 'string' && e.gate_subject_text)
+      ? e.gate_subject_text
+      : sideChannelSubjectText,
   };
 }
 

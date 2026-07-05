@@ -13,7 +13,7 @@ const path = require('node:path');
 
 const REPO = path.join(__dirname, '..');
 const sidechannel = require(path.join(REPO, 'lib', 'core', 'card-fire-sidechannel.cjs'));
-const { recordReachedGate, readReachedGates } = sidechannel;
+const { recordReachedGate, readReachedGates, readReachedGateSubjects } = sidechannel;
 
 let n = 0;
 function ok(desc, fn) { fn(); n += 1; console.log('  ok   ' + desc); }
@@ -125,6 +125,7 @@ ok('Source proof: recordReachedGate sits inside the emitTelemetry guard in selec
 // ---------------------------------------------------------------------------
 
 const checkCardFire = require(path.join(REPO, 'scripts', 'check-card-fire.cjs'));
+const gateRelevance = require(path.join(REPO, 'lib', 'core', 'gate-relevance.cjs'));
 
 ok('Behavior 5: a session with side-channel records and no fired card classifies reached-gate-no-card even with plain-prose output text', function () {
   const f = tmpFile();
@@ -214,6 +215,86 @@ ok('Behavior 7: an empty/missing side file leaves behavior byte-identical to tod
   }
 });
 
+// ---------------------------------------------------------------------------
+// Task 3: the PRIMARY-path relevance-gate false-positive fix (2026-07-05)
+// ---------------------------------------------------------------------------
+
+ok('Behavior 8: subject round trip + truncation - a normal subject is returned verbatim, an oversized one is truncated to MAX_SUBJECT_CHARS', function () {
+  const f = tmpFile();
+  const normal = 'rethinking-mindrianos governing_thought solution-design';
+  const long = 'x'.repeat(sidechannel.MAX_SUBJECT_CHARS + 500);
+  try {
+    recordReachedGate({ sessionId: 's8', surface: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', subjectText: normal, filePath: f });
+    recordReachedGate({ sessionId: 's8', surface: 'scripts/intent-classifier.cjs', shape: 'F.8', subjectText: long, filePath: f });
+    const subjects = readReachedGateSubjects('s8', { filePath: f });
+    assert.equal(subjects.indexOf(normal) !== -1, true, 'the normal subject must be present verbatim');
+    const truncated = subjects.find(function (s) { return s.length > 0 && s[0] === 'x'; });
+    assert.equal(typeof truncated, 'string', 'the long subject must be present (truncated)');
+    assert.equal(truncated.length, sidechannel.MAX_SUBJECT_CHARS, 'the long subject must be truncated to MAX_SUBJECT_CHARS');
+  } finally {
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+ok('Behavior 9: the false-positive regression proof (the literal 2026-07-05 incident shape) - a stale PRIMARY reach about an unrelated topic no longer force-blocks a turn about a different current topic', function () {
+  const f = tmpFile();
+  const origEnv = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  const staleSubject = 'rethinking-mindrianos governing_thought solution-design MindrianOS architecture refactor';
+  try {
+    // The stale reach: a PRIMARY registry-gate hit whose OWN subject text is
+    // about the unrelated stale topic (the actual incident shape).
+    recordReachedGate({
+      sessionId: 'sess-incident-2026-07-05',
+      surface: 'lib/hmi/selector-dispatcher.cjs',
+      shape: 'F.1',
+      subjectText: staleSubject,
+      filePath: f,
+    });
+
+    // The CURRENT turn is about a completely different topic (drafting a
+    // Gmail email about an assignment status), and the model's reply
+    // naturally echoes that current topic back -- the exact mechanism that
+    // caused the old code (comparing precedingUserText against outputText)
+    // to false-positive as "relevant" regardless of the stale reach's real
+    // subject.
+    const precedingUserText = 'can you draft the Gmail email about the assignment status for Diana';
+    const outputText = 'Sure, drafting the Gmail email now about the assignment status.';
+
+    const env = {
+      session_id: 'sess-incident-2026-07-05',
+      output_text: outputText,
+      preceding_user_text: precedingUserText,
+      askuserquestion_fired: false,
+    };
+    const turn = checkCardFire.deriveTurnSignals(env);
+    assert.equal(turn.gate_subject_text, staleSubject, 'gate_subject_text must equal the recorded subject text');
+
+    const registry = checkCardFire.loadRegistry();
+    const verdict = checkCardFire.classifyCardFire(turn, registry);
+    assert.deepStrictEqual(
+      { intercept: verdict.intercept, reason: verdict.reason },
+      { intercept: false, reason: 'gate-irrelevant-to-turn' },
+      'the fixed code must recognize the stale reach is irrelevant to the current turn and NOT intercept'
+    );
+
+    // Mechanism-of-failure proof, kept as a documented contrast (NOT a
+    // behavior change to gate-relevance.cjs itself): the OLD comparison
+    // (precedingUserText vs outputText, the model's own reply) would have
+    // returned true (looked "relevant") for this exact fixture, because the
+    // reply naturally echoes the user's current-turn topic back.
+    assert.equal(
+      gateRelevance.gateTopicallyRelevant(precedingUserText, outputText),
+      true,
+      'the OLD comparison (user turn vs the assistant own reply) is the mechanism of the original false positive'
+    );
+  } finally {
+    if (origEnv === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
 ok('Constitutional floor is byte-untouched: MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12', function () {
   assert.equal(checkCardFire.MAX_FORCE_RETRIES, 3);
   assert.equal(checkCardFire.MAX_SESSION_INTERCEPTS, 12);
@@ -221,6 +302,7 @@ ok('Constitutional floor is byte-untouched: MAX_FORCE_RETRIES=3, MAX_SESSION_INT
   assert.equal(/const MAX_FORCE_RETRIES = 3;/.test(src), true);
   assert.equal(/const MAX_SESSION_INTERCEPTS = 12;/.test(src), true);
   assert.equal(src.indexOf('readReachedGates') !== -1, true, 'the consumer must call readReachedGates');
+  assert.equal(src.indexOf('gate_subject_text') !== -1, true, 'the relevance-gate PRIMARY-path fix must be wired');
 });
 
 console.log('\nPASS test-209-primary-sidechannel (' + n + ' assertions)');
