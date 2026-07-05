@@ -2620,6 +2620,12 @@
       "name": "conversation-mode"
     },
     {
+      "id": "skill:help",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "help"
+    },
+    {
       "id": "skill:intelligence-orchestrator",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
