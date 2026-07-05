@@ -142,3 +142,9 @@ None. The `encodeFn`/`_forceUnavailable` seams are test injection points (offlin
 - **211-02** consumes `embedTexts` for the vector leg and `sqlite-vec` (installed here) for the vector virtual table. `embedTexts` returns L2-normalized 384-dim `number[][]` with provenance; degrades to `encoder_unavailable`.
 - **211-03** consumes the measured semantic leg via the same `embedTexts` and the reused `cosineSimilarity`.
 - Env tunables available: `MINDRIAN_EMBED_MODEL` (default `Xenova/all-MiniLM-L6-v2`), `MINDRIAN_EMBED_DTYPE` (default `q8`), `MINDRIAN_MODEL_CACHE` (optional cache dir).
+
+## Self-Check: PASSED
+
+- Files exist: `lib/core/eureka/embedding-spine.cjs`, `tests/test-211-embedding-spine.cjs`, `211-01-SUMMARY.md` - all FOUND.
+- Commits exist: `ba52600c` (RED test), `a9aa9ea3` (GREEN feat) - both FOUND in git log.
+- Offline tests 5/5 PASS; Phase 200 regression suite PASS=6 FAIL=0.
