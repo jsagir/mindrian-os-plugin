@@ -74,6 +74,11 @@ run_if "211-05 judge gate (offline contract + deployed judge)" "tests/test-211-j
 run_if "211-05 eureka-room-report offline smoke" "scripts/eureka-room-report.cjs" \
   node scripts/eureka-room-report.cjs --db room --offline --top 5 --out /tmp/211-gate-smoke.md
 
+# (7) D1 vector-store adapter (260706-13z): ensureStore + eureka_meta +
+#     dim-rebuild-on-model-swap contract, cjs-fallback path.
+run_if "260706-13z vector-store adapter" "tests/test-211-vector-store.cjs" \
+  node tests/test-211-vector-store.cjs
+
 echo "======================================"
 echo "Phase 211: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
 echo "======================================"
