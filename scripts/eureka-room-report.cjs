@@ -196,6 +196,7 @@ function renderReport(ctx) {
   L.push('| Nodes in room | ' + ctx.nodeCount + ' |');
   L.push('| Nodes indexed (non-empty text) | ' + ctx.indexedCount + ' |');
   L.push('| Cross-boundary pairs scored | ' + ctx.pairCount + ' |');
+  L.push('| Pairs skipped (Part 8 figure-guard) | ' + (ctx.part8Skipped || 0) + ' |');
   L.push('| Run date | ' + ctx.runDate + ' |');
   L.push('');
 
@@ -326,6 +327,7 @@ async function main(argv) {
 
     // (4) + (5): enumerate CROSS-BOUNDARY pairs and score with reused vectors.
     const scored = [];
+    let part8Skipped = 0;
     const fireCounts = {};
     for (let i = 0; i < FIRE_BANDS.length; i += 1) fireCounts[FIRE_BANDS[i]] = 0;
 
@@ -336,8 +338,18 @@ async function main(argv) {
         const crossDomain = a.root !== b.root;
         const crossType = a.type !== b.type;
         if (!crossDomain && !crossType) continue; // same-domain same-type excluded
-        // eslint-disable-next-line no-await-in-loop
-        const r = await scoreMeasured(a.text, b.text, { vectors: [a.vec, b.vec] });
+        // scoreMeasured runs the Canon Part 8 defense-in-depth audit on its
+        // inputs and THROWS ExternalEgressViolation on a forbidden pattern (e.g.
+        // a K/M/B figure). This runner is LOCAL-only (it never egresses), so a
+        // single tripping node must not abort the whole report: skip + count it.
+        let r;
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          r = await scoreMeasured(a.text, b.text, { vectors: [a.vec, b.vec] });
+        } catch (_e) {
+          part8Skipped += 1;
+          continue;
+        }
         if (r.warning === 'encoder_unavailable' || r.signed_diff === null) continue;
         const absd = r.abs_diff;
         for (let k = 0; k < FIRE_BANDS.length; k += 1) {
@@ -367,6 +379,7 @@ async function main(argv) {
       nodeCount: rows.length,
       indexedCount: idx.indexed,
       pairCount: scored.length,
+      part8Skipped: part8Skipped,
       runDate: runDate,
       fireCounts: fireCounts,
       top: opts.top,
