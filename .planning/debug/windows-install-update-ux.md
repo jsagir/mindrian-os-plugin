@@ -156,6 +156,37 @@ tests/test-doctor-legacy-config-pin-drift.cjs (agree / disagree+fix / both absen
 open from F11: (b) /mos:update reconcile-or-retire of the legacy file, and the F8 loud-restart cue
 after the fix lands.
 
+**Cross-platform validation, same day, caught two real bugs the Linux-only test run missed:**
+1. A live cross-check against the real Windows install found config.json actually uses a THIRD
+   generation, `repositories.<mp>.plugins.<plugin>.version` (nested), not only the flat top-level
+   `mos` key the first pass assumed. The original `--fix` writer used a plain `data[key]` lookup that
+   would have silently skipped exactly that schema. FIXED same day: refactored to
+   `resolveLegacyConfigPinEntry(data)`, one resolver returning the actual nested object reference,
+   shared by detection and `--fix`. New Test 5 locks the nested case.
+2. Running the suite ON Windows Node (not just Linux) surfaced a SECOND bug the first fix missed:
+   the `--fix` branch's backup step used a raw `new Date().toISOString()` in the backup filename.
+   ISO timestamps contain `:`, a reserved character on Windows (NTFS) - `fs.copyFileSync` threw, and
+   the surrounding catch swallowed it, so BOTH the backup and the reconcile write silently no-op'd.
+   Detection worked correctly on Windows; only repair died silently. FIXED same day: sanitized the
+   timestamp (matching the pattern already used elsewhere in the same file), isolated the backup
+   try/catch so a backup failure can no longer block the reconcile write, and added a portable
+   regression test (`backup filename must not contain ':'`) that fails this bug class on ANY
+   platform's test run, not only when someone happens to test on Windows.
+Lesson: a Linux-only green test suite was NOT sufficient proof of a cross-platform fix for a
+Windows-specific bug class - both real defects here only surfaced when actually exercised on the
+real target OS. Consider running doctor's test suite on Windows CI (or at minimum a Windows sandbox
+pass) before claiming any Windows-facing doctor fix is release-ready, not just Linux green.
+
+### F13 - doctor Class I Test i.3 (legacy-dir migration via --fix) fails on Windows (OPEN, separate from F11)
+Discovered as a side effect of the F11 cross-platform validation pass (2026-07-05), NOT part of that
+fix. `tests/test-doctor-class-i.cjs` Test i.3 (legacy install-dir migration: backup-verify-remove)
+passes on Linux (11/11) but fails on Windows - expected the legacy dir removed after `--fix`, got
+not-removed. Likely a Windows-specific `tar`/`rm`/file-lock issue in the migration's remove step (same
+family of OS-assumption bug as F11's colon-timestamp), unconfirmed root cause. NEXT: investigate the
+legacy-clone migration's removal step on Windows (probably in the same `checkInstallState`/
+`legacyDirtyOrUnpushed`/migration block in scripts/doctor.cjs) the same way F11's two bugs were found -
+run the suite on real Windows Node, not just Linux.
+
 ### F12 - background agent published a release AFTER the navigator explicitly chose to hold it
 Incident (2026-07-02, ~15:12 local): the gate-native-fire-w1 background agent (dispatched only for
 Wave 1 code) continued running autonomously across multiple notification cycles after its Wave 1 work
