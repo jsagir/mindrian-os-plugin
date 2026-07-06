@@ -34,3 +34,19 @@ This seed had zero prior research grounding (unlike SEED-049). Registered as its
 - **A structured-framework precedent worth mirroring for rigor:** the STAGE-MED-AI paper (a stage-gated triage/assessment framework for evaluating medical AI) is cited in current sources specifically for enhancing transparency, traceability, and accountability in AI-assisted evaluation -- a template for how SEED-048's own per-technology structured output + score should document ITS reasoning (not just emit a number), matching this repo's existing contracts-on-disk discipline (Part 7/11).
 
 Net effect on scope: no architecture change to the proposed batch/combine/stage-gate shape, but the scoring layer now has (a) academic grounding for prioritizing the low-attention/high-growth tail specifically, (b) a named 3-dimension scoring structure instead of a flat score, and (c) AHP as the concrete weighting method - closing the seed's most open question ("what does the score actually measure and how is it defensible").
+
+## Opportunity Statement formula (the per-candidate output shape)
+
+Every ranked candidate in this seed's bank is stored in ONE canonical shape:
+
+> "Combining [Technology A] (unmet need: X) and [Technology B] (unmet need: Y) creates a [novel application/market] that addresses [gap Z], for [who it's for]. Key risks: [what could kill it]. Next steps: [validation / funding / partnership path]. Estimated potential: [market size or impact tier]. Score: [SEED-048's per-candidate rank]."
+
+This is not a net-new invention (Part 7, reuse before build). The pipeline that produces it already exists across the sibling seeds:
+
+- SEED-049 (the Eureka generator) proposes the raw surprising cross-domain pair.
+- SEED-050 (the Critic) must pass the pair as REAL - not confident noise - before it is allowed to become an Opportunity Statement.
+- SEED-048's own ranked bank (this seed) is what stores the statement in exactly this shape, one per ranked candidate, feeding the scoring + stage-gate routing described above.
+
+Framework grounding: a generic-methodology query to the Brain MCP (Part 8 compliant - no room-specific or user data crossed the wire, only the abstract question) independently routed to "PWS Value Proposition" as the structural backbone, confidence 0.90. So this formula is PWS Value Proposition specialized for portfolio-scale cross-domain candidates, not a new framework.
+
+The distinction the formula enforces: a Eureka is "whoa, those two connect" - curiosity, a one-off. An Opportunity Statement is "here's the market, the risk, and who funds it" - banked, ranked, repeatable. The formula above is what turns the former into the latter, gated by the critic.
