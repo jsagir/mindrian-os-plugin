@@ -2946,7 +2946,12 @@ Plans:
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 213 to break down)
+- [ ] 213-01-PLAN.md - the 3 deferred graders (Arrival/Lured-negative, status-quo label, deterministic COMPRESSION meter, local code)
+- [ ] 213-02-PLAN.md - the KEY's detector: SENS-13 eureka sensor riding the FROZEN deep_research reach (injection seams, no hardcoded embedder)
+- [ ] 213-03-PLAN.md - register SENS-13 into the sensor spine + a decide() runtime-reachability test (185 predicate, fails-otherwise)
+- [ ] 213-04-PLAN.md - the LarryReacts composer: guard-cleared eureka side-channel -> recommend-never-trigger offer (composeWorkflow/chain-recommender)
+- [ ] 213-05-PLAN.md - wire 190/202/205 in their POST-210 softened semantics (V3 resolution; fusion-router socket-injected, not edited)
+- [ ] 213-06-PLAN.md - run-all-213 aggregator + cross-surface Part-8 boundary suite + human-verify probe (autonomous:false; execution gated on curing verdict + 212-05)
 
 ### Phase 214: Eureka Pattern-Transfer + Find-Analogies (eureka-pattern-transfer) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seed SEED-049**
 
@@ -2957,7 +2962,10 @@ Plans:
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 214 to break down)
+- [ ] 214-01-PLAN.md - the one net-new engine: lib/core/eureka/analogy-fitness.cjs (two-leg text-cosine + SAPPhIRE structural rubric; no hardcoded embedder)
+- [ ] 214-02-PLAN.md - lib/core/eureka/online-* Part-8-safe egress composer (inline auditQueryString/rs-egress-prompts default; 196 hook covers mcp__brain_.* only)
+- [ ] 214-03-PLAN.md - the moat-ordered surgery: REPLACE the decorative find-analogies stub in-place (conflict #1), decouple to command-level scope
+- [ ] 214-04-PLAN.md - acceptance gates: archimedes-darkmatter Type-3, 214-F rank-order-vs-labels, run-all-211 no-regression, room mirror of DG outcomes
 
 ### Phase 215: Eureka Portfolio-Scale FUSION (eureka-portfolio-fusion) - REGISTERED 2026-07-04 - **seed SEED-048 (the rider, NOT part of the 049/050 flagship pair)**
 
@@ -2968,7 +2976,11 @@ Plans:
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 215 to break down)
+- [ ] 215-01-PLAN.md - the AHP criterion-weight module (3x3 criterion matrix, NOT pairwise over 2117 techs); the only net-new math
+- [ ] 215-02-PLAN.md - the two deterministic classifiers on the reused engines (3-dimension score + weak-signal low-attention/high-growth tail flag)
+- [ ] 215-03-PLAN.md - the Opportunity Statement emitter (deterministic template: combine/unmet-need/who/kills-it/next/tier/rank per jhtv-d15 s3)
+- [ ] 215-04-PLAN.md - wire the Wave-1 modules onto the shipped 211 pipeline: scripts/eureka-portfolio-report.cjs
+- [ ] 215-05-PLAN.md - the hard acceptance gate (conflict #4): real 2117-tech run reproducing the 2 manual Opportunity Statements (human-verify)
 
 ---
 
