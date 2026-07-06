@@ -193,6 +193,29 @@ try {
   const claimRows = db.prepare("SELECT id FROM nodes WHERE type='claim'").all();
   check('room.db contains at least one claim node (venture node)', claimRows.length >= 1);
 
+  // --- Section A2: session-binding side-effect (todo 2026-06-28-birthroom-active-room-reverts) ---
+  // birthRoom must bind the newborn room into THIS session's write scope, not only
+  // flip the registry active pointer. Phase 194 (PSB) made the per-session bound SET
+  // the primary write authority the write-guard consults, so without this a write to
+  // the just-created room is BLOCKED. optsA births under sessionId 's-test-001'.
+  process.stdout.write('\nSection A2: newborn room is bound into the birthing session\n');
+  const sessionBinding = require(path.join(REPO_ROOT, 'lib', 'core', 'session-binding.cjs'));
+  const bindingA = sessionBinding.readSessionBinding('s-test-001', { home: tmpHome });
+  check(
+    "session 's-test-001' bound SET now contains the newborn room",
+    bindingA && Array.isArray(bindingA.bound) && bindingA.bound.indexOf(tmpSlug) !== -1,
+    bindingA ? JSON.stringify(bindingA.bound) : 'null'
+  );
+  check(
+    'newborn room is the session primary write target',
+    bindingA && bindingA.primary === tmpSlug,
+    bindingA ? String(bindingA.primary) : 'null'
+  );
+  check(
+    'write-guard predicate ALLOWS a write to the newborn room (bug fix: was blocked)',
+    sessionBinding.isRoomInWriteScope(tmpSlug, bindingA) === true
+  );
+
   // --- Section B: scaffold-before-registry order ---
   process.stdout.write('\nSection B: scaffold-before-registry order\n');
 

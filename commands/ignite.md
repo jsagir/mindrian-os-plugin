@@ -163,7 +163,7 @@ Pass blueprintFamily from B1 into new-project's scaffold call. The scaffold back
 
 Before the Approve/Reject/Defer choice, display the nugget routing table (nugget | target section | why). This is Jonathan's HARD RULE constraint 11: nothing files until the table is approved.
 
-**Approve path:** Call birthRoom({...opts, approvedBy: resolveByUser(roomDir)}) from lib/core/navigation/room-birth.cjs (Plan 02). This is the Part 9 promotion moment: the room transitions from pre-room to live (room.db created, focus set, registry flipped).
+**Approve path:** Call birthRoom({...opts, approvedBy: resolveByUser(roomDir), sessionId: process.env.CLAUDE_SESSION_ID}) from lib/core/navigation/room-birth.cjs (Plan 02). This is the Part 9 promotion moment: the room transitions from pre-room to live (room.db created, focus set, registry flipped). The sessionId MUST be the real interactive session id ($CLAUDE_SESSION_ID -- the SAME authority scripts/write-scope-check.cjs resolves via resolveSessionId), NOT a placeholder: birthRoom binds the newborn room into that session's write scope (session-binding.cjs), and the write-guard reads the binding under that exact session id. Thread a wrong or omitted sessionId and the newborn room is born active in the registry but BLOCKED for writes by the per-session set-membership guard (Phase 194 PSB). Omit it only for a non-interactive caller (graph-self-heal / migration / backfill), where the 'nosession' default correctly skips the session bind.
 
 **Reject/Adjust loop:** Capture reason via writeScratchpadBirthAnswer({gate_id: 'B2', canonical_verb: 'Reject', ...}). Write a REJECTED_BECAUSE edge. Revise the blueprint based on the user's reason. Re-render B2 (the Adjust loop per RESEARCH Q3 option a).
 
