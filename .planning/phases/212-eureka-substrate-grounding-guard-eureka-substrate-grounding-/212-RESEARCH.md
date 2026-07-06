@@ -522,6 +522,17 @@ Per CLAUDE.md's "Dev-Research Compositing (Rethinking Room)" rule, this research
 
 ## Open Questions
 
+> **RESOLVED 2026-07-06 at a navigator Decision Gate** (recorded here so the plan-checker and
+> executor see the closures inline): Q1 = **Split** — 212 is critic-only; the substrate/whitespace
+> half moved to the new Phase 212.5 stub. Q4 = **mdbr-leaf-ir** — calibration thresholds lock
+> against it; `embedding_model` is stamped in the baseline. Q5 = **CJS-fallback + fix the bug, no
+> Node floor change** — and empirically CORRECTED: sqlite-vec loads on Node v22.22.2 with an
+> `allowExtension` handle (`vec_version()`=0.1.9 live), so the >=23.5.0 floor was an over-read of a
+> `node:sqlite`-specific docs note; fixed in quick `260706-5b7`. Q2 (calibration gate) and Q3
+> (Plurai leg) kept the researcher recommendations: human-verify checkpoint and optional
+> SKIP-degrading leg respectively. Both pre-212 blockers are now CLOSED (quick `260706-4yl` OOM +
+> `260706-5b7` vec0). The original question text is retained below for provenance.
+
 1. **Scope: is "graph-framed substrate + whitespace/bridge signal detection" in Phase 212 or deferred?** Known: ROADMAP goal names it `[repo]`; CONTEXT boundary narrows 212 to the critic + MCP and says "does NOT build a second differential engine" `[repo]`; 211 already ships cross-boundary pair enumeration `[disk]` `211-05-SUMMARY.md §What Was Built`. Unclear: net-new structural-hole/betweenness detection vs 211-covered. **Resolved by:** unresolved - needs the navigator. Recommendation: default to CONTEXT (critic-first).
 
 2. **Calibration certification depends on pending human checkpoints - how to gate?** Known: the >=0.85 + high-pseudoscience-recall bar needs hand-labeled ~25 insight-turns; 211-04/211-05 Task 3 checkpoints are pending; cards ship `validated: candidate` `[disk]`. **Resolved by:** code/disk inspection. Recommendation: build + structurally verify autonomously; make >=0.85 a `checkpoint:human-verify` leg (the honest-deferral pattern 211 used).

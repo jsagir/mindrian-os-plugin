@@ -2905,11 +2905,28 @@ Plans:
 **Requirements**: TBD
 **Depends on:** Phase 211, Phase 191 (Brain Orchestration Advisor)
 **Not blocked by:** the curing-sequence debug track.
+**Plans:** 5 plans (critic-only per navigator Q1 lock; substrate/whitespace half moves to Phase 212.5 stub)
+
+Plans:
+
+- [ ] 212-01-PLAN.md - critic contract: data/eureka-critic-tags.json closed enums + lib/core/eureka-critic.cjs Stage A deterministic gates (D1/D2/D3b)
+- [ ] 212-02-PLAN.md - Stage B two-pass rubric + verdict-by-code + criticRule calibration ruling + D6 negative-corpus acceptance test
+- [ ] 212-03-PLAN.md - eureka_critic MCP tool on tool-router (thin wrapper, rate-limit+dedupe, zero roomDir) + Part 8/D5 boundary scan
+- [ ] 212-04-PLAN.md - gold-card fixture suite + 2 JHU Opportunity Statement fixtures + optional Plurai leg + run-all-212.sh gate
+- [ ] 212-05-PLAN.md - real calibration run (mdbr-leaf-ir + local judge) + navigator >=0.85 human-verify checkpoint
+
+### Phase 212.5: Eureka Graph Substrate + Whitespace/Bridge Detection (eureka-graph-substrate) - REGISTERED 2026-07-06 - **the SPLIT half of Phase 212's original goal (navigator Q1 lock)**
+
+**Goal:** The SEED-049 half that Phase 212 deliberately did NOT build. Phase 212 was scoped critic-only (Grounding Guard + MCP) at a navigator Decision Gate on 2026-07-06, because the ROADMAP's original Phase 212 goal bundled two separable jobs: (a) the salient-verifier critic [shipped in 212], and (b) graph-framed substrate + whitespace/bridge signal detection over room.db. This phase is (b). It is NOT a gap - it is the tracked home for the substrate half so nothing reads as dropped. **Verify against 211 before planning:** Phase 211 already ships cross-boundary pair ENUMERATION (`211-05-SUMMARY.md`, `scoreMeasured`); the net-new work here is structural-hole / betweenness / whitespace-zone detection ON TOP of that enumeration (a WhitespaceZone node type already exists in the read-side fallbacks per commit af24b697), not a second differential engine. Scope the delta explicitly at plan time so it does not re-implement 211.
+
+**Requirements**: TBD
+**Depends on:** Phase 211, Phase 212 (the critic consumes substrate signals; substrate feeds candidates the critic then grades)
+**Not blocked by:** the curing-sequence debug track.
 **Plans:** 0 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 212 to break down)
+- [ ] TBD (run /gsd-plan-phase 212.5 to break down)
 
 ### Phase 213: Eureka-Reach Wiring, THE KEY (eureka-reach-wiring) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seeds SEED-049 + SEED-050 - THE KEY**
 
