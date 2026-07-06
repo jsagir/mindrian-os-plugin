@@ -19,6 +19,12 @@ dashboard/graph.json
 # Phase 84-03: per-room memory runtime state. Real rooms live outside the
 # repo at ~/MindrianRooms/<name>, but any in-repo fixture or cache must
 # never commit room.db, the session pointer, or WAL shards.
+room.db
+room.db-wal
+room.db-shm
+**/room.db
+**/room.db-wal
+**/room.db-shm
 .mindrian/
 **/.mindrian/current-session.json
 # Phase 99-01 exception: the conversation-operator fixture committs deterministic
