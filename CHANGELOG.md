@@ -1,7 +1,22 @@
 ## [Unreleased] -- v1.15.3-beta.11 (in progress)
 
 ### Added
-- 
+- **Phase 211 Eureka generator now runs at production scale.** The tri-modal room.db retrieval engine (FTS5 lexical + sqlite-vec vector + RRF fusion, `mdbr-leaf-ir` local embedder) completes end-to-end against a real 2117-node room after two blocker fixes (below). This is the GENERATOR half of the "two-in-a-box"; the critic (Phase 212) is planned, not yet shipped.
+- **Generic `csv-to-idea-graph` export capability** (`scripts/csv-to-idea-graph.cjs`). Turns any relationship CSV (a pairs edge-list plus optional node-enrichment CSV, column-mapped via CLI args) into a De Stijl navigable idea-graph through the shipped dashboard template -- Section-clustered by a chosen grouping column, layer-toggled, every node/edge citation-tagged. Extends the `generate-standalone` export family; zero tenant hardcoding. Hermetic `tests/test-csv-to-idea-graph.cjs` 21/21.
+
+### Fixed
+- **MCP `room_content` writes re-resolve the active room per call** (`lib/mcp/tool-router.cjs`). The MCP server froze its write target at boot-time cwd, so a mid-session `room-registry set-active` never reached it and writes (file-opportunity / create-funding / update-funding-stage) misrouted to the spawn-time room. Now each write branch calls `resolve-active-room.cjs` (the canonical resolver -- this was a fifth active-room guesser never migrated onto it, the exact stale-closure class Phase 212 D5 warns against). Also aligned `opportunitySchema` to `fileOpportunity` (title optional with a title-or-program refine, coerced numerics). Commit `7a84d38b`.
+- **Strict-mode no longer fires false room-switch / session-binding gates** (`lib/core/room-classifier-strict-mode.cjs`, `scripts/intent-classifier.cjs`). A bare numeric menu reply (`NUMERIC_PATTERN` made the verb optional) and product-branded paste blocks (brand tokens credited as room-name matches) both triggered spurious "switch rooms" / "bind session" interruptions on nearly every turn. Verb now required; brand/boilerplate stop-set excluded from name-entity credit. Commit `e23060cd`.
+- **`birthRoom` binds the newborn room into the session write scope** (`lib/core/navigation/room-birth.cjs`). It flipped only the registry active pointer; Phase 194 (PSB) made the per-session bound SET the primary write authority, so a just-created room was BLOCKED for writes. Now unions the new slug into the session binding as primary via the shipped `session-binding.cjs`; `ignite` threads the real `CLAUDE_SESSION_ID`. Commit `3ad78e70`.
+- **Frontmatter schema validator reconciled to the actual writers** (`lib/core/frontmatter-schemas.cjs`). The Phase 88.1-07 schema codified an aspirational vocabulary no scaffold/doc/compute-state writer ever emitted, so the plugin's own output failed its own advisory schema (a Canon Part 6 dog-food self-violation) and polluted the offense log. Relaxed ROOM.md/STATE.md/artifact-default required sets to what writers emit, added a USER.md schema, and split violation messages into missing-vs-unexpected. New reconcile test scaffolds a room and asserts zero blocking violations. Commit `2602c65b`.
+- **Embedding OOM on large-N rooms** (`lib/core/eureka/embedding-spine.cjs`): `embedTexts` embedded the whole corpus in one forward pass (~26.7GB ONNX allocation on 2117 nodes). Now batched (`MINDRIAN_EMBED_BATCH`, default 32). Commit `c222ff7d`.
+- **vec0 offline-load failure** (`lib/core/eureka/vector-store.cjs`): the backend was inferred from stale table existence, so a table from a prior run threw `no such module: vec0`. Now a per-process capability probe selects the backend; confirmed sqlite-vec loads on Node 22 via a `better-sqlite3` allowExtension handle (the >=23.5 floor is `node:sqlite`-only). Commit `73698c73`.
+- **Claim-text persistence + read-side fallbacks** (D15): `writeClaimNode` persists claim `text`; tri-modal index read-side fallbacks for claim/WhitespaceZone/Artifact. Commits `3d1b27a4`, `af24b697`.
+- **`.gitignore` room.db patterns** backing the "never commit room.db" comment (Part 8 hygiene). Commit `a4cd48dc`.
+
+### Housekeeping
+- **JHTV tenant data + JHU-specific tooling relocated out of the product** into the `jhtv-oliver-kuntz` room, with a `.gitignore` leak guard (Canon three-layer: tenant data/tooling lives in the Room, never the Plugin). The reusable graph capability was generalized (see Added). Commit `57bad7ed`.
+- **Planning (not shipped code):** Phases 212 (Eureka Grounding Guard critic, 5 plans), 212.5 (graph substrate), 213-215 (15 checked plans total) and SEED-053 (methodology-chain MCP tool) registered for the next arc. 213/214 execution is gated on the curing-track verdict + 212-05 calibration.
 
 ## [1.15.3-beta.10] - 2026-07-05
 
