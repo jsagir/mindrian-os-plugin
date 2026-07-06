@@ -84,3 +84,14 @@ tests/fixtures/room-context-bench.db
 # Phase 205-09: Test-6 golden source carries real tester identifiers (no-real-names rule).
 # Local-only; the golden-loader degrades to pending on a fresh checkout by design.
 lab/plurai-suite/golden/
+
+# JHTV tenant data + JHU-specific tooling guard (relocated to the
+# jhtv-oliver-kuntz room; Canon three-layer: tenant data/tooling lives in the
+# Room, never the product). These patterns stop tenant bytes re-entering the
+# plugin. The generic capability is scripts/csv-to-idea-graph.cjs.
+evals/eureka/*jhtv*
+evals/eureka/*oliver*
+scripts/import-jhu-*
+scripts/csv-idea-graph.cjs
+*jhu_technologies*
+*lens3_crossdomain*
