@@ -1,0 +1,117 @@
+Subject: Your JHTV catalog inside Mindry: what we ran, how, and what the full run needs
+
+Oliver,
+
+You gave us the whole catalog. Here is exactly what we did with it,
+what the sample was, how the method works, and what still has to
+happen before the full automated run. Honest numbers, placeholders
+where we do not have an answer yet.
+
+(Reference for everything below: https://mindrian-os.com)
+
+WHAT WE DID
+
+1. Imported your full public JHTV catalog export into a MindrianOS
+   Data Room: 2,117 technologies from jhu_technologies_engine.csv.
+   About 95 percent carry 60+ words of real description. We
+   spot-checked entries against patent numbers, PubMed records, and
+   an R&D 100 Award citation. The content is real and imported
+   faithfully.
+
+2. The import immediately earned its keep: it caught a real storage
+   bug. The engine validated each technology's description on write,
+   then silently dropped it. Fixed and verified against your room:
+   all 2,117 descriptions now live in the graph in full, 1,800 to
+   2,300+ characters each.
+
+3. We attempted the first production-scale scoring run. It exposed
+   two infrastructure limits (section WHAT BROKE below). That is the
+   difference between a 50-node demo room and your 2,128-node
+   catalog, and it is exactly why we wanted real data.
+
+THE METHOD, PLAINLY
+
+The engine hunts for pairs of technologies whose descriptions share
+almost no vocabulary but describe structurally similar mechanisms or
+complementary unmet needs. Concretely, every description becomes two
+signatures: a lexical one (what words it uses) and a semantic one
+(what it means). The interesting pairs are the ones where those two
+signatures disagree: meaning-close, vocabulary-far. That differential
+is the raw material of the idea Lawrence pitched you: take 500 rows,
+uncover the gem nobody noticed, combine three low-scorers into one
+high.
+
+One discipline matters: a high differential is necessary, not
+sufficient. The top of a raw list can be paraphrases wearing
+different vocabulary. A second component, the Grounding Guard, is
+being built now to filter restatements and confident noise BEFORE
+anything reaches your desk. Nothing gets called an opportunity until
+it passes that filter.
+
+SAMPLE SIZE SO FAR
+
+- Indexed: 2,128 of 2,142 room nodes (everything with usable text;
+  the full 2,117-technology catalog is in).
+- Automatically scored pairs: 0. That is the honest number. The
+  full-catalog run hit the memory wall described below before
+  producing scores.
+- Hand-built as a stopgap: 2 draft Opportunity Statements from the
+  pre-computed cross-domain pair list in your CSV set
+  (lens3_crossdomain_pairs.csv), cross-referenced by hand against
+  the full catalog:
+    Pair 1: MRI shim coil x cardiac sock electrode (C16796 x C03552),
+    an MRI-compatible, low-pain next-generation ICD platform angle.
+    Pair 2: brain arterial atlas x EmboGel (C16742 x C05004), an
+    AI-guided patient-specific embolization planning angle.
+  Both are drafts from a human pass, not the engine, and neither has
+  been through the Grounding Guard. Treat them as leads, not
+  conclusions.
+
+WHAT BROKE, AND WHERE IT STANDS
+
+1. Memory. The embedding step tried to process all 2,128
+   descriptions in a single pass and asked the machine for roughly
+   27GB of RAM. Root cause: no batching loop. Fix: process in
+   batches of 32. Status: landed today.
+
+2. The offline fallback path (the no-model mode) fails to load its
+   vector extension in this environment. Tracked as the next
+   infrastructure item in the queue.
+
+A FIRST LOOK, ALREADY VISIBLE
+
+Even before the scoring engine runs, we mapped the catalog's own
+cross-domain pair list into a relationship graph: 386 technologies,
+1,038 problem-sharing links across 84 shared problems (biggest:
+neurodegeneration, respiratory disease, inflammation, autoimmunity).
+One technology sits at the center with 44 separate cross-domain
+links, more than any other in the catalog. That is the shape of the
+gem-hunting Lawrence described: the most combinable asset you own,
+surfaced by structure, not by memory. It is a map of leads, not
+verdicts, and none of it has passed the Grounding Guard yet. But it
+shows the payoff is real and already in your data.
+
+WHAT THE FULL RUN NEEDS
+
+1. Batched embedding: done today.
+2. Offline fallback fix: queued, next up.
+3. The Grounding Guard: in planning now, and it gets calibrated
+   against a hand-scored gold set before we trust any of its
+   verdicts on your catalog.
+4. Portfolio-scale ranking: 2,117 technologies means about 2.24
+   million possible pairings. The full run scores the cross-domain
+   subset, ranks it, and turns the top candidates into Opportunity
+   Statements in a fixed format: what combines with what, the unmet
+   need on each side, who it is for, what kills it, next steps, and
+   a rank score.
+
+When items 1 through 3 are done we run the whole catalog end to end
+and bring you the ranked list, not a pile of raw pairs. Progress
+lives at https://mindrian-os.com and we will flag the run in your
+Wednesday slot.
+
+Reply if any of this raises questions before then.
+
+Js.
+MindrianOS
+https://mindrian-os.com
