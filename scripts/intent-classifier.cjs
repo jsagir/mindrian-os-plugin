@@ -37,6 +37,19 @@ const STOP_WORDS = new Set([
   'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been',
 ]);
 
+// Brand / boilerplate STOP-SET (2026-06-28 fix). Product-branded and paste-chrome
+// tokens are credited by scoreRoom as if they were real room-name or entity
+// signals, so a product-branded paste block (which mentions "mindrianOS", "Larry",
+// "room" ...) spuriously trips the F.8 session-binding gate on nearly every turn.
+// These tokens earn NEITHER name-match NOR entity-match credit: a room-scope
+// interruption must be driven by a genuine venture/entity token, not by the
+// product's own name. A real room-name mention still fires because scoreRoom
+// requires at least one NON-boilerplate name token to have matched.
+const BRAND_STOP_SET = new Set([
+  'mindrianos', 'mindrian', 'larry', 'room', 'rooms',
+  'paste', 'block', 'onboarding', 'mos', 'plugin',
+]);
+
 // ---------------------------------------------------------------------------
 // Room root + registry resolution. Mirrors 83-06 helpers (kept inline rather
 // than extracted to lib/core to avoid a retrofit of 83-06 for a tiny helper).
@@ -260,15 +273,24 @@ function scoreRoom(messageTokenSet, roomName, fingerprint) {
   // message token set. Weight = 5.
   const nameTokens = splitRoomName(roomName);
   let nameHit = nameTokens.length > 0;
+  let nameHasNonBrand = false;
   for (const t of nameTokens) {
     if (!messageTokenSet.has(t)) { nameHit = false; break; }
+    if (!BRAND_STOP_SET.has(t)) nameHasNonBrand = true;
   }
+  // Brand/boilerplate discount (2026-06-28): a name match composed ENTIRELY of
+  // product/boilerplate tokens is not a real room signal (a product-branded paste
+  // would satisfy it), so require at least one non-boilerplate name token.
+  if (nameHit && !nameHasNonBrand) nameHit = false;
   let score = nameHit ? 5 : 0;
   let nameMatch = nameHit;
   let entityMatches = 0;
   for (const t of fingerprint) {
     // Do not double-count the room-name tokens as entity matches.
     if (nameTokens.indexOf(t) !== -1) continue;
+    // Brand/boilerplate tokens earn no entity credit: a product-branded paste
+    // block must not accumulate entity matches that trip the binding gate.
+    if (BRAND_STOP_SET.has(t)) continue;
     if (messageTokenSet.has(t)) {
       score += 1;
       entityMatches += 1;
