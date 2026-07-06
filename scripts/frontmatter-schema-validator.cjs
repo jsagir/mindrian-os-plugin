@@ -225,15 +225,27 @@ function appendViolationLog(entry) {
  */
 function summarizeViolations(violations, basename, severity) {
   const MAX_FIELDS = 3;
-  const fields = [];
+  // Split the flat field list into the two actionable buckets: fields the
+  // schema wanted but the writer omitted (missing), and fields the writer
+  // emitted that the schema does not recognize (unexpected drift). A reader
+  // needs to know WHICH way the mismatch runs to fix it -- "add X" vs
+  // "the schema is missing Y". Malformed / delegate markers (fields starting
+  // with '__') are structural, not per-field, so they are excluded here.
+  const missing = [];
+  const unexpected = [];
   for (const v of violations) {
     if (!v || !v.field || v.field.startsWith('__')) continue;
-    if (fields.indexOf(v.field) === -1) fields.push(v.field);
-    if (fields.length >= MAX_FIELDS) break;
+    const bucket = v.type === 'missing' ? missing : unexpected;
+    if (bucket.indexOf(v.field) === -1 && bucket.length < MAX_FIELDS) {
+      bucket.push(v.field);
+    }
   }
-  const fieldStr = fields.length > 0 ? fields.join(', ') : '(structure)';
+  const parts = [];
+  if (missing.length > 0) parts.push('missing: ' + missing.join(', '));
+  if (unexpected.length > 0) parts.push('unexpected: ' + unexpected.join(', '));
+  const detail = parts.length > 0 ? parts.join('; ') : '(structure)';
   const label = severity === 'warning' ? 'schema drift' : 'schema violation';
-  return label + ': ' + fieldStr + ' in ' + basename;
+  return label + ': ' + detail + ' in ' + basename;
 }
 
 // ---------- Main ----------
