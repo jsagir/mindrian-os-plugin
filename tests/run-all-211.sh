@@ -84,6 +84,11 @@ run_if "260706-13z vector-store adapter" "tests/test-211-vector-store.cjs" \
 run_if "260706-13z eureka-smoke (class S)" "tests/test-eureka-smoke.cjs" \
   node tests/test-eureka-smoke.cjs
 
+# (9) Embed batching OOM guard (260706-4yl): resolveBatchSize env fallback +
+#     order-preserving batchSlices + unbatched encodeFn seam, fully offline.
+run_if "260706-4yl embed batching (OOM guard)" "tests/test-211-embed-batching.cjs" \
+  node tests/test-211-embed-batching.cjs
+
 echo "======================================"
 echo "Phase 211: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
 echo "======================================"
