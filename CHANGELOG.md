@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.11 (in progress)
+## [1.15.3-beta.12] - 2026-07-06
 
 ### Added
 - **Phase 211 Eureka generator now runs at production scale.** The tri-modal room.db retrieval engine (FTS5 lexical + sqlite-vec vector + RRF fusion, `mdbr-leaf-ir` local embedder) completes end-to-end against a real 2117-node room after two blocker fixes (below). This is the GENERATOR half of the "two-in-a-box"; the critic (Phase 212) is planned, not yet shipped.
