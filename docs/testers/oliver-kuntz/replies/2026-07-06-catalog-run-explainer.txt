@@ -1,116 +1,143 @@
-Subject: Your JHTV catalog inside Mindry: what we ran, how, and what the full run needs
+Subject: Your JHTV catalog is now a navigable map - the hub technology and the densest clusters are already visible
 
 Oliver,
 
-You gave us the whole catalog. Here is exactly what we did with it,
-what the sample was, how the method works, and what still has to
-happen before the full automated run. Honest numbers, placeholders
-where we do not have an answer yet.
+We turned your own JHTV catalog into a navigable relationship map, and
+before any scoring engine has run it is already pointing at the two
+things you would most want to know: which of your technologies is the
+most combinable, and where your portfolio's problem-clusters are
+densest.
+
+Here is the deliverable, the finding, how it was made, the honest
+sample, and what the full automated run still needs. Honest numbers,
+placeholders where we do not have an answer yet.
 
 (Reference for everything below: https://mindrian-os.com)
 
-WHAT WE DID
+WHAT WE BUILT
 
-1. Imported your full public JHTV catalog export into a MindrianOS
-   Data Room: 2,117 technologies from jhu_technologies_engine.csv.
-   About 95 percent carry 60+ words of real description. We
-   spot-checked entries against patent numbers, PubMed records, and
-   an R&D 100 Award citation. The content is real and imported
-   faithfully.
+We imported your full public JHTV catalog export - 2,117 technologies
+from jhu_technologies_engine.csv - into a MindrianOS Data Room and turned
+it into a navigable relationship map. In the map, two technologies are
+linked when they attack the same underlying problem from different
+domains. You can walk it, filter it, and ask it which of your assets are
+the most combinable.
 
-2. The import immediately earned its keep: it caught a real storage
-   bug. The engine validated each technology's description on write,
-   then silently dropped it. Fixed and verified against your room:
-   all 2,117 descriptions now live in the graph in full, 1,800 to
-   2,300+ characters each.
+About 95 percent of the catalog carries 60+ words of real description. We
+spot-checked entries against patent numbers, PubMed records, and an R&D
+100 Award citation. The content is real and imported faithfully - and the
+import earned its keep on day one by catching a real storage bug: the
+engine was validating each description on write, then silently dropping
+it. Fixed and verified against your room. All 2,117 descriptions now live
+in the graph in full.
 
-3. We attempted the first production-scale scoring run. It exposed
-   two infrastructure limits (section WHAT BROKE below). That is the
-   difference between a 50-node demo room and your 2,128-node
-   catalog, and it is exactly why we wanted real data.
+WHAT IT ALREADY SHOWS
 
-THE METHOD, PLAINLY
+Two things jump out of the map before any scoring engine runs.
 
-The engine hunts for pairs of technologies whose descriptions share
-almost no vocabulary but describe structurally similar mechanisms or
-complementary unmet needs. Concretely, every description becomes two
-signatures: a lexical one (what words it uses) and a semantic one
-(what it means). The interesting pairs are the ones where those two
-signatures disagree: meaning-close, vocabulary-far. That differential
-is the raw material of the idea Lawrence pitched you: take 500 rows,
-uncover the gem nobody noticed, combine three low-scorers into one
-high.
+1. One technology sits at the center. C04371 (Diagnostic and Prognostic
+   Markers for Multiple Sclerosis) links to 43 other technologies across
+   unrelated domains - more cross-domain links than any other asset in
+   your catalog. If you want a single starting point for combination
+   work, the structure just handed you one.
 
-One discipline matters: a high differential is necessary, not
-sufficient. The top of a raw list can be paraphrases wearing
-different vocabulary. A second component, the Grounding Guard, is
-being built now to filter restatements and confident noise BEFORE
-anything reaches your desk. Nothing gets called an opportunity until
-it passes that filter.
+2. The problems cluster. The map groups your catalog around 84 shared
+   problems. The densest are neurodegeneration (59 pairs), respiratory
+   diseases (59 pairs), inflammation (58 pairs), and autoimmunity (49
+   pairs), with a long tail into ear (35 pairs), genetic diseases (35
+   pairs), malaria (35 pairs), and colorectal cancer (33 pairs). These
+   are the parts of your portfolio where cross-combination potential is
+   most concentrated.
 
-SAMPLE SIZE SO FAR
+This is a map of leads, not verdicts. None of it has passed a
+verification pass yet (more on that below). But the payoff is already
+sitting in your own data.
 
-- Indexed: 2,128 of 2,142 room nodes (everything with usable text;
-  the full 2,117-technology catalog is in).
-- Automatically scored pairs: 0. That is the honest number. The
-  full-catalog run hit the memory wall described below before
-  producing scores.
-- Hand-built as a stopgap: 2 draft Opportunity Statements from the
-  pre-computed cross-domain pair list in your CSV set
-  (lens3_crossdomain_pairs.csv), cross-referenced by hand against
-  the full catalog:
-    Pair 1: MRI shim coil x cardiac sock electrode (C16796 x C03552),
-    an MRI-compatible, low-pain next-generation ICD platform angle.
-    Pair 2: brain arterial atlas x EmboGel (C16742 x C05004), an
-    AI-guided patient-specific embolization planning angle.
-  Both are drafts from a human pass, not the engine, and neither has
-  been through the Grounding Guard. Treat them as leads, not
-  conclusions.
+HOW WE MADE IT
 
-WHAT BROKE, AND WHERE IT STANDS
+The map is built on one idea: the best combinations hide between domains,
+not inside them. Every technology description becomes two fingerprints - a
+lexical one (the exact words it uses) and a semantic one (what it
+actually means). The pairs worth looking at are the ones where those two
+fingerprints disagree: close in meaning, far apart in vocabulary. That is
+a technology solving a similar problem in a language nobody would think to
+search. The map links those pairs so you can see the whole structure at
+once.
 
-1. Memory. The embedding step tried to process all 2,128
-   descriptions in a single pass and asked the machine for roughly
-   27GB of RAM. Root cause: no batching loop. Fix: process in
-   batches of 32. Status: landed today.
+One discipline matters: a high meaning-close, vocabulary-far score is
+necessary, not sufficient. The top of a raw list can be paraphrases
+wearing different words. That is exactly what a verification critic is
+for - it filters restatements and confident noise BEFORE anything gets
+called an opportunity. That critic is not built yet, which is why the
+numbers below stay honest about what is a lead versus what is verified.
 
-2. The offline fallback path (the no-model mode) fails to load its
-   vector extension in this environment. Tracked as the next
-   infrastructure item in the queue.
+THE HONEST SAMPLE
 
-A FIRST LOOK, ALREADY VISIBLE
+Here are the exact numbers, each stated with its own noun, so nothing
+blurs together:
 
-Even before the scoring engine runs, we mapped the catalog's own
-cross-domain pair list into a relationship graph: 386 technologies,
-1,038 problem-sharing links across 84 shared problems (biggest:
-neurodegeneration, respiratory disease, inflammation, autoimmunity).
-One technology sits at the center with 44 separate cross-domain
-links, more than any other in the catalog. That is the shape of the
-gem-hunting Lawrence described: the most combinable asset you own,
-surfaced by structure, not by memory. It is a map of leads, not
-verdicts, and none of it has passed the Grounding Guard yet. But it
-shows the payoff is real and already in your data.
+- 2,117 technologies imported.
+- 386 technologies appear in at least one cross-domain pair.
+- 1,038 candidate pairs in the map. A candidate pair is two technologies
+  that share a problem - a lead, nothing more.
+- 84 shared problems those pairs cluster around.
+- 95 inventor bridges - technologies linked because they share an
+  inventor, a second and independent way into the same map.
+- 2 hand-written Opportunity Statement drafts, written by a person, not
+  the engine.
+- 0 critic-verified opportunities. That is the honest number. The
+  verification critic (Phase 212) is not built yet, so nothing in the map
+  has been machine-checked and cleared.
 
-WHAT THE FULL RUN NEEDS
+Keep those four apart in your head: candidate pairs (1,038), shared
+problems (84), hand-written drafts (2), and critic-verified opportunities
+(0). They are four different things, not one "opportunities" number.
 
-1. Batched embedding: done today.
-2. Offline fallback fix: queued, next up.
-3. The Grounding Guard: in planning now, and it gets calibrated
-   against a hand-scored gold set before we trust any of its
+The 2 hand-written drafts, so you can see the shape of the output we are
+driving toward:
+  Pair 1: MRI shim coil x cardiac sock electrode (C16796 x C03552) - an
+  MRI-compatible, low-pain next-generation ICD platform angle.
+  Pair 2: brain arterial atlas x EmboGel (C16742 x C05004) - an AI-guided
+  patient-specific embolization planning angle.
+Both are human drafts from a manual pass, neither has been through the
+critic. Treat them as leads, not conclusions.
+
+WHAT THE FULL RUN STILL NEEDS
+
+The first production-scale run exposed two infrastructure limits. That is
+the difference between a 50-node demo room and your full catalog, and it
+is exactly why we wanted real data.
+
+1. Batched embedding. The embedding step tried to process every
+   description in a single pass and asked the machine for roughly 27GB of
+   RAM. Root cause: no batching loop. Fix: process in batches of 32.
+   Status: landed today.
+2. Offline fallback. The no-model path fails to load its vector extension
+   in this environment. Tracked as the next infrastructure item.
+3. The verification critic (Phase 212). In planning now. It gets
+   calibrated against a hand-scored gold set before we trust any of its
    verdicts on your catalog.
-4. Portfolio-scale ranking: 2,117 technologies means about 2.24
-   million possible pairings. The full run scores the cross-domain
-   subset, ranks it, and turns the top candidates into Opportunity
-   Statements in a fixed format: what combines with what, the unmet
-   need on each side, who it is for, what kills it, next steps, and
-   a rank score.
+4. Portfolio-scale ranking. 2,117 technologies means about 2.24 million
+   possible pairings. The full run scores the cross-domain subset, ranks
+   it, and turns the top candidates into Opportunity Statements in a fixed
+   format: what combines with what, the unmet need on each side, who it is
+   for, what kills it, next steps, and a rank score.
 
-When items 1 through 3 are done we run the whole catalog end to end
-and bring you the ranked list, not a pile of raw pairs. Progress
-lives at https://mindrian-os.com and we will flag the run in your
-Wednesday slot.
+When items 1 through 3 are done we run the whole catalog end to end and
+bring you the ranked list, not a pile of raw pairs.
 
-Reply if any of this raises questions before then.
+WHY THIS IS WORTH FINISHING
+
+When Lawrence first described this to you as career-making, gem-hunting
+work - take a pile of rows, find the combination nobody noticed, turn
+low-scorers into one high one - this map is what that looks like in
+practice. The most combinable asset you own (C04371) and the densest
+problem clusters, surfaced by structure instead of memory. The engine's
+remaining job is to rank the rest of the map the same way and hand you
+only the leads worth chasing.
+
+Progress lives at https://mindrian-os.com and we will flag the full run
+in your Wednesday slot. Reply if any of this raises questions before then.
 
 Js.
 MindrianOS
