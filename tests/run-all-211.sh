@@ -89,6 +89,11 @@ run_if "260706-13z eureka-smoke (class S)" "tests/test-eureka-smoke.cjs" \
 run_if "260706-4yl embed batching (OOM guard)" "tests/test-211-embed-batching.cjs" \
   node tests/test-211-embed-batching.cjs
 
+# (10) vec0 capability probe (260706-5b7): backend selection is probe-based; a
+#      stale eureka_vec table degrades to cjs-fallback instead of dying offline.
+run_if "260706-5b7 vec0 capability probe" "tests/test-211-vec0-capability.cjs" \
+  node tests/test-211-vec0-capability.cjs
+
 echo "======================================"
 echo "Phase 211: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
 echo "======================================"
