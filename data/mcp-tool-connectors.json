@@ -19,6 +19,40 @@
       "hitl_why": "Pure read of a pinned version constant and a static trust-boundary enum; no fork, no side effects."
     },
     {
+      "surface": "mcp:contradiction_check",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Pure read: navigation.cjs findContradictions through the chokepoint, no fork."
+    },
+    {
+      "surface": "mcp:framework_run",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.1",
+      "hitl_why": "Resolves a framework chain via composeWorkflow; a material (non-autonomous_safe) step is a genuine Decision-Gate fork -- it halts and renders a gate rather than executing unattended."
+    },
+    {
       "surface": "mcp:gate_answer",
       "source": "mcp_tool",
       "connects_to_spine": true,
@@ -104,6 +138,23 @@
       "hitl_why": "Mints an append-only memory_event node recording an external observation -- a material graph write, not a pure read."
     },
     {
+      "surface": "mcp:reach_candidates",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Pure read: pulls the full candidate-reach set through the shipped dispatchSensors path, no fork."
+    },
+    {
       "surface": "mcp:room_bind",
       "source": "mcp_tool",
       "connects_to_spine": true,
@@ -170,6 +221,40 @@
       "decision_surface": null,
       "hitl_shape": "none",
       "hitl_why": "Pure read: returns the session-bound room's STATE.md, no fork. Named room_state_bound (not the bare room_state) to avoid colliding with the live Phase 52 grouped router tool of that name."
+    },
+    {
+      "surface": "mcp:suggest_next",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Pure read: pulls the top candidate reach through the shipped dispatchSensors path, no fork."
+    },
+    {
+      "surface": "mcp:whitespace_scan",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Pure read: navigation.cjs findOpenQuestions + findUnsupportedClaims through the chokepoint, no fork."
     }
   ]
 }
