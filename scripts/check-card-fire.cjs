@@ -1019,6 +1019,28 @@ function deriveTurnSignals(env) {
 // ----- main (Stop-hook entry) -----
 
 function main() {
+  // Phase 198-09 (D-05): once the Stop-gate enforcement has moved server-side
+  // (scripts/on-stop's own thin adapter, querying lib/mcp/tools/stop-gate.cjs
+  // -> lib/mcp/stop-gate-handler.cjs, which WRAPS this exact predicate --
+  // Part 7, no fork), this hook-side copy must no-op rather than run a SECOND,
+  // independent enforcement pass in parallel (hooks/hooks.json dispatches
+  // on-stop and this script as two SEPARATE Stop hook entries; running both
+  // enforcement paths at once would double-block or race on the same retry
+  // side-file). Flag OFF (unset/empty, the default) keeps this entire file's
+  // call path byte-identical -- the check below is the ONLY change to the
+  // OFF behavior (a no-op it can never reach), everything past this point is
+  // untouched. The daemon-side path decides for itself via the SAME
+  // MINDRIAN_MCP_FIRST contract (lib/mcp/mcp-first-flag.cjs's isMcpFirst),
+  // required here rather than re-checked via a bash mirror since this file is
+  // already Node.
+  try {
+    const { isMcpFirst } = require(path.join(PLUGIN_ROOT, 'lib', 'mcp', 'mcp-first-flag.cjs'));
+    if (isMcpFirst('cli')) return silentSuccess();
+  } catch (_e) {
+    // A flag-reader failure must never suppress enforcement -- fall through
+    // to the full legacy predicate below (the conservative direction).
+  }
+
   const env = readStdinJson();
   const evt = env.hook_event_name || env.hookEventName || process.env.HOOK_EVENT_NAME || null;
 

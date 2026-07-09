@@ -39,6 +39,85 @@ if [ -n "$HOOK_STDIN" ]; then
   fi
 fi
 
+# Phase 198-09 (SPEC-5, D-05/D-06) -- thin Stop adapter under the flag.
+# BEGIN-MCP-FIRST-STOP-THIN-ADAPTER
+# MINDRIAN_MCP_FIRST naming 'cli' or 'all': wake the shared daemon, query the
+# server-side stop_gate_check tool (lib/mcp/tools/stop-gate.cjs ->
+# lib/mcp/stop-gate-handler.cjs -- D-05: only migrates after gate-dedup +
+# relevance existed, 198-09 Task 1), render its verdict, and let the daemon
+# own the ENTIRE business close-out below (the STATE.md persist + the
+# memory-lifecycle/minto-debouncer/folder-memory invocations run SERVER-SIDE
+# under this branch -- D-06: this branch's own text carries ZERO of those
+# business-module tokens). Flag OFF (unset/empty, the default) falls through
+# UNTOUCHED to the legacy body below, byte-identical (SPEC-7).
+if [ -n "${MINDRIAN_MCP_FIRST:-}" ]; then
+  SESSION_ID_FOR_STOP=""
+  if [ -n "$HOOK_STDIN" ]; then
+    SESSION_ID_FOR_STOP="$(printf '%s' "$HOOK_STDIN" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);process.stdout.write(j.session_id||'')}catch(_){process.stdout.write('')}})" 2>/dev/null || true)"
+  fi
+  set +e
+  THIN_STOP_OUT="$(SESSION_ID_FOR_STOP="$SESSION_ID_FOR_STOP" TRANSCRIPT_PATH_FOR_STOP="${MINDRIAN_TRANSCRIPT_PATH:-}" timeout 8 node -e "
+    const path = require('node:path');
+    const root = '${PLUGIN_ROOT}';
+    (async () => {
+      try {
+        const { isMcpFirst } = require(path.join(root, 'lib/mcp/mcp-first-flag.cjs'));
+        if (!isMcpFirst('cli')) { process.exit(9); }
+        const { wakeDaemon, queryDaemon } = require(path.join(root, 'lib/mcp/adapter-client.cjs'));
+        await wakeDaemon();
+        const result = await queryDaemon('stop_gate_check', {
+          session_id: process.env.SESSION_ID_FOR_STOP || '',
+          transcript_path: process.env.TRANSCRIPT_PATH_FOR_STOP || '',
+        });
+        const text = result && result.content && result.content[0] && result.content[0].text;
+        process.stdout.write(text || '{}');
+        process.exit(0);
+      } catch (_e) {
+        process.exit(1);
+      }
+    })();
+  " 2>/dev/null)"
+  THIN_STOP_EXIT=$?
+  set -e
+  if [ "${THIN_STOP_EXIT}" -eq 0 ] && [ -n "${THIN_STOP_OUT}" ]; then
+    printf '%s' "${THIN_STOP_OUT}" | node -e "
+      let d='';
+      process.stdin.on('data', c => d += c).on('end', () => {
+        try {
+          const r = JSON.parse(d);
+          if (r && r.fire === true) {
+            const zones = (r.rendered && r.rendered.zones) || {};
+            const body = [zones.header, zones.body, zones.footer].filter(Boolean).join('\n');
+            const out = {
+              decision: 'block',
+              reason: 'stop-gate-relevant-unanswered',
+              continue: false,
+              systemMessage: 'A pending decision needs your input.',
+              hookSpecificOutput: {
+                hookEventName: 'Stop',
+                additionalContext: body || 'This turn reached a Decision Gate that has not been answered yet. Please answer it or continue.',
+              },
+            };
+            process.stdout.write(JSON.stringify(out) + '\n');
+          } else {
+            const sections = (r && r.business && typeof r.business.sections === 'number') ? r.business.sections : null;
+            const msg = (sections !== null) ? ('session synced via mindrian-core, ' + sections + ' sections drained') : 'session synced via mindrian-core';
+            process.stdout.write(JSON.stringify({ continue: true, systemMessage: msg }) + '\n');
+          }
+        } catch (_e) {
+          process.stdout.write(JSON.stringify({ continue: true }) + '\n');
+        }
+      });
+    "
+    exit 0
+  fi
+  # Thin path found trouble (daemon unreachable, or the authoritative
+  # isMcpFirst('cli') check resolved false for this flag value/surface) --
+  # forgiving contract: fall through to the legacy body below rather than
+  # fail the hook (a Stop hook must never block a session on daemon trouble).
+fi
+# END-MCP-FIRST-STOP-THIN-ADAPTER
+
 # Determine working directory
 WORK_DIR="${PWD}"
 ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""

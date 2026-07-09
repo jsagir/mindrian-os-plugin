@@ -1,6 +1,6 @@
 {
   "_mcpFirst198Migrated": {
-    "_note": "Phase 198-08 (SPEC-5, D-05/D-06) migration markers. Each entry names a hook script that now dispatches to lib/mcp/adapter-client.cjs behind MINDRIAN_MCP_FIRST ('cli' or 'all') instead of running its business logic locally; flag OFF (unset/empty, the default) keeps the pre-198-08 legacy behavior byte-identical (SPEC-7). This is metadata for tests/test-198-adapter-budget.test.cjs's import-audit + line-count budget (D-06) to enumerate -- it is NOT consumed by Claude Code's hook loader, which only reads the 'hooks' key below. Migration order is D-05: statusline + SessionStart FIRST (this plan); Stop-gate enforcement is deliberately NOT listed here -- it migrates LAST (Plan 09), only after server-side gate dedup exists.",
+    "_note": "Phase 198-08 (SPEC-5, D-05/D-06) migration markers, extended by Phase 198-09 (D-05 final wave). Each entry names a hook script that now dispatches to lib/mcp/adapter-client.cjs behind MINDRIAN_MCP_FIRST ('cli' or 'all') instead of running its business logic locally; flag OFF (unset/empty, the default) keeps the pre-migration legacy behavior byte-identical (SPEC-7). This is metadata for tests/test-198-adapter-budget.test.cjs's import-audit + line-count budget (D-06) to enumerate -- it is NOT consumed by Claude Code's hook loader, which only reads the 'hooks' key below. Migration order is D-05: statusline + SessionStart FIRST (198-08); Stop-gate enforcement LAST (198-09, this entry), only after server-side gate dedup + relevance existed (lib/mcp/gate-dedup.cjs, Task 1 of 198-09). scripts/check-card-fire.cjs is NOT listed here -- it stays a separate Stop hook entry that no-ops under the flag (deferring to on-stop's daemon-backed decision), never itself migrated to a thin adapter shape.",
     "surfaces": [
       {
         "script": "scripts/statusline-mos-dispatch",
@@ -11,6 +11,11 @@
         "script": "scripts/sessionstart-coordinator.cjs",
         "tool": "room_state_bound,status_read",
         "note": "SessionStart binding + status segments. Flag ON wakes the daemon and queries room_state_bound + status_read (runThinAdapter); flag OFF runs the full 11-contributor runAll() exactly as shipped."
+      },
+      {
+        "script": "scripts/on-stop",
+        "tool": "stop_gate_check",
+        "note": "Stop-gate enforcement + business close-out (D-05 final wave). Flag ON wakes the daemon and queries stop_gate_check (lib/mcp/tools/stop-gate.cjs -> lib/mcp/stop-gate-handler.cjs -- gate-dedup + relevance gate the fire decision, the shipped check-card-fire.cjs predicate is the final authority, the daemon owns STATE.md/memory-lifecycle/minto-debouncer/folder-memory close-out); flag OFF runs the full legacy body exactly as shipped."
       }
     ]
   },
