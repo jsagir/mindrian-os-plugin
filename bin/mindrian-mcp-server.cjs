@@ -36,6 +36,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const { randomUUID } = require('node:crypto');
 
 // -- Dependency self-heal (Option D, debug session
 // mcp-servers-cache-missing-node-modules). `claude plugin update` can land a
@@ -56,12 +57,24 @@ const { StdioServerTransport } = requireWithHeal('@modelcontextprotocol/sdk/serv
 const { detectSurface } = require('../lib/mcp/surface-detect.cjs');
 const { registerCapabilities } = require('../lib/mcp/capability-registry.cjs');
 const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-catchup.cjs');
+// Phase 198-02 (SPEC-1/SPEC-7, D-01/D-07): the daemon needs real per-connection
+// session identity to consume the shipped Phase 194 session-binding primitives.
+// isMcpFirst gates the new transport shape so flag-OFF stays byte-identical
+// legacy (sessionIdGenerator: undefined, no session-registry callbacks).
+const { isMcpFirst } = require('../lib/mcp/mcp-first-flag.cjs');
+const sessionRegistry = require('../lib/mcp/session-registry.cjs');
 
 // Detect surface before anything else
 const surface = detectSurface();
 
 // Resolve paths
 const pluginRoot = path.resolve(__dirname, '..');
+// Phase 198-02 (SPEC-1): roomDir is now the MISS-FALLBACK only, never the
+// write authority. Per-session write resolution (resolveWriteTargetDir in
+// lib/mcp/tool-router.cjs) re-resolves the live target from the session's
+// binding on every write call; MINDRIAN_ROOM stops being authoritative once
+// a session is bound. registerRouterTools below still receives this as its
+// fallback argument for the pre-binding / flag-OFF path.
 const roomDir = path.resolve(process.env.MINDRIAN_ROOM || './room');
 
 // Read version from plugin.json
@@ -84,8 +97,11 @@ const server = new McpServer({
 });
 
 // Register hierarchical tool router (9 tools covering 64 CLI commands)
+// Phase 198-02: the 5th arg is this process's detected surface name, so
+// tool-router's write handlers can gate session-aware resolution behind
+// isMcpFirst(surface) per-call (D-07).
 const { registerRouterTools } = require('../lib/mcp/tool-router.cjs');
-registerRouterTools(server, roomDir, pluginRoot, larryContext);
+registerRouterTools(server, roomDir, pluginRoot, larryContext, surface.surface);
 
 // -----------------------------------------------------------------------------
 // Phase 115-02: dual-path opener tools (Pitfall 6 tri-polar surface coverage)
@@ -160,7 +176,18 @@ async function main() {
     app.use(express.json());
 
     // MCP endpoint
-    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    // Phase 198-02 (SPEC-1 Defect B, SPEC-7): flag-ON gives the transport a
+    // real per-connection sessionIdGenerator so resolveWriteRoom({sessionId})
+    // can key off it (Pattern 2, RESEARCH.md). Flag-OFF keeps the stateless
+    // shape exactly as shipped (sessionIdGenerator: undefined) -- byte-
+    // identical legacy, per surface (D-07).
+    const transport = isMcpFirst(surface.surface)
+      ? new StreamableHTTPServerTransport({
+          sessionIdGenerator: () => randomUUID(),
+          onsessioninitialized: (sid) => sessionRegistry.open(sid),
+          onsessionclosed: (sid) => sessionRegistry.close(sid),
+        })
+      : new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
     app.all('/mcp', async (req, res) => {
       await transport.handleRequest(req, res);
     });
