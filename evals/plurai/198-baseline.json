@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "ci-baseline",
+  "runtime_loaded": false,
+  "method": "baseline_deferred",
+  "baseline_deferred": true,
+  "deferred_note": "Genuine one-path invocation-parity baseline deferred: SPEC-6's two-host parity transcript (Claude Code CLI + one elicitation-capable MCP host, VS Code or MCP Inspector) does not exist until the parity harness lands and is run live. Wave 0 (this plan, 198-01) seeds this baseline on the sanctioned baseline_deferred degrade path (same precedent as evals/plurai/196-baseline.json, 201-baseline.json, 202-baseline.json) so scripts/198-plurai-gate-check.cjs loads and PASSES, keeping tests/run-all-198.sh green with zero phase modules present. Plan 10 (per 198-01-PLAN.md Task 2) replaces this verdict with the measured two-host parity result once tests/parity-198.sh runs its full six-step transcript on both hosts.",
+  "source_transcript": "tests/parity-198.sh",
+  "judge_prompt": "Given the scripted parity transcript (bind room, reach card via gate_render, chain_run with halt, gate_answer approve, gated write via navigation.cjs, artifact_file) executed on two hosts, classify the pair as parity (identical typed graph writes -- node/edge diff empty -- and identical gate sequence on both hosts) or drift (any node/edge diff or gate-sequence mismatch).",
+  "canon_contract": "SPEC-6 (surface parity), SPEC-8 (Plurai eval gate roadmap mandate)",
+  "synthetic_only": true,
+  "precision": null,
+  "recall": null,
+  "accuracy": null,
+  "f1": null,
+  "row_count": 0,
+  "label_semantics": {
+    "parity": "identical typed graph writes + identical gate sequence on both hosts",
+    "drift": "any node/edge diff or gate-sequence mismatch"
+  },
+  "generated_at": "2026-07-09T00:00:00.000Z",
+  "generator": "198-01 Task 2 Wave 0 seed (baseline_deferred degrade path; two-host transcript not run yet)"
+}
