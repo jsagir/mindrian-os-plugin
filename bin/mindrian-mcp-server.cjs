@@ -63,6 +63,12 @@ const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-
 // legacy (sessionIdGenerator: undefined, no session-registry callbacks).
 const { isMcpFirst } = require('../lib/mcp/mcp-first-flag.cjs');
 const sessionRegistry = require('../lib/mcp/session-registry.cjs');
+// Phase 198-03 (D-01, SPEC-1/SPEC-7): the durable daemon needs a pidfile +
+// discovered port so the stdio shim (bin/mindrian-mcp-shim.cjs) and future
+// clients can find THIS process instead of spawning their own. Flag-OFF
+// keeps the hardcoded port 3847 and never touches the pidfile (byte-
+// identical legacy, SPEC-7).
+const daemonLifecycle = require('../lib/mcp/daemon-lifecycle.cjs');
 
 // Detect surface before anything else
 const surface = detectSurface();
@@ -193,8 +199,30 @@ async function main() {
     });
 
     await server.connect(transport);
-    app.listen(3847, '127.0.0.1', () => {
-      process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, HTTP on 127.0.0.1:3847, room: ${roomDir})\n`);
+
+    // Phase 198-03 (D-01, SPEC-1/SPEC-7): flag-ON discovers a free loopback
+    // port (daemonLifecycle.discoverPort, or the already-recorded live
+    // daemon's own port) instead of the hardcoded 3847, and records the
+    // pidfile once listening so the stdio shim + future clients can find
+    // THIS process. Flag-OFF keeps port 3847 exactly as shipped -- no
+    // pidfile, no discovery, byte-identical legacy.
+    const mcpFirstOn = isMcpFirst(surface.surface);
+    const listenPort = mcpFirstOn ? daemonLifecycle.discoverPort() : 3847;
+    app.listen(listenPort, '127.0.0.1', () => {
+      process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, HTTP on 127.0.0.1:${listenPort}, room: ${roomDir})\n`);
+
+      if (mcpFirstOn) {
+        daemonLifecycle.writePidfile({ pid: process.pid, port: listenPort });
+        let cleared = false;
+        const clearOnce = () => {
+          if (cleared) return;
+          cleared = true;
+          daemonLifecycle.clearPidfile();
+        };
+        process.on('SIGTERM', clearOnce);
+        process.on('SIGINT', clearOnce);
+        process.on('exit', clearOnce);
+      }
 
       // Session catch-up for Cowork: compute what was missed since last session
       if (fs.existsSync(roomDir)) {
