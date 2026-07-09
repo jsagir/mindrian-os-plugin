@@ -1,4 +1,19 @@
 {
+  "_mcpFirst198Migrated": {
+    "_note": "Phase 198-08 (SPEC-5, D-05/D-06) migration markers. Each entry names a hook script that now dispatches to lib/mcp/adapter-client.cjs behind MINDRIAN_MCP_FIRST ('cli' or 'all') instead of running its business logic locally; flag OFF (unset/empty, the default) keeps the pre-198-08 legacy behavior byte-identical (SPEC-7). This is metadata for tests/test-198-adapter-budget.test.cjs's import-audit + line-count budget (D-06) to enumerate -- it is NOT consumed by Claude Code's hook loader, which only reads the 'hooks' key below. Migration order is D-05: statusline + SessionStart FIRST (this plan); Stop-gate enforcement is deliberately NOT listed here -- it migrates LAST (Plan 09), only after server-side gate dedup exists.",
+    "surfaces": [
+      {
+        "script": "scripts/statusline-mos-dispatch",
+        "tool": "status_read",
+        "note": "Statusline segment (spend/cap from day one). Flag ON wakes the daemon and queries status_read; flag OFF execs the legacy scripts/statusline-mos exactly as shipped."
+      },
+      {
+        "script": "scripts/sessionstart-coordinator.cjs",
+        "tool": "room_state_bound,status_read",
+        "note": "SessionStart binding + status segments. Flag ON wakes the daemon and queries room_state_bound + status_read (runThinAdapter); flag OFF runs the full 11-contributor runAll() exactly as shipped."
+      }
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {

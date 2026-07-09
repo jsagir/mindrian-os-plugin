@@ -61,7 +61,7 @@ const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-
 // session identity to consume the shipped Phase 194 session-binding primitives.
 // isMcpFirst gates the new transport shape so flag-OFF stays byte-identical
 // legacy (sessionIdGenerator: undefined, no session-registry callbacks).
-const { isMcpFirst } = require('../lib/mcp/mcp-first-flag.cjs');
+const { isMcpFirst, mcpFirstSurfaces } = require('../lib/mcp/mcp-first-flag.cjs');
 const sessionRegistry = require('../lib/mcp/session-registry.cjs');
 // Phase 198-03 (D-01, SPEC-1/SPEC-7): the durable daemon needs a pidfile +
 // discovered port so the stdio shim (bin/mindrian-mcp-shim.cjs) and future
@@ -100,68 +100,99 @@ if (!fs.existsSync(roomDir)) {
   process.stderr.write(`[mindrian-os] Warning: Room directory not found at ${roomDir}. Some tools will return limited results.\n`);
 }
 
-// Create MCP server
-const server = new McpServer({
-  name: 'mindrian-os',
-  version,
-});
+// Phase 198-08 (Rule 1 fix): createServer() is a FACTORY, not a one-time
+// module-level construction, because the MCP SDK's Server.connect() throws
+// ("Already connected to a transport. Call close() before connecting to a
+// new transport, or use a separate Protocol instance per connection.") the
+// SECOND time it is called on the SAME McpServer instance -- discovered live
+// proving lib/mcp/adapter-client.cjs's queryDaemon() can serve more than ONE
+// concurrent session (SessionStart's own thin adapter fires two queries in
+// parallel; a shared daemon serving CLI+Desktop+Cowork concurrently is D-01's
+// whole point). The SDK's own documented multi-session pattern
+// (examples/server/simpleStreamableHttp.js) is exactly this: a fresh
+// McpServer (with every tool/resource/prompt re-registered) per NEW session,
+// each connected to its OWN transport. The stdio path and the flag-OFF
+// stateless HTTP path still want the ORIGINAL "build once" shape (a single
+// process serves exactly one client for its whole lifetime there) -- calling
+// createServer() once below and binding it to the module-level `server`
+// const preserves that byte-identical legacy behavior. Only the flag-ON
+// multi-session HTTP branch (further below) calls createServer() again, per
+// new session.
+function createServer() {
+  const s = new McpServer({
+    name: 'mindrian-os',
+    version,
+  });
 
-// Register hierarchical tool router (9 tools covering 64 CLI commands)
-// Phase 198-02: the 5th arg is this process's detected surface name, so
-// tool-router's write handlers can gate session-aware resolution behind
-// isMcpFirst(surface) per-call (D-07).
-const { registerRouterTools } = require('../lib/mcp/tool-router.cjs');
-registerRouterTools(server, roomDir, pluginRoot, larryContext, surface.surface);
+  // Register hierarchical tool router (9 tools covering 64 CLI commands)
+  // Phase 198-02: the 5th arg is this process's detected surface name, so
+  // tool-router's write handlers can gate session-aware resolution behind
+  // isMcpFirst(surface) per-call (D-07).
+  const { registerRouterTools } = require('../lib/mcp/tool-router.cjs');
+  registerRouterTools(s, roomDir, pluginRoot, larryContext, surface.surface);
 
-// -----------------------------------------------------------------------------
-// Phase 115-02: dual-path opener tools (Pitfall 6 tri-polar surface coverage)
-// -----------------------------------------------------------------------------
-// detect_dual_path  classify turn-1 input as upload | type | ambiguous
-// extract_shallow   parse a CV/memo/pitch paste into 1 user + 1 venture + 1-3
-//                   claims and route filing through Phase 109 navigation.cjs
-// Both wrap pure lib/core entries; safe for Desktop/Cowork stdio transport.
-// -----------------------------------------------------------------------------
-const { z } = requireWithHeal('zod', { log: healLog });
-const dualPathDetector = require('../lib/core/dual-path-detector.cjs');
-const shallowDocParser = require('../lib/core/shallow-doc-parser.cjs');
+  // ---------------------------------------------------------------------------
+  // Phase 115-02: dual-path opener tools (Pitfall 6 tri-polar surface coverage)
+  // ---------------------------------------------------------------------------
+  // detect_dual_path  classify turn-1 input as upload | type | ambiguous
+  // extract_shallow   parse a CV/memo/pitch paste into 1 user + 1 venture + 1-3
+  //                   claims and route filing through Phase 109 navigation.cjs
+  // Both wrap pure lib/core entries; safe for Desktop/Cowork stdio transport.
+  // ---------------------------------------------------------------------------
+  const { z } = requireWithHeal('zod', { log: healLog });
+  const dualPathDetector = require('../lib/core/dual-path-detector.cjs');
+  const shallowDocParser = require('../lib/core/shallow-doc-parser.cjs');
 
-server.tool(
-  'detect_dual_path',
-  'Phase 115 dual-path detector. 5-feature additive score classifier (RESEARCH DISCRETION-03). Classifies turn-1 input as upload | type | ambiguous; returns { path, score, features } with booleans-only features payload (Canon Part 8 telemetry-safe). Pure classification, no side effects.',
-  {
-    text: z.string().describe('The user first-turn input (CV paste, conversational answer, or any string).'),
-  },
-  async ({ text }) => {
-    const result = dualPathDetector.classify(text);
-    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
-  }
-);
+  s.tool(
+    'detect_dual_path',
+    'Phase 115 dual-path detector. 5-feature additive score classifier (RESEARCH DISCRETION-03). Classifies turn-1 input as upload | type | ambiguous; returns { path, score, features } with booleans-only features payload (Canon Part 8 telemetry-safe). Pure classification, no side effects.',
+    {
+      text: z.string().describe('The user first-turn input (CV paste, conversational answer, or any string).'),
+    },
+    async ({ text }) => {
+      const result = dualPathDetector.classify(text);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    }
+  );
 
-server.tool(
-  'extract_shallow',
-  'Phase 115 strategy (b) shallow-file. Parses a CV / memo / pitch paste classified as upload-path into 1 user + 1 venture + 1-3 claim nodes. Routes graph writes through lib/core/navigation.cjs setFocus + memory_event (Phase 109 chokepoint). Falls back to 0 nodes on parse failure (graceful).',
-  {
-    text: z.string().describe('CV / memo / pitch paste classified as upload-path by detect_dual_path.'),
-    sessionId: z.string().describe('Session id for navigation.setFocus + memory_event scoping.'),
-  },
-  async ({ text, sessionId }) => {
-    const result = shallowDocParser.extractShallow(text, sessionId);
-    return { content: [{ type: 'text', text: JSON.stringify(result) }] };
-  }
-);
+  s.tool(
+    'extract_shallow',
+    'Phase 115 strategy (b) shallow-file. Parses a CV / memo / pitch paste classified as upload-path into 1 user + 1 venture + 1-3 claim nodes. Routes graph writes through lib/core/navigation.cjs setFocus + memory_event (Phase 109 chokepoint). Falls back to 0 nodes on parse failure (graceful).',
+    {
+      text: z.string().describe('CV / memo / pitch paste classified as upload-path by detect_dual_path.'),
+      sessionId: z.string().describe('Session id for navigation.setFocus + memory_event scoping.'),
+    },
+    async ({ text, sessionId }) => {
+      const result = shallowDocParser.extractShallow(text, sessionId);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    }
+  );
 
-// Register MCP Resources (read-only room browsing via room:// URIs)
-const { registerResources } = require('../lib/mcp/resources.cjs');
-registerResources(server, roomDir);
+  // Register MCP Resources (read-only room browsing via room:// URIs)
+  const { registerResources } = require('../lib/mcp/resources.cjs');
+  registerResources(s, roomDir);
 
-// Register MCP Prompts (methodology workflows with Larry personality)
-const { registerPrompts } = require('../lib/mcp/prompts.cjs');
-registerPrompts(server, roomDir, pluginRoot);
+  // Register MCP Prompts (methodology workflows with Larry personality)
+  const { registerPrompts } = require('../lib/mcp/prompts.cjs');
+  registerPrompts(s, roomDir, pluginRoot);
 
-// Register surface-aware capabilities (MCP Apps, Tasks -- Phase 58/60 hook points)
-registerCapabilities(server, surface.capabilities, roomDir, pluginRoot);
+  // Register surface-aware capabilities (MCP Apps, Tasks -- Phase 58/60 hook points)
+  registerCapabilities(s, surface.capabilities, roomDir, pluginRoot);
 
-// Session catch-up: register shutdown handler to save session state (all surfaces)
+  return s;
+}
+
+// Build the module-level singleton -- the stdio branch and the flag-OFF
+// stateless HTTP branch both reach for this SAME `server` const, exactly as
+// shipped before this factory refactor (byte-identical legacy, SPEC-7).
+const server = createServer();
+
+// Session catch-up: register shutdown handler to save session state (all
+// surfaces). registerShutdownHandler already no-ops after its first call
+// (session-catchup.cjs's own _shutdownRegistered guard), so this stays a
+// single module-level call regardless of how many per-session servers the
+// flag-ON HTTP branch later creates -- it is a PROCESS/ROOM lifecycle
+// concern, not a per-MCP-session one.
 if (fs.existsSync(roomDir)) {
   registerShutdownHandler(roomDir);
 }
@@ -185,21 +216,116 @@ async function main() {
     const app = express();
     app.use(express.json());
 
+    // Phase 198-08 (D-06/D-07 fix): a daemon spawned via daemon-lifecycle.
+    // ensureDaemon() always forces MINDRIAN_TRANSPORT=http, which surface-
+    // detect.cjs resolves to surface:'cowork' regardless of which surface
+    // actually asked for it -- a CLI hook waking the shared daemon looks
+    // identical, at detectSurface() time, to a real Cowork client. Without
+    // this, MINDRIAN_MCP_FIRST=cli (D-07's own documented first rollout
+    // step) would never activate the daemon's pidfile/port-discovery/SSE
+    // wiring below, because isMcpFirst('cowork') is false for a 'cli'-only
+    // flag value -- ensureDaemon() callers would then time out waiting for a
+    // pidfile that never gets written. The daemon serves ALL flagged
+    // surfaces (D-01 topology: "multiple clients ... attach to the same
+    // server concurrently"), so a process carrying daemon-lifecycle's own
+    // MINDRIAN_MCP_DAEMON=1 spawn marker treats ANY non-empty
+    // MINDRIAN_MCP_FIRST value as flag-ON for its own machinery. A real
+    // Cowork client (no MINDRIAN_MCP_DAEMON marker) keeps the original,
+    // narrower isMcpFirst('cowork') behavior -- byte-identical legacy when
+    // Cowork itself is not named in the flag (SPEC-7).
+    const isDaemonSpawn = process.env.MINDRIAN_MCP_DAEMON === '1';
+    const mcpFirstOn = isMcpFirst(surface.surface) || (isDaemonSpawn && mcpFirstSurfaces().length > 0);
+
     // MCP endpoint
-    // Phase 198-02 (SPEC-1 Defect B, SPEC-7): flag-ON gives the transport a
-    // real per-connection sessionIdGenerator so resolveWriteRoom({sessionId})
-    // can key off it (Pattern 2, RESEARCH.md). Flag-OFF keeps the stateless
-    // shape exactly as shipped (sessionIdGenerator: undefined) -- byte-
-    // identical legacy, per surface (D-07).
-    const transport = isMcpFirst(surface.surface)
-      ? new StreamableHTTPServerTransport({
-          sessionIdGenerator: () => randomUUID(),
-          onsessioninitialized: (sid) => sessionRegistry.open(sid),
-          onsessionclosed: (sid) => sessionRegistry.close(sid),
-        })
-      : new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    // Phase 198-02 (SPEC-1 Defect B, SPEC-7): flag-ON gives sessions a real
+    // per-connection sessionIdGenerator so resolveWriteRoom({sessionId}) can
+    // key off it (Pattern 2, RESEARCH.md). Flag-OFF keeps the stateless
+    // shape exactly as shipped (sessionIdGenerator: undefined, ONE shared
+    // transport) -- byte-identical legacy, per surface (D-07).
+    //
+    // Phase 198-08 (Rule 1 fix): a SINGLE shared stateful transport instance
+    // tracks its OWN "has this session already completed initialize"
+    // state -- it can only ever answer ONE session for the entire process
+    // lifetime; every later distinct client's initialize request was
+    // rejected with "Bad Request: Server already initialized", even though
+    // the daemon is explicitly a long-lived, multi-client-over-time process
+    // (D-01: "multiple clients ... attach to the same server concurrently").
+    // Discovered live proving lib/mcp/adapter-client.cjs's queryDaemon() can
+    // complete more than ONE tool-call round trip against the same running
+    // daemon (statusline alone queries on every render). Fixed with the
+    // SDK's own documented multi-session pattern
+    // (examples/server/simpleStreamableHttp.js): a session-id-keyed
+    // transport map, one NEW StreamableHTTPServerTransport per NEW
+    // initialize request, each connected to the SAME already-configured
+    // `server` singleton (every tool/resource/prompt stays registered
+    // exactly once at boot; only the transport is per-session). Flag-OFF's
+    // stateless transport never hits this state machine -- untouched,
+    // byte-identical legacy.
+    let statelessTransport;
+    let sessionTransports;
+    if (mcpFirstOn) {
+      sessionTransports = new Map();
+    } else {
+      statelessTransport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    }
+
     app.all('/mcp', async (req, res) => {
-      await transport.handleRequest(req, res);
+      // Phase 198-08 (Rule 1 fix): app.use(express.json()) above already
+      // consumes the request stream and parses it onto req.body -- the SDK's
+      // own usage example (streamableHttp.js's handleRequest doc comment)
+      // calls `transport.handleRequest(req, res, req.body)`. Omitting the
+      // third arg made the transport try to re-read the ALREADY-CONSUMED
+      // raw stream itself, so every real HTTP client (curl, the MCP SDK
+      // Client, a genuine Cowork request) got back
+      // `{"error":{"code":-32700,"message":"Parse error: Invalid JSON"}}`
+      // regardless of a perfectly valid JSON body -- discovered live while
+      // proving lib/mcp/adapter-client.cjs's queryDaemon() actually completes
+      // a real tool call round trip (not just a transport-level connect).
+      if (!mcpFirstOn) {
+        await statelessTransport.handleRequest(req, res, req.body);
+        return;
+      }
+
+      const headerSessionId = req.headers['mcp-session-id'];
+      let sessionTransport = headerSessionId ? sessionTransports.get(headerSessionId) : undefined;
+
+      if (!sessionTransport) {
+        if (headerSessionId) {
+          // A session id was supplied but this daemon does not recognize it
+          // (stale id, or the daemon restarted) -- report it rather than
+          // silently minting a new session under the caller's requested id.
+          res.status(400).json({
+            jsonrpc: '2.0',
+            error: { code: -32000, message: 'Bad Request: No valid session ID provided' },
+            id: null,
+          });
+          return;
+        }
+        sessionTransport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: () => randomUUID(),
+          onsessioninitialized: (sid) => {
+            sessionTransports.set(sid, sessionTransport);
+            sessionRegistry.open(sid);
+          },
+          onsessionclosed: (sid) => {
+            sessionTransports.delete(sid);
+            sessionRegistry.close(sid);
+          },
+        });
+        sessionTransport.onclose = () => {
+          const sid = sessionTransport.sessionId;
+          if (sid) sessionTransports.delete(sid);
+        };
+        // A FRESH McpServer per new session (createServer(), not the shared
+        // module-level `server`) -- Server.connect() throws on a second call
+        // against the same instance, and true concurrent sessions (e.g. two
+        // parallel queryDaemon() calls from one hook's own thin adapter) hit
+        // that second call before either session has torn down.
+        const sessionServer = createServer();
+        await sessionServer.connect(sessionTransport);
+      }
+
+      await sessionTransport.handleRequest(req, res, req.body);
     });
 
     // Phase 198-03 (D-01, Open Question 3): the SSE event bus's /event route
@@ -208,14 +334,16 @@ async function main() {
     // 127.0.0.1 only, below); additive vocabulary
     // (status-segment/gate-fired/reconcile-raised); never carries room
     // content bound for the Brain (Part 8).
-    const mcpFirstOn = isMcpFirst(surface.surface);
     if (mcpFirstOn) {
       app.get('/event', (req, res) => {
         sseEventBus.subscribe(res);
       });
+    } else {
+      // Flag-OFF: the ONE shared stateless transport connects once, exactly
+      // as shipped -- byte-identical legacy. Flag-ON connects a fresh
+      // transport per NEW session, lazily, inside the /mcp handler above.
+      await server.connect(statelessTransport);
     }
-
-    await server.connect(transport);
 
     // Phase 198-03 (D-01, SPEC-1/SPEC-7): flag-ON discovers a free loopback
     // port (daemonLifecycle.discoverPort, or the already-recorded live

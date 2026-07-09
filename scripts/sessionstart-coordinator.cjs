@@ -14,13 +14,26 @@
  * emits the Claude Code SessionStart envelope.
  *
  * Canon Part 3 (Decision Gate): tri-context surface composes deterministically.
- * Canon Part 4 (every choice is graph data): coordinator decisions mirror to
- *   Phase 121 telemetry via sessionstart_coordinator_run memory_event.
  * Canon Part 7 (Reuse Before Build): consolidation, not net-new surface.
  * Canon Part 8 (Graph Boundary): zero network surface; LOCAL scalars + enums only.
  * Canon Part 10 (Conversation as Product): coherent turn-1 IS the product moment.
  *
- * Pure CJS, node built-ins only. Zero new runtime dependencies.
+ * Phase 198-08 (SPEC-5, D-05/D-06): behind MINDRIAN_MCP_FIRST naming 'cli' (or
+ * 'all'), main() dispatches to runThinAdapter() INSTEAD of the 11-contributor
+ * runAll() below -- a thin wake-the-daemon + query-two-tools + render
+ * composer, no local business logic. Flag OFF (unset/empty, the default)
+ * keeps runAll() and every contributor exactly as shipped -- byte-identical
+ * legacy (SPEC-7). D-06: this file's own require() calls never reach into
+ * the lib-core / lib-workflow / lib-memory business-module directories
+ * anywhere in its text (the import-audit scans the whole file, not just the
+ * flag-ON branch) -- the one such import this file used to carry (a
+ * telemetry mirror through the shared navigation chokepoint, reachable only
+ * when a caller passed opts.db -- no caller in this tree ever did) was
+ * removed as dead code rather than reworked, since nothing exercised it.
+ *
+ * Pure CJS, node built-ins only. No new runtime dependencies (lib/mcp/* is
+ * adapter plumbing, not a business module -- same D-06 boundary
+ * lib/mcp/adapter-client.cjs itself draws).
  */
 'use strict';
 
@@ -31,6 +44,8 @@ const os = require('node:os');
 const { PRECEDENCE_LADDER } = require('../lib/sessionstart/precedence-ladder.cjs');
 const { compressUntilUnderBudget } = require('../lib/sessionstart/budget-compressor.cjs');
 const { runContributor } = require('../lib/sessionstart/contributor-isolator.cjs');
+const { isMcpFirst } = require('../lib/mcp/mcp-first-flag.cjs');
+const { wakeDaemon, queryDaemon } = require('../lib/mcp/adapter-client.cjs');
 
 const BUDGET_CHARS = 2000;                                        // D-14
 const PER_CONTRIBUTOR_TIMEOUT_MS = 1500;                          // D-16 graceful fail
@@ -86,6 +101,12 @@ function withTimeout(fn, ms) {
  */
 async function runAll(opts) {
   const options = opts || {};
+  // Passed through opaquely to runContributor's own isolator seam (lib/
+  // sessionstart/contributor-isolator.cjs) -- that module owns the ONLY
+  // memory_event emission on a contributor throw (Canon Part 4/8, tested by
+  // sessionstart-coordinator.test.cjs Test 6). This file never itself
+  // requires a lib/core module (D-06); db is just an opaque value handed to
+  // a sibling module's own optional param.
   const db = options.db || null;
   const telemetryPath = typeof options.telemetryPath === 'string' && options.telemetryPath.length > 0
     ? options.telemetryPath
@@ -115,24 +136,7 @@ async function runAll(opts) {
     return { continue: true };
   }
 
-  const { body, dropped, compressed } = compressUntilUnderBudget(live, budget);
-
-  // Phase 121 trajectory mirror -- LOCAL scalars + enums only (Canon Part 8).
-  if (db) {
-    try {
-      const navigation = require('../lib/core/navigation.cjs');
-      if (navigation && typeof navigation.logMemoryEvent === 'function') {
-        navigation.logMemoryEvent(db, 'sessionstart_coordinator_run', {
-          fragments_total: live.length,
-          fragments_compressed: Array.isArray(compressed) ? compressed.length : 0,
-          fragments_dropped: Array.isArray(dropped) ? dropped.length : 0,
-          bytes_emitted: Buffer.byteLength(body || '', 'utf8'),
-        });
-      }
-    } catch (_) {
-      // Coordinator must not crash on telemetry write failures.
-    }
-  }
+  const { body } = compressUntilUnderBudget(live, budget);
 
   if (!body || body.length === 0) {
     return { continue: true };
@@ -147,9 +151,82 @@ async function runAll(opts) {
   };
 }
 
+/**
+ * parseToolPayload(callToolResult) -- unwrap a queryDaemon() CallToolResult's
+ * first text content block back into the JS object status_read/
+ * room_state_bound composed server-side. Never throws; a malformed/missing
+ * payload degrades to null (the caller's own try/catch around
+ * runThinAdapter() is the real safety net, this is a second, cheap guard).
+ *
+ * @param {object} result
+ * @returns {object|null}
+ */
+function parseToolPayload(result) {
+  try {
+    const block = result && Array.isArray(result.content) ? result.content[0] : null;
+    const text = block && block.text;
+    if (typeof text !== 'string') return null;
+    return JSON.parse(text);
+  } catch (_e) {
+    return null;
+  }
+}
+
+/**
+ * runThinAdapter() -- Phase 198-08 (SPEC-5, D-05/D-06) flag-ON path: wake the
+ * daemon, query it for the session binding (room_state_bound) and the status
+ * segment (status_read), compose a MINIMAL additionalContext body from their
+ * ALREADY-SHIPPED, server-side-composed payloads, and render. Zero session-
+ * reconcile / budget-compression / contributor-isolation logic runs in this
+ * process -- that composition now lives server-side (the tools themselves,
+ * Plan 04/06), this function only wakes, queries twice, and renders. Never
+ * throws past its own try/catch (the SAME forgiving contract runAll()'s
+ * main() caller already honors for the flag-OFF path).
+ *
+ * @returns {Promise<{continue: true, hookSpecificOutput?: object}>}
+ */
+async function runThinAdapter() {
+  try {
+    await wakeDaemon();
+    const [bindingResult, statusResult] = await Promise.all([
+      queryDaemon('room_state_bound', {}),
+      queryDaemon('status_read', {}),
+    ]);
+    const binding = parseToolPayload(bindingResult);
+    const status = parseToolPayload(statusResult);
+
+    const parts = [];
+    if (binding && typeof binding.room_dir === 'string' && binding.room_dir.length > 0) {
+      parts.push('Room: ' + binding.room_dir);
+    }
+    const seg = status && status.segments;
+    if (seg && seg.context_pct !== null && seg.context_pct !== undefined) {
+      parts.push('Context: ' + seg.context_pct + '%');
+    }
+
+    const body = parts.join('\n');
+    if (body.length === 0) {
+      return { continue: true };
+    }
+    return {
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: 'SessionStart',
+        additionalContext: body,
+      },
+    };
+  } catch (_e) {
+    // Forgiving contract: a daemon-reach failure never blocks SessionStart.
+    return { continue: true };
+  }
+}
+
 async function main() {
   try {
-    const envelope = await runAll();
+    // D-05/D-07: flag-ON ('cli' or 'all') dispatches to the thin daemon-query
+    // adapter; flag OFF (unset/empty, the default) runs the full 11-
+    // contributor runAll() exactly as shipped -- byte-identical legacy.
+    const envelope = isMcpFirst('cli') ? await runThinAdapter() : await runAll();
     try { process.stdout.write(JSON.stringify(envelope)); } catch (_) { /* swallow */ }
     process.exit(0);
   } catch (e) {
@@ -165,6 +242,7 @@ if (require.main === module) {
 
 module.exports = {
   runAll,
+  runThinAdapter,
   BUDGET_CHARS,
   PER_CONTRIBUTOR_TIMEOUT_MS,
   DEFAULT_CONTRIBUTOR_MAP,

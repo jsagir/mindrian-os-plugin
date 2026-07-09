@@ -36,11 +36,89 @@ _mos_newest_cache_dir() {
     | tail -1
 }
 
+# ----------------------------------------------------------------------------
+# Phase 198-08 (SPEC-5, D-05/D-06) -- thin-adapter statusline segment.
+#
+# D-05: statusline is a LOW-RISK, migrate-FIRST surface. Behind the flag
+# (MINDRIAN_MCP_FIRST names 'cli' or 'all'), this dispatcher wakes the daemon
+# and queries status_read for the segment (including spend/cap, day one)
+# INSTEAD of exec'ing to the legacy scripts/statusline-mos -- the segment
+# composition itself now runs server-side, not in this shim. Flag OFF (unset/
+# empty, the default) keeps the exact legacy exec below, byte-identical
+# (SPEC-7). On ANY trouble the thin path emits nothing and exits 0, exactly
+# the same forgiving contract the legacy path already honors -- it never
+# falls through to the legacy exec on error (a statusline must never do two
+# things at once).
+#
+# D-06: this file wakes (wakeDaemon), queries (queryDaemon/status_read), and
+# renders -- it carries no segment-composition business logic of its own
+# (that lives in lib/mcp/tools/status.cjs, server-side). It reaches the daemon
+# only through lib/mcp/adapter-client.cjs; the flag check reuses the SAME
+# lib/mcp/mcp-first-flag.cjs isMcpFirst() every other MINDRIAN_MCP_FIRST
+# consumer uses (one place the cutover contract lives, D-07).
+# ----------------------------------------------------------------------------
+_mos_thin_statusline() {
+  # $1 = plugin root. Returns 0 and prints the rendered segment on success;
+  # returns 1 on ANY trouble (caller emits nothing and exits 0).
+  local _root="$1"
+  [ -f "${_root}/lib/mcp/adapter-client.cjs" ] || return 1
+  # 8s bound: daemon-lifecycle's own DEFAULT_SPAWN_TIMEOUT_MS is 5000ms for a
+  # COLD spawn (no daemon running yet) -- a shorter bash-level timeout would
+  # race-kill a legitimate first-ever cold start before ensureDaemon's poll
+  # loop can finish, always losing that race and emitting nothing. A WARM
+  # daemon (the steady-state case -- statusline renders happen far more often
+  # than the daemon restarts) answers in well under 1s (a single probePort +
+  # one HTTP round trip), so this bound is a one-time cold-start cost, not a
+  # per-render tax.
+  timeout 8 node -e "
+    const path = require('node:path');
+    const root = process.argv[1];
+    (async () => {
+      try {
+        const { isMcpFirst } = require(path.join(root, 'lib/mcp/mcp-first-flag.cjs'));
+        if (!isMcpFirst('cli')) { process.exit(1); }
+        const { wakeDaemon, queryDaemon } = require(path.join(root, 'lib/mcp/adapter-client.cjs'));
+        await wakeDaemon();
+        const result = await queryDaemon('status_read', {});
+        const text = result && result.content && result.content[0] && result.content[0].text;
+        const payload = JSON.parse(text);
+        const seg = payload && payload.segments;
+        if (!seg) { process.exit(1); }
+        const parts = [];
+        if (seg.context_pct !== null && seg.context_pct !== undefined) {
+          parts.push('ctx:' + seg.context_pct + '%');
+        }
+        if (seg.spend_cap && (seg.spend_cap.spend_usd !== null || seg.spend_cap.cap_usd !== null)) {
+          const s = seg.spend_cap.spend_usd !== null ? seg.spend_cap.spend_usd : '?';
+          const c = seg.spend_cap.cap_usd !== null ? seg.spend_cap.cap_usd : '?';
+          parts.push('\$' + s + '/\$' + c);
+        }
+        if (parts.length === 0) { process.exit(1); }
+        process.stdout.write(parts.join(' '));
+        process.exit(0);
+      } catch (_e) {
+        process.exit(1);
+      }
+    })();
+  " "${_root}" 2>/dev/null
+}
+
 for _base in \
   "${MINDRIAN_OS_ROOT:-}" \
   "$(_mos_newest_cache_dir)" \
   "${HOME}/.claude/plugins/mindrian-os"; do
   if [ -n "${_base}" ] && [ -f "${_base}/scripts/statusline-mos" ]; then
+    if [ -n "${MINDRIAN_MCP_FIRST:-}" ]; then
+      _thin_out="$(_mos_thin_statusline "${_base}")"
+      _thin_exit=$?
+      if [ "${_thin_exit}" -eq 0 ]; then
+        printf '%s' "${_thin_out}"
+        exit 0
+      fi
+      # Thin path found nothing to say or hit trouble -- forgiving contract:
+      # emit nothing (never fall through to the legacy exec on error).
+      exit 0
+    fi
     exec bash "${_base}/scripts/statusline-mos"
   fi
 done
