@@ -3633,6 +3633,19 @@ Cluster F. Switch the governed invocation spine to an MCP-FIRST execution substr
 - **Eval (GATE):** ships a Plurai eval suite (reuses the Phase 196 plurai-baseline harness); one judge for one-path invocation parity across CLI/Desktop/Cowork. No phase closes without a passing Plurai baseline.
 - **Provenance:** Cluster-F graduation from SEED-038 (PROMOTED). NEXT: `/gsd-discuss-phase 198`.
 
+**Plans:** 10 plans across 7 waves (0-6) - PLANNED 2026-07-09 (`/gsd-plan-phase 198`)
+
+- [ ] 198-01-PLAN.md -- Wave 0: SKIP-safe run-all-198.sh + 9 test stubs + parity scaffold + 198-plurai-gate-check (clone 189) + 198-baseline.json
+- [ ] 198-02-PLAN.md -- Wave 1: SPEC-1 WIRE-AND-CONSUME per-session identity (sessionIdGenerator + session-registry + resolveWriteRoom) + room_bind + D-04 compat shim + MINDRIAN_MCP_FIRST flag (OFF default)
+- [ ] 198-03-PLAN.md -- Wave 2: D-01 durable daemon lifecycle (pidfile/port discovery/crash recovery) + stdio shim + minimal additive SSE event bus
+- [ ] 198-04-PLAN.md -- Wave 2: SPEC-2 contract core (contract_version + tools/ registration seam + born-wired MCP-tool generation) + room/graph tools + navigation.cjs chokepoint guard
+- [ ] 198-05-PLAN.md -- Wave 3: SPEC-4 gate superset schema + 3-renderer ladder (elicitation/AskUserQuestion/text) + gate_render/gate_answer, identical-payload proof
+- [ ] 198-06-PLAN.md -- Wave 3: SPEC-2 remainder - sensors (suggest_next/reach_candidates/contradiction_check/whitespace_scan) + framework_run + artifact_file/view_compile/status_read (spend/cap)
+- [ ] 198-07-PLAN.md -- Wave 4: SPEC-3 server-side chain_resolve/chain_run (wraps runChain, halts at material -> gate)
+- [ ] 198-08-PLAN.md -- Wave 4: SPEC-5a thin-adapter statusline + SessionStart (D-05 first) + D-06 adapter-budget import audit
+- [ ] 198-09-PLAN.md -- Wave 5: SPEC-5b Stop-gate migration LAST (D-05) + server-side gate dedup/relevance
+- [ ] 198-10-PLAN.md -- Wave 6: SPEC-6 two-host parity + SPEC-7 rollback rehearsal + SPEC-8 Plurai gate (checkpoint: VS Code parity)
+
 ### Phase 199: AgentShield Scanner (agentshield-scanner) - REGISTERED 2026-07-01 - **COMPLETE 2026-07-02**
 
 **Class:** CODE | **Priority:** P3 (security layer) | **Depends on:** Phase 196 (boundary scan generalizes)

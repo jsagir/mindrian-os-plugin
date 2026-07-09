@@ -369,7 +369,14 @@ bash tests/run-all-194.sh   # expect 14/0/0
 | A4 | No OS-level daemon registration exists to migrate (no systemd/launchd/Task Scheduler) | Runtime State Inventory | If a machine-specific daemon wrapper exists outside the repo, port/pidfile design must account for it |
 | A5 | The 8 SPEC requirements are the authoritative working set (no separate REQ-ID registry for 198) | Phase Requirements | If REQUIREMENTS.md gains 198 IDs before planning, map SPEC-1..8 to them |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> Planning disposition (2026-07-09, /gsd-plan-phase 198): all three questions are resolved by the plan set.
+>
+> 1. **D-02 session unification** -> RESOLVED in plan 198-02's design: the session-registry maps the MCP connection sessionId to the Phase-194 binding key (one namespace); the stdio shim (plan 198-03) passes the hook-derived sessionId through MINDRIAN_SESSION_ID as the connection key, so a CLI session and its daemon connection share ONE binding.
+> 2. **Elicitation client capability (A2)** -> a re-check task exists in plan 198-05 (Task 1 re-verifies the capability status at build time and records the finding in the SUMMARY); the 3-rung renderer ladder ships regardless because headless clients need rung (c).
+> 3. **SSE event vocabulary** -> DEFINED minimal-additive in plan 198-03 (EVENT_KINDS: status-segment, gate-fired, reconcile-raised; additive-only, never renamed or removed).
+
 
 1. **MCP connection session <-> Phase-194 sessionId unification (D-02)**
    - What we know: Phase 194 sessions come from `intent-classifier.resolveSessionId` (hook path); the daemon's session is an MCP connection; the binding file is keyed on a sessionId string.
