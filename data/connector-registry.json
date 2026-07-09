@@ -2692,6 +2692,40 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": "F.0"
+    },
+    {
+      "surface": "mcp:contract_version",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Pure read of a pinned version constant and a static trust-boundary enum; no fork, no side effects."
+    },
+    {
+      "surface": "mcp:room_bind",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.8",
+      "hitl_why": "A session with no explicit room and no cwd auto-bind is genuinely ambiguous; room_bind returns needs_binding_card:true instead of guessing, and the F.8 card asks the human which room this session writes to (fires once per session, D-03/D-05)."
     }
   ],
   "sensor_index": {

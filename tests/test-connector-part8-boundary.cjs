@@ -52,10 +52,22 @@ const FROZEN_WEB_SCOPES = new Set([null, 'white', 'red', 'black', 'yellow', 'gre
 // Schema fields a connector entry is ALLOWED to carry (the generated registry
 // shape). A free-text body channel (summary/content/body/text/note/...) outside
 // this set is a Part-8 smuggling surface.
+//
+// Phase 198-04 (SPEC-2, Task 1) additive extension: hitl_shape (a member of
+// the CLOSED F.0-F.9/none vocabulary, data/hitl-shape-declaration-schema.json)
+// and hitl_why (a short, DEVELOPER-authored rationale sentence baked into the
+// static lib/mcp/tools/*.cjs source at commit time -- never populated from
+// live user/room data, exactly like the pre-existing developer-authored
+// `filing` / `decision_surface` fields already in this allowlist) are the two
+// additive keys source:'mcp_tool' connector entries carry. Neither can smuggle
+// user content: hitl_shape is closed-enum, and hitl_why is generated ONLY by
+// scripts/build-connector-registry.cjs's static require() of the tool
+// module's own connectors export -- there is no code path from a live room.db
+// read to either field.
 const ALLOWED_CONNECTOR_FIELDS = new Set([
   'surface', 'source', 'connects_to_spine', 'sensor_triggers', 'reach_id',
   'sub_mode', 'framework', 'posture', 'hierarchy_rank', 'filing', 'plan_gated',
-  'web_scope', 'decision_surface',
+  'web_scope', 'decision_surface', 'hitl_shape', 'hitl_why',
 ]);
 
 // Free-text-shaped field names that must NEVER appear on a connector entry.

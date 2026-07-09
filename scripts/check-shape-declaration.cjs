@@ -53,6 +53,25 @@ const path = require('node:path');
 // against the closed F.0-F.9 shape set + the {parallel, ordered, gate} mode set.
 const hitlStages = require('./check-hitl-stages.cjs');
 
+// Phase 198-04 (SPEC-2, Task 1): reuse the SAME MCP-tool discovery
+// build-connector-registry.cjs uses to generate data/mcp-tool-connectors.json
+// (Canon Part 7 -- one discovery walk, not two). A declared MCP tool with a
+// missing/invalid hitl_shape is caught by the SAME advisory --check sweep this
+// file already runs over commands/agents/pipelines/skills (Phase 210 posture:
+// WARN + enumerate, never a hard block; --strict restores hard-fail). Lazily
+// required only where used so a --check-plan-only invocation never pays the
+// lib/mcp/tools/ + command-resolver.cjs load cost.
+function loadMcpToolDescriptors() {
+  try {
+    const gen = require('./build-connector-registry.cjs');
+    return typeof gen.listMcpToolConnectorDescriptors === 'function'
+      ? gen.listMcpToolConnectorDescriptors()
+      : [];
+  } catch (_e) {
+    return [];
+  }
+}
+
 // Phase 209-03 (B2): ONE shared STAMP_MARKER constant, imported from the B1
 // stamp script rather than a second literal (T-209-10) - a drifted duplicate
 // would silently green the declared-implies-wired gate.
@@ -681,6 +700,34 @@ function collectSurfaces() {
 }
 
 // ---------------------------------------------------------------------------
+// collectMcpToolSurfaces() -- Phase 198-04 (SPEC-2, Task 1) mirror of the SAME
+// MCP-tool discovery build-connector-registry.cjs uses. An MCP tool is not a
+// markdown surface (no frontmatter to parse), so this builds a check()
+// fixture DIRECTLY from each module's own {tool, hitl_shape, hitl_why}
+// descriptor instead of going through parseFrontmatter/frontmatterToFixture.
+// Returns [{ surface, fixture }]. Zero Brain/network calls.
+// ---------------------------------------------------------------------------
+function collectMcpToolSurfaces() {
+  const out = [];
+  const raw = loadMcpToolDescriptors();
+  for (const c of raw) {
+    const tool = typeof c.tool === 'string' && c.tool
+      ? c.tool
+      : (typeof c.surface === 'string' && c.surface ? c.surface : 'unknown');
+    const surface = 'mcp:' + tool;
+    out.push({
+      surface,
+      fixture: {
+        surface,
+        hitl_shape: typeof c.hitl_shape === 'string' ? c.hitl_shape : undefined,
+        hitl_why: typeof c.hitl_why === 'string' ? c.hitl_why : undefined,
+      },
+    });
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // checkTree() -- the --check sweep over the live four-class tree. Parses each
 // surface's frontmatter, builds a check() fixture, and classifies the pass
 // results into { declared, skillExempt }. Returns
@@ -734,11 +781,33 @@ function checkTree() {
     }
   }
 
+  // Phase 198-04 (SPEC-2, Task 1): mirror the SAME MCP-tool discovery into
+  // this enumeration. A declared MCP tool with a missing/invalid hitl_shape is
+  // caught by the SAME check() predicate every command/agent/pipeline/skill
+  // surface above runs through -- advisory, WARN-and-enumerate (Phase 210
+  // posture), never a hard block from this loop alone (main()'s --check
+  // branch applies the SAME advisory-vs-strict gate uniformly over the whole
+  // violations[] array, MCP tools included).
+  const mcpSurfaces = collectMcpToolSurfaces();
+  for (const m of mcpSurfaces) {
+    const r = check(m.fixture, { vocab });
+    if (!r.valid) {
+      for (const v of r.violations) violations.push(v);
+      continue;
+    }
+    const hasDecl = m.fixture.hitl_shape !== undefined || m.fixture.hitl_stages !== undefined;
+    if (hasDecl) {
+      declared += 1;
+    } else {
+      skillExempt += 1;
+    }
+  }
+
   return {
     ok: violations.length === 0,
     declared,
     skillExempt,
-    scanned: surfaces.length,
+    scanned: surfaces.length + mcpSurfaces.length,
     violations,
   };
 }
