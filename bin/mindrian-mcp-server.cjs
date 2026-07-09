@@ -69,6 +69,10 @@ const sessionRegistry = require('../lib/mcp/session-registry.cjs');
 // keeps the hardcoded port 3847 and never touches the pidfile (byte-
 // identical legacy, SPEC-7).
 const daemonLifecycle = require('../lib/mcp/daemon-lifecycle.cjs');
+// Phase 198-03 (D-01, Open Question 3): minimal additive SSE event bus for
+// live statusline segments (status-segment/gate-fired/reconcile-raised).
+// Wired as an /event route ONLY under the flag-ON branch below.
+const sseEventBus = require('../lib/mcp/sse-event-bus.cjs');
 
 // Detect surface before anything else
 const surface = detectSurface();
@@ -198,6 +202,19 @@ async function main() {
       await transport.handleRequest(req, res);
     });
 
+    // Phase 198-03 (D-01, Open Question 3): the SSE event bus's /event route
+    // is wired ONLY under the flag-ON branch -- flag-OFF adds no route at all
+    // (byte-identical legacy, SPEC-7). Loopback-only (this app already binds
+    // 127.0.0.1 only, below); additive vocabulary
+    // (status-segment/gate-fired/reconcile-raised); never carries room
+    // content bound for the Brain (Part 8).
+    const mcpFirstOn = isMcpFirst(surface.surface);
+    if (mcpFirstOn) {
+      app.get('/event', (req, res) => {
+        sseEventBus.subscribe(res);
+      });
+    }
+
     await server.connect(transport);
 
     // Phase 198-03 (D-01, SPEC-1/SPEC-7): flag-ON discovers a free loopback
@@ -206,7 +223,6 @@ async function main() {
     // pidfile once listening so the stdio shim + future clients can find
     // THIS process. Flag-OFF keeps port 3847 exactly as shipped -- no
     // pidfile, no discovery, byte-identical legacy.
-    const mcpFirstOn = isMcpFirst(surface.surface);
     const listenPort = mcpFirstOn ? daemonLifecycle.discoverPort() : 3847;
     app.listen(listenPort, '127.0.0.1', () => {
       process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, HTTP on 127.0.0.1:${listenPort}, room: ${roomDir})\n`);
