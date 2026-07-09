@@ -59,6 +59,12 @@ const NEW_198_MODULES = [
   'lib/mcp/gate-dedup.cjs',
   'lib/mcp/hook-adapter-audit.cjs',
   'bin/mindrian-mcp-shim.cjs',
+  // Phase 198-09 (T-198-05, Task 1): the Stop-gate move's own net-new
+  // modules. gate-dedup.cjs was already covered above (Wave 0 inventory);
+  // stop-gate-handler.cjs and its MCP tool wrapper carry the SAME room/gate
+  // state class and must clear the identical Brain-egress floor.
+  'lib/mcp/stop-gate-handler.cjs',
+  'lib/mcp/tools/stop-gate.cjs',
 ];
 
 // Brain-egress tokens. A 198 module carrying room/gate state must contain NONE

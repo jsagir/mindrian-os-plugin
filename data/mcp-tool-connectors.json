@@ -291,6 +291,23 @@
       "hitl_why": "Pure read: composes this session's navigator status segments (including the day-one spend/cap segment) and publishes to the SSE bus, no fork."
     },
     {
+      "surface": "mcp:stop_gate_check",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.1",
+      "hitl_why": "The moved Stop-gate enforcement: on a genuine unanswered/relevant/novel gate it composes and returns a gate_render payload for the calling adapter to surface; a do-not-fire verdict composes nothing."
+    },
+    {
       "surface": "mcp:suggest_next",
       "source": "mcp_tool",
       "connects_to_spine": true,
