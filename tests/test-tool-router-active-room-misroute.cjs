@@ -123,7 +123,10 @@ async function run() {
       const prev = process.env.MINDRIAN_ROOMS_HOME;
       process.env.MINDRIAN_ROOMS_HOME = emptyHome;
       try {
-        const target = router._test.resolveWriteTargetDir(roomA);
+        // Phase 198-02: resolveWriteTargetDir(sessionId, fallbackRoomDir, surface).
+        // Flag-off (surface omitted) still exercises the pre-198 legacy path
+        // (resolveActiveRoom on registry miss falls back to fallbackRoomDir).
+        const target = router._test.resolveWriteTargetDir(undefined, roomA);
         assert.strictEqual(target, roomA, 'miss must fall back to boot roomDir');
       } finally {
         process.env.MINDRIAN_ROOMS_HOME = prev;
