@@ -2985,13 +2985,16 @@ Plans:
 ### Phase 216: Eureka User-Facing Command (eureka-user-command) - REGISTERED 2026-07-10
 
 **Goal:** Wrap the already-shipped Eureka Portfolio-Scale engine (Phases 211-215: tri-modal retrieval, AHP criterion weights, 3-dim scoring, weak-signal tail classifier, Opportunity Statement emitter, composed batch runner `scripts/eureka-portfolio-report.cjs`) as a real user-invocable `/mos:` command, so navigators can run portfolio-scale opportunity discovery against their OWN active room without touching a CLI script. Zero new engine (Canon Part 7) - pure wiring + a connector registration + an HITL shape declaration (Canon Part 11 CIRS) + 4-zone UI rendering. Local-only, no egress (Canon Part 8).
-**Requirements**: TBD (set by /gsd-plan-phase 216)
+**Requirements**: 216-R1 (room-native substrate adapter: pairs+signals from room.db, graceful sub-MIN_COHORT degrade), 216-R2 (additive --pairs room runner mode + fire-and-return dispatcher, JHU graph/full path unchanged), 216-R3 (/mos:eureka born-wired command surface: F.8 HITL, 4-zone render, report-only), 216-R4 (all six governance gates green), 216-R5 (hermetic offline test suite + run-all-216 aggregator), 216-R6 (215/211 suites unregressed). Minted by /gsd-plan-phase 216 (no REQUIREMENTS.md yet; a later /gsd-requirements pass reconciles).
 **Depends on:** Phases 211-215 (all complete)
-**Plans:** 0 plans
+**Plans:** 4 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 216 to break down)
+- [ ] 216-01-PLAN.md - room-native substrate adapter (lib/core/eureka/room-native-substrate.cjs) + hermetic unit test (D-01)
+- [ ] 216-02-PLAN.md - additive --pairs room runner mode + scripts/eureka-command.cjs fire-and-return dispatcher + offline e2e (D-01, D-05)
+- [ ] 216-03-PLAN.md - commands/eureka.md born-wired surface + help-groups + skill mirror + six gates (D-02, D-03, D-04)
+- [ ] 216-04-PLAN.md - tests/run-all-216.sh aggregator + 215/211 regression sweep + navigator real-room spot-check
 
 ---
 
