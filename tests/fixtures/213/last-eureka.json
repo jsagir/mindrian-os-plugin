@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "scanned_at": "2026-07-10T12:00:00.000Z",
+  "guard": {
+    "available": true,
+    "verdict": "transferable",
+    "confidence": "high",
+    "tags": ["passes_all_gates"]
+  },
+  "bridge": {
+    "a_handle": "n042",
+    "b_handle": "n317",
+    "surprise_type": "structural_transfer",
+    "band": "breakthrough",
+    "differential_quantized": 0.57
+  },
+  "provenance": {
+    "model": "mdbr-leaf-ir",
+    "method": "scoreMeasured+stageA"
+  }
+}
