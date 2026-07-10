@@ -3,18 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: "212-05 COMPLETE - navigator APPROVED the calibration (5/6 gold accuracy, sterling correct, gold_accuracy 0.83); baseline flipped baseline_deferred -> calibrated (85449ae5). PHASE 212 CLOSED (5/5 plans)."
-last_updated: "2026-07-10T08:45:27.000Z"
+stopped_at: 198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 blocking human-verify checkpoint
+last_updated: "2026-07-10T09:30:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 11
   total_plans: 66
-  completed_plans: 51
-  percent: 44
+  completed_plans: 52
+  percent: 48
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 213 Plan 01 COMPLETE (1/6 plans) -- the 3 deferred Eureka critic legs, all local CODE
+
+The critic half's local arithmetic is in place: the three graders Phase 212 explicitly deferred to 213 now exist as deterministic, zero-network CODE (SEED-050 THE METRIC: no LLM anywhere in the formula path).
+
+- **The COMPRESSION meter (runtime-side):** `lib/core/eureka/compression-meter.cjs` -- `Score = CompressionDelta x GuardGate x StatusQuoGate`. A Lured arrival scores strictly negative (`LURED_PENALTY -1 x max(compressionDelta, MIN_LURED_MAGNITUDE 0.25)`), no open gate rescues it; the nichefoods-null shape (arrival Full, CompressionDelta 0) scores ~0. `computeCompressionDelta` clamps [0,1] and is defensive (never throws). GuardGate 0 on `pseudoscience`, StatusQuoGate 0 on `status_quo_stuck` (enums named, not re-minted).
+- **The two graders (eval-side):** `lab/eureka-graders/arrival-grader.cjs` (ARRIVAL_VERDICTS Full/Partial/Missed/Lured, credit = reached/total, Lured dominates and feeds the meter's negative leg) and `lab/eureka-graders/status-quo-judge.cjs` (mode-conditioned status_quo_stuck vs redirect_ok). Both verdict-by-code (the 212 D2 idiom, mirrored not imported), frozen closed enums.
+- **Home decision implemented as recommended (RESEARCH OQ1, flagged):** meter runtime-side, graders eval-side; MCP-servable judge packaging (SEED-050:102-105) deferred to the consolidation arc's critic-MCP step.
+- **NAVIGATOR PRECONDITION OVERRIDE (human-granted):** the plan's hard EXECUTION PRECONDITIONS block was explicitly overridden by the navigator via the plan's own escape hatch. (a) curing-sequence debug track still `status: gathering` -- overridden as orthogonal to Eureka wiring, different code surface. (b) 212-05 calibration is `calibrated` at gold_accuracy 0.83 (navigator-APPROVED end to end), not literally "deferred" and 0.83 < 0.85 -- overridden because it is a numeric-bar / deferred-vs-calibrated text mismatch on an already-approved checkpoint, satisfying the spirit of (b). Both gaps were shown to the navigator before the override.
+- **Verification (all acceptance gates hold):** `node tests/test-213-compression-meter.cjs` exit 0 (PASS=7); `node tests/test-213-graders.cjs` exit 0 (PASS=8); formula string present verbatim (2 hits); network/MCP scan exit 1 (zero hits across all 3 modules); zero em-dashes per file. TDD RED->GREEN with separate commits: meter `47baaf1f`(test)/`53d88c04`(feat), graders `bda273ca`(test)/`e8371b99`(feat).
+- **NEXT:** Phase 213 plans 02-05 now have an honest critic to gate/tune against (213-05 APO reward SIGNAL consumes compressionScore). 213-06 remains gated on the curing verdict + 212-05 per the ROADMAP. SUMMARY: `.planning/phases/213-eureka-reach-wiring-the-key-eureka-reach-wiring/213-01-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 212 COMPLETE (5/5 plans) -- Plan 05 Task 2 navigator APPROVED the calibration
 
@@ -654,12 +665,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 198 - mcp-first-then-sdk
+**Current focus:** Phase 213 — eureka-reach-wiring-the-key
 
 ## Current Position
 
-Phase: 198 (mcp-first-then-sdk) - EXECUTING
-Plan: 10 of 10 (tasks 1-2 COMPLETE; Task 3 PAUSED at a blocking human-verify checkpoint)
+Phase: 213 (eureka-reach-wiring-the-key) — EXECUTING
+Plan: 1 of 6
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
