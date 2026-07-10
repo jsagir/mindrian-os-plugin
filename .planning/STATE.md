@@ -3,18 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 216-02-PLAN.md COMPLETE (--pairs room mode + fire-and-return dispatcher); next 216-03
-last_updated: "2026-07-10T18:15:00.000Z"
+stopped_at: 216-03-PLAN.md COMPLETE (commands/eureka.md born-wired surface + six gates); next 216-04
+last_updated: "2026-07-10T19:50:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 24
   completed_phases: 13
   total_plans: 70
-  completed_plans: 67
-  percent: 56
+  completed_plans: 68
+  percent: 57
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 216 Plan 03 COMPLETE (3/4 plans) -- `/mos:eureka` is a born-wired user command: type it against your own room and get the ranked + weak-signal-tail + Opportunity-Statement read, all six CIRS gates green
+
+The user-facing wrap. Before this plan only a developer with a shell could run the Eureka engine; now any navigator on any of the three surfaces types `/mos:eureka` and gets the portfolio read against their OWN active room. `commands/eureka.md` is born WIRED (Canon Part 11 CIRS) over the Plan 02 fire-and-return dispatcher. D-02 (name), D-03 (report-only), D-04 (F.8 HITL), D-05 (fire-and-return) all delivered. 216-R3 + 216-R4 satisfied.
+
+- **Task 1 (`commands/eureka.md`, commit `1d4e0cf8` feat):** the born-wired surface. Gate-parsed frontmatter: `hitl_shape: "F.8"` + `hitl_why`, `body_shape: E (Action Report)`, restrictive `allowed-tools: [Read, Bash, AskUserQuestion]`, connector block `SENS-13 / context_block / eureka-portfolio / framework: null / posture: hold / filing: none / surface: F.1`. Body: verbatim `<!-- mos:firing-block v2 -->`, LOCKED Larry voice rules (12 glyphs, 3-line error, no emoji), SEED-034 one-door pre-flight (`scripts/resolve-room` + fallback + 3-line no-room error), the D-05 `run` flow (Step 1 `start` + first-run model-fetch honesty note, Step 2 bounded 3-poll `status`, Step 3 `report`), `status` + `report` subcommands, the 4-zone Shape E render keyed to the report JSON (`json.ranked` table, honest `Not enough entries for a tail read` insufficient_structure line, `NOT YET BANKED (critic pending)` D-03 language), the F.8 Decision Gate close over AskUserQuestion, the report-only note, Error Handling + Cross-Surface Adaptation. Author-time re-verify: `sub_mode: eureka-portfolio` and `name: eureka` each exactly one hit, no collision, no `-216` suffix needed. (Commit also regenerated `data/command-registry.json`, required fresh by the pre-commit registration hook when a command lands.)
+- **Task 2 (registration, commit `f62f499e` feat):** `eureka` appended to the `intelligence-research` help family (jtbd connect-domains + explore intersect); `skills/eureka/SKILL.md` generated as a byte-mirror via `build-skill-mirrors.cjs --write` (Windows registration parity, born in the same commit); `data/connector-registry.json` + `data/connector-coverage-ledger.json` regenerated with the `(SENS-13, context_block, eureka-portfolio)` tuple. **All six governance gates green in one chained invocation (216-R4):** connector-registry --check, shape-declaration --check --strict (257 declared), command-registration (PASS), help-coverage (valid), skill-mirror --check (107 mirrors), render-coverage (0 gap).
+- **Verification:** six gates chained -> exit 0; `node tests/test-216-eureka-command.cjs` -> 44 assertions passed (dispatcher unregressed while authoring); acceptance greps all pass (firing-block v2 = 1, AskUserQuestion = 5, filing: none = 1, tail directive phrase = 1, em-dash = 0, subcommand tokens = 33); the only high-codepoint characters are the sanctioned 12-glyph vocabulary, not emoji.
+- **NEXT:** 216-04 (`tests/run-all-216.sh` aggregator + 215/211 regression sweep + navigator real-room `/mos:eureka` spot-check). SUMMARY: `.planning/phases/216-eureka-user-facing-command-eureka-user-command-wrap-the-ship/216-03-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 216 Plan 02 COMPLETE (2/4 plans) -- additive `--pairs room` runner mode + the `eureka-command.cjs` fire-and-return dispatcher: a plain room.db now produces the full 215-style report from one dispatcher call, no dev flags
 
