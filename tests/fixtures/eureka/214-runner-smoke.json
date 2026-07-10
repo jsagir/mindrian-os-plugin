@@ -1,0 +1,47 @@
+{
+  "source": {
+    "text": "A cell membrane pump moves ions against their gradient using stored chemical energy.",
+    "sapphire": {
+      "state_change": "converts a stored gradient into directed transport",
+      "action": "release stored potential across a boundary",
+      "parts": "membrane, reservoir, gated channel",
+      "phenomenon": "a potential differential drives flow through a gate",
+      "input": "accumulated potential energy",
+      "real_effect": "net movement from a full store to an empty one",
+      "effect": "sustained one-way delivery"
+    }
+  },
+  "candidates": [
+    {
+      "id": "AC-001",
+      "domain": "hydraulic engineering",
+      "text": "A lock-and-dam system raises boats by moving water between chambers at different levels.",
+      "source_tier": "tier0",
+      "source_date": "2018-04-01",
+      "sapphire": {
+        "state_change": "converts a stored gradient into directed transport",
+        "action": "release stored potential across a boundary",
+        "parts": "",
+        "phenomenon": "a potential differential drives flow through a gate",
+        "input": "",
+        "real_effect": "net movement from a full store to an empty one",
+        "effect": ""
+      }
+    },
+    {
+      "id": "AC-002",
+      "domain": "urban traffic control",
+      "text": "A metered highway on-ramp releases cars one at a time to smooth the merge.",
+      "source_tier": "tier0",
+      "sapphire": {
+        "state_change": "converts a stored gradient into directed transport",
+        "action": "",
+        "parts": "",
+        "phenomenon": "",
+        "input": "",
+        "real_effect": "",
+        "effect": ""
+      }
+    }
+  ]
+}
