@@ -3,18 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 215-01-PLAN.md COMPLETE (2/2 tasks) - AHP criterion-weight module shipped (3x3 criterion AHP + Saaty CR gate, the only net-new math this phase mints); test-215-ahp-weights 7/7 green; TDD RED/GREEN gates both present
-last_updated: "2026-07-10T11:10:17.000Z"
+stopped_at: 215-02-PLAN.md COMPLETE (2/2 tasks) - the two deterministic classifiers shipped (portfolio-dimensions 3-dim scorer + tail-quadrant weak-signal classifier); test-215-score 5/5 + test-215-tail 5/5 green; TDD RED/GREEN gates both present for both tasks; 215-R2 + 215-R3 complete
+last_updated: "2026-07-10T11:35:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 12
   total_plans: 67
-  completed_plans: 61
+  completed_plans: 62
   percent: 53
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 215 Plan 02 COMPLETE (2/5 plans) -- the two deterministic classifiers: three dimensions never one flat number, and the under-watched gem is a distinct flagged category (not a sort tweak)
+
+The two classifiers that sit ON TOP of the reused engines are on disk and green. Both are pure deterministic math over already-measured local signals (Canon Part 7 leaf classifiers, NOT engines - 215-RESEARCH.md Net-new table); zero DB open, zero network, zero Brain egress (Part 8 N/A by construction). 215-R2 + 215-R3 both satisfied.
+
+- **Task 1 (`lib/core/eureka/portfolio-dimensions.cjs` + `tests/test-215-score.cjs`, TDD RED->GREEN, commits `1fd55947` test RED, `c32e5a4f` feat GREEN):** the 3-dimension signal map. `scoreTechDimensions(tech, cohort)` -> `{strategic_fit, validated_demand, tech_econ_feasibility}` all in `[0,1]` (strategic_fit = `1/primary_tier` with a 0.25 honest below-tier-3 floor; validated_demand = the `pair_count` cohort percentile; tech_econ_feasibility = the `degree` cohort percentile baseline). `scorePairDimensions(pairSignals)` inherits `strategic_fit = max(a,b)`, `validated_demand = mean(a,b)`, and `tech_econ_feasibility` = the rs piecewise map (in-band structural bridge 1.0 / out-of-band transfer 0.7 / semantic_implementation 0.4 / passes-false 0.1; band frozen 0.16-0.25 per the s11 real-bridge finding). `weakDimensions` + `complementary` encode the batch-scale "three low into one high" precondition (both weak sets non-empty AND disjoint). `percentileRank` exported for tail-quadrant to reuse one copy. Dimension keys BYTE-MATCH the Plan-01 ahp-weights `CRITERIA` WITHOUT importing the module (Part 7); FUSION posture documented in the header (annotate + route to the existing reach, never re-derive combine, never spam runFusion) - `runFusion(` count 0. 5/5 offline green.
+- **Task 2 (`lib/core/eureka/tail-quadrant.cjs` + `tests/test-215-tail.cjs`, TDD RED->GREEN, commits `3f894eb0` test RED, `8e2ad0f8` feat GREEN):** the weak-signal quadrant classifier. `classifyTail(items, opts?)` flags the low-attention/high-growth quadrant as a DISTINCT category (a top-N sort BURIES the gem - SEED-048 line 30) via linear-interpolated QUANTILE cut-offs recomputed per cohort (ATTN_Q 0.25 / GROWTH_Q 0.75; scale-free across DG-2's two run modes, never absolute cut-offs). Honest degeneracy (Pitfall 3): cohort `< MIN_COHORT 30` -> `insufficient_structure` (do not classify); a quadrant swallowing `> MAX_TAIL_FRACTION 0.25` -> `suspect_noise` (list STILL returned, warning stamped). Malformed/out-of-range axes throw `TAIL_AXIS_RANGE` (caller bug, fail loud - T-215-03). `growth_proxy` defaults to `'cnumber-recency'` so provenance is never blank. **DG-1 Burt brokerage seam:** `opts.brokerage` Map composes when supplied (`composition: 'attention-growth-brokerage'`, brokerage term in the within-tail ordering so an under-watched broker outranks a non-broker), degrades to `'attention-growth-only'` when absent, and names Phase 212.5 as the future Burt producer WITHOUT importing it (no build dependency, zero cross-module require). 5/5 offline green.
+- **Verification:** `node tests/test-215-score.cjs` (5/5) + `node tests/test-215-tail.cjs` (5/5) both exit 0. All Task 1/Task 2 acceptance greps pass (strategic_fit 8 >=3; 0.16 x2, 0.25 x4 >=1; runFusion( 0; insufficient_structure 4 >=2; suspect_noise 5 >=2; attention-growth-brokerage 2 >=1; 212.5 x2 >=1; non-node requires 0). Neither module requires navigation.cjs nor opens room.db (pure classifiers; data access stays in the Plan 04 runner). Em-dash sweep clean on all four new files.
+- **No deviations.** Two documented discretion decisions inside the plan's stated latitude: single-tech `tech_econ_feasibility` = degree percentile (no test pins it; the most defensible per-tech proxy, refined to the rs value at pair scale); `percentileRank` returns a neutral 0.5 for a degenerate 0/1-element cohort (avoids divide-by-zero NaN).
+- **NEXT:** 215-03 (the Opportunity Statement emitter: deterministic template combine/unmet-need/who/kills-it/next/tier/rank, reads dims + tail), 215-04 (wire the Wave-1 modules onto the shipped 211 pipeline: `scripts/eureka-portfolio-report.cjs`, feeds the classifiers the real `evals/eureka/jhtv-idea-graph.json`), 215-05 (the hard real-2117-tech acceptance gate, human-verify). SUMMARY: `.planning/phases/215-eureka-portfolio-scale-fusion-eureka-portfolio-fusion/215-02-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 215 Plan 01 COMPLETE (1/5 plans) -- the AHP criterion-weight module: every future ranked candidate carries a defensible weighted score, not a vibe number
 
