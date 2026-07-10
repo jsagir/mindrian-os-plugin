@@ -2899,7 +2899,7 @@ Plans:
 - [x] 211-04-PLAN.md - SEED-050 gold set front-load: 6 case cards + COMPRESSION formula + manual Larry baseline (human checkpoint)
 - [x] 211-05-PLAN.md - real-room run (scripts/eureka-room-report.cjs) + run-all-211.sh + Cross-Topic Connection judge gate + eureka spot-check (human checkpoint)
 
-### Phase 212: Eureka Substrate + Grounding Guard (eureka-substrate-grounding-guard) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seeds SEED-049 + SEED-050**
+### Phase 212: Eureka Substrate + Grounding Guard (eureka-substrate-grounding-guard) - COMPLETE 2026-07-10 (5/5 plans) - **EUREKA TWO-IN-A-BOX, seeds SEED-049 + SEED-050**
 
 **Goal:** Graph-framed substrate + whitespace/bridge signal detection over room.db (SEED-049), plus the cheapest critic judge first (SEED-050): `start_evaluator` for the salient-verifier / Grounding Guard (`transferable` vs `general_shallow` vs `pseudoscience` vs `restatement`), upload ~25 labeled insight-turns, `Optimize`, require >=0.85 accuracy + high pseudoscience recall. `restatement` is the guard's #1 job (high semantic-lexical differential can just be a paraphrase, not a cross-domain bridge).
 **Requirements**: TBD
@@ -2913,7 +2913,7 @@ Plans:
 - [x] 212-02-PLAN.md - Stage B two-pass rubric + verdict-by-code + criticRule calibration ruling + D6 negative-corpus acceptance test - COMPLETE 2026-07-10 (2/5 plans)
 - [x] 212-03-PLAN.md - eureka_critic MCP tool on tool-router (thin wrapper, rate-limit+dedupe, zero roomDir) + Part 8/D5 boundary scan - COMPLETE 2026-07-10 (3/5 plans)
 - [x] 212-04-PLAN.md - gold-card fixture suite + 2 JHU Opportunity Statement fixtures + optional Plurai leg + run-all-212.sh gate - COMPLETE 2026-07-10 (4/5 plans)
-- [ ] 212-05-PLAN.md - real calibration run (mdbr-leaf-ir + local judge) + navigator >=0.85 human-verify checkpoint
+- [x] 212-05-PLAN.md - real calibration run (mdbr-leaf-ir + local judge) + navigator >=0.85 human-verify checkpoint - COMPLETE 2026-07-10 (5/5 plans) - navigator APPROVED (5/6 gold accuracy, sterling correct, gold_accuracy 0.83); baseline flipped to calibrated. **PHASE 212 COMPLETE.**
 
 ### Phase 212.5: Eureka Graph Substrate + Whitespace/Bridge Detection (eureka-graph-substrate) - REGISTERED 2026-07-06 - **the SPLIT half of Phase 212's original goal (navigator Q1 lock)**
 

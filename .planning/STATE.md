@@ -3,18 +3,30 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: "212-05 Task 1 COMPLETE (real calibration run done, artifacts committed 0485794b); Task 2 BLOCKED on navigator >=0.85 human-verify checkpoint + the ruling on the 2 JHU drafts"
-last_updated: "2026-07-10T09:55:00.000Z"
+stopped_at: "212-05 COMPLETE - navigator APPROVED the calibration (5/6 gold accuracy, sterling correct, gold_accuracy 0.83); baseline flipped baseline_deferred -> calibrated (85449ae5). PHASE 212 CLOSED (5/5 plans)."
+last_updated: "2026-07-10T08:45:27.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
-  completed_phases: 10
+  completed_phases: 11
   total_plans: 66
-  completed_plans: 50
-  percent: 43
+  completed_plans: 51
+  percent: 44
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 212 COMPLETE (5/5 plans) -- Plan 05 Task 2 navigator APPROVED the calibration
+
+The critic-only Phase 212 is CLOSED. Plan 05 Task 2 (the blocking human-verify checkpoint, Q2 lock) is resolved: the navigator APPROVED the calibration. 5/6 gold-card accuracy WITH archimedes-sterling (the lean-checkable objective anchor, D3) routed transferable = CORRECT meets the plan's own bar; the two JHU draft rulings read correctly to the navigator.
+
+- **The flip (exactly ONE edit, the approved branch):** `evals/eureka/212-critic-baseline.json` status `baseline_deferred` -> `calibrated`, plus `approved_at: 2026-07-10T08:45:27Z` and `gold_accuracy: 0.83`. Buckets stand at `111111` n=4/4 transferable, `111011` n=1/1 general_shallow. The status flip was HUMAN-GATED end to end - the build produced the evidence (calibration report + buckets), the navigator produced the ruling. Commit `85449ae5` (feat).
+- **The two JHU drafts are no longer stopgap-flagged:** `pair-2-cerebral-aneurysm` -> transferable (synergistic, both passes agree), `pair-1-arrhythmias` -> general_shallow / rubric_disagreement (additive bundle, adversarial completes a schema-orphan counter-mapping). These carry calibrated coarse confidence now, retiring the 2026-07-06 room entry's "not yet critic-verified" manual flag.
+- **The sole gold miss** (davinci-salient -> general_shallow, gold transferable) is a faithful neutral-vs-adversarial disagreement on the Gate-B compressed:candidate card, the two-pass protocol refusing to over-bless an abstract destination - it does not breach the bar because sterling, the objective anchor, is correct.
+- **Recorded honestly, not re-tuned:** the Stage A content-floor over-kill on long real prose stays a separate calibration question owned by `test-212-critic-stage-a.cjs` (Pitfall 7); the 6 cards remain `validated: candidate` so this is a structural baseline over N=6+2, not a validated corpus.
+- **Verification:** `bash tests/run-all-212.sh` PASS=6 FAIL=0 SKIP=0 after the flip; checkpoint automated verify prints `checkpoint state ok: calibrated, gold_accuracy=0.83`. SUMMARY written: `.planning/phases/212-eureka-substrate-grounding-guard-eureka-substrate-grounding-/212-05-SUMMARY.md`.
+- **Phase 212 tally:** 5/5 plans complete. The Grounding Guard is built (01/02), MCP-exposed (03), acceptance-tested (04), and human-calibrated (05). The D7 phase gate is fully satisfied (automated run-all-212 green + navigator sign-off).
+- **NEXT:** run `node scripts/doctor.cjs --acceptance` / `/gsd-verify-work` for the phase-close roll-up. Downstream: Phase 212.5 (eureka-graph-substrate, the split SEED-049 substrate half) and Phase 213 (eureka-reach, 213-06 gated on 212-05, now satisfied) inherit a calibrated critic.
 
 ## (2026-07-10) -- PHASE 212 Plan 05 Task 1 COMPLETE (Task 2 BLOCKED on human checkpoint) -- the real calibration run
 
