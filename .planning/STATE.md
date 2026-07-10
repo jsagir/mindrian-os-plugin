@@ -3,18 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 214-01-PLAN.md COMPLETE (2/2 tasks); analogy-fitness engine + phase aggregator landed
+stopped_at: 214-02-PLAN.md COMPLETE (1/1 task); online-pattern-query egress fence landed (run-all-214 leg 2 flipped SKIP->PASS)
 last_updated: "2026-07-10T00:00:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 11
   total_plans: 66
-  completed_plans: 57
-  percent: 49
+  completed_plans: 58
+  percent: 50
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 214 Plan 02 COMPLETE (2/4 plans) -- the online leg's inline Part-8 egress fence (no more assumed-hook coverage)
+
+find-analogies' online leg can no longer ship on a hook that does not cover it. `lib/core/eureka/online-pattern-query.cjs` turns an abstracted `{functionalKeywords, trizPrinciples, abstractFunction}` pattern into the three query families the command's `--external` mode already specs (biomimicry / patents / academic), and audits EVERY composed string INLINE through the SHIPPED `auditQueryString` fence before it can be returned. The composer composes and audits; it NEVER transmits.
+
+- **Task 1 (online-pattern-query.cjs, TDD RED->GREEN):** `composePatternQueries(pattern, opts)` -> `{ok:true, queries:[{family,q}], audited}` on the happy path. Templates are the verbatim intent of the command's Step 4 External Mode: biomimicry `how does nature <kw>` (cap 3), patents `<principle> <kw> patent` (first principle x first two keywords), academic `<abstractFunction> cross-domain solution`. **The fence is inline and reuse-only:** one `require('../rs-egress-prompts.cjs')`, NO private FORBIDDEN_PATTERNS copy (the 196 no-private-copies precedent), mirroring the rs-differential-scorer.cjs:314-322 audit-before-bridge seam. A fence throw aborts and returns `{ok:false, degrade:'local-only', reason:'egress_violation', family}` naming ONLY the family - zero content echo (Test 4 proves the poisoned `$3.5M` substring never appears in the envelope). An all-empty/non-composable pattern returns `reason:'empty_pattern'` WITHOUT touching the fence. Zero network surface (no http/https/net/fetch). 6/6 offline tests green. Commits `59ce825c` (test RED), `d303885d` (feat GREEN).
+- **DG-2 encoded as researched:** the Phase 196 runtime egress hook matches `mcp__brain_.*` ONLY (hooks.json), so Tavily/web egress is NOT covered by it. The fence is wired INLINE (the smaller blast radius, no change to a shipped 196 surface). A hook-level web matcher is an additive follow-up, never a replacement. Test 3 proves the real shipped fence fires by DEFAULT (no injected seam).
+- **Aggregator:** `bash tests/run-all-214.sh` -> **PASS=2 FAIL=0 SKIP=1**, exit 0 (leg 2 flipped SKIP->PASS; leg 3 SKIP until 214-04). All acceptance greps green (spine-require 1, private-fence 0, network-surface 0, em-dash exit 1, min_lines 139).
+- **No deviations.** Plan executed exactly as written.
+- **NEXT:** 214-03 (find-analogies stub surgery - REPLACE the decorative stub in-place, source ALL outbound queries from composePatternQueries, closing T-214-06), 214-04 (archimedes-darkmatter gate + rank-order, the last SKIPPED aggregator leg). SUMMARY: `.planning/phases/214-eureka-pattern-transfer-find-analogies-eureka-pattern-transf/214-02-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 214 Plan 01 COMPLETE (1/4 plans) -- the measured two-leg analogy fitness engine (find-analogies' decorative decimal retired)
 
