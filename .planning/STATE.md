@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: "212-04-PLAN.md COMPLETE (4/5); NEXT 212-05 real calibration run + navigator >=0.85 human-verify checkpoint"
-last_updated: "2026-07-10T09:40:00.000Z"
+stopped_at: "212-05 Task 1 COMPLETE (real calibration run done, artifacts committed 0485794b); Task 2 BLOCKED on navigator >=0.85 human-verify checkpoint + the ruling on the 2 JHU drafts"
+last_updated: "2026-07-10T09:55:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
@@ -15,6 +15,20 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 212 Plan 05 Task 1 COMPLETE (Task 2 BLOCKED on human checkpoint) -- the real calibration run
+
+Fifth and final plan of the critic-only Phase 212. Task 1 (type=auto) is DONE: the Grounding Guard has ruled on real workload for the first time. Task 2 (type=checkpoint:human-verify, gate=blocking) is NOT started - it needs the navigator. Plan 05 is therefore NOT complete; the ROADMAP 212-05 checkbox stays unchecked and `212-critic-baseline.json` stays at `baseline_deferred`.
+
+- **The CLI runner (tri-polar CLI leg):** `scripts/eureka-critic-run.cjs` (`--emit-prompts` / `--score --answers <json> --workdir <dir>`, process.argv switch-case, no Commander). Desktop/Cowork already reach the guard via the plan-03 `eureka_critic` MCP tool; this is the CLI surface. The rubric LLM step is the LOCAL Claude session (Part 8: the judge needs raw content, never behind the MCP boundary), so the run is split: emit real prompts, the session answers faithfully, `--score` replays them through the REAL `runRubric`.
+- **The real calibration run:** full local pipeline (Stage A real mdbr-leaf-ir embeddings + Stage B two-pass rubric + verdict-by-code) on the 6 SEED-050 gold cards + 2 JHU Opportunity Statements. Zero network egress; nothing written back to any room.
+  - **gold-card accuracy 5/6 = 0.83.** archimedes-sterling (the lean-checkable objective ANCHOR, D3, non-negotiable) routed transferable = CORRECT. Sole miss: davinci-salient (general_shallow / rubric_disagreement) - the Gate-B `compressed: candidate` card whose salient the human supplied in the real session; a genuine neutral-vs-adversarial disagreement, faithful not manufactured (the two-pass protocol refusing to over-bless an abstract destination).
+  - **Pseudoscience precision clean** (no gold/draft wrongly routed pseudoscience); recall 3/3 held by the automated D6 suite.
+  - **FIRST REAL RULINGS on the 2 JHU drafts** (replaces the 2026-07-06 room entry's "not yet critic-verified" stopgap): `pair-2-cerebral-aneurysm` -> **transferable** (synergistic: the arterial-territories atlas informs the EmboGel delivery, no schema orphan, both passes agree); `pair-1-arrhythmias` -> **general_shallow / rubric_disagreement** (additive bundle: MRI-compatibility and low-pain are two separable benefits of the same device class, adversarial completes a schema-orphan counter-mapping). Live confidence `unknown` for both (baseline deferred); provisional bands high / unknown.
+- **Buckets populated, status HELD baseline_deferred:** `111111` n=4/4 transferable, `111011` n=1/1 general_shallow. The flip baseline_deferred -> calibrated is HUMAN-GATED (Task 2, Q2 lock) - never self-certified.
+- **Honesty note (nothing hidden):** on long real prose the two content-shaped Stage A floors (swap-invariance 0.05, entity 2) over-kill genuine transferable cards including sterling and both drafts (a 3-noun swap barely moves a long-paragraph embedding). The runner relaxed those two floors so the calibration TARGET (the Stage B rubric) is exercised, kept Gate 1 (fabricated-quantity) at real default, and RECORDED the raw default-gate routes per candidate. The floor over-kill is flagged for the navigator as a separate Stage A content-floor calibration question (Pitfall 7: re-calibrate, do not quietly nudge), owned by `test-212-critic-stage-a.cjs`.
+- **Verification:** plan verify one-liner exits 0; `grep -c mdbr-leaf-ir` report = 6 (Q4 provenance); em-dashes 0/file; `bash tests/run-all-212.sh` PASS=6 FAIL=0 SKIP=0; `bash tests/run-all-211.sh` PASS=10 FAIL=0 SKIP=0 (no regression). Commit `0485794b` (feat). Out-of-scope `211-baseline.json` date refresh reverted; `.calib-work/` gitignored.
+- **NEXT (BLOCKING, navigator only):** 212-05 Task 2 human-verify. Open `evals/eureka/212-calibration-report.md`; confirm the >=0.85 bar (at least 5/6 with sterling correct - this run is exactly 5/6 with sterling correct); confirm no gold card wrongly routed pseudoscience; read the two JHU draft rulings and judge whether verdict + reasoning_tag + coarse confidence match your own read. Reply "approved" (flip status to calibrated, add approved_at + gold_accuracy 0.83, re-run run-all-212), "deferred" (keep baseline_deferred, reason logged), or describe specific misrulings (log + gap-closure pass, no quiet threshold re-tune).
 
 ## (2026-07-10) -- PHASE 212 Plan 04 COMPLETE -- Eureka Grounding Guard acceptance substrate + the D7 phase gate
 
