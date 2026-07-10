@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 216-03-PLAN.md COMPLETE (commands/eureka.md born-wired surface + six gates); next 216-04
-last_updated: "2026-07-10T19:50:00.000Z"
+stopped_at: 216-04 automated tasks DONE (tests/run-all-216.sh green); Task 2 checkpoint:human-verify BLOCKED on navigator /mos:eureka real-room spot-check
+last_updated: "2026-07-10T20:15:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 24
@@ -15,6 +15,15 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 216 Plan 04 AUTOMATED TASKS DONE, Task 2 BLOCKED on navigator checkpoint (real-room /mos:eureka spot-check) -- the hermetic phase-gate aggregator is on disk and green
+
+The two-leg phase gate (the 211-05 / 215-05 pattern). Leg 1 (the automated aggregator) is GREEN; leg 2 (the navigator's human spot-check) is the open `checkpoint:human-verify` gate. Following the 215-05 precedent, NO 216-04-SUMMARY.md is written and ROADMAP 216-04 / Phase 216 are left unmarked until the navigator verdict is recorded verbatim.
+
+- **Task 1 (`tests/run-all-216.sh`, commit `bd945cd9` test):** the hermetic Phase 216 aggregator, built on the run-all-215.sh scaffold (`set -uo pipefail`, `run`/`run_if` helpers, PASS/FAIL/SKIP counters, exit nonzero on any FAIL). The zero-network guard `NODE_OPTIONS="${NODE_OPTIONS:-} --require ${ROOT}/tests/eureka-offline-preload.cjs"` is exported before any leg (216-R5, T-216-13: inherited by every leg AND the dispatcher's detached children). 9 legs in order: (1) 216-01 room-native substrate, (2) 216-02 room mode + dispatcher offline e2e, (3-8) the six 216-03 CIRS governance gates (connector registry, shape declaration --strict, command registration, help coverage, skill mirror, render coverage), (9) the `run_if` 215 engine no-regression leg (216-R6; the 215 aggregator chains run-all-211 as its own leg 7, so 211 rides along - no duplicate standalone 211 leg). Header states the two-leg contract + the Part 8 egress rule.
+- **Verification (leg 1 GREEN):** `bash tests/run-all-216.sh` -> `Phase 216: PASS=9 FAIL=0 SKIP=0`, exit 0 (the 215 leg PASSED, real-room graph-mode JSON present so the reproduction sub-leg ran). `bash tests/run-all-211.sh` -> `PASS=10 FAIL=0`, exit 0 (belt-and-suspenders direct run, unregressed). `bash -n tests/run-all-216.sh` exit 0. Acceptance greps: `eureka-offline-preload`=1 (>=1), `run-all-215`=2 (>=1). Nested inside 216's run: Phase 215 PASS=8 FAIL=0, Phase 211 PASS=10 FAIL=0 - the runner edit did not regress the 215/JHU path.
+- **Task 2 (BLOCKED, `checkpoint:human-verify` gate="blocking"):** the navigator must run `/mos:eureka` in a normal Claude Code session against a REAL room (a tens-of-entries room is the RIGHT test - the cohort the JHU-scale engine never saw) and confirm: the fire-and-return shape (D-05); the 4-zone anatomy (header + ranked pairs table + tail read + Opportunity Statements + action footer with exactly one primary command, 12 glyphs no emoji); tail honesty (D-01: sub-30-entry rooms say "Not enough entries for a tail read", never a crash or a fabricated gem list); statement honesty (D-03: every Opportunity Statement shows NOT YET BANKED, critic pending); the F.8 AskUserQuestion close on a genuine fork; and `/mos:eureka report` re-rendering from disk with no rescan. Real-room content NEVER reaches a network judge (Canon Part 8, the 215 rule). Resume signal: "approved" closes Phase 216; a described defect becomes a gap-closure item for `/gsd-plan-phase 216 --gaps` (not hot-patched past the gate).
+- **NEXT:** navigator records the verdict verbatim -> write `216-04-SUMMARY.md` (the 215-05 recording format) -> mark ROADMAP 216-04 + Phase 216 complete + run state.advance-plan. PLAN: `.planning/phases/216-eureka-user-facing-command-eureka-user-command-wrap-the-ship/216-04-PLAN.md`.
 
 ## (2026-07-10) -- PHASE 216 Plan 03 COMPLETE (3/4 plans) -- `/mos:eureka` is a born-wired user command: type it against your own room and get the ranked + weak-signal-tail + Opportunity-Statement read, all six CIRS gates green
 
