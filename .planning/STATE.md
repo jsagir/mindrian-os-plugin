@@ -4,17 +4,29 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: "198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 human-verify checkpoint (two-host parity)"
-last_updated: "2026-07-10T06:21:00.000Z"
+last_updated: "2026-07-10T07:10:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 10
   total_plans: 66
-  completed_plans: 48
+  completed_plans: 49
   percent: 43
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 212 Plan 03 COMPLETE -- Eureka Grounding Guard exposed as the eureka_critic MCP tool + Part 8/D5 boundary scan
+
+Third plan of the critic-only Phase 212. Exposed the Grounding Guard ruling as a THIN MCP tool on the EXISTING governed surface (`bin/mindrian-mcp-server.cjs` / `lib/mcp/tool-router.cjs`), wrapping the pure `criticRule` from `lib/core/eureka-critic.cjs` (212-02) with ZERO change to the portable core - the D4 lift boundary held: deleting this wrapper and re-wrapping criticRule under SEED-014 requires no edit to eureka-critic.cjs.
+
+- **Closed D1 wire (D1/D3b):** the `eureka_critic` zod schema carries ONLY the 6 scalar/enum D1 fields + `rubric_pattern` (regex-bound `^[01x]{6}$`) + `schema_version` - bounded numbers, `z.enum` for surprise_type + source/target domain tags (the enum loaded once from `loadCriticTags().domain_tags`). NO bare `z.string()` anywhere, so the D2-item-5 sycophancy/free-text channel stays closed by construction.
+- **Dedupe + rate-limit on the wrapper (D3b item 4):** a module-level sha256-keyed dedupe Map (`EUREKA_CRITIC_DEDUPE_TTL_MS`, default 60000ms) short-circuits an identical payload without recompute, and a per-process rolling-minute token count (`EUREKA_CRITIC_RATE_LIMIT`, default 30) brakes the query-stream / shadow-model surface. Per-API-key rate-limiting is HONESTLY deferred to the SEED-014 Brain-repo lift (no per-key identity exists plugin-local yet) - documented at the registration site, not silently dropped.
+- **Zero registration-time roomDir closure (D5):** the handler is a pure function of the payload - it references NEITHER roomDir NOR pluginRoot NOR larryContext, so the 2026-07-05 addendum's stale-room bug (existing tools bind roomDir once at registration) cannot recur on this new surface. Proven by the automated D7d handler-region scan, not review discipline.
+- **Part 11 born-wired, no drift:** registration on the one governed MCP path IS the wiring; the tool carries a `hitl_shape: none` declaration comment (pure ruling, no Decision-Gate fork of its own - the human gate on eureka verdicts lands downstream in Phase 213's eureka-reach wiring). It is deliberately NOT in `MCP_TOOL_CONNECTORS` (governance dial is none), so the born-wired registry stays byte-stable and both `build-connector-registry --check` and `check-shape-declaration --check` stay green (no drift). It is NOT in `ALL_TOOL_COMMANDS` (no CLI command twin; its CLI surface is plan 05, its programmatic consumer is Phase 213), so the 65-pin in `test-205-surface-fence.cjs` is untouched.
+- **D7 legs c+d automated:** NEW `tests/test-212-part8-boundary.cjs` reuses the `test-connector-part8-boundary.cjs` idiom (named check IIFEs, region extraction, summary line, non-zero exit) with 6 checks - D1 closed-schema/no-bare-string, D3b quantize+auditQueryObject-reuse at assembleCriticPayload (mutation-sensitive, verified on a scratchpad copy), D4 portability (critic code couples to no MCP framework), D5 handler-region roomDir/pluginRoot/loadRoomState scan, D3b-item-3 coarse STRING confidence via a stubbed baseline fixture, D3b-item-4 dedupe+rate-limit present. Zero network, zero model load.
+- **Verification:** `test-212-part8-boundary.cjs` 6/6, `test-205-surface-fence.cjs` 20/20 (65-pin intact), `test-212-critic-rubric.cjs` 10/10, `test-212-critic-stage-a.cjs` 7/7, `test-212-negative-corpus.cjs` 3/3, `build-connector-registry.cjs --check` OK, `check-shape-declaration.cjs --check` OK (255 declared, 5 skill-exempt). Commits: `7c7bcc90` (feat), `8b63e9b5` (test). Scope fence held: only `lib/mcp/tool-router.cjs` + the new test touched; `lib/core/eureka-critic.cjs` untouched.
+- **NEXT:** 212-04 (gold-card fixture suite + 2 JHU Opportunity Statement fixtures + optional Plurai leg + run-all-212.sh gate).
 
 ## (2026-07-10) -- PHASE 212 Plan 02 COMPLETE -- Eureka Grounding Guard Stage B rubric + criticRule + D6 acceptance bar
 
