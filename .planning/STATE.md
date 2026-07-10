@@ -3,18 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 215-03-PLAN.md COMPLETE (1/1 task) - the Opportunity Statement emitter shipped (buildOpportunityStatement + CLAUSE_LABELS + critic-gate seam); test-215-opp-statement 6/6 green; TDD RED/GREEN gates present; critic honest in all 3 states (pending/pass/fail), banked NEVER on pending; 215-R4 complete
-last_updated: "2026-07-10T12:00:00.000Z"
+stopped_at: 215-04-PLAN.md COMPLETE (3/3 tasks) - the composed portfolio batch runner shipped (scripts/eureka-portfolio-report.cjs wires all four Wave-1 modules onto the reused 211 spine, zero new engine); both DG-2 pair modes (graph|full) + the DG-1 --brokerage seam; idx.embedded===true hard gate; counts read at run time; test-215-portfolio-report 18/18 green; run-all-215 PASS=6 FAIL=0 SKIP=1; run-all-211 unregressed (PASS=10); 215-R2/R3/R4/R5 complete
+last_updated: "2026-07-10T13:00:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 12
   total_plans: 67
-  completed_plans: 63
+  completed_plans: 64
   percent: 54
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 215 Plan 04 COMPLETE (4/5 plans) -- the composed portfolio batch runner: ONE command, all shipped engines, a ranked+AHP-weighted+tail-sectioned report from a room + a cited idea-graph
+
+The wiring plan. `scripts/eureka-portfolio-report.cjs` is on disk and green: it composes the four Wave-1 modules (ahp-weights, portfolio-dimensions, tail-quadrant, opportunity-statement) onto the REUSED Phase 211 spine (tri-modal index, `scoreMeasured`, the 211 room-runner's backend-aware vector read + cross-boundary enumeration) as pure composition with ZERO new engine (Canon Part 7). 215-R2 + R3 + R4 + R5 all satisfied.
+
+- **Task 1 (`scripts/eureka-room-report.cjs`, commit `ff1cac06` feat):** additively exported `loadIndexVectors` + `truncate` from the 211 runner so the portfolio runner shares the backend-aware vector read (`eureka_vec` vs `eureka_vec_fallback`) instead of duplicating it. One line changed, zero behavior change; run-all-211 green before and after (PASS=10 FAIL=0).
+- **Task 2 (`scripts/eureka-portfolio-report.cjs`, commit `a5f9bd64` feat):** the composed runner modeled clause-for-clause on the 211 runner. Flags `--db --graph --pairs graph|full --offline --top --out --json --brokerage`. Pipeline: load the cited idea-graph -> techMap + deduped CONVERGES pairs (counts read AT RUN TIME, never a hardcoded 481/1362/1629 literal); openRoomDb + tri-modal indexNodes; HARD GATE on `idx.embedded === true` (the 211 a1e13182 stale-vector fix class); vectors via the newly exported `loadIndexVectors`; pair set per DG-2 mode (graph = the cited CONVERGES substrate both-ids-in-room, full = the 211 cross-boundary enumeration over ALL room nodes); score with `scoreMeasured` (the Part 8 figure-guard skips + counts, never aborts); three-dimension AHP score via `composeScore` with weights reloaded PER RUN (an `AHP_INCONSISTENT` throw aborts LOUDLY with exit 1); `classifyTail` per-tech (attention = pair_count percentile, growth = cnumber-recency percentile) as a DISTINCT report section; `buildOpportunityStatement` per candidate = the ranked top-N PLUS every tail-flagged complementary pair (the gems ride even when outranked); markdown report + JSON sibling (Plan 05 reads the JSON). DG-1 `--brokerage` seam reachable at the CLI so a future 212.5 Burt output plugs in with no code change. A4 posture held: no deep FUSION-engine call, no chain-executor fan-out (grep-clean); zero network (`http` grep 0).
+- **Task 3 (`tests/test-215-portfolio-report.cjs` + `tests/run-all-215.sh`, commit `a1f960b9` test):** hermetic offline structural e2e - a tmp fixture room (openRoomDb, 36 claim nodes across 2 synthetic root domains, ids C00001..C00036) + a tmp fixture graph (CONVERGES edges incl. one complementary-weak pair + a dup to prove unordered dedupe) run through the exported `main()` in BOTH pair modes. 18 assertions: exit 0, the three mandatory headings, provenance carries the AHP CR label + `attention-growth-only` + `cnumber-recency`, offline caveat present, every statement labeled pending-or-verdict, JSON parses with ranked >= 1, dedupe 5->4, cohort read at run time = 36, tail classified (not insufficient), full mode scores 324 cross-boundary pairs. The aggregator: 5 direct legs + the Plan-05 reproduction leg (guarded on the real-room JSON -> SKIPs until Plan 05) + the 211 no-regression leg.
+- **Verification:** `bash tests/run-all-215.sh` exits 0 (PASS=6 FAIL=0 SKIP=1); `bash tests/run-all-211.sh` exits 0 (PASS=10 FAIL=0, unregressed); `node tests/test-215-portfolio-report.cjs` -> `18 assertions passed`. All Task 1/2/3 acceptance greps pass (idx.embedded===true 4, scoreMeasured 5, loadAhpConfig 1, classifyTail 2, buildOpportunityStatement 2, Tail quadrant 2, runFusion|runChain 0, 481|1362|1629 0, http 0, run_if 4, eureka-offline-preload 1). Em-dash sweep clean on all four files.
+- **One self-corrected authoring glitch (not a plan deviation):** the first write of the runner rendered a space separator in one dedupe-key literal as NUL bytes, flagging the file as binary and suppressing `grep -c` counts; root cause was a stray non-printing byte in a single string, not a logic error (Node confirmed the content was correct); fixed to an explicit `:` separator before the Task 2 commit, so no bad byte reached git history.
+- **NEXT:** 215-05 (the hard real-2117-tech acceptance gate: run the runner against the real room, produce `evals/eureka/215-jhtv-portfolio-report.json`, land `tests/test-215-reproduction.cjs`, and record the navigator spot-check verdict at the `checkpoint:human-verify` leg - both aggregator legs that currently SKIP then run). The DG-2 default and the DG-1 seam are both re-pointable at that checkpoint with no code change. SUMMARY: `.planning/phases/215-eureka-portfolio-scale-fusion-eureka-portfolio-fusion/215-04-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 215 Plan 03 COMPLETE (3/5 plans) -- the Opportunity Statement emitter: the turnstile between a curiosity and a banked, ranked, critic-gated opportunity
 
