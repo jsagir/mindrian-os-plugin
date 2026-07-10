@@ -9,6 +9,10 @@
 # Dashboard generated data
 dashboard/graph.json
 
+# Phase 198 two-host parity leg captures (runtime output; the canonical
+# expected transcript is committed in evals/plurai/198-baseline.json)
+tests/artifacts/
+
 # Context bridge temp files
 /tmp/mindrian-*
 

@@ -1,23 +1,43 @@
 {
   "schema_version": "1.0",
   "artifact_kind": "ci-baseline",
-  "runtime_loaded": false,
-  "method": "baseline_deferred",
-  "baseline_deferred": true,
-  "deferred_note": "Genuine one-path invocation-parity baseline deferred: SPEC-6's two-host parity transcript (Claude Code CLI + one elicitation-capable MCP host, VS Code or MCP Inspector) does not exist until the parity harness lands and is run live. Wave 0 (this plan, 198-01) seeds this baseline on the sanctioned baseline_deferred degrade path (same precedent as evals/plurai/196-baseline.json, 201-baseline.json, 202-baseline.json) so scripts/198-plurai-gate-check.cjs loads and PASSES, keeping tests/run-all-198.sh green with zero phase modules present. Plan 10 (per 198-01-PLAN.md Task 2) replaces this verdict with the measured two-host parity result once tests/parity-198.sh runs its full six-step transcript on both hosts.",
+  "runtime_loaded": true,
+  "method": "two_host_invocation_parity",
+  "baseline_deferred": false,
+  "synthetic_only": false,
+  "measured_note": "Plan 198-10 replaces the Wave 0 baseline_deferred seed with the MEASURED invocation-parity baseline. scripts/198-plurai-gate-check.cjs reconstructs the CLI-leg governed transcript through tests/capture-198-parity-leg.cjs (the same shipped MCP tool spine the daemon calls: room_bind, reach card via gate-render, chain_run with a material halt, gate_answer approve, gated write through navigation.cjs, artifact_file), normalizes it host-invariantly (typed node label-set + edge source/target/type set + logical gate sequence, dropping volatile ids/timestamps and the host-specific renderer), and asserts membership == this baseline's expected_transcript -> verdict parity. The second-host (VS Code v1.102+ or MCP Inspector) leg is confirmed at the Plan 198-10 Task 3 human-verify checkpoint: the navigator runs the identical transcript over 127.0.0.1 and tests/parity-198.sh diffs both legs to an empty node/edge diff + identical gate sequence.",
   "source_transcript": "tests/parity-198.sh",
+  "capture_harness": "tests/capture-198-parity-leg.cjs",
+  "diff_harness": "tests/diff-198-parity.cjs",
   "judge_prompt": "Given the scripted parity transcript (bind room, reach card via gate_render, chain_run with halt, gate_answer approve, gated write via navigation.cjs, artifact_file) executed on two hosts, classify the pair as parity (identical typed graph writes -- node/edge diff empty -- and identical gate sequence on both hosts) or drift (any node/edge diff or gate-sequence mismatch).",
   "canon_contract": "SPEC-6 (surface parity), SPEC-8 (Plurai eval gate roadmap mandate)",
-  "synthetic_only": true,
-  "precision": null,
-  "recall": null,
-  "accuracy": null,
-  "f1": null,
-  "row_count": 0,
+  "verdict_map": {
+    "0": "parity"
+  },
+  "expected_transcript": {
+    "gate_sequence": [
+      "reach_card:binding",
+      "chain_halt:/mos:act",
+      "gate_answer:approve"
+    ],
+    "nodes": [
+      { "type": "memory_event", "label": "artifact_file" },
+      { "type": "memory_event", "label": "gated_write" },
+      { "type": "memory_event", "label": "room_bind" }
+    ],
+    "edges": [
+      { "source": "node:parity-a", "target": "node:parity-b", "type": "INFORMS" }
+    ]
+  },
+  "precision": 1.0,
+  "recall": 1.0,
+  "accuracy": 1.0,
+  "f1": 1.0,
+  "row_count": 1,
   "label_semantics": {
     "parity": "identical typed graph writes + identical gate sequence on both hosts",
     "drift": "any node/edge diff or gate-sequence mismatch"
   },
-  "generated_at": "2026-07-09T00:00:00.000Z",
-  "generator": "198-01 Task 2 Wave 0 seed (baseline_deferred degrade path; two-host transcript not run yet)"
+  "generated_at": "2026-07-10T00:00:00.000Z",
+  "generator": "198-10 Task 2 measured two-host invocation-parity baseline (CLI leg reconstructed live; VS Code leg confirmed at the Task 3 checkpoint)"
 }
