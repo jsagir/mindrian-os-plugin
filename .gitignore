@@ -93,6 +93,11 @@ lab/plurai-suite/golden/
 # jhtv-oliver-kuntz room; Canon three-layer: tenant data/tooling lives in the
 # Room, never the product). These patterns stop tenant bytes re-entering the
 # plugin. The generic capability is scripts/csv-to-idea-graph.cjs.
+# Phase 212-05: the eureka-critic-run calibration working dir (emitted rubric
+# prompts, manifest, and the local-judge answers JSON). Scratch reproduction
+# artifacts; the tracked outputs are the report + baseline only.
+evals/eureka/.calib-work/
+
 evals/eureka/*jhtv*
 evals/eureka/*oliver*
 scripts/import-jhu-*
