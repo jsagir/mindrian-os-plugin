@@ -65,6 +65,13 @@ run "215-03 opportunity statement" \
 run "215-04 portfolio report (offline e2e)" \
   node tests/test-215-portfolio-report.cjs
 
+# (5b) Field contract (215-05): the emitter shape (csv-to-idea-graph edge_count/
+#      primary_label/labels) must be reconciled by loadGraph into the scorer
+#      contract (pair_count/primary_problem/problems). Hermetic, offline; the
+#      permanent regression guard for the degenerate-tie bug fixed in 215-05.
+run "215-05 field contract (emitter <-> scorer)" \
+  node tests/test-215-field-contract.cjs
+
 # (6) Plan 05 reproduction leg: reads the REAL-room portfolio JSON. SKIPs cleanly
 #     until the real run lands (guarded on the real-room JSON output).
 run_if "215-05 reproduction (real-room JSON)" "evals/eureka/215-jhtv-portfolio-report.json" \
