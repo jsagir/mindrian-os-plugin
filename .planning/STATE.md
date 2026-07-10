@@ -4,17 +4,28 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: 198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 blocking human-verify checkpoint
-last_updated: "2026-07-10T09:30:00.000Z"
+last_updated: "2026-07-10T12:30:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 11
   total_plans: 66
-  completed_plans: 52
-  percent: 48
+  completed_plans: 53
+  percent: 49
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 213 Plan 02 COMPLETE (2/6 plans) -- the KEY's detector half: SENS-13 sensor + side-channel producer
+
+The detector half of THE KEY is built (SEED-049: "the sensor is the key"). SENS-13 produces a candidate reach; decide() remains the ONE selection brain and the navigator remains the only trigger. This plan stays strictly inside its boundary -- it does NOT touch `lib/core/insight-sensors.cjs` (SENSOR_REGISTRY / decide()); plan 03 owns that spine registration + the reachability proof (left exactly two edits).
+
+- **SENS-13 detector** (`lib/core/sensors/sensor-eureka.cjs`): rides the FROZEN `deep_research` reach (no 7th reach, CIRS R3), posture `hold` (standing suggestion, never auto-opens; SENS-SHOW precedent). Reads `<roomDir>/.mindrian/last-eureka.json` via locally-replicated `readJsonSafe`+`isFreshFile` (NOT an insight-sensors import -- circular). Fires ONLY POST-GuardGate (`guard.available` + verdict `transferable`; a restatement never becomes an offer), fresh (30-min window + WR-01 future-mtime guard), band in {opportunity,high,breakthrough}. Evidence is enum/handle/quantized-scalar only (Part 8). Soft-fails to null on every malformed input.
+- **The side-channel producer** (`lib/core/eureka/eureka-reach-runner.cjs`): `probeGuard` probes the LIVE 212 critic (Pattern 3, never `fs.existsSync`) -- no guard = no fire, write nothing. `runEurekaScan`: pair (injection seam) -> `scoreMeasured` (211, consumed not rebuilt) -> the FLAGGED runtime Stage-A guard gate (212 critic Stage A + `criticRule` confidence; Stage B is session/eval-side, OUT of the runtime path) -> closed-schema atomic write. The closed-key writer IS the Part-8 fence (exact key set, enum/handle/quantized values only; drift -> `schema_violation`, no write). Closed reason enum, never throws, zero new env vars.
+- **Born WIRED:** the runner is invoked from the shipped `scripts/auto-explore-fire.cjs` fire path (additive, opt-in, fire-and-forget with catch-swallow) -- a runner fault can never change auto-explore's exit code or its finding write (Phase 117 exit-0 discipline holds; T-213-07).
+- **Two flagged reconciliations (navigator sign-off pending, in the SUMMARY):** (1) the runtime gate is Stage A + `criticRule` confidence, NOT `classifyCandidate`'s Stage B rubric (which needs a live LLM judge absent in a hook path) -- this honors the plan's own FLAGGED Decision-Gate item; (2) the runner never opens room.db (Canon Part 9 / CLAUDE.md chokepoint) -- the 211 tri-modal derivation lands as an injected `deriveFn` a later plan threads through navigation.cjs, so with no pair it honestly returns `substrate_unavailable`.
+- **Verification (all objective gates hold):** `node tests/test-213-sensor-eureka.cjs` exit 0 (PASS=11, 7 sensor + 4 runner arms, hermetic); `deep_research` grep >=1 AND other-reach-literal grep exits 1; `SENS-13` >=1; decide/nav/chain requires == 0 (Phase 144 fence); `eureka-reach-runner` in auto-explore == 1 (born wired); probeGuard no-guard-no-fire prints ok; em-dash 0 on every touched file; the auto-spanning `test-sensors-part8-sweep` + `test-sensors-routing-fence` both green over 17 files (new sensor auto-covered); `run-all-211` PASS=10 + `run-all-212` PASS=6 (seam is additive). Commits: `e724b6ed`(sensor+fixture), `b764d94c`(runner), `78f95832`(seam+suite).
+- **NEXT:** Plan 03 registers `sensorEureka` into `SENSOR_REGISTRY` + adds the decide() runtime-reachability test (185 predicate) + the no-force suite (T-213-05). A later plan supplies the `deriveFn` that turns the born-invoked producer from `substrate_unavailable` into a live bridge scan. SUMMARY: `.planning/phases/213-eureka-reach-wiring-the-key-eureka-reach-wiring/213-02-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 213 Plan 01 COMPLETE (1/6 plans) -- the 3 deferred Eureka critic legs, all local CODE
 
