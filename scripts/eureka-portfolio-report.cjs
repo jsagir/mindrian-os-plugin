@@ -161,6 +161,24 @@ function nodeData(n) {
   return (n && typeof n === 'object' && n.data && typeof n.data === 'object') ? n.data : n;
 }
 
+// catalogId: the PUBLIC catalog id (C-number / P-number) that joins a room node
+// to the cited idea-graph. The 211 import (scripts/import-jhu-tech-csv.cjs) keys
+// each room node with a synthetic `claim:<meeting>:<hash>` id and stamps the real
+// catalog id as the trailing token of source_path (e.g.
+// `meeting:jhu-tech-import-2026-07-05:jhu-tech:C16796`). The idea-graph keys its
+// nodes by that SAME catalog id (C16796). Without this join the runner would emit
+// opaque hash ids and match nothing in the graph (the id-space mismatch Plan 05
+// surfaced at real-room scale; the 215-04 fixture used C-number ids directly so
+// the gap was invisible until now). Falls back to the raw room id when no catalog
+// token is present (memory_event / persona nodes) so those still enumerate.
+function catalogId(row) {
+  const sp = String(row && row.source_path ? row.source_path : '');
+  const parts = sp.split(':');
+  const last = parts.length ? parts[parts.length - 1].trim() : '';
+  const m = last.match(/^([A-Za-z]\d+)/);
+  return m ? m[1] : (row && row.id);
+}
+
 // A room node with no graph entry (full mode ranges over the whole catalog,
 // which may hold nodes the cited idea-graph never paired). Synthesize a minimal
 // tech so the classifiers degrade honestly instead of throwing.
@@ -503,10 +521,15 @@ async function main(argv) {
     // (3) HARD GATE (T-215-09, the 211 fix class): score ONLY when this run
     // freshly embedded. Stale eureka_vec rows from an earlier offline run must
     // never be scored under a LIVE label. Gate on idx.embedded === true.
-    const rows = db.prepare('SELECT id, type, properties FROM nodes').all();
+    const rows = db.prepare('SELECT id, type, properties, source_path FROM nodes').all();
     const rootOf = buildRootDomainMap(rows);
     const vectors = idx.embedded === true ? loadIndexVectors(db, idx.vec_backend) : new Map();
 
+    // Index keyed by the PUBLIC catalog id (catalogId) so pair ids + graph-join
+    // speak the idea-graph's C-number id-space, NOT the room's opaque hash ids.
+    // The raw room id is retained for vector + text + root-domain lookups (those
+    // three tables are keyed by the room id). Last write wins on the (rare, here
+    // zero) canonical-id collision.
     const indexed = new Map();
     if (idx.embedded === true) {
       for (let i = 0; i < rows.length; i += 1) {
@@ -514,8 +537,10 @@ async function main(argv) {
         if (!text) continue;
         const vec = vectors.get(rows[i].id);
         if (!vec) continue;
-        indexed.set(rows[i].id, {
-          id: rows[i].id,
+        const canonical = catalogId(rows[i]);
+        indexed.set(canonical, {
+          id: canonical,
+          rawId: rows[i].id,
           type: rows[i].type || 'unknown',
           text: text,
           vec: vec,
@@ -773,6 +798,7 @@ module.exports = {
   loadGraph: loadGraph,
   loadBrokerage: loadBrokerage,
   techFor: techFor,
+  catalogId: catalogId,
   cnumberNumeric: cnumberNumeric,
   main: main,
 };
