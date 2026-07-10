@@ -3,18 +3,30 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 213-04-PLAN.md COMPLETE (4/6 plans) - the LarryReacts eureka-offer composer on disk (hedged Shape-F offer + registry next-command segue)
-last_updated: "2026-07-10T09:44:54.000Z"
+stopped_at: 213-05-PLAN.md COMPLETE (5/6 plans) - the 202 + 205 touchpoints in POST-210 softened semantics (COMPRESSION -> APO reward SIGNAL; lateralEngine adapter + grill enum-annotation; 190 deferred to 06's gate)
+last_updated: "2026-07-10T10:05:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 11
   total_plans: 66
-  completed_plans: 55
-  percent: 51
+  completed_plans: 56
+  percent: 52
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 213 Plan 05 COMPLETE (5/6 plans) -- the 202 + 205 touchpoints wired in POST-210 softened semantics
+
+The three researched touchpoint seams now live in their softened forms. The COMPRESSION score (from 213-01's meter) joins the APO reward blend as a BOUNDED SIGNAL (202); the eureka substrate becomes injectable through the pre-drilled `ctx.lateralEngine` socket and an optional enum-only suggest-quality annotation on the grill (205). The 190 touchpoint (born-declared, advisory R16 lint green) is a VERIFICATION property, deferred to plan 06's gate per the plan's own critical note - NOT touched here. No task re-introduced a veto, a mandatory card, or an auto-elevation (the LOCKED recommend-never-trigger constraint + the room's consolidation verdict + RESEARCH V3 resolution table).
+
+- **202 touchpoint (`lab/apo/apo-loop.cjs`, additive):** `COMPRESSION_SIGNAL_WEIGHT = 0.15` (the canon frozen signal-weight cap, mirrors TELEMETRY_WEIGHT exactly) + `compressionTerm(candidate, compression)` -> `clamp01(compression.scoreFor(candidate))` with a try/catch soft-fail. `scoreCandidate` extended: `+ (ctx.compression && activated ? W * compressionTerm : 0)`. With NO compression ctx the blend is BYTE-IDENTICAL to the pre-213 form (the ui4 opt-in seam property). `ctx.compression` threaded from `runApo` opts alongside telemetry; `selectBest`/`qualityTerm`/`telemetryTerm`/voice path untouched.
+- **Signal, never a veto (210-C extended):** a quality lead larger than 0.15 can never be overturned, and because `selectBest` stays quality-lexicographic the primacy is STRUCTURAL. A zero-compression candidate stays selectable when its quality leads; a Lured-NEGATIVE meter score clamps to 0 in the BLEND (the negative verdict lives in the eval report, not as a selection wound).
+- **205 socket (`lib/core/eureka/lateral-engine-adapter.cjs`, new 121 lines):** `makeLateralEngine({ scoreFn?, encodeFn? })` -> `{ score }`, the live occupant of the Phase 205 pre-drilled `ctx.lateralEngine` socket. `score(pair, structure)` delegates to `(scoreFn || scoreMeasured)` (Part-8 dual-layer audit REUSED, not duplicated) and maps to `{ differential_score, band, surprise_type, provenance }`; on ANY degrade returns all-null - never throws, never invents a differential (T-213-15 / T-205-07-R). `fusion-router.cjs` is NOT edited: the adapter satisfies the `{ score }` contract against the REAL `runLateralPath` (routed_to `rs_sideways_engine`, differential_score null at the router; absent-socket degrade byte-unchanged).
+- **205 grill (`lib/core/grill-engine.cjs`, additive):** armA gains an OPTIONAL `eureka_signal` annotation from `ctx.eurekaSignal`, validated against three frozen closed enums (`guard_verdict` = the 212 critic enum, `band` = the differential-scorer bands, `surprise_type` = the reach-runner surprise types). Absent by default (no key, not null); attached verbatim only when fully enum-valid; any non-enum member / missing field / non-object drops the ENTIRE annotation (T-213-16). **The FLAGGED FORK resolved as recommended: `BLOCKED_UNTIL_200` stays `true`** - flipping the deferral remains a separately-gated navigator decision; the annotation rides the EXISTING result shape, live regardless of the Arm-B seam.
+- **The proof suite (`tests/test-213-touchpoints.cjs`, 14 arms A-D):** A pins the five 202 signal behaviors incl. byte-identical no-opts + selection-sees-every-candidate + Lured-clamp + soft-fail; B pins the byte-stable absent-socket degrade + routed-with-adapter + measured-result mapping + rejecting-scoreFn degrade; C pins the grill annotation (absent-by-default / enum-valid verbatim / any-non-enum-dropped / deferral-untouched); D is the softened-vocabulary fence over adapter + grill + self, with the forbidden-verb regex assembled from FRAGMENTS so the suite passes its own fence.
+- **Verification (all gates hold):** `test-213-touchpoints` exit 0 (14 arms); existing `test-202-apo-loop`/`test-202-telemetry-consumer`/`test-202-voice-contract-gate` + `test-205-fusion-router`/`test-205-grill-engine` all green UNMODIFIED; all prior 213 suites green; `grep COMPRESSION_SIGNAL_WEIGHT lab/apo/apo-loop.cjs`=4 (>=2); forbidden-verb grep=0 for the adapter AND the test file (whole file); `grep "BLOCKED_UNTIL_200 = true"`=1 (untouched); em-dash 0 on every touched file; part8-sweep + routing-fence auto-span the new adapter. Commits: `81ffb4b1`(202 signal), `25639cd2`(205 adapter + grill annotation), `9cd9d79a`(proof suite).
+- **NEXT:** 213-06 (run-all-213 aggregator + cross-surface Part-8 boundary suite + human-verify probe; autonomous:false) - execution gated on the curing-sequence verdict + 212-05, and it ASSERTS the 190 touchpoint (born-declared, advisory R16 lint green) as a verification property. A later plan / the consolidation arc still owes the live per-call injection of `makeLateralEngine` onto `ctx.lateralEngine` and the `deriveFn` that turns 213-02's born-invoked producer from `substrate_unavailable` into a live bridge scan. SUMMARY: `.planning/phases/213-eureka-reach-wiring-the-key-eureka-reach-wiring/213-05-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 213 Plan 04 COMPLETE (4/6 plans) -- the LarryReacts leg: guard-cleared eureka side-channel -> ONE hedged Shape-F offer
 

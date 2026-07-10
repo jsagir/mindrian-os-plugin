@@ -2950,7 +2950,7 @@ Plans:
 - [x] 213-02-PLAN.md - the KEY's detector: SENS-13 eureka sensor riding the FROZEN deep_research reach (injection seams, no hardcoded embedder)
 - [x] 213-03-PLAN.md - register SENS-13 into the sensor spine + a decide() runtime-reachability test (185 predicate, fails-otherwise)
 - [x] 213-04-PLAN.md - the LarryReacts composer: guard-cleared eureka side-channel -> recommend-never-trigger offer (composeWorkflow/chain-recommender)
-- [ ] 213-05-PLAN.md - wire 190/202/205 in their POST-210 softened semantics (V3 resolution; fusion-router socket-injected, not edited)
+- [x] 213-05-PLAN.md - wire 202/205 in their POST-210 softened semantics (COMPRESSION -> APO reward SIGNAL; lateralEngine adapter + grill enum-annotation; 190 deferred to 06's gate; fusion-router NOT edited)
 - [ ] 213-06-PLAN.md - run-all-213 aggregator + cross-surface Part-8 boundary suite + human-verify probe (autonomous:false; execution gated on curing verdict + 212-05)
 
 ### Phase 214: Eureka Pattern-Transfer + Find-Analogies (eureka-pattern-transfer) - REGISTERED 2026-07-04 - **EUREKA TWO-IN-A-BOX, seed SEED-049**
