@@ -169,6 +169,79 @@ async function run() {
     ok('Test 6: classifyCandidate short-circuits Stage A with judge call-count 0');
   }
 
+  // ---------- Test 7: criticRule with a KNOWN bucket -> coarse confidence ----------
+  {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'critic-baseline-'));
+    const fixture = path.join(dir, 'baseline.json');
+    fs.writeFileSync(fixture, JSON.stringify({
+      schema_version: 1,
+      status: 'calibrated',
+      embedding_model: 'MongoDB/mdbr-leaf-ir',
+      rubric_version: 1,
+      buckets: { '111111': { n: 10, correct: 10, verdict_observed: 'transferable' } },
+    }), 'utf8');
+    try {
+      const r = critic.criticRule(makePayload({ rubric_pattern: '111111' }), { baselinePath: fixture });
+      assert.strictEqual(r.verdict, 'transferable', 'Test 7: verdict recomputed from the pattern');
+      assert.strictEqual(typeof r.confidence, 'string', 'Test 7: confidence is a COARSE string, never a float');
+      assert.ok(['low', 'medium', 'high'].indexOf(r.confidence) !== -1, 'Test 7: confidence in the coarse band set');
+      assert.strictEqual(r.confidence, 'high', 'Test 7: a 10/10 bucket bands to high');
+      assert.strictEqual(typeof r.reasoning_tag, 'string', 'Test 7: reasoning_tag present');
+      ok('Test 7: criticRule returns calibration-derived coarse confidence for a known bucket');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  // ---------- Test 8: unseen rubric_pattern -> confidence 'unknown' + human review ----------
+  {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'critic-baseline-'));
+    const fixture = path.join(dir, 'baseline.json');
+    fs.writeFileSync(fixture, JSON.stringify({
+      schema_version: 1,
+      status: 'calibrated',
+      embedding_model: 'MongoDB/mdbr-leaf-ir',
+      rubric_version: 1,
+      buckets: { '111111': { n: 10, correct: 9, verdict_observed: 'transferable' } },
+    }), 'utf8');
+    try {
+      const r = critic.criticRule(makePayload({ rubric_pattern: '101011' }), { baselinePath: fixture });
+      assert.strictEqual(r.confidence, 'unknown', "Test 8: unseen pattern -> confidence 'unknown'");
+      assert.strictEqual(r.reasoning_tag, 'calibration_unknown', 'Test 8: routes to human review');
+      ok('Test 8: an unseen rubric pattern returns unknown/calibration_unknown');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  // ---------- Test 9: closed-key discipline + no cwd/roomDir reads ----------
+  {
+    assert.throws(function () {
+      critic.criticRule(makePayload({ smuggled_field: 'oops' }));
+    }, /TypeError|unknown payload key/i, 'Test 9: an unknown payload key is rejected');
+
+    assert.throws(function () {
+      critic.criticRule(makePayload({ source_domain_tag: 'not-a-real-domain' }));
+    }, /TypeError|closed enum/i, 'Test 9: an off-enum domain tag is rejected');
+
+    assert.throws(function () {
+      critic.criticRule(makePayload({ surprise_type: 'hype' }));
+    }, /TypeError|closed enum/i, 'Test 9: an off-enum surprise_type is rejected');
+
+    // Static source guarantee: the ruling never reaches for cwd or a roomDir closure.
+    const src = fs.readFileSync(path.join(__dirname, '..', 'lib', 'core', 'eureka-critic.cjs'), 'utf8');
+    assert.ok(src.indexOf('process.cwd') === -1, 'Test 9: no process.cwd() anywhere in the critic core');
+    assert.ok(src.indexOf('roomDir') === -1, 'Test 9: no roomDir coupling anywhere in the critic core');
+    ok('Test 9: criticRule enforces the closed-key discipline and stays cwd/roomDir-free');
+  }
+
+  // ---------- Test 10: schema_version mismatch -> confidence 'unknown' ----------
+  {
+    const r = critic.criticRule(makePayload({ schema_version: 999 }));
+    assert.strictEqual(r.confidence, 'unknown', 'Test 10: a stale schema_version returns unknown');
+    ok('Test 10: a payload schema_version that mismatches the tags file returns unknown');
+  }
+
   console.log('\n' + passed + ' passed');
 }
 

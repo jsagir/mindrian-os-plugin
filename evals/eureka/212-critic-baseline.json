@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "baseline_deferred",
+  "embedding_model": "MongoDB/mdbr-leaf-ir",
+  "rubric_version": 1,
+  "buckets": {},
+  "note": "Calibration buckets for the Eureka Grounding Guard, keyed by rubric_pattern ([01]{6}) -> {n, correct, verdict_observed}. status stays 'baseline_deferred' with empty buckets until Plan 212-05's human checkpoint hand-labels the 6 SEED-050 gold cards and approves the calibration (the honest-deferral precedent from 211-04/211-05: ship the skeleton, defer the numbers to the human gate, never fabricate accuracy). While deferred, criticRule returns confidence 'unknown' for every unseen pattern (which, with empty buckets, is every pattern) and routes to human review. embedding_model is stamped per the navigator Q4 lock: Stage A thresholds AND these buckets are calibrated against MongoDB/mdbr-leaf-ir; classifyCandidate compares the live encoderProvenance().model against this field before trusting any bucket, so a future embedder swap invalidates the calibration cleanly (the eureka_meta precedent, quick 260706-13z / Pitfall 8) rather than silently drifting. Bump schema_version + rubric_version and recalibrate on any rubric change (Canon Part 9 versioned typed packets, Pitfall 7 criteria drift)."
+}
