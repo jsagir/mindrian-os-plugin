@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "ci-baseline",
+  "status": "baseline_deferred",
+  "baseline_deferred": true,
+  "reason": "plurai_endpoint_unreachable",
+  "detail": "HTTP 404 {\"message\":\"Route POST:/ioa/v1/cross-topic-connection/1.0.0 not found\",\"error\":\"Not Found\",\"statusCode\":404}",
+  "date": "2026-07-10",
+  "legs": [
+    "cross-topic-connection"
+  ],
+  "judge_slug": "cross-topic-connection",
+  "judge_labels": [
+    "No Connection",
+    "Hedged",
+    "Confident"
+  ],
+  "synthetic_only": true,
+  "optional_leg": true,
+  "deferred_note": "OPTIONAL deployed-classifier leg (navigator Q3 lock): the local two-stage critic is the core Grounding Guard; this Plurai leg is a separately gated calibration signal that scores ONLY the pseudonymous gold-card connection texts, never real-room content (Part 8 egress rule). A key resolved but the judge endpoint was unreachable (see detail). The cross-topic-connection route is not deployed at the expected URL as of build time; deferred honestly. Deploy or correct the endpoint, then re-run.",
+  "endpoint": "https://run.plurai.ai/ioa/v1/cross-topic-connection/1.0.0"
+}
