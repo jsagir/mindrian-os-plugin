@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "_note": "Phase 212 Eureka Grounding Guard closed enum registry. Follows the dispatch-framework-map.json precedent (a closed lookup table read rather than reinvented) and Canon Part 9 typed-packet discipline (enums crossing the Brain boundary are stable and versioned, never free-form strings that drift). verdicts is the four-class critic output enum; reasoning_tags is the closed one-line-explanation enum that replaces free-text reasoning across the MCP boundary (D2); domain_tags is the generic source/target domain enum for the D1 wire payload and NEVER carries room artifact vocabulary. Bump schema_version on any change and recalibrate.",
+  "verdicts": ["transferable", "restatement", "pseudoscience", "general_shallow"],
+  "reasoning_tags": {
+    "unsourced_quantity": "Candidate carries an unsourced K/M/B or dollar figure; routes to pseudoscience before any LLM call.",
+    "domain_swap_invariant": "Mechanism embedding barely moves under noun-swap; generic filler, not a real transfer.",
+    "low_novelty_delta": "Nearest neighbor in the user graph is near-identical; a restatement, not a new salient.",
+    "entity_nonspecific": "Too few specific entities named in the mechanism; vague, not checkable.",
+    "rubric_disagreement": "Neutral and adversarial rubric passes disagreed; routes to general_shallow rather than a coin flip.",
+    "restatement_vocab_swap": "Same idea with vocabulary swapped; high differential is necessary but not sufficient.",
+    "no_checkable_consequence": "The stated mechanism yields no consequence a reader could check.",
+    "schema_orphan": "The shared relational schema has orphan elements with no one-to-one mapping.",
+    "passes_all_gates": "Cleared every Stage A gate and the rubric; a candidate transferable salient.",
+    "calibration_unknown": "The rubric pattern is unseen on the gold set or the encoder was unavailable; route to human review."
+  },
+  "domain_tags": [
+    "engineering",
+    "biology",
+    "medicine",
+    "computing",
+    "materials",
+    "energy",
+    "mathematics",
+    "finance",
+    "social",
+    "food",
+    "unknown"
+  ],
+  "rubric_pattern_len": 6,
+  "rubric_version": 1
+}
