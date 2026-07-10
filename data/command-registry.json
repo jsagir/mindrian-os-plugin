@@ -482,6 +482,23 @@
       "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
+      "command": "/mos:eureka",
+      "kind": "utility",
+      "surface": "navigator",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "connect-domains",
+        "explore"
+      ],
+      "teaching": "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka ranks cross-domain pairs and flags the weak-signal tail the top-N sort buries.",
+      "jtbd_label": "Connect Domains",
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
+    },
+    {
       "command": "/mos:explain-decision",
       "kind": "utility",
       "surface": "navigator",
