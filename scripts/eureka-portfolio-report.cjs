@@ -229,16 +229,60 @@ function loadGraph(graphPath) {
   for (let i = 0; i < rawNodes.length; i += 1) {
     const d = nodeData(rawNodes[i]);
     if (!d || typeof d.id !== 'string' || !d.id) continue;
+
+    // FIELD-CONTRACT ADAPTER (the 215-05 fix, tests/test-215-field-contract.cjs).
+    // scripts/csv-to-idea-graph.cjs -- the emitter that ALSO feeds the De Stijl
+    // dashboard viewer (dashboard/index.html + export-template.html read its
+    // section/label/summary fields) -- writes content-node fields named
+    // `edge_count`, `primary_label`, `labels`. This scorer's downstream contract
+    // (portfolio-dimensions.cjs, opportunity-statement.cjs, both unit-tested with
+    // these names) reads `pair_count`, `primary_problem`, `problems`. We reconcile
+    // HERE, in the single adapter, rather than renaming the emitter (which would
+    // ripple into the two dashboard templates). We still PREFER an explicit
+    // scorer-named field when a future graph provides one, then fall back to the
+    // emitter's actual name.
+
+    // pair_count (the demand/attention axis): prefer an explicit pair_count, else
+    // the emitter's edge_count (how many relationship rows cite this node). Absent
+    // -> the field was silently undefined, which pinned validated_demand at the
+    // degenerate 0.5 percentile for the whole cohort (the tie-block bug).
+    let pairCount = 0;
+    if (Number.isFinite(Number(d.pair_count))) pairCount = Number(d.pair_count);
+    else if (Number.isFinite(Number(d.edge_count))) pairCount = Number(d.edge_count);
+
+    // primary_problem (the domain the statement names): prefer primary_problem,
+    // else the emitter's primary_label (the district = clinical domain).
+    let primaryProblem = '';
+    if (typeof d.primary_problem === 'string' && d.primary_problem.trim()) primaryProblem = d.primary_problem;
+    else if (typeof d.primary_label === 'string') primaryProblem = d.primary_label;
+
+    // problems (the shared-domain intersection source): prefer problems, else labels.
+    let problems = [];
+    if (Array.isArray(d.problems)) problems = d.problems;
+    else if (Array.isArray(d.labels)) problems = d.labels;
+
+    // cnumber (the tail growth-recency proxy): prefer an explicit cnumber, else
+    // derive it from a C-number id. The emitter omits cnumber, so without this the
+    // cited graph techs (the ones that matter) had cnumber '' and a zeroed growth
+    // axis, while non-graph techFor() nodes derived theirs from the id -- an
+    // inconsistency that silently degraded the tail for exactly the wrong set.
+    let cnumber = '';
+    if ((typeof d.cnumber === 'string' || typeof d.cnumber === 'number') && String(d.cnumber).trim()) {
+      cnumber = String(d.cnumber);
+    } else if (/^C0*[0-9]+$/i.test(d.id)) {
+      cnumber = d.id;
+    }
+
     techMap.set(d.id, {
       id: d.id,
-      cnumber: (typeof d.cnumber === 'string' || typeof d.cnumber === 'number') ? String(d.cnumber) : '',
+      cnumber: cnumber,
       title: (typeof d.title === 'string' && d.title.trim()) ? d.title : d.id,
       primary_tier: d.primary_tier,
-      pair_count: d.pair_count,
-      degree: d.degree,
+      pair_count: pairCount,
+      degree: Number.isFinite(Number(d.degree)) ? Number(d.degree) : 0,
       section: (typeof d.section === 'string' && d.section.trim()) ? d.section : 'unknown',
-      primary_problem: (typeof d.primary_problem === 'string') ? d.primary_problem : '',
-      problems: Array.isArray(d.problems) ? d.problems : [],
+      primary_problem: primaryProblem,
+      problems: problems,
     });
   }
 
