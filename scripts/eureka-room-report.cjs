@@ -416,4 +416,4 @@ if (require.main === module) {
   main(process.argv.slice(2)).then(function (code) { process.exit(code); });
 }
 
-module.exports = { parseArgv: parseArgv, stubEncode: stubEncode, buildRootDomainMap: buildRootDomainMap, main: main };
+module.exports = { parseArgv: parseArgv, stubEncode: stubEncode, buildRootDomainMap: buildRootDomainMap, loadIndexVectors: loadIndexVectors, truncate: truncate, main: main };
