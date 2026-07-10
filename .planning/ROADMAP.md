@@ -2972,11 +2972,11 @@ Plans:
 **Goal:** Re-point lenses to portfolio scale. Three-dimension scoring (strategic fit / validated demand / technical-economic feasibility) via AHP pairwise weighting, explicitly flagging the low-attention/high-growth-rate quadrant per the weak-signal patent research (the gem hides in the tail nobody's watching) rather than just ranking top scorers.
 **Requirements**: TBD
 **Depends on:** Phases 211-214
-**Plans:** 0 plans
+**Plans:** 5 plans (1 complete)
 
 Plans:
 
-- [ ] 215-01-PLAN.md - the AHP criterion-weight module (3x3 criterion matrix, NOT pairwise over 2117 techs); the only net-new math
+- [x] 215-01-PLAN.md - the AHP criterion-weight module (3x3 criterion matrix, NOT pairwise over 2117 techs); the only net-new math - COMPLETE 2026-07-10 (lib/core/eureka/ahp-weights.cjs + data/portfolio-ahp-matrix.json + tests/test-215-ahp-weights.cjs, 7/7 green)
 - [ ] 215-02-PLAN.md - the two deterministic classifiers on the reused engines (3-dimension score + weak-signal low-attention/high-growth tail flag)
 - [ ] 215-03-PLAN.md - the Opportunity Statement emitter (deterministic template: combine/unmet-need/who/kills-it/next/tier/rank per jhtv-d15 s3)
 - [ ] 215-04-PLAN.md - wire the Wave-1 modules onto the shipped 211 pipeline: scripts/eureka-portfolio-report.cjs

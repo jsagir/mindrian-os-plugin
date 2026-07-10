@@ -3,18 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 214-04-PLAN.md COMPLETE (3/3 tasks) - PHASE 214 CLOSED; archimedes-darkmatter Type-3 gate + 214-F rank-order both green (run-all-214 PASS=3/FAIL=0, run-all-211 PASS=10/FAIL=0, doctor --acceptance 15/15); deviation: regenerated stale find-analogies skill mirror; room mirror staged in-repo (MOS write-scope hook blocked the write - active room iris2026 - not bypassed)
-last_updated: "2026-07-10T00:00:00.000Z"
+stopped_at: 215-01-PLAN.md COMPLETE (2/2 tasks) - AHP criterion-weight module shipped (3x3 criterion AHP + Saaty CR gate, the only net-new math this phase mints); test-215-ahp-weights 7/7 green; TDD RED/GREEN gates both present
+last_updated: "2026-07-10T11:10:17.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 12
-  total_plans: 66
-  completed_plans: 60
-  percent: 52
+  total_plans: 67
+  completed_plans: 61
+  percent: 53
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 215 Plan 01 COMPLETE (1/5 plans) -- the AHP criterion-weight module: every future ranked candidate carries a defensible weighted score, not a vibe number
+
+The ONLY genuinely net-new math this phase mints is on disk and green: `lib/core/eureka/ahp-weights.cjs`. A 3x3 pairwise judgment over the THREE portfolio criteria (strategic fit / validated demand / technical-economic feasibility) produces a normalized weight vector via the geometric-mean method, and any matrix whose Saaty Consistency Ratio exceeds 0.1 is REJECTED loudly (never silently rescaled). Part 7 net-new justified (grep-clean reuse search in 215-RESEARCH.md); Part 8 N/A by construction (pure local math over 9 numbers). The locked Pitfall-2 anti-pattern is forbidden in-module: AHP weights the 3 CRITERIA only, never pairwise over the technologies.
+
+- **Task 1 (`lib/core/eureka/ahp-weights.cjs` + `tests/test-215-ahp-weights.cjs`, TDD RED->GREEN, commits `005696ab` test RED, `d3219a5c` feat GREEN):** the exact interface contract Plans 02/04 build against. `CRITERIA` frozen order-bearing `['strategic_fit','validated_demand','tech_econ_feasibility']`; `computeAhpWeights(matrix)` -> `{weights, lambdaMax, ci, cr, consistent}` (geometric-mean weights, `lambdaMax` from mean of `(M x w)_i / w_i`, `cr = ci / 0.58`, `consistent === cr <= 0.1`); `loadAhpConfig(configPath?)` per-run reload that throws `AHP_INCONSISTENT` (with the computed cr) on a bad edit, never falls back to equal weights (a silent fallback would fabricate defensibility - the exact failure the seed exists to prevent); `composeScore(dims, weights)` the weighted dot product in `[0,1]`, `DIM_RANGE`-guarded. Error codes `AHP_MATRIX_SHAPE`/`AHP_MATRIX_POSITIVE`/`AHP_RECIPROCITY`/`AHP_INCONSISTENT`/`DIM_RANGE`; frozen consts `RI_3 = 0.58`, `CR_MAX = 0.1` via the `_test` seam. Validation covers shape, positivity + finiteness, unit diagonal, reciprocity; float-noise guard clamps a negative `ci` to 0 so a perfectly consistent matrix reports `cr` exactly 0. 6 behaviors green.
+- **Task 2 (`data/portfolio-ahp-matrix.json`, commit `2602dba2`):** the frozen, navigator-editable default judgment matrix - all-equal `[[1,1,1],[1,1,1],[1,1,1]]` (weights 1/3 each, CR 0), `scale: "saaty-1-9"`, provenance (`edited_by_navigator: false`), and an in-file editing note (edit only the upper triangle on the Saaty 1-9 scale, mirror reciprocals, any CR > 0.1 edit fails every run with `AHP_INCONSISTENT` until fixed). The all-equal default is the only honest starting point - no preference was ever stated in any source artifact. Test 7 pins that `loadAhpConfig()` loads THIS committed file and returns equal weights + cr 0. Full suite 7/7 green.
+- **Verification:** `node tests/test-215-ahp-weights.cjs` exits 0 (`7 assertions passed`); all Task 1/Task 2 acceptance greps pass; `2117` literal count 0 (no technology-scale pairwise); non-`node:` requires 0 (built-ins only); precise `\bahp\b|analytic.hierarchy|computeAhpWeights` grep returns exactly one file (the single AHP home, no second copy); em-dash sweep clean on all three new files. The plan's broad `analytic\|ahp` verification line returns 3 files due to pre-existing `analytics`/`analytical` substrings in user-archetype.cjs + persona-ops.cjs (unrelated to AHP) - the intent (single AHP home) holds, documented in the SUMMARY.
+- **No deviations.** Two cosmetic in-authoring corrections (not plan deviations): simplified an awkward reciprocity error-message concatenation before GREEN; reworded a `2117` literal in a comment to satisfy the zero-`2117` acceptance grep.
+- **NEXT:** 215-02 (the two deterministic classifiers on the reused engines: the 3-dimension score via `composeScore` + the weak-signal low-attention/high-growth tail flag), 215-03 (Opportunity Statement emitter), 215-04 (wire onto the shipped 211 pipeline: `scripts/eureka-portfolio-report.cjs`), 215-05 (the hard real-2117-tech acceptance gate, human-verify). SUMMARY: `.planning/phases/215-eureka-portfolio-scale-fusion-eureka-portfolio-fusion/215-01-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 214 Plan 04 COMPLETE (4/4 plans) -- PHASE 214 CLOSED: the archimedes-darkmatter Type-3 gold gate is a permanent executable test (bridge wins, paraphrase flagged+floored, drift last)
 
@@ -764,12 +774,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 214 — eureka-pattern-transfer-find-analogies
+**Current focus:** Phase 215 — eureka-portfolio-scale-fusion
 
 ## Current Position
 
-Phase: 214 (eureka-pattern-transfer-find-analogies) — EXECUTING
-Plan: 1 of 4
+Phase: 215 (eureka-portfolio-scale-fusion) — EXECUTING
+Plan: 2 of 5 (Plan 01 COMPLETE)
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
