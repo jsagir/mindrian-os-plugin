@@ -2972,7 +2972,7 @@ Plans:
 **Goal:** Re-point lenses to portfolio scale. Three-dimension scoring (strategic fit / validated demand / technical-economic feasibility) via AHP pairwise weighting, explicitly flagging the low-attention/high-growth-rate quadrant per the weak-signal patent research (the gem hides in the tail nobody's watching) rather than just ranking top scorers.
 **Requirements**: TBD
 **Depends on:** Phases 211-214
-**Plans:** 5 plans (4 complete)
+**Plans:** 5 plans (5 complete) - PHASE COMPLETE 2026-07-10
 
 Plans:
 
@@ -2980,7 +2980,7 @@ Plans:
 - [x] 215-02-PLAN.md - the two deterministic classifiers on the reused engines (3-dimension score + weak-signal low-attention/high-growth tail flag) - COMPLETE 2026-07-10 (lib/core/eureka/portfolio-dimensions.cjs + lib/core/eureka/tail-quadrant.cjs + tests/test-215-score.cjs + tests/test-215-tail.cjs, 10/10 green; keys byte-match CRITERIA; DG-1 Burt brokerage seam dormant-but-wired; 215-R2 + 215-R3)
 - [x] 215-03-PLAN.md - the Opportunity Statement emitter (deterministic template: combine/unmet-need/who/kills-it/next/tier/rank per jhtv-d15 s3) - COMPLETE 2026-07-10 (lib/core/eureka/opportunity-statement.cjs + tests/test-215-opp-statement.cjs, 6/6 green; CLAUSE_LABELS frozen; unmet-need/risks/next-steps derive from weak-dimension reasoning; potential_tier ENUM + WEAK-SIGNAL TAIL suffix; critic gate honest pending/pass/fail, banked NEVER on pending; 215-R4)
 - [x] 215-04-PLAN.md - wire the Wave-1 modules onto the shipped 211 pipeline: scripts/eureka-portfolio-report.cjs - COMPLETE 2026-07-10 (scripts/eureka-portfolio-report.cjs composes all four Wave-1 modules on the reused 211 spine, zero new engine; both DG-2 pair modes graph|full + the DG-1 --brokerage seam; idx.embedded===true hard gate; counts read at run time; additive loadIndexVectors+truncate export on the 211 runner; tests/test-215-portfolio-report.cjs 18/18 + tests/run-all-215.sh PASS=6 FAIL=0 SKIP=1; run-all-211 unregressed; 215-R2/R3/R4/R5)
-- [ ] 215-05-PLAN.md - the hard acceptance gate (conflict #4): real 2117-tech run reproducing the 2 manual Opportunity Statements (human-verify)
+- [x] 215-05-PLAN.md - the hard acceptance gate (conflict #4): real 2117-tech run reproducing the 2 manual Opportunity Statements (human-verify) - COMPLETE 2026-07-10 (LIVE full-2117 run proven at scale, 2 blocking bugs found+fixed: catalog-id join b4807e73, idea-graph field contract 16464460/1e1c6657/135eeb14; DG-2 navigator call: graph-pairs is the canonical acceptance substrate, both manual gems reproduce there rank 10/16 - full-catalog kept as non-gating supplementary sweep; DG-1 confirmed: Burt brokerage composes into tail on 212.5; tests/test-215-reproduction.cjs + run-all-215.sh re-pointed at graph-mode JSON; run-all-215 PASS=8 FAIL=0 SKIP=0, run-all-211 PASS=10 FAIL=0; 215-R6)
 
 ---
 

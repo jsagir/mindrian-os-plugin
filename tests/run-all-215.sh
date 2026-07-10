@@ -72,9 +72,12 @@ run "215-04 portfolio report (offline e2e)" \
 run "215-05 field contract (emitter <-> scorer)" \
   node tests/test-215-field-contract.cjs
 
-# (6) Plan 05 reproduction leg: reads the REAL-room portfolio JSON. SKIPs cleanly
-#     until the real run lands (guarded on the real-room JSON output).
-run_if "215-05 reproduction (real-room JSON)" "evals/eureka/215-jhtv-portfolio-report.json" \
+# (6) Plan 05 reproduction leg: reads the REAL-room GRAPH-MODE portfolio JSON
+#     (DG-2 navigator call: graph is the canonical acceptance substrate; the
+#     full-catalog sibling is a supplementary, non-gating sweep -- see
+#     tests/test-215-reproduction.cjs header). SKIPs cleanly until the real
+#     graph-mode run lands (guarded on that JSON's existence).
+run_if "215-05 reproduction (real-room graph-mode JSON)" "evals/eureka/215-jhtv-portfolio-report.graph-mode.json" \
   node tests/test-215-reproduction.cjs
 
 # (7) Dependency no-regression: the additive export to the 211 runner must not

@@ -3,18 +3,40 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 215-04-PLAN.md COMPLETE (3/3 tasks) - the composed portfolio batch runner shipped (scripts/eureka-portfolio-report.cjs wires all four Wave-1 modules onto the reused 211 spine, zero new engine); both DG-2 pair modes (graph|full) + the DG-1 --brokerage seam; idx.embedded===true hard gate; counts read at run time; test-215-portfolio-report 18/18 green; run-all-215 PASS=6 FAIL=0 SKIP=1; run-all-211 unregressed (PASS=10); 215-R2/R3/R4/R5 complete
-last_updated: "2026-07-10T13:00:00.000Z"
+stopped_at: 215-05-PLAN.md COMPLETE (3/3 tasks) - PHASE 215 COMPLETE (5/5 plans). Navigator checkpoint resolved at Task 3 via two AskUserQuestion Decision Gates. DG-2 (default acceptance substrate): graph-pairs is canonical - both manual gems reproduce there (arrhythmias rank 10, cerebral aneurysm rank 16); full-catalog (2.2M pairs) surfaced neither after the field-contract fix rebalanced scores, kept as a non-gating supplementary sweep. DG-1 (tail x Burt brokerage): confirmed - compose into tail when 212.5 ships (follow-up on 212.5, no new 215 code). tests/test-215-reproduction.cjs + run-all-215.sh leg 6 re-pointed at the graph-mode JSON. run-all-215 PASS=8 FAIL=0 SKIP=0; run-all-211 unregressed PASS=10. 215-R6 satisfied; 215-05-SUMMARY.md written with verdict verbatim.
+last_updated: "2026-07-10T17:45:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 67
-  completed_plans: 64
-  percent: 54
+  completed_plans: 65
+  percent: 58
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 215 COMPLETE (5/5 plans) -- the hard real-2117 acceptance gate closed: DG-2 graph-canonical, DG-1 confirmed, both manual gems reproduce
+
+Plan 05's Task 3 navigator checkpoint (failure-review, per the prior entry below) resolved cleanly. Presented as two Decision Gates via AskUserQuestion:
+
+- **DG-2 (default acceptance substrate): "Graph is canonical."** Full-catalog (`--pairs full`, 2.2M pairs) surfaced NEITHER acceptance pair after the field-contract fix rebalanced the composite distribution - not a new bug, honest substrate-scale dilution (real signal from 919 cited CONVERGES pairs outranked by sheer combinatorial volume). Graph-pairs (the cited substrate) surfaces BOTH cleanly: arrhythmias {C16796,C03552} rank 10 (0.745), cerebral aneurysm {C16742,C05004} rank 16 (0.677), full canonical statements. Navigator's call: graph is the acceptance substrate; full-catalog stays a kept, non-gating supplementary sweep.
+- **DG-1 (tail x Burt brokerage): "Confirm."** Tail stays `attention-growth-only` until Phase 212.5 ships the Burt structural-hole module; compose then (`--brokerage` seam already live and dormant). Follow-up wiring item on 212.5, not new 215 code.
+
+Closing changes: `tests/test-215-reproduction.cjs` re-pointed from the full-catalog JSON to the graph-mode JSON (provenance assertion `pairs_mode === 'graph'`); `tests/run-all-215.sh` leg 6's `run_if` guard file changed to the graph-mode JSON. `run-all-215` now PASS=8 FAIL=0 SKIP=0 (reproduction leg PASSED, not skipped); `run-all-211` unregressed PASS=10. `215-05-SUMMARY.md` written with the full verdict. ROADMAP 215-05 and Phase 215 marked complete. **215-R6 satisfied - Phase 215 (Eureka Portfolio-Scale FUSION) is COMPLETE.**
+
+## (2026-07-10) -- PHASE 215 Plan 05 tasks 1-2 DONE, task 3 BLOCKED on navigator checkpoint (failure review) -- the hard real-2117 acceptance gate RAN LIVE; infra proven, reproduction PARTIAL
+
+The single most load-bearing gate of the 212-215 arc ran for real. The composed pipeline executed end-to-end against the actual 2117-tech `jhtv-oliver-kuntz` room with the real MiniLM encoder (`MongoDB/mdbr-leaf-ir`, 384-dim, `sqlite-vec` backend). The phase is NOT closed: it converts to a navigator failure-review at the `checkpoint:human-verify` leg. No 215-05-SUMMARY.md written (plan incomplete); ROADMAP 215-05 and Phase 215 left unmarked.
+
+- **INFRA GATE GREEN (the thing this gate exists to prove):** both 212-era blockers are PROVEN fixed at 2117 scale, not assumed. Batched embedding ran clean (`MINDRIAN_EMBED_BATCH=32`, ~11GB free RAM, no OOM - the c222ff7d fix). `vec_backend=sqlite-vec` (vec0 online, the 73698c73 fix). Full pass: 2,073,661 pairs scored in ~25.5 min, provenance `run_mode=live`, `pairs_mode=full`, `ahp_cr=0`, `figure_guard_skipped=193,724` (Part 8 skip+count, never abort). Room `nodes` count 2372 identical before/after (Part 9: only derived `eureka_*` tables written). Zero network beyond the one-time model-id weight fetch. No stub anywhere in the LIVE report.
+- **Task 1 (LIVE artifacts, gitignored `evals/eureka/*jhtv*` - real client portfolio never enters the repo):** `215-jhtv-portfolio-report.{md,json}` (full, the acceptance substrate) + `215-jhtv-portfolio-report.graph-mode.{md,json}` (the DG-2 comparison, 804 CONVERGES pairs). Both kept on disk for the navigator.
+- **Task 1 blocking-fix (Rule 1/3, commit `b4807e73` fix):** the 215-04 runner keyed pairs + graph-join by the room node id, true only for the C-number fixture. The real import keys nodes `claim:<meeting>:<hash>` with the catalog id (C16796) as the trailing `source_path` token. Added `catalogId(row)` to derive the public C-number and key the index + emit pair ids by it (raw room id retained for vector/text/root lookups). Identity-only; scoring/AHP/tail/statement untouched. Validated: graph mode now surfaces both gems with correct human-readable titles; offline 215-04 e2e 18/18 + run-all-211 PASS=10 both still green. Also staged the room's built idea-graph at the gitignored default path `evals/eureka/jhtv-idea-graph.json` so Task 1's literal command runs.
+- **Task 2 (`tests/test-215-reproduction.cjs`, commit `f7fc6c72` test):** reads the LIVE full JSON, asserts both manual drafts reproduce (candidate exists + every CLAUSE_LABELS marker + non-empty unmet_needs + Pitfall-4 critic honesty + provenance LIVE/full/CR<=0.1), prints both statement texts for the navigator transcript. Exit 2 with a clear message when the JSON is absent.
+- **ACCEPTANCE VERDICT: PARTIAL (the honest failure-review trigger).** Full-catalog: pair 1 arrhythmias {C16796,C03552} reproduces at rank 40 (score 0.633); pair 2 cerebral-aneurysm {C16742,C05004} is scored (abs_diff 0.046, NOT figure-guard-skipped) but its 0.533 composite is outranked by 50+ pairs tied at the 0.633 ceiling, so it does not surface. Graph substrate (~804 cited CONVERGES pairs): BOTH surface - arrhythmias rank 1, cerebral-aneurysm rank 17. The test correctly FAILS on pair 2 under `--pairs full`; NOT weakened and NOT switched to graph to force a pass (plan directive).
+- **ROOT CAUSE (a navigator decision, not a threshold to tweak):** the idea-graph field contract the runner reads (`primary_problem`/`problems`/`pair_count`, `section`=domain) is NOT what `scripts/csv-to-idea-graph.cjs` actually emits (`primary_label`/`labels`/`summary`, `section`=lens role source/target, `edge_count`/`degree`). So `problems`=[] -> statements say "unclassified problem"; `section`=role -> "target x source" novel_application; `pair_count` all 0 -> degenerate attention axis -> tail flagged `suspect_noise` (533/2130). The composite saturates (many pairs tie at 0.633), which is why the two known gems order on thin signal - pair 1 barely in at rank 40, pair 2 out. Follow-up (navigator's call): reconcile the generator contract with the runner, or accept the graph substrate (DG-2) as the acceptance substrate.
+- **Verification (honest):** `run-all-215` PASS=6 FAIL=1 (reproduction leg live + failing = phase-not-done signal); `run-all-211` PASS=10 FAIL=0 (no regression from the id-fix); offline 215-04 e2e 18/18.
+- **NEXT (navigator, at the checkpoint):** read `215-jhtv-portfolio-report.md` + the graph-mode report, compare the two automated statements to the manual drafts in `evals/eureka/opportunity-drafts/`, rule on the tail `suspect_noise` section, and record DG-1 (tail x Burt when 212.5 ships) + DG-2 (default substrate: graph vs full) + the acceptance verdict. Then a follow-up reconciles the graph field contract. PLAN: `.planning/phases/215-eureka-portfolio-scale-fusion-eureka-portfolio-fusion/215-05-PLAN.md`.
 
 ## (2026-07-10) -- PHASE 215 Plan 04 COMPLETE (4/5 plans) -- the composed portfolio batch runner: ONE command, all shipped engines, a ranked+AHP-weighted+tail-sectioned report from a room + a cited idea-graph
 
