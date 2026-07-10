@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15.0
-milestone_name: The Cockpit" milestone -- the UX/dial train
+milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 210-05-PLAN.md
-last_updated: "2026-07-05T20:41:51.447Z"
-last_activity: 2026-07-05
+stopped_at: "198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 human-verify checkpoint (two-host parity)"
+last_updated: "2026-07-10T06:00:00.000Z"
+last_activity: 2026-07-10
 progress:
-  total_phases: 22
-  completed_phases: 9
-  total_plans: 46
-  completed_plans: 43
-  percent: 41
+  total_phases: 23
+  completed_phases: 10
+  total_plans: 66
+  completed_plans: 46
+  percent: 43
 ---
 
 # Project State
@@ -587,12 +587,16 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase null
+**Current focus:** Phase 198 - mcp-first-then-sdk
 
 ## Current Position
 
-Phase: null — EXECUTING
-Plan: 1 of ?
+Phase: 198 (mcp-first-then-sdk) - EXECUTING
+Plan: 10 of 10 (tasks 1-2 COMPLETE; Task 3 PAUSED at a blocking human-verify checkpoint)
+
+### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
+
+The phase-close plan. Task 1 (commit c00fbd2f): scripts/198-rollback-rehearsal.cjs rehearses the full SPEC-7 reversal end to end and prints ROLLBACK_REHEARSAL_OK -- confirms/cuts a last-known-good anchor (last-known-good-198) on the pre-phase baseline commit (d2315e30, parent of the first phase-198 commit), asserts room.db changes shipped EXPAND-ONLY (zero DROP/DELETE-column DDL in the phase range), rehearses a snapshot + restore through the SHIPPED lib/core/migration-snapshot.cjs ledger (reused, not reimplemented; hermetic temp room.db), and re-runs tests/test-198-flag-off-parity.test.cjs under flag-off (byte-identical legacy). Task 2 (commit 25b08678): the SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline. tests/capture-198-parity-leg.cjs runs the six-step governed transcript (room_bind, reach card via gate-render, chain_run with a material halt, gate_answer approve, gated write through navigation.cjs, artifact_file) in process against the real shipped MCP tool spine and emits a NORMALIZED host-invariant artifact (typed node label-set + edge source/target/type set + logical gate sequence, dropping volatile ids/timestamps and the host-specific renderer); tests/diff-198-parity.cjs diffs two legs (parity == empty node/edge diff + identical gate sequence); tests/parity-198.sh fills the CLI leg (captures the artifact, diffs both legs when present, reports the VS Code leg pending otherwise); evals/plurai/198-baseline.json replaced the Wave-0 baseline_deferred seed with the MEASURED invocation-parity verdict + expected_transcript; scripts/198-plurai-gate-check.cjs reconstructs the CLI leg through the capture harness and asserts membership == baseline verdict (parity), mirroring the 189 gate. Gates green: bash tests/parity-198.sh (CLI leg captured), node scripts/198-plurai-gate-check.cjs = PLURAI_GATE_OK, build-connector-registry --check + build-orchestration-projection --check + check-render-coverage + doctor --acceptance all exit 0, bash tests/run-all-198.sh 11/11. TASK 3 is a BLOCKING human-verify checkpoint: only the navigator can connect an elicitation-capable non-Anthropic MCP host (VS Code v1.102+ or MCP Inspector) to the durable daemon over 127.0.0.1 and run the identical transcript, then diff the two legs to an empty node/edge diff + identical gate sequence (Claude cannot drive a second host's MCP client). The plan does NOT close and NO 198-10-SUMMARY.md is written until the navigator confirms two-host parity. ROADMAP 198-10 checkbox stays UNCHECKED.
 
 ### Phase 172 Plan 02 (CIRS R12 forward-declaration contract + gate hook, Wave 1, autonomous) COMPLETE
 
@@ -709,7 +713,7 @@ Phase 143.3-01 outcome (2026-06-07): shipped the Connector Contract FOUNDATION -
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-07-05
+Last activity: 2026-07-10
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -1126,6 +1130,15 @@ Progress: [█████████░] 92%
 | Phase 210 P03 | 10min | 2 tasks | 9 files |
 | Phase 210 P04 | 12min | 2 tasks | 6 files |
 | Phase 210 P05 | 21min | 4 tasks | 92 files |
+| Phase 198-mcp-first-then-sdk P01 | 15min | 2 tasks | 12 files |
+| Phase 198-mcp-first-then-sdk P02 | 35min | 3 tasks | 6 files |
+| Phase 198 P03 | ~55min | 3 tasks | 4 files |
+| Phase 198 P04 | 26min | 3 tasks | 13 files |
+| Phase 198-mcp-first-then-sdk P05 | 20min | 2 tasks | 5 files |
+| Phase 198-mcp-first-then-sdk P06 | 17min | 2 tasks | 6 files |
+| Phase 198 P07 | 25min | 1 tasks | 4 files |
+| Phase 198 P08 | 52min | 2 tasks | 8 files |
+| Phase 198-mcp-first-then-sdk P09 | 40min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -2052,6 +2065,22 @@ Progress: [█████████░] 92%
 - [Phase 210]: gateTopicallyRelevant uses prefix-stem token overlap with a MIN_USER_SUBJECT_TOKENS=2 floor - errs toward relevant/intercept, proven by the CR-02 and WR-06 179-floors
 - [Phase 210]: gateAlreadyAnswered accepts only narrow answer shapes (exact label, in-range ordinal, yes/no affirmation of a 2-option yes/no gate); everything else defaults to intercept
 - [Phase 210]: Wave 0 trailer test negative assertion re-spelled via string concatenation (runtime-identical) so the repo-wide zero-BINDING-consumers grep is empty
+- [Phase ?]: 198-01 Wave 0 test scaffold: local-only floor scans an explicit new-module list, not a lib/mcp/*.cjs glob, to avoid false-flagging the pre-existing Brain proxy (brain-router.cjs)
+- [Phase ?]: 198-02: D-04 deprecation logging keys off resolveWriteRoom's returned source='reg.active' rather than a separate set-active write path (none exists in tool-router) — The demoted leg IS the deprecation signal a bound-less session's write falling through to reg.active is exactly what D-04 names as deprecated-and-logged
+- [Phase ?]: 198-02: sessionId threads into tool-router write handlers via the MCP SDK's extra.sessionId second handler arg, not a new schema field — Matches the extract_shallow precedent while keeping per-command zod schemas untouched
+- [Phase 198]: ensureDaemon() polls for the pidfile the spawned server writes at its own listen-time discoverPort() call, rather than pre-deciding a port itself -- keeps port selection a single decision inside the one process that binds it
+- [Phase 198]: sse-event-bus subscribe() calls res.flushHeaders() when available -- without it Node/Express buffer SSE headers until the first publish(), leaving a real client unable to distinguish an open stream from a hung connection
+- [Phase 198]: MCP tools are first-class in the born-wired gate: build-connector-registry.cjs discovers each lib/mcp/tools/*.cjs module's exported connectors array and generates data/mcp-tool-connectors.json, folded into data/connector-registry.json (source:mcp_tool). — Part 11 R1/R16 requires every invocable surface, including MCP tools, to carry a declared connector + HITL shape; build-connector-registry.cjs previously only scanned commands/skills/agents.
+- [Phase 198]: The SPEC-2 room_state tool is registered as room_state_bound to avoid colliding with the live Phase 52 grouped router tool of the same name. — The MCP SDK throws on a duplicate tool name; both tools register unconditionally (read-only), so the bare name would crash the server at boot even with the flag off.
+- [Phase 198-mcp-first-then-sdk]: Client-capability detection lives in the MCP tool layer (gate.cjs), not the render layer (gate-render.cjs), keeping the renderer ladder unit-testable without a live MCP connection — server.server.getClientCapabilities() is the real elicitation signal; Claude Code/Desktop still do not declare it (issue #2799), so a D-07 surface-list heuristic identifies a Claude host instead
+- [Phase 198-mcp-first-then-sdk]: framework_run gates at material steps via the shared gate-render.cjs ladder but is not wired into gate.cjs's cross-tool gate_answer ratification ledger (disjoint-file scope boundary) — tool modules never require each other; cross-tool ledger sharing is a separate future decision
+- [Phase 198-mcp-first-then-sdk]: status_read's spend/cap segment ships its full shape from day one (Warp lesson) with env/override inputs degrading to null; no live billing wire yet — shape-first per the room teardown finding; billing wire is future work
+- [Phase 198]: chain_run unifies START and RESUME under one MCP tool name via an optional gate_answer param, avoiding a second chain_resume tool surface — SPEC-2 names only chain_resolve/chain_run in mindrian-core's tool inventory; keeps gate.cjs untouched, staying inside this plan's files_modified scope
+- [Phase 198]: chain_run mints its own single-use gate_id-keyed resume ledger (T-198-10 pattern) rather than sharing gate.cjs's live-gate ledger — Preserves the disjoint-file tool-module contract (lib/mcp/tools/*.cjs modules never require each other) while both key off the same gate-render.cjs gate_id mint site
+- [Phase 198]: queryDaemon() is a stateless one-shot connection per call (fresh initialize, explicit terminateSession() on cleanup), never a pre-set transport sessionId, because the SDK skips the initialize handshake on a pre-set sessionId (reconnect assumption) and this is what let the daemon multi-session fix actually work for independent hook-script processes.
+- [Phase 198]: bin/mindrian-mcp-server.cjs's shared daemon now supports multiple sessions over its process lifetime via a session-id-keyed transport map + a createServer() factory called per new session (matches the MCP SDK's own documented pattern) -- fixing a hard SDK limit (Server.connect() throws on a second call) that made the daemon non-functional beyond one call, discovered while proving Plan 198-08's own adapter-client.
+- [Phase 198-09]: gate-dedup.cjs (fire-once + relevance) built and proven BEFORE the Stop-gate enforcement moved server-side (D-05 hard sequencing); the 2026-07-03 irrelevant-Decision-Gate regression is fixed by a live replay through handleStopEvent
+- [Phase 198-09]: scripts/on-stop's flag-ON branch is a sentinel-bracketed (BEGIN/END-MCP-FIRST-STOP-THIN-ADAPTER) span so the D-06 budget test can bespoke-audit a BASH surface (no require() to grep) rather than extending the JS-oriented import-audit pattern
 
 ### Pending Todos
 
@@ -2063,6 +2092,7 @@ Progress: [█████████░] 92%
 
 ### Blockers/Concerns
 
+- **BLOCKING (Phase 198 Plan 10 Task 3, human-verify checkpoint):** two-host surface parity (SPEC-6) needs the navigator to run the identical governed transcript on a second, elicitation-capable non-Anthropic MCP host (VS Code v1.102+ or MCP Inspector) connected to the durable daemon over 127.0.0.1, then diff both legs to an empty node/edge diff + identical gate sequence. Claude cannot drive a second host's MCP client. Steps: (1) start/find the durable daemon (`MINDRIAN_MCP_FIRST=all` launches it; pidfile under `$MINDRIAN_ROOMS_HOME/.rooms/daemon/`); (2) connect VS Code v1.102+ / MCP Inspector to the daemon on 127.0.0.1 at the discovered port; (3) run the transcript from that host (bind a room, answer the reach card via elicitation, run the chain + approve the material halt, gated write, file the artifact); (4) `bash tests/parity-198.sh --host-leg vscode` (or drop the captured artifact at `tests/artifacts/198-parity-vscode.json` beside the CLI one); (5) confirm the node/edge diff is EMPTY and the gate sequence identical. Resume signal: "approved" if the diff is empty and the sequence matches, else describe the divergence. Until then Phase 198 does NOT close and no 198-10-SUMMARY.md is written.
 - **The npm publish (Phase 95.6's one tracked follow-up):** the plugin's npm package was renamed `@mindrian/os` -> `@mindrian_os/cli` (the `@mindrian` scope never existed -- `{"error":"Scope not found"}`; the `@mindrian_os` org was created on npm 2026-05-11). `@mindrian_os/cli@1.13.0-beta.10` (the current package.json version; in-progress beta) is NOT published yet -- blocked on a token with **Read+Write on `@mindrian_os` packages + "Bypass two-factor authentication for write actions" enabled** (or `jsagir` running `npm publish --otp=<code>` directly). The two tokens tried 2026-05-11: `npm_6ob...` -> 403 (2FA required); `npm_sU4w3K...` -> 404 on PUT (granular token scoped before the org existed). `npm pack --dry-run` is clean (590 files, no secrets) -- only auth blocks it. Until then the `npx`/`npm i -g` install path is dead; `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh + the install page work. When a working token lands: `npm publish --tag next` -> `npm view @mindrian_os/cli@next version` -> mount the NpmQuickInstall component in ~/mindrianos-install-site/ + redeploy (`vercel --prod`) -> done.
 - Windows cold-install gate (tests/manual/95.6-windows-cold-install-acceptance.md) was WAIVED for beta.9 (maintainer, 2026-05-11) -- still the contract for promoting beta.9/.10 -> a clean 1.13.0; needs a Windows tester run before that promotion.
 - Phase 117 (auto-explore-domains-on-first-material) -- 117-VERIFICATION.md WAS filed retroactively 2026-05-11 (status: passed, 55/55 must-haves, commit 3b9476e). 4 human-verify items pending (live CLI smoke + the post-tester VR gate). Not running `gsd-tools phase complete 117` to avoid clobbering Current Position; the phase is verified-passed.
@@ -2112,9 +2142,15 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last activity: 2026-07-05 - Completed quick task 260705-x85: Fixed check-card-fire.cjs relevance-gate false positive: PRIMARY-path gateTopicallyRelevant compares user text against the assistant's own reply instead of the gate's real subject
-Last session: 2026-07-03T09:08:23.950Z
-Stopped at: Completed 210-05-PLAN.md
+Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
+Last session: 2026-07-10T06:00:00.000Z
+Stopped at: 198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 blocking human-verify checkpoint
+
+**Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
+
+Prior activity: 2026-07-05 - Completed quick task 260705-x85: Fixed check-card-fire.cjs relevance-gate false positive: PRIMARY-path gateTopicallyRelevant compares user text against the assistant's own reply instead of the gate's real subject
+Prior session: 2026-07-09T22:40:17.075Z
+Prior stopped at: Completed 198-09-PLAN.md
 
 **Phase 183 Plan 01 (this session):** METER-01 gate-exposure + the Gauge-1 invocation-density reader, the build-first keystone of the v1.15.0 "Cure Under-Invocation" milestone. Task 1 (0d08fff3, test): the phase Wave-0 scaffold -- 5 meter RED pins (gate-reach, density, event-types-floor for Plan 01; transfer, two-gauge-weld for Plan 02) + tests/run-all-183.sh mirroring run-all-180.sh (5 node pins + the Part 8 grep-sweep over lib/core/meter/ and a BOUNDED gate_reached emit-seam window + the reach-ids/posture-ids drift fences). Task 2 (e0d46f51, feat): gate_reached added to the frozen EVENT_TYPES Set via the verbatim additive idiom (86 -> 87, mirrors the Phase 181-01 1-string precedent) + ONE gate_reached emit at scripts/intent-classifier.cjs beside the live reach_presented loop on the surface-shared engine arm, guarded by offered.length > 0, deduped on the turn-start handle (startedAt) with logEvent's 60s idempotency so a re-entrant arm cannot double-count; payload enum/scalar only (reach_count/routing_source/source_path/created_by/dedupe_key). Task 3 (3d650ede, feat): lib/core/meter/gate-density-reader.cjs -- computeInvocationDensity counts gate_reached + reach_presented + framework_invoked via navigation.findRecentChanges; density basis leans on reach_presented + gate_reached (framework_invoked verified UN-emitted at any production site today -- Open Question 1; carried as an additive term reading ~0); denominator_unit = 'gate_reached' (Open Question 2); roomState injection seam for db-free reads; cold-starts to a zeroed object, never throws, opens no db, makes no remote call; no bare-density export (T-183-04). run-all-183.sh 6/8 (the 2 RED are the Plan-02 transfer + two-gauge-weld pins BY DESIGN). The ONLY frozen-set change is the single gate_reached string; no new reach/node/edge/posture; frozen render contracts (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 gate, 6-reach bank, appendAskUserQuestionTrailer) untouched; Part 8 sweep clean; no em-dashes. One deviation (Rule 1, test-comment only): reworded a floor-test header comment that carried a literal ".size" token so the Task-1 grep-c acceptance returned 0; zero production impact. Next: Phase 183 Plan 02 (METER-02 transfer proxies + the welded two-gauge read) turns the 2 remaining RED pins green. See .planning/phases/183-meter-gate-exposure-transfer/183-01-SUMMARY.md.
 
