@@ -1,0 +1,69 @@
+{
+  "_comment": "Phase 214-04 gold-card fixture for the archimedes-darkmatter Type-3 gate. Source of truth: evals/eureka/cases/archimedes-darkmatter.md. The seed is the ABSTRACTED PATTERN verbatim (a PART of the challenge, never the whole doc); it must stay free of every answer token (dark-matter, implicit-solvent, background subtraction). stub_text_cosine is the engineered Leg-1 text cosine each candidate reads at against the seed under the offline stub: the restatement paraphrase reads HIGHER (0.97) than the true bridge (0.70) - the raw-differential spike is real, which is exactly the trap. The SAPPhIRE fields correspond when identical to the source field and do not when distinct (the offline stub maps identical strings to cosine 1.0 and distinct strings to 0.0).",
+  "seed": "the pattern rare-signal-in-vast-background - detecting a signal that is one part in roughly 10^9 against overwhelming noise",
+  "source": {
+    "text": "the pattern rare-signal-in-vast-background - detecting a signal that is one part in roughly 10^9 against overwhelming noise",
+    "sapphire": {
+      "state_change": "a vanishingly rare true signal is separated out of an overwhelming background",
+      "action": "subtract the modeled background statistically so the rare event stands clear",
+      "parts": "a detector, a dominant background source, a rare-event channel",
+      "phenomenon": "the rare signal is one part in roughly 10^9 of the total counts",
+      "input": "a noisy stream dominated by expected background events",
+      "real_effect": "the true rare-event rate is recovered above the residual noise",
+      "effect": "a confident detection where the raw counts showed nothing"
+    }
+  },
+  "candidates": [
+    {
+      "id": "DM-bridge",
+      "label": "bridge",
+      "domain": "particle astrophysics",
+      "stub_text_cosine": 0.70,
+      "text": "Dark-matter direct-detection experiments recover a 1-in-10^9 nuclear-recoil signal by statistically subtracting the modeled cosmic and radioactive background, leaving the rare true events standing clear.",
+      "note": "The real Type-3 bridge. Reads LESS like the seed than the paraphrase (a different domain), yet shares the deep MECHANISM: state_change, action, phenomenon, real_effect correspond verbatim with the source (statistical separation of a rare event from a dominant background). Structural set -> band structural. parts/input/effect are domain-specific and do not correspond, so it is structural not deep.",
+      "sapphire": {
+        "state_change": "a vanishingly rare true signal is separated out of an overwhelming background",
+        "action": "subtract the modeled background statistically so the rare event stands clear",
+        "parts": "a cryogenic xenon target, a cosmic and radioactive background, a nuclear-recoil channel",
+        "phenomenon": "the rare signal is one part in roughly 10^9 of the total counts",
+        "input": "a raw event stream dominated by radioactive decay counts",
+        "real_effect": "the true rare-event rate is recovered above the residual noise",
+        "effect": "a candidate dark-matter recoil standing above the residual background"
+      }
+    },
+    {
+      "id": "DM-restatement",
+      "label": "restatement",
+      "domain": "analytical chemistry",
+      "stub_text_cosine": 0.97,
+      "text": "the pattern rare-signal-in-vast-background - recovering a trace species that is one part in roughly 10^9 within an overwhelming medium",
+      "note": "The #1 false positive. A vocabulary swap of the SAME problem, so it reads almost identically to the seed (0.97) yet shares no deeper structure: only state_change corresponds (the abstract framing), everything below is the same problem renamed with no new mechanism. Surface band. High text cosine is NECESSARY, never SUFFICIENT.",
+      "sapphire": {
+        "state_change": "a vanishingly rare true signal is separated out of an overwhelming background",
+        "action": "restate the identical detection problem in the vocabulary of trace chemistry",
+        "parts": "the same problem, renamed for a dissolved contaminant",
+        "phenomenon": "the same one-part-in-10^9 ratio, described for a trace species",
+        "input": "the identical noisy stream, relabelled as a chemical medium",
+        "real_effect": "the identical problem restated, with no new mechanism introduced",
+        "effect": "a paraphrase, not a transfer"
+      }
+    },
+    {
+      "id": "DM-pseudoscience",
+      "label": "pseudoscience",
+      "domain": "unfalsifiable drift",
+      "stub_text_cosine": 0.55,
+      "text": "water holds a kind of memory and consciousness that remembers the pollutants once dissolved in it",
+      "note": "The seductive X-is-a-living-Y drift. Mid text cosine, no falsifiable layer correspondence: state_change does not correspond, so band is none and it ranks last. HONEST BOUNDARY: full REFUSAL (the GuardGate zero) is Phase 212's Grounding Guard, planned-not-executed on disk. Phase 214 guarantees the rank FLOOR (never above surface, never outranks the bridge) plus criticFeatures carried for the 212 critic to wire in later.",
+      "sapphire": {
+        "state_change": "water becomes aware of and remembers the substances it once held",
+        "action": "the liquid consciously retains an imprint of its past solutes",
+        "parts": "a living medium, a memory, an intention",
+        "phenomenon": "an unfalsifiable claim that a substance has an inner life",
+        "input": "belief unconstrained by measurement",
+        "real_effect": "no testable prediction is produced",
+        "effect": "a story that cannot be wrong and therefore teaches nothing"
+      }
+    }
+  ]
+}

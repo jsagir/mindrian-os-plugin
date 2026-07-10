@@ -1,0 +1,77 @@
+{
+  "_comment": "Phase 214-04 gate 214-F fixture (the SEED-049 D10 acceptance, the falsifier for the DG-3 per-field-cosine choice). Four candidates whose SAPPhIRE encodings share EXACTLY the rubric's layer set for their qualitative_label with the source: surface = state_change only; behavioral = state_change+action+phenomenon (BEHAVIORAL_SET); structural = +real_effect (STRUCTURAL_SET); deep = all seven. Shared layers carry the source string verbatim (offline stub -> cosine 1.0 -> corresponds); non-shared layers are left empty so they never correspond. stub_text_cosine is 1.0 for all four (constant Leg 1) so that fused strictly increases with the structural leg alone - the measured band must equal the hand label and fused must rise surface < behavioral < structural < deep.",
+  "source": {
+    "text": "a stored potential is released across a boundary to drive a directed one-way flow",
+    "sapphire": {
+      "state_change": "converts a stored gradient into directed transport",
+      "action": "release stored potential across a boundary",
+      "parts": "a reservoir, a boundary, a gated channel",
+      "phenomenon": "a potential differential drives flow through a gate",
+      "input": "accumulated potential energy",
+      "real_effect": "net movement from a full store to an empty one",
+      "effect": "sustained one-way delivery"
+    }
+  },
+  "candidates": [
+    {
+      "id": "RO-surface",
+      "qualitative_label": "surface",
+      "domain": "loose analogy",
+      "stub_text_cosine": 1.0,
+      "sapphire": {
+        "state_change": "converts a stored gradient into directed transport",
+        "action": "",
+        "parts": "",
+        "phenomenon": "",
+        "input": "",
+        "real_effect": "",
+        "effect": ""
+      }
+    },
+    {
+      "id": "RO-behavioral",
+      "qualitative_label": "behavioral",
+      "domain": "same behavior",
+      "stub_text_cosine": 1.0,
+      "sapphire": {
+        "state_change": "converts a stored gradient into directed transport",
+        "action": "release stored potential across a boundary",
+        "parts": "",
+        "phenomenon": "a potential differential drives flow through a gate",
+        "input": "",
+        "real_effect": "",
+        "effect": ""
+      }
+    },
+    {
+      "id": "RO-structural",
+      "qualitative_label": "structural",
+      "domain": "shared mechanism",
+      "stub_text_cosine": 1.0,
+      "sapphire": {
+        "state_change": "converts a stored gradient into directed transport",
+        "action": "release stored potential across a boundary",
+        "parts": "",
+        "phenomenon": "a potential differential drives flow through a gate",
+        "input": "",
+        "real_effect": "net movement from a full store to an empty one",
+        "effect": ""
+      }
+    },
+    {
+      "id": "RO-deep",
+      "qualitative_label": "deep",
+      "domain": "full correspondence",
+      "stub_text_cosine": 1.0,
+      "sapphire": {
+        "state_change": "converts a stored gradient into directed transport",
+        "action": "release stored potential across a boundary",
+        "parts": "a reservoir, a boundary, a gated channel",
+        "phenomenon": "a potential differential drives flow through a gate",
+        "input": "accumulated potential energy",
+        "real_effect": "net movement from a full store to an empty one",
+        "effect": "sustained one-way delivery"
+      }
+    }
+  ]
+}
