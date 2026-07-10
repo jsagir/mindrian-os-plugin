@@ -57,6 +57,18 @@ const { checkVoiceContract } = require('./voice-contract-gate.cjs');
 // by this weight; quality (weight 1.0, implicit) is PRIMARY.
 const TELEMETRY_WEIGHT = 0.15;
 
+// Phase 213 (202 touchpoint, post-210 semantics): the canon frozen signal-weight
+// cap for the eureka COMPRESSION meter (SEED-050). It bounds the meter's influence
+// EXACTLY as telemetry is bounded: a quality lead larger than 0.15 can never be
+// overturned, and because selectBest is quality-lexicographic (quality primary,
+// blended score tiebreak), primacy is STRUCTURAL. This term is therefore a SIGNAL
+// by construction (Phase 210-C doctrine extended to the 213 eureka loop) -- APO
+// tunes fire-rate against the compression score, it never lets compression remove
+// a candidate. A zero-compression (or Lured-negative) candidate stays fully
+// selectable; the negative verdict lives in the eval report, not as a selection
+// wound.
+const COMPRESSION_SIGNAL_WEIGHT = 0.15;
+
 // Phase 210-C: per-violation dent applied to the blended SCORE (never to
 // quality). Coefficient choice: one third of TELEMETRY_WEIGHT, so among
 // EQUAL-quality candidates a single violation is a visible nudge that a strong
@@ -124,25 +136,54 @@ function telemetryTerm(candidate, telemetry) {
 }
 
 /**
+ * compressionTerm(candidate, compression) -> number in [0,1]
+ *
+ * The Phase 213 (202 touchpoint) eureka COMPRESSION signal. Delegates to the
+ * caller-owned meter: compression.scoreFor(candidate) yields the candidate's
+ * compression score, clamped to [0,1] for the BLEND. A NEGATIVE meter score (a
+ * Lured arrival, per SEED-050) clamps to 0 here -- the negative verdict is carried
+ * in the eval report, never as a selection wound (a Lured candidate stays
+ * selectable, it just earns no compression bonus). SOFT-FAIL: a throwing or absent
+ * scoreFor contributes exactly 0, and no exception escapes.
+ */
+function compressionTerm(candidate, compression) {
+  if (!compression || typeof compression.scoreFor !== 'function') return 0;
+  try {
+    return clamp01(compression.scoreFor(candidate));
+  } catch (_e) {
+    return 0;
+  }
+}
+
+/**
  * scoreCandidate(candidate, ctx) -> number
  *
  * ctx = {
  *   qualityScoreFn: (candidate) => number,   // PRIMARY, required
- *   telemetry?: { activated: boolean, events: object[] }  // SECONDARY, optional
+ *   telemetry?: { activated: boolean, events: object[] },   // SECONDARY, optional
+ *   compression?: { activated: boolean, scoreFor: (c) => number }  // Phase 213 SIGNAL, optional
  * }
  *
- * score = qualityTerm + (telemetry.activated ? TELEMETRY_WEIGHT * telemetryTerm : 0)
+ * score = qualityTerm
+ *       + (telemetry.activated   ? TELEMETRY_WEIGHT * telemetryTerm : 0)
+ *       + (compression.activated ? COMPRESSION_SIGNAL_WEIGHT * compressionTerm : 0)
  *
- * The telemetry term is added ONLY when activated (D-202-2). It is bounded by
- * TELEMETRY_WEIGHT so it can never overturn a quality lead larger than 0.15.
+ * Both secondary terms are added ONLY when activated. Each is bounded by its
+ * frozen weight so neither can overturn a quality lead larger than that weight.
+ * With NO compression ctx the return is byte-identical to the pre-213 blend.
  */
 function scoreCandidate(candidate, ctx) {
   const q = qualityTerm(candidate, ctx);
+  let score = q;
   const tel = ctx && ctx.telemetry;
   if (tel && tel.activated === true) {
-    return q + TELEMETRY_WEIGHT * telemetryTerm(candidate, tel);
+    score += TELEMETRY_WEIGHT * telemetryTerm(candidate, tel);
   }
-  return q;
+  const comp = ctx && ctx.compression;
+  if (comp && comp.activated === true) {
+    score += COMPRESSION_SIGNAL_WEIGHT * compressionTerm(candidate, comp);
+  }
+  return score;
 }
 
 /**
@@ -200,6 +241,10 @@ function runApo(target, opts) {
   const ctx = {
     qualityScoreFn: options.qualityScoreFn,
     telemetry: options.telemetry || null,
+    // Phase 213 (202 touchpoint): the optional eureka COMPRESSION signal, threaded
+    // alongside telemetry. Absent by default -> zero contribution -> byte-identical
+    // to the pre-213 blend.
+    compression: options.compression || null,
     // Forwarded to checkVoiceContract; carries an optional llmJudge for the
     // subjective reframe-plus-question beat (omitted offline -> skipped).
     voiceOpts: options.voiceOpts || {},
@@ -280,9 +325,11 @@ module.exports = {
   scoreCandidate,
   qualityTerm,
   telemetryTerm,
+  compressionTerm,
   selectBest,
   runApo,
   TELEMETRY_WEIGHT,
+  COMPRESSION_SIGNAL_WEIGHT,
   VOICE_SIGNAL_WEIGHT,
   MAX_ROUNDS,
   DEFAULT_RUNS_DIR,
