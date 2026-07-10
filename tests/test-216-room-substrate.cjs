@@ -236,6 +236,124 @@ function run() {
     }
   );
 
+  // ------------------------------------------------------------------
+  // Behavior 7: an EMPTY room (zero nodes, zero edges) - no throw.
+  // ------------------------------------------------------------------
+  withSubstrate([], [], {}, function (sub) {
+    ok(sub.techMap.size === 0, 'behavior 7: empty room -> techMap.size 0');
+    ok(Array.isArray(sub.convergesPairs) && sub.convergesPairs.length === 0, 'behavior 7: empty room -> convergesPairs []');
+    ok(sub.meta.nodes_read === 0 && sub.meta.edges_read === 0, 'behavior 7: empty room -> meta counts 0/0');
+  });
+
+  // ------------------------------------------------------------------
+  // Behavior 8: nodes but ZERO edges - every tech pair_count/degree 0.
+  // ------------------------------------------------------------------
+  withSubstrate(
+    [
+      { id: 'N1', props: { title: 'one' }, created_at: day(1) },
+      { id: 'N2', props: { title: 'two' }, created_at: day(2) },
+      { id: 'N3', props: { title: 'three' }, created_at: day(3) },
+    ],
+    [],
+    {},
+    function (sub) {
+      let allZero = true;
+      sub.techMap.forEach(function (t) {
+        if (t.pair_count !== 0 || t.degree !== 0) allZero = false;
+      });
+      ok(allZero, 'behavior 8: edge-less room -> every tech pair_count 0 and degree 0');
+      ok(sub.convergesPairs.length === 0, 'behavior 8: edge-less room -> convergesPairs []');
+    }
+  );
+
+  // ------------------------------------------------------------------
+  // Behavior 9: malformed properties ('not-json') still yields a tech entry
+  // with title -> id, section -> row.type, problems [].
+  // ------------------------------------------------------------------
+  withSubstrate(
+    [{ id: 'BADPROPS', type: 'Widget', rawPropsString: 'not-json', created_at: day(1) }],
+    [],
+    {},
+    function (sub) {
+      const t = sub.techMap.get('BADPROPS');
+      ok(!!t, 'behavior 9: malformed-properties node still yields a tech entry');
+      ok(t.title === 'BADPROPS', 'behavior 9: title falls back to the id');
+      ok(t.section === 'Widget', 'behavior 9: section falls back to row.type');
+      ok(Array.isArray(t.problems) && t.problems.length === 0, 'behavior 9: problems []');
+    }
+  );
+
+  // ------------------------------------------------------------------
+  // Behavior 10: a 10-tech substrate (below MIN_COHORT 30) fed through the
+  // SHIPPED axis math + classifyTail returns insufficient_structure true,
+  // tail [], NO exception. This pins the D-01 graceful-degradation contract.
+  // ------------------------------------------------------------------
+  (function () {
+    const nodes = [];
+    for (let i = 1; i <= 10; i += 1) {
+      nodes.push({ id: 'N' + i, props: { title: 'n' + i }, created_at: day((i % 6) + 1) });
+    }
+    // A couple of edges so the attention axis is not a pure all-zero tie.
+    const edges = [{ source: 'N1', target: 'N2' }, { source: 'N2', target: 'N3' }];
+    withSubstrate(nodes, edges, {}, function (sub) {
+      const cohort = Array.from(sub.techMap.values());
+      const pairCounts = cohort.map(function (t) { return t.pair_count; }).sort(function (a, b) { return a - b; });
+      const cnums = cohort.map(function (t) { return parseCnum(t.cnumber); }).sort(function (a, b) { return a - b; });
+      const items = cohort.map(function (t) {
+        return {
+          id: t.id,
+          attention: pdims.percentileRank(t.pair_count, pairCounts),
+          growth: pdims.percentileRank(parseCnum(t.cnumber), cnums),
+        };
+      });
+      let result = null;
+      let threw = false;
+      try {
+        result = tailmod.classifyTail(items);
+      } catch (_e) {
+        threw = true;
+      }
+      ok(!threw, 'behavior 10: classifyTail on a sub-cohort substrate does not throw');
+      ok(result && result.insufficient_structure === true, 'behavior 10: sub-MIN_COHORT -> insufficient_structure true');
+      ok(result && Array.isArray(result.tail) && result.tail.length === 0, 'behavior 10: insufficient_structure -> tail []');
+    });
+  }());
+
+  // ------------------------------------------------------------------
+  // Behavior 11: identical created_at across all 36 nodes (a bulk import)
+  // -> a uniform growth tie; classifyTail on the 36-tech cohort still
+  // returns without throwing (axes stay in [0,1], satisfying assertAxis).
+  // ------------------------------------------------------------------
+  (function () {
+    const stamp = '2026-07-01T00:00:00.000Z';
+    const nodes = [];
+    for (let i = 1; i <= 36; i += 1) {
+      nodes.push({ id: 'M' + i, props: { title: 'm' + i }, created_at: stamp });
+    }
+    withSubstrate(nodes, [], {}, function (sub) {
+      ok(sub.techMap.size === 36, 'behavior 11: all-tie bulk import -> 36 techs');
+      const cohort = Array.from(sub.techMap.values());
+      const pairCounts = cohort.map(function (t) { return t.pair_count; }).sort(function (a, b) { return a - b; });
+      const cnums = cohort.map(function (t) { return parseCnum(t.cnumber); }).sort(function (a, b) { return a - b; });
+      const items = cohort.map(function (t) {
+        return {
+          id: t.id,
+          attention: pdims.percentileRank(t.pair_count, pairCounts),
+          growth: pdims.percentileRank(parseCnum(t.cnumber), cnums),
+        };
+      });
+      let threw = false;
+      let result = null;
+      try {
+        result = tailmod.classifyTail(items);
+      } catch (_e) {
+        threw = true;
+      }
+      ok(!threw, 'behavior 11: all-tie 36-tech cohort classifies without throwing (axes in [0,1])');
+      ok(result && result.insufficient_structure === false, 'behavior 11: 36 >= MIN_COHORT -> not insufficient_structure');
+    });
+  }());
+
   if (FAIL > 0) {
     process.stderr.write('test-216-room-substrate: ' + FAIL + ' FAILED, ' + PASS + ' passed\n');
     process.exit(1);
