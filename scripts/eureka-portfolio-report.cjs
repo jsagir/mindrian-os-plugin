@@ -82,6 +82,12 @@ const pdims = require(path.join(REPO_ROOT, 'lib/core/eureka/portfolio-dimensions
 const tailmod = require(path.join(REPO_ROOT, 'lib/core/eureka/tail-quadrant.cjs'));
 const oppmod = require(path.join(REPO_ROOT, 'lib/core/eureka/opportunity-statement.cjs'));
 
+// The Plan 01 room-native substrate adapter (D-01): sources pairs + signals from
+// room.db directly so the SAME four Wave-1 modules compose against a room with no
+// CSV-derived idea-graph. Injected, never a require cycle (it never imports this
+// runner). See lib/core/eureka/room-native-substrate.cjs.
+const roomNative = require(path.join(REPO_ROOT, 'lib/core/eureka/room-native-substrate.cjs'));
+
 const DEFAULT_GRAPH = 'evals/eureka/jhtv-idea-graph.json';
 const PROGRESS_EVERY = 100000; // full mode over a big room is ~millions of pairs
 
@@ -116,7 +122,7 @@ function parseArgv(argv) {
       default: break;
     }
   }
-  if (opts.pairs !== 'full') opts.pairs = 'graph';
+  if (opts.pairs !== 'full' && opts.pairs !== 'room') opts.pairs = 'graph';
   if (!Number.isFinite(opts.top) || opts.top <= 0) opts.top = 25;
   return opts;
 }
@@ -130,8 +136,9 @@ const HELP = [
   'Flags (defaults in brackets):',
   '  --db <roomDir>        [room]     the room directory -> <db>/.mindrian/room.db',
   '  --graph <path>        [' + DEFAULT_GRAPH + ']  the cited idea-graph JSON',
-  '  --pairs graph|full    [graph]    graph = the cited CONVERGES substrate (fast ranked loop);',
-  '                                   full = the 211 cross-boundary enumeration over ALL room nodes',
+  '  --pairs graph|full|room [graph]  graph = the cited CONVERGES substrate (fast ranked loop);',
+  '                                   full = the 211 cross-boundary enumeration over ALL room nodes;',
+  '                                   room = room-native substrate from room.db nodes+edges (no idea-graph needed)',
   '  --offline             [live]     deterministic stub encoder (no model, no network)',
   '  --top <n>             [25]       keep the top N ranked pairs',
   '  --out <md>            [evals/eureka/215-portfolio-report.md]   markdown report',
@@ -424,10 +431,19 @@ function renderReport(ctx) {
   L.push('their own section. Axes are per-cohort percentiles (scale-free); growth is a RECENCY');
   L.push('proxy (cnumber), not a measured market-growth rate.');
   L.push('');
+  if (ctx.provenance.pairs_mode === 'room') {
+    L.push('Room-native axes: attention is room-graph node degree, growth is created_at recency');
+    L.push('(still a proxy, still UNCALIBRATED).');
+    L.push('');
+  }
   if (ctx.tail.insufficient_structure) {
     L.push('**Verdict: INSUFFICIENT STRUCTURE.** The cohort (' + ctx.provenance.cohort_techs
       + ' techs) is below the minimum needed to define a whitespace quadrant. No tail is');
     L.push('classified. This is the honest degenerate verdict, printed INSTEAD of dressing up noise.');
+    if (ctx.provenance.pairs_mode === 'room') {
+      L.push('Not enough entries for a tail read (the cohort is below the MIN_COHORT 30 floor). The '
+        + 'ranked pairs and Opportunity Statements above still stand.');
+    }
     L.push('');
   } else if (ctx.tail.suspect_noise) {
     L.push('**Verdict: SUSPECT NOISE.** The quadrant swallowed too large a fraction of the cohort to');
@@ -551,14 +567,35 @@ async function main(argv) {
       ? path.relative(REPO_ROOT, ahp._test.DEFAULT_CONFIG_PATH)
       : 'data/portfolio-ahp-matrix.json';
 
-    // (1) Load the cited idea-graph. Counts read from THIS load.
-    const graph = loadGraph(graphPath);
-    const techMap = graph.techMap;
-    const convergesPairs = graph.convergesPairs;
+    // (1) Substrate. graph/full read the cited idea-graph from disk BEFORE the
+    // room opens (unchanged from Phase 215). room mode (D-01) reads NEITHER the
+    // graphPath NOR loadGraph: it builds pairs + signals from room.db via the
+    // adapter AFTER the room opens, so a nonexistent --graph never aborts a room
+    // run. techMap/convergesPairs/graph are hoisted so both paths fill them.
+    let graph = null;
+    let techMap;
+    let convergesPairs;
     const brokerage = loadBrokerage(opts.brokerage ? (path.isAbsolute(opts.brokerage) ? opts.brokerage : path.join(REPO_ROOT, opts.brokerage)) : '');
+
+    if (opts.pairs !== 'room') {
+      // Counts read from THIS load (never a frozen literal).
+      graph = loadGraph(graphPath);
+      techMap = graph.techMap;
+      convergesPairs = graph.convergesPairs;
+    }
 
     // (2) Open the room + build the tri-modal index.
     db = openRoomDb(roomDir, { allowExtension: true });
+
+    if (opts.pairs === 'room') {
+      // Room-native substrate: the adapter keys techs by the SAME catalogId join
+      // the index uses below, so pair ids + techMap live in one id-space. No
+      // idea-graph file is read (Test 2 pins that graphPath is never touched).
+      const sub = roomNative.buildRoomNativeSubstrate(db, { canonicalId: catalogId });
+      graph = { meta: sub.meta };
+      techMap = sub.techMap;
+      convergesPairs = sub.convergesPairs;
+    }
     const encodeFn = opts.offline ? stubEncode : undefined;
     const idx = await triModal.indexNodes(db, { encodeFn: encodeFn, roomDir: roomDir });
 
@@ -608,6 +645,33 @@ async function main(argv) {
           const b = arr[j];
           if (a.root === b.root && a.type === b.type) continue;
           pairsToScore.push({ a: a.id, b: b.id, shared_problems: [] });
+        }
+      }
+    } else if (opts.pairs === 'room') {
+      // Room mode: the UNION of (a) the room's OWN cited edges (convergesPairs,
+      // both endpoints indexed) and (b) the full-mode cross-boundary enumeration.
+      // The room's typed edges are its cited convergences and must always score
+      // even same-type/same-root (the DG-2 cited-signal spirit); cross-boundary
+      // enumeration guarantees non-empty pairs on edge-sparse rooms. Edge pairs
+      // are pushed FIRST so their shared_problems survive the unordered dedupe.
+      const seenPairs = new Set();
+      const pushPair = function (a, b, shared) {
+        const key = a < b ? a + '|' + b : b + '|' + a;
+        if (seenPairs.has(key)) return;
+        seenPairs.add(key);
+        pairsToScore.push({ a: a, b: b, shared_problems: Array.isArray(shared) ? shared : [] });
+      };
+      for (let i = 0; i < convergesPairs.length; i += 1) {
+        const cp = convergesPairs[i];
+        if (indexed.has(cp.a) && indexed.has(cp.b)) pushPair(cp.a, cp.b, cp.shared_problems);
+      }
+      const arr = Array.from(indexed.values());
+      for (let i = 0; i < arr.length; i += 1) {
+        for (let j = i + 1; j < arr.length; j += 1) {
+          const a = arr[i];
+          const b = arr[j];
+          if (a.root === b.root && a.type === b.type) continue;
+          pushPair(a.id, b.id, []);
         }
       }
     } else {
@@ -744,7 +808,10 @@ async function main(argv) {
       ahp_cr: ahpConfig.cr,
       ahp_matrix_source: matrixSource,
       tail_composition: tailResult.composition,
-      growth_proxy: tailResult.growth_proxy,
+      // Room mode overrides the growth-proxy label ONLY in provenance (the axis
+      // math in tail-quadrant.cjs is untouched): the recency signal is created_at,
+      // not a catalog cnumber.
+      growth_proxy: opts.pairs === 'room' ? 'created_at-recency (room-native)' : tailResult.growth_proxy,
       tail_thresholds: tailResult.thresholds,
       tail_insufficient_structure: tailResult.insufficient_structure,
       tail_suspect_noise: tailResult.suspect_noise,
@@ -763,7 +830,7 @@ async function main(argv) {
     const report = renderReport({
       provenance: provenance,
       roomDir: opts.db,
-      graphRel: path.isAbsolute(opts.graph) ? opts.graph : opts.graph,
+      graphRel: opts.pairs === 'room' ? '(room-native: no idea-graph)' : (path.isAbsolute(opts.graph) ? opts.graph : opts.graph),
       offline: opts.offline,
       top: opts.top,
       ranked: ranked,
