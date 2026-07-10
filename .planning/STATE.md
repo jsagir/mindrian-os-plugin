@@ -3,18 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 215-05-PLAN.md COMPLETE (3/3 tasks) - PHASE 215 COMPLETE (5/5 plans). Navigator checkpoint resolved at Task 3 via two AskUserQuestion Decision Gates. DG-2 (default acceptance substrate): graph-pairs is canonical - both manual gems reproduce there (arrhythmias rank 10, cerebral aneurysm rank 16); full-catalog (2.2M pairs) surfaced neither after the field-contract fix rebalanced scores, kept as a non-gating supplementary sweep. DG-1 (tail x Burt brokerage): confirmed - compose into tail when 212.5 ships (follow-up on 212.5, no new 215 code). tests/test-215-reproduction.cjs + run-all-215.sh leg 6 re-pointed at the graph-mode JSON. run-all-215 PASS=8 FAIL=0 SKIP=0; run-all-211 unregressed PASS=10. 215-R6 satisfied; 215-05-SUMMARY.md written with verdict verbatim.
-last_updated: "2026-07-10T17:45:00.000Z"
+stopped_at: 216-01-PLAN.md COMPLETE (room-native substrate adapter); next 216-02
+last_updated: "2026-07-10T17:30:00.000Z"
 last_activity: 2026-07-10
 progress:
-  total_phases: 23
+  total_phases: 24
   completed_phases: 13
-  total_plans: 67
-  completed_plans: 65
-  percent: 58
+  total_plans: 70
+  completed_plans: 66
+  percent: 55
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 216 Plan 01 COMPLETE (1/4 plans) -- the room-native substrate adapter: the ONE real engineering deliverable of Phase 216 is on disk and green
+
+`lib/core/eureka/room-native-substrate.cjs` ships the D-01 navigator directive: a normal MindrianOS room.db (nodes + typed edges) is read DIRECTLY into the exact `loadGraph()` `{meta, techMap, convergesPairs}` shape, so the shipped 215 engines (AHP / portfolio-dimensions / tail-quadrant / opportunity-statement) compose against any room with NO CSV-derived idea-graph.json. This is composition (Canon Part 7), not a new engine, and it does NOT delegate to the plain 211 `eureka-room-report.cjs` (the explicitly REJECTED path). 216-R1 satisfied.
+
+- **`buildRoomNativeSubstrate(db, opts)` (commits `011ca87f` test RED, `503b8e63` feat GREEN):** 9-field tech contract per node (`id`, `cnumber`, `title`, `primary_tier`=undefined, `pair_count`, `degree`, `section`, `primary_problem`, `problems`); `meta.source='room-native'` + honest run-time `nodes_read`/`edges_read`; deduped unordered `convergesPairs` in canonical-id space. D-01 signal mapping: attention = node degree (`pair_count`/`degree` = citations across both edge endpoint columns, the room-native analog of idea-graph `edge_count`); growth = `String(epochSeconds(created_at))` so the SHIPPED `cnumberNumeric`->`percentileRank` growth axis reads room recency with ZERO runner math changes (newer node = strictly larger integer). Caller owns the db handle (opens/closes); `opts.canonicalId` is an INJECTED function (default `row.id`, the runner passes `catalogId`) so this module never requires the runner (breaks the future require cycle). Node built-ins only, zero network (Part 8). Defensive `parseProps` try/catch + Array/typeof guards (tampering mitigation T-216-01).
+- **Graceful degradation pinned (commit `eb488e5a` test, behaviors 7-11):** empty room, edge-less room, malformed-`properties` node, sub-MIN_COHORT (10 techs), and all-tie (36 techs) rooms all flow through the adapter + the SHIPPED `classifyTail` without a crash. A sub-30 cohort returns the honest `insufficient_structure` verdict, NOT an exception. The adapter adds NO `minCohort` override and NO recalibration knob (the honest 30 floor degrades; threshold changes are UNCALIBRATED 202-APO territory).
+- **Verification:** `node tests/test-216-room-substrate.cjs` -> 33 assertions passed. Acceptance greps all pass (buildRoomNativeSubstrate 4 >=2, network-require 0, em-dash 0/0, minCohort-in-non-comment 0, insufficient_structure-in-test 4 >=1). `bash tests/run-all-215.sh` green (Phase 215 PASS=8 FAIL=0, Phase 211 no-regression PASS=10 FAIL=0). `git diff` touches ONLY the two new files - zero shipped-module changes.
+- **NEXT:** 216-02 (additive `--pairs room` runner mode wiring the adapter onto `scripts/eureka-portfolio-report.cjs` + the `scripts/eureka-command.cjs` fire-and-return dispatcher + offline e2e; D-01, D-05). The Plan 02 runner passes its exported `catalogId` as `opts.canonicalId` and opens/owns the db handle. SUMMARY: `.planning/phases/216-eureka-user-facing-command-eureka-user-command-wrap-the-ship/216-01-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 215 COMPLETE (5/5 plans) -- the hard real-2117 acceptance gate closed: DG-2 graph-canonical, DG-1 confirmed, both manual gems reproduce
 
@@ -827,12 +836,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 215 — eureka-portfolio-scale-fusion
+**Current focus:** Phase 216 — eureka-user-facing-command-eureka-user-command-wrap-the-ship
 
 ## Current Position
 
-Phase: 215 (eureka-portfolio-scale-fusion) — EXECUTING
-Plan: 2 of 5 (Plan 01 COMPLETE)
+Phase: 216 (eureka-user-facing-command-eureka-user-command-wrap-the-ship) — EXECUTING
+Plan: 1 of 4
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
