@@ -2958,11 +2958,11 @@ Plans:
 **Goal:** The pattern-transfer / online leg (find-analogies), using `archimedes-darkmatter` (dark-matter <-> ppb-simulation, Type-3 find-analogies gold) as the validated transfer case from Phase 211's gold set.
 **Requirements**: TBD
 **Depends on:** Phase 213, Phase 200, Phase 201, Phase 202, Phase 203
-**Plans:** 0 plans
+**Plans:** 4 plans (1 complete)
 
 Plans:
 
-- [ ] 214-01-PLAN.md - the one net-new engine: lib/core/eureka/analogy-fitness.cjs (two-leg text-cosine + SAPPhIRE structural rubric; no hardcoded embedder)
+- [x] 214-01-PLAN.md - the one net-new engine: lib/core/eureka/analogy-fitness.cjs (two-leg text-cosine + SAPPhIRE structural rubric; no hardcoded embedder) - COMPLETE 2026-07-10 (7/7 offline tests green, restatement gate proven by ranking, run-all-214 aggregator PASS=1/SKIP=2)
 - [ ] 214-02-PLAN.md - lib/core/eureka/online-* Part-8-safe egress composer (inline auditQueryString/rs-egress-prompts default; 196 hook covers mcp__brain_.* only)
 - [ ] 214-03-PLAN.md - the moat-ordered surgery: REPLACE the decorative find-analogies stub in-place (conflict #1), decouple to command-level scope
 - [ ] 214-04-PLAN.md - acceptance gates: archimedes-darkmatter Type-3, 214-F rank-order-vs-labels, run-all-211 no-regression, room mirror of DG outcomes
