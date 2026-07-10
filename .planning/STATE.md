@@ -3,18 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: "198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 human-verify checkpoint (two-host parity)"
-last_updated: "2026-07-10T07:10:00.000Z"
+stopped_at: "212-04-PLAN.md COMPLETE (4/5); NEXT 212-05 real calibration run + navigator >=0.85 human-verify checkpoint"
+last_updated: "2026-07-10T09:40:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 10
   total_plans: 66
-  completed_plans: 49
+  completed_plans: 50
   percent: 43
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 212 Plan 04 COMPLETE -- Eureka Grounding Guard acceptance substrate + the D7 phase gate
+
+Fourth plan of the critic-only Phase 212. Shipped the phase's acceptance substrate: the two real JHU Opportunity Statement fixtures, the D7(a) gold-card fixture suite, the OPTIONAL Plurai leg, and the `run-all-212.sh` gate aggregator. This plan built the acceptance/gate layer ON TOP of the core critic (212-01/02/03) and touched none of the core logic.
+
+- **Two real acceptance fixtures:** `evals/eureka/opportunity-drafts/pair-1-arrhythmias.md` (C16796 x C03552) + `pair-2-cerebral-aneurysm.md` (C16742 x C05004), copied from the dev-research room entry section 4 with every personal inventor surname STRIPPED to role descriptors (no-real-names HARD RULE; a surname grep returns 0, `test-211-case-cards.cjs` deny-list stays green), catalog IDs + technology titles + manufacturer-class mentions kept (public catalog data). `quantities_sourced: true`, `expected_verdict: pending_human_review` - NO gold label invented; these are exactly the unverified Eurekas plan 05's human checkpoint rules on. Read-only lab-side fixtures: the critic READS them, nothing writes them back to any room.
+- **D7 leg (a) gold-card suite (`tests/test-212-gold-cards.cjs`):** all 6 SEED-050 cards routed through `classifyCandidate` with gold-derived judge stubs; `archimedes-sterling` (lean_checkable) asserted FIRST as the objective anchor (D3). Each remaining card's routed verdict == `gold_label.salient`; seeded distractors asserted non-transferable (general_shallow distractors -> general_shallow/pseudoscience); out-of-enum distractor labels explicitly SKIPPED with a printed note. Disagreement -> general_shallow/rubric_disagreement; Stage A fabricated-quantity short-circuits BEFORE the judge (0 judge calls). 16 pass / 0 fail / 4 skip. This suite isolates verdict-by-code ROUTING (the two content-shaped Stage A floors relaxed to stub thresholds); gate CALIBRATION stays owned by `test-212-critic-stage-a.cjs`.
+- **Optional Plurai leg (`tests/test-212-plurai-leg.cjs`):** reuses `callJudge`/`JUDGES` from `lab/eval/report-from-transcript.cjs` (Part 7) on synthetic gold-card text only (Part 8 egress). Endpoint 404s today -> SKIP + `evals/plurai/212-baseline.json` `baseline_deferred`, exit 0. Never a red CI failure (navigator Q3 lock).
+- **The D7 phase gate (`tests/run-all-212.sh`):** modeled line-for-line on `run-all-211.sh` - composes legs a (gold cards), b (D6 negative corpus), c+d (Part 8/D5 boundary) plus the Stage A + Stage B supporting suites and the optional Plurai leg; 7 `run_if` file-guards (partial phase SKIPs, never fails); `eureka-offline-preload` zero-network guard inherited. GREEN: PASS=6 FAIL=0 SKIP=0. The gate's other half is plan 05's human >=0.85 calibration checkpoint (Q2 lock).
+- **Verification:** `run-all-212.sh` exit 0; `test-212-gold-cards.cjs` exit 0 (sterling first); `test-212-plurai-leg.cjs` exit 0 (SKIP+deferred); `test-211-case-cards.cjs` exit 0; `run-all-211.sh` PASS=10 FAIL=0 SKIP=0 (no regression). Commits: `10715dd9` (feat, fixtures), `1467cd69` (test, gold cards), `89185c31` (test, Plurai leg + aggregator). Zero new packages.
+- **NEXT:** 212-05 (real calibration run: mdbr-leaf-ir + local judge, then navigator >=0.85 human-verify checkpoint + the human ruling on the two JHU drafts).
 
 ## (2026-07-10) -- PHASE 212 Plan 03 COMPLETE -- Eureka Grounding Guard exposed as the eureka_critic MCP tool + Part 8/D5 boundary scan
 
