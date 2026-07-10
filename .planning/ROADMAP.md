@@ -2958,13 +2958,13 @@ Plans:
 **Goal:** The pattern-transfer / online leg (find-analogies), using `archimedes-darkmatter` (dark-matter <-> ppb-simulation, Type-3 find-analogies gold) as the validated transfer case from Phase 211's gold set.
 **Requirements**: TBD
 **Depends on:** Phase 213, Phase 200, Phase 201, Phase 202, Phase 203
-**Plans:** 4 plans (2 complete)
+**Plans:** 4 plans (3 complete)
 
 Plans:
 
 - [x] 214-01-PLAN.md - the one net-new engine: lib/core/eureka/analogy-fitness.cjs (two-leg text-cosine + SAPPhIRE structural rubric; no hardcoded embedder) - COMPLETE 2026-07-10 (7/7 offline tests green, restatement gate proven by ranking, run-all-214 aggregator PASS=1/SKIP=2)
 - [x] 214-02-PLAN.md - lib/core/eureka/online-pattern-query.cjs Part-8-safe egress composer (inline auditQueryString/rs-egress-prompts default; 196 hook covers mcp__brain_.* only) - COMPLETE 2026-07-10 (6/6 offline fence tests green, audit-before-return call-count contract + zero-leak degrade proven, run-all-214 leg 2 flipped SKIP->PASS, PASS=2/SKIP=1)
-- [ ] 214-03-PLAN.md - the moat-ordered surgery: REPLACE the decorative find-analogies stub in-place (conflict #1), decouple to command-level scope
+- [x] 214-03-PLAN.md - the moat-ordered surgery: REPLACE the decorative find-analogies stub in-place (conflict #1), decouple to command-level scope - COMPLETE 2026-07-10 (scripts/analogy-fitness-report.cjs runner + smoke fixture + command rewrite; decorative decimals retired, measured-fitness/provenance wired, online leg fenced + navigator-gated, human-gated temporal write-back offer; F.8/connector/firing-block byte-intact; born-wired/render/shape gates exit 0; run-all-214 PASS=2/SKIP=1 no regression)
 - [ ] 214-04-PLAN.md - acceptance gates: archimedes-darkmatter Type-3, 214-F rank-order-vs-labels, run-all-211 no-regression, room mirror of DG outcomes
 
 ### Phase 215: Eureka Portfolio-Scale FUSION (eureka-portfolio-fusion) - REGISTERED 2026-07-04 - **seed SEED-048 (the rider, NOT part of the 049/050 flagship pair)**

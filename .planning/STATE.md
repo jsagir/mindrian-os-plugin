@@ -3,18 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 214-02-PLAN.md COMPLETE (1/1 task); online-pattern-query egress fence landed (run-all-214 leg 2 flipped SKIP->PASS)
+stopped_at: 214-03-PLAN.md COMPLETE (2/2 tasks); find-analogies surgery landed - measured fitness + provenance, fenced navigator-gated online leg, human-gated write-back; decorative decimals retired (run-all-214 PASS=2/SKIP=1, no regression)
 last_updated: "2026-07-10T00:00:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 11
   total_plans: 66
-  completed_plans: 58
-  percent: 50
+  completed_plans: 59
+  percent: 51
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 214 Plan 03 COMPLETE (3/4 plans) -- the moat-ordered surgery: find-analogies is measured, fenced, and human-gated (the decorative decimal is dead)
+
+The locked moat-audit verdict (conflict 1: REPLACE the decorative find-analogies stub on the ONE substrate, never a 5th pipeline) is executed. Two deliverables, both green, zero new deps or env vars.
+
+- **Task 1 (`scripts/analogy-fitness-report.cjs` + `tests/fixtures/eureka/214-runner-smoke.json`, commit `62918fd0`):** the ONE governed CLI door from the command prompt layer to both 214 engines, cloning the shipped `eureka-room-report.cjs` idioms (provenance header, per-item figure-guard, offline discipline, argv switch-router, no Commander). `score <input.json>` calls `scoreAnalogyFitness` per candidate (figure-guarded -> a bad candidate becomes a per-row error, never a dead run), ranks band-first, prints `{provenance, rows:[{rank,id,domain,text,band,fused,restatementFlag,error?}]}` + a markdown matrix; `--out` also writes the JSON; encoder-unavailable prints `{degrade:'qualitative-only', reason}` exit 0 (an honest degrade, never a fake number). `compose-queries <pattern.json>` prints the `composePatternQueries` envelope verbatim exit 0. `--stub-encoder` is a documented TEST/DEV-ONLY deterministic seam (angleVec lookup, provenance 'stub'); no model-name literal (grep 0), no `fetch(`, no `INSERT INTO`, no em-dashes, 266 lines. The smoke fixture: candidate 1 shares the structural SAPPhIRE set -> Structural band -> Rank 1; candidate 2 shares only state_change -> Surface band + `[restatement]` -> Rank 2 (deterministic under the stub).
+- **Task 2 (`commands/find-analogies.md` surgery, commit `af61b664`):** seven exact edits, preserve-zone byte-untouched. Frontmatter (`hitl_shape: "F.8"`, connector block, allowed-tools) + the `mos:firing-block` unchanged (Part 11 born-wired, no grant added/removed). The decorative 0.78/0.65/0.52/0.41/0.35 rows are GONE (grep 0); Step 5 renders the measured Text/Band/Fused columns + a provenance line `fitness measured by <provenance.model> (<provenance.dim>-dim)` (the command text itself names NO model, locked conflict 2) + the restatement rule (band-first, never Rank 1). Step 4 gains the honesty rule (qualitative Surface/Behavioral/Structural/Deep + "fitness not computed - qualitative label only"); new Step 4.5 runs the engine and degrades to those labels honestly. External Mode rewritten: compose ONLY via `compose-queries` (no hand-composed query, no send-anyway -> closes T-214-06), AskUserQuestion approval before any fetch (MCP-stack-awareness HARD RULE), Tavily -> WebSearch -> local-only, fetched SIGNAL files LOCAL only never Brain. Step 6 gains a human-gated temporal-aware write-back offer (toRefineProposal -> graph-refine-loop dryRun TRUE -> navigator confirm; refuted analogy superseded via temporal queryAsOf, Phase 160 spine, zero new temporal infra) + the chain-recommender Type-3 lean.
+- **Gates all green:** `analogy-fitness-report` count 3 (>=2), decorative decimals 0, `hitl_shape "F.8"` 1, `mos:firing-block` 2, `AskUserQuestion` 5 (>=2), `WebSearch` 1; `build-connector-registry --check` exit 0, `check-render-coverage` exit 0 (16 covered/0 gap), `check-shape-declaration --check` exit 0 (255 declared, 5 skill-exempt); `bash tests/run-all-214.sh` PASS=2 FAIL=0 SKIP=1 (legs 1-2 still PASS, no regression; leg 3 SKIP until 214-04); em-dash grep exit 1 on every touched file.
+- **No deviations.** The angleVec stub + empty-non-shared-field fixture design are inside the plan's stated latitude (recorded as key-decisions in the SUMMARY).
+- **DG-1 seam recorded again (RESEARCH OQ1):** this plan ships the COMMAND-LEVEL capability + the manual runner entry point; it does NOT touch SENS-13, decide(), the reach spine, or automatic empty-room routing - Phase 213's contract wires the routing.
+- **NEXT:** 214-04 (archimedes-darkmatter Type-3 gate + 214-F rank-order-vs-labels + run-all-211 no-regression + room mirror of DG outcomes) - the last SKIPPED aggregator leg, which gates the phase. SUMMARY: `.planning/phases/214-eureka-pattern-transfer-find-analogies-eureka-pattern-transf/214-03-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 214 Plan 02 COMPLETE (2/4 plans) -- the online leg's inline Part-8 egress fence (no more assumed-hook coverage)
 
