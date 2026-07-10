@@ -285,6 +285,21 @@ async function main() {
       });
     } catch (_e) { /* ignore */ }
 
+    // Phase 213 SENS-13 producer -- material filed -> bridge scan -> side-channel;
+    // the sensor (not this script) decides firing; decide() (not the sensor)
+    // decides surfacing; the navigator (not decide()) decides acting. ADDITIVE,
+    // OPT-IN, fire-and-forget: the runner probes the LIVE 212 critic for guard
+    // availability, and honestly degrades (writes nothing) when the guard or the
+    // candidate substrate is absent -- so default behavior is byte-identical when
+    // the eureka substrate is absent. A runner fault can NEVER change this
+    // script's exit code or its own finding write (the Phase 117 exit-0
+    // discipline holds on every path; threat T-213-07).
+    try {
+      // eslint-disable-next-line global-require
+      const eurekaRunner = require('../lib/core/eureka/eureka-reach-runner.cjs');
+      eurekaRunner.runEurekaScan({ roomDir: roomDir }).catch(function () { /* swallow */ });
+    } catch (_e) { /* ignore: additive seam, never regress the exit-0 discipline */ }
+
     process.exit(0);
   } catch (_e) {
     // Outer catch -- never let an exception escape; mark failed and exit 0.
