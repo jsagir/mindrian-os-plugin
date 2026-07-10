@@ -3,18 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 215-02-PLAN.md COMPLETE (2/2 tasks) - the two deterministic classifiers shipped (portfolio-dimensions 3-dim scorer + tail-quadrant weak-signal classifier); test-215-score 5/5 + test-215-tail 5/5 green; TDD RED/GREEN gates both present for both tasks; 215-R2 + 215-R3 complete
-last_updated: "2026-07-10T11:35:00.000Z"
+stopped_at: 215-03-PLAN.md COMPLETE (1/1 task) - the Opportunity Statement emitter shipped (buildOpportunityStatement + CLAUSE_LABELS + critic-gate seam); test-215-opp-statement 6/6 green; TDD RED/GREEN gates present; critic honest in all 3 states (pending/pass/fail), banked NEVER on pending; 215-R4 complete
+last_updated: "2026-07-10T12:00:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 12
   total_plans: 67
-  completed_plans: 62
-  percent: 53
+  completed_plans: 63
+  percent: 54
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 215 Plan 03 COMPLETE (3/5 plans) -- the Opportunity Statement emitter: the turnstile between a curiosity and a banked, ranked, critic-gated opportunity
+
+The deterministic template that turns a scored candidate pair into the ONE canonical Opportunity Statement shape is on disk and green. No LLM: the same slots always produce the same statement byte-for-byte. Part 7 satisfied (this is PWS Value Proposition specialized, shape reused from SEED-048 addendum `360e4826`, not a new framework); Part 8 clean (potential_tier is an abstract quartile ENUM, never a real market-size figure). 215-R4 satisfied.
+
+- **Task 1 (`lib/core/eureka/opportunity-statement.cjs` + `tests/test-215-opp-statement.cjs`, TDD RED->GREEN, commits `77d3cbdb` test RED, `65ef1373` feat GREEN):** `buildOpportunityStatement(candidate)` -> `{ text, fields, banked, critic, weak_dimensions }`. `CLAUSE_LABELS` = 11 frozen byte-exact clause markers (ONE source of truth so the formula can never drift between module, test, and the Plan 05 reproduction check - T-215-08). The statement REASONS from which dimension was weak: `unmet_need_a/b` from each side's first weak dimension (`validated_demand`->unvalidated-demand, `tech_econ_feasibility`->unproven-feasibility, `strategic_fit`->no-strategic-home, none->underexploited-reach); `next_steps` = the validation move for each dimension weak on EITHER side (union, DIMS order); `risks` = the UNRESOLVED weaknesses (dimensions weak on BOTH sides), else `'integration risk: the combine itself is the unproven step'`. `potential_tier` = quartile ENUM (tier-1..tier-4) with `' - WEAK-SIGNAL TAIL'` appended when `candidate.tail` so the gem flag survives into the banked shape. `OPP_STATEMENT_INPUT` thrown on a missing required slot.
+- **Critic honesty (Pitfall 4, T-215-06):** `banked` is true ONLY on a resolved passing verdict. `resolveCritic()` guarded-requires `lib/core/eureka-critic.cjs`; `MODULE_NOT_FOUND -> critic 'pending', banked false`; any OTHER throw PROPAGATES (a broken critic must be seen, not swallowed). The Phase-212 module IS present now, but its `stageA` is async + encoder-dependent and cannot resolve in this synchronous deterministic emitter, so it honestly stays `pending` (never a fabricated pass) - exactly the state Plans 04/05 need to run before an async verdict runner exists. `_test.setCriticForTest(fnOrNull)` injects a synchronous stub verdict or forces the absent path, so Test 5 proves pass / fail / pending without touching disk.
+- **Verification:** `node tests/test-215-opp-statement.cjs` exits 0 (`6 assertions passed`). All Task 1 acceptance greps pass (`Combining ` 1, `Key risks: ` 1, `Estimated potential: ` 1, `360e4826` 2, `pending` 12 >=2, CLAUSE_LABELS len 11 >=8, em-dash 0 in both files). Phase verification: `market size`/`$N` grep empty (tier ENUM only, T-215-07). No sibling regression: test-215-ahp-weights 7/7, test-215-score 5/5, test-215-tail 5/5 all green.
+- **One documented design decision (inside plan latitude):** the critic seam is SYNCHRONOUS (Plan 04's runner consumes a plain object, not a Promise), so the present-but-async real critic honestly returns `pending` rather than block or fabricate; a future async runner can await the real Stage A + Stage B verdict. Never claims a verification it did not obtain.
+- **NEXT:** 215-04 (wire the Wave-1 modules onto the shipped 211 pipeline: `scripts/eureka-portfolio-report.cjs`, calls `buildOpportunityStatement` per ranked candidate over the real idea-graph), 215-05 (the hard real-2117-tech acceptance gate reproducing the 2 manual Opportunity Statements, human-verify). SUMMARY: `.planning/phases/215-eureka-portfolio-scale-fusion-eureka-portfolio-fusion/215-03-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 215 Plan 02 COMPLETE (2/5 plans) -- the two deterministic classifiers: three dimensions never one flat number, and the under-watched gem is a distinct flagged category (not a sort tweak)
 
