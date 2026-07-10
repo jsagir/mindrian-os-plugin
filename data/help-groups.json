@@ -125,7 +125,8 @@
         "bono",
         "systems-thinking",
         "analyze-systems",
-        "find-analogies"
+        "find-analogies",
+        "eureka"
       ],
       "lane": "explore",
       "jtbd": ["find-bottleneck", "connect-domains", "explore", "decide-pursue", "compare-options", "find-problem"]

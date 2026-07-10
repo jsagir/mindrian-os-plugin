@@ -360,6 +360,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:eureka",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-13"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "eureka-portfolio",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 3,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:explain-decision",
       "source": "command",
       "connects_to_spine": true,
@@ -1671,6 +1688,21 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": null
+    },
+    {
+      "surface": "skill:eureka",
+      "source": "skill",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "eureka-portfolio",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 3,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
     },
     {
       "surface": "skill:explain-decision",
@@ -3141,6 +3173,9 @@
       "/mos:compare-ventures",
       "/mos:mullins",
       "agent:brain-query"
+    ],
+    "SENS-13": [
+      "/mos:eureka"
     ],
     "SENS-04": [
       "/mos:explore-trends",
