@@ -91,6 +91,14 @@ function makeRoom(overrides) {
 }
 
 const FORBIDDEN_REQUIRE = /require\s*\(\s*['"][^'"]*(chain-executor|command-resolver|navigation-engine)[^'"]*['"]\s*\)/;
+// The PRODUCER files (sensor + runner) must name no command at all, so they are
+// fenced off command-resolver too. The OFFER file (plan 04) is different: its
+// whole job is attaching the recommended next command from the registry, so it
+// is WIRED into command-resolver by design (213-04 key_link + threat model
+// T-213-12, which forbids only chain-executor for this file). The offer fence
+// therefore bars only the EXECUTION + ROUTING surfaces; command-resolver, the
+// pure read-only registry door (zero network, never executes), is permitted.
+const FORBIDDEN_REQUIRE_OFFER = /require\s*\(\s*['"][^'"]*(chain-executor|navigation-engine)[^'"]*['"]\s*\)/;
 const FORCING_VOCAB = /\b(auto[-_]?fire|must[-_]?answer|disqualif|force[-_]?fire)\b/i;
 
 let passed = 0;
@@ -115,9 +123,10 @@ check('ARM 1 STRUCTURAL: the eureka producer files require no chain-executor / c
   // this suite. SKIP-log (never fail) when absent.
   if (fs.existsSync(EUREKA_OFFER)) {
     const code = codeLines(fs.readFileSync(EUREKA_OFFER, 'utf8'));
-    assert.equal(FORBIDDEN_REQUIRE.test(code), false,
-      'FENCE BREACH: ' + path.relative(REPO_ROOT, EUREKA_OFFER) + ' requires chain-executor in CODE.');
-    console.log('    (eureka-offer.cjs present: fence applied)');
+    assert.equal(FORBIDDEN_REQUIRE_OFFER.test(code), false,
+      'FENCE BREACH: ' + path.relative(REPO_ROOT, EUREKA_OFFER) +
+      ' requires chain-executor / navigation-engine in CODE -- the offer file may wire into command-resolver (its mandated registry door) but never the executor or router.');
+    console.log('    (eureka-offer.cjs present: execution+routing fence applied; command-resolver permitted by design)');
   } else {
     console.log('    SKIP: lib/core/eureka/eureka-offer.cjs absent (plan 04 not yet landed) - fence deferred, not failed');
   }
