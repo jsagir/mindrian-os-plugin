@@ -3,18 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 blocking human-verify checkpoint
-last_updated: "2026-07-10T12:30:00.000Z"
+stopped_at: 213-03-PLAN.md COMPLETE (3/6 plans) - SENS-13 registered + the born-wired reachability proof on disk
+last_updated: "2026-07-10T13:20:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 11
   total_plans: 66
-  completed_plans: 53
-  percent: 49
+  completed_plans: 54
+  percent: 50
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 213 Plan 03 COMPLETE (3/6 plans) -- the KEY is WIRED: SENS-13 on the spine + the first born-wired-at-feature-time reachability proof
+
+The KEY is wired and PROVEN reachable. Plan 02 built the detector half; this plan registers it into the sensor spine AND proves, with a test that fails otherwise, that the eureka reach is reachable through the REAL decide() at runtime. This is the room's #1-leverage structural change (04-synthesis Step 2): the FIRST born-wired-at-feature-time proof - the sensor is wired into dispatchSensors -> decide() in the SAME phase that built it, verified by a runtime test, not left as a registered-but-unreachable orphan (the M4 placeholder disease's countermeasure).
+
+- **SENS-13 on the spine (the one-edit wiring):** `lib/core/insight-sensors.cjs` gains a `sensorEureka` require block (SENS-13 house comment), the canonical-LAST `SENSOR_REGISTRY` entry (position 15), and the export; the header roster names SENS-13. `dispatchSensors` / `normalizeTurn` / eligibility gating / `decide()` are BYTE-UNCHANGED - purely additive. The frozen-six + BCH-S5 turn-stage gates already span `deep_research`.
+- **The born-wired proof (`tests/test-213-reach-wired.cjs`, 5 arms, 218 lines):** calls the SHIPPED `decide()`/`dispatchSensors` (no engine mock, no parallel ranker; Phase 185 discipline). ARM 1 REACHABLE: a fresh guard-cleared side-channel surfaces the eureka reach through decide(); ARM 2 TURN-STAGE: honors the shipped suppression (turns 1-2), unlocks at 3; ARM 3 CO-FIRE: context_block outranks the offer by canonical order, deep_research still present (Pitfall 2 verified, not assumed); ARM 4 NEGATIVE: stale mtime + restatement verdict prove ARM 1 is load-bearing. **Fails-closed verified by mutation:** unregistering SENS-13 makes ARM 1 emit the exact `BORN-WIRED BREACH` message and exit 1 (T-213-09).
+- **Recommend-never-trigger made mechanical (`tests/test-213-no-force.cjs`, 4 invariants, 173 lines):** structural (producers require no chain-executor/command-resolver/navigation-engine in CODE, comment-stripped), behavioral (a poisoned `runChain` proves the fired reach executes NOTHING; T-213-08), vocabulary (zero auto-fire/must-answer/disqualif/force-fire in CODE), posture (the fired reach is `hold` exactly). The plan-04 `eureka-offer.cjs` arm SKIP-logs when absent (wave order cannot break the suite).
+- **Read-path correction (deviation, Phase 185 rule):** the tier_0 sensor path resolves `fire_skill` to the canonical VERB `'Spawn Sub-Agent'` (= shipped `reachIdToSkillFamily('deep_research')`), NOT the skill family `'subagent-dispatcher'` the plan's literal assumed - `verbToSkillFamily` (which yields subagent-dispatcher) is a downstream router layer, neither exported nor on the tier_0 path. The test asserts the value the REAL engine returns (against the shipped map, never a hand-typed literal); changing decide() to match the plan's literal would have violated the decide()-byte-unchanged must_have. Signal `eureka_bridge` (dropped from the trace by Part-8 design) is asserted at its source via the real dispatchSensors chokepoint.
+- **Verification (all gates hold):** `test-213-reach-wired` exit 0 (5 arms); `test-213-no-force` exit 0 (4 invariants); `grep sensorEureka` = 3, `grep SENS-13` = 3; registry = 15 sensors, sensorEureka canonical-last; `test-148-engine-reaches` exit 0 (frozen-six unchanged); part8-sweep + routing-fence green over 17 files; `test-213-sensor-eureka` exit 0 (213-02, no regression); em-dash 0 on every touched file. Commits: `508af397`(wiring), `cedfe369`(reach-wired proof), `4b3b05fd`(no-force suite).
+- **NEXT:** the recommended SECOND born-wired proof phase (RESEARCH OQ3) is **Phase 214's find-analogies leg riding the same `deep_research` reach** - a second proof confirms the pattern generalizes beyond one sensor; after it, mint the BUILD-TIME spine-routing gate (04-synthesis Step 2). Plan 04 supplies `lib/core/eureka/eureka-offer.cjs` (the no-force SKIP-logged arm activates when it lands); a later plan threads the `deriveFn` that turns the born-invoked producer from `substrate_unavailable` into a live bridge scan. SUMMARY: `.planning/phases/213-eureka-reach-wiring-the-key-eureka-reach-wiring/213-03-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 213 Plan 02 COMPLETE (2/6 plans) -- the KEY's detector half: SENS-13 sensor + side-channel producer
 
