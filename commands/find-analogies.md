@@ -129,6 +129,8 @@ Generate 3-5 cross-domain analogies from your training knowledge. For each:
 
 Prioritize FAR and CROSS-DOMAIN analogies -- near-domain analogies are obvious and less valuable.
 
+**Honesty rule (no fabricated fitness).** Tier 0 WITHOUT the engine (Step 4.5) labels each candidate with a QUALITATIVE band word only -- Surface, Behavioral, Structural, or Deep (per `references/methodology/sapphire-encoding.md`, the structural-fitness table) -- followed by the sentence "fitness not computed - qualitative label only". It NEVER prints a numeric fitness it did not measure. The decorative decimal is retired: a band word is an honest floor, a fabricated number is a lie (the fusion-router never-fabricate rule).
+
 ### Brain Mode (`--brain`)
 
 In addition to Tier 0, query Brain MCP:
@@ -156,21 +158,45 @@ LIMIT 15
 
 ### External Mode (`--external`)
 
-In addition to Tier 0, run Tavily searches:
+The online leg is FENCED: every outbound query is composed and audited by the shipped Part-8 egress composer, and NOTHING is fetched until the navigator approves (MCP-stack-awareness HARD RULE: ask before web research).
 
-1. **Biomimicry**: "how does nature [functional keyword]" site:asknature.org OR biomimicry
-2. **Patents**: "[TRIZ principle name] [functional keyword]" patent OR invention
-3. **Academic**: "[abstract function] cross-domain solution" site:scholar.google.com OR arxiv
+1. **Compose (never hand-write a query).** Write ONLY the abstracted pattern vocabulary from Step 3 -- `{functionalKeywords, trizPrinciples, abstractFunction}` -- to `room/<section>/analogies/<slug>-pattern.json`, then run via Bash:
 
-For each external result, extract:
-- Source title and URL
-- Source domain
-- Structural mapping to venture
-- Analogy distance classification
+   ```bash
+   node scripts/analogy-fitness-report.cjs compose-queries room/<section>/analogies/<slug>-pattern.json
+   ```
+
+   The composer is the ONLY source of outbound query strings. Never hand-compose a query, and never send one it did not return.
+
+2. **Local-only degrade is honest.** If the envelope is `{ok:false, degrade:'local-only', ...}` (empty pattern, or a query tripped the egress audit), state the local-only fallback plainly and SKIP all fetching. There is no send-anyway path.
+
+3. **Ask the navigator before any fetch.** If `{ok:true}`, fire an AskUserQuestion card asking the navigator to approve the web pass, showing the query count (`audited`) and the families. Do not fetch until they approve.
+
+4. **Fetch, with a documented fallback.** On approval, fetch each approved query via `mcp__tavily__tavily-search`. If Tavily is unavailable (not configured, or an error such as the 2026-07-04 402), fall back to `WebSearch` with the SAME navigator-approved audited strings -- never re-compose.
+
+5. **SIGNAL flows LOCAL only.** Fetched results are filed LOCALLY only (to `room/<section>/analogies/`), never to Brain. External web content is SIGNAL (public data) per Canon Part 8: SIGNAL -> LOCAL is YES, LOCAL -> BRAIN is NO. No user-specific bytes are ever sent outbound; only the audited abstracted pattern strings cross the wire.
+
+For each fetched result, extract source title + URL, source domain, structural mapping to the venture, and analogy-distance classification.
+
+## Step 4.5: Measured Fitness (the engine)
+
+When the SAPPhIRE encodings are available (Tier 0 extracts them per `references/methodology/sapphire-encoding.md`), MEASURE the fitness instead of narrating it.
+
+1. Write `{source, candidates}` with full SAPPhIRE encodings -- each candidate carries `{id, domain, text, sapphire:{state_change, action, parts, phenomenon, input, real_effect, effect}, source_tier, source_date?}` -- to `room/<section>/analogies/<slug>-fitness-input.json`.
+
+2. Run the engine via Bash:
+
+   ```bash
+   node scripts/analogy-fitness-report.cjs score room/<section>/analogies/<slug>-fitness-input.json
+   ```
+
+3. Use the returned `rows` (rank, band, fused, restatementFlag) and `provenance` to render Step 5. The numbers are MEASURED; never hand-compute a decimal.
+
+4. **Degrade honestly.** If the runner prints `{degrade:'qualitative-only', reason}` (the local encoder is unavailable), fall back to the Step-4 qualitative band labels with the "fitness not computed - qualitative label only" note. A missing engine means honest words, never a fake number.
 
 ## Step 5: Display Results
 
-Format as comparison matrix (Body Shape D):
+Format as comparison matrix (Body Shape D). When Step 4.5 ran, render the MEASURED columns straight from the runner rows; when it degraded, render the Band column with the qualitative word and leave Text/Fused blank.
 
 ```
 [ANALOGIES] Cross-Domain Discovery
@@ -178,14 +204,21 @@ Format as comparison matrix (Body Shape D):
   Venture Function: [abstract description]
   Contradiction: [improving] vs [worsening]
 
-  Rank | Source Domain  | Mechanism          | Distance     | Fitness | Source
-  -----|---------------|--------------------|--------------|---------|---------
-  1    | [domain]      | [what transfers]   | cross-domain | 0.78    | [tier]
-  2    | [domain]      | [what transfers]   | far          | 0.65    | [tier]
-  3    | [domain]      | [what transfers]   | far          | 0.52    | [tier]
-  4    | [domain]      | [what transfers]   | near         | 0.41    | [tier]
-  5    | [domain]      | [what transfers]   | near         | 0.35    | [tier]
+  Rank | Source Domain | Mechanism        | Distance     | Text  | Band       | Fused | Source
+  -----|---------------|------------------|--------------|-------|------------|-------|-------
+  1    | [domain]      | [what transfers] | cross-domain | [txt] | Structural | [f]   | [tier]
+  2    | [domain]      | [what transfers] | far          | [txt] | Behavioral | [f]   | [tier]
 ```
+
+Under the matrix, print the provenance line exactly (values from the runner's `provenance`):
+
+```
+fitness measured by <provenance.model> (<provenance.dim>-dim)
+```
+
+The command text itself names NO model -- the model identity comes only from the runner output.
+
+**Restatement rule.** A row the runner flagged `restatementFlag:true` renders a `[restatement]` marker and is ordered by the runner's band-first ranking. A restatement can never sit at Rank 1: a paraphrase reads alike but shares no structure, so band-first ordering keeps it below every genuine structural or deep transfer.
 
 For the top 2 analogies, provide a brief structural mapping:
 - What elements in the source map to what in the venture
@@ -204,6 +237,16 @@ Based on results:
 
 4. **TRIZ principles found:** "Your contradiction maps to TRIZ Principles [N, M]. These are well-studied resolution patterns -- want me to explain them?"
 
+### Write-back offer (human-gated, temporal-aware)
+
+When the navigator has VALIDATED an analogy, offer to record it -- never write it directly:
+
+1. Build the proposal with `toRefineProposal` semantics: `kind: analogy_transfer`, `valid_at` set from the source's date when the analogy cites a dated real-world source (else `null`).
+2. Preview it through `graph-refine-loop` with `dryRun` left at its default TRUE. The navigator confirms before any write (Part 9 chokepoint -- never a direct db write).
+3. The before/after room delta rides temporal `queryAsOf`; a later-refuted analogy is SUPERSEDED, never overwritten (Phase 160 temporal spine, SEED-049 D11 -- zero new temporal infrastructure).
+
+Then seed `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` with the Type-3 result lean (SEED-049 D9). The four suggestion bullets above stay as Larry prose; the chain-recommender lean is the machine-readable handoff, not a fixed next step.
+
 ## Voice
 
 Larry at his most creative and cross-pollinating:
@@ -215,6 +258,6 @@ Larry at his most creative and cross-pollinating:
 
 | Surface | Behavior |
 |---------|----------|
-| **CLI** | Full output with comparison matrix, TRIZ details, structural mappings |
-| **Desktop** | Conversational: Larry describes top 2-3 analogies with storytelling, offers to go deeper |
+| **CLI** | Full output with comparison matrix, TRIZ details, structural mappings; runs `scripts/analogy-fitness-report.cjs` for measured fitness + provenance |
+| **Desktop** | Conversational: Larry describes top 2-3 analogies with storytelling, offers to go deeper; when Bash is unavailable he falls back to the qualitative band words, never a fabricated number |
 | **Cowork** | Writes analogy report to room/competitive-analysis/ for team review, tags with pipeline provenance |
