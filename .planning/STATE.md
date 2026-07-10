@@ -3,18 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 214-03-PLAN.md COMPLETE (2/2 tasks); find-analogies surgery landed - measured fitness + provenance, fenced navigator-gated online leg, human-gated write-back; decorative decimals retired (run-all-214 PASS=2/SKIP=1, no regression)
+stopped_at: 214-04-PLAN.md COMPLETE (3/3 tasks) - PHASE 214 CLOSED; archimedes-darkmatter Type-3 gate + 214-F rank-order both green (run-all-214 PASS=3/FAIL=0, run-all-211 PASS=10/FAIL=0, doctor --acceptance 15/15); deviation: regenerated stale find-analogies skill mirror; room mirror staged in-repo (MOS write-scope hook blocked the write - active room iris2026 - not bypassed)
 last_updated: "2026-07-10T00:00:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 66
-  completed_plans: 59
-  percent: 51
+  completed_plans: 60
+  percent: 52
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 214 Plan 04 COMPLETE (4/4 plans) -- PHASE 214 CLOSED: the archimedes-darkmatter Type-3 gold gate is a permanent executable test (bridge wins, paraphrase flagged+floored, drift last)
+
+The last plan of Phase 214 lands its two acceptance gates, runs the full phase roll-up, and closes the phase. find-analogies' measured fitness now has a permanent gold gate anchored to the Phase 211 hand-scored 0.95 baseline. All offline, all directional-truth (stub encoder, exact cosines by construction), zero new deps or env vars.
+
+- **Task 1 (`tests/test-214-darkmatter-gate.cjs` + fixtures `214-darkmatter.json` / `214-rank-order.json`, commits `46364052` test RED, `c477272f` fixtures GREEN):** 5 offline assertions. Test 1 leak guard - the seed is the abstracted `rare-signal-in-vast-background` pattern, free of every answer token (dark-matter / implicit-solvent / background subtraction). Test 2 (214-D) - the real dark-matter direct-detection bridge ranks 1 at band `structural` (state_change+action+phenomenon+real_effect correspond: the shared MECHANISM). Test 3 (214-D) - the ppb paraphrase's engineered text cosine 0.97 is strictly HIGHER than the bridge's 0.70 yet `restatementFlag` true, band `surface`, ranked strictly worse (high text cosine is NECESSARY, never SUFFICIENT; the structural leg gates band-first). Test 4 (214-D) - the water-consciousness drift ranks LAST at band `none`, criticFeatures carried; honest boundary named in-test (full REFUSAL = 212's Grounding Guard, planned-not-executed on disk). Test 5 (214-F) - the four labeled candidates' measured bands EQUAL their qualitative labels and fused strictly rises surface<behavioral<structural<deep. The stub SAPPhIRE fields ride an orthonormal basis (identical->1.0, distinct->0.0) so the gold candidates carry fully hand-authored 7-field encodings with zero accidental correspondence.
+- **Task 2 (full phase roll-up, verification only):** `run-all-214` PASS=3/FAIL=0/SKIP=0 (leg 3 flipped SKIP->PASS); `run-all-211` PASS=10/FAIL=0 (documented baseline PASS=9/FAIL=1 with a pre-existing env-dependent rerank leg; that leg passed here too -> cleaner than tolerance, zero regression); `doctor --acceptance` 15/15 exit 0; born-wired/orchestration-projection/render-coverage all exit 0; no-hardcoded-model sweep 0; em-dash sweep clean across all eight phase files.
+- **Two deviations (both auto-fixed, both recorded):** (Rule 3) regenerated the stale `skills/find-analogies/SKILL.md` byte-mirror (commit `8147259f`) - Plan 03 rewrote the command but did not regenerate the mirror, so the skill-mirrors coverage-gate reported DIVERGES; fixed via the deterministic `build-skill-mirrors.cjs`, not hand-edited. (Rule 1) reverted the benign `evals/plurai/211-baseline.json` date-only rewrite (the run-all-211 judge-leg side-effect on the unreachable Plurai endpoint), same revert 212-05/213-06 applied.
+- **Task 3 (Dev-Research Compositing mirror) AUTHORED, room write BLOCKED (guard honored, NOT bypassed):** the MOS write-scope hook denied the write to `rethinking-mindrianos` because the active MOS room is `iris2026`. Content staged in-repo at `214-04-ROOM-MIRROR-STAGED.md` (what shipped + the three DG outcomes DG-1/DG-2/DG-3 all navigator-CONFIRMED under yolo + both-way cross-links to `214-RESEARCH.md`/the four PLANs and the room's `02-moat-embedding-audit.md` + the open 213/212/215 seams). Lands in one step after `/mos:rooms switch rethinking-mindrianos`. `mindrianOS/research/` absent -> single-mirror waiver.
+- **Phase 214 CLOSED:** all 4 plans complete; requirements 214-A..F satisfied (214-D + 214-F this plan). NEXT: Phase 215 (portfolio-scale fusion) owns the node2vec lens re-point + the un-mirrored analogy-algorithm survey; Phase 213 remains open on its human checkpoint. SUMMARY: `.planning/phases/214-eureka-pattern-transfer-find-analogies-eureka-pattern-transf/214-04-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 214 Plan 03 COMPLETE (3/4 plans) -- the moat-ordered surgery: find-analogies is measured, fenced, and human-gated (the decorative decimal is dead)
 
