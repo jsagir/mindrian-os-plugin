@@ -26,6 +26,10 @@ const { spawnSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib/core/room-db.cjs'));
 const runner = require(path.join(REPO_ROOT, 'scripts/eureka-portfolio-report.cjs'));
+const dispatcher = require(path.join(REPO_ROOT, 'scripts/eureka-command.cjs'));
+
+const DISPATCHER = path.join(REPO_ROOT, 'scripts', 'eureka-command.cjs');
+const PRELOAD = path.join(REPO_ROOT, 'tests', 'eureka-offline-preload.cjs');
 
 let PASS = 0;
 let FAIL = 0;
@@ -105,6 +109,59 @@ function countPair(ranked, x, y) {
     if ((r.a === x && r.b === y) || (r.a === y && r.b === x)) n += 1;
   }
   return n;
+}
+
+// Dispatcher path contract (mirrors scripts/eureka-command.cjs).
+function cmdReportDir(roomDir) { return path.join(roomDir, '.mindrian', 'eureka'); }
+function cmdOutMd(roomDir) { return path.join(cmdReportDir(roomDir), 'portfolio-report.md'); }
+function cmdOutJson(roomDir) { return path.join(cmdReportDir(roomDir), 'portfolio-report.json'); }
+function cmdStatus(roomDir) { return path.join(cmdReportDir(roomDir), 'status.json'); }
+
+function fileExists(p) { try { return fs.statSync(p).isFile(); } catch (_e) { return false; } }
+function delay(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
+
+// Run fn() with process.stdout/stderr captured; restore always. Returns
+// { code, out, err }.
+async function capture(fn) {
+  const out = [];
+  const err = [];
+  const oo = process.stdout.write;
+  const oe = process.stderr.write;
+  process.stdout.write = function (s) { out.push(String(s)); return true; };
+  process.stderr.write = function (s) { err.push(String(s)); return true; };
+  let code;
+  try { code = await fn(); } finally { process.stdout.write = oo; process.stderr.write = oe; }
+  return { code: code, out: out.join(''), err: err.join('') };
+}
+
+// A minimal cytoscape-shaped idea-graph keyed by the SAME ids the room uses (the
+// catalogId join falls back to row.id for these fixtures), with cross-domain
+// CONVERGES edges so graph mode has cited pairs to score.
+function makeIdeaGraph(filePath, count, edges) {
+  const nodes = [];
+  const half = Math.ceil(count / 2);
+  for (let i = 1; i <= count; i += 1) {
+    const id = 'N' + i;
+    const inA = i <= half;
+    nodes.push({
+      data: {
+        id: id,
+        cnumber: String(i),
+        title: (inA ? 'physics tech ' : 'biology tech ') + i,
+        section: inA ? 'physics' : 'biology',
+        pair_count: 6 + (i % 5),
+        degree: 8 + (i % 4),
+        primary_problem: (inA ? 'energy transport gap ' : 'cell signaling gap ') + i,
+        problems: [(inA ? 'energy transport gap ' : 'cell signaling gap ') + i],
+      },
+    });
+  }
+  const eels = (edges || []).map(function (e) {
+    return { data: { type: 'CONVERGES', source: e.source, target: e.target, shared_problems: e.shared_problems || ['bridge'] } };
+  });
+  const graph = { meta: { honest_nouns: 'hermetic fixture idea-graph' }, elements: { nodes: nodes, edges: eels } };
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, JSON.stringify(graph, null, 2), 'utf8');
 }
 
 async function run() {
@@ -199,6 +256,114 @@ async function run() {
       encoding: 'utf8',
     });
     ok(res215.status === 0, 'behavior 6: test-215-portfolio-report.cjs still exits 0 (graph/full unregressed)');
+
+    // ==============================================================
+    // Behavior 7: dispatcher `run` (offline) on a fixture room -> exit 0; report
+    // md + json exist under .mindrian/eureka/; status.json reads state 'done'.
+    // ==============================================================
+    const roomD = track(makeFixtureRoom(36, EDGES_36));
+    const code7 = await dispatcher.main([roomD, 'run', '--offline']);
+    ok(code7 === 0, 'behavior 7: dispatcher run exits 0 (got ' + code7 + ')');
+    ok(fileExists(cmdOutMd(roomD)) && fileExists(cmdOutJson(roomD)), 'behavior 7: report md + json written under .mindrian/eureka/');
+    ok(fileExists(cmdStatus(roomD)), 'behavior 7: status.json written');
+    const st7 = JSON.parse(fs.readFileSync(cmdStatus(roomD), 'utf8'));
+    ok(st7.state === 'done', 'behavior 7: status state === done (got ' + st7.state + ')');
+    ok(typeof st7.started_at === 'string' && typeof st7.finished_at === 'string', 'behavior 7: status carries started_at + finished_at');
+    ok(typeof st7.out === 'string' && typeof st7.json === 'string', 'behavior 7: status carries out + json paths');
+
+    // ==============================================================
+    // Behavior 8: `report` prints the report JSON to stdout (provenance + ranked
+    // + statements keys); `status` prints one JSON line with state 'done'.
+    // ==============================================================
+    const rep8 = await capture(function () { return dispatcher.main([roomD, 'report']); });
+    ok(rep8.code === 0, 'behavior 8: report exits 0 on a scanned room');
+    let repJson = null;
+    try { repJson = JSON.parse(rep8.out); } catch (_e) { repJson = null; }
+    ok(repJson && repJson.provenance && Array.isArray(repJson.ranked) && Array.isArray(repJson.statements),
+      'behavior 8: report stdout is JSON with provenance + ranked + statements');
+    const stt8 = await capture(function () { return dispatcher.main([roomD, 'status']); });
+    ok(stt8.code === 0, 'behavior 8: status exits 0');
+    const stt8Lines = stt8.out.trim().split('\n');
+    let statusParsed = null;
+    try { statusParsed = JSON.parse(stt8Lines[0]); } catch (_e) { statusParsed = null; }
+    ok(stt8Lines.length === 1 && statusParsed && statusParsed.state === 'done',
+      'behavior 8: status prints ONE JSON line with state done');
+
+    // ==============================================================
+    // Behavior 9: `status` on a never-scanned room -> {"state":"none"} exit 0;
+    // `report` on it -> exit 1 with a 3-line-pattern stderr naming the fix.
+    // ==============================================================
+    const roomFresh = track(makeFixtureRoom(12, []));
+    const s9 = await capture(function () { return dispatcher.main([roomFresh, 'status']); });
+    ok(s9.code === 0, 'behavior 9: status on never-scanned room exits 0');
+    ok(s9.out.trim() === '{"state":"none"}', 'behavior 9: status prints {"state":"none"} (got ' + s9.out.trim() + ')');
+    const r9 = await capture(function () { return dispatcher.main([roomFresh, 'report']); });
+    ok(r9.code === 1, 'behavior 9: report on never-scanned room exits 1');
+    ok(r9.err.indexOf('/mos:eureka') !== -1, 'behavior 9: report error names the fix (run /mos:eureka)');
+    ok(r9.err.indexOf('Why:') !== -1 && r9.err.indexOf('Fix:') !== -1, 'behavior 9: report error is the 3-line What/Why/Fix pattern');
+
+    // ==============================================================
+    // Behavior 10: substrate resolution. room + local idea-graph -> pairs graph
+    // against THAT file; room without -> pairs room; explicit --graph beats both.
+    // The JHU fixture is NEVER referenced.
+    // ==============================================================
+    const roomWithGraph = track(makeFixtureRoom(36, EDGES_36));
+    makeIdeaGraph(path.join(roomWithGraph, '.mindrian', 'idea-graph.json'), 36,
+      [{ source: 'N1', target: 'N20' }, { source: 'N5', target: 'N25' }]);
+    const cg = await dispatcher.main([roomWithGraph, 'run', '--offline']);
+    ok(cg === 0, 'behavior 10: run with a room-local idea-graph exits 0');
+    const jg = JSON.parse(fs.readFileSync(cmdOutJson(roomWithGraph), 'utf8'));
+    ok(jg.provenance.pairs_mode === 'graph', 'behavior 10: room-local idea-graph -> pairs_mode graph (got ' + jg.provenance.pairs_mode + ')');
+    const mdg = fs.readFileSync(cmdOutMd(roomWithGraph), 'utf8');
+    ok(mdg.indexOf('jhtv') === -1 && JSON.stringify(jg).indexOf('jhtv') === -1, 'behavior 10: graph run never references the JHU fixture');
+
+    const roomNoGraph = track(makeFixtureRoom(36, EDGES_36));
+    const cr = await dispatcher.main([roomNoGraph, 'run', '--offline']);
+    ok(cr === 0, 'behavior 10: run without an idea-graph exits 0');
+    const jr = JSON.parse(fs.readFileSync(cmdOutJson(roomNoGraph), 'utf8'));
+    ok(jr.provenance.pairs_mode === 'room', 'behavior 10: no idea-graph -> pairs_mode room (got ' + jr.provenance.pairs_mode + ')');
+
+    const explicitGraph = path.join(roomNoGraph, 'explicit-graph.json');
+    makeIdeaGraph(explicitGraph, 36, [{ source: 'N1', target: 'N20' }, { source: 'N5', target: 'N25' }]);
+    const ce = await dispatcher.main([roomNoGraph, 'run', '--offline', '--graph', explicitGraph]);
+    ok(ce === 0, 'behavior 10: run with explicit --graph exits 0');
+    const je = JSON.parse(fs.readFileSync(cmdOutJson(roomNoGraph), 'utf8'));
+    ok(je.provenance.pairs_mode === 'graph', 'behavior 10: explicit --graph beats room-native -> pairs_mode graph');
+
+    // ==============================================================
+    // Behavior 11: a nonexistent ROOM_DIR -> exit 1, clean stderr (no stack trace).
+    // ==============================================================
+    const r11 = await capture(function () { return dispatcher.main(['/no/such/room/anywhere', 'run', '--offline']); });
+    ok(r11.code === 1, 'behavior 11: nonexistent ROOM_DIR exits 1');
+    ok(r11.err.indexOf('    at ') === -1 && r11.err.indexOf('THREW') === -1, 'behavior 11: stderr is a clean error, never a stack trace');
+
+    // ==============================================================
+    // Behavior 12 (fire-and-return, D-05): `start` returns fast and prints paths;
+    // the detached child drives status.json to 'done' and writes the report.
+    // ==============================================================
+    const roomStart = track(makeFixtureRoom(36, EDGES_36));
+    const childEnv = Object.assign({}, process.env, {
+      NODE_OPTIONS: (process.env.NODE_OPTIONS ? process.env.NODE_OPTIONS + ' ' : '') + '--require ' + PRELOAD,
+    });
+    const startRes = spawnSync(process.execPath, [DISPATCHER, roomStart, 'start', '--offline'], {
+      cwd: REPO_ROOT, env: childEnv, encoding: 'utf8',
+    });
+    ok(startRes.status === 0, 'behavior 12: start exits 0 immediately (got ' + startRes.status + ')');
+    ok(startRes.stdout.indexOf('eureka scan started (background)') !== -1, 'behavior 12: start prints the background banner');
+    ok(startRes.stdout.indexOf(cmdStatus(roomStart)) !== -1 || startRes.stdout.indexOf('status:') !== -1, 'behavior 12: start prints the status path');
+    // Poll (bounded <= 30s) for the detached child to finish.
+    let finalState = null;
+    const deadline = Date.now() + 30000;
+    while (Date.now() < deadline) {
+      if (fileExists(cmdStatus(roomStart))) {
+        try { finalState = JSON.parse(fs.readFileSync(cmdStatus(roomStart), 'utf8')).state; } catch (_e) { finalState = null; }
+      }
+      if (finalState === 'done' || finalState === 'failed') break;
+      // eslint-disable-next-line no-await-in-loop
+      await delay(250);
+    }
+    ok(finalState === 'done', 'behavior 12: detached child drives status to done (got ' + finalState + ')');
+    ok(fileExists(cmdOutMd(roomStart)) && fileExists(cmdOutJson(roomStart)), 'behavior 12: detached child wrote the report files');
   } finally {
     for (let i = 0; i < tmpRooms.length; i += 1) {
       fs.rmSync(tmpRooms[i], { recursive: true, force: true });
