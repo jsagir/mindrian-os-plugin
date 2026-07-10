@@ -106,7 +106,15 @@ function ok(name) { passed += 1; console.log('  ok   ' + name); }
   ok('Test 6: composeScore is the weighted dot product, DIM_RANGE guarded');
 }
 
-// NOTE: Test 7 (loadAhpConfig against the committed default matrix) is appended
-// in Task 2, once data/portfolio-ahp-matrix.json exists on disk.
+// ---------- Test 7 (Task 2): committed default matrix loads equal ----------
+{
+  const c = ahp.loadAhpConfig();
+  assert.deepEqual(c.criteria, ahp.CRITERIA, 'Test 7: criteria order matches CRITERIA');
+  assert.ok(Math.abs(c.weights[0] - 1 / 3) < 1e-9, 'Test 7: default w0 = 1/3');
+  assert.ok(Math.abs(c.weights[1] - 1 / 3) < 1e-9, 'Test 7: default w1 = 1/3');
+  assert.ok(Math.abs(c.weights[2] - 1 / 3) < 1e-9, 'Test 7: default w2 = 1/3');
+  assert.equal(c.cr, 0, 'Test 7: default cr 0');
+  ok('Test 7: loadAhpConfig() loads the committed default -> equal weights, cr 0');
+}
 
 console.log('\ntest-215-ahp-weights: ' + passed + ' assertions passed');

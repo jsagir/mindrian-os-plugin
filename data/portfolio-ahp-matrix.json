@@ -1,0 +1,16 @@
+{
+  "criteria": ["strategic_fit", "validated_demand", "tech_econ_feasibility"],
+  "matrix": [
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1]
+  ],
+  "scale": "saaty-1-9",
+  "provenance": {
+    "source": "SEED-048 line 32-33 + 215-RESEARCH.md Pitfall 2",
+    "default_rationale": "all-equal until the navigator elicits real pairwise judgments; equal weights are the only honest default - no preference was ever stated in any source artifact",
+    "edited_by_navigator": false,
+    "date": "2026-07-06"
+  },
+  "editing_note": "Edit ONLY the upper triangle on the Saaty 1-9 scale (1 = equal, 3 = moderately more important, 5 = strongly, 7 = very strongly, 9 = extremely; use 1/3, 1/5, 1/7, 1/9 for the inverse) and mirror each edit with its reciprocal in the lower triangle. Rows and columns follow the frozen criteria order [strategic_fit, validated_demand, tech_econ_feasibility]. Any edit whose Saaty Consistency Ratio exceeds 0.1 makes every portfolio run fail loudly with AHP_INCONSISTENT until fixed - the matrix is never silently rescaled."
+}
