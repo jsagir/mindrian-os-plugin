@@ -3,18 +3,32 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 213-03-PLAN.md COMPLETE (3/6 plans) - SENS-13 registered + the born-wired reachability proof on disk
-last_updated: "2026-07-10T13:20:00.000Z"
+stopped_at: 213-04-PLAN.md COMPLETE (4/6 plans) - the LarryReacts eureka-offer composer on disk (hedged Shape-F offer + registry next-command segue)
+last_updated: "2026-07-10T09:44:54.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 11
   total_plans: 66
-  completed_plans: 54
-  percent: 50
+  completed_plans: 55
+  percent: 51
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 213 Plan 04 COMPLETE (4/6 plans) -- the LarryReacts leg: guard-cleared eureka side-channel -> ONE hedged Shape-F offer
+
+The KEY now RENDERS worth-confirming content. Plans 02/03 proved the eureka reach surfaces through the real decide(); this plan makes what surfaces WORTH confirming: `lib/core/eureka/eureka-offer.cjs` turns a guard-cleared side-channel into ONE hedged Larry line naming the two bridged node handles + the transfer direction, plus a registry-derived next-command segue. Built ON the ~85%-shipped substrate (recommendFrameworkChain + composeWorkflow), wired INTO it, never rebuilt.
+
+- **The composer (`composeEurekaOffer`, 225 lines):** emits exactly ONE offer `{ text, a_handle, b_handle, direction, confidence, next:{chain,workflow} }` or `null` (the single-offer/abstain contract). `DIRECTION_ENUM = ['structural_transfer','semantic_implementation']`. Pure, synchronous, never throws.
+- **Part-8 fence at the text layer:** the hedged line is a FIXED template filled with ONLY the two opaque handles + the direction enum member; nothing from any bridge content reaches the text. The token-whitelist test arm is the mechanical fence (every non-fixed-template token must be a handle or an enum member).
+- **Confidence passthrough (D-02):** `offer.confidence === payload.guard.confidence` - the guard band flows straight through, never re-derived (pinned by high + medium arms).
+- **Hedged voice (Part 12):** names the handles + direction, states the opportunity, ends in a question. Zero grading vocab, zero forcing imperative, zero em-dash - all asserted mechanically.
+- **Wired-into-not-rebuilt + offline-full-function:** next-command segue defaults to `recommendFrameworkChain` then `composeWorkflow` (the SINGLE registry command-truth door), both injectable seams; a seed-only chain (Brain down) still emits an offer, a throwing recommend seam degrades to the fallback seed. One arm pins the REAL composeWorkflow against the live registry (guarded + SKIP-logged).
+- **Recommend, never trigger:** never requires the chain runner, never invokes a command; the returned workflow is inert data. The plan-03 no-force suite's offer-file arm (SKIP-logged until now) ACTIVATES and passes.
+- **Deviation (Rule 3):** the plan-03 no-force suite used one broad `FORBIDDEN_REQUIRE` regex (chain-executor|command-resolver|navigation-engine) for all three eureka files; that contradicts plan-04's mandated key_link `eureka-offer.cjs -> command-resolver.cjs via composeWorkflow` and its threat model T-213-12 (which forbids only chain-executor for this file). Narrowed the offer-file arm to bar only the EXECUTION + ROUTING surfaces (chain-executor + navigation-engine), permitting command-resolver (the pure read-only registry door). Producer files keep the full fence.
+- **Verification (all gates hold):** `test-213-eureka-offer` exit 0 (PASS=10); grep gates `recommendFrameworkChain`=3, `composeWorkflow`=11, forbidden-sources=0, chain-executor-require=0, em-dash=0 per file; regressions green (`test-213-sensor-eureka` PASS=11, `test-213-reach-wired` 5 arms, `test-213-no-force` 4 invariants offer-arm-active, part8-sweep + routing-fence auto-span the new file). Commits: `d3ca3161`(composer), `34904375`(suite + no-force narrowing).
+- **NEXT:** 213-05 wires 190/202/205 in POST-210 softened semantics (fusion-router socket-injected). 213-06 (run-all-213 aggregator + cross-surface Part-8 suite + human-verify) remains gated on the curing verdict + 212-05. A later plan still owes the `deriveFn` that turns 213-02's born-invoked producer from `substrate_unavailable` into a live bridge scan. SUMMARY: `.planning/phases/213-eureka-reach-wiring-the-key-eureka-reach-wiring/213-04-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 213 Plan 03 COMPLETE (3/6 plans) -- the KEY is WIRED: SENS-13 on the spine + the first born-wired-at-feature-time reachability proof
 

@@ -2949,7 +2949,7 @@ Plans:
 - [x] 213-01-PLAN.md - the 3 deferred graders (Arrival/Lured-negative, status-quo label, deterministic COMPRESSION meter, local code)
 - [x] 213-02-PLAN.md - the KEY's detector: SENS-13 eureka sensor riding the FROZEN deep_research reach (injection seams, no hardcoded embedder)
 - [x] 213-03-PLAN.md - register SENS-13 into the sensor spine + a decide() runtime-reachability test (185 predicate, fails-otherwise)
-- [ ] 213-04-PLAN.md - the LarryReacts composer: guard-cleared eureka side-channel -> recommend-never-trigger offer (composeWorkflow/chain-recommender)
+- [x] 213-04-PLAN.md - the LarryReacts composer: guard-cleared eureka side-channel -> recommend-never-trigger offer (composeWorkflow/chain-recommender)
 - [ ] 213-05-PLAN.md - wire 190/202/205 in their POST-210 softened semantics (V3 resolution; fusion-router socket-injected, not edited)
 - [ ] 213-06-PLAN.md - run-all-213 aggregator + cross-surface Part-8 boundary suite + human-verify probe (autonomous:false; execution gated on curing verdict + 212-05)
 
