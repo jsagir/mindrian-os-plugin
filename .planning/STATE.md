@@ -4,17 +4,26 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: "198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 human-verify checkpoint (two-host parity)"
-last_updated: "2026-07-10T06:05:00.000Z"
+last_updated: "2026-07-10T06:21:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 10
   total_plans: 66
-  completed_plans: 47
+  completed_plans: 48
   percent: 43
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 212 Plan 02 COMPLETE -- Eureka Grounding Guard Stage B rubric + criticRule + D6 acceptance bar
+
+Second plan of the critic-only Phase 212 (SEED-050 Grounding Guard), appended to the SAME portable module `lib/core/eureka-critic.cjs` (no Stage A duplication). Shipped the complete local Stage B: `RUBRIC_ITEMS` (6 expert-grounded binary items a-f), `runRubric` (the two-pass protocol - EXACTLY 2 judge calls, neutral + adversarial; any per-item disagreement routes general_shallow/rubric_disagreement with an 'x'-marked pattern), `verdictFromRubric` (the pure Pattern-2 total function - the LLM never picks the class, bias-to-reject default), `classifyCandidate` (the composed Stage A -> Stage B -> confidence pipeline with the 'xxxxxx' short-circuit and the Pitfall-8 embedder-match calibration guard), and `criticRule` (the ONE pure payload-only ruling the Phase-03 MCP tool wraps unmodified: closed-key discipline, coarse confidence from measured gold buckets, unseen -> unknown/human-review, schema mismatch -> unknown). Prompts carry mechanism + mapping ONLY - no score, band, or provenance (D2 item 5, sycophancy channel closed).
+
+- **D6 shipping bar is automated:** `tests/test-212-negative-corpus.cjs` pins the three recorded junk outputs - Molecular Casino $2-5B (pseudoscience via fabricated-quantity gate, judge call-count 0), tahini x blockchain 0.825 (general_shallow via domain_swap_invariant under a crafted noun-stripping stub encoder), wind turbines as living weather algorithms 0.985 (pseudoscience via honest-generic judge + verdict-by-code) - and exits non-zero on any transferable/restatement blessing.
+- **Honest deferral:** `evals/eureka/212-critic-baseline.json` minted in `baseline_deferred` state, stamped `embedding_model: MongoDB/mdbr-leaf-ir` (Q4 lock); while deferred every confidence is 'unknown'. Plan 212-05's human checkpoint populates buckets.
+- **TDD:** Task 1 RED (`2b8438d9`) -> GREEN (`3e333db0`); Task 2 RED (`260b62eb`) -> GREEN (`ce66260e`); Task 3 acceptance (`98f62c7b`). `test-212-critic-rubric.cjs` 10/10, `test-212-negative-corpus.cjs` 3/3, `test-212-critic-stage-a.cjs` 7/7 (no regression), `run-all-211.sh` PASS=10 FAIL=0 SKIP=0. Portability held: zero MCP-framework imports, zero room-directory coupling. No files under `lib/core/eureka/` or `lib/mcp/` touched.
+- **NEXT:** 212-03 (eureka_critic MCP tool on tool-router - thin wrapper over criticRule, rate-limit + dedupe, zero roomDir closure, Part 8/D5 boundary scan).
 
 ## (2026-07-10) -- PHASE 212 Plan 01 COMPLETE -- Eureka Grounding Guard contract layer + Stage A gates
 
