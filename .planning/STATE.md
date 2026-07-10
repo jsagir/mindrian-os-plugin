@@ -3,18 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: 216-01-PLAN.md COMPLETE (room-native substrate adapter); next 216-02
-last_updated: "2026-07-10T17:30:00.000Z"
+stopped_at: 216-02-PLAN.md COMPLETE (--pairs room mode + fire-and-return dispatcher); next 216-03
+last_updated: "2026-07-10T18:15:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 24
   completed_phases: 13
   total_plans: 70
-  completed_plans: 66
-  percent: 55
+  completed_plans: 67
+  percent: 56
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 216 Plan 02 COMPLETE (2/4 plans) -- additive `--pairs room` runner mode + the `eureka-command.cjs` fire-and-return dispatcher: a plain room.db now produces the full 215-style report from one dispatcher call, no dev flags
+
+The wiring plan. The Plan 01 adapter is now composed onto the shipped runner as an ADDITIVE third pairs mode, and the thin command-facing dispatcher `scripts/eureka-command.cjs` (which Plan 03's `commands/eureka.md` will shell) is on disk and green. D-01 delivered end to end (room-native substrate is the command path when no idea-graph exists; the 215/JHU graph/full path is byte-identical) and D-05 delivered (fire-and-return, not block-and-wait). 216-R2 satisfied.
+
+- **`--pairs room` (Task 1, commits `5202e713` test RED, `741c2446` feat GREEN):** `scripts/eureka-portfolio-report.cjs` additively edited. argv normalization admits `room`; the adapter is required at the top; the substrate load is hoisted so `techMap`/`convergesPairs`/`graph` fill from `loadGraph` BEFORE `openRoomDb` (graph/full, same call order + values) or from `buildRoomNativeSubstrate(db, {canonicalId: catalogId})` AFTER the open (room mode, which NEVER reads `graphPath` - Test 2 pins a nonexistent `--graph` still exits 0). Room-mode pair set = the UNION of the room's own cited edges (both endpoints indexed, pushed first so `shared_problems` survive dedupe) and the full-mode cross-boundary enumeration, unordered-deduped (Test 3: a same-type same-domain cited edge scores exactly once). Provenance `growth_proxy` overridden to `created_at-recency (room-native)` (in the provenance object only; `tail-quadrant.cjs` untouched), the Graph row reads `(room-native: no idea-graph)`, and `renderReport` prints the navigator's exact `Not enough entries for a tail read` phrase on a sub-MIN_COHORT cohort plus a room-native-axes note - both gated on `pairs_mode === 'room'`. Zero changes to the four Wave-1 modules or `eureka-room-report.cjs` (Canon Part 7).
+- **`scripts/eureka-command.cjs` (Task 2, commit `8a318b1d` feat):** the fire-and-return dispatcher. `run|start|status|report|help`, `main(argv)` exported as the testable seam, in-process (`require` the runner + `await main()`, not execSync). Substrate resolution is the anti-JHU-default rule: explicit `--graph` (must exist) > room-local `<ROOM_DIR>/.mindrian/idea-graph.json` > room-native with NO `--graph`, so the runner's `DEFAULT_GRAPH` (the JHU fixture) is structurally unreachable (Test 10 + the `jhtv` grep gate). `run` drives `status.json` `running`->`done`/`failed`; `start` (D-05) spawns the scan detached (`{detached:true, stdio:'ignore'}` + `unref()`), prints the report + status paths, exits 0 immediately (Test 12 polls the detached child to `done`). Report-only (Part 9, D-03: writes only under `.mindrian/eureka/` + the runner's derived `eureka_*` tables, zero nodes/edges/memory_event); zero egress (Part 8).
+- **Verification:** `node tests/test-216-eureka-command.cjs` -> 44 assertions passed (behaviors 1-12). `node tests/test-216-room-substrate.cjs` -> 33 passed (Plan 01 unregressed). `bash tests/run-all-215.sh` green (Phase 215 PASS=8 FAIL=0, Phase 211 PASS=10 FAIL=0 - the runner edit did not regress the JHU path). Acceptance greps all pass (Task 1: `pairs !== 'room'` 2, `room-native-substrate` 2, directive-phrase 1, zero-change diff on the four modules; Task 2: egress 0, `jhtv-idea-graph` 0, `INSERT INTO nodes|edges|memory_event` 0, `--help` exits 0 naming all five subcommands).
+- **NEXT:** 216-03 (`commands/eureka.md` born-wired surface: F.8 HITL, 4-zone render off the report JSON, help-groups + skill mirror, the six governance gates; D-02, D-03, D-04). Plan 03 resolves the active room (SEED-034 one-door) and shells `node scripts/eureka-command.cjs <ROOM_DIR> start|report`. SUMMARY: `.planning/phases/216-eureka-user-facing-command-eureka-user-command-wrap-the-ship/216-02-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 216 Plan 01 COMPLETE (1/4 plans) -- the room-native substrate adapter: the ONE real engineering deliverable of Phase 216 is on disk and green
 

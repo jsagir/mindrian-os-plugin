@@ -2992,7 +2992,7 @@ Plans:
 Plans:
 
 - [x] 216-01-PLAN.md - room-native substrate adapter (lib/core/eureka/room-native-substrate.cjs) + hermetic unit test (D-01) - COMPLETE 2026-07-10 (buildRoomNativeSubstrate reads room.db nodes+typed edges into the exact loadGraph {meta,techMap,convergesPairs} shape; attention=node degree, growth=created_at epoch-seconds recency; injected opts.canonicalId, no runner require-cycle; graceful sub-MIN_COHORT degradation pinned; tests/test-216-room-substrate.cjs 33/33 green; run-all-215 PASS=8 + 211 PASS=10 unregressed; zero shipped-file changes; 216-R1)
-- [ ] 216-02-PLAN.md - additive --pairs room runner mode + scripts/eureka-command.cjs fire-and-return dispatcher + offline e2e (D-01, D-05)
+- [x] 216-02-PLAN.md - additive --pairs room runner mode + scripts/eureka-command.cjs fire-and-return dispatcher + offline e2e (D-01, D-05) - COMPLETE 2026-07-10 (--pairs room composes buildRoomNativeSubstrate through the SAME four modules, never reads a graph file; union pair rule edge-first deduped; provenance growth_proxy 'created_at-recency (room-native)' + '(room-native: no idea-graph)' row + directive-phrase sub-MIN_COHORT degrade; eureka-command.cjs run|start|status|report|help with anti-JHU-default substrate resolution + status.json fire-and-return; tests/test-216-eureka-command.cjs 44/44 green; test-216-room-substrate 33/33 + run-all-215 PASS=8 + 211 PASS=10 unregressed; graph/full byte-identical, zero shipped-module changes; 216-R2)
 - [ ] 216-03-PLAN.md - commands/eureka.md born-wired surface + help-groups + skill mirror + six gates (D-02, D-03, D-04)
 - [ ] 216-04-PLAN.md - tests/run-all-216.sh aggregator + 215/211 regression sweep + navigator real-room spot-check
 
