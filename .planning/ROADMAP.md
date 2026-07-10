@@ -2909,7 +2909,7 @@ Plans:
 
 Plans:
 
-- [ ] 212-01-PLAN.md - critic contract: data/eureka-critic-tags.json closed enums + lib/core/eureka-critic.cjs Stage A deterministic gates (D1/D2/D3b)
+- [x] 212-01-PLAN.md - critic contract: data/eureka-critic-tags.json closed enums + lib/core/eureka-critic.cjs Stage A deterministic gates (D1/D2/D3b) - COMPLETE 2026-07-10 (1/5 plans)
 - [ ] 212-02-PLAN.md - Stage B two-pass rubric + verdict-by-code + criticRule calibration ruling + D6 negative-corpus acceptance test
 - [ ] 212-03-PLAN.md - eureka_critic MCP tool on tool-router (thin wrapper, rate-limit+dedupe, zero roomDir) + Part 8/D5 boundary scan
 - [ ] 212-04-PLAN.md - gold-card fixture suite + 2 JHU Opportunity Statement fixtures + optional Plurai leg + run-all-212.sh gate

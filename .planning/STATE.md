@@ -4,17 +4,26 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: "198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 human-verify checkpoint (two-host parity)"
-last_updated: "2026-07-10T06:00:00.000Z"
+last_updated: "2026-07-10T06:05:00.000Z"
 last_activity: 2026-07-10
 progress:
   total_phases: 23
   completed_phases: 10
   total_plans: 66
-  completed_plans: 46
+  completed_plans: 47
   percent: 43
 ---
 
 # Project State
+
+## (2026-07-10) -- PHASE 212 Plan 01 COMPLETE -- Eureka Grounding Guard contract layer + Stage A gates
+
+First plan of the critic-only Phase 212 (SEED-050 Grounding Guard). Shipped the closed versioned enum registry `data/eureka-critic-tags.json` (schema_version 1, 4 verdicts, 10 reasoning_tags, generic domain_tags) and the portable pure-CJS critic core `lib/core/eureka-critic.cjs`: `loadCriticTags`, `VERDICTS`, `quantize` (2dp), `assembleCriticPayload`, and `stageA`. `assembleCriticPayload` is the single Part 8 wire-shaping choke point - every scalar quantized before egress (D3b1), domain tags validated against the closed enum, and the rs-egress-prompts auditors (`auditQueryString` + `auditQueryObject`) REUSED at the payload site (D1), not re-implemented. `stageA` is the four-gate deterministic no-LLM Stage A (fabricated-quantity, domain-swap invariance, nearest-neighbor novelty delta, entity-specificity) in fixed order with first-failure-returns semantics; the fabricated-quantity gate runs before any embedding so a forbidden candidate never reaches an encoder (kills the "$2-5B exit" class). kNN is consumed only through an injected `knnFn` seam and degrades (`gate_skipped: nn_unavailable`) when absent; encoder failure degrades to `calibration_unknown` and never throws.
+
+- **Portability held (D4/D5):** zero MCP-framework imports, zero room-directory coupling, both grep-asserted. This is the one file SEED-014 later lifts into the Brain repo.
+- **Q4 embedder lock:** stageA embeds through `spine.embedTexts` so encoder provenance rides into `features.embedder`; a future embedder swap invalidates the mdbr-leaf-ir-calibrated thresholds cleanly. Env tunables `EUREKA_SWAP_INVARIANCE_FLOOR` / `EUREKA_SWAP_K` / `EUREKA_NN_DELTA_FLOOR` / `EUREKA_ENTITY_MIN` read at call time (RS_SEMANTIC_FLOOR precedent).
+- **TDD:** Task 2 RED (`609c521b`) -> GREEN (`4a765c9d`); Task 1 contract `cd3db634`. `tests/test-212-critic-stage-a.cjs` 7/7 offline (stub encodeFn + stub knnFn, no model, no network). `run-all-211.sh` PASS=10 FAIL=0 SKIP=0, no regression. No files under `lib/core/eureka/` or `lib/mcp/` touched; `vector-store.cjs` untouched.
+- **NEXT:** 212-02 (Stage B two-pass rubric + verdict-by-code + criticRule calibration + D6 negative corpus) appends to the same module.
 
 ## (2026-07-03) -- PHASE 210 COMPLETE -- Revert persona-enforcement over-reach, shipped v1.15.3-beta.1
 
