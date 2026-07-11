@@ -268,7 +268,9 @@ function run() {
 
   // ------------------------------------------------------------------
   // Behavior 9: malformed properties ('not-json') still yields a tech entry
-  // with title -> id, section -> row.type, problems [].
+  // with title -> id, section -> 'unknown' (never row.type), problems [].
+  // The fixture default source_path 'fixture://BADPROPS' contains ':' so the
+  // source_path branch falls through and the honest fallback fires.
   // ------------------------------------------------------------------
   withSubstrate(
     [{ id: 'BADPROPS', type: 'Widget', rawPropsString: 'not-json', created_at: day(1) }],
@@ -278,7 +280,7 @@ function run() {
       const t = sub.techMap.get('BADPROPS');
       ok(!!t, 'behavior 9: malformed-properties node still yields a tech entry');
       ok(t.title === 'BADPROPS', 'behavior 9: title falls back to the id');
-      ok(t.section === 'Widget', 'behavior 9: section falls back to row.type');
+      ok(t.section === 'unknown', 'behavior 9: section falls back to the honest unknown, never the ICM type column (got ' + JSON.stringify(t.section) + ')');
       ok(Array.isArray(t.problems) && t.problems.length === 0, 'behavior 9: problems []');
     }
   );
@@ -353,6 +355,29 @@ function run() {
       ok(result && result.insufficient_structure === false, 'behavior 11: 36 >= MIN_COHORT -> not insufficient_structure');
     });
   }());
+
+  // ------------------------------------------------------------------
+  // Behavior 12 (216-05 field contract): with no props.section, section is
+  // derived from the source_path first path segment - both the first-segment
+  // form (an Artifact-shaped row under a section folder) and the bare-slug
+  // form (a pre-Phase-162-vintage Section anchor whose source_path IS the
+  // slug). The section NEVER falls back to the ICM type column.
+  // ------------------------------------------------------------------
+  withSubstrate(
+    [
+      { id: 'ART', type: 'Artifact', props: {}, source_path: 'legal-ip/notes.md', created_at: day(1) },
+      { id: 'business-model', type: 'Section', props: { name: 'business-model', label: 'BUSINESS MODEL' }, source_path: 'business-model', created_at: day(2) },
+    ],
+    [],
+    {},
+    function (sub) {
+      const art = sub.techMap.get('ART');
+      ok(art && art.section === 'legal-ip', 'behavior 12: source_path first segment derives the section (got ' + JSON.stringify(art && art.section) + ')');
+      const anchor = sub.techMap.get('business-model');
+      ok(anchor && anchor.section === 'business-model', 'behavior 12: vintage Section anchor bare-slug source_path derives the section (got ' + JSON.stringify(anchor && anchor.section) + ')');
+      ok(anchor && anchor.section !== 'Section', 'behavior 12: vintage Section anchor section is never the ICM type literal Section');
+    }
+  );
 
   if (FAIL > 0) {
     process.stderr.write('test-216-room-substrate: ' + FAIL + ' FAILED, ' + PASS + ' passed\n');
