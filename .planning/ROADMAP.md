@@ -2997,6 +2997,17 @@ Plans:
 - [x] 216-04-PLAN.md - tests/run-all-216.sh aggregator + 215/211 regression sweep + navigator real-room spot-check - COMPLETE 2026-07-10 (leg 1 aggregator green PASS=9 FAIL=0 SKIP=0; leg 2 navigator spot-check against ador-ip-test recorded verbatim in 216-04-SUMMARY.md, verdict "Log as gap-closure": 25/25 statements read the ICM type literal "Section x Section"; gap routed to 216-05, closed there 2026-07-11; 216-R5 + 216-R6)
 - [x] 216-05-PLAN.md - gap closure (216-04 navigator verdict): fix room-native section field leaking ICM type literal into Opportunity Statements ("Section x Section") + tests/test-216-field-contract.cjs permanent guard + run-all-216 leg 10 + ador-ip-test re-acceptance - COMPLETE 2026-07-11 (sectionFor derivation chain: props.section, else source_path first path segment non-system, else honest 'unknown', row.type fallback REMOVED; test-216-room-substrate 36/36 with re-pinned behavior 9 + new behavior 12; test-216-field-contract.cjs 11/11 drives the REAL substrate + deriveSharedProblems + emitter; run-all-216 PASS=10 FAIL=0 SKIP=0, run-all-215 PASS=8, run-all-211 PASS=10; ador-ip-test regenerated: 25 statements, zero 'Section x Section', rank-1 reads 'legal-ip x opportunity-bank'; 216-R1 + 216-R6)
 
+### Phase 217: Doctor.cjs Architecture Rethink: audit all ~14 check classes in scripts/doctor.cjs, decide on per-class module split with a standardized check-object contract, add a structural lint/test that fails when a new class ships without a matching print branch + fix dispatch entry, reconcile commands/doctor.md claims against what is actually wired. Triggered by a confirmed live bug (95.1-04 generic drift counter never matched by a generic printer; class B cascade-rooms --fix never wired despite docs claiming it is).
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 216
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 217 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
-status: phase-complete
-stopped_at: 216-05 gap closure COMPLETE (all 5 Phase 216 plans done; run-all-216 PASS=10 FAIL=0; ador-ip-test re-acceptance clean); Phase 216 eligible to close through the normal gate
-last_updated: "2026-07-11T08:35:00.000Z"
-last_activity: 2026-07-11
+status: verifying
+stopped_at: Phase 217 context gathered
+last_updated: "2026-07-11T14:26:43.311Z"
+last_activity: 2026-07-10
 progress:
-  total_phases: 24
-  completed_phases: 14
+  total_phases: 25
+  completed_phases: 15
   total_plans: 71
-  completed_plans: 70
-  percent: 58
+  completed_plans: 71
+  percent: 60
 ---
 
 # Project State
@@ -1648,6 +1648,7 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 217 added (2026-07-11): doctor-cjs-architecture-rethink. Navigator-directed expansion after a live bug in scripts/doctor.cjs (a same-day gsd-quick task, 260711-nrd, fixes the immediate symptom: the generic drift-summary counter added 95.1-04 with a forward-looking "Future class B/C/D/E/F: walk report.checks" comment was never matched by a generic line-printer, so classes B/C/E/F added in 95.1-05/06 got silently counted as drift but never rendered a visible line; also confirmed class B's --fix dispatch was never wired despite commands/doctor.md claiming it is). This phase is the broader follow-up: audit all ~14 check classes now bolted onto one file since the 2026-04-30 mint, decide on a per-class module split with a standardized check-object contract, add a structural lint/test that fails when a new class ships without both a print branch and a fix-dispatch entry (or explicit no-fix declaration), reconcile commands/doctor.md against what is actually wired. Composite with rethinking-mindrianos per CLAUDE.md's Dev-Research Compositing mandate (MindrianOS's own architecture, not user-facing feature work). Next: /gsd-discuss-phase 217.
 - Phases 211-215 added (2026-07-04): the EUREKA two-in-a-box flagship track (navigator-directed 2026-07-02, seeds registered .planning/seeds/INDEX.md). 211 Eureka Generator MVP (SEED-049: tri-modal room.db, FTS5+sqlite-vec+RRF, measured differential; front-loads SEED-050's 6-case gold set), depends on Phase 200, not blocked by the curing-sequence track. 212 Eureka Substrate + Grounding Guard (SEED-049+050: whitespace signal + the cheapest critic judge), depends on 211/191. 213 Eureka-Reach Wiring THE KEY (SEED-049+050: wires into 190/202/205, gated by 212's calibrated judges + the COMPRESSION meter) depends on 212/188/189/190/202/205 -- BLOCKED until the curing-sequence debug track (.planning/debug/beta13-curing-sequence-persona-and-commands-bisect.md) resolves, since it wires into the exact mechanisms that track is fixing. 214 Eureka Pattern-Transfer/Find-Analogies (SEED-049) depends on 213/200/201/202/203. 215 Portfolio-Scale FUSION (SEED-048, the rider -- confirmed NOT part of the 049/050 flagship pair) depends on 211-214. Renumbered from the seeds' original aspirational "Phase 206-208" text -- that range was never actually free (209/210 already occupy it from the curing-sequence revert); seed docs + INDEX.md corrected to match. Research backing: .planning/research/2026-07-02-eureka-eval-real-user-corpus-and-synthesis.md (049+050) plus 2026-07-04 WebSearch validation logged in the SEED-048/049 files (Tavily was 402/payment-required this session). Next: /gsd-plan-phase 211 once ready to start Track B (curing-sequence Track A runs first/in-parallel per the merged beta plan).
 - Phase 210 added (2026-07-02): revert-persona-enforcement-over-reach. Navigator-reported regression ("behaves less like Larry" starting v1.15.0-beta.x/v1.15.0), root-caused via commit-range diff (v1.15.0-beta.13..v1.15.2, 366 commits) to Phases 190/192/202/205/209 turning conversational judgment calls into HARD-FAIL/BINDING checks. Selectively revert 192 (locked voice-glyph + stance-toggle footer), 202 (voice-contract disqualifier), 205 (elevation-taxonomy canon-governed decision tree), and 209 (Shape-F Native Fire force-fire); relax 190's build gate to advisory. Explicitly preserve 194/196/200 (data-boundary gates), 188/189/191/195/199/201/203/204 (capability work), and the 19 standalone fixes in the diff range -- this is a scoped revert, not a rollback to beta.13. Confirmed live during diagnosis via repeated Stop-hook (check-card-fire.cjs) force-fires, including one blocking an already-answered plain-text "yes" reply. Full evidence trail: session memory feedback_1_15_enforcement_regression_watch.md (local, outside repo). Next: /gsd-discuss-phase 210 or /gsd-plan-phase 210.
 - Phase 164 queued for v1.14.0 (2026-06-17): bono-research-debate-engine -- the cognitive capstone that makes /mos:bono real. CONSUMES Phase 163 domain-graph-citizen typed nodes + Phase 130 cognitive lens family + Engine 1 commands + navigation.cjs (Part 7 ~80-85% reuse). Net-new: per-(subdomain x hat) cell research fan-out (harness-as-code Workflow) + inter-hat DEBATE over a graph-proposed "what if" hypothesis (navigator confirms/edits) + incremental per-step file+embed contract (navigator requirement). canon_parts 2/3/4/8/9. Depends on Phase 163. Queued as ROADMAP prose (v1.14.0 not yet opened), mirroring the Phase 163 queue pattern. Design input: .planning/research/2026-06-17-bono-research-debate-engine-scoping.md; CONTEXT: .planning/phases/164-bono-research-debate-engine/164-CONTEXT.md. NOTE: earlier spike (branch bono-spike-stale-baseline) built on a 2239-commit-stale base, REFERENCE-ONLY. Next: after 163 lands + v1.14.0 opens, /gsd-discuss-phase 164.
@@ -2428,8 +2429,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-10T06:00:00.000Z
-Stopped at: 198-10-PLAN.md tasks 1-2 complete; PAUSED at Task 3 blocking human-verify checkpoint
+Last session: 2026-07-11T14:26:43.266Z
+Stopped at: Phase 217 context gathered
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
 
