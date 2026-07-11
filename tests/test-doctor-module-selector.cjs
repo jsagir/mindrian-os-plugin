@@ -219,7 +219,206 @@ function makeRegistry(modules) { return { schema_version: 1, modules }; }
   ]);
   const result = doctor.runAccumulativeEngine({ home, running: null, registry });
   assert.strictEqual(result.status, 'skip', 'unresolved running version -> status skip (soft-fail)');
+  // Phase 217: skip path still carries the additive checks/recovered keys.
+  assert.deepStrictEqual(result.checks, {}, 'skip result carries empty checks map');
+  assert.deepStrictEqual(result.recovered, [], 'skip result carries empty recovered array');
   ok('selector: unresolved running version soft-fails to status:skip');
+})();
+
+// ---------------------------------------------------------------------------
+// Phase 217 Plan-01 -- cadence / flag / fix-then-recheck sub-tests
+// ---------------------------------------------------------------------------
+
+// Return-shape guard: the two new keys ride alongside every pre-217 key.
+(function engine_return_shape_has_new_keys() {
+  const home = freshHome();
+  const registry = makeRegistry([]);
+  const r = doctor.runAccumulativeEngine({ home, running: '1.13.1-beta.4', registry });
+  for (const key of ['status', 'running', 'applied_through', 'selected', 'deferred', 'findings', 'advanced', 'checks', 'recovered']) {
+    assert.ok(key in r, 'result carries key: ' + key);
+  }
+  assert.strictEqual(typeof r.checks, 'object', 'checks is an object map');
+  assert.ok(Array.isArray(r.recovered), 'recovered is an array');
+  ok('engine: return shape keeps all pre-217 keys AND adds checks + recovered');
+})();
+
+// (a) an always module far below the watermark runs on TWO consecutive
+//     invocations against the same scratch home -- the watermark never
+//     suppresses a cadence:always check (the Pitfall-1 fix).
+(function always_reruns_every_invocation() {
+  const home = freshHome();
+  let runs = 0;
+  const registry = makeRegistry([
+    {
+      id: 'always-diag',
+      introduced_version: '0.0.1',
+      cadence: 'always',
+      flag: null,
+      fix_supported: false,
+      _check: () => { runs += 1; return { status: 'ok', detail: 'diag #' + runs }; },
+    },
+  ]);
+  const r1 = doctor.runAccumulativeEngine({ home, running: '1.13.1-beta.4', registry });
+  assert.ok(r1.checks['always-diag'], 'first invocation produces checks[always-diag]');
+  const r2 = doctor.runAccumulativeEngine({ home, running: '1.13.1-beta.4', registry });
+  assert.ok(r2.checks['always-diag'], 'second invocation STILL produces checks[always-diag] (watermark-immune)');
+  assert.strictEqual(runs, 2, 'the always check() ran on BOTH invocations');
+  // Always results never leak into the once-path findings[].
+  assert.strictEqual(r1.findings.length, 0, 'always results do not land in findings[]');
+  ok('cadence: an always module re-runs on every invocation (watermark does not suppress it)');
+})();
+
+// (b) a once module below the watermark stays skipped (re-pin the existing
+//     watermark semantics under the cadence split).
+(function once_below_watermark_stays_skipped() {
+  const home = freshHome();
+  let runs = 0;
+  const registry = makeRegistry([
+    {
+      id: 'once-heal',
+      introduced_version: '1.13.0',
+      cadence: 'once',
+      flag: null,
+      fix_supported: false,
+      _check: () => { runs += 1; },
+    },
+  ]);
+  // First run advances the watermark past 1.13.0.
+  const r1 = doctor.runAccumulativeEngine({ home, running: '1.13.1-beta.4', registry });
+  assert.strictEqual(runs, 1, 'first run executes the once module');
+  assert.strictEqual(r1.advanced, true, 'first run advances the watermark');
+  // Second run: window (running, running] is empty -> the once module is skipped.
+  const r2 = doctor.runAccumulativeEngine({ home, running: '1.13.1-beta.4', registry });
+  assert.strictEqual(runs, 1, 'once module below the watermark is NOT re-run');
+  assert.strictEqual(r2.selected.length, 0, 're-run selects zero once modules');
+  ok('cadence: a once module below the watermark stays skipped (semantics unchanged)');
+})();
+
+// (c) an always module with flag:'roomMd' runs when flags.roomMd is set and is
+//     absent from checks when the flag is off under class-flag mode.
+(function always_flag_gating() {
+  const registry = () => makeRegistry([
+    {
+      id: 'room-md-diag',
+      introduced_version: '0.0.1',
+      cadence: 'always',
+      flag: 'roomMd',
+      fix_supported: false,
+      _check: () => ({ status: 'ok', detail: 'room-md diag' }),
+    },
+  ]);
+  const on = doctor.runAccumulativeEngine({
+    home: freshHome(), running: '1.13.1-beta.4', registry: registry(),
+    flags: { roomMd: true }, classFlagsActive: true,
+  });
+  assert.ok(on.checks['room-md-diag'], 'flag on -> module runs');
+  const off = doctor.runAccumulativeEngine({
+    home: freshHome(), running: '1.13.1-beta.4', registry: registry(),
+    flags: { roomMd: false }, classFlagsActive: true,
+  });
+  assert.ok(!('room-md-diag' in off.checks), 'flag off under class-flag mode -> module absent from checks');
+  ok('flag: a flag-named always module runs only when its flag is set');
+})();
+
+// (d) an always module with flag:null runs when classFlagsActive is false and
+//     does NOT run when classFlagsActive is true without all/fix.
+(function always_null_flag_base_gate() {
+  const registry = () => makeRegistry([
+    {
+      id: 'base-diag',
+      introduced_version: '0.0.1',
+      cadence: 'always',
+      flag: null,
+      fix_supported: false,
+      _check: () => ({ status: 'ok', detail: 'base diag' }),
+    },
+  ]);
+  const bare = doctor.runAccumulativeEngine({
+    home: freshHome(), running: '1.13.1-beta.4', registry: registry(),
+    flags: {}, classFlagsActive: false,
+  });
+  assert.ok(bare.checks['base-diag'], 'classFlagsActive false -> null-flag module runs');
+  const gated = doctor.runAccumulativeEngine({
+    home: freshHome(), running: '1.13.1-beta.4', registry: registry(),
+    flags: {}, classFlagsActive: true,
+  });
+  assert.ok(!('base-diag' in gated.checks), 'classFlagsActive true w/o all/fix -> null-flag module skipped');
+  // But --all under class-flag mode re-admits it.
+  const allRun = doctor.runAccumulativeEngine({
+    home: freshHome(), running: '1.13.1-beta.4', registry: registry(),
+    flags: { all: true }, classFlagsActive: true,
+  });
+  assert.ok(allRun.checks['base-diag'], '--all re-admits a null-flag module even under class-flag mode');
+  ok('flag: a null-flag always module follows the class-A/N baseWanted gate');
+})();
+
+// (e) fix-then-recheck + recovered shape; and fix_supported:false never fixes.
+(function always_fix_then_recheck() {
+  const home = freshHome();
+  let fixCalls = 0;
+  let checkCalls = 0;
+  const registry = makeRegistry([
+    {
+      id: 'healable',
+      introduced_version: '0.0.1',
+      cadence: 'always',
+      flag: null,
+      fix_supported: true,
+      _check: () => { checkCalls += 1; return { status: 'warn', detail: 'needs heal' }; },
+      _fix: (ctx) => {
+        fixCalls += 1;
+        // The fixer receives the prior check_result.
+        assert.ok(ctx && ctx.check_result && ctx.check_result.status === 'warn', 'fixer sees check_result');
+        return { status: 'ok', detail: 'healed' };
+      },
+    },
+  ]);
+  const r = doctor.runAccumulativeEngine({ home, running: '1.13.1-beta.4', registry, fix: true });
+  assert.strictEqual(fixCalls, 1, 'the fixer was called exactly once');
+  assert.ok(checkCalls >= 2, 'the check re-ran after the fix');
+  assert.ok(r.checks['healable'], 'checks[healable] is present');
+  assert.ok(r.checks['healable'].fix_result, 'checks[healable].fix_result is attached');
+  assert.strictEqual(r.recovered.length, 1, 'one recovered record');
+  assert.strictEqual(r.recovered[0].tool, 'healable', 'recovered[0].tool equals the module id');
+
+  // fix_supported:false -> the fixer is never called.
+  const home2 = freshHome();
+  let fixCalls2 = 0;
+  const registry2 = makeRegistry([
+    {
+      id: 'not-healable',
+      introduced_version: '0.0.1',
+      cadence: 'always',
+      flag: null,
+      fix_supported: false,
+      _check: () => ({ status: 'warn', detail: 'needs heal' }),
+      _fix: () => { fixCalls2 += 1; return { status: 'ok' }; },
+    },
+  ]);
+  const r2 = doctor.runAccumulativeEngine({ home: home2, running: '1.13.1-beta.4', registry: registry2, fix: true });
+  assert.strictEqual(fixCalls2, 0, 'fix_supported:false -> fixer NEVER called');
+  assert.strictEqual(r2.recovered.length, 0, 'no recovered record when fix_supported is false');
+  ok('fix: fix-then-recheck heals + records recovered; fix_supported:false never fixes');
+})();
+
+// (f) a class-flag-only run (classFlagsActive true, neither all nor fix) does
+//     NOT advance the watermark.
+(function watermark_not_advanced_under_class_flags() {
+  const home = freshHome();
+  const registry = makeRegistry([
+    { id: 'once-heal', introduced_version: '1.13.0', cadence: 'once', flag: null, fix_supported: false, _check: () => {} },
+  ]);
+  const before = snap.readDoctorApplied(home);
+  assert.strictEqual(before.applied_through, null, 'watermark starts null');
+  const r = doctor.runAccumulativeEngine({
+    home, running: '1.13.1-beta.4', registry,
+    flags: {}, classFlagsActive: true,
+  });
+  const after = snap.readDoctorApplied(home);
+  assert.strictEqual(after.applied_through, null, 'watermark NOT advanced under a class-flag-only run');
+  assert.strictEqual(r.advanced, false, 'result.advanced is false under class-flag mode');
+  assert.strictEqual(r.selected.length, 0, 'once-pass selected nothing (gated off)');
+  ok('cadence: a class-flag-only run does not advance the watermark');
 })();
 
 console.log('\nALL PASS (' + passed + ' assertions)');

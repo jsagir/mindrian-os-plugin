@@ -3907,6 +3907,15 @@ function renderHumanReport(report) {
       else if (check.status === 'error') { glyph = '⚠'; color = C.red; }
       else { glyph = '⊘'; color = C.dim; }
       bodyRows.push('  ' + color + '■' + C.reset + ' ' + name.padEnd(28) + color + glyph + C.reset + ' ' + (check.detail || check.status));
+      // Phase 217 Plan-01: action_lines sub-line support. The structural home
+      // for the hand-coded hint sub-lines (class H/K/N) that later migration
+      // plans delete: a cadence:always module returns action_lines[] and the
+      // generic renderer prints one dim `-> ` sub-line per entry.
+      if (Array.isArray(check.action_lines)) {
+        for (const line of check.action_lines) {
+          bodyRows.push('     ' + C.dim + '-> ' + line + C.reset);
+        }
+      }
     }
   }
 
@@ -4052,9 +4061,13 @@ function _normalizeVersion(v) {
 /**
  * Run the accumulative-engine selector.
  *
- * @param {object} [flags] CLI flags (fix, dryRun, json) OR a test opts seam
- *        ({ home, running, registry, dryRun }). The test seam keys take
- *        precedence so the test never depends on the live empty registry.
+ * @param {object} [flags] CLI flags (fix, dryRun, json, flags, classFlagsActive)
+ *        OR a test opts seam ({ home, running, registry, dryRun }). The test
+ *        seam keys take precedence so the test never depends on the live
+ *        registry. `flags` is the full parsed CLI flags object and
+ *        `classFlagsActive` the class-flag-mode boolean; both drive the
+ *        Phase 217 cadence/flag gates (default {} + false => baseWanted true,
+ *        keeping every pre-217 caller byte-compatible).
  * @returns {{
  *   status: 'ok'|'skip',
  *   detail?: string,
@@ -4063,14 +4076,48 @@ function _normalizeVersion(v) {
  *   selected: Array<{id, introduced_version}>,
  *   deferred: Array<{id, introduced_version}>,
  *   findings: Array<object>,
- *   advanced: boolean
+ *   advanced: boolean,
+ *   checks: Object<string, object>,
+ *   recovered: Array<object>
  * }}
  */
+// resolveAlwaysRunner(mod): resolve the check/fix pair for a cadence:always
+// module. Test seams (mod._check / mod._fix) win; otherwise require the runner
+// file relative to the plugin root and read its exported check/fix. Never
+// throws (a require failure leaves the fn null -> the caller records an error
+// finding), so one bad module cannot crash the always-pass (T-217-01).
+function resolveAlwaysRunner(mod) {
+  let checkFn = (typeof mod._check === 'function') ? mod._check : null;
+  let fixFn = (typeof mod._fix === 'function') ? mod._fix : null;
+  if ((!checkFn || !fixFn) && mod.runner) {
+    try {
+      const runnerPath = path.isAbsolute(mod.runner)
+        ? mod.runner
+        : path.join(PLUGIN_ROOT, mod.runner);
+      const runnerMod = require(runnerPath);
+      if (!checkFn && typeof runnerMod.check === 'function') checkFn = runnerMod.check;
+      if (!fixFn && typeof runnerMod.fix === 'function') fixFn = runnerMod.fix;
+    } catch (_) { /* leave null; the caller soft-fails to an error finding */ }
+  }
+  return { checkFn, fixFn };
+}
+
 function runAccumulativeEngine(flags) {
   const opts = flags || {};
   const home = opts.home || process.env.HOME || process.env.USERPROFILE || HOME;
   const dryRun = !!opts.dryRun;
   const wantFix = !!opts.fix;
+  // Phase 217 Plan-01: the full parsed CLI flags object + the class-flag-mode
+  // boolean, both carried so the engine can reproduce the exact gate that
+  // today lives at the main() call site. Defaults keep every pre-217 caller
+  // (the hermetic selector tests pass only { home, running, registry })
+  // byte-compatible: flags {} + classFlagsActive false => baseWanted true.
+  const callerFlags = (opts.flags && typeof opts.flags === 'object') ? opts.flags : {};
+  const classFlagsActive = !!opts.classFlagsActive;
+  // baseWanted is the class-A/N "runs on a bare / --all / --fix run, but a
+  // class-flag-only run (e.g. --room-md) skips it" gate -- the exact predicate
+  // that used to guard the engine call in main() (line ~5534).
+  const baseWanted = !!(callerFlags.all || callerFlags.fix || !classFlagsActive);
 
   // 1. Resolve the RUNNING version of record. Test seam: opts.running wins.
   //    Otherwise read the active plugin.json via checkInstallVersion().
@@ -4094,6 +4141,8 @@ function runAccumulativeEngine(flags) {
       deferred: [],
       findings: [],
       advanced: false,
+      checks: {},
+      recovered: [],
     };
   }
 
@@ -4111,84 +4160,191 @@ function runAccumulativeEngine(flags) {
   }
   const modules = Array.isArray(registry.modules) ? registry.modules : [];
 
+  // 2b. Split registry modules by CADENCE (Phase 217 Plan-01, Pitfall 1):
+  //     - cadence:'always' = a per-invocation DIAGNOSTIC. Its check() runs on
+  //       EVERY doctor invocation, immune to the watermark. This is what stops
+  //       a migrated D-01 check from going permanently silent after one run.
+  //     - cadence:'once' (or ABSENT, back-compat) = a watermark-gated HEAL
+  //       (umbilical's existing semantics). The Plan 02 contract test forces the
+  //       registry file itself to declare cadence explicitly.
+  const onceModules = [];
+  const alwaysModules = [];
+  for (const mod of modules) {
+    if (!mod || typeof mod.id !== 'string') continue;
+    if (mod.cadence === 'always') alwaysModules.push(mod);
+    else onceModules.push(mod);
+  }
+
   // 3. Read the watermark. null applied_through means "first run; window is
-  //    (null, running] = everything <= running".
+  //    (null, running] = everything <= running". Read unconditionally so the
+  //    return shape reports applied_through even when the once-pass is gated off.
   const wm = readDoctorApplied(home);
   const appliedThrough = wm.applied_through; // semver string | null
 
-  // 4. SELECT modules where introduced_version is in (applied_through, running].
-  //    Lower bound EXCLUSIVE (already-applied), upper bound INCLUSIVE (current).
-  //    A future-version module (introduced > running) is DEFERRED, never run --
-  //    the future-version-DEFER shape from install-state.migrateIfNeeded.
-  const lower = appliedThrough || '0.0.0';
   const selected = [];
   const deferred = [];
-  for (const mod of modules) {
-    if (!mod || typeof mod.id !== 'string') continue;
-    const introduced = _normalizeVersion(mod.introduced_version);
-    if (!introduced) {
-      // Malformed introduced_version -> skip (cannot place in the window).
-      continue;
-    }
-    const aboveLower = semver.gt(introduced, _normalizeVersion(lower) || '0.0.0');
-    const atOrBelowRunning = semver.lte(introduced, running);
-    if (!atOrBelowRunning) {
-      deferred.push(mod);
-      continue;
-    }
-    if (aboveLower) {
-      selected.push(mod);
-    }
-    // introduced <= applied_through -> already applied -> skip silently.
-  }
-
-  // 5. Run each selected module's runner, wrapped in try/catch so one bad
-  //    module cannot crash doctor (soft-fail -> error finding, loop continues).
-  //    --fix runs the module fixer; read-only runs the checker only.
   const findings = [];
   const ranModuleIds = [];
   let anyHardError = false;
-  for (const mod of selected) {
-    try {
-      // Resolve the runner. Test seam: an in-test runner is attached as
-      // mod._check / mod._fix. Otherwise require the runner file relative to
-      // the plugin root and invoke its exported check(opts)/fix(opts) entry.
-      let entryResult;
-      if (wantFix && typeof mod._fix === 'function') {
-        entryResult = mod._fix({ home, running, dryRun });
-      } else if (typeof mod._check === 'function') {
-        entryResult = mod._check({ home, running, dryRun });
-      } else if (mod.runner) {
-        const runnerPath = path.isAbsolute(mod.runner)
-          ? mod.runner
-          : path.join(PLUGIN_ROOT, mod.runner);
-        const runnerMod = require(runnerPath);
-        const entry = (wantFix && typeof runnerMod.fix === 'function')
-          ? runnerMod.fix
-          : runnerMod.check;
-        if (typeof entry !== 'function') {
-          throw new Error('runner ' + mod.runner + ' exposes no ' + (wantFix ? 'fix/check' : 'check') + ' function');
-        }
-        entryResult = entry({ home, running, dryRun, fix: wantFix });
-      } else {
-        throw new Error('module ' + mod.id + ' has no runner');
+  let advanced = false;
+
+  // 4. ONCE pass (watermark-gated heals; umbilical). Behavior byte-identical to
+  //    pre-217 with ONE relocation: the entire once-pass (window selection +
+  //    runner invocation + watermark advance) is now gated behind baseWanted --
+  //    the exact `flags.all || flags.fix || !classFlagsActive` predicate that
+  //    used to live at the main() call site. A class-flag-only run (--room-md)
+  //    therefore never runs the once-heals and never advances the watermark,
+  //    preserving the pre-217 invariant. When the gate is false the once-pass
+  //    yields selected:[], advanced:false.
+  if (baseWanted) {
+    // SELECT once modules where introduced_version is in (applied_through, running].
+    // Lower bound EXCLUSIVE (already-applied), upper bound INCLUSIVE (current).
+    // A future-version module (introduced > running) is DEFERRED, never run --
+    // the future-version-DEFER shape from install-state.migrateIfNeeded.
+    const lower = appliedThrough || '0.0.0';
+    for (const mod of onceModules) {
+      const introduced = _normalizeVersion(mod.introduced_version);
+      if (!introduced) {
+        // Malformed introduced_version -> skip (cannot place in the window).
+        continue;
       }
-      findings.push(Object.assign({ id: mod.id, status: 'ok' }, entryResult && typeof entryResult === 'object' ? entryResult : {}));
-      ranModuleIds.push(mod.id);
-    } catch (err) {
-      anyHardError = true;
-      findings.push({ id: mod.id, status: 'error', detail: (err && err.message) || 'runner threw' });
+      const aboveLower = semver.gt(introduced, _normalizeVersion(lower) || '0.0.0');
+      const atOrBelowRunning = semver.lte(introduced, running);
+      if (!atOrBelowRunning) {
+        deferred.push(mod);
+        continue;
+      }
+      if (aboveLower) {
+        selected.push(mod);
+      }
+      // introduced <= applied_through -> already applied -> skip silently.
+    }
+
+    // 5. Run each selected module's runner, wrapped in try/catch so one bad
+    //    module cannot crash doctor (soft-fail -> error finding, loop continues).
+    //    --fix runs the module fixer; read-only runs the checker only.
+    for (const mod of selected) {
+      try {
+        // Resolve the runner. Test seam: an in-test runner is attached as
+        // mod._check / mod._fix. Otherwise require the runner file relative to
+        // the plugin root and invoke its exported check(opts)/fix(opts) entry.
+        let entryResult;
+        if (wantFix && typeof mod._fix === 'function') {
+          entryResult = mod._fix({ home, running, dryRun });
+        } else if (typeof mod._check === 'function') {
+          entryResult = mod._check({ home, running, dryRun });
+        } else if (mod.runner) {
+          const runnerPath = path.isAbsolute(mod.runner)
+            ? mod.runner
+            : path.join(PLUGIN_ROOT, mod.runner);
+          const runnerMod = require(runnerPath);
+          const entry = (wantFix && typeof runnerMod.fix === 'function')
+            ? runnerMod.fix
+            : runnerMod.check;
+          if (typeof entry !== 'function') {
+            throw new Error('runner ' + mod.runner + ' exposes no ' + (wantFix ? 'fix/check' : 'check') + ' function');
+          }
+          entryResult = entry({ home, running, dryRun, fix: wantFix });
+        } else {
+          throw new Error('module ' + mod.id + ' has no runner');
+        }
+        findings.push(Object.assign({ id: mod.id, status: 'ok' }, entryResult && typeof entryResult === 'object' ? entryResult : {}));
+        ranModuleIds.push(mod.id);
+      } catch (err) {
+        anyHardError = true;
+        findings.push({ id: mod.id, status: 'error', detail: (err && err.message) || 'runner threw' });
+      }
+    }
+
+    // 6. Idempotency: advance the watermark to running ONLY on a non-dry-run with
+    //    no hard runner error. Re-running with the watermark already at running
+    //    selects ZERO modules (window (running, running] is empty) -> no-op.
+    //    An EMPTY window (zero selected) on a clean run still advances so the
+    //    ledger records the heal-through point.
+    if (!dryRun && !anyHardError) {
+      advanced = writeDoctorApplied(home, { appliedThrough: running, ranModuleIds });
     }
   }
 
-  // 6. Idempotency: advance the watermark to running ONLY on a non-dry-run with
-  //    no hard runner error. Re-running with the watermark already at running
-  //    selects ZERO modules (window (running, running] is empty) -> no-op.
-  //    An EMPTY window (zero selected) on a clean run still advances so the
-  //    ledger records the heal-through point.
-  let advanced = false;
-  if (!dryRun && !anyHardError) {
-    advanced = writeDoctorApplied(home, { appliedThrough: running, ranModuleIds });
+  // 7. ALWAYS pass (Phase 217 Plan-01, Pitfall 1). For each cadence:always
+  //    module in registry array order: flag-gate, deferred-guard (upper bound
+  //    only -- NO watermark lower bound, that is the whole point), run check()
+  //    on EVERY invocation, optional fix-then-recheck. Results land ONLY in
+  //    alwaysChecks (never in the once-path findings[]), so the selector-test
+  //    assertions on findings stay valid and Pitfall 3 is impossible.
+  const alwaysChecks = {};
+  const recovered = [];
+  for (const mod of alwaysModules) {
+    // a. Flag gate. null/undefined flag => the class-A/N baseWanted gate (runs
+    //    under bare / --all / --fix when no class flag is active). A named flag
+    //    => the module runs only when that parseArgs flag is set.
+    const flagKey = mod.flag;
+    const wanted = (flagKey === null || flagKey === undefined)
+      ? baseWanted
+      : !!callerFlags[flagKey];
+    if (!wanted) continue; // no report entry -- matches today's absent-when-not-requested behavior.
+
+    // b. Deferred guard (registry/code-skew safety ONLY): a module introduced in
+    //    a FUTURE version is deferred. There is NO lower-bound / watermark check
+    //    for always modules -- that immunity is the point (Pitfall 1).
+    const introduced = _normalizeVersion(mod.introduced_version);
+    if (introduced && semver.gt(introduced, running)) {
+      deferred.push(mod);
+      continue;
+    }
+
+    // c. Build ctx. `checks` is the accumulating always-result map so a later
+    //    module can read an earlier same-invocation result (Plan 06 reads
+    //    ctx.checks['install-state']).
+    const ctx = { home, running, dryRun, fix: wantFix, flags: callerFlags, checks: alwaysChecks };
+
+    // d. Resolve + run check() inside try/catch (soft-fail -> error row,
+    //    self-DoS mitigation T-217-01).
+    const { checkFn, fixFn } = resolveAlwaysRunner(mod);
+    let result;
+    try {
+      if (typeof checkFn !== 'function') {
+        throw new Error('module ' + mod.id + ' exposes no check function');
+      }
+      result = checkFn(ctx);
+    } catch (err) {
+      result = { status: 'error', detail: (err && err.message) || 'runner threw' };
+    }
+
+    // e. Fix-then-recheck flow (mirrors the ad-hoc class E/G/H pattern). Only
+    //    when --fix was requested, the module declares fix_supported === true,
+    //    a fixer exists, the check surfaced a warn/error, and the result is not
+    //    explicitly marked unrecoverable.
+    if (wantFix && mod.fix_supported === true && typeof fixFn === 'function'
+        && result && (result.status === 'warn' || result.status === 'error')
+        && result.recoverable !== false) {
+      let fixRes;
+      try {
+        fixRes = fixFn(Object.assign({}, ctx, { check_result: result }));
+      } catch (err) {
+        fixRes = { status: 'error', detail: (err && err.message) || 'fixer threw' };
+      }
+      // Re-run the check so the reported result reflects the post-fix state.
+      try {
+        result = checkFn(ctx);
+      } catch (err) {
+        result = { status: 'error', detail: (err && err.message) || 'runner threw' };
+      }
+      result.fix_result = fixRes;
+      // Recovered plumbing. Object.assign order matters: the fixer's own `tool`
+      // field wins when present (preserves class E's existing recovery record
+      // shape, e.g. tool:'generate-section-intelligence').
+      if (fixRes && Array.isArray(fixRes.recoveries)) {
+        for (const rec of fixRes.recoveries) {
+          recovered.push(Object.assign({ tool: mod.id }, rec));
+        }
+      } else {
+        recovered.push(Object.assign({ tool: mod.id }, fixRes));
+      }
+    }
+
+    // f. Always results go ONLY into alwaysChecks, NEVER the once-path findings[].
+    alwaysChecks[mod.id] = result;
   }
 
   return {
@@ -4199,6 +4355,8 @@ function runAccumulativeEngine(flags) {
     deferred: deferred.map((m) => ({ id: m.id, introduced_version: m.introduced_version })),
     findings,
     advanced: !!advanced,
+    checks: alwaysChecks,
+    recovered,
   };
 }
 
@@ -5531,15 +5689,31 @@ function main() {
   // `doctor` run). With the registry seeded EMPTY of organ modules it selects
   // zero modules and stays a no-op; the wiring is what Plan 03 builds on.
   // Soft-fail: a throw here records an error finding but never crashes doctor.
-  if (flags.all || flags.fix || !classFlagsActive) {
-    try {
-      report.checks['accumulative-engine'] = runAccumulativeEngine({
-        fix: flags.fix,
-        dryRun: flags.dryRun,
-      });
-    } catch (err) {
-      report.checks['accumulative-engine'] = { status: 'error', detail: (err && err.message) || 'engine threw', selected: [], deferred: [], findings: [], advanced: false };
+  // Phase 217 Plan-01: the engine call is now UNCONDITIONAL (cadence:always
+  // modules must run on every invocation via their own flag gates). The engine
+  // itself reproduces the old class-A/N gate internally for the once-pass +
+  // self-report row via opts.classFlagsActive. main() spreads the engine's
+  // per-module always results into report.checks (so the generic renderer +
+  // computeSummary treat each as a top-level row) and appends any recovered
+  // records; the self-report row is attached ONLY under the old gate so a
+  // --room-md-only run does not grow a new accumulative-engine row.
+  try {
+    const engineResult = runAccumulativeEngine({
+      fix: flags.fix,
+      dryRun: flags.dryRun,
+      flags,
+      classFlagsActive,
+    });
+    const { checks: engineChecks, recovered: engineRecovered, ...engineSelf } = engineResult;
+    Object.assign(report.checks, engineChecks || {});
+    if (Array.isArray(engineRecovered)) {
+      for (const rec of engineRecovered) report.recovered.push(rec);
     }
+    if (flags.all || flags.fix || !classFlagsActive) {
+      report.checks['accumulative-engine'] = engineSelf;
+    }
+  } catch (err) {
+    report.checks['accumulative-engine'] = { status: 'error', detail: (err && err.message) || 'engine threw', selected: [], deferred: [], findings: [], advanced: false };
   }
 
   // Class N: plugin-enabled-state (DRIFT-12 / RCA plugin-silent-disable-after-
