@@ -409,6 +409,126 @@ try {
   failTest('Test 7 (idempotency)', err);
 }
 
+// -- Tests 8-12: hermetic unit sub-tests via the additive module exports --
+//
+// Task 1 additively exports renderHumanReport + computeSummary from
+// scripts/doctor.cjs (the require.main guard prevents main() on require).
+// These sub-tests drive them in-process against a synthetic report that
+// reproduces the observed 2026-07-11 state: four warn-status checks that the
+// old empty generic loop counted as drift but never printed. They fail if the
+// generic render loop or the recovered-line rendering is ever reverted.
+//
+// Glyph literals in this scan-adjacent test are written via Unicode escape
+// discipline: the warn glyph is U+26A0. BOX_CHAR_RE mirrors
+// tests/test-doctor-ui-self-compliant.cjs so a reverted or box-char render is
+// caught here too.
+const WARN_GLYPH = '⚠';
+const BOX_CHAR_RE = /[╭╮╰╯┌┐└┘│─━]/;
+
+const { renderHumanReport, computeSummary } = require(path.join(REPO_ROOT, 'scripts', 'doctor.cjs'));
+
+function makeSyntheticReport() {
+  return {
+    fixRequested: false, classARecovered: null, recoveryError: null, recoverySkipped: false,
+    install: { status: 'ok', version: '1.15.0' },
+    cache:   { status: 'ok', latest: '1.15.0' },
+    dev:     { status: 'ok', pluginJson: '1.15.0' },
+    drift:   { detected: false },
+    recovered: [],
+    checks: {
+      'cascade-rooms':        { status: 'warn', detail: '15 room(s) missing .room-root sentinel' },
+      'cascade-rooms-active': { status: 'warn', detail: 'writes to mindrianOS would be silenced (active=iris2026)' },
+      'room-md':              { status: 'warn', detail: '9 dir(s) missing ROOM.md or MINTO.md' },
+      'ui-compliance':        { status: 'warn', detail: '3 violation(s)' },
+      'verify-surface':       { status: 'ok' },
+      'skipped-example':      { status: 'skip', detail: 'not applicable' }
+    }
+  };
+}
+
+const WARN_CHECKS = {
+  'cascade-rooms':        '15 room(s) missing .room-root sentinel',
+  'cascade-rooms-active': 'writes to mindrianOS would be silenced (active=iris2026)',
+  'room-md':              '9 dir(s) missing ROOM.md or MINTO.md',
+  'ui-compliance':        '3 violation(s)'
+};
+
+// -- Test 8: exports are functions ---------------------------------------
+try {
+  assert.strictEqual(typeof renderHumanReport, 'function', 'renderHumanReport must be an exported function');
+  assert.strictEqual(typeof computeSummary, 'function', 'computeSummary must be an exported function');
+  pass('Test 8 (exports: renderHumanReport + computeSummary are functions)');
+} catch (err) {
+  failTest('Test 8 (exports)', err);
+}
+
+// -- Test 9: warn visibility ---------------------------------------------
+// Each of the four warn checks must render a line carrying BOTH its name and
+// its exact detail string AND the warn glyph (U+26A0).
+try {
+  const rendered = renderHumanReport(makeSyntheticReport());
+  const clean = stripAnsi(rendered);
+  const lines = clean.split('\n');
+  for (const [name, detail] of Object.entries(WARN_CHECKS)) {
+    const hit = lines.find((l) => l.includes(name) && l.includes(detail));
+    assert.ok(hit, 'warn check `' + name + '` must render a line containing its detail `' + detail + '`;\nrendered:\n' + clean);
+    assert.ok(hit.includes(WARN_GLYPH), 'the `' + name + '` line must carry the warn glyph (U+26A0); got: ' + hit);
+  }
+  pass('Test 9 (warn visibility: all four warn checks render name + detail + warn glyph)');
+} catch (err) {
+  failTest('Test 9 (warn visibility)', err);
+}
+
+// -- Test 10: summary parity ---------------------------------------------
+// computeSummary drift count matches the four visible warn rows; every
+// non-skip check appears in the rendered output; the skip entry does not.
+try {
+  const report = makeSyntheticReport();
+  const summary = computeSummary(report);
+  assert.strictEqual(summary.drift, 4, 'computeSummary drift must equal the four warn checks; got ' + summary.drift);
+  assert.ok(summary.healthy >= 3, 'computeSummary healthy must be >= 3 (install + dev + verify-surface); got ' + summary.healthy);
+  const clean = stripAnsi(renderHumanReport(report));
+  for (const name of Object.keys(report.checks)) {
+    if (report.checks[name].status === 'skip') continue;
+    assert.ok(clean.includes(name), 'non-skip check `' + name + '` must appear in rendered output;\nrendered:\n' + clean);
+  }
+  assert.ok(!clean.includes('skipped-example'), 'the skip check `skipped-example` must NOT appear in rendered output;\nrendered:\n' + clean);
+  pass('Test 10 (summary parity: drift === 4, non-skip checks visible, skip omitted)');
+} catch (err) {
+  failTest('Test 10 (summary parity)', err);
+}
+
+// -- Test 11: recovered lines --------------------------------------------
+// A --fix run pushes outcomes into report.recovered; each must render a line.
+try {
+  const report = makeSyntheticReport();
+  report.fixRequested = true;
+  report.recovered = [{ status: 'error', detail: 'generator failed: boom', tool: 'generate-section-intelligence' }];
+  const clean = stripAnsi(renderHumanReport(report));
+  assert.ok(clean.includes('generate-section-intelligence'), 'recovered line must name the tool `generate-section-intelligence`;\nrendered:\n' + clean);
+  assert.ok(clean.includes('generator failed: boom'), 'recovered line must carry the outcome detail `generator failed: boom`;\nrendered:\n' + clean);
+  pass('Test 11 (recovered lines: fix outcome renders tool + detail)');
+} catch (err) {
+  failTest('Test 11 (recovered lines)', err);
+}
+
+// -- Test 12: glyph hygiene ----------------------------------------------
+// Neither report renders a ballot X (U+2717) nor any box-drawing char.
+try {
+  const a = renderHumanReport(makeSyntheticReport());
+  const fixReport = makeSyntheticReport();
+  fixReport.fixRequested = true;
+  fixReport.recovered = [{ status: 'error', detail: 'generator failed: boom', tool: 'generate-section-intelligence' }];
+  const b = renderHumanReport(fixReport);
+  for (const [label, out] of [['default', a], ['fix', b]]) {
+    assert.ok(!/✗/.test(out), label + ' render must not contain a ballot X (U+2717)');
+    assert.ok(!BOX_CHAR_RE.test(out), label + ' render must not contain box-drawing chars');
+  }
+  pass('Test 12 (glyph hygiene: no ballot X, no box-drawing chars in either render)');
+} catch (err) {
+  failTest('Test 12 (glyph hygiene)', err);
+}
+
 // -- Cleanup -------------------------------------------------------------
 if (SCAFFOLD_HOME) rmTmp(SCAFFOLD_HOME);
 
