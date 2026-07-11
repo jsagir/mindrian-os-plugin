@@ -2982,12 +2982,12 @@ Plans:
 - [x] 215-04-PLAN.md - wire the Wave-1 modules onto the shipped 211 pipeline: scripts/eureka-portfolio-report.cjs - COMPLETE 2026-07-10 (scripts/eureka-portfolio-report.cjs composes all four Wave-1 modules on the reused 211 spine, zero new engine; both DG-2 pair modes graph|full + the DG-1 --brokerage seam; idx.embedded===true hard gate; counts read at run time; additive loadIndexVectors+truncate export on the 211 runner; tests/test-215-portfolio-report.cjs 18/18 + tests/run-all-215.sh PASS=6 FAIL=0 SKIP=1; run-all-211 unregressed; 215-R2/R3/R4/R5)
 - [x] 215-05-PLAN.md - the hard acceptance gate (conflict #4): real 2117-tech run reproducing the 2 manual Opportunity Statements (human-verify) - COMPLETE 2026-07-10 (LIVE full-2117 run proven at scale, 2 blocking bugs found+fixed: catalog-id join b4807e73, idea-graph field contract 16464460/1e1c6657/135eeb14; DG-2 navigator call: graph-pairs is the canonical acceptance substrate, both manual gems reproduce there rank 10/16 - full-catalog kept as non-gating supplementary sweep; DG-1 confirmed: Burt brokerage composes into tail on 212.5; tests/test-215-reproduction.cjs + run-all-215.sh re-pointed at graph-mode JSON; run-all-215 PASS=8 FAIL=0 SKIP=0, run-all-211 PASS=10 FAIL=0; 215-R6)
 
-### Phase 216: Eureka User-Facing Command (eureka-user-command) - REGISTERED 2026-07-10
+### Phase 216: Eureka User-Facing Command (eureka-user-command) - COMPLETE 2026-07-11 (5/5 plans)
 
 **Goal:** Wrap the already-shipped Eureka Portfolio-Scale engine (Phases 211-215: tri-modal retrieval, AHP criterion weights, 3-dim scoring, weak-signal tail classifier, Opportunity Statement emitter, composed batch runner `scripts/eureka-portfolio-report.cjs`) as a real user-invocable `/mos:` command, so navigators can run portfolio-scale opportunity discovery against their OWN active room without touching a CLI script. Zero new engine (Canon Part 7) - pure wiring + a connector registration + an HITL shape declaration (Canon Part 11 CIRS) + 4-zone UI rendering. Local-only, no egress (Canon Part 8).
 **Requirements**: 216-R1 (room-native substrate adapter: pairs+signals from room.db, graceful sub-MIN_COHORT degrade), 216-R2 (additive --pairs room runner mode + fire-and-return dispatcher, JHU graph/full path unchanged), 216-R3 (/mos:eureka born-wired command surface: F.8 HITL, 4-zone render, report-only), 216-R4 (all six governance gates green), 216-R5 (hermetic offline test suite + run-all-216 aggregator), 216-R6 (215/211 suites unregressed). Minted by /gsd-plan-phase 216 (no REQUIREMENTS.md yet; a later /gsd-requirements pass reconciles).
 **Depends on:** Phases 211-215 (all complete)
-**Plans:** 5 plans (4 complete + 1 gap closure)
+**Plans:** 5 plans (5/5 complete, including 1 gap closure)
 
 Plans:
 
