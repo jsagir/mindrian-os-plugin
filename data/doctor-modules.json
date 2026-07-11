@@ -84,6 +84,33 @@
       "fix_supported": true,
       "runner": "lib/core/doctor/room-md-module.cjs",
       "description": "ROOM.md + MINTO.md presence under the active room's .room-root (class E). --fix invokes generate-section-intelligence.cjs --recursive then re-checks."
+    },
+    {
+      "id": "statusline-visibility",
+      "introduced_version": "1.12.5",
+      "cadence": "always",
+      "flag": "statuslineVisibility",
+      "fix_supported": true,
+      "runner": "lib/core/doctor/statusline-visibility-module.cjs",
+      "description": "Statusline invisibility probe (class G): stale user-settings path / broken plugin install / statusline-mos isolated execution / disableAllHooks. --fix removes the stale user-settings statusLine override so plugin-level config takes effect."
+    },
+    {
+      "id": "install-incomplete",
+      "introduced_version": "1.13.0-beta.9",
+      "cadence": "always",
+      "flag": "statuslineVisibility",
+      "fix_supported": true,
+      "runner": "lib/core/doctor/install-incomplete-module.cjs",
+      "description": "Silent install-incomplete detector (class H): missing statusLine block / halted .install-receipt.json tail steps. Shares the --statusline-visibility flag with class G (today's behavior). --fix re-stamps the canonical statusLine block idempotently (recoverable path only; halted-tail case is report-only)."
+    },
+    {
+      "id": "verify-surface",
+      "introduced_version": "1.12.1-beta.1",
+      "cadence": "always",
+      "flag": "verifySurface",
+      "fix_supported": false,
+      "runner": "lib/core/doctor/verify-surface-module.cjs",
+      "description": "Live cascade side-channel end-to-end verification (class D): spawns tests/test-cascade-surface-e2e.cjs (30s timeout) and asserts the 8-key shape. Self-skips when bash or the harness is absent (never faults an install for a missing dev harness). Check-only."
     }
   ]
 }

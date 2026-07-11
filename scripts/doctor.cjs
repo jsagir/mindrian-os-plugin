@@ -83,10 +83,9 @@ const {
 // introduced_version is in (applied_through, running], idempotently.
 const DOCTOR_MODULES_PATH = path.join(__dirname, '..', 'data', 'doctor-modules.json');
 const { readDoctorApplied, writeDoctorApplied } = require(path.join(__dirname, '..', 'lib', 'core', 'migration-snapshot.cjs'));
-// Phase 95.6 D-09 / R-01: the install receipt install.sh writes incrementally.
-// Class H reads it to confirm the install actually finished and, if not, to
-// name the missing tail steps.
-const INSTALL_RECEIPT_JSON = path.join(INSTALL_DIR, '.install-receipt.json');
+// Phase 95.6 D-09 / R-01: the install-receipt const (INSTALL_RECEIPT_JSON) moved
+// into lib/core/doctor/install-incomplete-module.cjs with the class H check
+// (Phase 217 Plan 05).
 
 // -- Argument parsing ------------------------------------------------
 
@@ -585,447 +584,16 @@ function safeRename(src, dst) {
 // (SKIP_DIRS, listSubdirs) + the generator spawn (invokeGenerator) + findRoomRoot
 // moved WITH those checks into their registry runners in Phase 217 Plan 04.
 
-// -- Class D: surface verification (LIVE runner; upgraded by Plan 95.1-07) -----
-
-// Class D end-to-end test lives at tests/test-cascade-surface-e2e.cjs (Plan
-// 95.1-02). This function spawns the test runner programmatically and asserts
-// the 8-key shape per D-06. Cross-platform: bash required for the post-write
-// hook spawn inside the test; on Windows-without-git-bash, we skip the test
-// (mirroring the test's own self-skip behavior per RESEARCH cross-platform note).
-function checkSurfaceVerification() {
-  const { spawnSync } = require('child_process');
-  const repoRoot = path.resolve(__dirname, '..');
-  const testPath = path.join(repoRoot, 'tests', 'test-cascade-surface-e2e.cjs');
-  if (!fs.existsSync(testPath)) {
-    return {
-      status: 'skip',
-      detail: 'class D test runner not found at ' + path.relative(repoRoot, testPath),
-      runner: testPath,
-    };
-  }
-  // Cross-platform: bash required for the post-write hook spawn inside the test.
-  // On Windows-without-git-bash, the test will skip itself; we mirror by skipping here.
-  if (process.platform === 'win32') {
-    const bashCheck = spawnSync('bash', ['--version'], { encoding: 'utf8' });
-    if (bashCheck.status !== 0) {
-      return {
-        status: 'skip',
-        detail: 'class D requires bash; not found on Windows host',
-        runner: path.relative(repoRoot, testPath),
-      };
-    }
-  }
-  const res = spawnSync('node', [testPath], {
-    encoding: 'utf8',
-    timeout: 30000,
-    cwd: repoRoot,
-  });
-  return {
-    status: res.status === 0 ? 'ok' : 'warn',
-    detail: res.status === 0
-      ? 'side-channel 8-key shape verified end-to-end'
-      : 'live cascade test failed (exit ' + res.status + ')',
-    exitCode: res.status,
-    runner: path.relative(repoRoot, testPath),
-    stdout: (res.stdout || '').slice(-500),
-    stderr: (res.stderr || '').slice(-500),
-  };
-}
-
-// -- Class G: statusline visibility (Phase 106-03) -------------------
+// -- Class D / G / H bodies removed (Phase 217 Plan 05) -----------------------
 //
-// Per Phase 106 D-03 / RESEARCH §4.3: Claude Code provides no signal when
-// the statusline fails to render. Class G probes four signals locally:
-//   1. Stale ~/.claude/settings.json statusLine.command pinned at a
-//      version-cache path that no longer exists (the 2026-04-26 Aryeh
-//      Holtzberg incident pattern). Status: warn / recoverable=true.
-//   2. Plugin's own settings.json statusLine.command points at a file
-//      that does not resolve. Status: error / recoverable=false (broken
-//      install, --fix cannot help).
-//   3. statusline-mos isolated execution: spawn the script with synthetic
-//      stdin payload; require exit 0 + a recognizable brand prefix in
-//      stdout (after stripping ANSI). Status: error/warn / recoverable=false.
-//   4. disableAllHooks=true in user settings. Status: warn / recoverable=
-//      false (user opt-out; --fix would not unblock).
-//
-// Surface detect (Plan 106-04 will swap this for the surface-detect
-// helper): CLAUDE_DESKTOP=1 -> status=skip (Desktop has no statusline
-// primitive; D-04 fallback applies).
-//
-// --fix dispatch: when status='warn' AND recoverable, performStatuslineFix()
-// spawns scripts/migrate-stale-user-settings.cjs --apply --quiet (D-01),
-// re-runs checkStatuslineVisibility, and pushes the recovery record onto
-// report.recovered[].
-//
-// Locked --fix language per RESEARCH Open Question #6:
-//   "removes stale user-settings.json statusLine override so plugin-level
-//    config takes effect"
-// (NOT "regenerates" -- removal is the mechanism; plugin-level config wins
-// the merge once the user-level entry is gone.)
-
-const STALE_STATUSLINE_PATH_REGEX = /plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\]\d+\.\d+\.\d+[\/\\]/;
-
-// Strip ANSI escape sequences before brand-prefix matching. The plugin's
-// statusline emits ANSI color codes BEFORE the brand glyph, so a naive
-// startsWith check would always fail.
-function stripAnsi(s) {
-  return String(s || '').replace(/\[[0-9;]*m/g, '');
-}
-
-function checkStatuslineVisibility() {
-  const evidence = [];
-
-  // Step 0 -- surface detection via lib/statusline/surface-detect.cjs (Plan 106-04).
-  // CLAUDE_DESKTOP=1, COWORK_SESSION_ID, /sessions dir, non-TTY heuristics
-  // all roll up into one canonical helper. CLI is the only surface where
-  // the statusline render is the visibility source; DESKTOP and COWORK
-  // route through the D-04 fallback echo (scripts/statusline-fallback-echo.cjs).
-  try {
-    const mod = require(path.resolve(__dirname, '..', 'lib', 'statusline', 'surface-detect.cjs'));
-    const surface = mod.detectStatuslineSurface();
-    if (surface !== 'CLI') {
-      return {
-        status: 'skip',
-        detail: surface + ' has no statusline primitive -- D-04 fallback applies',
-        evidence: ['surface=' + surface + ' (via lib/statusline/surface-detect.cjs)'],
-        recoverable: false,
-      };
-    }
-  } catch (_e) {
-    // Graceful: if the helper cannot load, fall back to the original env-var
-    // probe so the doctor never blocks itself.
-    if (process.env.CLAUDE_DESKTOP === '1') {
-      return {
-        status: 'skip',
-        detail: 'Desktop has no statusline primitive -- D-04 fallback applies',
-        evidence: ['CLAUDE_DESKTOP=1 detected (fallback path)'],
-        recoverable: false,
-      };
-    }
-  }
-
-  // Step 1 -- ~/.claude/settings.json user-level drift.
-  const userSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
-  let userSettings = null;
-  try {
-    if (fs.existsSync(userSettingsPath)) {
-      userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
-    }
-  } catch (_e) { /* ignore parse errors; treat as null */ }
-
-  if (userSettings && userSettings.disableAllHooks === true) {
-    return {
-      status: 'warn',
-      detail: 'disableAllHooks=true blocks statusline',
-      evidence: [userSettingsPath + ': disableAllHooks=true'],
-      recoverable: false,
-    };
-  }
-  if (userSettings && userSettings.statusLine && typeof userSettings.statusLine.command === 'string') {
-    const cmd = userSettings.statusLine.command;
-    if (STALE_STATUSLINE_PATH_REGEX.test(cmd)) {
-      // Extract a path token from the command string. Try a unix or windows
-      // absolute-path match first.
-      const match = cmd.match(/(\/[^\s"']+|[A-Za-z]:\\[^\s"']+)/);
-      const candidate = match ? match[0] : cmd;
-      if (!fs.existsSync(candidate)) {
-        return {
-          status: 'warn',
-          detail: 'stale user-settings statusLine path',
-          evidence: [userSettingsPath + ': command points at non-existent ' + candidate],
-          recoverable: true,
-        };
-      }
-    }
-  }
-
-  // Step 2 -- plugin's own settings.json statusLine.command must resolve.
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..');
-  const pluginSettingsPath = path.join(pluginRoot, 'settings.json');
-  let pluginSettings = null;
-  try {
-    if (fs.existsSync(pluginSettingsPath)) {
-      pluginSettings = JSON.parse(fs.readFileSync(pluginSettingsPath, 'utf8'));
-    }
-  } catch (_e) { /* ignore */ }
-  if (pluginSettings && pluginSettings.statusLine && typeof pluginSettings.statusLine.command === 'string') {
-    // Manually substitute ${CLAUDE_PLUGIN_ROOT} so we can verify the file exists.
-    const resolved = pluginSettings.statusLine.command.replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, pluginRoot);
-    const targetMatch = resolved.match(/(\/[^\s"']+|[A-Za-z]:\\[^\s"']+)/);
-    const target = targetMatch ? targetMatch[0] : null;
-    if (target && !fs.existsSync(target)) {
-      return {
-        status: 'error',
-        detail: 'plugin install corrupt',
-        evidence: ['plugin statusLine.command resolves to non-existent ' + target],
-        recoverable: false,
-      };
-    }
-    if (target) evidence.push('plugin statusLine.command resolved to ' + target);
-  }
-
-  // Step 3 -- statusline-mos isolated execution. Synthetic stdin + 1500ms
-  // timeout so a hanging script is treated as broken.
-  const statuslineMos = path.join(pluginRoot, 'scripts', 'statusline-mos');
-  if (!fs.existsSync(statuslineMos)) {
-    return {
-      status: 'error',
-      detail: 'plugin install corrupt',
-      evidence: ['scripts/statusline-mos missing at ' + statuslineMos],
-      recoverable: false,
-    };
-  }
-  const SYNTHETIC = {
-    model: { display_name: 'Test' },
-    workspace: { current_dir: '/tmp' },
-    context_window: { used_percentage: 0, remaining_percentage: 100, context_window_size: 200000 },
-  };
-  let r;
-  try {
-    r = require('child_process').spawnSync(statuslineMos, [], {
-      input: JSON.stringify(SYNTHETIC),
-      encoding: 'utf8',
-      timeout: 1500,
-    });
-  } catch (err) {
-    return {
-      status: 'error',
-      detail: 'statusline-mos spawn failed: ' + err.message,
-      evidence: [],
-      recoverable: false,
-    };
-  }
-  if (r.status !== 0) {
-    return {
-      status: 'error',
-      detail: 'statusline-mos exit ' + r.status,
-      evidence: [r.stderr ? r.stderr.slice(0, 500) : '(no stderr)'],
-      recoverable: false,
-    };
-  }
-  const out = stripAnsi(r.stdout || '').trim();
-  // Brand prefix per lib/core/visual-ops.cjs SYMBOLS.brand (⬡ hexagon)
-  // followed by a space + 'MindrianOS'. The bash wrapper statusline-mos
-  // execs context-monitor which produces this prefix on every healthy run.
-  // Empty stdout (cache not populated yet) is also acceptable -- the
-  // wrapper exits 0 silently in that case to let Claude Code render its
-  // default statusline. We only fail when stdout is non-empty AND lacks
-  // the brand prefix.
-  if (out.length > 0) {
-    // Validate on the BRAND HEXAGON lead, not a frozen word (fix 2026-07-02):
-    // the renderer now emits "⬡ 👤 Larry · 📂 <room> ..." (persona-led), so the
-    // old "⬡ MindrianOS" literal false-positived a perfectly healthy statusline
-    // as "script output unexpected". The invariant is the brand glyph, not the
-    // word after it. See .planning/debug/windows-install-update-ux.md.
-    const validPrefix = out.startsWith('⬡') || out.startsWith('🏠');
-    if (!validPrefix) {
-      return {
-        status: 'warn',
-        detail: 'script output unexpected',
-        evidence: ['first 80 chars: ' + out.slice(0, 80)],
-        recoverable: false,
-      };
-    }
-    evidence.push('statusline-mos produced expected brand prefix');
-  } else {
-    evidence.push('statusline-mos exited 0 with no output (cache not populated; default Claude Code statusline applies)');
-  }
-  return {
-    status: 'ok',
-    detail: 'statusline rendering correctly',
-    evidence,
-    recoverable: false,
-  };
-}
-
-function performStatuslineFix(_currentCheck) {
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..');
-  const migrator = path.join(pluginRoot, 'scripts', 'migrate-stale-user-settings.cjs');
-  const r = require('child_process').spawnSync('node', [migrator, '--apply', '--quiet'], {
-    encoding: 'utf8',
-    timeout: 5000,
-  });
-  return {
-    tool: 'migrate-stale-user-settings',
-    action: 'removes stale user-settings.json statusLine override so plugin-level config takes effect',
-    exit_code: typeof r.status === 'number' ? r.status : -1,
-    stdout: (r.stdout || '').slice(0, 500),
-    stderr: (r.stderr || '').slice(0, 500),
-  };
-}
-
-// -- Class H: install-incomplete -------------------------------------
-//
-// Phase 95.6 D-09. The "silent install-incomplete" failure mode: install.sh
-// halted (D-03 bug) or a manual recovery skipped it, so commands + Larry are
-// present but ~/.claude/settings.json has no .statusLine block and the
-// bottom-of-terminal `(hexagon) MindrianOS-Plugin <room> <ctx%>` never renders.
-// Class G assumes a statusLine block exists and checks that it RESOLVES; class H
-// is orthogonal -- it checks the install is structurally COMPLETE:
-//   (a) ~/.claude/plugins/mindrian-os/.install-receipt.json exists and shows
-//       every canonical step ran with completed_at stamped; if a halted
-//       receipt, name the missing tail steps. recoverable iff the only missing
-//       step is register_statusline (then --fix can restamp); otherwise
-//       report-only (re-running install.sh is the user's call).
-//   (b) if no receipt, fall back to: does ~/.claude/settings.json have a
-//       .statusLine block at all? Missing -> warn, recoverable (--fix writes it).
-// Desktop carve-out mirrors class G: CLAUDE_DESKTOP=1 -> status=skip.
-
-const CLASS_H_CANONICAL_STEPS = [
-  'preflight',
-  'clone',
-  'register_statusline',
-  'register_commands',
-  'register_skills',
-  'register_agents',
-  'configure_hooks',
-];
-
-function classHActionString() {
-  return 'writes the canonical MindrianOS statusLine block (bash "<install-dir>/scripts/statusline-mos") into ~/.claude/settings.json';
-}
-
-function userSettingsHasStatusLine() {
-  const userSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
-  let userSettings = null;
-  try {
-    if (fs.existsSync(userSettingsPath)) {
-      userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
-    }
-  } catch (_e) { /* treat as no settings */ }
-  const sl = userSettings && userSettings.statusLine;
-  return !!(sl && typeof sl === 'object' && typeof sl.command === 'string' && sl.command.length > 0);
-}
-
-function checkInstallIncomplete() {
-  // Step 0 -- Desktop carve-out (mirror class G).
-  let surface = 'CLI';
-  try {
-    const mod = require(path.resolve(__dirname, '..', 'lib', 'statusline', 'surface-detect.cjs'));
-    surface = mod.detectStatuslineSurface();
-  } catch (_e) {
-    if (process.env.CLAUDE_DESKTOP === '1') surface = 'DESKTOP';
-  }
-  if (surface !== 'CLI') {
-    return {
-      status: 'skip',
-      detail: 'class H (install-incomplete) is CLI-only -- ' + surface + ' has no statusline primitive',
-      evidence: ['surface=' + surface],
-      recoverable: false,
-      action: classHActionString(),
-    };
-  }
-
-  // Step 1 -- read the install receipt, if present.
-  let receipt = null;
-  let receiptParseError = false;
-  if (fs.existsSync(INSTALL_RECEIPT_JSON)) {
-    try {
-      receipt = JSON.parse(fs.readFileSync(INSTALL_RECEIPT_JSON, 'utf8'));
-    } catch (_e) { receiptParseError = true; }
-  }
-
-  if (receipt && typeof receipt === 'object' && !receiptParseError) {
-    const ranNames = Array.isArray(receipt.steps)
-      ? receipt.steps.map((s) => (s && s.name)).filter(Boolean)
-      : [];
-    const missing = CLASS_H_CANONICAL_STEPS.filter((n) => ranNames.indexOf(n) === -1);
-    const completed = receipt.completed_at !== null && receipt.completed_at !== undefined;
-    if (completed && missing.length === 0) {
-      return {
-        status: 'ok',
-        detail: 'install complete (.install-receipt.json shows all ' + CLASS_H_CANONICAL_STEPS.length + ' steps ran)',
-        evidence: ['receipt: ' + INSTALL_RECEIPT_JSON, 'completed_at=' + receipt.completed_at],
-        recoverable: false,
-        action: classHActionString(),
-      };
-    }
-    // Halted install. recoverable only when register_statusline is literally
-    // the one missing step -- then --fix can restamp it. Otherwise re-running
-    // install.sh is the user's call (report-only).
-    const onlyStatuslineMissing = missing.length === 1 && missing[0] === 'register_statusline';
-    return {
-      status: 'warn',
-      detail: 'install halted -- missing steps: ' + (missing.length ? missing.join(', ') : '(none, but completed_at is null)'),
-      evidence: [
-        'receipt: ' + INSTALL_RECEIPT_JSON,
-        'completed_at=' + JSON.stringify(receipt.completed_at),
-        'ran: ' + (ranNames.length ? ranNames.join(', ') : '(none)'),
-      ],
-      missingSteps: missing,
-      recoverable: onlyStatuslineMissing,
-      action: classHActionString(),
-    };
-  }
-
-  // Step 2 -- no usable receipt. Check whether ~/.claude/settings.json has a
-  // statusLine block at all (class H's "EXISTS" check, distinct from class G's
-  // "RESOLVES" check). Missing -> install incomplete, recoverable via --fix.
-  if (userSettingsHasStatusLine()) {
-    return {
-      status: 'ok',
-      detail: 'statusLine block present in ~/.claude/settings.json',
-      evidence: receiptParseError
-        ? ['.install-receipt.json present but not valid JSON; statusLine block check passed']
-        : ['no .install-receipt.json on disk; statusLine block check passed'],
-      recoverable: false,
-      action: classHActionString(),
-    };
-  }
-  return {
-    status: 'warn',
-    detail: 'statusLine block missing from ~/.claude/settings.json (install.sh halted before register_statusline, or a manual recovery skipped it)',
-    evidence: [
-      receiptParseError
-        ? '.install-receipt.json present but not valid JSON'
-        : 'no .install-receipt.json on disk',
-      'no .statusLine block in ' + path.join(os.homedir(), '.claude', 'settings.json'),
-    ],
-    recoverable: true,
-    action: classHActionString(),
-  };
-}
-
-// Class H --fix: write the canonical statusLine block into ~/.claude/settings.json
-// idempotently. Mirrors the SessionStart hook-registration idempotent-write
-// pattern from Phase 95.2. It does NOT re-run the whole install -- it just
-// restamps the statusline; the missing-tail-steps case is report-only.
-function performClassHFix(_currentCheck) {
-  const userSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
-  const want = {
-    type: 'command',
-    command: 'bash "' + path.join(INSTALL_DIR, 'scripts', 'statusline-mos') + '"',
-  };
-  try {
-    let s = {};
-    if (fs.existsSync(userSettingsPath)) {
-      try { s = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8')); } catch (_e) { s = {}; }
-    }
-    if (!s || typeof s !== 'object') s = {};
-    const cur = s.statusLine;
-    const alreadyGood = cur && typeof cur === 'object' && cur.command === want.command;
-    if (!alreadyGood) {
-      s.statusLine = want;
-      fs.mkdirSync(path.dirname(userSettingsPath), { recursive: true });
-      fs.writeFileSync(userSettingsPath, JSON.stringify(s, null, 2));
-    }
-    return {
-      tool: 'doctor-class-h',
-      action: classHActionString(),
-      exit_code: 0,
-      changed: !alreadyGood,
-      target: userSettingsPath,
-    };
-  } catch (err) {
-    return {
-      tool: 'doctor-class-h',
-      action: classHActionString(),
-      exit_code: -1,
-      changed: false,
-      detail: err.message,
-    };
-  }
-}
+// checkSurfaceVerification (class D), checkStatuslineVisibility +
+// performStatuslineFix (class G), and checkInstallIncomplete + performClassHFix
+// (class H) -- plus their private helpers (STALE_STATUSLINE_PATH_REGEX,
+// stripAnsi, CLASS_H_CANONICAL_STEPS, classHActionString,
+// userSettingsHasStatusLine) and the INSTALL_RECEIPT_JSON const -- moved into
+// lib/core/doctor/verify-surface-module.cjs, statusline-visibility-module.cjs,
+// and install-incomplete-module.cjs. The accumulative engine owns their
+// dispatch + fix-then-recheck flow via the registry (data/doctor-modules.json).
 
 // -- Class I + Class J: install-state + topology + version-of-record  ---
 //   + deployment-surface manifest reconciliation (Phase 123 Plan-03).
@@ -3031,33 +2599,13 @@ function renderHumanReport(report) {
   // BALLOT X is forbidden; U+26A0 WARN and U+2298 CIRCLED DIVISION SLASH
   // are approved per the 12-glyph vocabulary).
   if (report.checks) {
-    const stl = report.checks['statusline-visibility'];
-    if (stl) {
-      let glyph;
-      let color;
-      if (stl.status === 'ok') { glyph = '✓'; color = C.green; }
-      else if (stl.status === 'warn') { glyph = '⚠'; color = C.yellow; }
-      else if (stl.status === 'error') { glyph = '⚠'; color = C.red; }
-      else { glyph = '⊘'; color = C.dim; } // skip
-      bodyRows.push('  ' + color + '■' + C.reset + ' statusline-visibility       ' + color + glyph + C.reset + ' ' + (stl.detail || stl.status));
-    }
-    const inc = report.checks['install-incomplete'];
-    if (inc) {
-      let glyph;
-      let color;
-      if (inc.status === 'ok') { glyph = '✓'; color = C.green; }
-      else if (inc.status === 'warn') { glyph = '⚠'; color = C.yellow; }
-      else if (inc.status === 'error') { glyph = '⚠'; color = C.red; }
-      else { glyph = '⊘'; color = C.dim; } // skip
-      bodyRows.push('  ' + color + '■' + C.reset + ' install-incomplete          ' + color + glyph + C.reset + ' ' + (inc.detail || inc.status));
-      if (inc.status === 'warn' && inc.recoverable === true) {
-        bodyRows.push('     ' + C.dim + '-> /mos:doctor --statusline-visibility --fix re-stamps the statusLine block' + C.reset);
-      }
-    }
+    // Class G (statusline-visibility) + class H (install-incomplete) hand-coded
+    // render branches RETIRED (Phase 217 Plan 05): both rows -- and class H's
+    // hint sub-line -- now come from the generic loop below + the runner's
+    // action_lines[]. After this plan the ONLY non-generic render path left is
+    // class A (install-cache), the sanctioned carve-out (Plan 06).
     for (const [name, check] of Object.entries(report.checks)) {
       if (name === 'install-cache') continue; // already handled above.
-      if (name === 'statusline-visibility') continue; // rendered above.
-      if (name === 'install-incomplete') continue; // rendered above.
       // Skip entries are omitted, matching the plugin-enabled-state precedent
       // above and computeSummary's skip omission, so visible rows stay in exact
       // parity with the Summary tally.
@@ -3290,6 +2838,28 @@ function runAccumulativeEngine(flags) {
       runningRaw = iv && iv.version ? iv.version : null;
     } catch (_) {
       runningRaw = null;
+    }
+    // Phase 217 Plan 05: when checkInstallVersion cannot resolve the install
+    // (e.g. a hermetic test that overrides HOME so ~/.claude/plugins is not
+    // where checkInstallVersion looked, or an install loaded from an unexpected
+    // path), fall back to the version of record of the CODE that is actually
+    // running -- PLUGIN_ROOT/.claude-plugin/plugin.json. That path is
+    // HOME-independent, so the accumulative engine never goes fully dark (which
+    // would silently drop every cadence:always diagnostic -- exactly the
+    // Pitfall-1 silence the always-cadence design exists to prevent). Real
+    // installs resolve via checkInstallVersion first, so this is a no-op for
+    // them. Only reached when opts.running was undefined (the real CLI path);
+    // an EXPLICIT opts.running:null still yields the soft-fail skip.
+    if (runningRaw === null) {
+      try {
+        const devPluginJson = path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json');
+        if (fs.existsSync(devPluginJson)) {
+          const j = JSON.parse(fs.readFileSync(devPluginJson, 'utf8'));
+          runningRaw = j && j.version ? j.version : null;
+        }
+      } catch (_) {
+        runningRaw = null;
+      }
     }
   }
   const running = _normalizeVersion(runningRaw);
@@ -4285,78 +3855,16 @@ function main() {
   // engine now owns cascade-rooms + cascade-rooms-active under the --cascade-rooms
   // flag; class B's --fix (never wired pre-217) lives in the runner's fix(ctx).
 
-  // Class D: surface verification (stub; live runner deferred to Plan 95.1-07).
-  if (flags.verifySurface) {
-    try { report.checks['verify-surface'] = checkSurfaceVerification(); }
-    catch (err) { report.checks['verify-surface'] = { status: 'error', detail: err.message }; }
-  }
-
-  // Class E: room-md cascade (ROOM.md + MINTO.md presence under .room-root)
-  // migrated to a registry-driven cadence:always runner (Phase 217 Plan 04). The
-  // accumulative engine owns room-md under the --room-md flag, and its fix-then-
-  // recheck flow owns what the old class E --fix dispatch did by hand.
-
-  // Class G: statusline visibility (Phase 106-03). Probes user-settings drift,
-  // plugin install integrity, statusline-mos isolated execution, and
-  // disableAllHooks user opt-out.
-  if (flags.statuslineVisibility) {
-    try {
-      report.checks['statusline-visibility'] = checkStatuslineVisibility();
-    } catch (err) {
-      report.checks['statusline-visibility'] = { status: 'error', detail: err.message };
-    }
-  }
-
-  // Class H: install-incomplete (Phase 95.6 D-09). Subsumes the missing-
-  // statusLine case. Activated by --statusline-visibility (so the first-session
-  // check /mos:doctor --statusline-visibility surfaces it) and by --all.
-  if (flags.statuslineVisibility) {
-    try {
-      report.checks['install-incomplete'] = checkInstallIncomplete();
-    } catch (err) {
-      report.checks['install-incomplete'] = { status: 'error', detail: err.message, recoverable: false };
-    }
-  }
-
-  // Class E --fix dispatch migrated to the engine's fix-then-recheck flow (Phase
-  // 217 Plan 04): the room-md runner's fix(ctx) runs on warn, the recovery record
-  // (tool:'generate-section-intelligence') lands in report.recovered, and check()
-  // re-runs so the report reflects the post-fix state.
-
-  // Class G --fix dispatch: invoke migrate-stale-user-settings.cjs + re-check.
-  // Gated on status='warn' AND recoverable=true so disableAllHooks (recoverable
-  // false) never triggers the migrator -- the user opted out of hooks; --fix
-  // cannot help, see RESEARCH §4.3.
-  if (flags.fix && flags.statuslineVisibility
-      && report.checks['statusline-visibility']
-      && report.checks['statusline-visibility'].status === 'warn'
-      && report.checks['statusline-visibility'].recoverable !== false) {
-    try {
-      const recovery = performStatuslineFix(report.checks['statusline-visibility']);
-      report.recovered.push(recovery);
-      try { report.checks['statusline-visibility'] = checkStatuslineVisibility(); }
-      catch (err) { report.checks['statusline-visibility'] = { status: 'error', detail: err.message }; }
-    } catch (err) {
-      report.recovered.push({ status: 'error', detail: err.message, tool: 'migrate-stale-user-settings' });
-    }
-  }
-
-  // Class H --fix dispatch: re-stamp the canonical statusLine block when it is
-  // missing (status='warn' AND recoverable). The halted-tail-steps case has
-  // recoverable=false (report-only -- doctor does not re-run install.sh).
-  if (flags.fix && flags.statuslineVisibility
-      && report.checks['install-incomplete']
-      && report.checks['install-incomplete'].status === 'warn'
-      && report.checks['install-incomplete'].recoverable === true) {
-    try {
-      const recovery = performClassHFix(report.checks['install-incomplete']);
-      report.recovered.push(recovery);
-      try { report.checks['install-incomplete'] = checkInstallIncomplete(); }
-      catch (err) { report.checks['install-incomplete'] = { status: 'error', detail: err.message, recoverable: false }; }
-    } catch (err) {
-      report.recovered.push({ status: 'error', detail: err.message, tool: 'doctor-class-h' });
-    }
-  }
+  // Class D (verify-surface), class G (statusline-visibility), and class H
+  // (install-incomplete) migrated to registry-driven cadence:always runners
+  // (Phase 217 Plan 05). The accumulative engine now owns:
+  //   - verify-surface under --verify-surface (check-only, fix_supported false);
+  //   - statusline-visibility + install-incomplete under --statusline-visibility
+  //     (H shares G's flag, today's exact behavior: --statusline-visibility
+  //     surfaces both, --all surfaces both);
+  // and the engine's fix-then-recheck flow owns what the old hand-wired G/H --fix
+  // dispatches did (G gate: warn AND recoverable !== false; H's stricter
+  // recoverable === true gate is enforced runner-internally in its fix(ctx)).
 
   // Class I + Class J: install-state + topology + 6-way version-of-record;
   // deployment-surface manifest reconciliation. Phase 123 Plan-03.

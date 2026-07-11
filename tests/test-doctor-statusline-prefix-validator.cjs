@@ -6,7 +6,10 @@
 // brand lead, so it stays green across that format change.)
 const assert = require('node:assert');
 
-// The validator predicate as it now lives in doctor.cjs (brand-hexagon lead).
+// The validator predicate as it now lives in the class-G runner
+// (lib/core/doctor/statusline-visibility-module.cjs). Phase 217 Plan 05 moved
+// checkStatuslineVisibility (with this validator) out of scripts/doctor.cjs into
+// the registry-driven runner; the predicate itself is byte-identical.
 const validPrefix = (out) => out.startsWith('⬡') || out.startsWith('🏠');
 // The OLD frozen predicate, for regression proof.
 const oldPrefix = (out) => out.startsWith('⬡ MindrianOS') || out.startsWith('🏠 MindrianOS');
@@ -27,10 +30,12 @@ chk(validPrefix('⬡ MindrianOS v1.15.0') === true, 'still accepts the classic �
 chk(validPrefix('Error: something broke') === false, 'rejects non-brand garbage');
 chk(validPrefix('ExperimentalWarning: SQLite') === false, 'rejects a leaked node warning line');
 
-// The real doctor.cjs source carries the loosened predicate (guards against silent revert).
-const src = require('node:fs').readFileSync(require('node:path').join(__dirname,'..','scripts','doctor.cjs'),'utf8');
-chk(src.includes("out.startsWith('⬡') || out.startsWith('🏠')"), 'doctor.cjs carries the brand-hexagon validator');
-chk(!src.includes("out.startsWith('⬡ MindrianOS')"), 'doctor.cjs no longer carries the frozen-word validator');
+// The class-G runner source carries the loosened predicate (guards against silent
+// revert). Phase 217 Plan 05 relocated the validator from scripts/doctor.cjs into
+// lib/core/doctor/statusline-visibility-module.cjs; the pin follows the code.
+const src = require('node:fs').readFileSync(require('node:path').join(__dirname,'..','lib','core','doctor','statusline-visibility-module.cjs'),'utf8');
+chk(src.includes("out.startsWith('⬡') || out.startsWith('🏠')"), 'class-G runner carries the brand-hexagon validator');
+chk(!src.includes("out.startsWith('⬡ MindrianOS')"), 'class-G runner no longer carries the frozen-word validator');
 
 console.log(`\ndoctor statusline-prefix validator: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
