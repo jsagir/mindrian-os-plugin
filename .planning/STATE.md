@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 217 Plan 05 complete (5/7 plans)
-last_updated: "2026-07-11T19:30:00.000Z"
+stopped_at: Phase 217 Plan 06 complete (6/7 plans)
+last_updated: "2026-07-11T23:10:00.000Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 25
@@ -15,6 +15,16 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-11) -- PHASE 217 Plan 06 COMPLETE (6/7 plans) -- I/J migrated; the registry migration is DONE; the three carve-outs (class A, brain-smoke M, eureka-smoke S) are WRITTEN justifications, not silent omissions
+
+Final migration wave (D-01/D-02). install-state (class I, + multi-record fix) and deployment-surfaces (class J, + fix, reads class I's same-invocation result via ctx.checks['install-state']) move from the inline main() block into registry-driven cadence:always runner files. The registry is now at 14 entries, all D-03 gate-green. scripts/doctor.cjs shrank ~890 lines of function bodies. The three sanctioned carve-outs are now auditable `Phase 217 carve-out:` justification comments in the code.
+
+- **Task 1 (`b24ae7db` feat):** two runner files. install-state-module.cjs (check = moved checkInstallState with healthy->ok map; fix = moved performClassIFix returning `{ status, detail, recoveries: [...] }` -- the multi-record array the engine glue pushes element-by-element onto report.recovered; dev-clone safety belt + dirty/unpushed refuse checks preserved verbatim, T-217-03). deployment-surfaces-module.cjs (check = ctx.checks['install-state'] priority then shared.cjs self-derivation fallback via resolveActivePluginRoot + readInstalledPluginsVersion, then moved checkDeploymentSurfaces with healthy->ok / skipped->skip map; fix = moved performClassJFix). The 11 class-I/J shared readers moved to shared.cjs (both runners AND the --report-registration-bug assembler import them from the single leaf; Pitfall 4 no back-require). Raw checkInstallState/checkDeploymentSurfaces re-exported for --acceptance.
+- **Task 2 (`3783ae36` refactor):** 2 cadence:always registry entries (install-state BEFORE deployment-surfaces for the ctx.checks dependency; both share the installState flag), 14 total, contract-parity green. Deleted the class-I helper block, the four dead I/J function bodies, and the I/J main() dispatch block; bound the raw checks from the runners for --acceptance; relocated the class-A BUG 7 reinterpretation to after the engine populates report.checks['install-state']; wrote the three `Phase 217 carve-out:` comments (class A positional _finalizeAndExit coupling; M/S async-vs-sync-engine).
+- **Deviations (all recorded in 217-06-SUMMARY.md):** (1) introduced_version set to the historical Phase 123 ship version 1.13.0-beta.13 (CHANGELOG `## [1.13.0-beta.13] - 2026-05-13`), NOT the plan's 1.15.3 which sorts after the running 1.15.3-beta.13 and would defer both (the Plan 05 precedent). (2) engine running-version fallback widened from unresolvable (`!_normalizeVersion`) to non-clean-semver (`!semver.valid`): a 4-component 1.12.5.1 install coerces to 1.12.5 and would wrongly defer install-state (class-I test i.6); it now falls back to PLUGIN_ROOT plugin.json so a cadence:always diagnostic shipping with the code stays live. (3) class-J j.1 status pin healthy -> ok (engine vocab map).
+- **Verification:** contract-parity 14/14; class-i 11/11 (incl. i.6 + i.11 BUG 7); class-j 8/8 (incl. j.1 ok pin); module-selector 19 (explicit running:null seam preserved); fix-renderer 12/12. No-regression: class-g/g-fix/h/h-fix/b/c/e/f + statusline-prefix-validator + doctor-acceptance suite all green. `--install-state --json` emits BOTH I+J rows (vocab + detail); `--all --json` exit 0 with all five cadence:always ids; `--report-registration-bug` exit 0 (assembler uses the moved shared readers); `--acceptance --pre-tag` exit 1 UNCHANGED from the pre-change backup (dev-workspace VoR, not a regression). grep "Phase 217 carve-out" == 3; function-def grep == 0; no em-dashes.
+- **NEXT:** 217-07 (D-04 full commands/doctor.md audit + doc-parity test + run-all-217.sh + real-room human gate). SUMMARY: `.planning/phases/217-doctor-cjs-architecture-rethink-audit-all-14-check-classes-i/217-06-SUMMARY.md`.
 
 ## (2026-07-11) -- PHASE 217 Plan 05 COMPLETE (5/7 plans) -- G/H/D migrated; the LAST two hand-coded render branches (class G + class H) retired -- class A is now the SOLE non-generic render path
 
