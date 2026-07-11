@@ -505,11 +505,22 @@ function classifyCardFire(turn, registry) {
     // gate-already-answered would relabel an already-answered 2-option gate (the
     // relevance test's RELEASE_GATE is also 2-option) as gate-is-simple-binary and
     // change that pass-reason's precedence. Reuse the gateLabels already extracted
-    // above (per the RCA: no new option-extraction path). The condition is EXACTLY
-    // length === 2, never <= 2: extractOptionLabels returns [] for glyph-only or
-    // PRIMARY-signal texts with no recoverable labels ("Here are your options.",
-    // "no card yet"), and a 0-label detection stays conservative and intercepts.
-    if (gateLabels.length === 2) {
+    // above (per the RCA: no new option-extraction path).
+    //
+    // intern-w1-card-discipline-decay (2026-07-11): the original condition was a
+    // BARE `gateLabels.length === 2` cardinality check, which cannot distinguish a
+    // trivial yes/no confirmation closer ("Want those?") from a genuine two-way
+    // FORCED-CHOICE strategic fork ("run research vs build the plan" / "build the
+    // plan now vs file evidence first"). All 3 of an intern's missed forks in one
+    // QA session carried exactly 2 option labels and were swallowed by this
+    // exemption regardless of content. Fixed by requiring the labels to be
+    // YES/NO-SHAPED (gateRelevance.isYesNoShapedGate -- the SAME semantic test
+    // gateAlreadyAnswered already uses for its own 2-option yes/no answer-matching,
+    // reused here per Part 7 rather than re-implemented), not merely 2-in-number.
+    // A genuine 2-option fork whose labels are NOT yes/no-shaped now falls through
+    // to the final intercept below and force-fires, exactly like a 3+-way fork; a
+    // real yes/no closer stays exempt.
+    if (gateRelevance.isYesNoShapedGate(gateLabels)) {
       return { intercept: false, reason: 'gate-is-simple-binary', degrade: false };
     }
 

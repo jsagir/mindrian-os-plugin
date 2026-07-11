@@ -3,6 +3,9 @@
 ### Added
 - 
 
+### Fixed
+- **`check-card-fire.cjs`'s `gate-is-simple-binary` exemption swallowed genuine two-option forced-choice forks, not just yes/no closers.** The exemption (added 2026-07-05 to stop over-firing on trivial binaries like "Want those?") used a bare `gateLabels.length === 2` cardinality check, which cannot distinguish that from a genuine two-way strategic fork ("run research vs build the plan"). An intern QA session missed 3 such forks in one session because each carried exactly 2 option labels. Now requires the labels to be YES/NO-SHAPED (new `lib/core/gate-relevance.cjs::isYesNoShapedGate`, extracted from `gateAlreadyAnswered`'s existing yes/no answer-matching), not merely 2-in-number, so a real yes/no closer stays exempt while a genuine 2-option fork force-fires like a 3+-way one. `.planning/debug/intern-w1-card-discipline-decay.md`.
+
 ## [1.15.3-beta.12] - 2026-07-06
 
 ### Added
