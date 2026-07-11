@@ -99,6 +99,12 @@ function parseArgs(argv) {
     fix: false, json: false, verbose: false,
     cascadeRooms: false, verifySurface: false, roomMd: false, uiCompliance: false,
     statuslineVisibility: false,
+    // Phase 217 Plan-02 (D-05): class card-fire-health -- reports the health of
+    // the scripts/check-card-fire.cjs self-diagnostic instrument (intercept log
+    // exists/valid-JSONL/fresh, classifier/counter seams intact, session store
+    // parseable). cadence:always module, so a --card-fire-health-only run is a
+    // class-flag run (exit-0 invariant, no once-heal pass); also set by --all.
+    cardFireHealth: false,
     installState: false,
     // Phase 121.5-05 Sub-plan F (SEED-007 absorption): class K (stale-first-
     // touch-copy) checks every first-touch surface declared in
@@ -229,6 +235,7 @@ function parseArgs(argv) {
     else if (arg === '--room-md') flags.roomMd = true;
     else if (arg === '--ui-compliance') flags.uiCompliance = true;
     else if (arg === '--statusline-visibility') flags.statuslineVisibility = true;
+    else if (arg === '--card-fire-health') flags.cardFireHealth = true;
     else if (arg === '--install-state') flags.installState = true;
     else if (arg === '--stale-first-touch') flags.staleFirstTouch = true;
     else if (arg === '--deprecated-usage') flags.deprecatedUsage = true;
@@ -274,6 +281,7 @@ function parseArgs(argv) {
     flags.staleFirstTouch = true;
     flags.deprecatedUsage = true;
     flags.brainSmoke = true;
+    flags.cardFireHealth = true;
   }
   // --pre-tag implies --acceptance (convenience; running --pre-tag standalone
   // is meaningless).
@@ -309,6 +317,10 @@ Class flags (combine freely; --all activates them all):
   --ui-compliance          class F (UI Ruling System scan)
   --statusline-visibility  class G (user-settings drift, plugin install integrity, statusline-mos isolated execution)
                            + class H (install-incomplete: missing statusLine block and/or a halted .install-receipt.json)
+  --card-fire-health       card-fire-health (D-05): health of the check-card-fire.cjs self-diagnostic
+                           instrument -- intercept log exists/valid-JSONL/fresh (~/.mindrian/card-fire-
+                           intercepts.log), classifier/counter library seams intact, render-coverage
+                           registry parses, session store readable. cadence:always, LOCAL-only, no fix.
   --install-state          class I (install-state + topology + 6-way version-of-record consistency)
                            + class J (deployment-surface manifest reconciliation)
   --stale-first-touch      class K (stale-first-touch-copy: stale version literals + em-dash violations
@@ -4799,6 +4811,7 @@ function main() {
   // hard exits, and warnings from new checks return 0 unless --fix-failed.
   const classFlagsActive = flags.cascadeRooms || flags.verifySurface
     || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility
+    || flags.cardFireHealth
     || flags.installState || flags.staleFirstTouch || flags.deprecatedUsage
     || flags.brainSmoke || flags.eurekaSmoke || flags.drift;
     // ^ Phase 150.9 Plan-02: registering flags.drift here honors the

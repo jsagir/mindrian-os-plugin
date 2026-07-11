@@ -12,6 +12,15 @@
       "fix_supported": true,
       "runner": "lib/core/doctor/umbilical-module.cjs",
       "description": "Project .umbilical cords into room.db as AFFILIATED_WITH edges; integrity-check cord<->marker bidirectionality (orphan / removed-marker / unprojected). --fix SUGGESTS orphan cords, never auto-creates."
+    },
+    {
+      "id": "card-fire-health",
+      "introduced_version": "1.15.3-beta.12",
+      "cadence": "always",
+      "flag": "cardFireHealth",
+      "fix_supported": false,
+      "runner": "lib/core/doctor/card-fire-health-module.cjs",
+      "description": "check-card-fire.cjs instrument health: intercept log exists/valid JSONL/fresh, library seams intact, session store parseable"
     }
   ]
 }
