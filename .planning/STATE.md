@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 217 Plan 06 complete (6/7 plans)
-last_updated: "2026-07-11T23:10:00.000Z"
+stopped_at: Phase 217 COMPLETE (7/7 plans) -- doctor.cjs architecture rethink done
+last_updated: "2026-07-11T20:25:08.607Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 25
@@ -15,6 +15,17 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-11) -- PHASE 217 COMPLETE (7/7 plans) -- D-04 full commands/doctor.md audit + doc-parity regression guard + the 17-leg run-all-217.sh aggregator + navigator real-room checkpoint APPROVED verbatim; the doctor.cjs architecture rethink is DONE
+
+The close-out plan. D-04 (the final locked decision) delivered in full: every doc claim in `commands/doctor.md` now matches the post-migration registry-driven code, a hard-blocking regression test guards it from rotting again, one aggregator command proves the whole phase, and the navigator confirmed the real machine matches the printed rows.
+
+- **Task 1 (`328b1e80` docs):** full line-by-line rewrite of `commands/doctor.md` against the RESEARCH.md audit table. Complete argument-hint (adds `--card-fire-health`, `--eureka-smoke`, `--drift`, `--dogfood-acceptance`, `--claims`, `--check-rs-engine`, `--post-update`, `--bind-check`, `--simulate-write`, `--scan-commands`, `--scan-scripts`, `--dry-run`, `--pre-flight`); rewritten class inventory A-N + P/Q/R/S + card-fire-health naming the registry as source of truth; bare-run = class A + class N + accumulative engine; `--all` = B,C,D,E,F,G,H,I,J,K,L,M,card-fire-health (drift/eureka stay opt-in by design); the TRUE `--fix` set A,B,E,G,H,I,J (class B newly real per Plan 04, fix_supported now per-module); exit codes 0/1/2/3/4 + the classFlagsActive-forces-0 invariant + the two narrow exit-1 escalations (runtime-reachability warn, plugin-disabled warn); the three Phase 217 carve-outs (class A, brain-smoke M, eureka-smoke S) documented with their written justifications; an Extension architecture section (one registry entry + one runner file, no script edit). Frontmatter keys untouched (body + argument-hint only, verified via git diff); zero em-dashes.
+- **Task 2 (`81d597f3` test):** `tests/test-doctor-doc-parity.cjs` (the D-04 regression guard) cross-parses the doc's flag tokens against doctor.cjs's parseArgs case chain (both directions; `--recursive` allowlisted with a written reason as a `generate-section-intelligence.cjs` argument, not a doctor.cjs flag) and the doc's `--fix` class letters against a derived truth (class A carve-out + every `fix_supported:true` registry entry's class letter) -- hard-fails with per-violation enumeration on either direction of drift; a built-in negative self-test proves the gate bites. `tests/run-all-217.sh` (the phase aggregator, built on the run-all-216.sh scaffold): 17 legs -- contract-parity, module-selector, fix-renderer, card-fire-health, doc-parity, class b/c/e/f/g/g-fix/h/h-fix/i/j, plugin-disabled-state, ui-self-compliant. Deliberately excludes class-p/class-q (known pre-existing failures, 260711-nrd ruling, logged to deferred-items.md) and the async brain/eureka smokes (opt-in, network-capable). Registered in `lib/memory/run-feynman-tests.cjs`.
+- **Task 3 (`checkpoint:human-verify`, gate="blocking" -- APPROVED):** the navigator ran the real-room smoke and confirmed verbatim: `node scripts/doctor.cjs --all` run TWICE produced byte-identical rows both times (the Pitfall-1 watermark kill shot, confirmed live -- no migrated diagnostic went silent on the second invocation); Summary counts (10 healthy / 4 drift / 0 warnings) exactly matched the 14 visible non-skip rows; the bare run showed only class A + class N + accumulative-engine, unchanged; `bash tests/run-all-217.sh` printed PASS=17 FAIL=0 SKIP=0. The 4 drift rows matched the navigator's own known machine state (135 ui-compliance violations, 6 deprecated commands used in the last 7 days, 15 rooms missing `.room-root`, cascade-rooms-active writes silenced with active=jonathan-sagir). One non-blocking observation surfaced (the `brain-smoke` skip row renders `⊘ undefined` under `--all`) -- navigator explicitly declined to gap-close it; left as-is, not fixed.
+- **Verification:** `node tests/test-doctor-doc-parity.cjs` -- 3/3 assertions (negative self-test + flag parity 31/31 + `--fix` class parity [A,B,E,G,H,I,J] both ways). `bash tests/run-all-217.sh` -- PASS=17 FAIL=0 SKIP=0. `bash -n tests/run-all-217.sh` exit 0. `grep -c test-doctor-doc-parity lib/memory/run-feynman-tests.cjs` == 1. Zero em-dashes across all new/modified files.
+- **Deviations:** none beyond the documented deferred item -- a pre-existing stray `.planning/phases/217/` directory (only `DRIFT.md`, predates this plan) collides with the real phase directory in `gsd-tools`'s `findPhaseInternal` token match, so `roadmap update-plan-progress 217` reported "No plans found"; routed around by editing `.planning/ROADMAP.md` directly for this close-out. Logged to `deferred-items.md`, not fixed (pre-existing tooling collision, out of scope for a doc-audit plan).
+- **Phase 217 is CLOSED.** All 7 plans complete; D-01 through D-05 all delivered (registry migration, file split, D-03 hard-blocking contract test, D-04 doc audit + parity guard, D-05 card-fire-health module). SUMMARY: `.planning/phases/217-doctor-cjs-architecture-rethink-audit-all-14-check-classes-i/217-07-SUMMARY.md`.
 
 ## (2026-07-11) -- PHASE 217 Plan 06 COMPLETE (6/7 plans) -- I/J migrated; the registry migration is DONE; the three carve-outs (class A, brain-smoke M, eureka-smoke S) are WRITTEN justifications, not silent omissions
 
@@ -896,8 +907,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 217 (doctor-cjs-architecture-rethink-audit-all-14-check-classes-i) — EXECUTING
-Plan: 5 of 7
+Phase: 217 (doctor-cjs-architecture-rethink-audit-all-14-check-classes-i) — COMPLETE (7/7 plans)
+Plan: 7 of 7
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1447,6 +1458,7 @@ Progress: [█████████░] 92%
 | Phase 217 P01 | 40 | 2 tasks | 4 files |
 | Phase 217 P02 | 35min | 3 tasks | 6 files |
 | Phase 217 P04 | ~35min | 2 tasks | 6 files |
+| Phase 217 P07 | ~35min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -2394,6 +2406,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 217-01: lib/core/doctor/shared.cjs extracted as leaf module (constants + version helpers + 3 pure class-A readers), one-direction require, no circular dependency
 - [Phase ?]: 217-02: card-fire-health introduced_version = running version-of-record (1.15.3-beta.12) not stable 1.15.3, else the cadence:always deferred-guard defers the module and re-introduces the Pitfall-1 silent-diagnostic failure
 - [Phase 217]: 217-04: class B --fix wired for real (creates missing .room-root sentinels); B/C/E migrated to registry runners; introduced_version 1.12.1-beta.1 not 1.15.3
+- [Phase 217]: commands/doctor.md D-04 audit: every parseArgs flag documented; --fix line names exactly A,B,E,G,H,I,J derived from data/doctor-modules.json fix_supported (class A carve-out + registry entries); tests/test-doctor-doc-parity.cjs hard-blocks future doc drift
+- [Phase 217]: Phase 217 CLOSED: navigator real-room smoke approved verbatim (node scripts/doctor.cjs --all run twice, bare run, bash tests/run-all-217.sh) -- watermark does not silence any migrated diagnostic (Pitfall-1 kill shot confirmed live); brain-smoke's skip-row rendering left as-is per navigator, not gap-closed
 
 ### Pending Todos
 
@@ -2457,8 +2471,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-11T18:59:23.473Z
-Stopped at: Phase 217 context gathered
+Last session: 2026-07-11T20:25:08.562Z
+Stopped at: Phase 217 COMPLETE (7/7 plans) -- doctor.cjs architecture rethink done
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
 

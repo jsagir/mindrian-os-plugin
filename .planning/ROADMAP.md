@@ -2997,12 +2997,12 @@ Plans:
 - [x] 216-04-PLAN.md - tests/run-all-216.sh aggregator + 215/211 regression sweep + navigator real-room spot-check - COMPLETE 2026-07-10 (leg 1 aggregator green PASS=9 FAIL=0 SKIP=0; leg 2 navigator spot-check against ador-ip-test recorded verbatim in 216-04-SUMMARY.md, verdict "Log as gap-closure": 25/25 statements read the ICM type literal "Section x Section"; gap routed to 216-05, closed there 2026-07-11; 216-R5 + 216-R6)
 - [x] 216-05-PLAN.md - gap closure (216-04 navigator verdict): fix room-native section field leaking ICM type literal into Opportunity Statements ("Section x Section") + tests/test-216-field-contract.cjs permanent guard + run-all-216 leg 10 + ador-ip-test re-acceptance - COMPLETE 2026-07-11 (sectionFor derivation chain: props.section, else source_path first path segment non-system, else honest 'unknown', row.type fallback REMOVED; test-216-room-substrate 36/36 with re-pinned behavior 9 + new behavior 12; test-216-field-contract.cjs 11/11 drives the REAL substrate + deriveSharedProblems + emitter; run-all-216 PASS=10 FAIL=0 SKIP=0, run-all-215 PASS=8, run-all-211 PASS=10; ador-ip-test regenerated: 25 statements, zero 'Section x Section', rank-1 reads 'legal-ip x opportunity-bank'; 216-R1 + 216-R6)
 
-### Phase 217: Doctor.cjs Architecture Rethink: audit all ~14 check classes in scripts/doctor.cjs, decide on per-class module split with a standardized check-object contract, add a structural lint/test that fails when a new class ships without a matching print branch + fix dispatch entry, reconcile commands/doctor.md claims against what is actually wired. Triggered by a confirmed live bug (95.1-04 generic drift counter never matched by a generic printer; class B cascade-rooms --fix never wired despite docs claiming it is).
+### Phase 217: Doctor.cjs Architecture Rethink: audit all ~14 check classes in scripts/doctor.cjs, decide on per-class module split with a standardized check-object contract, add a structural lint/test that fails when a new class ships without a matching print branch + fix dispatch entry, reconcile commands/doctor.md claims against what is actually wired. Triggered by a confirmed live bug (95.1-04 generic drift counter never matched by a generic printer; class B cascade-rooms --fix never wired despite docs claiming it is). - COMPLETE 2026-07-11 (7/7 plans)
 
 **Goal:** Every doctor check runs through ONE registry-driven path (data/doctor-modules.json + lib/core/doctor/<id>-module.cjs runners) with structural print + fix wiring, a cadence gate that keeps per-invocation diagnostics watermark-immune, a hard-blocking contract test, a truthful commands/doctor.md, and a new card-fire instrument-health module.
 **Requirements**: D-01..D-05 (217-CONTEXT.md locked decisions; phase added via /gsd-phase, no REQUIREMENTS.md entry)
 **Depends on:** Phase 216
-**Plans:** 7 plans
+**Plans:** 7/7 plans complete
 
 Plans:
 
@@ -3012,7 +3012,7 @@ Plans:
 - [x] 217-04-PLAN.md - Migrate B/C/E incl. the NEWLY WIRED class B --fix (.room-root sentinel repair)
 - [x] 217-05-PLAN.md - Migrate G/H/D (statusline-visibility, install-incomplete, verify-surface)
 - [x] 217-06-PLAN.md - Migrate I/J + written carve-out justifications (class A, brain-smoke, eureka-smoke)
-- [ ] 217-07-PLAN.md - D-04 full commands/doctor.md audit + doc-parity test + run-all-217.sh + real-room human gate
+- [x] 217-07-PLAN.md - D-04 full commands/doctor.md audit + doc-parity test + run-all-217.sh + real-room human gate - COMPLETE 2026-07-11 (full D-04 audit rewrite of commands/doctor.md against post-migration code, argument-hint + class inventory A-N/P-S + card-fire-health + Extension architecture + the three carve-outs; tests/test-doctor-doc-parity.cjs cross-parses parseArgs flags vs documented flags + --fix class letters vs data/doctor-modules.json fix_supported, hard-fails on drift, registered in run-feynman-tests.cjs; tests/run-all-217.sh 17-leg aggregator PASS=17 FAIL=0 SKIP=0; navigator real-room checkpoint APPROVED verbatim: node scripts/doctor.cjs --all run twice byte-identical (Pitfall-1 watermark kill shot confirmed live), bare run unchanged, 135 ui-compliance violations/6 deprecated commands/15 rooms missing .room-root/cascade-rooms-active silenced writes all matched known machine state; D-04 delivered, Phase 217 CLOSED)
 
 ---
 
