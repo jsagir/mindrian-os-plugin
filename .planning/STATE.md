@@ -2,19 +2,28 @@
 gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
-status: verifying
-stopped_at: 216-04 automated tasks DONE (tests/run-all-216.sh green); Task 2 checkpoint:human-verify BLOCKED on navigator /mos:eureka real-room spot-check
-last_updated: "2026-07-10T20:15:00.000Z"
-last_activity: 2026-07-10
+status: phase-complete
+stopped_at: 216-05 gap closure COMPLETE (all 5 Phase 216 plans done; run-all-216 PASS=10 FAIL=0; ador-ip-test re-acceptance clean); Phase 216 eligible to close through the normal gate
+last_updated: "2026-07-11T08:35:00.000Z"
+last_activity: 2026-07-11
 progress:
   total_phases: 24
-  completed_phases: 13
-  total_plans: 70
-  completed_plans: 68
-  percent: 57
+  completed_phases: 14
+  total_plans: 71
+  completed_plans: 70
+  percent: 58
 ---
 
 # Project State
+
+## (2026-07-11) -- PHASE 216 Plan 05 COMPLETE (5/5 plans) -- the 216-04 gap closed at its root: room-native `section` now carries real domain slugs (or the honest 'unknown'), never the ICM type column; Phase 216 eligible to close
+
+The single navigator-logged gap ("Log as gap-closure", 216-04 verdict verbatim) is resolved. 25/25 Opportunity Statements against ador-ip-test read "a Section x Section cross-domain bridge" because `buildRoomNativeSubstrate` fell back to the schema-level `type` column ('Section' for every section anchor) for the `section` field, and both `deriveSharedProblems` and `opportunity-statement deriveFields` interpolate `section` verbatim into user prose. The SAME failure class 215-05 fixed on the graph path, now fixed + permanently guarded on the room-native path.
+
+- **Task 1 (TDD: `52420187` test RED, `6f5ebf66` fix GREEN):** `sectionFor(row, props)` in `lib/core/eureka/room-native-substrate.cjs` replaces the old fallback block. Chain: (1) `props.section` (Artifact rows + post-162 anchors); (2) else the `source_path` first path segment when the path contains NO ':' ('business-model/2026-05-26-...' derives 'business-model'; a pre-162-vintage Section anchor's bare-slug source_path derives itself; 'system:*' and 'fixture://' fall through); (3) else the literal 'unknown' (the scorer's own techFor/loadGraph default, the 215 precedent). HARD RULE stated in the comment: the derivation NEVER reads `row.type` (cites '216-05 field contract'). Root-level-artifact edge case (no '/' no ':') acknowledged in the comment, no code path. `test-216-room-substrate.cjs`: behavior 9 re-pinned (section -> 'unknown', never row.type) + new behavior 12 (first-segment + bare-slug forms) -> 36/36 (was 33).
+- **Task 2 (`492ce4da` test):** `tests/test-216-field-contract.cjs` (the 215-05 guard mirrored): hermetic ador-vintage fixture (2 type='Section' anchors with props {name,label} only, 4 Artifacts, BELONGS_TO edges so anchors dominate degree, 1 memory_event at 'system:default'). Asserts the source contract (type column IS 'Section'), per-entry adapter sections, the full ICM type-leak sweep, and the REAL `deriveSharedProblems` + REAL `buildOpportunityStatement` prose (zero 'Section x Section', names 'business-model x competitive-analysis') -> 11/11. `deriveSharedProblems` exported ADDITIVELY from the runner (the 215-04 precedent). `run-all-216.sh` leg 10 appended -> PASS=10 FAIL=0 SKIP=0.
+- **Task 3 (closing acceptance, real room):** run-all-216 PASS=10, run-all-215 PASS=8, run-all-211 PASS=10, all FAIL=0 exit 0 (216-R6 held through the runner export). `eureka-command.cjs ador-ip-test run --top 25` regenerated: 2080 pairs, 25 ranked, 25 statements; `report` re-render clean. Acceptance script: zero 'Section x Section' in both report artifacts, real slugs named. Rank-1 novel_application before -> after: 'Section x Section approach to a Section x Section cross-domain bridge' -> 'legal-ip x opportunity-bank approach to a legal-ip x opportunity-bank cross-domain bridge'.
+- **NEXT:** Phase 216 close-out through the normal gate (all 5 plans complete, ROADMAP marked). SUMMARY: `.planning/phases/216-eureka-user-facing-command-eureka-user-command-wrap-the-ship/216-05-SUMMARY.md`.
 
 ## (2026-07-10) -- PHASE 216 Plan 04 AUTOMATED TASKS DONE, Task 2 BLOCKED on navigator checkpoint (real-room /mos:eureka spot-check) -- the hermetic phase-gate aggregator is on disk and green
 
