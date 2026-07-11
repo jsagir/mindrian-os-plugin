@@ -66,7 +66,29 @@ const {
   checkInstallVersion,
   checkMarketplaceCache,
   checkDevSourceConsistency,
+  // Phase 217 Plan 06: the class I/J shared readers moved to shared.cjs with the
+  // I/J migration. doctor.cjs still needs these five in the
+  // --report-registration-bug assembler (Canon Part 7 reuse); the rest are now
+  // internal to the install-state / deployment-surfaces runner modules.
+  collectVersionOfRecord,
+  computeVersionDivergences,
+  readLegacyConfigPin,
+  detectMarketplaceCacheInstall,
+  readInstalledPluginsInstallPath,
 } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'shared.cjs'));
+
+// Phase 217 Plan 06: class I (install-state) + class J (deployment-surfaces)
+// migrated to registry-driven cadence:always runner modules. The accumulative
+// engine owns their check + fix-then-recheck under the --install-state flag
+// (both share it, exactly as the retired main() block). doctor.cjs imports the
+// runners' RAW check entries ONLY for the --acceptance path (buildAcceptance
+// checklist keys on the historical 'healthy' status); never a duplicate body
+// (Pitfall 4). The runner check(ctx) surfaces map 'healthy' -> 'ok' for the
+// engine's report.checks vocabulary.
+const installStateModule = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'install-state-module.cjs'));
+const deploymentSurfacesModule = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'deployment-surfaces-module.cjs'));
+const checkInstallState = installStateModule.checkInstallState;
+const checkDeploymentSurfaces = deploymentSurfacesModule.checkDeploymentSurfaces;
 // Phase 217 Plan 04: the SINGLE umbilical/room target resolver + the .room-root
 // walk-up + the section walk + generator spawn all moved WITH the class B/C/E
 // checks into their registry runners (lib/core/doctor/cascade-rooms*-module.cjs,
@@ -625,898 +647,19 @@ function safeRename(src, dst) {
 //
 // Canon Part 8: all of class I + class J is LOCAL-only. Zero fetch / http /
 //   curl / brain.mindrian / tavily in any of these functions.
+//
+// Phase 217 Plan 06: the class I helpers + checkInstallState + performClassIFix
+// moved to lib/core/doctor/install-state-module.cjs; the class J helpers +
+// checkDeploymentSurfaces + performClassJFix moved to
+// lib/core/doctor/deployment-surfaces-module.cjs; the shared readers
+// (readLegacyConfigPin, detectMarketplaceCacheInstall, collectVersionOfRecord,
+// computeVersionDivergences, ...) moved to lib/core/doctor/shared.cjs. Both are
+// now registry-driven cadence:always runners under the --install-state flag
+// (install-state before deployment-surfaces so class J reads class I's
+// same-invocation result via ctx.checks). doctor.cjs imports only the runners'
+// RAW check entries (checkInstallState / checkDeploymentSurfaces, bound near the
+// shared.cjs require) for the --acceptance path.
 
-// -- Class I helpers ------------------------------------------------------
-
-function readHomeFile(home, ...parts) {
-  try { return fs.readFileSync(path.join(home, ...parts), 'utf8'); } catch (_) { return null; }
-}
-
-// readInstalledPluginsVersion moved to lib/core/doctor/shared.cjs (Phase 217
-// Plan-01 D-02) and is imported at the top of this file. Returns the version
-// string of the active mos@mindrian-marketplace entry (STRING, not semver-parsed
-// so the 4-component 1.12.5.1 case is handled), or 'unknown' on absence.
-
-// F11 recurrence (twice on the same real Windows machine): the LEGACY v1
-// plugin-system file ~/.claude/plugins/config.json keeps a `mos.version` pin
-// that drifts away from the MODERN ~/.claude/plugins/installed_plugins.json
-// (schema v2, namespaced key `mos@mindrian-marketplace`). On 2026-07-02 it
-// pinned 1.8.2; on 2026-07-05 it pinned 1.15.1 -- both stale relative to the
-// active install -- and the stale pin poisons command registration while every
-// other subsystem looks healthy. The finding below detects that drift; because
-// the install-state acceptance point passes only on status === 'healthy', the
-// finding automatically rides doctor --acceptance (no new acceptance point).
-function resolveLegacyConfigPinEntry(data) {
-  // Shared resolver used by BOTH detection (readLegacyConfigPin) and the
-  // --fix writer, so a match found one way is guaranteed mutable the other
-  // way -- no `data[key]` shortcut that only covers the flat schema.
-  // Returns { entry, key } where `entry` is the ACTUAL nested object
-  // reference from `data` (mutating entry.version mutates `data` in place),
-  // or null if no pin found under any known generation.
-  //
-  // THREE known config.json generations coexist in the wild (confirmed via a
-  // live cross-check against a real Windows install, 2026-07-05) -- check all,
-  // first match wins:
-  //   (a) flat top-level:      { "mos": { "version": "X", ... } }
-  //   (b) plugins-wrapped:     { "plugins": { "mos": { "version": "X" } } }
-  //   (c) repositories-nested: { "repositories": { "<mp>": { "plugins":
-  //                              { "mos": { "version": "X" } } } } }
-  // (c) is the generation actually observed live; (a)/(b) are defensive
-  // fallbacks for other config.json shapes this file's own comments describe
-  // elsewhere -- keep all three rather than assuming one is authoritative.
-  if (!data || typeof data !== 'object') return null;
-  const candidates = [
-    ['mos', data.mos],
-    ['mindrian-os', data['mindrian-os']],
-    ['mos', data.plugins && data.plugins.mos],
-    ['mindrian-os', data.plugins && data.plugins['mindrian-os']],
-  ];
-  const repos = (data.repositories && typeof data.repositories === 'object') ? data.repositories : {};
-  for (const mp of Object.keys(repos)) {
-    const plugins = (repos[mp] && repos[mp].plugins) || {};
-    candidates.push(['mos', plugins.mos]);
-    candidates.push(['mindrian-os', plugins['mindrian-os']]);
-  }
-  for (const [key, entry] of candidates) {
-    if (entry && entry.version) return { entry, key };
-  }
-  return null;
-}
-
-function readLegacyConfigPin(home) {
-  // Returns { version, key } for the mos pin in the legacy config.json, or null
-  // when the file is absent, unparseable, or carries no pin. Absence is the
-  // healthy fresh-install state (N/A), never an error -- the whole body is
-  // wrapped so a malformed legacy artifact degrades to a skip.
-  try {
-    const file = path.join(home, '.claude', 'plugins', 'config.json');
-    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-    const resolved = resolveLegacyConfigPinEntry(data);
-    if (resolved) return { version: String(resolved.entry.version), key: resolved.key };
-  } catch (_) { /* absent / unparseable -> N/A */ }
-  return null;
-}
-
-function readInstalledPluginsInstallPath(home) {
-  const file = path.join(home, '.claude', 'plugins', 'installed_plugins.json');
-  try {
-    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-    const plugins = (data && data.plugins) || {};
-    for (const key of Object.keys(plugins)) {
-      const name = String(key).split('@')[0];
-      if (name !== 'mos' && name !== 'mindrian-os') continue;
-      let entry = plugins[key];
-      if (Array.isArray(entry)) entry = entry[0];
-      if (entry && (entry.installPath || entry.path || entry.dir)) {
-        return entry.installPath || entry.path || entry.dir;
-      }
-    }
-  } catch (_) { /* ignore */ }
-  return null;
-}
-
-function detectMarketplaceCacheInstall(home) {
-  // Scan ~/.claude/plugins/cache/<mp>/mos/<v>/ for the newest valid plugin
-  // dir (one with a .claude-plugin/plugin.json). Returns { root, version }
-  // or null. Mirrors lib/core/active-plugin-root.cjs fromMarketplaceCache().
-  const cacheBase = path.join(home, '.claude', 'plugins', 'cache');
-  let entries;
-  try { entries = fs.readdirSync(cacheBase, { withFileTypes: true }); } catch (_) { return null; }
-  const found = [];
-  for (const mk of entries) {
-    if (!mk.isDirectory()) continue;
-    for (const pluginName of ['mos', 'mindrian-os']) {
-      const pluginDir = path.join(cacheBase, mk.name, pluginName);
-      let versions;
-      try { versions = fs.readdirSync(pluginDir, { withFileTypes: true }); } catch (_) { continue; }
-      for (const v of versions) {
-        if (!v.isDirectory()) continue;
-        const candidate = path.join(pluginDir, v.name);
-        const pj = path.join(candidate, '.claude-plugin', 'plugin.json');
-        if (fs.existsSync(pj)) found.push({ root: candidate, version: v.name });
-      }
-    }
-  }
-  if (!found.length) return null;
-  found.sort((a, b) => String(a.version).localeCompare(String(b.version), undefined, { numeric: true }));
-  return found[found.length - 1];
-}
-
-function readPathBinVersion(home) {
-  // Look at $PATH entries; return the <version> segment of any
-  // .../mos/<version>/bin entry that EXISTS on disk. Returns 'unknown' if
-  // no such entry resolves.
-  const PATH = process.env.PATH || '';
-  const parts = PATH.split(path.delimiter);
-  for (const p of parts) {
-    const m = p.match(/[\\/](?:mos|mindrian-os)[\\/]([^\\/]+)[\\/]bin$/i);
-    if (m) {
-      try { if (fs.existsSync(p)) return m[1]; } catch (_) { /* ignore */ }
-    }
-  }
-  return 'unknown';
-}
-
-function pathBinVanished(home, activeRoot) {
-  // True if the record's path_bin_version points at a dir that no longer
-  // exists. We use the live PATH if the record didn't carry path_bin_version.
-  if (!activeRoot) return false;
-  const binPath = path.join(activeRoot, 'bin');
-  try { return !fs.existsSync(binPath); } catch (_) { return false; }
-}
-
-function collectVersionOfRecord(home, resolverResult, record) {
-  // Returns { IP, AV, SR, LV, PB }. All STRING values (or 'unknown').
-  // SB (SessionStart-banner) is not separately tracked yet; we treat SR as
-  // a proxy per RESEARCH note. The 6th leg is the spot-checked installed
-  // path's plugin.json version (which the resolver already returned via
-  // root). String equality, NEVER semver.valid().
-  const IP = readInstalledPluginsVersion(home);
-  const AV = (record && record.active_version) || 'unknown';
-  const SR = (record && record.statusline_renders_version) || 'unknown';
-  const LV_raw = readHomeFile(home, '.mindrian-last-version');
-  const LV = LV_raw === null ? 'unknown' : LV_raw.trim();
-  // path_bin_version: prefer the record snapshot; fall back to live PATH probe.
-  let PB = (record && record.path_bin_version) || readPathBinVersion(home);
-  if (!PB) PB = 'unknown';
-  return { IP, AV, SR, LV, PB };
-}
-
-function computeVersionDivergences(versions) {
-  // Returns an array of { from, to, fromValue, toValue, recoverable }
-  // entries describing pairwise disagreements between known legs. Legs
-  // marked 'unknown' are excluded from comparisons. STRING equality only.
-  const known = {};
-  for (const [k, v] of Object.entries(versions || {})) {
-    if (v && v !== 'unknown') known[k] = v;
-  }
-  const out = [];
-  const keys = Object.keys(known);
-  for (let i = 0; i < keys.length; i++) {
-    for (let j = i + 1; j < keys.length; j++) {
-      const a = keys[i], b = keys[j];
-      if (known[a] !== known[b]) {
-        // Recoverable iff the disagreeing leg is something --fix can stamp.
-        // LV-vs-IP: --fix rewrites LV. AV-vs-IP: record stale, re-run
-        // session-start (informational). SR-vs-AV: flag-only (D-13).
-        // PB-vs-anything: PATH is owned by Claude Code (flag-only).
-        const involvesLV = a === 'LV' || b === 'LV';
-        const involvesPB = a === 'PB' || b === 'PB';
-        const recoverable = involvesLV && !involvesPB;
-        out.push({ from: a, to: b, fromValue: known[a], toValue: known[b], recoverable });
-      }
-    }
-  }
-  return out;
-}
-
-function isLegacyDevClone(legacyDir) {
-  // RETURN TRUE if the legacyDir is actually a dev-clone we must NOT touch.
-  // Belt-and-suspenders dev-clone test (per D-13 + i.5 scenario):
-  //   1. MINDRIAN_OS_ROOT env points at this path -> dev-clone.
-  //   2. `git -C <legacyDir> remote get-url origin` matches mindrian-os-plugin.
-  if (process.env.MINDRIAN_OS_ROOT) {
-    try {
-      if (path.resolve(process.env.MINDRIAN_OS_ROOT) === path.resolve(legacyDir)) return true;
-    } catch (_) { /* ignore */ }
-  }
-  try {
-    const cp = require('child_process');
-    const r = cp.spawnSync('git', ['-C', legacyDir, 'remote', 'get-url', 'origin'], {
-      encoding: 'utf8', timeout: 1500, stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    if (r && r.status === 0 && r.stdout && /mindrian-os-plugin/i.test(r.stdout)) return true;
-  } catch (_) { /* ignore */ }
-  return false;
-}
-
-function legacyDirtyOrUnpushed(legacyDir) {
-  // Returns { dirty, reason } -- dirty=true means --fix must REFUSE migration.
-  const cp = require('child_process');
-  // 1. uncommitted changes via `git status --porcelain`.
-  try {
-    const r = cp.spawnSync('git', ['-C', legacyDir, 'status', '--porcelain'], {
-      encoding: 'utf8', timeout: 1500, stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    if (r && r.status === 0 && r.stdout && r.stdout.trim().length > 0) {
-      return { dirty: true, reason: 'legacy clone has uncommitted changes (git status --porcelain non-empty)' };
-    }
-  } catch (_) { /* ignore */ }
-  // 2. unpushed commits via `git log @{u}..HEAD --oneline`.
-  try {
-    const r = cp.spawnSync('git', ['-C', legacyDir, 'log', '@{u}..HEAD', '--oneline'], {
-      encoding: 'utf8', timeout: 1500, stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    if (r && r.status === 0 && r.stdout && r.stdout.trim().length > 0) {
-      return { dirty: true, reason: 'legacy clone has unpushed commits' };
-    }
-    // If status != 0 and the dir IS a git repo, treat as "no upstream" => refuse (conservative).
-    // We confirm it's a git repo first via `git rev-parse --is-inside-work-tree`.
-    if (r && r.status !== 0) {
-      const isGit = cp.spawnSync('git', ['-C', legacyDir, 'rev-parse', '--is-inside-work-tree'], {
-        encoding: 'utf8', timeout: 1500, stdio: ['ignore', 'pipe', 'ignore'],
-      });
-      if (isGit && isGit.status === 0) {
-        return { dirty: true, reason: 'legacy clone has no upstream -- cannot verify pushed state (conservative refuse)' };
-      }
-    }
-  } catch (_) { /* ignore */ }
-  return { dirty: false, reason: null };
-}
-
-// -- Class I check function ----------------------------------------------
-
-function checkInstallState(opts) {
-  const o = opts || {};
-  const home = o.home || HOME;
-  // 1. Resolve live.
-  let r;
-  try { r = resolveActivePluginRoot(); } catch (err) {
-    return {
-      status: 'error',
-      detail: 'resolveActivePluginRoot threw: ' + err.message,
-      topology: 'not-found', record: null, versions: null, findings: [],
-      recoverable: false,
-    };
-  }
-  // 2. Read the record.
-  const recordPath = path.join(home, '.mindrian', 'install-state.json');
-  let record = null, recordOk = false;
-  try { record = JSON.parse(fs.readFileSync(recordPath, 'utf8')); recordOk = true; } catch (_) { /* absent or unparseable */ }
-  // 3. Live spot-check (D-05): compare record.active_version vs
-  //    installed_plugins.json. STRING equality.
-  let spotCheckFinding = null;
-  if (recordOk && record && record.active_version) {
-    const liveAV = readInstalledPluginsVersion(home);
-    if (liveAV !== 'unknown' && liveAV !== record.active_version) {
-      spotCheckFinding = 'install-state record stale -- record says ' + record.active_version
-        + ', installed_plugins.json says ' + liveAV + '; re-run session-start';
-    }
-  }
-  // 3b. Legacy-config-pin-drift (F11): the legacy plugins/config.json pins a
-  //     mos version that disagrees with the modern installed_plugins.json.
-  //     STRING inequality, same convention as the 6-way version-of-record.
-  //     Skip when config.json is absent, installed_plugins.json is
-  //     absent/unknown, or the versions match.
-  let legacyPinFinding = null;
-  const legacyPin = readLegacyConfigPin(home);
-  if (legacyPin && legacyPin.version) {
-    const modernVersion = readInstalledPluginsVersion(home);
-    if (modernVersion !== 'unknown' && legacyPin.version !== modernVersion) {
-      legacyPinFinding = {
-        id: 'legacy-config-pin-drift', status: 'warn', recoverable: true,
-        finding: 'legacy plugins/config.json pins mos ' + legacyPin.version
-          + ' but installed_plugins.json says ' + modernVersion
-          + ' -- stale legacy pin can poison command registration (F11); run with --fix to reconcile',
-        legacyVersion: legacyPin.version,
-        modernVersion: modernVersion,
-        legacyKey: legacyPin.key,
-      };
-    }
-  }
-  // 4. Topology classification (D-11, BUG 7 fix). Each of marketplace-cache
-  //    | dev-clone | legacy | not-found is VALID; only not-found is drift
-  //    on its own, and `legacy` becomes a migration candidate iff a healthy
-  //    marketplace-cache install exists alongside it.
-  const topology = (record && record.topology) || r.topology || 'not-found';
-  let topologyFinding = null;
-  let topologyRecoverable = false;
-  if (topology === 'not-found') {
-    topologyFinding = 'no active plugin install resolved -- reinstall: claude plugin install mos@mindrian-marketplace';
-    // flag-only per D-13.
-  } else if (topology === 'legacy') {
-    // Migration candidate iff a separate healthy marketplace-cache install exists.
-    const mc = detectMarketplaceCacheInstall(home);
-    if (mc && mc.root) {
-      topologyFinding = 'legacy clone detected alongside a healthy marketplace-cache install -- migration candidate (run with --fix to backup-then-remove)';
-      topologyRecoverable = true;
-    }
-  }
-  // Also detect a SEPARATE legacy dir alongside a healthy marketplace-cache
-  // topology -- the resolver picked marketplace-cache (per installed_plugins.json
-  // precedence) but a legacy ~/.claude/plugins/mindrian-os/ still exists on
-  // disk. This is the most common live case -- Bug 7's symptom + the
-  // legacy-migration candidate.
-  if (topology === 'marketplace-cache' && !topologyFinding) {
-    const legacyDir = path.join(home, '.claude', 'plugins', 'mindrian-os');
-    try {
-      if (fs.existsSync(legacyDir) && fs.statSync(legacyDir).isDirectory()) {
-        topologyFinding = 'legacy clone present at ' + legacyDir + ' alongside marketplace-cache install -- migration candidate (run with --fix to backup-then-remove)';
-        topologyRecoverable = true;
-      }
-    } catch (_) { /* ignore */ }
-  }
-  // 5. Version-of-record 6-way comparison (STRING equality).
-  const versions = collectVersionOfRecord(home, r, record);
-  const divergences = computeVersionDivergences(versions);
-  // 6. Compose findings.
-  const findings = [];
-  if (!recordOk) {
-    findings.push({
-      id: 'record-absent', status: 'warn', recoverable: true,
-      finding: 'install-state record absent -- run session-start (or doctor --fix)',
-    });
-  }
-  if (spotCheckFinding) {
-    findings.push({
-      id: 'record-stale', status: 'warn', recoverable: false,
-      finding: spotCheckFinding,
-    });
-  }
-  if (legacyPinFinding) {
-    findings.push(legacyPinFinding);
-  }
-  if (topologyFinding) {
-    findings.push({
-      id: 'topology', status: 'warn', recoverable: topologyRecoverable,
-      finding: topologyFinding, topology,
-    });
-  }
-  for (const d of divergences) {
-    findings.push({
-      id: 'vor-' + d.from + '-vs-' + d.to,
-      status: 'warn',
-      recoverable: d.recoverable,
-      finding: 'version-of-record divergence: ' + d.from + '=' + d.fromValue + ' vs ' + d.to + '=' + d.toValue,
-      from: d.from, to: d.to, fromValue: d.fromValue, toValue: d.toValue,
-    });
-  }
-  // Flag-only: PATH-bin entry vanished (Claude Code owns the entry).
-  if (r && r.root && pathBinVanished(home, r.root)) {
-    findings.push({
-      id: 'path-bin-vanished', status: 'warn', recoverable: false,
-      finding: 'PATH entry ' + path.join(r.root, 'bin') + ' does not exist -- restart Claude Code; if the issue persists, reinstall',
-    });
-  }
-  // Flag-only: statusline-renders-wrong-version is a resolver-bug signal.
-  // (Handled by the vor-AV-vs-SR divergence above; recoverable:false because
-  // re-stamping the symptom masks the bug.)
-
-  return {
-    status: findings.length === 0 ? 'healthy' : 'warn',
-    topology,
-    record,
-    record_present: recordOk,
-    versions,
-    findings,
-    resolver: { root: r.root, source: r.source, topology: r.topology },
-    recoverable: findings.some(f => f.recoverable),
-  };
-}
-
-// -- Class I --fix --------------------------------------------------------
-
-function performClassIFix(check, opts) {
-  const o = opts || {};
-  const home = o.home || HOME;
-  const recoveries = [];
-  if (!check || !check.findings) return recoveries;
-  for (const f of check.findings) {
-    if (!f.recoverable) continue;
-    if (f.id === 'record-absent') {
-      // Spawn scripts/session-start to write the record.
-      const cp = require('child_process');
-      const sessionStart = path.join(PLUGIN_ROOT, 'scripts', 'session-start');
-      try {
-        const env = Object.assign({}, process.env, {
-          HOME: home, USERPROFILE: home,
-          SESSION_START_NODE_PREFLIGHT_SKIP: '1',
-        });
-        const r = cp.spawnSync('bash', [sessionStart], { encoding: 'utf8', timeout: 10000, env });
-        const recorded = fs.existsSync(path.join(home, '.mindrian', 'install-state.json'));
-        recoveries.push({
-          class: 'install-state', surface: 'record', action: 'session-start-write',
-          ok: recorded, exit_code: typeof r.status === 'number' ? r.status : -1,
-        });
-      } catch (err) {
-        recoveries.push({
-          class: 'install-state', surface: 'record', action: 'session-start-write',
-          ok: false, detail: err.message,
-        });
-      }
-      continue;
-    }
-    if (f.id && /^vor-/.test(f.id) && (f.from === 'LV' || f.to === 'LV')) {
-      // LV divergence -> rewrite ~/.mindrian-last-version to match the OTHER
-      // leg (prefer IP, then AV).
-      const target = (f.from === 'LV') ? f.toValue : f.fromValue;
-      const lvPath = path.join(home, '.mindrian-last-version');
-      try {
-        fs.writeFileSync(lvPath, String(target) + '\n');
-        recoveries.push({
-          class: 'install-state', surface: 'mindrian-last-version',
-          action: 'rewrite', ok: true, target_value: target,
-        });
-      } catch (err) {
-        recoveries.push({
-          class: 'install-state', surface: 'mindrian-last-version',
-          action: 'rewrite', ok: false, detail: err.message,
-        });
-      }
-      continue;
-    }
-    if (f.id === 'legacy-config-pin-drift') {
-      // F11 fix: back up the legacy config.json FIRST, then reconcile only its
-      // mos.version to the live installed_plugins.json version. Conservative --
-      // enabled/installedAt and every other field are left untouched. All
-      // best-effort; never throw out of the fix loop.
-      const file = path.join(home, '.claude', 'plugins', 'config.json');
-      try {
-        // 1. Back up first (mirror the installed_plugins.json repair pattern).
-        // Timestamp MUST be filename-safe: a raw toISOString() contains ':',
-        // which is a reserved character on Windows (NTFS ADS separator) --
-        // copyFileSync throws EINVAL/ENOENT on it. Confirmed live on Windows
-        // 2026-07-05: the unsanitized form made --fix a SILENT no-op (the
-        // outer catch swallowed the throw, so neither backup nor the
-        // reconcile write ever landed). Same sanitization already used a few
-        // lines away in this file (~L609, ~L2247) -- this branch just missed it.
-        const ts = new Date().toISOString().replace(/[:.]/g, '').replace(/T/, '-').slice(0, 15);
-        const backupsDir = path.join(home, '.mindrian', 'backups');
-        try { fs.mkdirSync(backupsDir, { recursive: true }); } catch (_) { /* ignore */ }
-        const backupPath = path.join(backupsDir, 'config.json.' + ts + '.bak');
-        // Isolate the backup step: a backup failure must NOT silently abort
-        // the reconcile write (the outer catch would swallow it and leave
-        // the drift unfixed with no visible reason). Report distinctly.
-        let backupOk = true;
-        let backupError = null;
-        try {
-          fs.copyFileSync(file, backupPath);
-        } catch (err) {
-          backupOk = false;
-          backupError = err.message;
-        }
-        // 2. Re-read the modern version LIVE (do not trust the stale payload).
-        const modernVersion = readInstalledPluginsVersion(home);
-        if (modernVersion === 'unknown') {
-          recoveries.push({
-            class: 'install-state', surface: 'legacy-config-json', action: 'skipped',
-            detail: 'installed_plugins.json version unknown -- nothing to reconcile to',
-          });
-          continue;
-        }
-        // 3. Parse, re-resolve the entry via the SHARED resolver (covers
-        //    flat, plugins-wrapped, AND repositories-nested schemas -- a
-        //    plain `data[key]` lookup here would silently miss the nested
-        //    generation even though detection found it).
-        const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-        const resolved = resolveLegacyConfigPinEntry(data);
-        const entry = resolved ? resolved.entry : null;
-        if (!entry) {
-          recoveries.push({
-            class: 'install-state', surface: 'legacy-config-json', action: 'skipped',
-            detail: 'could not re-resolve the mos pin key in config.json',
-            backup_path: backupPath,
-          });
-          continue;
-        }
-        entry.version = modernVersion;
-        fs.writeFileSync(file, JSON.stringify(data, null, 2));
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-config-json',
-          action: 'version-reconciled', ok: true,
-          // backup_path is only meaningful when the backup actually succeeded;
-          // a failed backup no longer blocks the reconcile write (above), but
-          // must stay VISIBLE rather than reported as if nothing went wrong.
-          backup_path: backupOk ? backupPath : null,
-          backup_ok: backupOk,
-          backup_error: backupOk ? undefined : backupError,
-          target_value: modernVersion,
-          note: 'restart Claude Code (full app restart) to re-register commands',
-        });
-      } catch (err) {
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-config-json',
-          action: 'skipped', detail: err.message,
-        });
-      }
-      continue;
-    }
-    if (f.id === 'topology' && f.topology === 'legacy' || (f.id === 'topology' && /migration candidate/i.test(f.finding || ''))) {
-      // Legacy-clone migration: backup-verify-remove.
-      const legacyDir = path.join(home, '.claude', 'plugins', 'mindrian-os');
-      // 0. Dev-clone safety belt: NEVER migrate a dev-clone.
-      if (!fs.existsSync(legacyDir)) {
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-clone', action: 'skipped',
-          reason: 'legacy dir does not exist at ' + legacyDir,
-        });
-        continue;
-      }
-      if (isLegacyDevClone(legacyDir)) {
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-clone', action: 'skipped',
-          reason: 'origin remote points at mindrian-os-plugin OR MINDRIAN_OS_ROOT is set -- treating as a dev clone, NOT migrating',
-        });
-        continue;
-      }
-      // 1. Refuse if uncommitted/unpushed.
-      const dirty = legacyDirtyOrUnpushed(legacyDir);
-      if (dirty.dirty) {
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-clone', action: 'skipped',
-          reason: dirty.reason,
-        });
-        continue;
-      }
-      // 2. Confirm a healthy marketplace-cache install exists.
-      const mc = detectMarketplaceCacheInstall(home);
-      if (!mc || !mc.root) {
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-clone', action: 'skipped',
-          reason: 'no healthy marketplace-cache install to migrate to',
-        });
-        continue;
-      }
-      // 3. tar the legacy dir to ~/.mindrian/backups/legacy-<ISO>.tar.gz.
-      const backupsDir = path.join(home, '.mindrian', 'backups');
-      try { fs.mkdirSync(backupsDir, { recursive: true }); } catch (_) { /* ignore */ }
-      const ts = new Date().toISOString().replace(/[:.]/g, '').replace(/T/, '-').slice(0, 15);
-      const tarballPath = path.join(backupsDir, 'legacy-' + ts + '.tar.gz');
-      const cp = require('child_process');
-      const tarRes = cp.spawnSync('tar', [
-        '-czf', tarballPath,
-        '-C', path.dirname(legacyDir),
-        path.basename(legacyDir),
-      ], { encoding: 'utf8', timeout: 30000, stdio: ['ignore', 'pipe', 'pipe'] });
-      const tarballOk = tarRes.status === 0 && fs.existsSync(tarballPath) && fs.statSync(tarballPath).size > 0;
-      if (!tarballOk) {
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-clone', action: 'skipped',
-          reason: 'tar failed -- refusing to remove legacy dir without a verified backup ' + (tarRes.stderr || ''),
-        });
-        continue;
-      }
-      // 4. Remove the legacy dir.
-      try {
-        fs.rmSync(legacyDir, { recursive: true, force: true });
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-clone', action: 'migrated',
-          backup_path: tarballPath, ok: true,
-          note: 'legacy clone migrated; backup at ' + tarballPath,
-        });
-      } catch (err) {
-        recoveries.push({
-          class: 'install-state', surface: 'legacy-clone', action: 'skipped',
-          reason: 'rm failed: ' + err.message,
-          backup_path: tarballPath,
-        });
-      }
-      continue;
-    }
-  }
-  // Conservative installed_plugins.json repair: only when demonstrably stale.
-  // Heuristic: the entry's installPath points at a missing dir AND there's a
-  // valid marketplace-cache install present. Back up + repoint.
-  try {
-    const installPath = readInstalledPluginsInstallPath(home);
-    const stalePath = installPath && !fs.existsSync(installPath);
-    if (stalePath) {
-      const mc = detectMarketplaceCacheInstall(home);
-      if (mc && mc.root) {
-        const file = path.join(home, '.claude', 'plugins', 'installed_plugins.json');
-        const ts = new Date().toISOString();
-        const backupsDir = path.join(home, '.mindrian', 'backups');
-        try { fs.mkdirSync(backupsDir, { recursive: true }); } catch (_) { /* ignore */ }
-        const backupPath = path.join(backupsDir, 'installed_plugins.json.' + ts + '.bak');
-        try { fs.copyFileSync(file, backupPath); } catch (_) { /* best-effort */ }
-        // Read, mutate the entry, write back. Conservative: only repoint
-        // installPath; do not change the version field (leave for Claude Code).
-        try {
-          const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-          const plugins = (data && data.plugins) || {};
-          for (const key of Object.keys(plugins)) {
-            const name = String(key).split('@')[0];
-            if (name !== 'mos' && name !== 'mindrian-os') continue;
-            let entries = plugins[key];
-            if (!Array.isArray(entries)) entries = [entries];
-            for (const e of entries) {
-              if (!e) continue;
-              if (e.installPath) e.installPath = mc.root;
-              if (e.version) e.version = mc.version;
-            }
-            plugins[key] = entries;
-          }
-          fs.writeFileSync(file, JSON.stringify(data, null, 2));
-          recoveries.push({
-            class: 'install-state', surface: 'installed-plugins.json',
-            action: 'repointed', ok: true, backup_path: backupPath,
-            note: 'Claude Code must be restarted to re-read installed_plugins.json',
-          });
-        } catch (err) {
-          recoveries.push({
-            class: 'install-state', surface: 'installed-plugins.json',
-            action: 'skipped', detail: 'parse/write failed: ' + err.message,
-          });
-        }
-      }
-    }
-  } catch (_) { /* swallow -- repair is best-effort */ }
-  return recoveries;
-}
-
-// -- Class J helpers ------------------------------------------------------
-
-function expandSurfacePath(p, ctx) {
-  if (!p || typeof p !== 'string') return null;
-  const home = ctx.home || HOME;
-  const activeRoot = ctx.activeRoot || null;
-  const topology = ctx.topology || 'not-found';
-  let out = p.replace(/\$HOME/g, home);
-  if (out.includes('<active_root>')) {
-    if (!activeRoot) return null;
-    out = out.replace(/<active_root>/g, activeRoot);
-  }
-  if (out.includes('<dev_clone_root>')) {
-    if (topology !== 'dev-clone' || !activeRoot) return null;
-    out = out.replace(/<dev_clone_root>/g, activeRoot);
-  }
-  return out;
-}
-
-function readJsonPath(obj, dotPath) {
-  // Walk a dot-path like "statusLine.command" through `obj` and return the
-  // value, or `undefined` on missing leg.
-  if (!obj || typeof obj !== 'object') return undefined;
-  const parts = String(dotPath).split('.');
-  let cur = obj;
-  for (const p of parts) {
-    if (cur == null || typeof cur !== 'object') return undefined;
-    cur = cur[p];
-  }
-  return cur;
-}
-
-function substituteExpected(expected, activeVersion, home) {
-  if (typeof expected !== 'string') return expected;
-  if (expected === '<active_version>') return activeVersion || '';
-  // Also expand the $HOME token inside the expected value -- the manifest
-  // stores `bash "$HOME/.claude/statusline-mos"` and `session-start` writes
-  // the expanded form (`bash "/home/user/.claude/statusline-mos"`); class J
-  // must compare like-for-like.
-  if (home && expected.includes('$HOME')) {
-    return expected.replace(/\$HOME/g, home);
-  }
-  return expected;
-}
-
-// -- Class J check function ----------------------------------------------
-
-function checkDeploymentSurfaces(opts) {
-  const o = opts || {};
-  const home = o.home || HOME;
-  const topology = o.topology || 'not-found';
-  const activeRoot = o.activeRoot || null;
-  const activeVersion = o.activeVersion || null;
-  // Desktop / Cowork carve-out (mirrors class G).
-  let surface = 'CLI';
-  try {
-    const mod = require(path.resolve(__dirname, '..', 'lib', 'statusline', 'surface-detect.cjs'));
-    surface = mod.detectStatuslineSurface();
-  } catch (_e) {
-    if (process.env.CLAUDE_DESKTOP === '1') surface = 'DESKTOP';
-    if (process.env.COWORK_SESSION_ID) surface = 'COWORK';
-  }
-  if (surface !== 'CLI') {
-    return { status: 'skipped', reason: surface + ' install -- no owned surfaces (D-04 fallback applies)', surfaces: [] };
-  }
-  // Read the manifest.
-  const manifestPath = path.join(PLUGIN_ROOT, 'data', 'deployment-surfaces.json');
-  let manifest = null;
-  try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); }
-  catch (err) {
-    return { status: 'warn', finding: 'deployment-surfaces.json unreadable: ' + err.message, surfaces: [], recoverable: false };
-  }
-  const out = [];
-  for (const s of (manifest.surfaces || [])) {
-    // topology_scope: dev-clone -> skip on user box.
-    if (s.topology_scope === 'dev-clone' && topology !== 'dev-clone') {
-      out.push({ id: s.id, status: 'skipped', reason: 'topology_scope=dev-clone, this is a ' + topology + ' box', ok: null, check_kind: s.check_kind, owner: s.owner });
-      continue;
-    }
-    const fp = expandSurfacePath(s.path, { home, activeRoot, topology });
-    if (!fp) {
-      out.push({ id: s.id, status: 'skipped', reason: 'path tokens unresolvable (active_root or dev_clone_root not available)', ok: null, check_kind: s.check_kind, owner: s.owner });
-      continue;
-    }
-    // reconcile: never -> observed-only by definition (the install-state record
-    // self-entry). We mark it observed (excluded from its own check) per D-08.
-    if (s.reconcile === 'never') {
-      let observed = null;
-      try {
-        const stat = fs.statSync(fp);
-        observed = stat.isFile() ? 'self-excluded' : (stat.isDirectory() ? 'self-excluded-dir' : 'present');
-      } catch (_) { observed = 'absent'; }
-      out.push({ id: s.id, path: fp, check_kind: s.check_kind, expected: s.expected, observed, ok: null, owner: s.owner, remediation: s.remediation });
-      continue;
-    }
-    let observed = null, ok = null, finding = null;
-    if (s.check_kind === 'marker') {
-      let content;
-      try { content = fs.readFileSync(fp, 'utf8'); }
-      catch (_) {
-        out.push({ id: s.id, path: fp, check_kind: s.check_kind, expected: s.expected, observed: 'absent', ok: false, finding: 'surface ' + s.id + ': ' + fp + ' unreadable / missing', owner: s.owner, remediation: s.remediation });
-        continue;
-      }
-      ok = String(content).includes(String(s.expected));
-      observed = ok ? s.expected : null;
-      if (!ok) finding = 'surface ' + s.id + ": marker '" + s.expected + "' missing from " + fp;
-    } else if (s.check_kind === 'exact-value') {
-      const expSubstituted = substituteExpected(s.expected, activeVersion, home);
-      let content;
-      try { content = fs.readFileSync(fp, 'utf8'); }
-      catch (_) {
-        out.push({ id: s.id, path: fp, check_kind: s.check_kind, expected: expSubstituted, observed: 'absent', ok: false, finding: 'surface ' + s.id + ': ' + fp + ' unreadable / missing', owner: s.owner, remediation: s.remediation });
-        continue;
-      }
-      // Schema extension (Plan-03): path_within_file = a dot-path into a JSON
-      // file (e.g. "statusLine.command"). If present, parse + extract.
-      if (s.path_within_file) {
-        let parsed = null;
-        try { parsed = JSON.parse(content); }
-        catch (err) {
-          out.push({ id: s.id, path: fp, check_kind: s.check_kind, expected: expSubstituted, observed: 'parse-error', ok: false, finding: 'surface ' + s.id + ': ' + fp + ' JSON parse failed: ' + err.message, owner: s.owner, remediation: s.remediation, path_within_file: s.path_within_file });
-          continue;
-        }
-        const val = readJsonPath(parsed, s.path_within_file);
-        observed = val == null ? null : String(val);
-        ok = observed != null && observed === expSubstituted;
-        if (!ok) finding = 'surface ' + s.id + ': value at ' + s.path_within_file + ' = ' + JSON.stringify(observed) + ', expected ' + JSON.stringify(expSubstituted);
-      } else {
-        // Default: substring match against the whole file content.
-        const trimmed = String(content).trim();
-        observed = trimmed.length > 200 ? trimmed.slice(0, 200) + '...' : trimmed;
-        ok = String(content).includes(expSubstituted);
-        if (!ok) finding = 'surface ' + s.id + ': expected ' + JSON.stringify(expSubstituted) + ' not present in ' + fp;
-      }
-    } else {
-      // observed-only -> record presence/value, never ok=false.
-      try {
-        const stat = fs.statSync(fp);
-        observed = stat.isDirectory() ? 'present' : 'present';
-      } catch (_) { observed = 'absent'; }
-      ok = null;
-    }
-    out.push(Object.assign({
-      id: s.id, path: fp, check_kind: s.check_kind, expected: s.expected,
-      observed, ok, owner: s.owner, remediation: s.remediation,
-    }, s.path_within_file ? { path_within_file: s.path_within_file } : {}, finding ? { finding } : {}));
-  }
-  const drift = out.some(x => x.ok === false);
-  const status = drift ? 'warn' : 'healthy';
-  // Recoverable iff some owner='session-start' surface is ok:false.
-  const recoverable = out.some(x => x.ok === false && x.owner === 'session-start');
-  return { status, surfaces: out, recoverable };
-}
-
-// -- Class J --fix --------------------------------------------------------
-
-function performClassJFix(check, opts) {
-  const o = opts || {};
-  const home = o.home || HOME;
-  const activeVersion = o.activeVersion || null;
-  const recoveries = [];
-  if (!check || !check.surfaces) return recoveries;
-  // The session-start path re-stamps everything owned. But in the hermetic
-  // test envelope we cannot rely on session-start hitting every surface
-  // exactly. Walk each ok:false owner='session-start' surface and re-stamp
-  // it directly. Idempotent.
-  for (const s of check.surfaces) {
-    if (s.ok !== false) continue;
-    if (s.owner !== 'session-start') continue;
-    try {
-      if (s.id === 'statusline-dispatch-shim') {
-        // Re-stamp the dispatcher shim with the marker. Mirror Plan-02
-        // session-start Step A's shim content (minimal -- the dispatcher
-        // logic is in scripts/statusline-mos-dispatch).
-        const dispatcherSrc = path.join(PLUGIN_ROOT, 'scripts', 'statusline-mos-dispatch');
-        let content;
-        if (fs.existsSync(dispatcherSrc)) {
-          content = fs.readFileSync(dispatcherSrc, 'utf8');
-          if (!content.includes('MINDRIAN-STATUSLINE-DISPATCH')) {
-            // Belt-and-suspenders: prepend the marker if the dispatcher src
-            // somehow lost it.
-            content = '#!/usr/bin/env bash\n# MINDRIAN-STATUSLINE-DISPATCH\n' + content;
-          }
-        } else {
-          content = '#!/usr/bin/env bash\n# MINDRIAN-STATUSLINE-DISPATCH\n# (auto-stamped by /mos:doctor --fix)\n';
-        }
-        fs.mkdirSync(path.dirname(s.path), { recursive: true });
-        fs.writeFileSync(s.path, content);
-        try { fs.chmodSync(s.path, 0o755); } catch (_) { /* ignore on Windows */ }
-        recoveries.push({ class: 'deployment-surfaces', surface: s.id, action: 're-stamp', ok: true, target: s.path });
-        continue;
-      }
-      if (s.id === 'settings-statusline-command') {
-        // The path is the JSON settings.json file; we must JSON-merge so we
-        // don't clobber unrelated keys.
-        let obj = {};
-        if (fs.existsSync(s.path)) {
-          try { obj = JSON.parse(fs.readFileSync(s.path, 'utf8')); } catch (_) { obj = {}; }
-        }
-        if (!obj || typeof obj !== 'object') obj = {};
-        const want = 'bash "' + path.join(home, '.claude', 'statusline-mos') + '"';
-        obj.statusLine = obj.statusLine || {};
-        obj.statusLine.type = 'command';
-        obj.statusLine.command = want;
-        fs.mkdirSync(path.dirname(s.path), { recursive: true });
-        fs.writeFileSync(s.path, JSON.stringify(obj, null, 2));
-        recoveries.push({ class: 'deployment-surfaces', surface: s.id, action: 'rewrite', ok: true, target: s.path, target_value: want });
-        continue;
-      }
-      if (s.id === 'mindrian-last-version') {
-        if (!activeVersion) {
-          recoveries.push({ class: 'deployment-surfaces', surface: s.id, action: 'skipped', detail: 'no active_version available' });
-          continue;
-        }
-        fs.writeFileSync(s.path, String(activeVersion) + '\n');
-        recoveries.push({ class: 'deployment-surfaces', surface: s.id, action: 'rewrite', ok: true, target: s.path, target_value: activeVersion });
-        continue;
-      }
-      if (s.id === 'dev-clone-pre-commit-hook') {
-        // Idempotently install the dev-clone pre-commit hook.
-        const cp = require('child_process');
-        const installer = path.join(PLUGIN_ROOT, 'scripts', 'install-pre-commit.sh');
-        if (fs.existsSync(installer)) {
-          // The installer uses `git rev-parse --show-toplevel`; we run it
-          // from the dev-clone root (s.path is .git/hooks/pre-commit, so
-          // the repo root is two levels up from that file).
-          const repoRoot = path.resolve(path.dirname(s.path), '..', '..');
-          const r = cp.spawnSync('bash', [installer], { cwd: repoRoot, encoding: 'utf8', timeout: 5000 });
-          recoveries.push({
-            class: 'deployment-surfaces', surface: s.id, action: 'install',
-            ok: r.status === 0, exit_code: typeof r.status === 'number' ? r.status : -1,
-          });
-        } else {
-          recoveries.push({ class: 'deployment-surfaces', surface: s.id, action: 'skipped', detail: 'install-pre-commit.sh not found' });
-        }
-        continue;
-      }
-      // Default: skip unknown owned surfaces (forward-compat).
-      recoveries.push({ class: 'deployment-surfaces', surface: s.id, action: 'skipped', detail: 'unknown surface id' });
-    } catch (err) {
-      recoveries.push({ class: 'deployment-surfaces', surface: s.id, action: 'error', detail: err.message });
-    }
-  }
-  // Plan-5 (HARNESS-123-13): unconditional cache prune. Doctor --fix runs the
-  // prune every time, regardless of version change -- this is recovery (the
-  // operator asked for it), not an automatic post-update tidy.
-  try {
-    const { pruneMarketplaceCache } = require(path.join(__dirname, '..', 'lib', 'core', 'cache-prune.cjs'));
-    const r = pruneMarketplaceCache({ home });
-    if (r.skipped) {
-      recoveries.push({ class: 'deployment-surfaces', surface: 'cache-prune', action: 'skipped', reason: r.reason, ok: null });
-    } else if (r.removed.length > 0) {
-      for (const dir of r.removed) {
-        recoveries.push({ class: 'deployment-surfaces', surface: 'cache-prune', action: 'removed', dir, ok: true });
-      }
-    } else {
-      recoveries.push({ class: 'deployment-surfaces', surface: 'cache-prune', action: 'no-op', kept: r.kept, ok: true });
-    }
-  } catch (e) {
-    recoveries.push({ class: 'deployment-surfaces', surface: 'cache-prune', action: 'errored', error: e.message, ok: false });
-  }
-  return recoveries;
-}
 
 // -- Acceptance: release-gate-as-a-command (Phase 123 Plan-04) -------
 //
@@ -2839,18 +1982,26 @@ function runAccumulativeEngine(flags) {
     } catch (_) {
       runningRaw = null;
     }
-    // Phase 217 Plan 05: when checkInstallVersion cannot resolve the install
+    // Phase 217 Plan 05/06: when checkInstallVersion cannot resolve the install
     // (e.g. a hermetic test that overrides HOME so ~/.claude/plugins is not
     // where checkInstallVersion looked, or an install loaded from an unexpected
-    // path), fall back to the version of record of the CODE that is actually
-    // running -- PLUGIN_ROOT/.claude-plugin/plugin.json. That path is
-    // HOME-independent, so the accumulative engine never goes fully dark (which
-    // would silently drop every cadence:always diagnostic -- exactly the
-    // Pitfall-1 silence the always-cadence design exists to prevent). Real
-    // installs resolve via checkInstallVersion first, so this is a no-op for
-    // them. Only reached when opts.running was undefined (the real CLI path);
-    // an EXPLICIT opts.running:null still yields the soft-fail skip.
-    if (runningRaw === null) {
+    // path) OR resolves a NON-CLEAN-SEMVER version (a 4-component ship version
+    // like 1.12.5.1 that only survives via semver.coerce, which DROPS the 4th
+    // component -- 1.12.5.1 -> 1.12.5 -- and would then place the install BELOW
+    // a diagnostic's introduced_version on the deferred-guard number line, so a
+    // cadence:always check that ships WITH this code would be wrongly DEFERRED),
+    // fall back to the version of record of the CODE that is actually running --
+    // PLUGIN_ROOT/.claude-plugin/plugin.json. That path is HOME-independent, so
+    // the accumulative engine never goes dark (the Pitfall-1 silence the
+    // always-cadence design exists to prevent, and the regression class I test
+    // i.6 pins: a 1.12.5.1 install must still surface report.checks
+    // ['install-state']). Real installs with CLEAN semver resolve via
+    // checkInstallVersion first, so this is a no-op for them. Only reached when
+    // opts.running was undefined (the real CLI path); an EXPLICIT opts.running:
+    // null still yields the soft-fail skip. semver.valid rejects 4-component and
+    // accepts prereleases (1.13.0-beta.13 stays as-resolved), which is exactly
+    // the clean-vs-coerced distinction the deferred-guard needs.
+    if (!semver.valid(typeof runningRaw === 'string' ? runningRaw : '')) {
       try {
         const devPluginJson = path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json');
         if (fs.existsSync(devPluginJson)) {
@@ -3677,6 +2828,15 @@ function main() {
 
   // Phase 127-02 BRAIN-MCP-127-08: --brain-smoke (class M) dispatch.
   //
+  // Phase 217 carve-out: brain-smoke (class M) stays special-cased as an async
+  // dispatch block and is NOT migrated to a registry runner. The accumulative
+  // engine loop is SYNCHRONOUS (it calls check(ctx) and consumes the return
+  // value inline); class M is an async 5-layer network probe (Promise-based,
+  // with the Windows-safe process.exitCode teardown below). Migrating it would
+  // require an async engine pass, deliberately not taken during the 211-217
+  // release window (217-RESEARCH Pitfall 2, CONTEXT discretion clause A2:
+  // lower-risk call under release pressure).
+  //
   // The 5-layer probe is dispatched here BEFORE the class A-L flow so the
   // output is the canonical { class:"M", ok, layers:[5], overall_ms } shape
   // (consumed by tests/test-127-02-doctor-class-m.sh). When combined with
@@ -3710,6 +2870,13 @@ function main() {
     return;
   }
 
+  // Phase 217 carve-out: eureka-smoke (class S) stays special-cased as an async
+  // dispatch block and is NOT migrated to a registry runner, for the same reason
+  // as class M: the accumulative engine loop is synchronous and class S is an
+  // async 4-layer local-embedding-stack probe. Migrating it requires an async
+  // engine pass, deliberately not taken during the 211-217 release window
+  // (217-RESEARCH Pitfall 2, CONTEXT discretion clause A2).
+  //
   // quick(260706-13z) D14: --eureka-smoke (class S) standalone dispatch. Mirrors
   // the class-M block exactly, including the process.exitCode-not-process.exit
   // Windows-safe teardown (2026-05-30 RCA) and the class-flag invariant (exit 0
@@ -3801,6 +2968,19 @@ function main() {
   // 'can fix automatically' from 'needs manual intervention' without parsing cache.versions[].
   report.install.recoverable = (cacheResult.status === 'ok' && cacheResult.versions && cacheResult.versions.length > 0);
 
+  // Phase 217 carve-out: class A (install-cache) stays special-cased in main()
+  // and is NOT migrated to a registry runner. Its results live OUTSIDE
+  // report.checks (report.install / report.cache / report.drift /
+  // report.classARecovered), its recovery is the atomic-swap path, and
+  // _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult)
+  // consumes cacheResult + installResult POSITIONALLY -- the exit-code contract
+  // is structurally coupled to main(). Forcing it into the uniform module shape
+  // would restructure the most-tested path days before the 211-217 release. Its
+  // three pure constituent readers (checkInstallVersion, checkMarketplaceCache,
+  // checkDevSourceConsistency) already left the monolith into
+  // lib/core/doctor/shared.cjs in 217-01. Full migration is future work, per
+  // 217-RESEARCH Open Question 3.
+  //
   // Class A recovery (existing behavior preserved; result also pushed onto
   // the unified report.recovered array for class B/C/D/E/F co-existence).
   // Phase 95.2 D-01..D-04: now uses performRecoveryAtomic with two-step atomic-swap.
@@ -3866,90 +3046,15 @@ function main() {
   // dispatches did (G gate: warn AND recoverable !== false; H's stricter
   // recoverable === true gate is enforced runner-internally in its fix(ctx)).
 
-  // Class I + Class J: install-state + topology + 6-way version-of-record;
-  // deployment-surface manifest reconciliation. Phase 123 Plan-03.
-  if (flags.installState) {
-    const home = process.env.HOME || process.env.USERPROFILE || HOME;
-    let stateCheck;
-    try {
-      stateCheck = checkInstallState({ home });
-    } catch (err) {
-      stateCheck = { status: 'error', detail: err.message, findings: [], topology: 'not-found', recoverable: false };
-    }
-    report.checks['install-state'] = stateCheck;
-    // --fix dispatch BEFORE class J check so the recoveries are visible and
-    // class J reads the (possibly repaired) record + LV on its run.
-    if (flags.fix && stateCheck && stateCheck.recoverable) {
-      try {
-        const classIRecoveries = performClassIFix(stateCheck, { home });
-        if (!Array.isArray(report.recoveries)) report.recoveries = [];
-        for (const rec of classIRecoveries) report.recoveries.push(rec);
-        for (const rec of classIRecoveries) report.recovered.push(rec);
-        // Re-pull the post-fix check so the report reflects remediation state.
-        try { report.checks['install-state'] = checkInstallState({ home }); } catch (e) { /* keep prior */ }
-      } catch (err) {
-        if (!Array.isArray(report.recoveries)) report.recoveries = [];
-        report.recoveries.push({ class: 'install-state', action: 'error', detail: err.message });
-      }
-    }
-    // Now class J -- reads topology + active_root + active_version from the
-    // (possibly post-fix) install-state.
-    const stateAfter = report.checks['install-state'];
-    const activeRoot = stateAfter && stateAfter.record && stateAfter.record.active_root
-      ? stateAfter.record.active_root
-      : (stateAfter && stateAfter.resolver && stateAfter.resolver.root) || null;
-    const activeVersion = stateAfter && stateAfter.record && stateAfter.record.active_version
-      ? stateAfter.record.active_version
-      : (function() {
-          try { return readInstalledPluginsVersion(home); } catch (_) { return null; }
-        })();
-    let surfacesCheck;
-    try {
-      surfacesCheck = checkDeploymentSurfaces({
-        home,
-        topology: (stateAfter && stateAfter.topology) || 'not-found',
-        activeRoot, activeVersion,
-      });
-    } catch (err) {
-      surfacesCheck = { status: 'error', detail: err.message, surfaces: [], recoverable: false };
-    }
-    report.checks['deployment-surfaces'] = surfacesCheck;
-    if (flags.fix && surfacesCheck && surfacesCheck.recoverable) {
-      try {
-        const classJRecoveries = performClassJFix(surfacesCheck, { home, activeVersion });
-        if (!Array.isArray(report.recoveries)) report.recoveries = [];
-        for (const rec of classJRecoveries) report.recoveries.push(rec);
-        for (const rec of classJRecoveries) report.recovered.push(rec);
-        // Re-pull the post-fix surfaces check.
-        try {
-          report.checks['deployment-surfaces'] = checkDeploymentSurfaces({
-            home,
-            topology: (stateAfter && stateAfter.topology) || 'not-found',
-            activeRoot, activeVersion,
-          });
-        } catch (e) { /* keep prior */ }
-      } catch (err) {
-        if (!Array.isArray(report.recoveries)) report.recoveries = [];
-        report.recoveries.push({ class: 'deployment-surfaces', action: 'error', detail: err.message });
-      }
-    }
-    // BUG 7 reinterpretation: when class A (install-cache) reports
-    // status:'missing' AND class I says topology=='marketplace-cache', the
-    // legacy clone is EXPECTED to be absent. Downgrade class A to a note.
-    if (report.install && report.install.status === 'missing'
-        && stateAfter && stateAfter.topology === 'marketplace-cache') {
-      report.install = Object.assign({}, report.install, {
-        status: 'ok',
-        note: 'legacy clone path expected absent on a marketplace-cache install (Bug 7 fix)',
-        bug7_fix: true,
-      });
-      // Likewise neutralize drift detection if it was based on
-      // 'install-missing'.
-      if (report.drift && report.drift.reason === 'install-missing') {
-        report.drift = { detected: false, reason: 'bug7-fix-marketplace-cache' };
-      }
-    }
-  }
+  // Class I (install-state) + Class J (deployment-surfaces) migrated to
+  // registry-driven cadence:always runners (Phase 217 Plan 06). The
+  // accumulative engine now owns both under the --install-state flag (they share
+  // it, exactly as this block did): install-state runs first so class J reads
+  // its same-invocation result via ctx.checks['install-state']; each fix's
+  // recoveries[] land on report.recovered through the engine glue. The class-A
+  // BUG 7 reinterpretation that used to close this block (it reads class I's
+  // topology to downgrade an expected-absent legacy clone) is relocated to AFTER
+  // the engine populates report.checks['install-state'] (see below).
 
 
   // Class P: prose-vs-code / product-claims drift (Phase 150.9 Plan-02;
@@ -4308,6 +3413,30 @@ function main() {
     }
   } catch (err) {
     report.checks['accumulative-engine'] = { status: 'error', detail: (err && err.message) || 'engine threw', selected: [], deferred: [], findings: [], advanced: false };
+  }
+
+  // BUG 7 reinterpretation (relocated from the retired class I/J main() block,
+  // Phase 217 Plan 06): class A (install-cache) x class I (install-state)
+  // interplay. When class A reports install status:'missing' AND class I
+  // resolves topology=='marketplace-cache', the legacy clone path is EXPECTED
+  // absent (Claude Code loads from the cache), so downgrade class A to a note
+  // and neutralize an install-missing-based drift. Class I now runs inside the
+  // accumulative engine, so this reads the engine-populated
+  // report.checks['install-state']. Gated on flags.installState (the flag that
+  // activates class I), matching the pre-migration guard.
+  if (flags.installState) {
+    const stateAfter = report.checks['install-state'];
+    if (report.install && report.install.status === 'missing'
+        && stateAfter && stateAfter.topology === 'marketplace-cache') {
+      report.install = Object.assign({}, report.install, {
+        status: 'ok',
+        note: 'legacy clone path expected absent on a marketplace-cache install (Bug 7 fix)',
+        bug7_fix: true,
+      });
+      if (report.drift && report.drift.reason === 'install-missing') {
+        report.drift = { detected: false, reason: 'bug7-fix-marketplace-cache' };
+      }
+    }
   }
 
 

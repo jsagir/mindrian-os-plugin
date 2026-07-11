@@ -111,6 +111,24 @@
       "fix_supported": false,
       "runner": "lib/core/doctor/verify-surface-module.cjs",
       "description": "Live cascade side-channel end-to-end verification (class D): spawns tests/test-cascade-surface-e2e.cjs (30s timeout) and asserts the 8-key shape. Self-skips when bash or the harness is absent (never faults an install for a missing dev harness). Check-only."
+    },
+    {
+      "id": "install-state",
+      "introduced_version": "1.13.0-beta.13",
+      "cadence": "always",
+      "flag": "installState",
+      "fix_supported": true,
+      "runner": "lib/core/doctor/install-state-module.cjs",
+      "description": "Install-state record + topology classification + 6-way version-of-record consistency (class I): reads ~/.mindrian/install-state.json, live-spot-checks record.active_version vs installed_plugins.json, detects legacy-config-pin drift (F11) and legacy-clone-alongside-marketplace-cache migration candidates. --fix returns MULTIPLE recovery records (session-start record write, LV rewrite, legacy-config reconcile, legacy-clone backup-verify-remove with the dev-clone safety belt). Runs BEFORE deployment-surfaces so class J reads its result via ctx.checks."
+    },
+    {
+      "id": "deployment-surfaces",
+      "introduced_version": "1.13.0-beta.13",
+      "cadence": "always",
+      "flag": "installState",
+      "fix_supported": true,
+      "runner": "lib/core/doctor/deployment-surfaces-module.cjs",
+      "description": "Deployment-surface manifest reconciliation (class J): reconciles every owned surface in data/deployment-surfaces.json against disk (marker / exact-value / observed-only), honoring topology_scope + token expansion. Reads topology/activeRoot/activeVersion from ctx.checks['install-state'] (self-derives via shared.cjs when absent). Shares the --install-state flag with class I; ordered AFTER it. --fix re-stamps ok:false session-start-owned surfaces + prunes the marketplace cache."
     }
   ]
 }

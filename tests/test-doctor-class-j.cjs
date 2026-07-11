@@ -148,7 +148,11 @@ function getSurface(check, id) {
   return surfaces.find(s => s.id === id);
 }
 
-// -- j.1: all 6 surfaces healthy -> status healthy -----------------------
+// -- j.1: all 6 surfaces healthy -> status ok ----------------------------
+// Phase 217 Plan 06: class J migrated to a registry-driven runner. The engine
+// check(ctx) maps the raw checkDeploymentSurfaces 'healthy' status into the
+// standard ok|warn|error|skip vocabulary, so report.checks['deployment-surfaces']
+// now reads 'ok' (was 'healthy'). Same clean-fixture meaning; vocab-only pin.
 try {
   const home = makeTmpHome('j1');
   const V = '1.13.0-beta.13';
@@ -159,7 +163,7 @@ try {
   const { report } = runDoctor(home, ['--install-state']);
   const c = report.checks['deployment-surfaces'];
   assert.ok(c, 'deployment-surfaces check present');
-  assert.strictEqual(c.status, 'healthy', 'expected healthy; got ' + c.status);
+  assert.strictEqual(c.status, 'ok', 'expected ok (migrated vocab); got ' + c.status);
   // Sanity: assert each owned surface is ok:true.
   for (const id of ['statusline-dispatch-shim', 'settings-statusline-command', 'mindrian-last-version']) {
     const s = getSurface(c, id);
