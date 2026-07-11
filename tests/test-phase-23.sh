@@ -139,6 +139,57 @@ run_registry_tests() {
   else
     fail "room-registry read missing details"
   fi
+
+  # Test 10: resolve-room --strict distinguishes legacy fallback from a
+  # confirmed resolution (intern-w1-rooms-new-silent-fail.md, Fix Direction 1).
+  # A caller must not be able to mistake "stale single-room fallback" for
+  # "a real, registered room."
+  echo "Test 10: resolve-room --strict fallback distinguishability"
+  STRICT_DIR="$TMPBASE/strict-workspace"
+  mkdir -p "$STRICT_DIR/room"
+  echo "project_name: Strict Test Project" > "$STRICT_DIR/room/STATE.md"
+
+  # 10a: default (no --strict) behavior is UNCHANGED -- exit 0, plain path,
+  # no FALLBACK: marker. This locks in backward compatibility for the
+  # dozens of existing callers that do not pass --strict.
+  DEFAULT_OUT=$(bash "$PLUGIN_ROOT/scripts/resolve-room" "$STRICT_DIR" 2>/dev/null)
+  DEFAULT_EXIT=$?
+  if [ "$DEFAULT_EXIT" -eq 0 ] && [[ "$DEFAULT_OUT" == *"/room" ]] && [[ "$DEFAULT_OUT" != FALLBACK:* ]]; then
+    pass "resolve-room without --strict is unchanged (exit 0, plain path)"
+  else
+    fail "resolve-room without --strict changed behavior, got exit=$DEFAULT_EXIT out=$DEFAULT_OUT"
+  fi
+
+  # 10b: --strict without --adopt on a bare legacy fallback must NOT exit 0
+  # and must NOT be indistinguishable from a real registry hit.
+  set +e
+  STRICT_OUT=$(bash "$PLUGIN_ROOT/scripts/resolve-room" "$STRICT_DIR" --strict 2>/dev/null)
+  STRICT_EXIT=$?
+  set -e
+  if [ "$STRICT_EXIT" -eq 2 ] && [[ "$STRICT_OUT" == FALLBACK:* ]]; then
+    pass "resolve-room --strict marks a bare legacy fallback as FALLBACK: with exit 2"
+  else
+    fail "resolve-room --strict did not distinguish the fallback, got exit=$STRICT_EXIT out=$STRICT_OUT"
+  fi
+  if [ "$STRICT_EXIT" -ne 0 ] && [ "$STRICT_EXIT" -ne 1 ]; then
+    pass "resolve-room --strict fallback exit code (2) does not alias exit 0 (success) or exit 1 (no room)"
+  else
+    fail "resolve-room --strict fallback exit code aliases an existing meaning: $STRICT_EXIT"
+  fi
+
+  # 10c: --strict WITH --adopt is a legitimate registration, not an ambiguous
+  # fallback -- must still exit 0 with a plain (non-prefixed) path.
+  ADOPT_STRICT_DIR="$TMPBASE/strict-adopt-workspace"
+  mkdir -p "$ADOPT_STRICT_DIR/room"
+  set +e
+  ADOPT_STRICT_OUT=$(bash "$PLUGIN_ROOT/scripts/resolve-room" "$ADOPT_STRICT_DIR" --strict --adopt 2>/dev/null)
+  ADOPT_STRICT_EXIT=$?
+  set -e
+  if [ "$ADOPT_STRICT_EXIT" -eq 0 ] && [[ "$ADOPT_STRICT_OUT" != FALLBACK:* ]]; then
+    pass "resolve-room --strict --adopt is a real registration, exits 0 with plain path"
+  else
+    fail "resolve-room --strict --adopt regressed, got exit=$ADOPT_STRICT_EXIT out=$ADOPT_STRICT_OUT"
+  fi
 }
 
 # --- Lock group (placeholder for Plan 03) ---

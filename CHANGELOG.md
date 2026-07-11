@@ -3,6 +3,10 @@
 ### Added
 - 
 
+### Fixed
+- **11 SKILL.md files documented `bash scripts/<name>` as if `scripts/` were skill-local** (`skills/rooms`, `publish`, `new-project`, `setup`, `room`, `file-meeting`, `wiki`, `vault`, `ingest-methodology`, `ignite`, `export`, plus `commands/new-project.md`). The scripts only ever existed at the plugin root, so any invocation with cwd != plugin root failed exit 127. Prefixed all 72 call sites with `${CLAUDE_PLUGIN_ROOT}` (quoted), the proven convention already used in ~38 other SKILL.md files, `hooks.json`, and `.mcp.json`. Also removed the co-located `PLUGIN_ROOT="$(dirname "$(dirname "$(readlink -f "$0")")")"` pattern (`skills/rooms/SKILL.md` Step 2.5, `skills/new-project/SKILL.md`, `commands/new-project.md`, referenced by `skills/ignite/SKILL.md`) -- confirmed broken under the Bash tool's actual invocation mechanism (`$0` resolves to the shell binary, computing `/usr` as the plugin root on every call) -- replaced with `${CLAUDE_PLUGIN_ROOT}` throughout. See `.planning/debug/intern-w1-rooms-skill-script-path.md`.
+- **`/mos:rooms new` could silently fail to create a room while narrating success.** `scripts/resolve-room`'s legacy-fallback branch returned the pre-existing `room/` path with exit 0 (success) whether or not a new room was actually registered, indistinguishable from a real registry hit -- the direct mechanism behind a false "Room's live" claim when no `cv-project/` directory or registry entry ever existed. Added a `--strict` mode: a bare legacy fallback (no `--adopt`) now prints a `FALLBACK:` stdout marker and exits 2, never 0 -- fully backward compatible for every existing caller that omits the flag. Also tightened `skills/rooms/SKILL.md` Step 2's legacy-room adoption prompt to the same "FIRE THE CARD -- mandatory" doctrine `/mos:ignite`'s B1/B2 gates carry, added an explicit warning against narrating room creation before `birthRoom()` returns `{ok:true}`, and fixed the routing note that mislabeled Step 2 as "(name/slug capture)" (Step 1 captures the name/slug; Step 2 is the adoption check). See `.planning/debug/intern-w1-rooms-new-silent-fail.md`.
+
 ## [1.15.3-beta.12] - 2026-07-06
 
 ### Added

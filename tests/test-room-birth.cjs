@@ -374,6 +374,96 @@ try {
 
   if (db) { try { db.close(); } catch (_) {} }
 
+  // --- Section F: no-registry-plus-legacy-room silent-fail regression ---
+  // (intern-w1-rooms-new-silent-fail.md). Reproduces the exact precondition
+  // Intern-4 hit: a legacy room/ directory exists, no .rooms/registry.json
+  // exists yet, and the birth gates (B1/B2) are skipped (no approvedBy).
+  // birthRoom() must fail closed -- it must NEVER create the requested new
+  // room directory or a registry entry that a caller could mistake for a
+  // real room-birth success, regardless of the legacy room sitting nearby.
+  process.stdout.write('\nSection F: no-registry-plus-legacy-room silent-fail regression\n');
+
+  const tmpHomeF = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-birth-silentfail-test-'));
+  const legacyRoomDirF = path.join(tmpHomeF, 'room');
+  fs.mkdirSync(legacyRoomDirF, { recursive: true });
+  fs.writeFileSync(path.join(legacyRoomDirF, 'STATE.md'), 'project_name: Legacy Funding Room\n');
+
+  const newSlugF = 'cv-project';
+  const newRoomDirF = path.join(tmpHomeF, newSlugF);
+  const registryPathF = path.join(tmpHomeF, '.rooms', 'registry.json');
+
+  check(
+    'precondition: no .rooms/registry.json exists yet',
+    !fs.existsSync(registryPathF)
+  );
+  check(
+    'precondition: legacy room/ directory exists',
+    fs.existsSync(legacyRoomDirF)
+  );
+
+  let resultF;
+  try {
+    resultF = birthRoom({
+      slug: newSlugF,
+      roomDir: newRoomDirF,
+      sessionId: 's-silentfail-001',
+      ventureText: 'A CV/resume project, unrelated to the legacy funding room',
+      jtbd: 'When I need a dedicated room for my CV project',
+      blueprintFamily: 'venture',
+      gateAnswers: [],
+      // approvedBy INTENTIONALLY omitted -- simulates Larry narrating success
+      // without ever firing the B1/B2 AskUserQuestion gates.
+      vname: 'CV Project',
+      vstage: 'Pre-Opportunity',
+    });
+  } catch (e) {
+    process.stdout.write('  FAIL: birthRoom (Section F) threw: ' + e.message + '\n');
+    resultF = null;
+  }
+
+  check(
+    'birthRoom with no approvedBy returns {ok:false, reason:"no_approval"} (never fabricates ok:true)',
+    resultF && resultF.ok === false && resultF.reason === 'no_approval',
+    resultF ? JSON.stringify(resultF) : 'threw'
+  );
+  check(
+    'the requested new room directory (cv-project) was NOT created',
+    !fs.existsSync(newRoomDirF)
+  );
+  check(
+    'no registry.json was fabricated by the failed birth attempt',
+    !fs.existsSync(registryPathF)
+  );
+  check(
+    'the legacy room/ directory is untouched (no conflation with the new slug)',
+    fs.existsSync(legacyRoomDirF) && fs.existsSync(path.join(legacyRoomDirF, 'STATE.md'))
+  );
+
+  // Companion assertion: scripts/resolve-room --strict on this SAME
+  // precondition (legacy room present, no registry, no --adopt) must also
+  // refuse to look like success -- closing the Layer 1 mechanism
+  // (resolve-room's Strategy-2 fallback) alongside the Layer 2 mechanism
+  // (birthRoom's approvedBy guard) tested above.
+  const resolveRoomResult = spawnSync(
+    'bash',
+    [path.join(REPO_ROOT, 'scripts', 'resolve-room'), tmpHomeF, '--strict'],
+    { encoding: 'utf8', env: Object.assign({}, process.env, { MINDRIAN_ROOMS_HOME: path.join(tmpHomeF, 'no-central-rooms') }) }
+  );
+  check(
+    'resolve-room --strict on the same precondition exits non-zero (never 0)',
+    resolveRoomResult.status !== 0,
+    'status=' + resolveRoomResult.status
+  );
+  check(
+    'resolve-room --strict marks the fallback with the FALLBACK: prefix, not a bare path',
+    (resolveRoomResult.stdout || '').trim().startsWith('FALLBACK:'),
+    'stdout=' + JSON.stringify(resolveRoomResult.stdout)
+  );
+
+  try {
+    fs.rmSync(tmpHomeF, { recursive: true, force: true });
+  } catch (_) {}
+
 } finally {
   // Restore env.
   if (origRoomsHome !== undefined) {
