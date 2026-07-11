@@ -4,7 +4,7 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Phase 217 context gathered
-last_updated: "2026-07-11T18:14:53.786Z"
+last_updated: "2026-07-11T19:00:25.750Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 25
@@ -877,7 +877,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 217 (doctor-cjs-architecture-rethink-audit-all-14-check-classes-i) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1426,6 +1426,7 @@ Progress: [█████████░] 92%
 | Phase 198-mcp-first-then-sdk P09 | 40min | 2 tasks | 11 files |
 | Phase 217 P01 | 40 | 2 tasks | 4 files |
 | Phase 217 P02 | 35min | 3 tasks | 6 files |
+| Phase 217 P04 | ~35min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -2372,6 +2373,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 217-01: cadence:always doctor modules run every invocation watermark-immune (Pitfall-1 fix); cadence:once = watermark-gated heal
 - [Phase ?]: Phase 217-01: lib/core/doctor/shared.cjs extracted as leaf module (constants + version helpers + 3 pure class-A readers), one-direction require, no circular dependency
 - [Phase ?]: 217-02: card-fire-health introduced_version = running version-of-record (1.15.3-beta.12) not stable 1.15.3, else the cadence:always deferred-guard defers the module and re-introduces the Pitfall-1 silent-diagnostic failure
+- [Phase 217]: 217-04: class B --fix wired for real (creates missing .room-root sentinels); B/C/E migrated to registry runners; introduced_version 1.12.1-beta.1 not 1.15.3
 
 ### Pending Todos
 
@@ -2435,7 +2437,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-11T17:26:39.989Z
+Last session: 2026-07-11T18:59:23.473Z
 Stopped at: Phase 217 context gathered
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
