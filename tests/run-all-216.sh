@@ -94,6 +94,12 @@ run "216-03 gate: render coverage" \
 run_if "215 engine no-regression" "tests/run-all-215.sh" \
   bash tests/run-all-215.sh
 
+# (10) Field contract (216-05 gap closure): the room-native substrate section
+#      field must carry a real domain label (or the honest unknown), never the
+#      ICM schema type column; no statement text may read Section x Section.
+run "216-05 field contract" \
+  node tests/test-216-field-contract.cjs
+
 echo "======================================"
 echo "Phase 216: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
 echo "======================================"

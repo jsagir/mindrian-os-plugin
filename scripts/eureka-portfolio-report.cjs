@@ -911,5 +911,6 @@ module.exports = {
   techFor: techFor,
   catalogId: catalogId,
   cnumberNumeric: cnumberNumeric,
+  deriveSharedProblems: deriveSharedProblems,
   main: main,
 };
