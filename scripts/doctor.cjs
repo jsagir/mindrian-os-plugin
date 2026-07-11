@@ -40,23 +40,34 @@ const semver = require('semver');
 
 // -- Paths -----------------------------------------------------------
 
-const HOME = os.homedir();
-// Phase 95.2 D-14: optional MINDRIAN_PLUGIN_HOME override mirrors the
-// MINDRIAN_ROOMS_HOME pattern from 95.1 (line 294). Tests set this to a
-// scratch dir; production users never set it -- defaults to ~/.claude/plugins.
-const PLUGIN_HOME = process.env.MINDRIAN_PLUGIN_HOME || path.join(HOME, '.claude/plugins');
-// INSTALL_DIR is the legacy-clone path; class I (Phase 123 Plan-03) treats
-// topology=='legacy' as a migration candidate, not a missing-install. New
-// code MUST use resolveActivePluginRoot() from lib/core/active-plugin-root.cjs
-// instead of this constant. INSTALL_DIR remains the source of truth for the
-// existing class A check (checkInstallVersion), which class I reinterprets
-// via topology classification (Bug 7 fix: marketplace-cache topology with no
-// legacy dir is VALID, not drift).
-const INSTALL_DIR = path.join(PLUGIN_HOME, 'mindrian-os');
-// Phase 123 Plan-03 (HARNESS-123-07 + HARNESS-123-08): the one resolver.
-// Class I + class J + the aggressive --fix all resolve via this -- NEVER via
-// the hardcoded INSTALL_DIR constant above.
-const { resolveActivePluginRoot } = require(path.join(__dirname, '..', 'lib', 'core', 'active-plugin-root.cjs'));
+// Phase 217 Plan-01 (D-02): shared constants + helpers + the pure class-A
+// constituent readers live in the leaf module lib/core/doctor/shared.cjs. ONE
+// destructuring require -- doctor.cjs -> shared.cjs is the ONLY direction (no
+// back-require). C (the color table), HOME, PLUGIN_HOME, INSTALL_DIR,
+// MARKETPLACE_CACHE_DIR, PLUGIN_ROOT, parseVersion, cmpVersion,
+// resolveActivePluginRoot (re-exported by shared from
+// lib/core/active-plugin-root.cjs), findRoomRoot, readRegistry,
+// readInstalledPluginsVersion, checkInstallVersion, checkMarketplaceCache, and
+// checkDevSourceConsistency all resolve here. INSTALL_DIR remains the source of
+// truth for the class A check; new code MUST use resolveActivePluginRoot()
+// instead of the hardcoded INSTALL_DIR constant.
+const {
+  C,
+  HOME,
+  PLUGIN_HOME,
+  INSTALL_DIR,
+  MARKETPLACE_CACHE_DIR,
+  PLUGIN_ROOT,
+  parseVersion,
+  cmpVersion,
+  resolveActivePluginRoot,
+  findRoomRoot,
+  readRegistry,
+  readInstalledPluginsVersion,
+  checkInstallVersion,
+  checkMarketplaceCache,
+  checkDevSourceConsistency,
+} = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'shared.cjs'));
 // Phase 139 Plan-01 (S1 WHERE fix): the SINGLE umbilical/room target resolver.
 // doctor's only cwd-derived target (checkCascadeRoomsActive) routes through
 // this -- never a bare process.cwd() probe. Precedence: .umbilical cord ->
@@ -76,29 +87,10 @@ const { resolveUmbilicalTarget } = require(path.join(__dirname, '..', 'lib', 'co
 // introduced_version is in (applied_through, running], idempotently.
 const DOCTOR_MODULES_PATH = path.join(__dirname, '..', 'data', 'doctor-modules.json');
 const { readDoctorApplied, writeDoctorApplied } = require(path.join(__dirname, '..', 'lib', 'core', 'migration-snapshot.cjs'));
-// Phase 123 Plan-03: the plugin root for class-J --fix and for spawning
-// session-start. resolveActivePluginRoot's `root` is the ACTIVE install path
-// (which may be a marketplace-cache version dir); the plugin SOURCE root --
-// where scripts/session-start lives -- is THIS script's repo root.
-const PLUGIN_ROOT = path.resolve(__dirname, '..');
-const INSTALL_PLUGIN_JSON = path.join(INSTALL_DIR, '.claude-plugin/plugin.json');
-const MARKETPLACE_CACHE_DIR = path.join(PLUGIN_HOME, 'cache/mindrian-marketplace/mos');
 // Phase 95.6 D-09 / R-01: the install receipt install.sh writes incrementally.
 // Class H reads it to confirm the install actually finished and, if not, to
 // name the missing tail steps.
 const INSTALL_RECEIPT_JSON = path.join(INSTALL_DIR, '.install-receipt.json');
-
-// -- ANSI colors -----------------------------------------------------
-
-const C = {
-  reset: '\x1b[0m',
-  bold: '\x1b[1m',
-  dim: '\x1b[2m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  cyan: '\x1b[36m',
-};
 
 // -- Argument parsing ------------------------------------------------
 
@@ -466,168 +458,10 @@ Exit codes:
 `;
 }
 
-// -- Comparable semver helpers ---------------------------------------
-
-function parseVersion(v) {
-  if (!v || typeof v !== 'string') return null;
-  const m = v.match(/^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/);
-  if (!m) return null;
-  return {
-    major: parseInt(m[1], 10),
-    minor: parseInt(m[2], 10),
-    patch: parseInt(m[3], 10),
-    prerelease: m[4] || null,
-    raw: v,
-  };
-}
-
-function cmpVersion(a, b) {
-  if (a.major !== b.major) return a.major - b.major;
-  if (a.minor !== b.minor) return a.minor - b.minor;
-  if (a.patch !== b.patch) return a.patch - b.patch;
-  // Prerelease versions sort BEFORE the corresponding stable version.
-  if (a.prerelease && !b.prerelease) return -1;
-  if (!a.prerelease && b.prerelease) return 1;
-  if (a.prerelease && b.prerelease) {
-    // Phase 126 Plan-02 FIX: numeric-aware prerelease ordering per
-    // npm-semver spec (section 11.4.4). The prior localeCompare branch
-    // sorted prereleases LEXICOGRAPHICALLY which makes "beta.10" < "beta.9"
-    // because ASCII '1' < '9'. That cost a Windows tester the wrong
-    // recovery target (beta.9 picked over beta.13) per the 2026-05-13
-    // dogfood session. semver.compare returns -1/0/1 with proper
-    // numeric-component-aware semantics: beta.9 < beta.10 < beta.13.
-    //
-    // Safety: cmpVersion is only invoked on parseVersion outputs (line
-    // ~181); the regex there gates both inputs to /^M.m.p(?:-PR)?$/ and
-    // the major/minor/patch early-returns above guarantee equal cores
-    // here. semver.compare validates internally and falls through to
-    // lexicographic only when its parser cannot resolve the prerelease
-    // -- which our parseVersion regex prevents from reaching this branch.
-    return semver.compare(a.raw, b.raw);
-  }
-  return 0;
-}
-
-// -- Diagnostic checks -----------------------------------------------
-
-function checkInstallVersion() {
-  // Topology-aware REGARDLESS of legacy-dir presence (RCA:
-  // doctor-marketplace-cache-drift-deadlock, 2026-06-12): under
-  // marketplace-cache topology Claude Code loads the plugin from the cache
-  // version dir recorded in installed_plugins.json. The active-root read used
-  // to live ONLY inside the dir-missing branch below, so a VESTIGIAL legacy
-  // ~/.claude/plugins/mindrian-os/ dir (stale at an older version)
-  // short-circuited it: this function returned the legacy dir's stale version,
-  // drift detection tripped against the cache latest, the recovery gate
-  // refused to act (marketplace-cache topology, by design), and the
-  // unconditional drift exit-1 deadlocked /mos:update Step 7 permanently.
-  // Read the ACTIVE root FIRST so class A reports the version the loader
-  // actually uses; the legacy dir's presence is informational only
-  // (legacyDirPresent feeds the deferred P1 class I reap).
-  try {
-    const active = resolveActivePluginRoot();
-    if (active && active.topology === 'marketplace-cache' && active.root) {
-      const activePluginJson = path.join(active.root, '.claude-plugin', 'plugin.json');
-      if (fs.existsSync(activePluginJson)) {
-        const json = JSON.parse(fs.readFileSync(activePluginJson, 'utf8'));
-        return {
-          status: 'ok',
-          version: json.version,
-          parsed: parseVersion(json.version),
-          topology: 'marketplace-cache',
-          activeRoot: active.root,
-          legacyDirPresent: fs.existsSync(INSTALL_DIR),
-        };
-      }
-    }
-  } catch (_) { /* fall through to the existing legacy logic below */ }
-  if (!fs.existsSync(INSTALL_DIR)) {
-    // Topology-aware (Bug 7 follow-up, 2026-06-02): under marketplace-cache
-    // topology Claude Code loads the plugin from the cache version dir, and the
-    // legacy ~/.claude/plugins/mindrian-os/ dir is CORRECTLY absent. Read the
-    // ACTIVE root's plugin.json so class A reports the real installed version
-    // instead of a false "install dir does not exist" warning. The beta.39
-    // class-A fix made the install-missing DRIFT branch topology-aware; this
-    // makes the cannot-read-state branch (the warning surfaced on /mos:doctor
-    // --fix + the post-update activator) match, so a healthy marketplace-cache
-    // install reports healthy. RCA: doctor-class-a-cannot-read-state-topology-blind.
-    try {
-      const active = resolveActivePluginRoot();
-      if (active && active.topology === 'marketplace-cache' && active.root) {
-        const activePluginJson = path.join(active.root, '.claude-plugin', 'plugin.json');
-        if (fs.existsSync(activePluginJson)) {
-          const json = JSON.parse(fs.readFileSync(activePluginJson, 'utf8'));
-          return { status: 'ok', version: json.version, parsed: parseVersion(json.version), topology: 'marketplace-cache', activeRoot: active.root };
-        }
-      }
-    } catch (_) { /* fall through to the legacy-dir-missing report below */ }
-    return { status: 'missing', detail: `install dir does not exist: ${INSTALL_DIR}` };
-  }
-  if (!fs.existsSync(INSTALL_PLUGIN_JSON)) {
-    return { status: 'missing', detail: `plugin.json missing inside install: ${INSTALL_PLUGIN_JSON}` };
-  }
-  try {
-    const json = JSON.parse(fs.readFileSync(INSTALL_PLUGIN_JSON, 'utf8'));
-    return { status: 'ok', version: json.version, parsed: parseVersion(json.version) };
-  } catch (err) {
-    return { status: 'error', detail: `failed to parse plugin.json: ${err.message}` };
-  }
-}
-
-function checkMarketplaceCache() {
-  if (!fs.existsSync(MARKETPLACE_CACHE_DIR)) {
-    return { status: 'missing', detail: `marketplace cache dir does not exist: ${MARKETPLACE_CACHE_DIR}` };
-  }
-  let entries;
-  try {
-    entries = fs.readdirSync(MARKETPLACE_CACHE_DIR, { withFileTypes: true });
-  } catch (err) {
-    return { status: 'error', detail: `failed to read marketplace cache: ${err.message}` };
-  }
-  const versions = [];
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const parsed = parseVersion(entry.name);
-    if (parsed) {
-      versions.push({ raw: entry.name, parsed });
-    }
-  }
-  if (versions.length === 0) {
-    return { status: 'empty', detail: 'no version directories found in marketplace cache' };
-  }
-  // Sort ascending, take last as latest
-  versions.sort((a, b) => cmpVersion(a.parsed, b.parsed));
-  return {
-    status: 'ok',
-    versions: versions.map(v => v.raw),
-    latest: versions[versions.length - 1].raw,
-    latestParsed: versions[versions.length - 1].parsed,
-  };
-}
-
-function checkDevSourceConsistency() {
-  // Best-effort: look for the canonical dev source. If absent, skip silently.
-  const devSource = path.join(HOME, 'MindrianOS-Plugin');
-  if (!fs.existsSync(path.join(devSource, '.claude-plugin/plugin.json'))) {
-    return { status: 'skip', detail: 'dev source not found at ~/MindrianOS-Plugin (acceptable for end users)' };
-  }
-  try {
-    const pluginJson = JSON.parse(fs.readFileSync(path.join(devSource, '.claude-plugin/plugin.json'), 'utf8'));
-    const pkgJsonPath = path.join(devSource, 'package.json');
-    let pkgVersion = null;
-    if (fs.existsSync(pkgJsonPath)) {
-      pkgVersion = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')).version;
-    }
-    const consistent = !pkgVersion || pkgVersion === pluginJson.version;
-    return {
-      status: consistent ? 'ok' : 'mismatch',
-      pluginJson: pluginJson.version,
-      packageJson: pkgVersion,
-    };
-  } catch (err) {
-    return { status: 'error', detail: err.message };
-  }
-}
+// -- Comparable semver helpers + diagnostic checks -------------------
+// parseVersion, cmpVersion, checkInstallVersion, checkMarketplaceCache, and
+// checkDevSourceConsistency moved to lib/core/doctor/shared.cjs (Phase 217
+// Plan-01 D-02) and are imported at the top of this file.
 
 // -- Recovery --------------------------------------------------------
 // Phase 95.2 D-01..D-04: atomic-swap recovery.
@@ -745,40 +579,11 @@ const SKIP_DIRS = new Set([
   'node_modules', '.next', 'dist', 'build', '.cache',
 ]);
 
-// Pure Node port of scripts/post-write detect_room_section() lines 25-47
-// + scripts/hooks/pre-commit-room-minto-guard.sh find_room_root() symlink
-// safety. Returns the absolute roomDir (the directory containing
-// .room-root) or null if the walk does not find a sentinel within 12 hops.
-function findRoomRoot(filePath) {
-  let dir = path.dirname(filePath);
-  const visited = new Set();
-  let hops = 0;
-  while (dir !== '/' && dir !== '.' && hops < 12) {
-    let real;
-    try { real = fs.realpathSync(dir); } catch (_) { return null; }
-    if (visited.has(real)) break;
-    visited.add(real);
-    if (fs.existsSync(path.join(real, '.room-root'))) return real;
-    dir = path.dirname(real);
-    hops += 1;
-  }
-  return null;
-}
-
-// Read ~/MindrianRooms/.rooms/registry.json (or MINDRIAN_ROOMS_HOME override)
-// and return { roomsHome, registry, registryPath } or null when missing/
-// unreadable. Honors the canonical env-var name MINDRIAN_ROOMS_HOME used by
-// scripts/resolve-room line 34.
-function readRegistry() {
-  const home = process.env.MINDRIAN_ROOMS_HOME || path.join(HOME, 'MindrianRooms');
-  const registryPath = path.join(home, '.rooms', 'registry.json');
-  if (!fs.existsSync(registryPath)) return null;
-  try {
-    const raw = fs.readFileSync(registryPath, 'utf8');
-    const reg = JSON.parse(raw);
-    return { roomsHome: home, registry: reg, registryPath };
-  } catch (_) { return null; }
-}
+// findRoomRoot + readRegistry moved to lib/core/doctor/shared.cjs (Phase 217
+// Plan-01 D-02) and are imported at the top of this file. findRoomRoot is a
+// Pure Node port of scripts/post-write detect_room_section() +
+// pre-commit-room-minto-guard.sh find_room_root(); readRegistry reads
+// ~/MindrianRooms/.rooms/registry.json (MINDRIAN_ROOMS_HOME override honored).
 
 // Walk subdirectories under rootDir, returning absolute paths. Skips
 // SKIP_DIRS and respects maxDepth (default 8). Used by class E to enumerate
@@ -1751,24 +1556,10 @@ function readHomeFile(home, ...parts) {
   try { return fs.readFileSync(path.join(home, ...parts), 'utf8'); } catch (_) { return null; }
 }
 
-function readInstalledPluginsVersion(home) {
-  // Returns the version string of the active mos@mindrian-marketplace entry,
-  // or 'unknown' on absence / unparseable. STRING (not semver-parsed) so the
-  // 4-component 1.12.5.1 case is handled identically.
-  const file = path.join(home, '.claude', 'plugins', 'installed_plugins.json');
-  try {
-    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-    const plugins = (data && data.plugins) || {};
-    for (const key of Object.keys(plugins)) {
-      const name = String(key).split('@')[0];
-      if (name !== 'mos' && name !== 'mindrian-os') continue;
-      let entry = plugins[key];
-      if (Array.isArray(entry)) entry = entry[0];
-      if (entry && entry.version) return String(entry.version);
-    }
-  } catch (_) { /* ignore */ }
-  return 'unknown';
-}
+// readInstalledPluginsVersion moved to lib/core/doctor/shared.cjs (Phase 217
+// Plan-01 D-02) and is imported at the top of this file. Returns the version
+// string of the active mos@mindrian-marketplace entry (STRING, not semver-parsed
+// so the 4-component 1.12.5.1 case is handled), or 'unknown' on absence.
 
 // F11 recurrence (twice on the same real Windows machine): the LEGACY v1
 // plugin-system file ~/.claude/plugins/config.json keeps a `mos.version` pin
