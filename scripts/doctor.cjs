@@ -3890,13 +3890,42 @@ function renderHumanReport(report) {
         bodyRows.push('     ' + C.dim + '-> claude plugin enable ' + (pen.key || 'mos@mindrian-marketplace') + '   (or /plugin in the Claude Code TUI)' + C.reset);
       }
     }
-    for (const [name, _check] of Object.entries(report.checks)) {
+    for (const [name, check] of Object.entries(report.checks)) {
       if (name === 'install-cache') continue; // already handled above.
       if (name === 'statusline-visibility') continue; // rendered above.
       if (name === 'install-incomplete') continue; // rendered above.
       if (name === 'stale-first-touch-copy') continue; // rendered above.
       if (name === 'plugin-enabled-state') continue; // rendered above.
-      // Future: render check.detail rows here using the same idiom.
+      // Skip entries are omitted, matching the plugin-enabled-state precedent
+      // above and computeSummary's skip omission, so visible rows stay in exact
+      // parity with the Summary tally.
+      if (!check || check.status === 'skip') continue;
+      let glyph;
+      let color;
+      if (check.status === 'ok') { glyph = '✓'; color = C.green; }
+      else if (check.status === 'warn') { glyph = '⚠'; color = C.yellow; }
+      else if (check.status === 'error') { glyph = '⚠'; color = C.red; }
+      else { glyph = '⊘'; color = C.dim; }
+      bodyRows.push('  ' + color + '■' + C.reset + ' ' + name.padEnd(28) + color + glyph + C.reset + ' ' + (check.detail || check.status));
+    }
+  }
+
+  // Render --fix outcomes so a fix attempt is never invisible. Every --fix
+  // dispatch pushes its result into report.recovered; class A recovery already
+  // renders via classARecovered above, so the install-cache tool is guarded to
+  // avoid a double line.
+  if (report.fixRequested && Array.isArray(report.recovered) && report.recovered.length > 0) {
+    for (const entry of report.recovered) {
+      if (!entry) continue;
+      if (entry.status === 'skip') continue; // skip entries omitted.
+      if (entry.tool === 'install-cache') continue; // already rendered via classARecovered.
+      let glyph;
+      let color;
+      if (entry.status === 'ok') { glyph = '✓'; color = C.green; }
+      else if (entry.status === 'partial') { glyph = '⚠'; color = C.yellow; }
+      else if (entry.status === 'error') { glyph = '⚠'; color = C.red; }
+      else { glyph = '⊘'; color = C.dim; }
+      bodyRows.push('  ' + color + glyph + C.reset + ' fix ' + (entry.tool || 'unknown-tool') + ': ' + (entry.detail || entry.status));
     }
   }
 
@@ -5826,7 +5855,11 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
 // CLI entry so `require('doctor.cjs')` does NOT run main(); the script still
 // runs main() when invoked directly or spawned as a subprocess (the standard
 // `node scripts/doctor.cjs ...` usage, where require.main === module).
-module.exports = { runAccumulativeEngine };
+// renderHumanReport + computeSummary are additively exported so
+// tests/test-doctor-fix-renderer.cjs can drive them as hermetic unit sub-tests
+// (warn-row visibility, Summary parity, recovered-line rendering) without
+// spawning a subprocess. The require.main guard below still prevents main().
+module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary };
 
 if (require.main === module) {
   main();
