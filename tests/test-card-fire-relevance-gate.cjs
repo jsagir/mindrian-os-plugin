@@ -195,6 +195,84 @@ leg('leg 4 BINARY EXEMPTION: a relevant unanswered 2-option binary passes as gat
     'BINARY EXEMPTION: the verdict must name the simple-binary pass-reason');
 });
 
+// ---------------------------------------------------------------------------
+// CR-05 (backstop-benign-list-defeats-relevance-gate, 2026-07-11) -- the framing
+// co-requirement. Alternative 4 (bare `1. / 2.` numbered prose) now counts as a
+// backstop hit ONLY when a choice-framing cue sits near it. Two directional legs:
+//   Test 1 (benign, no framing): a plain 3-item "next steps" list must NOT intercept.
+//   Test 2 (genuine, WITH framing): a hand-rolled `1./2./3.` fork carrying a
+//     which/would-you-like/pick cue must STILL intercept (the Phase 209 floor survives).
+// ---------------------------------------------------------------------------
+
+// A benign, on-topic Action-Footer / next-steps list. No brackets (so alternatives 1-3
+// cannot fire), and NO choice-framing cue anywhere near the numbered span (no `?`, no
+// which/choose/pick/select/would-you-like/type-1), so alternative 4 must be inert.
+const BENIGN_NEXT_STEPS = [
+  'I traced the auth failure. The token check runs before the session middleware, so an '
+    + 'expired token slips past validation and the login flow rejects a valid user.',
+  'Next you could:',
+  '1. Add logging around the token verification step',
+  '2. Reorder the session middleware so it runs first',
+  '3. Add a regression test for the expired-token path',
+].join('\n');
+
+leg('Test 1 CR-05: a benign on-topic 3-item next-steps list (no framing cue) must NOT intercept', function () {
+  const out = classifyTranscript([
+    { type: 'user', message: { role: 'user', content: 'Can you help me fix the auth bug in the login flow?' } },
+    { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: BENIGN_NEXT_STEPS }] } },
+  ], 'gsd-cr05-benign-next-steps-session');
+  assert.equal(out.turn.askuserquestion_fired, false,
+    'Test 1 fixture sanity: no card fired on this turn');
+  assert.equal(out.verdict.intercept, false,
+    'CR-05: a benign numbered list with no choice-framing cue must NOT force-block');
+  assert.equal(out.verdict.reason, 'no-gate-signal',
+    'CR-05: with no unconditional glyph and no framed alternative-4 hit, the reason is no-gate-signal');
+});
+
+// A genuine hand-rolled Decision Gate: bracket-free `1./2./3.` prose WITH a which/?
+// framing cue, topically relevant to the preceding user turn, unanswered, and 3-option
+// (so gate-is-simple-binary cannot claim it). The ONLY outcome left is a real intercept.
+const FRAMED_NUMBERED_GATE = [
+  'Good question about the auth onboarding rewrite. Which onboarding path do you want to build?',
+  '1. Guided setup wizard for the auth flow',
+  '2. Minimal one-screen auth setup',
+  '3. Import an existing auth config from a file',
+].join('\n');
+
+leg('Test 2 CR-05 PRESERVE FLOOR: a genuine framed `1./2./3.` fork must STILL intercept', function () {
+  const out = classifyTranscript([
+    { type: 'user', message: { role: 'user', content: 'Which onboarding path should we build for the auth rewrite?' } },
+    { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: FRAMED_NUMBERED_GATE }] } },
+  ], 'gsd-cr05-framed-gate-session');
+  assert.equal(out.turn.askuserquestion_fired, false,
+    'Test 2 fixture sanity: no card fired on this turn');
+  assert.equal(out.verdict.intercept, true,
+    'CR-05 floor: a genuine, relevant, unanswered framed fork must STILL intercept (Phase 209 guarantee survives Change 1)');
+  assert.equal(out.verdict.reason, 'ascii-box-backstop-no-card',
+    'CR-05 floor: the intercept fires on the BACKSTOP arm');
+  assert.equal(out.verdict.degrade, false,
+    'CR-05 floor: the intercept is a real force, not a bounded-escape degrade');
+});
+
+// ---------------------------------------------------------------------------
+// CR-06 (Item 2a) -- the retry-key identity must NOT read `reason`. buildEnforcementEnvelope
+// now calms the user-facing `reason`, and the ORIGINAL slug is relocated to the local
+// intercept log. This is only safe if turnContextHash (the bounded-escape retry key) never
+// derives identity from `reason`. Assert the non-effect directly.
+// ---------------------------------------------------------------------------
+leg('Test 3 CR-06: changing `reason` does NOT change turnContextHash / retry-key identity', function () {
+  const base = { session_id: 'gsd-cr06-reason-noeffect-session', gate_signature: 'abc123deadbeef01', ran_entries: [] };
+  const hashA = checkCardFire.turnContextHash(Object.assign({}, base, { reason: 'ascii-box-backstop-no-card' }));
+  const hashB = checkCardFire.turnContextHash(Object.assign({}, base, { reason: 'rendering your choices as a selectable card' }));
+  assert.equal(hashA, hashB,
+    'turnContextHash must NOT read `reason` -- the retry key is anchored on session_id + gate identity only');
+  // Sanity guard: the hash IS sensitive to the gate identity, so the equality above is meaningful
+  // (not a degenerate constant).
+  const hashC = checkCardFire.turnContextHash(Object.assign({}, base, { gate_signature: 'different99feed', reason: 'ascii-box-backstop-no-card' }));
+  assert.notEqual(hashA, hashC,
+    'changing gate_signature MUST change the hash -- guards against a degenerate constant identity');
+});
+
 fs.rmSync(HERMETIC_TMP, { recursive: true, force: true });
 
 console.log('\ntest-card-fire-relevance-gate: ' + pass + ' passed, ' + fail + ' failed'

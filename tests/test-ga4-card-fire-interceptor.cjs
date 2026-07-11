@@ -171,21 +171,26 @@ ok('ENVELOPE: a degrade envelope is { continue: true } (no infinite loop)',
   degradeEnv && degradeEnv.continue === true);
 
 // ---------------------------------------------------------------------------
-// ENVELOPE (Finding 1, 2026-07-05 leaked-slug incident): the intercept envelope
-// must carry a FIXED human-readable systemMessage so Claude Code renders a calm
-// sentence, not the raw internal `reason` slug as "Stop hook error: <slug>". The
-// slug stays in `reason` unchanged for logs/telemetry. The degrade branch (a
-// suppressOutput path) must NOT carry a systemMessage.
+// ENVELOPE (CR-06, 2026-07-11 reopen of Finding 1): Claude Code surfaces a Stop
+// envelope's `reason` as "Stop hook error: <reason>" REGARDLESS of systemMessage
+// (the original premise -- systemMessage suppresses it -- was proven FALSE live).
+// So the intercept envelope must carry a calm, human-safe `reason` (NOT the internal
+// slug) AND a non-empty systemMessage; the ORIGINAL slug is preserved in the LOCAL
+// intercept log, never in the envelope. The degrade branch's `reason` is likewise a
+// calm phrase, and the degrade (suppressOutput) branch carries no systemMessage.
 // ---------------------------------------------------------------------------
 const SLUG = 'ascii-box-backstop-no-card';
 const slugEnv = m.buildEnforcementEnvelope({ intercept: true, reason: SLUG, degrade: false });
-ok('ENVELOPE Finding 1: an intercept envelope carries a non-empty string systemMessage',
+ok('ENVELOPE CR-06: an intercept envelope carries a non-empty string systemMessage',
   typeof slugEnv.systemMessage === 'string' && slugEnv.systemMessage.length > 0);
-ok('ENVELOPE Finding 1: the systemMessage does NOT leak the raw classification slug',
+ok('ENVELOPE CR-06: the systemMessage does NOT leak the raw classification slug',
   slugEnv.systemMessage.indexOf(SLUG) === -1);
-ok('ENVELOPE Finding 1: the reason field still carries the raw slug unchanged (telemetry)',
-  slugEnv.reason === SLUG);
-ok('ENVELOPE Finding 1: the degrade envelope carries NO systemMessage (suppressOutput path)',
+ok('ENVELOPE CR-06: the reason field is a calm phrase, NOT the raw slug (Claude shows it verbatim)',
+  typeof slugEnv.reason === 'string' && slugEnv.reason.length > 0 && slugEnv.reason.indexOf(SLUG) === -1);
+ok('ENVELOPE CR-06: the degrade envelope reason is also a calm phrase, NOT the raw slug',
+  typeof degradeEnv.reason === 'string' && degradeEnv.reason.length > 0
+  && degradeEnv.reason.indexOf('bounded-escape') === -1);
+ok('ENVELOPE CR-06: the degrade envelope carries NO systemMessage (suppressOutput path)',
   degradeEnv.systemMessage === undefined);
 
 // ---------------------------------------------------------------------------

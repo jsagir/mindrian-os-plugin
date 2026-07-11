@@ -168,6 +168,15 @@ function retryFilePath() {
   return path.join(home, 'card-fire-retries.json');
 }
 
+// CR-07: the LOCAL append-only diagnostic log path. Resolved the SAME way as
+// retryFilePath (MINDRIAN_HOME override honored) so a test / ops re-point isolates both
+// files identically. Part 8 LOCAL-only: this file is written to local disk (~/.mindrian),
+// never to the Brain and never over any network wire.
+function interceptLogPath() {
+  const home = process.env.MINDRIAN_HOME || path.join(os.homedir(), '.mindrian');
+  return path.join(home, 'card-fire-intercepts.log');
+}
+
 // The bounded-escape ceiling (named constant). After this many consecutive intercepts
 // on the same turn-context (the per-gate key), degrade to log + allow so a card-incapable
 // surface cannot trap the navigator. This is the per-gate counter: it gives good UX (each
@@ -207,6 +216,13 @@ const SESSION_KEY_PREFIX = '__session__:';
 // resolves within one turn; an abandoned key is dead long before a day passes.
 const RETRY_TTL_MS = 24 * 60 * 60 * 1000;
 
+// CR-07 (the LOCAL intercept diagnostic log -- backstop-benign-list-defeats-relevance-gate
+// item 2b, feeding live-session-running-stale-plugin-cache-fixes-inert's still-open
+// "unexplained backstop trigger" mystery). The truncation cap for output_text written to
+// the log per record, so a pathological turn cannot bloat one log line. TTL-pruned by the
+// SAME RETRY_TTL_MS as the retry side-file (WR-02) so it cannot grow without bound.
+const INTERCEPT_LOG_TEXT_CAP = 4000;
+
 // WR-08: the transcript-read tail cap. readTranscriptTurn reads at most the LAST this-many
 // bytes of the transcript file so a pathological multi-hundred-MB Stop transcript cannot
 // stall the 3000ms hook. Detection semantics are unchanged: the LAST assistant message and
@@ -236,6 +252,46 @@ const TRANSCRIPT_TAIL_BYTES = 2 * 1024 * 1024;
 // still counts (it is part of the matched gate content, not a bare occurrence).
 const ASCII_BOX_GLYPH_RE =
   /\[\s*1\s*\]\s*.*\[\s*2\s*\]|type\s+1\s*,\s*2\s*,\s*or\s+3|\[\s*1\s*\][^\n]*\n[\s\S]*?\[\s*2\s*\]|(?:^|\n)\s{0,3}1[.)]\s+\S[^\n]*\n(?:[^\n]*\n)?\s{0,3}2[.)]\s+\S/i;
+
+// CR-05 (the framing co-requirement -- backstop-benign-list-defeats-relevance-gate,
+// 2026-07-11): ASCII_BOX_GLYPH_RE above stays BYTE-IDENTICAL (the retry-key signature in
+// gateSignature and the Phase 209 regex-matrix tests both depend on it verbatim). The
+// BACKSTOP intercept splits the four alternatives into two tiers:
+//   - UNCONDITIONAL (alternatives 1-3: same-line bracket box, the "type 1, 2, or 3"
+//     literal, the multiline bracket box). These are shape-specific enough that a benign
+//     list practically never renders them by accident, so a match alone is a backstop hit.
+//   - FRAMED-ONLY (alternative 4: the bare numbered-prose gate added Phase 209-07). A
+//     `1. ... 2. ...` list is ALSO the exact shape of a benign Action Footer or a
+//     step-by-step explanation (the platform's own ui-system mandates "suggest 2-3 next
+//     commands"), so shape alone is not enough. It counts as a backstop hit ONLY when a
+//     choice-framing cue (GATE_FRAMING_RE) sits inside the matched span or within
+//     GATE_FRAMING_WINDOW chars before it. With no framing cue the numbered list is
+//     treated as benign prose and the turn is NOT intercepted.
+// This is the RCA's prescribed short-term patch; the long-term question (whether the
+// bracket alternatives deserve the same co-requirement) is deferred, not observed live.
+const ASCII_BOX_UNCONDITIONAL_RE =
+  /\[\s*1\s*\]\s*.*\[\s*2\s*\]|type\s+1\s*,\s*2\s*,\s*or\s+3|\[\s*1\s*\][^\n]*\n[\s\S]*?\[\s*2\s*\]/i;
+
+// Alternative 4 alone (the bare numbered-prose gate). Kept byte-identical to the fourth
+// branch of ASCII_BOX_GLYPH_RE so the split is a pure partition, never a change to the
+// shape detection itself.
+const ASCII_BOX_NUMBERED_PROSE_RE =
+  /(?:^|\n)\s{0,3}1[.)]\s+\S[^\n]*\n(?:[^\n]*\n)?\s{0,3}2[.)]\s+\S/;
+
+// The choice-framing cue a bare numbered-prose gate must carry near it to count as a
+// backstop hit: a `?` (the most common fork framing) OR one of a small allow-list of
+// choice verbs/phrases. The RCA named `which / would you like / pick one / choose /
+// select one / type 1`; `pick one` and `select one` are widened here to the bare verbs
+// `\bpick\b` / `\bselect\b` so natural framings the existing Phase 210 relevance-gate
+// fixtures already use ("pick a room to resume", "select a path") are recognized without
+// a false negative. A benign Action Footer ("Next you could: 1. ... 2. ...") carries none
+// of these, so it no longer trips the backstop.
+const GATE_FRAMING_RE =
+  /\?|\bwhich\b|\bchoose\b|\bpick\b|\bselect\b|would you like|type\s+1/i;
+
+// How many chars BEFORE a numbered-prose match to scan for a framing cue (the gate's
+// question / lead line typically sits on the line just above the first option).
+const GATE_FRAMING_WINDOW = 150;
 
 // ----- envelope schema allowlist (Phase 95 BASH-95-01) -----
 
@@ -389,6 +445,45 @@ function turnContextHash(turn) {
 }
 
 // ---------------------------------------------------------------------------
+// computeBackstopHit(outputText) -- CR-05. The BACKSTOP signal with the framing
+// co-requirement applied. Alternatives 1-3 (ASCII_BOX_UNCONDITIONAL_RE) are a hit on
+// shape alone; alternative 4 (ASCII_BOX_NUMBERED_PROSE_RE, the bare numbered-prose gate)
+// is a hit ONLY when a GATE_FRAMING_RE cue sits inside the matched span or within
+// GATE_FRAMING_WINDOW chars before it. A benign numbered list with no framing cue anywhere
+// yields no hit. Pure LOCAL string work; never throws.
+// ---------------------------------------------------------------------------
+function computeBackstopHit(outputText) {
+  const text = typeof outputText === 'string' ? outputText : '';
+  if (!text) return false;
+  // Alternatives 1-3: unconditional (bracket notation / literal "type 1, 2, or 3").
+  if (ASCII_BOX_UNCONDITIONAL_RE.test(text)) return true;
+  // Alternative 4: framed-only. Walk every numbered-prose match; a single framed one is
+  // enough. GATE_FRAMING_RE is non-global, so .test() re-scans each window from index 0.
+  const re = new RegExp(ASCII_BOX_NUMBERED_PROSE_RE.source, 'g');
+  let mm;
+  while ((mm = re.exec(text)) !== null) {
+    const start = Math.max(0, mm.index - GATE_FRAMING_WINDOW);
+    const windowText = text.slice(start, mm.index + mm[0].length);
+    if (GATE_FRAMING_RE.test(windowText)) return true;
+    if (re.lastIndex === mm.index) re.lastIndex += 1; // guard a zero-width match
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// matchedGlyphSpan(outputText) -- CR-07 diagnostic helper: return the ACTUAL text of the
+// ASCII_BOX_GLYPH_RE match (not just a boolean), so the LOCAL intercept log records exactly
+// which glyph span tripped the scan. '' when nothing matched. Never throws. Part 8: pure
+// local string work; the span is written only to the local diagnostic log, never egressed.
+// ---------------------------------------------------------------------------
+function matchedGlyphSpan(outputText) {
+  const text = typeof outputText === 'string' ? outputText : '';
+  if (!text) return '';
+  const mm = text.match(ASCII_BOX_GLYPH_RE);
+  return mm ? mm[0] : '';
+}
+
+// ---------------------------------------------------------------------------
 // classifyCardFire(turn, registry) -- THE deterministic predicate.
 //
 // Returns { intercept, reason, degrade }:
@@ -430,8 +525,10 @@ function classifyCardFire(turn, registry) {
     const primaryHit = ran.some(function (e) { return reaching.has(e); });
 
     // BACKSTOP signal: does the turn output carry the ASCII-box gate glyphs? Catches
-    // the literal anti-pattern even for an off-registry surface.
-    const backstopHit = ASCII_BOX_GLYPH_RE.test(outputText);
+    // the literal anti-pattern even for an off-registry surface. CR-05: a bare
+    // numbered-prose list (alternative 4) is a hit ONLY when it carries a choice-framing
+    // cue nearby, so a benign Action Footer / step-by-step list no longer force-fires.
+    const backstopHit = computeBackstopHit(outputText);
 
     if (!primaryHit && !backstopHit) {
       // No gate-reaching signal on this turn -> zero forced cards (ordinary turn).
@@ -533,13 +630,17 @@ function classifyCardFire(turn, registry) {
 // additionalContext lives ONLY inside hookSpecificOutput. Returns a key-filtered
 // envelope. Never throws.
 //
-// The intercept branch now carries a FIXED, human-readable systemMessage (the
-// 2026-07-05 leaked-slug incident): Claude Code surfaces a decision:'block' envelope's
-// `reason` to the user as "Stop hook error: <reason>" when no systemMessage override is
-// present, so the internal telemetry slug (e.g. ascii-box-backstop-no-card) landed on
-// the user's screen looking like a crash even though the hook was working as designed.
-// The slug stays in `reason` for logs/telemetry; systemMessage is what the user reads.
-// The degrade and else branches keep suppressOutput: true and carry no systemMessage.
+// CR-06 (2026-07-11, backstop-benign-list-defeats-relevance-gate reopen of
+// card-fire-block-surface Finding 1): the ORIGINAL fix added a systemMessage on the
+// premise that Claude Code surfaces `reason` as "Stop hook error: <reason>" ONLY when no
+// systemMessage override is present. Live observation (v1.15.3-beta.12) proved that premise
+// FALSE -- Claude Code renders "Stop hook error: <reason>" REGARDLESS of systemMessage, so
+// the internal slug (e.g. ascii-box-backstop-no-card) still reached the user looking like a
+// crash. The only lever left is the `reason` CONTENT itself: on BOTH the intercept branch
+// and the degrade branch it is now a calm, human-safe phrase, never the internal slug. The
+// slug is PRESERVED for telemetry in the LOCAL intercept log (appendInterceptLog), not
+// deleted. systemMessage stays on the intercept branch and hookSpecificOutput.additionalContext
+// is untouched. The else branch keeps suppressOutput: true and carries no systemMessage.
 // ---------------------------------------------------------------------------
 function buildEnforcementEnvelope(verdict) {
   const v = verdict && typeof verdict === 'object' ? verdict : {};
@@ -549,15 +650,19 @@ function buildEnforcementEnvelope(verdict) {
     raw = {
       continue: true,
       suppressOutput: true,
-      reason: typeof v.reason === 'string' ? v.reason : 'card-fire-bounded-escape',
+      // CR-06: calm, human-safe `reason` (never the internal slug). Claude Code surfaces
+      // `reason` as "Stop hook error: <reason>" regardless of systemMessage, so the slug
+      // must not live here. It is preserved for telemetry in the LOCAL intercept log.
+      reason: 'continuing this turn',
     };
   } else if (v.intercept === true) {
     raw = {
       decision: 'block',
-      reason: typeof v.reason === 'string' ? v.reason : 'card-fire-intercept',
+      // CR-06: calm, human-safe `reason` (never the internal slug -- see the branch note
+      // above). The slug is preserved for telemetry in the LOCAL intercept log instead.
+      reason: 'rendering your choices as a selectable card',
       // FIXED human-facing line (never interpolated from transcript content or the reason
-      // slug; T-m9g-01). Claude Code renders this instead of the raw `reason` slug so the
-      // user sees a calm sentence, not "Stop hook error: ascii-box-backstop-no-card".
+      // slug; T-m9g-01). Retained from the original Finding 1 fix as the second calm surface.
       systemMessage: 'Re-rendering your choices as a selectable card...',
       continue: false,
       hookSpecificOutput: {
@@ -703,6 +808,71 @@ function clearSessionCount(sessionId) {
   if (key in store) {
     delete store[key];
     writeRetryStore(store);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CR-07 -- the LOCAL append-only intercept diagnostic log. Written whenever
+// classifyCardFire returns intercept:true OR degrade:true, so the NEXT occurrence of the
+// still-unexplained backstop trigger (live-session-running-stale-plugin-cache-fixes-inert)
+// is a one-log-read diagnosis instead of a multi-hour forensic reconstruction. Each record
+// preserves the ORIGINAL classification slug (verdict.reason) even though the user-facing
+// envelope `reason` is now a calm phrase (CR-06), so telemetry survives the calming.
+//
+// TTL-pruned on every write by the SAME RETRY_TTL_MS the retry side-file uses (WR-02), so
+// the JSONL cannot grow without bound. Best-effort like the retry helpers: any error is
+// swallowed -- a diagnostic log write must NEVER block or throw the Stop hook.
+//
+// Part 8 (Graph Boundary): LOCAL-only. The record (including the truncated output_text,
+// an untrusted model turn already on local disk in the transcript) is written to
+// ~/.mindrian on local disk, never to the Brain and never over any network wire.
+// ---------------------------------------------------------------------------
+function readInterceptLogLines(fp, now) {
+  const out = [];
+  try {
+    const raw = fs.readFileSync(fp, 'utf8');
+    const lines = raw.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      let obj;
+      try { obj = JSON.parse(trimmed); } catch (_e) { continue; }
+      // TTL-prune: keep only records younger than RETRY_TTL_MS (WR-02 parity).
+      if (obj && Number.isFinite(obj.ts) && (now - obj.ts) <= RETRY_TTL_MS) {
+        out.push(trimmed);
+      }
+    }
+  } catch (_e) {
+    /* missing / unreadable -> fresh log */
+  }
+  return out;
+}
+
+function appendInterceptLog(turn, verdict) {
+  try {
+    const t = turn && typeof turn === 'object' ? turn : {};
+    const v = verdict && typeof verdict === 'object' ? verdict : {};
+    const now = Date.now();
+    const outputText = typeof t.output_text === 'string' ? t.output_text : '';
+    const record = {
+      ts: now,
+      timestamp: new Date(now).toISOString(),
+      session_id: typeof t.session_id === 'string' ? t.session_id : '',
+      // The ORIGINAL classification slug -- preserved here even though the user-facing
+      // envelope `reason` changes to a calm phrase (CR-06). This is the telemetry sink.
+      reason: typeof v.reason === 'string' ? v.reason : '',
+      gate_signature: typeof t.gate_signature === 'string' ? t.gate_signature : '',
+      ran_entries: Array.isArray(t.ran_entries) ? t.ran_entries : [],
+      matched_glyph_span: matchedGlyphSpan(outputText),
+      output_text: outputText.slice(0, INTERCEPT_LOG_TEXT_CAP),
+    };
+    const fp = interceptLogPath();
+    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    const kept = readInterceptLogLines(fp, now);
+    kept.push(JSON.stringify(record));
+    fs.writeFileSync(fp, kept.join('\n') + '\n', 'utf8');
+  } catch (_e) {
+    /* best-effort; never block the hook on a diagnostic-log write */
   }
 }
 
@@ -1068,6 +1238,8 @@ function main() {
     process.stderr.write(
       '[check-card-fire] bounded escape released; allowing turn (' + verdict.reason + ')\n'
     );
+    // CR-07: record the degrade with its ORIGINAL slug before the envelope calms `reason`.
+    appendInterceptLog(turn, verdict);
     clearRetryCount(ctxHash);
     clearSessionCount(sessionId);
     return emitEnvelope(buildEnforcementEnvelope(verdict));
@@ -1080,6 +1252,8 @@ function main() {
     // regardless of which per-gate key the intercept landed on.
     bumpRetryCount(ctxHash);
     bumpSessionCount(sessionId);
+    // CR-07: record the intercept with its ORIGINAL slug before the envelope calms `reason`.
+    appendInterceptLog(turn, verdict);
     return emitEnvelope(buildEnforcementEnvelope(verdict));
   }
 
@@ -1097,6 +1271,9 @@ module.exports = {
   RETRY_TTL_MS,
   TRANSCRIPT_TAIL_BYTES,
   ASCII_BOX_GLYPH_RE,
+  GATE_FRAMING_RE,
+  computeBackstopHit,
+  matchedGlyphSpan,
   classifyCardFire,
   buildEnforcementEnvelope,
   gateReachingEntries,

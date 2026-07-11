@@ -8,8 +8,38 @@ surfaces: [cli]
 brain_mode: n/a
 canon_parts: [11, 12]
 created: 2026-07-05T00:00:00Z
-updated: 2026-07-05T00:00:00Z
+updated: 2026-07-11T06:30:00Z
 ---
+
+## Resolution (2026-07-11)
+<!-- OVERWRITE as understanding evolves -->
+
+root_cause: TWO defects in `scripts/check-card-fire.cjs`. Finding 1 (reopened): the intercept branch's user-facing `reason` was the internal slug; the original `systemMessage` fix rested on a FALSE premise (that Claude Code shows `reason` only when no `systemMessage` is present -- it shows it verbatim regardless). Finding 2: the backstop over-fired on plain 2-option binaries.
+fix: Finding 2 fixed 2026-07-05 (`gate-is-simple-binary` pass-reason, shipped v1.15.3-beta.4). Finding 1's REAL fix is CR-06, implemented 2026-07-11 as part of `backstop-benign-list-defeats-relevance-gate` (same script, same /goal directive): `buildEnforcementEnvelope`'s `reason` is now a calm human-safe phrase on BOTH the intercept and degrade branches, never the slug; the slug is preserved for telemetry in the new LOCAL diagnostic log `~/.mindrian/card-fire-intercepts.log` (CR-07), not deleted. `hookSpecificOutput.additionalContext` untouched. Confirmed `turnContextHash` never reads `reason` so the retry key is unaffected.
+verification: `tests/test-ga4-card-fire-interceptor.cjs` 27/27 (the old `reason === slug` assertion replaced by CR-06 assertions: reason is a calm non-slug phrase on both branches, systemMessage present + slug-free). Full card-fire suites green; `scripts/verify-release` 26 passed / 0 failed. End-to-end smoke confirmed the envelope now carries `reason: "rendering your choices as a selectable card"` while the log preserves the original `ascii-box-backstop-no-card` slug.
+files_changed: scripts/check-card-fire.cjs, tests/test-ga4-card-fire-interceptor.cjs, CHANGELOG.md.
+commits: ready for commit (not committed)
+
+## REOPENED 2026-07-11
+
+Finding 1's fix (add `systemMessage` to the intercept branch) shipped and is confirmed present in the
+currently-running v1.15.3-beta.12 install, but it does NOT achieve its intended effect: this session
+directly observed the raw `reason` slug still reaching the user verbatim as
+"Stop hook error: ascii-box-backstop-no-card", despite `systemMessage` being set in the same envelope.
+This is not a deployment-gap case (see `.planning/debug/live-session-running-stale-plugin-cache-fixes-inert.md`
+for that separate mechanism) -- beta.12 is the actual pinned, running version and does contain the
+`systemMessage` line. The RCA's original premise ("Claude Code surfaces `reason` as `Stop hook error:`
+ONLY when no `systemMessage` override is present") is therefore FALSE. This RCA's own Tests section
+said "Not yet written" -- the fix was never actually verified end-to-end against the real Claude Code
+harness, which is exactly how this slipped through.
+
+Real fix (scoped and being implemented via `.planning/debug/backstop-benign-list-defeats-relevance-gate.md`'s
+next_action, navigator-approved 2026-07-11 via /goal, same file/function, same session): since Claude Code's
+own "Stop hook error: <x>" prefix cannot be changed, the only lever is the CONTENT of `reason` itself.
+Change `reason` on the intercept branch (and the degrade branch, same exposure) to a calm, human-safe
+phrase instead of the internal slug. Preserve the slug for telemetry by writing it to the new local
+diagnostic log (`~/.mindrian/card-fire-intercepts.log`) also being added in that same pass, rather than
+deleting the telemetry signal outright.
 
 ## Source-of-Truth Preamble
 
