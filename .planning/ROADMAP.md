@@ -2999,14 +2999,20 @@ Plans:
 
 ### Phase 217: Doctor.cjs Architecture Rethink: audit all ~14 check classes in scripts/doctor.cjs, decide on per-class module split with a standardized check-object contract, add a structural lint/test that fails when a new class ships without a matching print branch + fix dispatch entry, reconcile commands/doctor.md claims against what is actually wired. Triggered by a confirmed live bug (95.1-04 generic drift counter never matched by a generic printer; class B cascade-rooms --fix never wired despite docs claiming it is).
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Every doctor check runs through ONE registry-driven path (data/doctor-modules.json + lib/core/doctor/<id>-module.cjs runners) with structural print + fix wiring, a cadence gate that keeps per-invocation diagnostics watermark-immune, a hard-blocking contract test, a truthful commands/doctor.md, and a new card-fire instrument-health module.
+**Requirements**: D-01..D-05 (217-CONTEXT.md locked decisions; phase added via /gsd-phase, no REQUIREMENTS.md entry)
 **Depends on:** Phase 216
-**Plans:** 0 plans
+**Plans:** 7 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 217 to break down)
+- [ ] 217-01-PLAN.md - Wave 0: engine cadence gate (always vs once) + lib/core/doctor/shared.cjs extraction
+- [ ] 217-02-PLAN.md - Wave 0: D-03 hard-blocking contract-parity test + D-05 card-fire-health module (test-first)
+- [ ] 217-03-PLAN.md - Migrate F/K/L/N (ui-compliance, stale-first-touch-copy, deprecated-usage, plugin-enabled-state)
+- [ ] 217-04-PLAN.md - Migrate B/C/E incl. the NEWLY WIRED class B --fix (.room-root sentinel repair)
+- [ ] 217-05-PLAN.md - Migrate G/H/D (statusline-visibility, install-incomplete, verify-surface)
+- [ ] 217-06-PLAN.md - Migrate I/J + written carve-out justifications (class A, brain-smoke, eureka-smoke)
+- [ ] 217-07-PLAN.md - D-04 full commands/doctor.md audit + doc-parity test + run-all-217.sh + real-room human gate
 
 ---
 
