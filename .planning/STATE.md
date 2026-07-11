@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 217 context gathered
-last_updated: "2026-07-11T19:00:25.750Z"
+stopped_at: Phase 217 Plan 05 complete (5/7 plans)
+last_updated: "2026-07-11T19:30:00.000Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 25
@@ -15,6 +15,16 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-11) -- PHASE 217 Plan 05 COMPLETE (5/7 plans) -- G/H/D migrated; the LAST two hand-coded render branches (class G + class H) retired -- class A is now the SOLE non-generic render path
+
+Fourth-wave migration (D-01/D-02). statusline-visibility (G, + fix), install-incomplete (H, + fix, shares G's --statusline-visibility flag), and verify-surface (D, child-spawn check) move from inline main() blocks into registry-driven cadence:always runner files. scripts/doctor.cjs shrank ~590 lines; the ONLY hand-coded render branch left in renderHumanReport is class A (install-cache), the sanctioned Plan-06 carve-out.
+
+- **Task 1 (`a678bf43` feat):** three runner files. statusline-visibility-module.cjs (check = moved checkStatuslineVisibility four-branch probe + fix = moved performStatuslineFix, status/detail added, tool:'migrate-stale-user-settings' preserved); install-incomplete-module.cjs (check = moved checkInstallIncomplete + fix = moved performClassHFix with RUNNER-INTERNAL recoverable===true stricter gate; warn+recoverable path emits the migrated hint via action_lines[]); verify-surface-module.cjs (check-only, spawnSync of tests/test-cascade-surface-e2e.cjs, 30s timeout, bash/harness-absent self-skip). All paths re-based off shared.PLUGIN_ROOT/INSTALL_DIR; zero back-require of the doctor CLI.
+- **Task 2 (`e12d0789` refactor):** 3 cadence:always registry entries (statusline-visibility BEFORE install-incomplete for render order; H shares G's statuslineVisibility flag), 12 total, contract-parity green. Deleted the D/G/H inline blocks, G/H fix dispatches, BOTH hand-coded render branches + their two skip lines, the five dead function bodies + their private helpers + the INSTALL_RECEIPT_JSON const.
+- **Deviations (all recorded in 217-05-SUMMARY.md):** (1) introduced_version set to historical ship versions (G 1.12.5, H 1.13.0-beta.9, D 1.12.1-beta.1), NOT the plan's 1.15.3 which sorts after the running 1.15.3-beta.13 and would defer all three (217-04 precedent). (2) engine running-version-of-record now falls back to PLUGIN_ROOT/.claude-plugin/plugin.json when checkInstallVersion cannot resolve the install (the class G/H tests override HOME, which broke it; cadence:always diagnostics must not go dark). (3) class H defers to class G when G's fix removed the statusLine this run (reads ctx.checks['statusline-visibility'].fix_result) -- preserves the pre-migration all-checks-then-all-fixes ordering so H never re-stamps over G's removal. (4) statusline-prefix-validator source pin follows the validator into the class-G runner.
+- **Verification:** contract-parity 12/12; class-g 6/6, class-g-fix 3/3, class-h 3/3, class-h-fix 3/3, statusline-prefix-validator 8/8, fix-renderer 12/12, module-selector 19; no-regression class-b/c/e/f + ui-self-compliant + plugin-disabled-state all green. --statusline-visibility emits both G+H rows; --verify-surface emits verify-surface (vocab status); renderHumanReport special-cases only install-cache; no em-dashes.
+- **NEXT:** 217-06 (migrate I/J + written carve-out justifications for class A / brain-smoke / eureka-smoke). SUMMARY: `.planning/phases/217-doctor-cjs-architecture-rethink-audit-all-14-check-classes-i/217-05-SUMMARY.md`.
 
 ## (2026-07-11) -- PHASE 216 Plan 05 COMPLETE (5/5 plans) -- the 216-04 gap closed at its root: room-native `section` now carries real domain slugs (or the honest 'unknown'), never the ICM type column; Phase 216 eligible to close
 

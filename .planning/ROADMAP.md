@@ -3010,7 +3010,7 @@ Plans:
 - [x] 217-02-PLAN.md - Wave 0: D-03 hard-blocking contract-parity test + D-05 card-fire-health module (test-first)
 - [x] 217-03-PLAN.md - Migrate F/K/L/N (ui-compliance, stale-first-touch-copy, deprecated-usage, plugin-enabled-state)
 - [x] 217-04-PLAN.md - Migrate B/C/E incl. the NEWLY WIRED class B --fix (.room-root sentinel repair)
-- [ ] 217-05-PLAN.md - Migrate G/H/D (statusline-visibility, install-incomplete, verify-surface)
+- [x] 217-05-PLAN.md - Migrate G/H/D (statusline-visibility, install-incomplete, verify-surface)
 - [ ] 217-06-PLAN.md - Migrate I/J + written carve-out justifications (class A, brain-smoke, eureka-smoke)
 - [ ] 217-07-PLAN.md - D-04 full commands/doctor.md audit + doc-parity test + run-all-217.sh + real-room human gate
 
