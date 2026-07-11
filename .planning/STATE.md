@@ -4,7 +4,7 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Phase 217 context gathered
-last_updated: "2026-07-11T17:27:29.317Z"
+last_updated: "2026-07-11T18:14:53.786Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 25
@@ -877,7 +877,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 217 (doctor-cjs-architecture-rethink-audit-all-14-check-classes-i) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
