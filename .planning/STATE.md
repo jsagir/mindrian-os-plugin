@@ -4,14 +4,14 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Phase 217 context gathered
-last_updated: "2026-07-11T14:26:43.311Z"
-last_activity: "2026-07-11 - Completed quick task 260711-nrd (doctor.cjs renderer bug fix); Phase 217 added + discuss-phase context captured (doctor-cjs-architecture-rethink)"
+last_updated: "2026-07-11T16:24:18.429Z"
+last_activity: 2026-07-11
 progress:
   total_phases: 25
-  completed_phases: 15
-  total_plans: 71
-  completed_plans: 71
-  percent: 60
+  completed_phases: 16
+  total_plans: 78
+  completed_plans: 78
+  percent: 64
 ---
 
 # Project State
@@ -872,12 +872,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 216 — eureka-user-facing-command-eureka-user-command-wrap-the-ship
+**Current focus:** Phase 217 — doctor-cjs-architecture-rethink-audit-all-14-check-classes-i
 
 ## Current Position
 
-Phase: 216 (eureka-user-facing-command-eureka-user-command-wrap-the-ship) — EXECUTING
-Plan: 1 of 4
+Phase: 217 (doctor-cjs-architecture-rethink-audit-all-14-check-classes-i) — EXECUTING
+Plan: 2 of 7
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -998,7 +998,7 @@ Phase 143.3-01 outcome (2026-06-07): shipped the Connector Contract FOUNDATION -
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-07-10
+Last activity: 2026-07-11
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -1424,6 +1424,7 @@ Progress: [█████████░] 92%
 | Phase 198 P07 | 25min | 1 tasks | 4 files |
 | Phase 198 P08 | 52min | 2 tasks | 8 files |
 | Phase 198-mcp-first-then-sdk P09 | 40min | 2 tasks | 11 files |
+| Phase 217 P01 | 40 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -2367,6 +2368,8 @@ Progress: [█████████░] 92%
 - [Phase 198]: bin/mindrian-mcp-server.cjs's shared daemon now supports multiple sessions over its process lifetime via a session-id-keyed transport map + a createServer() factory called per new session (matches the MCP SDK's own documented pattern) -- fixing a hard SDK limit (Server.connect() throws on a second call) that made the daemon non-functional beyond one call, discovered while proving Plan 198-08's own adapter-client.
 - [Phase 198-09]: gate-dedup.cjs (fire-once + relevance) built and proven BEFORE the Stop-gate enforcement moved server-side (D-05 hard sequencing); the 2026-07-03 irrelevant-Decision-Gate regression is fixed by a live replay through handleStopEvent
 - [Phase 198-09]: scripts/on-stop's flag-ON branch is a sentinel-bracketed (BEGIN/END-MCP-FIRST-STOP-THIN-ADAPTER) span so the D-06 budget test can bespoke-audit a BASH surface (no require() to grep) rather than extending the JS-oriented import-audit pattern
+- [Phase ?]: Phase 217-01: cadence:always doctor modules run every invocation watermark-immune (Pitfall-1 fix); cadence:once = watermark-gated heal
+- [Phase ?]: Phase 217-01: lib/core/doctor/shared.cjs extracted as leaf module (constants + version helpers + 3 pure class-A readers), one-direction require, no circular dependency
 
 ### Pending Todos
 
@@ -2430,7 +2433,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-11T14:26:43.266Z
+Last session: 2026-07-11T16:23:59.580Z
 Stopped at: Phase 217 context gathered
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
