@@ -3,6 +3,9 @@
 ### Added
 - 
 
+### Fixed
+- **The session-start mode-selection Decision Gate (`skills/conversation-mode/SKILL.md`) can silently skip with zero detectable signal** (RCA `intern-w1-mode-gate-skip`). Root cause: two converging structural gaps. (1) `scripts/build-render-coverage.cjs::buildMdKeyspace()` walked only `commands/*.md`, never `skills/*/SKILL.md`, so a skill-declared `hitl_shape` Decision Gate could never register in `data/render-coverage-registry.json` -- PRIMARY detection was structurally blind to every skill-declared gate. New `buildSkillKeyspace()` (a third, additive registry keyspace, mirroring the existing commands walk) closes this; `skills/conversation-mode/SKILL.md` now registers as `declared_shape: F.1, wired: true`. (2) `scripts/check-shape-declaration.cjs` had no predicate catching a surface that self-declares BOTH a genuine `hitl_shape` fork AND `connector.excluded:true` (the no-fork exemption) at once -- a direct contradiction of this repo's own CLAUDE.md Part 11 text: "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have." A new predicate now WARNs (advisory, non-blocking per the existing Phase 210 policy) on this exact contradiction. Extending PRIMARY detection to skills also surfaced 5 pre-existing, previously-invisible unwired skill declarations (`MOSDeckEngine`, `client-discovery-interview`, `intelligence-orchestrator`, `mullins-scaffold`, `mva-pipeline`) and 54 additional pre-existing hasShape-and-excluded contradictions beyond conversation-mode -- both are real, tracked findings surfaced for the first time by this fix, out of scope to resolve here, and named in `tests/test-209-declared-implies-wired.cjs`. `scripts/check-card-fire.cjs` (the Stop-hook backstop, the third converging gap in the original RCA) is untouched by this fix.
+
 ## [1.15.3-beta.12] - 2026-07-06
 
 ### Added

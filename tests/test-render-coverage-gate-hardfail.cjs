@@ -15,9 +15,14 @@
  *           file is ever mutated).
  *   Test 2: a SYNTHESIZED render-only-excluded entry WITH a reason classifies excluded
  *           and does NOT trip the gate (--check exits 0).
- *   Test 3: the clean live repo passes --check exit 0 (the baseline is gap=0 -- the
- *           F.7-dial entry is host-appended-covered; there is NO known live gap, the
- *           F.7-dial slip premise is FALSE on the live tree).
+ *   Test 3: the .cjs render-entry-point axis (this test's own scope) stays gap=0 on
+ *           the live tree (the F.7-dial entry is host-appended-covered; there is NO
+ *           known live gap on this axis, the F.7-dial slip premise is FALSE on the
+ *           live tree). Updated by the intern-w1-mode-gate-skip fix: the combined CLI
+ *           --check now also fails on 5 known, pre-existing, OUT-OF-SCOPE skill gaps
+ *           (a THIRD, orthogonal keyspace this test does not own) -- isolated via
+ *           renderCoverageReport() directly so this test's own axis stays provably
+ *           clean regardless of that separate, already-tracked finding.
  *   Test 4: the gate FAIL message names the offending entry + the recovery line.
  *
  * The dark fixture lives under tests/fixtures/render-coverage-gate-dark/ and is NEVER
@@ -128,12 +133,29 @@ const exclReport = (function () {
 ok('the excluded entry would not route as card-emission (it is excluded, not gap)', exclReport === false);
 
 // ---------------------------------------------------------------------------
-// Test 3: the clean live repo passes --check exit 0 (baseline gap=0; the F.7-dial
-// entry is host-appended-covered; no known live gap).
+// Test 3: the .cjs render-entry-point axis (Phase 178, THIS test's own scope)
+// stays gap=0 on the live tree (the F.7-dial entry is host-appended-covered;
+// no known live gap on THIS axis). Isolated via renderCoverageReport()
+// directly (the .cjs-only classifier) rather than shelling out to the full
+// CLI, because the intern-w1-mode-gate-skip fix (RCA gap 1) extended the SAME
+// --check CLI invocation to ALSO cover a THIRD, orthogonal keyspace
+// (skills/*/SKILL.md declared-implies-wired) that carries 5 known,
+// pre-existing, out-of-scope gaps (see the debug file Resolution section) --
+// asserting "clean live repo --check exits 0" against the COMBINED CLI exit
+// code would conflate this test's OWN axis (.cjs entry points, still
+// genuinely gap=0) with that unrelated, already-tracked finding.
 // ---------------------------------------------------------------------------
-const clean = cp.spawnSync('node', [GATE, '--check'], { encoding: 'utf8', timeout: 60000 });
-ok('clean live repo --check exits 0 (baseline gap=0)', clean.status === 0);
-ok('clean live repo --check prints the OK line', /render-coverage: OK/.test(clean.stdout || ''));
+const cjsReport = gate.renderCoverageReport();
+ok('the .cjs render-entry-point axis stays gap=0 on the live tree (this test\'s own scope, unaffected by the skills keyspace)', cjsReport.counts.gap === 0);
+ok('the .cjs render-entry-point axis has zero errors', cjsReport.errors.length === 0);
+
+// The COMBINED CLI --check now correctly exits non-zero because of the 5
+// known, tracked skill gaps (a SEPARATE, already-documented finding); confirm
+// it fails for exactly that reason and not a NEW .cjs-axis regression.
+const combined = cp.spawnSync('node', [GATE, '--check'], { encoding: 'utf8', timeout: 60000 });
+ok('the combined CLI --check now exits non-zero (5 known skill gaps; see intern-w1-mode-gate-skip debug file)', combined.status !== 0);
+ok('the combined CLI --check failure names a skills/*/SKILL.md surface, not a .cjs entry point', /skills\/.*\/SKILL\.md/.test(combined.stderr || ''));
+ok('the combined CLI --check failure does NOT report a RENDER GAP against any .cjs entry (this test\'s own axis is still clean)', !/RENDER GAP: entry (lib|scripts)\//.test(combined.stderr || ''));
 
 // Confirm no temp registry leaked.
 ok('synthesized dark registry removed', !fs.existsSync(DARK_REG));

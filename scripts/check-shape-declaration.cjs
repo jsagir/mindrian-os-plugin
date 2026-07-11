@@ -174,6 +174,37 @@ function check(fixture, opts) {
     );
   }
 
+  // (2b) hasShape-and-excluded contradiction -- the intern-w1-mode-gate-skip fix.
+  // Canon Part 11, this repo's own CLAUDE.md: "a render-only or pure-capability
+  // skill is exempt via its existing connector.excluded:true + reason, never via
+  // a fork it does not have." A surface that declares a REAL hitl_shape (any
+  // vocabulary member OTHER than the literal 'none') + hitl_why is asserting a
+  // genuine Decision-Gate fork -- so it cannot ALSO claim the no-fork
+  // connector.excluded:true exemption. 'none' is deliberately EXCLUDED from this
+  // predicate: per data/hitl-shape-declaration-schema.json's own
+  // shape_vocabulary_note, hitl_shape:'none' means "reaches no genuine
+  // Decision-Gate fork" -- the opposite of a fork claim -- so 'none' +
+  // connector.excluded:true is a redundant-but-consistent double no-fork
+  // signal, never a contradiction. This fires REGARDLESS of whether
+  // connector_reason is present (unlike excludedOk below, which requires a
+  // reason for the wired-body escape hatch): ANY connector.excluded:true
+  // alongside a declared REAL fork is the contradiction itself, not just a
+  // reasoned one. Before this predicate existed, skills/conversation-mode/
+  // SKILL.md self-declared BOTH F.1 + hitl_why AND connector.excluded:true at
+  // once and no predicate in this file caught it (the excludedOk guard below
+  // only used the co-occurrence to SKIP verification, never to FLAG it) --
+  // this closes that gap.
+  if (hasShape && fixture.hitl_shape !== 'none' && fixture && fixture.connector_excluded === true) {
+    violations.push(
+      'surface ' + label + ': declares hitl_shape ' + fixture.hitl_shape +
+        ' (a genuine Decision-Gate fork) AND connector.excluded:true (the ' +
+        'no-fork exemption) simultaneously -- Canon Part 11 (this repo\'s own ' +
+        'CLAUDE.md): "a render-only or pure-capability skill is exempt via its ' +
+        'existing connector.excluded:true + reason, never via a fork it does ' +
+        'not have"'
+    );
+  }
+
   if (hasShape) {
     // (3) hitl_shape is a member of the closed vocabulary AND hitl_why is present.
     const shape = fixture.hitl_shape;

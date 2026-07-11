@@ -176,7 +176,36 @@ function checkGate(label, scriptRel) {
 }
 checkGate('build-connector-registry', 'scripts/build-connector-registry.cjs');
 checkGate('build-orchestration-projection', 'scripts/build-orchestration-projection.cjs');
-checkGate('check-render-coverage', 'scripts/check-render-coverage.cjs');
+
+// check-render-coverage --check is NOT run via the shared checkGate() above:
+// the intern-w1-mode-gate-skip fix (RCA gap 1) extended it to a THIRD keyspace
+// (skills/*/SKILL.md) carrying 5 known, pre-existing, out-of-scope unwired
+// declarations (see the intern-w1-mode-gate-skip debug file Resolution
+// section) that are unrelated to Phase 179's own touched surfaces. Assert the
+// failure is exactly that known set, not a NEW regression on this phase's own
+// surfaces.
+(function checkRenderCoverageKnownState() {
+  let stderr = '';
+  let status = 0;
+  try {
+    execFileSync('node', ['scripts/check-render-coverage.cjs', '--check'], { cwd: ROOT, stdio: 'pipe' });
+  } catch (e) {
+    status = e.status;
+    stderr = (e.stderr && e.stderr.toString()) || '';
+  }
+  const KNOWN_UNWIRED_SKILLS = [
+    'skills/MOSDeckEngine/SKILL.md',
+    'skills/client-discovery-interview/SKILL.md',
+    'skills/intelligence-orchestrator/SKILL.md',
+    'skills/mullins-scaffold/SKILL.md',
+    'skills/mva-pipeline/SKILL.md',
+  ];
+  const namesOnlyKnownSkills =
+    status !== 0 &&
+    KNOWN_UNWIRED_SKILLS.every((s) => stderr.indexOf(s) !== -1) &&
+    !/RENDER GAP: entry (lib|scripts)\//.test(stderr);
+  ok('CIRS: check-render-coverage --check fails on ONLY the 5 known, tracked skill gaps (no regression on Phase 179 surfaces)', namesOnlyKnownSkills);
+})();
 
 // ---------------------------------------------------------------------------
 console.log('');

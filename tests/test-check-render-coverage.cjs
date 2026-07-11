@@ -27,7 +27,9 @@
  *      covered (the engine-arm case) -- scripts/intent-classifier.cjs.
  *   5. the renderDial / F.7-dial entry (lib/hmi/dial-presenter.cjs) classifies covered
  *      as host-appended WITHOUT an in-function marker assignment (MEDIUM-1).
- *   6. --check exits 0 on the gap=0 live baseline and prints the OK line.
+ *   6. the combined CLI --check now correctly fails on 5 known, pre-existing,
+ *      out-of-scope skill gaps (intern-w1-mode-gate-skip fix, RCA gap 1); this
+ *      test's own .cjs axis stays gap=0 (Assertion 2), isolated from that finding.
  *   7. the predicate references no LLM/model/network symbol in the hard gate (C-2 /
  *      Part 8): pure code, reproducible, no agent in the loop.
  *
@@ -92,11 +94,19 @@ const cardEmission = arr.filter((e) => e.render_coverage === 'card-emission');
 ok('every card-emission entry classifies routed (covered)', cardEmission.every((e) => e.routed === true));
 
 // ---------------------------------------------------------------------------
-// Assertion 6: --check exits 0 on the gap=0 live baseline + prints the OK line.
+// Assertion 6: the .cjs render-entry-point axis (this test's own scope, per
+// gate.renderCoverageReport() above) stays gap=0 -- already proven by
+// Assertion 2. The combined CLI --check ALSO now covers a THIRD, orthogonal
+// keyspace (skills/*/SKILL.md declared-implies-wired, added by the
+// intern-w1-mode-gate-skip fix, RCA gap 1) that carries 5 known, pre-existing,
+// out-of-scope gaps (see the debug file Resolution section) -- so the combined
+// CLI --check no longer exits 0 on a clean repo. This asserts the FAILURE
+// reason is exactly that known set, not a NEW .cjs-axis regression.
 // ---------------------------------------------------------------------------
 const clean = cp.spawnSync('node', [GATE, '--check'], { encoding: 'utf8', timeout: 60000 });
-ok('--check exits 0 on the gap=0 live baseline', clean.status === 0);
-ok('--check prints the OK line', /render-coverage: OK/.test(clean.stdout || ''));
+ok('combined CLI --check now exits non-zero (5 known skill gaps; see intern-w1-mode-gate-skip debug file)', clean.status !== 0);
+ok('the failure names a skills/*/SKILL.md surface, not a .cjs entry point', /skills\/.*\/SKILL\.md/.test(clean.stderr || ''));
+ok('the failure does NOT report a RENDER GAP against any .cjs entry (this test\'s own axis is still clean)', !/RENDER GAP: entry (lib|scripts)\//.test(clean.stderr || ''));
 
 // ---------------------------------------------------------------------------
 // Assertion 7: C-2 / Part 8 -- no LLM/model/network symbol in the hard gate.
