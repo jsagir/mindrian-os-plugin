@@ -2987,7 +2987,7 @@ Plans:
 **Goal:** Wrap the already-shipped Eureka Portfolio-Scale engine (Phases 211-215: tri-modal retrieval, AHP criterion weights, 3-dim scoring, weak-signal tail classifier, Opportunity Statement emitter, composed batch runner `scripts/eureka-portfolio-report.cjs`) as a real user-invocable `/mos:` command, so navigators can run portfolio-scale opportunity discovery against their OWN active room without touching a CLI script. Zero new engine (Canon Part 7) - pure wiring + a connector registration + an HITL shape declaration (Canon Part 11 CIRS) + 4-zone UI rendering. Local-only, no egress (Canon Part 8).
 **Requirements**: 216-R1 (room-native substrate adapter: pairs+signals from room.db, graceful sub-MIN_COHORT degrade), 216-R2 (additive --pairs room runner mode + fire-and-return dispatcher, JHU graph/full path unchanged), 216-R3 (/mos:eureka born-wired command surface: F.8 HITL, 4-zone render, report-only), 216-R4 (all six governance gates green), 216-R5 (hermetic offline test suite + run-all-216 aggregator), 216-R6 (215/211 suites unregressed). Minted by /gsd-plan-phase 216 (no REQUIREMENTS.md yet; a later /gsd-requirements pass reconciles).
 **Depends on:** Phases 211-215 (all complete)
-**Plans:** 4 plans
+**Plans:** 5 plans (4 complete + 1 gap closure)
 
 Plans:
 
@@ -2995,6 +2995,7 @@ Plans:
 - [x] 216-02-PLAN.md - additive --pairs room runner mode + scripts/eureka-command.cjs fire-and-return dispatcher + offline e2e (D-01, D-05) - COMPLETE 2026-07-10 (--pairs room composes buildRoomNativeSubstrate through the SAME four modules, never reads a graph file; union pair rule edge-first deduped; provenance growth_proxy 'created_at-recency (room-native)' + '(room-native: no idea-graph)' row + directive-phrase sub-MIN_COHORT degrade; eureka-command.cjs run|start|status|report|help with anti-JHU-default substrate resolution + status.json fire-and-return; tests/test-216-eureka-command.cjs 44/44 green; test-216-room-substrate 33/33 + run-all-215 PASS=8 + 211 PASS=10 unregressed; graph/full byte-identical, zero shipped-module changes; 216-R2)
 - [x] 216-03-PLAN.md - commands/eureka.md born-wired surface + help-groups + skill mirror + six gates (D-02, D-03, D-04) - COMPLETE 2026-07-10 (born-wired /mos:eureka: F.8 hitl_shape + hitl_why, SENS-13/context_block/eureka-portfolio connector, filing: none report-only; verbatim firing-block v2, D-05 fire-and-return body over the Plan 02 dispatcher start|status|report, 4-zone Shape E render with honest insufficient_structure tail + NOT YET BANKED pending-critic language; eureka in intelligence-research help family; skills/eureka/SKILL.md byte-mirror; connector-registry regenerated; all six gates green - connector --check, shape --check --strict, command-registration, help-coverage, skill-mirror --check, render-coverage; tests/test-216-eureka-command.cjs 44/44 unregressed; 216-R3 + 216-R4)
 - [ ] 216-04-PLAN.md - tests/run-all-216.sh aggregator + 215/211 regression sweep + navigator real-room spot-check
+- [ ] 216-05-PLAN.md - gap closure (216-04 navigator verdict): fix room-native section field leaking ICM type literal into Opportunity Statements ("Section x Section") + tests/test-216-field-contract.cjs permanent guard + run-all-216 leg 10 + ador-ip-test re-acceptance
 
 ---
 
