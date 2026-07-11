@@ -21,6 +21,42 @@
       "fix_supported": false,
       "runner": "lib/core/doctor/card-fire-health-module.cjs",
       "description": "check-card-fire.cjs instrument health: intercept log exists/valid JSONL/fresh, library seams intact, session store parseable"
+    },
+    {
+      "id": "ui-compliance",
+      "introduced_version": "1.12.1-beta.1",
+      "cadence": "always",
+      "flag": "uiCompliance",
+      "fix_supported": false,
+      "runner": "lib/core/doctor/ui-compliance-module.cjs",
+      "description": "UI Ruling System compliance scan (class F): commands body_shape frontmatter, forbidden box chars / glyphs, renderer Zone 1 + Zone 4 patterns. Check-only (D-13)."
+    },
+    {
+      "id": "stale-first-touch-copy",
+      "introduced_version": "1.13.1-beta.4",
+      "cadence": "always",
+      "flag": "staleFirstTouch",
+      "fix_supported": false,
+      "runner": "lib/core/doctor/stale-first-touch-copy-module.cjs",
+      "description": "First-touch greeting surfaces (class K): stale hardcoded version literals + em-dash violations, via lib/core/stale-copy-scanner.cjs. Check-only."
+    },
+    {
+      "id": "deprecated-usage",
+      "introduced_version": "1.13.0-beta.19",
+      "cadence": "always",
+      "flag": "deprecatedUsage",
+      "fix_supported": false,
+      "runner": "lib/core/doctor/deprecated-usage-module.cjs",
+      "description": "Deprecated /mos:<cmd> usage in recent session transcripts (class L): per-command migration hints. Standard status vocabulary; check-only."
+    },
+    {
+      "id": "plugin-enabled-state",
+      "introduced_version": "1.13.1-beta.4",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/plugin-enabled-state-module.cjs",
+      "description": "Silent-disable watchdog (class N / DRIFT-12): plugin installed but enabledPlugins key false. Default-gated (bare / --all / --fix). Check-only."
     }
   ]
 }
