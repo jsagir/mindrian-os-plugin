@@ -46,7 +46,7 @@ const semver = require('semver');
 // back-require). C (the color table), HOME, PLUGIN_HOME, INSTALL_DIR,
 // MARKETPLACE_CACHE_DIR, PLUGIN_ROOT, parseVersion, cmpVersion,
 // resolveActivePluginRoot (re-exported by shared from
-// lib/core/active-plugin-root.cjs), findRoomRoot, readRegistry,
+// lib/core/active-plugin-root.cjs), readRegistry,
 // readInstalledPluginsVersion, checkInstallVersion, checkMarketplaceCache, and
 // checkDevSourceConsistency all resolve here. INSTALL_DIR remains the source of
 // truth for the class A check; new code MUST use resolveActivePluginRoot()
@@ -61,20 +61,16 @@ const {
   parseVersion,
   cmpVersion,
   resolveActivePluginRoot,
-  findRoomRoot,
   readRegistry,
   readInstalledPluginsVersion,
   checkInstallVersion,
   checkMarketplaceCache,
   checkDevSourceConsistency,
 } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'shared.cjs'));
-// Phase 139 Plan-01 (S1 WHERE fix): the SINGLE umbilical/room target resolver.
-// doctor's only cwd-derived target (checkCascadeRoomsActive) routes through
-// this -- never a bare process.cwd() probe. Precedence: .umbilical cord ->
-// .room-root sentinel -> registry.active. Returns null when the cwd is not a
-// room, so doctor SKIPS rather than scaffolding into a plain code repo (the
-// 2026-06-04 home-dir reorg incident). See lib/core/resolve-umbilical-target.cjs.
-const { resolveUmbilicalTarget } = require(path.join(__dirname, '..', 'lib', 'core', 'resolve-umbilical-target.cjs'));
+// Phase 217 Plan 04: the SINGLE umbilical/room target resolver + the .room-root
+// walk-up + the section walk + generator spawn all moved WITH the class B/C/E
+// checks into their registry runners (lib/core/doctor/cascade-rooms*-module.cjs,
+// room-md-module.cjs). doctor.cjs no longer references any of them directly.
 // Phase 139 Plan-02 (S2 accumulative-engine skeleton): the version-dispatch
 // substrate. The hand-maintained module registry (data/doctor-modules.json,
 // mirrors data/deployment-surfaces.json's "new entry = no code change" pattern)
@@ -584,186 +580,10 @@ function safeRename(src, dst) {
   }
 }
 
-// -- Shared helpers for class B/C/E checks ---------------------------
-
-const SKIP_DIRS = new Set([
-  '.git', '.mindrian', '.context', '.lazygraph', '.rooms',
-  'node_modules', '.next', 'dist', 'build', '.cache',
-]);
-
-// findRoomRoot + readRegistry moved to lib/core/doctor/shared.cjs (Phase 217
-// Plan-01 D-02) and are imported at the top of this file. findRoomRoot is a
-// Pure Node port of scripts/post-write detect_room_section() +
-// pre-commit-room-minto-guard.sh find_room_root(); readRegistry reads
-// ~/MindrianRooms/.rooms/registry.json (MINDRIAN_ROOMS_HOME override honored).
-
-// Walk subdirectories under rootDir, returning absolute paths. Skips
-// SKIP_DIRS and respects maxDepth (default 8). Used by class E to enumerate
-// section + sub-section directories under a .room-root.
-function listSubdirs(rootDir, opts) {
-  const o = opts || {};
-  const recursive = o.recursive !== false;
-  const maxDepth = typeof o.maxDepth === 'number' ? o.maxDepth : 8;
-  const results = [];
-  function walk(dir, depth) {
-    if (depth > maxDepth) return;
-    let entries;
-    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
-    catch (_) { return; }
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      if (SKIP_DIRS.has(entry.name)) continue;
-      const sub = path.join(dir, entry.name);
-      results.push(sub);
-      if (recursive) walk(sub, depth + 1);
-    }
-  }
-  walk(rootDir, 0);
-  return results;
-}
-
-// Spawn scripts/generate-section-intelligence.cjs as a child process. Used
-// by class E --fix to remediate missing ROOM.md/MINTO.md across a room
-// subtree. Returns a normalized result with status/stdout/stderr/exitCode.
-function invokeGenerator(targetDir, opts) {
-  const { spawnSync } = require('child_process');
-  const o = opts || {};
-  const recursive = o.recursive !== false;
-  const force = !!o.force;
-  const generatorPath = path.join(__dirname, 'generate-section-intelligence.cjs');
-  if (!fs.existsSync(generatorPath)) {
-    return { status: 'error', detail: 'generator not found at ' + generatorPath, stdout: '', stderr: '', exitCode: -1 };
-  }
-  const args = [generatorPath, targetDir];
-  if (recursive) args.push('--recursive');
-  if (force) args.push('--force');
-  const res = spawnSync('node', args, { encoding: 'utf8', timeout: 30000 });
-  return {
-    status: res.status === 0 ? 'ok' : 'error',
-    stdout: res.stdout || '',
-    stderr: res.stderr || '',
-    exitCode: typeof res.status === 'number' ? res.status : -1,
-  };
-}
-
-// -- Class B + C: cascade-rooms checks -------------------------------
-
-// Class B: scan every registered room for a .room-root sentinel.
-// Returns either a 'skip' (no registry) or {status: 'ok'|'warn',
-// missingSentinels: [<roomName>...], okCount: number}. Test harness asserts
-// shape per tests/test-doctor-class-b.cjs.
-function checkCascadeRoomsSentinel() {
-  const reg = readRegistry();
-  if (!reg) {
-    return { status: 'skip', detail: 'no registry at ~/MindrianRooms/.rooms/registry.json (or MINDRIAN_ROOMS_HOME)', missingSentinels: [], okCount: 0 };
-  }
-  const roomsHome = reg.roomsHome;
-  const rooms = (reg.registry && reg.registry.rooms) || {};
-  const missingSentinels = [];
-  let okCount = 0;
-  for (const name of Object.keys(rooms)) {
-    const info = rooms[name];
-    const relPath = info && info.path;
-    if (!relPath) continue;
-    const roomPath = path.isAbsolute(relPath) ? relPath : path.join(roomsHome, relPath);
-    if (!fs.existsSync(roomPath)) {
-      // Room directory itself missing -- treat as missing sentinel for class B.
-      missingSentinels.push(name);
-      continue;
-    }
-    if (fs.existsSync(path.join(roomPath, '.room-root'))) {
-      okCount += 1;
-    } else {
-      missingSentinels.push(name);
-    }
-  }
-  if (missingSentinels.length === 0) {
-    return { status: 'ok', missingSentinels: [], okCount };
-  }
-  return {
-    status: 'warn',
-    missingSentinels,
-    okCount,
-    detail: missingSentinels.length + ' room(s) missing .room-root sentinel',
-  };
-}
-
-// Class C: active-room guard silence detector. Reads registry for active
-// room; if --simulate-write=<path> is provided, walks up from that path
-// looking for a .room-root sentinel; if the sentinel room differs from the
-// registry's active room, reports the mismatch (writes there would be
-// silenced by scripts/post-write lines 207-217 active-room guard).
-function checkCascadeRoomsActive(simulateWritePath) {
-  const reg = readRegistry();
-  if (!reg) {
-    return { status: 'skip', detail: 'no registry; class C scoped to active room', activeRoom: null, writeRoom: null };
-  }
-  const roomsHome = reg.roomsHome;
-  const rooms = (reg.registry && reg.registry.rooms) || {};
-  const activeName = (reg.registry && reg.registry.active) || null;
-  // Decide which path to inspect for the "current write" room.
-  //   --simulate-write branch (UNCHANGED -- tests rely on it): walk up from
-  //   the simulated path for a .room-root sentinel. findRoomRoot expects a
-  //   FILE path, so append a dummy basename.
-  //   cwd branch (Phase 139 Plan-01 S1 WHERE fix): route through the SINGLE
-  //   umbilical/room target resolver instead of a bare process.cwd() probe.
-  //   If the resolver returns null (cwd is not a room: no cord, no sentinel,
-  //   no registry.active), SKIP -- doctor must NOT walk up from a raw cwd and
-  //   must NOT scaffold into a plain code repo (the cwd-misfire root cause).
-  let writeRoomDir = null;
-  if (simulateWritePath) {
-    const probePath = path.join(simulateWritePath, '__doctor_probe__');
-    try { writeRoomDir = findRoomRoot(probePath); }
-    catch (err) { return { status: 'error', detail: err.message, activeRoom: activeName, writeRoom: null }; }
-  } else {
-    let resolved = null;
-    try { resolved = resolveUmbilicalTarget(); }
-    catch (err) { return { status: 'error', detail: err.message, activeRoom: activeName, writeRoom: null }; }
-    if (!resolved) {
-      return {
-        status: 'skip',
-        detail: 'no umbilical/sentinel/registry target from cwd',
-        activeRoom: activeName,
-        writeRoom: null,
-      };
-    }
-    writeRoomDir = resolved.abs_path;
-  }
-  if (!writeRoomDir) {
-    // No room sentinel found above the probe path -- write is outside any
-    // Data Room, so the active-room guard does not apply.
-    return { status: 'ok', activeRoom: activeName, writeRoom: null, activeMismatch: false };
-  }
-  // Resolve the active-room absolute path.
-  let activePath = null;
-  if (activeName && rooms[activeName] && rooms[activeName].path) {
-    const relPath = rooms[activeName].path;
-    activePath = path.isAbsolute(relPath) ? relPath : path.join(roomsHome, relPath);
-  }
-  // Map writeRoomDir back to a known room name when possible.
-  let writeRoomName = null;
-  for (const name of Object.keys(rooms)) {
-    const info = rooms[name];
-    const relPath = info && info.path;
-    if (!relPath) continue;
-    const roomPath = path.isAbsolute(relPath) ? relPath : path.join(roomsHome, relPath);
-    try {
-      if (path.resolve(roomPath) === path.resolve(writeRoomDir)) { writeRoomName = name; break; }
-    } catch (_) { /* fall through */ }
-  }
-  if (!writeRoomName) writeRoomName = path.basename(writeRoomDir);
-  // Compare write room against active room.
-  if (activePath && path.resolve(activePath) === path.resolve(writeRoomDir)) {
-    return { status: 'ok', activeRoom: activeName, writeRoom: writeRoomName, activeMismatch: false };
-  }
-  return {
-    status: 'warn',
-    activeRoom: activeName,
-    writeRoom: writeRoomName,
-    activeMismatch: true,
-    detail: 'writes to ' + writeRoomName + ' would be silenced (active=' + (activeName || 'none') + ')',
-  };
-}
+// readRegistry moved to lib/core/doctor/shared.cjs (Phase 217 Plan-01 D-02) and
+// is imported at the top of this file. The class B/C/E section-walk helpers
+// (SKIP_DIRS, listSubdirs) + the generator spawn (invokeGenerator) + findRoomRoot
+// moved WITH those checks into their registry runners in Phase 217 Plan 04.
 
 // -- Class D: surface verification (LIVE runner; upgraded by Plan 95.1-07) -----
 
@@ -811,97 +631,6 @@ function checkSurfaceVerification() {
     stderr: (res.stderr || '').slice(-500),
   };
 }
-
-// -- Class E: room-md cascade check ----------------------------------
-
-// Walks the active room's subdirectories under .room-root and reports any
-// directories missing ROOM.md or MINTO.md. The pre-commit guard from Phase
-// 87-01a enforces both files at every level under .room-root subtrees.
-function checkRoomMd() {
-  const reg = readRegistry();
-  if (!reg) {
-    return { status: 'skip', detail: 'no registry; class E scoped to active room', missing: [] };
-  }
-  const activeName = reg.registry && reg.registry.active;
-  if (!activeName) {
-    return { status: 'skip', detail: 'no active room', missing: [] };
-  }
-  const activeInfo = (reg.registry.rooms || {})[activeName];
-  if (!activeInfo || !activeInfo.path) {
-    return { status: 'skip', detail: 'active room not in registry', missing: [] };
-  }
-  const roomPath = path.isAbsolute(activeInfo.path)
-    ? activeInfo.path
-    : path.join(reg.roomsHome, activeInfo.path);
-  // Sentinel must exist for class E to apply (Phase 87-01a guard scope).
-  if (!fs.existsSync(path.join(roomPath, '.room-root'))) {
-    return { status: 'skip', detail: 'active room missing .room-root sentinel (class B finding)', missing: [], roomPath };
-  }
-  const subdirs = listSubdirs(roomPath, { recursive: true, maxDepth: 8 });
-  const missing = [];
-  for (const subdir of subdirs) {
-    const hasRoom = fs.existsSync(path.join(subdir, 'ROOM.md'));
-    const hasMinto = fs.existsSync(path.join(subdir, 'MINTO.md'));
-    if (!hasRoom || !hasMinto) {
-      const filesMissing = [];
-      if (!hasRoom) filesMissing.push('ROOM.md');
-      if (!hasMinto) filesMissing.push('MINTO.md');
-      missing.push({
-        section: path.relative(roomPath, subdir),
-        absPath: subdir,
-        files: filesMissing,
-      });
-    }
-  }
-  if (missing.length === 0) {
-    return { status: 'ok', missing: [], roomPath, subdirs: subdirs.length };
-  }
-  return {
-    status: 'warn',
-    missing,
-    roomPath,
-    subdirs: subdirs.length,
-    detail: missing.length + ' dir(s) missing ROOM.md or MINTO.md',
-  };
-}
-
-// Class E remediation: invoke generate-section-intelligence.cjs --recursive
-// against the active room's path and re-run checkRoomMd. Returns 'ok' when
-// post-fix check has no remaining missing entries; 'partial' when some
-// directories still lack files; 'error' when generator failed.
-function performRoomMdRecovery(checkResult) {
-  if (!checkResult || checkResult.status !== 'warn') {
-    return { status: 'skip', detail: 'no class E drift to recover', tool: 'generate-section-intelligence' };
-  }
-  if (!checkResult.roomPath) {
-    return { status: 'error', detail: 'roomPath not set on check result', tool: 'generate-section-intelligence' };
-  }
-  const result = invokeGenerator(checkResult.roomPath, { recursive: true, force: false });
-  if (result.status !== 'ok') {
-    return {
-      status: 'error',
-      detail: 'generator failed: ' + (result.stderr || result.stdout || 'no output').slice(0, 200),
-      tool: 'generate-section-intelligence',
-      exitCode: result.exitCode,
-    };
-  }
-  const afterCheck = checkRoomMd();
-  if (afterCheck.status === 'ok') {
-    return {
-      status: 'ok',
-      detail: 'all subdirs now have ROOM.md + MINTO.md',
-      tool: 'generate-section-intelligence',
-      generatorOutput: result.stdout,
-    };
-  }
-  return {
-    status: 'partial',
-    detail: afterCheck.missing.length + ' dir(s) still missing after generation',
-    tool: 'generate-section-intelligence',
-    remaining: afterCheck.missing,
-  };
-}
-
 
 // -- Class G: statusline visibility (Phase 106-03) -------------------
 //
@@ -4551,13 +4280,10 @@ function main() {
     };
   }
 
-  // Class B + C: cascade-rooms (sentinel + active-room guard silence).
-  if (flags.cascadeRooms) {
-    try { report.checks['cascade-rooms'] = checkCascadeRoomsSentinel(); }
-    catch (err) { report.checks['cascade-rooms'] = { status: 'error', detail: err.message, missingSentinels: [], okCount: 0 }; }
-    try { report.checks['cascade-rooms-active'] = checkCascadeRoomsActive(flags.simulateWrite); }
-    catch (err) { report.checks['cascade-rooms-active'] = { status: 'error', detail: err.message }; }
-  }
+  // Class B + C: cascade-rooms (sentinel + active-room guard silence) migrated to
+  // registry-driven cadence:always runners (Phase 217 Plan 04). The accumulative
+  // engine now owns cascade-rooms + cascade-rooms-active under the --cascade-rooms
+  // flag; class B's --fix (never wired pre-217) lives in the runner's fix(ctx).
 
   // Class D: surface verification (stub; live runner deferred to Plan 95.1-07).
   if (flags.verifySurface) {
@@ -4565,12 +4291,10 @@ function main() {
     catch (err) { report.checks['verify-surface'] = { status: 'error', detail: err.message }; }
   }
 
-  // Class E: room-md cascade (ROOM.md + MINTO.md presence under .room-root).
-  if (flags.roomMd) {
-    try { report.checks['room-md'] = checkRoomMd(); }
-    catch (err) { report.checks['room-md'] = { status: 'error', detail: err.message, missing: [] }; }
-  }
-
+  // Class E: room-md cascade (ROOM.md + MINTO.md presence under .room-root)
+  // migrated to a registry-driven cadence:always runner (Phase 217 Plan 04). The
+  // accumulative engine owns room-md under the --room-md flag, and its fix-then-
+  // recheck flow owns what the old class E --fix dispatch did by hand.
 
   // Class G: statusline visibility (Phase 106-03). Probes user-settings drift,
   // plugin install integrity, statusline-mos isolated execution, and
@@ -4594,19 +4318,10 @@ function main() {
     }
   }
 
-  // Class E --fix dispatch: invoke generator + re-check.
-  if (flags.fix && flags.roomMd && report.checks['room-md'] && report.checks['room-md'].status === 'warn') {
-    try {
-      const recovery = performRoomMdRecovery(report.checks['room-md']);
-      // performRoomMdRecovery already attached tool: 'generate-section-intelligence'.
-      report.recovered.push(recovery);
-      // Re-pull the post-fix check so the report reflects remediation state.
-      try { report.checks['room-md'] = checkRoomMd(); }
-      catch (err) { report.checks['room-md'] = { status: 'error', detail: err.message, missing: [] }; }
-    } catch (err) {
-      report.recovered.push({ status: 'error', detail: err.message, tool: 'generate-section-intelligence' });
-    }
-  }
+  // Class E --fix dispatch migrated to the engine's fix-then-recheck flow (Phase
+  // 217 Plan 04): the room-md runner's fix(ctx) runs on warn, the recovery record
+  // (tool:'generate-section-intelligence') lands in report.recovered, and check()
+  // re-runs so the report reflects the post-fix state.
 
   // Class G --fix dispatch: invoke migrate-stale-user-settings.cjs + re-check.
   // Gated on status='warn' AND recoverable=true so disableAllHooks (recoverable

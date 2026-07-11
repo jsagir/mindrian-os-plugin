@@ -197,6 +197,63 @@ function runDoctorJson(scratch, args) {
   }
 })();
 
+(function test4_fixCreatesMissingSentinel() {
+  // Phase 217 Plan 04: the REGRESSION PIN for the phase's headline bug. Class B
+  // --fix was advertised since Phase 95.1 but NEVER wired (RCA
+  // .planning/debug/doctor-fix-class-b-unwired.md). It now creates the missing
+  // .room-root sentinel via the cascade-rooms runner's fix(ctx) + the engine's
+  // fix-then-recheck flow, and pushes a report.recovered entry (tool:
+  // 'cascade-rooms').
+  const label = 'class B: --fix creates missing .room-root sentinel -> ok + recovered';
+  const scratch = makeScratchDir('b-fix');
+  try {
+    makeScratchRegistry(scratch, ['room-needs-sentinel'], { 'room-needs-sentinel': false });
+    const sentinelPath = path.join(scratch, 'room-needs-sentinel', '.room-root');
+    assert.equal(fs.existsSync(sentinelPath), false,
+      label + ': precondition -- sentinel must be absent before --fix');
+    const { stdout, status } = runDoctorJson(scratch, ['--cascade-rooms', '--fix', '--json']);
+    assert.equal(status, 0, label + ': doctor must exit 0');
+    const report = JSON.parse(stdout);
+    const cr = report.checks['cascade-rooms'];
+    assert.equal(typeof cr, 'object', label + ': cascade-rooms row must exist');
+    assert.equal(cr.status, 'ok',
+      label + ': status must be "ok" after the fix-then-recheck writes the sentinel');
+    assert.equal(fs.existsSync(sentinelPath), true,
+      label + ': the .room-root sentinel must exist on disk after --fix');
+    assert.equal(Array.isArray(report.recovered), true,
+      label + ': report.recovered must be an array');
+    const recoveredB = report.recovered.some((r) => r && r.tool === 'cascade-rooms');
+    assert.equal(recoveredB, true,
+      label + ': recovered must carry an entry with tool "cascade-rooms"');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  } finally {
+    rmrf(scratch);
+  }
+})();
+
+(function test5_fixDryRunWritesNothing() {
+  // Phase 217 Plan 04: --fix --dry-run reports what WOULD be repaired but writes
+  // NO sentinel (T-217-03 dryRun-honored guard).
+  const label = 'class B: --fix --dry-run writes no sentinel';
+  const scratch = makeScratchDir('b-fix-dry');
+  try {
+    makeScratchRegistry(scratch, ['room-needs-sentinel'], { 'room-needs-sentinel': false });
+    const sentinelPath = path.join(scratch, 'room-needs-sentinel', '.room-root');
+    const { stdout, status } = runDoctorJson(scratch, ['--cascade-rooms', '--fix', '--dry-run', '--json']);
+    assert.equal(status, 0, label + ': doctor must exit 0');
+    JSON.parse(stdout); // stdout must be valid JSON
+    assert.equal(fs.existsSync(sentinelPath), false,
+      label + ': dry-run must NOT write the .room-root sentinel');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  } finally {
+    rmrf(scratch);
+  }
+})();
+
 // ---------- Report ----------
 
 process.stdout.write('\n');

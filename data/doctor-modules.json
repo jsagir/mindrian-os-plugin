@@ -57,6 +57,33 @@
       "fix_supported": false,
       "runner": "lib/core/doctor/plugin-enabled-state-module.cjs",
       "description": "Silent-disable watchdog (class N / DRIFT-12): plugin installed but enabledPlugins key false. Default-gated (bare / --all / --fix). Check-only."
+    },
+    {
+      "id": "cascade-rooms",
+      "introduced_version": "1.12.1-beta.1",
+      "cadence": "always",
+      "flag": "cascadeRooms",
+      "fix_supported": true,
+      "runner": "lib/core/doctor/cascade-rooms-module.cjs",
+      "description": "Room .room-root sentinel presence (class B): every registered room carries its sentinel. --fix CREATES missing sentinels for rooms whose dir exists (dry-run honored; dir-missing rooms suggested, never auto-created)."
+    },
+    {
+      "id": "cascade-rooms-active",
+      "introduced_version": "1.12.1-beta.1",
+      "cadence": "always",
+      "flag": "cascadeRooms",
+      "fix_supported": false,
+      "runner": "lib/core/doctor/cascade-rooms-active-module.cjs",
+      "description": "Active-room guard silence detector (class C): a write to a non-active room would be silenced before the cascade side-channel runs. Shares the --cascade-rooms flag with class B. Check-only."
+    },
+    {
+      "id": "room-md",
+      "introduced_version": "1.12.1-beta.1",
+      "cadence": "always",
+      "flag": "roomMd",
+      "fix_supported": true,
+      "runner": "lib/core/doctor/room-md-module.cjs",
+      "description": "ROOM.md + MINTO.md presence under the active room's .room-root (class E). --fix invokes generate-section-intelligence.cjs --recursive then re-checks."
     }
   ]
 }
