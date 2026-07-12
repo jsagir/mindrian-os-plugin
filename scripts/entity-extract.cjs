@@ -30,10 +30,22 @@
  *      navigation.writeEntityNode per entity, navigation.writeEdge per
  *      entity->artifact DESCRIBES link and per entity->entity relation. A
  *      mid-batch error rolls back ALL of it (T-218-09).
- *   5. AFTER commit, a route-a best-effort re-embed via the EXISTING
+ *   5. Phase 219-02 (D-11, REQ-5): inside the SAME transaction, a deterministic
+ *      zero-LLM frontmatter METADATA pass lifts scalar frontmatter fields
+ *      (methodology, created/date, status, section, confidence) onto each
+ *      exact memory_artifact node as additive JSON props via the insertNode
+ *      UPSERT (merge discipline: existing props + review_status never
+ *      clobbered; non-scalar values skipped, never thrown on).
+ *   6. AFTER commit, a route-a best-effort re-embed via the EXISTING
  *      tri-modal-index.indexNodes path (REQ-3), in its OWN try/catch that degrades
  *      to lexical-only and NEVER throws or rolls back the entity writes (T-218-10,
  *      the degrade-never-throw contract).
+ *
+ * Phase 219-02 seam (D-16): runExtraction(db, roomDir, sessionId, max, opts)
+ * accepts an OPTIONAL opts.paths allowlist of roomDir-relative artifact paths;
+ * when present only those artifacts are collected (scoped-incremental -- the
+ * post-filing extraction Plan 05 invokes). Default behavior (no opts.paths) is
+ * byte-identical to the 218 full-room pass.
  *
  * CANON POSTURE:
  *   - Part 8 (Graph Boundary): ZERO network. No URL, no socket, no remote call.
@@ -64,8 +76,13 @@ const { spawn } = require('node:child_process');
 
 const { openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs');
 const navigation = require('../lib/core/navigation.cjs');
+const { insertNode } = require('../lib/core/node-insert.cjs');
 const { extractEntities } = require('../lib/core/eureka/entity-extractor.cjs');
 const triModal = require('../lib/core/eureka/tri-modal-index.cjs');
+// Phase 219-02 (D-11, REQ-5): the SHIPPED zero-dep frontmatter parser (Canon
+// Part 7 reuse-before-build -- never a new YAML parser). Deterministic,
+// zero-LLM, zero network.
+const { parseFrontmatter } = require('../lib/core/opportunity-ops.cjs');
 
 // ---------------------------------------------------------------------------
 // Path contract: everything this command writes lives under here. The subdir is
@@ -170,7 +187,25 @@ function parseArgs(argv) {
 //     (section-level, not exact-file-level) but always a REAL, already-
 //     materialized DESCRIBES target -- a section with no anchor at all is
 //     skipped, never given an invented one.
-function collectArtifacts(db, roomDir) {
+//
+// Phase 219-02 additions (both ADDITIVE -- a two-arg call is byte-identical):
+//   - allowPaths (optional array of roomDir-relative paths): the D-16
+//     scoped-incremental seam. When present, ONLY artifacts whose path is in
+//     the allowlist are collected, so filing one explore-chain artifact never
+//     triggers a full-room re-extract.
+//   - each artifact entry now also carries { relPath, exact }: exact=true when
+//     the entry's artifactId IS the memory_artifact node of that very file
+//     (tier a); exact=false for the tier-b section-anchor fallback. The
+//     metadata pass writes ONLY to exact nodes (a section anchor represents a
+//     DIFFERENT file; writing another file's frontmatter onto it would lie).
+function collectArtifacts(db, roomDir, allowPaths) {
+  const allowSet = (Array.isArray(allowPaths) && allowPaths.length > 0)
+    ? new Set(allowPaths.map(function (p) { return path.normalize(String(p)); }))
+    : null;
+  const isAllowed = function (rel) {
+    return allowSet === null || allowSet.has(path.normalize(rel));
+  };
+
   const rows = db.prepare("SELECT id, properties FROM nodes WHERE type = 'memory_artifact'").all();
   const artifacts = [];
   const coveredPaths = new Set();  // roomDir-relative paths already read via memory_artifact
@@ -181,11 +216,19 @@ function collectArtifacts(db, roomDir) {
     try { props = JSON.parse(row.properties || '{}'); } catch (_e) { props = {}; }
     const rel = props && typeof props.path === 'string' ? props.path : null;
     if (rel) {
-      const abs = path.join(roomDir, rel);
-      let text = null;
-      try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
-      if (text) {
-        artifacts.push({ artifactId: row.id, text: text });
+      if (isAllowed(rel)) {
+        const abs = path.join(roomDir, rel);
+        let text = null;
+        try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
+        if (text) {
+          artifacts.push({ artifactId: row.id, text: text, relPath: rel, exact: true });
+          coveredPaths.add(path.normalize(rel));
+        }
+      } else {
+        // Scoped run only: mark the filtered-out memory_artifact-backed path
+        // covered so tier (b) never re-reads it under a section anchor. On the
+        // default path (no allowlist) this branch is unreachable, so the
+        // default collection stays byte-identical to the 218 behavior.
         coveredPaths.add(path.normalize(rel));
       }
     }
@@ -212,11 +255,12 @@ function collectArtifacts(db, roomDir) {
       if (!/\.md$/i.test(fname)) continue;
       const rel = path.join(section, fname);
       if (coveredPaths.has(path.normalize(rel))) continue;
+      if (!isAllowed(rel)) continue;
       const abs = path.join(roomDir, rel);
       let text = null;
       try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
       if (!text) continue;
-      artifacts.push({ artifactId: anchor, text: text });
+      artifacts.push({ artifactId: anchor, text: text, relPath: rel, exact: false });
       coveredPaths.add(path.normalize(rel));
     }
   }
@@ -224,8 +268,67 @@ function collectArtifacts(db, roomDir) {
   return artifacts;
 }
 
-function runExtraction(db, roomDir, sessionId, maxPerArtifact) {
-  const artifacts = collectArtifacts(db, roomDir);
+// Phase 219-02 (D-11): the frontmatter keys the metadata pass lifts onto the
+// artifact node as ADDITIVE JSON props. Values are JSON scalars ONLY
+// (string/number/boolean); lists/objects/null are skipped (the frontmatter-
+// injection threat T-219-05: a non-scalar never lands, a serialize failure
+// skips the artifact with a counted warning, never a throw).
+const METADATA_FM_KEYS = ['methodology', 'created', 'date', 'status', 'section', 'confidence'];
+
+// applyArtifactMetadata(db, art) -- the per-artifact metadata merge, called
+// INSIDE the D-05 batch transaction. Read the node's current props, merge the
+// scalar frontmatter keys, write back through the shared insertNode UPSERT
+// (ON CONFLICT updates type+properties only -- review_status and the
+// provenance columns are NEVER touched). The structural `section` prop is
+// scaffold-owned: it is only filled when absent, never overwritten by a
+// conflicting frontmatter value (it anchors tier-b collection and ICM
+// placement). All other metadata keys refresh on every run (metadata-owned).
+// Returns 'applied' | 'skipped' | 'none'. NEVER throws.
+function applyArtifactMetadata(db, art) {
+  try {
+    let fm = null;
+    try { fm = parseFrontmatter(art.text); } catch (_e) { return 'skipped'; }
+    if (!fm || typeof fm !== 'object') return 'none';
+
+    const row = db.prepare('SELECT id, type, properties FROM nodes WHERE id = ?').get(art.artifactId);
+    if (!row) return 'none';
+    let props = {};
+    try { props = JSON.parse(row.properties || '{}'); } catch (_e) { props = {}; }
+    if (!props || typeof props !== 'object' || Array.isArray(props)) props = {};
+
+    let changed = false;
+    for (const key of METADATA_FM_KEYS) {
+      const v = fm[key];
+      const isScalar = (typeof v === 'string' && v.length > 0)
+        || typeof v === 'number' || typeof v === 'boolean';
+      if (!isScalar) continue;
+      if (key === 'section' && typeof props.section === 'string' && props.section.length > 0) {
+        continue; // structural section wins; never clobbered by frontmatter
+      }
+      if (props[key] !== v) {
+        props[key] = v;
+        changed = true;
+      }
+    }
+    if (!changed) return 'none';
+
+    let propsJson;
+    try { propsJson = JSON.stringify(props); } catch (_e) { return 'skipped'; }
+    // The node already exists (we just SELECTed it), so this UPSERT takes the
+    // ON CONFLICT branch: properties refresh, review_status + provenance
+    // columns stay exactly as they were (merge discipline, assumption A5).
+    insertNode(db, row.id, row.type, propsJson);
+    return 'applied';
+  } catch (_e) {
+    return 'skipped'; // defensive: one bad artifact never kills the batch
+  }
+}
+
+function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
+  const options = opts || {};
+  // opts.paths (optional, ADDITIVE): the D-16 scoped-incremental allowlist.
+  // Absent -> full-room collection, byte-identical to the 218 behavior.
+  const artifacts = collectArtifacts(db, roomDir, options.paths);
 
   // Aggregate all candidates first (pure, no writes yet).
   const entities = [];   // { entityType, name, sourceArtifactId }
@@ -238,6 +341,8 @@ function runExtraction(db, roomDir, sessionId, maxPerArtifact) {
 
   let entitiesWritten = 0;
   let edgesWritten = 0;
+  let metadataApplied = 0;
+  let metadataSkipped = 0;
 
   // D-05 batch: ONE explicit transaction around the whole node+edge batch.
   // node:sqlite has NO .transaction() helper (Pitfall 3) -- BEGIN/COMMIT/ROLLBACK
@@ -280,6 +385,18 @@ function runExtraction(db, roomDir, sessionId, maxPerArtifact) {
       });
       if (r && r.ok) edgesWritten += 1;
     }
+    // 4. Phase 219-02 (D-11, REQ-5): the frontmatter metadata pass, INSIDE the
+    //    same D-05 transaction. Only EXACT artifacts (the node IS that file)
+    //    receive metadata -- a tier-b section anchor stands for a different
+    //    file, so writing another file's frontmatter onto it would lie.
+    //    Deterministic, zero-LLM, zero network; a skip is counted, never a
+    //    throw (the batch survives, T-219-05).
+    for (const art of artifacts) {
+      if (!art.exact) continue;
+      const outcome = applyArtifactMetadata(db, art);
+      if (outcome === 'applied') metadataApplied += 1;
+      else if (outcome === 'skipped') metadataSkipped += 1;
+    }
     db.exec('COMMIT');
   } catch (err) {
     db.exec('ROLLBACK');
@@ -294,11 +411,25 @@ function runExtraction(db, roomDir, sessionId, maxPerArtifact) {
   return triModal.indexNodes(db, { roomDir: roomDir })
     .then(function (idx) {
       embedded = !!(idx && idx.embedded);
-      return { artifacts: artifacts.length, entitiesWritten: entitiesWritten, edgesWritten: edgesWritten, embedded: embedded };
+      return {
+        artifacts: artifacts.length,
+        entitiesWritten: entitiesWritten,
+        edgesWritten: edgesWritten,
+        embedded: embedded,
+        metadataApplied: metadataApplied,
+        metadataSkipped: metadataSkipped,
+      };
     })
     .catch(function () {
       // Degrade-never-throw: the entity writes are already committed.
-      return { artifacts: artifacts.length, entitiesWritten: entitiesWritten, edgesWritten: edgesWritten, embedded: false };
+      return {
+        artifacts: artifacts.length,
+        entitiesWritten: entitiesWritten,
+        edgesWritten: edgesWritten,
+        embedded: false,
+        metadataApplied: metadataApplied,
+        metadataSkipped: metadataSkipped,
+      };
     });
 }
 
@@ -329,6 +460,8 @@ async function cmdRun(opts) {
       entities: result.entitiesWritten,
       edges: result.edgesWritten,
       embedded: result.embedded,
+      metadata_applied: result.metadataApplied,
+      metadata_skipped: result.metadataSkipped,
       session: opts.session,
     });
     return 0;
@@ -442,4 +575,8 @@ if (require.main === module) {
   main(process.argv.slice(2)).then(function (code) { process.exit(code); });
 }
 
-module.exports = { main: main };
+// runExtraction is exported ADDITIVELY (Phase 219-02) so the D-16 post-filing
+// hook (and tests) can run a scoped-incremental pass over an explicit
+// opts.paths allowlist against a caller-owned db handle. main stays the
+// dispatcher seam.
+module.exports = { main: main, runExtraction: runExtraction };
