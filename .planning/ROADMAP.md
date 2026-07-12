@@ -3033,7 +3033,7 @@ Plans:
 **Wave 1**
 
 - [x] 218-01-PLAN.md — Edge vocab (D-02) + typed entity-node writer (D-01): additive COMPETES_WITH/USES_COMPONENT/SUPPLIES_TO, writeEntityNode minting proposed company/technology/market nodes through navigation [REQ-1, REQ-2]
-- [ ] 218-02-PLAN.md — SQLite write safety (D-05 openRoomDb timeout:5000 + synchronous=NORMAL) + tier-1 pure prose extractor (zero-egress, bounded) [REQ-1]
+- [x] 218-02-PLAN.md — SQLite write safety (D-05 openRoomDb timeout:5000 + synchronous=NORMAL) + tier-1 pure prose extractor (zero-egress, bounded) [REQ-1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

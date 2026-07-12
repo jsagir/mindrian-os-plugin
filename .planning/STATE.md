@@ -10,11 +10,21 @@ progress:
   total_phases: 26
   completed_phases: 16
   total_plans: 81
-  completed_plans: 78
+  completed_plans: 79
   percent: 62
 ---
 
 # Project State
+
+## (2026-07-12) -- PHASE 218 Plan 02 COMPLETE (2/3 plans) -- D-05 write-safety on openRoomDb + the tier-1 zero-egress prose extractor, the two Wave-1 foundations Plan 03's dispatcher consumes
+
+Two independent Wave-1 foundations, both TDD (RED test proven to fail before GREEN). (1) The D-05 SQLite write-safety edit protects the NEW extraction-worker-vs-live-conversation concurrency scenario this pipeline introduces. (2) The pure tier-1 extractor is the read/parse half of REQ-1 ("reads artifact markdown text and writes new graph nodes"); the write half is Plan 218-01's typed-entity.cjs chokepoint.
+
+- **Task 1 (`c8aef2a6` feat):** `lib/core/room-db.cjs::openRoomDb` folds `timeout: 5000` into the `DatabaseSync` options object on BOTH construction branches (RESEARCH Pitfall 2: the `allowExtension` branch and the previously option-less bare branch), turning node:sqlite's 0ms SQLITE_BUSY hard-fail under write contention into a ~5s busy-wait window; adds `PRAGMA synchronous = NORMAL` (no constructor equivalent, stays a db.exec) after the existing WAL + foreign_keys pragmas. A GLOBAL change to every caller, strictly more forgiving (a longer wait, never a new failure mode; WAL readers never block writers). `tests/test-218-write-safety.cjs` (3/3): a freshly opened room.db reports `busy_timeout=5000` and `synchronous=1` (NORMAL), and an explicit `db.exec('BEGIN')` / force-error / `db.exec('ROLLBACK')` leaves zero partial rows (node:sqlite has NO `.transaction()` helper -- Pitfall 3 -- asserted directly). Assumption A2 re-grep confirmed live: no existing test asserted on the pre-D-05 0ms-fail behavior, so the change breaks nothing.
+- **Task 2 (`981e5d77` feat):** `lib/core/eureka/entity-extractor.cjs` exports `extractEntities(markdown, opts)` returning `{ entities: [{ entityType, name, sourceArtifactId }], relations: [{ source, target, edge_type }] }` where entityType is in {company, technology, market} and edge_type is in Plan 218-01's ENTITY_EDGE_SUBSET (COMPETES_WITH / SUPPLIES_TO / USES_COMPONENT). A PURE parser: touches no db, makes zero network calls (Canon Part 8, grep-gated). Inherits the four shallow-doc-parser.cjs disciplines verbatim: split(/\r?\n/) with no markdown-AST dep; a `maxPerArtifact` cap (default 25) so a greedy Title-Case flood cannot re-flood the graph (Pitfall 4, the noise this phase exists to remove); a top-level try/catch that returns the empty shape and NEVER throws on caller input; zero egress. Heuristics: strip fenced + inline code spans and emails/URLs/years; type body proper nouns by heading-context lean (a "## Competitors" section leans company, "## Market" leans market); heading-only tokens are skipped (body-prose-only extraction); rivalry/supply/component cues pair the first two co-occurring names into a typed relation. `tests/test-218-extractor.cjs` (8/8): bounded-cap, exact `{entityType,name,sourceArtifactId}` shape + type-set, null/empty/undefined/non-string never-throw, the motivating COMPETES_WITH(Prodrive, Xtrac) relation, code-span strip, and the Part-8 zero-egress grep gate on the source file.
+- **Verification:** `node tests/test-218-write-safety.cjs` 3/3; `node tests/test-218-extractor.cjs` 8/8; extractor smoke green; `! grep -rnE "fetch|https?\.|require\('node:http" lib/core/eureka/entity-extractor.cjs` clean (Canon Part 8); done-criteria greps: `grep -c "timeout: 5000" room-db.cjs` = 3 (both branches + comment), `grep -c "synchronous = NORMAL"` = 2. No regressions: test-129-spine-substrate + test-218-entity-writer still green after the room-db edit.
+- **Deviations:** none -- plan executed exactly as written.
+- **NEXT:** 218-03 (the standalone dispatcher D-03 wiring extractor -> batch txn -> navigation -> route-a re-embed + the aggregator + live REQ-5 verification on aion-eureka-synergy). SUMMARY: `.planning/phases/218-entity-extraction-pipeline-eureka-entity-extraction-extract-/218-02-SUMMARY.md`.
 
 ## (2026-07-11) -- PHASE 217 COMPLETE (7/7 plans) -- D-04 full commands/doctor.md audit + doc-parity regression guard + the 17-leg run-all-217.sh aggregator + navigator real-room checkpoint APPROVED verbatim; the doctor.cjs architecture rethink is DONE
 
@@ -908,7 +918,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 218 (entity-extraction-pipeline-eureka-entity-extraction-extract-) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1460,6 +1470,7 @@ Progress: [█████████░] 92%
 | Phase 217 P04 | ~35min | 2 tasks | 6 files |
 | Phase 217 P07 | ~35min | 2 tasks | 4 files |
 | Phase 218 P01 | 22 | 2 tasks | 5 files |
+| Phase 218 P02 | ~14min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -2411,6 +2422,7 @@ Progress: [█████████░] 92%
 - [Phase 217]: commands/doctor.md D-04 audit: every parseArgs flag documented; --fix line names exactly A,B,E,G,H,I,J derived from data/doctor-modules.json fix_supported (class A carve-out + registry entries); tests/test-doctor-doc-parity.cjs hard-blocks future doc drift
 - [Phase 217]: Phase 217 CLOSED: navigator real-room smoke approved verbatim (node scripts/doctor.cjs --all run twice, bare run, bash tests/run-all-217.sh) -- watermark does not silence any migrated diagnostic (Pitfall-1 kill shot confirmed live); brain-smoke's skip-row rendering left as-is per navigator, not gap-closed
 - [Phase 218]: Phase 218-01: entity nodes (company/technology/market) are pure truth-claims, born review_status=proposed, never auto-confirmed (typed-domain taxonomy->confirmed branch deliberately omitted per REQ-1/Part 9 role 5)
+- [Phase 218]: Phase 218-02: openRoomDb write-safety is GLOBAL and strictly additive -- timeout:5000 on both DatabaseSync branches + synchronous=NORMAL turns a 0ms SQLITE_BUSY into a ~5s busy-wait, never a new failure mode (D-05). The tier-1 extractor is structural-first (regex/heading, zero model, zero egress): types no deeper than capitalization + heading-context lean (MISC-label disambiguation is tier-2, out of scope), and bounds output via maxPerArtifact (default 25) so it can never re-flood the graph (Pitfall 4).
 
 ### Pending Todos
 
@@ -2475,7 +2487,7 @@ Progress: [█████████░] 92%
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
 Last session: 2026-07-12T13:10:33.431Z
-Stopped at: Phase 218 context gathered
+Stopped at: Phase 218 Plan 02 complete (2/3 plans) -- D-05 write-safety + tier-1 zero-egress extractor; next is 218-03 the dispatcher
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
 
