@@ -3020,7 +3020,7 @@ Plans:
 
 **Requirements**: REQ-1 (domain-entity node extraction), REQ-2 (additive domain-relationship edge vocabulary), REQ-3 (reuse existing embedding infra), REQ-4 (zero-touch propagation to whitespace_scan/contradiction_check/graph_query), REQ-5 (measurable structural-noise reduction)
 **Depends on:** Phase 211 (Eureka Generator MVP: tri-modal room.db + sqlite-vec + embeddings, COMPLETE), Phase 212 (Grounding Guard critic, COMPLETE), Phase 216 (user-facing /mos:eureka command, COMPLETE). Adjacent, not duplicative: Phase 212.5 (eureka-graph-substrate: whitespace/bridge detection at the artifact/whitespace-zone grain, REGISTERED 2026-07-06, still 0 plans) and SEED-037 (graph-candidate-producer.cjs: artifact-to-artifact semantic edges, status investigating, blocked on a dead API account) -- both work one grain up (whole artifacts); this phase works at the sub-artifact named-entity grain.
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 **Grounding (why this phase exists):** Root-cause evidence, live, verified 2026-07-12 across 3 rooms on 2 machines: corepower-isolation (1 node/0 edges), aion-eureka-synergy (646 nodes/92 edges, 100% structural, top-25 eureka pairs are template-vs-template noise, engine self-flagged tail_suspect_noise:true), aion-labs-eir (0/0, fresh room). room.db never gets populated with extracted domain entities, only per-file scaffold nodes, so the real, working 211-216 scoring engine has nothing but filenames to cross-pollinate.
 
@@ -3032,7 +3032,7 @@ Per this repo's CLAUDE.md Dev-Research Compositing rule, the research trail (a t
 Plans:
 **Wave 1**
 
-- [ ] 218-01-PLAN.md — Edge vocab (D-02) + typed entity-node writer (D-01): additive COMPETES_WITH/USES_COMPONENT/SUPPLIES_TO, writeEntityNode minting proposed company/technology/market nodes through navigation [REQ-1, REQ-2]
+- [x] 218-01-PLAN.md — Edge vocab (D-02) + typed entity-node writer (D-01): additive COMPETES_WITH/USES_COMPONENT/SUPPLIES_TO, writeEntityNode minting proposed company/technology/market nodes through navigation [REQ-1, REQ-2]
 - [ ] 218-02-PLAN.md — SQLite write safety (D-05 openRoomDb timeout:5000 + synchronous=NORMAL) + tier-1 pure prose extractor (zero-egress, bounded) [REQ-1]
 
 **Wave 2** *(blocked on Wave 1 completion)*

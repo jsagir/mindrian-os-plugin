@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15.0
-milestone_name: The Cockpit" milestone -- the UX/dial train
+milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Phase 218 context gathered
-last_updated: "2026-07-12T12:46:34.724Z"
+last_updated: "2026-07-12T13:11:30.922Z"
 last_activity: 2026-07-12
 progress:
   total_phases: 26
   completed_phases: 16
-  total_plans: 78
+  total_plans: 81
   completed_plans: 78
   percent: 62
 ---
@@ -903,12 +903,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 217 — doctor-cjs-architecture-rethink-audit-all-14-check-classes-i
+**Current focus:** Phase 218 — entity-extraction-pipeline-eureka-entity-extraction-extract-
 
 ## Current Position
 
-Phase: 217 (doctor-cjs-architecture-rethink-audit-all-14-check-classes-i) — COMPLETE (7/7 plans)
-Plan: 7 of 7
+Phase: 218 (entity-extraction-pipeline-eureka-entity-extraction-extract-) — EXECUTING
+Plan: 2 of 3
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1459,6 +1459,7 @@ Progress: [█████████░] 92%
 | Phase 217 P02 | 35min | 3 tasks | 6 files |
 | Phase 217 P04 | ~35min | 2 tasks | 6 files |
 | Phase 217 P07 | ~35min | 2 tasks | 4 files |
+| Phase 218 P01 | 22 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -2409,6 +2410,7 @@ Progress: [█████████░] 92%
 - [Phase 217]: 217-04: class B --fix wired for real (creates missing .room-root sentinels); B/C/E migrated to registry runners; introduced_version 1.12.1-beta.1 not 1.15.3
 - [Phase 217]: commands/doctor.md D-04 audit: every parseArgs flag documented; --fix line names exactly A,B,E,G,H,I,J derived from data/doctor-modules.json fix_supported (class A carve-out + registry entries); tests/test-doctor-doc-parity.cjs hard-blocks future doc drift
 - [Phase 217]: Phase 217 CLOSED: navigator real-room smoke approved verbatim (node scripts/doctor.cjs --all run twice, bare run, bash tests/run-all-217.sh) -- watermark does not silence any migrated diagnostic (Pitfall-1 kill shot confirmed live); brain-smoke's skip-row rendering left as-is per navigator, not gap-closed
+- [Phase 218]: Phase 218-01: entity nodes (company/technology/market) are pure truth-claims, born review_status=proposed, never auto-confirmed (typed-domain taxonomy->confirmed branch deliberately omitted per REQ-1/Part 9 role 5)
 
 ### Pending Todos
 
@@ -2472,7 +2474,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-12T10:40:53.641Z
+Last session: 2026-07-12T13:10:33.431Z
 Stopped at: Phase 218 context gathered
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
