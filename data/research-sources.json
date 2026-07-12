@@ -32,6 +32,13 @@
       "note": "Gated only by the existing TAVILY_API_KEY env var, not opt-in. Snippet-only web results. Missing key degrades to an empty envelope (no throw)."
     },
     {
+      "id": "tavily-extract",
+      "enabled": true,
+      "kind": "web",
+      "gates": ["env:TAVILY_API_KEY"],
+      "note": "URL -> full-page markdown via Tavily POST /extract (extract_depth advanced). Phase 220 url-ingest rung 1. NOT in default_sources - explicit-invocation only, never part of the default research fan-out. Missing key degrades to a typed provider_unavailable envelope (no throw)."
+    },
+    {
       "id": "brain-cypher",
       "enabled": true,
       "kind": "graph",
