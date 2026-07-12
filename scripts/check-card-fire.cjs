@@ -286,8 +286,18 @@ const ASCII_BOX_NUMBERED_PROSE_RE =
 // fixtures already use ("pick a room to resume", "select a path") are recognized without
 // a false negative. A benign Action Footer ("Next you could: 1. ... 2. ...") carries none
 // of these, so it no longer trips the backstop.
+//
+// Post-merge finding (intern-w1-card-discipline-decay, 2026-07-11, merged same day as
+// CR-05): a genuine strategic fork rendered as a plain cardinality lead-in -- "Two paths
+// from here:" / "Two options:" -- carries no question mark and none of the verb cues
+// above, so it was silently swallowed by the SAME framing gate CR-05 introduced to kill
+// benign Action Footers, reopening exactly the false-negative the card-discipline fix was
+// merged to close. Added a second cue class: an explicit cardinality + choice-noun lead-in
+// ("two options", "3 paths", "a few choices", "two alternatives"). A benign Action Footer
+// ("Next you could:") never names its own item count this way, so this does not reopen the
+// CR-05 benign-list test.
 const GATE_FRAMING_RE =
-  /\?|\bwhich\b|\bchoose\b|\bpick\b|\bselect\b|would you like|type\s+1/i;
+  /\?|\bwhich\b|\bchoose\b|\bpick\b|\bselect\b|would you like|type\s+1|\b(?:a\s+few|\d+|two|three|four|five)\s+(?:options?|paths?|choices?|alternatives?|ways?)\b/i;
 
 // How many chars BEFORE a numbered-prose match to scan for a framing cue (the gate's
 // question / lead line typically sits on the line just above the first option).
@@ -602,11 +612,22 @@ function classifyCardFire(turn, registry) {
     // gate-already-answered would relabel an already-answered 2-option gate (the
     // relevance test's RELEASE_GATE is also 2-option) as gate-is-simple-binary and
     // change that pass-reason's precedence. Reuse the gateLabels already extracted
-    // above (per the RCA: no new option-extraction path). The condition is EXACTLY
-    // length === 2, never <= 2: extractOptionLabels returns [] for glyph-only or
-    // PRIMARY-signal texts with no recoverable labels ("Here are your options.",
-    // "no card yet"), and a 0-label detection stays conservative and intercepts.
-    if (gateLabels.length === 2) {
+    // above (per the RCA: no new option-extraction path).
+    //
+    // intern-w1-card-discipline-decay (2026-07-11): the original condition was a
+    // BARE `gateLabels.length === 2` cardinality check, which cannot distinguish a
+    // trivial yes/no confirmation closer ("Want those?") from a genuine two-way
+    // FORCED-CHOICE strategic fork ("run research vs build the plan" / "build the
+    // plan now vs file evidence first"). All 3 of an intern's missed forks in one
+    // QA session carried exactly 2 option labels and were swallowed by this
+    // exemption regardless of content. Fixed by requiring the labels to be
+    // YES/NO-SHAPED (gateRelevance.isYesNoShapedGate -- the SAME semantic test
+    // gateAlreadyAnswered already uses for its own 2-option yes/no answer-matching,
+    // reused here per Part 7 rather than re-implemented), not merely 2-in-number.
+    // A genuine 2-option fork whose labels are NOT yes/no-shaped now falls through
+    // to the final intercept below and force-fires, exactly like a 3+-way fork; a
+    // real yes/no closer stays exempt.
+    if (gateRelevance.isYesNoShapedGate(gateLabels)) {
       return { intercept: false, reason: 'gate-is-simple-binary', degrade: false };
     }
 

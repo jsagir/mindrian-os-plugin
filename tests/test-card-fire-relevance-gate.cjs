@@ -14,11 +14,24 @@
 //   Leg 3 (PRESERVE FLOOR, green NOW and must STAY green): a genuine, relevant,
 //     unanswered fork still intercepts (the Phase 209 guarantee -- this phase must
 //     not turn the backstop off entirely; that would be 209's regression in reverse).
-//   Leg 4 (BINARY EXEMPTION, navigator decision 2026-07-05): a genuine, RELEVANT,
-//     UNANSWERED 2-option binary closer passes as intercept:false reason
-//     gate-is-simple-binary through the LIVE transcript path (not just the direct
-//     unit shape). Neither relevance pass-reason can claim it (it topically overlaps
-//     the gate and does not answer it), so it proves the binary exemption is reached.
+//   Leg 4 (BINARY EXEMPTION -> intern-w1-card-discipline-decay, 2026-07-11): a
+//     genuine, RELEVANT, UNANSWERED 2-option FORK whose labels are NOT yes/no
+//     shaped now FORCE-FIRES (intercept:true) through the LIVE transcript path.
+//     Originally this leg asserted the opposite (a bare `gateLabels.length===2`
+//     cardinality check swallowed any 2-option gate, yes/no or not) -- that was
+//     the exact shape of the intern's 3 missed forks in one QA session. The
+//     assertion below was corrected as part of that fix; a NEW leg 5 proves a
+//     genuine yes/no-shaped closer still stays exempt (the navigator-approved
+//     2026-07-05 behavior, narrowed rather than removed).
+//   Leg 5 (YES/NO EXEMPTION PRESERVED, intern-w1-card-discipline-decay fix): a
+//     genuine, RELEVANT, UNANSWERED 2-option gate whose labels ARE yes/no shaped
+//     still passes as intercept:false reason gate-is-simple-binary -- the
+//     narrowed exemption is not a removal.
+//   Legs 6-8 (INTERN REGRESSION FIXTURES): the intern's 3 quoted missed-fork
+//     phrasings, reconstructed as numbered-prose gate renderings (this worktree's
+//     ASCII_BOX_GLYPH_RE has no framing-cue co-requirement -- that is CR-05, which
+//     landed on main AFTER this worktree branched and is out of scope here), each
+//     asserted to now force-fire instead of being swallowed by gate-is-simple-binary.
 //
 // Harness idiom copied from tests/test-209-incident-replay.cjs: JSONL transcript
 // to a tmp dir, hook_event_name Stop + transcript_path env, MINDRIAN_HOME re-point
@@ -164,10 +177,12 @@ leg('leg 3 PRESERVE FLOOR: a genuine relevant unanswered fork still intercepts (
     'PRESERVE FLOOR: the intercept is a real force, not a bounded-escape degrade');
 });
 
-// A genuine 2-option BINARY closer whose labels are NOT yes/no shaped (so the
+// A genuine 2-option FORK whose labels are NOT yes/no shaped (so the
 // affirmation/negation branch of gateAlreadyAnswered cannot claim it) and whose
 // subject tokens overlap the preceding user turn (so gate-irrelevant-to-turn cannot
-// claim it either). The ONLY pass-reason that can fire is gate-is-simple-binary.
+// claim it either). Pre-fix this was swallowed by the bare-cardinality
+// gate-is-simple-binary check; post-fix (intern-w1-card-discipline-decay) it must
+// force-fire, since isYesNoShapedGate is false for these labels.
 const BINARY_DRAFT_GATE = [
   'Which draft should I open next?',
   '1. The revenue projection draft',
@@ -175,24 +190,114 @@ const BINARY_DRAFT_GATE = [
 ].join('\n');
 
 // ---------------------------------------------------------------------------
-// Leg 4 -- BINARY EXEMPTION (navigator decision 2026-07-05): a genuine, relevant,
-// unanswered 2-option binary closer must pass as intercept:false with reason
-// gate-is-simple-binary. The preceding user turn topically overlaps the gate (so it
-// is not irrelevant) but does not answer it (no ordinal, no label match, not yes/no),
-// so neither existing relevance pass-reason can claim it -- the exemption is the only
-// path, reached through the live transcript, not the direct-field unit shape.
+// Leg 4 -- intern-w1-card-discipline-decay (2026-07-11): a genuine, relevant,
+// unanswered 2-option FORK (not yes/no shaped) must now FORCE-FIRE. The preceding
+// user turn topically overlaps the gate (so it is not irrelevant) but does not
+// answer it (no ordinal, no label match, not yes/no) -- so neither relevance
+// pass-reason claims it, and the narrowed gate-is-simple-binary exemption no
+// longer claims it either (its labels are not yes/no shaped), so it falls
+// through to the final intercept: force it, exactly like a 3+-way fork.
 // ---------------------------------------------------------------------------
-leg('leg 4 BINARY EXEMPTION: a relevant unanswered 2-option binary passes as gate-is-simple-binary', function () {
+leg('leg 4 FORK NOW FORCE-FIRES: a relevant unanswered non-yes/no 2-option fork intercepts (intern-w1-card-discipline-decay fix)', function () {
   const out = classifyTranscript([
     { type: 'user', message: { role: 'user', content: 'can you tell me about the revenue projection draft and the onboarding rewrite draft?' } },
     { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: BINARY_DRAFT_GATE }] } },
   ], 'gsd-260705-m9g-binary-exemption-session');
   assert.equal(out.turn.askuserquestion_fired, false,
-    'BINARY EXEMPTION fixture sanity: no card fired on this turn');
+    'FORK fixture sanity: no card fired on this turn');
+  assert.equal(out.verdict.intercept, true,
+    'FIXED: a genuine non-yes/no 2-option fork must force-fire, not be swallowed as gate-is-simple-binary');
+  assert.equal(out.verdict.reason, 'ascii-box-backstop-no-card',
+    'FIXED: the verdict must name the backstop intercept reason, not the binary exemption');
+});
+
+// A genuine YES/NO-shaped 2-option closer (labels start with "yes" / "no"). The
+// preceding user turn topically overlaps the gate but does not plainly answer it
+// (no ordinal, no exact label match, no bare yes/no token) -- so gate-already-answered
+// and gate-irrelevant-to-turn both fall through, and the narrowed gate-is-simple-binary
+// exemption must STILL claim it (the exemption is narrowed, not removed).
+const RELEASE_GATE_UNANSWERED = [
+  'Publish this release?',
+  '1. Yes - publish v1.15.2 to npm now',
+  '2. No - hold the release for another pass',
+].join('\n');
+
+// ---------------------------------------------------------------------------
+// Leg 5 -- YES/NO EXEMPTION PRESERVED (intern-w1-card-discipline-decay fix): a
+// genuine, relevant, unanswered yes/no-shaped 2-option closer must still pass as
+// intercept:false reason gate-is-simple-binary. Proves the fix NARROWED the
+// exemption to yes/no-shaped closers rather than deleting it outright.
+// ---------------------------------------------------------------------------
+leg('leg 5 YES/NO EXEMPTION PRESERVED: a relevant unanswered yes/no closer still passes as gate-is-simple-binary', function () {
+  const out = classifyTranscript([
+    { type: 'user', message: { role: 'user', content: "I'm still deciding about the release timeline for this publish." } },
+    { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: RELEASE_GATE_UNANSWERED }] } },
+  ], 'gsd-intern-w1-yesno-exemption-session');
+  assert.equal(out.turn.askuserquestion_fired, false,
+    'YES/NO EXEMPTION fixture sanity: no card fired on this turn');
   assert.equal(out.verdict.intercept, false,
-    'BINARY EXEMPTION: a simple 2-option binary closer must NOT intercept');
+    'PRESERVED: a genuine yes/no-shaped 2-option closer must NOT intercept');
   assert.equal(out.verdict.reason, 'gate-is-simple-binary',
-    'BINARY EXEMPTION: the verdict must name the simple-binary pass-reason');
+    'PRESERVED: the verdict must still name the simple-binary pass-reason');
+});
+
+// ---------------------------------------------------------------------------
+// Legs 6-8 -- INTERN REGRESSION FIXTURES (intern-w1-card-discipline-decay): the 3
+// quoted missed-fork phrasings from Intern-4's session, reconstructed as
+// numbered-prose gate renderings (this worktree's ASCII_BOX_GLYPH_RE has no
+// framing-cue co-requirement -- CR-05 is out of scope here, see the debug file).
+// Each is a genuine two-way forced-choice fork, not yes/no shaped, and must now
+// force-fire instead of being swallowed by gate-is-simple-binary.
+// ---------------------------------------------------------------------------
+const INTERN_FORK_1 = [
+  'Which pull is stronger right now?',
+  '1. Get hired soon',
+  '2. Build toward the long-term plan',
+].join('\n');
+
+const INTERN_FORK_2 = [
+  'Two paths from here:',
+  '1. Run research',
+  '2. Build the plan',
+].join('\n');
+
+const INTERN_FORK_3 = [
+  'Two options:',
+  '1. Build the plan now',
+  '2. File evidence first',
+].join('\n');
+
+leg('leg 6 INTERN FORK 1 force-fires: "get hired soon vs build toward" is not yes/no shaped', function () {
+  const out = classifyTranscript([
+    { type: 'user', message: { role: 'user', content: 'I keep going back and forth between getting hired soon and building toward the long-term plan.' } },
+    { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: INTERN_FORK_1 }] } },
+  ], 'gsd-intern-w1-fork1-session');
+  assert.equal(out.verdict.intercept, true,
+    'INTERN FORK 1 must force-fire, not be swallowed as gate-is-simple-binary');
+  assert.notEqual(out.verdict.reason, 'gate-is-simple-binary',
+    'INTERN FORK 1 must not be classified as a simple binary');
+});
+
+leg('leg 7 INTERN FORK 2 force-fires: "run research vs build the plan" is not yes/no shaped', function () {
+  const out = classifyTranscript([
+    { type: 'user', message: { role: 'user', content: 'not sure if we should run research first or just build the plan directly.' } },
+    { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: INTERN_FORK_2 }] } },
+  ], 'gsd-intern-w1-fork2-session');
+  assert.equal(out.verdict.intercept, true,
+    'INTERN FORK 2 must force-fire, not be swallowed as gate-is-simple-binary');
+  assert.notEqual(out.verdict.reason, 'gate-is-simple-binary',
+    'INTERN FORK 2 must not be classified as a simple binary');
+});
+
+leg('leg 8 INTERN FORK 3 force-fires: "build the plan now vs file evidence first" is not yes/no shaped', function () {
+  const out = classifyTranscript([
+    { type: 'user', message: { role: 'user', content: 'trying to decide whether to build the plan now or file evidence first.' } },
+    { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: INTERN_FORK_3 }] } },
+  ], 'gsd-intern-w1-fork3-session');
+  assert.equal(out.verdict.intercept, true,
+    'INTERN FORK 3 must force-fire, not be swallowed as gate-is-simple-binary');
+  assert.notEqual(out.verdict.reason, 'gate-is-simple-binary',
+    'INTERN FORK 3 must not be classified as a simple binary');
 });
 
 // ---------------------------------------------------------------------------
