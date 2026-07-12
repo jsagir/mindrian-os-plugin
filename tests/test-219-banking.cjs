@@ -324,4 +324,172 @@ check('typed-opportunity.cjs carries no forbidden substrate require, no raw INSE
   assert.equal(/indexOpportunity\s*\(/.test(src), false, 'no indexOpportunity call');
 });
 
+// ---------------------------------------------------------------------------
+// Task 2: bankStatements -- the eureka-portfolio-report.cjs deferred write,
+// implemented. Driven hermetically via the named export (no eureka run).
+// ---------------------------------------------------------------------------
+
+const reportPath = path.join(REPO_ROOT, 'scripts', 'eureka-portfolio-report.cjs');
+const { bankStatements, resolveBankPredicate, deriveBankSection } = require(reportPath);
+
+// Build one in-memory statements-loop entry { pair, statement, tailFlag }.
+function mkEntry(o) {
+  return {
+    pair: {
+      idA: o.idA || 'node:a', idB: o.idB || 'node:b',
+      rank: o.rank || 1, score: (typeof o.score === 'number') ? o.score : 0.5,
+      techA: { title: o.titleA || 'Tech A', section: o.sectionA },
+      techB: { title: o.titleB || 'Tech B', section: o.sectionB },
+    },
+    statement: {
+      text: o.text || 'opportunity statement text',
+      banked: o.banked === true,
+      critic: o.critic || (o.banked === true ? 'pass' : 'pending'),
+      fields: { audience: 'portfolio operators', potential_tier: o.tier || 'T2' },
+    },
+    tailFlag: o.tailFlag === true,
+  };
+}
+
+check('Hook 1 -- N banked statements yield exactly N proposed nodes, each with >=1 DERIVED_FROM edge', () => {
+  const db = freshDb();
+  const entries = [
+    mkEntry({ banked: true, titleA: 'Alpha', titleB: 'Beta', idA: 'n:1', idB: 'n:2', sectionA: 'business-model' }),
+    mkEntry({ banked: true, titleA: 'Gamma', titleB: 'Delta', idA: 'n:3', idB: 'n:4', sectionA: 'go-to-market' }),
+    mkEntry({ banked: false, titleA: 'Omega', titleB: 'Sigma', idA: 'n:5', idB: 'n:6' }),
+  ];
+  const r = bankStatements(db, 'test-session', entries);
+  assert.equal(r.ok, true, `expected ok:true, got ${JSON.stringify(r)}`);
+  assert.equal(r.banked, 2, 'exactly N=2 banked');
+  assert.equal(r.skipped, 1, 'the unbanked statement is skipped');
+  assert.equal(r.predicate, 'critic', 'default predicate is critic');
+  const nodes = db.prepare("SELECT id, review_status FROM nodes WHERE type = 'opportunity'").all();
+  assert.equal(nodes.length, 2, 'exactly N=2 proposed opportunity nodes minted');
+  for (const n of nodes) {
+    assert.equal(n.review_status, 'proposed', 'every banked node lands proposed');
+    const cnt = db.prepare("SELECT COUNT(*) AS c FROM edges WHERE source = ? AND type = 'DERIVED_FROM'").get(n.id).c;
+    assert.ok(cnt >= 1, 'every banked node carries >=1 DERIVED_FROM evidence edge (got ' + cnt + ')');
+  }
+  db.close();
+});
+
+check('Hook 2 -- a banked=false statement yields ZERO nodes under the default predicate; never AHP rank', () => {
+  const db = freshDb();
+  // rank 1 (best AHP rank) but critic verdict not passed: must NOT bank.
+  const r = bankStatements(db, 'test-session', [mkEntry({ banked: false, rank: 1, score: 0.99 })]);
+  assert.equal(r.ok, true);
+  assert.equal(r.banked, 0, 'banking is gated on the critic verdict, never on AHP rank');
+  const count = db.prepare("SELECT COUNT(*) AS c FROM nodes WHERE type = 'opportunity'").get().c;
+  assert.equal(count, 0, 'zero opportunity nodes');
+  db.close();
+});
+
+check('Hook 3 -- a mid-batch failure rolls back the WHOLE batch (all-or-nothing)', () => {
+  const db = freshDb();
+  // Empty titles + empty ids resolve to an empty name: writeOpportunityNode
+  // rejects invalid_name, the batch throws, everything rolls back. Built
+  // explicitly (mkEntry defaults would paper over the empties).
+  const bad = mkEntry({ banked: true });
+  bad.pair.techA.title = '';
+  bad.pair.techB.title = '';
+  bad.pair.idA = '';
+  bad.pair.idB = '';
+  const entries = [
+    mkEntry({ banked: true, titleA: 'Good', titleB: 'Pair', idA: 'n:1', idB: 'n:2' }),
+    bad,
+  ];
+  const r = bankStatements(db, 'test-session', entries);
+  assert.equal(r.ok, false, 'the batch reports failure');
+  assert.equal(r.reason, 'banking_batch_failed');
+  const nodes = db.prepare("SELECT COUNT(*) AS c FROM nodes WHERE type = 'opportunity'").get().c;
+  const edges = db.prepare('SELECT COUNT(*) AS c FROM edges').get().c;
+  assert.equal(nodes, 0, 'the good statement rolled back too (all-or-nothing)');
+  assert.equal(edges, 0, 'no partial edges survive the rollback');
+  db.close();
+});
+
+check('Hook 4 -- 216 field contract: props.section is a real domain slug or unknown, never an ICM type', () => {
+  const db = freshDb();
+  // Evidence node whose props carry a REAL section slug + a source_path slug.
+  const { insertNode } = require(path.join(REPO_ROOT, 'lib', 'core', 'node-insert.cjs'));
+  insertNode(db, 'art:1', 'Artifact', JSON.stringify({ section: 'business-model' }), {
+    source_path: 'business-model/2026-05-26-investor-prep.md', created_by: 'system',
+  });
+  const entries = [
+    // sectionA/sectionB leak the ICM type column ('Artifact'/'memory_event'):
+    // the deny-list must refuse them and fall through to the evidence node.
+    mkEntry({ banked: true, titleA: 'A1', titleB: 'B1', idA: 'art:1', idB: 'n:x', sectionA: 'Artifact', sectionB: 'memory_event' }),
+    // Nothing real anywhere: the honest 'unknown'.
+    mkEntry({ banked: true, titleA: 'A2', titleB: 'B2', idA: 'n:y', idB: 'n:z', sectionA: 'Section' }),
+  ];
+  const r = bankStatements(db, 'test-session', entries);
+  assert.equal(r.ok, true, `expected ok:true, got ${JSON.stringify(r)}`);
+  const rows = db.prepare("SELECT properties FROM nodes WHERE type = 'opportunity'").all();
+  assert.equal(rows.length, 2);
+  const sections = rows.map((row) => JSON.parse(row.properties).section).sort();
+  assert.deepEqual(sections, ['business-model', 'unknown'],
+    'sections are the real slug (from the evidence node) + the honest unknown - never Artifact/Section/memory_event');
+  db.close();
+});
+
+check('Hook 5 -- predicate seam: critic+tail banks tail-flagged candidates; all banks every resolved verdict', () => {
+  const db1 = freshDb();
+  const tailEntry = mkEntry({ banked: false, critic: 'pending', tailFlag: true, titleA: 'Tail', titleB: 'Gem' });
+  const r1 = bankStatements(db1, 'test-session', [tailEntry], { predicate: 'critic+tail' });
+  assert.equal(r1.ok, true);
+  assert.equal(r1.banked, 1, 'critic+tail banks the tail-flagged weak-signal candidate');
+  db1.close();
+
+  const db2 = freshDb();
+  const entries = [
+    mkEntry({ banked: false, critic: 'fail', titleA: 'Resolved', titleB: 'Fail' }),
+    mkEntry({ banked: false, critic: 'pending', titleA: 'Still', titleB: 'Pending' }),
+  ];
+  const r2 = bankStatements(db2, 'test-session', entries, { predicate: 'all' });
+  assert.equal(r2.ok, true);
+  assert.equal(r2.banked, 1, "'all' banks every RESOLVED verdict (pending stays out)");
+  db2.close();
+
+  // Env seam: the documented MINDRIAN_OPPORTUNITY_BANK_PREDICATE variable.
+  const db3 = freshDb();
+  const prev = process.env.MINDRIAN_OPPORTUNITY_BANK_PREDICATE;
+  process.env.MINDRIAN_OPPORTUNITY_BANK_PREDICATE = 'critic+tail';
+  try {
+    const r3 = bankStatements(db3, 'test-session', [tailEntry]);
+    assert.equal(r3.predicate, 'critic+tail', 'env var drives the predicate');
+    assert.equal(r3.banked, 1);
+  } finally {
+    if (prev === undefined) delete process.env.MINDRIAN_OPPORTUNITY_BANK_PREDICATE;
+    else process.env.MINDRIAN_OPPORTUNITY_BANK_PREDICATE = prev;
+  }
+  db3.close();
+
+  assert.equal(resolveBankPredicate('nonsense'), 'critic', 'unrecognized value falls back to critic');
+});
+
+check('Hook 6 -- re-running the banking pass is idempotent (UPSERT, no duplicates)', () => {
+  const db = freshDb();
+  const entries = [mkEntry({ banked: true, titleA: 'Same', titleB: 'Pair', idA: 'n:1', idB: 'n:2' })];
+  const r1 = bankStatements(db, 'test-session', entries);
+  const r2 = bankStatements(db, 'test-session', entries);
+  assert.equal(r1.ok, true);
+  assert.equal(r2.ok, true);
+  const nodes = db.prepare("SELECT COUNT(*) AS c FROM nodes WHERE type = 'opportunity'").get().c;
+  assert.equal(nodes, 1, 're-run UPSERTs the same (sessionId, name) node, never duplicates');
+  const hist = JSON.parse(db.prepare("SELECT properties FROM nodes WHERE type = 'opportunity'").get().properties).stage_history;
+  assert.equal(hist.length, 1, 'the merge UPSERT never appends a second mint entry (D-17)');
+  db.close();
+});
+
+check('Hook 7 -- banking pass source hygiene: env seam documented, no graph-ops for banking', () => {
+  const src = fs.readFileSync(reportPath, 'utf8');
+  assert.ok(/MINDRIAN_OPPORTUNITY_BANK_PREDICATE/.test(src), 'the env seam is present + documented');
+  assert.equal(/require\(['"][^'"]*graph-ops\.cjs['"]\)/.test(src) || /require\([^)]*graph-ops/.test(src), false,
+    'no graph-ops require introduced for banking (indexOpportunity bypass stays out)');
+  assert.equal(/indexOpportunity\s*\(/.test(src), false, 'indexOpportunity is never called');
+  const codeLines = src.split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l));
+  assert.equal(codeLines.some((l) => /INSERT\s+INTO\s+(nodes|edges)/i.test(l)), false,
+    'no raw INSERT INTO nodes/edges (all banking writes route through navigation)');
+});
+
 console.log(`\nPASS (${pass}/${total})`);

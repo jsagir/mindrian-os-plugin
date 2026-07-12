@@ -39,11 +39,32 @@
  * forbidden pattern; this runner skips + counts, so one tripping node never
  * aborts the batch, and the skip count prints in provenance.
  *
- * CANON PART 9 (Memory Locality): writes ONLY the derived eureka_* projection
- * tables (via indexNodes) and the report FILES. ZERO writes to nodes, edges, or
- * memory_event; banking a statement as a graph node is a later phase's governed
- * wiring, not minted here. The room handle opens in a try/finally so it always
- * closes.
+ * CANON PART 9 (Memory Locality): graph writes route EXCLUSIVELY through the
+ * lib/core/navigation.cjs chokepoint. The banking deferral this header carried
+ * since Phase 215 ("a later phase's governed wiring, not minted here") is
+ * IMPLEMENTED as of Phase 219 (REQ-1): after the statements loop resolves
+ * critic verdicts, ONE BEGIN/COMMIT/ROLLBACK batch (the 218 D-05 shape;
+ * node:sqlite has no .transaction() helper) mints each statement passing the
+ * banking predicate as a proposed `opportunity` node via
+ * navigation.writeOpportunityNode, with DERIVED_FROM evidence edges to the
+ * candidate pair's a/b nodes via navigation.linkOpportunityEvidence. NEVER a
+ * raw INSERT (the run-all-219.sh grep gate), NEVER graph-ops.indexOpportunity
+ * (the legacy raw-insert bypass). A mid-batch failure rolls back the WHOLE
+ * batch; the report files are unaffected either way. The room handle opens in
+ * a try/finally so it always closes.
+ *
+ * BANKING PREDICATE (env seam - the logged planner decision for live tuning
+ * on ador/corepower; start at 'critic'):
+ *   MINDRIAN_OPPORTUNITY_BANK_PREDICATE =
+ *     'critic'      (DEFAULT) bank statements with st.banked === true, i.e. a
+ *                   RESOLVED PASSING critic verdict (the honest gate; banked
+ *                   can never be true on the 'pending' path)
+ *     'critic+tail' also bank tail-flagged weak-signal candidates (the gems
+ *                   that ride even when outranked)
+ *     'all'         every statement with a RESOLVED verdict (critic is not
+ *                   'pending'), pass or fail
+ *   NEVER gate banking on AHP rank: validated_demand is degree-centrality and
+ *   buries low-degree families (219-RESEARCH finding 1 + Pitfall 2).
  *
  * A4 posture: single-process batch, no deep FUSION-engine call and no
  * chain-executor fan-out in this loop. Per-tech DEEP analysis stays the reserved
@@ -87,6 +108,9 @@ const oppmod = require(path.join(REPO_ROOT, 'lib/core/eureka/opportunity-stateme
 // CSV-derived idea-graph. Injected, never a require cycle (it never imports this
 // runner). See lib/core/eureka/room-native-substrate.cjs.
 const roomNative = require(path.join(REPO_ROOT, 'lib/core/eureka/room-native-substrate.cjs'));
+// Phase 219 REQ-1: the navigation chokepoint - the ONLY door for the banking
+// pass's node + edge writes (writeOpportunityNode / linkOpportunityEvidence).
+const navigation = require(path.join(REPO_ROOT, 'lib/core/navigation.cjs'));
 // Phase 218 fix (REQ-5 live-verification gap, T-218-VD): the closed, frozen
 // entity-node type family, reused (never re-derived) from its one source of
 // truth. See the "stratified cohort" comment at its call site below.
@@ -839,6 +863,21 @@ async function main(argv) {
       if (typeof ranked[i].banked !== 'boolean') ranked[i].banked = false;
     }
 
+    // Phase 219 REQ-1: bank the statements passing the banking predicate as
+    // proposed opportunity nodes (the header deferral, implemented). Reuses
+    // the runner's already-open db handle; ONE batch, all-or-nothing. A
+    // banking failure never aborts the report (the files still write) - it
+    // logs honestly to stderr instead.
+    const bank = bankStatements(db, BANK_SESSION_ID, statements);
+    if (bank.ok) {
+      process.stdout.write('eureka-portfolio-report: banked ' + bank.banked
+        + ' opportunity node(s), ' + bank.edges + ' evidence edge(s), '
+        + bank.skipped + ' skipped (predicate ' + bank.predicate + ')\n');
+    } else {
+      process.stderr.write('eureka-portfolio-report: banking pass failed ('
+        + bank.reason + (bank.detail ? ': ' + bank.detail : '') + ') - rolled back, report files unaffected\n');
+    }
+
     const prov = spine.encoderProvenance();
     const provenance = {
       run_mode: opts.offline ? 'offline (deterministic stub encoder)' : 'live (local embedding spine)',
@@ -942,6 +981,178 @@ async function main(argv) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Phase 219 REQ-1: the banking pass (the header deferral, implemented).
+// ---------------------------------------------------------------------------
+
+// The session id every banked opportunity node mints under. A STABLE constant
+// (the entity-extract 'entity-extract' default idiom) so re-running the report
+// on the same room UPSERTs the same nodes instead of duplicating them
+// (OPPORTUNITY_NODE_ID is keyed on sessionId + name).
+const BANK_SESSION_ID = 'eureka-portfolio';
+
+// The three documented predicate values (see the header BANKING PREDICATE
+// block). An unrecognized value falls back to 'critic' (the safe default).
+const BANK_PREDICATES = ['critic', 'critic+tail', 'all'];
+
+function resolveBankPredicate(explicit) {
+  const raw = (typeof explicit === 'string' && explicit)
+    ? explicit
+    : (process.env.MINDRIAN_OPPORTUNITY_BANK_PREDICATE || 'critic');
+  return BANK_PREDICATES.indexOf(raw) === -1 ? 'critic' : raw;
+}
+
+// Does this statement entry pass the banking predicate? entry is the in-memory
+// statements-loop shape { pair, statement, tailFlag }. NEVER rank-based.
+function passesBankPredicate(entry, mode) {
+  const st = entry && entry.statement;
+  if (!st) return false;
+  switch (mode) {
+    case 'critic+tail':
+      return st.banked === true || entry.tailFlag === true;
+    case 'all':
+      return st.critic !== 'pending';
+    case 'critic':
+    default:
+      return st.banked === true;
+  }
+}
+
+// The 216 field contract (test-216-field-contract.cjs precedent): a banked
+// node's props.section must be a REAL domain slug or the honest 'unknown',
+// NEVER the ICM node type column leaking through as a pseudo-section. This
+// deny-list names the ICM/system type values that must never masquerade as a
+// section slug.
+const ICM_TYPE_DENY = new Set([
+  'section', 'artifact', 'memory_artifact', 'memory_event', 'causalclaim',
+  'causal_claim', 'whitespacezone', 'whitespace_zone', 'breakthrough',
+  'opportunity', 'company', 'technology', 'market', 'domain', 'subdomain',
+  'focus_area', 'frame', 'unknown',
+]);
+
+function isRealSectionSlug(v) {
+  return typeof v === 'string' && v.length > 0
+    && v.indexOf(':') === -1
+    && !ICM_TYPE_DENY.has(v.toLowerCase());
+}
+
+// Derive props.section for a banked opportunity from its EVIDENCE nodes: the
+// pair's techA/techB section fields first (room-native substrate already
+// carries the 216 contract), then the evidence nodes' props.section, then the
+// source_path first segment (a real room folder slug), else the honest
+// 'unknown'. READ-only db access; every WRITE stays behind navigation.
+function deriveBankSection(db, entry) {
+  const pair = entry.pair || {};
+  const candidates = [];
+  if (pair.techA && pair.techA.section) candidates.push(pair.techA.section);
+  if (pair.techB && pair.techB.section) candidates.push(pair.techB.section);
+  for (const id of [pair.idA, pair.idB]) {
+    if (typeof id !== 'string' || id.length === 0 || !db) continue;
+    let row = null;
+    try {
+      row = db.prepare('SELECT properties, source_path FROM nodes WHERE id = ?').get(id);
+    } catch (_e) { row = null; }
+    if (!row) continue;
+    try {
+      const props = JSON.parse(row.properties || '{}');
+      if (props && typeof props.section === 'string') candidates.push(props.section);
+    } catch (_e) { /* unreadable props: fall through to source_path */ }
+    if (typeof row.source_path === 'string' && row.source_path.indexOf('/') > 0
+        && row.source_path.indexOf(':') === -1) {
+      candidates.push(row.source_path.split('/')[0]);
+    }
+  }
+  for (const c of candidates) {
+    if (isRealSectionSlug(c)) return c;
+  }
+  return 'unknown';
+}
+
+// bankStatements(db, sessionId, statements, opts?) -- the REQ-1 governed write.
+//
+// statements is the in-memory statements-loop array [{ pair, statement,
+// tailFlag }]. ONE explicit BEGIN/COMMIT/ROLLBACK batch (the 218 D-05
+// entity-extract shape) mints each entry passing the banking predicate as a
+// proposed `opportunity` node via navigation.writeOpportunityNode, then links
+// DERIVED_FROM evidence edges to the candidate pair's a and b node ids via
+// navigation.linkOpportunityEvidence (the Brain answer names DERIVED_FROM as
+// provenance). A failed node or edge write THROWS inside the batch so the
+// WHOLE batch rolls back (all-or-nothing); the function itself never throws -
+// it returns { ok:false, reason, detail } after ROLLBACK.
+//
+// Returns { ok:true, banked, edges, skipped, predicate } on success. Exported
+// so tests/test-219-banking.cjs drives it hermetically without a eureka run.
+function bankStatements(db, sessionId, statements, opts) {
+  if (!db || !Array.isArray(statements)) {
+    return { ok: false, reason: 'invalid_params' };
+  }
+  const sid = (typeof sessionId === 'string' && sessionId.length > 0) ? sessionId : BANK_SESSION_ID;
+  const mode = resolveBankPredicate(opts && opts.predicate);
+  let banked = 0;
+  let edges = 0;
+  let skipped = 0;
+  try {
+    db.exec('BEGIN');
+  } catch (e) {
+    return { ok: false, reason: 'begin_failed', detail: String(e.message || '').slice(0, 80) };
+  }
+  try {
+    for (const entry of statements) {
+      if (!passesBankPredicate(entry, mode)) { skipped += 1; continue; }
+      const pair = entry.pair || {};
+      const st = entry.statement || {};
+      const titleA = (pair.techA && pair.techA.title) || pair.idA || '';
+      const titleB = (pair.techB && pair.techB.title) || pair.idB || '';
+      const name = (titleA && titleB) ? (titleA + ' x ' + titleB) : (titleA || titleB);
+      const section = deriveBankSection(db, entry);
+      const fields = st.fields || {};
+      const w = navigation.writeOpportunityNode(db, {
+        name: name,
+        sessionId: sid,
+        lifecycle: 'candidate',
+        jtbd: typeof fields.audience === 'string' ? fields.audience : undefined,
+        score: typeof pair.score === 'number' ? pair.score : undefined,
+        section: section,
+        actor: 'system',
+        reason: 'eureka statement banked (predicate ' + mode + ')',
+        evidence_ids: [pair.idA, pair.idB].filter(function (x) { return typeof x === 'string' && x.length > 0; }),
+        formula_version: 'eureka-critic-v1',
+        extraProps: {
+          statement_text: typeof st.text === 'string' ? st.text : '',
+          potential_tier: typeof fields.potential_tier === 'string' ? fields.potential_tier : '',
+          critic: typeof st.critic === 'string' ? st.critic : 'resolved',
+          rank: typeof pair.rank === 'number' ? pair.rank : null,
+          tail_flag: entry.tailFlag === true,
+          bank_predicate: mode,
+        },
+      });
+      if (!w || w.ok !== true) {
+        throw new Error('bank write failed: ' + ((w && w.reason) || 'unknown') + ' for "' + String(name).slice(0, 60) + '"');
+      }
+      banked += 1;
+      // DERIVED_FROM provenance edges to the candidate pair's a and b nodes.
+      for (const targetId of [pair.idA, pair.idB]) {
+        if (typeof targetId !== 'string' || targetId.length === 0) continue;
+        const r = navigation.linkOpportunityEvidence(db, {
+          opportunity_id: w.node_id,
+          target_id: targetId,
+          edge_type: 'DERIVED_FROM',
+          properties: { relation: 'derived_from', opportunity_node: w.node_id },
+        });
+        if (!r || r.ok !== true) {
+          throw new Error('bank edge failed: ' + ((r && r.reason) || 'unknown') + ' -> ' + targetId);
+        }
+        edges += 1;
+      }
+    }
+    db.exec('COMMIT');
+  } catch (err) {
+    try { db.exec('ROLLBACK'); } catch (_e) { /* already rolled back */ }
+    return { ok: false, reason: 'banking_batch_failed', detail: String(err && err.message ? err.message : err).slice(0, 120) };
+  }
+  return { ok: true, banked: banked, edges: edges, skipped: skipped, predicate: mode };
+}
+
 if (require.main === module) {
   main(process.argv.slice(2)).then(function (code) { process.exit(code); });
 }
@@ -955,4 +1166,10 @@ module.exports = {
   cnumberNumeric: cnumberNumeric,
   deriveSharedProblems: deriveSharedProblems,
   main: main,
+  // Phase 219 REQ-1: exported so tests/test-219-banking.cjs drives the banking
+  // pass hermetically without a full eureka run.
+  bankStatements: bankStatements,
+  resolveBankPredicate: resolveBankPredicate,
+  deriveBankSection: deriveBankSection,
+  BANK_SESSION_ID: BANK_SESSION_ID,
 };
