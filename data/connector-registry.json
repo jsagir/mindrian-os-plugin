@@ -444,10 +444,7 @@
       "surface": "/mos:file-meeting",
       "source": "command",
       "connects_to_spine": true,
-      "sensor_triggers": [
-        "SENS-06",
-        "SENS-08"
-      ],
+      "sensor_triggers": [],
       "reach_id": "contradiction",
       "sub_mode": "file-meeting",
       "framework": null,
@@ -597,10 +594,7 @@
       "surface": "/mos:ignite",
       "source": "command",
       "connects_to_spine": true,
-      "sensor_triggers": [
-        "SENS-01",
-        "SENS-06"
-      ],
+      "sensor_triggers": [],
       "reach_id": "context_block",
       "sub_mode": "ignite",
       "framework": null,
@@ -3106,10 +3100,8 @@
       "/mos:deep-grade",
       "/mos:diagnose",
       "/mos:dominant-designs",
-      "/mos:file-meeting",
       "/mos:futures",
       "/mos:grade",
-      "/mos:ignite",
       "/mos:map-unknowns",
       "/mos:mos-reason",
       "/mos:mullins",
@@ -3141,7 +3133,6 @@
       "/mos:explore-domains",
       "/mos:find-analogies",
       "/mos:find-connections",
-      "/mos:ignite",
       "/mos:mva-brief",
       "/mos:new-project",
       "/mos:new-surface",
@@ -3187,7 +3178,6 @@
       "agent:research"
     ],
     "SENS-08": [
-      "/mos:file-meeting",
       "/mos:map-unknowns",
       "/mos:memory-cortex-reach"
     ],
