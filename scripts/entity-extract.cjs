@@ -36,8 +36,8 @@
  *      the degrade-never-throw contract).
  *
  * CANON POSTURE:
- *   - Part 8 (Graph Boundary): ZERO network. No URL, no socket, no fetch. Both the
- *     extractor and the re-embed use the already-vendored local paths only.
+ *   - Part 8 (Graph Boundary): ZERO network. No URL, no socket, no remote call.
+ *     Both the extractor and the re-embed use the already-vendored local paths only.
  *   - Part 9 (Memory Locality): every entity node is born review_status='proposed'
  *     via navigation.writeEntityNode; only a human confirmNode promotes it. This
  *     script writes ONLY through the navigation chokepoint -- NO raw INSERT INTO
