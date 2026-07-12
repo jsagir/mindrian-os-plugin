@@ -110,6 +110,106 @@ check('backtick code spans are stripped before scanning', () => {
   assert.ok(!names.includes('Widget'), 'code-span token Widget must not be extracted: ' + JSON.stringify(names));
 });
 
+// (T-218-VD-2) Noise filter: MindrianOS's own meta-vocabulary and generic
+// business-jargon acronyms must never surface as entities, even when they
+// appear as capitalized proper-noun-shaped runs in body prose. This is the
+// EXACT live evidence from 218-VERIFICATION.md's "Second Finding" -- the
+// unfiltered extractor's top-ranked "entities" on the real aion-eureka-synergy
+// room were dominated by this vocabulary. Real company names in the same
+// prose must still survive (precision, not just suppression).
+check('MindrianOS meta-vocabulary and generic jargon are filtered as noise', () => {
+  const md = [
+    '## Notes',
+    'See ROOM.md for the full identity file. Per Canon Part 8, the ICM Layer',
+    'never egresses. The AAAK Record and Section Completeness score feed the',
+    'Evidence Threshold gate. BEGIN REFERENCES and END REFERENCES bracket the',
+    'FEYNMAN section. TAM and SAM sizing is GAP-driven per the MOA.',
+    '## Competitors',
+    'Sabra rivals Soom in the tahini market. Mighty Sesame supplies to NDC.',
+  ].join('\n');
+  const r = extractEntities(md, { sourceArtifactId: 'noise-test', maxPerArtifact: 50 });
+  const names = r.entities.map((e) => e.name);
+  const junk = [
+    'ROOM.md', 'ROOM', 'Canon', 'ICM Layer', 'AAAK Record', 'Section Completeness',
+    'Evidence Threshold', 'BEGIN REFERENCES', 'END REFERENCES', 'FEYNMAN',
+    'TAM', 'SAM', 'GAP', 'MOA',
+  ];
+  for (const term of junk) {
+    assert.ok(!names.includes(term), 'noise term "' + term + '" must be filtered, got names: ' + JSON.stringify(names));
+  }
+  // Real company names in the SAME prose must still come through (precision
+  // over recall, not a blunt suppress-everything hammer).
+  for (const real of ['Sabra', 'Soom', 'Mighty Sesame', 'NDC']) {
+    assert.ok(names.includes(real), 'real entity "' + real + '" must survive the noise filter, got: ' + JSON.stringify(names));
+  }
+});
+
+// A filename-shaped run is never an entity, independent of the specific name
+// (the generic FILENAME_RX gate, not just the curated NOISE_TERMS list).
+check('filename-shaped tokens (STATE.md, CLAUDE.md, arbitrary.json) are filtered', () => {
+  const md = '## Notes\nSTATE.md and CLAUDE.md and arbitrary.json all describe Acme Robotics.';
+  const r = extractEntities(md, { sourceArtifactId: 'fn-test' });
+  const names = r.entities.map((e) => e.name);
+  assert.ok(!names.includes('STATE.md'), 'STATE.md must be filtered: ' + JSON.stringify(names));
+  assert.ok(!names.includes('CLAUDE.md'), 'CLAUDE.md must be filtered: ' + JSON.stringify(names));
+  assert.ok(!names.includes('arbitrary.json'), 'arbitrary.json must be filtered: ' + JSON.stringify(names));
+  assert.ok(names.includes('Acme Robotics'), 'real entity Acme Robotics must survive: ' + JSON.stringify(names));
+});
+
+// (T-218-VD-3) Domain-agnostic structural filters: metadata/status-field
+// lines and markdown table rows are never narrative prose, in ANY venture
+// domain -- these checks are shape-based (Label: Value / table syntax), not
+// tied to MindrianOS's own vocabulary, so they must generalize to a room
+// this extractor has never seen. Proven here with an INVENTED biotech
+// venture, deliberately containing zero MindrianOS terms, so the fix can't
+// be accidentally overfit to the one dogfooding room it was tuned against.
+check('metadata/status-field lines are filtered (domain-agnostic, no MindrianOS vocabulary)', () => {
+  const md = [
+    '## Notes',
+    'Deal Stage: Term Sheet',
+    '**Priority:** High',
+    '- Regulatory Status: Pending',
+    'Funding Round: Series A',
+    '## Competitors',
+    'Helix Biosciences rivals Genomix in the gene-therapy market.',
+  ].join('\n');
+  const r = extractEntities(md, { sourceArtifactId: 'meta-test', maxPerArtifact: 50 });
+  const names = r.entities.map((e) => e.name);
+  for (const junk of ['Term Sheet', 'High', 'Pending', 'Series A', 'Deal Stage', 'Priority', 'Regulatory Status', 'Funding Round']) {
+    assert.ok(!names.includes(junk), 'metadata-field value "' + junk + '" must be filtered, got: ' + JSON.stringify(names));
+  }
+  assert.ok(names.includes('Helix Biosciences'), 'real entity Helix Biosciences must survive: ' + JSON.stringify(names));
+  assert.ok(names.includes('Genomix'), 'real entity Genomix must survive: ' + JSON.stringify(names));
+});
+
+// A narrative sentence with a mid-line colon (not an all-Title-Case label)
+// must survive -- the metadata filter is shape-restrictive on purpose.
+check('a narrative sentence containing a colon is NOT treated as metadata', () => {
+  const md = '## Notes\nHelix Biosciences announced: they will expand into Europe next year.';
+  const r = extractEntities(md, { sourceArtifactId: 'colon-test' });
+  const names = r.entities.map((e) => e.name);
+  assert.ok(names.includes('Helix Biosciences'), 'narrative sentence with a colon must still yield Helix Biosciences: ' + JSON.stringify(names));
+});
+
+// Markdown table rows are tabular data, never narrative prose, regardless
+// of domain -- both a data row and a header-separator row.
+check('markdown table rows are filtered (domain-agnostic)', () => {
+  const md = [
+    '## Notes',
+    '| Section | Completeness | Owner |',
+    '|---------|--------------|-------|',
+    '| Business Model | Well-developed | Auto-generated |',
+    '## Competitors',
+    'Helix Biosciences rivals Genomix in the gene-therapy market.',
+  ].join('\n');
+  const r = extractEntities(md, { sourceArtifactId: 'table-test', maxPerArtifact: 50 });
+  const names = r.entities.map((e) => e.name);
+  for (const junk of ['Section', 'Completeness', 'Owner', 'Business Model', 'Well-developed', 'Auto-generated']) {
+    assert.ok(!names.includes(junk), 'table-row value "' + junk + '" must be filtered, got: ' + JSON.stringify(names));
+  }
+  assert.ok(names.includes('Helix Biosciences'), 'real entity Helix Biosciences must survive the table filter: ' + JSON.stringify(names));
+});
+
 // (d) Part-8 zero-egress grep gate on the source file itself.
 check('zero-egress: no fetch/http/https/Brain surface in the extractor source', () => {
   const src = fs.readFileSync(extractorPath, 'utf8');
