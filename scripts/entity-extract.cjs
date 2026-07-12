@@ -148,25 +148,79 @@ function parseArgs(argv) {
 // Returns { artifacts, entitiesWritten, edgesWritten, embedded }.
 // ---------------------------------------------------------------------------
 
-// Collect the room's artifact prose keyed by its memory_artifact node id. Each
-// memory_artifact node carries props.path (its .md file relative to roomDir); we
-// read the real file off disk. Using the node table as the artifact index (a) is
-// the same source of truth eureka reads and (b) guarantees every DESCRIBES edge
-// targets a materialized memory_artifact node.
+// Collect the room's artifact prose. Two tiers (T-218-VD-4, live-verified
+// against the corepower-isolation room):
+//
+// (a) memory_artifact-backed files (kind in ROOM/STATE/MINTO/BRAIN/FEYNMAN/
+//     USER/DRIFT -- the closed vocabulary memory-artifacts.cjs's
+//     MEMORY_KIND_SET enforces). Each carries props.path; read the real file
+//     off disk, keyed by its OWN memory_artifact node id (exact per-file
+//     provenance) -- the original behavior, unchanged.
+//
+// (b) every OTHER .md file in a section directory. Live-verified gap: a
+//     room's actual named analysis documents (e.g.
+//     "mv-mft-competitive-landscape.md", "reverse-salient-analysis.md") are
+//     NOT memory_artifact-kinded -- the closed MEMORY_KIND_SET this module
+//     does not own cannot register a new kind per filename, and inventing a
+//     synthetic node id nothing else points at would break REQ-1's "edge
+//     back to its memory_artifact" contract. Instead, these files' entities
+//     link back to their SECTION's existing memory_artifact:<section>:ROOM
+//     node (preferring the ROOM kind, falling back to whatever memory_artifact
+//     exists for that section, then the room root). Coarser provenance
+//     (section-level, not exact-file-level) but always a REAL, already-
+//     materialized DESCRIBES target -- a section with no anchor at all is
+//     skipped, never given an invented one.
 function collectArtifacts(db, roomDir) {
   const rows = db.prepare("SELECT id, properties FROM nodes WHERE type = 'memory_artifact'").all();
   const artifacts = [];
+  const coveredPaths = new Set();  // roomDir-relative paths already read via memory_artifact
+  const sectionAnchor = new Map(); // section name ("_root" included) -> a valid memory_artifact node id
+
   for (const row of rows) {
     let props = {};
     try { props = JSON.parse(row.properties || '{}'); } catch (_e) { props = {}; }
     const rel = props && typeof props.path === 'string' ? props.path : null;
-    if (!rel) continue;
-    const abs = path.join(roomDir, rel);
-    let text = null;
-    try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
-    if (!text) continue;
-    artifacts.push({ artifactId: row.id, text: text });
+    if (rel) {
+      const abs = path.join(roomDir, rel);
+      let text = null;
+      try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
+      if (text) {
+        artifacts.push({ artifactId: row.id, text: text });
+        coveredPaths.add(path.normalize(rel));
+      }
+    }
+    const section = props && typeof props.section === 'string' ? props.section : null;
+    if (section) {
+      const isRoomKind = props && props.kind === 'ROOM';
+      if (isRoomKind || !sectionAnchor.has(section)) sectionAnchor.set(section, row.id);
+    }
   }
+
+  let sectionDirs = [];
+  try {
+    sectionDirs = fs.readdirSync(roomDir, { withFileTypes: true })
+      .filter(function (d) { return d.isDirectory() && d.name.charAt(0) !== '.'; })
+      .map(function (d) { return d.name; });
+  } catch (_e) { sectionDirs = []; }
+
+  for (const section of sectionDirs) {
+    const anchor = sectionAnchor.get(section) || sectionAnchor.get('_root');
+    if (!anchor) continue; // no valid DESCRIBES target for this section -- skip, never invent one
+    let files = [];
+    try { files = fs.readdirSync(path.join(roomDir, section)); } catch (_e) { files = []; }
+    for (const fname of files) {
+      if (!/\.md$/i.test(fname)) continue;
+      const rel = path.join(section, fname);
+      if (coveredPaths.has(path.normalize(rel))) continue;
+      const abs = path.join(roomDir, rel);
+      let text = null;
+      try { text = fs.readFileSync(abs, 'utf8'); } catch (_e) { text = null; }
+      if (!text) continue;
+      artifacts.push({ artifactId: anchor, text: text });
+      coveredPaths.add(path.normalize(rel));
+    }
+  }
+
   return artifacts;
 }
 

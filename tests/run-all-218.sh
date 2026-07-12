@@ -78,6 +78,8 @@ run "218-02 tier-1 extractor (zero egress)" \
 #     This proves the stratification fix + the zero-entity-node regression guard.
 run "T-218-VD cohort stratification (validated_demand hub-skew fix)" \
   node tests/test-218-cohort-stratification.cjs
+run "T-218-VD-4 extend-to-artifacts (walk non-memory-kinded analysis files)" \
+  node tests/test-218-extend-to-artifacts.cjs
 
 # (b) REQ-3 zero-touch gate: no second embedding path, no vector-store signature
 #     change. The re-embed rides the EXISTING tri-modal indexNodes path.
