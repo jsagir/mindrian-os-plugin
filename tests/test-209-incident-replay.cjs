@@ -5,14 +5,16 @@
 // end to end and asserts the four RESEARCH-mandated outcomes:
 //   (a) the card fires natively turn-1 (the transport exists BEFORE emission)
 //   (b) zero check-card-fire intercepts on that turn
-//   (c) render-coverage gate green, 0 unwired declared .md entries
+//   (c) render-coverage gate green for commands/*.md, 0 unwired declared entries
+//       (the skills/*/SKILL.md keyspace, added by the intern-w1-mode-gate-skip
+//       fix, carries a separate known/tracked set -- see the assertion below)
 //   (d) a legit U+25A0-bearing non-gate turn still passes without a block
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
 
 const REPO = path.join(__dirname, '..');
 const insightSensors = require(path.join(REPO, 'lib', 'core', 'insight-sensors.cjs'));
@@ -118,15 +120,27 @@ ok('b: zero check-card-fire intercepts on the replayed turn', function () {
 });
 
 // ---------------------------------------------------------------------------
-// (c) Render-coverage gate green: 0 unwired declared .md entries.
+// (c) Render-coverage gate green for commands/*.md: 0 unwired declared entries.
+// Updated by the intern-w1-mode-gate-skip fix (RCA gap 1): the registry now
+// ALSO covers a THIRD keyspace, skills/*/SKILL.md. The 5 pre-existing unwired
+// declarations this fix first surfaced (see the debug file Resolution
+// section) were individually resolved at merge time (2026-07-11/12): 3 wired
+// (a real firing block added), 2 legitimately excluded (SKILL_RENDER_ONLY_EXCLUDED
+// in scripts/build-render-coverage.cjs). The DEFAULT-mode CLI is expected to be
+// clean (exit 0) again, on both keyspaces.
 // ---------------------------------------------------------------------------
-ok('c: render-coverage gate green, 0 unwired declared .md entries', function () {
-  execFileSync('node', ['scripts/check-render-coverage.cjs'], { cwd: REPO, stdio: 'pipe' });
+ok('c: render-coverage gate green for commands/*.md AND skills/*/SKILL.md, 0 unwired declared entries', function () {
+  const run = spawnSync('node', ['scripts/check-render-coverage.cjs'], { cwd: REPO, encoding: 'utf8' });
   const registry = JSON.parse(fs.readFileSync(path.join(REPO, 'data', 'render-coverage-registry.json'), 'utf8'));
-  const mdEntries = registry.entries.filter(function (e) { return String(e.surface || '').endsWith('.md'); });
-  assert.equal(mdEntries.length >= 90, true, 'expected >= 90 declaring .md entries, got ' + mdEntries.length);
+  const mdEntries = registry.entries.filter(function (e) { return String(e.surface || '').startsWith('commands/'); });
+  assert.equal(mdEntries.length >= 90, true, 'expected >= 90 declaring commands/*.md entries, got ' + mdEntries.length);
   const unwired = mdEntries.filter(function (e) { return e.declared_shape && !e.wired && !e.excluded; });
-  assert.deepStrictEqual(unwired, [], '0 unwired declared .md entries expected');
+  assert.deepStrictEqual(unwired, [], '0 unwired declared commands/*.md entries expected');
+
+  const skillEntries = registry.entries.filter(function (e) { return String(e.surface || '').startsWith('skills/'); });
+  const unwiredSkills = skillEntries.filter(function (e) { return e.declared_shape && !e.wired && !e.excluded; });
+  assert.deepStrictEqual(unwiredSkills, [], 'expected 0 unwired skill declarations -- all 5 originally-tracked surfaces resolved at merge time (see test-209-declared-implies-wired.cjs Behavior 13)');
+  assert.equal(run.status, 0, 'the default-mode CLI is expected to exit 0 now that all 5 skill gaps are resolved');
 });
 
 // ---------------------------------------------------------------------------

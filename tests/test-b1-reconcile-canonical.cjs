@@ -176,7 +176,29 @@ function checkGate(label, scriptRel) {
 }
 checkGate('build-connector-registry', 'scripts/build-connector-registry.cjs');
 checkGate('build-orchestration-projection', 'scripts/build-orchestration-projection.cjs');
-checkGate('check-render-coverage', 'scripts/check-render-coverage.cjs');
+
+// check-render-coverage --check is NOT run via the shared checkGate() above:
+// the intern-w1-mode-gate-skip fix (RCA gap 1) extended it to a THIRD keyspace
+// (skills/*/SKILL.md), which first surfaced 5 pre-existing unwired
+// declarations unrelated to Phase 179's own touched surfaces. Those 5 were
+// individually resolved at merge time (2026-07-11/12: 3 wired, 2 legitimately
+// excluded -- see test-209-declared-implies-wired.cjs Behavior 13), so the
+// gate is expected to be clean again. Assert exit 0 and, as a belt-and-suspenders
+// regression guard, that no Phase 179 surface (lib/scripts) shows a gap either.
+(function checkRenderCoverageKnownState() {
+  let stderr = '';
+  let status = 0;
+  try {
+    execFileSync('node', ['scripts/check-render-coverage.cjs', '--check'], { cwd: ROOT, stdio: 'pipe' });
+  } catch (e) {
+    status = e.status;
+    stderr = (e.stderr && e.stderr.toString()) || '';
+  }
+  const cleanAndNoPhase179Regression =
+    status === 0 &&
+    !/RENDER GAP: entry (lib|scripts)\//.test(stderr);
+  ok('CIRS: check-render-coverage --check exits 0 (all 5 known skill gaps resolved at merge time; no regression on Phase 179 surfaces)', cleanAndNoPhase179Regression);
+})();
 
 // ---------------------------------------------------------------------------
 console.log('');

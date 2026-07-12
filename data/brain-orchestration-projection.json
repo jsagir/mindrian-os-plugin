@@ -715,6 +715,36 @@
       }
     },
     {
+      "id": "command:/mos:eureka",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:eureka",
+      "reach_id": "context_block",
+      "sub_mode": "eureka-portfolio",
+      "hierarchy_rank": 3,
+      "posture": "hold",
+      "sensor_triggers": [
+        "SENS-13"
+      ],
+      "chain_provenance": {
+        "command": "/mos:eureka",
+        "reach_id": "context_block",
+        "sub_mode": "eureka-portfolio",
+        "firing_sensors": [
+          "SENS-13"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "eureka-portfolio",
+        "hierarchy_rank": 3,
+        "posture": "hold",
+        "sensor_triggers": [
+          "SENS-13"
+        ]
+      }
+    },
+    {
       "id": "command:/mos:explain-decision",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -2782,6 +2812,12 @@
       "name": "dominant-designs"
     },
     {
+      "id": "skill:eureka",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "eureka"
+    },
+    {
       "id": "skill:explain-decision",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -3872,6 +3908,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "dual-use-diffusion"
+    },
+    {
+      "id": "sub_mode:eureka-portfolio",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "eureka-portfolio"
     },
     {
       "id": "sub_mode:expert-skill",

@@ -6,6 +6,24 @@ description: >
   framework chain selection for Mode 2.
 activation: no_room
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# intern-w1-mode-gate-skip fix NOTE (kept, not removed -- see below): this
+# connector.excluded:true is TRUE and REQUIRED for the R1 connector-coverage
+# ledger (data/connector-coverage-ledger.json, enforced HARD-FAIL by
+# `node scripts/build-connector-registry.cjs --check`, R2/R9 gap===0
+# invariant): conversation-mode genuinely does not connect_to_spine (it is not
+# a sensor-triggered reach through dispatchSensors -> decide() -> resolver; it
+# is the mode/lane picker that runs ambient every turn, layered ABOVE reach
+# selection). Removing this block makes the surface a 'gap' and hard-fails
+# that separate, non-advisory gate -- confirmed empirically while fixing
+# intern-w1-mode-gate-skip. The SAME field is ALSO read by
+# check-shape-declaration.cjs's R16 hasShape-and-excluded contradiction
+# predicate (added by this same fix) as a "no-fork" exemption signal, which is
+# a DIFFERENT, narrower meaning than R1's "not spine-triggered" -- this is a
+# genuine field-reuse collision this fix surfaces but does not resolve (see
+# the intern-w1-mode-gate-skip debug file Resolution section). The advisory
+# (non-blocking) WARN this now produces on `check-shape-declaration.cjs
+# --check` is the intended, accepted signal until a follow-up phase separates
+# the two concerns into distinct fields.
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Shape F.1 lane-picker / mode-selection skill runs every turn to set the conversational mode; substrate, not a triggered reach."

@@ -24,6 +24,20 @@ hitl_shape: "F.1"
 hitl_why: "Each of the seven domain folders is offered at an F.1 Decision Gate before creation, never auto-imposed on the room."
 ---
 
+<!-- mos:firing-block v2 -->
+At this skill's Decision Gate, when the fork is genuinely unanswered and relevant to the
+current conversation, fire the AskUserQuestion card natively rather than printing a bare
+numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this skill's declared hitl_shape. Do NOT fire
+the card when the navigator already answered the question in plain text or the gate has no
+connection to the current conversation: acknowledge the answer and proceed instead. Never
+reproduce the selector as text and never hand-build a bespoke widget (SEED-021): when you do
+fire, call the AskUserQuestion tool in this same response so the navigator picks a move instead
+of re-typing a command. Any text list is preserved only as the non-interactive floor for
+Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
+
 # Mullins Scaffold -- Seven Domains of Attractive Opportunities
 
 ## What this scaffold is
