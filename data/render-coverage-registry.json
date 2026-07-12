@@ -22,7 +22,7 @@
     "render_only_excluded": 0,
     "md_declared_wired": 99,
     "md_declared_unwired": 0,
-    "skill_declared_wired": 104,
+    "skill_declared_wired": 105,
     "skill_declared_unwired": 0
   },
   "entries": [
@@ -971,6 +971,11 @@
     {
       "surface": "skills/publish/SKILL.md",
       "declared_shape": "F.0",
+      "wired": true
+    },
+    {
+      "surface": "skills/qualify-opportunity/SKILL.md",
+      "declared_shape": "F.1",
       "wired": true
     },
     {

@@ -1771,6 +1771,36 @@
       "name": "/mos:publish"
     },
     {
+      "id": "command:/mos:qualify-opportunity",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:qualify-opportunity",
+      "reach_id": "context_block",
+      "sub_mode": "qualify-opportunity",
+      "hierarchy_rank": 4,
+      "posture": "hold",
+      "sensor_triggers": [
+        "SENS-14"
+      ],
+      "chain_provenance": {
+        "command": "/mos:qualify-opportunity",
+        "reach_id": "context_block",
+        "sub_mode": "qualify-opportunity",
+        "firing_sensors": [
+          "SENS-14"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "qualify-opportunity",
+        "hierarchy_rank": 4,
+        "posture": "hold",
+        "sensor_triggers": [
+          "SENS-14"
+        ]
+      }
+    },
+    {
       "id": "command:/mos:query",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -3088,6 +3118,12 @@
       "name": "pws-methodology"
     },
     {
+      "id": "skill:qualify-opportunity",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "qualify-opportunity"
+    },
+    {
       "id": "skill:query",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -4118,6 +4154,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "pyramid-argument"
+    },
+    {
+      "id": "sub_mode:qualify-opportunity",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "qualify-opportunity"
     },
     {
       "id": "sub_mode:reanalyze",

@@ -2241,6 +2241,21 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "skill:qualify-opportunity",
+      "source": "skill",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "qualify-opportunity",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 4,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "skill:reanalyze",
       "source": "skill",
       "connects_to_spine": true,
