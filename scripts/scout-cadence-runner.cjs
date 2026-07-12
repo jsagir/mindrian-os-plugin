@@ -246,14 +246,30 @@ function main(argv) {
     steps.push(wsGraph);
   }
 
-  // 8. opportunity-bank scan: compute-opportunity-state + listOpportunities.
+  // 8. opportunity-bank scan: compute-opportunity-state, then the Phase 219
+  //    harvest producer (REQ-2). The old bare-count tally string is REPLACED:
+  //    harvestCandidates scans room.db READ-ONLY for graph
+  //    events (bridge/whitespace/contradiction/eureka_proposal/meeting_filing),
+  //    scores them per the Q1..Q8 rubric, and writes the enum/handle-only
+  //    .mindrian/last-opportunity-harvest.json side-channel SENS-14 reads.
+  //    A producer failure DEGRADES the step (never kills the cadence, T-219-12).
   steps.push(runStep('compute-opportunity-state', 'bash', [bin('compute-opportunity-state'), roomDir]));
   try {
-    const oppOps = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'opportunity-ops.cjs'));
-    const listed = oppOps.listOpportunities(roomDir);
-    const count = listed && typeof listed.count === 'number' ? listed.count : 0;
-    if (count > 0) findingsToGraph.push(`opportunity-bank:${count}`);
-    steps.push({ name: 'opportunity-bank-scan', status: 'ok', exit: 0, stdout: `${count} opportunity(ies) surfaced`, stderr: '' });
+    const oppHarvest = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'eureka', 'opportunity-harvest.cjs'));
+    const harvested = oppHarvest.harvestCandidates(roomDir);
+    if (harvested && harvested.ok === true) {
+      const count = typeof harvested.count === 'number' ? harvested.count : 0;
+      if (count > 0) findingsToGraph.push(`opportunity-harvest:${count}`);
+      steps.push({
+        name: 'opportunity-bank-scan',
+        status: 'ok',
+        exit: 0,
+        stdout: `${count} scored candidate(s), top band ${harvested.top_band || 'none'}`,
+        stderr: '',
+      });
+    } else {
+      steps.push({ name: 'opportunity-bank-scan', status: 'degraded', exit: 1, stdout: '', stderr: (harvested && harvested.reason) || 'harvest failed' });
+    }
   } catch (e) {
     steps.push({ name: 'opportunity-bank-scan', status: 'degraded', exit: 1, stdout: '', stderr: e.message || String(e) });
   }
