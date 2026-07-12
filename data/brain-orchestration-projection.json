@@ -876,28 +876,16 @@
       "sub_mode": "file-meeting",
       "hierarchy_rank": 37,
       "posture": "pull_back",
-      "sensor_triggers": [
-        "SENS-06",
-        "SENS-08"
-      ],
       "chain_provenance": {
         "command": "/mos:file-meeting",
         "reach_id": "contradiction",
-        "sub_mode": "file-meeting",
-        "firing_sensors": [
-          "SENS-06",
-          "SENS-08"
-        ]
+        "sub_mode": "file-meeting"
       },
       "ranking": {
         "reach_id": "contradiction",
         "sub_mode": "file-meeting",
         "hierarchy_rank": 37,
-        "posture": "pull_back",
-        "sensor_triggers": [
-          "SENS-06",
-          "SENS-08"
-        ]
+        "posture": "pull_back"
       }
     },
     {
@@ -1179,28 +1167,16 @@
       "sub_mode": "ignite",
       "hierarchy_rank": 10,
       "posture": "push_forward",
-      "sensor_triggers": [
-        "SENS-01",
-        "SENS-06"
-      ],
       "chain_provenance": {
         "command": "/mos:ignite",
         "reach_id": "context_block",
-        "sub_mode": "ignite",
-        "firing_sensors": [
-          "SENS-01",
-          "SENS-06"
-        ]
+        "sub_mode": "ignite"
       },
       "ranking": {
         "reach_id": "context_block",
         "sub_mode": "ignite",
         "hierarchy_rank": 10,
-        "posture": "push_forward",
-        "sensor_triggers": [
-          "SENS-01",
-          "SENS-06"
-        ]
+        "posture": "push_forward"
       }
     },
     {
