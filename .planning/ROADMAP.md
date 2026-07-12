@@ -3067,12 +3067,12 @@ Plans:
 
 **Depends on:** Phase 219 (D-16 post-filing extraction contract, harvest sensor rail), Phase 218 (extractor), Tavily house tooling. Prior art: SEED-025 (futures-wheel scanning cadence overlap), SEED-031 (regulators), the 2026-07-13 DOM->Markdown->KG pattern review (navigator-supplied, filed in the phase research when spawned). REJECTED at registration: jsdom/Playwright/@lightfeed new deps (Tavily covers the DOM stage); direct Neo4j triplet writes (Part 8 breach).
 
-**Plans:** 5 plans (planned 2026-07-13; SPEC locked 6 requirements REQ-1..REQ-6; REQ-6 re-amended: 220 stages readiness, the cut executes at Phase 221)
+**Plans:** 1/5 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 220-01-PLAN.md - Tavily Extract adapter (adapterTavilyExtract behind the fetchCorpus/auditQueryString chokepoint, typed degrade envelope) + REQ-5 egress fence test + run-all-220.sh harness [REQ-1, REQ-5]
+- [x] 220-01-PLAN.md - Tavily Extract adapter (adapterTavilyExtract behind the fetchCorpus/auditQueryString chokepoint, typed degrade envelope) + REQ-5 egress fence test + run-all-220.sh harness [REQ-1, REQ-5]
 
 **Wave 2** *(blocked on Wave 1)*
 

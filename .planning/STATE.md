@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 219 context gathered
-last_updated: "2026-07-12T23:25:33.582Z"
+stopped_at: Completed 220-01-PLAN.md
+last_updated: "2026-07-12T23:44:52.124Z"
 last_activity: 2026-07-12
 progress:
   total_phases: 29
   completed_phases: 17
-  total_plans: 93
-  completed_plans: 83
+  total_plans: 96
+  completed_plans: 84
   percent: 59
 ---
 
@@ -1483,6 +1483,7 @@ Progress: [█████████░] 92%
 | Phase 218 P02 | ~14min | 2 tasks | 4 files |
 | Phase 219 P01 | 14min | 3 tasks | 6 files |
 | Phase 219 P02 | 21min | 3 tasks | 5 files |
+| Phase 220 P01 | 55min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -2440,6 +2441,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 219-01: banking predicate env seam MINDRIAN_OPPORTUNITY_BANK_PREDICATE (critic default) - never AHP rank; stable session id eureka-portfolio for idempotent re-runs
 - [Phase ?]: 219-02: metadata pass writes exact (tier-a) memory_artifact nodes only; structural section prop wins over frontmatter
 - [Phase ?]: 219-02: FTS5 probe on fresh :memory: handle, verdict cached per process; absent degrades bi-modal with fts_backend provenance
+- [Phase 220]: 220-01: chokepoint-uniqueness grep pinned on api.tavily.com/extract (pre-existing /search callers predate 220) - the plan's bare-domain grep fails at baseline on legitimate rs-fetcher-industry + mva callers; the intent (one door for the NEW egress surface) is preserved
+- [Phase 220]: 220-01: run-all-220 shape-declaration gate runs advisory (--check), not --strict - strict trips on ~30 pre-220 skill declarations; Phase 210 advisory posture per project CLAUDE.md takes precedence; restoring --strict tracked in phase deferred-items
+- [Phase 220]: 220-01: zero extract results from a 200 response returns error/extract_failed, never ok:true + empty - T-220-05 repudiation mitigation - a provider failure never masquerades as success
 
 ### Pending Todos
 
@@ -2503,8 +2507,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-12T23:25:07.014Z
-Stopped at: Phase 219 context gathered
+Last session: 2026-07-12T23:44:52.078Z
+Stopped at: Completed 220-01-PLAN.md
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
 
