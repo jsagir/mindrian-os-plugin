@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15.0
-milestone_name: "The Cockpit" milestone -- the UX/dial train
-status: verifying
-stopped_at: Phase 218 context gathered
-last_updated: "2026-07-12T13:11:30.922Z"
+milestone_name: The Cockpit" milestone -- the UX/dial train
+status: verified
+stopped_at: Phase 218 COMPLETE (3/3 plans) -- entity-extraction pipeline shipped; REQ-5 human-verify checkpoint found + fixed a cohort-pooling ranking bug live on aion-eureka-synergy (100.0% -> 0.0%); tier-1 extraction-noise follow-up filed, not blocking
+last_updated: "2026-07-12T19:54:14.377Z"
 last_activity: 2026-07-12
 progress:
   total_phases: 26
@@ -15,6 +15,16 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-12) -- PHASE 218 COMPLETE (3/3 plans) -- entity-extraction pipeline shipped; the REQ-5 human-verify checkpoint found and fixed a real ranking-algorithm bug live, not a rubber-stamp
+
+Plan 03's dispatcher (`scripts/entity-extract.cjs`, cloning `eureka-command.cjs`'s shape) wires Plan 01's typed-entity writer and Plan 02's tier-1 extractor + D-05 write-safety into a runnable pipeline. The Task 3 human-verify checkpoint (autonomous:false, could not be auto-approved) ran the real acceptance test against `aion-eureka-synergy` and found REQ-5 had NOT moved: 100.0% -> 100.0% top-25 structural share, unchanged, despite 149 correctly-written proposed entity nodes. Root cause traced (not patched blind): `scripts/eureka-portfolio-report.cjs` pooled every indexed node into ONE cohort array before computing `validated_demand` as a `pair_count` percentile rank; long-lived `memory_artifact` hubs (dozens of accumulated edges) permanently floor-pin freshly-written low-degree entity nodes regardless of relevance. The hermetic fixture test (`test-218-noise-reduction.cjs`) missed this because its 6-node fully-cited CONVERGES clique gives every node identical degree, so it never exercised real accumulated-hub skew.
+
+- **Fix (`912139c9` fix):** stratified the percentile cohort by `ENTITY_NODE_TYPES` membership so entity nodes rank against same-age peers, not accumulated hub degree. Zero-entity rooms are unaffected by construction (empty entity cohort routes every tech to the unchanged scaffold cohort -- proven by the new `tests/test-218-cohort-stratification.cjs`, 2/2 legs, wired into `run-all-218.sh`). Companion fix to `room-native-substrate.cjs`'s title resolution (`props.name` fallback, matching `tri-modal-index.cjs::nodeText`'s existing precedent) so ranked pairs show real names instead of raw hashed ids.
+- **Re-verified live:** top-25 structural share **100.0% -> 0.0% (0/25)**. Full suite re-run clean: Phase 218 12/12, Phase 215 8/8, Phase 211 10/10.
+- **Second finding, surfaced BY the fix (`298a1c84` docs covers a separate SQLite finding; the extraction-noise finding is logged in `218-VERIFICATION.md`, not yet fixed):** the now-visible top-25 entity pairs are dominated by tier-1 extraction noise -- MindrianOS's own meta-vocabulary (`ROOM.md`, `Canon`, `ICM Layer`, `TAM`, `SAM`, `AAAK Record`) misclassified as `company`/`market` entities, exactly the `218-RESEARCH.md` Pitfall 4 risk. Invisible before the ranking fix (every entity node was floor-pinned regardless of quality). This is a tier-1 extraction PRECISION gap the SPEC's own locked scope already anticipated ("tier-2 NER deferred as a stretch goal only if tier-1 proves insufficient at verification time" -- it did) and filed as a follow-up, not a Phase 218 regression.
+- **Also logged this session:** a verified (live, primary-source-checked) upstream SQLite WAL-reset corruption bug affecting this machine's bundled SQLite 3.51.2 (fixed 3.51.3+). Not caused or fixed by D-05; a pre-existing property of the SQLite build, tracked as a future watch item (`298a1c84` docs).
+- **Phase 218 is CLOSED.** REQ-1 through REQ-5 all verified (unit tests + live before/after). SUMMARY: `.planning/phases/218-.../218-03-SUMMARY.md`. Full trace: `.planning/phases/218-.../218-VERIFICATION.md`.
 
 ## (2026-07-12) -- PHASE 218 Plan 02 COMPLETE (2/3 plans) -- D-05 write-safety on openRoomDb + the tier-1 zero-egress prose extractor, the two Wave-1 foundations Plan 03's dispatcher consumes
 
@@ -935,7 +945,7 @@ The connector generator now recognizes a first-class EXCLUDED surface and emits 
 ### Phase 157 Plan 05 (cache-contract schema + Part 8 boundary scan, Wave 5 of 5, autonomous) COMPLETE -- the FINAL SEALING wave
 
 BOG-09 + BOG-10 landed. This wave PROVES locality; it does NOT change the generator's emit behavior (projection byte-stable at 207 nodes; --check OK). Task 1 (commit b24fe175): docs/ORCHESTRATION-PROJECTION-CONTRACT.md section 4c -- the cache contract: data/brain-orchestration-projection.json IS the Brain-derived LOCAL cache the deferred nav engine reads at decide() time; Tier-0 resilient (regenerated deterministically from LOCAL sources alone -- the registries + the file walk + the analogue seed + the allowlist; NONE is the Brain -- so it survives a Brain outage); the exact consumable shape ({ ontology_ref, generated_note, chain_layer_note, nodes[], edges[] }); the node + edge field allowlists; the three deferred fast-follows OUT of 157 (live Brain WRITE, CONTINUOUS sync = Phase 137 brain-mindrianos-sync-compat, live nav-engine CONSUMPTION). scripts/build-orchestration-projection.cjs exports NODE_FIELD_ALLOWLIST (14 fields) + EDGE_FIELD_ALLOWLIST (3 fields) as frozen arrays so the doc + the scan assert against ONE source of truth; NO emit-logic change. Task 2 (commit 7005d724, tdd): tests/test-orchestration-projection-part8-boundary.cjs -- the adversarial 6-check Part 8 boundary scan over FOUR surfaces. CHECK 1 field-allowlist sweep (every node key incl. chain_provenance + ranking sub-block keys in NODE_FIELD_ALLOWLIST; every edge key in EDGE_FIELD_ALLOWLIST; off-allowlist = breach, BOG-10). CHECK 2 methodology_tier present + legal (pws|mindrian-operation) on EVERY node (the boundary-keeper). CHECK 3 the PLANTED-SECRET tripwire (the proof, not an assertion): plants a room/ path + an email + an over-cap body, proves the heuristic catches each (RED), then proves the real per-surface (nodes[]+edges[]) data is clean (GREEN); the three top-level legibility notes (ontology_ref/generated_note/chain_layer_note) are bounded machinery prose scanned for room/+email only (the chain_layer_note legitimately exceeds the over-cap heuristic -- a genuine RED finding that confirmed the heuristic is live, resolved by scoping per the plan's behavior spec). CHECK 4 zero-live-Brain grep gate (generator comments stripped: no brain-client require, no fetch/http/curl/brain.query/brain.write call -- syntax match, never bare substring, so header prose naming "Brain" does not self-invalidate). CHECK 5 the analogue seed + the allowlist carry only generic machinery metadata. CHECK 6 no em-dashes. RED proven at the ARTIFACT level too: poisoning a node name with a room/ path made the scan exit 1; restoring -> exit 0 (artifact byte-restored). The 4 boundary invariants also added as a group to lib/memory/orchestration-projection.test.cjs (33->37 tests) and the standalone scan registered in lib/memory/run-feynman-tests.cjs TEST_FILES (BOG-11 gate surface). hats stays an OPEN RESEARCH Q6 navigator-gated item -- NOT closed as an engineer decision. Self-check PASSED. Phase 157 COMPLETE 5/5.
-Status: verifying
+Status: verified
 Queue: Phase 157 Plan 05 (the local cache-contract schema doc + Part 8 boundary scan over the projection artifact + its generator -- the LAST wave). Wave 5 must know: the allowlist is a new boundary-scan surface (generic framework names + prose reasons only); projection is now 207 nodes / connector-registry 57 connectors after wiring /mos:diagnose; validateProjection + loadUnwiredAllowlist are exported for reuse; --check makes ZERO Brain/network calls; hats stays an open RESEARCH Q6 navigator decision (do NOT close as engineer). (150.7 ratification gate + Phase 156 human-verify checkpoint still pending per navigator sequencing.)
 
 Phase 159 (dial-closer-consumer-wire) — ALL 3 WAVES COMPLETE (159-01/02/03)
