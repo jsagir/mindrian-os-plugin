@@ -3063,22 +3063,47 @@ Plans:
 
 **Goal:** Any URL becomes room knowledge in one governed move: fetch (Tavily-first server-side DOM->clean-markdown) -> research/ artifact with frontmatter + URL-cited provenance -> post-filing extraction into room.db proposed entities/edges (rides 219's D-16 Research Corpus Contract) - invocable BOTH explicitly (skill/command surface) and contextually (LarryReacts tripwires, e.g. a URL pasted in conversation, an explore chain needing a fetch), plus the crawl-and-learn loop: registered sources (RSS/repos/paper feeds) auto-ingest on cadence under cost + freshness regulators.
 
-**Requirements (draft, spec-phase to lock):** REQ-1 on-demand URL ingestion end-to-end (fetch -> file -> extract -> graph-visible); REQ-2 invocation design: explicit surface (born WIRED + hitl_shape) AND LarryReacts contextual tripwire (when/how decided by research, ends at a Decision Gate, never auto-files); REQ-3 crawl-and-learn loop: source registry + cadence runner + cost/freshness regulators (SEED-031 alignment); REQ-4 Part 8 holds absolutely (generic handles outbound only; graph writes LOCAL room.db via navigation.cjs; NO Neo4j/Brain egress of room content); REQ-5 joint release with 219 (one version cut after both phases' needs met - navigator decision 2026-07-13, supersedes 219's cut-after-219 note).
+**Requirements (draft, spec-phase to lock):** REQ-1 on-demand URL ingestion end-to-end (fetch -> file -> extract -> graph-visible); REQ-2 invocation design: explicit surface (born WIRED + hitl_shape) AND LarryReacts contextual tripwire (when/how decided by research, ends at a Decision Gate, never auto-files); REQ-3 crawl-and-learn loop: source registry + cadence runner + cost/freshness regulators (SEED-031 alignment); REQ-4 Part 8 holds absolutely (generic handles outbound only; graph writes LOCAL room.db via navigation.cjs; NO Neo4j/Brain egress of room content); REQ-5 joint release readiness (RE-AMENDED 2026-07-13: ONE version cut after 219+220+221 all meet their needs; the cut executes at Phase 221 completion - 220 stages readiness only).
 
 **Depends on:** Phase 219 (D-16 post-filing extraction contract, harvest sensor rail), Phase 218 (extractor), Tavily house tooling. Prior art: SEED-025 (futures-wheel scanning cadence overlap), SEED-031 (regulators), the 2026-07-13 DOM->Markdown->KG pattern review (navigator-supplied, filed in the phase research when spawned). REJECTED at registration: jsdom/Playwright/@lightfeed new deps (Tavily covers the DOM stage); direct Neo4j triplet writes (Part 8 breach).
 
-**Plans:** 7 plans in 5 waves (planned 2026-07-13)
+**Plans:** 5 plans (planned 2026-07-13; SPEC locked 6 requirements REQ-1..REQ-6; REQ-6 re-amended: 220 stages readiness, the cut executes at Phase 221)
 
 Plans:
-- [ ] 219-01-PLAN.md - Wave 1: REQ-1 eureka statement banking (typed-opportunity writer + banking hook + phase harness)
-- [ ] 219-02-PLAN.md - Wave 1: REQ-5 metadata thin slice + REQ-7 FTS5 bi-modal degrade (Windows unblocker) + hub-skew fixture builder
-- [ ] 219-03-PLAN.md - Wave 2: REQ-2 harvest sensor SENS-14 + producer (Harvest Formula, Q1..Q8 rubric, Four-Lens)
-- [ ] 219-04-PLAN.md - Wave 2: REQ-3 qualification F.1 card (5 verbs, rejection edges, born-wired)
-- [ ] 219-05-PLAN.md - Wave 3: REQ-4 explore chain + Minto explored artifact + D-16 research corpus contract
-- [ ] 219-06-PLAN.md - Wave 4: REQ-6 LIVE ador-ip-test end-to-end (navigator checkpoint; not autonomous)
-- [ ] 219-07-PLAN.md - Wave 5: REQ-7 corepower validation + release-READINESS staged (joint 219+220 cut; release.sh executes at Phase 220 completion; not autonomous)
+**Wave 1**
 
-**Release note (navigator, 2026-07-13):** the version cut is JOINT across Phases 219+220 - Plan 07 stages everything (CHANGELOG/README drafts, marketplace pin, VERSION-BUMP-CHECKLIST) but scripts/release.sh runs only when Phase 220 completes.
+- [ ] 220-01-PLAN.md - Tavily Extract adapter (adapterTavilyExtract behind the fetchCorpus/auditQueryString chokepoint, typed degrade envelope) + REQ-5 egress fence test + run-all-220.sh harness [REQ-1, REQ-5]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 220-02-PLAN.md - url-ingest pipeline: D-03 sidecar filing + D-11 nesting (raw capture + normalized) + content-hash idempotency + SUPERSEDES + 219 scoped-extraction consumption (verify-landed) + D-19 envelope + inbound adversarial fixtures + D-08 cache purity [REQ-1, REQ-4, REQ-5]
+
+**Wave 3** *(blocked on Wave 2; 03 and 04 run parallel)*
+
+- [ ] 220-03-PLAN.md - Invocation surfaces: SENS-15 pasted-URL sensor (free id re-verified at build) + /mos:research URL mode + F.1 card [Ingest][Ingest+Explore][Skip] + D-10 gate-OFFERED llm_manual rung + born-wired/shape gates + doc-parity [REQ-2, REQ-4]
+- [ ] 220-04-PLAN.md - Crawl-and-learn loop: .mindrian/watched-sources.json registry + url-ingest-crawl cadence step (cap default 2, SEED-031 read-if-present probe, advisory degrade, manual rung unreachable) [REQ-3]
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 220-05-PLAN.md - Live real-URL end-to-end evidence + blocking navigator checkpoint + release READINESS staging (git diff --exit-code proves no bump; the joint cut transfers to Phase 221) [REQ-1, REQ-6]
+
+---
+
+### Phase 221: Pipeline-Wide High-Effort LLM Engine Recovery (llm-engine-recovery) - REGISTERED 2026-07-13 - **JOINT 219+220+221 RELEASE; THE CUT EXECUTES HERE**
+
+**Goal:** When any registered engine in the research pipeline fails, Mindrian recovers intelligently instead of collapsing to empty: common typed stage envelopes (ok | empty_valid | degraded | failed | blocked) replace the verified failure-to-empty ambiguity (lib/core/research-corpus.cjs); a 6-tier recovery ladder (normal -> deterministic retry -> local governed substitute -> high-effort LLM recovery -> human intervention -> honest termination) is codified; a bounded LLM recovery controller (diagnose/plan/execute/validate/reconcile/resume with a persisted recovery case file) does the intelligence work through remaining healthy tools while deterministic validators, privacy gates, human gates, and readback retain ALL authority; and the phase ends by EXECUTING the joint 219+220+221 version cut.
+
+**Requirements (draft, spec locks):** REQ-1 typed stage envelopes across the research-pipeline adapters + deterministic failure-injection harness (envelopes FIRST per the implementation-priority decision); REQ-2 recovery dispatcher + tier ladder (Tier-3 fires ONLY on typed failure / contract violation / implausible coverage / required-stage timeout - NEVER on empty_valid); REQ-3 bounded LLM recovery controller (case file: failure-diagnosis / recovery-plan / attempt-ledger / validation-report / claim-evidence-ledger / recovery-bundle; profiles diagnostic|high_effort|forensic; capability-based model selection recorded; hard fences: never weaken egress, never unknown->zero, never bypass the governed writer, never claim success without file-evidence-readback confirmation, injection-as-data); REQ-4 result semantics + disclosure (research_mode gains llm_engine_recovery + manual_intervention_required; outcomes recovered|partial_recovery|insufficient_evidence|manual_intervention_required|policy_blocked; the Phase-218 vantage correction becomes a PERMANENT negative fixture: absence from one corpus = corpus-scoped provisional gap tagged authoritative_workspace_unavailable, never project-level nonexistence); REQ-5 failure-injection validation matrix (fixture-first); REQ-6 THE JOINT CUT: scripts/release.sh executes for 219+220+221 (npm + five-gate lockstep + marketplace pin + README refresh styling-preserved + mindrian-os.com website updates in relevant locations + website hand-typed-version fact-check + VERSION-BUMP-CHECKLIST).
+
+**Depends on:** Phase 219 (D-18 unknown-never-zero, D-19 envelope beginnings + drift fix, D-20 per-surface manual rungs), Phase 220 (ingestion ladder + provider envelope consumption), lib/core/navigation/file-evidence-readback.cjs (VERIFIED exists - the readback authority), lib/core/research-corpus.cjs (the failure-to-empty fix target).
+
+**Binding input:** navigator-supplied Manus "Pipeline-Wide High-Effort LLM Recovery Architecture" + "Correction and Engine-Recovery Decision Note" (2026-07-13, annexed in the phase dir). The controller is an ADAPTER over shipped capabilities, never a parallel research stack.
+
+**Explicitly OUT of scope:** autonomous graph mutation; continuous crawling; broad format support; model-name-pinned governance; extending envelopes beyond the research pipeline + 219/220 seams (eureka/doctor adopt later).
+
+**Plans:** TBD
+
+**Release note (navigator, 2026-07-13, FINAL):** ONE version cut JOINT across Phases 219+220+221 - 219 Plan 07 and 220's final wave stage readiness (CHANGELOG/README drafts, marketplace pin, VERSION-BUMP-CHECKLIST, website update drafts); scripts/release.sh executes as Phase 221's final requirement. Pre-approved by the navigator 2026-07-13 ("run till and including 221 and full cut, updating all READMEs and the Mindrian website in relevant locations"); the corepower-isolation Desktop validation remains the one navigator-run gate.
 
 ---
 
