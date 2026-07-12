@@ -12,6 +12,18 @@
 # Arguments:
 #   $1 -- workspace directory (defaults to $PWD)
 #   --adopt -- if legacy room/ exists with no registry, create one
+#   --strict -- distinguish a confirmed registry hit (Strategy 0/0b/1, or a
+#               Strategy-2 fallback combined with --adopt) from a bare
+#               Strategy-2 legacy fallback with no registry and no adoption.
+#               Without --strict, Strategy 2 always exits 0 with the legacy
+#               path on stdout (unchanged, backward-compatible default -- this
+#               is what every existing caller still gets). With --strict, a
+#               bare Strategy-2 hit (no --adopt) prints "FALLBACK:<path>" on
+#               stdout and exits 2 instead, so a caller that needs to know
+#               "is this a REAL resolved/registered room, or just the stale
+#               single-room fallback" can no longer mistake the latter for
+#               the former (intern-w1-rooms-new-silent-fail.md, Fix
+#               Direction 1: the fallback must be distinguishable).
 #
 # Environment:
 #   MINDRIAN_ROOMS_HOME -- override ~/MindrianRooms as central rooms location
@@ -22,10 +34,12 @@ set -euo pipefail
 
 WORK_DIR=""
 ADOPT=false
+STRICT=false
 
 for arg in "$@"; do
   case "$arg" in
     --adopt) ADOPT=true ;;
+    --strict) STRICT=true ;;
     *) [ -z "$WORK_DIR" ] && WORK_DIR="$arg" ;;
   esac
 done
@@ -156,8 +170,22 @@ os.rename(tmp, '$REGISTRY_FILE')
 " 2>/dev/null
   fi
 
-  # Return absolute path
-  echo "$(cd "$LEGACY_DIR" && pwd)"
+  LEGACY_ABS="$(cd "$LEGACY_DIR" && pwd)"
+
+  if $STRICT && ! $ADOPT; then
+    # A bare Strategy-2 hit: no registry, no adoption -- this is the stale
+    # single-room fallback, not a confirmed active room. A --strict caller
+    # must not be able to mistake this for success. Marker on stdout +
+    # distinct exit code (2, never 0/1) so it cannot alias either
+    # "confirmed resolution" (0) or "no room found" (1).
+    echo "FALLBACK:${LEGACY_ABS}"
+    echo "[MindrianOS] --strict: legacy fallback is not a confirmed registered room -- pass --adopt to register it, or omit --strict to use it as-is." >&2
+    exit 2
+  fi
+
+  # Return absolute path (unchanged default behavior; --adopt registered the
+  # legacy room above, or --strict was not requested)
+  echo "$LEGACY_ABS"
   exit 0
 fi
 

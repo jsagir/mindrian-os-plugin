@@ -61,10 +61,10 @@ Launches a local Express server that renders room/ .md files as Wikipedia-style 
 
 ```bash
 # Open the wiki locally
-bash scripts/serve-wiki
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/serve-wiki"
 
 # Export as static HTML for sharing
-bash scripts/serve-wiki --export
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/serve-wiki" --export
 ```
 
 ## Flags
