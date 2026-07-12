@@ -3059,6 +3059,29 @@ Plans:
 
 ---
 
+### Phase 220: Web Ingestion Agent (mindrian-web-agent): URL -> clean markdown -> room graph (web-ingestion-agent) - REGISTERED 2026-07-13 - **RELEASES JOINTLY WITH 219**
+
+**Goal:** Any URL becomes room knowledge in one governed move: fetch (Tavily-first server-side DOM->clean-markdown) -> research/ artifact with frontmatter + URL-cited provenance -> post-filing extraction into room.db proposed entities/edges (rides 219's D-16 Research Corpus Contract) - invocable BOTH explicitly (skill/command surface) and contextually (LarryReacts tripwires, e.g. a URL pasted in conversation, an explore chain needing a fetch), plus the crawl-and-learn loop: registered sources (RSS/repos/paper feeds) auto-ingest on cadence under cost + freshness regulators.
+
+**Requirements (draft, spec-phase to lock):** REQ-1 on-demand URL ingestion end-to-end (fetch -> file -> extract -> graph-visible); REQ-2 invocation design: explicit surface (born WIRED + hitl_shape) AND LarryReacts contextual tripwire (when/how decided by research, ends at a Decision Gate, never auto-files); REQ-3 crawl-and-learn loop: source registry + cadence runner + cost/freshness regulators (SEED-031 alignment); REQ-4 Part 8 holds absolutely (generic handles outbound only; graph writes LOCAL room.db via navigation.cjs; NO Neo4j/Brain egress of room content); REQ-5 joint release with 219 (one version cut after both phases' needs met - navigator decision 2026-07-13, supersedes 219's cut-after-219 note).
+
+**Depends on:** Phase 219 (D-16 post-filing extraction contract, harvest sensor rail), Phase 218 (extractor), Tavily house tooling. Prior art: SEED-025 (futures-wheel scanning cadence overlap), SEED-031 (regulators), the 2026-07-13 DOM->Markdown->KG pattern review (navigator-supplied, filed in the phase research when spawned). REJECTED at registration: jsdom/Playwright/@lightfeed new deps (Tavily covers the DOM stage); direct Neo4j triplet writes (Part 8 breach).
+
+**Plans:** 7 plans in 5 waves (planned 2026-07-13)
+
+Plans:
+- [ ] 219-01-PLAN.md - Wave 1: REQ-1 eureka statement banking (typed-opportunity writer + banking hook + phase harness)
+- [ ] 219-02-PLAN.md - Wave 1: REQ-5 metadata thin slice + REQ-7 FTS5 bi-modal degrade (Windows unblocker) + hub-skew fixture builder
+- [ ] 219-03-PLAN.md - Wave 2: REQ-2 harvest sensor SENS-14 + producer (Harvest Formula, Q1..Q8 rubric, Four-Lens)
+- [ ] 219-04-PLAN.md - Wave 2: REQ-3 qualification F.1 card (5 verbs, rejection edges, born-wired)
+- [ ] 219-05-PLAN.md - Wave 3: REQ-4 explore chain + Minto explored artifact + D-16 research corpus contract
+- [ ] 219-06-PLAN.md - Wave 4: REQ-6 LIVE ador-ip-test end-to-end (navigator checkpoint; not autonomous)
+- [ ] 219-07-PLAN.md - Wave 5: REQ-7 corepower validation + release-READINESS staged (joint 219+220 cut; release.sh executes at Phase 220 completion; not autonomous)
+
+**Release note (navigator, 2026-07-13):** the version cut is JOINT across Phases 219+220 - Plan 07 stages everything (CHANGELOG/README drafts, marketplace pin, VERSION-BUMP-CHECKLIST) but scripts/release.sh runs only when Phase 220 completes.
+
+---
+
 ## Backlog (parking lot — unscheduled, not phase-bound)
 
 ### GSD Planning Artifacts as Local-Graph Members (Brain-queryable via typed packets) — REGISTERED 2026-06-08
