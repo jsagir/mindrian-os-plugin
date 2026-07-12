@@ -80,11 +80,13 @@ Technical grounding confirmed via source read + external research (2026-07-12): 
 - `DatabaseSync` is fully synchronous and single-threaded with no built-in multi-process write safety (confirmed via Node's own docs). The extraction pipeline must open, do its work, and close within one invocation — matching `eureka-command.cjs`'s detached-spawn-then-exit shape — never a persistent daemon holding a long-lived write handle.
 - Canon Part 8 (zero egress): tier-1 extraction has no network calls by construction. Any future tier-2 pass must reuse the already-vendored `@huggingface/transformers` local models (zero network after first-model-download, matching Phase 211's existing "first-run honesty note" pattern) — never a live API call.
 - New nodes/edges must never be auto-confirmed. Every extracted entity lands with `review_status='proposed'`, following the existing HITL pattern in `graph-derivation.cjs` — a navigator confirms before a proposed node becomes trusted graph data.
+- **SQLite write safety (added 2026-07-12, Perplexity research + code verification):** `lib/core/room-db.cjs`'s `openRoomDb()` sets `journal_mode=WAL` and `foreign_keys=ON` today but has no `busy_timeout` and no `synchronous` pragma, and no code path in this repo wraps batch writes in an explicit transaction (`node:sqlite`'s `DatabaseSync` has no `.transaction()` helper, unlike `better-sqlite3`). `openRoomDb()` MUST additionally set `PRAGMA busy_timeout=5000` and `PRAGMA synchronous=NORMAL` on every connection open. The extraction pipeline's batch node+edge inserts MUST be wrapped in a single explicit `BEGIN` / `COMMIT` (with `ROLLBACK` on error), not per-row autocommit. Rationale: without `busy_timeout`, a concurrent write from the extraction worker while a live conversation holds a write lock throws immediate `SQLITE_BUSY` with zero retry window.
 
 ## Acceptance Criteria
 
 - [ ] Extraction pipeline run against a populated test room produces ≥1 non-scaffold domain-entity node type in `nodes`
 - [ ] Every new entity node has `review_status='proposed'`
+- [ ] `openRoomDb()` sets `busy_timeout=5000` and `synchronous=NORMAL` in addition to existing WAL/FK pragmas; extraction batch writes are wrapped in one explicit BEGIN/COMMIT/ROLLBACK
 - [ ] Every new entity node links to its source artifact via a valid `ALLOWED_EDGE_TYPES` edge
 - [ ] `ALLOWED_EDGE_TYPES` grows by ≥3 domain-relationship types, additively (37 existing entries untouched)
 - [ ] `writeEdge()` test proves the new types are accepted and an arbitrary unlisted type is still rejected
