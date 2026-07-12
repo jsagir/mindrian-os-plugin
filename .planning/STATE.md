@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15.0
-milestone_name: The Cockpit" milestone -- the UX/dial train
-status: verified
-stopped_at: Phase 218 COMPLETE (3/3 plans) -- entity-extraction pipeline shipped; REQ-5 human-verify checkpoint found + fixed a cohort-pooling ranking bug live on aion-eureka-synergy (100.0% -> 0.0%); tier-1 extraction-noise follow-up filed, not blocking
-last_updated: "2026-07-12T19:54:14.377Z"
+milestone_name: "The Cockpit" milestone -- the UX/dial train
+status: verifying
+stopped_at: Phase 219 context gathered
+last_updated: "2026-07-12T23:21:30.927Z"
 last_activity: 2026-07-12
 progress:
-  total_phases: 26
-  completed_phases: 16
-  total_plans: 81
-  completed_plans: 79
-  percent: 62
+  total_phases: 29
+  completed_phases: 17
+  total_plans: 93
+  completed_plans: 82
+  percent: 59
 ---
 
 # Project State
@@ -1481,6 +1481,7 @@ Progress: [█████████░] 92%
 | Phase 217 P07 | ~35min | 2 tasks | 4 files |
 | Phase 218 P01 | 22 | 2 tasks | 5 files |
 | Phase 218 P02 | ~14min | 2 tasks | 4 files |
+| Phase 219 P01 | 14min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -2433,6 +2434,9 @@ Progress: [█████████░] 92%
 - [Phase 217]: Phase 217 CLOSED: navigator real-room smoke approved verbatim (node scripts/doctor.cjs --all run twice, bare run, bash tests/run-all-217.sh) -- watermark does not silence any migrated diagnostic (Pitfall-1 kill shot confirmed live); brain-smoke's skip-row rendering left as-is per navigator, not gap-closed
 - [Phase 218]: Phase 218-01: entity nodes (company/technology/market) are pure truth-claims, born review_status=proposed, never auto-confirmed (typed-domain taxonomy->confirmed branch deliberately omitted per REQ-1/Part 9 role 5)
 - [Phase 218]: Phase 218-02: openRoomDb write-safety is GLOBAL and strictly additive -- timeout:5000 on both DatabaseSync branches + synchronous=NORMAL turns a 0ms SQLITE_BUSY into a ~5s busy-wait, never a new failure mode (D-05). The tier-1 extractor is structural-first (regex/heading, zero model, zero egress): types no deeper than capitalization + heading-context lean (MISC-label disambiguation is tier-2, out of scope), and bounds output via maxPerArtifact (default 25) so it can never re-flood the graph (Pitfall 4).
+- [Phase ?]: 219-01: opportunity nodes are pure truth-claims - born proposed, no confirm path in the writer; only human confirmNode promotes (Plan 04 Qualify)
+- [Phase ?]: 219-01: D-17 merge-UPSERT protects the five state keys; transitions only via advanceOpportunityStage with append-only stage_history
+- [Phase ?]: 219-01: banking predicate env seam MINDRIAN_OPPORTUNITY_BANK_PREDICATE (critic default) - never AHP rank; stable session id eureka-portfolio for idempotent re-runs
 
 ### Pending Todos
 
@@ -2496,8 +2500,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-12T13:10:33.431Z
-Stopped at: Phase 218 Plan 02 complete (2/3 plans) -- D-05 write-safety + tier-1 zero-egress extractor; next is 218-03 the dispatcher
+Last session: 2026-07-12T23:21:13.330Z
+Stopped at: Phase 219 context gathered
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
 

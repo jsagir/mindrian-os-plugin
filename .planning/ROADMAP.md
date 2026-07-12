@@ -3055,7 +3055,7 @@ Plans:
 
 **Explicitly OUT of scope (Track 1, separate follow-on):** rewiring find-connections / find-analogies / HSI / scan-opportunities / scenario-plan onto room.db; TRIZ contradiction-typing in whitespace; tier-2 NER extraction; multi-room portfolio dedup (Phase 215 territory).
 
-**Plans:** TBD
+**Plans:** 1/7 plans executed
 
 ---
 
