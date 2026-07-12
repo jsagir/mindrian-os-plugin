@@ -70,6 +70,15 @@ run "218-02 D-05 write-safety (busy timeout + rollback)" \
 run "218-02 tier-1 extractor (zero egress)" \
   node tests/test-218-extractor.cjs
 
+# (a.1) T-218-VD: post-checkpoint fix. The live REQ-5 human-verify run (Task 3)
+#     found the noise-reduction hermetic fixture couldn't reproduce a real,
+#     months-old room's accumulated node-degree skew, so eureka-portfolio-report.cjs
+#     pooling entity nodes into the SAME percentile cohort as long-lived
+#     memory_artifact hubs floor-pinned every entity node's validated_demand.
+#     This proves the stratification fix + the zero-entity-node regression guard.
+run "T-218-VD cohort stratification (validated_demand hub-skew fix)" \
+  node tests/test-218-cohort-stratification.cjs
+
 # (b) REQ-3 zero-touch gate: no second embedding path, no vector-store signature
 #     change. The re-embed rides the EXISTING tri-modal indexNodes path.
 run "REQ-3 vector-store unchanged" \

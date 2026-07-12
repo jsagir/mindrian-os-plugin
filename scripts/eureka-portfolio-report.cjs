@@ -87,6 +87,10 @@ const oppmod = require(path.join(REPO_ROOT, 'lib/core/eureka/opportunity-stateme
 // CSV-derived idea-graph. Injected, never a require cycle (it never imports this
 // runner). See lib/core/eureka/room-native-substrate.cjs.
 const roomNative = require(path.join(REPO_ROOT, 'lib/core/eureka/room-native-substrate.cjs'));
+// Phase 218 fix (REQ-5 live-verification gap, T-218-VD): the closed, frozen
+// entity-node type family, reused (never re-derived) from its one source of
+// truth. See the "stratified cohort" comment at its call site below.
+const { ENTITY_NODE_TYPES } = require(path.join(REPO_ROOT, 'lib/core/navigation/typed-entity.cjs'));
 
 const DEFAULT_GRAPH = 'evals/eureka/jhtv-idea-graph.json';
 const PROGRESS_EVERY = 100000; // full mode over a big room is ~millions of pairs
@@ -634,6 +638,44 @@ async function main(argv) {
     const cohortTechs = Array.from(indexed.keys()).map(function (id) { return techFor(techMap, id); });
     const techForCtx = function (id) { return techFor(techMap, id); };
 
+    // Phase 218 fix (T-218-VD, traced live against aion-eureka-synergy):
+    // scoreTechDimensions' validated_demand/tech_econ_feasibility are PERCENTILE
+    // ranks of pair_count/degree WITHIN the cohort array passed in. Room-native
+    // degree is raw undirected edge count accumulated since the node was born
+    // (room-native-substrate.cjs::degreeMap). A memory_artifact scaffold node
+    // that has lived in the room for months accrues dozens of edges; a freshly
+    // written company/technology/market entity node starts at degree 1 (its
+    // single DESCRIBES link back to the artifact it came from) and gets WORSE
+    // as more entities point at the same hub. Pooling both families into ONE
+    // percentile population means every entity node's percentile is dragged to
+    // the floor by comparison against long-accumulated hub degree, regardless of
+    // how relevant the entity actually is - not a real weakness signal, an
+    // artifact-of-age signal. Verified live: pre-218-fix, aion-eureka-synergy's
+    // top-25 stayed 100% memory_artifact-vs-memory_artifact even after 149
+    // entity nodes were written (VERIFICATION.md, phase 218-03).
+    //
+    // Fix: stratify the percentile population by node-type family before
+    // ranking. Entity nodes are percentile-ranked against OTHER entity nodes
+    // (fair - a same-age peer group); everything else keeps the original
+    // mixed cohort. When a room has ZERO entity nodes, entityCohort stays
+    // empty and every tech routes to scaffoldCohort === the original
+    // cohortTechs array (byte-identical output to pre-fix behavior - this is
+    // the "no entity nodes -> unchanged" regression guard).
+    const entityCohort = [];
+    const scaffoldCohort = [];
+    for (let ci = 0; ci < cohortTechs.length; ci += 1) {
+      const cid = cohortTechs[ci].id;
+      const cnode = indexed.get(cid);
+      const cType = cnode && cnode.type;
+      if (ENTITY_NODE_TYPES.has(cType)) entityCohort.push(cohortTechs[ci]);
+      else scaffoldCohort.push(cohortTechs[ci]);
+    }
+    const cohortFor = function (id) {
+      const node = indexed.get(id);
+      const nodeType = node && node.type;
+      return ENTITY_NODE_TYPES.has(nodeType) ? entityCohort : scaffoldCohort;
+    };
+
     // (4) Pair set per DG-2 mode.
     const pairsToScore = [];
     if (opts.pairs === 'full') {
@@ -703,8 +745,8 @@ async function main(argv) {
 
       const techA = techFor(techMap, cp.a);
       const techB = techFor(techMap, cp.b);
-      const dimsA = pdims.scoreTechDimensions(techA, cohortTechs);
-      const dimsB = pdims.scoreTechDimensions(techB, cohortTechs);
+      const dimsA = pdims.scoreTechDimensions(techA, cohortFor(cp.a));
+      const dimsB = pdims.scoreTechDimensions(techB, cohortFor(cp.b));
       const rs = { direction: r.direction, abs_diff: r.abs_diff, passes: r.passes };
       const pairDims = pdims.scorePairDimensions({ a: dimsA, b: dimsB, rs: rs });
       const score = ahp.composeScore(pairDims, weights);
