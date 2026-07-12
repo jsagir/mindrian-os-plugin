@@ -77,7 +77,7 @@ If the user specifically requests `dashboard`:
 
 2. **Run the standalone generator:**
    ```bash
-   bash scripts/generate-standalone ./room
+   bash "${CLAUDE_PLUGIN_ROOT}/scripts/generate-standalone" ./room
    ```
 
 3. **Report the result:**

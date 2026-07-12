@@ -68,7 +68,7 @@ Subcommands: `list`, `new`, `open`, `close`, `archive`, `where`, `git-setup`, `g
 
 Determine `ROOMS_HOME` (`$MINDRIAN_ROOMS_HOME` or `~/MindrianRooms`).
 
-Run `bash scripts/room-registry list` to get JSON array of rooms. The registry lives at `$ROOMS_HOME/.rooms/registry.json`.
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" list` to get JSON array of rooms. The registry lives at `$ROOMS_HOME/.rooms/registry.json`.
 
 If the command fails (no registry exists), check for legacy `room/` directory:
 
@@ -155,28 +155,32 @@ ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
 
 If `$ROOMS_HOME/.rooms/registry.json` does NOT exist AND legacy `room/` directory exists in the workspace:
 
-Ask the user:
-> "You have an existing room/ project. Want me to adopt it into ~/MindrianRooms/ so you can have multiple rooms?"
+**FIRE THE CARD -- mandatory, this gate is not optional narration.** This is a Decision Gate (adopt the legacy room, or not) -- the same class of gate `/mos:ignite`'s B1/B2 carry. You MUST surface it by FIRING the AskUserQuestion tool (the interactive up/down selector card) on any card-capable surface (Claude Code CLI, Cowork) in this same turn. You may NOT render this as an ASCII box or a bare prose question and treat silence as "no". If you draw the gate, you fire the card (SEED-021 no-card-no-picture doctrine) -- the Wave-1 GA-4 card-fire interceptor (`scripts/check-card-fire.cjs`) catches a reached-gate turn that renders text but never fires the card.
 
-If user says yes:
-- Run `bash scripts/resolve-room $PWD --adopt` to create registry with existing room
+Card header: "Adopt existing room?" Question: "You have an existing room/ project. Want me to adopt it into ~/MindrianRooms/ so you can have multiple rooms?" Options: **Adopt** (yes) / **Skip** (no, proceed without adoption) / Free-Text (appended last, automatically).
+
+If Adopt:
+- Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room" $PWD --adopt` to create registry with existing room
 - Then proceed to Step 3
 
-If user says no: Proceed without adoption (the old room/ still works via legacy fallback).
+If Skip: Proceed without adoption (the old room/ still works via legacy fallback).
+
+**Do not narrate room creation from this step.** Adoption only registers the pre-existing legacy `room/` under the name `"default"` -- it is NOT the new named room the user asked for. The actual new room is created ONLY when `/mos:ignite`'s B2 Approve gate fires `birthRoom()` (see the routing note under Step 3). `resolve-room`'s legacy-fallback path returning a valid path with exit 0 is proof the OLD room still resolves, never proof a NEW room was created. Never say "room created" or "room's live" until `birthRoom()` has actually returned `{ok:true}`.
 
 ### Step 2.5: ICM Layer 0/1 Auto-Generation
 
 Before creating the room, ensure ICM files exist at `$ROOMS_HOME`:
 
 ```bash
-PLUGIN_ROOT="$(dirname "$(dirname "$(readlink -f "$0")")")"
 if [ ! -f "$ROOMS_HOME/CLAUDE.md" ]; then
-  cp "$PLUGIN_ROOT/templates/icm/CLAUDE.md" "$ROOMS_HOME/CLAUDE.md"
+  cp "${CLAUDE_PLUGIN_ROOT}/templates/icm/CLAUDE.md" "$ROOMS_HOME/CLAUDE.md"
 fi
 if [ ! -f "$ROOMS_HOME/INDEX.md" ]; then
-  cp "$PLUGIN_ROOT/templates/icm/INDEX.md" "$ROOMS_HOME/INDEX.md"
+  cp "${CLAUDE_PLUGIN_ROOT}/templates/icm/INDEX.md" "$ROOMS_HOME/INDEX.md"
 fi
 ```
+
+If `CLAUDE_PLUGIN_ROOT` is not set, resolve the templates relative to the plugin's installed location: `templates/icm/` at the plugin root (same fallback convention as `skills/admin/SKILL.md` and `skills/status/SKILL.md`). Do NOT use `readlink -f "$0"` to derive the plugin root -- under the Bash tool's actual invocation mechanism `$0` resolves to the shell binary itself, not this file's path, so that pattern silently computes the wrong directory on every call.
 
 ### Step 3: Create Room Directory
 
@@ -216,13 +220,13 @@ Use the section definitions from `/mos:new-project` Step 4 for purpose and metho
 
 **Important (Phase 155-06 routing update):** `/mos:rooms new` now routes to /mos:ignite for the full Hooked first-cycle birth experience. Pass any name/slug the user provided as context. /mos:ignite runs B1 (starting-point gate) unless arrival_asset is determinable from the name context, then proceeds through B2 blueprint approve and B3 first-win. /mos:ignite owns the birth transaction (birthRoom via Plan 02). /mos:rooms new is the entry surface; /mos:ignite is the birth orchestrator.
 
-Route to /mos:ignite after Step 2 (name/slug capture). The legacy Steps 3-6 below are preserved as the scaffold backend (invoked by ignite's new-project delegation), but /mos:rooms new no longer drives them directly.
+Route to /mos:ignite after Step 2 (the adoption check -- Step 1 already captured the name/slug). The legacy Steps 3-6 below are preserved as the scaffold backend (invoked by ignite's new-project delegation), but /mos:rooms new no longer drives them directly.
 
 ### Step 4: Register Room
 
 Run:
 ```bash
-bash scripts/room-registry create <slug> "<slug>" "<venture_name>" "Pre-Opportunity"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" create <slug> "<slug>" "<venture_name>" "Pre-Opportunity"
 ```
 
 The registry create command automatically sets the new room as active and parks the previous one.
@@ -230,14 +234,14 @@ The registry create command automatically sets the new room as active and parks 
 **Update INDEX.md:** After registration, refresh the routing index:
 
 ```bash
-bash scripts/update-icm-index "$ROOMS_HOME"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/update-icm-index" "$ROOMS_HOME"
 ```
 
 ### Step 5: Compute State
 
 Run:
 ```bash
-bash scripts/compute-state "$ROOMS_HOME/<slug>" > "$ROOMS_HOME/<slug>/STATE.md"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/compute-state" "$ROOMS_HOME/<slug>" > "$ROOMS_HOME/<slug>/STATE.md"
 ```
 
 ### Step 6: Report Success
@@ -264,7 +268,7 @@ Show success with Zone 1 header displaying the new room name:
 
 ### Step 1: Validate Room Exists
 
-Run `bash scripts/room-registry read <name>` to check if the room is in the registry.
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" read <name>` to check if the room is in the registry.
 
 If not found, show 3-line error:
 ```
@@ -288,7 +292,7 @@ Wait for confirmation before proceeding. If user declines, STOP.
 
 Run:
 ```bash
-bash scripts/room-registry set-active <name>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" set-active <name>
 ```
 
 This parks the previous active room and sets the new one as active.
@@ -318,7 +322,7 @@ Show Zone 1 header with the switched room name:
 
 ### Step 1: Get Active Room
 
-Run `bash scripts/room-registry get-active` to get the current active room name.
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" get-active` to get the current active room name.
 
 If no active room (empty result), show error:
 ```
@@ -333,7 +337,7 @@ Then STOP.
 
 Run:
 ```bash
-bash scripts/room-registry update <active-name> status parked
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" update <active-name> status parked
 ```
 
 ### Step 3: Clear Active Field
@@ -354,7 +358,7 @@ with open('$ROOMS_HOME/.rooms/registry.json', 'w') as f:
 **Update INDEX.md:** After parking, refresh the routing index:
 
 ```bash
-bash scripts/update-icm-index "$ROOMS_HOME"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/update-icm-index" "$ROOMS_HOME"
 ```
 
 ### Step 4: Report Success
@@ -376,7 +380,7 @@ bash scripts/update-icm-index "$ROOMS_HOME"
 
 ### Step 1: Validate Room Exists
 
-Run `bash scripts/room-registry read <name>` to check if the room is in the registry.
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" read <name>` to check if the room is in the registry.
 
 If not found, show 3-line error:
 ```
@@ -398,7 +402,7 @@ Wait for confirmation. If user declines, STOP.
 
 Run:
 ```bash
-bash scripts/room-registry archive <name>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" archive <name>
 ```
 
 This sets the room status to `archived`. If the room was active, it also clears the active field.
@@ -406,7 +410,7 @@ This sets the room status to `archived`. If the room was active, it also clears 
 **Update INDEX.md:** After archiving, refresh the routing index:
 
 ```bash
-bash scripts/update-icm-index "${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/update-icm-index" "${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
 ```
 
 ### Step 4: Report Success
@@ -430,7 +434,7 @@ If other non-archived rooms exist, suggest opening one by name.
 
 ### Step 1: Get Active Room
 
-Run `bash scripts/room-registry get-active` to get the current active room name.
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" get-active` to get the current active room name.
 
 If no active room (empty result):
 > "No active room. Run `/mos:rooms list` to see available rooms."
@@ -439,7 +443,7 @@ Then STOP.
 
 ### Step 2: Read Room Details
 
-Run `bash scripts/room-registry read <active-name>` to get the full registry entry.
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" read <active-name>` to get the full registry entry.
 
 ### Step 3: Display Location
 
@@ -474,17 +478,17 @@ JSON. Free-Text is appended LAST automatically; never suppress it.
 
 **Trigger:** `/mos:rooms git-setup [name]`
 
-If no name provided, use the currently active room (get via `bash scripts/room-registry get-active`).
+If no name provided, use the currently active room (get via `bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" get-active`).
 
 ### Step 1: Validate Room
 
-Run `bash scripts/room-registry read <name>` to verify room exists.
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" read <name>` to verify room exists.
 
 If not found, show 3-line error and STOP.
 
 ### Step 2: Check Current Git State
 
-Run `bash scripts/git-ops status <room_path>` to check if git is already configured.
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/git-ops" status <room_path>` to check if git is already configured.
 
 If already enabled:
 > "Git is already set up for this room."
@@ -493,7 +497,7 @@ If already enabled:
 
 If user wants to change auto_push:
 ```bash
-bash scripts/room-registry git-config <name> true "<existing_remote>" "<new_setting>"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" git-config <name> true "<existing_remote>" "<new_setting>"
 ```
 
 Then STOP.
@@ -501,8 +505,8 @@ Then STOP.
 ### Step 3: Initialize Git
 
 ```bash
-bash scripts/git-ops init <room_path>
-bash scripts/git-ops lfs-setup <room_path>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/git-ops" init <room_path>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/git-ops" lfs-setup <room_path>
 ```
 
 ### Step 4: Offer GitHub Remote
@@ -544,13 +548,13 @@ IMPORTANT: Use `git -C <room_path>` instead of `cd + git`. This keeps all git op
 
 If remote configured:
 ```bash
-bash scripts/git-ops push <room_path>
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/git-ops" push <room_path>
 ```
 
 ### Step 6: Update Registry
 
 ```bash
-bash scripts/room-registry git-config <name> true "<remote_url_or_empty>" "off"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" git-config <name> true "<remote_url_or_empty>" "off"
 ```
 
 ### Step 7: Report Success
@@ -573,7 +577,7 @@ bash scripts/room-registry git-config <name> true "<remote_url_or_empty>" "off"
 
 If the user passes `--auto-push <mode>` (where mode is auto, manual, or off), set that mode instead of the default "off":
 ```bash
-bash scripts/room-registry git-config <name> true "<remote>" "<mode>"
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" git-config <name> true "<remote>" "<mode>"
 ```
 
 **CRITICAL:** If ANY git operation fails, print a brief note and STOP gracefully. Git failure must NEVER leave the room in a broken state. Example:
@@ -590,7 +594,7 @@ If no name provided, use the currently active room.
 
 ### Step 1: Get Status
 
-Run `bash scripts/git-ops status <room_path>`
+Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/git-ops" status <room_path>`
 
 ### Step 2: Render
 

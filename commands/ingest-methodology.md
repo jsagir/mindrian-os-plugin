@@ -111,7 +111,7 @@ venture's data.
    amendment, not this pipeline.
 
 7. **Local step (make it operable Local-Only).** Run
-   `bash scripts/methodology-ingest-local.sh`. This regenerates, in order,
+   `bash "${CLAUDE_PLUGIN_ROOT}/scripts/methodology-ingest-local.sh"`. This regenerates, in order,
    `command-registry.json` -> `connector-registry.json` ->
    `brain-orchestration-projection.json` (the local intelligence cache the
    navigation engine, dial, and f-selector-ranker read), each behind its
