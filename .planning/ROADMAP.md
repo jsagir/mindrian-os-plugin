@@ -3014,6 +3014,26 @@ Plans:
 - [x] 217-06-PLAN.md - Migrate I/J + written carve-out justifications (class A, brain-smoke, eureka-smoke)
 - [x] 217-07-PLAN.md - D-04 full commands/doctor.md audit + doc-parity test + run-all-217.sh + real-room human gate - COMPLETE 2026-07-11 (full D-04 audit rewrite of commands/doctor.md against post-migration code, argument-hint + class inventory A-N/P-S + card-fire-health + Extension architecture + the three carve-outs; tests/test-doctor-doc-parity.cjs cross-parses parseArgs flags vs documented flags + --fix class letters vs data/doctor-modules.json fix_supported, hard-fails on drift, registered in run-feynman-tests.cjs; tests/run-all-217.sh 17-leg aggregator PASS=17 FAIL=0 SKIP=0; navigator real-room checkpoint APPROVED verbatim: node scripts/doctor.cjs --all run twice byte-identical (Pitfall-1 watermark kill shot confirmed live), bare run unchanged, 135 ui-compliance violations/6 deprecated commands/15 rooms missing .room-root/cascade-rooms-active silenced writes all matched known machine state; D-04 delivered, Phase 217 CLOSED)
 
+### Phase 218: Eureka Entity Extraction (eureka-entity-extraction) - REGISTERED 2026-07-12 - **EUREKA TWO-IN-A-BOX FOLLOW-ON**
+
+**Goal:** Extract named domain entities (companies, technologies, markets) and typed relationships (COMPETES_WITH, USES_COMPONENT, SUPPLIES_TO, etc.) from room-artifact markdown prose into room.db nodes/edges via lib/core/navigation.cjs, so the already-complete Eureka engine (211-216) and the shared room.db consumers (whitespace_scan, contradiction_check, graph_query) reason over real domain content instead of structural scaffold nodes (one node per section+doctype file).
+
+**Requirements**: TBD
+**Depends on:** Phase 211 (Eureka Generator MVP: tri-modal room.db + sqlite-vec + embeddings, COMPLETE), Phase 212 (Grounding Guard critic, COMPLETE), Phase 216 (user-facing /mos:eureka command, COMPLETE). Adjacent, not duplicative: Phase 212.5 (eureka-graph-substrate: whitespace/bridge detection at the artifact/whitespace-zone grain, REGISTERED 2026-07-06, still 0 plans) and SEED-037 (graph-candidate-producer.cjs: artifact-to-artifact semantic edges, status investigating, blocked on a dead API account) -- both work one grain up (whole artifacts); this phase works at the sub-artifact named-entity grain.
+**Plans:** 0 plans
+
+**Grounding (why this phase exists):** Root-cause evidence, live, verified 2026-07-12 across 3 rooms on 2 machines: corepower-isolation (1 node/0 edges), aion-eureka-synergy (646 nodes/92 edges, 100% structural, top-25 eureka pairs are template-vs-template noise, engine self-flagged tail_suspect_noise:true), aion-labs-eir (0/0, fresh room). room.db never gets populated with extracted domain entities, only per-file scaffold nodes, so the real, working 211-216 scoring engine has nothing but filenames to cross-pollinate.
+
+Explicitly OUT of scope for this phase (tracked as a separate follow-on phase, navigator-decided 2026-07-12): rewiring /mos:find-connections and /mos:find-analogies (TRIZ/SAPPhIRE) off LLM-reasoning/Brain-Cypher onto room.db -- confirmed via code read that both currently bypass room.db entirely (`commands/find-connections.md`, `commands/find-analogies.md`).
+
+Reuse, do not reinvent: `lib/core/navigation/edges.cjs`'s `writeEdge()` chokepoint + additive extension to `ALLOWED_EDGE_TYPES`; `lib/core/eureka/vector-store.cjs`'s per-node embedding storage; the propose-then-navigator-confirm HITL pattern from `graph-derivation.cjs` (nodes land with `review_status='proposed'`, never auto-confirmed). Favor SEED-037's own tiered-extraction doctrine: cheap structural/regex extraction (tier 1) before any LLM pass (tier 3).
+
+Per this repo's CLAUDE.md Dev-Research Compositing rule, the research trail (a two-fork investigation completed 2026-07-12) is filed in BOTH this repo and `~/MindrianRooms/rethinking-mindrianos/research/` as a dated entry, cross-linked back here.
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 218 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
