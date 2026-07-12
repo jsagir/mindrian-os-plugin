@@ -3041,6 +3041,24 @@ Plans:
 
 ---
 
+### Phase 219: Opportunity Follow-Through: harvest formula + explored-stage deep-research chain (opportunity-follow-through) - REGISTERED 2026-07-13 - **PHASE 218 FOLLOW-ON, TRACK 2**
+
+**Goal:** Make the opportunity bank do what Mindrian claims it does (the aion-labs / corepower / ador-IP.com conversations): opportunities surfaced by the intelligence engines stop dying as files and one-liners and instead flow through the Harvest Formula lifecycle (candidate -> qualified -> explored -> promoted|parked|retired), where the explored stage GENERATES deep research + analysis (deep_research reach, diffusion/timing, find-analogies, web validation) and files a Minto-shaped (governing thought + SCQA + typed evidence edges) opportunity into opportunity-bank via navigation.cjs.
+
+**Requirements**: REQ-1 (bank eureka opportunity statements as proposed graph nodes - the governed write eureka-portfolio-report.cjs:44 deferred to "a later phase"), REQ-2 (harvest sensor on the insight-sensor rail triggered by graph events: new bridge/whitespace/contradiction/eureka proposal/meeting filing, implementing CANDIDATE = Signal x Connection x Lens x Actor with Gibson Four-Lens classification), REQ-3 (navigator qualification card: [Qualify+file] [Ask Brain] [Rephrase] [Suggest next] [Skip], skip writes a rejection edge), REQ-4 (explored-stage analysis chain returning an ANALYZED Minto-shaped opportunity, not a candidate one-liner), REQ-5 (live end-to-end acceptance on ador-ip-test: from zero entity layer to >=1 deep-research-backed Minto opportunity in the bank), REQ-6 (release: version cut + npm publish + 6-place lockstep + website fact-check after all requirements met).
+
+**Depends on:** Phase 218 (entity extraction, COMPLETE - the substrate), Phase 211-216 (eureka pipeline, COMPLETE), lib/core/insight-sensors.cjs contract (SENS rail), the FROZEN deep_research reach.
+
+**Binding prior art (do not re-derive):** ~/MindrianRooms/rethinking-mindrianos/research/2026-07-07-fable-max-pack/00-mining/opportunity-harvest-brain-answer.md (the Harvest Formula - Brain already asked and answered) + ~/MindrianRooms/rethinking-mindrianos/research/2026-07-13-opportunity-follow-through-scoping/ (the full conversation scoping: two failure modes with file:line proof, five source lanes, three-bucket engine map, design decisions D1-D5, risk list R1-R5 carried from 218).
+
+**Design decisions locked at scoping (navigator, 2026-07-13):** D1 Track 2 before Track 1 (engine rewire is a separate follow-on); D2 full in-memory local graph for algorithm passes, not LazyGraph (rooms are 70-2,400 nodes); D3 extract artifact frontmatter METADATA alongside 218 prose entities; D4 Minto-shaped opportunity filing; D5 acceptance on the real claim rooms, never fixtures alone (218's fixture-green-lied lesson).
+
+**Explicitly OUT of scope (Track 1, separate follow-on):** rewiring find-connections / find-analogies / HSI / scan-opportunities / scenario-plan onto room.db; TRIZ contradiction-typing in whitespace; tier-2 NER extraction; multi-room portfolio dedup (Phase 215 territory).
+
+**Plans:** TBD
+
+---
+
 ## Backlog (parking lot — unscheduled, not phase-bound)
 
 ### GSD Planning Artifacts as Local-Graph Members (Brain-queryable via typed packets) — REGISTERED 2026-06-08
