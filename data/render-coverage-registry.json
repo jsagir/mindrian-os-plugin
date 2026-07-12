@@ -20,7 +20,7 @@
   "render_counts": {
     "card_emission": 16,
     "render_only_excluded": 0,
-    "md_declared_wired": 98,
+    "md_declared_wired": 99,
     "md_declared_unwired": 0,
     "skill_declared_wired": 104,
     "skill_declared_unwired": 0
@@ -442,6 +442,11 @@
     {
       "surface": "commands/publish.md",
       "declared_shape": "F.0",
+      "wired": true
+    },
+    {
+      "surface": "commands/qualify-opportunity.md",
+      "declared_shape": "F.1",
       "wired": true
     },
     {

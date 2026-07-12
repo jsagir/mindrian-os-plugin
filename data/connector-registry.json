@@ -922,6 +922,23 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:qualify-opportunity",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-14"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "qualify-opportunity",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 4,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:reanalyze",
       "source": "command",
       "connects_to_spine": true,
@@ -3180,6 +3197,9 @@
     "SENS-08": [
       "/mos:map-unknowns",
       "/mos:memory-cortex-reach"
+    ],
+    "SENS-14": [
+      "/mos:qualify-opportunity"
     ],
     "SENS-SHOW": [
       "/mos:show"
