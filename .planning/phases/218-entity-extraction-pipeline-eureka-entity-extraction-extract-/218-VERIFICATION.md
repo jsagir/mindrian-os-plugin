@@ -52,6 +52,28 @@ This is exactly the failure mode `218-RESEARCH.md` Pitfall 4 predicted ("a greed
 
 **Net honest picture:** REQ-5's literal numeric acceptance criterion is met (0.0% < 50%). Whether the SPIRIT of REQ-5 (surface real, useful cross-domain pairs) is met is now blocked on tier-1 extraction precision against MindrianOS's own real prose, not on ranking fairness. This is layered on top of, not a regression from, the ranking fix.
 
+## Follow-up fix applied same session: domain-agnostic noise filters (T-218-VD-2/3)
+
+Navigator explicitly approved reopening the extraction-noise gap. Two filter layers added to `entity-extractor.cjs`, committed `7d98c9b8`:
+
+1. **NOISE_TERMS + FILENAME_RX (T-218-VD-2):** a curated stoplist of this system's own constitutional vocabulary (Canon, ICM Layer, FEYNMAN, AAAK Record, TAM, SAM, GAP...) plus a filename-shape gate. Explicitly narrow-scope: only helps a MindrianOS dogfooding room, does not generalize to a real user venture room. Documented as such, not oversold.
+2. **METADATA_FIELD_RX + markdown-table-row filter (T-218-VD-3):** the more important fix. Live re-verification kept surfacing status-dashboard field values ("Status: Seeded", table cells like "Well-developed") at the top of the ranking. This filter is SHAPE-based (`Label: Value` where every label word is Title-Case; markdown table syntax), not vocabulary-based -- it generalizes to any venture domain. Proven with a dedicated test using an INVENTED biotech venture (Helix Biosciences / Genomix) containing zero MindrianOS terms: real entities survive, metadata/table noise does not.
+
+**Considered and explicitly rejected: wiring in a live classifier.** A Plurai-hosted "Venture Term Classifier" (labels `real_domain_entity`/`system_vocabulary`) was built and optimized in a parallel session (1.000 accuracy/precision/recall on a 16-sample SYNTHETIC set, unverified against real terms -- the invocation contract 404'd on every REST path tried). Even setting aside that unverified state, wiring a remote classifier into the tier-1 extraction path would send real room-derived content (company names, deal terms) to an external network judge -- the exact thing Canon Part 8 exists to prevent, stated verbatim elsewhere in this same pipeline ("Real-room content is verified by the HUMAN spot-check... never by a network judge"). Not wired in. Filed as a possible future opt-in tier-1.5 step (explicit per-run consent required), a separate design decision, not folded into this fix.
+
+**Live re-verification, each iteration on the wiped-and-re-extracted real room:**
+
+| Pass | Entity nodes | Top-25 structural share |
+|------|-------------|--------------------------|
+| Pre-extraction baseline | 0 | 100.0% |
+| Post cohort-stratification fix only | 149 | 0.0% |
+| + NOISE_TERMS/FILENAME_RX | 132 | 0.0% |
+| + METADATA_FIELD_RX/table filter | 123 | 0.0% |
+
+REQ-5's numeric criterion held at 0.0% throughout (was never at risk after the ranking fix; these later passes are precision improvements, not the REQ-5 acceptance number itself).
+
+**Remaining gap, diagnosed not just observed:** the still-noisy top-ranked terms on THIS room ("Larry", "Governing Thought", "Pyramid Logic", "Seeded") are neither metadata- nor table-shaped -- they are standalone capitalized words inside this room's own FLOWING prose. `aion-eureka-synergy` is a meta-analysis room that narrates MindrianOS's own Eureka-experiment process, not a competitive-landscape venture room. This is a content-domain mismatch (this specific room has comparatively little real company/market prose to find), not a code defect the structural filter class can reach. Domain-first sequencing (running `typed-domain.cjs` before entity extraction, using the identified domain as context) was raised as a possible future direction; checked live and this room has zero `domain`/`subdomain`/`focus_area` nodes today, so it is unavailable without separate work, and would not have addressed this specific gap regardless (it is a content-mismatch issue, not an ambiguity-resolution issue).
+
 ## Disposition
 
-Cohort-stratification fix: DONE, tested, committed pending navigator review. Title-resolution fix: DONE, same status. Tier-1 extraction noise: OPEN, surfaced this session, not yet fixed -- pending navigator decision on scope (documented in conversation).
+Cohort-stratification fix: DONE, tested, committed (`912139c9`). Title-resolution fix: DONE, same commit. Domain-agnostic noise filters: DONE, tested, committed (`7d98c9b8`), proven to generalize via a non-MindrianOS synthetic fixture. Remaining noise on `aion-eureka-synergy` specifically: diagnosed as a content-domain mismatch particular to this dogfooding room, not a pending code fix. Live classifier option: evaluated, explicitly not wired (Canon Part 8), filed as a separate future design question.
