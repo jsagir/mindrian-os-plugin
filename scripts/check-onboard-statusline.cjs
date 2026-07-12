@@ -122,13 +122,29 @@ function runDoctorSelfCheck() {
 // Defensive: guarded by a timeout + try/catch. On doctor missing / spawn error /
 // no output / parse error / still-drift, returns { resolved:false } so the caller
 // degrades to the surface-the-question fallback -- never crashes, never blocks.
+//
+// Outer timeout budget (RCA intern-w1-statusline-room-mismatch): this single
+// spawnSync call runs `doctor.cjs --statusline-visibility --fix --json`, which
+// can itself nest THREE child spawns when class G genuinely needs repair: the
+// initial check() Step 3 self-test (1500ms, statusline-visibility-module.cjs),
+// fix()'s migrate-stale-user-settings.cjs spawn (5000ms, same module), and the
+// post-fix re-check (1500ms) -- 1500+5000+1500 = 8000ms nested worst case. The
+// prior 4000ms outer ceiling was SMALLER than a single one of those nested
+// timeouts (the 5000ms migrator spawn alone), so any session where class G
+// found a real, fixable drift was structurally likely to have its own repair
+// killed mid-flight by this wrapper, falling back to a silent "still-drift"/
+// "no-output" result. 10000ms clears the 8000ms nested worst case with
+// headroom for node process startup + require() overhead on the child
+// doctor.cjs invocation itself.
+const SELF_HEAL_TIMEOUT_MS = 10000;
+
 function attemptStatuslineSelfHeal() {
   try {
     const doctorPath = path.join(PLUGIN_ROOT, 'scripts', 'doctor.cjs');
     if (!fs.existsSync(doctorPath)) return { resolved: false, reason: 'doctor-missing' };
     const r = spawnSync(process.execPath,
       [doctorPath, '--statusline-visibility', '--fix', '--json'],
-      { timeout: 4000, encoding: 'utf8' });
+      { timeout: SELF_HEAL_TIMEOUT_MS, encoding: 'utf8' });
     if (!r || typeof r.stdout !== 'string' || r.stdout.length === 0) {
       return { resolved: false, reason: 'no-output' };
     }

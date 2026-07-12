@@ -91,13 +91,32 @@ function haltedReceipt() {
 }
 
 function runDoctor(pluginHome, extraArgs) {
-  const env = Object.assign({}, process.env, { MINDRIAN_PLUGIN_HOME: pluginHome });
+  // RCA intern-w1-statusline-room-mismatch (2026-07-11): checkInstallIncomplete()
+  // (lib/core/doctor/install-incomplete-module.cjs check()) now calls
+  // resolveActivePluginRoot() FIRST (topology-awareness fix, mirrors Class A/I)
+  // -- that resolver reads os.homedir() directly, NOT MINDRIAN_PLUGIN_HOME.
+  // Without an isolated HOME/USERPROFILE, it would leak the REAL developer
+  // machine's actual plugin install (a genuine marketplace-cache install
+  // commonly exists on a dev box that runs this plugin) and short-circuit
+  // class H to 'ok' regardless of the receipt fixture this test constructs
+  // under the MINDRIAN_PLUGIN_HOME scratch dir. A separate, empty HOME scratch
+  // dir makes resolveActivePluginRoot() resolve topology='not-found', so the
+  // legacy receipt-reading logic under test here (Steps 1-2 of
+  // checkInstallIncomplete()) still runs untouched.
+  const isolatedHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-install-receipt-home-'));
+  const env = Object.assign({}, process.env, {
+    MINDRIAN_PLUGIN_HOME: pluginHome,
+    HOME: isolatedHome,
+    USERPROFILE: isolatedHome,
+  });
+  delete env.MINDRIAN_OS_ROOT;
   delete env.CLAUDE_DESKTOP;
   env.MINDRIAN_STATUSLINE_SURFACE = 'CLI';
   const args = [DOCTOR, '--statusline-visibility', '--json'].concat(extraArgs || []);
   const r = spawnSync('node', args, { env, encoding: 'utf8' });
   let report = null;
   try { report = JSON.parse(r.stdout); } catch (_e) { /* leave null */ }
+  rmrf(isolatedHome);
   return { r, report };
 }
 
