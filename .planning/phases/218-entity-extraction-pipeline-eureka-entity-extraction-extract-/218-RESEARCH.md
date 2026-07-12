@@ -377,20 +377,23 @@ Not a rename/refactor/migration phase - this is additive net-new. **None** - no 
 
 **Everything else in this research was verified via live source read or live query this session.** No `[ASSUMED]` package names (zero packages installed). No web research was needed - the phase is entirely intra-repo pattern reuse and the two external research passes (transformers.js ESM/CJS, SQLite busy_timeout) were already filed and empirically verified per CONTEXT/SPEC.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Embed inline during extraction, or defer to the next `indexNodes` full re-embed?**
    - What we know: `vector-store.ensureStore`/`insertVector` are the reuse target (REQ-3); `tri-modal-index.indexNodes(db)` already re-embeds the whole `nodes` table in one batch and is what `/mos:eureka run` calls.
    - What's unclear: whether extraction should call `indexNodes` itself (route a, simplest, zero new signatures touched) or embed each entity inline (route b, needs an encoder handle in the extractor).
    - Recommendation: route (a) - call `tri-modal-index.indexNodes(db)` at the end of a successful extraction batch (after COMMIT), or simply document that entity nodes embed on the next `/mos:eureka run`. Keeps `vector-store` signatures provably unchanged and reuses the exact eureka path. Planner decides; both pass acceptance.
+   - **RESOLVED (Plan 218-03, Task 1):** route (a) locked - `entity-extract.cjs` calls `tri-modal-index.indexNodes(db)` after a successful batch COMMIT; no inline per-entity embedding, no new encoder handle in the extractor.
 
 2. **Does `entity-extract.cjs run` re-embed synchronously, or leave embedding to eureka?**
    - What we know: D-03 says fire-and-return; embedding is the slow leg (model load).
    - Recommendation: keep the extraction batch (node+edge writes) as the D-05 transaction; run embedding (if route a) AFTER the COMMIT as a separate best-effort step so a slow/absent encoder never blocks or rolls back the entity writes (matches eureka's "degrade to lexical-only, never throw" contract).
+   - **RESOLVED (Plan 218-03, Task 1):** post-commit, best-effort - the `indexNodes` re-embed call runs after the D-05 transaction commits, wrapped so a slow or absent encoder never blocks or rolls back the entity/edge writes already committed.
 
 3. **How to compute the REQ-5 "top-25 structural-vs-structural share" for the before/after log?**
    - What we know: the eureka pair ranking lives in the portfolio report JSON (`portfolio-report.json`); a top-25 pair is structural when both endpoints are `memory_artifact`.
    - Recommendation: capture the pre-extraction share by parsing the existing report JSON (or re-running `/mos:eureka`), extract, re-run, re-parse. Log both numbers in the VERIFICATION artifact. The planner should re-capture the baseline immediately before extraction (the room count drifted 646->647 this session; do not hardcode).
+   - **RESOLVED (Plan 218-03, Task 3):** baseline is re-captured live, immediately before extraction runs, in Task 3 Step 1 - never hardcoded from this session's 646/92 measurement, since the room drifts under active use.
 
 ## Sources
 
