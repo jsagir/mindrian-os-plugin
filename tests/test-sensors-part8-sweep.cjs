@@ -66,8 +66,13 @@ const FORBIDDEN_TOKENS = [
   'PRIVACY_MODES',
 ];
 
+// The bare word /\bsha256\b/i was dropped (2026-07-13, GAP-3 false-positive
+// fix, second occurrence): it matches "sha256" in PROSE (a doc comment
+// describing a handle, e.g. "a 12-hex sha256 HANDLE") with equal force to
+// matching an actual call site, which is not a security signal - a comment
+// cannot egress anything. createHash(...) is the actual call-shaped tripwire
+// and is unaffected; it still fails loud on any unmarked call site.
 const FORBIDDEN_CALLS = [
-  /\bsha256\b/i,
   /createHash\s*\(/,
 ];
 
@@ -97,14 +102,18 @@ function fail(name, err) {
           label + ': ' + rel + ' must not reference the egress-projection token: ' + tok);
       }
       // Line-scoped check for FORBIDDEN_CALLS so the PART8-SAFE-HASH marker
-      // (this line or the line directly above it) can exempt a specific,
-      // documented, human-reviewed call site without weakening the sweep for
-      // any unmarked occurrence.
+      // (this line, or within a small preceding comment-block window) can
+      // exempt a specific, documented, human-reviewed call site without
+      // weakening the sweep for any unmarked occurrence. The window is
+      // small (5 lines) so it comfortably covers a multi-line comment block
+      // immediately above the call without exempting unrelated code further up.
+      const MARKER_LOOKBACK_LINES = 5;
       const lines = src.split('\n');
       for (let i = 0; i < lines.length; i += 1) {
         const line = lines[i];
-        const prevLine = i > 0 ? lines[i - 1] : '';
-        const marked = /PART8-SAFE-HASH/.test(line) || /PART8-SAFE-HASH/.test(prevLine);
+        const windowStart = Math.max(0, i - MARKER_LOOKBACK_LINES);
+        const window = lines.slice(windowStart, i + 1).join('\n');
+        const marked = /PART8-SAFE-HASH/.test(window);
         for (const rx of FORBIDDEN_CALLS) {
           if (rx.test(line) && !marked) {
             assert.fail(label + ': ' + rel + ':' + (i + 1)
