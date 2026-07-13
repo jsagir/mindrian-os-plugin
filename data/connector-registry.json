@@ -975,7 +975,8 @@
       "source": "command",
       "connects_to_spine": true,
       "sensor_triggers": [
-        "SENS-04"
+        "SENS-04",
+        "SENS-15"
       ],
       "reach_id": "deep_research",
       "sub_mode": "hat-scoped-research",
@@ -3245,6 +3246,9 @@
     ],
     "SENS-14": [
       "/mos:qualify-opportunity"
+    ],
+    "SENS-15": [
+      "/mos:research"
     ],
     "SENS-SHOW": [
       "/mos:show"

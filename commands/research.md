@@ -5,7 +5,7 @@ help_jtbd: "Run context-aware research that files findings as typed EvidenceClai
 body_shape: C
 hitl_shape: "F.8"
 hitl_why: "Research subquestions fan out independently and are verified as an any-order basket."
-argument-hint: "[topic]"
+argument-hint: "[topic | url]"
 serves_jtbd: ["explore", "understand-market"]
 teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -28,7 +28,7 @@ allowed-tools:
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
-  sensor_triggers: [SENS-04]
+  sensor_triggers: [SENS-04, SENS-15]
   reach_id: deep_research
   sub_mode: hat-scoped-research
   framework: "Hypothesis-Driven Problem Solving"   # MUST match the existing frameworks: value
@@ -40,7 +40,7 @@ connector:
   surface: F.1
 ---
 
-# /mos:research [topic]
+# /mos:research [topic | url]
 
 You are Larry. This command is the canonical research workflow step. It is a THIN
 orchestrator: the pipeline logic belongs to four shipped modules (Phase 131 Plans
@@ -91,6 +91,98 @@ NEVER auto-fires material research. When evidence is below its declared threshol
 it ASKS via the F.1 selector with a pre-computed confident recommendation
 ("evidence is thin here -- run /mos:research?"). This honors the GUIDED-default
 Brain rule (Canon Part 9 role 5): Larry proposes, the human decides.
+
+## URL mode (Phase 220: same command, second argument shape)
+
+A bare http(s) URL argument routes HERE; anything else (a topic, `--broad`, the
+called-by handle) keeps the existing deep_research fan-out below byte-unchanged
+(Part 7 reuse ruling - no new command). Two doors reach this mode:
+
+- **Explicit:** the navigator runs `/mos:research <url>` directly.
+- **Contextual:** the SENS-15 pasted-URL sensor (`lib/core/sensors/sensor-url-ingest.cjs`)
+  detects a bare URL in conversation (outside code fences and quotes, deduped
+  against `.mindrian/url-ingest-ledger.json`) and fires the FROZEN deep_research
+  reach with dispatch `url-ingest-offer` - a standing offer, never an auto-open.
+  Both doors end at the SAME readback gate below; nothing files without a
+  navigator verb (Canon Part 3).
+
+### 1. Readback gate (F.1, BEFORE any fetch)
+
+Render the F.1 card through the `lib/hmi/selector-dispatcher.cjs` archetype path
+(the SEED-020 single AskUserQuestion door - never a bespoke payload; user verbs
+are capped and Free-Text is auto-appended last, the `shape-f1-renderer.cjs`
+invariant). The card names the URL host and the target section (`research/`):
+
+- **[Ingest]** - fetch the page and file it as a cited `research/` artifact
+- **[Ingest+Explore]** - ingest, then OFFER the explore chain on the result
+- **[Skip]** - do nothing (the offer dissolves; nothing is fetched or filed)
+
+No fetch, no file, no ledger write happens before a verb (T-220-16: the gate
+sits BEFORE the first network byte).
+
+### 2. On [Ingest]: run the pipeline and render the envelope honestly
+
+```bash
+node -e '
+  const { ingestUrl } = require("${CLAUDE_PLUGIN_ROOT}/lib/core/url-ingest.cjs");
+  ingestUrl(process.env.MOS_ROOM_DIR, process.env.MOS_URL, {
+    sessionId: process.env.MOS_SESSION_ID,
+    origin: "on_demand",
+  }).then((env) => process.stdout.write(JSON.stringify(env)));
+'
+```
+
+`ingestUrl` returns the typed envelope `{ ok, outcome, research_mode, providers,
+artifact, extraction }`. Render it per its enums - the envelope is the truth,
+never soften it:
+
+| `outcome` | What you say |
+|-----------|--------------|
+| `filed` | Filed: the artifact path + how many proposed entities the extraction landed |
+| `no_op` | "Already ingested, unchanged" + the prior artifact path (content hash matched) |
+| `superseded` | "Content changed - new version filed, SUPERSEDES the prior" + both paths |
+| `provider_unavailable` | Rung 1 failed - proceed to the degrade ladder below |
+| `size_exceeded` | The page exceeds the filing byte bound - refused, nothing filed |
+| `blocked` | The D-10 fence refused it (manual rung from cadence) - nothing filed |
+| `error` | A typed refusal (bad URL, symlink refusal, filing fault) - report the reason |
+
+`ok: true` maps ONLY to `filed` / `no_op` / `superseded`. Every other outcome is
+`ok: false` with a typed reason - a failed fetch is NEVER an empty success.
+
+### 3. The degrade ladder (D-01 / D-10: three rungs, each honest)
+
+- **Rung 1 - Tavily Extract** (the default above): `ingestUrl` fetches through
+  the audited `fetchCorpus({source:'tavily-extract'})` chokepoint. Success
+  stamps `research_mode: normal`.
+- **Rung 2 - WebFetch (Claude-orchestrated):** on `provider_unavailable`, YOU
+  perform WebFetch on the URL (already an allowed-tool), normalize the page to
+  clean markdown yourself, and call `ingestUrl` again with `content: <markdown>`
+  and `contentSource: "webfetch"` in opts. The envelope stamps
+  `research_mode: web_degraded_local_fallback` and `providers.webfetch: used` -
+  the degrade stays visible.
+- **Rung 3 - gate-OFFERED llm_manual (NEVER default, NEVER silent):** ONLY when
+  rungs 1 and 2 have BOTH failed, OFFER at a Decision Gate: "Engines are down.
+  I can read and hand-normalize this page myself - slower, labeled
+  `llm_manual_baseline`, excluded from calibration. Proceed?" On explicit
+  approval ONLY: read the URL via the native web tools on the frozen
+  deep_research reach, hand-normalize to clean markdown, and call `ingestUrl`
+  with `content` + `contentSource: "llm_manual"`. The pipeline stamps the
+  frontmatter `engine_mode: llm_manual_baseline` and `providers.llm_manual:
+  used` - non-negotiable labeling, enforced in `lib/core/url-ingest.cjs`.
+  This rung is never auto-selected, never silent, excluded from every
+  calibration set, and structurally unreachable from cadence (origin
+  `cadence` + `llm_manual` returns a typed `blocked` before anything fetches).
+
+`research_mode` on this path is the same closed enum the topic mode returns:
+`normal` | `web_degraded_local_fallback` | `local_only` | `insufficient_evidence`.
+The url-ingest pipeline composes the first, second, and fourth (`local_only` is
+the driver's deliberately-offline verdict and does not arise from a URL ingest).
+
+### 4. On [Ingest+Explore]
+
+After a SUCCESSFUL ingest (outcome `filed` or `superseded`), OFFER the existing
+219 explore surface (`/mos:explore-opportunity`) on the resulting knowledge at
+its OWN gate - never auto-run it (chain fetches stay material, Canon Part 3).
 
 ## Stage 1+2+3 -- PRE-FLIGHT + PLAN (research-context-extractor)
 
