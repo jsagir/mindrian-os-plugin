@@ -1,7 +1,126 @@
 ## [Unreleased] -- v1.15.3-beta.15 (in progress)
 
 ### Added
-- 
+- **Opportunity follow-through: surfaced opportunities stop dying as files and one-liners.**
+  Every opportunity now flows through the Harvest Formula lifecycle (candidate -> qualified ->
+  explored -> promoted | parked | retired) as a real graph node with append-only stage history -
+  who advanced it, why, and on what evidence, at every step.
+- **Eureka statements now bank as proposed opportunity nodes.** The portfolio scan's ranked
+  statements get a REAL awaited Grounding Guard verdict (a bounded async resolution pass over
+  the Phase 212 critic - previously the sync emitter could never await it, so nothing ever
+  banked on a live run). Statements the critic passes bank as `opportunity` nodes with
+  DERIVED_FROM evidence edges; statements it rejects stay honestly unbanked with the verdict
+  named. Tunable via `MINDRIAN_OPPORTUNITY_BANK_PREDICATE` (critic | critic+tail | all).
+- **Harvest sensor (SENS-14): graph events become scored opportunity candidates.** A producer
+  on the insight-sensor rail harvests candidates from five lanes (eureka proposals, bridges,
+  contradictions, whitespace, meeting filings), classifies each through the Gibson Four-Lens
+  (leveraging_resources / challenging_orthodoxies / understanding_needs / harnessing_trends),
+  and scores them with HarvestIndex_v1. The bridge lane rides the real extraction edge
+  vocabulary (COMPETES_WITH / USES_COMPONENT / SUPPLIES_TO), so it finds genuine cross-entity
+  signal on real rooms, not just fixture edges.
+- **Qualification Decision Gate (`/mos:qualify-opportunity`).** Harvested candidates come to
+  YOU at a real card showing why each one qualified (Q1..Q8 rubric verdicts + machine-readiness
+  components; an unknown is typed `unknown`, never a fabricated zero). Five verbs:
+  Qualify+file, Park, Retire, Explore, Skip. A Skip writes a typed REJECTED_BECAUSE edge -
+  rejection is data the ranker learns from. Nothing qualifies without your explicit verb.
+- **[Explore]: one explicit action turns a qualified opportunity into deep research**
+  (`/mos:explore-opportunity`). Runs the explored-stage chain - deep research, diffusion and
+  timing, analogies, web validation - and files a Minto-shaped opportunity artifact (governing
+  thought + SCQA + cited sources) into `opportunity-bank/` plus a research corpus artifact into
+  `research/`, both through the navigation.cjs gates with typed evidence edges. When the
+  engine cannot run, the surface OFFERS an LLM manual fallback at a card - honestly labeled
+  `engine_mode: llm_manual_baseline`, never silent, never the default.
+- **Frontmatter metadata extraction slice.** Artifact frontmatter (methodology, status,
+  created) now lands as graph properties during extraction, so engines reason over what the
+  files already declare.
+- **Web ingestion agent: any URL becomes room knowledge in one governed move.** Paste a link
+  in conversation, or run `/mos:research <url>`, and after you approve at the card the page
+  is fetched (Tavily Extract, server-side clean markdown), filed as a cited research artifact
+  in `research/` (source URL, capture date, content hash, review status: proposed), and its
+  entities land in the room graph so every engine can use them. Nothing is ever fetched or
+  filed without your explicit verb ([Ingest] [Ingest+Explore] [Skip]).
+- **Pasted-URL sensor (SENS-15).** A bare URL in your turn offers an ingest card
+  contextually - it never auto-files, and it stays quiet for URLs inside code blocks,
+  quotes, or ones the room already ingested.
+- **Content-hash idempotency + SUPERSEDES versioning.** Re-ingesting an unchanged page is an
+  honest no-op; a changed page files a NEW version linked to the prior one - history is
+  append-only, nothing is overwritten.
+- **Watched sources: crawl-and-learn on cadence.** Register sources in
+  `.mindrian/watched-sources.json` and the scout cadence re-ingests changed pages under a
+  per-run cap (default 2), with cadence provenance stamped on every artifact. Findings
+  surface as candidates at existing gates - never auto-qualified.
+- **Provider honesty everywhere (research_mode envelope).** Every ingest and research run
+  names which provider produced the bytes (tavily-extract / webfetch / manual), which mode
+  it ran in (normal / web_degraded_local_fallback / local_only / insufficient_evidence),
+  and never reports success with empty results. A failed fetch is a typed refusal, not a
+  silent empty.
+- **Part 8 + inbound safety on the new surface.** Outbound carries the URL only through the
+  audited egress chokepoint; inbound web content is data end to end (prompt-injection
+  inert, size-bounded, path-safe filing, no symlink escape), adversarially test-pinned.
+- **Every research/recovery stage now produces a typed envelope instead of guessing from an
+  empty result.** `lib/core/recovery/stage-envelope.cjs` gives all 13 pipeline stages
+  (retrieval, discovery, filing, and more) one shared shape: status (ok / empty_valid /
+  degraded / failed / blocked), a named failure_class from a frozen 13-class vocabulary,
+  retryable, provenance, and timestamps. A zero-result stage and a broken stage used to look
+  identical (both "empty"); now they carry different, typed reasons, and a validator enforces
+  the pairing rules (a failed/blocked stage MUST name its class; an ok stage MUST NOT).
+- **When a research engine breaks, Mindrian now recovers through a real 6-tier ladder instead
+  of just failing.** `dispatchRecovery` reads the typed envelopes and tries, in order: (0)
+  nothing wrong, (1) one bounded idempotent retry for a transient failure, (2) a local
+  governed substitute (your room's own corpus, or its cache, honestly labeled - never "live"
+  when it isn't), (3) an OFFERED high-effort LLM recovery pass at a Decision Gate (never
+  silent, never the default), (4) naming the smallest missing thing a human needs to fix (a
+  credential, an engine), (5) honest termination when nothing worked - a partial result
+  naming exactly which engines are still down, never a complete-looking bundle papering over
+  a gap.
+- **Running out of Claude spend mid-recovery is now its own honestly-named failure, not a
+  retry loop.** `spend_limit_exceeded` is a structural, first-class failure_class: it forces
+  `retryable:false` at the moment the envelope is built (not just checked later), and
+  short-circuits straight past every retry/substitute/LLM-recovery tier to a plain human
+  message: "raise your limit at claude.ai/settings/usage, or wait for the monthly reset."
+  This closes a real gap this exact session hit: four parallel agents stalling out on an
+  account spend cap, with no honest way for the system to say so.
+- **The high-effort LLM recovery pass runs through a 7-step, resumable, audited case file,
+  never a black box.** A gate-offered recovery run (diagnose -> plan -> execute -> validate
+  -> reconcile -> resume -> surface) journals every step to a real case file under
+  `.mindrian/recovery/<run_id>/` so a crash mid-run resumes exactly where it left off, never
+  re-doing completed steps. Five hard fences, each proven by an adversarial test: the
+  Brain-egress boundary can't be weakened from inside a recovery run, an unknown component
+  can never be silently upgraded to "supported," every write still goes through the one real
+  writer (no raw DB access from a recovery hook), a filing is only ever called "recovered" if
+  a readback actually confirms it landed, and hostile text embedded in a source (a fake
+  instruction, a fake tool call) is always treated as inert data, never executed.
+- **Recovery outcomes are now honestly composed, never inferred.** `composeRecoveryResult`
+  derives one of five outcomes (recovered / partial_recovery / degraded_recovery /
+  manual_intervention_required / insufficient_evidence) strictly from what actually happened:
+  "recovered" requires every stage envelope to validate AND any attempted filing to be
+  readback-confirmed - one unconfirmed filing forces `partial_recovery`, never a false
+  "recovered." The result rides as an additive `research_mode` + disclosure field on every
+  touched surface (research, opportunity exploration, URL ingestion) without changing any
+  existing field's meaning.
+- **A gap in one accessible corpus is never reported as "this doesn't exist."** The
+  vantage-error lesson from this exact release wave (an external research pass wrongly
+  concluded a shipped phase was "missing" because it only checked one gitignored, unpushed
+  corpus) is now a structural, permanent rule: the only gap scope the recovery composer can
+  ever emit is `corpus` (a provisional, vantage-scoped gap), never `project` (a claim of
+  project-level nonexistence) - enforced by a source scan that fails the build if that ever
+  changes, plus a permanent regression fixture that encodes this exact mistake so it can
+  never silently return.
+- **14-class recovery matrix, offline and permanent.** Every named failure class (network
+  timeout, missing credential, contract violation, policy block, cadence-vs-on-demand,
+  multi-engine outage, spend limit, vantage-scoped gap, and more) is asserted end to end
+  through the real dispatch and controller seams, with zero network calls - two of the
+  fourteen (the vantage rule and spend_limit_exceeded) are locked as PERMANENT fixtures
+  precisely because this session discovered both the hard way.
+
+### Fixed
+- **Windows FTS5 crash: eureka degrades bi-modal instead of dying.** On machines whose Node
+  SQLite lacks the FTS5 module, the tri-modal index used to crash the whole scan with
+  `no such module: fts5`. A capability probe now selects the backend up front: with FTS5 the
+  lexical leg runs as before; without it the scan runs honestly on the two remaining legs
+  (vector + graph) and stamps `fts_backend: absent (bi-modal degrade)` in provenance. Never a
+  crash, never a silent lie. Live-validated on the exact Windows machine that exposed the bug
+  (corepower-isolation, 219-VERIFICATION.md Section 4).
 
 ## [1.15.3-beta.14] - 2026-07-12
 
