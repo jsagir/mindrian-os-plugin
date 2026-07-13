@@ -289,9 +289,240 @@ console.log('=== 221-01 envelope suite: starting ===');
 
   // =========================================================================
   // Group B -- Task 2: research-corpus typed envelope conversion
-  // (extended by the Task 2 RED step; placeholder marker below)
+  // Hermetic: global.fetch stubbed + counted; brain-client stubbed in place;
+  // TAVILY_API_KEY manipulated per scenario and restored at the end.
   // =========================================================================
 
+  scrubForceEnv();
+
+  const SAVED_TAVILY_KEY = process.env.TAVILY_API_KEY;
+  const realFetch = global.fetch;
+  let fetchCallCount = 0;
+
+  function installFetchStub(impl) {
+    fetchCallCount = 0;
+    global.fetch = async function () {
+      fetchCallCount += 1;
+      return impl.apply(null, arguments);
+    };
+  }
+  function restoreFetch() {
+    global.fetch = realFetch;
+  }
+  function okJsonResponse(body) {
+    return {
+      ok: true,
+      status: 200,
+      headers: { get: function () { return null; } },
+      json: async function () { return body; },
+      text: async function () { return JSON.stringify(body); },
+      arrayBuffer: async function () { return new ArrayBuffer(0); },
+    };
+  }
+  function freshCorpus() {
+    delete require.cache[require.resolve(CORPUS_PATH)];
+    return require(CORPUS_PATH);
+  }
+
+  await recordAsync('B1 missing key: blocked/missing_credential envelope, NOT an empty array, zero fetch', async function () {
+    scrubForceEnv();
+    delete process.env.TAVILY_API_KEY;
+    installFetchStub(async function () { throw new Error('no network allowed'); });
+    try {
+      const m = freshCorpus();
+      const env = await m.fetchCorpusEnvelope({ source: 'tavily', query: 'generic topic' });
+      assert.ok(!Array.isArray(env), 'envelope, not a bare array');
+      assert.equal(env.stage, 'retrieval');
+      assert.equal(env.engine, 'tavily');
+      assert.equal(env.status, 'blocked', 'missing key is blocked; got ' + env.status);
+      assert.equal(env.failure_class, 'missing_credential');
+      assert.equal(env.retryable, false);
+      const v = se.validateStageEnvelope(env);
+      assert.equal(v.ok, true, 'envelope validates: ' + JSON.stringify(v.violations));
+      assert.equal(fetchCallCount, 0, 'zero fetch on the missing-key path');
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  await recordAsync('B2 forced timeout vs http vs parse: three DISTINCT envelopes, ZERO network', async function () {
+    process.env.TAVILY_API_KEY = 'test-key-not-real';
+    installFetchStub(async function () { throw new Error('forced path must attempt no network'); });
+    try {
+      const m = freshCorpus();
+      const seen = [];
+      const FORCES = [
+        ['MINDRIAN_FORCE_RETRIEVAL_TIMEOUT', 'network_timeout', 'failed', true],
+        ['MINDRIAN_FORCE_RETRIEVAL_HTTP', 'http_error', 'failed', true],
+        ['MINDRIAN_FORCE_PARSE_CORRUPT', 'parse_error', 'failed', false],
+      ];
+      for (const row of FORCES) {
+        scrubForceEnv();
+        process.env[row[0]] = '1';
+        const env = await m.fetchCorpusEnvelope({ source: 'tavily', query: 'generic topic' });
+        assert.equal(env.status, row[2], row[0] + ' status; got ' + env.status);
+        assert.equal(env.failure_class, row[1], row[0] + ' class; got ' + env.failure_class);
+        assert.equal(env.retryable, row[3], row[0] + ' retryable');
+        const v = se.validateStageEnvelope(env);
+        assert.equal(v.ok, true, row[0] + ' envelope validates: ' + JSON.stringify(v.violations));
+        seen.push(env.failure_class);
+      }
+      assert.equal(new Set(seen).size, 3, 'three DISTINCT failure classes: ' + seen.join(','));
+      assert.equal(fetchCallCount, 0, 'ZERO network attempted under forcing; got ' + fetchCallCount);
+      scrubForceEnv();
+    } finally {
+      restoreFetch();
+      scrubForceEnv();
+    }
+  });
+
+  await recordAsync('B3 Brain: unavailable -> blocked/engine_unavailable; query throw -> failed/query_error', async function () {
+    scrubForceEnv();
+    const brain = require(path.resolve(__dirname, '..', 'lib', 'core', 'brain-client.cjs'));
+    const savedIsAvailable = brain.isAvailable;
+    const savedQuery = brain.query;
+    installFetchStub(async function () { throw new Error('brain path must not fetch'); });
+    try {
+      const m = freshCorpus();
+      // (a) unavailable
+      brain.isAvailable = function () { return false; };
+      const envA = await m.fetchCorpusEnvelope({ source: 'brain-cypher', query: 'SWOT' });
+      assert.equal(envA.status, 'blocked', 'unavailable is blocked; got ' + envA.status);
+      assert.equal(envA.failure_class, 'engine_unavailable');
+      assert.equal(envA.engine, 'brain-cypher');
+      let v = se.validateStageEnvelope(envA);
+      assert.equal(v.ok, true, 'unavailable envelope validates: ' + JSON.stringify(v.violations));
+      // (b) query throw
+      brain.isAvailable = function () { return true; };
+      brain.query = async function () { throw new Error('stubbed cypher explosion'); };
+      const envB = await m.fetchCorpusEnvelope({ source: 'brain-cypher', query: 'SWOT' });
+      assert.equal(envB.status, 'failed', 'query throw is failed; got ' + envB.status);
+      assert.equal(envB.failure_class, 'query_error');
+      v = se.validateStageEnvelope(envB);
+      assert.equal(v.ok, true, 'query-error envelope validates: ' + JSON.stringify(v.violations));
+      assert.equal(fetchCallCount, 0, 'brain path issues zero global.fetch calls');
+    } finally {
+      brain.isAvailable = savedIsAvailable;
+      brain.query = savedQuery;
+      restoreFetch();
+    }
+  });
+
+  await recordAsync('B4 empty_valid DISTINCT from failed: a live zero-hit fetch is a finding', async function () {
+    scrubForceEnv();
+    process.env.TAVILY_API_KEY = 'test-key-not-real';
+    installFetchStub(async function () { return okJsonResponse({ results: [] }); });
+    try {
+      const m = freshCorpus();
+      const env = await m.fetchCorpusEnvelope({ source: 'tavily', query: 'generic topic' });
+      assert.equal(env.status, 'empty_valid', 'zero live hits is empty_valid; got ' + env.status);
+      assert.equal(env.failure_class, null, 'a finding carries no failure_class');
+      assert.equal(env.error, null, 'a finding carries no error');
+      assert.ok(Array.isArray(env.payload.results) && env.payload.results.length === 0, 'payload.results []');
+      const v = se.validateStageEnvelope(env);
+      assert.equal(v.ok, true, 'empty_valid envelope validates: ' + JSON.stringify(v.violations));
+      assert.equal(fetchCallCount, 1, 'exactly one live fetch');
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  await recordAsync('B4b results present: ok envelope with payload.results (normalized items)', async function () {
+    scrubForceEnv();
+    process.env.TAVILY_API_KEY = 'test-key-not-real';
+    installFetchStub(async function () {
+      return okJsonResponse({
+        results: [
+          { url: 'https://example.org/a', title: 'A', content: 'alpha snippet' },
+          { url: 'https://example.org/b', title: 'B', content: 'beta snippet' },
+        ],
+      });
+    });
+    try {
+      const m = freshCorpus();
+      const env = await m.fetchCorpusEnvelope({ source: 'tavily', query: 'generic topic' });
+      assert.equal(env.status, 'ok');
+      assert.equal(env.failure_class, null);
+      assert.equal(env.payload.results.length, 2, 'two normalized items');
+      assert.equal(env.payload.results[0].source, 'tavily');
+      assert.ok(env.output_fingerprint === null || /^[0-9a-f]{64}$/.test(env.output_fingerprint),
+        'output fingerprint null or sha256 hex');
+      const v = se.validateStageEnvelope(env);
+      assert.equal(v.ok, true, 'ok envelope validates: ' + JSON.stringify(v.violations));
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  await recordAsync('B5 legacy contract: fetchCorpus arrays + sci-bot object + TypeErrors byte-preserved', async function () {
+    scrubForceEnv();
+    const brain = require(path.resolve(__dirname, '..', 'lib', 'core', 'brain-client.cjs'));
+    const savedIsAvailable = brain.isAvailable;
+    installFetchStub(async function () { throw new Error('degrade paths must not fetch'); });
+    try {
+      const m = freshCorpus();
+      // tavily missing key -> [] (byte-compatible legacy degrade)
+      delete process.env.TAVILY_API_KEY;
+      const arr = await m.fetchCorpus({ source: 'tavily', query: 'generic topic' });
+      assert.ok(Array.isArray(arr) && arr.length === 0, 'fetchCorpus(tavily, no key) -> []');
+      // brain unavailable -> []
+      brain.isAvailable = function () { return false; };
+      const arrB = await m.fetchCorpus({ source: 'brain-cypher', query: 'SWOT' });
+      assert.ok(Array.isArray(arrB) && arrB.length === 0, 'fetchCorpus(brain, unavailable) -> []');
+      // sci-bot disabled object unchanged
+      const sci = await m.fetchCorpus({ source: 'sci-bot', query: 'x' });
+      assert.ok(sci && sci.disabled === true, 'sci-bot { disabled:true } preserved');
+      assert.equal(sci.reason, 'sci-bot disabled (opt-in + token + legal-review required)');
+      // TypeErrors preserved on BOTH entry points
+      for (const fn of ['fetchCorpus', 'fetchCorpusEnvelope']) {
+        let threw = null;
+        try { await m[fn]({ source: 'tavily', query: '' }); } catch (e) { threw = e; }
+        assert.ok(threw instanceof TypeError, fn + ' empty query throws TypeError');
+        threw = null;
+        try { await m[fn]({ source: 'not-a-real-source', query: 'x' }); } catch (e) { threw = e; }
+        assert.ok(threw instanceof TypeError, fn + ' unknown source throws TypeError');
+      }
+      assert.equal(fetchCallCount, 0, 'zero fetch across every degrade + reject path');
+      // live tavily results -> normalized array (the legacy happy path)
+      restoreFetch();
+      process.env.TAVILY_API_KEY = 'test-key-not-real';
+      installFetchStub(async function () {
+        return okJsonResponse({ results: [{ url: 'https://example.org/a', title: 'A', content: 'alpha' }] });
+      });
+      const m2 = freshCorpus();
+      const live = await m2.fetchCorpus({ source: 'tavily', query: 'generic topic' });
+      assert.ok(Array.isArray(live) && live.length === 1, 'live fetchCorpus returns the normalized array');
+      for (const f of ['id', 'title', 'abstract', 'authors', 'doi', 'source', 'fetched_at']) {
+        assert.ok(Object.prototype.hasOwnProperty.call(live[0], f), 'item field: ' + f);
+      }
+    } finally {
+      brain.isAvailable = savedIsAvailable;
+      restoreFetch();
+    }
+  });
+
+  await recordAsync('B6 audit chokepoint UNTOUCHED: ExternalEgressViolation thrown by BOTH entry points, zero fetch', async function () {
+    scrubForceEnv();
+    process.env.TAVILY_API_KEY = 'test-key-not-real';
+    installFetchStub(async function () { return okJsonResponse({ results: [] }); });
+    try {
+      const m = freshCorpus();
+      const planted = 'oncology venture valuation $5.2M cancer treatment';
+      for (const fn of ['fetchCorpus', 'fetchCorpusEnvelope']) {
+        let threw = null;
+        try { await m[fn]({ source: 'tavily', query: planted }); } catch (e) { threw = e; }
+        assert.ok(threw, fn + ' throws on the planted query');
+        assert.equal(threw.name, 'ExternalEgressViolation', fn + ' throws ExternalEgressViolation, never a softened envelope');
+      }
+      assert.equal(fetchCallCount, 0, 'NO fetch before the throw; got ' + fetchCallCount);
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  // env hygiene
+  if (SAVED_TAVILY_KEY === undefined) delete process.env.TAVILY_API_KEY;
+  else process.env.TAVILY_API_KEY = SAVED_TAVILY_KEY;
   scrubForceEnv();
 
   console.log('=== 221-01 envelope suite: ' + passed + ' passed, ' + failed + ' failed ===');
