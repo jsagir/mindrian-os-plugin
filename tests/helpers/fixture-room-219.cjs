@@ -24,6 +24,11 @@
  *       entities anchored in DIFFERENT sections -- the surprise/intersection
  *       candidate the harvest sensor must rank ABOVE artifact-vs-artifact
  *       pairs.
+ *   (c2) KNOWN DOMAIN BRIDGE (GAP-2, 219-06 live checkpoint): a second
+ *       cross-section bridge riding USES_COMPONENT -- the REAL 218
+ *       domain-relationship vocabulary a live room actually produces
+ *       (RELATED_TO never occurs on a live post-218 room; this proves the
+ *       harvest lane's BRIDGE_EDGE_TYPES extension actually fires).
  *   (d) KNOWN CONTRADICTION: a CONTRADICTS edge pair -- the Challenging
  *       Orthodoxies lens candidate.
  *   (e) ZERO-CONNECTION ISOLATE: one entity node with NO typed links -- must
@@ -96,6 +101,8 @@ function buildFixtureRoom(tmpDir) {
     entities: {},      // name -> entity node id
     bridgeA: null,
     bridgeB: null,
+    domainBridgeA: null,
+    domainBridgeB: null,
     contradictionA: null,
     contradictionB: null,
     isolate: null,
@@ -167,6 +174,12 @@ function buildFixtureRoom(tmpDir) {
       { name: 'Evacuated Tube Freight Market', entityType: 'market', section: 'market-analysis' },
       { name: 'Orthodox Rail Group', entityType: 'company', section: 'competitive-analysis' },
       { name: 'Maglev Load Lock', entityType: 'technology', section: 'technology-stack' },
+      // GAP-2 (219-06 live checkpoint): a second bridge pair riding the REAL
+      // 218 domain-relationship vocabulary (USES_COMPONENT), not the generic
+      // RELATED_TO the (c) bridge below uses -- proves the harvest lane finds
+      // both, since a live room only ever produces the 218 vocabulary.
+      { name: 'Thermex Rivals Inc', entityType: 'company', section: 'competitive-analysis' },
+      { name: 'Cryoline Components', entityType: 'technology', section: 'technology-stack' },
     ];
     for (const ent of family) {
       const r = must(navigation.writeEntityNode(db, {
@@ -194,6 +207,18 @@ function buildFixtureRoom(tmpDir) {
       edge_type: 'RELATED_TO',
       properties: { relation: 'related_to', planted: 'bridge' },
     }), 'planted bridge RELATED_TO');
+
+    // ---- (c2) GAP-2 SECOND BRIDGE: cross-section USES_COMPONENT between two
+    // low-degree entities -- the REAL 218 domain-relationship vocabulary a
+    // live room actually produces (their 2nd edge each). ----
+    ids.domainBridgeA = ids.entities['Thermex Rivals Inc'];    // competitive-analysis
+    ids.domainBridgeB = ids.entities['Cryoline Components'];   // technology-stack
+    must(navigation.writeEdge(db, {
+      source_id: ids.domainBridgeA,
+      target_id: ids.domainBridgeB,
+      edge_type: 'USES_COMPONENT',
+      properties: { relation: 'uses_component', planted: 'domain-bridge' },
+    }), 'planted domain bridge USES_COMPONENT');
 
     // ---- (d) the KNOWN CONTRADICTION: a CONTRADICTS edge pair (their 2nd
     // edge; the Challenging Orthodoxies lens candidate). ----

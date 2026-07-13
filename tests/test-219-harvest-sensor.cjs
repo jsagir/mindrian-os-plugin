@@ -157,6 +157,14 @@ function main() {
     }
   });
 
+  check('A2b (GAP-2, 219-06 live checkpoint): the domain-relationship bridge (USES_COMPONENT, the real 218 vocabulary) is ALSO found, not just the generic RELATED_TO bridge', () => {
+    const b = candidates.find((x) => x.source_event === 'bridge'
+      && x.evidence_handles.indexOf(ids.domainBridgeA) !== -1
+      && x.evidence_handles.indexOf(ids.domainBridgeB) !== -1);
+    assert.ok(b, 'the planted USES_COMPONENT domain bridge must be found - a live room never produces RELATED_TO, only COMPETES_WITH/USES_COMPONENT/SUPPLIES_TO (ador-ip-test census: 21/15/11)');
+    assert.equal(b.lens, 'leveraging_resources', 'company x technology dots -> leveraging_resources');
+  });
+
   check('A3: the zero-connection isolate produces NO candidate (Q2 hard gate)', () => {
     for (const c of candidates) {
       assert.ok(c.node_handle !== ids.isolate, 'isolate must not be a candidate node');
