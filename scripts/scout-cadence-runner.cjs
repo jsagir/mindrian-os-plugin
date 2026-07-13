@@ -21,19 +21,31 @@
  *   6. whitespace recompute         (SCHED-02; compute-whitespace-gaps.py -> whitespace-to-graph.cjs)
  *   7. reverse-salient              (SCHED-02; part of the HSI step's detect-reverse-salients)
  *   8. opportunity-bank scan        (SCHED-02; compute-opportunity-state + opportunity-ops.listOpportunities)
+ *  8b. url-ingest-crawl             (Phase 220-04 REQ-3; the watched-sources
+ *                                    inbound heartbeat: due registry sources
+ *                                    ingest through url-ingest.cjs under the
+ *                                    D-06 regulator cap, origin 'cadence';
+ *                                    advisory-degrade, never fatal)
  *   9. efficiency telemetry         (scout-telemetry-aggregator.cjs --json)
  *  10. temporal-blindness sentinel  (Phase 160-06 R12; D-04 scheduled backstop --
  *                                    PURE LOCAL room.db scan via sensorTemporalBlindness,
  *                                    NOT a fetch; emits temporal_blindness_surfaced)
  *
  * CANON PART 8 -- ZERO-EGRESS POSTURE (constitutional):
- *   The runner performs NO Brain query and NO web fetch. HSI / whitespace /
+ *   The runner itself performs NO Brain query and NO web fetch. HSI / whitespace /
  *   reverse-salient / opportunity scans are all LOCAL compute. competitor-watch is
  *   emitted as a hat-scoped public-SIGNAL query plan (PUBLIC competitor names
  *   already present in competitive-analysis/) for the surface layer (LLM / Cowork)
  *   to execute -- no room artifact text enters the query, and the runner never
  *   carries user content to the Brain or the web. The throttle prevents a runaway
  *   that would hammer external APIs every session.
+ *   ONE governed exception (Phase 220-04, spec REQ-3): the url-ingest-crawl step
+ *   delegates to lib/core/url-ingest.cjs, whose only egress is the AUDITED
+ *   fetchCorpus chokepoint (Plan 220-01: fail-closed auditQueryString + scheme
+ *   allowlist) carrying a user-REGISTERED watched-source URL only -- never room
+ *   content, never an LLM-chosen URL. It fires only when the room carries a
+ *   .mindrian/watched-sources.json with a due source, bounded by the D-06 cap
+ *   (default 2 attempts/run) so a runaway registry cannot exhaust credits.
  *
  * Usage:
  *   node scout-cadence-runner.cjs <roomDir> [--interval-hours=N] [--force] [--json]
@@ -108,6 +120,152 @@ function hsiDepsAvailable() {
 }
 
 // ---------------------------------------------------------------------------
+// url-ingest-crawl step (Phase 220-04, REQ-3; D-06 regulator cap)
+// ---------------------------------------------------------------------------
+
+/**
+ * The watched-sources inbound heartbeat: reads the room registry through
+ * lib/core/watched-sources.cjs (never raw fs here), ingests each due source
+ * through Plan 220-02's ingestUrl (the ONE ingest door) with origin 'cadence',
+ * and advances per-source crawl state through updateSourceState.
+ *
+ * D-06 regulator: the cap (registry max_ingests_per_run, default 2) bounds
+ * fetch ATTEMPTS, because every attempt spends a provider credit (T-220-18);
+ * sources beyond the cap stay due and lead the next run, so nothing is
+ * silently skipped forever. Change detection is content-hash-primary via
+ * ingestUrl's D-04 resolution: 'no_op' means unchanged (last_run only);
+ * 'filed'/'superseded' means changed (last_content_sha + last_run); any
+ * failure leaves state UNTOUCHED so the source retries next run (T-220-22).
+ *
+ * D-10: the manual rung is STRUCTURALLY unreachable from this call site --
+ * no content, no content-source option is ever passed; ingestUrl fetches
+ * through the audited chokepoint only, and its origin-cadence fence backstops
+ * the rung with a typed 'blocked' (dual enforcement, T-220-20).
+ *
+ * Part 3: this step files knowledge only. It mints NO card, NO reach, NO new
+ * invocable, and touches NO opportunity lifecycle state (T-220-21): crawled
+ * findings surface to the navigator at the EXISTING gates next session.
+ *
+ * NEVER throws: every failure degrades the step (the hsi-to-graph advisory
+ * posture) -- a crawl failure never kills the cadence run (T-220-22).
+ *
+ * @param {string} roomDir
+ * @param {{ sessionId?: string, now?: Date, _fetchCorpus?: Function }} [options]
+ *   _fetchCorpus is the sanctioned hermetic test seam, passed through to
+ *   ingestUrl (the source-lens-driver precedent). Product runs omit it.
+ * @returns {Promise<{ step: object, findings: string[] }>}
+ */
+async function urlIngestCrawlStep(roomDir, options) {
+  const stepName = 'url-ingest-crawl';
+  const findings = [];
+  try {
+    const watched = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'watched-sources.cjs'));
+    const { ingestUrl } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'url-ingest.cjs'));
+    const opts = (options && typeof options === 'object') ? options : {};
+    const now = (opts.now instanceof Date) ? opts.now : new Date();
+    const registry = watched.readWatchedSources(roomDir);
+    const due = watched.selectDueSources(registry, now);
+    if (due.length === 0) {
+      return { step: { name: stepName, status: 'ok', exit: 0, stdout: '0 sources due', stderr: '' }, findings };
+    }
+    // D-06 cap: registry-overridable, default 2 (normalized by the module).
+    const cap = registry.max_ingests_per_run;
+
+    // SEED-031 read-if-present probe: computeCostLevel -- absent as of
+    // 2026-07-13 (grep-verified unbuilt seed; 220-04-PLAN regulator reality
+    // check). The LOCAL cap above is authoritative until it ships. When the
+    // projection lands at either candidate home, a 'high' cost level defers
+    // the whole batch with a VISIBLE advisory line -- never a silent kill
+    // (SEED-031 constraint 3, honored in spirit today).
+    let costLevel = null;
+    for (const rel of [['lib', 'core', 'cost-regulator.cjs'], ['lib', 'memory', 'navigation-projections.cjs']]) {
+      try {
+        const mod = require(path.join(PLUGIN_ROOT, ...rel));
+        if (mod && typeof mod.computeCostLevel === 'function') {
+          costLevel = mod.computeCostLevel(roomDir);
+          break;
+        }
+      } catch (_e) { /* SEED-031 not shipped at this home; local cap governs */ }
+    }
+    const levelStr = (costLevel && typeof costLevel === 'object') ? costLevel.level : costLevel;
+    if (levelStr === 'high') {
+      return {
+        step: {
+          name: stepName,
+          status: 'ok',
+          exit: 0,
+          stdout: 'cost regulator: batch deferred (' + due.length + ' due source(s) wait for the next run)',
+          stderr: '',
+        },
+        findings,
+      };
+    }
+
+    const sessionId = (typeof opts.sessionId === 'string' && opts.sessionId.length > 0)
+      ? opts.sessionId
+      : 'url-ingest-crawl';
+    let ingested = 0;
+    let unchanged = 0;
+    let failed = 0;
+    let attempts = 0;
+    for (const source of due) {
+      if (attempts >= cap) break; // remaining due sources wait for the next run (D-06)
+      attempts += 1;
+      // D-10: origin 'cadence' only; no content, no content-source option --
+      // the manual rung is structurally absent from this call site.
+      const ingestOpts = { origin: 'cadence', sessionId: sessionId };
+      if (typeof opts._fetchCorpus === 'function') ingestOpts._fetchCorpus = opts._fetchCorpus;
+      let envelope = null;
+      try {
+        envelope = await ingestUrl(roomDir, source.url, ingestOpts);
+      } catch (_e) {
+        envelope = null; // ingestUrl never throws by contract; belt-and-braces
+      }
+      const outcome = envelope ? envelope.outcome : 'error';
+      if (outcome === 'filed' || outcome === 'superseded') {
+        ingested += 1;
+        watched.updateSourceState(roomDir, source.id, {
+          last_content_sha: envelope.artifact.content_sha256,
+          last_run: now.toISOString(),
+        });
+      } else if (outcome === 'no_op') {
+        unchanged += 1;
+        watched.updateSourceState(roomDir, source.id, { last_run: now.toISOString() });
+      } else {
+        // provider_unavailable / size_exceeded / blocked / error: state NOT
+        // advanced -- the source retries next run (T-220-22).
+        failed += 1;
+      }
+    }
+    if (ingested > 0) findings.push('url-ingest-crawl:' + ingested);
+    const step = {
+      name: stepName,
+      status: failed > 0 ? 'degraded' : 'ok',
+      exit: failed > 0 ? 1 : 0,
+      stdout: ingested + ' ingested, ' + unchanged + ' unchanged, ' + failed + ' failed, cap ' + cap,
+      stderr: '',
+    };
+    if (failed > 0) {
+      step.advisory = 'url-ingest-crawl degraded (' + failed + ' source failure(s); their state was not advanced, they retry next run); scout continues';
+    }
+    return { step: step, findings };
+  } catch (e) {
+    // Advisory degrade (the hsi-to-graph posture): NEVER fatal to the cadence.
+    return {
+      step: {
+        name: stepName,
+        status: 'degraded',
+        exit: 1,
+        stdout: '',
+        stderr: (e && e.message) || String(e),
+        advisory: 'url-ingest-crawl step failed (no source state advanced this run); scout continues in degraded mode',
+      },
+      findings,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // main cadence flow
 // ---------------------------------------------------------------------------
 
@@ -159,7 +317,7 @@ function emit(summary, json) {
   process.stdout.write(lines.join('\n') + '\n');
 }
 
-function main(argv) {
+async function main(argv) {
   const args = parseArgs(argv);
 
   // (1) Resolve roomDir. Soft-fail when absent / not a dir -- this runs from a
@@ -274,6 +432,18 @@ function main(argv) {
     steps.push({ name: 'opportunity-bank-scan', status: 'degraded', exit: 1, stdout: '', stderr: e.message || String(e) });
   }
 
+  // 8b. url-ingest-crawl (Phase 220-04, REQ-3): the watched-sources inbound
+  //     heartbeat -- due registry sources ingest through Plan 02's ingestUrl
+  //     under the D-06 regulator cap, origin 'cadence'. In-process library
+  //     call (the opportunity-bank idiom); advisory-degrade (the hsi-to-graph
+  //     posture): the helper NEVER throws, so a crawl failure can never kill
+  //     the cadence run. Findings surface at the EXISTING gates next session;
+  //     this step mints no card, no reach, no new invocable (research A5:
+  //     its human gate is at-surfacing).
+  const crawl = await urlIngestCrawlStep(roomDir);
+  steps.push(crawl.step);
+  for (const f of crawl.findings) findingsToGraph.push(f);
+
   // 9. efficiency telemetry (LOCAL JSONL aggregation; zero network).
   steps.push(runStep('efficiency-telemetry', 'node', [bin('scout-telemetry-aggregator.cjs'), '--json']));
 
@@ -327,7 +497,13 @@ function main(argv) {
 }
 
 if (require.main === module) {
-  process.exit(main(process.argv));
+  // main is async as of Phase 220-04 (the url-ingest-crawl step awaits the
+  // in-process ingestUrl pipeline); the exit semantics are unchanged for
+  // every consumer (session-start backgrounds this as a child process).
+  main(process.argv).then(
+    (code) => process.exit(code),
+    (e) => { console.error(e && e.stack || e); process.exit(1); }
+  );
 }
 
-module.exports = { main, parseArgs, runStep, hsiDepsAvailable };
+module.exports = { main, parseArgs, runStep, hsiDepsAvailable, urlIngestCrawlStep };
