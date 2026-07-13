@@ -137,6 +137,8 @@
       "glyph": "◆",
       "commands": [
         "opportunities",
+        "qualify-opportunity",
+        "explore-opportunity",
         "funding",
         "scout",
         "file-meeting",
