@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.15 (in progress)
+## [1.15.3-beta.16] - 2026-07-13
 
 ### Added
 - **Opportunity follow-through: surfaced opportunities stop dying as files and one-liners.**
