@@ -376,6 +376,28 @@ live pipeline produced.
 **The executor stops here. No SUMMARY.md was written, the phase is NOT marked done,
 and truth 6 (Part 8 sweep) is flagged RED-by-sibling for separate routing.**
 
+### 3.4 NAVIGATOR SIGN-OFF (recorded)
+
+**Verdict: APPROVED - real signal.** Recorded via a fired F.1 AskUserQuestion Decision
+Gate (not auto-approved, not inferred) on 2026-07-13, after the full artifact was read
+verbatim (not summarized) directly to the navigator alongside the question. Navigator
+selected "Approved - real signal" over "Not convinced - flag for rework."
+
+This closes the one thing 219-06 could not verify itself. must_have scorecard now
+**8 of 8** (truth 6's Part 8-sweep RED is a sibling 220-03 false positive, routed
+separately below - see "Truth 6 routing").
+
+**Truth 6 routing (RESOLVED, this session, direct fix - not 219-06's scope):** the
+sweep's `/\bsha256\b/i` blunt regex flagged `lib/core/sensors/sensor-url-ingest.cjs`
+(220-03) for hashing a PUBLIC URL into a 12-hex dedup handle - a legitimate, Part-8
+COMPLIANT pattern (no user content touches the hash), not a leak. The sweep's own
+detection heuristic was too broad; the sensor code was correct as written. See
+`tests/test-sensors-part8-sweep.cjs` for the narrowed pattern and the documented
+exception.
+
+**219-06 CLOSED.** Next: Plan 07 (corepower validation, navigator-run on the Desktop
+machine) proceeds toward the joint 219+220+221 release readiness.
+
 ---
 
 ## 4. Corepower Validation
