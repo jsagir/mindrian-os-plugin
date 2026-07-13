@@ -304,7 +304,7 @@ async function registrySections() {
   });
 
   await check('GATE: zero em-dashes in watched-sources.cjs (CLAUDE.md HARD RULE)', () => {
-    assert.equal(/—/.test(moduleSrc), false, 'hyphens only');
+    assert.equal(/\u2014/.test(moduleSrc), false, 'hyphens only');
   });
 }
 
