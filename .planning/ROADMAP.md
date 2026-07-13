@@ -3067,7 +3067,7 @@ Plans:
 
 **Depends on:** Phase 219 (D-16 post-filing extraction contract, harvest sensor rail), Phase 218 (extractor), Tavily house tooling. Prior art: SEED-025 (futures-wheel scanning cadence overlap), SEED-031 (regulators), the 2026-07-13 DOM->Markdown->KG pattern review (navigator-supplied, filed in the phase research when spawned). REJECTED at registration: jsdom/Playwright/@lightfeed new deps (Tavily covers the DOM stage); direct Neo4j triplet writes (Part 8 breach).
 
-**Plans:** 2/5 plans executed
+**Plans:** 4/5 plans executed
 
 Plans:
 **Wave 1**
@@ -3080,8 +3080,8 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2; 03 and 04 run parallel)*
 
-- [ ] 220-03-PLAN.md - Invocation surfaces: SENS-15 pasted-URL sensor (free id re-verified at build) + /mos:research URL mode + F.1 card [Ingest][Ingest+Explore][Skip] + D-10 gate-OFFERED llm_manual rung + born-wired/shape gates + doc-parity [REQ-2, REQ-4]
-- [ ] 220-04-PLAN.md - Crawl-and-learn loop: .mindrian/watched-sources.json registry + url-ingest-crawl cadence step (cap default 2, SEED-031 read-if-present probe, advisory degrade, manual rung unreachable) [REQ-3]
+- [x] 220-03-PLAN.md - Invocation surfaces: SENS-15 pasted-URL sensor (free id re-verified at build) + /mos:research URL mode + F.1 card [Ingest][Ingest+Explore][Skip] + D-10 gate-OFFERED llm_manual rung + born-wired/shape gates + doc-parity [REQ-2, REQ-4]
+- [x] 220-04-PLAN.md - Crawl-and-learn loop: .mindrian/watched-sources.json registry + url-ingest-crawl cadence step (cap default 2, SEED-031 read-if-present probe, advisory degrade, manual rung unreachable) [REQ-3]
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -3101,7 +3101,7 @@ Plans:
 
 **Explicitly OUT of scope:** autonomous graph mutation; continuous crawling; broad format support; model-name-pinned governance; extending envelopes beyond the research pipeline + 219/220 seams (eureka/doctor adopt later).
 
-**Plans:** 1/5 plans executed
+**Plans:** 4/5 plans executed
 
 Plans:
 **Wave 1**
@@ -3110,15 +3110,15 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 221-02-PLAN.md - Recovery dispatcher + 6-tier ladder: bounded idempotent retry, governed room-corpus/cache substitutes with honest provenance, code-enforced Tier-3 trigger discipline (never on empty_valid, skipped in cadence), egress-terminal, resume-at-boundary [REQ-2]
+- [x] 221-02-PLAN.md - Recovery dispatcher + 6-tier ladder: bounded idempotent retry, governed room-corpus/cache substitutes with honest provenance, code-enforced Tier-3 trigger discipline (never on empty_valid, skipped in cadence), egress-terminal, resume-at-boundary [REQ-2]
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 221-03-PLAN.md - Bounded LLM recovery controller: 7-step state machine on the pipeline-state journal, atomic case file under .mindrian/recovery/, profiles diagnostic|high_effort|forensic, budgets + stop conditions, D-20-semantics gated entry, the five hard fences as adversarial tests [REQ-3]
+- [x] 221-03-PLAN.md - Bounded LLM recovery controller: 7-step state machine on the pipeline-state journal, atomic case file under .mindrian/recovery/, profiles diagnostic|high_effort|forensic, budgets + stop conditions, D-20-semantics gated entry, the five hard fences as adversarial tests [REQ-3]
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 221-04-PLAN.md - Result semantics + disclosure (research_mode + outcomes additive, 'recovered' readback-gated), 219/220 seam alignment, modes docs + regenerated skill mirror + doc-parity, the 13-class validation matrix + the PERMANENT vantage fixture authoritative_workspace_unavailable [REQ-4, REQ-5]
+- [x] 221-04-PLAN.md - Result semantics + disclosure (research_mode + outcomes additive, 'recovered' readback-gated), 219/220 seam alignment, modes docs + regenerated skill mirror + doc-parity, the 14-class validation matrix (D-11 amended) + the PERMANENT vantage fixture authoritative_workspace_unavailable + the PERMANENT spend_limit_exceeded fixture [REQ-4, REQ-5]
 
 **Wave 5** *(blocked on Wave 4; autonomous: false)*
 

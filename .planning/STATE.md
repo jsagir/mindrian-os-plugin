@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 221-01 Tasks 1-2 (Task 3 driver seam deferred to 221-02 per orchestrator file-ownership directive)
-last_updated: "2026-07-13T06:35:24.568Z"
+stopped_at: Completed 221-04-PLAN.md (semantics + disclosure + docs + the 14-class matrix + both permanent fixtures; only the 221-05 cut remains)
+last_updated: "2026-07-13T08:45:00.000Z"
 last_activity: 2026-07-13
 progress:
   total_phases: 29
   completed_phases: 17
   total_plans: 98
-  completed_plans: 89
-  percent: 59
+  completed_plans: 94
+  percent: 60
 ---
 
 # Project State
@@ -1488,6 +1488,11 @@ Progress: [█████████░] 92%
 | Phase 219 P04 | ~22min | 4 tasks | 4 files |
 | Phase 221 P01 | 35m | 2 tasks | 4 files |
 | Phase 220 P02 | 40min | 3 tasks | 7 files |
+| Phase 220 P03 | 35min | 3 tasks | 7 files |
+| Phase 220 P04 | 23min | 3 tasks | 3 files |
+| Phase 221 P02 | 35m | 4 tasks | 4 files |
+| Phase 221 P03 | 28min | 3 tasks | 4 files |
+| Phase 221 P04 | 31min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -2450,6 +2455,18 @@ Progress: [█████████░] 92%
 - [Phase 220]: 220-01: zero extract results from a 200 response returns error/extract_failed, never ok:true + empty - T-220-05 repudiation mitigation - a provider failure never masquerades as success
 - [Phase 221]: 221-01: FAILURE_CLASSES frozen at 13 incl. D-11 spend_limit_exceeded; retryable:false enforced structurally at makeStageEnvelope construction, not just validation - A spend cap breaks the recovery mechanism itself; retrying or Tier-3 LLM recovery is a bootstrapping paradox (self-validated 2026-07-13)
 - [Phase 221]: 221-01: fetchCorpus preserved byte-identically as thin delegate over additive fetchCorpusEnvelope (payload.legacy for sci-bot/tavily-extract); 220 typed degrade shapes untouched - D-02 additive rule: every existing caller unbroken while the Plan 02 dispatcher gets the full typed envelope
+- [Phase ?]: 220-03: connector sub_mode kept single-string (registry gate validates string-only); URL mode rides the body + url-ingest-offer dispatch slug
+- [Phase ?]: 220-03: SENS-15 claimed after live re-verify (SENS-14 landed); corrupt url-ingest ledger fails CLOSED to null in the sensor
+- [Phase ?]: 220-04: D-06 cap bounds fetch attempts (credit spend, T-220-18); scout runner main is async now (in-process ingestUrl await), exit semantics unchanged
+- [Phase 221]: 221-04: RESEARCH_MODES extends the 219 four via a lazy-getter import from the driver (cycle-safe); 'recovered' composes ONLY on all-contracts-pass AND readback-confirmed filing; outcome+disclosure ride runSourceLens results ONLY on recovery-touched runs (M4 healthy byte pin holds)
+- [Phase 221]: 221-04: THE VANTAGE RULE is structural - GAP_SCOPE 'corpus' is the single scope the composer can emit; pinned by behavior, permutation sweep, AND a source-scan test in the PERMANENT tests/test-221-vantage.cjs
+- [Phase 221]: 221-04: disclosure carries enums/handles/counts only (claim text stays in claim-evidence-ledger.json) so embedding it in recovery-notice.md can never splice recovered content into prose (fence 5 + T-221-24)
+- [Phase 221]: 221-04: C14 spend_limit_exceeded proven END TO END (zero retries incl. co-occurring timeout per landed D7d, zero Tier-3, human_required, the claude.ai/settings/usage message user-visible); the co-occurring failure keeps its OWN typed class and a control run proves no cross-run kill-switch
+- [Phase 221]: 221-02: spend_limit_exceeded is a structural early-return BEFORE the dispatcher tier partition, routing straight to human_required with the claude.ai/settings/usage message; zero retries even for co-present retryable failures (D-11, T-221-12)
+- [Phase 221]: 221-02: Tier-2 substitution provenance vocabulary live end to end ('web: absent (room-corpus degrade)' / 'research-cache'); a substitute is never presented as live - substituted findings carry an additive provenance field, healthy findings stay byte-identical (D-03, T-221-08)
+- [Phase 221]: 221-02: an input policy_blocked envelope is GLOBALLY terminal at the dispatcher - the egress verdict binds the query, not the engine, so sibling-engine retries would be rerouting (annex 3, T-221-09)
+- [Phase 221]: 221-03: recovery journal is pipeline-state seeded at the case dir - sole chain-state truth reused with zero room-chain collision; resume journal retained with the case file
+- [Phase 221]: 221-03: forensic mutation prohibition is structural at the capability layer (tools.file refuses, no db handle in hook tools), proven by fs snapshot byte-diff; failure fingerprints exclude the engine so an engine-independent repeated failure terminates early (annex 7)
 
 ### Pending Todos
 
@@ -2513,8 +2530,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-13T06:34:55.118Z
-Stopped at: Completed 221-01 Tasks 1-2 (Task 3 driver seam deferred to 221-02 per orchestrator file-ownership directive)
+Last session: 2026-07-13T07:37:38.180Z
+Stopped at: Completed 221-02-PLAN.md (all 4 tasks incl. the absorbed 221-01 Task 3 driver seam)
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
 
