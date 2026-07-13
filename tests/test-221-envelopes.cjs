@@ -520,6 +520,218 @@ console.log('=== 221-01 envelope suite: starting ===');
     }
   });
 
+  // =========================================================================
+  // Group C -- 221-02 Task 0 (the absorbed 221-01 Task 3): typed per-provider
+  // envelopes on the source-lens driver seam. fetchSourceCached consumes
+  // fetchCorpusEnvelope; the 219-05 fields (research_mode, per-provider
+  // status/reason/counts/freshness) stay present and UNRENAMED (additive).
+  // Hermetic: every fetch is an injected seam; zero network.
+  // =========================================================================
+
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const DRIVER_PATH = path.resolve(__dirname, '..', 'lib', 'lens-engine', 'source-lens-driver.cjs');
+  const CACHE_PATH = path.resolve(__dirname, '..', 'lib', 'core', 'research-cache.cjs');
+  const driver = require(DRIVER_PATH);
+  const researchCache = require(CACHE_PATH);
+
+  function corpusItem(fields) {
+    return Object.assign({
+      id: 'https://example.test/x',
+      url: 'https://example.test/x',
+      title: 'web finding',
+      abstract: 'premium pricing tier revenue',
+      fetched_at: new Date().toISOString(),
+    }, fields);
+  }
+  function driverPreflight() {
+    return {
+      current_section: 'market-analysis',
+      evidence_gaps: [{ summary: 'premium pricing tier revenue churn' }],
+      prior_research: [],
+    };
+  }
+  const DRIVER_LENSES = [{ lens: 'scholarly', weight: 1.0 }, { lens: 'industry', weight: 0.8 }];
+
+  await recordAsync('C1 forced timeout surfaces as a typed per-provider envelope; rotation completes on remaining providers', async function () {
+    scrubForceEnv();
+    const res = await driver.runSourceLens({
+      roomDir: '',
+      topic: 'premium pricing',
+      lensSet: DRIVER_LENSES,
+      preflight: driverPreflight(),
+      stage: 'explore',
+      _fetchCorpusEnvelope: async function (args) {
+        if (args.source === 'tavily') {
+          return se.makeStageEnvelope({
+            stage: 'retrieval', engine: 'tavily', status: 'failed',
+            failure_class: 'network_timeout', retryable: true, error: 'forced timeout',
+          });
+        }
+        const it = corpusItem({ id: 'https://oa/1', url: 'https://oa/1' });
+        return se.makeStageEnvelope({
+          stage: 'retrieval', engine: args.source, status: 'ok',
+          payload: { results: [it] }, output: [it],
+        });
+      },
+    });
+    assert.equal(res.ok, true, 'run completes');
+    assert.ok(Array.isArray(res.stage_envelopes), 'stage_envelopes array on the result');
+    const dead = res.stage_envelopes.find(function (e) { return e && e.engine === 'tavily'; });
+    assert.ok(dead, 'the dead provider has an envelope');
+    assert.equal(dead.status, 'failed', 'typed failed status');
+    assert.equal(dead.failure_class, 'network_timeout', 'typed failure_class');
+    const v = se.validateStageEnvelope(dead);
+    assert.equal(v.ok, true, 'the per-provider envelope validates: ' + JSON.stringify(v.violations));
+    const alive = res.stage_envelopes.find(function (e) { return e && e.engine === 'openalex'; });
+    assert.ok(alive && alive.status === 'ok', 'the healthy provider envelope is ok');
+    assert.ok(res.findings.some(function (f) { return f.url === 'https://oa/1'; }),
+      'rotation still completed: the healthy provider item is ranked');
+    // 219-05 providers bag: the outage stays a typed error for existing consumers.
+    const p = res.providers.find(function (x) { return x.provider === 'tavily'; });
+    assert.ok(p && p.status === 'error', 'the 219 providers bag still types the outage');
+  });
+
+  await recordAsync('C2 live zero-hit is empty_valid: distinguishable from a dead provider', async function () {
+    scrubForceEnv();
+    const res = await driver.runSourceLens({
+      roomDir: '',
+      topic: 'premium pricing',
+      lensSet: DRIVER_LENSES,
+      preflight: driverPreflight(),
+      stage: 'explore',
+      _fetchCorpusEnvelope: async function (args) {
+        return se.makeStageEnvelope({
+          stage: 'retrieval', engine: args.source, status: 'empty_valid',
+          payload: { results: [] }, output: [],
+        });
+      },
+    });
+    assert.equal(res.ok, true);
+    assert.ok(res.stage_envelopes.length >= 2, 'one envelope per fetched provider');
+    for (const e of res.stage_envelopes) {
+      assert.equal(e.status, 'empty_valid', 'a live zero-hit is empty_valid, got ' + e.status);
+      assert.equal(e.failure_class, null, 'a finding carries no failure_class');
+      const v = se.validateStageEnvelope(e);
+      assert.equal(v.ok, true, 'empty_valid envelope validates: ' + JSON.stringify(v.violations));
+    }
+    assert.equal(res.research_mode, 'insufficient_evidence', 'the 219 cold-corpus mode is unchanged');
+    assert.ok(res.providers.every(function (p) { return p.status === 'empty' || p.status === 'skipped'; }),
+      'the 219 providers bag stays empty/skipped, never error');
+  });
+
+  await recordAsync('C3 cache HIT carries ok + research-cache provenance; cache-read failure falls through with a warning', async function () {
+    scrubForceEnv();
+    const tmpRoom = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-221-02-cache-'));
+    try {
+      // (a) cache HIT: envelope ok with provenance naming research-cache; live fetch NOT called.
+      const cachedItem = corpusItem({ id: 'https://cached/1', url: 'https://cached/1' });
+      researchCache.putCached(tmpRoom, 'tavily', 'premium pricing', [cachedItem]);
+      let liveCalls = 0;
+      const resHit = await driver.runSourceLens({
+        roomDir: tmpRoom,
+        topic: 'premium pricing',
+        lensSet: [{ lens: 'industry', weight: 1.0 }],
+        preflight: driverPreflight(),
+        stage: 'explore',
+        _fetchCorpusEnvelope: async function () {
+          liveCalls += 1;
+          throw new Error('cache hit must not reach the live fetch');
+        },
+      });
+      assert.equal(liveCalls, 0, 'zero live fetches on a cache hit');
+      const hitEnv = resHit.stage_envelopes.find(function (e) { return e && e.engine === 'tavily'; });
+      assert.ok(hitEnv, 'the cache hit has an envelope');
+      assert.equal(hitEnv.status, 'ok', 'cache hit is ok');
+      assert.ok(hitEnv.provenance.indexOf('research-cache') !== -1,
+        'provenance names research-cache: ' + JSON.stringify(hitEnv.provenance));
+      const vHit = se.validateStageEnvelope(hitEnv);
+      assert.equal(vHit.ok, true, 'cache-hit envelope validates: ' + JSON.stringify(vHit.violations));
+      const pHit = resHit.providers.find(function (x) { return x.provider === 'tavily'; });
+      assert.ok(pHit && pHit.status === 'ok' && pHit.freshness === 'cached_fresh',
+        'the 219 cache-hit fields are unchanged');
+
+      // (b) cache-read FAILURE: falls through to the live fetch with a warning, never an error.
+      const savedGetCached = researchCache.getCached;
+      researchCache.getCached = function () { throw new Error('stubbed cache-read explosion'); };
+      try {
+        const liveItem = corpusItem({ id: 'https://live/1', url: 'https://live/1' });
+        const resFallthrough = await driver.runSourceLens({
+          roomDir: tmpRoom,
+          topic: 'premium pricing',
+          lensSet: [{ lens: 'industry', weight: 1.0 }],
+          preflight: driverPreflight(),
+          stage: 'explore',
+          _fetchCorpusEnvelope: async function (args) {
+            return se.makeStageEnvelope({
+              stage: 'retrieval', engine: args.source, status: 'ok',
+              payload: { results: [liveItem] }, output: [liveItem],
+            });
+          },
+        });
+        const ftEnv = resFallthrough.stage_envelopes.find(function (e) { return e && e.engine === 'tavily'; });
+        assert.ok(ftEnv, 'the fallthrough fetch has an envelope');
+        assert.equal(ftEnv.status, 'ok', 'cache-read failure never becomes an error; the live fetch covered');
+        assert.ok(ftEnv.warnings.some(function (w) { return /cache/i.test(String(w)); }),
+          'the cache-read failure rides as a WARNING: ' + JSON.stringify(ftEnv.warnings));
+        assert.equal(ftEnv.failure_class, null, 'a warning is not a failure');
+      } finally {
+        researchCache.getCached = savedGetCached;
+      }
+    } finally {
+      fs.rmSync(tmpRoom, { recursive: true, force: true });
+    }
+  });
+
+  await recordAsync('C4 additive contract: 219-05 fields present + UNRENAMED; legacy _fetchCorpus seam unbroken', async function () {
+    scrubForceEnv();
+    // (a) healthy run through the envelope seam: every landed 219 field rides.
+    const res = await driver.runSourceLens({
+      roomDir: '',
+      topic: 'premium pricing',
+      lensSet: DRIVER_LENSES,
+      preflight: driverPreflight(),
+      stage: 'explore',
+      _fetchCorpusEnvelope: async function (args) {
+        const it = corpusItem({ id: 'https://ok/' + args.source, url: 'https://ok/' + args.source });
+        return se.makeStageEnvelope({
+          stage: 'retrieval', engine: args.source, status: 'ok',
+          payload: { results: [it] }, output: [it],
+        });
+      },
+    });
+    assert.equal(res.ok, true);
+    assert.ok(['normal', 'web_degraded_local_fallback', 'local_only', 'insufficient_evidence'].indexOf(res.research_mode) !== -1,
+      'research_mode present + drawn from the closed 219 enum');
+    assert.ok(Array.isArray(res.providers) && res.providers.length >= 2, 'providers bag present');
+    for (const p of res.providers) {
+      for (const k of ['provider', 'lens', 'status', 'reason', 'counts', 'freshness']) {
+        assert.ok(Object.prototype.hasOwnProperty.call(p, k), 'provider field UNRENAMED: ' + k);
+      }
+    }
+    for (const k of ['ok', 'findings', 'lens_set', 'rotation_ok', 'research_mode', 'providers']) {
+      assert.ok(Object.prototype.hasOwnProperty.call(res, k), 'pre-221 result field present: ' + k);
+    }
+    // (b) the legacy array-returning _fetchCorpus seam still works: a throw is
+    // still a typed 219 'error' AND now also carries a typed envelope.
+    const resLegacy = await driver.runSourceLens({
+      roomDir: '',
+      topic: 'premium pricing',
+      lensSet: [{ lens: 'industry', weight: 1.0 }],
+      preflight: driverPreflight(),
+      stage: 'explore',
+      _fetchCorpus: async function () { throw new Error('provider down'); },
+    });
+    assert.equal(resLegacy.ok, true, 'legacy seam run completes');
+    assert.ok(resLegacy.providers.some(function (p) { return p.status === 'error'; }),
+      'legacy throw stays a typed 219 error');
+    const legacyEnv = resLegacy.stage_envelopes.find(function (e) { return e && e.engine === 'tavily'; });
+    assert.ok(legacyEnv && legacyEnv.status === 'failed',
+      'the legacy throw now ALSO carries a typed failed envelope');
+    const vL = se.validateStageEnvelope(legacyEnv);
+    assert.equal(vL.ok, true, 'legacy-wrapped envelope validates: ' + JSON.stringify(vL.violations));
+  });
+
   // env hygiene
   if (SAVED_TAVILY_KEY === undefined) delete process.env.TAVILY_API_KEY;
   else process.env.TAVILY_API_KEY = SAVED_TAVILY_KEY;
