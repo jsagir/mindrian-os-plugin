@@ -400,6 +400,184 @@ console.log('=== 221-02 dispatcher suite: starting ===');
     assert.equal(calls.retry, 0, 'the pre-tier-loop short-circuit skips the timeout retry as well');
   });
 
+  // =========================================================================
+  // Task 2 groups (M) -- the REQ-2 acceptance matrix rows: the dispatcher
+  // wired into runSourceLens. Hermetic: stubbed per-provider envelope fns.
+  // =========================================================================
+
+  const driver = require(path.resolve(__dirname, '..', 'lib', 'lens-engine', 'source-lens-driver.cjs'));
+
+  function mItem(id) {
+    return {
+      id: id, url: id, title: 'finding ' + id,
+      abstract: 'premium pricing tier revenue', fetched_at: new Date().toISOString(),
+    };
+  }
+  function mPreflight() {
+    return {
+      current_section: 'market-analysis',
+      evidence_gaps: [{ summary: 'premium pricing tier revenue churn' }],
+      prior_research: [],
+    };
+  }
+  const M_LENSES = [{ lens: 'scholarly', weight: 1.0 }, { lens: 'industry', weight: 0.8 }];
+  const instantSleep = async function () {};
+
+  await recordAsync('M1 REQ-2 row 1: forced retrieval timeout routes to healthy provider + local corpus WITHOUT infinite retries; recovery provenance rides the result', async function () {
+    const fetchCounts = { tavily: 0, openalex: 0 };
+    const res = await driver.runSourceLens({
+      roomDir: '',
+      topic: 'premium pricing',
+      lensSet: M_LENSES,
+      preflight: mPreflight(),
+      stage: 'explore',
+      _sleep: instantSleep,
+      _fetchCorpusEnvelope: async function (args) {
+        fetchCounts[args.source] = (fetchCounts[args.source] || 0) + 1;
+        if (args.source === 'tavily') {
+          return se.makeStageEnvelope({
+            stage: 'retrieval', engine: 'tavily', status: 'failed',
+            failure_class: 'network_timeout', retryable: true, error: 'forced timeout',
+          });
+        }
+        const it = mItem('https://oa/healthy');
+        return se.makeStageEnvelope({
+          stage: 'retrieval', engine: args.source, status: 'ok',
+          payload: { results: [it] }, output: [it],
+        });
+      },
+      _substituteFn: async function (_env, _c) {
+        return { results: [mItem('https://corpus/sub-1')], substitute: 'room-corpus' };
+      },
+    });
+    assert.equal(res.ok, true);
+    // Bounded, never infinite: 1 first pass + MAX_RETRIES_PER_STAGE retries.
+    assert.equal(fetchCounts.tavily, 1 + d.RECOVERY_BUDGETS.MAX_RETRIES_PER_STAGE,
+      'attempt count bounded by MAX_RETRIES_PER_STAGE; got ' + fetchCounts.tavily);
+    assert.ok(res.recovery, 'the dispatch result rides the run result');
+    assert.equal(res.recovery.action, 'substituted');
+    assert.equal(res.recovery.substitutions[0].provenance, 'web: absent (room-corpus degrade)');
+    // The healthy provider still supplied its finding (reroute worked).
+    assert.ok(res.findings.some(function (f) { return f.url === 'https://oa/healthy'; }),
+      'healthy provider finding ranked');
+    // The substitute rides with EXPLICIT provenance, never mislabeled live.
+    const sub = res.findings.find(function (f) { return f.url === 'https://corpus/sub-1'; });
+    assert.ok(sub, 'the substitute item is merged into the ranked set');
+    assert.equal(sub.source, 'room-corpus');
+    assert.equal(sub.provenance, 'web: absent (room-corpus degrade)');
+  });
+
+  await recordAsync('M2 REQ-2 row 2: a legitimate empty rotation stays empty_valid end to end, NO recovery invented', async function () {
+    let substituteCalls = 0;
+    const res = await driver.runSourceLens({
+      roomDir: '',
+      topic: 'premium pricing',
+      lensSet: M_LENSES,
+      preflight: mPreflight(),
+      stage: 'explore',
+      _sleep: instantSleep,
+      _fetchCorpusEnvelope: async function (args) {
+        return se.makeStageEnvelope({
+          stage: 'retrieval', engine: args.source, status: 'empty_valid',
+          payload: { results: [] }, output: [],
+        });
+      },
+      _substituteFn: async function () {
+        substituteCalls += 1;
+        return { results: [mItem('https://corpus/never')], substitute: 'room-corpus' };
+      },
+    });
+    assert.equal(res.ok, true);
+    assert.equal(substituteCalls, 0, 'ZERO substitution on a legitimate empty (D-04)');
+    assert.ok(!Object.prototype.hasOwnProperty.call(res, 'recovery'),
+      'action none adds NOTHING to the result shape');
+    assert.equal(res.findings.length, 0, 'the honest empty stays empty');
+    assert.equal(res.research_mode, 'insufficient_evidence', 'the 219 typed mode is unchanged');
+    assert.ok(res.stage_envelopes.every(function (e) { return e.status === 'empty_valid'; }));
+  });
+
+  await recordAsync('M3 REQ-2 row 3: multi-provider failure + exhausted budgets terminates partial_recovery naming each dead engine', async function () {
+    const res = await driver.runSourceLens({
+      roomDir: '',
+      topic: 'premium pricing',
+      lensSet: M_LENSES,
+      preflight: mPreflight(),
+      stage: 'explore',
+      _sleep: instantSleep,
+      _recoveryBudgets: { MAX_RETRIES_PER_STAGE: 1, RETRY_BACKOFF_MS: [0], MAX_ALTERNATE_ENGINES: 1 },
+      _fetchCorpusEnvelope: async function (args) {
+        return se.makeStageEnvelope({
+          stage: 'retrieval', engine: args.source, status: 'failed',
+          failure_class: 'network_timeout', retryable: true, error: 'forced outage',
+        });
+      },
+      _substituteFn: async function () { return { results: [], substitute: 'room-corpus' }; },
+    });
+    assert.equal(res.ok, true);
+    assert.ok(res.recovery, 'the terminal dispatch outcome rides the result additively');
+    assert.equal(res.recovery.action, 'terminated');
+    assert.equal(res.recovery.outcome, 'partial_recovery',
+      'budget exhaustion is NEVER a complete-looking short report');
+    assert.equal(res.recovery.budget.exhausted, true);
+    const dead = res.recovery.unresolved.map(function (u) { return u.engine; }).sort();
+    assert.deepEqual(dead, ['openalex', 'tavily'], 'every dead engine named');
+    assert.equal(res.findings.length, 0, 'no invented findings');
+  });
+
+  await recordAsync('M4 no-failure byte-behavior: healthy run keeps the pre-221 result shape; dispatcher is a no-op pass-through', async function () {
+    const res = await driver.runSourceLens({
+      roomDir: '',
+      topic: 'premium pricing',
+      lensSet: M_LENSES,
+      preflight: mPreflight(),
+      stage: 'explore',
+      _sleep: instantSleep,
+      _fetchCorpusEnvelope: async function (args) {
+        const it = mItem('https://ok/' + args.source);
+        return se.makeStageEnvelope({
+          stage: 'retrieval', engine: args.source, status: 'ok',
+          payload: { results: [it] }, output: [it],
+        });
+      },
+    });
+    assert.equal(res.ok, true);
+    assert.ok(!Object.prototype.hasOwnProperty.call(res, 'recovery'), 'no recovery key on action none');
+    assert.deepEqual(Object.keys(res).sort(),
+      ['findings', 'lens_set', 'ok', 'providers', 'research_mode', 'rotation_ok', 'stage_envelopes'],
+      'the result shape is exactly the legacy fields + the 221 additive envelope collector');
+    assert.equal(res.research_mode, 'normal');
+    assert.ok(res.findings.every(function (f) { return !Object.prototype.hasOwnProperty.call(f, 'provenance'); }),
+      'healthy findings carry no recovery provenance field (byte-behavior)');
+  });
+
+  await recordAsync('M5 origin threading: cadence terminates honestly; on_demand records offer_tier3 without invoking any controller', async function () {
+    async function run(origin) {
+      return driver.runSourceLens({
+        roomDir: '',
+        topic: 'premium pricing',
+        lensSet: [{ lens: 'industry', weight: 1.0 }],
+        preflight: mPreflight(),
+        stage: 'explore',
+        origin: origin,
+        _sleep: instantSleep,
+        _fetchCorpusEnvelope: async function (args) {
+          return se.makeStageEnvelope({
+            stage: 'retrieval', engine: args.source, status: 'failed',
+            failure_class: 'network_timeout', retryable: true, error: 'down',
+          });
+        },
+        _substituteFn: async function () { return null; },
+      });
+    }
+    const cadence = await run('cadence');
+    assert.ok(cadence.recovery, 'cadence failure carries the dispatch outcome');
+    assert.equal(cadence.recovery.action, 'terminated', 'cadence NEVER offers Tier-3 (Part 3)');
+    const onDemand = await run('on_demand');
+    assert.equal(onDemand.recovery.action, 'offer_tier3',
+      'the offer is RECORDED for the material-surface gate (D-07 lands in Plan 03); never invoked here');
+    assert.equal(onDemand.recovery.outcome, null);
+  });
+
   console.log('=== 221-02 dispatcher suite: ' + passed + ' passed, ' + failed + ' failed ===');
   if (failed > 0) process.exit(1);
 })().catch(function (err) {
