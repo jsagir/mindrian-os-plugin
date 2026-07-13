@@ -41,6 +41,15 @@
  *   status    print the status.json as one JSON line (or {"state":"none"})
  *   report    print the report JSON to stdout (or a 3-line error if none yet)
  *   help      show usage
+ *
+ * T-218-VD-5 (the 218-CONTEXT.md D-03 "deferred, not rejected" pre-step, now
+ * built): `run` extracts entities first via scripts/entity-extract.cjs when
+ * the room has content newer than the last successful extraction -- one
+ * command reads the room, not two. Freshness-gated (skips when nothing
+ * changed) and best-effort (a failed extraction never blocks ranking).
+ * entity-extract.cjs itself stays a standalone script with zero new
+ * command surface (D-03 unchanged); this is a plain require, not a new
+ * /mos: subcommand. Opt out with --no-extract.
  */
 
 const fs = require('node:fs');
@@ -48,6 +57,10 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 
 const RUNNER = require('./eureka-portfolio-report.cjs');
+// T-218-VD-5: the D-03 deferred idea, now built. entity-extract.cjs stays a
+// standalone script (D-03 -- zero new command surface); this is a plain
+// require, not a new /mos: subcommand. See the freshness-gate block below.
+const ENTITY_EXTRACT = require('./entity-extract.cjs');
 
 // ---------------------------------------------------------------------------
 // Path contract: everything this command writes lives under here.
@@ -84,6 +97,73 @@ function writeStatus(roomDir, obj) {
   fs.writeFileSync(statusPath(roomDir), JSON.stringify(obj) + '\n', 'utf8');
 }
 
+// ---------------------------------------------------------------------------
+// T-218-VD-5: freshness-gated entity-extraction pre-step (218-CONTEXT.md D-03
+// "deferred, not rejected" idea -- built once a real session hit the two-step
+// manual-sequencing gap it was watching for). `eureka run` now extracts first
+// when the room's content is newer than the last successful extraction, so
+// one command reads the room instead of two. Best-effort, never blocking: a
+// failed or skipped extraction still lets ranking proceed on whatever
+// entities the room already has (the T-218-10 degrade-never-throw precedent).
+// ---------------------------------------------------------------------------
+
+function entityExtractStatusPath(roomDir) {
+  return path.join(roomDir, '.mindrian', 'entity-extract', 'status.json');
+}
+
+// The newest mtime among the room's real .md artifact files (every section
+// directory, not just the six memory-kinded basenames -- mirrors
+// entity-extract.cjs's own extend-to-artifacts coverage, T-218-VD-4). A room
+// with no section directories (e.g. a DB-only hermetic test fixture) returns
+// 0, which correctly means "nothing to extract" rather than "always stale".
+function newestArtifactMtimeMs(roomDir) {
+  let newest = 0;
+  let dirents = [];
+  try { dirents = fs.readdirSync(roomDir, { withFileTypes: true }); } catch (_e) { return newest; }
+  for (let i = 0; i < dirents.length; i += 1) {
+    const d = dirents[i];
+    if (!d.isDirectory() || d.name.charAt(0) === '.') continue;
+    let files = [];
+    try { files = fs.readdirSync(path.join(roomDir, d.name)); } catch (_e) { files = []; }
+    for (let j = 0; j < files.length; j += 1) {
+      const f = files[j];
+      if (!/\.md$/i.test(f)) continue;
+      try {
+        const st = fs.statSync(path.join(roomDir, d.name, f));
+        if (st.mtimeMs > newest) newest = st.mtimeMs;
+      } catch (_e) { /* unreadable file, skip */ }
+    }
+  }
+  return newest;
+}
+
+// True when extraction has never succeeded, or the room has content newer
+// than the last successful run. Defensive on every malformed-input path
+// (missing/corrupt status.json) -- when in doubt, extract; a redundant
+// extraction is idempotent (UPSERT-keyed), never harmful, only slower.
+function needsExtraction(roomDir) {
+  let status = null;
+  try { status = JSON.parse(fs.readFileSync(entityExtractStatusPath(roomDir), 'utf8')); } catch (_e) { status = null; }
+  if (!status || status.state !== 'done' || typeof status.finished_at !== 'string') return true;
+  const finishedMs = Date.parse(status.finished_at);
+  if (!Number.isFinite(finishedMs)) return true;
+  return newestArtifactMtimeMs(roomDir) > finishedMs;
+}
+
+// The pre-step itself. Swallows every error -- ranking must never be blocked
+// by an extraction failure (T-218-10 precedent, restated for this call site).
+async function maybeExtractFirst(roomDir, opts) {
+  if (opts && opts.noExtract) return;
+  let stale = true;
+  try { stale = needsExtraction(roomDir); } catch (_e) { stale = true; }
+  if (!stale) return;
+  try {
+    await ENTITY_EXTRACT.main([roomDir, 'run']);
+  } catch (_e) {
+    // best-effort: proceed to ranking on whatever the room already has.
+  }
+}
+
 const USAGE = [
   '/mos:eureka -- portfolio-scale opportunity scan over the active room.',
   '',
@@ -101,6 +181,7 @@ const USAGE = [
   '  --top <n>       keep the top N ranked pairs (default 25)',
   '  --offline       deterministic stub encoder (no model)',
   '  --graph <path>  explicit idea-graph substrate override',
+  '  --no-extract    skip the automatic entity-extraction pre-step on run',
 ].join('\n');
 
 // ---------------------------------------------------------------------------
@@ -108,7 +189,7 @@ const USAGE = [
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const out = { roomDir: null, sub: null, top: 25, offline: false, graph: null, topProvided: false, help: false };
+  const out = { roomDir: null, sub: null, top: 25, offline: false, graph: null, topProvided: false, help: false, noExtract: false };
   const positional = [];
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
@@ -116,6 +197,7 @@ function parseArgs(argv) {
       case '-h':
       case '--help': out.help = true; break;
       case '--offline': out.offline = true; break;
+      case '--no-extract': out.noExtract = true; break;
       case '--top': out.top = parseInt(argv[i += 1], 10); out.topProvided = true; break;
       case '--graph': out.graph = argv[i += 1]; break;
       default: positional.push(a); break;
@@ -160,6 +242,12 @@ async function cmdRun(opts) {
     printError('room directory not found', String(roomDir) + ' is not a directory', 'pass a valid room path, or run /mos:new-project');
     return 1;
   }
+
+  // T-218-VD-5: extract first when the room has content newer than the last
+  // successful extraction (or has never been extracted). Best-effort --
+  // never blocks ranking on failure. Opt out with --no-extract.
+  await maybeExtractFirst(roomDir, opts);
+
   const sub = resolveSubstrate(roomDir, opts.graph);
   if (sub.error) {
     printError(sub.error.what, sub.error.why, sub.error.fix);
