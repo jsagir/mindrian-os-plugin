@@ -173,10 +173,12 @@ never soften it:
   calibration set, and structurally unreachable from cadence (origin
   `cadence` + `llm_manual` returns a typed `blocked` before anything fetches).
 
-`research_mode` on this path is the same closed enum the topic mode returns:
-`normal` | `web_degraded_local_fallback` | `local_only` | `insufficient_evidence`.
-The url-ingest pipeline composes the first, second, and fourth (`local_only` is
-the driver's deliberately-offline verdict and does not arise from a URL ingest).
+`research_mode` on this path draws from the same closed enum the topic mode
+returns (all six values are documented in "Recovery modes and outcomes" below).
+The url-ingest pipeline composes `normal`, `web_degraded_local_fallback`, and
+`insufficient_evidence` (`local_only` is the driver's deliberately-offline
+verdict and does not arise from a URL ingest; the two recovery values arise
+only when the Phase 221 recovery ladder was involved).
 
 ### 4. On [Ingest+Explore]
 
@@ -388,6 +390,70 @@ because of unconfigured MCPs -- and it never hides an outage behind an empty
 success. The public research-cache stores ONLY web-sourced signal data (ids,
 titles, public abstracts, DOIs); room body text NEVER lands in it (guard test:
 tests/test-219-research-contract.cjs).
+
+## Recovery modes and outcomes (Phase 221: no silent recovery, no invented certainty)
+
+When an engine breaks mid-run, the run does not dead-end and it does not lie.
+A typed recovery ladder routes the failure, and the result tells you exactly
+what happened. Here is the whole vocabulary, in plain language.
+
+### The six `research_mode` values (what kind of run this was)
+
+| `research_mode` | Plain-English meaning |
+|-----------------|----------------------|
+| `normal` | Every engine worked. Nothing to disclose. |
+| `web_degraded_local_fallback` | A live web leg failed; cached or local data covered the gap. The outage stays visible in `providers`. |
+| `local_only` | The run was deliberately offline (your choice, not a failure). |
+| `insufficient_evidence` | Zero items anywhere. A cold corpus is a typed verdict, never a silent ok with empty arrays. |
+| `llm_engine_recovery` | An engine broke and a bounded, fenced LLM recovery did the intelligence work; everything it did is disclosed (profile, paths, model, claims). |
+| `manual_intervention_required` | The run needs YOU, and the message names the smallest missing thing. Two distinct causes worth telling apart: (a) a missing credential or permission, something you can fix in a minute; (b) `spend_limit_exceeded`, meaning your own Claude account hit its monthly spend cap. Raise it at claude.ai/settings/usage, or wait for the reset. This is never a sign anything is wrong with your data or your room (D-11). |
+
+### The five overall outcomes (how the run ended)
+
+| `outcome` | When it appears |
+|-----------|-----------------|
+| `recovered` | Recovery worked, fully. This word is earned, never guessed: every required stage contract passed AND any filed evidence was readback-confirmed on disk. A filing that did not confirm can never compose `recovered`. |
+| `partial_recovery` | Recovery covered part of the scope; the rest is named in `unresolved_gaps`. A budget that ran out ends here too, never as a complete-looking short report. |
+| `insufficient_evidence` | Nothing covered the scope. The honest zero. |
+| `manual_intervention_required` | The ladder reached the human tier: the disclosure names the exact missing credential, engine, or the spend cap. |
+| `policy_blocked` | The Part 8 privacy fence refused an egress. Terminal: never retried, never rerouted, never rephrased. |
+
+### The disclosure block (what you see on every recovery-touched run)
+
+Every run the recovery ladder touched returns a `disclosure` alongside the
+findings, so you never wonder what happened behind the curtain:
+
+- `failed_engines` - which stage and engine broke, with the typed failure class
+- `recovery_profile` - `diagnostic` | `high_effort` | `forensic` (or null if the LLM tier never ran)
+- `recovery_paths` - the exact paths recovery took (retries, substitutes, LLM tier)
+- `coverage` - claim coverage: `requested` / `supported` / `conflicting` / `unsupported`
+- `freshness` - `live_verified` is true ONLY on a genuine live fetch, never cache or substitute; plus the newest source timestamp and a warning when nothing was live
+- `filing` - `attempted` / `confirmed_by_readback` / `reason`: filed means readback-confirmed, nothing less
+- `unresolved_gaps` - what remains unknown, each gap corpus-scoped and provisional (absence from one corpus is never project-level nonexistence)
+- `model` - which model and version did the recovery work (recorded, never governing)
+
+### The 6-tier recovery ladder (how a failure routes)
+
+| Tier | What it does | Exit |
+|------|--------------|------|
+| 0 | Normal engine | stage contracts pass |
+| 1 | Deterministic retry, idempotent fetches only, bounded backoff | contract passes or retry budget exhausted |
+| 2 | Local governed substitute (room corpus, research cache), explicit provenance, never mislabeled as live | coverage restored or gaps explicit |
+| 3 | High-effort LLM recovery, gate-OFFERED and fenced | validated recovery bundle or trustworthy-recovery-impossible |
+| 4 | Human intervention, the smallest missing thing named | you resolve or defer |
+| 5 | Honest termination | the run ends without invented success |
+
+Three honesty rules the ladder never bends:
+
+1. **A legitimate empty is a finding.** `empty_valid` never triggers recovery
+   and is never "recovered" into content that was not there.
+2. **Cadence runs never invoke the LLM tier unattended.** A scheduled or
+   background run terminates honestly instead of spending your budget while
+   you are away (Canon Part 3).
+3. **An exhausted spend cap is never retried and never handed to the LLM
+   tier.** Retrying wastes more of what is already gone, and asking the LLM
+   to recover from the LLM being out of budget cannot work (D-11). It routes
+   straight to you with the one actionable step.
 
 ## Voice
 

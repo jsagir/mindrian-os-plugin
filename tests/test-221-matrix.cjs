@@ -437,6 +437,43 @@ function tier3Recovery(overrides) {
       'the actionable message reaches the user-visible disclosure');
   });
 
+  // =========================================================================
+  // Task 2 group P -- the D-08 doc-parity gate (the 219-05 grep idiom).
+  // =========================================================================
+
+  record('P1 doc-parity: all 12 tokens (6 modes + 5 outcomes + spend_limit_exceeded) grep >0 in BOTH research.md surfaces; paid -> native greps 0; zero em-dashes', function () {
+    const cmdDoc = fs.readFileSync(path.join(REPO_ROOT, 'commands', 'research.md'), 'utf8');
+    const skillDoc = fs.readFileSync(path.join(REPO_ROOT, 'skills', 'research', 'SKILL.md'), 'utf8');
+    // The 12 D-08/D-11 tokens: the six research_mode values + the five
+    // outcomes + 'spend_limit_exceeded' (the 12th searchable term, so a
+    // capped user can find themselves in the docs).
+    const TOKENS = [
+      // six modes
+      'normal', 'web_degraded_local_fallback', 'local_only', 'insufficient_evidence',
+      'llm_engine_recovery', 'manual_intervention_required',
+      // five outcomes
+      'recovered', 'partial_recovery', 'insufficient_evidence',
+      'manual_intervention_required', 'policy_blocked',
+      // D-11: the capped-user search term
+      'spend_limit_exceeded',
+    ];
+    assert.equal(TOKENS.length, 12, 'the doc-parity token bank is exactly 12');
+    for (const token of TOKENS) {
+      assert.ok(cmdDoc.indexOf(token) !== -1, 'commands/research.md carries "' + token + '"');
+      assert.ok(skillDoc.indexOf(token) !== -1, 'skills/research/SKILL.md carries "' + token + '"');
+    }
+    // The 219-05 drift fix carried through the regenerated mirror: the
+    // unshipped paid -> native ordering claim stays gone from BOTH.
+    for (const doc of [cmdDoc, skillDoc]) {
+      assert.ok(!/paid\s*->\s*native/.test(doc), 'no paid -> native claim');
+      assert.ok(!/paid\s*(?:-|–|—)>\s*native/.test(doc), 'no dash-variant of the claim');
+      assert.equal(doc.indexOf('—'), -1, 'zero em-dashes (CLAUDE.md HARD RULE)');
+    }
+    // The capped-user guidance is discoverable next to its search term.
+    assert.ok(cmdDoc.indexOf('claude.ai/settings/usage') !== -1, 'the actionable spend-cap step is documented');
+    assert.ok(skillDoc.indexOf('claude.ai/settings/usage') !== -1, 'and mirrored');
+  });
+
   console.log('=== 221-04 matrix suite: ' + passed + ' passed, ' + failed + ' failed ===');
   if (failed > 0) process.exit(1);
 })().catch(function (err) {
