@@ -439,7 +439,19 @@ checklist, verbatim handoff note): `219-RELEASE-STAGING.md` (this directory).
 
 ### 4.3 NAVIGATOR CONFIRMATION (recorded verbatim on receipt)
 
-_(OPEN - filled when the navigator pastes back the corepower results + ticked checklist and
-types "confirmed". A PASS closes the open post-218 eureka re-run memory item and opens the
-joint 219+220+221 release gate. A FAIL routes to the owning plan before release staging
-proceeds - never hot-patched past this gate.)_
+**STATUS: WAIVED (navigator override, 2026-07-13) - NOT a PASS, recorded honestly as
+a knowing risk acceptance.**
+
+The navigator explicitly instructed bypassing the corepower Desktop run ("I want to
+bypass") after the residual risk was stated plainly: the FTS5 bi-modal-degrade fix
+(219-02) has been simulated on this Linux dev machine
+(`MINDRIAN_FORCE_FTS_ABSENT=1`, verified 30,874 pairs / zero fts5 errors) but has
+**never been confirmed on real Windows hardware**. If the fix is actually broken on
+Windows, real users on that platform will hit the original `no such module: fts5`
+crash. This is a deliberate, informed trade the navigator chose to accept, not a
+verification failure being papered over.
+
+The open post-218 session-memory item (re-run eureka on corepower-isolation) remains
+**explicitly OPEN**, carried forward, not closed by this waiver - it should still
+happen at the navigator's convenience post-release, and the memory item should not
+be marked resolved until it does.
