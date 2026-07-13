@@ -3067,7 +3067,7 @@ Plans:
 
 **Depends on:** Phase 219 (D-16 post-filing extraction contract, harvest sensor rail), Phase 218 (extractor), Tavily house tooling. Prior art: SEED-025 (futures-wheel scanning cadence overlap), SEED-031 (regulators), the 2026-07-13 DOM->Markdown->KG pattern review (navigator-supplied, filed in the phase research when spawned). REJECTED at registration: jsdom/Playwright/@lightfeed new deps (Tavily covers the DOM stage); direct Neo4j triplet writes (Part 8 breach).
 
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 Plans:
 **Wave 1**
@@ -3076,7 +3076,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 220-02-PLAN.md - url-ingest pipeline: D-03 sidecar filing + D-11 nesting (raw capture + normalized) + content-hash idempotency + SUPERSEDES + 219 scoped-extraction consumption (verify-landed) + D-19 envelope + inbound adversarial fixtures + D-08 cache purity [REQ-1, REQ-4, REQ-5]
+- [x] 220-02-PLAN.md - url-ingest pipeline: D-03 sidecar filing + D-11 nesting (raw capture + normalized) + content-hash idempotency + SUPERSEDES + 219 scoped-extraction consumption (verify-landed) + D-19 envelope + inbound adversarial fixtures + D-08 cache purity [REQ-1, REQ-4, REQ-5]
 
 **Wave 3** *(blocked on Wave 2; 03 and 04 run parallel)*
 
@@ -3101,12 +3101,12 @@ Plans:
 
 **Explicitly OUT of scope:** autonomous graph mutation; continuous crawling; broad format support; model-name-pinned governance; extending envelopes beyond the research pipeline + 219/220 seams (eureka/doctor adopt later).
 
-**Plans:** 5 plans (planned 2026-07-13; SPEC locked 6 requirements REQ-1..REQ-6; envelopes-first wave order per D-01; the cut is Wave 5, autonomous: false)
+**Plans:** 1/5 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 221-01-PLAN.md - Typed stage envelopes on the verified collapse sites (research-corpus five sites + source-lens fetchSourceCached, additive over 219-05) + MINDRIAN_FORCE_* failure-injection harness + run-all-221.sh [REQ-1]
+- [x] 221-01-PLAN.md - Typed stage envelopes on the verified collapse sites (research-corpus five sites + source-lens fetchSourceCached, additive over 219-05) + MINDRIAN_FORCE_* failure-injection harness + run-all-221.sh [REQ-1]
 
 **Wave 2** *(blocked on Wave 1)*
 
