@@ -57,3 +57,31 @@ per the scope boundary they are recorded here, not fixed.
   work. Per the scope boundary it is logged here, not fixed.
 - **Suggested fix (owner: 219 follow-through or the 221 release-readiness pass):** add
   both commands to help-groups.json and re-run the 216 gate.
+
+## 5. getNeighborhood is outgoing-only: an artifact-focused graph_query cannot see its DERIVED_FROM entities (Phase 109 design, surfaced by the 220-05 live run)
+
+- **What:** `lib/core/navigation/neighborhood.cjs:22` traverses `e.source = nh.id ->
+  e.target` only. Extraction vocabulary points entity -> artifact (DERIVED_FROM,
+  DESCRIBES), and a freshly-filed research artifact has zero outgoing edges, so
+  `graph_query(node_id = artifact)` returns 0 results while
+  `graph_query(node_id = entity)` correctly surfaces the artifact (verified live on
+  ador-ip-test, 220-VERIFICATION.md Section 2.3).
+- **Classification:** pre-existing shipped Phase 109 traversal design, NOT a 220 gap;
+  REQ-1's live acceptance (entities visible via graph_query) passes from the entity
+  focus, the production navigation posture.
+- **Suggested fix (owner: navigation/neighborhood maintenance, only if wanted):** add an
+  optional reverse-traversal leg (UNION on e.target = nh.id) or an incoming-edges flag
+  on getNeighborhood; weigh against the Phase 109 frozen-weights contract first.
+
+## 6. TAVILY_API_KEY in ~/.env is dead (HTTP 401 both auth styles, both endpoints)
+
+- **What:** discovered by the 220-05 live run (2026-07-13). The key exists but Tavily
+  returns 401 on /search and /extract with both the body api_key and Bearer header
+  conventions - expired or rotated. The adapter degraded exactly per D-01/D-19 (typed
+  provider_unavailable / http_401 envelope, zero writes). An alternate stored credential
+  exists in ~/.claude.json (untested - credential-store extraction correctly denied by
+  the permission system).
+- **Classification:** ENV GAP (credential), not a product bug.
+- **Suggested fix (owner: navigator):** rotate/refresh the Tavily key in ~/.env; then
+  re-run the 220-VERIFICATION Section 2 rung-1 leg (the checkpoint asks for exactly
+  this).
