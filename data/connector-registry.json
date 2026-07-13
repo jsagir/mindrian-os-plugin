@@ -424,6 +424,21 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:explore-opportunity",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "deep_research",
+      "sub_mode": "explore-opportunity",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 5,
+      "filing": "none",
+      "plan_gated": true,
+      "web_scope": "green",
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:explore-trends",
       "source": "command",
       "connects_to_spine": true,

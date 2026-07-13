@@ -823,6 +823,27 @@
       }
     },
     {
+      "id": "command:/mos:explore-opportunity",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:explore-opportunity",
+      "reach_id": "deep_research",
+      "sub_mode": "explore-opportunity",
+      "hierarchy_rank": 5,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:explore-opportunity",
+        "reach_id": "deep_research",
+        "sub_mode": "explore-opportunity"
+      },
+      "ranking": {
+        "reach_id": "deep_research",
+        "sub_mode": "explore-opportunity",
+        "hierarchy_rank": 5,
+        "posture": "hold"
+      }
+    },
+    {
       "id": "command:/mos:explore-trends",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -2842,6 +2863,12 @@
       "name": "explore-futures"
     },
     {
+      "id": "skill:explore-opportunity",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "explore-opportunity"
+    },
+    {
       "id": "skill:explore-trends",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -3932,6 +3959,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "expert-skill"
+    },
+    {
+      "id": "sub_mode:explore-opportunity",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "explore-opportunity"
     },
     {
       "id": "sub_mode:file-meeting",

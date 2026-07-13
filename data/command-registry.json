@@ -554,6 +554,22 @@
       "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
     },
     {
+      "command": "/mos:explore-opportunity",
+      "kind": "utility",
+      "surface": "navigator",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": "A qualified opportunity is still conceptual: a connection without a defined problem. /mos:explore-opportunity runs the analysis chain (deep research, diffusion timing, analogies, web validation) and files a Minto-shaped explored artifact - a governing thought backed by cited sources and typed graph evidence. Opportunities must be researched and explored to become well-defined problems; this is that step, and its cost stays in your hands.",
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+    },
+    {
       "command": "/mos:explore-trends",
       "kind": "methodology",
       "surface": "navigator",
