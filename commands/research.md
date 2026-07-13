@@ -144,13 +144,18 @@ node -e '
 '
 ```
 
-The driver fetches EXCLUSIVELY through the Phase 130.5 shared corpus + cache (it
-adds no fetcher, no second cache, no second pre-egress audit -- the Canon Part 8
-pre-egress audit is the shared hook inside `fetchCorpus`, inherited on every fetch),
-dedups against prior research, ranks by evidence-tier (Canon Part 5) + relevance,
-applies the stage threshold (a `commit` stage drops None-tier findings), and returns
-`{ ok, findings, lens_set }` with up to the top 5 findings. There is NO Python in
-this path -- ranking is CJS-native tier + token-overlap relevance.
+The driver fetches EXCLUSIVELY through the Phase 130.5 shared corpus + cache,
+CACHE-FIRST per lens (research-cache TTL read -> live `fetchCorpus` on a miss ->
+write-back; it adds no fetcher, no second cache, no second pre-egress audit --
+the Canon Part 8 pre-egress audit is the shared hook inside `fetchCorpus`,
+inherited on every live fetch), dedups against prior research, ranks by
+evidence-tier (Canon Part 5) + relevance, applies the stage threshold (a `commit`
+stage drops None-tier findings), and returns
+`{ ok, findings, lens_set, research_mode, providers }` with up to the top 5
+findings. `research_mode` + `providers` are the D-19 typed envelope: a failing
+source is a typed `error` provider status, and a cold corpus returns
+`insufficient_evidence` -- never a silent ok + empty arrays. There is NO Python
+in this path -- ranking is CJS-native tier + token-overlap relevance.
 
 ## Stage 5 -- PRESENTATION
 
@@ -266,13 +271,31 @@ ZERO LOCAL data ever reaches the Brain. The only Brain touch is the read-only
 framework handles only, via the Phase 110 packet path). All graph writes are LOCAL
 room.db via `navigation.cjs`. No Python script is called anywhere in this command.
 
-## Web research tier-awareness (inherited)
+## Web research fetch order + provider honesty (D-19)
 
-The fetch path inside the 130.5 corpus has a paid -> native -> cache fallback chain,
-so /mos:research produces grounded results regardless of which web-research MCPs are
-configured. When Brain is unreachable, the research still runs; only the `brain`
-lens degrades to empty. /mos:research never silently no-ops because of unconfigured
-MCPs.
+The SHIPPED fetch order is CACHE-FIRST (the reality this doc describes; Phase
+219-05 reality-to-docs fix): for each lens, the driver consults the shared
+`.mindrian/research-cache` (30-day TTL, source+query keyed) FIRST; a miss falls
+through to one live `fetchCorpus` call against that lens's 130.5 source
+(OpenAlex / Tavily / PubMed / Brain), and a successful live fetch writes back to
+the cache. There is NO paid/native provider re-ordering layer in this path.
+
+Every run returns the D-19 provider-status envelope alongside the findings:
+
+- `research_mode` -- the typed run verdict: `normal` |
+  `web_degraded_local_fallback` (a live leg failed; cached/local data covered) |
+  `local_only` (deliberately offline) | `insufficient_evidence` (a COLD corpus:
+  zero items anywhere -- typed, never a silent ok + empty arrays).
+- `providers[]` -- per-lens `{ provider, lens, status, reason, counts,
+  freshness }` where status is the closed enum `ok | empty | error | skipped`.
+
+A per-source failure degrades that lens to zero items with a TYPED `error`
+status (the outage stays visible). When Brain is unreachable, the research
+still runs; only the `brain` lens degrades. /mos:research never silently no-ops
+because of unconfigured MCPs -- and it never hides an outage behind an empty
+success. The public research-cache stores ONLY web-sourced signal data (ids,
+titles, public abstracts, DOIs); room body text NEVER lands in it (guard test:
+tests/test-219-research-contract.cjs).
 
 ## Voice
 
