@@ -58,3 +58,21 @@ un-poisons every downstream chain (`run-all-215/216/218/219/220`) that
 regression-checks through 211. Not touched: the R5 SPEC constraint's OTHER
 named item (the SQLite WAL-reset bug, bundled 3.51.2) - out of scope,
 unrelated defect class, left exactly as documented.
+
+## From 219-05 (explore-chain executor, 2026-07-13)
+
+1. **doctor --acceptance `verify-release-clean-tree` FAIL persists: 5-file
+   tracked drift owned by concurrent sibling sessions** (commands/eureka.md,
+   evals/plurai/211-baseline.json, package-lock.json,
+   scripts/eureka-command.cjs, skills/eureka/SKILL.md; plus untracked
+   eureka/brain-ingest artifacts and the just-appearing Phase 221 files
+   lib/core/recovery/ + tests/run-all-221.sh). Zero overlap with the 219-05
+   diff; not staged, not touched. The point clears when those sessions
+   commit. Every other acceptance point passes (14/15 after the 219-05
+   post-mirror connector + render-coverage regens).
+
+2. **`tests/test-131-e2e.cjs` fails 0/5 at clean HEAD** (verified against the
+   committed tree with the 219-05 diff removed): a pre-existing 131 e2e
+   failure unrelated to the D-19 driver envelope (the driver-unit suite
+   `test-131-source-lens-driver.cjs` and `test-intelligence-research-pipeline`
+   are green with the envelope in place). Left for its own debug session.
