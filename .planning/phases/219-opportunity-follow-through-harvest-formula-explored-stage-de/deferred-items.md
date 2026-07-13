@@ -76,3 +76,29 @@ unrelated defect class, left exactly as documented.
    failure unrelated to the D-19 driver envelope (the driver-unit suite
    `test-131-source-lens-driver.cjs` and `test-intelligence-research-pipeline`
    are green with the envelope in place). Left for its own debug session.
+
+## From 219-06 (live ador re-run executor, 2026-07-13)
+
+1. **Part 8 five-tripwire sensor sweep NOW RED: sibling-owned SENS-15 file
+   trips the blunt forbidden-hash regex.** `node tests/test-sensors-part8-sweep.cjs`
+   went from `1 passed, 0 failed over 18 file(s)` (219-06 prior leg) to
+   `0 passed, 1 failed over 19 file(s)`. The one new file is
+   `lib/core/sensors/sensor-url-ingest.cjs` (SENS-15, the 220-03 pasted-URL
+   sensor, commit b6562f87 `feat(220-03)`), which the sweep now spans because
+   its scan is `lib/core/sensors/*` glob-automatic. The failing assertion:
+   `sensor module carries zero Brain egress ... must not match forbidden hash
+   call: /\bsha256\b/i`. Root cause: line 214 `crypto.createHash('sha256')`
+   is used to build a 12-hex URL HANDLE (`first_url_handle`) - which is the
+   Part-8-COMPLIANT behavior (a bare hostname + hashed handle, never the full
+   URL, per the module's own header lines 55-60) - but the sweep's forbidden-
+   token regex is a blunt `/\bsha256\b/i` word-match that cannot distinguish a
+   Part-8 handle-minting hash from an actual egress hash. Zero overlap with any
+   219 file (219-06 modifies only 219-VERIFICATION.md). Two owning surfaces,
+   neither this plan: (a) 220-03 (the SENS-15 author) - either mint the handle
+   through the sanctioned handle helper or add the sensor to a sweep carve-out;
+   or (b) the sweep itself (`tests/test-sensors-part8-sweep.cjs`) - narrow the
+   regex so a handle-minting hash is not a false positive (this is the
+   over-enforcement class the recent `check-card-fire.cjs` instances logged).
+   Recorded honestly: 219-06 must_have truth 6 ("Part 8 five-tripwire boundary
+   scan green") is NOT green on this shared tree, solely from this sibling file.
+   NOT patched here per the scope boundary.
