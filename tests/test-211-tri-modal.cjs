@@ -371,8 +371,19 @@ async function hybridTests(ctx) {
     assert.ok(typeof ranked.results[0].rerank_score === 'number', 'rerank_score attached');
     assert.ok(!ranked.warning, 'no warning on the injection path');
 
-    // no rerankFn + transformers not installed -> unchanged order + warning
-    const un = await hybrid.rerank('q', candidates, {});
+    // no rerankFn + model unavailable -> unchanged order + warning. Forced via
+    // MINDRIAN_FORCE_RERANK_ABSENT so this leg is deterministic regardless of
+    // whether @huggingface/transformers happens to be installed on this host
+    // (env-dependent flake fixed: this used to assume the dep was absent).
+    const priorForce = process.env.MINDRIAN_FORCE_RERANK_ABSENT;
+    process.env.MINDRIAN_FORCE_RERANK_ABSENT = '1';
+    let un;
+    try {
+      un = await hybrid.rerank('q', candidates, {});
+    } finally {
+      if (priorForce === undefined) delete process.env.MINDRIAN_FORCE_RERANK_ABSENT;
+      else process.env.MINDRIAN_FORCE_RERANK_ABSENT = priorForce;
+    }
     assert.strictEqual(un.warning, 'rerank_unavailable', 'rerank_unavailable warning');
     assert.strictEqual(un.results[0].node_id, 'x', 'input order preserved on failure');
     assert.strictEqual(un.results[1].node_id, 'y', 'input order preserved on failure');

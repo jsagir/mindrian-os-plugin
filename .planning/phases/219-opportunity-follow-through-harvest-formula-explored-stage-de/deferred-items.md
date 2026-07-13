@@ -37,3 +37,24 @@ failures are recorded, never fixed inline).
    `test-211-tri-modal.cjs` Test 8. Every plan-owned 219 leg is green
    (banking, FTS5, metadata, harvest sensor, qualification, all grep gates,
    connector registry).
+
+## RESOLVED (2026-07-13, direct fix during the 219-05 recovery pass)
+
+Item 1 (219-01) / item 2 (219-04), the R5 pre-existing rerank test, is
+**fixed**, not merely worked around. Root cause: `test-211-tri-modal.cjs`
+Test 8 assumed `@huggingface/transformers` was absent on the host to
+exercise the `rerank_unavailable` degrade path; once transformers.js was
+installed (ambient machine state, unrelated to any 219/220/221 diff), the
+assumption broke and the leg went red on every downstream regression sweep.
+Fix mirrors the existing `MINDRIAN_FORCE_FTS_ABSENT` (tri-modal-index.cjs)
+/ `MINDRIAN_FORCE_ENGINE_ABSENT` (219 D-20) idiom: added
+`MINDRIAN_FORCE_RERANK_ABSENT` as a deterministic offline-test seam in
+`lib/core/eureka/hybrid-retrieve.cjs::loadReranker` (throws before touching
+the real dependency when set), and the test now sets/restores it around
+the unavailable-path assertion instead of relying on host install state.
+Verified: `node tests/test-211-tri-modal.cjs` 12/12 PASS;
+`bash tests/run-all-211.sh` PASS=10 FAIL=0 SKIP=0 (was FAIL=1). This
+un-poisons every downstream chain (`run-all-215/216/218/219/220`) that
+regression-checks through 211. Not touched: the R5 SPEC constraint's OTHER
+named item (the SQLite WAL-reset bug, bundled 3.51.2) - out of scope,
+unrelated defect class, left exactly as documented.
