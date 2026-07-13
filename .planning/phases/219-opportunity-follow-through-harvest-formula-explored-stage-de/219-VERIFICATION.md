@@ -400,6 +400,46 @@ machine) proceeds toward the joint 219+220+221 release readiness.
 
 ---
 
-## 4. Corepower Validation
+## 4. Corepower Validation (Plan 07, D-13)
 
-_(filled by Plan 07 - navigator-run on the Desktop machine)_
+**STATUS: PENDING NAVIGATOR RUN (blocking checkpoint - never auto-approvable).**
+Staged 2026-07-13 by the 219-07 executor; everything below the confirmation slot is complete.
+
+### 4.1 What the navigator runs
+
+The paste-ready Desktop prompt: `219-COREPOWER-VALIDATION-PROMPT.md` (this directory).
+Run it verbatim in the corepower-isolation room on the Desktop (Windows) machine. It directs
+the PRODUCTION `/mos:eureka` path only - never a manual-baseline reconstruction (this run
+closes the open session-memory item: the previous corepower eureka run used zero of the
+shipped 211-216 engine). The primary Windows-specific check is 219-02's FTS5 fix: eureka
+completes WITHOUT a `no such module: fts5` crash; provenance `fts_backend` reading `fts5` OR
+`absent (bi-modal degrade)` is a PASS either way.
+
+Build preflight note (staged honestly): the marketplace pin is v1.15.3-beta.14, which predates
+the 219 engine - the prompt's Step 0 detects a stale build and stops BEFORE it can produce a
+false FAIL. The machine needs the repo's current main for this validation.
+
+### 4.2 Release readiness sweep (staged alongside, 2026-07-13)
+
+| Gate | Result |
+|------|--------|
+| `bash tests/run-all-219.sh` | GREEN (219: 12/12; 218 substrate: 13/13; 211 engine: 10/10) |
+| `node scripts/doctor.cjs --acceptance` | 14/15 - sole FAIL `verify-release-clean-tree` = sibling-session tracked drift (220/221 files), zero 219 overlap, pre-documented in deferred-items.md; must land/revert before the 221 cut |
+| `node scripts/build-connector-registry.cjs --check` | GREEN (`connector-registry: OK`) |
+| `scripts/verify-release` (current-version consistency pre-check) | GREEN - 26/0/3 warnings, `CLEAR TO RELEASE v1.15.3-beta.15`; the CHANGELOG-entry warning is the correct pre-cut state (the staged joint entry fills it at cut time) |
+| `git diff --exit-code package.json .claude-plugin/plugin.json CHANGELOG.md README.md` | CLEAN - zero premature bump (the cut belongs to Phase 221 completion) |
+
+Readiness fix landed during staging (deviation, recorded): the GAP-2 harvest fix was
+live-verified but never committed by the 219-06 session; committed as `d5a47f83` so the
+release ships the code the live evidence describes.
+
+Full staging record (CHANGELOG joint draft with the marked 220/221 slots, README content
+refresh, marketplace pin + description fact-check, website fact-check + VERSION-BUMP
+checklist, verbatim handoff note): `219-RELEASE-STAGING.md` (this directory).
+
+### 4.3 NAVIGATOR CONFIRMATION (recorded verbatim on receipt)
+
+_(OPEN - filled when the navigator pastes back the corepower results + ticked checklist and
+types "confirmed". A PASS closes the open post-218 eureka re-run memory item and opens the
+joint 219+220+221 release gate. A FAIL routes to the owning plan before release staging
+proceeds - never hot-patched past this gate.)_
