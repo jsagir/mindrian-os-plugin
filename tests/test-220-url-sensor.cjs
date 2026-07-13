@@ -294,6 +294,64 @@ check('G7c: SENSOR_ID is the build-time-verified free id', () => {
   assert.equal(SENSOR_ID, 'SENS-15');
 });
 
+// ---------- (8) DOC-PARITY GREPS (REQ-4 / D-07) ----------
+
+const RESEARCH_DOC_PATH = path.join(REPO_ROOT, 'commands', 'research.md');
+const URL_INGEST_SRC_PATH = path.join(REPO_ROOT, 'lib', 'core', 'url-ingest.cjs');
+
+check('G8a: research.md documents every research_mode enum value the pipeline returns', () => {
+  const src = fs.readFileSync(URL_INGEST_SRC_PATH, 'utf8');
+  const doc = fs.readFileSync(RESEARCH_DOC_PATH, 'utf8');
+  // The closed D-19 vocabulary: every member present in the pipeline source
+  // must be present in the doc (read from source, never hardcoded-only).
+  const MODE_VOCAB = ['normal', 'web_degraded_local_fallback', 'local_only', 'insufficient_evidence'];
+  const inSource = MODE_VOCAB.filter((m) => src.indexOf(m) !== -1);
+  assert.ok(inSource.indexOf('web_degraded_local_fallback') !== -1, 'source sanity: degrade mode present');
+  assert.ok(inSource.indexOf('insufficient_evidence') !== -1, 'source sanity: cold mode present');
+  for (const mode of inSource) {
+    assert.ok(doc.indexOf(mode) !== -1, 'doc names research_mode value: ' + mode);
+  }
+});
+
+check('G8b: research.md documents every typed outcome the pipeline returns', () => {
+  const src = fs.readFileSync(URL_INGEST_SRC_PATH, 'utf8');
+  const doc = fs.readFileSync(RESEARCH_DOC_PATH, 'utf8');
+  const OUTCOME_VOCAB = ['filed', 'no_op', 'superseded', 'provider_unavailable', 'size_exceeded', 'blocked', 'error'];
+  const inSource = OUTCOME_VOCAB.filter((o) => new RegExp("'" + o + "'").test(src));
+  assert.ok(inSource.length >= 7, 'source sanity: all 7 typed outcomes present (got ' + inSource.length + ')');
+  for (const outcome of inSource) {
+    assert.ok(doc.indexOf(outcome) !== -1, 'doc names outcome: ' + outcome);
+  }
+});
+
+check('G8c: the retired unshipped-ordering claim never regresses (219-05 fixed drift)', () => {
+  const doc = fs.readFileSync(RESEARCH_DOC_PATH, 'utf8');
+  assert.ok(doc.indexOf('paid -> native') === -1, 'zero "paid -> native" ordering claims');
+  assert.ok(doc.indexOf('paid->native') === -1, 'zero "paid->native" ordering claims');
+});
+
+check('G8d: the URL mode + ladder + SENS wiring are documented (must_haves greps)', () => {
+  const doc = fs.readFileSync(RESEARCH_DOC_PATH, 'utf8');
+  assert.ok((doc.match(/url-ingest/g) || []).length >= 2, 'url-ingest named >= 2 times');
+  assert.ok(doc.indexOf('llm_manual_baseline') !== -1, 'the D-10 manual rung label present');
+  const manualRung = doc.slice(doc.indexOf('Rung 3'), doc.indexOf('Rung 3') + 1200);
+  assert.match(manualRung, /never auto-selected/i, 'never-default language present');
+  assert.match(manualRung, /never silent/i, 'never-silent language present');
+  assert.ok(doc.indexOf('sensor_triggers: [SENS-04, SENS-15]') !== -1, 'SENS-15 in sensor_triggers');
+  assert.ok(doc.indexOf('ingestUrl') !== -1, 'the command shells ingestUrl');
+  assert.ok(doc.indexOf('[Ingest]') !== -1 && doc.indexOf('[Ingest+Explore]') !== -1 && doc.indexOf('[Skip]') !== -1,
+    'the three F.1 verbs documented');
+  assert.ok(doc.indexOf('—') === -1, 'zero em-dash characters in research.md');
+  const sensorSrc = fs.readFileSync(SENSOR_PATH, 'utf8');
+  assert.ok(sensorSrc.indexOf('—') === -1, 'zero em-dash characters in the sensor');
+});
+
+check('G8e: skills/research/SKILL.md is a regenerated mirror carrying the URL mode', () => {
+  const mirror = fs.readFileSync(path.join(REPO_ROOT, 'skills', 'research', 'SKILL.md'), 'utf8');
+  assert.ok(mirror.indexOf('URL mode') !== -1, 'mirror carries the URL mode section');
+  assert.ok(mirror.indexOf('llm_manual_baseline') !== -1, 'mirror carries the manual rung');
+});
+
 // ---------- summary ----------
 
 console.log('');

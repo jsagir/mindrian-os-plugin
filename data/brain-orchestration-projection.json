@@ -1873,7 +1873,8 @@
       "hierarchy_rank": 6,
       "posture": "hold",
       "sensor_triggers": [
-        "SENS-04"
+        "SENS-04",
+        "SENS-15"
       ],
       "framework": "Hypothesis-Driven Problem Solving",
       "chain_provenance": {
@@ -1882,7 +1883,8 @@
         "reach_id": "deep_research",
         "sub_mode": "hat-scoped-research",
         "firing_sensors": [
-          "SENS-04"
+          "SENS-04",
+          "SENS-15"
         ]
       },
       "ranking": {
@@ -1891,7 +1893,8 @@
         "hierarchy_rank": 6,
         "posture": "hold",
         "sensor_triggers": [
-          "SENS-04"
+          "SENS-04",
+          "SENS-15"
         ],
         "framework": "Hypothesis-Driven Problem Solving"
       }
