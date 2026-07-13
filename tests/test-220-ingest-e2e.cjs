@@ -129,6 +129,16 @@ function dbCounts(roomDir) {
   }
 }
 
+function describesPairs(roomDir) {
+  const db = openRoomDb(roomDir);
+  try {
+    return new Set(db.prepare("SELECT source, target FROM edges WHERE type = 'DESCRIBES'").all()
+      .map((r) => r.source + '=>' + r.target));
+  } finally {
+    closeRoomDb(db);
+  }
+}
+
 function artifactNodeByPath(roomDir, relPath) {
   const db = openRoomDb(roomDir);
   try {
@@ -168,6 +178,7 @@ async function main() {
   // ---------- Group 1: e2e happy path ----------
   const fx1 = freshRoom('happy');
   const before1 = dbCounts(fx1.roomDir);
+  const beforePairs1 = describesPairs(fx1.roomDir);
   const env1 = await ingestUrl(fx1.roomDir, FIXTURE_URL, {
     _fetchCorpus: okStub(FIXTURE_MARKDOWN, FIXTURE_TITLE),
     sessionId: SESSION,
@@ -238,14 +249,16 @@ async function main() {
     // Exactly ONE new memory_artifact (the ingest); the fixture hub/satellite
     // artifact population is untouched.
     assert.equal(after.artifacts, before1.artifacts + 1, 'exactly one new memory_artifact');
-    // Every new DESCRIBES edge targets the NEW artifact node only: a full-room
-    // re-extract would mint DESCRIBES edges onto the fixture section anchors.
+    // Every NEW DESCRIBES edge (vs the pre-ingest snapshot) targets the NEW
+    // artifact node only: a full-room re-extract would mint DESCRIBES edges
+    // onto the fixture section anchors.
     const db = openRoomDb(fx1.roomDir);
     try {
-      const rows = db.prepare("SELECT target FROM edges WHERE type = 'DESCRIBES'").all();
-      const offTarget = rows.filter((r) => r.target !== env1.artifact.node_id);
+      const rows = db.prepare("SELECT source, target FROM edges WHERE type = 'DESCRIBES'").all();
+      const fresh = rows.filter((r) => !beforePairs1.has(r.source + '=>' + r.target));
+      const offTarget = fresh.filter((r) => r.target !== env1.artifact.node_id);
       assert.equal(offTarget.length, 0,
-        'zero DESCRIBES edges to pre-existing artifacts (got ' + offTarget.length + ')');
+        'zero new DESCRIBES edges to pre-existing artifacts (got ' + offTarget.length + ')');
     } finally {
       closeRoomDb(db);
     }
