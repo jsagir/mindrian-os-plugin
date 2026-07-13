@@ -50,7 +50,7 @@ You talk; the room writes itself. Every conversation, every meeting, every decis
 
 ### The room surfaces what you cannot see
 
-Every time you add something new, the system compares it against everything already there. Larry tells you what just changed, what contradicts what, what connects to what, and what is now missing. You decide: APPROVE, REJECT (with a reason), or DEFER. The reason becomes part of the room. The next scan is smarter.
+Every time you add something new, the system compares it against everything already there. Larry tells you what just changed, what contradicts what, what connects to what, and what is now missing. You decide: APPROVE, REJECT (with a reason), or DEFER. The reason becomes part of the room. The next scan is smarter. When a scan surfaces an opportunity, it does not stop at a headline: you qualify it at a card, and one explicit Explore turns it into cited deep research filed in your opportunity bank. The web works the same way: paste a URL and, once you approve, the page is filed as a cited source in your room and compared against everything already there. When something breaks mid-research, it tells you exactly what happened and what it tried next, never a silent empty result.
 
 ---
 
@@ -121,12 +121,14 @@ The commands below are internals. You never have to memorize them or type them. 
 /mos:bono                 # a six-hats research-and-debate team on your question
 /mos:map-unknowns         # hunt the claims you are most confident about, and wrong
 /mos:file-meeting         # paste a transcript, Larry files it
+/mos:research <url>       # paste a link, approve the card, the page becomes cited room knowledge
 /mos:opportunities        # what grants match this room right now
+/mos:qualify-opportunity  # judge a surfaced opportunity at a card; Explore turns it into research
 /mos:graph "what is the weakest assumption in my financial model?"
 /mos:grade                # honest assessment against real ventures
 ```
 
-That is a slice of 107 commands across 14 skills and 9 agents. If you do not know which one to run, that is the normal case. Just talk: Larry reaches for the right one.
+That is a slice of 110 commands across 14 skills and 9 agents. If you do not know which one to run, that is the normal case. Just talk: Larry reaches for the right one.
 
 ---
 
