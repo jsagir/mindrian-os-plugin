@@ -3101,7 +3101,28 @@ Plans:
 
 **Explicitly OUT of scope:** autonomous graph mutation; continuous crawling; broad format support; model-name-pinned governance; extending envelopes beyond the research pipeline + 219/220 seams (eureka/doctor adopt later).
 
-**Plans:** TBD
+**Plans:** 5 plans (planned 2026-07-13; SPEC locked 6 requirements REQ-1..REQ-6; envelopes-first wave order per D-01; the cut is Wave 5, autonomous: false)
+
+Plans:
+**Wave 1**
+
+- [ ] 221-01-PLAN.md - Typed stage envelopes on the verified collapse sites (research-corpus five sites + source-lens fetchSourceCached, additive over 219-05) + MINDRIAN_FORCE_* failure-injection harness + run-all-221.sh [REQ-1]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 221-02-PLAN.md - Recovery dispatcher + 6-tier ladder: bounded idempotent retry, governed room-corpus/cache substitutes with honest provenance, code-enforced Tier-3 trigger discipline (never on empty_valid, skipped in cadence), egress-terminal, resume-at-boundary [REQ-2]
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 221-03-PLAN.md - Bounded LLM recovery controller: 7-step state machine on the pipeline-state journal, atomic case file under .mindrian/recovery/, profiles diagnostic|high_effort|forensic, budgets + stop conditions, D-20-semantics gated entry, the five hard fences as adversarial tests [REQ-3]
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 221-04-PLAN.md - Result semantics + disclosure (research_mode + outcomes additive, 'recovered' readback-gated), 219/220 seam alignment, modes docs + regenerated skill mirror + doc-parity, the 13-class validation matrix + the PERMANENT vantage fixture authoritative_workspace_unavailable [REQ-4, REQ-5]
+
+**Wave 5** *(blocked on Wave 4; autonomous: false)*
+
+- [ ] 221-05-PLAN.md - THE JOINT CUT: precondition gates (219 corepower confirmation + 219/220 staging + all 221 gates), joint CHANGELOG assembly from staged drafts, content-only README refresh, mindrian-os.com capability copy + version fact-check, navigator approval checkpoint, scripts/release.sh five-gate lockstep + npm + marketplace pin, everything recorded in 221-VERIFICATION.md [REQ-6]
 
 **Release note (navigator, 2026-07-13, FINAL):** ONE version cut JOINT across Phases 219+220+221 - 219 Plan 07 and 220's final wave stage readiness (CHANGELOG/README drafts, marketplace pin, VERSION-BUMP-CHECKLIST, website update drafts); scripts/release.sh executes as Phase 221's final requirement. Pre-approved by the navigator 2026-07-13 ("run till and including 221 and full cut, updating all READMEs and the Mindrian website in relevant locations"); the corepower-isolation Desktop validation remains the one navigator-run gate.
 
