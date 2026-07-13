@@ -130,11 +130,28 @@ Node/edge growth after re-run: **nodes=+0, edges=+0.** No re-file, no re-extract
 
 _(BLOCKING human checkpoint - never auto-approvable. Filled verbatim from the navigator's real-session run. The paste-ready instruction script lives in `220-NAVIGATOR-VERIFICATION-PROMPT.md` in this phase directory.)_
 
-**OPEN.** Awaiting navigator confirmation of:
-1. The SENS-15 pasted-URL card (F.1, [Ingest] [Ingest+Explore] [Skip]) rendering in a REAL interactive session, nothing filed without a verb
-2. /mos:research URL mode readback gate + honest already-ingested no_op
-3. Rung-1 disposition: fresh TAVILY_API_KEY supplied (re-run Section 2 on rung 1), or rung-2 evidence approved as the live row
-4. Optional Tri-Polar Desktop cross-check
+**STATUS: WAIVED (navigator override, 2026-07-13) - NOT a PASS, recorded honestly as a
+knowing risk acceptance**, same pattern as the 219 corepower waiver.
+
+The offline suite proves the full pipeline end to end (Section 1, 20/20 sensor legs) and
+Section 2 already proves one real live fetch worked (rung-2, webfetch fallback bytes,
+Tavily key dead). What remains unconfirmed is narrower than the original four items below:
+whether the SENS-15 card actually RENDERS as a real interactive `AskUserQuestion` card (vs.
+degrading to ASCII text) in front of a human, in a genuinely room-bound session. Two attempts
+this session to produce that live proof directly were both blocked by session-binding
+infrastructure gaps, not by the pipeline itself: (a) the MCP session was found bound to an
+unrelated real room (`motj-ecosystem/sub-rooms/jonathan-contractor-motj`); (b) `room_bind` to
+a clean test room failed outright (`no_session_id`); (c) even a subsequent explicit-sessionId
+bind to `aion-eureka-synergy` reported success but did not propagate to `reach_candidates`,
+which still resolved the old room and did not surface SENS-15 as a candidate for the test URL.
+
+The residual risk if this is wrong: the pasted-URL card could silently degrade to a flat ASCII
+box in production instead of firing a real navigable card - exactly the class of defect the
+check-card-fire.cjs backstop and SEED-021 exist to catch, just not exercised live here. This
+is a deliberate, informed trade the navigator chose to accept, not a verification failure
+being papered over. The four items originally listed here (card render, /mos:research readback
+gate, rung-1 key disposition, optional Desktop cross-check) remain OPEN and should still
+happen at the navigator's convenience post-release - not closed by this waiver.
 
 ---
 
@@ -142,12 +159,16 @@ _(BLOCKING human checkpoint - never auto-approvable. Filled verbatim from the na
 
 ### 5.1 219-readiness precondition (SPEC REQ-6 ordering: "after 220's requirements pass + 219 readiness is green")
 
-Checked 2026-07-13T07:2xZ:
+Checked 2026-07-13T07:2xZ (original staging time):
 
 - `219-RELEASE-STAGING.md`: **DOES NOT EXIST yet** (219-07 not yet executed; 219-06/07 SUMMARYs absent)
 - `219-VERIFICATION.md` Section 4 (Corepower Validation): **EMPTY** (`_(filled by Plan 07 ...)_`)
 
-**HONEST HOLD: 219 readiness is not yet recorded - 220 readiness cannot CLOSE until it lands (never staged around, T-220-26).** The 220 staged drafts are PREPARED in `220-RELEASE-STAGING.md` (content work done once, copy-applicable), but the readiness row below stays OPEN until (a) 219-RELEASE-STAGING.md exists with the corepower confirmation recorded, AND (b) the Task 2 navigator checkpoint above is confirmed.
+**UPDATE (2026-07-13, later same day): 219 readiness has since LANDED.** `219-RELEASE-STAGING.md`
+now exists (219-07). `219-VERIFICATION.md` Section 4.3 now reads WAIVED (navigator override) -
+a recorded decision, not an empty placeholder. Precondition (a) above is satisfied. Precondition
+(b) - the Task 2 navigator checkpoint - is now also resolved, as WAIVED (see Section 4 above).
+Both readiness preconditions are closed, one PASS and two honest waivers, not two blank holds.
 
 ### 5.2 Readiness sweep (final re-run at staging time)
 
@@ -162,4 +183,8 @@ Checked 2026-07-13T07:2xZ:
 
 npm publish, five lockstep gates, marketplace source.ref pin, README content-only diff, website hand-typed-version fact-check: **all transfer to Phase 221 per SPEC REQ-6.** The copy-applicable 220 content for each is staged in `220-RELEASE-STAGING.md`.
 
-**Phase 220 readiness status: STAGED-PENDING** - live pipeline proven (Section 2), gates green (Section 1), drafts prepared (220-RELEASE-STAGING.md), version files clean; CLOSES when Section 4 (navigator) + Section 5.1 (219 readiness) both land.
+**Phase 220 readiness status: CLOSED (waived, not a full PASS)** - live pipeline proven
+(Section 2), gates green (Section 1), drafts prepared (220-RELEASE-STAGING.md), version files
+clean; Section 4 (navigator card-render checkpoint) and Section 5.1 (219 readiness) both now
+land - one as a genuine PASS, two as honest, recorded waivers. Phase 221 (the joint cut) is
+unblocked as of this navigator decision (2026-07-13).
