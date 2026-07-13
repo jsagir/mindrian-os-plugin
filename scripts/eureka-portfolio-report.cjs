@@ -39,6 +39,17 @@
  * forbidden pattern; this runner skips + counts, so one tripping node never
  * aborts the batch, and the skip count prints in provenance.
  *
+ * CRITIC RESOLUTION (Phase 219 GAP-1 fix): the emitter's synchronous gate
+ * honestly leaves every live statement critic 'pending' (the real Phase 212
+ * stageA is async and a sync seam can never await it). AFTER the statements
+ * loop and BEFORE banking, this runner awaits oppmod.resolveCriticVerdicts -
+ * the bounded async pass (per-statement timeout + batch deadline, env
+ * MINDRIAN_CRITIC_RESOLVE_TIMEOUT_MS / MINDRIAN_CRITIC_RESOLVE_BATCH_MS) that
+ * resolves each pending statement's REAL stageA verdict and updates banked in
+ * place. Unresolvable statements stay honestly 'pending'. OFFLINE runs skip
+ * the pass: a stub-encoder verdict would be fixture-green lying about
+ * grounding, the exact failure class GAP-1's RCA documents.
+ *
  * CANON PART 9 (Memory Locality): graph writes route EXCLUSIVELY through the
  * lib/core/navigation.cjs chokepoint. The banking deferral this header carried
  * since Phase 215 ("a later phase's governed wiring, not minted here") is
@@ -406,6 +417,7 @@ function renderReport(ctx) {
   L.push('| Cohort techs (room-indexed, run time) | ' + p.cohort_techs + ' |');
   L.push('| Pairs scored | ' + p.pairs_scored + ' |');
   L.push('| Pairs skipped (Part 8 figure-guard) | ' + p.figure_guard_skipped + ' |');
+  L.push('| Critic resolution (GAP-1 async pass) | ' + p.critic_resolution + ' |');
   L.push('| Honest nouns (graph meta, verbatim) | ' + String(p.honest_nouns).replace(/\|/g, '/') + ' |');
   L.push('| Run date | ' + p.run_date + ' |');
   L.push('');
@@ -517,7 +529,10 @@ function renderReport(ctx) {
   L.push('');
   L.push('Each candidate rendered in the canonical Opportunity Statement shape. A `pending` critic');
   L.push('verdict is labeled NOT YET BANKED (critic pending): the synchronous emitter never claims a');
-  L.push('verification it did not obtain.');
+  L.push('verification it did not obtain. On LIVE runs a bounded async pass then resolves each');
+  L.push('pending verdict against the real Phase 212 critic (GAP-1 fix): a resolved pass is BANKED,');
+  L.push('a resolved fail is NOT BANKED (with the verdict named), and anything the pass cannot');
+  L.push('genuinely resolve stays honestly pending.');
   L.push('');
   if (ctx.statements.length === 0) {
     L.push('_No statement candidates this run._');
@@ -525,10 +540,22 @@ function renderReport(ctx) {
   } else {
     for (let i = 0; i < ctx.statements.length; i += 1) {
       const s = ctx.statements[i];
-      const state = s.statement.banked
-        ? ('BANKED (critic ' + (typeof s.statement.critic === 'object' && s.statement.critic
-          ? (s.statement.critic.verdict || 'pass') : 'pass') + ')')
-        : 'NOT YET BANKED (critic pending)';
+      // Three honest states (GAP-1): banked on a resolved pass; still pending
+      // (sync degrade, offline run, or an unresolvable async pass); or
+      // RESOLVED-BUT-FAILED -- the critic really looked and said no, which is
+      // information, not a pending state.
+      let state;
+      if (s.statement.banked) {
+        state = 'BANKED (critic ' + (typeof s.statement.critic === 'object' && s.statement.critic
+          ? (s.statement.critic.verdict || 'pass') : 'pass') + ')';
+      } else if (s.statement.critic === 'pending') {
+        state = 'NOT YET BANKED (critic pending)';
+      } else {
+        const v = (typeof s.statement.critic === 'object' && s.statement.critic)
+          ? (s.statement.critic.verdict || s.statement.critic.route || s.statement.critic.tag || 'fail')
+          : String(s.statement.critic);
+        state = 'NOT BANKED (critic resolved: ' + v + ')';
+      }
       L.push('### ' + (i + 1) + '. rank ' + s.pair.rank + ' -- ' + s.pair.idA + ' x ' + s.pair.idB
         + (s.tailFlag ? ' [WEAK-SIGNAL TAIL]' : ''));
       L.push('');
@@ -859,6 +886,38 @@ async function main(argv) {
       s.banked = st.banked;
       statements.push({ pair: s, statement: st, tailFlag: tailFlag });
     }
+
+    // Phase 219 GAP-1 fix: the async critic-resolution pass (the "future
+    // async runner" the emitter's sync gate always named). The synchronous
+    // emission loop above honestly left every live statement critic 'pending'
+    // because the real Phase 212 stageA is async; here, AFTER emission and
+    // BEFORE banking, we actually await each pending statement's real verdict
+    // under the module's per-statement timeout + batch deadline
+    // (MINDRIAN_CRITIC_RESOLVE_TIMEOUT_MS / MINDRIAN_CRITIC_RESOLVE_BATCH_MS;
+    // batch 0 = operator kill switch). Anything the pass cannot genuinely
+    // resolve stays 'pending'/unbanked -- the ability to resolve is added,
+    // the honesty floor is unchanged.
+    //
+    // OFFLINE runs SKIP resolution on purpose: a verdict computed against the
+    // deterministic stub encoder would be fixture-green lying about grounding
+    // (the exact GAP-1 failure class), so offline statements stay honestly
+    // pending and the offline fixture behavior is byte-identical to pre-fix.
+    let resolution = null;
+    if (!opts.offline) {
+      resolution = await oppmod.resolveCriticVerdicts(
+        statements.map(function (s) { return s.statement; }),
+        {}
+      );
+      // Re-sync the ranked rows' banked column with the now-resolved verdicts.
+      for (let i = 0; i < statements.length; i += 1) {
+        statements[i].pair.banked = statements[i].statement.banked === true;
+      }
+      process.stdout.write('eureka-portfolio-report: critic resolution - '
+        + resolution.resolved + ' resolved (' + resolution.banked + ' passing), '
+        + resolution.pending + ' still pending'
+        + (resolution.deadline_hit ? ' (batch deadline hit)' : '') + '\n');
+    }
+
     for (let i = 0; i < ranked.length; i += 1) {
       if (typeof ranked[i].banked !== 'boolean') ranked[i].banked = false;
     }
@@ -901,6 +960,13 @@ async function main(argv) {
       converges_pairs: convergesPairs.length,
       pairs_scored: scored.length,
       figure_guard_skipped: part8Skipped,
+      // GAP-1: how the pending critic verdicts were (or were not) resolved.
+      critic_resolution: opts.offline
+        ? 'skipped (offline: a stub-encoder verdict would be fixture-green lying)'
+        : (resolution
+          ? (resolution.resolved + ' resolved (' + resolution.banked + ' passing) / '
+            + resolution.pending + ' pending' + (resolution.deadline_hit ? ' (batch deadline hit)' : ''))
+          : 'not run'),
       honest_nouns: (typeof graph.meta.honest_nouns === 'string' && graph.meta.honest_nouns.trim())
         ? graph.meta.honest_nouns.trim()
         : '(none stated in graph meta)',

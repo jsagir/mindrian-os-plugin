@@ -101,6 +101,12 @@ gate_zero_network() {
 run_if "219-01 REQ-1 banking (writer + hook + no-bypass)" "tests/test-219-banking.cjs" \
   node tests/test-219-banking.cjs
 
+# GAP-1 fix (219-06 live checkpoint RCA): the bounded async critic-resolution
+# pass -- a REAL async stub critic proves pending statements resolve + bank,
+# unresolvable ones stay honestly pending, and the timeout/deadline bounds hold.
+run_if "219 GAP-1 critic resolution (async pass, bounded, honest floor)" "tests/test-219-critic-resolution.cjs" \
+  node tests/test-219-critic-resolution.cjs
+
 # Plan 02 (Wave 1): REQ-7 FTS5 capability probe + bi-modal degrade.
 run_if "219-02 FTS5 degrade (probe + honest provenance)" "tests/test-219-fts5-degrade.cjs" \
   node tests/test-219-fts5-degrade.cjs
