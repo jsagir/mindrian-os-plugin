@@ -95,6 +95,47 @@ async function main() {
     passed += 1;
     console.log('  leg 3 (stale room re-extracts): PASSED');
 
+    // Isolation reset (load-bearing, not decorative): leg 3 set landscape.md
+    // to Date.now()+5000 (a real future mtime, deliberately far ahead to
+    // dodge filesystem mtime-resolution flakiness) and that timestamp
+    // OUTLIVES leg 3's own run -- it stays newer than whatever finished_at
+    // gets stamped moments later. Left alone, that stale-future mtime alone
+    // would make leg 3b "pass" even with the ORIGINAL one-level-deep bug
+    // (it would still see landscape.md directly under competitive-analysis/
+    // and never need to see the nested file at all) -- a false green that
+    // proves nothing. Wind it back to a safe past point so the ONLY
+    // remaining reason a re-extraction could trigger is the nested artifact
+    // leg 3b is actually testing.
+    const past = new Date(Date.now() - 60000);
+    fs.utimesSync(filePath, past, past);
+
+    // Leg 3b (BUGFIX regression pin, 2026-07-13, live-discovered against a
+    // real room, not a fixture): the freshness probe must see an artifact
+    // filed under this codebase's OWN standard nested layout --
+    // `section/name/name.md`, one folder per artifact (decisions.md #16,
+    // every navigation.cjs write incl. ingestUrl lands there) -- not just a
+    // flat `section/name.md` file. The original walk went exactly one
+    // directory level deep and was structurally blind to this shape, so
+    // `eureka run` silently never re-extracted a room's real content. Legs
+    // 1-3 above all use a FLAT fixture (`mkTempRoom`'s landscape.md sits
+    // directly under competitive-analysis/) and stayed green through that
+    // exact bug in production -- this leg is the one that would have
+    // caught it, and does now.
+    await new Promise((r) => setTimeout(r, 20));
+    const nestedDir = path.join(roomDir, 'competitive-analysis', 'nested-finding');
+    fs.mkdirSync(nestedDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(nestedDir, 'nested-finding.md'),
+      '# Nested Finding\n\nCryoline Components supplies a cold-chain part Thermex Rivals depends on.\n',
+      'utf8'
+    );
+    const code3b = await dispatcher.main([roomDir, 'run', '--offline']);
+    assert.equal(code3b, 0, 'nested-artifact eureka run should exit 0');
+    const st3b = entityExtractStatus(roomDir);
+    assert.notEqual(st3b.finished_at, st3.finished_at, 'a NEW artifact filed in the standard nested section/name/name.md layout must trip the freshness gate, not just a flat section/name.md file: ' + JSON.stringify(st3b));
+    passed += 1;
+    console.log('  leg 3b (nested section/name/name.md artifact re-extracts): PASSED');
+
     // Leg 4: --no-extract opts out even on a stale/never-touched room.
     const roomDir2 = mkTempRoom();
     seedAnchor(roomDir2);
@@ -105,7 +146,7 @@ async function main() {
     console.log('  leg 4 (--no-extract opts out): PASSED');
     try { fs.rmSync(roomDir2, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
 
-    console.log('test-218-eureka-auto-extract: ' + passed + '/4 legs PASSED');
+    console.log('test-218-eureka-auto-extract: ' + passed + '/5 legs PASSED');
   } finally {
     try { fs.rmSync(roomDir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
   }

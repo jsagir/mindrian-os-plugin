@@ -116,24 +116,46 @@ function entityExtractStatusPath(roomDir) {
 // entity-extract.cjs's own extend-to-artifacts coverage, T-218-VD-4). A room
 // with no section directories (e.g. a DB-only hermetic test fixture) returns
 // 0, which correctly means "nothing to extract" rather than "always stale".
+//
+// BUGFIX (2026-07-13, live-discovered against a real room, not a fixture):
+// the original walk went exactly ONE directory level deep
+// (roomDir/section/*.md), which never sees an artifact filed under this
+// codebase's OWN standard nested layout -- `section/name/name.md`, one
+// folder per artifact (decisions.md #16, "every .mos artifact sits in its
+// own folder"). Since that IS the standard filing shape (every navigation.cjs
+// write, ingestUrl included, lands there), the one-level walk was
+// structurally blind to nearly every real artifact ever filed: the
+// freshness gate always read "nothing changed" against a room with real,
+// newer content, so `eureka run` silently never re-extracted. Caught live
+// on aion-eureka-synergy: a fresh ingestUrl() artifact at
+// research/<slug>/<slug>.md never tripped the gate; entity-extract.cjs run
+// directly picked it up fine (38->65 artifacts), proving the extractor
+// itself was always correct -- only this mtime probe was shallow. Fixed by
+// walking to MAX_WALK_DEPTH (generous; a room directory is never
+// pathologically deep), still skipping dot-directories (`.mindrian`,
+// `.room-graph`, `.git`) at every depth, never just the top one.
+var MAX_WALK_DEPTH = 8;
 function newestArtifactMtimeMs(roomDir) {
   let newest = 0;
-  let dirents = [];
-  try { dirents = fs.readdirSync(roomDir, { withFileTypes: true }); } catch (_e) { return newest; }
-  for (let i = 0; i < dirents.length; i += 1) {
-    const d = dirents[i];
-    if (!d.isDirectory() || d.name.charAt(0) === '.') continue;
-    let files = [];
-    try { files = fs.readdirSync(path.join(roomDir, d.name)); } catch (_e) { files = []; }
-    for (let j = 0; j < files.length; j += 1) {
-      const f = files[j];
-      if (!/\.md$/i.test(f)) continue;
-      try {
-        const st = fs.statSync(path.join(roomDir, d.name, f));
-        if (st.mtimeMs > newest) newest = st.mtimeMs;
-      } catch (_e) { /* unreadable file, skip */ }
+  function walk(dir, depth) {
+    if (depth > MAX_WALK_DEPTH) return;
+    let dirents = [];
+    try { dirents = fs.readdirSync(dir, { withFileTypes: true }); } catch (_e) { return; }
+    for (let i = 0; i < dirents.length; i += 1) {
+      const d = dirents[i];
+      if (d.name.charAt(0) === '.') continue; // skip dot-dirs/files at EVERY depth
+      const abs = path.join(dir, d.name);
+      if (d.isDirectory()) {
+        walk(abs, depth + 1);
+      } else if (/\.md$/i.test(d.name)) {
+        try {
+          const st = fs.statSync(abs);
+          if (st.mtimeMs > newest) newest = st.mtimeMs;
+        } catch (_e) { /* unreadable file, skip */ }
+      }
     }
   }
+  walk(roomDir, 0);
   return newest;
 }
 
