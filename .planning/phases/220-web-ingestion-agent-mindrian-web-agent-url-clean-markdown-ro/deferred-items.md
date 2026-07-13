@@ -42,3 +42,18 @@ per the scope boundary they are recorded here, not fixed.
   not landed yet, so the 219 regression leg inside run-all-220 reports those FAILs.
 - **Classification:** transient parallel-execution state, resolves when 219 lands GREEN.
   No action needed; re-run `bash tests/run-all-220.sh` after 219 completes.
+
+## 4. check-help-coverage fails on 219-owned surfaces (explore-opportunity, qualify-opportunity)
+
+- **What:** `node scripts/check-help-coverage.cjs` reports `valid: false`: the 219-04 /
+  219-05 command surfaces `qualify-opportunity` and `explore-opportunity` are missing
+  from help-groups.json. Discovered by the 220-02 executor (2026-07-13) via the
+  run-all-216 chained regression leg inside run-all-220.
+- **Blast radius:** run-all-216's "gate: help coverage" leg FAILs, which cascades the
+  216 no-regression leg inside run-all-220 to FAIL (alongside deferred item 2's
+  --strict shape leg). All five 220 legs + both 220 gates + the 219 and 218 regression
+  chains are green.
+- **Classification:** pre-existing (219-owned registration gap), not caused by any 220
+  work. Per the scope boundary it is logged here, not fixed.
+- **Suggested fix (owner: 219 follow-through or the 221 release-readiness pass):** add
+  both commands to help-groups.json and re-run the 216 gate.
