@@ -3122,7 +3122,17 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4; autonomous: false)*
 
-- [ ] 221-05-PLAN.md - THE JOINT CUT: precondition gates (219 corepower confirmation + 219/220 staging + all 221 gates), joint CHANGELOG assembly from staged drafts, content-only README refresh, mindrian-os.com capability copy + version fact-check, navigator approval checkpoint, scripts/release.sh five-gate lockstep + npm + marketplace pin, everything recorded in 221-VERIFICATION.md [REQ-6]
+- [x] 221-05-PLAN.md - THE JOINT CUT: precondition gates (219 corepower confirmation + 219/220 staging + all 221 gates), joint CHANGELOG assembly from staged drafts, content-only README refresh, mindrian-os.com capability copy + version fact-check, navigator approval checkpoint, scripts/release.sh five-gate lockstep + npm + marketplace pin, everything recorded in 221-VERIFICATION.md [REQ-6]
+
+**SHIPPED 2026-07-13: v1.15.3-beta.16 is live.** The joint 219+220+221 cut executed via
+`scripts/release.sh --prerelease --allow-ahead` - all 15/15 acceptance points green,
+independently re-verified (npm dist-tags, git tag at origin, marketplace source.ref, live
+mindrian-os.com poll, zero stale hand-typed version literals in either repo). Two checkpoints
+were explicitly waived by navigator decision rather than faked (corepower Windows FTS5
+re-run; the 220 URL-card live render), both recorded honestly in 219-VERIFICATION.md /
+220-VERIFICATION.md as knowing risk acceptances, not passes - carried forward as open items.
+Website capability copy (new feature descriptions) deferred deliberately, not silently - see
+221-VERIFICATION.md Section 4.1. Full evidence: 221-VERIFICATION.md.
 
 **Release note (navigator, 2026-07-13, FINAL):** ONE version cut JOINT across Phases 219+220+221 - 219 Plan 07 and 220's final wave stage readiness (CHANGELOG/README drafts, marketplace pin, VERSION-BUMP-CHECKLIST, website update drafts); scripts/release.sh executes as Phase 221's final requirement. Pre-approved by the navigator 2026-07-13 ("run till and including 221 and full cut, updating all READMEs and the Mindrian website in relevant locations"); the corepower-isolation Desktop validation remains the one navigator-run gate.
 
