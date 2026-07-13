@@ -135,6 +135,11 @@ Downstream agents MUST read `219-SPEC.md` before planning or implementing. Requi
 <specifics>
 ## Specific Ideas
 
+### North star (navigator, 2026-07-13 - the "wow" this phase is measured against)
+The Tachikawa pattern: a researcher shows the system six-months-stuck notes; it makes a NON-TRIVIAL observation, essentially solves it, and VERIFIES its own prediction before presenting. Mindrian's version is that moment made governed and repeatable: the harvest sensor is the always-on "whim", Q3 Surprise is the non-trivial test, the explored stage is the self-verified solution (deep research + analysis + citations, never an unverified claim), and D-20's high-effort LLM mode is the same intelligence applied directly when machinery cannot run. Magic with provenance. Executors: if the output would not make a stuck researcher say "whoa", it is a candidate, not an opportunity.
+
+The TESTIMONIAL TARGET (navigator, verbatim intent): a Mindrian user saying "MindrianOS properly understands my venture and has intuition too." Fable supplies the intuition; the ROOM supplies the understanding (the accumulated notes/meetings/contradictions no base model holds) - the moat restated. This sentence is (1) the release-narrative anchor for the joint 219+220+221 cut (CHANGELOG/README/mindrian-os.com copy target: "show Mindrian your stuck notes; it makes the non-trivial observation and verifies it before showing you"), and (2) what a YES sounds like in the Part 10 thinking-partner tally at the next tester round.
+
 - Navigator: "the opportunity bank is what we keep claiming Mindrian can do... we want to make sure we do it. With proper graph work and proper logic (Minto)."
 - Navigator: full in-memory local graph for algorithm passes, not LazyGraph (rooms are 70-2,400 nodes); "extract the actual metadata and extract from it."
 - The explored output must read as ANALYZED (deep research + diffusion + analogies + web citations), not a candidate one-liner - that is the complaint being fixed.

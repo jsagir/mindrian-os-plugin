@@ -18,3 +18,22 @@ failures are recorded, never fixed inline).
    the parallel 219-02 executor as its TDD RED commit (8c009b6d) and fails by
    design until its GREEN lands. The 219 harness runs it because the file
    exists (file-gated as specified). Self-resolving; no action.
+
+## From 219-04 (qualification executor, 2026-07-13)
+
+1. **doctor --acceptance `verify-release-clean-tree` FAIL: 9-file tracked
+   drift owned by a sibling session.** The dirty files (.planning/config.json,
+   219-07-PLAN.md, 219-CONTEXT.md, 219-VALIDATION.md, commands/eureka.md,
+   evals/plurai/211-baseline.json, package-lock.json,
+   scripts/eureka-command.cjs, skills/eureka/SKILL.md) belong to the
+   concurrent eureka/brain-ingest session, not to any 219 executor diff. Zero
+   overlap with the 219-04 files. Not staged, not touched; the point clears
+   when that session commits or reverts its tree. All other acceptance points
+   pass (14/15 after the 219-04 registry + skill-mirror regeneration).
+
+2. **The pre-existing R5 rerank leg persists** (item 1 above, re-confirmed on
+   the 219-04 sweep): the run-all-219 aggregate exit is red on this machine
+   solely from the "218 substrate no-regression" leg's env-dependent
+   `test-211-tri-modal.cjs` Test 8. Every plan-owned 219 leg is green
+   (banking, FTS5, metadata, harvest sensor, qualification, all grep gates,
+   connector registry).
