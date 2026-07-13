@@ -171,9 +171,9 @@ async function urlIngestCrawlStep(roomDir, options) {
     // D-06 cap: registry-overridable, default 2 (normalized by the module).
     const cap = registry.max_ingests_per_run;
 
-    // SEED-031 read-if-present probe: computeCostLevel -- absent as of
-    // 2026-07-13 (grep-verified unbuilt seed; 220-04-PLAN regulator reality
-    // check). The LOCAL cap above is authoritative until it ships. When the
+    // SEED-031 read-if-present probe: computeCostLevel is absent as of 2026-07-13
+    // (grep-verified unbuilt seed; 220-04-PLAN regulator reality check).
+    // The LOCAL cap above is authoritative until it ships. When the
     // projection lands at either candidate home, a 'high' cost level defers
     // the whole batch with a VISIBLE advisory line -- never a silent kill
     // (SEED-031 constraint 3, honored in spirit today).
