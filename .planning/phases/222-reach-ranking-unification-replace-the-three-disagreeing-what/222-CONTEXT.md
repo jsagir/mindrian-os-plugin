@@ -85,15 +85,32 @@ logged with the alternative considered and why it lost, per the audit requiremen
 
 ### Weight-state persistence (Req 3)
 
-- **D-02:** Weight state lives in a small room.db side-table (NOT a parallel graph),
-  following the precedent SEED-009 itself already proposes for exactly this class of
-  problem (`.planning/seeds/SEED-009-learned-ranker-weights-from-outcome-edges.md`,
-  "Schema additive: `ranker_weights` table in room.db... NOT a parallel graph; a side
-  table that the ranker reads at score-time"). Atomic tmp+rename writes, matching the
-  jtbd-state atomic-file model already used elsewhere in this codebase. Reads go through
-  `navigation.findRecentChanges` per the Part 9 chokepoint discipline SEED-009 also
-  names. Enum/scalar properties only, no freeform text, per the same Part 8 constraint
-  SEED-009's Agent-A review already established for this exact kind of table.
+- **D-02 (RESOLVED 2026-07-14 via explicit navigator choice at a plan-phase AskUserQuestion
+  gate, overriding the researcher's memory_event recommendation):** Weight state lives in
+  a REAL room.db table (a literal `CREATE TABLE`, SEED-009's literal wording), not
+  `memory_event` rows. Confirmed buildable against a real, existing precedent, verified
+  this session: `lib/core/migrations/` already holds the exact pattern needed (e.g.
+  `phase-109-session-focus.cjs` -- sentinel-idempotent `CREATE TABLE IF NOT EXISTS`,
+  wrapped in a transaction, safe to re-run), registered by direct `require()` + a
+  `runMigration(db)` call inside `lib/core/room-db.cjs` (confirmed: `phase-109-session-
+  focus.cjs` and `phase-160-nodes-bitemporal.cjs` are both wired in exactly this way at
+  `room-db.cjs:33-34`). Phase 222 adds `lib/core/migrations/phase-222-ranker-weights.cjs`
+  following that exact shape. Part 9 chokepoint compliance: this table is NOT read via
+  `navigation.findRecentChanges` (that reads `memory_event` rows only, a mismatch for a
+  real table) -- instead `navigation.cjs` gains ONE new exported accessor pair (read
+  latest weights / upsert weights) that internally queries the new table, so all room.db
+  access still routes through the single chokepoint, just via a new typed function rather
+  than the existing generic one. Exact accessor names/signatures are planner discretion.
+  Atomic-write discipline still applies (a single-row UPSERT inside a transaction, mirroring
+  the migration file's own `BEGIN`/commit pattern, not literally the jtbd-state tmp+rename
+  file model, which was for JSON files, not room.db rows).
+- **Why the researcher's memory_event recommendation was overridden:** the researcher's own
+  analysis was sound given the LOCKED constraints as originally written (`findRecentChanges`
+  reads only `memory_event` rows, so a real table couldn't satisfy that specific locked read
+  path). The navigator's choice changes which read path is locked, not the underlying
+  rigor -- a real table is equally Part-9-compliant once `navigation.cjs` gains its own typed
+  accessor, and this repo already has a clean, reusable migration pattern for exactly this
+  (verified, not assumed: `lib/core/migrations/phase-109-session-focus.cjs` read in full).
 - **Why not a new bespoke persistence pattern:** Part 7 (reuse-before-build) plus a
   directly-applicable, already-reviewed precedent sitting in this same repo's seed
   system. Inventing a different shape here would create two divergent patterns for the

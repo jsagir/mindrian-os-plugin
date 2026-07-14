@@ -112,7 +112,12 @@ Verified this session, file:line, against `/home/jsagi/dev/MindrianOS-Plugin` at
      rule (Arora-Hazan-Kale 2012) from Phase 159's existing outcome log (accept =
      low-loss, reject = high-loss for whichever expert's pick was shown); the combined,
      weight-blended score is what Requirements 1-2 consume. No new data collection, no
-     new egress, room-local only (Part 8).
+     new egress, room-local only (Part 8). Weight-state persistence mechanism: a real
+     room.db table via a new `lib/core/migrations/phase-222-*.cjs` migration (sentinel-
+     idempotent `CREATE TABLE`, mirroring `phase-109-session-focus.cjs`, registered in
+     `room-db.cjs`), read/written through a new typed accessor pair on
+     `navigation.cjs` -- navigator's explicit choice at plan-phase, overriding an earlier
+     `memory_event`-rows recommendation (CONTEXT.md D-02 carries the full resolution).
    - Acceptance: unit test constructs a synthetic outcome sequence where one expert is
      consistently right; after N updates (N env-tunable, default matches this repo's
      existing debounce convention, e.g. Phase 158's window) that expert's weight is
@@ -161,7 +166,7 @@ Verified this session, file:line, against `/home/jsagi/dev/MindrianOS-Plugin` at
      NEW code does not introduce the exact failure class this session's own QA-incident
      synthesis found three independent times (`.planning/debug/intern-qa-silent-degrade-
      pattern-three-independent-sessions-2026-07-14.md`, commit `a71e3f7f`; SEED-059).
-   - Target: if the weight-state side-table is missing, corrupt, or unreadable when
+   - Target: if the weight-state table is missing, corrupt, or unreadable when
      `rankFiredCandidates` needs it, the combiner falls back to the D4 blend alone
      (weights = equal/neutral), NOT a crash and NOT a silent wrong ranking -- and the
      fallback is recorded as a structured, checkable signal (a `memory_event`, e.g.
