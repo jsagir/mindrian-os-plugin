@@ -46,7 +46,9 @@
  * built): `run` extracts entities first via scripts/entity-extract.cjs when
  * the room has content newer than the last successful extraction -- one
  * command reads the room, not two. Freshness-gated (skips when nothing
- * changed) and best-effort (a failed extraction never blocks ranking).
+ * changed) and best-effort but SURFACED (a failed extraction never blocks
+ * ranking, but now lands in the eureka status.json as extraction_error plus
+ * one stderr line, so a silent pre-step failure is impossible to miss).
  * entity-extract.cjs itself stays a standalone script with zero new
  * command surface (D-03 unchanged); this is a plain require, not a new
  * /mos: subcommand. Opt out with --no-extract.
@@ -102,9 +104,11 @@ function writeStatus(roomDir, obj) {
 // "deferred, not rejected" idea -- built once a real session hit the two-step
 // manual-sequencing gap it was watching for). `eureka run` now extracts first
 // when the room's content is newer than the last successful extraction, so
-// one command reads the room instead of two. Best-effort, never blocking: a
-// failed or skipped extraction still lets ranking proceed on whatever
-// entities the room already has (the T-218-10 degrade-never-throw precedent).
+// one command reads the room instead of two. Best-effort, never blocking, but
+// SURFACED: a failed extraction still lets ranking proceed on whatever
+// entities the room already has (the T-218-10 degrade-never-throw precedent),
+// while its failure detail is now written into the eureka status.json as
+// extraction_error plus one stderr line rather than silently swallowed.
 // ---------------------------------------------------------------------------
 
 function entityExtractStatusPath(roomDir) {
@@ -172,18 +176,45 @@ function needsExtraction(roomDir) {
   return newestArtifactMtimeMs(roomDir) > finishedMs;
 }
 
-// The pre-step itself. Swallows every error -- ranking must never be blocked
-// by an extraction failure (T-218-10 precedent, restated for this call site).
+// The pre-step itself. Best-effort but SURFACED: failures land in the eureka
+// status.json as an extraction_error field plus one stderr line, and ranking
+// is STILL never blocked (T-218-10 degrade-never-throw precedent, restated for
+// this call site). Returns the failure-detail string on either failure path,
+// or null on skip / success. Two failure paths exist and both are surfaced:
+//   (a) a throw escaping ENTITY_EXTRACT.main (bare-caught here historically);
+//   (b) a non-zero return code -- entity-extract.cjs's own cmdRun catches ALL
+//       its internal errors, writes a state 'failed' status.json with the real
+//       message, and RETURNS 1 without throwing. Path (b) is the likelier
+//       production mechanism (openRoomDb failure, extraction crash), and its
+//       diagnostic trail already exists on disk; we now read and surface it.
 async function maybeExtractFirst(roomDir, opts) {
-  if (opts && opts.noExtract) return;
+  if (opts && opts.noExtract) return null;
   let stale = true;
   try { stale = needsExtraction(roomDir); } catch (_e) { stale = true; }
-  if (!stale) return;
+  if (!stale) return null;
+  let detail = null;
   try {
-    await ENTITY_EXTRACT.main([roomDir, 'run']);
-  } catch (_e) {
-    // best-effort: proceed to ranking on whatever the room already has.
+    const code = await ENTITY_EXTRACT.main([roomDir, 'run']);
+    if (typeof code === 'number' && code !== 0) {
+      let statusErr = null;
+      try {
+        const st = JSON.parse(fs.readFileSync(entityExtractStatusPath(roomDir), 'utf8'));
+        if (st && typeof st.error === 'string' && st.error) statusErr = st.error;
+      } catch (_e) { statusErr = null; }
+      detail = 'entity extraction exited ' + code + ': ' + (statusErr || ('see ' + entityExtractStatusPath(roomDir)));
+    }
+  } catch (err) {
+    const firstLine = String(err && err.message ? err.message : err).split('\n')[0];
+    detail = 'entity extraction threw: ' + firstLine;
   }
+  if (detail) {
+    // Exactly ONE stderr line. The status.json field is the durable trail on
+    // the detached cmdStart path (stdio 'ignore'); stderr is the foreground
+    // one. Ranking is never blocked and exit codes are never altered.
+    process.stderr.write('eureka: entity-extraction pre-step failed (' + detail + '); ranking proceeds on existing graph data\n');
+    return detail;
+  }
+  return null;
 }
 
 const USAGE = [
@@ -266,9 +297,12 @@ async function cmdRun(opts) {
   }
 
   // T-218-VD-5: extract first when the room has content newer than the last
-  // successful extraction (or has never been extracted). Best-effort --
-  // never blocks ranking on failure. Opt out with --no-extract.
-  await maybeExtractFirst(roomDir, opts);
+  // successful extraction (or has never been extracted). Best-effort but
+  // SURFACED -- never blocks ranking on failure, but a failure detail is
+  // threaded into every status.json payload below as extraction_error (and a
+  // one-line stderr note was already written by maybeExtractFirst). Opt out
+  // with --no-extract. Null when the pre-step skipped or succeeded.
+  const extractionError = await maybeExtractFirst(roomDir, opts);
 
   const sub = resolveSubstrate(roomDir, opts.graph);
   if (sub.error) {
@@ -283,6 +317,7 @@ async function cmdRun(opts) {
     pid: process.pid,
     out: outMd(roomDir),
     json: outJson(roomDir),
+    ...(extractionError ? { extraction_error: extractionError } : {}),
   });
 
   try {
@@ -295,6 +330,7 @@ async function cmdRun(opts) {
         pid: process.pid,
         out: outMd(roomDir),
         json: outJson(roomDir),
+        ...(extractionError ? { extraction_error: extractionError } : {}),
       });
       return 0;
     }
@@ -306,6 +342,7 @@ async function cmdRun(opts) {
       out: outMd(roomDir),
       json: outJson(roomDir),
       error: 'runner exited with code ' + code,
+      ...(extractionError ? { extraction_error: extractionError } : {}),
     });
     printError('eureka scan failed', 'the portfolio runner exited with code ' + code, 'inspect ' + statusPath(roomDir) + ' then re-run /mos:eureka');
     return 1;
@@ -319,6 +356,7 @@ async function cmdRun(opts) {
       out: outMd(roomDir),
       json: outJson(roomDir),
       error: msg,
+      ...(extractionError ? { extraction_error: extractionError } : {}),
     });
     printError('eureka scan failed', msg, 'inspect ' + statusPath(roomDir) + ' then re-run /mos:eureka');
     return 1;
