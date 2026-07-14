@@ -118,6 +118,18 @@ async function main() {
   // every tech falls into scaffoldCohort, which is exactly cohortTechs, so
   // this is mathematically guaranteed by construction -- verified here via
   // the real runner end to end, not re-derived by hand.
+  //
+  // FIXTURE NOTE (quick task 260715-0nj): a bare 3-artifact CONVERGES clique
+  // now ranks EMPTY, because the both-scaffold candidate-pair filter removes
+  // every memory_artifact-vs-memory_artifact pair. So the fixture gains ONE
+  // non-scaffold, non-ENTITY node (type 'Claim', the test-215/216 Claim
+  // fixture idiom) wired with CONVERGES edges to all three artifacts. This
+  // gives the ranker surviving Claim-vs-artifact pairs (exactly ONE scaffold
+  // side, untouched by the narrow filter) while keeping EVERY node at a
+  // UNIFORM degree of 3, so the validated_demand === 0.5 uniform-cohort proof
+  // (this leg's actual purpose) still holds: 'Claim' is not in
+  // ENTITY_NODE_TYPES, so it routes to scaffoldCohort and the cohort stays a
+  // single uniform family -- the stratification no-op is unchanged.
   // ---------------------------------------------------------------------
   {
     const roomDir = mkTempRoom();
@@ -130,6 +142,15 @@ async function main() {
         }), { source_path: 'memory:' + slug + ':FEYNMAN', created_by: 'system' });
         return id;
       });
+      // The non-scaffold, non-entity Claim node (props.text so it indexes with
+      // no file body). It converges with all three artifacts so the surviving
+      // ranked pairs are Claim-vs-artifact (one-side scaffold), and it lifts
+      // every artifact to degree 3 while itself sitting at degree 3 -> uniform.
+      const claimId = 'claim:leg2:uniform';
+      insertNode(db, claimId, 'Claim', JSON.stringify({
+        title: 'Uniform cohort claim', text: 'A non-scaffold claim node wired to every artifact.',
+        section: 'claims',
+      }), { source_path: 'claims/leg2-uniform', created_by: 'system' });
       for (let i = 0; i < ids.length; i += 1) {
         for (let j = i + 1; j < ids.length; j += 1) {
           const r = navigation.writeEdge(db, {
@@ -137,6 +158,12 @@ async function main() {
           });
           assert.ok(r && r.ok, 'seed CONVERGES edge should write');
         }
+      }
+      for (let i = 0; i < ids.length; i += 1) {
+        const r = navigation.writeEdge(db, {
+          source_id: claimId, target_id: ids[i], edge_type: 'CONVERGES', properties: {},
+        });
+        assert.ok(r && r.ok, 'seed Claim CONVERGES edge should write');
       }
       closeRoomDb(db);
 
@@ -148,12 +175,15 @@ async function main() {
       ]);
       assert.equal(code, 0, 'runner should exit 0 on a zero-entity room');
       const report = JSON.parse(fs.readFileSync(outJson, 'utf8'));
-      assert.ok(Array.isArray(report.ranked) && report.ranked.length > 0, 'zero-entity room should still rank the CONVERGES clique');
+      assert.ok(Array.isArray(report.ranked) && report.ranked.length > 0, 'zero-entity room should still rank the surviving Claim-vs-artifact pairs');
 
-      // A fully-cited 3-node CONVERGES clique gives every node IDENTICAL
-      // degree (2 each). A uniform single-family cohort must still give
-      // percentileRank = 0.5 for everyone -- proving entityCohort stayed
-      // empty and every tech routed to the (unchanged) scaffold cohort.
+      // The 3 artifacts plus the Claim node, each converging with every other
+      // in its lane, give EVERY node an IDENTICAL degree of 3. A uniform
+      // single-family cohort must still give percentileRank = 0.5 for everyone
+      // -- proving entityCohort stayed empty (Claim routes to scaffoldCohort)
+      // and every tech routed to the (unchanged) scaffold cohort. The
+      // both-scaffold filter removed the 3 artifact-vs-artifact pairs, so the
+      // surviving ranked pairs are the one-side Claim-vs-artifact pairs.
       for (const pair of report.ranked) {
         assert.equal(
           pair.dims.validated_demand, 0.5,

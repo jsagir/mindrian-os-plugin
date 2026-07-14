@@ -416,6 +416,7 @@ function renderReport(ctx) {
   L.push('| CONVERGES pairs loaded | ' + p.converges_pairs + ' |');
   L.push('| Cohort techs (room-indexed, run time) | ' + p.cohort_techs + ' |');
   L.push('| Pairs scored | ' + p.pairs_scored + ' |');
+  L.push('| Scaffold pairs excluded (both endpoints memory_artifact / Artifact) | ' + p.scaffold_pairs_excluded + ' |');
   L.push('| Pairs skipped (Part 8 figure-guard) | ' + p.figure_guard_skipped + ' |');
   L.push('| Critic resolution (GAP-1 async pass) | ' + p.critic_resolution + ' |');
   L.push('| Honest nouns (graph meta, verbatim) | ' + String(p.honest_nouns).replace(/\|/g, '/') + ' |');
@@ -744,9 +745,15 @@ async function main(argv) {
       // Room mode: the UNION of (a) the room's OWN cited edges (convergesPairs,
       // both endpoints indexed) and (b) the full-mode cross-boundary enumeration.
       // The room's typed edges are its cited convergences and must always score
-      // even same-type/same-root (the DG-2 cited-signal spirit); cross-boundary
-      // enumeration guarantees non-empty pairs on edge-sparse rooms. Edge pairs
-      // are pushed FIRST so their shared_problems survive the unordered dedupe.
+      // even same-type/same-root (the DG-2 cited-signal spirit) EXCEPT when both
+      // endpoints are scaffold types: those are caught by the post-enumeration
+      // both-scaffold exclusion below (quick task 260715-0nj). This exception is
+      // honest per the 260714-hzx finding that the 39-node memory_artifact
+      // CONVERGES clique refills the top-25 whenever the entity cohort thins, so
+      // a cited scaffold-vs-scaffold edge is document scaffolding, not a signal.
+      // Cross-boundary enumeration guarantees non-empty pairs on edge-sparse
+      // rooms. Edge pairs are pushed FIRST so their shared_problems survive the
+      // unordered dedupe.
       const seenPairs = new Set();
       const pushPair = function (a, b, shared) {
         const key = a < b ? a + '|' + b : b + '|' + a;
@@ -775,12 +782,39 @@ async function main(argv) {
       }
     }
 
+    // (4b) Both-scaffold candidate-pair exclusion (quick task 260715-0nj). A
+    // single post-enumeration pass, chosen over per-mode inline checks so ALL
+    // THREE modes (graph, full, room) are covered at exactly one insertion
+    // point. A pair is excluded when BOTH endpoints are members of
+    // SCAFFOLD_NODE_TYPES (memory_artifact / Artifact) - structural scaffolding,
+    // never a real cross-domain opportunity (the opportunity-harvest.cjs
+    // lines 519-521 precedent, extended to the ranking candidate set). Pairs
+    // with only ONE scaffold side are NOT touched (narrow scope, per the
+    // 260714-hzx disposition). Both endpoints are always present in `indexed`
+    // for scoreable pairs, but guard defensively: a missing indexed entry means
+    // the pair is NOT treated as scaffold. Exclusions are counted honestly and
+    // surfaced in provenance (never a silent suppression).
+    let scaffoldPairsExcluded = 0;
+    const filteredPairs = [];
+    for (let i = 0; i < pairsToScore.length; i += 1) {
+      const cp = pairsToScore[i];
+      const na = indexed.get(cp.a);
+      const nb = indexed.get(cp.b);
+      const aScaffold = !!(na && SCAFFOLD_NODE_TYPES.has(na.type));
+      const bScaffold = !!(nb && SCAFFOLD_NODE_TYPES.has(nb.type));
+      if (aScaffold && bScaffold) {
+        scaffoldPairsExcluded += 1;
+        continue;
+      }
+      filteredPairs.push(cp);
+    }
+
     // (5) + (6) Score each pair; compose the three-dimension AHP score.
     const scored = [];
     let part8Skipped = 0;
     let progress = 0;
-    for (let k = 0; k < pairsToScore.length; k += 1) {
-      const cp = pairsToScore[k];
+    for (let k = 0; k < filteredPairs.length; k += 1) {
+      const cp = filteredPairs[k];
       const na = indexed.get(cp.a);
       const nb = indexed.get(cp.b);
       let r;
@@ -959,6 +993,9 @@ async function main(argv) {
       graph_nodes: techMap.size,
       converges_pairs: convergesPairs.length,
       pairs_scored: scored.length,
+      // Quick task 260715-0nj: how many both-scaffold candidate pairs the filter
+      // removed before scoring. Read from the run, never a literal (honest nouns).
+      scaffold_pairs_excluded: scaffoldPairsExcluded,
       figure_guard_skipped: part8Skipped,
       // GAP-1: how the pending critic verdicts were (or were not) resolved.
       critic_resolution: opts.offline
@@ -1083,6 +1120,19 @@ function passesBankPredicate(entry, mode) {
       return st.banked === true;
   }
 }
+
+// The scaffold node-type family (quick task 260715-0nj). A candidate pair whose
+// BOTH endpoints are scaffold nodes (memory_artifact / Artifact) is structural
+// document scaffolding, never a real cross-domain opportunity. This is the SAME
+// 218 pin lib/core/eureka/opportunity-harvest.cjs lines 519-521 already applies
+// to the bridge + contradiction lanes ("a structural restatement of the room,
+// not a signal"); this constant extends that established predicate to the
+// portfolio ranking candidate set. Provenance: quick task 260714-hzx traced the
+// regression this closes - once tier-2 correctly thinned the entity cohort
+// (309 -> 46 company nodes), the 39-node memory_artifact CONVERGES clique
+// refilled the top-25 (18/25 = 72.0 percent structural share). Frozen so no
+// caller can mutate the family at run time.
+const SCAFFOLD_NODE_TYPES = Object.freeze(new Set(['memory_artifact', 'Artifact']));
 
 // The 216 field contract (test-216-field-contract.cjs precedent): a banked
 // node's props.section must be a REAL domain slug or the honest 'unknown',

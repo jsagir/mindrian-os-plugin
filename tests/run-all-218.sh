@@ -137,10 +137,19 @@ run "zero network" \
 run "no command surface leaked" \
   node scripts/build-connector-registry.cjs --check
 
-# (f) REQ-5 directional: the noise-reduction mechanism on a hermetic seeded room.
-#     The live acceptance NUMBER is the Task 3 human-verify leg (aion room, D-04).
-run "REQ-5 noise-reduction (directional, offline)" \
+# (f) REQ-5 exact: the noise-reduction mechanism on a hermetic seeded room. With
+#     the quick-260715-0nj both-scaffold candidate-pair filter the top-N
+#     structural share is 0 by construction (empty pre, exactly-0 post).
+run "REQ-5 noise-reduction (exact, offline)" \
   node tests/test-218-noise-reduction.cjs
+
+# (f.1) quick-260715-0nj both-scaffold candidate-pair filter: scaffold-only room
+#       ranks empty; mixed room ranks only non-both-scaffold pairs and one-side
+#       pairs survive (the narrow-scope proof). The live re-verification on the
+#       aion-eureka-synergy tier2-verified substrate (72.0 percent -> 0.0 percent)
+#       is the quick task's Task 2 leg, recorded in 218-VERIFICATION.md.
+run "quick-260715-0nj scaffold-pair filter (both-scaffold exclusion, offline)" \
+  node tests/test-218-scaffold-pair-filter.cjs
 
 # (g) 211 engine no-regression: Plan 02's openRoomDb D-05 edit is GLOBAL to every
 #     caller, so the 211 acceptance path must stay green. Guarded on the 211

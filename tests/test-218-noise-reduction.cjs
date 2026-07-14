@@ -1,16 +1,23 @@
 'use strict';
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
- * Phase 218-03 -- REQ-5 noise-reduction directional test.
+ * Phase 218-03 -- REQ-5 noise-reduction test (exact invariant, quick 260715-0nj).
  *
- * THE CLAIM (REQ-5, directional half): populating a room with proposed entity
- * nodes (company / technology / market) via scripts/entity-extract.cjs DILUTES the
- * top-N structural-vs-structural pair share the shipped Eureka engine ranks. A
- * "structural" pair is one whose BOTH endpoints are memory_artifact nodes -- the
- * one-node-per-file scaffolding that floods a pre-extraction room's top ranks with
- * artifact-vs-artifact pairs carrying no domain signal (the noise this phase
- * exists to remove). Adding real domain entities gives the ranker content to pair,
- * so the memory_artifact-vs-memory_artifact share must DROP.
+ * THE CLAIM (REQ-5, strengthened): a "structural" pair is one whose BOTH
+ * endpoints are memory_artifact nodes -- the one-node-per-file scaffolding that
+ * carries no domain signal (the noise this phase exists to remove). Quick task
+ * 260715-0nj excludes every both-scaffold pair from the ranked-pair candidate
+ * set at the pair-candidate generation layer, so the top-N structural share is
+ * now 0 BY CONSTRUCTION, independent of entity-cohort density (this supersedes
+ * the earlier REQ-5 directional "share must DROP" claim, which was satisfiable
+ * only when the scaffold clique still scored). The invariant is now two-sided:
+ *
+ *   PRE  (artifact-only room): the ranked list is EMPTY -- every candidate pair
+ *        is both-scaffold, all excluded, honest empty instead of a confident
+ *        100 percent structural top-N.
+ *   POST (after minting company / technology / market entity nodes via
+ *        scripts/entity-extract.cjs): the ranked list is NON-EMPTY (real entity
+ *        pairs survive) AND the top-N structural share is EXACTLY 0.
  *
  * WHY A SYNTHETIC FIXTURE (not the live aion room): this leg must be HERMETIC,
  * FAST and DETERMINISTIC in CI. A full offline re-rank over a real tens-of-
@@ -196,12 +203,14 @@ async function main() {
   try {
     seedRoom(roomDir);
 
-    // PRE: the seeded room is a 100%-structural top-N (only CONVERGES artifact
-    // pairs exist to rank).
+    // PRE: the seeded room has ONLY memory_artifact CONVERGES pairs, so every
+    // candidate pair is both-scaffold and the both-scaffold filter (quick
+    // 260715-0nj) excludes all of them -> the ranked list is honestly EMPTY,
+    // instead of the pre-filter 100 percent-structural top-N.
     const pre = await structuralShare(roomDir);
-    assert.ok(pre.total > 0, 'pre-extraction ranking should be non-empty');
-    assert.ok(pre.structural > 0, 'pre-extraction should have structural pairs');
-    console.log('  pre : ' + pre.structural + '/' + pre.total + ' structural = ' + (pre.share * 100).toFixed(1) + '%');
+    assert.equal(pre.total, 0, 'pre-extraction ranking must be EMPTY (every pair is both-scaffold, all excluded)');
+    assert.equal(pre.structural, 0, 'an empty ranked list has zero structural pairs by construction');
+    console.log('  pre : ' + pre.structural + '/' + pre.total + ' structural (honest empty)');
     passed += 1;
 
     // Run the pipeline in-process (writes proposed entity nodes + typed edges).
@@ -226,17 +235,23 @@ async function main() {
     passed += 1;
 
     // POST: the same offline re-rank now sees entity content to pair, so the
-    // structural (memory_artifact-vs-memory_artifact) share drops.
+    // ranked list is non-empty (real entity pairs survive) AND the structural
+    // (memory_artifact-vs-memory_artifact) share is EXACTLY 0 by construction
+    // (the both-scaffold filter removes every scaffold pair, quick 260715-0nj).
     const post = await structuralShare(roomDir);
     console.log('  post: ' + post.structural + '/' + post.total + ' structural = ' + (post.share * 100).toFixed(1) + '%');
     assert.ok(
-      post.share < pre.share,
-      'REQ-5 directional: post structural share (' + (post.share * 100).toFixed(1) +
-      '%) must be BELOW pre (' + (pre.share * 100).toFixed(1) + '%)'
+      post.total > 0,
+      'REQ-5: post-extraction ranked list must be NON-EMPTY (real entity pairs survive)'
+    );
+    assert.equal(
+      post.structural, 0,
+      'REQ-5 exact: post-extraction structural share must be EXACTLY 0 (' + post.structural +
+      ' both-scaffold pairs ranked; the filter must remove all of them)'
     );
     passed += 1;
 
-    console.log('test-218-noise-reduction: ' + passed + '/4 legs PASSED (REQ-5 directional)');
+    console.log('test-218-noise-reduction: ' + passed + '/4 legs PASSED (REQ-5 exact, structural share 0 by construction)');
   } finally {
     try { fs.rmSync(roomDir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
   }
