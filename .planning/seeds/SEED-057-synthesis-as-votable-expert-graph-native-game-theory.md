@@ -4,7 +4,7 @@ status: dormant
 planted: 2026-07-14
 planted_during: v1.15.3-beta.19 working tree. Navigator-directed, same-session as Phase 222 scoping (reach-ranking-unification) -- a game-theory-toolbox framing for "what fires next" led to correcting Phase 222's scope (a wiring fix onto the already-shipped, already-scored `dial-reach-orchestrator.cjs` D4 path, plus a hand-rolled multiplicative-weights/Shapley layer, zero new deps per same-session deep-research verdict), then the navigator generalized one step further: treat `strategic_rank` (and by extension any candidate-producing surface) not as a silent, unrelated scoring bug to fix in isolation, but as another "expert" in the same voting system -- one whose vote is not "rank this existing candidate" but "synthesize a new one here."
 trigger_when: |
-  Surface when BOTH conditions are met:
+  Surface when ALL THREE conditions are met:
   (1) Phase 222 (reach-ranking-unification) has shipped -- this seed's combiner IS the
       substrate a synthesis-triggering expert would vote inside; building this before
       222 lands has no ranking system to plug into.
@@ -13,15 +13,25 @@ trigger_when: |
       opportunity-harvest formula (Phase 219, inbound qualification gate, shipped) --
       both are ALREADY LIVE, so gate (2) is really "the next time either surface is
       touched for other reasons," not a corpus-size or cohort gate like SEED-009.
+  (3) ADDED 2026-07-14 (same-session risk check against SEED-034/SEED-058, sourced from
+      the 2026-07-14 intern-QA incident): at least one of SEED-034 (graph-derivation
+      harness -- the write path currently never populates room.db's graph on normal
+      conversational filing, confirmed structural and default-case, not an edge case)
+      or SEED-058 (Eureka reasoning-mode fallback -- Eureka hard-gates to
+      pairs_scored:0 with no degrade path when the embedding index or graph substrate
+      is unavailable) has shipped. Without at least SEED-058, a synthesis-trigger vote
+      routed through the eureka engine would, on a normal room, very likely invoke an
+      engine that returns nothing -- a real blocking dependency, not a soft one. See
+      "Dependency risk" section below for the full finding.
   Surface during that milestone/phase scoping, not before -- acting on this seed before
   Phase 222's combiner exists would mean building a vote with nothing to vote inside.
 scope: large
 bundle: learning-loops
 canon_parts: [Part 4, Part 7, Part 8, Part 9]
-target_milestone: TBD (post Phase 222)
+target_milestone: TBD (post Phase 222, and post at least SEED-058)
 implementing_phase: TBD -- proposes an extension to Phase 222's combiner, not a new standalone surface
 related_phases: [222, 158, 211, 212, 213, 214, 215, 216, 219]
-related_seeds: [SEED-008, SEED-009, SEED-048, SEED-049, SEED-050, SEED-054-beautiful-question-seed-harvest-feynman-pipeline]
+related_seeds: [SEED-008, SEED-009, SEED-034-graph-derivation-harness, SEED-048, SEED-049, SEED-050, SEED-054-beautiful-question-seed-harvest-feynman-pipeline, SEED-058-eureka-reasoning-mode-fallback]
 companion_artifacts:
   - .planning/phases/222-reach-ranking-unification-replace-the-three-disagreeing-what/222-SPEC.md
 authority:
@@ -95,6 +105,42 @@ engine's differential floor is worth crossing there) rather than a row in a tabl
 novelty is exactly why it is a SEED (deferred-but-load-bearing reasoning) and not a
 same-session addition to Phase 222 -- doing it well needs Phase 222's combiner to exist
 and be observed working first, not theorized about in the same sitting it was scoped.
+
+## Dependency risk: the eureka engine's default-case reliability (added 2026-07-14)
+
+Same-session risk check, prompted directly by the navigator, against two seeds that
+appeared mid-session via an unrelated intern-QA sweep (`.planning/debug/interns-round-eureka-david-session-2026-07-14.md`):
+
+- **SEED-034 (graph-derivation harness, open since 2026-06-18, independently
+  reconfirmed 2026-07-14):** `scripts/post-write`'s freshness-triple block never calls
+  `navigation.cjs` on a normal room-section write. Result: a room's `room.db` graph
+  stays at zero content nodes regardless of how much markdown gets filed through
+  ordinary conversation, unless a separate, never-automatically-triggered derivation
+  pass runs. Confirmed twice, independently, from two different rooms and workflows
+  (`b2-journey` 2026-06-18; `david-innovation-studio`, 30 files, 2026-07-14) -- this is
+  the DEFAULT case, not an edge case.
+- **SEED-058 (eureka reasoning-mode fallback, opened 2026-07-14 from the same
+  incident):** `scripts/eureka-portfolio-report.cjs` hard-gates on `idx.embedded ===
+  true` (its embedding index) with no secondary path. When the embedding model hasn't
+  been fetched yet (cold machine, one-time opt-in fetch) or the graph is thin/empty
+  (SEED-034's gap), Eureka returns `pairs_scored: 0`, `statements: []`, rendered as
+  "not enough entries" -- true of the symptom, wrong about the cause, and with no
+  fallback result of any kind.
+
+Why this matters here: this seed's whole proposal routes a `synthesis-trigger` expert's
+winning vote through the eureka engine to actually produce a candidate. If that engine
+hard-fails to zero on a normal room by default (which SEED-034's finding says is the
+common case, not the exception), then most synthesis-trigger votes would resolve to
+"invoked the engine, got nothing back" -- not a soft inconvenience, a vote that is
+functionally always wrong until the dependency clears. SEED-058 is the more directly
+load-bearing of the two for this seed's purposes specifically: it does not require
+every write to populate the graph (SEED-034's fuller fix), it only requires that
+*when invoked*, Eureka returns something real and labeled instead of a hard zero --
+which is exactly the guarantee a synthesis-trigger vote needs to not be wasted.
+SEED-034 remains valuable (a populated graph produces better eureka results generally,
+and feeds Requirement-style acceptance elsewhere in this system) but is not, by itself,
+sufficient or necessary for this seed to be viable; SEED-058 alone would likely clear
+the trigger-gate condition (3) above even if SEED-034 is still in flight.
 
 ## What This Seed Proposes (NOT a phase yet -- scoping input only)
 
