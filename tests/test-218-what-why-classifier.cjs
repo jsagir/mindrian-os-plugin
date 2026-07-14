@@ -77,6 +77,19 @@ function entityNames(db) {
   return rows.map(function (r) { try { return JSON.parse(r.properties).name; } catch (_e) { return null; } });
 }
 
+// Two-tier (quick-task 260714-k44): a deterministic tier-2a surrogate that marks
+// EVERY candidate unconfident WHAT (margin 0). It forces everything to escalate,
+// so an injected classifyImpl still decides every candidate and every pre-k44
+// integration assertion (including classifierSource === 'model') holds unchanged.
+const embedAllEscalate = async ({ names }) => {
+  const results = {};
+  for (const n of names) results[n] = { label: 'what', margin: 0, confident: false };
+  return { ok: true, results, provenance: { model: 'stub', dim: 2, threshold: 0.05 } };
+};
+// A tier-2a surrogate that reports the encoder unavailable, so the whole tier
+// degrades to the prior hzx behavior (the leg (ii) full-degrade chain).
+const embedUnavailable = async () => ({ ok: false, error: 'encoder_unavailable' });
+
 let pass = 0;
 let total = 0;
 async function check(label, fn) {
@@ -425,7 +438,7 @@ async function main() {
     };
     let db = openRoomDb(roomDir, { allowExtension: true });
     try {
-      const result = await runExtraction(db, roomDir, sessionId, 25, { classifyImpl: mockClassifier });
+      const result = await runExtraction(db, roomDir, sessionId, 25, { classifyImpl: mockClassifier, embedClassifyImpl: embedAllEscalate });
       assert.equal(result.classifierSource, 'model', 'classifier_source must be model');
       assert.ok(result.termsWhy >= 3, 'at least the 3 WHY terms captured, got ' + result.termsWhy);
 
@@ -477,7 +490,7 @@ async function main() {
     const throwing = async () => { throw new Error('model down'); };
     let db = openRoomDb(roomDir, { allowExtension: true });
     try {
-      const result = await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: throwing });
+      const result = await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: throwing, embedClassifyImpl: embedUnavailable });
       assert.equal(result.classifierSource, 'fallback', 'classifier_source must be fallback on throw');
       const names = entityNames(db);
       // Every survivor including Larry is written as an entity (no reroute happened).
@@ -515,7 +528,7 @@ async function main() {
     };
     let db = openRoomDb(roomDir, { allowExtension: true });
     try {
-      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier });
+      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier, embedClassifyImpl: embedAllEscalate });
       const names = entityNames(db);
       for (const c of COMPANIES) assert.ok(names.includes(c), c + ' must be an entity node: ' + JSON.stringify(names));
       for (const w of FRAMEWORK) assert.ok(!names.includes(w), w + ' must NOT be an entity node: ' + JSON.stringify(names));
@@ -552,14 +565,14 @@ async function main() {
     const artId = 'memory_artifact:analysis:FEYNMAN';
     let db = openRoomDb(roomDir, { allowExtension: true });
     try {
-      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier });
+      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier, embedClassifyImpl: embedAllEscalate });
       const first = JSON.parse(db.prepare('SELECT properties FROM nodes WHERE id = ?').get(artId).properties);
       const firstCount = first.framework_term_count;
       const artStatusRow = db.prepare('SELECT review_status FROM nodes WHERE id = ?').get(artId);
       const statusBefore = artStatusRow ? artStatusRow.review_status : null;
 
       // Second run against the same room / db.
-      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier });
+      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier, embedClassifyImpl: embedAllEscalate });
       const second = JSON.parse(db.prepare('SELECT properties FROM nodes WHERE id = ?').get(artId).properties);
 
       // No duplication: the count is stable and terms are unique case-insensitively.
@@ -569,6 +582,144 @@ async function main() {
 
       const statusAfter = db.prepare('SELECT review_status FROM nodes WHERE id = ?').get(artId).review_status;
       assert.equal(statusAfter, statusBefore, 'review_status must be untouched by the merge');
+    } finally {
+      closeRoomDb(db);
+      fs.rmSync(roomDir, { recursive: true, force: true });
+    }
+  });
+
+  // ===========================================================================
+  // NEW two-tier routing legs (quick-task 260714-k44): embedding-alone,
+  // minimal escalation, honest no-LLM degrade. All hermetic temp rooms, offline.
+  // ===========================================================================
+
+  // (v) embedding-alone: every candidate resolves confidently in tier-2a, so the
+  //     LLM tier is NEVER invoked (its stub throws on any call). The WHY terms land
+  //     in framework_terms and never as entity nodes; AION Labs is a proposed node.
+  await check('integration (v): embedding-alone resolution, zero LLM calls', async () => {
+    const WHY = ['Larry', 'Governing Thought', 'Pyramid Logic'];
+    const built = buildRoom([{
+      slug: 'analysis',
+      body: [
+        '# Competitors',
+        '',
+        'AION Labs competes with Recursion in the drug-discovery market.',
+        'The Governing Thought guides the roadmap and the Pyramid Logic frames it.',
+        'Larry reviews the analysis before it ships.',
+      ].join('\n'),
+    }]);
+    const roomDir = built.roomDir;
+    const sessionId = 'entity-extract';
+    const embedImpl = async ({ names }) => {
+      const results = {};
+      for (const n of names) {
+        results[n] = { label: WHY.includes(n) ? 'why' : 'what', margin: 0.9, confident: true };
+      }
+      return { ok: true, results, provenance: { model: 'stub', dim: 2, threshold: 0.05 } };
+    };
+    const throwingLlm = async () => { throw new Error('LLM must not be called in embedding-alone routing'); };
+    let db = openRoomDb(roomDir, { allowExtension: true });
+    try {
+      const result = await runExtraction(db, roomDir, sessionId, 25, {
+        classifyImpl: throwingLlm, embedClassifyImpl: embedImpl,
+      });
+      assert.equal(result.classifierSource, 'embedding', 'classifier_source must be embedding');
+      assert.ok(result.tier2Embedding >= 4, 'embeddingResolved >= 4, got ' + result.tier2Embedding);
+      assert.equal(result.tier2Escalated, 0, 'nothing escalates, got ' + result.tier2Escalated);
+      const names = entityNames(db);
+      for (const w of WHY) assert.ok(!names.includes(w), w + ' must NOT be an entity node: ' + JSON.stringify(names));
+      assert.ok(names.includes('AION Labs'), 'AION Labs must be an entity node: ' + JSON.stringify(names));
+      const artRow = db.prepare('SELECT properties FROM nodes WHERE id = ?').get('memory_artifact:analysis:FEYNMAN');
+      const fwTerms = JSON.parse(artRow.properties).framework_terms || '';
+      for (const w of WHY) assert.ok(fwTerms.indexOf(w) !== -1, w + ' must be in framework_terms: ' + fwTerms);
+    } finally {
+      closeRoomDb(db);
+      fs.rmSync(roomDir, { recursive: true, force: true });
+    }
+  });
+
+  // (vi) partial escalation: exactly one candidate (Recursion) is unconfident, so
+  //      the LLM tier is called ONCE with only that name; the rest resolve in
+  //      tier-2a. classifier_source is 'mixed'.
+  await check('integration (vi): minimal escalation routes only the unconfident candidate', async () => {
+    const built = buildRoom([{
+      slug: 'analysis',
+      body: [
+        '# Competitors',
+        '',
+        'AION Labs competes with Recursion in the drug-discovery market.',
+      ].join('\n'),
+    }]);
+    const roomDir = built.roomDir;
+    const embedImpl = async ({ names }) => {
+      const results = {};
+      for (const n of names) {
+        const conf = n !== 'Recursion';
+        results[n] = { label: 'what', margin: conf ? 0.9 : 0.0, confident: conf };
+      }
+      return { ok: true, results, provenance: { model: 'stub', dim: 2, threshold: 0.05 } };
+    };
+    const calls = [];
+    const countingLlm = async ({ names }) => {
+      calls.push(names.slice());
+      const labels = {};
+      for (const n of names) labels[n] = 'what';
+      return { labels, source: 'model' };
+    };
+    let db = openRoomDb(roomDir, { allowExtension: true });
+    try {
+      const result = await runExtraction(db, roomDir, 'entity-extract', 25, {
+        classifyImpl: countingLlm, embedClassifyImpl: embedImpl,
+      });
+      assert.equal(calls.length, 1, 'LLM classifier called exactly once, got ' + calls.length);
+      assert.deepEqual(calls[0], ['Recursion'], 'LLM called with only the escalated candidate');
+      assert.equal(result.classifierSource, 'mixed', 'classifier_source must be mixed');
+      assert.equal(result.tier2Escalated, 1, 'escalated === 1, got ' + result.tier2Escalated);
+      assert.equal(result.tier2Model, 1, 'modelResolved === 1, got ' + result.tier2Model);
+      assert.equal(result.tier2LowConfidence, 0, 'lowConfidence === 0, got ' + result.tier2LowConfidence);
+    } finally {
+      closeRoomDb(db);
+      fs.rmSync(roomDir, { recursive: true, force: true });
+    }
+  });
+
+  // (vii) honest no-LLM degrade: a WHY-leaning candidate is unconfident, no key is
+  //       present (_forceNoLlm), and NO classifyImpl is injected. The embedding
+  //       best-guess ('why') stands, is disclosed as low-confidence, and the term
+  //       lands in framework_terms -- NOT a silent WHAT, NOT source 'fallback'.
+  await check('integration (vii): honest no-LLM degrade discloses low-confidence best-guess', async () => {
+    const built = buildRoom([{
+      slug: 'analysis',
+      body: [
+        '# Competitors',
+        '',
+        'AION Labs competes with Recursion in the drug-discovery market.',
+        'The Governing Thought frames the analysis.',
+      ].join('\n'),
+    }]);
+    const roomDir = built.roomDir;
+    const embedImpl = async ({ names }) => {
+      const results = {};
+      for (const n of names) {
+        if (n === 'Governing Thought') results[n] = { label: 'why', margin: 0.01, confident: false };
+        else results[n] = { label: 'what', margin: 0.9, confident: true };
+      }
+      return { ok: true, results, provenance: { model: 'stub', dim: 2, threshold: 0.05 } };
+    };
+    let db = openRoomDb(roomDir, { allowExtension: true });
+    try {
+      const result = await runExtraction(db, roomDir, 'entity-extract', 25, {
+        embedClassifyImpl: embedImpl, _forceNoLlm: true,
+      });
+      assert.equal(result.tier2LowConfidence, 1, 'lowConfidence === 1, got ' + result.tier2LowConfidence);
+      assert.equal(result.classifierSource, 'embedding',
+        'classifier_source must be embedding (low-confidence disclosed, not fallback)');
+      const names = entityNames(db);
+      assert.ok(!names.includes('Governing Thought'), 'Governing Thought must NOT be an entity node: ' + JSON.stringify(names));
+      const artRow = db.prepare('SELECT properties FROM nodes WHERE id = ?').get('memory_artifact:analysis:FEYNMAN');
+      const fwTerms = JSON.parse(artRow.properties).framework_terms || '';
+      assert.ok(fwTerms.indexOf('Governing Thought') !== -1,
+        'Governing Thought must be in framework_terms (best guess stood): ' + fwTerms);
     } finally {
       closeRoomDb(db);
       fs.rmSync(roomDir, { recursive: true, force: true });

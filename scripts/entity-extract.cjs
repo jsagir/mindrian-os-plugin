@@ -25,12 +25,19 @@
  *      real prose off disk.
  *   3. extractEntities(text, { sourceArtifactId }) (Plan 218-02) per artifact ->
  *      bounded, typed {entities, relations, frameworkTerms} candidates, zero egress.
- *   3b. Tier-2 semantic pass (quick-task 260714-hzx): the classifier module labels
- *      each tier-1 survivor WHAT / WHY / NOISE. WHAT flows through step 4 unchanged;
- *      WHY joins the frameworkTerms signal merged onto the source artifact inside
- *      the transaction; NOISE drops. Runs to completion BEFORE the transaction
- *      opens, so the only model reach never holds the write lock. Degrades to
- *      pass-through (every survivor WHAT) with no key or on any per-artifact failure.
+ *   3b. Tier-2 semantic pass (two-tier, quick-task 260714-k44 over 260714-hzx):
+ *      tier-2a is the LOCAL embedding classifier (embedding-classifier.cjs) -- zero
+ *      egress, delegating to the embedding-spine boundary -- which resolves the
+ *      confident majority of tier-1 survivors WHAT vs WHY for free. Only the
+ *      low-margin residual escalates to tier-2b (entity-classifier.cjs, unchanged),
+ *      called per artifact for the escalated names ONLY. WHAT flows through step 4
+ *      unchanged; WHY joins the frameworkTerms signal merged onto the source
+ *      artifact inside the transaction; NOISE (a tier-2b-only verdict) drops. The
+ *      whole pass runs to completion BEFORE the transaction opens, so neither tier
+ *      ever holds the write lock. Every degrade is honest: no LLM means the
+ *      embedding best-guess with a disclosed low-confidence count, never a silent
+ *      WHAT; an unavailable encoder degrades the whole tier to the prior hzx
+ *      behavior verbatim (per-artifact tier-2b when keyed, else every-survivor WHAT).
  *   4. ONE explicit D-05 BEGIN/COMMIT/ROLLBACK transaction (node:sqlite has NO
  *      .transaction() helper, RESEARCH Pitfall 3) around the whole batch:
  *      navigation.writeEntityNode per entity, navigation.writeEdge per
@@ -56,11 +63,14 @@
  * CANON POSTURE:
  *   - Part 8 (Graph Boundary): THIS FILE'S OWN CODE and the tier-1 extractor make
  *     ZERO network reach -- no URL, no socket, no remote call -- and the grep gate
- *     enforces it. The ONLY model reach in the whole pipeline lives inside the
- *     tier-2 classifier module (lib/core/eureka/entity-classifier.cjs), which
- *     documents its own boundary: a LOCAL classification call over the Anthropic
- *     LLM transport, never the Brain surface, degrade-to-passthrough. The re-embed
- *     uses the already-vendored local paths only.
+ *     enforces it. Tier-2a (embedding-classifier.cjs) is ALSO fully local and
+ *     zero-egress: it delegates to the embedding-spine boundary (generic model
+ *     weights by id only, no user bytes). The ONLY remote model reach in the whole
+ *     pipeline lives inside the tier-2b classifier module
+ *     (lib/core/eureka/entity-classifier.cjs), which documents its own boundary: a
+ *     LOCAL classification call over the Anthropic LLM transport, never the Brain
+ *     surface, degrade-to-passthrough -- and now for the escalated residual only.
+ *     The re-embed uses the already-vendored local paths only.
  *   - Part 9 (Memory Locality): every entity node is born review_status='proposed'
  *     via navigation.writeEntityNode; only a human confirmNode promotes it. This
  *     script writes ONLY through the navigation chokepoint -- NO raw INSERT INTO
@@ -90,11 +100,18 @@ const navigation = require('../lib/core/navigation.cjs');
 const { insertNode } = require('../lib/core/node-insert.cjs');
 const { extractEntities } = require('../lib/core/eureka/entity-extractor.cjs');
 const triModal = require('../lib/core/eureka/tri-modal-index.cjs');
-// Tier-2 (quick-task 260714-hzx): the semantic WHAT / WHY / NOISE classifier
+// Tier-2a (quick-task 260714-k44): the LOCAL embedding WHAT-vs-WHY classifier. It
+// is fully local and zero-egress (it delegates to the embedding-spine boundary),
+// resolves the confident majority of candidates for free, and hands only the
+// low-margin residual to tier-2b below. The dispatcher body in THIS file stays
+// zero-network (grep-gated); the embedding tier adds no transport of its own.
+const entityEmbedClassifier = require('../lib/core/eureka/embedding-classifier.cjs');
+// Tier-2b (quick-task 260714-hzx): the semantic WHAT / WHY / NOISE classifier
 // module. It is the ONLY model reach in this pipeline and documents its own
-// boundary; the dispatcher body in THIS file stays zero-network (grep-gated).
-// resolveAnthropicKey gates whether the tier-2 pass runs at all (Part 7 reuse of
-// the mva-classifier resolver, never a copy).
+// boundary; it is now the ESCALATION-ONLY path, called per artifact for just the
+// candidates tier-2a could not confidently resolve. resolveAnthropicKey gates
+// whether that escalation runs at all (Part 7 reuse of the mva-classifier
+// resolver, never a copy).
 const entityClassifier = require('../lib/core/eureka/entity-classifier.cjs');
 const { resolveAnthropicKey } = require('../lib/core/mva-classifier.cjs');
 // Phase 219-02 (D-11, REQ-5): the SHIPPED zero-dep frontmatter parser (Canon
@@ -375,26 +392,30 @@ function fallbackLabels(names) {
   return labels;
 }
 
-// runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, keyPresent) -- the
-// semantic pass. Groups tier-1 survivor entities by their sourceArtifactId and
-// asks the classifier module (or an injected test impl) to label each artifact's
-// candidates WHAT / WHY / NOISE. WHAT keeps flowing (byte-identical write path);
-// WHY joins the framework-term signal; NOISE drops. Every model call completes
-// here, BEFORE the caller opens the D-05 transaction. A per-artifact failure
-// falls back for THAT artifact only. Returns
-//   { whatEntities, whyTerms, droppedNoise, classifierSource }.
-async function runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, keyPresent) {
-  const textById = new Map();
-  for (const art of artifacts) textById.set(art.artifactId, art.text);
-
-  const byArtifact = new Map(); // artifactId -> [entity]
-  for (const e of entities) {
-    if (!byArtifact.has(e.sourceArtifactId)) byArtifact.set(e.sourceArtifactId, []);
-    byArtifact.get(e.sourceArtifactId).push(e);
+// routeLabel(e, label, whatEntities, whyTerms) -- apply one resolved label to one
+// entity: WHAT keeps the entity flowing (byte-identical write path), WHY joins the
+// framework-term signal on its source artifact, NOISE drops. Returns the applied
+// label so the caller can tally the NOISE drops.
+function routeLabel(e, label, whatEntities, whyTerms) {
+  if (label === 'why') {
+    whyTerms.push({ name: e.name, sourceArtifactId: e.sourceArtifactId });
+  } else if (label === 'noise') {
+    return 'noise';
+  } else {
+    whatEntities.push(e);
   }
+  return label;
+}
 
+// runDegradeHzx(...) -- the verbatim prior (quick-task 260714-hzx) per-artifact
+// pass, used ONLY when tier-2a (the embedding tier) is unavailable (ok:false).
+// Groups every survivor by artifact and asks tier-2b for all of that artifact's
+// candidates when keyed, else the every-name-WHAT fallback. classifier_source
+// stays model/fallback/mixed exactly as before this quick task. This preserves
+// "an unavailable encoder means the prior behavior verbatim".
+async function runDegradeHzx(textById, byArtifact, tier1WhyTerms, classifyImpl, keyPresent) {
   const whatEntities = [];
-  const whyTerms = tier1WhyTerms.slice(); // tier-1 structural WHY seed (zero model cost)
+  const whyTerms = tier1WhyTerms.slice();
   let droppedNoise = 0;
   let usedModel = false;
   let usedFallback = false;
@@ -403,7 +424,6 @@ async function runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, keyPre
     const names = arr.map(function (e) { return e.name; });
     let result;
     if (!keyPresent) {
-      // No key: skip the model call entirely, degrade to today's behavior.
       result = { labels: fallbackLabels(names), source: 'fallback' };
     } else {
       const excerpt = artifactExcerpt(textById.get(artifactId) || '');
@@ -420,12 +440,9 @@ async function runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, keyPre
     else usedFallback = true;
 
     for (const e of arr) {
-      const label = result.labels[e.name] === 'why' || result.labels[e.name] === 'noise'
-        ? result.labels[e.name]
-        : 'what';
-      if (label === 'why') whyTerms.push({ name: e.name, sourceArtifactId: artifactId });
-      else if (label === 'noise') droppedNoise += 1;
-      else whatEntities.push(e);
+      const raw = result.labels[e.name];
+      const label = (raw === 'why' || raw === 'noise') ? raw : 'what';
+      if (routeLabel(e, label, whatEntities, whyTerms) === 'noise') droppedNoise += 1;
     }
   }
 
@@ -439,6 +456,127 @@ async function runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, keyPre
     whyTerms: whyTerms,
     droppedNoise: droppedNoise,
     classifierSource: classifierSource,
+    embeddingResolved: 0,
+    escalated: 0,
+    modelResolved: usedModel ? whatEntities.length + (whyTerms.length - tier1WhyTerms.length) + droppedNoise : 0,
+    lowConfidence: 0,
+  };
+}
+
+// runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, embedClassifyImpl,
+//   keyPresent) -- the LOCKED two-tier semantic pass. Tier-2a (the embedding
+// classifier) runs first over ALL unique survivor names in ONE call; confident
+// candidates resolve for free. Only the low-margin residual escalates to tier-2b
+// (the LLM classifier), grouped per artifact, escalated names ONLY. Every model
+// call completes here, BEFORE the caller opens the D-05 transaction, so neither
+// tier holds the write lock. Returns
+//   { whatEntities, whyTerms, droppedNoise, classifierSource,
+//     embeddingResolved, escalated, modelResolved, lowConfidence }.
+async function runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, embedClassifyImpl, keyPresent) {
+  const textById = new Map();
+  for (const art of artifacts) textById.set(art.artifactId, art.text);
+
+  const byArtifact = new Map(); // artifactId -> [entity]
+  for (const e of entities) {
+    if (!byArtifact.has(e.sourceArtifactId)) byArtifact.set(e.sourceArtifactId, []);
+    byArtifact.get(e.sourceArtifactId).push(e);
+  }
+
+  // Tier-2a: ONE embedding call over the unique candidate names (the module
+  // batches the embedding internally). A dedup keeps the reference-vs-candidate
+  // scoring bounded regardless of how many artifacts share a name.
+  const uniqueNames = Array.from(new Set(entities.map(function (e) { return e.name; })));
+  let embed = null;
+  try {
+    embed = await embedClassifyImpl({ names: uniqueNames });
+  } catch (_e) {
+    embed = { ok: false, error: 'embed_failed' };
+  }
+
+  // Tier-2a unavailable -> the ENTIRE tier degrades to the prior hzx behavior.
+  if (!embed || embed.ok !== true || !embed.results || typeof embed.results !== 'object') {
+    return runDegradeHzx(textById, byArtifact, tier1WhyTerms, classifyImpl, keyPresent);
+  }
+
+  const whatEntities = [];
+  const whyTerms = tier1WhyTerms.slice(); // tier-1 structural WHY seed (zero model cost)
+  let droppedNoise = 0;
+  let embeddingResolved = 0;
+  let escalated = 0;
+  let modelResolved = 0;
+  let lowConfidence = 0;
+
+  // Partition: confident embedding results resolve now; unconfident ones (or a
+  // missing result) collect into the per-artifact escalation set, carrying their
+  // embedding best-guess label as the no-LLM / failed-LLM fallback.
+  const escByArtifact = new Map(); // artifactId -> [{ e, bestGuess }]
+  for (const e of entities) {
+    const er = embed.results[e.name];
+    if (er && er.confident === true && (er.label === 'what' || er.label === 'why')) {
+      routeLabel(e, er.label, whatEntities, whyTerms);
+      embeddingResolved += 1;
+    } else {
+      const bestGuess = (er && (er.label === 'what' || er.label === 'why')) ? er.label : 'what';
+      if (!escByArtifact.has(e.sourceArtifactId)) escByArtifact.set(e.sourceArtifactId, []);
+      escByArtifact.get(e.sourceArtifactId).push({ e: e, bestGuess: bestGuess });
+      escalated += 1;
+    }
+  }
+
+  // Tier-2b escalation: per artifact, the escalated names ONLY.
+  for (const [artifactId, items] of escByArtifact) {
+    const escNames = items.map(function (it) { return it.e.name; });
+    let modelLabels = null;
+    if (keyPresent) {
+      const excerpt = artifactExcerpt(textById.get(artifactId) || '');
+      let result;
+      try {
+        result = await classifyImpl({ names: escNames, excerpt: excerpt });
+      } catch (_e) {
+        result = null;
+      }
+      // Accept model labels only when the call succeeded with source 'model';
+      // a throw, a bad shape, or a fallback source routes THIS artifact's
+      // escalated candidates to the embedding best-guess (disclosed low-confidence).
+      if (result && typeof result === 'object' && result.labels
+          && typeof result.labels === 'object' && result.source === 'model') {
+        modelLabels = result.labels;
+      }
+    }
+
+    for (const it of items) {
+      if (modelLabels) {
+        const raw = modelLabels[it.e.name];
+        const label = (raw === 'why' || raw === 'noise' || raw === 'what') ? raw : it.bestGuess;
+        if (routeLabel(it.e, label, whatEntities, whyTerms) === 'noise') droppedNoise += 1;
+        modelResolved += 1;
+      } else {
+        // No LLM (no key, or the escalation failed): the embedding best-guess
+        // stands, counted as low-confidence -- NEVER a silent WHAT default.
+        routeLabel(it.e, it.bestGuess, whatEntities, whyTerms);
+        lowConfidence += 1;
+      }
+    }
+  }
+
+  // classifier_source honesty (K44-REQ-3): which tier actually resolved candidates.
+  const resolvedByEmbedding = embeddingResolved > 0 || lowConfidence > 0;
+  const resolvedByModel = modelResolved > 0;
+  let classifierSource;
+  if (resolvedByModel && resolvedByEmbedding) classifierSource = 'mixed';
+  else if (resolvedByModel) classifierSource = 'model';
+  else if (resolvedByEmbedding) classifierSource = 'embedding';
+  else classifierSource = 'fallback'; // nothing resolved semantically (no candidates)
+
+  return {
+    whatEntities: whatEntities,
+    whyTerms: whyTerms,
+    droppedNoise: droppedNoise,
+    classifierSource: classifierSource,
+    embeddingResolved: embeddingResolved,
+    escalated: escalated,
+    modelResolved: modelResolved,
+    lowConfidence: lowConfidence,
   };
 }
 
@@ -510,18 +648,31 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     }
   }
 
-  // Tier-2 (quick-task 260714-hzx): the semantic pass runs AFTER aggregation and
-  // strictly BEFORE db.exec('BEGIN'). An injected classifyImpl (test seam)
-  // bypasses the key gate and IS the model surrogate; otherwise the real module
-  // runs only when a key resolves, else every survivor degrades to WHAT
-  // (byte-identical to today's write behavior).
+  // Tier-2 (two-tier, quick-task 260714-k44): the semantic pass runs AFTER
+  // aggregation and strictly BEFORE db.exec('BEGIN'). Tier-2a (the embedding
+  // classifier) resolves the confident majority for free; only the low-margin
+  // residual escalates to tier-2b (the LLM classifier). Two additive seams mirror
+  // the classifyImpl idiom:
+  //   opts.embedClassifyImpl - the tier-2a surrogate (defaults to the real
+  //     classifyByEmbedding); a test injects deterministic embedding verdicts.
+  //   opts.classifyImpl      - the tier-2b surrogate (defaults to the real
+  //     classifyArtifactCandidates); injecting it bypasses the key gate.
+  //   opts._forceNoLlm       - test-only: forces keyPresent false so the honest
+  //     no-LLM degrade leg is deterministic regardless of the machine key state.
   const classifyInjected = typeof options.classifyImpl === 'function';
   const classifyImpl = classifyInjected
     ? options.classifyImpl
     : entityClassifier.classifyArtifactCandidates;
-  const keyPresent = classifyInjected ? true : (resolveAnthropicKey() !== null);
+  const embedInjected = typeof options.embedClassifyImpl === 'function';
+  const embedClassifyImpl = embedInjected
+    ? options.embedClassifyImpl
+    : entityEmbedClassifier.classifyByEmbedding;
+  const forceNoLlm = options._forceNoLlm === true;
+  const keyPresent = forceNoLlm
+    ? false
+    : (classifyInjected ? true : (resolveAnthropicKey() !== null));
 
-  const tier2 = await runTier2(artifacts, rawEntities, tier1WhyTerms, classifyImpl, keyPresent);
+  const tier2 = await runTier2(artifacts, rawEntities, tier1WhyTerms, classifyImpl, embedClassifyImpl, keyPresent);
   const entities = tier2.whatEntities;
 
   // Relation filter: an edge endpoint node exists only for a surviving WHAT name.
@@ -632,6 +783,13 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     classifierSource: tier2.classifierSource,
     frameworkApplied: frameworkApplied,
     frameworkSkipped: frameworkSkipped,
+    // Two-tier (quick-task 260714-k44) additive per-tier counts: how many
+    // candidates each tier resolved, how many escalated, and how many landed on a
+    // disclosed low-confidence embedding best-guess (never a silent WHAT).
+    tier2Embedding: tier2.embeddingResolved,
+    tier2Escalated: tier2.escalated,
+    tier2Model: tier2.modelResolved,
+    tier2LowConfidence: tier2.lowConfidence,
   };
   return triModal.indexNodes(db, { roomDir: roomDir })
     .then(function (idx) {
@@ -694,6 +852,11 @@ async function cmdRun(opts) {
       classifier_source: result.classifierSource,
       framework_applied: result.frameworkApplied,
       framework_skipped: result.frameworkSkipped,
+      // Two-tier (quick-task 260714-k44) additive per-tier observability keys.
+      tier2_embedding: result.tier2Embedding,
+      tier2_escalated: result.tier2Escalated,
+      tier2_model: result.tier2Model,
+      tier2_low_confidence: result.tier2LowConfidence,
       session: opts.session,
     });
     return 0;
@@ -765,11 +928,18 @@ function cmdReport(opts) {
     return 1;
   }
   if (parsed.state === 'done') {
+    // Two-tier (quick-task 260714-k44): disclose the per-tier split. The
+    // low-confidence count is printed explicitly when > 0 -- an embedding
+    // best-guess resolution is disclosed, never dressed up as a full resolution.
+    const lowConf = parsed.tier2_low_confidence || 0;
+    const lowConfNote = lowConf > 0 ? ', ' + lowConf + ' low-confidence' : '';
     process.stdout.write(
       'entity-extract done: ' + (parsed.entities || 0) + ' entities, ' + (parsed.edges || 0) +
       ' edges from ' + (parsed.artifacts || 0) + ' artifacts (embedded=' + (parsed.embedded ? 'yes' : 'no') + '); ' +
       'tier-2: ' + (parsed.entities_what || 0) + ' what, ' + (parsed.terms_why || 0) + ' why, ' +
-      (parsed.dropped_noise || 0) + ' noise (classifier=' + (parsed.classifier_source || 'fallback') + ')\n'
+      (parsed.dropped_noise || 0) + ' noise (classifier=' + (parsed.classifier_source || 'fallback') + '); ' +
+      'routing: ' + (parsed.tier2_embedding || 0) + ' embedding, ' + (parsed.tier2_escalated || 0) +
+      ' escalated, ' + (parsed.tier2_model || 0) + ' model' + lowConfNote + '\n'
     );
   } else if (parsed.state === 'running') {
     process.stdout.write('entity-extract running (started ' + (parsed.started_at || '?') + ')\n');
@@ -816,4 +986,9 @@ if (require.main === module) {
 // opts idiom): when present it IS the model surrogate and bypasses the key gate,
 // so integration tests exercise the WHY reroute / degrade paths fully offline.
 // main stays the dispatcher seam.
-module.exports = { main: main, runExtraction: runExtraction };
+// collectArtifacts is exported ADDITIVELY (quick-task 260714-k44) so a read-only
+// measurement harness can count tier-1 candidates and run tier-2a over a real room
+// WITHOUT calling runExtraction or opening a write transaction (the K44-REQ-5
+// key-less call-volume measurement). It takes a caller-owned db handle and never
+// writes.
+module.exports = { main: main, runExtraction: runExtraction, collectArtifacts: collectArtifacts };

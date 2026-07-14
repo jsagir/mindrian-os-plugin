@@ -89,9 +89,24 @@ async function main() {
     const names = entRows.map((r) => JSON.parse(r.properties).name);
     console.log('  extracted:', JSON.stringify(names));
 
-    // The real finding, living in the NON-memory-kinded file, must now surface.
-    assert.ok(names.includes('Prodrive'), 'Prodrive (in the non-memory-kinded file) must be extracted: ' + JSON.stringify(names));
-    assert.ok(names.includes('CorePower'), 'CorePower (in the non-memory-kinded file) must be extracted: ' + JSON.stringify(names));
+    // The real finding, living in the NON-memory-kinded file, must now surface --
+    // i.e. the tier-1 walk MUST reach the file. Two-tier semantic routing
+    // (quick-task 260714-k44) means a surfaced term lands EITHER as an entity node
+    // (tier-2a resolved it WHAT, or the encoder was unavailable and the pass
+    // degraded to pass-through) OR in the artifact's framework_terms (tier-2a
+    // resolved it WHY). This test proves the WALK reached the file, not tier-2a's
+    // semantic verdict, so it accepts either home -- and stays deterministic
+    // whether or not the local encoder is cached on the running machine.
+    const anchorProps = (function () {
+      const row = db.prepare('SELECT properties FROM nodes WHERE id = ?').get(anchorId);
+      try { return JSON.parse(row.properties || '{}'); } catch (_e) { return {}; }
+    })();
+    const frameworkTerms = typeof anchorProps.framework_terms === 'string' ? anchorProps.framework_terms : '';
+    const surfaced = function (term) {
+      return names.includes(term) || frameworkTerms.indexOf(term) !== -1;
+    };
+    assert.ok(surfaced('Prodrive'), 'Prodrive (in the non-memory-kinded file) must surface as entity or framework term: ' + JSON.stringify(names) + ' | fw=' + frameworkTerms);
+    assert.ok(surfaced('CorePower'), 'CorePower (in the non-memory-kinded file) must surface as entity or framework term: ' + JSON.stringify(names) + ' | fw=' + frameworkTerms);
     passed += 1;
 
     // Its DESCRIBES edge must target the section's REAL memory_artifact

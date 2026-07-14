@@ -22,16 +22,21 @@
 # nodes/edges (all writes route through navigation) and no network reach in the
 # extractor or dispatcher.
 #
-# EGRESS RULE (Part 8, restated, refined for the tier-2 addition quick-task
-# 260714-hzx): the tier-1 extractor AND the entity-extract.cjs dispatcher BODY make
-# zero network reach -- grep-enforced by leg (d) below. The ONLY model reach in the
-# pipeline lives in the tier-2 classifier module (lib/core/eureka/entity-classifier.cjs):
-# a LOCAL classification call over the Anthropic LLM transport (the mva-classifier /
-# llm-name-suggester precedent), NEVER the Brain surface, with a degrade-to-passthrough
-# contract. This is NOT the rejected Plurai network judge. Every leg here runs OFFLINE:
-# the tier-2 legs exercise the model path via an injected transport / classifier and the
-# fallback path via a forced no-key, so real-room content never reaches any live model
-# in CI. The live-room acceptance (with a real key) is the Task 3 human-verify leg.
+# EGRESS RULE (Part 8, restated, refined for the two-tier redesign quick-task
+# 260714-k44 over 260714-hzx): the tier-1 extractor AND the entity-extract.cjs
+# dispatcher BODY make zero network reach -- grep-enforced by leg (d) below. Tier-2a
+# (lib/core/eureka/embedding-classifier.cjs) is ALSO fully local and free: it
+# delegates to the embedding-spine boundary (generic model weights by id only, no
+# user bytes), so it never carries a transport of its own. The ONLY remote model
+# reach in the pipeline lives in the tier-2b classifier module
+# (lib/core/eureka/entity-classifier.cjs): a LOCAL classification call over the
+# Anthropic LLM transport (the mva-classifier / llm-name-suggester precedent),
+# NEVER the Brain surface, with a degrade-to-passthrough contract, now called for
+# the low-margin escalated residual ONLY. This is NOT the rejected Plurai network
+# judge. Every leg here runs OFFLINE: the tier-2 legs exercise the embedding tier
+# via injected verdicts and the escalation path via an injected classifier, with the
+# fallback path forced by a no-key, so real-room content never reaches any live
+# model in CI. The live-room acceptance (with a real key) is the Task 3 leg.
 #
 # The 211 regression leg is run_if, GATED ON A FILE that must exist, so a
 # partially-landed tree exits cleanly with a SKIP rather than RED-failing on
@@ -76,11 +81,13 @@ run "218-02 D-05 write-safety (busy timeout + rollback)" \
   node tests/test-218-write-safety.cjs
 run "218-02 tier-1 extractor (zero egress)" \
   node tests/test-218-extractor.cjs
-# Tier-2 (quick-task 260714-hzx): the WHAT / WHY / NOISE semantic classifier + the
-# dispatcher second pass + framework_terms capture. All offline (injected transport /
-# classifier + forced no-key); proves WHY reroute, framework_terms merge, relation
-# filtering, degrade-to-passthrough, and the synthetic domain-agnostic path.
-run "tier-2 WHAT/WHY classifier + dispatcher second pass (offline)" \
+# Tier-2 (two-tier, quick-task 260714-k44 over 260714-hzx): tier-2a local embedding
+# classifier + tier-2b escalation-only LLM classifier + the dispatcher second pass +
+# framework_terms capture. All offline (injected embedding verdicts + injected
+# classifier + forced no-key); proves embedding-alone resolution, minimal escalation,
+# honest no-LLM degrade, WHY reroute, framework_terms merge, relation filtering,
+# encoder-unavailable degrade-to-hzx, and the synthetic domain-agnostic path.
+run "tier-2 two-tier WHAT/WHY classifier + dispatcher second pass (offline)" \
   node tests/test-218-what-why-classifier.cjs
 
 # (a.1) T-218-VD: post-checkpoint fix. The live REQ-5 human-verify run (Task 3)
