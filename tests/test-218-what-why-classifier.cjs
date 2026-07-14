@@ -37,8 +37,11 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const classifierPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'entity-classifier.cjs');
 const extractorPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'entity-extractor.cjs');
+const embedClassifierPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'embedding-classifier.cjs');
 const eurekaDir = path.join(REPO_ROOT, 'lib', 'core', 'eureka');
 const classifier = require(classifierPath);
+const embedClassifier = require(embedClassifierPath);
+const { classifyByEmbedding } = embedClassifier;
 const { extractEntities } = require(extractorPath);
 const mva = require(path.join(REPO_ROOT, 'lib', 'core', 'mva-classifier.cjs'));
 
@@ -110,6 +113,89 @@ function withForcedKey(fn) {
 }
 
 async function main() {
+  // ===========================================================================
+  // MODULE-LEVEL legs (quick-task 260714-k44): the tier-2a embedding classifier
+  // in isolation, all offline with injected 2-dim vectors and zero model loads.
+  // ===========================================================================
+
+  // (m1) deterministic routing: hand-built 2-dim vectors place WHAT references at
+  //      [0,1] and WHY references at [1,0]; a candidate that leans one way is
+  //      confident, an exactly-balanced one is not.
+  await check('(m1) embedding routing: WHAT/WHY confident, ambiguous not confident', async () => {
+    embedClassifier._test.resetRefCache();
+    const map = new Map();
+    for (const w of embedClassifier._test.WHAT_EXAMPLES) map.set(w, [0, 1]);
+    for (const w of embedClassifier._test.WHY_EXAMPLES) map.set(w, [1, 0]);
+    map.set('TestCorp', [0.1, 0.995]);
+    map.set('Test Framework', [0.995, 0.1]);
+    map.set('Ambiguous Term', [0.7071, 0.7071]);
+    const encodeFn = (texts) => texts.map((t) => {
+      if (!map.has(t)) throw new Error('unexpected text in m1: ' + t);
+      return map.get(t).slice();
+    });
+    const r = await classifyByEmbedding(
+      { names: ['TestCorp', 'Test Framework', 'Ambiguous Term'] }, { encodeFn });
+    assert.equal(r.ok, true, 'ok:true');
+    assert.equal(r.results['TestCorp'].label, 'what', 'TestCorp is WHAT');
+    assert.equal(r.results['TestCorp'].confident, true, 'TestCorp confident');
+    assert.equal(r.results['Test Framework'].label, 'why', 'Test Framework is WHY');
+    assert.equal(r.results['Test Framework'].confident, true, 'Test Framework confident');
+    assert.equal(r.results['Ambiguous Term'].confident, false, 'Ambiguous Term NOT confident');
+    assert.ok(r.results['Ambiguous Term'].margin < 0.01,
+      'ambiguous margin near zero, got ' + r.results['Ambiguous Term'].margin);
+  });
+
+  // (m2) reference cache: a counting encodeFn across TWO calls proves each
+  //      reference text is embedded exactly once (cache hit on the second call).
+  await check('(m2) reference set embedded exactly once across two calls', async () => {
+    embedClassifier._test.resetRefCache();
+    const map = new Map();
+    for (const w of embedClassifier._test.WHAT_EXAMPLES) map.set(w, [0, 1]);
+    for (const w of embedClassifier._test.WHY_EXAMPLES) map.set(w, [1, 0]);
+    map.set('CandidateOne', [0.2, 0.9]);
+    map.set('CandidateTwo', [0.9, 0.2]);
+    const counts = new Map();
+    const encodeFn = (texts) => texts.map((t) => {
+      counts.set(t, (counts.get(t) || 0) + 1);
+      return (map.get(t) || [0.5, 0.5]).slice();
+    });
+    await classifyByEmbedding({ names: ['CandidateOne'] }, { encodeFn });
+    await classifyByEmbedding({ names: ['CandidateTwo'] }, { encodeFn });
+    const refs = embedClassifier._test.WHAT_EXAMPLES.concat(embedClassifier._test.WHY_EXAMPLES);
+    for (const w of refs) {
+      assert.equal(counts.get(w), 1, 'reference "' + w + '" embedded exactly once, got ' + counts.get(w));
+    }
+    assert.equal(counts.get('CandidateOne'), 1, 'first candidate embedded once');
+    assert.equal(counts.get('CandidateTwo'), 1, 'second candidate embedded once');
+  });
+
+  // (m3) unavailable degrade: a forced encoder failure returns ok:false, no throw.
+  await check('(m3) unavailable encoder degrades to ok:false, never throws', async () => {
+    embedClassifier._test.resetRefCache();
+    const r = await classifyByEmbedding({ names: ['Anything'] }, { _forceUnavailable: true });
+    assert.equal(r.ok, false, 'ok:false on unavailable encoder');
+    assert.equal(r.error, 'encoder_unavailable', 'error names the unavailable encoder');
+  });
+
+  // (m4) Part 7 reuse gate: the module requires entity-extractor and reuses the
+  //      exported FRAMEWORK_TERMS Set (the WHY seed landed, not copied).
+  await check('(m4) Part 7 reuse: module requires entity-extractor and FRAMEWORK_TERMS is a Set', () => {
+    const src = fs.readFileSync(embedClassifierPath, 'utf8');
+    assert.ok(/require\(['"]\.\/entity-extractor(\.cjs)?['"]\)/.test(src), 'module requires ./entity-extractor');
+    assert.ok(/FRAMEWORK_TERMS/.test(src), 'module references FRAMEWORK_TERMS');
+    const exported = require(extractorPath).FRAMEWORK_TERMS;
+    assert.ok(exported instanceof Set, 'FRAMEWORK_TERMS export is a Set');
+  });
+
+  // (m5) zero-transport gate: the module source carries no LLM transport host and
+  //      no Brain host anywhere (line comments included -- mirror leg (e) shape).
+  await check('(m5) zero-transport: embedding module carries no LLM host and no brain host', () => {
+    const src = fs.readFileSync(embedClassifierPath, 'utf8');
+    assert.ok(!/api\.anthropic\.com/.test(src), 'no LLM transport host substring');
+    assert.ok(!/mindrian-brain/i.test(src), 'no brain-host substring');
+    assert.ok(!/brain\.onrender/i.test(src), 'no brain onrender host');
+  });
+
   // ---------------------------------------------------------------------------
   // (a) WHY reroute: a model response labeling the residual-noise terms WHY and
   //     the real company WHAT round-trips, source 'model'.
