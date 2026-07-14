@@ -8,7 +8,7 @@ surfaces: [cli]
 brain_mode: tier-0
 canon_parts: [8, 9, 11, 12]
 created: 2026-07-14T00:00:00Z
-updated: 2026-07-14T00:00:00Z
+updated: 2026-07-14T12:00:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -126,11 +126,126 @@ started: not a regression -- appears to be the room's write path never having wi
 - Interns tracker (`~/MindrianRooms/jonathan-sagir/team/2026-07-05-interns-homework-tracker.md`): David's Eureka-round report already logged there with the Intern-N slot unconfirmed; the structural findings here are the same ones summarized in that table row.
 - knowledge-base.md: add on resolve, not yet -- status is `investigating`, no fix has shipped.
 
-## Resolution
-<!-- not yet resolved -->
+## Addendum (2026-07-14, later same session): the stated root cause is incomplete, re-verified against origin/main HEAD
 
-root_cause: pending confirmation against `origin/main` HEAD (this filing reads against beta.18 install cache per the Source-of-Truth Preamble)
-fix: pending -- see SEED-034 amendment and SEED-058
-verification: pending
-files_changed: []
-commits: none yet
+Per this file's own re-verification rule (Source-of-Truth Preamble), the two structural findings
+were checked against `origin/main` HEAD (`fb995e83`, v1.15.3-beta.19) rather than assumed unchanged
+from the beta.18 install. One finding holds; one does not, in a way that changes the diagnosis.
+
+- **Confirmed unchanged:** `scripts/post-write`'s freshness triple still never calls
+  `navigation.cjs`. SEED-034's general thesis (normal conversational writes never auto-populate the
+  graph) stands.
+
+- **NOT confirmed, and materially wrong for this specific incident:** the RCA's Evidence section
+  never checked `scripts/eureka-command.cjs`. It should have. `git merge-base --is-ancestor
+  f8336745 3c54028f` confirms commit `f8336745` ("T-218-VD-5 freshness-gated entity-extraction
+  pre-step", 2026-07-13 12:19:47) IS an ancestor of the beta.18 release commit `3c54028f`
+  (2026-07-13 13:52:04) -- i.e. it shipped IN the exact beta.18 build David's session ran against,
+  not after it. `eureka-command.cjs:271` calls `await maybeExtractFirst(roomDir, opts)`
+  unconditionally before the ranking step at line 289, and `maybeExtractFirst` (lines 177-187) runs
+  entity extraction whenever `needsExtraction()` is true -- which it always is on a room's first-ever
+  `/mos:eureka run` (no prior status.json). So automatic graph population for Eureka specifically was
+  NOT "never wired" for David's session; it should have run.
+
+- **The real gap this surfaces:** `maybeExtractFirst`'s catch block (`scripts/eureka-command.cjs:184`)
+  is a bare `catch (_e) { /* best-effort */ }` -- total silence, no stderr write, nothing surfaced
+  into the eureka report, even though the extraction it calls (`entity-extract.cjs`'s own `cmdRun`,
+  lines 700-710) DOES write a detailed `state: 'failed'` status.json with the real error message when
+  it throws. That diagnostic trail exists but is never read or surfaced by the caller. This is
+  functionally the same failure shape as the three confirmed instances filed today in
+  `2026-07-14-academy-tester-qa-silent-skip-false-success` (this room): a real error occurs, a status
+  artifact records it faithfully, and the calling layer reports success (or silence) anyway. Worth
+  counting as a fourth instance of that pattern rather than treating this Eureka incident as
+  unrelated to it.
+
+- **What this changes about SEED-034 / SEED-058:** neither seed is wrong to file. SEED-034's general
+  thesis (post-write never wires the graph) is still true and still matters for every OTHER graph
+  consumer (whitespace_scan, contradiction_check, graph_query) that has no Eureka-side pre-step to
+  fall back on. SEED-058's reasoning-mode fallback is still a real, independently-justified gap
+  (cold-machine / thin-room). But Required Code Changes / Test 1 in this file currently reads as if
+  automatic graph population for Eureka does not exist yet -- it does, as of beta.18, and Test 1's
+  acceptance criterion ("room.db has >= N content nodes... without any manual backfill step") should
+  already be passing today. If it is not, on a real room, the actionable next step is narrower and
+  cheaper than building SEED-034's full harness: stop swallowing `maybeExtractFirst`'s catch silently
+  (surface the error into the eureka status.json / report at minimum), then re-run a cold/thin-room
+  scenario to see whether extraction is actually throwing, and why -- before assuming the fix requires
+  the full post-write harness.
+
+- **Not yet verified, still open:** whether David's session's entity-extraction pre-step actually
+  threw (in which case the swallow above is the proximate cause) or ran and genuinely found zero
+  extractable candidates in his room's prose (unlikely for 30 filed entries, but not ruled out) or
+  wrote successfully but was read incorrectly downstream. `david-innovation-studio` does not exist on
+  this machine (Desktop/Cowork surface, confirmed by search -- same pattern as the corepower-isolation
+  precedent in `feedback_eureka_engine_internal_reframe_priority.md`), so this cannot be re-run
+  locally. The fastest way to close this: check whether
+  `<room>/.mindrian/entity-extract/status.json` exists in David's actual room and read its `state`
+  field, next time that surface is reachable.
+
+## Addendum 2 (2026-07-14, quick-task 260714-jjm): silent-failure mechanism confirmed PLAUSIBLE, fix LIVE
+
+This quick task existed to answer two questions Addendum 1 left open. Both are now answered; the
+David-room ground truth stays open by design (his room is unreachable from this machine).
+
+**Question 1: is a silent extraction failure a plausible mechanism for the David-session
+"0 nodes / 0 typed edges / false success" shape? YES -- confirmed by a reproduction test (RED run).**
+
+A new leg (leg 5, throw path) in `tests/test-218-eureka-auto-extract.cjs` stubs the extraction
+pre-step (`ENTITY_EXTRACT.main`) to throw, on a fresh never-extracted fixture room, then runs
+`eureka run --offline` and reads the eureka status.json. Against PRE-FIX HEAD the run produced this
+verbatim, captured from the RED failure output:
+
+```
+exit code 0
+eureka status.json: {"state":"done","started_at":"2026-07-14T11:19:37.054Z",
+  "finished_at":"2026-07-14T11:19:37.078Z","pid":771694,
+  "out":".../.mindrian/eureka/portfolio-report.md",
+  "json":".../.mindrian/eureka/portfolio-report.json"}
+```
+
+That is exit 0, state `done`, and ZERO trace of the failure anywhere on the eureka surface -- exactly
+the David-session false-success shape. The likelier production path (leg 6, the internally-caught
+exit-1 path where entity-extract writes its own `state: 'failed'` status.json and returns 1 without
+throwing) reproduced the identical silence pre-fix. So a silent extraction pre-step failure DOES
+produce the observed shape.
+
+**Claim boundary (explicit):** this proves PLAUSIBILITY of the mechanism, not that David's room
+actually hit it. The "Not yet verified, still open" item from Addendum 1 STANDS: `david-innovation-studio`
+is unreachable from this machine (Desktop/Cowork surface). The closing check is unchanged -- read that
+room's `.mindrian/entity-extract/status.json` state field (and now also the eureka status.json
+`extraction_error` field, which a re-run would populate) when that surface is next reachable.
+
+**Question 2: is the fix live? YES.**
+
+- Fix (GREEN): commit `2a80ad29` -- `maybeExtractFirst` now returns a failure-detail string on both
+  failure paths (throw AND caught exit-1, reading entity-extract's own status.json error), writes one
+  stderr line, and `cmdRun` threads it into every eureka status.json payload as an additive
+  `extraction_error` field. Ranking, fallback, and exit codes are unchanged (degrade-never-throw
+  intact). A clean run writes NO `extraction_error` key (leg 7 control).
+- Reproduction test (RED): commit `4f0cab3c` -- legs 5/6/7.
+- Aggregator wiring: commit `98e3fff9` -- the auto-extract test (previously in NO aggregator) is now a
+  leg in `tests/run-all-218.sh` (T-218-VD-5), so this can never silently regress.
+
+A future incident of this shape now shows `extraction_error` in `ROOM/.mindrian/eureka/status.json`
+plus a one-line stderr note on the foreground path.
+
+**Status stays `investigating`:** only the mechanism question and the fix are closed. David's actual
+room state (did his pre-step throw, run-and-find-nothing, or write-then-misread) is still unconfirmed,
+so this file does NOT move to `resolved/`.
+
+## Resolution
+<!-- mechanism confirmed plausible + fix live (Addendum 2); David-room ground truth still open, so NOT resolved -->
+
+root_cause: PARTIALLY corrected (2026-07-14, see Addendum 1) then MECHANISM-CONFIRMED-PLAUSIBLE
+(2026-07-14, see Addendum 2). The general SEED-034 thesis holds; the specific "never wired" framing
+for Eureka's own graph population is outdated as of T-218-VD-5. The proximate-cause hypothesis (a
+silent error-swallow in `eureka-command.cjs` `maybeExtractFirst`) is now PROVEN to reproduce the
+David-session false-success shape (RED test), but NOT yet confirmed against David's actual room state.
+fix: LIVE (quick-task 260714-jjm) -- the pre-step's throw AND caught exit-1 failures now surface as an
+`extraction_error` field in the eureka status.json plus one stderr line, with ranking/fallback/exit
+codes unchanged. This is the narrower, cheaper fix chosen instead of committing to SEED-034's full
+harness or SEED-058's reasoning-mode fallback before the incident's actual need is known. SEED-034's
+general post-write thesis and SEED-058's cold-machine justification remain independently valid.
+verification: RED-then-GREEN reproduction test (8/8 legs) wired into tests/run-all-218.sh (FAIL=0);
+the eureka dispatcher e2e leg tests/test-216-eureka-command.cjs stays green (44 assertions, unregressed).
+files_changed: [scripts/eureka-command.cjs, tests/test-218-eureka-auto-extract.cjs, tests/run-all-218.sh, .planning/debug/interns-round-eureka-david-session-2026-07-14.md]
+commits: [4f0cab3c (test RED), 2a80ad29 (fix GREEN), 98e3fff9 (aggregator wiring)]
