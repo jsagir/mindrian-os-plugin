@@ -17,19 +17,29 @@ locked; it does not revisit WHAT or WHY.
 <spec_lock>
 ## Requirements (locked via SPEC.md)
 
-**6 requirements are locked.** See `222-SPEC.md` for full requirements, boundaries, and
-acceptance criteria.
+**7 requirements are locked** (updated 2026-07-14, two same-session focus passes after
+this CONTEXT.md was first written: Req 7 added, Req 1 tightened with the real
+`buildReachScoresFromCortex`/`cortexNodes` mechanism -- this section re-synced to match).
+See `222-SPEC.md` for full requirements, boundaries, and acceptance criteria.
 
 Downstream agents MUST read `222-SPEC.md` before planning or implementing. Requirements
 are not duplicated here.
 
 **In scope (from SPEC.md):**
 - Wiring `suggest_next`, `reach_candidates`, and `resolveFireSkill` onto one shared,
-  scored selection (Requirements 1-2).
+  scored selection, via `buildReachScoresFromCortex(ctx.cortexNodes || [])` -- the same
+  function the CLI path already calls -- ranking only the turn-fired subset
+  (Requirements 1-2).
 - A new, dependency-free multiplicative-weights adjustment layer, room-local, learned
-  from the existing Phase 159 outcome log (Requirement 3).
+  from the existing Phase 159 outcome log. On the MCP call path specifically (no cortex
+  nodes threaded in, D4 flat at 0.5 for every candidate), this adjustment is the ONLY
+  differentiator between candidates, not an optional enhancement (Requirement 3).
 - `run-all-222.sh` test harness with reachability and frozen-scalar regression legs
   (Requirements 5-6).
+- Visible, disclosed degrade for the new weight-state read (missing/corrupt table falls
+  back to D4-alone, never silently wrong, logs `reach_weight_state_unavailable`) --
+  directly applies SEED-059's fallback-disclosure finding to this phase's own new
+  surface (Requirement 7).
 
 **Out of scope (from SPEC.md):**
 - SEED-009's full cross-tester gradient-descent learned ranker.
@@ -38,6 +48,9 @@ are not duplicated here.
 - Any new Brain egress.
 - Rebuilding or modifying individual sensor detection logic in `insight-sensors.cjs`.
 - Periodic Shapley-value attribution reporting (fast-follow candidate, not required).
+- Threading real `cortexNodes` into the MCP tool call path (`buildSensorInputs`) so the
+  D4 score is fully brain_confidence-anchored rather than the flat 0.5 floor -- a
+  separate, later concern; this phase unifies ranking logic, not what feeds it.
 - Version numbering for the release this ships under.
 
 </spec_lock>
