@@ -2,7 +2,7 @@
 
 **Created:** 2026-07-14
 **Ambiguity score:** 0.13 (gate: <= 0.20)
-**Requirements:** 7 locked (Req 7 added 2026-07-14, same-session, after re-examining this phase against every finding from the game-theory-toolbox research thread -- see Requirement 7 and its Background note)
+**Requirements:** 7 locked (Req 7 added 2026-07-14 after re-examining this phase against every session finding; Req 1 tightened the same day with the actual `buildReachScoresFromCortex`/`cortexNodes` mechanism, replacing a vaguer "same D4 inputs" phrasing -- both same-session focus passes, no requirement count change from the second pass)
 
 ## Goal
 
@@ -60,16 +60,36 @@ Verified this session, file:line, against `/home/jsagi/dev/MindrianOS-Plugin` at
 ## Requirements
 
 1. **`suggest_next` and `reach_candidates` return the scored pick, not registry order.**
+   (tightened 2026-07-14, same-session focus pass -- see the mechanism note below; no
+   change to the requirement's intent, only to how concretely it's specified)
    - Current: `dispatchCandidateReaches` (`lib/mcp/tools/sensors.cjs:97-105`) returns
      `dispatchSensors`' raw array; `suggest_next` returns element `[0]`; `reach_candidates`
-     returns the array unranked.
-   - Target: when N>1 candidates fire on a turn, the array `reach_candidates` returns is
-     ordered by the combined score (D4 blend + this phase's outcome adjustment, see
-     Requirement 3), highest first; `suggest_next` returns that same top-ranked candidate.
-     When exactly 0 or 1 candidate fires, behavior is unchanged (nothing to rank).
-   - Acceptance: a fixture turn where >=2 sensors fire with distinct D4 scores returns
-     them in score order (not registry order) from both tools; a fixture turn with 0 or 1
-     firing candidate is byte-identical to today's output.
+     returns the array unranked. `buildSensorInputs` (`sensors.cjs:81-90`) -- the function
+     that builds every MCP sensor call's context -- constructs `ctx = { roomDir,
+     lowFillSections: null }` only. It does NOT populate `ctx.cortexNodes`, the input
+     `lib/hmi/cortex-reach-adapter.cjs::buildReachScoresFromCortex(cortexNodes)` needs to
+     produce the `roomState.reachScores` map the D4 blend reads. This is the CONCRETE gap
+     underneath Requirement 1, verified by reading `buildSensorInputs` directly, not assumed.
+   - Target: the new ranking function calls the SAME reusable
+     `buildReachScoresFromCortex(ctx.cortexNodes || [])` the CLI path already calls
+     (`scripts/intent-classifier.cjs:1036`), then ranks the turn-fired subset by that score
+     (plus this phase's outcome adjustment, Requirement 3). `buildReachScoresFromCortex`
+     ALREADY degrades gracefully on an empty/missing cortex array (returns `{}`, confirmed
+     `cortex-reach-adapter.cjs:194-198`) -- so an MCP call that has no cortex nodes threaded
+     in falls back to `dial-reach-orchestrator`'s existing 0.5 registry-default floor for
+     every candidate, the SAME degrade behavior the CLI path itself already exhibits when
+     `ctx.cortexNodes` is absent (`intent-classifier.cjs:1035`). This is not a regression to
+     invent a fallback for -- it already exists; this phase reuses it, doesn't build it.
+     Threading real `cortexNodes` into the MCP call path (so `suggest_next`/`reach_candidates`
+     get the FULL brain_confidence-anchored score, not just the flat floor) is explicitly
+     DEFERRED -- see Boundaries -- to keep this phase focused on unifying the ranking LOGIC,
+     not also expanding what data feeds it.
+   - Acceptance: a fixture turn where >=2 sensors fire with distinct D4 scores (cortex nodes
+     supplied) returns them in score order (not registry order) from both tools; a fixture
+     turn with 0 or 1 firing candidate is byte-identical to today's output; a fixture with NO
+     cortex nodes supplied (today's actual MCP-call condition) returns all fired candidates
+     at the flat 0.5 floor, ties broken by this phase's outcome adjustment (Requirement 3),
+     not silently reverting to registry order.
 
 2. **`resolveFireSkill`'s auto-fire decision uses the same scored pick.**
    - Current: `resolveFireSkill` (`lib/core/navigation-engine.cjs:588-612`) maps
@@ -183,6 +203,16 @@ Verified this session, file:line, against `/home/jsagi/dev/MindrianOS-Plugin` at
   Requirements 1-6 to be true; if pursued, it is a read-only offline report over the same
   outcome log and can land as a fast-follow without touching the hot path this phase
   modifies. Flagged here so it isn't silently forgotten, not committed as a requirement.
+- Threading real `cortexNodes` into the MCP tool call path (`buildSensorInputs` in
+  `lib/mcp/tools/sensors.cjs`) so `suggest_next`/`reach_candidates` get the FULL
+  brain_confidence-anchored D4 score instead of the flat 0.5 registry-default floor --
+  deliberately deferred (added 2026-07-14, focus pass). This phase unifies the RANKING
+  LOGIC across all three consumers; expanding what data feeds that logic on the MCP path
+  specifically is a separable, later concern. Practical consequence, stated plainly rather
+  than left implicit: in the common case an MCP client calls these tools today, D4 will be
+  flat (0.5 for every fired candidate), which means Requirement 3's Hedge-learned
+  adjustment is NOT a nice-to-have here -- it is the ONLY differentiator between
+  candidates on that path until cortex-node threading lands as its own fast-follow.
 - Version numbering for the release this ships under -- `scripts/release.sh`'s job at
   ship time, not a spec-phase concern.
 
