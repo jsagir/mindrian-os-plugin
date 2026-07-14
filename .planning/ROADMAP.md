@@ -3147,6 +3147,17 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 222 to break down)
 
+### Phase 223: JTBD-driven intelligence pipeline + governed double-fan bono: evolve /mos:bono into an 8-phase governed research debate (hat-governance.cjs, persona-research.cjs, version-cut via SUPERSEDES chain) and ship a new /mos:intel-pipeline meta-orchestrator (calibrate -> decompose -> fan research -> compute -> consolidate -> synthesize -> write-to-graph), both closing the loop through navigation.cjs into claim/opportunity/open_question nodes
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 222
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 223 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
