@@ -91,6 +91,16 @@ export MINDRIAN_EUREKA_SMOKE_TIMEOUT_MS=30000
 export MINDRIAN_EUREKA_SMOKE_ALLOW_DOWNLOAD=1
 ```
 
+### MINDRIAN_WHATWHY_MARGIN
+
+**What:** The confidence-margin threshold for the tier-2a local embedding WHAT-vs-WHY classifier (`lib/core/eureka/embedding-classifier.cjs`). Each candidate is scored by nearest-neighbor cosine similarity against a curated WHAT set and a curated WHY set; the absolute gap between the two is the margin. A candidate whose margin is at or above this threshold is resolved locally for free; a candidate below it escalates to the tier-2b LLM classifier for that name only.
+**Default:** `0.10` (a positive float). This value is measurement-calibrated in quick-task 260714-k44 against the real local encoder (`MongoDB/mdbr-leaf-ir`). That encoder is a retrieval model, not a classifier, so its WHAT-vs-WHY separation on venture vocabulary is weak and it leans WHY; at 0.10 every calibration holdout is confident-and-correct while every misclassification-prone term escalates, so a confident local verdict is trustworthy.
+**When to change it:** Raise it (for example `0.15`) to escalate more candidates to the LLM tier when you want higher precision and are willing to spend more API calls. Lower it (for example `0.05`) to resolve more candidates locally for free, accepting that real companies may be confidently mislabeled WHY and suppressed. Any malformed value (`0`, a negative, or non-numeric) falls back to the calibrated default, so an operator env can never zero out or invert routing.
+
+```bash
+export MINDRIAN_WHATWHY_MARGIN=0.15
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
