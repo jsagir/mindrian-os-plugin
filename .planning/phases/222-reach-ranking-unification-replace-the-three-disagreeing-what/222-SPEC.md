@@ -2,7 +2,7 @@
 
 **Created:** 2026-07-14
 **Ambiguity score:** 0.13 (gate: <= 0.20)
-**Requirements:** 6 locked
+**Requirements:** 7 locked (Req 7 added 2026-07-14, same-session, after re-examining this phase against every finding from the game-theory-toolbox research thread -- see Requirement 7 and its Background note)
 
 ## Goal
 
@@ -134,6 +134,27 @@ Verified this session, file:line, against `/home/jsagi/dev/MindrianOS-Plugin` at
      the returned order matches Requirement 1's acceptance check; a second leg does the
      same for `resolveFireSkill`'s `fire_skill` output.
 
+7. **A failed weight-state read degrades visibly, never silently.** (added 2026-07-14,
+   after re-examining this phase against SEED-059, filed same session)
+   - Current: N/A -- Requirement 3's Hedge layer and its room.db side-table do not exist
+     yet, so there is no degrade behavior to audit today. This requirement exists so the
+     NEW code does not introduce the exact failure class this session's own QA-incident
+     synthesis found three independent times (`.planning/debug/intern-qa-silent-degrade-
+     pattern-three-independent-sessions-2026-07-14.md`, commit `a71e3f7f`; SEED-059).
+   - Target: if the weight-state side-table is missing, corrupt, or unreadable when
+     `rankFiredCandidates` needs it, the combiner falls back to the D4 blend alone
+     (weights = equal/neutral), NOT a crash and NOT a silent wrong ranking -- and the
+     fallback is recorded as a structured, checkable signal (a `memory_event`, e.g.
+     `reach_weight_state_unavailable`, per SEED-059's proposed shape: a real signal a
+     future audit can grep for, not just a caught exception). This is deliberately the
+     SAME discipline SEED-059 asks for in general, applied narrowly to this phase's own
+     new surface, not a rebuild of SEED-059 itself.
+   - Acceptance: a fixture that deletes/corrupts the weight-state table before a
+     `suggest_next` call still returns a valid ranked result (the D4-only fallback, not an
+     error, not a hang); the same fixture asserts a `reach_weight_state_unavailable`
+     memory_event was written; a fixture with a healthy table asserts NO such event fires
+     (the signal is honest, not emitted unconditionally).
+
 ## Boundaries
 
 **In scope:**
@@ -143,6 +164,8 @@ Verified this session, file:line, against `/home/jsagi/dev/MindrianOS-Plugin` at
   from the existing Phase 159 outcome log (Requirement 3).
 - `run-all-222.sh` test harness with reachability and frozen-scalar regression legs
   (Requirements 5-6).
+- Visible, disclosed degrade behavior for the new weight-state read, per SEED-059's
+  fallback-disclosure discipline applied narrowly to this phase's own surface (Requirement 7).
 
 **Out of scope:**
 - SEED-009's full cross-tester gradient-descent learned ranker -- stays dormant at its
@@ -191,6 +214,9 @@ Verified this session, file:line, against `/home/jsagi/dev/MindrianOS-Plugin` at
       `DIAL_REACH_K`, `RECOMMEND_FLOOR`, `MARGIN_THRESHOLD` (Req 5)
 - [ ] `tests/run-all-222.sh` reachability legs pass for both MCP tools and
       `resolveFireSkill` via real registration, not bypassed internal calls (Req 6)
+- [ ] A corrupted/missing weight-state fixture still returns a valid D4-only ranked
+      result and emits `reach_weight_state_unavailable`; a healthy-table fixture emits
+      no such event (Req 7)
 - [ ] `bash tests/run-all-222.sh` exits PASS with 0 FAIL, 0 SKIP
 
 ## Ambiguity Report
@@ -200,10 +226,46 @@ Verified this session, file:line, against `/home/jsagi/dev/MindrianOS-Plugin` at
 | Goal Clarity       | 0.90  | 0.75 | OK     | Single measurable behavior: one shared scored pick, 3 consumers |
 | Boundary Clarity   | 0.90  | 0.70 | OK     | Whitespace/SEED-009/SEED-057/Brain-egress/sensor-rebuild all explicit out-of-scope |
 | Constraint Clarity | 0.85  | 0.65 | OK     | Zero-deps evidence-backed this session; frozen scalars named; hot-path budget stated |
-| Acceptance Criteria| 0.80  | 0.70 | OK     | 6 requirement-level + 7 phase-level pass/fail checks          |
+| Acceptance Criteria| 0.82  | 0.70 | OK     | 7 requirement-level + 7 phase-level pass/fail checks (Req 7 added same session) |
 | **Ambiguity**      | 0.13  | <=0.20| OK    |                                                              |
 
-Status: OK = met minimum. No dimension below minimum this pass.
+Status: OK = met minimum. No dimension below minimum this pass. Req 7's addition did not
+raise ambiguity -- it is a direct, low-ambiguity application of an already-filed seed
+(SEED-059) to this phase's own new surface, not a fresh open question.
+
+## Same-session re-examination (2026-07-14, post-filing)
+
+After the seed-corpus curation pass and SEED-059's filing, this phase was re-checked
+against every finding from the session, not just the eureka-reliability angle checked
+earlier. Per-cluster verdict:
+
+- **Eureka-reliability (SEED-034/058/039/027/029/026):** No effect on this phase, confirmed
+  twice now. This phase's three data sources (`roomState.reachScores`, `dispatchSensors`'
+  turn/ctx signals, Phase 159's `navigation.cjs`-routed outcome log) are all independently
+  verified to never touch the room.db content-graph path SEED-034 diagnosed as broken.
+- **Reach-ranking / learning-loop (SEED-057/008/009/002/055/056/054-BQ):** SEED-057 stays
+  correctly deferred (needs this phase's combiner built and observed first, per its own
+  trigger). SEED-009 stays out of scope (its own 30-tester/1000-edge gate, unrelated to this
+  phase's room-local design). No change.
+- **New sensors shipped since this phase's SPEC was written (SENS-13 eureka-bridge / Phase
+  213, SENS-14 opportunity-harvest / Phase 219, SENS-15 url-ingest / Phase 220):** checked
+  whether these introduce reach types needing new D4 priors -- they do not. All three fire
+  EXISTING frozen `reach_id`s (`deep_research`, `context_block`), which already carry
+  calibrated `roomState.reachScores` entries; the score is per-reach-id, not per-sensor, so
+  newly added sensors inherit an already-established prior rather than defaulting to the
+  uncalibrated 0.5 floor. No change needed to this phase's design.
+- **Gate-firing / false-success (SEED-059):** the one genuine hit. Requirement 7 (above) is
+  the direct result -- this phase's own new surface (the weight-state read) is exactly the
+  shape of thing SEED-059 says has no disclosure convention yet; adding the requirement now,
+  while building the surface, is cheaper than retrofitting it after SEED-059's own broader
+  convention (if ever built) would otherwise have to reach back into this phase's code.
+- **Already-shipped-but-unmarked findings (SEED-013/024/025/041/049/050 status corrections;
+  SEED-053 already shipped as `chain_run`/`gate_answer`):** none touch this phase's scope.
+  `chain_run` operates one layer downstream of this phase (executing a chosen reach's chain),
+  not the selection layer this phase modifies -- adjacent, not overlapping.
+
+Net effect: Requirement 7 added, nothing else changes. The phase's core wiring-fix framing
+holds.
 
 ## Interview Log
 
