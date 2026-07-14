@@ -2,10 +2,12 @@
 kind: seed
 status: open
 created: 2026-06-18
+updated: 2026-07-14
 canon_parts: [3, 4, 6, 8, 9]
 severity: CRITICAL
-related: [Phase 166 (runChain), Phase 167 (harness manifest + fable-mode), Phase 168 (edge reconciliation), Phase 90 (brain-derivation), Phase 16 (REASONING.md), SEED-033 (Ralph lessons -- this is L2 made urgent)]
+related: [Phase 166 (runChain), Phase 167 (harness manifest + fable-mode), Phase 168 (edge reconciliation), Phase 90 (brain-derivation), Phase 16 (REASONING.md), SEED-033 (Ralph lessons -- this is L2 made urgent), SEED-058 (Eureka reasoning-mode fallback -- complementary, covers the degrade-path once this harness exists)]
 proving_case: ~/MindrianRooms/jonathan-contractor-motj/sub-rooms/.../b2-journey (21 dense cross-referencing files sat completely unwired)
+proving_case_2: intern QA session 2026-07-14 ("David", david-innovation-studio room) -- 30 markdown files filed via normal conversational writes, `/mos:eureka` found 0 nodes / 0 typed edges in room.db. Independently reconfirms broken pipes #1 and #4 below, from a different room and a different workflow, three and a half weeks later. Full incident: `.planning/debug/interns-round-eureka-david-session-2026-07-14.md`.
 source: navigator field incident 2026-06-18 (the moat is empty)
 absorbs: SEED-033 L2 (self-improving graph)
 ---
@@ -40,6 +42,15 @@ own `.room-root` + `.mindrian/room.db` (the "missing sentinel" hypothesis was DI
    graph. None is in the write pipe. So typed edges are NEVER auto-derived; rooms sit at BELONGS_TO-only
    (consistent with "BRAIN.md absent / Tier 0 fallback on every turn"). Note the auto-commit pipe
    (`async-artifact-auto-commit.cjs`) DID fire every write; the graph pipe is the disconnected one.
+
+**Reconfirmed 2026-07-14 (proving_case_2).** A completely unrelated room (`david-innovation-studio`,
+an intern QA session, not MOTJ) reproduced the same shape: 30 markdown files filed through normal
+conversational writes, `resolve-room` returned `EXIT:1` for the entire session (pipe #1, still broken),
+and `/mos:eureka` read 0 nodes / 0 typed edges from room.db despite the 30 files on disk (pipe #4, still
+broken -- confirmed this time by grepping `scripts/post-write`'s freshness triple directly: it enqueues
+MINTO regen + recompiles ROOM.md references + stamps a timestamp, and calls `navigation.cjs` in none of
+the three steps). Two independent incidents, three and a half weeks apart, different rooms, different
+workflows, same two broken pipes. This is not an edge case.
 
 ## The harness to build (this is the fix)
 A GRAPH DERIVATION HARNESS that makes the moat self-wiring -- and it rides EXACTLY the substrate shipped
