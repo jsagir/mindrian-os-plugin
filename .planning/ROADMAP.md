@@ -3136,6 +3136,17 @@ Website capability copy (new feature descriptions) deferred deliberately, not si
 
 **Release note (navigator, 2026-07-13, FINAL):** ONE version cut JOINT across Phases 219+220+221 - 219 Plan 07 and 220's final wave stage readiness (CHANGELOG/README drafts, marketplace pin, VERSION-BUMP-CHECKLIST, website update drafts); scripts/release.sh executes as Phase 221's final requirement. Pre-approved by the navigator 2026-07-13 ("run till and including 221 and full cut, updating all READMEs and the Mindrian website in relevant locations"); the corepower-isolation Desktop validation remains the one navigator-run gate.
 
+### Phase 222: Reach ranking unification: replace the three disagreeing what's-next signals (f-selector-ranker hardcoded weights, unranked sensor dispatch, decorative whitespace strategic_rank) with one multiplicative-weights combiner learned from the existing Phase 159 outcome log, plus periodic Shapley-value attribution
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 221
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 222 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
