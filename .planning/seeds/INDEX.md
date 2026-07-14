@@ -37,6 +37,22 @@ Sourced from the interns homework-tracker QA program (Eureka-assignment round), 
 
 Filed from the consolidated `.planning/debug/intern-qa-silent-degrade-pattern-three-independent-sessions-2026-07-14.md` RCA (three independent intern QA sessions, one week), independently corroborated same-day by a full-seed-corpus curation pass that reached the identical "no seed covers this" conclusion before this file existed. Four failure sites (gate rendering, tool-state reporting, export/reconstruction honesty, dependency-fallback disclosure), no shared code cause, one shared absence: nothing audits "did a fallback happen and was it disclosed" except the manual Part-A/Part-B QA split itself. Explicitly NOT the 1.15 over-enforcement watch (opposite direction: under-firing/lying, not over-firing) and NOT a duplicate of SEED-021 (gate-rendering only) or SEED-058 (Eureka-specific fallback only) -- this is the general pattern both sit inside. No corpus-size gate; surfaces at next milestone scoping or immediately on a fourth independent incident. Full detail: `SEED-059-fallback-disclosure-convention.md`.
 
+## SEED-060 - Ignite / mode-select timing, turns 1-4, Hooked-Model-grounded (registered 2026-07-14)
+
+Navigator-directed: connect two pre-existing RCAs (`intern-w1-mode-gate-skip.md`, resolved
+for detection but the Turn-1 lane-pick gate still has no code-level firing checkpoint;
+`ignite-frontdoor-bypassed-methodology-overfire.md`, partially-fixed, 4 items still open)
+to this week's interns-tracker evidence (David's B2 blueprint gate fired "only after 3
+rounds... should have fired on the first substantive answer") through the `hooked-model`
+skill's own Trigger/Action/Variable-Reward/Investment + Fogg B=MAP lens, invoked directly
+per the standing Hooked-Model-is-mandatory-for-first-steps rule. Confirms `skills/larry-
+personality/SKILL.md` names neither ignite, B2, nor the mode-selection gate anywhere (a
+third instance of the same dark-capability pattern SEED-056 already names for the eureka
+engine, deliberately kept as a separate seed -- bootstrapping timing, not mid-conversation
+engine reach). Proposes closing the two RCAs' own named remaining items plus adding the
+Hooked-Model timing reasoning to Larry's persona contract. Full detail: `SEED-060-ignite-
+mode-select-timing-hooked-model-turns-1-4.md`.
+
 ## Purpose
 
 The MindrianOS SEED system carries **deferred-but-load-bearing reasoning** forward across milestone boundaries so the next planning conversation does not have to re-discover the WHY of work that was previously scoped, brainstormed, or proven-with-a-spike but deliberately not executed yet. A seed is the artifact between "we had this thought" and "we have a phase planned for it."
