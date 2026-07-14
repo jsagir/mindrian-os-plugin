@@ -1,7 +1,28 @@
 ## [Unreleased] -- v1.15.3-beta.19 (in progress)
 
 ### Added
-- 
+- **Eureka entity extraction gets a two-tier WHAT-vs-WHY classifier.** A free, fully local
+  embedding pass (`lib/core/eureka/embedding-classifier.cjs`) now resolves the confident
+  majority of candidates at zero API spend, reusing the same encoder Eureka's own ranking
+  already depends on. The existing LLM classifier is demoted to an escalation-only path,
+  called per artifact only for the genuinely ambiguous residual the embedding tier cannot
+  confidently place. Measured on a real room: 61.1% of candidates resolve locally and
+  correctly, 14.3% fewer artifact-level LLM calls. Honest degrade throughout: no LLM key
+  means a disclosed low-confidence embedding best-guess, never a silent default; `classifier_source`
+  now reports `embedding` / `model` / `mixed` / `fallback` so every result states which tier
+  produced it. Tunable via `MINDRIAN_WHATWHY_MARGIN` (default 0.10, calibrated against a
+  measured holdout set). (Quick task 260714-k44.)
+
+### Fixed
+- **Eureka's entity-extraction pre-step no longer fails silently.** `/mos:eureka run`'s
+  auto-extraction step (shipped in beta.18) could fail (a thrown error, or the more likely
+  internally-caught non-zero return) with zero visible trace: exit 0, status `done`, nothing
+  in the report to say extraction never actually populated the graph. This reproduced the
+  exact false-success shape found in a live intern QA session. Failures on both paths now
+  surface as an additive `extraction_error` field in the eureka status.json plus one stderr
+  line; ranking, fallback behavior, and exit codes are unchanged (the degrade-never-throw
+  contract stays intact, only the silence is gone). Proven via a RED-then-GREEN reproduction
+  test wired into the permanent suite. (Quick task 260714-jjm.)
 
 ## [1.15.3-beta.18] - 2026-07-13
 

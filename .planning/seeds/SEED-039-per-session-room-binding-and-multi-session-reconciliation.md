@@ -2,10 +2,12 @@
 kind: seed
 status: open
 created: 2026-06-29
+updated: 2026-07-14
 canon_parts: [3, 6, 8, 9, 11]
 severity: HIGH
-related: [SEED-034 (graph-derivation-harness -- documents the WRITE-INDEX resolver disagreement; this seed is its session-concurrency sibling), SEED-037 (doctor-retrofit -- doctor is the verification spine reused here), Phase 83-06 (write-time scope guard), Phase 83-07 (mid-session intent classifier / the advisory tripwire), Phase 127.3 (resolve-active-room.cjs canonical single-source), Phase 169-02 (room-root.cjs walk-up resolver)]
+related: [SEED-034 (graph-derivation-harness -- documents the WRITE-INDEX resolver disagreement; this seed is its session-concurrency sibling), SEED-037 (doctor-retrofit -- doctor is the verification spine reused here), SEED-059 (fallback-disclosure convention -- shares the resolver-fragmentation site, filed same day), Phase 83-06 (write-time scope guard), Phase 83-07 (mid-session intent classifier / the advisory tripwire), Phase 127.3 (resolve-active-room.cjs canonical single-source), Phase 169-02 (room-root.cjs walk-up resolver)]
 proving_case: this very design session, 2026-06-29 -- the global registry active room flipped motj-ecosystem -> gix-intelligence between conversational turns with no user switch, demonstrating the single-global-active-room race live in the session designing its fix
+proving_case_2: "weekly intern check-in call, 2026-07-14 (transcript). Gaurav started what he called 'a new session,' explicitly reframed himself mid-conversation ('I'm a student... enrolled in [subject]... group project on transportation and mobility'), a totally different persona and domain from his ongoing consulting-startup work. Larry asked clarifying questions about the framing (student vs. startup, timeline) but still filed the new content into the OLD consulting-project room. Navigator (Jonathan) diagnosed it live, unprompted, and independently re-derived this seed's own Pillar 2 fix almost verbatim: 'it should have caught up and understood that from the context, he might be referring to a new project, and it should have suggested, are you referring to this or are we starting a new project, or try to clarify it.' Called it 'a bug to fix' on the spot, without knowing this seed already exists."
 source: navigator field observation 2026-06-29 (parallel sessions, one mutable active-room field)
 absorbs: nothing (extends SEED-034 root-cause #1 into the session dimension)
 ---
@@ -24,6 +26,19 @@ race for one terminal until the next session clobbers it.
 Live proof (this session): the active room flipped `motj-ecosystem` -> `gix-intelligence`
 between turns with no user switch. The bug demonstrated itself inside the session designing
 the fix.
+
+**Reconfirmed 2026-07-14 (proving_case_2), a different failure shape of the same root cause.**
+An intern (Gaurav) started what he called a new session and explicitly reframed himself mid-
+conversation into a different persona and domain (student, transportation/mobility, versus his
+ongoing consulting-startup work). No global-field race this time -- a single session, a single
+terminal -- but the same underlying gap: nothing in the resolution path treats an explicit
+conversational reframe as signal that a NEW project may be starting, so the new content filed
+into the OLD room regardless. This is squarely Pillar 2 (the tripwire graduating from silent
+advisory-nag to an actual Decision Gate): the navigator independently re-derived Pillar 2's exact
+proposed behavior live, on the call, calling it "a bug to fix" without knowing this seed already
+scopes it. Two independent proving cases now span both failure shapes this seed's four pillars
+were designed to cover -- the cross-session race (Pillar 1/4) and the same-session reframe-not-
+detected gap (Pillar 2) -- neither closed yet.
 
 ## The seam: two subsystems, two models of "what room am I in"
 1. **Write-indexing already abandoned the global field.** `lib/core/room-root.cjs` walks UP
