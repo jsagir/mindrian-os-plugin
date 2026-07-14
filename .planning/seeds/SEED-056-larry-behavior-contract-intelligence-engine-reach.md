@@ -87,6 +87,75 @@ design doc, not a fresh code read this turn. Whoever picks this seed up should c
 directly before writing persona prose that asserts it. This reconciliation is about Larry's
 DESCRIPTION of the existing surfaces, not a claim about verifying their code here.
 
+## The comprehensive audit (added 2026-07-14, navigator-directed: "make sure the larry
+personality knows all major and minor workflows to understand when to invoke")
+
+Full command-surface audit run this session, not a spot-check: all 110 `commands/*.md`
+frontmatter entries parsed directly, cross-checked against `data/connector-registry.json`
+(196 connectors), against the combined coverage of the 5 skills that shape Larry's
+behavior (`larry-personality`, `room-passive`, `room-proactive`, `context-engine`,
+`conversation-mode`). Result: **30 COVERED, 58 PARTIALLY COVERED, 22 DARK.**
+
+**The structural finding, bigger than any single gap:** eureka and ignite are not isolated
+incidents, they are one instance of a repeating pattern -- **sibling-of-a-named-command**.
+A command FAMILY shares one `reach_id`, one family member gets named in Larry's persona
+prose, and its siblings riding the exact same reach stay invisible:
+
+- **Reverse Salient family** (`context_block`, `reverse-salient-*` sub_modes):
+  `find-bottlenecks` is named. `rs-experts`, `rs-explain`, `rs-thesis`, `rs-fetch` are not
+  -- all real, sensor-triggered (SENS-02), all carry real `hitl_shape`s. 4 of 5 invisible.
+- **Six Hats family** (`hats` reach): `think-hats`/`persona` named. `bono` (SENS-05, F.5)
+  and `hat-briefing` (SENS-07, F.8) are unnamed siblings.
+- **Grade family** (`brain_consult`): `grade` named. `deep-grade` (SENS-06/07, F.8) unnamed.
+- **Opportunity-harvest family** (Phase 219): `opportunities` named.
+  `qualify-opportunity`/`explore-opportunity` (SENS-14) unnamed -- a DIFFERENT capability
+  (harvest/qualify) than the named sibling (bank browsing), the "sounds similar, actually
+  distinct" trap.
+
+The 22 DARK commands are all correctly `connector.excluded:true` utility/admin surfaces
+with zero sensor triggers -- per Part 11 R1 they are deliberately outside the reach system,
+navigator-invoked directly, not something Larry should reason toward. None rank high-impact.
+Two worth a light mention regardless (frequently-relevant even though structurally
+excluded): `help` (the command index, not named anywhere Larry might point a lost
+navigator to it) and `doctor` (install/health diagnostics, central per CLAUDE.md's own
+Verification section, absent from persona prose).
+
+**Prioritized PARTIALLY COVERED list (real sensor + real hitl_shape, highest impact
+first):** `eureka` (known, SEED-056's original finding), `research` (known -- hosts
+Phase 220's SENS-15 URL-ingest offer AND Phase 221's recovery-disclosure voice, both
+riding this ONE command with zero dedicated persona prose), `qualify-opportunity` +
+`explore-opportunity` (known, Phase 219), `hat-briefing`, `rs-explain`/`rs-experts`/
+`rs-thesis`, `bono`, `discover`, `deep-grade`, `build-thesis` (a flagship Ten-Questions
+investment gate, unnamed), `mva-brief`/`mva-option`. Roughly 40 remaining lower-priority
+framework/analysis commands are partially mitigated by the Provoked table's
+framework-name-based resolver (they surface via framework name even without a literal
+slug mention) -- genuinely lower stakes than the sensor-wired sibling-family gaps above.
+
+**New, sharper finding on ignite specifically, beyond what this seed's earlier eureka
+section already named:** ignite IS mentioned once -- but only in `conversation-mode.md`
+("`/mos:ignite`'s Gate B0"), never in `larry-personality.md` itself. Worse:
+`conversation-mode.md`'s own Mode 3 ("Building something") still instructs Larry to invoke
+`/mos:new-project` DIRECTLY, even though `ignite.md`'s own body states ignite is now the
+canonical front door and `/mos:new-project` is just its scaffold backend. The persona layer
+has not caught up to the command layer's own stated hierarchy -- this is worth fixing
+alongside SEED-060 (which owns the broader ignite/mode-select timing question) rather than
+as a separate finding, since it is the same underlying surface.
+
+**26 commands carry `connector.excluded:true` alongside a real `hitl_shape`** (the audit's
+own list: `admin`, `brain-derive`, `correct-reference-now`, `doctor`, `dogfood-flush`,
+`export`, `feynman-timeline-refresh`, `heal`, `help`, `hmi-status`, `models`, `mos`,
+`onboard`, `organize`, `publish`, `query`, `radar`, `rooms`, `scheduled-tasks`, `setup`,
+`snapshot`, `splash`, `stance`, `update`, `vault`, `visualize`) -- this matches the
+already-documented, already-known 55-instance repo-wide finding in
+`.planning/debug/resolved/intern-w1-mode-gate-skip.md` (predicate 2b, the dual-purposed
+`excluded` field, explicitly left for a future field-split phase). Flagged here for
+completeness only; NOT re-analyzed, not this seed's problem to solve.
+
+**Methodology sanity check (the audit's own):** all 5 previously-confirmed instances
+(eureka, ignite, Phase 219/220/221) reproduced independently under this fresh pass with no
+divergence from this seed's own earlier findings -- cross-validates rather than contradicts
+the eureka-gap and Shape-F sections above.
+
 ## What this seed should cover when picked up
 
 1. Update `skills/larry-personality/SKILL.md` (and/or the agent frontmatter's
