@@ -122,3 +122,26 @@ The Anthropic key resolves, but the account has zero credits: a direct probe ret
 - **(a) reroute:** DONE and verified key-less. The three named residual terms are closed -- they are `framework_terms`, not entity nodes, resolved by the free embedding tier.
 - **(b) framework_terms capture:** DONE and verified. **0.0% structural share: NOT preserved (72.0%), caused by tier-2, root cause isolated and traced.** This is surfaced for a navigator decision, NOT auto-patched: it is a ranking-layer question (should eureka exclude or down-weight `memory_artifact`-vs-`memory_artifact` pairs, which are substrate and never real opportunities, so the top-25 reflects real entity pairs regardless of entity-cohort density?), which is an architectural change to the eureka scoring path, outside the scope of an entity-extraction verification task.
 - **(c) tier-2b:** honest-degrade path verified against a live zero-credit account; a funded-key model-path exercise remains open, non-blocking.
+
+## Scaffold-pair filter appendix: 72.0 percent -> 0.0 percent on the same substrate (2026-07-15, quick task 260715-0nj)
+
+**The decision this closes.** The tier-2 appendix above escalated one open question to the navigator: should eureka exclude or down-weight `memory_artifact`-vs-`memory_artifact` pairs so the top-25 reflects real entity pairs regardless of entity-cohort density? The navigator decided: **exclude**. Quick task `260715-0nj` implements that decision. Dev-research trail cross-referenced at `~/MindrianRooms/rethinking-mindrianos/research/2026-07-14-eureka-ranking-bug-and-what-why-classifier/` (mirrored to `~/MindrianOS/research/`), which cross-references the `260714-hzx` finding above.
+
+**The mechanism.** A both-scaffold candidate-pair exclusion at the pair-candidate GENERATION step in `scripts/eureka-portfolio-report.cjs` (main() step 4b, one post-enumeration pass covering all three pairs modes: graph, full, room). A pair is excluded when BOTH endpoints are members of `SCAFFOLD_NODE_TYPES` (`memory_artifact` / `Artifact`); the exclusion count is surfaced honestly in the JSON provenance (`scaffold_pairs_excluded`) and the markdown provenance table. This extends the established `lib/core/eureka/opportunity-harvest.cjs` lines 519-521 both-scaffold skip (the bridge + contradiction lanes, "a structural restatement of the room, not a signal") to the portfolio ranking candidate set. Deliberately NARROW: a pair with only ONE scaffold side is untouched (the entity-vs-artifact pairs are the real signal and must survive). The `portfolio-dimensions.cjs` cohort-stratification logic (912139c9) is byte-unchanged; this fix is at the candidate-generation layer, not the scoring math.
+
+**Live re-verification (same substrate that produced 72.0 percent).** To prove the fix is density-independent, the re-run used the EXACT `room.db.tier2-verified` bytes the `260714-hzx` run measured (46 `company` nodes, 39 `memory_artifact` nodes, 35 domain entity edges), NOT a fresh re-densified substrate. Run discipline: `room.db.bak-260715-0nj` backed up first, then `room.db.tier2-verified` restored over `room.db` (md5-confirmed identical), then `node scripts/eureka-command.cjs ~/MindrianRooms/aion-eureka-synergy run --no-extract` (live local embedding spine, not offline). Structural share measured with the same `typeById` join over `room.db` the suite uses (`tests/test-218-noise-reduction.cjs`), not id-prefix string matching.
+
+| Metric | Before (260714-hzx) | After (260715-0nj) |
+|--------|---------------------|--------------------|
+| Substrate | `room.db.tier2-verified` (46 company, 39 memory_artifact) | SAME `room.db.tier2-verified` (byte-identical) |
+| Top-25 structural share | **72.0% (18/25)** | **0.0% (0/25)** |
+| Ranked count | 25 | 25 (non-empty) |
+| Pairs scored | (dense scaffold clique) | 2783 |
+| `scaffold_pairs_excluded` (provenance) | n/a (no filter) | **741** |
+| Run mode | live | live |
+
+The top-5 ranked pairs after the fix are entity-involving (`Aion Research Gen` x `AION`, `AION Labs` x its source artifact, `AION Labs` x `Aion Research Gen`, `AION Labs` x `AION`, `Advantage` x `Aion Research Gen`); pair 2 is a one-side `company`-vs-`memory_artifact` pair, confirming the narrow filter leaves one-side pairs intact. The structural share is now 0.0 percent by CONSTRUCTION, independent of how sparse the real-entity cohort is, which is precisely the density-independence the exclude decision buys over the cohort-stratification approach.
+
+### Disposition (scaffold-pair filter appendix)
+
+- **The 72.0 percent regression is CLOSED.** The exact substrate that showed 72.0 percent now shows 0.0 percent, with 741 scaffold pairs excluded and the ranked list still non-empty and populated by real entity pairs. No `portfolio-dimensions.cjs` scoring-math change was needed; the fix lives at the candidate-generation layer, isolatable from the tier-2 extraction work. The full 218 suite (including the new `test-218-scaffold-pair-filter.cjs` leg and the adapted cohort-stratification + noise-reduction legs) is green offline; the five out-of-scope eureka modules are diff-clean.

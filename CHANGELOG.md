@@ -14,6 +14,18 @@
   measured holdout set). (Quick task 260714-k44.)
 
 ### Fixed
+- **Eureka's ranked top-25 no longer refills with scaffold pairs when real entities are thin.**
+  Every room stores one `memory_artifact` node per file as document scaffolding. When a room's
+  real-entity cohort is thin, those scaffolding nodes were pairing with each other and flooding
+  the ranked top-25 with `memory_artifact`-vs-`memory_artifact` pairs that carry no cross-domain
+  signal (measured at 72.0 percent of the top-25 on a live room once entity extraction correctly
+  thinned the entity population). Scaffold-vs-scaffold pairs are now excluded from the ranked-pair
+  candidate set by construction, at the point the candidate list is built, so the structural share
+  drops to 0.0 percent on the same live substrate regardless of how sparse the real entities are.
+  The exclusions are counted honestly in the report provenance (`scaffold_pairs_excluded`, in both
+  the JSON and the markdown table), never silently dropped. Pairs with only ONE scaffolding side
+  are unaffected, so a real entity paired with the artifact it came from still ranks. (Quick task
+  260715-0nj.)
 - **Eureka's entity-extraction pre-step no longer fails silently.** `/mos:eureka run`'s
   auto-extraction step (shipped in beta.18) could fail (a thrown error, or the more likely
   internally-caught non-zero return) with zero visible trace: exit 0, status `done`, nothing
