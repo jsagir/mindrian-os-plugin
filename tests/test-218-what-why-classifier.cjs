@@ -24,6 +24,11 @@
  * NO em-dashes anywhere (CLAUDE.md HARD RULE).
  */
 
+// Hermeticity: flip transformers.js allowRemoteModels=false so the runExtraction
+// re-embed (which passes no stub encoder) degrades to lexical-only instead of
+// reaching the network when this test runs standalone.
+require('./eureka-offline-preload.cjs');
+
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -32,9 +37,42 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const classifierPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'entity-classifier.cjs');
 const extractorPath = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'entity-extractor.cjs');
+const eurekaDir = path.join(REPO_ROOT, 'lib', 'core', 'eureka');
 const classifier = require(classifierPath);
 const { extractEntities } = require(extractorPath);
 const mva = require(path.join(REPO_ROOT, 'lib', 'core', 'mva-classifier.cjs'));
+
+const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
+const { insertNode } = require(path.join(REPO_ROOT, 'lib', 'core', 'node-insert.cjs'));
+const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+const { runExtraction } = require(path.join(REPO_ROOT, 'scripts', 'entity-extract.cjs'));
+
+// Build a hermetic temp room with one section per artifact and a seeded
+// memory_artifact node (props.path -> the .md file) for each, mirroring the
+// test-218-noise-reduction seedRoom idiom. Returns { roomDir, ids }.
+function buildRoom(artifacts) {
+  const roomDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-hzx-'));
+  for (const art of artifacts) {
+    const secDir = path.join(roomDir, art.slug);
+    fs.mkdirSync(secDir, { recursive: true });
+    fs.writeFileSync(path.join(secDir, 'FEYNMAN.md'), art.body + '\n', 'utf8');
+  }
+  const db = openRoomDb(roomDir, { allowExtension: true });
+  const ids = [];
+  for (const art of artifacts) {
+    const id = 'memory_artifact:' + art.slug + ':FEYNMAN';
+    const props = JSON.stringify({ title: art.slug, path: art.slug + '/FEYNMAN.md', section: art.slug });
+    insertNode(db, id, 'memory_artifact', props, { source_path: 'memory:' + art.slug, created_by: 'system' });
+    ids.push(id);
+  }
+  closeRoomDb(db);
+  return { roomDir, ids };
+}
+
+function entityNames(db) {
+  const rows = db.prepare("SELECT properties FROM nodes WHERE type IN ('company','technology','market')").all();
+  return rows.map(function (r) { try { return JSON.parse(r.properties).name; } catch (_e) { return null; } });
+}
 
 let pass = 0;
 let total = 0;
@@ -247,6 +285,208 @@ async function main() {
     assert.ok(r.frameworkTerms.length <= 2, 'framework cap holds, got ' + r.frameworkTerms.length);
     const lower = r.frameworkTerms.map((t) => t.name.toLowerCase());
     assert.equal(new Set(lower).size, lower.length, 'no case-insensitive duplicates');
+  });
+
+  // ---------------------------------------------------------------------------
+  // Sibling egress guard: entity-classifier.cjs is the ONLY file under
+  // lib/core/eureka/ whose source carries the model transport call. This catches
+  // a future eureka module quietly adding egress (the run-all-218.sh leg (d) grep
+  // deliberately keeps its file list frozen; this is the wider assertion).
+  // ---------------------------------------------------------------------------
+  await check('entity-classifier is the only eureka module carrying the transport', () => {
+    const files = fs.readdirSync(eurekaDir).filter((f) => /\.cjs$/.test(f));
+    const carriers = [];
+    for (const f of files) {
+      const raw = fs.readFileSync(path.join(eurekaDir, f), 'utf8');
+      // Strip block comments so a module's "zero fetch here" documentation is not
+      // mistaken for a real transport call (explore-chain.cjs documents exactly
+      // that). The Anthropic host string is the precise transport signal: it names
+      // the LOCAL LLM transport this pipeline reaches, and it never appears in a
+      // "no egress" comment. A real carrier keeps it as a live string literal.
+      const src = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+      if (/api\.anthropic\.com/.test(src)) carriers.push(f);
+    }
+    assert.deepEqual(carriers, ['entity-classifier.cjs'],
+      'only entity-classifier.cjs may carry the transport, got: ' + JSON.stringify(carriers));
+  });
+
+  // ---------------------------------------------------------------------------
+  // Integration (i): end-to-end WHY reroute on a hermetic room. Tier-1 extracts
+  // Larry / Governing Thought / Pyramid Logic (it cannot tell them from real
+  // entities structurally); the injected tier-2 impl reroutes them WHY while
+  // AION Labs stays WHAT. Assert: no WHY term is an entity node, AION Labs is a
+  // proposed entity node, framework_terms + framework_term_count land on the
+  // source artifact, and no relation edge references a WHY endpoint.
+  // ---------------------------------------------------------------------------
+  await check('integration: WHY reroute captures framework_terms, never mints WHY nodes', async () => {
+    const WHY = ['Larry', 'Governing Thought', 'Pyramid Logic'];
+    const built = buildRoom([{
+      slug: 'analysis',
+      body: [
+        '# Competitors',
+        '',
+        'AION Labs competes with Recursion in the drug-discovery market.',
+        'The Governing Thought guides the roadmap and the Pyramid Logic frames it.',
+        'Larry reviews the analysis before it ships.',
+      ].join('\n'),
+    }]);
+    const roomDir = built.roomDir;
+    const sessionId = 'entity-extract';
+    const mockClassifier = async ({ names }) => {
+      const labels = {};
+      for (const n of names) labels[n] = WHY.includes(n) ? 'why' : 'what';
+      return { labels, source: 'model' };
+    };
+    let db = openRoomDb(roomDir, { allowExtension: true });
+    try {
+      const result = await runExtraction(db, roomDir, sessionId, 25, { classifyImpl: mockClassifier });
+      assert.equal(result.classifierSource, 'model', 'classifier_source must be model');
+      assert.ok(result.termsWhy >= 3, 'at least the 3 WHY terms captured, got ' + result.termsWhy);
+
+      const names = entityNames(db);
+      for (const w of WHY) assert.ok(!names.includes(w), w + ' must NOT be an entity node: ' + JSON.stringify(names));
+      assert.ok(names.includes('AION Labs'), 'AION Labs must be an entity node: ' + JSON.stringify(names));
+
+      // AION Labs is born proposed (Part 9).
+      const aionId = navigation.ENTITY_NODE_ID(sessionId, 'AION Labs');
+      const aionRow = db.prepare('SELECT review_status FROM nodes WHERE id = ?').get(aionId);
+      assert.ok(aionRow, 'AION Labs entity node exists');
+      assert.equal(aionRow.review_status, 'proposed', 'entity born proposed');
+
+      // framework_terms + framework_term_count on the source artifact.
+      const artRow = db.prepare('SELECT properties FROM nodes WHERE id = ?').get('memory_artifact:analysis:FEYNMAN');
+      const artProps = JSON.parse(artRow.properties);
+      assert.equal(typeof artProps.framework_terms, 'string', 'framework_terms present');
+      assert.equal(typeof artProps.framework_term_count, 'number', 'framework_term_count present');
+      for (const w of WHY) assert.ok(artProps.framework_terms.indexOf(w) !== -1, w + ' must be in framework_terms: ' + artProps.framework_terms);
+
+      // No relation edge references a WHY endpoint node id.
+      const whyIds = new Set(WHY.map((w) => navigation.ENTITY_NODE_ID(sessionId, w)));
+      const edges = db.prepare('SELECT source, target FROM edges').all();
+      for (const e of edges) {
+        assert.ok(!whyIds.has(e.source) && !whyIds.has(e.target),
+          'no edge may reference a WHY endpoint: ' + JSON.stringify(e));
+      }
+    } finally {
+      closeRoomDb(db);
+      fs.rmSync(roomDir, { recursive: true, force: true });
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Integration (ii): degrade leg. A classifyImpl that throws -> the batch still
+  // commits, every tier-1 survivor is written as an entity (today's behavior),
+  // classifier_source is 'fallback'.
+  // ---------------------------------------------------------------------------
+  await check('integration: throwing classifier degrades to pass-through, still commits', async () => {
+    const built = buildRoom([{
+      slug: 'analysis',
+      body: [
+        '# Competitors',
+        '',
+        'AION Labs competes with Recursion in the market, and Larry reviews it.',
+      ].join('\n'),
+    }]);
+    const roomDir = built.roomDir;
+    const throwing = async () => { throw new Error('model down'); };
+    let db = openRoomDb(roomDir, { allowExtension: true });
+    try {
+      const result = await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: throwing });
+      assert.equal(result.classifierSource, 'fallback', 'classifier_source must be fallback on throw');
+      const names = entityNames(db);
+      // Every survivor including Larry is written as an entity (no reroute happened).
+      assert.ok(names.includes('AION Labs'), 'AION Labs written: ' + JSON.stringify(names));
+      assert.ok(names.includes('Larry'), 'Larry written as entity in degrade mode: ' + JSON.stringify(names));
+    } finally {
+      closeRoomDb(db);
+      fs.rmSync(roomDir, { recursive: true, force: true });
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Integration (iii): synthetic non-MindrianOS biotech room (T2-REQ-4). The
+  // invented framework vocabulary lands in framework_terms; the invented
+  // companies land as entity nodes. Proves domain-agnosticism end-to-end.
+  // ---------------------------------------------------------------------------
+  await check('integration: synthetic biotech room routes WHY vs WHAT correctly', async () => {
+    const FRAMEWORK = ['IND Filing', 'Phase II Readout', 'Target Product Profile'];
+    const COMPANIES = ['Meridian Therapeutics', 'BioNova Labs'];
+    const built = buildRoom([{
+      slug: 'pipeline',
+      body: [
+        '# Competitors',
+        '',
+        'Meridian Therapeutics competes with BioNova Labs in the oncology market.',
+        'The IND Filing precedes the Phase II Readout and the Target Product Profile',
+        'anchors the program.',
+      ].join('\n'),
+    }]);
+    const roomDir = built.roomDir;
+    const mockClassifier = async ({ names }) => {
+      const labels = {};
+      for (const n of names) labels[n] = FRAMEWORK.includes(n) ? 'why' : 'what';
+      return { labels, source: 'model' };
+    };
+    let db = openRoomDb(roomDir, { allowExtension: true });
+    try {
+      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier });
+      const names = entityNames(db);
+      for (const c of COMPANIES) assert.ok(names.includes(c), c + ' must be an entity node: ' + JSON.stringify(names));
+      for (const w of FRAMEWORK) assert.ok(!names.includes(w), w + ' must NOT be an entity node: ' + JSON.stringify(names));
+      const artRow = db.prepare('SELECT properties FROM nodes WHERE id = ?').get('memory_artifact:pipeline:FEYNMAN');
+      const fwTerms = JSON.parse(artRow.properties).framework_terms || '';
+      for (const w of FRAMEWORK) assert.ok(fwTerms.indexOf(w) !== -1, w + ' must be in framework_terms: ' + fwTerms);
+    } finally {
+      closeRoomDb(db);
+      fs.rmSync(roomDir, { recursive: true, force: true });
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Integration (iv): merge discipline. Re-running extraction unions
+  // framework_terms without duplication and never touches review_status.
+  // ---------------------------------------------------------------------------
+  await check('integration: re-run unions framework_terms and preserves review_status', async () => {
+    const WHY = ['Governing Thought', 'Pyramid Logic'];
+    const built = buildRoom([{
+      slug: 'analysis',
+      body: [
+        '# Competitors',
+        '',
+        'AION Labs competes with Recursion. The Governing Thought and the',
+        'Pyramid Logic frame the analysis.',
+      ].join('\n'),
+    }]);
+    const roomDir = built.roomDir;
+    const mockClassifier = async ({ names }) => {
+      const labels = {};
+      for (const n of names) labels[n] = WHY.includes(n) ? 'why' : 'what';
+      return { labels, source: 'model' };
+    };
+    const artId = 'memory_artifact:analysis:FEYNMAN';
+    let db = openRoomDb(roomDir, { allowExtension: true });
+    try {
+      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier });
+      const first = JSON.parse(db.prepare('SELECT properties FROM nodes WHERE id = ?').get(artId).properties);
+      const firstCount = first.framework_term_count;
+      const artStatusRow = db.prepare('SELECT review_status FROM nodes WHERE id = ?').get(artId);
+      const statusBefore = artStatusRow ? artStatusRow.review_status : null;
+
+      // Second run against the same room / db.
+      await runExtraction(db, roomDir, 'entity-extract', 25, { classifyImpl: mockClassifier });
+      const second = JSON.parse(db.prepare('SELECT properties FROM nodes WHERE id = ?').get(artId).properties);
+
+      // No duplication: the count is stable and terms are unique case-insensitively.
+      assert.equal(second.framework_term_count, firstCount, 'framework_term_count must not grow on re-run');
+      const terms = second.framework_terms.split(',').map((s) => s.trim().toLowerCase());
+      assert.equal(new Set(terms).size, terms.length, 'no duplicate framework terms after re-run');
+
+      const statusAfter = db.prepare('SELECT review_status FROM nodes WHERE id = ?').get(artId).review_status;
+      assert.equal(statusAfter, statusBefore, 'review_status must be untouched by the merge');
+    } finally {
+      closeRoomDb(db);
+      fs.rmSync(roomDir, { recursive: true, force: true });
+    }
   });
 
   console.log('\n' + pass + '/' + total + ' tier-2 classifier checks passed');

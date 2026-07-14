@@ -24,7 +24,13 @@
  *      (each memory_artifact node carries props.path -> its .md file), reading the
  *      real prose off disk.
  *   3. extractEntities(text, { sourceArtifactId }) (Plan 218-02) per artifact ->
- *      bounded, typed {entities, relations} candidates, zero egress.
+ *      bounded, typed {entities, relations, frameworkTerms} candidates, zero egress.
+ *   3b. Tier-2 semantic pass (quick-task 260714-hzx): the classifier module labels
+ *      each tier-1 survivor WHAT / WHY / NOISE. WHAT flows through step 4 unchanged;
+ *      WHY joins the frameworkTerms signal merged onto the source artifact inside
+ *      the transaction; NOISE drops. Runs to completion BEFORE the transaction
+ *      opens, so the only model reach never holds the write lock. Degrades to
+ *      pass-through (every survivor WHAT) with no key or on any per-artifact failure.
  *   4. ONE explicit D-05 BEGIN/COMMIT/ROLLBACK transaction (node:sqlite has NO
  *      .transaction() helper, RESEARCH Pitfall 3) around the whole batch:
  *      navigation.writeEntityNode per entity, navigation.writeEdge per
@@ -48,8 +54,13 @@
  * byte-identical to the 218 full-room pass.
  *
  * CANON POSTURE:
- *   - Part 8 (Graph Boundary): ZERO network. No URL, no socket, no remote call.
- *     Both the extractor and the re-embed use the already-vendored local paths only.
+ *   - Part 8 (Graph Boundary): THIS FILE'S OWN CODE and the tier-1 extractor make
+ *     ZERO network reach -- no URL, no socket, no remote call -- and the grep gate
+ *     enforces it. The ONLY model reach in the whole pipeline lives inside the
+ *     tier-2 classifier module (lib/core/eureka/entity-classifier.cjs), which
+ *     documents its own boundary: a LOCAL classification call over the Anthropic
+ *     LLM transport, never the Brain surface, degrade-to-passthrough. The re-embed
+ *     uses the already-vendored local paths only.
  *   - Part 9 (Memory Locality): every entity node is born review_status='proposed'
  *     via navigation.writeEntityNode; only a human confirmNode promotes it. This
  *     script writes ONLY through the navigation chokepoint -- NO raw INSERT INTO
@@ -79,6 +90,13 @@ const navigation = require('../lib/core/navigation.cjs');
 const { insertNode } = require('../lib/core/node-insert.cjs');
 const { extractEntities } = require('../lib/core/eureka/entity-extractor.cjs');
 const triModal = require('../lib/core/eureka/tri-modal-index.cjs');
+// Tier-2 (quick-task 260714-hzx): the semantic WHAT / WHY / NOISE classifier
+// module. It is the ONLY model reach in this pipeline and documents its own
+// boundary; the dispatcher body in THIS file stays zero-network (grep-gated).
+// resolveAnthropicKey gates whether the tier-2 pass runs at all (Part 7 reuse of
+// the mva-classifier resolver, never a copy).
+const entityClassifier = require('../lib/core/eureka/entity-classifier.cjs');
+const { resolveAnthropicKey } = require('../lib/core/mva-classifier.cjs');
 // Phase 219-02 (D-11, REQ-5): the SHIPPED zero-dep frontmatter parser (Canon
 // Part 7 reuse-before-build -- never a new YAML parser). Deterministic,
 // zero-LLM, zero network.
@@ -324,25 +342,208 @@ function applyArtifactMetadata(db, art) {
   }
 }
 
-function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
+// Tier-2 (quick-task 260714-hzx): the number of framework (WHY) terms merged onto
+// any single artifact node is bounded (the T-219-05 scalar-only discipline).
+const FRAMEWORK_TERM_CAP = 25;
+
+// artifactExcerpt(text) -- the first ~10 non-empty prose lines of an artifact,
+// capped at 600 chars, passed to the classifier module for domain context. Skips
+// headings and fence markers so the excerpt is representative prose, never a wall
+// of scaffolding. Pure, never throws.
+function artifactExcerpt(text) {
+  try {
+    const lines = String(text || '').split(/\r?\n/);
+    const picked = [];
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+      if (line.charAt(0) === '#') continue;   // heading
+      if (/^```/.test(line)) continue;         // fence marker
+      picked.push(line);
+      if (picked.length >= 10) break;
+    }
+    return picked.join(' ').slice(0, 600);
+  } catch (_e) {
+    return '';
+  }
+}
+
+// fallbackLabels(names) -- the pass-through label map: every candidate 'what'.
+function fallbackLabels(names) {
+  const labels = {};
+  for (const n of names) labels[n] = 'what';
+  return labels;
+}
+
+// runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, keyPresent) -- the
+// semantic pass. Groups tier-1 survivor entities by their sourceArtifactId and
+// asks the classifier module (or an injected test impl) to label each artifact's
+// candidates WHAT / WHY / NOISE. WHAT keeps flowing (byte-identical write path);
+// WHY joins the framework-term signal; NOISE drops. Every model call completes
+// here, BEFORE the caller opens the D-05 transaction. A per-artifact failure
+// falls back for THAT artifact only. Returns
+//   { whatEntities, whyTerms, droppedNoise, classifierSource }.
+async function runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, keyPresent) {
+  const textById = new Map();
+  for (const art of artifacts) textById.set(art.artifactId, art.text);
+
+  const byArtifact = new Map(); // artifactId -> [entity]
+  for (const e of entities) {
+    if (!byArtifact.has(e.sourceArtifactId)) byArtifact.set(e.sourceArtifactId, []);
+    byArtifact.get(e.sourceArtifactId).push(e);
+  }
+
+  const whatEntities = [];
+  const whyTerms = tier1WhyTerms.slice(); // tier-1 structural WHY seed (zero model cost)
+  let droppedNoise = 0;
+  let usedModel = false;
+  let usedFallback = false;
+
+  for (const [artifactId, arr] of byArtifact) {
+    const names = arr.map(function (e) { return e.name; });
+    let result;
+    if (!keyPresent) {
+      // No key: skip the model call entirely, degrade to today's behavior.
+      result = { labels: fallbackLabels(names), source: 'fallback' };
+    } else {
+      const excerpt = artifactExcerpt(textById.get(artifactId) || '');
+      try {
+        result = await classifyImpl({ names: names, excerpt: excerpt });
+      } catch (_e) {
+        result = { labels: fallbackLabels(names), source: 'fallback' };
+      }
+      if (!result || typeof result !== 'object' || !result.labels || typeof result.labels !== 'object') {
+        result = { labels: fallbackLabels(names), source: 'fallback' };
+      }
+    }
+    if (result.source === 'model') usedModel = true;
+    else usedFallback = true;
+
+    for (const e of arr) {
+      const label = result.labels[e.name] === 'why' || result.labels[e.name] === 'noise'
+        ? result.labels[e.name]
+        : 'what';
+      if (label === 'why') whyTerms.push({ name: e.name, sourceArtifactId: artifactId });
+      else if (label === 'noise') droppedNoise += 1;
+      else whatEntities.push(e);
+    }
+  }
+
+  let classifierSource;
+  if (usedModel && usedFallback) classifierSource = 'mixed';
+  else if (usedModel) classifierSource = 'model';
+  else classifierSource = 'fallback';
+
+  return {
+    whatEntities: whatEntities,
+    whyTerms: whyTerms,
+    droppedNoise: droppedNoise,
+    classifierSource: classifierSource,
+  };
+}
+
+// applyFrameworkTerms(db, artifactId, terms) -- the WHY-signal merge, called
+// INSIDE the D-05 transaction alongside the metadata pass. Mirrors
+// applyArtifactMetadata EXACTLY: SELECT the node, parse props, union the new
+// framework terms with any existing props.framework_terms (comma-split), and write
+// back TWO SCALAR PROPS ONLY -- framework_terms (comma-joined, capped) and
+// framework_term_count (number) -- via the shared insertNode UPSERT. Scalars only
+// (T-219-05); never a new node type, never an edge; review_status and provenance
+// are never touched. Returns 'applied' | 'skipped' | 'none'. NEVER throws.
+function applyFrameworkTerms(db, artifactId, terms) {
+  try {
+    const row = db.prepare('SELECT id, type, properties FROM nodes WHERE id = ?').get(artifactId);
+    if (!row) return 'none';
+    let props = {};
+    try { props = JSON.parse(row.properties || '{}'); } catch (_e) { props = {}; }
+    if (!props || typeof props !== 'object' || Array.isArray(props)) props = {};
+
+    const existing = (typeof props.framework_terms === 'string' && props.framework_terms.length > 0)
+      ? props.framework_terms.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
+      : [];
+
+    // Union existing + new, case-insensitive dedup, first-seen casing wins, capped.
+    const seen = new Set();
+    const merged = [];
+    for (const t of existing.concat(terms)) {
+      if (typeof t !== 'string' || t.length === 0) continue;
+      const k = t.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      merged.push(t);
+      if (merged.length >= FRAMEWORK_TERM_CAP) break;
+    }
+    if (merged.length === 0) return 'none';
+
+    props.framework_terms = merged.join(', ');
+    props.framework_term_count = merged.length;
+
+    let propsJson;
+    try { propsJson = JSON.stringify(props); } catch (_e) { return 'skipped'; }
+    // The node already exists (just SELECTed), so this UPSERT takes the ON
+    // CONFLICT branch: properties refresh, review_status + provenance untouched.
+    insertNode(db, row.id, row.type, propsJson);
+    return 'applied';
+  } catch (_e) {
+    return 'skipped';
+  }
+}
+
+async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
   const options = opts || {};
   // opts.paths (optional, ADDITIVE): the D-16 scoped-incremental allowlist.
   // Absent -> full-room collection, byte-identical to the 218 behavior.
   const artifacts = collectArtifacts(db, roomDir, options.paths);
 
-  // Aggregate all candidates first (pure, no writes yet).
-  const entities = [];   // { entityType, name, sourceArtifactId }
-  const relations = [];  // { source, target, edge_type }
+  // Aggregate all candidates first (pure, no writes yet). Tier-1 now also yields
+  // a structural WHY seed (frameworkTerms) at zero model cost -- these never go to
+  // the model, they are already known framework vocabulary.
+  const rawEntities = [];   // { entityType, name, sourceArtifactId }
+  const relations = [];     // { source, target, edge_type }
+  const tier1WhyTerms = []; // { name, sourceArtifactId }
   for (const art of artifacts) {
     const res = extractEntities(art.text, { sourceArtifactId: art.artifactId, maxPerArtifact: maxPerArtifact });
-    for (const e of res.entities) entities.push(e);
+    for (const e of res.entities) rawEntities.push(e);
     for (const r of res.relations) relations.push(r);
+    if (Array.isArray(res.frameworkTerms)) {
+      for (const t of res.frameworkTerms) tier1WhyTerms.push(t);
+    }
+  }
+
+  // Tier-2 (quick-task 260714-hzx): the semantic pass runs AFTER aggregation and
+  // strictly BEFORE db.exec('BEGIN'). An injected classifyImpl (test seam)
+  // bypasses the key gate and IS the model surrogate; otherwise the real module
+  // runs only when a key resolves, else every survivor degrades to WHAT
+  // (byte-identical to today's write behavior).
+  const classifyInjected = typeof options.classifyImpl === 'function';
+  const classifyImpl = classifyInjected
+    ? options.classifyImpl
+    : entityClassifier.classifyArtifactCandidates;
+  const keyPresent = classifyInjected ? true : (resolveAnthropicKey() !== null);
+
+  const tier2 = await runTier2(artifacts, rawEntities, tier1WhyTerms, classifyImpl, keyPresent);
+  const entities = tier2.whatEntities;
+
+  // Relation filter: an edge endpoint node exists only for a surviving WHAT name.
+  // Drop any relation whose source or target was rerouted to WHY or dropped.
+  const whatNames = new Set(entities.map(function (e) { return e.name; }));
+  const survivingRelations = relations.filter(function (r) {
+    return whatNames.has(r.source) && whatNames.has(r.target);
+  });
+
+  // Aggregate the WHY terms per artifact for the in-transaction merge.
+  const whyByArtifact = new Map(); // artifactId -> [name]
+  for (const t of tier2.whyTerms) {
+    if (!whyByArtifact.has(t.sourceArtifactId)) whyByArtifact.set(t.sourceArtifactId, []);
+    whyByArtifact.get(t.sourceArtifactId).push(t.name);
   }
 
   let entitiesWritten = 0;
   let edgesWritten = 0;
   let metadataApplied = 0;
   let metadataSkipped = 0;
+  let frameworkApplied = 0;
+  let frameworkSkipped = 0;
 
   // D-05 batch: ONE explicit transaction around the whole node+edge batch.
   // node:sqlite has NO .transaction() helper (Pitfall 3) -- BEGIN/COMMIT/ROLLBACK
@@ -373,8 +574,10 @@ function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     }
     // 3. entity -> entity domain-relationship edges. The extractor names the
     //    endpoints; ENTITY_NODE_ID resolves each name to the same node id
-    //    writeEntityNode minted under this sessionId.
-    for (const rel of relations) {
+    //    writeEntityNode minted under this sessionId. Only relations whose BOTH
+    //    endpoints survived tier-2 as WHAT are written (a WHY/NOISE endpoint has
+    //    no entity node to point at).
+    for (const rel of survivingRelations) {
       const srcId = navigation.ENTITY_NODE_ID(sessionId, rel.source);
       const tgtId = navigation.ENTITY_NODE_ID(sessionId, rel.target);
       const r = navigation.writeEdge(db, {
@@ -397,6 +600,18 @@ function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
       if (outcome === 'applied') metadataApplied += 1;
       else if (outcome === 'skipped') metadataSkipped += 1;
     }
+    // 5. Tier-2 (quick-task 260714-hzx): the framework-term (WHY) merge, INSIDE
+    //    the same D-05 transaction. Two scalar props only (framework_terms +
+    //    framework_term_count); never a new node type, never an edge. A per-
+    //    artifact failure is counted and skipped, never thrown (the batch
+    //    survives). Merges onto the WHY term's source artifact node regardless of
+    //    exact/anchor -- the term names framework vocabulary observed in that
+    //    file's prose, attributed to its provenance artifact.
+    for (const [artifactId, terms] of whyByArtifact) {
+      const outcome = applyFrameworkTerms(db, artifactId, terms);
+      if (outcome === 'applied') frameworkApplied += 1;
+      else if (outcome === 'skipped') frameworkSkipped += 1;
+    }
     db.exec('COMMIT');
   } catch (err) {
     db.exec('ROLLBACK');
@@ -408,28 +623,38 @@ function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
   // throw or roll back the entity writes (T-218-10). indexNodes is idempotent
   // (per-node DELETE-then-INSERT), so re-running is safe.
   let embedded = false;
+  // Tier-2 additive result fields (entitiesWhat / termsWhy / droppedNoise /
+  // classifierSource) ride both the success and the degrade branch identically.
+  const tier2Result = {
+    entitiesWhat: entities.length,
+    termsWhy: tier2.whyTerms.length,
+    droppedNoise: tier2.droppedNoise,
+    classifierSource: tier2.classifierSource,
+    frameworkApplied: frameworkApplied,
+    frameworkSkipped: frameworkSkipped,
+  };
   return triModal.indexNodes(db, { roomDir: roomDir })
     .then(function (idx) {
       embedded = !!(idx && idx.embedded);
-      return {
+      return Object.assign({
         artifacts: artifacts.length,
         entitiesWritten: entitiesWritten,
         edgesWritten: edgesWritten,
         embedded: embedded,
         metadataApplied: metadataApplied,
         metadataSkipped: metadataSkipped,
-      };
+      }, tier2Result);
     })
     .catch(function () {
       // Degrade-never-throw: the entity writes are already committed.
-      return {
+      return Object.assign({
         artifacts: artifacts.length,
         entitiesWritten: entitiesWritten,
         edgesWritten: edgesWritten,
         embedded: false,
         metadataApplied: metadataApplied,
         metadataSkipped: metadataSkipped,
-      };
+      }, tier2Result);
     });
 }
 
@@ -462,6 +687,13 @@ async function cmdRun(opts) {
       embedded: result.embedded,
       metadata_applied: result.metadataApplied,
       metadata_skipped: result.metadataSkipped,
+      // Tier-2 (quick-task 260714-hzx) additive observability keys.
+      entities_what: result.entitiesWhat,
+      terms_why: result.termsWhy,
+      dropped_noise: result.droppedNoise,
+      classifier_source: result.classifierSource,
+      framework_applied: result.frameworkApplied,
+      framework_skipped: result.frameworkSkipped,
       session: opts.session,
     });
     return 0;
@@ -535,7 +767,9 @@ function cmdReport(opts) {
   if (parsed.state === 'done') {
     process.stdout.write(
       'entity-extract done: ' + (parsed.entities || 0) + ' entities, ' + (parsed.edges || 0) +
-      ' edges from ' + (parsed.artifacts || 0) + ' artifacts (embedded=' + (parsed.embedded ? 'yes' : 'no') + ')\n'
+      ' edges from ' + (parsed.artifacts || 0) + ' artifacts (embedded=' + (parsed.embedded ? 'yes' : 'no') + '); ' +
+      'tier-2: ' + (parsed.entities_what || 0) + ' what, ' + (parsed.terms_why || 0) + ' why, ' +
+      (parsed.dropped_noise || 0) + ' noise (classifier=' + (parsed.classifier_source || 'fallback') + ')\n'
     );
   } else if (parsed.state === 'running') {
     process.stdout.write('entity-extract running (started ' + (parsed.started_at || '?') + ')\n');
@@ -577,6 +811,9 @@ if (require.main === module) {
 
 // runExtraction is exported ADDITIVELY (Phase 219-02) so the D-16 post-filing
 // hook (and tests) can run a scoped-incremental pass over an explicit
-// opts.paths allowlist against a caller-owned db handle. main stays the
-// dispatcher seam.
+// opts.paths allowlist against a caller-owned db handle. Tier-2 (quick-task
+// 260714-hzx) adds an optional opts.classifyImpl injection seam (same additive-
+// opts idiom): when present it IS the model surrogate and bypasses the key gate,
+// so integration tests exercise the WHY reroute / degrade paths fully offline.
+// main stays the dispatcher seam.
 module.exports = { main: main, runExtraction: runExtraction };

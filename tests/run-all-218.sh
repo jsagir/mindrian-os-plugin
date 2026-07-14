@@ -22,9 +22,16 @@
 # nodes/edges (all writes route through navigation) and no network reach in the
 # extractor or dispatcher.
 #
-# EGRESS RULE (Part 8, restated): real-room content NEVER reaches a network judge.
-# Every leg runs offline (stub encoder); the live-room acceptance is verified by
-# the human spot-check, not by any automated judge.
+# EGRESS RULE (Part 8, restated, refined for the tier-2 addition quick-task
+# 260714-hzx): the tier-1 extractor AND the entity-extract.cjs dispatcher BODY make
+# zero network reach -- grep-enforced by leg (d) below. The ONLY model reach in the
+# pipeline lives in the tier-2 classifier module (lib/core/eureka/entity-classifier.cjs):
+# a LOCAL classification call over the Anthropic LLM transport (the mva-classifier /
+# llm-name-suggester precedent), NEVER the Brain surface, with a degrade-to-passthrough
+# contract. This is NOT the rejected Plurai network judge. Every leg here runs OFFLINE:
+# the tier-2 legs exercise the model path via an injected transport / classifier and the
+# fallback path via a forced no-key, so real-room content never reaches any live model
+# in CI. The live-room acceptance (with a real key) is the Task 3 human-verify leg.
 #
 # The 211 regression leg is run_if, GATED ON A FILE that must exist, so a
 # partially-landed tree exits cleanly with a SKIP rather than RED-failing on
@@ -69,6 +76,12 @@ run "218-02 D-05 write-safety (busy timeout + rollback)" \
   node tests/test-218-write-safety.cjs
 run "218-02 tier-1 extractor (zero egress)" \
   node tests/test-218-extractor.cjs
+# Tier-2 (quick-task 260714-hzx): the WHAT / WHY / NOISE semantic classifier + the
+# dispatcher second pass + framework_terms capture. All offline (injected transport /
+# classifier + forced no-key); proves WHY reroute, framework_terms merge, relation
+# filtering, degrade-to-passthrough, and the synthetic domain-agnostic path.
+run "tier-2 WHAT/WHY classifier + dispatcher second pass (offline)" \
+  node tests/test-218-what-why-classifier.cjs
 
 # (a.1) T-218-VD: post-checkpoint fix. The live REQ-5 human-verify run (Task 3)
 #     found the noise-reduction hermetic fixture couldn't reproduce a real,
@@ -93,8 +106,11 @@ run "REQ-4 readers unchanged" \
   git diff --exit-code lib/core/navigation/insights.cjs lib/core/graph-ops.cjs
 
 # (d) REQ-2 / Canon Part 9 + Part 8 grep gates: every write routes through
-#     navigation (no raw INSERT), and the extractor + dispatcher make zero network
-#     reach.
+#     navigation (no raw INSERT), and the tier-1 extractor + the dispatcher BODY
+#     make zero network reach. This file list stays FROZEN on purpose: it is the
+#     proof the tier-1 partner and the dispatcher body stayed clean after the
+#     tier-2 addition. The ONE model reach (entity-classifier.cjs) is deliberately
+#     NOT in this list; the tier-2 test asserts it is the sole eureka carrier.
 run "no raw node/edge INSERT" \
   bash -c '! grep -rnE "INSERT INTO (nodes|edges)" scripts/entity-extract.cjs lib/core/eureka/entity-extractor.cjs'
 run "zero network" \
