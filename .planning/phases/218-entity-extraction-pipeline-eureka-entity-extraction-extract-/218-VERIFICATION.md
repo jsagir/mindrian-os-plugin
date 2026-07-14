@@ -77,3 +77,48 @@ REQ-5's numeric criterion held at 0.0% throughout (was never at risk after the r
 ## Disposition
 
 Cohort-stratification fix: DONE, tested, committed (`912139c9`). Title-resolution fix: DONE, same commit. Domain-agnostic noise filters: DONE, tested, committed (`7d98c9b8`), proven to generalize via a non-MindrianOS synthetic fixture. Remaining noise on `aion-eureka-synergy` specifically: diagnosed as a content-domain mismatch particular to this dogfooding room, not a pending code fix. Live classifier option: evaluated, explicitly not wired (Canon Part 8), filed as a separate future design question.
+
+---
+
+## Tier-2 appendix: WHAT-vs-WHY classifier live re-verification (2026-07-15, quick tasks 260714-hzx + 260714-k44)
+
+**Context.** The "Remaining gap" above named `Larry`, `Governing Thought`, `Pyramid Logic` as flowing-prose survivors the shape-based filters structurally cannot reach, and closed the file by calling them a content-domain mismatch rather than a code fix. Quick task `260714-hzx` built the tier-2 WHAT-vs-WHY semantic pass to close exactly that gap; quick task `260714-k44` then redesigned tier-2 into a two-tier flow (free local embedding tier-2a, LLM escalation tier-2b). This appendix records the live re-verification of the shipped two-tier pipeline against the real `aion-eureka-synergy` room. Dev-research trail cross-referenced at `~/MindrianRooms/rethinking-mindrianos/research/2026-07-14-eureka-ranking-bug-and-what-why-classifier/`.
+
+**Run discipline.** Same wipe-and-re-extract discipline as the passes above, on a backed-up db. Backups taken before touching anything: `room.db.bak-hzx-task3-001024` (pre-wipe, 285 `entity:entity-extract:*` nodes + 553 edges, zero `framework_terms`) and `room.db.tier2-verified` (the post-run state). The 285 prior `entity:entity-extract:*` nodes and their 553 edges were deleted via a transaction on the backed-up db; the typed `governing_thought` (10) and `memory_artifact` (39) nodes were left untouched. Then `node scripts/entity-extract.cjs ~/MindrianRooms/aion-eureka-synergy run` (24s, tier-2a live encoder + tier-2b escalation attempted).
+
+**status.json (real run):** `{"artifacts":65,"entities":35,"terms_why":688,"dropped_noise":0,"classifier_source":"embedding","framework_applied":35,"tier2_embedding":399,"tier2_escalated":206,"tier2_model":0,"tier2_low_confidence":206}`.
+
+### (a) Three residual terms reroute WHY for free -- **PASS, zero API spend**
+
+- `Larry`, `Governing Thought`, `Pyramid Logic`: **0 entity nodes** of type `company`/`technology`/`market` (was 3 `company` nodes before the run).
+- All three now land in `framework_terms` on their source artifacts (each appears in the `framework_terms` of 9 artifacts; 35 artifacts carry `framework_terms` total, `framework_applied: 35`).
+- `classifier_source: embedding` and `tier2_model: 0` -- the reroute was resolved entirely by the free local embedding tier-2a at **zero API spend**. This confirms k44's prediction: as reference-set members the three terms score cosine similarity 1.0 against themselves, clearing any margin, so they resolve WHY confidently without a funded key. The original hzx Task 3 acceptance (assert `classifier_source: 'model'`) is superseded: the core reroute no longer requires the LLM at all.
+- `company` node count dropped 309 -> 46; the 688 WHY terms are captured as framework signal, never minted as entities and never silently discarded. `AION Labs` (the room's real subject) survives as an entity node (9 `AION*` entity nodes present).
+
+### (b) framework_terms capture holds -- **PASS**; 0.0% structural share -- **REGRESSED to 72.0%**
+
+- **framework_terms capture: PASS.** 35 artifacts carry `framework_terms` + `framework_term_count`; `terms_why: 688`, `framework_applied: 35`, `framework_skipped: 0`. `review_status` untouched (scalar-prop merge only, T-219-05 discipline).
+- **Top-25 structural share: 0.0% -> 72.0% (18/25).** After the tier-2 re-extract, `node scripts/eureka-command.cjs ... run --no-extract` -> `portfolio-report.json`: 18 of the top-25 ranked pairs are `memory_artifact`-vs-`memory_artifact`. The 912139c9 fix's live result does NOT hold on the tier-2 substrate.
+
+**Isolation test (definitive causation).** Same room, same code, same eureka command, only the substrate differs:
+
+| Substrate | company nodes | entity edges | framework_terms | Top-25 structural share |
+|-----------|--------------|-------------|-----------------|-------------------------|
+| Pre-wipe backup (`room.db.bak-hzx-task3-001024`) | 309 | 553 | 0 | **0.0% (0/25)** |
+| Post tier-2 (`room.db.tier2-verified`) | 46 | 35 | 688 terms / 35 artifacts | **72.0% (18/25)** |
+
+The 912139c9 fix holds perfectly on the pre-wipe substrate (0.0%) and breaks on the tier-2 substrate (72.0%). Tier-2 is the cause, not room drift and not the verification procedure.
+
+**Root cause (traced, not observed).** The dimension breakdown of the top-25 tier-2 pairs shows `strategic_fit` flat at 0.25 and `validated_demand` at 0.97-0.99 for both the entity and the scaffold pairs -- so `validated_demand` (the edge-count percentile) is the discriminator, not semantic fit. The mechanism: tier-2 correctly pulls 688 methodology-vocabulary terms OUT of the entity population, collapsing the entity cohort from a dense ~285-node / 553-edge population to a sparse 46-node / 35-edge one, while leaving the `memory_artifact` scaffold cohort's dense CONVERGES interconnection (147 converges pairs) untouched. The cohort-stratification fix equalizes the validated_demand CEILING between families (each family's top node reaches ~1.0 within its own cohort) but cannot SUPPRESS the denser family: with the entity family starved, the 39-node scaffold clique simply generates more top-percentile pairs, so the top-25 refills with scaffold-vs-scaffold pairs. This is NOT embedding contamination from the framework_terms merge (that would move `strategic_fit`, which stays flat); it is edge-starvation of the entity cohort feeding the `validated_demand` dimension.
+
+**Honest reading.** Two things are simultaneously true. (1) Tier-2 did its job: it removed 688 false methodology-vocabulary entities, a real precision win, closing the exact `Larry`/`Governing Thought`/`Pyramid Logic` gap this file left open. (2) On this specific dogfooding room, doing so unmasks that the real external-entity substrate is genuinely thin (aion-eureka-synergy narrates MindrianOS's own process; it has few real company/market entities), so the eureka ranking refills the top with scaffold pairs. This is the same "the SPIRIT of REQ-5 is blocked on extraction precision, not ranking fairness" caveat this file already logged, now inverted: precision improved, and the thin-substrate reality surfaced in the ranking. The literal 0.0% acceptance number from the earlier passes does NOT survive tier-2 on this room.
+
+### (c) Tier-2b escalation path -- honest zero-credit degrade confirmed (not a blocker)
+
+The Anthropic key resolves, but the account has zero credits: a direct probe returns `HTTP 400 invalid_request_error "Your credit balance is too low to access the Anthropic API"`. The pipeline's honest-degrade contract handled this correctly and observably: tier-2b was attempted per escalated artifact (`tier2_escalated: 206`), every call failed the `source === 'model'` acceptance gate, so each escalated candidate fell to its embedding best-guess counted as low-confidence (`tier2_low_confidence: 206`, equal to `tier2_escalated`), `tier2_model: 0`, and `classifier_source` stayed `embedding` (never faked to `model`/`mixed`). The counts reconcile honestly with the path that actually ran. Per the k44-corrected acceptance criteria, exercising a successful tier-2b model path is NOT a blocker for this verification; it requires a funded key, which is unavailable, and the (a)/(b) acceptance is key-less by design.
+
+### Disposition (tier-2 appendix)
+
+- **(a) reroute:** DONE and verified key-less. The three named residual terms are closed -- they are `framework_terms`, not entity nodes, resolved by the free embedding tier.
+- **(b) framework_terms capture:** DONE and verified. **0.0% structural share: NOT preserved (72.0%), caused by tier-2, root cause isolated and traced.** This is surfaced for a navigator decision, NOT auto-patched: it is a ranking-layer question (should eureka exclude or down-weight `memory_artifact`-vs-`memory_artifact` pairs, which are substrate and never real opportunities, so the top-25 reflects real entity pairs regardless of entity-cohort density?), which is an architectural change to the eureka scoring path, outside the scope of an entity-extraction verification task.
+- **(c) tier-2b:** honest-degrade path verified against a live zero-credit account; a funded-key model-path exercise remains open, non-blocking.
