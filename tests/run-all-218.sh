@@ -93,6 +93,15 @@ run "T-218-VD cohort stratification (validated_demand hub-skew fix)" \
   node tests/test-218-cohort-stratification.cjs
 run "T-218-VD-4 extend-to-artifacts (walk non-memory-kinded analysis files)" \
   node tests/test-218-extend-to-artifacts.cjs
+# T-218-VD-5 (quick-task 260714-jjm): the auto-extract pre-step, plus the
+# silent-extraction-failure surfacing fix. The David-session incident
+# (.planning/debug/interns-round-eureka-david-session-2026-07-14.md) showed a
+# pre-step failure leaving exit 0, state done, and zero surfaced trace -- the
+# fourth confirmed instance of today's silent-skip-false-success pattern. This
+# test was previously wired into NO aggregator; legs 5-7 pin the fix so it can
+# never silently regress. Offline-safe (it requires eureka-offline-preload).
+run "T-218-VD-5 auto-extract pre-step + extraction-error surfacing" \
+  node tests/test-218-eureka-auto-extract.cjs
 
 # (b) REQ-3 zero-touch gate: no second embedding path, no vector-store signature
 #     change. The re-embed rides the EXISTING tri-modal indexNodes path.
