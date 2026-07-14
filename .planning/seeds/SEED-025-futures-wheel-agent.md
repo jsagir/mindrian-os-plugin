@@ -3,7 +3,7 @@
 - **Planted:** 2026-06-14
 - **Source:** Navigator (Jonathan) directive during the 150.10 session: "I DO WANT FUTURE WHEEL TO BE A FRAMEWORK FOR LOCATING OPPORTUNITIES." Deep-research provided + repo-grounded against ICM/HSI engines (verified real). Full research: .planning/research/futures-wheel-agent-20260614/futures-wheel-agent-research.md
 - **When:** v1.14.0+ initiative. Pairs with SEED-024 (Brain orchestration graph - both need Brain-orchestrated chaining). Gated by SEED-004 for the fractal sub-room version.
-- **Status:** dormant (research filed, build deferred)
+- **Status:** mostly shipped (Phase 156, verified 2026-07-14: 3/4 plans COMPLETE 2026-06-14/15 -- 156-01, 156-02, 156-04; 156-03 shows "3 AUTO TASKS COMPLETE... AWAITING human-verify checkpoint before plan-complete," so not fully closed. This file previously said "dormant (research filed, build deferred)"; corrected to reflect the phase actually ran.)
 
 ## The intent
 

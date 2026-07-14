@@ -3,7 +3,7 @@
 > Framing (navigator, 2026-07-02): these are **EUREKA engines** - breakthrough DISCOVERY, "find the gem nobody saw" - NOT "intelligence" engines. The name is the point: the output is a eureka (a measured, defensible cross-domain opportunity), not a generic intelligence readout.
 
 **Registered:** 2026-07-02 (navigator-directed; agno-docs-mcp trigger + tri-source vision)
-**Class:** CODE + ARCH | **Status:** seed
+**Class:** CODE + ARCH | **Status:** mostly shipped (verified 2026-07-14: Phases 211, 212, 214, 215, 216 all COMPLETE per ROADMAP.md; Phase 213 "THE KEY," the reach-wiring phase, is 5/6 plans done -- only 213-06 (run-all-213 aggregator + human-verify probe) remains, explicitly gated on the curing-sequence debug track resolving. This file previously said "seed"; corrected, but do not mark fully shipped until 213-06 clears.)
 **Grounding:** agno-docs-mcp (https://github.com/CENFARG/agno-docs-mcp) as the FTS5/BM25 reference; live runtime verification (node v22.22.2, node:sqlite, SQLite 3.51.2 - FTS5 available, extension-loading available); Tavily research 2026-07-02 (the proven 2025-2026 local-hybrid-RAG stack). Reconciles the existing cluster: SEED-029 (local vector spine, graduated -> Phase 161), SEED-030 (RS spine + expert-graph, open), SEED-024 (Brain orchestration graph), SEED-048 (portfolio FUSION), SEED-008 (close-the-loop), SEED-013 (no-Python-on-user, graduated -> Phase 134). Consumer phases: 89/200 (RS), 164 (BONO), 143 (Insight Sensors), 203 (synthetic expert).
 
 ## The vision (navigator, 2026-07-02)

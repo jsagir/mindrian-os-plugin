@@ -3,7 +3,7 @@
 - **Planted:** 2026-06-14
 - **Source:** Navigator (Jonathan) realization during the Phase 150.10 session, after hand-wiring systems-thinking <-> reverse-salient <-> find-analogies <-> research chains one CROSS_DOMAIN_ANALOGUE edge at a time. The generalization: stop hand-wiring; let the Brain hold the whole orchestration graph.
 - **When:** v1.14.0+ milestone-sized. Pairs with the Futures Wheel Agent initiative (both need Brain-orchestrated chaining). Canon-adjacent (see below).
-- **Status:** dormant
+- **Status:** shipped (Phase 157, COMPLETE + VERIFIED 2026-06-15, gsd-verifier PASS 11/11, 5/5 plans -- verified directly against .planning/ROADMAP.md during a full-corpus curation pass 2026-07-14; SEED-045 independently confirms "SEED-024 ... GRADUATED Phase 157." This file previously said "dormant"; corrected.)
 
 ## The problem (intent vs actual)
 

@@ -2,7 +2,7 @@
 seed: SEED-035
 slug: synthetic-expert-as-project-skill
 title: SyntheticExpert -> per-project Claude Code skill (Larry-reach-suggested, /mos:skill front door)
-status: captured
+status: ready  # PULLED FORWARD 2026-07-14 (navigator-directed): all 5 stated dependency phases (164, 167, 143, 148, 169) independently verified COMPLETE against ROADMAP.md during a full-corpus curation pass. Trigger has fired -- zero implementation work has started. Was "captured"; this is the cheapest real win in the current seed corpus, queue at next milestone/phase scoping.
 created: 2026-06-19
 captured_during: Phase 164 execution (after W1 / E1 SyntheticExpert amendment ratified)
 disposition: fast-follow after Phase 164 (rides 164 SyntheticExpert node + 167 generator + the Larry-Reaches sensor spine)

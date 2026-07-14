@@ -4,7 +4,7 @@
 > No-real-names rule (HARD): tester/advisor names never enter the repo; only role descriptors + pseudonymous personas (the pedagogy lead, the frontier researcher / ARCHIMEDES, the imaging-PhD builder / DA VINCI, the MIT deep-tech founder, the TTO IP lead).
 
 **Registered:** 2026-07-02 (navigator-directed; real-user evaluation corpus + Plurai/IntellAgent research + Fable synthesis, five passes)
-**Class:** ARCH + EVAL | **Status:** seed
+**Class:** ARCH + EVAL | **Status:** mostly shipped (verified 2026-07-14, same finding as its generator sibling SEED-049: Phases 211, 212, 214, 215, 216 all COMPLETE; Phase 213 "THE KEY" is 5/6 plans done, only 213-06's human-verify probe remains, gated on the curing-sequence debug track. This file previously said "seed"; corrected, but do not mark fully shipped until 213-06 clears.)
 **Grounding:** the real-user evaluation transcripts (role-anonymized: a frontier chem-eng researcher; the pedagogy lead; an MIT deep-tech founder; a computational-imaging PhD; a TTO AI-IP lead). Plurai MCP tool schemas (verified this session) + IntellAgent (arXiv 2501.11067, github.com/plurai-ai/intellagent) via Tavily. Fable synthesis (seed design + Plurai research + persona seeds, 2026-07-02). Sibling to SEED-049; instruments its Phase-213 gate (thread d7561062; renumbered 2026-07-04 from the original aspirational "208" - see `.planning/ROADMAP.md`). A halakhic-scholar brain project cited as a LIVE precedent of this exact eval machine in another domain. **Full research backing (corpus, labels, calibration set, judge refinements, persona seeds):** `.planning/research/2026-07-02-eureka-eval-real-user-corpus-and-synthesis.md` - backs SEED-049 + SEED-050.
 
 ## The gap SEED-050 closes (navigator, 2026-07-02)
