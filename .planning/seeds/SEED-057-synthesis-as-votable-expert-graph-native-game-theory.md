@@ -106,6 +106,81 @@ novelty is exactly why it is a SEED (deferred-but-load-bearing reasoning) and no
 same-session addition to Phase 222 -- doing it well needs Phase 222's combiner to exist
 and be observed working first, not theorized about in the same sitting it was scoped.
 
+## The decision rule: Weitzman's Pandora's Box, not a generic bandit (added 2026-07-14)
+
+Same-session research (WebSearch-verified, full citation list in this seed's
+Provenance section) sharpened the vague "vote to synthesize" framing into an actual,
+citable decision rule. The synthesis-trigger expert's real question -- pay a real cost
+(an eureka-engine run) to reveal a whitespace zone's unknown value, or take the best
+already-known candidate for free -- is NOT a generic multi-armed bandit (bandits assume
+a fixed, already-known set of arms to repeatedly pull; this is instead a one-shot
+reveal-then-keep-the-best decision over a set of zones that already carry a rough
+heuristic score). The correct classical match is **Weitzman's Pandora's Box problem**
+(Weitzman 1979, "Optimal Search for the Best Alternative," Econometrica 47(3), 641-654),
+specifically its **nonobligatory-inspection variant** (you may either pay to open a box,
+or take an unopened box's estimated value without inspecting it -- exactly "run eureka
+on this zone" vs. "just show the existing ranked candidate").
+
+Weitzman's classical result: each box gets a **reservation index** *z_i*, defined by
+*c_i = E[(v_i - z_i)+]* (the opening cost equals the expected upside above the
+reservation point). Open boxes in decreasing order of *z_i*; stop as soon as the best
+value already revealed beats every remaining unopened box's index. The nonobligatory-
+inspection variant (this seed's exact shape) is proven NP-hard in general, with only
+approximation schemes known (Fu, Li &amp; Xu, "Pandora Box Problem with Nonobligatory
+Inspection," arXiv:2207.09545) -- an honest finding, not a discouraging one: even the
+textbook-correct version of this exact problem has no clean closed form, so an
+engineering approximation is the expected path, not a shortcut being taken.
+
+This is not untested theory for this exact shape of problem: Belloni, Chen &amp; Wei,
+"Online Pandora's Box for Contextual LLM Cascading" (arXiv:2606.07392, 2026) maps LLM
+API calls onto Pandora's Box directly -- query cost = opening cost, generated-output
+value = prize -- and learns the reservation index online (GMM + UCB) rather than
+assuming the reward distribution is known upfront, since it never is in a real system.
+This is close to isomorphic to "should the eureka engine run for this zone," not a
+distant analogy. A second applied precedent, Xie et al. "Cost-aware Bayesian
+Optimization via the Pandora's Box Gittins Index" (arXiv:2406.20062, 2024), does the
+same translation for expensive function evaluations. No open-source, plug-and-play
+library computes this for a recommendation/content-generation system specifically --
+both are real translation work this seed would still have to do, not a solved,
+importable component.
+
+Concrete, implementable (approximate) decision rule for this seed, honest about which
+parts are unavoidable engineering approximation rather than the textbook-exact result:
+
+```
+for zone in candidate_zones:                          # per turn
+    mu_i    = zone.heuristic_score                     # proxy for E[value if explored]
+    sigma_i = zone.spread_estimate or DEFAULT_SIGMA     # from eureka-run history, or a default
+    c_i     = estimate_cost(zone)                       # LLM/embedding cost, value-scale-converted
+
+    p_i = clamp(mu_i / VALUE_CEILING, 0, 1)              # rough odds of a genuine find (Bernoulli case)
+    z_i = VALUE_CEILING - c_i / max(p_i, EPS)            # Weitzman reservation index
+    zone.index = z_i
+
+ranked = sort(candidate_zones, by=index, descending=True)
+best_known = value_of_best_existing_ranked_candidate      # what ships for free, no spend
+budget = EUREKA_CALLS_PER_TURN                            # hard cap, bolted on -- not in the classic theorem
+
+for zone in ranked:
+    if zone.index <= best_known: break    # stopping rule: nothing left beats what's in hand
+    if budget <= 0: break                 # compute/attention budget exhausted
+    run_eureka(zone)
+    budget -= 1
+    best_known = max(best_known, observed_value(zone))
+```
+
+Unavoidable approximations, named rather than hidden: (1) no true reward distribution
+per zone exists upfront, only the heuristic score -- a distribution SHAPE must be
+assumed (the Bernoulli form above, or a Normal form if a real spread estimate exists);
+(2) synthesis cost and candidate value are in different units and need an explicit
+value-per-cost conversion; (3) zones are not independent (they share graph/domain
+context) -- the exact correlated-boxes problem is also NP-hard (Chawla et al.,
+"Pandora's Box with Correlations," arXiv:1911.01632; tractable approximation in
+Gergatsouli et al., NeurIPS 2023), so this seed would approximate via dedup/clustering
+rather than solve the correlated case exactly; (4) this reapplies a one-shot theorem
+repeatedly, turn over turn, with a renewing budget -- a repeated-application heuristic,
+not the literal infinite-horizon result.
+
 ## Dependency risk: the eureka engine's default-case reliability (added 2026-07-14)
 
 Same-session risk check, prompted directly by the navigator, against two seeds that
@@ -211,3 +286,27 @@ technical grounding (file:line verification of `f-selector-ranker.cjs`,
 `insight-sensors.cjs`, `dial-reach-orchestrator.cjs`, `compute-whitespace-gaps.py`) and
 the zero-new-dependency deep-research verdict live in Phase 222's own research trail and
 SPEC.md, not duplicated here.
+
+**Pandora's Box research citations** (WebSearch-verified, 2026-07-14):
+Weitzman (1979), "Optimal Search for the Best Alternative," Econometrica 47(3) 641-654
+(https://www.econometricsociety.org/publications/econometrica/1979/05/01/optimal-search-best-alternative,
+PDF: https://scholar.harvard.edu/files/weitzman/files/optimalsearchbestalternative.pdf);
+plain-language explainer: https://www.bowaggoner.com/blog/2018/07-20-pandoras-box/;
+Gittins-index relationship survey: https://arxiv.org/html/2506.10872;
+nonobligatory-inspection hardness: Fu, Li &amp; Xu, arXiv:2207.09545
+(https://arxiv.org/pdf/2207.09545); order-constrained variant: arXiv:2002.06968
+(https://arxiv.org/pdf/2002.06968); correlated boxes: Chawla et al., arXiv:1911.01632
+(https://arxiv.org/pdf/1911.01632), tractable approximation in Gergatsouli et al.,
+NeurIPS 2023 (https://proceedings.neurips.cc/paper_files/paper/2023/file/29d319f7c1513c9ecd81d3a6e9632a6e-Paper-Conference.pdf);
+applied precedent (near-isomorphic to this seed's use case): Belloni, Chen &amp; Wei,
+"Online Pandora's Box for Contextual LLM Cascading," arXiv:2606.07392
+(https://arxiv.org/abs/2606.07392); Xie et al., "Cost-aware Bayesian Optimization via
+the Pandora's Box Gittins Index," arXiv:2406.20062 (https://arxiv.org/pdf/2406.20062);
+survey of variants: SIGecom Exchanges (https://www.sigecom.org/exchanges/volume_21/1/BEYHAGHI.pdf);
+alternatives evaluated and rejected: infinite-armed bandits (arXiv:1803.04665,
+arXiv:1811.06149 -- repeated-pull regret-minimization shape, wrong fit for a one-shot
+reveal-then-keep decision), the secretary problem (https://en.wikipedia.org/wiki/Secretary_problem
+-- assumes blind sequential presentation with no recall, wrong fit given full up-front
+visibility of all zones); value-of-information framing confirmed as the correct umbrella
+theory, with Weitzman's index as VoI's tractable special case for this exact
+reveal-then-keep-the-max structure (https://link.springer.com/article/10.1007/s40273-014-0219-x).
