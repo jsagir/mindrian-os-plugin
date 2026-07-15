@@ -455,14 +455,60 @@ function renderReport(ctx) {
   L.push('| Run date | ' + p.run_date + ' |');
   L.push('');
 
-  if (p.encoder_unavailable) {
-    L.push('## Encoder unavailable');
+  if (p.encoder_unavailable || p.degrade_cause) {
+    L.push('## Degraded run (cause named)');
     L.push('');
-    L.push('The embedding spine returned `encoder_unavailable` (the transformers dependency is');
-    L.push('not installed, or the model could not load). No semantic scores were produced, so the');
-    L.push('ranked list and tail below are empty. This is a graceful degradation, not a pipeline');
-    L.push('failure. Install the deps and re-run without `--offline` for the live report.');
+    // D7 (the David proving case): name the CAUSE, never the bare "not enough
+    // entries" symptom. Misdescribing WHY it degraded sends the navigator to fix
+    // the wrong thing (add content) when the real blocker is infrastructural.
+    if (p.degrade_cause === 'encoder_unavailable') {
+      L.push('Cause: `encoder_unavailable`. The embedding model is not installed or cached, so no');
+      L.push('semantic scores were produced. This is INFRASTRUCTURAL, not a content gap: adding more');
+      L.push('entries will NOT help. Fetch the model (re-run without `--offline` once the deps load),');
+      L.push('or run reasoning mode for an honest encoder-free short list.');
+    } else if (p.degrade_cause === 'below_floor') {
+      L.push('Cause: `below_floor`. The encoder ran, but the room scored zero pairs after a genuine');
+      L.push('attempt (the substrate is too thin for the embedded floor). Add cross-domain entries, or');
+      L.push('run reasoning mode for an honest encoder-free short list.');
+    } else {
+      L.push('The embedding spine returned `encoder_unavailable` (the transformers dependency is not');
+      L.push('installed, or the model could not load). No semantic scores were produced, so the ranked');
+      L.push('list and tail below are empty. This is a graceful degradation, not a pipeline failure.');
+    }
     L.push('');
+    if (p.reasoning && typeof p.reasoning === 'object') {
+      L.push('Reasoning-mode next step: candidate pairs were seeded to `' + p.reasoning.workdir
+        + '` (state: ' + p.reasoning.state + ', ' + p.reasoning.pairs_selected + ' pairs). '
+        + p.reasoning.next_step + '.');
+      L.push('');
+    }
+  }
+
+  // SEED req 5 / D6: the reasoning -> embedded upgrade delta, in its OWN section,
+  // NEVER merged into the ranked table. Present only when this embedded run
+  // followed a prior reasoning-mode run over the same room.
+  if (p.upgrade && typeof p.upgrade === 'object') {
+    L.push('## Reasoning to embedded upgrade');
+    L.push('');
+    L.push('This room was previously scored in REASONING mode (' + p.upgrade.previous_run_date + '). This');
+    L.push('embedded run does NOT silently replace that result. Delta: ' + p.upgrade.survived + ' of the prior');
+    L.push('top pairs survived into the new embedded ranked list, ' + p.upgrade.demoted_or_absent + ' demoted or absent.');
+    L.push('');
+    const newSet = new Set();
+    for (let i = 0; i < ctx.ranked.length; i += 1) {
+      newSet.add(ctx.ranked[i].idA + '|' + ctx.ranked[i].idB);
+      newSet.add(ctx.ranked[i].idB + '|' + ctx.ranked[i].idA);
+    }
+    const prevTop = Array.isArray(p.upgrade.previous_top) ? p.upgrade.previous_top : [];
+    if (prevTop.length > 0) {
+      L.push('| prior pair (A x B) | in new embedded ranked |');
+      L.push('| ------------------ | ---------------------- |');
+      for (let i = 0; i < prevTop.length; i += 1) {
+        const pt = prevTop[i];
+        L.push('| ' + pt.a + ' x ' + pt.b + ' | ' + (newSet.has(pt.a + '|' + pt.b) ? 'yes' : 'no (demoted/absent)') + ' |');
+      }
+      L.push('');
+    }
   }
 
   // -- Ranked top N (score is a sort key; the tail is NOT) --
@@ -594,6 +640,9 @@ function renderReport(ctx) {
       L.push('');
       L.push(s.statement.text);
       L.push('');
+      // SEED req 1: the mode label is render-visible on BOTH paths (embedded here,
+      // reasoning in renderReasoningReport).
+      L.push('- Mode: embedded');
       L.push('- State: ' + state);
       L.push('- Potential: ' + s.statement.fields.potential_tier);
       L.push('- Next steps (deep analysis is RECOMMENDED, never auto-triggered): ' + s.statement.fields.next_steps);
@@ -1245,6 +1294,9 @@ async function main(argv) {
           critic: s.statement.critic,
           weak_dimensions: s.statement.weak_dimensions,
           potential_tier: s.statement.fields.potential_tier,
+          // SEED req 1: every statement carries its mode; embedded here, 'reasoning'
+          // on the fallback writer. The JSON leg of the mandatory-label contract.
+          mode: 'embedded',
         };
       }),
     };
