@@ -2564,6 +2564,79 @@ function reportRegistrationBug(flags) {
   }
 }
 
+// Phase 225-02 (REQ-4, PD-2, Pitfall 2): compare two dotted numeric version
+// strings by NUMERIC segments (not lexicographically -- '3.51.10' must NOT sort
+// before '3.51.3'). Returns true when a < b. Zero new dependencies (CLAUDE.md:
+// CJS only, node built-ins only; this deliberately does NOT reuse the `semver`
+// import above because the SQLite version literal is a plain numeric triple and
+// a hand-rolled segment compare has no prerelease/caret semantics to get wrong).
+// Any non-string / unparseable input returns false, so a garbage version can
+// never fire the advisory.
+function _sqliteVersionLt(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const pa = a.split('.');
+  const pb = b.split('.');
+  const n = Math.max(pa.length, pb.length);
+  for (let i = 0; i < n; i++) {
+    const na = parseInt(pa[i], 10);
+    const nb = parseInt(pb[i], 10);
+    const va = Number.isFinite(na) ? na : 0;
+    const vb = Number.isFinite(nb) ? nb : 0;
+    if (va < vb) return true;
+    if (va > vb) return false;
+  }
+  return false;
+}
+
+// Phase 225-02 (REQ-4, PD-2): the WAL-reset corruption advisory. Fires ONLY when
+// the bundled SQLite is inside the upstream WAL-reset corruption window
+// (< 3.51.3, fixed upstream in commit 298a1c84) AND a live co-session is present
+// in this room (the 2-connection precondition the race needs). This is
+// detect-only by design: the two Phase-218 SQLite issues split as (a) SQLITE_BUSY
+// contention -- already FIXED by 218 D-05 (busy_timeout + synchronous=NORMAL) --
+// and (b) the WAL-reset checkpoint race, which is UPSTREAM and code-unfixable here
+// because Node bundles SQLite (Pitfall 2). PD-2: no extraction-worker guard ships
+// this phase (the drain worker files are Phase 224's in-flight surface); the
+// honest move is a cheap doctor advisory, never a block.
+//
+// opts { roomDir, sessionId, home, sqliteVersion, hasCoSession } -- sqliteVersion
+// and hasCoSession are INJECTABLE test seams. Production defaults resolve inside
+// the single try/catch: sqliteVersion via an in-memory node:sqlite probe (zero
+// user bytes), hasCoSession via a lazy require of session-presence.cjs called
+// with { roomDir, sessionId } so the CURRENT binding session excludes itself as
+// its own co-session. Returns a WARN finding string on fire; returns null on
+// no-fire OR on ANY fault (probe throws, node:sqlite absent, presence read
+// fails). The whole body is one try/catch returning null in catch -- the advisory
+// can never crash or block a bind (never-block, T-194-19).
+function _walResetAdvisory(opts) {
+  try {
+    opts = opts || {};
+    let version = opts.sqliteVersion;
+    if (typeof version !== 'string') {
+      const { DatabaseSync } = require('node:sqlite');
+      version = new DatabaseSync(':memory:').prepare('select sqlite_version() as v').get().v;
+    }
+    if (!_sqliteVersionLt(version, '3.51.3')) return null;
+
+    let hasCo = opts.hasCoSession;
+    let coPresent;
+    if (typeof hasCo === 'function') {
+      coPresent = hasCo({ roomDir: opts.roomDir, sessionId: opts.sessionId, home: opts.home });
+    } else {
+      const presence = require(path.join(__dirname, '..', 'lib', 'core', 'session-presence.cjs'));
+      coPresent = presence.hasCoSession({ roomDir: opts.roomDir, sessionId: opts.sessionId, home: opts.home });
+    }
+    if (!coPresent) return null;
+
+    return 'WARN: bundled SQLite ' + version + ' is inside the WAL-reset corruption ' +
+      'window (fixed in 3.51.3) and a live co-session is present in this room; ' +
+      'concurrent checkpoints can corrupt room.db (Phase 218 finding, commit 298a1c84)';
+  } catch (_) {
+    // Never-block, never-crash: any fault degrades to no-finding.
+    return null;
+  }
+}
+
 function main() {
   const flags = parseArgs(process.argv.slice(2));
 
@@ -2597,6 +2670,20 @@ function main() {
       const roomHealthCache = require(path.join(__dirname, '..', 'lib', 'statusline', 'room-health-cache.cjs'));
       roomHealthCache.persistRoomHealth(roomHealthCache.statusFromBindReport(report));
     } catch (_healthErr) { /* graceful: reader keeps returning the byte-stable default */ }
+    // Phase 225-02 (REQ-4, PD-2): WAL-reset corruption advisory. Runs AFTER the
+    // room-health-cache persist so the statusline glyph maps the UNMODIFIED
+    // report. This is a findings-row WATCH item only: it NEVER touches
+    // report.healthy (the WAL window is an environment condition the user cannot
+    // repair locally, so flipping healthy would wrongly degrade the room-health
+    // glyph) and NEVER changes the exit code (the block still ends in the
+    // unconditional process.exit(0) below -- never-block, T-194-19).
+    try {
+      const walFinding = _walResetAdvisory({ roomDir: roomDir, sessionId: sessionId, home: home });
+      if (typeof walFinding === 'string' && walFinding.length > 0) {
+        if (!Array.isArray(report.findings)) report.findings = [];
+        report.findings.push(walFinding);
+      }
+    } catch (_walErr) { /* never-block: the advisory can never affect the bind */ }
     if (flags.json) {
       console.log(JSON.stringify(report));
     } else {
@@ -3704,7 +3791,10 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
 // tests/test-doctor-fix-renderer.cjs can drive them as hermetic unit sub-tests
 // (warn-row visibility, Summary parity, recovered-line rendering) without
 // spawning a subprocess. The require.main guard below still prevents main().
-module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary };
+// Phase 225-02 (REQ-4): additive export of the WAL-reset advisory helpers for
+// hermetic unit testing via injected seams (tests/test-225-wal-advisory.cjs).
+// Additive-only append -- existing keys are never reordered.
+module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt };
 
 if (require.main === module) {
   main();
