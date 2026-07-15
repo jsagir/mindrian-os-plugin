@@ -32,6 +32,18 @@ const os = require('node:os');
 const crypto = require('node:crypto');
 
 const BUDGET_MS = 200;
+
+// Phase 225-01 (PD-3, anti-overfire): the zero-score no-match gate fires only on a
+// SUBSTANTIVE message. Short zero-score turns ("thanks", "do it") are common, and
+// gating each would repeat the Phase-210 over-enforcement mistake that phase reverted.
+// Default floor 8 surviving tokens, env-overridable via
+// MINDRIAN_ZERO_SCORE_GATE_MIN_TOKENS (parseInt; a NaN or < 1 override falls back to 8).
+const ZERO_SCORE_GATE_MIN_TOKENS = (function () {
+  const n = parseInt(process.env.MINDRIAN_ZERO_SCORE_GATE_MIN_TOKENS, 10);
+  if (Number.isNaN(n) || n < 1) return 8;
+  return n;
+})();
+
 const STOP_WORDS = new Set([
   'a', 'an', 'the', 'of', 'to', 'in', 'on', 'at',
   'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been',
@@ -506,7 +518,49 @@ function main() {
     }
   }
 
-  if (!best || best.score === 0) return 0;
+  // ----- Phase 225-01 (SEED-039 proving_case_2): the zero-score no-match gate -----
+  //
+  // best.score === 0 means NO room fingerprint matched this message. The pre-225
+  // blanket `return 0` here silently suppressed the Phase-194 F.8 gate on a
+  // conversational reframe (the Gaurav student-reframe incident, 2026-07-14), so the
+  // write landed unchallenged in the old bound primary (threat T-225-01). When the
+  // session HAS a bound primary AND the message is substantive, fire a distinct
+  // "no room matched" gate offering continue-in-primary / new-project / no-room
+  // (REQ-1). On a zero score best.name is corpus[0] (semantically meaningless,
+  // Pitfall 1), so the gate NEVER reuses it (REQ-2). Every path terminates in
+  // `return 0`; the whole branch is wrapped fail-open (REQ-3, Canon 83-07).
+  if (!best || best.score === 0) {
+    try {
+      // PD-3 substantiality floor: short zero-score messages are common; gating each
+      // would repeat the Phase-210 over-enforcement mistake.
+      if (messageTokens.length >= ZERO_SCORE_GATE_MIN_TOKENS) {
+        const roomDir = resolveActiveRoomDir();
+        const sessionId = resolveSessionId(roomDir);
+        const binding = require(
+          path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs')
+        ).readSessionBinding(sessionId, { home: root });
+        // Fire only for a session with a real bound primary. An unbound session
+        // (primary null), or one that explicitly chose dev-repo/no-room
+        // (primary === __no_room__, where every substantive dev-repo message scores
+        // 0), must never be nagged (REQ-3/REQ-6 no-regression). PD-1: this
+        // deliberately does NOT check binding.sticky -- a total-miss is a
+        // strong-enough new-project signal to prompt ONCE even under sticky.
+        if (binding && typeof binding.primary === 'string' && binding.primary.length > 0
+            && binding.primary !== NO_ROOM_SLUG
+            && !zeroScoreGateAlreadyOffered(roomDir, sessionId)) {
+          if (emitNoMatchGate({ primary: binding.primary, roomDir: roomDir, sessionId: sessionId })) {
+            return 0; // gate rendered
+          }
+          // emitNoMatchGate returned false (renderer unavailable) -> legacy silence.
+        }
+      }
+    } catch (_e) {
+      // fail-open: any fault falls through to the identical legacy silence (83-07).
+    }
+    // Unbound session, short message, no-room primary, already-offered, or any fault:
+    // ALL take the identical legacy silence (byte-for-byte the pre-225 return 0).
+    return 0;
+  }
 
   // ----- Phase 194-04 (PSB-04): graduate the tripwire to the F.8 binding gate -----
   //
@@ -2225,6 +2279,168 @@ function emitBindingGate(args) {
           options: options.map(function (o) { return o.label; }),
           labelToSlug: labelToSlug,
           preChecked: preCheckLabel,
+        },
+      });
+    }
+  } catch (_e) { /* fire-and-forget: persistence is best-effort */ }
+
+  const envelope = {
+    hookSpecificOutput: {
+      hookEventName: 'UserPromptSubmit',
+      additionalContext: additionalContext,
+    },
+    systemMessage: systemMessage,
+  };
+  try {
+    process.stdout.write(JSON.stringify(envelope) + '\n');
+  } catch (_e) {
+    // Last-resort fallback: raw text (never throws back into the hook).
+    try { process.stdout.write(additionalContext + '\n'); } catch (_) {}
+  }
+  return true;
+}
+
+// Phase 225-01 (PD-1, once-per-session-per-room suppression): scan the decision-trace
+// file for a prior 'zero_score_gate' entry. A missing / corrupt trace file means "not
+// offered" (fail-open to false), so the gate is NEVER suppressed by a read fault. The
+// whole body is in try/catch returning false, mirroring the never-block contract.
+function zeroScoreGateAlreadyOffered(roomDir, sessionId) {
+  try {
+    if (!roomDir || !sessionId) return false;
+    const filePath = path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.json');
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.traces)) {
+      for (let i = parsed.traces.length - 1; i >= 0; i--) {
+        const e = parsed.traces[i];
+        if (e && typeof e === 'object' && e.kind === 'zero_score_gate') return true;
+      }
+    }
+    return false;
+  } catch (_e) {
+    return false;
+  }
+}
+
+// Phase 225-01 (SEED-039 proving_case_2): the "no room matched" F.8 Decision Gate.
+// Distinct from emitBindingGate: on a zero score best.name is corpus[0] (semantically
+// meaningless, Pitfall 1 / REQ-2), so this gate NEVER presents a scored room. Its three
+// options are: continue in the session primary (pre-checked default at 0.71, PD-1),
+// start a new project (-> the __no_room__ sentinel), and dev repo / no room (-> the same
+// sentinel). Composition clones emitBindingGate step-for-step (renderer, trailer,
+// side-channel, trace, envelope). Fails open: any renderer / compose fault returns false
+// and the caller falls to the legacy return 0 silence (REQ-3, the 83-07 never-block
+// contract). additionalContext carries room SLUGS only, never message content (Part 8).
+function emitNoMatchGate(args) {
+  const a = (args && typeof args === 'object') ? args : {};
+  const primary = a.primary;
+  const roomDir = a.roomDir;
+  const sessionId = a.sessionId;
+  if (typeof primary !== 'string' || primary.length === 0) return false;
+
+  // Compose the shipped F.8 renderer (lazy require; a load fault degrades to silence).
+  let renderer = null;
+  try {
+    renderer = require(path.join(__dirname, '..', 'lib', 'hmi', 'shape-f8-renderer.cjs'));
+  } catch (_e) {
+    return false;
+  }
+  if (!renderer || typeof renderer.renderShapeF8 !== 'function') return false;
+
+  // Exactly three options, NEVER a scored room (REQ-2). 'continue in <primary>' is the
+  // pre-checked default at 0.71 (PD-1: primary-as-default, the frozen 0.70 + epsilon).
+  // Both 'start a new project' and the no-room label map to the reserved __no_room__
+  // sentinel: picking either unbinds the write from the old primary (PD-5).
+  const continueLabel = 'continue in ' + primary;
+  const newProjectLabel = 'start a new project';
+  const labelToSlug = {};
+  labelToSlug[continueLabel] = primary;
+  labelToSlug[newProjectLabel] = NO_ROOM_SLUG;
+  labelToSlug[NO_ROOM_LABEL] = NO_ROOM_SLUG;
+  const options = [
+    { label: continueLabel, confidence: 0.71 },
+    { label: newProjectLabel, confidence: 0.10 },
+    { label: NO_ROOM_LABEL, confidence: 0.10 },
+  ];
+
+  let rendered = null;
+  try {
+    rendered = renderer.renderShapeF8({
+      options: options,
+      header: '-- mindrianOS -- no room matched -- new project? --',
+    });
+  } catch (_e) {
+    return false;
+  }
+  if (!rendered || !rendered.zones) return false;
+  const zones = rendered.zones;
+
+  // Capture the F.8 footer BEFORE the trailer folds the marker into zones.footer, so the
+  // trailer is appended to additionalContext exactly once (clone of emitBindingGate).
+  const footerBase = (typeof zones.footer === 'string' && zones.footer.length > 0)
+    ? zones.footer : '';
+  try {
+    const dispatcher = require(path.join(__dirname, '..', 'lib', 'hmi', 'selector-dispatcher.cjs'));
+    dispatcher.appendAskUserQuestionTrailer(rendered, 'F.8');
+  } catch (_e) { /* trailer fault: degrade to the untrailed gate, never block */ }
+
+  // Card-fire side-channel: sessionId is a direct arg. A writer fault never affects the
+  // rendered gate (its own try/catch).
+  try {
+    const sidechannel = require(
+      path.join(__dirname, '..', 'lib', 'core', 'card-fire-sidechannel.cjs')
+    );
+    sidechannel.recordReachedGate({
+      sessionId: sessionId,
+      surface: 'scripts/intent-classifier.cjs',
+      shape: 'F.8',
+      subjectText: [zones.header, zones.body].filter(function (s) {
+        return typeof s === 'string' && s.length > 0;
+      }).join(' '),
+    });
+  } catch (_e) {
+    /* never let a side-channel fault affect the rendered gate */
+  }
+
+  const bodyLines = [];
+  if (zones.header) bodyLines.push(zones.header);
+  if (zones.body) bodyLines.push(zones.body);
+  if (zones.signals) bodyLines.push(zones.signals);
+  if (footerBase) bodyLines.push(footerBase);
+  // additionalContext carries room SLUGS only, never the user's message content (Part 8).
+  const guidance =
+    'No existing room matched this message. The session primary is ' + primary + '. ' +
+    'Ask the user whether this is a new project: fire the AskUserQuestion card with ' +
+    'these three options as a single-select ("' + continueLabel + '", "' + newProjectLabel +
+    '", or "' + NO_ROOM_LABEL + '"); never reproduce this block as text (SEED-021). If the ' +
+    'user confirms a new project, offer /mos:new-project; NEVER auto-create a room (Part 7 ' +
+    'reuse before build). Selecting "' + newProjectLabel + '" or "' + NO_ROOM_LABEL + '" ' +
+    'unbinds this write from ' + primary + '. Confirm the choice with the user before ' +
+    'writing any room artifact.';
+
+  const trailerLines = [];
+  const bindMarker = rendered.askuserquestion_marker;
+  const bindBinding = rendered.askuserquestion_binding;
+  if (typeof bindMarker === 'string' && bindMarker.length > 0) trailerLines.push(bindMarker);
+  if (typeof bindBinding === 'string' && bindBinding.length > 0) trailerLines.push(bindBinding);
+  const additionalContext = bodyLines.join('\n') + '\n\n' + guidance
+    + (trailerLines.length > 0 ? '\n\n' + trailerLines.join('\n') : '');
+
+  const systemMessage = 'no room matched: is this a new project, or continue in ' + primary + '?';
+
+  // Persist the gate payload under the SAME binding_gate_payload key the shipped
+  // consumePriorBindingAnswer scans for (it keys on e.binding_gate_payload, NOT e.kind),
+  // with kind 'zero_score_gate' for trace disambiguation + PD-1 once-per-session
+  // suppression. The consumer is reused with ZERO changes (PD-5).
+  try {
+    if (roomDir && sessionId) {
+      persistDecisionTrace(roomDir, sessionId, {
+        ts: new Date().toISOString(),
+        kind: 'zero_score_gate',
+        binding_gate_payload: {
+          options: options.map(function (o) { return o.label; }),
+          labelToSlug: labelToSlug,
+          preChecked: continueLabel,
         },
       });
     }
