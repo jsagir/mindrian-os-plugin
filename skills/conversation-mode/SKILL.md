@@ -51,6 +51,27 @@ Larry surfaces a Shape F.1 selector -- the SEED-020 host-native AskUserQuestion 
 - **Brainstorming** (-> Mode 2 Explore+Capture): a thinking partner that detects patterns and banks them to the scratchpad.
 - **Building something** (-> Mode 3 Build a Room): set up a Data Room from what we have.
 
+To actually present this card (not merely describe it), call `pickShape('F.1', ...)` -- the shared JS renderer, per the same convention `commands/ignite.md:178` uses for its own F.1 gates -- so the rendered header/body text carries the lane-picker question and trips the mode-select producer wiring in `selector-dispatcher.cjs` (the `card-fired` recorder is scoped to this exact header text):
+
+```bash
+node -e "
+const { pickShape } = require('<plugin_root>/lib/hmi/selector-dispatcher.cjs');
+const result = pickShape({
+  requestedShape: 'F.1',
+  roomDir: null,
+  operator: null,
+  payload: {
+    header: 'Are we just chatting, brainstorming, or building something?',
+    verbs: ['Just chatting', 'Brainstorming', 'Building something'],
+    emitTelemetry: true,
+  },
+});
+console.log(JSON.stringify(result.rendered.zones, null, 2));
+"
+```
+
+Larry renders the returned `zones` (header + body) as the AskUserQuestion card (SEED-020 host-native primitive); the `pickShape` call itself is what records the card fire, no separate step needed.
+
 The navigator picks the lane. The pick is a Decision Gate (Canon Part 3, GUIDED default) -- never a silent classification. Persona Detection (see below) still runs WITHIN the chosen lane to shape Larry's questions; it shapes HOW Larry asks, not WHICH lane the session is in.
 
 This re-uses the existing surfaces, it does not replace them. The implicit "offer to upgrade" line in Mode 1 ("Say '2' to switch to Explore+Capture mode.") and the "I am ready to build" transition in Mode 2 are the SAME lane-picker re-surfaced -- a re-pick, not a silent switch. /mos:ignite's Gate B0 "Just talk (no room)" pick is one more re-surface of this SAME Lane Picker (not a new lane, not a new selector): when a navigator with prior rooms picks Just Talk at the ignite room-chooser, ignite hands off here rather than birthing a room. Rules of re-surfacing:
@@ -100,8 +121,8 @@ Part 8 floor: the build-crossing Brain offer carries generic framework handles o
 
 ## Mode 3: Build a Room
 
-- Immediately say: "Let us set up your Data Room." and invoke /mos:ignite --express, carrying the already-established conversational context (persona, problem, venture) forward as the blueprint seed. This is ignite's Entry Routing Directive/Imperative path (commands/ignite.md's "## Entry Routing" section). Because conversation-mode's own Mode 2-to-Mode-3 transition already establishes the navigator's persona and intent, this Directive path has a determinable role/venture and therefore bypasses Gate B1 entirely per that gate's own documented rule (commands/ignite.md Gate B1: "Directive paths with a determinable role/venture ... bypass B1"), proceeding straight to Gate B2 (Blueprint), the actual room-creation step.
-- No exploratory conversation needed.
+- If this Mode 3 was reached via the Mode 2-to-Mode-3 upgrade transition (persona, problem, and venture were established through conversation), immediately say: "Let us set up your Data Room." and invoke /mos:ignite --express, carrying that established context forward as the blueprint seed. This is ignite's Entry Routing Directive/Imperative path (commands/ignite.md's "## Entry Routing" section). Because the transition already established the navigator's persona and intent, this Directive path has a determinable role/venture and therefore bypasses Gate B1 entirely per that gate's own documented rule (commands/ignite.md Gate B1: "Directive paths with a determinable role/venture ... bypass B1"), proceeding straight to Gate B2 (Blueprint), the actual room-creation step.
+- If "Building something" was picked directly at the Lane Picker with no prior conversation (no exploratory conversation needed to reach this pick), there is no established role/venture yet -- do NOT claim a bypass that has no basis. Immediately say: "Let us set up your Data Room." and invoke /mos:ignite normally (no --express), letting Gate B1's own four-door card run -- the honest behavior for a cold start.
 
 ## Persona Detection
 

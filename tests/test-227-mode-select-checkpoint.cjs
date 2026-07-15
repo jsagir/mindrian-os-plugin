@@ -153,4 +153,81 @@ ok('bonus: recordLanePick is a silent no-op on a missing/empty lane; sidechannel
   }
 });
 
+// ---------------------------------------------------------------------------
+// (f) Plan 227-04 producer wiring regression (CR-02 fix): driving
+// pickShape('F.1', ...) with the actual lane-picker header/verbs text (the
+// SKILL.md-documented invocation instruction, skills/conversation-mode/
+// SKILL.md's Lane Picker section) must trip selector-dispatcher.cjs's
+// subject-text scoping check and land a 'card-fired' record in
+// mode-select-sidechannel.cjs's store. The producer call site has no
+// sessionId in scope, so the record lands in the NO_SESSION_KEY bucket;
+// redirect the sidechannel's default file resolution to a scratch path via
+// MODE_SELECT_SIDECHANNEL_PATH (the sidechannel's own documented test seam)
+// since the producer call site never threads an explicit filePath.
+// ---------------------------------------------------------------------------
+ok('(f) pickShape(F.1, lane-picker text) records a card-fired lane pick (CR-02 producer wiring)', function () {
+  const filePath = scratchFilePath();
+  const prevEnv = process.env.MODE_SELECT_SIDECHANNEL_PATH;
+  process.env.MODE_SELECT_SIDECHANNEL_PATH = filePath;
+  try {
+    const dispatcher = require(path.join(REPO, 'lib', 'hmi', 'selector-dispatcher.cjs'));
+    const result = dispatcher.pickShape({
+      requestedShape: 'F.1',
+      roomDir: null,
+      operator: null,
+      tier: 1,
+      payload: {
+        header: 'Are we just chatting, brainstorming, or building something?',
+        verbs: ['Just chatting', 'Brainstorming', 'Building something'],
+        emitTelemetry: true,
+      },
+    });
+    assert.equal(result.shape, 'F.1');
+
+    const records = sidechannel.readLanePick(null, { filePath: filePath });
+    assert.ok(
+      records.some((r) => r.lane === 'card-fired'),
+      'a card-fired record must be written when the F.1 card fires with the lane-picker text'
+    );
+  } finally {
+    if (typeof prevEnv === 'string') {
+      process.env.MODE_SELECT_SIDECHANNEL_PATH = prevEnv;
+    } else {
+      delete process.env.MODE_SELECT_SIDECHANNEL_PATH;
+    }
+  }
+});
+
+// ---------------------------------------------------------------------------
+// (g) WR-01 fix regression: has_user_turn's default must derive from the
+// already-resolved sessionId (c.session_id first, envSessionId fallback),
+// not from the raw envSessionId alone. An explicit ctx.session_id with no
+// ctx.has_user_turn and CLAUDE_SESSION_ID unset must still default
+// has_user_turn to true (a session id was explicitly given) and therefore
+// warn on a silent skip, not silently short-circuit to ok.
+// ---------------------------------------------------------------------------
+ok('(g) explicit session_id without has_user_turn defaults has_user_turn from the resolved sessionId, not raw env', function () {
+  const filePath = scratchFilePath();
+  const prevEnv = process.env.CLAUDE_SESSION_ID;
+  delete process.env.CLAUDE_SESSION_ID;
+  try {
+    const result = checkpointModule.check({
+      session_id: 'explicit-session-no-has-user-turn',
+      filePath: filePath,
+    });
+    assert.equal(
+      result.status,
+      'warn',
+      'an explicit session_id with no recorded lane pick must warn on a silent skip, not default to ok'
+    );
+    assert.ok(result.detail.indexOf('silent skip') !== -1, 'detail must mention a silent skip');
+  } finally {
+    if (typeof prevEnv === 'string') {
+      process.env.CLAUDE_SESSION_ID = prevEnv;
+    } else {
+      delete process.env.CLAUDE_SESSION_ID;
+    }
+  }
+});
+
 console.log('\nPASS test-227-mode-select-checkpoint (' + n + ' assertions)');
