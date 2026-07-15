@@ -623,7 +623,14 @@ async function main(argv) {
 }
 
 if (require.main === module) {
-  main(process.argv.slice(2)).then(function (code) { process.exit(code); });
+  main(process.argv.slice(2)).then(function (code) { process.exit(code); }, function (err) {
+    // WR-01 fix: cmdReasoningScore awaits RUNNER.main(argv) with no surrounding
+    // try/catch, so an uncaught throw from the runner (e.g. reasoning-score run
+    // before reasoning-emit) previously surfaced as an unhandled promise
+    // rejection / stack trace instead of the standard 3-line error.
+    printError('eureka command failed', String(err && err.message ? err.message : err), 'inspect the room status file, then re-run the last /mos:eureka subcommand');
+    process.exit(1);
+  });
 }
 
 module.exports = { main: main };

@@ -1674,6 +1674,11 @@ async function reasoningStageScore(opts) {
   const missing = rows.filter(function (r) { return r.judge_answer_missing === true; });
   if (missing.length > 0 && manifest.retry_used !== true) {
     manifest.retry_used = true;
+    // WR-01 fix: if --reasoning-score is run before --reasoning-emit ever created
+    // <workdir>/prompts/, manifestPath's parent directory does not exist yet and
+    // this write would throw a synchronous ENOENT with no surrounding try/catch
+    // (see the top-level .catch() added below as the second half of this fix).
+    fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
     process.stderr.write('eureka-portfolio-report --reasoning-score: missing/garbled answers for pair id(s): '
       + missing.map(function (r) { return r.id; }).join(', ') + '\n');
@@ -1845,7 +1850,15 @@ function buildUpgradeDelta(jsonPath, provenance, rankedRows) {
 }
 
 if (require.main === module) {
-  main(process.argv.slice(2)).then(function (code) { process.exit(code); });
+  main(process.argv.slice(2)).then(function (code) { process.exit(code); }, function (err) {
+    // WR-01 fix: the --reasoning-emit/--reasoning-score stage dispatch (line ~806)
+    // returns BEFORE main()'s own try/catch, so a throw on either path (e.g. an
+    // ENOENT from a missing workdir) was previously an unhandled promise rejection
+    // / hard crash. Degrade to the same clean-exit-code pattern main()'s own catch
+    // uses, instead of a stack trace.
+    process.stderr.write('eureka-portfolio-report FAILED: ' + String(err && err.message ? err.message : err) + '\n');
+    process.exit(1);
+  });
 }
 
 module.exports = {
