@@ -4,14 +4,14 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Completed 222-03-PLAN.md
-last_updated: "2026-07-15T05:05:18.078Z"
+last_updated: "2026-07-15T05:13:51.519Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 31
-  completed_phases: 17
+  completed_phases: 18
   total_plans: 102
-  completed_plans: 98
-  percent: 55
+  completed_plans: 99
+  percent: 58
 ---
 
 # Project State
@@ -1496,6 +1496,7 @@ Progress: [█████████░] 92%
 | Phase 222 P01 | 4min | 3 tasks | 7 files |
 | Phase 222 P02 | ~7 min | 2 tasks | 4 files |
 | Phase 222 P03 | ~20 min | 3 tasks | 3 files |
+| Phase 222 P04 | ~20 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -2475,6 +2476,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 222-01: weight state persists in a REAL room.db ranker_weights table (D-02), reached only via navigation typed accessors (Part 9 chokepoint)
 - [Phase ?]: 222-02: one shared rankFiredCandidates module owns scored selection (D-01); no second selection brain
 - [Phase ?]: 222-02: Hedge weight updates debounced at N=50 env-tunable (D-03); OQ-2 resolved COMPOSE
+- [Phase ?]: Phase 222 closed: run-all-222.sh is the D-04 one-command phase gate (PASS=10 FAIL=0 SKIP=0); Req 4 double-locked via zero-deps require-allowlist + package-diff leg; Part 8/9 constraints are standing tripwires
 
 ### Pending Todos
 
@@ -2544,7 +2546,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-15T05:05:18.029Z
+Last session: 2026-07-15T05:13:16.495Z
 Stopped at: Completed 222-03-PLAN.md
 
 **Phase 198 Plan 10 (this session, tasks 1-2 of 3):** the phase-close plan, tasks 1-2 executed autonomously; Task 3 is a blocking human-verify checkpoint the navigator must complete. Task 1 (c00fbd2f): scripts/198-rollback-rehearsal.cjs -- rehearses the full SPEC-7 reversal (last-known-good anchor on the pre-phase baseline d2315e30, expand-only room.db assertion, snapshot + restore through the shipped migration-snapshot ledger, flag-off byte-identical legacy parity re-run), prints ROLLBACK_REHEARSAL_OK. Task 2 (25b08678): tests/capture-198-parity-leg.cjs (six-step governed transcript in process against the real MCP tool spine -> normalized host-invariant node/edge + gate-sequence artifact) + tests/diff-198-parity.cjs (empty-diff == parity) + tests/parity-198.sh (CLI leg filled, diffs both legs when present) + evals/plurai/198-baseline.json (measured invocation-parity verdict replacing the baseline_deferred seed) + scripts/198-plurai-gate-check.cjs (reconstruct-the-fixture membership assertion, 189 pattern). All automated gates green (parity CLI leg, PLURAI_GATE_OK, connector/projection/render --check, doctor --acceptance, run-all-198 11/11). Task 3 (BLOCKED): the navigator runs the identical transcript on VS Code v1.102+ / MCP Inspector over 127.0.0.1 and confirms an empty two-host node/edge diff + identical gate sequence. No 198-10-SUMMARY.md and no phase close until then. See the Blockers/Concerns checkpoint entry above.
