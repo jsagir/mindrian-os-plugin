@@ -13,7 +13,7 @@
  * pause/stop), aggregates the cohort report (huji-eval --report), and cleans up
  * scratch rooms after .done.
  *
- * Isolation invariant: the orchestrator NEVER imports the chain (chain-executor);
+ * Isolation invariant: the orchestrator NEVER imports the in-session chain module;
  * the deep-grade -> mullins -> build-thesis -> structure-argument chain runs INSIDE
  * each spawned session (runOne, Plan 07). Importing it here would collapse the
  * per-submission isolation boundary that gives Part-8 containment and zero
@@ -697,6 +697,89 @@ async function cliDryRunFailure() {
   console.log('OK - dry-run-failure assertions passed (retry, failures.md, G3 + G4 batch halt; no model called).');
 }
 
+// --------------------------------------------------------------------------
+// --test-d10 / --selftest-killresume: the D10 harness leg (AI-SPEC Section 5).
+// A deterministic, model-free proof of kill/resume correctness + cross-student
+// isolation. Stub runUnit writes fixtures; no model is called. This is the guard
+// file that makes the run-all-229 D10 leg RUN (no longer SKIP).
+// --------------------------------------------------------------------------
+async function cliTestD10() {
+  const assert = require('node:assert');
+  const ws = mkTmpWorkspace('huji-batch-d10-');
+  try {
+    const N = 4;
+    const subs = makeStubSubs(N); // stub-0001..0004, each with a distinctive entity
+
+    // Phase 1: run the full cohort to done.
+    const ran1 = [];
+    const runUnit1 = async (sub) => { ran1.push(sub.subId); await tick(); return writeStubUnit(ws, sub, { leak: false }); };
+    const r1 = await runBatch({ config: { concurrency: 2, model: PINNED_MODEL_DEFAULT }, workspaceDir: ws, preflight: false, _submissions: subs, runUnit: runUnit1 });
+    assert.ok(r1.ok, 'phase-1 batch should complete');
+    assert.strictEqual(r1.completed, N, 'phase-1: all ' + N + ' units done');
+
+    // Simulate a KILL mid-batch: drop .done + reset the ledger to running for 2
+    // units, as if the orchestrator died after starting them but before .done.
+    const interrupted = ['stub-0002', 'stub-0004'];
+    const survived = ['stub-0001', 'stub-0003'];
+    const ledger = JSON.parse(fs.readFileSync(path.join(ws, 'batch-state.json'), 'utf8'));
+    for (const id of interrupted) {
+      fs.rmSync(path.join(ws, 'out', id, '.done'), { force: true });
+      ledger[id] = { status: 'running', attempts: 1, cost: 0 };
+    }
+    fs.writeFileSync(path.join(ws, 'batch-state.json'), JSON.stringify(ledger, null, 2) + '\n', 'utf8');
+
+    // Record survived-unit feedback mtimes (must NOT be rewritten on resume).
+    const mtimeBefore = {};
+    for (const id of survived) mtimeBefore[id] = fs.statSync(path.join(ws, 'out', id, 'feedback.md')).mtimeMs;
+    await new Promise((r) => setTimeout(r, 12)); // mtime-resolution gap to catch a rewrite
+
+    // Phase 2: RESUME. Track which units re-run + whether the room was fresh.
+    const ran2 = [];
+    const freshRoom = {};
+    const runUnit2 = async (sub) => {
+      ran2.push(sub.subId);
+      // attemptSubmission rm's the room before calling us: it must not preexist.
+      freshRoom[sub.subId] = !fs.existsSync(path.join(ws, 'rooms', sub.subId));
+      await tick();
+      return writeStubUnit(ws, sub, { leak: false });
+    };
+    const r2 = await runBatch({ config: { concurrency: 2, model: PINNED_MODEL_DEFAULT }, workspaceDir: ws, preflight: false, _submissions: subs, runUnit: runUnit2 });
+    assert.ok(r2.ok, 'resume batch should complete');
+
+    // (a) done units skipped on resume.
+    for (const id of survived) assert.ok(!ran2.includes(id), 'resume must SKIP done unit ' + id);
+    assert.strictEqual(r2.skipped, survived.length, 'resume skip count must equal the done units');
+    // (b) interrupted units re-run in FRESH scratch rooms.
+    for (const id of interrupted) {
+      assert.ok(ran2.includes(id), 'resume must re-run interrupted unit ' + id);
+      assert.ok(freshRoom[id], 'resume must re-run ' + id + ' in a FRESH scratch room');
+    }
+    // (c) no artifact double-written for the survived (already-done) units.
+    for (const id of survived) {
+      const after = fs.statSync(path.join(ws, 'out', id, 'feedback.md')).mtimeMs;
+      assert.strictEqual(after, mtimeBefore[id], 'survived unit ' + id + ' feedback.md must NOT be rewritten on resume');
+    }
+
+    // Cross-bleed: no student's distinctive entity appears in any OTHER feedback.md.
+    let bleeds = 0;
+    for (const a of subs) {
+      for (const b of subs) {
+        if (a.subId === b.subId) continue;
+        const other = fs.readFileSync(path.join(ws, 'out', b.subId, 'feedback.md'), 'utf8');
+        if (other.includes(a._entity)) { bleeds++; console.error('CROSS-BLEED: ' + a.subId + ' entity in ' + b.subId + ' feedback.md'); }
+      }
+    }
+    assert.strictEqual(bleeds, 0, 'zero cross-student entity bleed across feedback.md');
+
+    console.log('=== huji-batch --test-d10 (kill/resume + cross-bleed) ===');
+    console.log('  phase 1: ' + N + ' units to done');
+    console.log('  kill simulated: dropped .done for ' + interrupted.join(', '));
+    console.log('  resume: skipped ' + survived.join(', ') + ' (done); re-ran ' + interrupted.join(', ') + ' in FRESH rooms; zero double-write');
+    console.log('  cross-bleed: 0 of any student entity found in any other feedback.md');
+    console.log('OK - D10 kill/resume + cross-bleed passed (deterministic, no model called).');
+  } finally { fs.rmSync(ws, { recursive: true, force: true }); }
+}
+
 function usage() {
   console.log('Usage: node scripts/huji-batch.cjs <--dry-run N | --dry-run-failure | --test-d10 | --selftest-killresume>');
   console.log('  (runBatch is consumed programmatically over an out-of-tree workspace.)');
@@ -706,6 +789,7 @@ if (require.main === module) {
   const argv = process.argv.slice(2);
   (async () => {
     try {
+      if (argv.includes('--test-d10') || argv.includes('--selftest-killresume')) { await cliTestD10(); process.exit(0); }
       if (argv.includes('--dry-run-failure')) { await cliDryRunFailure(); process.exit(0); }
       if (argv.includes('--dry-run')) {
         const n = parseInt(argv[argv.indexOf('--dry-run') + 1], 10) || 5;
