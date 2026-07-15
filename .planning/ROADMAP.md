@@ -3423,7 +3423,7 @@ correcting `conversation-mode.md` Mode 3's routing, not just the Hooked-Model ti
 forward-looking, not grounded in 223's actual text yet. **227 is fully independent** -- all cited
 dependencies are shipped precedent to imitate or forward-looking context, not blockers; it can
 proceed now.
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans executed
 
 Plans:
 
@@ -3431,7 +3431,7 @@ Plans:
 - [x] 227-02-PLAN.md -- systemic sweep of methodology skills for the CIRS R4 loose-description bypass, trivial fixes inline, SWEEP-FINDINGS.md report (Req 2, wave 1)
 - [x] 227-03-PLAN.md -- name ignite + Hooked-Model timing reasoning in larry-personality.md (Req 4, wave 1)
 - [x] 227-04-PLAN.md -- wire the mode-select firing checkpoint's two call sites (selector-dispatcher.cjs + conversation-mode.md default-stated) and route Mode 3 through ignite's Directive/--express path (Req 1 part B + Req 5, wave 2, depends on 227-01)
-- [ ] 227-05-PLAN.md -- scripted regression fixture replaying tester Test 4 (test-227-frontdoor-restraint.cjs), registered as a permanent regression floor (Req 3, wave 2, depends on 227-01)
+- [x] 227-05-PLAN.md -- scripted regression fixture replaying tester Test 4 (test-227-frontdoor-restraint.cjs), registered as a permanent regression floor (Req 3, wave 2, depends on 227-01)
 
 ### Phase 228: RS pipeline vector-repoint and expert-graph reconciliation (SEED-030): the two still-open items after this session confirmed the RS family's connector-spine wiring is already done -- repoint rs-engine's internal/cross-room/hybrid modes at the local Embedding Layer instead of Pinecone, and lock the R-expert decision for rs-experts' Aura/Brain-Cypher coupling (keep as remote Mode-A enrichment vs. descope)
 
