@@ -2,7 +2,7 @@
 name: eureka
 description: Surface cross-domain opportunity candidates from your room at portfolio scale
 help_jtbd: "Rank cross-domain opportunity pairs and surface the weak-signal tail."
-argument-hint: "[run|status|report]"
+argument-hint: "[run|status|report|html]"
 body_shape: E (Action Report)
 hitl_shape: "F.8"
 hitl_why: "Ranked opportunity candidates are surfaced as an independent any-order set to review and act on in any order."
@@ -61,6 +61,7 @@ Parse the user's input after `/mos:eureka`. The primary job IS the scan, so **no
 | `run` (default) | E (Action Report) | Fire the portfolio scan, then render the ranked report |
 | `status` | E (Action Report) | Report the current scan state for this room |
 | `report` | E (Action Report) | Re-render the last completed report without re-scanning |
+| `html` | E (Action Report) | Render the last report to a shareable De Stijl html export (the mode banner rides with it) |
 
 ## Pre-flight: Room Check
 
@@ -94,7 +95,7 @@ The dispatcher spawns the scan detached and prints the report path plus the stat
 
 Include the first-run honesty note, once:
 
-> Very simply: the first scan downloads the local embedding model once (only the model id crosses the wire, no bytes from your room leave the machine -- Canon Part 8). An offline machine degrades to an honest empty report, never a crash.
+> Very simply: the first scan downloads the local embedding model once (only the model id crosses the wire, no bytes from your room leave the machine -- Canon Part 8). When the encoder is unavailable (a cold machine) or the graph is too thin, the scan does NOT dead-end: it names the real cause (`encoder_unavailable` or `below_floor`, never the bare "not enough entries" symptom) and degrades to an honest short REASONING-MODE list, upgradeable to embedded mode on a later re-run. See "Reasoning mode (lower-confidence fallback)" below.
 
 ### Step 2: Poll for completion (bounded)
 
@@ -149,6 +150,50 @@ x No eureka report yet
   Fix: /mos:eureka run
 ```
 
+## Subcommand: html
+
+**Body Shape:** E (Action Report).
+
+Render the last completed report to a shareable, self-contained De Stijl html export:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR html
+```
+
+The dispatcher reads the existing `portfolio-report.json` (it invents no second data shape), renders `portfolio-report.html` under `.mindrian/eureka/`, and prints the path plus the mode line. The export is zero-network (inline CSS only, no CDN, Canon Part 8) so it never phones home from a second reader's machine.
+
+Tell the navigator: **the mode banner rides WITH the export.** A reasoning-mode html opens with a red `REASONING MODE - LOWER-CONFIDENCE RESULT` banner and the full caveat; an embedded-mode html names its mode verbatim. A second reader who did not run the scan cannot mistake a reasoning result for an embedded one.
+
+## Reasoning mode (lower-confidence fallback)
+
+When the local embedding encoder is unavailable or the room's graph is too thin to score, `/mos:eureka run` does NOT dead-end at "not enough entries". It degrades to an HONEST short reasoning-mode list: it names the cause, seeds candidate pairs, and hands Larry a governed loop to answer. This is the SAME command, one mental model -- never a separate fallback command.
+
+You know you are here when `/mos:eureka status` reads `reasoning_await_mappings`. Drive this loop:
+
+1. **Read the seeded pairs.** Open `.mindrian/eureka/reasoning/pairs.json`. Each candidate is a cross-domain pair the degrade proposed from the raw room markdown.
+2. **Write the mappings.** For each candidate, write `.mindrian/eureka/reasoning/mappings.json` keyed by candidate id: a one-line `mappingStatement` naming the shared relational schema WITHOUT either domain's nouns, and a `mechanismText` selected from the pair's own entry prose -- never invented.
+3. **Emit the rubric prompts.**
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR reasoning-prompts
+   ```
+
+   This writes a `<id>.neutral.txt` and a `<id>.adversarial.txt` per candidate. Status advances to `reasoning_await_answers`.
+4. **Answer EVERY prompt faithfully** into `.mindrian/eureka/reasoning/answers.json`, keyed by candidate id, shaped `{ "<id>": { neutral: {a..f: "yes"|"no"}, adversarial: {a..f: "yes"|"no"} } }`.
+
+   **The faithful-judge protocol (LOCKED):**
+   - Answer each of the six items **yes or no with one sentence of evidence**.
+   - Take the **skeptical reading** when unsure on the adversarial pass (argue the analogy is generic filler and try to complete a counter-mapping).
+   - **NEVER estimate a semantic-similarity score. NEVER estimate a differential score. NEVER invent a number.** Those fields are structurally null in reasoning mode and the writer refuses to emit a non-null encoder leg. Your job is the six binary structure-mapping items, nothing more. Asking yourself for a made-up similarity number re-opens the exact sycophancy channel the two-pass adversarial rubric was built to close.
+5. **Score.**
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR reasoning-score
+   ```
+
+   The runner replays your answers through the REAL rubric (verdict computed by code, biased to reject) and writes the SAME `{ provenance, ranked, tail, statements }` md+json labeled `mode:reasoning`. If it exits with a re-answer request (status `reasoning_await_answers` with `retry:true`), re-answer ONLY the named pairs faithfully and run `reasoning-score` again (one retry allowed) -- never guess to make it pass.
+6. **Render.** Render the report through Shape E with the caveat in the TOP zone (Zone 1), stated once, prominently -- never a footer (SEED req 4). The ranked table shows `lsa_similarity` + `verdict`, never a differential column. Nothing is banked (`banked:false` on every row, Canon Part 9 human-only promotion).
+
 ## The 4-Zone Render Spec
 
 Zone 2 reads the report JSON fields by name. Render exactly this anatomy.
@@ -160,21 +205,32 @@ Zone 2 reads the report JSON fields by name. Render exactly this anatomy.
 
 **Zone 2 -- Content Body (Shape E: Action Report):**
 
-(a) Provenance one-liner from the JSON provenance object: pairs mode, encoder, and N pairs scored.
+(a) Provenance one-liner from the JSON provenance object: the **Mode field renders on EVERY result** (embedded or reasoning), never defaulted, never hidden -- it is the reader's entire calibration signal (D6/G-4). Read it from `provenance.run_mode`.
 
 ```
-  Scan: pairs=[pairs_mode]  encoder=[encoder]  scored=[N] pairs
+  Scan: mode=[run_mode]  pairs=[pairs_mode]  encoder=[encoder]  scored=[N] pairs
 ```
 
-(b) Ranked table from `json.ranked` -- one row per pair:
+When `provenance.run_mode` is `reasoning`, render the caveat FIRST, in the TOP zone (Zone 1), stated once, prominently -- never a footer. See the reasoning-mode section below.
+
+(b) Ranked table from `json.ranked` -- one row per pair. The columns depend on the mode:
+
+- **Embedded** (`run_mode` is `live`/`offline`): rank, A title, B title, composite `score`, weak dimensions (or `-`), and a tail-flag glyph (`⚡`) only when the pair is tail-flagged.
 
 ```
-  Rank  A                         B                         Score   Weak dims        Tail
-  1     [A title]                 [B title]                 0.74    validated_demand
-  2     [A title]                 [B title]                 0.68    -                ⚡
+  Rank  A                         B                         Score   Weak dims        Tail   Mode
+  1     [A title]                 [B title]                 0.74    validated_demand        embedded
+  2     [A title]                 [B title]                 0.68    -                ⚡      embedded
 ```
 
-Each row: rank, A title, B title, composite score, the pair's weak dimensions (or `-`), and a tail-flag glyph (`⚡`) only when the pair is tail-flagged.
+- **Reasoning** (`run_mode` is `reasoning`): rank, A title, B title, `lsa_similarity` (the ONE surviving Jaccard number), `verdict`, and `mode`. NEVER render a `differential_score` or `semantic_similarity` column -- those legs are structurally null in reasoning mode and a fabricated numeric column would be the D1 lie in render form.
+
+```
+  Rank  A                         B                         lsa_similarity  Verdict        Mode
+  1     [A title]                 [B title]                 0.11            transferable   reasoning
+```
+
+Reasoning and embedded pairs are NEVER merged into one ranked list (D6 never-merge).
 
 (c) Tail read:
 - When `json.tail.insufficient_structure` is true, render EXACTLY this honest line and nothing more for the tail:
