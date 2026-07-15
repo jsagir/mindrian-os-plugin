@@ -3108,7 +3108,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 229-06-PLAN.md -- LLM judge spawner + calibration protocol (anchor hygiene, fails closed <0.7) [D1,D3,D6,D7]
-- [ ] 229-07-PLAN.md -- Single-submission runner + scratch-room scaffold + per-unit guardrails G1/G2/G4/G6 [D1,D3,D4,D9,D10]
+- [x] 229-07-PLAN.md -- Single-submission runner + scratch-room scaffold + per-unit guardrails G1/G2/G3/G4/G6 [D1,D3,D4,D9,D10]
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
