@@ -3211,12 +3211,12 @@ WRITE-side gap. Full detail + three resolution options in 223-SPEC.md's Addendum
 is still correct (the READ-side risk is real and 224 is built to close it), but do not assume 224
 shipping also resolves Requirement 4 -- that needs its own explicit check once 224 lands, and may
 need a Requirement 7 or a Req-4 rewrite regardless of 224's outcome.
-**Plans:** 5 plans
+**Plans:** 5 plans (1/5 complete)
 
 Plans:
 **Wave 1**
 
-- [ ] 223-01-PLAN.md - hat-governance.cjs + persona-research.cjs riding runDebate/runCellFanout's injectable seams + fixture-room-223 + Part 8 egress test [Req 1]
+- [x] 223-01-PLAN.md - hat-governance.cjs + persona-research.cjs riding runDebate/runCellFanout's injectable seams + fixture-room-223 + Part 8 egress test [Req 1] (COMPLETE 2026-07-15)
 - [ ] 223-02-PLAN.md - Close-the-loop spine: close-loop-writer.cjs (D-01 dual write, D-02 proposed edges, G-1 provenance), writeOpenQuestionNode, walkSupersedesChain walker (D-04 NULL) [Req 2, Req 4]
 
 **Wave 2** *(blocked on Wave 1)*

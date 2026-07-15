@@ -2,19 +2,31 @@
 gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
-status: verifying
-stopped_at: Phase 223 planned (5 plans, 4 waves, plan-check PASS)
-last_updated: "2026-07-15T17:35:27.942Z"
+status: executing
+stopped_at: Phase 223 Plan 01 COMPLETE (Wave 1)
+last_updated: "2026-07-15T20:10:00.000Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 21
   total_plans: 118
-  completed_plans: 110
-  percent: 57
+  completed_plans: 111
+  percent: 58
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 223 Plan 01 COMPLETE (Wave 1) -- governed hats + per-persona world-of-knowledge: the two net-new bono modules riding runDebate's existing seams (Req 1)
+
+Wave 1, the phase's behavioral core. Two net-new `lib/core/bono/` modules plus the shared phase fixture and two green test legs; ADDED-ONLY (zero shipped files modified, so the Part 7 hard rule held: `cell-fanout.cjs` / `debate-composition.cjs` / `graph-derivation.cjs` untouched).
+
+- **`hat-governance.cjs` (data + thin enforcement, not a runtime):** frozen `HAT_GOVERNANCE` (6 hats x `{discipline, rules[], evidence_policy, discipline_source}` from BUILD-BRIEF Section 5) + `CROSS_CUTTING_RULES` (5 ids). `enforceGovernance(hat, argument)` enforces ONLY the hat's own discipline so the SAME argument object passes/fails differently per hat (Black ACH disconfirming-first, White cite-or-retract, Yellow evidence-backed, Green provocation-marked, Red no-justification, Blue recorded-dissent). `assertHeterogeneity` fails on a duplicate lens descriptor. `composeGovernedSeams` returns `{deriveFn, selfCritiqueFn, onStep}` shaped to runDebate's injectable options: `deriveFn` is SYNCHRONOUS and coerces any thenable to `[]` so no Promise reaches `runDerivation` (CR-01); `selfCritiqueFn` routes a step's governed argument through `enforceGovernance`; `onStep` flags a debate whose first material step is not the Key-Assumptions-Check. Phase 210 scope caution stated in the header: debate-only, never live conversation.
+- **`persona-research.cjs`:** `personaDispatchCell` (the runCellFanout dispatchCell seam) runs `extractContext -> runSourceLens -> wireAccept` per cell; `wired_sources` is EXACTLY the wireAccept node_ids (the persona's own INFORMS set); `validateCitations` mechanically rejects any citation outside that set. Part 8 SIGNAL->LOCAL: the web leg is delegated to runSourceLens (its own audit chokepoint); every Brain-bound payload passes `part8-egress-guard.classify` FIRST, generic handle only, fail-closed disclosed (SEED-059). Hat-driven lens scope (two cells over the same subdomain but different hats pick different lens orders).
+- **`buildFixtureRoom223`:** wraps `buildFixtureRoom224` (Part 7 reuse) + `.mindrian/jtbd-state.json` + `MINTO.md` + `opportunity-bank/` for Plans 03/04.
+- **Tests green:** `node tests/test-223-hat-governance.cjs` (10 checks, 6 governance + 4 persona) exit 0; `node tests/test-223-part8-egress.cjs` (4 checks: seeded-breach never-allow, classify-wraps-every-Brain-payload handle-only, block-skips-Brain zero-invocations, static network-primitive sweep with missing-target-fails) exit 0. Requirement Req 1 completed. Zero new deps; no em-dashes.
+- **Pre-existing baseline (NOT a 223-01 regression):** `tests/run-all-164.sh` is 17/3; the 3 failures (`test-issue-tree-edge-remap`, `test-bono-verdict`, `canon-version`) import ZERO 223 files and are Phase-224 `review_status` schema drift landing after Phase-164's tests. Logged to `deferred-items.md`.
+- **Commits:** `a456894c` test (RED legs), `60118d81` feat (hat-governance), `b8d2cd8c` feat (persona-research + fixture), `135b82bc` test (Part 8 egress).
+- **NEXT:** Plan 223-02 (typed-open-question + close-loop-writer + supersedes-chain walker). SUMMARY: `.planning/phases/223-jtbd-driven-intelligence-pipeline-governed-double-fan-bono-e/223-01-SUMMARY.md`.
 
 ## (2026-07-15) -- PHASE 226 Plan 03 COMPLETE (3/4 plans) -- mode-disclosure surfaces: the mode:reasoning label is now impossible to lose across md + json + html, with a governed html export and the faithful-judge orchestration doc
 
@@ -985,12 +997,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 226 — eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la
+**Current focus:** Phase 223 — jtbd-driven-intelligence-pipeline-governed-double-fan-bono
 
 ## Current Position
 
-Phase: 226 (eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la) — EXECUTING
-Plan: 3 of 4
+Phase: 223 (jtbd-driven-intelligence-pipeline-governed-double-fan-bono) — EXECUTING
+Plan: 1 of 5
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
