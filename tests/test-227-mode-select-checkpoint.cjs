@@ -198,4 +198,36 @@ ok('(f) pickShape(F.1, lane-picker text) records a card-fired lane pick (CR-02 p
   }
 });
 
+// ---------------------------------------------------------------------------
+// (g) WR-01 fix regression: has_user_turn's default must derive from the
+// already-resolved sessionId (c.session_id first, envSessionId fallback),
+// not from the raw envSessionId alone. An explicit ctx.session_id with no
+// ctx.has_user_turn and CLAUDE_SESSION_ID unset must still default
+// has_user_turn to true (a session id was explicitly given) and therefore
+// warn on a silent skip, not silently short-circuit to ok.
+// ---------------------------------------------------------------------------
+ok('(g) explicit session_id without has_user_turn defaults has_user_turn from the resolved sessionId, not raw env', function () {
+  const filePath = scratchFilePath();
+  const prevEnv = process.env.CLAUDE_SESSION_ID;
+  delete process.env.CLAUDE_SESSION_ID;
+  try {
+    const result = checkpointModule.check({
+      session_id: 'explicit-session-no-has-user-turn',
+      filePath: filePath,
+    });
+    assert.equal(
+      result.status,
+      'warn',
+      'an explicit session_id with no recorded lane pick must warn on a silent skip, not default to ok'
+    );
+    assert.ok(result.detail.indexOf('silent skip') !== -1, 'detail must mention a silent skip');
+  } finally {
+    if (typeof prevEnv === 'string') {
+      process.env.CLAUDE_SESSION_ID = prevEnv;
+    } else {
+      delete process.env.CLAUDE_SESSION_ID;
+    }
+  }
+});
+
 console.log('\nPASS test-227-mode-select-checkpoint (' + n + ' assertions)');
