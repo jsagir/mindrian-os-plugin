@@ -1553,7 +1553,19 @@ function reasoningStageSeed(opts, ctx) {
   let degradeCause = null;
   if (!embedded) degradeCause = 'encoder_unavailable';
   else if (scoredLength === 0) degradeCause = 'below_floor';
-  if (degradeCause === null) return { degrade_cause: null };
+  if (degradeCause === null) {
+    // CR-02 fix: a healthy embedded run supersedes any earlier degrade. Delete a
+    // stale pairs.json left by a PRIOR degrade so reasoningStageEmit/reasoningStageScore's
+    // existing "no pairs.json" guard naturally fires if the reasoning stages are
+    // re-run afterward, instead of silently scoring a stale pair-set that could
+    // overwrite this healthy (possibly already-banked) report.
+    const staleP = resolveReasoningPaths(opts);
+    const stalePairsPath = path.join(staleP.workdir, 'pairs.json');
+    if (fs.existsSync(stalePairsPath)) {
+      try { fs.unlinkSync(stalePairsPath); } catch (_e) { /* best-effort cleanup, never block a healthy run */ }
+    }
+    return { degrade_cause: null };
+  }
 
   const paths = resolveReasoningPaths(opts);
   const entries = reasoningMode.readRoomMarkdown(paths.roomDir);
