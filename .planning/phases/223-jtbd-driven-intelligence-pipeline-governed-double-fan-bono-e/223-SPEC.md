@@ -212,6 +212,52 @@ Verified this session, file:line, against commit `1e2a320a`+ (v1.15.3-beta.19):
 
 Status: OK = met minimum. BELOW MINIMUM = planner must treat as an assumption per the flagged note, not a locked requirement.
 
+## Addendum (2026-07-15, systems-thinking / causal-loop pass ahead of AI-SPEC.md)
+
+Per a navigator-directed causal-loop analysis run during `/gsd-ai-integration-phase 223`
+(before any planning), four causal loops were traced between bono/intel-pipeline's
+documented writes and already-shipped machinery. Two materially affect this SPEC and are
+recorded here rather than only in `223-AI-SPEC.md`'s Guardrails section, since they bear on
+this document's own locked Requirements.
+
+**Req 4 acceptance criterion verified UNACHIEVABLE as currently written (BLOCKING, not just
+a risk).** Requirement 4's acceptance line states: "`compute-opportunity-state` run
+afterward surfaces the new opportunities in the bank rollup." Verified false against shipped
+code: `scripts/compute-opportunity-state` -> `bin/mindrian-tools.cjs:304-309` ->
+`lib/core/opportunity-ops.cjs`'s `computeOpportunityBankState`/`listOpportunities` read ONLY
+markdown frontmatter under `room/opportunity-bank/*.md` via `fs.readdirSync`/`fs.readFileSync`
+-- independently confirmed zero `db.`/`openRoomDb`/`navigation.cjs` references anywhere in
+that file. `navigation.cjs`'s `writeOpportunityNode` (the write path both bono and
+intel-pipeline are speced to use, Requirement 4) writes ONLY to room.db. These are two fully
+disconnected stores today. This is not new to Phase 223 -- Eureka's own
+`writeOpportunityNode` calls (`eureka-portfolio-report.cjs:1192`) have the identical gap,
+already present and previously unflagged. Requirement 4 as written cannot pass its own
+acceptance test without either (a) a new bridge that projects graph-written opportunity
+nodes into `room/opportunity-bank/*.md` frontmatter, or (b) rewriting Requirement 4's
+acceptance criterion to check room.db directly instead of the markdown bank rollup, or (c)
+scoping the bridge itself as this phase's Requirement 7. Planner/executor MUST NOT assume
+this wiring exists; treat it as an open blocker, not an implementation detail.
+
+**Req 3's calibrate-then-fan sequence has an undisclosed reinforcing loop (non-blocking,
+worth a guardrail).** `lib/hmi/jtbd-state.cjs`'s `setCurrent` is called once, before research
+dimensions are derived from that same JTBD value (per Requirement 3's own sequence:
+calibrate gate -> `setCurrent` -> derive dimensions from JTBD cues -> fan research); no
+second `setCurrent` call exists anywhere later in the documented flow to correct against
+what the research actually finds. JTBD orients the search, the search produces findings,
+findings are never checked against JTBD for drift -- a reinforcing loop with no counter-
+signal. Not a blocker (the phase can ship without fixing this), but Requirement 3's
+acceptance criteria should add: a fixture proving that a `--dry-run` (or real) intel-pipeline
+run does NOT silently update JTBD state as a side effect of its findings without a
+navigator-facing gate, OR an explicit design decision that JTBD drift-correction is
+out-of-scope and deferred (matching this SPEC's own Boundaries convention of naming
+deferrals explicitly rather than leaving them silent).
+
+Two further loops (a claim-nudge feedback into the reach/dial machinery's `context_block`
+score, and Eureka's cross-domain scoring reading ALL nodes regardless of `review_status` so
+unreviewed AI-proposed claims compete with human-confirmed ones) are lower-severity and
+recorded in `223-AI-SPEC.md` Section 6 (Guardrails) rather than here, since they don't
+threaten a locked acceptance criterion the way the two above do.
+
 ## Interview Log
 
 Conducted as a same-session --auto pass using the pre-authored build brief as primary
