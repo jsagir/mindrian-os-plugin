@@ -1,9 +1,9 @@
 {
   "meta": {
-    "roomName": "STATE.md",
-    "ventureStage": "Pre-Opportunity",
-    "generatedAt": "2026-05-24T19:50:00Z",
-    "roomDir": "/tmp/chatctx-hnzttu/rooms/fixture",
+    "roomName": "Fixture",
+    "ventureStage": "Validation",
+    "generatedAt": "2026-07-15T21:24:29Z",
+    "roomDir": "/tmp/chatctx-k0Efd9/rooms/fixture",
     "generator": "MindrianOS build-graph"
   },
   "elements": {
@@ -33,7 +33,7 @@
     ]
   },
   "intelligence": {
-    "gaps": [{ "type": "STRUCTURAL", "section": "business-model", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "competitive-analysis", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "team-execution", "confidence": "HIGH", "message": "Section is empty" }],
+    "gaps": [{ "type": "STRUCTURAL", "section": "business-model", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "competitive-analysis", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "team-execution", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "legal-ip", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "financial-model", "confidence": "HIGH", "message": "Section is empty" }],
     "convergence": [{ "term": "support", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "summary", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }],
     "contradictions": [],
     "summary": {
@@ -41,7 +41,7 @@
       "meeting_count": 0,
       "speaker_count": 0,
       "concept_count": 0,
-      "venture_stage": "Pre-Opportunity",
+      "venture_stage": "Validation",
       "sections_active": 3,
       "sections_empty": 5
     }
