@@ -3161,6 +3161,36 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 223 to break down)
 
+### Phase 224: Graph-derivation harness (SEED-034): make room.db's typed-node/edge graph a mechanical twin of the filesystem on every normal conversational write, closing the write-path gap where scripts/post-write's freshness triple never calls navigation.cjs -- confirmed CRITICAL, reconfirmed independently twice (the original b2-journey incident and the 2026-07-14 david-innovation-studio intern session), the default case affecting every room, not an edge case
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phases 210-217, Phase 218, Phase 222, Phase 223 (navigator-directed 2026-07-15:
+research requirement, not necessarily a strict execution-order block -- 223 in particular has
+not shipped yet. Research/spec/plan for this phase MUST actively read and draw on: Phases
+211-216 (the eureka engine -- the exact consumer whose room.db substrate this phase populates;
+its actual read patterns, e.g. the `idx.embedded` gate and tri-modal retrieval shape, should
+inform HOW this phase populates the graph, not just THAT it populates it), Phase 217 (doctor.cjs
+architecture rethink -- this phase's fix should integrate with doctor's diagnostic check-class
+framework, not sit outside it), Phase 218 (entity-extraction-pipeline -- an adjacent, distinct
+layer: 218 extracts sub-artifact entities/relationships from already-written content, this phase
+closes the more basic gap where a written artifact never becomes a node/edge AT ALL; read 218's
+CONTEXT/SPEC to avoid overlapping or contradicting its writeEdge() chokepoint usage), Phase 210
+(revert-persona-enforcement-over-reach -- a caution: 210 existed specifically to walk back
+over-strict hard-fail enforcement that had crept in; this phase's own fix should not repeat that
+mistake in the graph-write path), Phase 222 (reach-ranking-unification, COMPLETE -- read its
+migration precedent, `lib/core/migrations/phase-222-ranker-weights.cjs`, as the most recent,
+freshest example of this repo's migration pattern), and Phase 223 (jtbd-pipeline + governed-bono,
+SPEC'd not yet executed -- its close-the-loop contract, `claim`/`opportunity`/`open_question`
+nodes written through `navigation.cjs`, is a second consumer of exactly the graph-population gap
+this phase closes; read its SPEC/CONTEXT even though it has not shipped, so this phase's fix
+serves both the already-shipped eureka engine AND whatever 223 eventually needs, not just one).
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 224 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
