@@ -3217,7 +3217,7 @@ Plans:
 **Wave 1**
 
 - [x] 223-01-PLAN.md - hat-governance.cjs + persona-research.cjs riding runDebate/runCellFanout's injectable seams + fixture-room-223 + Part 8 egress test [Req 1] (COMPLETE 2026-07-15)
-- [ ] 223-02-PLAN.md - Close-the-loop spine: close-loop-writer.cjs (D-01 dual write, D-02 proposed edges, G-1 provenance), writeOpenQuestionNode, walkSupersedesChain walker (D-04 NULL) [Req 2, Req 4]
+- [x] 223-02-PLAN.md - Close-the-loop spine: close-loop-writer.cjs (D-01 dual write, D-02 proposed edges, G-1 provenance), writeOpenQuestionNode, walkSupersedesChain walker (D-04 NULL) [Req 2, Req 4] (COMPLETE 2026-07-15)
 
 **Wave 2** *(blocked on Wave 1)*
 

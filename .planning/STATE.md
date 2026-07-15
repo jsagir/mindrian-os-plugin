@@ -3,18 +3,32 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 223 planned (5 plans, 4 waves, plan-check PASS)
+stopped_at: Phase 223 Plan 02 COMPLETE (Wave 1)
 last_updated: "2026-07-15T20:27:46.010Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 21
   total_plans: 120
-  completed_plans: 111
-  percent: 57
+  completed_plans: 112
+  percent: 58
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 223 Plan 02 COMPLETE (Wave 1) -- close-the-loop graph-write spine: the ONE writer both surfaces terminate through (Req 2 + Req 4)
+
+Wave 1 sibling to 223-01. The write-side of the JTBD pipeline: every AI-composed finding now enters room.db as a born-proposed typed node through the navigation chokepoint, and every opportunity is a governed dual write.
+
+- **`lib/core/navigation/typed-open-question.cjs` (net-new):** `writeOpenQuestionNode` closes the write-side gap for the `open_question` type `insights.findOpenQuestions` has always READ but navigation never WROTE. Born review_status 'proposed', no-downgrade UPSERT, protected-key extraProps, caller-owned handle (allow-listed submodule). Re-exported on navigation.cjs.
+- **`typed-claim.cjs` additive extraProps bag:** optional plain-object bag merged AFTER the fixed keys with a protected-key filter (never overrides knowledge_type / text / provenance keys). The conclusion marker (kind/topic/topic_hash) + the G-1 provenance tag (pipeline/run_id) ride it WITHOUT a new node type or schema change; byte-identical when absent (every existing caller unaffected, run-all-164 baseline unchanged).
+- **`lib/core/close-loop-writer.cjs` (net-new spine):** `writeCloseLoop(db, roomDir, payload, opts)` implements BUILD-BRIEF Section 6: claims/knowns/conclusion/unknowns/killed/opportunities/relations/supersession. D-01 dual write (bank .md FIRST via `bankOpportunity`, room.db node SECOND, one shared `artifact_id` minted before either -- crash-ordering tested: a throw after the .md write leaves a bank-visible artifact, never a dangling node). D-02 'proposed' on every semantic edge; D-04 NULL on the SUPERSEDES path (routed through `supersede`, no review_status arg). G-1 pipeline provenance on every claim. `validateNarrative` gates the conclusion (wrapped into a complete MINTO narrative so the verdict is driven by governing_thought <=250 + key_claims [3,5]). Injectable seams (bankWriteFn/nodeWriters/edgeWriter/supersedeFn); per-section disclosed failures (SEED-059). Exports `writeCloseLoop` / `findPriorConclusion` / `mintArtifactId` / `topicHashOf`. NO raw SQL writes (chokepoint only); zero new deps.
+- **`opportunity-ops.cjs` bankOpportunity ADDITIVE passthrough:** funder / program / deadline / relevance_score / artifact_id now emit into frontmatter when supplied (the provenance/engine_mode additive idiom); byte-identical when absent. The reader + the six required fields are UNCHANGED. This is the D-01 files_modified NOTE resolved: bankOpportunity needed the passthrough.
+- **`temporal/supersession.cjs::walkSupersedesChain` (net-new READ walker):** two-direction SUPERSEDES walk to both chain ends, newest->oldest, cycle-guarded, maxDepth cap, review_status IGNORED (D-04 mechanical). `supersede` body UNTOUCHED. Ready for Plan 03's `--version-log`.
+- **Tests green:** `node tests/test-223-close-loop.cjs` (45 checks: Section A behaviors 1-4 + Section B behaviors 1-7) exit 0; `node tests/test-223-supersedes-chain.cjs` (21 checks: 2-run one NULL edge + [B,A], 1-run zero, 3-link [C,B,A] from any node, cycle guard, status-independent) exit 0. Regressions: `run-all-224.sh` PASS=17 FAIL=0 (the shared edges/derivation leg holds); `test-graph-derive-sweep.cjs` 4/4. Reqs 2 + 4 complete. Zero new deps; no em-dashes in touched files.
+- **Pre-existing baselines (NOT 223-02 regressions, logged to deferred-items.md):** `run-all-164.sh` 17/3 (stale canon-version + 2 others, Phase-224 schema drift, additional_notes explicit); `test-219-banking.cjs` Test 4 (linkOpportunityEvidence DERIVED_FROM, same 224 edges-schema drift -- verified pre-existing by running against the HEAD opportunity-ops); `opportunity-ops.cjs:769` em-dash (commit eb59231b, far from my additive block; my diff is em-dash clean).
+- **Commits:** `833a4543` feat (open_question writer + claim extraProps, Task 1), `1b6ddad7` feat (close-loop-writer + opportunity-ops passthrough, Task 2), `a611a731` feat (walkSupersedesChain + Req 2 proof, Task 3).
+- **NEXT:** Plan 223-03 (commands/bono.md 8-phase governed body + --version-log reading walkSupersedesChain + web_scope green + mirror regen). SUMMARY: `.planning/phases/223-jtbd-driven-intelligence-pipeline-governed-double-fan-bono-e/223-02-SUMMARY.md`.
 
 ## (2026-07-15) -- PHASE 223 Plan 01 COMPLETE (Wave 1) -- governed hats + per-persona world-of-knowledge: the two net-new bono modules riding runDebate's existing seams (Req 1)
 
