@@ -144,6 +144,76 @@ TUNABLE-LATER. Any non-finite or non-positive value falls back to the default.
 export MINDRIAN_HEDGE_ETA=0.3
 ```
 
+## Graph Derivation Floors (Phase 224, room-local, zero egress)
+
+When a room artifact is written, Phase 224 scores it against the room's other
+artifacts with the LOCAL encoder and proposes typed CASCADE edges for the pairs
+that clear a similarity floor. The score is a topical cosine (symmetric), so the
+score-only layer claims CONVERGES and INFORMS ONLY (D-01): a high band maps to
+CONVERGES, a moderate band maps to INFORMS with the direction older-artifact
+-INFORMS-newer. Stance edges (CONTRADICTS / INVALIDATES / REFINES / ROOT_CAUSES)
+are structurally excluded here because a false stance edge is the noisiest
+possible proposal to a navigator; those are reserved for a future
+LLM-critiqued pass, never this score-only layer.
+
+Both floors are read at CALL time by `lib/core/graph-derive-classifier.cjs` with
+a numeric fallback (any value outside 0..1 or non-numeric falls back to the
+calibrated default), so a malformed operator env can never zero out or invert
+derivation. Both are room-local ranking tunables with zero egress (Canon Part
+8): scoring runs on LOCAL bytes and the derived edges never enter a Brain
+Context Packet.
+
+The defaults are FIXTURE-CALIBRATED, not intuition constants. Measured
+2026-07-15 with the real local encoder (MongoDB/mdbr-leaf-ir, q8, 384-dim) over
+the b2-journey fixture (`tests/helpers/fixture-room-224.cjs`), via the
+`--calibrate` leg of `tests/test-224-classifier.cjs`: the one RELATED pair
+scored 0.6095 while the highest observed NON-related (noise) pair scored 0.3683
+(noise mean ~0.10 across 190 pairs). The floors sit above that noise ceiling
+with a clear margin, biased UPWARD (precision over recall). The evidence table
+lives in the `graph-derive-classifier.cjs` module header; the entries below
+document THOSE numbers, never re-derived ones.
+
+### DERIVE_CONVERGES_FLOOR
+
+**What:** The semantic-similarity floor (a 0..1 float) at or above which a scored
+artifact pair is proposed as a CONVERGES edge (the high band).
+**Default:** `0.55`. Calibrated below the 0.6095 related pair (so it fires
+CONVERGES on real related prose) and ~0.18 above the 0.3683 noise ceiling (so
+cross-domain noise never fires).
+**Why:** Raising it (for example `0.6`) silences the graph -- fewer proposals,
+higher precision. Lowering it risks the false-proposal flood CONTEXT.md was
+designed against: a navigator drowning in wrong CONVERGES proposals stops
+trusting all of them. Precision over recall, always: these edges land as
+proposals a human ratifies, so a wrong one costs trust, a missed one costs only
+a later re-derive.
+
+```bash
+export DERIVE_CONVERGES_FLOOR=0.55
+```
+
+### DERIVE_INFORMS_FLOOR
+
+**What:** The semantic-similarity floor (a 0..1 float) at or above which a scored
+artifact pair is proposed as an INFORMS edge (the moderate band, directed
+older-artifact-INFORMS-newer). A pair at or above DERIVE_CONVERGES_FLOOR becomes
+CONVERGES instead; a pair below DERIVE_INFORMS_FLOOR derives nothing.
+**Default:** `0.45`. A moderate band strictly between the 0.3683 noise ceiling
+and the 0.55 CONVERGES floor (~0.08 margin above noise).
+**Why:** The same precision-over-recall bias as the CONVERGES floor. Lowering it
+toward the noise ceiling starts proposing INFORMS edges on topic coincidence;
+raising it collapses the moderate band toward CONVERGES-only.
+
+```bash
+export DERIVE_INFORMS_FLOOR=0.45
+```
+
+**D-04 (no floor makes the system guess).** Neither floor is a fallback path:
+when the local encoder is unavailable, the derivation layer scores nothing,
+writes a single scalar-only `derivation_skipped` disclosure marker, and moves
+on. There is NO lexical-only degrade -- a symmetric keyword score cannot
+honestly type an edge, so unavailability is a DISCLOSED skip, never a silent
+lexical guess. The floors only ever gate a real encoder score.
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
