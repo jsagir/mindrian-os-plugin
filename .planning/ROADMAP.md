@@ -3345,7 +3345,7 @@ this at spec-phase before committing to "reuse Phase 212's critic, lighter" as t
 Plans:
 
 - [x] 226-01-PLAN.md - reasoning-mode core module (readRoomMarkdown, Jaccard pre-filter + cap, Stage B rubric via session-judge seam, statement assembly, assertReasoningInvariants) + the D1 null-legs test written FIRST + the >= 12 fixture set
-- [ ] 226-02-PLAN.md - the mode:reasoning branch inside eureka-portfolio-report.cjs async main (stage dispatch, degrade seeding on the negated idx.embedded gate, byte-parity writer with G-1 assertion, honest-cause render, banking hard-skip, upgrade delta) + D4/D7 tests
+- [x] 226-02-PLAN.md - the mode:reasoning branch inside eureka-portfolio-report.cjs async main (stage dispatch, degrade seeding on the negated idx.embedded gate, byte-parity writer with G-1 assertion, honest-cause render, banking hard-skip, upgrade delta) + D4/D7 tests [SHIPPED 2026-07-15: reasoningStageSeed/Emit/Score + renderReasoningReport + buildUpgradeDelta additive to the embedded main; D4 byte-parity + D7 honest-cause + REQ-8 no-speculative-trigger legs green; weak_dimensions reconciled to the LIVE embedded {a,b} object shape (not the AI-SPEC array); 215 oracle unchanged (8/0); REQ-1/3/4/6/8; commits b246e20d + 05657d81 feat + a4b56db1 test]
 - [ ] 226-03-PLAN.md - mode disclosure surfaces: report-html.cjs De Stijl export, eureka-command html/reasoning-prompts/reasoning-score subcommands, commands/eureka.md faithful-judge protocol + D6 three-surface test
 - [ ] 226-04-PLAN.md - D5/D8/D3-negative legs, tests/run-all-226.sh phase gate, TEST_FILES registration, ENV-TUNING + CANON-PHASE-MAP docs, navigator calibration checkpoint (David proving case)
 

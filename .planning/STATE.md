@@ -3,18 +3,32 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 223 context gathered (post-224 decisions locked)
-last_updated: "2026-07-15T16:38:03.519Z"
+stopped_at: Completed 226-02-PLAN.md (reasoning-mode branch in eureka-portfolio-report)
+last_updated: "2026-07-15T17:10:00.000Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 20
   total_plans: 113
-  completed_plans: 107
+  completed_plans: 108
   percent: 54
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 226 Plan 02 COMPLETE (2/4 plans) -- mode:reasoning branch wired into eureka-portfolio-report.cjs: a genuine embedded degrade now produces a REAL, byte-parity, honestly-labeled reasoning ranked list instead of a pairs_scored:0 dead end
+
+Wave 2, additive to the shipped embedded async main (SEED req 7: the embedded scoring block is byte-untouched, run-all-215 stays 8/0). The branch keys on the NEGATION of the SAME `idx.embedded` boolean the embedded path already computes - no second gate variable.
+
+- **Three-stage flow (`reasoningStageSeed` / `reasoningStageEmit` / `reasoningStageScore`):** the normal run's degrade seed derives `degradeCause` from `idx.embedded`/`scored.length` (encoder_unavailable, else below_floor, else null) and seeds `pairs.json`; `--reasoning-emit` validates the session-written mappings and writes the byte-identical two-pass rubric prompts (pairs.json guard exits 1, SEED req 2); `--reasoning-score` replays the session answers through the REAL rubric (verdict-by-code), with a max-1-retry manifest latch (exit 2).
+- **D4/G-5 byte-parity:** the score stage writes the SAME `{ provenance, ranked, tail, statements }` md+json pair with the exact embedded statement + provenance field names plus `mode:'reasoning'`, honest-null encoder legs (`differential_score`/`semantic_similarity` null, `score`/`dims` null on ranked), and EVERY embedded provenance key with honest reasoning values + the reasoning extensions.
+- **G-1 + G-3 write-side guards:** `assertReasoningInvariants(jsonOut)` runs immediately before BOTH `fs.writeFileSync` calls (refuse-to-emit); banking is a HARD SKIP (no `bankStatements` call site reachable from the reasoning stage, so `MINDRIAN_OPPORTUNITY_BANK_PREDICATE=all` cannot bank a reasoning verdict).
+- **D7 honest cause + SEED req 5 upgrade:** `renderReport`'s degrade block now names the CAUSE (encoder_unavailable = infrastructural, NOT "not enough entries"; below_floor) and prints the reasoning next-step; `buildUpgradeDelta` surfaces the reasoning -> embedded delta on the embedded success path. `renderReasoningReport` leads with the five-element caveat and never renders a fabricated numeric column. Mode label is render-visible on both paths.
+- **weak_dimensions (the plan-01 forward flag) RESOLVED:** reconciled to the LIVE embedded emitter's `{ a:[], b:[] }` object shape (what `buildOpportunityStatement` returns and the embedded jsonOut passes through), NOT the AI-SPEC zod array - byte-parity with shipped code is the D4 contract.
+- **Tests:** `test-226-field-contract` (D4/G-5, real-emitter hermetic, exit 0) + `test-226-degrade-cause` (D7 + REQ-8 no-speculative-trigger, 3 legs, exit 0); test-226-null-legs/rubric-parity still green; run-all-215 8/0 unchanged. REQ-1/3/4/6/8. Zero new deps; no em-dashes.
+- **Pre-existing baseline (NOT this plan's regressions, logged to deferred-items.md):** run-all-216 8/2 (shape-declaration/skill-mirror advisory lints) and run-all-219 11/2 (218/219 entity-writer + banking legs) were RED before any 226-02 change; counts unchanged after.
+- **Commits:** `b246e20d` feat (stages + writer), `05657d81` feat (honest render + labels + upgrade), `a4b56db1` test.
+- **NEXT:** Plan 226-03 (mode disclosure surfaces: report-html De Stijl export, eureka-command html/reasoning subcommands, commands/eureka.md faithful-judge protocol, D6 three-surface test). SUMMARY: `.planning/phases/226-eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la/226-02-SUMMARY.md`.
 
 ## (2026-07-15) -- PHASE 225 Plan 02 COMPLETE (2/3 plans) -- WAL-reset corruption doctor advisory: `doctor --bind-check` warns when bundled SQLite < 3.51.3 AND a live co-session is present, never-block, advisory-only
 
