@@ -20,9 +20,9 @@
   "render_counts": {
     "card_emission": 16,
     "render_only_excluded": 0,
-    "md_declared_wired": 100,
+    "md_declared_wired": 99,
     "md_declared_unwired": 0,
-    "skill_declared_wired": 106,
+    "skill_declared_wired": 105,
     "skill_declared_unwired": 0
   },
   "entries": [
@@ -152,11 +152,6 @@
     {
       "surface": "commands/beautiful-question.md",
       "declared_shape": "F.9",
-      "wired": true
-    },
-    {
-      "surface": "commands/bono.md",
-      "declared_shape": "F.5",
       "wired": true
     },
     {
@@ -659,11 +654,6 @@
     {
       "surface": "skills/beautiful-question/SKILL.md",
       "declared_shape": "F.9",
-      "wired": true
-    },
-    {
-      "surface": "skills/bono/SKILL.md",
-      "declared_shape": "F.5",
       "wired": true
     },
     {
