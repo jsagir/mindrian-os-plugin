@@ -624,7 +624,24 @@ echo "=== Step 7: Commit A (release commit) -- plugin + marketplace ==="
 cd "$PLUGIN_DIR"
 git add .claude-plugin/plugin.json package.json CHANGELOG.md
 git commit -m "release: v$NEW_VERSION" || echo "Nothing to commit in plugin (Commit A)"
-git tag "v$NEW_VERSION" 2>/dev/null || echo "Tag v$NEW_VERSION already exists"
+
+# --- Concurrent-commit race guard (2026-07-16 RCA: beta.20 + beta.22 both
+# tagged a foreign HEAD after Commit A silently vanished under a concurrent
+# session's commits; the `|| echo` above masks every commit failure mode, and
+# an unpinned `git tag` then labels whatever HEAD happens to be). VERIFY the
+# commit we are about to tag actually carries NEW_VERSION in its manifests;
+# refuse to mislabel, never tag-and-warn. Tag by SHA, not by implicit HEAD.
+RELEASE_SHA=$(git rev-parse HEAD)
+TAG_PLUGIN_V=$(git show "$RELEASE_SHA:.claude-plugin/plugin.json" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).version))")
+TAG_PKG_V=$(git show "$RELEASE_SHA:package.json" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).version))")
+if [ "$TAG_PLUGIN_V" != "$NEW_VERSION" ] || [ "$TAG_PKG_V" != "$NEW_VERSION" ]; then
+  echo -e "${RED}ABORT: HEAD ($RELEASE_SHA) manifests read plugin.json=$TAG_PLUGIN_V package.json=$TAG_PKG_V, expected $NEW_VERSION.${NC}"
+  echo -e "${RED}  Commit A did not land on this HEAD (concurrent-commit race, or the commit failed).${NC}"
+  echo "  Recovery: quiet all concurrent sessions committing to this checkout, then re-run release.sh."
+  echo "  NOT tagging. NOT pushing. No remote state was mutated by this step."
+  exit 1
+fi
+git tag "v$NEW_VERSION" "$RELEASE_SHA" 2>/dev/null || echo "Tag v$NEW_VERSION already exists"
 
 cd "$MARKETPLACE_DIR"
 git add .claude-plugin/marketplace.json
