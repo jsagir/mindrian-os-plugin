@@ -1,7 +1,28 @@
 ## [Unreleased] -- v1.15.3-beta.25 (in progress)
 
 ### Added
-- 
+- **Phase 227: Ignite / mode-select timing across turns 1-4 (SEED-060).** The session-start
+  mode-selection Decision Gate (Just Talk / Explore+Capture / Build a Room) gets a structural,
+  advisory-only backstop: a new `doctor.cjs` check class (`lib/core/mode-select-sidechannel.cjs`
+  + `lib/core/doctor/mode-select-checkpoint-module.cjs`) detects a silent skip (the gate neither
+  firing a card nor stating a default) and warns, never blocks, never re-fires the gate itself.
+  A systemic sweep of methodology skills for the same loose-description auto-fire bypass that
+  let `trending-to-absurd` reach for itself on a casual remark before its 2026-06-24 fix found
+  and closed 3 trivial instances inline (`MOSDeckEngine`, `client-discovery-interview`,
+  `mullins-scaffold`), with the rest reported and explicitly deferred. A scripted regression
+  test (`tests/test-227-frontdoor-restraint.cjs`) now proves the front-door restraint fix holds
+  without needing a live human tester re-run. `skills/larry-personality/SKILL.md` names ignite
+  for the first time and documents the gate's timing with real Hooked-Model (Fogg B=MAP / TARI)
+  reasoning: the gate is a Prompt, not an Investment, fired only when the navigator's opener
+  does not already signal a lane. `conversation-mode`'s Mode 3 (Build a Room) now routes through
+  ignite's Directive/`--express` path instead of calling `/mos:new-project` directly, correctly
+  reserving Gate B1's four-door persona pick for sessions that genuinely have not yet
+  established a role or venture. Same-day code review (independently re-verified, not
+  self-certified) caught and fixed two real defects before this landed: Mode 3's routing text
+  originally claimed established context unconditionally even on a cold direct pick with zero
+  prior exchange, and the mode-select "card-fired" recorder was wired against text no live code
+  path actually renders through `pickShape()`. Both are being closed at the design level in
+  this same pass, not patched around the symptom.
 
 ## [1.15.3-beta.24] - 2026-07-16
 
@@ -16,6 +37,35 @@
 ## [1.15.3-beta.20] - 2026-07-16
 
 ### Added
+- **Backfilled here (this changelog under-documented this tag at cut time): five phases that
+  actually shipped in this release window.**
+  - **Phase 222 (reach-ranking-unification).** The three surfaces that suggest a next move
+    (`/mos:suggest-next`, the reach-candidates list, and the auto-fire engine) now always
+    agree on the top pick instead of occasionally diverging, and the ranking improves over
+    a room's own accept/reject history rather than staying static.
+  - **Phase 223 (jtbd-driven-intelligence-pipeline, governed bono).** `/mos:bono` is now an
+    8-phase governed research debate with Six-Thinking-Hats-style scrutiny (the Black hat
+    must disconfirm first, the White hat must cite-or-retract) and three explicit navigator
+    approval pauses (topic, hypothesis, ruling) instead of one collapsed confirmation. New
+    `/mos:intel-pipeline` command runs a staged research pipeline oriented on the room's
+    active JTBD (calibrate -> decompose -> fan out -> compute -> synthesize -> close), pausing
+    for approval twice and disclosing a thin fan-out pass rather than silently proceeding.
+  - **Phase 224 (graph-derivation-harness, SEED-034).** Every markdown write to a room now
+    enqueues and background-derives typed graph edges, closing the previously twice-reconfirmed
+    0-typed-edge gap on the write path -- no manual "derive" step required.
+  - **Phase 225 (per-session-room-binding, SEED-039).** Session-to-room binding now correctly
+    supports multi-room binds. Fixed during code review: a binding answer was silently
+    collapsing a multi-room selection down to a single room regardless of what was picked.
+  - **Phase 226 (eureka-reasoning-mode-fallback, SEED-058).** When the local embedding encoder
+    is unavailable, `/mos:eureka` now degrades to a labeled, lower-confidence REASONING MODE
+    result (a real short ranked list with an honest caveat naming the degrade cause) instead of
+    a hard `pairs_scored: 0` dead end. `banked` is structurally `false` on every reasoning-mode
+    row; a later healthy re-run over the same room surfaces the reasoning-to-embedded delta
+    instead of silently replacing the earlier result. Same-day code review found and fixed
+    three real data-loss edge cases in the upgrade-delta path before this shipped (a repeated
+    degrade could silently overwrite a completed reasoning report with no trace; a stale
+    session file could let a later healthy run get clobbered; reseeding could silently orphan
+    an in-progress judging session).
 - **Eureka entity extraction gets a two-tier WHAT-vs-WHY classifier.** A free, fully local
   embedding pass (`lib/core/eureka/embedding-classifier.cjs`) now resolves the confident
   majority of candidates at zero API spend, reusing the same encoder Eureka's own ranking
