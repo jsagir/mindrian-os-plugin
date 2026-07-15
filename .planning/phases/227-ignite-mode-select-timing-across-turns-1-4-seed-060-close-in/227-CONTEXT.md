@@ -20,7 +20,7 @@ this file resolves "how".
 ## Implementation Decisions
 
 ### Req 1: Firing checkpoint mechanism
-- **D-01:** Do NOT reuse `lib/core/card-fire-sidechannel.cjs`'s existing store as-is — it is
+- **D-01:** Do NOT reuse `lib/core/card-fire-sidechannel.cjs`'s existing store as-is - it is
   deliberately turn-scoped (~10 minute TTL, "generous for slow turns") for a DIFFERENT purpose
   (catching a skip within the same Stop-hook cycle). A session-start lane-pick record needs to
   survive far longer than 10 minutes into a session. Mirror the PATTERN (session-scoped,
@@ -28,10 +28,10 @@ this file resolves "how".
 - **D-02:** New module `lib/core/mode-select-sidechannel.cjs` exporting `recordLanePick(opts)`
   / `readLanePick(sessionId)`, same never-throw / atomic-write / size-cap discipline as
   `card-fire-sidechannel.cjs`, but its own store file under `~/.mindrian/` with a
-  session-lifetime TTL (not 10 minutes — use a generous ceiling, e.g. 24h, matching how other
+  session-lifetime TTL (not 10 minutes - use a generous ceiling, e.g. 24h, matching how other
   session-scoped local state in this repo is bounded).
 - **D-03:** `recordLanePick` is called from wherever `skills/conversation-mode/SKILL.md`'s F.1
-  gate actually resolves at runtime — since that gate reuses `renderShapeF1` / `pickShape`
+  gate actually resolves at runtime - since that gate reuses `renderShapeF1` / `pickShape`
   (per the skill's own body text), the call site is the SAME shared trailer door
   `lib/hmi/selector-dispatcher.cjs`'s `pickShape` already uses for the existing sidechannel;
   add the new recorder call there (additive, not a replacement) plus at whatever code path
@@ -41,7 +41,7 @@ this file resolves "how".
   introduced_version: <next release version>, cadence: "always", flag: null,
   fix_supported: false, runner: "lib/core/doctor/mode-select-checkpoint-module.cjs" }`.
   `cadence: "always"` (not "once") because a silent skip is possible in ANY session, not a
-  one-time migration heal. `fix_supported: false` — there is nothing to auto-remediate (you
+  one-time migration heal. `fix_supported: false` - there is nothing to auto-remediate (you
   cannot retroactively fire a card for a turn that already passed); the check is diagnostic
   only, matching several existing check-only classes (D, F, K, L, M, S).
 - **D-05:** `check(ctx)` calls `readLanePick(ctx.sessionId)`; if no record exists AND the
@@ -62,7 +62,7 @@ this file resolves "how".
   fixed-trivial / deferred-real-work) | fix-commit (if applicable)`.
 
 ### Req 3: Test-4 fixture approach
-- **D-08:** Structural/static assertions, NOT a live model conversation replay — matches this
+- **D-08:** Structural/static assertions, NOT a live model conversation replay - matches this
   repo's existing test convention (`tests/test-209-declared-implies-wired.cjs` and siblings
   drive the actual checker functions and read real files, never simulate an LLM turn).
   `tests/test-227-frontdoor-restraint.cjs` asserts: (a) `skills/trending-to-absurd/SKILL.md`
@@ -74,7 +74,7 @@ this file resolves "how".
   assert on its branching, not its runtime output); (d) `skills/conversation-mode/SKILL.md`
   Mode 2 still contains the "scaffold follows the learner" restraint text (a substring check).
   No opening-compliment assertion is scriptable (that is model behavior, not a static
-  artifact) — note this honestly in the test file's header comment as a known coverage gap,
+  artifact) - note this honestly in the test file's header comment as a known coverage gap,
   matching this session's established discipline of naming gaps rather than silently dropping
   them.
 - **D-09:** Register in `lib/memory/run-feynman-tests.cjs` TEST_FILES (permanent regression
@@ -101,16 +101,16 @@ this file resolves "how".
   Imperative path** (`## Entry Routing`, path B: "Imperative ('make me a room for X'): treat
   as `--express` with the stated context as blueprint seed"). This is the correct
   destination, not the B1 four-door card: Gate B1's own text states "Directive paths with a
-  determinable role/venture (--express with strong context...) bypass B1" — since Mode 3 is
+  determinable role/venture (--express with strong context...) bypass B1" - since Mode 3 is
   reached only after conversation-mode's own Mode 2-to-Mode-3 transition already establishes
   the navigator's intent, re-asking the full four-door persona pick would be redundant
   friction (the same Hooked-Model Prompt-not-Investment principle Req 4 documents). Mode 3
   routes into ignite's `--express` Directive path with the already-established conversational
-  context as the blueprint seed, which proceeds straight to Gate B2 (Blueprint) — the actual
+  context as the blueprint seed, which proceeds straight to Gate B2 (Blueprint) - the actual
   room-creation step `/mos:new-project` was reaching for directly.
 - **D-12 (revised):** The "light seam for a future 223 entry point" (SPEC boundary: no
   223-specific code) now means: Gate B1's four-door structure is completely UNTOUCHED (no
-  fifth door, no persona added, no reference to Phase 223 anywhere in the changed text) —
+  fifth door, no persona added, no reference to Phase 223 anywhere in the changed text) -
   Mode 3 does not touch B1 at all, it enters via the Directive path. The "seam" is that the
   Directive/`--express` path already treats "the stated context" generically (not
   Mode-3-specific), so a future 223 surface could supply its own directive input through the
@@ -120,11 +120,11 @@ this file resolves "how".
 ### Claude's Discretion
 - Exact wording/length of the `larry-personality.md` Hooked-Model section (content locked,
   prose style is discretion).
-- Exact regex/denylist terms for the sweep's description-tightness heuristic (D-06) — the
+- Exact regex/denylist terms for the sweep's description-tightness heuristic (D-06) - the
   planner/executor may refine the specific pattern list as long as it demonstrably catches the
   `trending-to-absurd` pre-fix case and does not false-positive on already-clean skills.
 - Whether the new `mode-select-sidechannel.cjs` module shares helper code with
-  `card-fire-sidechannel.cjs` via a small shared utility, or is fully standalone — either is
+  `card-fire-sidechannel.cjs` via a small shared utility, or is fully standalone - either is
   acceptable as long as the TTL/store-file separation (D-01/D-02) holds.
 
 </decisions>
@@ -132,7 +132,7 @@ this file resolves "how".
 <specifics>
 ## Specific Ideas
 
-No product/UI references — this phase is entirely backend/doc infrastructure (a doctor check,
+No product/UI references - this phase is entirely backend/doc infrastructure (a doctor check,
 a sweep report, a test fixture, two doc edits). No visual design surface.
 
 </specifics>
@@ -144,27 +144,27 @@ a sweep report, a test fixture, two doc edits). No visual design surface.
 
 ### Locked requirements
 - `.planning/phases/227-ignite-mode-select-timing-across-turns-1-4-seed-060-close-in/227-SPEC.md`
-  — all 5 requirements, boundaries, constraints, and acceptance criteria. This file's decisions
+  - all 5 requirements, boundaries, constraints, and acceptance criteria. This file's decisions
   are "how"; SPEC.md's are "what/why" and are NOT open for renegotiation during planning.
 
 ### Root-cause sources (read before touching any related code)
-- `.planning/debug/resolved/intern-w1-mode-gate-skip.md` — the confirmed 3-gap root cause for
+- `.planning/debug/resolved/intern-w1-mode-gate-skip.md` - the confirmed 3-gap root cause for
   the silent-skip defect; gaps 1-2 already fixed, gap 3 (this phase's Req 1) is candidate fix
   direction 3 verbatim in its "Required Code Changes" section.
-- `.planning/debug/ignite-frontdoor-bypassed-methodology-overfire.md` — the confirmed root
+- `.planning/debug/ignite-frontdoor-bypassed-methodology-overfire.md` - the confirmed root
   cause for the trending-to-absurd over-fire; FIX 1/FIX 2 already landed (commit `7868dfbb`);
   `fix_remaining` items 2 and 4 verbatim are this phase's Req 2 and Req 3.
 
 ### Existing patterns to mirror, not literally reuse
-- `lib/core/card-fire-sidechannel.cjs` — the sidechannel pattern (atomic writes, never-throw,
+- `lib/core/card-fire-sidechannel.cjs` - the sidechannel pattern (atomic writes, never-throw,
   size cap, session-scoped read) Req 1's new module mirrors; do NOT reuse its actual store file
   or 10-minute TTL (see D-01).
 - `data/doctor-modules.json` + any existing `cadence: "always"`, `fix_supported: false` module
   row (e.g. class D/F/K/L/M/S entries) as the shape template for Req 1's new registry row.
-- `tests/test-209-declared-implies-wired.cjs` — the structural/static test convention Req 3's
+- `tests/test-209-declared-implies-wired.cjs` - the structural/static test convention Req 3's
   fixture follows (read real files, drive real checker functions, never simulate an LLM turn).
 - `skills/trending-to-absurd/SKILL.md` (post-fix, `sensor_triggers: []`) and
-  `lib/core/trending-to-absurd/orchestrator.cjs` — the confirmed-clean reference shape Req 2's
+  `lib/core/trending-to-absurd/orchestrator.cjs` - the confirmed-clean reference shape Req 2's
   sweep heuristic (D-06) is calibrated against.
 
 </canonical_refs>
@@ -173,17 +173,17 @@ a sweep report, a test fixture, two doc edits). No visual design surface.
 ## Existing Code Insights
 
 ### Reusable Assets
-- `lib/hmi/selector-dispatcher.cjs`'s `pickShape` trailer door — the existing call site for
+- `lib/hmi/selector-dispatcher.cjs`'s `pickShape` trailer door - the existing call site for
   `recordReachedGate`; Req 1's `recordLanePick` call is added here additively (D-03).
 - `scripts/doctor.cjs`'s module-registry architecture (one `data/doctor-modules.json` row + one
-  `lib/core/doctor/<id>-module.cjs` runner, no script-body edits) — Req 1 is a pure extension,
+  `lib/core/doctor/<id>-module.cjs` runner, no script-body edits) - Req 1 is a pure extension,
   zero changes to `scripts/doctor.cjs` itself.
 
 ### Established Patterns
-- Advisory-only enforcement (Phase 210's reverted pattern) — every new signal this phase adds
+- Advisory-only enforcement (Phase 210's reverted pattern) - every new signal this phase adds
   must default to WARN/exit-0, never a new hard-fail (SPEC Constraint, binding).
 - doctor.cjs's `check(ctx)` / `fix(ctx)` module contract, enforced by
-  `tests/test-doctor-module-contract-parity.cjs` (D-03 gate) — Req 1's new module must satisfy
+  `tests/test-doctor-module-contract-parity.cjs` (D-03 gate) - Req 1's new module must satisfy
   this contract exactly (explicit `fix_supported: false`, valid status vocabulary, non-empty
   `detail`).
 
@@ -194,21 +194,21 @@ a sweep report, a test fixture, two doc edits). No visual design surface.
   target)
 - `skills/larry-personality/SKILL.md` (Req 4 new section)
 - `commands/ignite.md` `## Entry Routing` Directive/Imperative path (Req 5's actual
-  destination, per the D-11 correction above — NOT Gate B1, which stays fully untouched)
+  destination, per the D-11 correction above - NOT Gate B1, which stays fully untouched)
 
 </code_context>
 
 <deferred>
 ## Deferred Ideas
 
-- Fixing every skill the sweep (Req 2) finds beyond the trivial bar — explicitly out of scope
+- Fixing every skill the sweep (Req 2) finds beyond the trivial bar - explicitly out of scope
   per SPEC boundary; deferred to its own follow-up phase or seed.
-- `orchestrator.cjs`'s code-level "honor the chosen horizon" fix — named in the source debug
+- `orchestrator.cjs`'s code-level "honor the chosen horizon" fix - named in the source debug
   file's `fix_remaining` item 1 but NOT carried into this phase's ROADMAP scope (only items 2
   and 4 were). Stays open for its own pickup.
-- The parked Brain pedagogy write (`14-BRAIN-PEDAGOGY-WRITE.md`) — needs an admin/write key,
+- The parked Brain pedagogy write (`14-BRAIN-PEDAGOGY-WRITE.md`) - needs an admin/write key,
   explicitly out of this phase's scope per SPEC.
-- Any Phase-223-specific ignite entry point — 223 has zero confirmed ignite surface today;
+- Any Phase-223-specific ignite entry point - 223 has zero confirmed ignite surface today;
   only a generic, non-223-referencing seam is in scope (D-12).
 
 </deferred>

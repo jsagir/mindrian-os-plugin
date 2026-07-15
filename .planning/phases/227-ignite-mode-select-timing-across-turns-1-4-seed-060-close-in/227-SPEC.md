@@ -1,4 +1,4 @@
-# Phase 227: Ignite / mode-select timing across turns 1-4 (SEED-060) — Specification
+# Phase 227: Ignite / mode-select timing across turns 1-4 (SEED-060) - Specification
 
 **Created:** 2026-07-15
 **Ambiguity score:** 0.155 (gate: <= 0.20)
@@ -23,9 +23,9 @@ Two debug sessions this cycle diagnosed real, confirmed defects in this exact su
 - `intern-w1-mode-gate-skip.md` (RESOLVED 2026-07-11): the session-start mode-selection gate
   (`skills/conversation-mode/SKILL.md`, `hitl_shape: "F.1"`) was enforced by prose alone. Two
   of three structural gaps were closed (registry now scans `skills/*/SKILL.md`; a
-  hasShape+excluded contradiction predicate now fires advisory WARN). The third gap — "give
+  hasShape+excluded contradiction predicate now fires advisory WARN). The third gap - "give
   the mode-selection gate an actual code-level firing checkpoint... so a silent skip has
-  SOMETHING structural to catch, not just prose" — was explicitly deferred to a follow-up
+  SOMETHING structural to catch, not just prose" - was explicitly deferred to a follow-up
   phase. That follow-up is this phase's Requirement 1.
 - `ignite-frontdoor-bypassed-methodology-overfire.md` (partially-fixed 2026-06-24): Larry
   bypassed ignite's clean F.1 front door and reached for `/mos:trending-to-absurd` on a casual
@@ -44,12 +44,12 @@ Two debug sessions this cycle diagnosed real, confirmed defects in this exact su
 
 Hooked-Model audit finding (this session, applied before locking the spec): firing the gate
 at turn 1 is the RIGHT timing, but only when framed correctly. The gate is a **Prompt** (Fogg
-B=MAP), not an **Investment** — the Hook Model's own sequencing rule ("Investment always AFTER
+B=MAP), not an **Investment** - the Hook Model's own sequencing rule ("Investment always AFTER
 Reward; never ask for effort before value is delivered") would be violated by a heavyweight
 forced ask, but a single-click, 3-4-option lane-pick fired ONLY when the user's opener doesn't
 already signal a lane is friction-minimized routing, matching this codebase's own
 `detect_dual_path` precedent (infer from signal, ask only when genuinely ambiguous). The actual
-defect these debug files describe is not "asks too early" — it's the third failure mode: the
+defect these debug files describe is not "asks too early" - it's the third failure mode: the
 gate neither fires a card NOR states a default, a fully silent skip. Requirement 1's checkpoint
 targets exactly that failure mode; Requirement 4's documentation must state this framing, not
 generic Hooked-Model name-dropping.
@@ -66,7 +66,7 @@ generic Hooked-Model name-dropping.
    - Target: a new doctor.cjs module (own registry row in `data/doctor-modules.json`, own runner
      under `lib/core/doctor/`) checks whether a lane-pick record exists for the session; if
      absent, emits an advisory WARN (never blocks, never re-fires the gate itself, never
-     escalates to hard-fail) — matching Phase 210's reverted-enforcement pattern, where five
+     escalates to hard-fail) - matching Phase 210's reverted-enforcement pattern, where five
      mechanisms were deliberately walked back from HARD-FAIL/BINDING to advisory/soft-fail.
    - Acceptance: a scripted test simulating a silent skip (no lane-pick record written) shows
      the new doctor check returning `warn`; a scripted test simulating a normal recorded lane
@@ -87,7 +87,7 @@ generic Hooked-Model name-dropping.
      additions (e.g. a horizon/persona-gate softening comparable to `trending-to-absurd`'s own
      restraint fix) when the pattern is shallow and self-contained. Anything requiring new code,
      new gates, cross-file changes, or genuine design work is named in the report and explicitly
-     deferred, not fixed here — mirroring the precedent in `intern-w1-mode-gate-skip.md`, where
+     deferred, not fixed here - mirroring the precedent in `intern-w1-mode-gate-skip.md`, where
      a related sweep found 55 pre-existing contradictions and only the one named instance was
      resolved in-session.
    - Acceptance: a written findings report (in this phase's directory) lists every skill
@@ -120,9 +120,9 @@ generic Hooked-Model name-dropping.
      always comes after Reward; a forced heavyweight ask before any value is delivered is the
      anti-pattern), (c) states the ambiguous-vs-already-signaled distinction (fire the card only
      when the user's opener doesn't already signal a lane, matching the existing
-     `detect_dual_path` precedent — infer and proceed when the signal is clear), and (d) names
+     `detect_dual_path` precedent - infer and proceed when the signal is clear), and (d) names
      the silent-skip failure mode (neither a card fires nor a default is stated) as the actual
-     defect Requirement 1's checkpoint exists to catch — not "the gate fires too early."
+     defect Requirement 1's checkpoint exists to catch - not "the gate fires too early."
    - Acceptance: `grep -ci "ignite" skills/larry-personality/SKILL.md` > 0; the new section
      contains the Prompt-not-Investment framing, the ambiguous-vs-signaled distinction, and
      names the silent-skip failure mode explicitly (not generic Hooked-Model summary text).
@@ -136,11 +136,11 @@ generic Hooked-Model name-dropping.
      (`--express` with the already-established conversational context as blueprint seed)
      instead of calling `/mos:new-project` directly. **Correction (verified directly against
      live `commands/ignite.md`, post pattern-mapper spot-check):** Gate B1 is NOT "three
-     options + free-text" as originally drafted here — it is a four-door persona-first single
+     options + free-text" as originally drafted here - it is a four-door persona-first single
      card (Persona / CV / Hypothesis / Free-Text). Mode 3 does not route through B1 at all;
      Gate B1's own text states Directive paths with a determinable role/venture (which the
      Imperative/`--express` path is) BYPASS B1 entirely and proceed straight to Gate B2
-     (Blueprint) — avoiding redundant re-interrogation of a navigator whose intent
+     (Blueprint) - avoiding redundant re-interrogation of a navigator whose intent
      conversation-mode's own Mode 2-to-3 transition already established. Gate B1's four-door
      structure stays completely untouched by this requirement.
    - Acceptance: `grep "new-project" skills/conversation-mode/SKILL.md` no longer shows a direct
@@ -163,24 +163,24 @@ generic Hooked-Model name-dropping.
   directly, with a light architectural seam for a future 223 entry point (Req 5).
 
 **Out of scope:**
-- Fixing every skill the sweep finds, regardless of complexity — anything beyond a one-line
+- Fixing every skill the sweep finds, regardless of complexity - anything beyond a one-line
   description/frontmatter edit or a simple in-file restraint addition is reported and deferred
   to its own follow-up phase or seed, not fixed here (mirrors the 55-instance precedent from
   `intern-w1-mode-gate-skip.md`).
-- A live human-tester re-run of Test 4 — Requirement 3 is satisfied by a scripted fixture; no
+- A live human-tester re-run of Test 4 - Requirement 3 is satisfied by a scripted fixture; no
   human-verify checkpoint is required to close this phase.
 - Any code, branch, flag, or reference specific to Phase 223's not-yet-existing ignite surface
-  — 223 has zero confirmed "ignite" mentions today; building toward it now would be speculative
+  - 223 has zero confirmed "ignite" mentions today; building toward it now would be speculative
   design against an ungrounded target. Only a generic, reusable seam is permitted (Req 5).
 - Escalating the new firing-checkpoint (Req 1) or the sweep's contradiction predicate beyond
-  advisory WARN — Phase 210 deliberately reverted five HARD-FAIL/BINDING mechanisms to
+  advisory WARN - Phase 210 deliberately reverted five HARD-FAIL/BINDING mechanisms to
   advisory/soft-fail/score-only; this phase must not reintroduce a new blocking gate in the
   same family.
 - The parked Brain pedagogy write (`14-BRAIN-PEDAGOGY-WRITE.md`, needs an admin/write key) named
-  as a non-code follow-up in `ignite-frontdoor-bypassed-methodology-overfire.md` — explicitly a
+  as a non-code follow-up in `ignite-frontdoor-bypassed-methodology-overfire.md` - explicitly a
   separate, credentialed task, not this phase's scope.
 - `orchestrator.cjs`'s code-level "honor the chosen horizon" fix (item 1 in the same debug
-  file's `fix_remaining`) — that item was not carried into this phase's ROADMAP scope
+  file's `fix_remaining`) - that item was not carried into this phase's ROADMAP scope
   (confirmed: only items 2 and 4 are named) and stays open for its own pickup.
 
 ## Constraints
@@ -194,10 +194,10 @@ generic Hooked-Model name-dropping.
   convention, per `doctor.cjs`'s own extension architecture: one registry row + one runner file,
   no script-body edits).
 - **Zero Brain egress.** All work in this phase is LOCAL-only (skill docs, doctor checks, test
-  fixtures, routing fixes) — no Brain MCP calls, no user-content egress (Canon Part 8).
+  fixtures, routing fixes) - no Brain MCP calls, no user-content egress (Canon Part 8).
 - **Hooked-Model framing constraint (Req 4).** The documented reasoning must use the
   Prompt-vs-Investment distinction and the ambiguous-vs-signaled routing rule established by
-  this session's hooked-model audit — not a generic restatement of the Hook Model's four
+  this session's hooked-model audit - not a generic restatement of the Hook Model's four
   phases with no connection to this specific gate's design.
 
 ## Acceptance Criteria
@@ -242,10 +242,10 @@ Status: OK = met minimum on all 4 dimensions; gate passed.
 | 1     | Boundary Keeper           | Should 227 build anything speculative toward Phase 223's not-yet-existing ignite surface | Design with a light 223 seam (generic entry point), no speculative 223-specific code |
 | 2     | Failure Analyst            | What exactly counts as PASS for the new firing-checkpoint hook                    | Wire into doctor.cjs as a new check class (not a bare standalone hook)          |
 | 2     | Failure Analyst            | What counts as "trivial" for the sweep's inline-fix bar                           | Extends to simple in-file orchestrator-level restraint additions, not description-only |
-| —     | Hooked-Model audit (`/hooked-model` skill, explicit request) | Does turn-1 gate timing violate Investment-before-Reward; what should the documented reasoning say | Turn-1 firing is correct when framed as a Prompt (not Investment), fired only on genuine ambiguity; the real defect is the silent-skip failure mode, not gate timing — this framing is now Req 4's acceptance bar |
+| -     | Hooked-Model audit (`/hooked-model` skill, explicit request) | Does turn-1 gate timing violate Investment-before-Reward; what should the documented reasoning say | Turn-1 firing is correct when framed as a Prompt (not Investment), fired only on genuine ambiguity; the real defect is the silent-skip failure mode, not gate timing - this framing is now Req 4's acceptance bar |
 
 ---
 
 *Phase: 227-ignite-mode-select-timing-across-turns-1-4-seed-060-close-in*
 *Spec created: 2026-07-15*
-*Next step: /gsd-discuss-phase 227 — implementation decisions (how to build what's specified above)*
+*Next step: /gsd-discuss-phase 227 - implementation decisions (how to build what's specified above)*
