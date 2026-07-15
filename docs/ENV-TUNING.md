@@ -101,6 +101,49 @@ export MINDRIAN_EUREKA_SMOKE_ALLOW_DOWNLOAD=1
 export MINDRIAN_WHATWHY_MARGIN=0.15
 ```
 
+## Reach Hedge Ranker (Phase 222, room-local, zero egress)
+
+When more than one reach candidate fires on a turn, `suggest_next`,
+`reach_candidates`, and the per-turn auto-fire decision all resolve to one shared
+scored pick, and a hand-rolled multiplicative-weights (Hedge) layer adjusts that
+score from the room's own Phase 159 outcome log. Both tunables below are read
+defensively with a numeric fallback in `lib/workflow/reach-hedge-ranker.cjs`, so a
+malformed value can never zero out or invert ranking. Both are room-local ranking
+tunables with zero egress (Canon Part 8): weight state never leaves room.db and
+never enters a Brain Context Packet.
+
+### MINDRIAN_HEDGE_UPDATE_N
+
+**What:** The Hedge weight-update debounce window, in qualifying
+`f_selector_decision` outcome events. The weights refit at most once per N events,
+never per-event.
+**Default:** `50` (a positive integer). This is SEED-009's own precedent number,
+matching Phase 158's existing debounce discipline, not a freshly-invented one.
+**Why:** Per-event updates thrash the weights (a single noisy outcome swinging them,
+then correcting, then swinging again) with no accuracy benefit at this data scale.
+The bound is TUNABLE-LATER from telemetry once the outcome-edge corpus grows. Any
+non-integer or non-positive value falls back to the default.
+
+```bash
+export MINDRIAN_HEDGE_UPDATE_N=50
+```
+
+### MINDRIAN_HEDGE_ETA
+
+**What:** The Hedge / multiplicative-weights (MWU) learning rate. It bounds how far
+a single fold can swing the expert weights.
+**Default:** `0.3` (a positive float). At 0.3 a single fold's multiplicative swing is
+bounded to about exp(0.3) ~ 1.35, conservative for a two-expert Hedge (Arora-Hazan-Kale
+2012).
+**Why:** The horizon-optimal learning rate is T-dependent and is deliberately NOT
+computed at this data scale (it would overfit at under 100 outcome edges). A fixed,
+conservative rate is the honest choice until the corpus is large enough to calibrate;
+TUNABLE-LATER. Any non-finite or non-positive value falls back to the default.
+
+```bash
+export MINDRIAN_HEDGE_ETA=0.3
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
