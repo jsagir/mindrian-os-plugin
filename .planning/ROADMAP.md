@@ -3092,7 +3092,7 @@ Plans:
 **Goal:** Turn each student diarized 5-minute pitch transcript into one Minto-structured formative feedback artifact, batch-orchestrated across 200+ HUJI submissions at a $4-5/unit ceiling, with local-only scoring (Brain read-only, generic handles per Canon Part 8) and a mandatory human calibration checkpoint. MindrianOS first paying job.
 **Requirements**: net-new business-opportunity phase; no REQUIREMENTS.md REQ-IDs mapped. Requirement axis = the AI-SPEC 10 evaluation dimensions D1-D10 (distributed across the plans) + the 5 build seams.
 **Depends on:** Phase 228
-**Plans:** 2/9 plans executed
+**Plans:** 3/9 plans executed
 Plans:
 **Wave 1**
 
@@ -3101,7 +3101,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 229-03-PLAN.md -- huji-eval.cjs deterministic code checks (quote-verifier/recall/drift/schema/similarity/cost/part8-hygiene) [D1,D2,D3,D4,D5,D8,D9]
+- [x] 229-03-PLAN.md -- huji-eval.cjs deterministic code checks (quote-verifier/recall/drift/schema/similarity/cost/part8-hygiene) [D1,D2,D3,D4,D5,D8,D9]
 - [ ] 229-04-PLAN.md -- PWS_grading recipe (recipe-maps + pipelines/PWS_grading) + score-and-continue rubric [D3,D5,D7]
 - [ ] 229-05-PLAN.md -- Stage A intake adapter (fusion Mode A port + writeClaimNode room-builder) [D1,D2]
 
