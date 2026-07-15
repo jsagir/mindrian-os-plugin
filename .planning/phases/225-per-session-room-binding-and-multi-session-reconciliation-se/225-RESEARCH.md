@@ -296,7 +296,7 @@ const v = new DatabaseSync(':memory:').prepare('select sqlite_version() as v').g
 | A3 | Phase 224 will not edit `intent-classifier.cjs` before or during 225 | Verification Log | Low - confirmed against all current 224 plan `files:` blocks, but 224 is mid-flight (1/4 plans); re-grep at 225 plan-time |
 | A4 | No CONTEXT.md exists for 225 yet, so there are no locked user decisions to honor | User Constraints | Low - phase dir holds only `.gitkeep`; run `/gsd-discuss-phase 225` first if locked decisions are wanted before planning |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the zero-score gate default to "continue in primary" (sticky) or force a choice?**
    - What we know: The seed's open-fork #1 leans "primary-as-default with one-key reassign." The
@@ -306,6 +306,9 @@ const v = new DatabaseSync(':memory:').prepare('select sqlite_version() as v').g
    - Recommendation: Resolve at spec/discuss. Leaning: honor sticky for OFF-scope re-prompts, but
      a TOTAL-miss (zero-score) is a strong-enough new-project signal to prompt once even under
      sticky, then set the new choice sticky.
+   - **RESOLVED: see PD-1 (225-01-PLAN.md).** Gate fires once per session per room even under
+     sticky; "continue in primary" pre-checked at 0.71; existing sticky handling applies after
+     the answer.
 
 2. **Does the extraction worker (Phase 218) need to check `hasCoSession` before a WAL checkpoint?**
    - What we know: The WAL-reset race needs 2+ connections writing/checkpointing simultaneously.
@@ -313,9 +316,15 @@ const v = new DatabaseSync(':memory:').prepare('select sqlite_version() as v').g
      or whether the doctor warning + eventual SQLite 3.51.3 is sufficient.
    - Recommendation: Start with the doctor advisory only (REQ-4). Add the worker guard only if the
      navigator wants belt-and-suspenders; it is a small, isolated addition to the drain worker.
+   - **RESOLVED: see PD-2 (225-02-PLAN.md).** Doctor advisory only, no extraction-worker guard -
+     the drain worker files are Phase 224's in-flight surface (224-03/04 still pending), so a
+     guard there would be a live cross-phase collision; the WAL-reset leg is upstream and
+     detect-only anyway.
 
 3. **Requirement numbering:** ROADMAP says Requirements TBD with no global REQ-XX ids. Confirm at
    spec whether 225 uses local reqs (like 224) or maps to global REQUIREMENTS.md ids.
+   - **RESOLVED: see PD-4 (225-01-PLAN.md).** Local REQ-1..REQ-6 adopted verbatim from this
+     file's own Rec IDs, matching the Phase 224 precedent.
 
 ## Environment Availability
 
