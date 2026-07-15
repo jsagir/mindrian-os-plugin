@@ -23,6 +23,15 @@
       "description": "check-card-fire.cjs instrument health: intercept log exists/valid JSONL/fresh, library seams intact, session store parseable"
     },
     {
+      "id": "mode-select-checkpoint",
+      "introduced_version": "1.15.3-beta.19",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/mode-select-checkpoint-module.cjs",
+      "description": "Session-start mode-selection Decision Gate firing checkpoint: warns when a session has had a user turn but no lane-pick was recorded, a possible silent skip. Check-only, advisory."
+    },
+    {
       "id": "ui-compliance",
       "introduced_version": "1.12.1-beta.1",
       "cadence": "always",
