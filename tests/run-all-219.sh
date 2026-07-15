@@ -115,6 +115,10 @@ run_if "219-02 FTS5 degrade (probe + honest provenance)" "tests/test-219-fts5-de
 run_if "219-02 metadata slice (deterministic, zero-egress)" "tests/test-219-metadata.cjs" \
   node tests/test-219-metadata.cjs
 
+# Quick 260715-cu8: per-term low-confidence disclosure (framework_terms_low_confidence).
+run_if "219 low-confidence disclosure (per-term, quick 260715-cu8)" "tests/test-219-low-confidence-disclosure.cjs" \
+  node tests/test-219-low-confidence-disclosure.cjs
+
 # Plan 03 (Wave 2): REQ-2 harvest sensor (SENS rail, Four-Lens, connection gate).
 run_if "219-03 harvest sensor (fixture lens labels + suppression)" "tests/test-219-harvest-sensor.cjs" \
   node tests/test-219-harvest-sensor.cjs

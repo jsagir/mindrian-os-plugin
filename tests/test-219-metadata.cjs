@@ -157,10 +157,52 @@ async function main() {
     console.log('  Test 1 PASS: frontmatter props queryable on the memory_artifact node');
     passed += 1;
 
-    // ----- Test 2: no-frontmatter artifact untouched (no prop churn) -----
+    // ----- Test 2: no-frontmatter artifact: additive-only + disclosure pin -----
+    // The correct contract (quick 260715-cu8): a no-frontmatter node gains NO
+    // frontmatter props, and the two-tier classifier (quick 260714-k44) may
+    // legitimately classify a candidate (e.g. "Hexcel") as WHY and, under the live
+    // no-working-LLM state, land it in framework_terms as a low-confidence embedding
+    // best-guess. Additive classification is legitimate; an UNDISCLOSED
+    // low-confidence guess is the bug this quick task fixes. So: pre-existing props
+    // stay byte-identical, review_status is untouched, any ADDED keys are limited to
+    // the additive framework trio, and when Hexcel lands it MUST be disclosed
+    // low-confidence (the pin that REDs again if the disclosure signal disappears).
     const plainAfter = readNode(roomDir, NODE_IDS.plain);
-    assert.deepEqual(plainAfter.props, plainBefore.props, 'no-frontmatter node props byte-identical');
-    console.log('  Test 2 PASS: artifact without frontmatter untouched');
+    const ALLOWED_ADDED = new Set(['framework_terms', 'framework_term_count', 'framework_terms_low_confidence']);
+    for (const k of Object.keys(plainBefore.props)) {
+      assert.deepEqual(plainAfter.props[k], plainBefore.props[k],
+        'pre-existing prop ' + k + ' unchanged on the no-frontmatter node');
+    }
+    for (const k of Object.keys(plainAfter.props)) {
+      if (Object.prototype.hasOwnProperty.call(plainBefore.props, k)) continue;
+      assert.ok(ALLOWED_ADDED.has(k),
+        'only the additive framework trio may be added to a no-frontmatter node (saw: ' + k + ')');
+    }
+    assert.equal(plainAfter.row.review_status, statusBefore,
+      'review_status never touched on the no-frontmatter node');
+
+    // Live-state branch, k44-deviation-1 style so the leg is deterministic on every
+    // machine (cached encoder + no working LLM here, encoder-absent hzx degrade
+    // elsewhere, or a future funded key resolving Hexcel confidently as WHAT).
+    const statusRaw = fs.readFileSync(
+      path.join(roomDir, '.mindrian', 'entity-extract', 'status.json'), 'utf8');
+    const status = JSON.parse(statusRaw);
+    const ftPlain = typeof plainAfter.props.framework_terms === 'string' ? plainAfter.props.framework_terms : '';
+    const lowPlain = typeof plainAfter.props.framework_terms_low_confidence === 'string'
+      ? plainAfter.props.framework_terms_low_confidence : '';
+    if (ftPlain.indexOf('Hexcel') !== -1) {
+      // The cached-encoder, no-working-LLM state that caught this regression.
+      assert.ok((status.tier2_low_confidence || 0) >= 1,
+        'the aggregate low-confidence counter records the no-LLM degrade');
+      assert.ok(lowPlain.indexOf('Hexcel') !== -1,
+        'DISCLOSURE PIN: Hexcel in framework_terms MUST be disclosed low-confidence per-term');
+      console.log('  Test 2 PASS: [live: Hexcel present] additive + disclosed low-confidence per-term');
+    } else {
+      // Encoder-absent hzx degrade, or a future funded key resolving Hexcel as WHAT.
+      assert.ok(lowPlain.indexOf('Hexcel') === -1,
+        'if Hexcel is not a WHY term, it is not disclosed as a low-confidence one either');
+      console.log('  Test 2 PASS: [live: Hexcel absent] no undisclosed framework term on the plain node');
+    }
     passed += 1;
 
     // ----- Test 3: non-scalar frontmatter skipped, batch survived -----
