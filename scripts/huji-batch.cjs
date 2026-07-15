@@ -246,9 +246,150 @@ function defaultRunUnit(sub, ctx) {
 }
 
 // --------------------------------------------------------------------------
+// Failure classifiers + batch halt.
+// --------------------------------------------------------------------------
+
+// Terminal (do-not-retry) failures are input errors from runOne (invalid_*); a
+// retry cannot fix a bad subId/path. Everything else is transient (retry).
+function isTerminalFailure(res) {
+  const reason = (res && res.reason) || '';
+  return /^invalid_/.test(String(reason));
+}
+
+// A repeated rate_limit signal (Pitfall 6) is a reason to DROP to serial, never
+// to add retries on top.
+function isRateLimited(res) {
+  const s = String((res && (res.detail || res.reason)) || '');
+  return res && (res.rateLimited === true) || /rate.?limit/i.test(s);
+}
+
+// The --max-budget-usd CLI fuse tripping (G5).
+function isBudgetTrip(res) {
+  const s = String((res && (res.detail || res.reason)) || '');
+  return res && (res.budgetTripped === true) || /budget/i.test(s);
+}
+
+function haltBatch(state, gate, detail) {
+  if (state.halted) return;
+  state.halted = true;
+  state.haltReason = gate;
+  state.haltDetail = detail;
+  console.error('*** BATCH HALT [' + gate + '] - PAGE HUMAN: ' + detail);
+}
+
+// --------------------------------------------------------------------------
+// attemptSubmission - the per-submission retry loop. 2 retries on transient
+// failure, a FRESH scratch room each attempt (rm the prior room so no partial
+// state poisons the rerun), then the caller marks it failed and continues.
+// --------------------------------------------------------------------------
+async function attemptSubmission(sub, ctx) {
+  const { config, outDir, roomsDir, runUnit, maxRetries } = ctx;
+  const totalTries = 1 + (typeof maxRetries === 'number' ? maxRetries : 2);
+  let last = null;
+  for (let attempt = 1; attempt <= totalTries; attempt++) {
+    // Fresh scratch room per attempt (rerun = clean overwrite, PATTERNS retry).
+    try { fs.rmSync(path.join(roomsDir, sub.subId), { recursive: true, force: true }); } catch (_e) { /* graceful */ }
+    last = await runUnit(sub, { config, outDir, roomsDir, attempt });
+    last = last || { ok: false, reason: 'null_unit_result' };
+    last.attempts = attempt;
+    if (last.ok) return last;
+    if (isTerminalFailure(last)) return last; // input error - retry cannot help
+  }
+  return last;
+}
+
+// --------------------------------------------------------------------------
+// failures.md - the partial-failure report (a deliverable, not a log): every
+// failed submission with its truncated stderr + last session_id.
+// --------------------------------------------------------------------------
+function appendFailure(state, sub, res) {
+  state.failures.push({
+    subId: sub.subId,
+    reason: (res && res.reason) || 'unknown',
+    stderr: String((res && res.detail) || '').slice(0, 1000).replace(/\n/g, ' '),
+    session_id: (res && res.session_id) || null,
+    attempts: (res && res.attempts) || 1,
+  });
+  const lines = ['# Batch failures (partial-failure report - a deliverable)', ''];
+  for (const f of state.failures) {
+    lines.push('## ' + f.subId + ' (failed after ' + f.attempts + ' attempt(s))');
+    lines.push('- reason: ' + f.reason);
+    lines.push('- last session_id: ' + (f.session_id || 'none'));
+    lines.push('- stderr (truncated): ' + f.stderr);
+    lines.push('');
+  }
+  writeAtomic(state.failuresPath, lines.join('\n'));
+}
+
+// --------------------------------------------------------------------------
+// Batch guardrails escalating to a WHOLE-BATCH halt.
+//   G3 Part-8 egress: reuses huji-eval part8Hygiene (the same gate as
+//       `node scripts/huji-eval.cjs --check part8-hygiene`) over the unit's
+//       Brain-query log; ANY hit means the hygiene MECHANISM is broken for all
+//       200 - zero tolerance (T-229-08-01).
+//   G4 model provenance: result.json model_id != the pinned config.model means
+//       cohort fairness is broken mid-batch (Pitfall 1 / T-229-08-02).
+// --------------------------------------------------------------------------
+function loadQueryPayloads(roomDir, outDir) {
+  const payloads = [];
+  for (const base of [roomDir, outDir]) {
+    if (!base) continue;
+    for (const name of ['brain-query-log.jsonl', 'query-log.jsonl']) {
+      const p = path.join(base, name);
+      if (!fs.existsSync(p)) continue;
+      for (const ln of fs.readFileSync(p, 'utf8').split('\n').filter(Boolean)) {
+        try { const o = JSON.parse(ln); payloads.push(o.payload || o); } catch (_e) { /* ignore */ }
+      }
+    }
+  }
+  return payloads;
+}
+
+function checkG3(res) {
+  const { part8Hygiene } = require('./huji-eval.cjs');
+  let evidence = {};
+  try {
+    if (res.evidencePath && fs.existsSync(res.evidencePath)) evidence = JSON.parse(fs.readFileSync(res.evidencePath, 'utf8'));
+  } catch (_e) { /* ignore */ }
+  const entities = collectStrings(evidence);
+  const payloads = loadQueryPayloads(res.roomDir, res.outDir);
+  return part8Hygiene({ payloads, entities });
+}
+
+function checkG4(res, pinnedModel) {
+  let modelId = res.model_id;
+  try {
+    if (res.resultPath && fs.existsSync(res.resultPath)) {
+      const rj = JSON.parse(fs.readFileSync(res.resultPath, 'utf8'));
+      modelId = rj.model_id || modelId;
+    }
+  } catch (_e) { /* ignore */ }
+  if (modelId !== pinnedModel) return { ok: false, detail: String(modelId) + ' != pinned ' + pinnedModel };
+  return { ok: true };
+}
+
+// Cleanup after .done: archive/delete the scratch room, dropping any residue and
+// db handles (Pitfall 5 / T-229-08-04). runOne closes its own db handle; here we
+// remove the room dir so N=200 leaves no scratch residue.
+function cleanupRoom(roomDir) {
+  if (!roomDir) return;
+  try { fs.rmSync(roomDir, { recursive: true, force: true }); } catch (_e) { /* graceful */ }
+}
+
+// Cohort aggregation: render the report via huji-eval --report over the batch
+// out dir (cost curve, score distribution, drift, similarity, Part-8 line).
+function runAggregation(outDir, aggregateModel) {
+  const res = spawnSync('node', [path.join(REPO_ROOT, 'scripts', 'huji-eval.cjs'), '--report', '--out', outDir], {
+    encoding: 'utf8', maxBuffer: 16 * 1024 * 1024,
+  });
+  return { ok: res.status === 0, model: aggregateModel, stdout: String(res.stdout || ''), stderr: String(res.stderr || '') };
+}
+
+// --------------------------------------------------------------------------
 // runBatch({config, submissionsDir, workspaceDir}) - the outer loop.
-// Task 1 scope: preflight, pool, ledger, resume. Returns
-// { ok, completed, skipped, ledgerPath, outDir }.
+// Preflight, pool, ledger, resume, retry, batch guardrails (G3/G4/G5 +
+// failure-rate), aggregation, cleanup. Returns
+// { ok, halted, haltReason, completed, failed, skipped, ledgerPath, outDir }.
 // --------------------------------------------------------------------------
 async function runBatch(opts) {
   const o = opts || {};
@@ -266,6 +407,7 @@ async function runBatch(opts) {
   const outDir = path.join(ws.workspaceDir, 'out');
   const roomsDir = path.join(ws.workspaceDir, 'rooms');
   const ledgerPath = path.join(ws.workspaceDir, 'batch-state.json');
+  const failuresPath = path.join(ws.workspaceDir, 'failures.md');
   fs.mkdirSync(outDir, { recursive: true });
   fs.mkdirSync(roomsDir, { recursive: true });
 
@@ -284,10 +426,16 @@ async function runBatch(opts) {
 
   const state = {
     ledgerPath,
+    failuresPath,
     onLedger: o.onLedger || null,
     halted: false,
     haltReason: null,
+    haltDetail: null,
     rateLimitHits: 0,
+    fuseTrips: 0,
+    failures: [],
+    window: [],
+    total: subs.length,
   };
 
   for (const s of subs) {
@@ -299,16 +447,18 @@ async function runBatch(opts) {
   const pending = subs.filter((s) => !isDone(s.subId, ledger, outDir));
   const skipped = subs.length - pending.length;
 
-  // The worker: mark running (transition), run the unit, hand the result to onSettle.
+  const maxRetries = typeof o.maxRetries === 'number' ? o.maxRetries : 2;
+
+  // The worker: mark running (transition), then run the retry loop for the unit.
   const worker = async (sub) => {
     ledger[sub.subId] = Object.assign({}, ledger[sub.subId], { status: 'running' });
     writeLedger(state, ledger);
-    const res = await runUnit(sub, { config, outDir, roomsDir });
-    return res;
+    return attemptSubmission(sub, { config, outDir, roomsDir, runUnit, maxRetries });
   };
 
   const getLimit = () => {
     if (state.halted) return 0;
+    // Repeated rate_limit signals -> serial (never more retries on top).
     return state.rateLimitHits >= RATE_LIMIT_SERIAL_THRESHOLD ? 1 : config.concurrency;
   };
 
@@ -321,14 +471,65 @@ async function runBatch(opts) {
       cost: res.cost || 0,
     };
     writeLedger(state, ledger);
+
+    state.window.push(res.ok ? 1 : 0);
+    if (isRateLimited(res)) state.rateLimitHits++;
+    if (isBudgetTrip(res)) state.fuseTrips++;
+    if (!res.ok) appendFailure(state, sub, res);
+
+    if (res.ok) {
+      // G3 Part-8 egress: ANY hit HALTS THE ENTIRE BATCH + pages human.
+      const g3 = checkG3(res);
+      if (!g3.ok) { haltBatch(state, 'G3', 'Part-8 egress hit on ' + sub.subId + ': ' + JSON.stringify((g3.hits || []).slice(0, 2))); return; }
+      // G4 model provenance: any mismatch HALTS THE BATCH (fairness broken).
+      const g4 = checkG4(res, config.model);
+      if (!g4.ok) { haltBatch(state, 'G4', 'model_id mismatch on ' + sub.subId + ': ' + g4.detail); return; }
+      // Cleanup scratch room after .done (no residue, close db handles).
+      cleanupRoom(res.roomDir);
+    }
+
+    // G5 cost fuse: > 2% of units trip the --max-budget-usd fuse -> PAUSE (systemic).
+    if (state.total > 0 && state.fuseTrips / state.total > 0.02) {
+      haltBatch(state, 'G5', 'cost fuse tripped on ' + state.fuseTrips + '/' + state.total + ' units (> 2%)');
+      return;
+    }
+    // Failure-rate alert: >= 5% over a rolling 20-window -> STOP (systemic bug).
+    if (state.window.length >= 20) {
+      const last20 = state.window.slice(-20);
+      const fails = last20.filter((x) => x === 0).length;
+      if (fails / 20 >= 0.05) { haltBatch(state, 'failure-rate', fails + '/20 failed in the rolling window (>= 5%)'); return; }
+    }
   };
 
   await runPool({ items: pending, getLimit, worker, onSettle });
 
   let completed = 0;
-  for (const s of subs) if (ledger[s.subId] && ledger[s.subId].status === 'done') completed++;
+  let failed = 0;
+  for (const s of subs) {
+    const st = ledger[s.subId] && ledger[s.subId].status;
+    if (st === 'done') completed++;
+    else if (st === 'failed') failed++;
+  }
 
-  return { ok: true, completed, skipped, total: subs.length, ledgerPath, outDir };
+  // Aggregation: cohort report (only when the batch was not halted).
+  let aggregation = null;
+  if (!state.halted) aggregation = runAggregation(outDir, config.aggregateModel);
+
+  return {
+    ok: !state.halted,
+    halted: state.halted,
+    haltReason: state.haltReason,
+    haltDetail: state.haltDetail,
+    completed,
+    failed,
+    skipped,
+    total: subs.length,
+    failuresCount: state.failures.length,
+    ledgerPath,
+    outDir,
+    failuresPath,
+    aggregation,
+  };
 }
 
 // --------------------------------------------------------------------------
@@ -436,6 +637,66 @@ async function cliDryRun(n) {
   }
 }
 
+// --------------------------------------------------------------------------
+// --dry-run-failure: exercise (1) the retry -> failures.md path, and (2) the two
+// mechanism-broken batch halts - a simulated Part-8 hit (G3) and a model_id
+// mismatch (G4). No model calls (stub runUnit).
+// --------------------------------------------------------------------------
+async function cliDryRunFailure() {
+  const assert = require('node:assert');
+
+  // Scenario 1: subA fails twice then succeeds (retry, fresh room); subB always
+  // fails -> failures.md with truncated stderr + last session_id.
+  const ws = mkTmpWorkspace('huji-batch-failure-');
+  try {
+    const tries = {};
+    const runUnit = async (sub) => {
+      tries[sub.subId] = (tries[sub.subId] || 0) + 1;
+      await tick();
+      if (sub.subId === 'stub-0001') {
+        if (tries[sub.subId] < 3) return { subId: sub.subId, ok: false, reason: 'stageB_nonzero', detail: 'transient boom', session_id: 'sess-A-' + tries[sub.subId] };
+        return writeStubUnit(ws, sub, { model: PINNED_MODEL_DEFAULT });
+      }
+      return { subId: sub.subId, ok: false, reason: 'stageB_nonzero', detail: 'permanent boom', session_id: 'sess-B-final' };
+    };
+    const subs = [{ subId: 'stub-0001', _entity: 'ZebraA' }, { subId: 'stub-0002', _entity: 'ZebraB' }];
+    const res = await runBatch({ config: { concurrency: 2, model: PINNED_MODEL_DEFAULT }, workspaceDir: ws, preflight: false, _submissions: subs, runUnit, maxRetries: 2 });
+    assert.ok(res.ok && !res.halted, 'transient failures alone must not halt the batch');
+    assert.strictEqual(tries['stub-0001'], 3, 'subA should retry to success on attempt 3 (got ' + tries['stub-0001'] + ')');
+    assert.strictEqual(tries['stub-0002'], 3, 'subB should exhaust 1 + 2 retries (got ' + tries['stub-0002'] + ')');
+    const failuresMd = fs.readFileSync(path.join(ws, 'failures.md'), 'utf8');
+    assert.ok(/stub-0002/.test(failuresMd), 'failures.md must list the failed unit');
+    assert.ok(/sess-B-final/.test(failuresMd), 'failures.md must carry the last session_id');
+    assert.ok(/permanent boom/.test(failuresMd), 'failures.md must carry the truncated stderr');
+    const ledger = JSON.parse(fs.readFileSync(path.join(ws, 'batch-state.json'), 'utf8'));
+    assert.strictEqual(ledger['stub-0001'].status, 'done', 'subA ledger status must be done');
+    assert.strictEqual(ledger['stub-0002'].status, 'failed', 'subB ledger status must be failed');
+    console.log('=== huji-batch --dry-run-failure ===');
+    console.log('  retry: subA failed x2 then succeeded on attempt ' + tries['stub-0001'] + ' (fresh room each attempt)');
+    console.log('  failures.md: subB exhausted retries -> stderr + last session_id recorded');
+  } finally { fs.rmSync(ws, { recursive: true, force: true }); }
+
+  // Scenario 2: a Part-8 (G3) egress hit HALTS the whole batch + pages the human.
+  const ws2 = mkTmpWorkspace('huji-batch-g3halt-');
+  try {
+    const runUnit = async (sub) => { await tick(); return writeStubUnit(ws2, sub, { leak: true, model: PINNED_MODEL_DEFAULT }); };
+    const res = await runBatch({ config: { concurrency: 2, model: PINNED_MODEL_DEFAULT }, workspaceDir: ws2, preflight: false, _submissions: makeStubSubs(3), runUnit });
+    assert.ok(res.halted && res.haltReason === 'G3', 'a Part-8 (G3) egress hit must HALT the batch (got ' + res.haltReason + ')');
+    console.log('  simulated Part-8 hit (G3): batch HALTED + human paged (haltReason=' + res.haltReason + ')');
+  } finally { fs.rmSync(ws2, { recursive: true, force: true }); }
+
+  // Scenario 3: a model_id mismatch (G4) HALTS the batch (cohort fairness broken).
+  const ws3 = mkTmpWorkspace('huji-batch-g4halt-');
+  try {
+    const runUnit = async (sub) => { await tick(); return writeStubUnit(ws3, sub, { leak: false, model: 'claude-sonnet-5' }); };
+    const res = await runBatch({ config: { concurrency: 2, model: PINNED_MODEL_DEFAULT }, workspaceDir: ws3, preflight: false, _submissions: makeStubSubs(3), runUnit });
+    assert.ok(res.halted && res.haltReason === 'G4', 'a model_id mismatch (G4) must HALT the batch (got ' + res.haltReason + ')');
+    console.log('  simulated model mismatch (G4): batch HALTED (haltReason=' + res.haltReason + ')');
+  } finally { fs.rmSync(ws3, { recursive: true, force: true }); }
+
+  console.log('OK - dry-run-failure assertions passed (retry, failures.md, G3 + G4 batch halt; no model called).');
+}
+
 function usage() {
   console.log('Usage: node scripts/huji-batch.cjs <--dry-run N | --dry-run-failure | --test-d10 | --selftest-killresume>');
   console.log('  (runBatch is consumed programmatically over an out-of-tree workspace.)');
@@ -445,6 +706,7 @@ if (require.main === module) {
   const argv = process.argv.slice(2);
   (async () => {
     try {
+      if (argv.includes('--dry-run-failure')) { await cliDryRunFailure(); process.exit(0); }
       if (argv.includes('--dry-run')) {
         const n = parseInt(argv[argv.indexOf('--dry-run') + 1], 10) || 5;
         await cliDryRun(n);
@@ -466,6 +728,10 @@ module.exports = {
   assertOutsideRepo,
   preflightPluginLoad,
   runPool,
+  attemptSubmission,
+  checkG3,
+  checkG4,
+  runAggregation,
   collectStrings,
   listSubmissions,
 };
