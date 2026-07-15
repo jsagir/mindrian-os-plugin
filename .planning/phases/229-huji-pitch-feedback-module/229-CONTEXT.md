@@ -63,7 +63,9 @@
 - **Methodology-native order is mullins BEFORE build-thesis** (GREEN Mullins -> build-thesis); structure-argument is a packaging/communication step (pyramid last).
 - Ten-Questions gate: 10 binary evidence-scored questions, 6/10 threshold that HALTS below - must become score-and-continue for feedback use. Mullins: 7 domains RED/YELLOW/GREEN, weakest-domain caps. validate/analyze-needs: importance-satisfaction tables. structure-argument: SCQA + MECE tree. **Output contracts are already feedback-shaped; inputs are the problem.**
 - All surfaces are conversational Socratic prompt files assuming a live founder + a venture room; stage handoff is via room-artifact frontmatter scanning. Both Minto engines are room-bound (reasoning-ops hard-fails without STATE.md; vault-section-minto-generator silently produces nothing on an empty room).
-- **The clean seam:** (a) ephemeral/synthetic room per submission (scratch STATE.md), (b) transcript->evidence extraction adapter per command (extract, don't interrogate), (c) score-and-continue mode neutralizing the 6/10 halt, (d) new registered recipe `pitch-feedback` in native order: deep-grade -> mullins -> build-thesis(scored, non-gating) -> structure-argument(pyramid packaging), (e) batch orchestrator looping (a)-(d) over N submissions with aggregation.
+- **The clean seam:** (a) ephemeral/synthetic room per submission (scratch STATE.md), (b) transcript->evidence extraction adapter per command (extract, don't interrogate), (c) score-and-continue mode neutralizing the 6/10 halt, (d) new registered recipe `PWS_grading` in native order: deep-grade -> mullins -> build-thesis(scored, non-gating) -> structure-argument(pyramid packaging), (e) batch orchestrator looping (a)-(d) over N submissions with aggregation.
+
+**Recipe name (navigator ruling, 15.7.2026): `PWS_grading`** - the registered command-resolver recipe/pipeline identifier for this 4-command chain. Not "pitch-feedback" (that name stays only as the phase-directory/opportunity label, not the invocable recipe name).
 
 ## Customer Sample Data (arrived 15.7.2026, mid-session)
 

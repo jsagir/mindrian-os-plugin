@@ -21,7 +21,7 @@
 **Architecture direction (navigator-locked):**
 - Deep-grade-first composition (Canon Part 7, reuse before build): `/mos:deep-grade` = calibrated spine; `/mos:build-thesis` = ten-questions validation gate; `/mos:mullins` = market/tech/risk validation; `/mos:structure-argument` + Minto = feedback as a MECE pyramid.
 - Methodology-native order: **mullins BEFORE build-thesis** (GREEN Mullins -> build-thesis); structure-argument is packaging (pyramid last).
-- The 5 build seams: (a) ephemeral/synthetic room per submission, (b) transcript->evidence extraction adapter per command, (c) score-and-continue mode neutralizing the 6/10 halt, (d) new registered recipe `pitch-feedback` in native order, (e) batch orchestrator looping (a)-(d) over N with aggregation.
+- The 5 build seams: (a) ephemeral/synthetic room per submission, (b) transcript->evidence extraction adapter per command, (c) score-and-continue mode neutralizing the 6/10 halt, (d) new registered recipe `PWS_grading` in native order, (e) batch orchestrator looping (a)-(d) over N with aggregation.
 - Explicit CALIBRATION PHASE with HUJI team + Amnon: the course rubric decides WHICH ten questions the course teaches and at WHAT depth. Validation battery TIERED BY RUBRIC; deep-grade spine always on; Minto pyramid is delivery format. Rubric workshop is a phase deliverable, not prep.
 
 **Navigator rulings (15.7.2026):**
@@ -74,9 +74,9 @@ The 5 build seams (a-e) map to plans; each seam's concrete call site is in "Arch
 
 ## Summary
 
-Phase 229 builds a two-layer batch pipeline. The **outer layer** is a net-new CJS orchestrator (`scripts/huji-batch.cjs`) that loops N=200 submissions, spawning one isolated headless `claude -p` session per submission and checkpointing to the filesystem. The **inner layer** is entirely composed from surfaces that already ship: a `pitch-feedback` recipe runs the `deep-grade -> mullins -> build-thesis(scored) -> structure-argument` chain on the existing `runChain` spine, fed by an intake adapter that reuses the file-meeting Claimify machinery to populate an ephemeral scratch room. Almost nothing is a from-scratch build; the work is wiring, one recipe registration, one orchestrator, one score-and-continue neutralization, and an eval harness.
+Phase 229 builds a two-layer batch pipeline. The **outer layer** is a net-new CJS orchestrator (`scripts/huji-batch.cjs`) that loops N=200 submissions, spawning one isolated headless `claude -p` session per submission and checkpointing to the filesystem. The **inner layer** is entirely composed from surfaces that already ship: a `PWS_grading` recipe runs the `deep-grade -> mullins -> build-thesis(scored) -> structure-argument` chain on the existing `runChain` spine, fed by an intake adapter that reuses the file-meeting Claimify machinery to populate an ephemeral scratch room. Almost nothing is a from-scratch build; the work is wiring, one recipe registration, one orchestrator, one score-and-continue neutralization, and an eval harness.
 
-The single most important structural fact the planner must internalize: **the batch orchestrator does NOT call `runChain` in-process.** It spawns a headless session that runs the plugin's own `/mos:pipeline pitch-feedback` command, and THAT command runs `runChain` inside its own context window ([CITED: 229-AI-SPEC.md §3 Entry Point + Key Abstractions]). This is what gives per-student process isolation, a clean per-unit cost line, and Part-8 containment. The orchestrator's job is spawn + args + checkpoint + resume + aggregate; it never imports the chain.
+The single most important structural fact the planner must internalize: **the batch orchestrator does NOT call `runChain` in-process.** It spawns a headless session that runs the plugin's own `/mos:pipeline PWS_grading` command, and THAT command runs `runChain` inside its own context window ([CITED: 229-AI-SPEC.md §3 Entry Point + Key Abstractions]). This is what gives per-student process isolation, a clean per-unit cost line, and Part-8 containment. The orchestrator's job is spawn + args + checkpoint + resume + aggregate; it never imports the chain.
 
 Every version gate and CLI flag the AI-SPEC assumed is VERIFIED live on this machine: `claude 2.1.210` (>= 2.1.205), `node v22.23.1` (>= 22.5.0), `zod 3.25.76` vendored, and `require('zod/v4').z.toJSONSchema` resolves as a function under CJS (the AI-SPEC flagged this as "verify at build time" - it works, so schemas need not be hand-written). All of `--json-schema`, `--bare`, `--max-budget-usd`, `--no-session-persistence`, `--plugin-dir` are present in `claude --help`.
 
@@ -115,9 +115,9 @@ Nothing new is installed. The "stack" is the repo's own composition spine + the 
 | Surface | File:Line | Purpose | How Used |
 |---------|-----------|---------|----------|
 | `runChain(steps, opts)` | `lib/core/chain-executor.cjs:432` | The ONE gated chain loop | Called by the in-session pipeline command, NOT the orchestrator |
-| `composeWorkflow(cause)` | `lib/core/framework-chain-composer.cjs:495` | cause -> `[{step,command,autonomous_safe,posture,gate}]`, posture from registry | Resolves the pitch-feedback recipe to ordered steps |
+| `composeWorkflow(cause)` | `lib/core/framework-chain-composer.cjs:495` | cause -> `[{step,command,autonomous_safe,posture,gate}]`, posture from registry | Resolves the PWS_grading recipe to ordered steps |
 | `composeWorkflow(frameworkChain)` + `validateChainAutonomy` | `lib/workflow/command-resolver.cjs:110,131` | framework-name list -> steps; autonomy blocker check | Distinct 2nd resolver; validates all 4 are autonomous_safe |
-| `postureForCommand` / `recipeForCause` / `SENS10_CAUSE_RECIPES` | `lib/core/recipe-maps.cjs:177,322,282` | The posture authority + cause->recipe map | Register `pitch-feedback` recipe here (bare command strings) |
+| `postureForCommand` / `recipeForCause` / `SENS10_CAUSE_RECIPES` | `lib/core/recipe-maps.cjs:177,322,282` | The posture authority + cause->recipe map | Register `PWS_grading` recipe here (bare command strings) |
 | `navigation.writeClaimNode(db, params)` | `lib/core/navigation.cjs:209` (re-exports `typedClaim.writeClaimNode`) | Mint typed claim node, `review_status='proposed'` | Intake adapter calls per atomic claim (Claimify) |
 | `navigation.writeEdge` + `ALLOWED_EDGE_TYPES` | `lib/core/navigation.cjs` + `lib/core/navigation/edges.cjs` | Typed claim edges | Intake links claims across segments/slides |
 | `openRoomDb(roomDir, opts)` | `lib/core/room-db.cjs:100` | Open scratch room.db SQLite handle | Intake writes claims into the ephemeral room |
@@ -164,7 +164,7 @@ Amnon's platform (diarized transcripts, +optional deck/paper)
 │   → evidence.json  (zod --json-schema validated)                      │
 │        │                                                              │
 │        ▼                                                              │
-│  STAGE B  pitch-feedback recipe on runChain  (opus, plugin session)   │
+│  STAGE B  PWS_grading recipe on runChain  (opus, plugin session)   │
 │   deep-grade → mullins → build-thesis(SCORED,non-gating)              │
 │                                      → structure-argument (Minto)     │
 │   each step reads prior artifact from scratch room (frontmatter)      │
@@ -199,11 +199,11 @@ Amnon's platform (diarized transcripts, +optional deck/paper)
 
 **Seam (c) - Score-and-continue neutralization of the 6/10 gate.** (See dedicated section below.)
 
-**Seam (d) - Register the `pitch-feedback` recipe.**
+**Seam (d) - Register the `PWS_grading` recipe.**
 - Home: `lib/core/recipe-maps.cjs`. Pattern: `SENS10_CAUSE_RECIPES` (`recipe-maps.cjs:282`) is a frozen map of cause-enum -> **bare command string arrays** (no autonomous_safe literals - posture is sourced separately via `postureForCommand`). `recipeForCause(cause)` (`:322`) returns `string[]`. [VERIFIED: read `recipe-maps.cjs:261-325`]
 - Native order (navigator-locked): `['/mos:deep-grade', '/mos:mullins', '/mos:build-thesis', '/mos:structure-argument']`.
-- The AI-SPEC §3 project structure names `lib/core/recipe-maps.cjs` as "register the pitch-feedback named recipe here (exists)".
-- `curated_chains` in the registry is keyed 0-17; NO existing pitch-feedback chain (closest named pipeline is `thesis` = structure-argument -> challenge-assumptions -> build-thesis, a different set/order). This recipe is genuinely net-new registration. [VERIFIED: read registry `curated_chains` keys]
+- The AI-SPEC §3 project structure names `lib/core/recipe-maps.cjs` as "register the PWS_grading named recipe here (exists)".
+- `curated_chains` in the registry is keyed 0-17; NO existing PWS_grading chain (closest named pipeline is `thesis` = structure-argument -> challenge-assumptions -> build-thesis, a different set/order). This recipe is genuinely net-new registration. [VERIFIED: read registry `curated_chains` keys]
 - All 4 commands resolve to `autonomous_safe:true` in `data/command-registry.json`; `validateChainAutonomy` (`command-resolver.cjs:131`) will report `runnable:true` with zero blockers. [VERIFIED: node query of registry]
 
 **Seam (e) - Batch orchestrator.** Net-new `scripts/huji-batch.cjs` per AI-SPEC §3 entry point. Uses `spawnSync`/`spawn` with args array, `--plugin-dir`, PINNED `--model` full ID, `--output-format json`, `--json-schema`, `--permission-mode dontAsk`, `--allowedTools`, `--max-turns 40`, `--max-budget-usd 3.00`, `--no-session-persistence`. Filesystem state: `batch-state.json` ledger (atomic write-temp-rename) + `out/<id>/.done` idempotency marker (written ONLY after zod validation passes AND feedback.md non-empty). Retry 2x, fresh scratch room per attempt, then `failures.md`. [CITED: 229-AI-SPEC.md §3,§4 State Management]
@@ -217,7 +217,7 @@ There are therefore TWO halts to neutralize, at two layers:
 1. **Chain-level HITL material halt (code).** `runChain` (`chain-executor.cjs:432`) gates each step: `gateFn(step, posture, previousOutput)` returns a verb; any verb !== `'run'` hands to `onHalt` and stops the chain (`:513-540`). Posture comes from `postureForCommand`. In a headless `--permission-mode dontAsk` session, a gate that waits for a human aborts the run (AI-SPEC Pitfall 4). Mitigation: all 4 commands are already `autonomous_safe:true`, and `build-thesis.md` frontmatter is `autonomous_safe: true`. Ride the autonomous_safe posture end-to-end so runChain auto-runs the steps and does NOT reach a material gate. `validateChainAutonomy` confirms zero blockers. [VERIFIED]
 2. **Prompt-level 6/10 halt (natural language).** Neutralize at the RUBRIC/PROMPT layer, NOT via a new CLI flag (commands are markdown, they take no flags) and preferably NOT via a command fork (a fork breaks the frozen-prefix cache and drifts from the shipped build-thesis). **Recommended mechanism:** a frozen `rubric-huji.md` passed via `--append-system-prompt-file` that instructs build-thesis to SCORE all ten questions and CONTINUE unconditionally (never halt below 6/10, emit per-question scores as feedback input). This keeps the prefix bit-identical across 200 runs (cache + provenance) and threads the scored mode as data, not as a code branch.
 
-**Open decision for the planner (flag to navigator):** confirm whether build-thesis will reliably honor an appended-system-prompt override of its own "Binary gate (6/10)" body instruction, or whether a scored-variant reference file (e.g. `references/methodology/build-thesis-scored.md`) invoked by the `pitch-feedback` recipe is more robust. Recommendation: try the rubric-file override first (cheapest, cache-friendly); fall back to a scored variant reference if the demo shows the command still halts. This is a testable seam - the demo run will reveal it.
+**Open decision for the planner (flag to navigator):** confirm whether build-thesis will reliably honor an appended-system-prompt override of its own "Binary gate (6/10)" body instruction, or whether a scored-variant reference file (e.g. `references/methodology/build-thesis-scored.md`) invoked by the `PWS_grading` recipe is more robust. Recommendation: try the rubric-file override first (cheapest, cache-friendly); fall back to a scored variant reference if the demo shows the command still halts. This is a testable seam - the demo run will reveal it.
 
 ### Anti-Patterns to Avoid
 - **`execSync` with shell-quoted prompts.** `scripts/label-topic-forest.cjs:81` is the in-repo precedent to AVOID: ``execSync(`claude -p '${escaped}'`)`` with `prompt.replace(/'/g, "'\\''")`. It (1) blocks the event loop - serializes 200 submissions into ~30h wall time, (2) breaks on transcript apostrophes, (3) is injection-prone. Use `spawn`/`spawnSync` with an args array, no shell; pipe long content via file paths, not argv (stdin capped at 10MB since CLI v2.1.128). This is a real precedent for what NOT to do. [VERIFIED: read `label-topic-forest.cjs:75-90`]
@@ -232,7 +232,7 @@ There are therefore TWO halts to neutralize, at two layers:
 |---------|-------------|-------------|-----|
 | Transcript -> typed claims | A bespoke extractor | file-meeting Claimify 4-pass via `navigation.writeClaimNode` | Navigator ruling 3 + Canon Part 7; the room must be genuinely populated so downstream commands find expected structure |
 | Room creation | Manual `mkdir` + template strings | `birthRoom` -> `scaffoldRoomSkeleton` | Canonical 8-section ICM skeleton + ROOM.md identity files; born-wired |
-| The 4-step chain loop | A custom sequencer | `runChain` on the `pitch-feedback` recipe | One gated loop; second brain = Canon Part 7 violation |
+| The 4-step chain loop | A custom sequencer | `runChain` on the `PWS_grading` recipe | One gated loop; second brain = Canon Part 7 violation |
 | Model routing / cost tiering | A per-stage model switch in the orchestrator | `model-profiles.cjs` cascade + scratch `.config.json` overrides | One governed routing door; the $4-5 ceiling is enforced there |
 | Part 8 query hygiene check | A regex you write | `part8-egress-guard.classify` / `scanForContent` | Constitutional guard already audited; reuse is the D4 measurement |
 | Structured-output validation | Manual JSON parsing | zod schemas + `--json-schema` (CLI) + `safeParse` (orchestrator) | Belt-and-suspenders; catches CLI-version regressions |
@@ -422,14 +422,14 @@ No test framework install needed (Node built-in + bash). The 14 seed artifacts (
 |---|-------|---------|---------------|
 | A1 | An `--append-system-prompt-file` rubric instruction reliably overrides build-thesis's markdown "Binary gate (6/10)" body without a command fork | Seam c | If the command still halts, need a scored-variant reference file; demo run reveals it (low risk, testable) |
 | A2 | Writing STATE.md with a literal `Stage: Validation` is sufficient and no chain step re-runs `compute-state` to overwrite it | Seam a / Pitfall 2 | If a command recomputes stage mid-chain, grading could flip to skip; verify no in-chain compute-state call |
-| A3 | The in-session `/mos:pipeline pitch-feedback` invocation runs `runChain` over the recipe (orchestrator never imports runChain) | Summary / diagram | If pipeline command cannot take a recipe name arg, may need a thin in-session wrapper command; confirm `/mos:pipeline` arg contract at plan time |
+| A3 | The in-session `/mos:pipeline PWS_grading` invocation runs `runChain` over the recipe (orchestrator never imports runChain) | Summary / diagram | If pipeline command cannot take a recipe name arg, may need a thin in-session wrapper command; confirm `/mos:pipeline` arg contract at plan time |
 | A4 | All 200 HUJI submissions arrive as diarized transcripts (not raw video) | Deferred / Env | If video, v1 needs ffmpeg+Velma ingestion back on critical path; CONFIRM with Amnon (customer question already flagged) |
 | A5 | file-meeting Claimify machinery can be driven headlessly against a scratch room without the interactive nugget-routing HITL | Seam b | If the routing gate is unavoidable, intake needs an autonomous_safe extraction path; file-meeting is `autonomous_safe:false` (utility) so this is a real risk - verify a callable non-interactive path exists |
 
 ## Open Questions
 
 1. **`/mos:pipeline` recipe-name argument contract.**
-   - What we know: the recipe registers in `recipe-maps.cjs`; the AI-SPEC entry point spawns `/mos:pipeline pitch-feedback`.
+   - What we know: the recipe registers in `recipe-maps.cjs`; the AI-SPEC entry point spawns `/mos:pipeline PWS_grading`.
    - What's unclear: exact arg shape `/mos:pipeline` accepts (recipe name? transcript path? both?) and whether it resolves recipe-maps recipes vs registry `curated_chains`.
    - Recommendation: read `commands/pipeline.md` (or equivalent) during Wave 0; confirm before writing the orchestrator prompt string.
 

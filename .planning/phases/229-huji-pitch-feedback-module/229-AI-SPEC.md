@@ -165,7 +165,9 @@ const { z } = require('zod');                                           // evide
 
 ### Entry Point Pattern
 
-Two layers. Inner: one headless `claude -p` session per submission, running the registered `pitch-feedback` chain via the plugin's own commands. Outer: a CJS batch orchestrator looping N submissions with checkpoint/resume.
+Two layers. Inner: one headless `claude -p` session per submission, running the registered `PWS_grading` chain via the plugin's own commands. Outer: a CJS batch orchestrator looping N submissions with checkpoint/resume.
+
+**Recipe name (navigator ruling, 15.7.2026): `PWS_grading`.** The registered command-resolver recipe/pipeline identifier for the deep-grade -> mullins -> build-thesis -> structure-argument chain. All slash-command invocations, `recipe-maps.cjs` registrations, and file names below use this name - not "pitch-feedback" (that string survives only as the phase-directory label and the opportunity-bank filename, both already committed).
 
 ```javascript
 #!/usr/bin/env node
@@ -180,7 +182,7 @@ const CONFIG = JSON.parse(fs.readFileSync('batch.config.json', 'utf8'));
 //            budgetPerUnitUsd: 3.0, maxTurns: 40, schemaPath: "schemas/feedback-result.json" }
 
 function runSubmission(subId, transcriptPath, scratchRoom) {
-  const prompt = `/mos:pipeline pitch-feedback --transcript ${transcriptPath}`; // slash commands
+  const prompt = `/mos:pipeline PWS_grading --transcript ${transcriptPath}`; // slash commands
   // expand in -p mode (Claude Code >= 2.1.x, documented): include /command in the prompt string.
   const res = spawnSync('claude', [
     '-p', prompt,
@@ -211,7 +213,7 @@ Key mechanics confirmed against current docs (July 2026):
 | Concept | What It Is | When You Use It |
 |---------|-----------|-----------------|
 | `runChain(steps, opts)` | The one shared gated loop in `lib/core/chain-executor.cjs` (sync + `_runChainResilient` async graceful-partial path, per-step retry via `chain-retry.cjs`) | Inside each headless session: executes deep-grade -> mullins -> build-thesis(scored) -> structure-argument as one chain |
-| `composeWorkflow(chain)` | Resolver in `framework-chain-composer.cjs` returning `[{ step, command, autonomous_safe, posture, gate }]`, validated by `validateChainAutonomy` | Registering `pitch-feedback` as a named recipe in methodology-native order; the autonomy validator is where the F.8 HITL gates get neutralized to score-and-continue |
+| `composeWorkflow(chain)` | Resolver in `framework-chain-composer.cjs` returning `[{ step, command, autonomous_safe, posture, gate }]`, validated by `validateChainAutonomy` | Registering `PWS_grading` as a named recipe in methodology-native order; the autonomy validator is where the F.8 HITL gates get neutralized to score-and-continue |
 | Headless session (`claude -p`) | One isolated Claude Code run: own context window, own permission surface, JSON result contract, exits when done | The per-submission isolation boundary - one session per student, so no cross-student context bleed and a clean cost line per unit |
 | `--json-schema` + `structured_output` | CLI-level validated structured output: Claude Code retries internally until output conforms, result lands in the `structured_output` field | The transcript -> evidence JSON extraction contract and the final per-student result envelope |
 | Ephemeral scratch room | Synthetic room dir with a scratch `STATE.md` (sweep 4's clean seam) | Every room-bound surface (deep-grade, Minto engines, model-profiles stage gating) gets a legal home without touching real rooms |
@@ -230,7 +232,7 @@ Key mechanics confirmed against current docs (July 2026):
 
 ```
 scripts/huji-batch.cjs                  # outer orchestrator (spawn, checkpoint, resume, report)
-lib/core/recipe-maps.cjs                # register the `pitch-feedback` named recipe here (exists)
+lib/core/recipe-maps.cjs                # register the `PWS_grading` named recipe here (exists)
 .planning/phases/229-.../schemas/
 ├── evidence.schema.json                # transcript -> evidence extraction contract
 └── feedback-result.schema.json         # per-student result envelope (--json-schema arg)
@@ -292,7 +294,7 @@ const extract = spawnSync('claude', [
 ], { encoding: 'utf8', timeout: 5 * 60 * 1000 });
 
 // Stage B - GENERATION (plugin session, one per submission):
-// the pitch-feedback recipe runs INSIDE the session on the runChain spine;
+// the PWS_grading recipe runs INSIDE the session on the runChain spine;
 // the evidence JSON + scratch room are its inputs. See Section 3 entry point.
 // Chain order (navigator-locked, methodology-native):
 //   deep-grade -> mullins -> build-thesis (scored, non-gating) -> structure-argument (pyramid)
