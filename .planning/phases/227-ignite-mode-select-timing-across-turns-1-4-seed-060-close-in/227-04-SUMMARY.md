@@ -55,8 +55,8 @@ completed: 2026-07-16
 
 ## Accomplishments
 
-- `lib/hmi/selector-dispatcher.cjs`'s `pickShape` trailer now fires `recordLanePick({lane: 'card-fired'})` (from `lib/core/mode-select-sidechannel.cjs`, plan 227-01) as an additive sibling to the existing card-fire-sidechannel call, in its own try/catch, scoped specifically to the mode-select F.1 lane-picker card via a subject-text check for both `"brainstorming"` and `"building something"` — so other F.1 gates in the app (e.g. trending-to-absurd's trend-selection stage) are never misrecorded.
-- `skills/conversation-mode/SKILL.md`'s Lane Picker section gained a new bullet instructing Larry to record the `lane: 'default-stated'` resolution via a `node -e` one-liner (reusing the file's existing `<plugin_root>` convention) when the lane is inferred from an already-signaled opener without firing the F.1 card — closing D-03's second call site so only a genuine silent skip leaves the doctor checkpoint (plan 227-01) with no record.
+- `lib/hmi/selector-dispatcher.cjs`'s `pickShape` trailer now fires `recordLanePick({lane: 'card-fired'})` (from `lib/core/mode-select-sidechannel.cjs`, plan 227-01) as an additive sibling to the existing card-fire-sidechannel call, in its own try/catch, scoped specifically to the mode-select F.1 lane-picker card via a subject-text check for both `"brainstorming"` and `"building something"` - so other F.1 gates in the app (e.g. trending-to-absurd's trend-selection stage) are never misrecorded.
+- `skills/conversation-mode/SKILL.md`'s Lane Picker section gained a new bullet instructing Larry to record the `lane: 'default-stated'` resolution via a `node -e` one-liner (reusing the file's existing `<plugin_root>` convention) when the lane is inferred from an already-signaled opener without firing the F.1 card - closing D-03's second call site so only a genuine silent skip leaves the doctor checkpoint (plan 227-01) with no record.
 - `skills/conversation-mode/SKILL.md` Mode 3's first bullet no longer invokes `/mos:new-project` directly. It now routes through `/mos:ignite --express`, carrying the established conversational context (persona, problem, venture) as the blueprint seed, citing ignite's `## Entry Routing` Directive/Imperative path and Gate B1's own documented determinable-role/venture bypass rule, landing straight at Gate B2 (Blueprint).
 - Mode 1's and Mode 2's own pre-existing `/mos:new-project` references (lines 86 and 99) are untouched; `commands/ignite.md` is byte-identical to its pre-plan state (`git diff` shows zero changes).
 
@@ -76,7 +76,7 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-See `key-decisions` in frontmatter. The most consequential one operationally: hoisting `gateSubjectText`'s declaration out of the existing card-fire-sidechannel `try` block (from `const` to a shared `let` assigned inside that same try) so the new sibling block could read the identical value instead of recomputing the header+body join. This changes only where the variable is declared/assigned — the existing `recordReachedGate` call and its inputs are byte-identical to before.
+See `key-decisions` in frontmatter. The most consequential one operationally: hoisting `gateSubjectText`'s declaration out of the existing card-fire-sidechannel `try` block (from `const` to a shared `let` assigned inside that same try) so the new sibling block could read the identical value instead of recomputing the header+body join. This changes only where the variable is declared/assigned - the existing `recordReachedGate` call and its inputs are byte-identical to before.
 
 ## Deviations from Plan
 
