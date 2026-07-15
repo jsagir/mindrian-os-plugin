@@ -3298,11 +3298,11 @@ worker vs. live conversation process, same room.db) is a legitimate second concu
 in shape to this seed's Pillar 4. **225 is NOT blocked on 224** -- proceed with 225's spec now,
 scoped to the classifier zero-score edge case plus the WAL race, with `room-root.cjs::
 resolveRoomRoot()` locked as the already-shared contract rather than an open question.
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 
-- [ ] 225-01-PLAN.md - Zero-score no-match F.8 gate branch in intent-classifier.cjs (emitNoMatchGate, PD-1/PD-3/PD-5) + proving_case_2 fire/silence tests + fail-open degrade test
+- [x] 225-01-PLAN.md - Zero-score no-match F.8 gate branch in intent-classifier.cjs (emitNoMatchGate, PD-1/PD-3/PD-5) + proving_case_2 fire/silence tests + fail-open degrade test
 - [ ] 225-02-PLAN.md - doctor.cjs _walResetAdvisory (SQLite < 3.51.3 + live co-session WARN, never-block, PD-2: advisory only, no worker guard) + seam-injected test
 - [ ] 225-03-PLAN.md - run-all-225.sh phase gate (3 run_if legs + unconditional run-all-194.sh regression leg) + run-feynman-tests registration + ENV-TUNING floor doc + rethinking-mindrianos compositing filing
 
