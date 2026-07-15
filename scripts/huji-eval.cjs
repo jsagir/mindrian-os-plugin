@@ -474,17 +474,24 @@ function spawnJudge(feedbackPath, opts) {
     + feedbackText;
   // DI-1: inline the judge schema JSON (the CLI --json-schema wants an inline object,
   // not a path); inlineSchemaJson also strips $schema (DI-2 defence-in-depth).
-  // DI-3: --plugin-dir + keychain (not --bare + API key), --permission-mode dontAsk to
-  // keep the Read-only judge non-interactive. --no-session-persistence for isolation.
+  // DI-3: keychain auth (NOT --bare + API key). The judge does NOT need the mos
+  // plugin (it scores an inline artifact), so we do NOT pass --plugin-dir - a plain
+  // non-bare `claude -p` authenticates via the keychain and skips loading the heavy
+  // dev-repo-as-plugin system prompt (which made a fresh no-persistence session slow
+  // and costly). --permission-mode dontAsk keeps the Read-only judge non-interactive.
   const { inlineSchemaJson } = require('../lib/core/pitch-feedback-schemas.cjs');
   const args = [
     '-p', prompt,
     '--model', JUDGE_MODEL,
-    '--plugin-dir', REPO_ROOT,
     '--permission-mode', 'dontAsk',
     '--allowedTools', 'Read',
     '--output-format', 'json',
     '--json-schema', inlineSchemaJson(JUDGE_SCHEMA_PATH),
+    // The judge has the artifact INLINE - it never explores. Bound the session so it
+    // cannot wander, but give structured-output room (schema-conform counts as a turn)
+    // and enough budget for the largest graded anchors (~30K-token documents).
+    '--max-turns', '3',
+    '--max-budget-usd', '0.75',
     '--no-session-persistence',
   ];
   const res = spawnSync('claude', args, {
@@ -544,7 +551,9 @@ function calibrationProtocol(opts) {
   const spawnErrors = [];
   for (const a of GRADED_ANCHORS) {
     const fixturePath = path.join(CALIB_DIR, a.file);
-    const r = spawnJudge(fixturePath, { submissionId: a.id, focus: a.focus });
+    // Large graded-anchor documents (up to ~30K tokens) need a generous per-anchor
+    // ceiling; the --max-budget-usd fuse is the real cost guard.
+    const r = spawnJudge(fixturePath, { submissionId: a.id, focus: a.focus, timeout: 300000 });
     if (!r.ok) { spawnErrors.push({ id: a.id, error: r.error || r.reason }); continue; }
     scoresById[a.id] = r.score;
   }
