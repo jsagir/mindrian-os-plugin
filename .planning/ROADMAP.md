@@ -3340,13 +3340,13 @@ critic is even invoked. A "lighter version" of the critic is not a scoping knob 
 one -- 2 of its 3 numeric inputs are structurally unavailable in exactly the scenario 226 targets,
 so it needs a genuinely new scoring path (only lexical-overlap "lsa_similarity" survives). Resolve
 this at spec-phase before committing to "reuse Phase 212's critic, lighter" as the design.
-**Plans:** 1/4 plans executed
+**Plans:** 3/4 plans executed
 
 Plans:
 
 - [x] 226-01-PLAN.md - reasoning-mode core module (readRoomMarkdown, Jaccard pre-filter + cap, Stage B rubric via session-judge seam, statement assembly, assertReasoningInvariants) + the D1 null-legs test written FIRST + the >= 12 fixture set
 - [x] 226-02-PLAN.md - the mode:reasoning branch inside eureka-portfolio-report.cjs async main (stage dispatch, degrade seeding on the negated idx.embedded gate, byte-parity writer with G-1 assertion, honest-cause render, banking hard-skip, upgrade delta) + D4/D7 tests [SHIPPED 2026-07-15: reasoningStageSeed/Emit/Score + renderReasoningReport + buildUpgradeDelta additive to the embedded main; D4 byte-parity + D7 honest-cause + REQ-8 no-speculative-trigger legs green; weak_dimensions reconciled to the LIVE embedded {a,b} object shape (not the AI-SPEC array); 215 oracle unchanged (8/0); REQ-1/3/4/6/8; commits b246e20d + 05657d81 feat + a4b56db1 test]
-- [ ] 226-03-PLAN.md - mode disclosure surfaces: report-html.cjs De Stijl export, eureka-command html/reasoning-prompts/reasoning-score subcommands, commands/eureka.md faithful-judge protocol + D6 three-surface test
+- [x] 226-03-PLAN.md - mode disclosure surfaces: report-html.cjs De Stijl export, eureka-command html/reasoning-prompts/reasoning-score subcommands, commands/eureka.md faithful-judge protocol + D6 three-surface test [SHIPPED 2026-07-15: renderReportHtml zero-egress renderer with a mandatory non-collapsible mode banner (reasoning red 5-element caveat / other-mode verbatim yellow banner, never defaulted); html + reasoning-prompts + reasoning-score subcommands through the one governed door with honest reasoning_await_mappings/answers status states + exit-2 retriable round-trip; eureka.md faithful-judge NEVER-estimate protocol + Mode-on-every-result anatomy; test-226-mode-disclosure proves label+caveat across md AND json AND html for one reasoning run (D6/G-4, REQ-5); test-216 44/44 + render-coverage + connector-registry green; commits 0013866d + 93910fd3 + 1c15f41c feat]
 - [ ] 226-04-PLAN.md - D5/D8/D3-negative legs, tests/run-all-226.sh phase gate, TEST_FILES registration, ENV-TUNING + CANON-PHASE-MAP docs, navigator calibration checkpoint (David proving case)
 
 ### Phase 227: Ignite / mode-select timing across turns 1-4 (SEED-060): close intern-w1-mode-gate-skip's own remaining item (a code-level firing checkpoint for the Turn-1 lane pick), close ignite-frontdoor-bypassed-methodology-overfire's remaining items 2 and 4, and add ignite/B2/mode-select to skills/larry-personality/SKILL.md with Hooked-Model timing reasoning

@@ -3,18 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 226-02-PLAN.md (reasoning-mode branch in eureka-portfolio-report)
-last_updated: "2026-07-15T17:10:00.000Z"
+stopped_at: Phase 223 context gathered (post-224 decisions locked)
+last_updated: "2026-07-15T17:21:01.539Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 20
-  total_plans: 113
-  completed_plans: 108
+  total_plans: 114
+  completed_plans: 109
   percent: 54
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 226 Plan 03 COMPLETE (3/4 plans) -- mode-disclosure surfaces: the mode:reasoning label is now impossible to lose across md + json + html, with a governed html export and the faithful-judge orchestration doc
+
+Wave 3, the D6/G-4 disclosure spine on top of plan-02's frozen reasoning JSON contract. A shared report reaching a second reader who did not run the scan is the exact over-trust vector this phase exists to prevent; the label + caveat now survive md, JSON, and html identically.
+
+- **report-html.cjs (new pure renderer):** `renderReportHtml(json, opts)` returns a complete self-contained html string (doctype, inline `<style>` only, NO external URL of any kind - Part 8 posture extended to the artifact). The mandatory MODE BANNER is the FIRST body element (above the title, non-collapsible, not a footer), read straight from `provenance.run_mode`: reasoning renders a red `REASONING MODE - LOWER-CONFIDENCE RESULT` banner + the five-element caveat; any other mode names the run_mode string VERBATIM on a yellow banner (never blanked, never defaulted). Reasoning ranked table shows rank/pair/lsa_similarity/verdict/mode with NO differential/semantic cell (the D1 lie in render form); embedded shows rank/pair/score/banked/mode. Every interpolated value HTML-escaped (T-226-10, script-tag tested). Never throws (malformed json -> error page). `_test`: escapeHtml + buildModeBanner.
+- **eureka-command.cjs subcommands (one governed door):** `html` renders portfolio-report.json -> portfolio-report.html and prints a `mode:` line (even the CLI echo discloses the mode); `reasoning-prompts` / `reasoning-score` are thin RUNNER.main pass-throughs (no scoring logic in the dispatcher, SEED-034) translating exit codes to honest status states (`reasoning_await_answers`; exit 2 -> retriable, never swallowed); `cmdRun` surfaces a genuine degrade's `provenance.reasoning.state === 'await_mappings'` as status `reasoning_await_mappings` (the silent-degrade promise: the navigator never manages the degrade manually).
+- **commands/eureka.md:** argument-hint -> `[run|status|report|html]`; new html + reasoning-mode sections documenting the six-step loop with the faithful-judge protocol VERBATIM (yes/no + one sentence of evidence, skeptical adversarial read, NEVER estimate a semantic-similarity or differential score, NEVER invent a number); Zone 2 anatomy renders Mode on EVERY result and gives reasoning its own lsa_similarity/verdict columns; the encoder-degrade note now names the honest reasoning-mode flow (never "an honest empty report").
+- **Tests:** `test-226-mode-disclosure` (D6/G-4, REQ-5) drives the real emitter degrade + reasoning stages in a hermetic room, spawns the REAL dispatcher `html` subcommand, and asserts label + caveat on the SAME run across md, json, and html, plus the embedded-banner-names-its-mode leg and the doc-parity (no-rot) leg -> exit 0. Regression: test-216 44/44, check-render-coverage exit 0, build-connector-registry --check OK (the plan-checker fix: this plan edits eureka.md argument-hint frontmatter), test-226-field-contract still green. Zero new deps; zero em-dashes across the 4 touched files.
+- **Commits:** `0013866d` feat (report-html renderer), `93910fd3` feat (command subcommands + status states), `1c15f41c` feat (eureka.md doc + D6 test).
+- **NEXT:** Plan 226-04 (D5/D8/D3-negative legs, tests/run-all-226.sh phase gate, TEST_FILES registration, ENV-TUNING + CANON-PHASE-MAP docs, navigator calibration checkpoint - the David proving case). SUMMARY: `.planning/phases/226-eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la/226-03-SUMMARY.md`.
 
 ## (2026-07-15) -- PHASE 226 Plan 02 COMPLETE (2/4 plans) -- mode:reasoning branch wired into eureka-portfolio-report.cjs: a genuine embedded degrade now produces a REAL, byte-parity, honestly-labeled reasoning ranked list instead of a pairs_scored:0 dead end
 
@@ -979,7 +990,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 226 (eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -2651,7 +2662,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-15T16:37:28.731Z
+Last session: 2026-07-15T17:21:01.450Z
 Stopped at: Phase 223 context gathered (post-224 decisions locked)
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
