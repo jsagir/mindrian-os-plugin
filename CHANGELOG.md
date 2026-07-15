@@ -21,8 +21,9 @@
   self-certified) caught and fixed two real defects before this landed: Mode 3's routing text
   originally claimed established context unconditionally even on a cold direct pick with zero
   prior exchange, and the mode-select "card-fired" recorder was wired against text no live code
-  path actually renders through `pickShape()`. Both are being closed at the design level in
-  this same pass, not patched around the symptom.
+  path actually renders through `pickShape()`. Both closed at the design level in this same
+  pass (independently re-verified: 8/8 + 4/4 tests pass, both diffs re-read after landing),
+  not patched around the symptom.
 
 ## [1.15.3-beta.24] - 2026-07-16
 
