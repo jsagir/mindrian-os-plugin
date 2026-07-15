@@ -261,6 +261,68 @@ function costLedger({ results, perUnitMax, warmTarget, batchLow, batchHigh }) {
 }
 
 // ---------------------------------------------------------------------------
+// D4 - part8-hygiene (zero student-specific strings in a Brain query payload)
+// ---------------------------------------------------------------------------
+
+// Two layers, both authoritative, NEVER a hand-rolled egress regex:
+//   1. lib/core/part8-egress-guard.classify over every logged payload (the shipped
+//      constitutional default-deny gate) - a 'block' verdict is a violation.
+//   2. a per-unit entity grep: any string from the unit's evidence.json inventory
+//      (venture name, quote fragment, distinctive term) found in a payload is a
+//      breach even if the guard passed it. Zero tolerance (AI-SPEC D4).
+function part8Hygiene({ payloads, entities }) {
+  const guard = require('../lib/core/part8-egress-guard.cjs');
+  const hits = [];
+  const normEntities = [...new Set((entities || []).map(normalize).filter((e) => e.length >= 4))];
+  for (const p of (payloads || [])) {
+    const verdict = guard.classify(p, { toolName: 'brain_ask' });
+    if (verdict.verdict === 'block') { hits.push({ reason: 'guard block: ' + verdict.reason, payload: p }); continue; }
+    const blob = normalize(JSON.stringify(p));
+    for (const e of normEntities) {
+      if (blob.includes(e)) { hits.push({ reason: 'student-specific string leak: "' + e + '"', payload: p }); break; }
+    }
+  }
+  return { ok: hits.length === 0, hits };
+}
+
+// ---------------------------------------------------------------------------
+// Batch loaders (for --suite code + --report; future-facing to the Plan 07 batch)
+// ---------------------------------------------------------------------------
+
+function loadManifest() {
+  const mp = path.join(__dirname, '..', '.planning', 'phases', '229-huji-pitch-feedback-module', 'eval', 'probes', 'manifest.json');
+  try { return loadJson(mp); } catch (_e) { return []; }
+}
+
+// Read out/<id>/{result.json, feedback.md, evidence.json} + the Brain-query log.
+function loadBatch(outDir) {
+  const units = [];
+  let entries = [];
+  try { entries = fs.readdirSync(outDir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name); } catch (_e) { entries = []; }
+  for (const id of entries) {
+    const dir = path.join(outDir, id);
+    const u = { id };
+    const rp = path.join(dir, 'result.json');
+    if (fs.existsSync(rp)) { try { u.result = loadJson(rp); } catch (_e) { /* ignore */ } }
+    const fp = path.join(dir, 'feedback.md');
+    if (fs.existsSync(fp)) u.feedback = loadText(fp);
+    const ep = path.join(dir, 'evidence.json');
+    if (fs.existsSync(ep)) { try { u.evidence = loadJson(ep); } catch (_e) { /* ignore */ } }
+    units.push(u);
+  }
+  const payloads = [];
+  for (const name of ['brain-query-log.jsonl', 'query-log.jsonl']) {
+    const qp = path.join(outDir, name);
+    if (fs.existsSync(qp)) {
+      for (const ln of loadText(qp).split('\n').filter(Boolean)) {
+        try { const o2 = JSON.parse(ln); payloads.push(o2.payload || o2); } catch (_e) { /* ignore */ }
+      }
+    }
+  }
+  return { units, payloads };
+}
+
+// ---------------------------------------------------------------------------
 // Selftest fixtures + runners (tiny in-file PASS/FAIL, no files, no model calls)
 // ---------------------------------------------------------------------------
 
@@ -402,7 +464,18 @@ function selftestCostLedger() {
   expectFail('cost-ledger (over $3.00)', costLedger({ results: badResults }));
 }
 
-// Per-check selftest registry (extended in Task 3). Bare `--check X` runs this.
+function selftestPart8() {
+  const entities = ['SafeScan', 'smart light sensor', 'big nine food groups'];
+  // PASS: a generic methodology query - only calibration-anchor handles, no student strings.
+  const clean = [{ question: 'calibration anchors for venture assessment methodology framework tier' }];
+  expectPass('part8-hygiene', part8Hygiene({ payloads: clean, entities }));
+
+  // FAIL: a query carrying the venture name (a student-specific string leak).
+  const leak = [{ question: 'how should I grade the SafeScan pitch about food allergies' }];
+  expectFail('part8-hygiene (venture name)', part8Hygiene({ payloads: leak, entities }));
+}
+
+// Per-check selftest registry. Bare `--check X` runs this.
 const CHECK_SELFTESTS = {
   'quote-verifier': selftestQuoteVerifier,
   'inventory-recall': selftestInventoryRecall,
@@ -410,6 +483,7 @@ const CHECK_SELFTESTS = {
   'drift': selftestDrift,
   'similarity': selftestSimilarity,
   'cost-ledger': selftestCostLedger,
+  'part8-hygiene': selftestPart8,
 };
 
 function selftestGrounding() {
@@ -424,18 +498,23 @@ function selftestCohort() {
   selftestCostLedger();
 }
 
-// Selftest-group registry (extended in Task 3).
+function selftestHygiene() {
+  selftestPart8();
+}
+
+// Selftest-group registry.
 const SELFTEST_GROUPS = {
   grounding: selftestGrounding,
   cohort: selftestCohort,
+  hygiene: selftestHygiene,
 };
 
 // ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
 
-// The set of wired checks (extended in Task 3). Unknown -> usage + non-zero.
-const KNOWN_CHECKS = ['quote-verifier', 'inventory-recall', 'schema', 'drift', 'similarity', 'cost-ledger'];
+// The set of wired checks. Unknown -> usage + non-zero.
+const KNOWN_CHECKS = ['quote-verifier', 'inventory-recall', 'schema', 'drift', 'similarity', 'cost-ledger', 'part8-hygiene'];
 
 function usage() {
   console.error([
@@ -443,6 +522,8 @@ function usage() {
     '  --check <' + Object.keys(CHECK_SELFTESTS).join('|') + '>',
     '        [--transcript F --evidence F --feedback F --inventory F | --out DIR]',
     '  --selftest <' + Object.keys(SELFTEST_GROUPS).join('|') + '>',
+    '  --suite code [--out DIR] [--strict]',
+    '  --report [--out DIR]',
   ].join('\n'));
 }
 
@@ -464,7 +545,8 @@ function hasRealData(check, o) {
   if (check === 'quote-verifier') return !!(o.transcript && o.evidence);
   if (check === 'inventory-recall') return !!(o.inventory && o.evidence);
   if (check === 'schema') return !!o.feedback;
-  return !!o.out;
+  // batch checks: only real if the --out batch dir actually exists.
+  return !!(o.out && fs.existsSync(o.out));
 }
 
 function runCheckReal(check, o) {
@@ -473,6 +555,25 @@ function runCheckReal(check, o) {
   }
   if (check === 'inventory-recall') return inventoryRecall({ inventory: loadJson(o.inventory), evidence: loadJson(o.evidence) });
   if (check === 'schema') return schemaCheck({ feedback: loadJson(o.feedback) });
+
+  const batch = loadBatch(o.out);
+  if (check === 'drift') {
+    const results = batch.units.filter((u) => u.result).map((u) => ({ probe_id: u.result.probe_id, position: u.result.position, model_id: u.result.model_id, scores: u.result.scores }));
+    return driftStats({ results, manifest: loadManifest() });
+  }
+  if (check === 'similarity') {
+    const feedbacks = batch.units.filter((u) => u.feedback).map((u) => ({ id: u.id, text: u.feedback }));
+    return similarityIndex({ feedbacks, threshold: o.threshold != null ? Number(o.threshold) : undefined });
+  }
+  if (check === 'cost-ledger') {
+    const results = batch.units.filter((u) => u.result).map((u) => ({ id: u.id, total_cost_usd: u.result.total_cost_usd }));
+    return costLedger({ results });
+  }
+  if (check === 'part8-hygiene') {
+    const entities = [];
+    for (const u of batch.units) if (u.evidence) for (const s of collectStrings(u.evidence)) entities.push(s);
+    return part8Hygiene({ payloads: batch.payloads, entities });
+  }
   throw new Error('no real-data runner for ' + check);
 }
 
@@ -481,6 +582,10 @@ function reportCheck(check, r) {
   console.log('>>> ' + check + ': FAILED');
   for (const m of (r.misses || [])) console.log('    miss [' + (m.source || m.kind) + ']: ' + (m.quote || m.text));
   for (const i of (r.issues || [])) console.log('    schema issue [' + i.path + ']: ' + i.message);
+  for (const h of (r.hits || [])) console.log('    part8 hit: ' + h.reason);
+  for (const d of (r.bandDeviations || [])) console.log('    drift: probe ' + d.probe + ' pos ' + d.position + ' band ' + d.band + ' vs base ' + d.base_band);
+  if ((r.modelMismatches || []).length) console.log('    model_id mismatch: ' + r.modelMismatches.join(', '));
+  for (const p of (r.over || [])) console.log('    over-limit: ' + (p.id || (p.a + '~' + p.b)) + ' ' + (p.cost != null ? '$' + p.cost : p.sim));
 }
 
 function runCheck(check, o) {
@@ -514,14 +619,93 @@ function runSelftest(kind) {
   }
 }
 
+// --suite code: run all seven checks with a PASS/FAIL roll-up. Each batch check
+// runs on the --out batch dir when it exists, else self-verifies via its selftest
+// fixtures. --strict returns non-zero on any FAIL.
+function runSuite(suite, o) {
+  if (suite !== 'code') { console.error('Unknown --suite ' + suite); usage(); process.exit(2); }
+  const checks = ['quote-verifier', 'inventory-recall', 'schema', 'drift', 'similarity', 'cost-ledger', 'part8-hygiene'];
+  const rows = [];
+  let fails = 0;
+  for (const c of checks) {
+    let ok = false;
+    let note = 'selftest';
+    try {
+      if (hasRealData(c, o)) { ok = runCheckReal(c, o).ok; note = 'batch'; }
+      else { CHECK_SELFTESTS[c](); ok = true; }
+    } catch (e) { ok = false; note = 'error: ' + e.message; }
+    if (!ok) fails++;
+    rows.push({ c, ok, note });
+  }
+  console.log('=== huji-eval --suite code ===');
+  for (const r of rows) console.log('  ' + (r.ok ? 'PASS' : 'FAIL') + '  ' + r.c + '  (' + r.note + ')');
+  console.log('roll-up: ' + (checks.length - fails) + '/' + checks.length + ' passed' + (o.strict ? ' [strict]' : ''));
+  process.exit(o.strict && fails > 0 ? 1 : 0);
+}
+
+// --report: render the cohort view from the batch result.json + query log. Always
+// prints the explicit "N Part 8 violations in M queries" auditable privacy line.
+function runReport(o) {
+  let units = [];
+  let payloads = [];
+  if (o.out && fs.existsSync(o.out)) { const b = loadBatch(o.out); units = b.units; payloads = b.payloads; }
+  const results = units.filter((u) => u.result).map((u) => u.result);
+  const feedbacks = units.filter((u) => u.feedback).map((u) => ({ id: u.id, text: u.feedback }));
+  const entities = [];
+  for (const u of units) if (u.evidence) for (const s of collectStrings(u.evidence)) entities.push(s);
+
+  const cost = costLedger({ results: results.map((r) => ({ id: r.submission_id, total_cost_usd: r.total_cost_usd })) });
+  const sim = similarityIndex({ feedbacks });
+  const drift = driftStats({ results: results.map((r) => ({ probe_id: r.probe_id, position: r.position, model_id: r.model_id, scores: r.scores })), manifest: loadManifest() });
+  const hyg = part8Hygiene({ payloads, entities });
+
+  const dist = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  for (const r of results) dist[bandOf(meanScore(r.scores))]++;
+  const failNames = [];
+  if (!cost.ok) failNames.push('cost');
+  if (!drift.ok) failNames.push('drift');
+  if (!sim.ok) failNames.push('similarity');
+  if (!hyg.ok) failNames.push('part8-hygiene');
+
+  console.log('=== Phase 229 cohort report ===');
+  console.log('units: ' + units.length);
+  console.log('-- cost curve --');
+  console.log('  total $' + cost.total.toFixed(2) + ' (projection $' + cost.batchLow + '-' + cost.batchHigh + '); avg $' + cost.avg.toFixed(2) + ' (warm target $' + cost.warmTarget.toFixed(2) + '); over-fuse units: ' + cost.over.length);
+  console.log('-- score distribution (bands 1-5) --');
+  console.log('  ' + JSON.stringify(dist));
+  console.log('-- drift vs probes --');
+  console.log('  model mismatches: ' + drift.modelMismatches.length + '; band deviations: ' + drift.bandDeviations.length);
+  console.log('-- similarity matrix --');
+  console.log('  max ' + sim.max.toFixed(3) + ' median ' + sim.median.toFixed(3) + ' over-threshold pairs: ' + sim.over.length);
+  console.log('-- failures --');
+  console.log('  ' + (failNames.length ? failNames.join(', ') : 'none'));
+  console.log('-- Part 8 hygiene --');
+  console.log('  ' + hyg.hits.length + ' Part 8 violations in ' + payloads.length + ' queries');
+  process.exit(0);
+}
+
 function main() {
   const o = parseArgs(process.argv.slice(2));
   if (o.selftest !== undefined) return runSelftest(o.selftest);
   if (o.check !== undefined) return runCheck(o.check, o);
-  if (typeof runSuite === 'function' && o.suite !== undefined) return runSuite(o.suite, o);
-  if (typeof runReport === 'function' && o.report) return runReport(o);
+  if (o.suite !== undefined) return runSuite(o.suite, o);
+  if (o.report) return runReport(o);
   usage();
   process.exit(2);
 }
 
-main();
+// Exported for programmatic reuse (the batch orchestrator, Plan 07) + unit tests.
+module.exports = {
+  quoteVerifier,
+  inventoryRecall,
+  schemaCheck,
+  driftStats,
+  similarityIndex,
+  costLedger,
+  part8Hygiene,
+  bandOf,
+  shingles,
+  jaccard,
+};
+
+if (require.main === module) main();
