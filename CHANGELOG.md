@@ -14,6 +14,17 @@
   measured holdout set). (Quick task 260714-k44.)
 
 ### Fixed
+- **A low-confidence WHY term is no longer structurally indistinguishable from a confident one.**
+  When Eureka's two-tier classifier places a candidate as a framework (WHY) term but has no
+  working LLM to confirm the low-margin embedding best-guess, the term lands in the artifact's
+  `framework_terms` prop. The only trace that the guess was low-confidence lived in the aggregate
+  `status.json` counter (`tier2_low_confidence`); once written onto the node, the guess looked
+  exactly like a confidently-resolved term. Each term that lands via the no-LLM degrade path is
+  now disclosed per-term in an additive `framework_terms_low_confidence` sibling prop (always a
+  subset of `framework_terms`); a confident later run removes the marker; and existing readers of
+  `framework_terms`, which stays a plain comma-joined scalar, are unaffected. The 219 metadata
+  test now pins the disclosure so it cannot silently disappear. Caught live by the run-all-221
+  regression chain. (Quick task 260715-cu8.)
 - **Eureka's ranked top-25 no longer refills with scaffold pairs when real entities are thin.**
   Every room stores one `memory_artifact` node per file as document scaffolding. When a room's
   real-entity cohort is thin, those scaffolding nodes were pairing with each other and flooding

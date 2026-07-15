@@ -46,6 +46,14 @@ The navigator's own memory carries `feedback_1_15_enforcement_regression_watch.m
 
 No corpus-size or phase-dependency gate (unlike SEED-002/SEED-009's learning-loops pattern). Surface at the next `/gsd:new-milestone` scoping pass, or immediately if a fourth independent QA session (intern or otherwise) reproduces any of the four sites again -- a fourth instance would upgrade this from "worth tracking" to "worth building."
 
+## Worked example: Site 4 closed for one case (2026-07-15, quick 260715-cu8)
+
+One concrete Site 4 instance (dependency-fallback disclosure) is now closed. Phase 218, quick 260714-hzx, and quick 260714-k44 shipped the `tier2_low_confidence` AGGREGATE counter in `status.json`: the run as a whole disclosed how many candidates landed on a no-LLM embedding best-guess. But per-result disclosure inside `framework_terms` -- the data structure actually written onto each artifact node and read downstream -- did not exist. A low-confidence guess, once written, was structurally indistinguishable from a confidently-resolved WHY term. Quick 260715-cu8 added `framework_terms_low_confidence`, an additive sibling scalar that names, per artifact, exactly which framework terms arrived via the no-LLM degrade, with the disclosure test-pinned so it cannot silently disappear. This is the fallback-disclosure convention applied structurally to one path: the fallback now emits a checkable, machine-readable signal on the artifact itself, not just in the aggregate counter.
+
+This does NOT resolve the seed. The seed's scope is unchanged: Sites 1-3 and the general convention (a home for the disclosure signal, the `check-card-fire.cjs` catch-rate audit, the Sites 2-4 investigations) all remain open. This is one worked example of what closing a single Site 4 case looks like, nothing more.
+
+One adjacent, still-open instance surfaced during this fix and was deliberately NOT fixed (no-scope-expansion directive): a low-confidence WHAT best-guess becomes a proposed entity node with NO per-node disclosure marker -- the exact sibling of this bug on the WHAT side, a future-seed candidate.
+
 ## Provenance
 
 Filed 2026-07-14, navigator-directed ("File SEED-059" selected at an AskUserQuestion gate), consolidating the same-session RCA (`.planning/debug/intern-qa-silent-degrade-pattern-three-independent-sessions-2026-07-14.md`, commit `a71e3f7f`) and independently corroborated by a same-day full-seed-corpus curation pass that reached the identical "no seed exists for this" conclusion before this file was written.
