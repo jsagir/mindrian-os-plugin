@@ -1,10 +1,11 @@
 ---
 phase: 223
 slug: jtbd-driven-intelligence-pipeline-governed-double-fan-bono
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-15
+updated: 2026-07-15
 ---
 
 # Phase 223 — Validation Strategy
@@ -40,13 +41,17 @@ created: 2026-07-15
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | TBD | Req 1 (hat governance + persona research) | — | per-hat behavioral difference in debate fixture; heterogeneity mandate (no two persona cells share a lens); persona cannot cite outside its wired INFORMS set | integration | `node tests/test-223-hat-governance.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | Req 2 (MECE-Minto synthesis + SUPERSEDES chain) | — | 2-run fixture: exactly one SUPERSEDES edge (NULL review_status per D-04); 1-run fixture: zero; --version-log lists chain order | integration | `node tests/test-223-supersedes-chain.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | Req 3 (intel-pipeline full loop) | — | --dry-run emits phase/fan plan without dispatch; real run halts at all 3 hitl_stages; quality:low forces HALT | integration | `node tests/test-223-intel-pipeline.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | Req 4 (close-the-loop, D-01 dual store) | — | claim/opportunity/open_question nodes in room.db, all proposed (D-02); bank .md written FIRST with the six reader-required fields; compute-opportunity-state surfaces it | integration | `node tests/test-223-close-loop.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | Req 5 (born-wired + structural gates) | — | build-connector-registry --check, check-shape-declaration, build-orchestration-projection --check, check-render-coverage all exit 0; registry diff = exactly 2 entries, 0 changed reach_ids | gate | legs inside `run-all-223.sh` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | Req 6 (no mindrian-designs refs) | — | `grep -r "mindrian-designs" commands/ skills/ lib/core/bono/` returns nothing | static | grep leg inside `run-all-223.sh` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | Part 8 egress (persona research SIGNAL->LOCAL) | T-egress | part8-egress-guard.classify wraps research calls; seeded LOCAL-content breach rejected; grep gate on new modules | static + unit | `node tests/test-223-part8-egress.cjs` | ❌ W0 | ⬜ pending |
+| 223-01 | 01 | 1 | Req 1 (hat governance + persona research) | T-223-02 | per-hat behavioral difference in debate fixture; heterogeneity mandate (no two persona cells share a lens); persona cannot cite outside its wired INFORMS set; CR-01 fixture (no Promise deriveFn) | integration | `node tests/test-223-hat-governance.cjs` | ❌ W0 | ⬜ pending |
+| 223-02 | 02 | 1 | Req 2 (MECE-Minto synthesis + SUPERSEDES chain) | — | 2-run fixture: exactly one SUPERSEDES edge (NULL review_status per D-04, SELECT-asserted); 1-run fixture: zero; chain walker lists order | integration | `node tests/test-223-supersedes-chain.cjs` | ❌ W0 | ⬜ pending |
+| 223-02 | 02 | 1 | Req 4 (close-the-loop, D-01 dual store) | — | claim/opportunity/open_question nodes in room.db, all proposed (D-02); bank .md written FIRST (crash-ordering fixture) with the six reader-required fields; real compute-opportunity-state surfaces it | integration | `node tests/test-223-close-loop.cjs` | ❌ W0 | ⬜ pending |
+| 223-03 | 03 | 2 | Req 1/2/6 (bono 8-phase body + --version-log + mirror regen) | T-223-13 | mirror regenerated via build-skill-mirrors.cjs, DESENSITIZE asymmetry asserted (command SENS-05, mirror []); zero mindrian-designs refs | integration + static | legs in plan 03 tests | ❌ W0 | ⬜ pending |
+| 223-04 | 04 | 3 | Req 3 (intel-pipeline full loop) + Req 4 | T-223-14..18 | --dry-run emits phase/fan plan without dispatch; real run halts at all 3 hitl_stages; quality:low forces HALT; G-2 exactly-one-setCurrent | integration | `node tests/test-223-intel-pipeline.cjs` | ❌ W0 | ⬜ pending |
+| 223-05 | 05 | 4 | Req 5 (born-wired + structural gates) | — | build-connector-registry --check, check-shape-declaration, build-orchestration-projection --check, check-render-coverage all exit 0; registry diff = exactly 2 entries, 0 changed reach_ids | gate | legs inside `run-all-223.sh` | ❌ W0 | ⬜ pending |
+| 223-05 | 05 | 4 | Req 6 (no mindrian-designs refs, permanent) | — | `grep -r "mindrian-designs" commands/ skills/ lib/core/bono/` returns nothing (harness leg) | static | grep leg inside `run-all-223.sh` | ❌ W0 | ⬜ pending |
+| 223-01/05 | 01, 05 | 1, 4 | Part 8 egress (persona research SIGNAL->LOCAL) | T-223-02 | part8-egress-guard.classify wraps research calls; seeded LOCAL-content breach rejected; grep gate on new modules, permanent harness leg | static + unit | `node tests/test-223-part8-egress.cjs` | ❌ W0 | ⬜ pending |
+
+> Naming note: 223-RESEARCH.md's test map named a single `test-223-bono-v2.cjs`; the plans use
+> the per-concern file split above, which supersedes RESEARCH's naming (plan-check warning 3).
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
