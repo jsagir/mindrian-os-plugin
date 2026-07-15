@@ -3236,7 +3236,7 @@ which still duplicates registry-read logic instead of calling `resolveWriteRoom(
 narrow residual gap, live again at that scope. Resolve 224's own scope (narrow post-write fix vs.
 full SEED-034 harness) explicitly at spec-phase; it changes whether 225 needs to be researched in
 lockstep or can proceed independently.
-**Plans:** 4 plans
+**Plans:** 0/4 plans executed
 
 Plans:
 
