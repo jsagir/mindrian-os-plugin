@@ -4,7 +4,7 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Completed 222-03-PLAN.md
-last_updated: "2026-07-15T05:13:51.519Z"
+last_updated: "2026-07-15T05:49:45.566Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 31
@@ -927,8 +927,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 222 (reach-ranking-unification-replace-the-three-disagreeing-what) — EXECUTING
-Plan: 4 of 4
+Phase: 223
+Plan: Not started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1395,7 +1395,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 4
+- Total plans completed: 8
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -1497,6 +1497,7 @@ Progress: [█████████░] 92%
 | Phase 222 P02 | ~7 min | 2 tasks | 4 files |
 | Phase 222 P03 | ~20 min | 3 tasks | 3 files |
 | Phase 222 P04 | ~20 min | 2 tasks | 3 files |
+| 222 | 4 | - | - |
 
 ## Accumulated Context
 
