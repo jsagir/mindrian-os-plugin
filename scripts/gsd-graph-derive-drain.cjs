@@ -64,13 +64,32 @@ function parseArgs(argv) {
 // Drain (the expensive runDerivation pass)
 // ---------------------------------------------------------------------------
 
-// Rewrite the queue empty (clear all drained entries). Best-effort: a failed
-// clear means the next drain re-attempts (idempotent).
-function clearQueue(resolved) {
+// Remove ONLY the drained snapshot entries from the queue. The drain snapshots
+// the queue, spends seconds-to-minutes scoring, then clears -- a blanket
+// {entries: []} rewrite here used to erase any entry a live session enqueued
+// AFTER the snapshot (a silently lost derive request). So: re-read the queue,
+// drop the entries matching the drained snapshot by the (roomDir, filePath,
+// enqueued_at) tuple, keep everything else, and write ATOMICALLY via
+// sweep.writeQueue (tmp + rename). Best-effort: a failed clear means the next
+// drain re-attempts (idempotent).
+function clearQueue(resolved, drainedEntries) {
   try {
-    fs.writeFileSync(sweep.queuePath(resolved), JSON.stringify({ entries: [] }, null, 2));
+    const entryKey = (e) => [
+      path.resolve((e && e.roomDir) || ''),
+      (e && typeof e.filePath === 'string' && e.filePath.length > 0) ? path.resolve(e.filePath) : '',
+      (e && e.enqueued_at) || '',
+    ].join('|');
+    let kept = [];
+    if (Array.isArray(drainedEntries)) {
+      const drainedKeys = new Set(drainedEntries.map(entryKey));
+      const current = sweep.readQueue(resolved);
+      const currentEntries = Array.isArray(current.entries) ? current.entries : [];
+      kept = currentEntries.filter((e) => !drainedKeys.has(entryKey(e)));
+    }
+    sweep.writeQueue(resolved, { entries: kept });
+    return kept.length;
   } catch (_e) {
-    /* ignore */
+    return 0;
   }
 }
 
@@ -166,8 +185,7 @@ async function drainScoreBased(resolved, entries, options, result) {
       discloseSkip(target, entry);
       result.drained.push(target);
     }
-    clearQueue(resolved);
-    result.remaining = 0;
+    result.remaining = clearQueue(resolved, entries);
     return result;
   }
 
@@ -199,8 +217,7 @@ async function drainScoreBased(resolved, entries, options, result) {
     }
   }
 
-  clearQueue(resolved);
-  result.remaining = 0;
+  result.remaining = clearQueue(resolved, entries);
   return result;
 }
 
@@ -248,7 +265,6 @@ function drainDerive(roomDir, opts) {
   // legacy call shape, NO encoder probe). This is the ONLY path the Phase-169
   // round-trip test (tests/test-graph-derive-sweep.cjs) exercises.
   if (typeof options.deriveRunner === 'function') {
-    const kept = [];
     for (const entry of entries) {
       const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
       if (!target) { continue; }
@@ -259,12 +275,9 @@ function drainDerive(roomDir, opts) {
         result.drained.push(target);
       }
     }
-    try {
-      fs.writeFileSync(sweep.queuePath(resolved), JSON.stringify({ entries: kept }, null, 2));
-    } catch (_e) {
-      /* best-effort clear */
-    }
-    result.remaining = kept.length;
+    // Snapshot-scoped clear (never a blanket wipe): entries enqueued during the
+    // drain window survive for the next drain.
+    result.remaining = clearQueue(resolved, entries);
     return result;
   }
 

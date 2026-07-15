@@ -103,6 +103,19 @@ function readQueue(roomDir) {
   return { entries: [] };
 }
 
+// Atomic queue write (tmp file + rename), mirroring the brain-derivation-queue
+// writeQueueAtomic idiom this file cites. A plain writeFileSync can be observed
+// half-written by a concurrent reader, which then parses it as corrupt and
+// silently starts fresh -- discarding the whole queue. rename is atomic on the
+// same filesystem, so a reader only ever sees the old or the new queue.
+function writeQueue(roomDir, q) {
+  const qp = queuePath(roomDir);
+  fs.mkdirSync(path.dirname(qp), { recursive: true });
+  const tmp = qp + '.tmp-' + process.pid + '-' + Date.now().toString(36);
+  fs.writeFileSync(tmp, JSON.stringify(q, null, 2));
+  fs.renameSync(tmp, qp);
+}
+
 /**
  * enqueueDerive(roomDir, opts) -> { ok, queued, queuePath }
  * Append a derive request for roomDir, deduped by the (resolved roomDir,
@@ -127,8 +140,6 @@ function enqueueDerive(roomDir, opts) {
   const hasFilePath = typeof options.filePath === 'string' && options.filePath.length > 0;
   const resolvedFile = hasFilePath ? path.resolve(options.filePath) : null;
   try {
-    const dir = path.dirname(queuePath(resolved));
-    fs.mkdirSync(dir, { recursive: true });
     const q = readQueue(resolved);
     const already = q.entries.some((e) => {
       if (!e) return false;
@@ -143,7 +154,7 @@ function enqueueDerive(roomDir, opts) {
       if (resolvedFile) entry.filePath = resolvedFile;
       q.entries.push(entry);
     }
-    fs.writeFileSync(queuePath(resolved), JSON.stringify(q, null, 2));
+    writeQueue(resolved, q);
     return { ok: true, queued: !already, queuePath: queuePath(resolved) };
   } catch (_e) {
     return { ok: false, reason: 'write_failed' };
@@ -177,7 +188,7 @@ function main() {
   process.exit(0);
 }
 
-module.exports = { enqueueDerive, readQueue, queuePath, resolveRoomDir };
+module.exports = { enqueueDerive, readQueue, writeQueue, queuePath, resolveRoomDir };
 
 if (require.main === module) {
   main();
