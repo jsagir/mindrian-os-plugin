@@ -56,7 +56,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const { scaffoldRoomSkeleton } = require('../lib/core/room-skeleton-scaffold.cjs');
 const { openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs');
 const modelProfiles = require('../lib/core/model-profiles.cjs');
-const { EvidenceSchema, FeedbackResultSchema, BOUNDS } = require('../lib/core/pitch-feedback-schemas.cjs');
+const { EvidenceSchema, FeedbackResultSchema, BOUNDS, inlineSchemaJson } = require('../lib/core/pitch-feedback-schemas.cjs');
 const { populateRoom } = require('./huji-intake.cjs');
 const { quoteVerifier } = require('./huji-eval.cjs');
 const egressGuard = require('../lib/core/part8-egress-guard.cjs');
@@ -243,7 +243,9 @@ function buildStageAArgs(config, prompt) {
     '--model', config.extractModel,
     '--allowedTools', 'Read,Bash(node lib/core/*)',
     '--output-format', 'json',
-    '--json-schema', config.evidenceSchemaPath,
+    // DI-1: the CLI wants the schema INLINE, not a file path (a path makes it
+    // JSON-parse the leading '/' and fail). inlineSchemaJson reads + strips $schema.
+    '--json-schema', inlineSchemaJson(config.evidenceSchemaPath),
     '--max-budget-usd', String(config.stageABudgetUsd),
     '--no-session-persistence',
   ];
@@ -264,7 +266,8 @@ function buildStageBArgs(config) {
     '--plugin-dir', config.pluginDir,
     '--model', config.model,
     '--output-format', 'json',
-    '--json-schema', config.feedbackSchemaPath,
+    // DI-1: inline the schema JSON (never a path); inlineSchemaJson strips $schema.
+    '--json-schema', inlineSchemaJson(config.feedbackSchemaPath),
     '--append-system-prompt-file', config.rubricPath,
     '--permission-mode', 'dontAsk',
     '--allowedTools', 'Read,Write,Edit,Bash(node lib/core/*)',
