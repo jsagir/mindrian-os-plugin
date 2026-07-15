@@ -3141,12 +3141,12 @@ Website capability copy (new feature descriptions) deferred deliberately, not si
 **Goal:** When more than one reach candidate fires on a turn, suggest_next, reach_candidates, and resolveFireSkill all resolve to the SAME scored pick - the existing D4 blend plus a new hand-rolled, room-local Hedge (multiplicative-weights) adjustment learned from the Phase 159 outcome log - with reachability proven via real MCP registration and real decide(), never assumed. (Shapley attribution and whitespace strategic_rank deliberately deferred per 222-SPEC.md: fast-follow / SEED-057.)
 **Requirements**: Local Reqs 1-7 (222-SPEC.md; no global REQ-XX ids mapped to this phase)
 **Depends on:** Phase 221
-**Plans:** 4 plans
+**Plans:** 2/4 plans executed
 
 Plans:
 
-- [ ] 222-01-PLAN.md - Weight-state substrate: phase-222-ranker-weights migration + navigation.cjs typed accessor pair + reach_weight_state_unavailable event type + frozen-scalar guard
-- [ ] 222-02-PLAN.md - lib/workflow/reach-hedge-ranker.cjs: rankFiredCandidates + Hedge combiner + debounced weight updates + Req 1/3/7 module tests
+- [x] 222-01-PLAN.md - Weight-state substrate: phase-222-ranker-weights migration + navigation.cjs typed accessor pair + reach_weight_state_unavailable event type + frozen-scalar guard
+- [x] 222-02-PLAN.md - lib/workflow/reach-hedge-ranker.cjs: rankFiredCandidates + Hedge combiner + debounced weight updates + Req 1/3/7 module tests
 - [ ] 222-03-PLAN.md - Wire decide() and dispatchCandidateReaches onto the shared ranker + born-wired reachability proof (test-222-reach-wired.cjs)
 - [ ] 222-04-PLAN.md - run-all-222.sh harness + zero-deps/Part-8/Part-9 tripwires + ENV-TUNING docs + phase gate
 
