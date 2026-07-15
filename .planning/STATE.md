@@ -4,17 +4,30 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Phase 223 COMPLETE 5/5 - gate PASS=18; release cut approved, parked on huji-eval.cjs tree-quiet
-last_updated: "2026-07-15T21:30:42.826Z"
+last_updated: "2026-07-15T21:45:33.122Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 22
   total_plans: 132
-  completed_plans: 118
+  completed_plans: 121
   percent: 59
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 227 Plan 02 COMPLETE (Wave 1) -- systemic skill-description sweep: CIRS R4 loose-description bypass pattern closed across all 124 methodology skills (Req 2)
+
+Wave 1, standalone (depends_on: []). Closes item 2 of `ignite-frontdoor-bypassed-methodology-overfire.md`'s `fix_remaining` list.
+
+- **`scripts/sweep-skill-descriptions.cjs` (net-new):** zero-dependency CJS scanner over every `skills/*/SKILL.md`; extracts the literal `sensor_triggers` value and classifies `description` tightness (tight/loose) against 5 explicit-intent markers, self-tested against `trending-to-absurd`'s live post-fix description (fails closed, exit 1, if the calibration reference does not classify tight) before trusting the heuristic against the other 123 files.
+- **Sweep result:** `sensor_triggers` is `[]` or absent for all 124 skills (zero non-empty arrays live today); the entire risk surface is description text, matching 227-CONTEXT.md's planning-time finding.
+- **3 trivial fixes applied** (same shape as trending-to-absurd's own FIX 2, an explicit-intent qualifier + do-not-use-for exclusion): `skills/MOSDeckEngine/SKILL.md` (commit `f6dda07d`), `skills/client-discovery-interview/SKILL.md` (commit `ae822e84`), `skills/mullins-scaffold/SKILL.md` (commit `af0bac54`).
+- **`227-SWEEP-FINDINGS.md` (net-new):** all 124 skills classified (119 clean, 3 fixed-trivial, 2 deferred-real-work); `conversation-mode` + `larry-personality` deferred per the plan's defensive rule (both touched by concurrent 227-03/227-04, avoiding a cross-plan file conflict), not because a genuine defect was found and skipped.
+- **Concurrent-session note (documented in SUMMARY, not a code defect):** another Claude Code session was actively committing in this same working directory throughout this plan (vendored `node_modules` staging, a `v1.15.3-beta.21` version bump, `229-03`/`229-04` plan work all landed mid-execution). The `227-SWEEP-FINDINGS.md` report commit landed inside that session's `feat(229-04)`-labeled commit (`39fc72f3`) due to a shared-index staging race; content verified byte-correct via md5sum, no other commit in this plan was affected. A `gsd-tools state.advance-plan` call was also caught clobbering a concurrent phase's plan counter (`Plan 4 of 9 -> 5 of 9`, `completed_plans 118 -> 121`) and was reverted before this STATE.md edit -- this entry is a manual additive log append only, frontmatter progress counters intentionally left untouched to avoid repeating that clobber.
+- **Tests/verify:** `node scripts/sweep-skill-descriptions.cjs` exits 0, self-test passes; `227-SWEEP-FINDINGS.md` 124 data rows, verdict counts sum to 124; zero em-dashes across all 5 touched files.
+- **Commits:** `0621f36f` feat (scanner), `f6dda07d` fix (MOSDeckEngine), `ae822e84` fix (client-discovery-interview), `af0bac54` fix (mullins-scaffold), `39fc72f3` docs (227-SWEEP-FINDINGS.md, landed in a concurrent commit, see note above).
+- **NEXT:** 227-03 / 227-04 should re-sweep `conversation-mode` and `larry-personality` after their own edits land. SUMMARY: `.planning/phases/227-ignite-mode-select-timing-across-turns-1-4-seed-060-close-in/227-02-SUMMARY.md`.
 
 ## (2026-07-15) -- PHASE 223 Plan 03 COMPLETE (Wave 2) -- evolved /mos:bono: the shipped surface IS now the 8-phase governed research debate (Req 1 consumption + Req 2 surface + Req 6)
 
@@ -1028,7 +1041,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 229 (HUJI Pitch Feedback Module) — EXECUTING
-Plan: 4 of 9
+Plan: 5 of 9
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1609,6 +1622,7 @@ Progress: [█████████░] 92%
 | Phase 229 P02 | ~20min | 3 tasks | 9 files |
 | Phase 227 P01 | ~15min | 3 tasks | 5 files |
 | Phase 229 P03 | ~35min | 3 tasks | 1 files |
+| Phase 229 P04 | 22 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -2641,6 +2655,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 229-02: eval scaffolding landed - transcript-traceable D2/D1 inventories, 7-probe D3/D8/injection/degenerate/covered-element set, run-all-229.sh gate (D1 first, green-while-SKIP, human better-than-a-TA checkpoint)
 - [Phase 227]: Mode-select firing checkpoint (Req 1): mode-select-sidechannel.cjs mirrors card-fire-sidechannel.cjs's pattern with its own store file and 24h TTL (D-01/D-02); doctor module uses flag:null and derives session identity from CLAUDE_SESSION_ID (D-04/D-05) - Closes gap 3 of intern-w1-mode-gate-skip.md; wiring the recorder call sites is plan 227-04
 - [Phase 229]: 229-03 harness: bare --check X self-verifies via in-file PASS+FAIL fixtures (green-while-no-batch), turning RED only when the check logic regresses
+- [Phase ?]: 229-04: NAMED_RECIPES/recipeForName is a sibling frozen map to SENS10_CAUSE_RECIPES; PWS_grading native order deep-grade->mullins->build-thesis->structure-argument, no fabricated autonomous_safe literals
+- [Phase ?]: 229-04: build-thesis 6/10 halt neutralized at PROMPT layer via frozen rubric-huji.md; build-thesis-scored.md fallback; shipped build-thesis untouched
 
 ### Pending Todos
 
@@ -2711,7 +2727,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-15T21:30:42.757Z
+Last session: 2026-07-15T21:45:23.706Z
 Stopped at: Phase 223 COMPLETE 5/5 - gate PASS=18; release cut approved, parked on huji-eval.cjs tree-quiet
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.

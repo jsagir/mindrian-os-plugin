@@ -96,7 +96,9 @@ None - plan executed exactly as written. No auto-fixes (Rules 1-3) were required
 - The rubric few-shot slot is intentionally empty and marked; Plan 09 embeds the 2 Amnon-approved samples after the demo.
 - The `--suite demo` run (Plan 07+) is the arbiter of whether the rubric-file override alone stops the halt or the `build-thesis-scored.md` fallback is adopted.
 
-## Self-Check: PENDING
+## Self-Check: PASSED
+
+All 8 declared files exist on disk. All task/summary commits (ae315779 Task 1 content, 1427c830 Task 2, 33b28925 SUMMARY) present in git history.
 
 ---
 *Phase: 229-huji-pitch-feedback-module*
