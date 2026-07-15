@@ -1070,8 +1070,8 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 
 ### Phase 92: Refactor constitution and trust layer -- formalizes audit-driven refactor work (Constitution v1.1, Directive 1 validation, Directive 2 consolidation, Directive 3 unidirectional flow + Trust Layer)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Two born-wired surfaces share one research-ingestion + graph-close-the-loop spine: /mos:bono evolves into an 8-phase governed research debate (hat-governance.cjs, persona-research.cjs, MECE-Minto conclusion, version-cut SUPERSEDES chain + --version-log) and a new /mos:intel-pipeline meta-orchestrator runs calibrate -> decompose -> fan research -> compute -> synthesize -> write-to-graph oriented by the room's active JTBD - both terminating through navigation.cjs into proposed claim/opportunity/open_question nodes with the D-01 write-through bank .md pair so compute-opportunity-state surfaces them.
+**Requirements**: Local Reqs 1-6 (223-SPEC.md; no global REQ-XX ids mapped to this phase)
 **Depends on:** Phase 91
 **Plans:** 10/11 plans complete
 
@@ -3211,11 +3211,25 @@ WRITE-side gap. Full detail + three resolution options in 223-SPEC.md's Addendum
 is still correct (the READ-side risk is real and 224 is built to close it), but do not assume 224
 shipping also resolves Requirement 4 -- that needs its own explicit check once 224 lands, and may
 need a Requirement 7 or a Req-4 rewrite regardless of 224's outcome.
-**Plans:** 0 plans
+**Plans:** 5 plans
 
 Plans:
+**Wave 1**
 
-- [ ] TBD (run /gsd-plan-phase 223 to break down)
+- [ ] 223-01-PLAN.md - hat-governance.cjs + persona-research.cjs riding runDebate/runCellFanout's injectable seams + fixture-room-223 + Part 8 egress test [Req 1]
+- [ ] 223-02-PLAN.md - Close-the-loop spine: close-loop-writer.cjs (D-01 dual write, D-02 proposed edges, G-1 provenance), writeOpenQuestionNode, walkSupersedesChain walker (D-04 NULL) [Req 2, Req 4]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 223-03-PLAN.md - commands/bono.md 8-phase governed body + hitl_stages + web_scope green + --version-log + mirror regeneration (DESENSITIZE preserved, never converged) [Req 1, Req 2, Req 6]
+
+**Wave 3** *(blocked on Wave 2 - shared mirror/registry generators)*
+
+- [ ] 223-04-PLAN.md - /mos:intel-pipeline: lib/core/intel-pipeline.cjs staged composition core (D-03 eureka compute, G-2 JTBD-drift guardrail) + kind:meta connector + SKILL mirror + Req 3 fixtures [Req 3, Req 4, Req 6]
+
+**Wave 4** *(blocked on Wave 3; autonomous: false)*
+
+- [ ] 223-05-PLAN.md - run-all-223.sh aggregate gate + permanent tripwires + registry diff evidence (+2 entries, 0 changed reach_ids) + CANON-PHASE-MAP + compositing + navigator-gated version cut [Req 5, Req 6]
 
 ### Phase 224: Graph-derivation harness (SEED-034): make room.db's typed-node/edge graph a mechanical twin of the filesystem on every normal conversational write, closing the write-path gap where scripts/post-write's freshness triple never calls navigation.cjs -- confirmed CRITICAL, reconfirmed independently twice (the original b2-journey incident and the 2026-07-14 david-innovation-studio intern session), the default case affecting every room, not an edge case
 
