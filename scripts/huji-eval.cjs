@@ -136,6 +136,131 @@ function schemaCheck({ feedback }) {
 }
 
 // ---------------------------------------------------------------------------
+// Cohort helpers (D3/D8/D9): band buckets, rolling stats, word shingles.
+// ---------------------------------------------------------------------------
+
+// The AI-SPEC Section 5 normalization buckets (< 50 = 1, 50-64 = 2, 65-79 = 3,
+// 80-89 = 4, 90+ = 5). "Within 1 band" is a difference of <= 1 on this scale.
+function bandOf(score) {
+  if (score < 50) return 1;
+  if (score < 65) return 2;
+  if (score < 80) return 3;
+  if (score < 90) return 4;
+  return 5;
+}
+function meanScore(scores) {
+  const vals = Object.values(scores || {}).map(Number).filter((n) => !Number.isNaN(n));
+  if (!vals.length) return 0;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+function mean(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; }
+function stdev(arr) {
+  if (arr.length < 2) return 0;
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((a, b) => a + (b - m) * (b - m), 0) / (arr.length - 1));
+}
+function medianOf(arr) {
+  if (!arr.length) return 0;
+  const s = arr.slice().sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+}
+
+// k-word shingle set (dependency-free; the individuation fingerprint).
+function shingles(text, k) {
+  k = k || 5;
+  const words = normalize(text).split(' ').filter(Boolean);
+  const set = new Set();
+  for (let i = 0; i + k <= words.length; i++) set.add(words.slice(i, i + k).join(' '));
+  if (set.size === 0 && words.length) set.add(words.join(' '));
+  return set;
+}
+function jaccard(a, b) {
+  let inter = 0;
+  for (const x of a) if (b.has(x)) inter++;
+  const uni = new Set([...a, ...b]).size;
+  return uni === 0 ? 0 : inter / uni;
+}
+
+// ---------------------------------------------------------------------------
+// D3 - drift (duplicate-anchor probes within 1 band + one pinned model_id)
+// ---------------------------------------------------------------------------
+
+// results: array of { probe_id, position, model_id, scores } (one per result.json).
+// manifest: the probe manifest array (duplicate-anchor entries carry inject_positions).
+function driftStats({ results, manifest }) {
+  const results2 = results || [];
+  const modelIds = [...new Set(results2.map((r) => r.model_id).filter((x) => x != null))];
+  const modelMismatches = modelIds.length > 1 ? modelIds : [];
+
+  const dupIds = (manifest || []).filter((p) => p.type === 'duplicate-anchor').map((p) => p.id);
+  const bandDeviations = [];
+  for (const pid of dupIds) {
+    const rows = results2.filter((r) => r.probe_id === pid).sort((a, b) => a.position - b.position);
+    if (rows.length < 2) continue;
+    const baseBand = bandOf(meanScore(rows[0].scores));
+    for (const row of rows) {
+      const band = bandOf(meanScore(row.scores));
+      if (Math.abs(band - baseBand) > 1) {
+        bandDeviations.push({ probe: pid, position: row.position, base_band: baseBand, band });
+      }
+    }
+  }
+
+  // Rolling cohort mean/stdev per 25 units (monotonic-drift watch; informational).
+  const ordered = results2.filter((r) => typeof r.position === 'number').sort((a, b) => a.position - b.position);
+  const rolling = [];
+  for (let i = 0; i < ordered.length; i += 25) {
+    const window = ordered.slice(i, i + 25).map((r) => meanScore(r.scores));
+    rolling.push({ from: i + 1, to: i + window.length, mean: mean(window), stdev: stdev(window) });
+  }
+
+  return { ok: modelMismatches.length === 0 && bandDeviations.length === 0, modelMismatches, bandDeviations, rolling };
+}
+
+// ---------------------------------------------------------------------------
+// D8 - similarity (pairwise shingle-Jaccard below the template ceiling)
+// ---------------------------------------------------------------------------
+
+// feedbacks: array of { id, text }. threshold default 0.5 (AI-SPEC).
+function similarityIndex({ feedbacks, threshold, k }) {
+  const thr = typeof threshold === 'number' ? threshold : 0.5;
+  const sh = (feedbacks || []).map((f) => ({ id: f.id, s: shingles(f.text, k) }));
+  const pairs = [];
+  for (let i = 0; i < sh.length; i++) {
+    for (let j = i + 1; j < sh.length; j++) {
+      pairs.push({ a: sh[i].id, b: sh[j].id, sim: jaccard(sh[i].s, sh[j].s) });
+    }
+  }
+  const sims = pairs.map((p) => p.sim);
+  const over = pairs.filter((p) => p.sim > thr);
+  return { ok: over.length === 0, threshold: thr, max: sims.length ? Math.max(...sims) : 0, median: medianOf(sims), over, pairs };
+}
+
+// ---------------------------------------------------------------------------
+// D9 - cost-ledger (per-unit total_cost_usd <= $3.00; warm avg + batch total)
+// ---------------------------------------------------------------------------
+
+// results: array of { id, total_cost_usd }.
+function costLedger({ results, perUnitMax, warmTarget, batchLow, batchHigh }) {
+  const cap = typeof perUnitMax === 'number' ? perUnitMax : 3.00;
+  const warm = typeof warmTarget === 'number' ? warmTarget : 2.00;
+  const results2 = results || [];
+  const over = results2
+    .filter((r) => Number(r.total_cost_usd) > cap)
+    .map((r) => ({ id: r.id || r.submission_id, cost: Number(r.total_cost_usd) }));
+  const costs = results2.map((r) => Number(r.total_cost_usd)).filter((n) => !Number.isNaN(n));
+  const total = costs.reduce((a, b) => a + b, 0);
+  return {
+    ok: over.length === 0,
+    perUnitMax: cap, warmTarget: warm,
+    over, avg: mean(costs), total,
+    batchLow: batchLow || 150, batchHigh: batchHigh || 400,
+    warmOver: mean(costs) > warm,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Selftest fixtures + runners (tiny in-file PASS/FAIL, no files, no model calls)
 // ---------------------------------------------------------------------------
 
@@ -228,11 +353,63 @@ function selftestSchema() {
   expectFail('schema', schemaCheck({ feedback: badFeedback }));
 }
 
-// Per-check selftest registry (extended in Tasks 2-3). Bare `--check X` runs this.
+function selftestDrift() {
+  const manifest = [{ id: 'dup-anchor-safescan', type: 'duplicate-anchor' }];
+  const model = 'claude-opus-4-8';
+  // PASS: same probe across positions stays within 1 band, one pinned model_id.
+  const okResults = [
+    { probe_id: 'dup-anchor-safescan', position: 1, model_id: model, scores: { grounding: 82, structure: 78 } },
+    { probe_id: 'dup-anchor-safescan', position: 100, model_id: model, scores: { grounding: 80, structure: 74 } },
+    { probe_id: 'dup-anchor-safescan', position: 200, model_id: model, scores: { grounding: 84, structure: 76 } },
+  ];
+  expectPass('drift', driftStats({ results: okResults, manifest }));
+
+  // FAIL (a): a mismatched model_id breaks cohort fairness.
+  const badModel = JSON.parse(JSON.stringify(okResults));
+  badModel[2].model_id = 'claude-sonnet-5';
+  expectFail('drift (model_id)', driftStats({ results: badModel, manifest }));
+
+  // FAIL (b): position 200 drifts > 1 band from position 1 (band 4 -> band 2).
+  const badBand = JSON.parse(JSON.stringify(okResults));
+  badBand[2].scores = { grounding: 58, structure: 55 };
+  expectFail('drift (band)', driftStats({ results: badBand, manifest }));
+}
+
+function selftestSimilarity() {
+  const distinctA = 'SafeScan tests food at the table using a smart light sensor for the big nine allergen groups with a three step capsule workflow.';
+  const distinctB = 'The mobile learning app helps students study faster with short summaries flashcards and quizzes on a ten to twelve week timeline.';
+  // PASS: two genuinely different feedback bodies stay below the ceiling.
+  expectPass('similarity', similarityIndex({ feedbacks: [{ id: 'a', text: distinctA }, { id: 'b', text: distinctB }] }));
+
+  // FAIL: two identical bodies are a templated pair (Jaccard 1.0 > 0.5).
+  expectFail('similarity (dup pair)', similarityIndex({ feedbacks: [{ id: 'a', text: distinctA }, { id: 'a2', text: distinctA }] }));
+
+  // --threshold is respected: a lenient ceiling of 1.01 passes even the dup pair.
+  expectPass('similarity (--threshold honored)', similarityIndex({ feedbacks: [{ id: 'a', text: distinctA }, { id: 'a2', text: distinctA }], threshold: 1.01 }));
+}
+
+function selftestCostLedger() {
+  // PASS: every unit under the $3.00 fuse.
+  const okResults = [
+    { id: 'u1', total_cost_usd: 1.80 },
+    { id: 'u2', total_cost_usd: 2.10 },
+    { id: 'u3', total_cost_usd: 1.95 },
+  ];
+  expectPass('cost-ledger', costLedger({ results: okResults }));
+
+  // FAIL: one unit blew the $3.00 fuse.
+  const badResults = okResults.concat([{ id: 'u4', total_cost_usd: 3.40 }]);
+  expectFail('cost-ledger (over $3.00)', costLedger({ results: badResults }));
+}
+
+// Per-check selftest registry (extended in Task 3). Bare `--check X` runs this.
 const CHECK_SELFTESTS = {
   'quote-verifier': selftestQuoteVerifier,
   'inventory-recall': selftestInventoryRecall,
   'schema': selftestSchema,
+  'drift': selftestDrift,
+  'similarity': selftestSimilarity,
+  'cost-ledger': selftestCostLedger,
 };
 
 function selftestGrounding() {
@@ -241,17 +418,24 @@ function selftestGrounding() {
   selftestSchema();
 }
 
-// Selftest-group registry (extended in Tasks 2-3).
+function selftestCohort() {
+  selftestDrift();
+  selftestSimilarity();
+  selftestCostLedger();
+}
+
+// Selftest-group registry (extended in Task 3).
 const SELFTEST_GROUPS = {
   grounding: selftestGrounding,
+  cohort: selftestCohort,
 };
 
 // ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
 
-// The set of wired checks (extended in Tasks 2-3). Unknown -> usage + non-zero.
-const KNOWN_CHECKS = ['quote-verifier', 'inventory-recall', 'schema'];
+// The set of wired checks (extended in Task 3). Unknown -> usage + non-zero.
+const KNOWN_CHECKS = ['quote-verifier', 'inventory-recall', 'schema', 'drift', 'similarity', 'cost-ledger'];
 
 function usage() {
   console.error([
