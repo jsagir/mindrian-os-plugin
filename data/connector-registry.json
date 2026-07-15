@@ -2984,7 +2984,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: pulls the full candidate-reach set through the shipped dispatchSensors path, no fork."
+      "hitl_why": "Pulls the full candidate-reach set through the shipped dispatchSensors path -- no navigator-facing fork. Phase 222: on >= 2 fired candidates this may also persist a debounced, system-internal Hedge weight-state snapshot (room.db bookkeeping, never a material or user-visible write, never gated on approval)."
     },
     {
       "surface": "mcp:room_bind",
@@ -3103,7 +3103,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: pulls the top candidate reach through the shipped dispatchSensors path, no fork."
+      "hitl_why": "Pulls the top candidate reach through the shipped dispatchSensors path -- no navigator-facing fork. Phase 222: on >= 2 fired candidates this may also persist a debounced, system-internal Hedge weight-state snapshot (room.db bookkeeping, never a material or user-visible write, never gated on approval)."
     },
     {
       "surface": "mcp:view_compile",
