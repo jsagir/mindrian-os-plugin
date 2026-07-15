@@ -253,6 +253,42 @@ falls back to the calibrated default.
 export MINDRIAN_ZERO_SCORE_GATE_MIN_TOKENS=8
 ```
 
+## Eureka Reasoning-Mode Pair Cap (Phase 226, room-local, zero egress)
+
+When the local embedding encoder is unavailable (a cold machine, no cached model)
+or a room's typed-edge graph is too thin, `/mos:eureka` degrades to the
+encoder-free REASONING-mode fallback (SEED-058): it reads raw room markdown,
+pre-filters candidate pairs with the free Jaccard lexical anchor, and runs the SAME
+Grounding Guard two-pass rubric at full rigor. The paid rubric pass is the cost, so
+the fan-out into it must be bounded by a cap, never by room size. This floor is that
+cap. It carries no user content anywhere; the whole path is LOCAL raw-markdown +
+in-session judge, zero Brain egress (Canon Part 8).
+
+### MINDRIAN_EUREKA_REASONING_MAX_PAIRS
+
+**What:** The maximum number of candidate pairs the free Jaccard pre-filter selects
+and sends to the (paid) reasoning rubric per run. A room with 200 entries has on the
+order of 20,000 raw cross-section pairs; the pre-filter keeps only the cap-many
+lowest-lexical-overlap pairs (the eureka band: shared meaning the vocabulary hides),
+so the rubric cost is bounded by the cap, never by room size. The value is read at
+call time in `lib/core/eureka/reasoning-mode.cjs` (`reasoningMaxPairs()`), so an
+override in a child process env is honored immediately.
+**Default:** `25` (a positive integer). Chosen to match the embedded path's own
+`--top 25` ranked-list length, so the reasoning fallback surfaces a working
+diagnosis of the same shape and size the full embedded run would. Byte-matches the
+`reasoning-mode.cjs` source constant (`envInt('MINDRIAN_EUREKA_REASONING_MAX_PAIRS', 25)`).
+**Why (D8 bounded fan-out):** The reasoning path deliberately runs no AHP composite
+(a blended quality score would fuse trust-in-evidence with pair plausibility, the
+explicit Bad case), so this cap is the ONLY cost control on the fallback and there is
+no new AHP floor to tune alongside it. Raise it (for example `40`) only if a large
+room's genuine cross-domain pairs are being pre-filtered out before the rubric sees
+them; lower it (for example `10`) to keep a self-judging session short. Any
+non-integer or non-positive value falls back to the calibrated default.
+
+```bash
+export MINDRIAN_EUREKA_REASONING_MAX_PAIRS=25
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:

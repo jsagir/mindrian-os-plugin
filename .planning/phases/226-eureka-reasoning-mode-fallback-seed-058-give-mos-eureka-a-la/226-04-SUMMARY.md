@@ -86,11 +86,45 @@ Three test legs, all green standalone under the offline preload:
 | `node tests/test-226-rejection-replay.cjs` (D3) | exit 0 (3 junk classes rejected, gate-1 class 0 judge calls) |
 | em-dashes across the 3 new files | 0 |
 
-## Task 2: aggregator + registration + docs
+## Task 2: run-all-226 aggregator + TEST_FILES registration + docs (COMPLETE)
 
-_Pending in this same plan execution (see the follow-on commit)._
+- **tests/run-all-226.sh:** The single PASS/FAIL/SKIP phase gate, modeled verbatim on
+  run-all-212.sh (same run/run_if counters, the same `NODE_OPTIONS=--require tests/eureka-offline-preload.cjs`
+  zero-network export, the same `[ FAIL -eq 0 ]` non-zero-exit convention). test-226-null-legs is
+  listed FIRST and labeled the phase's HARDEST GATE (the D1 fabricated-number tripwire). Every leg is
+  `run_if`-guarded on its file (partial-landing safe, SKIP counted never silent). The header maps each
+  of the eight D1-D8 legs to its dimension + REQ id, plus the SEED-req-7 embedded regression legs run
+  the field-contract legs of the embedded suites directly (test-215/216-field-contract.cjs) rather than
+  nesting whole suites - the runtime rationale is stated in the header.
+- **lib/memory/run-feynman-tests.cjs:** The eight `test-226-*.cjs` paths appended to TEST_FILES (the
+  224-VALIDATION test-infra contract precedent), making the D1 tripwire and the Part 9 posture check
+  permanent, not one-time review.
+- **docs/ENV-TUNING.md:** A Phase 226 section documenting `MINDRIAN_EUREKA_REASONING_MAX_PAIRS`
+  (default 25, byte-matched against the reasoning-mode.cjs source constant), the D8 bounded-fan-out
+  rationale (a 200-entry room's ~20k raw pairs bounded by the cap, never by room size), and the explicit
+  note that the reasoning path computes no AHP composite (no new AHP floor).
+- **docs/CANON-PHASE-MAP.md:** A Phase 226 row under Part 9 with canon_parts [3, 8, 9] and a one-line
+  description (Part 8 local-only judge, Part 9 banked-never-true on the fallback path, Part 3 gate
+  unaffected / no AHP composite).
 
-## Task 3: Navigator calibration checkpoint
+### Verification (Task 2)
 
-_NOT executed - this is the mandatory HUMAN checkpoint (AI-SPEC Section 5, autonomous:false).
-The orchestrator hands off to the navigator; this summary is completed on resume._
+| Check | Result |
+|-------|--------|
+| `bash tests/run-all-226.sh` | PASS=10 FAIL=0 SKIP=0, exit 0 |
+| SKIP guard (move one test file aside) | PASS=9 FAIL=0 SKIP=1, exit 0 (SKIP not FAIL, run_if proven) |
+| FAIL tripwire (plant a failing assertion) | exit 1 (non-zero), then reverted byte-clean |
+| `grep test-226- lib/memory/run-feynman-tests.cjs` | 8 entries; `node -c` syntax OK |
+| ENV-TUNING default (25) byte-matches reasoning-mode.cjs | yes (`envInt('MINDRIAN_EUREKA_REASONING_MAX_PAIRS', 25)`) |
+| `grep -qi "phase 226" docs/CANON-PHASE-MAP.md` | present |
+| `node scripts/doctor.cjs --acceptance` | 13/15; failed only {coverage-gate, verify-release-clean-tree} - the DOCUMENTED environmental baseline, NO NEW regression |
+
+## Task 3: Navigator calibration checkpoint (PENDING - NOT executed)
+
+This is the mandatory HUMAN checkpoint (AI-SPEC Section 5, `autonomous: false`, the Phase 212 plan-05
+precedent): real-judge accuracy and caveat-wording honesty are a human-verify bar, NEVER an automated
+assertion. The automated gate (`bash tests/run-all-226.sh`) is green, but the phase is NOT complete
+until the navigator confirms, on the David proving case, that the honest degrade actually lands: a real
+short ranked list, the true cause named, a caveat that PREVENTS over-trust (not one that merely legally
+covers it), and an honest reasoning-to-embedded upgrade delta. The orchestrator hands off to the
+navigator; STATE/ROADMAP are NOT advanced and this summary's self-check is NOT finalized until resume.
