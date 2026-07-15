@@ -1,0 +1,38 @@
+{
+  "submission_id": "study-app-001",
+  "source_transcript": "samples/sample-2-study-app.md",
+  "_label_status": "drafted-pending-human-confirm",
+  "_label_note": "Mechanical enumeration of every feature, number, timeframe, role, risk, mitigation, and self-named gap in the verbatim study-app transcript. Speaker 1 is the recording system (non-content). Both risks are recorded WITH their mitigations in covered_elements so that any grader marking risks 'missing' is a detectable D1 FAIL. Jonathan confirms these labels at the Plan 09 demo checkpoint.",
+  "entities": [
+    { "text": "mobile learning app", "type": "product", "quote": "My venture is a mobile learning app that helps students to study faster using short summaries and quizzes.", "timestamp": "0:06", "evidenced": "asserted" },
+    { "text": "summaries", "type": "feature", "quote": "three main features: summaries, flashcards, and short quizzes", "timestamp": "0:38", "evidenced": "asserted" },
+    { "text": "flashcards", "type": "feature", "quote": "three main features: summaries, flashcards, and short quizzes", "timestamp": "0:38", "evidenced": "asserted" },
+    { "text": "quizzes", "type": "feature", "quote": "three main features: summaries, flashcards, and short quizzes after each topic", "timestamp": "0:38", "evidenced": "asserted" },
+    { "text": "software developer", "type": "role", "quote": "The initial team would include a software developer", "timestamp": "1:33", "evidenced": "asserted" },
+    { "text": "UX/UI designer", "type": "role", "quote": "a UX/UI designer", "timestamp": "1:33", "evidenced": "asserted" },
+    { "text": "content creator", "type": "role", "quote": "and a content creator", "timestamp": "1:33", "evidenced": "asserted" }
+  ],
+  "claims": [
+    { "text": "Goal: make learning simpler, faster, and more effective for students", "quote": "The goal is to make learning simpler, faster, and more effective for students.", "timestamp": "0:06", "evidenced": "asserted" },
+    { "text": "Problem: students struggle with large amounts of study material and limited time", "quote": "Students often struggle with large amounts of study material and limited time.", "timestamp": "0:22", "evidenced": "asserted" },
+    { "text": "Solution: break content into short summaries, flashcards, and quizzes to improve understanding and memory", "quote": "My app solves this by breaking content into short summaries, flashcards, and quizzes that improve understanding and memory.", "timestamp": "0:22", "evidenced": "asserted" },
+    { "text": "Prototype: simple mobile interface with three main features", "quote": "The prototype would include a simple mobile interface with three main features: summaries, flashcards, and short quizzes after each topic.", "timestamp": "0:38", "evidenced": "asserted" },
+    { "text": "Key tasks: data collection, content creation, app development, testing", "quote": "important tasks are data collection, content creation, app development, and testing", "timestamp": "1:12", "evidenced": "asserted" },
+    { "text": "Critical path: idea, content, development, testing, launch", "quote": "The critical path is, uh, idea, content, development, testing, and launch.", "timestamp": "1:12", "evidenced": "asserted" },
+    { "text": "Timeline: around ten to twelve weeks", "quote": "the project would take around ten to twelve weeks", "timestamp": "1:12", "evidenced": "asserted" },
+    { "text": "Value: brings together education and technology to make studying more efficient and accessible", "quote": "This venture brings together education and technology to make studying more efficient and accessible for students.", "timestamp": "2:00", "evidenced": "asserted" }
+  ],
+  "self_identified_gaps": [
+    { "gap": "deeper market research", "quote": "What is still missing in our project is deeper market research", "timestamp": "1:45" },
+    { "gap": "competitor analysis", "quote": "competitor analysis", "timestamp": "1:45" },
+    { "gap": "user testing", "quote": "and user testing. These steps are needed to better validate the product and improve it before launch.", "timestamp": "1:45" }
+  ],
+  "covered_elements": [
+    { "element": "risk-1-with-mitigation", "risk": "low user engagement", "mitigation": "gamification (points and progress tracking)", "quote": "One risk is low user engagement, which I would solve by adding gamification like points and progressive tracking.", "timestamp": "0:52" },
+    { "element": "risk-2-with-mitigation", "risk": "inaccurate content", "mitigation": "validating materials with experts or trusted sources", "quote": "Another risk is inaccurate content, which would be handled by vali- validating materials with experts or trusted sources.", "timestamp": "0:52" },
+    { "element": "three-features", "description": "Three concrete product features named", "quote": "three main features: summaries, flashcards, and short quizzes after each topic", "timestamp": "0:38" },
+    { "element": "team-plan", "description": "Three roles named with rationale", "quote": "The initial team would include a software developer, a UX/UI designer, and a content creator. Each one is essential for building, designing, and producing study material.", "timestamp": "1:33" },
+    { "element": "timeline", "description": "Explicit ten-to-twelve-week timeline", "quote": "the project would take around ten to twelve weeks", "timestamp": "1:12" },
+    { "element": "metacognition", "description": "Speaker self-named their own gaps (reward, never double-punish)", "quote": "What is still missing in our project is deeper market research, competitor analysis, and user testing.", "timestamp": "1:45" }
+  ]
+}

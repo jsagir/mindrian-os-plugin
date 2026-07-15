@@ -1,0 +1,40 @@
+{
+  "submission_id": "safescan-001",
+  "source_transcript": "samples/sample-1-safescan.md",
+  "_label_status": "drafted-pending-human-confirm",
+  "_label_note": "Mechanical enumeration of every proper noun, number, timeframe, organization, and claim in the verbatim SafeScan transcript. Jonathan confirms these labels at the Plan 09 demo checkpoint. Every item traces to a verbatim span; nothing is inferred beyond the transcript text.",
+  "entities": [
+    { "text": "SafeScan", "type": "product", "quote": "Today I want to show you SafeScan.", "timestamp": "0:01", "evidenced": "asserted" },
+    { "text": "smart light sensor", "type": "technology", "quote": "The science inside uses smart light sensor.", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "big nine food groups", "type": "scope", "quote": "We are focusing on the big nine food groups that causes almost all severe allergic reactions globally.", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "capsule", "type": "component", "quote": "put a small food sample in the capsule", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "phone app", "type": "component", "quote": "check the app on your phone", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "hardware and biosensor engineer", "type": "role", "quote": "hire a hardware and biosensor engineer for the device", "timestamp": "1:19", "evidenced": "asserted" },
+    { "text": "mobile app developer", "type": "role", "quote": "a mobile app developer for the software", "timestamp": "1:19", "evidenced": "asserted" },
+    { "text": "safety expert", "type": "role", "quote": "we'll bring in a safety expert for official health certifications", "timestamp": "1:28", "evidenced": "asserted" },
+    { "text": "operation manager", "type": "role", "quote": "an operation manager to help us move to mass factory production", "timestamp": "1:28", "evidenced": "asserted" },
+    { "text": "FDA compliance", "type": "regulatory", "quote": "studying FDA compliance", "timestamp": "1:39", "evidenced": "asserted" }
+  ],
+  "claims": [
+    { "text": "Goal: help people with food allergies eat out safely with confidence", "quote": "Our goal is to help people with food allergies eat out safely with confidence.", "timestamp": "0:01", "evidenced": "asserted" },
+    { "text": "Food allergies are a big global problem", "quote": "Food allergies are a big problem around the world.", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Restaurant kitchens cannot guarantee 100 percent safe food", "quote": "Restaurant kitchen cannot guarantee one hundred percent safe food", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Device gives a scientific answer in less than a minute", "quote": "gives you a scientific answer in less than a minute", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Three-step usage: sample in capsule, capsule in device, check app", "quote": "Just three quick steps. First, put a small food sample in the capsule. Second, put the capsule inside the device. Third, check the app on your phone.", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Sensor detects tiny traces of allergen proteins invisible to the eye", "quote": "This technology detects even tiny traces of allergen proteins that the human eye cannot see.", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Big nine start is a strategic focus where need is most urgent", "quote": "This is our strategic start where the need is most urgent.", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Uses high-quality testing materials to prevent mistakes", "quote": "We use high-quality testing materials to prevent mistakes", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Plan to scale production to keep costs low", "quote": "we plan to scale production to keep costs low for the user", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Roadmap: prototype and hardware validation, then user beta testing, then market launch and certification", "quote": "First, we'll finish our prototype and hardware validation. Next, we'll do user beta testing and then achieve market launch and certification.", "timestamp": "0:10", "evidenced": "asserted" },
+    { "text": "Future research: all-in-one capsule", "quote": "developing all-in-one capsule", "timestamp": "1:39", "evidenced": "asserted" },
+    { "text": "Future research: formulas last eighteen months without a fridge (18-month shelf life)", "quote": "making the formulas last eighteen months without a fridge", "timestamp": "1:39", "evidenced": "asserted" },
+    { "text": "Future research: expanding market analysis", "quote": "expanding market analysis", "timestamp": "1:39", "evidenced": "asserted" }
+  ],
+  "self_identified_gaps": [],
+  "covered_elements": [
+    { "element": "usage-steps", "description": "Three concrete usage steps stated", "quote": "Just three quick steps. First, put a small food sample in the capsule. Second, put the capsule inside the device. Third, check the app on your phone.", "timestamp": "0:10" },
+    { "element": "team-plan", "description": "Named initial and later hires", "quote": "hire a hardware and biosensor engineer for the device and a mobile app developer for the software", "timestamp": "1:19" },
+    { "element": "roadmap", "description": "Sequenced development roadmap to launch", "quote": "First, we'll finish our prototype and hardware validation. Next, we'll do user beta testing and then achieve market launch and certification.", "timestamp": "0:10" },
+    { "element": "regulatory-awareness", "description": "Named FDA compliance and health certification as future work", "quote": "studying FDA compliance", "timestamp": "1:39" }
+  ]
+}
