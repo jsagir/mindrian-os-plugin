@@ -18,7 +18,7 @@ Hooked-Model (Fogg B=MAP / TARI) reasoning, why the gate fires when it does.
 
 **Verified:** 2026-07-16T02:00:00Z
 **Status:** passed
-**Re-verification:** No — initial verification
+**Re-verification:** No - initial verification
 
 ## Goal Achievement
 
@@ -30,7 +30,7 @@ Hooked-Model (Fogg B=MAP / TARI) reasoning, why the gate fires when it does.
 | 2 | REQ-2: Every methodology skill swept for the CIRS R4 loose-description bypass, trivial instances fixed, rest deferred with reason | ✓ VERIFIED | `227-SWEEP-FINDINGS.md` lists all 124 live `skills/*/SKILL.md` files, verdict counts 119 clean / 3 fixed-trivial / 2 deferred-real-work summing to 124. Re-ran `node scripts/sweep-skill-descriptions.cjs` live: self-test passes, `tight=4` (calibration reference + 3 fixes), matching the report. Each `fixed-trivial` row cites a real, verified commit (`f6dda07d`, `ae822e84`, `af0bac54`), confirmed present in `git log`. |
 | 3 | REQ-3: A scripted fixture proves tester Test 4 (clean ignite-F.1 first-touch) is restored, registered as a permanent regression floor | ✓ VERIFIED | `tests/test-227-frontdoor-restraint.cjs` exists, drives real files (no LLM simulation), passes 4/4 assertions live. Registered in `lib/memory/run-feynman-tests.cjs`'s `TEST_FILES` (confirmed via grep). |
 | 4 | REQ-4: `larry-personality.md` names ignite and documents real Hooked-Model timing reasoning (Prompt-not-Investment, ambiguous-vs-signaled, silent-skip failure mode) | ✓ VERIFIED | `grep -ci ignite skills/larry-personality/SKILL.md` = 3. New `## Ignite and the mode-select gate (Hooked-Model timing)` section (read in full) contains all three required elements verbatim: "Prompt, not Investment" framing, the `detect_dual_path` ambiguous-vs-signaled citation, and the silent-skip failure mode named as the actual defect Req 1's checkpoint catches. |
-| 5 | REQ-5: `conversation-mode` Mode 3 routes through ignite's Directive/`--express` path instead of calling `/mos:new-project` directly; Gate B1 unmodified | ✓ VERIFIED | Mode 3 section (lines 122-125) contains zero `new-project` references and branches correctly on how Mode 3 was reached (upgrade-transition vs. direct cold-start pick). `commands/ignite.md`'s last touching commit (`b5db9895`) predates this phase entirely — file untouched. Remaining `new-project` mentions in the file are pre-existing, confirmed in Mode 1 (line 107) and Mode 2 (line 120) sections, not Mode 3. |
+| 5 | REQ-5: `conversation-mode` Mode 3 routes through ignite's Directive/`--express` path instead of calling `/mos:new-project` directly; Gate B1 unmodified | ✓ VERIFIED | Mode 3 section (lines 122-125) contains zero `new-project` references and branches correctly on how Mode 3 was reached (upgrade-transition vs. direct cold-start pick). `commands/ignite.md`'s last touching commit (`b5db9895`) predates this phase entirely - file untouched. Remaining `new-project` mentions in the file are pre-existing, confirmed in Mode 1 (line 107) and Mode 2 (line 120) sections, not Mode 3. |
 
 **Score:** 5/5 truths verified
 
@@ -39,10 +39,10 @@ Hooked-Model (Fogg B=MAP / TARI) reasoning, why the gate fires when it does.
 Independently re-verified per the orchestrator's explicit request not to trust the merge/fix
 account:
 
-- **Merge integrity (commit `25ceab72`):** `git diff 720588fd HEAD -- lib/core/doctor/mode-select-checkpoint-module.cjs skills/conversation-mode/SKILL.md tests/test-227-mode-select-checkpoint.cjs` is empty — the current `main` tip is byte-identical to the fixer's last commit for every touched file. `git merge-base --is-ancestor` confirms all three fix commits (`4e86d44f`, `875e4e08`, `720588fd`) are ancestors of `HEAD`. The merge landed all three fix commits' content correctly.
+- **Merge integrity (commit `25ceab72`):** `git diff 720588fd HEAD -- lib/core/doctor/mode-select-checkpoint-module.cjs skills/conversation-mode/SKILL.md tests/test-227-mode-select-checkpoint.cjs` is empty - the current `main` tip is byte-identical to the fixer's last commit for every touched file. `git merge-base --is-ancestor` confirms all three fix commits (`4e86d44f`, `875e4e08`, `720588fd`) are ancestors of `HEAD`. The merge landed all three fix commits' content correctly.
 - **CR-01 (Mode 3 false-context claim):** Re-read the live Mode 3 text. It now branches explicitly: upgrade-transition case invokes `--express` and claims the bypass (basis real); direct cold-start "Building something" pick invokes ignite normally (no `--express`) and explicitly instructs not to claim a bypass with no basis. Matches the review's own suggested fix almost verbatim.
-- **CR-02 (dead-code sidechannel wiring):** Re-read the Lane Picker section — it now contains an explicit `node -e` snippet calling `pickShape('F.1', {payload: {header: 'Are we just chatting, brainstorming, or building something?', ...}})`. Test `(f)` in `tests/test-227-mode-select-checkpoint.cjs` was independently re-run and genuinely drives `require('lib/hmi/selector-dispatcher.cjs').pickShape(...)` end-to-end, then reads the real sidechannel store and asserts a `card-fired` record was written. This is a real, live-driven proof, not a claim.
-- **WR-01 (has_user_turn default bug):** Re-read `lib/core/doctor/mode-select-checkpoint-module.cjs` lines 71-75 — `hasUserTurn`'s default now derives from the already-resolved `sessionId` (`sessionId.length > 0`), not the raw `envSessionId`, exactly as the review's suggested one-line diff specified. Test `(g)` re-run live and passes.
+- **CR-02 (dead-code sidechannel wiring):** Re-read the Lane Picker section - it now contains an explicit `node -e` snippet calling `pickShape('F.1', {payload: {header: 'Are we just chatting, brainstorming, or building something?', ...}})`. Test `(f)` in `tests/test-227-mode-select-checkpoint.cjs` was independently re-run and genuinely drives `require('lib/hmi/selector-dispatcher.cjs').pickShape(...)` end-to-end, then reads the real sidechannel store and asserts a `card-fired` record was written. This is a real, live-driven proof, not a claim.
+- **WR-01 (has_user_turn default bug):** Re-read `lib/core/doctor/mode-select-checkpoint-module.cjs` lines 71-75 - `hasUserTurn`'s default now derives from the already-resolved `sessionId` (`sessionId.length > 0`), not the raw `envSessionId`, exactly as the review's suggested one-line diff specified. Test `(g)` re-run live and passes.
 
 ### Required Artifacts
 
@@ -100,7 +100,7 @@ surface and were both re-run live above.
 | REQ-4 | 227-03 | Ignite named + Hooked-Model reasoning | ✓ SATISFIED | Section present with all required framing |
 | REQ-5 | 227-04 | Mode 3 routes through ignite | ✓ SATISFIED | Branch logic present, B1 untouched, CR-01 fixed |
 
-No orphaned requirements — REQUIREMENTS.md does not exist for this repo (local SPEC-grounded
+No orphaned requirements - REQUIREMENTS.md does not exist for this repo (local SPEC-grounded
 REQ-1..5 confirmed complete, per phase context).
 
 ### Anti-Patterns Found
@@ -116,7 +116,7 @@ described. Independently confirmed:
 - `git log` shows normal, clean commit history on `main` with no orphaned/duplicate commits
   from the contention incidents (the stray `dfb37a53` orphan commit and the `39fc72f3`
   cross-attributed commit both landed on `main` correctly per the summaries' own accounting,
-  and `main`'s current state is unaffected — confirmed via the file-content diffs above).
+  and `main`'s current state is unaffected - confirmed via the file-content diffs above).
 - The 3-way merge (`25ceab72`) landing the fixer's worktree branch back into `main` was
   verified independently: current `HEAD` state for every touched file is byte-identical to
   the fixer's branch tip, and all three fix commits are true ancestors of `HEAD`.
@@ -131,13 +131,13 @@ in this phase requires visual, real-time, or external-service verification. The 
 is inherently model-behavior (Mode 3's routing branch being followed correctly by Larry in a
 live session, and the "no opening compliment" behavior from the original Test 4 fix) is
 honestly named as a known, accepted coverage gap in the test files' own header comments and in
-the review-fix report — not silently claimed as covered. This is a documented, deliberate
+the review-fix report - not silently claimed as covered. This is a documented, deliberate
 scope boundary (SPEC's own "Out of scope" section), not a gap this verification should flag as
 blocking.
 
 ### Gaps Summary
 
-No gaps found. All 5 requirements are genuinely implemented, wired, and tested — not stubs, not
+No gaps found. All 5 requirements are genuinely implemented, wired, and tested - not stubs, not
 prose-only claims. Both CRITICAL code-review findings (CR-01, CR-02) and the WARNING finding
 (WR-01) that were caught after initial implementation were fixed at the design level (not
 surface patches) and independently re-verified here against live code and live test runs, not
