@@ -636,6 +636,21 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:intel-pipeline",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "intel-pipeline",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 55,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": "green",
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:jtbd",
       "source": "command",
       "connects_to_spine": true,
@@ -1969,6 +1984,21 @@
       "filing": "memory_event_only",
       "plan_gated": false,
       "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "skill:intel-pipeline",
+      "source": "skill",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "intel-pipeline",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 55,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": "green",
       "decision_surface": "F.1"
     },
     {
