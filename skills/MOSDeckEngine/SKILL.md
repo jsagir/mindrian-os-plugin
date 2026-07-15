@@ -1,12 +1,15 @@
 ---
 name: MOSDeckEngine
 description: >
-  Use when translating complex engineering, technical, or scientific concepts into
-  clear investor-grade presentation decks. Runs a 6-stage Feynman first-principles
-  pipeline: reduce to essence, translate to plain language, expose confusion, build
-  mental models, simplify until it breaks, teach it back. Outputs YC-quality slides.
-  Triggers: pitch deck, explain complex concept, simplify for investors, technical
-  storytelling, demo day, fundraising deck.
+  Use ONLY when the navigator explicitly asks to build a pitch deck, investor
+  presentation, or fundraising deck (or names this pipeline directly). Do NOT use
+  for a casual "explain this more simply" or "make this clearer" remark with no
+  deck or presentation context -- that stays in conversation. Runs a 6-stage
+  Feynman first-principles pipeline: reduce to essence, translate to plain
+  language, expose confusion, build mental models, simplify until it breaks,
+  teach it back. Outputs YC-quality slides. Triggers: pitch deck, investor
+  presentation, simplify for investors, technical storytelling, demo day,
+  fundraising deck.
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
