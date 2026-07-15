@@ -157,7 +157,12 @@ function runHook() {
     const dbPath = path.join(roomDir, '.mindrian', 'room.db');
     if (!fs.existsSync(dbPath)) return;
     const sqlite = require('node:sqlite');
-    db = new sqlite.DatabaseSync(dbPath);
+    // timeout 5000: the Phase-218 GLOBAL write-safety fold (room-db.cjs). This
+    // hook contends with background workers on the same WAL (now including the
+    // Phase-224 detached drain); without the busy-timeout a reconcile write
+    // during an in-flight drain fails instantly with SQLITE_BUSY, is swallowed,
+    // and the reconcile silently no-ops until session-start.
+    db = new sqlite.DatabaseSync(dbPath, { timeout: 5000 });
   } catch (_e) {
     db = null;
   }
