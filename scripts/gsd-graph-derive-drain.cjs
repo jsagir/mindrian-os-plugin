@@ -52,10 +52,11 @@ const { scoreMeasured } = require('../lib/core/rs-differential-scorer.cjs');
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const out = { roomDir: null, dryRun: false };
+  const out = { roomDir: null, dryRun: false, worker: false };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--room' && argv[i + 1]) { out.roomDir = argv[i + 1]; i += 1; }
     else if (argv[i] === '--dry-run') { out.dryRun = true; }
+    else if (argv[i] === '--worker') { out.worker = true; }
   }
   return out;
 }
@@ -292,6 +293,33 @@ function drainDerive(roomDir, opts) {
 async function main() {
   try {
     const args = parseArgs(process.argv.slice(2));
+
+    // The SessionStart hook budget (hooks.json: timeout 5000, async false) cannot
+    // cover a cold encoder load plus a room-scoped scoring pass -- and a drain
+    // killed at the hook timeout used to leave its queue entry in place, so the
+    // SAME doomed drain re-ran (and re-stalled) at EVERY session start. The hook
+    // entry point therefore does NOT drain in-process: it re-spawns itself
+    // DETACHED with --worker (the Step 2b spawnDetachedWorker idiom: detached,
+    // stdio ignore, unref, never awaited) and exits immediately. The worker does
+    // the real drain in the background with no hook budget over it. --dry-run
+    // stays in-process (it only prints a plan). The MOS_NO_DETACHED_DERIVE test
+    // seam suppresses the re-spawn so an in-process drain owns the timing.
+    if (!args.worker && !args.dryRun && process.env.MOS_NO_DETACHED_DERIVE !== '1') {
+      try {
+        const { spawn } = require('node:child_process');
+        const child = spawn(
+          process.execPath,
+          [__filename, '--worker'].concat(process.argv.slice(2)),
+          { detached: true, stdio: 'ignore', env: process.env }
+        );
+        child.unref();
+      } catch (_spawnErr) {
+        // Soft-fail: the Stop sweep + the explicit /mos:graph --derive backfill
+        // remain the universal net.
+      }
+      process.exit(0);
+    }
+
     const roomDir = sweep.resolveRoomDir(args.roomDir);
     if (roomDir) {
       // The default path returns a Promise; the dry-run / empty-queue path returns
