@@ -3423,11 +3423,11 @@ correcting `conversation-mode.md` Mode 3's routing, not just the Hooked-Model ti
 forward-looking, not grounded in 223's actual text yet. **227 is fully independent** -- all cited
 dependencies are shipped precedent to imitate or forward-looking context, not blockers; it can
 proceed now.
-**Plans:** 5 plans in 2 waves
+**Plans:** 1/5 plans executed
 
 Plans:
 
-- [ ] 227-01-PLAN.md -- mode-select-sidechannel.cjs + mode-select-checkpoint doctor module/registry row + hermetic regression test (Req 1 part A, wave 1)
+- [x] 227-01-PLAN.md -- mode-select-sidechannel.cjs + mode-select-checkpoint doctor module/registry row + hermetic regression test (Req 1 part A, wave 1)
 - [ ] 227-02-PLAN.md -- systemic sweep of methodology skills for the CIRS R4 loose-description bypass, trivial fixes inline, SWEEP-FINDINGS.md report (Req 2, wave 1)
 - [ ] 227-03-PLAN.md -- name ignite + Hooked-Model timing reasoning in larry-personality.md (Req 4, wave 1)
 - [ ] 227-04-PLAN.md -- wire the mode-select firing checkpoint's two call sites (selector-dispatcher.cjs + conversation-mode.md default-stated) and route Mode 3 through ignite's Directive/--express path (Req 1 part B + Req 5, wave 2, depends on 227-01)
