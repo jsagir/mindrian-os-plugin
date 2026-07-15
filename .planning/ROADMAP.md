@@ -3248,12 +3248,12 @@ which still duplicates registry-read logic instead of calling `resolveWriteRoom(
 narrow residual gap, live again at that scope. Resolve 224's own scope (narrow post-write fix vs.
 full SEED-034 harness) explicitly at spec-phase; it changes whether 225 needs to be researched in
 lockstep or can proceed independently.
-**Plans:** 1/4 plans executed
+**Plans:** 2/4 plans executed
 
 Plans:
 
 - [x] 224-01-PLAN.md - Foundations: phase-224 edges review_status migration (D-05) + writeEdge extension + D-01 score-band classifier module + b2-journey fixture with fixture-derived thresholds
-- [ ] 224-02-PLAN.md - Per-write trigger: cascade Step 2b enqueue + detached drain worker (D-02), filePath-scoped O(n) pairs (Req 6), D-04 encoder-skip + derivation_skipped disclosure
+- [x] 224-02-PLAN.md - Per-write trigger: cascade Step 2b enqueue + detached drain worker (D-02), filePath-scoped O(n) pairs (Req 6), D-04 encoder-skip + derivation_skipped disclosure
 - [ ] 224-03-PLAN.md - Backfill deriver swap on the existing /mos:graph --derive (D-03), 0-to-N + Ralph-invariant proof, resolver-fallback fix via resolveWriteRoom (Req 3), proposed-only proof (Req 4)
 - [ ] 224-04-PLAN.md - run-all-224.sh phase gate (Part 8/Part 9/zero-deps/structural-gate tripwires, Req 5 + Req 7) + run-feynman-tests registration + ENV-TUNING floor docs
 

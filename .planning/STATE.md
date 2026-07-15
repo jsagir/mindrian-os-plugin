@@ -2,19 +2,31 @@
 gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
-status: verifying
-stopped_at: Phase 224 planned (4 plans, 3 waves, plan-check PASS)
-last_updated: "2026-07-15T09:38:57.165Z"
+status: executing
+stopped_at: Phase 224 Plan 02 COMPLETE (2/4 plans) -- per-write derivation trigger shipped
+last_updated: "2026-07-15T09:58:00.000Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 36
   completed_phases: 18
   total_plans: 106
-  completed_plans: 100
+  completed_plans: 102
   percent: 50
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 224 Plan 02 COMPLETE (2/4 plans) -- per-write derivation trigger: every markdown write now enqueues + background-derives typed edges, closing the twice-reconfirmed 0-typed-edge gap on the write path
+
+Wave 2. The headline behavior of the phase: cascade Step 2b (D-02) fires from the ONE shared `_runCascadeSteps` body (tri-polar: CLI post-write, Desktop/MCP tool-router, Cowork), enqueues a `{roomDir, filePath}` derive request, and spawns a DETACHED unref'd drain worker. Scoring NEVER runs inline on the write-lock (source-grep proves no `scoreMeasured`, no `await` of the drain). The drain became the real score-based worker: O(n) new-artifact-vs-existing pairs (Req 6, proven exact-N by a counting scorer: 5 calls for 5 existing, not 25, not 10), injecting Plan 01's `scoreBasedDeriveFn` into the UNTOUCHED Phase-169 `runDerivation` composer (producer swap, Part 7).
+
+- **Wave-1 hazard handled precisely:** `scoreBasedDeriveFn` is async and `runDerivation`'s synchronous `deriveForPair` drops a Promise return as `[]`. The drain pre-resolves candidates per pair (awaited) into a synchronous `deriveFn` wrapper, so the composer stays byte-untouched and no candidate is silently lost.
+- **D-04 encoder handling:** a single probe runs BEFORE any pair; unavailable means skip every pair, write a `derivation_skipped` disclosure marker (scalar-only payload, 60s deduped via `logEvent`'s idempotency, `dedupe_key = 'derivation_skipped:' + resolved roomDir`), clear the queue, return `ok:true`. NO lexical-only degrade path anywhere (a symmetric score cannot honestly type edges); the skip is advisory and never blocks the write (Phase 210 caution).
+- **Legacy seam preserved byte-for-byte:** the injected `deriveRunner` path stays synchronous, keeps the legacy `runDerivation({roomDir})` call shape, and SKIPS the encoder probe -- so `tests/test-graph-derive-sweep.cjs` stays 4/4 unchanged (the Phase-169 round-trip contract).
+- **Commits:** `88873f19` test (RED D-04), `ae5030a3` feat (drain + filePath queue + D-04), `165a3ad9` test (RED Req 1/Req 6), `04bb005c` feat (cascade Step 2b). Requirements Req 1 + Req 6 completed.
+- **One deviation (Rule 3):** added a `MOS_NO_DETACHED_DERIVE` env seam so tests suppress the real detached spawn and drive an in-process drain race-free; production always spawns.
+- **Pre-existing failures (baseline-confirmed at `8300a35b1`, NOT 224-02 regressions):** 4 in `run-all-169.sh` (FEYNMAN `## Timeline (auto)` + edge-floor citizen markers) + `test-futures-cascade-integration.cjs` (futures `writeCascadeEdges`). Logged to `.planning/phases/224-.../deferred-items.md`.
+- **NEXT:** 224-03 (backfill deriver swap; has a tolerant assertion for the `derivation_skipped` type shipped here). SUMMARY: `.planning/phases/224-graph-derivation-harness-seed-034-make-room-db-s-typed-node-/224-02-SUMMARY.md`.
 
 ## (2026-07-12) -- PHASE 218 COMPLETE (3/3 plans) -- entity-extraction pipeline shipped; the REQ-5 human-verify checkpoint found and fixed a real ranking-algorithm bug live, not a rubber-stamp
 
