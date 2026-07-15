@@ -3116,7 +3116,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 229-09-PLAN.md -- Demo run + Amnon verdict checkpoint + HUJI calibration workshop [D6,D7]
+- [~] 229-09-PLAN.md -- Demo run + Amnon verdict checkpoint + HUJI calibration workshop [D6,D7] -- **BLOCKED at checkpoint (2026-07-16):** Task 1 automated half GREEN (run-all-229 PASS=9, code 7/7, judge-math + scaffold + pool selftests all pass); live demo artifacts NOT generated - blocked by a 3-layer CLI/auth chain on the first live spawn (DI-1 `--json-schema` wants inline JSON not a path; DI-2 schema draft 2020-12 rejected; DI-3 Stage A `--bare` has no key, `ANTHROPIC_API_KEY` unset - see demo/DEMO-VERDICT.md + deferred-items.md). Tasks 2 (Amnon "better than a TA" verdict) + 3 (HUJI calibration workshop) are blocking-human, still pending.
 
 ---
 
