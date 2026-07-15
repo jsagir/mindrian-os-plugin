@@ -1568,6 +1568,36 @@ function reasoningStageSeed(opts, ctx) {
   }
 
   const paths = resolveReasoningPaths(opts);
+  const pairsPath = path.join(paths.workdir, 'pairs.json');
+
+  // CR-03 fix: don't reseed out from under an in-progress session. If mappings,
+  // answers, or a prompts manifest already exist in this workdir alongside an
+  // existing pairs.json, a navigator is mid-session against the CURRENT
+  // pairs.json P000N ids - regenerating now (e.g. content changed between two
+  // `run` invocations) can silently reassign those ids, orphaning whatever the
+  // navigator already wrote. Skip re-seeding (idempotent no-op) and report the
+  // existing session state instead.
+  const promptsManifestPath = path.join(paths.workdir, 'prompts', 'manifest.json');
+  const inProgress = fs.existsSync(pairsPath)
+    && (fs.existsSync(paths.mappingsPath) || fs.existsSync(paths.answersPath) || fs.existsSync(promptsManifestPath));
+  if (inProgress) {
+    let existing;
+    try {
+      existing = JSON.parse(fs.readFileSync(pairsPath, 'utf8'));
+    } catch (_e) {
+      existing = { candidates: [] };
+    }
+    return {
+      degrade_cause: degradeCause,
+      reasoning: {
+        state: 'await_mappings (in-progress session preserved - pairs.json NOT regenerated)',
+        workdir: paths.workdir,
+        pairs_selected: Array.isArray(existing.candidates) ? existing.candidates.length : 0,
+        next_step: 'write mappings.json then run --reasoning-emit',
+      },
+    };
+  }
+
   const entries = reasoningMode.readRoomMarkdown(paths.roomDir);
   const proposed = reasoningMode.proposeCandidatePairs(entries, {});
   fs.mkdirSync(paths.workdir, { recursive: true });
@@ -1579,7 +1609,7 @@ function reasoningStageSeed(opts, ctx) {
     pairs_considered: proposed.pairs_considered,
     candidates: proposed.candidates,
   };
-  fs.writeFileSync(path.join(paths.workdir, 'pairs.json'), JSON.stringify(pairsDoc, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(pairsPath, JSON.stringify(pairsDoc, null, 2) + '\n', 'utf8');
   return {
     degrade_cause: degradeCause,
     reasoning: {
