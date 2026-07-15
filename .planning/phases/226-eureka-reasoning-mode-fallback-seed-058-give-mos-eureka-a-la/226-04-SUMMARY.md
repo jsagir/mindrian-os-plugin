@@ -3,7 +3,7 @@ phase: 226-eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la
 plan: 04
 subsystem: eureka
 tags: [reasoning-mode, phase-gate, pair-cap, negative-corpus, field-parity, human-checkpoint, cjs]
-status: PARTIAL - Tasks 1-2 complete, Task 3 human checkpoint PENDING (autonomous:false)
+status: COMPLETE - Tasks 1-3 executed; Task 3 human checkpoint APPROVED
 
 # Dependency graph
 requires:
@@ -14,12 +14,18 @@ requires:
   - phase: 226-03
     provides: "tests/test-226-mode-disclosure.cjs + the report-html / eureka-command reasoning subcommands the aggregator registers"
   - phase: 212
-    provides: "tests/test-212-negative-corpus.cjs recorded junk classes (byte-copied exemplars for the D3 replay) + tests/run-all-212.sh aggregator shape"
+    provides: "tests/test-212-negative-corpus.cjs recorded junk classes (byte-copied exemplars for the D3 replay) + tests/run-all-212.sh aggregator shape; the plan-05 precedent (human-gated accuracy sign-off, never self-certified) this Task 3 checkpoint follows"
 provides:
   - "tests/test-226-posture.cjs: D5/G-3 working-diagnosis posture (banked literal-false, ZERO opportunity nodes in room.db, provenance.banking string, upgrade delta, short-list rule, FIELD-PARITY live diff)"
   - "tests/test-226-pair-cap.cjs: D8/G-6 end-to-end cap on a synthetic 200-entry room (candidates <= 25, pairs_sent <= cap, env override in a child)"
   - "tests/test-226-rejection-replay.cjs: D3 negative-corpus replay through the encoder-free path (3 junk classes stay rejected, gate-1 class dies with 0 judge calls)"
+  - "/tmp/226-calibration-demo/.mindrian/eureka/portfolio-report.{md,json,html}: the real end-to-end David proving case (7 fixture pairs / 14 nodes, --force-encoder-unavailable) the navigator reviewed at the Task 3 checkpoint"
 affects: [226-04-task2, 226-04-task3, eureka]
+key-decisions:
+  - "Navigator APPROVED the Task 3 human checkpoint on the real reasoning-mode demo (/tmp/226-calibration-demo). Caveat-wording honesty (ICD-203 lens, question 1) reads as a genuine basis/confidence separation, not self-cover: it names the degrade cause (encoder_unavailable, 2 of 3 critic legs structurally null), states the analogy bar was not lowered, and marks banked=false as a human-only promotion gate. Judged PASS."
+  - "Real Gentner-lens quality (question 2) was found NOT independently testable from the demo's portfolio-report.md: the final Statements section renders the inherited embedded-mode template (generic 'combining X and Y' filler), not the genuine mechanismText/mappingStatement content that IS present in the reasoning workdir's mappings.json. This is the SAME limitation the AI-SPEC Section 5 domain research already flagged (spot-checked against the existing template, not reasoning-mode-specific content) - confirmed by inspection, not a new gap. Navigator accepted this as an honest, pre-flagged scope boundary of Task 3 rather than a blocker."
+  - "Upgrade-delta honesty (question 3) was judged on WORDING only (the demo does not execute an embedded re-run): the caveat's promise ('shows the reasoning -> embedded delta, rather than silently replacing this result') reads honest. Behavioral proof of the delta path is separately covered by test-226-posture.cjs's provenance.upgrade assertions (D5/G-3), not by this demo."
+  - "Net verdict: 1 of 3 calibration questions fully exercised by the demo artifact, 2 of 3 structurally out of reach of a report-level review (by design - mappings.json holds the real content, the report does not surface it). Navigator judged this an acceptable basis for closing Task 3, given REQ-4's behavioral guarantees are independently proven by the automated D5 suite."
 
 # Tech tracking
 tech-stack:
@@ -42,9 +48,9 @@ completed: 2026-07-15
 
 # Phase 226 Plan 04: Phase Close (D5/D8/D3-negative + gate + docs + human checkpoint) Summary
 
-**PARTIAL - Tasks 1-2 executed and committed autonomously; Task 3 is the mandatory HUMAN
-calibration checkpoint (AI-SPEC Section 5, autonomous:false) and is intentionally NOT executed.
-This summary is task-scoped and will be completed when the navigator resolves the checkpoint.**
+**COMPLETE - Tasks 1-2 executed and committed autonomously; Task 3, the mandatory HUMAN
+calibration checkpoint (AI-SPEC Section 5, autonomous:false), was reviewed and APPROVED by the
+navigator on the real /tmp/226-calibration-demo David proving case on 2026-07-15.**
 
 ## Task 1: D5 posture, D8 end-to-end cap, D3 negative-corpus replay (COMPLETE)
 
@@ -119,12 +125,41 @@ Three test legs, all green standalone under the offline preload:
 | `grep -qi "phase 226" docs/CANON-PHASE-MAP.md` | present |
 | `node scripts/doctor.cjs --acceptance` | 13/15; failed only {coverage-gate, verify-release-clean-tree} - the DOCUMENTED environmental baseline, NO NEW regression |
 
-## Task 3: Navigator calibration checkpoint (PENDING - NOT executed)
+## Task 3: Navigator calibration checkpoint (APPROVED)
 
 This is the mandatory HUMAN checkpoint (AI-SPEC Section 5, `autonomous: false`, the Phase 212 plan-05
 precedent): real-judge accuracy and caveat-wording honesty are a human-verify bar, NEVER an automated
-assertion. The automated gate (`bash tests/run-all-226.sh`) is green, but the phase is NOT complete
-until the navigator confirms, on the David proving case, that the honest degrade actually lands: a real
-short ranked list, the true cause named, a caveat that PREVENTS over-trust (not one that merely legally
-covers it), and an honest reasoning-to-embedded upgrade delta. The orchestrator hands off to the
-navigator; STATE/ROADMAP are NOT advanced and this summary's self-check is NOT finalized until resume.
+assertion, and Claude does not grade its own caveat wording (the exact self-certification trap the 212
+precedent exists to prevent).
+
+**Demo artifact reviewed:** `/tmp/226-calibration-demo/.mindrian/eureka/portfolio-report.{md,json,html}`,
+a real end-to-end run through the shipped `scripts/eureka-portfolio-report.cjs` reasoning path
+(`--force-encoder-unavailable`, 7 fixture pairs from `tests/fixtures/226-reasoning-pairs.cjs`, 15 ranked
+rows). Not a mock: real room.db writes, real reasoning-workdir stages (pairs/mappings/answers.json),
+real report emitters.
+
+**Navigator verdict, per question (see key-decisions in frontmatter for full reasoning):**
+
+| # | Question (lens) | Verdict | Basis |
+|---|------------------|---------|-------|
+| 1 | Caveat stops over-trust vs. legally covers itself (ICD-203) | **PASS** | Names the degrade cause, states the bar was not lowered, separates basis-confidence from verdict, marks banked=false explicit |
+| 2 | Analogy bar holds on real pairs (Gentner structure-mapping) | **NOT TESTABLE from this artifact** | Report's Statements section renders the inherited embedded-mode template, not mappings.json's real mechanismText/mappingStatement content - a pre-flagged, confirmed scope boundary, not a new gap |
+| 3 | Upgrade delta reads honest, not silent replacement | **PASS (wording only)** | No embedded re-run executed in this demo; the caveat's promise reads honest; behavioral proof lives in test-226-posture.cjs's provenance.upgrade assertions |
+
+**Disposition:** APPROVED as-is. The navigator accepted that REQ-4's behavioral guarantees (banked=false,
+zero graph writes, upgrade-delta shape) are independently proven by the automated D5 suite
+(`test-226-posture.cjs`), and that question 2's non-testability is an honest, already-documented limit
+of report-level review rather than a defect to fix before closing Task 3. No code changes resulted from
+this checkpoint.
+
+## Self-Check: PASSED
+
+- `bash tests/run-all-226.sh` -> PASS=10 FAIL=0 SKIP=0, exit 0 (re-confirmed 2026-07-15, post-checkpoint).
+- Task 1 + Task 2 commits (`2c9392d3`, `7bed74f7`) exist in git history.
+- Task 3 checkpoint closed: navigator verdict recorded above and in frontmatter `key-decisions`; no
+  outstanding blocking questions.
+- `.planning/HANDOFF-226-checkpoint.md` superseded by this summary; safe to delete.
+
+---
+*Phase: 226-eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la*
+*Completed: 2026-07-15 - PHASE 226 CLOSED (4/4 plans)*
