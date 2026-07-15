@@ -123,6 +123,12 @@ None - no external service configuration required.
 - Plan 03 (backfill swap) can drive `buildAllPairs` + `scoreBasedDeriveFn` as the new default deriver over the same fixture.
 - Note for Plan 02: `runDerivation`'s current `deriveForPair` treats a non-array (Promise) return as `[]`; `scoreBasedDeriveFn` is async, so the Plan 02 wiring (detached worker per D-02) must await it rather than pass it straight into the existing synchronous `runDerivation` loop.
 
+## Self-Check: PASSED
+
+- All 5 created source/test files present on disk; SUMMARY present.
+- All 4 commits (5ce955b3 test, ef8a026c feat, 2eaa1b1e feat, 137c3393 docs) exist in git.
+- Verification suite green: test-224-migration, test-224-classifier, and the three named regression legs (graph-derive-sweep, 222-weight-state, 218-write-safety).
+
 ---
 *Phase: 224-graph-derivation-harness-seed-034*
 *Completed: 2026-07-15*
