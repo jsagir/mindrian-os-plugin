@@ -3429,7 +3429,7 @@ Plans:
 
 - [x] 227-01-PLAN.md -- mode-select-sidechannel.cjs + mode-select-checkpoint doctor module/registry row + hermetic regression test (Req 1 part A, wave 1)
 - [ ] 227-02-PLAN.md -- systemic sweep of methodology skills for the CIRS R4 loose-description bypass, trivial fixes inline, SWEEP-FINDINGS.md report (Req 2, wave 1)
-- [ ] 227-03-PLAN.md -- name ignite + Hooked-Model timing reasoning in larry-personality.md (Req 4, wave 1)
+- [x] 227-03-PLAN.md -- name ignite + Hooked-Model timing reasoning in larry-personality.md (Req 4, wave 1)
 - [ ] 227-04-PLAN.md -- wire the mode-select firing checkpoint's two call sites (selector-dispatcher.cjs + conversation-mode.md default-stated) and route Mode 3 through ignite's Directive/--express path (Req 1 part B + Req 5, wave 2, depends on 227-01)
 - [ ] 227-05-PLAN.md -- scripted regression fixture replaying tester Test 4 (test-227-frontdoor-restraint.cjs), registered as a permanent regression floor (Req 3, wave 2, depends on 227-01)
 

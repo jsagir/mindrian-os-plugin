@@ -16,6 +16,17 @@ progress:
 
 # Project State
 
+## (2026-07-16) -- PHASE 227 Plan 03 COMPLETE (Wave 1) -- ignite named + Hooked-Model timing reasoning in larry-personality.md (Req 4)
+
+Wave 1, standalone (depends_on: []). Closes SEED-056's handed-off ignite-naming gap and SPEC Requirement 4.
+
+- **`skills/larry-personality/SKILL.md` new section:** "## Ignite and the mode-select gate (Hooked-Model timing)", placed between the existing Voice Signature section and Thinking Trace, per D-10's peer-level placement instruction. States (a) `/mos:ignite` as the front door + the session-start mode-select gate as its own no-room entry point onto the same lane-picker doctrine, (b) the Fogg Prompt-not-Investment framing (a friction-minimized lane pick is a Prompt, never a heavyweight Investment, so turn-1 firing does not violate Investment-after-Reward), (c) the ambiguous-vs-signaled routing rule citing `detect_dual_path` (`commands/ignite.md` Gate B1 Door 2) by exact name as the infer-from-signal precedent, (d) the silent-skip failure mode named explicitly as the actual defect Requirement 1's `mode-select-checkpoint-module.cjs` (plan 227-01) exists to catch.
+- **Verified live before writing:** confirmed the file's Voice Signature section ends at line 212 / Thinking Trace starts at line 214 (matching the plan's grounded line numbers), and confirmed the exact `detect_dual_path` quote live in `commands/ignite.md` Gate B1 Door 2 before citing it.
+- **Tests/verify:** `grep -ci ignite skills/larry-personality/SKILL.md` returns 3 (was 0 at planning time); zero em-dashes in the new section; manual read confirms all four required content elements present.
+- **Concurrent-session guard:** `git branch --show-current` checked before reading context, before editing, and again before committing -- printed `main` with a clean working tree at every check. A `gsd-tools state.advance-plan` call was caught clobbering a concurrent phase's plan counter (Phase 229's `Plan 5 of 9 -> 6 of 9`, `completed_plans 121 -> 122`) and was reverted before this STATE.md edit -- this entry is a manual additive log append only, frontmatter progress counters intentionally left untouched, repeating the same defensive pattern the 227-02 entry below used.
+- **Commits:** `cd5d14f8` docs (new Hooked-Model section).
+- **NEXT:** Remaining Phase 227 plans (04, 05) can cite this section's Prompt-not-Investment framing directly. SUMMARY: `.planning/phases/227-ignite-mode-select-timing-across-turns-1-4-seed-060-close-in/227-03-SUMMARY.md`.
+
 ## (2026-07-15) -- PHASE 227 Plan 02 COMPLETE (Wave 1) -- systemic skill-description sweep: CIRS R4 loose-description bypass pattern closed across all 124 methodology skills (Req 2)
 
 Wave 1, standalone (depends_on: []). Closes item 2 of `ignite-frontdoor-bypassed-methodology-overfire.md`'s `fix_remaining` list.
@@ -1623,6 +1634,7 @@ Progress: [█████████░] 92%
 | Phase 227 P01 | ~15min | 3 tasks | 5 files |
 | Phase 229 P03 | ~35min | 3 tasks | 1 files |
 | Phase 229 P04 | 22 | 2 tasks | 8 files |
+| Phase 227 P03 | 8min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
