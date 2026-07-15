@@ -1722,6 +1722,26 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phases 225-228 added (2026-07-15): navigator-directed "phase pipeline" for the next
+  four HIGH-severity unphased seeds, each depending on Phases 210-224 as a research
+  requirement (not a strict execution block), matching Phase 224's own dependency
+  framing. Phase 225 = SEED-039 (per-session room binding, shares the resolver-
+  fragmentation site with Phase 224/SEED-034). Phase 226 = SEED-058 (eureka reasoning-
+  mode fallback; researched against Phases 211-216's actual output shape and Phase 212's
+  Grounding Guard critic specifically, so a lower-confidence fallback result isn't
+  trusted the same as an embedded-mode one; explicitly an ALTERNATIVE to Phase 224 for
+  clearing SEED-057's own trigger gate, not a dependency on it). Phase 227 = SEED-060
+  (ignite/mode-select timing turns 1-4; researched against Phase 210's over-enforcement
+  reversal as a caution, and Phase 223's not-yet-shipped surfaces as a future ignite
+  entry point). Phase 228 = SEED-030 (RS pipeline vector-repoint + expert-graph
+  reconciliation) -- verified before registering that this seed's own evidence is
+  PARTIALLY STALE: Requirement 1 (spine-wire the RS family) is already done (all 4 rs-*
+  commands wired, confirmed in data/connector-registry.json), so Phase 228's real scope
+  is only Requirements 2-3 (Pinecone-to-local-vector repoint, the R-expert Aura/Brain-
+  Cypher decision); SEED-030's own file annotated with a staleness_note rather than
+  silently narrowing scope without a trace. Next: /gsd-spec-phase 225 (or whichever of
+  225-228 the navigator picks up first -- no forced order among the four was stated).
+
 - Phase 224 added (2026-07-15): graph-derivation-harness (SEED-034). Navigator-directed
   ("lets set it as 224"), picked over SEED-058 as the higher-severity, more-foundational
   choice: SEED-034 is CRITICAL (SEED-058 is HIGH), independently reconfirmed TWICE

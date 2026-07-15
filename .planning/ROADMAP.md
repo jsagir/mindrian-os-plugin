@@ -3191,6 +3191,96 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 224 to break down)
 
+### Phase 225: Per-session room binding and multi-session reconciliation (SEED-039): close the resolver-fragmentation gap shared with Phase 224/SEED-034, correct session-to-room binding across concurrent sessions
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phases 210-224 (navigator-directed 2026-07-15: research requirement, not
+necessarily a strict execution-order block, matching Phase 224's own dependency framing).
+Most directly relevant within that range: Phase 224/SEED-034 (this seed's own file names
+the shared resolver-fragmentation failure site -- read 224's actual fix before designing
+this one, since a session-binding fix and a write-path graph-population fix may compose
+or may collide if built independently); Phase 217 (doctor.cjs architecture rethink --
+session-binding health belongs in its diagnostic check-class framework, not a bespoke
+side-channel); Phase 218 (entity-extraction-pipeline -- also touches per-session write
+correctness). Research this phase's spec/plan against 224's actual implementation, not
+just its SPEC, since 224 will likely have shipped or be in progress by the time this
+phase starts.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 225 to break down)
+
+### Phase 226: Eureka reasoning-mode fallback (SEED-058): give /mos:eureka a labeled, lower-confidence mode:reasoning path reading raw room markdown directly when the embedding index or room.db graph substrate is unavailable, instead of a hard pairs_scored:0 stop
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phases 210-224 (navigator-directed 2026-07-15, research requirement, not
+a strict block). Most directly relevant: Phases 211-216, the eureka engine itself -- this
+phase's fallback path must read the SAME room's raw markdown the tri-modal generator
+would otherwise embed, so its output shape (ranked pairs, Opportunity Statements) has to
+match what 211-216 already produce, not invent a second shape. Phase 212 specifically
+(Grounding Guard critic) matters most: a reasoning-mode result is lower-confidence by
+construction, and needs the SAME critic discipline (or an explicitly labeled lighter
+version of it) so a reasoning-mode Opportunity Statement isn't trusted the same as an
+embedded-mode one. Phase 217 (doctor.cjs) for the encoder-availability health check this
+phase's entry condition depends on. Phase 224/SEED-034 is the sibling fix, not a
+dependency in the strict sense -- this phase's trigger condition (SEED-057's own
+trigger_when) treats 224 and this phase as alternatives, either one clearing the gate,
+so research both but do not assume this phase waits on 224 finishing.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 226 to break down)
+
+### Phase 227: Ignite / mode-select timing across turns 1-4 (SEED-060): close intern-w1-mode-gate-skip's own remaining item (a code-level firing checkpoint for the Turn-1 lane pick), close ignite-frontdoor-bypassed-methodology-overfire's remaining items 2 and 4, and add ignite/B2/mode-select to skills/larry-personality/SKILL.md with Hooked-Model timing reasoning
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phases 210-224 (navigator-directed 2026-07-15, research requirement, not
+a strict block). Most directly relevant: Phase 210 (revert-persona-enforcement-over-reach
+-- this phase's own fix must not repeat 210's over-enforcement mistake; a code-level
+firing checkpoint for the Turn-1 lane pick, per this seed's own proposal, has to fail
+soft/advisory the same way 210 restored elsewhere, never a new hard-fail); Phase 223
+(jtbd-pipeline + governed-bono, not yet shipped -- ignite is the front door that would
+route a navigator INTO 223's surfaces once they exist, so this phase's timing fixes
+should anticipate that entry path, not just the currently-shipped commands); Phase 217
+(doctor.cjs -- a natural home for a "was the lane pick recorded this session" health
+check, the same shape as SEED-059's fallback-disclosure convention this seed already
+cites). Also research SEED-059's own "Worked example: Site 4 closed" entry (added
+2026-07-15, quick 260715-cu8) as a live precedent for what a disclosed-fallback fix
+actually looks like in this codebase before designing this phase's own version.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 227 to break down)
+
+### Phase 228: RS pipeline vector-repoint and expert-graph reconciliation (SEED-030): the two still-open items after this session confirmed the RS family's connector-spine wiring is already done -- repoint rs-engine's internal/cross-room/hybrid modes at the local Embedding Layer instead of Pinecone, and lock the R-expert decision for rs-experts' Aura/Brain-Cypher coupling (keep as remote Mode-A enrichment vs. descope)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phases 210-224 (navigator-directed 2026-07-15, research requirement, not
+a strict block). Note this phase's scope is narrower than SEED-030's own file currently
+states -- verified 2026-07-15 that Requirement 1 (spine-wire the RS family) is ALREADY
+DONE (all 4 rs-* commands carry connects_to_spine/reach_id/sensor_triggers and appear in
+data/connector-registry.json), so this phase covers only Requirements 2-3. Most directly
+relevant in range: Phase 211 (the eureka engine's OWN local room.db vector retrieval,
+`lib/core/eureka/vector-store.cjs` -- read this as the precedent for repointing RS's
+internal/cross-room/hybrid modes off Pinecone onto local room.db vectors, so RS and
+eureka converge on ONE local vector pattern rather than inventing a second); Phase 214
+(Eureka Pattern-Transfer + Find-Analogies, the closest existing cross-domain/RS-adjacent
+engine already shipped) as a second reference point for how a similar engine handles its
+local-vs-remote split. The R-expert Aura/Brain-Cypher decision (this seed's Requirement
+3) has no direct precedent in 210-224 -- research it against Canon Part 8 directly.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 228 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)

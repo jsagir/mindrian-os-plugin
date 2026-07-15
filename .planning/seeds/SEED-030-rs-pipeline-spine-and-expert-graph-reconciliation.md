@@ -10,6 +10,16 @@ evidence: dev repo 2026-06-17 - rs-* NOT-WIRED + ABSENT from data/connector-regi
 related: Phase 144.1 (connector-retrofit-sweep, PLANNED), SEED-029 (embedding layer), SEED-013 (eliminate-python), Phase 89 (reverse-salient-engine)
 phase: 161-embedding-layer-and-rs-reconciliation
 source: dogfood (AION C08 demo build) + dev-repo wiring audit
+staleness_note: "PARTIALLY STALE, corrected 2026-07-15. This seed's own evidence (dated
+  2026-06-17) claimed all 4 rs-* commands had NO connector frontmatter and were ABSENT
+  from data/connector-registry.json. Verified directly against the current tree:
+  rs-fetch.md, rs-explain.md, rs-experts.md, and rs-thesis.md all carry
+  connects_to_spine:true + reach_id:context_block + sensor_triggers:[SENS-02], and all
+  four appear in data/connector-registry.json (both the /mos: surface and skill: entries).
+  Required (acceptance) item 1, spine-wire the RS family, is DONE. Items 2 (repoint RS
+  vectors at the local Embedding Layer, avoid Pinecone) and 3 (the R-expert Aura/
+  Brain-Cypher decision) were NOT re-verified this session -- treat those as the genuinely
+  open remainder, not the whole seed."
 ---
 
 # SEED: RS pipeline spine-wiring + expert-graph reconciliation (the non-vector half of "RS local + reachable")
