@@ -94,6 +94,53 @@ function clearQueue(resolved, drainedEntries) {
   }
 }
 
+// Single-flight guard (one drain at a time per room). Step 2b spawns one
+// detached drain per markdown write; a 10-file batch used to spawn 10 drains
+// that ALL read the queue before any finished -- 10 concurrent encoder loads
+// scoring the same entries against the same room.db. The lock makes the first
+// drain the owner; the rest return immediately and leave the queue to it (any
+// entry the loser would have handled is in the queue the owner snapshots, or
+// survives the snapshot-scoped clear for the next drain). A stale lock (a
+// killed worker) is reclaimed after LOCK_STALE_MS. fs open 'wx' is the repo's
+// existing write-lock idiom.
+const LOCK_STALE_MS = 10 * 60 * 1000;
+
+function drainLockPath(resolved) {
+  return path.join(resolved, '.mindrian', 'graph-derive-drain.lock');
+}
+
+function acquireDrainLock(resolved) {
+  const lockPath = drainLockPath(resolved);
+  try { fs.mkdirSync(path.dirname(lockPath), { recursive: true }); } catch (_e) { /* best effort */ }
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const fd = fs.openSync(lockPath, 'wx');
+      try { fs.writeSync(fd, String(process.pid)); } catch (_we) { /* advisory */ }
+      fs.closeSync(fd);
+      return lockPath;
+    } catch (_e) {
+      // Held. Reclaim ONLY when stale (older than LOCK_STALE_MS), then retry once.
+      try {
+        const st = fs.statSync(lockPath);
+        if (Date.now() - st.mtimeMs > LOCK_STALE_MS) {
+          fs.rmSync(lockPath, { force: true });
+          continue;
+        }
+        return null;
+      } catch (_se) {
+        // The holder released between our open and stat: retry once.
+        continue;
+      }
+    }
+  }
+  return null;
+}
+
+function releaseDrainLock(lockPath) {
+  if (!lockPath) return;
+  try { fs.rmSync(lockPath, { force: true }); } catch (_e) { /* best effort */ }
+}
+
 // Count the pairs a target/entry WOULD score (for the disclosure marker's
 // pairs_skipped scalar). Pure enumeration; never throws.
 function pairCountFor(target, entry) {
@@ -164,62 +211,74 @@ function discloseSkip(target, entry) {
 // Wave-1 note): candidates are PRE-RESOLVED per pair, then fed to runDerivation via
 // a synchronous deriveFn wrapper so the Phase-169 composer stays untouched.
 async function drainScoreBased(resolved, entries, options, result) {
-  let runDerivation;
-  try {
-    runDerivation = require('../lib/core/graph-derivation.cjs').runDerivation;
-  } catch (_e) {
-    runDerivation = null;
+  // Single-flight: only one drain may own this room's queue at a time (the
+  // per-write spawn stampede otherwise scores the same entries concurrently).
+  const lockPath = acquireDrainLock(resolved);
+  if (!lockPath) {
+    result.remaining = entries.length;
+    result.locked = true;
+    return result;
   }
+  try {
+    let runDerivation;
+    try {
+      runDerivation = require('../lib/core/graph-derivation.cjs').runDerivation;
+    } catch (_e) {
+      runDerivation = null;
+    }
 
-  const deriveFn = (typeof options.deriveFn === 'function')
-    ? options.deriveFn
-    : classifier.scoreBasedDeriveFn;
+    const deriveFn = (typeof options.deriveFn === 'function')
+      ? options.deriveFn
+      : classifier.scoreBasedDeriveFn;
 
-  // D-04: probe the encoder ONCE before touching any pair. Unavailable means skip
-  // EVERY entry, disclose per entry, clear the queue, and return ok:true. There is
-  // NO similarity-only degrade path (a symmetric score cannot honestly type edges).
-  const probe = await probeEncoder(options.probeOpts);
-  if (!probe.available) {
+    // D-04: probe the encoder ONCE before touching any pair. Unavailable means skip
+    // EVERY entry, disclose per entry, clear the queue, and return ok:true. There is
+    // NO similarity-only degrade path (a symmetric score cannot honestly type edges).
+    const probe = await probeEncoder(options.probeOpts);
+    if (!probe.available) {
+      for (const entry of entries) {
+        const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
+        if (!target) { continue; }
+        discloseSkip(target, entry);
+        result.drained.push(target);
+      }
+      result.remaining = clearQueue(resolved, entries);
+      return result;
+    }
+
     for (const entry of entries) {
       const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
       if (!target) { continue; }
-      discloseSkip(target, entry);
-      result.drained.push(target);
+      try {
+        const hasFile = typeof entry.filePath === 'string' && entry.filePath.length > 0;
+        const artifactPairs = hasFile
+          ? classifier.buildNewArtifactPairs(target, entry.filePath) // Req 6: O(n)
+          : classifier.buildAllPairs(target); // room-scoped Stop-sweep entry
+        // Pre-resolve the async producer per pair, then feed a SYNC deriveFn to the
+        // untouched Phase-169 composer (producer swap; runDerivation's sync loop
+        // rejects a Promise return).
+        const candidatesByPair = new Map();
+        for (const pair of artifactPairs) {
+          // eslint-disable-next-line no-await-in-loop
+          const cands = await deriveFn({ roomDir: target, artifactPair: pair });
+          candidatesByPair.set(pair, Array.isArray(cands) ? cands : []);
+        }
+        const syncDeriveFn = (step) => candidatesByPair.get(step && step.artifactPair) || [];
+        if (typeof runDerivation === 'function') {
+          runDerivation({ roomDir: target, deriveFn: syncDeriveFn, artifactPairs: artifactPairs });
+        }
+        result.drained.push(target);
+      } catch (_e) {
+        // a faulting room is still dropped from the queue (the backfill is the net).
+        result.drained.push(target);
+      }
     }
+
     result.remaining = clearQueue(resolved, entries);
     return result;
+  } finally {
+    releaseDrainLock(lockPath);
   }
-
-  for (const entry of entries) {
-    const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
-    if (!target) { continue; }
-    try {
-      const hasFile = typeof entry.filePath === 'string' && entry.filePath.length > 0;
-      const artifactPairs = hasFile
-        ? classifier.buildNewArtifactPairs(target, entry.filePath) // Req 6: O(n)
-        : classifier.buildAllPairs(target); // room-scoped Stop-sweep entry
-      // Pre-resolve the async producer per pair, then feed a SYNC deriveFn to the
-      // untouched Phase-169 composer (producer swap; runDerivation's sync loop
-      // treats a Promise as []).
-      const candidatesByPair = new Map();
-      for (const pair of artifactPairs) {
-        // eslint-disable-next-line no-await-in-loop
-        const cands = await deriveFn({ roomDir: target, artifactPair: pair });
-        candidatesByPair.set(pair, Array.isArray(cands) ? cands : []);
-      }
-      const syncDeriveFn = (step) => candidatesByPair.get(step && step.artifactPair) || [];
-      if (typeof runDerivation === 'function') {
-        runDerivation({ roomDir: target, deriveFn: syncDeriveFn, artifactPairs: artifactPairs });
-      }
-      result.drained.push(target);
-    } catch (_e) {
-      // a faulting room is still dropped from the queue (the backfill is the net).
-      result.drained.push(target);
-    }
-  }
-
-  result.remaining = clearQueue(resolved, entries);
-  return result;
 }
 
 /**
