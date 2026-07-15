@@ -57,6 +57,10 @@ This re-uses the existing surfaces, it does not replace them. The implicit "offe
 
 - One re-surface per turn-cluster. Do not nag the picker every turn.
 - Never auto-switch lanes. A lane change is always a navigator pick at the Decision Gate, never a unilateral Larry decision.
+- Whichever way the lane resolves this session, it gets recorded so the mode-select-checkpoint doctor class (plan 227-01) does not see a silent skip. Two resolutions exist, and BOTH count as recorded (only a genuine silent skip should leave no record): when the F.1 card fires, selector-dispatcher.cjs's trailer records it automatically. When Larry proceeds directly from an already-signaled opener without firing the card (the ambiguous-vs-signaled distinction the larry-personality.md Hooked-Model section documents), record it explicitly with:
+  ```bash
+  node -e "require('<plugin_root>/lib/core/mode-select-sidechannel.cjs').recordLanePick({lane: 'default-stated'})"
+  ```
 
 ## Lanes as Ackoff DIKW position (bidirectional)
 
@@ -96,7 +100,7 @@ Part 8 floor: the build-crossing Brain offer carries generic framework handles o
 
 ## Mode 3: Build a Room
 
-- Immediately say: "Let us set up your Data Room." and invoke the /mos:new-project flow.
+- Immediately say: "Let us set up your Data Room." and invoke /mos:ignite --express, carrying the already-established conversational context (persona, problem, venture) forward as the blueprint seed. This is ignite's Entry Routing Directive/Imperative path (commands/ignite.md's "## Entry Routing" section). Because conversation-mode's own Mode 2-to-Mode-3 transition already establishes the navigator's persona and intent, this Directive path has a determinable role/venture and therefore bypasses Gate B1 entirely per that gate's own documented rule (commands/ignite.md Gate B1: "Directive paths with a determinable role/venture ... bypass B1"), proceeding straight to Gate B2 (Blueprint), the actual room-creation step.
 - No exploratory conversation needed.
 
 ## Persona Detection
