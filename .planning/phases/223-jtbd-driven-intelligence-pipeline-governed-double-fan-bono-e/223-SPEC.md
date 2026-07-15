@@ -238,6 +238,16 @@ acceptance criterion to check room.db directly instead of the markdown bank roll
 scoping the bridge itself as this phase's Requirement 7. Planner/executor MUST NOT assume
 this wiring exists; treat it as an open blocker, not an implementation detail.
 
+**2026-07-15, update: Phase 224 is now COMPLETE (4/4 plans, `bash tests/run-all-224.sh`
+PASS=17 FAIL=0 SKIP=0, confirmed live).** This closes the READ-side risk ROADMAP.md's Phase
+223 entry flagged (intel-pipeline reasoning over a near-empty typed-edge substrate) -- 224's
+own shipped goal is "on every debounced write... qualifying CONVERGES/INFORMS relationships
+land as... typed edges," confirmed via its own final ROADMAP goal text. **This does NOT
+close the WRITE-side gap below** -- confirmed by re-reading 224's actual shipped scope, not
+assumed: nothing in its 4 plans touches `opportunity-ops.cjs` or `compute-opportunity-state`.
+The Requirement 4 blocker below is STILL OPEN and needs its own explicit resolution (one of
+the three options below) before this phase can ship Requirement 4 as currently written.
+
 **2026-07-15, navigator-directed: does Phase 224/SEED-034 (in progress) resolve this?
 Checked directly against `.planning/seeds/SEED-034-graph-derivation-harness.md` -- NO, not
 as currently scoped.** SEED-034's four broken pipes are all ONE direction: normal markdown
