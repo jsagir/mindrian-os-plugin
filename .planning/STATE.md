@@ -3,18 +3,30 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 223 planned (5 plans, 4 waves, plan-check PASS)
-last_updated: "2026-07-15T20:47:16.008Z"
+stopped_at: Phase 223 Plan 03 COMPLETE (Wave 2)
+last_updated: "2026-07-15T21:15:00.000Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 21
   total_plans: 120
-  completed_plans: 112
+  completed_plans: 113
   percent: 58
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 223 Plan 03 COMPLETE (Wave 2) -- evolved /mos:bono: the shipped surface IS now the 8-phase governed research debate (Req 1 consumption + Req 2 surface + Req 6)
+
+Wave 2, serialized before Plan 04 (both touch the generated mirror/registry; running them together would race the generators). The FIRST of the two born-wired surfaces. The bono BODY is replaced while every engine call stays on the untouched Phase-164 substrate (D-01 evolve, do not rebuild).
+
+- **`commands/bono.md` 8-phase governed body:** (1) topic-confirm + JTBD orientation (`jtbd-state.getCurrent`, F.1 gate), (2) domain decomposition (Engine 1, unchanged), (3) governed team assembly (`assembleTeam` + `HAT_GOVERNANCE[hat]` + `assertHeterogeneity`, duplicate lens re-drawn before research fires), (4) per-persona research fan (`runCellFanout` with `dispatchCell = personaDispatchCell`; extractContext -> runSourceLens -> wireAccept; `part8-egress-guard.classify`; `planDispatch` cap), (5) hypothesis-confirm F.1 gate + governed debate (`runDebate` + `composeGovernedSeams`, `validateCitations` on self-critique, F.5 ruling gate supported/rejected/refined/undecided, `runDerivation`), (6) MECE-Minto synthesis (`/mos:structure-argument` Pyramid+MECE -> `validateNarrative` governing_thought<=250 + key_claims 3-5) + `/mos:map-unknowns` matrix (feynman-prompts.cjs NOT touched, byte-identical), (7) close the loop (`findPriorConclusion` + ONE `writeCloseLoop` + `compute-opportunity-state`), (8) version cut + `--version-log` (`walkSupersedesChain`; first run = single-entry log, zero SUPERSEDES edges).
+- **Frontmatter diff (the ONLY connector changes):** `hitl_shape "F.5"` + `hitl_why` REPLACED by an `hitl_stages` list (topic-confirm F.1, hypothesis-confirm F.1, ruling F.5) + updated `hitl_why`; `connector.web_scope: null -> green` (per-persona web legs first-class, direction stays SIGNAL -> LOCAL). Unchanged: `reach_id: hats`, `sub_mode: bono`, `framework: "Six Thinking Hats"`, `sensor_triggers: [SENS-05]`, posture hold. NEVER a 7th reach.
+- **Mirror regenerated, DESENSITIZE preserved (never converged):** `build-skill-mirrors.cjs` overwrote `skills/bono/SKILL.md` from the new body; command keeps `sensor_triggers: [SENS-05]`, mirror keeps `[]` (CONN-03 asymmetry; a frontmatter diff shows EXACTLY one differing line). RESEARCH staleness correction 1 (re-run, never converge) supersedes the SPEC/BRIEF "reconcile the drift" wording.
+- **Gates green:** `build-connector-registry.cjs --check` OK (bono tuple: only `web_scope null -> green` on both entries, zero new reach); `build-skill-mirrors.cjs --check` OK; `check-shape-declaration.cjs --check` exit 0 (bono not flagged); `check-render-coverage.cjs` 0 gap; Task 1 verify prints `BONO-BODY-OK` (8 structural greps); `grep -c ^##|^###` = 8 phases; 0 em-dashes; 152 lines; `grep -rc mindrian-designs` sums to 0 (Req 6). Wave 1 modules (`test-223-hat-governance`, `test-223-close-loop`, `test-223-supersedes-chain`) all exit 0.
+- **Pre-existing baseline (NOT a 223-03 regression):** `run-all-164.sh` 17/3 (same 3: test-issue-tree-edge-remap, test-bono-verdict, canon-version assertion) -- Phase-224 schema drift, import zero 223-03 files; my change is command PROSE + generated mirror/registry only, touches no engine source. `command-registry.json` regenerated (teaching field changed; the command-registry pre-commit drift check is a HARD block, so bono.md + command-registry commit together).
+- **Commits:** `ce79c1a9` feat (8-phase body + command-registry, Task 1), `c0f2cb00` chore (mirror + connector registry regen, Task 2).
+- **NEXT:** Plan 223-04 (`commands/intel-pipeline.md` + `skills/intel-pipeline/SKILL.md` meta connector + `runIntelPipeline`; adds the 2 new registry entries onto the now-clean registry). SUMMARY: `.planning/phases/223-jtbd-driven-intelligence-pipeline-governed-double-fan-bono-e/223-03-SUMMARY.md`.
 
 ## (2026-07-15) -- PHASE 223 Plan 02 COMPLETE (Wave 1) -- close-the-loop graph-write spine: the ONE writer both surfaces terminate through (Req 2 + Req 4)
 

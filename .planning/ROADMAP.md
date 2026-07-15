@@ -3241,7 +3241,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 223-03-PLAN.md - commands/bono.md 8-phase governed body + hitl_stages + web_scope green + --version-log + mirror regeneration (DESENSITIZE preserved, never converged) [Req 1, Req 2, Req 6]
+- [x] 223-03-PLAN.md - commands/bono.md 8-phase governed body + hitl_stages + web_scope green + --version-log + mirror regeneration (DESENSITIZE preserved, never converged) [Req 1, Req 2, Req 6] (COMPLETE 2026-07-15)
 
 **Wave 3** *(blocked on Wave 2 - shared mirror/registry generators)*
 
