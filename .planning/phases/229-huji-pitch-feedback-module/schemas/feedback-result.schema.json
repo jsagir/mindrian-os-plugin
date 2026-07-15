@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "submission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "governing_thought": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 600
+    },
+    "branches": {
+      "minItems": 2,
+      "maxItems": 3,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "point": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "support": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 600
+            }
+          },
+          "teachable_next_step": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 600
+          }
+        },
+        "required": [
+          "point",
+          "support",
+          "teachable_next_step"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "scores": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 100
+      }
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "calibration_source": {
+      "type": "string",
+      "enum": [
+        "local-anchors",
+        "brain+local-anchors"
+      ]
+    }
+  },
+  "required": [
+    "submission_id",
+    "governing_thought",
+    "branches",
+    "scores",
+    "model_id",
+    "calibration_source"
+  ],
+  "additionalProperties": false
+}
