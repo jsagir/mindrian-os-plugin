@@ -3112,7 +3112,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 229-08-PLAN.md -- Batch orchestrator: pool + ledger + resume + retry + G3/G5 halt + aggregation + D10 test [D3,D4,D9,D10]
+- [x] 229-08-PLAN.md -- Batch orchestrator: pool + ledger + resume + retry + G3/G4/G5 halt + aggregation + D10 test (run-all-229 PASS=9 SKIP=0) [D3,D4,D9,D10]
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
