@@ -11,7 +11,8 @@
  *      anchors (Spearman >= 0.7, Dental post > pre, DnATA < Lucid). The judge model
  *      is pinned DIFFERENT from the grading spine (sonnet judging opus) to dodge
  *      self-preference bias, and the whole judge leg skips cleanly (never fails a
- *      structural run) when ANTHROPIC_API_KEY is unset.
+ *      structural run) unless the live judge is explicitly enabled (HUJI_JUDGE_LIVE=1
+ *      for the keychain path, or a legacy ANTHROPIC_API_KEY) - DI-3.
  *
  * Seven deterministic dimensions, each a `--check` subcommand:
  *   D1 quote-verifier   -- every quote in evidence.json / feedback.md is verbatim in
@@ -337,12 +338,14 @@ function loadBatch(outDir) {
 // LLM JUDGE + CALIBRATION PROTOCOL (the model-call half - Plan 06)
 // ---------------------------------------------------------------------------
 //
-// The judge is a headless `claude -p --bare` session, Read-only tools, that scores
+// The judge is a headless `claude -p --plugin-dir` keychain session (DI-3: not
+// --bare, whose API key is unset here), Read-only tools, that scores
 // ONE feedback artifact on the corpus-stable spine (Real/Win/Worth 1-5) plus D1/D6/D7
 // violation lists. It is TRUSTED only after passing calibrationProtocol() against the
 // 6 usable graded anchors. An uncalibrated judge's scores are noise and MUST NOT gate
 // delivery (AI-SPEC Section 5; threat T-229-06-01).
 
+const REPO_ROOT = path.resolve(__dirname, '..');
 const PHASE_DIR = path.join(__dirname, '..', '.planning', 'phases', '229-huji-pitch-feedback-module');
 const EVAL_DIR = path.join(PHASE_DIR, 'eval');
 const CALIB_DIR = path.join(PHASE_DIR, 'calibration');
@@ -356,6 +359,16 @@ const SPINE_MODEL = process.env.HUJI_SPINE_MODEL || 'claude-opus-4-8';
 const JUDGE_MODEL = process.env.HUJI_JUDGE_MODEL || 'claude-sonnet-4-5';
 
 const SPEARMAN_MIN = 0.7;
+
+// DI-3: whether the LIVE judge may spawn. The judge authenticates via the same
+// --plugin-dir + keychain path as the grading spine (not --bare + ANTHROPIC_API_KEY,
+// whose key is unset in the pilot environment). The structural suite (run-all-229)
+// must stay model-free, so the live judge only runs when EXPLICITLY enabled: either
+// a legacy ANTHROPIC_API_KEY is present, or HUJI_JUDGE_LIVE is set for the keychain
+// path. Absent both, the judge skips cleanly and a structural run never depends on it.
+function judgeLiveEnabled() {
+  return !!(process.env.ANTHROPIC_API_KEY || process.env.HUJI_JUDGE_LIVE);
+}
 
 // The 6 usable graded anchors expressed as 7 comparison points (Dental contributes a
 // pre- AND a post-revision point). `known` is each anchor's CANONICAL grade normalized
@@ -444,8 +457,10 @@ function parseJudgeOutput(stdout) {
 // { ok, score } or { ok:false, skipped|error }.
 function spawnJudge(feedbackPath, opts) {
   opts = opts || {};
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return { ok: false, skipped: true, reason: 'ANTHROPIC_API_KEY unset' };
+  // DI-3: gate the live spawn on judgeLiveEnabled() (keychain path), not a bare
+  // ANTHROPIC_API_KEY presence check - the key is unset here and the judge
+  // authenticates via --plugin-dir + keychain like the spine.
+  if (!judgeLiveEnabled()) return { ok: false, skipped: true, reason: 'judge live-run not enabled (set HUJI_JUDGE_LIVE=1 or ANTHROPIC_API_KEY)' };
   if (JUDGE_MODEL === SPINE_MODEL) {
     return { ok: false, error: 'judge model (' + JUDGE_MODEL + ') must differ from the spine (' + SPINE_MODEL + ') - self-preference bias' };
   }
@@ -459,20 +474,24 @@ function spawnJudge(feedbackPath, opts) {
     + feedbackText;
   // DI-1: inline the judge schema JSON (the CLI --json-schema wants an inline object,
   // not a path); inlineSchemaJson also strips $schema (DI-2 defence-in-depth).
+  // DI-3: --plugin-dir + keychain (not --bare + API key), --permission-mode dontAsk to
+  // keep the Read-only judge non-interactive. --no-session-persistence for isolation.
   const { inlineSchemaJson } = require('../lib/core/pitch-feedback-schemas.cjs');
   const args = [
-    '--bare',
     '-p', prompt,
     '--model', JUDGE_MODEL,
+    '--plugin-dir', REPO_ROOT,
+    '--permission-mode', 'dontAsk',
     '--allowedTools', 'Read',
     '--output-format', 'json',
     '--json-schema', inlineSchemaJson(JUDGE_SCHEMA_PATH),
+    '--no-session-persistence',
   ];
   const res = spawnSync('claude', args, {
-    env: Object.assign({}, process.env, { ANTHROPIC_API_KEY: apiKey }),
+    env: process.env,
     encoding: 'utf8',
     maxBuffer: 8 * 1024 * 1024,
-    timeout: opts.timeout || 120000,
+    timeout: opts.timeout || 180000,
   });
   if (res.error) return { ok: false, error: 'spawn failed: ' + String(res.error.message || res.error) };
   if (res.status !== 0) return { ok: false, error: 'claude exited ' + res.status + ': ' + String(res.stderr || '').slice(0, 200) };
@@ -518,8 +537,8 @@ function evaluateCalibration(scoresById) {
 // the judge (AI-SPEC Section 5: "structural runs never depend on it").
 function calibrationProtocol(opts) {
   opts = opts || {};
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return { ok: true, skipped: true, reason: 'ANTHROPIC_API_KEY unset - judge calibration skipped (structural runs never depend on the judge)' };
+  if (!judgeLiveEnabled()) {
+    return { ok: true, skipped: true, reason: 'judge live-run not enabled (set HUJI_JUDGE_LIVE=1 or ANTHROPIC_API_KEY) - calibration skipped (structural runs never depend on the judge)' };
   }
   const scoresById = {};
   const spawnErrors = [];
@@ -929,9 +948,9 @@ function runSuiteAnchors(o) {
     process.exit(1);
   }
 
-  // 2. Live judge only with an API key.
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.log('SKIP live judge: ANTHROPIC_API_KEY unset (structural runs never depend on the judge)');
+  // 2. Live judge only when explicitly enabled (keychain path or legacy API key).
+  if (!judgeLiveEnabled()) {
+    console.log('SKIP live judge: judge live-run not enabled (set HUJI_JUDGE_LIVE=1 for the keychain path, or ANTHROPIC_API_KEY) - structural runs never depend on the judge');
     console.log(HUMAN_RERANK_INSTRUCTION);
     process.exit(0);
   }
@@ -1013,8 +1032,8 @@ function runReport(o) {
   console.log('-- judge (calibrated LLM, sonnet judging opus) --');
   if (!o.judge) {
     console.log('  not requested (pass --judge to run the calibration protocol + score the batch)');
-  } else if (!process.env.ANTHROPIC_API_KEY) {
-    console.log('  skipped: ANTHROPIC_API_KEY unset (the code checks above still gate the run)');
+  } else if (!judgeLiveEnabled()) {
+    console.log('  skipped: judge live-run not enabled (set HUJI_JUDGE_LIVE=1 or ANTHROPIC_API_KEY; the code checks above still gate the run)');
   } else {
     const calib = calibrationProtocol(o);
     if (calib.spawnErrors) {

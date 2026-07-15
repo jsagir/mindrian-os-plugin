@@ -166,20 +166,31 @@ authoring (~Plan 05).
 
 ## AUTH_PATH (Q4) - headless session authentication source
 
-**DECISION.** Two-stage auth split, matching the plugin-need of each stage:
-- **Stage A (extraction):** `--bare` + `ANTHROPIC_API_KEY`. `--bare` skips plugin
-  discovery (fast, deterministic across machines); the extraction prompt needs no plugin,
-  only `Read` (+ a scoped `Bash(node lib/core/*)` writer leg). `--bare` skips OAuth/keychain,
-  so the API key env var is the credential source.
-- **Stage B (grading spine):** `--plugin-dir <dev-repo-checkout>` (the plugin's `/mos:`
-  commands MUST load). Deterministic plugin load; uses the standard OAuth/keychain session
-  (NOT `--bare`, because `--bare --plugin-dir` would drop keychain and force an API key even
-  for the plugin path). Pilot is CLI-run by Jonathan, so keychain is available.
+**DECISION (FINAL, revised by DI-3 2026-07-16).** ONE auth mechanism for the whole
+pipeline: `--plugin-dir <dev-repo-checkout>` + the OAuth/keychain session, for EVERY
+headless spawn (Stage A extraction, Stage B grading spine, AND the sonnet judge). Never
+`--bare`.
 
-Source decision recorded so the orchestrator sets `ANTHROPIC_API_KEY` in the Stage A spawn
-env and relies on keychain for Stage B. A preflight `stream-json` run asserts
-`system/init` `plugins` contains the plugin and `plugin_errors` is absent, failing the
-batch closed if Stage B's plugin did not load.
+- **Stage A (extraction):** `--plugin-dir` + keychain (haiku, `--permission-mode dontAsk`,
+  `Read` + a scoped `Bash(node lib/core/*)` writer leg).
+- **Stage B (grading spine):** `--plugin-dir` + keychain (opus). The plugin's `/mos:`
+  commands MUST load, so `--plugin-dir` is mandatory here regardless.
+- **Judge:** `--plugin-dir` + keychain (sonnet, `Read`-only). Gated behind
+  `HUJI_JUDGE_LIVE=1` (or a legacy `ANTHROPIC_API_KEY`) so the model-free structural
+  suite never spawns it.
+
+**Why the original `--bare`-for-Stage-A design was dropped (DI-3).** The original split
+made Stage A `--bare` + `ANTHROPIC_API_KEY` for a faster plugin-discovery-skipped start.
+But `--bare` skips the OAuth/keychain session, so its ONLY credential is the API key env
+var - which is UNSET in the pilot environment ("Not logged in - Please run /login" on the
+first live spawn). The keychain path (which Stage B already proved works here) needs no
+new credential to create, store, or rotate; the minor plugin-load overhead on the cheap
+extraction stage does not matter at this cost tier. Navigator-approved: one auth
+mechanism, zero new credentials. This supersedes the two-stage-split decision above.
+
+The orchestrator relies on the keychain for every stage (no `ANTHROPIC_API_KEY` plumbing).
+A preflight `stream-json` run asserts `system/init` `plugins` contains the plugin and
+`plugin_errors` is absent, failing the batch closed if the plugin did not load.
 
 **EVIDENCE.**
 - AI-SPEC 3 Entry Point Pattern + Key mechanics: "`--bare --plugin-dir` is the strictest

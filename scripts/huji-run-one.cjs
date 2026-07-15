@@ -25,7 +25,7 @@
  *     discipline).
  *
  *   runOne({subId, transcriptPath, deckPath, config, outDir})
- *     Stage A (extraction, --bare, haiku): reads the transcript by PATH (never
+ *     Stage A (extraction, --plugin-dir, haiku): reads the transcript by PATH (never
  *     argv-inlined - T-229-07-01) and emits a quote-anchored evidence.json, then
  *     populates the scratch room via the shipped Claimify writer (huji-intake
  *     populateRoom). Stage B (grading spine, --plugin-dir, opus): runs the
@@ -39,8 +39,11 @@
  *     every gate passes AND feedback.md is non-empty. NEVER --continue/--resume
  *     across submissions; --no-session-persistence on every spawn.
  *
- * Auth (CONTRACTS AUTH_PATH): Stage A = --bare + ANTHROPIC_API_KEY; Stage B =
- * --plugin-dir + keychain (not --bare, so keychain is not dropped).
+ * Auth (CONTRACTS AUTH_PATH, superseded by DI-3): BOTH stages use --plugin-dir +
+ * the OAuth/keychain session (never --bare). One auth mechanism for the whole
+ * pipeline, zero API keys to create/store/rotate. The original --bare-for-Stage-A
+ * design was dropped because --bare skips the keychain and its only credential
+ * (ANTHROPIC_API_KEY) is unset in the pilot environment.
  *
  * CJS only. No em-dashes (CLAUDE.md HARD RULE). Zero new dependencies.
  */
@@ -98,7 +101,10 @@ function resolveConfig(config) {
     stageAPromptPath: c.stageAPromptPath || path.join(REPO_ROOT, 'references', 'methodology', 'huji-stage-a-intake.md'),
     // Where scratch rooms live (out-of-tree in a real batch); defaults beside outDir.
     roomsDir: c.roomsDir || null,
-    // Stage A credential source (--bare skips keychain, needs the API key).
+    // DI-3: no per-stage API-key plumbing. Both stages authenticate via the OAuth/
+    // keychain session (--plugin-dir, not --bare), so there is no ANTHROPIC_API_KEY
+    // to source, store, or rotate. Kept as an inert passthrough only if a caller
+    // explicitly supplies one (unused by the default keychain path).
     apiKey: c.apiKey || process.env.ANTHROPIC_API_KEY || '',
   };
 }
@@ -232,15 +238,21 @@ function buildStageAPrompt(config, subId, transcriptPath, deckPath) {
 }
 
 // --------------------------------------------------------------------------
-// buildStageAArgs - the --bare extraction spawn arg array (no shell). Stage A
-// needs no plugin (only Read + a scoped writer leg), so --bare skips plugin
-// discovery for a fast deterministic start; the API key is the credential source.
+// buildStageAArgs - the extraction spawn arg array (no shell). DI-3: Stage A is
+// NO LONGER --bare. --bare skips the OAuth/keychain session, so its ONLY credential
+// is ANTHROPIC_API_KEY - which is unset in the pilot environment ("Not logged in").
+// The navigator ruling: ONE auth mechanism for the whole pipeline - Stage A uses the
+// same --plugin-dir + keychain path Stage B already proves works here. The minor
+// plugin-load overhead on the cheap extraction stage does not matter at this cost
+// tier, and it removes a whole credential to create/store/rotate. --permission-mode
+// dontAsk keeps the Read + scoped-writer leg non-interactive under the keychain path.
 // --------------------------------------------------------------------------
 function buildStageAArgs(config, prompt) {
   return [
-    '--bare',
     '-p', prompt,
+    '--plugin-dir', config.pluginDir,
     '--model', config.extractModel,
+    '--permission-mode', 'dontAsk',
     '--allowedTools', 'Read,Bash(node lib/core/*)',
     '--output-format', 'json',
     // DI-1: the CLI wants the schema INLINE, not a file path (a path makes it
@@ -451,13 +463,13 @@ function runOne(opts) {
 
   let cost = 0;
 
-  // --- Stage A: extraction (--bare, haiku, API key) ---
+  // --- Stage A: extraction (--plugin-dir, haiku, keychain - DI-3) ---
+  // Same auth path as Stage B: the OAuth/keychain session (env: process.env), NOT a
+  // --bare API key. One credential mechanism for the whole pipeline.
   const stageAPrompt = buildStageAPrompt(config, subId, transcriptPath, deckPath);
   const stageAArgs = buildStageAArgs(config, stageAPrompt);
-  const aEnv = Object.assign({}, process.env);
-  if (config.apiKey) aEnv.ANTHROPIC_API_KEY = config.apiKey;
   const aRes = spawnSync('claude', stageAArgs, {
-    env: aEnv, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: config.stageATimeoutMs,
+    env: process.env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: config.stageATimeoutMs,
   });
   if (aRes.error) return { ok: false, reason: 'stageA_spawn_failed', detail: String(aRes.error.message || aRes.error).slice(0, 200), roomDir };
   if (aRes.status !== 0) return { ok: false, reason: 'stageA_nonzero', detail: String(aRes.stderr || '').slice(0, 500), roomDir };
@@ -586,8 +598,11 @@ function dryRun() {
   const aArgs = buildStageAArgs(config, aPrompt);
   const bArgs = buildStageBArgs(config);
 
-  // Stage A: --bare, args array (no shell), transcript passed by PATH only.
-  assert.ok(aArgs.includes('--bare'), 'Stage A must be --bare');
+  // Stage A: --plugin-dir + keychain (DI-3, NOT --bare), args array (no shell),
+  // transcript passed by PATH only.
+  assert.ok(!aArgs.includes('--bare'), 'Stage A must NOT be --bare (DI-3: --bare skips keychain and its API key is unset)');
+  assert.ok(aArgs.includes('--plugin-dir'), 'Stage A must load via --plugin-dir + keychain (same auth as Stage B)');
+  assert.ok(aArgs.includes('--permission-mode') && aArgs.includes('dontAsk'), 'Stage A must run --permission-mode dontAsk (non-interactive under keychain)');
   assert.ok(aArgs.includes('--no-session-persistence'), 'Stage A must set --no-session-persistence');
   assert.ok(aArgs.includes('--json-schema'), 'Stage A must pass --json-schema');
   assert.ok(aPrompt.includes(transcriptPath), 'Stage A prompt must reference the transcript PATH');
@@ -607,7 +622,7 @@ function dryRun() {
   assert.ok(!bArgs.includes('--continue') && !bArgs.includes('--resume'), 'Stage B must not --continue/--resume');
 
   console.log('=== huji-run-one --dry-run: spawn arg arrays well-formed ===');
-  console.log('Stage A (extraction, --bare + API key):');
+  console.log('Stage A (extraction, --plugin-dir + keychain):');
   console.log('  claude ' + aArgs.map((a) => (a === aPrompt ? '<stageA-prompt (' + aPrompt.length + ' chars, transcript-by-path)>' : a)).join(' '));
   console.log('Stage B (grading spine, --plugin-dir + keychain):');
   console.log('  claude ' + bArgs.join(' '));
