@@ -214,6 +214,40 @@ on. There is NO lexical-only degrade -- a symmetric keyword score cannot
 honestly type an edge, so unavailability is a DISCLOSED skip, never a silent
 lexical guess. The floors only ever gate a real encoder score.
 
+## Zero-Score No-Match Gate Floor (Phase 225, room-local, zero egress)
+
+When a user message fingerprint-matches NO known room (every room scores zero)
+AND the session has a real bound primary, the intent-classifier tripwire fires a
+distinct F.8 "no room matched" Decision Gate (continue-in-primary / new-project /
+no-room) instead of silently landing the write in the old bound primary
+(SEED-039 proving_case_2, the line-509 gap closed this phase). This floor is the
+anti-overfire guard that keeps trivial acknowledgements silent while a
+substantive conversational reframe still clears it. The value is read defensively
+in `scripts/intent-classifier.cjs` with a numeric fallback, so a malformed
+operator env can never zero out or invert the gate. The gate carries room slugs
+only, never prompt content, to the LOCAL renderer (Canon Part 8: zero Brain egress).
+
+### MINDRIAN_ZERO_SCORE_GATE_MIN_TOKENS
+
+**What:** The minimum count of surviving message tokens (post-stopword, each of
+length >= 2) a zero-score message must carry before it can fire the no-match F.8
+gate. A message with fewer surviving tokens preserves the legacy silence.
+**Default:** `8` (a positive integer). Paired with PD-1's once-per-session-per-room
+trace suppression so the gate fires at most once per room per session even under
+sticky.
+**Why (PD-3, anti-overfire):** This is the explicit guard against the Phase-210
+over-enforcement mistake. A trivial acknowledgement ("ok", "thanks", "sounds
+good") must NOT fire the gate and must preserve the legacy zero-score silence,
+while a substantive conversational reframe (SEED-039 proving_case_2, the Gaurav
+student-reframe incident) clears the floor and gets the gate. Raise it (for
+example `12`) if the gate fires on routine short prompts; lower it (for example
+`5`) only if a genuine reframe was missed. Any non-integer or non-positive value
+falls back to the calibrated default.
+
+```bash
+export MINDRIAN_ZERO_SCORE_GATE_MIN_TOKENS=8
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
