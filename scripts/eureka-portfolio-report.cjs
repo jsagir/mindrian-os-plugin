@@ -1235,10 +1235,16 @@ async function main(argv) {
     // The reasoning next-step block (only when a genuine degrade seeded the workdir).
     if (seed.reasoning) provenance.reasoning = seed.reasoning;
 
-    // Phase 226-02 (SEED req 5): on the EMBEDDED success path, if a prior report at
-    // jsonPath was written in reasoning mode, surface the reasoning -> embedded delta
-    // instead of silently replacing it. Never throws; no upgrade key on any failure.
-    if (idx.embedded === true) buildUpgradeDelta(jsonPath, provenance, ranked);
+    // Phase 226-02 (SEED req 5), CR-01 fix: called unconditionally now, not just on
+    // the embedded success path. If a prior report at jsonPath was written in
+    // reasoning mode, surface the reasoning -> current delta instead of silently
+    // replacing it - INCLUDING the case where this run is a second degrade
+    // (idx.embedded !== true, ranked stays empty). buildUpgradeDelta's own
+    // run_mode check is the guard; on a still-degraded run it attaches
+    // provenance.upgrade with survived:0 and the prior top-5 pair ids, so the
+    // overwrite is disclosed with a trace instead of leaving none. Never throws;
+    // no upgrade key on any failure or when the prior file wasn't reasoning-mode.
+    buildUpgradeDelta(jsonPath, provenance, ranked);
 
     const report = renderReport({
       provenance: provenance,
