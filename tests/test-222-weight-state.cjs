@@ -104,6 +104,44 @@ try {
     }
   });
 
+  check('(8) CR-01 regression: upsertHedgeWeightState mid-transaction does NOT roll back the caller\'s own pending transaction', () => {
+    // Reproduces the review's empirical repro against a REAL room db: open an
+    // outer transaction on the SAME handle the ranker would be threaded (e.g.
+    // ctx.roomDb through decide()), write something unrelated inside it, THEN
+    // call upsertHedgeWeightState mid-transaction. Pre-fix this issued a nested
+    // db.exec('BEGIN'), which throws on node:sqlite's DatabaseSync, and the
+    // catch's unconditional ROLLBACK silently wiped the outer INSERT below. Post-
+    // fix, db.isTransaction gates BEGIN/COMMIT/ROLLBACK: the upsert runs AS PART
+    // OF the caller's already-open transaction and never issues its own ROLLBACK.
+    const crRoomDir = fs.mkdtempSync(path.join(os.tmpdir(), 'reach-weight-crtx-'));
+    let crDb = null;
+    try {
+      crDb = openRoomDb(crRoomDir);
+      crDb.exec('CREATE TABLE caller_scratch (id INTEGER)');
+
+      crDb.exec('BEGIN');
+      assert.strictEqual(crDb.isTransaction, true, 'setup: the outer transaction must be open before the call under test');
+      crDb.prepare('INSERT INTO caller_scratch (id) VALUES (?)').run(1);
+
+      // The call under test: must NOT throw, and must NOT touch the caller's
+      // transaction boundary (no BEGIN/COMMIT/ROLLBACK of its own).
+      navigation.upsertHedgeWeightState(crDb, { d4_blend: 0.55, registry_order: 0.45 }, { updateCount: 9 });
+
+      assert.strictEqual(crDb.isTransaction, true, 'the caller\'s transaction must still be open after the mid-transaction upsert');
+      crDb.exec('COMMIT');
+
+      const scratchCount = crDb.prepare('SELECT COUNT(*) AS c FROM caller_scratch').get().c;
+      assert.strictEqual(scratchCount, 1, 'the caller\'s own pending INSERT must survive -- it must NOT be silently rolled back');
+
+      const state = navigation.readHedgeWeightState(crDb);
+      assert.ok(state, 'the mid-transaction upsert must still have persisted once the outer transaction committed');
+      assert.strictEqual(state.weights.d4_blend, 0.55, 'the mid-transaction upsert value must persist correctly');
+    } finally {
+      if (crDb) { try { closeRoomDb(crDb); } catch (_e) { /* ignore */ } }
+      try { fs.rmSync(crRoomDir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+    }
+  });
+
   console.log('');
   console.log('PASS test-222-weight-state.cjs (' + passed + ' checks)');
 } finally {
