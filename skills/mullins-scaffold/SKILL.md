@@ -4,10 +4,13 @@ description: >
   Room scaffolding around the Mullins Seven Domains of Attractive Opportunities
   (Market, Industry, Sustainable Advantage, Mission/Aspirations, Ability to
   Execute on Critical Success Factors, Connectedness Up the Value Chain,
-  Connectedness Down the Value Chain). Relevant when creating a new venture
-  room, running an opportunity assessment, or structuring a Data Room around
-  a market-attractiveness lens. Backed by skills/mullins-scaffold/scaffold.json
-  (the section definitions and prompts).
+  Connectedness Down the Value Chain). Use ONLY when the navigator explicitly
+  asks to scaffold a room around the Mullins Seven Domains, names Mullins or
+  the Seven Domains directly, or ignite's own front door has resolved toward
+  a market-attractiveness structure. Do NOT use for a general "let's assess
+  this opportunity" remark with no Mullins-specific ask -- that stays in
+  conversation (or routes through /mos:ignite's front door). Backed by
+  skills/mullins-scaffold/scaffold.json (the section definitions and prompts).
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
