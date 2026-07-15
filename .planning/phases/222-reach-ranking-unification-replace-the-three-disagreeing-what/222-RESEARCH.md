@@ -62,7 +62,7 @@ The cleanest architecture (verified against the current call graph) is a new `ra
 | Per-turn engine auto-fire | `lib/core/navigation-engine.cjs::resolveFireSkill` | new module (via re-ordered `sensorReaches`) | Engine owns the fire decision; new module owns the ORDER it consumes |
 | MCP tool reads | `lib/mcp/tools/sensors.cjs` | new module (via `dispatchCandidateReaches`) | Thin MCP surface over the shipped reach path |
 | Outcome-log read (reward signal) | `lib/core/navigation.cjs::findRecentChanges` | `offer-closer.cjs::closeOffer` (write side, Phase 159) | Part 9 chokepoint; no new write site |
-| Weight-state persistence | `lib/core/navigation.cjs::logMemoryEvent` + `findRecentChanges` | `memory-events.cjs` EVENT_TYPES (additive) | Room-local scalar `memory_event` rows, per Phase 158 |
+| Weight-state persistence | `lib/core/navigation.cjs` typed accessor pair (`readHedgeWeightState`/`upsertHedgeWeightState`) over the new `ranker_weights` room.db table | `lib/core/migrations/phase-222-ranker-weights.cjs`, `memory-events.cjs` EVENT_TYPES (additive, degrade signal only) | **Superseded by OQ-1's RESOLVED navigator override** (real room.db table, not `memory_event` rows). Row kept for audit trail; see OQ-1 below for the authoritative resolution. |
 
 ## Standard Stack
 
@@ -88,7 +88,7 @@ The cleanest architecture (verified against the current call graph) is a new `ra
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | New `rankFiredCandidates` module | Extend `dial-reach-orchestrator.cjs` | Rejected in D-01: the orchestrator assumes the fixed 6-reach universe and is referenced by frozen tests (`test-dial-reach-orchestrator.cjs`, `test-148-frozen-contracts.cjs`); forcing a turn-subset path in would break its 6-reach contract |
-| `memory_event` weight persistence | New room.db CREATE TABLE `ranker_weights` | The CREATE TABLE shape cannot be read by `findRecentChanges` (locked read path). Would also need a migration module (`lib/core/migrations/`) — heavier, no precedent for adaptive-state tables |
+| `memory_event` weight persistence | New room.db CREATE TABLE `ranker_weights` | **Superseded: the navigator chose this option at the plan-phase gate (OQ-1 RESOLVED).** Original objection (no precedent for an adaptive-state CREATE TABLE) was verified false during planning — `phase-109-session-focus.cjs` is a directly reusable, sentinel-idempotent migration precedent. Read path is a new typed `navigation.cjs` accessor pair, not `findRecentChanges`. |
 | `memory_event` weight persistence | jtbd-state JSON file (`writeStateAtomic`) | A file read violates the hot-path budget ("no new synchronous file reads beyond what dispatchSensors/dial-reach-orchestrator already perform", Constraints) AND is not readable via `findRecentChanges` |
 
 **Installation:** None. `git diff package.json package-lock.json` MUST stay empty (Req 4).
@@ -340,7 +340,7 @@ const combined = weights.A * d4Adjusted + weights.B * registrySignal(rank);
 | A4 | Opening room.db inside `dispatchCandidateReaches` via `navigation.openRoomDbForCaller(roomDir)` (as the other sensors tools do) is acceptable for the MCP-path Hedge read | Pitfall 2 | If disallowed, the MCP path runs Hedge-blind (cold `{A:0.5,B:0.5}`), which still satisfies Req 1 (score order from reachScores) but not Req 3's MCP-path differentiation |
 | A5 | Two new EVENT_TYPES (`ranker_weight_updated`, `reach_weight_state_unavailable`) is the right count | Pattern 4 | If the navigator wants a single combined event or a different name, trivial edit |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **OQ-1 (blocking-ish): weight-state storage shape.** D-02 names "room.db side-table" + "jtbd-state atomic-file model" + "reads via `findRecentChanges`" — mutually incompatible. `findRecentChanges` reads ONLY `memory_event` node rows.
    - What we know: the locked read path is `findRecentChanges`; Phase 158 stores adaptive signal as `memory_event` rows exclusively; there is NO shipped precedent for a bespoke adaptive-state CREATE TABLE in room.db.
@@ -349,8 +349,10 @@ const combined = weights.A * d4Adjusted + weights.B * registrySignal(rank);
    - **RESOLVED 2026-07-14 at the plan-phase AskUserQuestion gate: the navigator chose the real room.db table, overriding this recommendation.** Follow-up verification (same session, post-choice): `lib/core/migrations/` is a real, populated directory (`phase-109-session-focus.cjs`, `phase-109-nodes-provenance.cjs`, `phase-160-nodes-bitemporal.cjs`, `phase-162-section-nodes.cjs`) -- this research's "no shipped precedent for a bespoke adaptive-state CREATE TABLE" claim was too pessimistic; a directly reusable, sentinel-idempotent migration pattern already exists (`phase-109-session-focus.cjs` read in full: `CREATE TABLE IF NOT EXISTS` inside a transaction, an `identity` table sentinel row gates re-runs, defensive `ALTER TABLE` backfills wrapped in try/catch). Migrations are wired in by direct `require()` + a `runMigration(db)` call inside `lib/core/room-db.cjs:33-34`. Phase 222's `phase-222-ranker-weights.cjs` should follow this exact shape. Part 9 compliance: `navigation.cjs` gains one new typed accessor pair (read-latest-weights / upsert-weights) rather than reading the table directly from the new module -- this keeps the single-chokepoint invariant intact via a NEW typed function, not a bypass. CONTEXT.md D-02 and SPEC.md Requirement 3 both carry the full resolution text; this file's Assumption A1 is superseded by navigator choice, not by new evidence contradicting the original analysis.
 
 2. **OQ-2: reject-penalty composition — subsume or compose?** CONTEXT says the Hedge layer should "compose with OR supersede" the Phase-158 `countPenalty`. Recommendation: COMPOSE (feed 158's discount into the D4 expert score, Code Example above) rather than supersede — 158 is shipped, tested, and its four bias fences (M/W/P/N) are valuable. Confirm the navigator does not want 158 turned off.
+   - **RESOLVED: COMPOSE (adopted, Plan 02).** `countPenalty(db, reach_id, roomState)`'s `base * (1 - cp)` composition contract is implemented as written in `rankFiredCandidates` step (d); Phase 158's `countPenalty` stays live and untouched.
 
 3. **OQ-3: which `roomState` does `decide()` hand the ranker?** `decide()` builds `sensorCtx` (`:905-926`) but the `roomState.reachScores` map is produced downstream in `intent-classifier.cjs:1036`, AFTER decide() returns. So at the engine insertion point, `reachScores` may not yet be populated on the engine arm. Recommendation: compute `reachScores` inside `rankFiredCandidates` by calling `buildReachScoresFromCortex(roomState.cortexNodes || [])` itself (the SPEC-1 target already says to call it), so the ranker is self-sufficient and does not depend on caller ordering. Verify `ctx.cortexNodes` availability on the engine arm during planning.
+   - **RESOLVED: ranker self-computes via `buildReachScoresFromCortex`.** Confirmed during planning that `ctx.roomContext.cortexNodes` is readable on the engine arm at `navigation-engine.cjs:848-860`; the ranker does not depend on caller ordering either way (Plan 02/03).
 
 ## Environment Availability
 
