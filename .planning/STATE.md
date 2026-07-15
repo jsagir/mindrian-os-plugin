@@ -4,13 +4,13 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Phase 223 context gathered (post-224 decisions locked)
-last_updated: "2026-07-15T16:03:40.446Z"
+last_updated: "2026-07-15T16:38:03.519Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 20
-  total_plans: 109
-  completed_plans: 106
+  total_plans: 113
+  completed_plans: 107
   percent: 54
 ---
 
@@ -960,12 +960,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 225 — per-session-room-binding-and-multi-session-reconciliation-se
+**Current focus:** Phase 226 — eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la
 
 ## Current Position
 
-Phase: 226
-Plan: Not started
+Phase: 226 (eureka-reasoning-mode-fallback-seed-058-give-mos-eureka-a-la) — EXECUTING
+Plan: 2 of 4
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1540,6 +1540,7 @@ Progress: [█████████░] 92%
 | Phase 225 P01 | 20min | 2 tasks | 3 files |
 | Phase 225 P03 | 25min | 3 tasks | 3 files |
 | 225 | 3 | - | - |
+| Phase 226 P01 | 35 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -2564,6 +2565,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 225-01: reuse the shipped consumePriorBindingAnswer unchanged via the binding_gate_payload key (PD-5); new-project and no-room both map to __no_room__
 - [Phase 225]: run-all-225.sh phase gate: 3 SKIP-safe run_if legs + an unconditional run-all-194.sh regression leg (shipped-substrate guard, T-225-11)
 - [Phase 225]: Dev-research compositing filed in rethinking-mindrianos room, generic technical content only (no real names, Canon Part 8), cross-linked to 225-RESEARCH.md
+- [Phase 226]: Reasoning-mode emits differential_score/semantic_similarity as structurally null (encoder absent); only Jaccard lsa_similarity carries a number, enforced by assertReasoningInvariants (node:assert), never a judge call (D1/G-1)
+- [Phase 226]: Reasoning-mode reuses the exported eureka-critic prompt builders + Gate 1 regexes byte-identically (no third prompt variant); D3 parity proven by call-count===2, verdict-by-code, prompt byte-equality
 
 ### Pending Todos
 
@@ -2634,7 +2637,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-15T16:03:40.376Z
+Last session: 2026-07-15T16:37:28.731Z
 Stopped at: Phase 223 context gathered (post-224 decisions locked)
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
