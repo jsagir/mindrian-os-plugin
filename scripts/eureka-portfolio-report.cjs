@@ -1279,6 +1279,11 @@ async function main(argv) {
           complementary: r.isComp,
           tail_flag: tailIds.has(r.idA) || tailIds.has(r.idB),
           banked: r.banked === true,
+          // WR-03 fix: field-parity with statements[] (which already carries
+          // mode: 'embedded') and with the reasoning ranked[] rows (mode:
+          // 'reasoning'). Previously report-html.cjs only survived this via an
+          // `r.mode || 'embedded'` fallback.
+          mode: 'embedded',
         };
       }),
       tail: {
