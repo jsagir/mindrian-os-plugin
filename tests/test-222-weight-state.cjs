@@ -72,9 +72,26 @@ try {
   check('(5) upsertHedgeWeightState throws on a non-finite weight (write-side validation)', () => {
     assert.throws(
       () => navigation.upsertHedgeWeightState(db, { d4_blend: NaN }, { updateCount: 3 }),
-      /finite number/,
+      /finite, non-negative number/,
       'NaN weight must be rejected at the write boundary'
     );
+  });
+
+  check('(5b) WR-02: upsertHedgeWeightState throws on a negative weight (write-side must match the read side\'s corruption definition)', () => {
+    // readHedgeWeights in reach-hedge-ranker.cjs treats a stored v < 0 as a
+    // corrupt_scalar degrade condition. Write-side validation must reject a
+    // negative weight at the SAME boundary, not silently persist it only to
+    // surface as a confusing corrupt_scalar event on a later, unrelated read.
+    assert.throws(
+      () => navigation.upsertHedgeWeightState(db, { d4_blend: -0.1, registry_order: 0.5 }, { updateCount: 3 }),
+      /finite, non-negative number/,
+      'a negative weight must be rejected at the write boundary'
+    );
+    // Confirm the rejected write did not partially land: state must be
+    // unchanged from whatever check (4) left it at (all-or-nothing write).
+    const state = navigation.readHedgeWeightState(db);
+    assert.ok(state, 'state must still exist after the rejected write attempt');
+    assert.strictEqual(state.weights.d4_blend, 0.6, 'a rejected negative-weight write must not have partially landed');
   });
 
   check('(6) reach_weight_state_unavailable is an accepted + readable memory_event (Req 7)', () => {
