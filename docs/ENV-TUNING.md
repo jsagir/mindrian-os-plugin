@@ -157,9 +157,11 @@ possible proposal to a navigator; those are reserved for a future
 LLM-critiqued pass, never this score-only layer.
 
 Both floors are read at CALL time by `lib/core/graph-derive-classifier.cjs` with
-a numeric fallback (any value outside 0..1 or non-numeric falls back to the
-calibrated default), so a malformed operator env can never zero out or invert
-derivation. Both are room-local ranking tunables with zero egress (Canon Part
+a guarded fallback: a non-numeric value, `0`, a negative value, or a value above
+`1` falls back to the calibrated default for that floor, and a pair where
+`DERIVE_CONVERGES_FLOOR` sits below `DERIVE_INFORMS_FLOOR` (band inversion)
+falls back to BOTH calibrated defaults. So a malformed operator env can never
+zero out or invert derivation. Both are room-local ranking tunables with zero egress (Canon Part
 8): scoring runs on LOCAL bytes and the derived edges never enter a Brain
 Context Packet.
 
