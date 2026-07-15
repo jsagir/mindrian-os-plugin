@@ -49,15 +49,23 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const os = require('node:os');
 
 // Phase 169-02 (GDH-01, D-169-05): the ONE `.room-root` walk-up resolver. The
 // write-index path resolves the room by the WRITTEN FILE's own `.room-root`
 // FIRST, so a write into a sub-room indexes into THAT sub-room's db regardless
 // of the registry active room (root cause #1). It returns '' on no sentinel, and
-// the resolver below then degrades to the existing env/registry-active fallback.
+// the resolver below then degrades to the env / canonical-resolver fallback.
 const { resolveRoomRoot } = require(
   path.resolve(__dirname, '..', 'lib', 'core', 'room-root.cjs')
+);
+
+// Phase 224-03 (Req 3): the Phase-194 CANONICAL write-target resolver. The
+// fallback below rides resolveWriteRoom (leg order room-root, session.primary,
+// reg.active) instead of a DUPLICATED registry read -- the SEED-034 lesson that
+// there must be exactly ONE resolver, not a second guesser. resolveWriteRoom
+// SUBSUMES the removed registry read and adds session awareness for free.
+const { resolveWriteRoom } = require(
+  path.resolve(__dirname, '..', 'lib', 'core', 'resolve-active-room.cjs')
 );
 
 // Strict gate: a path INSIDE a .planning/ tree that ends in .md. The attacker-
@@ -87,15 +95,18 @@ function readStdin() {
 // written filePath sits inside a room carrying a `.room-root` sentinel, resolve
 // to THAT room (so a sub-room write indexes into the sub-room's own db, not the
 // registry active room -- root cause #1). Only when the file is outside any room
-// (resolveRoomRoot -> '') do we fall back to the existing env/registry-active
-// resolution, so a path-less / orphan-file call still degrades exactly as before.
+// (resolveRoomRoot -> '') do we fall back, first to the hook-contract room env
+// vars (shared with memory-artifact-graph-hook.cjs + memory-completion-detector.cjs)
+// and then to the Phase-194 CANONICAL resolveWriteRoom (Req 3). resolveWriteRoom's
+// own leg order (room-root, session.primary, reg.active) SUBSUMES the duplicated
+// registry read this hook used to carry, and adds session awareness for free.
 function resolveRoomDir(filePath) {
   // File-rooted resolution FIRST.
   if (typeof filePath === 'string' && filePath.length > 0) {
     try {
       const rooted = resolveRoomRoot(filePath);
       if (rooted && fs.existsSync(rooted)) return rooted;
-    } catch (_e) { /* fall through to env/registry */ }
+    } catch (_e) { /* fall through to env / canonical resolver */ }
   }
 
   const envRoom = process.env.CLAUDE_ROOM_DIR ||
@@ -104,16 +115,15 @@ function resolveRoomDir(filePath) {
                   '';
   if (envRoom && fs.existsSync(envRoom)) return envRoom;
 
+  // Canonical fallback (Req 3): the single audited resolveWriteRoom. Return its
+  // abs_path only when it exists on disk (T-224-10 existence check), else the
+  // empty string -- preserving the existing empty-string degrade contract.
   try {
-    const roomsRoot = process.env.MINDRIAN_ROOMS_ROOT ||
-                      process.env.MINDRIAN_ROOMS_HOME ||
-                      path.join(os.homedir(), 'MindrianRooms');
-    const regPath = path.join(roomsRoot, '.rooms', 'registry.json');
-    if (!fs.existsSync(regPath)) return '';
-    const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
-    if (!reg || !reg.active || !reg.rooms || !reg.rooms[reg.active]) return '';
-    const rd = path.resolve(roomsRoot, reg.rooms[reg.active].path || reg.active);
-    return fs.existsSync(rd) ? rd : '';
+    const wr = resolveWriteRoom({ filePath: filePath });
+    if (wr && typeof wr.abs_path === 'string' && wr.abs_path.length > 0 && fs.existsSync(wr.abs_path)) {
+      return wr.abs_path;
+    }
+    return '';
   } catch (_e) {
     return '';
   }
