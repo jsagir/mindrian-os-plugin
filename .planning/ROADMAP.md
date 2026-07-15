@@ -3303,7 +3303,7 @@ resolveRoomRoot()` locked as the already-shared contract rather than an open que
 Plans:
 
 - [x] 225-01-PLAN.md - Zero-score no-match F.8 gate branch in intent-classifier.cjs (emitNoMatchGate, PD-1/PD-3/PD-5) + proving_case_2 fire/silence tests + fail-open degrade test
-- [ ] 225-02-PLAN.md - doctor.cjs _walResetAdvisory (SQLite < 3.51.3 + live co-session WARN, never-block, PD-2: advisory only, no worker guard) + seam-injected test
+- [x] 225-02-PLAN.md - doctor.cjs _walResetAdvisory (SQLite < 3.51.3 + live co-session WARN, never-block, PD-2: advisory only, no worker guard) + seam-injected test [SHIPPED 2026-07-15: _walResetAdvisory + _sqliteVersionLt (zero-dep numeric-segment compare) wired into --bind-check as a findings-row only; report.healthy + exit(0) provably untouched; tests/test-225-wal-advisory.cjs 5 legs green (fire/no-fire version/no-fire co-session/never-crash/e2e never-block); REQ-4; commits 9169b5a3 feat + f37bdf21 test]
 - [ ] 225-03-PLAN.md - run-all-225.sh phase gate (3 run_if legs + unconditional run-all-194.sh regression leg) + run-feynman-tests registration + ENV-TUNING floor doc + rethinking-mindrianos compositing filing
 
 ### Phase 226: Eureka reasoning-mode fallback (SEED-058): give /mos:eureka a labeled, lower-confidence mode:reasoning path reading raw room markdown directly when the embedding index or room.db graph substrate is unavailable, instead of a hard pairs_scored:0 stop

@@ -3,18 +3,31 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 225-01-PLAN.md
-last_updated: "2026-07-15T10:40:55.757Z"
+stopped_at: Completed 225-02-PLAN.md
+last_updated: "2026-07-15T11:05:00.000Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 19
   total_plans: 109
-  completed_plans: 104
+  completed_plans: 105
   percent: 51
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 225 Plan 02 COMPLETE (2/3 plans) -- WAL-reset corruption doctor advisory: `doctor --bind-check` warns when bundled SQLite < 3.51.3 AND a live co-session is present, never-block, advisory-only
+
+Wave 1, disjoint from 225-01's zero-score gate. Closes the second Phase-225 gap: the Phase-218 WAL-reset corruption window (upstream SQLite 3.7.0-3.51.2 checkpoint race, fixed in 3.51.3, commit 298a1c84) is code-unfixable here because Node bundles SQLite, and the current environment (bundled 3.51.2) IS inside the affected range. The only honest action is detection.
+
+- **`_walResetAdvisory(opts)`** in `scripts/doctor.cjs`: fires a single WARN finding ONLY when `_sqliteVersionLt(version, '3.51.3')` AND a live co-session is present. `sqliteVersion` + `hasCoSession` are injectable test seams; production defaults resolve inside one try/catch (in-memory `node:sqlite` `sqlite_version()` probe holding zero user bytes; lazy `require` of `session-presence.cjs::hasCoSession` called with `{ roomDir, sessionId }` so the binding session never counts itself). Any fault -> null (never-crash, T-194-19).
+- **`_sqliteVersionLt(a, b)`**: zero-dep numeric-SEGMENT compare (not the file's `semver` import - a plain numeric triple needs no prerelease semantics); non-string input -> false. Defeats the lexicographic trap where `'3.51.10' < '3.51.3'` as strings.
+- **Never-block, provably:** wired into the existing `--bind-check` block AFTER the room-health-cache persist (statusline glyph maps the UNMODIFIED report), pushes onto `report.findings` only; `report.healthy` is never written and the unconditional `process.exit(0)` is byte-identical.
+- **PD-2 honored:** doctor advisory ONLY - NO extraction-worker guard (the drain-worker files are Phase 224's in-flight surface; the WAL-reset leg is upstream/detect-only anyway). Zero Phase-224 files touched.
+- **Test:** `tests/test-225-wal-advisory.cjs`, 5 legs green (fire / no-fire version incl. the 3.51.10 segment-compare leg / no-fire co-session / never-crash / e2e never-block spawn asserting exit 0). REQ-4 completed. Zero new deps; no em-dashes. No deviations.
+- **Commits:** `9169b5a3` feat (doctor.cjs), `f37bdf21` test, `d74610ce` docs (SUMMARY).
+- **Pre-existing acceptance baseline (NOT this plan's regressions):** `--acceptance` 13/15, the two failures `{coverage-gate (skill-mirrors sub-gate), verify-release-clean-tree (dashboard/graph.json dirty at session start)}` match the documented Phase-224 environmental baseline; my own surfaces (render-coverage, connector-registry) are green.
+- **NEXT:** Plan 225-03 (`run-all-225.sh` aggregator + `run-feynman-tests` registration + ENV-TUNING floor doc + rethinking-mindrianos compositing). SUMMARY: `.planning/phases/225-per-session-room-binding-and-multi-session-reconciliation-se/225-02-SUMMARY.md`.
 
 ## (2026-07-15) -- PHASE 224 Plan 04 COMPLETE (4/4 plans) -- aggregate phase gate: one command proves the whole phase green (Req 5 + Req 7 made permanent tripwires)
 
