@@ -40,12 +40,12 @@ created: 2026-07-15
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | TBD | Req 1 (derive on write) | — | related-pair fixture yields ≥1 typed edge; unrelated-pair fixture yields 0 | integration | `node tests/test-224-derive-on-write.cjs` | ❌ W0 | ⬜ pending |
+| TBD | TBD | TBD | Req 1 (derive on write) | — | related-pair fixture yields ≥1 typed edge; unrelated-pair fixture yields 0 | integration | `node tests/test-224-per-write-derive.cjs` | ❌ W0 | ⬜ pending |
 | TBD | TBD | TBD | Req 2 (backfill 0→N, idempotent) | — | b2-journey-shaped fixture 0→N; second run edge count unchanged | integration | `node tests/test-224-backfill-idempotent.cjs` | ❌ W0 | ⬜ pending |
 | TBD | TBD | TBD | Req 3 (resolver fallback) | — | no-sentinel fixture resolves identically to resolveWriteRoom() | unit | `node tests/test-224-resolver-fallback.cjs` | ❌ W0 | ⬜ pending |
 | TBD | TBD | TBD | Req 4 (proposed-only, edge review_status — OQ-1 navigator ruling 2026-07-15) | — | every derived edge row carries review_status='proposed'; confirm path requires byUser | unit | `node tests/test-224-proposed-only.cjs` | ❌ W0 | ⬜ pending |
 | TBD | TBD | TBD | Req 5 (Part 8 zero egress) | T-egress | grep gate: no fetch/https/child_process-network in new modules | static | grep leg inside `run-all-224.sh` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | Req 6 (O(n) scorer calls) | — | N existing + 1 new write triggers exactly N scoreMeasured calls (injection-counted) | unit | `node tests/test-224-scorer-call-count.cjs` | ❌ W0 | ⬜ pending |
+| TBD | TBD | TBD | Req 6 (O(n) scorer calls) | — | N existing + 1 new write triggers exactly N scoreMeasured calls (injection-counted) | unit | `node tests/test-224-cost-bound.cjs` | ❌ W0 | ⬜ pending |
 | TBD | TBD | TBD | Req 7 (structural gates) | — | build-connector-registry --check, check-shape-declaration, doctor --acceptance all exit 0 | gate | legs inside `run-all-224.sh` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
@@ -54,7 +54,7 @@ created: 2026-07-15
 
 ## Wave 0 Requirements
 
-- [ ] `tests/test-224-derive-on-write.cjs` — fixture-room helper + related/unrelated pair stubs (Req 1)
+- [ ] `tests/test-224-per-write-derive.cjs` — fixture-room helper + related/unrelated pair stubs (Req 1; filename synced to 224-02-PLAN.md)
 - [ ] `tests/test-224-backfill-idempotent.cjs` — b2-journey-shaped fixture builder (Req 2)
 - [ ] Migration test leg for the edges review_status column (OQ-1 ruling: literal SPEC wording, phase-222 migration pattern) — double-run idempotency proof
 - [ ] `tests/run-all-224.sh` — aggregate harness scaffold (copy run-all-222.sh shape)

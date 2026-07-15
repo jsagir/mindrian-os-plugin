@@ -412,9 +412,18 @@ producer.
 | A4 | Leaving the Phase-169 Stop-sweep + SessionStart-drain registered is harmless alongside the new per-write trigger | Runtime Inventory | If double-derivation causes contention, gate one off (idempotent upsert makes duplicates safe) |
 | A5 | Stored per-artifact vectors may be ABSENT (Step 2 does structural, not tri-modal, indexing) | Pitfall 4 | If assumed present, the cheap path silently falls back to re-embedding; backgrounding absorbs the cost |
 
-## Open Questions
+## Open Questions (ALL RESOLVED — see resolution notes per item; do not re-litigate at execution)
 
-1. **review_status on the NODE vs the EDGE (the one design fork the plan must resolve).**
+> RESOLUTION SUMMARY (2026-07-15, post-plan-check): OQ-1 resolved by an explicit navigator ruling
+> recorded as D-05 in 224-CONTEXT.md — review_status lands LITERALLY ON THE EDGES TABLE via a
+> phase-222-pattern migration (ALTER TABLE edges ADD COLUMN review_status TEXT DEFAULT NULL;
+> NULL = not-a-proposal; legacy rows never demoted or promoted). The recommendation below
+> (node-status model) was considered and OVERRIDDEN at an AskUserQuestion gate — the same
+> navigator-decides pattern as Phase 222's OQ-1. OQ-2 and OQ-3 resolved by 224-02-PLAN.md's
+> must_haves: the Phase-169 Stop-sweep and SessionStart-drain stay registered and now ride the
+> same score-based deriveFn.
+
+1. **(RESOLVED — D-05 navigator ruling, edge column) review_status on the NODE vs the EDGE (the one design fork the plan must resolve).**
    - What we know: `edges` has no review_status column; the repo convention (graph-derivation.cjs)
      puts review_status on a proposed claim NODE, edge properties enum-only. The SPEC Req 1/4 says
      "writes each resulting edge ... with review_status: 'proposed'".
