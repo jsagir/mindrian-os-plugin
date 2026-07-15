@@ -22,3 +22,9 @@ Not fixed here: out of scope (Phase 224 migration wiring in shipped test paths,
 not this plan's files). The plan's own two legs are green:
 `node tests/test-223-hat-governance.cjs` (10 checks) and
 `node tests/test-223-part8-egress.cjs` (4 checks).
+
+## 223-02 (close-loop-writer)
+
+- **run-all-164.sh 17/3 (pre-existing):** stale canon-version assertion + test-issue-tree-edge-remap + test-bono-verdict. Phase-224 review_status schema drift; import ZERO 223-02 files. Confirmed unchanged by 223-02 (additive-only). Not ours (additional_notes explicit).
+- **test-219-banking.cjs Test 4 (pre-existing):** linkOpportunityEvidence DERIVED_FROM edge assertion fails on the fresh edges schema (Phase-224 review_status drift, same class as run-all-219 11/2 documented in 226-02). Verified pre-existing by running the test against the HEAD (pre-223-02) opportunity-ops.cjs -- it fails identically. My bankOpportunity change is additive frontmatter emit ONLY; it cannot touch linkOpportunityEvidence/writeEdge.
+- **opportunity-ops.cjs:769 em-dash (pre-existing):** `// Source may not exist — proceed with defaults` from commit eb59231b (Phase 13-03), far from the 223-02 additive block. My additions are em-dash clean (git diff verified).
