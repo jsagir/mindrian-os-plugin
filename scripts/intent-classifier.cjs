@@ -529,7 +529,13 @@ function main() {
   // (REQ-1). On a zero score best.name is corpus[0] (semantically meaningless,
   // Pitfall 1), so the gate NEVER reuses it (REQ-2). Every path terminates in
   // `return 0`; the whole branch is wrapped fail-open (REQ-3, Canon 83-07).
-  if (!best || best.score === 0) {
+  //
+  // IN-01 fix (Phase 225 REVIEW-FIX): `best` is guaranteed non-null here, not
+  // merely defensive -- `corpus.length === 0` (line 499) and
+  // `messageTokens.length === 0` (line 502) both return early above, so the
+  // scoring loop (lines 508-519) always executes at least one iteration and
+  // always assigns `best` on its first pass. No `!best` guard needed.
+  if (best.score === 0) {
     try {
       // PD-3 substantiality floor: short zero-score messages are common; gating each
       // would repeat the Phase-210 over-enforcement mistake.
