@@ -238,6 +238,22 @@ acceptance criterion to check room.db directly instead of the markdown bank roll
 scoping the bridge itself as this phase's Requirement 7. Planner/executor MUST NOT assume
 this wiring exists; treat it as an open blocker, not an implementation detail.
 
+**2026-07-15, navigator-directed: does Phase 224/SEED-034 (in progress) resolve this?
+Checked directly against `.planning/seeds/SEED-034-graph-derivation-harness.md` -- NO, not
+as currently scoped.** SEED-034's four broken pipes are all ONE direction: normal markdown
+writes never getting indexed/derived into room.db's typed graph (the "moat is empty"
+problem). This Requirement 4 gap is the OPPOSITE direction: `navigation.cjs`'s
+`writeOpportunityNode` already writes to room.db correctly; `compute-opportunity-state` ->
+`opportunity-ops.cjs` never reads room.db at all (confirmed: zero `db.`/`openRoomDb`/
+`navigation` references in that file), only `room/opportunity-bank/*.md` frontmatter. These
+are inverse gaps in the same general "graph and filesystem are disconnected" family, but
+Phase 224 shipping does NOT automatically close this one. ROADMAP.md's existing "Real,
+bidirectional risk with Phase 224/SEED-034" paragraph already flagged the READ-side risk
+(223 reasoning over a thin graph before 224 populates it) -- this is a THIRD, WRITE-side risk
+the roadmap entry did not yet name. Sequencing (224 before 223) still holds and is worth
+waiting for regardless, but do not assume it closes Requirement 4's specific gap without a
+separate, explicit check once 224 ships.
+
 **Req 3's calibrate-then-fan sequence has an undisclosed reinforcing loop (non-blocking,
 worth a guardrail).** `lib/hmi/jtbd-state.cjs`'s `setCurrent` is called once, before research
 dimensions are derived from that same JTBD value (per Requirement 3's own sequence:
