@@ -49,6 +49,9 @@ const REFRAME =
   + 'about transportation and mobility planning for a mid sized city';
 // A short zero-score message (< 8 surviving tokens): thanks/again/everyone/great/work.
 const SHORT = 'thanks again everyone great work';
+// WR-02: 8 RAW tokens (clears a raw-count floor) but only 1 DISTINCT token
+// ('ok' is not a stopword and has length >= 2, so it survives tokenize()).
+const REPEATED_TRIVIAL = 'ok ok ok ok ok ok ok ok';
 // A message rich in quantum-bakery fingerprint tokens (score > 0, on-scope), with NO
 // room-name adjacency so it cannot trip the strict-mode slug path.
 const MATCHED = 'let us review the sourdough croissant oven baking schedule today please';
@@ -221,6 +224,33 @@ try {
     assert.strictEqual(res.status, 0, 'exit 0; got ' + res.status + ' stderr=' + res.stderr);
     const out = res.stdout || '';
     assert.ok(out.indexOf('no room matched') === -1, 'short message does not fire the gate');
+  });
+
+  // -------------------------------------------------------------------------
+  // Leg 3b (225-REVIEW-FIX WR-02 regression): the anti-overfire floor must be
+  // measured against DISTINCT surviving tokens, not the raw (duplicate-
+  // inclusive) count -- a trivial, repetitive message that only clears a raw
+  // count must NOT fire the gate. Uses a FRESH session id (never offered
+  // before) so the PD-1 once-per-session suppression cannot mask a WR-02
+  // regression by suppressing the gate for an unrelated reason.
+  // -------------------------------------------------------------------------
+  check('leg 3b WR-02: a repetitive trivial message does not clear the distinct-token floor', () => {
+    const wr02Session = 'sess-225-zeroscore-wr02';
+    writeSessionBinding(wr02Session, { bound: [PRIMARY], primary: PRIMARY }, { home: home });
+    const res = spawnSync(process.execPath, [CLASSIFIER], {
+      input: JSON.stringify({ prompt: REPEATED_TRIVIAL }),
+      encoding: 'utf8',
+      env: Object.assign({}, process.env, {
+        MINDRIAN_ROOMS_ROOT: home,
+        MINDRIAN_ROOMS_HOME: home,
+        CLAUDE_SESSION_ID: wr02Session,
+      }),
+      timeout: 30000,
+    });
+    assert.strictEqual(res.status, 0, 'exit 0; got ' + res.status + ' stderr=' + res.stderr);
+    const out = res.stdout || '';
+    assert.ok(out.indexOf('no room matched') === -1,
+      '8 raw tokens but 1 distinct token must NOT clear the floor (WR-02 fix)');
   });
 
   // -------------------------------------------------------------------------

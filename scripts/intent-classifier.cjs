@@ -533,7 +533,18 @@ function main() {
     try {
       // PD-3 substantiality floor: short zero-score messages are common; gating each
       // would repeat the Phase-210 over-enforcement mistake.
-      if (messageTokens.length >= ZERO_SCORE_GATE_MIN_TOKENS) {
+      //
+      // WR-02 fix (Phase 225 REVIEW-FIX): measure DISTINCT surviving tokens
+      // (messageTokenSet.size), not the raw duplicate-inclusive count
+      // (messageTokens.length). The floor's stated intent (docs/ENV-TUNING.md
+      // PD-3: "a trivial acknowledgement... must NOT fire the gate") is a
+      // SUBSTANTIALITY check -- a message needs real distinct content, not just
+      // enough words. Counting raw tokens let a trivial, repetitive message like
+      // "ok ok ok ok ok ok ok ok" (8 raw tokens, 1 distinct) clear an 8-token
+      // floor and fire the interruptive gate, exactly the over-enforcement this
+      // floor exists to prevent. messageTokenSet is already built one line above
+      // (line 503) for the scoring loop; reusing it here costs nothing extra.
+      if (messageTokenSet.size >= ZERO_SCORE_GATE_MIN_TOKENS) {
         const roomDir = resolveActiveRoomDir();
         const sessionId = resolveSessionId(roomDir);
         const binding = require(
