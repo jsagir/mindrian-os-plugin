@@ -173,8 +173,24 @@ try {
       const rC = db4.prepare('SELECT review_status, properties FROM edges WHERE source = ? AND target = ? AND type = ?')
         .get('n:c1', 'n:c2', 'CONVERGES');
       assert.strictEqual(rC.review_status, 'confirmed', 'a confirmed edge must NEVER be downgraded on re-write');
-      // properties DO update on conflict (the existing contract).
-      assert.ok(rC.properties.includes('high semantic similarity'), 'properties should update on conflict');
+      // WR-06 (Phase 224 review): a CONFIRMED edge's PROPERTIES are protected
+      // from the background re-derive clobber too -- the upsert's DO UPDATE is
+      // guarded WHERE review_status IS NOT 'confirmed'.
+      assert.ok(!rC.properties.includes('high semantic similarity'),
+        "a confirmed edge's properties must NOT be clobbered by a proposed re-write");
+      assert.ok(rC.properties.includes('derived'),
+        "a confirmed edge's original properties must survive the re-write");
+      // A NON-confirmed (proposed/NULL) edge KEEPS the update-on-conflict
+      // contract: re-write the still-proposed n:p1 edge with new properties.
+      const reP = navigation.writeEdge(db4, {
+        source_id: 'n:p1', target_id: 'n:p2', edge_type: 'CONVERGES',
+        properties: { relation: 'derived', reason: 'updated reason scalar' }, review_status: 'proposed',
+      });
+      assert.ok(reP && reP.ok, 'proposed re-write must succeed');
+      const rP2 = db4.prepare('SELECT properties FROM edges WHERE source = ? AND target = ? AND type = ?')
+        .get('n:p1', 'n:p2', 'CONVERGES');
+      assert.ok(rP2.properties.includes('updated reason scalar'),
+        "a proposed edge's properties still update on conflict (pre-224 contract)");
     });
   } finally {
     closeRoomDb(db4);
