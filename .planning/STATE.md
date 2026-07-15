@@ -4,14 +4,14 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: Phase 223 COMPLETE 5/5 - gate PASS=18; release cut approved, parked on huji-eval.cjs tree-quiet
-last_updated: "2026-07-15T21:45:33.122Z"
+last_updated: "2026-07-15T22:53:04.805Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
-  completed_phases: 22
+  completed_phases: 23
   total_plans: 132
-  completed_plans: 121
-  percent: 59
+  completed_plans: 127
+  percent: 62
 ---
 
 # Project State
@@ -1112,8 +1112,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 229 (HUJI Pitch Feedback Module) — EXECUTING
-Plan: 5 of 9
+Phase: 228
+Plan: Not started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1580,7 +1580,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 15
+- Total plans completed: 20
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -1696,6 +1696,7 @@ Progress: [█████████░] 92%
 | Phase 229 P03 | ~35min | 3 tasks | 1 files |
 | Phase 229 P04 | 22 | 2 tasks | 8 files |
 | Phase 227 P03 | 8min | 1 tasks | 1 files |
+| 227 | 5 | - | - |
 
 ## Accumulated Context
 
