@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15.0
-milestone_name: "The Cockpit" milestone -- the UX/dial train
+milestone_name: The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 223 Plan 02 COMPLETE (Wave 1)
-last_updated: "2026-07-15T20:27:46.010Z"
+stopped_at: Phase 223 planned (5 plans, 4 waves, plan-check PASS)
+last_updated: "2026-07-15T20:47:16.008Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37

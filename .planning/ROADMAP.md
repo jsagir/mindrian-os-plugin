@@ -3089,14 +3089,34 @@ Plans:
 
 ### Phase 229: HUJI Pitch Feedback Module
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Turn each student diarized 5-minute pitch transcript into one Minto-structured formative feedback artifact, batch-orchestrated across 200+ HUJI submissions at a $4-5/unit ceiling, with local-only scoring (Brain read-only, generic handles per Canon Part 8) and a mandatory human calibration checkpoint. MindrianOS first paying job.
+**Requirements**: net-new business-opportunity phase; no REQUIREMENTS.md REQ-IDs mapped. Requirement axis = the AI-SPEC 10 evaluation dimensions D1-D10 (distributed across the plans) + the 5 build seams.
 **Depends on:** Phase 228
-**Plans:** 0 plans
-
+**Plans:** 9 plans
 Plans:
+**Wave 1**
 
-- [ ] TBD (run /gsd-plan-phase 229 to break down)
+- [ ] 229-01-PLAN.md -- Evidence + feedback zod schemas + JSON Schema generation + 5 open-question resolution (CONTRACTS.md) [D1,D2,D5,D9]
+- [ ] 229-02-PLAN.md -- Test scaffolding: labeled inventories + synthetic probes + run-all-229.sh aggregator [D2,D3,D8,D10]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 229-03-PLAN.md -- huji-eval.cjs deterministic code checks (quote-verifier/recall/drift/schema/similarity/cost/part8-hygiene) [D1,D2,D3,D4,D5,D8,D9]
+- [ ] 229-04-PLAN.md -- PWS_grading recipe (recipe-maps + pipelines/PWS_grading) + score-and-continue rubric [D3,D5,D7]
+- [ ] 229-05-PLAN.md -- Stage A intake adapter (fusion Mode A port + writeClaimNode room-builder) [D1,D2]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 229-06-PLAN.md -- LLM judge spawner + calibration protocol (anchor hygiene, fails closed <0.7) [D1,D3,D6,D7]
+- [ ] 229-07-PLAN.md -- Single-submission runner + scratch-room scaffold + per-unit guardrails G1/G2/G4/G6 [D1,D3,D4,D9,D10]
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 229-08-PLAN.md -- Batch orchestrator: pool + ledger + resume + retry + G3/G5 halt + aggregation + D10 test [D3,D4,D9,D10]
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 229-09-PLAN.md -- Demo run + Amnon verdict checkpoint + HUJI calibration workshop [D6,D7]
 
 ---
 
