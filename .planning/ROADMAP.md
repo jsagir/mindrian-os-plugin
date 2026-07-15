@@ -3308,8 +3308,8 @@ Plans:
 
 ### Phase 226: Eureka reasoning-mode fallback (SEED-058): give /mos:eureka a labeled, lower-confidence mode:reasoning path reading raw room markdown directly when the embedding index or room.db graph substrate is unavailable, instead of a hard pairs_scored:0 stop
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** /mos:eureka on a cold machine (encoder never fetched) or a thin room no longer dead-ends at pairs_scored:0 - it produces a REAL, short, honestly-labeled mode:reasoning ranked list from raw room markdown, at full Grounding-Guard rubric rigor, where the lower confidence comes ONLY from the missing encoder legs (differential_score and semantic_similarity structurally null, never fabricated), banked can never become true, the degrade cause is named (encoder_unavailable / below_floor, the David fix), the mode label rides every surface (md render caveat zone, JSON provenance.run_mode, /mos:eureka html export), and a later embedded re-run surfaces the upgrade delta.
+**Requirements**: local REQ-1..REQ-8 grounded in 226-AI-SPEC.md (no global REQ ids exist for this phase): REQ-1 fabricated-number prohibition (D1/G-1, the phase's highest-stakes property, deterministic null assertion); REQ-2 critic-bar parity (D3/G-2); REQ-3 output-shape byte-parity (D4/G-5); REQ-4 working-diagnosis posture, banked never true (D5/G-3, Part 9); REQ-5 mode disclosure on every consumer incl. html (D6/G-4); REQ-6 honest-reason degrade message (D7); REQ-7 bounded pair-cap cost (D8/G-6); REQ-8 additive non-speculative entry condition (SEED reqs 2+7).
 **Depends on:** Phases 210-224 (navigator-directed 2026-07-15, research requirement, not
 a strict block). Most directly relevant: Phases 211-216, the eureka engine itself -- this
 phase's fallback path must read the SAME room's raw markdown the tri-modal generator
@@ -3340,11 +3340,14 @@ critic is even invoked. A "lighter version" of the critic is not a scoping knob 
 one -- 2 of its 3 numeric inputs are structurally unavailable in exactly the scenario 226 targets,
 so it needs a genuinely new scoring path (only lexical-overlap "lsa_similarity" survives). Resolve
 this at spec-phase before committing to "reuse Phase 212's critic, lighter" as the design.
-**Plans:** 0 plans
+**Plans:** 4 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 226 to break down)
+- [ ] 226-01-PLAN.md - reasoning-mode core module (readRoomMarkdown, Jaccard pre-filter + cap, Stage B rubric via session-judge seam, statement assembly, assertReasoningInvariants) + the D1 null-legs test written FIRST + the >= 12 fixture set
+- [ ] 226-02-PLAN.md - the mode:reasoning branch inside eureka-portfolio-report.cjs async main (stage dispatch, degrade seeding on the negated idx.embedded gate, byte-parity writer with G-1 assertion, honest-cause render, banking hard-skip, upgrade delta) + D4/D7 tests
+- [ ] 226-03-PLAN.md - mode disclosure surfaces: report-html.cjs De Stijl export, eureka-command html/reasoning-prompts/reasoning-score subcommands, commands/eureka.md faithful-judge protocol + D6 three-surface test
+- [ ] 226-04-PLAN.md - D5/D8/D3-negative legs, tests/run-all-226.sh phase gate, TEST_FILES registration, ENV-TUNING + CANON-PHASE-MAP docs, navigator calibration checkpoint (David proving case)
 
 ### Phase 227: Ignite / mode-select timing across turns 1-4 (SEED-060): close intern-w1-mode-gate-skip's own remaining item (a code-level firing checkpoint for the Turn-1 lane pick), close ignite-frontdoor-bypassed-methodology-overfire's remaining items 2 and 4, and add ignite/B2/mode-select to skills/larry-personality/SKILL.md with Hooked-Model timing reasoning
 
