@@ -126,6 +126,12 @@ const navigation = require(path.join(REPO_ROOT, 'lib/core/navigation.cjs'));
 // entity-node type family, reused (never re-derived) from its one source of
 // truth. See the "stratified cohort" comment at its call site below.
 const { ENTITY_NODE_TYPES } = require(path.join(REPO_ROOT, 'lib/core/navigation/typed-entity.cjs'));
+// Phase 226-02: the encoder-free reasoning-mode core (plan 01). The mode:reasoning
+// branch below calls its readRoomMarkdown / proposeCandidatePairs / validateMappings /
+// emitReasoningPrompts / scoreReasoningPairs / buildReasoningStatement /
+// assertReasoningInvariants surface. Additive: never touched unless the embedded
+// attempt genuinely degraded (idx.embedded !== true or scored.length === 0).
+const reasoningMode = require(path.join(REPO_ROOT, 'lib/core/eureka/reasoning-mode.cjs'));
 
 const DEFAULT_GRAPH = 'evals/eureka/jhtv-idea-graph.json';
 const PROGRESS_EVERY = 100000; // full mode over a big room is ~millions of pairs
@@ -144,6 +150,14 @@ function parseArgv(argv) {
     out: 'evals/eureka/215-portfolio-report.md',
     json: 'evals/eureka/215-portfolio-report.json',
     brokerage: '',
+    // Phase 226-02 reasoning-mode stage flags (all additive; default off/empty so
+    // a normal run is byte-identical).
+    reasoningEmit: false,
+    reasoningScore: false,
+    mappings: '',
+    answers: '',
+    reasoningWorkdir: '',
+    forceEncoderUnavailable: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
@@ -156,6 +170,13 @@ function parseArgv(argv) {
       case '--out': opts.out = argv[i += 1]; break;
       case '--json': opts.json = argv[i += 1]; break;
       case '--brokerage': opts.brokerage = argv[i += 1]; break;
+      // Phase 226-02: the reasoning-mode stage dispatch + its inputs.
+      case '--reasoning-emit': opts.reasoningEmit = true; break;
+      case '--reasoning-score': opts.reasoningScore = true; break;
+      case '--mappings': opts.mappings = argv[i += 1]; break;
+      case '--answers': opts.answers = argv[i += 1]; break;
+      case '--reasoning-workdir': opts.reasoningWorkdir = argv[i += 1]; break;
+      case '--force-encoder-unavailable': opts.forceEncoderUnavailable = true; break;
       case '-h':
       case '--help': opts.help = true; break;
       default: break;
@@ -183,6 +204,17 @@ const HELP = [
   '  --out <md>            [evals/eureka/215-portfolio-report.md]   markdown report',
   '  --json <json>         [evals/eureka/215-portfolio-report.json] JSON sibling (Plan 05 reads this)',
   '  --brokerage <json>    [<none>]   optional id -> [0,1] Burt-brokerage map (the DG-1 seam)',
+  '',
+  'Reasoning-mode (Phase 226) - the encoder-free fallback stages (entered only AFTER a',
+  'genuine embedded run degraded; the normal run seeds the workdir):',
+  '  --reasoning-emit                 stage 2: read pairs.json + the session-written mappings.json,',
+  '                                   write neutral/adversarial rubric prompts, then stop',
+  '  --reasoning-score                stage 3: replay the session answers through the real rubric,',
+  '                                   write the SAME md+json report labeled mode:reasoning',
+  '  --mappings <path>     [<workdir>/mappings.json]  session-written mechanism+mapping per pair',
+  '  --answers <path>      [<workdir>/answers.json]   session-written neutral+adversarial answers',
+  '  --reasoning-workdir <dir> [<db>/.mindrian/eureka/reasoning]  the reasoning stage state dir',
+  '  --force-encoder-unavailable      test seam: force idx.embedded !== true so the degrade path runs',
   '  --help                           show this help',
 ].join('\n');
 
@@ -592,6 +624,123 @@ function renderReport(ctx) {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 226-02: the reasoning-mode render (a sibling of renderReport, NOT a
+// duplicate of the embedded tables). It leads with the confidence caveat, shows
+// the ONE surviving number (lsa_similarity), and NEVER renders a differential /
+// semantic / AHP score column (a fabricated-number column is the D1 lie in render
+// form). D6: every row it renders must be mode:'reasoning' (asserted below).
+// ---------------------------------------------------------------------------
+
+function renderReasoningReport(ctx) {
+  const L = [];
+  const p = ctx.provenance || {};
+  const ranked = Array.isArray(ctx.ranked) ? ctx.ranked : [];
+  const statements = Array.isArray(ctx.statements) ? ctx.statements : [];
+
+  // D6 never-merge guard (one line, in code): this render only ever shows
+  // reasoning-mode rows; an embedded row here would be a merged-list bug.
+  for (let i = 0; i < ranked.length; i += 1) {
+    if (ranked[i].mode !== 'reasoning') {
+      throw new Error('renderReasoningReport: ranked row ' + i + " is not mode:'reasoning' (D6 never-merge)");
+    }
+  }
+  for (let i = 0; i < statements.length; i += 1) {
+    if (statements[i].mode !== 'reasoning') {
+      throw new Error('renderReasoningReport: statement row ' + i + " is not mode:'reasoning' (D6 never-merge)");
+    }
+  }
+
+  L.push('# Phase 226 Eureka Portfolio Report (reasoning mode)');
+  L.push('');
+
+  // -- The PROMINENT caveat block, FIRST, before provenance (the anti-overconfidence
+  //    antidote: stated once, up front, never a footer). Names all five elements. --
+  L.push('## Read this first (reasoning-mode caveat)');
+  L.push('');
+  L.push('1. This is a REASONING-MODE result: lower confidence BY BASIS, not a verdict. The pairs');
+  L.push('   below are a short working diagnosis, not a finished ranked list.');
+  L.push('2. WHY the basis is weak: the embedding encoder was unavailable (degrade cause: `'
+    + String(p.degrade_cause) + '`), so 2 of the critic\'s 3 numeric legs (differential_score and');
+  L.push('   semantic_similarity) are structurally null. Only the lexical overlap (Jaccard,');
+  L.push('   lsa_similarity) is a real number here.');
+  L.push('3. The analogy bar was NOT lowered: the SAME six-item structure-mapping rubric ran twice');
+  L.push('   (neutral + adversarial) and the verdict was computed by code, exactly as embedded mode.');
+  L.push('4. Nothing here is banked or confirmed. Acting on any pair is a human decision (Canon Part 9:');
+  L.push('   human-only promotion); banked is false on every row.');
+  L.push('5. Re-running after the encoder is installed upgrades this room to embedded mode and shows');
+  L.push('   the reasoning -> embedded delta, rather than silently replacing this result.');
+  L.push('');
+
+  // -- Provenance (reusing the renderReport table idiom, reasoning fields only). --
+  L.push('## Provenance');
+  L.push('');
+  L.push('| Field | Value |');
+  L.push('| ----- | ----- |');
+  L.push('| Run mode | ' + p.run_mode + ' |');
+  L.push('| Degrade cause | ' + p.degrade_cause + ' |');
+  L.push('| Formula version | ' + p.formula_version + ' |');
+  L.push('| Entries read | ' + p.entries_read + ' |');
+  L.push('| Pairs considered / sent / cap | ' + p.pairs_considered + ' / ' + p.pairs_sent + ' / ' + p.reasoning_cap + ' |');
+  L.push('| Rejected by rubric (pseudoscience / restatement / general_shallow) | '
+    + (p.pairs_rejected_by_rubric ? p.pairs_rejected_by_rubric.pseudoscience : 'n/a') + ' / '
+    + (p.pairs_rejected_by_rubric ? p.pairs_rejected_by_rubric.restatement : 'n/a') + ' / '
+    + (p.pairs_rejected_by_rubric ? p.pairs_rejected_by_rubric.general_shallow : 'n/a') + ' |');
+  L.push('| Banking | ' + p.banking + ' |');
+  L.push('| Run date | ' + p.run_date + ' |');
+  L.push('');
+
+  // -- Ranked (reasoning mode). NEVER a differential / semantic / AHP score column. --
+  L.push('## Ranked top ' + ctx.top + ' (reasoning mode)');
+  L.push('');
+  L.push('Ordered ascending by lexical overlap. LOW lexical overlap on a pair the rubric still');
+  L.push('cleared is the eureka signature: shared meaning the vocabulary hides.');
+  L.push('');
+  if (ranked.length === 0) {
+    L.push('_No pair cleared the two-pass rubric this run (an honest short/empty reasoning result)._');
+    L.push('');
+  } else {
+    L.push('| rank | pair (A x B) | lsa_similarity | verdict | mode |');
+    L.push('| ---- | ------------ | -------------- | ------- | ---- |');
+    for (let i = 0; i < ranked.length; i += 1) {
+      const r = ranked[i];
+      L.push('| ' + r.rank
+        + ' | ' + truncate(String(r.a_title || r.a), 30) + ' x ' + truncate(String(r.b_title || r.b), 30)
+        + ' | ' + fmt(r.lsa_similarity, 3)
+        + ' | ' + r.verdict
+        + ' | ' + r.mode
+        + ' |');
+    }
+    L.push('');
+  }
+
+  // -- Statements: each text with its mode + banked:false visible. --
+  L.push('## Statements');
+  L.push('');
+  if (statements.length === 0) {
+    L.push('_No statement candidates this run._');
+    L.push('');
+  } else {
+    for (let i = 0; i < statements.length; i += 1) {
+      const s = statements[i];
+      L.push('### ' + (i + 1) + '. rank ' + s.rank + ' -- ' + s.a + ' x ' + s.b);
+      L.push('');
+      L.push(s.text);
+      L.push('');
+      L.push('| Field | Value |');
+      L.push('| ----- | ----- |');
+      L.push('| Mode | ' + s.mode + ' |');
+      L.push('| Banked | ' + String(s.banked) + ' |');
+      L.push('| Critic verdict | ' + s.critic + ' |');
+      L.push('| lsa_similarity (' + s.lexical_method + ') | ' + fmt(s.lsa_similarity, 3) + ' |');
+      L.push('| Potential | ' + s.potential_tier + ' |');
+      L.push('');
+    }
+  }
+
+  return L.join('\n') + '\n';
+}
+
+// ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
 
@@ -601,6 +750,12 @@ async function main(argv) {
     process.stdout.write(HELP + '\n');
     return 0;
   }
+
+  // Phase 226-02 stage dispatch (TOP of main, before the AHP load): the emit and
+  // score stages read the workdir a genuine degrade run already seeded; neither
+  // opens the encoder nor re-runs the embedded pipeline (SEED req 7: additive).
+  if (opts.reasoningEmit) return reasoningStageEmit(opts);
+  if (opts.reasoningScore) return reasoningStageScore(opts);
 
   const roomDir = path.isAbsolute(opts.db) ? opts.db : path.join(REPO_ROOT, opts.db);
   const graphPath = path.isAbsolute(opts.graph) ? opts.graph : path.join(REPO_ROOT, opts.graph);
@@ -653,7 +808,14 @@ async function main(argv) {
       convergesPairs = sub.convergesPairs;
     }
     const encodeFn = opts.offline ? stubEncode : undefined;
-    const idx = await triModal.indexNodes(db, { encodeFn: encodeFn, roomDir: roomDir });
+    // Phase 226-02 degrade-test seam: forward _forceUnavailable ONLY when the flag
+    // is set, so an unset run passes undefined and stays byte-identical (the plan-01
+    // tri-modal forwarding). Set -> idx.embedded !== true even on a model-cached box.
+    const idx = await triModal.indexNodes(db, {
+      encodeFn: encodeFn,
+      roomDir: roomDir,
+      _forceUnavailable: opts.forceEncoderUnavailable ? true : undefined,
+    });
 
     // (3) HARD GATE (T-215-09, the 211 fix class): score ONLY when this run
     // freshly embedded. Stale eureka_vec rows from an earlier offline run must
@@ -971,6 +1133,14 @@ async function main(argv) {
         + bank.reason + (bank.detail ? ': ' + bank.detail : '') + ') - rolled back, report files unaffected\n');
     }
 
+    // Phase 226-02 degrade seeding (SEED req 2: evaluated ONLY after the genuine
+    // embedded attempt ran). degradeCause is derived from the SAME booleans the
+    // embedded path already computed - idx.embedded and scored.length - never a
+    // second gate variable. On a non-null cause it seeds pairs.json + a reasoning
+    // provenance block; on a healthy run it is a no-op (degrade_cause null, no
+    // workdir written).
+    const seed = reasoningStageSeed(opts, { embedded: idx.embedded === true, scoredLength: scored.length });
+
     const prov = spine.encoderProvenance();
     const provenance = {
       run_mode: opts.offline ? 'offline (deterministic stub encoder)' : 'live (local embedding spine)',
@@ -1009,7 +1179,17 @@ async function main(argv) {
         : '(none stated in graph meta)',
       encoder_unavailable: idx.embedded !== true,
       run_date: new Date().toISOString().slice(0, 10),
+      // Phase 226-02 (D7): name the CAUSE of a degrade, not just the symptom.
+      // null on a healthy run (the render then shows no degrade block).
+      degrade_cause: seed.degrade_cause,
     };
+    // The reasoning next-step block (only when a genuine degrade seeded the workdir).
+    if (seed.reasoning) provenance.reasoning = seed.reasoning;
+
+    // Phase 226-02 (SEED req 5): on the EMBEDDED success path, if a prior report at
+    // jsonPath was written in reasoning mode, surface the reasoning -> embedded delta
+    // instead of silently replacing it. Never throws; no upgrade key on any failure.
+    if (idx.embedded === true) buildUpgradeDelta(jsonPath, provenance, ranked);
 
     const report = renderReport({
       provenance: provenance,
@@ -1269,6 +1449,301 @@ function bankStatements(db, sessionId, statements, opts) {
   return { ok: true, banked: banked, edges: edges, skipped: skipped, predicate: mode };
 }
 
+// ---------------------------------------------------------------------------
+// Phase 226-02: the mode:reasoning fallback branch (encoder-free).
+//
+// Three stages mirror the eureka-critic-run.cjs --emit-prompts / --score split (a
+// CLI cannot judge itself): (1) the NORMAL run's degrade SEED writes pairs.json
+// when the genuine embedded attempt proved idx.embedded !== true or scored 0
+// pairs; (2) --reasoning-emit reads the session-written mappings.json and writes
+// rubric prompts; (3) --reasoning-score replays the session answers through the
+// REAL critic rubric and writes the SAME { provenance, ranked, tail, statements }
+// md+json pair, labeled mode:reasoning with honest-null encoder legs.
+// ---------------------------------------------------------------------------
+
+// Resolve the reasoning-stage paths from opts once (roomDir, workdir, mappings,
+// answers, and the SAME default report locations the embedded run writes so the
+// eureka-command report subcommand reads them unchanged - byte-parity of location).
+function resolveReasoningPaths(opts) {
+  const roomDir = path.isAbsolute(opts.db) ? opts.db : path.join(REPO_ROOT, opts.db);
+  const workdir = opts.reasoningWorkdir
+    ? (path.isAbsolute(opts.reasoningWorkdir) ? opts.reasoningWorkdir : path.join(REPO_ROOT, opts.reasoningWorkdir))
+    : path.join(roomDir, '.mindrian', 'eureka', 'reasoning');
+  const mappingsPath = opts.mappings
+    ? (path.isAbsolute(opts.mappings) ? opts.mappings : path.join(REPO_ROOT, opts.mappings))
+    : path.join(workdir, 'mappings.json');
+  const answersPath = opts.answers
+    ? (path.isAbsolute(opts.answers) ? opts.answers : path.join(REPO_ROOT, opts.answers))
+    : path.join(workdir, 'answers.json');
+  const outPath = path.isAbsolute(opts.out) ? opts.out : path.join(REPO_ROOT, opts.out);
+  const jsonPath = path.isAbsolute(opts.json) ? opts.json : path.join(REPO_ROOT, opts.json);
+  return {
+    roomDir: roomDir, workdir: workdir, mappingsPath: mappingsPath,
+    answersPath: answersPath, outPath: outPath, jsonPath: jsonPath,
+  };
+}
+
+// reasoningStageSeed(opts, ctx) -- the degrade entry, called from the NORMAL run
+// AFTER the scoring loop and BEFORE provenance assembly. ctx = { embedded,
+// scoredLength }, both taken from the values the embedded path already computed
+// (no second gate variable). Returns { degrade_cause } (null on a healthy run,
+// nothing written) or { degrade_cause, reasoning } after seeding pairs.json.
+function reasoningStageSeed(opts, ctx) {
+  const embedded = !!(ctx && ctx.embedded === true);
+  const scoredLength = ctx && Number.isFinite(ctx.scoredLength) ? ctx.scoredLength : 0;
+  // The cause code (D7): the encoder never ran, or it ran and scored nothing.
+  let degradeCause = null;
+  if (!embedded) degradeCause = 'encoder_unavailable';
+  else if (scoredLength === 0) degradeCause = 'below_floor';
+  if (degradeCause === null) return { degrade_cause: null };
+
+  const paths = resolveReasoningPaths(opts);
+  const entries = reasoningMode.readRoomMarkdown(paths.roomDir);
+  const proposed = reasoningMode.proposeCandidatePairs(entries, {});
+  fs.mkdirSync(paths.workdir, { recursive: true });
+  const pairsDoc = {
+    generated_at: new Date().toISOString(),
+    degrade_cause: degradeCause,
+    cap: proposed.cap,
+    entries_read: entries.length,
+    pairs_considered: proposed.pairs_considered,
+    candidates: proposed.candidates,
+  };
+  fs.writeFileSync(path.join(paths.workdir, 'pairs.json'), JSON.stringify(pairsDoc, null, 2) + '\n', 'utf8');
+  return {
+    degrade_cause: degradeCause,
+    reasoning: {
+      state: 'await_mappings',
+      workdir: paths.workdir,
+      pairs_selected: proposed.candidates.length,
+      next_step: 'write mappings.json then run --reasoning-emit',
+    },
+  };
+}
+
+// reasoningStageEmit(opts) -- stage 2. Read pairs.json (SEED req 2 guard: exit 1
+// if it is absent, meaning no genuine degrade ran first), validate the
+// session-written mappings, write the rubric prompt files, print the next step.
+function reasoningStageEmit(opts) {
+  const paths = resolveReasoningPaths(opts);
+  const pairsPath = path.join(paths.workdir, 'pairs.json');
+  if (!fs.existsSync(pairsPath)) {
+    process.stderr.write('eureka-portfolio-report --reasoning-emit: no pairs.json at ' + pairsPath + '\n');
+    process.stderr.write('Reasoning mode is entered ONLY after a genuine embedded run degraded (SEED req 2:\n');
+    process.stderr.write('never speculative). Run the normal report first so a real encoder_unavailable / below_floor attempt seeds pairs.json.\n');
+    return 1;
+  }
+  const pairsDoc = JSON.parse(fs.readFileSync(pairsPath, 'utf8'));
+  const mappings = fs.existsSync(paths.mappingsPath) ? JSON.parse(fs.readFileSync(paths.mappingsPath, 'utf8')) : {};
+  const validation = reasoningMode.validateMappings(Array.isArray(pairsDoc.candidates) ? pairsDoc.candidates : [], mappings);
+  const promptsDir = path.join(paths.workdir, 'prompts');
+  const manifest = reasoningMode.emitReasoningPrompts(promptsDir, validation.valid);
+  const emitted = manifest.candidates.filter(function (c) { return c.stage_a_pass === true; }).length;
+  process.stdout.write('eureka-portfolio-report --reasoning-emit: '
+    + validation.valid.length + ' mapped pair(s) (' + validation.excluded_count + ' excluded for missing/invalid mapping), '
+    + emitted + ' rubric prompt set(s) written to ' + promptsDir + '\n');
+  process.stdout.write('Next: answer each <id>.neutral.txt and <id>.adversarial.txt faithfully into answers.json,\n');
+  process.stdout.write('then run: --reasoning-score --answers ' + paths.answersPath + ' --reasoning-workdir ' + paths.workdir + '\n');
+  return 0;
+}
+
+// reasoningStageScore(opts) -- stage 3. Replay the session answers through the
+// REAL rubric (verdict-by-code), assemble the byte-parity report, and write it.
+async function reasoningStageScore(opts) {
+  const paths = resolveReasoningPaths(opts);
+  const pairsPath = path.join(paths.workdir, 'pairs.json');
+  const promptsDir = path.join(paths.workdir, 'prompts');
+  const manifestPath = path.join(promptsDir, 'manifest.json');
+  if (!fs.existsSync(pairsPath)) {
+    process.stderr.write('eureka-portfolio-report --reasoning-score: no pairs.json at ' + pairsPath
+      + ' (run the normal degrade + --reasoning-emit first)\n');
+    return 1;
+  }
+  const pairsDoc = JSON.parse(fs.readFileSync(pairsPath, 'utf8'));
+  const mappings = fs.existsSync(paths.mappingsPath) ? JSON.parse(fs.readFileSync(paths.mappingsPath, 'utf8')) : {};
+  const answers = fs.existsSync(paths.answersPath) ? JSON.parse(fs.readFileSync(paths.answersPath, 'utf8')) : {};
+  const manifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : { candidates: [] };
+  const validation = reasoningMode.validateMappings(Array.isArray(pairsDoc.candidates) ? pairsDoc.candidates : [], mappings);
+
+  const rows = await reasoningMode.scoreReasoningPairs(validation.valid, answers, {});
+
+  // Max-1-retry latch (AI-SPEC 4b): if ANY candidate came back with a
+  // missing/garbled answer AND the manifest has not yet spent its one retry,
+  // stamp retry_used, name the pairs, and exit 2 (a distinct retriable code).
+  // On a second failure we proceed with the bias-to-reject default, never guess.
+  const missing = rows.filter(function (r) { return r.judge_answer_missing === true; });
+  if (missing.length > 0 && manifest.retry_used !== true) {
+    manifest.retry_used = true;
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+    process.stderr.write('eureka-portfolio-report --reasoning-score: missing/garbled answers for pair id(s): '
+      + missing.map(function (r) { return r.id; }).join(', ') + '\n');
+    process.stderr.write('Re-answer ONLY those pairs faithfully into answers.json, then re-run --reasoning-score (one retry allowed).\n');
+    return 2;
+  }
+
+  // Ranking rule (plan 01 core): transferable rows only, ascending by
+  // lsa_similarity (LOW overlap on a still-plausible pair is the eureka signature),
+  // capped by --top. rank = index + 1.
+  const cap = Number.isFinite(opts.top) && opts.top > 0 ? opts.top : 25;
+  const transferable = rows
+    .filter(function (r) { return r.verdict === 'transferable'; })
+    .slice()
+    .sort(function (x, y) { return x.lsa_similarity - y.lsa_similarity; })
+    .slice(0, cap);
+
+  const statements = transferable.map(function (r, i) { return reasoningMode.buildReasoningStatement(r, i + 1); });
+  const ranked = transferable.map(function (r, i) {
+    return {
+      // The exact embedded ranked field NAMES survive; the encoder-derived numbers
+      // are honest-null (no fabricated score / dims - D2's no-blended-score rule).
+      rank: i + 1,
+      a: r.a,
+      b: r.b,
+      a_title: r.title_a,
+      b_title: r.title_b,
+      score: null,
+      dims: null,
+      weak_a: [],
+      weak_b: [],
+      complementary: false,
+      tail_flag: false,
+      banked: false,
+      mode: 'reasoning',
+      lsa_similarity: r.lsa_similarity,
+      verdict: r.verdict,
+      reasoning_tag: r.reasoning_tag,
+      differential_score: null,
+      semantic_similarity: null,
+    };
+  });
+
+  // Rubric-rejection accounting (per class) + the encoder-free Gate 1 trip count.
+  const pairsRejectedByRubric = { pseudoscience: 0, restatement: 0, general_shallow: 0 };
+  let gate1Trips = 0;
+  for (let i = 0; i < rows.length; i += 1) {
+    if (rows[i].stage_a_pass === false) gate1Trips += 1;
+    const v = rows[i].verdict;
+    if (v === 'pseudoscience') pairsRejectedByRubric.pseudoscience += 1;
+    else if (v === 'restatement') pairsRejectedByRubric.restatement += 1;
+    else if (v === 'general_shallow') pairsRejectedByRubric.general_shallow += 1;
+  }
+  // pairs_sent = candidates actually rubric-scored (a Gate-1 trip never reaches the
+  // rubric, so it is not counted as sent).
+  const pairsSent = rows.filter(function (r) { return r.stage_a_pass === true; }).length;
+
+  const provenance = {
+    // Every key the embedded provenance object carries (lines ~975-1012), with
+    // honest reasoning-mode values, so no existing consumer breaks (D4/G-5).
+    run_mode: 'reasoning',
+    pairs_mode: opts.pairs,
+    encoder_model: 'none (reasoning mode)',
+    encoder_dtype: 'none',
+    vec_backend: 'none',
+    ahp_weights: null,
+    ahp_cr: null,
+    ahp_matrix_source: 'not used (reasoning mode)',
+    tail_composition: 'not computed (reasoning mode: no cohort axes without the embedded index)',
+    growth_proxy: 'none',
+    tail_thresholds: null,
+    tail_insufficient_structure: true,
+    tail_suspect_noise: false,
+    cohort_techs: 0,
+    graph_nodes: 0,
+    converges_pairs: 0,
+    pairs_scored: pairsSent,
+    scaffold_pairs_excluded: 0,
+    figure_guard_skipped: gate1Trips,
+    critic_resolution: 'reasoning rubric (verdict-by-code)',
+    honest_nouns: '(none: raw-markdown substrate)',
+    encoder_unavailable: true,
+    run_date: new Date().toISOString().slice(0, 10),
+    // Reasoning-mode extensions.
+    degrade_cause: pairsDoc.degrade_cause,
+    formula_version: reasoningMode.REASONING_FORMULA_VERSION,
+    reasoning_cap: pairsDoc.cap,
+    pairs_considered: pairsDoc.pairs_considered,
+    pairs_sent: pairsSent,
+    pairs_rejected_by_rubric: pairsRejectedByRubric,
+    entries_read: pairsDoc.entries_read,
+    // BANKING HARD-SKIP (G-3): the reasoning path NEVER calls bankStatements - not
+    // even with the default predicate - because MINDRIAN_OPPORTUNITY_BANK_PREDICATE=all
+    // would otherwise bank a non-pending reasoning verdict (the exact G-3 breach
+    // vector). Part 9 promotion is human-only; there is no write-back call site below.
+    banking: 'skipped (reasoning mode: Part 9 human-only promotion)',
+  };
+
+  const jsonOut = {
+    provenance: provenance,
+    ranked: ranked,
+    tail: {
+      composition: 'not computed (reasoning mode: no cohort axes without the embedded index)',
+      growth_proxy: 'none',
+      insufficient_structure: true,
+      suspect_noise: false,
+      thresholds: null,
+      items: [],
+    },
+    statements: statements,
+  };
+
+  // G-1 ENFORCEMENT AT THE WRITER: a deterministic node:assert (never a judge call)
+  // that refuses the emit if any encoder leg is non-null, banked is true, or the
+  // mode label is lost. Called immediately before BOTH fs.writeFileSync calls.
+  const report = renderReasoningReport({
+    provenance: provenance,
+    roomDir: opts.db,
+    top: cap,
+    ranked: ranked,
+    statements: statements,
+  });
+  reasoningMode.assertReasoningInvariants(jsonOut);
+  fs.mkdirSync(path.dirname(paths.outPath), { recursive: true });
+  fs.writeFileSync(paths.outPath, report, 'utf8');
+
+  reasoningMode.assertReasoningInvariants(jsonOut);
+  fs.mkdirSync(path.dirname(paths.jsonPath), { recursive: true });
+  fs.writeFileSync(paths.jsonPath, JSON.stringify(jsonOut, null, 2) + '\n', 'utf8');
+
+  process.stdout.write('eureka-portfolio-report --reasoning-score: wrote ' + paths.outPath + ' + ' + paths.jsonPath
+    + ' (mode reasoning, ' + ranked.length + ' ranked, ' + statements.length + ' statements, '
+    + pairsSent + ' rubric-scored, cause ' + provenance.degrade_cause + ')\n');
+  return 0;
+}
+
+// buildUpgradeDelta(jsonPath, provenance, rankedRows) -- SEED req 5. On the
+// EMBEDDED success path, if the prior report on disk was written in reasoning
+// mode, attach a provenance.upgrade delta (what survived into the new embedded
+// ranked list, what did not) instead of silently replacing it. Any read/parse
+// failure is a no-op (no upgrade key, byte-identical); never throws.
+function buildUpgradeDelta(jsonPath, provenance, rankedRows) {
+  let prev;
+  try {
+    prev = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  } catch (_e) {
+    return; // no prior file / unreadable / unparseable -> byte-identical, no key
+  }
+  if (!prev || !prev.provenance || prev.provenance.run_mode !== 'reasoning') return;
+  const prevStatements = Array.isArray(prev.statements) ? prev.statements : [];
+  const previousTop = prevStatements.slice(0, 5).map(function (s) { return { a: s.a, b: s.b }; });
+  const newSet = new Set();
+  const rr = Array.isArray(rankedRows) ? rankedRows : [];
+  for (let i = 0; i < rr.length; i += 1) {
+    newSet.add(rr[i].idA + '|' + rr[i].idB);
+    newSet.add(rr[i].idB + '|' + rr[i].idA);
+  }
+  let survived = 0;
+  for (let i = 0; i < previousTop.length; i += 1) {
+    if (newSet.has(previousTop[i].a + '|' + previousTop[i].b)) survived += 1;
+  }
+  provenance.upgrade = {
+    previous_run_mode: 'reasoning',
+    previous_run_date: prev.provenance.run_date,
+    previous_top: previousTop,
+    survived: survived,
+    demoted_or_absent: previousTop.length - survived,
+  };
+}
+
 if (require.main === module) {
   main(process.argv.slice(2)).then(function (code) { process.exit(code); });
 }
@@ -1288,4 +1763,12 @@ module.exports = {
   resolveBankPredicate: resolveBankPredicate,
   deriveBankSection: deriveBankSection,
   BANK_SESSION_ID: BANK_SESSION_ID,
+  // Phase 226-02: the reasoning-mode stages, exported so the hermetic tests drive
+  // them without a full CLI spawn.
+  reasoningStageSeed: reasoningStageSeed,
+  reasoningStageEmit: reasoningStageEmit,
+  reasoningStageScore: reasoningStageScore,
+  buildUpgradeDelta: buildUpgradeDelta,
+  renderReasoningReport: renderReasoningReport,
+  resolveReasoningPaths: resolveReasoningPaths,
 };
