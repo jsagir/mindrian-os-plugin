@@ -63,6 +63,9 @@ const RUNNER = require('./eureka-portfolio-report.cjs');
 // standalone script (D-03 -- zero new command surface); this is a plain
 // require, not a new /mos: subcommand. See the freshness-gate block below.
 const ENTITY_EXTRACT = require('./entity-extract.cjs');
+// Phase 226-03: the pure De Stijl html renderer for the `html` subcommand (D6/G-4:
+// the mode banner rides with the shareable export). Render-only, zero-egress.
+const { renderReportHtml } = require('../lib/core/eureka/report-html.cjs');
 
 // ---------------------------------------------------------------------------
 // Path contract: everything this command writes lives under here.
@@ -71,8 +74,13 @@ const ENTITY_EXTRACT = require('./entity-extract.cjs');
 function reportDir(roomDir) { return path.join(roomDir, '.mindrian', 'eureka'); }
 function outMd(roomDir) { return path.join(reportDir(roomDir), 'portfolio-report.md'); }
 function outJson(roomDir) { return path.join(reportDir(roomDir), 'portfolio-report.json'); }
+function outHtml(roomDir) { return path.join(reportDir(roomDir), 'portfolio-report.html'); }
 function statusPath(roomDir) { return path.join(reportDir(roomDir), 'status.json'); }
 function roomGraphPath(roomDir) { return path.join(roomDir, '.mindrian', 'idea-graph.json'); }
+// Phase 226-03: the reasoning-stage workdir the runner seeds/reads. Default matches
+// resolveReasoningPaths in eureka-portfolio-report.cjs (roomDir-based), so the one
+// governed door and the runner agree on where pairs.json / prompts / answers live.
+function reasoningWorkdir(roomDir) { return path.join(reportDir(roomDir), 'reasoning'); }
 
 // ---------------------------------------------------------------------------
 // Small helpers.
@@ -97,6 +105,23 @@ function printError(what, why, fix) {
 function writeStatus(roomDir, obj) {
   fs.mkdirSync(reportDir(roomDir), { recursive: true });
   fs.writeFileSync(statusPath(roomDir), JSON.stringify(obj) + '\n', 'utf8');
+}
+
+// Phase 226-03 (E): read the just-written report json and, if the run degraded
+// into reasoning mode, return the seed's { workdir, pairs_selected, degrade_cause }
+// (the provenance.reasoning block the runner stamps on a genuine encoder_unavailable
+// / below_floor degrade). Returns null on a healthy run or any read/parse failure
+// (best-effort, never throws, never blocks the done path).
+function reasoningSeedState(roomDir) {
+  let parsed = null;
+  try { parsed = JSON.parse(fs.readFileSync(outJson(roomDir), 'utf8')); } catch (_e) { return null; }
+  const r = parsed && parsed.provenance && parsed.provenance.reasoning;
+  if (!r || typeof r !== 'object' || r.state !== 'await_mappings') return null;
+  return {
+    workdir: r.workdir || reasoningWorkdir(roomDir),
+    pairs_selected: typeof r.pairs_selected === 'number' ? r.pairs_selected : 0,
+    degrade_cause: (parsed.provenance && parsed.provenance.degrade_cause) || null,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -224,17 +249,22 @@ const USAGE = [
   '  node scripts/eureka-command.cjs ROOM_DIR SUBCOMMAND [--top <n>] [--offline] [--graph <path>]',
   '',
   'Subcommands:',
-  '  run       run the scan in-process; write the report + status.json; block until done',
-  '  start     fire-and-return: spawn the scan detached, print paths, exit 0 immediately',
-  '  status    print status.json as one JSON line (or {"state":"none"})',
-  '  report    print the report JSON to stdout (or a 3-line error if none yet)',
-  '  help      show this usage',
+  '  run                run the scan in-process; write the report + status.json; block until done',
+  '  start              fire-and-return: spawn the scan detached, print paths, exit 0 immediately',
+  '  status             print status.json as one JSON line (or {"state":"none"})',
+  '  report             print the report JSON to stdout (or a 3-line error if none yet)',
+  '  html               render the last report to a shareable De Stijl html export (mode banner rides with it)',
+  '  reasoning-prompts  reasoning-mode stage: emit the rubric prompt files from the seeded pairs + mappings',
+  '  reasoning-score    reasoning-mode stage: replay the answers, write the mode:reasoning report',
+  '  help               show this usage',
   '',
   'Flags:',
   '  --top <n>       keep the top N ranked pairs (default 25)',
   '  --offline       deterministic stub encoder (no model)',
   '  --graph <path>  explicit idea-graph substrate override',
   '  --no-extract    skip the automatic entity-extraction pre-step on run',
+  '  --mappings <p>  reasoning-prompts: session-written mappings.json override',
+  '  --answers <p>   reasoning-score: session-written answers.json override',
 ].join('\n');
 
 // ---------------------------------------------------------------------------
@@ -242,7 +272,12 @@ const USAGE = [
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const out = { roomDir: null, sub: null, top: 25, offline: false, graph: null, topProvided: false, help: false, noExtract: false };
+  const out = {
+    roomDir: null, sub: null, top: 25, offline: false, graph: null,
+    topProvided: false, help: false, noExtract: false,
+    // Phase 226-03: optional overrides forwarded to the reasoning stages.
+    mappings: null, answers: null,
+  };
   const positional = [];
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
@@ -253,6 +288,8 @@ function parseArgs(argv) {
       case '--no-extract': out.noExtract = true; break;
       case '--top': out.top = parseInt(argv[i += 1], 10); out.topProvided = true; break;
       case '--graph': out.graph = argv[i += 1]; break;
+      case '--mappings': out.mappings = argv[i += 1]; break;
+      case '--answers': out.answers = argv[i += 1]; break;
       default: positional.push(a); break;
     }
   }
@@ -323,6 +360,28 @@ async function cmdRun(opts) {
   try {
     const code = await RUNNER.main(runnerArgv(roomDir, sub, opts.top, opts.offline));
     if (code === 0) {
+      // Phase 226-03 (E): a genuine embedded degrade (encoder_unavailable /
+      // below_floor) seeds pairs.json and stamps provenance.reasoning.state =
+      // 'await_mappings' in the written report. When it did, surface that state
+      // so /mos:eureka status tells Larry (and the navigator) exactly where the
+      // reasoning flow stands -- the SEED 'silent' promise: the navigator never
+      // manages the degrade manually. Read-only, best-effort, never blocks.
+      const seed = reasoningSeedState(roomDir);
+      if (seed) {
+        writeStatus(roomDir, {
+          state: 'reasoning_await_mappings',
+          started_at: startedAt,
+          finished_at: new Date().toISOString(),
+          pid: process.pid,
+          workdir: seed.workdir,
+          pairs_selected: seed.pairs_selected,
+          degrade_cause: seed.degrade_cause,
+          out: outMd(roomDir),
+          json: outJson(roomDir),
+          ...(extractionError ? { extraction_error: extractionError } : {}),
+        });
+        return 0;
+      }
       writeStatus(roomDir, {
         state: 'done',
         started_at: startedAt,
@@ -420,6 +479,123 @@ function cmdReport(opts) {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 226-03 subcommands: html, reasoning-prompts, reasoning-score.
+//
+// ONE governed door (SEED-034): reasoning-prompts / reasoning-score are THIN
+// pass-throughs to the shipped runner's --reasoning-emit / --reasoning-score
+// stages. No scoring, no verdict logic lives in this dispatcher -- the runner is
+// the one path that reads the room and computes the rubric. This wrapper only
+// forwards argv, maintains the observable status.json, and (for html) renders.
+// ---------------------------------------------------------------------------
+
+// `html`: render the last completed report to a shareable De Stijl html export
+// whose mode banner cannot be lost (D6/G-4). Reads the existing
+// portfolio-report.json (no second data shape) and writes portfolio-report.html.
+function cmdHtml(opts) {
+  const roomDir = opts.roomDir;
+  const jp = outJson(roomDir);
+  if (!fileExists(jp)) {
+    printError('no eureka report yet', 'no completed scan for this room', 'run /mos:eureka');
+    return 1;
+  }
+  let parsed = null;
+  try { parsed = JSON.parse(fs.readFileSync(jp, 'utf8')); } catch (_e) { parsed = null; }
+  if (!parsed) {
+    printError('eureka report unreadable', 'portfolio-report.json is not valid JSON', 'run /mos:eureka');
+    return 1;
+  }
+  const html = renderReportHtml(parsed, { title: 'Eureka Portfolio Report' });
+  const hp = outHtml(roomDir);
+  fs.mkdirSync(reportDir(roomDir), { recursive: true });
+  fs.writeFileSync(hp, html, 'utf8');
+  // Even the CLI confirmation discloses the mode (D6): the label rides everywhere.
+  const runMode = (parsed.provenance && parsed.provenance.run_mode) ? parsed.provenance.run_mode : '(mode not stated)';
+  process.stdout.write('eureka html export written: ' + hp + '\n');
+  process.stdout.write('mode: ' + runMode + '\n');
+  return 0;
+}
+
+// `reasoning-prompts`: thin pass-through to the runner's --reasoning-emit stage.
+// It reads the pairs.json a genuine degrade seeded plus the session-written
+// mappings.json, and writes the rubric prompt files. On success the status.json
+// advances to reasoning_await_answers so /mos:eureka status tells Larry exactly
+// where the self-judging flow stands (the SEED 'silent' promise: the navigator
+// never manages the degrade manually).
+async function cmdReasoningPrompts(opts) {
+  const roomDir = opts.roomDir;
+  if (!dirExists(roomDir)) {
+    printError('room directory not found', String(roomDir) + ' is not a directory', 'pass a valid room path, or run /mos:new-project');
+    return 1;
+  }
+  const workdir = reasoningWorkdir(roomDir);
+  const argv = ['--db', roomDir, '--reasoning-emit', '--reasoning-workdir', workdir,
+    '--out', outMd(roomDir), '--json', outJson(roomDir)];
+  if (opts.mappings) { argv.push('--mappings', opts.mappings); }
+  const code = await RUNNER.main(argv);
+  if (code === 0) {
+    writeStatus(roomDir, {
+      state: 'reasoning_await_answers',
+      workdir: workdir,
+      started_at: new Date().toISOString(),
+      out: outMd(roomDir),
+      json: outJson(roomDir),
+    });
+  }
+  // Propagate nonzero exit codes unchanged (SEED req 2 guard: no pairs.json -> 1).
+  return code;
+}
+
+// `reasoning-score`: thin pass-through to the runner's --reasoning-score stage.
+// It replays the session answers through the REAL rubric (verdict-by-code) and
+// writes the SAME { provenance, ranked, tail, statements } md+json labeled
+// mode:reasoning. Exit-code contract (the runner owns it, we only translate to
+// status): 0 done, 1 failed, 2 retriable re-answer (never swallowed).
+async function cmdReasoningScore(opts) {
+  const roomDir = opts.roomDir;
+  if (!dirExists(roomDir)) {
+    printError('room directory not found', String(roomDir) + ' is not a directory', 'pass a valid room path, or run /mos:new-project');
+    return 1;
+  }
+  const workdir = reasoningWorkdir(roomDir);
+  const argv = ['--db', roomDir, '--reasoning-score', '--reasoning-workdir', workdir,
+    '--out', outMd(roomDir), '--json', outJson(roomDir), '--top', String(opts.top)];
+  if (opts.answers) { argv.push('--answers', opts.answers); }
+  const code = await RUNNER.main(argv);
+  if (code === 0) {
+    // The existing done-state shape plus run_mode: reasoning (honest disclosure).
+    writeStatus(roomDir, {
+      state: 'done',
+      run_mode: 'reasoning',
+      finished_at: new Date().toISOString(),
+      out: outMd(roomDir),
+      json: outJson(roomDir),
+    });
+    return 0;
+  }
+  if (code === 2) {
+    // The runner emitted a max-1-retry re-answer instruction to stderr verbatim.
+    // Round-trip it as a retriable state, never swallow it (D5 self-judging loop).
+    writeStatus(roomDir, {
+      state: 'reasoning_await_answers',
+      retry: true,
+      workdir: workdir,
+      finished_at: new Date().toISOString(),
+    });
+    return 2;
+  }
+  // The existing failed-state idiom.
+  writeStatus(roomDir, {
+    state: 'failed',
+    finished_at: new Date().toISOString(),
+    out: outMd(roomDir),
+    json: outJson(roomDir),
+    error: 'reasoning-score exited with code ' + code,
+  });
+  printError('eureka reasoning-score failed', 'the reasoning score stage exited with code ' + code, 'inspect ' + statusPath(roomDir) + ' then re-run /mos:eureka reasoning-score');
+  return code;
+}
+
+// ---------------------------------------------------------------------------
 // main -- the testable seam. Returns a numeric exit code (async for run).
 // ---------------------------------------------------------------------------
 
@@ -436,9 +612,12 @@ async function main(argv) {
     case 'start': return cmdStart(opts);
     case 'status': return cmdStatus(opts);
     case 'report': return cmdReport(opts);
+    case 'html': return cmdHtml(opts);
+    case 'reasoning-prompts': return cmdReasoningPrompts(opts);
+    case 'reasoning-score': return cmdReasoningScore(opts);
     case 'help': process.stdout.write(USAGE + '\n'); return 0;
     default:
-      printError('unknown subcommand', 'no subcommand "' + opts.sub + '"', 'run one of: run | start | status | report | help');
+      printError('unknown subcommand', 'no subcommand "' + opts.sub + '"', 'run one of: run | start | status | report | html | reasoning-prompts | reasoning-score | help');
       return 1;
   }
 }
