@@ -167,7 +167,16 @@ After presenting results, suggest next actions:
 node -e "
 const { runDeriveBackfill } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/graph-backfill.cjs');
 (async () => {
-  const res = await runDeriveBackfill({ roomDir: 'room/', approvedBy: process.env.MOS_APPROVED_BY || '' });
+  // approveFolders is the PER-FOLDER Decision Gate allow-list: pass ONLY the
+  // folder slugs the navigator APPROVED at the STEP 0 gate (below). A folder
+  // the navigator REJECTED or DEFERRED must NOT appear here -- it is surfaced
+  // but never healed. Omit approveFolders entirely only when the navigator
+  // approved EVERY detected folder.
+  const res = await runDeriveBackfill({
+    roomDir: 'room/',
+    approvedBy: process.env.MOS_APPROVED_BY || '',
+    approveFolders: JSON.parse(process.env.MOS_APPROVED_FOLDERS || '[]'),
+  });
   console.log(JSON.stringify(res));
 })();
 "
@@ -188,7 +197,7 @@ The HEAL-FIRST sequence (each step in order):
    ------------------------------
    ```
 
-   Offer APPROVE / REJECT (with reason) / DEFER. ONLY on APPROVE do you call `healRoom` with the navigator threaded as `approvedBy`. The heal makes the folder a FULL-CITIZEN child room: birthRoom (ROOM.md + STATE.md + MINTO.md + per-section FEYNMAN.md + BRAIN enqueue + room_created memory_event + its own `.mindrian/room.db`), the NESTED_WITHIN lineage edge `room:<child> -> room:<parent>`, the registry / sentinel parent pointer, and the `## Timeline (auto)` section. REJECT captures the why-not (Part 4); nothing auto-creates a room (Part 3/9). Without this heal-first step the real b2-journey 0 -> N is UNREACHABLE -- a sentinel-less folder silently mis-rolls into its parent.
+   Offer APPROVE / REJECT (with reason) / DEFER -- PER FOLDER, never as one batch verdict. Collect the approved folder slugs into `approveFolders` (set `MOS_APPROVED_FOLDERS` to the JSON array in the snippet above): only listed folders are healed under `approvedBy`; a rejected or deferred folder is surfaced but left unhealed even when `approvedBy` is set. ONLY on APPROVE does the heal run with the navigator threaded as `approvedBy`. The heal makes the folder a FULL-CITIZEN child room: birthRoom (ROOM.md + STATE.md + MINTO.md + per-section FEYNMAN.md + BRAIN enqueue + room_created memory_event + its own `.mindrian/room.db`), the NESTED_WITHIN lineage edge `room:<child> -> room:<parent>`, the registry / sentinel parent pointer, and the `## Timeline (auto)` section. REJECT captures the why-not (Part 4); nothing auto-creates a room (Part 3/9). Without this heal-first step the real b2-journey 0 -> N is UNREACHABLE -- a sentinel-less folder silently mis-rolls into its parent.
 
 2. **STEP 1 -- resolve.** Resolve the (now-sentineled) room by `resolveRoomRoot`.
 
