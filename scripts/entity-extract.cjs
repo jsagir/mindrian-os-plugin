@@ -392,13 +392,19 @@ function fallbackLabels(names) {
   return labels;
 }
 
-// routeLabel(e, label, whatEntities, whyTerms) -- apply one resolved label to one
-// entity: WHAT keeps the entity flowing (byte-identical write path), WHY joins the
-// framework-term signal on its source artifact, NOISE drops. Returns the applied
-// label so the caller can tally the NOISE drops.
-function routeLabel(e, label, whatEntities, whyTerms) {
+// routeLabel(e, label, whatEntities, whyTerms, lowConfidence) -- apply one resolved
+// label to one entity: WHAT keeps the entity flowing (byte-identical write path), WHY
+// joins the framework-term signal on its source artifact, NOISE drops. Returns the
+// applied label so the caller can tally the NOISE drops. The optional lowConfidence
+// flag (quick 260715-cu8) rides a WHY term through to its artifact node so a term that
+// landed via the no-LLM embedding best-guess is disclosed per-term, not just in the
+// aggregate status.json counter. All existing call sites stay unflagged (confident);
+// only the runTier2 no-LLM escalation branch passes it true.
+function routeLabel(e, label, whatEntities, whyTerms, lowConfidence) {
   if (label === 'why') {
-    whyTerms.push({ name: e.name, sourceArtifactId: e.sourceArtifactId });
+    const entry = { name: e.name, sourceArtifactId: e.sourceArtifactId };
+    if (lowConfidence === true) entry.lowConfidence = true;
+    whyTerms.push(entry);
   } else if (label === 'noise') {
     return 'noise';
   } else {
@@ -552,8 +558,10 @@ async function runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, embedC
         modelResolved += 1;
       } else {
         // No LLM (no key, or the escalation failed): the embedding best-guess
-        // stands, counted as low-confidence -- NEVER a silent WHAT default.
-        routeLabel(it.e, it.bestGuess, whatEntities, whyTerms);
+        // stands, counted as low-confidence -- NEVER a silent WHAT default. The
+        // lowConfidence flag threads the disclosure per-term to the artifact node
+        // (quick 260715-cu8), not just into the aggregate lowConfidence counter.
+        routeLabel(it.e, it.bestGuess, whatEntities, whyTerms, true);
         lowConfidence += 1;
       }
     }
@@ -584,10 +592,22 @@ async function runTier2(artifacts, entities, tier1WhyTerms, classifyImpl, embedC
 // INSIDE the D-05 transaction alongside the metadata pass. Mirrors
 // applyArtifactMetadata EXACTLY: SELECT the node, parse props, union the new
 // framework terms with any existing props.framework_terms (comma-split), and write
-// back TWO SCALAR PROPS ONLY -- framework_terms (comma-joined, capped) and
-// framework_term_count (number) -- via the shared insertNode UPSERT. Scalars only
-// (T-219-05); never a new node type, never an edge; review_status and provenance
-// are never touched. Returns 'applied' | 'skipped' | 'none'. NEVER throws.
+// back SCALAR PROPS ONLY via the shared insertNode UPSERT: framework_terms
+// (comma-joined, capped), framework_term_count (number), and -- additively, quick
+// 260715-cu8 -- framework_terms_low_confidence (comma-joined subset naming the terms
+// that landed via the no-LLM embedding best-guess degrade). `terms` is an array of
+// { name, lowConfidence } entries (a bare string is tolerated and treated confident).
+// Scalars only (T-219-05); never a new node type, never an edge; review_status and
+// provenance are never touched. Returns 'applied' | 'skipped' | 'none'. NEVER throws.
+//
+// Reader-audit finding (planning_findings item 3, quick 260715-cu8): framework_terms
+// has NO production readers outside this pipeline. A grep (node_modules + .planning
+// excluded) shows the ONLY writer is this file and the ONLY readers are
+// tests/test-218-what-why-classifier.cjs and tests/test-218-extend-to-artifacts.cjs,
+// both via substring indexOf checks on the comma-joined string. framework_terms stays
+// a plain comma-joined scalar (byte-compatible for those substring readers); the new
+// framework_terms_low_confidence is a purely additive sibling scalar that cannot break
+// any existing reader.
 function applyFrameworkTerms(db, artifactId, terms) {
   try {
     const row = db.prepare('SELECT id, type, properties FROM nodes WHERE id = ?').get(artifactId);
@@ -596,6 +616,23 @@ function applyFrameworkTerms(db, artifactId, terms) {
     try { props = JSON.parse(row.properties || '{}'); } catch (_e) { props = {}; }
     if (!props || typeof props !== 'object' || Array.isArray(props)) props = {};
 
+    // Normalize the incoming WHY terms. Preserve order for first-seen casing;
+    // split into the incoming name list, the low-confidence names, and the set of
+    // names that arrived CONFIDENT this call (a bare string counts as confident).
+    const incomingNames = [];
+    const incomingLowConf = [];
+    const incomingConfidentKeys = new Set();
+    for (const t of terms) {
+      let name, low;
+      if (typeof t === 'string') { name = t; low = false; }
+      else if (t && typeof t === 'object') { name = t.name; low = t.lowConfidence === true; }
+      else { continue; }
+      if (typeof name !== 'string' || name.length === 0) continue;
+      incomingNames.push(name);
+      if (low) incomingLowConf.push(name);
+      else incomingConfidentKeys.add(name.toLowerCase());
+    }
+
     const existing = (typeof props.framework_terms === 'string' && props.framework_terms.length > 0)
       ? props.framework_terms.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
       : [];
@@ -603,7 +640,7 @@ function applyFrameworkTerms(db, artifactId, terms) {
     // Union existing + new, case-insensitive dedup, first-seen casing wins, capped.
     const seen = new Set();
     const merged = [];
-    for (const t of existing.concat(terms)) {
+    for (const t of existing.concat(incomingNames)) {
       if (typeof t !== 'string' || t.length === 0) continue;
       const k = t.toLowerCase();
       if (seen.has(k)) continue;
@@ -615,6 +652,33 @@ function applyFrameworkTerms(db, artifactId, terms) {
 
     props.framework_terms = merged.join(', ');
     props.framework_term_count = merged.length;
+
+    // Sibling scalar prop maintenance (quick 260715-cu8): union the prior low-conf
+    // names with this call's low-conf names, DROP any that arrived confident this
+    // call (upgrade wins), prune to the merged framework_terms set (subset
+    // invariant), dedup case-insensitively, cap. Write when non-empty; DELETE when
+    // empty (never an empty string). Same scalar-only merge discipline as above.
+    const existingLow = (typeof props.framework_terms_low_confidence === 'string' && props.framework_terms_low_confidence.length > 0)
+      ? props.framework_terms_low_confidence.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
+      : [];
+    const mergedKeys = new Set(merged.map(function (m) { return m.toLowerCase(); }));
+    const lowSeen = new Set();
+    const lowMerged = [];
+    for (const t of existingLow.concat(incomingLowConf)) {
+      if (typeof t !== 'string' || t.length === 0) continue;
+      const k = t.toLowerCase();
+      if (lowSeen.has(k)) continue;               // case-insensitive dedup, first-seen casing
+      if (incomingConfidentKeys.has(k)) continue; // confident this call -> upgrade removes the marker
+      if (!mergedKeys.has(k)) continue;           // subset invariant: only names present in framework_terms
+      lowSeen.add(k);
+      lowMerged.push(t);
+      if (lowMerged.length >= FRAMEWORK_TERM_CAP) break;
+    }
+    if (lowMerged.length > 0) {
+      props.framework_terms_low_confidence = lowMerged.join(', ');
+    } else {
+      delete props.framework_terms_low_confidence;
+    }
 
     let propsJson;
     try { propsJson = JSON.stringify(props); } catch (_e) { return 'skipped'; }
@@ -682,11 +746,14 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
     return whatNames.has(r.source) && whatNames.has(r.target);
   });
 
-  // Aggregate the WHY terms per artifact for the in-transaction merge.
-  const whyByArtifact = new Map(); // artifactId -> [name]
+  // Aggregate the WHY terms per artifact for the in-transaction merge. Each entry
+  // carries { name, lowConfidence } (quick 260715-cu8) so applyFrameworkTerms can
+  // maintain the per-term disclosure sibling prop; a bare confident term reduces to
+  // lowConfidence:false.
+  const whyByArtifact = new Map(); // artifactId -> [{ name, lowConfidence }]
   for (const t of tier2.whyTerms) {
     if (!whyByArtifact.has(t.sourceArtifactId)) whyByArtifact.set(t.sourceArtifactId, []);
-    whyByArtifact.get(t.sourceArtifactId).push(t.name);
+    whyByArtifact.get(t.sourceArtifactId).push({ name: t.name, lowConfidence: t.lowConfidence === true });
   }
 
   let entitiesWritten = 0;
