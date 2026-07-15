@@ -104,22 +104,44 @@ function readQueue(roomDir) {
 }
 
 /**
- * enqueueDerive(roomDir) -> { ok, queued, queuePath }
- * Append a derive request for roomDir, deduped by resolved roomDir. Cheap:
- * one small JSON write. Never throws (returns { ok:false } on failure).
+ * enqueueDerive(roomDir, opts) -> { ok, queued, queuePath }
+ * Append a derive request for roomDir, deduped by the (resolved roomDir,
+ * resolved filePath) tuple. Cheap: one small JSON write. Never throws (returns
+ * { ok:false } on failure).
+ *
+ * Phase 224-02 (Req 1) additive extension: opts.filePath is OPTIONAL. When
+ * present the entry is a per-WRITE derive request ({roomDir, filePath,
+ * enqueued_at}) that the drain scopes to O(n) new-artifact-vs-existing pairs;
+ * when ABSENT the entry is the room-scoped Stop-sweep request it is today
+ * ({roomDir, enqueued_at}), which the drain scopes to the full backfill pairing.
+ * The zero-arg Stop-hook main() path is untouched (RESEARCH OQ2: the sweep and
+ * drain stay registered as a harmless second net). Additive, back-compatible:
+ * an absent filePath dedupes exactly as the pre-224 room-scoped entry did.
  */
-function enqueueDerive(roomDir) {
+function enqueueDerive(roomDir, opts) {
   if (typeof roomDir !== 'string' || roomDir.length === 0) {
     return { ok: false, reason: 'no_room' };
   }
+  const options = (opts && typeof opts === 'object') ? opts : {};
   const resolved = path.resolve(roomDir);
+  const hasFilePath = typeof options.filePath === 'string' && options.filePath.length > 0;
+  const resolvedFile = hasFilePath ? path.resolve(options.filePath) : null;
   try {
     const dir = path.dirname(queuePath(resolved));
     fs.mkdirSync(dir, { recursive: true });
     const q = readQueue(resolved);
-    const already = q.entries.some(e => e && path.resolve(e.roomDir || '') === resolved);
+    const already = q.entries.some((e) => {
+      if (!e) return false;
+      const eRoom = path.resolve(e.roomDir || '');
+      const eFile = (typeof e.filePath === 'string' && e.filePath.length > 0)
+        ? path.resolve(e.filePath)
+        : null;
+      return eRoom === resolved && eFile === resolvedFile;
+    });
     if (!already) {
-      q.entries.push({ roomDir: resolved, enqueued_at: new Date().toISOString() });
+      const entry = { roomDir: resolved, enqueued_at: new Date().toISOString() };
+      if (resolvedFile) entry.filePath = resolvedFile;
+      q.entries.push(entry);
     }
     fs.writeFileSync(queuePath(resolved), JSON.stringify(q, null, 2));
     return { ok: true, queued: !already, queuePath: queuePath(resolved) };

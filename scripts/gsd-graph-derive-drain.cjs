@@ -40,6 +40,13 @@ const path = require('node:path');
 
 const sweep = require('./gsd-graph-derive-sweep.cjs');
 
+// The score-based producer swap that RESEARCH names as the ACTUAL fix (Part 7:
+// reuse the Phase-169 runDerivation COMPOSER; only the producer changes). Required
+// on the DEFAULT path only. NO require of graph-candidate-producer here (D-03
+// amended): the classifier's scoreBasedDeriveFn replaces the LLM producer.
+const classifier = require('../lib/core/graph-derive-classifier.cjs');
+const { scoreMeasured } = require('../lib/core/rs-differential-scorer.cjs');
+
 // ---------------------------------------------------------------------------
 // CLI parser
 // ---------------------------------------------------------------------------
@@ -57,13 +64,166 @@ function parseArgs(argv) {
 // Drain (the expensive runDerivation pass)
 // ---------------------------------------------------------------------------
 
+// Rewrite the queue empty (clear all drained entries). Best-effort: a failed
+// clear means the next drain re-attempts (idempotent).
+function clearQueue(resolved) {
+  try {
+    fs.writeFileSync(sweep.queuePath(resolved), JSON.stringify({ entries: [] }, null, 2));
+  } catch (_e) {
+    /* ignore */
+  }
+}
+
+// Count the pairs a target/entry WOULD score (for the disclosure marker's
+// pairs_skipped scalar). Pure enumeration; never throws.
+function pairCountFor(target, entry) {
+  try {
+    const hasFile = entry && typeof entry.filePath === 'string' && entry.filePath.length > 0;
+    return hasFile
+      ? classifier.buildNewArtifactPairs(target, entry.filePath).length
+      : classifier.buildAllPairs(target).length;
+  } catch (_e) {
+    return 0;
+  }
+}
+
+// D-04 probe: ONE score over two short literal probe strings to learn whether
+// the semantic encoder is available. opts.probeOpts is merged so a test can
+// force _forceUnavailable:true (skip path) or inject an encodeFn (available
+// path). Returns { available: boolean }. Never throws.
+async function probeEncoder(probeOpts) {
+  try {
+    const opts = (probeOpts && typeof probeOpts === 'object') ? Object.assign({}, probeOpts) : {};
+    const res = await scoreMeasured('probe alpha reference', 'probe beta reference', opts);
+    if (!res || res.semantic === null || res.semantic === undefined || res.warning === 'encoder_unavailable') {
+      return { available: false };
+    }
+    return { available: true };
+  } catch (_e) {
+    return { available: false };
+  }
+}
+
+// D-04 disclosure: mark the skip at the point of occurrence (SEED-059). Opens the
+// room db, logs ONE derivation_skipped memory_event with SCALAR-only fields
+// (Part 8), closes. dedupe_key rides the logEvent 60s idempotency so a repeat
+// forced-unavailable drain does NOT write a second marker. Soft-fail: any error
+// is swallowed (advisory, never blocking).
+function discloseSkip(target, entry) {
+  let openRoomDb;
+  let closeRoomDb;
+  let navigation;
+  try {
+    ({ openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs'));
+    navigation = require('../lib/core/navigation.cjs');
+  } catch (_e) {
+    return;
+  }
+  let db = null;
+  try {
+    db = openRoomDb(target);
+    const hasFile = entry && typeof entry.filePath === 'string' && entry.filePath.length > 0;
+    const trigger = hasFile ? path.basename(entry.filePath) : 'room-sweep';
+    navigation.logMemoryEvent(db, 'derivation_skipped', {
+      reason: 'encoder_unavailable',
+      trigger: trigger,
+      pairs_skipped: pairCountFor(target, entry),
+      dedupe_key: 'derivation_skipped:' + path.resolve(target),
+      source_path: 'derivation:skip',
+      created_by: 'system',
+    });
+  } catch (_e) {
+    /* advisory: never block the write path (Phase 210 caution). */
+  } finally {
+    if (db) { try { closeRoomDb(db); } catch (_ce) { /* ignore */ } }
+  }
+}
+
+// The DEFAULT (score-based) worker path. ASYNC because the score-based producer
+// is async and runDerivation's synchronous loop treats a Promise return as [] (the
+// Wave-1 note): candidates are PRE-RESOLVED per pair, then fed to runDerivation via
+// a synchronous deriveFn wrapper so the Phase-169 composer stays untouched.
+async function drainScoreBased(resolved, entries, options, result) {
+  let runDerivation;
+  try {
+    runDerivation = require('../lib/core/graph-derivation.cjs').runDerivation;
+  } catch (_e) {
+    runDerivation = null;
+  }
+
+  const deriveFn = (typeof options.deriveFn === 'function')
+    ? options.deriveFn
+    : classifier.scoreBasedDeriveFn;
+
+  // D-04: probe the encoder ONCE before touching any pair. Unavailable means skip
+  // EVERY entry, disclose per entry, clear the queue, and return ok:true. There is
+  // NO similarity-only degrade path (a symmetric score cannot honestly type edges).
+  const probe = await probeEncoder(options.probeOpts);
+  if (!probe.available) {
+    for (const entry of entries) {
+      const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
+      if (!target) { continue; }
+      discloseSkip(target, entry);
+      result.drained.push(target);
+    }
+    clearQueue(resolved);
+    result.remaining = 0;
+    return result;
+  }
+
+  for (const entry of entries) {
+    const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
+    if (!target) { continue; }
+    try {
+      const hasFile = typeof entry.filePath === 'string' && entry.filePath.length > 0;
+      const artifactPairs = hasFile
+        ? classifier.buildNewArtifactPairs(target, entry.filePath) // Req 6: O(n)
+        : classifier.buildAllPairs(target); // room-scoped Stop-sweep entry
+      // Pre-resolve the async producer per pair, then feed a SYNC deriveFn to the
+      // untouched Phase-169 composer (producer swap; runDerivation's sync loop
+      // treats a Promise as []).
+      const candidatesByPair = new Map();
+      for (const pair of artifactPairs) {
+        // eslint-disable-next-line no-await-in-loop
+        const cands = await deriveFn({ roomDir: target, artifactPair: pair });
+        candidatesByPair.set(pair, Array.isArray(cands) ? cands : []);
+      }
+      const syncDeriveFn = (step) => candidatesByPair.get(step && step.artifactPair) || [];
+      if (typeof runDerivation === 'function') {
+        runDerivation({ roomDir: target, deriveFn: syncDeriveFn, artifactPairs: artifactPairs });
+      }
+      result.drained.push(target);
+    } catch (_e) {
+      // a faulting room is still dropped from the queue (the backfill is the net).
+      result.drained.push(target);
+    }
+  }
+
+  clearQueue(resolved);
+  result.remaining = 0;
+  return result;
+}
+
 /**
- * drainDerive(roomDir, opts) -> { ok, drained: [...], remaining: number }
+ * drainDerive(roomDir, opts) -> { ok, drained, remaining }  (LEGACY: sync object)
+ *                            -> Promise<{ ok, drained, remaining }>  (DEFAULT path)
  *
- * Read the room's derive queue, run runDerivation per queued room, and clear
- * the drained entries by rewriting the queue. An injectable opts.deriveRunner
- * (defaults to graph-derivation.runDerivation) lets the round-trip test spy on
- * the call (MEDIUM-5) without a real composer. Never throws.
+ * The real score-based derivation worker (Phase 224-02, Req 1 + Req 6 + D-04),
+ * built to preserve every Phase-169 seam:
+ *
+ *   LEGACY seam: when opts.deriveRunner IS injected, the round-trip test spy path
+ *   is preserved BYTE-FOR-BYTE -- the drain keeps the legacy call shape
+ *   runDerivation({roomDir: target}) and SKIPS the encoder probe entirely (so the
+ *   spy that only reads argObj.roomDir keeps working). This path stays SYNCHRONOUS
+ *   and returns the result object directly (the Phase-169 test consumes it sync).
+ *
+ *   DEFAULT path: builds O(n) new-artifact pairs (per-write) or the full backfill
+ *   pairing (room-scoped), injects the classifier scoreBasedDeriveFn producer into
+ *   the untouched runDerivation composer, and implements D-04 (encoder-unavailable
+ *   skip + disclosure). This path is ASYNC and returns a Promise.
+ *
+ * Never throws. Every failure path stays soft (advisory; the explicit backfill is
+ * the universal net).
  */
 function drainDerive(roomDir, opts) {
   const options = opts || {};
@@ -74,61 +234,57 @@ function drainDerive(roomDir, opts) {
   }
   const resolved = path.resolve(roomDir);
 
-  let runDerivation = options.deriveRunner;
-  if (typeof runDerivation !== 'function') {
-    try {
-      runDerivation = require('../lib/core/graph-derivation.cjs').runDerivation;
-    } catch (_e) {
-      runDerivation = null;
-    }
-  }
-
   const q = sweep.readQueue(resolved);
   const entries = Array.isArray(q.entries) ? q.entries : [];
   if (entries.length === 0) { return result; }
 
   if (options.dryRun) {
     result.remaining = entries.length;
-    result.plan = entries.map(e => e && e.roomDir).filter(Boolean);
+    result.plan = entries.map((e) => e && e.roomDir).filter(Boolean);
     return result;
   }
 
-  const kept = [];
-  for (const entry of entries) {
-    const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
-    if (!target) { continue; }
-    try {
-      if (typeof runDerivation === 'function') {
-        runDerivation({ roomDir: target });
+  // LEGACY seam: deriveRunner injected -> byte-compatible Phase-169 path (sync,
+  // legacy call shape, NO encoder probe). This is the ONLY path the Phase-169
+  // round-trip test (tests/test-graph-derive-sweep.cjs) exercises.
+  if (typeof options.deriveRunner === 'function') {
+    const kept = [];
+    for (const entry of entries) {
+      const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
+      if (!target) { continue; }
+      try {
+        options.deriveRunner({ roomDir: target });
+        result.drained.push(target);
+      } catch (_e) {
+        result.drained.push(target);
       }
-      result.drained.push(target);
-    } catch (_e) {
-      // a faulting room is still dropped from the queue (the backfill is the net).
-      result.drained.push(target);
     }
+    try {
+      fs.writeFileSync(sweep.queuePath(resolved), JSON.stringify({ entries: kept }, null, 2));
+    } catch (_e) {
+      /* best-effort clear */
+    }
+    result.remaining = kept.length;
+    return result;
   }
 
-  // Clear the drained entries by rewriting the queue (drained == all attempted).
-  try {
-    fs.writeFileSync(sweep.queuePath(resolved), JSON.stringify({ entries: kept }, null, 2));
-  } catch (_e) {
-    // best-effort: a failed clear means the next drain re-attempts (idempotent).
-  }
-  result.remaining = kept.length;
-  return result;
+  // DEFAULT path: the async score-based worker (returns a Promise).
+  return drainScoreBased(resolved, entries, options, result);
 }
 
 // ---------------------------------------------------------------------------
 // Entry point (SessionStart hook): drain and exit 0 always.
 // ---------------------------------------------------------------------------
 
-function main() {
+async function main() {
   try {
     const args = parseArgs(process.argv.slice(2));
     const roomDir = sweep.resolveRoomDir(args.roomDir);
     if (roomDir) {
-      const res = drainDerive(roomDir, { dryRun: args.dryRun });
-      if (args.dryRun) {
+      // The default path returns a Promise; the dry-run / empty-queue path returns
+      // an object. `await` normalizes both.
+      const res = await drainDerive(roomDir, { dryRun: args.dryRun });
+      if (args.dryRun && res) {
         process.stderr.write('[gsd-graph-derive-drain] plan: ' + JSON.stringify(res.plan || []) + '\n');
       }
     }
