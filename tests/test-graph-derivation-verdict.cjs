@@ -49,7 +49,14 @@ const { extractDocText } = require(path.join(REPO_ROOT, 'lib', 'core', 'doc-text
 const { produceCandidates } = require(path.join(REPO_ROOT, 'lib', 'core', 'graph-candidate-producer.cjs'));
 const { runDerivation, rollupSubRooms, candidateToFinding, CASCADE_SUBSET } = require(path.join(REPO_ROOT, 'lib', 'core', 'graph-derivation.cjs'));
 const { detectUnsentineledArtifactFolder, healRoom } = require(path.join(REPO_ROOT, 'lib', 'core', 'graph-self-heal.cjs'));
-const { runDeriveBackfill } = require(path.join(REPO_ROOT, 'lib', 'core', 'graph-backfill.cjs'));
+// Phase 224-03 (D-03 amended): the backfill DEFAULT deriver is the async
+// score-based producer (runDeriveBackfill returns a Promise on the default path).
+// This adversarial GDH-06 leg proves the HEAL-FIRST 0 -> N contract
+// deterministically by injecting the exported _localCueDeriveFn heuristic
+// fallback, which keeps the run SYNCHRONOUS and returns the result object (the
+// polymorphic-return contract). The score-based default is proven separately in
+// tests/test-224-backfill-idempotent.cjs.
+const { runDeriveBackfill, _localCueDeriveFn } = require(path.join(REPO_ROOT, 'lib', 'core', 'graph-backfill.cjs'));
 const { ALLOWED_EDGE_TYPES, writeEdge } = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'edges.cjs'));
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
 
@@ -413,7 +420,7 @@ guard('GDH-06 + D-169-08/09: the b2-journey typed-edge moat goes 0 -> N HEAL-FIR
 
     const artifactCount = fs.readdirSync(child).filter(f => /\.(md|docx|html?|txt)$/i.test(f)).length;
 
-    const res = runDeriveBackfill({ roomDir: parent, approvedBy: 'tester' });
+    const res = runDeriveBackfill({ roomDir: parent, approvedBy: 'tester', deriveFn: _localCueDeriveFn });
     assert.ok(res && Array.isArray(res.healed), 'runDeriveBackfill did not report healed folders on the real fixture');
     const healedB2 = res.healed.find(h => /b2-journey/.test(h.roomDir || h.folder || ''));
     assert.ok(healedB2 && healedB2.ok !== false, 'the real b2-journey folder was NOT self-healed FIRST');
@@ -448,7 +455,7 @@ guard('GDH-06 + D-169-08/09: the b2-journey typed-edge moat goes 0 -> N HEAL-FIR
   fs.writeFileSync(path.join(parent, '.room-root'), JSON.stringify({ slug: 'parent-room' }));
   fs.writeFileSync(path.join(child, 'one.md'), '# one\nthe 2024 read contradicts the 2b TAM assumption.\n');
   fs.writeFileSync(path.join(child, 'two.md'), '# two\nthe TAM is 2b. the channel theme recurs in gtm and finance.\n');
-  const res = runDeriveBackfill({ roomDir: parent, approvedBy: 'tester' });
+  const res = runDeriveBackfill({ roomDir: parent, approvedBy: 'tester', deriveFn: _localCueDeriveFn });
   assert.ok(res.healed.some(h => /b2-journey/.test(h.roomDir || h.folder || '')), 'the synthetic b2 folder was not healed');
   assert.equal(res.typedEdgesBefore, 0, 'synthetic typedEdgesBefore was not 0');
   assert.ok(res.typedEdgesAfter > 0, 'synthetic backfill did not reach N > 0');

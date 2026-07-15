@@ -20,7 +20,13 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 // RED until Plan 05 ships the backfill entry.
-const { runDeriveBackfill } = require(path.join(REPO_ROOT, 'lib', 'core', 'graph-backfill.cjs'));
+// Phase 224-03 (D-03 amended): the backfill DEFAULT deriver is now the async
+// score-based producer, so runDeriveBackfill returns a Promise on the default
+// path. This GDH-06 acceptance leg asserts the HEAL-FIRST 0 -> N contract
+// deterministically (no real encoder in CI) by injecting the exported
+// _localCueDeriveFn heuristic fallback, which keeps the run SYNCHRONOUS and
+// returns the result object directly (the polymorphic-return contract).
+const { runDeriveBackfill, _localCueDeriveFn } = require(path.join(REPO_ROOT, 'lib', 'core', 'graph-backfill.cjs'));
 
 let pass = 0;
 function check(label, fn) { fn(); pass += 1; console.log('  ok -', label); }
@@ -39,7 +45,7 @@ fs.writeFileSync(path.join(sentinelLessChild, 'one.md'), '# one\nthe 2024 read c
 fs.writeFileSync(path.join(sentinelLessChild, 'two.md'), '# two\nthe TAM is 2b. the channel theme recurs in gtm and finance.\n');
 
 check('backfill STEP 0 self-heals the sentinel-less folder into a real child room', () => {
-  const res = runDeriveBackfill({ roomDir: parent, approvedBy: 'tester' });
+  const res = runDeriveBackfill({ roomDir: parent, approvedBy: 'tester', deriveFn: _localCueDeriveFn });
   assert.ok(res && typeof res === 'object', 'runDeriveBackfill must return a result object');
   assert.ok(Array.isArray(res.healed), 'result must report healed folders');
   const healedB2 = res.healed.some(h => /b2-journey/.test(h.roomDir || h.folder || ''));
@@ -50,7 +56,7 @@ check('backfill STEP 0 self-heals the sentinel-less folder into a real child roo
 });
 
 check('typed-edge count goes 0 -> N after the backfill derives', () => {
-  const res = runDeriveBackfill({ roomDir: parent, approvedBy: 'tester' });
+  const res = runDeriveBackfill({ roomDir: parent, approvedBy: 'tester', deriveFn: _localCueDeriveFn });
   assert.equal(typeof res.typedEdgesBefore, 'number', 'must report the before count');
   assert.equal(typeof res.typedEdgesAfter, 'number', 'must report the after count');
   assert.ok(res.typedEdgesAfter > 0, 'the backfill must take the typed-edge count to N > 0');
@@ -59,7 +65,7 @@ check('typed-edge count goes 0 -> N after the backfill derives', () => {
 check('real b2 fixture path is non-skippable when present (skip-if-absent otherwise)', () => {
   const b2 = process.env.MINDRIAN_B2_FIXTURE_ROOM;
   if (!b2 || !fs.existsSync(b2)) { console.log('  skip - real b2 room absent (CI uses the synthetic fallback)'); return; }
-  const res = runDeriveBackfill({ roomDir: b2, approvedBy: 'tester' });
+  const res = runDeriveBackfill({ roomDir: b2, approvedBy: 'tester', deriveFn: _localCueDeriveFn });
   assert.ok(res.typedEdgesAfter > 0, 'the real b2 backfill must produce N > 0 typed edges');
 });
 
