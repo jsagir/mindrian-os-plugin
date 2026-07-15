@@ -176,7 +176,7 @@ async function probeEncoder(probeOpts) {
 // (Part 8), closes. dedupe_key rides the logEvent 60s idempotency so a repeat
 // forced-unavailable drain does NOT write a second marker. Soft-fail: any error
 // is swallowed (advisory, never blocking).
-function discloseSkip(target, entry) {
+function discloseSkip(target, entry, pairsSkippedOverride) {
   let openRoomDb;
   let closeRoomDb;
   let navigation;
@@ -194,7 +194,9 @@ function discloseSkip(target, entry) {
     navigation.logMemoryEvent(db, 'derivation_skipped', {
       reason: 'encoder_unavailable',
       trigger: trigger,
-      pairs_skipped: pairCountFor(target, entry),
+      pairs_skipped: (typeof pairsSkippedOverride === 'number')
+        ? pairsSkippedOverride
+        : pairCountFor(target, entry),
       dedupe_key: 'derivation_skipped:' + path.resolve(target),
       source_path: 'derivation:skip',
       created_by: 'system',
@@ -227,9 +229,8 @@ async function drainScoreBased(resolved, entries, options, result) {
       runDerivation = null;
     }
 
-    const deriveFn = (typeof options.deriveFn === 'function')
-      ? options.deriveFn
-      : classifier.scoreBasedDeriveFn;
+    const injectedDerive = (typeof options.deriveFn === 'function');
+    const deriveFn = injectedDerive ? options.deriveFn : classifier.scoreBasedDeriveFn;
 
     // D-04: probe the encoder ONCE before touching any pair. Unavailable means skip
     // EVERY entry, disclose per entry, clear the queue, and return ok:true. There is
@@ -257,15 +258,33 @@ async function drainScoreBased(resolved, entries, options, result) {
         // Pre-resolve the async producer per pair, then feed a SYNC deriveFn to the
         // untouched Phase-169 composer (producer swap; runDerivation's sync loop
         // rejects a Promise return).
+        //
+        // D-04 TOCTOU closure: the one-time probe does not prove the encoder
+        // survives the whole pass. On the DEFAULT path the producer receives (a)
+        // the SAME seam the probe used (scoreOpts = options.probeOpts, so probe
+        // and scoring can never diverge onto different encoders) and (b) an
+        // onOutcome counter; when any pair came back encoder_unavailable AFTER
+        // the passing probe, the derivation_skipped disclosure is still written
+        // with the affected pair count instead of reporting a silent success.
+        let encoderFailedPairs = 0;
+        const producerOpts = injectedDerive ? undefined : {
+          scoreOpts: options.probeOpts,
+          onOutcome: (o) => {
+            if (o && o.outcome === 'encoder_unavailable') encoderFailedPairs += 1;
+          },
+        };
         const candidatesByPair = new Map();
         for (const pair of artifactPairs) {
           // eslint-disable-next-line no-await-in-loop
-          const cands = await deriveFn({ roomDir: target, artifactPair: pair });
+          const cands = await deriveFn({ roomDir: target, artifactPair: pair }, producerOpts);
           candidatesByPair.set(pair, Array.isArray(cands) ? cands : []);
         }
         const syncDeriveFn = (step) => candidatesByPair.get(step && step.artifactPair) || [];
         if (typeof runDerivation === 'function') {
           runDerivation({ roomDir: target, deriveFn: syncDeriveFn, artifactPairs: artifactPairs });
+        }
+        if (encoderFailedPairs > 0) {
+          discloseSkip(target, entry, encoderFailedPairs);
         }
         result.drained.push(target);
       } catch (_e) {
