@@ -3092,12 +3092,12 @@ Plans:
 **Goal:** Turn each student diarized 5-minute pitch transcript into one Minto-structured formative feedback artifact, batch-orchestrated across 200+ HUJI submissions at a $4-5/unit ceiling, with local-only scoring (Brain read-only, generic handles per Canon Part 8) and a mandatory human calibration checkpoint. MindrianOS first paying job.
 **Requirements**: net-new business-opportunity phase; no REQUIREMENTS.md REQ-IDs mapped. Requirement axis = the AI-SPEC 10 evaluation dimensions D1-D10 (distributed across the plans) + the 5 build seams.
 **Depends on:** Phase 228
-**Plans:** 1/9 plans executed
+**Plans:** 2/9 plans executed
 Plans:
 **Wave 1**
 
 - [x] 229-01-PLAN.md -- Evidence + feedback zod schemas + JSON Schema generation + 5 open-question resolution (CONTRACTS.md) [D1,D2,D5,D9]
-- [ ] 229-02-PLAN.md -- Test scaffolding: labeled inventories + synthetic probes + run-all-229.sh aggregator [D2,D3,D8,D10]
+- [x] 229-02-PLAN.md -- Test scaffolding: labeled inventories + synthetic probes + run-all-229.sh aggregator [D2,D3,D8,D10]
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -3385,8 +3385,8 @@ Plans:
 
 ### Phase 227: Ignite / mode-select timing across turns 1-4 (SEED-060): close intern-w1-mode-gate-skip's own remaining item (a code-level firing checkpoint for the Turn-1 lane pick), close ignite-frontdoor-bypassed-methodology-overfire's remaining items 2 and 4, and add ignite/B2/mode-select to skills/larry-personality/SKILL.md with Hooked-Model timing reasoning
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Give the session-start mode-selection Decision Gate (Just Talk / Explore+Capture / Build a Room) a structural, advisory-only backstop against silent skips; sweep methodology skills for the same loose-description auto-fire bypass that caused the trending-to-absurd over-fire and fix the trivial instances found; prove with a scripted fixture that the clean ignite-F.1 first-touch (tester Test 4) is restored; and document, with real Hooked-Model (Fogg B=MAP / TARI) reasoning, why the gate fires when it does and never as a heavyweight ask.
+**Requirements**: REQ-1 (session-start firing checkpoint, advisory doctor.cjs class), REQ-2 (systemic sweep + trivial fixes), REQ-3 (scripted regression fixture for tester Test 4), REQ-4 (ignite named + Hooked-Model timing reasoning in larry-personality.md), REQ-5 (conversation-mode Mode 3 routes through ignite)
 **Depends on:** Phases 210-224 (navigator-directed 2026-07-15, research requirement, not
 a strict block). Most directly relevant: Phase 210 (revert-persona-enforcement-over-reach
 -- this phase's own fix must not repeat 210's over-enforcement mistake; a code-level
@@ -3423,11 +3423,15 @@ correcting `conversation-mode.md` Mode 3's routing, not just the Hooked-Model ti
 forward-looking, not grounded in 223's actual text yet. **227 is fully independent** -- all cited
 dependencies are shipped precedent to imitate or forward-looking context, not blockers; it can
 proceed now.
-**Plans:** 0 plans
+**Plans:** 5 plans in 2 waves
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 227 to break down)
+- [ ] 227-01-PLAN.md -- mode-select-sidechannel.cjs + mode-select-checkpoint doctor module/registry row + hermetic regression test (Req 1 part A, wave 1)
+- [ ] 227-02-PLAN.md -- systemic sweep of methodology skills for the CIRS R4 loose-description bypass, trivial fixes inline, SWEEP-FINDINGS.md report (Req 2, wave 1)
+- [ ] 227-03-PLAN.md -- name ignite + Hooked-Model timing reasoning in larry-personality.md (Req 4, wave 1)
+- [ ] 227-04-PLAN.md -- wire the mode-select firing checkpoint's two call sites (selector-dispatcher.cjs + conversation-mode.md default-stated) and route Mode 3 through ignite's Directive/--express path (Req 1 part B + Req 5, wave 2, depends on 227-01)
+- [ ] 227-05-PLAN.md -- scripted regression fixture replaying tester Test 4 (test-227-frontdoor-restraint.cjs), registered as a permanent regression floor (Req 3, wave 2, depends on 227-01)
 
 ### Phase 228: RS pipeline vector-repoint and expert-graph reconciliation (SEED-030): the two still-open items after this session confirmed the RS family's connector-spine wiring is already done -- repoint rs-engine's internal/cross-room/hybrid modes at the local Embedding Layer instead of Pinecone, and lock the R-expert decision for rs-experts' Aura/Brain-Cypher coupling (keep as remote Mode-A enrichment vs. descope)
 
