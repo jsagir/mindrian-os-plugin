@@ -3087,6 +3087,17 @@ Plans:
 
 - [ ] 220-05-PLAN.md - Live real-URL end-to-end evidence + blocking navigator checkpoint + release READINESS staging (git diff --exit-code proves no bump; the joint cut transfers to Phase 221) [REQ-1, REQ-6]
 
+### Phase 229: HUJI Pitch Feedback Module
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 228
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 229 to break down)
+
 ---
 
 ### Phase 221: Pipeline-Wide High-Effort LLM Engine Recovery (llm-engine-recovery) - REGISTERED 2026-07-13 - **JOINT 219+220+221 RELEASE; THE CUT EXECUTES HERE**
@@ -3259,8 +3270,8 @@ Plans:
 
 ### Phase 225: Per-session room binding and multi-session reconciliation (SEED-039): close the resolver-fragmentation gap shared with Phase 224/SEED-034, correct session-to-room binding across concurrent sessions
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** A substantive conversational reframe that fingerprint-matches NO existing room, in a session with a bound primary, fires a distinct "no room matched" F.8 Decision Gate (continue-in-primary / start-a-new-project / no-room) instead of the line-509 silent misfile into the old room (SEED-039 proving_case_2), with the 83-07 never-block contract and every legitimate zero-score silence preserved; plus a never-block doctor --bind-check advisory that warns when bundled SQLite < 3.51.3 AND a live co-session is present (the Phase-218 WAL-reset window, detect-only per commit 298a1c84).
+**Requirements**: Local REQ-1..REQ-6 (225-RESEARCH.md Rec IDs adopted verbatim at plan-time per PD-4; no global REQ-XX ids mapped, the Phase 224 precedent)
 **Depends on:** Phases 210-224 (navigator-directed 2026-07-15: research requirement, not
 necessarily a strict execution-order block, matching Phase 224's own dependency framing).
 Most directly relevant within that range: Phase 224/SEED-034 (this seed's own file names
@@ -3287,11 +3298,13 @@ worker vs. live conversation process, same room.db) is a legitimate second concu
 in shape to this seed's Pillar 4. **225 is NOT blocked on 224** -- proceed with 225's spec now,
 scoped to the classifier zero-score edge case plus the WAL race, with `room-root.cjs::
 resolveRoomRoot()` locked as the already-shared contract rather than an open question.
-**Plans:** 0 plans
+**Plans:** 3 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 225 to break down)
+- [ ] 225-01-PLAN.md - Zero-score no-match F.8 gate branch in intent-classifier.cjs (emitNoMatchGate, PD-1/PD-3/PD-5) + proving_case_2 fire/silence tests + fail-open degrade test
+- [ ] 225-02-PLAN.md - doctor.cjs _walResetAdvisory (SQLite < 3.51.3 + live co-session WARN, never-block, PD-2: advisory only, no worker guard) + seam-injected test
+- [ ] 225-03-PLAN.md - run-all-225.sh phase gate (3 run_if legs + unconditional run-all-194.sh regression leg) + run-feynman-tests registration + ENV-TUNING floor doc + rethinking-mindrianos compositing filing
 
 ### Phase 226: Eureka reasoning-mode fallback (SEED-058): give /mos:eureka a labeled, lower-confidence mode:reasoning path reading raw room markdown directly when the embedding index or room.db graph substrate is unavailable, instead of a hard pairs_scored:0 stop
 
@@ -3437,48 +3450,6 @@ when prioritized. See `.planning/GOAL-223-228-DEPENDENCY-SYNTHESIS-2026-07-15.md
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 228 to break down)
-
----
-
-## Backlog (parking lot — unscheduled, not phase-bound)
-
-### GSD Planning Artifacts as Local-Graph Members (Brain-queryable via typed packets) — REGISTERED 2026-06-08
-
-**Goal:** Every GSD planning artifact (SPEC.md, CONTEXT.md, RESEARCH.md, VALIDATION.md, PLAN.md, VERIFICATION.md) becomes a first-class typed node in the LOCAL graph (room.db) via `lib/core/navigation.cjs`, so it is navigable (`/mos:graph`), reachable from the Decision Gate, and part of the local mind (Canon Part 9: "Files preserve meaning. SQL remembers and navigates."). Today these are flat markdown in `.planning/`, OUTSIDE room.db.
-
-**Brain-queryable boundary (constitutional):** "queryable by the remote Brain" means via the Part 9 TYPED-PACKET contract ONLY - generic handles (phase id, requirement ids, test names, framework names), never the artifact prose. Canon Part 8 is absolute: `LOCAL -> BRAIN: NO` for raw content. The local graph holds the full node; the Brain sees a sanitized packet. The `check-brain-boundary` scan gates the packet path.
-
-**Why now:** Navigator note 2026-06-08 during Phase 148 plan-phase - VALIDATION.md (and all planning artifacts) "must be a member of the local graph and queryable by the remote one." Surfaces the GSD `.planning` <-> room.db bridge gap. Reuses navigation.cjs (Phase 109 chokepoint) + the typed-packet contract (Phase 110); a new node type (e.g. `planning_artifact`) + a writer hook on GSD doc creation.
-
-**Scope note:** touches EVERY artifact type and the GSD doc-write lifecycle - its own phase, NOT folded into 148 (the selector re-wire). Canon parts: Part 8, Part 9, Part 6 (dog-fooding - the plugin's own planning becomes graph-navigable). Slug: `gsd-artifacts-as-local-graph-members`.
-
-**Status:** PROMOTED to Phase 149 (2026-06-08) - see the v1.14.0 milestone above.
-
-### Testers Feedback Hub (Canny-style) — REGISTERED 2026-05-06
-
-**Goal:** Build a public testers feedback / changelog / voting hub for MindrianOS, modeled exactly on https://timeosai.canny.io/. Use to (a) ship update posts the testers can read + comment on, (b) collect feature requests with upvotes, (c) surface a public roadmap with status tracking (Under Review / Planned / In Progress / Complete).
-
-**Why now:** Current tester cohort (Lawrence, Adam, Aryeh, Justin) has no canonical channel for asynchronous feedback or visibility into what's shipped vs in-flight. Email + 1:1 doesn't scale past 5 testers. Canny.io pattern is the proven shape.
-
-**Reference:** https://timeosai.canny.io/
-
-**Open questions:**
-
-- Self-host (Canny is paid) or use Canny directly?
-- Public, or auth-gated to invited testers only?
-- Sync with `docs/testers/<name>/` directories or replace them?
-- Tie to a domain (e.g. feedback.mindrian.dev) or live under main marketing site?
-
-**Status:** Unscheduled — promote to a numbered phase when current tester onboarding stabilizes.
-
-### v1.14.0 scoped-backlog phases — REGISTERED 2026-06-01
-
-Two phases scoped + parked to v1.14.0 (NOT in the frozen v1.13.1 chain). CONTEXT files on disk; promote via `/gsd:discuss-phase` / `/gsd:plan-phase` after v1.13.1 ships.
-
-- **Phase 137 — Brain<->MindrianOS sync + compatibility harness.** Operationalizes the 130.7 dual-graph contract into a standing PR compat gate + weekly read-only sync drift report (GitHub Actions). `.planning/phases/137-*/137-CONTEXT.md`. (committed c15a7c86)
-- **Phase 138 — Capability radar absorption + routing.** PROMOTED 2026-06-09 to a numbered v1.14.0 phase (see the v1.14.0 "Larry Thinks" milestone above; Requirements RAD-01..08). Turns `/mos:radar` from a reader into a router: a living capability ledger (Claude Code 2.1.148-159 findings), retrofit backlog (Opus 4.8 model floor, `CLAUDE_CODE_SESSION_ID` Brain scoping, SessionStart session-title, reloadSkills, defaultEnabled, disallowed-tools), and a `radar_findings:` forward-awareness contract so future phases incorporate findings before they are planned. Supersedes the dormant SEED-003. **Sequence FIRST in v1.14.0** (before consumer phases 133/134/135/136). Folds Bucket-C items here because Phase 121.5 already shipped. `.planning/phases/138-*/138-CONTEXT.md`.
-
-**Status:** Phase 138 PROMOTED to numbered phase 2026-06-09 (planning in progress); Phase 137 remains scoped-backlog — builds after v1.13.1 ships.
 
 ### Phase 160: Temporal Awareness (spine + Larry Reaches) - PLANNED 2026-06-16
 
