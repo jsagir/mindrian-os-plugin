@@ -105,6 +105,14 @@ run_if "229-03 (D4) part8-hygiene: no student strings in Brain payload" "scripts
 run_if "229-03 (D3) drift: duplicate-anchor probes within 1 band" "scripts/huji-eval.cjs" \
   node scripts/huji-eval.cjs --check drift
 
+# D6/D7 (REQ D6, D7): the LLM judge calibration protocol. Guarded on the judge prompt.
+# ALWAYS self-verifies the pure calibration math (Spearman >= 0.7, Dental post > pre,
+# DnATA < Lucid turn RED the moment the gate logic regresses); the LIVE judge only runs
+# when ANTHROPIC_API_KEY is set, so a structural run never depends on the model call. An
+# uncalibrated judge fails closed and can never gate delivery (threat T-229-06-01).
+run_if "229-06 (D6/D7) judge calibration: anchor protocol fails closed under 0.7" "$EVAL/judge-prompt.md" \
+  node scripts/huji-eval.cjs --suite anchors --judge
+
 # D10 (REQ D10): kill/resume skips completed .done submissions and there is zero
 # cross-student context bleed at N=200. Guarded on the batch orchestrator (a later
 # wave); the leg runs the kill/resume + cross-bleed grep that harness exposes.
