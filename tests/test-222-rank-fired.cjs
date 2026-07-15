@@ -130,5 +130,49 @@ check('(6) soft-fail: a throwing cortexNodes getter returns the input array unch
   assert.strictEqual(out, fired, 'an unexpected throw must return the ORIGINAL input array');
 });
 
+// ---------------------------------------------------------------------------
+// (7) WR-01 -- the live registry signal uses the CANONICAL REACH_IDS rank, not
+// the fired array's own turn-relative index, so it is the IDENTICAL feature
+// deriveExpertLosses trains against.
+// ---------------------------------------------------------------------------
+check('(7) WR-01: registry signal is the canonical REACH_IDS rank, not the fired-array\'s turn-relative index', () => {
+  // hats (canonical index 5, LAST) fires FIRST this turn; contradiction
+  // (canonical index 1) fires SECOND. Pre-fix, the live blend used the fired
+  // array's own index (hats=0 -> signal 1, contradiction=1 -> signal 0.5), so
+  // hats would have won on a registry-only blend -- the OPPOSITE of what the
+  // training-time deriveExpertLosses would ever learn to reward for the same
+  // reach_id pair (it always rewards front-of-CANONICAL-registry, i.e.
+  // contradiction over hats). Post-fix, both features agree.
+  const fired = [reach('hats'), reach('contradiction')];
+  const out = ranker.rankFiredCandidates(fired, {
+    hedgeWeights: { d4_blend: 0, registry_order: 1 },
+  });
+  assert.strictEqual(out[0].reach_id, 'contradiction',
+    'the canonically-earlier reach (contradiction, index 1) must win the registry-only blend over hats (index 5), got ' + out[0].reach_id);
+});
+
+check('(7b) WR-01: canonicalRegistryRank matches REACH_IDS.indexOf for every canonical reach, and floors unknown ids to REACH_IDS.length', () => {
+  for (const id of ranker.REACH_IDS) {
+    assert.strictEqual(ranker.canonicalRegistryRank(id), ranker.REACH_IDS.indexOf(id),
+      'canonicalRegistryRank must equal REACH_IDS.indexOf for a canonical id: ' + id);
+  }
+  assert.strictEqual(ranker.canonicalRegistryRank('not_a_reach'), ranker.REACH_IDS.length,
+    'an off-registry reach_id must floor to REACH_IDS.length, not -1 or Infinity');
+});
+
+check('(7c) WR-01: deriveExpertLosses\' endorsementRegistry is the SAME formula rankFiredCandidates now applies', () => {
+  // For a valid, on-registry reach_id, 1/(canonicalRegistryRank+1) is exactly
+  // what deriveExpertLosses computes as endorsement_registry (accept branch:
+  // loss = 1 - endorsement, so recovering endorsement from a reject-decision
+  // row's loss is the direct, non-inverted read).
+  for (const id of ranker.REACH_IDS) {
+    const losses = ranker.deriveExpertLosses({ reach_id: id, decision: 'reject' }, {});
+    const expectedEndorsement = 1 / (ranker.canonicalRegistryRank(id) + 1);
+    assert.ok(Math.abs(losses.registry_order - expectedEndorsement) < 1e-12,
+      'training-time endorsement for ' + id + ' must equal the live registrySignal formula; got ' +
+      losses.registry_order + ' vs expected ' + expectedEndorsement);
+  }
+});
+
 console.log('');
 console.log('PASS test-222-rank-fired.cjs (' + passed + ' checks)');
