@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 225-02-PLAN.md
-last_updated: "2026-07-15T11:05:00.000Z"
+stopped_at: Completed 225-03-PLAN.md
+last_updated: "2026-07-15T11:07:23.435Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
-  completed_phases: 19
+  completed_phases: 20
   total_plans: 109
-  completed_plans: 105
-  percent: 51
+  completed_plans: 106
+  percent: 54
 ---
 
 # Project State
@@ -965,7 +965,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 225 (per-session-room-binding-and-multi-session-reconciliation-se) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1538,6 +1538,7 @@ Progress: [█████████░] 92%
 | Phase 224 P01 | 12min | 2 tasks | 8 files |
 | Phase 224 P04 | 5min | 2 tasks | 3 files |
 | Phase 225 P01 | 20min | 2 tasks | 3 files |
+| Phase 225 P03 | 25min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -2560,6 +2561,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 225-01: zero-score no-match gate fires once per session per room even under sticky (PD-1); continue-in-primary pre-checked at 0.71
 - [Phase ?]: 225-01: PD-3 anti-overfire floor (>=8 tokens, MINDRIAN_ZERO_SCORE_GATE_MIN_TOKENS) + once-per-session trace suppression avoids the Phase-210 over-enforcement mistake
 - [Phase ?]: 225-01: reuse the shipped consumePriorBindingAnswer unchanged via the binding_gate_payload key (PD-5); new-project and no-room both map to __no_room__
+- [Phase 225]: run-all-225.sh phase gate: 3 SKIP-safe run_if legs + an unconditional run-all-194.sh regression leg (shipped-substrate guard, T-225-11)
+- [Phase 225]: Dev-research compositing filed in rethinking-mindrianos room, generic technical content only (no real names, Canon Part 8), cross-linked to 225-RESEARCH.md
 
 ### Pending Todos
 
@@ -2630,8 +2633,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-15T10:40:55.705Z
-Stopped at: Completed 225-01-PLAN.md
+Last session: 2026-07-15T11:07:23.143Z
+Stopped at: Completed 225-03-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
