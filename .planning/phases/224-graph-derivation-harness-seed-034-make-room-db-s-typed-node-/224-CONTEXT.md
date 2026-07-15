@@ -82,12 +82,35 @@ All four decisions below were made at an explicit navigator AskUserQuestion gate
   design problem (its Grounding Guard chicken-and-egg finding), not this phase's. Soft-fail /
   advisory per the Phase 210 caution - the skip never blocks the write or the hook.
 
+### Post-research amendments (2026-07-15, after 224-RESEARCH.md)
+- **D-05 (OQ-1, explicit navigator ruling at an AskUserQuestion gate, OVERRIDING the researcher's
+  node-status recommendation - the Phase 222 OQ-1 pattern):** derived edges literally carry
+  `review_status: 'proposed'` AS A COLUMN ON THE EDGES TABLE, matching SPEC Req 4's exact wording.
+  This requires a schema migration to the edges table - copy
+  `lib/core/migrations/phase-222-ranker-weights.cjs`'s sentinel-idempotent transaction-wrapped
+  shape. The migration must be additive and backward-safe: existing edge readers see a new column
+  they ignore; existing rows get a non-proposed default (executor picks 'confirmed' or NULL
+  semantics and documents it) so pre-existing edges are never retroactively demoted to proposals.
+- **D-03 amended by research finding:** `/mos:graph --derive` ALREADY EXISTS (Phase 169 shipped
+  `graph-derivation.cjs::runDerivation`, `graph-backfill.cjs::runDeriveBackfill`, the command
+  flag, and Stop-sweep + SessionStart-drain hooks). The bug is the default `_localCueDeriveFn`
+  being keyword-regex-only, emitting zero edges on normal prose. This phase SWAPS THE DERIVER
+  (score-based deriveFn per D-01) and adds the per-write trigger - it does NOT rebuild the
+  harness (Part 7).
+- **D-02 refined by research finding:** the cascade runs FOREGROUND on both surfaces (post-write
+  captures CASCADE_OUTPUT; tool-router.cjs:499 awaits runCascade). The new cascade step 2b only
+  ENQUEUES (to the existing graph-derive-queue.json) and spawns a DETACHED worker
+  (spawn(detached:true).unref(), per async-artifact-auto-commit.cjs::spawnDetachedWorker) that
+  runs the O(n) scoring off the write-lock. Never run scoreMeasured inline in the cascade.
+
 ### Claude's Discretion
 - Exact threshold values and band boundaries for D-01's mapping layer (derive from fixture).
 - The disclosure marker's exact field name/location for D-04 (follow the SEED-059 worked-example
   shape).
 - Internal module naming and file placement for the new threshold/classification layer.
 - How the backfill batches its O(n^2) pairwise scan (chunking, progress reporting).
+- The existing-rows default semantics for the new edges review_status column (D-05), documented
+  in the migration file.
 
 </decisions>
 
