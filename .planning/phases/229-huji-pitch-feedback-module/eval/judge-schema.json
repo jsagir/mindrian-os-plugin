@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HUJI Pitch-Feedback LLM Judge Output",
+  "description": "Structured output for the Phase 229 calibrated judge (sonnet judging opus). Scores ONLY the corpus-stable Real/Win/Worth spine (1-5 per dimension) plus D1/D6/D7 violation lists. The judge NEVER emits the raw letter/percentage/point grade - those three incompatible corpus scales are normalized into this one spine before anything is compared.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "submission_id",
+    "real",
+    "win",
+    "worth",
+    "d1_violations",
+    "d6_violations",
+    "d7_violations"
+  ],
+  "properties": {
+    "submission_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The anchor or submission id being judged (for example 04-circular-manufacturing)."
+    },
+    "real": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Is-it-Real: is the problem real, evidenced, and grounded in what the pitch actually said. 1-5, normalized per the map in judge-prompt.md (< 50 pct = 1, 50-64 = 2, 65-79 = 3, 80-89 = 4, 90+ = 5)."
+    },
+    "win": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Can-we-Win: is the proposed approach differentiated and defensible. 1-5, same normalization."
+    },
+    "worth": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Is-it-Worth-it: is the opportunity worth pursuing at course scale. 1-5, same normalization."
+    },
+    "d1_violations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "D1 grounding violations: each ungrounded or fabricated claim, and each covered element wrongly marked missing. Empty array = clean."
+    },
+    "d6_violations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "D6 tone violations: grade-and-compliment theater, double-punished metacognition (a self-named gap penalized instead of credited), or disfluency/non-native language penalized as content. Empty array = clean."
+    },
+    "d7_violations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "D7 course-tier feed-forward violations: an investor-gauntlet demand, a next step above course level, or a summary that scores without a concrete next-step path. Empty array = clean."
+    }
+  }
+}
