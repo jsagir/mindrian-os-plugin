@@ -2300,26 +2300,58 @@ function emitBindingGate(args) {
   return true;
 }
 
-// Phase 225-01 (PD-1, once-per-session-per-room suppression): scan the decision-trace
-// file for a prior 'zero_score_gate' entry. A missing / corrupt trace file means "not
-// offered" (fail-open to false), so the gate is NEVER suppressed by a read fault. The
-// whole body is in try/catch returning false, mirroring the never-block contract.
+// WR-01 fix (Phase 225 REVIEW-FIX): the PD-1 "once per session per room" marker
+// used to be a scan for a 'zero_score_gate' entry in the SHARED decision-trace
+// file. That file also carries the Phase-91 navigation-engine's own trace entry
+// on essentially every substantive turn (persistDecisionTrace, TRACE_ROTATE_AT =
+// 50, drop-oldest-10 on rotation), so a 'zero_score_gate' marker had a BOUNDED
+// lifetime (evicted after exactly 50 further trace-writing turns), not a session
+// lifetime -- well within a normal working session, silently re-arming the gate
+// mid-session, contradicting docs/ENV-TUNING.md's "fires at most once per room
+// per session" claim. Root cause: reusing a rotated, high-churn shared file for a
+// signal that needs session-lifetime durability. Fix: a DEDICATED marker file
+// that this suppression check owns exclusively (never touched by
+// persistDecisionTrace / TRACE_ROTATE_AT), so it cannot be rotated out no matter
+// how many further turns the session runs. Same atomic tmp+rename durability
+// idiom already used by persistDecisionTrace / writeSessionBinding in this repo.
+function zeroScoreGateMarkerPath(roomDir, sessionId) {
+  return path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.zero-score-gate-offered.json');
+}
+
+// Phase 225-01 (PD-1, once-per-session-per-room suppression), WR-01-fixed: read the
+// dedicated marker file (never rotated -- see zeroScoreGateMarkerPath above). A
+// missing / corrupt marker file means "not offered" (fail-open to false), so the
+// gate is NEVER suppressed by a read fault. The whole body is in try/catch
+// returning false, mirroring the never-block contract.
 function zeroScoreGateAlreadyOffered(roomDir, sessionId) {
   try {
     if (!roomDir || !sessionId) return false;
-    const filePath = path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.json');
-    const raw = fs.readFileSync(filePath, 'utf8');
+    const raw = fs.readFileSync(zeroScoreGateMarkerPath(roomDir, sessionId), 'utf8');
     const parsed = JSON.parse(raw);
-    if (parsed && Array.isArray(parsed.traces)) {
-      for (let i = parsed.traces.length - 1; i >= 0; i--) {
-        const e = parsed.traces[i];
-        if (e && typeof e === 'object' && e.kind === 'zero_score_gate') return true;
-      }
-    }
-    return false;
+    return !!(parsed && parsed.offered === true);
   } catch (_e) {
     return false;
   }
+}
+
+// WR-01 fix companion: writes the dedicated, never-rotated PD-1 marker. Fire-
+// and-forget (mirrors persistDecisionTrace): a write fault never blocks or
+// crashes the gate, it only means PD-1 degrades to "may re-fire" instead of
+// "definitely re-fires" -- strictly no worse than the pre-fix behavior.
+function markZeroScoreGateOffered(roomDir, sessionId) {
+  try {
+    if (!roomDir || !sessionId) return;
+    const markerPath = zeroScoreGateMarkerPath(roomDir, sessionId);
+    try { fs.mkdirSync(path.dirname(markerPath), { recursive: true }); } catch (_) {}
+    const rnd = Math.random().toString(36).slice(2, 10);
+    const tmpPath = markerPath + '.tmp.' + process.pid + '.' + rnd;
+    fs.writeFileSync(tmpPath, JSON.stringify({ offered: true, ts: new Date().toISOString() }, null, 2));
+    try {
+      fs.renameSync(tmpPath, markerPath);
+    } catch (_e) {
+      try { fs.unlinkSync(tmpPath); } catch (_) {}
+    }
+  } catch (_e) { /* fire-and-forget: never block or crash the gate */ }
 }
 
 // Phase 225-01 (SEED-039 proving_case_2): the "no room matched" F.8 Decision Gate.
@@ -2430,8 +2462,11 @@ function emitNoMatchGate(args) {
 
   // Persist the gate payload under the SAME binding_gate_payload key the shipped
   // consumePriorBindingAnswer scans for (it keys on e.binding_gate_payload, NOT e.kind),
-  // with kind 'zero_score_gate' for trace disambiguation + PD-1 once-per-session
-  // suppression. The consumer is reused with ZERO changes (PD-5).
+  // with kind 'zero_score_gate' for trace disambiguation. This trace entry is the
+  // ANSWER-consumption channel (consumePriorBindingAnswer reads it on the very next
+  // turn); it is NOT the PD-1 suppression signal (WR-01 fix -- see
+  // zeroScoreGateAlreadyOffered / markZeroScoreGateOffered above, a dedicated
+  // never-rotated marker, since this shared trace file rotates at 50 entries).
   try {
     if (roomDir && sessionId) {
       persistDecisionTrace(roomDir, sessionId, {
@@ -2445,6 +2480,16 @@ function emitNoMatchGate(args) {
       });
     }
   } catch (_e) { /* fire-and-forget: persistence is best-effort */ }
+
+  // WR-01 fix: stamp the dedicated, never-rotated PD-1 marker so
+  // zeroScoreGateAlreadyOffered's suppression survives arbitrarily many further
+  // trace-writing turns in this session (the shared decision-trace file above
+  // does not -- see the comment on zeroScoreGateMarkerPath).
+  try {
+    if (roomDir && sessionId) {
+      markZeroScoreGateOffered(roomDir, sessionId);
+    }
+  } catch (_e) { /* fire-and-forget: never block or crash the gate */ }
 
   const envelope = {
     hookSpecificOutput: {

@@ -184,6 +184,35 @@ try {
   });
 
   // -------------------------------------------------------------------------
+  // Leg 4b (225-REVIEW-FIX WR-01 regression): the PD-1 suppression must survive
+  // the shared decision-trace file's OWN 50-entry drop-oldest-10 rotation
+  // (persistDecisionTrace / TRACE_ROTATE_AT), which the always-on Phase-91
+  // engine block writes to on essentially every turn. Rather than spawning 50+
+  // real turns, simulate the post-rotation state directly: strip the
+  // zero_score_gate trace entry out of the trace file (exactly what rotation
+  // eventually does to it) while leaving the WR-01 dedicated marker file
+  // (written by markZeroScoreGateOffered, never rotated) untouched, then re-fire
+  // and assert the gate STILL stays silent. Before the WR-01 fix this simulated
+  // state would re-arm the gate (zeroScoreGateAlreadyOffered scanned the same
+  // rotated trace file); after the fix it reads the dedicated marker instead.
+  // -------------------------------------------------------------------------
+  check('leg 4b WR-01: PD-1 suppression survives decision-trace rotation eviction', () => {
+    const traceFile = tracePath(home);
+    const parsed = JSON.parse(fs.readFileSync(traceFile, 'utf8'));
+    assert.ok(Array.isArray(parsed.traces), 'trace file has a traces array');
+    const before = parsed.traces.length;
+    parsed.traces = parsed.traces.filter((e) => !(e && e.kind === 'zero_score_gate'));
+    assert.ok(parsed.traces.length < before, 'the zero_score_gate entry was actually stripped (simulated rotation)');
+    fs.writeFileSync(traceFile, JSON.stringify(parsed, null, 2));
+
+    const res = spawnClassifier(home, REFRAME);
+    assert.strictEqual(res.status, 0, 'exit 0; got ' + res.status + ' stderr=' + res.stderr);
+    const out = res.stdout || '';
+    assert.ok(out.indexOf('no room matched') === -1,
+      'gate must stay silent even after the trace entry rotates out (WR-01 fix: dedicated marker file)');
+  });
+
+  // -------------------------------------------------------------------------
   // Leg 3: SILENCE floor (PD-3). A short (< 8 token) zero-score message with the
   // binding still present must not fire the gate.
   // -------------------------------------------------------------------------
