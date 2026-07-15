@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
-status: executing
-stopped_at: Phase 223 Plan 01 COMPLETE (Wave 1)
-last_updated: "2026-07-15T20:10:00.000Z"
+status: verifying
+stopped_at: Phase 223 planned (5 plans, 4 waves, plan-check PASS)
+last_updated: "2026-07-15T20:27:46.010Z"
 last_activity: 2026-07-15
 progress:
   total_phases: 37
   completed_phases: 21
-  total_plans: 118
+  total_plans: 120
   completed_plans: 111
-  percent: 58
+  percent: 57
 ---
 
 # Project State
@@ -1001,8 +1001,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 223 (jtbd-driven-intelligence-pipeline-governed-double-fan-bono) — EXECUTING
-Plan: 1 of 5
+Phase: 227
+Plan: Not started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1469,7 +1469,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 11
+- Total plans completed: 15
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -1578,6 +1578,7 @@ Progress: [█████████░] 92%
 | Phase 225 P03 | 25min | 3 tasks | 3 files |
 | 225 | 3 | - | - |
 | Phase 226 P01 | 35 | 3 tasks | 6 files |
+| 226 | 4 | - | - |
 
 ## Accumulated Context
 
