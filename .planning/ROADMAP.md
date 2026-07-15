@@ -3154,7 +3154,40 @@ Plans:
 
 **Goal:** [To be planned]
 **Requirements**: TBD
-**Depends on:** Phase 222
+**Depends on:** Phases 210-218, Phase 222 (navigator-directed 2026-07-15, second pass: research
+requirement, not a strict block; 223 already has 223-SPEC.md + 223-BUILD-BRIEF.md on disk, unlike
+224-228's empty placeholders, but its own dependency research was thin against the shipped
+210-222 range until this pass). Read Phase 211's CONTEXT.md D2 first: it explicitly RETIRES
+`scripts/compute-hsi.py`'s LSA path in favor of the measured semantic leg of the eureka engine
+(211-216) -- 223-BUILD-BRIEF.md Section 3 still lists `compute-hsi.py`/`discover-*-whitespace.py`
+as the "computed layer" for intel-pipeline's Phase 4-5; verify against `lib/core/eureka/*.cjs`
+before wiring that step, do not call a retired path. Confirm 223's fan-research/consolidate/
+synthesize pipeline is a DIFFERENT fan than eureka's tri-modal retrieval-fusion (cell-fanout/
+runDebate dispatches NEW web research; eureka scores EXISTING room content via sqlite-vec/FTS5/
+RRF) -- no code duplication found, but the naming overlap invites confusion at discuss-phase.
+Phase 217 (doctor.cjs rethink): 223's Requirement 5 gate should register intel-pipeline/bono-v2
+health as a migrated check-class module per 217's pattern, not a bespoke surface. Phase 218
+(entity-extraction): no node/edge-type collision (218 ships company/technology/market +
+COMPETES_WITH/USES_COMPONENT/SUPPLIES_TO; 223 writes only claim/opportunity/open_question via
+already-ALLOWED types), but 218's extracted entities are a natural INFORMS target for
+persona-research findings -- reuse opportunity. Phase 210: hat-governance.cjs's "no persona may
+assert beyond its own wired sources" and anti-convergence rules must stay scoped to bono's own
+debate logic, never generalize into a live-conversation hard-fail gate the way 190/192/202/205/
+209 did before 210 reverted them. Phase 222 (COMPLETE): bono (`reach_id: hats`) and intel-pipeline
+(`reach_id: context_block`) are existing frozen reaches now ranked through 222's unified
+rankFiredCandidates/Hedge-weight path -- confirm both surfaces exercise that shared path, not a
+stale `sensorReaches[0]` assumption. **Real, bidirectional risk with Phase 224/SEED-034:** 224's
+own entry already names 223 as a second consumer of the graph-population gap it closes; 223's own
+writes go directly through `navigation.cjs` and are unaffected by the bug itself, but
+intel-pipeline's decompose/consolidate/HSI-recompute steps READ the room's broader existing graph
+-- per SEED-034's proving case (b2-journey room: 35 artifact nodes, 35 BELONGS_TO edges, every
+typed edge 0), built before 224, 223 would silently reason over a near-empty typed-edge substrate
+for any pre-existing room content it didn't file itself. A quiet degrade, not a crash, but real.
+Read 223-SPEC.md, 223-BUILD-BRIEF.md, 211-CONTEXT.md, 217-CONTEXT.md, and
+SEED-034-graph-derivation-harness.md before resuming discuss-phase work. **Sequencing
+recommendation: run 224 before 223** -- building 223 first would let its acceptance tests pass
+against an artificially thin graph, masking rather than testing against the exact population gap
+224 exists to close.
 **Plans:** 0 plans
 
 Plans:
@@ -3185,6 +3218,24 @@ SPEC'd not yet executed -- its close-the-loop contract, `claim`/`opportunity`/`o
 nodes written through `navigation.cjs`, is a second consumer of exactly the graph-population gap
 this phase closes; read its SPEC/CONTEXT even though it has not shipped, so this phase's fix
 serves both the already-shipped eureka engine AND whatever 223 eventually needs, not just one).
+
+**Correction (2026-07-15, second pass, re-verified against current code):** the shared
+"resolver-fragmentation" framing with Phase 225 below is STALE for 224's narrow, ROADMAP-stated
+scope (adding a `navigation.cjs` call to `scripts/post-write`'s existing `.room-root`-derived
+`$ROOM_DIR`). `scripts/post-write`'s `detect_room_section()` resolves the room by walking up for
+a `.room-root` sentinel only -- it never reads `registry.json` or session state, so it is
+structurally immune to the session-binding race Phase 225 fixes. Phase 194 (COMPLETE 2026-07-01,
+the actual graduation of SEED-039) already converged the write-guard path
+(`lib/core/resolve-active-room.cjs::resolveWriteRoom()` Leg 1) and the write-index path
+(`scripts/gsd-artifact-graph-hook.cjs`) onto the SAME function, `room-root.cjs::resolveRoomRoot()`
+-- there is no live disagreement left to reconcile between 224 and 225 at that narrow scope.
+**Caveat:** if 224 is planned against SEED-034's FULL 7-item capability list (sub-room rollup,
+non-.md content, auto-derivation sweep) rather than just the post-write one-liner, it extends into
+`gsd-artifact-graph-hook.cjs`'s fallback branch (fires only when no `.room-root` sentinel exists),
+which still duplicates registry-read logic instead of calling `resolveWriteRoom()` -- a real,
+narrow residual gap, live again at that scope. Resolve 224's own scope (narrow post-write fix vs.
+full SEED-034 harness) explicitly at spec-phase; it changes whether 225 needs to be researched in
+lockstep or can proceed independently.
 **Plans:** 0 plans
 
 Plans:
@@ -3206,6 +3257,21 @@ side-channel); Phase 218 (entity-extraction-pipeline -- also touches per-session
 correctness). Research this phase's spec/plan against 224's actual implementation, not
 just its SPEC, since 224 will likely have shipped or be in progress by the time this
 phase starts.
+
+**Correction (2026-07-15, second pass, re-verified against current code):** the "shared
+resolver-fragmentation failure site with Phase 224" premise is STALE. Phase 194 (COMPLETE
+2026-07-01, the actual graduation of this seed) already shipped `lib/core/session-binding.cjs`
+and `resolve-active-room.cjs::resolveWriteRoom()`, converging the write-guard and write-index
+paths onto `lib/core/room-root.cjs::resolveRoomRoot()`. That resolver is no longer in dispute.
+225's real remaining scope is narrower and different: `scripts/intent-classifier.cjs:509`
+(`if (!best || best.score === 0) return 0;`) means the Phase-194 F.8 binding gate never fires
+when a conversational reframe doesn't fingerprint-match ANY existing room (proving case: SEED-039
+proving_case_2, dated 2026-07-14, AFTER Phase 194 shipped) -- the write silently lands in the old
+bound room instead. A second, distinct risk: Phase 218's WAL-concurrency finding (extraction
+worker vs. live conversation process, same room.db) is a legitimate second concurrency site, close
+in shape to this seed's Pillar 4. **225 is NOT blocked on 224** -- proceed with 225's spec now,
+scoped to the classifier zero-score edge case plus the WAL race, with `room-root.cjs::
+resolveRoomRoot()` locked as the already-shared contract rather than an open question.
 **Plans:** 0 plans
 
 Plans:
@@ -3229,6 +3295,23 @@ phase's entry condition depends on. Phase 224/SEED-034 is the sibling fix, not a
 dependency in the strict sense -- this phase's trigger condition (SEED-057's own
 trigger_when) treats 224 and this phase as alternatives, either one clearing the gate,
 so research both but do not assume this phase waits on 224 finishing.
+
+**Correction (2026-07-15, second pass, re-verified against current code):** the "226 does not
+wait on 224" framing is CONFIRMED -- no code coupling found; 226's blocker is exclusively the
+`idx.embedded` encoder gate (`scripts/eureka-portfolio-report.cjs:663/671`), orthogonal to 224's
+write-path graph-population gap. SEED-057's `trigger_when` condition (3) is confirmed verbatim:
+"at least one of SEED-034 ... or SEED-058 ... has shipped... SEED-058 is the more directly
+load-bearing of the two... SEED-034 remains valuable... but is not, by itself, sufficient or
+necessary." **New, more load-bearing risk found:** Phase 212's Grounding Guard critic needs
+`differential_score` and `semantic_similarity`, both of which derive from
+`rs-differential-scorer.cjs::scoreMeasured()`'s semantic leg -- which calls the SAME
+`embedding-spine.cjs` encoder reasoning-mode exists to route around. When the encoder is
+unavailable, `scoreMeasured` returns `semantic: null, passes: false` and
+`eureka-reach-runner.cjs` short-circuits to `{fired:false, reason:'below_floor'}` BEFORE the
+critic is even invoked. A "lighter version" of the critic is not a scoping knob on the existing
+one -- 2 of its 3 numeric inputs are structurally unavailable in exactly the scenario 226 targets,
+so it needs a genuinely new scoring path (only lexical-overlap "lsa_similarity" survives). Resolve
+this at spec-phase before committing to "reuse Phase 212's critic, lighter" as the design.
 **Plans:** 0 plans
 
 Plans:
@@ -3252,6 +3335,29 @@ check, the same shape as SEED-059's fallback-disclosure convention this seed alr
 cites). Also research SEED-059's own "Worked example: Site 4 closed" entry (added
 2026-07-15, quick 260715-cu8) as a live precedent for what a disclosed-fallback fix
 actually looks like in this codebase before designing this phase's own version.
+
+**Correction/addition (2026-07-15, second pass, re-verified against current code):** all cited
+claims CONFIRMED. `intern-w1-mode-gate-skip.md`'s remaining item, verbatim: "Give the
+mode-selection gate an actual code-level firing checkpoint (e.g. a session-start hook that checks
+whether the lane pick was recorded, mirroring the `card-fire-sidechannel.cjs` pattern used
+elsewhere) so a silent skip has SOMETHING structural to catch, not just prose."
+`ignite-frontdoor-bypassed-methodology-overfire.md`'s remaining items 2 and 4, verbatim: "(2)
+SYSTEMIC sweep: other methodology skills for the same loose-description bypass (CIRS R4
+no-second-selection-brain); ... (4) re-run tester Test 4 to confirm the clean ignite-F.1
+first-touch is restored." Phase 210's reverted pattern constrains this phase's design: five
+mechanisms went from HARD-FAIL/BINDING to advisory/soft-fail/score-only; 227's new checkpoint must
+ship as an advisory WARN signal, never a new blocking gate. SEED-056's ignite-naming-gap claim is
+CONFIRMED still live: `grep -i "ignite" skills/larry-personality/SKILL.md` returns zero matches;
+`skills/conversation-mode/SKILL.md` Mode 3 still invokes `/mos:new-project` directly instead of
+routing through ignite. **Scope addition not in the original paragraph:** SEED-056 explicitly
+hands this exact fix to SEED-060/227 ("worth fixing alongside SEED-060... since it is the same
+underlying surface") -- 227's scope should include naming ignite in `larry-personality.md` and
+correcting `conversation-mode.md` Mode 3's routing, not just the Hooked-Model timing prose. Note
+223 defines no concrete ignite-routing surface today (`grep -i "ignite"` across 223-SPEC.md and
+223-BUILD-BRIEF.md returns zero matches) -- the "ignite is 223's front door" framing is
+forward-looking, not grounded in 223's actual text yet. **227 is fully independent** -- all cited
+dependencies are shipped precedent to imitate or forward-looking context, not blockers; it can
+proceed now.
 **Plans:** 0 plans
 
 Plans:
@@ -3275,6 +3381,42 @@ eureka converge on ONE local vector pattern rather than inventing a second); Pha
 engine already shipped) as a second reference point for how a similar engine handles its
 local-vs-remote split. The R-expert Aura/Brain-Cypher decision (this seed's Requirement
 3) has no direct precedent in 210-224 -- research it against Canon Part 8 directly.
+
+**Correction (2026-07-15, second pass, re-verified against current code):** Requirement 1 is
+RE-CONFIRMED done, but note SEED-030's OWN staleness_note (added 2026-07-15) explicitly says
+Requirements 2 and 3 "were NOT re-verified this session" in the pass that produced this ROADMAP
+entry -- treat the framing below as now independently checked. **Scope is larger than "repoint two
+things" implies.** A legacy Python RS engine is still present on disk (`scripts/rs-engine.py` +
+`lib/core/rs_corpus.py`/`rs_cache.py`/`rs_hybrid.py`, tied to the separate, unaddressed
+SEED-013 "eliminate-python"), alongside a 28-file JS `lib/core/rs-*.cjs` family; three of those
+JS files touch Pinecone directly (`rs-brain-substrate.cjs`, `rs-pinecone-bridge.cjs`,
+`rs-differential-scorer.cjs`). Which engine is actually LIVE for rs-fetch's internal/cross-room/
+hybrid modes today is unresolved -- this materially changes Requirement 2's scope, from "swap one
+bridge module" to "coordinate with a stalled Python-elimination seed." **Correction (same-day,
+third pass):** the earlier flag on `lib/core/eureka/vector-store.cjs` importing
+`rs-pinecone-bridge.cjs` was a false alarm -- that import is `cosineSimilarity`, a pure
+dot-product/norm math function with zero network I/O (embedding-spine.cjs even comments "the same
+function object, not a fork," reused per Part 7 rather than reimplemented); 211-02-SUMMARY.md
+confirms Part 8 fully-local, no room-byte egress. `vector-store.cjs`/`embedding-spine.cjs` ARE the
+clean local precedent as originally claimed. **The real, still-live Requirement-2 target is
+different:** `rs-pinecone-bridge.cjs` ALSO genuinely shells out to Python
+(`childProcess` + a generated script invoking `rs_cache.py::fetch_all_from_namespace`) for its
+actual Pinecone fetch path, and `rs-differential-scorer.cjs` separately cites
+`scripts/rs-engine.py` for its CORPUS-MODE use case -- the legacy Python engine is not vestigial,
+it is live via that subprocess bridge. Requirement 2 is repointing THAT bridge (and
+rs-differential-scorer's corpus-mode call) onto the local embedding substrate, not touching
+vector-store.cjs at all. Requirement 3 is
+less an open Part-8 research question than a navigator sign-off: the seed's own Option A (keep
+`rs-experts` on remote Brain/Aura Mode-A) is already framed as Part-8-compliant by the seed itself
+("people + teaching-graph data = Brain IP; correct to be remote enrichment, gracefully degrading
+offline") -- this reads as a locked recommendation awaiting explicit approval, not fresh research.
+**228 is NOT the most independent/lowest-risk of the five as originally framed** -- Requirement 1
+is genuinely low-risk (done), but Requirement 2's real scope needs the Python-vs-JS engine
+question resolved before spec-phase, or the phase will underestimate its own size.
+
+**EXCLUDED from the active 223-227 pipeline goal (navigator instruction, 2026-07-15).** All
+research above stays on record; 228 is parked, not dropped -- pick it back up as its own pass
+when prioritized. See `.planning/GOAL-223-228-DEPENDENCY-SYNTHESIS-2026-07-15.md`.
 **Plans:** 0 plans
 
 Plans:
