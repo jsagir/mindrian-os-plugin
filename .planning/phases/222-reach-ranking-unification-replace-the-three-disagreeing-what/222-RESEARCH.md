@@ -88,7 +88,7 @@ The cleanest architecture (verified against the current call graph) is a new `ra
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | New `rankFiredCandidates` module | Extend `dial-reach-orchestrator.cjs` | Rejected in D-01: the orchestrator assumes the fixed 6-reach universe and is referenced by frozen tests (`test-dial-reach-orchestrator.cjs`, `test-148-frozen-contracts.cjs`); forcing a turn-subset path in would break its 6-reach contract |
-| `memory_event` weight persistence | New room.db CREATE TABLE `ranker_weights` | **Superseded: the navigator chose this option at the plan-phase gate (OQ-1 RESOLVED).** Original objection (no precedent for an adaptive-state CREATE TABLE) was verified false during planning — `phase-109-session-focus.cjs` is a directly reusable, sentinel-idempotent migration precedent. Read path is a new typed `navigation.cjs` accessor pair, not `findRecentChanges`. |
+| `memory_event` weight persistence | New room.db CREATE TABLE `ranker_weights` | **Superseded: the navigator chose this option at the plan-phase gate (OQ-1 RESOLVED).** Original objection (no precedent for an adaptive-state CREATE TABLE) was verified false during planning - `phase-109-session-focus.cjs` is a directly reusable, sentinel-idempotent migration precedent. Read path is a new typed `navigation.cjs` accessor pair, not `findRecentChanges`. |
 | `memory_event` weight persistence | jtbd-state JSON file (`writeStateAtomic`) | A file read violates the hot-path budget ("no new synchronous file reads beyond what dispatchSensors/dial-reach-orchestrator already perform", Constraints) AND is not readable via `findRecentChanges` |
 
 **Installation:** None. `git diff package.json package-lock.json` MUST stay empty (Req 4).
