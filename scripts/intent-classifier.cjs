@@ -2472,6 +2472,15 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
     // 'binding_gate_consumed' marker (a prior turn already bound this offer), so the
     // same answer is never re-consumed into a duplicate write.
     let gatePayload = null;
+    // CR-01 (Phase 225 REVIEW-FIX): also capture which gate KIND produced this
+    // payload. 'zero_score_gate' (emitNoMatchGate) offers exactly three fixed
+    // labels (continue-in-primary / new-project / no-room) and NEVER lists the
+    // session's other bound rooms as toggleable options (REQ-2: never a scored
+    // room) -- unlike the pre-existing 'binding_gate' (emitBindingGate), whose
+    // option set is the full scored corpus, giving the user visibility/control
+    // over every room already in scope. That narrower option set is what makes
+    // the zero-score gate's answer-consumption path need the union fix below.
+    let gateKind = null;
     try {
       const filePath = path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.json');
       const raw = fs.readFileSync(filePath, 'utf8');
@@ -2483,11 +2492,12 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
           if (e.kind === 'binding_gate_consumed') break; // already consumed -> no-op
           if (e.binding_gate_payload && typeof e.binding_gate_payload === 'object') {
             gatePayload = e.binding_gate_payload;
+            gateKind = (typeof e.kind === 'string') ? e.kind : null;
             break;
           }
         }
       }
-    } catch (_) { gatePayload = null; }
+    } catch (_) { gatePayload = null; gateKind = null; }
 
     // Non-gate / cold turn: no prior gate payload -> no-op (byte-unchanged).
     if (!gatePayload || !Array.isArray(gatePayload.options) || gatePayload.options.length === 0) {
@@ -2541,6 +2551,35 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
     }
     if (slugs.length === 0) return { ok: false, reason: 'empty_confirm' };
 
+    // CR-01 fix (Phase 225 REVIEW-FIX, root cause): consumeSessionBinding's sink
+    // WRITE is a full REPLACE of the session's `bound` array, never a union
+    // (session-binding-consumer.cjs:144-148). That is safe for the pre-existing
+    // 'binding_gate' (Phase 194): its option set is the FULL scored corpus, so
+    // every already-bound room is a visible, re-toggleable option and the
+    // navigator controls what survives. The NEW 'zero_score_gate' (Phase 225)
+    // never offers that visibility -- it renders exactly three fixed labels
+    // (continue-in-primary / new-project / no-room) and NEVER lists sibling
+    // bound rooms at all. So the single most natural answer ("continue in
+    // <primary>") was silently REPLACING a multi-room `bound` set with just
+    // [primary], un-stickying the session in the same stroke -- a room the
+    // session was already bound to (e.g. room-b) became hard-blocked on its
+    // next write (scripts/write-scope-check.cjs) with no warning the gate
+    // answer would do this. Fix: for this gate kind only, union the confirmed
+    // picks with the PRIOR bound set before the sink's replace-write, so
+    // answering this gate can only ADD/confirm rooms, never silently drop one.
+    let priorBindingForZeroScore = null;
+    if (gateKind === 'zero_score_gate') {
+      try {
+        const sb = require(path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs'));
+        priorBindingForZeroScore = sb.readSessionBinding(sessionId, { home: home });
+        const priorBound = Array.isArray(priorBindingForZeroScore.bound)
+          ? priorBindingForZeroScore.bound : [];
+        for (const s of priorBound) {
+          if (slugs.indexOf(s) === -1) slugs.push(s);
+        }
+      } catch (_e) { /* fail-open: union is best-effort, never blocks the bind */ }
+    }
+
     // Primary + sticky: honor explicit answer fields, else default the primary to the
     // first confirmed slug.
     let primaryPick = null;
@@ -2549,7 +2588,16 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
         ? labelToSlug[answer.primary] : answer.primary;
     }
     if (!primaryPick) primaryPick = slugs[0];
-    const sticky = answer.sticky === true;
+    // CR-01 fix: the zero-score gate's card has no "remember for this session"
+    // toggle at all (unlike the binding_gate card, whose guidance text explicitly
+    // asks for one), so answer.sticky is structurally always undefined for this
+    // gate kind -- defaulting it to false on every answer would silently
+    // un-sticky an already-sticky multi-room session. Preserve the prior sticky
+    // value in that case instead of stomping it to false.
+    let sticky = answer.sticky === true;
+    if (gateKind === 'zero_score_gate' && typeof answer.sticky === 'undefined') {
+      sticky = !!(priorBindingForZeroScore && priorBindingForZeroScore.sticky === true);
+    }
 
     // Route to the net-new SINK: consumeSessionBinding WRITES the session binding file.
     const res = consumerMod.consumeSessionBinding({
