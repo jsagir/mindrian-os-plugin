@@ -131,18 +131,22 @@ generic Hooked-Model name-dropping.
    `/mos:new-project` directly and routes through ignite's front door instead, written with a
    light seam for a future Phase 223 entry point without adding any speculative 223 code.
    - Current: `skills/conversation-mode/SKILL.md` Mode 3 invokes `/mos:new-project` directly
-     (confirmed live, line ~52/97 area); ignite's F.1 gate is bypassed for this path entirely.
-   - Target: Mode 3 routes through ignite's existing F.1 starting gate instead of calling
-     `/mos:new-project` directly. The routing point is written generically enough (e.g. a single
-     named entry function/step, not new-project-specific branching baked in) that a future
-     Phase 223 surface could register as an additional destination without requiring this
-     phase's code to be reworked — but no 223-specific branch, flag, or reference is added now
-     (223 has zero confirmed "ignite" surface today per `grep -i "ignite"` across
-     `223-SPEC.md`/`223-BUILD-BRIEF.md`).
+     (confirmed live); ignite's front door is bypassed for this path entirely.
+   - Target: Mode 3 routes through ignite's `## Entry Routing` **Directive / Imperative path**
+     (`--express` with the already-established conversational context as blueprint seed)
+     instead of calling `/mos:new-project` directly. **Correction (verified directly against
+     live `commands/ignite.md`, post pattern-mapper spot-check):** Gate B1 is NOT "three
+     options + free-text" as originally drafted here — it is a four-door persona-first single
+     card (Persona / CV / Hypothesis / Free-Text). Mode 3 does not route through B1 at all;
+     Gate B1's own text states Directive paths with a determinable role/venture (which the
+     Imperative/`--express` path is) BYPASS B1 entirely and proceed straight to Gate B2
+     (Blueprint) — avoiding redundant re-interrogation of a navigator whose intent
+     conversation-mode's own Mode 2-to-3 transition already established. Gate B1's four-door
+     structure stays completely untouched by this requirement.
    - Acceptance: `grep "new-project" skills/conversation-mode/SKILL.md` no longer shows a direct
      Mode-3 invocation bypassing ignite; a scripted or manual trace of Mode 3 confirms it enters
-     through ignite's F.1 gate; `commands/ignite.md`'s existing Gate B1 (three clean options +
-     free-text) is unmodified and still the single front door.
+     through ignite's Directive/`--express` path and reaches Gate B2; `commands/ignite.md`'s
+     Gate B1 (the four-door persona-first card) is unmodified.
 
 ## Boundaries
 
@@ -210,7 +214,9 @@ generic Hooked-Model name-dropping.
       Prompt-not-Investment framing, the ambiguous-vs-signaled distinction, and the silent-skip
       failure mode by name.
 - [ ] `skills/conversation-mode/SKILL.md` Mode 3 no longer calls `/mos:new-project` directly;
-      it routes through ignite's existing F.1 gate; `commands/ignite.md` Gate B1 is unmodified.
+      it routes through ignite's Directive/`--express` path (bypassing Gate B1 per that gate's
+      own documented rule for determinable-context Directive paths); `commands/ignite.md` Gate
+      B1's four-door persona-first card is unmodified.
 - [ ] No new hard-fail / blocking gate introduced anywhere in this phase's changes (advisory
       WARN only, consistent with Phase 210).
 - [ ] Zero em-dashes in any file this phase touches.

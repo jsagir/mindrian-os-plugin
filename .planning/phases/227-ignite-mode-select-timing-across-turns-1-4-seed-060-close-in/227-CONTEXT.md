@@ -89,20 +89,33 @@ this file resolves "how".
   explicitly as what Requirement 1's checkpoint catches.
 
 ### Req 5: Mode 3 routing + 223 seam
-- **D-11:** `skills/conversation-mode/SKILL.md` Mode 3's body text changes from directly
-  instructing "invoke `/mos:new-project`" to "invoke `/mos:ignite`" (prose-level routing
-  change — these skills are markdown instructions interpreted by Larry-the-model, not literal
-  function calls, so "routing through ignite" means the doc tells Larry to go through
-  `commands/ignite.md`'s Gate B1 first). `commands/ignite.md` Gate B1's existing
-  "defined-venture" option already leads into the new-project flow, so this closes the loop
-  without inventing a new destination.
-- **D-12:** The "light seam for a future 223 entry point" (SPEC boundary: no 223-specific code)
-  means: Gate B1's three options stay exactly as they are (solution-looking-for-problem /
-  domain-or-interest-to-explore / defined-venture) with no new fourth option added, and no
-  reference to Phase 223 or its surfaces anywhere in the changed text. The "seam" is simply
-  that Mode 3 now enters through ignite's existing generic gate instead of bypassing it — any
-  future 223 destination would be a NEW Gate B1 option added in 223's OWN phase, not something
-  227 needs to pre-build.
+- **CORRECTION (post pattern-mapper spot-check, verified directly against live
+  `commands/ignite.md`):** the original D-11/D-12 below described Gate B1 as "three clean
+  options + free-text" (solution-looking-for-problem / domain-or-interest-to-explore /
+  defined-venture). That phrasing does not exist anywhere in the file. The REAL Gate B1 is a
+  **four-door, persona-first single card** ("Who are you arriving as?"): Door 1 Persona pick
+  (6 sub-options: researcher/student/founder/operator/investor/domain_expert), Door 2 CV
+  upload, Door 3 Hypothesis, Door 4 Free-Text. Revised decisions below replace the originals.
+- **D-11 (revised):** `skills/conversation-mode/SKILL.md` Mode 3's body text changes from
+  directly instructing "invoke `/mos:new-project`" to routing through ignite's **Directive /
+  Imperative path** (`## Entry Routing`, path B: "Imperative ('make me a room for X'): treat
+  as `--express` with the stated context as blueprint seed"). This is the correct
+  destination, not the B1 four-door card: Gate B1's own text states "Directive paths with a
+  determinable role/venture (--express with strong context...) bypass B1" — since Mode 3 is
+  reached only after conversation-mode's own Mode 2-to-Mode-3 transition already establishes
+  the navigator's intent, re-asking the full four-door persona pick would be redundant
+  friction (the same Hooked-Model Prompt-not-Investment principle Req 4 documents). Mode 3
+  routes into ignite's `--express` Directive path with the already-established conversational
+  context as the blueprint seed, which proceeds straight to Gate B2 (Blueprint) — the actual
+  room-creation step `/mos:new-project` was reaching for directly.
+- **D-12 (revised):** The "light seam for a future 223 entry point" (SPEC boundary: no
+  223-specific code) now means: Gate B1's four-door structure is completely UNTOUCHED (no
+  fifth door, no persona added, no reference to Phase 223 anywhere in the changed text) —
+  Mode 3 does not touch B1 at all, it enters via the Directive path. The "seam" is that the
+  Directive/`--express` path already treats "the stated context" generically (not
+  Mode-3-specific), so a future 223 surface could supply its own directive input through the
+  SAME path without 227 needing rework. Any future 223-specific ENTRY (e.g. a new Door on B1)
+  is 223's own phase to add, not 227's.
 
 ### Claude's Discretion
 - Exact wording/length of the `larry-personality.md` Hooked-Model section (content locked,
@@ -180,7 +193,8 @@ a sweep report, a test fixture, two doc edits). No visual design surface.
 - `skills/conversation-mode/SKILL.md` (Req 5 routing text; Req 3 restraint-text regression
   target)
 - `skills/larry-personality/SKILL.md` (Req 4 new section)
-- `commands/ignite.md` Gate B1 (Req 5 destination, unmodified per SPEC boundary)
+- `commands/ignite.md` `## Entry Routing` Directive/Imperative path (Req 5's actual
+  destination, per the D-11 correction above — NOT Gate B1, which stays fully untouched)
 
 </code_context>
 
