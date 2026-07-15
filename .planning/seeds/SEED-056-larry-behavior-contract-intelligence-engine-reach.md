@@ -193,6 +193,43 @@ the eureka-gap and Shape-F sections above.
    find-analogies/HSI onto room.db) - this seed is about Larry's BEHAVIOR wiring,
    Track 1 is about the ENGINES' data source; distinct, likely sequenced together.
 
+## Related-but-distinct: today's intern QA cross-session finding (added 2026-07-15)
+
+`.planning/debug/intern-qa-silent-degrade-pattern-three-independent-sessions-2026-07-14.md`
+(despite its filename, now synthesizes SIX independent sessions across four interns as of
+2026-07-15) names a failure class in `skills/larry-personality/SKILL.md`'s SAME document
+this seed already targets - but a different SHAPE of gap, worth keeping distinct rather than
+merged into this seed's scope:
+
+- **This seed (SEED-056):** dark capability - a behavior rule or reach candidate does not
+  exist in Larry's persona prose at all, so Larry has no way to know to reach for it (eureka,
+  ignite, the 219/220/221 engines, the sibling-of-a-named-command pattern).
+- **The intern-QA finding:** the OPPOSITE shape - the behavior rule ALREADY EXISTS in the
+  same file (the Voice Signature glyph-opener rule, lines 192-210; the card-must-fire-not-
+  flat-text rule, line 184, SEED-021) and Larry silently fails to follow it on a measurable
+  subset of turns, most sharply on tool-heavy turns (glyph drops) and on Larry's own organic
+  "what's next" turn-closings specifically (card misses), as opposed to command-instructed
+  gates (which fire reliably). Six sessions also show a wider pattern beyond this file's
+  scope entirely: false tool-state claims, undisclosed dependency-fallbacks, and one session
+  with zero engagement of the reach/dial machinery at all (`.planning/debug/
+  intern-qa-week1-bug-sweep.md` Rows A-M, `intern-qa-week1-behavior-findings.md` Findings 1-6).
+
+**Why not merge:** SEED-056 fixes by ADDING prose (name the missing capability). The
+intern-QA finding is not fixable by adding prose alone - the prose for glyph/card discipline
+already exists and is already being silently violated; fixing it needs either a stronger
+enforcement mechanism (the Stop-hook's `check-card-fire.cjs` already exists but its catch
+rate is proven inconsistent across all six sessions) or a disclosure convention (the
+candidate "fallback-disclosure convention" the pattern file proposes, still an open navigator
+decision, not committed). Different remediation shape - conflating them risks this seed's
+scoped, tractable "add missing capability prose" plan getting stuck behind the harder,
+still-undecided enforcement question.
+
+**Why cross-reference at all:** both gaps live in the same file, and whoever next edits
+`skills/larry-personality/SKILL.md` for either reason should know the other thread exists,
+so a SEED-056 pickup doesn't accidentally paper over a compliance gap by adding more prose
+Larry will also silently not follow, and an intern-QA-driven enforcement fix doesn't
+duplicate SEED-056's already-scoped capability-naming work.
+
 ## Why now, why not now
 
 Real and worth doing - but NOT part of the 219+220+221 release wave already staged
