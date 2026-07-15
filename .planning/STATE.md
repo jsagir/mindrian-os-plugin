@@ -3,18 +3,30 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 224 planned (4 plans, 3 waves, plan-check PASS)
-last_updated: "2026-07-15T10:09:37.061Z"
+stopped_at: Phase 224 Plan 04 COMPLETE (aggregate phase gate run-all-224.sh + test registration + ENV-TUNING floor docs; Req 5/7 closed). All 4 plans landed; phase ready for verification. bash tests/run-all-224.sh PASS=17 FAIL=0 SKIP=0.
+last_updated: "2026-07-15T10:35:54Z"
 last_activity: 2026-07-15
 progress:
-  total_phases: 36
+  total_phases: 37
   completed_phases: 18
-  total_plans: 106
-  completed_plans: 101
-  percent: 50
+  total_plans: 109
+  completed_plans: 103
+  percent: 49
 ---
 
 # Project State
+
+## (2026-07-15) -- PHASE 224 Plan 04 COMPLETE (4/4 plans) -- aggregate phase gate: one command proves the whole phase green (Req 5 + Req 7 made permanent tripwires)
+
+Wave 3, the phase-close plan. `tests/run-all-224.sh` mirrors `run-all-222.sh`'s aggregator shape (`set -uo pipefail`, `run`/`run_if` counters, `strip_comments` before every grep, git-diff zero-deps leg, `[ FAIL -eq 0 ]` exit) and runs 17 legs green: **PASS=17 FAIL=0 SKIP=0** on the fully-landed phase (the SPEC's literal one-command acceptance line).
+
+- **Eight proof legs** (`run_if`-guarded, partial-landing safe): migration, classifier, encoder-skip, per-write-derive, cost-bound, backfill-idempotent, resolver-fallback, proposed-only (Reqs 1-4, 6).
+- **Four constitutional tripwires** (permanent, not one-time reviews): Part 8 egress sweep (Req 5) over all five derivation surfaces, extended per SPEC to `fetch(` / http(s) URL / `require node:http(s)` / `curl`|`wget`, MISSING-target-fails (T-224-15); Part 9 chokepoint sweep (no direct-db in classifier, no raw `INSERT INTO edges` in drain/backfill, mandatory `navigation.cjs` require in graph-derivation); Req 4 zero-deps git-diff; and the three Req 7 structural gates.
+- **Req 7 structural gates:** `build-connector-registry --check` (exit 0) + `check-shape-declaration --check` (advisory-WARN, WITHOUT `--strict`, exit 0) + `doctor --acceptance` as a **no-new-regression subset check** against the documented environmental baseline `{coverage-gate, verify-release-clean-tree}` (both pre-existing/dirty-tree gaps; a NEW failure fails the leg -- the run-all-217 written-reason idiom).
+- **Tripwire-plant proof:** planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED and the harness to exit 1; reverted byte-clean.
+- **Test registration + docs:** the eight `test-224-*` legs appended to `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` gained the Phase 224 floors section (`DERIVE_CONVERGES_FLOOR=0.55`, `DERIVE_INFORMS_FLOOR=0.45`, byte-matching the classifier header) with fixture-calibration provenance (0.6095 related vs 0.3683 noise), precision-over-recall rationale, and the D-04 no-guess note.
+- **Commits:** `58e901d0` test (run-all-224.sh), `0262de57` feat (registration + ENV-TUNING), `b8bece52` docs (SUMMARY). Requirements Req 5 + Req 7 completed. Zero new deps; no em-dashes. No deviations.
+- **NEXT:** phase verification (config verifier:true). The two 224-VALIDATION manual sanity checks (live-room `/mos:graph --derive` plausibility + foreground-latency feel) are queued for the navigator at verify-work. SUMMARY: `.planning/phases/224-graph-derivation-harness-seed-034-make-room-db-s-typed-node-/224-04-SUMMARY.md`.
 
 ## (2026-07-15) -- PHASE 224 Plan 02 COMPLETE (2/4 plans) -- per-write derivation trigger: every markdown write now enqueues + background-derives typed edges, closing the twice-reconfirmed 0-typed-edge gap on the write path
 
@@ -935,12 +947,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 224 — graph-derivation-harness-seed-034
+**Current focus:** Phase 225 — per-session-room-binding-and-multi-session-reconciliation-se
 
 ## Current Position
 
-Phase: 224 (graph-derivation-harness-seed-034) — EXECUTING
-Plan: 2 of 4
+Phase: 225 (per-session-room-binding-and-multi-session-reconciliation-se) — EXECUTING
+Plan: 1 of 3
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1511,6 +1523,7 @@ Progress: [█████████░] 92%
 | Phase 222 P04 | ~20 min | 2 tasks | 3 files |
 | 222 | 4 | - | - |
 | Phase 224 P01 | 12min | 2 tasks | 8 files |
+| Phase 224 P04 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -2600,8 +2613,10 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-15T10:23:14Z
-Stopped at: Phase 224 Plan 03 COMPLETE (backfill deriver swap + canonical resolver fallback; Req 2/3/4 closed). Wave 2 done; Plan 04 (aggregate harness) remains.
+Last session: 2026-07-15T10:35:54Z
+Stopped at: Phase 224 Plan 04 COMPLETE (aggregate phase gate + test registration + ENV-TUNING; Req 5/7 closed). All 4 plans landed; phase ready for verification. bash tests/run-all-224.sh PASS=17 FAIL=0 SKIP=0.
+
+**Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
 **Phase 224 Plan 03 (this session):** the two surgical Wave-2 deltas RESEARCH proved. Task 1 (RED 5a27fe77, GREEN 061891b9): swapped runDeriveBackfill's DEFAULT deriveFn from the keyword-cue regex (_localCueDeriveFn, the mechanical root cause of the twice-reconfirmed 0-edge gap: normal prose never carries the literal cascade verbs) to the score-based producer (graph-derive-classifier.scoreBasedDeriveFn driven over full-pairwise buildAllPairs), a Part-7 producer swap over the UNTOUCHED Phase-169 runDerivation composer (D-03 amended). Handled the Wave-1 async hazard the drain established (scoreBasedDeriveFn is async; runDerivation's sync loop drops a Promise as []): pre-resolve candidates per pair in bounded 50-pair chunks with a stderr progress line (T-224-13), feed a sync deriveFn wrapper. Polymorphic return (the Phase-224 drain precedent): Promise on the async/default path, plain object when a synchronous deriveFn is injected -- so the two Phase-169 sync callers needed only a one-line _localCueDeriveFn injection (Rule-3 deviation), not an async refactor (measured: the acceptance fixture's synthetic docs score 0.4414, just under the 0.45 floor, so a pure semantic swap would have zeroed them non-deterministically). D-04: encoder probe before scoring (skipped when a deriveFn is injected or zero pairs); on unavailable, skip all derivation, set result.skipped, log one scalar-only derivation_skipped marker. commands/graph.md --derive body updated (frontmatter untouched, no skill-mirror regen). Task 2 (RED 896f9120, GREEN 2737bd78): gsd-artifact-graph-hook.cjs resolveRoomDir fallback now rides the Phase-194 canonical resolveWriteRoom (leg order room-root, session.primary, reg.active) instead of the duplicated registry.json/reg.rooms read (Req 3, the SEED-034 one-resolver lesson); leg 1 file-rooted + the room env-var leg byte-identical; existence-check abs_path (T-224-10). Req 4 proven end-to-end: derived edges + claim nodes both read 'proposed'; a comment-stripped no-confirm sweep over all six phase-224 modules finds zero confirmNode / 'confirmed'-promotion sites. Verification: 3 plan legs green (backfill-idempotent 16/16, resolver-fallback 6/6, proposed-only 18/18) + all named regressions (per-write-derive, cost-bound, encoder-skip, migration, classifier, graph-derive-sweep 4/4); run-all-169 shows the SAME 4 pre-existing Timeline-renderer failures Plan 02 documented and ZERO new failures. See 224-03-SUMMARY.md.
 
