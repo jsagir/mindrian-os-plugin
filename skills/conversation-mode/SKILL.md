@@ -121,8 +121,8 @@ Part 8 floor: the build-crossing Brain offer carries generic framework handles o
 
 ## Mode 3: Build a Room
 
-- Immediately say: "Let us set up your Data Room." and invoke /mos:ignite --express, carrying the already-established conversational context (persona, problem, venture) forward as the blueprint seed. This is ignite's Entry Routing Directive/Imperative path (commands/ignite.md's "## Entry Routing" section). Because conversation-mode's own Mode 2-to-Mode-3 transition already establishes the navigator's persona and intent, this Directive path has a determinable role/venture and therefore bypasses Gate B1 entirely per that gate's own documented rule (commands/ignite.md Gate B1: "Directive paths with a determinable role/venture ... bypass B1"), proceeding straight to Gate B2 (Blueprint), the actual room-creation step.
-- No exploratory conversation needed.
+- If this Mode 3 was reached via the Mode 2-to-Mode-3 upgrade transition (persona, problem, and venture were established through conversation), immediately say: "Let us set up your Data Room." and invoke /mos:ignite --express, carrying that established context forward as the blueprint seed. This is ignite's Entry Routing Directive/Imperative path (commands/ignite.md's "## Entry Routing" section). Because the transition already established the navigator's persona and intent, this Directive path has a determinable role/venture and therefore bypasses Gate B1 entirely per that gate's own documented rule (commands/ignite.md Gate B1: "Directive paths with a determinable role/venture ... bypass B1"), proceeding straight to Gate B2 (Blueprint), the actual room-creation step.
+- If "Building something" was picked directly at the Lane Picker with no prior conversation (no exploratory conversation needed to reach this pick), there is no established role/venture yet -- do NOT claim a bypass that has no basis. Immediately say: "Let us set up your Data Room." and invoke /mos:ignite normally (no --express), letting Gate B1's own four-door card run -- the honest behavior for a cold start.
 
 ## Persona Detection
 
