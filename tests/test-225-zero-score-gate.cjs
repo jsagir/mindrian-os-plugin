@@ -49,6 +49,9 @@ const REFRAME =
   + 'about transportation and mobility planning for a mid sized city';
 // A short zero-score message (< 8 surviving tokens): thanks/again/everyone/great/work.
 const SHORT = 'thanks again everyone great work';
+// WR-02: 8 RAW tokens (clears a raw-count floor) but only 1 DISTINCT token
+// ('ok' is not a stopword and has length >= 2, so it survives tokenize()).
+const REPEATED_TRIVIAL = 'ok ok ok ok ok ok ok ok';
 // A message rich in quantum-bakery fingerprint tokens (score > 0, on-scope), with NO
 // room-name adjacency so it cannot trip the strict-mode slug path.
 const MATCHED = 'let us review the sourdough croissant oven baking schedule today please';
@@ -184,6 +187,35 @@ try {
   });
 
   // -------------------------------------------------------------------------
+  // Leg 4b (225-REVIEW-FIX WR-01 regression): the PD-1 suppression must survive
+  // the shared decision-trace file's OWN 50-entry drop-oldest-10 rotation
+  // (persistDecisionTrace / TRACE_ROTATE_AT), which the always-on Phase-91
+  // engine block writes to on essentially every turn. Rather than spawning 50+
+  // real turns, simulate the post-rotation state directly: strip the
+  // zero_score_gate trace entry out of the trace file (exactly what rotation
+  // eventually does to it) while leaving the WR-01 dedicated marker file
+  // (written by markZeroScoreGateOffered, never rotated) untouched, then re-fire
+  // and assert the gate STILL stays silent. Before the WR-01 fix this simulated
+  // state would re-arm the gate (zeroScoreGateAlreadyOffered scanned the same
+  // rotated trace file); after the fix it reads the dedicated marker instead.
+  // -------------------------------------------------------------------------
+  check('leg 4b WR-01: PD-1 suppression survives decision-trace rotation eviction', () => {
+    const traceFile = tracePath(home);
+    const parsed = JSON.parse(fs.readFileSync(traceFile, 'utf8'));
+    assert.ok(Array.isArray(parsed.traces), 'trace file has a traces array');
+    const before = parsed.traces.length;
+    parsed.traces = parsed.traces.filter((e) => !(e && e.kind === 'zero_score_gate'));
+    assert.ok(parsed.traces.length < before, 'the zero_score_gate entry was actually stripped (simulated rotation)');
+    fs.writeFileSync(traceFile, JSON.stringify(parsed, null, 2));
+
+    const res = spawnClassifier(home, REFRAME);
+    assert.strictEqual(res.status, 0, 'exit 0; got ' + res.status + ' stderr=' + res.stderr);
+    const out = res.stdout || '';
+    assert.ok(out.indexOf('no room matched') === -1,
+      'gate must stay silent even after the trace entry rotates out (WR-01 fix: dedicated marker file)');
+  });
+
+  // -------------------------------------------------------------------------
   // Leg 3: SILENCE floor (PD-3). A short (< 8 token) zero-score message with the
   // binding still present must not fire the gate.
   // -------------------------------------------------------------------------
@@ -192,6 +224,33 @@ try {
     assert.strictEqual(res.status, 0, 'exit 0; got ' + res.status + ' stderr=' + res.stderr);
     const out = res.stdout || '';
     assert.ok(out.indexOf('no room matched') === -1, 'short message does not fire the gate');
+  });
+
+  // -------------------------------------------------------------------------
+  // Leg 3b (225-REVIEW-FIX WR-02 regression): the anti-overfire floor must be
+  // measured against DISTINCT surviving tokens, not the raw (duplicate-
+  // inclusive) count -- a trivial, repetitive message that only clears a raw
+  // count must NOT fire the gate. Uses a FRESH session id (never offered
+  // before) so the PD-1 once-per-session suppression cannot mask a WR-02
+  // regression by suppressing the gate for an unrelated reason.
+  // -------------------------------------------------------------------------
+  check('leg 3b WR-02: a repetitive trivial message does not clear the distinct-token floor', () => {
+    const wr02Session = 'sess-225-zeroscore-wr02';
+    writeSessionBinding(wr02Session, { bound: [PRIMARY], primary: PRIMARY }, { home: home });
+    const res = spawnSync(process.execPath, [CLASSIFIER], {
+      input: JSON.stringify({ prompt: REPEATED_TRIVIAL }),
+      encoding: 'utf8',
+      env: Object.assign({}, process.env, {
+        MINDRIAN_ROOMS_ROOT: home,
+        MINDRIAN_ROOMS_HOME: home,
+        CLAUDE_SESSION_ID: wr02Session,
+      }),
+      timeout: 30000,
+    });
+    assert.strictEqual(res.status, 0, 'exit 0; got ' + res.status + ' stderr=' + res.stderr);
+    const out = res.stdout || '';
+    assert.ok(out.indexOf('no room matched') === -1,
+      '8 raw tokens but 1 distinct token must NOT clear the floor (WR-02 fix)');
   });
 
   // -------------------------------------------------------------------------

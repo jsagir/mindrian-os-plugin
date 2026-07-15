@@ -231,9 +231,12 @@ only, never prompt content, to the LOCAL renderer (Canon Part 8: zero Brain egre
 
 ### MINDRIAN_ZERO_SCORE_GATE_MIN_TOKENS
 
-**What:** The minimum count of surviving message tokens (post-stopword, each of
-length >= 2) a zero-score message must carry before it can fire the no-match F.8
-gate. A message with fewer surviving tokens preserves the legacy silence.
+**What:** The minimum count of DISTINCT surviving message tokens (post-stopword,
+each of length >= 2, deduplicated) a zero-score message must carry before it can
+fire the no-match F.8 gate. Distinct, not raw: a repetitive message ("ok ok ok ok
+ok ok ok ok") carries many raw tokens but few distinct ones and must not clear
+the floor. A message with fewer surviving distinct tokens preserves the legacy
+silence.
 **Default:** `8` (a positive integer). Paired with PD-1's once-per-session-per-room
 trace suppression so the gate fires at most once per room per session even under
 sticky.

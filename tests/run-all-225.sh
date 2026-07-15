@@ -74,6 +74,16 @@ run_if "REQ-4 doctor WAL-reset advisory (fire/no-fire/never-crash/never-block)" 
   node tests/test-225-wal-advisory.cjs
 
 # ---------------------------------------------------------------------------
+# Leg (c2): 225-REVIEW-FIX CR-01/WR-03 -- the zero-score gate's answer-
+# consumption path must never silently narrow a multi-room session bind (the
+# gate's fixed 3-option set never lists sibling bound rooms as toggles, so
+# answering it must union with, never replace, the prior bound set).
+# ---------------------------------------------------------------------------
+run_if "225-REVIEW-FIX CR-01/WR-03 answer-narrowing regression (multi-bound session survives the gate answer)" \
+  tests/test-225-answer-narrowing.cjs \
+  node tests/test-225-answer-narrowing.cjs
+
+# ---------------------------------------------------------------------------
 # Leg (d): Phase-194 substrate regression guard (PSB suite), UNCONDITIONAL.
 # The shipped substrate this phase edits (intent-classifier.cjs) must stay green.
 # A 194 regression fails THIS phase's gate (threat T-225-11).

@@ -388,6 +388,12 @@ Bind-time lifecycle job (Phase 194-07 -- separate from class flags):
                            cadence (dead-pid or mtime>5m presence files are reaped; a
                            live pid never). NEVER-BLOCK: an unhealthy room degrades to an
                            advisory and STILL exits 0 (binding is never hard-blocked).
+                           Also appends a WATCH-only WARN finding row (Phase 225-02) when
+                           the bundled SQLite is inside the upstream WAL-reset corruption
+                           window (< 3.51.3, fixed upstream in commit 298a1c84) AND a live
+                           co-session is present in this room -- detect-only, an
+                           environment condition the user cannot repair locally; never
+                           touches report.healthy or the exit code (still never-block).
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
   --acceptance             run the 7-point release-gate checklist (install-state +

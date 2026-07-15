@@ -529,11 +529,28 @@ function main() {
   // (REQ-1). On a zero score best.name is corpus[0] (semantically meaningless,
   // Pitfall 1), so the gate NEVER reuses it (REQ-2). Every path terminates in
   // `return 0`; the whole branch is wrapped fail-open (REQ-3, Canon 83-07).
-  if (!best || best.score === 0) {
+  //
+  // IN-01 fix (Phase 225 REVIEW-FIX): `best` is guaranteed non-null here, not
+  // merely defensive -- `corpus.length === 0` (line 499) and
+  // `messageTokens.length === 0` (line 502) both return early above, so the
+  // scoring loop (lines 508-519) always executes at least one iteration and
+  // always assigns `best` on its first pass. No `!best` guard needed.
+  if (best.score === 0) {
     try {
       // PD-3 substantiality floor: short zero-score messages are common; gating each
       // would repeat the Phase-210 over-enforcement mistake.
-      if (messageTokens.length >= ZERO_SCORE_GATE_MIN_TOKENS) {
+      //
+      // WR-02 fix (Phase 225 REVIEW-FIX): measure DISTINCT surviving tokens
+      // (messageTokenSet.size), not the raw duplicate-inclusive count
+      // (messageTokens.length). The floor's stated intent (docs/ENV-TUNING.md
+      // PD-3: "a trivial acknowledgement... must NOT fire the gate") is a
+      // SUBSTANTIALITY check -- a message needs real distinct content, not just
+      // enough words. Counting raw tokens let a trivial, repetitive message like
+      // "ok ok ok ok ok ok ok ok" (8 raw tokens, 1 distinct) clear an 8-token
+      // floor and fire the interruptive gate, exactly the over-enforcement this
+      // floor exists to prevent. messageTokenSet is already built one line above
+      // (line 503) for the scoring loop; reusing it here costs nothing extra.
+      if (messageTokenSet.size >= ZERO_SCORE_GATE_MIN_TOKENS) {
         const roomDir = resolveActiveRoomDir();
         const sessionId = resolveSessionId(roomDir);
         const binding = require(
@@ -2300,26 +2317,58 @@ function emitBindingGate(args) {
   return true;
 }
 
-// Phase 225-01 (PD-1, once-per-session-per-room suppression): scan the decision-trace
-// file for a prior 'zero_score_gate' entry. A missing / corrupt trace file means "not
-// offered" (fail-open to false), so the gate is NEVER suppressed by a read fault. The
-// whole body is in try/catch returning false, mirroring the never-block contract.
+// WR-01 fix (Phase 225 REVIEW-FIX): the PD-1 "once per session per room" marker
+// used to be a scan for a 'zero_score_gate' entry in the SHARED decision-trace
+// file. That file also carries the Phase-91 navigation-engine's own trace entry
+// on essentially every substantive turn (persistDecisionTrace, TRACE_ROTATE_AT =
+// 50, drop-oldest-10 on rotation), so a 'zero_score_gate' marker had a BOUNDED
+// lifetime (evicted after exactly 50 further trace-writing turns), not a session
+// lifetime -- well within a normal working session, silently re-arming the gate
+// mid-session, contradicting docs/ENV-TUNING.md's "fires at most once per room
+// per session" claim. Root cause: reusing a rotated, high-churn shared file for a
+// signal that needs session-lifetime durability. Fix: a DEDICATED marker file
+// that this suppression check owns exclusively (never touched by
+// persistDecisionTrace / TRACE_ROTATE_AT), so it cannot be rotated out no matter
+// how many further turns the session runs. Same atomic tmp+rename durability
+// idiom already used by persistDecisionTrace / writeSessionBinding in this repo.
+function zeroScoreGateMarkerPath(roomDir, sessionId) {
+  return path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.zero-score-gate-offered.json');
+}
+
+// Phase 225-01 (PD-1, once-per-session-per-room suppression), WR-01-fixed: read the
+// dedicated marker file (never rotated -- see zeroScoreGateMarkerPath above). A
+// missing / corrupt marker file means "not offered" (fail-open to false), so the
+// gate is NEVER suppressed by a read fault. The whole body is in try/catch
+// returning false, mirroring the never-block contract.
 function zeroScoreGateAlreadyOffered(roomDir, sessionId) {
   try {
     if (!roomDir || !sessionId) return false;
-    const filePath = path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.json');
-    const raw = fs.readFileSync(filePath, 'utf8');
+    const raw = fs.readFileSync(zeroScoreGateMarkerPath(roomDir, sessionId), 'utf8');
     const parsed = JSON.parse(raw);
-    if (parsed && Array.isArray(parsed.traces)) {
-      for (let i = parsed.traces.length - 1; i >= 0; i--) {
-        const e = parsed.traces[i];
-        if (e && typeof e === 'object' && e.kind === 'zero_score_gate') return true;
-      }
-    }
-    return false;
+    return !!(parsed && parsed.offered === true);
   } catch (_e) {
     return false;
   }
+}
+
+// WR-01 fix companion: writes the dedicated, never-rotated PD-1 marker. Fire-
+// and-forget (mirrors persistDecisionTrace): a write fault never blocks or
+// crashes the gate, it only means PD-1 degrades to "may re-fire" instead of
+// "definitely re-fires" -- strictly no worse than the pre-fix behavior.
+function markZeroScoreGateOffered(roomDir, sessionId) {
+  try {
+    if (!roomDir || !sessionId) return;
+    const markerPath = zeroScoreGateMarkerPath(roomDir, sessionId);
+    try { fs.mkdirSync(path.dirname(markerPath), { recursive: true }); } catch (_) {}
+    const rnd = Math.random().toString(36).slice(2, 10);
+    const tmpPath = markerPath + '.tmp.' + process.pid + '.' + rnd;
+    fs.writeFileSync(tmpPath, JSON.stringify({ offered: true, ts: new Date().toISOString() }, null, 2));
+    try {
+      fs.renameSync(tmpPath, markerPath);
+    } catch (_e) {
+      try { fs.unlinkSync(tmpPath); } catch (_) {}
+    }
+  } catch (_e) { /* fire-and-forget: never block or crash the gate */ }
 }
 
 // Phase 225-01 (SEED-039 proving_case_2): the "no room matched" F.8 Decision Gate.
@@ -2430,8 +2479,11 @@ function emitNoMatchGate(args) {
 
   // Persist the gate payload under the SAME binding_gate_payload key the shipped
   // consumePriorBindingAnswer scans for (it keys on e.binding_gate_payload, NOT e.kind),
-  // with kind 'zero_score_gate' for trace disambiguation + PD-1 once-per-session
-  // suppression. The consumer is reused with ZERO changes (PD-5).
+  // with kind 'zero_score_gate' for trace disambiguation. This trace entry is the
+  // ANSWER-consumption channel (consumePriorBindingAnswer reads it on the very next
+  // turn); it is NOT the PD-1 suppression signal (WR-01 fix -- see
+  // zeroScoreGateAlreadyOffered / markZeroScoreGateOffered above, a dedicated
+  // never-rotated marker, since this shared trace file rotates at 50 entries).
   try {
     if (roomDir && sessionId) {
       persistDecisionTrace(roomDir, sessionId, {
@@ -2445,6 +2497,16 @@ function emitNoMatchGate(args) {
       });
     }
   } catch (_e) { /* fire-and-forget: persistence is best-effort */ }
+
+  // WR-01 fix: stamp the dedicated, never-rotated PD-1 marker so
+  // zeroScoreGateAlreadyOffered's suppression survives arbitrarily many further
+  // trace-writing turns in this session (the shared decision-trace file above
+  // does not -- see the comment on zeroScoreGateMarkerPath).
+  try {
+    if (roomDir && sessionId) {
+      markZeroScoreGateOffered(roomDir, sessionId);
+    }
+  } catch (_e) { /* fire-and-forget: never block or crash the gate */ }
 
   const envelope = {
     hookSpecificOutput: {
@@ -2472,6 +2534,15 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
     // 'binding_gate_consumed' marker (a prior turn already bound this offer), so the
     // same answer is never re-consumed into a duplicate write.
     let gatePayload = null;
+    // CR-01 (Phase 225 REVIEW-FIX): also capture which gate KIND produced this
+    // payload. 'zero_score_gate' (emitNoMatchGate) offers exactly three fixed
+    // labels (continue-in-primary / new-project / no-room) and NEVER lists the
+    // session's other bound rooms as toggleable options (REQ-2: never a scored
+    // room) -- unlike the pre-existing 'binding_gate' (emitBindingGate), whose
+    // option set is the full scored corpus, giving the user visibility/control
+    // over every room already in scope. That narrower option set is what makes
+    // the zero-score gate's answer-consumption path need the union fix below.
+    let gateKind = null;
     try {
       const filePath = path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.json');
       const raw = fs.readFileSync(filePath, 'utf8');
@@ -2483,11 +2554,12 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
           if (e.kind === 'binding_gate_consumed') break; // already consumed -> no-op
           if (e.binding_gate_payload && typeof e.binding_gate_payload === 'object') {
             gatePayload = e.binding_gate_payload;
+            gateKind = (typeof e.kind === 'string') ? e.kind : null;
             break;
           }
         }
       }
-    } catch (_) { gatePayload = null; }
+    } catch (_) { gatePayload = null; gateKind = null; }
 
     // Non-gate / cold turn: no prior gate payload -> no-op (byte-unchanged).
     if (!gatePayload || !Array.isArray(gatePayload.options) || gatePayload.options.length === 0) {
@@ -2541,6 +2613,35 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
     }
     if (slugs.length === 0) return { ok: false, reason: 'empty_confirm' };
 
+    // CR-01 fix (Phase 225 REVIEW-FIX, root cause): consumeSessionBinding's sink
+    // WRITE is a full REPLACE of the session's `bound` array, never a union
+    // (session-binding-consumer.cjs:144-148). That is safe for the pre-existing
+    // 'binding_gate' (Phase 194): its option set is the FULL scored corpus, so
+    // every already-bound room is a visible, re-toggleable option and the
+    // navigator controls what survives. The NEW 'zero_score_gate' (Phase 225)
+    // never offers that visibility -- it renders exactly three fixed labels
+    // (continue-in-primary / new-project / no-room) and NEVER lists sibling
+    // bound rooms at all. So the single most natural answer ("continue in
+    // <primary>") was silently REPLACING a multi-room `bound` set with just
+    // [primary], un-stickying the session in the same stroke -- a room the
+    // session was already bound to (e.g. room-b) became hard-blocked on its
+    // next write (scripts/write-scope-check.cjs) with no warning the gate
+    // answer would do this. Fix: for this gate kind only, union the confirmed
+    // picks with the PRIOR bound set before the sink's replace-write, so
+    // answering this gate can only ADD/confirm rooms, never silently drop one.
+    let priorBindingForZeroScore = null;
+    if (gateKind === 'zero_score_gate') {
+      try {
+        const sb = require(path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs'));
+        priorBindingForZeroScore = sb.readSessionBinding(sessionId, { home: home });
+        const priorBound = Array.isArray(priorBindingForZeroScore.bound)
+          ? priorBindingForZeroScore.bound : [];
+        for (const s of priorBound) {
+          if (slugs.indexOf(s) === -1) slugs.push(s);
+        }
+      } catch (_e) { /* fail-open: union is best-effort, never blocks the bind */ }
+    }
+
     // Primary + sticky: honor explicit answer fields, else default the primary to the
     // first confirmed slug.
     let primaryPick = null;
@@ -2549,7 +2650,16 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
         ? labelToSlug[answer.primary] : answer.primary;
     }
     if (!primaryPick) primaryPick = slugs[0];
-    const sticky = answer.sticky === true;
+    // CR-01 fix: the zero-score gate's card has no "remember for this session"
+    // toggle at all (unlike the binding_gate card, whose guidance text explicitly
+    // asks for one), so answer.sticky is structurally always undefined for this
+    // gate kind -- defaulting it to false on every answer would silently
+    // un-sticky an already-sticky multi-room session. Preserve the prior sticky
+    // value in that case instead of stomping it to false.
+    let sticky = answer.sticky === true;
+    if (gateKind === 'zero_score_gate' && typeof answer.sticky === 'undefined') {
+      sticky = !!(priorBindingForZeroScore && priorBindingForZeroScore.sticky === true);
+    }
 
     // Route to the net-new SINK: consumeSessionBinding WRITES the session binding file.
     const res = consumerMod.consumeSessionBinding({
