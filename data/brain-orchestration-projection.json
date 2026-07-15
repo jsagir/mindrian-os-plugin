@@ -1222,6 +1222,27 @@
       }
     },
     {
+      "id": "command:/mos:intel-pipeline",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:intel-pipeline",
+      "reach_id": "context_block",
+      "sub_mode": "intel-pipeline",
+      "hierarchy_rank": 55,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:intel-pipeline",
+        "reach_id": "context_block",
+        "sub_mode": "intel-pipeline"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "intel-pipeline",
+        "hierarchy_rank": 55,
+        "posture": "hold"
+      }
+    },
+    {
       "id": "command:/mos:jtbd",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -2974,6 +2995,12 @@
       "name": "ingest-methodology"
     },
     {
+      "id": "skill:intel-pipeline",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "intel-pipeline"
+    },
+    {
       "id": "skill:intelligence-orchestrator",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -4034,6 +4061,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "ignite"
+    },
+    {
+      "id": "sub_mode:intel-pipeline",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "intel-pipeline"
     },
     {
       "id": "sub_mode:investor-agent",
