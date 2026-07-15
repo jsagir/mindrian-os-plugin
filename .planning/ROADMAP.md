@@ -3231,7 +3231,7 @@ WRITE-side gap. Full detail + three resolution options in 223-SPEC.md's Addendum
 is still correct (the READ-side risk is real and 224 is built to close it), but do not assume 224
 shipping also resolves Requirement 4 -- that needs its own explicit check once 224 lands, and may
 need a Requirement 7 or a Req-4 rewrite regardless of 224's outcome.
-**Plans:** 5 plans (1/5 complete)
+**Plans:** 4/5 plans executed
 
 Plans:
 **Wave 1**
@@ -3245,7 +3245,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 - shared mirror/registry generators)*
 
-- [ ] 223-04-PLAN.md - /mos:intel-pipeline: lib/core/intel-pipeline.cjs staged composition core (D-03 eureka compute, G-2 JTBD-drift guardrail) + kind:meta connector + SKILL mirror + Req 3 fixtures [Req 3, Req 4, Req 6]
+- [x] 223-04-PLAN.md - /mos:intel-pipeline: lib/core/intel-pipeline.cjs staged composition core (D-03 eureka compute, G-2 JTBD-drift guardrail) + kind:meta connector + SKILL mirror + Req 3 fixtures [Req 3, Req 4, Req 6]
 
 **Wave 4** *(blocked on Wave 3; autonomous: false)*
 
