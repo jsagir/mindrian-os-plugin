@@ -25,15 +25,39 @@
   pass (independently re-verified: 8/8 + 4/4 tests pass, both diffs re-read after landing),
   not patched around the symptom.
 
+- **Phase 229: HUJI Pitch Feedback Module (IN PROGRESS, 8/9 plans -- not yet shipped).**
+  MindrianOS's first paying job: turn each student's diarized 5-minute pitch transcript into
+  one Minto-structured formative feedback artifact, batch-orchestrated across 200+ submissions
+  at a $4-5/unit cost ceiling, local-only scoring (Brain read-only, generic handles per Canon
+  Part 8). Built so far: the evidence/feedback zod schemas plus generated JSON Schema
+  (`229-01`); a labeled test-inventory harness and `run-all-229.sh` aggregator (`229-02`);
+  deterministic code checks covering quote verification, recall, drift, schema validation,
+  similarity, cost, and Part-8 hygiene (`229-03`); the `PWS_grading` recipe with a
+  score-and-continue rubric (`229-04`); a Stage A intake adapter porting the Claims-Aware
+  Fusion Mode A pipeline (`229-05`); an LLM judge spawner with a calibration protocol that
+  fails closed below a 0.7 anchor-hygiene bar (`229-06`); and a single-submission runner plus
+  batch orchestrator with pool/ledger/resume/retry and G1-G6 per-unit guardrails (`229-07`,
+  `229-08`). Not yet shipped: `229-09`, the mandatory demo run and human verdict checkpoint
+  this whole pipeline is gated on before any real submission gets scored -- per this project's
+  own standing rule, judge accuracy and calibration are a human-verify bar, never
+  self-certified.
+
 ## [1.15.3-beta.24] - 2026-07-16
 
 ### Added
-- 
+- No discrete feature completed exactly at this tag. This pre-release snapshot captured
+  in-progress work on Phase 227 (the mode-select firing checkpoint, sweep, and Mode 3 routing
+  work) and Phase 229 (the HUJI Pitch Feedback Module's Stage A intake adapter) mid-flight,
+  neither phase-complete at cut time. Phase 227's full, finished feature set is recorded once
+  under `[Unreleased]` above rather than split and duplicated across the interim tags it
+  happened to span.
 
 ## [1.15.3-beta.22] - 2026-07-16
 
 ### Added
-- 
+- No discrete feature completed exactly at this tag either, for the same reason as beta.24:
+  a pre-release snapshot mid-flight through Phase 227 (the skill-description sweep landed
+  here) and Phase 229 (PWS_grading recipe + score-and-continue rubric work).
 
 ## [1.15.3-beta.20] - 2026-07-16
 
