@@ -276,6 +276,15 @@ function buildStageAArgs(config, prompt) {
 // via --append-system-prompt-file (score-and-continue neutralization of the 6/10
 // halt; frozen prefix so the cache bites and provenance holds). dontAsk +
 // explicit allows keep the surface locked; --max-budget-usd is the per-unit fuse.
+//
+// Glob added 2026-07-16 as the shape-A fix for the Stage B discovery bug: without
+// it the live session could not list its own room directory to find
+// pitch-intake-<subId>.md and halted honestly with NO-SUBMISSION-FOUND (4 live
+// runs, evidence in .planning/phases/229-huji-pitch-feedback-module/
+// 229-STAGE-B-DISCOVERY-BUG-HANDOFF.md). This edit is a deliberate,
+// navigator-reviewed exception to the 229-10 byte-for-byte lock on this file.
+// Glob is read-only discovery - the Bash allowlist stays node lib/core/* only,
+// so no new write or execution capability is granted.
 // --------------------------------------------------------------------------
 function buildStageBArgs(config) {
   return [
@@ -287,7 +296,7 @@ function buildStageBArgs(config) {
     '--json-schema', inlineSchemaJson(config.feedbackSchemaPath),
     '--append-system-prompt-file', config.rubricPath,
     '--permission-mode', 'dontAsk',
-    '--allowedTools', 'Read,Write,Edit,Bash(node lib/core/*)',
+    '--allowedTools', 'Read,Write,Edit,Glob,Bash(node lib/core/*)',
     '--max-turns', String(config.maxTurns),
     '--max-budget-usd', String(config.budgetPerUnitUsd),
     '--no-session-persistence',
