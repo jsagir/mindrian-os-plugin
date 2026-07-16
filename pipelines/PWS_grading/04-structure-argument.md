@@ -39,6 +39,11 @@ a Minto Pyramid tiered to the student's level:
   important`), nothing added or dropped inside the span. Quote less, but exactly -
   the delivered quotes are re-checked against the transcript by the D1 verifier
   before the artifact is written (see rubric-huji.md Section 3b).
+- **Quote marks mean verbatim, never counterfactual.** Put quotation marks (single
+  or double) ONLY around words the student actually spoke. Never quote a phrase the
+  student did NOT say, even to contrast with it (never `you did not say 'a good
+  team'`) - the D1 verifier checks that quoted span too and a phrase absent from the
+  transcript fails the gate. Write contrasts and emphasis as plain text, no quotes.
 - Length proportionate to a 2-minute pitch; never a 4,000-word essay
 - Credit self-identified gaps and deepen them (HOW to do the work, not THAT it is
   missing); never punish disfluencies or non-native phrasing

@@ -1135,6 +1135,7 @@ function main() {
 // Exported for programmatic reuse (the batch orchestrator, Plan 07) + unit tests.
 module.exports = {
   quoteVerifier,
+  extractQuotedSpans,
   inventoryRecall,
   schemaCheck,
   driftStats,

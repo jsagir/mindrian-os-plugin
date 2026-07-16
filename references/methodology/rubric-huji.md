@@ -105,6 +105,17 @@ the student's speech. Ever. Quote LESS, but quote EXACTLY.**
    fully verbatim quote is ALWAYS correct. If you feel the urge to improve a quote,
    STOP: your job is to copy, not to edit. The feedback stays language-gentle in the
    PROSE around the quote, never by editing the quote itself.
+5. **Quotation marks are reserved EXCLUSIVELY for verbatim transcript spans.** A
+   pair of quote marks (single `'...'` or double `"..."`) is a promise that the
+   enclosed characters appear byte-for-byte in the transcript. Never put quote marks
+   around a phrase the student did NOT say - not a counterfactual ("you did not say
+   'a good team'"), not a hypothetical, not a paraphrase, not a label, not an
+   emphasis. The D1 verifier checks EVERY quoted span, including a counterfactual one,
+   and a quoted phrase absent from the transcript is a FABRICATION that fails the gate.
+   When you want to contrast with something the student did not say, or emphasize a
+   term, write it as PLAIN TEXT (no quote marks) - for example: you did not settle for
+   a good team; you named three roles. Reserve the quote marks for the words the
+   student actually spoke.
 
 This is the same discipline the extraction stage already follows; the feedback you
 deliver must hold to it too, because the delivered quotes are re-verified against the
