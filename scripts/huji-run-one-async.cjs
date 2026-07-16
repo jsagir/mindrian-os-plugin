@@ -192,7 +192,14 @@ async function runOneAsync(opts) {
     try { onStage(stageName); } catch (_e) { /* progress callback is best-effort */ }
   };
 
-  if (typeof subId !== 'string' || subId.length === 0) return { ok: false, reason: 'invalid_subId' };
+  // subId is untrusted external input (see file header) -- reused here for both
+  // the empty-string check AND the path-traversal check via the SAME reason code
+  // (invalid_subId), since the stability contract above forbids adding a new
+  // reason code for a stricter check. Anchored allowlist, not a denylist: only
+  // this character set can ever produce a single, traversal-free path segment on
+  // any platform (no '/', '\\', '..', leading '.', or absolute-path markers).
+  const SAFE_SUB_ID = /^[A-Za-z0-9_-]{1,128}$/;
+  if (typeof subId !== 'string' || subId.length === 0 || !SAFE_SUB_ID.test(subId)) return { ok: false, reason: 'invalid_subId' };
   if (typeof transcriptPath !== 'string' || transcriptPath.length === 0) return { ok: false, reason: 'invalid_transcriptPath' };
   if (typeof outDir !== 'string' || outDir.length === 0) return { ok: false, reason: 'invalid_outDir' };
 
