@@ -2,7 +2,7 @@
 phase: 229-huji-pitch-feedback-module
 plan: 09
 subsystem: testing
-tags: [pws-grading, demo, eval, claude-cli, json-schema, auth, calibration, minto]
+tags: [pws-grading, demo, eval, claude-cli, json-schema, auth, calibration, minto, handoff]
 
 # Dependency graph
 requires:
@@ -15,115 +15,145 @@ requires:
   - phase: 229-04
     provides: PWS_grading recipe + score-and-continue rubric
 provides:
-  - "Automated phase-gate half verified GREEN (run-all-229 PASS=9, code 7/7, judge-math + scaffold + pool selftests)"
-  - "Empirical diagnosis of the 3-layer CLI/auth blocker that stops the first live demo spawn (DI-1/DI-2/DI-3)"
-  - "demo/DEMO-VERDICT.md (pipeline-output section + pending Amnon-verdict placeholder)"
-  - "deferred-items.md (the 3 pipeline bugs with reproductions + recommended fixes)"
-affects: [229-pipeline-fix, huji-run-one, huji-eval, CONTRACTS-AUTH_PATH]
+  - "DI-1/DI-2/DI-3 RESOLVED and committed (CLI json-schema inline, draft-2020-12 strip, keychain auth)"
+  - "Live judge calibration CLEARED: Spearman 0.901 (>= 0.7), Dental post>pre, DnATA<Lucid - JUDGE CALIBRATED"
+  - "Stage A extraction verified working end to end (haiku, --plugin-dir + keychain, valid structured evidence)"
+  - "DI-4 (Stage A->Stage B evidence-handoff broken) + DI-5 (disfluency-cleaned quotes) diagnosed empirically - the new demo blockers"
+affects: [229-pipeline-fix, huji-run-one, huji-eval, huji-intake, CONTRACTS-AUTH_PATH]
 
 # Tech tracking
 tech-stack:
   added: []
   patterns:
-    - "Live-spawn contract verification: model-free dry-runs assert arg arrays but never spawn; first live spawn exposes CLI-contract drift"
-    - "Honest-blocker discipline: document + defer grade-provenance/auth bugs rather than blind-patch an unvalidatable pipeline"
+    - "First true end-to-end spawn exposes the grading-spine input contract: intake writes the graph (room.db), grading reads section markdown - misaligned"
+    - "Clean tool-free judge (--setting-sources '' --tools '') = keychain auth without the plugin bloat that tempts the model into a tool_use loop"
+    - "Honest-blocker discipline: no fabricated demo artifact even after the CLI/auth blockers cleared"
 
 key-files:
-  created:
+  created: []
+  modified:
+    - lib/core/pitch-feedback-schemas.cjs
+    - scripts/huji-run-one.cjs
+    - scripts/huji-eval.cjs
+    - .planning/phases/229-huji-pitch-feedback-module/schemas/evidence.schema.json
+    - .planning/phases/229-huji-pitch-feedback-module/schemas/feedback-result.schema.json
+    - .planning/phases/229-huji-pitch-feedback-module/CONTRACTS.md
     - .planning/phases/229-huji-pitch-feedback-module/demo/DEMO-VERDICT.md
     - .planning/phases/229-huji-pitch-feedback-module/deferred-items.md
-  modified:
-    - .planning/ROADMAP.md
-    - .planning/STATE.md
 
 key-decisions:
-  - "Did NOT fabricate the two demo feedback artifacts - the demo is the sale; a faked artifact costs the deal (threat T-229-09-01)"
-  - "Did NOT blind-patch the 3 pipeline bugs - each touches the grade-provenance/auth contract and none can be validated without a credential; logged to deferred-items.md for a dedicated fix plan"
-  - "STATE.md updated by manual additive log append; frontmatter counters left untouched (anti-clobber precedent); plan stays INCOMPLETE (blocked)"
+  - "Fixed DI-1/2/3 exactly per navigator ruling (inline schema, strip $schema, one keychain auth mechanism)"
+  - "Extended the keychain auth (DI-3) to the judge via --setting-sources '' --tools '' (no plugin, no tools) - required for the live calibration to run at all; gated behind HUJI_JUDGE_LIVE so run-all-229 stays model-free"
+  - "STOPPED at DI-4 (architectural handoff bug) rather than fabricate or blind-patch - a 4th bug is an explicit STOP condition; the grading input contract is a navigator decision (Rule 4)"
 
 patterns-established:
-  - "The demo run is the first live claude spawn in a phase built entirely on model-free tests - treat it as the CLI-contract integration test"
+  - "The demo run is the FIRST live spawn AND the first exercise of the grading spine's real input contract - it is the pipeline's true integration test"
 
-requirements-completed: []  # D6/D7 human halves NOT completed - blocked at checkpoint
+requirements-completed: []  # D6/D7 human halves NOT completed - Task 1 blocked at DI-4
 
 # Metrics
-duration: ~40min
+duration: ~150min
 completed: 2026-07-16
 ---
 
 # Phase 229 Plan 09: Demo Run + Human Calibration Checkpoint Summary
 
-**Automated phase-gate half verified GREEN; the live demo (the sale) is blocked by a reproduced 3-layer CLI/auth chain on the first live spawn, so the two feedback artifacts were honestly NOT generated and Amnon's verdict + the HUJI workshop remain pending.**
+**DI-1/2/3 fixed and committed; the live judge calibrated at Spearman 0.901; Stage A extraction verified - but the FIRST end-to-end run exposed a deeper architectural bug (DI-4: the Stage A->Stage B evidence handoff is broken) plus a disfluency-extraction bug (DI-5), so the two Minto artifacts were honestly NOT produced and NOT fabricated. Task 1 remains blocked, now at DI-4.**
 
 ## Performance
 
-- **Duration:** ~40 min
-- **Started:** 2026-07-16 (session)
+- **Duration:** ~150 min (mostly live opus/sonnet spawns)
 - **Completed:** 2026-07-16
-- **Tasks:** 1 of 3 attempted (Task 1 = auto, partial/blocked); Tasks 2-3 = blocking-human checkpoints, not startable this session
-- **Files created:** 2 (DEMO-VERDICT.md, deferred-items.md) + demo/ dir
-- **Files modified:** 2 (ROADMAP.md, STATE.md)
+- **Tasks:** Task 1 (auto) attempted end to end - DI-1/2/3 cleared, judge calibrated, Stage A working, but blocked at DI-4; Tasks 2-3 (human checkpoints) not startable (no gate-clean artifacts to hand Amnon)
 
 ## Accomplishments
 
-- **Automated phase-gate half GREEN.** `bash tests/run-all-229.sh` -> PASS=9 FAIL=0 SKIP=0; `huji-eval --suite code --strict` -> 7/7; `--suite anchors --judge` self-verifies the calibration math (1 PASS + 4 FAIL fixtures) then cleanly SKIPS the live judge (no key); `huji-run-one --selftest-scaffold` + `--dry-run` and `huji-batch --dry-run 5` + `--test-d10` all exit 0.
-- **Precise, empirical blocker diagnosis** of why the live demo cannot run, reproduced against `claude` 2.1.211 (see Issues Encountered). Delivered as `demo/DEMO-VERDICT.md` + `deferred-items.md`.
-- **Held the line on honesty:** no fabricated demo artifacts, no blind pipeline patch, no hardcoded key.
+- **DI-1 RESOLVED** (`1d6d94ce`): `inlineSchemaJson()` inlines the schema JSON at all three call sites (Stage A, Stage B, judge). The CLI no longer JSON-parses a file path.
+- **DI-2 RESOLVED** (`da494c2e`): `toJsonSchemas()` strips the draft-2020-12 `$schema` meta-ref; verified draft-07-safe. Schema files regenerated.
+- **DI-3 RESOLVED** (`0f8427b7`, `a44157a2`, `a4e16f7e`): one keychain auth mechanism for the whole pipeline. Stage A + Stage B use `--plugin-dir` + keychain; the judge uses a clean `--setting-sources "" --tools ""` keychain session. CONTRACTS.md AUTH_PATH updated. `HUJI_JUDGE_LIVE` gates the live judge so `run-all-229` stays model-free.
+- **Live judge calibration CLEARED (the one gate that passed live):** Spearman **0.901** (min 0.7), Dental post>pre PASS, DnATA<Lucid PASS -> **JUDGE CALIBRATED**. Judge `claude-sonnet-4-5` judging spine `claude-opus-4-8`. Individual anchors sane (10-dnata Real 3/Win 2/Worth 3 matched its known scorecard exactly).
+- **Stage A extraction verified working:** haiku + `--plugin-dir` + keychain, ~40s, ~$0.12, valid structured `evidence.json` with verbatim quotes, `num_turns` 3 (no wander).
+- **`run-all-229` still green:** PASS=9 FAIL=0 SKIP=0 after every code change.
+- **Held the line on honesty:** no fabricated demo artifacts even after the CLI/auth blockers cleared; the anti-fabrication rubric guard actually FIRED (Stage B refused to grade an empty room).
 
 ## Task Commits
 
-1. **Task 1 (partial - blocked):** demo/DEMO-VERDICT.md + deferred-items.md + ROADMAP + STATE - see plan-metadata commit below (no separate per-task code commit: Task 1's live artifacts were blocked, so the work product is the verification record + diagnosis).
+1. `da494c2e` fix(229-09): DI-2 strip draft 2020-12 $schema from emitted JSON Schemas
+2. `1d6d94ce` fix(229-09): DI-1 inline --json-schema JSON at all three call sites
+3. `0f8427b7` fix(229-09): DI-3 drop Stage A --bare, use --plugin-dir + keychain everywhere
+4. `a44157a2` fix(229-09): tune live judge spawn for large calibration anchors
+5. `a4e16f7e` fix(229-09): clean tool-free judge invocation (keychain, no plugin, no tools)
 
-**Plan metadata:** committed with this SUMMARY (docs, see final line).
+(Plan metadata + docs committed with this SUMMARY.)
 
-_Tasks 2 (Amnon verdict) and 3 (HUJI calibration workshop) are `checkpoint:human-verify gate="blocking"` and were not started - they require real-world human actions._
+## The new blockers (why the demo still cannot emit artifacts)
 
-## Files Created/Modified
+**DI-4 - the Stage A -> Stage B evidence handoff is broken (architectural).**
+`populateRoom` writes the Stage A evidence into the room GRAPH (`.mindrian/room.db`, 11
+claim nodes verified present). But the grading session is tool-scoped to
+`Bash(node lib/core/*)` and CANNOT read `room.db` (no `sqlite3`); it reads the section
+markdown files, which are EMPTY auto-scaffolds. Stage B (opus) therefore graded an EMPTY
+ROOM and CORRECTLY refused to fabricate a grade - it emitted a setup-state finding,
+`scores: {}`. The intake half writes the graph; the grading half reads markdown/transcript;
+they are misaligned. Resolving this is a navigator decision on the grading input contract
+(candidate designs in `deferred-items.md` DI-4) - it changes the contract for the whole
+200-student batch, so it is Rule 4 (STOP), not an executor auto-fix.
 
-- `demo/DEMO-VERDICT.md` - Pipeline-output section (BLOCKED, cost $0, no model_id, judge unverified) + the 3-layer blocker chain with reproductions + a pending placeholder for Amnon's verbatim verdict and Jonathan's sign-off (Task 2).
-- `deferred-items.md` - DI-1/DI-2/DI-3: the three pipeline bugs (json-schema-as-path, schema draft 2020-12, Stage A `--bare` credential) with empirical symptoms and recommended fixes.
-- `.planning/ROADMAP.md` - 229-09 row flipped to `[~]` blocked-at-checkpoint with the blocker summary.
-- `.planning/STATE.md` - manual additive log append (frontmatter counters untouched; plan stays incomplete).
+**DI-5 - Stage A cleans speech disfluencies, breaking the D1 quote gate (extraction).**
+Haiku normalized "vali- validating" -> "validating" and "surprising-- important" ->
+"important", so 2 evidence quotes were no longer verbatim and the D1 quote-verifier
+correctly flagged them. Fix: tighten the Stage A intake prompt to quote byte-verbatim
+including disfluencies (they are language notes, never content - AI-SPEC D6). Cannot be
+re-verified until DI-4 also clears.
 
-**NOT produced (blocked, by design not omission):** `demo/feedback-sample-1.md`, `demo/feedback-sample-2.md` (no successful pipeline run), the `rubric-huji.md` few-shot slot (stays intentionally empty - no approved artifacts to embed), `calibration-workshop.md` (Task 3, needs the live workshop).
+## Real pipeline data (this session)
 
-## Decisions Made
-
-- **No fabrication of demo artifacts.** The demo IS the sale; threat T-229-09-01 says a fabricated/unfair artifact costs the deal. An absent artifact is honest; a faked one is not.
-- **Document, do not blind-patch.** DI-1/DI-2/DI-3 are pre-existing bugs in shipped Plan 06/07/08 code, each on the grade-provenance or auth contract, and none can be validated end to end without a credential. Per the executor scope-boundary + auth-gate rules and the plan's own instruction, they are logged for a dedicated fix plan, not patched blind.
-- **Manual STATE append, counters untouched** (documented 229-05/06/07/08 anti-clobber precedent; `gsd-tools` not on PATH; plan is incomplete so the completed-plans counter must not advance).
+| Item | Value |
+|------|-------|
+| Stage A (both samples) | works, ~40s, ~$0.12 each, valid structured evidence |
+| Stage B model_id | `claude-opus-4-8` (verified) |
+| Stage B calibration_source | `local-anchors` |
+| Stage B cost (study-app) | $1.157 (spent on a non-grade, DI-4) |
+| study-app unit total | $1.277 |
+| safescan Stage B | ran >10 min, exited nonzero, no artifact (DI-4 empty-room grind) |
+| Judge Spearman (live) | 0.901 (min 0.7) - CALIBRATED |
 
 ## Deviations from Plan
 
-Not deviations in the Rule 1-4 auto-fix sense - the plan could not reach its auto-fix surface because Task 1's live run is gated. The single structural departure: Task 1 is reported as **partial/blocked**, not complete, because the two demo artifacts (its core deliverable) cannot be produced this session without resolving DI-1/DI-2/DI-3.
+- **[Rule 3 - blocking] Judge auth extended to keychain.** The navigator DI-3 ruling named
+  Stage A + Stage B; the judge (`spawnJudge`) still had the `--bare` + `ANTHROPIC_API_KEY`
+  gate, so the live calibration the plan REQUIRES (Spearman >= 0.7) could never run in a
+  key-less environment. Applied the same keychain mechanism to the judge, via
+  `--setting-sources "" --tools ""` (a clean, plugin-free, tool-free scoring session -
+  discovered necessary when the auto-loaded plugin tempted sonnet into a tool_use loop that
+  blew max-turns/budget on 5/7 anchors). Gated behind `HUJI_JUDGE_LIVE` so the structural
+  suite stays model-free. Documented in CONTRACTS.md AUTH_PATH.
+- **[Rule 4 - STOP] DI-4 architectural handoff bug.** Rather than invent a grading input
+  contract (multiple valid designs, batch-wide implications) or fabricate an artifact, this
+  session STOPS at DI-4 per the plan's explicit "a 4th bug surfaces -> STOP and report"
+  instruction and the anti-fabrication mandate.
 
 ## Issues Encountered
 
-The first live `claude` spawn (Plan 09 is the first non-dry-run in Phase 229) hits a 3-layer chain against `claude` 2.1.211, each reproduced:
-
-1. **DI-1 - `--json-schema` wants inline JSON, not a path.** `huji-run-one.cjs` (both stages) and `huji-eval.cjs` (`spawnJudge`) pass a file path; the CLI JSON-parses it and fails: `Unrecognized token '/'`. `@file` also fails. Blocks Stage A, Stage B, and the judge identically.
-2. **DI-2 - schema draft 2020-12 rejected.** The zod-generated schemas declare `draft/2020-12`; the CLI validator: `no schema with key or ref ".../draft/2020-12/schema"`. draft-07/no-`$schema` gets past.
-3. **DI-3 - Stage A `--bare` has no credential.** Stage A is `--bare` (skips keychain) + key from `ANTHROPIC_API_KEY` (unset) -> `"Not logged in - Please run /login"`. Stage-A-specific: the NON-bare Stage B keychain path authenticates cleanly here (plugin loads, Larry active). Exactly the CONTRACTS AUTH_PATH risk.
-
-Full reproductions + recommended fixes in `deferred-items.md`.
-
-## User Setup Required
-
-**To unblock the sale (ordered):**
-1. DI-1: inline the schema JSON in `huji-run-one.cjs` (both stages) + `huji-eval.cjs` `spawnJudge` (mechanical).
-2. DI-2: decide at the zod-generation layer whether to emit an accepted draft or strip `$schema`, then re-verify every gate (Jonathan - grade-provenance surface).
-3. DI-3: export `ANTHROPIC_API_KEY` for `--bare` Stage A, OR revise AUTH_PATH so Stage A uses the keychain like Stage B (Jonathan/CONTRACTS).
-4. Run the live demo over both samples, clear the 0.7 Spearman judge gate, hand the 2 artifacts to Amnon for the "better than a TA" verdict, embed approved artifacts as the rubric few-shot anchors, then run the HUJI calibration workshop (Task 3).
+The first true end-to-end run surfaced DI-4 and DI-5 (above). The judge also initially
+failed 5/7 anchors with an opaque `error_max_turns`/`tool_use` loop when the auto-discovered
+mos plugin advertised tools; fixed by the clean `--setting-sources "" --tools ""` invocation,
+after which calibration cleared at 0.901.
 
 ## Next Phase Readiness
 
-- **Blocked at the two-part phase gate.** Automated half is green; the human half (Amnon's verdict + the HUJI TA blind-comparison workshop) cannot proceed until the live demo artifacts exist, which needs DI-1/DI-2/DI-3 cleared.
-- No student data was processed; no Brain egress occurred (no live run). Canon Part 8 intact.
+- **Blocked at DI-4** (grading input contract). The automated gate half is green and the
+  judge is calibrated; the human half (Amnon's verdict) cannot proceed until the pipeline
+  emits gate-clean graded artifacts, which needs DI-4 (navigator decision) + DI-5 cleared.
+- Canon Part 8 intact: `calibration_source: local-anchors`, no Brain egress; the anti-
+  fabrication guard demonstrably held (Stage B refused to grade an empty room).
 
 ## Self-Check: PASSED
 
-- demo/DEMO-VERDICT.md exists; deferred-items.md exists; ROADMAP.md + STATE.md updated. (Verified below in the commit step.)
+- Code fixes committed (5 commits verified in git log); DEMO-VERDICT.md + deferred-items.md
+  updated; schemas regenerated without `$schema`; `run-all-229` PASS=9. No artifact
+  fabricated (correct - DI-4 blocks a real grade).
 
 ---
 *Phase: 229-huji-pitch-feedback-module*
-*Completed (blocked at checkpoint): 2026-07-16*
+*Completed (DI-1/2/3 fixed + judge calibrated; blocked at DI-4): 2026-07-16*

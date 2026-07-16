@@ -11,42 +11,60 @@
 
 ## 1. Pipeline Output (Task 1)
 
-**Status: BLOCKED - the two live demo artifacts were NOT generated this session.**
+**Status: DI-1/2/3 RESOLVED + judge calibrated live; demo STILL BLOCKED by a deeper,
+newly-surfaced architectural bug (DI-4). The two artifacts were NOT generated and NOT
+fabricated.**
 
-The automated half of the phase gate is fully green (Section 2). The live demo run
-that emits `demo/feedback-sample-1.md` and `demo/feedback-sample-2.md` could not
-execute, because the module's first-ever live `claude` spawn hits a three-layer
-blocker chain (Section 3). No feedback artifact was fabricated - the demo is the
-sale, and a fabricated or unfair artifact costs the deal (threat T-229-09-01). An
-empty artifact is honest; a faked one is not.
+Update 2026-07-16 (fix-and-verify session). The three CLI/auth blockers from the first
+session (DI-1 json-schema-as-path, DI-2 draft 2020-12, DI-3 Stage A `--bare` credential)
+are FIXED and committed. That let the opus grading spine (Stage B) spawn for the FIRST
+time ever - which immediately exposed two deeper bugs that were masked behind DI-1/2/3:
 
-| Field | Value |
-|-------|-------|
-| feedback-sample-1.md (SafeScan) | NOT PRODUCED - blocked at Stage A (see Section 3) |
-| feedback-sample-2.md (study-app) | NOT PRODUCED - blocked at Stage A |
-| total_cost_usd | $0.00 (no model call completed) |
-| pinned model_id | n/a (Stage B grading spine never reached) |
-| judge scores (Real/Win/Worth) | n/a - judge calibration is also key-blocked (Section 3c) |
-| calibration_source | n/a |
+- **DI-4 (blocker, architectural):** the Stage A -> Stage B evidence handoff is broken.
+  `populateRoom` writes the evidence into the room GRAPH (`.mindrian/room.db`, 11 claim
+  nodes, verified), but the grading session is tool-scoped to `Bash(node lib/core/*)` and
+  CANNOT read `room.db` (no `sqlite3`), so it reads the section markdown - which are EMPTY
+  auto-scaffolds. Stage B (opus) therefore graded an EMPTY ROOM and CORRECTLY refused to
+  fabricate: it returned a setup-state finding, `scores: {}`, not a Minto grade. The
+  anti-fabrication guard worked; the orchestration is what is broken.
+- **DI-5 (blocker, extraction):** Stage A (haiku) cleaned the transcript's speech
+  disfluencies ("vali- validating" -> "validating"; "surprising-- important" ->
+  "important"), so 2 evidence quotes were no longer verbatim and the D1 quote-verifier
+  correctly flagged them.
 
-### On-disk gates (would have been checked on the artifacts)
+Full reproductions + candidate fixes are in `deferred-items.md` (DI-4, DI-5). No feedback
+artifact was fabricated - the demo is the sale, and a fabricated or unfair artifact costs
+the deal (threat T-229-09-01).
 
-These gates are proven sound by their PASS+FAIL selftests (Section 2), but they had
-no live artifact to run against this session:
+| Field | Value (REAL, this session) |
+|-------|----------------------------|
+| feedback-sample-1.md (SafeScan) | NOT PRODUCED - Stage B (opus) ran >10 min then exited nonzero, no artifact (DI-4 empty-room grind) |
+| feedback-sample-2.md (study-app) | NOT PRODUCED as a valid artifact - Stage B emitted a setup-state finding (empty room), `scores: {}`, and D1 flagged 2 disfluency-cleaned quotes (DI-4 + DI-5) |
+| Stage A extraction | WORKS - haiku, `--plugin-dir` + keychain, ~40s, valid structured evidence.json, num_turns 3 |
+| pinned model_id (Stage B) | `claude-opus-4-8` (verified in study-app result.json) |
+| calibration_source | `local-anchors` (Tier 0, Brain not queried) |
+| Stage A cost / sample | ~$0.12 (haiku) |
+| Stage B cost (study-app) | $1.157 (opus) - spent on a NON-grade (empty room) |
+| total_cost_usd (study-app unit) | $1.277 (Stage A $0.120 + Stage B $1.157) |
+| Judge calibration (LIVE) | **Spearman 0.901 (min 0.7) PASS**; Dental post>pre PASS; DnATA<Lucid PASS -> JUDGE CALIBRATED |
+| Judge model / spine | `claude-sonnet-4-5` judging `claude-opus-4-8` (pinned different, self-preference dodge) |
 
-- D1 quote-verifier clean (no fabricated critique): selftest green, no live artifact.
-- D5 FeedbackResultSchema valid (Minto pyramid): selftest green, no live artifact.
-- D6 sample-2 self-identified gaps CREDITED not double-punished; risks+mitigation
-  (0:52) NOT marked missing; no disfluency/language penalization: encoded in the
-  frozen rubric (`references/methodology/rubric-huji.md` sections 2-3), not yet
-  exercised on a live grading pass.
+### Judge calibration - the one gate that DID clear live
+
+`HUJI_JUDGE_LIVE=1 node scripts/huji-eval.cjs --suite anchors --judge` ran the 7-point
+protocol over the 6 graded anchors (keychain, no plugin, no tools). Result:
+- Spearman vs known ordering: **0.901** (min 0.7) - PASS
+- Dental post-revision > pre-revision: PASS
+- DnATA (10) < Lucid (09) on every dimension: PASS
+- Sample anchor scores observed: 04-circular Real 2/Win 2/Worth ~ (canonical 24/100, low);
+  10-dnata Real 3/Win 2/Worth 3 (matches its known scorecard exactly).
+- Verdict: **JUDGE CALIBRATED** - may gate delivery (after the human re-rank). This is a
+  real, strong result; the judge is trustworthy once the pipeline can emit real artifacts.
 
 ### Cost-tier eval question (opus vs sonnet indistinguishability)
 
-Deferred with the live run. The AI-SPEC Section 5 open question (is the sonnet spine
-indistinguishable from opus at course-tier depth, letting the batch drop a tier)
-requires two live grading passes to compare; neither could run. Do NOT silently swap
-the pinned model - record the delta when the live demo runs.
+Still deferred - it needs two GRADED passes to compare, and DI-4 means no gradable pass
+exists yet. Do NOT silently swap the pinned model; record the delta once DI-4/DI-5 clear.
 
 ---
 
@@ -70,7 +88,12 @@ known-bad FAIL fixture, so they turn red the moment the check logic regresses.
 
 ---
 
-## 3. Blocker chain - why the live demo could not run
+## 3. Original blocker chain (DI-1/2/3) - NOW RESOLVED (kept for the record)
+
+> All three layers below were FIXED in the 2026-07-16 fix-and-verify session (commits
+> `da494c2e`, `1d6d94ce`, `0f8427b7`, `a44157a2`, `a4e16f7e`). Stage A now runs and
+> the judge calibrates live (Section 1). The demo is now blocked by DI-4/DI-5, not by
+> these. This section documents the original reproductions.
 
 The demo run is the FIRST time any Phase 229 code spawns a live `claude` session.
 Every prior test (Plans 01-08) is model-free: the dry-runs assert the argument ARRAY

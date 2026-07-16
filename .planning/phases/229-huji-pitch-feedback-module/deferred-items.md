@@ -2,12 +2,46 @@
 
 > Out-of-scope discoveries logged per the executor scope-boundary rule. These are
 > genuine bugs in shipped Plan 06/07/08 pipeline code, surfaced by the FIRST live
-> `claude` spawn (Plan 09's demo). They are NOT blind-patched here: each affects the
-> grade-provenance / auth contract, and none can be validated end to end without a
-> credential (item 3), so patching without a green live run would be a guessed
-> workaround. Recommend a dedicated `/gsd-debug` or fix plan. No em-dashes.
+> `claude` spawn (Plan 09's demo). No em-dashes.
 
 **Discovered:** 2026-07-16 (Plan 229-09 Task 1, live demo attempt) · **Reproduced empirically.**
+
+**Status update 2026-07-16 (fix-and-verify session):** DI-1, DI-2, DI-3 are RESOLVED
+and committed (see below). Clearing them let Stage B (the opus grading spine) spawn for
+the FIRST time ever - which immediately surfaced TWO deeper, previously-masked bugs:
+**DI-4 (grading-spine input handoff broken)** and **DI-5 (Stage A cleans speech
+disfluencies, breaking the verbatim quote gate)**. DI-4 is architectural and blocks the
+demo; the two real feedback artifacts were therefore NOT produced and NOT fabricated
+(threat T-229-09-01). The judge calibration gate, however, DID clear live: Spearman
+**0.901** (>= 0.7), Dental post > pre PASS, DnATA < Lucid PASS.
+
+---
+
+## DI-1 - RESOLVED - `--json-schema` inline JSON
+
+**Fix (commit `1d6d94ce`):** `inlineSchemaJson(path)` in `pitch-feedback-schemas.cjs`
+reads the schema file and returns compact inline JSON; wired into `buildStageAArgs`,
+`buildStageBArgs`, and `spawnJudge`. Verified: Stage A now spawns and returns valid
+structured evidence; the judge scores anchors; the CLI no longer JSON-parses a path.
+
+## DI-2 - RESOLVED - strip draft 2020-12 `$schema`
+
+**Fix (commit `da494c2e`):** `toJsonSchemas()` deletes the `$schema` meta-ref before
+writing; `inlineSchemaJson()` strips it defensively too. Verified draft-07-safe (no
+`$defs`/`prefixItems`/2020-12-only keywords). The two on-disk schema files regenerated.
+
+## DI-3 - RESOLVED - drop `--bare`, use `--plugin-dir` + keychain
+
+**Fix (commits `0f8427b7`, `a44157a2`, `a4e16f7e`):** navigator ruling - one auth
+mechanism for the whole pipeline (keychain, zero new credentials). Stage A + Stage B use
+`--plugin-dir` + keychain; the judge uses keychain via `--setting-sources "" --tools ""`
+(no plugin, no tools - it scores an inline artifact). `HUJI_JUDGE_LIVE=1` gates the live
+judge so `run-all-229` stays model-free. CONTRACTS.md AUTH_PATH updated. Verified:
+keychain authenticates every stage; the judge calibrated live at Spearman 0.901.
+
+---
+
+## Original diagnoses (for the record)
 
 ---
 
@@ -56,5 +90,72 @@
 ---
 
 **Priority ordering to unblock the demo:** DI-1 (mechanical) -> DI-2 (schema-gen decision)
--> DI-3 (credential/contract decision). All three must clear before the live demo emits a real
-artifact for Amnon.
+-> DI-3 (credential/contract decision). All three CLEARED 2026-07-16. DI-4 + DI-5 (below)
+are the NEW blockers, surfaced only once DI-1/2/3 let Stage B run for the first time.
+
+---
+
+## DI-4 - BLOCKER (architectural) - the Stage A -> Stage B evidence handoff is broken
+
+- **Where:** `scripts/huji-intake.cjs` `populateRoom` (writes to the graph) vs
+  `scripts/huji-run-one.cjs` `buildStageBArgs` (the grading session that must READ it).
+- **Symptom (real run, study-app-001):** Stage B (opus, `/mos:pipeline PWS_grading`)
+  completed and emitted valid structured output, but the output is a SETUP-STATE FINDING,
+  not a grade: _"Grading cannot proceed: the bound room holds no student submission...
+  every section ROOM.md reads 'Auto-scaffolded. Awaiting first content'... there is no
+  transcript and no evidence JSON in the room."_ `scores: {}`. This is the rubric's
+  absolute-grounding / anti-fabrication rule working CORRECTLY - the spine refused to
+  invent a grade over an empty room. Cost $1.157 (opus) for a non-grade.
+- **Root cause (confirmed empirically):** `populateRoom` writes the Stage A evidence into
+  the room GRAPH - `.mindrian/room.db` (11 typed claim nodes, verified present). But the
+  grading session:
+  1. is tool-scoped to `Read,Write,Edit,Bash(node lib/core/*)` - it CANNOT run `sqlite3`
+     (the session tried and was blocked), so it never reads `room.db`;
+  2. reads the section markdown files (`problem-definition/ROOM.md`, etc.), which are
+     EMPTY auto-scaffolds ("Awaiting first content") - `populateRoom` never writes them;
+  3. never sees the transcript or `evidence.json` (they live in the out/ dir, out of the
+     room, out of reach).
+  So the intake half writes the GRAPH and the grading half reads MARKDOWN/transcript: the
+  two halves of the pipeline are misaligned on the input contract.
+- **Why undetected until now:** every Plan 01-08 test is model-free; Plan 09's first
+  attempt was blocked at DI-1/2/3 before Stage B ever spawned. This is the FIRST true
+  end-to-end run, and it is the first time the grading spine's real input contract was
+  exercised.
+- **Decision needed (architectural - Rule 4, do NOT blind-patch):** how should the grading
+  session receive the evidence? Candidate designs, each with batch-wide (200-student)
+  implications:
+  (a) `populateRoom` also RENDERS the evidence into the section ROOM.md markdown the
+      grading spine reads (graph + markdown, dual-write);
+  (b) inline the evidence.json (+ transcript) into the Stage B prompt as bounded DATA;
+  (c) add a `node lib/core/<reader>.cjs` the grading chain calls to read `room.db` claims,
+      and confirm the chain's deep-grade command actually consumes claim nodes;
+  (d) copy the transcript + evidence.json into the room dir and point the grading prompt at
+      them by path.
+  This changes the grading spine's input contract for the whole batch, so it is a
+  navigator/architectural decision, not an executor auto-fix.
+
+## DI-5 - BLOCKER (extraction quality) - Stage A cleans speech disfluencies, breaking D1
+
+- **Where:** `references/methodology/huji-stage-a-intake.md` (the Stage A extraction
+  prompt) + `scripts/huji-run-one.cjs` `buildStageAPrompt`.
+- **Symptom (real run, study-app-001):** the D1/G1 quote-verifier FAILED on 2 evidence
+  quotes because Stage A (haiku) NORMALIZED the transcript's speech disfluencies:
+  - transcript: _"which would be handled by vali- validating materials"_ ->
+    extracted: _"which would be handled by validating materials"_ (dropped "vali- ");
+  - transcript: _"The most surprising-- important tasks are..."_ ->
+    extracted: _"The most important tasks are..."_ (dropped "surprising-- ").
+  The cleaned quotes are no longer VERBATIM, so the hardest gate (D1, fabricated-critique
+  prohibition) correctly flags them as ungrounded.
+- **Root cause:** the extractor "helpfully" tidies disfluent speech, but the quote-verifier
+  requires byte-verbatim spans. The intake prompt must instruct EXACT verbatim quoting,
+  including disfluencies, repairs, and false starts (the transcript is diarized machine
+  output; disfluencies are expected and are language notes, never content - AI-SPEC D6).
+- **Fix (mechanical, but re-verify end to end):** tighten the Stage A intake prompt to
+  quote verbatim (copy the exact characters between the chosen span boundaries, never
+  paraphrase or clean). Re-run and confirm D1 clean. Cannot be validated until DI-4 also
+  clears (no gradable end-to-end run otherwise).
+
+**Net:** DI-1/2/3 cleared the CLI/auth blockers; DI-4 (architectural handoff) is now the
+gating blocker for the demo, with DI-5 (verbatim extraction) close behind. Both need to be
+resolved - DI-4 by a navigator decision on the grading input contract - before the pipeline
+can emit the two gate-clean Minto artifacts Amnon judges.
