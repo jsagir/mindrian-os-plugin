@@ -119,6 +119,15 @@ run_if "229-06 (D6/D7) judge calibration: anchor protocol fails closed under 0.7
 run_if "229-04 (D10) kill/resume + cross-bleed: .done skip, zero context bleed" "scripts/huji-batch.cjs" \
   node scripts/huji-batch.cjs --selftest-killresume
 
+# D14 (REQ D14): async/sync exit-code parity. runOneAsync (the CASCADE-06 async
+# twin, scripts/huji-run-one-async.cjs) must return a structurally identical
+# { ok, reason, detail } failure envelope to the sync runOne for the SAME injected
+# non-zero exit, at BOTH Stage A and Stage B. Guards the one real translation point
+# (execFile REJECTS where the sync spawn primitive RETURNS a .status field) so an
+# MCP-daemon caller written against runOne's contract is never surprised by the twin.
+run_if "REQ-D14 async/sync exit-code parity: runOneAsync failure envelope matches runOne [execFile regression guard]" "scripts/huji-run-one-async.cjs" \
+  node lib/memory/huji-run-one-async-parity.test.cjs
+
 echo "======================================"
 echo "Phase 229: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
 echo "======================================"
