@@ -52,6 +52,13 @@ Run `/mos:think-hats` (De Bono, already shipped, reuse per Canon Part 7) as a
 discussion specifically about the Path-to-A+ gaps. Each hat is a persona derived
 from the pitch's own actual technical domains, not a generic "White Hat" label.
 
+**Framing (navigator ruling, 2026-07-16):** the hats do not just critique from six
+angles. The discussion is anchored to one literal question - "how can this become
+an A+, what needs to be done" - and each hat argues that question from its own
+domain-derived vantage, in tension with the others. The synthesis call resolves
+the disagreement into the concrete next-step ordering, not a summary of six
+opinions.
+
 **Decisions already locked (navigator, 2026-07-16):**
 - **Hat naming convention:** each hat's display name = "{Domain-derived first
   name} {Subdomain-derived surname}", regenerated per submission from that

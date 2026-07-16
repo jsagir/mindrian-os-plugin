@@ -143,3 +143,102 @@ disfluencies) - rich in shape, gentle in weight. This needs to be validated, not
 - The plugin-version-pinning recommendation (git-tag the checkout before the real
   200-student batch, per the install-cache-divergence hazard found during live
   debugging) still stands regardless of this decision.
+
+---
+
+## 6. RESOLVED (navigator ruling, new session, 2026-07-16)
+
+The navigator supplied a second artifact this session: the same system's OPERATIONAL
+layer (tool-call sequence, Chain-of-Thought, state management, quality gates,
+execution modes) - not just the report-shape architecture from Section 1. That
+changed two things and left the report-shape call from Section 1's mapping intact
+on everything else.
+
+### 6a. Correction to Section 2's Module 1 mapping
+
+Section 2 said "Module 1 - Graph Analysis: None directly - HUJI submissions are
+fresh transcripts, not an ongoing graphed venture." That was too pessimistic. The
+operational artifact's actual Cypher queries `Framework` / `DifferentialAnalysis` /
+`InnovationOpportunity` nodes with `effectiveness_score` / `breakthrough_potential`
+- a GENERIC methodology/pattern graph, not a per-venture graph. Live Brain schema
+check this session confirms: `Framework`, `Pattern`, `Opportunity` node labels and
+`differential_score` / `breakthrough_potential` / `hsi_score` properties already
+exist in the real graph (our own HSI/differential scoring, same idea). Module 1 is
+substantially what `brain_ask` already exercises inside `deep-grade` - not a gap.
+
+### 6b. Operational-layer lessons (steal 2, reject 1)
+
+- **Steal:** explicit numeric pass/fail gates per pipeline stage ("≥3 frameworks",
+  "≥70% validated"), not prose judgment. G6 (the ~900-word cap) is already this
+  pattern. Extend it to Addition 1 (research validation, v1.1): a hard "X% of
+  load-bearing claims Tavily-confirmed" threshold when that ships, not a vibe check.
+- **Steal:** "Progressive with checkpoints" execution mode - wrong for the 200-
+  student unattended batch, right for the HUJI calibration workshop (Amnon's team
+  previews a partial run before the rubric commits).
+- **Reject:** "state lives in the conversation context, no external storage
+  needed." Fine for one navigator running one live assessment; does not survive
+  200 independent submissions needing resume/parallelize/audit. `lib/core/
+  chain-executor.cjs::runChain`'s disk-checkpoint pattern is the correct fit here,
+  not this one.
+
+### 6c. Final ruling on Module 5 (report shape) - navigator approved
+
+**Decision: keep the current Minto pyramid shape. Add only a compact weighted
+Metrics table, plus an optional single Brain-sourced cross-domain analogy line
+folded into an existing branch (made cheap and Part-8-safe by 6a's correction).
+Faculty / Experts / Cross-Domain / Roadmap are explicitly NOT adopted as separate
+formal sections.**
+
+Reasoning that closed it:
+1. **Hard technical constraint, not aesthetics.** G6 already fails any pyramid
+   over ~900 words. The two real demo artifacts are 616 and 770 words for 3
+   branches. Four more formal sections structurally blows the gate regardless of
+   how gently each is worded.
+2. **Form signals audit independent of tone.** A named "Faculty" or "Challenges"
+   section tells a first-time student they are being gauntlet-reviewed, which is
+   the exact demoralization failure mode the 15.7.2026 calibration ruling
+   (`229-CONTEXT.md`) already killed. Softening the prose inside a section named
+   "Challenges" does not undo what the header itself signals.
+3. The navigator's own working hypothesis from Section 3 ("structural
+   completeness and severity calibration may be separable axes") is HALF right,
+   not fully right: it holds for a Metrics table (just a table, ~30 words, no
+   tone risk) and for a single analogy line (now cheap per 6a). It does not hold
+   for the four investor-gauntlet-shaped sections, where the section boundary
+   itself - not the words inside it - is the problem.
+
+Research, Recommendations ("Path to A+"), and the Six-Hats-style multi-perspective
+section remain queued per `DEFERRED-SCOPE-v1.1.md`, unaffected by this ruling,
+build them regardless.
+
+**Status: CLOSED.** Next actionable step: scope the Metrics table + analogy-line
+addition as its own small plan (not yet written) whenever the navigator resumes
+build work on Phase 229 v1.1.
+
+---
+
+## 7. Two follow-on rulings, same session (2026-07-16)
+
+**7a. Voice anchor: the calibration corpus is not stylistically uniform.** The
+navigator asked for feedback pedagogy to be "Larry style," pointing at the Notion
+corpus. Checked two fixtures directly: fixture 11 (Surveillance opportunity
+review, `T.A.: Professor Lawrence "Larry" Aronhime` - human-authored) is the
+authentic voice: short punchy declaratives, real reframes, a rhetorical question
+doing the opening work ("Are you solving for better surveillance, or for better
+security? There's a profound difference."). Fixture 08 (DNA Data Storage - the
+exact HUJI transcript-input MODALITY anchor) is written in a bullet-heavy
+strategic-consulting register ("Unconscious intersection innovation mastery") -
+useful for structure, not for voice. Ruling: fixture 11 is the voice target,
+fixture 08 stays a structure/modality target only, never a voice target. Encoded
+into `references/methodology/rubric-huji.md` Section 3 (Tone Constitution) this
+session. The two already-shipped demo artifacts were spot-checked against this
+and already lean toward fixture 11's register (reframe + contrast pattern) - this
+was a tightening/anchoring move, not a rebuild.
+
+**7b. Six Hats framing (Addition 3, DEFERRED-SCOPE-v1.1.md) sharpened.** The hats
+discussion is not six generic critique angles - it is anchored to one literal
+question, "how can this become an A+, what needs to be done," with each hat
+arguing that question from its own domain-derived vantage, in tension with the
+others; the synthesis call resolves the disagreement into a concrete next-step
+ordering. Encoded into `DEFERRED-SCOPE-v1.1.md` Addition 3 this session. Does not
+change the build-order or the 2-extra-calls-per-student cost model already locked
+there - framing only.
