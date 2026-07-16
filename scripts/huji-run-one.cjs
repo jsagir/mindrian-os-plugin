@@ -233,6 +233,11 @@ function buildStageAPrompt(config, subId, transcriptPath, deckPath) {
     'one evidence.json conforming to evidence.schema.json. Extract only what the',
     'student actually said or showed; never invent content.',
     '',
+    'Every quote is copied BYTE-VERBATIM from the transcript span - copy disfluencies,',
+    'false starts, and repairs exactly (e.g. "vali- validating", "surprising-- important");',
+    'never clean, tidy, complete, or normalize the student speech. A cleaned quote fails the',
+    'D1 verifier. Record the disfluencies once in language_notes; never edit them out of a quote.',
+    '',
   ];
   return lines.join('\n');
 }
