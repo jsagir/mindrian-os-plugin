@@ -189,7 +189,41 @@ Phase 4/6 and the runtime prompt suffix. Verified live: study-app evidence.json 
 
 ---
 
-## DI-6 - BLOCKER (extraction quality, Stage B) - the grading spine packages NON-VERBATIM quotes
+**Status update 2026-07-16 (THIRD fix-and-verify session): DI-6 and DI-7 RESOLVED and verified
+live. DI-7 fixed first (the gate must not lie), then DI-6. Both samples now grade end to end and
+pass the FULL guardrail battery (G1/G2/G3/G4/G6); the two gate-clean artifacts are
+`demo/feedback-sample-1.md` and `demo/feedback-sample-2.md`. Nothing fabricated or force-passed.
+Task 1 is DONE and gate-clean; only the human checkpoints (Amnon + Jonathan sign-offs) remain.**
+
+## DI-7 - RESOLVED - single-quote-aware D1 span extractor + FAIL fixture
+
+**Fix (commit `1cf0b4da`):** `extractQuotedSpans` now recognizes straight `'...'` and curly
+single-quoted spans in addition to double / curly-double / blockquote. The grammar is
+boundary-aware (an opener is a `'` preceded by a non-word char; a closer is a `'` not followed by
+a letter), so contraction/possessive apostrophes (`we'll`, `don't`, `students'`) are treated as
+span CONTENT, never delimiters - the grammar widens, the check never loosens. Added a PASS fixture
+(verbatim single-quote + contraction-safety) and a FAIL fixture (non-verbatim single-quote) so the
+gate turns red on this exact regression. Proven non-vacuous: re-running the OLD blocked study-app
+feedback now correctly FAILS on 3 previously hidden single-quoted misses (including the dropped
+`vali- ` disfluency). `extractQuotedSpans` also exported for verification reuse.
+
+## DI-6 - RESOLVED - Stage B feedback quotes byte-verbatim, no ellipsis, no counterfactual
+
+**Fix (commits `1b5e5b99`, `07c16867`):** ported the byte-verbatim discipline onto the Stage B
+feedback side. `rubric-huji.md` Section 3b (frozen prefix, pre-batch) + `04-structure-argument.md`
+now require every quoted span to be a single contiguous byte-verbatim run (no ellipsis joins, no
+cleaned disfluencies), and (follow-up, after a live counterfactual quote `'a good team'` was caught
+by the now-DI-7-aware gate) reserve quotation marks EXCLUSIVELY for verbatim transcript spans -
+counterfactual/hypothetical/emphasis phrases go in plain text. `pitch-feedback-schemas.cjs`
+documents why verbatim quoting is NOT enforced at the schema level (no transcript to compare;
+would perturb the frozen contract) - comment-only, generated JSON bit-stable. Verified live: the
+safescan feedback quotes the contiguous `...hire a hardware and biosensor engineer for the device`
+span (old ellipsis stitch gone); the study-app feedback preserves `vali- validating` and `uh`
+verbatim and renders the good-team contrast as plain text. Both artifacts gate-clean.
+
+---
+
+## DI-6 - ORIGINAL DIAGNOSIS (for the record) - the grading spine packages NON-VERBATIM quotes
 
 - **Where:** the Stage B grading spine, specifically the `structure-argument` Minto packaging
   stage (`pipelines/PWS_grading/04-structure-argument.md`) governed by the frozen rubric
