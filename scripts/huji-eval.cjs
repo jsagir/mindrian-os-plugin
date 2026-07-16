@@ -474,28 +474,32 @@ function spawnJudge(feedbackPath, opts) {
     + feedbackText;
   // DI-1: inline the judge schema JSON (the CLI --json-schema wants an inline object,
   // not a path); inlineSchemaJson also strips $schema (DI-2 defence-in-depth).
-  // DI-3: keychain auth (NOT --bare + API key). The judge does NOT need the mos
-  // plugin (it scores an inline artifact), so we do NOT pass --plugin-dir - a plain
-  // non-bare `claude -p` authenticates via the keychain and skips loading the heavy
-  // dev-repo-as-plugin system prompt (which made a fresh no-persistence session slow
-  // and costly). --permission-mode dontAsk keeps the Read-only judge non-interactive.
+  // DI-3 (judge): keychain auth (NOT --bare + API key). The judge scores an artifact
+  // that is INLINE in the prompt, so it needs NO plugin and NO tools:
+  //   --setting-sources ""  keychain still authenticates, but the mos plugin, its
+  //                         skills, hooks, and the heavy system prompt are NOT loaded
+  //                         (a clean, unbiased, fast judge - and it removes the tools
+  //                         that tempted sonnet into a multi-turn tool_use loop that
+  //                         blew max-turns/budget when the plugin was auto-discovered).
+  //   --tools ""            zero built-in tools available: the judge cannot explore.
+  // The result is a pure, deterministic-shaped scoring session (~10-40s per anchor).
   const { inlineSchemaJson } = require('../lib/core/pitch-feedback-schemas.cjs');
   const args = [
     '-p', prompt,
     '--model', JUDGE_MODEL,
+    '--setting-sources', '',
+    '--tools', '',
     '--permission-mode', 'dontAsk',
-    '--allowedTools', 'Read',
     '--output-format', 'json',
     '--json-schema', inlineSchemaJson(JUDGE_SCHEMA_PATH),
-    // The judge has the artifact INLINE - it never explores. Bound the session so it
-    // cannot wander, but give structured-output room (schema-conform counts as a turn)
-    // and enough budget for the largest graded anchors (~30K-token documents).
-    '--max-turns', '3',
-    '--max-budget-usd', '0.75',
+    // With no tools the judge answers inline; 2 turns covers the schema-conform step.
+    '--max-turns', '2',
+    '--max-budget-usd', '0.50',
     '--no-session-persistence',
   ];
   const res = spawnSync('claude', args, {
     env: process.env,
+    input: '',
     encoding: 'utf8',
     maxBuffer: 8 * 1024 * 1024,
     timeout: opts.timeout || 180000,
@@ -551,9 +555,10 @@ function calibrationProtocol(opts) {
   const spawnErrors = [];
   for (const a of GRADED_ANCHORS) {
     const fixturePath = path.join(CALIB_DIR, a.file);
-    // Large graded-anchor documents (up to ~30K tokens) need a generous per-anchor
-    // ceiling; the --max-budget-usd fuse is the real cost guard.
-    const r = spawnJudge(fixturePath, { submissionId: a.id, focus: a.focus, timeout: 300000 });
+    // Large graded-anchor documents (up to ~30K tokens) plus long violation-list
+    // output need a generous per-anchor ceiling; the --max-budget-usd fuse is the
+    // real cost guard.
+    const r = spawnJudge(fixturePath, { submissionId: a.id, focus: a.focus, timeout: 360000 });
     if (!r.ok) { spawnErrors.push({ id: a.id, error: r.error || r.reason }); continue; }
     scoresById[a.id] = r.score;
   }
