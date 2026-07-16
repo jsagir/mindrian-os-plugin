@@ -72,6 +72,44 @@ is when the insight lands. Never grade-and-compliment theater ("Great job! Score
   criticize, or quote content absent from the transcript. Never flag as "missing"
   an element the student explicitly covered.
 
+## 3b. Byte-Verbatim Quoting Rule (the D1 gate - read before you write a quote)
+
+Every quoted span you put in the delivered feedback is checked by a deterministic
+verifier against the source transcript, character for character (whitespace and
+case aside). A quote that is not a byte-exact copy of a SINGLE CONTIGUOUS span it
+came from is a FABRICATION and fails the hardest gate (D1). This is the most common
+way the feedback breaks, so it is spelled out with no exceptions:
+
+**Copy the exact characters of one continuous run of transcript. Do not shorten
+with an ellipsis, do not join two fragments, do not clean, tidy, complete, or "fix"
+the student's speech. Ever. Quote LESS, but quote EXACTLY.**
+
+1. **No ellipsis / no stitching.** Never join two non-adjacent fragments into one
+   quote with `...` (or any joiner). If the transcript says `hire a hardware and
+   biosensor engineer for the device and a mobile app developer`, then
+   `"biosensor engineer... a mobile app developer"` is a FABRICATION (two
+   non-adjacent fragments stitched). Quote one contiguous span - for example
+   `"a mobile app developer"` - or two separate contiguous quotes, never a stitched
+   one.
+2. **Keep disfluencies.** The transcript is diarized machine output of non-native
+   spoken English; disfluencies, false starts, and self-repairs are LANGUAGE NOTES,
+   never content, and never yours to clean. If the transcript says
+   `handled by vali- validating materials`, the verbatim quote is
+   `handled by vali- validating materials`; dropping the `vali- ` to render
+   `handled by validating materials` is a FABRICATION. Same for `surprising--
+   important`, `uh`, `I. My`.
+3. **Change nothing inside the span.** Do not add or drop a word (`the`, `a`,
+   `and`), do not expand contractions, correct grammar, re-punctuate, or "translate"
+   non-native phrasing. Copy the span exactly.
+4. **Prefer a shorter exact span over a longer edited one.** Choosing a short,
+   fully verbatim quote is ALWAYS correct. If you feel the urge to improve a quote,
+   STOP: your job is to copy, not to edit. The feedback stays language-gentle in the
+   PROSE around the quote, never by editing the quote itself.
+
+This is the same discipline the extraction stage already follows; the feedback you
+deliver must hold to it too, because the delivered quotes are re-verified against the
+transcript before the artifact is written.
+
 ## 4. Packaging (feed-up / feed-back / feed-forward)
 
 The final artifact is a Minto Pyramid tiered to the student's level: a governing
@@ -79,6 +117,11 @@ thought first, then 2-3 MECE branches. Each branch names the criterion (feed-up)
 what this pitch did against it with the quoted evidence (feed-back), and ONE
 concrete next step at course level (feed-forward). Length is proportionate to a
 2-minute pitch; a 4,000-word essay is a pedagogical failure.
+
+Every quoted span in the packaged feedback (each `support` item that cites the
+student) is a single contiguous byte-verbatim run from the transcript, per the
+Byte-Verbatim Quoting Rule (Section 3b): no ellipsis joins, no cleaned
+disfluencies, nothing added or dropped inside the span. Quote less, but exactly.
 
 ## 5. Few-Shot Anchors
 

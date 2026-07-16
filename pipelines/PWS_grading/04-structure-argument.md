@@ -32,6 +32,13 @@ a Minto Pyramid tiered to the student's level:
 - **2-3 MECE branches** -- each branch names the criterion (feed-up), what this
   pitch did against it with the quoted evidence (feed-back), and ONE concrete
   next step at course level (feed-forward)
+- **Every quoted span is byte-verbatim.** Each quote you deliver is a single
+  contiguous run copied character for character from the transcript: no ellipsis
+  joins across non-adjacent fragments (never `"biosensor engineer... a mobile app
+  developer"`), no cleaned disfluencies (keep `vali- validating`, `surprising--
+  important`), nothing added or dropped inside the span. Quote less, but exactly -
+  the delivered quotes are re-checked against the transcript by the D1 verifier
+  before the artifact is written (see rubric-huji.md Section 3b).
 - Length proportionate to a 2-minute pitch; never a 4,000-word essay
 - Credit self-identified gaps and deepen them (HOW to do the work, not THAT it is
   missing); never punish disfluencies or non-native phrasing
