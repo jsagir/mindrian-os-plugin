@@ -82,12 +82,37 @@ function loadText(p) { return fs.readFileSync(p, 'utf8'); }
 // ---------------------------------------------------------------------------
 
 // Pull every quoted span out of a feedback.md string: straight double quotes,
-// curly double quotes, and blockquote (>) lines. Each must be verbatim in the
-// transcript or it is a fabricated critique.
+// curly double quotes, straight AND curly SINGLE quotes, and blockquote (>) lines.
+// Each must be verbatim in the transcript or it is a fabricated critique.
+//
+// DI-7: the single-quote form was originally omitted, so whether a feedback quote
+// got checked depended on which quote character the model happened to choose - a
+// model that packaged its quotes in '...' bypassed the D1 gate entirely (a vacuous
+// PASS / false green). The apostrophe doubles as a contraction ("we'll", "don't")
+// and possessive ("students'") mark, so single-quoted SPANS are disambiguated from
+// those by boundary rules, NOT by loosening the check:
+//   - a span OPENER is a ' whose preceding char is a non-word char (start of line,
+//     whitespace, or opening punctuation) - so a possessive/contraction ' that sits
+//     tight against a letter is never mistaken for an opener;
+//   - a span CLOSER is a ' NOT immediately followed by a letter - so a contraction
+//     apostrophe (followed by a letter, as in "we'll") is treated as span CONTENT,
+//     never as a delimiter, and the real closer is the next boundary-aligned ';
+//   - spans do not cross a line boundary (balanced on the same line).
+// Everything captured this way is still checked byte-verbatim against the transcript,
+// exactly like the double-quoted spans; the grammar is widened, the gate is not.
 function extractQuotedSpans(md) {
   const spans = [];
   for (const q of (md.match(/"([^"]+)"/g) || [])) spans.push(q.slice(1, -1));
   for (const q of (md.match(/“([^”]+)”/g) || [])) spans.push(q.slice(1, -1));
+  // Curly single quotes: distinct open (U+2018) and close (U+2019) code points, so
+  // there is no contraction ambiguity to guard against - match directly.
+  for (const q of (md.match(/‘([^’\n]+)’/g) || [])) spans.push(q.slice(1, -1));
+  // Straight single-quoted spans (boundary-aware, contraction/possessive-safe).
+  const singleRe = /(?<![A-Za-z0-9])'((?:[^'\n]|'(?=[A-Za-z]))+?)'(?![A-Za-z])/g;
+  for (const m of md.matchAll(singleRe)) {
+    const span = m[1].trim();
+    if (span.length >= 2) spans.push(span);
+  }
   for (const line of md.split('\n')) {
     const m = line.match(/^\s*>\s?(.+)$/);
     if (m) spans.push(m[1]);
@@ -613,6 +638,34 @@ function selftestQuoteVerifier() {
     'The pitch never explains usage, and claims "the science inside uses smart sound sensor."',
   ].join('\n');
   expectFail('quote-verifier', quoteVerifier({ transcript: SELFTEST_TRANSCRIPT, evidence: badEvidence, feedback: badFeedbackMd }));
+
+  // DI-7 regression guard: the D1 extractor must ALSO see SINGLE-quoted feedback spans.
+  // A model that packages its quotes in '...' must not bypass the gate silently (the
+  // real study-app false green). These fixtures prove the widened grammar is exercised,
+  // not merely present.
+  //
+  // (a) PASS - verbatim single-quoted spans are checked and clear; prose contractions
+  //     ("You'll") and possessives ("student's") are NOT mis-extracted as spans (if they
+  //     were, they would miss the transcript and this PASS would wrongly turn red).
+  const okSingleFeedbackMd = [
+    '# Feedback: SafeScan',
+    "The problem is grounded: 'Food allergies are a big problem around the world.'",
+    "Usage is shown: 'put a small food sample in the capsule'.",
+    "You'll want to keep this framing; the student's instinct here is right.",
+  ].join('\n');
+  expectPass('quote-verifier (single-quote verbatim + contraction-safe)',
+    quoteVerifier({ transcript: SELFTEST_TRANSCRIPT, evidence: okEvidence, feedback: okSingleFeedbackMd }));
+
+  // (b) FAIL - a NON-verbatim SINGLE-quoted feedback span (student said "smart light
+  //     sensor"; the feedback quotes 'smart sound sensor'). Before DI-7 the extractor
+  //     saw zero single-quoted spans and this sailed through as a vacuous PASS; it must
+  //     now turn the gate red. This is the exact false-green class the fix closes.
+  const badSingleFeedbackMd = [
+    '# Feedback: SafeScan',
+    "The sensor claim is asserted: 'The science inside uses smart sound sensor.'",
+  ].join('\n');
+  expectFail('quote-verifier (single-quote non-verbatim)',
+    quoteVerifier({ transcript: SELFTEST_TRANSCRIPT, evidence: null, feedback: badSingleFeedbackMd }));
 }
 
 function selftestInventoryRecall() {
