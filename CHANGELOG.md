@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.25 (in progress)
+## [1.15.3-beta.26] - 2026-07-16
 
 ### Added
 - **Phase 227: Ignite / mode-select timing across turns 1-4 (SEED-060).** The session-start
