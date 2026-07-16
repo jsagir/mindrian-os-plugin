@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 229 Plan 09 - DI-4 (handoff) + DI-5 (verbatim extraction) fixed and verified live; pipeline grades REAL content end to end but not gate-clean, blocked at DI-6 (Stage B non-verbatim feedback quotes) + DI-7 (D1 single-quote blind spot masks DI-6 as false green), no fabrication
-last_updated: "2026-07-16T08:00:00.000Z"
+stopped_at: Phase 229 Plan 09 - DI-6 + DI-7 RESOLVED; Task 1 (pipeline half) GATE-CLEAN - two real feedback artifacts (SafeScan 7/10, study-app 8/10) pass the full G1/G2/G3/G4/G6 battery; judge re-confirmed live Spearman 0.883; only the human checkpoints (Tasks 2/3 - Amnon verdict + Jonathan sign-offs) remain. No fabrication.
+last_updated: "2026-07-16T11:10:00.000Z"
 last_activity: 2026-07-16
 progress:
   total_phases: 37
@@ -15,6 +15,18 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-16) -- PHASE 229 Plan 09 THIRD fix-and-verify: DI-6 + DI-7 RESOLVED; Task 1 GATE-CLEAN (two real feedback artifacts pass the full guardrail battery); judge re-confirmed live Spearman 0.883. Only Tasks 2/3 (human checkpoints) remain. No fabrication.
+
+Third fix-and-verify session against Plan 229-09 Task 1, resuming from the DI-6/DI-7 block. Fixed the verifier before the fix it verifies (DI-7 first), then ported the verbatim discipline onto Stage B (DI-6), then re-ran the REAL two-stage pipeline over BOTH customer samples in an out-of-tree workspace (the `runOne`-driver pattern).
+
+- **DI-7 RESOLVED (`1cf0b4da`).** `extractQuotedSpans` (scripts/huji-eval.cjs) now recognizes straight `'...'` and curly single-quoted spans, not just double/curly-double/blockquote. Boundary-aware grammar (opener preceded by a non-word char; closer not followed by a letter) treats contraction/possessive apostrophes (`we'll`, `don't`, `students'`) as span CONTENT, never delimiters - the grammar WIDENS, the check never loosens. Added PASS (verbatim single-quote + contraction-safety) and FAIL (non-verbatim single-quote) selftest fixtures. Proven non-vacuous: the OLD blocked study-app feedback now correctly FAILS on 3 previously hidden single-quoted misses (incl. the dropped `vali- `). Exported for verification reuse.
+- **DI-6 RESOLVED (`1b5e5b99` + follow-up `07c16867`).** Ported the byte-verbatim discipline onto the Stage B FEEDBACK side: rubric-huji.md Section 3b (frozen prefix) + 04-structure-argument.md now forbid ellipsis joins across non-adjacent fragments and cleaned disfluencies, and (follow-up, after a live counterfactual quote `'a good team'` was caught by the now-DI-7-aware gate) reserve quote marks EXCLUSIVELY for verbatim transcript spans. pitch-feedback-schemas.cjs documents why schema-level enforcement is the wrong layer (no transcript to compare; comment-only, generated JSON bit-stable). Verified LIVE: safescan quotes the contiguous `...hire a hardware and biosensor engineer for the device` (ellipsis stitch gone); study-app preserves `vali- validating` + `uh` verbatim on the feedback side and renders the good-team contrast as plain text.
+- **Task 1 GATE-CLEAN.** Both samples re-run end to end -> `demo/feedback-sample-1.md` (SafeScan 7/10, 616w) + `demo/feedback-sample-2.md` (study-app 8/10, 770w), written verbatim. Both pass the FULL per-unit guardrail battery (G1 quote-grounding, G2 schema, G3 Part-8 hygiene, G4 model provenance, G6 Minto shape+length), verified via `runGuardrails`. opus-4-8 / haiku-4-5, local-anchors, under the $3 fuse ($1.60 / $1.87). Every citation independently confirmed byte-verbatim. **`bash tests/run-all-229.sh` -> PASS=9 FAIL=0 SKIP=0**; code suite 7/7 [strict].
+- **Judge re-confirmed live:** `HUJI_JUDGE_LIVE=1 ... --suite anchors --judge` -> Spearman 0.883 (>=0.7) PASS, Dental post>pre PASS, DnATA<Lucid PASS -> JUDGE CALIBRATED. (Prior 0.901; the delta is sonnet stochasticity; the judge scores fixed anchors so the DI-6/DI-7 fixes cannot change it.)
+- **Environmental honesty:** a mid-run plugin install swap (`1.15.3-beta.25`<->`beta.24`) fired mid-session twice, leaving Stage B without its chain/tools; the spine REFUSED to grade rather than fabricate (anti-fabrication working). Clean grades taken only from settled runs; no refusal was ever dressed up as a grade. Raw diagnostic outputs retained under `demo/blocked-run-2026-07-16/`.
+- **Concurrent-session guard:** shared `main`; `git branch --show-current` = `main` verified before commits. STATE.md updated by MANUAL ADDITIVE LOG APPEND, frontmatter progress counters left UNTOUCHED (anti-clobber precedent). Plan 09 Task 1 COMPLETE; the plan stays open only on the human Tasks 2/3.
+- **NEXT (the sale):** Task 2 - hand `feedback-sample-1.md` + `feedback-sample-2.md` to Amnon Dekel for his verbatim "better than a TA" verdict; Jonathan confirms labeled inventories + gives the pre-delivery sampling-pass sign-off. Task 3 - embed the two approved artifacts into rubric-huji.md Section 5 (few-shot slot) and git-tag the checkout before the first 200-student batch.
 
 ## (2026-07-16) -- PHASE 229 Plan 09 SECOND fix-and-verify: DI-4 + DI-5 RESOLVED and verified live (pipeline grades REAL content end to end, byte-verbatim extraction); demo STILL NOT gate-clean, blocked at DI-6 (Stage B non-verbatim feedback quotes) + DI-7 (D1 single-quote blind spot = false green). No fabrication.
 
