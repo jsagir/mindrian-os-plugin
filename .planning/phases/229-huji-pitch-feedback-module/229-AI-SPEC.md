@@ -75,12 +75,42 @@ Stakes: Critical
 Source: LLM grading-consistency research (inconsistent structure and severity across runs is a documented failure) + baseline fairness expectations of academic assessment; operationalized by the pinned-model-ID and frozen-prefix rules in Sections 3-4.
 ```
 
+### MCP Delivery Seam — Domain-Correctness Additions (v1.1, 2026-07-16)
+
+> Researched for the standalone `pws_pitch_feedback` MCP tool (`bin/mindrian-mcp-server.cjs`), callable by any connected MCP client outside the batch orchestrator's guardrails. The base domain (HUJI pitch grading, course-tier pedagogy, Canon Part 8, the calibration corpus) is unchanged — these are the NEW rubric ingredients the delivery-mechanism change introduces, not a re-derivation of the section above.
+
+```
+Dimension: Deployment-scope integrity (school-official exception boundary)
+Good: pws_pitch_feedback is invoked only within the scope HUJI actually authorized - the same batch-orchestrated pilot context, same rubric, same student population under Amnon Dekel's consented engagement - and that scope is traceable per invocation (which rubric, which consented-context) rather than inferred from "who currently has the MCP server wired up."
+Bad: The tool is invoked by an MCP client with no chain of authorization back to HUJI's consented pilot - a future customer's transcript, an ad hoc test with a non-HUJI recording, or any caller the tool cannot distinguish from an authorized one - without the tool itself refusing or flagging the mismatch. Canon Part 8's egress guarantee (Brain stays read-only, generic-handle-only) still holds regardless of caller, but that answers a narrower question ("does data leak to Brain") than the one a FERPA-literate practitioner asks ("is this specific invocation inside an authorized, consented use").
+Stakes: Critical
+Source: FERPA school-official exception practitioner guidance - the exception requires the vendor be "under the direct control of the institution" and use data "only for the purposes for which it was disclosed"; a general-purpose callable tool erodes the traceability that "direct control" and purpose limitation depend on, independent of whether the data-egress boundary (Canon Part 8) is intact.
+```
+
+```
+Dimension: Rubric/course-context binding explicitness
+Good: pws_pitch_feedback's input schema REQUIRES the caller to specify which rubric/course-context governs the run (even if v1 has exactly one valid value, "huji-intro-venture"); the tool refuses to run without it, and the result envelope records which rubric was applied - the same provenance discipline the batch's pinned-model-ID rule already applies to fairness (Section 3-4).
+Bad: subId/transcriptPath alone silently default to rubric-huji.md's course-tier calibration (intro-course, first-venture-undergraduate, score-and-continue past the 6/10 halt, no investor gauntlet) for ANY caller and ANY transcript - including a future non-HUJI customer's real investor pitch or an unrelated ad hoc test recording. Grading an actual investor pitch under intro-course tiering is the exact inverse of the base 6-component rubric being "explicitly anti-pitch when misapplied" (Sweep 1 finding, already flagged in this AI-SPEC) - one grading spine, misapplied to the wrong assessment-stakes context, in either direction.
+Stakes: Critical
+Source: This phase's own navigator calibration ruling (15.7.2026, "half the class fails question 2 and learns nothing") plus references/methodology/grade.md line 30 (grading a pitch is a named anti-pattern for the base rubric) - both are documented instances of the same failure category: a grading spine calibrated for one assessment context, applied without an explicit gate to a different one. Recommendation: make rubric/course-context a REQUIRED schema field, not an optional or silently-defaulted one - this is a domain-correctness requirement, not just an engineering nicety.
+```
+
+```
+Dimension: Feedback-quality consistency outside the batch-and-verify pipeline
+Good: Every pws_pitch_feedback invocation - whether inside the 200-student batch or an ad hoc MCP call - runs through the SAME pinned model, frozen rubric prefix, and G1-G6 guardrails (grounding gate, schema gate, cost fuse, length/tone bound) the batch pipeline enforces, so a TA reading two artifacts side by side (one from the batch, one from an ad hoc call) cannot tell them apart in rigor or severity.
+Bad: An ad hoc MCP call reaches a student or instructor without passing the human sampling pass (Jonathan's pre-delivery review, Section 7 of this AI-SPEC) that the HUJI-signed-off pipeline treats as part of the delivery contract - the "100% of first 10 units" shakedown, the anchor-probe drift check, and the metacognition-credit review all live in the BATCH orchestrator, not in the tool itself, so a standalone call is graded by the same engine but delivered without the same quality floor.
+Stakes: High
+Source: Hattie & Timperley practitioner frame (already the grounding frame for D7 in this AI-SPEC) plus this phase's own Section 7 smart-sampling design - the instructor's "better than a TA" trust bar was calibrated against a pipeline that includes human review before delivery; a delivery path that skips that review is a different, unvalidated product even though it shares the grading engine.
+```
+
 ### Known Failure Modes in This Domain
 
 1. **Fabricated critique / hallucinated error.** The best-documented failure of LLM student feedback: fluent, plausible comments identifying "errors" that do not exist in the student's work, or content not grounded in it. Here it manifests as feedback quoting or paraphrasing things the pitch never said, or marking covered elements (sample 2's risks section) as missing. Mitigation is structural: the quote-anchored evidence JSON is the only thing the spine grades.
 2. **Bland templating and overpraising.** Untuned LLMs produce generic, over-positive feedback; research names "hallucination and overpraising" as the typical pair. At N=200 of one assignment type, template convergence is the default outcome, and the instructor - who reads many artifacts side by side - detects interchangeability faster than any single student.
 3. **Severity drift across the cohort.** A failure mode unique to batch automation: model alias retargeting, prompt/rubric edits, or cache state changing mid-batch means early and late students are graded under different conditions. A TA drifts too, but an automated system sold as "consistent" is judged harshly for it. (Pitfall 1 in Section 3 exists because of this.)
 4. **Transcription-artifact punishment.** The input is a machine transcript of non-native spoken English: disfluencies, self-corrections, diarization glitches. Feedback that penalizes delivery or language artifacts as if they were content weaknesses is both unfair and, for this population, demotivating - the exact opposite of formative intent.
+5. **Scope-drift via general-purpose exposure (new, v1.1 MCP delivery seam).** A tool built and calibrated for one consented, closed pilot becomes reachable by any connected MCP client. The failure is not a code bug - the grounding gates (G1-G6) still fire - it is a governance failure: the tool cannot itself distinguish an invocation that falls inside HUJI's consented pilot scope from one that does not. Canon Part 8's "Brain stays read-only, generic-handle-only" guarantee remains true regardless of caller, but it answers a narrower question (does data leak to Brain) than the one a FERPA-literate practitioner would ask (is every invocation traceable to an authorized, consented use).
+6. **Silent rubric misapplication across course/investor context (new, v1.1 MCP delivery seam).** Without an explicit, required rubric/course-context parameter, any transcript run through `pws_pitch_feedback` is graded under HUJI's intro-course calibration by default. Grading an actual investor pitch under intro-course tiering (or a course pitch under investor tiering) is a domain-correctness failure independent of grounding or tone quality - the feedback can pass every grounding and structure gate and still be evaluating the wrong thing.
 
 ### Regulatory / Compliance Context
 
@@ -88,6 +118,7 @@ Source: LLM grading-consistency research (inconsistent structure and severity ac
 - **Anthropic API transit.** Transcripts transit the Anthropic API in every design (noted in Section 4b); the Message Batches API is additionally NOT zero-data-retention eligible - one more reason the pilot stays on the headless CLI path. Keep the data-flow statement honest in anything shown to HUJI.
 - **Canon Part 8 as the compliance feature.** Student content never egresses to Brain; scoring is local; only generic rubric/calibration handles cross the wire. The canon explicitly names a FERPA persona - FERPA itself does not apply (US law, Israeli institution), but treating transcripts to that standard is the selling point to a university customer. Sell it as such.
 - **Academic integrity / contestability.** No grade attaches in the pilot, so appeal exposure is low. If semester-scale feedback later informs grading, contestability expectations rise (students challenging AI-assessed work is an active research area) - a v2 design question, not a pilot blocker.
+- **MCP delivery seam narrows, not widens, the school-official exception's safety margin (new, v1.1, 2026-07-16).** FERPA's "school official" exception - the standard legal basis for a vendor processing student data without per-student consent - requires the vendor be under the "direct control" of the institution and use the data "only for the purposes for which it was disclosed." The existing Part-8 selling point ("scoring stays local, only generic handles cross the wire") answers the DATA-EGRESS half of that exception, not the DIRECT-CONTROL / PURPOSE-LIMITATION half. That half depends on Mindrian only using HUJI's transcripts for the service HUJI contracted (this pilot, this rubric, this cohort). A standalone `pws_pitch_feedback` tool reachable by any connected MCP client is, by itself, deployment-scope-agnostic: the LOCAL-vs-BRAIN egress guarantee holds regardless of caller, but "was this invocation inside HUJI's consented scope" becomes a governance question the tool does not currently answer, and "nobody but Jonathan currently has the MCP server connected" is an informal boundary, not an enforced one. Israel's Amendment 13 consent requirement (above) has the identical shape - HUJI's consent covers a specific processing purpose, not an open-ended callable capability. **Recommendation:** require the rubric/course-context parameter (see rubric ingredient above) at the schema level so every invocation is provably scoped to an authorized use, rather than relying on caller trust.
 
 ### Domain Expert Roles for Evaluation
 
@@ -95,7 +126,7 @@ Source: LLM grading-consistency research (inconsistent structure and severity ac
 |------|---------------|
 | Amnon Dekel (course instructor, HUJI) | Seed eval judge - the "better than a TA" verdict on the demo artifact; approves the two sample-based feedback artifacts that become the few-shot anchors; supplies/validates the course rubric in the calibration workshop |
 | HUJI course team / TAs | Rubric tier calibration (which of the ten questions the course teaches, at what depth); blind side-by-side comparison of AI vs TA feedback on a sample set; edge-case review (weakest and strongest pitches in the cohort) |
-| Jonathan (navigator, methodology owner) | Method fidelity - the chain runs pure Mindrian (navigator ruling: "we grade using OUR methods"); production sampling of batch outputs before delivery; owns the frozen rubric file as grading provenance |
+| Jonathan (navigator, methodology owner) | Method fidelity - the chain runs pure Mindrian (navigator ruling: "we grade using OUR methods"); production sampling of batch outputs before delivery; owns the frozen rubric file as grading provenance; scope-gates the MCP delivery seam (`pws_pitch_feedback`) - who is authorized to call it and against which rubric/course-context, until that scoping is enforced in the tool schema itself (new, v1.1) |
 | Students (indirect, v2 signal) | No direct channel in the pilot; perceived-usefulness survey via Amnon is the cheapest post-pilot signal for the semester-license conversation |
 
 ### Research Sources
@@ -105,6 +136,7 @@ Source: LLM grading-consistency research (inconsistent structure and severity ac
 - Israeli privacy context: [ICLG Data Protection Israel 2025-2026](https://iclg.com/practice-areas/data-protection-laws-and-regulations/israel/), [Israel's Amendment 13 guide (Safetica)](https://safetica.com/resources/guides/israel-s-amendment-13-what-the-new-data-protection-law-means-for-your-business), [PPA guidelines on privacy in AI systems (Gornitzky)](https://www.gornitzky.com/privacy-in-artificial-intelligence-systems-guidelines-of-the-israeli-privacy-protection-authority/), [Chambers Data Protection & Privacy 2026 - Israel](https://practiceguides.chambers.com/practice-guides/data-protection-privacy-2026/israel)
 - Entrepreneurship-pedagogy rubrics: [Pitch rubric for student presentations (Teaching Entrepreneurship)](https://teachingentrepreneurship.org/pitch-rubric-for-student-presentations/), [National Standards of Practice for Entrepreneurship assessment rubric (NE DoE)](https://www.education.ne.gov/wp-content/uploads/2017/07/AssessmentRubricforNationalStandardsofPracticeEntrepreneurship.pdf)
 - Ground truth: the two customer sample transcripts (`samples/sample-1-safescan.md`, `samples/sample-2-study-app.md`), 229-CONTEXT.md navigator rulings and repo-sweep evidence, docs/MINDRIAN-CANON.md Parts 8 and 12
+- **MCP delivery-seam domain research (new, v1.1, 2026-07-16):** FERPA school-official exception, direct-control and purpose-limitation requirements, and the specific ways AI-vendor tooling breaks that exception's assumptions - [FERPA and AI: what school records confidentiality requires (DeepInspect)](https://www.deepinspect.ai/blog/edtech-ferpa-ai-compliance), [AI agents in schools: what FERPA requires before you deploy (CIT)](https://www.citsolutions.net/ai-agents-in-schools-what-ferpa-requires-before-you-deploy/), [FERPA compliance checklist for AI tools (EduSage AI)](https://www.edusageai.com/blogs/ferpa-compliance-guide-for-ai-tools-in-education), [FERPA and AI: can schools and edtech use ChatGPT/Claude (Sonomos)](https://sonomos.ai/blog/ferpa-ai-chatgpt-claude-schools-edtech-2026/). Ground truth for the delivery-mechanism change itself: `references/methodology/rubric-huji.md` (the frozen course-tier prefix), `.planning/phases/229-huji-pitch-feedback-module/229-AI-SPEC.md` Sections 3-4 (MCP tool schema, `pws_pitch_feedback` entry point - authored by a sibling agent, read not rewritten here), `docs/MINDRIAN-CANON.md` Part 8 verbatim boundary text and the Student/S -> FERPA persona row (9-role taxonomy).
 
 ---
 
@@ -124,7 +156,10 @@ The per-submission pipeline (deep-grade -> mullins -> build-thesis scored -> str
 
 | Framework | Ruled Out Because |
 |-----------|------------------|
-| | |
+| Claude Agent SDK | Not eliminated - held in reserve as the batch-orchestrator-seam fallback only, not a replacement for the CLI spine |
+| LangChain.js / LangGraph.js | Graph framework for a fixed linear 4-step chain; bypasses `model-profiles.cjs` cost routing; mints a second orchestration brain next to `runChain` (Canon Part 7 violation) |
+| Python frameworks (CrewAI, AutoGen, LlamaIndex-py) | No-Python-on-core-path constraint (CJS-only stack) |
+| Supabase + GitHub Actions (proposed this session, 2026-07-16) | Two new hosted services against a named "no server infrastructure" constraint; duplicates `huji-batch.cjs`'s existing checkpoint ledger and `rubric-huji.md`'s git-based versioning; the `git commit` step in the proposed CI workflow would have broken the T-229-08-05 invariant that student output never gets committed to the repo |
 
 **Vendor Lock-In Accepted:** Partial - Anthropic/Claude Code lock-in is accepted consciously: the whole product IS a Claude Code plugin, so the marginal lock-in of headless claude -p orchestration is zero. The methodology commands, rubric, anchors, and evidence schemas are plain markdown/JSON and portable by construction.
 
@@ -218,6 +253,8 @@ Key mechanics confirmed against current docs (July 2026):
 | `--json-schema` + `structured_output` | CLI-level validated structured output: Claude Code retries internally until output conforms, result lands in the `structured_output` field | The transcript -> evidence JSON extraction contract and the final per-student result envelope |
 | Ephemeral scratch room | Synthetic room dir with a scratch `STATE.md` (sweep 4's clean seam) | Every room-bound surface (deep-grade, Minto engines, model-profiles stage gating) gets a legal home without touching real rooms |
 | `resolveModel(roomDir, agentType)` | 5-step cascade in `model-profiles.cjs`: override > stage-hint > inherit > profile > default | Model routing stays in the one governed place; the batch writes a `.config.json` `model_overrides` into each scratch room instead of minting a second routing brain |
+| `huji-run-one-async.cjs` (v1.1 addition, not yet built) | execFile-promisified twin of `runOne`, mirroring the CASCADE-06 `room-ops-async.cjs`/`room-ops-sync.cjs` split | Required ONLY from `lib/mcp/*`; `scripts/huji-batch.cjs` keeps requiring the sync `runOne` from `huji-run-one.cjs` unchanged |
+| `extra.sendNotification({method:'notifications/progress', params:{progressToken,...}})` (v1.1 addition) | The MCP SDK's out-of-band progress channel (`ProgressNotificationSchema`, verified in the installed `@modelcontextprotocol/sdk@1.29.0`) | Emitted from inside a `server.registerTool()` handler at stage boundaries, only when the caller supplied `extra._meta.progressToken` |
 
 ### Common Pitfalls
 
@@ -227,6 +264,14 @@ Key mechanics confirmed against current docs (July 2026):
 4. **HITL F.8 gates halt unattended runs.** `deep-grade`/`grade` carry Decision-Gate shapes; in a headless session with `--permission-mode dontAsk` a gate that waits for a human aborts the run. The chain must ride the `autonomous_safe` posture end-to-end (all four target commands are already `autonomous_safe: true` per sweep 4), and the ten-questions 6/10 HALT must become score-and-continue before batch time.
 5. **Session-file and background-process residue at N=200.** Default `-p` persists every session to disk (200 x 1 session = clutter, plus resume ambiguity); use `--no-session-persistence`. Background Bash tasks started inside a session are killed ~5s after the final result (v2.1.163+), and background subagents are waited on up to a 10-minute cap (v2.1.182+, `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`) - a stuck subagent stalls one submission for 10 minutes, so keep the chain single-session, no background fan-out.
 6. **Rate-limit collisions under parallelism.** Parallel headless sessions share one API key's rate limits. Claude Code emits `system/api_retry` events (stream-json) with `error: rate_limit` and backs off internally, but throughput collapses silently. Cap concurrency at 3-4 sessions and treat repeated `rate_limit` retries as a signal to drop to serial, not a reason to add retries on top (double-retry amplifies the storm).
+
+**MCP delivery seam pitfalls (v1.1 addition, 2026-07-16 - `pws_pitch_feedback` tool on `bin/mindrian-mcp-server.cjs`):**
+
+7. **`spawnSync` inside an MCP tool handler blocks the WHOLE server process, not just one request.** This is the exact CASCADE-06 defect (`lib/core/room-ops-async.cjs`'s own header: "the MCP path MUST use the async entry point so [the] subprocess call does not block the handler loop") at a much longer wall time. Every other MCP tool call - `room_state`, `room_content`, everything - stalls behind an 8-12 min synchronous subprocess if `runOne`'s two `spawnSync` calls (Stage A up to 5 min, Stage B up to 20 min) are required directly from `lib/mcp/*`. `huji-run-one-async.cjs` (execFile-promisified, Section 4) is the required door; `scripts/huji-run-one.cjs`'s sync `runOne` stays exactly as shipped for `scripts/huji-batch.cjs`.
+8. **`execFile` REJECTS the promise on a non-zero exit code; `spawnSync` RETURNS a `.status` field.** A naive `await execFileAsync(...)` swallowing `runOne`'s `if (res.status !== 0) return {...}` checks into a `try/catch` that does not reconstruct `{status, stdout, stderr, error}` silently loses the `stageA_nonzero`/`stageB_nonzero` reason codes the batch's `failures.md` and `--dry-run` assertions depend on. See Section 4's `runClaudeAsync` wrapper - it is the one place this shape gets translated.
+9. **The MCP SDK's default per-request timeout is 60 seconds (`DEFAULT_REQUEST_TIMEOUT_MSEC`, verified in the installed `@modelcontextprotocol/sdk@1.29.0` source, `dist/cjs/shared/protocol.js`), and it is a CLIENT-side setting the tool author cannot force.** An 8-12 min `pws_pitch_feedback` call will be aborted by any client that does not raise its own `timeout`/`maxTotalTimeout` or set `resetTimeoutOnProgress: true` on the request. Progress notifications only help if the CALLING client opts into `resetTimeoutOnProgress`; the server has no way to compel that. This is the concrete, protocol-level reason the fire-and-poll fallback (Section 3/4) is not a nice-to-have - it is the only shape that is safe regardless of client timeout configuration, because the tool call itself returns in seconds.
+10. **Progress notifications are opt-in and MUST be a silent no-op, never a throw, when unsupported.** `extra._meta.progressToken` (`RequestMetaSchema`) is `undefined` unless the calling client explicitly requested progress on THIS call. `extra.sendNotification(...)` is only valid while the request is still in flight; calling it from code that outlives the handler (e.g. a detached `.then()` after early return) throws. Guard every emit with a `progressToken` presence check and wrap in `try/catch`; a progress-emission failure must never fail the tool's actual result.
+11. **`registerTool()`'s `inputSchema`/`outputSchema` accept a Zod schema (v3 or v4, auto-detected) or a Zod raw shape - never a raw JSON Schema object.** `getZodSchemaObject()` (verified in `dist/cjs/server/mcp.js`) explicitly throws `'inputSchema must be a Zod schema or raw shape, received an unrecognized object'` for anything else. `pitch-feedback-schemas.cjs`'s `toJsonSchemas()`/`inlineSchemaJson()` helpers exist ONLY for the `claude` CLI's `--json-schema` argument (DI-1/DI-2 there, a completely different consumer); the MCP wiring passes `EvidenceSchema`/`FeedbackResultSchema` themselves (the zod/v4 objects), never their JSON-Schema serialization. Do not route the CLI's schema files through the MCP registration - it is unsupported and was never the right seam for it.
 
 ### Recommended Project Structure
 
@@ -252,6 +297,101 @@ lib/core/recipe-maps.cjs                # register the `PWS_grading` named recip
 └── failures.md                         # partial-failure report for the human pass
 ```
 
+### MCP Delivery Seam (v1.1 addition, 2026-07-16): `pws_pitch_feedback`
+
+> Framework-selector confirmed NO framework change for this seam: it wraps the exact `runOne` engine above in a new MCP tool, transport-layer only (`@modelcontextprotocol/sdk` `^1.29.0` + `zod` `^3.25.76`, both already vendored). Nothing new to add to `package.json`. Grounded against the ACTUAL installed package source (`node_modules/@modelcontextprotocol/sdk/dist/cjs/`), not generic MCP-tutorial content.
+
+**Installation:** none. `pitch-feedback-schemas.cjs` already builds `EvidenceSchema`/`FeedbackResultSchema` via `require('zod/v4')`; the SDK's peer dependency is `"zod": "^3.25 || ^4.0"` (verified in `node_modules/@modelcontextprotocol/sdk/package.json`) - both major versions are first-class, not a v3-only path.
+
+**Core imports:**
+
+```javascript
+// lib/mcp/pitch-feedback-tool.cjs (new file - the MCP delivery seam; not yet built)
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const { z } = require('zod');                                                   // v3 - matches tool-router.cjs's existing convention, for the CALL params only
+const { FeedbackResultSchema } = require('../core/pitch-feedback-schemas.cjs'); // v4 object schema, passed AS-IS - see Pitfall 11
+const { runOneAsync } = require('../../scripts/huji-run-one-async.cjs');        // NEW async twin of runOne (Section 4) - the MCP path MUST require this, never scripts/huji-run-one.cjs's sync runOne (Pitfall 7)
+```
+
+**Entry point pattern (progress-notification shape):**
+
+```javascript
+function registerPitchFeedbackTool(server, { outDir, config }) {
+  server.registerTool(
+    'pws_pitch_feedback',
+    {
+      description: 'Run the HUJI PWS_grading spine on one pitch transcript and return the Minto feedback artifact. Long-running (~8-12 min); supply _meta.progressToken to receive progress notifications.',
+      inputSchema: {
+        subId: z.string().min(1),
+        transcriptPath: z.string().min(1),
+        deckPath: z.string().optional(),
+      },
+      // Reuse the already-built zod/v4 contract directly - the SDK's zod-compat
+      // layer (dist/cjs/server/zod-compat.js) detects `_def` (v3) vs `_zod` (v4)
+      // PER SCHEMA INSTANCE independently for inputSchema and outputSchema; a v3
+      // input shape next to a v4 output schema is not "mixed Zod versions" (that
+      // error only fires inside ONE raw shape whose OWN field values mix
+      // versions - verified in mcp.js's getZodSchemaObject/objectFromShape).
+      outputSchema: FeedbackResultSchema,
+    },
+    async ({ subId, transcriptPath, deckPath }, extra) => {
+      const progressToken = extra._meta && extra._meta.progressToken; // opt-in, per RequestMetaSchema - undefined unless the CALLER asked
+      const emit = async (progress, total, message) => {
+        if (!progressToken) return; // never throw on a client that did not opt in (Pitfall 10)
+        try {
+          await extra.sendNotification({
+            method: 'notifications/progress',
+            params: { progressToken, progress, total, message },
+          });
+        } catch (_e) { /* progress is best-effort; must never fail the tool call */ }
+      };
+
+      await emit(0, 3, 'scaffolding scratch room');
+      const result = await runOneAsync({
+        subId, transcriptPath, deckPath: deckPath || null, outDir, config,
+        onStage: (stage) => emit(
+          stage === 'stageA' ? 1 : 2, 3,
+          stage === 'stageA' ? 'Stage A: extracting evidence (haiku)' : 'Stage B: grading spine (opus, up to ~15 min)'
+        ),
+      });
+      await emit(3, 3, 'done');
+
+      if (!result.ok) {
+        return { content: [{ type: 'text', text: JSON.stringify(result) }], isError: true };
+      }
+      const structured = JSON.parse(fs.readFileSync(result.resultPath, 'utf8')).structured_output;
+      return { content: [{ type: 'text', text: JSON.stringify(structured) }], structuredContent: structured };
+    }
+  );
+}
+```
+
+**Fallback shape (fire-and-poll) - adopt if Pitfall 9's 60-second default client timeout proves insufficient even with progress:**
+
+```javascript
+// Same runOneAsync engine, no pipeline rewrite. Fires, does not await.
+server.registerTool('pws_pitch_feedback', { inputSchema: { subId: z.string(), transcriptPath: z.string(), deckPath: z.string().optional() } },
+  async ({ subId, transcriptPath, deckPath }) => {
+    runOneAsync({ subId, transcriptPath, deckPath: deckPath || null, outDir, config }).catch(() => {});
+    return { content: [{ type: 'text', text: JSON.stringify({ job_id: subId, status: 'running' }) }] }; // outDir/<id>/ IS the job - no new job-id scheme
+  }
+);
+
+server.registerTool('pws_pitch_feedback_status', { inputSchema: { job_id: z.string() } }, async ({ job_id }) => {
+  const donePath = path.join(outDir, job_id, '.done');
+  const resultPath = path.join(outDir, job_id, 'result.json');
+  if (fs.existsSync(donePath)) {
+    const structured = JSON.parse(fs.readFileSync(resultPath, 'utf8')).structured_output;
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'done', result: structured }) }] };
+  }
+  return { content: [{ type: 'text', text: JSON.stringify({ status: fs.existsSync(resultPath) ? 'failed' : 'running' }) }] };
+});
+```
+
+This reuses the SAME per-unit `.done`/`result.json` gate contract the batch orchestrator already writes (D10 isolation, G1-G6 guardrails, Section 4 State Management) - the status tool is a filesystem read, not a second execution path.
+
 ### Sources
 
 - Claude Code headless mode (fetched 2026-07-15): https://code.claude.com/docs/en/headless - `-p`/`--print`, `--bare`, `--json-schema`/`structured_output`, `total_cost_usd`, plugin load events, slash-command expansion in `-p`, stdin 10MB cap, background-task grace periods
@@ -259,6 +399,9 @@ lib/core/recipe-maps.cjs                # register the `PWS_grading` named recip
 - Anthropic prompt caching (fetched 2026-07-15): https://platform.claude.com/docs/en/build-with-claude/prompt-caching - breakpoints, TTLs, 1.25x write / 0.1x read multipliers, per-model pricing
 - Anthropic Message Batches API (fetched 2026-07-15): https://platform.claude.com/docs/en/build-with-claude/batch-processing - 50% discount, 100k requests / 256MB cap, 24h expiry, 29-day results, 1-hour-cache pairing, NOT ZDR-eligible
 - In-repo ground truth: `lib/core/chain-executor.cjs`, `lib/core/framework-chain-composer.cjs`, `lib/core/model-profiles.cjs`, `lib/core/chain-retry.cjs`, `scripts/label-topic-forest.cjs` (existing headless precedent, anti-pattern noted in Pitfall 2)
+- **MCP delivery seam (verified 2026-07-16 directly against the installed package, not docs):** `node_modules/@modelcontextprotocol/sdk@1.29.0/dist/cjs/server/mcp.js` (`registerTool`, `tool`, `_createRegisteredTool`, `getZodSchemaObject`), `.../server/zod-compat.js` (`isZ4Schema`, `objectFromShape`, `normalizeObjectSchema` - dual v3/v4 detection), `.../server/zod-json-schema-compat.js` (`toJsonSchemaCompat` - v4 branch via `zod/v4-mini`'s `toJSONSchema`, v3 branch via vendored `zod-to-json-schema`), `.../types.js`/`.d.ts` (`ProgressNotificationSchema`, `ProgressSchema`, `RequestMetaSchema.progressToken`), `.../shared/protocol.js`/`.d.ts` (`RequestHandlerExtra.sendNotification`/`.signal`/`._meta`, `DEFAULT_REQUEST_TIMEOUT_MSEC = 60000`, `resetTimeoutOnProgress`), `package.json` (`peerDependencies.zod: "^3.25 || ^4.0"`)
+- **In-repo CASCADE-06 precedent (Phase 87-04, the sync/async split this seam ports):** `lib/core/room-ops-async.cjs`, `lib/core/room-ops-sync.cjs`, `lib/memory/sync-async-entry-points.test.cjs` (parity-test shape: file existence, caller-side audit that `lib/mcp/*` imports only the async variant, zero env branching, key-set parity + `AsyncFunction` check)
+- `scripts/huji-run-one.cjs`, `lib/core/pitch-feedback-schemas.cjs`, `lib/mcp/tool-router.cjs`, `bin/mindrian-mcp-server.cjs` (this phase's existing sync engine, zod/v4 contracts, and MCP server registration entry point)
 
 ---
 
@@ -349,6 +492,91 @@ The inputs are tiny (a ~2-minute pitch transcript is 1-3k tokens; the evidence J
 - Never `--continue` across submissions - that is how student A's pitch leaks into student B's feedback. Session isolation IS the context strategy.
 - Keep the loaded prefix IDENTICAL across all 200 sessions (same plugin checkout, same rubric file, `--exclude-dynamic-system-prompt-sections` to strip machine-specific prompt sections) - this is what makes prompt caching bite; see 4b.5.
 - No compaction handling needed: sessions are short-lived and single-purpose; if a session ever approaches compaction, `--max-turns` kills it first and the retry runs clean.
+
+**MCP Delivery Seam Implementation (`pws_pitch_feedback`, v1.1 addition, 2026-07-16):**
+
+Model configuration, chain order, and cost fuses are all UNCHANGED - this seam wraps `runOne` verbatim; it does not re-implement any part of Stage A/Stage B.
+
+**`huji-run-one-async.cjs` - the CASCADE-06 twin.** `scripts/huji-run-one.cjs`'s `runOne` stays exactly as shipped (`scripts/huji-batch.cjs` keeps calling it synchronously). A new sibling file requires `runOne`'s own exported helpers (`scaffoldScratchRoom`, `buildStageAPrompt`, `buildStageAArgs`, `buildStageBArgs`, `parseEnvelope`, `renderFeedbackMarkdown`, `runGuardrails`, `resolveConfig` - all already exported from `huji-run-one.cjs`, reuse before build per Canon Part 7) and replaces ONLY the two `spawnSync` call sites with an `execFile`-promisified equivalent, mirroring `lib/core/room-ops-async.cjs` line-for-line:
+
+```javascript
+// scripts/huji-run-one-async.cjs (NEW - the MCP-safe twin of runOne; not yet built)
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const util = require('node:util');
+const { execFile } = require('node:child_process');
+const execFileAsync = util.promisify(execFile);
+
+const {
+  scaffoldScratchRoom, buildStageAPrompt, buildStageAArgs, buildStageBArgs,
+  parseEnvelope, renderFeedbackMarkdown, runGuardrails, resolveConfig,
+} = require('./huji-run-one.cjs'); // reuse before build (Canon Part 7) - zero re-implementation of the spine
+
+// execFile REJECTS the promise on a non-zero exit; spawnSync RETURNS a `.status`
+// field (Pitfall 8). This helper reconstructs runOne's {status, stdout, stderr,
+// error} shape so every downstream `if (res.status !== 0)` check ported below
+// stays byte-identical to the sync version - only the process primitive changed.
+async function runClaudeAsync(args, opts) {
+  try {
+    const { stdout, stderr } = await execFileAsync('claude', args, opts);
+    return { status: 0, stdout, stderr, error: null };
+  } catch (e) {
+    return {
+      status: typeof e.code === 'number' ? e.code : 1,
+      stdout: e.stdout || '',
+      stderr: e.stderr || String(e.message || e),
+      error: e.killed ? e : null,
+    };
+  }
+}
+
+async function runOneAsync(opts) {
+  const o = opts || {};
+  const { subId, transcriptPath, outDir } = o;
+  const deckPath = o.deckPath || null;
+  const onStage = typeof o.onStage === 'function' ? o.onStage : () => {}; // MCP progress hook (Section 3)
+  const config = resolveConfig(o.config);
+
+  const unitOut = path.join(outDir, subId);
+  fs.mkdirSync(unitOut, { recursive: true });
+  const roomsDir = config.roomsDir || path.join(outDir, '..', 'rooms');
+  const roomDir = path.join(roomsDir, subId);
+
+  const scaf = scaffoldScratchRoom({ roomDir, config });
+  if (!scaf.ok) return { ok: false, reason: 'scaffold_failed', detail: scaf, roomDir, outDir: unitOut };
+
+  onStage('stageA');
+  const stageAPrompt = buildStageAPrompt(config, subId, transcriptPath, deckPath);
+  const aRes = await runClaudeAsync(
+    buildStageAArgs(config, stageAPrompt),
+    { env: process.env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: config.stageATimeoutMs }
+  );
+  if (aRes.error) return { ok: false, reason: 'stageA_spawn_failed', roomDir };
+  if (aRes.status !== 0) return { ok: false, reason: 'stageA_nonzero', detail: String(aRes.stderr).slice(0, 500), roomDir };
+  // ... evidence parse (parseEnvelope), write evidence.json, populateRoom(evidence) -
+  //     identical to runOne's Stage A body, elided here for brevity ...
+
+  onStage('stageB');
+  const bRes = await runClaudeAsync(
+    buildStageBArgs(config),
+    { cwd: roomDir, env: process.env, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: config.stageBTimeoutMs }
+  );
+  // ... feedback parse (parseEnvelope), renderFeedbackMarkdown, write feedback.md +
+  //     result.json, runGuardrails(...), write .done ONLY when gate.ok - identical
+  //     to runOne's Stage B body, elided here for brevity ...
+
+  return { ok: true /* gate_failures, cost, roomDir, outDir, evidencePath, feedbackPath, resultPath, donePath - same shape as runOne */ };
+}
+
+module.exports = { runOneAsync };
+```
+
+Every guardrail (G1-G6), the evidence write, the `populateRoom` call, and the `.done` marker discipline port EXACTLY as `runOne` implements them - only `spawnSync(...)` becomes `await runClaudeAsync(...)`, and an `onStage` callback is threaded through purely for the MCP tool's progress emission. Apply the CASCADE-06 parity discipline (`lib/memory/sync-async-entry-points.test.cjs`) when this ships: assert `huji-run-one-async.cjs`'s `runOneAsync` is an `AsyncFunction`, assert `lib/mcp/*` requires ONLY the async twin and never `scripts/huji-run-one.cjs` directly, assert `scripts/huji-batch.cjs` keeps requiring the sync `runOne` unchanged. Extend `tests/run-all-229.sh` (or a new `lib/memory/*.test.cjs` in the same shape) with this audit as the concrete build deliverable - the sync/async split is not real until a test enforces it, exactly what CASCADE-06 itself was written to guarantee.
+
+**Progress notifications - the MCP SDK ^1.29.0 mechanics, verified against the installed package.** `notifications/progress` (`ProgressNotificationSchema`) is the correct out-of-band channel: `{ progressToken, progress, total, message }`, sent via the tool handler's second argument, `extra.sendNotification(...)`. `progressToken` is supplied by the CALLER in the tool-call request's `_meta.progressToken` (`RequestMetaSchema`) - it is opt-in per call, not a server-side setting; `extra._meta.progressToken` is `undefined` when the caller did not ask for progress. Critically, the MCP SDK's default per-request timeout is 60 seconds (`DEFAULT_REQUEST_TIMEOUT_MSEC`) and is entirely CLIENT-controlled - a client must set `resetTimeoutOnProgress: true` (or a larger `timeout`/`maxTotalTimeout`) on its own request for progress notifications to keep an 8-12 min call alive at all (Pitfall 9). The server cannot force this.
+
+**Fallback - fire-and-poll (adopt if progress proves insufficient against Pitfall 9's client-side timeout):** `pws_pitch_feedback` fires `runOneAsync` without awaiting it and returns `{job_id, status:'running'}` immediately (`job_id` = `subId`, reusing `runOne`'s existing `outDir/<id>/` directory as the job record - no new job-tracking store); a sibling `pws_pitch_feedback_status` tool polls the SAME `outDir/<id>/.done` + `result.json` files the batch orchestrator already writes (State Management above, unchanged). This is a filesystem read, not a second execution path, and needs zero pipeline rewrite.
 
 ---
 
@@ -461,6 +689,13 @@ Headroom vs. the $4-5 quoted ceiling: 2-3x even cold, 4-7x warm - the `--max-bud
 | D8 | Anti-templating / individuation | Feedback recognizable as being about THIS pitch; no two artifacts interchangeable | Code (similarity index) + LLM Judge (swap test) | High |
 | D9 | Per-unit cost adherence | `total_cost_usd` <= $3.00 per unit; batch total within budget | Code (result.json ledger) | High |
 | D10 | Batch resume / isolation correctness | Kill-and-resume skips `.done` units; zero cross-student content bleed | Code (harness tests) | High |
+| D11 | MCP job lifecycle correctness (fire-and-poll) | Unique job_id per invocation; status poll on unknown/abandoned job never throws or hangs; abandoned jobs still complete and clean up, no resource leak | Code (harness tests) | Critical |
+| D12 | Standalone-call cost/concurrency ceiling adherence | Daily call-count/spend ledger for calls OUTSIDE the batch orchestrator; over-ceiling calls refused before Stage A spawns | Code (ledger + threshold harness) | High |
+| D13 | Rubric/course-context required-field enforcement | `rubricContext` is REQUIRED, never defaulted; omitted or invalid value fails closed before Stage A spawns | Code (schema + spawn-spy harness) | Critical |
+| D14 | Async/sync exit-code parity (execFile regression guard) | `runOneAsync`'s non-zero-exit failure envelope is structurally identical to `runOne`'s for the same injected failure | Code (parity test, CASCADE-06 shape) | High |
+| D15 | Deployment-scope invocation traceability | Every invocation's declared rubric/course-context is durably logged to a local audit trail | Code (audit-log harness) + accepted v1 gap on caller authorization | High |
+
+> D11-D15 (v1.1 addition, 2026-07-16) evaluate the standalone `pws_pitch_feedback` MCP tool - the delivery seam added this session on top of the already-shipped, already-passing D1-D10 batch pipeline (run-all-229 PASS=9, judge Spearman 0.883). D1-D10 and their measurement approaches are unchanged; nothing below contradicts or re-grades them.
 
 ### Rubrics (domain language, anchored in the on-disk assets)
 
@@ -514,6 +749,32 @@ Headroom vs. the $4-5 quoted ceiling: 2-3x even cold, 4-7x warm - the `--max-bud
 > FAIL: A resumed batch re-grading finished students (cost + drift risk); any cross-student string hit; `.done` written before all gates pass.
 > Measurement: Code - harness tests in `tests/run-all-229.sh` (kill/resume scenario + cross-bleed grep).
 
+**D11 - MCP job lifecycle correctness / fire-and-poll (Critical)**
+> PASS: Every `pws_pitch_feedback` fire call returns a job_id (= subId) that maps to exactly one on-disk job record (`outDir/<id>/`); a `pws_pitch_feedback_status` poll against an in-flight, completed, failed, or unknown job_id ALWAYS returns a well-formed `{status: running|done|failed|not_found}` response, never a throw or a hang; a job whose caller never polls again still runs to completion and its artifacts remain on disk under the batch's normal retention, without leaking a still-running `claude` child process or an un-reclaimed scratch room past job completion.
+> FAIL: two concurrent fire calls reusing the same subId race or silently overwrite the same `outDir/<id>/` record; a status poll on a subId that was never fired throws an exception or blocks instead of returning `not_found`; an abandoned (never-polled) job leaves its Stage A/B child process or scratch room present indefinitely with no bound - "the client never polls" degrading into an unbounded resource leak rather than a merely-unread result.
+> Measurement: Code - extend `tests/run-all-229.sh` with (a) a job-id-collision fixture: fire two `runOneAsync` calls with the same subId concurrently, assert one is rejected (G9) rather than silently corrupting the other's record; (b) an unknown-job-id fixture: poll a job_id that was never fired, assert a clean `not_found`, never a throw; (c) an abandoned-job fixture: fire, never poll, assert the job still reaches `.done`/`failed` and its scratch room is reclaimed per the existing retention rule (Section 4 State Management), not orphaned. Fully code-checkable state-machine behavior; no human/judge pass needed.
+
+**D12 - Standalone-call cost/concurrency ceiling adherence (High)**
+> PASS: Cumulative daily call count and cumulative daily spend across ALL standalone `pws_pitch_feedback` invocations (everything NOT tagged as running inside `huji-batch.cjs`) stay under the configured ledger thresholds (default: 20 calls/day, $75/day - roughly 25 units at the existing $3.00 per-unit `--max-budget-usd` fuse from Section 4). A call that would breach either threshold is refused BEFORE Stage A spawns, with `isError: true` and the current count/spend + threshold in the message. Batch-orchestrator calls are tagged and exempt, so the pilot's planned 200-unit overnight run is never blocked by this guardrail.
+> FAIL: the ledger undercounts because of a non-atomic write (a crash mid-increment silently loses a call, bypassing the ceiling); two concurrent standalone calls both read the pre-increment count before either writes and race past the threshold (TOCTOU); the (N+1)th call over the daily cap is allowed to actually run Stage A/B and only fails afterward (refusal must be pre-spawn, not a post-hoc write-off); batch-orchestrator calls get wrongly counted against the standalone ceiling and the 200-unit pilot run halts partway through on its own guardrail.
+> Measurement: Code - a rapid-successive-calls harness test that drives the ledger past 20/day and asserts call #21 is refused pre-spawn (assert the `claude` spawn primitive was never invoked for the refused call); a write-temp-then-rename crash-recovery test (kill the process mid-ledger-write, reload, assert the count is exactly what was durably committed); a batch-vs-standalone tagging test (batch-orchestrator calls do not increment the standalone ledger).
+
+**D13 - Rubric/course-context required-field enforcement (Critical)**
+> PASS: A `pws_pitch_feedback` call that supplies a valid `rubricContext` (v1 allowlist: exactly `"huji-intro-venture"`) runs normally. A call that OMITS `rubricContext`, or supplies any other value, is rejected at the input-validation layer BEFORE Stage A spawns, with `isError: true` and a message naming the missing/invalid field - never a silent default to HUJI's intro-course tiering for an unrelated transcript or a future non-HUJI customer's actual investor pitch (Section 1b's Critical "rubric/course-context binding explicitness" finding, the exact inverse of the base 6-component rubric's "grading a pitch is an anti-pattern" failure mode).
+> FAIL: a call with `rubricContext` omitted proceeds and silently grades under `rubric-huji.md`'s intro-course calibration anyway; the field exists in the zod input shape but is marked `.optional()` or carries a default (making the "required" claim cosmetic); rejection happens AFTER Stage A/B already ran (wasted spend, not a real gate, and the transcript already left the machine to Stage A's `claude` process under the wrong tier).
+> Measurement: Code - a synthetic fixture that calls the tool handler (or `runOneAsync` directly) with `rubricContext` omitted, asserting (a) the call is rejected, (b) rejection happens before any `claude` child process spawns (assert on a spy/mock that `runClaudeAsync`/Stage A args were never built), (c) the error names the missing field. A second fixture supplies an invalid non-allowlisted value (e.g. `"investor-pitch"`) and asserts the same fail-closed behavior. This is the concrete "must fail closed, not silently default" fixture the guardrail exists to prove.
+
+**D14 - Async/sync exit-code parity, execFile regression guard (High)**
+> PASS: A synthetic Stage A or Stage B fixture that exits non-zero produces a structurally identical `{ ok: false, reason: 'stageA_nonzero' | 'stageB_nonzero', detail: <stderr slice>, ... }` envelope under BOTH `runOne` (sync, `spawnSync`, returns a `.status` field) and `runOneAsync` (async, `execFile`-promisified, REJECTS the promise on non-zero exit - Section 4's Pitfall 8) - the two engines are provably interchangeable on the FAILURE path, not just the happy path.
+> FAIL: `runOneAsync`'s `runClaudeAsync` wrapper lets a rejected `execFileAsync` promise propagate as an uncaught exception instead of reconstructing `{status, stdout, stderr, error}`; the reconstructed shape uses a different key name, a different reason-code string, or drops `stderr` such that `stageA_nonzero`/`stageB_nonzero` stops matching what `failures.md` and `--dry-run` assertions already depend on; the sync and async engines diverge on ANY field of the failure envelope for the same injected non-zero exit.
+> Measurement: Code - a parity test mirroring `lib/memory/sync-async-entry-points.test.cjs`'s own shape: stub the child-process primitive (`spawnSync`/`execFile`) to exit non-zero with fixed stdout/stderr for both `runOne` and `runOneAsync`, run both, assert the two returned objects are structurally identical modulo timing-only fields. This is a CI-blocking regression gate protecting the async rewrite itself (extend `tests/run-all-229.sh` or add a sibling `.test.cjs`), not a runtime guardrail - there is no G-number for D14 because nothing here intervenes on a live request; it fails a build before the async path ever ships.
+
+**D15 - Deployment-scope invocation traceability (High)**
+> PASS (v1, minimal): every `pws_pitch_feedback` invocation's `rubricContext` (D13/G8's required field) is appended to a local, durable invocation audit trail (write-temp-then-rename, the same pattern `batch-state.json` already uses) alongside subId and timestamp - so "which rubric, which declared context, when" is reconstructable per invocation without inferring it from "who currently has the MCP server wired up" (Section 1b's "deployment-scope integrity" finding).
+> FAIL (v1, minimal): an invocation runs with no trace of which context it claimed to operate under; the audit log is missing, non-atomic (can be corrupted or partially written by a crash mid-write), or silently overwritten rather than append-only.
+> Measurement: Code - assert every `runOneAsync` call writes an audit-log line before Stage A spawns; a kill-mid-write test asserts the log stays append-only and uncorrupted on reload.
+> **Accepted gap (v1, explicitly out of scope):** this design proves an invocation DECLARED a scope; it does not prove the CALLER was AUTHORIZED to declare it - there is no per-caller identity/auth binding, no cryptographic attestation, and no server-side allowlist of which MCP clients may reach the tool at all (today's boundary is informal: "nobody but Jonathan has the MCP server connected"). Full FERPA "direct control" enforcement is deferred; see G10 below for the same gap stated as a guardrail limitation, with owner and revisit trigger.
+
 ### LLM Judge Design (anchor hygiene is NORMATIVE)
 
 The judge is plugin-native: a headless `claude -p --bare` session, Read-only tools, `--json-schema` judge schema, model pinned DIFFERENT from the grading spine (sonnet judging opus output) to reduce self-preference bias. The 12 `calibration/` fixtures are its anchors - subject to these binding rules from the fixture audit:
@@ -530,6 +791,8 @@ The judge is plugin-native: a headless `claude -p --bare` session, Read-only too
 
 **Override note:** the GSD default (Arize Phoenix) is consciously declined. This is an offline overnight batch with a hard plugin-native constraint (CJS, no eval-SaaS dependency); every trace field Phoenix would capture (cost, session_id, model breakdown, structured output, errors) already lands in `result.json` for free via `--output-format json`. Revisit self-hosted Phoenix only if the module graduates to semester scale with continuous runs.
 
+**MCP delivery seam tooling note (v1.1, 2026-07-16):** confirmed no tracing/eval SaaS is present anywhere in the repo (`grep` sweep for langfuse/langsmith/arize/phoenix/braintrust/promptfoo/ragas across `*.cjs`/`*.json`/`*.md` returns only unrelated substring hits, e.g. "summarizer"). The standalone tool extends the SAME plugin-native harness and ledger convention as the batch - job records, the new call ledger (G7), and the audit trail (G10) are all `outDir`/local-JSON artifacts, not a new store. The override above still holds and now additionally covers a live (not just overnight-batch) delivery path; revisit self-hosted Phoenix if `pws_pitch_feedback` graduates from single-operator use to multiple concurrent external callers, where request-level distributed tracing starts earning its keep.
+
 **Setup:**
 ```bash
 # Nothing to install - repo Node >= 22.5.0 + claude CLI >= 2.1.205 (both verified, Section 3).
@@ -537,6 +800,13 @@ The judge is plugin-native: a headless `claude -p --bare` session, Read-only too
 #   scripts/huji-eval.cjs            (harness: code checks + judge spawner + report)
 #   tests/run-all-229.sh             (phase suite: schema, quote-verifier, resume/isolation, hygiene)
 #   .planning/phases/229-.../eval/   (labeled inventories, judge prompt, judge schema, probe manifest)
+# MCP delivery seam additions (v1.1, build alongside lib/mcp/pitch-feedback-tool.cjs):
+#   scripts/huji-eval.cjs --check job-lifecycle       (D11 - collision, unknown-poll, abandoned-job fixtures)
+#   scripts/huji-eval.cjs --check mcp-call-ledger      (D12 - daily count/spend threshold + crash-recovery)
+#   scripts/huji-eval.cjs --check rubric-required      (D13 - missing/invalid rubricContext fail-closed)
+#   scripts/huji-eval.cjs --check scope-audit-trail    (D15 - G10 audit-log durability)
+#   lib/mcp/pitch-feedback-async-parity.test.cjs       (D14 - runOne vs runOneAsync failure-envelope parity,
+#                                                        the CASCADE-06 shape from sync-async-entry-points.test.cjs)
 ```
 
 **CI/CD Integration:**
@@ -544,6 +814,14 @@ The judge is plugin-native: a headless `claude -p --bare` session, Read-only too
 # Every commit touching the module (fast, deterministic, no model calls):
 bash tests/run-all-229.sh
 node scripts/huji-eval.cjs --suite code --strict
+
+# MCP delivery seam (v1.1) - fast, deterministic, no model calls, extend tests/run-all-229.sh:
+node scripts/huji-eval.cjs --check job-lifecycle
+node scripts/huji-eval.cjs --check mcp-call-ledger
+node scripts/huji-eval.cjs --check rubric-required
+node scripts/huji-eval.cjs --check scope-audit-trail
+node lib/mcp/pitch-feedback-async-parity.test.cjs      # D14 parity gate - blocks merge if runOneAsync's
+                                                        # failure envelope diverges from runOne's
 
 # Before ANY batch, and after ANY prompt/rubric/model/schema change (model calls, ~$2):
 node scripts/huji-eval.cjs --suite anchors --judge      # judge calibration protocol, fails closed under 0.7
@@ -563,6 +841,7 @@ node scripts/huji-eval.cjs --suite demo                 # both samples end-to-en
 - **Judge-rubric ingredients (2):** fixtures 05/06 process logs (evidence-grounding, bias-flagging, reframing criteria).
 - **Excluded (1):** fixture 12 (hub page, format archaeology only).
 - **Synthetic probes (build during implementation):** duplicate-anchor probes (samples re-injected at positions 1/50/100/150/200 under alias IDs); a near-duplicate fairness pair (two lightly perturbed sample-2 variants, must score within 1 band); an injection probe (sample-1 variant containing apostrophes, markdown, and an "ignore previous instructions" line inside the transcript); degenerate inputs (empty transcript, 15-second truncated transcript, all-diarization-noise transcript); the covered-element probe is sample 2 itself (risks+mitigation present - marking it missing is a D1 FAIL).
+- **MCP delivery-seam synthetic fixtures (v1.1 addition, build during implementation, code-only - no human/judge labeling required):** a job-id-collision pair (two concurrent fire calls sharing one subId, D11/G9); an unknown-job-id poll and an abandoned-job probe (fire, never poll, assert bounded cleanup, D11/G9); a ledger-threshold probe (21 rapid standalone calls simulated in one day, asserting call #21 is refused pre-spawn, D12/G7) plus a mid-write crash-recovery case; a missing-`rubricContext` fixture and an invalid-`rubricContext` fixture (both must fail closed before Stage A spawns, D13/G8); a non-zero-exit fixture run through both `runOne` and `runOneAsync` and diffed for envelope parity (D14); an audit-trail durability fixture (D15/G10).
 
 **Labeling:**
 - **Jonathan (methodology owner):** hand-labels the entity/claim inventories for both samples (D2 ground truth) before implementation ends; labels the first 10 real HUJI submissions as they arrive; blind re-rank for judge calibration.
@@ -600,6 +879,29 @@ Deliberately NOT an online gate: D6 double-punish detection and D7 tier calibrat
 | Warm-cache cost trend | First 5 units (cold) vs rolling per-unit cost | Warm average > $2.00 -> caching not biting; check prefix stability (frozen checkout, `--exclude-dynamic-system-prompt-sections`) before burning the margin |
 | External signal (signal-metric divergence watch) | Amnon's demo verdict; TA blind comparison (n >= 10); post-pilot student perceived-usefulness survey via Amnon | Human verdicts diverging from judge scores = the judge is miscalibrated, not the humans - recalibrate against the anchor protocol before the semester-license conversation |
 
+### MCP Delivery Seam Guardrails (v1.1 addition, 2026-07-16)
+
+> These EXTEND, not replace, G1-G6: every `pws_pitch_feedback` invocation - fire-and-poll today, any future shape tomorrow - runs through the SAME `runOneAsync` engine and therefore the SAME grounding/schema/cost/tone gates the batch enforces (Section 1b's "feedback-quality consistency outside the batch-and-verify pipeline" finding). G7-G10 below are the NEW gates the standalone delivery path needs that the batch orchestrator never required, because the batch has no equivalent of an unbounded, un-metered, externally-triggerable caller running outside Jonathan's own overnight loop.
+
+**Online (Per-Call, pre-Stage-A-spawn unless noted)**
+
+| Guardrail | Trigger | Intervention |
+|-----------|---------|--------------|
+| G7 Standalone-call cost/concurrency fuse | Cumulative daily call count > 20 OR cumulative daily spend > $75 across all standalone (non-batch-tagged) `pws_pitch_feedback` invocations, tracked in an append-only local ledger (write-temp-then-rename, the `batch-state.json` pattern) | Refuse the call BEFORE Stage A spawns; `isError: true` with current count/spend + threshold in the message. Batch-orchestrator calls are tagged and exempt - the 200-unit pilot run is never blocked by its own guardrail |
+| G8 Rubric/course-context required-field gate | `rubricContext` omitted from the call, or supplied with any value outside the v1 allowlist (`["huji-intro-venture"]`) | Reject BEFORE Stage A spawns; `isError: true` naming the missing/invalid field. Never silently default to HUJI's intro-course tiering - the inverse-misapplication failure Section 1b names Critical |
+| G9 Job registry integrity gate | (a) a fire call supplies a subId that already has an in-flight (non-terminal) `outDir/<id>/` job record; (b) a status poll targets a job_id with no matching record | (a) refuse the new fire as a collision - never silently overwrite the in-flight record; (b) return a clean `{status: 'not_found'}`, never a throw or hang |
+| G10 Deployment-scope attestation (v1, minimal) | Every invocation | Append `{subId, rubricContext, timestamp}` to a local audit-trail log (write-temp-then-rename) BEFORE Stage A spawns, piggybacking on G8's required field - the "which rubric, which invocation, when" trace Section 1b calls for. Does NOT verify caller identity/authorization - see the Accepted Gap below |
+
+**Offline (Flywheel, MCP seam addition)**
+
+| Metric | Sampling Strategy | Action on Degradation |
+|--------|--------------------|------------------------|
+| Stale/orphaned job sweep | Scheduled sweep of `outDir/<id>/` records with no terminal state (`.done`/`failed`) older than a TTL (default 24h) | Mark orphaned, reclaim the scratch room, log to an `mcp-orphans.md` report - the offline half of D11/G9 for jobs whose caller vanished mid-run rather than merely never polling a finished one |
+| Standalone-call ledger trend | Every ledger write (cheap, already durable per G7) | Rising daily call/spend approaching the G7 ceiling -> review whether a legitimate use case needs the threshold raised, vs a runaway/unauthorized caller needing to be blocked entirely |
+| Audit-trail completeness | 100% (every G10 write is durable by construction) | A job with no matching audit-log line is itself a finding - investigate as a possible bypass of G8/G10 before treating it as benign |
+
+**Accepted gap (v1, explicitly out of scope) - deployment-scope authorization.** G10 proves an invocation DECLARED a rubric/course-context; it does not prove the CALLER was AUTHORIZED to declare it. There is no per-caller identity binding, no cryptographic attestation, and no server-side allowlist of which MCP clients may reach `pws_pitch_feedback` at all - today's boundary is informal ("nobody but Jonathan has the MCP server connected"). This satisfies the DATA-EGRESS half of FERPA's school-official exception (Canon Part 8, unaffected and unchanged by this seam) but not the DIRECT-CONTROL / PURPOSE-LIMITATION half (Section 1b). **Owner: Jonathan. Trigger to revisit: before any non-HUJI customer, or any second MCP client/caller, is onboarded to `pws_pitch_feedback`** - at which point a real caller-identity mechanism (per-customer API key, mTLS, or an MCP-transport-level auth layer) must be designed before the tool is exposed beyond its current single-operator scope.
+
 ---
 
 ## 7. Production Monitoring
@@ -613,6 +915,9 @@ Deliberately NOT an online gate: D6 double-punish detection and D7 tier calibrat
 4. **Severity drift** - probe deviation (positions 1/50/100/150/200) + rolling cohort score stats; plus the `model_id` and `calibration_source` uniformity checks (all 200 identical).
 5. **Part 8 hygiene violations** - must be identically ZERO across the whole batch; reported as an explicit "0 violations in N queries" line in the batch report (the auditable privacy story sold to HUJI).
 6. **Template similarity index** - cohort pairwise max + median.
+7. **MCP standalone-call ledger (v1.1)** - daily call count + daily spend for calls outside the batch orchestrator, tracked against the G7 ceiling (20 calls / $75 default).
+8. **Job lifecycle backlog (v1.1)** - count of non-terminal `outDir/<id>/` records older than the orphan-sweep TTL (24h default); should be ~0 in steady state, per D11/G9.
+9. **Deployment-scope audit-trail completeness (v1.1)** - every invocation has a matching G10 log line; any gap is a finding, not noise (per D15's accepted-gap boundary - the log proves declaration, not authorization).
 
 **Alert Thresholds:**
 - Failure rate >= 5% over a 20-submission window -> **stop batch** (systemic prompt/schema bug per Section 4b, not noise).
@@ -621,6 +926,9 @@ Deliberately NOT an online gate: D6 double-punish detection and D7 tier calibrat
 - Warm per-unit average > $2.00, or any unit > $3.00 surviving the CLI fuse -> investigate caching/prefix before continuing.
 - Projected batch total > $500 -> pause; unit economics decision before spending further.
 - Any post-hoc judge-detected D1 violation in a delivered artifact -> pull that artifact from the delivery set and re-run the unit (delivery is not final until the human gate below passes).
+- **(v1.1) Standalone-call ledger crossing 20 calls/day or $75/day** -> already refused online (G7); restated here as an alert - a caller repeatedly hitting the ceiling is a signal to investigate (legitimate scaling need vs. a runaway/unauthorized caller), not to silently raise the threshold.
+- **(v1.1) Any G8 rejection (missing/invalid `rubricContext`) or G9 collision** -> logged and reviewed; a rising rejection rate signals a misconfigured or unauthorized caller, not routine noise.
+- **(v1.1) Orphaned job count > 0 at sweep time** -> investigate before assuming "client never polled" is benign; the caller may have crashed mid-flow expecting a result it never received.
 
 **Smart Sampling Strategy (Jonathan's human-review pass, pre-delivery):**
 - 100% of the first 10 units - batch shakedown before letting it run overnight.
@@ -629,20 +937,21 @@ Deliberately NOT an online gate: D6 double-punish detection and D7 tier calibrat
 - Weakest 3 + strongest 3 by cohort score - the edge cases Amnon and the TAs will read first; they must be right.
 - Random 10% of the remainder.
 - Expected review load: ~35-45 artifacts of 200 - one focused evening, budgeted as part of the pilot's delivery cost, not optional QA. Students receive feedback only after this pass + Amnon's sample review clears.
+- **MCP delivery seam note (v1.1):** `pws_pitch_feedback` outputs are NOT automatically routed through this sampling pass - Section 1b's "feedback-quality consistency outside the batch-and-verify pipeline" finding already names this as the standalone tool's own quality-floor gap (same grading engine, same G1-G6, but no human gate before delivery). Nothing in G7-G10 closes that gap; it is a delivery-process discipline, not a code guardrail. Treat any student-facing or instructor-facing use of the standalone tool as requiring the identical manual human-review step the batch enforces structurally, until/unless a future revision wires the sampling pass into the tool itself.
 
 ---
 
 ## Checklist
 
-- [ ] System type classified
-- [ ] Critical failure modes identified (≥ 3)
-- [ ] Domain context researched (Section 1b: vertical, stakes, expert criteria, failure modes)
-- [ ] Regulatory/compliance context identified or explicitly noted as none
-- [ ] Domain expert roles defined for evaluation involvement
-- [ ] Framework selected with rationale documented
-- [ ] Alternatives considered and ruled out
-- [ ] Framework quick reference written (install, imports, pattern, pitfalls)
-- [ ] AI systems best practices written (Section 4b: Pydantic, async, prompt discipline, context)
+- [x] System type classified
+- [x] Critical failure modes identified (≥ 3) — 5 listed in Section 1, 2 more MCP-seam-specific added to Section 1b
+- [x] Domain context researched (Section 1b: vertical, stakes, expert criteria, failure modes)
+- [x] Regulatory/compliance context identified or explicitly noted as none — FERPA school-official exception, Canon Part 8
+- [x] Domain expert roles defined for evaluation involvement — Amnon Dekel (evaluating customer), Jonathan (pre-delivery sampling pass, MCP-seam scope-gating owner)
+- [x] Framework selected with rationale documented
+- [x] Alternatives considered and ruled out
+- [x] Framework quick reference written (install, imports, pattern, pitfalls)
+- [x] AI systems best practices written (Section 4b: Pydantic/zod, async, prompt discipline, context)
 - [x] Evaluation dimensions grounded in domain rubric ingredients
 - [x] Each eval dimension has a concrete rubric (Good/Bad in domain language)
 - [x] Eval tooling selected — Arize Phoenix default consciously overridden: plugin-native CJS harness + result.json ledger (offline batch, no-eval-SaaS constraint)
