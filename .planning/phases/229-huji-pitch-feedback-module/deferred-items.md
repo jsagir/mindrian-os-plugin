@@ -159,3 +159,91 @@ are the NEW blockers, surfaced only once DI-1/2/3 let Stage B run for the first 
 gating blocker for the demo, with DI-5 (verbatim extraction) close behind. Both need to be
 resolved - DI-4 by a navigator decision on the grading input contract - before the pipeline
 can emit the two gate-clean Minto artifacts Amnon judges.
+
+---
+
+**Status update 2026-07-16 (second fix-and-verify session): DI-4 and DI-5 RESOLVED and
+committed. Clearing them let the pipeline run TRULY end-to-end for the FIRST time and emit
+real graded feedback - which immediately surfaced TWO new blockers in the Stage B FEEDBACK
+half: DI-6 (Stage B packages non-verbatim quotes) and DI-7 (the D1 verifier's span extractor
+has a single-quote blind spot that masks DI-6 as a false green). The demo is therefore NOT
+gate-clean; no artifact was fabricated or force-passed.**
+
+## DI-4 - RESOLVED - dual-write evidence into section ROOM.md
+
+**Fix (commit for `scripts/huji-intake.cjs`):** `populateRoom` now renders the Stage A
+evidence into the section ROOM.md markdown the grading spine actually reads
+(`problem-definition` <- problem_claim; `solution-design` <- value_proposition +
+evidence_claims + self-identified gaps + language_notes), plus one consolidated root
+`pitch-intake-<id>.md` artifact, exactly mirroring the shipped file-meeting behavior. Fenced
+(`STAGE-A-INTAKE:BEGIN/END`) + idempotent. Quotes render byte-verbatim. Verified live: Stage B
+(opus) graded REAL content on both samples (no more empty-room refusal); the 6 sections the
+pitch does not cover honestly stay empty scaffolds.
+
+## DI-5 - RESOLVED - byte-verbatim quoting preserves disfluencies
+
+**Fix (commit for `references/methodology/huji-stage-a-intake.md` + `huji-run-one.cjs`):**
+added an explicit BYTE-VERBATIM QUOTING RULE with the two named examples, reinforced in
+Phase 4/6 and the runtime prompt suffix. Verified live: study-app evidence.json now preserves
+`vali- validating` and `surprising-- important` byte-verbatim; the D1 verifier passes them.
+
+---
+
+## DI-6 - BLOCKER (extraction quality, Stage B) - the grading spine packages NON-VERBATIM quotes
+
+- **Where:** the Stage B grading spine, specifically the `structure-argument` Minto packaging
+  stage (`pipelines/PWS_grading/04-structure-argument.md`) governed by the frozen rubric
+  `references/methodology/rubric-huji.md`. The rendered feedback lands in `feedback.md` via
+  `renderFeedbackMarkdown` in `scripts/huji-run-one.cjs`.
+- **Symptom (real run 2026-07-16, safescan-001):** the D1/G1 quote-verifier FAILED on 2
+  feedback quotes that are ELLIPTICAL, non-contiguous spans:
+  - feedback: `"biosensor engineer... a mobile app developer"` - transcript:
+    `hire a hardware and biosensor engineer for the device and a mobile app developer`
+  - feedback: `"a safety expert... an operation manager"` - transcript:
+    `bring in a safety expert for official health certifications and an operation manager`
+  The `...` joins two non-adjacent fragments, so neither is a byte-verbatim span; D1
+  correctly rejects them (`>>> quote-verifier: FAILED`, 2 misses).
+- **Second face (study-app-001):** the feedback quote `handled by validating materials`
+  DROPPED the transcript's `vali- ` disfluency (`handled by vali- validating materials`) -
+  the SAME cleaning DI-5 fixed on the extraction side, now reappearing on the FEEDBACK side.
+  It only escaped notice because of DI-7 (below).
+- **Root cause:** the DI-5 byte-verbatim discipline is enforced on Stage A EXTRACTION but NOT
+  on Stage B FEEDBACK generation. The rubric/structure-argument prompt tells the model to
+  quote the evidence, but never forbids elliptical joins or disfluency-cleaning in the
+  delivered quote. A 2-minute pitch tempts the model to compress ("engineer... developer") and
+  tidy ("vali- validating" -> "validating") when packaging.
+- **Fix (mechanical, re-verify end to end):** port the DI-5 BYTE-VERBATIM QUOTING RULE onto
+  the Stage B side - amend `rubric-huji.md` (and/or `04-structure-argument.md`) to require that
+  every quoted span in the feedback is a single contiguous byte-verbatim run copied from the
+  transcript, no ellipsis joins, no cleaned disfluencies; quote less but exactly. Then re-run
+  both samples and confirm D1 clean. This is prompt-level, but it must be verified against a
+  real artifact (the reason it was invisible until the first true end-to-end run).
+
+## DI-7 - BLOCKER (verifier gap) - D1's span extractor misses single-quoted feedback quotes (masks DI-6)
+
+- **Where:** `extractQuotedSpans(md)` in `scripts/huji-eval.cjs` (consumed by `quoteVerifier`,
+  the D1 gate, and by `runGuardrails` G1 in `huji-run-one.cjs`).
+- **Symptom (real run 2026-07-16, study-app-001):** `>>> quote-verifier: PASSED` - but the
+  pass is VACUOUS. All 8 of that feedback's quotes use SINGLE quotes (`'...'`).
+  `extractQuotedSpans` only matches `"..."`, curly `“...”`, and `> ` blockquote lines, so it
+  extracted ZERO feedback spans and checked none of them. The one non-verbatim quote (DI-6,
+  the dropped `vali- `) sailed through the hardest gate silently -> a FALSE GREEN.
+- **Root cause:** the extractor's quote grammar omits the apostrophe/single-quote form the
+  model actually used. Whether a feedback quote is checked depends on which quote character the
+  model happened to choose (safescan used `"` and got caught; study-app used `'` and did not).
+  This is precisely the silently-skipped-gate / false-success class we track.
+- **Fix:** extend `extractQuotedSpans` to also capture single-quoted spans, being careful with
+  apostrophe-as-contraction false positives (e.g. require a minimum span length and/or balanced
+  `'...'` on the same line, or prefer the blockquote/`"..."` forms and treat `'...'` of
+  sufficient length as a span). Add a FAIL fixture (a feedback that quotes non-verbatim with
+  single quotes) so the check turns red on this exact regression. DI-7 must be fixed BEFORE
+  DI-6 can be trusted as verified - otherwise a DI-6 fix could be "confirmed" green while
+  single-quoted misses still slip through.
+
+**Net (2026-07-16 second session):** DI-4 + DI-5 are FIXED and verified live - the pipeline
+now produces REAL course-tier grades of real pitch content, and extraction is byte-verbatim.
+The demo is now blocked by DI-6 (Stage B packages elliptical / disfluency-cleaned quotes that
+fail D1) and DI-7 (the D1 extractor's single-quote blind spot that masks DI-6 as a false
+green). Fix DI-7 first (so the gate cannot lie), then DI-6 (so the feedback quotes verbatim),
+then re-run both samples for two genuinely gate-clean artifacts. Real outputs preserved
+verbatim under `demo/blocked-run-2026-07-16/`. Nothing fabricated (threat T-229-09-01).

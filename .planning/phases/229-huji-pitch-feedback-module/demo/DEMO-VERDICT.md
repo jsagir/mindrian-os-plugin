@@ -11,42 +11,58 @@
 
 ## 1. Pipeline Output (Task 1)
 
-**Status: DI-1/2/3 RESOLVED + judge calibrated live; demo STILL BLOCKED by a deeper,
-newly-surfaced architectural bug (DI-4). The two artifacts were NOT generated and NOT
-fabricated.**
+**Status (2026-07-16, SECOND fix-and-verify session): DI-4 and DI-5 RESOLVED and verified
+live - the pipeline now produces REAL course-tier grades of real pitch content, end to end,
+and extraction is byte-verbatim. Demo STILL NOT gate-clean: two NEW Stage-B-side blockers
+surfaced (DI-6 non-verbatim feedback quotes, DI-7 a D1 verifier blind spot that masks DI-6 as
+a false green). No artifact was fabricated or force-passed.**
 
-Update 2026-07-16 (fix-and-verify session). The three CLI/auth blockers from the first
-session (DI-1 json-schema-as-path, DI-2 draft 2020-12, DI-3 Stage A `--bare` credential)
-are FIXED and committed. That let the opus grading spine (Stage B) spawn for the FIRST
-time ever - which immediately exposed two deeper bugs that were masked behind DI-1/2/3:
+### What the two fixes bought (verified live this session)
 
-- **DI-4 (blocker, architectural):** the Stage A -> Stage B evidence handoff is broken.
-  `populateRoom` writes the evidence into the room GRAPH (`.mindrian/room.db`, 11 claim
-  nodes, verified), but the grading session is tool-scoped to `Bash(node lib/core/*)` and
-  CANNOT read `room.db` (no `sqlite3`), so it reads the section markdown - which are EMPTY
-  auto-scaffolds. Stage B (opus) therefore graded an EMPTY ROOM and CORRECTLY refused to
-  fabricate: it returned a setup-state finding, `scores: {}`, not a Minto grade. The
-  anti-fabrication guard worked; the orchestration is what is broken.
-- **DI-5 (blocker, extraction):** Stage A (haiku) cleaned the transcript's speech
-  disfluencies ("vali- validating" -> "validating"; "surprising-- important" ->
-  "important"), so 2 evidence quotes were no longer verbatim and the D1 quote-verifier
-  correctly flagged them.
+- **DI-4 FIXED (`scripts/huji-intake.cjs` dual-write).** `populateRoom` now renders the Stage A
+  evidence into the section ROOM.md markdown the grading spine reads (problem-definition +
+  solution-design + a consolidated root pitch-intake artifact), mirroring file-meeting. Stage B
+  (opus) graded REAL content on BOTH samples - no more empty-room refusal. Confirmed on disk:
+  the populated sections no longer read "Awaiting first content"; the 6 sections the pitch does
+  not cover honestly stay empty.
+- **DI-5 FIXED (`huji-stage-a-intake.md` + `huji-run-one.cjs`).** Byte-verbatim quoting rule
+  added. Verified live: study-app evidence.json preserves `vali- validating` and
+  `surprising-- important` byte-verbatim; D1 passes those extraction quotes.
 
-Full reproductions + candidate fixes are in `deferred-items.md` (DI-4, DI-5). No feedback
-artifact was fabricated - the demo is the sale, and a fabricated or unfair artifact costs
-the deal (threat T-229-09-01).
+### The two NEW blockers (why the demo is still not gate-clean)
 
-| Field | Value (REAL, this session) |
-|-------|----------------------------|
-| feedback-sample-1.md (SafeScan) | NOT PRODUCED - Stage B (opus) ran >10 min then exited nonzero, no artifact (DI-4 empty-room grind) |
-| feedback-sample-2.md (study-app) | NOT PRODUCED as a valid artifact - Stage B emitted a setup-state finding (empty room), `scores: {}`, and D1 flagged 2 disfluency-cleaned quotes (DI-4 + DI-5) |
-| Stage A extraction | WORKS - haiku, `--plugin-dir` + keychain, ~40s, valid structured evidence.json, num_turns 3 |
-| pinned model_id (Stage B) | `claude-opus-4-8` (verified in study-app result.json) |
-| calibration_source | `local-anchors` (Tier 0, Brain not queried) |
-| Stage A cost / sample | ~$0.12 (haiku) |
-| Stage B cost (study-app) | $1.157 (opus) - spent on a NON-grade (empty room) |
-| total_cost_usd (study-app unit) | $1.277 (Stage A $0.120 + Stage B $1.157) |
-| Judge calibration (LIVE) | **Spearman 0.901 (min 0.7) PASS**; Dental post>pre PASS; DnATA<Lucid PASS -> JUDGE CALIBRATED |
+- **DI-6 (Stage B packages non-verbatim quotes).** safescan feedback quoted two ELLIPTICAL,
+  non-contiguous spans - `"biosensor engineer... a mobile app developer"` and
+  `"a safety expert... an operation manager"` - joining non-adjacent transcript fragments with
+  `...`. D1 correctly rejected them (quote-verifier: FAILED, 2 misses). study-app cleaned a
+  disfluency in its feedback (`handled by validating` for the transcript's
+  `handled by vali- validating`) - the DI-5 cleaning reappearing on the FEEDBACK side.
+- **DI-7 (D1 extractor single-quote blind spot, masks DI-6).** study-app reported
+  quote-verifier PASSED, but VACUOUSLY: all 8 of its feedback quotes use single quotes
+  (`'...'`), and `extractQuotedSpans` (huji-eval.cjs) only recognizes `"..."`, curly quotes,
+  and `> ` blockquotes. It extracted ZERO feedback spans, so it checked none - and the one
+  non-verbatim quote sailed through silently. A false green. This is the silently-skipped-gate
+  failure class we track.
+
+Full reproductions + candidate fixes in `deferred-items.md` (DI-6, DI-7). Real, UNEDITED
+pipeline outputs preserved under `demo/blocked-run-2026-07-16/`. Nothing fabricated, nothing
+hand-cleaned (threat T-229-09-01).
+
+| Field | Value (REAL, 2026-07-16 second session) |
+|-------|------------------------------------------|
+| feedback-sample-1.md (SafeScan) | NOT gate-clean - a REAL opus grade was produced (10 questions scored 4/10, 3 Minto branches), but D1 FAILED on 2 elliptical feedback quotes (DI-6). Raw output: `blocked-run-2026-07-16/safescan-001.feedback.RAW.md` |
+| feedback-sample-2.md (study-app) | NOT trustworthy - a REAL opus grade (overall 85), quote-verifier reported PASS but only because DI-7 skipped its single-quoted feedback quotes, one of which is non-verbatim (DI-6). Raw output: `blocked-run-2026-07-16/study-app-001.feedback.RAW.md` |
+| Stage A extraction (both) | WORKS - haiku, `--plugin-dir` + keychain, valid structured evidence.json, disfluencies preserved byte-verbatim (DI-5) |
+| DI-4 dual-write | WORKS - section ROOM.md populated; Stage B grades real content, not an empty room |
+| pinned model_id (Stage B, both) | `claude-opus-4-8` (verified in both result.json) |
+| pinned model_id (Stage A, both) | `claude-haiku-4-5` |
+| calibration_source (both) | `local-anchors` (Tier 0, Brain not queried - Canon Part 8 intact) |
+| Stage A cost / sample | $0.164 (safescan), $0.136 (study-app) |
+| Stage B cost / sample | $2.540 (safescan), $2.785 (study-app) - opus, on REAL grades this time |
+| total_cost_usd / unit | $2.704 (safescan), $2.921 (study-app) - both under the $3.00 fuse |
+| gate: schema (both) | PASSED (FeedbackResultSchema valid) |
+| gate: quote-verifier | safescan FAILED (DI-6, real); study-app PASSED but vacuously (DI-7) |
+| Judge calibration (LIVE, prior session) | **Spearman 0.901 (min 0.7) PASS**; Dental post>pre PASS; DnATA<Lucid PASS -> JUDGE CALIBRATED (not re-run this session; no gate-clean artifacts to judge yet) |
 | Judge model / spine | `claude-sonnet-4-5` judging `claude-opus-4-8` (pinned different, self-preference dodge) |
 
 ### Judge calibration - the one gate that DID clear live
@@ -171,18 +187,25 @@ handed to Amnon. Do not fabricate._
 
 ## 5. What is needed to generate the real artifacts
 
-1. **Resolve the `--json-schema` contract (3a)** - inline the schema JSON into the
-   arg instead of passing a path, in `huji-run-one.cjs` (both stages) and
-   `huji-eval.cjs` (`spawnJudge`). See `deferred-items.md`.
-2. **Resolve the schema draft (3b)** - the zod-generated schemas emit draft 2020-12;
-   the CLI validator wants an accepted draft. This touches the schema-generation
-   choice (grade-provenance surface), so it is a decision for Jonathan, not a blind
-   downgrade. See `deferred-items.md`.
-3. **Provide Stage A credentials (3c)** - either export `ANTHROPIC_API_KEY` for the
-   `--bare` Stage A path (the designed contract), OR revise AUTH_PATH so Stage A uses
-   the keychain like Stage B (drop `--bare`; it works here). A CONTRACTS decision.
-4. Then run the live demo over both samples (a small driver calling `runOne`, or
-   `runBatch` over a 2-item out-of-tree workspace - note `--suite demo` referenced in
-   VALIDATION.md is not implemented in `huji-eval.cjs`), confirm D1/D5/D6 gates on the
-   real artifacts, run `--suite anchors --judge` to clear the 0.7 Spearman gate, then
-   hand the two artifacts to Amnon.
+DI-1/2/3 (CLI/auth) and DI-4/DI-5 (handoff + extraction) are all RESOLVED. The
+remaining path to two genuinely gate-clean artifacts:
+
+1. **Fix DI-7 first (the gate must not lie).** Extend `extractQuotedSpans` in
+   `scripts/huji-eval.cjs` to also capture single-quoted (`'...'`) feedback spans
+   (guarding against apostrophe-contraction false positives via a min length / same-line
+   balance), and add a FAIL fixture (a single-quoted non-verbatim feedback quote) so the
+   check turns red on this exact regression. Until this lands, any DI-6 fix could be
+   "confirmed" green while single-quoted misses still slip through.
+2. **Then fix DI-6 (make Stage B quote verbatim).** Port the DI-5 BYTE-VERBATIM QUOTING
+   RULE onto the Stage B side: amend `references/methodology/rubric-huji.md` (and/or
+   `pipelines/PWS_grading/04-structure-argument.md`) to require every quoted span in the
+   delivered feedback to be a single contiguous byte-verbatim run from the transcript -
+   no ellipsis joins, no cleaned disfluencies. Quote less, but exactly.
+3. **Re-run both samples** end to end (the working out-of-tree driver pattern:
+   `runOne` over a 2-item workspace, used this session), and confirm quote-verifier +
+   schema PASS on BOTH (with DI-7's fixed extractor now actually checking the feedback
+   quotes). Then re-run `--suite anchors --judge` to reconfirm the 0.7 Spearman gate on
+   the real artifacts, and hand the two gate-clean artifacts to Amnon.
+
+Real, unedited outputs from the DI-6/DI-7-blocked run are under
+`demo/blocked-run-2026-07-16/` for diagnosis.

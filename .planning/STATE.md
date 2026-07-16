@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 229 Plan 09 - DI-1/2/3 fixed + judge calibrated live (Spearman 0.901); demo blocked at DI-4 (Stage A->B evidence handoff), no fabrication
-last_updated: "2026-07-16T00:00:00.000Z"
+stopped_at: Phase 229 Plan 09 - DI-4 (handoff) + DI-5 (verbatim extraction) fixed and verified live; pipeline grades REAL content end to end but not gate-clean, blocked at DI-6 (Stage B non-verbatim feedback quotes) + DI-7 (D1 single-quote blind spot masks DI-6 as false green), no fabrication
+last_updated: "2026-07-16T08:00:00.000Z"
 last_activity: 2026-07-16
 progress:
   total_phases: 37
@@ -15,6 +15,18 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-16) -- PHASE 229 Plan 09 SECOND fix-and-verify: DI-4 + DI-5 RESOLVED and verified live (pipeline grades REAL content end to end, byte-verbatim extraction); demo STILL NOT gate-clean, blocked at DI-6 (Stage B non-verbatim feedback quotes) + DI-7 (D1 single-quote blind spot = false green). No fabrication.
+
+Second fix-and-verify session against Plan 229-09 Task 1, resuming from the DI-4 block. Applied the navigator-decided DI-4 dual-write + DI-5 verbatim fix, then ran the REAL two-stage pipeline over BOTH customer samples in an out-of-tree workspace (the working `runOne`-driver pattern).
+
+- **DI-4 RESOLVED (`6b22b78d`).** `populateRoom` (scripts/huji-intake.cjs) now dual-writes: besides the room.db claim graph, it renders the Stage A evidence into the section ROOM.md the grading spine actually reads (problem-definition <- problem_claim; solution-design <- value_proposition + evidence_claims + self-identified gaps + language_notes) plus a consolidated root pitch-intake artifact, mirroring the shipped file-meeting behavior. Fenced + idempotent + atomic. Verified LIVE: Stage B (opus) graded REAL pitch content on both samples - the empty-room refusal is gone. The 6 sections the pitch does not cover honestly stay empty scaffolds.
+- **DI-5 RESOLVED (`d96d9f65`).** Explicit BYTE-VERBATIM QUOTING RULE added to the frozen Stage A intake prompt (references/methodology/huji-stage-a-intake.md) + the runtime prompt suffix (huji-run-one.cjs). Verified LIVE: study-app evidence.json preserves `vali- validating` and `surprising-- important` byte-verbatim; D1 passes those extraction quotes.
+- **Both samples graded end to end (a first):** safescan (10-Q total 4/10, 3 Minto branches, $2.704), study-app (overall 85, 3 branches, $2.921), opus `claude-opus-4-8`, `local-anchors`, both under the $3.00 fuse, schema gate PASS on both. **`bash tests/run-all-229.sh` -> PASS=9 FAIL=0 SKIP=0** after every change.
+- **DEMO STILL NOT GATE-CLEAN - DI-6 + DI-7, NOT fabricated.** DI-6 (Stage B packages non-verbatim quotes): safescan quoted two ELLIPTICAL non-contiguous spans (`"biosensor engineer... a mobile app developer"`, `"a safety expert... an operation manager"`) that D1 correctly FAILED; study-app cleaned a `vali-` disfluency in its feedback - the DI-5 cleaning reappearing on the FEEDBACK side. DI-7 (D1 verifier gap that MASKS DI-6): study-app reported quote-verifier PASSED but VACUOUSLY - all 8 of its feedback quotes use single quotes (`'...'`), and `extractQuotedSpans` (scripts/huji-eval.cjs) only matches `"..."`, curly quotes, and `> ` blockquotes, so it checked ZERO feedback spans and the non-verbatim quote sailed through silently (a FALSE GREEN - the silently-skipped-gate class we track). Both logged to `deferred-items.md` (DI-6, DI-7); real unedited outputs preserved under `demo/blocked-run-2026-07-16/`.
+- **STOPPED per plan mandate ("a NEW (5th) bug surfaces -> STOP and report").** Did NOT hand-clean the elliptical quotes, force-pass safescan, or ship study-app's false green. The anti-fabrication discipline held.
+- **Concurrent-session guard:** shared `main`; `git branch --show-current` = `main` verified before commits. `gsd-tools` not on PATH; STATE.md updated by MANUAL ADDITIVE LOG APPEND, frontmatter progress counters left UNTOUCHED (anti-clobber precedent). Plan 09 stays INCOMPLETE (blocked at DI-6/DI-7).
+- **NEXT (what unblocks the sale):** fix DI-7 FIRST (extend `extractQuotedSpans` to catch single-quoted spans + add a FAIL fixture, so the gate cannot lie) -> DI-6 (port the byte-verbatim quoting rule onto `rubric-huji.md` / `04-structure-argument.md` so Stage B quotes verbatim) -> re-run both samples for two genuinely gate-clean artifacts (judge already calibrated at 0.901) -> hand them to Amnon.
 
 ## (2026-07-16) -- PHASE 229 Plan 09 fix-and-verify: DI-1/2/3 RESOLVED + judge CALIBRATED live (Spearman 0.901); demo STILL BLOCKED by a deeper architectural bug DI-4 (Task 1 not complete, no fabrication)
 
