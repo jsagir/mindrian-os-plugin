@@ -276,17 +276,31 @@ function techFor(techMap, id) {
   };
 }
 
+// The three Wave-1 entity relation edge types (typed-entity.cjs ENTITY_EDGE_SUBSET),
+// mapped to the human bridge-label phrase they name. When an entity-entity pair is
+// formed by one of these typed edges, the bridge label states the REAL relation
+// instead of the generic "cross-domain bridge" (Phase 219 fix 3). Byte-mirrors the
+// navigation enum without requiring that submodule into this report.
+const RELATION_BRIDGE_LABEL = Object.freeze({
+  COMPETES_WITH: 'competes-with',
+  USES_COMPONENT: 'uses-component',
+  SUPPLIES_TO: 'supplies-to',
+});
+
 // shared_problems for a candidate: the intersection of the two techs' problem
 // lists, else an honest single-item bridge label (the emitter requires a
 // non-empty first string; never fabricate a market claim, just name the bridge).
-function deriveSharedProblems(a, b) {
+// bridgeEdgeType (optional): the typed relation edge that formed the pair; when it
+// is one of the entity relation edges the bridge is named for that relation.
+function deriveSharedProblems(a, b, bridgeEdgeType) {
   const pa = Array.isArray(a.problems) ? a.problems.filter(function (x) { return typeof x === 'string' && x.trim(); }) : [];
   const setB = new Set(Array.isArray(b.problems) ? b.problems : []);
   const shared = pa.filter(function (x) { return setB.has(x); });
   if (shared.length) return shared;
-  const one = a.primary_problem || b.primary_problem
-    || ('a ' + (a.section || 'unknown') + ' x ' + (b.section || 'unknown') + ' cross-domain bridge');
-  return [one];
+  if (a.primary_problem || b.primary_problem) return [a.primary_problem || b.primary_problem];
+  const rel = (typeof bridgeEdgeType === 'string') ? RELATION_BRIDGE_LABEL[bridgeEdgeType] : null;
+  const kind = rel ? (rel + ' bridge') : 'cross-domain bridge';
+  return ['a ' + (a.section || 'unknown') + ' x ' + (b.section || 'unknown') + ' ' + kind];
 }
 
 // ---------------------------------------------------------------------------
@@ -381,6 +395,10 @@ function loadGraph(graphPath) {
       shared_problems: Array.isArray(d.shared_problems)
         ? d.shared_problems.filter(function (x) { return typeof x === 'string' && x.trim(); })
         : [],
+      // Idea-graph edges are the generic CONVERGES type (filtered above), so no
+      // typed relation label is available on this path; the room-native substrate
+      // is where the entity relation edges (COMPETES_WITH etc.) flow in.
+      edge_type: null,
     });
   }
 
@@ -966,15 +984,17 @@ async function main(argv) {
       // rooms. Edge pairs are pushed FIRST so their shared_problems survive the
       // unordered dedupe.
       const seenPairs = new Set();
-      const pushPair = function (a, b, shared) {
+      const pushPair = function (a, b, shared, edgeType) {
         const key = a < b ? a + '|' + b : b + '|' + a;
         if (seenPairs.has(key)) return;
         seenPairs.add(key);
-        pairsToScore.push({ a: a, b: b, shared_problems: Array.isArray(shared) ? shared : [] });
+        pairsToScore.push({
+          a: a, b: b, shared_problems: Array.isArray(shared) ? shared : [], edge_type: edgeType || null,
+        });
       };
       for (let i = 0; i < convergesPairs.length; i += 1) {
         const cp = convergesPairs[i];
-        if (indexed.has(cp.a) && indexed.has(cp.b)) pushPair(cp.a, cp.b, cp.shared_problems);
+        if (indexed.has(cp.a) && indexed.has(cp.b)) pushPair(cp.a, cp.b, cp.shared_problems, cp.edge_type);
       }
       const arr = Array.from(indexed.values());
       for (let i = 0; i < arr.length; i += 1) {
@@ -982,7 +1002,7 @@ async function main(argv) {
           const a = arr[i];
           const b = arr[j];
           if (a.root === b.root && a.type === b.type) continue;
-          pushPair(a.id, b.id, []);
+          pushPair(a.id, b.id, [], null);
         }
       }
     } else {
@@ -1054,7 +1074,7 @@ async function main(argv) {
         idA: cp.a, idB: cp.b, techA: techA, techB: techB,
         dimsA: dimsA, dimsB: dimsB, pairDims: pairDims, score: score,
         weakA: weakA, weakB: weakB, isComp: isComp,
-        shared_problems: cp.shared_problems, rs: rs,
+        shared_problems: cp.shared_problems, edge_type: cp.edge_type || null, rs: rs,
       });
 
       progress += 1;
@@ -1101,7 +1121,7 @@ async function main(argv) {
       const tailFlag = tailIds.has(s.idA) || tailIds.has(s.idB);
       const shared = (s.shared_problems && s.shared_problems.length)
         ? s.shared_problems
-        : deriveSharedProblems(s.techA, s.techB);
+        : deriveSharedProblems(s.techA, s.techB, s.edge_type);
       const candidate = {
         a: {
           title: s.techA.title || s.idA,
