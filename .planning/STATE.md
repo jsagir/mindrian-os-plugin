@@ -1,20 +1,31 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15.0
-milestone_name: The Cockpit" milestone -- the UX/dial train
+milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 223 COMPLETE 5/5 - gate PASS=18; release cut approved, parked on huji-eval.cjs tree-quiet
-last_updated: "2026-07-16T12:19:30.616Z"
+stopped_at: Phase 229 Plan 10 COMPLETE 3/3 - runOneAsync CASCADE-06 twin + D14 parity gate (run-all-229 PASS=10 FAIL=0) + live pin smoke test RESOLVED (v1.15.2 pin confirmed STALE)
+last_updated: "2026-07-16T12:44:08Z"
 last_activity: 2026-07-16
 progress:
   total_phases: 37
   completed_phases: 23
-  total_plans: 132
-  completed_plans: 127
+  total_plans: 133
+  completed_plans: 129
   percent: 62
 ---
 
 # Project State
+
+## (2026-07-16) -- PHASE 229 Plan 10 COMPLETE (Wave 6) -- MCP-safe async engine twin + D14 parity gate + live git-tag-pin verification (Req D14)
+
+Wave 6, the last additive plan of Phase 229. Builds the ONE MindrianOS-Plugin-side prerequisite the separate `mindrian-pitch-feedback-mcp` wrapper repo needs to be true, and verifies the pin mechanism it depends on. No MCP server, tool registration, job registry, or guardrails G7-G10 were built here - those belong entirely to the external repo's own future cycle. `scripts/huji-run-one.cjs` + `scripts/huji-batch.cjs` are byte-for-byte untouched (verified via empty `git diff --stat`).
+
+- **`scripts/huji-run-one-async.cjs` (net-new, CASCADE-06 async twin):** `runOneAsync` mirrors `runOne` line for line but `await`s `runClaudeAsync` instead of the blocking synchronous spawn primitive, so a long-lived Node event loop (an MCP daemon) never stalls for the 8-12 minute Stage A/B window. `runClaudeAsync` is the ONE translation point: execFile REJECTS on a non-zero exit where the sync primitive RETURNS a `.status` field, so it catches the rejection and rebuilds the exact `{status,stdout,stderr,error}` shape. Reuses every Stage A/B helper from the shipped sync engine (scaffoldScratchRoom, buildStage*, parseEnvelope, renderFeedbackMarkdown, runGuardrails, resolveConfig) + populateRoom - zero re-implementation, zero new deps. Adds exactly one param beyond runOne's: an optional `onStage(stageName)` progress callback, each call try/catch-wrapped so a throwing callback can never alter control flow. File-header stability contract names the exhaustive reason-code set as a documented breaking-change surface.
+- **`lib/memory/huji-run-one-async-parity.test.cjs` (net-new, D14 CI gate):** stubs a fake `claude` on PATH (branching on the exact Stage B `-p` value, since the Stage A intake prompt itself contains the substring `PWS_grading`) and proves runOne and runOneAsync return structurally IDENTICAL `{ok,reason,detail}` envelopes for an injected Stage A failure (`stageA_nonzero`) AND an injected Stage B failure (`stageB_nonzero`). Caller-side audit asserts the batch stays on the sync runOne and no lib/mcp file bypasses the async contract. Wired as a new guarded D14 `run_if` leg in `tests/run-all-229.sh`: **`bash tests/run-all-229.sh` -> PASS=10 FAIL=0 SKIP=0.**
+- **`scripts/huji-pin-smoketest.cjs` (net-new) RAN FOR REAL:** verified live that the external repo's README-documented pin `v1.15.2` does NOT carry the PWS_grading recipe (STALE), that the recipe first appears at `v1.15.3-beta.22`, and that `claude --plugin-dir <v1.15.3-beta.26 checkout>` resolves `/mos:pipeline PWS_grading` from a scratch dir OUTSIDE this repo. Verdict **RESOLVED** - proven from the model output plus `permission_denials` (the command's pipeline-file tool attempts: `checkout/pipelines/PWS_grading/CHAIN.md`), robust to a turn/budget cap that emptied the result field. Findings in `229-10-PIN-SMOKETEST.md`, not hand-written.
+- **Two execution fixes (no scope change, both root-caused):** (1) the parity fake first misdetected Stage A as Stage B via a `PWS_grading` substring match - fixed to exact-arg match. (2) the pin classifier first reported a false UNRESOLVED on a capped empty `result` - fixed to classify over model output + permission_denials.
+- **Concurrent-session guard:** shared `main`; `git branch --show-current` = `main` verified. `gsd-tools` not on PATH; STATE.md updated by MANUAL ADDITIVE LOG APPEND, frontmatter progress counters left UNTOUCHED (anti-clobber precedent). Plan 10 COMPLETE 3/3.
+- **NEXT:** Plan 09's remaining human checkpoints (Tasks 2/3: Amnon verdict + git-tag before the 200-student batch). The external `mindrian-pitch-feedback-mcp` repo must re-pin off the stale v1.15.2 to a recipe-bearing tag - no stable (non-beta) tag carries PWS_grading yet, which is exactly what 229-09 Task 3 closes.
 
 ## (2026-07-16) -- PHASE 229 Plan 09 THIRD fix-and-verify: DI-6 + DI-7 RESOLVED; Task 1 GATE-CLEAN (two real feedback artifacts pass the full guardrail battery); judge re-confirmed live Spearman 0.883. Only Tasks 2/3 (human checkpoints) remain. No fabrication.
 
@@ -1161,8 +1172,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 228
-Plan: Not started
+Phase: 229 (HUJI Pitch Feedback Module) — EXECUTING
+Plan: 1 of 10
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 

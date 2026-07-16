@@ -3123,12 +3123,20 @@ in-repo MCP sketch after the navigator moved MCP tool registration/job registry/
 G7-G10 to a separate standalone repo, github.com/jsagir/mindrian-pitch-feedback-mcp, pinned
 to a MindrianOS-Plugin git tag)*
 
-- [ ] 229-10-PLAN.md -- CASCADE-06 async twin of runOne (scripts/huji-run-one-async.cjs) +
+- [x] 229-10-PLAN.md -- CASCADE-06 async twin of runOne (scripts/huji-run-one-async.cjs) +
   D14 sync/async exit-code parity test + wired run-all-229.sh leg + a real, executed
-  `claude --plugin-dir` smoke test proving (or disproving) that a git-tag-pinned checkout
-  resolves `/mos:pipeline PWS_grading` from outside this repo's own working directory
-  (live-verified during planning: the external repo's documented pin, v1.15.2, does NOT
-  contain PWS_grading -- the recipe first ships at v1.15.3-beta.22) [D14]
+  `claude --plugin-dir` smoke test proving that a git-tag-pinned checkout resolves
+  `/mos:pipeline PWS_grading` from outside this repo's own working directory [D14] --
+  **COMPLETE 2026-07-16 (3/3 tasks).** `runOneAsync` awaits execFile instead of the
+  blocking sync spawn primitive (MCP-daemon-safe); `runClaudeAsync` isolates the one
+  translation point (execFile REJECTS on non-zero exit vs the sync primitive RETURNING
+  a .status field). D14 gate proves the two failure envelopes are structurally identical
+  for injected Stage A + Stage B failures (run-all-229 now PASS=10 FAIL=0 SKIP=0). Pin
+  smoke test RAN FOR REAL: verdict RESOLVED against v1.15.3-beta.26 (routing proven from
+  model output + permission_denials referencing checkout/pipelines/PWS_grading/CHAIN.md);
+  confirmed live the external repo's documented v1.15.2 pin is STALE (no recipe until
+  v1.15.3-beta.22). huji-run-one.cjs + huji-batch.cjs byte-for-byte untouched. Commits
+  ee9246b1, 894229a0, 62b6f8f8. See 229-10-SUMMARY.md + 229-10-PIN-SMOKETEST.md.
 
 ---
 
