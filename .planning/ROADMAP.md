@@ -3092,7 +3092,7 @@ Plans:
 **Goal:** Turn each student diarized 5-minute pitch transcript into one Minto-structured formative feedback artifact, batch-orchestrated across 200+ HUJI submissions at a $4-5/unit ceiling, with local-only scoring (Brain read-only, generic handles per Canon Part 8) and a mandatory human calibration checkpoint. MindrianOS first paying job.
 **Requirements**: net-new business-opportunity phase; no REQUIREMENTS.md REQ-IDs mapped. Requirement axis = the AI-SPEC 10 evaluation dimensions D1-D10 (distributed across the plans) + the 5 build seams.
 **Depends on:** Phase 228
-**Plans:** 4/9 plans executed
+**Plans:** 4/10 plans executed
 Plans:
 **Wave 1**
 
@@ -3117,6 +3117,18 @@ Plans:
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [~] 229-09-PLAN.md -- Demo run + Amnon verdict checkpoint + HUJI calibration workshop [D6,D7] -- **DI-1..DI-7 ALL RESOLVED; Task 1 (pipeline half) now GATE-CLEAN (2026-07-16 third fix-and-verify); only the human checkpoints (Tasks 2/3) remain:** DI-7 fixed FIRST so the gate cannot lie - `extractQuotedSpans` now recognizes single-quoted (`'...'`) and curly-single spans with a boundary-aware grammar that excludes contraction/possessive apostrophes (widen the grammar, never loosen the check), plus PASS+FAIL selftest fixtures; proven non-vacuous by re-catching 3 previously hidden single-quoted misses in the old blocked study-app feedback (`1cf0b4da`). Then DI-6 fixed - the byte-verbatim discipline ported onto the Stage B feedback side (rubric-huji.md Section 3b + 04-structure-argument.md): no ellipsis joins, no cleaned disfluencies, and (follow-up `07c16867`) quote marks reserved EXCLUSIVELY for verbatim transcript spans after a live counterfactual quote `'a good team'` was caught (`1b5e5b99`). Both samples re-run end to end produce TWO genuinely gate-clean artifacts - **feedback-sample-1.md (SafeScan 7/10, 616w) + feedback-sample-2.md (study-app 8/10, 770w)** - each passing the FULL guardrail battery (G1 quote-grounding, G2 schema, G3 Part-8 hygiene, G4 model provenance, G6 Minto shape+length), opus-4-8 / haiku-4-5, local-anchors, under the $3 fuse ($1.60 / $1.87). Judge calibration re-confirmed live: Spearman 0.883 (>=0.7) PASS. run-all-229 stays PASS=9. A mid-run plugin install-swap (beta.25<->beta.24) twice made Stage B refuse (missing chain) rather than fabricate - reported honestly, clean grades taken only from settled runs. Nothing fabricated or force-passed. NEXT: Task 2 (hand the 2 artifacts to Amnon for the "better than a TA" verdict + Jonathan sign-offs) + Task 3 (embed approved anchors in rubric-huji Section 5, git-tag before the 200-student batch). See demo/DEMO-VERDICT.md + deferred-items.md (DI-1..DI-7).
+
+**Wave 6** *(additive, continues after Wave 5; scoped down from 229-AI-SPEC.md Section 3/4's
+in-repo MCP sketch after the navigator moved MCP tool registration/job registry/guardrails
+G7-G10 to a separate standalone repo, github.com/jsagir/mindrian-pitch-feedback-mcp, pinned
+to a MindrianOS-Plugin git tag)*
+
+- [ ] 229-10-PLAN.md -- CASCADE-06 async twin of runOne (scripts/huji-run-one-async.cjs) +
+  D14 sync/async exit-code parity test + wired run-all-229.sh leg + a real, executed
+  `claude --plugin-dir` smoke test proving (or disproving) that a git-tag-pinned checkout
+  resolves `/mos:pipeline PWS_grading` from outside this repo's own working directory
+  (live-verified during planning: the external repo's documented pin, v1.15.2, does NOT
+  contain PWS_grading -- the recipe first ships at v1.15.3-beta.22) [D14]
 
 ---
 
