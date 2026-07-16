@@ -379,6 +379,69 @@ function run() {
     }
   );
 
+  // ------------------------------------------------------------------
+  // Behavior 13 (Phase 219 upstream-metadata fix, the sibling of the
+  // props.name title fix): an ENTITY node (company/technology/market) carries
+  // no section/problem content of its own, so before this fix its section
+  // collapsed to the literal 'unknown' and every entity-entity opportunity
+  // statement read "unknown x unknown". The fix reuses the ALREADY-SHIPPED
+  // DESCRIBES edge (entity=source, memory_artifact=target carrying
+  // props.section):
+  //   (1) an entity with a DESCRIBES source artifact INHERITS that artifact's
+  //       real section (+ any present primary_problem/problems).
+  //   (2) an entity with no usable DESCRIBES source falls back to its entityType
+  //       (company/technology/market), NEVER 'unknown'.
+  //   (3) the forming edge's type rides through on convergesPairs so a
+  //       downstream bridge label can name the real relation.
+  // ------------------------------------------------------------------
+  withSubstrate(
+    [
+      // (1) entity WITH a DESCRIBES source artifact carrying a real section.
+      { id: 'E1', type: 'company', props: { name: 'Acme', entityType: 'company', evidenceTier: 'None' }, source_path: 'entity:sess:Acme', created_at: day(1) },
+      { id: 'ART1', type: 'memory_artifact', props: { section: 'business-model', primary_problem: 'go-to-market fit', problems: ['pricing', 'channel'] }, source_path: 'memory:business-model/entry:USER', created_at: day(2) },
+      // (2) entity with NO DESCRIBES source -> entityType fallback.
+      { id: 'E2', type: 'technology', props: { name: 'Widget', entityType: 'technology', evidenceTier: 'None' }, source_path: 'entity:sess:Widget', created_at: day(3) },
+      // (2b) entity whose DESCRIBES artifact has NO real section -> entityType fallback (never inherit 'unknown').
+      { id: 'E3', type: 'market', props: { name: 'BioMarket', entityType: 'market' }, source_path: 'entity:sess:BioMarket', created_at: day(4) },
+      { id: 'ART2', type: 'memory_artifact', props: {}, source_path: 'memory:no-section-entry:USER', created_at: day(5) },
+    ],
+    [
+      { source: 'E1', target: 'ART1', type: 'DESCRIBES' },
+      { source: 'E1', target: 'E2', type: 'COMPETES_WITH' },
+      { source: 'E3', target: 'ART2', type: 'DESCRIBES' },
+    ],
+    {},
+    function (sub) {
+      const e1 = sub.techMap.get('E1');
+      ok(e1 && e1.section === 'business-model', 'behavior 13: entity inherits section from its DESCRIBES source artifact (got ' + JSON.stringify(e1 && e1.section) + ')');
+      ok(e1 && e1.section !== 'unknown', 'behavior 13: inherited entity section is never the literal unknown');
+      ok(e1 && e1.primary_problem === 'go-to-market fit', 'behavior 13: entity inherits a present primary_problem from the artifact (got ' + JSON.stringify(e1 && e1.primary_problem) + ')');
+      ok(e1 && Array.isArray(e1.problems) && e1.problems.length === 2 && e1.problems[0] === 'pricing', 'behavior 13: entity inherits present problems from the artifact');
+
+      const e2 = sub.techMap.get('E2');
+      ok(e2 && e2.section === 'technology', 'behavior 13: entity with no DESCRIBES source falls back to entityType, not unknown (got ' + JSON.stringify(e2 && e2.section) + ')');
+
+      const e3 = sub.techMap.get('E3');
+      ok(e3 && e3.section === 'market', 'behavior 13: entity whose DESCRIBES artifact has an unknown section falls back to entityType (got ' + JSON.stringify(e3 && e3.section) + ')');
+
+      // (3) the COMPETES_WITH edge's type rides through on the entity-entity pair.
+      const pair = findPair(sub.convergesPairs, 'E1', 'E2');
+      ok(pair && pair.edge_type === 'COMPETES_WITH', 'behavior 13: entity-entity pair carries the forming relation edge type (got ' + JSON.stringify(pair && pair.edge_type) + ')');
+    }
+  );
+
+  // ------------------------------------------------------------------
+  // Behavior 14: entityTypeOf reads props.entityType ONLY (never row.type), so
+  // a non-entity node classifies as null and never triggers the fixup.
+  // ------------------------------------------------------------------
+  (function () {
+    const et = require(path.join(REPO_ROOT, 'lib/core/eureka/room-native-substrate.cjs'))._test.entityTypeOf;
+    ok(et({ entityType: 'company' }) === 'company', 'behavior 14: entityTypeOf returns the label for a valid entity node');
+    ok(et({ entityType: 'not-a-type' }) === null, 'behavior 14: entityTypeOf rejects an unknown entityType');
+    ok(et({ name: 'x' }) === null, 'behavior 14: entityTypeOf returns null for a node with no entityType');
+    ok(et({}) === null, 'behavior 14: entityTypeOf returns null for empty props');
+  }());
+
   if (FAIL > 0) {
     process.stderr.write('test-216-room-substrate: ' + FAIL + ' FAILED, ' + PASS + ' passed\n');
     process.exit(1);
