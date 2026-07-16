@@ -1281,6 +1281,22 @@
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
+      "command": "/mos:pws-brain",
+      "kind": "utility",
+      "surface": "navigator",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": "When you want to see how the experimental Aura Agent answers next to the production Brain, /mos:pws-brain runs the same methodology question through both and shows the answers side by side. An evaluation harness, not a production surface.",
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+    },
+    {
       "command": "/mos:qualify-opportunity",
       "kind": "utility",
       "surface": "navigator",

@@ -1813,6 +1813,12 @@
       "name": "/mos:publish"
     },
     {
+      "id": "command:/mos:pws-brain",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:pws-brain"
+    },
+    {
       "id": "command:/mos:qualify-opportunity",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
