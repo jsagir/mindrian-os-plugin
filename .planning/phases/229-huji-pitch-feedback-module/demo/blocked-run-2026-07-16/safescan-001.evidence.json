@@ -1,0 +1,67 @@
+{
+  "submission_id": "safescan-001",
+  "problem_claim": {
+    "stated": true,
+    "quote": "Food allergies are a big problem around the world. Restaurant kitchen cannot guarantee one hundred percent safe food, so diners are often afraid to trust the waiter.",
+    "timestamp": "0:10"
+  },
+  "value_proposition": {
+    "stated": true,
+    "quote": "SafeScan fixes it. It is a tiny device that tests your food right at the table and gives you a scientific answer in less than a minute."
+  },
+  "evidence_claims": [
+    {
+      "claim": "Primary use case and user benefit",
+      "quote": "Our goal is to help people with food allergies eat out safely with confidence.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Device operation process",
+      "quote": "Using it is very simple. Just three quick steps. First, put a small food sample in the capsule. Second, put the capsule inside the device. Third, check the app on your phone.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Core technology approach",
+      "quote": "The science inside uses smart light sensor. This technology detects even tiny traces of allergen proteins that the human eye cannot see.",
+      "evidenced": "asserted"
+    },
+    {
+      "claim": "Target allergen scope",
+      "quote": "We are focusing on the big nine food groups that causes almost all severe allergic reactions globally.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Strategic positioning",
+      "quote": "This is our strategic start where the need is most urgent.",
+      "evidenced": "asserted"
+    },
+    {
+      "claim": "Quality and affordability approach",
+      "quote": "We care about accuracy and affordability. We use high-quality testing materials to prevent mistakes, and we plan to scale production to keep costs low for the user.",
+      "evidenced": "asserted"
+    },
+    {
+      "claim": "Product roadmap phases",
+      "quote": "Our roadmap is clear. First, we'll finish our prototype and hardware validation. Next, we'll do user beta testing and then achieve market launch and certification.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Initial hiring plan",
+      "quote": "To build the product, our initial recruitment plan is to hire a hardware and biosensor engineer for the device and a mobile app developer for the software.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Later-stage hiring and roles",
+      "quote": "Later, as we grow, we'll bring in a safety expert for official health certifications and an operation manager to help us move to mass factory production.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Future research directions",
+      "quote": "In the future, our research will focus on developing all-in-one capsule, making the formulas last eighteen months without a fridge, expanding market analysis, and studying FDA compliance.",
+      "evidenced": "asserted"
+    }
+  ],
+  "self_identified_gaps": [],
+  "speaker_count": 1,
+  "language_notes": "One minor disfluency: \"We are focusing on the big nine food groups that causes\" (subject-verb agreement). Non-native English phrasing observed in several places: \"Restaurant kitchen cannot guarantee\" (article/preposition usage), \"we'll bring in\" (informal future tense). Diarization noise minimal; Speaker 1 is the single human presenter. Recording-system noise (Speaker 1 label at start) not counted as a separate presenter.\""
+}

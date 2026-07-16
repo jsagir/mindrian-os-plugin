@@ -1,0 +1,71 @@
+{
+  "submission_id": "study-app-001",
+  "problem_claim": {
+    "stated": true,
+    "quote": "Students often struggle with large amounts of study material and limited time.",
+    "timestamp": "0:22"
+  },
+  "value_proposition": {
+    "stated": true,
+    "quote": "My app solves this by breaking content into short summaries, flashcards, and quizzes that improve understanding and memory."
+  },
+  "evidence_claims": [
+    {
+      "claim": "Mobile learning app with three core features",
+      "quote": "my venture is a mobile learning app that helps students to study faster using short summaries and quizzes",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Prototype includes mobile interface with summaries, flashcards, and quizzes",
+      "quote": "The prototype would include a simple mobile interface with three main features: summaries, flashcards, and short quizzes after each topic.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Risk: low user engagement; mitigation: gamification with points and tracking",
+      "quote": "One risk is low user engagement, which I would solve by adding gamification like points and progressive tracking.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Risk: inaccurate content; mitigation: validation with experts or trusted sources",
+      "quote": "Another risk is inaccurate content, which would be handled by vali- validating materials with experts or trusted sources.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Critical tasks: data collection, content creation, app development, testing",
+      "quote": "The most surprising-- important tasks are data collection, content creation, app development, and testing.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Project timeline: 10 to 12 weeks",
+      "quote": "the project would take around ten to twelve weeks",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Critical path sequence: idea, content, development, testing, launch",
+      "quote": "The critical path is, uh, idea, content, development, testing, and launch.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Team composition: software developer, UX/UI designer, content creator",
+      "quote": "The initial team would include a software developer, a UX/UI designer, and a content creator.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Goal: make learning simpler, faster, and more effective for students",
+      "quote": "The goal is to make learning simpler, faster, and more effective for students.",
+      "evidenced": "evidenced"
+    },
+    {
+      "claim": "Design principle: easy and fast to use",
+      "quote": "It will be designed to be very easy and fast to use.",
+      "evidenced": "asserted"
+    }
+  ],
+  "self_identified_gaps": [
+    "deeper market research",
+    "competitor analysis",
+    "user testing"
+  ],
+  "speaker_count": 1,
+  "language_notes": "Disfluencies and self-corrections observed: (1) false start at 0:06 (\"I. My venture\"); (2) false start at 0:52 with hyphenated word (\"vali- validating\"); (3) false start at 1:12 with hyphenated phrase (\"The most surprising-- important tasks\"); (4) filler word at 1:12 (\"uh\"). These are transcription artifacts and machine diarization noise, not content weaknesses. Non-native English phrasing observed in natural cadence (\"which would be handled by\" instead of American-style \"we would handle by\"), consistent throughout and not a comprehension barrier."
+}
