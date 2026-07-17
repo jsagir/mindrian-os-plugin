@@ -43,16 +43,31 @@ function engineDecisionFixture() {
 (function testE3SlotContextThreaded() {
   process.stdout.write('Test 1 (E3): slotContext threaded into renderDial\n');
 
-  // Unit half: the pure helper resolves room_name + topic and degrades to {}.
+  // Unit half: the pure helper resolves header_room + topic and degrades to {}.
+  // reach-sensor-relevance-gap B1: the CURRENT room now fills `header_room` (the
+  // decision-gate header context label), NOT `room_name` -- `room_name` is reserved
+  // for the cross_room reach's genuinely DIFFERENT target, so cross_room can never
+  // borrow the current room into its slot (the borrow-from-self defect).
   const slots = ic.buildDialSlotContext(
     { relevantNodes: [{ id: 'Pricing Model' }] },
     '/home/user/rooms/my-room'
   );
-  ok(slots && slots.room_name === 'my-room', 'room_name resolves from roomDir basename');
+  ok(slots && slots.header_room === 'my-room', 'header_room resolves from roomDir basename (header context label)');
+  ok(slots && !('room_name' in slots), 'room_name is NOT the current room (no cross_room borrow-from-self)');
   ok(slots && slots.topic === 'Pricing Model', 'topic resolves from relevantNodes top entry');
   const emptySlots = ic.buildDialSlotContext(null, null);
   ok(emptySlots && Object.keys(emptySlots).length === 0, 'null input degrades to {}');
   ok(!('framework' in slots), 'framework slot is never set (egress-audited, composer-owned)');
+
+  // B1: a graph node that references a DIFFERENT room fills room_name with that
+  // genuinely different target (never the current room).
+  const xslots = ic.buildDialSlotContext(
+    { relevantNodes: [{ id: 'cross_room:pricing-peers' }] },
+    '/home/user/rooms/my-room'
+  );
+  ok(xslots && xslots.room_name === 'pricing-peers',
+    'a cross_room:<slug> node resolves room_name to the DIFFERENT target room');
+  ok(xslots && xslots.header_room === 'my-room', 'header_room stays the current room alongside a cross-room target');
 
   // Integration half: the engine arm passes that slotContext into renderDial.
   const orig = presenter.renderDial;

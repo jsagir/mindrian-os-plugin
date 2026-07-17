@@ -1095,21 +1095,78 @@ function pickNodeDisplayName(node) {
   return null;
 }
 
+// reach-sensor-relevance-gap B1 (root cause B): resolve a genuinely DIFFERENT
+// room for the cross_room reach's {room_name} slot from the live room context.
+// A cross-room reference in the graph is a node that names ANOTHER room, either
+// via a `room:<slug>` / `cross_room:<slug>` id or a `room` / `target_room` /
+// `cross_room` property (getNeighborhood surfaces such nodes on relevantNodes;
+// legD surfaces them on cortexNodes). Returns the FIRST target slug that differs
+// from the current room, else null. Pure + non-throwing.
+function resolveCrossRoomTargetSlug(roomContext, currentRoomName) {
+  try {
+    const rc = (roomContext && typeof roomContext === 'object') ? roomContext : null;
+    if (!rc) return null;
+    const current = (typeof currentRoomName === 'string') ? currentRoomName.toLowerCase() : null;
+    const pools = [];
+    if (Array.isArray(rc.relevantNodes)) pools.push(rc.relevantNodes);
+    if (Array.isArray(rc.cortexNodes)) pools.push(rc.cortexNodes);
+    for (const pool of pools) {
+      for (const node of pool) {
+        if (!node || typeof node !== 'object') continue;
+        let cand = null;
+        // id form: 'room:<slug>' or 'cross_room:<slug>'.
+        if (typeof node.id === 'string') {
+          const m = node.id.match(/^(?:room|cross_room):([a-z0-9][a-z0-9_-]{0,63})$/i);
+          if (m) cand = m[1];
+        }
+        // property form: an explicit room reference.
+        if (!cand && node.properties && typeof node.properties === 'object') {
+          const p = node.properties;
+          const ref = (typeof p.target_room === 'string' && p.target_room)
+            || (typeof p.cross_room === 'string' && p.cross_room)
+            || (typeof p.room === 'string' && p.room)
+            || null;
+          if (ref) cand = ref;
+        }
+        if (typeof cand === 'string' && cand.length > 0
+            && (!current || cand.toLowerCase() !== current)) {
+          return cand;
+        }
+      }
+    }
+    return null;
+  } catch (_e) {
+    return null;
+  }
+}
+
 // Phase 209-01 (E3): derive the flat composeLabel slot map from the LIVE room
 // context so the dial rows resolve {topic}/{room_name} instead of always
 // degrading to the ELEVATION_DEFAULTS fallback (the RC-3 defect: renderDial was
 // called with empty opts). Pure + non-throwing: any malformed input yields {}.
-//   room_name <- path.basename(roomDir) when roomDir is a non-empty string
-//   topic     <- the top relevantNodes display-name, else the first cortexNodes
-//                display-name; the key is OMITTED entirely when neither resolves
+//   header_room <- path.basename(roomDir): the CURRENT room, for the decision-gate
+//                  header context label ONLY (dial-presenter reads header_room).
+//   room_name   <- reach-sensor-relevance-gap B1: the cross_room reach's slot is a
+//                  genuinely DIFFERENT room resolved from the graph, NOT the current
+//                  room. OMITTED when no different room resolves, so cross_room can
+//                  never "borrow from self" (the observed bug); the relevance gate
+//                  then suppresses the target-less cross_room row.
+//   topic       <- the top relevantNodes display-name, else the first cortexNodes
+//                  display-name; the key is OMITTED entirely when neither resolves.
 // The {framework} slot is deliberately NOT set here (Part 8: the egress-audited
 // slot stays owned by dial-label-composer's auditFrameworkSlot chokepoint).
 function buildDialSlotContext(roomContext, roomDir) {
   try {
     const slots = {};
+    let currentRoomName = null;
     if (typeof roomDir === 'string' && roomDir.length > 0) {
       const base = path.basename(roomDir);
-      if (base && base.length > 0) slots.room_name = base;
+      if (base && base.length > 0) {
+        currentRoomName = base;
+        // header_room: the CURRENT room, for the decision-gate header ONLY. This
+        // REPLACES the old room_name=basename that cross_room borrowed from self.
+        slots.header_room = base;
+      }
     }
     const rc = (roomContext && typeof roomContext === 'object') ? roomContext : null;
     if (rc) {
@@ -1119,6 +1176,14 @@ function buildDialSlotContext(roomContext, roomDir) {
         ? rc.cortexNodes[0] : null;
       const topic = pickNodeDisplayName(topNode) || pickNodeDisplayName(cortexNode);
       if (typeof topic === 'string' && topic.length > 0) slots.topic = topic;
+    }
+    // B1: cross_room's {room_name} is a genuinely different, relevant room -- never
+    // the current room. OMITTED when none resolves (the relevance gate suppresses
+    // the target-less cross_room; composeLabel would otherwise degrade it to the
+    // lateral elevation default, never borrow-from-self).
+    const crossTarget = resolveCrossRoomTargetSlug(rc, currentRoomName);
+    if (typeof crossTarget === 'string' && crossTarget.length > 0) {
+      slots.room_name = crossTarget;
     }
     return slots;
   } catch (_e) {
@@ -1174,18 +1239,56 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
     const tierMode = (typeof trace.brain_md_tier_mode === 'string')
       ? trace.brain_md_tier_mode : 'tier_0';
 
+    // Phase 209-01 (E3): resolve the LIVE room-context slot map so the dial rows
+    // resolve {topic}/{room_name} instead of degrading to ELEVATION_DEFAULTS.
+    // reach-sensor-relevance-gap B1: this is resolved BEFORE buildReachList so the
+    // structural relevance gate can read the cross_room slot content and drop the
+    // reach BEFORE it ranks. buildDialSlotContext never throws and returns {} on
+    // absent context.
+    const slotContext = buildDialSlotContext(ctx && ctx.roomContext, ctx && ctx.roomDir);
+
+    // reach-sensor-relevance-gap B1 (root cause B): the STRUCTURAL relevance gate.
+    // Compare the live turn tokens to each cross-room-class reach's resolved slot
+    // content and DROP the off-topic ones through the SAME suppressedReachIds path
+    // buildReachList already honors -- the seam stays pure (buildReachList does the
+    // drop; this seam never mutates the reach bank or the frozen gate). No-op when
+    // there is no live turn (unit tests without a turn render byte-identically).
+    let gatedSuppressed = suppressedReachIds;
+    try {
+      const relevanceGate = require(
+        path.join(__dirname, '..', 'lib', 'hmi', 'reach-relevance-gate.cjs')
+      );
+      const liveTurnText = (ctx && typeof ctx.liveTurnText === 'string' && ctx.liveTurnText.length > 0)
+        ? ctx.liveTurnText
+        : STDIN_MESSAGE;
+      const currentRoomName = (ctx && typeof ctx.roomDir === 'string' && ctx.roomDir.length > 0)
+        ? path.basename(ctx.roomDir)
+        : null;
+      const offTopic = relevanceGate.computeOffTopicReachIds({
+        slotContext: slotContext,
+        liveTurnText: liveTurnText,
+        currentRoomName: currentRoomName,
+      });
+      if (Array.isArray(offTopic) && offTopic.length > 0) {
+        const merged = suppressedReachIds.slice();
+        for (const id of offTopic) {
+          if (merged.indexOf(id) === -1) merged.push(id);
+        }
+        gatedSuppressed = merged;
+      }
+    } catch (_e) {
+      // Fail-open: a gate fault degrades to the un-gated suppression set.
+      gatedSuppressed = suppressedReachIds;
+    }
+
     const reachList = orchestrator.buildReachList({
       tierMode: tierMode,
       reachScores: reachScores,
-      suppressedReachIds: suppressedReachIds,
+      suppressedReachIds: gatedSuppressed,
     });
 
-    // Phase 209-01 (E3): thread the LIVE room-context slot map so the dial rows
-    // resolve {topic}/{room_name} instead of degrading to ELEVATION_DEFAULTS.
-    // buildDialSlotContext never throws and returns {} on absent context, so a
-    // cold room renders byte-identically to the prior empty-opts behavior.
     const rendered = presenter.renderDial(reachList, {
-      slotContext: buildDialSlotContext(ctx && ctx.roomContext, ctx && ctx.roomDir),
+      slotContext: slotContext,
     });
     if (rendered && typeof rendered.text === 'string' && rendered.text.length > 0) {
       // 150.5-02 (DIAL-ATOM-01): thread the AskUserQuestion contract through
