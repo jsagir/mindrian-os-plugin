@@ -1,7 +1,52 @@
 ## [Unreleased] -- v1.15.3-beta.27 (in progress)
 
 ### Added
-- 
+
+- **Eureka: killed two distinct causes of unusable portfolio-scan output, plus a warm-cache
+  MCP path.** Live-verified on two independently-chosen real rooms
+  (`aion-eureka-synergy`, `iia-deeptech-centers`), not just fixture-green.
+
+  - **Seam 2 (statement-metadata gap, RESOLVED).** Every entity-entity Opportunity Statement
+    was rendering the literal placeholder text "unknown x unknown approach to a unknown x
+    unknown cross-domain bridge" instead of a real mechanism. Root cause: Phase 218 wired
+    entity nodes (company/technology/market) into the 215 opportunity-statement pipeline but
+    patched only the `title` slot for that node class, leaving `section`/`primary_problem`/
+    `problems`/`shared_problems` falling through to content-node defaults entity nodes
+    structurally can't satisfy. Fixed in `lib/core/eureka/room-native-substrate.cjs`: the
+    entity-node branch now inherits `section` from its already-shipped `DESCRIBES` edge to its
+    source memory_artifact (55/56 entities have one; pure composition over an existing edge,
+    sibling of the prior title fix), with an `entityType` fallback for the remainder, plus a
+    relation-edge-typed bridge label (`competes-with`/`uses-component`/`supplies-to`) in
+    `scripts/eureka-portfolio-report.cjs` instead of the generic phrase. 22/25 -> 0/25
+    "unknown x unknown" statements on both proving rooms.
+  - **Seam 3 (candidate-generation gap, RESOLVED).** Real content was getting ranked against
+    its own containing section (`problem-definition` x `problem-definition`) because `Section`
+    container nodes -- the room's own top-level folder nodes -- were admitted as pairing
+    candidates. The critic already had a correctly-firing rejection tag for this
+    (`domain_swap_invariant`) but nothing upstream excluded these pairs before they consumed
+    ranked-list slots. Fixed with an additive either-endpoint `Section` exclusion at the same
+    generation-layer insertion point the 260715-0nj scaffold-pair fix established (Reuse
+    Before Build), with an honest `container_pairs_excluded` counter surfaced in provenance.
+    1,575 degenerate pairs (9.8% of the candidate set) excluded on `iia-deeptech-centers`;
+    proven a true no-op on `aion-eureka-synergy` (0 Section nodes there) by output diff, not
+    by assertion.
+  - **New: `eureka-run`/`eureka-status`/`eureka-report` on the `intelligence` MCP router
+    tool.** Calls the same governed dispatcher (`scripts/eureka-command.cjs` `main(argv)`)
+    in-process instead of spawning a fresh child process per call, so
+    `embedding-spine.cjs`'s existing module-level encoder cache stays warm across scans on
+    the Phase 198 resident daemon (spiked: same-process call 2 is 0ms vs. call 1's 179ms,
+    unmodified cache mechanism). Transport-gated per call: in-process on the http resident
+    daemon; detached child on stdio, since `process.stdout` is the JSON-RPC framing channel
+    there and the scan writes progress to stdout. Registered on the `intelligence` tool's
+    enum only, outside the 65-command CLI/MCP parity array (mirrors the `eureka_critic`
+    precedent). `/mos:eureka`'s CLI behavior and output contract are unchanged (verified
+    byte-identical).
+
+  Flagged, deliberately out of scope for this pass: Seam 1 (entity-extraction noise --
+  generic-noun and near-duplicate entities still reach the ranker on `aion-eureka-synergy`,
+  tracked separately) and a newly-observed WhitespaceZone-dominated pairing pattern on
+  `iia-deeptech-centers` (AHP composite doesn't differentiate a room where ~87% of nodes are
+  whitespace hypotheses) -- both real, both future work, neither papered over.
 
 ## [1.15.3-beta.26] - 2026-07-16
 
