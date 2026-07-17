@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "gsd-core-command-surface-gaps"
 issue_id: ""
@@ -76,4 +76,4 @@ None of these blocked MindrianOS-Plugin's Phase 230 -- each was worked around li
 
 ## Next action
 
-Navigator decides whether to file this at `github.com/open-gsd/gsd-core/issues` (via `gh issue create`, this session has `gh` CLI access) or keep it as a local reference only.
+Filed: https://github.com/open-gsd/gsd-core/issues/2390 (2026-07-17, via `gh issue create`, navigator-approved). No further action from this repo -- upstream's call from here.
