@@ -617,6 +617,11 @@ async function runSelftest() {
 //   --out <dir>               out directory (default PHASE_OUT_DIR)
 //   --probe-timeout-unit <s>  force a 1ms timeout on that skill's first unit (D5)
 //   --probe-mark              record the induced probe reason as 'induced_probe'
+//   --budget-per-query <usd>  per-judge-call --max-budget-usd fuse (default 0.05).
+//                             The default is too low for the real 124-skill roster
+//                             (a cold judge call costs ~0.16 on cache-creation), so a
+//                             live smoke run must raise it or every unit dies
+//                             error_max_budget_usd -> nonzero_exit (Plan 07 deviation).
 // --------------------------------------------------------------------------
 async function main(argv) {
   const args = argv.slice(2);
@@ -640,19 +645,28 @@ async function main(argv) {
   if (pIdx >= 0 && args[pIdx + 1]) probeTimeoutUnit = args[pIdx + 1];
   const probeMark = args.includes('--probe-mark');
 
+  let budgetPerQueryUsd;
+  const bIdx = args.indexOf('--budget-per-query');
+  if (bIdx >= 0 && args[bIdx + 1]) {
+    const b = parseFloat(args[bIdx + 1]);
+    if (!Number.isNaN(b) && b > 0) budgetPerQueryUsd = b;
+  }
+  const funnelConfig = { concurrency };
+  if (budgetPerQueryUsd !== undefined) funnelConfig.budgetPerQueryUsd = budgetPerQueryUsd;
+
   let inventory = [];
   try { inventory = loadInventory(outDir); } catch (_e) { inventory = []; }
 
   if (args.includes('--dry-run')) {
     const rosterText = buildRosterStubs(inventory);
     const sampleSkill = (skills && skills[0]) || 'sample-skill';
-    const vec = buildJudgeArgs(rosterText, 'sample query for ' + sampleSkill, sampleSkill, { concurrency });
-    console.log('# dry-run funnel judge skills=' + (skills ? skills.join(',') : 'all') + ' concurrency=' + resolveFunnelConfig({ concurrency }).concurrency);
+    const vec = buildJudgeArgs(rosterText, 'sample query for ' + sampleSkill, sampleSkill, funnelConfig);
+    console.log('# dry-run funnel judge skills=' + (skills ? skills.join(',') : 'all') + ' concurrency=' + resolveFunnelConfig(funnelConfig).concurrency);
     console.log(JSON.stringify(vec));
     return;
   }
 
-  const run = await runFunnel({ inventory, config: { concurrency }, outDir, skills, probeTimeoutUnit, probeMark });
+  const run = await runFunnel({ inventory, config: funnelConfig, outDir, skills, probeTimeoutUnit, probeMark });
   console.log('funnel: spawned=' + run.reconciliation.spawned + ' ok=' + run.reconciliation.ok + ' not_evaluated=' + run.reconciliation.not_evaluated);
   if (!run.reconcileOk) {
     console.error('FATAL skillopt-funnel: reconciliation identity violated (spawned != ok + not_evaluated) - D5 breach.');
