@@ -467,6 +467,7 @@ function renderReport(ctx) {
   L.push('| Cohort techs (room-indexed, run time) | ' + p.cohort_techs + ' |');
   L.push('| Pairs scored | ' + p.pairs_scored + ' |');
   L.push('| Scaffold pairs excluded (both endpoints memory_artifact / Artifact) | ' + p.scaffold_pairs_excluded + ' |');
+  L.push('| Container pairs excluded (either endpoint a Section folder node) | ' + p.container_pairs_excluded + ' |');
   L.push('| Pairs skipped (Part 8 figure-guard) | ' + p.figure_guard_skipped + ' |');
   L.push('| Critic resolution (GAP-1 async pass) | ' + p.critic_resolution + ' |');
   L.push('| Honest nouns (graph meta, verbatim) | ' + String(p.honest_nouns).replace(/\|/g, '/') + ' |');
@@ -1013,24 +1014,46 @@ async function main(argv) {
       }
     }
 
-    // (4b) Both-scaffold candidate-pair exclusion (quick task 260715-0nj). A
+    // (4b) Candidate-pair exclusion pass (quick task 260715-0nj + Seam 3). A
     // single post-enumeration pass, chosen over per-mode inline checks so ALL
     // THREE modes (graph, full, room) are covered at exactly one insertion
-    // point. A pair is excluded when BOTH endpoints are members of
-    // SCAFFOLD_NODE_TYPES (memory_artifact / Artifact) - structural scaffolding,
-    // never a real cross-domain opportunity (the opportunity-harvest.cjs
-    // lines 519-521 precedent, extended to the ranking candidate set). Pairs
-    // with only ONE scaffold side are NOT touched (narrow scope, per the
-    // 260714-hzx disposition). Both endpoints are always present in `indexed`
-    // for scoreable pairs, but guard defensively: a missing indexed entry means
-    // the pair is NOT treated as scaffold. Exclusions are counted honestly and
-    // surfaced in provenance (never a silent suppression).
+    // point. Two ADDITIVE exclusion classes share this one pass:
+    //   (a) container (Seam 3): EITHER endpoint is a Section folder node - never a
+    //       valid opportunity endpoint (see CONTAINER_NODE_TYPES). Checked FIRST.
+    //   (b) both-scaffold (260715-0nj): BOTH endpoints are members of
+    //       SCAFFOLD_NODE_TYPES (memory_artifact / Artifact) - structural
+    //       scaffolding, never a real cross-domain opportunity (the
+    //       opportunity-harvest.cjs lines 519-521 precedent, extended to the
+    //       ranking candidate set). Pairs with only ONE scaffold side are NOT
+    //       touched (narrow scope, per the 260714-hzx disposition).
+    // Both endpoints are always present in `indexed` for scoreable pairs, but
+    // guard defensively: a missing indexed entry means the pair is NOT treated as
+    // container or scaffold. Each class is counted honestly and surfaced in
+    // provenance (never a silent suppression).
     let scaffoldPairsExcluded = 0;
+    // Seam 3 (RCA eureka-domain-swap-invariant): the container-node exclusion, an
+    // ADDITIVE branch at this same step-4b insertion point. See CONTAINER_NODE_TYPES
+    // for the full rationale. Counted separately and surfaced in provenance, never a
+    // silent suppression.
+    let containerPairsExcluded = 0;
     const filteredPairs = [];
     for (let i = 0; i < pairsToScore.length; i += 1) {
       const cp = pairsToScore[i];
       const na = indexed.get(cp.a);
       const nb = indexed.get(cp.b);
+      // Container exclusion (EITHER endpoint). A Section node is a folder label,
+      // never real content, so it is never a valid endpoint on either side - unlike
+      // the both-endpoint scaffold rule below, where a single Artifact is still
+      // legitimate content. This deliberate scope difference removes the whole
+      // degenerate class (a content node ranked against its OWN containing section,
+      // plus Section x Section folder-label pairings) that the critic otherwise
+      // catches only as domain_swap_invariant after it has consumed a ranked slot.
+      const aContainer = !!(na && CONTAINER_NODE_TYPES.has(na.type));
+      const bContainer = !!(nb && CONTAINER_NODE_TYPES.has(nb.type));
+      if (aContainer || bContainer) {
+        containerPairsExcluded += 1;
+        continue;
+      }
       const aScaffold = !!(na && SCAFFOLD_NODE_TYPES.has(na.type));
       const bScaffold = !!(nb && SCAFFOLD_NODE_TYPES.has(nb.type));
       if (aScaffold && bScaffold) {
@@ -1235,6 +1258,10 @@ async function main(argv) {
       // Quick task 260715-0nj: how many both-scaffold candidate pairs the filter
       // removed before scoring. Read from the run, never a literal (honest nouns).
       scaffold_pairs_excluded: scaffoldPairsExcluded,
+      // Seam 3 (RCA eureka-domain-swap-invariant): how many container-involving
+      // candidate pairs (either endpoint a Section folder node) the filter removed
+      // before scoring. Read from the run, never a literal.
+      container_pairs_excluded: containerPairsExcluded,
       figure_guard_skipped: part8Skipped,
       // GAP-1: how the pending critic verdicts were (or were not) resolved.
       critic_resolution: opts.offline
@@ -1396,6 +1423,26 @@ function passesBankPredicate(entry, mode) {
 // refilled the top-25 (18/25 = 72.0 percent structural share). Frozen so no
 // caller can mutate the family at run time.
 const SCAFFOLD_NODE_TYPES = Object.freeze(new Set(['memory_artifact', 'Artifact']));
+
+// The container node-type family (Seam 3, RCA eureka-domain-swap-invariant). This
+// EXTENDS the 260715-0nj exclusion at the SAME step-4b insertion point - it is not
+// a second mechanism. A `Section` node is one of the room's OWN top-level folder
+// nodes (older-schema rooms materialized each top-level folder as a graph node);
+// its only text is the folder slug (props.name), so the encoder embeds it and it
+// enters the pairing pool. A real content node filed inside problem-definition/
+// then gets paired against the problem-definition FOLDER node itself: both sides
+// derive the same slug ("problem-definition x problem-definition") and the critic
+// correctly fires domain_swap_invariant, but only AFTER the degenerate pair has
+// consumed a ranked-list slot. Nothing upstream dropped it.
+//
+// SCOPE DIFFERENCE FROM THE SCAFFOLD PRECEDENT (deliberate, not an inconsistency):
+// the scaffold rule excludes a pair only when BOTH endpoints are scaffold, because
+// a single Artifact endpoint still carries real filed content (title + body) and a
+// one-Artifact pair is legitimate. A Section carries no content of its own - it is
+// only a folder label - so it is NEVER a valid opportunity endpoint on EITHER side.
+// Hence container exclusion is EITHER-endpoint, scaffold exclusion is both-endpoint.
+// Frozen so no caller can mutate the family at run time.
+const CONTAINER_NODE_TYPES = Object.freeze(new Set(['Section']));
 
 // The 216 field contract (test-216-field-contract.cjs precedent): a banked
 // node's props.section must be a REAL domain slug or the honest 'unknown',
