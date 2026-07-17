@@ -350,16 +350,555 @@ function makeTriggerUnitRecord(o) {
 }
 
 // ==========================================================================
-// PART 2 (Task 2) is appended below this line: buildScratchCheckout,
-// runTriggerQuery, runLoopForSkill, best-by-validation selection.
+// PART 2 (Task 2): scratch-checkout revision loop + best-by-validation selection.
 // ==========================================================================
 
-/* eslint-disable no-unused-vars */
-// Placeholders wired in Task 2 (kept exported so downstream requires are stable).
-let runTriggerQuery = null;
-let runLoopForSkill = null;
-let buildScratchCheckout = null;
-/* eslint-enable no-unused-vars */
+const matter = require('gray-matter');
+
+// --------------------------------------------------------------------------
+// runPool - dependency-free bounded concurrency pool (copied verbatim from
+// huji-batch.cjs:200-229). Used for the runsPerQuery fan-out. getLimit re-read each
+// iteration; never an unbounded parallel-all (429-storm guard, Pitfall 5).
+// --------------------------------------------------------------------------
+async function runPool({ items, getLimit, worker, onSettle }) {
+  let idx = 0;
+  const running = [];
+  const results = [];
+  const limitNow = () => Math.max(0, getLimit());
+  while (idx < items.length || running.length > 0) {
+    while (idx < items.length && running.length < limitNow()) {
+      const item = items[idx++];
+      const entry = { done: false };
+      entry.promise = (async () => {
+        try { entry.settled = { item, res: await worker(item) }; }
+        catch (err) { entry.settled = { item, err }; }
+        entry.done = true;
+        return entry.settled;
+      })();
+      running.push(entry);
+    }
+    if (running.length === 0) break;
+    await Promise.race(running.map((e) => e.promise));
+    for (let i = running.length - 1; i >= 0; i--) {
+      if (running[i].done) {
+        const settled = running[i].settled;
+        results.push(settled);
+        running.splice(i, 1);
+        if (onSettle) onSettle(settled);
+      }
+    }
+  }
+  return results;
+}
+
+// The plugin surface a --plugin-dir checkout needs to (a) load the full skill roster
+// AND (b) run the MCP methodology server that actually fires a skill (per the live
+// capture, the fire is mcp__plugin_mos_mindrian-os__methodology). node_modules is
+// symlinked, not copied, so the MCP server resolves its deps without a heavy copy.
+const SCRATCH_COPY_ENTRIES = Object.freeze([
+  '.claude-plugin', '.mcp.json', 'skills', 'commands', 'agents', 'hooks',
+  'bin', 'lib', 'scripts', 'references', 'data', 'pipelines', 'package.json',
+]);
+const SCRATCH_SYMLINK_ENTRIES = Object.freeze(['node_modules']);
+
+// --------------------------------------------------------------------------
+// buildScratchCheckout(skill, description, scratchDir, opts) - copy the plugin
+// skill-loading + MCP surface into out/scratch/<skill>/ (assertUnderOut FIRST, fail
+// closed - the real skills/ tree is NEVER a write target, CFM4/D6), then rewrite
+// ONLY that skill's SKILL.md description frontmatter inside the scratch copy. The
+// full roster is present so progressive disclosure runs under real conditions.
+// --------------------------------------------------------------------------
+function buildScratchCheckout(skill, description, scratchDir, opts) {
+  const o = opts || {};
+  const sourceRoot = o.sourceRoot || REPO_ROOT;
+  const outRoot = o.outRoot || path.join(REPO_ROOT, PHASE_OUT_DIR);
+
+  // Containment: scratchDir MUST be under the out sandbox. This structurally forbids
+  // ever pointing the checkout at the shipped skills/ or scripts/ tree.
+  const under = assertUnderOut(scratchDir, outRoot);
+  if (!under.ok) return { ok: false, reason: 'scratch_outside_out', scratchDir };
+
+  const skillDir = o.skillDir || skill; // inventory dir == skill name in this repo
+  if (o.copyImpl) {
+    // Injected copy for the selftest (no real 100MB clone); still exercises the guard + rewrite.
+    o.copyImpl(sourceRoot, scratchDir);
+  } else {
+    fs.mkdirSync(scratchDir, { recursive: true });
+    for (const entry of SCRATCH_COPY_ENTRIES) {
+      const src = path.join(sourceRoot, entry);
+      if (!fs.existsSync(src)) continue;
+      fs.cpSync(src, path.join(scratchDir, entry), { recursive: true });
+    }
+    for (const entry of SCRATCH_SYMLINK_ENTRIES) {
+      const src = path.join(sourceRoot, entry);
+      const dst = path.join(scratchDir, entry);
+      if (fs.existsSync(src) && !fs.existsSync(dst)) {
+        try { fs.symlinkSync(src, dst); } catch (_e) { /* symlink optional */ }
+      }
+    }
+  }
+
+  // Rewrite ONLY the candidate skill's description in the scratch copy.
+  const skillMdPath = path.join(scratchDir, 'skills', skillDir, 'SKILL.md');
+  const guard = assertUnderOut(skillMdPath, outRoot);
+  if (!guard.ok) return { ok: false, reason: 'skill_md_outside_out', skillMdPath };
+  if (fs.existsSync(skillMdPath) && description != null) {
+    const parsed = matter(fs.readFileSync(skillMdPath, 'utf8'));
+    parsed.data.description = description;
+    writeAtomic(skillMdPath, matter.stringify(parsed.content, parsed.data));
+  }
+  return { ok: true, scratchDir, skillMdPath };
+}
+
+// --------------------------------------------------------------------------
+// runTriggerQuery({ skill, query, scratchDir, config, iteration, split, spawnImpl })
+// - measure ONE query: runsPerQuery real stream-json spawns against the scratch
+// checkout, each detected via detectSkillFire(jsonl, skill). assertStreamJsonArgs
+// preflights every arg vector (D7). A spawn/timeout/corrupt-JSONL run lands as a
+// not_evaluated trigger UnitRecord and is EXCLUDED from both numerator AND
+// denominator; the rate is over completed runs only, never inflated (D5/D11).
+// --------------------------------------------------------------------------
+async function runTriggerQuery(opts) {
+  const o = opts || {};
+  const cfg = resolveTriggerConfig(o.config);
+  const spawn = o.spawnImpl || defaultSpawn;
+  const runs = cfg.runsPerQuery;
+  const items = Array.from({ length: runs }, (_v, i) => i);
+
+  let fires = 0;
+  let completed = 0;
+  const notEvaluated = [];
+
+  const worker = async (runIdx) => {
+    const args = buildTriggerArgs(o.query, o.scratchDir, cfg);
+    const guard = assertStreamJsonArgs(args);
+    if (!guard.ok) return { runIdx, notEvaluated: true, reason: 'schema_fail' };
+    const res = spawn(args, cfg.timeoutMs);
+    if (!res || res.error) return { runIdx, notEvaluated: true, reason: 'spawn_failed' };
+    if (res.signal === 'SIGTERM') return { runIdx, notEvaluated: true, reason: 'timeout' };
+    if (typeof res.status === 'number' && res.status !== 0) return { runIdx, notEvaluated: true, reason: 'nonzero_exit' };
+    const det = detectSkillFire(String(res.stdout || ''), o.skill);
+    if (!det.ok) return { runIdx, notEvaluated: true, reason: 'empty_envelope' }; // jsonl_corrupt -> not_evaluated, never a silent no-fire
+    return { runIdx, notEvaluated: false, fired: det.fired };
+  };
+
+  const onSettle = (settled) => {
+    const r = settled.res;
+    if (!r) return;
+    if (r.notEvaluated) { notEvaluated.push(r); return; }
+    completed += 1;
+    if (r.fired) fires += 1;
+  };
+
+  await runPool({ items, getLimit: () => cfg.concurrency, worker, onSettle });
+
+  const trigger_rate = completed > 0 ? fires / completed : 0;
+  return {
+    skill: o.skill,
+    query: o.query,
+    split: o.split || 'train',
+    iteration: typeof o.iteration === 'number' ? o.iteration : 0,
+    runs,
+    fires,
+    completed_runs: completed,
+    not_evaluated_runs: notEvaluated.length,
+    trigger_rate,
+  };
+}
+
+// A query PASSES depending on its kind: a should_trigger query needs the skill under
+// test to fire in at least 2/3 of the completed runs; a should_not_trigger query
+// needs it to fire in ZERO runs (do-no-harm to a sibling, D3).
+const SHOULD_TRIGGER_PASS_RATE = 2 / 3;
+function queryPasses(kind, triggerRate) {
+  if (kind === 'should_not_trigger') return triggerRate === 0;
+  return triggerRate >= SHOULD_TRIGGER_PASS_RATE;
+}
+
+// --------------------------------------------------------------------------
+// buildRevisePrompt / buildReviseArgs - the revision-subagent spawn. TRAIN failures
+// ONLY in -p; the frozen rubric in --append-system-prompt-file; inline
+// DescriptionRevisionSchema; --allowedTools Read; --max-turns 2. The prompt NEVER
+// contains a validation query string (overfitting guard, AI-SPEC 1b Dimension 3).
+// --------------------------------------------------------------------------
+function buildRevisePrompt(o) {
+  const lines = [
+    'SKILL: ' + o.skill,
+    'CURRENT DESCRIPTION: ' + (o.currentDescription || ''),
+    '',
+    'NAMED SIBLING SKILLS (make this skill distinct from these):',
+  ];
+  for (const s of (o.siblings || [])) lines.push('- ' + s.skill + ': ' + s.description);
+  lines.push('');
+  lines.push('TRAIN-SET FAILURES (optimize against these ONLY):');
+  for (const f of (o.trainFailures || [])) {
+    lines.push('- query: ' + f.query + ' | should fire: ' + (f.expected == null ? 'none' : f.expected) + ' | actually fired: ' + (f.actually_fired == null ? 'nothing' : f.actually_fired));
+  }
+  lines.push('');
+  lines.push('Rewrite the description per the rubric. Return only the JSON the schema describes.');
+  return lines.join('\n');
+}
+
+function buildReviseArgs(o, config) {
+  const cfg = resolveTriggerConfig(config);
+  return [
+    '-p', buildRevisePrompt(o),
+    '--append-system-prompt-file', cfg.reviseRubricPath,
+    '--plugin-dir', cfg.pluginDir,
+    '--model', cfg.reviseModel,
+    '--output-format', 'json',
+    '--json-schema', inlineSchemaJson(DescriptionRevisionSchema),
+    '--allowedTools', 'Read',
+    '--max-turns', '2',
+    '--max-budget-usd', String(cfg.triggerBudgetUsd),
+    '--permission-mode', 'dontAsk',
+    '--no-session-persistence',
+  ];
+}
+
+// --------------------------------------------------------------------------
+// selectBestIteration(iterations) - THE do-no-harm selector (D3/CFM1). Picks the
+// iteration with the highest VALIDATION pass-rate (ties break to the EARLIEST, so
+// the selector can NEVER drift to "last iteration"). Keeps baseline unless a later
+// iteration strictly improves it. regressed_query_count = validation queries that
+// passed at iteration 0 but fail in the chosen candidate; ANY regression BLOCKS the
+// proposed diff (proposed_description stays null). converged=false when no iteration
+// beat baseline (best-by-validation baseline kept, marked did-not-converge).
+//   iterations[i] = { iteration, validation_pass_rate, validation_passed_set:Set,
+//                     description? }.
+// --------------------------------------------------------------------------
+function selectBestIteration(iterations) {
+  const baseline = iterations[0];
+  let best = baseline;
+  for (let i = 1; i < iterations.length; i++) {
+    if (iterations[i].validation_pass_rate > best.validation_pass_rate) best = iterations[i];
+  }
+  const improved = best.iteration !== baseline.iteration && best.validation_pass_rate > baseline.validation_pass_rate;
+  const chosen = improved ? best : baseline;
+
+  const baseSet = baseline.validation_passed_set || new Set();
+  const chosenSet = chosen.validation_passed_set || new Set();
+  const regressed_queries = [...baseSet].filter((q) => !chosenSet.has(q));
+  const regressed_query_count = improved ? regressed_queries.length : 0;
+  const blocked_by_regression = regressed_query_count > 0;
+  const converged = improved;
+  const proposed_description = (improved && !blocked_by_regression && chosen.description != null) ? chosen.description : null;
+
+  return {
+    best_iteration: chosen.iteration,
+    baseline_validation_rate: baseline.validation_pass_rate,
+    best_validation_rate: chosen.validation_pass_rate,
+    regressed_query_count,
+    regressed_queries,
+    converged,
+    blocked_by_regression,
+    proposed_description,
+  };
+}
+
+// Measure one iteration's whole query set. Returns per-query TriggerResult rows plus
+// the validation pass-set + rate. measureImpl is injectable so the selftest drives
+// canned rates with zero spawn; the default measures via runTriggerQuery.
+async function measureIteration(o) {
+  const { skill, queries, scratchDir, iteration, config } = o;
+  const measure = o.measureImpl || (async (q) => runTriggerQuery({
+    skill, query: q.query, scratchDir, iteration, split: q.split, config, spawnImpl: o.spawnImpl,
+  }));
+  const rows = [];
+  const validationPassed = new Set();
+  let validationTotal = 0;
+  for (const q of queries) {
+    const m = await measure(q, iteration);
+    const row = {
+      skill, query: q.query, split: q.split, iteration,
+      runs: m.runs, fires: m.fires, trigger_rate: m.trigger_rate,
+      completed_runs: m.completed_runs, not_evaluated_runs: m.not_evaluated_runs, kind: q.kind,
+    };
+    const parsed = TriggerResultSchema.safeParse({
+      skill: row.skill, query: row.query, split: row.split, iteration: row.iteration,
+      runs: row.runs, fires: row.fires, trigger_rate: Number(row.trigger_rate.toFixed(4)),
+    });
+    if (!parsed.success) throw new Error('measureIteration: TriggerResult invalid: ' + JSON.stringify(parsed.error.issues));
+    rows.push(row);
+    if (q.split === 'validation') {
+      validationTotal += 1;
+      if (queryPasses(q.kind, m.trigger_rate)) validationPassed.add(q.query);
+    }
+  }
+  const validation_pass_rate = validationTotal > 0 ? validationPassed.size / validationTotal : 0;
+  return { iteration, rows, validation_passed_set: validationPassed, validation_pass_rate, validation_total: validationTotal };
+}
+
+// Collect the TRAIN failures of an iteration (what the reviser is allowed to see).
+function trainFailures(iterationMeasure, baselineDescriptionBySkill) {
+  const fails = [];
+  for (const row of iterationMeasure.rows) {
+    if (row.split !== 'train') continue;
+    if (!queryPasses(row.kind, row.trigger_rate)) {
+      fails.push({ query: row.query, expected: row.kind === 'should_not_trigger' ? null : row.skill, actually_fired: row.trigger_rate > 0 ? 'the skill fired when it should not' : 'nothing' });
+    }
+  }
+  return fails;
+}
+
+// --------------------------------------------------------------------------
+// runLoopForSkill({ skill, queries, config, ... }) - the full flagged-skill loop.
+// Iteration 0 = baseline. Then up to maxIterations (hard cap 5): revise against
+// TRAIN failures only, rebuild the scratch checkout with the candidate, re-measure
+// train + validation. Select best by validation pass-rate with the do-no-harm gate.
+// Persists out/loop/<skill>/iteration-<n>.json + summary.json (LoopSummary-valid).
+// reviseImpl/measureImpl/scratchImpl injectable so the selftest runs zero-spawn.
+// --------------------------------------------------------------------------
+async function runLoopForSkill(o) {
+  const cfg = resolveTriggerConfig(o.config);
+  const skill = o.skill;
+  const queries = o.queries || [];
+  const outDir = o.outDir || path.join(REPO_ROOT, PHASE_OUT_DIR);
+  const loopDir = path.join(outDir, 'loop', safeStem(skill));
+
+  const scratchImpl = o.scratchImpl || ((desc, iter) => buildScratchCheckout(skill, desc, path.join(outDir, 'scratch', safeStem(skill)), { skillDir: o.skillDir, outRoot: outDir }));
+  const reviseImpl = o.reviseImpl || defaultReviseImpl;
+
+  const iterations = [];
+  const persist = (iterMeasure) => {
+    if (o._noWrite) return;
+    const target = path.join(loopDir, 'iteration-' + iterMeasure.iteration + '.json');
+    const guard = assertUnderOut(target, outDir);
+    if (!guard.ok) throw new Error('runLoopForSkill: iteration path outside out: ' + target);
+    fs.mkdirSync(loopDir, { recursive: true });
+    const persistable = iterMeasure.rows.map((r) => ({
+      skill: r.skill, query: r.query, split: r.split, iteration: r.iteration,
+      runs: r.runs, fires: r.fires, trigger_rate: Number(r.trigger_rate.toFixed(4)),
+    }));
+    writeAtomic(target, JSON.stringify(persistable, null, 2) + '\n');
+  };
+
+  // Iteration 0: baseline description, measured on train + validation.
+  const baselineDesc = o.baselineDescription != null ? o.baselineDescription : null;
+  let currentDesc = baselineDesc;
+  scratchImpl(currentDesc, 0);
+  const m0 = await measureIteration({ skill, queries, scratchDir: path.join(outDir, 'scratch', safeStem(skill)), iteration: 0, config: cfg, measureImpl: o.measureImpl, spawnImpl: o.spawnImpl });
+  m0.description = baselineDesc;
+  iterations.push(m0);
+  persist(m0);
+
+  for (let iter = 1; iter <= cfg.maxIterations; iter++) {
+    const prev = iterations[iterations.length - 1];
+    const fails = trainFailures(prev);
+    const revision = await reviseImpl({ skill, currentDescription: currentDesc, siblings: o.siblings || [], trainFailures: fails, iteration: iter, config: cfg });
+    if (!revision || revision.description == null) break; // reviser failed; keep best so far
+    currentDesc = revision.description;
+    scratchImpl(currentDesc, iter);
+    const m = await measureIteration({ skill, queries, scratchDir: path.join(outDir, 'scratch', safeStem(skill)), iteration: iter, config: cfg, measureImpl: o.measureImpl, spawnImpl: o.spawnImpl });
+    m.description = currentDesc;
+    iterations.push(m);
+    persist(m);
+    // Early stop if a strict validation improvement with zero regression is already banked.
+    const interim = selectBestIteration(iterations);
+    if (interim.converged && !interim.blocked_by_regression && interim.best_iteration === iter) {
+      // keep going only if more iterations could help; but a clean win is a fine place to stop.
+      if (o.stopOnFirstCleanWin) break;
+    }
+  }
+
+  const selection = selectBestIteration(iterations);
+  const summary = {
+    skill,
+    iterations_run: Math.min(iterations.length - 1, 5), // revision iterations beyond baseline, cap 5
+    best_iteration: selection.best_iteration,
+    selected_by: 'validation_pass_rate',
+    baseline_validation_rate: Number(selection.baseline_validation_rate.toFixed(4)),
+    best_validation_rate: Number(selection.best_validation_rate.toFixed(4)),
+    regressed_query_count: selection.regressed_query_count,
+    converged: selection.converged,
+    proposed_description: selection.proposed_description,
+  };
+  const parsed = LoopSummarySchema.safeParse(summary);
+  if (!parsed.success) throw new Error('runLoopForSkill: LoopSummary invalid: ' + JSON.stringify(parsed.error.issues));
+
+  const summaryOut = Object.assign({}, summary, {
+    blocked_by_regression: selection.blocked_by_regression,
+    regressed_queries: selection.regressed_queries,
+  });
+  if (!o._noWrite) {
+    const target = path.join(loopDir, 'summary.json');
+    const guard = assertUnderOut(target, outDir);
+    if (!guard.ok) throw new Error('runLoopForSkill: summary path outside out: ' + target);
+    fs.mkdirSync(loopDir, { recursive: true });
+    writeAtomic(target, JSON.stringify(summaryOut, null, 2) + '\n');
+  }
+  return { summary: summaryOut, iterations, selection };
+}
+
+// Default revision spawn: build args, spawn json, unwrap + validate DescriptionRevision.
+function defaultReviseImpl(o) {
+  const cfg = resolveTriggerConfig(o.config);
+  const args = buildReviseArgs(o, cfg);
+  const res = spawnSync('claude', args, { env: process.env, encoding: 'utf8', input: '', maxBuffer: 8 * 1024 * 1024, timeout: cfg.timeoutMs });
+  if (!res || res.error || (typeof res.status === 'number' && res.status !== 0)) return null;
+  let env = null;
+  try { env = JSON.parse(String(res.stdout || '')); } catch (_e) { return null; }
+  let structured = env && env.structured_output;
+  if (!structured && env && typeof env.result === 'string') {
+    try { structured = JSON.parse(env.result); } catch (_e) { structured = null; }
+  }
+  if (!structured) return null;
+  const parsed = DescriptionRevisionSchema.safeParse(Object.assign({ skill: o.skill, iteration: o.iteration }, structured));
+  return parsed.success ? parsed.data : null;
+}
+
+// --------------------------------------------------------------------------
+// runLoopsFromFunnel - the DEFERRED live entry (gated to the smoke opt-in per
+// CONTEXT.md; this plan runs only the two capture spawns live). Reads the flagged
+// subset from out/funnel/funnel-results.json and the per-skill query sets, then runs
+// runLoopForSkill for each. Aborts closed if the plugin preflight fails.
+// --------------------------------------------------------------------------
+async function runLoopsFromFunnel(o) {
+  const outDir = o.outDir;
+  const cfg = resolveTriggerConfig(o.config);
+  const pf = preflightPluginLoad(cfg);
+  if (!pf.ok) { console.error('skillopt-triggerloop: plugin preflight failed (' + pf.reason + ') - aborting closed.'); process.exit(1); }
+
+  let funnel = null;
+  try { funnel = JSON.parse(fs.readFileSync(path.join(outDir, 'funnel', 'funnel-results.json'), 'utf8')); } catch (_e) { funnel = null; }
+  if (!funnel || !Array.isArray(funnel.skills)) { console.error('skillopt-triggerloop: no funnel-results.json - run the funnel first.'); process.exit(2); }
+  let flagged = funnel.skills.filter((s) => s.verdict === 'flagged').map((s) => s.skill);
+  if (o.skills && o.skills.length) flagged = flagged.filter((s) => o.skills.includes(s));
+
+  const summaries = [];
+  for (const skill of flagged) {
+    let set = null;
+    try { set = JSON.parse(fs.readFileSync(path.join(outDir, 'queries', safeStem(skill) + '.json'), 'utf8')); } catch (_e) { set = null; }
+    if (!set || !Array.isArray(set.queries)) continue;
+    const r = await runLoopForSkill({ skill, queries: set.queries, baselineDescription: null, config: cfg, outDir });
+    summaries.push(r.summary);
+    console.log('loop ' + skill + ': best_iter=' + r.summary.best_iteration + ' validation ' + r.summary.baseline_validation_rate + ' -> ' + r.summary.best_validation_rate + (r.summary.blocked_by_regression ? ' BLOCKED(regression)' : '') + (r.summary.converged ? '' : ' did-not-converge'));
+  }
+  console.log('OK skillopt-triggerloop: looped ' + summaries.length + ' flagged skills.');
+}
+
+// --------------------------------------------------------------------------
+// runSelftestPart2 - fixture-driven, ZERO spawn. Four required fixtures:
+//   (1) best-by-validation picks iteration 2 for rates [0.5,0.7,0.9,0.8] (not last).
+//   (2) a candidate with a higher aggregate rate but one regressed validation query
+//       is BLOCKED (regressed_query_count > 0, proposed_description null).
+//   (3) a 5-iteration no-improvement run yields converged:false with baseline kept.
+//   (4) a scratch checkout targeting skills/ is rejected by assertUnderOut.
+//   plus: the revise prompt contains train queries and NONE of the validation ones.
+// --------------------------------------------------------------------------
+function runSelftestPart2(assert) {
+  // (1) best-by-validation not-last.
+  const s1 = selectBestIteration([
+    { iteration: 0, validation_pass_rate: 0.5, validation_passed_set: new Set(['a']) },
+    { iteration: 1, validation_pass_rate: 0.7, validation_passed_set: new Set(['a', 'b']) },
+    { iteration: 2, validation_pass_rate: 0.9, validation_passed_set: new Set(['a', 'b', 'c']), description: 'best desc' },
+    { iteration: 3, validation_pass_rate: 0.8, validation_passed_set: new Set(['a', 'b']) },
+  ]);
+  assert.strictEqual(s1.best_iteration, 2, 'part2: best-by-validation must pick iteration 2, not the last (3)');
+  assert.strictEqual(s1.regressed_query_count, 0, 'part2: no regression when best superset of baseline');
+  assert.strictEqual(s1.converged, true, 'part2: a strict improvement converges');
+  assert.strictEqual(s1.proposed_description, 'best desc', 'part2: proposed description is the best iteration');
+
+  // (2) higher aggregate rate but one regressed validation query -> BLOCKED.
+  const s2 = selectBestIteration([
+    { iteration: 0, validation_pass_rate: 0.6, validation_passed_set: new Set(['a', 'b', 'c']) },
+    { iteration: 1, validation_pass_rate: 0.8, validation_passed_set: new Set(['a', 'b', 'd', 'e']), description: 'regressing desc' },
+  ]);
+  assert.strictEqual(s2.best_iteration, 1, 'part2: the higher-rate iteration is selected');
+  assert.strictEqual(s2.regressed_query_count, 1, 'part2: exactly one validation query (c) regressed');
+  assert.strictEqual(s2.blocked_by_regression, true, 'part2: any regression blocks the diff (D3 hard gate)');
+  assert.strictEqual(s2.proposed_description, null, 'part2: a blocked candidate proposes nothing');
+
+  // (3) 5-iteration no-improvement -> converged:false, baseline kept.
+  const noImprove = [{ iteration: 0, validation_pass_rate: 0.7, validation_passed_set: new Set(['a', 'b']) }];
+  for (let i = 1; i <= 5; i++) noImprove.push({ iteration: i, validation_pass_rate: 0.6, validation_passed_set: new Set(['a']), description: 'worse ' + i });
+  const s3 = selectBestIteration(noImprove);
+  assert.strictEqual(s3.converged, false, 'part2: no improvement across 5 iterations must be converged:false');
+  assert.strictEqual(s3.best_iteration, 0, 'part2: baseline is kept when nothing beats it');
+  assert.strictEqual(s3.proposed_description, null, 'part2: non-convergence proposes nothing (baseline kept)');
+
+  // The whole thing also produces a schema-valid LoopSummary with selected_by literal.
+  const summaryFixture = {
+    skill: 'beautiful-question', iterations_run: 5, best_iteration: 0,
+    selected_by: 'validation_pass_rate', baseline_validation_rate: 0.7, best_validation_rate: 0.7,
+    regressed_query_count: 0, converged: false, proposed_description: null,
+  };
+  assert.strictEqual(LoopSummarySchema.safeParse(summaryFixture).success, true, 'part2: LoopSummary fixture validates with selected_by validation_pass_rate');
+
+  // (4) scratch checkout targeting skills/ is rejected by assertUnderOut.
+  const bad = buildScratchCheckout('act', 'x', path.join(REPO_ROOT, 'skills', 'act'), { outRoot: path.join(REPO_ROOT, PHASE_OUT_DIR) });
+  assert.strictEqual(bad.ok, false, 'part2: a scratch dir under skills/ must be rejected (CFM4 containment)');
+  assert.strictEqual(bad.reason, 'scratch_outside_out', 'part2: containment reason is scratch_outside_out');
+
+  // buildScratchCheckout rewrites ONLY the candidate SKILL.md inside a real out-sandbox
+  // scratch (using an injected copyImpl - no heavy real clone).
+  const baseOut = path.join(REPO_ROOT, PHASE_OUT_DIR);
+  fs.mkdirSync(baseOut, { recursive: true });
+  const tmpOut = fs.mkdtempSync(path.join(baseOut, '.selftest-scratch-'));
+  try {
+    const scratchDir = path.join(tmpOut, 'scratch', 'demo');
+    const copyImpl = (_src, dst) => {
+      fs.mkdirSync(path.join(dst, 'skills', 'demo'), { recursive: true });
+      fs.writeFileSync(path.join(dst, 'skills', 'demo', 'SKILL.md'), '---\nname: demo\ndescription: OLD description\n---\nbody\n', 'utf8');
+    };
+    const okc = buildScratchCheckout('demo', 'NEW routing description', scratchDir, { copyImpl, outRoot: tmpOut, skillDir: 'demo' });
+    assert.strictEqual(okc.ok, true, 'part2: a scratch dir under out/ is accepted');
+    const rewritten = fs.readFileSync(okc.skillMdPath, 'utf8');
+    assert.ok(/description: NEW routing description/.test(rewritten), 'part2: candidate description rewritten in the scratch SKILL.md');
+    assert.ok(!/OLD description/.test(rewritten), 'part2: old description replaced');
+    // The REAL skills/demo (does not exist) or skills/act must be untouched: assert path is under out.
+    assert.ok(okc.skillMdPath.includes(path.sep + '.selftest-scratch-'), 'part2: rewrite happened under the out sandbox, never the real skills/ tree');
+  } finally {
+    fs.rmSync(tmpOut, { recursive: true, force: true });
+  }
+
+  // Revise prompt carries TRAIN failures and NONE of the validation query strings.
+  const reviseArgs = buildReviseArgs({
+    skill: 'beautiful-question', currentDescription: 'old',
+    siblings: [{ skill: 'find-connections', description: 'cross-domain patterns' }],
+    trainFailures: [{ query: 'TRAIN-QUERY-alpha', expected: 'beautiful-question', actually_fired: 'nothing' }],
+  }, {});
+  const promptIdx = reviseArgs.indexOf('-p') + 1;
+  const prompt = reviseArgs[promptIdx];
+  assert.ok(prompt.includes('TRAIN-QUERY-alpha'), 'part2: revise prompt contains the train failure query');
+  assert.ok(!prompt.includes('VALIDATION-QUERY'), 'part2: revise prompt must never contain a validation query string');
+  assert.ok(reviseArgs.includes('--allowedTools') && reviseArgs[reviseArgs.indexOf('--allowedTools') + 1] === 'Read', 'part2: revise spawn is --allowedTools Read');
+  assert.ok(reviseArgs.includes('--max-turns') && reviseArgs[reviseArgs.indexOf('--max-turns') + 1] === '2', 'part2: revise spawn is --max-turns 2');
+  assert.ok(reviseArgs.includes('--json-schema'), 'part2: revise spawn carries an inline --json-schema');
+
+  // A trigger arg vector points --plugin-dir under out/scratch and is stream-json --verbose.
+  const trigVec = buildTriggerArgs('q', path.join(REPO_ROOT, PHASE_OUT_DIR, 'scratch', 'beautiful-question'), {});
+  assert.strictEqual(assertStreamJsonArgs(trigVec).ok, true, 'part2: trigger vector is stream-json --verbose');
+  const pdIdx = trigVec.indexOf('--plugin-dir') + 1;
+  assert.ok(trigVec[pdIdx].includes(path.sep + 'scratch' + path.sep), 'part2: trigger --plugin-dir is a scratch checkout, never the repo skills/');
+
+  // An end-to-end zero-spawn loop via injected measure + revise fixtures: baseline
+  // weak, iteration 1 improves validation with no regression -> proposed, converged.
+  const queries = [
+    { query: 'train-pos-1', split: 'train', kind: 'should_trigger' },
+    { query: 'train-neg-1', split: 'train', kind: 'should_not_trigger' },
+    { query: 'val-pos-1', split: 'validation', kind: 'should_trigger' },
+    { query: 'val-neg-1', split: 'validation', kind: 'should_not_trigger' },
+  ];
+  const canned = {
+    0: { 'train-pos-1': 0.0, 'train-neg-1': 0.0, 'val-pos-1': 0.0, 'val-neg-1': 0.0 },
+    1: { 'train-pos-1': 1.0, 'train-neg-1': 0.0, 'val-pos-1': 1.0, 'val-neg-1': 0.0 },
+  };
+  const measureImpl = async (q, iteration) => ({ runs: 3, fires: Math.round((canned[iteration][q.query] || 0) * 3), trigger_rate: canned[iteration][q.query] || 0, completed_runs: 3, not_evaluated_runs: 0 });
+  const reviseImpl = async () => ({ skill: 'demo', iteration: 1, description: 'improved routing desc', rationale: 'targets train-pos-1 miss' });
+  const scratchImpl = () => ({ ok: true });
+  // Run without persistence and without a real scratch, single revision iteration.
+  const loop = (async () => runLoopForSkill({
+    skill: 'demo', queries, baselineDescription: 'weak', config: { maxIterations: 1 },
+    measureImpl, reviseImpl, scratchImpl, _noWrite: true,
+  }))();
+  return loop.then((res) => {
+    assert.strictEqual(res.summary.best_iteration, 1, 'part2: e2e loop selects the improving iteration 1');
+    assert.strictEqual(res.summary.converged, true, 'part2: e2e loop converges on a clean win');
+    assert.strictEqual(res.summary.regressed_query_count, 0, 'part2: e2e clean win has zero regression');
+    assert.ok(res.summary.proposed_description, 'part2: e2e clean win proposes the improved description');
+  });
+}
 
 // --------------------------------------------------------------------------
 // runSelftest (Part 1) - fixture-driven, ZERO spawn, zero spend. The firing and
@@ -496,8 +1035,8 @@ async function main(argv) {
   if (args.includes('--selftest')) {
     const assert = require('node:assert');
     runSelftestPart1(assert);
-    if (typeof runSelftestPart2 === 'function') runSelftestPart2(assert);
-    console.log('OK - skillopt-triggerloop self-test passed: detector (fire/no-fire/corrupt) pinned from live captures, stream-json guard, preflight fail-closed' + (typeof runSelftestPart2 === 'function' ? ', loop best-by-validation + regression block + non-convergence + scratch containment.' : '.'));
+    await runSelftestPart2(assert);
+    console.log('OK - skillopt-triggerloop self-test passed: detector (fire/no-fire/corrupt) pinned from live captures, stream-json guard, preflight fail-closed, loop best-by-validation + regression block + non-convergence + scratch containment.');
     return;
   }
 
@@ -569,6 +1108,17 @@ module.exports = {
   PINNED_TRIGGER_MODEL,
   writeAtomic,
   safeStem,
+  // Part 2 (Task 2)
+  buildScratchCheckout,
+  runTriggerQuery,
+  runLoopForSkill,
+  runLoopsFromFunnel,
+  selectBestIteration,
+  measureIteration,
+  queryPasses,
+  buildRevisePrompt,
+  buildReviseArgs,
+  runPool,
 };
 
 if (require.main === module) {
