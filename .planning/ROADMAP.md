@@ -3138,6 +3138,19 @@ to a MindrianOS-Plugin git tag)*
   v1.15.3-beta.22). huji-run-one.cjs + huji-batch.cjs byte-for-byte untouched. Commits
   ee9246b1, 894229a0, 62b6f8f8. See 229-10-SUMMARY.md + 229-10-PIN-SMOKETEST.md.
 
+### Phase 230: MindrianOS Skill Fleet Optimization
+
+**Goal:** Fleet-wide trigger-accuracy + code-quality pipeline across all 124 skills under `skills/`. Workstream 1 (trigger-accuracy, all 124 skills): per-family eval query generation exploiting sibling near-misses, a cheap roster-wide judge pass scored against all 124 descriptions at once per query, flagged skills escalate to agentskills.io's literal real trigger-test loop (train/val split, up to 5 description-revision iterations). Workstream 2 (code-quality, the ~10-20 script/workflow-backed skills): adversarially-verified review of the backing `.cjs` machinery. One merged, human-gated report; nothing auto-applied to any `SKILL.md` or script -- writes happen only after explicit user approval. No Workflow-tool call in this phase -- fleet-wide execution is a future step requiring the user's explicit multi-agent-orchestration opt-in.
+**Requirements**: TBD
+**Depends on:** None
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 230 to break down)
+
+Design approved + spec'd via superpowers:brainstorming this session: `docs/superpowers/specs/2026-07-17-mindrian-skill-optimization-design.md` (commit `bf787961`, quick task `260717-jud`).
+
 ---
 
 ### Phase 221: Pipeline-Wide High-Effort LLM Engine Recovery (llm-engine-recovery) - REGISTERED 2026-07-13 - **JOINT 219+220+221 RELEASE; THE CUT EXECUTES HERE**

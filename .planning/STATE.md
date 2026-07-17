@@ -1981,6 +1981,14 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 230 added (2026-07-17): MindrianOS Skill Fleet Optimization -- registered from
+  the superpowers:brainstorming-approved spec (`docs/superpowers/specs/2026-07-17-
+  mindrian-skill-optimization-design.md`, commit `bf787961`, quick task `260717-jud`).
+  Depends on nothing (net-new capability, not blocking on Phase 229's in-flight HUJI
+  module). `phase.add` initially crammed the full description into the title with Goal
+  left `[To be planned]` and Depends on defaulted to Phase 229 (sequential-neighbor
+  guess, not a real dependency) -- corrected in place immediately after via `/gsd-phase
+  --edit 230` before any planning ran against it.
 - Phases 225-228 added (2026-07-15): navigator-directed "phase pipeline" for the next
   four HIGH-severity unphased seeds, each depending on Phases 210-224 as a research
   requirement (not a strict execution block), matching Phase 224's own dependency
