@@ -1,0 +1,93 @@
+[
+  {
+    "skill": "doctor",
+    "role": "clear_fire",
+    "expected_funnel": "pass",
+    "expected_ws2": null,
+    "notes": "Clear-fire true positive. Description names concrete distinctive triggers (diagnose/repair install, install-cache drift, statusline visibility, command-registration bug report). No sibling competes for 'run the doctor / diagnose my install'. Draft label: pass."
+  },
+  {
+    "skill": "deck",
+    "role": "clear_fire",
+    "expected_funnel": "pass",
+    "expected_ws2": null,
+    "notes": "Clear-fire true positive. 'Build an on-brand, source-cited deck through one governed flow' has a distinctive noun (deck) with no near-miss rival. A 'make me a deck' query should fire this unambiguously. Draft label: pass."
+  },
+  {
+    "skill": "find-connections",
+    "role": "near_miss_pair",
+    "expected_funnel": "flagged",
+    "expected_ws2": null,
+    "notes": "Find-family pair with find-analogies. 'Find cross-domain patterns that touch your work' is the VAGUER sibling: it shares 'cross-domain' with find-analogies but names no method, so a 'find cross-domain X' query may misroute to the concrete sibling. Drafted flagged honestly (competitive discrimination D2), not optimistically."
+  },
+  {
+    "skill": "find-analogies",
+    "role": "near_miss_pair",
+    "expected_funnel": "pass",
+    "expected_ws2": null,
+    "notes": "Find-family pair with find-connections. 'Find cross-domain analogies with SAPPhIRE + TRIZ' is well-differentiated by its named methods (SAPPhIRE, TRIZ), so an analogy query should still land here despite the 'cross-domain' overlap. Draft label: pass."
+  },
+  {
+    "skill": "explore-domains",
+    "role": "near_miss_pair",
+    "expected_funnel": "pass",
+    "expected_ws2": null,
+    "notes": "Explore-family pair with explore-trends. 'Map domains through IKA + Feynman decomposition' is anchored by distinctive method names (IKA, Feynman) and the 'map domains' action, so it should win its own queries cleanly. Draft label: pass (clean-discrimination expectation)."
+  },
+  {
+    "skill": "explore-trends",
+    "role": "near_miss_pair",
+    "expected_funnel": "flagged",
+    "expected_ws2": null,
+    "notes": "Explore-family pair with explore-futures. 'Push trends to extremes to surface future problems' overlaps the future-problem territory of explore-futures; a 'what future problems could emerge' query could misroute. Drafted flagged honestly given the genuine sibling collision on the 'future' axis."
+  },
+  {
+    "skill": "explore-futures",
+    "role": "near_miss_pair",
+    "expected_funnel": "pass",
+    "expected_ws2": null,
+    "notes": "Explore-family pair with explore-trends. 'Synthesize TTA + Scenario + S-Curve futures' is anchored by concrete named methods (TTA, Scenario, S-Curve), so a futures-synthesis query should land here despite the shared 'future' theme. Draft label: pass."
+  },
+  {
+    "skill": "explore-opportunity",
+    "role": "near_miss_pair",
+    "expected_funnel": "pass",
+    "expected_ws2": null,
+    "notes": "Explore-family pair (discrimination against the other explore-* siblings). 'Run the explored-stage analysis chain on a qualified opportunity' is a distinct chain-runner scoped to qualified opportunities, so it should not steal generic explore queries. Draft label: pass."
+  },
+  {
+    "skill": "pipeline",
+    "role": "weak_description",
+    "expected_funnel": "flagged",
+    "expected_ws2": null,
+    "notes": "Known-weak description. 'Chain a multi-step methodology pipeline' is a generic capability blurb: it names the mechanism, not WHEN to use it vs act/operator/intel-pipeline. Should surface a proposed diff. Drafted flagged (the do-no-harm 'should propose a change' half of the guard)."
+  },
+  {
+    "skill": "jtbd",
+    "role": "good_description",
+    "expected_funnel": "pass",
+    "expected_ws2": null,
+    "notes": "Known-good description, the over-edit guard. 'Show, set, list, or inspect the active JTBD: the per-room signal that tells Larry what kind of work the navigator is doing right now' is concrete, well-scoped, and distinctively anchored on JTBD. The pipeline proposing a diff here is WS1 overcorrection. Draft label: pass (expect 'unchanged')."
+  },
+  {
+    "skill": "rooms",
+    "role": "ws2_defect",
+    "expected_funnel": null,
+    "expected_ws2": "finding_expected",
+    "notes": "WS2 defect slot. rooms is the only inventory skill whose sole backing_ref is scripts/check-card-fire.cjs, so a WS2 review of rooms targets exactly the defective file. Ground truth: the 2026-07-05 todo (over-enforcement, 3 logged live instances) - reached-registry-gate-no-card and ascii-box-backstop-no-card hard-fail on plain prose with no relevance/box check. WS2 must catch it."
+  },
+  {
+    "skill": "status",
+    "role": "ws2_clean",
+    "expected_funnel": null,
+    "expected_ws2": "no_finding_expected",
+    "notes": "WS2 clean control, the D4 false-positive guard. status backs scripts/mos-status.cjs (622 lines, read-only status display, covered by tests/run-all-129.sh). No known defect; the adversarial pass must NOT invent a finding here. Draft label: no_finding_expected."
+  },
+  {
+    "skill": "splash",
+    "role": "not_evaluated_probe",
+    "expected_funnel": "not_evaluated",
+    "expected_ws2": null,
+    "notes": "Induced not-evaluated probe (D5). splash (trivial banner skill) is fed to the funnel via --probe-timeout-unit splash --probe-mark (Plan 02 hook), forcing a 1ms timeout on its first unit. It MUST land as not_evaluated with reason induced_probe, never absorbed as a pass or no-finding. Draft label: not_evaluated."
+  }
+]
