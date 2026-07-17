@@ -1,20 +1,31 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.15.0
-milestone_name: The Cockpit" milestone -- the UX/dial train
+milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 223 COMPLETE 5/5 - gate PASS=18; release cut approved, parked on huji-eval.cjs tree-quiet
-last_updated: "2026-07-17T13:43:03.930Z"
+stopped_at: Completed 230-02-PLAN.md
+last_updated: "2026-07-17T15:26:48Z"
 last_activity: 2026-07-17
 progress:
-  total_phases: 37
-  completed_phases: 23
-  total_plans: 133
-  completed_plans: 129
-  percent: 62
+  total_phases: 38
+  completed_phases: 24
+  total_plans: 140
+  completed_plans: 132
+  percent: 63
 ---
 
 # Project State
+
+## (2026-07-17) -- PHASE 230 Plan 02 COMPLETE (Wave 2) -- generation + funnel legs of the skill-fleet-optimization pipeline, both zero-spend selftested (Req D1, D2, D5)
+
+Wave 2's generation and funnel legs. Two spawn-orchestrating scripts + two frozen rubric files, all proven by fixtures before any live call.
+
+- **`scripts/skillopt-genqueries.cjs` (net-new, WS1.2):** `generateQueriesForFamily` builds the spawn arg array on the huji `buildStageAArgs` shape (frozen rubric via `--append-system-prompt-file`, per-family sibling stubs via `-p`, inline `$schema`-stripped wrapper schema, keychain `--plugin-dir` never `--bare`, all five fuses), spawns, retries once, then either writes a `not_evaluated` UnitRecord or applies `splitQueries` and writes `out/queries/<skill>.json` per skill. `splitQueries` is deterministic per-kind stratified 60/40 with a global minimum-validation floor (>=2 when total>=5); the model NEVER assigns the split. Commit `087d01f7`.
+- **`scripts/skillopt-funnel.cjs` (net-new, WS1.3-4):** `buildRosterStubs` emits exactly one `name: description` line per inventory record (never bodies); `judgeOneQuery` is the AI-SPEC Section 3 reference shape (inline `JudgeVerdictSchema`, `--max-turns 2`, `--max-budget-usd 0.05`, `--allowedTools Read`); `runFunnel` fans out through a verbatim-copied `runPool` (hard cap 4, clamp+warn, no unbounded parallel-all), resumes on `.done`, applies the locked flag rule (train miss OR low/medium conf -> flagged; validation judged but never drives revision), and enforces the D5 identity `spawned == ok + not_evaluated` with exit 1 on violation. `--probe-timeout-unit`/`--probe-mark` are Plan 07's induced-not-evaluated D5 hook. Commit `cfee0c41`.
+- **Two frozen rubrics:** `references/methodology/skillopt-queries-rubric.md` (sibling near-miss negatives, per-skill min 2/2 kind mix, model labels only) and `references/methodology/skillopt-judge-rubric.md` (predict what the roster routes not the expected label, honest confidence where low/medium never passes). Prompt-cache stable, no em-dashes.
+- **Both selftests exit 0, zero API spend.** genqueries: split determinism + bad-envelope->schema_fail + good-envelope->per-skill files with splits. funnel: miss->flag, medium->flag, clean->pass, unparseable->not_evaluated, resume skip, reconciliation-drift gate, concurrency clamp, induced probe. Dry-run arg vectors carry every fuse with inline `$schema`-stripped schema and no `--bare`; roster stubs proven exactly 124 lines on real inventory.
+- **Concurrent-session guard:** shared `main`; `git branch --show-current` = `main` verified before commits. `gsd-tools` not on PATH; STATE.md updated by manual additive log append + frontmatter counter advance (single-writer sequential context, no worktree).
+- **NEXT:** Plans 03-04 (Wave 2, parallel): triggerloop (flagged-skill real Skill-fire loop, stream-json, best-by-validation, `regressed_query_count==0` gate) and codereview (opus Refute-or-Promote over the 59 script-backed skills).
 
 ## (2026-07-16) -- PHASE 229 Plan 10 COMPLETE (Wave 6) -- MCP-safe async engine twin + D14 parity gate + live git-tag-pin verification (Req D14)
 
@@ -1168,12 +1179,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 229 — HUJI Pitch Feedback Module
+**Current focus:** Phase 230 — MindrianOS Skill Fleet Optimization
 
 ## Current Position
 
-Phase: 229 (HUJI Pitch Feedback Module) — EXECUTING
-Plan: 1 of 10
+Phase: 230 (MindrianOS Skill Fleet Optimization) — EXECUTING
+Plan: 3 of 7
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1757,6 +1768,8 @@ Progress: [█████████░] 92%
 | Phase 229 P04 | 22 | 2 tasks | 8 files |
 | Phase 227 P03 | 8min | 1 tasks | 1 files |
 | 227 | 5 | - | - |
+| Phase 230 P01 | 20min | 2 tasks | 2 files |
+| Phase 230 P02 | 7min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -2800,6 +2813,10 @@ Progress: [█████████░] 92%
 - [Phase 229]: 229-03 harness: bare --check X self-verifies via in-file PASS+FAIL fixtures (green-while-no-batch), turning RED only when the check logic regresses
 - [Phase ?]: 229-04: NAMED_RECIPES/recipeForName is a sibling frozen map to SENS10_CAUSE_RECIPES; PWS_grading native order deep-grade->mullins->build-thesis->structure-argument, no fabricated autonomous_safe literals
 - [Phase ?]: 229-04: build-thesis 6/10 halt neutralized at PROMPT layer via frozen rubric-huji.md; build-thesis-scored.md fallback; shipped build-thesis untouched
+- [Phase ?]: Phase 230 inventory is pure code, zero model calls (deterministic, reproducible over the AI-SPEC haiku ceiling)
+- [Phase ?]: WS2 script-backed subset is 59 skills, not the ~10-20 design estimate; Plan 05 narrows the smoke pair from real inventory data
+- [Phase 230]: 230-02 generator schema strips the split field; the model labels queries only, splitQueries assigns train/validation deterministically in code (reproducible, cannot overfit, D3)
+- [Phase 230]: 230-02 funnel fails open - a skill flags on any train miss OR low/medium confidence OR any not_evaluated unit; D5 identity spawned == ok + not_evaluated enforced with exit 1
 
 ### Pending Todos
 
@@ -2874,8 +2891,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-15T21:45:23.706Z
-Stopped at: Phase 223 COMPLETE 5/5 - gate PASS=18; release cut approved, parked on huji-eval.cjs tree-quiet
+Last session: 2026-07-17T15:14:45.643Z
+Stopped at: Completed 230-01-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
