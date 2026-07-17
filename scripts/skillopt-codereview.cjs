@@ -540,11 +540,38 @@ async function runCodeReview(opts) {
   const findingsReported = [];
   const units = [];
 
-  const worker = async (t) => reviewOneFileFull(t, cfg);
+  // Per-file result cache (resume + cumulative aggregation, Plan 07 deviation). Each
+  // completed file is persisted to out/review/files/<stem>.json so (a) a launch that is
+  // reaped mid-run re-uses the finished files on the next launch instead of re-spending
+  // opus on them, and (b) findings are aggregated from EVERY cached file, so reviewing
+  // the two smoke files in separate launches still yields one complete findings.json.
+  // Never a resume-to-green: a cached file carries its real verdicts verbatim.
+  const filesDir = path.join(reviewDir, 'files');
+
+  const worker = async (t) => {
+    const cacheFp = path.join(filesDir, safeStem(t.file) + '.json');
+    if (fs.existsSync(cacheFp)) {
+      try {
+        const cached = JSON.parse(fs.readFileSync(cacheFp, 'utf8'));
+        cached._resumed = true;
+        return cached;
+      } catch (_e) { /* corrupt cache -> re-review */ }
+    }
+    return reviewOneFileFull(t, cfg);
+  };
   const onSettle = (settled) => {
     const r = settled && settled.res;
     if (!r) return;
     const stem = safeStem(r.file);
+
+    // Persist the per-file result cache for a freshly-computed file (never for a resumed
+    // one - it is already on disk). This is what makes the run resumable + cumulative.
+    if (!r._resumed) {
+      writeUnderOut(path.join(filesDir, stem + '.json'), JSON.stringify({
+        file: r.file, skill: r.skill, status: r.status, reason: r.reason || null,
+        detail: r.detail || null, raw: r.raw || [], reported: r.reported || [], dropped: r.dropped || [],
+      }, null, 2) + '\n', outDir);
+    }
 
     // Dropped-as-fabricated findings are logged (never silently vanished, D4/D5).
     for (const d of (r.dropped || [])) {
@@ -585,20 +612,37 @@ async function runCodeReview(opts) {
 
   await runPool({ items: targets, getLimit: () => cfg.concurrency, worker, onSettle });
 
-  writeUnderOut(path.join(reviewDir, 'findings-raw.json'), JSON.stringify(findingsRaw, null, 2) + '\n', outDir);
-  writeUnderOut(path.join(reviewDir, 'findings.json'), JSON.stringify(findingsReported, null, 2) + '\n', outDir);
   fs.mkdirSync(unitsDir, { recursive: true });
   for (const u of units) {
     writeUnderOut(path.join(unitsDir, safeStem(u.unit_id) + '.json'), JSON.stringify(u, null, 2) + '\n', outDir);
   }
 
-  const confirmed = findingsRaw.filter((f) => f.verdict === 'confirmed').length;
-  const refuted = findingsRaw.filter((f) => f.verdict === 'refuted').length;
+  // Aggregate findings from EVERY per-file cache (cumulative across launches), not only
+  // this run's accumulators, so files reviewed in earlier launches stay in the report.
+  const aggRaw = [];
+  const aggReported = [];
+  let cacheFiles = [];
+  try { cacheFiles = fs.readdirSync(filesDir).filter((f) => f.endsWith('.json')); } catch (_e) { cacheFiles = []; }
+  for (const cf of cacheFiles) {
+    let c = null;
+    try { c = JSON.parse(fs.readFileSync(path.join(filesDir, cf), 'utf8')); } catch (_e) { continue; }
+    for (const f of (c.raw || [])) aggRaw.push(f);
+    for (const f of (c.reported || [])) aggReported.push(f);
+  }
+  // Fall back to this-run accumulators if no cache landed (defensive; normally cache wins).
+  const finalRaw = aggRaw.length || cacheFiles.length ? aggRaw : findingsRaw;
+  const finalReported = aggReported.length || cacheFiles.length ? aggReported : findingsReported;
+
+  writeUnderOut(path.join(reviewDir, 'findings-raw.json'), JSON.stringify(finalRaw, null, 2) + '\n', outDir);
+  writeUnderOut(path.join(reviewDir, 'findings.json'), JSON.stringify(finalReported, null, 2) + '\n', outDir);
+
+  const confirmed = finalRaw.filter((f) => f.verdict === 'confirmed').length;
+  const refuted = finalRaw.filter((f) => f.verdict === 'refuted').length;
   const survivalRate = (confirmed + refuted) > 0 ? confirmed / (confirmed + refuted) : null;
   return {
     targets: targets.length,
-    raw: findingsRaw.length,
-    reported: findingsReported.length,
+    raw: finalRaw.length,
+    reported: finalReported.length,
     units: units.length,
     survival_rate: survivalRate,
   };
@@ -720,6 +764,10 @@ function runSelftest() {
 //   --skills <csv>          restrict to these skills
 //   --files <csv>           direct file targets (overrides the inventory subset)
 //   --out <dir>             output directory (default PHASE_OUT_DIR)
+//   --concurrency <n>       files reviewed in parallel (default 1, hard cap 2) - Plan 07
+//                           deviation: parallelizing the two smoke files lets WS2 finish
+//                           inside the constrained execution window (opus is slow).
+//   --review-max-turns <n>  per-pass --max-turns (default 6) - lower speeds each opus call.
 // --------------------------------------------------------------------------
 function parseCliConfig(args) {
   const c = {};
@@ -727,6 +775,12 @@ function parseCliConfig(args) {
   const files = getVal('--files'); if (files) c.files = files.split(',').map((s) => s.trim()).filter(Boolean);
   const skills = getVal('--skills'); if (skills) c.skills = skills.split(',').map((s) => s.trim()).filter(Boolean);
   const out = getVal('--out'); if (out) c.outDir = path.resolve(out);
+  const conc = getVal('--concurrency'); if (conc) { const n = parseInt(conc, 10); if (n > 0) c.concurrency = n; }
+  const rmt = getVal('--review-max-turns'); if (rmt) { const n = parseInt(rmt, 10); if (n > 0) { c.reviewMaxTurns = n; c.refuteMaxTurns = n; } }
+  // --max-chunk-lines (Plan 07 deviation): a smoke .cjs (~1.2k lines) fits opus context
+  // whole, so reviewing it as ONE chunk halves the opus calls (review+refute, not
+  // review*chunks+refute) and lets each file finish inside the execution window.
+  const mcl = getVal('--max-chunk-lines'); if (mcl) { const n = parseInt(mcl, 10); if (n > 0) c.maxChunkLines = n; }
   return resolveConfig(c);
 }
 
