@@ -47,3 +47,15 @@ From a session/key with Brain admin write access:
 
 Do not silently skip -- if the admin-key session never materializes, this stays
 open and visible rather than the insight quietly never landing.
+
+## Secondary, smaller follow-up (same session, same doc)
+
+Live external research (Anthropic's skill-authoring best practices, fetched
+2026-07-17) surfaced a 5th principle not in the original 4: skill descriptions
+should be written in third person ("Processes X and generates Y," never "I can
+help you..." / "You can use this to..."). Grepped `skillopt-revise-rubric.md` --
+this instruction is NOT yet present. Not applied live because Plan 230-07's smoke
+calibration run may have been reading that exact frozen rubric file while it
+executed. Add one line to `skillopt-revise-rubric.md`'s "How to write the
+description" section once no live run is in flight, re-run
+`bash tests/run-all-230.sh` to confirm nothing regresses, commit.
