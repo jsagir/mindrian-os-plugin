@@ -3143,7 +3143,7 @@ to a MindrianOS-Plugin git tag)*
 **Goal:** Fleet-wide trigger-accuracy + code-quality pipeline across all 124 skills under `skills/`. Workstream 1 (trigger-accuracy, all 124 skills): per-family eval query generation exploiting sibling near-misses, a cheap roster-wide judge pass scored against all 124 descriptions at once per query, flagged skills escalate to agentskills.io's literal real trigger-test loop (train/val split, up to 5 description-revision iterations). Workstream 2 (code-quality, the ~10-20 script/workflow-backed skills): adversarially-verified review of the backing `.cjs` machinery. One merged, human-gated report; nothing auto-applied to any `SKILL.md` or script -- writes happen only after explicit user approval. No Workflow-tool call in this phase -- fleet-wide execution is a future step requiring the user's explicit multi-agent-orchestration opt-in.
 **Requirements**: D1-D7 (phase-local eval dimensions from 230-AI-SPEC.md Section 5; no global REQ-IDs mapped -- net-new phase)
 **Depends on:** None
-**Plans:** 3/7 plans executed
+**Plans:** 4/7 plans executed
 
 Plans:
 **Wave 1**
@@ -3154,8 +3154,8 @@ Plans:
 
 - [x] 230-02-PLAN.md - WS1 generation + funnel: per-family near-miss eval queries (deterministic 60/40 split) + roster-wide judge with runPool, flag rule, not_evaluated ledger [D1, D2, D5]
 - [x] 230-03-PLAN.md - WS1.5 trigger loop: live stream-json Skill-fire capture (pins the input field), scratch-checkout revision loop, best-by-validation + regressed_query_count == 0 gate [D2, D3, D7]
-- [ ] 230-04-PLAN.md - WS2 adversarial code review: findings-only reviewer + Refute-or-Promote refuter rubrics, deterministic evidence-quote anchor [D4]
-- [ ] 230-05-PLAN.md - Smoke calibration set: draft from real inventory, Jonathan pre-label checkpoint (autonomous: false) [D7]
+- [x] 230-04-PLAN.md - WS2 adversarial code review: findings-only reviewer + Refute-or-Promote refuter rubrics, deterministic evidence-quote anchor [D4]
+- [x] 230-05-PLAN.md - Smoke calibration set: draft from real inventory, Jonathan pre-label checkpoint (autonomous: false) [D7]
 
 **Wave 3** *(blocked on 230-02/03/04)*
 
