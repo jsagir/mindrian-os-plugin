@@ -253,55 +253,30 @@ const TRANSCRIPT_TAIL_BYTES = 2 * 1024 * 1024;
 const ASCII_BOX_GLYPH_RE =
   /\[\s*1\s*\]\s*.*\[\s*2\s*\]|type\s+1\s*,\s*2\s*,\s*or\s+3|\[\s*1\s*\][^\n]*\n[\s\S]*?\[\s*2\s*\]|(?:^|\n)\s{0,3}1[.)]\s+\S[^\n]*\n(?:[^\n]*\n)?\s{0,3}2[.)]\s+\S/i;
 
-// CR-05 (the framing co-requirement -- backstop-benign-list-defeats-relevance-gate,
-// 2026-07-11): ASCII_BOX_GLYPH_RE above stays BYTE-IDENTICAL (the retry-key signature in
-// gateSignature and the Phase 209 regex-matrix tests both depend on it verbatim). The
-// BACKSTOP intercept splits the four alternatives into two tiers:
+// backstop-numbered-prose-retired (card-fire-relevance-check-gap, navigator decision
+// 2026-07-17 "widen scope: fix both mechanisms"): ASCII_BOX_GLYPH_RE above stays
+// BYTE-IDENTICAL (the retry-key signature in gateSignature and the Phase 209 regex-matrix
+// tests both depend on it verbatim). The BACKSTOP intercept now keys on ONE tier only:
 //   - UNCONDITIONAL (alternatives 1-3: same-line bracket box, the "type 1, 2, or 3"
-//     literal, the multiline bracket box). These are shape-specific enough that a benign
-//     list practically never renders them by accident, so a match alone is a backstop hit.
-//   - FRAMED-ONLY (alternative 4: the bare numbered-prose gate added Phase 209-07). A
-//     `1. ... 2. ...` list is ALSO the exact shape of a benign Action Footer or a
-//     step-by-step explanation (the platform's own ui-system mandates "suggest 2-3 next
-//     commands"), so shape alone is not enough. It counts as a backstop hit ONLY when a
-//     choice-framing cue (GATE_FRAMING_RE) sits inside the matched span or within
-//     GATE_FRAMING_WINDOW chars before it. With no framing cue the numbered list is
-//     treated as benign prose and the turn is NOT intercepted.
-// This is the RCA's prescribed short-term patch; the long-term question (whether the
-// bracket alternatives deserve the same co-requirement) is deferred, not observed live.
+//     literal, the multiline bracket box). These are shape-specific enough that ordinary
+//     prose practically never renders them by accident, so a match alone is a backstop hit.
+// The Phase 209-07 bare numbered-prose alternative (formerly ASCII_BOX_NUMBERED_PROSE_RE,
+// gated by GATE_FRAMING_RE within GATE_FRAMING_WINDOW) is RETIRED. Live evidence -- the 7
+// real backstop fires in ~/.mindrian/card-fire-intercepts.log -- showed the framing
+// co-requirement could not separate the ONE genuine fork (cfec3113, "Two honest paths --
+// pick one: build vs file") from the SIX false positives, an ~86% false-positive net: pairs
+// of clarifying questions, informational step lists, and even a disclaimer that literally
+// said "NOT options to pick between" all tripped the bare `?`/verb cue, and two fires
+// carried the cue INSIDE unrelated content (a Neo4j tool description reading "silently pick
+// the single best match"). A `1. ... 2. ...` list is the exact shape of a benign Action
+// Footer, a step-by-step explanation, or a set of caveats, and a shape-plus-nearby-cue proxy
+// provably cannot tell those from a genuine fork. Catching a genuine numbered-prose fork is
+// now the MODEL's own Phase-210 / SEED-021 judgment responsibility (its system prompt
+// already mandates firing AskUserQuestion for a real decision fork); the flat-text safety net
+// is deliberately removed because it did more harm than good. A genuine gate rendered as a
+// real `[1]...[2]` bracket box is still caught by arms 1-3.
 const ASCII_BOX_UNCONDITIONAL_RE =
   /\[\s*1\s*\]\s*.*\[\s*2\s*\]|type\s+1\s*,\s*2\s*,\s*or\s+3|\[\s*1\s*\][^\n]*\n[\s\S]*?\[\s*2\s*\]/i;
-
-// Alternative 4 alone (the bare numbered-prose gate). Kept byte-identical to the fourth
-// branch of ASCII_BOX_GLYPH_RE so the split is a pure partition, never a change to the
-// shape detection itself.
-const ASCII_BOX_NUMBERED_PROSE_RE =
-  /(?:^|\n)\s{0,3}1[.)]\s+\S[^\n]*\n(?:[^\n]*\n)?\s{0,3}2[.)]\s+\S/;
-
-// The choice-framing cue a bare numbered-prose gate must carry near it to count as a
-// backstop hit: a `?` (the most common fork framing) OR one of a small allow-list of
-// choice verbs/phrases. The RCA named `which / would you like / pick one / choose /
-// select one / type 1`; `pick one` and `select one` are widened here to the bare verbs
-// `\bpick\b` / `\bselect\b` so natural framings the existing Phase 210 relevance-gate
-// fixtures already use ("pick a room to resume", "select a path") are recognized without
-// a false negative. A benign Action Footer ("Next you could: 1. ... 2. ...") carries none
-// of these, so it no longer trips the backstop.
-//
-// Post-merge finding (intern-w1-card-discipline-decay, 2026-07-11, merged same day as
-// CR-05): a genuine strategic fork rendered as a plain cardinality lead-in -- "Two paths
-// from here:" / "Two options:" -- carries no question mark and none of the verb cues
-// above, so it was silently swallowed by the SAME framing gate CR-05 introduced to kill
-// benign Action Footers, reopening exactly the false-negative the card-discipline fix was
-// merged to close. Added a second cue class: an explicit cardinality + choice-noun lead-in
-// ("two options", "3 paths", "a few choices", "two alternatives"). A benign Action Footer
-// ("Next you could:") never names its own item count this way, so this does not reopen the
-// CR-05 benign-list test.
-const GATE_FRAMING_RE =
-  /\?|\bwhich\b|\bchoose\b|\bpick\b|\bselect\b|would you like|type\s+1|\b(?:a\s+few|\d+|two|three|four|five)\s+(?:options?|paths?|choices?|alternatives?|ways?)\b/i;
-
-// How many chars BEFORE a numbered-prose match to scan for a framing cue (the gate's
-// question / lead line typically sits on the line just above the first option).
-const GATE_FRAMING_WINDOW = 150;
 
 // ----- envelope schema allowlist (Phase 95 BASH-95-01) -----
 
@@ -455,29 +430,20 @@ function turnContextHash(turn) {
 }
 
 // ---------------------------------------------------------------------------
-// computeBackstopHit(outputText) -- CR-05. The BACKSTOP signal with the framing
-// co-requirement applied. Alternatives 1-3 (ASCII_BOX_UNCONDITIONAL_RE) are a hit on
-// shape alone; alternative 4 (ASCII_BOX_NUMBERED_PROSE_RE, the bare numbered-prose gate)
-// is a hit ONLY when a GATE_FRAMING_RE cue sits inside the matched span or within
-// GATE_FRAMING_WINDOW chars before it. A benign numbered list with no framing cue anywhere
-// yields no hit. Pure LOCAL string work; never throws.
+// computeBackstopHit(outputText) -- the BACKSTOP signal. A hit ONLY on the shape-specific
+// alternatives 1-3 (ASCII_BOX_UNCONDITIONAL_RE: same-line bracket box, the "type 1, 2, or 3"
+// literal, the multiline bracket box). The Phase 209-07 bare numbered-prose alternative is
+// RETIRED (see the retirement note above ASCII_BOX_UNCONDITIONAL_RE): it was an ~86%
+// false-positive net in the live log, and a shape-plus-nearby-cue proxy cannot separate a
+// benign numbered list from a genuine fork. A real numbered-prose fork is now the model's own
+// Phase-210 / SEED-021 judgment. Pure LOCAL string work; never throws.
 // ---------------------------------------------------------------------------
 function computeBackstopHit(outputText) {
   const text = typeof outputText === 'string' ? outputText : '';
   if (!text) return false;
-  // Alternatives 1-3: unconditional (bracket notation / literal "type 1, 2, or 3").
-  if (ASCII_BOX_UNCONDITIONAL_RE.test(text)) return true;
-  // Alternative 4: framed-only. Walk every numbered-prose match; a single framed one is
-  // enough. GATE_FRAMING_RE is non-global, so .test() re-scans each window from index 0.
-  const re = new RegExp(ASCII_BOX_NUMBERED_PROSE_RE.source, 'g');
-  let mm;
-  while ((mm = re.exec(text)) !== null) {
-    const start = Math.max(0, mm.index - GATE_FRAMING_WINDOW);
-    const windowText = text.slice(start, mm.index + mm[0].length);
-    if (GATE_FRAMING_RE.test(windowText)) return true;
-    if (re.lastIndex === mm.index) re.lastIndex += 1; // guard a zero-width match
-  }
-  return false;
+  // Arms 1-3 only: a literal `[1] ... [2]` bracket box or the "type 1, 2, or 3" literal.
+  // Numbered-prose shape alone no longer counts (retired -- model judgment owns the fork).
+  return ASCII_BOX_UNCONDITIONAL_RE.test(text);
 }
 
 // ---------------------------------------------------------------------------
@@ -579,30 +545,56 @@ function classifyCardFire(turn, registry) {
     // guarantee (a genuine, relevant, unanswered fork still force-fires) is preserved.
     // CR-03: preceding_user_text feeds ONLY this verdict, never the retry key.
     //
-    // 2026-07-05 relevance-gate PRIMARY-path fix: gateAlreadyAnswered's gateLabels
-    // (derived from outputText) is UNTOUCHED below -- only gateTopicallyRelevant's
-    // second argument changes. WHY: on the PRIMARY path, outputText is the CURRENT
-    // TURN's assistant reply, and the model naturally echoes the user's current
-    // topic back when answering it -- so comparing precedingUserText against
-    // outputText almost always looked "relevant" no matter what the stale reach
-    // was actually about (it was comparing the user's turn against the assistant's
-    // OWN reply to that turn, never against the reach's real subject). Now it
-    // compares against the reach's own recorded subject text (gate_subject_text,
-    // the gate's own rendered header/body/label content) when available, falling
-    // back to the prior outputText behavior only when no such subject text exists
-    // (the BACKSTOP path, where outputText legitimately IS the gate-shaped text).
+    // 2026-07-05 relevance-gate PRIMARY-path fix (kept): gateAlreadyAnswered's gateLabels
+    // (derived from outputText) is UNTOUCHED below -- only the relevance comparison's second
+    // argument (the gate subject) is path-specific. WHY: on the PRIMARY path, outputText is
+    // the CURRENT TURN's assistant reply, and the model naturally echoes the user's current
+    // topic back when answering it -- so comparing precedingUserText against outputText almost
+    // always looked "relevant" no matter what the stale reach was actually about (it compared
+    // the user's turn against the assistant's OWN reply, never against the reach's real
+    // subject).
+    //
+    // card-fire-relevance-check-gap (2026-07-17) PRIMARY-path gate-existence guard: a PRIMARY
+    // hit means a registry gate-reaching surface (lib/hmi/selector-dispatcher.cjs) appears in
+    // ran_entries -- but the side-channel's NO_SESSION_KEY union + ~10-min TTL bleeds ONE real
+    // gate-mint into EVERY turn's ran_entries for the next ten minutes across all sessions (the
+    // live log shows 10 consecutive false fires on status / "building" / "boot the real one"
+    // turns spanning ~21 min and 4 session_ids). So ran_entries alone is NOT proof a gate was
+    // reached THIS turn. Require CONFIRMED gate-existence: a non-empty reach-recorded subject
+    // (t.gate_subject_text -- the gate's own recorded content from the side-channel). With no
+    // subject there is no gate this turn -> 'primary-gate-existence-unconfirmed', no intercept.
+    // Relevance on the primary path compares the preceding user turn against the reach's OWN
+    // recorded subject ONLY, never the outputText fallback (which compares the user turn against
+    // the assistant's own reply and almost always reads "relevant" -- the exact defect this
+    // closes). This guard is PRIMARY-only; the BACKSTOP path carries its gate content in
+    // outputText and keeps the outputText fallback below.
     const precedingUserText = typeof t.preceding_user_text === 'string'
       ? t.preceding_user_text
       : '';
+    if (primaryHit && !backstopHit) {
+      const primarySubject = (typeof t.gate_subject_text === 'string' && t.gate_subject_text)
+        ? t.gate_subject_text
+        : '';
+      if (!primarySubject) {
+        return { intercept: false, reason: 'primary-gate-existence-unconfirmed', degrade: false };
+      }
+      if (!gateRelevance.gateTopicallyRelevant(precedingUserText, primarySubject)) {
+        return { intercept: false, reason: 'gate-irrelevant-to-turn', degrade: false };
+      }
+    }
     const gateLabels = gateRelevance.extractOptionLabels(outputText);
     if (gateRelevance.gateAlreadyAnswered(precedingUserText, gateLabels)) {
       return { intercept: false, reason: 'gate-already-answered', degrade: false };
     }
-    const gateSubjectText = (typeof t.gate_subject_text === 'string' && t.gate_subject_text)
-      ? t.gate_subject_text
-      : outputText;
-    if (!gateRelevance.gateTopicallyRelevant(precedingUserText, gateSubjectText)) {
-      return { intercept: false, reason: 'gate-irrelevant-to-turn', degrade: false };
+    if (!(primaryHit && !backstopHit)) {
+      // BACKSTOP path: outputText legitimately IS the gate content, so the fallback to
+      // outputText is preserved here (and ONLY here).
+      const gateSubjectText = (typeof t.gate_subject_text === 'string' && t.gate_subject_text)
+        ? t.gate_subject_text
+        : outputText;
+      if (!gateRelevance.gateTopicallyRelevant(precedingUserText, gateSubjectText)) {
+        return { intercept: false, reason: 'gate-irrelevant-to-turn', degrade: false };
+      }
     }
 
     // Navigator decision (2026-07-05): a plain 2-option yes/no closer is a SIMPLE
@@ -1292,7 +1284,6 @@ module.exports = {
   RETRY_TTL_MS,
   TRANSCRIPT_TAIL_BYTES,
   ASCII_BOX_GLYPH_RE,
-  GATE_FRAMING_RE,
   computeBackstopHit,
   matchedGlyphSpan,
   classifyCardFire,

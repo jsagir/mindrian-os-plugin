@@ -79,3 +79,40 @@ unchanged: the backstop is still pattern-matching on "turn ends in prose that is
 Larry-signed acknowledgment," not on "turn actually rendered a box of choices." Three
 confirmed live instances now, zero fix attempts -- still capture-only per this file's own
 instruction.
+
+## Resolution (2026-07-17) -- DONE, both paths fixed
+
+Investigated + fixed under debug session `card-fire-relevance-check-gap` (now at
+`.planning/debug/resolved/card-fire-relevance-check-gap.md`). Navigator decision: "widen
+scope: fix both mechanisms in one pass." BOTH hard-fail paths this todo flagged are
+addressed:
+
+- **`ascii-box-backstop-no-card` (Finding 2, the backstop):** the numbered-prose backstop
+  arm is RETIRED entirely. `computeBackstopHit` now hits only on the shape-specific
+  bracket-box arms (`[1]...[2]` / "type 1, 2, or 3"); a bare `1. ... 2. ...` list no longer
+  counts. Live evidence: 6 of 7 real backstop fires were ordinary enumerated prose (two even
+  carried the framing token "pick" INSIDE unrelated content), an ~86% false-positive net a
+  shape-plus-common-token proxy provably cannot fix. Catching a genuine numbered-prose fork
+  is now the model's own Phase-210/SEED-021 judgment; a bracket-box rendering still fires.
+- **`reached-registry-gate-no-card` (Finding 1, the primary path):** given a PRIMARY
+  gate-existence guard (todo Solution Option 1). A primary intercept now requires a non-empty
+  reach-recorded `gate_subject_text` AND topical relevance against THAT subject (not the
+  assistant's own reply). Root cause of the primary false positives: the side-channel's
+  NO_SESSION_KEY union + 10-min TTL bled ONE real selector-dispatcher gate-mint into
+  `ran_entries` for every turn for ~10 min across all sessions (10 consecutive false fires in
+  the live log). No subject -> `primary-gate-existence-unconfirmed`, no card.
+
+**Verification:** 17-record live-log replay -> 0/17 re-fire; synthetic bracket-box still
+intercepts, genuine primary gate still force-fires, empty-subject primary -> unconfirmed;
+card-fire test suite green; zero new failures in run-all-209/210/230.
+
+**cfec3113 trade-off (flagged):** the one genuine fork in the log ("Two honest paths -- pick
+one: build vs file") no longer force-fires at the hook -- deliberate cost of retire-entirely.
+Fallback if the navigator wants it back at the hook: the negation-guarded tighten-framing
+variant, NOT re-adding the retired arm.
+
+**Files changed:** scripts/check-card-fire.cjs; tests/test-card-fire-relevance-gate.cjs;
+tests/test-ga4-card-fire-interceptor.cjs; tests/test-209-primary-sidechannel.cjs.
+Fix left uncommitted for the navigator to commit.
+
+Status: DONE. Moved to `.planning/todos/completed/`.

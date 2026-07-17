@@ -1,4 +1,14 @@
 'use strict';
+// SUPERSEDED IN PART by backstop-numbered-prose-retired (card-fire-relevance-check-gap,
+// navigator decision 2026-07-17): the bare numbered-prose backstop arm is RETIRED (6 false
+// positives vs 1 true catch in the live log). The relevance-gate legs (1-5) render their gates
+// as BRACKET-BOX (the surviving backstop shape) so they still exercise the relevance machinery;
+// legs 6-8 and Test 2 (which render numbered-prose forks) are FLIPPED to assert the new contract
+// -- a numbered-prose fork no longer force-fires at the hook; the model's Phase-210 judgment owns
+// it. This DELIBERATELY reverses the HOOK-level guarantee of intern-w1-card-discipline-decay and
+// interacts with the OPEN under-firing sibling bug; see the legs 6-8 block for the trade-off. The
+// descriptions below reflect the pre-supersession intent.
+//
 // Phase 210-01 (Wave 0, item 210-E-1) -- the two-directional Stop-hook relevance
 // gate test. Encodes the CONTEXT.md constraint for scripts/check-card-fire.cjs's
 // classifyCardFire BEFORE the relevance gate exists (Nyquist Wave 0):
@@ -111,18 +121,24 @@ function classifyTranscript(records, sessionId) {
 // A THIRD option is present on purpose: 2-option gates are now EXEMPT as simple
 // binaries (reason gate-is-simple-binary, navigator decision 2026-07-05), so the
 // PRESERVE-FLOOR leg needs a genuine 3+-option fork to assert the intercept floor.
+// backstop-numbered-prose-retired (card-fire-relevance-check-gap, 2026-07-17): the
+// relevance-gate legs (1-5) render their gates as BRACKET-BOX (the surviving backstop
+// shape, ASCII_BOX_UNCONDITIONAL_RE arms 1-3) so they still admit the turn to the relevance
+// machinery under test. extractOptionLabels treats `[n]` and `n.` markers identically, so the
+// relevance / already-answered / binary logic is unchanged; only the shape detector that lets
+// the turn reach those checks moved off the retired numbered-prose arm onto the bracket arm.
 const ROOM_PICK_GATE = [
   'Ignite -- pick a room to resume, or start something new',
-  '1. ALIGN - Well-Defined Problem - opened in the last day',
-  '2. Just talk (no room)',
-  '3. Start a new room',
+  '[1] ALIGN - Well-Defined Problem - opened in the last day',
+  '[2] Just talk (no room)',
+  '[3] Start a new room',
 ].join('\n');
 
 // A release go/no-go gate whose option labels a plain-text "yes" plainly answers.
 const RELEASE_GATE = [
   'Publish this release?',
-  '1. Yes - publish v1.15.2 to npm now',
-  '2. No - hold the release for another pass',
+  '[1] Yes - publish v1.15.2 to npm now',
+  '[2] No - hold the release for another pass',
 ].join('\n');
 
 // ---------------------------------------------------------------------------
@@ -185,8 +201,8 @@ leg('leg 3 PRESERVE FLOOR: a genuine relevant unanswered fork still intercepts (
 // force-fire, since isYesNoShapedGate is false for these labels.
 const BINARY_DRAFT_GATE = [
   'Which draft should I open next?',
-  '1. The revenue projection draft',
-  '2. The onboarding rewrite draft',
+  '[1] The revenue projection draft',
+  '[2] The onboarding rewrite draft',
 ].join('\n');
 
 // ---------------------------------------------------------------------------
@@ -218,8 +234,8 @@ leg('leg 4 FORK NOW FORCE-FIRES: a relevant unanswered non-yes/no 2-option fork 
 // exemption must STILL claim it (the exemption is narrowed, not removed).
 const RELEASE_GATE_UNANSWERED = [
   'Publish this release?',
-  '1. Yes - publish v1.15.2 to npm now',
-  '2. No - hold the release for another pass',
+  '[1] Yes - publish v1.15.2 to npm now',
+  '[2] No - hold the release for another pass',
 ].join('\n');
 
 // ---------------------------------------------------------------------------
@@ -242,12 +258,19 @@ leg('leg 5 YES/NO EXEMPTION PRESERVED: a relevant unanswered yes/no closer still
 });
 
 // ---------------------------------------------------------------------------
-// Legs 6-8 -- INTERN REGRESSION FIXTURES (intern-w1-card-discipline-decay): the 3
-// quoted missed-fork phrasings from Intern-4's session, reconstructed as
-// numbered-prose gate renderings (this worktree's ASCII_BOX_GLYPH_RE has no
-// framing-cue co-requirement -- CR-05 is out of scope here, see the debug file).
-// Each is a genuine two-way forced-choice fork, not yes/no shaped, and must now
-// force-fire instead of being swallowed by gate-is-simple-binary.
+// Legs 6-8 -- INTERN REGRESSION FIXTURES, FLIPPED by backstop-numbered-prose-retired
+// (card-fire-relevance-check-gap, navigator decision 2026-07-17). The 3 quoted missed-fork
+// phrasings from Intern-4's session are NUMBERED-PROSE gate renderings. The HOOK-level
+// guarantee of intern-w1-card-discipline-decay (a numbered-prose fork force-fires) is
+// DELIBERATELY REVERSED: the numbered-prose backstop arm produced 6 false positives against 1
+// true catch in the live log and could not separate a benign numbered list from a genuine
+// fork, so it was retired. These forks now produce no-gate-signal at the hook; catching a
+// genuine numbered-prose fork is the model's own Phase-210 / SEED-021 judgment (its system
+// prompt still mandates firing AskUserQuestion for a real decision fork). KNOWN TRADE-OFF:
+// this shifts toward the OPEN opposite-direction under-firing sibling bug
+// (intern-qa-silent-degrade-pattern-*); a BRACKET-BOX rendering of the same fork still
+// force-fires (arms 1-3 survive, see leg 4). If the hook-level numbered-prose catch is later
+// wanted back, the path is the negation-guarded tighten-framing variant, not re-adding the arm.
 // ---------------------------------------------------------------------------
 const INTERN_FORK_1 = [
   'Which pull is stronger right now?',
@@ -267,46 +290,48 @@ const INTERN_FORK_3 = [
   '2. File evidence first',
 ].join('\n');
 
-leg('leg 6 INTERN FORK 1 force-fires: "get hired soon vs build toward" is not yes/no shaped', function () {
+leg('leg 6 INTERN FORK 1: numbered-prose fork no longer force-fires via the backstop (model judgment owns it)', function () {
   const out = classifyTranscript([
     { type: 'user', message: { role: 'user', content: 'I keep going back and forth between getting hired soon and building toward the long-term plan.' } },
     { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: INTERN_FORK_1 }] } },
   ], 'gsd-intern-w1-fork1-session');
-  assert.equal(out.verdict.intercept, true,
-    'INTERN FORK 1 must force-fire, not be swallowed as gate-is-simple-binary');
-  assert.notEqual(out.verdict.reason, 'gate-is-simple-binary',
-    'INTERN FORK 1 must not be classified as a simple binary');
+  assert.equal(out.verdict.intercept, false,
+    'RETIRED (2026-07-17): a bare numbered-prose fork is no longer a hook force-fire; the model Phase-210 judgment owns it');
+  assert.equal(out.verdict.reason, 'no-gate-signal',
+    'no bracket-box glyph and the numbered-prose arm is retired, so the reason is no-gate-signal');
 });
 
-leg('leg 7 INTERN FORK 2 force-fires: "run research vs build the plan" is not yes/no shaped', function () {
+leg('leg 7 INTERN FORK 2: numbered-prose fork no longer force-fires via the backstop (model judgment owns it)', function () {
   const out = classifyTranscript([
     { type: 'user', message: { role: 'user', content: 'not sure if we should run research first or just build the plan directly.' } },
     { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: INTERN_FORK_2 }] } },
   ], 'gsd-intern-w1-fork2-session');
-  assert.equal(out.verdict.intercept, true,
-    'INTERN FORK 2 must force-fire, not be swallowed as gate-is-simple-binary');
-  assert.notEqual(out.verdict.reason, 'gate-is-simple-binary',
-    'INTERN FORK 2 must not be classified as a simple binary');
+  assert.equal(out.verdict.intercept, false,
+    'RETIRED (2026-07-17): a bare numbered-prose fork is no longer a hook force-fire; the model Phase-210 judgment owns it');
+  assert.equal(out.verdict.reason, 'no-gate-signal',
+    'no bracket-box glyph and the numbered-prose arm is retired, so the reason is no-gate-signal');
 });
 
-leg('leg 8 INTERN FORK 3 force-fires: "build the plan now vs file evidence first" is not yes/no shaped', function () {
+leg('leg 8 INTERN FORK 3: numbered-prose fork no longer force-fires via the backstop (model judgment owns it)', function () {
   const out = classifyTranscript([
     { type: 'user', message: { role: 'user', content: 'trying to decide whether to build the plan now or file evidence first.' } },
     { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: INTERN_FORK_3 }] } },
   ], 'gsd-intern-w1-fork3-session');
-  assert.equal(out.verdict.intercept, true,
-    'INTERN FORK 3 must force-fire, not be swallowed as gate-is-simple-binary');
-  assert.notEqual(out.verdict.reason, 'gate-is-simple-binary',
-    'INTERN FORK 3 must not be classified as a simple binary');
+  assert.equal(out.verdict.intercept, false,
+    'RETIRED (2026-07-17): a bare numbered-prose fork is no longer a hook force-fire; the model Phase-210 judgment owns it');
+  assert.equal(out.verdict.reason, 'no-gate-signal',
+    'no bracket-box glyph and the numbered-prose arm is retired, so the reason is no-gate-signal');
 });
 
 // ---------------------------------------------------------------------------
-// CR-05 (backstop-benign-list-defeats-relevance-gate, 2026-07-11) -- the framing
-// co-requirement. Alternative 4 (bare `1. / 2.` numbered prose) now counts as a
-// backstop hit ONLY when a choice-framing cue sits near it. Two directional legs:
-//   Test 1 (benign, no framing): a plain 3-item "next steps" list must NOT intercept.
-//   Test 2 (genuine, WITH framing): a hand-rolled `1./2./3.` fork carrying a
-//     which/would-you-like/pick cue must STILL intercept (the Phase 209 floor survives).
+// CR-05 legs, SUPERSEDED by backstop-numbered-prose-retired (card-fire-relevance-check-gap,
+// 2026-07-17). The bare numbered-prose backstop arm (alternative 4) is RETIRED entirely, so
+// BOTH numbered-prose legs below now assert no-gate-signal:
+//   Test 1 (benign, no framing): a plain 3-item "next steps" list does NOT intercept
+//     (unchanged -- it never carried a framing cue, and now the arm is gone regardless).
+//   Test 2 (formerly "genuine framed fork must STILL intercept"): FLIPPED -- a numbered-prose
+//     fork no longer force-fires at the hook; the model's Phase-210 judgment owns it. A
+//     bracket-box rendering of the same fork still force-fires (arms 1-3 survive, see leg 4).
 // ---------------------------------------------------------------------------
 
 // A benign, on-topic Action-Footer / next-steps list. No brackets (so alternatives 1-3
@@ -334,9 +359,11 @@ leg('Test 1 CR-05: a benign on-topic 3-item next-steps list (no framing cue) mus
     'CR-05: with no unconditional glyph and no framed alternative-4 hit, the reason is no-gate-signal');
 });
 
-// A genuine hand-rolled Decision Gate: bracket-free `1./2./3.` prose WITH a which/?
-// framing cue, topically relevant to the preceding user turn, unanswered, and 3-option
-// (so gate-is-simple-binary cannot claim it). The ONLY outcome left is a real intercept.
+// A genuine hand-rolled Decision Gate rendered as bracket-free `1./2./3.` numbered prose WITH a
+// which/? framing cue. backstop-numbered-prose-retired (2026-07-17): the numbered-prose backstop
+// arm is RETIRED, so this NO LONGER force-fires at the hook -- the model's Phase-210 judgment owns
+// a genuine numbered-prose fork now. The SAME fork rendered as a `[1]...[2]` bracket box still
+// force-fires (arms 1-3 survive; see leg 4).
 const FRAMED_NUMBERED_GATE = [
   'Good question about the auth onboarding rewrite. Which onboarding path do you want to build?',
   '1. Guided setup wizard for the auth flow',
@@ -344,19 +371,17 @@ const FRAMED_NUMBERED_GATE = [
   '3. Import an existing auth config from a file',
 ].join('\n');
 
-leg('Test 2 CR-05 PRESERVE FLOOR: a genuine framed `1./2./3.` fork must STILL intercept', function () {
+leg('Test 2 CR-05 FLIPPED: a genuine framed `1./2./3.` numbered-prose fork no longer force-fires (retired; model owns it)', function () {
   const out = classifyTranscript([
     { type: 'user', message: { role: 'user', content: 'Which onboarding path should we build for the auth rewrite?' } },
     { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: FRAMED_NUMBERED_GATE }] } },
   ], 'gsd-cr05-framed-gate-session');
   assert.equal(out.turn.askuserquestion_fired, false,
     'Test 2 fixture sanity: no card fired on this turn');
-  assert.equal(out.verdict.intercept, true,
-    'CR-05 floor: a genuine, relevant, unanswered framed fork must STILL intercept (Phase 209 guarantee survives Change 1)');
-  assert.equal(out.verdict.reason, 'ascii-box-backstop-no-card',
-    'CR-05 floor: the intercept fires on the BACKSTOP arm');
-  assert.equal(out.verdict.degrade, false,
-    'CR-05 floor: the intercept is a real force, not a bounded-escape degrade');
+  assert.equal(out.verdict.intercept, false,
+    'RETIRED (2026-07-17): a bare numbered-prose fork no longer force-fires at the hook; the model Phase-210 judgment owns it');
+  assert.equal(out.verdict.reason, 'no-gate-signal',
+    'no bracket-box glyph and the numbered-prose arm is retired, so the reason is no-gate-signal');
 });
 
 // ---------------------------------------------------------------------------

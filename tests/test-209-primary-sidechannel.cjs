@@ -132,7 +132,11 @@ ok('Behavior 5: a session with side-channel records and no fired card classifies
   const origEnv = process.env.CARD_FIRE_SIDECHANNEL_PATH;
   process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
   try {
-    recordReachedGate({ sessionId: 'sess-incident', surface: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', filePath: f });
+    // card-fire-relevance-check-gap (2026-07-17): a PRIMARY intercept now requires a
+    // non-empty reach-recorded subject (proof a gate existed THIS turn), so the fixture
+    // records the gate's own subject text alongside the surface. preceding_user_text is
+    // empty here, so the relevance check is conservatively relevant and the intercept holds.
+    recordReachedGate({ sessionId: 'sess-incident', surface: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', subjectText: 'Ignite - pick a room to resume or continue', filePath: f });
 
     const env = {
       session_id: 'sess-incident',

@@ -61,6 +61,12 @@ const reachedNoCard = {
   ran_entries: ['lib/core/navigation-engine-offer.cjs'],
   askuserquestion_fired: false,
   output_text: 'Here are your options.',
+  // card-fire-relevance-check-gap (2026-07-17): a PRIMARY intercept now REQUIRES a non-empty
+  // reach-recorded gate_subject_text (CONFIRMED proof a gate was reached THIS turn -- ran_entries
+  // alone bleeds across turns via the side-channel NO_SESSION_KEY union + TTL) AND topical
+  // relevance against it. A genuine primary gate supplies both, so this still force-fires.
+  gate_subject_text: 'Choose your starting point: solution-first, domain-first, or venture-first',
+  preceding_user_text: 'help me choose a starting point for my venture',
 };
 const ra = m.classifyCardFire(reachedNoCard, FIXTURE_REGISTRY);
 ok('(a) PRIMARY: reached-gate-no-card yields intercept=true', ra.intercept === true);
@@ -143,6 +149,11 @@ const belowLimit = {
   askuserquestion_fired: false,
   output_text: 'no card yet',
   retry_count: m.MAX_FORCE_RETRIES - 1,
+  // card-fire-relevance-check-gap: a genuine primary gate supplies a relevant recorded
+  // subject so it still intercepts below the ceiling (the at-limit fixture above degrades
+  // BEFORE the gate-existence guard, so it needs no subject).
+  gate_subject_text: 'Choose your starting point: solution-first, domain-first, or venture-first',
+  preceding_user_text: 'help me choose a starting point for my venture',
 };
 const bl = m.classifyCardFire(belowLimit, FIXTURE_REGISTRY);
 ok('(d) BOUNDED ESCAPE: below the limit it still intercepts', bl.intercept === true && bl.degrade !== true);
