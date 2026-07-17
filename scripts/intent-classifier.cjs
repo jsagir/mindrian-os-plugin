@@ -350,6 +350,36 @@ function extractMessage(raw) {
   return trimmed;
 }
 
+// reach-sensor-relevance-gap A1 (root cause A): extract the Claude session UUID
+// from the hook stdin payload. Claude Code passes { session_id, prompt, ... } to
+// the UserPromptSubmit hook; extractMessage already parses this envelope for the
+// MESSAGE but DISCARDS session_id. That id is the SAME UUID the MCP room_bind
+// writer keys the session binding under (tool-router.cjs effectiveSessionId =
+// extra.sessionId). Lifting it here lets resolveSessionId align the CLI READ key
+// with the MCP WRITE key, so a bound session is actually seen by the F.8 binding
+// gate (and by Phase 225's zero-score gate, which reads the same key source).
+// Pure + non-throwing: a non-JSON or session_id-less payload yields '' and
+// resolveSessionId falls through to its prior env/hash resolution (byte-identical
+// to the pre-fix behavior when no payload session_id is present).
+function extractSessionId(raw) {
+  if (!raw || !raw.trim()) return '';
+  let parsed = null;
+  try {
+    parsed = JSON.parse(raw.trim());
+  } catch (_) { return ''; }
+  if (!parsed || typeof parsed !== 'object') return '';
+  if (typeof parsed.session_id === 'string' && parsed.session_id.length > 0) {
+    return parsed.session_id;
+  }
+  // Nested: some hook envelopes wrap the fields under `payload`.
+  if (parsed.payload && typeof parsed.payload === 'object'
+      && typeof parsed.payload.session_id === 'string'
+      && parsed.payload.session_id.length > 0) {
+    return parsed.payload.session_id;
+  }
+  return '';
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -361,6 +391,10 @@ function extractMessage(raw) {
 // exits on empty message. We pass the raw stdin in via module scope.
 const STDIN_RAW = readStdinSync();
 const STDIN_MESSAGE = extractMessage(STDIN_RAW);
+// reach-sensor-relevance-gap A1: the real Claude session UUID from the hook
+// payload (empty string when absent). resolveSessionId prefers this over the
+// env/hash fallback so the CLI read key matches the MCP room_bind write key.
+const STDIN_SESSION_ID = extractSessionId(STDIN_RAW);
 
 // ---------------------------------------------------------------------------
 // Phase 94-06: emitStrictModeOverride
@@ -874,6 +908,17 @@ function resolveActiveRoomDir() {
 }
 
 function resolveSessionId(roomDir) {
+  // reach-sensor-relevance-gap A1 (root cause A): PREFER the hook stdin payload's
+  // session_id -- the real Claude session UUID that the MCP room_bind writer keys
+  // the binding under (tool-router.cjs effectiveSessionId = extra.sessionId).
+  // CLAUDE_SESSION_ID is UNSET in the UserPromptSubmit hook process, so before
+  // this the reader always fell through to the sha256(roomDir+ISO-day) hash -- a
+  // DIFFERENT namespace from the UUID writer, so readSessionBinding always missed
+  // and the F.8 gate (and Phase 225's zero-score gate) fired every turn. Resolution
+  // order: payload.session_id -> CLAUDE_SESSION_ID -> sha256 fallback.
+  if (typeof STDIN_SESSION_ID === 'string' && STDIN_SESSION_ID.length > 0) {
+    return STDIN_SESSION_ID;
+  }
   const env = process.env.CLAUDE_SESSION_ID;
   if (typeof env === 'string' && env.length > 0) return env;
   // Fallback: sha256(roomDir + ISO-date).slice(0,12). Date precision day
@@ -2703,6 +2748,11 @@ module.exports = {
   // reach-gate-stale-turn-input: exported so the regression can assert the CURRENT
   // turn (STDIN_MESSAGE) is threaded into the LOCAL routing seed (never the Brain).
   deriveConversationSeed: deriveConversationSeed,
+  // reach-sensor-relevance-gap A1: exported so the key-alignment regression can
+  // assert the CLI read key derives from the hook payload session_id (the MCP
+  // room_bind write UUID), not the sha256 hash fallback.
+  extractSessionId: extractSessionId,
+  resolveSessionId: resolveSessionId,
 };
 
 if (require.main === module) {
