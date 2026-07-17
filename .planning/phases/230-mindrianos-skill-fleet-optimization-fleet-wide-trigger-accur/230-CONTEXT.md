@@ -72,5 +72,9 @@ A fleet-wide skill-quality pipeline for MindrianOS-Plugin's own 124 `SKILL.md` f
 
 ---
 
+**Dev-Research Compositing (CLAUDE.md):** filed in both homes -- this repo's own phase artifacts (CONTEXT.md/AI-SPEC.md/PATTERNS.md/PLAN.md, this directory) plus the durable reasoning trail at `~/MindrianRooms/rethinking-mindrianos/research/2026-07-17-phase-230-skill-fleet-optimization/2026-07-17-phase-230-skill-fleet-optimization.md`, cross-linked both directions.
+
+---
+
 *Phase: 230-mindrianos-skill-fleet-optimization-fleet-wide-trigger-accur*
 *Context gathered: 2026-07-17 via superpowers:brainstorming, formalized into CONTEXT.md ahead of /gsd-plan-phase*
