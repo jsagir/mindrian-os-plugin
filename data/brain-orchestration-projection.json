@@ -3175,6 +3175,12 @@
       "name": "publish"
     },
     {
+      "id": "skill:pws-brain",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "pws-brain"
+    },
+    {
       "id": "skill:pws-methodology",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
