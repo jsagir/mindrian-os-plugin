@@ -3143,7 +3143,7 @@ to a MindrianOS-Plugin git tag)*
 **Goal:** Fleet-wide trigger-accuracy + code-quality pipeline across all 124 skills under `skills/`. Workstream 1 (trigger-accuracy, all 124 skills): per-family eval query generation exploiting sibling near-misses, a cheap roster-wide judge pass scored against all 124 descriptions at once per query, flagged skills escalate to agentskills.io's literal real trigger-test loop (train/val split, up to 5 description-revision iterations). Workstream 2 (code-quality, the ~10-20 script/workflow-backed skills): adversarially-verified review of the backing `.cjs` machinery. One merged, human-gated report; nothing auto-applied to any `SKILL.md` or script -- writes happen only after explicit user approval. No Workflow-tool call in this phase -- fleet-wide execution is a future step requiring the user's explicit multi-agent-orchestration opt-in.
 **Requirements**: D1-D7 (phase-local eval dimensions from 230-AI-SPEC.md Section 5; no global REQ-IDs mapped -- net-new phase)
 **Depends on:** None
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 **Wave 1**
@@ -3163,7 +3163,7 @@ Plans:
 
 **Wave 4** *(blocked on all; autonomous: false)*
 
-- [ ] 230-07-PLAN.md - Live smoke calibration run (smoke set only, fleet run stays deferred), agreement vs pre-labels, cost projection, human calibration verdict [D2, D5, D7]
+- [x] 230-07-PLAN.md - Live smoke calibration run (smoke set only, fleet run stays deferred), agreement vs pre-labels, cost projection, human calibration verdict [D2, D5, D7]
 
 Design approved + spec'd via superpowers:brainstorming this session: `docs/superpowers/specs/2026-07-17-mindrian-skill-optimization-design.md` (commit `bf787961`, quick task `260717-jud`).
 
