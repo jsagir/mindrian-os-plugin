@@ -41,6 +41,102 @@ Therefore: ship as a **skills package + MCP server** that installs into any comp
 host. No fork. No 844K lines of someone else's Rust. No governance bet on a single
 vendor. **Whoever wins the harness war, MindrianOS wins, because it is not in the war.**
 
+## HOST MATRIX 2026-07-18 -- verified, and it inverts the original tier model
+
+Eleven hosts surveyed against primary sources the same day this seed was written. Two of
+three research passes returned; the vendor-CLI pass (Gemini CLI, Codex CLI, Qwen Code)
+was still outstanding at time of writing.
+
+**The premise upgraded.** `SKILL.md` is not a de facto convention -- it is an **open
+standard** (agentskills.io: *"originally developed by Anthropic, released as an open
+standard"*). **Every host surveyed ingests it natively WITH genuine progressive
+disclosure.** The feared eager-load of 124 files happens on none of them.
+
+**Tier 0 passes universally.** Differentiation moved entirely to the hook and
+persona/card channels.
+
+| Host | SKILL.md | Reads `.claude/skills/` | Hooks | Blocks turn-END | MCP `instructions` | Elicitation | Verdict |
+|---|---|---|---|---|---|---|---|
+| **VS Code / Copilot** | ✅ | ✅ | ✅ 8 events, **reads `.claude/settings.json`** | ✅ `Stop`, exit 2 | ✅ listed (semantics undocumented) | ✅ since 1.102 | **TIER 1** |
+| **Cursor** | ✅ | ✅ | ✅ **21 events**, `beforeSubmitPrompt` | ⚠️ via `followup_message` | ❓ UNVERIFIED | ✅ (rendering unverified) | **TIER 1** |
+| **Goose** | ✅ | ✅ | ✅ 11 events | ✅ `Stop`, exit 2, loop-capped | ✅ **honoured + templated** | ✅ form + URL | **TIER 1** |
+| **Cline** | ✅ | ✅ | ✅ 8 file-based | ⚠️ `TaskComplete` "coming soon" | ❌ unimplemented | ❌ | **TIER 1** |
+| **Windsurf / Devin** | ✅ | ✅ opt-in | ✅ 12 events | ⚠️ `post_cascade_response` | ❌ | ❌ | **TIER 1** |
+| **Continue** | ✅ | ✅ | ✅ **17 events**, CC-schema-compatible | ✅ | ❌ dropped | ❌ (`capabilities:{}`) | **TIER 1, deprioritise** |
+| **Zed** | ✅ | ❌ `.agents/` only | ❌ **none** | ❌ | ❌ **provably dropped** | ❌ | **TIER 0** |
+| **Aider** | ❌ | ❌ | ❌ | ❌ | -- no MCP client at all | -- | **UNSUPPORTED** |
+| OpenCode | ✅ | ✅ | ✅ (no turn-end; SEED-063 adds it) | ➕ addable | ✅ | ❌ commented out | **TIER 1 w/ plugin** |
+| Grok Build | ✅ | ✅ zero-config | ✅ 17 events, exit 2 | ✅ `Stop` | UNVERIFIED | UNVERIFIED | **TIER 1** |
+
+### THE INVERSION -- the original tier model in this seed was backwards
+
+It assumed skills+MCP were the universal layer and hooks the rare enhancement.
+**The opposite is true:**
+
+- **Skills: universal.** Every host, zero conversion cost.
+- **Blocking hooks: common.** 8 of 10 hosts. VS Code reads our `.claude/settings.json`
+  directly; Continue explicitly targets Claude Code hook-schema compatibility
+  (*"any hook written for `claude` works with `cn` out of the box"*).
+- **MCP `instructions` (persona): RARE.** Confirmed only on Goose and (listed) VS Code.
+  Provably discarded by Zed. Unimplemented on Cline and Continue.
+- **MCP elicitation (cards): RARE.** Goose, VS Code, Cursor(?) only.
+
+### Two architectural consequences -- treat as binding
+
+1. **NEVER route persona through `InitializeResult.instructions`.** It is the least
+   portable channel surveyed. **Persona ships as a SKILL** -- the one channel with
+   universal support and documented semantics. `instructions` and elicitation are
+   per-host *enhancements*, never dependencies. (This supersedes the SEED-065 guidance to
+   lean on `instructions` + tool descriptions; tool descriptions remain a good universal
+   voice channel, `instructions` does not.)
+2. **Enforce governance SERVER-SIDE, in the MCP tool handlers.** Client hooks exist on
+   most hosts but are Preview on VS Code, differently shaped on each, and absent on Zed.
+   Only the `.claude/settings.json` path is portable, and only to VS Code.
+
+### Reach -- the trade is far better than this seed originally assumed
+
+This seed was written expecting to trade depth for reach. **Both of the hosts that
+constitute the market are TIER 1:**
+
+- **VS Code / GitHub Copilot -- 75.9% of developers** (Stack Overflow 2025, n=26,143),
+  180M+ GitHub accounts. Everything ships unchanged, including hooks.
+- **Cursor -- ~$2B annualised, 64% of the Fortune 500**, and **Plugins**: skills + MCP +
+  hooks as ONE installable marketplace unit. This is the distribution primitive the
+  infrastructure play needs.
+
+### Build order
+
+1. **VS Code / Copilot** and **Cursor** -- the market, both Tier 1, both keep Larry intact.
+2. **Goose** -- the only host carrying *every* channel including `instructions` and
+   elicitation. Block-backed, pushed daily. The reference implementation for full fidelity.
+3. **Cline** -- 4.7M VS Code installs, skills+hooks work, persona degrades to a skill.
+   **PR #11131 implements `instructions` and is still OPEN, needing only a rebase** --
+   an upstream contribution upgrades this host cheaply (see correction below).
+4. **Grok Build / OpenCode** -- Tier 1; OpenCode needs SEED-063's plugin for turn-end.
+5. **Zed** -- ~a day (copy to `.agents/skills/`). Ship because it is cheap, not because
+   it moves revenue. **Hard constraint: 50KB total catalog budget for all
+   names+descriptions, overflow silently dropped. At 124 skills that is ~400 bytes each
+   -- MEASURE BEFORE SHIPPING.**
+6. **Continue** -- package for, do not invest in. Acquired by Cursor; four consecutive
+   zero-commit weeks; best features CLI-only and undocumented.
+7. **Aider** -- skip. No MCP client at all; no progressive disclosure.
+
+### Corrections to earlier claims in this research
+
+- **Cline did NOT "explicitly decline" `instructions`.** The issue was closed
+  `not_planned` **by a stale bot** with no human position taken; the PR was closed **by
+  its own author** for refactor drift, not rejection. PR #11131 remains open. **There is
+  zero recorded opposition** -- upstreaming is viable.
+- **Windsurf is now Devin Desktop** (`docs.windsurf.com` 307-redirects to
+  `docs.devin.ai/desktop`; v3.0.12, June 2026). Cognition-owned. No substantiable seat or
+  ARR figure -- verify the install base before spending roadmap on it.
+- The IDE research pass returned **one materially wrong verdict** (VS Code hooks) that it
+  caught and corrected on a second pass. Remaining UNVERIFIED cells -- Cursor's
+  `instructions` support, elicitation *rendering fidelity* on Cursor and VS Code -- should
+  be treated as genuinely open, not probably-fine.
+
+---
+
 ## The architecture -- two tiers, honest degradation
 
 ```
