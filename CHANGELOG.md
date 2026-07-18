@@ -48,6 +48,65 @@
   `iia-deeptech-centers` (AHP composite doesn't differentiate a room where ~87% of nodes are
   whitespace hypotheses) -- both real, both future work, neither papered over.
 
+- **Phase 230: MindrianOS Skill Fleet Optimization -- the harness for testing whether
+  MindrianOS's own 124 skills trigger correctly and stay quiet when they shouldn't.**
+  Two workstreams. WS1 (trigger-accuracy, all 124 skills): per-family eval-query generation
+  exploiting sibling near-misses, a roster-wide judge funnel (one call scores a query against
+  all 124 skill descriptions at once, catching competitive collisions isolated per-skill
+  grading structurally cannot see), flagged skills escalate to a real live trigger-test loop
+  with train/validation-gated description revision. WS2 (code-quality, the ~59 script/
+  workflow-backed skills -- the design estimated ~10-20, the real inventory came in ~3x
+  higher, disclosed rather than silently re-scoped): adversarially-verified review
+  (Refute-or-Promote) with a deterministic evidence-quote anchor so a fabricated finding
+  cannot reach the report. Live-smoke-tested end to end on a 13-skill human-approved
+  calibration set (`scripts/skillopt-*.cjs`, `lib/core/skillopt-schemas.cjs`,
+  `tests/run-all-230.sh`, 9 deterministic legs): the real Skill-fire detector proved correct
+  in both directions on fresh live captures (it turned out MindrianOS's own `mos:` skills
+  fire via an MCP tool call, not Claude Code's native Skill tool -- caught before anything
+  was built on the wrong assumption), and WS2 independently re-discovered the real
+  `check-card-fire.cjs` over-enforcement defect (see Fixed, below) with zero false positive
+  on a known-clean control. The smoke calibration gate itself came in under tolerance (30%
+  agreement vs. an 85% bar) -- accepted as informative, not blocking, since most of the gap
+  is real full-roster collisions a human's isolated pre-labels couldn't see plus one disclosed
+  query-labeling bug; the reconciliation (fix the labeling bug, re-run smoke) is tracked as
+  SEED-061, not silently dropped. **The full 124-skill fleet run and any multi-agent
+  Workflow-tool orchestration are explicitly deferred behind a future opt-in -- this release
+  ships the harness, not a fleet run.** Nothing was ever written to a real `SKILL.md` or
+  script; every proposed change surfaces in a human-approved report only.
+
+### Fixed
+
+- **`check-card-fire.cjs` no longer force-fires the Decision-Gate card on plain prose with no
+  actual gate.** Two independent over-fire mechanisms, logged three times across 12 days
+  (2026-07-05, 2026-07-11, 2026-07-17) before being root-caused against a live 17-record
+  intercept-log replay: (1) the backstop's bare numbered-prose detector had a 7/7
+  false-positive rate in the logged evidence and zero true catches -- retired outright,
+  genuine ASCII-box degrades stay caught by the separate bracket-arm detector, unchanged;
+  (2) the primary registry-gated path fired on `ran_entries` alone, which a side-channel
+  session-key/TTL union bled into every turn for roughly 10 minutes regardless of relevance
+  -- now requires a confirmed, non-empty gate-subject plus relevance against that real
+  subject. Verified against all 7 real logged firings (0/7 re-fire) plus the full
+  card-fire-specific suite (11/11 + 27 assertions). Trade-off, disclosed not hidden: a lone
+  genuine numbered-prose fork no longer force-fires at the hook level and now depends on the
+  model's own Phase-210/SEED-021 judgment -- the same trust boundary the existing
+  under-firing watch (`feedback_false_success_silent_skip_gates_academy_testers.md`) already
+  tracks from the opposite direction.
+- **Per-session room binding no longer re-prompts every turn after a real bind.** The MCP
+  `room_bind` tool wrote the session's binding state keyed by the actual Claude session UUID;
+  the CLI `UserPromptSubmit` hook read it keyed by `process.env.CLAUDE_SESSION_ID`, which is
+  unset in that hook's execution context, so it silently fell back to a
+  `sha256(roomDir+day)` hash key that never matched -- confirmed with an exact hash-vs-
+  on-disk-filename proof, not inferred. The hook now reads the real session id from its own
+  stdin payload first. This also un-breaks Phase 225's zero-score gate (SEED-039), which
+  shared the same key-mismatch root and was never separately regressed -- just never covered.
+- **The reach/navigation dial no longer offers a topically-unrelated room or claim with no
+  relevance check.** `cross_room` was a permanent member of the reach candidate bank, always
+  offered in a cold room's top-3 regardless of what the live conversation was actually about,
+  filtered only by advisory instruction text the model had to apply itself. A structural
+  relevance gate (`lib/hmi/reach-relevance-gate.cjs`) now suppresses off-topic candidates by
+  token overlap against the live turn before they're ever offered; `cross_room` also no
+  longer "borrows from itself" (filling its own room-name slot with the current room).
+
 ## [1.15.3-beta.26] - 2026-07-16
 
 ### Added
