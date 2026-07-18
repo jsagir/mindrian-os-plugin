@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.27 (in progress)
+## [1.15.3-beta.28] - 2026-07-18
 
 ### Added
 
