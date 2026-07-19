@@ -3167,6 +3167,18 @@ Plans:
 
 Design approved + spec'd via superpowers:brainstorming this session: `docs/superpowers/specs/2026-07-17-mindrian-skill-optimization-design.md` (commit `bf787961`, quick task `260717-jud`).
 
+### Phase 231: Eureka Entity-Noise Fix (WHAT-side low-confidence + pairing exclusion)
+
+**Goal:** Thread the low-confidence signal onto WHAT-side entities (currently stamped WHY-only in `entity-extract.cjs`'s `routeLabel()`) and persist it as a node prop; have `lib/core/eureka/room-native-substrate.cjs` exclude low-confidence + `source:'fallback'` entities from eureka pairing, reusing the existing scaffold/container exclusion machinery; optionally give `resolveAnthropicKey()` (`lib/core/mva-classifier.cjs`) a cwd-independent module-relative `.env` lookup leg so tier-2b can resolve a key regardless of invocation directory. Root-caused via the `handoff-eureka-entity-noise-2026-07-19` debug session (2026-07-19): junk entities ("Windows", "CSFs") ranked top-2 in a live eureka run not because regex noise survived a real model pass, but because the LLM escalation tier (tier-2b) has never once fired on this machine (`tier2_model: 0` in every real run checked) -- everything resolves through the weaker embedding tier instead. Must preserve `tests/test-218-what-why-classifier.cjs` assertions (no-key -> `source:'fallback'`, embedding-degrade -> `classifier_source:'embedding'`, never silently `'fallback'`) and must NOT touch `entity-classifier.cjs`'s `_fallback()` (documented T-T2-01 fail-open contract). [Planning correction 2026-07-19, per 231-PATTERNS.md and the applied implementation: the pairing-exclusion wiring point is scripts/eureka-portfolio-report.cjs step-4b, NOT room-native-substrate.cjs, and only the low_confidence tier is excluded - fallback stays rankable under the Decision-8 hasVerifiedEntity guard.]
+**Requirements**: EEN-01 (WHAT-side evidenceTier low-confidence stamping persisted at node write), EEN-02 (step-4b low-trust pairing exclusion, low_confidence-only, hasVerifiedEntity Decision-8 guard, honest low_trust_pairs_excluded provenance), EEN-03 (cwd-independent module-relative .env leg in resolveAnthropicKey, keyless-safe), EEN-04 (_coerceLabels drop-on-garbage narrowing; _fallback T-T2-01 contract untouched), EEN-05 (CR-01 duplicate-entity-name evidenceTier reconciliation, highest-trust wins, DESCRIBES edges preserved), EEN-06 (test contract preserved + extended: 22/22 classifier contract intact, new low-trust + reconciliation tests wired into run-all-218.sh)
+**Depends on:** Phase 230. Sequencing note (SEED-071, not a hard code dependency): SEED-034 (room.db population, CRITICAL, still open) should land first -- better extraction feeding a graph that's never populated is worth nothing.
+**Plans:** 2 plans
+
+Plans:
+
+- [ ] 231-01-PLAN.md - Verify + accept the already-applied FIX A/B/C: WHAT-side evidenceTier stamping, step-4b low-trust pair exclusion + Tier-0 guard, module-relative .env key leg, _coerceLabels narrowing [EEN-01, EEN-02, EEN-03, EEN-04, EEN-06]
+- [ ] 231-02-PLAN.md - Verify CR-01 duplicate-name reconciliation, full-suite roll-up, human-verify gate (live keyed acceptance or offline approval), atomic scoped commit + RCA disposition [EEN-05, EEN-06]
+
 ---
 
 ### Phase 221: Pipeline-Wide High-Effort LLM Engine Recovery (llm-engine-recovery) - REGISTERED 2026-07-13 - **JOINT 219+220+221 RELEASE; THE CUT EXECUTES HERE**
