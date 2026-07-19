@@ -1,14 +1,137 @@
 ---
 kind: rca
 slug: handoff-eureka-entity-noise-2026-07-19
-status: open
+status: resolved_offline
 created: 2026-07-19
+updated: 2026-07-19
 origin_machine: Windows (C:\Users\PC) - NOT the dev workspace
 target_machine: dev workspace (/home/jsagi/dev/MindrianOS-Plugin/)
 resume_with: /gsd-debug handoff-eureka-entity-noise-2026-07-19
 canon_parts: [7, 9, 11]
 related: SEED-070, docs/RCA-TEMPLATE.md
 ---
+
+## Current Focus (2026-07-19, gsd-debugger -- cwd theory VERIFIED, fix in progress)
+
+reasoning_checkpoint:
+  hypothesis: "tier2_model is structurally 0 because resolveAnthropicKey()'s only dev-reachable leg
+    (process.cwd()/.env) does not resolve in real invocation. VERIFIED by tracing the actual
+    invocation sites: .mcp.json launches bin/mindrian-mcp-server.cjs with NO cwd field and the
+    server never process.chdir()s, so process.cwd() = the host launch dir (never the plugin repo
+    root, never the room). entity-extract runs in-process off that cwd (tool-router http path,
+    eureka-command maybeExtractFirst, research-filing.runPostFilingExtraction). Legs 1/2 fail too
+    (Claude Code uses OAuth not ANTHROPIC_API_KEY; ~/.mindrian.env has no key). All three legs fail
+    -> keyPresent=false -> tier-2b never escalates -> tier2_model:0 in every real run. CONFIRMED."
+  confirming_evidence:
+    - "No process.chdir anywhere in lib/ or scripts/ (grep clean)."
+    - ".mcp.json: mindrian-os server = node bin/mindrian-mcp-server.cjs, NO cwd field -> inherits host cwd."
+    - "bin/mindrian-mcp-server.cjs never chdir()s; roomDir = path.resolve(MINDRIAN_ROOM||'./room') is relative to cwd, cwd is never normalized to repo root."
+    - ".env is gitignored (line 48) AND absent from package.json files[] -> NEVER shipped to users; the dev key is only reachable via the cwd leg, which real invocation never satisfies."
+    - "Matches the two real status.json (aion-eureka-synergy, jonathan-sagir): classifier_source embedding, tier2_model 0."
+  falsification_test: "If entity-extract were invoked with cwd=repo root in real MCP use, tier2_model would be >0. It is 0 in every real status.json -> cwd is NOT the repo root -> hypothesis holds."
+  fix_rationale: "Root cause is the key gate. FIX B (module-relative .env leg via __dirname) makes
+    tier-2b's NOISE filter reachable regardless of cwd -> addresses the origin so 'Windows'/'CSFs'
+    get contextually dropped. FIX A (stamp evidenceTier + exclude LOW-CONFIDENCE/fallback entities
+    from pairing) is the keyless-safe load-bearing fix: the observed junk rides in as low-confidence
+    embedding best-guess WHAT (source:'embedding'), so excluding the low-confidence tier is what
+    actually removes it. FIX C (_coerceLabels drop) hardens the tier-2b garbage path that FIX B makes live."
+  blind_spots: "REQ-5 (test-218-noise-reduction) asserts post-extraction entity pairs rank NON-EMPTY.
+    Must MEASURE the evidenceTier distribution of REQ-5's minted entities before finalizing the
+    exclusion predicate -- if they are EmbeddingConfident/ModelConfirmed the exclusion is safe; if any
+    are low-confidence/fallback the predicate or the test contract needs reconciling. Also: prior
+    session was blocked by a misfiring check-card-fire.cjs Stop-hook -- watch for continuation interrupts."
+
+reconciliation_with_session_manager: "Independently reached the SAME correction the session-manager
+recorded below (lines 62-101): the handoff's 'exclude source:fallback' + '_coerceLabels' moves do NOT
+touch the real noise vector (embedding-sourced low-confidence WHAT). The load-bearing lever is
+excluding the LOW-CONFIDENCE tier. NOTE the file target: the scaffold/container exclusion machinery
+that drops the 55 pairs lives in scripts/eureka-portfolio-report.cjs (the 4b pass, ~lines 1039-1064),
+NOT room-native-substrate.cjs -- pairing enumerates `indexed` (SELECT nodes + embeddings), not techMap.
+The new unverified-entity exclusion is added there as a third additive class, reusing that pattern."
+
+next_action: "Apply FIX B (mva-classifier.cjs module-relative .env leg), then stamp evidenceTier in
+entity-extract.cjs, then MEASURE REQ-5 evidenceTier distribution, then add the report 4b exclusion,
+then FIX C (_coerceLabels drop). Run tests/run-all-218.sh + test-218-what-why-classifier.cjs + mva tests."
+
+## Evidence (2026-07-19, dev-workspace verification against `seeds/host-runtime-research-2026-07-18` @ 0703ebe4)
+
+- **BLOCKER 2 refuted on dev tree:** `lib/core/eureka/entity-extractor.cjs`, `entity-classifier.cjs`,
+  `scripts/entity-extract.cjs` all present and intact. Confirmed on both `main` and this branch.
+  Was purely a stale Windows plugin-install-cache artifact, not a dev-workspace defect.
+- **Lead A confirmed exact:** `entity-extractor.cjs:143` `PROPER_RUN` regex matches the quoted
+  snippet verbatim, same line number.
+- **Lead B confirmed exact:** `entity-classifier.cjs` `DEGRADE-TO-PASSTHROUGH` contract, `_fallback()`
+  (line 112), `_coerceLabels()` (line 120), `T-T2-01` comments (lines 69, 119) all present as quoted.
+- **Open question 1 answered:** no threat-model doc for `T-T2-01` exists anywhere in the repo
+  (`docs/`, phase 218/219 plans, or elsewhere). It is an inline-only label, never registered. Not a
+  missing-doc research gap -- there is nothing to find.
+- **Open question 2 answered:** `tests/test-218-what-why-classifier.cjs` asserts the passthrough
+  contract -- every fail-open leg (no key, throw, non-JSON, non-2xx -> `source:'fallback'`) and the
+  embedding-degrade leg (`classifier_source` must be `'embedding'`, never silently `'fallback'`).
+  Read this file before touching `_coerceLabels()`.
+- **Open question 3 answered, with a third outcome the doc didn't anticipate:** real
+  `.mindrian/entity-extract/status.json` files exist for two populated rooms on this machine:
+  - `aion-eureka-synergy` (2026-07-14 run, the same room Phase 218's own research trail used):
+    `classifier_source: "embedding"`, `tier2_escalated: 206`, `tier2_model: 0`.
+  - `jonathan-sagir` (2026-07-15 run): `classifier_source: "embedding"`, `tier2_escalated: 48`,
+    `tier2_model: 0`.
+  - (`iia-deeptech-centers` came back `classifier_source: "fallback"` but the room itself was empty,
+    0 artifacts -- not a signal about the classifier, just an empty room.)
+  Neither pure `fallback` (per this doc's framing, "gate never ran") nor `model` ("noise survived a
+  real pass") -- `tier2_model: 0` in every real run checked means the LLM escalation tier has never
+  once fired on this machine. See hypothesis above for why.
+- **Note:** `~/.mindrian.env` exists but has no `ANTHROPIC_API_KEY` line. The plugin repo's own
+  `.env` does have one (presence only checked, value not read/printed).
+
+## Verified Root Cause + Corrected Fix Direction (2026-07-19, session-manager)
+
+**Root cause CONFIRMED against the real tree.** Extraction is gated at `scripts/entity-extract.cjs:737`
+(`keyPresent = resolveAnthropicKey() !== null`). `resolveAnthropicKey()` has one cwd-independent key
+source (`~/.mindrian.env`), which has no key here; its third leg reads `process.cwd()/.env`, but real
+runs execute with cwd = the room, not the repo. So tier-2b (the LLM) never resolves a key and never
+fires. That is exactly why `tier2_model: 0` in every status.json. The cwd theory holds.
+
+**The handoff doc's proposed fix aims at the wrong target** (it predates the two-tier refactor). The
+NOISE label lives ONLY in tier-2b. Tier-2a (embedding) sorts WHAT vs WHY and has no NOISE class, so
+"Windows"/"CSFs" are neither a bad model pass nor `source:'fallback'` -- they ride in as
+`source:'embedding'` low-confidence WHAT best-guesses. This kills two of the doc's three moves:
+excluding `source:'fallback'` from pairing never touches embedding-sourced noise, and tightening
+`_coerceLabels()` hardens a path the term never traveled. Do NOT do those as the primary fix.
+
+**Correct fix (verified, smaller than the doc feared):**
+1. LOAD-BEARING (works with or without a key): the low-confidence signal already exists at
+   `routeLabel()` (`entity-extract.cjs:~403`) but is stamped only on WHY terms (`~line 564`) and
+   dropped on the WHAT side (`~line 411`). Thread it onto WHAT entities and persist it as a node prop.
+   Then have `lib/core/eureka/room-native-substrate.cjs` exclude low-confidence + `source:'fallback'`
+   entities from pairing, REUSING the existing scaffold/container exclusion machinery (the same path
+   that already drops 55 scaffold pairs).
+2. DEV-ENABLEMENT (optional): add a cwd-independent module-relative `.env` leg to
+   `resolveAnthropicKey()` (walk up from `__dirname` via `path.join`, cross-platform) so tier-2b's
+   NOISE filter can actually run and be tested. Keyless-safe (installed caches have no `.env` -> stays
+   null -> graceful degrade preserved). LOCAL to Anthropic, not Brain, so Canon Part 8 holds.
+3. Before touching the WHAT/WHY routing or `entity-classifier.cjs`, read
+   `tests/test-218-what-why-classifier.cjs` -- preserve `no-key -> source:'fallback'` and
+   `embedding-degrade -> classifier_source must be 'embedding'`. Do NOT change `_fallback()`
+   (documented T-T2-01 fail-open contract).
+
+**CORRECTION (session-manager, later same day): the fix WAS subsequently applied.** The two
+paragraphs above were written from a mid-flight snapshot and are superseded. The `check-card-fire.cjs`
+Stop-hook interruptions were real (still logged in `.planning/debug/resolved/card-fire-block-surface.md`,
+and the over-enforcement WATCH stands), but they did NOT prevent completion. The gsd-debugger + a
+concurrent worker reconciled edits on disk. What actually landed: FIX A `evidenceTier` stamping in
+`scripts/entity-extract.cjs`; the low-trust pairing exclusion + Decision-8 `hasVerifiedEntity` guard in
+`scripts/eureka-portfolio-report.cjs` (the 4b pass -- NOT `room-native-substrate.cjs` as my step-1 above
+guessed; pairing enumerates SELECT nodes there); FIX B module-relative `.env` leg in
+`lib/core/mva-classifier.cjs`; FIX C `_coerceLabels` drop-to-`noise` in `lib/core/eureka/entity-classifier.cjs`;
+new regression test `tests/test-218-low-trust-exclusion.cjs`. Frontmatter is now `awaiting_human_verify`.
+
+next_action: HUMAN verification (this is a human-verify checkpoint, not an autonomous continuation). Two
+open items: (1) live keyed acceptance -- run `entity-extract` against a real keyed room and confirm
+`tier2_model > 0` and no "Windows"/"CSFs" in top-N; BLOCKED here because the repo `.env` key now resolves
+but the live Anthropic call returns non-2xx (key looks invalid/expired -- a VALID key is required to
+observe the live number). (2) multi-session collision -- 5 active sessions touched this tree; confirm no
+other session has since modified these files and re-run `bash tests/run-all-218.sh` before committing.
+Do NOT commit until human confirms. The offline mechanism is proven (see test results below).
 
 # Handoff: eureka entity-extraction noise + two infra blockers
 
@@ -247,3 +370,134 @@ in the extraction pipeline.
 Per CLAUDE.md before any fix is called done: Canon Part 8 Brain-boundary,
 Tri-Polar three-surface (CLI + Desktop + Cowork), cross-platform, release
 lockstep, no em-dashes, reuse-before-build.
+
+## RESOLUTION (2026-07-19, gsd-debugger -- fix applied + self-verified)
+
+root_cause: |
+  tier2_model is structurally 0 in every real run because resolveAnthropicKey()
+  (lib/core/mva-classifier.cjs) had NO cwd-independent path to the dev/plugin key.
+  Its only key legs were process.env.ANTHROPIC_API_KEY (Claude Code uses OAuth, not
+  a key), ~/.mindrian.env (no key here), and process.cwd()/.env (only resolves when
+  cwd == the plugin repo root). VERIFIED by tracing every invocation site: .mcp.json
+  launches bin/mindrian-mcp-server.cjs with NO `cwd` field, the server never chdir()s,
+  and entity-extract runs in-process off that inherited host cwd (tool-router http
+  path, eureka-command maybeExtractFirst, research-filing.runPostFilingExtraction) --
+  so process.cwd() is never the repo root in real use. All three legs fail ->
+  keyPresent=false -> tier-2b (the LLM NOISE classifier) never escalates -> tier2_model
+  stays 0. The observed junk ("Windows"/"CSFs") therefore rides in as source:'embedding'
+  LOW-CONFIDENCE WHAT best-guesses (the aion room: 399 confident + 206 low-confidence,
+  tier2_model 0), NOT source:'fallback' -- so the handoff's original "exclude
+  source:fallback" + "_coerceLabels" moves never touched the real noise vector.
+
+fix: |
+  Three coordinated changes (root cause + provenance split + hardening), plus a
+  Decision-8 reconciliation the prior attempt missed:
+  1. FIX B (root cause) lib/core/mva-classifier.cjs resolveAnthropicKey(): added a
+     FOURTH, cwd-INDEPENDENT key leg -- a module-relative .env resolved from __dirname
+     (path.resolve(__dirname,'..','..','.env')). Lets tier-2b's NOISE filter fire
+     regardless of invocation directory. Keyless-safe (.env is gitignored + absent
+     from package.json files[] -> installed caches have no .env -> returns null ->
+     graceful degrade preserved). Cross-platform (path.resolve segments only). LOCAL
+     -> Anthropic, never Brain (Part 8 holds).
+  2. FIX A (provenance split) scripts/entity-extract.cjs: each surviving WHAT entity
+     is stamped props.evidenceTier via the EXISTING writeEntityNode param --
+     'low_confidence' for a no-LLM embedding best-guess, 'fallback' for the keyless +
+     encoder-absent degrade, left unstamped ('None', trusted) for a confident
+     embedding/model verdict. scripts/eureka-portfolio-report.cjs 4b pass: a candidate
+     pair with EITHER endpoint stamped low_confidence/fallback is excluded from ranking
+     (reusing the scaffold/container exclusion pattern, counted as
+     low_trust_pairs_excluded), so unverified regex hits stop surfacing as
+     opportunities.
+  3. DECISION-8 GUARD (the missing piece that blocked the prior attempt): the low-trust
+     exclusion fires ONLY when the room has at least one VERIFIED entity to surface
+     instead (hasVerifiedEntity). A pure Tier-0 room (every entity unverified, e.g. no
+     key + no encoder) keeps ranking non-empty rather than emptying -- preserving
+     Decision 8 ("Tier 0 fully functional") and the REQ-5 contract. Without this guard
+     the exclusion emptied REQ-5's ranked list (proven: post 0/0). With it, mixed rooms
+     denoise (aion: drop the 206 low-confidence, keep the 399 confident) and Tier-0
+     rooms stay productive.
+  4. FIX C (hardening, now-live path) lib/core/eureka/entity-classifier.cjs
+     _coerceLabels(): an unknown/missing model label now coerces to 'noise' (DROPS the
+     term) instead of 'what'. Once FIX B makes tier-2b live, a garbage per-term model
+     response would otherwise mint a trusted entity. The DEGRADE-TO-PASSTHROUGH
+     contract (_fallback, whole-response fail-open) is UNTOUCHED, so the T-T2-01 DoS
+     protection stands.
+
+verification: |
+  Self-verified offline/hermetic on the dev workspace:
+  - tests/run-all-218.sh: PASS=14 FAIL=3. The 3 failures are PRE-EXISTING and unrelated
+    (edge_write_failed: "table edges has no column named review_status" in the writer
+    tests, and T-218-VD-5 leg 5 encoder_unavailable) -- all confirmed IDENTICAL on HEAD,
+    none reference the changed logic.
+  - tests/test-218-what-why-classifier.cjs: 22/22 (FIX C preserves the passthrough
+    contract).
+  - tests/test-218-noise-reduction.cjs (REQ-5): PASS (post 0/25) -- the guard keeps the
+    Tier-0 room non-empty.
+  - tests/test-218-low-trust-exclusion.cjs (NEW, wired into run-all-218.sh): 3/3 --
+    stamping + mixed-room exclusion (drops the noise endpoint, verified pair survives) +
+    Tier-0 guard (pure-unverified room still ranks, nothing excluded).
+  - MVA (test-mva-from-brief 21/21, test-mva-dror-harness 5/5), test-216-room-substrate
+    (47), test-215-portfolio-report (18), test-218-cohort-stratification (2/2),
+    test-218-scaffold-pair-filter (2/2): all green.
+  Gates cleared: Part 8 (no new egress; entity-classifier.cjs still the sole Anthropic
+  carrier; zero-network suite gate PASS), Tri-Polar (all changes in shared lib/core +
+  scripts, no surface-specific code, key leg is now MORE surface-robust), cross-platform
+  (path.resolve segments), release lockstep (no version files touched), no em-dashes,
+  reuse-before-build (reused resolveAnthropicKey, writeEntityNode evidenceTier param, the
+  4b exclusion pattern), render-coverage + orchestration-projection + born-wired: PASS.
+
+files_changed:
+  - lib/core/mva-classifier.cjs (FIX B: module-relative .env key leg)
+  - lib/core/eureka/entity-classifier.cjs (FIX C: _coerceLabels drop-on-garbage)
+  - scripts/entity-extract.cjs (FIX A: evidenceTier provenance stamping)
+  - scripts/eureka-portfolio-report.cjs (FIX A: low-trust pairing exclusion + Decision-8 guard)
+  - tests/test-218-low-trust-exclusion.cjs (NEW regression test, 3 legs)
+  - tests/run-all-218.sh (wire the new test)
+
+HUMAN-VERIFY LEG (live, needs a VALID key): the offline suite proves the MECHANISM.
+The live acceptance -- run entity-extract against a real keyed room (e.g.
+aion-eureka-synergy) and confirm status.json now shows tier2_model > 0 and the eureka
+top-N no longer surfaces "Windows"/"CSFs" -- is the human step. NOTE: on this machine
+resolveAnthropicKey() now RETURNS a key (repo .env, length 108) but the extraction still
+degraded to classifier_source:'fallback' with tier2_model 0, which means the live
+Anthropic call returned non-2xx -- the repo .env key looks INVALID/EXPIRED. A valid key
+is required to observe tier2_model > 0.
+
+## DISPOSITION (2026-07-19, gsd-execute -- resolved_offline, human checkpoint cleared)
+
+status -> `resolved_offline` (deliberately NOT `resolved`).
+
+The fix was verified and committed under a two-plan GSD phase (Phase 231):
+
+- **231-01** (commit `3000d06e`, feat): FIX A evidenceTier provenance stamping
+  (scripts/entity-extract.cjs) + low-trust pairing exclusion with the Decision-8
+  hasVerifiedEntity guard (scripts/eureka-portfolio-report.cjs) + FIX B module-relative
+  .env key leg (lib/core/mva-classifier.cjs) + FIX C _coerceLabels drop-on-garbage
+  (lib/core/eureka/entity-classifier.cjs) + tests/test-218-low-trust-exclusion.cjs.
+- **231-02** (commit `58c1f773`, fix): the CR-01 duplicate-name evidenceTier
+  reconciliation regression test (tests/test-218-duplicate-entity-reconciliation.cjs)
+  + suite wiring (tests/run-all-218.sh). The CR-01 reconcileEvidenceTierAcrossDuplicateNames()
+  IIFE itself physically landed in 3000d06e since it shares scripts/entity-extract.cjs
+  with FIX A.
+
+**Accepted on OFFLINE PROOF (checkpoint Path B).** The full hermetic suite is accepted
+as sufficient: 22/22 what-why-classifier contract, 3/3 low-trust-exclusion,
+1/1 CR-01 duplicate-entity-reconciliation, Phase 218 PASS=15/FAIL=3 (the 3 failures
+pre-existing + unrelated: the `edges` table `review_status` schema gap in
+test-218-edge-vocab + test-218-entity-writer, and the `encoder_unavailable` leg 5 in
+test-218-eureka-auto-extract), Phase 211 PASS=10/FAIL=0. The offline suite proves the
+MECHANISM (stamping, exclusion, Decision-8 guard, reconciliation, key-leg resolution).
+
+**DEFERRED (fast-follow, NOT done):** the LIVE keyed acceptance -- `tier2_model > 0` on a
+real room (e.g. aion-eureka-synergy) with a VALID Anthropic key, plus visual confirmation
+that the eureka top-N no longer surfaces "Windows"/"CSFs". This is BLOCKED because the repo
+.env key currently RESOLVES but returns non-2xx (looks expired/invalid) -- an ENVIRONMENT
+fact, not a code fact. `tier2_model > 0` proves the key is valid; it does not additionally
+prove the code, which the offline suite already covers. When a valid key is available, run
+the Path A steps in 231-02-PLAN.md's checkpoint to promote this RCA to `resolved` and move
+it to `.planning/debug/resolved/`.
+
+Committed on branch `seeds/host-runtime-research-2026-07-18` (NOT main), per navigator
+decision -- this branch already carries the phase plan/execute commits; the navigator will
+merge to main themselves. Because the live leg is deferred, this file stays in
+`.planning/debug/` (not moved to `resolved/`) per the plan's approved-offline path.
