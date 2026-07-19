@@ -400,6 +400,15 @@ function fallbackLabels(names) {
 // landed via the no-LLM embedding best-guess is disclosed per-term, not just in the
 // aggregate status.json counter. All existing call sites stay unflagged (confident);
 // only the runTier2 no-LLM escalation branch passes it true.
+//
+// quick 260719 (RCA handoff-eureka-entity-noise): the SAME lowConfidence flag now
+// also rides a WHAT entity. A WHAT that arrived via the no-LLM embedding best-guess
+// is stamped e.evidenceTier = 'low_confidence' so the entity NODE carries that
+// provenance at write time (navigation.writeEntityNode already persists evidenceTier)
+// and the eureka pairing pass can exclude an unverified regex hit. This closes the
+// noise the handoff traced: tier-1 hits like "Windows" / "CSFs" that the embedding
+// tier could not resolve, with no tier-2b LLM available to reroute them to NOISE
+// (the NOISE class only ever runs keyed, and no key resolves keyless).
 function routeLabel(e, label, whatEntities, whyTerms, lowConfidence) {
   if (label === 'why') {
     const entry = { name: e.name, sourceArtifactId: e.sourceArtifactId };
@@ -408,6 +417,7 @@ function routeLabel(e, label, whatEntities, whyTerms, lowConfidence) {
   } else if (label === 'noise') {
     return 'noise';
   } else {
+    if (lowConfidence === true) e.evidenceTier = 'low_confidence';
     whatEntities.push(e);
   }
   return label;
@@ -448,6 +458,17 @@ async function runDegradeHzx(textById, byArtifact, tier1WhyTerms, classifyImpl, 
     for (const e of arr) {
       const raw = result.labels[e.name];
       const label = (raw === 'why' || raw === 'noise') ? raw : 'what';
+      // quick 260719: in the tier-2a-unavailable degrade, a WHAT sourced from the
+      // every-name-WHAT fallback (neither semantic tier ran) is stamped evidenceTier
+      // 'fallback' as HONEST PROVENANCE only. Unlike 'low_confidence', 'fallback' is
+      // DELIBERATELY NOT excluded from eureka pairing: when the encoder is
+      // unavailable these fallback entities are the ONLY substrate the room has, so
+      // excluding them would empty the ranked list and break Decision 8 (graceful
+      // degradation everywhere; proven by tests/test-218-noise-reduction.cjs). The
+      // pairing exclusion set (LOW_TRUST_EVIDENCE_TIERS in
+      // scripts/eureka-portfolio-report.cjs) is low_confidence ONLY. A model-sourced
+      // WHAT stays unstamped (evidenceTier 'None').
+      if (label === 'what' && result.source !== 'model') e.evidenceTier = 'fallback';
       if (routeLabel(e, label, whatEntities, whyTerms) === 'noise') droppedNoise += 1;
     }
   }
@@ -739,6 +760,42 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
   const tier2 = await runTier2(artifacts, rawEntities, tier1WhyTerms, classifyImpl, embedClassifyImpl, keyPresent);
   const entities = tier2.whatEntities;
 
+  // CR-01 fix (code review, phase 231, 2026-07-19): the same entity name can
+  // appear in more than one artifact. Tier-2a classifies each unique name ONCE
+  // globally, but tier-2b escalation runs PER ARTIFACT with a separate network
+  // call each time, so an ordinary transient failure on just one of those calls
+  // can leave two entries for the same name disagreeing on evidenceTier (one
+  // 'None'/trusted, one 'low_confidence'). Both entries write to the SAME node
+  // id (ENTITY_NODE_ID is minted from name alone), and node-insert.cjs's
+  // ON CONFLICT is a full overwrite, never a merge -- so without this pass,
+  // whichever entry happens to write LAST in array order wins outright,
+  // silently flipping a trusted entity to excluded (or vice versa) based on
+  // filesystem read order, not evidence. This mirrors the "confident upgrade
+  // wins" reconciliation applyFrameworkTerms() already does for the WHY side.
+  // NOTE: this only NORMALIZES evidenceTier across same-name entries in place
+  // -- it does not remove any entries, so every artifact that mentions the
+  // entity still gets its own DESCRIBES edge in the write loop below.
+  (function reconcileEvidenceTierAcrossDuplicateNames() {
+    const trustRank = { None: 2, fallback: 1, low_confidence: 0 };
+    const rankOf = function (tier) { return trustRank[tier || 'None']; };
+    // Map.get() returns undefined both for "key absent" and for "key present
+    // with value undefined" (a trusted entity's evidenceTier is legitimately
+    // undefined) -- those are NOT the same thing here, so track presence with
+    // .has() rather than an undefined check, and never store the literal
+    // `undefined` value itself (normalize it to the 'None' string).
+    const bestByName = new Map(); // name -> highest-trust evidenceTier seen ('None'/'fallback'/'low_confidence')
+    for (const e of entities) {
+      const tier = e.evidenceTier || 'None';
+      if (!bestByName.has(e.name) || rankOf(tier) > rankOf(bestByName.get(e.name))) {
+        bestByName.set(e.name, tier);
+      }
+    }
+    for (const e of entities) {
+      const winner = bestByName.get(e.name);
+      e.evidenceTier = winner === 'None' ? undefined : winner;
+    }
+  })();
+
   // Relation filter: an edge endpoint node exists only for a surviving WHAT name.
   // Drop any relation whose source or target was rerouted to WHY or dropped.
   const whatNames = new Set(entities.map(function (e) { return e.name; }));
@@ -774,6 +831,12 @@ async function runExtraction(db, roomDir, sessionId, maxPerArtifact, opts) {
         entityType: e.entityType,
         name: e.name,
         sessionId: sessionId,
+        // quick 260719: carry the provenance stamp threaded onto the entity by
+        // routeLabel / runDegradeHzx. A confident entity leaves this undefined and
+        // writeEntityNode defaults evidenceTier to 'None' (byte-identical to the
+        // prior write). A low_confidence / fallback WHAT lands stamped so the eureka
+        // pairing pass excludes an unverified regex hit.
+        evidenceTier: e.evidenceTier,
       });
       if (r && r.ok) entitiesWritten += 1;
     }
