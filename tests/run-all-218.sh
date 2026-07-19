@@ -151,6 +151,25 @@ run "REQ-5 noise-reduction (exact, offline)" \
 run "quick-260715-0nj scaffold-pair filter (both-scaffold exclusion, offline)" \
   node tests/test-218-scaffold-pair-filter.cjs
 
+# (f.2) RCA handoff-eureka-entity-noise-2026-07-19: the low-trust entity provenance
+#       split. Proves both directions of the load-bearing fix -- the unverified
+#       (low_confidence/fallback) evidenceTier stamp on WHAT entities, the eureka
+#       pairing exclusion of any pair touching one, AND the Decision-8 guard that
+#       keeps a pure Tier-0 room (every entity unverified) ranking non-empty instead
+#       of emptying it. Offline/hermetic (injected embedding verdicts + seeded nodes).
+run "RCA-260719 low-trust entity exclusion (stamp + exclude + Tier-0 guard, offline)" \
+  node tests/test-218-low-trust-exclusion.cjs
+
+# (f.3) CR-01 (code review, phase 231, 2026-07-19): the same entity name can
+#       appear in more than one artifact; tier-2b escalates per artifact over a
+#       separate network call each time, so an ordinary transient failure on
+#       just one of those calls can leave two entries for the same name
+#       disagreeing on evidenceTier. Proves the reconciliation pass keeps the
+#       highest-trust verdict regardless of write order, and that no DESCRIBES
+#       edge is lost for the "losing" artifact's occurrence. Offline/hermetic.
+run "CR-01 duplicate entity name reconciliation (highest-trust wins, offline)" \
+  node tests/test-218-duplicate-entity-reconciliation.cjs
+
 # (g) 211 engine no-regression: Plan 02's openRoomDb D-05 edit is GLOBAL to every
 #     caller, so the 211 acceptance path must stay green. Guarded on the 211
 #     aggregator so a partial tree SKIPs cleanly.
