@@ -468,6 +468,7 @@ function renderReport(ctx) {
   L.push('| Pairs scored | ' + p.pairs_scored + ' |');
   L.push('| Scaffold pairs excluded (both endpoints memory_artifact / Artifact) | ' + p.scaffold_pairs_excluded + ' |');
   L.push('| Container pairs excluded (either endpoint a Section folder node) | ' + p.container_pairs_excluded + ' |');
+  L.push('| Low-trust entity pairs excluded (either endpoint an unverified low_confidence entity) | ' + (p.low_trust_pairs_excluded || 0) + ' |');
   L.push('| Pairs skipped (Part 8 figure-guard) | ' + p.figure_guard_skipped + ' |');
   L.push('| Critic resolution (GAP-1 async pass) | ' + p.critic_resolution + ' |');
   L.push('| Honest nouns (graph meta, verbatim) | ' + String(p.honest_nouns).replace(/\|/g, '/') + ' |');
@@ -912,6 +913,9 @@ async function main(argv) {
           text: text,
           vec: vec,
           root: rootOf(rows[i].id),
+          // quick 260719: precompute the low-trust flag once at index time so the
+          // step-4b exclusion pass reads it without re-parsing props per pair.
+          lowTrust: isLowTrustEntity(rows[i]),
         });
       }
     }
@@ -1036,6 +1040,27 @@ async function main(argv) {
     // for the full rationale. Counted separately and surfaced in provenance, never a
     // silent suppression.
     let containerPairsExcluded = 0;
+    // quick 260719 (RCA handoff-eureka-entity-noise): the low-trust entity exclusion,
+    // a third ADDITIVE branch at this same step-4b insertion point. See
+    // LOW_TRUST_EVIDENCE_TIERS for the full rationale. Counted separately and
+    // surfaced in provenance, never a silent suppression.
+    let lowTrustPairsExcluded = 0;
+    // Decision-8 graceful-degradation guard (RCA handoff-eureka-entity-noise, REQ-5
+    // reconciliation). The low-trust exclusion below only fires when the room has at
+    // least one VERIFIED entity to surface instead. In a keyless, encoder-unavailable
+    // Tier-0 room EVERY entity degrades to low_confidence/fallback; suppressing all of
+    // them would rank the room EMPTY, which breaks Decision 8 ("Tier 0 fully
+    // functional; graceful degradation everywhere") and the REQ-5 non-empty contract
+    // (test-218-noise-reduction). So: denoise a MIXED room (drop the unverified regex
+    // hits like the aion room's 206 low-confidence escalations, keep its 399 confident
+    // ones), but keep a PURE-unverified room productive rather than emptying it. A
+    // verified entity is a typed entity node NOT stamped low-trust.
+    let hasVerifiedEntity = false;
+    indexed.forEach(function (n) {
+      if (!hasVerifiedEntity && n && ENTITY_NODE_TYPES.has(n.type) && !n.lowTrust) {
+        hasVerifiedEntity = true;
+      }
+    });
     const filteredPairs = [];
     for (let i = 0; i < pairsToScore.length; i += 1) {
       const cp = pairsToScore[i];
@@ -1052,6 +1077,21 @@ async function main(argv) {
       const bContainer = !!(nb && CONTAINER_NODE_TYPES.has(nb.type));
       if (aContainer || bContainer) {
         containerPairsExcluded += 1;
+        continue;
+      }
+      // Low-trust entity exclusion (EITHER endpoint, quick 260719). An entity node
+      // stamped evidenceTier low_confidence (see LOW_TRUST_EVIDENCE_TIERS) is an
+      // unverified tier-1 regex hit no semantic tier confirmed. Like a
+      // container it is never a valid opportunity endpoint on EITHER side (deliberate
+      // scope difference from the both-endpoint scaffold rule: a single low-trust
+      // guess taints the pair). Checked AFTER container so a Section endpoint stays
+      // counted as container. GUARDED on hasVerifiedEntity (see above) so a pure
+      // Tier-0 room stays productive instead of ranking empty. Counted + surfaced in
+      // provenance, never silent.
+      const aLowTrust = !!(na && na.lowTrust);
+      const bLowTrust = !!(nb && nb.lowTrust);
+      if (hasVerifiedEntity && (aLowTrust || bLowTrust)) {
+        lowTrustPairsExcluded += 1;
         continue;
       }
       const aScaffold = !!(na && SCAFFOLD_NODE_TYPES.has(na.type));
@@ -1262,6 +1302,10 @@ async function main(argv) {
       // candidate pairs (either endpoint a Section folder node) the filter removed
       // before scoring. Read from the run, never a literal.
       container_pairs_excluded: containerPairsExcluded,
+      // quick 260719 (RCA handoff-eureka-entity-noise): how many candidate pairs the
+      // filter removed because EITHER endpoint is a low-trust entity node (evidenceTier
+      // low_confidence). Read from the run, never a literal.
+      low_trust_pairs_excluded: lowTrustPairsExcluded,
       figure_guard_skipped: part8Skipped,
       // GAP-1: how the pending critic verdicts were (or were not) resolved.
       critic_resolution: opts.offline
@@ -1443,6 +1487,40 @@ const SCAFFOLD_NODE_TYPES = Object.freeze(new Set(['memory_artifact', 'Artifact'
 // Hence container exclusion is EITHER-endpoint, scaffold exclusion is both-endpoint.
 // Frozen so no caller can mutate the family at run time.
 const CONTAINER_NODE_TYPES = Object.freeze(new Set(['Section']));
+
+// The low-trust evidence tier (quick 260719, RCA handoff-eureka-entity-noise). An
+// entity node (lib/core/navigation/typed-entity.cjs writeEntityNode) is stamped
+// props.evidenceTier 'low_confidence' when it arrived via the two-tier no-LLM
+// embedding best-guess (scripts/entity-extract.cjs runTier2): the embedding tier
+// could not confidently classify it AND no tier-2b LLM was available to adjudicate.
+// That is an unverified tier-1 regex hit no semantic tier confirmed ("Windows" /
+// "CSFs"), so it is never a valid eureka opportunity endpoint. Decision 8 keeps
+// writing it as a graph node (the extraction substrate is preserved); only pairing
+// excludes it.
+//
+// DELIBERATELY EXCLUDES 'fallback': a fallback-stamped entity comes from the
+// encoder-unavailable degrade (runDegradeHzx), where EVERY entity is a fallback
+// guess and they are the room's ONLY substrate. Excluding them would empty the
+// ranked list and break Decision 8 (proven by tests/test-218-noise-reduction.cjs).
+// A 'fallback' entity is honest provenance, NOT a pairing exclusion. Do NOT add
+// 'fallback' to this set. Frozen so no caller can mutate the family at run time.
+const LOW_TRUST_EVIDENCE_TIERS = Object.freeze(new Set(['low_confidence']));
+
+// isLowTrustEntity(row) -> true when this node row is a typed entity node
+// (props.entityType in ENTITY_NODE_TYPES, the writeEntityNode stamp) whose
+// props.evidenceTier is a low-trust tier. Reads props.entityType + props.evidenceTier
+// ONLY (writeEntityNode always stamps both); a scaffold / artifact / Section node
+// never carries evidenceTier, so it can never be low-trust. A malformed props blob
+// degrades to false, never throws (the Part 3 tampering-guard posture).
+function isLowTrustEntity(row) {
+  let props;
+  try { props = JSON.parse(row && row.properties); } catch (_e) { return false; }
+  if (!props || typeof props !== 'object' || Array.isArray(props)) return false;
+  const et = typeof props.entityType === 'string' ? props.entityType : '';
+  if (!ENTITY_NODE_TYPES.has(et)) return false;
+  const tier = typeof props.evidenceTier === 'string' ? props.evidenceTier : '';
+  return LOW_TRUST_EVIDENCE_TIERS.has(tier);
+}
 
 // The 216 field contract (test-216-field-contract.cjs precedent): a banked
 // node's props.section must be a REAL domain slug or the honest 'unknown',
@@ -1829,6 +1907,7 @@ async function reasoningStageScore(opts) {
     converges_pairs: 0,
     pairs_scored: pairsSent,
     scaffold_pairs_excluded: 0,
+    low_trust_pairs_excluded: 0,
     figure_guard_skipped: gate1Trips,
     critic_resolution: 'reasoning rubric (verdict-by-code)',
     honest_nouns: '(none: raw-markdown substrate)',
