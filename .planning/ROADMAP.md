@@ -3179,6 +3179,17 @@ Plans:
 - [x] 231-01-PLAN.md - Verify + accept the already-applied FIX A/B/C: WHAT-side evidenceTier stamping, step-4b low-trust pair exclusion + Tier-0 guard, module-relative .env key leg, _coerceLabels narrowing [EEN-01, EEN-02, EEN-03, EEN-04, EEN-06] (COMPLETE 2026-07-19, commit 3000d06e; 6/6 gates green)
 - [x] 231-02-PLAN.md - Verify CR-01 duplicate-name reconciliation, full-suite roll-up, human-verify gate (live keyed acceptance or offline approval), atomic scoped commit + RCA disposition [EEN-05, EEN-06] (COMPLETE 2026-07-19, commits 58c1f773 fix + 151de2b2 docs; accepted OFFLINE PROOF, live keyed acceptance deferred; RCA resolved_offline; Phase 218 15/3 pre-existing-only, Phase 211 10/0) - PHASE 231 CLOSED
 
+### Phase 232: BlockNote Wiki Convergence
+
+**Goal:** /mos:wiki gets a BlockNote-powered editing surface ported from dev/mindrian-workroom (prebuilt client bundle, Express+CJS server unchanged, no Next.js vendored into the plugin); Room Home (governing thought, Larry's Briefing, gaps, section progress) replaces the graph view as the wiki landing page; SEED-006's deferred Phase 19 wiki-finish items (wikilinks/backlinks/see-also, full-text search, graph as a secondary tab, dark/light toggle, static-HTML export) are folded in as v1 scope. Expands SEED-006 (`.planning/seeds/SEED-006-mindrian-wiki-sprint-the-visible-room.md`), whose own Phase 104/126 reservation went stale (Phase 126 shipped as install-lifecycle-harness-gaps).
+**Requirements**: TBD
+**Depends on:** None (net-new capability; SEED-006 was dormant, not blocking on Phases 210-231's in-flight work)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 232 to break down)
+
 ---
 
 ### Phase 221: Pipeline-Wide High-Effort LLM Engine Recovery (llm-engine-recovery) - REGISTERED 2026-07-13 - **JOINT 219+220+221 RELEASE; THE CUT EXECUTES HERE**

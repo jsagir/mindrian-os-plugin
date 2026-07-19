@@ -2035,6 +2035,17 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 232 added (2026-07-19): BlockNote Wiki Convergence -- registered from a
+  superpowers:brainstorming session with Jonathan (delivery lane, Room-Home-as-landing-page,
+  always-editable/accept-save-risk, and v1 scope all locked before registration). Expands
+  SEED-006 ("Mindrian Wiki Sprint -- The Visible Room", planted 2026-05-07), whose Phase
+  104/126 number reservation went stale while ~230 other phases shipped past it (Phase 126
+  is long since taken by the already-shipped install-lifecycle-harness-gaps). Depends on
+  nothing (net-new capability, not blocking on Phase 231's in-flight eureka work). Same
+  `phase.add` defect as Phases 230/231 (full description crammed into the title, Goal left
+  `[To be planned]`, Depends on defaulted to Phase 231 as a sequential-neighbor guess) --
+  corrected in place by hand immediately after, same fix pattern as the two precedents.
+
 - Phase 231 added (2026-07-19): Eureka Entity-Noise Fix -- root-caused via the
   `handoff-eureka-entity-noise-2026-07-19` debug session (a real cross-machine handoff,
   `seeds/host-runtime-research-2026-07-18` @ `0703ebe4`, fetched and verified against this
