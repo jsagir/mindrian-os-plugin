@@ -3,18 +3,32 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 231-01-PLAN.md
-last_updated: "2026-07-19T17:10:00.000Z"
+stopped_at: Completed 231-02-PLAN.md
+last_updated: "2026-07-19T17:30:00.000Z"
 last_activity: 2026-07-19
 progress:
   total_phases: 39
-  completed_phases: 25
+  completed_phases: 26
   total_plans: 142
-  completed_plans: 138
-  percent: 64
+  completed_plans: 139
+  percent: 67
 ---
 
 # Project State
+
+## (2026-07-19) -- PHASE 231 Plan 02 COMPLETE (Wave 2) -- PHASE 231 CLOSED: CR-01 duplicate-name reconciliation verified, human-verify checkpoint cleared on OFFLINE PROOF, RCA dispositioned resolved_offline (Req EEN-05/06)
+
+Continuation after the plan's blocking human-verify checkpoint cleared. Task 1 (CR-01 verification + suite roll-up) and Task 2 (the checkpoint) were done by prior agents; this agent executed Task 3 only (scoped commits + RCA disposition + SUMMARY). Navigator resume signal: **approved-offline**, with two course corrections to the plan's Task 3 (accept on offline proof / `resolved_offline`; commit on the CURRENT branch, not main).
+
+- **Pre-commit re-confirmation (no silent drift assumed):** re-ran `git status --short` (exactly the expected set) + `node tests/test-218-duplicate-entity-reconciliation.cjs` (1/1, exit 0) + `bash tests/run-all-218.sh` (**Phase 218 PASS=15 FAIL=3**, the 3 pre-existing unrelated: `edges` `review_status` schema gap in edge-vocab/entity-writer + `encoder_unavailable` auto-extract leg 5; embedded **Phase 211 PASS=10 FAIL=0**). Zero new failures.
+- **Commit 1 (`58c1f773`, fix):** `tests/test-218-duplicate-entity-reconciliation.cjs` (NEW) + `tests/run-all-218.sh` (wires leg f.2 low-trust-exclusion + leg f.3 CR-01 reconciliation). The `reconcileEvidenceTierAcrossDuplicateNames()` IIFE itself was ALREADY committed in `3000d06e` (231-01) since it shares `entity-extract.cjs` with FIX A -- NOT re-committed or re-claimed here.
+- **Commit 2 (`151de2b2`, docs):** RCA `handoff-eureka-entity-noise-2026-07-19.md` status `awaiting_human_verify -> resolved_offline` + DISPOSITION section (both phase commits, offline-proof acceptance, deferred live leg), kept in `.planning/debug/` (NOT moved to `resolved/`, live leg open); knowledge-base summary block (root cause, four-change fix, open live leg, four pattern lessons). Force-added (`.planning/` gitignored).
+- **Accepted on OFFLINE PROOF (Path B):** the hermetic suite proves the mechanism (stamping, low-trust exclusion, Decision-8 guard, CR-01 reconciliation, key-leg resolution). The LIVE keyed acceptance (`tier2_model > 0` on a real room, top-N free of "Windows"/"CSFs") is a DEFERRED fast-follow, blocked because the repo `.env` key resolves but returns non-2xx (looks expired/invalid) -- an ENVIRONMENT fact, not a code fact. This is the single gate between `resolved_offline` and `resolved`.
+- **Branch decision:** committed on `seeds/host-runtime-research-2026-07-18` (NOT main), per navigator. No merge/rebase/cherry-pick/switch. This branch already carries d5a2e9b0 + 3000d06e + 1b605a1b (phase 231) + SEED-067..071; the navigator merges to main themselves.
+- **Scope stayed clean:** after both commits, `git status --short` still lists `evals/plurai/211-baseline.json` + `.planning/debug/resolved/card-fire-block-surface.md` as modified -- proof neither unrelated change rode either commit.
+- **Fast-follow ledger carried forward in SUMMARY:** WR-01 (truncation-tail drop), WR-02 (non-hermetic no-key test), WR-03 (test cleanup not in finally), WR-04 (.env leg depth assumption), IN-02 (no duplicate-entity-names counter), **SEED-034 (room.db-population sequencing, CRITICAL, still OPEN)**, plus the deferred live keyed acceptance.
+- **Concurrent-session guard:** `.git` is a directory (sequential main-tree, not a worktree). `gsd-tools` NOT on PATH; STATE.md updated by manual additive log append + frontmatter counter advance (completed_plans 138->139, completed_phases 25->26, percent 64->67), matching the 230-series / 231-01 anti-clobber precedent.
+- **NEXT:** Phase 231 CLOSED (offline-accepted). Open items tracked: the deferred live keyed acceptance (environment-blocked) and SEED-034 (critical, separate). Merge to main is the navigator's step.
 
 ## (2026-07-19) -- PHASE 231 Plan 01 COMPLETE (Wave 1) -- verified + accepted the already-applied eureka entity-noise fix (WHAT-side low-confidence provenance + pairing exclusion + cwd-independent key leg + coerce narrowing) (Req EEN-01/02/03/04/06)
 
