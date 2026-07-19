@@ -3,18 +3,31 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 230-01-PLAN.md
-last_updated: "2026-07-18T04:46:23.731Z"
-last_activity: 2026-07-18
+stopped_at: Completed 231-01-PLAN.md
+last_updated: "2026-07-19T17:10:00.000Z"
+last_activity: 2026-07-19
 progress:
-  total_phases: 38
+  total_phases: 39
   completed_phases: 25
-  total_plans: 140
-  completed_plans: 137
-  percent: 66
+  total_plans: 142
+  completed_plans: 138
+  percent: 64
 ---
 
 # Project State
+
+## (2026-07-19) -- PHASE 231 Plan 01 COMPLETE (Wave 1) -- verified + accepted the already-applied eureka entity-noise fix (WHAT-side low-confidence provenance + pairing exclusion + cwd-independent key leg + coerce narrowing) (Req EEN-01/02/03/04/06)
+
+Verify-and-accept plan: the FIX A/B/C implementation was written (uncommitted) by a prior `/gsd-debug` session (RCA `handoff-eureka-entity-noise-2026-07-19`); the navigator then required the full GSD process retroactively. Every must_have was checked against the REAL current file contents and every gate re-run before committing this plan's `files_modified` atomically (`3000d06e`).
+
+- **Root cause (verified, not hypothesis):** junk entities ("Windows", "CSFs") ranked top-2 in a live eureka run NOT because regex noise survived a real model pass, but because tier-2b (the LLM NOISE classifier) has never once fired on this machine (`tier2_model: 0` in every real `status.json`). `resolveAnthropicKey()`'s cwd-dependent 3rd leg (`process.cwd()/.env`) only found a key when cwd happened to be the plugin root; extraction runs with the ROOM as cwd, so the key never resolved and everything fell through the weaker embedding tier as low-confidence WHAT best-guesses.
+- **FIX A (LOAD-BEARING, works keyless):** `scripts/entity-extract.cjs` threads the existing WHY-side `lowConfidence` signal onto WHAT entities as node prop `evidenceTier` (`'low_confidence'` for no-LLM embedding best-guess via `routeLabel` WHAT branch; `'fallback'` for encoder-down degrade via `runDegradeHzx`, provenance-only). `scripts/eureka-portfolio-report.cjs` step-4b excludes `low_confidence`-ONLY pairs (`LOW_TRUST_EVIDENCE_TIERS` frozen Set), guarded on `hasVerifiedEntity` so a pure Tier-0 room still ranks (Decision 8), counted as `low_trust_pairs_excluded` + surfaced in the provenance table. `'fallback'` is DELIBERATELY not excluded (a keyless/encoder-down room's only substrate).
+- **FIX B (dev-enablement):** `lib/core/mva-classifier.cjs` `resolveAnthropicKey()` gains a 4th cwd-independent leg `path.resolve(__dirname, '..', '..', '.env')` so tier-2b resolves a key regardless of invocation dir; keyless-safe null degrade in an installed cache. Canon Part 8 holds (LOCAL -> Anthropic, never Brain).
+- **FIX C:** `lib/core/eureka/entity-classifier.cjs` `_coerceLabels` narrows a parseable-but-garbled per-term model answer to `'noise'` (dropped), not `'what'`; `_fallback()` T-T2-01 whole-response fail-open contract left byte-intact (DoS protection preserved).
+- **All six gates green:** low-trust-exclusion 3/3, noise-reduction 4/4, scaffold-pair-filter 2/2, what-why-classifier 22/22 (all 7 must-not-break assertions intact), mva-from-brief 21/21, mva-dror-harness 5/5. Two grep-count acceptance criteria matched one higher than expected -- both traced to explanatory COMMENTS containing the literal string (line 406 doc + line 152 "NOT process.cwd()" doc), verified by reading source; underlying must_haves hold at the code level, no code changed.
+- **Scope boundaries honored:** did NOT touch `entity-extract.cjs`'s CR-01 section, `tests/test-218-duplicate-entity-reconciliation.cjs`, or `tests/run-all-218.sh` (plan 231-02's territory). `entity-extract.cjs` physically carries the CR-01 IIFE too (one shared file); committed as-is (both fixes test green together) but CR-01/EEN-05 credit belongs to 231-02, not this plan.
+- **Concurrent-session guard:** `.git` is a directory (sequential main-tree, not a worktree); branch `seeds/host-runtime-research-2026-07-18`. `gsd-tools` NOT on PATH; STATE.md updated by manual additive log append + single frontmatter counter advance (completed_plans 137->138), matching the 230-series anti-clobber precedent. `.planning/` is gitignored, so SUMMARY/STATE/ROADMAP force-added in the docs commit.
+- **NEXT:** Plan 231-02 (Wave 2, human-gated): verify CR-01 duplicate-name reconciliation, full-suite roll-up, human-verify gate (live keyed acceptance or offline approval), RCA disposition.
 
 ## (2026-07-17) -- PHASE 230 Plan 05 COMPLETE (Wave 2) -- smoke-test D7 calibration set drafted from real inventory + Jonathan-approved, locked as the funnel measuring stick before any full-fleet spend (Req D7)
 
@@ -1189,12 +1202,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 230 — MindrianOS Skill Fleet Optimization
+**Current focus:** Phase 231 — eureka-entity-noise-fix-thread-the-low-confidence-signal-ont
 
 ## Current Position
 
-Phase: 230
-Plan: Not started
+Phase: 231 (eureka-entity-noise-fix-thread-the-low-confidence-signal-ont) — EXECUTING
+Plan: 1 of 2
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1315,7 +1328,7 @@ Phase 143.3-01 outcome (2026-06-07): shipped the Connector Contract FOUNDATION -
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-07-18
+Last activity: 2026-07-19
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -2007,6 +2020,17 @@ Progress: [█████████░] 92%
 | Phase 145 P03 | 12min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
+
+- Phase 231 added (2026-07-19): Eureka Entity-Noise Fix -- root-caused via the
+  `handoff-eureka-entity-noise-2026-07-19` debug session (a real cross-machine handoff,
+  `seeds/host-runtime-research-2026-07-18` @ `0703ebe4`, fetched and verified against this
+  dev tree same day). WHAT-side low-confidence stamping + pairing exclusion in
+  `room-native-substrate.cjs`, optional cwd-independent key-resolution fix in
+  `mva-classifier.cjs`. `phase.add` crammed the full description into the title again
+  (same shape as Phase 230) and defaulted Depends on to Phase 230 (sequential-neighbor
+  guess) -- corrected in place by hand immediately after, same as Phase 230's fix, adding
+  the SEED-071 sequencing note (SEED-034, room.db population, CRITICAL/open, should land
+  first) as a non-blocking dependency note rather than a hard code dependency.
 
 - Phase 230 added (2026-07-17): MindrianOS Skill Fleet Optimization -- registered from
   the superpowers:brainstorming-approved spec (`docs/superpowers/specs/2026-07-17-

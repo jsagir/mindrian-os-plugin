@@ -3176,7 +3176,7 @@ Design approved + spec'd via superpowers:brainstorming this session: `docs/super
 
 Plans:
 
-- [ ] 231-01-PLAN.md - Verify + accept the already-applied FIX A/B/C: WHAT-side evidenceTier stamping, step-4b low-trust pair exclusion + Tier-0 guard, module-relative .env key leg, _coerceLabels narrowing [EEN-01, EEN-02, EEN-03, EEN-04, EEN-06]
+- [x] 231-01-PLAN.md - Verify + accept the already-applied FIX A/B/C: WHAT-side evidenceTier stamping, step-4b low-trust pair exclusion + Tier-0 guard, module-relative .env key leg, _coerceLabels narrowing [EEN-01, EEN-02, EEN-03, EEN-04, EEN-06] (COMPLETE 2026-07-19, commit 3000d06e; 6/6 gates green)
 - [ ] 231-02-PLAN.md - Verify CR-01 duplicate-name reconciliation, full-suite roll-up, human-verify gate (live keyed acceptance or offline approval), atomic scoped commit + RCA disposition [EEN-05, EEN-06]
 
 ---
