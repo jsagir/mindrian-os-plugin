@@ -3184,7 +3184,7 @@ Plans:
 **Goal:** /mos:wiki gets a BlockNote-powered editing surface ported from dev/mindrian-workroom (prebuilt client bundle, Express+CJS server unchanged, no Next.js vendored into the plugin); Room Home (governing thought, Larry's Briefing, gaps, section progress) replaces the graph view as the wiki landing page; SEED-006's deferred Phase 19 wiki-finish items (wikilinks/backlinks/see-also, full-text search, graph as a secondary tab, dark/light toggle, static-HTML export) are folded in as v1 scope. Expands SEED-006 (`.planning/seeds/SEED-006-mindrian-wiki-sprint-the-visible-room.md`), whose own Phase 104/126 reservation went stale (Phase 126 shipped as install-lifecycle-harness-gaps).
 **Requirements**: SPEC Req 1-9 (232-SPEC.md, 9 locked requirements: client bundle no-vendoring, direct save, PDF/DOCX export, Room Home landing, graph tab, wikilinks+backlinks, search, theme toggle, static export)
 **Depends on:** None (net-new capability; SEED-006 was dormant, not blocking on Phases 210-231's in-flight work)
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans executed -- **PHASE COMPLETE (2026-07-20)**: all 9 SPEC requirements met, all 10 acceptance criteria verified by a real Playwright browser walkthrough
 
 Plans:
 
@@ -3201,7 +3201,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 232-06-PLAN.md - Static --export implementation (first real one; previously documented but unimplemented) + commands/wiki.md truth-up + end-to-end human walkthrough of all 10 SPEC acceptance criteria [SPEC Req 9]
+- [x] 232-06-PLAN.md - Static --export implementation (first real one; previously documented but unimplemented) + commands/wiki.md truth-up + end-to-end Playwright walkthrough of all 10 SPEC acceptance criteria (2 bugs found+fixed `0230803f`) [SPEC Req 9]
 
 ---
 

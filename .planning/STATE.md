@@ -3,18 +3,30 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 232-05-PLAN.md
+stopped_at: Completed 232-06-PLAN.md -- PHASE 232 CLOSED (6/6 plans)
 last_updated: "2026-07-20T00:00:00.000Z"
 last_activity: 2026-07-20
 progress:
   total_phases: 40
-  completed_phases: 26
+  completed_phases: 27
   total_plans: 148
-  completed_plans: 144
-  percent: 65
+  completed_plans: 145
+  percent: 66
 ---
 
 # Project State
+
+## (2026-07-20) -- PHASE 232 Plan 06 COMPLETE (Wave 3) -- PHASE 232 CLOSED (6/6): real --export static share-bundle + commands/wiki.md truth-up + all 10 SPEC acceptance criteria verified by a real Playwright browser walkthrough (Req 9)
+
+Closes the phase. The long-documented `--export` flag was vaporware (serve-wiki treated $1 as a port); Plan 06 made it real over the read-only page-renderer path, then the blocking human-verify checkpoint was cleared by a real headless-Chromium Playwright walkthrough (stronger than a manual click-through) against `tests/fixtures/wiki-room-232`.
+
+- **Task 1 (`c1acd75a`, feat):** `lib/wiki/wiki-export.cjs` (`exportStaticWiki`) scans the room and mirrors the read-only render into a serverless `export/wiki/` bundle (Room Home index, per-section index, per-article pages, graph page), rewrites wikilinks + chrome hrefs to page-relative `.html`, bakes M:OS CSS inline; the editor bundle is NEVER referenced (`grep -c "editor-dist\|wiki-editor" lib/wiki/wiki-export.cjs` = 0). `wrapInLayout` gained `exportMode` + `hrefPrefix` (omit search + SSE, relative chrome hrefs, keep offline theme toggle). `scripts/serve-wiki` gained a real `--export` branch (run generator + exit). `commands/wiki.md` truth-up (editing surface + Room Home + PDF/DOCX claims truthful; "Read-only: edit files in your IDE" -> direct-save note; graph-as-homepage -> Room Home + graph tab; onboarding-tour section deleted; connector frontmatter byte-identical). `tests/test-232-export.cjs` walks every emitted .html asserting no `mos-editor-root`/`wiki-editor.js`/`id="mos-save"`/`/api/save` + Room Home markers + resolved wikilink + graph page.
+- **Task 2 (checkpoint, cleared by Playwright walkthrough):** all 10 SPEC acceptance criteria verified end-to-end. 9 PASS; criterion 5 (Backlinks positive path) UNVERIFIABLE on this fixture and confirmed correct-by-design -- `getBacklinks`/`getSeeAlso` query `.mindrian/room.db` (a LazyGraph SQLite DB), which the fixture lacks, so `[]` is correct; wiring (`wiki-server.cjs:516-533`) verified by inspection. NOT a regression.
+- **Two real bugs found by the walkthrough and FIXED (`0230803f`, fix):** (1) `/api/{raw,save}` used `encodeURIComponent(pageId)` on a `section/page` string against a two-literal-segment route (`/api/raw/:section/:page`), so every raw-fetch and save 404'd -- fixed with an `apiPath()` two-segment splitter; (2) `/api/raw` client read `.text()` against the server's JSON envelope `{id,title,markdown}`, so a Save wrote the literal JSON blob to disk -- fixed to `.json()` + `.markdown`. Bundle rebuilt (`npm run build`), re-verified against the full walkthrough + `bash tests/run-all-232.sh` (PASS=5 FAIL=0).
+- **All gates green:** `bash tests/run-all-232.sh` -> PASS=5 FAIL=0 (room-home, briefing, wiki-server, transforms, export). Root prod deps free of next/react/@blocknote (`[]`). `git diff --exit-code lib/wiki/page-renderer.cjs lib/wiki/graph-links.cjs` byte-unchanged at phase end.
+- **Two v2 follow-ups recorded (both non-blocking):** (a) a populated-`room.db` fixture to verify the POSITIVE backlinks path end-to-end; (b) empty-state copy for the pre-existing `renderBacklinks`/`renderSeeAlso` (they emit nothing instead of the UI-SPEC's "No backlinks yet." / "No related pages." copy -- legacy functions reused as-is per D-10, never touched this phase).
+- **Concurrent-session guard:** branch `seeds/host-runtime-research-2026-07-18` re-verified before starting AND immediately before the docs commit (no drift onto main). `gsd-tools` NOT on PATH; STATE.md updated by manual additive log append + frontmatter counter advance (completed_plans 144->145, completed_phases 26->27), matching the 230/231/232-04/05 anti-clobber precedent. `.planning/` is gitignore-matched but planning docs are deliberately tracked via force-add; SUMMARY force-added.
+- **PHASE 232 CLOSED:** all 6 plans (232-01..232-06) executed, all 9 SPEC requirements met, all 10 acceptance checkboxes verified.
 
 ## (2026-07-20) -- PHASE 232 Plan 05 COMPLETE (Wave 2) -- editor bundle feature set: [[wikilink]] clickable pill inside BlockNote (D-08), literal-text save round-trip (D-09), MIT pdfmake/docx PDF+Word export (Req 3/6)
 
@@ -1838,6 +1850,8 @@ Progress: [█████████░] 92%
 | Phase 232 P01 | 15m | 2 tasks | 6 files |
 | Phase 232 P02 | 22m | 2 tasks | 8 files |
 | Phase 232 P03 | 18min | 3 tasks | 8 files |
+| Phase 232 P06 | 1 session | 2 tasks | 7 files |
+| 232 | 6 | - | - |
 
 ## Accumulated Context
 
