@@ -6,7 +6,20 @@
 // markdown straight back to disk. On any page WITHOUT that element (the Room Home,
 // the Graph tab, a static --export share page) this bundle does nothing at all.
 //
-// The server routes (GET /api/raw/:pageId, POST /api/save/:pageId) land in Plan 04.
+// The server routes are GET /api/raw/:section/:page and POST /api/save/:section/:page
+// (Plan 04, matching the existing two-segment convention already used by
+// /api/backlinks/:section/:page and /wiki/:section/:page elsewhere in wiki-server.cjs).
+// pageId always arrives as "section/page" (see data-page-id in wiki-server.cjs); it MUST
+// be split into two literal path segments, not single-encoded -- encodeURIComponent(pageId)
+// turns the slash into %2F, which Express does not decode back into a route separator, so
+// the request 404s against a two-segment route. apiPath() is the one place that does this
+// splitting, so raw/save can never drift apart again.
+function apiPath(base, pageId) {
+  const slash = pageId.indexOf('/');
+  const section = slash === -1 ? pageId : pageId.slice(0, slash);
+  const page = slash === -1 ? '' : pageId.slice(slash + 1);
+  return `${base}/${encodeURIComponent(section)}/${encodeURIComponent(page)}`;
+}
 
 import * as React from 'react';
 import { StrictMode } from 'react';
@@ -88,7 +101,7 @@ function App({ pageId, title, initialMarkdown }) {
       return;
     }
     try {
-      const res = await fetch('/api/save/' + encodeURIComponent(pageId), {
+      const res = await fetch(apiPath('/api/save', pageId), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ markdown: md }),
@@ -185,8 +198,13 @@ function boot() {
     (pageId.includes('/') ? pageId.split('/').pop() : pageId);
   const title = rawTitle || 'article';
 
-  fetch('/api/raw/' + encodeURIComponent(pageId))
-    .then((res) => (res.ok ? res.text() : ''))
+  // GET /api/raw returns a JSON envelope ({id, title, markdown} -- see wiki-server.cjs
+  // and its test at test-232-wiki-server.cjs), never plain text. Reading it with
+  // res.text() would hand the whole JSON envelope to the editor as if it were the
+  // article body -- exactly what it is not.
+  fetch(apiPath('/api/raw', pageId))
+    .then((res) => (res.ok ? res.json() : { markdown: '' }))
+    .then((body) => (body && typeof body.markdown === 'string' ? body.markdown : ''))
     .catch(() => '')
     .then((markdown) => {
       createRoot(root).render(
