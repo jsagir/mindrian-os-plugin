@@ -3184,7 +3184,7 @@ Plans:
 **Goal:** /mos:wiki gets a BlockNote-powered editing surface ported from dev/mindrian-workroom (prebuilt client bundle, Express+CJS server unchanged, no Next.js vendored into the plugin); Room Home (governing thought, Larry's Briefing, gaps, section progress) replaces the graph view as the wiki landing page; SEED-006's deferred Phase 19 wiki-finish items (wikilinks/backlinks/see-also, full-text search, graph as a secondary tab, dark/light toggle, static-HTML export) are folded in as v1 scope. Expands SEED-006 (`.planning/seeds/SEED-006-mindrian-wiki-sprint-the-visible-room.md`), whose own Phase 104/126 reservation went stale (Phase 126 shipped as install-lifecycle-harness-gaps).
 **Requirements**: SPEC Req 1-9 (232-SPEC.md, 9 locked requirements: client bundle no-vendoring, direct save, PDF/DOCX export, Room Home landing, graph tab, wikilinks+backlinks, search, theme toggle, static export)
 **Depends on:** None (net-new capability; SEED-006 was dormant, not blocking on Phases 210-231's in-flight work)
-**Plans:** 3/6 plans executed
+**Plans:** 4/6 plans executed
 
 Plans:
 
@@ -3196,7 +3196,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 232-04-PLAN.md - Server integration: Room Home landing route, article editor view + info-rail backlinks/see-also (D-10), /api/save + /api/raw + /api/briefing, /editor static mount (D-03), graph tab retune [SPEC Req 2, 4, 5, 6]
+- [x] 232-04-PLAN.md - Server integration: Room Home landing route, article editor view + info-rail backlinks/see-also (D-10), /api/save + /api/raw + /api/briefing, /editor static mount (D-03), graph tab retune [SPEC Req 2, 4, 5, 6]
 - [ ] 232-05-PLAN.md - Wikilink pill inline spec (D-08) + load/save transforms (D-09) + pdfmake/docx exporters, bundle rebuild [SPEC Req 3, 6]
 
 **Wave 3** *(blocked on Wave 2)*
