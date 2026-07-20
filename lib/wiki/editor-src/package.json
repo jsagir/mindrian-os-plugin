@@ -1,0 +1,21 @@
+{
+  "name": "mos-wiki-editor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Walled-off author-time BlockNote client bundle for the M:OS wiki. Built with esbuild into ../editor-dist/. React/BlockNote/esbuild live ONLY here and never enter the plugin's root dependency tree (Phase 232 D-01/D-02).",
+  "scripts": {
+    "build": "node build.cjs"
+  },
+  "dependencies": {
+    "@blocknote/core": "0.51.4",
+    "@blocknote/mantine": "0.51.4",
+    "@blocknote/react": "0.51.4",
+    "docx": "^9.0.0",
+    "pdfmake": "^0.2.20",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
