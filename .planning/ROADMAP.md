@@ -3182,13 +3182,26 @@ Plans:
 ### Phase 232: BlockNote Wiki Convergence
 
 **Goal:** /mos:wiki gets a BlockNote-powered editing surface ported from dev/mindrian-workroom (prebuilt client bundle, Express+CJS server unchanged, no Next.js vendored into the plugin); Room Home (governing thought, Larry's Briefing, gaps, section progress) replaces the graph view as the wiki landing page; SEED-006's deferred Phase 19 wiki-finish items (wikilinks/backlinks/see-also, full-text search, graph as a secondary tab, dark/light toggle, static-HTML export) are folded in as v1 scope. Expands SEED-006 (`.planning/seeds/SEED-006-mindrian-wiki-sprint-the-visible-room.md`), whose own Phase 104/126 reservation went stale (Phase 126 shipped as install-lifecycle-harness-gaps).
-**Requirements**: TBD
+**Requirements**: SPEC Req 1-9 (232-SPEC.md, 9 locked requirements: client bundle no-vendoring, direct save, PDF/DOCX export, Room Home landing, graph tab, wikilinks+backlinks, search, theme toggle, static export)
 **Depends on:** None (net-new capability; SEED-006 was dormant, not blocking on Phases 210-231's in-flight work)
-**Plans:** 0 plans
+**Plans:** 6 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 232 to break down)
+**Wave 1**
+
+- [ ] 232-01-PLAN.md - [BLOCKING] Land M:OS design system v1.1 (feat/mos-design-system-v1.1 files) + retokenize wiki chrome (DV-1..DV-6, theme default light) [SPEC Req 7, 8]
+- [ ] 232-02-PLAN.md - Room Home data services: STATE.md parser + readTriple governing thought (D-05), Larry's Briefing raw-fetch Anthropic (D-06), fixture room + run-all-232.sh [SPEC Req 4]
+- [ ] 232-03-PLAN.md - Walled BlockNote client bundle: package legitimacy gate, esbuild pipeline in lib/wiki/editor-src (D-01/D-02), themed editor mount + save wiring, vendored editor-dist [SPEC Req 1, 2]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 232-04-PLAN.md - Server integration: Room Home landing route, article editor view + info-rail backlinks/see-also (D-10), /api/save + /api/raw + /api/briefing, /editor static mount (D-03), graph tab retune [SPEC Req 2, 4, 5, 6]
+- [ ] 232-05-PLAN.md - Wikilink pill inline spec (D-08) + load/save transforms (D-09) + pdfmake/docx exporters, bundle rebuild [SPEC Req 3, 6]
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 232-06-PLAN.md - Static --export implementation (first real one; previously documented but unimplemented) + commands/wiki.md truth-up + end-to-end human walkthrough of all 10 SPEC acceptance criteria [SPEC Req 9]
 
 ---
 
