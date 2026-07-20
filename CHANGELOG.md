@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.31 (in progress)
+## [1.15.3-beta.32] - 2026-07-20
 
 ### Added
 - **BlockNote Wiki Convergence (Phase 232): `/mos:wiki` gets a real editing surface.** The wiki
