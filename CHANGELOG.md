@@ -1,7 +1,19 @@
 ## [Unreleased] -- v1.15.3-beta.31 (in progress)
 
 ### Added
-- 
+- **BlockNote Wiki Convergence (Phase 232): `/mos:wiki` gets a real editing surface.** The wiki
+  now opens to a Room Home dashboard (governing thought, Larry's Briefing, gaps, per-section
+  progress) instead of the graph, and every article is directly editable in a BlockNote surface
+  themed to the M:OS Canonical Design System -- edit, click Save, the change writes straight to
+  the room's `.md` file (no confirmation dialog, no conflict check, by design). `[[wikilinks]]`
+  render as clickable pills inside the editor; Backlinks and See Also stay wired to the existing
+  SQLite graph edges. New: per-article PDF and Word export, and a real `/mos:wiki --export`
+  static-share bundle (previously documented, never implemented). The client bundle (React +
+  BlockNote) is walled off in its own `lib/wiki/editor-src/` build, so the plugin's own
+  dependencies stay CJS-only -- zero React/Next.js/BlockNote added to the install footprint.
+  A live browser walkthrough caught and fixed two integration bugs before ship (a save/load URL
+  encoding mismatch, and a JSON-vs-plaintext response contract mismatch that would have written
+  raw JSON into article files instead of markdown).
 
 ## [1.15.3-beta.30] - 2026-07-20
 
