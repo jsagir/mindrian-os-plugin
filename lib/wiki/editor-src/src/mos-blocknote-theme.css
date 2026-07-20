@@ -154,6 +154,49 @@
   outline-offset: 2px;
 }
 
+/* Export PDF / Export Word: secondary actions, blue outline not blue fill. */
+.mos-export-btn {
+  font-family: var(--mos-grot);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mos-blue);
+  background: transparent;
+  border: 1px solid var(--mos-blue);
+  border-radius: 0;
+  padding: 7px 15px;
+  cursor: pointer;
+}
+.mos-export-btn:hover {
+  background: color-mix(in srgb, var(--mos-blue) 8%, var(--mos-panel));
+}
+.mos-export-btn:focus-visible {
+  outline: 2px solid var(--mos-blue);
+  outline-offset: 2px;
+}
+
+/* ---- Wikilink inline pill (UI-SPEC item 5, D-08) ----
+ * Blue text on a faint blue tint with a blue bottom-border, zero radius, hover
+ * underline. Rendered inside the editing surface by wikilink-spec.jsx. */
+.mos-wikilink {
+  color: var(--mos-blue);
+  background: color-mix(in srgb, var(--mos-blue) 8%, transparent);
+  border-bottom: 1px solid var(--mos-blue);
+  border-radius: 0;
+  padding: 0 2px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.mos-wikilink:hover {
+  text-decoration: underline;
+}
+.mos-wikilink:focus-visible {
+  outline: 2px solid var(--mos-blue);
+  outline-offset: 1px;
+}
+
 .mos-toast-saved {
   display: inline-block;
   font-weight: 800;

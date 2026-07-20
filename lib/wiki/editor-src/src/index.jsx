@@ -13,29 +13,34 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
+import { BlockNoteSchema, defaultInlineContentSpecs } from '@blocknote/core';
 
 // BlockNote's own styles FIRST, then our M:OS overrides so the overrides win.
 import '@blocknote/mantine/style.css';
 import './mos-blocknote-theme.css';
 
-// --- Named transform seams (Plan 05 replaces these with the wikilink inline-node
-// transforms; here they are pure identity functions and MUST stay that way this plan). ---
-export function loadTransform(blocks) {
-  // Load-side seam: markdown-parsed blocks in, blocks out. Identity in Plan 03.
-  return blocks;
-}
-export function saveTransform(blocks) {
-  // Save-side seam: editor document in, blocks to serialize out. Identity in Plan 03.
-  return blocks;
-}
+// Plan 05: the real load/save bridge + the wikilink pill + the exporters.
+import { textRunsToWikilinks, wikilinksToTextRuns } from './wikilink-transforms.cjs';
+import { WikilinkInlineSpec } from './wikilink-spec.jsx';
+import { exportPdf, exportDocx } from './exporters.js';
+
+// The editor schema = BlockNote defaults + our custom 'wikilink' inline content. This
+// is what lets a { type:'wikilink' } node round-trip through the editor and render as
+// a pill (D-08). Built once at module load, shared by every mount.
+const mosSchema = BlockNoteSchema.create({
+  inlineContentSpecs: {
+    ...defaultInlineContentSpecs,
+    wikilink: WikilinkInlineSpec,
+  },
+});
 
 function currentTheme() {
   const t = document.documentElement.getAttribute('data-theme');
   return t === 'dark' ? 'dark' : 'light';
 }
 
-function App({ pageId, initialMarkdown }) {
-  const editor = useCreateBlockNote();
+function App({ pageId, title, initialMarkdown }) {
+  const editor = useCreateBlockNote({ schema: mosSchema });
 
   // Track the page theme live: the Plan 01 toggle flips <html data-theme>.
   const [theme, setTheme] = React.useState(currentTheme());
@@ -53,7 +58,9 @@ function App({ pageId, initialMarkdown }) {
       try {
         const blocks = await editor.tryParseMarkdownToBlocks(initialMarkdown || '');
         if (!cancelled && blocks && blocks.length) {
-          editor.replaceBlocks(editor.document, loadTransform(blocks));
+          // Load-time boundary (D-09): turn [[target]] text into wikilink pills BEFORE
+          // the blocks enter the editor.
+          editor.replaceBlocks(editor.document, textRunsToWikilinks(blocks));
         }
       } catch (err) {
         // A parse failure leaves the empty starter block; the user can still type.
@@ -65,13 +72,16 @@ function App({ pageId, initialMarkdown }) {
     };
   }, [editor, initialMarkdown]);
 
-  const [status, setStatus] = React.useState(null); // {kind:'saved'|'error', file?}
+  const [status, setStatus] = React.useState(null);
+  // status kinds: {kind:'saved'} | {kind:'error', file} | {kind:'export-error', format}
 
   async function onSave() {
     setStatus(null);
     let md = '';
     try {
-      md = await editor.blocksToMarkdownLossy(saveTransform(editor.document));
+      // Save-time boundary (D-09): collapse wikilink pills back to literal [[target]]
+      // text BEFORE serializing, so the .md on disk stays plain markdown.
+      md = await editor.blocksToMarkdownLossy(wikilinksToTextRuns(editor.document));
     } catch (err) {
       console.error('[mos-wiki-editor] serialize failed:', err);
       setStatus({ kind: 'error', file: pageId });
@@ -91,13 +101,45 @@ function App({ pageId, initialMarkdown }) {
     }
   }
 
+  // Export the CURRENT editor content (possibly unsaved, SPEC Req 3). Wikilink pills
+  // are flattened to literal [[target]] text first so exported documents match disk.
+  async function onExport(format) {
+    setStatus(null);
+    try {
+      const blocks = wikilinksToTextRuns(editor.document);
+      if (format === 'pdf') {
+        await exportPdf(blocks, title);
+      } else {
+        await exportDocx(blocks, title);
+      }
+    } catch (err) {
+      console.error('[mos-wiki-editor] export failed:', err);
+      setStatus({ kind: 'export-error', format: format === 'pdf' ? 'PDF' : 'Word' });
+    }
+  }
+
   return (
     <div className="mos-editor-shell">
       <div className="mos-editor-actionrow">
         <button id="mos-save" className="mos-save-btn" type="button" onClick={onSave}>
           Save
         </button>
-        {/* Plan 05 appends Export PDF / Export Word buttons to this row. */}
+        <button
+          id="mos-export-pdf"
+          className="mos-export-btn"
+          type="button"
+          onClick={() => onExport('pdf')}
+        >
+          Export PDF
+        </button>
+        <button
+          id="mos-export-docx"
+          className="mos-export-btn"
+          type="button"
+          onClick={() => onExport('docx')}
+        >
+          Export Word
+        </button>
       </div>
 
       {status && status.kind === 'saved' && (
@@ -114,6 +156,15 @@ function App({ pageId, initialMarkdown }) {
           </div>
         </div>
       )}
+      {status && status.kind === 'export-error' && (
+        <div className="mos-redbar" role="alert">
+          <div className="mos-redbar-line1">Export failed.</div>
+          <div className="mos-redbar-line2">Why: {status.format} render did not complete.</div>
+          <div className="mos-redbar-line3">
+            Fix: retry, or Save first and export again.
+          </div>
+        </div>
+      )}
 
       <BlockNoteView editor={editor} theme={theme} />
     </div>
@@ -126,13 +177,21 @@ function boot() {
 
   const pageId = root.getAttribute('data-page-id') || '';
 
+  // Article title for export filenames and the DOCX/PDF heading. Prefer an explicit
+  // data-page-title, then the page's own <title>, then the pageId basename.
+  const rawTitle =
+    root.getAttribute('data-page-title') ||
+    (document.title || '').trim() ||
+    (pageId.includes('/') ? pageId.split('/').pop() : pageId);
+  const title = rawTitle || 'article';
+
   fetch('/api/raw/' + encodeURIComponent(pageId))
     .then((res) => (res.ok ? res.text() : ''))
     .catch(() => '')
     .then((markdown) => {
       createRoot(root).render(
         <StrictMode>
-          <App pageId={pageId} initialMarkdown={markdown} />
+          <App pageId={pageId} title={title} initialMarkdown={markdown} />
         </StrictMode>,
       );
       // Mount marker for the server/tests to assert the bundle loaded.
