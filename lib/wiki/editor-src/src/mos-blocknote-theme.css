@@ -1,0 +1,240 @@
+/*
+ * M:OS BlockNote theme override (Phase 232 Plan 03, UI-SPEC Section 8).
+ *
+ * Re-authors the lost blocknote-theme.ts as a CSS token-override contract. BlockNote
+ * ships rounded corners, soft blur shadows, and its own font. All three violate the
+ * canonical flat / rectilinear / one-grotesk laws. This sheet maps BlockNote's own
+ * CSS variables onto M:OS tokens (--paper / --panel / --ink / --muted / --grot / --mono
+ * / --blue / --rule / --edge). It is imported AFTER @blocknote/mantine/style.css so
+ * these overrides win.
+ *
+ * The M:OS tokens themselves are defined by the canonical design-system bundle inlined
+ * into every wiki page (lib/ui/design-system.cjs mosStyleTag). We only consume them
+ * here; we never redefine them. Fallbacks are given so the editor is still legible if
+ * the bundle is ever absent.
+ */
+
+:root {
+  /* Consume the page tokens; fall back to canonical v1.1 light values. */
+  --mos-paper: var(--paper, #f4f2ec);
+  --mos-panel: var(--panel, #fbfaf7);
+  --mos-ink: var(--ink, #0c0c0d);
+  --mos-muted: var(--muted, #5b5b5b);
+  --mos-blue: var(--blue, #1e52e0);
+  --mos-green: var(--green, #12a06a);
+  --mos-rule: var(--rule, rgba(12, 12, 13, 0.14));
+  --mos-edge: var(--edge, #111);
+  --mos-grot: var(--grot, "Helvetica Neue", Inter, system-ui, Arial, sans-serif);
+  --mos-mono: var(--mono, "SF Mono", ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace);
+}
+
+/* ---- BlockNote core variable remap (both light and dark BlockNote themes) ---- */
+.bn-container[data-color-scheme],
+.bn-container {
+  /* Editor canvas: raised panel on the paper page. */
+  --bn-colors-editor-background: var(--mos-panel);
+  --bn-colors-editor-text: var(--mos-ink);
+
+  /* Menus, toolbars, tooltips: panel cells, ink text, muted secondary. */
+  --bn-colors-menu-background: var(--mos-panel);
+  --bn-colors-menu-text: var(--mos-ink);
+  --bn-colors-tooltip-background: var(--mos-panel);
+  --bn-colors-tooltip-text: var(--mos-ink);
+  --bn-colors-hovered-background: color-mix(in srgb, var(--mos-blue) 8%, var(--mos-panel));
+  --bn-colors-hovered-text: var(--mos-ink);
+  --bn-colors-selected-background: var(--mos-blue);
+  --bn-colors-selected-text: #fff;
+  --bn-colors-disabled-background: var(--mos-panel);
+  --bn-colors-disabled-text: var(--mos-muted);
+
+  /* Structure: hairline borders, no soft shadow. */
+  --bn-colors-border: var(--mos-rule);
+  --bn-colors-side-menu: var(--mos-muted);
+  --bn-colors-highlights-blue-background: color-mix(in srgb, var(--mos-blue) 20%, var(--mos-panel));
+
+  /* Flat, rectilinear: kill the default rounding and blur shadow entirely. */
+  --bn-border-radius: 0px;
+  --bn-shadow-medium: 0 0 0 1px var(--mos-rule);
+  --bn-shadow-light: 0 0 0 1px var(--mos-rule);
+
+  /* One grotesk. */
+  --bn-font-family: var(--mos-grot);
+
+  font-family: var(--mos-grot);
+  color: var(--mos-ink);
+}
+
+/* Zero radius on every BlockNote surface (max 2px per the canonical law). */
+.bn-container,
+.bn-editor,
+.bn-block-content,
+.bn-toolbar,
+.bn-menu-dropdown,
+.bn-suggestion-menu,
+.bn-side-menu,
+.bn-drag-handle-menu,
+.bn-color-picker-dropdown,
+.mantine-Menu-dropdown,
+.mantine-Popover-dropdown,
+.mantine-Tooltip-tooltip,
+.bn-toolbar button,
+.bn-menu-item {
+  border-radius: 0 !important;
+}
+
+/* No blur box-shadows anywhere: replace with hairline edges / hard structure. */
+.bn-toolbar,
+.bn-menu-dropdown,
+.bn-suggestion-menu,
+.bn-side-menu,
+.bn-drag-handle-menu,
+.bn-color-picker-dropdown,
+.mantine-Menu-dropdown,
+.mantine-Popover-dropdown,
+.mantine-Tooltip-tooltip {
+  box-shadow: 0 0 0 1px var(--mos-rule) !important;
+  background: var(--mos-panel);
+}
+
+/* Code marks use the mono stack. */
+.bn-container code,
+.bn-inline-content code,
+.bn-block-content[data-content-type="codeBlock"] {
+  font-family: var(--mos-mono);
+}
+
+/* Placeholder + secondary text use --muted. */
+.bn-container .bn-inline-content[data-placeholder]::before,
+.bn-container [data-placeholder]::before {
+  color: var(--mos-muted);
+}
+
+/* Canonical selection: blue ground, white text. */
+.bn-container ::selection {
+  background: var(--mos-blue);
+  color: #fff;
+}
+
+/* Canonical focus ring: 2px blue, no soft glow. */
+.bn-container :focus-visible,
+.bn-toolbar button:focus-visible,
+.bn-menu-item:focus-visible {
+  outline: 2px solid var(--mos-blue);
+  outline-offset: 1px;
+}
+
+/* ---- Editor chrome authored by index.jsx (action row, toasts, red-bar) ---- */
+.mos-editor-shell {
+  font-family: var(--mos-grot);
+  color: var(--mos-ink);
+}
+
+.mos-editor-actionrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.mos-save-btn {
+  font-family: var(--mos-grot);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--mos-blue);
+  border: 0;
+  border-radius: 0;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.mos-save-btn:focus-visible {
+  outline: 2px solid var(--mos-blue);
+  outline-offset: 2px;
+}
+
+/* Export PDF / Export Word: secondary actions, blue outline not blue fill. */
+.mos-export-btn {
+  font-family: var(--mos-grot);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mos-blue);
+  background: transparent;
+  border: 1px solid var(--mos-blue);
+  border-radius: 0;
+  padding: 7px 15px;
+  cursor: pointer;
+}
+.mos-export-btn:hover {
+  background: color-mix(in srgb, var(--mos-blue) 8%, var(--mos-panel));
+}
+.mos-export-btn:focus-visible {
+  outline: 2px solid var(--mos-blue);
+  outline-offset: 2px;
+}
+
+/* ---- Wikilink inline pill (UI-SPEC item 5, D-08) ----
+ * Blue text on a faint blue tint with a blue bottom-border, zero radius, hover
+ * underline. Rendered inside the editing surface by wikilink-spec.jsx. */
+.mos-wikilink {
+  color: var(--mos-blue);
+  background: color-mix(in srgb, var(--mos-blue) 8%, transparent);
+  border-bottom: 1px solid var(--mos-blue);
+  border-radius: 0;
+  padding: 0 2px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.mos-wikilink:hover {
+  text-decoration: underline;
+}
+.mos-wikilink:focus-visible {
+  outline: 2px solid var(--mos-blue);
+  outline-offset: 1px;
+}
+
+.mos-toast-saved {
+  display: inline-block;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mos-ink);
+  background: var(--mos-green);
+  border-radius: 0;
+  padding: 6px 12px;
+  margin: 4px 0 12px;
+}
+
+.mos-redbar {
+  border-left: 4px solid var(--red, #e11d22);
+  background: color-mix(in srgb, var(--red, #e11d22) 8%, var(--mos-panel));
+  padding: 12px 16px;
+  margin: 4px 0 12px;
+}
+.mos-redbar-line1 {
+  font-weight: 800;
+  color: var(--mos-ink);
+}
+.mos-redbar-line2 {
+  color: var(--mos-muted);
+}
+.mos-redbar-line3 {
+  color: var(--mos-ink);
+}
+
+/* Honor prefers-reduced-motion: disable BlockNote transition animations. */
+@media (prefers-reduced-motion: reduce) {
+  .bn-container,
+  .bn-container *,
+  .bn-toolbar,
+  .bn-menu-dropdown,
+  .bn-suggestion-menu {
+    transition: none !important;
+    animation: none !important;
+  }
+}
