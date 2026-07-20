@@ -1,6 +1,34 @@
 ---
 id: SEED-006
-status: scheduled-v1.14.0
+status: expanded-into-phase-232
+expanded_into: Phase 232 (BlockNote Wiki Convergence)
+expansion_correction: |
+  2026-07-19: this seed's Phase 104/126 number reservation (see
+  phase_number_correction below) went stale a second time -- Phase 126 was
+  claimed by the unrelated, already-shipped install-lifecycle-harness-gaps
+  phase while ~230 other phases shipped past this dormant seed. Registered
+  live as Phase 232 via /gsd-phase after a superpowers:brainstorming session
+  with Jonathan that also overturned this seed's original READ-ONLY scope
+  (see .planning/research/WIKI-PLATFORMS.md's "never add an editor" verdict):
+  the source prototype is dev/mindrian-workroom ("the blocknote test"), a
+  BlockNote-powered editing surface Jonathan wants ported in. Locked
+  decisions folding INTO this seed's scope, not replacing it: (1) delivery
+  lane is "split by surface" -- /mos:wiki stays Express+CJS zero-build, adds
+  a prebuilt BlockNote client bundle (no Next.js vendored into the plugin;
+  mindrian-workroom keeps existing separately as the Cowork/hosted-surface
+  prototype); (2) Room Home (governing thought, Larry's Briefing, gaps,
+  section progress) becomes the wiki landing page, REPLACING graph-as-
+  homepage -- this deliberately overturns the Phase 19 mandate this seed
+  itself reaffirmed below; (3) always-editable, direct save-to-disk, no
+  conflict/mtime-check machinery for v1 (risk accepted, not solved); (4) v1
+  keeps workroom's existing feature set as-is and ports in wikilinks +
+  backlinks/see-also + search + graph-as-tab + theme toggle + static export
+  from today's /mos:wiki; the rest of this seed's finish-items (red-link-
+  to-research, chat panel, freshness tiers, onboarding tour) stay deferred
+  to v2, unchanged from this seed's original scoping. Phase 232 is the
+  live authority going forward; this file is preserved as the historical
+  reasoning trail per Dev-Research Compositing convention.
+status_pre_expansion: scheduled-v1.14.0
 planted: 2026-05-07
 planted_during: post-LLM-Wiki competitive review session
 target_milestone: v1.14.0
