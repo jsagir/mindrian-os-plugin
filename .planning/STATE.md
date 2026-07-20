@@ -3,18 +3,30 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 232-04-PLAN.md
+stopped_at: Completed 232-05-PLAN.md
 last_updated: "2026-07-20T00:00:00.000Z"
 last_activity: 2026-07-20
 progress:
   total_phases: 40
   completed_phases: 26
   total_plans: 148
-  completed_plans: 143
+  completed_plans: 144
   percent: 65
 ---
 
 # Project State
+
+## (2026-07-20) -- PHASE 232 Plan 05 COMPLETE (Wave 2) -- editor bundle feature set: [[wikilink]] clickable pill inside BlockNote (D-08), literal-text save round-trip (D-09), MIT pdfmake/docx PDF+Word export (Req 3/6)
+
+Completes the editor-src build island's feature set. Only files under lib/wiki/editor-src/src/ + the rebuilt lib/wiki/editor-dist/ + a new hermetic test; the Plan-04 server (wiki-server.cjs) and the read-only path (page-renderer.cjs) were consumed as-is, byte-unchanged.
+
+- **Task 1 (TDD, `eb825009` test + `587820c7` feat):** `lib/wiki/editor-src/src/wikilink-transforms.cjs` -- dependency-free pure CJS (0 require() calls), `textRunsToWikilinks` splits `[[target]]` text into `{type:wikilink,props:{target}}` inline nodes (styles carried, input never mutated) and `wikilinksToTextRuns` inverts to literal `[[target]]` text (D-09). Non-array content (table shapes) passes through untouched -- fail-open per D-07 (plain `[[foo]]` round-trips byte-identical through @blocknote/core 0.51.4). `tests/test-232-transforms.cjs`: 6 hermetic behaviors (split/two-links/inverse/nested round-trip/no-bracket JSON-equality/malformed-brackets), glob-discovered by run-all-232.sh.
+- **Task 2 (`cc02af21` feat):** `wikilink-spec.jsx` -- `createReactInlineContentSpec` pill (type wikilink, propSchema target, content none), styled per UI-SPEC item 5 (blue text, faint blue tint, blue bottom-border, zero radius, hover underline, `.mos-wikilink`), click/Enter resolves via a module-cached `/api/pages` fetch mirroring page-renderer buildPageIndex + postProcessPageName (lowercase + whitespace-to-hyphen, id/title/basename index, `/wiki/` fallback), same-origin nav only (T-232-05-01/02). `exporters.js` -- MIT `pdfmake` PDF + `docx` DOCX walks over BlockNote block JSON (headings h1 20/h2 16/h3 14, paragraphs 11, ul/ol, codeBlock, bold/italic, wikilink->`[[target]]`). `index.jsx` -- schema via `BlockNoteSchema.create({inlineContentSpecs:{...defaultInlineContentSpecs,wikilink}})`; identity seams removed, load applies `textRunsToWikilinks` before replaceBlocks, save applies `wikilinksToTextRuns` before blocksToMarkdownLossy (D-09 boundary); `Export PDF` (#mos-export-pdf) + `Export Word` (#mos-export-docx) buttons + UI-SPEC export-failed red bar. Bundle rebuilt (`npm run build`, wiki-editor.js 1.75mb->4.4mb with vendored pdfmake/docx/fonts).
+- **All gates green:** `bash tests/run-all-232.sh` -> PASS=4 FAIL=0 (transforms 6/6, room-home, briefing, wiki-server). Dist contains `wikilink`/`mos-export-pdf`/`mos-export-docx`/`api/pages`; css contains `.mos-wikilink`. `git diff --exit-code lib/wiki/page-renderer.cjs` byte-unchanged.
+- **One deviation (Rule 1, test-only):** Test 6's original RED input `"[[unclosed and ]]stray"` accidentally formed a VALID `[[unclosed and ]]` link; corrected to genuinely-unbalanced fragments. Module code unchanged, regex spec honored exactly. **One issue:** codeBlock PDF export uses pdfmake's default Roboto (vendored vfs_fonts ships only Roboto; a missing mono face would throw); DOCX code uses "Courier New" safely.
+- **Scope stayed clean:** committed only the 8 in-scope files across 3 commits; the pre-existing unrelated `evals/plurai/211-baseline.json` modification was left untouched and rode no commit.
+- **Concurrent-session guard:** branch `seeds/host-runtime-research-2026-07-18` re-verified before starting AND before each of the 3 commits (no drift onto main/main-merge). `gsd-tools` NOT on PATH; STATE.md updated by manual additive log append + frontmatter counter advance (completed_plans 143->144), matching the 230/231/232-04 anti-clobber precedent. `.planning/` is gitignore-matched but planning docs are deliberately tracked via force-add (all sibling plans/summaries tracked); SUMMARY force-added.
+- **NEXT:** Plan 06 (static export / read-only share surface); the editor bundle no-ops without `#mos-editor-root`, so static exports are unaffected. Phase 232 not yet closed.
 
 ## (2026-07-20) -- PHASE 232 Plan 04 COMPLETE (Wave 2) -- wired Plans 01-03 into a running wiki: Room Home landing route, BlockNote editor article view, raw/save/briefing APIs, /editor static mount, graph retune (Req 2/4/5/6)
 
