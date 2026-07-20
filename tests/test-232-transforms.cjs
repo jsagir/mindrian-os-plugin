@@ -160,19 +160,18 @@ test('bracket-free blocks pass through both transforms unchanged', () => {
 });
 
 // ---- Test 6: malformed brackets are left as plain text ----
+// Each fragment is genuinely unbalanced ("[[" with no closing "]]", or "]]" with
+// no opening "[["), so the /\[\[([^\[\]]+)\]\]/ pattern never matches. (A combined
+// "[[a ]]b" WOULD form a valid link, which is correct and not what this asserts.)
 test('malformed brackets never match the wikilink regex', () => {
-  const input = [
-    {
-      type: 'paragraph',
-      content: [{ type: 'text', text: '[[unclosed and ]]stray brackets', styles: {} }],
-    },
-  ];
-  const out = textRunsToWikilinks(input);
-  const c = out[0].content;
-  assert.strictEqual(c.length, 1, 'expected a single untouched text node');
-  assert.strictEqual(c[0].type, 'text');
-  assert.strictEqual(c[0].text, '[[unclosed and ]]stray brackets');
-  assert.strictEqual(c.filter((n) => n.type === 'wikilink').length, 0);
+  for (const bad of ['[[unclosed bracket start', 'stray close ]] here', 'lone [ and ] ']) {
+    const input = [{ type: 'paragraph', content: [{ type: 'text', text: bad, styles: {} }] }];
+    const c = textRunsToWikilinks(input)[0].content;
+    assert.strictEqual(c.length, 1, 'expected a single untouched text node for: ' + bad);
+    assert.strictEqual(c[0].type, 'text');
+    assert.strictEqual(c[0].text, bad);
+    assert.strictEqual(c.filter((n) => n.type === 'wikilink').length, 0);
+  }
 });
 
 console.log('\ntest-232-transforms: ' + passed + '/6 passed');
