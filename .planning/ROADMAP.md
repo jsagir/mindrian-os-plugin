@@ -3184,14 +3184,14 @@ Plans:
 **Goal:** /mos:wiki gets a BlockNote-powered editing surface ported from dev/mindrian-workroom (prebuilt client bundle, Express+CJS server unchanged, no Next.js vendored into the plugin); Room Home (governing thought, Larry's Briefing, gaps, section progress) replaces the graph view as the wiki landing page; SEED-006's deferred Phase 19 wiki-finish items (wikilinks/backlinks/see-also, full-text search, graph as a secondary tab, dark/light toggle, static-HTML export) are folded in as v1 scope. Expands SEED-006 (`.planning/seeds/SEED-006-mindrian-wiki-sprint-the-visible-room.md`), whose own Phase 104/126 reservation went stale (Phase 126 shipped as install-lifecycle-harness-gaps).
 **Requirements**: SPEC Req 1-9 (232-SPEC.md, 9 locked requirements: client bundle no-vendoring, direct save, PDF/DOCX export, Room Home landing, graph tab, wikilinks+backlinks, search, theme toggle, static export)
 **Depends on:** None (net-new capability; SEED-006 was dormant, not blocking on Phases 210-231's in-flight work)
-**Plans:** 1/6 plans executed
+**Plans:** 2/6 plans executed
 
 Plans:
 
 **Wave 1**
 
 - [x] 232-01-PLAN.md - [BLOCKING] Land M:OS design system v1.1 (feat/mos-design-system-v1.1 files) + retokenize wiki chrome (DV-1..DV-6, theme default light) [SPEC Req 7, 8]
-- [ ] 232-02-PLAN.md - Room Home data services: STATE.md parser + readTriple governing thought (D-05), Larry's Briefing raw-fetch Anthropic (D-06), fixture room + run-all-232.sh [SPEC Req 4]
+- [x] 232-02-PLAN.md - Room Home data services: STATE.md parser + readTriple governing thought (D-05), Larry's Briefing raw-fetch Anthropic (D-06), fixture room + run-all-232.sh [SPEC Req 4]
 - [ ] 232-03-PLAN.md - Walled BlockNote client bundle: package legitimacy gate, esbuild pipeline in lib/wiki/editor-src (D-01/D-02), themed editor mount + save wiring, vendored editor-dist [SPEC Req 1, 2]
 
 **Wave 2** *(blocked on Wave 1)*
