@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.33 (in progress)
+## [1.15.3-beta.34] - 2026-07-21
 
 ### Fixed
 - **Stop hook (`check-card-fire.cjs`) force-fired a stale Decision-Gate card on unrelated
