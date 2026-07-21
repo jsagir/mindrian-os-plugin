@@ -1,6 +1,7 @@
 ---
 kind: seed
-status: open
+status: navigator-chosen-direction
+navigator_decision: "2026-07-21: 'this is the one direction I'll go with' -- confirmed after the SEED-066/071 correction (i.e. chosen WITH the correction applied: no Docmost/AFFiNE, BlockNote xl-* is GPL not MIT, MarkItDown sequenced behind SEED-034, MCP Apps treated as distinct from SEED-065's pure-MCP ceiling until verified otherwise). Not yet scoped into a phase or milestone -- still a chosen direction, not an active build."
 severity: medium
 created: 2026-07-20
 canon_parts: [7, 8, 10, 11]
