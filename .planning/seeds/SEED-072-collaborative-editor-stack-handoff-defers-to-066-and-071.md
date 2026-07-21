@@ -5,7 +5,7 @@ navigator_decision: "2026-07-21: 'this is the one direction I'll go with' -- con
 severity: medium
 created: 2026-07-20
 canon_parts: [7, 8, 10, 11]
-related: [SEED-006 (mindrian-wiki-sprint -- the visible room), SEED-034 (room.db never populated -- CRITICAL, still open, outranks everything here), SEED-065 (mcp ceiling -- adjacent, not identical, to MCP Apps), SEED-066 (collaborative-shell licence findings -- AUTHORITATIVE on Docmost/AFFiNE/BlockNote-xl-*/Hocuspocus licensing), SEED-067, SEED-068, SEED-069 (open-core / host-agnostic / subscription-passthrough -- the "local + hosted product" question), SEED-070 (live eureka run, stale bytes), SEED-071 (MarkItDown + LangExtract -- AUTHORITATIVE on MarkItDown sequencing), Phase 232 (BlockNote Wiki Convergence -- SHIPPED v1.15.3-beta.32, 2026-07-20, the same session this seed was planted in)]
+related: [SEED-006 (mindrian-wiki-sprint -- the visible room), SEED-034 (room.db never populated -- CRITICAL, still open, outranks everything here), SEED-065 (mcp ceiling -- adjacent, not identical, to MCP Apps), SEED-066 (collaborative-shell licence findings -- AUTHORITATIVE on Docmost/AFFiNE/BlockNote-xl-*/Hocuspocus licensing), SEED-067, SEED-068, SEED-069 (open-core / host-agnostic / subscription-passthrough -- the "local + hosted product" question), SEED-070 (live eureka run, stale bytes), SEED-071 (MarkItDown + LangExtract -- AUTHORITATIVE on MarkItDown sequencing), Phase 232 (BlockNote Wiki Convergence -- SHIPPED v1.15.3-beta.32, 2026-07-20, the same session this seed was planted in), SEED-072-guide (2026-07-21 BlockNote primary-source guide -- FOSDEM maintainer talk + Next.js integration tutorial, primary-source extension of Open Question #6)]
 proving_case: "Navigator pasted external (GPT-5.4 / Deep Research) market research on collaborative editors (BlockSuite, BlockNote, Tiptap+Hocuspocus, Plate, Milkdown, Docmost, AppFlowy) and a local-first stack proposal (RxDB + SQLite + MCP Apps + ICM/Feyminto), asked it filed as UI/UX research for MindrianOS to assess itself. Filed, then found -- one turn later, only because the navigator asked 'is it seeded?' and that prompted a reuse-before-build check -- that SEED-066 and SEED-071 already cover the licensing and MarkItDown-sequencing ground more authoritatively than the fresh research does."
 source: "Session 2026-07-20, same session Phase 232 (BlockNote Wiki Convergence) was built, merged, and released. Filed as a room research entry first (Canon Part 7 miss -- did not check .planning/seeds/ before filing); this seed exists to make sure a future assessment starts from the existing cluster, not from the fresh research alone."
 ---
@@ -29,6 +29,23 @@ the wiki into Claude Desktop/Cowork, or MarkItDown/ingestion-agent work.
 plus a proposed RxDB/SQLite/MCP-Apps/ICM-Feyminto layered architecture) with a correction block
 added at the top after this seed's own reuse-before-build check. Read the correction block first;
 it is more load-bearing than the body.
+
+## Primary-source addition (2026-07-21)
+
+A second research entry now sits beside the 2026-07-20 survey: two transcript sources filed as one
+guide -- a FOSDEM-style conference talk by BlockNote's own maintainers (a 2025 look-back plus a 2026
+roadmap) and a hands-on Next.js + BlockNote + UploadThing integration tutorial. Unlike the external
+GPT-5.4 Deep Research summary the 2026-07-20 entry was built from, this is primary-source material
+straight from the people who build BlockNote. It partially extends Open Question #6 of that entry and
+confirms Yjs as BlockNote's native collaboration substrate -- the maintainers are already prototyping
+suggestion/versioning mode with Yjs's own creator Kevin Jahns, the exact direction MindrianOS would
+be betting on. Two implementation details land for the cluster's "station blocks" concept: BlockNote's
+`uploadFile` config function is the hook point for wiring file/image storage into custom blocks, and
+BlockNote must be dynamically imported client-side-only in Next.js (`next/dynamic` + `{ssr:false}`) or
+it hydration-errors. This does NOT change or re-litigate SEED-066's licensing findings or SEED-071's
+MarkItDown sequencing; see the guide at
+`~/MindrianRooms/rethinking-mindrianos/research/2026-07-21-blocknote-primary-source-guide/2026-07-21-blocknote-primary-source-guide.md`
+for full detail.
 
 ## What a future assessment must NOT re-litigate (already settled)
 
