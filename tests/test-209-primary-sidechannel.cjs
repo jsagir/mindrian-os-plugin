@@ -117,7 +117,11 @@ ok('Source proof: recordReachedGate sits inside the emitTelemetry guard in selec
 
   const icSrc = fs.readFileSync(path.join(REPO, 'scripts', 'intent-classifier.cjs'), 'utf8');
   const count = (icSrc.match(/recordReachedGate/g) || []).length;
-  assert.equal(count, 2, 'expected exactly 2 recordReachedGate call sites in intent-classifier.cjs');
+  // Phase 209 shipped 2 producer sites here (the engine arm + emitBindingGate). Phase 225
+  // added a legitimate third (emitNoMatchGate, the zero-score no-match gate), so the exact
+  // count grew. This guard exists to prove the producer sites are PRESENT, not to freeze a
+  // literal count against every future legitimate gate-minting surface -- assert the floor.
+  assert.equal(count >= 2, true, 'expected at least the 2 original recordReachedGate call sites in intent-classifier.cjs');
 });
 
 // ---------------------------------------------------------------------------
@@ -292,6 +296,94 @@ ok('Behavior 9: the false-positive regression proof (the literal 2026-07-05 inci
       true,
       'the OLD comparison (user turn vs the assistant own reply) is the mechanism of the original false positive'
     );
+  } finally {
+    if (origEnv === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Task 4: card-fire-over-enforcement (2026-07-20) -- the stale/cross-session
+// bleed fix. Fix (A): the NO_SESSION_KEY union is freshness-scoped so a
+// sessionless mint cannot leak across sessions past the turn window. Fix (B):
+// the consumer judges a side-channel gate FRESH vs STALE (mostRecentReachedTs
+// vs TURN_FRESH_MS) and threads staleness into the low-signal relevance branch.
+// ---------------------------------------------------------------------------
+
+ok('Behavior 10 (fix A): a STALE no-session mint does NOT union into another session read; a FRESH one still does', function () {
+  const f = tmpFile();
+  const now = Date.now();
+  // Just past the turn window but still well inside the 10-minute file TTL.
+  const staleTs = now - (sidechannel.TURN_FRESH_MS + 30000);
+  fs.writeFileSync(f, JSON.stringify({
+    'no-session': [
+      { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: staleTs, subject: 'stale sessionless reach' },
+    ],
+  }));
+  assert.deepStrictEqual(
+    readReachedGates('some-other-live-session', { filePath: f }),
+    [],
+    'a no-session mint older than TURN_FRESH_MS must not bleed into another session (cross-session leak closed)'
+  );
+  // A FRESH sessionless mint still unions -- the trailer-door same-turn detection is preserved.
+  fs.writeFileSync(f, JSON.stringify({
+    'no-session': [
+      { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: now, subject: 'fresh sessionless reach' },
+    ],
+  }));
+  assert.equal(
+    readReachedGates('some-other-live-session', { filePath: f }).indexOf('lib/hmi/selector-dispatcher.cjs') !== -1,
+    true,
+    'a fresh no-session mint must still union (same-turn trailer-door detection preserved)'
+  );
+  fs.unlinkSync(f);
+});
+
+ok('Behavior 11 (fix B): a STALE same-session gate + a terse low-signal turn does NOT intercept; a FRESH one still does', function () {
+  const f = tmpFile();
+  const origEnv = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  const now = Date.now();
+  const staleTs = now - (sidechannel.TURN_FRESH_MS + 30000); // prior-turn mint, still inside TTL
+  const staleSubject = 'rethinking-mindrianos REACH decision gate governing_thought solution-design';
+  const registry = checkCardFire.loadRegistry();
+  // A terse slash-command-class trigger: a single subject token, unrelated to the stale reach.
+  const terseEnv = {
+    session_id: 'sess-stale-bleed',
+    output_text: 'Running the doctor check now.',
+    preceding_user_text: '/mos:doctor',
+    askuserquestion_fired: false,
+  };
+  try {
+    // STALE: a prior-turn reach still inside the 10-minute file TTL, keyed to THIS session.
+    fs.writeFileSync(f, JSON.stringify({
+      'sess-stale-bleed': [
+        { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: staleTs, subject: staleSubject },
+      ],
+    }));
+    const staleTurn = checkCardFire.deriveTurnSignals(terseEnv);
+    assert.equal(staleTurn.gate_is_fresh, false, 'a prior-turn side-channel mint must be judged stale');
+    assert.equal(staleTurn.gate_subject_text, staleSubject, 'the stale subject still populates (fix B decides via staleness, not by dropping it)');
+    const staleVerdict = checkCardFire.classifyCardFire(staleTurn, registry);
+    assert.deepStrictEqual(
+      { intercept: staleVerdict.intercept, reason: staleVerdict.reason },
+      { intercept: false, reason: 'gate-irrelevant-to-turn' },
+      'a terse turn against a STALE bled gate must NOT force-fire (the over-enforcement fix)'
+    );
+
+    // FRESH: the SAME terse turn against a this-turn mint of the same gate still force-fires
+    // (the WR-06 / Behavior-5 conservative floor is preserved).
+    fs.writeFileSync(f, JSON.stringify({
+      'sess-stale-bleed': [
+        { entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: now, subject: staleSubject },
+      ],
+    }));
+    const freshTurn = checkCardFire.deriveTurnSignals(terseEnv);
+    assert.equal(freshTurn.gate_is_fresh, true, 'a this-turn side-channel mint must be judged fresh');
+    const freshVerdict = checkCardFire.classifyCardFire(freshTurn, registry);
+    assert.equal(freshVerdict.intercept, true, 'a terse turn against a FRESH gate still force-fires (floor preserved)');
+    assert.equal(freshVerdict.reason, 'reached-registry-gate-no-card', 'the fresh-gate intercept names the PRIMARY reason');
   } finally {
     if (origEnv === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
     else process.env.CARD_FIRE_SIDECHANNEL_PATH = origEnv;

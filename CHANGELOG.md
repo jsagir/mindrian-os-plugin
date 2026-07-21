@@ -1,7 +1,20 @@
 ## [Unreleased] -- v1.15.3-beta.33 (in progress)
 
-### Added
-- 
+### Fixed
+- **Stop hook (`check-card-fire.cjs`) force-fired a stale Decision-Gate card on unrelated
+  terse turns.** Fourth live occurrence of the over-enforcement class (dominant reason
+  `reached-registry-gate-no-card`, 30 of 41 records in a 24h diagnostic window). Two stacked
+  root causes: (1) `lib/core/card-fire-sidechannel.cjs`'s reach-mint record had no
+  session/turn scoping and a 10-minute TTL, so one real gate mint anywhere leaked into every
+  later turn, every session, for 10 minutes; (2) `lib/core/gate-relevance.cjs`'s
+  `gateTopicallyRelevant` defaulted to force-fire whenever the preceding user text carried
+  fewer than 2 subject tokens -- true for nearly every terse slash command, so short turns
+  were the LEAST protected against a stale gate. Fixed structurally: a turn-scoped freshness
+  window (`TURN_FRESH_MS`) replaces the unscoped union, and the relevance floor now checks
+  gate staleness (`opts.gateStale`) instead of defaulting to force on low signal. A model
+  that has already judged a reach-card gate stale and moved on in prose is no longer
+  overridden by the hook. Verified end-to-end against the live incident shape; full
+  card-fire/gate-relevance/connector-registry suites green.
 
 ## [1.15.3-beta.32] - 2026-07-20
 

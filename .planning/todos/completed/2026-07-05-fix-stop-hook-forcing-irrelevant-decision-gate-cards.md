@@ -116,3 +116,65 @@ tests/test-ga4-card-fire-interceptor.cjs; tests/test-209-primary-sidechannel.cjs
 Fix left uncommitted for the navigator to commit.
 
 Status: DONE. Moved to `.planning/todos/completed/`.
+
+## Reopened + resolved for real (2026-07-20) -- debug session `card-fire-over-enforcement`
+
+The 2026-07-17 fix did NOT hold. Fourth+ live occurrence (dominant reason
+`reached-registry-gate-no-card`, 30 of 41 records in the 24h diagnostic log, 4 sessions).
+The user pasted a live Stop-hook block on a terse `/mos:doctor`-class turn and asked to
+understand the root cause. Investigated + fixed under
+`.planning/debug/resolved/card-fire-over-enforcement.md`; the user chose "fix both root
+causes now" via a Decision Gate this session (the do-not-auto-fix condition satisfied).
+
+**Why 2026-07-17's gate-existence guard did not close it (the real root cause):** the guard
+required a non-empty `gate_subject_text` as "proof a gate existed this turn." But the
+side-channel records the gate's `subject` in the SAME record as its `entry`, so ONE stale
+bled record carries BOTH the entry (-> `ran_entries` -> `primaryHit`) AND a non-empty
+subject (-> `gate_subject_text` -> passes the existence guard). The guard checked the wrong
+thing: subject-presence, not gate-recency. Two stacked defects survived:
+
+- **(H1) side-channel bleed -- CONFIRMED.** `lib/core/card-fire-sidechannel.cjs`'s reads
+  unioned the `NO_SESSION_KEY` bucket into every session and TTL-bounded the session bucket
+  at 10 minutes, so one mint bled into every later turn (same session) and every other
+  session for 10 minutes. The live store held a real-session `scripts/intent-classifier.cjs`
+  reach ("rethinking-mindrianos REACH") re-surfacing on unrelated turns.
+- **(H2) relevance-floor default -- CONFIRMED, the dominant driver.**
+  `gate-relevance.cjs::gateTopicallyRelevant` returned `true` (force) whenever the preceding
+  user text had fewer than `MIN_USER_SUBJECT_TOKENS` (2) subject tokens -- true for every
+  terse slash-command (`/mos:doctor`, `status`, `building`, `continue`). Empirically verified:
+  those all hit the `< 2`-token floor and force-fired against the bled stale subject.
+- **(H3) genuine token overlap -- does NOT hold as the mechanism.** A minority of 2-token
+  terse turns (e.g. `whats next`) spuriously overlap the gate's UI boilerplate ("Choose
+  next reach"), but the dominant reproduction is the H2 floor, not a topical overlap. So
+  fix (B) stayed the floor-default fix, NOT an overlap-weighting rework. Fix (A) closes the
+  H3-minority cases too (the stale subject never reaches the relevance check once out of the
+  turn window).
+
+**The fix (both root causes, this time structural):**
+- **(A)** `card-fire-sidechannel.cjs`: a turn-scoped freshness window (`TURN_FRESH_MS` = 2
+  min) scopes the `NO_SESSION_KEY` union so a sessionless mint cannot leak across sessions;
+  a new `mostRecentReachedTs()` exposes gate recency. The 10-min file TTL still bounds the
+  file.
+- **(B)** `gate-relevance.cjs::gateTopicallyRelevant(user, gate, opts)`: the low-signal
+  branch now returns `false` when the caller marks the gate stale (`opts.gateStale`), instead
+  of blindly defaulting to force. The distinction encoded is the gate's STALENESS, not the
+  token count. `check-card-fire.cjs` computes `gate_is_fresh` (fresh = mint within
+  `TURN_FRESH_MS`; direct-field / BACKSTOP gates are always fresh) and threads it in. Absent
+  opts, behavior is byte-identical -- the WR-06 floor is preserved.
+
+**Verification (command output, not assertion):** end-to-end Stop-hook replay of the live
+incident shape -> a STALE bled `intent-classifier` reach + terse `/mos:doctor` turn now
+returns `{continue:true}` (NOT blocked); a FRESH this-turn reach + the same terse turn still
+returns `{decision:block}` (floor preserved). Test suites: test-209-primary-sidechannel 14/14
+(added Behaviors 10/11 locking both fixes), test-card-fire-relevance-gate 11/11,
+test-ga4-card-fire-e2e-179 47/47 (all WR-06 legs), test-ga4-card-fire-interceptor 27/27,
+test-doctor-card-fire-health 6/6, test-210-trailer-relevance 4/4, run-all-179 12/12.
+(Pre-existing, unrelated failures outside this subsystem: 209-05 room-pick sensor, 210-D
+fusion-router, 210-E3 stamp sweep -- all fail identically on clean HEAD.)
+
+**Files changed:** lib/core/card-fire-sidechannel.cjs; lib/core/gate-relevance.cjs;
+scripts/check-card-fire.cjs; tests/test-209-primary-sidechannel.cjs (also refreshed a stale
+Phase-209 source-proof count that Phase 225's `emitNoMatchGate` had drifted). Left uncommitted
+for the navigator to commit. Canon Part 8 clean (LOCAL fs + string only, zero Brain/network).
+
+Status: DONE (durably). This is the fix `card-fire-relevance-check-gap` reached for but missed.

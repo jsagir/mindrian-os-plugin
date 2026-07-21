@@ -578,7 +578,13 @@ function classifyCardFire(turn, registry) {
       if (!primarySubject) {
         return { intercept: false, reason: 'primary-gate-existence-unconfirmed', degrade: false };
       }
-      if (!gateRelevance.gateTopicallyRelevant(precedingUserText, primarySubject)) {
+      // card-fire-over-enforcement (2026-07-20) fix (B): a STALE side-channel
+      // gate (bled forward by the file TTL) plus a low-signal terse turn is the
+      // dominant over-enforcement class. Pass the gate's staleness so the
+      // low-signal relevance branch stops defaulting to force. A FRESH gate
+      // (gate_is_fresh !== false) keeps the conservative force floor unchanged.
+      if (!gateRelevance.gateTopicallyRelevant(precedingUserText, primarySubject,
+          { gateStale: t.gate_is_fresh === false })) {
         return { intercept: false, reason: 'gate-irrelevant-to-turn', degrade: false };
       }
     }
@@ -592,7 +598,11 @@ function classifyCardFire(turn, registry) {
       const gateSubjectText = (typeof t.gate_subject_text === 'string' && t.gate_subject_text)
         ? t.gate_subject_text
         : outputText;
-      if (!gateRelevance.gateTopicallyRelevant(precedingUserText, gateSubjectText)) {
+      // BACKSTOP path: the gate content is THIS turn's own output_text, so the
+      // gate is always fresh here -- gateStale:false preserves the WR-06 floor
+      // (a terse turn against a freshly rendered box still force-fires).
+      if (!gateRelevance.gateTopicallyRelevant(precedingUserText, gateSubjectText,
+          { gateStale: false })) {
         return { intercept: false, reason: 'gate-irrelevant-to-turn', degrade: false };
       }
     }
@@ -1125,6 +1135,13 @@ function deriveTurnSignals(env) {
   // prior output_text comparison unchanged for that path.
   let sideChannelSubjectText = '';
 
+  // card-fire-over-enforcement (2026-07-20) fix (B): whether the reached gate is
+  // FRESH (reached this turn) or STALE (a prior turn's reach bled forward by the
+  // file TTL). Direct-field / BACKSTOP gates are always this-turn, so freshness
+  // defaults to true; only a side-channel-sourced gate can be stale, decided by
+  // comparing its most-recent mint ts against TURN_FRESH_MS below.
+  let gateIsFresh = true;
+
   if (ranEntries.length === 0) {
     try {
       const sidechannel = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'card-fire-sidechannel.cjs'));
@@ -1137,6 +1154,18 @@ function deriveTurnSignals(env) {
           sideChannelSubjectText = Array.isArray(subjects) ? subjects.join(' ') : '';
         } catch (_e2) {
           sideChannelSubjectText = '';
+        }
+        // Freshness verdict: a side-channel gate counts as reached THIS turn only
+        // if its most recent mint is within the turn window. An older mint is a
+        // prior turn's (or prior session's) reach still inside the file TTL.
+        try {
+          const ts = sidechannel.mostRecentReachedTs(sessionId);
+          const freshWindow = typeof sidechannel.TURN_FRESH_MS === 'number'
+            ? sidechannel.TURN_FRESH_MS
+            : (2 * 60 * 1000);
+          gateIsFresh = Number.isFinite(ts) && ts > 0 && (Date.now() - ts) <= freshWindow;
+        } catch (_e3) {
+          gateIsFresh = true;
         }
       }
     } catch (_e) {
@@ -1196,6 +1225,12 @@ function deriveTurnSignals(env) {
     gate_subject_text: (typeof e.gate_subject_text === 'string' && e.gate_subject_text)
       ? e.gate_subject_text
       : sideChannelSubjectText,
+    // card-fire-over-enforcement (2026-07-20) fix (B): true when the reached
+    // gate is this-turn (direct-field / BACKSTOP / a fresh side-channel mint),
+    // false when a side-channel mint is stale (a prior turn's reach bled forward
+    // by the file TTL). classifyCardFire feeds this to the low-signal relevance
+    // branch so a terse turn no longer force-fires a stale gate.
+    gate_is_fresh: gateIsFresh,
   };
 }
 
