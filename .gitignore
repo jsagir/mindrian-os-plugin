@@ -63,7 +63,8 @@ mcp-server-brain/node_modules/
 mcp-server-brain/package-lock.json
 
 # Planning (development only)
-.planning/
+.planning/*
+!.planning/debug/
 node_modules/
 .claude/worktrees/
 .superpowers/
