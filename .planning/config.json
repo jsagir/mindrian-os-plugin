@@ -22,5 +22,8 @@
   "model_overrides": {
     "gsd-planner": "fable",
     "gsd-plan-checker": "fable"
+  },
+  "graphify": {
+    "enabled": true
   }
 }
