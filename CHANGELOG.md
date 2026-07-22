@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.35 (in progress)
+## [1.15.3-beta.36] - 2026-07-22
 
 ### Fixed
 - **`room_bind` could never write a per-session room binding on stdio, so all CLI sessions
