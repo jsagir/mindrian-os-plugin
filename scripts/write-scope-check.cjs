@@ -29,13 +29,16 @@ const NO_ROOM_SLUG = '__no_room__';
 
 // resolveSessionId -- COMPOSE the same precedence the intent-classifier uses
 // (intent-classifier.cjs:783 resolveSessionId), NOT a re-derived third guesser
-// (D-02 / the SEED-034 four-guessers lesson). CLAUDE_SESSION_ID is the shared
-// authority both guards read, so they converge on the SAME session file. The
-// hook payload's session_id is a better fallback than a day-hash when the env is
-// absent; the sha256(root+day) tail mirrors the classifier's last resort so a
-// missing env still lands on a stable per-day file. NEVER throws.
+// (D-02 / the SEED-034 four-guessers lesson). CLAUDE_CODE_SESSION_ID is the
+// real runtime env var Claude Code sets (confirmed live: CLAUDE_SESSION_ID is
+// empty, CLAUDE_CODE_SESSION_ID holds the actual session UUID -- F-01), so it
+// is checked first; CLAUDE_SESSION_ID is kept as a fallback/legacy alias so
+// existing test fixtures that set it keep passing unchanged. The hook
+// payload's session_id is a better fallback than a day-hash when both env
+// names are absent; the sha256(root+day) tail mirrors the classifier's last
+// resort so a missing env still lands on a stable per-day file. NEVER throws.
 function resolveSessionId(payload, root) {
-  const env = process.env.CLAUDE_SESSION_ID;
+  const env = process.env.CLAUDE_CODE_SESSION_ID || process.env.CLAUDE_SESSION_ID;
   if (typeof env === 'string' && env.length > 0) return env;
   const pid = payload && typeof payload.session_id === 'string' && payload.session_id.length > 0
     ? payload.session_id
