@@ -251,6 +251,114 @@ function freshResolver() {
   } catch (e) { failTest(name, e); }
 })();
 
+// ---------------------------------------------------------------------------
+// Quick task 260722-wom: pre-prefixed key normalization at the resolver
+// chokepoint (per the 2026-07-22 Memgraph migration brief). A live env can
+// store the whole wire auth header value inside MINDRIAN_BRAIN_KEY; the client
+// re-wraps with its own Bearer prefix, so the resolver must hand back a bare
+// token. rbk.10/11/12/14 are RED until _normalizeKey lands; rbk.13 is a pin.
+// ---------------------------------------------------------------------------
+
+// rbk.10 -- env value 'Bearer <token>' normalizes to the bare token.
+(function rbk10() {
+  const name = 'rbk.10 env "Bearer test-token-123" -> bare "test-token-123"';
+  const home = makeTmpHome('10');
+  try {
+    withEnv({ MINDRIAN_BRAIN_KEY: 'Bearer test-token-123', HOME: home, USERPROFILE: home }, () => {
+      const { resolveBrainKey } = freshResolver();
+      const r = resolveBrainKey();
+      assert.strictEqual(r.available, true, 'available');
+      assert.strictEqual(r.source, 'env', 'source');
+      assert.strictEqual(r.key, 'test-token-123', 'bare token');
+      assert.strictEqual(r.reason, null, 'no reason');
+    });
+    pass(name);
+  } catch (e) { failTest(name, e); } finally { rmTmp(home); }
+})();
+
+// rbk.11 -- env value 'Authorization: Bearer <token>' (any case) -> bare token.
+(function rbk11() {
+  const name = 'rbk.11 env "Authorization: Bearer <t>" -> bare token (case-insensitive)';
+  const home = makeTmpHome('11');
+  try {
+    withEnv({ MINDRIAN_BRAIN_KEY: 'Authorization: Bearer test-token-456', HOME: home, USERPROFILE: home }, () => {
+      const { resolveBrainKey } = freshResolver();
+      const r = resolveBrainKey();
+      assert.strictEqual(r.available, true, 'available (mixed case)');
+      assert.strictEqual(r.source, 'env', 'source');
+      assert.strictEqual(r.key, 'test-token-456', 'bare token (mixed case)');
+    });
+    // All-lowercase form strips just the same.
+    withEnv({ MINDRIAN_BRAIN_KEY: 'authorization: bearer test-token-789', HOME: home, USERPROFILE: home }, () => {
+      const { resolveBrainKey } = freshResolver();
+      const r = resolveBrainKey();
+      assert.strictEqual(r.available, true, 'available (lowercase)');
+      assert.strictEqual(r.key, 'test-token-789', 'bare token (lowercase)');
+    });
+    pass(name);
+  } catch (e) { failTest(name, e); } finally { rmTmp(home); }
+})();
+
+// rbk.12 -- a ~/.mindrian.env file value normalizes too (file path, not just env).
+(function rbk12() {
+  const name = 'rbk.12 ~/.mindrian.env "Bearer <t>" -> bare token (file path normalizes)';
+  const home = makeTmpHome('12');
+  const cwd = makeTmpHome('12cwd');
+  try {
+    fs.writeFileSync(path.join(home, '.mindrian.env'), 'MINDRIAN_BRAIN_KEY=Bearer test-file-token\n', { mode: 0o600 });
+    withEnv({ MINDRIAN_BRAIN_KEY: undefined, HOME: home, USERPROFILE: home }, () => {
+      const { resolveBrainKey } = freshResolver();
+      const r = resolveBrainKey({ cwd: cwd });
+      assert.strictEqual(r.available, true, 'available');
+      assert.strictEqual(r.source, 'mindrian-env-file', 'source');
+      assert.strictEqual(r.key, 'test-file-token', 'bare token from file');
+    });
+    pass(name);
+  } catch (e) { failTest(name, e); } finally { rmTmp(home); rmTmp(cwd); }
+})();
+
+// rbk.13 -- regression pin: mid-string 'bearer' + plain bare token pass through.
+(function rbk13() {
+  const name = 'rbk.13 mid-string "xbearerx" and plain bare token pass through byte-unchanged';
+  const home = makeTmpHome('13');
+  try {
+    // Anchored strip: 'xbearerx-mid-string' does NOT start with the scheme token.
+    withEnv({ MINDRIAN_BRAIN_KEY: 'xbearerx-mid-string', HOME: home, USERPROFILE: home }, () => {
+      const { resolveBrainKey } = freshResolver();
+      const r = resolveBrainKey();
+      assert.strictEqual(r.available, true, 'available');
+      assert.strictEqual(r.key, 'xbearerx-mid-string', 'mid-string value byte-unchanged');
+    });
+    // A plain bare token is untouched (pins no-mangling beyond rbk.1's trim).
+    withEnv({ MINDRIAN_BRAIN_KEY: 'plain-bare-token-000', HOME: home, USERPROFILE: home }, () => {
+      const { resolveBrainKey } = freshResolver();
+      const r = resolveBrainKey();
+      assert.strictEqual(r.key, 'plain-bare-token-000', 'bare token byte-unchanged');
+    });
+    pass(name);
+  } catch (e) { failTest(name, e); } finally { rmTmp(home); }
+})();
+
+// rbk.14 -- env value 'Bearer' alone never yields an empty key; falls through.
+(function rbk14() {
+  const name = 'rbk.14 env "Bearer" alone -> falls through to file chain, never empty key';
+  const home = makeTmpHome('14');
+  const cwd = makeTmpHome('14cwd');
+  try {
+    // A real key sits in the file so we can prove fall-through (not just not-found).
+    fs.writeFileSync(path.join(home, '.mindrian.env'), 'MINDRIAN_BRAIN_KEY=fallback-token-014\n', { mode: 0o600 });
+    withEnv({ MINDRIAN_BRAIN_KEY: 'Bearer', HOME: home, USERPROFILE: home }, () => {
+      const { resolveBrainKey } = freshResolver();
+      const r = resolveBrainKey({ cwd: cwd });
+      // Nothing remains after stripping the bare scheme token -> env branch skipped.
+      assert.strictEqual(r.available, true, 'available (from file, not the empty env)');
+      assert.strictEqual(r.source, 'mindrian-env-file', 'fell through to file chain');
+      assert.strictEqual(r.key, 'fallback-token-014', 'resolved the file token, not an empty string');
+    });
+    pass(name);
+  } catch (e) { failTest(name, e); } finally { rmTmp(home); rmTmp(cwd); }
+})();
+
 console.log('');
 console.log('---');
 console.log('Plan 123-07 resolve-brain-key tests: ' + passed + ' passed, ' + failed + ' failed.');
