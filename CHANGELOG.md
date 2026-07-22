@@ -1,7 +1,30 @@
 ## [Unreleased] -- v1.15.3-beta.35 (in progress)
 
-### Added
-- 
+### Fixed
+- **`room_bind` could never write a per-session room binding on stdio, so all CLI sessions
+  fell back to one shared, unlocked `registry.json` active-room field.** Root-caused via a
+  full RCA (`.planning/debug/resolved/registry-active-room-concurrent-session-collision.md`):
+  `writeSessionBinding` -- the only function that sets a session's own room binding -- has
+  exactly two call sites, both gated behind `room_bind`'s `effectiveSessionId` check, which
+  requires the MCP SDK's `extra.sessionId` (never populated on stdio) or an explicit
+  `sessionId` argument (nothing supplied one automatically). So no CLI session could ever
+  populate its own binding, and every session's write-target resolution fell through to a
+  single global field that multiple concurrent `claude` CLI processes on one machine then
+  raced to overwrite -- confirmed live with 4 concurrent sessions on this machine, one
+  session's active room silently clobbering another's. Fixed: `room_bind` now falls back to
+  `process.env.CLAUDE_CODE_SESSION_ID` as a third-priority session identifier on stdio
+  (precedence: explicit param > SDK `extra.sessionId` > `CLAUDE_CODE_SESSION_ID` >
+  `no_session_id`), so a CLI session can finally write a real per-session binding. The
+  separate F.8 binding-ambiguity-card logic in the same handler is untouched. New test:
+  `tests/test-room-bind-stdio-session-fallback.cjs` (4 assertions); all 21 pre-existing tests
+  touching `room_bind`/`tool-router.cjs`/`session-binding.cjs` still pass.
+- **`write-scope-check.cjs`'s own session-identity fallback checked the wrong environment
+  variable name.** It read `process.env.CLAUDE_SESSION_ID`, which this runtime never sets;
+  the real variable is `CLAUDE_CODE_SESSION_ID`. Fixed with a backward-compatible fallback
+  chain (`CLAUDE_CODE_SESSION_ID` first, legacy `CLAUDE_SESSION_ID` second) so existing test
+  fixtures that set the old name are unaffected. A smaller contributor to the active-room
+  confusion above than first estimated (this hook already preferred the hook payload's own
+  `session_id` ahead of the env check), but a real, worthwhile correctness fix on its own.
 
 ## [1.15.3-beta.34] - 2026-07-21
 
