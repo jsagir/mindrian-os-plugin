@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "registry-active-room-concurrent-session-collision"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli]
 brain_mode: tier-0
 canon_parts: []
 created: 2026-07-22T20:20:00Z
-updated: 2026-07-22T20:20:00Z
+updated: 2026-07-22T21:10:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -258,16 +258,58 @@ against the same `MINDRIAN_ROOMS_HOME`.
 
 ## Resolution
 
-root_cause: `room_bind` cannot write a per-session room binding on stdio (no session id
-available to it), so every CLI session's write-target resolution permanently falls through to
-the single, unlocked, machine-wide `registry.json` active-room field, which multiple
-concurrent CLI sessions on this machine (confirmed: 4, right now) then race to overwrite.
-fix: not yet implemented (Required Code Changes above are proposed, not applied). F-01 (a
-related but distinct bug -- wrong env var name in `write-scope-check.cjs`'s own fallback
-identity hash) was found and fixed separately this same session, commit `0bec81b9`; it does
-not resolve this issue.
-verification: pending Change 1/2 implementation.
+root_cause: `room_bind` could not write a per-session room binding on stdio (no session id
+reached it), so every CLI session's write-target resolution permanently fell through to the
+single, unlocked, machine-wide `registry.json` active-room field, which multiple concurrent
+CLI sessions on this machine (confirmed: 4, right now) then raced to overwrite.
+
+Important cross-reference and self-correction found while resolving: `knowledge-base.md`
+already documents a RELATED but DISTINCT prior finding, `reach-sensor-relevance-gap`
+(2026-07-17, commit `2cf99a11`) -- a session-id NAMESPACE MISMATCH between the CLI hook
+reader (`intent-classifier.cjs`, which fell back to a `sha256(roomDir+day)` hash when
+`CLAUDE_SESSION_ID` was unset) and the MCP writer (`room_bind`, keyed by `extra.sessionId`,
+a UUID). That prior fix taught hook-side readers to prefer the hook's own stdin
+`payload.session_id` (the SAME UUID `room_bind` uses), which likely means
+`write-scope-check.cjs`'s F-01 fix (this same session, commit `0bec81b9`, env-var-name-only)
+had a smaller real-world blast radius than first estimated -- `payload.session_id` was
+probably already resolving correctly there in most calls, matching the 07-17 pattern, with
+F-01 only mattering on the rarer path where payload.session_id is ALSO absent. F-01 is still
+correct and worth having; it was not the primary explanation for the live symptom this file
+investigates.
+
+THIS finding is a different failure shape from the 07-17 one, not a duplicate: 07-17 was a
+namespace MISMATCH between an existing hook-side read and an existing MCP-side write (both
+sides had a working session id, they just used different keys). THIS bug is `room_bind`
+never producing a write AT ALL on stdio (no session id of any kind reaches it), so there was
+no `session.primary` binding to mismatch against in the first place -- Leg 2 of
+`resolveWriteRoom` was not miskeyed, it was permanently empty.
+
+fix: implemented Required Code Changes Change 1 only. `lib/mcp/tool-router.cjs`'s `room_bind`
+handler now falls back to `process.env.CLAUDE_CODE_SESSION_ID` (mirroring the correct env var
+name from F-01) as a third-priority session id, when neither an explicit `sessionId` argument
+nor the MCP SDK's `extra.sessionId` is present -- precedence: explicit param > SDK
+`extra.sessionId` > `CLAUDE_CODE_SESSION_ID` > `no_session_id`. The separate `needs_binding_card`
+/ F.8 ambiguity-card logic in the same handler was left untouched and verified still firing
+correctly (it is a different branch, reached only after a session id already exists). Change
+2 (locking or demoting `reg.active`) was NOT separately implemented -- per this file's own
+Required Code Changes note, it is an emergent consequence of Change 1 working (once
+`session.primary` reliably populates, Leg 3 / `reg.active` reverts to its intended rare-
+fallback role) rather than a distinct piece of code to write; re-open a Change 2 follow-up if
+live observation after Change 1 ships still shows `reg.active` contention.
+verification: `node tests/test-room-bind-stdio-session-fallback.cjs` (new, 4 assertions: stdio
+fallback works, fully-empty environment still correctly returns `no_session_id`, explicit
+`extra.sessionId` still wins over the env fallback when both present, `needs_binding_card`
+ambiguity signal unaffected) -- ALL PASS. Plus all 21 pre-existing tests touching `room_bind`,
+`tool-router.cjs`, or `session-binding.cjs` (test-194-local-only, test-198-concurrency-mcp,
+test-198-contract-schema, test-198-flag-off-parity, test-205-surface-fence,
+test-212-part8-boundary, test-225-answer-narrowing, test-225-zero-score-gate,
+test-226-session-binding-key-alignment, test-eureka-mcp-tools,
+test-intelligence-research-pipeline, test-resolve-session-scope, test-resolve-write-room,
+test-room-birth, test-room-state-active-room-misroute, test-room-state-no-registry-regression,
+test-session-binding-consumer, test-session-binding-file, test-tool-router-active-room-misroute,
+test-tool-router-grouped-reference, test-write-scope-set-membership) -- 0 failures.
 files_changed:
-  - none yet for this specific finding (F-01's file is `scripts/write-scope-check.cjs`,
-    already committed separately)
-commits: none yet for this finding
+  - lib/mcp/tool-router.cjs (room_bind handler, effectiveSessionId fallback chain)
+  - tests/test-room-bind-stdio-session-fallback.cjs (new)
+commits: `c123f3d7` (this Change 1 fix); `0bec81b9` (F-01, the related but distinct
+write-scope-check.cjs env-var fix, same investigation session, filed separately)
