@@ -8,7 +8,7 @@ surfaces: [cli]
 brain_mode: local-only
 canon_parts: []
 created: 2026-07-22T21:05:00Z
-updated: 2026-07-22T21:05:00Z
+updated: 2026-07-22T21:20:00Z
 ---
 
 ## Current Focus
@@ -76,6 +76,11 @@ started: observed 2026-07-22, plugin version 1.15.3-beta.37. Not yet bisected to
   found: the freshness window (`TURN_FRESH_MS = 2 * 60 * 1000`, 2 minutes) governs ONLY whether a stored record counts as "this turn" vs "stale bleed" by TIME elapsed since mint. Nothing in the read path takes an "answered" input; `recordReachedGate`'s stored shape (per the module's own comments) carries identity + subject + timestamp, not a consumed/resolved flag.
   implication: a gate that was minted, fired, AND answered 30-90 seconds ago is indistinguishable, to this module, from a gate that was minted 30-90 seconds ago and is still sitting unanswered. Both read as "fresh" for the full 2-minute window.
   timestamp: 2026-07-22T21:02:00Z
+- timestamp: 2026-07-22T21:20:00Z
+  checked: an independent real navigator session, same day, same plugin version window (Leah Aronhime's self-QA transcript, quoted verbatim in her 2026-07-22T14:37:54Z email "Mindrian thought room was empty but it was not", plugin v1.15.3-beta.34). Two separate Stop-hook blocks in that one session: (1) a room-bind (F.8) multi-select fired a second time on a turn that was "established three turns ago in plain conversation" and was itself a pure QA/analysis question with zero room-write intent; (2) the turn immediately before that, the closing line "is it one of those two loose ends, or something new?" (ordinary inline either/or conversational prose, NOT a numbered list, NOT a bracket box, NOT the "type 1, 2, or 3" literal) was flagged as a missed Decision Gate.
+  found: neither blocked turn's own output_text could match `ASCII_BOX_UNCONDITIONAL_RE` (no `[1]...[2]`, no "type 1, 2, or 3" literal, no multiline bracket box) -- ruling out the BACKSTOP arm for both. Both are therefore PRIMARY-path hits (`ran_entries` carrying a registry gate-reaching surface, almost certainly the same F.8 room-bind side-channel entry bleeding forward across consecutive turns within its TURN_FRESH_MS window), matching this RCA's own root-cause hypothesis exactly -- not a new/different bug class, independent corroboration of the SAME one.
+  implication: this is the second independent real-world session (different navigator, different day-of-week context, different conversation content) hitting the identical mechanism this RCA already names: a PRIMARY-path gate that is FRESH (within 2 minutes of mint) but functionally resolved/irrelevant to the current turn still force-fires, because freshness-by-time is not the same signal as still-pending/unanswered. Raises confidence this is a real, reproducible, non-edge-case gap rather than a one-off timing fluke from a single session. Two blocks within one short session (not just one) also suggests the F.8 gate's side-channel entry can bleed forward across MULTIPLE consecutive turns within the 2-minute window, not just the single next turn observed in this RCA's own reproduction -- worth confirming in the eventual fix's test fixtures (a 2-3 turn bleed-forward span, not just a 1-turn span).
+  timestamp: 2026-07-22T21:20:00Z
 
 ## Technical Root Cause
 
