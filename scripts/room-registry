@@ -118,6 +118,91 @@ ROOM_EOF
   fi
 }
 
+# Quick 260723-ad9 (STATUSLINE-WRITE-B): upsert `current_room: <slug>` into a
+# room's OWN STATE.md frontmatter so the Phase 94-01 canonical read path
+# (getCurrentRoom -> context-monitor chip) is populated the moment a room is
+# created or switched to. Debug Option B; navigator-approved.
+#
+# Called by BOTH the `create` and `set-active` stanzas. Fire-and-forget: a
+# write failure never aborts the subcommand (Larry-never-blocks, same
+# discipline as the graph-sync background jobs).
+#
+# Safety (threat register T-ad9-01 / T-ad9-02):
+#   - roomdir + slug are passed via sys.argv, NEVER interpolated into the
+#     python source (strictly safer than the '$NAME'-in-python stanzas above).
+#   - the slug is sanitized to a single-line token; the write is SKIPPED if it
+#     is empty, contains a colon, or any control char, so a crafted slug can
+#     never inject a frontmatter key or break the block. parseCurrentRoomField
+#     rejects colons on read; this refuses to emit them on write.
+_write_current_room() {
+  local roomdir="${1:-}"
+  local slug="${2:-}"
+  [ -z "$roomdir" ] && return 0
+  python3 - "$roomdir" "$slug" <<'PY_EOF' 2>/dev/null || true
+import sys, os, re
+
+def is_current_room_key(line):
+    return re.match(r'^\s*current_room\s*:', line) is not None
+
+def upsert(original, line):
+    lines = original.split('\n')
+    # Case 2: leading frontmatter (first line is a bare ---).
+    if lines and lines[0].strip() == '---':
+        close_idx = None
+        for i in range(1, len(lines)):
+            if lines[i].strip() == '---':
+                close_idx = i
+                break
+        if close_idx is not None:
+            fm = lines[1:close_idx]
+            body = lines[close_idx + 1:]
+            replaced = False
+            for j in range(len(fm)):
+                if is_current_room_key(fm[j]):
+                    fm[j] = line
+                    replaced = True
+                    break
+            if not replaced:
+                fm.append(line)
+            return '\n'.join(['---'] + fm + ['---'] + body)
+    # Case 3: content present but no leading frontmatter -> prepend a block.
+    return '---\n' + line + '\n---\n' + original
+
+def main():
+    roomdir = sys.argv[1] if len(sys.argv) > 1 else ''
+    slug = sys.argv[2] if len(sys.argv) > 2 else ''
+    if not roomdir:
+        return
+    # Sanitize: first line only, stripped. Skip on empty / colon / control char.
+    slug = slug.split('\n', 1)[0].strip()
+    if not slug:
+        return
+    if ':' in slug:
+        return
+    if any(ord(c) < 0x20 or ord(c) == 0x7f for c in slug):
+        return
+    state_path = os.path.join(roomdir, 'STATE.md')
+    line = 'current_room: ' + slug
+    try:
+        if not os.path.exists(state_path):
+            # Case 1: STATE.md absent (do not assume Phase-0 setup ran).
+            os.makedirs(roomdir, exist_ok=True)
+            content = '---\n' + line + '\n---\n\n# State\n'
+        else:
+            with open(state_path, 'r', encoding='utf-8') as f:
+                original = f.read()
+            content = upsert(original, line)
+        tmp = state_path + '.tmp'
+        with open(tmp, 'w', encoding='utf-8') as f:
+            f.write(content)
+        os.rename(tmp, state_path)
+    except Exception:
+        return
+
+main()
+PY_EOF
+}
+
 case "$SUBCMD" in
   create)
     NAME="${1:-}"
@@ -176,6 +261,15 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
     # `create` on an existing room preserves user-edited content.
     ROOMDIR="${ROOMS_HOME}/${RPATH}"
     _seed_room_bootstrap
+    # Quick 260723-ad9: wire the canonical current_room WRITE half. Resolve the
+    # REAL room dir (RPATH is ABSOLUTE from birthRoom STEP 4, RELATIVE from
+    # /mos:rooms new Step 4) WITHOUT reusing the ${ROOMS_HOME}/${RPATH} concat
+    # that doubles an absolute path. Covers both room-creation paths.
+    case "$RPATH" in
+      /*) REAL_ROOMDIR="$RPATH" ;;
+      *)  REAL_ROOMDIR="${ROOMS_HOME}/${RPATH}" ;;
+    esac
+    _write_current_room "${REAL_ROOMDIR}" "${NAME}"
     # Fire-and-forget graph sync (D-16: never blocks)
     node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
     node "${SCRIPT_DIR}/sync-rooms-brain" "$ROOMS_HOME" >/dev/null 2>&1 &
@@ -360,6 +454,38 @@ with open(tmp, 'w') as f:
 os.rename(tmp, reg_file)
 print('$NAME')
 "
+    # Quick 260723-ad9: after the registry flip, write current_room: $NAME into
+    # the switched room's OWN STATE.md (the /mos:rooms open path). Resolve the
+    # room dir from the just-flipped registry via the SAME 3-tier precedence the
+    # read/list/bootstrap-missing stanzas use. The resolver is a follow-on read;
+    # the primary stdout contract of set-active (the bare `$NAME` line above,
+    # consumed by commands/rooms.md) is unchanged.
+    RESOLVED_DIR=$(python3 -c "
+import json, os, sys
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+home = normwin('$ROOMS_HOME')
+with open(normwin('$REGISTRY_FILE')) as f:
+    reg = json.load(f)
+entry = reg.get('rooms', {}).get('$NAME', {})
+if not isinstance(entry, dict):
+    entry = {}
+abs_path = entry.get('abs_path')
+if not abs_path:
+    p = entry.get('path')
+    if p and os.path.isabs(p):
+        abs_path = p
+    elif p:
+        abs_path = os.path.join(home, p)
+    else:
+        abs_path = os.path.join(home, '$NAME')
+print(abs_path)
+" 2>/dev/null || true)
+    if [ -n "$RESOLVED_DIR" ]; then
+      _write_current_room "$RESOLVED_DIR" "$NAME"
+    fi
     ;;
 
   archive)
