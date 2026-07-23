@@ -1,7 +1,30 @@
 ## [Unreleased] -- v1.15.3-beta.41 (in progress)
 
-### Added
-- 
+### Fixed
+- **Windows-only: Python source interpolating shell variables directly (`normwin('$VAR')`) raised a
+  `SyntaxError` at Python compile time whenever the interpolated value contained a native Windows
+  path with a backslash, before `normwin()` ever ran.** This is the same family of bug as beta.40's
+  `os.rename`/`os.replace` fix, but one layer earlier: 36 interpolation sites across
+  `scripts/room-registry`, `scripts/resolve-room`, `scripts/update-icm-index`, and
+  `scripts/on-cwd-changed` built Python heredoc/`-c` source by quoting a shell variable straight
+  into the source string, instead of passing it through `sys.argv` (the safe pattern
+  `room-registry`'s own `_write_current_room()` already used). Fixed by converting all 36 sites to
+  `sys.argv`-based parameter passing. New regression suite
+  (`tests/test-room-registry-windows-python-interp.cjs`, 29/29) includes a load-bearing control
+  proving the old interpolation shape fails to compile on a backslash value and the new
+  `sys.argv` shape does not. Root-caused and fixed same day as beta.40; independently verified live
+  on the reporter's Windows install.
+- **Windows-only: the regression tests' own Python-probe spawn mechanism corrupted probe source
+  containing a backslash-next-to-a-quote, at the Windows `CreateProcess` argv-marshalling
+  boundary.** Three test files (`test-room-registry-windows-atomic-replace.cjs`,
+  `test-room-registry-windows-python-interp.cjs`, `test-room-registry-windows-path.cjs`) each
+  routed a Python probe body through `bash -c` as a positional argv element, to survive the two
+  bugs above -- safe on Linux/macOS, but Node spawning `bash.exe` on Windows re-quotes argv before
+  bash's own `$1` expansion runs, silently mangling the probe. Fixed by writing the probe source to
+  a temp `.py` file and executing the file path instead of the source text -- a path has no
+  embedded quote/backslash-adjacent-quote sequences, eliminating the defect class rather than
+  special-casing which characters are unsafe. Verified green on this dev box (21/21, 29/29, 25/25,
+  byte-identical to pre-fix baselines); Windows re-verification of this exact patch is pending.
 
 ## [1.15.3-beta.40] - 2026-07-23
 
