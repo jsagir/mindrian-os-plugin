@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.41 (in progress)
+## [1.15.3-beta.42] - 2026-07-23
 
 ### Fixed
 - **Windows-only: Python source interpolating shell variables directly (`normwin('$VAR')`) raised a
