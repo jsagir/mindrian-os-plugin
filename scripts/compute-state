@@ -26,6 +26,52 @@ if [ ! -d "$ROOM_DIR" ]; then
   exit 0
 fi
 
+# Quick 260723-ad9: durability half of the statusline current_room contract.
+# scripts/on-agent-complete runs `compute-state "$ROOM_DIR" > STATE.md`, and the
+# shell truncates STATE.md to zero BEFORE this script runs, so the event-driven
+# write (room-registry) cannot survive by reading the room's own now-empty file.
+# Re-derive current_room from the registry (the only truncation-safe source),
+# and ONLY when the room being computed IS the registry's active room. A
+# non-active room prints an empty slug and gains NO current_room line, so this
+# never bulk-backfills the existing rooms.
+ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
+CURRENT_ROOM_SLUG=$(ROOMS_HOME="$ROOMS_HOME" ROOM_DIR="$ROOM_DIR" python3 - <<'PY_EOF' 2>/dev/null || true
+import json, os, sys
+home = os.environ.get('ROOMS_HOME', '')
+room_dir = os.environ.get('ROOM_DIR', '')
+reg_path = os.path.join(home, '.rooms', 'registry.json')
+try:
+    with open(reg_path) as f:
+        reg = json.load(f)
+except Exception:
+    sys.exit(0)  # missing/corrupt registry: degrade, never abort compute-state
+if not isinstance(reg, dict):
+    sys.exit(0)
+active = reg.get('active', '')
+if not active:
+    sys.exit(0)
+rooms = reg.get('rooms', {})
+entry = rooms.get(active, {}) if isinstance(rooms, dict) else {}
+if not isinstance(entry, dict):
+    entry = {}
+# Same 3-tier precedence as the read/list/bootstrap-missing stanzas.
+abs_path = entry.get('abs_path')
+if not abs_path:
+    p = entry.get('path')
+    if p and os.path.isabs(p):
+        abs_path = p
+    elif p:
+        abs_path = os.path.join(home, p)
+    else:
+        abs_path = os.path.join(home, active)
+try:
+    if os.path.realpath(abs_path) == os.path.realpath(room_dir):
+        print(active)
+except Exception:
+    sys.exit(0)
+PY_EOF
+)
+
 # Collect section data
 declare -a section_names=()
 declare -a section_entries=()
@@ -189,15 +235,17 @@ SPARKLINE=$(node -e "
 # Build output
 timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-cat << HEADER
----
-computed: ${timestamp}
-venture_stage: ${venture_stage}
-total_entries: ${total_entries}
----
-# Data Room State
-
-HEADER
+# Quick 260723-ad9: emit the frontmatter line-by-line so current_room is
+# included ONLY for the registry-active room (empty slug -> no line, no
+# backfill). Because the block is emitted fresh, this cannot clobber siblings.
+echo "---"
+echo "computed: ${timestamp}"
+echo "venture_stage: ${venture_stage}"
+echo "total_entries: ${total_entries}"
+[ -n "$CURRENT_ROOM_SLUG" ] && echo "current_room: ${CURRENT_ROOM_SLUG}"
+echo "---"
+echo "# Data Room State"
+echo ""
 
 # Visual summary first (diagram + sparkline), then details
 if [ -n "$DIAGRAM" ]; then
