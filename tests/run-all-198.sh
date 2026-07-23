@@ -94,6 +94,13 @@ run_if "SPEC-2 graph write chokepoint guard (navigation.cjs only)" \
   lib/mcp/tools/graph.cjs \
   node tests/test-198-chokepoint-guard.test.cjs
 
+# room_search rank-then-cap regression (graph-query-results-unranked, room_search
+# leg): a relevant match in a late-walked folder must survive the 50-slot cap
+# instead of being dropped in raw filesystem-arrival order.
+run_if "SPEC-2 room_search ranks before capping (late relevant match survives)" \
+  lib/mcp/tools/room.cjs \
+  node tests/test-room-search-rank-before-cap.cjs
+
 # ---------------------------------------------------------------------------
 # SPEC-3 -- server-side chain execution honoring postures (halt-at-material).
 # ---------------------------------------------------------------------------
