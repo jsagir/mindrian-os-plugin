@@ -121,7 +121,7 @@ Rotate the top-cap color: #FFD500 (card 1), #D40000 (card 3).
 
 #### Hero Image
 ```html
-<img src="{{HERO_IMAGE_URL}}" alt="{{HERO_IMAGE_ALT}}" width="576" height="322"
+<img src="{{HERO_IMAGE_URL}}" alt="{{HERO_IMAGE_ALT}}" width="576" height="324"
   style="display:block;width:100%;max-width:576px;border:2px solid #F5F0E8;">
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#999999;padding-top:8px;">{{HERO_IMAGE_CAPTION}}</div>
 ```
