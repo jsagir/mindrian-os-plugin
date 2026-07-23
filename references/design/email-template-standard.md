@@ -81,8 +81,8 @@ background - everywhere else re-skins to the cream ground above.
 
 #### Full-Bleed Alert Panel (STEP 0 callout)
 ```html
-<table width="100%" style="background-color:#E11D22;"><tr>
-  <td style="padding:18px 20px;text-align:left;">
+<table width="100%"><tr>
+  <td style="background-color:#E11D22;padding:18px 20px;text-align:left;">
     <div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:18px;color:#F4F2EC;">TITLE</div>
     <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#F4F2EC;padding-top:8px;">Body copy directly on the red field.</div>
   </td>
@@ -93,18 +93,19 @@ Paper text sits directly on the color field - this is a genuine full-bleed panel
 #### Top-Cap Band Card (what's-new cards 1 and 3)
 ```html
 <table width="100%"><tr><td height="4" style="background-color:#FFC400;font-size:1px;">&nbsp;</td></tr></table>
-<table width="100%" style="background-color:#FBFAF7;"><tr>
-  <td style="padding:16px 20px;text-align:left;">CONTENT</td>
+<table width="100%"><tr>
+  <td style="background-color:#FBFAF7;padding:16px 20px;text-align:left;">CONTENT</td>
 </tr></table>
 ```
 Rotate the top-cap color: #FFC400 (card 1), #E11D22 (card 3). Card surface is now the light panel #FBFAF7.
 
 #### Full-Bleed Color Panel (what's-new card 2, triple-feature rail)
 ```html
-<table width="100%" style="background-color:#1E52E0;"><tr>
-  <td style="padding:16px 20px;text-align:left;">CONTENT, paper text directly on the color field</td>
+<table width="100%"><tr>
+  <td style="background-color:#1E52E0;padding:16px 20px;text-align:left;">CONTENT, paper text directly on the color field</td>
 </tr></table>
 ```
+The triple-feature rail uses this same cell-level pattern with `#0C0C0D` in place of `#1E52E0`.
 
 #### Gold Tab / Flag (challenge section header)
 ```html
@@ -124,7 +125,7 @@ Gold stays as a background fill with dark ink text on top (8.76:1, passes AA eas
   </td>
 </tr></table>
 ```
-This block intentionally keeps its dark `#0C0C0D` background and `#E8E8E2` terminal text token - it does NOT re-skin to cream (D-01, matches the website's own terminal-island precedent).
+This block intentionally keeps its dark `#0C0C0D` background and `#E8E8E2` terminal text token - it does NOT re-skin to cream (D-01, matches the website's own terminal-island precedent). This snippet already used the cell-level pattern before this rule was written.
 
 #### Hero Image
 ```html
@@ -165,3 +166,4 @@ by major email clients (Gmail, Outlook). Border is ink `#0C0C0D` against the cre
 9. **Padding: 32px sides.** Consistent throughout.
 10. **Sender is always a person** (Jonathan Sagir, Larry, etc.) - never "MindrianOS Team."
 11. **NO em-dashes.** Hyphens only.
+12. **Background-color lives on td cells, never on table tags.** Even full-bleed color panels (STEP 0 callout, what's-new cards, terminal-island blocks) put background-color on the cell(s) inside, not the wrapping table - the cell-level pattern is the more broadly compatible one across email clients (some, including Gmail's compose editor, strip or mishandle table-level background-color).
