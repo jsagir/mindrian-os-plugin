@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.37 (in progress)
+## [1.15.3-beta.38] - 2026-07-23
 
 ### Changed
 - **Brain default endpoint flipped from the legacy `mindrian-brain.onrender.com` (Neo4j Aura
