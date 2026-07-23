@@ -14,6 +14,17 @@ connector:
 
 Every `/mos:` command and Larry response follows this ruling system. No exceptions. Works alongside `larry-personality` (voice), `room-passive` (STATE.md), and `room-proactive` (signals).
 
+## 0. HTML Artifact Design System -- M:OS canonical (MANDATORY)
+
+The zones/glyphs/colors below govern **terminal** output. Every **generated HTML artifact** -- decks, dashboards, exports, published wikis, snapshots and notes, standalone/hub/lobby pages, and any UI component rendered as HTML -- instead follows the **M:OS Canonical Design System v1.1**. If it renders as a page, it obeys M:OS. No generator invents its own palette or typography.
+
+- **Inline** `skills/ui-system/design-system/mos-design-system.css` into every generated artifact (self-contained, no external hosts, Artifact-safe + Vercel-ready).
+- Full contract: `skills/ui-system/rules/design-system.md`. Written spec: `design-system/SPEC.md`.
+- Imagery: the only sanctioned recipe is `design-system/image-prompt-style.md` (one SUBJECT swap per image, one generation at a time).
+- Defaults: **warm cream ground, never black** (`data-theme="light"`), theme-aware, blue retunes to `#6D9BFF` in dark, ink-on-green/yellow chips, **M:OS** wordmark (red colon).
+- 75% Swiss broadside / 25% De Stijl; semantic color only; flat + rectilinear; hairline `gap:1px` module grids; isometric clickables + registration-tick frames (v1.1); inline-SVG graph + clock (never a CDN); `:focus-visible` + `prefers-reduced-motion` required.
+- Applies to: `/mos:deck`, `MOSDeckEngine`, `/mos:dashboard`, `/mos:export`, `/mos:present`, `/mos:wiki` + publish, `/mos:snapshot`, and `generate-standalone/hub/lobby/snapshot/deck`, `vault-export-orchestrator`. Any future HTML surface inherits it.
+
 ## 1. Four-Zone Output Anatomy
 
 Every output has exactly 4 zones in fixed order. No reordering. No invention.
