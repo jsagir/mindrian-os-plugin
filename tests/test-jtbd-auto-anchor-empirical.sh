@@ -88,7 +88,7 @@ if changed:
     tmp = reg_path + '.tmp'
     with open(tmp, 'w') as f:
         json.dump(reg, f, indent=2)
-    os.rename(tmp, reg_path)
+    os.replace(tmp, reg_path)
 PY_EOF
   fi
 
@@ -107,7 +107,7 @@ if isinstance(mem.get('rooms'), dict) and slug in mem['rooms']:
     tmp = mem_path + '.tmp'
     with open(tmp, 'w') as f:
         json.dump(mem, f, indent=2)
-    os.rename(tmp, mem_path)
+    os.replace(tmp, mem_path)
 PY_EOF
   fi
 }

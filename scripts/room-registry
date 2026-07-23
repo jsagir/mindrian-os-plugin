@@ -195,7 +195,7 @@ def main():
         tmp = state_path + '.tmp'
         with open(tmp, 'w', encoding='utf-8') as f:
             f.write(content)
-        os.rename(tmp, state_path)
+        os.replace(tmp, state_path)
     except Exception:
         return
 
@@ -249,7 +249,7 @@ reg['active'] = '$NAME'
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
-os.rename(tmp, reg_file)
+os.replace(tmp, reg_file)
 print(json.dumps(reg['rooms']['$NAME'], indent=2))
 "
     # Create the room directory under ROOMS_HOME
@@ -408,7 +408,7 @@ reg['rooms']['$NAME']['$FIELD'] = '''$VALUE'''
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
-os.rename(tmp, reg_file)
+os.replace(tmp, reg_file)
 print(json.dumps(reg['rooms']['$NAME'], indent=2))
 "
     ;;
@@ -451,7 +451,7 @@ reg['active'] = '$NAME'
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
-os.rename(tmp, reg_file)
+os.replace(tmp, reg_file)
 print('$NAME')
 "
     # Quick 260723-ad9: after the registry flip, write current_room: $NAME into
@@ -521,7 +521,7 @@ if reg.get('active') == '$NAME':
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
-os.rename(tmp, reg_file)
+os.replace(tmp, reg_file)
 print('archived')
 "
     # Fire-and-forget graph sync (D-16: never blocks)
@@ -584,7 +584,7 @@ reg['rooms']['$NAME']['vercel_url'] = '''$VERCEL_URL'''
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
-os.rename(tmp, reg_file)
+os.replace(tmp, reg_file)
 print(json.dumps(reg['rooms']['$NAME'], indent=2))
 "
     ;;

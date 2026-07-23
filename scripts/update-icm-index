@@ -143,7 +143,7 @@ output = '\\n'.join(lines)
 tmp = '$INDEX_FILE' + '.tmp'
 with open(tmp, 'w') as f:
     f.write(output)
-os.rename(tmp, '$INDEX_FILE')
+os.replace(tmp, '$INDEX_FILE')
 
 print(f'INDEX.md updated: {len(active_rooms)} active, {len(archived_rooms)} archived')
 "

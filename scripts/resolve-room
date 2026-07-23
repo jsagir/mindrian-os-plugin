@@ -166,7 +166,7 @@ reg = {
 tmp = '$REGISTRY_FILE' + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
-os.rename(tmp, '$REGISTRY_FILE')
+os.replace(tmp, '$REGISTRY_FILE')
 " 2>/dev/null
   fi
 

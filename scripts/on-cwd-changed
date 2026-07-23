@@ -97,7 +97,7 @@ for name, room in reg.get('rooms', {}).items():
 tmp = reg_path + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
-os.rename(tmp, reg_path)
+os.replace(tmp, reg_path)
 " 2>/dev/null || true
 fi
 
