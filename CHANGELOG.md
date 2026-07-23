@@ -54,6 +54,24 @@
   `navigation/neighborhood.cjs`); `whitespace_scan` is unranked but uncapped, deferred pending
   the graph-derive edge-density fix above (little signal to rank while most rooms carry
   near-zero semantic edges). Full RCA: `.planning/debug/graph-query-results-unranked.md`.
+- **The M:OS Canonical Design System v1.1 "bake into all HTML artifacts" mandate was only
+  ~30% actually landed, despite its own commit (`a9e1ee88`) and Phase 232-01 claiming it was
+  done.** The CSS bundle, loader (`mosStyleTag()`), and `lib/wiki/wiki-layout.cjs`'s
+  retokenization were real; `scripts/generate-deck.cjs`, `generate-hub.cjs`,
+  `generate-lobby.cjs`, and `generate-snapshot.cjs` had zero reference to `mosStyleTag()`,
+  `dashboard/index.html` had zero M:OS tokens, and the mandate's own doc
+  (`skills/ui-system/rules/design-system.md`) and `SKILL.md` section 0 did not exist. Wired
+  all 4 generators to `mosStyleTag()` (cream default, `data-theme="light"`), injected canonical
+  tokens plus a role-based CSS variable alias layer into `dashboard/index.html` and
+  `dashboard/export-template.html` (legacy `--mondrian-*`/`--ds-*` names aliased onto canonical
+  values in place, not renamed), and authored the missing mandate docs. Code review caught 2
+  real regressions before this shipped: (1) 3 of the 4 generators' own pre-existing `<style>`
+  blocks redeclared the same token names with old hex values LATER in the document, so the
+  mandate rendered in the markup but had zero visual effect by CSS cascade -- fixed by removing
+  the colliding redeclarations; (2) `dashboard/index.html`'s dark-to-light polarity flip broke
+  hardcoded Cytoscape graph-label colors and hover overlays tuned for the old dark theme --
+  fixed by repointing them at the resolved ink values. Both independently re-verified via
+  Playwright (`getComputedStyle`) against live-regenerated output, not just diffs.
 
 ## [1.15.3-beta.44] - 2026-07-23
 
