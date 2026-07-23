@@ -391,6 +391,166 @@ ok('Behavior 11 (fix B): a STALE same-session gate + a terse low-signal turn doe
   }
 });
 
+// ---------------------------------------------------------------------------
+// Task 5: room-bind-gate-fires-on-notification-only-turns (2026-07-23) -- the F.8
+// room-binding gate must NOT force-fire on a turn whose ONLY preceding "user" transcript
+// record is a synthetic tool_result / task-notification envelope with zero human-authored
+// text, while a genuinely terse HUMAN turn against the SAME gate must still force-fire
+// (the WR-06/CR-06 conservative floor, unchanged). This is the live, three-times-reproduced
+// defect: .planning/debug/resolved/room-bind-gate-fires-on-notification-only-turns.md.
+// ---------------------------------------------------------------------------
+
+// writeTranscriptAndDerive(records, sessionId) -- write a REAL transcript JSONL and drive
+// it through the actual transcript_path Stop contract (readTranscriptTurn -> deriveTurnSignals),
+// exactly mirroring the production path (not the direct-field unit-test shortcut), so the
+// preceding_user_text_source classification is exercised end-to-end.
+function writeTranscriptAndDerive(records, sessionId) {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-room-bind-notif-'));
+  const transcriptPath = path.join(tmpDir, 'turn.jsonl');
+  fs.writeFileSync(
+    transcriptPath,
+    records.map(function (r) { return JSON.stringify(r); }).join('\n') + '\n',
+    'utf8'
+  );
+  try {
+    return checkCardFire.deriveTurnSignals({
+      hook_event_name: 'Stop',
+      session_id: sessionId,
+      transcript_path: transcriptPath,
+    });
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+// The F.8 room-binding gate's realistic subject text (scripts/intent-classifier.cjs's
+// emitBindingGate composes zones.header + zones.body into subjectText -- mirrored here).
+const F8_ROOM_BIND_SUBJECT = 'Bind this session to a room? rethinking-mindrianos - Just talk (no room) - Start a new room';
+
+ok('Behavior 12: a synthetic tool_result-only preceding turn does NOT force-fire the F.8 room-bind gate (the confirmed live defect)', function () {
+  const f = tmpFile();
+  const origEnv = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  try {
+    recordReachedGate({
+      sessionId: 'sess-room-bind-notif',
+      surface: 'scripts/intent-classifier.cjs',
+      shape: 'F.8',
+      subjectText: F8_ROOM_BIND_SUBJECT,
+      filePath: f,
+    });
+
+    // The preceding "user" transcript record is a bare tool_result envelope (the confirmed
+    // shape from live-session-running-stale-plugin-cache-fixes-inert.md's 2026-07-06 evidence:
+    // a background tool call's result, or equally a background subagent completion notice) --
+    // NO human ever typed anything this turn.
+    const turn = writeTranscriptAndDerive([
+      {
+        type: 'user',
+        message: {
+          role: 'user',
+          content: [
+            {
+              type: 'tool_result',
+              tool_use_id: 'toolu_01HgKX9Fexample',
+              content: 'Background task "audit-fix-scan" completed successfully.',
+            },
+          ],
+        },
+      },
+      {
+        type: 'assistant',
+        message: { role: 'assistant', content: [{ type: 'text', text: 'Noted, the background scan finished.' }] },
+      },
+    ], 'sess-room-bind-notif');
+
+    assert.equal(turn.preceding_user_text, '', 'extractAssistantText must still resolve a tool_result-only record to empty text');
+    assert.equal(turn.preceding_user_text_source, 'tool_result', 'the synthetic source classification must be confirmed tool_result');
+    assert.equal(turn.gate_subject_text, F8_ROOM_BIND_SUBJECT, 'the F.8 gate subject must be recorded from the side channel');
+
+    const registry = checkCardFire.loadRegistry();
+    const verdict = checkCardFire.classifyCardFire(turn, registry);
+    assert.deepStrictEqual(
+      { intercept: verdict.intercept, reason: verdict.reason },
+      { intercept: false, reason: 'preceding-turn-synthetic-no-user-engagement' },
+      'a notification-only preceding turn must NOT force-fire the F.8 room-bind gate'
+    );
+  } finally {
+    if (origEnv === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+ok('Behavior 13 (floor preserved): a genuinely terse HUMAN preceding turn ("ok") against the SAME F.8 gate still force-fires', function () {
+  const f = tmpFile();
+  const origEnv = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  try {
+    recordReachedGate({
+      sessionId: 'sess-room-bind-terse-human',
+      surface: 'scripts/intent-classifier.cjs',
+      shape: 'F.8',
+      subjectText: F8_ROOM_BIND_SUBJECT,
+      filePath: f,
+    });
+
+    // A human really was there this turn -- just terse. The WR-06/CR-06 conservative
+    // force-floor must NOT be weakened by this fix: this is the exact case the fix must
+    // NOT touch.
+    const turn = writeTranscriptAndDerive([
+      { type: 'user', message: { role: 'user', content: 'ok' } },
+      {
+        type: 'assistant',
+        message: { role: 'assistant', content: [{ type: 'text', text: 'Continuing.' }] },
+      },
+    ], 'sess-room-bind-terse-human');
+
+    assert.equal(turn.preceding_user_text, 'ok', 'a genuinely typed short turn must still populate preceding_user_text');
+    assert.equal(turn.preceding_user_text_source, 'typed', 'a genuinely typed turn must classify as typed, never tool_result');
+
+    const registry = checkCardFire.loadRegistry();
+    const verdict = checkCardFire.classifyCardFire(turn, registry);
+    assert.deepStrictEqual(
+      { intercept: verdict.intercept, reason: verdict.reason },
+      { intercept: true, reason: 'reached-registry-gate-no-card' },
+      'a terse but genuinely HUMAN turn must still force-fire the F.8 gate (the conservative floor, unweakened)'
+    );
+  } finally {
+    if (origEnv === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+});
+
+ok('Behavior 14: classifyPrecedingUserContentSource classifies typed / tool_result / none correctly (unit-level, no transcript needed)', function () {
+  const classify = checkCardFire.classifyPrecedingUserContentSource;
+  assert.equal(typeof classify, 'function', 'classifyPrecedingUserContentSource must be exported');
+  assert.equal(classify('go on'), 'typed', 'a bare non-empty string is typed');
+  assert.equal(classify(''), 'none', 'a bare empty string is none');
+  assert.equal(classify(null), 'none', 'null content is none');
+  assert.equal(classify(undefined), 'none', 'undefined content is none');
+  assert.equal(classify([]), 'none', 'an empty array is none');
+  assert.equal(
+    classify([{ type: 'tool_result', tool_use_id: 'x', content: 'done' }]),
+    'tool_result',
+    'an all-tool_result content array is tool_result'
+  );
+  assert.equal(
+    classify([{ type: 'text', text: 'yes please' }]),
+    'typed',
+    'a real text block is typed'
+  );
+  assert.equal(
+    classify([
+      { type: 'tool_result', tool_use_id: 'x', content: 'done' },
+      { type: 'text', text: 'and also continue with the plan' },
+    ]),
+    'typed',
+    'a MIXED record with real human text alongside a tool_result is still typed (real text always wins)'
+  );
+});
+
 ok('Constitutional floor is byte-untouched: MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12', function () {
   assert.equal(checkCardFire.MAX_FORCE_RETRIES, 3);
   assert.equal(checkCardFire.MAX_SESSION_INTERCEPTS, 12);

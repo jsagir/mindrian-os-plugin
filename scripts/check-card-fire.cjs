@@ -590,6 +590,28 @@ function classifyCardFire(turn, registry) {
       if (!primarySubject) {
         return { intercept: false, reason: 'primary-gate-existence-unconfirmed', degrade: false };
       }
+      // room-bind-gate-fires-on-notification-only-turns (2026-07-23): refines
+      // card-fire-over-enforcement (2026-07-20) fix (B) above. That fix distinguished a
+      // FRESH gate from a STALE one; it did NOT distinguish WHY precedingUserText is empty.
+      // gateTopicallyRelevant's low-signal branch conflates two very different '' causes:
+      //   (1) a genuinely short/terse HUMAN turn ("ok", "go on") -- KEEP forcing here, a
+      //       human really was there and might be dismissively engaging with the gate
+      //       (the WR-06/CR-06 floor, unchanged).
+      //   (2) the preceding transcript record is a SYNTHETIC tool_result / task-notification
+      //       envelope with NO human-authored text field at all (a background subagent
+      //       finishing, an automated task notification) -- there was no human turn to be
+      //       relevant or irrelevant to, so forcing a Decision Gate card here is never
+      //       correct. Confirmed live: the F.8 room-binding gate force-fired three
+      //       consecutive times on notification-only turns in one session (see
+      //       .planning/debug/resolved/room-bind-gate-fires-on-notification-only-turns.md).
+      // classifyPrecedingUserContentSource (readTranscriptTurn) is the ONLY producer of
+      // 'tool_result' -- an unexplained/absent preceding record still resolves to 'none' and
+      // stays on the pre-fix conservative floor below. This check is PRIMARY-path ONLY (per
+      // the confirmed mechanism); the BACKSTOP path already forces unconditionally on a terse
+      // turn (gateStale:false, unchanged) and is out of scope for this fix.
+      if (t.preceding_user_text_source === 'tool_result') {
+        return { intercept: false, reason: 'preceding-turn-synthetic-no-user-engagement', degrade: false };
+      }
       // card-fire-over-enforcement (2026-07-20) fix (B): a STALE side-channel
       // gate (bled forward by the file TTL) plus a low-signal terse turn is the
       // dominant over-enforcement class. Pass the gate's staleness so the
@@ -976,6 +998,7 @@ function readTranscriptTurn(transcriptPath) {
     askuserquestion_fired: false,
     gate_signature: '',
     preceding_user_text: '',
+    preceding_user_text_source: 'none',
   };
   if (typeof transcriptPath !== 'string' || !transcriptPath.trim()) return empty;
   const raw = readTranscriptTail(transcriptPath);
@@ -1006,6 +1029,11 @@ function readTranscriptTurn(transcriptPath) {
   // (restated above) this text feeds ONLY the relevance verdict in classifyCardFire;
   // it is NEVER folded into gate_signature or turnContextHash.
   let lastPrecedingUserText = '';
+  // room-bind-gate-fires-on-notification-only-turns (2026-07-23): the source
+  // classification alongside lastPrecedingUserText -- 'typed' | 'tool_result' | 'none'
+  // (see classifyPrecedingUserContentSource). Feeds ONLY the PRIMARY-path relevance
+  // check in classifyCardFire, same CR-03 scoping as lastPrecedingUserText itself.
+  let lastPrecedingUserTextSource = 'none';
   const lines = raw.split('\n');
   for (const line of lines) {
     const trimmed = line.trim();
@@ -1029,6 +1057,7 @@ function readTranscriptTurn(transcriptPath) {
         ? msg.content
         : (obj.content !== undefined ? obj.content : null);
       lastPrecedingUserText = extractAssistantText(userContent);
+      lastPrecedingUserTextSource = classifyPrecedingUserContentSource(userContent);
       currentTurnAssistantContents = [];
       continue;
     }
@@ -1055,6 +1084,7 @@ function readTranscriptTurn(transcriptPath) {
     askuserquestion_fired: askFired,
     gate_signature: gateSig,
     preceding_user_text: lastPrecedingUserText,
+    preceding_user_text_source: lastPrecedingUserTextSource,
   };
 }
 
@@ -1097,6 +1127,51 @@ function extractAssistantText(content) {
     }
   }
   return parts.join('\n');
+}
+
+// classifyPrecedingUserContentSource(content) -- room-bind-gate-fires-on-notification-only-turns
+// (2026-07-23): distinguishes a genuinely HUMAN-typed preceding user turn from a SYNTHETIC
+// transcript record that merely carries the role:user marker with no human-authored text at
+// all -- a tool_result envelope (a background tool call's result, e.g. a Gmail create_draft
+// response) or an automated task-notification block (a background subagent's completion
+// notice, which Claude Code surfaces as a role:user record with no natural-language text
+// field). extractAssistantText correctly (if unhelpfully) resolves BOTH shapes to '', which
+// pre-fix code could not distinguish from a genuinely short/terse HUMAN turn ("ok", "go on")
+// -- the exact conflation live-session-running-stale-plugin-cache-fixes-inert.md's 2026-07-06
+// evidence entry diagnosed and this fix separates. Returns one of:
+//   'typed'       - at least one block carries real human-authored text (or a non-empty bare
+//                   string) -- KEEP the existing conservative force-floor for this case.
+//   'tool_result' - every content block is a tool_result / non-text synthetic envelope, so
+//                   NO human text field exists anywhere in the record -- the PRIMARY-path
+//                   relevance check must NOT treat this as "insufficient signal from a human",
+//                   because there was no human turn to have insufficient signal.
+//   'none'        - no content at all (null/undefined/empty array/empty string) -- an
+//                   unexplained absence, not a CONFIRMED synthetic record; stays conservative.
+// Never throws.
+function classifyPrecedingUserContentSource(content) {
+  try {
+    if (typeof content === 'string') {
+      return content.trim() ? 'typed' : 'none';
+    }
+    if (!Array.isArray(content) || content.length === 0) return 'none';
+    let sawSynthetic = false;
+    for (const block of content) {
+      if (typeof block === 'string') {
+        if (block.trim()) return 'typed';
+        continue;
+      }
+      if (block && typeof block === 'object') {
+        if (typeof block.text === 'string' && block.text.trim()) return 'typed';
+        // A tool_result block (type:'tool_result', or carrying a tool_use_id) is the
+        // CONFIRMED synthetic shape from the RCA evidence. Any other object-shaped block
+        // with no text field is treated the same way (never promoted to 'typed' on a guess).
+        sawSynthetic = true;
+      }
+    }
+    return sawSynthetic ? 'tool_result' : 'none';
+  } catch (_e) {
+    return 'none';
+  }
 }
 
 // scanContentForAskUserQuestion(content) -- true if any tool_use block names the
@@ -1231,6 +1306,17 @@ function deriveTurnSignals(env) {
     ? e.preceding_user_text
     : (txn ? txn.preceding_user_text : '');
 
+  // room-bind-gate-fires-on-notification-only-turns (2026-07-23): thread the preceding-turn
+  // source classification through the same precedence rule as precedingUserText itself
+  // (direct-field envelopes -- the unit-test seam -- keep precedence; the transcript path
+  // derives it; absent on both defaults to 'none', the UNEXPLAINED-absence case, which stays
+  // on the pre-fix conservative floor -- only a CONFIRMED 'tool_result' classification bypasses
+  // it). Feeds ONLY the PRIMARY-path relevance check in classifyCardFire, per the same CR-03
+  // scoping as precedingUserText.
+  const precedingUserTextSource = typeof e.preceding_user_text_source === 'string'
+    ? e.preceding_user_text_source
+    : (txn ? txn.preceding_user_text_source : 'none');
+
   return {
     ran_entries: ranEntries,
     askuserquestion_fired: askFired,
@@ -1238,6 +1324,7 @@ function deriveTurnSignals(env) {
     session_id: typeof e.session_id === 'string' ? e.session_id : '',
     gate_signature: gateSig,
     preceding_user_text: precedingUserText,
+    preceding_user_text_source: precedingUserTextSource,
     // 2026-07-05 relevance-gate fix: direct-field envelopes (the unit-test
     // seam) keep precedence over the side-channel-derived subject text,
     // mirroring the existing ran_entries precedence rule exactly.
@@ -1348,6 +1435,7 @@ module.exports = {
   deriveTurnSignals,
   readTranscriptTurn,
   readTranscriptTail,
+  classifyPrecedingUserContentSource,
   pruneRetryStore,
   normalizeRetryEntry,
   sessionKey,

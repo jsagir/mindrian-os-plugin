@@ -3,6 +3,29 @@
 ### Added
 - 
 
+### Fixed
+- **The F.8 "bind session to room" Decision Gate (and any PRIMARY-path registry gate)
+  force-fired on turns whose ONLY content was an automated background-task-completion
+  notification, with zero real user text, blocking continuation with a Stop hook error even
+  though there was nothing for the navigator to decide that turn.** Root cause:
+  `precedingUserText` resolves to `''` for two very different reasons that
+  `scripts/check-card-fire.cjs` could not previously distinguish -- a genuinely terse HUMAN
+  turn ("ok", "go on") and a SYNTHETIC preceding transcript record (a `tool_result` envelope
+  from a background tool call, or an automated task-notification block) with no
+  human-authored text at all. `lib/core/gate-relevance.cjs`'s conservative low-signal branch
+  forced (assumed relevant) on both, which is only correct for the first -- there is no human
+  turn for a Decision Gate to be relevant or irrelevant to on the second. Fixed by adding a
+  new `preceding_user_text_source` signal (`'typed' | 'tool_result' | 'none'`), classified by
+  a new `classifyPrecedingUserContentSource` helper in `readTranscriptTurn` and threaded
+  through `deriveTurnSignals`; `classifyCardFire`'s PRIMARY-path relevance branch now bypasses
+  forcing immediately when the source is confirmed `'tool_result'`
+  (`reason: 'preceding-turn-synthetic-no-user-engagement'`), before ever reaching the
+  conservative low-signal branch. A genuinely terse human turn against the identical gate
+  still force-fires, unweakened (the WR-06/CR-06 floor). Live-reproduced 3 consecutive times
+  in one session; the mechanism itself was first diagnosed 2026-07-06 (as a fact, not yet
+  treated as a defect) and confirmed recurring 2026-07-11 and 2026-07-22. Full RCA:
+  `.planning/debug/resolved/room-bind-gate-fires-on-notification-only-turns.md`.
+
 ## [1.15.3-beta.44] - 2026-07-23
 
 ### Added
