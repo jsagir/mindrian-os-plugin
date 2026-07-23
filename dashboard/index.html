@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,18 +21,42 @@
   <title>MindrianOS Data Room</title>
   <script src="https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <!-- M:OS CANONICAL DESIGN SYSTEM v1.1 -- source: skills/ui-system/design-system/mos-design-system.css -->
+  <style data-mos="v1.1">
+  :root{
+    /* --- surfaces --- */
+    --paper:#F4F2EC; --panel:#FBFAF7; --ink:#0C0C0D; --muted:#5B5B5B;
+    --hair:#111; --edge:#111; --rule:rgba(17,17,17,.14);
+    /* --- De Stijl primaries (SEMANTIC, never decorative) --- */
+    --red:#E11D22;    /* kill · danger · trap · attention */
+    --blue:#1E52E0;   /* evidence · build · navigation · links */
+    --yellow:#FFC400; /* moonshot · prime · highlight */
+    --green:#12A06A;  /* go · opportunity · founder-fit */
+    /* --- devices --- */
+    --shadow:18px 18px 0 var(--yellow);
+    --maxw:1180px;
+    --grot:"Helvetica Neue",Inter,system-ui,Arial,sans-serif;
+    --mono:"SF Mono",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--paper:#0B0B0D;--panel:#141417;--ink:#F3F2EE;--muted:#9a9a9e;--hair:#F3F2EE;
+      --edge:rgba(243,242,238,.34);--blue:#6D9BFF;--rule:rgba(243,242,238,.16)}
+  }
+  :root[data-theme="light"]{--paper:#F4F2EC;--panel:#FBFAF7;--ink:#0C0C0D;--muted:#5B5B5B;--hair:#111;--edge:#111;--blue:#1E52E0;--rule:rgba(17,17,17,.14)}
+  :root[data-theme="dark"]{--paper:#0B0B0D;--panel:#141417;--ink:#F3F2EE;--muted:#9a9a9e;--hair:#F3F2EE;--edge:rgba(243,242,238,.34);--blue:#6D9BFF;--rule:rgba(243,242,238,.16)}
+  </style>
   <style>
     :root {
-      --ds-bg: #0D0D0D;
-      --ds-surface: #1A1A1A;
-      --ds-elevated: #2A2A2A;
-      --ds-cream: #F5F0E8;
-      --ds-muted: #A09A90;
-      --ds-border: #2A2A2A;
-      --ds-red: #A63D2F;
-      --ds-blue: #1E3A6E;
-      --ds-yellow: #C8A43C;
-      --ds-green: #2D6B4A;
+      --ds-bg: var(--paper);
+      --ds-surface: var(--panel);
+      --ds-elevated: var(--panel);
+      --ds-cream: var(--ink);
+      --ds-muted: var(--muted);
+      --ds-border: var(--rule);
+      --ds-red: var(--red);
+      --ds-blue: var(--blue);
+      --ds-yellow: var(--yellow);
+      --ds-green: var(--green);
       --ds-sienna: #B5602A;
       --ds-gray: #5C5A56;
       --ds-amethyst: #6B4E8B;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,18 +25,42 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<!-- M:OS CANONICAL DESIGN SYSTEM v1.1 -- source: skills/ui-system/design-system/mos-design-system.css -->
+<style data-mos="v1.1">
+:root{
+  /* --- surfaces --- */
+  --paper:#F4F2EC; --panel:#FBFAF7; --ink:#0C0C0D; --muted:#5B5B5B;
+  --hair:#111; --edge:#111; --rule:rgba(17,17,17,.14);
+  /* --- De Stijl primaries (SEMANTIC, never decorative) --- */
+  --red:#E11D22;    /* kill · danger · trap · attention */
+  --blue:#1E52E0;   /* evidence · build · navigation · links */
+  --yellow:#FFC400; /* moonshot · prime · highlight */
+  --green:#12A06A;  /* go · opportunity · founder-fit */
+  /* --- devices --- */
+  --shadow:18px 18px 0 var(--yellow);
+  --maxw:1180px;
+  --grot:"Helvetica Neue",Inter,system-ui,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#0B0B0D;--panel:#141417;--ink:#F3F2EE;--muted:#9a9a9e;--hair:#F3F2EE;
+    --edge:rgba(243,242,238,.34);--blue:#6D9BFF;--rule:rgba(243,242,238,.16)}
+}
+:root[data-theme="light"]{--paper:#F4F2EC;--panel:#FBFAF7;--ink:#0C0C0D;--muted:#5B5B5B;--hair:#111;--edge:#111;--blue:#1E52E0;--rule:rgba(17,17,17,.14)}
+:root[data-theme="dark"]{--paper:#0B0B0D;--panel:#141417;--ink:#F3F2EE;--muted:#9a9a9e;--hair:#F3F2EE;--edge:rgba(243,242,238,.34);--blue:#6D9BFF;--rule:rgba(243,242,238,.16)}
+</style>
 <style>
 /* ============================================
    DE STIJL DESIGN SYSTEM
    ============================================ */
 :root {
-  --mondrian-red: #C23B22;
-  --mondrian-blue: #1B3B6F;
-  --mondrian-yellow: #E8B931;
-  --mondrian-black: #1A1A1A;
-  --mondrian-white: #F7F3ED;
-  --mondrian-gray: #D4CFC7;
-  --accent-green: #2D6B4A;
+  --mondrian-red: var(--red);
+  --mondrian-blue: var(--blue);
+  --mondrian-yellow: var(--yellow);
+  --mondrian-black: var(--ink);
+  --mondrian-white: var(--paper);
+  --mondrian-gray: var(--muted);
+  --accent-green: var(--green);
   --accent-sienna: #B5602A;
   --grid-border: 5px solid var(--mondrian-black);
   --grid-border-thin: 3px solid var(--mondrian-black);
