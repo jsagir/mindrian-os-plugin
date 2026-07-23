@@ -25,6 +25,35 @@
   in one session; the mechanism itself was first diagnosed 2026-07-06 (as a fact, not yet
   treated as a defect) and confirmed recurring 2026-07-11 and 2026-07-22. Full RCA:
   `.planning/debug/resolved/room-bind-gate-fires-on-notification-only-turns.md`.
+- **The semantic-edge derivation queue (`graph-derive-queue.json`) silently cleared itself
+  on every failed derivation, in every room, forever -- so no room has ever gotten a real
+  INFORMS/CONTRADICTS/CONVERGES cascade edge.** Root cause: `scripts/gsd-graph-derive-drain.cjs`'s
+  `drainDerive()` caught a `runDerivation` throw, pushed the failed room to `drained` anyway,
+  and rewrote the queue empty with no log -- destroying the retry signal on every SessionStart
+  run regardless of outcome. Two of the three originally-stacked causes (a dead standalone
+  Anthropic API key; the headless path computing a null single-pair derive with no real
+  artifact pairs) had already been resolved upstream by Phase 224-02's switch to local
+  embeddings; the silent-clear was the one still live. Fixed via a new `reconcileQueue()`: a
+  failed room is now kept and retried (capped at `MAX_DERIVE_ATTEMPTS=5`, then dropped
+  `permanent:true` and logged, never silently), and every failure appends to a new
+  `<room>/.mindrian/graph-derive-failures.json`. Root-caused by cross-referencing a TDS
+  "context rot" research thread against the live debug queue, not filed fresh. Full RCA:
+  `.planning/debug/graph-derive-silent-clear-dead-api-derivation.md`. Formalizing the
+  derivation transport, healing the ~16 already-damaged rooms, and a doctor health check
+  remain open (register items 4b-4e).
+- **`room_search` applied its 50-result cap in raw filesystem-walk order, before any
+  relevance ranking -- so a genuinely relevant match in a late-traversed folder could lose to
+  50 incidental early-folder hits, and a same-entity query could return dozens of
+  near-duplicate lines from one file.** Root cause: `lib/mcp/tools/room.cjs`'s `searchRoom`
+  was a plain `String.includes` grep that pushed matches in directory-entry order and
+  returned the instant either `SEARCH_MAX_RESULTS` (50) or `SEARCH_MAX_FILES` (500) was hit --
+  capped-then-never-ranked, not ranked-then-capped. Fixed via a rank-then-cap rewrite
+  (`collectMatches`/`rankMatches`): match density x0.7 + recency x0.3, with a 5-per-file slice
+  cap so one file can't monopolize the result budget. `graph_query` was audited in the same
+  pass and found already ranked correctly (a composite relevance score already lives in
+  `navigation/neighborhood.cjs`); `whitespace_scan` is unranked but uncapped, deferred pending
+  the graph-derive edge-density fix above (little signal to rank while most rooms carry
+  near-zero semantic edges). Full RCA: `.planning/debug/graph-query-results-unranked.md`.
 
 ## [1.15.3-beta.44] - 2026-07-23
 
