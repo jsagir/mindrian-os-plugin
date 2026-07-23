@@ -3,6 +3,31 @@
 ### Added
 - 
 
+### Fixed
+- **Every Stop hook turn showed a raw Claude Code hook JSON validation error
+  ("Hook JSON output validation failed: - : Invalid input") instead of the intended calm
+  systemMessage, whenever `scripts/check-card-fire.cjs` force-blocked a turn to demand an
+  AskUserQuestion card fire.** Root cause: Claude Code's Stop-hook output schema does not
+  define a `hookSpecificOutput` variant for the Stop event at all (the union covers only
+  PreToolUse, UserPromptSubmit, and PostToolUse); including the key on a Stop envelope
+  rejects the WHOLE envelope (`additionalProperties: false`), not just that key, silently
+  replacing the carefully-set `decision`/`reason`/`systemMessage` with a raw schema-error
+  dump. This is the 4th live occurrence of the same defect class: fixed once in
+  `scripts/on-stop` (v1.10.9 -> v1.10.10, 2026-04-15), then reintroduced in
+  `scripts/feynman-minto-guardian.cjs` (under a since-corrected comment that had the rule
+  backwards), reintroduced again as a regression inside `scripts/on-stop` itself (the
+  Phase 198-09 MCP-first thin-adapter branch), and hit live by a real user via
+  `scripts/check-card-fire.cjs` today. Fixed at all 3 sites: `hookSpecificOutput` removed
+  outright (and removed from `check-card-fire.cjs`'s own envelope-key allowlist so it can't
+  silently slip back in); the calm, human-facing `decision`/`reason`/`systemMessage` fields
+  each branch already set are unaffected. New structural regression gate:
+  `scripts/check-hook-schema-compatibility.cjs` (previously unwired and, worse, encoding the
+  opposite/wrong rule) is corrected and wired into `scripts/verify-release` (section 16) --
+  it enumerates every script Claude Code registers as a Stop hook straight off
+  `hooks/hooks.json`, follows one level of subprocess invocation, and fails the release if
+  any of them would emit a Stop-shaped `hookSpecificOutput` again. Full RCA:
+  `.planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md`.
+
 ## [1.15.3-beta.42] - 2026-07-23
 
 ### Fixed

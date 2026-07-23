@@ -2,26 +2,44 @@
 /**
  * check-hook-schema-compatibility.cjs
  *
- * RELEASE GATE: scans every hook script in the plugin for output patterns
- * that Claude Code's hook output schema rejects. Exits non-zero if any are
- * found, blocking the release.
+ * RELEASE GATE: enumerates every script Claude Code registers as a Stop hook
+ * (read straight off hooks/hooks.json's Stop array -- never hand-guessed),
+ * follows each one level of subprocess invocation (a Stop hook script that
+ * shells out to another repo script), and greps the resulting file set for
+ * the literal pattern `hookEventName: 'Stop'`. Exits non-zero if found,
+ * blocking the release.
  *
- * Background: Claude Code 2.x added `additionalProperties: false` to the
- * hook output schema. Top-level `systemMessage` and top-level `additionalContext`
- * are no longer accepted -- they must be wrapped in a `hookSpecificOutput`
- * envelope with a valid `hookEventName`. v1.10.19 (hotfixes shipped 2026-04-26) landed after
- * Aryeh Holtzberg (PWS IRIS 2025) hit "Hook JSON output validation failed"
- * on every Read/Grep/Glob in v1.10.18.
+ * CORRECTED 2026-07-23 (RCA: stop-hook-invalid-hookspecificoutput-schema).
+ * This file's ORIGINAL version (shipped as the "v1.10.19" hotfix, 2026-04-26)
+ * encoded the OPPOSITE, BACKWARDS rule: it banned top-level `systemMessage`
+ * and told authors to wrap output in a `hookSpecificOutput` envelope. That
+ * premise was never true for the Stop event and was live-disproven on
+ * 2026-07-23 when a real user hit "Hook JSON output validation failed:
+ * - : Invalid input" on every single turn, traced to exactly the
+ * hookSpecificOutput wrapping this file used to recommend. Claude Code's own
+ * "Expected schema" error text lists `systemMessage` as a valid TOP-LEVEL
+ * Stop-hook field and defines `hookSpecificOutput` only for THREE events --
+ * PreToolUse, UserPromptSubmit, PostToolUse -- never Stop. Including
+ * hookSpecificOutput on a Stop envelope trips `additionalProperties: false`
+ * and rejects the WHOLE envelope, not just that key.
  *
- * This script is the prevention. Run before every release. Wire into
- * scripts/release.sh and the pre-push hook.
+ * This is the FOURTH live occurrence of the same defect class (see the RCA
+ * for the full history: scripts/on-stop v1.10.9->v1.10.10 fix 2026-04-15 was
+ * the first and, until now, only fix; scripts/feynman-minto-guardian.cjs
+ * reintroduced it under this very script's wrong premise; scripts/on-stop's
+ * own Phase 198-09 MCP-first branch reintroduced it a third time in the SAME
+ * file that had already been fixed once; scripts/check-card-fire.cjs plus a
+ * live user report was the fourth). Three point-fixes with no structural
+ * gate is exactly why it recurred three times -- this script is that gate,
+ * now finally checking the CORRECT rule instead of the wrong one.
  *
  * Reference: https://docs.anthropic.com/en/docs/claude-code/hooks
+ * Full RCA: .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md
  *
  * Exit codes:
- *   0 -- all hook scripts emit schema-compliant JSON (or exit silently)
- *   1 -- forbidden patterns found (release MUST be blocked)
- *   2 -- scanner failure (could not read scripts/hooks dirs)
+ *   0 -- no Stop-hook-reachable script emits a Stop-shaped hookSpecificOutput
+ *   1 -- forbidden pattern found (release MUST be blocked)
+ *   2 -- scanner failure (could not read hooks.json or resolve script files)
  */
 
 'use strict';
@@ -30,84 +48,154 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-const SCAN_DIRS = ['scripts', 'hooks', 'lib/core', 'lib/memory', 'lib/mcp'];
+const HOOKS_JSON_PATH = path.join(ROOT, 'hooks', 'hooks.json');
 
-// Patterns that produce JSON Claude Code 2.x will REJECT.
-// Each pattern is { regex, why, fix }
-const FORBIDDEN_PATTERNS = [
-  {
-    name: 'top-level-systemMessage',
-    regex: /JSON\.stringify\(\s*\{\s*systemMessage\s*:/,
-    why: 'Top-level `systemMessage` is not in the documented hook output schema. additionalProperties: false rejects it.',
-    fix: 'Wrap in hookSpecificOutput: { hookSpecificOutput: { hookEventName: "<EVENT>", additionalContext: <msg> } }',
-  },
-  {
-    name: 'top-level-additionalContext-with-null',
-    regex: /JSON\.stringify\(\s*\{\s*additionalContext\s*:\s*null\b/,
-    why: 'Emitting `additionalContext: null` at top level fails schema validation. Either omit or wrap in hookSpecificOutput.',
-    fix: 'For silent exits, do not emit JSON at all -- just process.exit(0). For real messages, use hookSpecificOutput envelope.',
-  },
-  {
-    name: 'naked-systemMessage-write',
-    regex: /process\.stdout\.write\(\s*JSON\.stringify\(\s*\{[^}]*systemMessage[^}]*\}\s*\)/,
-    why: 'Direct stdout.write of a top-level systemMessage envelope. Same root cause as top-level-systemMessage.',
-    fix: 'Wrap the message in hookSpecificOutput.additionalContext.',
-  },
-];
+// The forbidden shape itself is self-identifying: there is no valid Claude
+// Code JSON output anywhere that legitimately contains hookEventName: 'Stop'
+// inside a hookSpecificOutput block, because Stop has no hookSpecificOutput
+// variant in the schema at all. One literal pattern, checked only against
+// the files a Stop hook can actually reach (see resolveStopHookFiles below)
+// so a test fixture elsewhere in the repo that intentionally documents the
+// old broken shape (e.g. a regression test for THIS scanner) cannot trip a
+// false positive.
+const FORBIDDEN_STOP_HOOKSPECIFICOUTPUT_RE = /hookEventName\s*:\s*['"]Stop['"]/;
 
-// Files explicitly allowed to contain forbidden patterns (e.g., this scanner
-// itself defines them as strings). Add with care.
+// Files explicitly allowed to contain the literal forbidden pattern (this
+// scanner's own source describes the pattern; excluding it from its own scan
+// avoids a self-referential false positive).
 const ALLOWLIST = new Set([
-  'scripts/check-hook-schema-compatibility.cjs', // self
+  'scripts/check-hook-schema-compatibility.cjs', // self (documents the pattern above)
 ]);
 
-function walk(dir, out) {
-  if (!fs.existsSync(dir)) return;
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walk(full, out);
-    else if (/\.(cjs|js|mjs)$/.test(entry.name)) out.push(full);
+function readHooksJson() {
+  try {
+    const raw = fs.readFileSync(HOOKS_JSON_PATH, 'utf8');
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('check-hook-schema-compatibility: could not read/parse hooks/hooks.json: ' + (e && e.message || e));
+    process.exit(2);
   }
 }
 
-function scanFile(absPath) {
-  const rel = path.relative(ROOT, absPath);
+// Extract the actual script FILE path a hooks.json "command" string invokes.
+// Two shapes appear in this repo's hooks.json:
+//   1. "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" <name>" -- the polyglot
+//      wrapper execs "scripts/<name>" verbatim (see hooks/run-hook.cmd:64:
+//      `exec bash "${PLUGIN_ROOT}/scripts/${SCRIPT_NAME}" "$@"`).
+//   2. "node \"${CLAUDE_PLUGIN_ROOT}/scripts/<name>.cjs\" [args]" -- direct.
+// Returns a repo-relative path (e.g. "scripts/on-stop") or null if the
+// command shape is not recognized (never silently drops -- caller treats
+// null as a scanner-failure condition).
+function resolveCommandToScriptPath(command) {
+  const runHookMatch = command.match(/run-hook\.cmd["']?\s+([\w-]+)/);
+  if (runHookMatch) return path.join('scripts', runHookMatch[1]);
+  const nodeScriptMatch = command.match(/scripts\/([\w.-]+\.cjs)/);
+  if (nodeScriptMatch) return path.join('scripts', nodeScriptMatch[1]);
+  return null;
+}
+
+// One level of transitive follow: a Stop hook script (esp. the bash
+// scripts/on-stop dispatcher) can itself shell out to another repo script
+// whose stdout feeds into -- or is discarded from -- the same Stop hook
+// invocation. Scan the resolved script's own source for references to other
+// scripts/ files so a case like on-stop invoking
+// scripts/feynman-minto-guardian.cjs is caught even though hooks.json never
+// registers that file directly. Extra files found this way are strictly
+// additive to the scan set -- they cannot cause a false positive because the
+// only thing checked is the one specific forbidden literal.
+function findReferencedScripts(fileContent) {
+  const found = new Set();
+  const cjsShRe = /scripts\/([\w.-]+\.(?:cjs|sh))/g;
+  let m;
+  while ((m = cjsShRe.exec(fileContent))) {
+    found.add(path.join('scripts', m[1]));
+  }
+  const siblingRe = /\$\{?SCRIPT_DIR\}?\/([\w-]+)"/g;
+  while ((m = siblingRe.exec(fileContent))) {
+    found.add(path.join('scripts', m[1]));
+  }
+  return found;
+}
+
+function resolveStopHookFiles() {
+  const hooksJson = readHooksJson();
+  const stopArray = hooksJson && hooksJson.hooks && Array.isArray(hooksJson.hooks.Stop)
+    ? hooksJson.hooks.Stop
+    : null;
+  if (!stopArray) {
+    console.error('check-hook-schema-compatibility: hooks.json has no hooks.Stop array to enumerate');
+    process.exit(2);
+  }
+
+  const files = new Set();
+  const unresolved = [];
+  for (const group of stopArray) {
+    const entries = Array.isArray(group.hooks) ? group.hooks : [];
+    for (const entry of entries) {
+      const command = typeof entry.command === 'string' ? entry.command : '';
+      const resolved = resolveCommandToScriptPath(command);
+      if (resolved) {
+        files.add(resolved);
+      } else {
+        unresolved.push(command);
+      }
+    }
+  }
+
+  if (unresolved.length > 0) {
+    console.error('check-hook-schema-compatibility: could not resolve script path for Stop hook command(s):');
+    for (const c of unresolved) console.error('  ' + c);
+    process.exit(2);
+  }
+
+  // One level of transitive follow for every directly-registered file.
+  const directFiles = Array.from(files);
+  for (const rel of directFiles) {
+    const abs = path.join(ROOT, rel);
+    if (!fs.existsSync(abs)) continue;
+    let content;
+    try {
+      content = fs.readFileSync(abs, 'utf8');
+    } catch (_e) {
+      continue;
+    }
+    for (const ref of findReferencedScripts(content)) {
+      files.add(ref);
+    }
+  }
+
+  return Array.from(files);
+}
+
+function scanFile(rel) {
   if (ALLOWLIST.has(rel)) return [];
-  const findings = [];
+  const abs = path.join(ROOT, rel);
+  if (!fs.existsSync(abs)) return [];
   let content;
   try {
-    content = fs.readFileSync(absPath, 'utf8');
+    content = fs.readFileSync(abs, 'utf8');
   } catch (_e) {
     return [];
   }
-  // Skip test files: tests legitimately fixture the broken pattern
-  if (/\.test\.cjs$|\/test[s]?\//.test(rel)) return [];
-
+  const findings = [];
   const lines = content.split('\n');
-  for (const pattern of FORBIDDEN_PATTERNS) {
-    for (let i = 0; i < lines.length; i++) {
-      if (pattern.regex.test(lines[i])) {
-        findings.push({
-          file: rel,
-          line: i + 1,
-          pattern: pattern.name,
-          snippet: lines[i].trim().slice(0, 120),
-          why: pattern.why,
-          fix: pattern.fix,
-        });
-      }
+  for (let i = 0; i < lines.length; i++) {
+    if (FORBIDDEN_STOP_HOOKSPECIFICOUTPUT_RE.test(lines[i])) {
+      findings.push({
+        file: rel,
+        line: i + 1,
+        snippet: lines[i].trim().slice(0, 160),
+      });
     }
   }
   return findings;
 }
 
 function main() {
-  const files = [];
-  for (const d of SCAN_DIRS) walk(path.join(ROOT, d), files);
+  const files = resolveStopHookFiles();
 
   if (files.length === 0) {
-    console.error('check-hook-schema-compatibility: no hook script files found to scan');
+    console.error('check-hook-schema-compatibility: resolved zero Stop-hook-reachable script files (scanner bug or empty hooks.Stop array)');
     process.exit(2);
   }
 
@@ -118,23 +206,25 @@ function main() {
 
   if (allFindings.length === 0) {
     console.log('check-hook-schema-compatibility: PASS');
-    console.log(`Scanned ${files.length} files. No forbidden hook output patterns found.`);
+    console.log(`Scanned ${files.length} Stop-hook-reachable file(s) (${files.join(', ')}). No Stop-shaped hookSpecificOutput found.`);
     process.exit(0);
   }
 
   console.error('check-hook-schema-compatibility: FAIL');
   console.error('');
-  console.error(`Found ${allFindings.length} forbidden hook output pattern(s):`);
+  console.error(`Found ${allFindings.length} Stop-shaped hookSpecificOutput occurrence(s) -- Claude Code's schema defines`);
+  console.error('hookSpecificOutput only for PreToolUse, UserPromptSubmit, and PostToolUse. Including it on a Stop');
+  console.error('envelope rejects the WHOLE envelope (additionalProperties: false), replacing your calm');
+  console.error('systemMessage/reason text with a raw "Hook JSON output validation failed" dump for the user.');
   console.error('');
   for (const f of allFindings) {
-    console.error(`  ${f.file}:${f.line}  [${f.pattern}]`);
-    console.error(`    snippet: ${f.snippet}`);
-    console.error(`    why:     ${f.why}`);
-    console.error(`    fix:     ${f.fix}`);
-    console.error('');
+    console.error(`  ${f.file}:${f.line}`);
+    console.error(`    ${f.snippet}`);
   }
-  console.error('Release BLOCKED. Fix the patterns above before bumping version.');
-  console.error('Reference: https://docs.anthropic.com/en/docs/claude-code/hooks');
+  console.error('');
+  console.error('Release BLOCKED. Remove hookSpecificOutput from these Stop-hook envelopes; use only');
+  console.error('{ continue, suppressOutput, stopReason, decision, reason, systemMessage, permissionDecision }.');
+  console.error('See .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md');
   process.exit(1);
 }
 

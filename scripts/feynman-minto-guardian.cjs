@@ -410,15 +410,23 @@ function runOnStop(roomDir, validators) {
     if (worstIdx >= SEVERITY_ORDER.indexOf('error')) {
       const loc = worstSection === '__room__' ? 'room' : 'section ' + worstSection;
       const msg = 'guardian: ' + worstSeverity + ' in ' + loc + ' (' + worstCategory + ', glyph low)';
-      // v1.10.19 (hotfixes shipped 2026-04-26): wrap in hookSpecificOutput per Claude Code 2.x schema
-      // (additionalProperties: false rejects top-level systemMessage). Function
-      // is runOnStop, so hookEventName is 'Stop'.
-      const payload = {
-        hookSpecificOutput: {
-          hookEventName: 'Stop',
-          additionalContext: msg,
-        },
-      };
+      // CORRECTED 2026-07-23 (stop-hook-invalid-hookspecificoutput-schema,
+      // 2nd occurrence of this defect class): the prior comment here (removed)
+      // claimed "wrap in hookSpecificOutput per Claude Code 2.x schema
+      // (additionalProperties: false rejects top-level systemMessage)". That
+      // claim was BACKWARDS and disproven by a live user-reported validation
+      // error (2026-07-23): Claude Code's Stop-hook schema lists top-level
+      // `systemMessage` as a valid optional field, and does NOT define a Stop
+      // variant of hookSpecificOutput at all (the union covers only
+      // PreToolUse, UserPromptSubmit, PostToolUse). Wrapping in
+      // hookSpecificOutput is what made the validator reject the WHOLE
+      // envelope ("Hook JSON output validation failed: - : Invalid input"),
+      // exactly reproducing the failure this comment's own 2026-04-26
+      // "fix" claimed to prevent. Emit systemMessage at the top level instead
+      // -- this is the schema-correct shape, matching the original
+      // v1.10.9->v1.10.10 fix in scripts/on-stop (2026-04-15). See
+      // .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md.
+      const payload = { systemMessage: msg };
       process.stdout.write(JSON.stringify(payload) + '\n');
     }
   } catch (_e) { /* advisory: never break on-stop on sysmsg failure */ }

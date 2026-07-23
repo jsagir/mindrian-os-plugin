@@ -119,9 +119,18 @@ ok('(E2E-1) a realistic Stop stdin + ascii-box transcript emits a parseable enve
   r1.env && typeof r1.env === 'object');
 ok('(E2E-1) the envelope BLOCKS (decision:block) -- the LIVE cure, no longer a no-op',
   r1.env.decision === 'block' && r1.env.continue === false);
-ok('(E2E-1) the block carries the card-fire re-prompt in hookSpecificOutput.additionalContext',
-  r1.env.hookSpecificOutput &&
-  /AskUserQuestion/.test(r1.env.hookSpecificOutput.additionalContext || ''));
+// stop-hook-invalid-hookspecificoutput-schema (2026-07-23, 4th occurrence of this
+// defect class): this assertion previously required hookSpecificOutput.additionalContext
+// on the block envelope -- that was asserting the BUG (Stop has no hookSpecificOutput
+// variant in Claude Code's schema; including it rejected the WHOLE envelope on every
+// real Stop hook run, which a live user hit verbatim). The correct, schema-valid block
+// envelope carries only top-level decision/reason/systemMessage/continue and NEVER
+// hookSpecificOutput. See
+// .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md.
+ok('(E2E-1) the block envelope NEVER carries hookSpecificOutput (Stop has no such schema variant)',
+  r1.env.hookSpecificOutput === undefined);
+ok('(E2E-1) the block carries a calm, non-empty systemMessage (the schema-valid user-facing surface)',
+  typeof r1.env.systemMessage === 'string' && r1.env.systemMessage.length > 0);
 
 // ---------------------------------------------------------------------------
 // (E2E-2) realistic Stop stdin + a transcript WITH an AskUserQuestion tool_use -> no-op.

@@ -86,17 +86,23 @@ if [ -n "${MINDRIAN_MCP_FIRST:-}" ]; then
         try {
           const r = JSON.parse(d);
           if (r && r.fire === true) {
-            const zones = (r.rendered && r.rendered.zones) || {};
-            const body = [zones.header, zones.body, zones.footer].filter(Boolean).join('\n');
+            // stop-hook-invalid-hookspecificoutput-schema (2026-07-23): this branch
+            // is a REGRESSION of the SAME fix already applied lower in this file's
+            // legacy success-output branch (search 'Stop hooks DO NOT support
+            // hookSpecificOutput' below) -- Stop has no hookSpecificOutput variant
+            // in Claude Code's schema, so including that key rejects the whole
+            // envelope and replaces this systemMessage with a raw validation-error
+            // dump. The rendered-zones body this branch used to carry via
+            // hookSpecificOutput.additionalContext is DROPPED, not relocated:
+            // additionalContext has no valid Stop-hook channel and reason/
+            // systemMessage must stay calm, human-facing text (CR-06 in
+            // check-card-fire.cjs), never internal render payloads. See
+            // .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md.
             const out = {
               decision: 'block',
               reason: 'stop-gate-relevant-unanswered',
               continue: false,
               systemMessage: 'A pending decision needs your input.',
-              hookSpecificOutput: {
-                hookEventName: 'Stop',
-                additionalContext: body || 'This turn reached a Decision Gate that has not been answered yet. Please answer it or continue.',
-              },
             };
             process.stdout.write(JSON.stringify(out) + '\n');
           } else {

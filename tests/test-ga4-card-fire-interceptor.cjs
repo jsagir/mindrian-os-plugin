@@ -11,8 +11,12 @@
  *
  * This suite asserts the four load-bearing behaviors of the exported, deterministic
  * predicate classifyCardFire(turn, registry) plus the Stop-hook envelope shape:
- *   (a) reached-gate-no-card  -> intercept=true  + exit-2 block envelope carrying
- *                                hookSpecificOutput.additionalContext re-prompting a card fire
+ *   (a) reached-gate-no-card  -> intercept=true  + exit-2 block envelope carrying a
+ *                                calm decision/reason/systemMessage (see
+ *                                stop-hook-invalid-hookspecificoutput-schema RCA: the
+ *                                envelope NEVER carries hookSpecificOutput -- Stop has
+ *                                no hookSpecificOutput variant in Claude Code's schema
+ *                                and including it rejects the whole envelope)
  *   (b) non-gate turn         -> intercept=false (ZERO forced cards on an ordinary turn)
  *   (c) reached-gate + card FIRED -> intercept=false (the card fired; nothing to force)
  *   (d) MAX_FORCE_RETRIES reached -> degrade=true + { continue: true } (no infinite loop)
@@ -160,22 +164,30 @@ ok('(d) BOUNDED ESCAPE: below the limit it still intercepts', bl.intercept === t
 
 // ---------------------------------------------------------------------------
 // ENVELOPE: buildEnforcementEnvelope(verdict) shapes the Stop-hook output. On an
-// intercept it carries hookSpecificOutput.additionalContext re-prompting the card
-// fire (mirroring operator-update.cjs's envelope shape; additionalContext ONLY
-// inside hookSpecificOutput). On a degrade it is { continue: true }.
+// intercept it is a decision:block envelope carrying only schema-valid top-level
+// Stop-hook fields (decision, reason, systemMessage, continue). On a degrade it
+// is { continue: true, suppressOutput: true }.
+//
+// stop-hook-invalid-hookspecificoutput-schema (2026-07-23, 4th occurrence of this
+// defect class): this suite previously asserted the envelope CARRIES
+// hookSpecificOutput.additionalContext -- that was asserting the BUG. Claude
+// Code's Stop-hook schema has no hookSpecificOutput variant at all (the union
+// covers only PreToolUse, UserPromptSubmit, PostToolUse); including the key
+// rejected the WHOLE envelope on every real Stop hook run, which is exactly what
+// a live user hit. The correct, schema-valid intercept envelope never carries
+// hookSpecificOutput. See
+// .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md.
 // ---------------------------------------------------------------------------
 ok('buildEnforcementEnvelope is exported as a function',
   typeof m.buildEnforcementEnvelope === 'function');
 
 const interceptEnv = m.buildEnforcementEnvelope(ra);
-ok('ENVELOPE: an intercept envelope carries hookSpecificOutput',
-  interceptEnv && typeof interceptEnv.hookSpecificOutput === 'object');
-ok('ENVELOPE: additionalContext lives ONLY inside hookSpecificOutput',
-  interceptEnv.additionalContext === undefined &&
-  typeof interceptEnv.hookSpecificOutput.additionalContext === 'string' &&
-  interceptEnv.hookSpecificOutput.additionalContext.length > 0);
-ok('ENVELOPE: the additionalContext re-prompts an AskUserQuestion card fire',
-  /AskUserQuestion/.test(interceptEnv.hookSpecificOutput.additionalContext));
+ok('ENVELOPE: an intercept envelope NEVER carries hookSpecificOutput (Stop has no such schema variant)',
+  interceptEnv && interceptEnv.hookSpecificOutput === undefined);
+ok('ENVELOPE: an intercept envelope carries decision:block + continue:false',
+  interceptEnv.decision === 'block' && interceptEnv.continue === false);
+ok('ENVELOPE: an intercept envelope carries a non-empty systemMessage (the calm, human-facing surface)',
+  typeof interceptEnv.systemMessage === 'string' && interceptEnv.systemMessage.length > 0);
 
 const degradeEnv = m.buildEnforcementEnvelope(dg);
 ok('ENVELOPE: a degrade envelope is { continue: true } (no infinite loop)',

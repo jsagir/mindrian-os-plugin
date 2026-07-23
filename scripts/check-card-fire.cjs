@@ -279,7 +279,20 @@ const ASCII_BOX_UNCONDITIONAL_RE =
   /\[\s*1\s*\]\s*.*\[\s*2\s*\]|type\s+1\s*,\s*2\s*,\s*or\s+3|\[\s*1\s*\][^\n]*\n[\s\S]*?\[\s*2\s*\]/i;
 
 // ----- envelope schema allowlist (Phase 95 BASH-95-01) -----
-
+//
+// stop-hook-invalid-hookspecificoutput-schema (2026-07-23): 'hookSpecificOutput'
+// REMOVED from this allowlist. Claude Code's Stop-hook output schema does not
+// define a Stop variant of hookSpecificOutput at all (the union covers only
+// PreToolUse, UserPromptSubmit, and PostToolUse) -- including the key at all
+// makes the validator reject the ENTIRE envelope ("Hook JSON output validation
+// failed: - : Invalid input"), which replaces the calm systemMessage/reason
+// text below with a raw schema-error dump on every turn this branch fires.
+// Same root cause as scripts/on-stop's v1.10.9->v1.10.10 fix (2026-04-15,
+// see the comment at that file's legacy success-output branch); this
+// allowlist previously legitimized the mistake for this file's own call site.
+// Keeping the key OUT of the allowlist means a future call site that tries to
+// add hookSpecificOutput back gets silently key-filtered rather than shipping
+// broken JSON again.
 const ALLOWED_ENVELOPE_KEYS = new Set([
   'decision',
   'reason',
@@ -287,7 +300,6 @@ const ALLOWED_ENVELOPE_KEYS = new Set([
   'stopReason',
   'suppressOutput',
   'systemMessage',
-  'hookSpecificOutput',
 ]);
 
 // ---------------------------------------------------------------------------
@@ -647,11 +659,10 @@ function classifyCardFire(turn, registry) {
 // buildEnforcementEnvelope(verdict) -- shape the Stop-hook output envelope from a
 // classifyCardFire verdict.
 //   - degrade  -> { continue: true, suppressOutput: true } (log + allow; no loop).
-//   - intercept-> the decision:block-on-exit-0 block: { decision:'block', ..., systemMessage,
-//                 hookSpecificOutput: { additionalContext: <re-prompt to fire the card> } }.
+//   - intercept-> the decision:block-on-exit-0 block: { decision:'block', reason,
+//                 systemMessage, continue:false }.
 //   - neither  -> { continue: true, suppressOutput: true } (nothing to do).
-// additionalContext lives ONLY inside hookSpecificOutput. Returns a key-filtered
-// envelope. Never throws.
+// Returns a key-filtered envelope. Never throws.
 //
 // CR-06 (2026-07-11, backstop-benign-list-defeats-relevance-gate reopen of
 // card-fire-block-surface Finding 1): the ORIGINAL fix added a systemMessage on the
@@ -662,8 +673,24 @@ function classifyCardFire(turn, registry) {
 // crash. The only lever left is the `reason` CONTENT itself: on BOTH the intercept branch
 // and the degrade branch it is now a calm, human-safe phrase, never the internal slug. The
 // slug is PRESERVED for telemetry in the LOCAL intercept log (appendInterceptLog), not
-// deleted. systemMessage stays on the intercept branch and hookSpecificOutput.additionalContext
-// is untouched. The else branch keeps suppressOutput: true and carries no systemMessage.
+// deleted. systemMessage stays on the intercept branch. The else branch keeps
+// suppressOutput: true and carries no systemMessage.
+//
+// stop-hook-invalid-hookspecificoutput-schema (2026-07-23, 4th occurrence of this
+// defect class): the intercept branch previously ALSO carried a hookSpecificOutput
+// envelope (event name Stop, plus an additionalContext re-prompt string). Stop is
+// not one of the three event types Claude Code's schema defines a
+// hookSpecificOutput variant for (PreToolUse / UserPromptSubmit / PostToolUse only),
+// so that key made the validator reject the WHOLE envelope -- the user saw a raw
+// "Hook JSON output validation failed: Invalid input" dump instead of the calm
+// `reason`/`systemMessage` text above, on every turn this branch fired. REMOVED
+// outright. The `additionalContext` re-prompt text it carried ("You MUST fire the
+// AskUserQuestion card NOW...") has no valid Stop-hook delivery channel in the
+// current schema (additionalContext is UserPromptSubmit/PostToolUse-only) and per
+// CR-06 must not be smuggled into `reason`/`systemMessage` either (those are
+// human-facing and must stay calm, never carry model-directive/internal-mechanism
+// text) -- so it is dropped, not relocated. See
+// .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md.
 // ---------------------------------------------------------------------------
 function buildEnforcementEnvelope(verdict) {
   const v = verdict && typeof verdict === 'object' ? verdict : {};
@@ -688,14 +715,6 @@ function buildEnforcementEnvelope(verdict) {
       // slug; T-m9g-01). Retained from the original Finding 1 fix as the second calm surface.
       systemMessage: 'Re-rendering your choices as a selectable card...',
       continue: false,
-      hookSpecificOutput: {
-        hookEventName: 'Stop',
-        additionalContext:
-          'This turn REACHED a Decision Gate but did NOT fire the interactive card. ' +
-          'You MUST fire the AskUserQuestion card NOW with the gate options as ' +
-          'arrow-key-navigable choices. Do NOT render a flat ASCII box or "type 1, 2, ' +
-          'or 3" text. Re-emit this turn with the AskUserQuestion tool call.',
-      },
     };
   } else {
     raw = { continue: true, suppressOutput: true };

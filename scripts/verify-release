@@ -424,6 +424,32 @@ $RENAME_HITS"
 fi
 
 # ============================================================
+# 16. STOP HOOK hookSpecificOutput SCHEMA GATE
+# ============================================================
+# RCA stop-hook-invalid-hookspecificoutput-schema (2026-07-23, 4th occurrence of
+# this defect class): Claude Code's Stop-hook output schema does not define a
+# Stop variant of hookSpecificOutput at all (the union covers only PreToolUse,
+# UserPromptSubmit, PostToolUse); including the key on a Stop envelope rejects
+# the WHOLE envelope (additionalProperties: false), replacing a hook's calm
+# systemMessage/reason text with a raw "Hook JSON output validation failed"
+# dump on every single turn. Fixed once (scripts/on-stop, 2026-04-15) and
+# reintroduced twice more before this gate existed -- same "fix it once, ban
+# the anti-pattern repo-wide" reasoning as the os.rename gate above.
+# scripts/check-hook-schema-compatibility.cjs enumerates every script Claude
+# Code registers as a Stop hook straight off hooks/hooks.json's Stop array
+# (never hand-guessed), follows one level of subprocess invocation, and greps
+# for the literal forbidden pattern.
+echo -e "\n${BOLD}16. Stop Hook hookSpecificOutput Schema Gate${NC}"
+
+STOP_SCHEMA_OUT=$(node "$PLUGIN_ROOT/scripts/check-hook-schema-compatibility.cjs" 2>&1) && STOP_SCHEMA_CODE=0 || STOP_SCHEMA_CODE=$?
+if [ "$STOP_SCHEMA_CODE" -eq 0 ]; then
+  pass "No Stop-hook-reachable script emits a Stop-shaped hookSpecificOutput"
+else
+  fail "Stop-hook schema gate FAILED (see .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md):"
+  echo "$STOP_SCHEMA_OUT"
+fi
+
+# ============================================================
 # PACKAGE-LOCK SYNC (vendored-node_modules lockstep)
 # ============================================================
 # Debug session mcp-servers-cache-missing-node-modules: release.sh Step 6.7
