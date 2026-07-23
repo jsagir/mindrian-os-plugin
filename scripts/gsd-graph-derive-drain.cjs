@@ -12,10 +12,19 @@
  * room, and CLEARS the drained entry. The per-write structural index hook stays
  * untouched (Pattern 3 two-trigger split).
  *
- * Failure discipline: silent fail. A SessionStart hook must never block session
- * start. Exit code is ALWAYS 0 on any non-fatal path. A room whose derivation
- * throws is dropped from the queue anyway (the explicit /mos:graph --derive
- * backfill is the universal net for anything missed).
+ * Failure discipline: exit-0, never-block, but NEVER SILENT ROT (RCA
+ * graph-derive-silent-clear Defect 4a). A SessionStart hook must never block
+ * session start, so the exit code is ALWAYS 0 on any non-fatal path. But a room
+ * whose derivation THROWS is NO LONGER dropped: its queue entry is KEPT for the
+ * next drain (the retry signal survives), a failure record is appended to
+ * <room>/.mindrian/graph-derive-failures.json, and only after
+ * MAX_DERIVE_ATTEMPTS failed passes is the entry dropped -- with a
+ * permanent-failure record so a doctor check can surface it (never a silent
+ * drop of a still-recoverable room). Only a SUCCESSFUL derive clears the entry.
+ * The encoder-unavailable skip is a DISTINCT, DISCLOSED path (it writes a
+ * derivation_skipped memory_event and clears -- a deliberate, visible skip, not
+ * a silent rot). The explicit /mos:graph --derive backfill stays the universal
+ * net for anything missed.
  *
  * Canon Part 8: LOCAL only. The drain runs the LOCAL runDerivation composer
  *   (lib/core/graph-derivation.cjs), which reads LOCAL artifact text and writes
@@ -87,6 +96,120 @@ function clearQueue(resolved, drainedEntries) {
       const currentEntries = Array.isArray(current.entries) ? current.entries : [];
       kept = currentEntries.filter((e) => !drainedKeys.has(entryKey(e)));
     }
+    sweep.writeQueue(resolved, { entries: kept });
+    return kept.length;
+  } catch (_e) {
+    return 0;
+  }
+}
+
+// RCA graph-derive-silent-clear Defect 4a: keep-on-failure + a visible failure
+// log + a retry cap. The old drain pushed a THROWN room to `drained` and then
+// blanket-cleared its queue entry with NO trace -- so a transient failure (a
+// cold encoder, a locked db, a producer bug) destroyed the retry signal AND was
+// invisible. reconcileQueue is the success-vs-failure-aware replacement for the
+// derive loops' clearQueue: SUCCEEDED entries are cleared (the existing
+// round-trip contract), FAILED entries are KEPT with a bumped `failures`
+// counter, and only after MAX_DERIVE_ATTEMPTS is a failed entry dropped -- each
+// failure appended to a room-local JSON log so a human / doctor can see it.
+const MAX_DERIVE_ATTEMPTS = 5;
+
+function failureLogPath(resolved) {
+  return path.join(resolved, '.mindrian', 'graph-derive-failures.json');
+}
+
+// Truncate an error to a short SCALAR string. These are producer / composer /
+// sqlite error messages (fixed strings, not artifact body), but the cap is a
+// belt-and-suspenders guard: the log is LOCAL-disk only (never egresses; Part 8
+// is not even in play), yet a bounded scalar keeps it honest and small.
+function scalarError(err) {
+  const msg = (err && typeof err.message === 'string') ? err.message : String(err || 'unknown_error');
+  return msg.slice(0, 200);
+}
+
+// Append a failure record to <room>/.mindrian/graph-derive-failures.json. The
+// log is a { failures: [...] } object, bounded to the most-recent MAX_LOG rows
+// so a permanently-broken room never grows it unbounded. Atomic tmp+rename write
+// (the sweep idiom). Advisory: a failed log write NEVER blocks the drain.
+function appendFailureLog(resolved, record) {
+  const MAX_LOG = 200;
+  try {
+    const p = failureLogPath(resolved);
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    let log = [];
+    try {
+      const parsed = JSON.parse(fs.readFileSync(p, 'utf8'));
+      if (Array.isArray(parsed)) log = parsed;
+      else if (parsed && Array.isArray(parsed.failures)) log = parsed.failures;
+    } catch (_e) { log = []; }
+    log.push(record);
+    if (log.length > MAX_LOG) log = log.slice(log.length - MAX_LOG);
+    const tmp = p + '.tmp-' + process.pid + '-' + Date.now().toString(36);
+    fs.writeFileSync(tmp, JSON.stringify({ failures: log }, null, 2));
+    fs.renameSync(tmp, p);
+  } catch (_e) {
+    /* advisory: a failed log write must never block the drain. */
+  }
+}
+
+// The success-vs-failure-aware queue reconciler (Defect 4a). Re-reads the queue
+// (so entries a live session enqueued DURING the drain window are preserved),
+// then per current entry:
+//   - matches a SUCCEEDED snapshot entry  -> DROP (drained OK; the existing
+//     round-trip clear contract).
+//   - matches a FAILED snapshot entry     -> bump `failures`; if it hit
+//     MAX_DERIVE_ATTEMPTS, DROP it with a permanent-failure log record, else
+//     KEEP it (retry next drain) with the bumped counter; either way append a
+//     failure record.
+//   - matches neither (live-enqueued in the window) -> KEEP untouched.
+// Written ATOMICALLY via sweep.writeQueue. Returns the kept count. Best-effort:
+// a failed reconcile means the next drain re-attempts (idempotent, keys stable).
+function reconcileQueue(resolved, succeededEntries, failedEntries) {
+  try {
+    const entryKey = (e) => [
+      path.resolve((e && e.roomDir) || ''),
+      (e && typeof e.filePath === 'string' && e.filePath.length > 0) ? path.resolve(e.filePath) : '',
+      (e && e.enqueued_at) || '',
+    ].join('|');
+
+    const succeededKeys = new Set(
+      (Array.isArray(succeededEntries) ? succeededEntries : []).map(entryKey)
+    );
+    const failedByKey = new Map();
+    for (const f of (Array.isArray(failedEntries) ? failedEntries : [])) {
+      if (f && f.entry) failedByKey.set(entryKey(f.entry), f);
+    }
+
+    const current = sweep.readQueue(resolved);
+    const currentEntries = Array.isArray(current.entries) ? current.entries : [];
+    const kept = [];
+    const nowIso = new Date().toISOString();
+
+    for (const e of currentEntries) {
+      const k = entryKey(e);
+      if (succeededKeys.has(k)) { continue; } // drained OK -> clear.
+      if (failedByKey.has(k)) {
+        const f = failedByKey.get(k);
+        const priorFailures = (e && Number.isFinite(e.failures)) ? e.failures : 0;
+        const failures = priorFailures + 1;
+        const permanent = failures >= MAX_DERIVE_ATTEMPTS;
+        appendFailureLog(resolved, {
+          roomDir: path.resolve((e && e.roomDir) || resolved),
+          filePath: (e && typeof e.filePath === 'string' && e.filePath.length > 0)
+            ? path.basename(e.filePath) : null,
+          enqueued_at: (e && e.enqueued_at) || null,
+          failures: failures,
+          error: scalarError(f && f.error),
+          last_attempt: nowIso,
+          permanent: permanent,
+        });
+        if (permanent) { continue; } // capped -> give up; the log carries the signal.
+        kept.push(Object.assign({}, e, { failures: failures, last_failure_at: nowIso }));
+        continue;
+      }
+      kept.push(e); // live-enqueued during the window -> keep untouched.
+    }
+
     sweep.writeQueue(resolved, { entries: kept });
     return kept.length;
   } catch (_e) {
@@ -247,6 +370,10 @@ async function drainScoreBased(resolved, entries, options, result) {
       return result;
     }
 
+    // Defect 4a: partition the snapshot into SUCCEEDED (clear) vs FAILED (keep +
+    // log + cap). The old code pushed a thrown room to `drained` and cleared it.
+    const succeeded = [];
+    const failed = [];
     for (const entry of entries) {
       const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
       if (!target) { continue; }
@@ -287,13 +414,17 @@ async function drainScoreBased(resolved, entries, options, result) {
           discloseSkip(target, entry, encoderFailedPairs);
         }
         result.drained.push(target);
-      } catch (_e) {
-        // a faulting room is still dropped from the queue (the backfill is the net).
-        result.drained.push(target);
+        succeeded.push(entry);
+      } catch (e) {
+        // Defect 4a: a faulting room is KEPT for the next drain (retry signal
+        // survives) and the failure is LOGGED -- never a silent drop.
+        if (!Array.isArray(result.failed)) result.failed = [];
+        result.failed.push(target);
+        failed.push({ entry: entry, error: e });
       }
     }
 
-    result.remaining = clearQueue(resolved, entries);
+    result.remaining = reconcileQueue(resolved, succeeded, failed);
     return result;
   } finally {
     releaseDrainLock(lockPath);
@@ -323,7 +454,7 @@ async function drainScoreBased(resolved, entries, options, result) {
  */
 function drainDerive(roomDir, opts) {
   const options = opts || {};
-  const result = { ok: true, drained: [], remaining: 0 };
+  const result = { ok: true, drained: [], remaining: 0, failed: [] };
   if (typeof roomDir !== 'string' || roomDir.length === 0) {
     result.ok = false;
     return result;
@@ -344,19 +475,26 @@ function drainDerive(roomDir, opts) {
   // legacy call shape, NO encoder probe). This is the ONLY path the Phase-169
   // round-trip test (tests/test-graph-derive-sweep.cjs) exercises.
   if (typeof options.deriveRunner === 'function') {
+    // Defect 4a: SUCCEEDED entries clear; a THROWN entry is kept + logged.
+    const succeeded = [];
+    const failed = [];
     for (const entry of entries) {
       const target = entry && typeof entry.roomDir === 'string' ? entry.roomDir : '';
       if (!target) { continue; }
       try {
         options.deriveRunner({ roomDir: target });
         result.drained.push(target);
-      } catch (_e) {
-        result.drained.push(target);
+        succeeded.push(entry);
+      } catch (e) {
+        if (!Array.isArray(result.failed)) result.failed = [];
+        result.failed.push(target);
+        failed.push({ entry: entry, error: e });
       }
     }
-    // Snapshot-scoped clear (never a blanket wipe): entries enqueued during the
-    // drain window survive for the next drain.
-    result.remaining = clearQueue(resolved, entries);
+    // Success-vs-failure-aware reconcile (never a blanket wipe): succeeded entries
+    // clear, failed entries are kept for retry (capped), and entries enqueued
+    // during the drain window survive.
+    result.remaining = reconcileQueue(resolved, succeeded, failed);
     return result;
   }
 
@@ -413,7 +551,7 @@ async function main() {
   process.exit(0);
 }
 
-module.exports = { drainDerive };
+module.exports = { drainDerive, MAX_DERIVE_ATTEMPTS, failureLogPath };
 
 if (require.main === module) {
   main();

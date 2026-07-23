@@ -75,4 +75,69 @@ check('a second drain on the cleared queue is a no-op (nothing left to derive)',
   assert.equal(calls, 0, 'an empty queue drains to a no-op (no runDerivation call)');
 });
 
-console.log(`\nPASS (${pass}/4)`);
+// --- RCA graph-derive-silent-clear Defect 4a: keep-on-failure + failure log. ---
+// The old drain pushed a THROWN room to `drained` and cleared its queue entry
+// silently, destroying the retry signal. These cases prove the fix: a failing
+// derive KEEPS the entry, records result.failed, writes a failure log, retries
+// on the next drain, and only drops after MAX_DERIVE_ATTEMPTS.
+
+// A fresh room so the failure state does not bleed into the round-trip checks.
+const failRoom = path.join(tmp, 'fail-room');
+fs.mkdirSync(failRoom, { recursive: true });
+fs.writeFileSync(path.join(failRoom, '.room-root'), JSON.stringify({ slug: 'fail-room' }));
+
+check('a THROWING deriveRunner KEEPS the queue entry (retry signal survives)', () => {
+  sweep.enqueueDerive(failRoom);
+  const res = drain.drainDerive(failRoom, {
+    deriveRunner() { throw new Error('boom: encoder cold-load failed'); },
+  });
+  assert.ok(res && res.ok, 'the drain still returns ok (soft-fail, never blocks)');
+  assert.ok(Array.isArray(res.failed) && res.failed.some(r => path.resolve(r) === path.resolve(failRoom)),
+    'the failed room must be reported in result.failed');
+  const q = sweep.readQueue(failRoom);
+  assert.equal(q.entries.length, 1, 'the failed entry must NOT be cleared (kept for retry)');
+  assert.equal(q.entries[0].failures, 1, 'the kept entry carries a bumped failures counter');
+});
+
+check('the failure is written to the room-local failure log (never silent)', () => {
+  const logPath = drain.failureLogPath(failRoom);
+  assert.ok(fs.existsSync(logPath), 'the failure log file must exist');
+  const log = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+  assert.ok(log && Array.isArray(log.failures) && log.failures.length >= 1, 'the log carries a failure record');
+  const rec = log.failures[log.failures.length - 1];
+  assert.equal(rec.failures, 1, 'the record shows attempt 1');
+  assert.equal(rec.permanent, false, 'attempt 1 is not permanent');
+  assert.ok(typeof rec.error === 'string' && rec.error.includes('boom'), 'the record carries the (scalar) error');
+});
+
+check('a subsequent SUCCEEDING drain clears the kept entry (retry works)', () => {
+  const res = drain.drainDerive(failRoom, {
+    deriveRunner() { return { proposedNodes: [], edges: [] }; },
+  });
+  assert.ok(res && res.ok, 'the retry drain succeeds');
+  const q = sweep.readQueue(failRoom);
+  assert.equal(q.entries.length, 0, 'a successful retry clears the entry');
+});
+
+check('the retry cap drops a permanently-failing entry after MAX_DERIVE_ATTEMPTS', () => {
+  const capRoom = path.join(tmp, 'cap-room');
+  fs.mkdirSync(capRoom, { recursive: true });
+  fs.writeFileSync(path.join(capRoom, '.room-root'), JSON.stringify({ slug: 'cap-room' }));
+  // Seed an entry already at the last allowed attempt (MAX - 1). The next failing
+  // drain reaches MAX and must DROP the entry with a permanent-failure record.
+  const seeded = {
+    roomDir: path.resolve(capRoom),
+    enqueued_at: new Date().toISOString(),
+    failures: drain.MAX_DERIVE_ATTEMPTS - 1,
+  };
+  sweep.writeQueue(capRoom, { entries: [seeded] });
+  drain.drainDerive(capRoom, { deriveRunner() { throw new Error('still broken'); } });
+  const q = sweep.readQueue(capRoom);
+  assert.equal(q.entries.length, 0, 'a capped entry is dropped (no infinite retry)');
+  const log = JSON.parse(fs.readFileSync(drain.failureLogPath(capRoom), 'utf8'));
+  const rec = log.failures[log.failures.length - 1];
+  assert.equal(rec.failures, drain.MAX_DERIVE_ATTEMPTS, 'the final record shows MAX_DERIVE_ATTEMPTS');
+  assert.equal(rec.permanent, true, 'the final record is marked permanent');
+});
+
+console.log(`\nPASS (${pass}/${pass})`);
