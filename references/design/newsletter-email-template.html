@@ -1,12 +1,18 @@
 <!--
   ============================================================================
-  MINDRIANOS NEWSLETTER EMAIL - CANONICAL TEMPLATE (the DARK challenge-email canon)
+  MINDRIANOS NEWSLETTER EMAIL - CANONICAL TEMPLATE (M:OS Canonical Design System v1.1, cream)
   ============================================================================
   Canonizes the real shipped format (newsletter-04), redesigned 2026-07-23 (quick
   task 260723-ooq) to break the monotone left-border-card repetition with full-bleed
   Mondrian panels, add a real hero-image slot, and design the headline for the real
-  bold-Arial fallback (Impact is almost never installed). This is the reusable
-  template for every newsletter challenge email to API-key holders.
+  bold-Arial fallback (Impact is almost never installed). Re-skinned 2026-07-23
+  (quick task 260723-rln) from the retired DARK canon to the cream M:OS Canonical
+  Design System v1.1 that governs every other HTML surface in this repo (decks,
+  dashboards, wiki, exports, snapshots, hub/lobby) -- the terminal-island precedent
+  (challenge-seed box + command-chain box) is the one intentional exception that
+  stays dark, matching the website's own "dark is reserved for terminal islands
+  only" rule. This is the reusable template for every newsletter challenge email
+  to API-key holders.
   Companion: references/design/email-template-standard.md (the component rules,
   kept in sync with THIS file - this file is canonical, the .md is derived).
 
@@ -16,10 +22,12 @@
     3. Run the 11-item check at the bottom before sending.
     4. Recipients = active brain_api_keys (NOT cohort testers).
 
-  HARD RULES (DARK canon)
+  HARD RULES (cream M:OS canon)
     - dir="ltr" on the outer table; text-align:left on EVERY content element.
       Center ONLY: the top/bottom Mondrian bars and the gold READ-THE-STORY button text.
-    - 640px fixed width. Background #0D0D0D. Surface cards #1A1A1A.
+    - 640px fixed width. Background #F4F2EC. Surface cards #FBFAF7. The two
+      terminal-island blocks (challenge-seed box, command-chain box) are the sole
+      exception and keep #0C0C0D dark backgrounds (D-01).
     - Inline styles ONLY. NO <style> block (email clients strip it). NO web fonts
       (Impact / Arial Black / Helvetica / Arial / Courier only). NO background images.
     - NO border-radius (hard rectangles, De Stijl). NO emoji. NO em-dashes (use hyphens).
@@ -29,83 +37,94 @@
     - Feynman copy: plain words, "who cares / why" on every feature. No jargon dumps.
     - Hero image src is a real public HTTPS URL (never local/scratchpad/data:).
 
-  DE STIJL PALETTE
-    Red #D40000 | Yellow #FFD500 | Blue #0033A0 | Gold/OS #C8A43C
-    Cream #F5F0E8 | Surface #1A1A1A | Black #111111 | Background #0D0D0D | Muted #999999
+  DE STIJL PALETTE (cream M:OS Canonical Design System v1.1, hex verbatim from
+  skills/ui-system/design-system/mos-design-system.css)
+    Red #E11D22 | Yellow #FFC400 | Blue #1E52E0 | Gold/OS #C8A43C (restricted role - see below)
+    Paper #F4F2EC | Panel #FBFAF7 | Ink #0C0C0D | Muted #5B5B5B
+    Terminal-island token (D-01, theme-independent, matches pre.code): bg #0C0C0D, text #E8E8E2
+    Gold #C8A43C is now restricted to (a) background fills with dark ink text on top
+    (READ THE STORY button, CHALLENGE tab) and (b) text ONLY inside the two locked
+    terminal-island blocks (command-chain command names, seed-box border accent).
+    Every other TEXT usage of gold is blue #1E52E0 (fails WCAG AA as text on cream
+    at 2.13:1; blue passes at 5.62:1 and is M:OS's own semantic link color).
 
   SECTION ORDER (fixed, 13 sections - hero image is new section 5)
     1 Top Mondrian bar             8 STEP 0 update callout (full-bleed red panel)
     2 Logo row                     9 What's-new cards (3, full-bleed/top-cap panels)
     3 Headline (1 highlight)      10 The challenge + copy-paste seed (gold tab header)
-    4 Lede (the why, Feynman)     11 The command chain (gold cmd + cream gloss + docs link)
-    5 Hero image (NEW)            12 Triple-feature related links (full-bleed black panel)
+    4 Lede (the why, Feynman)     11 The command chain (gold cmd + terminal gloss + docs link)
+    5 Hero image (NEW)            12 Triple-feature related links (full-bleed ink panel)
     6 READ THE STORY button       13 Reply CTA + sign-off (person + website)
     7 (divider)                   14 Bottom Mondrian bar (mirror of top)
   ============================================================================
 -->
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-<body style="margin:0;padding:0;background-color:#0D0D0D;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0D0D0D;">
+<body style="margin:0;padding:0;background-color:#F4F2EC;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F4F2EC;">
 <tr><td style="padding:0;">
 <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:640px;">
 
 <!-- 1. TOP MONDRIAN BAR -->
 <tr><td style="padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="38%" height="10" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="8%" height="10" style="background-color:#111111;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="22%" height="10" style="background-color:#FFD500;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="6%" height="10" style="background-color:#111111;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="26%" height="10" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="38%" height="10" style="background-color:#E11D22;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="8%" height="10" style="background-color:#0C0C0D;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="22%" height="10" style="background-color:#FFC400;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="6%" height="10" style="background-color:#0C0C0D;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="26%" height="10" style="background-color:#1E52E0;font-size:1px;line-height:1px;">&nbsp;</td>
 </tr></table>
 </td></tr>
 
 <!-- 2. LOGO ROW -->
 <tr><td style="padding:26px 32px 6px 32px;text-align:left;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-<td style="background-color:#D40000;width:14px;height:14px;font-size:1px;line-height:1px;">&nbsp;</td>
+<td style="background-color:#E11D22;width:14px;height:14px;font-size:1px;line-height:1px;">&nbsp;</td>
 <td style="width:6px;font-size:1px;">&nbsp;</td>
-<td style="background-color:#FFD500;width:14px;height:14px;font-size:1px;line-height:1px;">&nbsp;</td>
+<td style="background-color:#FFC400;width:14px;height:14px;font-size:1px;line-height:1px;">&nbsp;</td>
 <td style="width:6px;font-size:1px;">&nbsp;</td>
-<td style="background-color:#0033A0;width:14px;height:14px;font-size:1px;line-height:1px;">&nbsp;</td>
+<td style="background-color:#1E52E0;width:14px;height:14px;font-size:1px;line-height:1px;">&nbsp;</td>
 <td style="width:14px;font-size:1px;">&nbsp;</td>
-<td style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:24px;letter-spacing:2px;color:#F5F0E8;text-align:left;">MINDRIAN<span style="color:#C8A43C;">OS</span></td>
+<td style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:24px;letter-spacing:2px;color:#0C0C0D;text-align:left;">MINDRIAN<span style="color:#1E52E0;">OS</span></td>
 </tr></table>
 </td></tr>
 
 <!-- 3. HEADLINE (exactly one yellow-highlighted phrase). Color-block treatment: thin
-     blue cap band directly above the headline row, plus warm-black field extending
+     blue cap band directly above the headline row, plus full-bleed ink field extending
      behind it, so the graphic punch comes from color-blocking, not from a typeface
-     most inboxes will only ever render as plain bold Arial (Impact is rarely installed). -->
+     most inboxes will only ever render as plain bold Arial (Impact is rarely installed).
+     The headline field is a De Stijl full-bleed dark panel and KEEPS its dark polarity
+     even on the cream page - text on it stays light. -->
 <tr><td style="padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td height="4" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
+<td height="4" style="background-color:#1E52E0;font-size:1px;line-height:1px;">&nbsp;</td>
 </tr></table>
 </td></tr>
-<tr><td style="background-color:#111111;padding:20px 32px 18px 32px;text-align:left;">
-<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:38px;font-weight:900;letter-spacing:-0.01em;line-height:1.1;color:#F5F0E8;text-align:left;">{{HEADLINE_PRE}} <span style="color:#FFD500;">{{HEADLINE_HIGHLIGHT}}</span></div>
+<tr><td style="background-color:#0C0C0D;padding:20px 32px 18px 32px;text-align:left;">
+<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:38px;font-weight:900;letter-spacing:-0.01em;line-height:1.1;color:#F4F2EC;text-align:left;">{{HEADLINE_PRE}} <span style="color:#FFC400;">{{HEADLINE_HIGHLIGHT}}</span></div>
 </td></tr>
 
 <!-- 4. LEDE (the "why should we care", Feynman; 1-2 short paragraphs) -->
 <tr><td style="padding:20px 32px 0 32px;text-align:left;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#F5F0E8;text-align:left;">{{LEDE_1}}</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#0C0C0D;text-align:left;">{{LEDE_1}}</div>
 </td></tr>
 <tr><td style="padding:14px 32px 0 32px;text-align:left;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#F5F0E8;text-align:left;">{{LEDE_2}}</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#0C0C0D;text-align:left;">{{LEDE_2}}</div>
 </td></tr>
 
-<!-- 5. HERO IMAGE (NEW; hard-rectangle cream border, no border-radius; real public HTTPS src required) -->
+<!-- 5. HERO IMAGE (NEW; hard-rectangle ink border, no border-radius; real public HTTPS src
+     required; D-02: border flips cream->ink against the cream page, image asset untouched) -->
 <tr><td style="padding:22px 32px 0 32px;text-align:left;">
-<img src="{{HERO_IMAGE_URL}}" alt="{{HERO_IMAGE_ALT}}" width="576" height="324" style="display:block;width:100%;max-width:576px;border:2px solid #F5F0E8;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#999999;text-align:left;padding-top:8px;">{{HERO_IMAGE_CAPTION}}</div>
+<img src="{{HERO_IMAGE_URL}}" alt="{{HERO_IMAGE_ALT}}" width="576" height="324" style="display:block;width:100%;max-width:576px;border:2px solid #0C0C0D;">
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#5B5B5B;text-align:left;padding-top:8px;">{{HERO_IMAGE_CAPTION}}</div>
 </td></tr>
 
-<!-- 6. READ THE STORY (gold button -> the blog editorial; website link #1) -->
+<!-- 6. READ THE STORY (gold button -> the blog editorial; website link #1; gold KEPT as a
+     background fill with dark ink text on top, 8.76:1, passes AA easily) -->
 <tr><td style="padding:22px 32px 6px 32px;text-align:left;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
 <td style="background-color:#C8A43C;padding:13px 26px;text-align:left;">
-<a href="https://mindrian-os.com/blog/{{STORY_SLUG}}" style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:16px;letter-spacing:1px;color:#0D0D0D;text-decoration:none;">READ THE STORY</a>
+<a href="https://mindrian-os.com/blog/{{STORY_SLUG}}" style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:16px;letter-spacing:1px;color:#0C0C0D;text-decoration:none;">READ THE STORY</a>
 </td>
 </tr></table>
 </td></tr>
@@ -113,134 +132,143 @@
 <!-- 7. divider -->
 <tr><td style="padding:24px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="70%" height="4" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="30%" height="4" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="70%" height="4" style="background-color:#E11D22;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="30%" height="4" style="background-color:#1E52E0;font-size:1px;line-height:1px;">&nbsp;</td>
 </tr></table>
 </td></tr>
 
-<!-- 8. STEP 0 UPDATE CALLOUT (MANDATORY; genuine full-bleed #D40000 red panel, cream
-     text sitting directly on the red field - a real alert block, not a rail-on-card) -->
+<!-- 8. STEP 0 UPDATE CALLOUT (MANDATORY; genuine full-bleed #E11D22 red panel, paper
+     text sitting directly on the red field - a real alert block, not a rail-on-card;
+     full-bleed dark panel keeps its dark polarity, text stays light) -->
 <tr><td style="padding:24px 32px 0 32px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#D40000;"><tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#E11D22;"><tr>
 <td style="padding:18px 20px;text-align:left;">
-<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:18px;color:#F5F0E8;text-align:left;">STEP 0: UPDATE FIRST. THIS TIME IT IS THE POINT.</div>
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#F5F0E8;padding-top:8px;text-align:left;">Run <span style="font-family:Courier,Consolas,monospace;color:#F5F0E8;font-weight:bold;">/mos:update</span> in Claude Code, then restart your session. {{UPDATE_NOTE_NAMING_VERSION}} The challenge below leans on the newest routing, so update before you paste.</div>
+<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:18px;color:#F4F2EC;text-align:left;">STEP 0: UPDATE FIRST. THIS TIME IT IS THE POINT.</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#F4F2EC;padding-top:8px;text-align:left;">Run <span style="font-family:Courier,Consolas,monospace;color:#F4F2EC;font-weight:bold;">/mos:update</span> in Claude Code, then restart your session. {{UPDATE_NOTE_NAMING_VERSION}} The challenge below leans on the newest routing, so update before you paste.</div>
 </td>
 </tr></table>
 </td></tr>
 
 <!-- 9. WHAT IS NEW, IN PLAIN WORDS (3 cards; differentiated panels, not 3 identical rails) -->
 <tr><td style="padding:26px 32px 0 32px;text-align:left;">
-<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:20px;color:#F5F0E8;text-align:left;">WHAT IS NEW IN MINDRIAN, IN PLAIN WORDS</div>
+<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:20px;color:#0C0C0D;text-align:left;">WHAT IS NEW IN MINDRIAN, IN PLAIN WORDS</div>
 </td></tr>
 
-<!-- card 1 (headline/most important): #1A1A1A surface + full-width #FFD500 4px top-cap band -->
+<!-- card 1 (headline/most important): #FBFAF7 panel surface + full-width #FFC400 4px top-cap band -->
 <tr><td style="padding:14px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td height="4" style="background-color:#FFD500;font-size:1px;line-height:1px;">&nbsp;</td>
+<td height="4" style="background-color:#FFC400;font-size:1px;line-height:1px;">&nbsp;</td>
 </tr></table>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#1A1A1A;"><tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FBFAF7;"><tr>
 <td style="padding:16px 20px;text-align:left;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;"><strong>{{WHATSNEW_1_HEAD}}</strong> {{WHATSNEW_1_BODY_with_who-cares_and_why}}</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#0C0C0D;text-align:left;"><strong>{{WHATSNEW_1_HEAD}}</strong> {{WHATSNEW_1_BODY_with_who-cares_and_why}}</div>
 </td>
 </tr></table>
 </td></tr>
 
-<!-- card 2: genuine full-bleed #0033A0 blue panel, cream text directly on the blue field -->
+<!-- card 2: genuine full-bleed #1E52E0 blue panel, paper text directly on the blue field
+     (full-bleed dark/saturated panel keeps its polarity, text stays light) -->
 <tr><td style="padding:10px 32px 0 32px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0033A0;"><tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#1E52E0;"><tr>
 <td style="padding:16px 20px;text-align:left;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;"><strong>{{WHATSNEW_2_HEAD}}</strong> {{WHATSNEW_2_BODY}}</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F4F2EC;text-align:left;"><strong>{{WHATSNEW_2_HEAD}}</strong> {{WHATSNEW_2_BODY}}</div>
 </td>
 </tr></table>
 </td></tr>
 
-<!-- card 3: #1A1A1A surface + full-width #D40000 4px top-cap band -->
+<!-- card 3: #FBFAF7 panel surface + full-width #E11D22 4px top-cap band -->
 <tr><td style="padding:10px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td height="4" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
+<td height="4" style="background-color:#E11D22;font-size:1px;line-height:1px;">&nbsp;</td>
 </tr></table>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#1A1A1A;"><tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FBFAF7;"><tr>
 <td style="padding:16px 20px;text-align:left;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;"><strong>{{WHATSNEW_3_HEAD}}</strong> {{WHATSNEW_3_BODY}}</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#0C0C0D;text-align:left;"><strong>{{WHATSNEW_3_HEAD}}</strong> {{WHATSNEW_3_BODY}}</div>
 </td>
 </tr></table>
 </td></tr>
 
 <!-- 10. THE CHALLENGE + COPY-PASTE SEED (small full-bleed gold tab/flag on the section
-      header, echoing the logo row's colored squares, instead of plain text; Courier
-      gold-left-border box below is already differentiated by its monospace treatment) -->
+      header, echoing the logo row's colored squares, instead of plain text; the Courier
+      seed box below is a locked terminal-island block, D-01 -- keeps its dark
+      #0C0C0D background, gold left-border accent, and #E8E8E2 terminal text token) -->
 <tr><td style="padding:30px 32px 0 32px;text-align:left;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-<td style="background-color:#C8A43C;padding:4px 10px;text-align:left;"><div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:12px;letter-spacing:1px;color:#0D0D0D;text-align:left;">CHALLENGE</div></td>
+<td style="background-color:#C8A43C;padding:4px 10px;text-align:left;"><div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:12px;letter-spacing:1px;color:#0C0C0D;text-align:left;">CHALLENGE</div></td>
 </tr></table>
-<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:20px;color:#F5F0E8;text-align:left;padding-top:10px;">{{CHALLENGE_TITLE}}</div>
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;padding-top:8px;text-align:left;">{{CHALLENGE_INTRO}}</div>
+<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:20px;color:#0C0C0D;text-align:left;padding-top:10px;">{{CHALLENGE_TITLE}}</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#0C0C0D;padding-top:8px;text-align:left;">{{CHALLENGE_INTRO}}</div>
 </td></tr>
 <tr><td style="padding:18px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td style="background-color:#1A1A1A;border-left:4px solid #C8A43C;padding:18px 20px;text-align:left;">
-<div style="font-family:Courier,Consolas,monospace;font-size:12px;line-height:1.7;color:#F5F0E8;text-align:left;">{{SEED_PROMPT_with_[BRACKETED]_fill-ins_and_<br><br>_between_paragraphs}}</div>
+<td style="background-color:#0C0C0D;border-left:4px solid #C8A43C;padding:18px 20px;text-align:left;">
+<div style="font-family:Courier,Consolas,monospace;font-size:12px;line-height:1.7;color:#E8E8E2;text-align:left;">{{SEED_PROMPT_with_[BRACKETED]_fill-ins_and_<br><br>_between_paragraphs}}</div>
 </td>
 </tr></table>
 </td></tr>
 
-<!-- 11. THE COMMAND CHAIN (gold cmd + cream gloss; docs link = website link #2) -->
+<!-- 11. THE COMMAND CHAIN (gold cmd + terminal gloss text; docs link = website link #2.
+      Locked terminal-island block (D-01) -- keeps its dark #0C0C0D background, gold
+      command-name text, and #E8E8E2 gloss/caption text token. The docs link is a
+      hyperlink and takes the universal link-blue like every other link in the system. ) -->
 <tr><td style="padding:22px 32px 0 32px;text-align:left;">
-<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:16px;color:#F5F0E8;text-align:left;">THEN RUN THE CHAIN</div>
+<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:16px;color:#0C0C0D;text-align:left;">THEN RUN THE CHAIN</div>
 </td></tr>
 <tr><td style="padding:10px 32px 0 32px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#1A1A1A;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0C0C0D;">
 <tr><td style="padding:14px 20px 4px 20px;font-family:Courier,Consolas,monospace;font-size:13px;line-height:2;color:#C8A43C;text-align:left;">
-{{MOS_CMD_1}}<span style="color:#F5F0E8;"> &nbsp;{{CMD_1_GLOSS}}</span><br>
-{{MOS_CMD_2}}<span style="color:#F5F0E8;"> &nbsp;{{CMD_2_GLOSS}}</span><br>
-{{MOS_CMD_3}}<span style="color:#F5F0E8;"> &nbsp;{{CMD_3_GLOSS}}</span><br>
-{{MOS_CMD_4}}<span style="color:#F5F0E8;"> &nbsp;{{CMD_4_GLOSS}}</span><br>
-{{MOS_CMD_5}}<span style="color:#F5F0E8;"> &nbsp;{{CMD_5_GLOSS}}</span><br>
-{{MOS_CMD_6}}<span style="color:#F5F0E8;"> &nbsp;{{CMD_6_GLOSS}}</span>
+{{MOS_CMD_1}}<span style="color:#E8E8E2;"> &nbsp;{{CMD_1_GLOSS}}</span><br>
+{{MOS_CMD_2}}<span style="color:#E8E8E2;"> &nbsp;{{CMD_2_GLOSS}}</span><br>
+{{MOS_CMD_3}}<span style="color:#E8E8E2;"> &nbsp;{{CMD_3_GLOSS}}</span><br>
+{{MOS_CMD_4}}<span style="color:#E8E8E2;"> &nbsp;{{CMD_4_GLOSS}}</span><br>
+{{MOS_CMD_5}}<span style="color:#E8E8E2;"> &nbsp;{{CMD_5_GLOSS}}</span><br>
+{{MOS_CMD_6}}<span style="color:#E8E8E2;"> &nbsp;{{CMD_6_GLOSS}}</span>
 </td></tr>
-<tr><td style="padding:0 20px 14px 20px;font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#F5F0E8;text-align:left;">Every command is documented in the <a href="https://mindrian-os.com/docs" style="color:#C8A43C;text-decoration:underline;">catalog at mindrian-os.com/docs</a>.</td></tr>
+<tr><td style="padding:0 20px 14px 20px;font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#E8E8E2;text-align:left;">Every command is documented in the <a href="https://mindrian-os.com/docs" style="color:#1E52E0;text-decoration:underline;">catalog at mindrian-os.com/docs</a>.</td></tr>
 </table>
 </td></tr>
 
-<!-- 12. TRIPLE-FEATURE related links: genuine full-bleed #111111 warm-black panel,
-      bordered top and bottom by thin 3px red/yellow/blue strips, bookending the content
-      body the same way the top/bottom Mondrian bars bookend the whole email -->
+<!-- 12. TRIPLE-FEATURE related links: genuine full-bleed #0C0C0D ink panel, De Stijl
+      accent square (bordered top and bottom by thin 3px red/yellow/blue strips),
+      bookending the content body the same way the top/bottom Mondrian bars bookend
+      the whole email. Full-bleed dark panel keeps its dark polarity, text stays light,
+      and its gold blog links switch to blue per the gold-text rule (drafted-instance
+      content only; this template's own placeholder body reuses the same rule). -->
 <tr><td style="padding:26px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="34%" height="3" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="33%" height="3" style="background-color:#FFD500;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="33%" height="3" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="34%" height="3" style="background-color:#E11D22;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="33%" height="3" style="background-color:#FFC400;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="33%" height="3" style="background-color:#1E52E0;font-size:1px;line-height:1px;">&nbsp;</td>
 </tr></table>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111111;"><tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0C0C0D;"><tr>
 <td style="padding:16px 20px;text-align:left;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;"><strong>{{TRIPLE_FEATURE_LEAD}}</strong> {{TRIPLE_FEATURE_BODY_with_3_blog_links_color_#C8A43C}}</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F4F2EC;text-align:left;"><strong>{{TRIPLE_FEATURE_LEAD}}</strong> {{TRIPLE_FEATURE_BODY_with_3_blog_links_color_#1E52E0}}</div>
 </td>
 </tr></table>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="34%" height="3" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="33%" height="3" style="background-color:#FFD500;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="33%" height="3" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="34%" height="3" style="background-color:#1E52E0;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="33%" height="3" style="background-color:#FFC400;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="33%" height="3" style="background-color:#E11D22;font-size:1px;line-height:1px;">&nbsp;</td>
 </tr></table>
 </td></tr>
 
 <!-- 13. REPLY CTA + SIGN-OFF (person + website link #3) -->
 <tr><td style="padding:24px 32px 0 32px;text-align:left;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;">{{REPLY_CTA}}</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#0C0C0D;text-align:left;">{{REPLY_CTA}}</div>
 </td></tr>
 <tr><td style="padding:22px 32px 28px 32px;text-align:left;">
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#F5F0E8;text-align:left;">{{SENDER_NAME}}<br>
-<span style="color:#999999;">MindrianOS - <a href="https://mindrian-os.com" style="color:#C8A43C;text-decoration:underline;">mindrian-os.com</a></span></div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#0C0C0D;text-align:left;">{{SENDER_NAME}}<br>
+<span style="color:#5B5B5B;">MindrianOS - <a href="https://mindrian-os.com" style="color:#1E52E0;text-decoration:underline;">mindrian-os.com</a></span></div>
 </td></tr>
 
 <!-- 14. BOTTOM MONDRIAN BAR (mirror of top) -->
 <tr><td style="padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="26%" height="10" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="8%" height="10" style="background-color:#111111;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="22%" height="10" style="background-color:#FFD500;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="6%" height="10" style="background-color:#111111;font-size:1px;line-height:1px;">&nbsp;</td>
-<td width="38%" height="10" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="26%" height="10" style="background-color:#1E52E0;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="8%" height="10" style="background-color:#0C0C0D;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="22%" height="10" style="background-color:#FFC400;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="6%" height="10" style="background-color:#0C0C0D;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="38%" height="10" style="background-color:#E11D22;font-size:1px;line-height:1px;">&nbsp;</td>
 </tr></table>
 </td></tr>
 
@@ -255,17 +283,20 @@
   11-ITEM SEND CHECK (run every issue before sending)
   ============================================================================
    1. dir="ltr" + text-align:left on every content element (center only the bars + button text).
-   2. 640px width, #0D0D0D bg, inline styles only, NO <style> block, NO web fonts.
+   2. 640px width, #F4F2EC bg (the two terminal-island blocks stay #0C0C0D), inline styles
+      only, NO <style> block, NO web fonts.
    3. NO border-radius, NO emoji, NO em-dashes (hyphens only), NO background images.
-   4. Headline has exactly ONE yellow-highlighted phrase. Logo is MINDRIAN + gold OS.
+   4. Headline has exactly ONE yellow-highlighted phrase. Logo is MINDRIAN + blue OS.
    5. STEP 0 update callout present AND names the real released version (e.g. v1.15.3-beta.44).
    6. Each what's-new card is plain words with who-cares + why (Feynman). Panels differentiated
       (full-bleed color panel or top-cap band), not 3 identical rails.
-   7. The challenge seed is in the gold-left-border Courier box, with [BRACKETED] fill-ins.
+   7. The challenge seed is in the gold-left-border Courier box (terminal island, stays dark),
+      with [BRACKETED] fill-ins.
    8. The command chain uses real /mos: commands that resolve in the catalog; docs link present.
    9. mindrian-os.com appears 3+ times (hero caption/READ button, docs link, sign-off). Sender is a person.
   10. All blog links resolve to live /blog/<slug> pages. Triple-feature points at 3 real posts.
   11. Hero image has a real public HTTPS src (never local/scratchpad/data:), alt text present,
-      caption present, height attribute present and matching the image's actual aspect ratio.
+      caption present, height attribute present and matching the image's actual aspect ratio,
+      border flipped to #0C0C0D ink (D-02).
   ============================================================================
 -->
