@@ -2,14 +2,18 @@
   ============================================================================
   MINDRIANOS NEWSLETTER EMAIL - CANONICAL TEMPLATE (the DARK challenge-email canon)
   ============================================================================
-  Canonizes the real shipped format (newsletter-04). This is the reusable
+  Canonizes the real shipped format (newsletter-04), redesigned 2026-07-23 (quick
+  task 260723-ooq) to break the monotone left-border-card repetition with full-bleed
+  Mondrian panels, add a real hero-image slot, and design the headline for the real
+  bold-Arial fallback (Impact is almost never installed). This is the reusable
   template for every newsletter challenge email to API-key holders.
-  Companion: references/design/email-template-standard.md (the component rules).
+  Companion: references/design/email-template-standard.md (the component rules,
+  kept in sync with THIS file - this file is canonical, the .md is derived).
 
   HOW TO USE
     1. Copy this file. Replace every {{PLACEHOLDER}}.
     2. Keep the structure + section order below. Do not invent new sections.
-    3. Run the 10-item check at the bottom before sending.
+    3. Run the 11-item check at the bottom before sending.
     4. Recipients = active brain_api_keys (NOT cohort testers).
 
   HARD RULES (DARK canon)
@@ -20,21 +24,23 @@
       (Impact / Arial Black / Helvetica / Arial / Courier only). NO background images.
     - NO border-radius (hard rectangles, De Stijl). NO emoji. NO em-dashes (use hyphens).
     - Sender is always a PERSON (Jonathan / Larry), never "MindrianOS Team".
-    - Website link mindrian-os.com appears 3+ times (READ button, docs link, sign-off).
+    - Website link mindrian-os.com appears 3+ times (hero caption/READ button, docs link, sign-off).
     - STEP 0 update callout is MANDATORY every issue (the version is the point).
     - Feynman copy: plain words, "who cares / why" on every feature. No jargon dumps.
+    - Hero image src is a real public HTTPS URL (never local/scratchpad/data:).
 
   DE STIJL PALETTE
     Red #D40000 | Yellow #FFD500 | Blue #0033A0 | Gold/OS #C8A43C
     Cream #F5F0E8 | Surface #1A1A1A | Black #111111 | Background #0D0D0D | Muted #999999
 
-  SECTION ORDER (fixed)
-    1 Top Mondrian bar          7 What's-new cards (3, plain words, rotating accents)
-    2 Logo row                  8 The challenge + copy-paste seed (gold left-border)
-    3 Headline (1 highlight)     9 The command chain (gold cmd + cream gloss + docs link)
-    4 Lede (the why, Feynman)   10 Triple-feature related links (blue left-border)
-    5 READ THE STORY button     11 Reply CTA + sign-off (person + website)
-    6 STEP 0 update callout     12 Bottom Mondrian bar (mirror of top)
+  SECTION ORDER (fixed, 13 sections - hero image is new section 5)
+    1 Top Mondrian bar             8 STEP 0 update callout (full-bleed red panel)
+    2 Logo row                     9 What's-new cards (3, full-bleed/top-cap panels)
+    3 Headline (1 highlight)      10 The challenge + copy-paste seed (gold tab header)
+    4 Lede (the why, Feynman)     11 The command chain (gold cmd + cream gloss + docs link)
+    5 Hero image (NEW)            12 Triple-feature related links (full-bleed black panel)
+    6 READ THE STORY button       13 Reply CTA + sign-off (person + website)
+    7 (divider)                   14 Bottom Mondrian bar (mirror of top)
   ============================================================================
 -->
 <!DOCTYPE html>
@@ -68,20 +74,34 @@
 </tr></table>
 </td></tr>
 
-<!-- 3. HEADLINE (exactly one yellow-highlighted phrase) -->
-<tr><td style="padding:22px 32px 8px 32px;text-align:left;">
-<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:34px;line-height:1.15;color:#F5F0E8;text-align:left;">{{HEADLINE_PRE}} <span style="color:#FFD500;">{{HEADLINE_HIGHLIGHT}}</span></div>
+<!-- 3. HEADLINE (exactly one yellow-highlighted phrase). Color-block treatment: thin
+     blue cap band directly above the headline row, plus warm-black field extending
+     behind it, so the graphic punch comes from color-blocking, not from a typeface
+     most inboxes will only ever render as plain bold Arial (Impact is rarely installed). -->
+<tr><td style="padding:0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+<td height="4" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
+</tr></table>
+</td></tr>
+<tr><td style="background-color:#111111;padding:20px 32px 18px 32px;text-align:left;">
+<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:38px;font-weight:900;letter-spacing:-0.01em;line-height:1.1;color:#F5F0E8;text-align:left;">{{HEADLINE_PRE}} <span style="color:#FFD500;">{{HEADLINE_HIGHLIGHT}}</span></div>
 </td></tr>
 
 <!-- 4. LEDE (the "why should we care", Feynman; 1-2 short paragraphs) -->
-<tr><td style="padding:8px 32px 0 32px;text-align:left;">
+<tr><td style="padding:20px 32px 0 32px;text-align:left;">
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#F5F0E8;text-align:left;">{{LEDE_1}}</div>
 </td></tr>
 <tr><td style="padding:14px 32px 0 32px;text-align:left;">
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#F5F0E8;text-align:left;">{{LEDE_2}}</div>
 </td></tr>
 
-<!-- 5. READ THE STORY (gold button -> the blog editorial; website link #1) -->
+<!-- 5. HERO IMAGE (NEW; hard-rectangle cream border, no border-radius; real public HTTPS src required) -->
+<tr><td style="padding:22px 32px 0 32px;text-align:left;">
+<img src="{{HERO_IMAGE_URL}}" alt="{{HERO_IMAGE_ALT}}" width="576" style="display:block;width:100%;max-width:576px;border:2px solid #F5F0E8;">
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#999999;text-align:left;padding-top:8px;">{{HERO_IMAGE_CAPTION}}</div>
+</td></tr>
+
+<!-- 6. READ THE STORY (gold button -> the blog editorial; website link #1) -->
 <tr><td style="padding:22px 32px 6px 32px;text-align:left;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
 <td style="background-color:#C8A43C;padding:13px 26px;text-align:left;">
@@ -90,7 +110,7 @@
 </tr></table>
 </td></tr>
 
-<!-- divider -->
+<!-- 7. divider -->
 <tr><td style="padding:24px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td width="70%" height="4" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
@@ -98,49 +118,63 @@
 </tr></table>
 </td></tr>
 
-<!-- 6. STEP 0 UPDATE CALLOUT (MANDATORY; red left-border; name the version) -->
+<!-- 8. STEP 0 UPDATE CALLOUT (MANDATORY; genuine full-bleed #D40000 red panel, cream
+     text sitting directly on the red field - a real alert block, not a rail-on-card) -->
 <tr><td style="padding:24px 32px 0 32px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="6" style="background-color:#D40000;font-size:1px;">&nbsp;</td>
-<td style="background-color:#1A1A1A;padding:18px 20px;text-align:left;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#D40000;"><tr>
+<td style="padding:18px 20px;text-align:left;">
 <div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:18px;color:#F5F0E8;text-align:left;">STEP 0: UPDATE FIRST. THIS TIME IT IS THE POINT.</div>
-<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#F5F0E8;padding-top:8px;text-align:left;">Run <span style="font-family:Courier,Consolas,monospace;color:#C8A43C;">/mos:update</span> in Claude Code, then restart your session. {{UPDATE_NOTE_NAMING_VERSION_v1.15.0-beta.3}} The challenge below leans on the newest routing, so update before you paste.</div>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#F5F0E8;padding-top:8px;text-align:left;">Run <span style="font-family:Courier,Consolas,monospace;color:#F5F0E8;font-weight:bold;">/mos:update</span> in Claude Code, then restart your session. {{UPDATE_NOTE_NAMING_VERSION}} The challenge below leans on the newest routing, so update before you paste.</div>
 </td>
 </tr></table>
 </td></tr>
 
-<!-- 7. WHAT IS NEW, IN PLAIN WORDS (3 cards; rotate accents yellow/blue/red; who-cares + why each) -->
+<!-- 9. WHAT IS NEW, IN PLAIN WORDS (3 cards; differentiated panels, not 3 identical rails) -->
 <tr><td style="padding:26px 32px 0 32px;text-align:left;">
 <div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:20px;color:#F5F0E8;text-align:left;">WHAT IS NEW IN MINDRIAN, IN PLAIN WORDS</div>
 </td></tr>
+
+<!-- card 1 (headline/most important): #1A1A1A surface + full-width #FFD500 4px top-cap band -->
 <tr><td style="padding:14px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="6" style="background-color:#FFD500;font-size:1px;">&nbsp;</td>
-<td style="background-color:#1A1A1A;padding:16px 20px;text-align:left;">
+<td height="4" style="background-color:#FFD500;font-size:1px;line-height:1px;">&nbsp;</td>
+</tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#1A1A1A;"><tr>
+<td style="padding:16px 20px;text-align:left;">
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;"><strong>{{WHATSNEW_1_HEAD}}</strong> {{WHATSNEW_1_BODY_with_who-cares_and_why}}</div>
 </td>
 </tr></table>
 </td></tr>
+
+<!-- card 2: genuine full-bleed #0033A0 blue panel, cream text directly on the blue field -->
 <tr><td style="padding:10px 32px 0 32px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="6" style="background-color:#0033A0;font-size:1px;">&nbsp;</td>
-<td style="background-color:#1A1A1A;padding:16px 20px;text-align:left;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0033A0;"><tr>
+<td style="padding:16px 20px;text-align:left;">
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;"><strong>{{WHATSNEW_2_HEAD}}</strong> {{WHATSNEW_2_BODY}}</div>
 </td>
 </tr></table>
 </td></tr>
+
+<!-- card 3: #1A1A1A surface + full-width #D40000 4px top-cap band -->
 <tr><td style="padding:10px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="6" style="background-color:#D40000;font-size:1px;">&nbsp;</td>
-<td style="background-color:#1A1A1A;padding:16px 20px;text-align:left;">
+<td height="4" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
+</tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#1A1A1A;"><tr>
+<td style="padding:16px 20px;text-align:left;">
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;"><strong>{{WHATSNEW_3_HEAD}}</strong> {{WHATSNEW_3_BODY}}</div>
 </td>
 </tr></table>
 </td></tr>
 
-<!-- 8. THE CHALLENGE + COPY-PASTE SEED (gold left-border; Courier; reader fills [BRACKETS]) -->
+<!-- 10. THE CHALLENGE + COPY-PASTE SEED (small full-bleed gold tab/flag on the section
+      header, echoing the logo row's colored squares, instead of plain text; Courier
+      gold-left-border box below is already differentiated by its monospace treatment) -->
 <tr><td style="padding:30px 32px 0 32px;text-align:left;">
-<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:20px;color:#F5F0E8;text-align:left;">THE CHALLENGE: {{CHALLENGE_TITLE}}</div>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+<td style="background-color:#C8A43C;padding:4px 10px;text-align:left;"><div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:12px;letter-spacing:1px;color:#0D0D0D;text-align:left;">CHALLENGE</div></td>
+</tr></table>
+<div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:20px;color:#F5F0E8;text-align:left;padding-top:10px;">{{CHALLENGE_TITLE}}</div>
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;padding-top:8px;text-align:left;">{{CHALLENGE_INTRO}}</div>
 </td></tr>
 <tr><td style="padding:18px 32px 0 32px;">
@@ -151,7 +185,7 @@
 </tr></table>
 </td></tr>
 
-<!-- 9. THE COMMAND CHAIN (gold cmd + cream gloss; docs link = website link #2) -->
+<!-- 11. THE COMMAND CHAIN (gold cmd + cream gloss; docs link = website link #2) -->
 <tr><td style="padding:22px 32px 0 32px;text-align:left;">
 <div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:16px;color:#F5F0E8;text-align:left;">THEN RUN THE CHAIN</div>
 </td></tr>
@@ -169,17 +203,28 @@
 </table>
 </td></tr>
 
-<!-- 10. TRIPLE-FEATURE related links (blue left-border) -->
+<!-- 12. TRIPLE-FEATURE related links: genuine full-bleed #111111 warm-black panel,
+      bordered top and bottom by thin 3px red/yellow/blue strips, bookending the content
+      body the same way the top/bottom Mondrian bars bookend the whole email -->
 <tr><td style="padding:26px 32px 0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="6" style="background-color:#0033A0;font-size:1px;">&nbsp;</td>
-<td style="background-color:#1A1A1A;padding:16px 20px;text-align:left;">
+<td width="34%" height="3" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="33%" height="3" style="background-color:#FFD500;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="33%" height="3" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
+</tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111111;"><tr>
+<td style="padding:16px 20px;text-align:left;">
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;"><strong>{{TRIPLE_FEATURE_LEAD}}</strong> {{TRIPLE_FEATURE_BODY_with_3_blog_links_color_#C8A43C}}</div>
 </td>
 </tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+<td width="34%" height="3" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="33%" height="3" style="background-color:#FFD500;font-size:1px;line-height:1px;">&nbsp;</td>
+<td width="33%" height="3" style="background-color:#D40000;font-size:1px;line-height:1px;">&nbsp;</td>
+</tr></table>
 </td></tr>
 
-<!-- 11. REPLY CTA + SIGN-OFF (person + website link #3) -->
+<!-- 13. REPLY CTA + SIGN-OFF (person + website link #3) -->
 <tr><td style="padding:24px 32px 0 32px;text-align:left;">
 <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#F5F0E8;text-align:left;">{{REPLY_CTA}}</div>
 </td></tr>
@@ -188,7 +233,7 @@
 <span style="color:#999999;">MindrianOS - <a href="https://mindrian-os.com" style="color:#C8A43C;text-decoration:underline;">mindrian-os.com</a></span></div>
 </td></tr>
 
-<!-- 12. BOTTOM MONDRIAN BAR (mirror of top) -->
+<!-- 14. BOTTOM MONDRIAN BAR (mirror of top) -->
 <tr><td style="padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td width="26%" height="10" style="background-color:#0033A0;font-size:1px;line-height:1px;">&nbsp;</td>
@@ -207,17 +252,20 @@
 
 <!--
   ============================================================================
-  10-ITEM SEND CHECK (run every issue before sending)
+  11-ITEM SEND CHECK (run every issue before sending)
   ============================================================================
    1. dir="ltr" + text-align:left on every content element (center only the bars + button text).
    2. 640px width, #0D0D0D bg, inline styles only, NO <style> block, NO web fonts.
    3. NO border-radius, NO emoji, NO em-dashes (hyphens only), NO background images.
    4. Headline has exactly ONE yellow-highlighted phrase. Logo is MINDRIAN + gold OS.
-   5. STEP 0 update callout present AND names the real released version (e.g. v1.15.0-beta.3).
-   6. Each what's-new card is plain words with who-cares + why (Feynman). Accents rotate.
+   5. STEP 0 update callout present AND names the real released version (e.g. v1.15.3-beta.44).
+   6. Each what's-new card is plain words with who-cares + why (Feynman). Panels differentiated
+      (full-bleed color panel or top-cap band), not 3 identical rails.
    7. The challenge seed is in the gold-left-border Courier box, with [BRACKETED] fill-ins.
    8. The command chain uses real /mos: commands that resolve in the catalog; docs link present.
-   9. mindrian-os.com appears 3+ times (READ button, docs link, sign-off). Sender is a person.
+   9. mindrian-os.com appears 3+ times (hero caption/READ button, docs link, sign-off). Sender is a person.
   10. All blog links resolve to live /blog/<slug> pages. Triple-feature points at 3 real posts.
+  11. Hero image has a real public HTTPS src (never local/scratchpad/data:), alt text present,
+      caption present.
   ============================================================================
 -->

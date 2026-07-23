@@ -1,5 +1,11 @@
 # MindrianOS Official Email Template Standard
 
+> **Canonical source:** `references/design/newsletter-email-template.html` is the
+> canonical, authoritative source for the DARK tester-challenge email canon. This
+> document is the derived component-pattern reference, kept in sync with it. If this
+> doc and the template ever disagree, the template wins - update this doc to match,
+> never the reverse.
+
 ## Brand Name Rules (MANDATORY)
 
 - **Correct:** MindrianOS (capital M, lowercase indrian, capital OS, NO hyphen)
@@ -12,133 +18,131 @@
 ### Direction and Alignment
 - `dir="ltr"` on the outer wrapper table
 - `text-align:left` on EVERY td, p, and content element
-- No centered body text. Only center: footer Mondrian bar, footer credits, CTA buttons
-- Fixed width: 600px outer table
+- No centered body text. Only center: top/bottom Mondrian bars, the gold READ-THE-STORY button text
+- Fixed width: 640px outer table
 
 ### Structure
 ```
-1. Mondrian Header (red block + blue block + accent bars)
-2. Personal Message (left-aligned, from a person)
-3. Content Sections (left-aligned, with accent borders)
-4. Install Steps (if applicable, numbered with blue squares)
-5. CTA Button (blue block, centered text only)
-6. Footer (Mondrian mini-bar, credits, centered)
+1. Top Mondrian bar (full-width colored strips)
+2. Logo row (left-aligned, from a person)
+3. Headline (color-block treatment, one yellow highlight)
+4. Lede (Feynman, the why)
+5. Hero image (hard-rectangle cream border + caption)
+6. READ THE STORY button (gold block, centered text only)
+7. STEP 0 update callout (full-bleed red panel)
+8. What's-new cards (full-bleed panels / top-cap bands, differentiated)
+9. Challenge + copy-paste seed (gold tab header + Courier gold-left-border box)
+10. Command chain (gold cmd + cream gloss + docs link)
+11. Triple-feature related links (full-bleed black panel, red/yellow/blue top+bottom strips)
+12. Reply CTA + sign-off (person + website)
+13. Bottom Mondrian bar (mirror of top)
 ```
 
 ### De Stijl Color Palette
 | Color | Hex | Usage |
 |-------|-----|-------|
-| Background | #0a0a0f | Body, outer wrapper |
-| Surface | #12121a | Code blocks, cards, sections |
-| Border | #1e1e2e | Dividers, separators |
-| Cream | #f5f0e8 | Primary text, headings |
-| Muted | #a09a90 | Secondary text, descriptions |
-| Dim | #666666 | Tertiary text, fine print |
-| Red | #a63d2f | Header block, warnings, critiques |
-| Blue | #1e3a6e | Header block, step numbers, links accent |
-| Yellow | #c4a43c | Accent borders, warnings, API keys |
-| Green | #2d6b4a | Success, shipped features, confirmations |
-| Link Blue | #60a5fa | Hyperlinks, code references |
-| Code Green | #22c55e | Terminal commands in code blocks |
-| Amethyst | #6366f1 | Optional accent (updates, versions) |
+| Background | #0D0D0D | Body, outer wrapper |
+| Surface | #1A1A1A | Code blocks, cards, what's-new card 1/3 backgrounds |
+| Cream | #F5F0E8 | Primary text, headings, hero-image border |
+| Muted | #999999 | Secondary text, sign-off byline |
+| Red | #D40000 | STEP 0 panel, top/bottom Mondrian bars, what's-new card 3 top-cap |
+| Blue | #0033A0 | What's-new card 2 full-bleed panel, headline cap band, Mondrian bars |
+| Yellow | #FFD500 | Headline highlight, what's-new card 1 top-cap, Mondrian bars |
+| Gold/OS | #C8A43C | Logo "OS" mark, links, code accents, challenge tab, command-chain gold text |
+| Black | #111111 | Headline color-block field, triple-feature full-bleed panel, Mondrian bar accents |
 
 ### Typography (email-safe)
 | Element | Font | Size | Color | Style |
 |---------|------|------|-------|-------|
-| Header brand | Trebuchet MS, Helvetica, sans-serif | 28-32px | #f5f0e8 | 900 weight, 4px letter-spacing, uppercase |
-| Section heading | Trebuchet MS, Helvetica, sans-serif | 18-20px | #f5f0e8 | 900 weight, 3px letter-spacing, uppercase |
-| Sub-heading | Trebuchet MS, Helvetica, sans-serif | 12-14px | #a09a90 | 900 weight, 2px letter-spacing, uppercase |
-| Body text | Arial, Helvetica, sans-serif | 13-15px | #a09a90 | Normal, 1.7-1.8 line-height |
-| Emphasis text | Arial, Helvetica, sans-serif | 13-15px | #f5f0e8 | Bold |
-| Code inline | Courier New, monospace | 12-14px | #60a5fa | On #12121a background |
-| Code block | Courier New, monospace | 13-15px | #22c55e | On #12121a background, 10-14px padding |
-| Fine print | Arial, Helvetica, sans-serif | 10-11px | #444444 or #666666 | Normal |
+| Logo/brand | Impact, 'Arial Black', Arial, sans-serif | 24px | #F5F0E8 (OS in #C8A43C) | 2px letter-spacing |
+| Headline | Impact, 'Arial Black', Arial, sans-serif | 38px | #F5F0E8 (highlight #FFD500) | font-weight:900, letter-spacing:-0.01em (bold-Arial-aware) |
+| Section heading | Impact, 'Arial Black', Arial, sans-serif | 16-20px | #F5F0E8 | Left-aligned, no letter-spacing override needed |
+| Body text | Helvetica, Arial, sans-serif | 14-16px | #F5F0E8 | Normal, 1.6-1.65 line-height |
+| Muted/byline text | Helvetica, Arial, sans-serif | 12px | #999999 | Normal |
+| Code / seed prompt | Courier, Consolas, monospace | 12-13px | #F5F0E8 or #C8A43C | On #1A1A1A background |
 
 ### Component Patterns
 
-#### Mondrian Header
-```html
-<table width="600"><tr>
-  <td width="400" style="background:#a63d2f;padding:24px 28px;">
-    <p style="...font-size:28px;...uppercase;color:#f5f0e8;">MINDRIANOS</p>
-  </td>
-  <td width="200" style="background:#1e3a6e;padding:24px 20px;">
-    <p style="...font-size:10px;...color:#a09a90;">VERSION / CONTEXT</p>
-  </td>
-</tr></table>
-<table width="600"><tr>
-  <td width="400" style="background:#c4a43c;height:5px;">&nbsp;</td>
-  <td width="200" style="background:#2d6b4a;height:5px;">&nbsp;</td>
-</tr></table>
-```
-
-#### Accent Border Card (left border)
+#### Top/Bottom Mondrian Bar
 ```html
 <table width="100%"><tr>
-  <td width="3" style="background:#a63d2f;">&nbsp;</td>
-  <td style="background:#12121a;padding:16px 20px;text-align:left;">
-    CONTENT
-  </td>
-</tr></table>
-```
-Colors: #a63d2f (red/warning), #1e3a6e (blue/info), #c4a43c (yellow/highlight), #2d6b4a (green/success)
-
-#### Step Number
-```html
-<div style="width:28px;height:28px;background:#1e3a6e;text-align:center;line-height:28px;
-  font-family:'Trebuchet MS',sans-serif;font-size:14px;font-weight:900;color:#f5f0e8;">1</div>
-```
-
-#### Code Block
-```html
-<table width="100%"><tr>
-  <td style="background:#12121a;padding:10px 14px;text-align:left;">
-    <code style="font-family:'Courier New',monospace;font-size:13px;color:#22c55e;">command here</code>
-  </td>
+  <td width="38%" height="10" style="background-color:#D40000;font-size:1px;">&nbsp;</td>
+  <td width="8%" height="10" style="background-color:#111111;font-size:1px;">&nbsp;</td>
+  <td width="22%" height="10" style="background-color:#FFD500;font-size:1px;">&nbsp;</td>
+  <td width="6%" height="10" style="background-color:#111111;font-size:1px;">&nbsp;</td>
+  <td width="26%" height="10" style="background-color:#0033A0;font-size:1px;">&nbsp;</td>
 </tr></table>
 ```
 
-#### API Key / Highlight Box
+#### Full-Bleed Alert Panel (STEP 0 callout)
 ```html
-<table width="100%"><tr>
-  <td width="3" style="background:#c4a43c;">&nbsp;</td>
-  <td style="background:#12121a;padding:14px 16px;text-align:left;">
-    <code style="font-family:'Courier New',monospace;font-size:15px;color:#60a5fa;">key-here</code>
+<table width="100%" style="background-color:#D40000;"><tr>
+  <td style="padding:18px 20px;text-align:left;">
+    <div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:18px;color:#F5F0E8;">TITLE</div>
+    <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#F5F0E8;padding-top:8px;">Body copy directly on the red field.</div>
   </td>
 </tr></table>
 ```
+Cream text sits directly on the color field - this is a genuine full-bleed panel, not a rail on a dark card.
 
-#### CTA Button
+#### Top-Cap Band Card (what's-new cards 1 and 3)
 ```html
-<table width="100%"><tr>
-  <td style="background:#1e3a6e;padding:14px 20px;text-align:center;">
-    <a href="URL" style="font-family:'Trebuchet MS',sans-serif;font-size:14px;font-weight:900;
-      letter-spacing:2px;text-transform:uppercase;color:#f5f0e8;text-decoration:none;">LABEL</a>
-  </td>
+<table width="100%"><tr><td height="4" style="background-color:#FFD500;font-size:1px;">&nbsp;</td></tr></table>
+<table width="100%" style="background-color:#1A1A1A;"><tr>
+  <td style="padding:16px 20px;text-align:left;">CONTENT</td>
+</tr></table>
+```
+Rotate the top-cap color: #FFD500 (card 1), #D40000 (card 3).
+
+#### Full-Bleed Color Panel (what's-new card 2, triple-feature rail)
+```html
+<table width="100%" style="background-color:#0033A0;"><tr>
+  <td style="padding:16px 20px;text-align:left;">CONTENT, cream text directly on the color field</td>
 </tr></table>
 ```
 
-#### Bullet List (Mondrian colored squares)
+#### Gold Tab / Flag (challenge section header)
 ```html
 <table cellpadding="0" cellspacing="0"><tr>
-  <td width="6" style="background:#a63d2f;">&nbsp;</td>
-  <td style="padding:0 0 0 10px;font-family:Arial,sans-serif;font-size:12px;color:#a09a90;text-align:left;">
-    Content here
+  <td style="background-color:#C8A43C;padding:4px 10px;">
+    <div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:12px;letter-spacing:1px;color:#0D0D0D;">LABEL</div>
   </td>
 </tr></table>
 ```
-Rotate colors: #a63d2f, #1e3a6e, #c4a43c, #2d6b4a
 
-#### Footer
+#### Seed / Code Box (gold left-border, Courier)
 ```html
-<table cellpadding="0" cellspacing="0" align="center"><tr>
-  <td width="36" style="background:#a63d2f;height:3px;">&nbsp;</td>
-  <td width="24" style="background:#1e3a6e;height:3px;">&nbsp;</td>
-  <td width="16" style="background:#c4a43c;height:3px;">&nbsp;</td>
-  <td width="16" style="background:#2d6b4a;height:3px;">&nbsp;</td>
+<table width="100%"><tr>
+  <td style="background-color:#1A1A1A;border-left:4px solid #C8A43C;padding:18px 20px;text-align:left;">
+    <div style="font-family:Courier,Consolas,monospace;font-size:12px;color:#F5F0E8;">CONTENT</div>
+  </td>
 </tr></table>
-<p style="...font-size:11px;color:#a09a90;">Sender Name</p>
-<p style="...font-size:10px;color:#444;">MindrianOS -- PWS Methodology by Prof. Lawrence Aronhime</p>
+```
+
+#### Hero Image
+```html
+<img src="{{HERO_IMAGE_URL}}" alt="{{HERO_IMAGE_ALT}}" width="576"
+  style="display:block;width:100%;max-width:576px;border:2px solid #F5F0E8;">
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#999999;padding-top:8px;">{{HERO_IMAGE_CAPTION}}</div>
+```
+Src MUST be a real public HTTPS URL - local paths and `data:` URIs are stripped or blocked
+by major email clients (Gmail, Outlook).
+
+#### CTA Button (READ THE STORY)
+```html
+<table cellpadding="0" cellspacing="0"><tr>
+  <td style="background-color:#C8A43C;padding:13px 26px;text-align:left;">
+    <a href="URL" style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:16px;letter-spacing:1px;color:#0D0D0D;text-decoration:none;">READ THE STORY</a>
+  </td>
+</tr></table>
+```
+
+#### Footer / Sign-off
+```html
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#F5F0E8;">
+  SENDER NAME<br>
+  <span style="color:#999999;">MindrianOS - <a href="https://mindrian-os.com" style="color:#C8A43C;text-decoration:underline;">mindrian-os.com</a></span>
+</div>
 ```
 
 ## Rules
@@ -146,10 +150,11 @@ Rotate colors: #a63d2f, #1e3a6e, #c4a43c, #2d6b4a
 1. **NO border-radius anywhere.** Hard rectangles only. De Stijl.
 2. **NO emoji.** Ever.
 3. **NO rounded buttons.** Square CTA blocks.
-4. **NO background images.** Solid colors only.
-5. **NO web fonts.** Email-safe only (Trebuchet MS, Arial, Courier New).
-6. **ALL text left-aligned** except footer credits and CTA button text.
-7. **ALL tables use inline styles.** No external CSS (email clients strip it).
-8. **600px max width.** Fixed, not responsive (email clients handle poorly).
-9. **Padding: 28px sides.** Consistent throughout.
-10. **Sender is always a person** (Jonathan Sagir, Larry, etc.) -- never "MindrianOS Team."
+4. **NO background images.** Solid colors only (hero photo is the one sanctioned `<img>` exception, always a real public HTTPS URL).
+5. **NO web fonts.** Email-safe only: Impact, 'Arial Black', Helvetica, Arial, Courier, Consolas.
+6. **ALL text left-aligned** except the top/bottom Mondrian bars and the READ THE STORY button text.
+7. **ALL tables use inline styles.** No external CSS, no `<style>` block (email clients strip it).
+8. **640px max width.** Fixed, not responsive (email clients handle poorly).
+9. **Padding: 32px sides.** Consistent throughout.
+10. **Sender is always a person** (Jonathan Sagir, Larry, etc.) - never "MindrianOS Team."
+11. **NO em-dashes.** Hyphens only.
