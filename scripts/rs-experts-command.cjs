@@ -7,7 +7,7 @@
  *
  * BUG 2 FIX (routing, 2026-05-22): the former Tier 1 path called
  * brainClient.query(cypher) which routes to the REMOTE Brain
- * (mindrian-brain.onrender.com) when MINDRIAN_BRAIN_KEY is set.
+ * (pws-brain-mcp.onrender.com) when MINDRIAN_BRAIN_KEY is set.
  * Author/Paper/Institution nodes do NOT exist in the remote Brain --
  * they live in the user's LOCAL Aura mirror (populated via /mos:rs-fetch).
  * Routing to the remote Brain would always return empty results AND

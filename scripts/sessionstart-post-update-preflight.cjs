@@ -35,7 +35,7 @@
  * Canon discipline:
  *   - Part 8: pure LOCAL. spawnSync of node scripts/doctor.cjs --brain-smoke
  *     --json reads only LOCAL files + the stdio MCP shim (the shim itself
- *     goes over HTTP to mindrian-brain.onrender.com but THIS preflight does
+ *     goes over HTTP to pws-brain-mcp.onrender.com but THIS preflight does
  *     not -- the shim is just a method of probing version-of-the-wire).
  *   - Part 7 (Reuse Before Build): does not re-implement version probing;
  *     delegates to doctor --brain-smoke (Class M, Phase 127-02).
