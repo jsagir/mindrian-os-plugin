@@ -1,7 +1,18 @@
 ## [Unreleased] -- v1.15.3-beta.37 (in progress)
 
-### Added
-- 
+### Changed
+- **Brain default endpoint flipped from the legacy `mindrian-brain.onrender.com` (Neo4j Aura
+  + Pinecone) to the new Memgraph-backed `pws-brain-mcp.onrender.com`** (`lib/core/brain-client.cjs`).
+  Step 4 of the approved phased Memgraph migration (step 1, an auth-header double-Bearer-prefix
+  fix, shipped dark in beta.36's line). Live-verified against the real production endpoint with
+  a real key before flipping: `brain_search`/`brain_schema`/`brain_stats`/`brain_ask`/
+  `brain_ask_anything` all return real data (28k+ nodes) through the exact same response shapes
+  this client already parses. `brain_query`/`brain_write` (raw Cypher) remain admin-tier gated on
+  the new server exactly as they already were on the old one -- regular users never had raw-Cypher
+  access on either server, so this introduces zero regression; every caller already degrades
+  gracefully to a Tier-0 fallback. Every existing Brain API key works unchanged (same Supabase
+  `brain_api_keys` Bearer contract) -- no action required from any user. `MINDRIAN_BRAIN_URL`
+  still overrides the default for staging/self-hosted use, unchanged.
 
 ## [1.15.3-beta.36] - 2026-07-22
 
