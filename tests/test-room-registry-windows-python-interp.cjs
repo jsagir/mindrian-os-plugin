@@ -93,15 +93,35 @@ function runRR(roomsHome, args) {
 
 // Cross-platform-safe python invocation, identical strategy to Defect B's fix
 // in test-room-registry-windows-atomic-replace.cjs: route through bash so its
-// PATH lookup (and any hand-rolled python3 shim) resolves, and pass the source
-// as a positional arg ($1) so quotes and newlines survive. Returns the spawn
+// PATH lookup (and any hand-rolled python3 shim) resolves. Returns the spawn
 // result; status 127 + __NO_PYTHON__ means "no interpreter resolvable here".
+//
+// RCA windows-argv-mangling-bash-spawn (Defect C, addendum): passing the probe
+// source as a positional bash argument ($1) survives Defect A/B on Linux/macOS,
+// but on Windows Node's spawnSync('bash', [...]) invokes Git-Bash's bash.exe,
+// and Windows argv passing goes through CommandLineToArgvW-style re-quoting at
+// the OS/CRT boundary before bash ever sees it -- a backslash immediately
+// followed by a quote character in the source (a common shape for a Windows
+// path or a regex ending a string literal) is silently eaten or reinterpreted
+// during that reconstruction, corrupting the source before bash's own $1
+// expansion runs. Confirmed and root-caused live on the reporter's Windows box;
+// does not reproduce on Linux/macOS. Fix: write the source to a real temp .py
+// file and exec THAT PATH (a short string with no embedded quote/backslash
+// sequences survives argv marshalling intact); the wrapper's `-c` flag is
+// removed together with the invocation change (a file path passed to `-c`
+// would try to execute the path STRING as source, not run the file).
 function runPython(src) {
-  const wrapper =
-    'if command -v python3 >/dev/null 2>&1; then exec python3 -c "$1"; ' +
-    'elif command -v python >/dev/null 2>&1; then exec python -c "$1"; ' +
-    'else echo "__NO_PYTHON__" >&2; exit 127; fi';
-  return spawnSync('bash', ['-c', wrapper, 'bash', src], { encoding: 'utf8', timeout: 5000 });
+  const probeFile = path.join(os.tmpdir(), 'mos-probe-' + Date.now() + '-' + Math.floor(Math.random() * 1e6) + '.py');
+  fs.writeFileSync(probeFile, src, 'utf8');
+  try {
+    const wrapper =
+      'if command -v python3 >/dev/null 2>&1; then exec python3 "$1"; ' +
+      'elif command -v python >/dev/null 2>&1; then exec python "$1"; ' +
+      'else echo "__NO_PYTHON__" >&2; exit 127; fi';
+    return spawnSync('bash', ['-c', wrapper, 'bash', probeFile], { encoding: 'utf8', timeout: 5000 });
+  } finally {
+    fs.rmSync(probeFile, { force: true });
+  }
 }
 
 // -- Part 1: backslash values survive the real write path (cross-platform). --

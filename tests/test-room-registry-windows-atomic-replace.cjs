@@ -108,24 +108,51 @@ function runRR(roomsHome, args) {
 // so it fell through to the Microsoft Store alias stub ("Python was not found")
 // and the probe FAILED at the spawn layer instead of ever running its check.
 //
-// Fix: route the probe through bash (the exact pattern runRR already uses for
-// the registry script), so bash's own PATH resolution -- and therefore the
-// shim -- runs. The probe body is passed as a POSITIONAL argument ($1), never
-// interpolated into the bash -c string, so its quotes and newlines survive
-// intact. python3 is tried first, then python (a clean Windows install names
-// the interpreter 'python', not 'python3'). If neither resolves, the wrapper
-// emits __NO_PYTHON__ and exits 127 so the caller can SKIP (not fail, not
-// silently pass). bash itself is already a hard precondition of this whole
+// Fix (Defect B): route the probe through bash (the exact pattern runRR already
+// uses for the registry script), so bash's own PATH resolution -- and therefore
+// the shim -- runs. bash itself is already a hard precondition of this whole
 // suite (runRR depends on it), so this adds no new dependency.
+//
+// RCA windows-argv-mangling-bash-spawn (Defect C, addendum -- one layer further
+// down the same call chain): passing the probe SOURCE as a positional bash
+// argument ($1) survives Defect A/B on Linux/macOS, but on Windows Node's
+// child_process.spawnSync('bash', [...]) invokes Git-Bash's bash.exe, and
+// Windows argv passing goes through CommandLineToArgvW-style re-quoting at the
+// OS/CRT boundary before bash ever sees it. When the probe source contains a
+// backslash immediately followed by a quote character (a common shape in these
+// Python probes -- a Windows path or a regex ending a string literal), that
+// backslash-quote sequence is silently eaten or reinterpreted during Windows
+// argv reconstruction, corrupting the probe source before bash's own $1
+// expansion runs. Does not reproduce on Linux/macOS (argv marshalling is a
+// Windows-only CRT/CreateProcess behavior); confirmed and root-caused live on
+// the reporter's Windows box.
+//
+// Fix (Defect C): stop passing the probe source as a spawnSync argv element at
+// all. Write it to a real temp .py file and have bash `exec python3 <file>` /
+// `exec python <file>` (the FILE PATH is the argv element that crosses the
+// boundary, not the file's contents). A short path with no embedded
+// quote/backslash-adjacent-quote sequences survives Windows argv marshalling
+// intact regardless of what the probe source contains, eliminating the defect
+// class rather than special-casing which characters are unsafe. Note the
+// wrapper's own flag changes too: `-c "$1"` (execute $1 as inline source)
+// becomes `"$1"` (execute $1 as a script file path) -- removing only the -c
+// flag without changing the invocation would misinterpret the path as literal
+// source text.
 function runPythonProbe(probeSrc) {
-  const wrapper =
-    'if command -v python3 >/dev/null 2>&1; then exec python3 -c "$1"; ' +
-    'elif command -v python >/dev/null 2>&1; then exec python -c "$1"; ' +
-    'else echo "__NO_PYTHON__" >&2; exit 127; fi';
-  return spawnSync('bash', ['-c', wrapper, 'bash', probeSrc], {
-    encoding: 'utf8',
-    timeout: 5000,
-  });
+  const probeFile = path.join(os.tmpdir(), 'mos-probe-' + Date.now() + '-' + Math.floor(Math.random() * 1e6) + '.py');
+  fs.writeFileSync(probeFile, probeSrc, 'utf8');
+  try {
+    const wrapper =
+      'if command -v python3 >/dev/null 2>&1; then exec python3 "$1"; ' +
+      'elif command -v python >/dev/null 2>&1; then exec python "$1"; ' +
+      'else echo "__NO_PYTHON__" >&2; exit 127; fi';
+    return spawnSync('bash', ['-c', wrapper, 'bash', probeFile], {
+      encoding: 'utf8',
+      timeout: 5000,
+    });
+  } finally {
+    fs.rmSync(probeFile, { force: true });
+  }
 }
 
 // -- Part 1: second-write-to-existing-destination regression. --------------

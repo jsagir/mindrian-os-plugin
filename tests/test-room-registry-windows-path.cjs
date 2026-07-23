@@ -178,14 +178,37 @@ print('NORMWIN_PROBE_OK')
   // this probe previously called spawnSync('python3', ...) directly, which on
   // the reporter's Windows box cannot resolve the hand-rolled ~/bin/python3
   // shebang shim (Node's CreateProcess falls through to the Store alias stub).
-  // Route through bash so its PATH lookup (and the shim) resolves; pass the
-  // probe body as a positional arg so its quotes/newlines survive. Graceful
+  // Route through bash so its PATH lookup (and the shim) resolves. Graceful
   // SKIP (not fail, not silent pass) if no interpreter is resolvable.
-  const wrapper =
-    'if command -v python3 >/dev/null 2>&1; then exec python3 -c "$1"; ' +
-    'elif command -v python >/dev/null 2>&1; then exec python -c "$1"; ' +
-    'else echo "__NO_PYTHON__" >&2; exit 127; fi';
-  const r = spawnSync('bash', ['-c', wrapper, 'bash', probe], { encoding: 'utf8', timeout: 5000 });
+  //
+  // RCA windows-argv-mangling-bash-spawn (Defect C, addendum): passing the
+  // probe body as a positional bash argument ($1) survived Defect A/B on
+  // Linux/macOS, but on Windows Node's spawnSync('bash', [...]) invokes
+  // Git-Bash's bash.exe, and Windows argv passing goes through
+  // CommandLineToArgvW-style re-quoting at the OS/CRT boundary before bash
+  // ever sees it. This probe's own normwin() body contains exactly the
+  // vulnerable shape (`p[2:].replace('/', '\\')` -- a backslash immediately
+  // followed by a quote character), which Windows argv reconstruction can
+  // silently eat or reinterpret, corrupting the source before bash's own $1
+  // expansion runs. Confirmed and root-caused live on the reporter's Windows
+  // box; does not reproduce on Linux/macOS. Fix: write the probe to a real
+  // temp .py file and exec THAT PATH (a short string with no embedded
+  // quote/backslash sequences survives argv marshalling intact); the
+  // wrapper's `-c` flag is removed together with the invocation change (a
+  // file path passed to `-c` would try to execute the path STRING as source,
+  // not run the file).
+  const probeFile = path.join(os.tmpdir(), 'mos-probe-' + Date.now() + '-' + Math.floor(Math.random() * 1e6) + '.py');
+  fs.writeFileSync(probeFile, probe, 'utf8');
+  let r;
+  try {
+    const wrapper =
+      'if command -v python3 >/dev/null 2>&1; then exec python3 "$1"; ' +
+      'elif command -v python >/dev/null 2>&1; then exec python "$1"; ' +
+      'else echo "__NO_PYTHON__" >&2; exit 127; fi';
+    r = spawnSync('bash', ['-c', wrapper, 'bash', probeFile], { encoding: 'utf8', timeout: 5000 });
+  } finally {
+    fs.rmSync(probeFile, { force: true });
+  }
   if (r.status === 127 && /__NO_PYTHON__/.test(r.stderr || '')) {
     console.log('SKIP normwin probe: no python3/python resolvable via bash on this host');
   } else {
