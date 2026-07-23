@@ -332,9 +332,6 @@ function getMindrianSVG(textFill = '#F5F0E8') {
 function getLobbyCSS() {
   return `
 :root {
-  --red:    ${THEME.red};
-  --blue:   ${THEME.blue};
-  --yellow: ${THEME.yellow};
   --teal:   ${THEME.teal};
   --cream:  ${THEME.cream};
   --dark:   ${THEME.dark};

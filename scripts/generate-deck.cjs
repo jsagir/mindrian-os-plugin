@@ -127,7 +127,7 @@ ${require("../lib/ui/design-system.cjs").mosStyleTag()}
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--red:#A63D2F;--blue:#1E3A6E;--yellow:#C8A43C;--green:#2A6B5E;--bg:#0a0a0f;--surface:#12121a;--border:#1a1a2a;--cream:#f5f0e8;--muted:#888}
+:root{--bg:#0a0a0f;--surface:#12121a;--border:#1a1a2a;--cream:#f5f0e8}
 body{background:var(--bg);color:var(--cream);font-family:'Inter',system-ui,sans-serif;overflow:hidden}
 .header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--bg);display:flex;align-items:center;padding:8px 20px;gap:12px;height:40px}
 .header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red) 30%,var(--blue) 50%,var(--yellow) 70%,var(--green) 100%)}

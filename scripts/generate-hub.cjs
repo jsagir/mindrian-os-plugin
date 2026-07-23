@@ -777,9 +777,6 @@ function scanRoom(roomDir) {
 function getFullCSS() {
   return `
 :root {
-  --red: #A63D2F;
-  --blue: #1E3A6E;
-  --yellow: #C8A43C;
   --teal: #2A6B5E;
   --cream: #F5F0E8;
   --dark: #1a1a1a;
