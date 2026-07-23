@@ -129,7 +129,10 @@ ROOM_EOF
 #
 # Safety (threat register T-ad9-01 / T-ad9-02):
 #   - roomdir + slug are passed via sys.argv, NEVER interpolated into the
-#     python source (strictly safer than the '$NAME'-in-python stanzas above).
+#     python source. As of RCA windows-python-interp-and-shim (2026-07-23)
+#     the create/read/list/update/set-active/archive/get-active/git-config
+#     stanzas above ALSO pass every value via sys.argv -- this was the first
+#     stanza to do so and is no longer the sole exception.
 #   - the slug is sanitized to a single-line token; the write is SKIPPED if it
 #     is empty, contains a colon, or any control char, so a crafted slug can
 #     never inject a frontmatter key or break the block. parseCurrentRoomField
@@ -225,7 +228,14 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
-reg_file = normwin('$REGISTRY_FILE')
+# RCA windows-python-interp-and-shim: values arrive via sys.argv, NEVER
+# interpolated into this source text -- a Windows path's backslashes can no
+# longer be re-parsed as Python escape sequences (matches _write_current_room).
+reg_file = normwin(sys.argv[1])
+name = sys.argv[2]
+rpath = sys.argv[3]
+vname = sys.argv[4]
+vstage = sys.argv[5]
 with open(reg_file) as f:
     reg = json.load(f)
 # Park currently active room
@@ -233,25 +243,25 @@ old_active = reg.get('active', '')
 if old_active and old_active in reg.get('rooms', {}):
     reg['rooms'][old_active]['status'] = 'parked'
 now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
-reg['rooms']['$NAME'] = {
-    'path': '$RPATH',
+reg['rooms'][name] = {
+    'path': rpath,
     'created': now,
     'last_opened': now,
     'status': 'active',
-    'venture_name': '''$VNAME''',
-    'venture_stage': '''$VSTAGE''',
+    'venture_name': vname,
+    'venture_stage': vstage,
     'git_enabled': 'false',
     'git_remote': '',
     'auto_push': 'off',
     'vercel_url': ''
 }
-reg['active'] = '$NAME'
+reg['active'] = name
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
 os.replace(tmp, reg_file)
-print(json.dumps(reg['rooms']['$NAME'], indent=2))
-"
+print(json.dumps(reg['rooms'][name], indent=2))
+" "$REGISTRY_FILE" "$NAME" "$RPATH" "$VNAME" "$VSTAGE"
     # Create the room directory under ROOMS_HOME
     mkdir -p "${ROOMS_HOME}/${RPATH}"
     # Phase 127.3 Plan 04: seed downstream-pipeline files on room creation
@@ -311,13 +321,14 @@ def resolve_room_path(entry, slug, home):
         else:
             abs_path = os.path.join(home, slug)
     return abs_path
-home = normwin('$ROOMS_HOME')
-with open(normwin('$REGISTRY_FILE')) as f:
+home = normwin(sys.argv[1])
+name = sys.argv[3]
+with open(normwin(sys.argv[2])) as f:
     reg = json.load(f)
-room = reg.get('rooms', {}).get('$NAME')
+room = reg.get('rooms', {}).get(name)
 if room:
     out = dict(room)
-    resolved = resolve_room_path(room, '$NAME', home)
+    resolved = resolve_room_path(room, name, home)
     if not room.get('path'):
         out['path'] = resolved
     out['path_exists'] = os.path.isdir(normwin(resolved))
@@ -325,7 +336,7 @@ if room:
 else:
     print('{}')
     sys.exit(1)
-"
+" "$ROOMS_HOME" "$REGISTRY_FILE" "$NAME"
     ;;
 
   list)
@@ -353,8 +364,8 @@ def resolve_room_path(entry, slug, home):
         else:
             abs_path = os.path.join(home, slug)
     return abs_path
-home = normwin('$ROOMS_HOME')
-with open(normwin('$REGISTRY_FILE')) as f:
+home = normwin(sys.argv[1])
+with open(normwin(sys.argv[2])) as f:
     reg = json.load(f)
 result = []
 for name, room in reg.get('rooms', {}).items():
@@ -372,7 +383,7 @@ for name, room in reg.get('rooms', {}).items():
         'auto_push': room.get('auto_push', 'off')
     })
 print(json.dumps(result, indent=2))
-"
+" "$ROOMS_HOME" "$REGISTRY_FILE"
     ;;
 
   update)
@@ -398,19 +409,22 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
-reg_file = normwin('$REGISTRY_FILE')
+reg_file = normwin(sys.argv[1])
+name = sys.argv[2]
+field = sys.argv[3]
+value = sys.argv[4]
 with open(reg_file) as f:
     reg = json.load(f)
-if '$NAME' not in reg.get('rooms', {}):
-    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
+if name not in reg.get('rooms', {}):
+    print('[MindrianOS] Room not found: ' + name, file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
     sys.exit(1)
-reg['rooms']['$NAME']['$FIELD'] = '''$VALUE'''
+reg['rooms'][name][field] = value
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
 os.replace(tmp, reg_file)
-print(json.dumps(reg['rooms']['$NAME'], indent=2))
-"
+print(json.dumps(reg['rooms'][name], indent=2))
+" "$REGISTRY_FILE" "$NAME" "$FIELD" "$VALUE"
     ;;
 
   set-active)
@@ -434,26 +448,27 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
-reg_file = normwin('$REGISTRY_FILE')
+reg_file = normwin(sys.argv[1])
+name = sys.argv[2]
 with open(reg_file) as f:
     reg = json.load(f)
-if '$NAME' not in reg.get('rooms', {}):
-    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
+if name not in reg.get('rooms', {}):
+    print('[MindrianOS] Room not found: ' + name, file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
     sys.exit(1)
 # Park currently active room
 old_active = reg.get('active', '')
-if old_active and old_active in reg.get('rooms', {}) and old_active != '$NAME':
+if old_active and old_active in reg.get('rooms', {}) and old_active != name:
     reg['rooms'][old_active]['status'] = 'parked'
 now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
-reg['rooms']['$NAME']['status'] = 'active'
-reg['rooms']['$NAME']['last_opened'] = now
-reg['active'] = '$NAME'
+reg['rooms'][name]['status'] = 'active'
+reg['rooms'][name]['last_opened'] = now
+reg['active'] = name
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
 os.replace(tmp, reg_file)
-print('$NAME')
-"
+print(name)
+" "$REGISTRY_FILE" "$NAME"
     # Quick 260723-ad9: after the registry flip, write current_room: $NAME into
     # the switched room's OWN STATE.md (the /mos:rooms open path). Resolve the
     # room dir from the just-flipped registry via the SAME 3-tier precedence the
@@ -466,10 +481,11 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
-home = normwin('$ROOMS_HOME')
-with open(normwin('$REGISTRY_FILE')) as f:
+home = normwin(sys.argv[1])
+name = sys.argv[3]
+with open(normwin(sys.argv[2])) as f:
     reg = json.load(f)
-entry = reg.get('rooms', {}).get('$NAME', {})
+entry = reg.get('rooms', {}).get(name, {})
 if not isinstance(entry, dict):
     entry = {}
 abs_path = entry.get('abs_path')
@@ -480,9 +496,9 @@ if not abs_path:
     elif p:
         abs_path = os.path.join(home, p)
     else:
-        abs_path = os.path.join(home, '$NAME')
+        abs_path = os.path.join(home, name)
 print(abs_path)
-" 2>/dev/null || true)
+" "$ROOMS_HOME" "$REGISTRY_FILE" "$NAME" 2>/dev/null || true)
     if [ -n "$RESOLVED_DIR" ]; then
       _write_current_room "$RESOLVED_DIR" "$NAME"
     fi
@@ -509,21 +525,22 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
-reg_file = normwin('$REGISTRY_FILE')
+reg_file = normwin(sys.argv[1])
+name = sys.argv[2]
 with open(reg_file) as f:
     reg = json.load(f)
-if '$NAME' not in reg.get('rooms', {}):
-    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
+if name not in reg.get('rooms', {}):
+    print('[MindrianOS] Room not found: ' + name, file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
     sys.exit(1)
-reg['rooms']['$NAME']['status'] = 'archived'
-if reg.get('active') == '$NAME':
+reg['rooms'][name]['status'] = 'archived'
+if reg.get('active') == name:
     reg['active'] = ''
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
 os.replace(tmp, reg_file)
 print('archived')
-"
+" "$REGISTRY_FILE" "$NAME"
     # Fire-and-forget graph sync (D-16: never blocks)
     node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
     node "${SCRIPT_DIR}/sync-rooms-brain" "$ROOMS_HOME" >/dev/null 2>&1 &
@@ -540,10 +557,10 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
-with open(normwin('$REGISTRY_FILE')) as f:
+with open(normwin(sys.argv[1])) as f:
     reg = json.load(f)
 print(reg.get('active', ''))
-"
+" "$REGISTRY_FILE"
     ;;
 
   git-config)
@@ -571,22 +588,27 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
-reg_file = normwin('$REGISTRY_FILE')
+reg_file = normwin(sys.argv[1])
+name = sys.argv[2]
+git_enabled = sys.argv[3]
+git_remote = sys.argv[4]
+auto_push = sys.argv[5]
+vercel_url = sys.argv[6]
 with open(reg_file) as f:
     reg = json.load(f)
-if '$NAME' not in reg.get('rooms', {}):
-    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
+if name not in reg.get('rooms', {}):
+    print('[MindrianOS] Room not found: ' + name, file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
     sys.exit(1)
-reg['rooms']['$NAME']['git_enabled'] = '''$GIT_ENABLED'''
-reg['rooms']['$NAME']['git_remote'] = '''$GIT_REMOTE'''
-reg['rooms']['$NAME']['auto_push'] = '''$AUTO_PUSH'''
-reg['rooms']['$NAME']['vercel_url'] = '''$VERCEL_URL'''
+reg['rooms'][name]['git_enabled'] = git_enabled
+reg['rooms'][name]['git_remote'] = git_remote
+reg['rooms'][name]['auto_push'] = auto_push
+reg['rooms'][name]['vercel_url'] = vercel_url
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
 os.replace(tmp, reg_file)
-print(json.dumps(reg['rooms']['$NAME'], indent=2))
-"
+print(json.dumps(reg['rooms'][name], indent=2))
+" "$REGISTRY_FILE" "$NAME" "$GIT_ENABLED" "$GIT_REMOTE" "$AUTO_PUSH" "$VERCEL_URL"
     ;;
 
   bootstrap-missing)

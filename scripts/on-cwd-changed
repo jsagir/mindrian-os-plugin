@@ -78,9 +78,12 @@ done
 
 if [ -n "$REGISTRY_FILE" ]; then
   python3 -c "
-import json, os
-reg_path = '$REGISTRY_FILE'
-new_room = '$NEW_ROOM'
+import json, os, sys
+# RCA windows-python-interp-and-shim: paths arrive via sys.argv, never
+# interpolated into this source text (a Windows backslash path would otherwise
+# be re-parsed as a Python escape sequence and SyntaxError before this runs).
+reg_path = sys.argv[1]
+new_room = sys.argv[2]
 
 with open(reg_path) as f:
     reg = json.load(f)
@@ -98,7 +101,7 @@ tmp = reg_path + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
 os.replace(tmp, reg_path)
-" 2>/dev/null || true
+" "$REGISTRY_FILE" "$NEW_ROOM" 2>/dev/null || true
 fi
 
 # Compute state for the new room

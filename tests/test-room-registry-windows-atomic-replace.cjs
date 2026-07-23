@@ -100,6 +100,34 @@ function runRR(roomsHome, args) {
   });
 }
 
+// RCA windows-python-interp-and-shim (Defect B): the os.replace semantics probe
+// below originally called spawnSync('python3', ['-c', probe]) DIRECTLY. On the
+// reporter's Windows box python3 resolves only via a hand-rolled ~/bin/python3
+// shebang shim that bash's PATH lookup honors -- but Node's bare spawnSync uses
+// Windows CreateProcess, which cannot execute an extension-less shebang script,
+// so it fell through to the Microsoft Store alias stub ("Python was not found")
+// and the probe FAILED at the spawn layer instead of ever running its check.
+//
+// Fix: route the probe through bash (the exact pattern runRR already uses for
+// the registry script), so bash's own PATH resolution -- and therefore the
+// shim -- runs. The probe body is passed as a POSITIONAL argument ($1), never
+// interpolated into the bash -c string, so its quotes and newlines survive
+// intact. python3 is tried first, then python (a clean Windows install names
+// the interpreter 'python', not 'python3'). If neither resolves, the wrapper
+// emits __NO_PYTHON__ and exits 127 so the caller can SKIP (not fail, not
+// silently pass). bash itself is already a hard precondition of this whole
+// suite (runRR depends on it), so this adds no new dependency.
+function runPythonProbe(probeSrc) {
+  const wrapper =
+    'if command -v python3 >/dev/null 2>&1; then exec python3 -c "$1"; ' +
+    'elif command -v python >/dev/null 2>&1; then exec python -c "$1"; ' +
+    'else echo "__NO_PYTHON__" >&2; exit 127; fi';
+  return spawnSync('bash', ['-c', wrapper, 'bash', probeSrc], {
+    encoding: 'utf8',
+    timeout: 5000,
+  });
+}
+
 // -- Part 1: second-write-to-existing-destination regression. --------------
 // This is the path the pre-existing suite never asserted on and Windows
 // silently wedged. First write is cold (destination absent) -- always worked.
@@ -192,9 +220,20 @@ import shutil
 shutil.rmtree(d, ignore_errors=True)
 print('OSREPLACE_PROBE_OK')
 `;
-  const r = spawnSync('python3', ['-c', probe], { encoding: 'utf8', timeout: 5000 });
-  assert('os.replace probe: python3 spawn ok', r.status === 0, 'stderr=' + (r.stderr || ''));
-  assert('os.replace probe: prints OK marker', /OSREPLACE_PROBE_OK/.test(r.stdout || ''), 'stdout=' + (r.stdout || ''));
+  // Defect B fix: invoke via bash so PATH/shim resolution runs (see runPythonProbe).
+  const r = runPythonProbe(probe);
+  if (r.status === 127 && /__NO_PYTHON__/.test(r.stderr || '')) {
+    // Graceful SKIP: no python3/python resolvable via bash on this host. NOT a
+    // pass (the semantics check did not run) and NOT a fail (absence of a
+    // Python interpreter is an environment gap, not a defect in this fix).
+    // Documented Windows caveat: on a clean Windows box with no Python at all
+    // this is the correct, honest outcome. It does not fire on this Linux dev
+    // environment, where python3 resolves and the probe executes for real.
+    console.log('SKIP os.replace probe: no python3/python resolvable via bash on this host');
+  } else {
+    assert('os.replace probe: python spawn ok (via bash PATH resolution)', r.status === 0, 'stderr=' + (r.stderr || ''));
+    assert('os.replace probe: prints OK marker', /OSREPLACE_PROBE_OK/.test(r.stdout || ''), 'stdout=' + (r.stdout || ''));
+  }
 }());
 
 // -- Part 3: structural anti-regression -- the Windows-broken primitive is gone.

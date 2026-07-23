@@ -174,9 +174,24 @@ assert got == '/c', '[NORMWIN-TOO-SHORT] expected /c, got ' + repr(got)
 
 print('NORMWIN_PROBE_OK')
 `;
-  const r = spawnSync('python3', ['-c', probe], { encoding: 'utf8', timeout: 5000 });
-  assert('normwin probe: python3 spawn ok', r.status === 0, 'stderr=' + (r.stderr || ''));
-  assert('normwin probe: prints OK marker', /NORMWIN_PROBE_OK/.test(r.stdout || ''), 'stdout=' + (r.stdout || ''));
+  // RCA windows-python-interp-and-shim (Defect B, adjacent same-defect fix):
+  // this probe previously called spawnSync('python3', ...) directly, which on
+  // the reporter's Windows box cannot resolve the hand-rolled ~/bin/python3
+  // shebang shim (Node's CreateProcess falls through to the Store alias stub).
+  // Route through bash so its PATH lookup (and the shim) resolves; pass the
+  // probe body as a positional arg so its quotes/newlines survive. Graceful
+  // SKIP (not fail, not silent pass) if no interpreter is resolvable.
+  const wrapper =
+    'if command -v python3 >/dev/null 2>&1; then exec python3 -c "$1"; ' +
+    'elif command -v python >/dev/null 2>&1; then exec python -c "$1"; ' +
+    'else echo "__NO_PYTHON__" >&2; exit 127; fi';
+  const r = spawnSync('bash', ['-c', wrapper, 'bash', probe], { encoding: 'utf8', timeout: 5000 });
+  if (r.status === 127 && /__NO_PYTHON__/.test(r.stderr || '')) {
+    console.log('SKIP normwin probe: no python3/python resolvable via bash on this host');
+  } else {
+    assert('normwin probe: python spawn ok (via bash PATH resolution)', r.status === 0, 'stderr=' + (r.stderr || ''));
+    assert('normwin probe: prints OK marker', /NORMWIN_PROBE_OK/.test(r.stdout || ''), 'stdout=' + (r.stdout || ''));
+  }
 }());
 
 // -- Structural assertion: shim injected at every previously-affected site.
@@ -190,22 +205,24 @@ print('NORMWIN_PROBE_OK')
   const normwinDefs = (src.match(/def normwin\(p\):/g) || []).length;
   assert('structural: normwin definitions present (>=7 heredocs)', normwinDefs >= 7, 'actual=' + normwinDefs);
 
-  // Every site that previously had open('$REGISTRY_FILE') must now read
-  // a normwin'd path -- either open(normwin('$REGISTRY_FILE')) directly
-  // or assignment via reg_file = normwin('$REGISTRY_FILE').
-  const directWraps = (src.match(/open\(normwin\(['"]\$REGISTRY_FILE['"]\)\)/g) || []).length;
-  const reassignedWraps = (src.match(/reg_file = normwin\(['"]\$REGISTRY_FILE['"]\)/g) || []).length;
-  const totalNormalized = directWraps + reassignedWraps;
-  // 13 original sites collapse to 7 stanzas -- 4 use reg_file (multi-write
-  // stanzas) and 3 use direct wrap (single-read stanzas).
-  assert('structural: every $REGISTRY_FILE read flows through normwin', totalNormalized >= 7, 'normalized=' + totalNormalized + ' (direct=' + directWraps + ' reassign=' + reassignedWraps + ')');
+  // RCA windows-python-interp-and-shim UPDATED the shape here. The registry
+  // path is no longer baked into the Python source as the string literal
+  // '$REGISTRY_FILE' (that literal WAS this bug -- a backslash in the value
+  // is re-parsed as a Python escape at compile time). It now arrives via
+  // sys.argv and is STILL routed through normwin() for the POSIX->native
+  // conversion the May RCA added. Assert the normwin wrap now takes a
+  // sys.argv read (the safe shape), across the multi-stanza set.
+  const normwinArgv = (src.match(/normwin\(sys\.argv\[\d+\]\)/g) || []).length;
+  assert('structural: registry reads flow through normwin(sys.argv[N])', normwinArgv >= 7, 'count=' + normwinArgv);
 
-  // No raw `open('$REGISTRY_FILE')` should remain (would re-introduce the
-  // Windows bug). The fixed callsites use normwin('$REGISTRY_FILE')
-  // instead. Match a literal open('$REGISTRY_FILE' that is NOT immediately
-  // preceded by normwin(.
-  const rawLeaks = (src.match(/(?<!normwin\()open\(['"]\$REGISTRY_FILE/g) || []).length;
-  assert('structural: zero raw open($REGISTRY_FILE) callsites remain', rawLeaks === 0, 'raw_leak_count=' + rawLeaks);
+  // The two Windows fixes together (normwin for POSIX slashes + sys.argv for
+  // source-injection safety) mean ZERO single-quoted '$REGISTRY_FILE' Python
+  // string literals may survive in the source. NOTE: the DOUBLE-quoted
+  // "$REGISTRY_FILE" tokens now appended to each `python3 -c "..."` call are
+  // the SAFE shell argv-passes (the fix itself) and must NOT be flagged --
+  // only the single-quoted in-source-literal form was the bug.
+  const literalLeaks = (src.match(/'\$REGISTRY_FILE'/g) || []).length;
+  assert('structural: zero single-quoted \'$REGISTRY_FILE\' literals remain in python source', literalLeaks === 0, 'count=' + literalLeaks);
 }());
 
 console.log('');

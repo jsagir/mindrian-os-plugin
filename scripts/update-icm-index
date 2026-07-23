@@ -22,10 +22,13 @@ fi
 
 # Generate INDEX.md from registry.json using inline Python
 python3 -c "
-import json, os, datetime
+import json, os, sys, datetime
 
-rooms_home = '$ROOMS_HOME'
-registry_file = '$REGISTRY_FILE'
+# RCA windows-python-interp-and-shim: paths arrive via sys.argv, never
+# interpolated into this source text (a Windows backslash path would otherwise
+# be re-parsed as a Python escape sequence and SyntaxError before this runs).
+rooms_home = sys.argv[1]
+registry_file = sys.argv[2]
 
 with open(registry_file) as f:
     reg = json.load(f)
@@ -140,10 +143,11 @@ lines.append('')
 output = '\\n'.join(lines)
 
 # Atomic write
-tmp = '$INDEX_FILE' + '.tmp'
+index_file = sys.argv[3]
+tmp = index_file + '.tmp'
 with open(tmp, 'w') as f:
     f.write(output)
-os.replace(tmp, '$INDEX_FILE')
+os.replace(tmp, index_file)
 
 print(f'INDEX.md updated: {len(active_rooms)} active, {len(archived_rooms)} archived')
-"
+" "$ROOMS_HOME" "$REGISTRY_FILE" "$INDEX_FILE"
