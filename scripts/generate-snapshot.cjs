@@ -468,8 +468,9 @@ function headerNav(activeView) {
 function pageHead(title, model, extraCdns) {
   const cdns = extraCdns || [];
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
+${require("../lib/ui/design-system.cjs").mosStyleTag()}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="MindrianOS SnapshotHub">
