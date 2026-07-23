@@ -202,11 +202,32 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
+# Quick 260723-0de: port the exact 3-tier path-resolution precedence from the
+# bootstrap-missing heredoc so a path-less registry entry can never again be
+# misread as an orphaned or never-built room. Output-only: nothing is written
+# back to registry.json.
+def resolve_room_path(entry, slug, home):
+    abs_path = entry.get('abs_path')
+    if not abs_path:
+        p = entry.get('path')
+        if p and os.path.isabs(p):
+            abs_path = p
+        elif p:
+            abs_path = os.path.join(home, p)
+        else:
+            abs_path = os.path.join(home, slug)
+    return abs_path
+home = normwin('$ROOMS_HOME')
 with open(normwin('$REGISTRY_FILE')) as f:
     reg = json.load(f)
 room = reg.get('rooms', {}).get('$NAME')
 if room:
-    print(json.dumps(room, indent=2))
+    out = dict(room)
+    resolved = resolve_room_path(room, '$NAME', home)
+    if not room.get('path'):
+        out['path'] = resolved
+    out['path_exists'] = os.path.isdir(normwin(resolved))
+    print(json.dumps(out, indent=2))
 else:
     print('{}')
     sys.exit(1)
@@ -224,13 +245,31 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
+# Quick 260723-0de: same 3-tier path-resolution + disk cross-check as the read
+# stanza. A path-less entry now reports a resolved absolute location and an
+# honest path_exists boolean instead of an empty path. Output-only.
+def resolve_room_path(entry, slug, home):
+    abs_path = entry.get('abs_path')
+    if not abs_path:
+        p = entry.get('path')
+        if p and os.path.isabs(p):
+            abs_path = p
+        elif p:
+            abs_path = os.path.join(home, p)
+        else:
+            abs_path = os.path.join(home, slug)
+    return abs_path
+home = normwin('$ROOMS_HOME')
 with open(normwin('$REGISTRY_FILE')) as f:
     reg = json.load(f)
 result = []
 for name, room in reg.get('rooms', {}).items():
+    resolved = resolve_room_path(room, name, home)
+    stored_path = room.get('path')
     result.append({
         'name': name,
-        'path': room.get('path', ''),
+        'path': stored_path if stored_path else resolved,
+        'path_exists': os.path.isdir(normwin(resolved)),
         'status': room.get('status', 'unknown'),
         'venture_name': room.get('venture_name', ''),
         'venture_stage': room.get('venture_stage', ''),
