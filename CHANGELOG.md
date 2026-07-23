@@ -1,7 +1,23 @@
 ## [Unreleased] -- v1.15.3-beta.39 (in progress)
 
-### Added
-- 
+### Fixed
+- **Windows-only: the room registry silently wedged after the first write, every write
+  after that returning non-zero and never sticking.** Root cause: Python's `os.rename()`
+  is not POSIX `rename(2)` on Windows -- it raises `FileExistsError [WinError 183]` when
+  the destination already exists, instead of overwriting. Every atomic-write tmp-swap in
+  `scripts/room-registry`, `scripts/resolve-room`, `scripts/update-icm-index`, and
+  `scripts/on-cwd-changed` used `os.rename(tmp, dst)`, so the first write to a destination
+  (cold room creation, first `/mos:rooms list`) always succeeded and looked healthy, while
+  every subsequent write (`set-active`, `update`, `archive`, git-config sync) silently
+  wedged on Windows, leaving an orphaned `.tmp` and a frozen registry. This repo's own test
+  suite runs only under WSL/Linux, where `os.rename` already overwrites happily, so the gap
+  was invisible to CI for the test suite's entire lifetime. Found live by a Windows install
+  testing v1.15.3-beta.38; fix and both the semantics claim and the end-to-end unwedge were
+  independently re-verified live on that same Windows install. Fixed: `os.rename` ->
+  `os.replace` at all 9 call sites (byte-identical behavior on Linux/macOS, overwrite-safe
+  on Windows). New regression test (`tests/test-room-registry-windows-atomic-replace.cjs`)
+  and a new release-time gate (`scripts/verify-release` section 15) now fail the release if
+  a bare `os.rename(` reappears anywhere in `scripts/`.
 
 ## [1.15.3-beta.38] - 2026-07-23
 
