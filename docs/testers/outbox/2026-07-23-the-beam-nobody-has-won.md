@@ -1,11 +1,11 @@
 ---
 type: tester-update-notice
 version: v1.15.3-beta.40
-status: prepared_not_filed
+status: drafted
 story_slug: the-beam-nobody-has-won
 story_url: https://mindrian-os.com/blog/the-beam-nobody-has-won
-challenge_draft_id: PENDING -- not yet created (see "Execution blocker" below)
-personal_draft_id: PENDING -- not yet created (see "Execution blocker" below)
+challenge_draft_id: r8452084516049402167
+personal_draft_id: r-6145789083666657067
 recipient_source: "42 active brain_api_keys holders, queried live 2026-07-23 via mcp-server-brain/brain-admin.cjs's own Supabase REST credentials (SUPABASE_URL/SUPABASE_SERVICE_KEY from mcp-server-brain/.env), filtered is_active=true AND last_request_at IS NOT NULL, deduped by lowercased email, sender (jsagir@gmail.com) excluded. Raw query returned 73 rows; 42 passed the filter after dedup."
 sent_to:
   - jsagir@gmail.com
@@ -17,7 +17,7 @@ style_deviations:
   - "EMAIL 1's WHAT-IS-NEW section runs 2 cards instead of the canon's usual 3. The Unreleased CHANGELOG entry (v1.15.3-beta.41, in progress) has no shipped content yet ('### Added' with a blank bullet), so only the two real, already-shipped entries (v1.15.3-beta.38 Brain endpoint flip, v1.15.3-beta.40 Windows atomic-write fix) are used. No content was invented to reach 3."
   - "Hyphens used throughout, never em-dashes (project hard rule), in both emails and this log."
   - "EMAIL 2 paraphrases the 'What Is MindrianOS?' canonical copy from website/CLAUDE.md but deliberately OMITS the instructor's personal name in the Larry description, per the 2026-07-19 HARD RULE (no individual's name attached to PWS/methodology framing anywhere public, including email), which supersedes the older 'Aronhime's name is fine' guidance still present in that CLAUDE.md file's own text. The rewritten line is 'built from twenty-plus years of real classroom teaching in innovation methodology, not generic training data' with no name attached."
-  - "Neither draft was sent, and as of this commit neither draft has even been CREATED in Gmail -- see 'Execution blocker' below. Both are prepared content only, awaiting the actual create_draft call."
+  - "UPDATE (same-day follow-up, orchestrator session with Gmail MCP access): both drafts have now been created via create_draft. challenge_draft_id=r8452084516049402167 (BCC: the real 42-holder list, confirmed via list_drafts). personal_draft_id=r-6145789083666657067 (BCC: the same 42 plus Dudi and Saar's real addresses, confirmed via list_drafts -- 43 total recipients). Both drafts have to=jsagir@gmail.com only, no cc. NEITHER has been sent. Verified via list_drafts that no send occurred (drafts remain in Drafts, no sentDate/sent label). The founder does the final review and send in Gmail."
 ---
 
 # The Beam Nobody Has Won -- outbox entry, prepared 2026-07-23
@@ -30,7 +30,18 @@ a new, personal, founder-voice introduction to MindrianOS for the same list
 plus two named individual additions (first names only, real addresses used
 only at send-draft time).
 
-## Execution blocker (read before treating this as done)
+## RESOLVED same-day: both drafts now filed
+
+The executor sub-agent below correctly stopped short of filing the drafts because
+its tool access did not include the Gmail MCP connector. The orchestrator session
+(which does have Gmail MCP access) picked up the exact prepared content and filed
+both drafts via create_draft immediately after: challenge_draft_id
+r8452084516049402167 (BCC: the real 42-holder list) and personal_draft_id
+r-6145789083666657067 (BCC: the same 42 plus Dudi and Saar's real addresses, 43
+total). Both confirmed via list_drafts: to=jsagir@gmail.com only, no cc, neither
+sent. The section below is preserved verbatim as the original execution record.
+
+## Execution blocker (original record, since resolved above -- read before treating this as done)
 
 **Neither Gmail draft has been created.** This entry was prepared by a GSD
 execute-phase sub-agent whose tool access in this session was limited to
