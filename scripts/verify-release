@@ -400,6 +400,30 @@ else
 fi
 
 # ============================================================
+# 15. WINDOWS-UNSAFE RENAME PRIMITIVE
+# ============================================================
+# RCA windows-os-rename-registry-wedge (2026-07-23): Python's os.rename() is
+# NOT POSIX rename(2) on Windows -- it raises FileExistsError [WinError 183]
+# when the destination exists, instead of overwriting. Every atomic-write
+# tmp-swap in scripts/ (Python heredocs in bash) must use os.replace()
+# instead. This bit the room-registry family silently for weeks on a real
+# Windows install (first write always succeeds -> looks healthy; every write
+# after that wedges) precisely because this repo's own test suite runs only
+# under WSL/Linux, where os.rename() already overwrites happily and never
+# surfaces the gap. There is no legitimate use of a bare os.rename( for an
+# atomic write anywhere in this repo -- ban it outright, same shape as the
+# check-shape-declaration.cjs gate.
+echo -e "\n${BOLD}15. Windows-Unsafe Rename Primitive${NC}"
+
+RENAME_HITS=$(grep -rn "os\.rename(" "$PLUGIN_ROOT/scripts/" 2>/dev/null | grep -v "\.pyc$" | grep -v "^$PLUGIN_ROOT/scripts/verify-release:" || true)
+if [ -z "$RENAME_HITS" ]; then
+  pass "No bare os.rename( in scripts/ (os.replace is the only overwrite-safe primitive on Windows)"
+else
+  fail "Found bare os.rename( in scripts/ -- Windows-unsafe (raises FileExistsError if dst exists; use os.replace instead). Sites:
+$RENAME_HITS"
+fi
+
+# ============================================================
 # PACKAGE-LOCK SYNC (vendored-node_modules lockstep)
 # ============================================================
 # Debug session mcp-servers-cache-missing-node-modules: release.sh Step 6.7

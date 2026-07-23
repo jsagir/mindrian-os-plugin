@@ -37,9 +37,29 @@
  *      survive in the four scripts, so the Windows-broken primitive cannot
  *      creep back in.
  *
+ * IMPORTANT, load-bearing caveat (do not remove this note): Parts 1 and 2
+ * above are BEHAVIORAL and run on whatever OS this suite executes on --
+ * which is WSL/Linux for every tests/run-all-*.sh in this repo. On POSIX,
+ * os.rename() ALREADY overwrites an existing destination (that is precisely
+ * why the original bug hid for the test suite's entire lifetime). So Parts 1
+ * and 2 would pass IDENTICALLY even if the fix were reverted back to
+ * os.rename -- they are vacuously green on this CI regardless of which
+ * primitive scripts/ actually uses. They still earn their place (they prove
+ * the FUNCTIONAL behavior is correct and unregressed on Linux/macOS, and
+ * they are the assertions that WOULD catch a regression on an actual Windows
+ * runner), but they are NOT the anti-regression gate for this repo's own
+ * Linux-only CI. Part 3 -- the static source-text grep for zero `os.rename(`
+ * -- is the ONLY assertion in this file that actually holds the line here.
+ * Do not let a green run of Parts 1/2 alone stand in for "the fix is still
+ * applied"; that reasoning is exactly the trap this comment exists to name.
+ *
  * The pre-existing correct usage at scripts/track-analytics:155
  * (`os.replace(tmp_file, analytics_file)`) is the proof this primitive was
- * already the house standard -- the registry family simply missed it.
+ * already the house standard -- the registry family simply missed it. The
+ * same source-grep-audit shape is precedented at lib/core/mva-classifier.test.cjs
+ * (asserts mva-state.cjs uses fs.renameSync, not a bare rename) -- Part 3
+ * below follows that same pattern, now promoted to a release-time gate too
+ * (see scripts/verify-release's Windows-unsafe-rename-primitive check).
  *
  * House rule: hyphens only, no em-dashes, no emoji.
  */
