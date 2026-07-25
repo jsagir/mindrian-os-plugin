@@ -3205,6 +3205,27 @@ Plans:
 
 ---
 
+### Phase 232.1: Room-Graph Density Read (room-graph-density-read) - INSERTED 2026-07-25 - **SEED-074 "Suggested first move" only, not the seed's gated target**
+
+**Goal:** Add a density read to `/mos:doctor` and/or `room_state --acceptance` output: node count and edge count per `room.db`, read exclusively through `lib/core/navigation.cjs` (Canon Part 9 substrate guard, no direct `room.db` opens outside that chokepoint). Closes SEED-074's own "Suggested first move" (`.planning/seeds/SEED-074-local-graph-read-layer-lacks-salience-and-query-time-joins.md`): the seed is gated on "measured room.db density crossing a real threshold," and today that measurement requires a human to remember to go check it by hand (as the seed's own author did on 2026-07-25, sampling 2 rooms, both 0 tables). This phase makes that measurement self-reported instead.
+**Out of scope (stays gated on SEED-074 exactly as written, this phase does not open the gate):** PageRank/Louvain salience or clustering, SAG-style query-time-join fallback, any query-language/pattern-match surface. This phase only makes the gate's own trigger condition observable.
+**Hard guard (inherited from SEED-074):** must not imply in its own docs/output that room graphs are dense or at risk today -- only measurement taken so far is a 2-room spot-check (both 0 tables), not a census.
+**Requirements**: D-01..D-08 (CONTEXT.md decision IDs -- no REQUIREMENTS.md exists for this phase)
+**Depends on:** Nothing (net-new, small, low-ambiguity; sequenced immediately after Phase 232 as the navigator-designated next item, not a hard code dependency)
+**Canon:** Parts 4, 9 (matches SEED-074's own `canon_parts:`)
+**Cross-references:** SEED-074 (`.planning/seeds/SEED-074-local-graph-read-layer-lacks-salience-and-query-time-joins.md`)
+**Plans:** 2 plans
+
+Plans:
+
+**Wave 1**
+
+- [ ] 232.1-01-PLAN.md - Read-only room.db door (D-04 corrected) + room-graph-density doctor module + regression suite [D-01, D-02, D-03, D-04, D-05, D-06, D-08]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 232.1-02-PLAN.md - room_state status/get-state density fold + regression suite [D-01, D-04, D-06, D-07]
+
 ### Phase 221: Pipeline-Wide High-Effort LLM Engine Recovery (llm-engine-recovery) - REGISTERED 2026-07-13 - **JOINT 219+220+221 RELEASE; THE CUT EXECUTES HERE**
 
 **Goal:** When any registered engine in the research pipeline fails, Mindrian recovers intelligently instead of collapsing to empty: common typed stage envelopes (ok | empty_valid | degraded | failed | blocked) replace the verified failure-to-empty ambiguity (lib/core/research-corpus.cjs); a 6-tier recovery ladder (normal -> deterministic retry -> local governed substitute -> high-effort LLM recovery -> human intervention -> honest termination) is codified; a bounded LLM recovery controller (diagnose/plan/execute/validate/reconcile/resume with a persisted recovery case file) does the intelligence work through remaining healthy tools while deterministic validators, privacy gates, human gates, and readback retain ALL authority; and the phase ends by EXECUTING the joint 219+220+221 version cut.
