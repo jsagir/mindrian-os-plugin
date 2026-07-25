@@ -64,6 +64,48 @@ traversal, not `MATCH`-style pattern queries. Worth having in mind if this SEED 
 scoped into a phase, whether the read layer wants a small pattern-match surface, not just
 salience scoring, not worth a build decision now, still gated on the same trigger above.
 
+## Fourth source, a real answer to "is there a size threshold" (2026-07-25 addendum)
+
+Top-tier literature check (Tavily deep research, `pro` depth, 10 sources incl.
+Fan Chung's PageRank survey, the GVE-Louvain complexity paper, Neo4j's own
+Graph Data Science docs, and a cross-engine community-detection benchmark
+paper), run after `langtalks-graph-expert` came back with nothing on this
+specific question. Verdict, and it is a real one, not another "not found":
+
+**There is no universal node-count or density threshold in the literature.**
+Every source frames the decision structurally, not by size: PageRank's real
+cost driver is a chosen significance/error tolerance (Fan Chung), not graph
+size; Louvain's cost is `O(iterations x |edges|)`, so edge count and how much
+structure the graph already has matter more than node count; and a published
+cross-engine benchmark runs Louvain-style community detection routinely on
+graphs as small as 1,000-5,000 nodes, right alongside million-node graphs --
+so "too small to bother" is not a real engineering line either.
+
+**What the sources agree actually gates it:** whether the graph has real
+community structure worth exploiting (a nontrivial modularity score) and
+whether PageRank meaningfully reorders results compared to just counting
+connections (degree). If neither holds, the algorithms add nothing regardless
+of size. If either holds, they can be worth running even on a small graph.
+
+**Why this matters for this seed's own gate condition:** MindrianOS's largest
+measured room today (~4,146 nodes, see the Measured reality check section
+above) sits squarely inside the "1k-5k nodes, routinely tried in benchmarks"
+zone the sources describe. This is NOT a build signal, do not read it as one:
+nothing here says any MindrianOS room currently has the modularity or
+rank-reordering signal that would make these algorithms actually pay off, and
+that has not been measured. What it DOES suggest, for whoever next picks this
+seed up: the gate condition as worded ("measured room.db density crossing a
+real threshold") should probably be re-cast as a STRUCTURAL test (does a
+room's graph show real modularity, or does a quick PageRank pass actually
+reorder nodes versus plain degree) rather than a size test, since no size
+threshold exists to gate on. That re-casting is a suggestion for the next
+pickup, not something this addendum decides or acts on.
+
+Sources: fanchung.ucsd.edu/wp/pagerank.pdf; arxiv.org/html/2312.04876v4
+(GVE-Louvain); mever.gr's community-detection benchmarking paper (Graph1k/
+Graph5k scale runs); neo4j.com/docs/graph-data-science (PageRank docs);
+arxiv.org/pdf/1012.4872; link.springer.com/article/10.1007/s41109-019-0201-9.
+
 ## The target, when the gate below actually opens
 
 Two independent, separable primitives, do not bundle them into one build:
