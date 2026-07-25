@@ -3214,13 +3214,13 @@ Plans:
 **Depends on:** Nothing (net-new, small, low-ambiguity; sequenced immediately after Phase 232 as the navigator-designated next item, not a hard code dependency)
 **Canon:** Parts 4, 9 (matches SEED-074's own `canon_parts:`)
 **Cross-references:** SEED-074 (`.planning/seeds/SEED-074-local-graph-read-layer-lacks-salience-and-query-time-joins.md`)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 
 **Wave 1**
 
-- [ ] 232.1-01-PLAN.md - Read-only room.db door (D-04 corrected) + room-graph-density doctor module + regression suite [D-01, D-02, D-03, D-04, D-05, D-06, D-08]
+- [x] 232.1-01-PLAN.md - Read-only room.db door (D-04 corrected) + room-graph-density doctor module + regression suite [D-01, D-02, D-03, D-04, D-05, D-06, D-08]
 
 **Wave 2** *(blocked on Wave 1)*
 

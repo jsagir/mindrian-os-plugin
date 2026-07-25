@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Phase 232.1 context gathered (discuss pass complete; Phase 232 itself remains CLOSED, 6/6 plans, 2026-07-20)
-last_updated: "2026-07-25T14:09:19.165Z"
-last_activity: 2026-07-25 -- Phase 232.1 discuss pass complete (surface placement: Both -- doctor module + room_state line)
+stopped_at: "Completed 232.1-01-PLAN.md (room-graph density read: read-only room.db door + doctor census module)"
+last_updated: "2026-07-25T17:50:48.002Z"
+last_activity: 2026-07-25
 progress:
   total_phases: 41
   completed_phases: 27
-  total_plans: 148
-  completed_plans: 145
+  total_plans: 150
+  completed_plans: 146
   percent: 66
 ---
 
@@ -1252,11 +1252,11 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 231 — eureka-entity-noise-fix-thread-the-low-confidence-signal-ont
+**Current focus:** Phase 232.1 — room-graph-density-read-add-node-count-edge-count-per-room-d
 
 ## Current Position
 
-Phase: 231 (eureka-entity-noise-fix-thread-the-low-confidence-signal-ont) — EXECUTING
+Phase: 232.1 (room-graph-density-read-add-node-count-edge-count-per-room-d) — EXECUTING
 Plan: 2 of 2
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
@@ -1378,7 +1378,7 @@ Phase 143.3-01 outcome (2026-06-07): shipped the Connector Contract FOUNDATION -
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-07-20
+Last activity: 2026-07-25
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -1852,6 +1852,7 @@ Progress: [█████████░] 92%
 | Phase 232 P03 | 18min | 3 tasks | 8 files |
 | Phase 232 P06 | 1 session | 2 tasks | 7 files |
 | 232 | 6 | - | - |
+| Phase 232.1 P01 | 42min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -2952,6 +2953,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 232-03: BlockNote editor walled into lib/wiki/editor-src/ with its own package.json; react/@blocknote/esbuild never enter root deps (D-01/D-02, SPEC Req 1)
 - [Phase ?]: Phase 232-03: @blocknote/* pinned EXACT 0.51.4 (D-07 round-trip); esbuild conditions:['style'] added to resolve BlockNote CSS export condition (build-config deviation)
 - [Phase ?]: Phase 232-03: Save is unguarded direct overwrite, no mtime/hash/conflict logic (SPEC Req 2 locked decision 4); vendored editor-dist bundle committed like the Cytoscape CDN pattern
+- [Phase ?]: Phase 232.1-01 (D-04 corrected, implemented): the room-graph census reads room.db through openRoomDbReadOnlyForCaller, a NEW read-only sibling door inside lib/core/navigation/spine-events.cjs (node:sqlite file: URI ?mode=ro plus an fs.existsSync guard, since node:sqlite has no fileMustExist), re-exported from navigation.cjs. A second MODE of entry through the SAME Canon Part 9 chokepoint, never a second chokepoint, so check-substrate.cjs needed zero allow-list edit. It exists because the pre-existing openRoomDbForCaller delegates to room-db.cjs::openRoomDb, which mkdirSyncs .mindrian/, runs 13 CREATE TABLE IF NOT EXISTS statements and 5 migrations on EVERY open (reproduced empirically); a census through it would have silently migrated all 38 live rooms on first run. No sibling close function: the pre-existing closeRoomDbForCaller already accepts a bare DatabaseSync. Pinned by a byte-identical sqlite_master plus mtimeMs regression, and verified against the real registry (45 rooms, 38 room.db files, 0 mutated across two consecutive census runs).
+- [Phase ?]: Phase 232.1-01 (D-02/D-06/D-08): room-graph-density ships as ONE data/doctor-modules.json entry plus one runner file, zero doctor-engine change. cadence always, flag null (bare run plus --all), fix_supported false, introduced_version 1.15.3-beta.47. status is hardcoded ok whenever the sweep completes and skip with no registry, NEVER warn: a count is a measurement, and a warn would inflate the drift tally and offer a --fix that does not exist. The D-06 no-adjective guard is machine-checkable (a forbidden-word assertion over the rendered detail), not a promise. rooms[] carries room NAMES and counts only, never filesystem paths. lazygraph-ops.cjs::graphStats was explicitly evaluated and rejected for reuse with the 4 reasons recorded in the module header (single-room reach, openGraph bypass door, async vs the synchronous engine loop, per-type grain that edges toward salience framing), so the Canon Part 7 question is answered on the record rather than missed. Pitfall 5 fired for real during execution: introduced_version above the INSTALLED cache version silently DEFERS a module with no error, so the hermetic test builds a scratch plugin home stamped at the repo version instead of asserting against the stale install.
 
 ### Pending Todos
 
@@ -3039,8 +3042,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-25T14:09:19.092Z
-Stopped at: Phase 232.1 context gathered
+Last session: 2026-07-25T17:50:19.495Z
+Stopped at: Completed 232.1-01-PLAN.md (room-graph density read: read-only room.db door + doctor census module)
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
