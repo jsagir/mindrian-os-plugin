@@ -31,6 +31,8 @@
  *        T-217-01).
  *     7. a schema-less room.db reports 0 / 0 and never throws (D-05).
  *     8. the rendered detail carries no D-06 forbidden word.
+ *     9. a room registered via `abs_path` only (no `path` key) is counted,
+ *        not silently skipped (232.1-REVIEW.md WR-01 fix).
  *
  * Spawns: `node scripts/doctor.cjs --json` (bare run, since the module is
  * registered with flag: null) with MINDRIAN_ROOMS_HOME=<scratch> so the census
@@ -521,6 +523,49 @@ let scenario4Detail = null;
     ok(label);
   } catch (e) {
     fail(label, e);
+  }
+})();
+
+(function test9_absPathRegisteredRoomIsCounted() {
+  // 232.1-REVIEW.md WR-01: resolveRoomPath must honor `abs_path` (the
+  // canonical registry precedence field per resolve-active-room.cjs, used by
+  // this same phase's own room_state integration), not just `path`. A room
+  // registered abs_path-only is a real, common registry shape -- silently
+  // skipping it would under-count the census this phase exists to make
+  // trustworthy.
+  const label = 'module: abs_path-registered room (no path key) is counted, not silently skipped';
+  const scratch = makeScratchDir('abs-path-room');
+  try {
+    fs.mkdirSync(path.join(scratch, '.rooms'), { recursive: true });
+    const absRoomDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-232-1-absroom-'));
+    seedRows(absRoomDir, 3, 2);
+    writeRegistry(scratch, {
+      active: 'abs-room',
+      rooms: { 'abs-room': { abs_path: absRoomDir } },
+    });
+
+    try {
+      const { stdout, status } = runDoctorJson(scratch, ['--json']);
+      assert.equal(status, 0, label + ': doctor must exit 0 (graceful degradation)');
+      const rd = densityCheck(stdout, label);
+      assert.equal(rd.status, 'ok', label + ': status must be "ok" when the sweep completes');
+
+      const absRoom = roomEntry(rd, 'abs-room', label);
+      assert.equal(absRoom.node_count, 3,
+        label + ': abs_path-registered room must report its 3 node rows, not be skipped');
+      assert.equal(absRoom.edge_count, 2,
+        label + ': abs_path-registered room must report its 2 edge rows, not be skipped');
+      assert.equal(absRoom.has_db, true, label + ': abs_path-registered room must report has_db true');
+      assert.equal(rd.totals.rooms, 1,
+        label + ': totals.rooms must count the abs_path-only room (would be 0 before the WR-01 fix)');
+      ok(label);
+    } finally {
+      rmrf(absRoomDir);
+    }
+  } catch (e) {
+    fail(label, e);
+  } finally {
+    rmrf(scratch);
   }
 })();
 
