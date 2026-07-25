@@ -14,7 +14,12 @@
  *        byte-identical. This is the proof that the whole D-04 decision holds:
  *        the pre-existing openRoomDbForCaller runs 13 CREATE TABLE IF NOT
  *        EXISTS statements plus 5 migrations on every open, so a census through
- *        it would silently migrate every registered room.
+ *        it would silently migrate every registered room. Seeded via
+ *        seedMidMigrationRoom (deliberately BEHIND the migration chain, the
+ *        real state of 30 of 38 live rooms), not a fully-migrated fixture --
+ *        a room already at head schema would pass this pin even with the
+ *        wrong door wired in, since there is nothing left to migrate either
+ *        way. Mutation-verified: swapping the door in this scenario fails it.
  *     3. a room path containing #, % and ? still opens (the _fileUriPath
  *        escaper, not just the happy-path filename case).
  *   Doctor-module scenarios (Plan 01 Task 2, D-01/D-02/D-03/D-05/D-06/D-08):
@@ -33,10 +38,16 @@
  * ~/MindrianRooms/. stdout is parsed ALONE, never stdout + stderr: node:sqlite
  * prints an ExperimentalWarning to stderr on first load.
  *
- * The one deliberate use of the MUTATING door (room-db.cjs::openRoomDb) is test
- * SETUP only: it is how a scratch room gets a realistic, fully migrated schema
- * to then be measured read-only. tests/ is on the check-substrate.cjs
- * ALLOWED_DIRECT_IMPORT list, so requiring room-db.cjs here is sanctioned.
+ * Two deliberate fixture-seeding paths, both test SETUP only, never the code
+ * under test: (1) the MUTATING door (room-db.cjs::openRoomDb) via
+ * seedRealSchema, used ONLY by scenario 3 (URI-path escaping) to get a
+ * realistic, fully-migrated multi-table schema; (2) a raw node:sqlite fixture
+ * via seedMidMigrationRoom, used by scenario 2 (the actual mutation-avoidance
+ * pin) to reproduce the pre-migration schema state most live rooms are
+ * actually in -- using seedRealSchema there would make the pin pass
+ * regardless of which door is wired in. tests/ is on the check-substrate.cjs
+ * ALLOWED_DIRECT_IMPORT list, so both node:sqlite and room-db.cjs are
+ * sanctioned here.
  *
  * IIFE harness pattern from tests/test-doctor-class-b.cjs.
  * Registered in lib/memory/run-feynman-tests.cjs.
@@ -87,11 +98,54 @@ function roomDbPath(roomDir) {
 }
 
 // Seed a scratch room with the REAL migrated schema. Uses the mutating door on
-// purpose (setup only) so the read-only assertions below run against realistic
-// multi-table state, not a hand-rolled fixture.
+// purpose (setup only) so scenario 3 (URI-path escaping) exercises a realistic
+// multi-table state, not a hand-rolled fixture. NOT used for scenario 2 (see
+// seedMidMigrationRoom below) -- a room already at head schema makes the
+// byte-identical pin pass even if the wrong (mutating) door is wired in, since
+// every CREATE TABLE IF NOT EXISTS is already a no-op against it.
 function seedRealSchema(roomDir) {
   const handle = roomDb.openRoomDb(roomDir);
   roomDb.closeRoomDb(handle);
+}
+
+// Seed a room.db that is BEHIND the migration chain: only the pre-migration
+// `nodes` (bare id/type/properties triple) and `edges` tables, none of the
+// other 11 tables and none of the phase-109 / phase-160 node columns. This is
+// the real-world state of most live registered rooms (232.1-RESEARCH.md: 30 of
+// 38), and it is what makes scenario 2 a REAL regression pin. A room seeded
+// through openRoomDb (seedRealSchema above) is already at head schema, so a
+// second mutating open would be an unobservable no-op and the byte-identical
+// assertion would pass even if the wiring reached the WRONG door. Against this
+// fixture, a mutating open adds tables and columns, so sqlite_master visibly
+// changes -- verified by mutation test: swapping openRoomDbReadOnlyForCaller
+// for openRoomDbForCaller in scenario 2 fails this scenario.
+// tests/ is on the check-substrate.cjs ALLOWED_DIRECT_IMPORT list, so touching
+// node:sqlite here is sanctioned.
+function seedMidMigrationRoom(roomDir, nodeCount, edgeCount) {
+  const { DatabaseSync } = require('node:sqlite');
+  fs.mkdirSync(path.join(roomDir, '.mindrian'), { recursive: true });
+  const db = new DatabaseSync(path.join(roomDir, '.mindrian', 'room.db'));
+  try {
+    db.exec(
+      'CREATE TABLE IF NOT EXISTS nodes ('
+      + ' id TEXT PRIMARY KEY, type TEXT NOT NULL, properties TEXT DEFAULT \'{}\''
+      + ');'
+      + 'CREATE TABLE IF NOT EXISTS edges ('
+      + ' source TEXT NOT NULL, target TEXT NOT NULL, type TEXT NOT NULL,'
+      + ' properties TEXT DEFAULT \'{}\', PRIMARY KEY (source, target, type)'
+      + ');'
+    );
+    for (let i = 0; i < nodeCount; i += 1) {
+      db.prepare('INSERT INTO nodes (id, type, properties) VALUES (?, ?, ?)')
+        .run('n' + i, 'claim', '{}');
+    }
+    for (let i = 0; i < edgeCount; i += 1) {
+      db.prepare('INSERT INTO edges (source, target, type, properties) VALUES (?, ?, ?, ?)')
+        .run('n' + i, 'n' + (i + 1), 'INFORMS', '{}');
+    }
+  } finally {
+    db.close();
+  }
 }
 
 function schemaSnapshot(db) {
@@ -250,10 +304,14 @@ let scenario4Detail = null;
 
 (function test2_readOnlyOpenNeverMutates() {
   // THE regression pin for 232.1-RESEARCH.md Pitfall 1 / CONTEXT.md D-04.
+  // Uses seedMidMigrationRoom (NOT seedRealSchema): a room already at head
+  // schema makes this pin pass even with the wrong door wired in, since every
+  // CREATE TABLE IF NOT EXISTS is already a no-op. Only a genuinely
+  // pre-migration fixture makes a mutating open visibly change sqlite_master.
   const label = 'door: byte-identical regression -- read-only open never mutates room.db';
   const scratch = makeScratchDir('nomutate');
   try {
-    seedRealSchema(scratch);
+    seedMidMigrationRoom(scratch, 2, 1);
     const dbPath = roomDbPath(scratch);
     assert.equal(fs.existsSync(dbPath), true,
       label + ': precondition -- seeded room.db must exist');
@@ -263,8 +321,18 @@ let scenario4Detail = null;
     const first = spineEvents.openRoomDbReadOnlyForCaller(scratch);
     assert.notEqual(first, null, label + ': read-only door must return a handle');
     const before = schemaSnapshot(first);
-    assert.equal(before.length > 0, true,
-      label + ': seeded room.db must carry a non-empty schema to make this test meaningful');
+    // sqlite_master also carries an autoindex row per TEXT/composite PRIMARY
+    // KEY (empirically 4 rows total for this 2-table fixture: 2 tables + 2
+    // sqlite_autoindex_* entries) -- count type='table' specifically rather
+    // than raw row length, so this precondition tracks "how many real tables"
+    // and stays correct regardless of autoindex-naming behavior.
+    const tableCountBefore = first.prepare(
+      "SELECT count(*) AS c FROM sqlite_master WHERE type = 'table'"
+    ).get().c;
+    assert.equal(tableCountBefore, 2,
+      label + ': precondition -- fixture must carry EXACTLY the 2 pre-migration tables (nodes, edges), '
+      + 'not the full head-schema table set; if this fires, seedMidMigrationRoom has drifted to head '
+      + 'schema and no longer makes this scenario a real regression pin');
     spineEvents.closeRoomDbForCaller(first);
 
     const afterMtime = fs.statSync(dbPath).mtimeMs;
