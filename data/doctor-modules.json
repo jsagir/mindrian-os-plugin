@@ -138,6 +138,15 @@
       "fix_supported": true,
       "runner": "lib/core/doctor/deployment-surfaces-module.cjs",
       "description": "Deployment-surface manifest reconciliation (class J): reconciles every owned surface in data/deployment-surfaces.json against disk (marker / exact-value / observed-only), honoring topology_scope + token expansion. Reads topology/activeRoot/activeVersion from ctx.checks['install-state'] (self-derives via shared.cjs when absent). Shares the --install-state flag with class I; ordered AFTER it. --fix re-stamps ok:false session-start-owned surfaces + prunes the marketplace cache."
+    },
+    {
+      "id": "room-graph-density",
+      "introduced_version": "1.15.3-beta.47",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/room-graph-density-module.cjs",
+      "description": "Per-registered-room room.db node-row and edge-row counts, read through the new read-only navigation door so the census never mutates what it measures. Check-only: raw counts and totals, no health or density claim, per SEED-074's hard guard on downstream claims."
     }
   ]
 }

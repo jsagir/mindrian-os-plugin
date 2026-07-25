@@ -17,6 +17,21 @@
  *        it would silently migrate every registered room.
  *     3. a room path containing #, % and ? still opens (the _fileUriPath
  *        escaper, not just the happy-path filename case).
+ *   Doctor-module scenarios (Plan 01 Task 2, D-01/D-02/D-03/D-05/D-06/D-08):
+ *     4. two rooms (one populated, one with no room.db) -> status ok, per-room
+ *        counts and totals correct.
+ *     5. no registry -> status skip.
+ *     6. a corrupt registry entry soft-fails that ONE room only; the sweep
+ *        completes and the healthy room's counts are unaffected (T-232.1-02 /
+ *        T-217-01).
+ *     7. a schema-less room.db reports 0 / 0 and never throws (D-05).
+ *     8. the rendered detail carries no D-06 forbidden word.
+ *
+ * Spawns: `node scripts/doctor.cjs --json` (bare run, since the module is
+ * registered with flag: null) with MINDRIAN_ROOMS_HOME=<scratch> so the census
+ * operates against the hermetic scratch registry, not the user's real
+ * ~/MindrianRooms/. stdout is parsed ALONE, never stdout + stderr: node:sqlite
+ * prints an ExperimentalWarning to stderr on first load.
  *
  * The one deliberate use of the MUTATING door (room-db.cjs::openRoomDb) is test
  * SETUP only: it is how a scratch room gets a realistic, fully migrated schema
@@ -31,8 +46,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const REPO = path.resolve(__dirname, '..');
+const DOCTOR = path.join(REPO, 'scripts', 'doctor.cjs');
 
 const spineEvents = require(path.join(REPO, 'lib', 'core', 'navigation', 'spine-events.cjs'));
 const roomDb = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
@@ -80,6 +97,137 @@ function seedRealSchema(roomDir) {
 function schemaSnapshot(db) {
   return db.prepare('SELECT name, sql FROM sqlite_master ORDER BY name').all();
 }
+
+// Build a scratch registry with N rooms. Copied from tests/test-doctor-class-b.cjs
+// and reduced to what this phase needs (no sentinel map). Returns the absolute
+// path of the scratch ROOMS_HOME.
+function makeScratchRegistry(scratch, rooms) {
+  const registryDir = path.join(scratch, '.rooms');
+  fs.mkdirSync(registryDir, { recursive: true });
+  const registry = { active: rooms[0] || null, rooms: {} };
+  for (const roomName of rooms) {
+    fs.mkdirSync(path.join(scratch, roomName), { recursive: true });
+    registry.rooms[roomName] = { path: roomName };
+  }
+  fs.writeFileSync(
+    path.join(registryDir, 'registry.json'),
+    JSON.stringify(registry, null, 2)
+  );
+  return scratch;
+}
+
+function writeRegistry(scratch, registry) {
+  fs.writeFileSync(
+    path.join(scratch, '.rooms', 'registry.json'),
+    JSON.stringify(registry, null, 2)
+  );
+}
+
+// Seed a scratch room with a real schema plus nodeCount node rows and edgeCount
+// edge rows. Setup only, via the mutating door on purpose.
+function seedRows(roomDir, nodeCount, edgeCount) {
+  const db = roomDb.openRoomDb(roomDir);
+  const now = Date.now();
+  try {
+    for (let i = 0; i < nodeCount; i += 1) {
+      // The post-migration nodes table carries NOT NULL source_path /
+      // created_by / created_at / last_seen_at (phase-109 + phase-160), so the
+      // bare (id, type, properties) triple is not insertable.
+      db.prepare(
+        'INSERT INTO nodes (id, type, properties, source_path, created_by, created_at, last_seen_at) '
+        + 'VALUES (?, ?, ?, ?, ?, ?, ?)'
+      ).run('n' + i, 'claim', '{}', 'test/seed.md', 'system', now, now);
+    }
+    for (let i = 0; i < edgeCount; i += 1) {
+      db.prepare('INSERT INTO edges (source, target, type, properties) VALUES (?, ?, ?, ?)')
+        .run('n' + i, 'n' + (i + 1), 'INFORMS', '{}');
+    }
+  } finally {
+    roomDb.closeRoomDb(db);
+  }
+}
+
+// Build a hermetic scratch HOME carrying a minimal plugin install + marketplace
+// cache stamped with THIS repo's version, so doctor's class A install/cache
+// checks resolve cleanly (exit 0) and the accumulative engine's running version
+// of record is the version this code actually ships in.
+function makeScratchPluginHome(scratch) {
+  const version = JSON.parse(
+    fs.readFileSync(path.join(REPO, '.claude-plugin', 'plugin.json'), 'utf8')
+  ).version;
+  const home = path.join(scratch, '.scratch-home');
+  const stamp = JSON.stringify({ name: 'mindrian-os', version });
+  const installDir = path.join(home, '.claude', 'plugins', 'mindrian-os', '.claude-plugin');
+  const cacheDir = path.join(
+    home, '.claude', 'plugins', 'cache', 'mindrian-marketplace', 'mos', version, '.claude-plugin'
+  );
+  fs.mkdirSync(installDir, { recursive: true });
+  fs.mkdirSync(cacheDir, { recursive: true });
+  fs.writeFileSync(path.join(installDir, 'plugin.json'), stamp);
+  fs.writeFileSync(path.join(cacheDir, 'plugin.json'), stamp);
+  return home;
+}
+
+function runDoctorJson(scratch, args) {
+  // Defensive tripwire (232.1-RESEARCH.md Pitfall 2, carried from
+  // test-doctor-class-b.cjs): shared.cjs::readRegistry ignores ctx.home and
+  // honors ONLY MINDRIAN_ROOMS_HOME, so every spawn MUST set it or the census
+  // sweeps the developer's real rooms instead of the scratch registry.
+  //
+  // HOME is ALSO overridden, onto a scratch plugin home stamped with the repo's
+  // OWN version (see makeScratchPluginHome). Two reasons. (1) Hermeticity: the
+  // engine's watermark write (~/.mindrian/doctor-applied.json) and every
+  // ~/.claude read land inside the scratch tree, never the developer's real
+  // home. (2) Version resolution (232.1-RESEARCH.md Pitfall 5): the module's
+  // introduced_version is the version this code ships in, while the plugin
+  // cache INSTALLED on a dev box lags it by design (the last released tag).
+  // Under the real HOME the deferred-guard would therefore park the module and
+  // no row would ever appear -- a silent no-op that looks like success. The
+  // scratch plugin home makes the running version the version this code ships
+  // in, which is the configuration real users are on once it ships.
+  const scratchHome = makeScratchPluginHome(scratch);
+  const opts = {
+    encoding: 'utf8',
+    timeout: 20000,
+    env: Object.assign({}, process.env, {
+      MINDRIAN_ROOMS_HOME: scratch,
+      HOME: scratchHome,
+    }),
+  };
+  assert.equal(typeof opts.env.MINDRIAN_ROOMS_HOME, 'string',
+    'Test must set MINDRIAN_ROOMS_HOME to scratch dir to avoid leaking into real active room');
+  const res = spawnSync('node', [DOCTOR].concat(args), opts);
+  // stdout ONLY. node:sqlite prints an ExperimentalWarning to stderr on first
+  // load, so stdout + stderr would not parse as JSON.
+  return {
+    stdout: res.stdout || '',
+    stderr: res.stderr || '',
+    status: typeof res.status === 'number' ? res.status : -1,
+  };
+}
+
+function densityCheck(stdout, label) {
+  let report;
+  try {
+    report = JSON.parse(stdout);
+  } catch (e) {
+    throw new Error(label + ': stdout must be valid JSON. Got: ' + stdout);
+  }
+  assert.equal(typeof report.checks, 'object', label + ': report.checks must be an object');
+  const rd = report.checks['room-graph-density'];
+  assert.equal(typeof rd, 'object',
+    label + ': report.checks["room-graph-density"] must exist');
+  return rd;
+}
+
+function roomEntry(rd, name, label) {
+  const hit = (rd.rooms || []).find((r) => r && r.room === name);
+  assert.equal(typeof hit, 'object', label + ': rooms[] must carry an entry for ' + name);
+  return hit;
+}
+
+// Captured by scenario 4, asserted by scenario 8 (the D-06 copy guard).
+let scenario4Detail = null;
 
 // ---------- Scenarios ----------
 
@@ -163,6 +311,148 @@ function schemaSnapshot(db) {
     fail(label, e);
   } finally {
     rmrf(scratch);
+  }
+})();
+
+(function test4_twoRoomsPopulatedAndEmpty() {
+  const label = 'module: 2 rooms (1 populated, 1 without room.db) -> ok, counts + totals correct';
+  const scratch = makeScratchDir('two-rooms');
+  try {
+    makeScratchRegistry(scratch, ['populated-room', 'cold-room']);
+    seedRows(path.join(scratch, 'populated-room'), 2, 1);
+
+    const { stdout, status } = runDoctorJson(scratch, ['--json']);
+    assert.equal(status, 0, label + ': doctor must exit 0 (graceful degradation)');
+    const rd = densityCheck(stdout, label);
+    assert.equal(rd.status, 'ok', label + ': status must be "ok" when the sweep completes');
+
+    const populated = roomEntry(rd, 'populated-room', label);
+    assert.equal(populated.node_count, 2, label + ': populated room must report 2 node rows');
+    assert.equal(populated.edge_count, 1, label + ': populated room must report 1 edge row');
+    assert.equal(populated.has_db, true, label + ': populated room must report has_db true');
+
+    const cold = roomEntry(rd, 'cold-room', label);
+    assert.equal(cold.node_count, 0, label + ': room with no room.db must report 0 node rows');
+    assert.equal(cold.edge_count, 0, label + ': room with no room.db must report 0 edge rows');
+    assert.equal(cold.has_db, false, label + ': room with no room.db must report has_db false');
+
+    assert.equal(rd.totals.rooms, 2, label + ': totals.rooms must count both rooms');
+    assert.equal(rd.totals.nodes, 2, label + ': totals.nodes must sum to 2');
+    assert.equal(rd.totals.edges, 1, label + ': totals.edges must sum to 1');
+
+    scenario4Detail = rd.detail;
+    assert.equal(typeof rd.detail === 'string' && rd.detail.length > 0, true,
+      label + ': detail must be a non-empty string (contract-parity rule 9)');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  } finally {
+    rmrf(scratch);
+  }
+})();
+
+(function test5_noRegistrySkips() {
+  const label = 'module: no registry -> status skip';
+  const scratch = makeScratchDir('no-registry');
+  try {
+    // Intentionally do NOT call makeScratchRegistry.
+    const { stdout, status } = runDoctorJson(scratch, ['--json']);
+    assert.equal(status, 0, label + ': doctor must exit 0 (graceful degradation)');
+    const rd = densityCheck(stdout, label);
+    assert.equal(rd.status, 'skip', label + ': status must be "skip" when no registry exists');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  } finally {
+    rmrf(scratch);
+  }
+})();
+
+(function test6_corruptRegistryEntrySoftFailsOneRoom() {
+  // T-232.1-02 / T-217-01 proof: the per-room try wraps resolveRoomPath itself.
+  const label = 'module: corrupt registry entry soft-fails that room only';
+  const scratch = makeScratchDir('corrupt-entry');
+  try {
+    makeScratchRegistry(scratch, ['healthy-room', 'corrupt-room']);
+    seedRows(path.join(scratch, 'healthy-room'), 3, 2);
+    // Hand-write a non-string path for one entry: path.isAbsolute(5) throws.
+    writeRegistry(scratch, {
+      active: 'healthy-room',
+      rooms: {
+        'healthy-room': { path: 'healthy-room' },
+        'corrupt-room': { path: 5 },
+      },
+    });
+
+    const { stdout, status } = runDoctorJson(scratch, ['--json']);
+    assert.equal(status, 0, label + ': doctor must exit 0');
+    const rd = densityCheck(stdout, label);
+    assert.equal(rd.status, 'ok', label + ': the sweep must still complete with status "ok"');
+
+    const corrupt = roomEntry(rd, 'corrupt-room', label);
+    assert.equal(corrupt.unreadable, true, label + ': corrupt room must be marked unreadable');
+    assert.equal(corrupt.has_db, false, label + ': corrupt room must report has_db false');
+    assert.equal(corrupt.node_count, 0, label + ': corrupt room must report 0 node rows');
+    assert.equal(corrupt.edge_count, 0, label + ': corrupt room must report 0 edge rows');
+
+    const healthy = roomEntry(rd, 'healthy-room', label);
+    assert.equal(healthy.node_count, 3, label + ': healthy room counts must be unaffected');
+    assert.equal(healthy.edge_count, 2, label + ': healthy room counts must be unaffected');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  } finally {
+    rmrf(scratch);
+  }
+})();
+
+(function test7_schemaLessRoomDb() {
+  // D-05's literal case. openRoomDb ALWAYS runs initSchema, so a schema-less
+  // room.db cannot be produced through it: create the file directly with zero
+  // CREATE TABLE statements executed.
+  const label = 'module: schema-less room.db -> 0 / 0, no throw';
+  const scratch = makeScratchDir('schema-less');
+  try {
+    makeScratchRegistry(scratch, ['bare-db-room']);
+    const dbDir = path.join(scratch, 'bare-db-room', '.mindrian');
+    fs.mkdirSync(dbDir, { recursive: true });
+    const { DatabaseSync } = require('node:sqlite');
+    const bare = new DatabaseSync(path.join(dbDir, 'room.db'));
+    bare.close();
+    assert.equal(fs.existsSync(path.join(dbDir, 'room.db')), true,
+      label + ': precondition -- a schema-less room.db file must exist on disk');
+
+    const { stdout, status } = runDoctorJson(scratch, ['--json']);
+    assert.equal(status, 0, label + ': doctor must exit 0');
+    const rd = densityCheck(stdout, label);
+    assert.equal(rd.status, 'ok', label + ': the sweep must still return status "ok"');
+    const bareRoom = roomEntry(rd, 'bare-db-room', label);
+    assert.equal(bareRoom.node_count, 0, label + ': schema-less room must report 0 node rows');
+    assert.equal(bareRoom.edge_count, 0, label + ': schema-less room must report 0 edge rows');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  } finally {
+    rmrf(scratch);
+  }
+})();
+
+(function test8_forbiddenWordGuard() {
+  // D-06: a count is a measurement, never a health judgment. SEED-074's hard
+  // guard on downstream claims, made machine-checkable.
+  const label = 'module: D-06 forbidden-word guard on the rendered detail';
+  const forbidden = ['dense', 'sparse', 'density', 'risk', 'healthy', 'low', 'high'];
+  try {
+    assert.equal(typeof scenario4Detail === 'string' && scenario4Detail.length > 0, true,
+      label + ': scenario 4 must have captured a non-empty detail string');
+    const haystack = scenario4Detail.toLowerCase();
+    for (const word of forbidden) {
+      assert.equal(haystack.includes(word), false,
+        label + ': detail must not contain "' + word + '". Got: ' + scenario4Detail);
+    }
+    ok(label);
+  } catch (e) {
+    fail(label, e);
   }
 })();
 
