@@ -3214,7 +3214,7 @@ Plans:
 **Depends on:** Nothing (net-new, small, low-ambiguity; sequenced immediately after Phase 232 as the navigator-designated next item, not a hard code dependency)
 **Canon:** Parts 4, 9 (matches SEED-074's own `canon_parts:`)
 **Cross-references:** SEED-074 (`.planning/seeds/SEED-074-local-graph-read-layer-lacks-salience-and-query-time-joins.md`)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 
@@ -3224,7 +3224,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 232.1-02-PLAN.md - room_state status/get-state density fold + regression suite [D-01, D-04, D-06, D-07]
+- [x] 232.1-02-PLAN.md - room_state status/get-state density fold + regression suite [D-01, D-04, D-06, D-07]
 
 ### Phase 221: Pipeline-Wide High-Effort LLM Engine Recovery (llm-engine-recovery) - REGISTERED 2026-07-13 - **JOINT 219+220+221 RELEASE; THE CUT EXECUTES HERE**
 

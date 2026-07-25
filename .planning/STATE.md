@@ -4,14 +4,14 @@ milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
 stopped_at: "Completed 232.1-01-PLAN.md (room-graph density read: read-only room.db door + doctor census module)"
-last_updated: "2026-07-25T17:50:48.002Z"
+last_updated: "2026-07-25T18:36:28.906Z"
 last_activity: 2026-07-25
 progress:
   total_phases: 41
-  completed_phases: 27
+  completed_phases: 28
   total_plans: 150
-  completed_plans: 146
-  percent: 66
+  completed_plans: 147
+  percent: 68
 ---
 
 # Project State
@@ -1853,6 +1853,7 @@ Progress: [█████████░] 92%
 | Phase 232 P06 | 1 session | 2 tasks | 7 files |
 | 232 | 6 | - | - |
 | Phase 232.1 P01 | 42min | 3 tasks | 8 files |
+| Phase 232.1 P02 | 28min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -3042,7 +3043,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-25T17:50:19.495Z
+Last session: 2026-07-25T18:36:24.947Z
 Stopped at: Completed 232.1-01-PLAN.md (room-graph density read: read-only room.db door + doctor census module)
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
