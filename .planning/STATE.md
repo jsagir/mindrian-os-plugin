@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: Completed 232-06-PLAN.md -- PHASE 232 CLOSED (6/6 plans)
-last_updated: "2026-07-25T04:22:00.000Z"
-last_activity: 2026-07-25 -- Completed quick task 260725-9ca: local ContradictionEvent reified-claim primitive (borrows Phase 132's hypergraph shape, zero Brain coupling)
+stopped_at: Phase 232.1 context gathered (discuss pass complete; Phase 232 itself remains CLOSED, 6/6 plans, 2026-07-20)
+last_updated: "2026-07-25T14:09:19.165Z"
+last_activity: 2026-07-25 -- Phase 232.1 discuss pass complete (surface placement: Both -- doctor module + room_state line)
 progress:
-  total_phases: 40
+  total_phases: 41
   completed_phases: 27
   total_plans: 148
   completed_plans: 145
@@ -2076,6 +2076,31 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 232.1 inserted (2026-07-25, URGENT) after Phase 232: Room-graph density read --
+  node-count/edge-count-per-`room.db` surfaced via `/mos:doctor` and/or `room_state
+  --acceptance`, read exclusively through `lib/core/navigation.cjs` (Canon Part 9
+  substrate guard). Closes SEED-074's own "Suggested first move"
+  (`.planning/seeds/SEED-074-local-graph-read-layer-lacks-salience-and-query-time-joins.md`):
+  the seed is gated on "measured room.db density crossing a real threshold," and today
+  that measurement requires a human to remember to check it by hand (as the seed's own
+  author did on 2026-07-25, sampling 2 rooms, both 0 tables). This phase makes that
+  measurement self-reported instead. Explicitly OUT OF SCOPE: PageRank/Louvain
+  salience/clustering, SAG-style query-time-join fallback, any query-language surface --
+  all stay gated on SEED-074 exactly as written; this phase only makes the gate's own
+  trigger condition observable, it does not open the gate. Must not imply room graphs
+  are dense or at risk today (SEED-074's hard guard) -- only measurement so far is a
+  2-room spot-check, not a census. canon_parts: [4, 9] (matches SEED-074).
+  `gsd-tools query phase.insert` created the phase entry correctly, but its internal
+  disk-scan resync silently regressed this file's `stopped_at`/`last_updated`/
+  `last_activity` frontmatter to a stale snapshot (232-02-PLAN.md, 2026-07-20) even
+  though all six 232-0N-PLAN.md + SUMMARY.md pairs exist on disk and the body log below
+  already correctly recorded "PHASE 232 CLOSED (6/6 plans)" -- corrected in place by
+  hand immediately after (same failure class as the `phase.add` title/Depends-on defects
+  on Phases 230/231/232 above); worth a `.planning/debug/` RCA if this resync bug
+  recurs. `state.add-roadmap-evolution` is SDK-only and unavailable in this local CJS
+  build, so this entry was appended by hand per the established 230/231/232-04/05
+  anti-clobber precedent.
+
 - Phase 232 added (2026-07-19): BlockNote Wiki Convergence -- registered from a
   superpowers:brainstorming session with Jonathan (delivery lane, Room-Home-as-landing-page,
   always-editable/accept-save-risk, and v1 scope all locked before registration). Expands
@@ -3014,8 +3039,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-20T03:33:16.598Z
-Stopped at: Completed 232-02-PLAN.md
+Last session: 2026-07-25T14:09:19.092Z
+Stopped at: Phase 232.1 context gathered
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
