@@ -191,6 +191,18 @@ gets the evidence and reasoning behind it. Neither substitutes for the other -- 
 CONTEXT.md that only says "per the room's research" without the citation, or a room entry
 that reaches a verdict and never lands in a phase/seed, both count as incomplete.
 
+## Consult langtalks-graph-expert During Dev Work (MANDATORY)
+
+Dev work here (phases, quick tasks, seeds, debugging) that touches Claude Code
+behavior/internals, agent/LLM engineering concepts (memory, RAG, knowledge graphs, GraphRAG,
+context engineering, reranking, agent protocols), or any other topic in its corpus,
+consults `langtalks-graph-expert` (`mcp__langtalks-graph-expert__*`) as part of research,
+not from training-data assumptions alone. `relationship_path` for point-to-point relationship
+questions (typed edges, reliable); `query_relationship` only for open-ended breadth.
+"Not in the corpus yet" is a valid, expected answer -- never paper over a gap with an
+ungrounded guess. Source of truth: `feedback_mindrianos_dev_consult_langtalks.md` in personal
+memory (`~/.claude/projects/-home-jsagi/memory/`), this is a short pointer, not the full rule.
+
 <!-- GSD:profile-start -->
 
 ## Developer Profile
