@@ -26,9 +26,9 @@ A commercial Claude Code + Cowork plugin. One command installs it (`claude plugi
 | **Brain** | Neo4j teaching graph + Pinecone vectors + teaching intelligence (live numbers: docs/CORPUS-STATS.generated.md) | mindrian-brain.onrender.com (remote MCP) | Jonathan, SECRET IP |
 | **Room** | User's workspace, entries, sub-rooms, LazyGraph, exports | User's local folder + their Aura | User owns their work |
 
-## Tri-Polar Design Rule (MANDATORY)
+## Tri-Polar Design Rule (STRONG DEFAULT)
 
-Every feature MUST be evaluated through all three surfaces before it ships; a feature that only works on one is incomplete.
+Evaluate every feature through all three surfaces before it ships - a feature that only works on one leaves a gap on the other two install targets, so treat a skip as a deliberate, stated call, not an oversight.
 
 | Surface | Interaction | What Matters Most |
 |---------|-------------|-------------------|
@@ -44,11 +44,11 @@ The full constitution is docs/MINDRIAN-CANON.md (load on demand); the phase-to-c
 
 - **Part 8 - Graph Boundary (LOCAL -> BRAIN: NO).** User data NEVER egresses to the Brain; it serves generic methodology only. Writing user-specific bytes to Brain is a constitutional breach. Deep dive: docs/MINDRIAN-CANON.md (Part 8).
 - **Part 3 - Tri-Context Decision Gate.** Material choices pass a LOCAL + BRAIN + SIGNAL gate returning APPROVE / REJECT (with reason) / DEFER, rendered through Shape F (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 frozen). Deep dive: docs/MINDRIAN-CANON.md (Part 3).
-- **Part 6 - Dog-Fooding Mandate.** The plugin is a venture in its own room and must honor its own canon; a violation is a CONTRADICTS edge against it. Deep dive: docs/MINDRIAN-CANON.md (Part 6).
-- **Part 7 - Reuse Before Build.** Search the 25 methodology commands first; the plan must justify any net-new surface against them. Deep dive: docs/MINDRIAN-CANON.md (Part 7).
+- **Part 6 - Dog-Fooding Mandate.** The plugin is a venture in its own room; honoring its own canon here is the strong default, since a real violation surfaces as a CONTRADICTS edge against it. Deep dive: docs/MINDRIAN-CANON.md (Part 6).
+- **Part 7 - Reuse Before Build.** Search the 25 methodology commands first and justify any net-new surface against them, since duplicating an existing command is the more common failure mode than missing a genuine gap. Deep dive: docs/MINDRIAN-CANON.md (Part 7).
 - **Part 9 - Memory Locality.** SQL (room.db) is the local mind; Brain reasons over typed packets, never raw memory; only a human confirms a truth-claim node. Deep dive: docs/MINDRIAN-CANON.md (Part 9).
 - **Part 11 - Invocation Constitution (CIRS).** Every invocable surface is born WIRED or EXCLUDED (R1/R2); the born-wired gate fails the build closed; one governed path. Every invocable surface across ALL FOUR classes -- a command, an agent, a pipeline, OR a skill that reaches a genuine Decision-Gate fork -- is ALSO born with a declared HITL shape (hitl_shape/hitl_why or hitl_stages), checked by scripts/check-shape-declaration.cjs at commit + release + doctor --acceptance as an ADVISORY lint signal as of Phase 210 (WARN with every violation enumerated, never a block; --strict restores hard-fail) (R16, the declaration mandate itself unchanged, the shape-plane sibling of R2/R9); a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have. The surface count is enumerated from disk at run time (currently 126 declared + 5 skill-exempt), never a frozen literal. Any future GSD discuss/plan/verify session discovers this mandate here because every GSD agent reads project CLAUDE.md as mandatory initial context. Deep dives: docs/MINDRIAN-CANON.md (Part 11), docs/HITL-SHAPE-DECLARATION-CONTRACT.md.
-- **Part 12 - Pedagogy (Invisibility).** Larry is measured by how invisible he is when the insight lands; every Larry turn wears a De Stijl color mark; never grade, never compliment. Deep dive: docs/MINDRIAN-CANON.md (Part 12).
+- **Part 12 - Pedagogy (Invisibility).** Larry is measured by how invisible he is when the insight lands; every Larry turn wears a De Stijl color mark; default to withholding grades and compliments, since praise and scores pull attention onto Larry instead of the insight the user just reached. Deep dive: docs/MINDRIAN-CANON.md (Part 12).
 
 ## Verification
 
@@ -169,7 +169,7 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 When QA-ing a feature or investigating a defect, write findings to the MindrianOS RCA standard (`docs/RCA-TEMPLATE.md`); do not improvise a bug report.
 
 - **Where reports go:** `.planning/debug/<slug>.md` so `/gsd:debug <slug>` can resume it (`.planning/` is gitignored, so `git add -f`). One defect uses `kind: rca`; a multi-component sweep uses `kind: qa-sweep`.
-- **Classify, never just report:** every finding is WORKING, a known tracked bug, ENV GAP, or NEW FAILURE. Only a NEW FAILURE warrants a fresh `/gsd:debug` session.
+- **Classify before reporting:** default every finding to WORKING, a known tracked bug, ENV GAP, or NEW FAILURE, since an unclassified finding leaves the reader guessing whether it needs action; only a NEW FAILURE warrants a fresh `/gsd:debug` session.
 - **Clear the gates before calling a fix done:** Canon Part 8 Brain-boundary, Tri-Polar three-surface, cross-platform, release lockstep, no em-dashes, reuse-before-build.
 - **On resolve:** move the file to `.planning/debug/resolved/` and add a summary block to `.planning/debug/knowledge-base.md`.
 
