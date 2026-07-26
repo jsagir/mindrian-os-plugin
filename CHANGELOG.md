@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.47 (in progress)
+## [1.15.3-beta.48] - 2026-07-26
 
 ### Added
 - **Room-graph density read (Phase 232.1).** `/mos:doctor` and `room_state status`/`get-state`
