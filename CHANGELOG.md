@@ -1,7 +1,36 @@
 ## [Unreleased] -- v1.15.3-beta.47 (in progress)
 
 ### Added
-- 
+- **Room-graph density read (Phase 232.1).** `/mos:doctor` and `room_state status`/`get-state`
+  now self-report node/edge counts per `room.db`, read exclusively through a new read-only
+  `navigation.cjs` door (`openRoomDbReadOnlyForCaller`) -- never the mutating door, never a
+  direct `room.db` open. Closes SEED-074's own "suggested first move"
+  (`.planning/seeds/SEED-074-local-graph-read-layer-lacks-salience-and-query-time-joins.md`):
+  the seed's actual PageRank/Louvain/query-time-join target stays gated exactly as written;
+  this only makes its own trigger condition (measured room.db density) self-reported instead
+  of something a human has to remember to check by hand. No output string anywhere claims a
+  room graph is dense, at-risk, or healthy (hard guard, grep-verified). Goal-backward
+  verification PASS, 6/6 must-haves (`232.1-VERIFICATION.md`).
+- Local reified-claim `ContradictionEvent` primitive (quick task 260725-9ca), with a hermetic
+  acceptance test.
+
+### Fixed
+- **`room_bind` could report `ok:true` while a sibling MCP read tool silently resolved a
+  stale, unrelated room.** Root cause: 20 of 21 MCP tool call sites were missing the
+  `CLAUDE_CODE_SESSION_ID` stdio fallback that `room_bind` itself already had, so a
+  session-id mismatch between the bind call and a later read call could bind one room but
+  read another without ever surfacing an error. Fixed via one shared
+  `resolveEffectiveSessionId` helper, wired into all 21 sites; live-reproduced, then closed,
+  tests green. Full reproduction and root cause also filed in the `rethinking-mindrianos`
+  room per this repo's dev-research compositing rule.
+- **Phase 232.1's own room-graph density census could silently drop a room that used the
+  `abs_path` registry field instead of `path`,** undermining the one thing the census exists
+  to be accurate about. `resolveRoomPath` now checks `abs_path` first, `path` as fallback,
+  matching the precedence every other production call site in this codebase already honors;
+  pinned by a mutation-verified regression test (reverted, confirmed red, restored, confirmed
+  green). The identical gap in the earlier, already-shipped `cascade-rooms-module.cjs` this
+  was copied from is left alone -- out of this phase's scope, tracked separately as
+  low-severity follow-up debt.
 
 ## [1.15.3-beta.46] - 2026-07-23
 
