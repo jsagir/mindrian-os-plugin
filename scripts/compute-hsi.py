@@ -14,6 +14,7 @@ quality -- fast mixing across modes = rich cross-domain thinking.
 
 Usage:
     python3 scripts/compute-hsi.py /path/to/room [--tier 1|2] [--threshold 0.30] [--output path]
+                                                 [--scope-to-nodes]
 
 Tier system (per HSI-05):
     Tier 0: Handled by analyze-room bash script (keyword-only) -- NOT this script
@@ -27,6 +28,7 @@ import json
 import math
 import os
 import re
+import sqlite3
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -95,9 +97,31 @@ _FEATURE_PATTERNS = [
     (r"\bcreative\b|\bnovel\b|\binnovati\\w+\b|\boriginal\b", "creative"),
 ]
 
-# Skip files/dirs
-SKIP_FILES = {"STATE.md", "ROOM.md", "MINTO.md"}
-SKIP_DIRS = {".lazygraph", ".git", "node_modules", ".hsi-cache.json", ".heal-backup"}
+# --- Shared corpus exclude-list (Phase 200-01 / SEED-018, extended 233-03) ---
+#
+# SKIP_DIRS / SKIP_FILES / MIN_BODY_CHARS come from the ONE canonical source,
+# lib/core/rs_corpus_exclude.py, whose own docstring states the contract: every
+# room-artifact walker imports those three names from that module and keeps no
+# local literal.
+#
+# compute-hsi.py VIOLATED that contract until Phase 233-03. It was the one walker
+# Phase 200-01 never migrated (rs-engine.py, rs_hybrid.py and rs_rooms.py were),
+# and its local copy drifted exactly the way the shared source exists to prevent:
+# it never learned .snapshots or sub-rooms, so on motj it scored 207 artifacts
+# whose top-20 pairs were ALL .snapshots/sub-rooms near-duplicate state dumps,
+# and hsi-to-graph.cjs then wrote ZERO edges because none of those ids are
+# Artifact nodes in the parent room.db. See the RCA at
+# .planning/debug/graph-derive-silent-clear-dead-api-derivation.md Section 9
+# Defect #4. Keep NO local literal here.
+#
+# (The retired local set also carried ".hsi-cache.json", which was already dead:
+# os.walk's `dirs` list holds directory names only, never file names.)
+_THIS_FILE = Path(__file__).resolve()
+_LIB_CORE = _THIS_FILE.parent.parent / 'lib' / 'core'
+if str(_LIB_CORE) not in sys.path:
+    sys.path.insert(0, str(_LIB_CORE))
+
+from rs_corpus_exclude import SKIP_DIRS, SKIP_FILES, MIN_BODY_CHARS  # noqa: E402
 
 
 def parse_frontmatter(content):
@@ -162,7 +186,7 @@ def discover_artifacts(room_dir):
             title = extract_title(content, fpath)
             body = extract_body(content)
 
-            if len(body.strip()) < 50:
+            if len(body.strip()) < MIN_BODY_CHARS:
                 continue  # skip near-empty artifacts
 
             artifacts.append({
@@ -174,6 +198,59 @@ def discover_artifacts(room_dir):
             })
 
     return artifacts
+
+
+def load_graph_artifact_ids(room_dir):
+    """Return the set of Artifact node ids in <room>/.mindrian/room.db, or None.
+
+    Phase 233-03 (RCA Section 9 Defect #4/#5). hsi-to-graph.cjs already refuses to
+    write an edge whose endpoint is not an Artifact NODE (its findArtifact guard,
+    correct behavior). Without this intersection, compute-hsi.py spends a full
+    LSA + embedding pass on artifacts that could never become an edge, and the
+    top-20 cut is then consumed by pairs that get silently discarded downstream.
+    Scoping to the node set is both cheaper AND more correct.
+
+    READ-ONLY by construction (T-233-09): the connection is opened through the
+    `file:...?mode=ro` URI, so a write attempt fails at the SQLite layer rather
+    than by convention. This script must never mutate the room's authoritative db.
+
+    Returns None (never raises, never returns an empty set on error) when the db
+    is missing, unreadable, or has no `nodes` table yet -- the Tier 0 /
+    pre-structural-index case. The caller then scores everything, exactly like
+    today. Degrading to "no filter" is right; degrading to "zero artifacts" would
+    turn an immature room into a silent no-op, which is the false-success class
+    this whole phase exists to close.
+    """
+    db_path = Path(room_dir) / '.mindrian' / 'room.db'
+    if not db_path.exists():
+        print(
+            "HSI: --scope-to-nodes: no room.db at %s, scoring every discovered "
+            "artifact" % db_path,
+            file=sys.stderr,
+        )
+        return None
+
+    conn = None
+    try:
+        conn = sqlite3.connect('file:%s?mode=ro' % db_path, uri=True)
+        rows = conn.execute(
+            "SELECT id FROM nodes WHERE type = 'Artifact'"
+        ).fetchall()
+    except sqlite3.Error as exc:
+        print(
+            "HSI: --scope-to-nodes: room.db unreadable (%s), scoring every "
+            "discovered artifact" % exc,
+            file=sys.stderr,
+        )
+        return None
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except sqlite3.Error:
+                pass
+
+    return {r[0] for r in rows}
 
 
 def compute_content_hashes(artifacts):
@@ -676,6 +753,10 @@ def main():
                         help='Minimum HSI score threshold (default: 0.30)')
     parser.add_argument('--output', default=None,
                         help='Output JSON path (default: {room_dir}/.hsi-results.json)')
+    parser.add_argument('--scope-to-nodes', action='store_true',
+                        help='Score only artifacts that already exist as Artifact '
+                             'nodes in <room>/.mindrian/room.db (read-only). '
+                             'Degrades to scoring everything if the db is absent.')
 
     args = parser.parse_args()
     room_dir = Path(args.room_dir).resolve()
@@ -688,6 +769,19 @@ def main():
 
     # Step 1: Discover artifacts
     artifacts = discover_artifacts(room_dir)
+
+    # Step 1b: optional intersection with the graph's own Artifact node set, so
+    # scoring covers exactly the pairs hsi-to-graph.cjs can actually write.
+    if args.scope_to_nodes:
+        node_ids = load_graph_artifact_ids(room_dir)
+        if node_ids is not None:
+            discovered = len(artifacts)
+            artifacts = [a for a in artifacts if a['id'] in node_ids]
+            print(
+                "HSI: --scope-to-nodes: %d/%d discovered artifacts exist as "
+                "Artifact nodes" % (len(artifacts), discovered),
+                file=sys.stderr,
+            )
 
     if len(artifacts) < 2:
         # Write empty results and exit
