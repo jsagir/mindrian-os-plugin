@@ -47,6 +47,12 @@
  * python3 degrades exactly ONE stage (hsiSkipped) instead of losing the structural
  * index and the cascade tier that do not need python at all (T-233-10).
  *
+ * Soft-fail is not the same as run-anyway. Stages 2 and 3 consume what stage 1
+ * produces, so they are GATED on stage 1 having actually succeeded: run against a
+ * failed index they do not error, they succeed over nothing, which reports ok and
+ * heals zero. Stage 4 is deliberately NOT gated, because its own internal rebuild
+ * is the last line of defense when stage 1 could not index the room.
+ *
  * Usage:
  *   node scripts/graph-heal-pipeline.cjs /path/to/room
  *   const { runHealPipeline } = require('./scripts/graph-heal-pipeline.cjs');
@@ -185,9 +191,29 @@ async function runHealPipeline(roomDir, opts) {
   // the EXPECTED outcome when numpy / scikit-learn / the local embedding model
   // are absent, which is an environment fact and not a heal failure, so it is
   // recorded as skipped and the pipeline continues.
+  //
+  // WR-02: stage 2 is GATED on stage 1 having actually succeeded, the same way
+  // stage 4's skipRebuild already is. Ungated, a failed stage 1 left stage 2
+  // scoping --scope-to-nodes against whatever node set happened to be in room.db.
+  // When that set is EMPTY (a fresh db, or a db left in a pre-rebuild state),
+  // load_graph_artifact_ids returns an empty SET rather than None, which is a
+  // SUCCESSFUL query and so never reaches compute-hsi.py's permissive
+  // score-everything degrade path. main() then filters the artifact list down to
+  // nothing, the "< 2 artifacts" guard writes an EMPTY .hsi-results.json, and the
+  // script exits 0. _spawnStage reads exit 0 as ok:true, so the run reported
+  // { name: 'hsi-score', ok: true } over a pass that scored nothing. That is the
+  // same false-success shape the stage-4 wipe defect took, one stage earlier.
   if (o.skipHsi) {
     hsiSkipped = true;
     stages.push({ name: 'hsi-score', ok: true, skipped: true, detail: 'skipped by caller (opts.skipHsi)' });
+  } else if (!structuralOk) {
+    hsiSkipped = true;
+    stages.push({
+      name: 'hsi-score',
+      ok: false,
+      skipped: true,
+      detail: 'skipped: stage 1 (structural-index) failed, so --scope-to-nodes has no node set to scope to',
+    });
   } else {
     const pythonBin = o.pythonBin || process.env.MINDRIAN_PYTHON || 'python3';
     const hsiScript = path.join(__dirname, 'compute-hsi.py');
@@ -206,8 +232,20 @@ async function runHealPipeline(roomDir, opts) {
   // requiring it would run it as an import side effect with no way to pass the
   // room. It already exits silently when .hsi-results.json is absent, which is
   // exactly the right behavior when stage 2 skipped.
+  //
+  // WR-02: gated on stage 1 for a second, distinct reason. hsi-to-graph reads
+  // .hsi-results.json off disk, and that file can be a STALE artifact of an
+  // earlier run. With stage 1 failed and stage 2 skipped, running it would write
+  // edges derived from a node set that no longer describes the room.
   if (o.skipHsi) {
     stages.push({ name: 'hsi-to-graph', ok: true, skipped: true, detail: 'skipped by caller (opts.skipHsi)' });
+  } else if (!structuralOk) {
+    stages.push({
+      name: 'hsi-to-graph',
+      ok: false,
+      skipped: true,
+      detail: 'skipped: stage 1 (structural-index) failed; a stale .hsi-results.json must not be written as edges',
+    });
   } else {
     const nodeBin = o.nodeBin || process.execPath;
     const edgeScript = path.join(__dirname, 'hsi-to-graph.cjs');

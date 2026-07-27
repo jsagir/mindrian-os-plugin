@@ -301,6 +301,99 @@ async function main() {
   check('F1. a nonexistent room returns a summary instead of throwing, and still reports 4 stages',
     Array.isArray(bogus.stages) && bogus.stages.length === 4);
 
+  // --- H. WR-02: stages 2 and 3 are GATED on stage 1 actually succeeding -----
+  //
+  // The defect: stage 2 ran unconditionally. With stage 1 failed, --scope-to-nodes
+  // intersects against an EMPTY Artifact set, which is a SUCCESSFUL query and so
+  // never trips compute-hsi.py's permissive degrade path. The "< 2 artifacts"
+  // guard then writes an empty .hsi-results.json and exits 0, and _spawnStage
+  // reads exit 0 as ok:true. The run reported hsi-score ok over a pass that scored
+  // nothing.
+  //
+  // Proven by NON-INVOCATION, not by reading the stage's own detail string about
+  // itself: pythonBin and nodeBin are swapped for real executables that write a
+  // marker file when run. No marker means the spawn never happened. The control
+  // leg runs the SAME sentinels against a healthy room and requires both markers,
+  // so the proof is shown to discriminate rather than to always pass.
+  {
+    const gateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-233-heal-gate-'));
+    const binDir = path.join(gateDir, 'bin');
+    fs.mkdirSync(binDir, { recursive: true });
+
+    function makeSentinelBin(name, markerPath) {
+      const p = path.join(binDir, name);
+      fs.writeFileSync(p, '#!/usr/bin/env bash\nprintf ran > "' + markerPath + '"\nexit 0\n', 'utf8');
+      fs.chmodSync(p, 0o755);
+      return p;
+    }
+
+    // -- H1/H2/H3: the failed-stage-1 room -----------------------------------
+    // Force a REAL stage-1 failure: a FILE where the .mindrian directory belongs,
+    // so openGraph's recursive mkdir throws EEXIST. Nothing is stubbed.
+    const failRoom = path.join(gateDir, 'failroom');
+    fs.mkdirSync(failRoom, { recursive: true });
+    fs.writeFileSync(path.join(failRoom, '.mindrian'), 'a file, not a directory', 'utf8');
+
+    const failPyMarker = path.join(gateDir, 'py-ran-fail.marker');
+    const failNodeMarker = path.join(gateDir, 'node-ran-fail.marker');
+    const failSummary = await runHealPipeline(failRoom, {
+      deriveFn: _localCueDeriveFn,
+      pythonBin: makeSentinelBin('py-fail', failPyMarker),
+      nodeBin: makeSentinelBin('node-fail', failNodeMarker),
+    });
+    const failByName = {};
+    for (const s of failSummary.stages) failByName[s.name] = s;
+
+    check('H0. precondition: stage 1 really did fail on this fixture ('
+      + String(failByName['structural-index'].detail).slice(0, 60) + ')',
+      failByName['structural-index'].ok === false);
+
+    check('H1. REGRESSION: with stage 1 failed, stage 2 was NEVER SPAWNED. Ground truth is the '
+      + 'absent marker file, not the stage detail. Before the fix compute-hsi.py ran, scoped to an '
+      + 'empty node set, wrote an empty .hsi-results.json and exited 0, and the stage reported ok:true',
+      fs.existsSync(failPyMarker) === false);
+
+    check('H2. and stage 3 was never spawned either, so a STALE .hsi-results.json cannot be '
+      + 'written into the graph as edges',
+      fs.existsSync(failNodeMarker) === false);
+
+    check('H3. both gated stages are reported as skipped with ok:false, so a machine consumer '
+      + 'reading .ok or .skipped sees the truth rather than a bare ok:true '
+      + '(hsi-score: ' + failByName['hsi-score'].detail + ')',
+      failByName['hsi-score'].skipped === true && failByName['hsi-score'].ok === false
+      && failByName['hsi-to-graph'].skipped === true && failByName['hsi-to-graph'].ok === false
+      && failSummary.hsiSkipped === true);
+
+    check('H4. no .hsi-results.json was produced for the failed room',
+      fs.existsSync(path.join(failRoom, '.hsi-results.json')) === false);
+
+    check('H5. the gate does NOT over-reach: stage 4 still ran, because its own internal rebuild '
+      + 'is the last line of defense when stage 1 could not index the room',
+      failByName['cascade-derive'] !== undefined && failByName['cascade-derive'].skipped !== true);
+
+    // -- H6: the control, proving the sentinels discriminate ------------------
+    const okRoom = buildFixtureRoom();
+    const okPyMarker = path.join(gateDir, 'py-ran-ok.marker');
+    const okNodeMarker = path.join(gateDir, 'node-ran-ok.marker');
+    const okSummary = await runHealPipeline(okRoom, {
+      deriveFn: _localCueDeriveFn,
+      pythonBin: makeSentinelBin('py-ok', okPyMarker),
+      nodeBin: makeSentinelBin('node-ok', okNodeMarker),
+    });
+    const okByName = {};
+    for (const s of okSummary.stages) okByName[s.name] = s;
+
+    check('H6. CONTROL: on a room where stage 1 SUCCEEDS, the very same sentinel binaries ARE '
+      + 'spawned for stages 2 and 3. The H1/H2 absence is therefore the gate biting, not a '
+      + 'sentinel that never fires',
+      okByName['structural-index'].ok === true
+      && fs.existsSync(okPyMarker) === true
+      && fs.existsSync(okNodeMarker) === true);
+
+    fs.rmSync(okRoom, { recursive: true, force: true });
+    fs.rmSync(gateDir, { recursive: true, force: true });
+  }
+
   fs.rmSync(room, { recursive: true, force: true });
 
   console.log('\nPASS (' + pass + ' assertions, ' + skipped + ' skipped) -- RCA Section 9: the 4-stage heal pipeline runs in the mandated order');
