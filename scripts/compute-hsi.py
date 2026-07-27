@@ -200,6 +200,28 @@ def discover_artifacts(room_dir):
     return artifacts
 
 
+def _file_uri_path(p):
+    """Percent-encode the URI-significant bytes of a path for a SQLite file: URI.
+
+    SQLite's URI parser treats ? as the query separator, # as the fragment start,
+    and % as the escape byte. A room path containing any of them, spliced raw into
+    'file:%s?mode=ro', silently breaks the open: the parser swallows part of the
+    path as a query string, and the mode=ro that follows is then never recognized
+    as the read-only mode flag. That is a broken read-only GUARANTEE (T-233-09
+    claims read-only is enforced mechanically at the SQLite layer, not by
+    convention), not merely a broken path.
+
+    This is byte-for-byte the rule lib/core/graph-derivation.cjs::_fileUriPath
+    already applies to the SAME room.db path for its sub-room ATTACH: the same
+    three bytes, encoded in the same order (% first, so it cannot double-encode
+    the escapes it just introduced). Kept identical on purpose. Everything else
+    (spaces, quotes, unicode) passes through untouched, because SQLite decodes
+    %XX and takes the rest literally. Two encoders that disagree about what a
+    room path means would be a worse bug than either one alone.
+    """
+    return str(p).replace('%', '%25').replace('?', '%3F').replace('#', '%23')
+
+
 def load_graph_artifact_ids(room_dir):
     """Return the set of Artifact node ids in <room>/.mindrian/room.db, or None.
 
@@ -213,6 +235,8 @@ def load_graph_artifact_ids(room_dir):
     READ-ONLY by construction (T-233-09): the connection is opened through the
     `file:...?mode=ro` URI, so a write attempt fails at the SQLite layer rather
     than by convention. This script must never mutate the room's authoritative db.
+    The path is run through _file_uri_path first, so a room directory containing
+    ?, # or % cannot break the URI parse and take the mode=ro flag down with it.
 
     Returns None (never raises, never returns an empty set on error) when the db
     is missing, unreadable, or has no `nodes` table yet -- the Tier 0 /
@@ -232,7 +256,7 @@ def load_graph_artifact_ids(room_dir):
 
     conn = None
     try:
-        conn = sqlite3.connect('file:%s?mode=ro' % db_path, uri=True)
+        conn = sqlite3.connect('file:%s?mode=ro' % _file_uri_path(db_path), uri=True)
         rows = conn.execute(
             "SELECT id FROM nodes WHERE type = 'Artifact'"
         ).fetchall()
