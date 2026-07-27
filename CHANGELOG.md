@@ -3,6 +3,30 @@
 ### Added
 - 
 
+### Fixed
+- **`orchestration rooms-open` reported a confirmation-shaped success while never switching
+  the active room.** Live-reproduced 2026-07-22: the call returned a full "Room State" payload
+  footed with the correct target room, yet `room-registry get-active` still returned the
+  previous room and the next Write was blocked with "Active room is <previous>". Root cause:
+  `rooms-open` was a DECLARED-BUT-UNIMPLEMENTED command. It passed Zod validation via its
+  membership in `ORCHESTRATION_COMMANDS`, matched no handler, and fell through to a generic
+  reference-echo fallback shared by 18 of the 22 orchestration commands. That fallback built
+  its response from `commands/rooms.md` read off disk, STATE.md from the boot-frozen `roomDir`
+  closure (which is why the payload showed an unrelated room's content), and a verbatim echo of
+  the caller's own `room` argument -- then appended "Room operation complete". No byte of the
+  response derived from an operation, because none was attempted: before this fix, zero product
+  `.cjs` code anywhere called `room-registry set-active`, so the MCP surface advertised
+  multi-room management while having no room-switch capability at all (worst on Desktop and
+  Cowork, which have no shell fallback). Fixed with a new `lib/core/room-open.cjs` chokepoint
+  that wraps the one authoritative writer (Canon Part 7) and gates `ok:true` behind a post-write
+  `get-active` read-back, so a success-shaped payload is now structurally impossible unless the
+  switch actually landed; it also writes the per-session binding so `write-scope-check.cjs`
+  authorizes the session without depending on the raceable global field, and it preserves the
+  `commands/rooms.md` Step 2 human gate for reopening an archived room. Structurally, the same
+  fallback no longer lets any state-mutating orchestration command claim completion it cannot
+  back up: `rooms-new`, `rooms-close`, and `rooms-archive` now carry an explicit NOT EXECUTED
+  banner. 10 hermetic regression tests assert registry ground truth, not response shape.
+
 ## [1.15.3-beta.48] - 2026-07-26
 
 ### Added
