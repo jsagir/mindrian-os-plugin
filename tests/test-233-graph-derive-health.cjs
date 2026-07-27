@@ -449,6 +449,75 @@ scenario('12. reasons[] stay scalar and capped at 200 chars (T-233-02)', () => {
   } finally { rmrf(scratch); }
 });
 
+// ---------- Scenario 13: CR-01, the detail line may never contradict the status ----------
+
+scenario('13. check(ctx): a RECOVERED room (old failure log, cascade edges present) never gets a "every one has run its semantic derive" detail beside a warn status (CR-01)', () => {
+  const scratch = makeScratchDir('s13');
+  try {
+    makeScratchRegistry(scratch, ['recovered'], 'recovered');
+    const roomDir = path.join(scratch, 'recovered');
+    // The exact real-world shape: the derive failed a few times, the failure log
+    // recorded it, then a later attempt SUCCEEDED. Cascade edges are present, the
+    // queue is clear (success clears it), but the failure log is never rotated.
+    // detectRoomHealth reports 'warn'; --heal-room has nothing to re-enqueue.
+    seedRoomWithEdges(roomDir, ['BELONGS_TO', 'INFORMS']);
+    fs.writeFileSync(
+      path.join(roomDir, '.mindrian', 'graph-derive-failures.json'),
+      JSON.stringify({
+        failures: [
+          { error: 'transient', at: new Date(Date.now() - 5 * 86400000).toISOString() },
+          { error: 'transient', at: new Date(Date.now() - 4 * 86400000).toISOString() },
+        ],
+      }, null, 2)
+    );
+
+    const res = withRoomsHome(scratch, () => healthMod.check({ flags: {} }));
+
+    // Preconditions: this really is the recovered-but-flagged shape.
+    assert.equal(res.rooms.length, 1, 'one room in scope');
+    assert.equal(res.rooms[0].needsHeal, false, 'nothing left to derive');
+    assert.equal(res.rooms[0].queueStuckCount, 0, 'queue is clear');
+    assert.equal(res.rooms[0].failureLogCount, 2, 'the old failure records are still on disk');
+    assert.equal(res.rooms[0].status, 'warn', 'the per-room status is warn');
+    assert.equal(res.status, 'warn', 'the class status is warn');
+
+    // THE REGRESSION: the detail string shipped beside status:'warn' must not
+    // make a universal-health claim. Before the CR-01 fix it read exactly
+    // "1 room(s) checked; every one has run its semantic derive".
+    assert.ok(
+      !/every one has run its semantic derive/.test(res.detail),
+      'detail must not claim universal health next to a warn status, got: ' + res.detail
+    );
+    assert.ok(
+      /failure/i.test(res.detail),
+      'detail must name the reason the class is warning, got: ' + res.detail
+    );
+
+    // And the general invariant, asserted rather than assumed: the unqualified
+    // success sentence appears ONLY when the class status is ok.
+    assert.ok(
+      res.status === 'ok' || !/every one has run its semantic derive/.test(res.detail),
+      'the success sentence is gated on an ok class status'
+    );
+  } finally { rmrf(scratch); }
+});
+
+// ---------- Scenario 14: the clean case still says so ----------
+
+scenario('14. check(ctx): a genuinely clean room still reports ok with the universal-health detail', () => {
+  const scratch = makeScratchDir('s14');
+  try {
+    makeScratchRegistry(scratch, ['clean'], 'clean');
+    seedRoomWithEdges(path.join(scratch, 'clean'), ['BELONGS_TO', 'INFORMS']);
+    const res = withRoomsHome(scratch, () => healthMod.check({ flags: {} }));
+    assert.equal(res.status, 'ok', 'class status ok');
+    assert.ok(
+      /every one has run its semantic derive/.test(res.detail),
+      'the success sentence survives for the case it is actually true of, got: ' + res.detail
+    );
+  } finally { rmrf(scratch); }
+});
+
 // ---------- Summary ----------
 
 process.stdout.write('\n');
