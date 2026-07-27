@@ -27,6 +27,36 @@
   files and real queue files read back off disk, never a mocked return value.
 
 ### Fixed
+- **Your room's discovery engine was ranking its own backup files as its top insights, and
+  then throwing every result away (Phase 233, RCA Section 9 Defects #4/#5).** The HSI pass is
+  the part that reads your artifacts and says "these two distant pieces are secretly related".
+  It walks your room looking for content, and every other walker in the codebase was taught in
+  Phase 200 to read one shared list of folders to ignore. This one walker was never migrated,
+  so it kept a private copy that had gone stale: it never learned to skip `.snapshots`
+  (historical state dumps of your own room) or `sub-rooms` (nested rooms that carry their own
+  graph). The result on a real room: 207 files scored, and all twenty of its "top discoveries"
+  were near-identical backup copies of each other. Then the edge writer correctly refused every
+  one of them, because backup files are not artifacts in your graph, and wrote zero edges. A
+  full expensive pass, a confident report, and nothing to show for it. Now `compute-hsi.py`
+  reads the same shared list as everything else (so this class of drift cannot recur), and a
+  new `--scope-to-nodes` mode scores only artifacts that actually exist in your graph, which is
+  both cheaper and the only set that can produce an edge.
+- **Healing a damaged graph now runs its four stages in the one order that works, and the last
+  stage stopped deleting the work of the third (Phase 233).** Repairing a room is not one
+  action, it is four, and each one eats what the previous one produced: index every artifact as
+  a node, score similarity across those nodes, write the semantic edges, then run the
+  generative tier. Run them out of order and every stage reports success while producing
+  nothing. New `node scripts/graph-heal-pipeline.cjs <room>` runs all four in the mandated
+  order, reusing each existing implementation unchanged. Running it live on the room from the
+  original investigation exposed one more instance of the same bug class this whole phase is
+  about: the fourth stage opened by clearing and rebuilding the graph, which deleted the twenty
+  semantic edges the third stage had written seconds earlier. The pipeline printed "wrote 20
+  connection edges" into a room that ended up holding none. The rebuild is now suppressed when
+  the caller already indexed the room, and that room finished the run with 61 artifact nodes,
+  20 semantic edges and 47 typed relationship edges, up from zero. Every other caller of the
+  backfill is byte-unchanged. A missing Python or embedding library degrades exactly the two
+  stages that need them and never the other two. Canon Part 8: local only, zero network, zero
+  Brain.
 - **The graph derivation engine could quietly dial a dead account instead of scoring your
   work locally (Phase 233, RCA items 4b/4e).** `runDerivation` is the composer that turns a
   pair of your artifacts into a typed relationship edge. It takes the scoring function as an
