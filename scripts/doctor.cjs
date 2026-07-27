@@ -242,6 +242,18 @@ function parseArgs(argv) {
     // Exit 0 whenever the report assembles (even offline); non-zero only if the
     // assembler itself throws. Report goes to stdout only (never a file).
     reportRegistrationBug: false,
+    // Phase 233 Plan-01 (RCA 4d): graph-derive-health. Reports whether a room's
+    // SEMANTIC edge layer ever landed -- BELONGS_TO edges present with ZERO
+    // cascade edges means the derivation never succeeded (the ~16-damaged-room
+    // shape). Scopes to the active room by default; --cascade-rooms widens it to
+    // every registered room, exactly as classes B and C already share that flag.
+    // --heal-room is the operator-facing sugar for `--graph-derive-health --fix`
+    // and is the literal flag the v1.13.0-beta.16 rename table
+    // ('heal' -> 'doctor --heal-room') has advertised since before it existed;
+    // this is where that documented mapping becomes real. Pure LOCAL room.db
+    // reads through the read-only navigation door + a LOCAL queue write; zero
+    // network surface (Canon Part 8).
+    graphDeriveHealth: false,
   };
   for (const arg of argv) {
     if (arg === '--fix') flags.fix = true;
@@ -256,6 +268,11 @@ function parseArgs(argv) {
     else if (arg === '--install-state') flags.installState = true;
     else if (arg === '--stale-first-touch') flags.staleFirstTouch = true;
     else if (arg === '--deprecated-usage') flags.deprecatedUsage = true;
+    else if (arg === '--graph-derive-health') flags.graphDeriveHealth = true;
+    // --heal-room is sugar, not a second code path: it activates the SAME class
+    // and turns on --fix, so the heal runs through the engine's one
+    // fix-then-recheck flow (never a bespoke heal dispatch).
+    else if (arg === '--heal-room') { flags.graphDeriveHealth = true; flags.fix = true; }
     else if (arg === '--brain-smoke') flags.brainSmoke = true;
     else if (arg === '--eureka-smoke') flags.eurekaSmoke = true;
     else if (arg === '--drift') flags.drift = true;
@@ -299,6 +316,7 @@ function parseArgs(argv) {
     flags.deprecatedUsage = true;
     flags.brainSmoke = true;
     flags.cardFireHealth = true;
+    flags.graphDeriveHealth = true;
   }
   // --pre-tag implies --acceptance (convenience; running --pre-tag standalone
   // is meaningless).
@@ -329,6 +347,12 @@ SessionStart hooks cannot fire while the plugin is DISABLED).
 
 Class flags (combine freely; --all activates them all):
   --cascade-rooms          class B (.room-root sentinel) + class C (active-room guard silence)
+  --graph-derive-health    graph-derive-health (RCA 4d): did this room's semantic edge layer ever
+                           land? Reports FAIL when BELONGS_TO edges exist with zero cascade edges,
+                           WARN on a derive queue entry stuck past 3 days or a recorded failure log.
+                           Active room by default; add --cascade-rooms to sweep every room.
+  --heal-room              sugar for --graph-derive-health --fix: re-enqueues every WARN/FAIL room
+                           through the existing dedup-by-roomDir derive sweep (idempotent).
   --verify-surface         class D (live cascade end-to-end against test fixture)
   --room-md                class E (ROOM.md/MINTO.md presence under .room-root)
   --ui-compliance          class F (UI Ruling System scan)
@@ -3002,7 +3026,8 @@ function main() {
     || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility
     || flags.cardFireHealth
     || flags.installState || flags.staleFirstTouch || flags.deprecatedUsage
-    || flags.brainSmoke || flags.eurekaSmoke || flags.drift;
+    || flags.brainSmoke || flags.eurekaSmoke || flags.drift
+    || flags.graphDeriveHealth;
     // ^ Phase 150.9 Plan-02: registering flags.drift here honors the
     //   graceful-degradation exit-0 invariant. This is what preserves the
     //   marketplace-cache-drift-deadlock carve-out automatically: that carve-out

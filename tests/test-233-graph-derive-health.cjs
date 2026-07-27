@@ -92,23 +92,39 @@ function readQueueFile(roomDir) {
   try { return JSON.parse(fs.readFileSync(queueFilePath(roomDir), 'utf8')); } catch (_) { return null; }
 }
 
-// Seed a room.db through the repo's OWN doors: openRoomDb for the handle,
-// navigation.writeEdge for every edge. Setup only. `edgeTypes` is the literal
-// list of edge_type values written, so a caller controls the BELONGS_TO /
-// cascade mix exactly.
+// Seed a room.db through the repo's OWN doors: openRoomDb for the handle (real
+// migrated schema, not a hand-rolled fixture), then the writer each edge class
+// ACTUALLY uses in production. Setup only.
+//
+// The two writers are deliberately different because production uses two:
+//   - BELONGS_TO is the STRUCTURAL section-membership edge written by
+//     lib/core/lazygraph-ops.cjs::indexArtifact via a raw upsert (line 397-401).
+//     It is NOT a member of the navigation chokepoint's ALLOWED_EDGE_TYPES (the
+//     frozen set deliberately excludes it), so writeEdge REJECTS it. Reproducing
+//     the raw upsert verbatim is what makes this fixture the real damaged-room
+//     shape rather than an invented one.
+//   - cascade edges (INFORMS et al.) ARE chokepoint types, written through
+//     navigation.writeEdge exactly as runDerivation writes them.
+// tests/ is on the check-substrate.cjs ALLOWED_DIRECT_IMPORT list, so touching
+// room-db.cjs and issuing the raw structural upsert here is sanctioned.
 function seedRoomWithEdges(roomDir, edgeTypes) {
   fs.mkdirSync(roomDir, { recursive: true });
   const db = roomDb.openRoomDb(roomDir);
   try {
     let i = 0;
     for (const t of edgeTypes) {
-      const r = navigation.writeEdge(db, {
-        source_id: 'n' + i,
-        target_id: 'n' + (i + 1),
-        edge_type: t,
-        properties: {},
-      });
-      assert.equal(r.ok, true, 'fixture seed writeEdge(' + t + ') must succeed: ' + JSON.stringify(r));
+      if (t === 'BELONGS_TO') {
+        db.prepare('INSERT INTO edges (source, target, type) VALUES (?, ?, ?) ON CONFLICT DO NOTHING')
+          .run('n' + i, 'section' + i, 'BELONGS_TO');
+      } else {
+        const r = navigation.writeEdge(db, {
+          source_id: 'n' + i,
+          target_id: 'n' + (i + 1),
+          edge_type: t,
+          properties: {},
+        });
+        assert.equal(r.ok, true, 'fixture seed writeEdge(' + t + ') must succeed: ' + JSON.stringify(r));
+      }
       i += 1;
     }
   } finally {
@@ -285,7 +301,11 @@ scenario('6. check(ctx) with no cascadeRooms flag -> scopes to the active room o
     assert.equal(res.scope, 'active', 'scope');
     assert.equal(res.rooms.length, 1, 'exactly one room in scope');
     assert.equal(res.rooms[0].room, 'alpha', 'the active room');
-    assert.equal(res.status, 'fail', 'worst-of status');
+    assert.equal(res.rooms[0].status, 'fail', 'the per-room status is the RCA PASS/WARN/FAIL vocabulary');
+    // The CLASS status maps fail -> warn: the doctor engine vocabulary is
+    // ok|warn|error|skip (contract-parity rule 9), and a repairable room with a
+    // wired --fix is drift, not a doctor-level error.
+    assert.equal(res.status, 'warn', 'worst-of class status');
     assert.ok(typeof res.detail === 'string' && res.detail.length > 0, 'non-empty detail');
   } finally { rmrf(scratch); }
 });
@@ -301,9 +321,12 @@ scenario('7. check(ctx) with flags.cascadeRooms -> scopes to every registered ro
     const res = withRoomsHome(scratch, () => healthMod.check({ flags: { cascadeRooms: true } }));
     assert.equal(res.scope, 'all', 'scope');
     assert.equal(res.rooms.length, 2, 'both rooms in scope');
-    assert.equal(res.status, 'fail', 'worst-of status is the damaged room');
+    assert.equal(res.status, 'warn', 'worst-of class status is driven by the damaged room');
     const beta = res.rooms.find((r) => r.room === 'beta');
     assert.equal(beta.needsHeal, true, 'beta needs heal');
+    assert.equal(beta.status, 'fail', 'beta reports fail');
+    const alpha = res.rooms.find((r) => r.room === 'alpha');
+    assert.equal(alpha.status, 'ok', 'alpha reports ok');
   } finally { rmrf(scratch); }
 });
 
@@ -322,7 +345,7 @@ scenario('8. check(ctx): a corrupt registry entry soft-fails that one room only 
     const names = res.rooms.map((r) => r.room);
     assert.ok(names.includes('alpha'), 'alpha still reported');
     assert.ok(names.includes('beta'), 'beta still reported');
-    assert.equal(res.status, 'fail', 'beta still drives the worst-of status');
+    assert.equal(res.status, 'warn', 'beta still drives the worst-of class status');
   } finally { rmrf(scratch); }
 });
 
@@ -337,7 +360,7 @@ scenario('9. fix(ctx): writes a REAL queue entry; dryRun writes nothing', () => 
 
     withRoomsHome(scratch, () => {
       const checkRes = healthMod.check({ flags: {} });
-      assert.equal(checkRes.status, 'fail', 'precondition: the room reports fail');
+      assert.equal(checkRes.rooms[0].status, 'fail', 'precondition: the room reports fail');
 
       // Dry run first: nothing on disk.
       const dry = healthMod.fix({ flags: {}, dryRun: true, check_result: checkRes });
@@ -373,7 +396,7 @@ scenario('10. doctor.cjs --graph-derive-health --json reports the damaged room a
     assert.ok(check, 'report.checks[graph-derive-health] present');
     assert.ok(Array.isArray(check.rooms) && check.rooms.length === 1, 'one room reported');
     assert.equal(check.rooms[0].status, 'fail', 'the damaged room reports fail');
-    assert.equal(check.status, 'fail', 'the class status is fail');
+    assert.equal(check.status, 'warn', 'the class status is warn (engine vocabulary)');
   } finally { rmrf(scratch); }
 });
 
