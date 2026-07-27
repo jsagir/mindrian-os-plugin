@@ -156,6 +156,15 @@
       "fix_supported": true,
       "runner": "lib/core/doctor/graph-derive-health-module.cjs",
       "description": "Semantic-edge derivation health per room (RCA 4d): BELONGS_TO present with zero cascade edges (derivation never succeeded), a derive queue entry stuck past 3 days, or a graph-derive-failures.json log. Scopes to the active room, or every room with --cascade-rooms. --fix (sugar: --heal-room) re-enqueues each affected room through the existing dedup-by-roomDir sweep."
+    },
+    {
+      "id": "graph-derive-heal-retrofit",
+      "introduced_version": "1.15.3-beta.49",
+      "cadence": "once",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/graph-derive-heal-retrofit-module.cjs",
+      "description": "One-time automatic retrofit (RCA 4c) for rooms whose derive queues were silently cleared before Phase 224-02's keep-on-failure fix. Walks every registered room, reuses graph-derive-health's detectRoomHealth, and re-enqueues each zero-cascade-edge room so the next in-session derive rebuilds its semantic layer. The heal runs inside check() because the ONCE pass is not gated behind --fix; the watermark then advances so it never repeats."
     }
   ]
 }

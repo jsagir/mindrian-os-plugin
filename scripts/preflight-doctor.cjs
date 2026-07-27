@@ -55,11 +55,18 @@ function loadFormatter() {
   } catch (_) { return null; }
 }
 
-function runDoctor() {
+// runDoctor(extraArgs) -- ONE doctor subprocess, optionally with extra class
+// flags. Phase 233: contribute() passes ['--graph-derive-health'] so the
+// graph-derive-health class actually runs inside the SAME spawn (it is a
+// flag-gated cadence:always module, so a bare `--json` run would never populate
+// report.checks['graph-derive-health'] and the nudge would be permanently dark).
+// Default [] keeps the legacy main() hook path byte-identical.
+function runDoctor(extraArgs) {
   const doctorPath = path.join(__dirname, 'doctor.cjs');
   const env = Object.assign({}, process.env);
+  const args = [doctorPath, '--json'].concat(Array.isArray(extraArgs) ? extraArgs : []);
   // Keep MOS_NO_COLOR / NO_COLOR if set; doctor.cjs respects them too.
-  const res = spawnSync('node', [doctorPath, '--json'], {
+  const res = spawnSync('node', args, {
     encoding: 'utf8',
     timeout: 1500,
     env,
@@ -119,10 +126,37 @@ function main() {
 // (so any code still invoking this script as a bare hook keeps working) but
 // hooks.json no longer points at it -- the coordinator calls contribute() instead.
 
-function contribute() {
+// graphDeriveNudge(report) -> a single plain-language sentence, or null.
+//
+// Phase 233 (RCA 4d, Tri-Polar clause): on Claude Code the operator gets the
+// full CLI report via `/mos:doctor --graph-derive-health`. On Desktop and Cowork
+// there is no CLI to read, so the same finding has to arrive as something a
+// person can act on in conversation. That is what this is: one sentence, no
+// table, no JSON, no counts dumped into the payload. The frozen precedence
+// ladder (lib/sessionstart/precedence-ladder.cjs) forbids adding a slot without
+// a canon amendment, so the sentence rides the EXISTING 'install-drift'
+// fragment rather than asking for one.
+function graphDeriveNudge(report) {
+  try {
+    const gdh = report && report.checks && report.checks['graph-derive-health'];
+    if (!gdh) return null;
+    if (gdh.status !== 'warn' && gdh.status !== 'fail') return null;
+    return 'Your Data Room graph needs a re-derive: it has filed your work into sections '
+      + 'but has not yet worked out how the ideas relate. Run /mos:doctor --heal-room '
+      + 'and the next session will rebuild the connections.';
+  } catch (_) {
+    return null;
+  }
+}
+
+// contribute(opts) -- the SessionStart Coordinator entry point. `opts.runDoctor`
+// is a test seam ONLY (an injected report source); the coordinator calls this
+// with no arguments and gets the real subprocess.
+function contribute(opts) {
   try {
     const fi = require('../lib/sessionstart/contributor-interface.cjs');
-    const report = runDoctor();
+    const runner = (opts && typeof opts.runDoctor === 'function') ? opts.runDoctor : runDoctor;
+    const report = runner(['--graph-derive-health']);
     if (!report) return fi.emptyFragment();
 
     // Roll the release-drift signal in here (Plan 121.5-00 Task 2: preflight-release-drift
@@ -138,8 +172,10 @@ function contribute() {
       }
     } catch (_) { /* sub-finding optional */ }
 
+    const graphLine = graphDeriveNudge(report);
+
     const drift = report.drift || {};
-    if (!drift.detected && !releaseDriftLine) return fi.emptyFragment();
+    if (!drift.detected && !releaseDriftLine && !graphLine) return fi.emptyFragment();
 
     const formatter = loadFormatter();
     let warning = '';
@@ -154,11 +190,19 @@ function contribute() {
     const pieces = [];
     if (warning) pieces.push(warning.replace(/\n+$/, ''));
     if (releaseDriftLine) pieces.push(releaseDriftLine);
+    // Third piece, appended to the SAME array (never replacing the existing
+    // composition): the Phase 233 graph re-derive nudge.
+    if (graphLine) pieces.push(graphLine);
     const fullPayload = pieces.join('\n');
     if (!fullPayload) return fi.emptyFragment();
 
+    // The pointer names whichever finding is actually present. When the ONLY
+    // finding is the graph nudge, claiming an install drift would be a false
+    // report -- the exact false-success class this phase exists to close.
     const what = (report.install && report.install.status === 'missing') ? 'missing' : 'drifted';
-    const pointer = 'MindrianOS install ' + what + ' -- run /mos:doctor --fix.';
+    const pointer = (!drift.detected && !releaseDriftLine && graphLine)
+      ? 'Your Data Room graph needs a re-derive -- run /mos:doctor --heal-room.'
+      : 'MindrianOS install ' + what + ' -- run /mos:doctor --fix.';
     return fi.makeFragment({
       id: 'install-drift',
       priority: 1,
