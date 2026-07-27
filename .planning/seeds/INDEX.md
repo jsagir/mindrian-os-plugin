@@ -300,6 +300,43 @@ needs_author_touch: <string>       # flag for next curation pass if seed is ambi
 4. Check the bidirectional matrix for new orphan seeds (seeds whose target phases were renumbered or absorbed elsewhere).
 5. Update this INDEX. Bump `last_curated` and `curated_during` in the frontmatter.
 
+### To run a SEED through the Critical Pathway (score -> consult -> reuse-check -> promote -> execute)
+
+Added 2026-07-27, after a criticality-ordering session surfaced two live near-misses in the
+same week: SEED-072 nearly re-derived SEED-066/071's licensing findings before a reuse check
+caught it, and a proven live defect (`orchestration`'s `rooms-open` false-success) sat
+un-scoped in a room research entry, cross-referenced only informally, while a sibling half of
+the same bug had already been root-caused and fixed under a properly-filed debug RCA
+(`registry-active-room-concurrent-session-collision.md`) that this session almost missed.
+This entry formalizes the pathway so both catches become structural, not lucky.
+
+1. **SCORE.** Rank against four tiers, not registration date: **Tier 0** = proven live defect
+   (reproduced with a before/after ground-truth check, not inferred). **Tier 1** = critical,
+   evidenced, unclaimed (an open RCA, or a triage's own "TOP TARGET" flag, but not directly
+   reproduced this session). **Tier 2** = a chosen direction not yet scoped into a phase.
+   **Tier 3** = exploratory / a research program. A Tier 0 item always jumps the queue over an
+   earlier-scoped Tier 2/3 item.
+2. **CONSULT.** Per the standing CLAUDE.md hard rule: any seed touching Claude Code/LLM/
+   agent-engineering concepts (memory, RAG, knowledge graphs, MCP, agent protocols, context
+   engineering) queries `langtalks-graph-expert` before relying on training-data assumptions,
+   and records the verdict (grounded / not-in-corpus / contradicted) directly in the seed or
+   the phase's RESEARCH.md. "Not in corpus yet" is a valid, citable answer -- it is not a
+   blocker, and it is not license to skip the query.
+3. **REUSE-CHECK (Part 7).** Grep the FULL seed corpus (not just this INDEX's stale curated
+   tables), `.planning/debug/` (open AND `resolved/`), and ROADMAP.md before promoting. Do this
+   even when the finding feels novel -- SEED-072 and the `rooms-open`/`room_bind` split both
+   nearly failed this exact step in the same week.
+4. **PROMOTE.** A proven Tier-0 defect goes straight to `/gsd-debug` (the diagnosis is often
+   already done; do not re-derive it). A Tier-1/2 item with real unknowns goes to
+   `/gsd-plan-phase` with a reserved phase number. Either way, cite the SEED id and any prior
+   RCA/research file by path in the phase's own CONTEXT.md/RESEARCH.md -- do not let the
+   citation live only in a cross-reference someone has to go find.
+5. **EXECUTE, one at a time.** Work the ranked queue top to bottom. Do not start item N+1
+   while item N's debug/phase session is still running, even if N+1 looks faster -- re-score
+   the queue after each item closes, since fixing a Tier-0 root cause frequently shrinks or
+   invalidates items below it (working hypothesis this session: fixing `rooms-open`/
+   `room_bind` may shrink the `check-card-fire.cjs` recurrence surface).
+
 ### To resolve an id collision
 
 (History: this happened once on 2026-05-19 when two seeds were independently filed as SEED-003.)
