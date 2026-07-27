@@ -3,18 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: "Completed 233-02-PLAN.md (RCA 4b gate on runDerivation's dead hosted-API default + RCA 4e drain doctrine reconcile + drain/backfill producer-parity regression)"
-last_updated: "2026-07-27T21:33:53.007688Z"
-last_activity: 2026-07-28
+stopped_at: Completed 233-03-PLAN.md (last plan in Phase 233)
+last_updated: "2026-07-27T22:04:49.676Z"
+last_activity: 2026-07-27
 progress:
   total_phases: 42
-  completed_phases: 28
+  completed_phases: 29
   total_plans: 153
-  completed_plans: 149
-  percent: 67
+  completed_plans: 150
+  percent: 69
 ---
 
 # Project State
+
+## (2026-07-28) -- PHASE 233 Plan 03 COMPLETE (Wave 3, LAST PLAN) -- RCA Section 9 Defects #4/#5: HSI corpus scoping + the ordered 4-stage heal pipeline
+
+- **Task 1 (`16c11257`):** `scripts/compute-hsi.py` was the ONE room-artifact walker Phase 200-01 never migrated to the shared `lib/core/rs_corpus_exclude.py`. Its private `SKIP_DIRS` copy had drifted exactly the way the shared source exists to prevent: it never learned `.snapshots` or `sub-rooms`, so on the RCA's evidence room it scored 207 artifacts whose top-20 pairs were ALL near-duplicate backup state dumps, and `hsi-to-graph.cjs` correctly refused every one and wrote zero edges. The local literal is gone; `SKIP_DIRS`/`SKIP_FILES`/`MIN_BODY_CHARS` now ride the shared source, and `.snapshots` + `sub-rooms` + `.context` were added there so all four walkers are fixed at one point. New `--scope-to-nodes` intersects the corpus with the room's real `Artifact` node set through a read-only `room.db` open, degrading to score-everything (never to zero) when the db is missing or immature.
+- **Task 2 (`b4e7ef3d`):** New `scripts/graph-heal-pipeline.cjs` runs the RCA-mandated order as ONE entry point: structural-index -> scoped HSI -> hsi-to-graph -> cascade-derive, reusing every stage's existing implementation verbatim (Canon Part 7). Navigator-triggered only, never on the write path (the BACKFILL_PAIR_CHUNK precedent). Soft-fail per stage: a missing python3 degrades exactly the two HSI stages.
+- **The live run found a defect that reading the code could not have.** Run end to end against the RCA's own evidence room, the pipeline printed "wrote 20 connection edges" into a room that finished with ZERO. Root cause traced: `runDeriveBackfill`'s internal `_rebuildRoom` opens with `DELETE FROM edges; DELETE FROM nodes;`, which is correct as stage 1 (stage 3 rewrites afterward) and fatal as stage 4 (nothing runs after it). That is the same confident-success-over-empty-result shape this whole phase is about, reproduced inside its own fix. Fixed with an opt-in `skipRebuild` (default OFF, every existing caller byte-unchanged), carved out when `approvedBy` is set.
+- **Real-run proof (the phase's headline number):** `motj-ecosystem` went from 33 Artifact nodes and ZERO semantic edges to 61 nodes with 20 `HSI_CONNECTION`, 17 `CONVERGES` and 30 `INFORMS`. Top HSI pair 0.519, matching the 0.51 the RCA's manual June workaround reached, so the automated path reproduces the hand-scoped result. 49 artifacts scored out of 785 markdown files present, with zero `.snapshots` and zero `sub-rooms` ids in the output.
+- **Every new assertion mutation-proven.** Disabling the skip-dir filter, no-op-ing `--scope-to-nodes`, and no-op-ing stage 1 each fail their own gate and pass again on restore. The stage-4 survival gate carries a built-in control leg proving the unguarded path still wipes, so the guard is measured rather than assumed.
+- **All gates green:** `bash tests/run-all-233.sh` (the whole-phase gate across all three plans, now discovering `.sh` legs too and carrying a comment-stripped Part 8 egress sweep) -> **PASS=10 FAIL=0 SKIP=0**. No-regression: `run-all-224.sh` 17/17 (it owns `graph-backfill.cjs`, which this plan modified), `run-all-200.sh` 6/6, `test-200-corpus-exclude.sh` and `test-hsi-skip-heal-backup.sh` both PASS.
+- **Canon Part 8 held:** zero Brain egress in every touched path; the new sqlite open is read-only by URI; both child spawns pass argv arrays, never interpolated shell strings.
+- **NEXT:** Phase 233 is code-complete (3/3) and ready for the verification loop. Flagged open beyond this plan's scope: the ~16 damaged rooms still need someone to actually RUN a derive (Plan 01 restored the signal by design, it does not force one, and this plan now supplies the one-command way); wiring `--heal-room` to this pipeline is deliberately a separate decision because it would put a model load behind a doctor flag; and three items sit in `deferred-items.md`.
 
 ## (2026-07-28) -- PHASE 233 Plan 02 COMPLETE (Wave 2) -- RCA 4b: gate runDerivation's dead hosted-API default; RCA 4e: reconcile the drain doctrine header + pin drain/backfill producer parity with a mutation-proven live regression
 
@@ -1271,7 +1282,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 233 (graph-derive-drain-residual-seed-037-heal-already-damaged-ro) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1869,6 +1880,7 @@ Progress: [█████████░] 92%
 | Phase 232.1 P01 | 42min | 3 tasks | 8 files |
 | Phase 232.1 P02 | 28min | 2 tasks | 3 files |
 | Phase 233 P01 | 38min | 3 tasks | 11 files |
+| Phase 233 P03 | 71min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -2987,6 +2999,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 233-01: graph-derive-health class status maps per-room fail to class-level warn, because the doctor engine vocabulary is ok|warn|error|skip and contract-parity rule 9 enforces it
 - [Phase ?]: Phase 233-01: preflight-doctor contribute() passes --graph-derive-health into its existing single doctor spawn; without it the flag-gated class never populates the report and the Tri-Polar nudge would ship inert
 - [Phase ?]: Phase 233-01: The 4c heal restores the derive retry SIGNAL only, never forces a derivation; real cascade edges still depend on RCA 4b's in-session derive path
+- [Phase 233]: Phase 233-03: compute-hsi.py migrated to the shared rs_corpus_exclude source (4th and last walker); .snapshots + sub-rooms + .context excluded for every Python walker
+- [Phase 233]: Phase 233-03: runDeriveBackfill gained an opt-in skipRebuild (default off) because its internal DELETE-then-reindex was erasing the HSI edges the heal pipeline stage 3 had just written
 
 ### Pending Todos
 
@@ -3075,8 +3089,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-10 - Phase 198 Plan 10 tasks 1-2 executed (SPEC-7 rollback rehearsal + SPEC-6 CLI parity leg + SPEC-8 measured Plurai baseline); PAUSED at Task 3 human-verify checkpoint (two-host parity)
-Last session: 2026-07-27T21:14:41.331Z
-Stopped at: Completed 232.1-01-PLAN.md (room-graph density read: read-only room.db door + doctor census module)
+Last session: 2026-07-27T22:04:49.535Z
+Stopped at: Completed 233-03-PLAN.md (last plan in Phase 233)
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 

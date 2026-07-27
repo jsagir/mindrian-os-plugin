@@ -45,3 +45,50 @@ every derivation-composer check.
 never gained) the `## Timeline (auto)` block that the Phase-169 verdict suite expects, so the
 TEST may encode a contract the writer no longer honors. Worth checking whether the contract or
 the writer is the stale side before patching either.
+
+## 233-03 Task 1: compute-hsi.py Tier 2 sends artifact ids to Pinecone (PRE-EXISTING)
+
+**Status:** OUT OF SCOPE for 233-03. Predates this phase; untouched by it.
+
+`scripts/compute-hsi.py::compute_semantic_similarity_tier2` calls
+`index.fetch(ids=artifact_ids)`. Those ids are room-relative artifact paths
+(`section/artifact-name`), which is user-content shape, and they leave the device.
+Reachable only when BOTH `PINECONE_API_KEY` and `PINECONE_INDEX` are set AND `--tier 2`
+is passed, so it is opt-in and it is not a Brain call: Canon Part 8's LOCAL-to-BRAIN
+prohibition is not literally breached. But "artifact path names egress to a third-party
+vector index behind an opt-in flag" deserves an explicit ruling rather than an implicit one.
+
+`tests/run-all-233.sh` allow-lists this ONE exact line in its Part 8 sweep, with the reason
+written into the file header, so any OTHER egress token in that file still fails the gate.
+
+**Next step:** a Part 8 addendum ruling (or a small RCA). No code change until the ruling exists.
+
+## 233-03 Task 2: the JS structural indexer and the Python walkers disagree about sub-rooms
+
+**Status:** OUT OF SCOPE for 233-03. Discovered by this plan's live run, not caused by it.
+
+This plan taught the four Python walkers to skip `.snapshots`, `sub-rooms` and `.context`
+through the shared `lib/core/rs_corpus_exclude.py`. The JS side
+(`lib/core/lazygraph-ops.cjs::rebuildGraph` plus `discoverSections`) still nodeifies the
+scaffold files under the sub-rooms container. The live run on the RCA's evidence room produced
+three such nodes: `sub-rooms`, `sub-rooms/MINTO`, `sub-rooms/_ROOM-MAP`.
+
+Consequence today is mild and NOT a correctness break: those nodes simply never receive an HSI
+pair, because the scoped corpus excludes that tree. But it is the same defect CLASS this plan
+just closed on the Python side (two scanners with independent notions of what an artifact is),
+one layer over, and it is the residue of Defect #4/#5 that a node-set-vs-corpus parity check
+would catch.
+
+**Next step:** give `discoverSections` the same shared exclude semantics, so the node set and
+the HSI corpus are defined once rather than twice.
+
+## 233-03: `scripts/__pycache__/*.pyc` is tracked in git
+
+**Status:** repo hygiene, OUT OF SCOPE.
+
+`scripts/__pycache__/compute-hsi.cpython-312.pyc` is a TRACKED file, so it churns in
+`git status` on every test run that loads `compute-hsi.py` through importlib. Compiled bytecode
+is a build artifact and belongs in `.gitignore`, not in history.
+
+**Next step:** `git rm --cached` the `__pycache__` trees and add the pattern to `.gitignore`.
+Trivial, but its blast radius is repo-wide, so it is not being done inside a scoped plan.

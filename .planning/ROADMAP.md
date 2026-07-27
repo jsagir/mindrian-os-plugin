@@ -3210,7 +3210,7 @@ Plans:
 **Depends on:** Phase 232 (sequencing only); Phase 224-02 (shipped: drain keep-on-failure/retry-cap/failure-log, the fix this phase's residual scope builds on)
 **Canon:** Parts 4, 6, 8, 9
 **Cross-references:** SEED-037, SEED-074 (corroboration only, not scoped into this phase)
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 
@@ -3224,7 +3224,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 1 + Wave 2; lower priority, separable)*
 
-- [ ] 233-03-PLAN.md - Migrate compute-hsi.py to the shared rs_corpus_exclude.py SKIP_DIRS source + `--scope-to-nodes` (Section 9 Defect #4/#5) + ordered 4-stage graph-heal-pipeline.cjs + phase test aggregator
+- [x] 233-03-PLAN.md - Migrate compute-hsi.py to the shared rs_corpus_exclude.py SKIP_DIRS source + `--scope-to-nodes` (Section 9 Defect #4/#5) + ordered 4-stage graph-heal-pipeline.cjs + phase test aggregator
 
 ---
 
