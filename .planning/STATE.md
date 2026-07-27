@@ -3,18 +3,32 @@ gsd_state_version: 1.0
 milestone: v1.15.0
 milestone_name: "The Cockpit" milestone -- the UX/dial train
 status: verifying
-stopped_at: "Completed 232.1-01-PLAN.md (room-graph density read: read-only room.db door + doctor census module)"
-last_updated: "2026-07-27T21:15:06.394Z"
-last_activity: 2026-07-27
+stopped_at: "Completed 233-02-PLAN.md (RCA 4b gate on runDerivation's dead hosted-API default + RCA 4e drain doctrine reconcile + drain/backfill producer-parity regression)"
+last_updated: "2026-07-27T21:33:53.007688Z"
+last_activity: 2026-07-28
 progress:
   total_phases: 42
   completed_phases: 28
   total_plans: 153
-  completed_plans: 148
+  completed_plans: 149
   percent: 67
 ---
 
 # Project State
+
+## (2026-07-28) -- PHASE 233 Plan 02 COMPLETE (Wave 2) -- RCA 4b: gate runDerivation's dead hosted-API default; RCA 4e: reconcile the drain doctrine header + pin drain/backfill producer parity with a mutation-proven live regression
+
+Closes the RCA's Section 10 items 4b and 4e. Product change is small and surgical (one resolution line plus one header paragraph); the weight of the plan is in PROVING the claims rather than asserting them.
+
+- **Task 1 (TDD, `861df5ec` RED then `91d3b07e` GREEN):** `runDerivation`'s default `deriveFn` was an unconditional `require('./graph-candidate-producer.cjs').produceCandidates`, whose transport is a direct fetch to `api.anthropic.com` -- an account the RCA probed live and found returning `400 credit balance is too low`. A caller who forgot to inject `deriveFn` therefore got working-looking code that failed later over the network, not a contract error at the point of the mistake. New `_resolveDefaultDeriveFn()` requires `MINDRIAN_ALLOW_HOSTED_DERIVE === '1'` AND a non-empty `ANTHROPIC_API_KEY`, else throws `deriveFn_required_no_hosted_default` synchronously, before `openRoomDb` and before the first pair. GATE not deletion (233-CONTEXT.md discretion): a deliberately-configured deployment keeps byte-identical behavior. Audit confirmed all 8 live call sites already inject `deriveFn`, so nothing shipped is affected.
+- **Task 2 (`fb31472d`):** drain header intro no longer claims "and CLEARS the drained entry" (untrue since 224-02's `reconcileQueue`: only SUCCEEDED clears, FAILED is kept and retried to `MAX_DERIVE_ATTEMPTS`), and now states the division of labor 4e demanded -- headless = enqueue/preserve/score-locally, in-session `/mos:graph --derive` = the heal-first universal net. The already-correct "Failure discipline" paragraph is byte-unchanged (diff-verified against a pre-task snapshot).
+- **The plan's core claim proven twice, not asserted.** `tests/test-233-drain-backfill-producer-parity.cjs` (14 assertions): PROOF A source-level, comment-stripped via the run-all-158 grep-gate-hygiene idiom, with A4 asserting the UNSTRIPPED source DOES carry the forbidden token so the gate cannot pass vacuously. PROOF B LIVE: the shared cached `classifier.scoreBasedDeriveFn` export is swapped for a recorder, both modules run their REAL default (non-injected) paths over two fixture rooms, and the resulting cascade edges are read back off BOTH `room.db` files through the Phase-232.1 read-only door and compared as sets (identical, and both `proposed`, never auto-confirmed).
+- **Both proof legs independently mutation-proven.** Mutant 1 (assignment replaced outright): A2 catches, B2 never runs. Mutant 2 (literal token kept in a dead comma-expression, live-resolving to a different function): A2 PASSES, B1 passes, B2 catches. That is exactly the "textually similar but functionally different" case the live leg exists for. `lib/core/graph-backfill.cjs` restored byte-identical after each.
+- **Two self-inflicted test bugs found and root-caused before commit (both Rule 1, test-only):** (a) the parity test queried `source_id/target_id/edge_type`, which are the FINDING-shape field names, not the `edges` table columns (`source/target/type/properties/review_status`, confirmed by `PRAGMA table_info`); the edges had landed correctly all along. (b) A reproducible 2-in-6 flake traced to `buildAllPairs` ordering each pair by `mtimeMs` (correct product behavior: older-informs-newer). Two separately-built fixture rooms do NOT reliably get the same mtime RELATIONSHIPS -- a probe under parallel load printed room A with one strictly-older file plus a tie, and room B with all three tied -- so the pair orientation flipped. Fixed by stamping deterministic id-ordered mtimes in both rooms plus a new B0 assertion. Re-verified with 8 parallel invocations + 6 harness runs: 14 consecutive green under the exact load that previously failed 2-in-6.
+- **All gates green:** `bash tests/run-all-233.sh` -> PASS=6 FAIL=0 (six consecutive runs). Existing derivation suites run UNMODIFIED: `test-graph-derivation-loop`, `test-derive-idempotence`, `test-224-proposed-only`, `test-224-migration`, plus `test-224-encoder-skip/cost-bound/per-write-derive/backfill-idempotent` all PASS. `test-graph-derivation-verdict` 2/14 failures are PRE-EXISTING, proven by temporarily restoring `graph-derivation.cjs` to base bytes and getting a byte-identical verdict; logged to `deferred-items.md`, not fixed here (scope boundary).
+- **Canon Part 8 clean.** Zero Brain egress; the gate opens no new wire and makes an already-LOCAL transport harder to reach by accident. The parity test satisfies the encoder probe with an injected `encodeFn` seam, never a real dial. No em-dashes in any touched file.
+- **Concurrent-session guard:** a separate `quick-260728-051` session interleaved commits on this shared tree, as anticipated. Every commit staged files individually; `git show --stat` on each confirms zero cross-contamination. `gsd-tools` NOT on PATH; STATE.md updated by manual additive log append + frontmatter counter advance (completed_plans 148->149), matching the 230/231/232-series anti-clobber precedent. `dashboard/graph.json` generated drift left uncommitted per repo precedent (swept in periodic `chore:` commits).
+- **NEXT:** Plan 03 (Section 9 Defects #4/#5: `compute-hsi.py` corpus scoping + structural node coverage + the ordered 4-stage heal pipeline). Independent of everything here. Phase 233 not yet closed (2/3).
 
 ## (2026-07-20) -- PHASE 232 Plan 06 COMPLETE (Wave 3) -- PHASE 232 CLOSED (6/6): real --export static share-bundle + commands/wiki.md truth-up + all 10 SPEC acceptance criteria verified by a real Playwright browser walkthrough (Req 9)
 

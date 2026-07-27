@@ -3210,7 +3210,7 @@ Plans:
 **Depends on:** Phase 232 (sequencing only); Phase 224-02 (shipped: drain keep-on-failure/retry-cap/failure-log, the fix this phase's residual scope builds on)
 **Canon:** Parts 4, 6, 8, 9
 **Cross-references:** SEED-037, SEED-074 (corroboration only, not scoped into this phase)
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 
@@ -3220,7 +3220,7 @@ Plans:
 
 **Wave 2** *(233-02 sequenced after 233-01 by priority, not a file/functional dependency)*
 
-- [ ] 233-02-PLAN.md - Gate runDerivation's dead hosted-API default (4b) + drain/backfill producer-parity regression + reconcile drain doctrine comment (4e)
+- [x] 233-02-PLAN.md - Gate runDerivation's dead hosted-API default (4b) + drain/backfill producer-parity regression + reconcile drain doctrine comment (4e) - DONE 2026-07-28 (861df5ec RED, 91d3b07e Task 1 GREEN, fb31472d Task 2; run-all-233 PASS=6 FAIL=0; both parity proof legs mutation-proven; Canon Part 8 clean)
 
 **Wave 3** *(blocked on Wave 1 + Wave 2; lower priority, separable)*
 
