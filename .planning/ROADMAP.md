@@ -3203,6 +3203,29 @@ Plans:
 
 - [x] 232-06-PLAN.md - Static --export implementation (first real one; previously documented but unimplemented) + commands/wiki.md truth-up + end-to-end Playwright walkthrough of all 10 SPEC acceptance criteria (2 bugs found+fixed `0230803f`) [SPEC Req 9]
 
+### Phase 233: Graph-derive drain residual (SEED-037): heal already-damaged rooms + doctor graph-derive-health check, after Phase 224-02 fixed the acute silent-clear-on-failure defect
+
+**Goal:** Repair the ~16 rooms whose derive queues were silently cleared before Phase 224-02's fix (heal-on-update retrofit) and make sure a room that never derives semantic cascade edges can never again go unnoticed (a new `graph-derive-health` doctor check + `--heal-room` action, Tri-Polar aware), then close the remaining smaller register items: gate `runDerivation`'s dead hosted-API default, reconcile the drain's doctrine comments, and fix the HSI corpus/graph node-set mismatch (Section 9 Defects #4/#5).
+**Requirements**: 4b, 4c, 4d, 4e, 9-defect-4, 9-defect-5 (RCA `.planning/debug/graph-derive-silent-clear-dead-api-derivation.md` Section 10 "Still OPEN" register, no REQUIREMENTS.md for this phase)
+**Depends on:** Phase 232 (sequencing only); Phase 224-02 (shipped: drain keep-on-failure/retry-cap/failure-log, the fix this phase's residual scope builds on)
+**Canon:** Parts 4, 6, 8, 9
+**Cross-references:** SEED-037, SEED-074 (corroboration only, not scoped into this phase)
+**Plans:** 3 plans
+
+Plans:
+
+**Wave 1**
+
+- [ ] 233-01-PLAN.md - Shared detection signal + doctor class graph-derive-health CHECK/HEAL (4d) + heal-on-update auto-retrofit (4c) + Tri-Polar Desktop/Cowork nudge
+
+**Wave 2** *(233-02 sequenced after 233-01 by priority, not a file/functional dependency)*
+
+- [ ] 233-02-PLAN.md - Gate runDerivation's dead hosted-API default (4b) + drain/backfill producer-parity regression + reconcile drain doctrine comment (4e)
+
+**Wave 3** *(blocked on Wave 1 + Wave 2; lower priority, separable)*
+
+- [ ] 233-03-PLAN.md - Migrate compute-hsi.py to the shared rs_corpus_exclude.py SKIP_DIRS source + `--scope-to-nodes` (Section 9 Defect #4/#5) + ordered 4-stage graph-heal-pipeline.cjs + phase test aggregator
+
 ---
 
 ### Phase 232.1: Room-Graph Density Read (room-graph-density-read) - INSERTED 2026-07-25 - **SEED-074 "Suggested first move" only, not the seed's gated target**
