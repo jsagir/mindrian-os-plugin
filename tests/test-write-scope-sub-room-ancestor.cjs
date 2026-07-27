@@ -128,6 +128,240 @@ test('unit 7: a non-array ancestorChain degrades to no widening, never throws', 
 });
 
 // ---------------------------------------------------------------------------
+// E2E section (Task 2): the real spawned write-scope-check.cjs hook.
+//
+// scripts/write-scope-check.cjs has NO module.exports (it runs main() as a side
+// effect on load via stdin), so spawning it is the ONLY way to exercise
+// resolveAncestorChain and its wiring. Exit 0 = allow, exit 2 = block.
+// The harness helpers below are cloned (not imported) from
+// scripts/83-scope-injection.test.cjs, which is itself a standalone runner
+// script rather than a requirable module.
+// ---------------------------------------------------------------------------
+
+const fs = require('node:fs');
+const os = require('node:os');
+const crypto = require('node:crypto');
+const { spawnSync } = require('node:child_process');
+
+const PLUGIN_ROOT = REPO_ROOT;
+const WRITE_SCOPE_CHECK = path.join(PLUGIN_ROOT, 'scripts', 'write-scope-check.cjs');
+
+const FIXTURES_ROOT = path.join(os.tmpdir(), '260728-051-fixtures');
+fs.mkdirSync(FIXTURES_ROOT, { recursive: true });
+
+function mkFixtureDir(label) {
+  const dir = path.join(FIXTURES_ROOT, label + '-' + crypto.randomUUID());
+  fs.mkdirSync(dir, { recursive: true });
+  fs.mkdirSync(path.join(dir, '.claude'), { recursive: true });
+  return dir;
+}
+
+function cleanup(dir) {
+  try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+}
+
+// Build a MindrianRooms root with a registry.json at .rooms/registry.json.
+function mkFixtureMindrianRoomsRoot(parent, opts) {
+  const root = path.join(parent, 'MindrianRooms');
+  fs.mkdirSync(root, { recursive: true });
+  if (opts && opts.registry !== null) {
+    fs.mkdirSync(path.join(root, '.rooms'), { recursive: true });
+    const reg = opts && opts.registry ? opts.registry : { active: '', rooms: {} };
+    fs.writeFileSync(
+      path.join(root, '.rooms', 'registry.json'),
+      JSON.stringify(reg, null, 2)
+    );
+  }
+  return root;
+}
+
+// Create a nested room: the dir chain, a .room-root sentinel in the leaf (the
+// registered room), and a ROOM.md. relPath is forward-slash relative to root.
+function mkNestedRoom(root, relPath) {
+  const dir = path.join(root, ...relPath.split('/'));
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, '.room-root'), '');
+  fs.writeFileSync(path.join(dir, 'ROOM.md'), '# ' + relPath + '\n');
+  return dir;
+}
+
+// Spawn the hook with an explicit session id. CLAUDE_CODE_SESSION_ID is set
+// directly because resolveSessionId in write-scope-check.cjs reads it FIRST
+// (before the payload's session_id field), so relying on the payload alone
+// would silently read the HOST session's binding file.
+function runWriteScopeCheck(root, targetFile, sessionId) {
+  const env = Object.assign({}, process.env, {
+    MINDRIAN_ROOMS_ROOT: root,
+    MINDRIAN_ROOMS_HOME: root,
+    CLAUDE_CODE_SESSION_ID: sessionId
+  });
+  delete env.CLAUDE_SESSION_ID; // never inherit a real session binding
+  const payload = JSON.stringify({
+    session_id: sessionId,
+    tool_name: 'Write',
+    tool_input: { file_path: targetFile }
+  });
+  const res = spawnSync('node', [WRITE_SCOPE_CHECK], {
+    env: env,
+    input: payload,
+    encoding: 'utf8',
+    timeout: 10000
+  });
+  return res.status;
+}
+
+function bindSession(root, sessionId, bound) {
+  sessionBinding.writeSessionBinding(
+    sessionId,
+    { bound: bound, primary: bound[0] || null, sticky: false },
+    { home: root }
+  );
+}
+
+const CHILD_REL = 'motj-ecosystem/sub-rooms/jonathan-contractor-motj';
+
+test('e2e (a): a session bound to the PARENT may write into its registered sub-room', () => {
+  const fx = mkFixtureDir('qt051-a');
+  try {
+    const root = mkFixtureMindrianRoomsRoot(fx, {
+      registry: {
+        active: 'motj-ecosystem',
+        rooms: {
+          'motj-ecosystem': { path: 'motj-ecosystem' },
+          'jonathan-contractor-motj': { path: CHILD_REL, parent: 'motj-ecosystem' }
+        }
+      }
+    });
+    mkNestedRoom(root, 'motj-ecosystem');
+    mkNestedRoom(root, CHILD_REL);
+    const sessionId = 'qt051-a-session';
+    bindSession(root, sessionId, ['motj-ecosystem']);
+    const exit = runWriteScopeCheck(
+      root, path.join(root, ...CHILD_REL.split('/'), 'notes.md'), sessionId
+    );
+    // Pre-fix this false-blocked (exit 2) until a SECOND room_bind was made.
+    assert.strictEqual(
+      exit, 0,
+      'a write into a bound parent room own registered sub-room must ALLOW (exit 0)'
+    );
+  } finally {
+    cleanup(fx);
+  }
+});
+
+test('e2e (b): ancestor widening does NOT leak to an unrelated registered room', () => {
+  const fx = mkFixtureDir('qt051-b');
+  try {
+    const root = mkFixtureMindrianRoomsRoot(fx, {
+      registry: {
+        active: 'motj-ecosystem',
+        rooms: {
+          'motj-ecosystem': { path: 'motj-ecosystem' },
+          'jonathan-contractor-motj': { path: CHILD_REL, parent: 'motj-ecosystem' },
+          'unrelated-venture': { path: 'unrelated-venture' }
+        }
+      }
+    });
+    mkNestedRoom(root, 'motj-ecosystem');
+    mkNestedRoom(root, CHILD_REL);
+    mkNestedRoom(root, 'unrelated-venture');
+    const sessionId = 'qt051-b-session';
+    bindSession(root, sessionId, ['motj-ecosystem']);
+    const exit = runWriteScopeCheck(
+      root, path.join(root, 'unrelated-venture', 'steal.md'), sessionId
+    );
+    assert.strictEqual(
+      exit, 2,
+      'a write into a room outside the bound tree must still BLOCK (exit 2)'
+    );
+  } finally {
+    cleanup(fx);
+  }
+});
+
+test('e2e (c): a session bound directly to the CHILD is unaffected (exact match)', () => {
+  const fx = mkFixtureDir('qt051-c');
+  try {
+    const root = mkFixtureMindrianRoomsRoot(fx, {
+      registry: {
+        active: 'motj-ecosystem',
+        rooms: {
+          'motj-ecosystem': { path: 'motj-ecosystem' },
+          'jonathan-contractor-motj': { path: CHILD_REL, parent: 'motj-ecosystem' }
+        }
+      }
+    });
+    mkNestedRoom(root, 'motj-ecosystem');
+    mkNestedRoom(root, CHILD_REL);
+    const sessionId = 'qt051-c-session';
+    bindSession(root, sessionId, ['jonathan-contractor-motj']);
+    const exit = runWriteScopeCheck(
+      root, path.join(root, ...CHILD_REL.split('/'), 'notes.md'), sessionId
+    );
+    assert.strictEqual(
+      exit, 0,
+      'the pre-existing exact-match allow path must be untouched (exit 0)'
+    );
+  } finally {
+    cleanup(fx);
+  }
+});
+
+test('e2e (d1): a registry entry with NO parent field widens nothing and never crashes', () => {
+  const fx = mkFixtureDir('qt051-d1');
+  try {
+    const root = mkFixtureMindrianRoomsRoot(fx, {
+      registry: {
+        active: 'motj-ecosystem',
+        rooms: {
+          'motj-ecosystem': { path: 'motj-ecosystem' },
+          // Roughly half of real registry entries carry no parent field at all.
+          'orphan-room': { path: 'orphan-room' }
+        }
+      }
+    });
+    mkNestedRoom(root, 'motj-ecosystem');
+    mkNestedRoom(root, 'orphan-room');
+    const sessionId = 'qt051-d1-session';
+    bindSession(root, sessionId, ['motj-ecosystem']);
+    const exit = runWriteScopeCheck(
+      root, path.join(root, 'orphan-room', 'notes.md'), sessionId
+    );
+    assert.strictEqual(
+      exit, 2,
+      'a missing parent field degrades to zero widening and a clean BLOCK (exit 2)'
+    );
+  } finally {
+    cleanup(fx);
+  }
+});
+
+test('e2e (d2): a malformed registry.json still fails OPEN, no new crash surface', () => {
+  const fx = mkFixtureDir('qt051-d2');
+  try {
+    const root = mkFixtureMindrianRoomsRoot(fx, {
+      registry: { active: 'motj-ecosystem', rooms: {} }
+    });
+    mkNestedRoom(root, 'motj-ecosystem');
+    // Corrupt the registry AFTER the room tree exists.
+    fs.writeFileSync(path.join(root, '.rooms', 'registry.json'), '{not valid json');
+    const sessionId = 'qt051-d2-session';
+    bindSession(root, sessionId, ['some-other-room']);
+    const exit = runWriteScopeCheck(
+      root, path.join(root, 'motj-ecosystem', 'notes.md'), sessionId
+    );
+    // Pre-existing behavior: readActiveRoom returns null on malformed JSON and
+    // the hook allows BEFORE the session-bound branch is ever reached.
+    assert.strictEqual(
+      exit, 0,
+      'a totally corrupt registry must still fail OPEN (exit 0)'
+    );
+  } finally {
+    cleanup(fx);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // Runner
 // ---------------------------------------------------------------------------
 
