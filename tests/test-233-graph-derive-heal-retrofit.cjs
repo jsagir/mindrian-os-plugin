@@ -231,6 +231,55 @@ scenario('5. the module exports check() and NOT fix() (fix_supported:false parit
   assert.equal(typeof retrofit.fix, 'undefined', 'does NOT export fix()');
 });
 
+// ---------- Scenario 5b: WR-01, an unreachable room is a warn, not a silent ok ----------
+
+scenario('5b. a room the one-time pass cannot re-enqueue yields status warn, not ok (WR-01)', () => {
+  const scratch = makeScratchDir('s5b');
+  try {
+    const { damaged } = makeTwoRoomFixture(scratch);
+    // Force a REAL enqueue failure rather than stubbing one: put a DIRECTORY
+    // where the queue file belongs. readQueue's readFileSync throws EISDIR and
+    // degrades to an empty queue, then writeQueue's renameSync onto a directory
+    // throws, so enqueueDerive returns { ok: false, reason: 'write_failed' }.
+    // This is the shape a systemic failure takes (unwritable queue path), and it
+    // is the ONE window this cadence:'once' module ever gets.
+    fs.mkdirSync(queueFilePath(damaged), { recursive: true });
+
+    const res = withRoomsHome(scratch, () => retrofit.check({ running: '99.99.99', dryRun: false }));
+
+    // Ground truth: nothing was actually repaired.
+    assert.equal(res.healed, 0, 'no room was actually healed');
+    assert.equal(res.rooms_scanned, 2, 'both rooms were still scanned (no abort)');
+    assert.equal(res.errors, 1, 'the failure is counted, not swallowed');
+
+    // THE REGRESSION: before the WR-01 fix this returned a flat status:'ok' while
+    // every damaged room in scope stayed damaged with no further automatic
+    // attempt ever coming.
+    assert.equal(res.status, 'warn', 'a total failure to heal must not report ok');
+
+    // And the detail must not promise a retry this module can never make.
+    assert.ok(
+      !/retried next run/i.test(res.detail),
+      'detail must not claim the retrofit retries; it is cadence:once. Got: ' + res.detail
+    );
+    assert.ok(
+      /heal-room/.test(res.detail),
+      'detail names the real recovery path for a stranded room, got: ' + res.detail
+    );
+  } finally { rmrf(scratch); }
+});
+
+scenario('5c. a fully successful pass still reports ok with zero errors', () => {
+  const scratch = makeScratchDir('s5c');
+  try {
+    makeTwoRoomFixture(scratch);
+    const res = withRoomsHome(scratch, () => retrofit.check({ running: '99.99.99', dryRun: false }));
+    assert.equal(res.status, 'ok', 'the clean path is unchanged');
+    assert.equal(res.errors, 0, 'zero errors');
+    assert.equal(res.healed, 1, 'the damaged room was healed');
+  } finally { rmrf(scratch); }
+});
+
 // ---------- Tri-Polar: the Desktop/Cowork conversational nudge ----------
 
 // A doctor --json report shaped exactly as doctor.cjs emits it, with the
