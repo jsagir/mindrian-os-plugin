@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.49 (in progress)
+## [1.15.3-beta.50] - 2026-07-28
 
 ### Added
 - **A doctor check that catches a Data Room whose graph never learned how the ideas relate,
