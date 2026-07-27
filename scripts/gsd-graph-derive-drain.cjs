@@ -9,8 +9,21 @@
  * Structured exactly like the SHIPPED scripts/brain-derivation-drain.cjs: on the
  * SessionStart event it READS the room-local derive queue (written by the Stop
  * sweep, scripts/gsd-graph-derive-sweep.cjs), runs runDerivation once per queued
- * room, and CLEARS the drained entry. The per-write structural index hook stays
- * untouched (Pattern 3 two-trigger split).
+ * ENTRY through the LOCAL score-based producer (lib/core/graph-derive-classifier.cjs
+ * scoreBasedDeriveFn), and then RECONCILES the queue: only a SUCCEEDED entry
+ * clears, a FAILED entry is KEPT and retried up to MAX_DERIVE_ATTEMPTS, never
+ * silently dropped. The per-write structural index hook stays untouched (Pattern 3
+ * two-trigger split).
+ *
+ * DIVISION OF LABOR (RCA graph-derive-silent-clear item 4e -- the header used to
+ * overstate the headless role as a blanket "runs once per room and CLEARS"):
+ * headless (this file) = enqueue-drain + preserve-on-failure + score LOCALLY;
+ * in-session /mos:graph --derive backfill (lib/core/graph-backfill.cjs) = the
+ * heal-first UNIVERSAL NET for everything the headless path structurally cannot
+ * reach (sentinel-less artifact folders, rooms that never had a Stop-hook fire).
+ * Both DEFAULT to the SAME classifier.scoreBasedDeriveFn producer, so the two
+ * paths cannot silently derive different edges from the same room; that parity is
+ * pinned by tests/test-233-drain-backfill-producer-parity.cjs, not by this comment.
  *
  * Failure discipline: exit-0, never-block, but NEVER SILENT ROT (RCA
  * graph-derive-silent-clear Defect 4a). A SessionStart hook must never block

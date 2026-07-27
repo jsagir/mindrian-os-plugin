@@ -27,6 +27,27 @@
   files and real queue files read back off disk, never a mocked return value.
 
 ### Fixed
+- **The graph derivation engine could quietly dial a dead account instead of scoring your
+  work locally (Phase 233, RCA items 4b/4e).** `runDerivation` is the composer that turns a
+  pair of your artifacts into a typed relationship edge. It takes the scoring function as an
+  argument, and until now, if a caller forgot to pass one, it silently fell back to a hosted
+  Anthropic API call. That fallback account has been out of credit for months: a live probe
+  returned `400 credit balance is too low`. So "forgot to pass the scorer" did not look like a
+  mistake at the point it was made; it looked like working code that failed later, over the
+  network, for a reason that had nothing to do with the actual bug. That fallback is now gated.
+  Omitting the scorer throws `deriveFn_required_no_hosted_default` immediately, before the room
+  database is even opened, and the error names the local scorer to use instead. Nothing shipped
+  is affected: every real caller already passes one. An operator who genuinely wants the hosted
+  path can still have it by setting `MINDRIAN_ALLOW_HOSTED_DERIVE=1` with a funded
+  `ANTHROPIC_API_KEY`, and gets byte-identical behavior to before. Gated, not deleted. Also
+  fixed: the background drain's header comment still claimed it "CLEARS the drained entry"
+  after every pass, which stopped being true when Phase 224-02 made failed entries survive and
+  retry. It now states what actually happens, plus the real division of labor: the background
+  pass enqueues, preserves on failure, and scores locally, while in-session `/mos:graph
+  --derive` is the wider net that also reaches rooms the background pass structurally cannot
+  see. Both default to the same local score-based scorer, and that is no longer a claim in a
+  comment: a new regression test swaps the shared scorer for a recorder, runs both paths over
+  two identical rooms, and compares the edges that land on disk.
 - **`orchestration rooms-open` reported a confirmation-shaped success while never switching
   the active room.** Live-reproduced 2026-07-22: the call returned a full "Room State" payload
   footed with the correct target room, yet `room-registry get-active` still returned the
