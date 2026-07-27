@@ -207,6 +207,47 @@ function slugForRoomDir(root, sentinelDir) {
   }
 }
 
+// resolveAncestorChain -- quick task 260728-051. Given a REGISTERED slug, return
+// its ancestor slugs (immediate parent first, furthest ancestor last) by walking
+// the registry `parent` field UPWARD. The write-guard feeds this to
+// isRoomInWriteScope so a session bound to a PARENT room may write into that
+// parent's own registered sub-rooms without a second, separate room_bind call.
+//
+// Deliberately reads the CHILD's own `parent` field bottom-up rather than the
+// parent's `sub_rooms` array top-down: the live registry's `sub_rooms` lists are
+// known-incomplete (motj-ecosystem.sub_rooms is missing jonathan-contractor-motj,
+// whose own `parent` field is present and correct). That list-side data gap is a
+// separate concern; this helper never edits the registry.
+//
+// Depth-bounded by ROOM_ROOT_MAX_DEPTH (the same constant the .room-root walk-up
+// uses) and cycle-guarded by a seen-Set seeded with the starting slug, so a
+// cyclic registry (A.parent=B, B.parent=A) breaks on the first repeat. Returns
+// [] on any failure and NEVER throws (mirrors slugForRoomDir/walkUpToRoomRoot).
+function resolveAncestorChain(root, slug) {
+  try {
+    if (typeof slug !== 'string' || slug.length === 0) return [];
+    const regPath = path.join(root, '.rooms', 'registry.json');
+    const parsed = JSON.parse(fs.readFileSync(regPath, 'utf8'));
+    if (!parsed || !parsed.rooms || typeof parsed.rooms !== 'object') return [];
+    const chain = [];
+    const seen = new Set([slug]);
+    let current = slug;
+    for (let hops = 0; hops < ROOM_ROOT_MAX_DEPTH; hops += 1) {
+      const spec = parsed.rooms[current];
+      if (!spec || typeof spec !== 'object') break;
+      const parent = spec.parent;
+      if (typeof parent !== 'string' || parent.length === 0) break;
+      if (seen.has(parent)) break; // cycle guard
+      seen.add(parent);
+      chain.push(parent);
+      current = parent;
+    }
+    return chain;
+  } catch (_e) {
+    return [];
+  }
+}
+
 // Given a realpath'd MindrianRooms root and a realpath'd target, return the
 // REGISTERED room slug the target write lands in, or null if target is not under
 // root.
@@ -384,7 +425,10 @@ function main() {
     binding = sessionBinding.readSessionBinding(resolveSessionId(payload, realRoot));
     const isBound = binding && Array.isArray(binding.bound) && binding.bound.length > 0;
     if (isBound) {
-      if (sessionBinding.isRoomInWriteScope(targetRoom, binding)) {
+      // 260728-051: a bound PARENT authorizes its registered sub-rooms. Resolved
+      // only on the bound path (an unbound session never needs the chain).
+      const ancestorChain = resolveAncestorChain(realRoot, targetRoom);
+      if (sessionBinding.isRoomInWriteScope(targetRoom, binding, ancestorChain)) {
         return allow();
       }
       return block(
