@@ -1,7 +1,30 @@
 ## [Unreleased] -- v1.15.3-beta.49 (in progress)
 
 ### Added
-- 
+- **A doctor check that catches a Data Room whose graph never learned how the ideas relate,
+  and an automatic repair for the rooms already in that state (Phase 233, RCA items 4c/4d).**
+  Two things live inside `room.db`: `BELONGS_TO` edges, which say which artifact sits in which
+  section (a filing cabinet), and cascade edges (INFORMS, CONTRADICTS, CONVERGES, INVALIDATES,
+  ENABLES, REFINES, ROOT_CAUSES), which say how the ideas actually relate (the part that makes
+  the room think). Before Phase 224-02 shipped on 2026-07-23, a failed derivation quietly
+  deleted its own retry signal, so a room could end up with the first and never the second and
+  nothing anywhere would say so. Phase 224-02 stopped that happening again, but it was
+  forward-only: roughly 16 live rooms were already in that state and stayed there. This release
+  closes both halves. New `graph-derive-health` doctor class (`/mos:doctor
+  --graph-derive-health`, or add `--cascade-rooms` to sweep every room) reports FAIL on exactly
+  that shape and WARN on a derive queue stuck past three days or a recorded failure log. New
+  `--heal-room` flag re-enqueues every affected room; it is the literal flag the
+  v1.13.0-beta.16 rename table has pointed at since before it existed, made real here for the
+  first time. And a one-time `graph-derive-heal-retrofit` module repairs already-damaged rooms
+  by itself the first time doctor runs after the update, with no flag to discover and nothing
+  to opt into, because a user should not have to know their graph was damaged in order to get
+  it fixed. Both share ONE detection function, so the check and the repair can never drift
+  apart. The heal restores the retry signal; the real edges land the next time an in-session
+  derive runs. Tri-Polar: CLI gets the full report, Desktop and Cowork get a one-sentence
+  re-derive nudge on the existing SessionStart install-drift slot rather than a raw table.
+  Canon Part 8: every new path is a read-only local `room.db` read plus a local JSON queue
+  write, zero network and zero Brain. Ground-truth tested (20 scenarios) against real `room.db`
+  files and real queue files read back off disk, never a mocked return value.
 
 ### Fixed
 - **`orchestration rooms-open` reported a confirmation-shaped success while never switching
