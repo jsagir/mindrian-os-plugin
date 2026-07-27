@@ -3203,14 +3203,26 @@ Plans:
 
 - [x] 232-06-PLAN.md - Static --export implementation (first real one; previously documented but unimplemented) + commands/wiki.md truth-up + end-to-end Playwright walkthrough of all 10 SPEC acceptance criteria (2 bugs found+fixed `0230803f`) [SPEC Req 9]
 
-### Phase 233: Graph-derive drain residual (SEED-037): heal already-damaged rooms + doctor graph-derive-health check, after Phase 224-02 fixed the acute silent-clear-on-failure defect
+### Phase 233: Graph-derive drain residual (SEED-037): heal already-damaged rooms + doctor graph-derive-health check, after Phase 224-02 fixed the acute silent-clear-on-failure defect - **PHASE COMPLETE (2026-07-28)**
 
 **Goal:** Repair the ~16 rooms whose derive queues were silently cleared before Phase 224-02's fix (heal-on-update retrofit) and make sure a room that never derives semantic cascade edges can never again go unnoticed (a new `graph-derive-health` doctor check + `--heal-room` action, Tri-Polar aware), then close the remaining smaller register items: gate `runDerivation`'s dead hosted-API default, reconcile the drain's doctrine comments, and fix the HSI corpus/graph node-set mismatch (Section 9 Defects #4/#5).
 **Requirements**: 4b, 4c, 4d, 4e, 9-defect-4, 9-defect-5 (RCA `.planning/debug/graph-derive-silent-clear-dead-api-derivation.md` Section 10 "Still OPEN" register, no REQUIREMENTS.md for this phase)
 **Depends on:** Phase 232 (sequencing only); Phase 224-02 (shipped: drain keep-on-failure/retry-cap/failure-log, the fix this phase's residual scope builds on)
 **Canon:** Parts 4, 6, 8, 9
 **Cross-references:** SEED-037, SEED-074 (corroboration only, not scoped into this phase)
-**Plans:** 3/3 plans complete
+**Plans:** 3/3 plans complete -- **PHASE COMPLETE (2026-07-28)**: goal-backward verification PASS
+(233-VERIFICATION.md, 12/12 observable truths, 6/6 RCA requirement IDs closed: 4b/4c/4d/4e/
+9-defect-4/9-defect-5). Code review found 1 critical + 4 warning + 2 info (233-REVIEW.md); all 5
+critical/warning findings fixed with negative self-tests proving each fix changes real behavior,
+not just code shape (233-REVIEW-FIX.md) -- one (WR-03) turned out to be a full silent-inert bug
+for room paths containing `?`/`#`/`%`, worse than the review scored it. Full phase gate
+`bash tests/run-all-233.sh`: PASS=12 FAIL=0 SKIP=0, re-run independently by the verifier, not
+trusted from prior reports. Canon Part 8 held throughout (zero Brain egress, confirmed by
+strengthened permanent tripwire with its own negative self-test). Two info-level findings left
+open by documented decision (test registration, a duplicated constant list) -- non-blocking.
+One scope nuance carried forward, not a gap: the ~16 previously-damaged rooms get their retry
+signal restored automatically by this phase; actual semantic edges still require a subsequent
+in-session derive/heal-pipeline run per room, exactly as the goal's own parenthetical says.
 
 Plans:
 
