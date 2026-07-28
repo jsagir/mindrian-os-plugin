@@ -138,7 +138,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 **Plans**: 5 plans, 4 waves
 
 - [x] 241-01-PLAN.md - F-1 (MINTO-01): runOnStop gets a soft walk budget so its report write and ghost prune always land; scripts/on-stop captures the guardian's systemMessage and folds it into the final Stop-hook JSON; both SC1 legs get their own test and mutation proof.
-- [ ] 241-02-PLAN.md - F-0 (MINTO-01): both stop-path olderThanMs 0 vacuums retired for a read-only peek census; production call-site census (walks extensionless files) plus the full enqueue-to-prompt-drain-to-regen cycle; the minto-debounce-consumer-dead-end RCA corrected and resolved.
+- [x] 241-02-PLAN.md - F-0 (MINTO-01): both stop-path olderThanMs 0 vacuums retired for a read-only peek census; production call-site census (walks extensionless files) plus the full enqueue-to-prompt-drain-to-regen cycle; the minto-debounce-consumer-dead-end RCA corrected and resolved.
 - [ ] 241-03-PLAN.md - F-2 (MINTO-02): missing MINTO.md and missing governing_thought raised to critical so they reach the enqueue gate; pre-existing suites reconciled per Pitfall 5; both legs assert a real minto-queue.json entry.
 - [ ] 241-04-PLAN.md - F-3 (MINTO-02): runPreCommit demoted to an advisory WARN with a --strict / MINTO_PRECOMMIT_STRICT opt-in (Phase 210 idiom); proven by a REAL git commit in both directions, with the pre-commit hook script untouched so Phase 235 cannot collide.
 - [ ] 241-05-PLAN.md - Tri-Polar parity + close-out (MINTO-01, MINTO-02): the shared mindrian-core Stop path runs the guardian too (Desktop, Cowork, and CLI under MINDRIAN_MCP_FIRST were all blind); parity test; tests/run-all-241.sh harness with permanent regression tripwires; Dev-Research Compositing filing.
@@ -198,7 +198,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
-| 241. Feynman-MINTO | 1/5 | In Progress | - |
+| 241. Feynman-MINTO | 2/5 | In Progress|  |
 | 242. The Moat | 0/2 | Planned | - |
 | 243. Voice-Glyph | 0/2 | Planned | - |
 
