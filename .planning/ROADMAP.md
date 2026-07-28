@@ -99,7 +99,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 237-07-PLAN.md - Wave 3. REACH-01: build `lib/core/chain-step-dispatcher.cjs`, the two-tier executor that genuinely spawns script-backed steps and honestly refuses prompt-backed ones with quality null.
+- [x] 237-07-PLAN.md - Wave 3. REACH-01: build `lib/core/chain-step-dispatcher.cjs`, the two-tier executor that genuinely spawns script-backed steps and honestly refuses prompt-backed ones with quality null.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -250,7 +250,7 @@ Wave 4 (blocked on Wave 3):
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
 | 236. room.db Data-Loss Fixes | 0/4 | Planned | - |
-| 237. Reach Mechanism | 6/8 | In progress (Wave 2 complete, Wave 3-4 next) | - |
+| 237. Reach Mechanism | 7/8 | In progress (Wave 3 complete, Wave 4 next) | - |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
