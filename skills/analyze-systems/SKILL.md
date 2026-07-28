@@ -1,6 +1,7 @@
 ---
 name: analyze-systems
 description: Decompose a system into layers and leverage points
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "See how subsystems connect, where they break, where they leverage each other."
 body_shape: "methodology"
 hitl_shape: "F.8"
@@ -13,12 +14,7 @@ frameworks: ["Systems Thinking"]
 produces: "room/**/systems/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

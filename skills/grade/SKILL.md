@@ -1,6 +1,7 @@
 ---
 name: grade
 description: Grade problem-discovery quality (6 components)
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a fast grade on your room with feedback."
 body_shape: C
 hitl_shape: "F.8"
@@ -15,12 +16,7 @@ frameworks: ["PWS Triple Validation Compass"]
 produces: "room/**/grades/*"
 inputs: ["at least one room section populated"]
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

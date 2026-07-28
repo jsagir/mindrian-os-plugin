@@ -3,6 +3,7 @@ name: room-proactive
 description: >
   Proactive Data Room intelligence. Surfaces gaps, contradictions, and convergence
   signals. Active when room/ exists with entries.
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 activation: "resolve_room:active"
 paths:
   - "**/STATE.md"

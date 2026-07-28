@@ -1,6 +1,8 @@
 ---
 name: snapshot
 description: Package a Data Room snapshot for sharing
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Capture a snapshot of your room at this moment."
 body_shape: E
 hitl_shape: "F.0"
@@ -13,10 +15,7 @@ usage: /mos:snapshot [ROOM_PATH] [--output PATH] [--open]
 category: export
 surface: cli, desktop, cowork
 requires: room
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

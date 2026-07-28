@@ -1,6 +1,7 @@
 ---
 name: models
 description: View or switch model-routing profiles
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Browse and apply 25 methodology models."
 argument-hint: "[list|set|show]"
 body_shape: C (Information Card)
@@ -9,11 +10,7 @@ hitl_why: "The routing profile offers a single next-move selection."
 serves_jtbd: ["compare-options"]
 teaching: "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile. Different tasks deserve different models."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - AskUserQuestion
+allowed-tools: Read Write Bash AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

@@ -4,6 +4,7 @@ description: >
   Per-mode behavioral instructions for no-room sessions. Defines three conversation
   modes (Just Talk, Explore+Capture, Build a Room) with persona detection and
   framework chain selection for Mode 2.
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 activation: no_room
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 # intern-w1-mode-gate-skip fix NOTE (kept, not removed -- see below): this

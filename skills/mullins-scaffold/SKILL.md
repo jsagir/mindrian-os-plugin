@@ -11,6 +11,7 @@ description: >
   this opportunity" remark with no Mullins-specific ask -- that stays in
   conversation (or routes through /mos:ignite's front door). Backed by
   skills/mullins-scaffold/scaffold.json (the section definitions and prompts).
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

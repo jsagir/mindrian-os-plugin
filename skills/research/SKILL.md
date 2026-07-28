@@ -1,6 +1,7 @@
 ---
 name: research
 description: Research the web and wire findings as typed graph evidence
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Run context-aware research that files findings as typed EvidenceClaim graph nodes."
 body_shape: C
 hitl_shape: "F.8"
@@ -18,13 +19,7 @@ autonomous_safe: true
 # A calling methodology declares requires_evidence: to auto-dispatch /mos:research
 # (the inbound called-by handle). See "Invocation modes" below.
 emits_evidence_claims: true
-allowed-tools:
-  - Read
-  - Bash
-  - Agent
-  - WebSearch
-  - WebFetch
-  - AskUserQuestion
+allowed-tools: Read Bash Agent WebSearch WebFetch AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -1,6 +1,7 @@
 ---
 name: scenario-plan
 description: Build a 2x2 scenario matrix of plausible futures
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Branch into scenarios and compare outcomes."
 body_shape: "methodology"
 hitl_shape: "F.5"
@@ -13,12 +14,7 @@ frameworks: ["Scenario Planning"]
 produces: "room/**/scenarios/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

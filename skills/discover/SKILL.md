@@ -1,6 +1,7 @@
 ---
 name: discover
 description: Discover a client, product, and its users before any build
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Run a Larry-led six-movement discovery conversation that lands a scaffolded Data Room plus a Discovery Brief."
 body_shape: B (Semantic Tree)
 hitl_shape: "F.1"
@@ -13,13 +14,7 @@ ui_reference: skills/ui-system/SKILL.md
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - WebFetch
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob WebFetch AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

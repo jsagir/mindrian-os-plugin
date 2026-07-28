@@ -1,6 +1,8 @@
 ---
 name: pws-brain
 description: "TEST HARNESS: run one methodology question through BOTH Brain backends (production mindrian-brain MCP and the neo4j-agent Aura Agent) and compare answers side by side"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Ask one generic methodology question and see how the production Brain and the experimental Aura Agent each answer it, side by side."
 body_shape: E (Action Report)
 body_shape_detail: two labeled answer blocks (A production Brain, B Aura Agent) plus a short observed-differences note
@@ -11,11 +13,7 @@ serves_jtbd: ["audit-room"]
 teaching: "When you want to see how the experimental Aura Agent answers next to the production Brain, /mos:pws-brain runs the same methodology question through both and shows the answers side by side. An evaluation harness, not a production surface."
 disable-model-invocation: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - mcp__mindrian-brain__brain_ask
-  - mcp__mindrian-brain__brain_search
-  - mcp__mindrian-brain__brain_query
-  - mcp__neo4j-agent__Larry
+allowed-tools: mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search mcp__mindrian-brain__brain_query mcp__neo4j-agent__Larry
 # --- Quick-260716-VFT CIRS R1 exclude (Canon Part 11) ---
 # Born WIRED-or-EXCLUDED: this surface is declared EXCLUDED-with-reason, not left
 # dark. It is a deliberately-run evaluation harness (mirrors /mos:agentshield's

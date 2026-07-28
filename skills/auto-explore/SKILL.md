@@ -1,5 +1,7 @@
 ---
+name: auto-explore
 description: "Manually trigger auto-explore on a specific file (Desktop fallback when PostToolUse hook does not fire per RESEARCH 4.8)"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Let Larry decompose your domain before you even ask."
 body_shape: "methodology"
 hitl_shape: "F.3"
@@ -7,10 +9,7 @@ hitl_why: "The rabbit-hole exploration asks how deep to keep going, a depth budg
 argument-hint: "<file_path>"
 serves_jtbd: ["find-problem", "understand-market", "explore"]
 teaching: "In the moment a new artifact lands, /mos:auto-explore kicks off the same domain decomposition the PostToolUse hook would run. Use it on Desktop when the hook does not fire."
-allowed-tools:
-  - "Bash"
-  - "Read"
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

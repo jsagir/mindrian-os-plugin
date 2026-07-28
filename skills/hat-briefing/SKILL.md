@@ -1,6 +1,7 @@
 ---
 name: hat-briefing
 description: Consolidate Six Hats briefings from hat memory
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a per-hat briefing from the AI team on your venture."
 body_shape: C (Dashboard Grid)
 hitl_shape: "F.8"
@@ -32,11 +33,7 @@ connector:
 lens_type: cognitive
 lens_set: six-hats
 rotation_mode: consume
-allowed-tools:
-  - Read
-  - Glob
-  - Bash
-  - AskUserQuestion
+allowed-tools: Read Glob Bash AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->

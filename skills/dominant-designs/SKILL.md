@@ -1,6 +1,7 @@
 ---
 name: dominant-designs
 description: Spot dominant designs with Utterback-Abernathy
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Identify the dominant designs in your market."
 body_shape: "methodology"
 hitl_shape: "F.1"
@@ -13,12 +14,7 @@ frameworks: ["Dominant Design"]
 produces: "room/**/dominant-designs/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -1,6 +1,7 @@
 ---
 name: eureka
 description: Surface cross-domain opportunity candidates from your room at portfolio scale
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Rank cross-domain opportunity pairs and surface the weak-signal tail."
 argument-hint: "[run|status|report|html]"
 body_shape: E (Action Report)
@@ -9,10 +10,7 @@ hitl_why: "Ranked opportunity candidates are surfaced as an independent any-orde
 serves_jtbd: ["connect-domains", "explore"]
 teaching: "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka ranks cross-domain pairs and flags the weak-signal tail the top-N sort buries."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Bash
-  - AskUserQuestion
+allowed-tools: Read Bash AskUserQuestion
 # --- Phase 216-03 connector frontmatter (born-wired, Canon Part 11 CIRS R1) ---
 connector:
   connects_to_spine: true

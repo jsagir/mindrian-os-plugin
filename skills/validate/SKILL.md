@@ -1,6 +1,7 @@
 ---
 name: validate
 description: Validate ideas via importance-satisfaction scoring
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Validate a specific claim or hypothesis against evidence."
 body_shape: C
 hitl_shape: "F.8"
@@ -13,12 +14,7 @@ frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/**/validation/*"
 inputs: ["a customer segment defined"]
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -1,6 +1,7 @@
 ---
 name: find-connections
 description: Find cross-domain patterns that touch your work
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Surface non-obvious connections in your room's graph."
 body_shape: "methodology"
 hitl_shape: "F.8"
@@ -13,11 +14,7 @@ frameworks: ["Usher's Model of Cumulative Synthesis"]
 produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
-  - AskUserQuestion
+allowed-tools: Read mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

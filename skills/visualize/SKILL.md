@@ -1,6 +1,7 @@
 ---
 name: visualize
 description: "[Deprecated] Open room diagrams in the browser (use /mos:dashboard --mermaid)"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Generate visualizations of your room's graph (deprecated: use /mos:dashboard --mermaid)."
 argument-hint: "[structure|graph|chart]"
 body_shape: D (Document View)
@@ -12,10 +13,7 @@ deprecated_redirect: "dashboard --mermaid"
 deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:dashboard --mermaid to open the De Stijl knowledge-graph viewer with Mermaid output; visualize folds into the dashboard surface. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-16 CIRS R1 exclude (Canon Part 11; deprecated-redirect, navigator-directed 2026-06-23) ---
 connector:
   excluded: true

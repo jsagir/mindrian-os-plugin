@@ -1,6 +1,7 @@
 ---
 name: suggest-next
 description: Suggest the next move using the room graph
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get the next move Larry recommends, ranked."
 body_shape: B
 hitl_shape: "F.1"
@@ -13,12 +14,7 @@ frameworks: []
 produces: null
 inputs: []
 autonomous_safe: false
-allowed-tools:
-  - Read
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
-  - mcp__mindrian-brain__brain_search
-  - AskUserQuestion
+allowed-tools: Read mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher mcp__mindrian-brain__brain_search AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

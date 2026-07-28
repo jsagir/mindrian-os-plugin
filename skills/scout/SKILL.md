@@ -1,6 +1,7 @@
 ---
 name: scout
 description: Run sentinel scans across the room
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Scout the competitive landscape for a specific axis."
 body_shape: E (Action Report)
 hitl_shape: "F.8"
@@ -8,16 +9,7 @@ hitl_why: "Sentinel scans run as an independent set of watches with no ordering 
 serves_jtbd: ["explore", "understand-market"]
 teaching: "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Bash
-  - WebSearch
-  - mcp__tavily__tavily-search
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
-  - AskUserQuestion
+allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

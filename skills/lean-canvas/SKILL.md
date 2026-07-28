@@ -1,6 +1,7 @@
 ---
 name: lean-canvas
 description: Fill the Lean Canvas in one page (9 boxes)
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Lay out the 9-block Lean Canvas for your room."
 body_shape: "methodology"
 hitl_shape: "F.8"
@@ -13,12 +14,7 @@ frameworks: ["Lean Canvas"]
 produces: "room/business-model/lean-canvas/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

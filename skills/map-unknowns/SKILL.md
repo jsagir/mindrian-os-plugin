@@ -1,6 +1,7 @@
 ---
 name: map-unknowns
 description: Map known, unknown, and unknowable (Rumsfeld)
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Map the unknowns your venture has not yet addressed."
 body_shape: "methodology"
 hitl_shape: "F.8"
@@ -13,12 +14,7 @@ frameworks: ["Knowns and Unknowns Matrix Framework"]
 produces: "room/**/unknowns/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

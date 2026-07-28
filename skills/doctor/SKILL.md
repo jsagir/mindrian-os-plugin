@@ -1,6 +1,7 @@
 ---
 name: doctor
 description: "Diagnose and optionally repair MindrianOS install: install-cache drift, sentinel gaps, active-room guard, surface-verification, ROOM.md drift, UI compliance, statusline visibility, Brain smoke, and a paste-ready command-registration bug report for Anthropic"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
 argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--acceptance] [--pre-tag] [--pre-flight] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--post-update] [--bind-check] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
 body_shape: E (Action Report)
@@ -9,10 +10,7 @@ hitl_why: "It surfaces one diagnosed repair for a single approve-or-defer decisi
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
 teaching: "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix."
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

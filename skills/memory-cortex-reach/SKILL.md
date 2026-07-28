@@ -1,6 +1,7 @@
 ---
 name: memory-cortex-reach
 description: Reach into your memory cortex when a governing thought goes stale or a contradiction lands
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Bring the memory cortex to a Decision Gate when a governing thought goes stale or a contradiction lands."
 body_shape: F.1
 hitl_shape: "F.1"

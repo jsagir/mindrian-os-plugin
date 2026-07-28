@@ -1,6 +1,7 @@
 ---
 name: diagnose
 description: Classify problem type against the PWS matrix
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "See where your room is weakest and what to do next."
 body_shape: A
 hitl_stages:
@@ -16,11 +17,7 @@ frameworks: ["Problem Definition Transformation Framework"]
 produces: "room/problem-definition/diagnosis/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
+allowed-tools: Read Write Bash Glob
 # --- Phase 143.3 connector frontmatter (Phase 157-04 Task 0: wire the diagnose orphan) ---
 # --- Phase 164-03 (D-164-S4): one reach, TWO sub_modes. problem-diagnosis (classify
 #     against the PWS matrix) stays the primary connector sub_mode; issue-tree

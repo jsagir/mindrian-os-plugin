@@ -1,6 +1,7 @@
 ---
 name: new-project
 description: Start a new venture project and create its room
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Start a new room in ~/MindrianRooms/ from a conversation."
 body_shape: E
 hitl_shape: "F.1"
@@ -10,12 +11,7 @@ serves_jtbd: ["explore"]
 teaching: "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey."
 # Per docs/reward-before-investment-rule.md line 56-58 remediation: first sentence -> Instant Brief pipeline (this phase's deliverable). Room creation is option 2 of the 3-option footer (Phase 119 wires fully in beta.18).
 interactive_first_reward: instant_brief
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 # new-project declares no frameworks: block; the connector carries framework: null
 # and filing: none with NO surface so the WFL-01 firesCommand gate does not fire.

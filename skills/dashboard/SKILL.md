@@ -1,6 +1,7 @@
 ---
 name: dashboard
 description: Open the Data Room dashboard (live or snapshot)
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Open your room as a browser dashboard, De Stijl grid + graph."
 body_shape: E
 hitl_shape: "F.1"
@@ -9,10 +10,7 @@ serves_jtbd: ["audit-room", "prepare-pitch"]
 teaching: "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting."
 ui_reference: skills/ui-system/SKILL.md
 argument-hint: "[live|stop|open]"
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
   connects_to_spine: true

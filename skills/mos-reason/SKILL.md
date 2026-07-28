@@ -2,6 +2,7 @@
 name: mos-reason
 command: mos:reason
 description: Generate Feynman-MINTO reasoning for a section
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get Larry's reasoning trace on a specific question."
 body_shape: C
 hitl_shape: "F.9"
@@ -15,12 +16,7 @@ frameworks: ["The Pyramid Principle"]
 produces: "room/**/reasoning/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

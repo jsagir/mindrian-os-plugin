@@ -1,6 +1,7 @@
 ---
 name: present
 description: Generate the 6-view presentation and open it
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Render your room as a presentation deck."
 body_shape: E (Action Report)
 hitl_shape: "F.1"
@@ -9,10 +10,7 @@ body_shape_detail: Generation results as action items, 6 views listed as outputs
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you need to walk someone through the room visually, /mos:present generates the 6-view presentation and opens it. Dashboard, Wiki, Deck, Insights, Diagrams, Graph in one artifact."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
   connects_to_spine: true

@@ -5,6 +5,7 @@ description: >
   all conversations about innovation, methodology, venture exploration, problem
   solving, and structured thinking. Provides the Ask-Tell Dial, mode transitions,
   and framework delivery patterns.
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 canon_parts: [Part 2, Part 3, Part 8, Part 9]
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:

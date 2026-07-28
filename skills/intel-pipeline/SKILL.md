@@ -1,6 +1,7 @@
 ---
 name: intel-pipeline
 description: Run a governed research pass against your room, oriented by its active JTBD
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Turn one question about your venture into evidenced claims in the graph, without wiring the research legs yourself."
 argument-hint: '[--dry-run] [--topic <text>]'
 body_shape: E (Action Report) + F.1 (calibrate + fan-approve gates) + F.5 (synthesize ruling)
@@ -24,13 +25,7 @@ produces: null
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Bash
-  - mcp__mindrian-brain__brain_ask
-  - mcp__mindrian-brain__brain_search
+allowed-tools: Read Write Glob Bash mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search
 # --- Phase 223 CIRS connector ---
 # /mos:intel-pipeline is a standing meta-orchestrator: the spine OFFERS a governed
 # research pass, the navigator CONFIRMS it at the F.1 calibrate gate. It is NOT a

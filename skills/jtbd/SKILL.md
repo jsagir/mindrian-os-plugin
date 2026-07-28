@@ -1,6 +1,8 @@
 ---
 name: jtbd
 description: "Show, set, list, or inspect the active JTBD: the per-room signal that tells Larry what kind of work the navigator is doing right now"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Surface the job-to-be-done you are in right now."
 argument-hint: "[set <jtbd> | clear | list | history] [--json]"
 body_shape: E (Action Report)
@@ -17,10 +19,7 @@ concurrency: sequential
 streams_events: false
 disable-model-invocation: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

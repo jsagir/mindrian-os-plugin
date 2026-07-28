@@ -1,6 +1,7 @@
 ---
 name: find-analogies
 description: Find cross-domain analogies with SAPPhIRE + TRIZ
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Find cross-domain analogies from 1,427 methodology embeddings."
 body_shape: D (Comparison Matrix)
 hitl_shape: "F.8"
@@ -14,16 +15,7 @@ produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Bash
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
-  - mcp__mindrian-brain__brain_search
-  - mcp__tavily__tavily-search
-  - AskUserQuestion
+allowed-tools: Read Write Glob Bash mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher mcp__mindrian-brain__brain_search mcp__tavily__tavily-search AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

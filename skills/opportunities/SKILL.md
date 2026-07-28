@@ -1,6 +1,7 @@
 ---
 name: opportunities
 description: Discover and manage grants in the Opportunity Bank
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Browse banked opportunities by HSI score."
 argument-hint: "[list|add|scan]"
 body_shape: E (Action Report)
@@ -8,14 +9,7 @@ hitl_shape: "F.8"
 hitl_why: "Opportunities are surfaced across multiple ADD signals as an independent any-order set."
 serves_jtbd: ["explore"]
 teaching: "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product."
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - Agent
-  - WebSearch
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob Agent WebSearch AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -1,6 +1,7 @@
 ---
 name: agentshield
 description: "Scan the plugin's own agent-config surfaces (MCP, hooks, skills, CLAUDE.md, supply chain) for known attack patterns"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Scan the plugin's own agent-config surfaces for known attack patterns before you trust a fresh MCP server, hook, or skill."
 body_shape: E (Action Report)
 hitl_shape: "none"
@@ -8,7 +9,7 @@ hitl_why: "A read-only security scan that reports per-surface status and takes n
 body_shape_detail: per-surface status rows with [clean] / [N flagged] markers, a total-findings summary, one Feynman line per flagged finding
 serves_jtbd: ["audit-room"]
 teaching: "When you want to know whether the plugin's own MCP tools, hooks, skills, CLAUDE.md, and dependencies carry a known attack pattern, /mos:agentshield scans all five surfaces and reports what is clean and what is flagged. Larry runs the scan and explains any finding in plain English."
-allowed-tools: [Bash, Read]
+allowed-tools: Bash Read
 # --- Phase 199-05 CIRS R1 exclude (Canon Part 11) ---
 # Born WIRED-or-EXCLUDED: this surface is declared EXCLUDED-with-reason, not left
 # dark. It is a deliberately-run diagnostic (mirrors /mos:doctor's precedent), so

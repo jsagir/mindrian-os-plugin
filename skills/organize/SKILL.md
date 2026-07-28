@@ -1,6 +1,7 @@
 ---
 name: organize
 description: "[Deprecated] Navigate room hierarchy with graph-aware tree (use /mos:rooms organize)"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Group rooms into portfolios (deprecated: use /mos:rooms organize)."
 argument-hint: "[tree|propose|move <room> <group>]"
 body_shape: B (Semantic Tree)
@@ -12,13 +13,7 @@ deprecated_redirect: "rooms organize"
 deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:rooms organize to manage the room portfolio hierarchy; organize is folded into the multi-room surface. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - Grep
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob Grep AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

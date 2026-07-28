@@ -1,6 +1,7 @@
 ---
 name: new-surface
 description: Generate a new command, agent, or skill surface with its connector wiring
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Scaffold a new /mos surface (command/agent/skill) with its 11-key connector frontmatter, then regenerate the registry and manifest."
 body_shape: E
 hitl_shape: "F.0"
@@ -8,12 +9,7 @@ hitl_why: "It proposes one new surface for a single approve-or-reject decision."
 argument-hint: "[kind] [name]"
 serves_jtbd: ["explore"]
 teaching: "When you are adding a new command, agent, or skill to the harness, /mos:new-surface emits the surface .md with the correct 11-key connector frontmatter so its wiring is declared, never hand-written, then regenerates the connector-registry (its real home) and the harness-manifest wiring digest. Harness-as-code for surfaces."
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 # new-surface declares no frameworks: block; the connector carries framework: null
 # and filing: none with NO decision surface that fires a command, so the WFL-01

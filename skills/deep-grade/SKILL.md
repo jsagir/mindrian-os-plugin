@@ -1,6 +1,7 @@
 ---
 name: deep-grade
 description: Grade a venture against 100+ calibrated projects
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get the rigorous grading pass (Brain-enriched, 100+ student calibration)."
 body_shape: C
 hitl_shape: "F.8"
@@ -13,12 +14,7 @@ frameworks: ["PWS Triple Validation Compass"]
 produces: "room/**/deep-grades/*"
 inputs: ["3+ room sections populated"]
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Agent
-  - AskUserQuestion
+allowed-tools: Read Write Bash Agent AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

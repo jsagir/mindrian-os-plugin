@@ -4,6 +4,7 @@ description: >
   Brain enrichment for Larry. Passive: weaves graph context into responses.
   Proactive: surfaces contradictions and gaps. Active when Brain API key is
   set (MINDRIAN_BRAIN_KEY in .env) or Brain MCP server is configured.
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 activation: "env:MINDRIAN_BRAIN_KEY"
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:

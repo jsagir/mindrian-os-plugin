@@ -1,6 +1,7 @@
 ---
 name: build-knowledge
 description: Climb Ackoff's DIKW pyramid across the room
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Turn your room into a knowledge graph you can query."
 body_shape: "methodology"
 hitl_stages:
@@ -16,11 +17,7 @@ frameworks: ["Ackoff Pyramid"]
 produces: "room/**/knowledge/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
+allowed-tools: Read Write Bash Glob
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -1,6 +1,7 @@
 ---
 name: status
 description: Show governing thought per section + health glyphs
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "See your room's section-by-section status at a glance."
 argument-hint: "[section] [--stale-only]"
 body_shape: E (Action Report)
@@ -9,10 +10,7 @@ hitl_why: "Status offers one next move based on where the room stands."
 serves_jtbd: ["audit-room", "explore"]
 teaching: "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs. The 10-second status check."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash(node scripts/mos-status.cjs:*)
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash(node scripts/mos-status.cjs:*), Read, AskUserQuestion
 # --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
   connects_to_spine: true

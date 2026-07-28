@@ -1,6 +1,7 @@
 ---
 name: onboard
 description: Walk through MindrianOS and build your first room
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Walk through the first 15 minutes with Larry."
 body_shape: B (Semantic Tree)
 hitl_shape: "F.1"
@@ -11,12 +12,7 @@ teaching: "When you just installed MindrianOS, /mos:onboard walks you through th
 # Per docs/reward-before-investment-rule.md line 68-70: first screen is a question, not a tutorial. Remediation tracked as follow-up phase.
 interactive_first_reward: reframe_question
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - WebFetch
-  - AskUserQuestion
+allowed-tools: Read Write Bash WebFetch AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

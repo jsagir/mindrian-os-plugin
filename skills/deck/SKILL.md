@@ -1,6 +1,7 @@
 ---
 name: deck
 description: Build an on-brand, source-cited deck through one governed flow
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Pick a deck style; Larry builds it section by section from your room and binds the brand."
 body_shape: F.1
 hitl_shape: "F.1"
@@ -13,12 +14,7 @@ frameworks: []
 produces: ""
 inputs: []
 autonomous_safe: false
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter (born WIRED, CIRS R1/R2) ---
 connector:
   connects_to_spine: true

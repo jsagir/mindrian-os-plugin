@@ -1,6 +1,7 @@
 ---
 name: file-meeting
 description: File a meeting transcript into the Data Room
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Turn a meeting recording into structured room intelligence."
 body_shape: E
 hitl_shape: "F.8"
@@ -10,12 +11,7 @@ serves_jtbd: ["file-meeting"]
 teaching: "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives."
 # Per docs/reward-before-investment-rule.md line 60-62: surface first-paragraph extraction preview before full transcript ask. Remediation tracked as follow-up phase.
 interactive_first_reward: paragraph_preview
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 165 connector (close the file-meeting orphan; D-165-07) ---
 # The meeting-filing event dispatches the blind-spot trigger sensors. Rides the
 # EXISTING 'contradiction' reach (a filed meeting that contradicts a confident

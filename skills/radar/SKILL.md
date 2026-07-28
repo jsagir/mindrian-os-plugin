@@ -1,18 +1,14 @@
 ---
 name: radar
 description: Track Claude capabilities that may help MindrianOS
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a radar view of where your room is strong + weak."
 body_shape: A
 hitl_shape: "F.8"
 hitl_why: "Tracked capabilities are surfaced as an independent watch set the navigator reviews in any order."
 serves_jtbd: ["understand-market"]
 teaching: "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan."
-allowed-tools:
-  - Read
-  - Write
-  - WebFetch
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write WebFetch Glob AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

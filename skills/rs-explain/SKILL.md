@@ -1,6 +1,7 @@
 ---
 name: rs-explain
 description: Bidirectional NL-Graph entry point. NL question to graph queries to Larry-voiced explanation.
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Explain a reverse salient finding in plain language."
 body_shape: E (Action Report)
 hitl_shape: "F.1"
@@ -14,12 +15,7 @@ produces: "room/**/rs-explain/*"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - mcp__mindrian-brain__brain_ask
-  - mcp__mindrian-brain__brain_search
-  - AskUserQuestion
+allowed-tools: Bash Read mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

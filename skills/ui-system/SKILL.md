@@ -4,6 +4,7 @@ description: >
   CLI UI Ruling System. Governs ALL MindrianOS terminal output -- 4-zone anatomy,
   5 body shapes, 12 glyphs, 5 colors, session start contract, cross-surface
   adaptation. Auto-loaded on every session. No command invents its own format.
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

@@ -1,6 +1,7 @@
 ---
 name: show
 description: Name the job; Larry shows or shares your work
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Name the job; I'll show or share your work."
 body_shape: F.1
 hitl_shape: "F.1"
@@ -13,11 +14,7 @@ frameworks: []
 produces: ""
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

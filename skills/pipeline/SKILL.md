@@ -1,6 +1,7 @@
 ---
 name: pipeline
 description: Chain a multi-step methodology pipeline
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Chain methodologies stage-by-stage."
 body_shape: E
 hitl_stages:
@@ -20,11 +21,7 @@ frameworks: []
 produces: null
 inputs: []
 autonomous_safe: false
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
+allowed-tools: Read Write Bash Glob
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

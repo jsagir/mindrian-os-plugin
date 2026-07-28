@@ -1,6 +1,7 @@
 ---
 name: reanalyze
 description: Re-analyze filed meetings for new patterns
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Re-run analysis on a single artifact or section."
 body_shape: E (Action Report)
 hitl_shape: "F.8"
@@ -9,10 +10,7 @@ body_shape_detail: Before/after delta showing new insights discovered
 serves_jtbd: ["file-meeting"]
 teaching: "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

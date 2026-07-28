@@ -1,6 +1,8 @@
 ---
 name: admin
 description: Manage Brain API keys from the admin panel
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: References Tier-1 hook mechanics (Claude Code, Grok Build, or OpenCode via the SEED-063 plugin); degrades to prose guidance on Tier-0 hosts.
 help_jtbd: "Inspect plugin internals when you suspect something is off."
 argument-hint: "[subcommand]"
 body_shape: A (Mondrian Board)
@@ -10,11 +12,7 @@ serves_jtbd: ["audit-room"]
 teaching: "When you need to inspect or rotate Brain API keys, /mos:admin opens the admin panel. Read-only by default; rotation is gated behind a confirm prompt."
 ui_reference: skills/ui-system/SKILL.md
 visibility: admin
-allowed-tools:
-  - Read
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Bash Glob AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

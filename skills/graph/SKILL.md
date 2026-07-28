@@ -1,6 +1,7 @@
 ---
 name: graph
 description: Explore the knowledge graph by asking questions
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Ask your room a question; get the answer as graph paths."
 body_shape: C (Room Card)
 hitl_shape: "F.1"
@@ -9,10 +10,7 @@ body_shape_detail: Query results as cards, graph stats as header
 serves_jtbd: ["audit-room", "explore"]
 teaching: "When you want to ask the knowledge graph a question without writing Cypher, /mos:graph translates plain English into the right traversal. Larry walks the edges so you do not have to."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

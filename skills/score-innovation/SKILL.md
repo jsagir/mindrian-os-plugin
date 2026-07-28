@@ -1,6 +1,7 @@
 ---
 name: score-innovation
 description: Score cross-domain innovation via HSI
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Score the innovation potential of your venture."
 body_shape: "methodology"
 hitl_shape: "F.8"
@@ -13,12 +14,7 @@ frameworks: ["HSI Semantic Surprise Analysis Assistant"]
 produces: "room/opportunity-bank/hsi-scores/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

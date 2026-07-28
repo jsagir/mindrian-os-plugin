@@ -1,6 +1,7 @@
 ---
 name: stance
 description: Flip Larry's conversational stance (research / tell-act / ask / redteam)
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Flip Larry's conversational stance with one reversible cycle-and-confirm pick."
 serves_jtbd: ["navigate"]
 argument-hint: "[]"
@@ -9,10 +10,7 @@ hitl_shape: F.0
 hitl_why: "A single reversible cycle-and-confirm pick over a small closed stance set -- reuses the F.0 minimum-viable gate rather than a 4-way F.1 pick, because shape-f0-renderer.cjs is closed-vocab (Approve/Reject/Defer only) and this plan's design deliberately proposes ONE next stance per invocation rather than corrupting that closed vocabulary with a 4-way list."
 teaching: "When you want Larry to shift how he talks to you this session -- pull evidence, deliver decisively, stay Socratic, or challenge you -- /mos:stance flips the dial in one confirm. Offered when relevant, never forced."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Bash
-  - AskUserQuestion
+allowed-tools: Read Bash AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

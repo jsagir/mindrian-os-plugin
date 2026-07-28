@@ -1,6 +1,7 @@
 ---
 name: heal
 description: "[Deprecated] Heal a room's structural drift (use /mos:doctor --heal-room)"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Repair drift in your room's structure (deprecated: use /mos:doctor --heal-room)."
 argument-hint: "[room-dir]"
 body_shape: E (Action Report)
@@ -12,11 +13,7 @@ deprecated_redirect: "doctor --heal-room"
 deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:doctor --heal-room to repair structural drift; the canonical heal logic lives in doctor class E. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - Write
-  - AskUserQuestion
+allowed-tools: Bash Read Write AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

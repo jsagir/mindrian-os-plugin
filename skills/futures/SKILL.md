@@ -1,6 +1,7 @@
 ---
 name: futures
 description: Build a bounded multi-ring consequence wheel from a seed concept
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Trace the 1st/2nd/3rd-order consequences of a change and locate the hidden opportunities."
 body_shape: "methodology"
 hitl_shape: "F.2"
@@ -14,12 +15,7 @@ produces: "room/opportunity-bank/futures-*/**"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

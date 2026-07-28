@@ -1,6 +1,7 @@
 ---
 name: explore-domains
 description: Map domains through IKA + Feynman decomposition
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get the 5-lens decomposition of your problem domain."
 body_shape: "methodology"
 hitl_shape: "F.8"
@@ -13,12 +14,7 @@ frameworks: ["Domain Selection"]
 produces: "room/problem-definition/domain-decomposition/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -1,5 +1,8 @@
 ---
+name: feynman-timeline-refresh
 description: Refresh FEYNMAN.md ## Timeline (auto) section for one or all room sections
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Refresh the human-readable Timeline section in FEYNMAN.md."
 body_shape: E
 hitl_shape: "F.0"

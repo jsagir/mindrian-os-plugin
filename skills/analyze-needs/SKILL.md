@@ -1,6 +1,7 @@
 ---
 name: analyze-needs
 description: Score customer jobs with importance and satisfaction
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Surface user needs that change the problem statement."
 body_shape: "methodology"
 hitl_shape: "F.8"
@@ -13,12 +14,7 @@ frameworks: ["Jobs to Be Done (JTBD)"]
 produces: "room/market-analysis/jtbd-analysis/*"
 inputs: ["a customer segment defined"]
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

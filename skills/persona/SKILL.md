@@ -1,6 +1,7 @@
 ---
 name: persona
 description: Generate Six-Hats lenses from room data
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a per-persona view of your venture (role-blend x journey-stage)."
 body_shape: C (Room Card)
 hitl_stages:
@@ -38,11 +39,7 @@ lens_set: six-hats
 rotation_mode: parallel
 synthesizer: tension-map
 persistence: memory_event
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
+allowed-tools: Read Write Bash Glob
 ---
 
 # Persona -- AI Perspective Lenses

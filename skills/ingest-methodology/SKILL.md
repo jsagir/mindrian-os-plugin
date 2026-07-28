@@ -1,6 +1,8 @@
 ---
 name: ingest-methodology
 description: Maintainer pipeline to add a methodology to the remote Brain safely
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Add a new methodology to the Brain so every user can reach it - without ever leaking user data."
 serves_jtbd: ["build"]
 teaching: "Maintainer-only. When you want to teach the Brain a new methodology, /mos:ingest-methodology runs the 7-step pipeline - encode, Part-8 boundary gate, graph write, vector write, trigger + chain, register, local refresh - so the framework is reachable by every user and operable Local-Only, with zero user-data egress."
@@ -10,12 +12,7 @@ hitl_why: "A methodology is parsed and registered through ordered steps, a fixed
 kind: utility
 autonomous_safe: false
 disable-model-invocation: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 172-12 connector frontmatter (CIRS R1 WIRED / R2 born-wired) ---
 # /mos:ingest-methodology is the maintainer surface for the CIRS born-wired
 # pipeline itself (lib/core/methodology-ingest.cjs ingestPlan step-5). It is WIRED

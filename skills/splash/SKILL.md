@@ -1,15 +1,14 @@
 ---
 name: splash
 description: Display the MindrianOS Mondrian banner
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "See the MindrianOS welcome panel + version."
 body_shape: E
 hitl_shape: "F.1"
 hitl_why: "The banner splash offers one next move to enter the room."
 serves_jtbd: ["explore"]
 teaching: "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings."
-allowed-tools:
-  - Bash
-  - AskUserQuestion
+allowed-tools: Bash AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

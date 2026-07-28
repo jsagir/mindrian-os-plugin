@@ -1,5 +1,8 @@
 ---
+name: brain-derive
 description: Derive BRAIN.md for section(s) now
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Pull the Brain's framework recommendations for your current section."
 body_shape: E
 hitl_shape: "F.0"

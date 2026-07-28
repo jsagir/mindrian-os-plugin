@@ -1,6 +1,7 @@
 ---
 name: help
 description: "11-family command map: cards to pick, family lists, per-command help"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Pick a card, arrow to a command, run it. The command map as a 3-card selector."
 argument-hint: "[command-name | family-id | 2 | 3 | --list]"
 body_shape: F.1
@@ -10,12 +11,7 @@ body_shape_detail: F.1 Next Move (11 families as 3 sequential cards via AskUserQ
 serves_jtbd: ["explore"]
 teaching: "When the surface feels overwhelming, /mos:help is a selector: 11 command families across 3 cards, each family's commands are the options, and the one you pick runs. Add --list for the full text view, or /mos:help <family-id> for one family's full command list."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Glob
-  - Bash
-  - AskUserQuestion
-  - Skill
+allowed-tools: Read Glob Bash AskUserQuestion Skill
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

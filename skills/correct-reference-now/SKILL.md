@@ -1,6 +1,7 @@
 ---
 name: correct-reference-now
 description: Correct the reference clock when the model-known date diverges from the seeded floor
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Keep one trustworthy now so time deltas never drift."
 body_shape: E
 hitl_shape: "F.0"
@@ -8,10 +9,7 @@ hitl_why: "It surfaces one reference correction for a single approve-or-reject d
 argument-hint: "[YYYY-MM-DD]"
 serves_jtbd: ["temporal-correction"]
 teaching: "When you see today's real date diverge from what the room thinks now is, /mos:correct-reference-now writes the true calendar date into the reference seam so every delta Larry speaks (you raised this 3 days ago) stays honest. The SessionStart hook only seeds a Date.now() floor, and a hook subprocess may not see Claude Code's injected currentDate. This command is how Larry closes that gap."
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

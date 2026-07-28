@@ -1,6 +1,7 @@
 ---
 name: explore-opportunity
 description: Run the explored-stage analysis chain on a qualified opportunity
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Turn a qualified opportunity into a deep-researched, Minto-shaped, evidence-backed analysis."
 argument-hint: "[opportunity]"
 body_shape: E (Action Report)
@@ -8,12 +9,7 @@ hitl_shape: "F.1"
 hitl_why: "Exploration spends navigator-controlled research cost and crosses material gates; explicit per-opportunity trigger only - never auto-fired on qualify."
 serves_jtbd: ["explore"]
 teaching: "A qualified opportunity is still conceptual: a connection without a defined problem. /mos:explore-opportunity runs the analysis chain (deep research, diffusion timing, analogies, web validation) and files a Minto-shaped explored artifact - a governing thought backed by cited sources and typed graph evidence. Opportunities must be researched and explored to become well-defined problems; this is that step, and its cost stays in your hands."
-allowed-tools:
-  - Read
-  - Bash
-  - WebSearch
-  - WebFetch
-  - AskUserQuestion
+allowed-tools: Read Bash WebSearch WebFetch AskUserQuestion
 # --- Phase 219-05 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ---
 connector:
   connects_to_spine: true

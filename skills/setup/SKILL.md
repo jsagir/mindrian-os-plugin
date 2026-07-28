@@ -1,6 +1,7 @@
 ---
 name: setup
 description: Configure optional integrations (Brain, Velma)
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Add optional integrations: graph, Brain, MCP servers."
 body_shape: E
 hitl_shape: "F.8"
@@ -8,12 +9,7 @@ hitl_why: "Integrations are configured as an independent set the navigator conne
 argument-hint: "[brain|velma|graph]"
 serves_jtbd: ["explore"]
 teaching: "When you want to wire optional integrations like Brain or Velma, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder."
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

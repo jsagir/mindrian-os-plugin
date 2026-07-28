@@ -1,6 +1,7 @@
 ---
 name: rooms
 description: List, switch, or archive project rooms
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "List, switch, archive, or organize rooms in ~/MindrianRooms/."
 argument-hint: "[list|switch|archive|park]"
 body_shape: B (Semantic Tree)
@@ -9,12 +10,7 @@ hitl_why: "Room switch or archive offers a single next move to pick one room."
 serves_jtbd: ["audit-room"]
 teaching: "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry. One person, many ventures."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

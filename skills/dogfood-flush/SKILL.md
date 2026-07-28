@@ -1,6 +1,9 @@
 ---
+name: dogfood-flush
 visibility: admin
 description: Drain the dog-food queue into the mindrian room and regenerate ## Live (auto)
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Manually flush captured plugin edits into the mindrian dataroom."
 body_shape: E
 hitl_shape: "F.0"

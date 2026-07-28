@@ -1,6 +1,7 @@
 ---
 name: hmi-status
 description: "[Deprecated] Show the latest HMI compliance poll (use /mos:doctor --ui-compliance --json)"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Audit UI Ruling System compliance (deprecated: use /mos:doctor --ui-compliance --json)."
 argument-hint: "[--json]"
 body_shape: E (Action Report)
@@ -14,10 +15,7 @@ teaching: "Deprecated alias. Use /mos:doctor --ui-compliance --json to audit UI 
 canon_parts: [3, 7, 8]
 phase: 121.5-08
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

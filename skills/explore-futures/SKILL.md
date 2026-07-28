@@ -1,6 +1,7 @@
 ---
 name: explore-futures
 description: Synthesize TTA + Scenario + S-Curve futures
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Branch into future scenarios from where you stand today."
 body_shape: "methodology"
 hitl_stages:
@@ -19,11 +20,7 @@ frameworks: ["Scenario Planning"]
 produces: "room/**/futures/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
+allowed-tools: Read Write Bash Glob
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

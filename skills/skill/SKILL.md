@@ -1,6 +1,7 @@
 ---
 name: skill
 description: Materialize a confirmed SyntheticExpert node into a room-scoped SKILL.md
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Turn a confirmed SyntheticExpert graph node into an invokable skills/<expert>/SKILL.md via the shipped surface generator, so the expert persona is reachable anywhere in the room."
 body_shape: E
 hitl_shape: "F.0"
@@ -8,12 +9,7 @@ hitl_why: "It proposes materializing one confirmed SyntheticExpert into a skill 
 argument-hint: "[expert]"
 serves_jtbd: ["explore"]
 teaching: "When you have a CONFIRMED SyntheticExpert in the graph and you want to talk to it as a persona anywhere in the room, /mos:skill projects that node's props (hat, name, beautiful question, research approach, evidence tier, provenance) into a room-scoped skills/<expert>/SKILL.md through the SHIPPED build-new-surface.cjs generator (kind=skill, --from-expert). The confirmed node is the source of truth; the skill is its projection."
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 # /mos:skill is the born-WIRED front door: it PROPOSES a materialization (a single
 # approve-or-reject Decision-Gate fork), so it declares the 11-key connector block

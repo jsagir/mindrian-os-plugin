@@ -1,6 +1,7 @@
 ---
 name: causal
 description: Trace causal edges in the room's graph
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Trace cause-and-effect chains across your room's claims."
 body_shape: "methodology"
 hitl_shape: "F.9"
@@ -27,12 +28,7 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->

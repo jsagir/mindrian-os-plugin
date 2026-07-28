@@ -1,6 +1,7 @@
 ---
 name: think-hats
 description: Rotate through De Bono's Six Thinking Hats
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a six-thinking-hats pass from the AI team."
 body_shape: "methodology"
 hitl_shape: "F.9"
@@ -18,12 +19,7 @@ lens_type: cognitive
 lens_set: six-hats
 rotation_mode: serial
 synthesizer: tension-map
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

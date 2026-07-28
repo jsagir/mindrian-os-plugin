@@ -1,6 +1,7 @@
 ---
 name: mva-pipeline
 description: Auto-activates when UserPromptSubmit detection classifies the user's prompt as a venture sentence; relays the 30-second MVA brief in Larry's voice
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 auto-activate: state-file
 state-file: ~/.mindrian/mva/<session-id>.json
 state-condition: pending && !running

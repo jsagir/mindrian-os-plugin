@@ -1,6 +1,7 @@
 ---
 name: rs-experts
 description: Resolve the expert network for a topic via Aura Cypher MATCH
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Surface the expert profiles for a reverse salient."
 body_shape: D (Comparison Matrix)
 hitl_shape: "F.8"
@@ -14,10 +15,7 @@ produces: "room/**/rs-experts/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
   # mcp__mindrian-brain__read_neo4j_cypher intentionally removed (BUG 2 fix):
   # Author/Paper/Institution nodes are LOCAL-only (populated by /mos:rs-fetch).
   # The remote Brain must never be called from this command.

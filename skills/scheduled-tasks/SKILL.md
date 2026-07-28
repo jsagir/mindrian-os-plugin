@@ -1,6 +1,7 @@
 ---
 name: scheduled-tasks
 description: Define Cowork scheduled tasks for the room
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "View and manage scheduled background sweeps."
 body_shape: E (Action Report)
 hitl_shape: "F.1"
@@ -9,15 +10,7 @@ serves_jtbd: ["plan-execution"]
 teaching: "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests."
 ui_reference: skills/ui-system/SKILL.md
 surface: cowork
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Bash
-  - WebSearch
-  - mcp__tavily__tavily-search
-  - mcp__mindrian-brain__brain_query
-  - AskUserQuestion
+allowed-tools: Read Write Glob Bash WebSearch mcp__tavily__tavily-search mcp__mindrian-brain__brain_query AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

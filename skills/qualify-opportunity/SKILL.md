@@ -1,6 +1,7 @@
 ---
 name: qualify-opportunity
 description: Qualify or skip harvested opportunity candidates at the F.1 Decision Gate
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Decide which harvested opportunity candidates deserve to file into the bank."
 argument-hint: "[review]"
 body_shape: E (Action Report)
@@ -8,10 +9,7 @@ hitl_shape: "F.1"
 hitl_why: "Opportunity qualification is a material navigator decision; nothing files without approval."
 serves_jtbd: ["explore"]
 teaching: "When the harvest sensor surfaces a candidate, /mos:qualify-opportunity puts the decision where it belongs: with you. The card shows WHY the candidate qualified (the Q1..Q8 rubric verdicts plus machine-readiness components), so you learn the qualification tests while you decide. Rejection teaches as much as approval - a Skip becomes graph data the ranker learns from."
-allowed-tools:
-  - Read
-  - Bash
-  - AskUserQuestion
+allowed-tools: Read Bash AskUserQuestion
 # --- Phase 219-04 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ---
 connector:
   connects_to_spine: true

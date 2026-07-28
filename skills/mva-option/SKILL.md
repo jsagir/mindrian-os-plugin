@@ -1,6 +1,7 @@
 ---
 name: mva-option
 description: Route the user's 3-option footer selection after a 30-second MVA brief
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Compose option packages for your MVA."
 body_shape: E
 hitl_shape: "F.8"

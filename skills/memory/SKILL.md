@@ -1,6 +1,8 @@
 ---
 name: memory
 description: Inspect and operate on the three memory layers (within-session, across-session, cross-room).
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Inspect what the room remembers about your sessions."
 argument-hint: "[query <jtbd> | cross-room | resume | park <jtbd> | complete <jtbd> | --opt-out]"
 body_shape: E (Action Report)
@@ -17,10 +19,7 @@ disable-model-invocation: false
 canon_parts: [4, 8]
 phase: 103
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

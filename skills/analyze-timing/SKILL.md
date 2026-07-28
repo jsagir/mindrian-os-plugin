@@ -1,6 +1,7 @@
 ---
 name: analyze-timing
 description: Place a technology on the S-Curve timing clock
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Find the timing window your venture sits inside."
 body_shape: "methodology"
 hitl_shape: "F.1"
@@ -13,12 +14,7 @@ frameworks: ["S-Curve Analysis", "Adoption-Capacity Theory"]
 produces: "room/**/timing/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 # Phase 172-12 (INV-11 reconciliation): analyze-timing is the connector home for
 # TWO reaches that land on the same command. The PRIMARY connector block declares

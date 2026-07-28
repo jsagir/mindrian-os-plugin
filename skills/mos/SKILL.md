@@ -1,6 +1,7 @@
 ---
 name: mos
 description: State-aware router that picks the right next surface for the navigator
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Meet the navigator where they are: onboard, status, or next move."
 body_shape: E
 hitl_shape: "F.1"
@@ -11,10 +12,7 @@ teaching: "When you do not know which /mos:* surface to invoke, /mos:mos picks t
 canon_parts: [3, 7]
 phase: 121.5-08
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

@@ -1,6 +1,7 @@
 ---
 name: funding
 description: Track grant opportunities through their lifecycle
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "See the grants and funding paths matching your room."
 argument-hint: "[list|add|update]"
 body_shape: B (Semantic Tree)
@@ -8,12 +9,7 @@ hitl_shape: "F.8"
 hitl_why: "Grant-lifecycle candidates are surfaced as an independent set the navigator triages in any order."
 serves_jtbd: ["prepare-pitch", "decide-pursue"]
 teaching: "When you need to track grants and investors as a real pipeline, /mos:funding manages the lifecycle from spotted to applied to decided. Funding is a process, not a one-shot event."
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

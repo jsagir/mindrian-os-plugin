@@ -1,6 +1,7 @@
 ---
 name: mva-brief
 description: Run the 30-second MVA pipeline for the user's current venture sentence
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Build a Minimum Viable Argument brief from your room."
 body_shape: E
 hitl_shape: "F.1"

@@ -1,6 +1,7 @@
 ---
 name: diagnostics
 description: "[Renaming to /mos:fingerprint v1.14.0] Run Wave-1 algorithmic fingerprint on the room"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Run the 4 Wave-1 algorithms (Disruption Index, Blindspot, Novelty, Surprise). Renaming to /mos:fingerprint in v1.14.0."
 body_shape: E
 hitl_shape: "F.1"
@@ -29,10 +30,7 @@ connector:
   plan_gated: false
   web_scope: null
   surface: F.1
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 ---
 
 <!-- mos:firing-block v2 -->

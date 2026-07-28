@@ -1,6 +1,7 @@
 ---
 name: wiki
 description: Open the Data Room wiki of room sections
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Open your room as a localhost wiki, hyperlinks via graph."
 body_shape: D (Document View)
 hitl_shape: "F.1"
@@ -8,10 +9,7 @@ hitl_why: "The wiki view offers one next move on which article to open."
 serves_jtbd: ["audit-room", "prepare-pitch"]
 teaching: "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view. Section by section, with cross-references rendered as hyperlinks."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
   connects_to_spine: true

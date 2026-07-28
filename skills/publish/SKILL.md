@@ -1,6 +1,8 @@
 ---
 name: publish
 description: Publish the Data Room presentation to Vercel
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Publish your room to a live URL."
 body_shape: E
 hitl_shape: "F.0"
@@ -9,12 +11,7 @@ argument-hint: "[--all|<view>]"
 serves_jtbd: ["prepare-pitch"]
 teaching: "When the Data Room is ready to share publicly, /mos:publish deploys the presentation to Vercel with a one-click link. From local artifact to shareable URL in one move."
 disable-model-invocation: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

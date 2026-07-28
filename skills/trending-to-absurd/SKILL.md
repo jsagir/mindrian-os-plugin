@@ -11,6 +11,7 @@ description: >
   extrapolates the SELECTED trend across the navigator's chosen horizon (it does NOT force all of
   3-10 / 11-30 / 50yr), files only under opportunity-bank/, and surfaces Shape F Decision Gates at
   the judgment points (trend selection, opportunity pick).
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 canon_parts: [Part 2, Part 3, Part 4, Part 7, Part 8, Part 9, Part 10]
 phase: 163
 command: /mos:trending-to-absurd
@@ -21,7 +22,7 @@ seed_reader: lib/core/navigation/get-domains-for-trends.cjs::getDomainsForTrendE
 reach_id: context_block            # one of the frozen 6 - NEVER a 7th
 framework: "S-Curve Analysis"      # the generic Brain handle (Part 8); equals the command frameworks:
 filing: fileEvidenceWithReadback
-allowed-tools: [Read, Write, Bash, Glob]
+allowed-tools: Read Write Bash Glob
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true

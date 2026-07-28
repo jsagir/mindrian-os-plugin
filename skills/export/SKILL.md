@@ -1,6 +1,8 @@
 ---
 name: export
 description: Export a Data Room view to De Stijl HTML
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
+compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Ship investor-ready PDF or Obsidian vault of your room."
 argument-hint: "[hub|thesis|summary|report]"
 disable-model-invocation: true
@@ -10,11 +12,7 @@ hitl_why: "Export offers a single next move to confirm the export scope."
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you need to share a Data Room view with someone outside the room, /mos:export packages it as a De Stijl HTML artifact. Investor-ready, no install required on their side."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - Write
-  - AskUserQuestion
+allowed-tools: Bash Read Write AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

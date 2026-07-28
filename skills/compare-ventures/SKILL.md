@@ -1,6 +1,7 @@
 ---
 name: compare-ventures
 description: Compare against ventures that tried this before
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Set two or more ventures side-by-side, scored."
 body_shape: "methodology"
 hitl_shape: "F.5"
@@ -13,12 +14,7 @@ frameworks: ["PWS Triple Validation Compass"]
 produces: "room/competitive-analysis/comparison/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
-  - mcp__mindrian-brain__brain_search
-  - AskUserQuestion
+allowed-tools: Read mcp__mindrian-brain__brain_query mcp__mindrian-brain__read_neo4j_cypher mcp__mindrian-brain__brain_search AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

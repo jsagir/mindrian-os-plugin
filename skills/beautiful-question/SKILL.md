@@ -1,6 +1,7 @@
 ---
 name: beautiful-question
 description: Reframe a challenge as Why / What-if / How
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Reformulate the problem before solving the wrong one."
 body_shape: "methodology"
 hitl_shape: "F.9"
@@ -13,12 +14,7 @@ frameworks: ["Beautiful Question Framework"]
 produces: "room/problem-definition/beautiful-question/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -1,6 +1,7 @@
 ---
 name: room
 description: View, launch, or navigate the Data Room
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Open your current room's view in this terminal."
 argument-hint: "[overview|<section>]"
 body_shape: C
@@ -11,12 +12,7 @@ body_shape_section: C (Room Card)
 serves_jtbd: ["audit-room"]
 teaching: "When you need to view or launch the active Data Room, /mos:room opens the room view with its current state. The default entry point for room navigation."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
   connects_to_spine: true

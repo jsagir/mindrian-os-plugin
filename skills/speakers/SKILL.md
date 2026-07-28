@@ -1,6 +1,7 @@
 ---
 name: speakers
 description: Show who spoke in your meetings and their roles
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Surface speaker profiles from filed meetings."
 body_shape: C (Room Card)
 hitl_shape: "F.1"
@@ -9,10 +10,7 @@ body_shape_detail: Each speaker as a card with role, expertise, meeting count
 serves_jtbd: ["file-meeting"]
 teaching: "When you have a meeting filed and want to know who said what, /mos:speakers shows the participants with their roles, attendance, and contribution patterns. The people layer of meeting intelligence."
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Read
-  - Bash
-  - AskUserQuestion
+allowed-tools: Read Bash AskUserQuestion
 # --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
   connects_to_spine: true

@@ -3,6 +3,7 @@ name: room-passive
 description: >
   Data Room awareness, filing intelligence, and passive monitoring. Active when
   room/ exists -- gives Larry project structure context and filing guidance.
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 activation: "resolve_room:active"
 paths:
   - "**/STATE.md"

@@ -1,6 +1,7 @@
 ---
 name: rs-thesis
 description: Read the thesis for a prior Reverse Salient discovery
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Compose the thesis statement from your reverse salient findings."
 body_shape: E (Action Report)
 hitl_shape: "F.9"
@@ -14,10 +15,7 @@ produces: "room/**/rs-thesis/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools:
-  - Bash
-  - Read
-  - AskUserQuestion
+allowed-tools: Bash Read AskUserQuestion
   # mcp__mindrian-brain__read_neo4j_cypher intentionally removed (BUG 2 fix):
   # RSDiscovery is USER DATA (Canon Part 8 -- LOCAL -> BRAIN: NO). The remote
   # Brain must never be called from this command. Always uses Tier 0 SQLite.

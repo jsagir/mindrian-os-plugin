@@ -1,6 +1,7 @@
 ---
 name: query
 description: "[Deprecated] Query the knowledge graph in natural language (use /mos:graph)"
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Ask your room any question; get the answer as graph paths (deprecated: use /mos:graph)."
 body_shape: D
 hitl_shape: "F.1"
@@ -11,10 +12,7 @@ deprecated: true
 deprecated_redirect: "graph"
 deprecated_removal: "v1.14.0"
 teaching: "Deprecated alias. Use /mos:graph to ask natural-language questions of the knowledge graph; query and graph share the same translator. Scheduled removal: v1.14.0."
-allowed-tools:
-  - Read
-  - Bash
-  - AskUserQuestion
+allowed-tools: Read Bash AskUserQuestion
 # --- Phase 172-16 CIRS R1 exclude (Canon Part 11; deprecated-redirect, navigator-directed 2026-06-23) ---
 connector:
   excluded: true
