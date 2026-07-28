@@ -126,7 +126,9 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 **Success Criteria** (what must be TRUE):
   1. Across a fixture set covering the glyph vocabulary, a turn opened with glyph X renders glyph X in the statusline, and a turn that opened with NO glyph renders the honest empty/unknown state -- the fabricated default painted over by the stance color cannot be reproduced; a mutation restoring the fabricated default turns the gate red.
   2. V-2 and V-3 are routed into the existing open `voice-signature-dark-runtime.md` RCA as cross-referenced entries (no new RCA file created), verifiable by reading that RCA.
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 243-01-PLAN.md - SC1: delete the stance-default glyph fabrication at lib/statusline/cockpit-renderer.cjs (superseding the second half of Phase 210 item B), INVERT the three superseded assertions in tests/test-voice-glyph-advisory.cjs and tests/test-192-statusline-stance-chip.cjs, add the 18-row honest-glyph fixture suite plus tests/run-all-243.sh, and PROVE the mutation gate bites by executing it.
+- [ ] 243-02-PLAN.md - SC2: author .planning/debug/voice-signature-dark-runtime.md (the RCA six documents cite and that has never existed on disk or in git history) carrying V-1 as resolved-history, V-2/V-3/the who-default conflict/the permanent-dark residual as open cross-referenced findings, gated by a structure-only doc-presence test.
 
 ## Progress
 
