@@ -190,9 +190,9 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
-| 241. Feynman-MINTO | 0/? | Not started | - |
+| 241. Feynman-MINTO | 0/5 | Planned | - |
 | 242. The Moat | 0/2 | Planned | - |
-| 243. Voice-Glyph | 0/? | Not started | - |
+| 243. Voice-Glyph | 0/2 | Planned | - |
 
 **Coverage:** 23/23 v1.16.0 requirements mapped (CIRS-01..03, GRAPHDB-01..03, REACH-01..03, GATE-01/03/04, BRAIN-01..03, MEM-01..03, MINTO-01..02, MOAT-01..02, GLYPH-01). No orphans, no duplicates. Full mapping in `.planning/REQUIREMENTS.md` Traceability.
 
