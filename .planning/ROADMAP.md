@@ -32,7 +32,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 - [ ] **Phase 240: Memory** - Layer 2 promotion fires on real continuous work, the dead-letter queue drains into the memory cortex, and the test suite is hermetic
 - [x] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit (completed 2026-07-28)
 - [x] **Phase 242: The Moat** - The HSI-to-graph rewrite is transaction-wrapped, and the PR checklist's dead KuzuDB warning becomes a machine-checked assertion (completed 2026-07-28)
-- [ ] **Phase 243: Voice-Glyph** - The statusline's "who is speaking" signal reflects the glyph a turn actually opened with, not a fabricated default
+- [x] **Phase 243: Voice-Glyph** - The statusline's "who is speaking" signal reflects the glyph a turn actually opened with, not a fabricated default (completed 2026-07-28)
 
 ## Phase Details
 
@@ -156,6 +156,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
   2. The PR checklist's KuzuDB warning prose is gone, replaced by a machine-checked assertion that fails when a kuzu reference re-enters the tree and passes on the current tree -- proven by seeding one kuzu reference and watching it fail (MOAT-02 is a light doc fix per the audit's rethink verdict, no RCA cycle).
 
 **Plans**: 2 plans (both Wave 1, no interdependency, zero shared files)
+
 - [x] 242-01-PLAN.md — MOAT-01: wrap the hsi-to-graph DELETE-then-rewrite in one BEGIN/COMMIT/ROLLBACK, add the production-inert MINDRIAN_HSI_CRASH_TEST_DELAY_MS crash seam, and prove it with a three-leg test (spawn+SIGKILL crash injection, fork()'d concurrent reader, mutation proof) plus the tests/run-all-242.sh aggregator. (completed 2026-07-28)
 - [x] 242-02-PLAN.md — MOAT-02: build scripts/check-kuzu-reintroduction.cjs (dependency-manifest + live require/import scan, exit 0/1/2), wire it into scripts/verify-release as section 17, replace the dead docs/MOAT-MANDATE.md line 96 prose with a same-polarity machine-checked warning sign, and fence it with a hermetic seeded-fixture test. (completed 2026-07-28)
 
@@ -173,8 +174,8 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
 **Plans**: 2 plans
 
-- [ ] 243-01-PLAN.md - SC1: delete the stance-default glyph fabrication at lib/statusline/cockpit-renderer.cjs (superseding the second half of Phase 210 item B), INVERT the three superseded assertions in tests/test-voice-glyph-advisory.cjs and tests/test-192-statusline-stance-chip.cjs, add the 18-row honest-glyph fixture suite plus tests/run-all-243.sh, and PROVE the mutation gate bites by executing it.
-- [ ] 243-02-PLAN.md - SC2: author .planning/debug/voice-signature-dark-runtime.md (the RCA six documents cite and that has never existed on disk or in git history) carrying V-1 as resolved-history, V-2/V-3/the who-default conflict/the permanent-dark residual as open cross-referenced findings, gated by a structure-only doc-presence test.
+- [x] 243-01-PLAN.md - SC1: delete the stance-default glyph fabrication at lib/statusline/cockpit-renderer.cjs (superseding the second half of Phase 210 item B), INVERT the three superseded assertions in tests/test-voice-glyph-advisory.cjs and tests/test-192-statusline-stance-chip.cjs, add the 18-row honest-glyph fixture suite plus tests/run-all-243.sh, and PROVE the mutation gate bites by executing it.
+- [x] 243-02-PLAN.md - SC2: author .planning/debug/voice-signature-dark-runtime.md (the RCA six documents cite and that has never existed on disk or in git history) carrying V-1 as resolved-history, V-2/V-3/the who-default conflict/the permanent-dark residual as open cross-referenced findings, gated by a structure-only doc-presence test.
 
 ## Progress
 
@@ -199,7 +200,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | 240. Memory | 0/? | Not started | - |
 | 241. Feynman-MINTO | 5/5 | Complete   | 2026-07-28 |
 | 242. The Moat | 2/2 | Complete   | 2026-07-28 |
-| 243. Voice-Glyph | 0/2 | Planned | - |
+| 243. Voice-Glyph | 2/2 | Complete    | 2026-07-28 |
 
 **Coverage:** 23/23 v1.16.0 requirements mapped (CIRS-01..03, GRAPHDB-01..03, REACH-01..03, GATE-01/03/04, BRAIN-01..03, MEM-01..03, MINTO-01..02, MOAT-01..02, GLYPH-01). No orphans, no duplicates. Full mapping in `.planning/REQUIREMENTS.md` Traceability.
 

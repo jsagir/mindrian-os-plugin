@@ -4,14 +4,14 @@ milestone: v1.16.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 241-05-PLAN.md
-last_updated: "2026-07-28T15:38:45.558Z"
-last_activity: 2026-07-28 -- Phase 241 (Feynman-MINTO, 5/5) and Phase 242 (The Moat, 2/2) both CLOSED; next is Phase 236 (room.db data-loss fixes, held pending session-ownership reconciliation) or Wave 2 (237/238/239, unblocked by Phase 235)
+last_updated: "2026-07-28T16:29:45.713Z"
+last_activity: 2026-07-28 -- Phase 243 (Voice-Glyph) CLOSED (2/2 plans); next is Phase 236 (held, in contention) or Wave 2 (237/238/239, unblocked by Phase 235)
 progress:
   total_phases: 9
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 15
-  completed_plans: 9
-  percent: 60
+  completed_plans: 11
+  percent: 44
 ---
 
 # Project State
@@ -19,6 +19,21 @@ progress:
 ## SESSION OWNERSHIP LOCK (navigator directive 2026-07-28, ~11:50am)
 
 Navigator directive: this Claude Code session (transcript `ac25b9a9-4a3d-48b1-a724-095b43613edc`) is the SOLE planner+executor for v1.16.0 from this point forward. A separate concurrent session (process resumed from `4a669e7d-ee28-4726-a5aa-17eb5ff99bbe.jsonl`) was independently driving the same milestone on this same checkout with no shared awareness -- it deleted 236-03/236-04/236-VALIDATION mid-restructure (real, valuable partial improvement to 236-01 kept; the two deleted plans restored from the last known-good merged state, see commit `8631cda0`) and separately produced a caught-before-commit `gsd-tools.cjs phase.complete` corruption (see `.planning/debug/gsd-phase-complete-cross-phase-corruption.md`, workaround committed `0053a0b1`). If you are a different session or process reading this: STAND DOWN on v1.16.0 planning/execution and check with the navigator before writing to this repo's `.planning/` state files.
+
+## (2026-07-28) -- PHASE 243 CLOSED (2/2 plans) -- the statusline stops fabricating a voice glyph, and the month-old phantom RCA citation finally resolves
+
+- **Position:** v1.16.0 Phase 243 (Voice-Glyph) is CLOSED. Both plans executed and verified (243-01, 243-02). ROADMAP.md marks the phase `[x]` complete (2026-07-28); REQUIREMENTS.md marks GLYPH-01 `[x]`. Next: Phase 236 (room.db data-loss fixes, still held pending session-ownership reconciliation) or Wave 2 (237/238/239, unblocked by Phase 235).
+- **Goal achieved (SC1):** `lib/statusline/cockpit-renderer.cjs` deleted the 4-line `stanceDefaultGlyph` fabrication branch -- the only thing that ever painted a glyph on a live statusline, since zero writers exist for `~/.mindrian/voice-mark.json`. `voiceGlyph` is now `const`, resolved solely by `resolveVoiceGlyph(s)`. This supersedes the second half of Phase 210 item B (natural-detection-wins survives; stance-fills-the-default dies). Three superseded assertions (`test-voice-glyph-advisory.cjs` leg 3, `test-192-statusline-stance-chip.cjs` cases b/c) were INVERTED, not deleted -- the inversion is the mutation gate. A real mutation probe (branch re-inserted, suite run, exit 1 with exactly rows 2b/2c red, restored byte-identical) proved the gate bites, independently re-executed from scratch by the verifier agent with the same result.
+- **Goal achieved (SC2):** `.planning/debug/voice-signature-dark-runtime.md` did not exist anywhere in git history before this phase, despite six documents citing it as an existing open RCA since Phase 182.1 (2026-06-28). Authored per `docs/RCA-TEMPLATE.md`, carrying V-1 as resolved-history (closed by this phase) and V-2/V-3/the `who: 'larry'` default/the F5 residual as four OPEN, cross-referenced findings. `ls .planning/debug/*voice-signature* .planning/debug/resolved/*voice-signature*` returns exactly 1 -- no second RCA spawned.
+- **The F5 residual, on the record, not swept under the SUMMARY:** after this phase, the Tier-1 voice glyph is DARK in production -- every turn, every install, permanently -- until a session-keyed writer for `~/.mindrian/voice-mark.json` lands (blocked on a concurrency design decision, not effort: `mindrianDir()` is HOME-global with no session key). A navigator with a stance set today will see their glyph disappear after this ships; they still see the `[stance]` chip. This is the correct honest state, not a regression, and it is explicitly why no placeholder glyph was invented to fill the gap.
+- **One navigator ruling queued, not decided by this phase:** the RCA files a fourth open finding on `scripts/context-monitor`'s `who: 'larry'` default, which reads Canon Part 10 ("the conversational surface IS Larry") against Canon Part 12 ("a turn with no Larry mark IS the native host speaking"). Grounded against Claude Code's real statusline docs this session (not training-data assumption): the `agent` field genuinely is absent in an ordinary session with no `--agent` flag, confirming the codebase's own claim about when `who` falls through to the default. Flipping the default without a writer present would permanently suppress the Brain chip on every install -- deliberately left for a navigator call.
+- **Verification (gsd-verifier, independent):** 8/8 must-haves confirmed against live source, not SUMMARY claims -- re-ran the mutation probe itself, confirmed RCA uniqueness via `git log --all`, traced all three "pre-existing unrelated" aggregator failures (help.md wording, a Neo4j fusion-router edge assertion, three pending stamp-firing-block files) to commits 13-25 days before this phase's first commit, and confirmed via `git show --stat` on every Phase 243 commit that none touch those files. Status: passed.
+- **Code review (gsd-code-reviewer, advisory only, non-blocking):** 0 critical, 4 warning, 1 info. Warnings are stale doc comments inside already-touched files (two in `cockpit-renderer.cjs`, one in `test-voice-glyph-advisory.cjs`) plus the `run-all-243.sh` aggregator folding in two regression legs that can never report clean in the current repo state. Info flags `SKILL.md`/`commands/stance.md` doc staleness outside this phase's declared `files_modified` -- correctly not fixed here (would be freelance-editing outside the plan), logged for a future gap-closure pass. Full report: `243-REVIEW.md`.
+- **Known, disclosed gap:** the CLAUDE.md-mandated Dev-Research Compositing mirror to `~/MindrianRooms/rethinking-mindrianos/research/` was attempted by the 243-02 executor and refused by the Write tool under this session's worktree isolation; stated plainly in `243-02-SUMMARY.md` rather than claimed done. Not attempted again by the orchestrator for the same reason -- writing outside this phase's own repo-scoped `files_modified` lists would itself violate this session's explicit scope boundary. Flagged here so a future session with broader filesystem access completes it.
+- **STATE.md/ROADMAP.md/REQUIREMENTS.md write discipline:** every automated write this phase was diff-reviewed before trusting it, per the standing `gsd-tools.cjs phase.complete` cross-phase corruption risk (`.planning/debug/gsd-phase-complete-cross-phase-corruption.md`). `phase.complete 243`'s ROADMAP.md and REQUIREMENTS.md output were both clean (touched only Phase 243's/GLYPH-01's own lines). `state.begin-phase` (used once, at phase start) recomputed `progress.percent` on a phase-ratio basis (33, then 44) rather than the plan-ratio basis it previously used (60) -- a definitional inconsistency, not a false claim, left as-is. Both `state.begin-phase` and `phase.complete` reproduced the SAME known bug class on STATE.md's free-text fields: `last_activity` collapsed to a bare date and the `Current Position` block was left reading `Phase: 243 / Plan: Not started` -- describing a NOT-STARTED phase immediately after marking it complete. Caught by diff review, hand-corrected before commit (this entry, plus the `Current focus`/`Current Position` block above). Zero touch anywhere on Phase 236's checkbox or any other phase's tracking in either diff.
+- **Commits:** `8cde7f0b`, `46eea09d`, `889b8cec` (243-01), `879db83f`, `f3dd0392`, `06e7b823` (243-02), `4549c239` (REVIEW.md), `7c6c17e8` (VERIFICATION.md). Full detail in `243-01-SUMMARY.md` and `243-02-SUMMARY.md`.
+- **Scope confirmed clean:** `git diff --stat 77f0f66a..HEAD -- .planning/phases/236-room-db-data-loss-fixes/ lib/core/lazygraph-ops.cjs scripts/build-ecosystem-graph.cjs tests/test-236-*` is empty for the entire phase. Zero Phase 243 commits touched anything under Phase 236's off-limits scope.
+- **NEXT:** Phase 236 remains off-limits to this session per the SESSION OWNERSHIP LOCK note above -- not resumed by this phase. Wave 2 (Phases 237, 238, 239) remains unblocked on Phase 235 and can proceed independently of both 236 and 243.
 
 ## (2026-07-28) -- PHASE 241 CLOSED (5/5 plans) -- the guardian is heard, the repair ladder is reachable, and the debounce queue survives session stop
 
@@ -1418,14 +1433,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Wave 1 nearly closed -- Phase 241 and Phase 242 both COMPLETE; Phase 236 pending session-ownership reconciliation
+**Current focus:** Phase 243 CLOSED (2/2 plans); next is Phase 236 (held, in contention) or Wave 2 (237/238/239, unblocked by Phase 235)
 
 ## Current Position
 
-Phase: none active -- 241 and 242 both closed; next is Phase 236 (held, in contention) or Wave 2 (237/238/239, unblocked by Phase 235)
+Phase: none active -- 243 closed; next is Phase 236 (held, in contention with a separate session per the SESSION OWNERSHIP LOCK note above) or Wave 2 (237/238/239, unblocked by Phase 235)
 Plan: N/A
-Status: Phase 241 closed (5/5 plans, verification passed) and Phase 242 closed (2/2 plans, mutation-proven); Phase 236 (room.db data-loss fixes) remains in contention with a separate session per the SESSION OWNERSHIP LOCK note above and was not touched by either phase
-Last activity: 2026-07-28 -- Phase 241 (Feynman-MINTO) and Phase 242 (The Moat) both CLOSED
+Status: Phase 243 closed (2/2 plans, independently verified passed 8/8 must-haves; code review 0 critical/4 warning/1 info, advisory)
+Last activity: 2026-07-28 -- Phase 243 (Voice-Glyph) CLOSED
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1892,7 +1907,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 32
+- Total plans completed: 34
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -2032,6 +2047,7 @@ Progress: [█████████░] 92%
 | Phase 241 P02 | 55min | 3 tasks | 6 files |
 | Phase 241 P05 | 120min | 3 tasks | 4 files |
 | 241 | 5 | - | - |
+| 243 | 2 | - | - |
 
 ## Accumulated Context
 

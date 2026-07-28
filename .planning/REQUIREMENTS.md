@@ -58,7 +58,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 
 ### Phase 243 -- Voice-glyph
 
-- [ ] **GLYPH-01**: The statusline's "who is speaking" signal reflects the actual glyph a turn opened with, not a fabricated default painted over by the stance color (V-1); V-2/V-3 route into the existing open `voice-signature-dark-runtime.md` RCA rather than a new one.
+- [x] **GLYPH-01**: The statusline's "who is speaking" signal reflects the actual glyph a turn opened with, not a fabricated default painted over by the stance color (V-1); V-2/V-3 route into the existing open `voice-signature-dark-runtime.md` RCA rather than a new one.
 
 ## Out of Scope
 
@@ -94,7 +94,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | MINTO-02 | Phase 241 | Complete (241-04) |
 | MOAT-01 | Phase 242 | Complete (242-01) |
 | MOAT-02 | Phase 242 | Complete (242-02) |
-| GLYPH-01 | Phase 243 | Pending |
+| GLYPH-01 | Phase 243 | Complete |
 
 **Dependency notes (binding for scheduling):**
 
