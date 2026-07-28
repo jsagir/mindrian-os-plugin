@@ -181,8 +181,12 @@ async function runLeg(name, fn) {
 // its requires, never a literal relative require string).
 function pinChainExecutorDirnameToRealRepo(src) {
   const occurrences = (src.match(/__dirname/g) || []).length;
-  assert.ok(occurrences >= 5,
-    'expected chain-executor.cjs to use __dirname at least 5 times for its lazy require ' +
+  // Phase 237-03 removed one __dirname use (the deleted _loadDecide's own
+  // require(path.join(__dirname, 'navigation-engine.cjs'))), so post-fix the
+  // floor is 4 (chain-retry.cjs, pipeline-state.cjs, recipe-maps.cjs,
+  // calibration-gate.cjs), down from the pre-fix 5.
+  assert.ok(occurrences >= 4,
+    'expected chain-executor.cjs to use __dirname at least 4 times for its lazy require ' +
     'path-joins; source drifted (found ' + occurrences + ')');
   return src.split('__dirname').join(JSON.stringify(LIB_CORE_DIR));
 }
