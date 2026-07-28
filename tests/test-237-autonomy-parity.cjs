@@ -150,14 +150,20 @@ function frameworkAutonomousSafe(resolver, command) {
 // ---------------------------------------------------------------------------
 function pinRequiresToRealRepo(src) {
   let out = src;
+  // Phase 237-08: chain.cjs no longer requires navigation.cjs directly (its
+  // one caller, the log-only onStep stub, was deleted when the real
+  // two-tier dispatcher was wired in -- see lib/mcp/tools/chain.cjs's own
+  // Phase 237-08 module-header note). That require is therefore no longer
+  // pinned here; every OTHER relative require this Leg 5 harness depends on
+  // is unaffected by that rewire.
   const relativeRequires = [
     ["require('../../core/chain-executor.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'chain-executor.cjs')],
     ["require('../../workflow/command-resolver.cjs')", path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs')],
-    ["require('../../core/navigation.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs')],
     ["require('../gate-render.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'gate-render.cjs')],
     ["require('../../core/resolve-active-room.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'resolve-active-room.cjs')],
     ["require('../../core/session-binding.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'session-binding.cjs')],
     ["require('../mcp-first-flag.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'mcp-first-flag.cjs')],
+    ["require('../../core/chain-step-dispatcher.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'chain-step-dispatcher.cjs')],
   ];
   for (const [needle, absTarget] of relativeRequires) {
     assert.ok(out.indexOf(needle) !== -1, 'expected relative require not found in chain.cjs: ' + needle + ' (harness pin target drifted)');
