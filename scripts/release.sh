@@ -85,7 +85,8 @@ NO_NEXT_BUMP=0
 DRY_RUN=0
 NO_MINISITE=1   # install-minisite RETIRED 2026-06-09 (navigator: official site is mindrian-os.com only); off by default, --minisite re-enables
 NO_WEBSITE=0    # official Mindrian website (mindrian-os.com) stays ON by default; --no-website opts out
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--dry-run]"
+STRICT_SHAPE=0  # Phase 235 (CIRS-03): shape-declaration gate is advisory by default; --strict-shape restores the pre-210 hard-fail
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -99,6 +100,7 @@ for arg in "$@"; do
     --no-minisite)       NO_MINISITE=1 ;;
     --minisite)          NO_MINISITE=0 ;;
     --no-website)        NO_WEBSITE=1 ;;
+    --strict-shape)      STRICT_SHAPE=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -309,11 +311,29 @@ fi
 # navigator decision, CONTEXT addendum 1): the born-declared-shape gate is ADVISORY at
 # release. The check still runs on the SAME release surface and every violation prints
 # inline in this release log as WARN lines (the lint signal survives, all four checks),
-# but a violation no longer ABORTS the cut. Re-hardening is one flag away: --strict
-# restores the pre-210 HARD-FAIL contract. The gate still walks the tree at run time;
-# it never trusts a hardcoded surface count.
-node "$PLUGIN_DIR/scripts/check-shape-declaration.cjs" --check || true
-echo "  note: shape-declaration gate is advisory as of Phase 210 (WARN, never abort; --strict restores hard-fail)"
+# but a violation no longer ABORTS the cut. Re-hardening is one flag away:
+# --strict-shape restores the pre-210 HARD-FAIL contract. The gate still walks the
+# tree at run time; it never trusts a hardcoded surface count.
+#
+# Phase 235-01 (CIRS-03): before this fix the advisory `|| true` ran UNCONDITIONALLY
+# and --strict was never passed to the checker, so the documented "one flag away"
+# re-hardening did not exist -- the exit code was always swallowed. The sentinel
+# comments below are LOAD-BEARING: tests/test-235-release-shape-gate.cjs extracts the
+# text between them out of this live file at run time and executes it, so the test can
+# never drift from the shipped behavior the way a hand-copied snippet would.
+# SHAPE-GATE-BEGIN (Phase 235, CIRS-03)
+if [ "$STRICT_SHAPE" = "1" ]; then
+  if ! node "$PLUGIN_DIR/scripts/check-shape-declaration.cjs" --check --strict; then
+    echo -e "${RED}ABORT: shape-declaration gate failed (--strict-shape) -- a surface declares neither a Shape-F nor a CIRS exclusion.${NC}"
+    echo "  Recovery: node scripts/backfill-hitl-shape.cjs, or declare hitl_shape/hitl_stages per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason"
+    exit 1
+  fi
+  echo -e "${GREEN}  shape-declaration gate passed (--strict-shape)${NC}"
+else
+  node "$PLUGIN_DIR/scripts/check-shape-declaration.cjs" --check || true
+  echo "  note: shape-declaration gate is advisory as of Phase 210 (WARN, never abort; --strict-shape restores hard-fail)"
+fi
+# SHAPE-GATE-END
 echo -e "${GREEN}  coverage gates passed (no dark surface)${NC}"
 
 # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
