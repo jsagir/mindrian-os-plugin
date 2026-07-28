@@ -54,7 +54,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 ### Phase 242 -- The Moat
 
 - [x] **MOAT-01**: The HSI-to-graph edge rewrite is transaction-wrapped so a crash or concurrent reader never sees a zeroed scoring layer (MW-1, includes MW-2 and MW-3 as the same root cause).
-- [ ] **MOAT-02** (doc fix, no RCA): the PR checklist's KuzuDB warning sign is replaced with a real, machine-checked assertion (MW-4).
+- [x] **MOAT-02** (doc fix, no RCA): the PR checklist's KuzuDB warning sign is replaced with a real, machine-checked assertion (MW-4).
 
 ### Phase 243 -- Voice-glyph
 
@@ -93,7 +93,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | MINTO-01 | Phase 241 | Pending |
 | MINTO-02 | Phase 241 | Pending |
 | MOAT-01 | Phase 242 | Complete (242-01) |
-| MOAT-02 | Phase 242 | Pending (doc fix) |
+| MOAT-02 | Phase 242 | Complete (242-02) |
 | GLYPH-01 | Phase 243 | Pending |
 
 **Dependency notes (binding for scheduling):**
