@@ -94,7 +94,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 237-05-PLAN.md - Wave 2. REACH-01: emit an explicit `executable` join in the generated command registry (the closed build-time allowlist), populated on `/mos:snapshot`, with a seam-liveness gate over every claim.
+- [x] 237-05-PLAN.md - Wave 2. REACH-01: emit an explicit `executable` join in the generated command registry (the closed build-time allowlist), populated on `/mos:snapshot`, with a seam-liveness gate over every claim.
 - [x] 237-06-PLAN.md - Wave 2. REACH-03 writers: stamp `session_id` on both marker writers, threading it through the fingerprint hook to the detached auto-explore spawn.
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -250,7 +250,7 @@ Wave 4 (blocked on Wave 3):
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
 | 236. room.db Data-Loss Fixes | 0/4 | Planned | - |
-| 237. Reach Mechanism | 5/8 | Blocked (237-05 pre-commit gate, see deferred-items.md #2) | - |
+| 237. Reach Mechanism | 6/8 | In progress (Wave 2 complete, Wave 3-4 next) | - |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
