@@ -5,8 +5,38 @@
 # (/mos:value-proposition); the Phase-122 resolver keys the framework "PWS Value Proposition"
 # off the name: field (/mos:validate-proposition, alongside /mos:build-thesis). Renaming the
 # file would break the generator surface id and any caller; both ids are kept consistent.
-name: validate-proposition
+#
+# PHASE 234-04 RESOLUTION (2026-07-28). The Agent Skills spec (agentskills.io)
+# hard-requires a SKILL's `name` to equal its parent directory, which the mismatch
+# above violated. The plan's first-pass resolution was to rename this directory to
+# `validate-proposition`. Tracing the consumers showed that would be WRONG, so it was
+# not applied. Reason: this file is GENERATED OUTPUT. scripts/build-skill-mirrors.cjs
+# writes skills/<COMMAND-FILENAME>/SKILL.md for every commands/*.md (the Windows
+# commands-registration host bug workaround), so this directory's name is derived from
+# commands/value-proposition.md's FILENAME. Renaming it would be silently undone on the
+# next generator run and would strand an unmanaged skills/validate-proposition/ orphan.
+#
+# What was changed instead, and why it is safe: ONLY this mirror's `name:` field, from
+# `validate-proposition` to `value-proposition`, so name == parent directory. The two
+# live consumers are both untouched, verified by running them, not by reading them:
+#   1. The Phase-122 framework resolver. data/command-registry.json is built by
+#      scripts/build-command-registry.cjs, which reads `fm.name` from commands/*.md
+#      ONLY (line 242, `'/mos:' + name`). It never opens skills/. So the binding still
+#      holds: frameworksForCommand('/mos:validate-proposition') -> ["PWS Value
+#      Proposition"], commandsForFramework('PWS Value Proposition') ->
+#      ["/mos:build-thesis", "/mos:validate-proposition"]. commands/value-proposition.md
+#      is byte-unchanged and keeps `name: validate-proposition`.
+#   2. The connector generator. scripts/build-connector-registry.cjs keys a skill
+#      surface off the DIRECTORY basename (listSourceFiles -> `base: d`), never `name:`,
+#      so `skill:value-proposition` and `/mos:value-proposition` are both unchanged.
+# Nothing in lib/ or scripts/ routes on a SKILL's `name:` field; only
+# check-skill-spec.cjs and skillopt-inventory.cjs read it at all.
+#
+# So the two ids stay exactly as consistent as the note above describes. The only thing
+# that moved is the SKILL-layer identifier, which now satisfies the external spec.
+name: value-proposition
 description: Score your value proposition against 3 VP gates
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Compose the value proposition canvas for your room."
 body_shape: "methodology"
 hitl_shape: "F.8"
@@ -19,12 +49,7 @@ frameworks: ["PWS Value Proposition"]
 produces: "room/business-model/value-proposition/*"
 inputs: []
 autonomous_safe: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - AskUserQuestion
+allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

@@ -20,6 +20,7 @@ description: >
   teach it back. Outputs YC-quality slides. Triggers: pitch deck, investor
   presentation, simplify for investors, technical storytelling, demo day,
   fundraising deck.
+license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
