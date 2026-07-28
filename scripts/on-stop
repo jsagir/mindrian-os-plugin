@@ -3,15 +3,19 @@
 # Computes STATE.md from filesystem truth and persists it to room/STATE.md
 #
 # Phase 88-06 extends on-stop with the per-section memory triple close-out:
-#   1. Drain the minto-debouncer queue (1500ms budget, olderThanMs=0).
+#   1. Census (never drain) the minto-debouncer queue via its read-only
+#      peek() accessor. Phase 241-02 (F-0, MINTO-01) retired the old
+#      unconditional olderThanMs=0 vacuum here; the live consumer is the
+#      Phase 88-05 drain block inside scripts/intent-classifier, which
+#      drains on the NEXT UserPromptSubmit, not here.
 #   2. Recompile ROOM.md references for every active section.
 #   3. Walk sections and call folder-memory.readTriple() to capture the
 #      full triple signal.
 #   4. Write .mindrian/session-snapshot.json (consumed by session-start
 #      in Phase 88-07).
 #   5. Write .mindrian/minto-stale.json for any sections whose reasoning
-#      is stale after the drain.
-# Total Phase 88 budget ~1500ms (1500 drain + recompile-in-parallel +
+#      is stale.
+# Total Phase 88 budget ~1500ms (census + recompile-in-parallel +
 # snapshot under 500ms), leaving slack under the 3000ms hook timeout.
 # STATE.md write path (Phase 84 contract) is preserved byte-for-byte.
 
@@ -107,7 +111,7 @@ if [ -n "${MINDRIAN_MCP_FIRST:-}" ]; then
             process.stdout.write(JSON.stringify(out) + '\n');
           } else {
             const sections = (r && r.business && typeof r.business.sections === 'number') ? r.business.sections : null;
-            const msg = (sections !== null) ? ('session synced via mindrian-core, ' + sections + ' sections drained') : 'session synced via mindrian-core';
+            const msg = (sections !== null) ? ('session synced via mindrian-core, ' + sections + ' sections scanned') : 'session synced via mindrian-core';
             process.stdout.write(JSON.stringify({ continue: true, systemMessage: msg }) + '\n');
           }
         } catch (_e) {
@@ -337,14 +341,35 @@ fi
 # Phase 84 STATE.md write above is preserved byte-for-byte.
 GUARDIAN_SM=""
 GUARDIAN_TIMEOUT_S="${MINDRIAN_GUARDIAN_ONSTOP_TIMEOUT_S:-3}"
+MINTO_QUEUE_PENDING=0
 if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" ]; then
   PHASE88_START_MS=$(node -e "process.stdout.write(String(Date.now()))" 2>/dev/null || echo 0)
 
-  # 1. Drain the debouncer queue. olderThanMs=0 flushes everything; 1500ms
-  # wall-clock budget leaves slack for recompile + snapshot inside the
-  # 3000ms hook timeout. Partial drain leaves remainder queued for next
-  # session-start (88-05 drain-at-prompt is the next opportunity).
-  node "${SCRIPT_DIR}/minto-debouncer.cjs" drain "${ROOM_DIR}" --timeout=1500 --older-than=0 >/dev/null 2>&1 || true
+  # 1. Census (never drain) the debouncer queue. Phase 241-02 (F-0, MINTO-01):
+  # this site used to run an unconditional zero-age-floor vacuum, which
+  # discarded every pending regen intent before the live Phase 88-05
+  # consumer ever got a turn. That consumer is real and already wired: the
+  # drain block inside scripts/intent-classifier (the extensionless bash
+  # wrapper registered for UserPromptSubmit in hooks/hooks.json), which
+  # drains at olderThanMs=30000 on every user turn and spawns
+  # vault-section-minto-generator.cjs --write for each drained section.
+  # See .planning/debug/resolved/minto-debounce-consumer-dead-end.md,
+  # which corrects the earlier grep-against-the-wrong-file conclusion that
+  # this consumer did not exist. peek() is read-only: it reports how many
+  # entries are pending without emptying the queue, so an entry enqueued
+  # near session stop survives to the next prompt where the real consumer
+  # can act on it, and the queue-health validator's 500/1000 thresholds
+  # stay structurally reachable instead of being starved by this drain.
+  MINTO_QUEUE_PENDING=$(ROOM_DIR_ENV="${ROOM_DIR}" SCRIPT_DIR_ENV="${SCRIPT_DIR}" node -e "
+    try {
+      const path = require('path');
+      const dbnc = require(path.join(process.env.SCRIPT_DIR_ENV, 'minto-debouncer.cjs'));
+      const snap = dbnc.peek(process.env.ROOM_DIR_ENV);
+      process.stdout.write(String((snap && Array.isArray(snap.entries)) ? snap.entries.length : 0));
+    } catch (_e) {
+      process.stdout.write('0');
+    }
+  " 2>/dev/null || echo 0)
 
   # 2. Recompile ROOM.md references for every top-level section in parallel.
   # Each recompile has its own 400ms timeout; the outer wait caps total at
@@ -531,7 +556,7 @@ if [ -n "${ROOM_DIR:-}" ] && [ -d "${ROOM_DIR}" ]; then
   ' 2>/dev/null || echo "0|--")
   SECTION_COUNT="${STOP_SM%|*}"
   HEALTH_GLYPH="${STOP_SM##*|}"
-  STOP_SUMMARY_LINE="session snapshot saved, ${SECTION_COUNT} sections drained, health ${HEALTH_GLYPH}"
+  STOP_SUMMARY_LINE="session snapshot saved, ${SECTION_COUNT} sections scanned, ${MINTO_QUEUE_PENDING} regen pending, health ${HEALTH_GLYPH}"
 fi
 
 # Output success JSON. If the voice-log reader produced a summary line,
