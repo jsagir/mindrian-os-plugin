@@ -65,6 +65,35 @@ whole section). Store it as queryable data (a node property, or a new lightweigh
    has? Verify against `lib/core/navigation/memory-artifacts.cjs` and the existing `governing_thought`
    node type before assuming net-new LLM calls are required (Canon Part 7: reuse before build).
 
+## Addendum (navigator, same session, follow-up turn): ROOM.md as the ledger surface
+
+Refines the "where does the sentence live" question above. The navigator's follow-up framing: ROOM.md
+itself (the per-folder ICM Layer 0 identity file, one per folder per Decision 15/16) should become a
+graph-entity-based LEDGER of Feynman-MINTO explanations for that folder, not just a static identity
+blurb. Three concrete requirements to carry into research/planning:
+
+1. **Graph-entity-based, not free text.** ROOM.md's Feynman-MINTO section should be structured as
+   entries tied to real graph node ids (the artifacts/entities the folder's ROOM.md is the identity
+   file for), not prose disconnected from the graph. Whatever renders ROOM.md should read this ledger
+   FROM room.db (via the navigation.cjs chokepoint), never hand-author it separately, so the graph
+   stays the single source of truth (Decision 15: "the filesystem is the source of truth" for identity,
+   but the LEDGER CONTENT should still be graph-derived, not duplicated by hand).
+2. **Temporal stamps.** Each ledger entry needs a timestamp (when this artifact's explanation was
+   generated or last refreshed), so staleness is visible and the ledger can answer "has this artifact's
+   explanation been regenerated since the artifact itself last changed" - the same freshness discipline
+   `feynman-minto-invariants.cjs` already enforces at the section-MINTO.md level, extended down to the
+   per-artifact ledger.
+3. **Roll-up across ALL other ROOM.md files in the room.** A folder's ROOM.md ledger should relate to
+   (not merely sit beside) every other ROOM.md in the room's folder tree - i.e. a navigator looking at
+   one folder's ledger can see how its artifacts' explanations connect to artifacts explained in
+   sibling/parent/child folders' ledgers, mirroring the cross-ref edges the graph already has. This is
+   effectively a hierarchical/aggregated view over the per-artifact ledgers from open question 1, not a
+   new data source - verify whether the existing cross-ref edges already carry enough structure to
+   render this rollup before designing new graph relationships (Canon Part 7, reuse before build).
+
+This does not change the non-goal below: still out of scope for v1.16.0, still needs the Part 8 design
+pass, still should not duplicate phase 241's debounce fix.
+
 ## Explicit non-goal right now
 
 This is NOT part of the v1.16.0 "Infrastructure Remediation" milestone, which is fix-only, no new
