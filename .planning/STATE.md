@@ -1356,9 +1356,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 235 (cirs-commit-gate-seam-liveness-helper) - COMPLETE (2/2)
-Plan: 2 of 2
-Status: Phase 235 closed; next up is Phase 236 (room.db data-loss fixes, Wave 1's other half)
+Phase: 236 (room-db-data-loss-fixes)
+Plan: Not started
+Status: Phase 235 closed (CIRS-01, CIRS-02, CIRS-03 all complete); next up is Phase 236 (room.db data-loss fixes, Wave 1's other half)
 Last activity: 2026-07-28 -- Phase 235 COMPLETE (2/2): CIRS-01 + CIRS-02 + CIRS-03
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
