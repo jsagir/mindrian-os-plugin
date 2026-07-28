@@ -3238,6 +3238,37 @@ Plans:
 
 - [x] 233-03-PLAN.md - Migrate compute-hsi.py to the shared rs_corpus_exclude.py SKIP_DIRS source + `--scope-to-nodes` (Section 9 Defect #4/#5) + ordered 4-stage graph-heal-pipeline.cjs + phase test aggregator
 
+### Phase 234: MindrianOS as infrastructure: skills+MCP everywhere, open-core at the network boundary (SEED-068+069 consolidation)
+
+**Goal:** MindrianOS ships as a portable skills+MCP package that works honestly across any Agent-Skills-compliant host (not just Claude Code), with the commercial boundary drawn at the network (the hosted Brain), never at local code -- closing the gap between what SEED-068/SEED-069 assumed was unbuilt and what RESEARCH.md found already running in production (33-tool MCP server, persona-as-skill, the two-server free/paid `.mcp.json` split, a live Supabase-backed entitlement system), while fixing the genuinely open portability gaps: 9 hard Agent Skills spec failures, 112 `allowed-tools` format deviations, 51 skills hardcoding `${CLAUDE_PLUGIN_ROOT}`, the Tier-0 write-path hole (`graph_write`/`memory_event`/`artifact_file` invisible off Claude Code), and zero live foreign-host verification.
+**Requirements**: D-01..D-13 (234-CONTEXT.md decision IDs -- no REQUIREMENTS.md exists for this phase)
+**Depends on:** Phase 233
+**Plans:** 8 plans
+
+Plans:
+
+**Wave 1**
+
+- [ ] 234-01-PLAN.md -- Skill-spec validator (scripts/check-skill-spec.cjs) + Wave-0 test harness (tests/run-all-234.sh) + D-03/D-10 locked tests + npm skills-ref removal [D-01, D-02, D-03, D-07, D-08, D-10]
+- [ ] 234-02-PLAN.md -- Tool-description-as-instruction floor (D-03): rewrite 8 sub-120-char MCP tool descriptions + regression test [D-03]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 234-03-PLAN.md -- Mechanical hard-spec-failure fixes across 123 skills: missing name:, allowed-tools normalization, license:/compatibility: fields [D-01, D-02, D-07, D-08]
+- [ ] 234-04-PLAN.md -- MOSDeckEngine + value-proposition skill-identity fixes (traced decision task, not mechanical) [D-01, D-02, D-07, D-08]
+- [ ] 234-05-PLAN.md -- Host-tier detection (D-05, via MCP SDK getClientVersion()) + Tier-0 write-path default (Gap D) + status_read capability-floor reporting [D-04, D-05, D-12]
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 234-06-PLAN.md -- ${CLAUDE_PLUGIN_ROOT} -> MINDRIAN_OS_ROOT portable, fail-closed migration across 51 skills [D-01, D-02]
+- [ ] 234-07-PLAN.md -- dist/ bundle generator (generic-claude-dir + zed) + Zed catalog budget guard + staleness stamp [D-01, D-02]
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 234-08-PLAN.md -- D-08/D-09 free-core network scan + full-suite closing run + foreign-host human-verify checkpoint + Dev-Research Compositing filing [D-06, D-08, D-09, D-10, D-11, D-12]
+
+**Explicitly deferred (not in this phase's plan set, per CONTEXT.md's Claude's Discretion and RESEARCH.md's Open Question 1 recommendation):** full resolution of the entitlement/pricing mechanism (per-seat/org/room) -- the substrate is already built and running (`mcp-server-brain/lib/auth.cjs`); only what `plan` gates remains genuinely open, and SEED-069 marks it OPEN and non-blocking. No task in this phase proposes local license-key enforcement or gates a `/mos:` methodology run behind a paid check.
+
 ---
 
 ### Phase 232.1: Room-Graph Density Read (room-graph-density-read) - INSERTED 2026-07-25 - **SEED-074 "Suggested first move" only, not the seed's gated target**
