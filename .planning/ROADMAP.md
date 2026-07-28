@@ -45,7 +45,9 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
   2. The reusable seam-liveness helper turns red on each of its three seeded dead-seam fixtures (a hook matcher naming a tool that no longer exists, an enqueue with no registered consumer, a minted gate with no reachable ratifier) and green on live-seam controls; it ships as a repo-wide helper, not CIRS-only.
   3. CIRS's own `--check` consumes the helper for CIRS's surfaces, and disabling the helper call turns `--check` red -- the wiring is load-bearing, not decorative.
   4. With a seeded shape-declaration violation, `check-shape-declaration.cjs --strict` exits non-zero through `scripts/release.sh`'s actual invocation path (the `|| true` swallow is gone), while the non-strict path still warns-and-passes; both behaviors demonstrated by running the release script's check step against the seeded violation (CIRS-03 folds into CIRS-01's gate work).
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 235-01-PLAN.md — CIRS-01/CIRS-03: consolidate the pre-commit hook to one canonical source (retiring the divergent setup-hooks.sh / install-pre-commit.sh authoring), fix release.sh's --strict-shape swallow, and mutation-proof both end to end (worktree + rival-installer-overwrite reproduction).
+- [ ] 235-02-PLAN.md — CIRS-02: build the repo-wide lib/core/seam-liveness.cjs helper (3 named dead-seam shapes + live controls), wire it into build-connector-registry.cjs's coverageReport() to close the MCP-tool-file blind spot, and mutation-proof the wiring.
 
 ### Phase 236: room.db Data-Loss Fixes
 **Goal**: The two live data-loss risks in room.db are closed: a graph rebuild can never erase memory rows, and a failed open tells the truth about its state instead of collapsing into a cold start.
