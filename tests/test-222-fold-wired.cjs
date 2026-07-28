@@ -182,12 +182,17 @@ check('ARM 1 CENSUS: a production roomDb threader exists, OR the explicit refit 
     'PRECONDITION B FAILED: tests/test-222-reach-wired.cjs no longer matches the roomDb: pattern the census uses; ' +
     'the pattern itself may have drifted.');
 
-  // And no entry in the actual census (which excludes tests/) has a tests/ path.
-  // This proves the exclusion actually removed a real hit rather than being
-  // decorative: without it, the existing test-only honorer would satisfy the
-  // gate by itself, which is the exact failure mode that let the fold ship
-  // silently unreachable for a whole phase lifetime.
-  const testPathsInCensus = roomDbThreaders.filter((f) => pathHasExcludedSegment(path.relative(REPO_ROOT, f)));
+  // And no entry in the actual census has a tests/ path. This check is
+  // DELIBERATELY independent of EXCLUDE_SEGMENTS / pathHasExcludedSegment
+  // (a hardcoded literal 'tests' segment check, not a reuse of the same
+  // knob the walk itself is filtered by): reusing the exclusion list here
+  // would let a single accidental edit to EXCLUDE_SEGMENTS defeat both the
+  // walk's exclusion AND this tripwire at once, which is exactly the
+  // vacuous-gate failure mode this precondition exists to catch. Proven by
+  // mutation: dropping 'tests' from EXCLUDE_SEGMENTS while this check
+  // reused pathHasExcludedSegment made the assertion pass vacuously even
+  // with test-only files in roomDbThreaders.
+  const testPathsInCensus = roomDbThreaders.filter((f) => path.relative(REPO_ROOT, f).split(path.sep).indexOf('tests') !== -1);
   assert.strictEqual(testPathsInCensus.length, 0,
     'PRECONDITION B FAILED: a tests/ path entered the production census: ' + JSON.stringify(testPathsInCensus) +
     '. The census exclusion is not load-bearing.');
