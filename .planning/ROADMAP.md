@@ -146,7 +146,26 @@ Wave 3 (blocked on Wave 2):
   2. A canary token typed into an opportunity field and into a Blue Hat note, driven through the real `query()` path against a captured mock transport, is inspected and caught by the egress guard BEFORE the wire -- the capture shows the sanitized payload; removing the `query()` coverage turns the gate red. The guard no longer covers only the unused `sendPacket` door.
   3. `sendPacket`'s fate is decided explicitly and recorded: either it is wired to at least one real job with an end-to-end proof on a seeded room, or it is parked with a dated note at the call surface and in docs -- either way a written decision exists (BRAIN-03 is a decision, not a bug fix).
 
-**Plans**: TBD
+**Plans**: 7 plans, 4 waves
+
+Wave 1:
+
+- [ ] 239-01-PLAN.md - Wave 1. Validation scaffolding: the SKIP-safe run-all-239.sh aggregator with two anti-vacuity legs authored RED, plus the SSE-shaped Brain capture server extracted out of test-brain-client-params.cjs into a shared helper.
+
+Wave 2 (blocked on Wave 1):
+
+- [ ] 239-02-PLAN.md - Wave 2. BRAIN-01 core: one exported BRAIN_TOOL_MATCHER consumed by both hooks.json matchers and the anchored isBrainTool re-check, with the superseded dead-name assertions inverted rather than deleted.
+- [ ] 239-05-PLAN.md - Wave 2. BRAIN-02: raw-field classify-first guard in hatAwareRecommend and suggestValidationSteps, strictly upstream of sanitizeCypherInput and of template interpolation, plus a labelled query() backstop.
+
+Wave 3 (blocked on Wave 2):
+
+- [ ] 239-03-PLAN.md - Wave 3. BRAIN-01 liveness gate: check-brain-tool-liveness.cjs enumerating live tool names by a real stdio tools/list handshake, with the zero-match-matcher anti-vacuity rule the shipped seam helper alone would have missed.
+- [ ] 239-06-PLAN.md - Wave 3. BRAIN-03: sendPacket parked with a dated note at the call surface and in docs, the two contradictory in-repo claims reconciled, and the zero-caller census machine-checked.
+
+Wave 4 (blocked on Wave 3):
+
+- [ ] 239-04-PLAN.md - Wave 4. BRAIN-01 inbound half plus census: the PostToolUse PII sanitizer proven to fire on live names, and every remaining dead mcp__brain_ literal swept out of tracked source.
+- [ ] 239-07-PLAN.md - Wave 4. T1 mitigation: the liveness gate wired into scripts/verify-release as a new numbered section, proven to block by mutating the real tree and observing the real release gate go red.
 
 ### Phase 240: Memory
 
