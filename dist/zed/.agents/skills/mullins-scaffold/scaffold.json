@@ -1,0 +1,223 @@
+{
+  "version": 2,
+  "generated_from": "Mullins Seven Domains of Attractive Opportunities (Phase 84-04, v1.10.8)",
+  "sections": [
+    {
+      "id": "market-size-now",
+      "domain": "market",
+      "title": "Market Size Today",
+      "prompt": "How large is the addressable market right now in units, customers, and dollars?",
+      "required": false
+    },
+    {
+      "id": "market-size-five-years",
+      "domain": "market",
+      "title": "Market Size in Five Years",
+      "prompt": "How large will the addressable market be five years out, and what drives that growth?",
+      "required": false
+    },
+    {
+      "id": "market-benefits",
+      "domain": "market",
+      "title": "Market-Level Benefits",
+      "prompt": "What benefits does this market deliver that customers cannot easily get elsewhere?",
+      "required": false
+    },
+    {
+      "id": "macro-trends",
+      "domain": "market-attractiveness",
+      "title": "Macro Trends",
+      "prompt": "Which macro trends make this market more or less attractive over the planning horizon?",
+      "required": false
+    },
+    {
+      "id": "political-regulatory",
+      "domain": "market-attractiveness",
+      "title": "Political and Regulatory Climate",
+      "prompt": "What political, legal, and regulatory forces shape this market's attractiveness?",
+      "required": false
+    },
+    {
+      "id": "economic-cycles",
+      "domain": "market-attractiveness",
+      "title": "Economic Cycles",
+      "prompt": "How sensitive is this market to economic cycles, interest rates, and capital availability?",
+      "required": false
+    },
+    {
+      "id": "social-cultural",
+      "domain": "market-attractiveness",
+      "title": "Social and Cultural Forces",
+      "prompt": "Which social and cultural shifts pull customers toward or away from this market?",
+      "required": false
+    },
+    {
+      "id": "beachhead-segment",
+      "domain": "target-segment",
+      "title": "Beachhead Segment",
+      "prompt": "Which narrowly defined customer segment will the venture win first, and why them?",
+      "required": false
+    },
+    {
+      "id": "segment-benefits",
+      "domain": "target-segment",
+      "title": "Segment-Specific Benefits",
+      "prompt": "What unique benefits does this segment receive that no incumbent currently delivers?",
+      "required": false
+    },
+    {
+      "id": "segment-reachability",
+      "domain": "target-segment",
+      "title": "Segment Reachability",
+      "prompt": "How will the venture reach this segment economically and at scale?",
+      "required": false
+    },
+    {
+      "id": "porter-rivalry",
+      "domain": "industry-dynamics",
+      "title": "Competitive Rivalry",
+      "prompt": "How intense is rivalry among existing competitors in this industry?",
+      "required": false
+    },
+    {
+      "id": "porter-suppliers",
+      "domain": "industry-dynamics",
+      "title": "Supplier Power",
+      "prompt": "How much bargaining power do suppliers hold over participants in this industry?",
+      "required": false
+    },
+    {
+      "id": "porter-buyers",
+      "domain": "industry-dynamics",
+      "title": "Buyer Power",
+      "prompt": "How much bargaining power do buyers hold, and how price-sensitive are they?",
+      "required": false
+    },
+    {
+      "id": "porter-barriers-to-entry",
+      "domain": "industry-dynamics",
+      "title": "Barriers to Entry",
+      "prompt": "What barriers protect insiders from new entrants, and which ones can the venture build?",
+      "required": false
+    },
+    {
+      "id": "porter-substitutes",
+      "domain": "industry-dynamics",
+      "title": "Substitute Threats",
+      "prompt": "What substitutes could replace this industry's offering and at what cost?",
+      "required": false
+    },
+    {
+      "id": "team-mission",
+      "domain": "mission",
+      "title": "Team Mission",
+      "prompt": "What is the founding team's mission and why is this team the one to pursue it?",
+      "required": false
+    },
+    {
+      "id": "team-aspirations",
+      "domain": "mission",
+      "title": "Team Aspirations",
+      "prompt": "What outcomes does the team aspire to over the next three to seven years?",
+      "required": false
+    },
+    {
+      "id": "team-propensity-for-risk",
+      "domain": "mission",
+      "title": "Propensity for Risk",
+      "prompt": "How much risk is the team willing and able to absorb, and across which dimensions?",
+      "required": false
+    },
+    {
+      "id": "execution-critical-success-factors",
+      "domain": "ability-to-execute",
+      "title": "Critical Success Factors",
+      "prompt": "Which few things must go right for this venture to succeed, and how will the team ensure them?",
+      "required": false
+    },
+    {
+      "id": "value-chain-connections",
+      "domain": "connectedness",
+      "title": "Value Chain Connections",
+      "prompt": "Which upstream, downstream, and lateral relationships in the value chain unlock this venture?",
+      "required": false
+    }
+  ],
+  "brain_folders": [
+    {
+      "id": "value-proposition",
+      "framework": "Value Proposition",
+      "domain": "value-proposition",
+      "title": "Value Proposition",
+      "prompt": "What precise value does the offering deliver to the beachhead segment, and how is it worth paying for?",
+      "feeds_into_source": "Mullins Seven Domains",
+      "offered": true
+    },
+    {
+      "id": "disruptive-innovation",
+      "framework": "Disruptive Innovation",
+      "domain": "disruption-posture",
+      "title": "Disruptive vs Sustaining Posture",
+      "prompt": "Is this venture sustaining an incumbent trajectory or disrupting from a new-market or low-end foothold?",
+      "feeds_into_source": "Mullins Seven Domains",
+      "offered": true
+    },
+    {
+      "id": "systems-thinking",
+      "framework": "Systems Thinking",
+      "domain": "systems-map",
+      "title": "Systems Map",
+      "prompt": "Which feedback loops, stocks, and leverage points govern this venture as a nested system?",
+      "feeds_into_source": "Mullins Seven Domains",
+      "offered": true
+    }
+  ],
+  "ackoff_traversal": {
+    "validation_center": "Validation",
+    "brain_chain": ["Systems Thinking", "MAP THE HIERARCHY"],
+    "ascent": [
+      {
+        "level": "Data",
+        "label": "Domain data gathered",
+        "movement": "Fill each Mullins domain folder with raw facts, figures, and observations toward Validation-at-center"
+      },
+      {
+        "level": "Information",
+        "label": "Domains structured",
+        "movement": "Relate the domain data into patterns and answered prompts, climbing toward Validation"
+      },
+      {
+        "level": "Knowledge",
+        "label": "Cross-domain connections earned",
+        "movement": "Connect the structured domains into a coherent opportunity read, earning evidence up the levels toward Validation"
+      },
+      {
+        "level": "Wisdom",
+        "label": "Validation at center",
+        "movement": "Resolve the connected domains into a validated go decision at the Validation center -- the ascent confirms confidence is backed"
+      }
+    ],
+    "descent": [
+      {
+        "level": "Wisdom",
+        "label": "Validation decomposes",
+        "movement": "Begin the New Business Road Test loop: Validation decomposes back to interrogate the validated read"
+      },
+      {
+        "level": "Knowledge",
+        "label": "Re-test connections",
+        "movement": "Re-test each cross-domain connection against fresh evidence, pulling back to expose weak couplings"
+      },
+      {
+        "level": "Information",
+        "label": "Re-test structure",
+        "movement": "Re-test the structured domains, surfacing assumptions that no longer hold"
+      },
+      {
+        "level": "Data",
+        "label": "Re-test domain data",
+        "movement": "Decompose down to re-test each domain's underlying data and assumptions -- the descent re-tests what the ascent earned"
+      }
+    ]
+  }
+}

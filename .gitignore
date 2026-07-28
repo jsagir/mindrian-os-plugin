@@ -50,6 +50,19 @@ lib/core/__nav-stub.cjs
 .mcp.json
 *.key
 
+# Phase 234-07: dist/ is GENERATED (scripts/build-dist-bundles.cjs) and COMMITTED,
+# matching how data/connector-registry.json -- also generated, also never
+# hand-edited -- is tracked in this repo. Never hand-edit anything under dist/.
+#
+# The ONE deliberate exception is dist/generic-claude-dir/.mcp.json, already
+# caught by the unanchored `.mcp.json` rule directly above. That is intentional,
+# not an accident of pattern ordering: no foreign host expands
+# ${CLAUDE_PLUGIN_ROOT}, so the generated variant bakes in a LITERAL absolute
+# install path resolved on whatever machine ran the generator. Committing it
+# would publish the maintainer's home directory and hand every other user a path
+# that is wrong for them. Do NOT "fix" this with a `!dist/**/.mcp.json` negation;
+# run the generator locally instead. dist/README.md says the same thing to users.
+
 # Python
 __pycache__/
 *.pyc
