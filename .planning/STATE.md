@@ -4,12 +4,12 @@ milestone: v1.16.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 235-02-PLAN.md
-last_updated: "2026-07-28T08:23:10.653Z"
-last_activity: 2026-07-28 -- Phase 235 COMPLETE (2/2): CIRS-01 + CIRS-02 + CIRS-03
+last_updated: "2026-07-28T09:01:07.125Z"
+last_activity: 2026-07-28 -- Phase 241 execution started
 progress:
   total_phases: 9
   completed_phases: 1
-  total_plans: 2
+  total_plans: 15
   completed_plans: 2
   percent: 11
 ---
@@ -1356,14 +1356,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 235 — cirs-commit-gate-seam-liveness-helper
+**Current focus:** Phase 241 — feynman-minto
 
 ## Current Position
 
-Phase: 236 (room-db-data-loss-fixes)
-Plan: Not started
-Status: Phase 235 closed (CIRS-01, CIRS-02, CIRS-03 all complete); next up is Phase 236 (room.db data-loss fixes, Wave 1's other half)
-Last activity: 2026-07-28 -- Phase 235 COMPLETE (2/2): CIRS-01 + CIRS-02 + CIRS-03
+Phase: 241 (feynman-minto) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 241
+Last activity: 2026-07-28 -- Phase 241 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
