@@ -71,9 +71,16 @@ if [ -z "$SCRIPT_SRC_DIR" ]; then
   SCRIPT_SRC_DIR="$(dirname "${BASH_SOURCE[0]}")"
 fi
 
-GUARD_SRC="$SCRIPT_SRC_DIR/hooks/pre-commit-room-minto-guard.sh"
-if [ ! -f "$GUARD_SRC" ]; then
-  echo "[install-pre-commit] Canonical hook source missing: $GUARD_SRC" >&2
+# The canonical hook source. Only the DIRECTORY is held in a variable; the
+# filename is written out literally at each use site below. That is deliberate:
+# it keeps the seam greppable, so a verifier (and tests/run-all-235.sh's CIRS-01
+# invariant leg) can confirm by inspection that this installer compares and
+# copies the SAME file scripts/setup-hooks.sh installs. It also means there is
+# no second definition of the path that could drift from the real one, which is
+# the exact failure mode Phase 235 exists to close.
+HOOKS_SRC_DIR="$SCRIPT_SRC_DIR/hooks"
+if [ ! -f "$HOOKS_SRC_DIR/pre-commit-room-minto-guard.sh" ]; then
+  echo "[install-pre-commit] Canonical hook source missing: $HOOKS_SRC_DIR/pre-commit-room-minto-guard.sh" >&2
   exit 1
 fi
 
@@ -89,18 +96,18 @@ case "$HOOK_PATH" in
 esac
 HOOKS_DIR="$(dirname "$HOOK_PATH")"
 
-if [ -f "$HOOK_PATH" ] && cmp -s "$GUARD_SRC" "$HOOK_PATH"; then
+if [ -f "$HOOK_PATH" ] && cmp -s "$HOOKS_SRC_DIR/pre-commit-room-minto-guard.sh" "$HOOK_PATH"; then
   echo "[install-pre-commit] Canonical pre-commit hook already installed at $HOOK_PATH -- no-op"
   exit 0
 fi
 
 mkdir -p "$HOOKS_DIR"
 TMPDST="${HOOK_PATH}.tmp.$$"
-cp "$GUARD_SRC" "$TMPDST"
+cp "$HOOKS_SRC_DIR/pre-commit-room-minto-guard.sh" "$TMPDST"
 chmod +x "$TMPDST"
 mv "$TMPDST" "$HOOK_PATH"  # atomic
 
 echo "[install-pre-commit] Installed canonical pre-commit hook: $HOOK_PATH"
-echo "  Source: $GUARD_SRC (same file scripts/setup-hooks.sh installs)"
+echo "  Source: $HOOKS_SRC_DIR/pre-commit-room-minto-guard.sh (same file scripts/setup-hooks.sh installs)"
 echo "To bypass for emergency commits: git commit --no-verify"
 echo "  (per Phase 108 social convention: open a canon-amendment PR within 24 hours)"
