@@ -55,6 +55,6 @@ Knowledge graph and S-curve clock are **always inline SVG**, never a CDN library
 edge stroke = relation, legend mandatory. See SPEC.md.
 
 ## Applies to
-`/mos:deck`, `MOSDeckEngine`, `/mos:dashboard`, `/mos:export`, `/mos:present`, `/mos:wiki` + publish,
+`/mos:deck`, `mos-deck-engine`, `/mos:dashboard`, `/mos:export`, `/mos:present`, `/mos:wiki` + publish,
 `/mos:snapshot`, and the generators `generate-standalone`, `generate-hub`, `generate-lobby`,
 `generate-snapshot`, `generate-deck`, `vault-export-orchestrator`. Any future HTML surface inherits this.

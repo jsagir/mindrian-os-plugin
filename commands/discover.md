@@ -172,9 +172,9 @@ Discovery uncovers the complex truth; this step translates it into plain, compel
 
 **Default output is the plain-language message:** the "explain it to a smart twelve-year-old" one-liner from the ported `question-bank.md`, sharpened, plus the value-prop ladder. Write it into the brief's **Plain-language message** section. Seed the room's per-section `FEYNMAN.md` from it via the shipped `lib/core/folder-memory.cjs` writer -- never hand-write FEYNMAN.md.
 
-**The reasoning pyramid and the deck are dispatched via the EXISTING Feynman surface, NOT a second connector (FIX 1).** The shipped generator is one-connector-per-file, so `/mos:discover` declares exactly ONE connector (the discovery flow). DISC-10 dispatches via `commandsForFramework("The Pyramid Principle")` (which returns `/mos:mos-reason` and `/mos:structure-argument`) for the reasoning pyramid, and dispatches the `MOSDeckEngine` skill for the deck. Those surfaces get their own connector frontmatter in the 144.1 sweep; DISC-10 rides them as a documented sub-step.
+**The reasoning pyramid and the deck are dispatched via the EXISTING Feynman surface, NOT a second connector (FIX 1).** The shipped generator is one-connector-per-file, so `/mos:discover` declares exactly ONE connector (the discovery flow). DISC-10 dispatches via `commandsForFramework("The Pyramid Principle")` (which returns `/mos:mos-reason` and `/mos:structure-argument`) for the reasoning pyramid, and dispatches the `mos-deck-engine` skill for the deck. Those surfaces get their own connector frontmatter in the 144.1 sweep; DISC-10 rides them as a documented sub-step.
 
-**Deck ON REQUEST only (OPEN-5):** render an F.1 gate offering "build the deck", which dispatches `MOSDeckEngine` (the canonical Feynman 6-stage engine: reduce to essence, plain language, expose confusion, build the mental model, simplify until it breaks, teach it back). Do NOT re-implement the 6-stage pipeline. Do NOT extend the connector generator parser. The plain-language message is always produced; the deck is produced only when the navigator asks.
+**Deck ON REQUEST only (OPEN-5):** render an F.1 gate offering "build the deck", which dispatches `mos-deck-engine` (the canonical Feynman 6-stage engine: reduce to essence, plain language, expose confusion, build the mental model, simplify until it breaks, teach it back). Do NOT re-implement the 6-stage pipeline. Do NOT extend the connector generator parser. The plain-language message is always produced; the deck is produced only when the navigator asks.
 
 ## Part-7 reuse map (DISC-03 summary)
 
@@ -188,7 +188,7 @@ Every movement routes to an EXISTING atom through the resolver door `commandsFor
 | 4. Users + JTBD | `/mos:analyze-needs` + `/mos:user-needs` + `/mos:jtbd` | `commandsForFramework("Jobs to Be Done (JTBD)")` |
 | 5. Competition / whitespace | `/mos:compare-ventures` + `/mos:whitespace` | `commandsForFramework(...)` on each declared framework |
 | 6. Hooked loop | (inlined, not dispatched) | rendered into the brief |
-| DISC-10 bridge | `/mos:mos-reason` + `MOSDeckEngine` | `commandsForFramework("The Pyramid Principle")` |
+| DISC-10 bridge | `/mos:mos-reason` + `mos-deck-engine` | `commandsForFramework("The Pyramid Principle")` |
 
 ## Part-8 boundary (DISC-06)
 

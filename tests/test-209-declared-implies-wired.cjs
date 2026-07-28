@@ -392,11 +392,11 @@ ok('Behavior 13 (live-tree honesty check, updated at merge time 2026-07-11/12): 
     'if this list is non-empty: either a NEW unwired declaration appeared ' +
       '(investigate before touching this assertion) or one of the 5 ' +
       'originally-tracked skills regressed. All 5 from the original tracked ' +
-      'set (MOSDeckEngine, client-discovery-interview, intelligence-orchestrator, ' +
+      'set (mos-deck-engine, client-discovery-interview, intelligence-orchestrator, ' +
       'mullins-scaffold, mva-pipeline) were resolved at merge time -- see ' +
       'their SKILL.md files (3 stamped with the firing block) and ' +
       'SKILL_RENDER_ONLY_EXCLUDED in scripts/build-render-coverage.cjs (2 ' +
-      'legitimately excluded, MOSDeckEngine and intelligence-orchestrator).'
+      'legitimately excluded, mos-deck-engine and intelligence-orchestrator).'
   );
 
   const excludedSkills = skillEntries
@@ -404,7 +404,7 @@ ok('Behavior 13 (live-tree honesty check, updated at merge time 2026-07-11/12): 
     .map((e) => e.surface)
     .sort();
   const KNOWN_EXCLUDED_SKILLS = [
-    'skills/MOSDeckEngine/SKILL.md',
+    'skills/mos-deck-engine/SKILL.md',
     'skills/intelligence-orchestrator/SKILL.md',
   ].sort();
   assert.deepStrictEqual(

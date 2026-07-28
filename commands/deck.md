@@ -49,7 +49,7 @@ You are Larry. This command is the consolidated deck command: the one governed s
 
 Deprecate, do not delete. The two prior skill handles -- MOSDeckEngine and the feynman-engine -- become aliases that route here. When a navigator arrives by either old handle, run this flow; the aliases stay live for back-compat, this is the canonical home.
 
-Reuse, do not rebuild (Canon Part 7). This command does NOT rebuild a deck renderer. It reuses the shipped MOSDeckEngine 6-stage Feynman pipeline (see skills/MOSDeckEngine/SKILL.md) and the live MindrianOS Design System (references/visual/palette.json + assets/logo.svg + templates/destijl-base.css). Render reuses scripts/generate-deck.cjs and scripts/generate-presentation.cjs rather than emitting ad-hoc HTML. The net-new here is the consolidation, the style sub-selector, the per-section build flow, and the deck-design ruleset doctrine, not a second generator.
+Reuse, do not rebuild (Canon Part 7). This command does NOT rebuild a deck renderer. It reuses the shipped mos-deck-engine 6-stage Feynman pipeline (see skills/mos-deck-engine/SKILL.md) and the live MindrianOS Design System (references/visual/palette.json + assets/logo.svg + templates/destijl-base.css). Render reuses scripts/generate-deck.cjs and scripts/generate-presentation.cjs rather than emitting ad-hoc HTML. The net-new here is the consolidation, the style sub-selector, the per-section build flow, and the deck-design ruleset doctrine, not a second generator.
 
 **Voice rules (LOCKED):**
 - Conversational, direct, no filler. No emoji anywhere. No "I'd be happy to help". No "Great question!". No sentences starting with "I".
@@ -75,7 +75,7 @@ Each selection routes to a DISTINCT named path. The route ids are the `routes_to
 
 ## The Feynman path (deterministic 6-stage pipeline)
 
-Run the deterministic 6-stage pipeline by the stage ids from `data/deck-styles.json` `feynman_stages`, IN ORDER: reduce-to-essence, translate, expose-confusion, build-mental-models, simplify-until-breaks, teach-it-back. Each stage produces a structured section. The same room yields the same section structure on repeat: the stage list is fixed data, not free prose, so the Feynman style is deterministic by construction. The stage prompts and the slide architecture live in skills/MOSDeckEngine/SKILL.md; reference them, do not duplicate them here.
+Run the deterministic 6-stage pipeline by the stage ids from `data/deck-styles.json` `feynman_stages`, IN ORDER: reduce-to-essence, translate, expose-confusion, build-mental-models, simplify-until-breaks, teach-it-back. Each stage produces a structured section. The same room yields the same section structure on repeat: the stage list is fixed data, not free prose, so the Feynman style is deterministic by construction. The stage prompts and the slide architecture live in skills/mos-deck-engine/SKILL.md; reference them, do not duplicate them here.
 
 ## The HEART path (5-section H/E/A/R/T, Brain-sourced methodology)
 

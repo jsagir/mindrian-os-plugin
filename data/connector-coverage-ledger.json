@@ -1123,16 +1123,16 @@
       "class": "utility-excluded"
     },
     {
+      "surface": "skill:mos-deck-engine",
+      "source": "skill",
+      "state": "wired",
+      "class": "mechanical"
+    },
+    {
       "surface": "skill:mos-reason",
       "source": "skill",
       "state": "wired",
       "class": "framework"
-    },
-    {
-      "surface": "skill:MOSDeckEngine",
-      "source": "skill",
-      "state": "wired",
-      "class": "mechanical"
     },
     {
       "surface": "skill:mullins",

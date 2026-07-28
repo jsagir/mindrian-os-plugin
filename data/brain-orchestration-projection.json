@@ -2677,12 +2677,6 @@
       }
     },
     {
-      "id": "skill:MOSDeckEngine",
-      "kind": "skill",
-      "methodology_tier": "mindrian-operation",
-      "name": "MOSDeckEngine"
-    },
-    {
       "id": "skill:act",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -3071,6 +3065,12 @@
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "mos"
+    },
+    {
+      "id": "skill:mos-deck-engine",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "mos-deck-engine"
     },
     {
       "id": "skill:mos-reason",

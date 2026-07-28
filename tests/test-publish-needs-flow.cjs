@@ -69,7 +69,7 @@ for (const j of (map.jobs || [])) {
   if (typeof rt === 'string' && rt.indexOf('/mos:') === 0) {
     ok('R2: resolves_to "' + rt + '" is a REAL registry command', registryCommands.has(rt));
   } else {
-    // a skill handle (e.g. MOSDeckEngine) -- must be a real skills/<handle>/ dir
+    // a skill handle (e.g. mos-deck-engine) -- must be a real skills/<handle>/ dir
     const skillDir = path.join(REPO_ROOT, 'skills', String(rt));
     ok('R2: resolves_to "' + rt + '" is a REAL skills/ directory',
       fs.existsSync(skillDir) && fs.statSync(skillDir).isDirectory());

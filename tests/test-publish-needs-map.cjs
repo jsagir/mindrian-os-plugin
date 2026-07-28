@@ -45,14 +45,14 @@ function runValidatorWithMap(mapObject) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'publish-needs-'));
   fs.mkdirSync(path.join(tmp, 'data'), { recursive: true });
   fs.mkdirSync(path.join(tmp, 'scripts'), { recursive: true });
-  fs.mkdirSync(path.join(tmp, 'skills', 'MOSDeckEngine'), { recursive: true });
+  fs.mkdirSync(path.join(tmp, 'skills', 'mos-deck-engine'), { recursive: true });
   // The script reads ../data/publish-needs.json + ../data/command-registry.json
   // + ../skills/<handle>/ relative to its own location in scripts/.
   fs.writeFileSync(path.join(tmp, 'data', 'publish-needs.json'), JSON.stringify(mapObject, null, 2));
   fs.copyFileSync(REAL_REGISTRY, path.join(tmp, 'data', 'command-registry.json'));
   fs.copyFileSync(REAL_SCRIPT, path.join(tmp, 'scripts', 'check-publish-needs.cjs'));
-  // Stub SKILL.md so the MOSDeckEngine handle resolves in the mirror.
-  fs.writeFileSync(path.join(tmp, 'skills', 'MOSDeckEngine', 'SKILL.md'), '# stub');
+  // Stub SKILL.md so the mos-deck-engine handle resolves in the mirror.
+  fs.writeFileSync(path.join(tmp, 'skills', 'mos-deck-engine', 'SKILL.md'), '# stub');
   try {
     execFileSync(process.execPath, [path.join(tmp, 'scripts', 'check-publish-needs.cjs')], {
       stdio: 'pipe',

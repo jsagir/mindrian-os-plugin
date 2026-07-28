@@ -1,5 +1,15 @@
 ---
-name: MOSDeckEngine
+# NAME/DIRECTORY (Phase 234-04, Agent Skills spec): this skill shipped as
+# `skills/MOSDeckEngine/` with `name: MOSDeckEngine` until 2026-07-28. The Agent
+# Skills spec (agentskills.io/specification) requires `name` to match
+# /^[a-z0-9]+(-[a-z0-9]+)*$/ AND to equal the parent directory, so a CamelCase
+# name made this skill vanish from a strict foreign host's catalog. Phase 234-04
+# renamed the directory to `mos-deck-engine` and the `name:` field with it. The
+# LEGACY ALIAS HANDLE `MOSDeckEngine` in data/deck-aliases.json is deliberately
+# UNCHANGED: that key is a back-compat routing handle a navigator may still type,
+# not a filesystem identifier, and retiring it would break the Phase 175
+# deprecate-not-delete contract.
+name: mos-deck-engine
 description: >
   Use ONLY when the navigator explicitly asks to build a pitch deck, investor
   presentation, or fundraising deck (or names this pipeline directly). Do NOT use
@@ -26,7 +36,7 @@ hitl_shape: "F.1"
 hitl_why: "Deprecated redirect to /mos:deck; inherits /mos:deck's F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own."
 ---
 
-# MOSDeckEngine -- DEPRECATED, consolidated into /mos:deck
+# mos-deck-engine -- DEPRECATED, consolidated into /mos:deck
 
 > **Deprecation redirect (Phase 175, deprecate-not-delete).**
 > This engine is now consolidated into the `/mos:deck` command. Invoke `/mos:deck`
@@ -49,7 +59,7 @@ hitl_why: "Deprecated redirect to /mos:deck; inherits /mos:deck's F.1 Next Move 
 
 | Was | Now |
 |-----|-----|
-| `MOSDeckEngine` skill (this file) | `/mos:deck` command, Feynman style |
+| `mos-deck-engine` skill (this file, formerly `MOSDeckEngine`) | `/mos:deck` command, Feynman style |
 | `feynman-engine` skill (out-of-repo) | `/mos:deck` command, Feynman style |
 | Standalone 6-stage Feynman pipeline | Feynman style spine inside `/mos:deck` |
 | Pitch / investor / demo-day deck | `/mos:deck` (Feynman or HEART or mesh) |

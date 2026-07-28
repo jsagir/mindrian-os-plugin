@@ -139,7 +139,7 @@
 - `brain-connector` - Brain enrichment (passive weave + proactive contradictions)
 - `mva-pipeline` - auto-fires the 30-second MVA brief on a venture sentence
 - `mullins-scaffold` - scaffolds a room around the Mullins 7 Domains
-- `MOSDeckEngine` - the in-product Feynman 6-stage deck engine (twin of the feynman-engine skill)
+- `mos-deck-engine` - the in-product Feynman 6-stage deck engine (twin of the feynman-engine skill)
 - `ui-system` - the CLI UI Ruling System (4-zone anatomy, glyphs, body shapes); the surface resolver
 
 ---

@@ -24,7 +24,7 @@ The zones/glyphs/colors below govern **terminal** output. Every **generated HTML
 - Imagery: the only sanctioned recipe is `design-system/image-prompt-style.md` (one SUBJECT swap per image, one generation at a time).
 - Defaults: **warm cream ground, never black** (`data-theme="light"`), theme-aware, blue retunes to `#6D9BFF` in dark, ink-on-green/yellow chips, **M:OS** wordmark (red colon).
 - 75% Swiss broadside / 25% De Stijl; semantic color only; flat + rectilinear; hairline `gap:1px` module grids; isometric clickables + registration-tick frames (v1.1); inline-SVG graph + clock (never a CDN); `:focus-visible` + `prefers-reduced-motion` required.
-- Applies to: `/mos:deck`, `MOSDeckEngine`, `/mos:dashboard`, `/mos:export`, `/mos:present`, `/mos:wiki` + publish, `/mos:snapshot`, and `generate-standalone/hub/lobby/snapshot/deck`, `vault-export-orchestrator`. Any future HTML surface inherits it.
+- Applies to: `/mos:deck`, `mos-deck-engine`, `/mos:dashboard`, `/mos:export`, `/mos:present`, `/mos:wiki` + publish, `/mos:snapshot`, and `generate-standalone/hub/lobby/snapshot/deck`, `vault-export-orchestrator`. Any future HTML surface inherits it.
 
 ## 1. Four-Zone Output Anatomy
 

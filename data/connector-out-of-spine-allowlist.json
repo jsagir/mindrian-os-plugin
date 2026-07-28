@@ -64,7 +64,7 @@
     "skill:client-discovery-interview": "HOW-layer substrate skill; the discovery-interview substrate consumed by /mos:discover, declares no connector.",
     "skill:intelligence-orchestrator": "HOW-layer substrate skill; the orchestrator that READS the registry to dispatch, is not itself a wired connector.",
     "skill:larry-personality": "HOW-layer substrate skill; the frozen reach + posture vocabulary source, declares no connector.",
-    "skill:MOSDeckEngine": "Output / export skill; renders plain-language deck messaging, fires no reach.",
+    "skill:mos-deck-engine": "Output / export skill; renders plain-language deck messaging, fires no reach. Renamed from skill:MOSDeckEngine in Phase 234-04 (Agent Skills spec lowercase-hyphen charset); the legacy alias handle MOSDeckEngine in data/deck-aliases.json is a routing handle, not a surface id, and stays as it was.",
     "agent:framework-runner": "Out-of-spine agent (Phase 144.1-05); the act-to-file-to-cascade filing executor, dispatched by other connectors, declares no connector of its own.",
     "agent:larry-extended": "Out-of-spine agent (Phase 144.1-05); the loop-entry turn-1 conversational agent with frozen frontmatter, mints no reach of its own."
   }

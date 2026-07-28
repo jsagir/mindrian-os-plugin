@@ -678,7 +678,7 @@
     ],
     "hitl_why": "Five ordered stages of cross-domain analogy: decompose then abstract then search then transfer then validate, each stage feeding the next."
   },
-  "skills/MOSDeckEngine/SKILL.md": {
+  "skills/mos-deck-engine/SKILL.md": {
     "hitl_shape": "F.1",
     "hitl_why": "Deprecated redirect to /mos:deck; inherits /mos:deck's F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own."
   },

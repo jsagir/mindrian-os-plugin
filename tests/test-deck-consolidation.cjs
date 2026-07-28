@@ -23,7 +23,7 @@
  *   (5) MAKE-LAND REPOINT       -- publish-needs.json has zero MOSDeckEngine
  *                                  resolves_to and >=1 make-land job -> /mos:deck.
  *   (6) ALIAS RESOLUTION        -- deck-aliases.json maps both handles -> /mos:deck;
- *                                  skills/MOSDeckEngine/SKILL.md still exists and
+ *                                  skills/mos-deck-engine/SKILL.md still exists and
  *                                  references /mos:deck (deprecate-not-delete).
  *   (7) PART 8 SWEEP            -- commands/deck.md states the Brain->local
  *                                  methodology direction and that room content
@@ -119,7 +119,7 @@ check('(3) Feynman is a fixed ordered 6-stage list (deterministic across reads)'
       'simplify-until-breaks',
       'teach-it-back'
     ],
-    'the 6 stage ids are the fixed ordered MOSDeckEngine pipeline'
+    'the 6 stage ids are the fixed ordered mos-deck-engine pipeline'
   );
 });
 
@@ -179,10 +179,10 @@ check('(6) both handles alias to /mos:deck; SKILL.md retained (deprecate-not-del
   assert.strictEqual(aliases.MOSDeckEngine, '/mos:deck', 'MOSDeckEngine -> /mos:deck');
   assert.strictEqual(aliases['feynman-engine'], '/mos:deck', 'feynman-engine -> /mos:deck');
   assert.ok(
-    fs.existsSync(p('skills/MOSDeckEngine/SKILL.md')),
-    'skills/MOSDeckEngine/SKILL.md still exists (not deleted)'
+    fs.existsSync(p('skills/mos-deck-engine/SKILL.md')),
+    'skills/mos-deck-engine/SKILL.md still exists (not deleted)'
   );
-  const skill = readText('skills/MOSDeckEngine/SKILL.md');
+  const skill = readText('skills/mos-deck-engine/SKILL.md');
   assert.ok(/\/mos:deck/.test(skill), 'the retained SKILL.md references /mos:deck');
   assert.ok(/connector:/.test(skill), 'the SKILL.md keeps its connector: block (stays WIRED)');
 });

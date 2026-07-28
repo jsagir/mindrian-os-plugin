@@ -376,7 +376,7 @@ const SKILL_RENDER_ONLY_EXCLUDED = Object.freeze({
   //     dispatches reaches; the orchestrator itself is the dispatcher, never a
   //     dispatched reach") -- its hitl_shape:"F.0" describes the gate every
   //     DISPATCHED reach passes through downstream, not a fork of its own.
-  //   - MOSDeckEngine's own hitl_why states verbatim: "Deprecated redirect to
+  //   - mos-deck-engine's own hitl_why states verbatim: "Deprecated redirect to
   //     /mos:deck; inherits /mos:deck's F.1 Next Move gate ... never introduces a
   //     separate fork of its own." A deprecated pure-redirect inheriting the
   //     referenced command's gate is exactly the Part 11 exclusion doctrine's
@@ -389,7 +389,7 @@ const SKILL_RENDER_ONLY_EXCLUDED = Object.freeze({
   // table's own original header comment anticipated) -- tracked as a follow-up, not
   // fixed in this pass (see .planning/todos/pending/).
   'skills/intelligence-orchestrator/SKILL.md': 'Ambient always-on infra. The ONE spine that READS the connector registry and dispatches reaches; the orchestrator itself is the dispatcher, never a dispatched reach, so it is excluded by construction (mirrors its own connector.excluded reason verbatim).',
-  'skills/MOSDeckEngine/SKILL.md': 'Deprecated redirect to /mos:deck; inherits /mos:deck\'s F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own (mirrors its own hitl_why verbatim).',
+  'skills/mos-deck-engine/SKILL.md': 'Deprecated redirect to /mos:deck; inherits /mos:deck\'s F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own (mirrors its own hitl_why verbatim).',
 });
 
 // ---------------------------------------------------------------------------

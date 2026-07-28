@@ -267,7 +267,7 @@ Cohesive imagery comes from a cohesive prompt recipe. The base is fixed; only SU
 - Mandate: `skills/ui-system/SKILL.md` section 0 + `skills/ui-system/rules/design-system.md`.
 - Every HTML generator (`generate-deck/hub/lobby/snapshot`, `generate-standalone`, dashboard
   + export templates) inlines the bundle and sets `data-theme="light"`.
-- Applies to `/mos:deck`, `MOSDeckEngine`, `/mos:dashboard`, `/mos:export`, `/mos:present`,
+- Applies to `/mos:deck`, `mos-deck-engine`, `/mos:dashboard`, `/mos:export`, `/mos:present`,
   `/mos:wiki` + publish, `/mos:snapshot`, and any future HTML surface.
 
 *M:OS Canonical Design System v1.1. Hard grid. Loud primaries. Quiet restraint.*

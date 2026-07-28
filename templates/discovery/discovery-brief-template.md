@@ -78,8 +78,8 @@ build. Fill it before any visual work begins.
 - Value-prop ladder: the message laddered from the single core benefit up
   through the supporting reasons-to-believe (benefit -> how -> proof).
 
-Note: the deck is produced on request only, via MOSDeckEngine. The command
-dispatches MOSDeckEngine through the resolver door; this template does not
+Note: the deck is produced on request only, via mos-deck-engine. The command
+dispatches mos-deck-engine through the resolver door; this template does not
 build the deck and does not name a slide format.
 
 ## Design implications

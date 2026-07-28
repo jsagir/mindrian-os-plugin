@@ -1387,21 +1387,6 @@
       "decision_surface": "F.1"
     },
     {
-      "surface": "skill:MOSDeckEngine",
-      "source": "skill",
-      "connects_to_spine": true,
-      "sensor_triggers": [],
-      "reach_id": "context_block",
-      "sub_mode": "deck-engine",
-      "framework": null,
-      "posture": "hold",
-      "hierarchy_rank": 14,
-      "filing": "memory_event_only",
-      "plan_gated": false,
-      "web_scope": null,
-      "decision_surface": "F.1"
-    },
-    {
       "surface": "skill:act",
       "source": "skill",
       "connects_to_spine": true,
@@ -2105,6 +2090,21 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": null
+    },
+    {
+      "surface": "skill:mos-deck-engine",
+      "source": "skill",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "deck-engine",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 14,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
     },
     {
       "surface": "skill:mos-reason",

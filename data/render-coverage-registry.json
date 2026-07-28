@@ -620,13 +620,6 @@
       "wired": true
     },
     {
-      "surface": "skills/MOSDeckEngine/SKILL.md",
-      "declared_shape": "F.1",
-      "wired": false,
-      "excluded": true,
-      "reason": "Deprecated redirect to /mos:deck; inherits /mos:deck's F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own (mirrors its own hitl_why verbatim)."
-    },
-    {
       "surface": "skills/admin/SKILL.md",
       "declared_shape": "F.1",
       "wired": true
@@ -902,6 +895,13 @@
       "surface": "skills/mos/SKILL.md",
       "declared_shape": "F.1",
       "wired": true
+    },
+    {
+      "surface": "skills/mos-deck-engine/SKILL.md",
+      "declared_shape": "F.1",
+      "wired": false,
+      "excluded": true,
+      "reason": "Deprecated redirect to /mos:deck; inherits /mos:deck's F.1 Next Move gate at the close of the Feynman pipeline stages, never introduces a separate fork of its own (mirrors its own hitl_why verbatim)."
     },
     {
       "surface": "skills/mos-reason/SKILL.md",
