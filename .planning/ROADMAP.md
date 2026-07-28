@@ -58,7 +58,11 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
   2. A concurrent reader polling the db THROUGHOUT a live rebuild never observes a partial or empty graph state -- WAL snapshot-visibility behavior proven by observation on this Node/SQLite combination, not asserted from docs (the explicit transaction/WAL implications the user asked for).
   3. A room.db held busy by another connection, and a room.db caught mid-migration, each produce a typed busy/broken result at the open surface, distinguishable from "no room db"; the seeded-lock run shows the real state and the old cold-start collapse cannot be reproduced.
   4. The `timeout:5000` write-safety option's real Node version floor is documented and `package.json` engines reflects it (GRAPHDB-03 is log-only: verified against current `node:sqlite` docs via Context7, no phase-blocking behavioral gate).
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 236-01-PLAN.md - GRAPHDB-01: ownership allowlist (INDEXER_OWNED_NODE_TYPES / INDEXER_OWNED_EDGE_TYPES) + scoped rebuild DELETE, shared phase fixture, survival test observed RED before the fix.
+- [ ] 236-02-PLAN.md - GRAPHDB-01: default runDeriveBackfill survival, crash-mid-transaction atomicity, and out-of-process WAL concurrent-reader visibility proven by observation.
+- [ ] 236-03-PLAN.md - GRAPHDB-02: behavioral probe of the real thrown-error shapes, then RoomDbBusyError / RoomDbBrokenError at the openRoomDb chokepoint, plus the openRoomDb call-site census.
+- [ ] 236-04-PLAN.md - GRAPHDB-03: engines.node floor corrected to >=22.13.0 with a nine-file lockstep sweep, plus tests/run-all-236.sh with a self-tested unscoped-DELETE regression gate.
 
 ### Phase 237: Reach Mechanism
 **Goal**: The reach loop's approval actually reaches execution: an approved chain step runs its resolved command, one authority decides what is material vs autonomous_safe, and a session's reach reflects only that session's own signals.
@@ -144,7 +148,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 0/? | Not started | - |
-| 236. room.db Data-Loss Fixes | 0/? | Not started | - |
+| 236. room.db Data-Loss Fixes | 0/4 | Planned | - |
 | 237. Reach Mechanism | 0/? | Not started | - |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
