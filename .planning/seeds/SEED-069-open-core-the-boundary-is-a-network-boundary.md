@@ -1,6 +1,8 @@
 ---
 kind: seed
-status: open
+status: scheduled-v1.15.0
+implementing_phase: 234
+promoted: 2026-07-28 (Critical Pathway scoring pass -- SCORE tier 2, CONSULT grounded via langtalks-graph-expert, REUSE-CHECK confirmed zero existing phase claims this scope. Consolidated with SEED-068 into one phase.)
 severity: high
 created: 2026-07-18
 canon_parts: [8, 10, 11]
