@@ -1,7 +1,20 @@
 ## [Unreleased] -- v1.15.3-beta.51 (in progress)
 
 ### Added
-- 
+- **The room now learns which of its two ranking signals has actually been right for you, not
+  just from a fixed prior forever (RCA hedge-fold-has-no-production-trigger).** When Larry picks
+  which of several fired reaches to surface, two signals vote: how well an idea seems to fit
+  right now, and how far up the fixed list it sits. A Phase 222 layer was supposed to learn,
+  from your own past accept/reject choices, how much to trust each of those two signals for
+  you specifically, and quietly re-weight them over time. It never once ran, on any install,
+  because nothing in the shipped code ever handed it your room's database to learn from, so it
+  sat at a permanent, correct-looking cold start. Nothing you saw was wrong: the ranking still
+  worked, it was just always computed from the same starting assumption instead of from your
+  own outcomes. There is now one deliberate command, `node scripts/hedge-refit-pipeline.cjs
+  <room>`, that runs that learning step on purpose, rather than it riding along as a side effect
+  of serving a turn. Canon Part 9: it reaches your room's database only through the one
+  existing local chokepoint, same as everything else. Canon Part 8: zero network, zero Brain,
+  nothing but your own room's past decisions.
 
 ## [1.15.3-beta.50] - 2026-07-28
 

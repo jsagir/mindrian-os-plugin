@@ -1,14 +1,15 @@
 ---
-status: gathering
+status: resolved
 kind: rca
+slug: hedge-fold-has-no-production-trigger
 trigger: "hedge-fold-has-no-production-trigger"
 issue_id: ""
 severity: medium
 surfaces: [cli, desktop, cowork]
 brain_mode: local-only
-canon_parts: [9]
+canon_parts: [7, 8, 9, 11]
 created: 2026-07-28T02:47:45Z
-updated: 2026-07-28T02:47:45Z
+updated: 2026-07-28T06:30:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -149,3 +150,17 @@ Two candidate resolutions. Pick ONE. Both are out of scope for quick task 260728
 ## Second finding recorded here (same audit, different defect)
 
 `contradiction_check` and `whitespace_scan` in `lib/mcp/tools/sensors.cjs` carry the SAME migrate-on-open defect the quick task fixed for the two pull tools: both declare `hitl_shape: 'none'`, both open through `navigation.openRoomDbForCaller`, and that door mkdirSyncs `.mindrian/`, runs 13 `CREATE TABLE IF NOT EXISTS` statements and 5 migrations on every open. They are otherwise pure reads, so the read-only door is a drop-in. The one behavior question to settle first: today they return `{ ok: false, reason: 'no_room_db' }` when the open returns null, and under the read-only door that branch would begin firing for a Tier 0 room that previously received a freshly created empty database instead. Named as a follow-up, deliberately not fixed, because the quick task was scoped to the two pull tools.
+
+## Resolution
+
+Option B, shipped by quick task 260728-8av: the Hedge weight refit moved OFF `rankFiredCandidates` entirely, onto a new explicit navigator-triggered entry point, `scripts/hedge-refit-pipeline.cjs::runHedgeRefit(roomDir, opts)`. A navigator (or a future `/mos:*` wrapper, deliberately not minted here) now reaches the fold with `node scripts/hedge-refit-pipeline.cjs <room>`.
+
+Option A (thread `ctx.roomDb` into every production `decide()` caller) was rejected: it would put a 500-row `findRecentChanges` query plus a potential write-back on the per-turn hot path for every navigator turn, the exact load profile quick task 260728-7kc had just removed from the MCP poll path. Ripping the fold out was also rejected: `maybeUpdateHedgeWeights` stays, byte-unchanged in its body, only its trigger moved.
+
+Former step (i) inside `rankFiredCandidates` (`lib/workflow/reach-hedge-ranker.cjs`) was deleted in its entirety. This is a proven no-op on every shipped surface, not a behavior change: this RCA's own Evidence item 1 already established that `ctx.roomDb` is threaded into `decide()` from exactly one place repo-wide, a test, so the deleted call site had never once fired with a live handle in production. The surrounding prose (the `rankFiredCandidates` header contract, the OPT-IN READ-ONLY MODE paragraph, the `maybeUpdateHedgeWeights` docstring, the WR-03 500-row-cap comment, and the CR-01 comment in `lib/core/navigation/ranker-weights.cjs`) was truthed up in the same commit so no comment claims a call chain that no longer exists.
+
+Two integration proofs are now on the Phase 222 gate, in `tests/test-222-fold-wired.cjs` (registered as leg 222-09 in `tests/run-all-222.sh`, plus a Part 8 sweep extension and a dedicated Part 9 chokepoint sweep for the new entry point): a production call-site census (this RCA's Test 1, with the `tests/` exclusion proven load-bearing rather than decorative) and an end-to-end refit proof through the real production path (this RCA's Test 2), plus a debounce control and a write-free-hot-path control with its own foldability check. `tests/test-222-readonly-rank.cjs` (shipped by 260728-7kc, hours before this fix) had four arms asserting the removed behavior; all four were repaired to assert the stronger claim that the ranking call folds nothing in any mode, plus one collateral repair (E1c's write-path control, which also routed through `rankFiredCandidates`) traced to the same root cause and fixed the same way.
+
+Two things stay explicitly OPEN, not quietly absorbed:
+- The Second Finding above (`contradiction_check` / `whitespace_scan` carrying the same migrate-on-open defect as the two pull tools this RCA's originating quick task fixed) is unresolved. Still a named follow-up, still out of scope here.
+- No surface yet READS `ranker_weights` to tell a navigator the outcome-learning layer has started learning. The fold can now fire, and `runHedgeRefit`'s own return value discloses `updated` / `updateCount` / `weights` at the command line, but nothing surfaces that in a dashboard, a statusline segment, or a room-state read. The layer is reachable now, not yet visible.
