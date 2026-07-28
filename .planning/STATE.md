@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 241-02-PLAN.md
-last_updated: "2026-07-28T10:18:00.919Z"
-last_activity: 2026-07-28 -- Phase 241 Plan 02 complete (stop-path vacuum retirement, debounce RCA resolved)
+stopped_at: Completed 241-03-PLAN.md
+last_updated: "2026-07-28T14:18:30.749Z"
+last_activity: 2026-07-28 -- Phase 241 Plan 03 complete (F-2 severity ladder raised to critical, both breaches reach the enqueue gate)
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 15
-  completed_plans: 4
-  percent: 27
+  completed_plans: 5
+  percent: 33
 ---
 
 # Project State
@@ -19,6 +19,18 @@ progress:
 ## SESSION OWNERSHIP LOCK (navigator directive 2026-07-28, ~11:50am)
 
 Navigator directive: this Claude Code session (transcript `ac25b9a9-4a3d-48b1-a724-095b43613edc`) is the SOLE planner+executor for v1.16.0 from this point forward. A separate concurrent session (process resumed from `4a669e7d-ee28-4726-a5aa-17eb5ff99bbe.jsonl`) was independently driving the same milestone on this same checkout with no shared awareness -- it deleted 236-03/236-04/236-VALIDATION mid-restructure (real, valuable partial improvement to 236-01 kept; the two deleted plans restored from the last known-good merged state, see commit `8631cda0`) and separately produced a caught-before-commit `gsd-tools.cjs phase.complete` corruption (see `.planning/debug/gsd-phase-complete-cross-phase-corruption.md`, workaround committed `0053a0b1`). If you are a different session or process reading this: STAND DOWN on v1.16.0 planning/execution and check with the navigator before writing to this repo's `.planning/` state files.
+
+## (2026-07-28) -- PHASE 241 Plan 03 COMPLETE (Wave 2) -- the critical-repair ladder is reachable by the breaches navigators actually hit
+
+- **Position:** v1.16.0 Phase 241 is 3/5 plans executed (241-01, 241-02, 241-03 complete; 241-04, 241-05 remain). Closes finding F-2 (MINTO-02, SC2). `ROADMAP.md`/`REQUIREMENTS.md` per-plan checkoff deferred to the phase-close pass per the critical scope boundary for this session (only this plan's own tracking lines touched here).
+- **Root cause, stated before the patch:** two independent breaches -- a missing `MINTO.md` and a missing/empty `governing_thought` -- were both classified `error`, one rung below `runSessionStart`'s enqueue gate (`result.severity === 'critical'`). Only two rare crash artifacts (a zero-byte MINTO.md, an orphan `# FEYNMINTO_TMP` marker) ever reached `critical`, so the repair ladder was unreachable for the breaches navigators actually hit.
+- **The fix: raise exactly two constants, touch nothing else.** `scripts/feynman-minto-guardian.cjs` `validateSection`'s synthetic existence-check violation for a missing `MINTO.md`: `'error'` -> `'critical'`. `lib/core/feynman-minto-invariants.cjs`'s `governing_thought` `addViolation` call: `SEVERITY.ERROR` -> `SEVERITY.CRITICAL`. The sibling `schema_version` check one line above and `lib/memory/validators/minto-invariants.cjs`'s missing-file short-circuit both stay untouched, confirmed by empty `git diff --stat`, per RESEARCH.md's R-05 resolution (two independent missing-file signals is intentional layering, not duplication to collapse).
+- **Reconciliation was narrower than expected.** Both pre-existing suites were run before any new test was written (per Task 2's mandatory read-first step). Only one assertion needed updating: `lib/memory/feynman-minto-invariants.test.cjs` Test 6 (missing `governing_thought` -> now `critical`, was `error`). The guardian suite's own "all-valid" and "pre-commit error" fixtures already included `governing_thought`, so neither flipped classification when the ladder moved -- recorded honestly as genuinely-green-on-first-run rather than assumed.
+- **Mutation-proven, not merely passing.** Two new subprocess-level guardian tests (17, 18) each seed a room fixture, run `session-start` as a real child process, and assert THREE facts against `.mindrian/minto-queue.json`: exit 0, an entry for the seeded section, and `reason === 'guardian:critical-repair'` -- proving the escalation is RECORDED (SC2 / T-241-11), not merely relabelled. One new invariants test (22) combines the `governing_thought`-critical assertion with a standing scope-creep guard: the same file missing only `schema_version` must still return `error`, so a future accidental raise of `schema_version` fails immediately. Both severity constants were hand-reverted against a scratch backup, confirmed the named tests go RED, restored, confirmed `git diff --stat` empty and both suites GREEN again.
+- **Decisions:** (a) reconciliation touched only the one genuinely-wrong assertion, not the two the plan flagged as likely, because both guardian fixtures were already correctly classified; (b) the mega-suite `run-feynman-tests.cjs` (396 files) was attempted twice and both times hung indefinitely inside a pre-existing, unrelated file (`test/84-smart-notebook-copilot.test.cjs`, a SQLite handle failure that already surfaces before the hang) -- the hanging processes were killed rather than burning session time on a file this plan does not touch; the two directly relevant suites plus the 241-02 debounce-census interaction check (5/5) are all green.
+- **Verification:** `node lib/memory/feynman-minto-guardian.test.cjs` 18/18, `node lib/memory/feynman-minto-invariants.test.cjs` 22/22, `node lib/memory/minto-debounce-consumer-census.test.cjs` 5/5 (cross-plan interaction check with 241-02), zero em-dashes in any modified file, zero net removal of `assert` calls in either test file.
+- **Commits:** `a1b396d0` (Task 1, both constants raised), `d3fad403` (Task 2, invariants Test 6 reconciled), `be0a24d6` (Task 3, both enqueue-reachability legs + mutation proofs). Full detail in `241-03-SUMMARY.md`.
+- **NEXT:** `/gsd-execute-phase 241` plan 04 (F-3: demote `runPreCommit`'s hard block to an advisory WARN with a `--strict`/`MINTO_PRECOMMIT_STRICT` opt-in, per the Phase 210 idiom, proven by a real `git commit` in both directions).
 
 ## (2026-07-28) -- PHASE 241 Plan 01 COMPLETE (Wave 3) -- the Feynman-MINTO guardian's on-stop finding reaches the navigator instead of being discarded twice over
 
@@ -1374,9 +1386,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 241 (feynman-minto) — EXECUTING
-Plan: 2 of 5 complete, dispatching Wave 2's second plan (241-03)
-Status: Executing Phase 241
-Last activity: 2026-07-28 -- Phase 241 Plan 02 complete (stop-path vacuum retirement, debounce RCA resolved)
+Plan: 3 of 5 complete, dispatching Wave 3's plan (241-04)
+Status: Ready to execute
+Last activity: 2026-07-28 -- Phase 241 Plan 03 complete (F-2 severity ladder raised to critical, both breaches reach the enqueue gate)
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
