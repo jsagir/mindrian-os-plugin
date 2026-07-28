@@ -123,6 +123,20 @@ run_if "SPEC-5 hooks/ adapter-only budget (import audit + line-count)" \
   lib/mcp/hook-adapter-audit.cjs \
   node tests/test-198-adapter-budget.test.cjs
 
+# SPEC-5 / D-05 bounded escape (mcp-first-path-retry-ceiling-hardcoded-zero,
+# 2026-07-28). The Stop-gate handler used to hardcode BOTH bounded-escape
+# counters to zero before every classifyCardFire call, so MAX_FORCE_RETRIES and
+# MAX_SESSION_INTERCEPTS were structurally unreachable on the MCP-first path: a
+# measured pre-fix run forced 36 cards against ceilings of 3 and 12. This leg
+# drives the REAL handleStopEvent through repeated force-fire loops (both the
+# stable-key per-gate case and the flapping-key session case) and counts the
+# cards actually forced, so the guarantee is proven behaviorally rather than by
+# source inspection. It matters most while MINDRIAN_MCP_FIRST is still unset:
+# the ceiling must be closed BEFORE that flag is ever switched on.
+run_if "SPEC-5 Stop-gate bounded escape reaches BOTH ceilings on the MCP-first path" \
+  lib/mcp/stop-gate-handler.cjs \
+  node tests/test-198-stop-gate-retry-ceiling.test.cjs
+
 # ---------------------------------------------------------------------------
 # SPEC-7 -- reversibility contract (flag off = byte-identical legacy).
 # ---------------------------------------------------------------------------

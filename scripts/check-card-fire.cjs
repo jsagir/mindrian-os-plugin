@@ -1506,6 +1506,30 @@ module.exports = {
   normalizeRetryEntry,
   sessionKey,
   loadRegistry,
+  // mcp-first-path-retry-ceiling-hardcoded-zero (2026-07-28): the bounded-escape
+  // accessors, exported so the SECOND enforcement path (lib/mcp/stop-gate-handler.cjs)
+  // can drive the SAME counters main() drives instead of minting a parallel one.
+  //
+  // WHY THIS EXPORT AND NOT A NEW COUNTER MODULE: these six functions ARE the store.
+  // They read and write ONE local side-file (retryFilePath(), ~/.mindrian/card-fire-
+  // retries.json) whose per-gate entries and `__session__:` entries share a TTL prune
+  // and a single write path. Re-deriving them anywhere else would create a second,
+  // divergent counting mechanism against the same file -- the exact drift the sibling
+  // RCA (card-fire-answered-gate-refires-within-ttl-window) closed for the record
+  // lifecycle and asked not to re-open for the counters. Exporting the existing
+  // functions is purely additive: no call site, signature, or behavior in this file
+  // changes, so the CLI path stays byte-identical.
+  //
+  // The frozen constitutional floor itself (MAX_FORCE_RETRIES / MAX_SESSION_INTERCEPTS)
+  // is still declared in exactly one place -- above, in this file. Consumers read the
+  // COUNTS through these accessors and the CEILINGS through classifyCardFire's verdict;
+  // neither ever re-declares a scalar.
+  readRetryCount,
+  bumpRetryCount,
+  clearRetryCount,
+  readSessionCount,
+  bumpSessionCount,
+  clearSessionCount,
 };
 
 if (require.main === module) {
