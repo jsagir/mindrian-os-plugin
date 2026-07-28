@@ -111,7 +111,14 @@ if [ -n "${MINDRIAN_MCP_FIRST:-}" ]; then
             process.stdout.write(JSON.stringify(out) + '\n');
           } else {
             const sections = (r && r.business && typeof r.business.sections === 'number') ? r.business.sections : null;
-            const msg = (sections !== null) ? ('session synced via mindrian-core, ' + sections + ' sections scanned') : 'session synced via mindrian-core';
+            let msg = (sections !== null) ? ('session synced via mindrian-core, ' + sections + ' sections scanned') : 'session synced via mindrian-core';
+            // Phase 241-05 (F-1, MINTO-01 Tri-Polar parity): fold the shared
+            // mindrian-core Stop path's guardian finding in, same
+            // space-pipe-space separator the legacy path below uses, so a
+            // CLI session running under MINDRIAN_MCP_FIRST reads identically
+            // to the default legacy path.
+            const guardianSm = (r && r.business && typeof r.business.guardian_sm === 'string' && r.business.guardian_sm.length > 0) ? r.business.guardian_sm : null;
+            if (guardianSm) { msg = msg + ' | ' + guardianSm; }
             process.stdout.write(JSON.stringify({ continue: true, systemMessage: msg }) + '\n');
           }
         } catch (_e) {
