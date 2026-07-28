@@ -89,12 +89,31 @@ const CONNECTOR_REGISTRY_PATH = path.join(REPO_ROOT, 'data', 'connector-registry
 // symlink back to the real repo so require('zod') (chain.cjs's one real npm
 // dependency) resolves from a directory that is not a descendant of REPO_ROOT.
 // ---------------------------------------------------------------------------
+// Resolve the REAL node_modules directory that actually satisfies chain.cjs's
+// one npm dependency ('zod'). This worktree carries no node_modules of its
+// own -- Node's resolution walks up past REPO_ROOT to a node_modules living
+// in an ancestor directory (the main repo checkout this worktree branches
+// from). A tmp dir under os.tmpdir() is not a descendant of that ancestor
+// chain, so require('zod') would otherwise fail from any tmp copy; symlink
+// straight to wherever 'zod' ACTUALLY resolves from, not to REPO_ROOT's own
+// (possibly nonexistent) node_modules.
+function _resolveNodeModulesDir() {
+  try {
+    const zodEntry = require.resolve('zod'); // e.g. .../node_modules/zod/index.cjs
+    const zodPkgDir = path.dirname(zodEntry); // .../node_modules/zod
+    return path.dirname(zodPkgDir); // .../node_modules
+  } catch (_e) {
+    return path.join(REPO_ROOT, 'node_modules'); // best-effort fallback
+  }
+}
+const REAL_NODE_MODULES_DIR = _resolveNodeModulesDir();
+
 const TMPDIRS = [];
 function mkTmp(prefix) {
   const d = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
   TMPDIRS.push(d);
   try {
-    fs.symlinkSync(path.join(REPO_ROOT, 'node_modules'), path.join(d, 'node_modules'), 'dir');
+    fs.symlinkSync(REAL_NODE_MODULES_DIR, path.join(d, 'node_modules'), 'dir');
   } catch (_e) {
     // best effort; a module under test with no npm deps still works without it.
   }
@@ -171,10 +190,14 @@ function buildMutatedChainCjs(tmp) {
     '// MUTATION (test-237-autonomy-parity Leg 5): a second classification',
     '// path, re-pointed at connector-registry posture -- the exact defect',
     '// this gate exists to catch on reintroduction. Never present in the',
-    '// real repo file; only in this generated tmp copy.',
+    '// real repo file; only in this generated tmp copy. Self-contained (its',
+    "// own require('node:fs')) so it does not depend on chain.cjs's own",
+    '// top-level requires, which this very fix (Task 2) may prune as dead',
+    '// code once the private classifier that used them is deleted.',
     'function __mutationConnectorPosture(command) {',
     '  try {',
-    "    const raw = fs.readFileSync(" + connectorRegistryAbs + ", 'utf8');",
+    "    const __mutFs = require('node:fs');",
+    "    const raw = __mutFs.readFileSync(" + connectorRegistryAbs + ", 'utf8');",
     '    const parsed = JSON.parse(raw);',
     '    const conns = Array.isArray(parsed && parsed.connectors) ? parsed.connectors : [];',
     '    for (const c of conns) {',
