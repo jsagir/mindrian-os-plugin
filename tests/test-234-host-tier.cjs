@@ -239,5 +239,272 @@ check("MINDRIAN_MCP_FIRST=cli + claude-code on DESKTOP -> OFF (flag is per-surfa
   check('isWritePathEnabled(malformed #' + i + ') never throws and never enables', !threw && out === false);
 });
 
-process.stdout.write('\n  ' + passed + ' passed, ' + failed + ' failed\n');
-process.exit(failed === 0 ? 0 : 1);
+// ---------------------------------------------------------------------------
+// PART B -- the live proof. Everything above is a unit call against a pure
+// function. This part spawns the REAL server and speaks real JSON-RPC to it,
+// because the claim being made is about what a FOREIGN HOST receives on the
+// wire, and only the wire can settle that. Two things are proved that a unit
+// test structurally cannot:
+//
+//   1. The write tools are in tools/list even when the write path is refused
+//      for this caller. That is the actual repair to Gap D: before it, a
+//      Cursor-side model could not see graph_write at all, so it had nothing
+//      to ask for and no error to report. Discovery and permission are now
+//      separate concerns.
+//   2. A refused call REFUSES OUT LOUD. It returns
+//      {ok:false, reason:'write_path_disabled', hint:...}, never a silent
+//      no-op and never a fabricated success (T-234-09).
+//
+// The only variable across the two runs is clientInfo.name.
+// ---------------------------------------------------------------------------
+
+const fs = require('node:fs');
+const os = require('node:os');
+const cp = require('node:child_process');
+const roomDb = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
+
+const SERVER = path.join(REPO_ROOT, 'bin', 'mindrian-mcp-server.cjs');
+const TIMEOUT_MS = 20000;
+
+/**
+ * Drive a full handshake plus a scripted request sequence against a real
+ * server process, under a hermetic HOME with a real (empty but schema-valid)
+ * room.db so a permitted graph_write reaches the genuine navigation.cjs write
+ * path rather than bailing out on a missing store.
+ *
+ * MINDRIAN_MCP_FIRST is explicitly DELETED from the child env: the whole point
+ * is what happens on a host that has never heard of the flag.
+ *
+ * @param {string} clientName - the clientInfo.name to present as
+ * @param {string|undefined} mcpFirst - when set, MINDRIAN_MCP_FIRST is exported
+ *   into the child instead of deleted (the existing-user regression case)
+ * @returns {Promise<{ok: boolean, reason?: string, responses?: object}>}
+ */
+function driveServer(clientName, mcpFirst) {
+  return new Promise((resolve) => {
+    const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-234-hosttier-'));
+    const room = path.join(tmpHome, 'room');
+    fs.mkdirSync(room, { recursive: true });
+    // Create .mindrian/room.db + schema so the write path is genuinely
+    // reachable. Without this, a permitted write would return no_room_db and
+    // the test could not tell "allowed" from "allowed but nowhere to write".
+    try {
+      const boot = roomDb.openRoomDb(room);
+      roomDb.closeRoomDb(boot);
+    } catch (_e) {
+      // Fall through: the drive still runs, and the assertions below treat
+      // no_room_db as a distinct outcome from write_path_disabled.
+    }
+
+    const env = Object.assign({}, process.env, {
+      HOME: tmpHome,
+      MINDRIAN_TRANSPORT: 'stdio',
+      MINDRIAN_ROOM: room,
+      MINDRIAN_ROOMS_HOME: path.join(tmpHome, 'MindrianRooms'),
+      CLAUDE_ACTIVE_ROOM: room,
+    });
+    delete env.MINDRIAN_MCP_FIRST;
+    delete env.MINDRIAN_BRAIN_KEY;
+    if (typeof mcpFirst === 'string') env.MINDRIAN_MCP_FIRST = mcpFirst;
+
+    const proc = cp.spawn('node', [SERVER], {
+      cwd: tmpHome,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env,
+    });
+
+    const responses = {};
+    let stdoutBuf = '';
+    let stderrBuf = '';
+    let settled = false;
+
+    function finish(payload) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try { proc.kill('SIGKILL'); } catch (_e) { /* already gone */ }
+      try { fs.rmSync(tmpHome, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      resolve(payload);
+    }
+
+    const timer = setTimeout(() => {
+      finish({ ok: false, reason: 'timeout', responses: responses, stderr: stderrBuf.slice(-800) });
+    }, TIMEOUT_MS);
+
+    function send(obj) {
+      try { proc.stdin.write(JSON.stringify(obj) + '\n'); } catch (_e) { /* the exit handler reports */ }
+    }
+
+    proc.stdout.on('data', (chunk) => {
+      stdoutBuf += chunk.toString('utf8');
+      let nl;
+      while ((nl = stdoutBuf.indexOf('\n')) !== -1) {
+        const line = stdoutBuf.slice(0, nl).trim();
+        stdoutBuf = stdoutBuf.slice(nl + 1);
+        if (!line) continue;
+        let obj;
+        try { obj = JSON.parse(line); } catch (_e) { continue; }
+        if (!obj || obj.id === undefined || obj.id === null) continue;
+        responses[obj.id] = obj;
+
+        if (obj.id === 1) {
+          // initialize answered -> complete the handshake, then ask for the
+          // catalog. getClientVersion() is populated from here on.
+          send({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} });
+          send({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} });
+        } else if (obj.id === 2) {
+          send({
+            jsonrpc: '2.0', id: 3, method: 'tools/call',
+            params: {
+              name: 'graph_write',
+              arguments: {
+                source_id: 'node:host-tier-a',
+                target_id: 'node:host-tier-b',
+                edge_type: 'INFORMS',
+                properties: { note: 'phase 234-05 live host-tier drive' },
+              },
+            },
+          });
+        } else if (obj.id === 3) {
+          send({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'status_read', arguments: {} } });
+        } else if (obj.id === 4) {
+          finish({ ok: true, responses: responses });
+        }
+      }
+    });
+
+    proc.stderr.on('data', (c) => { stderrBuf += c.toString('utf8'); });
+    proc.on('error', (err) => finish({ ok: false, reason: 'spawn_error', message: err.message }));
+    proc.on('exit', (code) => finish({
+      ok: false, reason: 'exited_before_completion', code, responses: responses, stderr: stderrBuf.slice(-800),
+    }));
+
+    send({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'initialize',
+      params: {
+        protocolVersion: '2024-11-05',
+        capabilities: {},
+        clientInfo: { name: clientName, version: '1.0.0' },
+      },
+    });
+  });
+}
+
+/** Parse a tools/call result's JSON text payload. */
+function toolPayload(response) {
+  try {
+    const content = response && response.result && response.result.content;
+    if (!Array.isArray(content) || !content.length) return null;
+    return JSON.parse(content[0].text);
+  } catch (_e) {
+    return null;
+  }
+}
+
+function toolNames(response) {
+  const tools = response && response.result && response.result.tools;
+  return Array.isArray(tools) ? tools.map((t) => t.name) : [];
+}
+
+(async function livePart() {
+  process.stdout.write('\n-- B: live JSON-RPC drive against the real server (no MINDRIAN_MCP_FIRST) --\n');
+
+  // A Cursor-like identity. Recognized, tier0, not Claude Code -> permitted.
+  const foreign = await driveServer('test-cursor-sim');
+  // Claude Code's own identity. Legacy default -> refused, out loud.
+  const claude = await driveServer('claude-code');
+
+  [['foreign host (test-cursor-sim)', foreign], ['claude-code', claude]].forEach(([label, run]) => {
+    check('the ' + label + ' drive completed the full handshake + 3 calls' +
+      (run.ok ? '' : ' [' + run.reason + ' ' + (run.stderr || run.message || '') + ']'), run.ok === true);
+  });
+
+  if (!foreign.ok || !claude.ok) {
+    process.stdout.write('\n  ' + passed + ' passed, ' + failed + ' failed\n');
+    process.exit(1);
+    return;
+  }
+
+  // B1. DISCOVERY is unconditional. This is the assertion that would have
+  // failed before this plan, on both runs.
+  const foreignTools = toolNames(foreign.responses[2]);
+  const claudeTools = toolNames(claude.responses[2]);
+  check('tools/list is non-empty on the foreign-host drive (the catalog really was read)', foreignTools.length > 0);
+  ['graph_write', 'memory_event', 'artifact_file'].forEach((name) => {
+    check('tools/list includes ' + name + ' on a FOREIGN host with the flag unset', foreignTools.indexOf(name) !== -1);
+    check('tools/list includes ' + name + ' on CLAUDE CODE with the flag unset (visible even where refused)',
+      claudeTools.indexOf(name) !== -1);
+  });
+  check('the catalog is identical across the two host identities (host changes permission, not discovery)',
+    JSON.stringify(foreignTools.slice().sort()) === JSON.stringify(claudeTools.slice().sort()));
+
+  // B2. PERMISSION follows the host. The foreign host reaches the real write
+  // path; no_room_db would mean the gate passed but the store was missing, so
+  // it is called out separately rather than being quietly accepted.
+  const foreignWrite = toolPayload(foreign.responses[3]);
+  check('foreign-host graph_write returned a parseable payload', foreignWrite !== null);
+  check('foreign-host graph_write was NOT refused by the write gate (Gap D closed)',
+    foreignWrite && foreignWrite.reason !== 'write_path_disabled');
+  check('foreign-host graph_write reached the REAL write path and succeeded' +
+    (foreignWrite && !foreignWrite.ok ? ' [got reason: ' + foreignWrite.reason + ']' : ''),
+    foreignWrite && foreignWrite.ok === true);
+
+  // B3. The refusal is honest, specific, and actionable. Never a silent no-op.
+  const claudeWrite = toolPayload(claude.responses[3]);
+  check('claude-code graph_write returned a parseable payload', claudeWrite !== null);
+  check('claude-code graph_write is refused (legacy default preserved)',
+    claudeWrite && claudeWrite.ok === false);
+  check("claude-code graph_write refusal names the reason 'write_path_disabled'",
+    claudeWrite && claudeWrite.reason === 'write_path_disabled');
+  check('claude-code graph_write refusal carries an actionable hint (not a silent skip)',
+    claudeWrite && typeof claudeWrite.hint === 'string' && claudeWrite.hint.length > 0);
+  check('claude-code graph_write refusal is flagged isError on the wire',
+    claude.responses[3] && claude.responses[3].result && claude.responses[3].result.isError === true);
+
+  // B4. status_read states the floor honestly, on both axes, live (D-05).
+  const foreignStatus = toolPayload(foreign.responses[4]);
+  const claudeStatus = toolPayload(claude.responses[4]);
+  check('status_read returned segments on the foreign-host drive',
+    foreignStatus && foreignStatus.segments && typeof foreignStatus.segments === 'object');
+  const ff = foreignStatus && foreignStatus.segments && foreignStatus.segments.capability_floor;
+  const cf = claudeStatus && claudeStatus.segments && claudeStatus.segments.capability_floor;
+  check('status_read carries a capability_floor segment', !!ff && typeof ff === 'object');
+  check('capability_floor states the surface axis', !!ff && Object.prototype.hasOwnProperty.call(ff, 'surface'));
+  check('capability_floor states the host_tier axis', !!ff && !!ff.host_tier && typeof ff.host_tier === 'object');
+  check('capability_floor states write_path_enabled',
+    !!ff && Object.prototype.hasOwnProperty.call(ff, 'write_path_enabled'));
+  check('capability_floor on the foreign host reports write_path_enabled true (matches what graph_write did)',
+    !!ff && ff.write_path_enabled === true);
+  check('capability_floor on claude-code reports write_path_enabled false (matches its refusal)',
+    !!cf && cf.write_path_enabled === false);
+  check("capability_floor identifies claude-code as tier1", !!cf && cf.host_tier.hostTier === 'tier1');
+  check("capability_floor identifies the Cursor-like client as tier0 (recognized, no hook channel)",
+    !!ff && ff.host_tier.hostTier === 'tier0' && ff.host_tier.host === 'cursor');
+
+  // B5. THE REGRESSION CHECK, proved on the wire rather than argued. An
+  // existing user who set MINDRIAN_MCP_FIRST by hand must see exactly what
+  // they saw before this plan: the write path open on Claude Code, the host
+  // axis unable to override their explicit instruction.
+  process.stdout.write('\n-- B5: explicit MINDRIAN_MCP_FIRST still wins over host-tier detection --\n');
+  const claudeFlagged = await driveServer('claude-code', 'all');
+  check('the flag-ON claude-code drive completed' +
+    (claudeFlagged.ok ? '' : ' [' + claudeFlagged.reason + ' ' + (claudeFlagged.stderr || '') + ']'),
+    claudeFlagged.ok === true);
+  if (claudeFlagged.ok) {
+    const flaggedWrite = toolPayload(claudeFlagged.responses[3]);
+    check('MINDRIAN_MCP_FIRST=all + claude-code: graph_write is NOT refused (no regression for existing users)',
+      flaggedWrite && flaggedWrite.reason !== 'write_path_disabled');
+    check('MINDRIAN_MCP_FIRST=all + claude-code: graph_write reaches the real write path and succeeds' +
+      (flaggedWrite && !flaggedWrite.ok ? ' [got reason: ' + flaggedWrite.reason + ']' : ''),
+      flaggedWrite && flaggedWrite.ok === true);
+    const flaggedStatus = toolPayload(claudeFlagged.responses[4]);
+    const xf = flaggedStatus && flaggedStatus.segments && flaggedStatus.segments.capability_floor;
+    check('capability_floor reports write_path_enabled true under the explicit flag, on a tier1 host',
+      !!xf && xf.write_path_enabled === true && xf.host_tier.hostTier === 'tier1');
+  }
+
+  process.stdout.write('\n  ' + passed + ' passed, ' + failed + ' failed\n');
+  process.exit(failed === 0 ? 0 : 1);
+})();

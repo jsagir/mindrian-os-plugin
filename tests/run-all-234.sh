@@ -142,6 +142,11 @@ PART8_TARGETS=(
   "lib/mcp/tools/graph.cjs"
   "lib/mcp/tools/chain.cjs"
   "lib/mcp/tools/views.cjs"
+  # Plan 05 (D-05 two-axis capability floor). Both are pure process.env-only
+  # chokepoints by their own file headers and hold zero network client, so they
+  # belong under the same permanent tripwire as the surfaces they now gate.
+  "lib/mcp/surface-detect.cjs"
+  "lib/mcp/mcp-first-flag.cjs"
 )
 # Same pattern the phase-233 gate was certified with. `brain` stays
 # CASE-SENSITIVE and lowercase: that is deliberate, not an oversight. It catches

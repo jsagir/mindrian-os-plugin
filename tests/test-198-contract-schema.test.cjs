@@ -103,9 +103,27 @@ const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'psb198-contract-'));
 const fallbackRoom = path.join(tmpHome, 'fallback-room');
 fs.mkdirSync(fallbackRoom, { recursive: true });
 
-// --- (3) flag-OFF: read-only tools register; write tools do not. No
+// --- (3) flag-OFF: EVERY tool registers, including the three write tools. No
 // duplicate-name crash (the fake server throws on a repeat name, exactly like
-// the real MCP SDK's McpServer.tool()). ---
+// the real MCP SDK's McpServer.tool()).
+//
+// CONTRACT CHANGE, Phase 234-05 (D-05): this section used to assert the
+// OPPOSITE for graph_write / memory_event / artifact_file -- that they did NOT
+// register when the flag was off (the D-07 registration gate). That gate was
+// the mechanism behind RESEARCH.md's Gap D: on a foreign MCP host the flag
+// defaults off, so those three tools were absent from tools/list entirely and
+// the model could not even see that a write path existed to ask for.
+//
+// It could not be repaired in place, either: host identity is only knowable
+// after the initialize handshake (getClientVersion), while registration runs
+// once inside createServer() before any client connects.
+//
+// So DISCOVERY and PERMISSION were split. Registration is now unconditional,
+// and each write handler evaluates isWritePathEnabled({surface, clientVersion})
+// per call, returning an honest {ok:false, reason:'write_path_disabled'} when
+// refused. The per-call half is proved in tests/test-234-host-tier.cjs,
+// including over a real stdio handshake. What this file now locks is the other
+// half: the tools are always in the catalog. ---
 const previousFlag = process.env.MINDRIAN_MCP_FIRST;
 delete process.env.MINDRIAN_MCP_FIRST;
 
@@ -118,8 +136,8 @@ check('room_list registers (flag off, read-only)', namesOff.includes('room_list'
 check('room_state_bound registers (flag off, read-only)', namesOff.includes('room_state_bound'));
 check('room_search registers (flag off, read-only)', namesOff.includes('room_search'));
 check('graph_query registers (flag off, read-only)', namesOff.includes('graph_query'));
-check('graph_write does NOT register (flag off -- D-07 registration gate)', !namesOff.includes('graph_write'));
-check('memory_event does NOT register (flag off -- D-07 registration gate)', !namesOff.includes('memory_event'));
+check('graph_write ALWAYS registers, flag off included (234-05: discovery is not permission)', namesOff.includes('graph_write'));
+check('memory_event ALWAYS registers, flag off included (234-05: discovery is not permission)', namesOff.includes('memory_event'));
 check('gate_render registers (flag off, read-only HITL surface)', namesOff.includes('gate_render'));
 check('gate_answer registers (flag off, read-only HITL surface)', namesOff.includes('gate_answer'));
 check('suggest_next registers (flag off, read-only)', namesOff.includes('suggest_next'));
@@ -129,11 +147,14 @@ check('whitespace_scan registers (flag off, read-only)', namesOff.includes('whit
 check('framework_run registers (flag off, read-only resolve + gate)', namesOff.includes('framework_run'));
 check('view_compile registers (flag off, read-only)', namesOff.includes('view_compile'));
 check('status_read registers (flag off, read-only)', namesOff.includes('status_read'));
-check('artifact_file does NOT register (flag off -- D-07 registration gate)', !namesOff.includes('artifact_file'));
+check('artifact_file ALWAYS registers, flag off included (234-05: discovery is not permission)', namesOff.includes('artifact_file'));
 check('no duplicate tool names (flag off)', new Set(namesOff).size === namesOff.length);
 
-// --- (4) flag-ON (this surface): graph_write / memory_event / artifact_file
-// ALSO register, with zero name collisions. ---
+// --- (4) flag-ON (this surface): the SAME catalog, with zero name collisions.
+// Flipping MINDRIAN_MCP_FIRST no longer changes WHICH tools exist (234-05);
+// it changes whether a write CALL is permitted. Locking catalog equality here
+// is what stops a future change from quietly reintroducing a registration-time
+// gate. ---
 process.env.MINDRIAN_MCP_FIRST = 'all';
 const serverOn = makeFakeServer();
 registerCoreTools(serverOn, { fallbackRoomDir: fallbackRoom, pluginRoot: path.resolve(__dirname, '..'), surface: 'cli' });
@@ -143,6 +164,8 @@ check('graph_write registers (flag on)', namesOn.includes('graph_write'));
 check('memory_event registers (flag on)', namesOn.includes('memory_event'));
 check('artifact_file registers (flag on)', namesOn.includes('artifact_file'));
 check('no duplicate tool names (flag on)', new Set(namesOn).size === namesOn.length);
+check('the tool catalog is IDENTICAL flag-on vs flag-off (234-05: the flag gates calls, not registration)',
+  JSON.stringify(namesOff.slice().sort()) === JSON.stringify(namesOn.slice().sort()));
 
 if (typeof previousFlag === 'string') process.env.MINDRIAN_MCP_FIRST = previousFlag;
 else delete process.env.MINDRIAN_MCP_FIRST;
