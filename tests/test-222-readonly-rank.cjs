@@ -22,11 +22,21 @@
  * real handler invocations, plus a control arm proving the same fixture DOES
  * change on disk through the write path.
  *
+ * UPDATED by quick task 260728-8av (RCA hedge-fold-has-no-production-trigger):
+ * the Hedge weight refit moved OFF rankFiredCandidates entirely, onto the
+ * explicit navigator-triggered scripts/hedge-refit-pipeline.cjs. The ranking
+ * call no longer folds in ANY mode, readOnly or not, so leg A below no longer
+ * pins a fold parity; it now pins the degrade write plus the write-free hot
+ * path (see tests/test-222-fold-wired.cjs for the new entry point's own
+ * production-trigger and end-to-end proofs).
+ *
  * Leg map:
  *   A. DEFAULT-OFF PARITY  -- readOnly absent leaves the CLI path byte-identical:
- *                             the fold still folds, the degrade still writes a
- *                             memory_event. (The opt-in seam mirrors Phase
- *                             233-03's skipRebuild precedent: default OFF.)
+ *                             the ranking call folds NOTHING in either mode
+ *                             (quick 260728-8av moved the fold out), the degrade
+ *                             still writes a memory_event. (The opt-in seam
+ *                             mirrors Phase 233-03's skipRebuild precedent:
+ *                             default OFF.)
  *   B. NO FOLD UNDER readOnly -- proven twice: against a REAL room.db (no weight
  *                             state is written) and against a stubbed navigation
  *                             module recording every call (the fold's queries
@@ -224,15 +234,26 @@ async function main() {
   // A. DEFAULT-OFF PARITY -- the CLI path is byte-unchanged.
   // =========================================================================
 
-  await check('A1 DEFAULT-OFF: readOnly absent still folds the Hedge weights (the CLI path is untouched)', () => {
+  await check('A1 DEFAULT-OFF: readOnly absent folds NOTHING now (quick 260728-8av moved the fold off this call)', () => {
     const db = newRoomDb('ro-parity-fold-');
     seedFoldableRoom(db);
     const out = ranker.rankFiredCandidates(firedPair(), { db: db });
     assert.ok(Array.isArray(out) && out.length === 2, 'the ranking must still return both candidates');
+    assert.strictEqual(navigation.readHedgeWeightState(db), null,
+      'RE-FUSED FOLD RISK: rankFiredCandidates persisted a Hedge weight state; the fold must live only in ' +
+      'scripts/hedge-refit-pipeline.cjs after quick task 260728-8av, never fire-and-forget inside the ranking call.');
+    // CONTROL: the SAME db, through the shipped fold directly, DOES persist a
+    // weight state. This proves the fixture was genuinely foldable and the
+    // ranking call declined to fold it, rather than the room having nothing to
+    // fold in the first place.
+    const controlOut = ranker.maybeUpdateHedgeWeights(db, {});
+    assert.ok(controlOut && controlOut.updated === true,
+      'VACUOUS-GREEN RISK: the control fold did not fold, so this arm proves nothing about the fixture; got ' +
+      JSON.stringify(controlOut));
     const state = navigation.readHedgeWeightState(db);
-    assert.ok(state, 'DEFAULT-OFF REGRESSION: the fold must still persist a weight state when readOnly is absent');
+    assert.ok(state, 'the control fold must persist a weight state on the same db');
     assert.strictEqual(state.updateCount, 1,
-      'DEFAULT-OFF REGRESSION: updateCount must advance to 1, got ' + (state && state.updateCount));
+      'the control fold must advance updateCount to 1, got ' + (state && state.updateCount));
   });
 
   await check('A2 DEFAULT-OFF: readOnly absent still writes the Req 7 degrade memory_event', () => {
@@ -249,9 +270,11 @@ async function main() {
     const db = newRoomDb('ro-parity-false-');
     seedFoldableRoom(db);
     ranker.rankFiredCandidates(firedPair(), { db: db, readOnly: false });
-    const state = navigation.readHedgeWeightState(db);
-    assert.ok(state && state.updateCount === 1,
-      'readOnly:false must fold exactly like readOnly absent; got ' + JSON.stringify(state));
+    // readOnly:false must behave exactly like readOnly absent, which after
+    // quick task 260728-8av means it too folds nothing: there is no fold left
+    // inside rankFiredCandidates in any mode for this arm to gate.
+    assert.strictEqual(navigation.readHedgeWeightState(db), null,
+      'readOnly:false must fold exactly like readOnly absent (nothing), got a persisted weight state');
   });
 
   // =========================================================================
@@ -259,11 +282,14 @@ async function main() {
   // =========================================================================
 
   await check('B1 READ-ONLY (real db): a foldable room gains NO weight state, while the control fold does', () => {
-    // Control arm first: the SAME fixture without readOnly DOES write. This is
-    // what makes the read-only arm load-bearing rather than vacuous.
+    // Control arm first: the SAME fixture, folded directly through the shipped
+    // fold (quick 260728-8av moved the trigger out of rankFiredCandidates, so
+    // the control can no longer go through the ranking call and still prove
+    // the fixture is foldable; it must call the fold itself). This is what
+    // makes the read-only arm load-bearing rather than vacuous.
     const controlDb = newRoomDb('ro-nofold-control-');
     seedFoldableRoom(controlDb);
-    ranker.rankFiredCandidates(firedPair(), { db: controlDb });
+    ranker.maybeUpdateHedgeWeights(controlDb, {});
     assert.ok(navigation.readHedgeWeightState(controlDb),
       'VACUOUS-GREEN RISK: the control arm did not fold, so the read-only arm proves nothing');
 
@@ -303,10 +329,12 @@ async function main() {
       assert.strictEqual(calls.filter((c) => c.fn === 'findRecentChanges' && c.opts.limit === 500).length, 0,
         'FOLD LEAK: maybeUpdateHedgeWeights issued its 500-row training query under readOnly:true');
 
-      // Control: the same call WITHOUT readOnly does issue the fold query, so the
-      // assertion above is measuring something real.
+      // Control: the shipped fold called directly (quick 260728-8av moved the
+      // trigger out of rankFiredCandidates, so the control can no longer route
+      // through the ranking call) DOES issue the 500-row query under the same
+      // stubs, so the assertion above is measuring something real.
       calls.length = 0;
-      ranker.rankFiredCandidates(firedPair(), { db: fakeDb });
+      ranker.maybeUpdateHedgeWeights(fakeDb, {});
       assert.ok(calls.filter((c) => c.fn === 'findRecentChanges' && c.opts.limit === 500).length >= 1,
         'VACUOUS-GREEN RISK: the control arm never issued the fold query either');
     } finally {
@@ -466,14 +494,22 @@ async function main() {
       'WRITE LEAK: room.db itself changed, which no sidecar explanation can cover');
   });
 
-  await check('E1c CONTROL: the SAME fixture DOES change on disk through the write path (the gate is real)', () => {
+  await check('E1c CONTROL: the SAME fixture DOES change on disk through a real write path (the gate is real)', () => {
+    // UPDATED by quick task 260728-8av: rankFiredCandidates no longer writes
+    // in ANY mode (the fold moved to scripts/hedge-refit-pipeline.cjs), so it
+    // can no longer serve as this control's "write path". The remaining real
+    // write path is the shipped fold itself, called directly. This still
+    // proves what the control exists to prove: SOME path through this room
+    // architecture produces a real on-disk change, so E1/E2/E3/E4 finding no
+    // change via dispatchCandidateReaches is a meaningful result, not a
+    // fixture that could never change either way.
     const dir = newRoomDir('ro-nowrite-control-');
     withProbeDb(dir, seedFoldableRoom);
 
     const before = snapshotMindrian(dir);
     const writeDb = navigation.openRoomDbForCaller(dir);
     try {
-      ranker.rankFiredCandidates(firedPair(), { roomDir: dir, db: writeDb });
+      ranker.maybeUpdateHedgeWeights(writeDb, {});
     } finally {
       if (writeDb) navigation.closeRoomDbForCaller(writeDb);
     }
