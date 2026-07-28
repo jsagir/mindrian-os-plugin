@@ -170,6 +170,19 @@ None. The point of the change is that no user setup is required any more on a re
 1. **STATE.md and ROADMAP.md were NOT updated by this plan, deliberately.** A concurrent session rewrote both to open the v1.16.0 "Infrastructure Remediation" milestone (phases 235-243) and register the v1.17.0 "MCP-First" slot. `ROADMAP.md` no longer carries a Phase 234 row (the v1.15.0 roadmap was archived), so `roadmap update-plan-progress 234` has nothing to update, and running `state advance-plan` would have corrupted the milestone position that session just set. Committing either file would have swept that session's in-flight work into this plan's commit, which the execution brief explicitly forbids. This SUMMARY is the authoritative record of 234-05.
 2. **The read half of this gap is still open, and is already routed.** `isWritePathEnabled` fixed the WRITE path's precedence ladder. The READ path still has the original problem: `room_bind`'s session-scoped binding is invisible to every MCP read tool unless `MINDRIAN_MCP_FIRST` covers the calling surface, across eight independent copies of the same gate-then-fallthrough resolver. The concurrent roadmap session has already carried that to the v1.17.0 MCP-First milestone and explicitly points it at the precedence ladder shipped here (`.planning/debug/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md`). Nothing to do in this phase; do not let it get re-discovered as new.
 
+## Self-Check: PASSED
+
+Every claim above was re-verified against disk and git after the SUMMARY was written.
+
+- All 10 named files exist on disk (1 created, 9 modified).
+- All 4 commit hashes resolve in `git log`.
+- Live export check: `surface-detect.cjs` exports `detectSurface, CAPABILITY_MAP, detectHostTier, HOST_TIER_MAP`; `mcp-first-flag.cjs` exports `isMcpFirst, mcpFirstSurfaces, isWritePathEnabled`.
+- `node tests/test-234-host-tier.cjs` -> 90 passed, 0 failed.
+- `bash tests/run-all-234.sh` -> PASS=8 FAIL=0 SKIP=0 (includes the Part 8 sweep with the two new targets).
+- `bash tests/run-all-198.sh` -> 21/21, including SPEC-7 flag-off byte-identical parity.
+- `node scripts/build-connector-registry.cjs --check` and `node scripts/build-orchestration-projection.cjs --check` -> OK.
+- `node scripts/doctor.cjs --acceptance` -> 14/15. The single FAIL is `verify-release-clean-tree` (tracked-file drift), caused entirely by the concurrent session's uncommitted statusline and planning work. Every file this plan touched is committed; confirmed out of scope, not fixed.
+
 ---
 *Phase: 234-mindrianos-as-infrastructure-skills-mcp-everywhere-open-core*
 *Completed: 2026-07-28*
