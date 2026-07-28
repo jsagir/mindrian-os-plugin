@@ -4,13 +4,13 @@ milestone: v1.15.0
 milestone_name: "The Cockpit"
 status: verifying
 stopped_at: Completed 234-02-PLAN.md
-last_updated: "2026-07-28T03:09:21.289Z"
+last_updated: "2026-07-28T03:28:12.908Z"
 last_activity: 2026-07-28
 progress:
   total_phases: 140
   completed_phases: 106
   total_plans: 664
-  completed_plans: 649
+  completed_plans: 650
   percent: 76
 ---
 
@@ -1282,7 +1282,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 234 (mindrianos-as-infrastructure-skills-mcp-everywhere-open-core) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1884,6 +1884,7 @@ Progress: [█████████░] 92%
 | Phase 234 P01 | 22min | 2 tasks | 4 files |
 | Phase 234 P02 | 21min | 1 tasks | 3 files |
 | Phase 234 P03 | 35m | 1 tasks | 124 files |
+| Phase 234 P04 | 50m | 2 tasks | 25 files |
 
 ## Accumulated Context
 
@@ -3031,6 +3032,7 @@ Progress: [█████████░] 92%
 - brain-cleanup workspace (~/gsd-workspaces/brain-cleanup/): Phase 5 COMPLETE (the Workflow Layer's hard dep -- the enrichCausalEdges->FEEDS_INTO rewrite); commit 128d47e unpushed there (1 ahead of origin); also has out-of-scope unstaged changes in other repos. Its own next phase is Phase 6 (CI-01 drift tripwire).
 - RESOLVED 2026-05-11: tests/test-navigation-memory-events.cjs test1_enumCount now asserts EVENT_TYPES.size >= 19 (floor). 9/9 GREEN (commit a73a06c). The "One-line fix outstanding" item is closed.
 - RESOLVED 2026-05-12: Phase 95.6 marked complete via `gsd-tools phase complete 95.6` (10/10 plans, no verification-debt warnings). The `gsd-tools` roadmap-order "next" was Phase 104, but the maintainer override is Phase 122 (the beta.10 Workflow Layer capstone).
+- 234-03 broke the skill-mirror contract: 110 of 111 mirrors diverge, verify-release's mirror gate fails, and running build-skill-mirrors.cjs in write mode silently reverts 234-03's migration. See 234 deferred-items.md D-1.
 
 ### Quick Tasks Completed
 
@@ -3101,7 +3103,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-28 - Completed quick task 260728-3uw: Fixed stale "Active Milestone: v1.14.0" header + dead tail status marker in ROADMAP.md (now points at v1.15.0 "The Cockpit" / Phase 233)
-Last session: 2026-07-28T03:09:21.178Z
+Last session: 2026-07-28T03:27:59.842Z
 Stopped at: Completed 234-02-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
