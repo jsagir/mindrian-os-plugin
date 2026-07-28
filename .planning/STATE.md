@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 241-03-PLAN.md
-last_updated: "2026-07-28T14:18:30.749Z"
-last_activity: 2026-07-28 -- Phase 241 Plan 03 complete (F-2 severity ladder raised to critical, both breaches reach the enqueue gate)
+stopped_at: Completed 241-04-PLAN.md
+last_updated: "2026-07-28T15:05:00.000Z"
+last_activity: 2026-07-28 -- Phase 241 Plan 04 complete (F-3: pre-commit demoted to advisory WARN with --strict/MINTO_PRECOMMIT_STRICT opt-in, proven by real git commits both directions)
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 15
-  completed_plans: 5
-  percent: 33
+  completed_plans: 6
+  percent: 40
 ---
 
 # Project State
@@ -19,6 +19,19 @@ progress:
 ## SESSION OWNERSHIP LOCK (navigator directive 2026-07-28, ~11:50am)
 
 Navigator directive: this Claude Code session (transcript `ac25b9a9-4a3d-48b1-a724-095b43613edc`) is the SOLE planner+executor for v1.16.0 from this point forward. A separate concurrent session (process resumed from `4a669e7d-ee28-4726-a5aa-17eb5ff99bbe.jsonl`) was independently driving the same milestone on this same checkout with no shared awareness -- it deleted 236-03/236-04/236-VALIDATION mid-restructure (real, valuable partial improvement to 236-01 kept; the two deleted plans restored from the last known-good merged state, see commit `8631cda0`) and separately produced a caught-before-commit `gsd-tools.cjs phase.complete` corruption (see `.planning/debug/gsd-phase-complete-cross-phase-corruption.md`, workaround committed `0053a0b1`). If you are a different session or process reading this: STAND DOWN on v1.16.0 planning/execution and check with the navigator before writing to this repo's `.planning/` state files.
+
+## (2026-07-28) -- PHASE 241 Plan 04 COMPLETE (Wave 2) -- the pre-commit guardian stops taxing commits, honestly
+
+- **Position:** v1.16.0 Phase 241 is 4/5 plans executed (241-01, 241-02, 241-03, 241-04 complete; 241-05 remains). Closes finding F-3 (MINTO-02, SC3). `ROADMAP.md`/`REQUIREMENTS.md` per-plan checkoff deferred to the phase-close pass per the critical scope boundary for this session (only this plan's own tracking lines touched here).
+- **Root cause, stated before the patch:** `runPreCommit` enumerated violations to stderr and then `return 2` on any `>= error` severity, tied to a repair ladder (F-0) whose value is still being established. Both F-2 breaches were already at `error` before Plan 03 raised them to `critical` -- critical also satisfies `>= error` -- so this was a genuinely separate change to exit behavior, not something F-2's severity bump incidentally fixed.
+- **The fix, reusing the Phase 210 idiom verbatim.** `preCommitStrictEnabled(opts)` checks three sources (an `opts.strict` for tests, `MINTO_PRECOMMIT_STRICT=1` env for the real hook, `--strict` argv for a human running the guardian directly). `runPreCommit(roomDir, validators, opts)` gained the third optional param. The strict branch preserves the pre-241 hard-fail contract byte-for-byte plus one added line naming the restore switch. The advisory branch (the default) enumerates the SAME violation list, then a counted WARN naming both restore switches, then `return 0`. `scripts/hooks/pre-commit-room-minto-guard.sh` and its canonical twin `scripts/hooks/pre-commit` (Phase 235-01 consolidated these to one source) are BOTH untouched, confirmed by an empty `git diff --stat` -- a guardian return of 0 already propagates cleanly through the hook's existing exit-code check, per Resolution R-07.
+- **Real-commit proof, not a function call.** SC3 explicitly requires proof by an ACTUAL `git commit`, not `runPreCommit()` called as a function. New `lib/memory/precommit-real-commit.test.cjs` drives a real `git commit` against the canonical installed hook in a scratch repo, 4 tests: the guard actually fires (anti-vacuity), advisory default lands the commit with enumerated violations + counted WARN, `MINTO_PRECOMMIT_STRICT=1` rejects the commit and nothing lands, a clean room still commits with zero violation output (false-positive guard).
+- **A load-bearing fixture correction, found empirically, not assumed.** The plan's own fixture wording ("a section with no MINTO.md") was hand-verified BEFORE writing the test to always hard-block at a SEPARATE, older, unconditional gate inside the same hook script (Phase 87-01a's ROOM.md+MINTO.md existence check, exit 2, no opt-out, unrelated to F-3) -- that gate runs BEFORE the script ever reaches the guardian invocation, so a missing-MINTO.md fixture can only ever prove the older gate fires, never F-3's advisory/strict demotion. The fixture used instead seeds a MINTO.md that EXISTS (satisfying the older gate) but is missing `governing_thought` (Plan 03's F-2 fix: this aggregates to critical), which is the fixture shape that actually exercises `runPreCommit`'s new branch through a real commit. Full evidence trail (the probe commands run and their observed output) in `241-04-SUMMARY.md`.
+- **Mutation-proven, not merely passing.** The advisory branch was hand-reverted to the bare pre-241 `return 2` in the working copy; `node lib/memory/precommit-real-commit.test.cjs` correctly went RED on Test 2 (`1 !== 0`); restored from a scratch backup; `git diff --stat` confirmed empty; both suites returned to green.
+- **Verification:** `node lib/memory/precommit-real-commit.test.cjs` 4/4, `node lib/memory/feynman-minto-guardian.test.cjs` 18/18 (Test 4 rewritten into three scenarios: advisory default, `MINTO_PRECOMMIT_STRICT=1`, `--strict` argv), `node lib/memory/feynman-minto-invariants.test.cjs` 22/22, `node lib/memory/room-minto-hook.test.cjs` 7/7, `node lib/memory/minto-debounce-consumer-census.test.cjs` 5/5 (241-02 cross-plan interaction check), `git diff --stat scripts/hooks/pre-commit-room-minto-guard.sh scripts/hooks/pre-commit` empty. The mega-suite `run-feynman-tests.cjs` (396 files) was attempted once (250s cap) and hung in the same pre-existing, unrelated `test/84-smart-notebook-copilot.test.cjs` SQLite failure that 241-01/241-03 already documented; abandoned per that precedent rather than burning session time on a file this plan does not touch.
+- **Grounding consult:** `mcp__langtalks-graph-expert__*` tools are not present in this executor agent's toolset (Read/Write/Edit/Bash only), matching every prior 241-series plan. The phase's own `241-RESEARCH.md` already performed this consult at the phase level and recorded an honest "not in corpus yet" for every mechanism-specific term queried (self-repair, dead letter queue, background job queue, Minto pyramid, Feynman technique, etc.); not re-attempted here, no citation fabricated. claude-api skill / claude-code-guide agent consult: confirmed NOT APPLICABLE -- this plan edits a git pre-commit hook body, not a Claude Code hook matcher, MCP tool registration, or subagent-registry behavior (Phase 235-01's own header comment in the hook file already documents this exact consultation for the same file).
+- **Commits:** `b879c92e` (Task 1, advisory/strict demotion + Test 4 rewrite), `b88191c5` (Task 2, real-commit proof + registration). Full detail in `241-04-SUMMARY.md`.
+- **NEXT:** `/gsd-execute-phase 241` plan 05 (the closing plan: Tri-Polar Desktop/Cowork parity per RESEARCH.md Open Question 2, and the phase-close ROADMAP.md/REQUIREMENTS.md checkoff).
 
 ## (2026-07-28) -- PHASE 241 Plan 03 COMPLETE (Wave 2) -- the critical-repair ladder is reachable by the breaches navigators actually hit
 

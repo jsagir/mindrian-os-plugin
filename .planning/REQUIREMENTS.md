@@ -49,7 +49,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 ### Phase 241 -- Feynman-MINTO (F-0 already filed and open)
 
 - [x] **MINTO-01**: The guardian's on-stop output reaches the user instead of `/dev/null`, and its report-write/ghost-pruning cannot be silently dropped by a 1-second timeout (F-1). (Closed 2026-07-28, Phase 241 Plan 01: `runOnStop` soft walk deadline + `scripts/on-stop` capture-and-fold, both legs mutation-proven.)
-- [ ] **MINTO-02**: The critical-repair severity ladder actually triggers on the breaches navigators hit (missing MINTO.md, missing governing_thought), not only two rare crash artifacts (F-2); pre-commit friction from the same dead loop is demoted to warn until the loop is live (F-3 folds in). (F-2 half CLOSED 2026-07-28, Phase 241 Plan 03: both severity constants raised to critical, both breaches mutation-proven to reach the enqueue gate and land a real `.mindrian/minto-queue.json` entry. F-3 half -- pre-commit demotion -- remains, Phase 241 Plan 04.)
+- [x] **MINTO-02**: The critical-repair severity ladder actually triggers on the breaches navigators hit (missing MINTO.md, missing governing_thought), not only two rare crash artifacts (F-2); pre-commit friction from the same dead loop is demoted to warn until the loop is live (F-3 folds in). (Closed 2026-07-28. F-2 half, Phase 241 Plan 03: both severity constants raised to critical, both breaches mutation-proven to reach the enqueue gate and land a real `.mindrian/minto-queue.json` entry. F-3 half, Phase 241 Plan 04: `runPreCommit` demoted to advisory WARN with a `--strict`/`MINTO_PRECOMMIT_STRICT` opt-in, proven by a real `git commit` in both directions, mutation-proven.)
 
 ### Phase 242 -- The Moat
 
@@ -91,7 +91,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | MEM-02 | Phase 240 | Pending |
 | MEM-03 | Phase 240 | Pending |
 | MINTO-01 | Phase 241 | Complete (241-01) |
-| MINTO-02 | Phase 241 | Pending |
+| MINTO-02 | Phase 241 | Complete (241-04) |
 | MOAT-01 | Phase 242 | Pending |
 | MOAT-02 | Phase 242 | Pending (doc fix) |
 | GLYPH-01 | Phase 243 | Pending |
