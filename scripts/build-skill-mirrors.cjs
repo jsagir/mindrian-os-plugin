@@ -3,8 +3,8 @@
 
 /*
  * build-skill-mirrors.cjs - mirror every commands/<name>.md into
- * skills/<name>/SKILL.md, byte-for-byte EXCEPT one documented field
- * exception (see DESENSITIZE below).
+ * skills/<name>/SKILL.md, byte-for-byte EXCEPT the documented exception
+ * classes below (DESENSITIZE, SKILL-SPEC NORMALIZATION).
  *
  * WHY THIS EXISTS (the Windows commands-registration host bug):
  *   On a confirmed-affected Windows machine, this plugin's commands/*.md fail to
@@ -22,7 +22,7 @@
  *   (check-help-coverage.cjs) all read commands/*.md SPECIFICALLY. So commands/
  *   is never touched, translated, annotated, or rewritten here.
  *
- * DESENSITIZE EXCEPTION (single field, precedented, CONN-03-driven):
+ * EXCEPTION CLASS 1 - DESENSITIZE (single field, precedented, CONN-03-driven):
  *   scripts/build-connector-registry.cjs walks BOTH commands/*.md and every
  *   skills/<name>/SKILL.md, and its validateConnectors() enforces a duplicate-tuple
  *   check across (sensor, reach_id, sub_mode), exploded per sensor in
@@ -51,13 +51,59 @@
  *   whose sensor_triggers is already [], are completely unaffected: pure byte
  *   copy, zero bytes changed.
  *
+ * EXCEPTION CLASS 2 - SKILL-SPEC NORMALIZATION (phase 234-03/234-04):
+ *   A commands/*.md file answers to Claude Code's slash-command frontmatter. A
+ *   skills/<name>/SKILL.md ALSO has to answer to the external Agent Skills spec
+ *   (agentskills.io), which the mirror is the whole point of: the mirror is what
+ *   a foreign host loads. Those two contracts genuinely differ, and phase 234-03
+ *   closed the gap on the SKILL side with scripts/migrate-skill-frontmatter.cjs:
+ *
+ *     1. `name:`           present and equal to the parent directory name.
+ *     2. `allowed-tools:`  a STRING, never a YAML sequence (the spec's type rule).
+ *     3. `license:`        the BSL-1.1 line, so the license is legible to a host
+ *                          that only ever sees the SKILL.md and never LICENSE.
+ *     4. `compatibility:`  on the skills whose bodies lean on Claude-Code-only
+ *                          mechanics (disable-model-invocation, Tier-1 hooks).
+ *
+ *   That migration edited every skills/<name>/SKILL.md without teaching this about
+ *   it, so `--check` reported 111 stale mirrors and a WRITE-mode run would have
+ *   silently REVERTED the whole spec migration. The fix is not to push skill-layer
+ *   metadata back onto commands/ (that would break the read-only invariant above,
+ *   and build-command-registry.cjs reads `fm.name` from commands/*.md, so a `name:`
+ *   insert there is NOT inert). The fix is this: the normalization is part of the
+ *   EXPECTED mirror content, on equal footing with the DESENSITIZE exception. The
+ *   mirror contract is now "byte-identical to the command EXCEPT the enumerated,
+ *   deterministic transformations below", and `--check` measures against that.
+ *
+ *   Like 234-03's codemod, this is line-level splice surgery, NOT a YAML
+ *   round-trip. A re-serialize through js-yaml drops every hand-written
+ *   frontmatter comment, and this tree has load-bearing ones - commands/rs-experts
+ *   and commands/rs-thesis record a Canon Part 8 Brain-egress prohibition in
+ *   comments sitting INSIDE the allowed-tools block being rewritten.
+ *
+ * EXCEPTION CLASS 2b - NAME OVERRIDE + PRESERVED ANNOTATION:
+ *   The spec requires `name` == parent directory. Exactly one command's frontmatter
+ *   `name:` deliberately differs from its filename: commands/value-proposition.md
+ *   carries `name: validate-proposition` (RETRO-05, audit item 39), because the
+ *   Phase-122 framework resolver keys off it. The command keeps that name; the
+ *   MIRROR's `name:` is overridden to the directory name so the mirror satisfies
+ *   the external spec, while /mos:validate-proposition keeps resolving from
+ *   commands/. Because that override is a reviewed divergence and not a mechanical
+ *   one, the mirror is also allowed to carry a contiguous run of `#` comment lines
+ *   immediately above its `name:` line, beyond whatever run the source already
+ *   has, explaining the override. Those extra lines are PRESERVED verbatim from
+ *   the mirror on disk - never generated here, never deleted by a write-mode run.
+ *   Comments are non-semantic, so preserving them cannot change what a host loads,
+ *   and it is what keeps write mode from destroying a written reason.
+ *
  * CONVENTIONS (per CLAUDE.md): CJS only, no TypeScript, no Commander/yargs, no
  * new npm dependencies (fs/path only). process.argv parsed with the
  * switch/includes pattern used by build-connector-registry.cjs. Default run =
  * write mode; --check = compare-only, exit non-zero on any missing or divergent
- * mirror (divergence measured against the EXPECTED mirror content - source
- * bytes, or source bytes with sensor_triggers desensitized per the exception
- * above - never against a stale pre-exception expectation).
+ * mirror (divergence measured against the EXPECTED mirror content - source bytes
+ * with the sensor_triggers desensitize and the skill-spec normalization applied
+ * per the exception classes above - never against a stale pre-exception
+ * expectation).
  *
  * Usage:
  *   node scripts/build-skill-mirrors.cjs
@@ -117,13 +163,226 @@ function frontmatterBounds(text) {
   return null;
 }
 
+// ---------------------------------------------------------------------------
+// EXCEPTION CLASS 2 - skill-spec normalization (see the header).
+//
+// These four constants and the helper set below are a deliberate, verbatim
+// restatement of scripts/migrate-skill-frontmatter.cjs's one-time codemod, so
+// the generator's notion of EXPECTED matches the bytes that codemod produced.
+// They are duplicated rather than imported because that codemod is a one-time
+// migration tool that requires gray-matter, and this generator is a release-gate
+// dependency that stays on fs/path only (it runs from pre-commit, verify-release
+// and doctor, where a missing node_modules must not take the gate down).
+// ---------------------------------------------------------------------------
+
+const LICENSE_LINE =
+  'license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, ' +
+  'Change Date 2030-04-16 to Apache License 2.0).';
+
+const COMPAT_DISABLE_MODEL_INVOCATION =
+  'compatibility: Requires Claude Code (or a host implementing ' +
+  'disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.';
+
+const COMPAT_HOOK_REFERENCING =
+  'compatibility: References Tier-1 hook mechanics (Claude Code, Grok Build, or ' +
+  'OpenCode via the SEED-063 plugin); degrades to prose guidance on Tier-0 hosts.';
+
+// Body tokens that mean "this skill leans on Tier-1 hook mechanics".
+const HOOK_TOKENS_CASE_SENSITIVE = ['Stop gate', 'contradiction push'];
+const HOOK_TOKEN_FILE_RE = /hooks\.json/i;
+
+// Index of the closing '---' fence, or -1. Recomputed after every splice, since
+// each insertion moves the fence down.
+function frontmatterEnd(lines) {
+  if (lines[0] !== '---') return -1;
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i] === '---') return i;
+  }
+  return -1;
+}
+
+// Inside a frontmatter block, a line starting at COLUMN 0 begins a new top-level
+// construct; anything indented or blank continues the construct above it. That
+// single rule is what lets a multi-line value be found and replaced without
+// hand-parsing YAML.
+function findTopLevelKey(lines, fmEnd, key) {
+  const re = new RegExp('^' + key.replace(/-/g, '\\-') + '\\s*:');
+  for (let i = 1; i < fmEnd; i++) {
+    if (re.test(lines[i])) return i;
+  }
+  return -1;
+}
+
+function constructEnd(lines, fmEnd, keyIdx) {
+  for (let i = keyIdx + 1; i < fmEnd; i++) {
+    if (/^\S/.test(lines[i])) return i;
+  }
+  return fmEnd;
+}
+
+function isCommentLine(line) {
+  return line.trimStart().startsWith('#');
+}
+
+function unquoteScalar(s) {
+  const t = s.trim();
+  if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
+    return t.slice(1, -1);
+  }
+  return t;
+}
+
+// The spec's form is SPACE-separated, and that is what all but one skill gets.
+// But a space separator can only encode tool names that contain no space, and
+// Claude Code's scoped-permission syntax produces exactly such names:
+// commands/status.md grants `Bash(node scripts/mos-status.cjs:*)`, narrowing Bash
+// to one script. Space-joining that would re-read as three broad tokens, silently
+// widening a deliberately narrow grant - a permission-scope regression, not a
+// formatting nit. Comma-space is lossless there, is already the shipping form in
+// other files, and is still a STRING, which is what the spec's type rule requires.
+function toolSeparator(tools) {
+  return tools.some((t) => String(t).includes(' ')) ? ', ' : ' ';
+}
+
+function yamlScalar(value) {
+  const s = String(value);
+  if (s === '') return '""';
+  const safe =
+    /^[A-Za-z0-9_]/.test(s) && !s.includes(': ') && !s.includes(' #') && !/[:#]$/.test(s);
+  return safe ? s : JSON.stringify(s);
+}
+
+// Read an `allowed-tools:` value that is a YAML SEQUENCE, in either the block
+// form (key line empty, indented `- item` lines beneath) or the flow form
+// (`[A, B]` / `[]`). Returns null when the value is already a string, which is
+// already spec-conformant and must survive byte-identical.
+function readToolSequence(lines, fmEnd, keyIdx) {
+  const inline = lines[keyIdx].replace(/^allowed-tools\s*:\s*/, '').trim();
+
+  if (inline === '') {
+    const endIdx = constructEnd(lines, fmEnd, keyIdx);
+    const block = lines.slice(keyIdx + 1, endIdx);
+    if (!block.some((l) => /^\s*-\s/.test(l))) return null;
+    return {
+      items: block.filter((l) => /^\s*-\s/.test(l)).map((l) => unquoteScalar(l.replace(/^\s*-\s*/, ''))),
+      // rs-experts and rs-thesis record a Canon Part 8 prohibition in comments
+      // INSIDE this block. They are re-emitted verbatim under the new one-liner.
+      preserved: block.filter(isCommentLine),
+      endIdx,
+    };
+  }
+
+  if (inline.startsWith('[') && inline.endsWith(']')) {
+    const inner = inline.slice(1, -1).trim();
+    return {
+      items: inner === '' ? [] : inner.split(',').map(unquoteScalar),
+      preserved: [],
+      endIdx: keyIdx + 1,
+    };
+  }
+
+  return null;
+}
+
+// Apply the skill-spec normalization in place on `lines`. `name` is the mirror's
+// directory name (== the command filename base). `currentLines` is the mirror as
+// it exists on disk, or null; it is consulted ONLY for the preserved-annotation
+// rule of exception class 2b. Returns true when any line changed.
+function applySkillSpecNormalization(lines, name, currentLines) {
+  let fmEnd = frontmatterEnd(lines);
+  if (fmEnd < 0) return false;
+  let changed = false;
+
+  // -- 1. name == parent directory -----------------------------------------
+  const nameIdx = findTopLevelKey(lines, fmEnd, 'name');
+  if (nameIdx === -1) {
+    lines.splice(1, 0, 'name: ' + name);
+    fmEnd = frontmatterEnd(lines);
+    changed = true;
+  } else if (unquoteScalar(lines[nameIdx].replace(/^name\s*:\s*/, '')) !== name) {
+    // Exception class 2b. Carry over any comment run the mirror added above its
+    // name: line beyond the run the source already carries.
+    let srcRun = 0;
+    for (let i = nameIdx - 1; i >= 1 && isCommentLine(lines[i]); i--) srcRun++;
+    const srcBlock = lines.slice(nameIdx - srcRun, nameIdx);
+    let annotation = [];
+    if (currentLines) {
+      const curFmEnd = frontmatterEnd(currentLines);
+      const curNameIdx = curFmEnd > 0 ? findTopLevelKey(currentLines, curFmEnd, 'name') : -1;
+      if (curNameIdx > 0) {
+        const curRun = [];
+        for (let i = curNameIdx - 1; i >= 1 && isCommentLine(currentLines[i]); i--) {
+          curRun.unshift(currentLines[i]);
+        }
+        // Only accept it as an ANNOTATION when the source's own run is an exact
+        // prefix of it. Anything else is real drift, not a mirror-layer note.
+        if (
+          curRun.length > srcRun &&
+          JSON.stringify(curRun.slice(0, srcRun)) === JSON.stringify(srcBlock)
+        ) {
+          annotation = curRun.slice(srcRun);
+        }
+      }
+    }
+    lines.splice(nameIdx, 1, ...annotation, 'name: ' + name);
+    fmEnd = frontmatterEnd(lines);
+    changed = true;
+  }
+
+  // -- 2. allowed-tools sequence -> spec-required string --------------------
+  const atIdx = findTopLevelKey(lines, fmEnd, 'allowed-tools');
+  if (atIdx !== -1) {
+    const seq = readToolSequence(lines, fmEnd, atIdx);
+    if (seq) {
+      const joined = seq.items.join(toolSeparator(seq.items));
+      const replacement = ['allowed-tools: ' + yamlScalar(joined)].concat(seq.preserved);
+      lines.splice(atIdx, seq.endIdx - atIdx, ...replacement);
+      fmEnd = frontmatterEnd(lines);
+      changed = true;
+    }
+  }
+
+  // -- 3/4. license, then compatibility right beneath it --------------------
+  if (findTopLevelKey(lines, fmEnd, 'license') === -1) {
+    const descIdx = findTopLevelKey(lines, fmEnd, 'description');
+    if (descIdx !== -1) {
+      const insertAt = constructEnd(lines, fmEnd, descIdx);
+      lines.splice(insertAt, 0, LICENSE_LINE);
+      fmEnd = frontmatterEnd(lines);
+      changed = true;
+
+      if (findTopLevelKey(lines, fmEnd, 'compatibility') === -1) {
+        // Structural, not a hardcoded name list: the frontmatter key IS the
+        // Claude-Code-only mechanic being declared (its VALUE is irrelevant;
+        // declaring it at all is what binds the skill to the host).
+        const declaresDmi = findTopLevelKey(lines, fmEnd, 'disable-model-invocation') !== -1;
+        const body = lines.slice(fmEnd + 1).join('\n');
+        const bodyRefsHooks =
+          HOOK_TOKENS_CASE_SENSITIVE.some((t) => body.includes(t)) || HOOK_TOKEN_FILE_RE.test(body);
+        if (declaresDmi) {
+          lines.splice(insertAt + 1, 0, COMPAT_DISABLE_MODEL_INVOCATION);
+          fmEnd = frontmatterEnd(lines);
+        } else if (bodyRefsHooks) {
+          lines.splice(insertAt + 1, 0, COMPAT_HOOK_REFERENCING);
+          fmEnd = frontmatterEnd(lines);
+        }
+      }
+    }
+  }
+
+  return changed;
+}
+
 // Given the raw source Buffer for a command file, compute the EXPECTED mirror
-// content. Returns { buffer, desensitized } where desensitized is true only
-// when the single sensor_triggers field was rewritten to [].
-function computeExpectedMirror(srcBuf) {
+// content. `name` is the mirror's directory name; `currentBuf` is the mirror on
+// disk (or null) and is read ONLY for the preserved-annotation rule.
+// Returns { buffer, desensitized, normalized } where desensitized is true only
+// when the single sensor_triggers field was rewritten to [], and normalized is
+// true when any skill-spec transformation applied.
+function computeExpectedMirror(srcBuf, name, currentBuf) {
   const text = srcBuf.toString('utf8');
   const bounds = frontmatterBounds(text);
-  if (!bounds) return { buffer: srcBuf, desensitized: false };
+  if (!bounds) return { buffer: srcBuf, desensitized: false, normalized: false };
 
   const { lines, fmEnd } = bounds;
   let connectsToSpine = false;
@@ -141,16 +400,23 @@ function computeExpectedMirror(srcBuf) {
     }
   }
 
-  if (!connectsToSpine || sensorTriggersLineIdx === -1 || sensorTriggersIsEmpty) {
-    // No exception applies: pure byte copy, no string round-trip.
-    return { buffer: srcBuf, desensitized: false };
+  let desensitized = false;
+  if (connectsToSpine && sensorTriggersLineIdx !== -1 && !sensorTriggersIsEmpty) {
+    // Rewrite ONLY that one line's array to []; every other line untouched.
+    const m = lines[sensorTriggersLineIdx].match(/^(\s*sensor_triggers:\s*)\[[^\]]*\]\s*$/);
+    lines[sensorTriggersLineIdx] = m[1] + '[]';
+    desensitized = true;
   }
 
-  // Rewrite ONLY that one line's array to []; every other line untouched.
-  const m = lines[sensorTriggersLineIdx].match(/^(\s*sensor_triggers:\s*)\[[^\]]*\]\s*$/);
-  lines[sensorTriggersLineIdx] = m[1] + '[]';
-  const newText = lines.join('\n');
-  return { buffer: Buffer.from(newText, 'utf8'), desensitized: true };
+  const normalized = name
+    ? applySkillSpecNormalization(lines, name, currentBuf ? currentBuf.toString('utf8').split('\n') : null)
+    : false;
+
+  if (!desensitized && !normalized) {
+    // Nothing applied: pure byte copy, no string round-trip.
+    return { buffer: srcBuf, desensitized: false, normalized: false };
+  }
+  return { buffer: Buffer.from(lines.join('\n'), 'utf8'), desensitized, normalized };
 }
 
 function writeMirrors() {
@@ -159,6 +425,7 @@ function writeMirrors() {
   let overwritten = 0;
   let skipped = 0;
   let desensitizedCount = 0;
+  let normalizedCount = 0;
   let pureCopyCount = 0;
 
   for (const name of commandNames()) {
@@ -167,13 +434,14 @@ function writeMirrors() {
       continue;
     }
     const src = fs.readFileSync(path.join(COMMANDS_DIR, name + '.md'));
-    const { buffer: expected, desensitized } = computeExpectedMirror(src);
-    if (desensitized) desensitizedCount++;
-    else pureCopyCount++;
-
     const dst = mirrorPath(name);
-    if (fs.existsSync(dst)) {
-      const cur = fs.readFileSync(dst);
+    const cur = fs.existsSync(dst) ? fs.readFileSync(dst) : null;
+    const { buffer: expected, desensitized, normalized } = computeExpectedMirror(src, name, cur);
+    if (desensitized) desensitizedCount++;
+    if (normalized) normalizedCount++;
+    if (!desensitized && !normalized) pureCopyCount++;
+
+    if (cur) {
       if (cur.equals(expected)) {
         unchanged++;
         continue;
@@ -203,10 +471,20 @@ function writeMirrors() {
       SKIP_LIST.join(', ') +
       ') | sensor_triggers:[] desensitized ' +
       desensitizedCount +
+      ', skill-spec normalized ' +
+      normalizedCount +
       ', pure byte copy ' +
       pureCopyCount
   );
-  return { created, unchanged, overwritten, skipped, desensitizedCount, pureCopyCount };
+  return {
+    created,
+    unchanged,
+    overwritten,
+    skipped,
+    desensitizedCount,
+    normalizedCount,
+    pureCopyCount,
+  };
 }
 
 // Verify every SKIP_LIST name is still a genuine hand-authored skill, not a
@@ -253,13 +531,14 @@ function checkMirrors() {
   for (const name of commandNames()) {
     if (SKIP_LIST.includes(name)) continue;
     const src = fs.readFileSync(path.join(COMMANDS_DIR, name + '.md'));
-    const { buffer: expected } = computeExpectedMirror(src);
     const dst = mirrorPath(name);
     if (!fs.existsSync(dst)) {
       failing.push(name + ' (MISSING)');
       continue;
     }
-    if (!fs.readFileSync(dst).equals(expected)) {
+    const cur = fs.readFileSync(dst);
+    const { buffer: expected } = computeExpectedMirror(src, name, cur);
+    if (!cur.equals(expected)) {
       failing.push(name + ' (DIVERGES)');
       continue;
     }
@@ -311,6 +590,15 @@ function main() {
   process.exit(0);
 }
 
-module.exports = { SKIP_LIST, computeExpectedMirror, checkMirrors, checkSkipList };
+module.exports = {
+  SKIP_LIST,
+  computeExpectedMirror,
+  applySkillSpecNormalization,
+  checkMirrors,
+  checkSkipList,
+  LICENSE_LINE,
+  COMPAT_DISABLE_MODEL_INVOCATION,
+  COMPAT_HOOK_REFERENCING,
+};
 
 if (require.main === module) main();
