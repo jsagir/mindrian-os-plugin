@@ -1,9 +1,9 @@
 ---
 phase: 241
 slug: feynman-minto
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: planned
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-28
 ---
 
@@ -38,15 +38,15 @@ created: 2026-07-28
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 241-01-01 | 01 | 1 | MINTO-01 (F-1, findings reach user) | — | Seeded triple-health violation's systemMessage appears in `scripts/on-stop`'s FINAL stdout JSON | integration | new test invoking `scripts/on-stop` end-to-end, asserting on the process's actual final stdout line | ❌ W0 | ⬜ pending |
-| 241-01-02 | 01 | 1 | MINTO-01 (F-1, slow write survives timeout) | — | Injected slow report-write/ghost-prune still produces `.mindrian/invariant-report.json` and prunes `minto-stale.json`; mutation-prove by restoring the old `timeout 1` and confirming the write is dropped | integration | new test with an injectable delay proving the write survives past the old 1000ms mark | ❌ W0 | ⬜ pending |
-| 241-02-01 | 02 | 1/2 | MINTO-01 (F-0 fold-in, debounce consumer wired) | — | A production call site both enqueues AND later drains-and-acts (not merely drains-and-discards), matching the RCA's own Test 1/Test 2 spec (production-only census excluding `tests/`) | integration + structural census | extension of `lib/memory/feynman-minto-guardian.test.cjs` | ❌ W0 | ⬜ pending |
-| 241-03-01 | 03 | 2 | MINTO-02 (F-2, severity ladder) | — | Seeded missing MINTO.md and missing governing_thought each aggregate to `critical` and reach the enqueue gate | unit | extend `lib/memory/feynman-minto-invariants.test.cjs` and `lib/memory/feynman-minto-guardian.test.cjs` fixtures | ✅ (extend existing) | ⬜ pending |
-| 241-04-01 | 04 | 2 | MINTO-02 (F-3, pre-commit demotion) | — | Same seeded breach at pre-commit produces WARN (stderr) and exit 0, proven by a REAL `git commit` run, not just a `runPreCommit()` function call | integration (real git commit) | new test that stages a seeded breach in a scratch git repo/worktree and runs the actual pre-commit hook | ❌ W0 | ⬜ pending |
+| 241-01 | 01 | 1 | MINTO-01 (F-1, findings reach user + slow-write survives) | see 241-01-PLAN.md threat_model | `scripts/on-stop` folds the guardian systemMessage into its final Stop-hook JSON; `runOnStop` gets a soft walk budget so report-write + ghost-prune always complete | integration | `node lib/memory/guardian-onstop-reaches-user.test.cjs` | ✅ (plan committed) | ⬜ pending execution |
+| 241-02 | 02 | 2 (deps: 01) | MINTO-01 (F-0, corrected scope: retire unconditional vacuum, RCA corrected) | see 241-02-PLAN.md threat_model | Both stop-path drains (`scripts/on-stop`, `lib/mcp/stop-gate-handler.cjs`) peek instead of unconditionally draining; production call-site census (bash + cjs, excludes `tests/`) proves the real Phase 88-05 consumer in `scripts/intent-classifier` (bash wrapper) drains-and-acts | integration + structural census | `node lib/memory/minto-debounce-consumer-census.test.cjs` | ✅ (plan committed) | ⬜ pending execution |
+| 241-03 | 03 | 2 (deps: 01) | MINTO-02 (F-2, severity ladder) | see 241-03-PLAN.md threat_model | Missing MINTO.md and missing governing_thought both raised to `critical`, reaching the enqueue gate; pre-existing suites reconciled | unit | `node lib/memory/feynman-minto-invariants.test.cjs` + `node lib/memory/feynman-minto-guardian.test.cjs` | ✅ (plan committed) | ⬜ pending execution |
+| 241-04 | 04 | 3 (deps: 02, 03) | MINTO-02 (F-3, pre-commit demotion) | see 241-04-PLAN.md threat_model | `runPreCommit` demoted to advisory WARN by default, `--strict`/`MINTO_PRECOMMIT_STRICT` opt-in restores hard-fail; proven by a REAL `git commit` in a scratch repo, both directions | integration (real git commit) | `node lib/memory/precommit-real-commit.test.cjs` | ✅ (plan committed) | ⬜ pending execution |
+| 241-05 | 05 | 4 (deps: 01-04) | MINTO-01, MINTO-02 (Tri-Polar parity + phase harness) | see 241-05-PLAN.md threat_model | Shared `stop-gate-handler.cjs` path (Desktop/Cowork/CLI-under-MINDRIAN_MCP_FIRST) now also invokes the guardian; one phase harness rolls up every leg | integration | `bash tests/run-all-241.sh` | ✅ (plan committed) | ⬜ pending execution |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: ⬜ pending execution · ✅ green · ❌ red · ⚠️ flaky*
 
-*Task IDs above are provisional — the planner assigns the real plan/task numbering; this map exists to guarantee each of the four findings (F-0/F-1/F-2/F-3) gets an explicit, independently-provable verification leg, per RESEARCH.md's Pitfall 1/2/3 warnings against a single test silently covering only part of a success criterion.*
+*Plan-checker VERIFICATION PASSED 2026-07-28 (first pass, no revision loop needed). Table above reflects the actual planner-assigned plan/task structure (5 plans, 4 waves, 14 tasks) superseding the provisional per-finding placeholder rows drafted before planning. Execution (`/gsd-execute-phase 241`) will flip each row's Status from "pending execution" to green/red as `tests/run-all-241.sh` and the individual test files actually run.*
 
 ---
 
@@ -73,6 +73,6 @@ created: 2026-07-28
 - [ ] Wave 0 covers all MISSING references (4 new integration tests + 1 extended unit-test pair, enumerated above)
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-07-28 (plan-checker VERIFICATION PASSED; sign-off pending only actual test-run greens at execute-time)
