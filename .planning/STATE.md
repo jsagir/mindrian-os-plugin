@@ -15,6 +15,14 @@ progress:
 
 # Project State
 
+## (2026-07-28) -- PHASE 234 Plan 06 COMPLETE (Wave 3) -- plugin-root portability: 172 skill-body shell-outs now fail closed instead of silently resolving to `/scripts/...`
+
+- **Position:** v1.15.0 Phase 234 is now 6/8 plans executed (234-01..234-06 complete; 234-07 dist/ bundle generator and 234-08 the closing scan/foreign-host checkpoint remain). Tracked in the archived `.planning/milestones/v1.15.0-ROADMAP.md`, since the active `ROADMAP.md` covers only v1.16.0. This entry touches nothing in the v1.16.0 milestone state.
+- **What shipped:** the phase's named Tampering finding (T-234-11) is closed. `CLAUDE_PLUGIN_ROOT` is exported by Claude Code and by nothing else, so on any foreign Agent-Skills host the 51 skill bodies that shell out through `"${CLAUDE_PLUGIN_ROOT}/scripts/x"` were silently resolving to `/scripts/x` -- an absolute path at the filesystem root that an attacker can plant a file at, reached with exit status 0 and no warning. Demonstrated live before the fix. All 172 occurrences now read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}}`: the escape hatch first, today's behavior unchanged on Claude Code, and a loud abort when neither is set.
+- **Decisions:** (a) `MINDRIAN_OS_ROOT` was REUSED, not re-invented -- it is precedence #1 of the shipped `lib/core/active-plugin-root.cjs`, so one exported variable answers for both the CJS resolver and every skill-body shell-out. (b) `commands/*.md` keeps its parallel 51 bare references on purpose (T-234-12, accept): no Agent-Skills host loads a `commands/` directory, so the reference is unreachable there by construction, and `commands/` is the read-only source of truth for `build-command-registry.cjs`. That scope decision is now asserted by a test, not left as a comment. (c) `scripts/build-skill-mirrors.cjs` gained EXCEPTION CLASS 3, its first BODY-level mirror exception, in the SAME commit as the migration -- without it the next write-mode run would have silently reverted the whole security fix, the identical gap class D-1 already had to close once in this phase.
+- **Commits:** `4a99be73` (codemod), `1d76e30e` (51 skills + mirror exception class), `914bc0e3` (four-layer gate). Phase harness green: `bash tests/run-all-234.sh` PASS=9 FAIL=0. Full detail in `234-06-SUMMARY.md`.
+- **NEXT:** `/gsd-execute-phase 234` plan 07 (dist/ bundle generator + Zed catalog budget guard + staleness stamp).
+
 ## (2026-07-28) -- v1.17.0 "MCP-First" SLOT REGISTERED (navigator mid-session decision) -- the MCP-first system is the milestone after v1.16.0
 
 - Navigator: "lets plan it for 1.17.beta" -- the MCP-first system (Phase 198 `198-mcp-first-then-sdk`, un-parked 2026-07-09; stack locked oclif + Ink + MCP SDK, 3 servers by trust boundary) claims the v1.17.0 slot, shipping on the beta train (v1.17.0-beta.x) per repo convention.
