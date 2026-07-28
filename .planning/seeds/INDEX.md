@@ -114,6 +114,33 @@ The brain-silent-identity seed had ZERO non-seed references at the time of curat
 
 Anyone searching for the old slug `SEED-003-brain-silent-identity` will find this INDEX section + the renamed file's body banner.
 
+## Collision resolution (2026-07-28)
+
+Two SEEDs were filed with id `SEED-054`, both on the same day:
+- `SEED-054-beautiful-question-seed-harvest-feynman-pipeline.md` (registered 2026-07-06)
+- `SEED-054-room-as-graphrag-conversational-component.md` (registered 2026-07-06)
+
+Found during a Critical Pathway scoring pass over the Jul-7 seed backlog. Both seeds share
+zero downstream references anywhere in the codebase (grep confirmed clean on both slugs), so
+the INDEX's standard "downstream-heavier" tiebreaker did not resolve it. Fell back to
+filesystem mtime as the closest available chronological signal (`.planning/` is gitignored, no
+git history to consult): the Beautiful-Question pipeline file was created ~32 minutes earlier.
+
+**Action taken:**
+- `SEED-054-room-as-graphrag-conversational-component.md` renamed to
+  `SEED-076-room-as-graphrag-conversational-component.md` (076 was the next free slot)
+- File body H1 changed `# SEED-054 -` to `# SEED-076 -` with a renamed-from banner preserved at
+  the top of the body for searchability
+- `SEED-054-beautiful-question-seed-harvest-feynman-pipeline.md` keeps its id, unchanged
+
+Also found in the same pass: `SEED-020-regulation-layer-larry-as-connector.md` was a stale,
+never-cleaned-up duplicate of `SEED-031` (SEED-031's own body states the regulation-layer seed
+was renumbered to SEED-031 on 2026-07-01). SEED-020's status flipped to
+`merged-into-SEED-031` rather than renamed/deleted -- the collision-resolution runbook's
+rename procedure assumes two genuinely distinct seeds competing for one id; this was one seed
+with an orphaned old copy, so the existing `merged-into-SEED-NNN` status vocabulary fits better
+than forcing it through the rename steps.
+
 ---
 
 ## Bundles

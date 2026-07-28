@@ -1,4 +1,12 @@
-# SEED-054 - Room-as-GraphRAG conversational component (BYOAPI, Larry-voiced, provenance-aware)
+# SEED-076 - Room-as-GraphRAG conversational component (BYOAPI, Larry-voiced, provenance-aware)
+
+> **Renamed from SEED-054** (2026-07-28, Critical Pathway id-collision resolution): this file and
+> `SEED-054-beautiful-question-seed-harvest-feynman-pipeline.md` were independently filed under
+> the same id on 2026-07-06 (both "Registered: 2026-07-06", zero downstream references either
+> way). Per the INDEX's chronological + downstream-weight collision rule, filesystem mtime was
+> the only remaining tiebreaker: the Beautiful-Question pipeline file was created first
+> (~32 minutes earlier), so it keeps SEED-054. This seed moves to SEED-076, the next free slot.
+> See `.planning/seeds/INDEX.md` "Collision resolution" section for the precedent this follows.
 
 > Framing (navigator, 2026-07-06): publish a ROOM as a GraphRAG with a Larry personality as a
 > component, so a tenant (e.g. Oliver / JHTV) can "talk" to their room in a way that knows

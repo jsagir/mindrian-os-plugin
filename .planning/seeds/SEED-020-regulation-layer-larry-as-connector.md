@@ -1,6 +1,8 @@
 ---
 id: SEED-020
-status: dormant
+status: merged-into-SEED-031
+superseded_by: SEED-031
+merge_note: "Collision found + resolved 2026-07-28 (Critical Pathway scoring pass). SEED-031's own body states outright: 'the regulation-layer seed became SEED-031 on 2026-07-01... they are the same seed.' This file (SEED-020) was never removed/re-flagged per the INDEX's id-collision runbook when the renumbering happened. SEED-031 is the live source of truth; this file kept for provenance only, per the canonical 'merged-into-SEED-NNN' status vocabulary in INDEX.md."
 planted: 2026-06-02
 planted_during: /mos: conversation -- 3-article challenge synthesis (metacognition / RAG-cost / web-grounding) + 5-agent mindrianDEV investigation + keystone pressure-test
 scope: large
