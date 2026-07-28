@@ -940,6 +940,63 @@ function appendInterceptLog(turn, verdict) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// consumeReachedGatesForVerdict(turn, verdict) -- card-fire-answered-gate-refires-
+// within-ttl-window (2026-07-28). THE record-lifecycle wire: spend the side-channel
+// reached-gate records once this Stop evaluation has reached a TERMINAL verdict on
+// them, so a single gate mint can never be re-litigated on a LATER turn.
+//
+// THE GAP THIS CLOSES (confirmed from source + the live ~/.mindrian/card-fire-
+// intercepts.log, 6 real records, every one of them reason 'reached-registry-gate-
+// no-card' with ran_entries ["scripts/intent-classifier.cjs"] and an empty/benign
+// matched_glyph_span -- i.e. every one a PRIMARY-arm hit on a turn whose own output
+// could not possibly match ASCII_BOX_UNCONDITIONAL_RE): the side-channel record had
+// no lifecycle at all. Its ONLY exit was the 10-minute TTL. So the PRIMARY arm kept
+// asserting "a gate was reached, force the card" on EVERY Stop evaluation inside the
+// 2-minute TURN_FRESH_MS window -- including the turns AFTER the navigator had
+// already fired the card and answered it.
+//
+// WHY THE EXISTING ESCAPES CANNOT COVER IT (each was checked against this shape):
+//   - askuserquestion_fired is CURRENT-TURN scoped (readTranscriptTurn resets its
+//     window at every role:user boundary), so a card fired and answered in turn N is
+//     structurally invisible to turn N+1's Stop hook.
+//   - gate-already-answered derives gateLabels from THIS turn's outputText, which is
+//     EMPTY on a no-card prose turn, so that branch returns false before it can help.
+//   - gate_is_fresh encodes elapsed time since mint, never still-pending state; a
+//     gate answered 30 seconds ago and a gate still sitting unanswered 30 seconds ago
+//     are byte-identical to it.
+//   - preceding-turn-synthetic-no-user-engagement only fires on a CONFIRMED
+//     'tool_result' record; a background task-notification carrying a real text block
+//     classifies as 'typed' and falls straight through.
+//
+// TERMINAL vs ACTIVE (the load-bearing distinction): consume on card-fired /
+// no-gate-signal / any relevance pass / a bounded-escape degrade. NEVER consume on
+// intercept:true -- an intercept means the force-loop is still ACTIVE, the model is
+// about to be re-prompted, and the record must survive so the re-prompted turn is
+// re-checked. Consuming there would make MAX_FORCE_RETRIES unreachable and silently
+// turn the force-fire into a single-shot -- a reverse regression on the Phase 209
+// guarantee, which is exactly as bad as the over-enforcement this fix removes.
+//
+// Best-effort like every other side-file helper here: a missing module, a missing
+// export, or any fs fault degrades to a silent 0. A consumption fault must NEVER
+// block or throw the Stop hook (T-209-24). Part 8: LOCAL-only, deletes local scalars.
+// ---------------------------------------------------------------------------
+function consumeReachedGatesForVerdict(turn, verdict) {
+  try {
+    const t = turn && typeof turn === 'object' ? turn : {};
+    const v = verdict && typeof verdict === 'object' ? verdict : {};
+    // ACTIVE force-loop: keep the record alive so the re-prompted turn re-checks it.
+    if (v.intercept === true) return 0;
+    const sidechannel = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'card-fire-sidechannel.cjs'));
+    if (typeof sidechannel.consumeReachedGates !== 'function') return 0;
+    return sidechannel.consumeReachedGates(
+      typeof t.session_id === 'string' ? t.session_id : ''
+    );
+  } catch (_e) {
+    return 0;
+  }
+}
+
 // ----- stdin / envelope helpers (the on-stop idiom from operator-update.cjs) -----
 
 function readStdinJson() {
@@ -1396,6 +1453,9 @@ function main() {
     appendInterceptLog(turn, verdict);
     clearRetryCount(ctxHash);
     clearSessionCount(sessionId);
+    // TERMINAL verdict: the bounded escape released this gate, so its side-channel
+    // record is spent and must not force again on a later turn.
+    consumeReachedGatesForVerdict(turn, verdict);
     return emitEnvelope(buildEnforcementEnvelope(verdict));
   }
 
@@ -1415,6 +1475,11 @@ function main() {
   // gate counter AND reset the session counter (a no-intercept Stop turn ends any intercept run).
   clearRetryCount(ctxHash);
   clearSessionCount(sessionId);
+  // TERMINAL verdict (card-fired / no-gate-signal / a relevance pass): this Stop
+  // evaluation adjudicated the reached-gate records, so they are spent. Without this
+  // the SAME mint kept forcing on every later turn inside its TURN_FRESH_MS window --
+  // the answered-gate-refire defect (2026-07-28). See consumeReachedGatesForVerdict.
+  consumeReachedGatesForVerdict(turn, verdict);
   return silentSuccess();
 }
 
@@ -1433,6 +1498,7 @@ module.exports = {
   gateSignature,
   turnContextHash,
   deriveTurnSignals,
+  consumeReachedGatesForVerdict,
   readTranscriptTurn,
   readTranscriptTail,
   classifyPrecedingUserContentSource,

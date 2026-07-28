@@ -551,6 +551,284 @@ ok('Behavior 14: classifyPrecedingUserContentSource classifies typed / tool_resu
   );
 });
 
+// ---------------------------------------------------------------------------
+// Task 6: card-fire-answered-gate-refires-within-ttl-window (2026-07-28) -- the
+// RECORD LIFECYCLE fix. Before it, a reached-gate record's ONLY exit from the
+// store was the 10-minute TTL, so ONE mint kept asserting "force the card" on
+// EVERY Stop evaluation inside its 2-minute TURN_FRESH_MS window -- including
+// the turns AFTER the navigator had already fired and answered the card. Three
+// independent live sessions hit it (2026-07-22 x2, 2026-07-28), and it survived
+// four interim fixes (18cc8b8b, f63d1ddc, 0d47ed6d, 5431b7e9) because none of
+// them gave the record a lifecycle.
+//
+// The fix: consumeReachedGates (module) + consumeReachedGatesForVerdict
+// (consumer) spend the records once a Stop evaluation reaches a TERMINAL verdict
+// -- card-fired, no-gate-signal, a relevance pass, or a bounded-escape degrade.
+// intercept:true is an ACTIVE force-loop and deliberately does NOT consume.
+//
+// BOTH DIRECTIONS are load-bearing here and both are asserted below:
+//   (a) THE FIX          -- an answered gate must stop re-intercepting, and must
+//                           stay quiet across a MULTI-TURN span (2026-07-22
+//                           evidence: Leah's session took two blocks in one short
+//                           run, so a 1-turn fixture would not have caught it).
+//   (b) NON-REGRESSION   -- a genuinely still-pending fresh gate that was NEVER
+//                           answered MUST keep force-firing, and MUST keep
+//                           forcing across the whole retry loop until the bounded
+//                           escape releases it. Losing this is the Phase 209
+//                           guarantee in reverse and is exactly as bad as the
+//                           over-enforcement the fix removes.
+// ---------------------------------------------------------------------------
+
+// simulateStopTurn(env) -- one Stop-hook evaluation, wired EXACTLY as
+// scripts/check-card-fire.cjs main() wires it: derive signals, classify, then
+// apply the terminal-verdict consumption. main() calls the consumption on its
+// degrade branch and its no-intercept branch and NOT on its intercept branch;
+// consumeReachedGatesForVerdict self-guards on intercept:true, so calling it
+// unconditionally here is byte-equivalent to main()'s branching.
+function simulateStopTurn(env) {
+  const turn = checkCardFire.deriveTurnSignals(env);
+  turn.retry_count = Number.isFinite(env.retry_count) ? env.retry_count : 0;
+  turn.session_count = Number.isFinite(env.session_count) ? env.session_count : 0;
+  const verdict = checkCardFire.classifyCardFire(turn, checkCardFire.loadRegistry());
+  checkCardFire.consumeReachedGatesForVerdict(turn, verdict);
+  return verdict;
+}
+
+function withSideFile(fn) {
+  const f = tmpFile();
+  const origEnv = process.env.CARD_FIRE_SIDECHANNEL_PATH;
+  process.env.CARD_FIRE_SIDECHANNEL_PATH = f;
+  try {
+    fn(f);
+  } finally {
+    if (origEnv === undefined) delete process.env.CARD_FIRE_SIDECHANNEL_PATH;
+    else process.env.CARD_FIRE_SIDECHANNEL_PATH = origEnv;
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  }
+}
+
+ok('Behavior 12 (module): consumeReachedGates deletes the session bucket, returns the removed count, and is idempotent', function () {
+  const f = tmpFile();
+  recordReachedGate({ sessionId: 's-consume', surface: 'scripts/intent-classifier.cjs', shape: 'F.8', subjectText: 'bind session select rooms', filePath: f });
+  recordReachedGate({ sessionId: 's-consume', surface: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', subjectText: 'choose next reach', filePath: f });
+  assert.equal(readReachedGates('s-consume', { filePath: f }).length, 2, 'both mints are visible before consumption');
+
+  assert.equal(sidechannel.consumeReachedGates('s-consume', { filePath: f }), 2, 'consumption reports how many records it spent');
+  assert.deepStrictEqual(readReachedGates('s-consume', { filePath: f }), [], 'the session bucket is gone after consumption');
+  assert.deepStrictEqual(readReachedGateSubjects('s-consume', { filePath: f }), [], 'the subjects go with it');
+  assert.equal(sidechannel.mostRecentReachedTs('s-consume', { filePath: f }), 0, 'freshness collapses to 0 once the records are spent');
+
+  assert.equal(sidechannel.consumeReachedGates('s-consume', { filePath: f }), 0, 'consuming an already-spent session is a no-op, not an error');
+  fs.unlinkSync(f);
+});
+
+ok('Behavior 12b (module): consumption is session-scoped and never touches another session or the NO_SESSION_KEY bucket', function () {
+  const f = tmpFile();
+  const now = Date.now();
+  fs.writeFileSync(f, JSON.stringify({
+    'sess-a': [{ entry: 'scripts/intent-classifier.cjs', shape: 'F.8', ts: now, subject: 'gate a' }],
+    'sess-b': [{ entry: 'scripts/intent-classifier.cjs', shape: 'F.8', ts: now, subject: 'gate b' }],
+    'no-session': [{ entry: 'lib/hmi/selector-dispatcher.cjs', shape: 'F.1', ts: now, subject: 'sessionless trailer-door mint' }],
+  }));
+
+  assert.equal(sidechannel.consumeReachedGates('sess-a', { filePath: f }), 1);
+  assert.equal(
+    readReachedGates('sess-a', { filePath: f }).indexOf('scripts/intent-classifier.cjs') === -1,
+    true,
+    "sess-a's OWN mint is spent (the still-visible sessionless trailer-door mint is the documented carve-out below, not sess-a's record)"
+  );
+  assert.equal(
+    readReachedGates('sess-b', { filePath: f }).indexOf('scripts/intent-classifier.cjs') !== -1,
+    true,
+    'a CONCURRENT session must keep its own records -- consumption is never cross-session'
+  );
+  // The documented NO_SESSION_KEY carve-out: consuming under a real sessionId must NOT
+  // delete a sessionless mint, or one idle session could silently destroy a DIFFERENT
+  // session's genuine force-fire before that session ever adjudicated it.
+  const raw = JSON.parse(fs.readFileSync(f, 'utf8'));
+  assert.equal(Array.isArray(raw['no-session']) && raw['no-session'].length === 1, true,
+    'the NO_SESSION_KEY bucket survives a session-scoped consumption (the documented carve-out)');
+  // A caller with no sessionId of its own DOES consume that bucket (mirrors the read precedence).
+  assert.equal(sidechannel.consumeReachedGates('', { filePath: f }), 1);
+  assert.deepStrictEqual(readReachedGates('', { filePath: f }), [], 'a sessionless caller consumes the sessionless bucket');
+  fs.unlinkSync(f);
+});
+
+ok('Behavior 12c (module): consumeReachedGates never throws on a corrupt, missing, or unwritable store', function () {
+  const corrupt = tmpFile();
+  fs.writeFileSync(corrupt, 'not valid json {{{');
+  assert.doesNotThrow(function () { assert.equal(sidechannel.consumeReachedGates('s1', { filePath: corrupt }), 0); });
+  fs.unlinkSync(corrupt);
+  assert.doesNotThrow(function () { assert.equal(sidechannel.consumeReachedGates('s1', { filePath: tmpFile() }), 0); });
+  assert.doesNotThrow(function () { sidechannel.consumeReachedGates(null); });
+});
+
+ok('Behavior 13 (a) THE FIX: a gate fired-and-answered in turn N does NOT re-intercept in turns N+1, N+2, N+3 inside the fresh window', function () {
+  withSideFile(function (f) {
+    const SUBJECT = '-- mindrianOS -- bind session -- select rooms -- 1. untitled-2026-06-01-1702 2. polygon 3. pws-website 4. mindrianOS';
+    // Turn N: the F.8 binding gate is minted AND the navigator's card actually fires.
+    recordReachedGate({ sessionId: 'sess-ttl-bleed', surface: 'scripts/intent-classifier.cjs', shape: 'F.8', subjectText: SUBJECT, filePath: f });
+    const turnN = simulateStopTurn({
+      session_id: 'sess-ttl-bleed',
+      output_text: 'Which room(s) should this session write to?',
+      preceding_user_text: 'bind this session to a room',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: true,
+    });
+    assert.equal(turnN.intercept, false);
+    assert.equal(turnN.reason, 'card-fired');
+    assert.equal(readReachedGates('sess-ttl-bleed').length, 0,
+      'a fired card is a TERMINAL verdict -- the gate mint is spent, not left to bleed forward');
+
+    // Turns N+1..N+3: ordinary prose, no card, no gate shape, well inside the 2-minute
+    // TURN_FRESH_MS window the mint above would otherwise still occupy. The 2026-07-22
+    // evidence showed the bleed spanning MULTIPLE consecutive turns, so a single-turn
+    // fixture is not sufficient coverage here.
+    const followUps = [
+      'Dev-repo only, no room. Launching the background executor now.',
+      'Gap-closure executor running (root-cause the write-integrity discrepancy, then fix + independently re-verify). Standing by.',
+      'Memory logged - two files, indexed at the top of MEMORY.md. The update ran clean.',
+    ];
+    for (let i = 0; i < followUps.length; i += 1) {
+      const v = simulateStopTurn({
+        session_id: 'sess-ttl-bleed',
+        output_text: followUps[i],
+        preceding_user_text: 'ok keep going with the room work and start the next step',
+        preceding_user_text_source: 'typed',
+        askuserquestion_fired: false,
+      });
+      assert.equal(v.intercept, false,
+        'turn N+' + (i + 1) + ' must NOT be force-blocked for a gate that was already fired and answered');
+      assert.equal(v.reason, 'no-gate-signal',
+        'turn N+' + (i + 1) + ' carries no gate signal at all once the answered mint is spent');
+    }
+  });
+});
+
+ok('Behavior 13b (a) THE FIX: a relevance PASS is also terminal -- the declined gate is not re-litigated next turn', function () {
+  withSideFile(function () {
+    // A gate whose subject has ZERO token overlap with the turn: the relevance gate
+    // passes it (gate-irrelevant-to-turn). That is a decision NOT to enforce, so the
+    // record must be spent -- re-litigating it on the next turn is the defect.
+    recordReachedGate({ sessionId: 'sess-irrelevant', surface: 'scripts/intent-classifier.cjs', shape: 'F.1', subjectText: 'quarterly pricing waterfall spreadsheet reconciliation' });
+    const v1 = simulateStopTurn({
+      session_id: 'sess-irrelevant',
+      output_text: 'Here is the summary you asked for.',
+      preceding_user_text: 'summarise yesterday transcription accuracy benchmarks',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: false,
+    });
+    assert.equal(v1.intercept, false);
+    assert.equal(v1.reason, 'gate-irrelevant-to-turn');
+    assert.equal(readReachedGates('sess-irrelevant').length, 0, 'a declined gate is spent, not carried forward');
+
+    const v2 = simulateStopTurn({
+      session_id: 'sess-irrelevant',
+      output_text: 'And here is the follow-up detail.',
+      preceding_user_text: 'now walk me through the pricing waterfall reconciliation spreadsheet',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: false,
+    });
+    assert.equal(v2.reason, 'no-gate-signal',
+      'even a LATER topically-overlapping turn cannot resurrect a gate this session already declined');
+  });
+});
+
+ok('Behavior 14 (b) NON-REGRESSION: a still-pending, never-answered fresh gate keeps force-firing across the WHOLE retry loop, then the degrade spends it', function () {
+  withSideFile(function () {
+    const SUBJECT = 'Choose your starting point - build the plan now, or run research first';
+    const USER = 'help me choose a starting point for the venture plan';
+    recordReachedGate({ sessionId: 'sess-pending', surface: 'scripts/intent-classifier.cjs', shape: 'F.1', subjectText: SUBJECT });
+
+    // Retries 0, 1, 2: the model keeps refusing to fire the card. EVERY one of these
+    // must still intercept -- an intercept is an ACTIVE force-loop, so the record must
+    // survive it. If consumption ran here, MAX_FORCE_RETRIES would be unreachable and
+    // the force-fire would silently collapse to a single shot.
+    for (let retry = 0; retry < checkCardFire.MAX_FORCE_RETRIES; retry += 1) {
+      const v = simulateStopTurn({
+        session_id: 'sess-pending',
+        output_text: 'I think you should probably just start with the research.',
+        preceding_user_text: USER,
+        preceding_user_text_source: 'typed',
+        askuserquestion_fired: false,
+        retry_count: retry,
+      });
+      assert.equal(v.intercept, true, 'retry ' + retry + ': a genuine unanswered fork MUST still force-fire');
+      assert.equal(v.reason, 'reached-registry-gate-no-card');
+      assert.equal(readReachedGates('sess-pending').length, 1,
+        'retry ' + retry + ': the record MUST survive an active force-loop');
+    }
+
+    // The bounded escape releases: that IS terminal, so the record is finally spent.
+    const degraded = simulateStopTurn({
+      session_id: 'sess-pending',
+      output_text: 'I think you should probably just start with the research.',
+      preceding_user_text: USER,
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: false,
+      retry_count: checkCardFire.MAX_FORCE_RETRIES,
+    });
+    assert.equal(degraded.degrade, true);
+    assert.equal(degraded.intercept, false);
+    assert.equal(readReachedGates('sess-pending').length, 0, 'a bounded-escape degrade spends the record');
+
+    // And having been released, it never comes back to block an unrelated later turn.
+    const after = simulateStopTurn({
+      session_id: 'sess-pending',
+      output_text: 'Running the research pass now.',
+      preceding_user_text: 'go with research',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: false,
+    });
+    assert.equal(after.intercept, false);
+    assert.equal(after.reason, 'no-gate-signal');
+  });
+});
+
+ok('Behavior 14b (b) NON-REGRESSION: consumption is scoped to the session that adjudicated -- a concurrent session still force-fires its own pending gate', function () {
+  withSideFile(function () {
+    recordReachedGate({ sessionId: 'sess-quiet', surface: 'scripts/intent-classifier.cjs', shape: 'F.1', subjectText: 'choose a starting point for the plan' });
+    recordReachedGate({ sessionId: 'sess-busy', surface: 'scripts/intent-classifier.cjs', shape: 'F.1', subjectText: 'choose a starting point for the plan' });
+
+    // The quiet session fires its card -> terminal -> spends ONLY its own record.
+    const quiet = simulateStopTurn({
+      session_id: 'sess-quiet',
+      output_text: 'Which starting point do you want?',
+      preceding_user_text: 'choose a starting point for the plan',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: true,
+    });
+    assert.equal(quiet.reason, 'card-fired');
+
+    // The busy session's own pending gate is untouched and still forces.
+    const busy = simulateStopTurn({
+      session_id: 'sess-busy',
+      output_text: 'You should just go with the first one.',
+      preceding_user_text: 'choose a starting point for the plan',
+      preceding_user_text_source: 'typed',
+      askuserquestion_fired: false,
+    });
+    assert.equal(busy.intercept, true, 'one session adjudicating must never disarm a DIFFERENT live session');
+    assert.equal(busy.reason, 'reached-registry-gate-no-card');
+  });
+});
+
+ok('Behavior 15: the consumption wire is present in BOTH enforcement paths (CLI Stop hook + MCP stop-gate handler) so they cannot drift apart again', function () {
+  const hookSrc = fs.readFileSync(path.join(REPO, 'scripts', 'check-card-fire.cjs'), 'utf8');
+  assert.equal(typeof checkCardFire.consumeReachedGatesForVerdict, 'function',
+    'the consumer must export the lifecycle wire');
+  assert.equal(typeof sidechannel.consumeReachedGates, 'function',
+    'the side-channel module must export the consumption primitive');
+  // main()'s two TERMINAL branches (degrade + no-intercept) both consume; the intercept
+  // branch must not. Two call sites in main(), plus the definition itself.
+  const callSites = hookSrc.split('consumeReachedGatesForVerdict(turn, verdict)').length - 1;
+  assert.equal(callSites >= 2, true,
+    'main() must consume on BOTH terminal branches (degrade and no-intercept), got ' + callSites);
+  const mcpSrc = fs.readFileSync(path.join(REPO, 'lib', 'mcp', 'stop-gate-handler.cjs'), 'utf8');
+  assert.equal(mcpSrc.indexOf('consumeReachedGatesForVerdict') !== -1, true,
+    'the MCP stop-gate handler must WRAP the same lifecycle wire (Part 7), never fork a second one');
+});
+
 ok('Constitutional floor is byte-untouched: MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12', function () {
   assert.equal(checkCardFire.MAX_FORCE_RETRIES, 3);
   assert.equal(checkCardFire.MAX_SESSION_INTERCEPTS, 12);
