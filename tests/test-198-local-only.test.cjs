@@ -65,6 +65,14 @@ const NEW_198_MODULES = [
   // state class and must clear the identical Brain-egress floor.
   'lib/mcp/stop-gate-handler.cjs',
   'lib/mcp/tools/stop-gate.cjs',
+  // Phase 237-01 (Plan 07's net-new module): the chain-step dispatcher
+  // resolves and spawns Tier 1 executables and reports Tier 2 methodology
+  // steps honestly (quality: null). It carries the same room/chain state
+  // class as chain.cjs and must clear the identical Brain-egress floor.
+  // Absence-tolerant like every other target above: this floor is authored
+  // in 237-01, before Plan 07 lands the file itself, so it is skipped from
+  // the grep (not failed) until the module exists.
+  'lib/core/chain-step-dispatcher.cjs',
 ];
 
 // Brain-egress tokens. A 198 module carrying room/gate state must contain NONE

@@ -105,6 +105,62 @@ run "REGRESSION act-command adapted decideFn still reaches decide()" \
 run "REGRESSION recipe-maps is the posture authority" \
   node tests/test-recipe-maps-authority.cjs
 
+# ---------------------------------------------------------------------------
+# Three ALWAYS-RUN hard floors, ahead of the summary tail. Never run_if -- a
+# floor that could SKIP is not a floor.
+# ---------------------------------------------------------------------------
+
+# Floor 1 (self-check, HARD). Proves the run/run_if helpers above are wired
+# before anything else in this aggregator executes. This exists so the
+# aggregator can never report a zero-leg green.
+run "237 aggregator self-check (run/run_if helpers wired)" bash -c 'true'
+
+# Floor 2 (Part 8 local-only, HARD). Extended in this same plan to name
+# lib/core/chain-step-dispatcher.cjs (Plan 07's net-new module) while
+# tolerating its current absence.
+run "237 Canon Part 8 local-only floor" \
+  node tests/test-198-local-only.test.cjs
+
+# Floor 3 (em-dash sweep, HARD). The forbidden glyph is matched via its
+# codepoint escape (U+2014, bash ANSI-C quoting) so this runner itself
+# carries no literal em-dash to trip its own sweep. Pattern from
+# tests/run-all-164.sh:352-395.
+em_dash_sweep() {
+  local EMDASH=$'\u2014'
+  local EMDASH_OK=1
+  local EMDASH_TARGETS=(
+    "lib/core/chain-step-dispatcher.cjs"
+    "lib/mcp/tools/chain.cjs"
+    "lib/core/chain-executor.cjs"
+    "lib/core/insight-sensors.cjs"
+    "scripts/post-write"
+    "scripts/auto-explore-fingerprint.cjs"
+    "scripts/auto-explore-fire.cjs"
+    "scripts/build-command-registry.cjs"
+    "commands/snapshot.md"
+    "tests/run-all-237.sh"
+    "tests/test-237-autonomy-parity.cjs"
+    "tests/test-237-one-authority-fence.cjs"
+    "tests/test-237-decide-census.cjs"
+    "tests/test-237-executable-seam.cjs"
+    "tests/test-237-dispatcher-tiers.cjs"
+    "tests/test-237-approve-executes.cjs"
+    "tests/test-237-session-scope.cjs"
+    "tests/test-237-session-scope.worker.cjs"
+    "tests/test-237-session-scope-degrade.cjs"
+    "tests/test-237-post-write-session-stamp.cjs"
+  )
+  local t f
+  for t in "${EMDASH_TARGETS[@]}"; do
+    f="$ROOT/$t"
+    if [ -f "$f" ] && grep -q "$EMDASH" "$f"; then
+      echo "    FORBIDDEN em-dash in: $t"; EMDASH_OK=0
+    fi
+  done
+  [ "$EMDASH_OK" -eq 1 ]
+}
+run "237 em-dash sweep (Phase 237 artifacts)" em_dash_sweep
+
 echo "========================================"
 echo "  Summary (237 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"
