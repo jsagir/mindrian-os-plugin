@@ -143,6 +143,20 @@ run_if "PSB-14 doctor --bind-check (healthy/unhealthy; registers presence; no Br
   lib/core/session-presence.cjs \
   node tests/test-doctor-bind-check.test.cjs
 
+# ---------------------------------------------------------------------------
+# RCA resolve-active-room-cross-session-bleed. The regression floor for the two
+# defects that made the PSB session precedence unreachable in practice:
+#   D2 -- leg 2 derived the bound room's dir as path.join(home, primary), which
+#         is false for every SUB-room, so a bound session silently degraded to
+#         the machine-wide reg.active.
+#   D1 -- scripts/intent-classifier.cjs resolved the F.1 / F.8 room via the
+#         MACHINE-WIDE resolver and never consulted the session binding at all.
+# Together these meant reg.active was still the de-facto authority for every
+# session, which is exactly what Phase 194 set out to kill.
+# ---------------------------------------------------------------------------
+run "PSB cross-session room bleed (bound session resolves its OWN room, incl. sub-rooms)" \
+  node tests/test-cross-session-room-bleed.cjs
+
 echo "========================================"
 echo "  Summary (194 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"

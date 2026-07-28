@@ -164,7 +164,18 @@ const strictModeMod = require(
 // helpers activeRoomFromRegistry + registeredRoomNames + readRegistry +
 // resolveRoomsRootForNav are PRESERVED because they are consumed
 // elsewhere in this script for scope-matching at multiple call sites.
-const { resolveActiveRoomDir: _chokepointResolveActiveRoomDir } = require(
+// RCA resolve-active-room-cross-session-bleed (D1): resolveActiveRoomDir is
+// MACHINE-WIDE by design ("which room is active on this machine"). Using it as
+// THIS hook's room made every concurrent CLI session on one machine render its
+// F.1 Decision Gate card -- and write its decision traces -- against whichever
+// room an unrelated session last activated. resolveSessionRoom is the shipped
+// session-scoped precedence (session.primary, then the reg.active seed for a
+// genuinely unbound session); the machine-wide resolver stays imported only as
+// the seed/fallback and for the sessionId hash-fallback input.
+const {
+  resolveActiveRoomDir: _chokepointResolveActiveRoomDir,
+  resolveSessionRoom: _chokepointResolveSessionRoom,
+} = require(
   path.join(__dirname, '..', 'lib', 'core', 'resolve-active-room.cjs')
 );
 const detectStrictMode = strictModeMod.detectStrictMode;
@@ -585,8 +596,12 @@ function main() {
       // floor exists to prevent. messageTokenSet is already built one line above
       // (line 503) for the scoring loop; reusing it here costs nothing extra.
       if (messageTokenSet.size >= ZERO_SCORE_GATE_MIN_TOKENS) {
-        const roomDir = resolveActiveRoomDir();
-        const sessionId = resolveSessionId(roomDir);
+        // The machine-wide value is resolved FIRST only to seed
+        // resolveSessionId's sha256 hash fallback byte-identically to pre-fix;
+        // the roomDir actually used is THIS session's (D1).
+        const machineWideDir = resolveActiveRoomDir();
+        const sessionId = resolveSessionId(machineWideDir);
+        const roomDir = resolveSessionRoomDir(sessionId, machineWideDir);
         const binding = require(
           path.join(__dirname, '..', 'lib', 'core', 'session-binding.cjs')
         ).readSessionBinding(sessionId, { home: root });
@@ -641,8 +656,14 @@ function main() {
   // falls through to the legacy advisory (PSB-06).
   if (bindingGate && !bindingGate.degraded && bindingGate.fire) {
     try {
-      const roomDir = resolveActiveRoomDir();
-      const sessionId = resolveSessionId(roomDir);
+      // D1: the F.8 gate's trace state must live in THIS session's room, not the
+      // machine-wide one. When the active room moved under an unbound session,
+      // the answered-gate payload became unreadable on the next turn (it was
+      // written into a different directory), so the gate re-fired as if never
+      // answered -- the "dozens of declined cards" shape this RCA explains.
+      const machineWideDir = resolveActiveRoomDir();
+      const sessionId = resolveSessionId(machineWideDir);
+      const roomDir = resolveSessionRoomDir(sessionId, machineWideDir);
       if (emitBindingGate({ best: best, scored: scored, sealedRooms: sealedRooms, roomDir: roomDir, sessionId: sessionId })) {
         return 0;
       }
@@ -905,6 +926,28 @@ function resolveActiveRoomDir() {
     process.env.MINDRIAN_ROOMS_HOME = process.env.MINDRIAN_ROOMS_ROOT;
   }
   return _chokepointResolveActiveRoomDir();
+}
+
+// resolveSessionRoomDir -- THIS session's room directory (RCA
+// resolve-active-room-cross-session-bleed, D1).
+//
+// Composes the shipped chokepoint export rather than re-deriving precedence
+// here (SEED-034, the four-guessers lesson). Falls back to the caller-supplied
+// machine-wide value on any fault or miss, so the degraded path is exactly the
+// pre-fix behavior and the hook can never lose its room to a resolver error.
+//
+// Deliberately calls resolveSessionRoom, NOT resolveWriteRoom: the latter's
+// leg 1 walks up from process.cwd() when given no filePath, which would let a
+// session's shell working directory silently outrank its explicit binding.
+function resolveSessionRoomDir(sessionId, machineWideDir) {
+  try {
+    if (typeof _chokepointResolveSessionRoom === 'function') {
+      const home = process.env.MINDRIAN_ROOMS_HOME || undefined;
+      const r = _chokepointResolveSessionRoom({ sessionId: sessionId, home: home });
+      if (r && typeof r.abs_path === 'string' && r.abs_path.length > 0) return r.abs_path;
+    }
+  } catch (_) { /* fall through to the machine-wide value */ }
+  return machineWideDir;
 }
 
 function resolveSessionId(roomDir) {
@@ -2876,9 +2919,20 @@ try {
   let navP = Promise.resolve(null);
   try {
     if (STDIN_MESSAGE && STDIN_MESSAGE.length > 0) {
-    const roomDir = resolveActiveRoomDir();
-    if (roomDir) {
-      const sessionId = resolveSessionId(roomDir);
+    // RCA resolve-active-room-cross-session-bleed (D1). This is THE site that
+    // made the F.1 Decision Gate card cite a foreign room: roomDir flows into
+    // runNavigationEngine -> sensorCtx.roomDir and into buildDialSlotContext,
+    // whose slots.header_room is literally path.basename(roomDir). Taken from
+    // the machine-wide resolver, an unrelated concurrent session's room became
+    // this session's card header, and this session's decision traces were
+    // written into that stranger's room directory (Canon Part 9 misattribution).
+    // The machine-wide value is still resolved first, but ONLY to seed
+    // resolveSessionId's hash fallback exactly as before and to serve as the
+    // unbound-session fallback.
+    const machineWideDir = resolveActiveRoomDir();
+    if (machineWideDir) {
+      const sessionId = resolveSessionId(machineWideDir);
+      const roomDir = resolveSessionRoomDir(sessionId, machineWideDir);
       // Phase 159-02 (HOW-4, DCW-01/04): the turn-start consumer. Fire BEFORE the
       // new turn's dial render, reading the PRIOR turn's persisted f1_closer_payload
       // and routing the navigator's pick through the navigation-chokepoint-owned
