@@ -71,6 +71,11 @@ run_if "222-06 degrade (Req 7)" "tests/test-222-degrade.cjs" \
   node tests/test-222-degrade.cjs
 run_if "222-07 zero-deps (Req 4)" "tests/test-222-zero-deps.cjs" \
   node tests/test-222-zero-deps.cjs
+# Quick 260728-7kc: the opt-in read-only ranking mode plus the runtime no-write
+# proof for the two declared-read MCP pull tools. Lives on the 222 gate because
+# it owns the ranker seam it exercises.
+run_if "222-08 read-only rank + no-write MCP pulls (quick 260728-7kc)" "tests/test-222-readonly-rank.cjs" \
+  node tests/test-222-readonly-rank.cjs
 
 # ---------------------------------------------------------------------------
 # (a) Part 8 sweep -- the new ranking surfaces must never egress or read/write a
