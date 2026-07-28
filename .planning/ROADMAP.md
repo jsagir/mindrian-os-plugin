@@ -24,7 +24,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
 **Phase Numbering:** integer phases are planned milestone work; decimal phases (e.g. 236.1) are urgent insertions. Numbering continues from v1.15.0's last phase directory (234).
 
-- [ ] **Phase 235: CIRS Commit Gate + Seam-Liveness Helper** - The born-wired gate actually fires on every commit in every worktree, and one reusable seam-liveness assertion proves any seam live at BOTH ends (the leverage point)
+- [x] **Phase 235: CIRS Commit Gate + Seam-Liveness Helper** - The born-wired gate actually fires on every commit in every worktree, and one reusable seam-liveness assertion proves any seam live at BOTH ends (the leverage point) (completed 2026-07-28)
 - [ ] **Phase 236: room.db Data-Loss Fixes** - Graph rebuild cannot erase memory/decision/truth-claim rows (one transaction), and a busy or broken open reports its real state instead of cold-starting
 - [ ] **Phase 237: Reach Mechanism** - Approving a chain step actually runs it, one autonomy authority instead of two, and reach signals are session-scoped
 - [ ] **Phase 238: Decision Gates** - Gates resolve through the ledger that minted them, session-scoped and concurrency-safe, and the card-fire backstop stops firing on prose
@@ -51,7 +51,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 **Plans**: 2 plans
 
 - [x] 235-01-PLAN.md — CIRS-01/CIRS-03: consolidate the pre-commit hook to one canonical source (retiring the divergent setup-hooks.sh / install-pre-commit.sh authoring), fix release.sh's --strict-shape swallow, and mutation-proof both end to end (worktree + rival-installer-overwrite reproduction).
-- [ ] 235-02-PLAN.md — CIRS-02: build the repo-wide lib/core/seam-liveness.cjs helper (3 named dead-seam shapes + live controls), wire it into build-connector-registry.cjs's coverageReport() to close the MCP-tool-file blind spot, and mutation-proof the wiring.
+- [x] 235-02-PLAN.md — CIRS-02: build the repo-wide lib/core/seam-liveness.cjs helper (3 named dead-seam shapes + live controls), wire it into build-connector-registry.cjs's coverageReport() to close the MCP-tool-file blind spot, and mutation-proof the wiring.
 
 ### Phase 236: room.db Data-Loss Fixes
 
@@ -171,7 +171,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 235. CIRS Commit Gate + Seam-Liveness Helper | 1/2 | In Progress|  |
+| 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
 | 236. room.db Data-Loss Fixes | 0/? | Not started | - |
 | 237. Reach Mechanism | 0/? | Not started | - |
 | 238. Decision Gates | 0/? | Not started | - |

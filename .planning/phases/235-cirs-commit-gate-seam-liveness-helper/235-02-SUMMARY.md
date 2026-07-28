@@ -225,3 +225,9 @@ None.
 ---
 *Phase: 235-cirs-commit-gate-seam-liveness-helper*
 *Completed: 2026-07-28*
+
+## Self-Check: PASSED
+
+All 7 claimed files verified present on disk; all 5 claimed commit hashes verified
+present in git history; no uncommitted changes remain in any path this plan owns;
+zero em-dashes in any file this plan created.

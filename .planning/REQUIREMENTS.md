@@ -13,7 +13,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 ### Phase 235 -- CIRS leverage fix (do first, precondition for 237/238)
 
 - [x] **CIRS-01**: The commit-time born-wired gate actually runs on every commit, in every worktree sharing this machine's hooks dir, not overwritten by a rival installer (C-1).
-- [ ] **CIRS-02**: A reusable seam-liveness assertion helper exists (hook matcher matches a live tool name, an enqueue has a registered consumer, a mint is consumable by its ratifier) and CIRS's own `--check` uses it for its surfaces (C-2, refined per this session's systems-thinking stress test to be a repo-wide helper, not CIRS-only).
+- [x] **CIRS-02**: A reusable seam-liveness assertion helper exists (hook matcher matches a live tool name, an enqueue has a registered consumer, a mint is consumable by its ratifier) and CIRS's own `--check` uses it for its surfaces (C-2, refined per this session's systems-thinking stress test to be a repo-wide helper, not CIRS-only).
 - [x] **CIRS-03**: `scripts/release.sh`'s `--strict` flag on `check-shape-declaration.cjs` actually changes exit behavior instead of being swallowed by `|| true` (C-3, folds into CIRS-01).
 
 ### Phase 236 -- room.db data-loss (urgent, parallel to 235)
@@ -73,7 +73,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CIRS-01 | Phase 235 | Complete |
-| CIRS-02 | Phase 235 | Pending |
+| CIRS-02 | Phase 235 | Complete |
 | CIRS-03 | Phase 235 | Complete |
 | GRAPHDB-01 | Phase 236 | Pending |
 | GRAPHDB-02 | Phase 236 | Pending |

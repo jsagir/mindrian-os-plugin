@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 235-01-PLAN.md
-last_updated: "2026-07-28T00:00:00.000Z"
-last_activity: 2026-07-28 -- Phase 235 plan 01 complete (CIRS-01 + CIRS-03)
+stopped_at: Completed 234-02-PLAN.md
+last_updated: "2026-07-28T08:23:10.653Z"
+last_activity: 2026-07-28 -- Phase 235 execution started
 progress:
   total_phases: 9
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 50
+  completed_plans: 2
+  percent: 11
 ---
 
 # Project State
@@ -1341,8 +1341,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 235 (cirs-commit-gate-seam-liveness-helper) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 235
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-07-28 -- Phase 235 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
@@ -1946,6 +1946,7 @@ Progress: [█████████░] 92%
 | Phase 234 P02 | 21min | 1 tasks | 3 files |
 | Phase 234 P03 | 35m | 1 tasks | 124 files |
 | Phase 234 P04 | 50m | 2 tasks | 25 files |
+| Phase 235 P02 | 45min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -3074,6 +3075,10 @@ Progress: [█████████░] 92%
 - [Phase 234]: 234-03: allowed-tools normalized to the spec string form with a space separator, except skills/status where a space-containing scoped Bash grant forces comma-space to avoid widening the permission scope - Bash(node scripts/mos-status.cjs:*) contains a space; space-joining re-reads it as multiple broad tokens. Comma-space is lossless, already shipping in 7 other SKILL.md files, and still a string so it satisfies the spec type rule and check-skill-spec.cjs.
 - [Phase 234]: 234-03: the frontmatter codemod uses targeted line-level splices and never matter.stringify() - matter.stringify() re-serializes through js-yaml and silently deletes hand-written YAML comments, including the Canon Part 8 Brain-egress prohibitions living inside the rs-experts and rs-thesis allowed-tools blocks. Catalog-wide frontmatter comment count verified unchanged at 331.
 - [Phase 234]: 234-03: MOSDeckEngine and value-proposition excluded from the bulk migration by explicit list, deferred to 234-04 - Both need a traced decision rather than a mechanical edit: a directory rename with live callers, and an intentional name/dirname mismatch with two live consumers. check-skill-spec hard failures therefore land at 2, not 0, until 234-04 runs.
+- [Phase 235-02]: Seam liveness is a shared primitive (lib/core/seam-liveness.cjs), not a per-call-site reimplementation: CIRS-02 is its first consumer, Phases 237/238/239 are the next
+- [Phase 235-02]: A liveness probe that throws counts as DEAD, not as a crash: a broken check is as untrustworthy as a missing far end
+- [Phase 235-02]: mcp_tool is an ADDITIVE fifth member of SURFACE_CLASS_ENUM, never a member of FOUR_CLASSES
+- [Phase 235-02]: Census versus probe: enumerate claimed sources from disk requiring nothing, probe separately, and the gap between the two IS the dead seam
 
 ### Pending Todos
 
@@ -3165,7 +3170,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-28 - Completed quick task 260728-3uw: Fixed stale "Active Milestone: v1.14.0" header + dead tail status marker in ROADMAP.md (now points at v1.15.0 "The Cockpit" / Phase 233)
-Last session: 2026-07-28T03:27:59.842Z
+Last session: 2026-07-28T08:22:23.138Z
 Stopped at: Completed 234-02-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
