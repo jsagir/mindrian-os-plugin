@@ -1,5 +1,46 @@
 # Milestones
 
+## v1.15.0 "The Cockpit" (Shipped, rolled forward into v1.16.0: 2026-07-28)
+
+**No formal `/gsd-complete-milestone` audit ran** -- same precedent as v1.14.0 "Larry Thinks"
+(see this repo's own CLAUDE.md: "shipped in place with no formal archive step... rolled forward
+directly into v1.15.0... treat as superseded, not a separately closed milestone"). Neither
+v1.14.0 nor v1.15.0 ever had a dedicated REQUIREMENTS.md refresh -- `.planning/REQUIREMENTS.md`
+was last cleanly scoped at v1.13.1's close-out (commit `9428f5c7`) and rolled forward informally
+across both subsequent milestones before being replaced with v1.16.0's own fresh requirements.
+This entry documents v1.15.0 honestly rather than fabricating a REQUIREMENTS.md archive or a
+MILESTONE-AUDIT.md that never cleanly existed.
+
+**Phases completed:** 234 phases (the last phase directory; numbering is cumulative from
+project start, not per-milestone), latest released tag v1.15.3-beta.50.
+
+**One known open item, deliberately not fabricated as closed:** Phase 234's final plan
+(234-08) Task 2 is a blocking human-verify checkpoint -- installing and observing MindrianOS
+on a real foreign host (VS Code, Cursor, Goose, or Zed) -- that requires the navigator's own
+hands and has not yet run. Task 1 is green (`tests/run-all-234.sh` 11/11); Task 3 is gated
+behind Task 2. Full detail: `.planning/phases/234-mindrianos-as-infrastructure-skills-mcp-everywhere-open-core/234-08-PLAN.md`.
+Carries forward as an early v1.16.0 item, not silently dropped.
+
+**Key accomplishments (this session's own work, 2026-07-28):**
+
+- Critical Pathway (score -> consult -> reuse-check -> promote -> execute) formalized for the
+  seed backlog, catching two near-misses live the same week it was written.
+- `rooms-open` false-success bug found, root-caused, and fixed (no real writer ever called
+  `room-registry set-active`; success was structurally impossible without the switch landing).
+- Five distinct check-card-fire.cjs-family defects found and fixed in one session: notification-
+  only-turn force-fire, answered-gate TTL-refire (a lifecycle the record never had), the MCP-
+  first path's structurally-unreachable retry ceiling (plus a dead-code sibling that silently
+  broke the TTL fix's own consumption wire on that path), cross-session room-resolution bleed
+  (two compounding defects: an unwired consumer, a broken sub-room path), and the unbound-
+  session ownership gap closing the same cluster via a PID-liveness design.
+- SEED-068 + SEED-069 consolidated and promoted to Phase 234 ("infrastructure, not an
+  application" + "open core at the network boundary"), langtalks-graph-expert-consulted per
+  the mandatory rule; research found the phase ~far closer to done than either seed assumed
+  (33 live MCP tools already, persona already a skill, the entitlement mechanism already built).
+- Two seed id collisions found and resolved (SEED-054 x2, SEED-020/031 stale duplicate).
+
+---
+
 ## v1.13.1 "Larry Reaches" (Shipped STABLE: 2026-06-17)
 
 **Phases completed:** 24 phases executed across the 140-160 band (plus the connector-spine .x phases); 1740 commits since v1.13.0-beta.1. Audit: tech_debt accepted (deferred items -> v1.14.0). npm @latest 1.13.1, tag v1.13.1.
