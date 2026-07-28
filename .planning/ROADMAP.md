@@ -1,6 +1,8 @@
 # Roadmap: MindrianOS Plugin -- v1.16.0 "Infrastructure Remediation"
 
-**Previous milestone:** v1.15.0 "The Cockpit" (shipped through Phase 234, latest released tag v1.15.3-beta.50). Full v1.15.0 roadmap detail archived at `.planning/milestones/v1.15.0-ROADMAP.md`. This file covers ONLY v1.16.0. Phase numbering continues from 234.
+**Previous milestone:** v1.15.0 "The Cockpit" (code-complete through Phase 234, latest released tag v1.15.3-beta.50; official stable close-out pending -- see Release train Gate 0 below). Full v1.15.0 roadmap detail archived at `.planning/milestones/v1.15.0-ROADMAP.md`. This file covers ONLY v1.16.0. Phase numbering continues from 234.
+
+**Release train (navigator directive 2026-07-28):** after Phase 234, close down OFFICIAL v1.15.0 first -- finalize the v1.15.3-beta.x train to the stable release (Gate 0 in Progress below) -- THEN v1.16.0 work ships as `v1.16.0-beta.N` prereleases. No v1.16.0 release cut before the stable v1.15.0 close-out.
 
 ## Overview
 
@@ -16,7 +18,7 @@ Carried verbatim from REQUIREMENTS.md; plan-phase must honor these during resear
 - **Claude Code / Claude API expertise:** phases touching hooks (`hooks/hooks.json`, `PreToolUse`/`PostToolUse`/`Stop` matchers), MCP tool registration, or subagent/agent-registry behavior consult the `claude-api` skill and the `claude-code-guide` agent before changing matcher patterns or registry logic. Applies directly to Phases 235, 237, 238, 239.
 - **SQL / SQLite expertise:** phases touching `room.db` (`lib/core/room-db.cjs`, `lib/core/navigation/*`, raw SQL) consult Context7 docs for `node:sqlite` (`DatabaseSync`, transaction semantics, WAL visibility, the `timeout` option's real version floor) before writing or reviewing any transaction-wrapping fix. Applies directly to Phases 236, 240, 242.
 
-Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production-trigger.md` (resolved -- the model for criterion rigor), `minto-debounce-consumer-dead-end.md` (filed, Phase 241 input), `graph-rebuild-truncates-memory-journal.md` (filing in progress, Phase 236/240 input), `graph-edge-pending-undrained-dead-letter-queue.md` (debug in progress, Phase 240 input), `room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` (diagnosed, live before/after verified, Phase 237/REACH-03 input -- room_bind's session-scoped binding is invisible to every MCP read tool unless MINDRIAN_MCP_FIRST covers the calling surface).
+Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production-trigger.md` (resolved -- the model for criterion rigor), `minto-debounce-consumer-dead-end.md` (filed, Phase 241 input), `graph-rebuild-truncates-memory-journal.md` (filing in progress, Phase 236/240 input), `graph-edge-pending-undrained-dead-letter-queue.md` (debug in progress, Phase 240 input), `room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` (diagnosed, live before/after verified -- room_bind's session-scoped binding is invisible to every MCP read tool unless MINDRIAN_MCP_FIRST covers the calling surface. SPLIT ROUTING, navigator 2026-07-28: Phase 237/REACH-03 takes ONLY the session-scoping acceptance test; the structural resolver collapse is carried to the v1.17.0 "MCP-First" milestone, see Next Milestone below).
 
 ## Phases
 
@@ -126,6 +128,11 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
 ## Progress
 
+**Release train (navigator directive 2026-07-28 -- gates RELEASE CUTS, not planning/code work):**
+
+- **Gate 0 -- official v1.15.0 close-out FIRST:** finalize the v1.15.3-beta.x train to the stable v1.15.x release (`release.sh --finalize` flow: npm @latest, tag, marketplace pin, full lockstep per the release hard rules), closing Phase 234 as the last v1.15.0 phase. Per the standing rule (`feedback_dev_repo_fix_not_live_until_released`), v1.15.0 is not "shipped" until this release actually cuts and is picked up.
+- **Then v1.16.0 betas:** all v1.16.0 phase work releases as `v1.16.0-beta.N` prereleases (`release.sh --start-prerelease` to open the train); v1.16.0 finalizes to stable only when all 9 phases close. No v1.16.0 release cut before Gate 0.
+
 **Execution order (dependency waves):**
 
 - **Wave 1 (parallel):** Phase 235 (leverage point) + Phase 236 (urgent data-loss)
@@ -153,4 +160,5 @@ Navigator locked this slot mid-roadmap-session ("lets plan it for 1.17.beta"): t
 - **Scope anchor:** `.planning/phases/198-mcp-first-then-sdk/` (Phase 198, un-parked 2026-07-09; stack locked oclif + Ink + MCP SDK; 3 servers split by trust boundary) plus PROJECT.md Platform Vision Workstream B (23-tool MCP server) as candidate scope.
 - **Why after v1.16.0, not inside it:** the live MCP tool surface (`lib/mcp/tools/`: chain.cjs, gate.cjs, sensors.cjs, graph.cjs, room.cjs, status.cjs, stop-gate.cjs, views.cjs) is exactly where the audit found wired-at-one-end seams. v1.17.0 builds on the repaired surface (Phases 237/238/239) and inherits Phase 235's seam-liveness helper, so all three new servers are born-wired with a red-able liveness gate from day one instead of repeating the audit's failure shape at 3x scale.
 - **Candidate fold-ins (decide at milestone definition, not here):** MCP Sampling migration for Feynman-MINTO tier-1 (retires the ANTHROPIC_API_KEY requirement; PROJECT.md first-class backlog item), MCP Apps De Stijl surfaces (Workstream C).
+- **CARRIED-IN DEFECT (navigator routing, 2026-07-28): the room-resolution ladder is v1.17.0 structural work, not v1.16.0 remediation.** `.planning/debug/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` (diagnosed, live before/after verified, re-verified byte-identical on `origin/main`). `room_bind`'s session-scoped binding is invisible to EVERY MCP read tool unless `MINDRIAN_MCP_FIRST` covers the calling surface, which is unset by default on every install today; reads fall through to a global registry pointer and then to a boot-time-frozen fallback, and `room_bind` still returns an unqualified `{ok:true, bound:true}` about an effect that will not apply. This is the MCP-first flag's own semantics failing, so it belongs to the MCP-First milestone by subject matter, not to Phase 237's reach-seam repair. Scope when defining v1.17.0: (a) collapse the EIGHT independent copies of the gate-then-fallthrough resolver (the 7 modules in `lib/mcp/tools/` plus `lib/mcp/tool-router.cjs:116-132` `resolveWriteTargetDir`) into one shared resolver, mirroring the `lib/core/resolve-active-room.cjs` precedent that already retired a prior "four guessers" bug class; (b) make an explicit `room_bind` authoritative for the rest of its session regardless of flag state; (c) follow the precedence ladder Phase 234-05 already shipped for the WRITE half in `lib/mcp/mcp-first-flag.cjs` `isWritePathEnabled` (explicit flag wins, then confident host-tier detection, floor to false) rather than inventing a second one - the read path is the unfixed half of a gap whose write half is already closed. **v1.16.0 Phase 237 keeps only the session-scoping acceptance test (REACH-03); it must NOT attempt the resolver collapse.** Operational mitigation available today with no code change: `bash scripts/room-registry set-active <room>`.
 - **Trigger:** after v1.16.0 completes, run `/gsd-new-milestone v1.17.0` -- requirements definition happens there, not in this file.

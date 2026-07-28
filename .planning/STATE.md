@@ -15,6 +15,13 @@ progress:
 
 # Project State
 
+## (2026-07-28) -- v1.17.0 "MCP-First" SLOT REGISTERED (navigator mid-session decision) -- the MCP-first system is the milestone after v1.16.0
+
+- Navigator: "lets plan it for 1.17.beta" -- the MCP-first system (Phase 198 `198-mcp-first-then-sdk`, un-parked 2026-07-09; stack locked oclif + Ink + MCP SDK, 3 servers by trust boundary) claims the v1.17.0 slot, shipping on the beta train (v1.17.0-beta.x) per repo convention.
+- Registered in ROADMAP.md's "Next Milestone" section. NOT folded into v1.16.0: the remediation-only scope stands, and v1.17.0 deliberately inherits the repaired MCP seams (Phases 237/238/239) plus the Phase 235 seam-liveness helper so the three new servers are born-wired with a red-able liveness gate from day one.
+- Requirements definition deferred to `/gsd-new-milestone v1.17.0` after v1.16.0 ships. Candidate fold-ins noted in the slot: MCP Sampling migration for Feynman-MINTO tier-1 (retires ANTHROPIC_API_KEY for tier-1), MCP Apps De Stijl surfaces.
+- CARRIED-IN DEFECT added to the slot 2026-07-28 (navigator: "make sure this sends a note to milestone 1.17.0 that will do this work, MCP"): the room-resolution ladder from `.planning/debug/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md`. `room_bind`'s session binding is invisible to every MCP read tool unless `MINDRIAN_MCP_FIRST` covers the surface (unset by default everywhere), so reads fall through to a global registry pointer then a boot-time-frozen fallback while `room_bind` still reports plain success. It is the MCP-first flag's own semantics failing, so it is v1.17.0 structural work by subject matter. v1.16.0 Phase 237 keeps ONLY the REACH-03 session-scoping acceptance test and must not attempt the eight-copy resolver collapse. Full scope note in ROADMAP.md's Next Milestone section.
+
 ## (2026-07-28) -- v1.16.0 "Infrastructure Remediation" ROADMAP CREATED -- 9 phases (235-243), 23/23 requirements mapped, dependency-waved
 
 - **Roadmap written:** `.planning/ROADMAP.md` (fresh file for v1.16.0; the full v1.15.0 "The Cockpit" roadmap archived byte-identical at `.planning/milestones/v1.15.0-ROADMAP.md`, matching the v1.13.1 archive precedent). Phase numbering continues from the last completed phase directory (234).
@@ -22,7 +29,8 @@ progress:
 - **Coverage:** 23/23 v1.16.0 REQ-IDs mapped, no orphans, no duplicates (CIRS-01..03 -> 235; GRAPHDB-01..03 -> 236; REACH-01..03 -> 237; GATE-01/03/04 -> 238; BRAIN-01..03 -> 239; MEM-01..03 -> 240; MINTO-01..02 -> 241; MOAT-01..02 -> 242; GLYPH-01 -> 243). Traceability table filled in `.planning/REQUIREMENTS.md`.
 - **Success-criteria rigor standard:** every phase's criteria follow the `hedge-fold-has-no-production-trigger` resolution model -- mutation-proven gates (disabling the fix turns a named test red), real end-to-end runs against seeded rooms, and production call-site censuses that exclude `tests/` so a contract honored only by a test can never pass a wiring gate vacuously.
 - **Cross-cutting research rules carried into the roadmap** (bind plan-phase): langtalks-graph-expert for agent/LLM concepts (235/237/238/241), claude-api skill + claude-code-guide agent for hook-matcher/MCP/registry work (235/237/238/239), Context7 `node:sqlite` docs for any room.db transaction work (236/240/242).
-- **NEXT:** `/gsd-plan-phase 235` (and 236 may plan/execute in parallel).
+- **Release train (navigator directive, mid-roadmap 2026-07-28):** after Phase 234, close down OFFICIAL v1.15.0 FIRST (finalize the v1.15.3-beta.x train to stable: npm @latest + tag + marketplace pin + full lockstep), THEN v1.16.0 work ships as `v1.16.0-beta.N` prereleases. Recorded as Gate 0 in ROADMAP.md Progress. Gates RELEASE CUTS only -- planning/code work on 235/236 may proceed; no v1.16.0 release cut before the stable v1.15.0 close-out.
+- **NEXT:** Gate 0 (official v1.15.0 stable close-out via `release.sh --finalize`), then `/gsd-plan-phase 235` (236 may plan/execute in parallel); v1.16.0 phases release as `v1.16.0-beta.N`.
 
 ## (2026-07-28) -- PHASE 233 Plan 03 COMPLETE (Wave 3, LAST PLAN) -- RCA Section 9 Defects #4/#5: HSI corpus scoping + the ordered 4-stage heal pipeline
 
@@ -1285,14 +1293,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 234 — mindrianos-as-infrastructure-skills-mcp-everywhere-open-core
+**Current focus:** v1.16.0 Infrastructure Remediation - Phase 235 (cirs-commit-gate-and-seam-liveness), Wave 1 with Phase 236
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-28 — Milestone v1.16.0 started
+Phase: 235 of 235-243 (not started)
+Plan: -
+Status: Roadmap created - ready for /gsd-plan-phase 235 (236 may plan in parallel)
+Last activity: 2026-07-28 - v1.16.0 roadmap created (9 phases, 235-243, 23/23 reqs mapped); v1.17.0 "MCP-First" slot registered
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
