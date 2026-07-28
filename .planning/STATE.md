@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 241-02-PLAN.md
-last_updated: "2026-07-28T15:17:13.935Z"
+stopped_at: Completed 241-05-PLAN.md
+last_updated: "2026-07-28T15:19:20.839Z"
 last_activity: 2026-07-28 -- Phase 241 Plan 05 complete (Tri-Polar guardian parity on the shared mindrian-core Stop path, tests/run-all-241.sh phase harness, Dev-Research Compositing filing)
 progress:
   total_phases: 9
-  completed_phases: 2
+  completed_phases: 1
   total_plans: 15
   completed_plans: 7
-  percent: 22
+  percent: 47
 ---
 
 # Project State
@@ -2006,6 +2006,7 @@ Progress: [█████████░] 92%
 | Phase 234 P04 | 50m | 2 tasks | 25 files |
 | Phase 235 P02 | 45min | 3 tasks | 6 files |
 | Phase 241 P02 | 55min | 3 tasks | 6 files |
+| Phase 241 P05 | 120min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -3140,6 +3141,7 @@ Progress: [█████████░] 92%
 - [Phase 235-02]: Census versus probe: enumerate claimed sources from disk requiring nothing, probe separately, and the gap between the two IS the dead seam
 - [Phase 241-02]: no second consumer built for the debounce queue; scripts/intent-classifier already drains-and-acts (Phase 88-05), the RCA's original grep was checked against the wrong file - Building a second consumer would have raced two drains against the same queue in the same hook invocation, duplicating a shipped mechanism (Canon Part 7)
 - [Phase 241-02]: 241-02: both Stop-path sites switched to peek(), not a raised olderThanMs floor - peek is read-only by construction; a TTL-based drain would reintroduce a silent discard under a different tunable name
+- [Phase ?]: R-01: Tri-Polar guardian parity wired to the shared mindrian-core Stop path (241-05), not left CLI-only, per the MINDRIAN_MCP_FIRST early-exit evidence
 
 ### Pending Todos
 
@@ -3231,8 +3233,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-28 - Completed quick task 260728-3uw: Fixed stale "Active Milestone: v1.14.0" header + dead tail status marker in ROADMAP.md (now points at v1.15.0 "The Cockpit" / Phase 233)
-Last session: 2026-07-28T10:18:00.867Z
-Stopped at: Completed 241-02-PLAN.md
+Last session: 2026-07-28T15:19:20.695Z
+Stopped at: Completed 241-05-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
