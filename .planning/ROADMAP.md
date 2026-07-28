@@ -30,7 +30,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 - [ ] **Phase 238: Decision Gates** - Gates resolve through the ledger that minted them, session-scoped and concurrency-safe, and the card-fire backstop stops firing on prose
 - [ ] **Phase 239: Brain-Access Surface** - The egress guard and PII sanitizer cover the doors user content actually walks through, and sendPacket's fate is decided explicitly
 - [ ] **Phase 240: Memory** - Layer 2 promotion fires on real continuous work, the dead-letter queue drains into the memory cortex, and the test suite is hermetic
-- [ ] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit
+- [x] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit (completed 2026-07-28)
 - [x] **Phase 242: The Moat** - The HSI-to-graph rewrite is transaction-wrapped, and the PR checklist's dead KuzuDB warning becomes a machine-checked assertion (completed 2026-07-28)
 - [ ] **Phase 243: Voice-Glyph** - The statusline's "who is speaking" signal reflects the glyph a turn actually opened with, not a fabricated default
 
@@ -64,7 +64,9 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
   2. A concurrent reader polling the db THROUGHOUT a live rebuild never observes a partial or empty graph state -- WAL snapshot-visibility behavior proven by observation on this Node/SQLite combination, not asserted from docs (the explicit transaction/WAL implications the user asked for).
   3. A room.db held busy by another connection, and a room.db caught mid-migration, each produce a typed busy/broken result at the open surface, distinguishable from "no room db"; the seeded-lock run shows the real state and the old cold-start collapse cannot be reproduced.
   4. The `timeout:5000` write-safety option's real Node version floor is documented and `package.json` engines reflects it (GRAPHDB-03 is log-only: verified against current `node:sqlite` docs via Context7, no phase-blocking behavioral gate).
+
 **Plans**: 4 plans
+
 - [ ] 236-01-PLAN.md - GRAPHDB-01: ownership allowlist (INDEXER_OWNED_NODE_TYPES / INDEXER_OWNED_EDGE_TYPES) + scoped rebuild DELETE, shared phase fixture, survival test observed RED before the fix.
 - [ ] 236-02-PLAN.md - GRAPHDB-01: default runDeriveBackfill survival, crash-mid-transaction atomicity, and out-of-process WAL concurrent-reader visibility proven by observation.
 - [ ] 236-03-PLAN.md - GRAPHDB-02: behavioral probe of the real thrown-error shapes, then RoomDbBusyError / RoomDbBrokenError at the openRoomDb chokepoint, plus the openRoomDb call-site census.
@@ -132,12 +134,14 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
   1. With a seeded triple-health violation, the guardian's on-stop output reaches the user-visible surface (not `/dev/null`), and an injected slow report-write (over the old 1-second budget) still lands on disk along with its ghost-pruning -- the timeout can no longer silently drop either; restoring the drop turns the gate red.
   2. A room seeded with the two breaches navigators actually hit -- a missing MINTO.md and a missing `governing_thought` -- observably triggers the critical-repair severity ladder (repair or escalation recorded), where before only two rare crash artifacts could reach it.
   3. Until the repair loop is live, the same seeded breach at pre-commit produces a WARN and the commit succeeds -- demonstrated by a real commit run -- so pre-commit friction from the dead loop is demoted rather than silently retained (F-3 folds in).
+
 **Plans**: 5 plans, 4 waves
-- [ ] 241-01-PLAN.md - F-1 (MINTO-01): runOnStop gets a soft walk budget so its report write and ghost prune always land; scripts/on-stop captures the guardian's systemMessage and folds it into the final Stop-hook JSON; both SC1 legs get their own test and mutation proof.
-- [ ] 241-02-PLAN.md - F-0 (MINTO-01): both stop-path olderThanMs 0 vacuums retired for a read-only peek census; production call-site census (walks extensionless files) plus the full enqueue-to-prompt-drain-to-regen cycle; the minto-debounce-consumer-dead-end RCA corrected and resolved.
-- [ ] 241-03-PLAN.md - F-2 (MINTO-02): missing MINTO.md and missing governing_thought raised to critical so they reach the enqueue gate; pre-existing suites reconciled per Pitfall 5; both legs assert a real minto-queue.json entry.
-- [ ] 241-04-PLAN.md - F-3 (MINTO-02): runPreCommit demoted to an advisory WARN with a --strict / MINTO_PRECOMMIT_STRICT opt-in (Phase 210 idiom); proven by a REAL git commit in both directions, with the pre-commit hook script untouched so Phase 235 cannot collide.
-- [ ] 241-05-PLAN.md - Tri-Polar parity + close-out (MINTO-01, MINTO-02): the shared mindrian-core Stop path runs the guardian too (Desktop, Cowork, and CLI under MINDRIAN_MCP_FIRST were all blind); parity test; tests/run-all-241.sh harness with permanent regression tripwires; Dev-Research Compositing filing.
+
+- [x] 241-01-PLAN.md - F-1 (MINTO-01): runOnStop gets a soft walk budget so its report write and ghost prune always land; scripts/on-stop captures the guardian's systemMessage and folds it into the final Stop-hook JSON; both SC1 legs get their own test and mutation proof.
+- [x] 241-02-PLAN.md - F-0 (MINTO-01): both stop-path olderThanMs 0 vacuums retired for a read-only peek census; production call-site census (walks extensionless files) plus the full enqueue-to-prompt-drain-to-regen cycle; the minto-debounce-consumer-dead-end RCA corrected and resolved.
+- [x] 241-03-PLAN.md - F-2 (MINTO-02): missing MINTO.md and missing governing_thought raised to critical so they reach the enqueue gate; pre-existing suites reconciled per Pitfall 5; both legs assert a real minto-queue.json entry.
+- [x] 241-04-PLAN.md - F-3 (MINTO-02): runPreCommit demoted to an advisory WARN with a --strict / MINTO_PRECOMMIT_STRICT opt-in (Phase 210 idiom); proven by a REAL git commit in both directions, with the pre-commit hook script untouched so Phase 235 cannot collide.
+- [x] 241-05-PLAN.md - Tri-Polar parity + close-out (MINTO-01, MINTO-02): the shared mindrian-core Stop path runs the guardian too (Desktop, Cowork, and CLI under MINDRIAN_MCP_FIRST were all blind); parity test; tests/run-all-241.sh harness with permanent regression tripwires; Dev-Research Compositing filing.
 
 **Planner note (2026-07-28), F-0's premise corrected against the working tree**: the filed RCA concluded the debounce consumer "was never wired" on the strength of a grep against `scripts/intent-classifier.cjs`. The UserPromptSubmit hook registered in `hooks/hooks.json` is `scripts/intent-classifier`, an extensionless BASH wrapper, which has carried a live Phase 88-05 drain-and-act block since Phase 88 (drains at olderThanMs 30000, appends to pending-tier1-regen.json, spawns vault-section-minto-generator.cjs --write) and is covered by 7 registered tests. The consumer exists and acts. What survives from the RCA is its paired minimal piece, which plan 241-02 implements: stop the unconditional vacuum at both stop-path drains. No second consumer is wired into the .cjs (Canon Part 7, and two drains would race).
 
@@ -150,6 +154,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
   1. A crash injected mid HSI-to-graph edge rewrite on a seeded, already-scored room leaves the prior scoring layer fully intact on reopen (never zeroed), and a concurrent reader during a live rewrite never observes an empty scoring layer; removing the transaction wrap turns the gate red.
   2. The PR checklist's KuzuDB warning prose is gone, replaced by a machine-checked assertion that fails when a kuzu reference re-enters the tree and passes on the current tree -- proven by seeding one kuzu reference and watching it fail (MOAT-02 is a light doc fix per the audit's rethink verdict, no RCA cycle).
+
 **Plans**: 2 plans (both Wave 1, no interdependency, zero shared files)
 - [x] 242-01-PLAN.md — MOAT-01: wrap the hsi-to-graph DELETE-then-rewrite in one BEGIN/COMMIT/ROLLBACK, add the production-inert MINDRIAN_HSI_CRASH_TEST_DELAY_MS crash seam, and prove it with a three-leg test (spawn+SIGKILL crash injection, fork()'d concurrent reader, mutation proof) plus the tests/run-all-242.sh aggregator. (completed 2026-07-28)
 - [x] 242-02-PLAN.md — MOAT-02: build scripts/check-kuzu-reintroduction.cjs (dependency-manifest + live require/import scan, exit 0/1/2), wire it into scripts/verify-release as section 17, replace the dead docs/MOAT-MANDATE.md line 96 prose with a same-polarity machine-checked warning sign, and fence it with a hermetic seeded-fixture test. (completed 2026-07-28)
@@ -165,7 +170,9 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
   1. Across a fixture set covering the glyph vocabulary, a turn opened with glyph X renders glyph X in the statusline, and a turn that opened with NO glyph renders the honest empty/unknown state -- the fabricated default painted over by the stance color cannot be reproduced; a mutation restoring the fabricated default turns the gate red.
   2. V-2 and V-3 are routed into the existing open `voice-signature-dark-runtime.md` RCA as cross-referenced entries (no new RCA file created), verifiable by reading that RCA.
+
 **Plans**: 2 plans
+
 - [ ] 243-01-PLAN.md - SC1: delete the stance-default glyph fabrication at lib/statusline/cockpit-renderer.cjs (superseding the second half of Phase 210 item B), INVERT the three superseded assertions in tests/test-voice-glyph-advisory.cjs and tests/test-192-statusline-stance-chip.cjs, add the 18-row honest-glyph fixture suite plus tests/run-all-243.sh, and PROVE the mutation gate bites by executing it.
 - [ ] 243-02-PLAN.md - SC2: author .planning/debug/voice-signature-dark-runtime.md (the RCA six documents cite and that has never existed on disk or in git history) carrying V-1 as resolved-history, V-2/V-3/the who-default conflict/the permanent-dark residual as open cross-referenced findings, gated by a structure-only doc-presence test.
 
@@ -190,7 +197,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
-| 241. Feynman-MINTO | 0/5 | Planned | - |
+| 241. Feynman-MINTO | 5/5 | Complete   | 2026-07-28 |
 | 242. The Moat | 2/2 | Complete   | 2026-07-28 |
 | 243. Voice-Glyph | 0/2 | Planned | - |
 

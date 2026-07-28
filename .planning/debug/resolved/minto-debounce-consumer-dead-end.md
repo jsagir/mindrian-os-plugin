@@ -1,5 +1,5 @@
 ---
-status: gathering
+status: resolved
 kind: rca
 trigger: "minto-debounce-consumer-dead-end"
 issue_id: ""
@@ -8,7 +8,8 @@ surfaces: [cli, desktop, cowork]
 brain_mode: local-only
 canon_parts: [9]
 created: 2026-07-28T03:26:42Z
-updated: 2026-07-28T03:26:42Z
+updated: 2026-07-28T12:00:00Z
+resolved: 2026-07-28T12:00:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -17,6 +18,70 @@ updated: 2026-07-28T03:26:42Z
 - **WIRE claims probe against:** none. This is a pure LOCAL code-reachability finding, no Brain call, no network probe, no deployed server involved.
 - **Date of audit:** 2026-07-28
 - **Re-verification rule:** every claim below was produced by a grep or a direct read against the working tree at that sha, and the exact commands are reproduced in Evidence so any reader can re-run them.
+
+## CORRECTION (Phase 241 plan 02, 2026-07-28)
+
+This RCA's headline evidence entry (below, now marked SUPERSEDED) called a
+zero-hit grep against `scripts/intent-classifier.cjs` "decisive, not
+circumstantial" proof that the promised debounce consumer did not exist.
+That grep is accurate about the file it checked. The file it checked is
+the wrong file, and the conclusion drawn from it does not hold.
+
+Four things, stated plainly:
+
+1. The hook actually registered in `hooks/hooks.json` for
+   `UserPromptSubmit` is `"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd"
+   intent-classifier`, which runs `scripts/intent-classifier`, an
+   EXTENSIONLESS BASH WRAPPER. That file is a different file from
+   `scripts/intent-classifier.cjs`, which also exists in this repo (the
+   node classifier body the wrapper `exec`s into after its own drain
+   block runs) but is not itself a hook entry point.
+2. That wrapper has carried a live Phase 88-05 drain-and-act block since
+   Phase 88 (its lines 40 to 104): it drains with `olderThanMs: 30000`,
+   exactly as the debouncer's own docstring promised, atomically appends
+   the drained entries to `.mindrian/pending-tier1-regen.json`, and
+   spawns `scripts/vault-section-minto-generator.cjs --write` detached
+   for each drained section.
+3. `lib/memory/debouncer-drain-at-prompt.test.cjs` already covers this
+   block with 7 tests, registered in `lib/memory/run-feynman-tests.cjs`.
+4. Therefore: the consumer exists, drains, and acts. The original grep's
+   zero-hit result is real; the "decisive" conclusion drawn from it is
+   wrong, because it was checked against a file that has never been the
+   registered hook entry point.
+
+Name the failure mode honestly: an extension-scoped grep run over a repo
+whose hook entry points are DELIBERATELY extensionless (the same shape
+`scripts/write-scope-check` and `scripts/post-write` use, per
+`scripts/intent-classifier`'s own docstring: "hooks/run-hook.cmd
+unconditionally `exec bash`s the target file, so a pure `#!/usr/bin/env
+node` script would be mis-dispatched"). A census that only globs by file
+extension reproduces this exact blind spot; the fix's own new test
+(`lib/memory/minto-debounce-consumer-census.test.cjs`) walks directories
+instead, specifically so it cannot repeat this mistake.
+
+## What Survives This Correction
+
+Half of this RCA's original reasoning was independently evidenced and
+stands unchanged:
+
+- The unconditional `olderThanMs: 0` vacuum at BOTH stop-path sites
+  (`scripts/on-stop` and `lib/mcp/stop-gate-handler.cjs`'s
+  `_closeOutMintoDrain`) was real. Neither site inspected what it
+  drained; both discarded every entry, including ones younger than the
+  live consumer's 30-second threshold, before the next prompt could ever
+  reach them. This is what Phase 241 plan 02 fixed.
+- The third Eliminated-hypothesis entry below (the `queue-health`
+  validator's 500/1000 thresholds being structurally starved by the same
+  unconditional vacuum) survives and is now closed by the same change:
+  both sites switched to the debouncer's read-only `peek(roomDir)`
+  accessor, so the queue is no longer emptied at every stop and those
+  thresholds are reachable again.
+- The "N sections drained" false-success finding (Evidence entry below,
+  `scripts/on-stop:110`) survives and is closed in this same plan: the
+  label is corrected to "sections scanned" at both call sites (the
+  `STOP_SUMMARY_LINE` assignment and the `MINDRIAN_MCP_FIRST` thin
+  branch), and a real `MINTO_QUEUE_PENDING` / `minto_pending` figure is
+  surfaced alongside it.
 
 ## Current Focus
 
@@ -97,9 +162,12 @@ started: Phase 88 (the debouncer and the guardian's enqueue call both shipped un
   implication: the corrected range is 32-35, not the originally reported 33-35. The docstring itself documents post-write hook and on-stop as PRODUCERS/DRAINERS respectively and intent-classifier as the third leg; only intent-classifier was never built.
 
 - timestamp: 2026-07-28T03:26:42Z
+  status: SUPERSEDED (Phase 241 plan 02, 2026-07-28T12:00:00Z; see the
+    CORRECTION block near the top of this file)
   checked: `grep -n "minto-debouncer\|debounc" scripts/intent-classifier.cjs`
   found: zero matches (`COUNT: 0`).
-  implication: the promised consumer does not exist. This is decisive, not circumstantial.
+  implication (ORIGINAL, WRONG): the promised consumer does not exist. This is decisive, not circumstantial.
+  implication (CORRECTED): the grep is accurate about the file it checked; it checked the wrong file. `scripts/intent-classifier.cjs` was never the registered UserPromptSubmit hook entry point. The actual entry point is `scripts/intent-classifier`, an extensionless bash wrapper (dispatched via `hooks/run-hook.cmd intent-classifier` in `hooks/hooks.json`), which has carried a live Phase 88-05 drain-and-act block since Phase 88. An extension-scoped grep over a repo whose hook entry points are deliberately extensionless will always miss this class of consumer; this is the census methodology error the fix's own new test (`lib/memory/minto-debounce-consumer-census.test.cjs`, which walks directories instead of globbing extensions) was written to never repeat.
 
 - timestamp: 2026-07-28T03:26:42Z
   checked: `grep -n "minto-queue.json" lib/memory/feynman-minto-guardian.test.cjs`
@@ -197,11 +265,87 @@ Recommendation: Option B, paired with the minimal piece of Option C (stop the un
 
 ## Resolution
 
-root_cause: PENDING
-fix:
-verification:
-files_changed: []
-commits: []
+root_cause: CONFIRMED, and CORRECTED from this RCA's original filing. The
+  live defect was never an absent consumer (see the CORRECTION block near
+  the top of this file). The real root cause is the unconditional
+  `olderThanMs: 0` vacuum run at BOTH stop-path sites
+  (`scripts/on-stop:347` and `lib/mcp/stop-gate-handler.cjs:128`'s
+  `_closeOutMintoDrain`), which discarded every pending regen intent
+  before the live Phase 88-05 consumer (the drain-and-act block inside
+  `scripts/intent-classifier`, which drains at `olderThanMs: 30000` on
+  every UserPromptSubmit and has been wired since Phase 88) ever got a
+  turn. A queue emptied without a consumer is indistinguishable, from the
+  outside, from a queue that was genuinely empty -- which is why this
+  went unnoticed since Phase 88.
+
+fix: Both stop-path sites switched from an unconditional drain to the
+  debouncer's existing read-only `peek(roomDir)` accessor (already
+  exported alongside `enqueue`/`drain`, so this is reuse, not new API).
+  Neither site drains at all now; the queue is bounded entirely by the
+  live prompt-time consumer in normal operation and by the
+  `queue-health` validator's alarm otherwise.
+  - `scripts/on-stop`: the `--older-than=0` drain call is replaced with a
+    `MINTO_QUEUE_PENDING` shell variable populated via `peek()`,
+    initialized to `0` before the guard block so `set -u` cannot trip.
+    The false "N sections drained" claim is corrected to "sections
+    scanned" plus the real pending count, at both the
+    `STOP_SUMMARY_LINE` assignment and the `MINDRIAN_MCP_FIRST` thin
+    branch's message.
+  - `lib/mcp/stop-gate-handler.cjs`: `_closeOutMintoDrain` (name kept
+    for call-site/registry stability; body changed) now calls `peek()`
+    and returns the real pending count instead of an unconditional
+    `drain()` whose return value was discarded. `closeOutRoom` surfaces
+    it as `minto_pending` so Desktop/Cowork see the same honest figure.
+  - No new TTL tunable was introduced (a TTL would reintroduce a silent
+    discard under a different name).
+
+verification: `lib/memory/minto-debounce-consumer-census.test.cjs`, 5
+  tests, all green against the fixed tree:
+  1. Production census (walks directories, not extensions, so it cannot
+     repeat this RCA's own methodology error) discovers and correctly
+     classifies `scripts/intent-classifier` as drain-and-act, and
+     `scripts/feynman-minto-guardian.cjs` / `scripts/post-write` as
+     enqueue-producers.
+  2. Zero production sites drain with a zero age floor.
+  3. The consumer is genuinely reachable from `hooks/hooks.json`'s
+     UserPromptSubmit, not merely wired.
+  4. Full cycle: guardian enqueues on a critical violation, backdated
+     past 30s, the real `scripts/intent-classifier` drains it into
+     `pending-tier1-regen.json` AND removes it from
+     `minto-queue.json`.
+  5. That cycle's own mutation proof (a mutated on-stop with the vacuum
+     restored breaks the cycle; the real on-stop lets it complete).
+  Three additional mutation proofs performed by hand and recorded in
+  `241-02-SUMMARY.md`: restoring `--older-than=0` in `scripts/on-stop`
+  turns Test 2 red; restoring `olderThanMs: 0` in
+  `lib/mcp/stop-gate-handler.cjs` turns Test 2 red; neutering the Phase
+  88-05 drain block in `scripts/intent-classifier` turns Test 4 (and
+  Test 5's real arm) red. All three reverted after confirming.
+  Behavioral proof: an entry enqueued before a `bash scripts/on-stop`
+  run against a scratch room fixture is STILL PRESENT after that run
+  (previously it was emptied).
+
+files_changed:
+  - scripts/on-stop (replaced the unconditional drain with a peek
+    census; corrected the "sections drained" false-success message at
+    two call sites)
+  - lib/mcp/stop-gate-handler.cjs (`_closeOutMintoDrain` now peeks and
+    returns a real count; `closeOutRoom` surfaces `minto_pending`)
+  - lib/memory/minto-debounce-consumer-census.test.cjs (new; 5 tests
+    per this RCA's own Test 1 and Test 2 spec)
+  - lib/memory/run-feynman-tests.cjs (registered the new test file)
+  - .planning/debug/minto-debounce-consumer-dead-end.md (this file:
+    CORRECTION block, superseded Evidence entry, Resolution filled,
+    moved to .planning/debug/resolved/)
+  - .planning/debug/knowledge-base.md (summary block appended)
+
+commits:
+  - 0d02e112 (fix(241-02): replace unconditional stop-path drains with
+    honest peek census -- Task 1)
+  - f228fa9e (test(241-02): production census + full-cycle mutation
+    proof for the debounce consumer -- Task 2)
+  - plus this resolution commit (Task 3: RCA correction + resolve),
+    hash recorded in `.planning/phases/241-feynman-minto/241-02-SUMMARY.md`
 
 ## Second finding recorded here (same audit, different but related defect)
 

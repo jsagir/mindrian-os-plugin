@@ -16,12 +16,27 @@
  *                               violations into .mindrian/invariant-report.json
  *                               atomically, consume stale_ghost warnings to
  *                               prune .mindrian/minto-stale.json. Exit 0.
- *                               Advisory.
+ *                               Advisory. Phase 241-01: the section walk is
+ *                               bounded by a soft wall-clock deadline
+ *                               (MINDRIAN_GUARDIAN_ONSTOP_WALK_BUDGET_MS,
+ *                               default 1200ms). A slow walk stops early
+ *                               instead of taking down the report write and
+ *                               the ghost prune with it - those two steps
+ *                               always get their turn, and the report
+ *                               records exactly how far the walk got
+ *                               (sections_walked, sections_total, truncated).
  *
  *   pre-commit <roomPath>       run validators for every section whose
- *                               staged files live under it. Any critical or
- *                               error severity -> exit 2 (block commit);
- *                               otherwise exit 0. BLOCKING only here.
+ *                               staged files live under it. ADVISORY by
+ *                               default as of Phase 241 F-3: any critical or
+ *                               error severity still enumerates every
+ *                               violation to stderr, but the commit proceeds
+ *                               (exit 0) with a WARN line naming the
+ *                               violation count and the restore path. Pass
+ *                               --strict, or set MINTO_PRECOMMIT_STRICT=1,
+ *                               to restore the pre-241 hard-fail contract
+ *                               (exit 2, commit rejected). See Phase 241 F-3,
+ *                               .planning/phases/241-feynman-minto/241-04-PLAN.md.
  *
  *   clean-tmp <roomPath>        sweep orphan MINTO.md.tmp.*.minto files
  *                               older than 60s (crashes from 88-04-B). Exit 0.
@@ -52,6 +67,20 @@ const DEBOUNCER_PATH = path.join(PLUGIN_ROOT, 'scripts', 'minto-debouncer.cjs');
 
 const SEVERITY_ORDER = ['info', 'warning', 'error', 'critical'];
 const CLEAN_TMP_MAX_AGE_MS = 60 * 1000;
+
+// Phase 241-01 (F-1, MINTO-01): soft wall-clock deadline for runOnStop's
+// section walk ONLY. The report write, the ghost prune, and the
+// systemMessage emission run AFTER the walk in program order and must
+// always be reached, even when the walk itself runs long (a slow
+// validator, a large room). 1200ms leaves headroom under the 3000ms
+// Stop-hook budget for the prune, the write, and process teardown.
+// Env-var-override-with-NaN-floor-fallback idiom, mirrors
+// ZERO_SCORE_GATE_MIN_TOKENS in scripts/intent-classifier.cjs:41-45.
+const ONSTOP_WALK_BUDGET_MS = (function () {
+  const n = parseInt(process.env.MINDRIAN_GUARDIAN_ONSTOP_WALK_BUDGET_MS, 10);
+  if (Number.isNaN(n) || n < 1) return 1200;
+  return n;
+})();
 
 // ---------------------------------------------------------------------------
 // Logging helpers. All guardian non-fatal output goes to stderr so stdout
@@ -173,11 +202,15 @@ function validateSection(roomDir, section, validators, ctx) {
   // violation so the report captures the contract breach without depending
   // on any one validator. The minto-invariants validator otherwise returns
   // null for missing MINTO (by design -- it's a content validator).
+  // Phase 241 F-2: critical is the level that reaches runSessionStart's
+  // enqueue gate (result.severity === 'critical'); a missing MINTO.md was
+  // previously stuck at 'error', one rung below that gate, so this breach
+  // never enqueued a repair. See .planning/phases/241-feynman-minto/241-RESEARCH.md.
   if (!fs.existsSync(path.join(sectionDir, 'MINTO.md'))) {
     all.push({
       validator: 'existence-check',
       category: 'existence',
-      severity: 'error',
+      severity: 'critical',
       message: 'MINTO.md missing in section "' + section + '"',
       section: section,
     });
@@ -336,8 +369,17 @@ function runOnStop(roomDir, validators) {
   const ctx = { roomDir: roomDir, kind: 'on-stop', now: Date.now() };
   const sections = walkSections(roomDir);
   const report = { version: 1, kind: 'on-stop', at: new Date().toISOString(), sections: {} };
+  // Phase 241-01: soft deadline bounds ONLY this walk. The prune, the
+  // write, and the systemMessage emission below are NOT wrapped in their
+  // own deadline check - they already run after this loop in program
+  // order, and the soft deadline is what guarantees they are reached even
+  // when the walk itself runs long.
+  const walkDeadline = Date.now() + ONSTOP_WALK_BUDGET_MS;
+  let walked = 0;
   for (const s of sections) {
+    if (Date.now() > walkDeadline) break;
     const result = validateSection(roomDir, s, validators, ctx);
+    walked += 1;
     if (result.violations.length > 0) {
       report.sections[s] = {
         minto_path: path.join(roomDir, s, 'MINTO.md'),
@@ -347,6 +389,12 @@ function runOnStop(roomDir, validators) {
       };
     }
   }
+  // Unconditional so a full walk records truncated:false rather than
+  // omitting the field - an absent field reads as "unknown", which is
+  // the ambiguity this phase exists to remove.
+  report.sections_walked = walked;
+  report.sections_total = sections.length;
+  report.truncated = walked < sections.length;
   // Room-scoped validators
   const roomViols = validateRoomScope(roomDir, validators, ctx);
   if (roomViols.length > 0) {
@@ -377,8 +425,11 @@ function runOnStop(roomDir, validators) {
       report.sections['__room__'].ghosts_pruned = pruned;
     }
   }
-  // Write invariant-report.json atomically when there is anything to report.
-  if (Object.keys(report.sections).length > 0) {
+  // Write invariant-report.json atomically when there is anything to report,
+  // OR when the walk was truncated (Phase 241-01: a truncated run must
+  // leave evidence on disk instead of vanishing, even if it found zero
+  // violations in the sections it managed to walk).
+  if (Object.keys(report.sections).length > 0 || report.truncated) {
     const reportPath = path.join(roomDir, '.mindrian', 'invariant-report.json');
     try { writeJsonAtomic(reportPath, report); }
     catch (e) { logWarn('writing invariant-report failed: ' + (e && e.message || e)); }
@@ -395,9 +446,15 @@ function runOnStop(roomDir, validators) {
     let worstSection = null;
     let worstCategory = null;
     let worstSeverity = null;
+    // Phase 241-01 (T-241-01): accumulate honest counts alongside the
+    // worst-case label, so a run that checked nothing (truncated) cannot
+    // read like a run that found nothing.
+    let violationCount = 0;
+    const sectionCount = Object.keys(report.sections).length;
     for (const s of Object.keys(report.sections)) {
       const entry = report.sections[s];
       for (const v of (entry.violations || [])) {
+        violationCount += 1;
         const idx = SEVERITY_ORDER.indexOf(v.severity);
         if (idx > worstIdx) {
           worstIdx = idx;
@@ -409,7 +466,12 @@ function runOnStop(roomDir, validators) {
     }
     if (worstIdx >= SEVERITY_ORDER.indexOf('error')) {
       const loc = worstSection === '__room__' ? 'room' : 'section ' + worstSection;
-      const msg = 'guardian: ' + worstSeverity + ' in ' + loc + ' (' + worstCategory + ', glyph low)';
+      let msg = 'guardian: ' + worstSeverity + ' in ' + loc + ' (' + worstCategory + ', glyph low)' +
+        '; ' + violationCount + ' violation' + (violationCount === 1 ? '' : 's') +
+        ' across ' + sectionCount + ' section' + (sectionCount === 1 ? '' : 's');
+      if (report.truncated) {
+        msg += '; walked ' + report.sections_walked + ' of ' + report.sections_total + ' sections';
+      }
       // CORRECTED 2026-07-23 (stop-hook-invalid-hookspecificoutput-schema,
       // 2nd occurrence of this defect class): the prior comment here (removed)
       // claimed "wrap in hookSpecificOutput per Claude Code 2.x schema
@@ -452,7 +514,24 @@ function getStagedFiles() {
   }
 }
 
-function runPreCommit(roomDir, validators) {
+// Phase 241 F-3: advisory-default / --strict-opt-in idiom, reused from
+// scripts/check-shape-declaration.cjs:894-916 (Phase 210), the shipped
+// precedent for demoting a hard-fail gate to WARN-and-continue while
+// keeping a documented restore path. Three ways to opt back into the
+// pre-241 hard-fail contract: an explicit opts.strict (tests drive both
+// modes without mutating global environment), MINTO_PRECOMMIT_STRICT=1
+// (what the real git hook's environment can set without any change to
+// scripts/hooks/pre-commit-room-minto-guard.sh, per Resolution R-07), or a
+// trailing --strict argv flag (mirrors check-shape-declaration.cjs for a
+// human running the guardian directly).
+function preCommitStrictEnabled(opts) {
+  if (opts && opts.strict === true) return true;
+  if (process.env.MINTO_PRECOMMIT_STRICT === '1') return true;
+  if (process.argv.includes('--strict')) return true;
+  return false;
+}
+
+function runPreCommit(roomDir, validators, opts) {
   const ctx = { roomDir: roomDir, kind: 'pre-commit', now: Date.now() };
   const staged = getStagedFiles();
   if (staged.length === 0) return 0;
@@ -486,10 +565,25 @@ function runPreCommit(roomDir, validators) {
     }
   }
   if (worstSeverityIdx >= SEVERITY_ORDER.indexOf('error')) {
-    process.stderr.write('[guardian] pre-commit blocked by Feynman-MINTO violations:\n');
+    if (preCommitStrictEnabled(opts)) {
+      // The pre-241 hard-fail contract, preserved as the --strict /
+      // MINTO_PRECOMMIT_STRICT=1 opt-in.
+      process.stderr.write('[guardian] pre-commit blocked by Feynman-MINTO violations:\n');
+      for (const m of messages) process.stderr.write(m + '\n');
+      process.stderr.write('[guardian] Fix violations or use --no-verify (at your own risk).\n');
+      process.stderr.write('[guardian] strict mode: exiting 2 (MINTO_PRECOMMIT_STRICT=1 / --strict restores the pre-Phase-241 hard-fail contract).\n');
+      return 2;
+    }
+    // Phase 241 F-3: advisory default. Every violation is still enumerated
+    // to stderr (never a silent no-op, T-241-15); only the block is
+    // removed. Mirrors the check-shape-declaration.cjs WARN-not-fail idiom.
+    process.stderr.write('[guardian] pre-commit advisory by Feynman-MINTO violations (Phase 241, not blocking):\n');
     for (const m of messages) process.stderr.write(m + '\n');
-    process.stderr.write('[guardian] Fix violations or use --no-verify (at your own risk).\n');
-    return 2;
+    process.stderr.write(
+      '[guardian] WARN: ' + messages.length + ' violation' + (messages.length === 1 ? '' : 's') +
+      ' detected; not blocking (set MINTO_PRECOMMIT_STRICT=1 or pass --strict to restore hard-fail).\n'
+    );
+    return 0;
   }
   return 0;
 }
@@ -526,8 +620,10 @@ function main() {
   const mode = process.argv[2] || 'session-start';
   const roomDir = process.argv[3];
   if (!roomDir) {
-    process.stderr.write('usage: feynman-minto-guardian.cjs <mode> <roomPath>\n' +
-      '  modes: session-start | on-stop | pre-commit | clean-tmp\n');
+    process.stderr.write('usage: feynman-minto-guardian.cjs <mode> <roomPath> [--strict]\n' +
+      '  modes: session-start | on-stop | pre-commit | clean-tmp\n' +
+      '  --strict (pre-commit only): restore the pre-Phase-241 hard-fail\n' +
+      '    contract; MINTO_PRECOMMIT_STRICT=1 does the same via env.\n');
     return 0; // Advisory: never hard-fail even on bad invocation.
   }
   if (!fs.existsSync(roomDir)) {
@@ -541,7 +637,7 @@ function main() {
     switch (mode) {
       case 'session-start': return runSessionStart(roomDir, validators);
       case 'on-stop':       return runOnStop(roomDir, validators);
-      case 'pre-commit':    return runPreCommit(roomDir, validators);
+      case 'pre-commit':    return runPreCommit(roomDir, validators, { strict: process.argv.includes('--strict') });
       case 'clean-tmp':     return runCleanTmp(roomDir);
       default:
         logWarn('unknown mode: ' + mode);
@@ -572,4 +668,5 @@ module.exports = {
   runOnStop: runOnStop,
   runPreCommit: runPreCommit,
   runCleanTmp: runCleanTmp,
+  preCommitStrictEnabled: preCommitStrictEnabled,
 };
