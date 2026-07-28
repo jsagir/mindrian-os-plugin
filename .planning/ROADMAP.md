@@ -3243,14 +3243,14 @@ Plans:
 **Goal:** MindrianOS ships as a portable skills+MCP package that works honestly across any Agent-Skills-compliant host (not just Claude Code), with the commercial boundary drawn at the network (the hosted Brain), never at local code -- closing the gap between what SEED-068/SEED-069 assumed was unbuilt and what RESEARCH.md found already running in production (33-tool MCP server, persona-as-skill, the two-server free/paid `.mcp.json` split, a live Supabase-backed entitlement system), while fixing the genuinely open portability gaps: 9 hard Agent Skills spec failures, 112 `allowed-tools` format deviations, 51 skills hardcoding `${CLAUDE_PLUGIN_ROOT}`, the Tier-0 write-path hole (`graph_write`/`memory_event`/`artifact_file` invisible off Claude Code), and zero live foreign-host verification.
 **Requirements**: D-01..D-13 (234-CONTEXT.md decision IDs -- no REQUIREMENTS.md exists for this phase)
 **Depends on:** Phase 233
-**Plans:** 1/8 plans executed
+**Plans:** 2/8 plans executed
 
 Plans:
 
 **Wave 1**
 
 - [x] 234-01-PLAN.md -- Skill-spec validator (scripts/check-skill-spec.cjs) + Wave-0 test harness (tests/run-all-234.sh) + D-03/D-10 locked tests + npm skills-ref removal [D-01, D-02, D-03, D-07, D-08, D-10]
-- [ ] 234-02-PLAN.md -- Tool-description-as-instruction floor (D-03): rewrite 8 sub-120-char MCP tool descriptions + regression test [D-03]
+- [x] 234-02-PLAN.md -- Tool-description-as-instruction floor (D-03): rewrite 8 sub-120-char MCP tool descriptions + regression test [D-03]
 
 **Wave 2** *(blocked on Wave 1)*
 
