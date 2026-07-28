@@ -139,6 +139,37 @@ function snapshotMindrian(roomDir) {
   return { exists: true, entries: entries };
 }
 
+// The two SQLite WAL sidecars. A read-only connection to a WAL database MUST be
+// able to create <db>-shm (and an empty <db>-wal) or the open fails outright:
+// WAL readers coordinate through that shared-memory index, and node:sqlite has no
+// way to skip it short of ?immutable=1, which would be a lie for a live room a CLI
+// session may be writing. They are transient coordination files, carry no user
+// data, and never change room.db itself. The write path creates them too and just
+// happens to delete them on a clean close, which a read-only connection is not
+// permitted to do, so under this fix they linger instead. That is the ONE
+// disclosed filesystem effect of the read-only door, and these legs pin it as a
+// named exception rather than hiding it behind a loose assertion.
+const SQLITE_SIDECAR_RE = /\.db-(wal|shm)$/;
+
+function contentEntries(snap) {
+  return {
+    exists: snap.exists,
+    entries: snap.entries.filter((e) => !SQLITE_SIDECAR_RE.test(e.name)),
+  };
+}
+
+// assertNoContentChange -- room.db and every other real file must be byte-identical;
+// the only names permitted to appear or change are the two WAL sidecars.
+function assertNoContentChange(before, after, message) {
+  assert.deepStrictEqual(contentEntries(after), contentEntries(before), message);
+  const beforeNames = new Set(before.entries.map((e) => e.name));
+  for (const entry of after.entries) {
+    if (beforeNames.has(entry.name)) continue;
+    assert.ok(SQLITE_SIDECAR_RE.test(entry.name),
+      message + ' A new file appeared that is not a SQLite WAL sidecar: ' + entry.name);
+  }
+}
+
 // Read a room's persisted state through a throwaway handle, so the inspection
 // itself is never confused with the behavior under test.
 function withProbeDb(roomDir, fn) {
@@ -396,6 +427,8 @@ async function main() {
     const before = snapshotMindrian(dir);
     assert.ok(before.exists && before.entries.length >= 1,
       'PRECONDITION: the fixture room must already carry a migrated .mindrian/');
+    const roomDbBefore = before.entries.find((e) => e.name === 'room.db');
+    assert.ok(roomDbBefore, 'PRECONDITION: the fixture room must carry a room.db to compare');
 
     for (let i = 0; i < 3; i += 1) {
       const reaches = reachesOf(dispatchCandidateReaches('s7kc', dir, { userText: COFIRE_TEXT }));
@@ -404,11 +437,33 @@ async function main() {
         JSON.stringify(Array.isArray(reaches) ? reaches.map((r) => r.reach_id) : reaches));
     }
 
-    assert.deepStrictEqual(snapshotMindrian(dir), before,
+    assertNoContentChange(before, snapshotMindrian(dir),
       'WRITE LEAK: dispatchCandidateReaches mutated .mindrian/. A declared-read tool wrote to the room.');
     const state = withProbeDb(dir, (db) => navigation.readHedgeWeightState(db));
     assert.strictEqual(state, null,
       'WRITE LEAK: a Hedge weight state was persisted by a declared-read pull; got ' + JSON.stringify(state));
+  });
+
+  await check('E1s DISCLOSURE: the ONE filesystem effect that remains is the SQLite WAL sidecar pair', () => {
+    // Pinned, not hidden. If a future change makes the read-only door leave the
+    // directory pristine, this leg goes red and someone updates the disclosure
+    // deliberately instead of a loose assertion quietly absorbing a real write.
+    const dir = newRoomDir('ro-nowrite-sidecar-');
+    withProbeDb(dir, seedOrderingRoom);
+    const before = snapshotMindrian(dir);
+    dispatchCandidateReaches('s7kc', dir, { userText: COFIRE_TEXT });
+    const after = snapshotMindrian(dir);
+
+    const beforeNames = before.entries.map((e) => e.name);
+    const newNames = after.entries.map((e) => e.name).filter((n) => beforeNames.indexOf(n) === -1);
+    for (const name of newNames) {
+      assert.ok(SQLITE_SIDECAR_RE.test(name),
+        'UNDISCLOSED FILESYSTEM EFFECT: the read-only pull created ' + name);
+    }
+    const roomDbBefore = before.entries.find((e) => e.name === 'room.db');
+    const roomDbAfter = after.entries.find((e) => e.name === 'room.db');
+    assert.strictEqual(roomDbAfter.sha256, roomDbBefore.sha256,
+      'WRITE LEAK: room.db itself changed, which no sidecar explanation can cover');
   });
 
   await check('E1c CONTROL: the SAME fixture DOES change on disk through the write path (the gate is real)', () => {
@@ -524,7 +579,7 @@ async function main() {
       assert.strictEqual(rcPayload.degraded, undefined,
         'a healthy pull must OMIT the degraded field on reach_candidates too');
 
-      assert.deepStrictEqual(snapshotMindrian(dir), before,
+      assertNoContentChange(before, snapshotMindrian(dir),
         'WRITE LEAK: the REAL registered handlers mutated .mindrian/');
     } finally {
       if (priorActive === undefined) { delete process.env.CLAUDE_ACTIVE_ROOM; }
