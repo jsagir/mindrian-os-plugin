@@ -75,3 +75,40 @@ convention calls for; or (b) scope a separate, disproportionate remediation phas
 clean gate; or (c) narrow the guardian itself to check only staged files (a genuine, separate
 infrastructure fix to `scripts/check-reward-before-investment.cjs` / the hook's invocation of
 it, also out of Phase 237's own `files_modified` scope). Not resolved here.
+
+## 3. `intelligence-cascade.cjs`'s proactiveIntelligence step persists before it diffs, so `newFindings` is always empty on a single real cascade run (found during 237-06)
+
+**Found during:** Plan 237-06, Task 1 (authoring the end-to-end writer test for
+`scripts/post-write`'s `last-cascade.json`). Confirmed live: driving the real
+`scripts/post-write` -> `bin/mindrian-tools.cjs cascade` -> `lib/core/intelligence-
+cascade.cjs::_runCascadeSteps` against a fresh fixture room produced
+`proactive_intelligence: {status:"ok", persisted:5, new:5, suppressed:0, newFindings:[]}` --
+`persisted`/`new` show 5 genuinely-new gap insights were recorded, but the co-returned
+`newFindings` array is empty.
+
+**Root cause:** `_runCascadeSteps` (`lib/core/intelligence-cascade.cjs` around lines 524-528)
+calls `proactiveIntel.persistIntelligence(roomDir, analyzeOutput)` FIRST, which writes the
+current insights into `<roomDir>/.proactive-intelligence.json` as already-persisted, and only
+THEN calls `proactiveIntel.getNewFindings(roomDir, parsed)` -- which loads that JUST-updated
+persisted store and diffs the current insights against it. Every insight on the very run that
+produced it is therefore already "existing" with an unchanged confidence by the time the diff
+runs, so `getNewFindings` never returns anything on a room's first (or any single) cascade
+pass. A second insight only shows up in `newFindings` if it is DIFFERENT from what the first
+run already persisted (e.g. a section transitioning out of a venture-stage gap exemption).
+
+**Scope decision:** `lib/core/intelligence-cascade.cjs` and `lib/core/proactive-intelligence.cjs`
+are not in 237-06-PLAN.md's `files_modified` list (`scripts/post-write`,
+`scripts/auto-explore-fingerprint.cjs`, `scripts/auto-explore-fire.cjs`,
+`tests/test-237-post-write-session-stamp.cjs`) and this ordering defect is unrelated to
+REACH-03's session-stamping surface. Per the executor SCOPE BOUNDARY rule, not auto-fixed here.
+Worked around in the test itself by patching ONLY the `proactive_intelligence.newFindings`
+field of the real, session-stamped marker Leg 1 produces (documented inline in the test's file
+header and in `237-06-SUMMARY.md`); `session_id` and every other real-writer field are left
+byte-identical.
+
+**Recommended follow-up:** swap the call order in `_runCascadeSteps` (diff via
+`getNewFindings` against the PRE-persist state, then call `persistIntelligence`), or have
+`persistIntelligence` return the pre-write snapshot so `getNewFindings` can diff against it
+without a second disk read. Either fix makes every existing room's proactive-intelligence
+surfacing actually fire on first touch instead of only on a second, different-shaped run --
+a real user-facing behavior gap, not just a test-authoring inconvenience. Not fixed here.
