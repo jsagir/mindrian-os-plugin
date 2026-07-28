@@ -157,6 +157,36 @@ this is a distinct symptom, not a duplicate of that one.
   first occurrence.
   implication: at least two distinct `gsd-tools query` verbs share whatever
   code path produces this regression; it is not specific to `phase.insert`.
+- timestamp: 2026-07-28T15:12:00.000Z
+  checked: `git diff .planning/STATE.md` immediately after `query
+  state.advance-plan` (Phase 241 Plan 05 execution, per this RCA's own
+  process-note advice to always diff right after a `state.*` write verb).
+  found: a THIRD, worse variant of the same regression. `stopped_at`/
+  `last_updated`/`last_activity` regressed from the correct
+  `Completed 241-04-PLAN.md` / 241-04's own activity line to a stale
+  `Completed 241-02-PLAN.md` / 241-03's activity line -- confirming this is
+  not specific to `phase.insert`/`state.record-session`; `state.advance-plan`
+  shares the same defective path. NEW symptom beyond what this RCA already
+  named: `progress.percent` ALSO regressed, from the correct `40` (6/15) to
+  `11`, a value that does not correspond to any sensible ratio of the visible
+  `completed_plans: 6` / `total_plans: 15` pair (both of which stayed
+  numerically unchanged across the write) -- so `percent` is being recomputed
+  from something OTHER than the two fields sitting right next to it in the
+  same frontmatter block, using the same stale disk-scan snapshot that
+  produces the `stopped_at` regression. The command's own JSON response
+  (`{"advanced":true,"previous_plan":3,"current_plan":4,"total_plans":5}`)
+  also disagrees with STATE.md's own milestone-scoped `total_plans: 15` --
+  it appears to be tracking a DIFFERENT, phase-scoped "plan N of 5" counter
+  that was itself one plan behind reality (241-04 had already completed
+  before this call, yet `previous_plan` read 3, not 4).
+  implication: `state.advance-plan` is a THIRD write verb sharing this
+  defective resync path, and the blast radius is larger than previously
+  documented -- `progress.percent` is not immune, contradicting this RCA's
+  original Scope-and-Impact note that only narrative fields were affected.
+  workaround applied: same as the two prior occurrences -- hand-restored the
+  3 frontmatter fields plus `percent` to their correct pre-write values via
+  `Edit`, confirmed via a second `git diff` that only the intended fields
+  changed.
 
 ## Technical Root Cause
 
