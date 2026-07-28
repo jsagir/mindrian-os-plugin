@@ -7,37 +7,37 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "0ca56c05e238833e0251dc11103051e13b9c67c7abcd8773e687827be2c86038",
-      "source_count": 107
+      "digest": "2ef333dda4e134d743c97d34a93e971a1cc805a73623b31cc8011143adc8ee57",
+      "source_count": 112
     },
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "1afc45f2f3059d53f798c6b8045bfe9dc0b0075383dd7608c93ef903909f9658",
-      "source_count": 91
+      "digest": "d84fedee6f5332416aeeb895f9bf79ec45b2724fec0dfd970cb0a448b1d3f859",
+      "source_count": 198
     },
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "6fee465d144a32869edc89fb1aa5ad5387933a84bb9df3197d63ac9d629b8a99",
-      "source_count": 254
+      "digest": "e3702a5cdc8efff44e207a5a39c7ed087c3154f45cf5ea6c440cda4dd2f41655",
+      "source_count": 374
     }
   ],
   "runtime_surfaces": [
     {
       "role": "orchestration_spine",
       "path": "lib/core/chain-executor.cjs",
-      "digest": "4c4a9dceacb173ac959a40e396438764a2df2eb1df3bcc98bc2fb843621c136e"
+      "digest": "ed0593828237f70c1c24f39a84ce04c9bf83c4c34b4216df56b273550ce018a6"
     },
     {
       "role": "decide_engine",
       "path": "lib/core/navigation-engine.cjs",
-      "digest": "60c4ec3f2ffc29e80273b96593eaefdf2d21a866c7002fab6e226998d0c707cf"
+      "digest": "cb848d48fb78e13b6b801f52ae06ed58f34a1ef371d43f256850e53e70c302d2"
     },
     {
       "role": "cockpit",
       "path": "lib/statusline/cockpit-renderer.cjs",
-      "digest": "8df04dcb09a7ec7e65dc4f6ccbbe82d35a925750248f37fb88572eb23d6352f0"
+      "digest": "f7d6cef6a8c4828dc5e172b9b64e92fa46caf32c57bf9e6e613c9c24be2891ca"
     },
     {
       "role": "brain_orchestration",

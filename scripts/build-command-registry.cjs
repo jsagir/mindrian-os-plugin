@@ -125,6 +125,16 @@ const FW_NAMES_CYPHER =
 // Handles:  `key: value`  |  `key: ["a","b"]` (JSON.parse)  |  `key:` + indented
 // `- item` dash list  |  strips surrounding quotes  |  `key: null` -> null  |
 // `key: true|false` -> boolean.
+//
+// Phase 237-05: extends the flat parser with a ONE-KEY nested descent for
+// `executable:`, mirroring scripts/build-connector-registry.cjs's
+// parseConnectorFrontmatter's descent into `connector:` (that file's own
+// comment names it "the ONE genuine net-new parsing concern" it introduces;
+// this is the second, narrow instance of the same shape rather than a
+// generic nested-YAML parser). While inside the `executable:` block, an
+// indented `key: value` line is a sub-key; an indented `- item` line is a
+// dash-list item appended to the last sub-key seen; a non-indented line ends
+// the block.
 // ---------------------------------------------------------------------------
 function parseFrontmatter(md) {
   if (typeof md !== 'string') return {};
@@ -132,12 +142,61 @@ function parseFrontmatter(md) {
   if (!m) return {};
   const out = {};
   let key = null;
+
+  // Nested-descent state for `executable:` only.
+  let inExecutable = false;
+  let executableObj = null;
+  let executableKey = null;
+
   for (const rawLine of m[1].split(/\r?\n/)) {
     const line = rawLine.replace(/\s+$/, '');
+    const indented = /^\s+\S/.test(line);
+
+    if (inExecutable) {
+      if (line.trim() === '' || indented) {
+        if (line.trim() === '') continue;
+        const noComment = line.replace(/\s+#.*$/, '');
+        const subKv = /^\s+([A-Za-z0-9_-]+):\s*(.*)$/.exec(noComment);
+        if (subKv) {
+          executableKey = subKv[1];
+          const sv = subKv[2].trim();
+          if (sv === '') {
+            executableObj[executableKey] = [];
+          } else if (sv === 'null' || sv === '~') {
+            executableObj[executableKey] = null;
+          } else if (sv === 'true' || sv === 'false') {
+            executableObj[executableKey] = sv === 'true';
+          } else {
+            executableObj[executableKey] = sv.replace(/^["']|["']$/g, '');
+          }
+          continue;
+        }
+        const subDash = /^\s+-\s+(.*)$/.exec(noComment);
+        if (subDash && executableKey) {
+          if (!Array.isArray(executableObj[executableKey])) executableObj[executableKey] = [];
+          executableObj[executableKey].push(subDash[1].replace(/^["']|["']$/g, ''));
+          continue;
+        }
+        continue;
+      }
+      // A non-indented line ends the executable block.
+      inExecutable = false;
+      out.executable = executableObj;
+      executableObj = null;
+      executableKey = null;
+      // fall through to parse this line as a normal top-level line
+    }
+
     const kv = /^([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
     if (kv) {
       key = kv[1];
       const v = kv[2].trim();
+      if (key === 'executable' && v === '') {
+        inExecutable = true;
+        executableObj = {};
+        executableKey = null;
+        continue;
+      }
       if (v === '') {
         // `key:` with nothing after it -> an empty list, or a dash list to
         // follow on indented lines below.
@@ -162,6 +221,10 @@ function parseFrontmatter(md) {
     }
     // Any other line (blank, comment `# ...`, deeper indentation) is ignored.
   }
+
+  // EOF inside the executable block -> flush it.
+  if (inExecutable && executableObj) out.executable = executableObj;
+
   return out;
 }
 
@@ -245,6 +308,24 @@ function buildRegistry() {
     const frameworks = Array.isArray(fm.frameworks) ? fm.frameworks.slice() : [];
     const produces = fm.produces === undefined ? null : fm.produces;
     const inputs = Array.isArray(fm.inputs) ? fm.inputs.slice() : [];
+    // Phase 237-05 (REACH-01): the optional server-executable join. Mirrors
+    // the `produces` pickup above. Emits null unless the frontmatter block is
+    // an object carrying a non-empty string `script`; a malformed block emits
+    // null rather than throwing, since failing the whole build closed on one
+    // bad command markdown is a worse failure mode than a null join here.
+    const executable =
+      fm.executable &&
+      typeof fm.executable === 'object' &&
+      !Array.isArray(fm.executable) &&
+      typeof fm.executable.script === 'string' &&
+      fm.executable.script.trim() !== ''
+        ? {
+            script: fm.executable.script,
+            args: Array.isArray(fm.executable.args) ? fm.executable.args.slice() : [],
+            produces:
+              typeof fm.executable.produces === 'string' ? fm.executable.produces : null,
+          }
+        : null;
     const autonomousSafe = fm.autonomous_safe === true || fm.autonomous_safe === 'true';
     const bodyShape = fm.body_shape ? fm.body_shape : null;
     const servesJtbd = Array.isArray(fm.serves_jtbd) ? fm.serves_jtbd.slice() : [];
@@ -287,6 +368,7 @@ function buildRegistry() {
       surface,
       frameworks,
       produces,
+      executable,
       inputs,
       autonomous_safe: autonomousSafe,
       body_shape: bodyShape,

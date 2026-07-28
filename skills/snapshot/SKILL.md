@@ -10,6 +10,12 @@ hitl_why: "It offers one snapshot action to approve or defer."
 argument-hint: '[<room-path>] [--open]'
 serves_jtbd: ["prepare-pitch", "audit-room"]
 teaching: "When you need a frozen Data Room artifact to share with someone outside the team, /mos:snapshot packages everything into a portable bundle. Read-only by design."
+# Phase 237-05: declares the server-executable join the chain-step dispatcher consumes.
+executable:
+  script: scripts/generate-hub.cjs
+  args:
+    - ${ROOM_DIR}
+  produces: exports/hub.html
 disable-model-invocation: true
 usage: /mos:snapshot [ROOM_PATH] [--output PATH] [--open]
 category: export

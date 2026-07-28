@@ -169,6 +169,7 @@
       "commands": [
         "act",
         "pipeline",
+        "intel-pipeline",
         "suggest-next",
         "scheduled-tasks"
       ],
@@ -210,7 +211,8 @@
         "new-surface",
         "skill",
         "ingest-methodology",
-        "auto-explore"
+        "auto-explore",
+        "pws-brain"
       ],
       "lane": "view",
       "jtbd": ["audit-room", "explore", "build"]
