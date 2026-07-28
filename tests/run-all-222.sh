@@ -76,6 +76,11 @@ run_if "222-07 zero-deps (Req 4)" "tests/test-222-zero-deps.cjs" \
 # it owns the ranker seam it exercises.
 run_if "222-08 read-only rank + no-write MCP pulls (quick 260728-7kc)" "tests/test-222-readonly-rank.cjs" \
   node tests/test-222-readonly-rank.cjs
+# Quick 260728-8av: the explicit navigator-triggered production trigger for the
+# Hedge outcome-learning fold (RCA hedge-fold-has-no-production-trigger). Lives
+# on the 222 gate because it owns the fold this leg proves is now reachable.
+run_if "222-09 fold-wired (explicit refit entry point, RCA hedge-fold-has-no-production-trigger)" "tests/test-222-fold-wired.cjs" \
+  node tests/test-222-fold-wired.cjs
 
 # ---------------------------------------------------------------------------
 # (a) Part 8 sweep -- the new ranking surfaces must never egress or read/write a
@@ -84,10 +89,11 @@ run_if "222-08 read-only rank + no-write MCP pulls (quick 260728-7kc)" "tests/te
 # ---------------------------------------------------------------------------
 RANKER="lib/workflow/reach-hedge-ranker.cjs"
 WEIGHTS="lib/core/navigation/ranker-weights.cjs"
+REFIT="scripts/hedge-refit-pipeline.cjs"
 PART8_RE="fetch\(|https?://|require\(['\"]node:http|\.reason\b"
 echo "--- Part 8 sweep: no egress/prose in the new ranking surfaces ---"
 PART8_OK=1
-for tgt in "$RANKER" "$WEIGHTS"; do
+for tgt in "$RANKER" "$WEIGHTS" "$REFIT"; do
   if [ ! -f "$tgt" ]; then
     echo "    MISSING sweep target: $tgt"; PART8_OK=0
   elif strip_comments "$tgt" | grep -nE "$PART8_RE" >/dev/null 2>&1; then
@@ -115,6 +121,37 @@ else
   fi
 fi
 if [ "$PART9_OK" -eq 1 ]; then echo ">>> Part 9 sweep: PASSED"; PASS=$((PASS+1)); else echo ">>> Part 9 sweep: FAILED"; FAIL=$((FAIL+1)); fi
+echo ""
+
+# ---------------------------------------------------------------------------
+# (b2) Part 9 sweep, the refit entry point -- its OWN block, kept separate from
+#     the ranker's block above rather than loosening that block's exact-path
+#     require assertion to accommodate a second file. scripts/hedge-refit-
+#     pipeline.cjs (quick 260728-8av) must never require a raw sqlite driver
+#     and must reach room.db only through lib/core/navigation.cjs.
+# ---------------------------------------------------------------------------
+echo "--- Part 9 sweep: chokepoint-only db access in the refit entry point ---"
+PART9_REFIT_OK=1
+if [ ! -f "$REFIT" ]; then
+  echo "    MISSING sweep target: $REFIT"; PART9_REFIT_OK=0
+else
+  # Captured to a variable first, then grepped via a here-string, rather than
+  # piping strip_comments straight into grep -q. grep -q exits as soon as it
+  # finds its first match without draining the rest of its input, which under
+  # `set -o pipefail` can SIGPIPE the upstream strip_comments process and make
+  # the whole pipeline report non-zero even though the pattern WAS found (a
+  # real, reproducible race observed on the pre-existing ranker sweep above:
+  # confirmed to flip between exit 0 and exit 141 across otherwise-identical
+  # runs). Capturing first removes the race entirely for this new leg.
+  REFIT_STRIPPED="$(strip_comments "$REFIT")"
+  if grep -nE "require\(['\"]node:sqlite|better-sqlite3|room-db\.cjs|\bDatabaseSync\b" <<< "$REFIT_STRIPPED" >/dev/null 2>&1; then
+    echo "    FORBIDDEN direct-db token on an executable line in: $REFIT"; PART9_REFIT_OK=0
+  fi
+  if ! grep -qE "require\(['\"]\.\./lib/core/navigation\.cjs['\"]\)" <<< "$REFIT_STRIPPED"; then
+    echo "    MISSING navigation.cjs chokepoint require in: $REFIT"; PART9_REFIT_OK=0
+  fi
+fi
+if [ "$PART9_REFIT_OK" -eq 1 ]; then echo ">>> Part 9 sweep (refit): PASSED"; PASS=$((PASS+1)); else echo ">>> Part 9 sweep (refit): FAILED"; FAIL=$((FAIL+1)); fi
 echo ""
 
 # ---------------------------------------------------------------------------
