@@ -335,6 +335,8 @@ fi
 # the 3000ms Stop-hook budget absorbs slack. Every step soft-fails (|| true)
 # so a Phase 88 failure cannot break the Stop-hook exit-0 contract. The
 # Phase 84 STATE.md write above is preserved byte-for-byte.
+GUARDIAN_SM=""
+GUARDIAN_TIMEOUT_S="${MINDRIAN_GUARDIAN_ONSTOP_TIMEOUT_S:-3}"
 if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" ]; then
   PHASE88_START_MS=$(node -e "process.stdout.write(String(Date.now()))" 2>/dev/null || echo 0)
 
@@ -454,10 +456,26 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
   # Runs every registered validator (minto-invariants + snapshot-integrity +
   # queue-health + stale-lifecycle) AFTER the 88-06 drain + snapshot lands,
   # writes .mindrian/invariant-report.json atomically, and CONSUMES
-  # stale-lifecycle ghost warnings to prune stale.json in-place. Timeout 1s
-  # so the guardian cannot eat into the 3000ms Stop-hook budget. Advisory
-  # (never exits non-zero). See 88-13-SUMMARY.md.
-  timeout 1 node "${PLUGIN_ROOT}/scripts/feynman-minto-guardian.cjs" on-stop "${ROOM_DIR}" >/dev/null 2>&1 || true
+  # stale-lifecycle ghost warnings to prune stale.json in-place. Phase 241-01
+  # (F-1, MINTO-01): a 3s outer ceiling is a last-resort safety net; the
+  # guardian owns its own soft walk budget internally (runOnStop's
+  # ONSTOP_WALK_BUDGET_MS), so the write and prune always get their turn
+  # even on a slow room. The guardian's systemMessage is captured and folded
+  # into this hook's final output below (GUARDIAN_SM), instead of being
+  # discarded. Advisory (never exits non-zero). See 88-13-SUMMARY.md and
+  # 241-01-SUMMARY.md.
+  GUARDIAN_OUT=$(timeout "${GUARDIAN_TIMEOUT_S}" node "${PLUGIN_ROOT}/scripts/feynman-minto-guardian.cjs" on-stop "${ROOM_DIR}" 2>/dev/null || true)
+  GUARDIAN_SM=$(GUARDIAN_OUT="${GUARDIAN_OUT}" node -e "
+    const raw = process.env.GUARDIAN_OUT || '';
+    const lines = raw.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+    if (lines.length === 0) { process.exit(0); }
+    try {
+      const parsed = JSON.parse(lines[lines.length - 1]);
+      if (parsed && typeof parsed.systemMessage === 'string' && parsed.systemMessage.length > 0) {
+        process.stdout.write(parsed.systemMessage);
+      }
+    } catch (_e) { /* not JSON: leave GUARDIAN_SM empty */ }
+  " 2>/dev/null || true)
   # --- end Phase 88-13 guardian on-stop ---
 fi
 # --- end Phase 88-06 ---
@@ -538,6 +556,15 @@ elif [ -n "$VOICE_SUMMARY_LINE" ]; then
   FINAL_SM="$VOICE_SUMMARY_LINE"
 else
   FINAL_SM="session ended: no active room"
+fi
+
+# Phase 241-01 (F-1, MINTO-01): fold the guardian's on-stop finding into the
+# ONE JSON line Claude Code actually reads. Without this fold, a fixed
+# discard-redirect alone is not enough - this hook builds FINAL_SM entirely
+# from STOP_SUMMARY_LINE/VOICE_SUMMARY_LINE above and never looked at what
+# the guardian subprocess printed to its own stdout.
+if [ -n "$GUARDIAN_SM" ]; then
+  FINAL_SM="${FINAL_SM} | ${GUARDIAN_SM}"
 fi
 
 SYSTEM_MESSAGE="$FINAL_SM" node -e "
