@@ -31,7 +31,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 - [ ] **Phase 239: Brain-Access Surface** - The egress guard and PII sanitizer cover the doors user content actually walks through, and sendPacket's fate is decided explicitly
 - [ ] **Phase 240: Memory** - Layer 2 promotion fires on real continuous work, the dead-letter queue drains into the memory cortex, and the test suite is hermetic
 - [ ] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit
-- [ ] **Phase 242: The Moat** - The HSI-to-graph rewrite is transaction-wrapped, and the PR checklist's dead KuzuDB warning becomes a machine-checked assertion
+- [x] **Phase 242: The Moat** - The HSI-to-graph rewrite is transaction-wrapped, and the PR checklist's dead KuzuDB warning becomes a machine-checked assertion (completed 2026-07-28)
 - [ ] **Phase 243: Voice-Glyph** - The statusline's "who is speaking" signal reflects the glyph a turn actually opened with, not a fabricated default
 
 ## Phase Details
@@ -151,8 +151,8 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
   1. A crash injected mid HSI-to-graph edge rewrite on a seeded, already-scored room leaves the prior scoring layer fully intact on reopen (never zeroed), and a concurrent reader during a live rewrite never observes an empty scoring layer; removing the transaction wrap turns the gate red.
   2. The PR checklist's KuzuDB warning prose is gone, replaced by a machine-checked assertion that fails when a kuzu reference re-enters the tree and passes on the current tree -- proven by seeding one kuzu reference and watching it fail (MOAT-02 is a light doc fix per the audit's rethink verdict, no RCA cycle).
 **Plans**: 2 plans (both Wave 1, no interdependency, zero shared files)
-- [ ] 242-01-PLAN.md — MOAT-01: wrap the hsi-to-graph DELETE-then-rewrite in one BEGIN/COMMIT/ROLLBACK, add the production-inert MINDRIAN_HSI_CRASH_TEST_DELAY_MS crash seam, and prove it with a three-leg test (spawn+SIGKILL crash injection, fork()'d concurrent reader, mutation proof) plus the tests/run-all-242.sh aggregator.
-- [ ] 242-02-PLAN.md — MOAT-02: build scripts/check-kuzu-reintroduction.cjs (dependency-manifest + live require/import scan, exit 0/1/2), wire it into scripts/verify-release as section 17, replace the dead docs/MOAT-MANDATE.md line 96 prose with a same-polarity machine-checked warning sign, and fence it with a hermetic seeded-fixture test.
+- [x] 242-01-PLAN.md — MOAT-01: wrap the hsi-to-graph DELETE-then-rewrite in one BEGIN/COMMIT/ROLLBACK, add the production-inert MINDRIAN_HSI_CRASH_TEST_DELAY_MS crash seam, and prove it with a three-leg test (spawn+SIGKILL crash injection, fork()'d concurrent reader, mutation proof) plus the tests/run-all-242.sh aggregator. (completed 2026-07-28)
+- [x] 242-02-PLAN.md — MOAT-02: build scripts/check-kuzu-reintroduction.cjs (dependency-manifest + live require/import scan, exit 0/1/2), wire it into scripts/verify-release as section 17, replace the dead docs/MOAT-MANDATE.md line 96 prose with a same-polarity machine-checked warning sign, and fence it with a hermetic seeded-fixture test. (completed 2026-07-28)
 
 **Planner resolutions (recorded 2026-07-28 so the two phases can be diffed before execution):** the shared `withTransaction` helper extraction is DECLINED for this phase, so Phase 242 touches NO file under `lib/` and its file set is provably disjoint from Phase 236's `lib/core/lazygraph-ops.cjs` work. The kuzu gate lands in `scripts/verify-release` only, not `scripts/doctor.cjs`. The crash seam is `MINDRIAN_HSI_CRASH_TEST_DELAY_MS`.
 
@@ -191,7 +191,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
 | 241. Feynman-MINTO | 0/5 | Planned | - |
-| 242. The Moat | 0/2 | Planned | - |
+| 242. The Moat | 2/2 | Complete   | 2026-07-28 |
 | 243. Voice-Glyph | 0/2 | Planned | - |
 
 **Coverage:** 23/23 v1.16.0 requirements mapped (CIRS-01..03, GRAPHDB-01..03, REACH-01..03, GATE-01/03/04, BRAIN-01..03, MEM-01..03, MINTO-01..02, MOAT-01..02, GLYPH-01). No orphans, no duplicates. Full mapping in `.planning/REQUIREMENTS.md` Traceability.

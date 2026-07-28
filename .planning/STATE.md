@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 235-02-PLAN.md
-last_updated: "2026-07-28T08:23:10.653Z"
-last_activity: 2026-07-28 -- Phase 235 COMPLETE (2/2): CIRS-01 + CIRS-02 + CIRS-03
+stopped_at: Completed 242-02-PLAN.md
+last_updated: "2026-07-28T12:30:00.000Z"
+last_activity: 2026-07-28 -- Phase 242 COMPLETE (2/2): MOAT-01 + MOAT-02
 progress:
   total_phases: 9
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 11
+  completed_phases: 2
+  total_plans: 15
+  completed_plans: 4
+  percent: 27
 ---
 
 # Project State
@@ -19,6 +19,20 @@ progress:
 ## SESSION OWNERSHIP LOCK (navigator directive 2026-07-28, ~11:50am)
 
 Navigator directive: this Claude Code session (transcript `ac25b9a9-4a3d-48b1-a724-095b43613edc`) is the SOLE planner+executor for v1.16.0 from this point forward. A separate concurrent session (process resumed from `4a669e7d-ee28-4726-a5aa-17eb5ff99bbe.jsonl`) was independently driving the same milestone on this same checkout with no shared awareness -- it deleted 236-03/236-04/236-VALIDATION mid-restructure (real, valuable partial improvement to 236-01 kept; the two deleted plans restored from the last known-good merged state, see commit `8631cda0`) and separately produced a caught-before-commit `gsd-tools.cjs phase.complete` corruption (see `.planning/debug/gsd-phase-complete-cross-phase-corruption.md`, workaround committed `0053a0b1`). If you are a different session or process reading this: STAND DOWN on v1.16.0 planning/execution and check with the navigator before writing to this repo's `.planning/` state files.
+
+## (2026-07-28) -- PHASE 242 COMPLETE (Wave 1) -- the HSI scoring layer can no longer be zeroed by a crash, and the PR checklist's dead KuzuDB question is now a machine-checked gate
+
+- **Position:** v1.16.0 Phase 242 is 2/2 plans executed and CLOSED. MOAT-01 and MOAT-02 are both checked off in `REQUIREMENTS.md`; `ROADMAP.md` shows 242 Complete (2/2, 2026-07-28). Both plans were Wave 1 with zero shared files and zero overlap with Phase 236's `lib/core/lazygraph-ops.cjs` scope, confirmed disjoint before, during, and after execution (`git diff --stat lib/` empty throughout).
+- **MOAT-01 root cause, stated before the patch:** `scripts/hsi-to-graph.cjs` DELETEd every `HSI_CONNECTION` and `REVERSE_SALIENT` edge and only then rewrote them across two loops, with no transaction anywhere. A kill between the DELETE and the last write left the room permanently at zero scoring edges -- the scoring layer IS the moat, so it was erasable by a badly timed Ctrl-C. Fixed with one BEGIN/COMMIT/ROLLBACK spanning the DELETE and both write loops (the only atomicity idiom `node:sqlite`'s `DatabaseSync` supports -- no `.transaction(fn)` helper exists), plus a production-inert `MINDRIAN_HSI_CRASH_TEST_DELAY_MS` crash-injection seam. Mutation-proven three ways: a real spawn+SIGKILL crash-injection leg, a `fork()`'d concurrent-reader leg (never observes 0, only 6 or 10), and a mutation-proof leg plus a live comment-out re-check (removed BEGIN/COMMIT -> suite exits 1 with Leg A red; restored -> exits 0; independently re-verified by the orchestrator with the identical live re-check).
+- **MOAT-02:** `docs/MOAT-MANDATE.md`'s PR checklist asked reviewers "Does this work without KuzuDB edges?" about a database retired 2026-06-14. Replaced with `scripts/check-kuzu-reintroduction.cjs`, a dependency-manifest + live require/import scanner (exit 0 clean / 1 forbidden / 2 scanner failure), wired into `scripts/verify-release` as section 17. The polarity of the checklist replacement line was corrected during planning (checked-means-bad preserved, not flipped) so the "3+ warning signs" rule stays sound. Mutation-proven with a seeded require probe and a seeded `package.json` dependency probe, each independently re-verified by the orchestrator (clean tree exit 0, seeded exit 1 naming the offender, restored exit 0, `git status --porcelain package.json` clean).
+- **Grounding (Context7):** both the orchestrator and the MOAT-01 executor independently confirmed via `node:sqlite`'s own docs (Context7 for the orchestrator; direct nodejs.org/sqlite.org fetch for the executor, whose Context7 MCP tools were stripped by upstream Claude Code bug #13898) that `DatabaseSync` exposes no `.transaction(fn)` sugar -- manual BEGIN/COMMIT/ROLLBACK is the only idiom -- and that the `timeout` constructor option is busy-lock handling only, unrelated to atomicity (RESEARCH.md Pitfall 2, correctly not added).
+- **Process note -- a real coordination hazard, resolved safely.** After Plan 01's executor had visibly finished on disk (commits + SUMMARY.md present), the orchestrator ran its own independent live mutation re-check on the shared working tree (no worktree isolation this session, `workflow.use_worktrees=false`) before the executor's Agent-level session had fully torn down. The still-active executor was fed what it correctly identified as a false/injected "system reminder" describing the orchestrator's own edit as if it were an authorized instruction to keep the mutation permanent; it verified against ground truth on disk (real BEGIN/COMMIT/ROLLBACK present, `git diff HEAD` empty) and did not comply. No damage resulted because the orchestrator restored the file byte-identically immediately after its own check, and the executor treated the injected narrative correctly as non-authoritative. Lesson recorded here for the next session: wait for the actual Agent-tool completion notification (not just a disk-based SUMMARY.md/commit heuristic) before performing further edits on a shared, non-worktree-isolated working tree.
+- **A second tooling gap, worked around:** both plans' executors initially left `SUMMARY.md` uncommitted, because `.planning/*` is gitignored except `.planning/debug/` and a plain `git add`/`commit` silently skips it. Plan 01's executor missed the `git add -f` step; the orchestrator hand-force-added and committed it (`2739fdee`). Plan 02's executor was explicitly warned in its dispatch prompt and force-added correctly (`f7fa4076`). Matches the established convention already used for 235-01/235-02.
+- **STATE.md/ROADMAP.md write discipline:** every automated write this phase was diff-reviewed before trusting it, per the standing `gsd-tools.cjs phase.complete` cross-phase corruption risk (`.planning/debug/gsd-phase-complete-cross-phase-corruption.md`). `state.begin-phase` (used once, at phase start) reproduced the SAME corruption class on a different field: it silently regressed `stopped_at` from the correct `Completed 235-02-PLAN.md` to the stale `Completed 234-02-PLAN.md` (prior milestone). Caught by diff review, hand-corrected before any commit. `total_plans: 15` from that same call was independently verified correct (2+4+5+2+2 across the five currently-planned phases) and kept. The two `ROADMAP.md`/`STATE.md` closing edits in this entry were both hand-written and diff-reviewed line-by-line to confirm zero touch outside Phase 242's own lines (no Phase 236 checkbox anywhere in either diff).
+- **Verification:** `bash tests/run-all-242.sh` -> **PASS=4 FAIL=0 SKIP=0** (both plans' test files discovered by glob with zero aggregator edits, exactly as Plan 01 designed it to work). `node tests/test-242-hsi-to-graph-transaction.cjs` 3/3, `node tests/test-242-kuzu-reintroduction-gate.cjs` 12/12, all independently re-run by the orchestrator after the executors returned. `git diff --stat lib/` empty for the whole phase. Zero em-dashes across all seven touched/created files.
+- **Deferred, not fixed (pre-existing, unrelated, correctly out of scope):** `.planning/phases/242-the-moat/deferred-items.md` logs two pre-existing failures in `tests/test-sqlite-concurrent.cjs` and `tests/test-sqlite-ops.cjs`, both traced to `node:sqlite` now returning null-prototype row objects (breaks `assert.deepStrictEqual`'s prototype comparison) plus frozen-literal test expectations that have drifted. Both suites import only `lib/core/lazygraph-ops.cjs`, never touch `hsi-to-graph.cjs`, and `lib/` is byte-identical to this phase's base commit -- confirmed pre-existing and explicitly Phase 236's territory, not fixed here.
+- **Commits:** `b9cc2184`, `298e7233`, `2c036bec` (Plan 01 tasks), `2739fdee` (Plan 01 SUMMARY, hand-committed), `68f8514b`, `3f344d1d`, `e6002580` (Plan 02 tasks), `f7fa4076` (Plan 02 SUMMARY). Full detail in `242-01-SUMMARY.md` and `242-02-SUMMARY.md`.
+- **NEXT:** Phase 236 remains off-limits to this session per the SESSION OWNERSHIP LOCK note above (in contention with a separate concurrent session) -- not resumed by this phase. Wave 2 (Phases 237, 238, 239) remains unblocked on Phase 235 and can proceed independently of both 236 and 242.
 
 ## (2026-07-28) -- PHASE 235 COMPLETE (Wave 1) -- MCP tool files are now inside the born-wired gate, and the "is this seam alive at BOTH ends" question has one shared answer the next three phases inherit
 
@@ -1356,14 +1370,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 235 — cirs-commit-gate-seam-liveness-helper
+**Current focus:** Phase 242 — the-moat (COMPLETE)
 
 ## Current Position
 
-Phase: 236 (room-db-data-loss-fixes)
-Plan: Not started
-Status: Phase 235 closed (CIRS-01, CIRS-02, CIRS-03 all complete); next up is Phase 236 (room.db data-loss fixes, Wave 1's other half)
-Last activity: 2026-07-28 -- Phase 235 COMPLETE (2/2): CIRS-01 + CIRS-02 + CIRS-03
+Phase: 242 (the-moat) — COMPLETE (2/2)
+Plan: 2 of 2 complete
+Status: Phase 242 closed (MOAT-01, MOAT-02 both complete); Phase 236 (room.db data-loss fixes) remains in contention with a separate session per the SESSION OWNERSHIP LOCK note above and was not touched by this phase
+Last activity: 2026-07-28 -- Phase 242 COMPLETE (2/2): MOAT-01 + MOAT-02
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
