@@ -16,7 +16,7 @@ Carried verbatim from REQUIREMENTS.md; plan-phase must honor these during resear
 - **Claude Code / Claude API expertise:** phases touching hooks (`hooks/hooks.json`, `PreToolUse`/`PostToolUse`/`Stop` matchers), MCP tool registration, or subagent/agent-registry behavior consult the `claude-api` skill and the `claude-code-guide` agent before changing matcher patterns or registry logic. Applies directly to Phases 235, 237, 238, 239.
 - **SQL / SQLite expertise:** phases touching `room.db` (`lib/core/room-db.cjs`, `lib/core/navigation/*`, raw SQL) consult Context7 docs for `node:sqlite` (`DatabaseSync`, transaction semantics, WAL visibility, the `timeout` option's real version floor) before writing or reviewing any transaction-wrapping fix. Applies directly to Phases 236, 240, 242.
 
-Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production-trigger.md` (resolved -- the model for criterion rigor), `minto-debounce-consumer-dead-end.md` (filed, Phase 241 input), `graph-rebuild-truncates-memory-journal.md` (filing in progress, Phase 236/240 input), `graph-edge-pending-undrained-dead-letter-queue.md` (debug in progress, Phase 240 input).
+Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production-trigger.md` (resolved -- the model for criterion rigor), `minto-debounce-consumer-dead-end.md` (filed, Phase 241 input), `graph-rebuild-truncates-memory-journal.md` (filing in progress, Phase 236/240 input), `graph-edge-pending-undrained-dead-letter-queue.md` (debug in progress, Phase 240 input), `room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` (diagnosed, live before/after verified, Phase 237/REACH-03 input -- room_bind's session-scoped binding is invisible to every MCP read tool unless MINDRIAN_MCP_FIRST covers the calling surface).
 
 ## Phases
 
@@ -145,3 +145,12 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | 243. Voice-Glyph | 0/? | Not started | - |
 
 **Coverage:** 23/23 v1.16.0 requirements mapped (CIRS-01..03, GRAPHDB-01..03, REACH-01..03, GATE-01/03/04, BRAIN-01..03, MEM-01..03, MINTO-01..02, MOAT-01..02, GLYPH-01). No orphans, no duplicates. Full mapping in `.planning/REQUIREMENTS.md` Traceability.
+
+## Next Milestone (slot REGISTERED 2026-07-28, navigator decision): v1.17.0 "MCP-First" (ships on the beta train, v1.17.0-beta.x)
+
+Navigator locked this slot mid-roadmap-session ("lets plan it for 1.17.beta"): the MCP-first system is the milestone immediately after v1.16.0. NOT scoped into this file's phases (v1.16.0 stays remediation-only); registered here so the slot cannot be claimed by another feature.
+
+- **Scope anchor:** `.planning/phases/198-mcp-first-then-sdk/` (Phase 198, un-parked 2026-07-09; stack locked oclif + Ink + MCP SDK; 3 servers split by trust boundary) plus PROJECT.md Platform Vision Workstream B (23-tool MCP server) as candidate scope.
+- **Why after v1.16.0, not inside it:** the live MCP tool surface (`lib/mcp/tools/`: chain.cjs, gate.cjs, sensors.cjs, graph.cjs, room.cjs, status.cjs, stop-gate.cjs, views.cjs) is exactly where the audit found wired-at-one-end seams. v1.17.0 builds on the repaired surface (Phases 237/238/239) and inherits Phase 235's seam-liveness helper, so all three new servers are born-wired with a red-able liveness gate from day one instead of repeating the audit's failure shape at 3x scale.
+- **Candidate fold-ins (decide at milestone definition, not here):** MCP Sampling migration for Feynman-MINTO tier-1 (retires the ANTHROPIC_API_KEY requirement; PROJECT.md first-class backlog item), MCP Apps De Stijl surfaces (Workstream C).
+- **Trigger:** after v1.16.0 completes, run `/gsd-new-milestone v1.17.0` -- requirements definition happens there, not in this file.
