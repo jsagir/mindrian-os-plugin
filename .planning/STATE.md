@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 237 CLOSED (8/8 plans, verification PASSED). Next: Phase 236 (held, in contention) or Wave 2 remainder (238, 239)"
-last_updated: "2026-07-29T04:30:00.000Z"
-last_activity: 2026-07-29 -- Phase 237 (Reach Mechanism) CLOSED. All 8 plans landed, gsd-verifier independently confirmed all 3 ROADMAP success criteria against the live codebase (not just claimed): approve-to-execute is real (artifact on disk, chain trace records real execution, mutation-proven), one autonomy authority (48/112 -> 0/112 classification disagreements, measured), session-scoped reach (real two-process fork() fence). tests/run-all-237.sh: 15 Passed, 0 Failed, 0 Skipped. Mid-phase blocker (237-05's pre-commit gate) resolved via navigator-authorized COMMIT_NO_VERIFY=1, scoped to exactly one pre-existing, unrelated guardian. Next: Phase 236 (held, in contention) or Wave 2 remainder (238, 239, unblocked by 235/237's landing)
+stopped_at: "Phase 237 CLOSED (8/8 plans, verification PASSED). Phase 236 execution started (Wave 1: 236-01, 236-03, 236-04)."
+last_updated: "2026-07-29T04:35:00.000Z"
+last_activity: 2026-07-29 -- Phase 237 (Reach Mechanism) CLOSED, all 8 plans verified. Phase 236 (room.db Data-Loss Fixes) execution started: SESSION OWNERSHIP LOCK hold lifted, plan-checker VERIFICATION PASSED (with a GRAPHDB-03 version-floor correction applied to 236-04-PLAN.md, see commit de1de9f9), now executing Wave 1
 progress:
   total_phases: 9
   completed_phases: 5
@@ -1501,14 +1501,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 243 CLOSED (2/2 plans); next is Phase 236 (held, in contention) or Wave 2 (237/238/239, unblocked by Phase 235)
+**Current focus:** Phase 236 (room-db-data-loss-fixes), executing after Phase 237's close and the SESSION OWNERSHIP LOCK hold lift
 
 ## Current Position
 
-Phase: none active -- 243 closed; next is Phase 236 (held, in contention with a separate session per the SESSION OWNERSHIP LOCK note above) or Wave 2 (237/238/239, unblocked by Phase 235)
-Plan: N/A
-Status: Phase 243 closed (2/2 plans, independently verified passed 8/8 must-haves; code review 0 critical/4 warning/1 info, advisory)
-Last activity: 2026-07-28 -- Phase 243 (Voice-Glyph) CLOSED
+Phase: 236 (room-db-data-loss-fixes) - EXECUTING (Phase 237 CLOSED immediately prior, 8/8 plans verified)
+Plan: 0 of 4 complete, Wave 1 (236-01, 236-03, 236-04) starting
+Status: Executing Phase 236, plan-checker VERIFICATION PASSED before dispatch
+Last activity: 2026-07-29 -- Phase 236 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
