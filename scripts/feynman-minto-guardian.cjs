@@ -195,11 +195,15 @@ function validateSection(roomDir, section, validators, ctx) {
   // violation so the report captures the contract breach without depending
   // on any one validator. The minto-invariants validator otherwise returns
   // null for missing MINTO (by design -- it's a content validator).
+  // Phase 241 F-2: critical is the level that reaches runSessionStart's
+  // enqueue gate (result.severity === 'critical'); a missing MINTO.md was
+  // previously stuck at 'error', one rung below that gate, so this breach
+  // never enqueued a repair. See .planning/phases/241-feynman-minto/241-RESEARCH.md.
   if (!fs.existsSync(path.join(sectionDir, 'MINTO.md'))) {
     all.push({
       validator: 'existence-check',
       category: 'existence',
-      severity: 'error',
+      severity: 'critical',
       message: 'MINTO.md missing in section "' + section + '"',
       section: section,
     });
