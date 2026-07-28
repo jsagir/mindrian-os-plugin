@@ -93,7 +93,7 @@ Before merging any PR, reviewers must answer these questions:
 
 - [ ] Is this feature standalone (not connected to the cascade)?
 - [ ] Could this be added to any folder-based system without modification?
-- [ ] Does this work without KuzuDB edges?
+- [ ] Does this PR reintroduce a retired graph engine? (machine-checked: `node scripts/check-kuzu-reintroduction.cjs` exits non-zero if a live kuzu dependency or require/import re-entered the tree; historical comments and back-compat alias names are exempt)
 - [ ] Is this just a UI addition without intelligence underneath?
 
 If 3+ warning signs are checked, the PR adds surface area. It should either be redesigned to integrate with MWP layers or documented as intentional surface expansion with a plan for future integration.

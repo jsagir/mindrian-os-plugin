@@ -450,6 +450,30 @@ else
 fi
 
 # ============================================================
+# 17. KUZU REINTRODUCTION GATE
+# ============================================================
+# The local per-room graph moved off KuzuDB to node:sqlite on 2026-06-14 (see
+# the correction banner at the top of docs/MOAT-MANDATE.md). Until Phase 242,
+# that file's PR checklist still asked reviewers to judge the point by eye
+# against a database this repo no longer has, which is an unfalsifiable
+# question, not a control. This gate replaces that prose with a deterministic
+# scan: dependency-manifest keys in package.json and package-lock.json (so a
+# transitive reintroduction that never touches package.json is still caught)
+# plus live require/import statements across every .cjs/.js/.mjs file.
+# Historical migration comments, the buildGraphFromKuzu back-compat alias, and
+# the build-kuzu subcommand label are exempt by design, which is why the scan
+# is scoped to statements and manifest keys rather than the bare string kuzu.
+echo -e "\n${BOLD}17. Kuzu Reintroduction Gate${NC}"
+
+KUZU_GATE_OUT=$(node "$PLUGIN_ROOT/scripts/check-kuzu-reintroduction.cjs" 2>&1) && KUZU_GATE_CODE=0 || KUZU_GATE_CODE=$?
+if [ "$KUZU_GATE_CODE" -eq 0 ]; then
+  pass "No live kuzu dependency or require/import re-entered the tree"
+else
+  fail "Kuzu reintroduction gate FAILED (the retired KuzuDB engine is back in the dependency surface):"
+  echo "$KUZU_GATE_OUT"
+fi
+
+# ============================================================
 # PACKAGE-LOCK SYNC (vendored-node_modules lockstep)
 # ============================================================
 # Debug session mcp-servers-cache-missing-node-modules: release.sh Step 6.7
