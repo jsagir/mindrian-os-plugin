@@ -116,7 +116,24 @@ Plans:
   2. Two concurrent sessions minting and answering gates never consume each other's cards (two-process fence), and the retry-counter file survives N parallel writers with no torn write (atomic-write fence on the proven Phase 87-02 concurrency-fence pattern).
   3. `check-card-fire.cjs` run over a committed fixture corpus built from this session's eight logged over-enforcement instances (citation/footnote markers in prose) produces ZERO false fires, while a genuine unrendered-card fixture still fires red -- the corpus pins the tuning so it cannot silently regress in either direction.
 
-**Plans**: TBD
+**Plans**: 8 plans across 3 waves
+
+Wave 1 (no dependencies, fully parallel):
+
+- [ ] 238-01-PLAN.md - Wave 1. Validation scaffolding: tests/run-all-238.sh with all nine legs pre-declared via run_if, the shared hermetic MINDRIAN_HOME + CARD_FIRE_SIDECHANNEL_PATH helper, and the forked-child worker for the GATE-03 concurrency proof.
+- [ ] 238-02-PLAN.md - Wave 1. GATE-01/GATE-03: build lib/mcp/gate-ledger.cjs (one session-keyed, single-use, TTL-bounded ledger with a process-scoped no-session sentinel) and lift validateChosenAgainstCard into an export on gate-render.cjs.
+- [ ] 238-07-PLAN.md - Wave 1. GATE-04: build the sanitized two-half fixture corpus and the table-driven corpus test, observed RED on the must-not-fire half before any classifier change.
+
+Wave 2 (blocked on Wave 1):
+
+- [ ] 238-03-PLAN.md - Wave 2. GATE-01 G-1/G-2 gate side: re-point gate_render and gate_answer onto the shared ledger, reject an out-of-card chosen before any DB open, fix the lying tool description.
+- [ ] 238-04-PLAN.md - Wave 2. GATE-01 G-1/G-2 chain side: re-point the resume ledger, carry the rendered card in the mint payload, make the resume path read chosen and enforce the session before the halted step can run.
+- [ ] 238-05-PLAN.md - Wave 2. GATE-03 half B: bounded-wait write-lock fence plus atomic tmp-and-rename on the retry counters, proven by a 20-forked-process exact-count test.
+
+Wave 3 (blocked on Wave 2):
+
+- [ ] 238-06-PLAN.md - Wave 3. GATE-01 SC1 end to end: prove mint id equals ratified id across the two tool modules, and give checkMintRatifierLiveness a production consumer wired into verify-release as section 18.
+- [ ] 238-08-PLAN.md - Wave 3. GATE-04 remedy: gate the backstop intercept on side-channel corroboration where the side channel is healthy, keep the last-resort arm where it is blind, turn the corpus green, and re-scope the open card-fire RCA honestly.
 
 ### Phase 239: Brain-Access Surface
 
