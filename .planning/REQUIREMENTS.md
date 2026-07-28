@@ -24,9 +24,9 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 
 ### Phase 237 -- Reach mechanism (depends on 235: CIRS is the posture-index source)
 
-- [ ] **REACH-01**: Approving a Decision Gate for a chain step causes that step's actual resolved command to run, not only a log line (R-1); the decorative per-step `decide()` call is removed in the same change (R-3 folds in).
-- [ ] **REACH-02**: `framework_run` and `chain_run` agree on which commands are material vs autonomous_safe, one authority, not two (R-2).
-- [ ] **REACH-03**: A candidate reach reflects the current session's own turn signals, not another concurrent session's stale marker (R-4).
+- [x] **REACH-01**: Approving a Decision Gate for a chain step causes that step's actual resolved command to run, not only a log line (R-1); the decorative per-step `decide()` call is removed in the same change (R-3 folds in).
+- [x] **REACH-02**: `framework_run` and `chain_run` agree on which commands are material vs autonomous_safe, one authority, not two (R-2).
+- [x] **REACH-03**: A candidate reach reflects the current session's own turn signals, not another concurrent session's stale marker (R-4).
 
 ### Phase 238 -- Decision Gates (depends on 235: shared seam-liveness helper)
 
@@ -78,9 +78,9 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | GRAPHDB-01 | Phase 236 | Pending |
 | GRAPHDB-02 | Phase 236 | Pending |
 | GRAPHDB-03 | Phase 236 | Pending (log-only) |
-| REACH-01 | Phase 237 | Pending |
-| REACH-02 | Phase 237 | Pending |
-| REACH-03 | Phase 237 | Pending |
+| REACH-01 | Phase 237 | Complete |
+| REACH-02 | Phase 237 | Complete |
+| REACH-03 | Phase 237 | Complete |
 | GATE-01 | Phase 238 | Pending |
 | GATE-03 | Phase 238 | Pending |
 | GATE-04 | Phase 238 | Pending |
