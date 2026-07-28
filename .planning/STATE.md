@@ -4,13 +4,13 @@ milestone: v1.15.0
 milestone_name: "The Cockpit"
 status: verifying
 stopped_at: Completed 234-02-PLAN.md
-last_updated: "2026-07-28T02:49:44.845Z"
+last_updated: "2026-07-28T03:09:21.289Z"
 last_activity: 2026-07-28
 progress:
   total_phases: 140
   completed_phases: 106
   total_plans: 664
-  completed_plans: 648
+  completed_plans: 649
   percent: 76
 ---
 
@@ -1282,7 +1282,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 234 (mindrianos-as-infrastructure-skills-mcp-everywhere-open-core) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -1883,6 +1883,7 @@ Progress: [█████████░] 92%
 | Phase 233 P03 | 71min | 2 tasks | 9 files |
 | Phase 234 P01 | 22min | 2 tasks | 4 files |
 | Phase 234 P02 | 21min | 1 tasks | 3 files |
+| Phase 234 P03 | 35m | 1 tasks | 124 files |
 
 ## Accumulated Context
 
@@ -3008,6 +3009,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 234-01: D-03 is asserted against the live JSON-RPC wire, not a source grep, so a runtime-assembled instructions value cannot slip past
 - [Phase 234]: 234-02: enforce the D-03 120-char MCP tool-description floor on EVERY registered tool, not just the 8 rewritten - Scoping the length check to a hardcoded list of 8 would defend only the tools already fixed and let the next tool be born as a label. The universal floor makes the gate forward-looking; the named list is kept only for the prose-shape assertions (capital, period, 600 ceiling, no em-dash).
 - [Phase 234]: 234-02: measure tool descriptions over the JSON-RPC wire, never by source grep - room_state assembles its description at runtime from a larryContext slice, so a grep misreads the template literal and cannot see what a foreign host actually receives. The test spawns the real server and reads tools/list.
+- [Phase 234]: 234-03: allowed-tools normalized to the spec string form with a space separator, except skills/status where a space-containing scoped Bash grant forces comma-space to avoid widening the permission scope - Bash(node scripts/mos-status.cjs:*) contains a space; space-joining re-reads it as multiple broad tokens. Comma-space is lossless, already shipping in 7 other SKILL.md files, and still a string so it satisfies the spec type rule and check-skill-spec.cjs.
+- [Phase 234]: 234-03: the frontmatter codemod uses targeted line-level splices and never matter.stringify() - matter.stringify() re-serializes through js-yaml and silently deletes hand-written YAML comments, including the Canon Part 8 Brain-egress prohibitions living inside the rs-experts and rs-thesis allowed-tools blocks. Catalog-wide frontmatter comment count verified unchanged at 331.
+- [Phase 234]: 234-03: MOSDeckEngine and value-proposition excluded from the bulk migration by explicit list, deferred to 234-04 - Both need a traced decision rather than a mechanical edit: a directory rename with live callers, and an intentional name/dirname mismatch with two live consumers. check-skill-spec hard failures therefore land at 2, not 0, until 234-04 runs.
 
 ### Pending Todos
 
@@ -3097,7 +3101,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-28 - Completed quick task 260728-3uw: Fixed stale "Active Milestone: v1.14.0" header + dead tail status marker in ROADMAP.md (now points at v1.15.0 "The Cockpit" / Phase 233)
-Last session: 2026-07-28T02:49:44.730Z
+Last session: 2026-07-28T03:09:21.178Z
 Stopped at: Completed 234-02-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.

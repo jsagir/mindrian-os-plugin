@@ -3243,7 +3243,7 @@ Plans:
 **Goal:** MindrianOS ships as a portable skills+MCP package that works honestly across any Agent-Skills-compliant host (not just Claude Code), with the commercial boundary drawn at the network (the hosted Brain), never at local code -- closing the gap between what SEED-068/SEED-069 assumed was unbuilt and what RESEARCH.md found already running in production (33-tool MCP server, persona-as-skill, the two-server free/paid `.mcp.json` split, a live Supabase-backed entitlement system), while fixing the genuinely open portability gaps: 9 hard Agent Skills spec failures, 112 `allowed-tools` format deviations, 51 skills hardcoding `${CLAUDE_PLUGIN_ROOT}`, the Tier-0 write-path hole (`graph_write`/`memory_event`/`artifact_file` invisible off Claude Code), and zero live foreign-host verification.
 **Requirements**: D-01..D-13 (234-CONTEXT.md decision IDs -- no REQUIREMENTS.md exists for this phase)
 **Depends on:** Phase 233
-**Plans:** 2/8 plans executed
+**Plans:** 3/8 plans executed
 
 Plans:
 
@@ -3254,7 +3254,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 234-03-PLAN.md -- Mechanical hard-spec-failure fixes across 123 skills: missing name:, allowed-tools normalization, license:/compatibility: fields [D-01, D-02, D-07, D-08]
+- [x] 234-03-PLAN.md -- Mechanical hard-spec-failure fixes across 123 skills: missing name:, allowed-tools normalization, license:/compatibility: fields [D-01, D-02, D-07, D-08]
 - [ ] 234-04-PLAN.md -- MOSDeckEngine + value-proposition skill-identity fixes (traced decision task, not mechanical) [D-01, D-02, D-07, D-08]
 - [ ] 234-05-PLAN.md -- Host-tier detection (D-05, via MCP SDK getClientVersion()) + Tier-0 write-path default (Gap D) + status_read capability-floor reporting [D-04, D-05, D-12]
 
