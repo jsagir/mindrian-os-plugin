@@ -103,7 +103,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 237-08-PLAN.md - Wave 4. REACH-01: wire the dispatcher as `chain_run`'s `onStep` default, delete the log-only stub, prove approve-to-execute end to end with an artifact on disk, and file the phase findings.
+- [x] 237-08-PLAN.md - Wave 4. REACH-01: wire the dispatcher as `chain_run`'s `onStep` default, delete the log-only stub, prove approve-to-execute end to end with an artifact on disk, and file the phase findings.
 
 ### Phase 238: Decision Gates
 
@@ -250,7 +250,7 @@ Wave 4 (blocked on Wave 3):
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
 | 236. room.db Data-Loss Fixes | 0/4 | Planned | - |
-| 237. Reach Mechanism | 7/8 | In progress (Wave 3 complete, Wave 4 next) | - |
+| 237. Reach Mechanism | 8/8 | Verifying (all plans landed, phase verification pending) | - |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
