@@ -463,3 +463,11 @@ None - no external service configuration required.
 *Phase: 237-reach-mechanism*
 *Plan: 08*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: tests/test-237-approve-executes.cjs
+- FOUND: .planning/phases/237-reach-mechanism/237-08-SUMMARY.md
+- FOUND commit: d4726377 (Task 1)
+- FOUND commit: 745986ce (Task 2)
+- FOUND commit: 86aff161 (Task 3)
