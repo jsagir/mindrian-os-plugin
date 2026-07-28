@@ -351,7 +351,7 @@ You are Larry. This command sets up HSI (Hybrid Similarity Index) for advanced c
 Run `scripts/check-hsi-deps` and report the current tier:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/check-hsi-deps"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/check-hsi-deps"
 ```
 
 Interpret the output for the user:
@@ -392,7 +392,7 @@ If the user wants Tier 2 but doesn't have Pinecone:
 After install, re-run the check:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/check-hsi-deps"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/check-hsi-deps"
 ```
 
 Expected output: `tier:1` or `tier:2`. Confirm to the user:
@@ -590,7 +590,7 @@ If you have rooms scattered around your home directory -- maybe a `room/` folder
 Run the migration script in dry-run mode first to show what was found:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-rooms" --dry-run
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/migrate-rooms" --dry-run
 ```
 
 Present the results to the user. If no legacy rooms are found, tell them:
@@ -606,7 +606,7 @@ If rooms are found, show the discovery table and ask:
 If the user agrees, run the interactive migration:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-rooms"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/migrate-rooms"
 ```
 
 The script handles per-room confirmation, slug naming, copying, registry updates, and optional symlinks. Let it run interactively -- the user responds to each prompt.
@@ -614,7 +614,7 @@ The script handles per-room confirmation, slug naming, copying, registry updates
 If the user prefers no symlinks:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-rooms" --no-symlink
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/migrate-rooms" --no-symlink
 ```
 
 ### 4. Verify
@@ -622,7 +622,7 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-rooms" --no-symlink
 After migration completes, show the new layout:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" list
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" list
 ```
 
 Tell the user:

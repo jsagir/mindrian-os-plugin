@@ -120,7 +120,7 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
 
 2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
    ```
-   const { resolveModel } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs');
+   const { resolveModel } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/model-profiles.cjs');
    const model = resolveModel('persona-analyst', roomPath);
    ```
    All 6 agents share the same model resolution since they perform equivalent work. The venture stage determines whether persona analysis runs on a budget or quality tier.
@@ -160,7 +160,7 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
 
 6. **Trigger post-parallel cascade:**
    - If any hat's analysis surfaces a CONTRADICTS or CONVERGES cross-reference, note it for HSI recomputation
-   - Run `"${CLAUDE_PLUGIN_ROOT}/scripts/compute-hsi.py" room` if cross-references found
+   - Run `"${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-hsi.py" room` if cross-references found
 
 7. **Present combined output:**
    ```

@@ -76,7 +76,7 @@ When more than 3 target sections, per-section progress streams to stderr as each
 Run the dispatcher via Bash:
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/feynman-timeline-refresh-command.cjs $ARGUMENTS
+node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/feynman-timeline-refresh-command.cjs $ARGUMENTS
 ```
 
 ## Examples

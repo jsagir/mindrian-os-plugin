@@ -121,7 +121,7 @@ Check if Velma is configured:
 > - If no: "No problem. Paste the transcript text instead, or point me to a text file with `--file`."
 
 **If configured:**
-Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/transcribe-audio" <path>` and use the output as the transcript. Note the source as `velma` (affects artifact frontmatter).
+Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/transcribe-audio" <path>` and use the output as the transcript. Note the source as `velma` (affects artifact frontmatter).
 
 Also capture the full JSON response (written to temp file via stderr) for emotion data parsing downstream.
 
@@ -264,7 +264,7 @@ mentor, researcher, team-member, investor, advisor, customer, founder, partner, 
 
 For each CONFIRMED unknown speaker (user has confirmed their identity and role):
 
-Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/create-speaker-profile" <room_dir> <speaker-slug> <speaker-role> <display-name>`
+Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/create-speaker-profile" <room_dir> <speaker-slug> <speaker-role> <display-name>`
 
 Add the speaker to the `new_profiles` list for post-pipeline research.
 
@@ -685,7 +685,7 @@ Register the audio file in the room's ASSET_MANIFEST.md for dashboard/wiki disco
 
 ```bash
 # Register audio in ASSET_MANIFEST.md
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/file-asset" "$room_path" "$audio_path" "meetings" --meeting "$meeting_id"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/file-asset" "$room_path" "$audio_path" "meetings" --meeting "$meeting_id"
 ```
 
 This creates a markdown wrapper alongside the audio file in the meeting archive with a link to the transcript:
@@ -836,11 +836,11 @@ After the entire 6-step pipeline is complete, check if any new speaker profiles 
 For each new speaker profile:
 
 1. Extract venture context from `room/STATE.md` (venture name, domain, stage) or use confirmed meeting context
-2. Run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>"`
+2. Run: `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>"`
 3. Present the research findings to the user:
    > "Here's what I found about {name}. Want me to update their profile?"
 4. **User confirms** before any research content is written to PROFILE.md
-5. If confirmed, run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>" --apply`
+5. If confirmed, run: `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>" --apply`
 6. If declined: Leave profile with `research_status: pending` -- user can research later
 
 **Important:** Research runs AFTER the filing pipeline. Never block filing on external API calls. This follows Pitfall 7 from research: proactive research is valuable but must not interrupt the core workflow.

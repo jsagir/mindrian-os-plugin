@@ -60,7 +60,7 @@ Stale sections carry a `(stale: reason)` suffix. Empty sections (no MINTO.md) ca
 Run the renderer and present its output verbatim. The renderer already emits Shape E zones (header + rows + summary + actions):
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/mos-status.cjs" $ARGUMENTS
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mos-status.cjs" $ARGUMENTS
 ```
 
 If `CLAUDE_PLUGIN_ROOT` is not set, resolve the script relative to the plugin's installed location: `scripts/mos-status.cjs` at the plugin root.

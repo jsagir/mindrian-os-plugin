@@ -85,7 +85,7 @@ When there are more than 3 target sections, per-section progress streams to stde
 Run the dispatcher via Bash:
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/brain-derive-command.cjs $ARGUMENTS
+node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/brain-derive-command.cjs $ARGUMENTS
 ```
 
 ## Examples

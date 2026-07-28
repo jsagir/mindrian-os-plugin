@@ -47,7 +47,7 @@ You are Larry. The user invoked /mos:visualize. Per D-09 + the Phase 121.5-08 pl
 2. Invoke /mos:dashboard --mermaid with the user's original arguments. Run:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/soft-alias-runner.cjs" --from visualize --to "dashboard --mermaid" --remaining-args $ARGUMENTS
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/soft-alias-runner.cjs" --from visualize --to "dashboard --mermaid" --remaining-args $ARGUMENTS
 ```
 
 The runner emits `{redirect, deprecation_note, args, ok}`. Use the redirect to confirm the target, then proceed with /mos:dashboard --mermaid behavior. The user sees ONE deprecation note + the dashboard render (browser open OR Mermaid code block fallback).

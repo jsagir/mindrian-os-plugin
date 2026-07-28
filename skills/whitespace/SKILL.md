@@ -96,7 +96,7 @@ When `/mos:whitespace` is called with no subcommand, display:
 Before any subcommand, resolve the active room:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"
 ```
 
 If no room found, use the 3-line error format:
@@ -128,7 +128,7 @@ STOP (unless the subcommand is `map`, which will create the data).
 Execute the whitespace-command.cjs dispatcher:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR map
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR map
 ```
 
 This ensures embeddings exist (runs compute-whitespace-embeddings.py if needed), then runs compute-whitespace-gaps.py.
@@ -184,7 +184,7 @@ Show if any zones have density < 0.2 (severe gaps):
 ### Step 1: Run Analysis
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR analyze ZONE_ID
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR analyze ZONE_ID
 ```
 
 If the zone ID is not found, show:
@@ -243,7 +243,7 @@ If zone validation failed gates, show which:
 ### Step 1: Check for Existing Hypothesis
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR hypothesis ZONE_ID
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR hypothesis ZONE_ID
 ```
 
 The dispatcher checks interpretation-results.json first. If a hypothesis already exists, it returns it without re-running the pipeline (lazy evaluation).
@@ -289,7 +289,7 @@ The dispatcher checks interpretation-results.json first. If a hypothesis already
 ### Step 1: Run Pipeline
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR tree
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR tree
 ```
 
 Ensures topic-forest.json exists (runs compute_topic_forest.py if needed), then runs label-topic-forest.cjs.
@@ -346,7 +346,7 @@ Summary line:
 ### Step 1: Read Scores
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR score
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR score
 ```
 
 Reads whitespace-results.json and extracts artifact_novelty_scores.
@@ -397,7 +397,7 @@ Summary line:
 ### Step 1: Run External Pipeline
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR external
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR external
 ```
 
 If the scripts are not yet installed, the dispatcher shows:
@@ -469,7 +469,7 @@ Canon Part 8 Graph Boundary: external papers are SIGNAL (public data) per canon 
 ### Step 1: Run Discovery Cycle
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR discover
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/whitespace-command.cjs" ROOM_DIR discover
 ```
 
 Runs discovery-cycle.cjs with `--steps all`. This chains HSI, RS, and Analogy whitespace detection.

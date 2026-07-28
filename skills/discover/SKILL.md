@@ -159,7 +159,7 @@ After the conversation, synthesize. Do NOT design the site -- produce the BRIEF 
 4. **Mark every guess** as `review_status: proposed` (Canon Part 5 evidence tiering + Part 9 proposed-not-confirmed). Never let a guess harden into a fact.
 5. **File ALL artifacts through `lib/core/navigation.cjs` `fileEvidenceWithReadback`** -- never folder-scan (Canon Part 9: SQL is the local mind; `filing: fileEvidenceWithReadback` is what the connector declares). Obsidian nested rule (CLAUDE.md decision 16): `section/artifact-name/artifact-name.md`, never a bare .md in a section root.
 
-Use the established `node ${CLAUDE_PLUGIN_ROOT}/...` invocation idiom for cjs calls.
+Use the established `node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/...` invocation idiom for cjs calls.
 
 ## DISC-10: The Feynman bridge (plain-language default, deck on request)
 

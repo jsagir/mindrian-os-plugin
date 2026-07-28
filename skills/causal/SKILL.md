@@ -205,7 +205,7 @@ After confirmation, write the results:
 3. **Call the bridge script** to write confirmed claims to the room graph:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-graph.cjs" "room/"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/causal-to-graph.cjs" "room/"
 ```
 
 4. **Handle bridge errors:**

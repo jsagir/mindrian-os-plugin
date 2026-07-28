@@ -103,7 +103,7 @@ Read `room/STATE.md` for:
 
 If `room/STATE.md` does not exist, run:
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/compute-state" room > room/STATE.md
+"${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-state" room > room/STATE.md
 ```
 Then read the generated file.
 
@@ -196,7 +196,7 @@ Format:
 Before dispatching any agent, resolve its model using the model-profiles module:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" resolve <roomDir> framework-runner
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/model-profiles.cjs" resolve <roomDir> framework-runner
 ```
 
 - If result is `skip`, tell the user: "Framework-runner is not recommended at the current venture stage. Use `/mos:models override framework-runner sonnet` to force."  Then STOP -- do not dispatch.
@@ -210,7 +210,7 @@ For `--swarm` mode, resolve once and apply the same model to all dispatches.
 Before dispatching any agents, calculate and display the cost estimate using `dispatch-optimizer.cjs`:
 
 ```javascript
-const { estimateTokenCost, formatCostEstimate, selectModel, planDispatch } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/dispatch-optimizer.cjs');
+const { estimateTokenCost, formatCostEstimate, selectModel, planDispatch } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/dispatch-optimizer.cjs');
 ```
 
 **For single mode:** Estimate 1 agent at the resolved model.
@@ -264,7 +264,7 @@ Display the thinking trace (Step 4) and the execution plan following the dry-run
 **Before anything else in `--chain` mode, plan + autonomy-gate the chain through the resolver:**
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/act-command.cjs" --chain --room ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/act-command.cjs" --chain --room ./room
 ```
 
 The helper picks the framework chain for the room state via `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` (a FEEDS_INTO traversal -- framework names + problem-type enums only; Canon Part 8: never a command string, never user content), composes it into `/mos:` commands via `lib/workflow/command-resolver.cjs` `composeWorkflow` (the SOLE framework -> command path, reading only the generated `data/command-registry.json`), calls `validateChainAutonomy(workflow)` FIRST, then DELEGATES the walk to the shared runtime `lib/core/chain-executor.cjs` `runChain`. act does NOT own its own loop: `runChain` is the ONE shared gated loop (the same spine the pipeline and ignite ride), and act is the thinnest caller -- it composes the chain then supplies callbacks only (`postureFn` = `lib/core/recipe-maps.cjs` `postureForCommand`, the ONE posture authority; the chain-autonomy `gateFn`; an `onStep` that records the would-run step; an `onHalt` that renders the "needs you here" gate; `provenanceFn: null` because act is not the pipeline). The walk stops at the FIRST step whose command is not `autonomous_safe: true` (or whose framework has no `/mos:` command at all), where it renders a "needs you here" gate (a Shape F.0 / E action report: "[GATE] Chain reached step N: /mos:x for <framework>. This step is not autonomous_safe -- it needs your eyes. [continue] [stop]"). Posture comes from `recipe-maps` (the ONE authority -- act names no posture from memory) and the chain trace is the single `runChain` trace. You then:
@@ -305,7 +305,7 @@ Then, for the steps the helper greenlit:
    - Run framework 1 via `agents/framework-runner.md`
    - After each step completes, use `chainCheckpoint()` from `dispatch-optimizer.cjs` to generate the pause prompt:
      ```javascript
-     const { chainCheckpoint } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/dispatch-optimizer.cjs');
+     const { chainCheckpoint } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/dispatch-optimizer.cjs');
      const cp = chainCheckpoint(currentStep, totalSteps, completedFramework, nextFramework, { artifactsAdded, section });
      ```
    - Display the checkpoint and WAIT for the user's response:
@@ -363,7 +363,7 @@ Swarm mode dispatches **N** framework-runner agents **simultaneously**, each tar
 Use `dispatch-optimizer.cjs` to calculate the optimal swarm size:
 
 ```javascript
-const { planDispatch } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/dispatch-optimizer.cjs');
+const { planDispatch } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/dispatch-optimizer.cjs');
 const plan = planDispatch(roomPath, {
   remainingContext: contextBudget,  // current session remaining tokens
   maxBudget: userBudget || undefined,  // from --budget flag if set
@@ -455,7 +455,7 @@ After all N agents return:
 
 3. **Trigger HSI recomputation** -- run the post-write cascade for all N new artifacts:
    ```bash
-   "${CLAUDE_PLUGIN_ROOT}/scripts/compute-hsi.py" room
+   "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-hsi.py" room
    ```
    This satisfies PARA-05: parallel filings trigger HSI recomputation to discover cross-agent innovation connections.
 

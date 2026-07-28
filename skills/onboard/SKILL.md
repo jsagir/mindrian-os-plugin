@@ -68,10 +68,10 @@ The De Stijl banner has already been shown by session-start before this command 
 
 If this command was triggered manually (not from session-start), show the banner first:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/banner"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/banner"
 ```
 
-The banner output now leads with the explicit version stamp `MindrianOS v<version>` (Phase 121.5-05 Sub-plan F / SEED-007 absorption). If you echo a welcome line in the conversation prose, prefix it with the version stamp returned by `node ${CLAUDE_PLUGIN_ROOT}/lib/core/first-touch-version-stamper.cjs onboard` (long form: `Welcome to MindrianOS v<version>. Let me show you around.`). The user must be able to answer "what version am I running?" by reading the terminal -- no command-line introspection required.
+The banner output now leads with the explicit version stamp `MindrianOS v<version>` (Phase 121.5-05 Sub-plan F / SEED-007 absorption). If you echo a welcome line in the conversation prose, prefix it with the version stamp returned by `node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/first-touch-version-stamper.cjs onboard` (long form: `Welcome to MindrianOS v<version>. Let me show you around.`). The user must be able to answer "what version am I running?" by reading the terminal -- no command-line introspection required.
 
 Then proceed to Step 1.
 
@@ -340,10 +340,10 @@ Use the Read tool to read `CHANGELOG.md` from the plugin root:
 
 ```bash
 # Get the plugin root path
-echo "${CLAUDE_PLUGIN_ROOT}"
+echo "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}"
 ```
 
-Then read the file: `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md`
+Then read the file: `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/CHANGELOG.md`
 
 ### Parsing logic (D-NEW-1: version-aware onboarding registry)
 
@@ -458,7 +458,7 @@ After completing the walkthrough OR after any skip at any point, write the onboa
 
 Run this command:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/check-onboard" --write
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/check-onboard" --write
 ```
 
 This creates `~/.mindrian-onboarded` with the current plugin version and date, preventing the walkthrough from auto-triggering on every session.

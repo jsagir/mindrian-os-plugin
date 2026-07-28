@@ -47,7 +47,7 @@ You are Larry. The user invoked /mos:organize. Per D-09 (LOCKED 2026-05-16, Phas
 2. Invoke /mos:rooms organize with the user's original arguments (the subcommand verb: `tree`, `propose`, `view`, `move`). Run:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/soft-alias-runner.cjs" --from organize --to "rooms organize" --remaining-args $ARGUMENTS
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/soft-alias-runner.cjs" --from organize --to "rooms organize" --remaining-args $ARGUMENTS
 ```
 
 The runner emits `{redirect, deprecation_note, args, ok}`. Use the redirect to confirm the target, then proceed with /mos:rooms organize behavior. The user sees ONE deprecation note + the rooms organize output (Shape B Semantic Tree).

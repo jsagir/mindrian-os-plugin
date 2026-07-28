@@ -50,7 +50,7 @@ nodes with `INFORMS / CONTRADICTS / SUPERSEDES / REJECTED_BECAUSE` cascade edges
 
 ## The pipeline modules (what this command invokes)
 
-All four are invoked via `node ${CLAUDE_PLUGIN_ROOT}/...` (the established
+All four are invoked via `node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/...` (the established
 command-invokes-cjs idiom). Every room.db read and write routes through
 `lib/core/navigation.cjs` inside these modules; this command never touches room.db
 directly and never sends LOCAL data to the Brain (Canon Part 8 + Part 9).
@@ -119,7 +119,7 @@ sits BEFORE the first network byte).
 
 ```bash
 node -e '
-  const { ingestUrl } = require("${CLAUDE_PLUGIN_ROOT}/lib/core/url-ingest.cjs");
+  const { ingestUrl } = require("${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/url-ingest.cjs");
   ingestUrl(process.env.MOS_ROOM_DIR, process.env.MOS_URL, {
     sessionId: process.env.MOS_SESSION_ID,
     origin: "on_demand",
@@ -189,8 +189,8 @@ Resolve the room dir + session id, then invoke the extractor:
 
 ```bash
 node -e '
-  const ex = require("${CLAUDE_PLUGIN_ROOT}/lib/core/research-context-extractor.cjs");
-  const { openRoomDb, closeRoomDb } = require("${CLAUDE_PLUGIN_ROOT}/lib/core/room-db.cjs");
+  const ex = require("${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/research-context-extractor.cjs");
+  const { openRoomDb, closeRoomDb } = require("${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/room-db.cjs");
   const roomDir = process.env.MOS_ROOM_DIR;
   const db = openRoomDb(roomDir);
   const out = ex.extractContext({ roomDir, sessionId: process.env.MOS_SESSION_ID, topic: process.env.MOS_TOPIC, db });
@@ -222,8 +222,8 @@ driver:
 
 ```bash
 node -e '
-  const drv = require("${CLAUDE_PLUGIN_ROOT}/lib/lens-engine/source-lens-driver.cjs");
-  const { openRoomDb, closeRoomDb } = require("${CLAUDE_PLUGIN_ROOT}/lib/core/room-db.cjs");
+  const drv = require("${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/lens-engine/source-lens-driver.cjs");
+  const { openRoomDb, closeRoomDb } = require("${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/room-db.cjs");
   const roomDir = process.env.MOS_ROOM_DIR;
   const db = openRoomDb(roomDir);
   const lensSet = JSON.parse(process.env.MOS_LENS_SET);
@@ -266,7 +266,7 @@ selector:
 
 ```bash
 node -e '
-  const sel = require("${CLAUDE_PLUGIN_ROOT}/lib/core/research-filing-selector.cjs");
+  const sel = require("${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/research-filing-selector.cjs");
   const finding = JSON.parse(process.env.MOS_FINDING);
   const candidateSections = JSON.parse(process.env.MOS_CANDIDATES);
   const out = sel.buildFilingSelector(finding, candidateSections, { mode: process.env.MOS_MODE || "A" });
@@ -344,7 +344,7 @@ academic + market + patent triple) on a single topic.
 
 ## Tri-Polar surfaces (CLI / Desktop / Cowork)
 
-- **CLI:** full power. The `node ${CLAUDE_PLUGIN_ROOT}/...` invocations run the four
+- **CLI:** full power. The `node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/...` invocations run the four
   modules directly; the F.1 gate renders via the dispatcher; wiring writes to the
   local room.db via `navigation.cjs`.
 - **Desktop / Cowork (MCP):** `/mos:research` routes through the `intelligence`

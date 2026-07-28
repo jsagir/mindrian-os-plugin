@@ -66,7 +66,7 @@ Parse the user's input after `/mos:eureka`. The primary job IS the scan, so **no
 Before any subcommand, resolve the active room. This is the ONE door (SEED-034); never re-guess the path.
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"
 ```
 
 When `CLAUDE_PLUGIN_ROOT` is unset, fall back to `./scripts/resolve-room`. The script prints `ROOM_DIR` on stdout and exits 1 when no room is found. On exit 1, render the 3-line error and STOP:
@@ -86,7 +86,7 @@ STOP. Never re-guess the room from another resolver.
 ### Step 1: Start the scan
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR start
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR start
 ```
 
 The dispatcher spawns the scan detached and prints the report path plus the status path, then exits immediately. TELL the navigator the scan is running and name the report path it will land at.
@@ -100,7 +100,7 @@ Include the first-run honesty note, once:
 Poll status up to 3 times over roughly 15 seconds:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR status
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR status
 ```
 
 - If the state becomes `done`, proceed to Step 3.
@@ -114,7 +114,7 @@ Never busy-wait past the third poll (D-05: fire-and-return, not block-and-wait).
 ### Step 3: Render the report
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR report
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR report
 ```
 
 Read the JSON on stdout and render the 4-zone output (spec below).
@@ -126,7 +126,7 @@ Read the JSON on stdout and render the 4-zone output (spec below).
 Run the status call:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR status
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR status
 ```
 
 Render ONE Shape E block translating the reported state:
@@ -155,7 +155,7 @@ x No eureka report yet
 Render the last completed report to a shareable, self-contained De Stijl html export:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR html
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR html
 ```
 
 The dispatcher reads the existing `portfolio-report.json` (it invents no second data shape), renders `portfolio-report.html` under `.mindrian/eureka/`, and prints the path plus the mode line. The export is zero-network (inline CSS only, no CDN, Canon Part 8) so it never phones home from a second reader's machine.
@@ -173,7 +173,7 @@ You know you are here when `/mos:eureka status` reads `reasoning_await_mappings`
 3. **Emit the rubric prompts.**
 
    ```bash
-   node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR reasoning-prompts
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR reasoning-prompts
    ```
 
    This writes a `<id>.neutral.txt` and a `<id>.adversarial.txt` per candidate. Status advances to `reasoning_await_answers`.
@@ -186,7 +186,7 @@ You know you are here when `/mos:eureka status` reads `reasoning_await_mappings`
 5. **Score.**
 
    ```bash
-   node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR reasoning-score
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/eureka-command.cjs" ROOM_DIR reasoning-score
    ```
 
    The runner replays your answers through the REAL rubric (verdict computed by code, biased to reject) and writes the SAME `{ provenance, ranked, tail, statements }` md+json labeled `mode:reasoning`. If it exits with a re-answer request (status `reasoning_await_answers` with `retry:true`), re-answer ONLY the named pairs faithfully and run `reasoning-score` again (one retry allowed) -- never guess to make it pass.

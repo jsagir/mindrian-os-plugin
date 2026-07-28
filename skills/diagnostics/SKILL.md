@@ -75,7 +75,7 @@ At a checkpoint, before a demo, or when you need a one-screen read of whether th
 Resolve the active room using the shared helper:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room
+bash ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room
 ```
 
 If no Data Room is found, show the 3-line error and STOP:
@@ -95,7 +95,7 @@ If the room exists but `.mindrian/whitespace-embeddings.json` is absent, show th
 Invoke the dispatcher:
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/diagnostics-command.cjs ROOM_DIR
+node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/diagnostics-command.cjs ROOM_DIR
 ```
 
 The dispatcher runs four Python scripts in sequence:

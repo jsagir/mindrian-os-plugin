@@ -55,7 +55,7 @@ Combine `--json` with any subcommand: `/mos:operator history --json`.
 Run via Bash:
 
 ```
-node "${CLAUDE_PLUGIN_ROOT}/scripts/operator-command.cjs" $@
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/operator-command.cjs" $@
 ```
 
 The script does the work:

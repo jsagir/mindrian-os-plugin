@@ -76,7 +76,7 @@ Vault export supports two modes via the `--mode` flag. Default is `vault` so exi
 
 ### Step 1: Check for Room
 
-If the user did not pass an explicit room name or path, run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room. If it exits non-zero (no room found), use the 3-line error format:
+If the user did not pass an explicit room name or path, run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"` to find the active room. If it exits non-zero (no room found), use the 3-line error format:
 
 ```
 x No Data Room found

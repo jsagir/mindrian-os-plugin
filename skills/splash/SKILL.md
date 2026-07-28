@@ -38,10 +38,10 @@ Display the MindrianOS De Stijl Mondrian banner + the owned-emotion tagline (D-0
 Run the banner script. It auto-reads the version from plugin.json -- no arguments needed. The banner now stamps the running version of record at the top per Phase 121.5-05 Sub-plan F (SEED-007 absorption); ensure the response shows the banner output verbatim so the user sees "MindrianOS v<version>" without typing `claude plugin list`:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/banner"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/banner"
 ```
 
-The first line of the banner output is the canonical version stamp -- format `MindrianOS v<version>`, sourced from `${CLAUDE_PLUGIN_ROOT}/lib/core/first-touch-version-stamper.cjs` (`stampVersion('splash')` returns the long form `MindrianOS v<version> -- conversation as the product surface` if you need to echo the stamp in prose).
+The first line of the banner output is the canonical version stamp -- format `MindrianOS v<version>`, sourced from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/first-touch-version-stamper.cjs` (`stampVersion('splash')` returns the long form `MindrianOS v<version> -- conversation as the product surface` if you need to echo the stamp in prose).
 
 After the banner renders, print the owned-emotion tagline on its own line, verbatim (this is `lib/copy/115-spec-strings.cjs` SPLASH_COPY -- do NOT paraphrase per Pitfall 1):
 

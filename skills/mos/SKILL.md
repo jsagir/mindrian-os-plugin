@@ -65,10 +65,10 @@ fi
 Then call the pure-function router:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/lib/core/state-aware-router.cjs" <<EOF
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/state-aware-router.cjs" <<EOF
 # Not invokable as a CLI; require the module from a Node script or:
 node -e "
-  const r = require('${CLAUDE_PLUGIN_ROOT}/lib/core/state-aware-router.cjs');
+  const r = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/state-aware-router.cjs');
   const out = r.resolveNextSurface({
     roomState: {
       exists: ${ROOM_STATE_EXISTS},

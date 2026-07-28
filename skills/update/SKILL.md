@@ -39,7 +39,7 @@ The fix is structural: defer to Claude Code's native commands. They keep all fou
 ### Step 1: Run SHA-aware version check
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/check-version-and-sha.cjs"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/check-version-and-sha.cjs"
 ```
 
 This script compares BOTH the semver version string AND the underlying git commit SHA, distinguishing four states:
@@ -134,11 +134,11 @@ Stream output. If non-zero exit, fall back instructions:
 Run the user-settings migration to clean up any stale version-pinned paths the deprecated self-update wrote into `~/.claude/settings.json`:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-stale-user-settings.cjs" --apply
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/migrate-stale-user-settings.cjs" --apply
 ```
 
 If the migrator finds and removes stale entries, surface that to the user:
-> "Cleaned {N} stale path(s) from your user settings.json. The plugin's own `${CLAUDE_PLUGIN_ROOT}`-based paths now take effect. A backup was saved to settings.json.bak.<timestamp> in case you need to roll back."
+> "Cleaned {N} stale path(s) from your user settings.json. The plugin's own `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}`-based paths now take effect. A backup was saved to settings.json.bak.<timestamp> in case you need to roll back."
 
 If no findings, mention it briefly:
 > "User settings clean -- no stale paths."
@@ -156,7 +156,7 @@ activation gap" surfaced on the 2026-05-23 dogfood box.
 Run the post-update activator to swap atomically:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.cjs" --fix --post-update
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/doctor.cjs" --fix --post-update
 ```
 
 Stream the output to the user. It prints a Shape E action report showing
@@ -185,7 +185,7 @@ Then close the flow with the Mindrian mark FIRST, the loud restart banner SECOND
 First render the Mindrian logo:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/lib/hmi/mindrian-ascii-logo.cjs"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/hmi/mindrian-ascii-logo.cjs"
 ```
 
 Stream its output as-is (it is the De Stijl block-letter mark and degrades to plain when the terminal has no color). Then, immediately below the logo, emit the RESTART BANNER defined in the final section of this command **verbatim**.

@@ -64,7 +64,7 @@ Combine `--json` with any subcommand: `/mos:jtbd history --json`.
 Run via Bash:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/jtbd-command.cjs" $ARGUMENTS
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/jtbd-command.cjs" $ARGUMENTS
 ```
 
 If `CLAUDE_PLUGIN_ROOT` is unset (older Claude Code versions), fall back to:

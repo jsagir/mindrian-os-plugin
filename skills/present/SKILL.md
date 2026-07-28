@@ -67,7 +67,7 @@ Stop after showing the error. Do not proceed.
 Run the presentation generator:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-presentation.cjs" room/
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/generate-presentation.cjs" room/
 ```
 
 If the script fails, show a 3-line error with the stderr output:
@@ -96,7 +96,7 @@ Frame the output as value the user gets, not technical details. Say something li
 Serve the presentation locally:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/serve-presentation"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/serve-presentation"
 ```
 
 If serve-presentation fails:

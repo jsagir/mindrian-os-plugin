@@ -67,7 +67,7 @@ On first invocation, show graph stats using lazygraph-ops.cjs. Run a temporary N
 
 ```bash
 node -e "
-const { openGraph, graphStats, closeGraph } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/lazygraph-ops.cjs');
+const { openGraph, graphStats, closeGraph } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/lazygraph-ops.cjs');
 (async () => {
   const { db, conn } = await openGraph('room/');
   try {
@@ -109,7 +109,7 @@ Run queries via temporary Node scripts:
 
 ```bash
 node -e "
-const { openGraph, queryGraph, closeGraph } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/lazygraph-ops.cjs');
+const { openGraph, queryGraph, closeGraph } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/lazygraph-ops.cjs');
 (async () => {
   const { db, conn } = await openGraph('room/');
   try {
@@ -163,7 +163,7 @@ After presenting results, suggest next actions:
 
 ```bash
 node -e "
-const { runDeriveBackfill } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/graph-backfill.cjs');
+const { runDeriveBackfill } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/graph-backfill.cjs');
 (async () => {
   // approveFolders is the PER-FOLDER Decision Gate allow-list: pass ONLY the
   // folder slugs the navigator APPROVED at the STEP 0 gate (below). A folder

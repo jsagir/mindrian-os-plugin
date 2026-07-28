@@ -46,7 +46,7 @@ You are Larry. The user invoked /mos:query. Per D-09 (LOCKED 2026-05-16, Phase 1
 2. Invoke /mos:graph with the user's original arguments (the natural-language question). Run:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/soft-alias-runner.cjs" --from query --to "graph" --remaining-args $ARGUMENTS
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/soft-alias-runner.cjs" --from query --to "graph" --remaining-args $ARGUMENTS
 ```
 
 The runner emits `{redirect, deprecation_note, args, ok}`. Use the redirect to confirm the target, then proceed with /mos:graph behavior. The user sees ONE deprecation note + the graph traversal output.

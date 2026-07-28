@@ -61,7 +61,7 @@ Parse the user's input to determine which subcommand to execute. If no subcomman
 
 ### Step 1: Check for Room
 
-Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room. If it exits non-zero (no room found), use the 3-line error format (per D-24):
+Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"` to find the active room. If it exits non-zero (no room found), use the 3-line error format (per D-24):
 ```
 x No Data Room found
   Why: No room under ~/MindrianRooms/ or legacy room/ in workspace
@@ -75,7 +75,7 @@ STOP.
 Run the serve-dashboard script:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/serve-dashboard"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/serve-dashboard"
 ```
 
 ### Step 3: Confirm to User
@@ -92,7 +92,7 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/serve-dashboard"
 
 ### Step 1: Check for Room
 
-Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room path. If it exits non-zero (no room found), use the 3-line error format:
+Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"` to find the active room path. If it exits non-zero (no room found), use the 3-line error format:
 ```
 x No Data Room found
   Why: No room under ~/MindrianRooms/ or legacy room/ in workspace
@@ -170,7 +170,7 @@ If no signals, omit Zone 3 entirely.
 
 ### Step 1: Validate Section
 
-Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room. If no room found, use 3-line error format. If the section doesn't exist in the resolved room path, show:
+Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"` to find the active room. If no room found, use 3-line error format. If the section doesn't exist in the resolved room path, show:
 ```
 x Section not found: [section-name]
   Why: No room/[section-name]/ directory
@@ -248,7 +248,7 @@ Actions reference graph edges when possible.
 
 ### Step 1: Validate
 
-- Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room. If no room found, use 3-line error format.
+- Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"` to find the active room. If no room found, use 3-line error format.
 - If the target directory already exists:
   ```
   x Room already exists: [path]
@@ -286,7 +286,7 @@ Larry adds a brief observation about the addition.
 
 ### Step 1: Check for Room
 
-Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to find the active room. If it exits non-zero, use the 3-line error format:
+Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"` to find the active room. If it exits non-zero, use the 3-line error format:
 ```
 x No Data Room found
   Why: No room under ~/MindrianRooms/ or legacy room/ in workspace

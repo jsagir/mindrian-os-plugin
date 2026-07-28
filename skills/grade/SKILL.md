@@ -60,7 +60,7 @@ Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__mindria
 Before dispatching the Grading Agent, resolve its model:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" resolve <roomDir> grading
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/model-profiles.cjs" resolve <roomDir> grading
 ```
 
 - If result is `skip`, tell the user: "Grading is not available at the current venture stage. Use `/mos:models override grading sonnet` to force." Then STOP.
@@ -104,7 +104,7 @@ Unlike standard grading (single agent evaluates all sections sequentially), `--f
 
 2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
    ```
-   const { resolveModel } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs');
+   const { resolveModel } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/model-profiles.cjs');
    const model = resolveModel('grading', roomPath);
    ```
    Grading agents are quality-sensitive -- venture stage hints may push these to a higher-tier model than other agent types.
@@ -149,7 +149,7 @@ Unlike standard grading (single agent evaluates all sections sequentially), `--f
 
 6. **Trigger HSI recomputation** -- parallel grading generates cross-section observations:
    ```bash
-   "${CLAUDE_PLUGIN_ROOT}/scripts/compute-hsi.py" room
+   "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-hsi.py" room
    ```
 
 7. **Present the full-grade report:**

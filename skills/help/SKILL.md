@@ -65,7 +65,7 @@ When `/mos:help <arg>` carries an argument, resolve it in this exact order (stat
 For a family id (or a resolved family label), delegate verbatim to the renderer, exactly as the `--list` path delegates:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/help-renderer.cjs" --group <family-id>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/help-renderer.cjs" --group <family-id>
 ```
 
 Fall back to `node ./scripts/help-renderer.cjs --group <family-id>` if `CLAUDE_PLUGIN_ROOT` is unset. The renderer prints that one family's full command list (label, glyph, and every command with its `help_jtbd:` line) as plain scrollable text, sourced from `data/help-groups.json` -- never from prose duplicated here. An unknown id makes the renderer print the 11 valid family ids and exit 1.
@@ -75,7 +75,7 @@ Fall back to `node ./scripts/help-renderer.cjs --group <family-id>` if `CLAUDE_P
 When the navigator runs `/mos:help --list` or `--all`, or AskUserQuestion is unavailable (piped / non-TTY / Desktop), emit the renderer's text view verbatim instead of the selector:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/help-renderer.cjs"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/help-renderer.cjs"
 ```
 
 Fall back to `node ./scripts/help-renderer.cjs` if `CLAUDE_PLUGIN_ROOT` is unset. The renderer walks every family (all non-admin commands) and is the single source of truth for the TEXT view. DO NOT hand-compose the text view; DO NOT hardcode color escapes.

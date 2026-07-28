@@ -108,7 +108,7 @@ venture's data.
    amendment, not this pipeline.
 
 7. **Local step (make it operable Local-Only).** Run
-   `bash "${CLAUDE_PLUGIN_ROOT}/scripts/methodology-ingest-local.sh"`. This regenerates, in order,
+   `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/methodology-ingest-local.sh"`. This regenerates, in order,
    `command-registry.json` -> `connector-registry.json` ->
    `brain-orchestration-projection.json` (the local intelligence cache the
    navigation engine, dial, and f-selector-ranker read), each behind its

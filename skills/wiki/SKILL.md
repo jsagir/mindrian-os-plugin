@@ -60,10 +60,10 @@ Launches a local Express server that renders room/ .md files as Wikipedia-style 
 
 ```bash
 # Open the wiki locally
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/serve-wiki"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/serve-wiki"
 
 # Export as static HTML for sharing
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/serve-wiki" --export
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/serve-wiki" --export
 ```
 
 ## Flags

@@ -56,7 +56,7 @@ The ~60 duplicated stage-walk lines this command used to carry are now the share
 `/mos:pipeline --from-problem-type ill-defined` (or `--from-framework "Beautiful Question Framework"`) does NOT run a static named pipeline -- it Brain-derives the framework chain and runs the resolver-composed `/mos:` command sequence end to end:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-command.cjs" --from-problem-type ill-defined --room ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/pipeline-command.cjs" --from-problem-type ill-defined --room ./room
 ```
 
 The helper calls `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` (a FEEDS_INTO traversal -- framework names + problem-type enums only; Canon Part 8: never a command string, never user content), composes that chain into `/mos:` commands via `lib/workflow/command-resolver.cjs` `composeWorkflow` (the SOLE framework -> command path, reading only the generated `data/command-registry.json`), and prints the run order. Then run the printed `/mos:` commands in sequence using the Stage Execution Loop machinery below -- one resolved command per step. For a step whose framework has no `/mos:` command, the helper prints "no /mos: for <framework> -- run it manually; continuing"; skip that step (or run the framework manually) and continue. Every command the helper prints exists in the registry -- the resolver only ever returns registered commands, so you never invoke a `/mos:` that does not exist.

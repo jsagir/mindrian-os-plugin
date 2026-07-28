@@ -96,6 +96,43 @@
  *   Comments are non-semantic, so preserving them cannot change what a host loads,
  *   and it is what keeps write mode from destroying a written reason.
  *
+ * EXCEPTION CLASS 3 - PLUGIN-ROOT PORTABILITY (phase 234-06, threat T-234-11):
+ *   The BODY transformation, and the first exception class that is not about
+ *   frontmatter. A command body shell-outs via "${CLAUDE_PLUGIN_ROOT}/scripts/x".
+ *   That variable is set by Claude Code and by NOTHING else, so in the MIRROR -
+ *   the artifact a foreign Agent-Skills host actually loads - it expands to the
+ *   empty string and the instruction silently becomes `bash "/scripts/x"`: an
+ *   absolute path at the filesystem root, which an attacker can plant a file at.
+ *   RESEARCH.md's Security Domain names that silent misresolution as the phase's
+ *   Tampering finding.
+ *
+ *   So the EXPECTED mirror body wraps every bare `${CLAUDE_PLUGIN_ROOT}` in
+ *   `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?<message>}}` - plain POSIX nested
+ *   parameter expansion (verified evaluable on bash and dash). MINDRIAN_OS_ROOT
+ *   is precedence #1 of the existing documented resolver
+ *   lib/core/active-plugin-root.cjs, so this REUSES the shipped escape hatch
+ *   rather than inventing a second one. On Claude Code the runtime behavior is
+ *   byte-identical to before; when NEITHER variable is set the shell aborts with
+ *   a clear message and a non-zero exit instead of running against `/scripts/x`.
+ *   Fail closed, not silent.
+ *
+ *   commands/ is deliberately NOT transformed (threat T-234-12, disposition
+ *   accept): no Agent-Skills host loads a commands/ directory at all, so the
+ *   reference is unreachable there by construction, and commands/ is the
+ *   read-only source of truth this generator must not touch.
+ *
+ *   The transformation is idempotent by construction - the replacement contains
+ *   `${CLAUDE_PLUGIN_ROOT:?...}` (a COLON, not a closing brace, after the name),
+ *   so the bare token `${CLAUDE_PLUGIN_ROOT}` never survives in the output and a
+ *   second pass is a no-op. That is what lets `--check` and the write path use
+ *   the same function without double-wrapping.
+ *
+ *   Same duplication rationale as EXCEPTION CLASS 2: the authoring codemod is
+ *   scripts/migrate-plugin-root-refs.cjs, but this gate stays fs/path-only, so
+ *   the constant is restated here rather than imported. Drift between the two
+ *   copies is not left to vigilance - tests/test-234-plugin-root-migrated.cjs
+ *   asserts the two strings are byte-identical.
+ *
  * CONVENTIONS (per CLAUDE.md): CJS only, no TypeScript, no Commander/yargs, no
  * new npm dependencies (fs/path only). process.argv parsed with the
  * switch/includes pattern used by build-connector-registry.cjs. Default run =
@@ -373,16 +410,44 @@ function applySkillSpecNormalization(lines, name, currentLines) {
   return changed;
 }
 
+// ---------------------------------------------------------------------------
+// EXCEPTION CLASS 3 - plugin-root portability (see the header).
+//
+// Restated verbatim from scripts/migrate-plugin-root-refs.cjs so this gate keeps
+// its fs/path-only dependency surface. tests/test-234-plugin-root-migrated.cjs
+// asserts the two copies stay byte-identical.
+// ---------------------------------------------------------------------------
+
+const PLUGIN_ROOT_BARE_TOKEN = '${CLAUDE_PLUGIN_ROOT}';
+
+const PLUGIN_ROOT_PORTABLE_TOKEN =
+  '${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. ' +
+  'Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}';
+
+// BODY lines only (everything after the closing frontmatter fence), matching the
+// scope of check-skill-spec.cjs's pluginRootCensus(). `fmEnd` must be the fence
+// index AFTER any frontmatter splices above, since each insertion moves it down.
+function applyPluginRootPortability(lines, fmEnd) {
+  let changed = false;
+  for (let i = fmEnd + 1; i < lines.length; i++) {
+    if (!lines[i].includes(PLUGIN_ROOT_BARE_TOKEN)) continue;
+    lines[i] = lines[i].split(PLUGIN_ROOT_BARE_TOKEN).join(PLUGIN_ROOT_PORTABLE_TOKEN);
+    changed = true;
+  }
+  return changed;
+}
+
 // Given the raw source Buffer for a command file, compute the EXPECTED mirror
 // content. `name` is the mirror's directory name; `currentBuf` is the mirror on
 // disk (or null) and is read ONLY for the preserved-annotation rule.
-// Returns { buffer, desensitized, normalized } where desensitized is true only
-// when the single sensor_triggers field was rewritten to [], and normalized is
-// true when any skill-spec transformation applied.
+// Returns { buffer, desensitized, normalized, portable } where desensitized is
+// true only when the single sensor_triggers field was rewritten to [], normalized
+// is true when any skill-spec transformation applied, and portable is true when
+// at least one body ${CLAUDE_PLUGIN_ROOT} got the fail-closed wrapper.
 function computeExpectedMirror(srcBuf, name, currentBuf) {
   const text = srcBuf.toString('utf8');
   const bounds = frontmatterBounds(text);
-  if (!bounds) return { buffer: srcBuf, desensitized: false, normalized: false };
+  if (!bounds) return { buffer: srcBuf, desensitized: false, normalized: false, portable: false };
 
   const { lines, fmEnd } = bounds;
   let connectsToSpine = false;
@@ -412,11 +477,15 @@ function computeExpectedMirror(srcBuf, name, currentBuf) {
     ? applySkillSpecNormalization(lines, name, currentBuf ? currentBuf.toString('utf8').split('\n') : null)
     : false;
 
-  if (!desensitized && !normalized) {
+  // EXCEPTION CLASS 3 runs LAST, and recomputes the fence index because every
+  // normalization splice above shifts it down.
+  const portable = applyPluginRootPortability(lines, frontmatterEnd(lines));
+
+  if (!desensitized && !normalized && !portable) {
     // Nothing applied: pure byte copy, no string round-trip.
-    return { buffer: srcBuf, desensitized: false, normalized: false };
+    return { buffer: srcBuf, desensitized: false, normalized: false, portable: false };
   }
-  return { buffer: Buffer.from(lines.join('\n'), 'utf8'), desensitized, normalized };
+  return { buffer: Buffer.from(lines.join('\n'), 'utf8'), desensitized, normalized, portable };
 }
 
 function writeMirrors() {
@@ -426,6 +495,7 @@ function writeMirrors() {
   let skipped = 0;
   let desensitizedCount = 0;
   let normalizedCount = 0;
+  let portableCount = 0;
   let pureCopyCount = 0;
 
   for (const name of commandNames()) {
@@ -436,10 +506,11 @@ function writeMirrors() {
     const src = fs.readFileSync(path.join(COMMANDS_DIR, name + '.md'));
     const dst = mirrorPath(name);
     const cur = fs.existsSync(dst) ? fs.readFileSync(dst) : null;
-    const { buffer: expected, desensitized, normalized } = computeExpectedMirror(src, name, cur);
+    const { buffer: expected, desensitized, normalized, portable } = computeExpectedMirror(src, name, cur);
     if (desensitized) desensitizedCount++;
     if (normalized) normalizedCount++;
-    if (!desensitized && !normalized) pureCopyCount++;
+    if (portable) portableCount++;
+    if (!desensitized && !normalized && !portable) pureCopyCount++;
 
     if (cur) {
       if (cur.equals(expected)) {
@@ -473,6 +544,8 @@ function writeMirrors() {
       desensitizedCount +
       ', skill-spec normalized ' +
       normalizedCount +
+      ', plugin-root portable ' +
+      portableCount +
       ', pure byte copy ' +
       pureCopyCount
   );
@@ -483,6 +556,7 @@ function writeMirrors() {
     skipped,
     desensitizedCount,
     normalizedCount,
+    portableCount,
     pureCopyCount,
   };
 }
@@ -596,9 +670,12 @@ module.exports = {
   applySkillSpecNormalization,
   checkMirrors,
   checkSkipList,
+  applyPluginRootPortability,
   LICENSE_LINE,
   COMPAT_DISABLE_MODEL_INVOCATION,
   COMPAT_HOOK_REFERENCING,
+  PLUGIN_ROOT_BARE_TOKEN,
+  PLUGIN_ROOT_PORTABLE_TOKEN,
 };
 
 if (require.main === module) main();

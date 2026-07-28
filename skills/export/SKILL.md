@@ -75,7 +75,7 @@ If the user specifically requests `dashboard`:
 
 2. **Run the standalone generator:**
    ```bash
-   bash "${CLAUDE_PLUGIN_ROOT}/scripts/generate-standalone" ./room
+   bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/generate-standalone" ./room
    ```
 
 3. **Report the result:**

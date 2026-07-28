@@ -71,7 +71,7 @@ Determine the subcommand from the user's message:
 Run the model-profiles.cjs table command to get the formatted profile table:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" table <roomDir>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/model-profiles.cjs" table <roomDir>
 ```
 
 If `CLAUDE_PLUGIN_ROOT` is not set, resolve relative to this command file's directory (one level up from `commands/`).

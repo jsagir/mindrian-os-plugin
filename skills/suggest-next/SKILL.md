@@ -50,7 +50,7 @@ You are Larry. This command recommends what the user should work on next as a CO
 Run the helper to get the resolver-composed command sequence:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/suggest-next-command.cjs" --room ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/suggest-next-command.cjs" --room ./room
 ```
 
 It reads `room/STATE.md` for the ProblemType / active JTBD (or pass `--problem-type <x>` / `--from-framework <x>` explicitly), calls `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` (a FEEDS_INTO traversal -- framework names + problem-type enums only; Canon Part 8: never a command string, never user content), composes the chain into `/mos:` commands via `lib/workflow/command-resolver.cjs` `composeWorkflow` (the SOLE framework -> command path, reading only the generated `data/command-registry.json`), and prints BOTH the framework chain AND the step-numbered command sequence. A framework with no `/mos:` yet renders as "(no /mos: for this -- run it manually)" -- degrade, do not fabricate.

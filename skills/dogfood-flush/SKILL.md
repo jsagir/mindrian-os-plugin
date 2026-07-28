@@ -100,8 +100,8 @@ F.0 Action Report:
 ## Implementation
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/dogfood-emit.cjs
-node ${CLAUDE_PLUGIN_ROOT}/scripts/dogfood-derive.cjs
+node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/dogfood-emit.cjs
+node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/dogfood-derive.cjs
 ```
 
 ## Examples

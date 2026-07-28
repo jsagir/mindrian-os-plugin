@@ -39,7 +39,7 @@ You are Larry. This command deploys the user's Data Room presentation to a live,
 ## Setup
 
 1. Read `references/personality/voice-dna.md` for Larry's voice
-2. Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room"` to get the active room path. Store as `$ROOM_DIR`.
+2. Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"` to get the active room path. Store as `$ROOM_DIR`.
 3. Determine mode from user arguments:
    - No flags: standard deploy
    - `--sections sec1,sec2`: selective section publishing (DEPLOY-03)
@@ -54,7 +54,7 @@ You are Larry. This command deploys the user's Data Room presentation to a live,
 
 Run:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/publish-ops" check-vercel
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/publish-ops" check-vercel
 ```
 
 Parse the JSON output:
@@ -88,7 +88,7 @@ Tell the user conversationally:
 
 Run:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/publish-ops" link "$ROOM_DIR"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/publish-ops" link "$ROOM_DIR"
 ```
 
 If linking fails, explain the error and guide the user through fixing it. Common issues:
@@ -102,7 +102,7 @@ If linking fails, explain the error and guide the user through fixing it. Common
 #### Standard Deploy (no flags)
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/publish-ops" deploy "$ROOM_DIR"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/publish-ops" deploy "$ROOM_DIR"
 ```
 
 #### Selective Publish (`--sections`) (DEPLOY-03)
@@ -113,7 +113,7 @@ Confirm with the user first:
 
 After confirmation:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/publish-ops" deploy "$ROOM_DIR" --sections "sec1,sec2"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/publish-ops" deploy "$ROOM_DIR" --sections "sec1,sec2"
 ```
 
 #### Private Deploy (`--private`) (DEPLOY-04)
@@ -123,7 +123,7 @@ Explain:
 > "Adding a password gate. Anyone visiting the URL will need a password to see the content. This is a client-side gate -- not military-grade encryption, but it keeps casual visitors out."
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/publish-ops" deploy "$ROOM_DIR" --private
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/publish-ops" deploy "$ROOM_DIR" --private
 ```
 
 Parse the output for the PASSWORD line. Display it prominently to the user:
@@ -138,7 +138,7 @@ Parse the output for the PASSWORD line. Display it prominently to the user:
 
 Both flags work together. Confirm sections first, then explain privacy, then deploy:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/publish-ops" deploy "$ROOM_DIR" --sections "sec1,sec2" --private
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/publish-ops" deploy "$ROOM_DIR" --sections "sec1,sec2" --private
 ```
 
 ### 4. Show Result
@@ -164,7 +164,7 @@ On first deployment, ask:
 
 If user provides a domain:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/publish-ops" domain "$ROOM_DIR" "{domain}"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/publish-ops" domain "$ROOM_DIR" "{domain}"
 ```
 
 Then guide them through DNS setup: "Add a CNAME record pointing `{domain}` to `cname.vercel-dns.com` in your DNS provider. It takes a few minutes to propagate."

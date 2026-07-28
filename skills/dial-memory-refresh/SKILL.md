@@ -87,7 +87,7 @@ The Dial Memory section is rendered FROM the graph (MEMDIAL-03; the graph is the
 ## Invocation
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/dial-memory-refresh-command.cjs $ARGUMENTS
+node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/dial-memory-refresh-command.cjs $ARGUMENTS
 ```
 
 ## Examples

@@ -47,7 +47,7 @@ You are Larry. The user invoked /mos:heal. Per D-09 (LOCKED 2026-05-16, Phase 12
 2. Invoke /mos:doctor --heal-room with the user's original arguments. The doctor command's class E fix engine handles all heal-room logic verbatim. Run:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/soft-alias-runner.cjs" --from heal --to "doctor --heal-room" --remaining-args $ARGUMENTS
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/soft-alias-runner.cjs" --from heal --to "doctor --heal-room" --remaining-args $ARGUMENTS
 ```
 
 The runner emits a JSON envelope: `{redirect, deprecation_note, args, ok}`. Use it to confirm the redirect target then proceed with /mos:doctor --heal-room behavior. The user sees ONE deprecation note + the doctor heal output.

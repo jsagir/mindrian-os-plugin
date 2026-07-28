@@ -66,7 +66,7 @@ Parse `$ARGUMENTS`. Branch on the first token:
 When `$ARGUMENTS` is `live`, run:
 
 ```bash
-!node "${CLAUDE_PLUGIN_ROOT}/scripts/serve-dashboard-live"
+!node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/serve-dashboard-live"
 ```
 
 This binds 127.0.0.1:3131 (fallback 3132..3140), watches the active room folder, and pushes SSE updates. `MOS_BIND_ALL=1` is refused on purpose -- localhost only. Auto-opens the user's default browser via `platform.openBrowser()` (strict localhost-only URL guard).
@@ -76,7 +76,7 @@ This binds 127.0.0.1:3131 (fallback 3132..3140), watches the active room folder,
 When `$ARGUMENTS` is empty, run:
 
 ```bash
-!bash "${CLAUDE_PLUGIN_ROOT}/scripts/serve-dashboard"
+!bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/serve-dashboard"
 ```
 
 This is the pre-87-08 implementation. Python http.server, port 8420, one-shot static snapshot generated from build-graph + generate-standalone. Not modified by Phase 87.
@@ -99,7 +99,7 @@ When `$ARGUMENTS` is `open`, run:
 ```bash
 !for port in 3131 3132 3133 3134 3135 3136 3137 3138 3139 3140; do
   if lsof -i :$port >/dev/null 2>&1; then
-    node -e "require('${CLAUDE_PLUGIN_ROOT}/lib/core/platform.cjs').openBrowser('http://127.0.0.1:'+${port}+'/')"
+    node -e "require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/platform.cjs').openBrowser('http://127.0.0.1:'+${port}+'/')"
     exit 0
   fi
 done; echo "No live dashboard running. Start with /mos:dashboard live."

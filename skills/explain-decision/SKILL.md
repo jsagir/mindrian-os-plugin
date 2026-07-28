@@ -97,7 +97,7 @@ The command never throws. It always exits 0 with one of:
 Run the dispatcher via Bash:
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/explain-decision-command.cjs $ARGUMENTS
+node ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/explain-decision-command.cjs $ARGUMENTS
 ```
 
 ## Examples

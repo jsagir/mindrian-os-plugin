@@ -58,7 +58,7 @@ ZERO Brain query and reads ZERO room data. Canon Part 7: all logic lives in
 2. Compare it to the seeded floor. Read the current seam:
 
    ```bash
-   node -e "const r=require('${CLAUDE_PLUGIN_ROOT}/lib/core/temporal/reference-now.cjs'); console.log(JSON.stringify(r.readSeam()||{}, null, 2))"
+   node -e "const r=require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/temporal/reference-now.cjs'); console.log(JSON.stringify(r.readSeam()||{}, null, 2))"
    ```
 
    If the seam's floor already lands on the same calendar date, tell the user the
@@ -68,7 +68,7 @@ ZERO Brain query and reads ZERO room data. Canon Part 7: all logic lives in
    `YYYY-MM-DD`:
 
    ```bash
-   node -e "const r=require('${CLAUDE_PLUGIN_ROOT}/lib/core/temporal/reference-now.cjs'); const base=Date.now(); const corrected=r.applyCurrentDate('YYYY-MM-DD', base); if(corrected==null){console.error('bad date');process.exit(1);} const w=r.writeSeam(undefined,{floorMs:corrected,source:'currentDate'}); console.log(JSON.stringify({ok:w.ok, floorMs:corrected, iso:new Date(corrected).toISOString()}));"
+   node -e "const r=require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/temporal/reference-now.cjs'); const base=Date.now(); const corrected=r.applyCurrentDate('YYYY-MM-DD', base); if(corrected==null){console.error('bad date');process.exit(1);} const w=r.writeSeam(undefined,{floorMs:corrected,source:'currentDate'}); console.log(JSON.stringify({ok:w.ok, floorMs:corrected, iso:new Date(corrected).toISOString()}));"
    ```
 
 4. Confirm the correction to the user in one calm line: the reference clock now

@@ -76,7 +76,7 @@ If the file does not exist, the before-state is empty (first run).
 Execute the compute-meetings-intelligence script:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/compute-meetings-intelligence" room/
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-meetings-intelligence" room/
 ```
 
 Wait for the script to complete.

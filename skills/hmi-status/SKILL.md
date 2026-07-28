@@ -49,7 +49,7 @@ You are Larry. The user invoked /mos:hmi-status. Per D-11 (LOCKED 2026-05-16, Ph
 2. Invoke /mos:doctor --ui-compliance --json with the user's original arguments. Run:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/soft-alias-runner.cjs" --from hmi-status --to "doctor --ui-compliance --json" --remaining-args $ARGUMENTS
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/soft-alias-runner.cjs" --from hmi-status --to "doctor --ui-compliance --json" --remaining-args $ARGUMENTS
 ```
 
 The runner emits `{redirect, deprecation_note, args, ok}`. Use the redirect to confirm the target, then proceed with /mos:doctor --ui-compliance behavior. The user sees ONE deprecation note + the doctor compliance scan output.

@@ -92,7 +92,7 @@ Check workspace state:
    > "You have a project at room/. Want me to adopt it into ~/MindrianRooms/ so you can have multiple rooms? Or start fresh alongside it."
 
    If user says yes to adoption:
-   - Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/resolve-room" $PWD --adopt` to create registry with existing room
+   - Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room" $PWD --adopt` to create registry with existing room
    - Then proceed to Step 2
 
    If user says no or wants to start fresh: STOP.
@@ -227,11 +227,11 @@ Create at `$ROOMS_HOME/<slug>/` where `<slug>` is derived from the venture name 
 ```bash
 # Generate CLAUDE.md (Layer 0) if missing
 if [ ! -f "$ROOMS_HOME/CLAUDE.md" ]; then
-  cp "${CLAUDE_PLUGIN_ROOT}/templates/icm/CLAUDE.md" "$ROOMS_HOME/CLAUDE.md"
+  cp "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/templates/icm/CLAUDE.md" "$ROOMS_HOME/CLAUDE.md"
 fi
 # Generate INDEX.md (Layer 1) if missing
 if [ ! -f "$ROOMS_HOME/INDEX.md" ]; then
-  cp "${CLAUDE_PLUGIN_ROOT}/templates/icm/INDEX.md" "$ROOMS_HOME/INDEX.md"
+  cp "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/templates/icm/INDEX.md" "$ROOMS_HOME/INDEX.md"
 fi
 ```
 
@@ -273,7 +273,7 @@ $ROOMS_HOME/<slug>/
 **Room registration:** After creating the directory structure, register the room:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" create <slug> "<slug>" "<venture_name>" "<venture_stage>"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" create <slug> "<slug>" "<venture_name>" "<venture_stage>"
 ```
 
 The registry automatically sets the new room as active and parks the previous one.
@@ -281,7 +281,7 @@ The registry automatically sets the new room as active and parks the previous on
 **Update INDEX.md:** After registration, refresh the routing index:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/update-icm-index" "$ROOMS_HOME"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/update-icm-index" "$ROOMS_HOME"
 ```
 
 **Note:** `team/` is created empty. No subfolders (members/, mentors/, advisors/) are pre-created. The structure grows organically as speakers are identified through meetings or user input. `team/` is NOT a topic section -- it is the people layer for the Data Room.
@@ -383,14 +383,14 @@ Only create entries for sections where real content was discussed. Do NOT create
 Check if the pre-room scratchpad has banked opportunities from previous conversations. If so, migrate them into the new room so sections start with real content instead of empty.
 
 ```bash
-SCRATCHPAD_DATA=$(node -e "const sp = require('${CLAUDE_PLUGIN_ROOT}/lib/core/scratchpad-ops.cjs'); console.log(JSON.stringify(sp.readScratchpad()))" 2>/dev/null || echo '{"opportunities":[]}')
+SCRATCHPAD_DATA=$(node -e "const sp = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/scratchpad-ops.cjs'); console.log(JSON.stringify(sp.readScratchpad()))" 2>/dev/null || echo '{"opportunities":[]}')
 OPP_COUNT=$(echo "$SCRATCHPAD_DATA" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).opportunities.length)}catch(_){console.log(0)}})")
 ```
 
 **If OPP_COUNT > 0:** Migrate scratchpad into the new room:
 
 ```bash
-MIGRATE_RESULT=$(node -e "const sp = require('${CLAUDE_PLUGIN_ROOT}/lib/core/scratchpad-ops.cjs'); const result = sp.migrateToRoom('$ROOMS_HOME/<slug>'); console.log(JSON.stringify(result))" 2>/dev/null || echo '{"migrated_opportunities":0,"migrated_highlights":0}')
+MIGRATE_RESULT=$(node -e "const sp = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/scratchpad-ops.cjs'); const result = sp.migrateToRoom('$ROOMS_HOME/<slug>'); console.log(JSON.stringify(result))" 2>/dev/null || echo '{"migrated_opportunities":0,"migrated_highlights":0}')
 ```
 
 This calls `migrateToRoom()` which:
@@ -459,7 +459,7 @@ These files work today as manual session context. When KAIROS persistent memory 
 Run the compute-state script to generate STATE.md from filesystem truth. Use the resolved room path:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/compute-state" "$ROOMS_HOME/<slug>" > "$ROOMS_HOME/<slug>/STATE.md"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/compute-state" "$ROOMS_HOME/<slug>" > "$ROOMS_HOME/<slug>/STATE.md"
 ```
 
 **IMPORTANT:** STATE.md must ALWAYS be generated by the compute-state script, never written directly by you. This ensures state is always computed from filesystem truth.
@@ -557,8 +557,8 @@ Determine room path (same as used in Step 4): `$ROOMS_HOME/<slug>/`
 
 Run:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/git-ops" init <room_path>
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/git-ops" lfs-setup <room_path>
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/git-ops" init <room_path>
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/git-ops" lfs-setup <room_path>
 ```
 
 ### Step 8.5c: Create GitHub Remote (only if gh available AND user wants it)
@@ -584,7 +584,7 @@ Capture the remote URL from output.
 Determine room name (the slug from Step 4).
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/room-registry" git-config <name> true "<remote_url_or_empty>" "off"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" git-config <name> true "<remote_url_or_empty>" "off"
 ```
 
 Note: auto_push defaults to "off". User opts into auto-push explicitly later.
@@ -600,7 +600,7 @@ IMPORTANT: Use `git -C <room_path>` instead of `cd + git`. This keeps all git op
 
 If remote was configured:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/git-ops" push <room_path>
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/git-ops" push <room_path>
 ```
 
 Report to user:
