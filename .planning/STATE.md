@@ -1,19 +1,34 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.16.0
-milestone_name: Infrastructure Remediation
-status: planning
-last_updated: "2026-07-28T03:45:00.000Z"
-last_activity: 2026-07-28
+milestone_name: milestone
+status: executing
+stopped_at: Completed 235-01-PLAN.md
+last_updated: "2026-07-28T00:00:00.000Z"
+last_activity: 2026-07-28 -- Phase 235 plan 01 complete (CIRS-01 + CIRS-03)
 progress:
   total_phases: 9
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
+  percent: 50
 ---
 
 # Project State
+
+## (2026-07-28) -- PHASE 235 Plan 01 COMPLETE (Wave 1) -- the born-wired commit gate was dead for months and is now provably live again, in the primary checkout AND in a worktree
+
+- **Position:** v1.16.0 Phase 235 is 1/2 plans executed (235-01 complete; 235-02, the `lib/core/seam-liveness.cjs` helper for CIRS-02, remains). Phase 235 is the Wave 1 leverage point that 237/238/239 depend on. CIRS-01 and CIRS-03 are checked off in `REQUIREMENTS.md`; `ROADMAP.md` shows 235 In Progress (1/2).
+- **Root cause, stated before the patch (not a surface fix):** a git pre-commit hook is untracked, so something must install it, and this repo had THREE independently hand-authored copies of what it should say: `scripts/hooks/pre-commit` (335 lines), `scripts/hooks/pre-commit-room-minto-guard.sh` (234 lines), and a heredoc template inside `scripts/install-pre-commit.sh` (the ONLY home of 8 guards). None was a superset. `scripts/session-start` runs BOTH installers every session (install-pre-commit.sh at 1377-1384, then setup-hooks.sh at 1667-1685), and setup-hooks.sh's `cmp -s` reinstall fires whenever the installed hook differs, so the narrower body overwrote the richer one seconds later, every session. The connector born-wired gate, the orchestration-projection gate, and the shape-declaration gate were therefore NEVER live in the hook that actually ran. A command with no `connector:` block committed cleanly. Exactly the "one governed path" failure Canon Part 11 exists to prevent.
+- **The fix is structural, not disciplinary:** ONE canonical body (`scripts/hooks/pre-commit`, now carrying all 11 known guards), a byte-identical twin at the filename setup-hooks.sh/`.cmd`/`room-minto-hook.test.cjs` already reference, and `install-pre-commit.sh` reduced from 364 lines of splice/heredoc generation to ~105 lines of cmp-then-copy that authors no content at all. Both installers now resolve the destination the same way (`git rev-parse --git-path`, so a worktree cannot split them) and converge on identical bytes in EITHER order. The byte-identity invariant is machine-checked by `tests/run-all-235.sh`, so divergence cannot silently return.
+- **CIRS-03:** `release.sh` ran `check-shape-declaration.cjs --check || true` unconditionally and never passed `--strict` at ALL, so the documented "one flag away from hard-fail" was simply false. There is now a real `--strict-shape` flag, with the Step 2.4 block wrapped in load-bearing `SHAPE-GATE-BEGIN`/`SHAPE-GATE-END` sentinels that its test EXTRACTS from the live script at run time rather than hand-copying. The Phase 210 advisory default is unchanged; the switch is opt-in.
+- **Mutation-proven, not merely passing.** Both harnesses were run against the pre-fix code. Against the genuine pre-235 narrow guard (`7409a69f~1`, 234 lines, 0 connector-registry references) the worktree test goes 3/6 with legs 1, 2 and 4 RED: the born-unwired commit succeeds in BOTH the primary checkout and the second worktree, reproducing CIRS-01 exactly. Against the restored `|| true` swallow the release test goes 3/5 RED on the strict-abort case. The worktree test also carries a NEGATIVE CONTROL as leg 3: it reproduces the C-1 rival-installer overwrite and asserts the violating commit SUCCEEDS, so legs 1/2/4 cannot pass vacuously against a gate with no teeth. Full plan verification block: 7/7 commands exit 0. `bash tests/run-all-235.sh` -> **PASS=4 FAIL=0 SKIP=1** (the SKIP is 235-02's `seam-liveness.test.cjs`, named explicitly so it cannot silently never run).
+- **Decisions:** (a) one canonical source copied verbatim, over three synced copies, because discipline had already failed here three times; (b) ported blocks normalized to `exit 2` for consistency with the file they now live in, not the retired heredoc's `exit 1`; (c) `--strict-shape` stays opt-in, Phase 210's advisory default is not flipped; (d) the installer names the canonical filename LITERALLY at each use site so the seam is greppable and has no second definition that could drift.
+- **Deviations (3, all auto-fixed):** Rule 1, the two ported unconditional guards had no existence check because the retired heredoc baked in an install-time absolute `$REPO_ROOT` while the canonical hook resolves it at RUN time, so copied verbatim they hard-failed EVERY commit in every non-plugin repo (`room-minto-hook.test.cjs` dropped 7/7 -> 4/7 with `Cannot find module`); Rule 3, the fixture's rejection was coming from the earlier command-registry drift guard rather than the born-wired gate, so the test regenerates and stages `data/command-registry.json` and the assertion is now genuinely about CIRS-01; Rule 3, the installer's `cmp` seam was hidden behind a variable and failed the plan's own declared key_link pattern.
+- **Commits:** `7409a69f` (canonical hook + installer), `41afe142` (--strict-shape + extraction test), `43565da3` (worktree/mutation harness + aggregator), `bcf693b3` + `7006a9a3` (summary, deferred items, self-check). Full detail in `235-01-SUMMARY.md`.
+- **CARRY-FORWARD (out of scope, logged, NOT a 235-01 regression):** `check-shape-declaration.cjs --check --strict` exits 1 today because `skills/stance`, `skills/update`, `skills/vault` and `skills/visualize` each declare a real `hitl_shape` AND `connector.excluded: true` simultaneously, which Canon Part 11 forbids. Pre-dates this plan; no skill frontmatter and no line of the checker was touched. Harmless today (the default release path is advisory) but `release.sh --strict-shape` would abort until reconciled. Recorded with recovery guidance as D-235-01-a in `.planning/phases/235-cirs-commit-gate-seam-liveness-helper/deferred-items.md`.
+- **NOTE FOR THE NEXT COMMITTER:** because the born-wired gate is genuinely live again, the next commit adding a `commands/*.md`, `agents/*.md`, or `skills/*/SKILL.md` surface WITHOUT a `connector:` block will be rejected. That is the intended behavior returning after being dead, not a new restriction.
+- **NEXT:** `/gsd-execute-phase 235` plan 02 (CIRS-02: the `lib/core/seam-liveness.cjs` helper, its 3 named dead-seam shapes, and the `coverageReport()` wiring that closes the MCP-tool-file blind spot). Re-run `bash tests/run-all-235.sh` afterward for a full-green reading.
 
 ## (2026-07-28) -- PHASE 234 Plan 08 TASK 1 COMPLETE, PAUSED AT A BLOCKING HUMAN-VERIFY CHECKPOINT -- the free core provably reaches nothing; the foreign-host claim is still unobserved
 
@@ -1321,14 +1336,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** v1.16.0 Infrastructure Remediation - Phase 235 (cirs-commit-gate-and-seam-liveness), Wave 1 with Phase 236
+**Current focus:** Phase 235 — cirs-commit-gate-seam-liveness-helper
 
 ## Current Position
 
-Phase: 235 of 235-243 (not started)
-Plan: -
-Status: Roadmap created - ready for /gsd-plan-phase 235 (236 may plan in parallel)
-Last activity: 2026-07-28 - v1.16.0 roadmap created (9 phases, 235-243, 23/23 reqs mapped); v1.17.0 "MCP-First" slot registered
+Phase: 235 (cirs-commit-gate-seam-liveness-helper) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 235
+Last activity: 2026-07-28 -- Phase 235 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
