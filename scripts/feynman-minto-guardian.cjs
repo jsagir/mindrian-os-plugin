@@ -16,7 +16,15 @@
  *                               violations into .mindrian/invariant-report.json
  *                               atomically, consume stale_ghost warnings to
  *                               prune .mindrian/minto-stale.json. Exit 0.
- *                               Advisory.
+ *                               Advisory. Phase 241-01: the section walk is
+ *                               bounded by a soft wall-clock deadline
+ *                               (MINDRIAN_GUARDIAN_ONSTOP_WALK_BUDGET_MS,
+ *                               default 1200ms). A slow walk stops early
+ *                               instead of taking down the report write and
+ *                               the ghost prune with it - those two steps
+ *                               always get their turn, and the report
+ *                               records exactly how far the walk got
+ *                               (sections_walked, sections_total, truncated).
  *
  *   pre-commit <roomPath>       run validators for every section whose
  *                               staged files live under it. Any critical or
@@ -52,6 +60,20 @@ const DEBOUNCER_PATH = path.join(PLUGIN_ROOT, 'scripts', 'minto-debouncer.cjs');
 
 const SEVERITY_ORDER = ['info', 'warning', 'error', 'critical'];
 const CLEAN_TMP_MAX_AGE_MS = 60 * 1000;
+
+// Phase 241-01 (F-1, MINTO-01): soft wall-clock deadline for runOnStop's
+// section walk ONLY. The report write, the ghost prune, and the
+// systemMessage emission run AFTER the walk in program order and must
+// always be reached, even when the walk itself runs long (a slow
+// validator, a large room). 1200ms leaves headroom under the 3000ms
+// Stop-hook budget for the prune, the write, and process teardown.
+// Env-var-override-with-NaN-floor-fallback idiom, mirrors
+// ZERO_SCORE_GATE_MIN_TOKENS in scripts/intent-classifier.cjs:41-45.
+const ONSTOP_WALK_BUDGET_MS = (function () {
+  const n = parseInt(process.env.MINDRIAN_GUARDIAN_ONSTOP_WALK_BUDGET_MS, 10);
+  if (Number.isNaN(n) || n < 1) return 1200;
+  return n;
+})();
 
 // ---------------------------------------------------------------------------
 // Logging helpers. All guardian non-fatal output goes to stderr so stdout
@@ -336,8 +358,17 @@ function runOnStop(roomDir, validators) {
   const ctx = { roomDir: roomDir, kind: 'on-stop', now: Date.now() };
   const sections = walkSections(roomDir);
   const report = { version: 1, kind: 'on-stop', at: new Date().toISOString(), sections: {} };
+  // Phase 241-01: soft deadline bounds ONLY this walk. The prune, the
+  // write, and the systemMessage emission below are NOT wrapped in their
+  // own deadline check - they already run after this loop in program
+  // order, and the soft deadline is what guarantees they are reached even
+  // when the walk itself runs long.
+  const walkDeadline = Date.now() + ONSTOP_WALK_BUDGET_MS;
+  let walked = 0;
   for (const s of sections) {
+    if (Date.now() > walkDeadline) break;
     const result = validateSection(roomDir, s, validators, ctx);
+    walked += 1;
     if (result.violations.length > 0) {
       report.sections[s] = {
         minto_path: path.join(roomDir, s, 'MINTO.md'),
@@ -347,6 +378,12 @@ function runOnStop(roomDir, validators) {
       };
     }
   }
+  // Unconditional so a full walk records truncated:false rather than
+  // omitting the field - an absent field reads as "unknown", which is
+  // the ambiguity this phase exists to remove.
+  report.sections_walked = walked;
+  report.sections_total = sections.length;
+  report.truncated = walked < sections.length;
   // Room-scoped validators
   const roomViols = validateRoomScope(roomDir, validators, ctx);
   if (roomViols.length > 0) {
@@ -377,8 +414,11 @@ function runOnStop(roomDir, validators) {
       report.sections['__room__'].ghosts_pruned = pruned;
     }
   }
-  // Write invariant-report.json atomically when there is anything to report.
-  if (Object.keys(report.sections).length > 0) {
+  // Write invariant-report.json atomically when there is anything to report,
+  // OR when the walk was truncated (Phase 241-01: a truncated run must
+  // leave evidence on disk instead of vanishing, even if it found zero
+  // violations in the sections it managed to walk).
+  if (Object.keys(report.sections).length > 0 || report.truncated) {
     const reportPath = path.join(roomDir, '.mindrian', 'invariant-report.json');
     try { writeJsonAtomic(reportPath, report); }
     catch (e) { logWarn('writing invariant-report failed: ' + (e && e.message || e)); }
@@ -395,9 +435,15 @@ function runOnStop(roomDir, validators) {
     let worstSection = null;
     let worstCategory = null;
     let worstSeverity = null;
+    // Phase 241-01 (T-241-01): accumulate honest counts alongside the
+    // worst-case label, so a run that checked nothing (truncated) cannot
+    // read like a run that found nothing.
+    let violationCount = 0;
+    const sectionCount = Object.keys(report.sections).length;
     for (const s of Object.keys(report.sections)) {
       const entry = report.sections[s];
       for (const v of (entry.violations || [])) {
+        violationCount += 1;
         const idx = SEVERITY_ORDER.indexOf(v.severity);
         if (idx > worstIdx) {
           worstIdx = idx;
@@ -409,7 +455,12 @@ function runOnStop(roomDir, validators) {
     }
     if (worstIdx >= SEVERITY_ORDER.indexOf('error')) {
       const loc = worstSection === '__room__' ? 'room' : 'section ' + worstSection;
-      const msg = 'guardian: ' + worstSeverity + ' in ' + loc + ' (' + worstCategory + ', glyph low)';
+      let msg = 'guardian: ' + worstSeverity + ' in ' + loc + ' (' + worstCategory + ', glyph low)' +
+        '; ' + violationCount + ' violation' + (violationCount === 1 ? '' : 's') +
+        ' across ' + sectionCount + ' section' + (sectionCount === 1 ? '' : 's');
+      if (report.truncated) {
+        msg += '; walked ' + report.sections_walked + ' of ' + report.sections_total + ' sections';
+      }
       // CORRECTED 2026-07-23 (stop-hook-invalid-hookspecificoutput-schema,
       // 2nd occurrence of this defect class): the prior comment here (removed)
       // claimed "wrap in hookSpecificOutput per Claude Code 2.x schema
