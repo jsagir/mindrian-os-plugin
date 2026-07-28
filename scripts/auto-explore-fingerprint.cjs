@@ -12,7 +12,10 @@
  *   5. findLatest(roomSlug, material_id); if present -> rate_limited; silent
  *   6. findRecentChanges(db, 24h, 'auto_explore_fired'); if >= 1 -> daily_cap; silent
  *   7. appendMaterial 'queued' entry to JSONL ledger
- *   8. spawn detached: node scripts/auto-explore-fire.cjs <roomDir> <file_path> <material_id>
+ *   8. spawn detached: node scripts/auto-explore-fire.cjs <roomDir> <file_path>
+ *      <material_id> <session_id> (Phase 237-06, REACH-03: session_id is the
+ *      4th spawn argv element, read off the same hook stdin JSON as
+ *      file_path; may be an empty string when the hook payload carries none)
  *   9. exit envelope continue:true
  *
  * Per Brain Section 8.7: detection routing is LOCAL-only. Zero
@@ -156,6 +159,11 @@ function main() {
   const filePath = String((input.tool_input && input.tool_input.file_path) || '');
   if (!filePath) return emitEmpty();
   if (!fs.existsSync(filePath)) return emitEmpty();
+
+  // Phase 237-06 (REACH-03): session_id off the same hook stdin JSON as
+  // file_path, defaulting to an empty string when absent or not a string.
+  // Threaded through to the detached fire spawn below.
+  const sessionId = (typeof input.session_id === 'string') ? input.session_id : '';
 
   // Phase 119-00 (D-01 sibling hook): roomDir is reassigned by the auto-create
   // branch below when the no-active-room invariant holds.
@@ -316,7 +324,7 @@ function main() {
   const firePath = path.join(__dirname, 'auto-explore-fire.cjs');
   if (fs.existsSync(firePath)) {
     try {
-      const fire = spawn('node', [firePath, roomDir, relativeFilePath, detection.material_id], {
+      const fire = spawn('node', [firePath, roomDir, relativeFilePath, detection.material_id, sessionId], {
         detached: true,
         stdio: 'ignore',
         env: process.env,

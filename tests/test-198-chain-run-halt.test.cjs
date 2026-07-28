@@ -6,8 +6,20 @@
 // returns a gate_render payload instead of executing it; the material step
 // executes ONLY after gate_answer returns an approve verdict (and stays
 // unexecuted on a reject/defer verdict). R4: chain_run must not mint a
-// second executor -- it wraps runChain, never re-implements it. Postures are
-// read from the REAL data/connector-registry.json (joined, not fabricated).
+// second executor -- it wraps runChain, never re-implements it.
+//
+// Phase 237-02 (REACH-02): the fixture and the posture-authority leg below
+// were retargeted from the connector-posture authority onto the ONE command-
+// registry autonomy authority, lib/core/recipe-maps.cjs's exported posture
+// function -- the SAME authority chain-executor.cjs's own `_defaultPostureFn`
+// resolves to, and the SAME call framework_run makes via
+// lib/workflow/command-resolver.cjs::validateChainAutonomy. This retarget is
+// part of the fix, not a separate test update: chain.cjs no longer mints its
+// own posture authority (see lib/mcp/tools/chain.cjs's own module header),
+// so this file's fixture and posture-authority leg must move onto the one
+// true authority in the same change or the suite would keep asserting the
+// deleted, wrong classification. Postures are read from the REAL
+// data/command-registry.json (joined, not fabricated).
 //
 // SKIP-safe until lib/mcp/tools/chain.cjs exists. Node built-in assert only.
 // No em-dashes.
@@ -31,6 +43,8 @@ if (!hasChainRunApi) {
   process.exit(0);
 }
 
+const recipeMaps = require('../lib/core/recipe-maps.cjs');
+
 let passed = 0;
 function check(label, cond) {
   assert.ok(cond, label);
@@ -38,21 +52,21 @@ function check(label, cond) {
   console.log('  ok - ' + label);
 }
 
-// --- fixture: 2 REAL push_forward commands + 1 REAL hold (material) command
-// from data/connector-registry.json -- postures are JOINED from the real
-// registry, never fabricated ad-hoc (SPEC-3). ---
-const registryPath = path.resolve(__dirname, '..', 'data', 'connector-registry.json');
+// --- fixture: 2 REAL autonomous_safe:true commands + 1 REAL non-
+// autonomous_safe (material) command from data/command-registry.json -- the
+// ONE command-registry autonomy authority, never fabricated ad-hoc (SPEC-3,
+// retargeted in Phase 237-02 per the header note above). ---
+const registryPath = path.resolve(__dirname, '..', 'data', 'command-registry.json');
 const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-const cmdConnectors = registry.connectors.filter((c) => c && c.source === 'command' && typeof c.surface === 'string');
-const pushCmds = cmdConnectors.filter((c) => c.posture === 'push_forward').slice(0, 2).map((c) => c.surface);
-const holdCmds = cmdConnectors.filter((c) => c.posture === 'hold').slice(0, 1).map((c) => c.surface);
-assert.ok(pushCmds.length === 2, 'FIXTURE: connector-registry.json has >=2 push_forward commands');
-assert.ok(holdCmds.length === 1, 'FIXTURE: connector-registry.json has >=1 hold (material) command');
+const safeCmds = registry.commands.filter((c) => c && c.autonomous_safe === true && typeof c.command === 'string').slice(0, 2).map((c) => c.command);
+const materialCmds = registry.commands.filter((c) => c && c.autonomous_safe !== true && typeof c.command === 'string').slice(0, 1).map((c) => c.command);
+assert.ok(safeCmds.length === 2, 'FIXTURE: command-registry.json has >=2 autonomous_safe:true commands');
+assert.ok(materialCmds.length === 1, 'FIXTURE: command-registry.json has >=1 non-autonomous_safe (material) command');
 
 const steps = [
-  { step: 1, framework: 'fixture-safe-1', command: pushCmds[0], optional: false },
-  { step: 2, framework: 'fixture-safe-2', command: pushCmds[1], optional: false },
-  { step: 3, framework: 'fixture-material', command: holdCmds[0], optional: false },
+  { step: 1, framework: 'fixture-safe-1', command: safeCmds[0], optional: false },
+  { step: 2, framework: 'fixture-safe-2', command: safeCmds[1], optional: false },
+  { step: 3, framework: 'fixture-material', command: materialCmds[0], optional: false },
 ];
 
 // A deterministic, injectable onStep -- proves the CONTROL-FLOW timing
@@ -65,15 +79,20 @@ async function stubOnStep(step, _previousOutput) {
 }
 
 (async () => {
-  // --- (1) postureForCommand genuinely joins the registry (not fabricated). ---
-  const pushVerdict = chainTool.postureForCommand(pushCmds[0]);
-  const holdVerdict = chainTool.postureForCommand(holdCmds[0]);
-  check('postureForCommand(push_forward command) -> autonomous_safe:true, posture:"run"',
-    pushVerdict.autonomous_safe === true && pushVerdict.posture === 'run');
-  check('postureForCommand(hold command) -> autonomous_safe:false, posture:"halt"',
-    holdVerdict.autonomous_safe === false && holdVerdict.posture === 'halt');
-  check('postureForCommand(unknown command) withhold-defaults to halt (never fabricates safe)',
-    chainTool.postureForCommand('/mos:__definitely-not-a-real-command__').autonomous_safe === false);
+  // --- (1) recipe-maps.cjs's posture-authority function genuinely joins the
+  // command-registry autonomy authority (not fabricated). Retargeted in
+  // Phase 237-02: chain.cjs no longer exports a posture function of its own
+  // (see the header note above), so this leg drives the ONE true authority
+  // directly, mirroring tests/test-recipe-maps-authority.cjs's own assertion
+  // shape. ---
+  const safeVerdict = recipeMaps.postureForCommand(safeCmds[0]);
+  const materialVerdict = recipeMaps.postureForCommand(materialCmds[0]);
+  check('recipe-maps.postureForCommand(autonomous_safe command) -> autonomous_safe:true, posture:"run"',
+    safeVerdict.autonomous_safe === true && safeVerdict.posture === 'run');
+  check('recipe-maps.postureForCommand(material command) -> autonomous_safe:false, posture:"halt"',
+    materialVerdict.autonomous_safe === false && materialVerdict.posture === 'halt');
+  check('recipe-maps.postureForCommand(unknown command) withhold-defaults to halt (never fabricates safe)',
+    recipeMaps.postureForCommand('/mos:__definitely-not-a-real-command__').autonomous_safe === false);
 
   // --- (2) chain_run(steps): runs the 2 autonomous_safe steps, HALTS at the
   // material step, returns a gate_render payload, does NOT execute it. ---
@@ -82,11 +101,11 @@ async function stubOnStep(step, _previousOutput) {
   check('chain_run returns ok:true', run1.ok === true);
   check('chain_run does NOT complete (halted at the material step)', run1.completed === false && run1.halted === true);
   check('chain_run ran exactly the 2 autonomous_safe steps, in order',
-    executed.length === 2 && executed[0] === pushCmds[0] && executed[1] === pushCmds[1]);
+    executed.length === 2 && executed[0] === safeCmds[0] && executed[1] === safeCmds[1]);
   check('chain_run did NOT execute the material step before any approval',
-    executed.indexOf(holdCmds[0]) === -1);
+    executed.indexOf(materialCmds[0]) === -1);
   check('chain_run names the material step as the halt point',
-    !!(run1.halted_at && run1.halted_at.step && run1.halted_at.step.command === holdCmds[0]));
+    !!(run1.halted_at && run1.halted_at.step && run1.halted_at.step.command === materialCmds[0]));
   check('chain_run returns a gate_render payload (gate_id + rendered card)',
     !!(run1.gate && typeof run1.gate.gate_id === 'string' && run1.gate.rendered));
 
@@ -101,7 +120,7 @@ async function stubOnStep(step, _previousOutput) {
   });
   check('a reject verdict does NOT execute the material step', rejectResult.executed === false);
   check('a reject verdict leaves the executed log unchanged (material step never ran)',
-    executed.length === rejectExecuted.length && executed.indexOf(holdCmds[0]) === -1);
+    executed.length === rejectExecuted.length && executed.indexOf(materialCmds[0]) === -1);
 
   const replaySameGate = await chainTool.chainRun(null, {
     gateAnswer: { gate_id: gateId, chosen: ['approve'], verdict: 'approve' },
@@ -124,7 +143,7 @@ async function stubOnStep(step, _previousOutput) {
   }
   const run2 = await chainTool.chainRun(steps, { roomDir: __dirname, onStep: stubOnStep2 });
   check('a second fresh chain_run also halts at the material step', run2.completed === false && run2.halted === true);
-  check('the material step still has not executed pre-approval', executed2.indexOf(holdCmds[0]) === -1);
+  check('the material step still has not executed pre-approval', executed2.indexOf(materialCmds[0]) === -1);
 
   const gateId2 = run2.gate.gate_id;
   const approveResult = await chainTool.chainRun(null, {
@@ -132,7 +151,7 @@ async function stubOnStep(step, _previousOutput) {
   });
   check('an approve verdict resumes and executes the material step', approveResult.executed === true);
   check('the material step (and ONLY it, once) now appears in the executed log',
-    executed2.filter((c) => c === holdCmds[0]).length === 1);
+    executed2.filter((c) => c === materialCmds[0]).length === 1);
   check('an approve verdict on a chain with no remaining steps completes the chain',
     approveResult.completed === true);
 

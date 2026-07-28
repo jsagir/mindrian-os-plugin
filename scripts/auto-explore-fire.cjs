@@ -5,7 +5,11 @@
  * Phase 117-02 Wave 1 -- detached background fire child.
  *
  * Spawned by scripts/auto-explore-fingerprint.cjs (Phase 117-01) with argv:
- *   [roomDir, relativeFilePath, material_id]
+ *   [roomDir, relativeFilePath, material_id, session_id]
+ *   (Phase 237-06, REACH-03: session_id is the 4th argv element, threaded
+ *   from the fingerprint hook's own stdin; may be an empty string when the
+ *   fingerprint hook received none, and may be entirely absent when this
+ *   script is invoked directly with only 3 argv.)
  *
  * Flow per RESEARCH Section 12 sequence diagram:
  *   1. ensureBrainBaseline(roomDir) -- graceful degradation if {ensured:false}
@@ -15,7 +19,8 @@
  *      ])
  *   3. Read 3 JSONs: whitespace-results.json + .rs-engine-results.json + discovery-cycle-results.json
  *   4. agent.composeAutoExploreFinding({material_id, whitespace, rs, analogy})
- *   5. Atomic write room/.mindrian/auto-explore-<material_id>.json
+ *   5. Atomic write room/.mindrian/auto-explore-<material_id>.json, stamped
+ *      with the session_id argv (explicit null when absent, Phase 237-06)
  *   6. store.markCompleted(roomSlug, material_id, {finding_count})
  *   7. Process exits 0
  *
@@ -157,6 +162,10 @@ async function main() {
   const roomDir = String(argv[0] || '');
   const relativeFilePath = String(argv[1] || '');
   const material_id = String(argv[2] || '');
+  // Phase 237-06 (REACH-03): 4th argv, missing/empty/non-string all treat as
+  // absent (a direct 3-argv invocation must degrade cleanly, not crash).
+  const sessionIdArg = argv[3];
+  const session_id = (typeof sessionIdArg === 'string' && sessionIdArg.length > 0) ? sessionIdArg : null;
 
   if (!roomDir || !material_id) {
     process.exit(0);
@@ -232,6 +241,13 @@ async function main() {
       try { agent.emitSkipped(roomDir, { material_id: material_id, suppress_reason: 'all_pipelines_empty', tier: 1 }); } catch (_e) { /* ignore */ }
       process.exit(0);
     }
+
+    // Phase 237-06 (REACH-03): stamp the session that reached this writer
+    // via argv onto the finding as a CONTENT field, explicit null when
+    // absent -- matches scripts/post-write's last-cascade.json shape so
+    // both markers present one contract to the reader
+    // (lib/core/insight-sensors.cjs::isMarkerOwnedByCaller).
+    finding.session_id = session_id;
 
     // Phase 119-02 Task 3 (REVISION 2026-05-16): wire scaffoldRoomSkeleton into
     // the auto-explore-fire success path so the placeholder room created by

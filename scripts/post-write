@@ -92,6 +92,7 @@ write_cascade_side_channel() {
   local file_path="$2"
   local section="$3"
   local cascade_output="$4"
+  local session_id="$5"
 
   [ -z "$room_dir" ] && return 0
   [ -z "$cascade_output" ] && return 0
@@ -104,11 +105,13 @@ write_cascade_side_channel() {
     --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     --arg fp "$file_path" \
     --arg sec "$section" \
+    --arg sid "$session_id" \
     --argjson cascade "$cascade_output" \
     '{
       timestamp: $ts,
       file_path: $fp,
       section: $sec,
+      session_id: (if $sid == "" then null else $sid end),
       cascade_status: "complete",
       classification: ($cascade.classification // null),
       git_commit: ($cascade.gitCommit // null),
@@ -127,6 +130,11 @@ write_cascade_side_channel() {
 
 # Read file path from stdin JSON (Claude Code hook API),
 # fall back to $1 or TOOL_INPUT_PATH for backward compatibility
+# Phase 237-06 (REACH-03): SESSION_ID is read alongside FILE_PATH from the
+# SAME hook stdin payload -- session_id is a documented COMMON input field
+# on every hook event including PostToolUse. Manual/TTY invocation has no
+# hook stdin, so SESSION_ID stays empty there (the degrade path).
+SESSION_ID=""
 if [ -t 0 ]; then
   # stdin is a terminal (manual invocation) -- use args
   FILE_PATH="${1:-${TOOL_INPUT_PATH:-}}"
@@ -142,6 +150,7 @@ else
   if [[ -z "$FILE_PATH" ]]; then
     FILE_PATH="${1:-${TOOL_INPUT_PATH:-}}"
   fi
+  SESSION_ID=$(echo "$HOOK_INPUT" | jq -r '.session_id // empty' 2>/dev/null || true)
 fi
 
 if [[ -z "$FILE_PATH" ]]; then
@@ -263,7 +272,7 @@ if [ -n "$room_dir" ]; then
   # The full cascade payload (classification + gitCommit + graphIndex +
   # proactiveIntelligence) goes into <roomDir>/.mindrian/last-cascade.json.
   # Stdout is ONLY the schema-valid envelope advisory.
-  write_cascade_side_channel "$room_dir" "$FILE_PATH" "${SECTION:-unknown}" "$CASCADE_OUTPUT"
+  write_cascade_side_channel "$room_dir" "$FILE_PATH" "${SECTION:-unknown}" "$CASCADE_OUTPUT" "$SESSION_ID"
   emit_post_tool_use_envelope "$SM_TEXT"
 fi
 
