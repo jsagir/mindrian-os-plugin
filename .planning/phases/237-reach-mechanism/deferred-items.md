@@ -76,6 +76,72 @@ clean gate; or (c) narrow the guardian itself to check only staged files (a genu
 infrastructure fix to `scripts/check-reward-before-investment.cjs` / the hook's invocation of
 it, also out of Phase 237's own `files_modified` scope). Not resolved here.
 
+**RESOLVED 2026-07-29:** navigator explicitly authorized `COMMIT_NO_VERIFY=1` for the one
+237-05 commit, independently re-verified from the orchestrator side (same 103/112 count, same
+conclusion: pre-existing, unrelated). Landed as `f95fa0c6`. Per the hook's own convention this
+entry IS the canon-amendment record: `interactive_first_reward` is still missing on 103/112
+commands, unchanged by this phase, and still needs its own remediation pass (option (b) or (c)
+above, not attempted here). The canon-amendment PR the convention names has not been separately
+opened; if one is required by process, it should point at this entry plus item 4 below rather
+than duplicate the analysis.
+
+## 4. A second, unrelated pre-existing gate fired on the same 237-05 commit: `data/help-groups.json` missing two commands, plus one legitimate `data/harness-manifest.json` regeneration (found 2026-07-29, resolved same day)
+
+**Found during:** the same 237-05 Task 1 commit attempt, after the reward-before-investment
+guardian was bypassed per item 2's resolution. Two SEPARATE pre-commit checks then fired in
+sequence, neither of them the reward-before-investment guardian and neither covered by the
+navigator's `COMMIT_NO_VERIFY=1` authorization (that env var only guards the one block in
+`scripts/hooks/pre-commit` around the reward-before-investment linter -- confirmed by reading
+the hook source; every other check in the file is unconditional):
+
+1. **`data/harness-manifest.json` drift (legitimate consequence of this phase's own work, fixed
+   for real).** `lib/core/chain-executor.cjs` changed earlier in Phase 237 (237-03) without
+   regenerating the manifest. Fixed via the hook's own documented recovery command
+   (`node scripts/build-harness-manifest.cjs`, deterministic, zero judgment) and included in
+   the `f95fa0c6` commit.
+2. **`data/help-groups.json` missing `intel-pipeline` and `pws-brain` (pre-existing, unrelated
+   to Phase 237 -- confirmed via a temporary `git stash` against the clean base before this
+   plan's changes, same reproduction method as item 1's finding).** Both commands exist on disk
+   with normal (non-admin, non-deprecated) frontmatter but were never added to any help group.
+   Fixed by adding each to its closest-matching, `serves_jtbd`-coherent existing group (verified
+   against `scripts/check-help-coverage.cjs`'s own jtbd-intersection rule, not just directory
+   presence): `intel-pipeline` (`serves_jtbd: ["plan-execution"]`) -> `orchestrate-automate`
+   (`jtbd: ["plan-execution"]`, sibling to `act`/`pipeline`); `pws-brain`
+   (`serves_jtbd: ["audit-room"]`) -> `system-maintenance` (`jtbd: ["audit-room","explore",
+   "build"]`, sibling to `doctor`/`diagnostics`/`agentshield`). Deliberately did NOT set
+   `visibility: admin` on `pws-brain.md` even though it self-describes as a "TEST HARNESS" --
+   that field triggers a REAL runtime behavior change (the `UserPromptSubmit` hook
+   `scripts/admin-command-gate.cjs` intercepts every `visibility: admin` command), which would
+   have been a bigger, unjustified change than a purely additive help-group listing.
+
+**Scope decision:** both fixes are purely additive/regenerative (a JSON list entry, a
+deterministic digest recompute), touch zero runtime logic, and are exactly what each check's
+own error message asks for ("add the command to data/help-groups.json", "Run:
+node scripts/build-harness-manifest.cjs") -- not a bypass, not a freelance redesign. Both are
+outside 237-05-PLAN.md's declared `files_modified` but were required to land the plan's actual
+scoped work; included in the `f95fa0c6` commit with the reasoning documented in the commit
+message itself.
+
+**The underlying pattern worth a real infrastructure fix (not attempted here):** BOTH gates
+that fired unexpectedly on this commit (item 2's reward-before-investment guardian, and this
+item's help-coverage check) share the same shape -- `scripts/hooks/pre-commit` triggers each
+one off "any `commands/*.md` staged" but then runs the underlying checker against the WHOLE
+`commands/` directory (or, for help-coverage, the whole repo's command surface) rather than
+just the staged file(s). This means ANY future commit touching a single `commands/*.md` file
+is exposed to the full accumulated backlog of every OTHER command's pre-existing gaps, not just
+its own change's correctness -- a blast-radius mismatch between what triggers a check and what
+the check evaluates. A genuine fix (scope each checker to staged files, or to files reachable
+from the staged diff, with a separate scheduled full-repo sweep for the accumulated backlog) is
+real, cross-cutting infrastructure work, outside Phase 237's scope, and is not attempted here.
+
+**Recommended follow-up:** (a) a future remediation phase should backfill
+`interactive_first_reward` across the 103 missing commands (item 2) and audit for any other
+help-coverage gaps beyond the two found here; (b) a separate, smaller infrastructure fix should
+narrow both `scripts/check-reward-before-investment.cjs` and `scripts/check-help-coverage.cjs`
+(or their `scripts/hooks/pre-commit` call sites) to evaluate only staged/changed files by
+default, with an opt-in full-repo mode for CI and `doctor --acceptance`, so a single-command
+commit is never blocked by an unrelated backlog it did not create.
+
 ## 3. `intelligence-cascade.cjs`'s proactiveIntelligence step persists before it diffs, so `newFindings` is always empty on a single real cascade run (found during 237-06)
 
 **Found during:** Plan 237-06, Task 1 (authoring the end-to-end writer test for
