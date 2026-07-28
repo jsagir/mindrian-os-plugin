@@ -30,7 +30,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 - [ ] **Phase 238: Decision Gates** - Gates resolve through the ledger that minted them, session-scoped and concurrency-safe, and the card-fire backstop stops firing on prose
 - [ ] **Phase 239: Brain-Access Surface** - The egress guard and PII sanitizer cover the doors user content actually walks through, and sendPacket's fate is decided explicitly
 - [ ] **Phase 240: Memory** - Layer 2 promotion fires on real continuous work, the dead-letter queue drains into the memory cortex, and the test suite is hermetic
-- [ ] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit (all 5 plans executed 2026-07-28; phase-level sign-off is the orchestrator's own step)
+- [x] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit (all 5 plans executed 2026-07-28; phase-level sign-off is the orchestrator's own step) (completed 2026-07-28)
 - [ ] **Phase 242: The Moat** - The HSI-to-graph rewrite is transaction-wrapped, and the PR checklist's dead KuzuDB warning becomes a machine-checked assertion
 - [ ] **Phase 243: Voice-Glyph** - The statusline's "who is speaking" signal reflects the glyph a turn actually opened with, not a fabricated default
 
@@ -198,7 +198,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
-| 241. Feynman-MINTO | 5/5 | Plans done, awaiting phase sign-off | - |
+| 241. Feynman-MINTO | 5/5 | Complete    | 2026-07-28 |
 | 242. The Moat | 0/2 | Planned | - |
 | 243. Voice-Glyph | 0/2 | Planned | - |
 
