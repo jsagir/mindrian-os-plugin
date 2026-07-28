@@ -44,13 +44,28 @@ function assert(cond, label) {
 // ---------------------------------------------------------------------------
 // Test 1: count parity -- coverageReport() classifies EVERY surface.
 // ---------------------------------------------------------------------------
+// Phase 235-02 (CIRS-02) widened the census: coverageReport() now ALSO walks
+// every claimed MCP tool file (source:'mcp_tool'), so the old bare
+// surfaces.length === listSourceFiles().length identity no longer holds. The
+// parity check is split rather than relaxed: the command+skill+agent SLICE must
+// still cover every such file exactly, and the FULL census must equal that total
+// plus the MCP claimed-source count. Nothing may fall outside both slices.
 {
   const report = coverageReport();
   const total = listSourceFiles().length;
+  const fileSourced = report.surfaces.filter(
+    (s) => s.source === 'command' || s.source === 'skill' || s.source === 'agent'
+  );
   assert(
-    Array.isArray(report.surfaces) && report.surfaces.length === total,
-    'coverageReport().surfaces covers every command+skill+agent file (' +
-      report.surfaces.length + ' === ' + total + ')'
+    Array.isArray(report.surfaces) && fileSourced.length === total,
+    'coverageReport() covers every command+skill+agent file (' +
+      fileSourced.length + ' === ' + total + ')'
+  );
+  const mcpClaimed = gen.listMcpToolClaimedSources().length;
+  assert(
+    report.surfaces.length === total + mcpClaimed,
+    'coverageReport().surfaces === command+skill+agent files + claimed MCP tool files (' +
+      report.surfaces.length + ' === ' + total + ' + ' + mcpClaimed + ')'
   );
   assert(
     report.surfaces.every(

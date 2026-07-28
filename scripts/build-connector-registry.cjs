@@ -66,6 +66,14 @@ const { REACH_IDS, POSTURE_IDS } = require(
 const { commandsForFramework } = require(
   path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs')
 );
+
+// Phase 235-02 (CIRS-02). The generic seam-liveness helper. coverageReport()
+// below routes its MCP-tool-file walk through checkClaimedModuleLiveness() so
+// the "this module claims to export connectors" seam is checked by the SAME
+// shared primitive Phases 237/238/239 use for their own seams, instead of a
+// CIRS-local reimplementation. Pure, zero Brain/network (Part 8).
+const seamLiveness = require(path.join(REPO_ROOT, 'lib', 'core', 'seam-liveness.cjs'));
+
 const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
 const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
 const AGENTS_DIR = path.join(REPO_ROOT, 'agents');
@@ -366,6 +374,95 @@ function listMcpToolConnectorDescriptors() {
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// listMcpToolClaimedSources() -- Phase 235-02 (CIRS-02). The CENSUS half of the
+// MCP-tool blind-spot fix. listMcpToolConnectorDescriptors() above answers "what
+// loaded?", which is exactly why it could not see the bug: a file that throws at
+// require time, or that forgets its `connectors` export, simply contributes
+// nothing and disappears without a trace. This function answers the other
+// question, "what does the repo CLAIM should be there?", by enumerating files on
+// disk and never requiring anything. The gap between the two censuses IS the
+// dead seam.
+//
+// Returns [{ id, path, exportKey }] -- one entry per lib/mcp/tools/*.cjs file
+// (sorted, deterministic), plus lib/mcp/tool-router.cjs (MCP_TOOL_CONNECTORS)
+// and lib/mcp/contract-version.cjs (connectors) when they exist. Pure
+// filesystem, zero Brain/network (Part 8).
+// ---------------------------------------------------------------------------
+function listMcpToolClaimedSources() {
+  const out = [];
+
+  let toolFiles = [];
+  try {
+    toolFiles = fs.readdirSync(MCP_TOOLS_DIR).filter((f) => f.endsWith('.cjs')).sort();
+  } catch (_e) {
+    toolFiles = [];
+  }
+  for (const f of toolFiles) {
+    out.push({
+      id: 'lib/mcp/tools/' + f,
+      path: path.join(MCP_TOOLS_DIR, f),
+      exportKey: 'connectors',
+    });
+  }
+
+  if (fs.existsSync(MCP_TOOL_ROUTER_PATH)) {
+    out.push({
+      id: 'lib/mcp/tool-router.cjs',
+      path: MCP_TOOL_ROUTER_PATH,
+      exportKey: 'MCP_TOOL_CONNECTORS',
+    });
+  }
+  if (fs.existsSync(MCP_CONTRACT_VERSION_PATH)) {
+    out.push({
+      id: 'lib/mcp/contract-version.cjs',
+      path: MCP_CONTRACT_VERSION_PATH,
+      exportKey: 'connectors',
+    });
+  }
+
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// listMcpToolFileHealth(claimedSources) -- the PROBE half. For each claimed
+// source, require() it inside a try/catch and read the claimed export. Returns
+// [{ id, live, loadError, connectorCount }] where `live` means the module loaded
+// AND its claimed export is a NON-EMPTY array. Unlike
+// listMcpToolConnectorDescriptors()'s `catch { continue }`, nothing is swallowed
+// here: a load failure becomes a reported loadError, and an empty/missing export
+// becomes live:false with connectorCount 0.
+//
+// claimedSources is OPTIONAL and defaults to listMcpToolClaimedSources(), so a
+// test can pass a synthetic array pointing at temp files and probe the real
+// logic without touching the real lib/mcp/tools/ tree.
+// ---------------------------------------------------------------------------
+function listMcpToolFileHealth(claimedSources) {
+  const sources = Array.isArray(claimedSources) ? claimedSources : listMcpToolClaimedSources();
+  const out = [];
+  for (const src of sources) {
+    const id = src && typeof src.id === 'string' ? src.id : String(src && src.path);
+    const exportKey =
+      src && typeof src.exportKey === 'string' && src.exportKey ? src.exportKey : 'connectors';
+    let mod = null;
+    let loadError = null;
+    try {
+      mod = require(src.path);
+    } catch (e) {
+      loadError = e && e.message ? String(e.message) : String(e);
+    }
+    const arr = !loadError && mod && Array.isArray(mod[exportKey]) ? mod[exportKey] : null;
+    out.push({
+      id,
+      exportKey,
+      live: !loadError && Array.isArray(arr) && arr.length > 0,
+      loadError,
+      connectorCount: arr ? arr.length : 0,
+    });
+  }
+  return out;
+}
+
 // normalizeMcpToolEntry(raw) -- maps a raw MCP-tool connector descriptor into
 // the SAME entry shape buildRegistry() emits for commands/skills/agents (a
 // superset: it carries reach_id/posture/framework as null -- the MCP-tool
@@ -571,7 +668,19 @@ function serializeRegistry(reg) {
 // ---------------------------------------------------------------------------
 const FOUR_CLASSES = Object.freeze(['mechanical', 'framework', 'intelligence', 'pipeline']);
 const CLASS_UTILITY_EXCLUDED = 'utility-excluded';
-const SURFACE_CLASS_ENUM = Object.freeze(FOUR_CLASSES.concat([CLASS_UTILITY_EXCLUDED]));
+
+// Phase 235-02 (CIRS-02). The MCP-tool-FILE class: an ADDITIVE fifth member of
+// the class enum, deliberately NOT one of the four governance classes. An MCP
+// tool file is a module-liveness surface (does it load and export usable
+// connectors?), not a pws methodology / plumbing / engine / pipeline surface, so
+// it sits alongside CLASS_UTILITY_EXCLUDED rather than inside FOUR_CLASSES.
+// tests/test-cirs-four-class-floor.cjs deliberately never asserts a class COUNT
+// (see its header) precisely so an additive member like this one cannot
+// false-fail the floor.
+const CLASS_MCP_TOOL = 'mcp_tool';
+const SURFACE_CLASS_ENUM = Object.freeze(
+  FOUR_CLASSES.concat([CLASS_UTILITY_EXCLUDED, CLASS_MCP_TOOL])
+);
 
 // The intelligence-surface name prefixes/markers (engine/sensor/analysis). A
 // surface whose base matches one of these is an intelligence class. Generic
@@ -682,9 +791,13 @@ function classifySurface(src) {
 // ---------------------------------------------------------------------------
 // coverageReport() -- the wired-XOR-excluded coverage classifier (Canon Part 11
 // R1/R9). Walks EVERY surface listSourceFiles() walks and classifies each as
-// wired / excluded / gap, so surfaces.length === the total command+skill+agent
-// file count and counts.wired + counts.excluded + counts.gap === that total (the
-// XOR invariant: every surface lands in exactly one bucket). Returns
+// wired / excluded / gap, so the command+skill+agent slice of surfaces.length
+// === the total command+skill+agent file count. Phase 235-02 adds a SECOND
+// slice: one surface per claimed MCP tool file (source:'mcp_tool'), so
+// surfaces.length === listSourceFiles().length + listMcpToolClaimedSources()
+// .length. counts.wired + counts.excluded + counts.gap === surfaces.length
+// either way (the XOR invariant: every surface lands in exactly one bucket).
+// Returns
 // { surfaces: [{surface, source, state}], counts: {wired, excluded, gap},
 //   errors: [...] } where errors carries any excluded-without-reason build
 // error. Pure: reads only the source frontmatter, makes ZERO Brain/network
@@ -700,6 +813,37 @@ function coverageReport() {
     counts[c.state] += 1;
     if (c.error) errors.push(c.error);
   }
+
+  // Phase 235-02 (CIRS-02): the MCP-tool-file walk. Before this, MCP tools sat
+  // entirely outside the wired-XOR-excluded invariant -- coverageReport() walked
+  // only listSourceFiles(), and the separate listMcpToolConnectorDescriptors()
+  // path silently swallowed both a require() failure and a missing/empty
+  // `connectors` export. A tool file could be born dark and the gate stayed
+  // green. Every claimed source is now a surface here, so main()'s existing
+  // generic `state === 'gap'` hard-fail catches a dead one with no change to
+  // main() itself. The dead/live decision is delegated to the SHARED
+  // seam-liveness helper, never reimplemented inline: this call is load-bearing
+  // and tests/test-235-seam-liveness-mcp-coverage.cjs proves it.
+  const mcpHealth = listMcpToolFileHealth();
+  const mcpLiveness = seamLiveness.checkClaimedModuleLiveness(
+    mcpHealth.map((h) => ({
+      id: h.id,
+      live: h.live,
+      reason: h.loadError || 'exports.' + h.exportKey + ' is missing or empty',
+    }))
+  );
+  const mcpDead = new Set(mcpLiveness.dead);
+  for (const h of mcpHealth) {
+    const state = mcpDead.has(h.id) ? 'gap' : 'wired';
+    surfaces.push({
+      surface: 'mcp_tool_file:' + h.id,
+      source: 'mcp_tool',
+      state,
+      class: CLASS_MCP_TOOL,
+    });
+    counts[state] += 1;
+  }
+
   surfaces.sort((a, b) => a.surface.localeCompare(b.surface));
   return { surfaces, counts, errors };
 }
@@ -1071,6 +1215,13 @@ if (require.main === module) {
     FOUR_CLASSES,
     SURFACE_CLASS_ENUM,
     CLASS_UTILITY_EXCLUDED,
+    // Phase 235-02 (CIRS-02): the MCP-tool-file census/probe pair + the additive
+    // class constant, exported so tests/test-235-seam-liveness-mcp-coverage.cjs
+    // can drive them directly (including the synthetic claimed-source override)
+    // without spawning a subprocess.
+    CLASS_MCP_TOOL,
+    listMcpToolClaimedSources,
+    listMcpToolFileHealth,
     // Phase 198-04 (SPEC-2, Task 1): the MCP-tool discovery/build/serialize
     // trio, exported so scripts/check-shape-declaration.cjs can mirror the
     // SAME discovery into its advisory hitl_shape enumeration without
