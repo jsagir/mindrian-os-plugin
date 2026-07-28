@@ -198,7 +198,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
-| 241. Feynman-MINTO | 2/5 | In Progress|  |
+| 241. Feynman-MINTO | 2/5 | In Progress | - |
 | 242. The Moat | 0/2 | Planned | - |
 | 243. Voice-Glyph | 0/2 | Planned | - |
 
