@@ -10,15 +10,17 @@
  * hitl_shape 'none' and both read as pure reads at the tool surface, but they
  * inherited THREE writes one layer down: the Phase 222 fire-and-forget Hedge
  * weight-state upsert, the Req 7 degrade memory_event, and (largest, on EVERY
- * call) the mkdir + 13 CREATE TABLE + 5 migrations that room-db.cjs runs on any
- * openRoomDbForCaller. A tool that says read-only and migrates the caller's
- * database is the same false-status bug class this repo already tracks.
+ * call rather than only on 2+ candidates) the mkdir + 13 CREATE TABLE + 5
+ * migrations that room-db.cjs runs on any openRoomDbForCaller. A tool that says
+ * read-only and migrates the caller's database is the same false-status bug
+ * class this repo already tracks.
  *
- * The gate is RUNTIME BYTE-IDENTITY, never inspection. A grep for
+ * THE GATE IS RUNTIME BYTE-IDENTITY, NEVER INSPECTION. A grep for
  * openRoomDbForCaller in sensors.cjs would be a FALSE gate: contradiction_check
- * and whitespace_scan legitimately still use it. So the proof is a sha256 of
- * the room.db file plus a listing of .mindrian/ taken before and after real
- * handler invocations.
+ * and whitespace_scan legitimately still use it in the same file. So the proof
+ * is a per-file sha256 of everything under .mindrian/ taken before and after
+ * real handler invocations, plus a control arm proving the same fixture DOES
+ * change on disk through the write path.
  *
  * Leg map:
  *   A. DEFAULT-OFF PARITY  -- readOnly absent leaves the CLI path byte-identical:
@@ -35,11 +37,12 @@
  *                             fault kinds, with an absent-sink safety leg.
  *   D. ORDERING PARITY     -- the mode removes writes only. Two identically
  *                             seeded rooms rank to the SAME non-trivial order.
- *   E. RUNTIME NO-WRITE    -- the real exported dispatchCandidateReaches and the
- *                             real registered handlers, against real rooms:
- *                             db sha256 unchanged, .mindrian/ never created,
- *                             an unmigrated db never gains ranker_weights.
- *   F. ORDER PRESERVED AT THE TOOL -- the handlers still return the scored order.
+ *   E. RUNTIME NO-WRITE    -- the real exported dispatchCandidateReaches against
+ *                             real rooms: .mindrian/ byte-identical, never
+ *                             created in a Tier 0 room, an unmigrated db never
+ *                             migrated and its fault disclosed in the result.
+ *   F. ORDER PRESERVED AT THE TOOL -- the real registered handlers still return
+ *                             the scored order and still omit degraded when null.
  *
  * Plain CJS node:assert/strict; PASS line + non-zero exit on failure.
  * NO em-dashes anywhere in this file (CLAUDE.md HARD RULE).
@@ -54,7 +57,11 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ranker = require(path.join(REPO_ROOT, 'lib', 'workflow', 'reach-hedge-ranker.cjs'));
 const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+const sensorsTool = require(path.join(REPO_ROOT, 'lib', 'mcp', 'tools', 'sensors.cjs'));
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
+
+const dispatchCandidateReaches = sensorsTool._internal.dispatchCandidateReaches;
+const EUREKA_FIXTURE = path.join(REPO_ROOT, 'tests', 'fixtures', '213', 'last-eureka.json');
 
 // Deterministic N / eta: prove the SHIPPED defaults, never an ambient env.
 delete process.env.MINDRIAN_HEDGE_UPDATE_N;
@@ -70,9 +77,14 @@ const REACH_IDS = ranker.REACH_IDS;
 const REGISTRY_FIRST_REACH = 'context_block';
 const SCORE_FIRST_REACH = 'deep_research';
 
+// The co-fire turn (tests/test-222-reach-wired.cjs:49): this text alone already
+// fires >= 2 candidate reaches, so the multi-candidate db-open path is exercised
+// even in a room carrying no .mindrian/ side-channel file at all.
+const COFIRE_TEXT = 'the data pipeline is the bottleneck';
+
 let passed = 0;
-function check(name, fn) {
-  fn();
+async function check(name, fn) {
+  await fn();
   passed += 1;
   console.log('  ok - ' + name);
 }
@@ -105,6 +117,39 @@ function degradeEvents(db) {
   return navigation.findRecentChanges(db, 0, { eventType: 'reach_weight_state_unavailable' }) || [];
 }
 
+// snapshotMindrian(roomDir) -- the runtime no-write gate's measuring instrument.
+// A per-file sha256 over the whole .mindrian/ tree, so a schema migration, a new
+// memory_event node, a weight-state row, a journal file, or a freshly created
+// database all show up as a difference. Deterministic ordering (sorted names) so
+// two snapshots of an untouched directory compare deepStrictEqual.
+function snapshotMindrian(roomDir) {
+  const dir = path.join(roomDir, '.mindrian');
+  if (!fs.existsSync(dir)) return { exists: false, entries: [] };
+  const entries = fs.readdirSync(dir).sort().map(function (name) {
+    const p = path.join(dir, name);
+    const st = fs.statSync(p);
+    if (!st.isFile()) return { name: name, kind: 'dir' };
+    return {
+      name: name,
+      kind: 'file',
+      size: st.size,
+      sha256: crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),
+    };
+  });
+  return { exists: true, entries: entries };
+}
+
+// Read a room's persisted state through a throwaway handle, so the inspection
+// itself is never confused with the behavior under test.
+function withProbeDb(roomDir, fn) {
+  const db = openRoomDb(roomDir);
+  try {
+    return fn(db);
+  } finally {
+    try { closeRoomDb(db); } catch (_e) { /* best effort */ }
+  }
+}
+
 // Seed a room.db so the SCORED pick (deep_research) beats the registry-first
 // pick (context_block), mirroring tests/test-222-reach-wired.cjs::seedRoomDb.
 // updatedAt 0 plus only 2 decision rows keeps the fold debounce inert, so the
@@ -133,14 +178,22 @@ function seedFoldableRoom(db) {
   }
 }
 
-console.log('test-222-readonly-rank.cjs: opt-in read-only ranking + no-write MCP pull tools (quick 260728-7kc)');
+// Normalize the dispatchCandidateReaches return across the shape change, so the
+// PRECONDITION assertions report a useful failure instead of a TypeError while
+// the fix is mid-landing.
+function reachesOf(out) {
+  if (out && !Array.isArray(out) && Array.isArray(out.reaches)) return out.reaches;
+  return out;
+}
 
-try {
+async function main() {
+  console.log('test-222-readonly-rank.cjs: opt-in read-only ranking + no-write MCP pull tools (quick 260728-7kc)');
+
   // =========================================================================
   // A. DEFAULT-OFF PARITY -- the CLI path is byte-unchanged.
   // =========================================================================
 
-  check('A1 DEFAULT-OFF: readOnly absent still folds the Hedge weights (the CLI path is untouched)', () => {
+  await check('A1 DEFAULT-OFF: readOnly absent still folds the Hedge weights (the CLI path is untouched)', () => {
     const db = newRoomDb('ro-parity-fold-');
     seedFoldableRoom(db);
     const out = ranker.rankFiredCandidates(firedPair(), { db: db });
@@ -151,7 +204,7 @@ try {
       'DEFAULT-OFF REGRESSION: updateCount must advance to 1, got ' + (state && state.updateCount));
   });
 
-  check('A2 DEFAULT-OFF: readOnly absent still writes the Req 7 degrade memory_event', () => {
+  await check('A2 DEFAULT-OFF: readOnly absent still writes the Req 7 degrade memory_event', () => {
     const db = newRoomDb('ro-parity-degrade-');
     db.exec('DROP TABLE ranker_weights');
     ranker.rankFiredCandidates(firedPair(), { db: db });
@@ -161,7 +214,7 @@ try {
     assert.strictEqual(events[0].properties.fault_kind, 'read_fault', 'wrong fault_kind for a read fault');
   });
 
-  check('A3 DEFAULT-OFF: readOnly === false is treated exactly like absent (no accidental truthiness gate)', () => {
+  await check('A3 DEFAULT-OFF: readOnly === false is treated exactly like absent (no accidental truthiness gate)', () => {
     const db = newRoomDb('ro-parity-false-');
     seedFoldableRoom(db);
     ranker.rankFiredCandidates(firedPair(), { db: db, readOnly: false });
@@ -174,7 +227,7 @@ try {
   // B. NO FOLD UNDER readOnly -- proven against a real db AND against a stub.
   // =========================================================================
 
-  check('B1 READ-ONLY (real db): a foldable room gains NO weight state, while the control fold does', () => {
+  await check('B1 READ-ONLY (real db): a foldable room gains NO weight state, while the control fold does', () => {
     // Control arm first: the SAME fixture without readOnly DOES write. This is
     // what makes the read-only arm load-bearing rather than vacuous.
     const controlDb = newRoomDb('ro-nofold-control-');
@@ -192,7 +245,7 @@ try {
     assert.strictEqual(degradeEvents(db).length, 0, 'WRITE LEAK: readOnly:true wrote a degrade memory_event');
   });
 
-  check('B2 READ-ONLY (stubbed navigation): the fold query and the upsert are never even issued', () => {
+  await check('B2 READ-ONLY (stubbed navigation): the fold query and the upsert are never even issued', () => {
     const realRead = navigation.readHedgeWeightState;
     const realFind = navigation.findRecentChanges;
     const realUpsert = navigation.upsertHedgeWeightState;
@@ -237,7 +290,7 @@ try {
   // C. DEGRADE TO SINK -- the Req 7 signal is preserved, not deleted.
   // =========================================================================
 
-  check('C1 SINK: a read_fault under readOnly lands on degradeSink and NOT in room.db', () => {
+  await check('C1 SINK: a read_fault under readOnly lands on degradeSink and NOT in room.db', () => {
     const db = newRoomDb('ro-sink-readfault-');
     db.exec('DROP TABLE ranker_weights');
     const sink = [];
@@ -249,7 +302,7 @@ try {
       'WRITE LEAK: the degrade was written into room.db under readOnly:true');
   });
 
-  check('C2 SINK: a corrupt_scalar under readOnly lands on degradeSink and NOT in room.db', () => {
+  await check('C2 SINK: a corrupt_scalar under readOnly lands on degradeSink and NOT in room.db', () => {
     const db = newRoomDb('ro-sink-corrupt-');
     navigation.upsertHedgeWeightState(db, { d4_blend: 0.7, registry_order: 0.3 }, { updateCount: 1 });
     db.prepare('UPDATE ranker_weights SET weight = -1').run();
@@ -261,7 +314,7 @@ try {
       'WRITE LEAK: the degrade was written into room.db under readOnly:true');
   });
 
-  check('C3 SINK: an ABSENT degradeSink under readOnly is safe (no throw, no write, token dropped)', () => {
+  await check('C3 SINK: an ABSENT degradeSink under readOnly is safe (no throw, no write, token dropped)', () => {
     const db = newRoomDb('ro-sink-absent-');
     db.exec('DROP TABLE ranker_weights');
     const out = ranker.rankFiredCandidates(firedPair(), { db: db, readOnly: true });
@@ -270,7 +323,7 @@ try {
       'WRITE LEAK: an absent sink fell back to writing the memory_event');
   });
 
-  check('C4 SINK: the sink carries closed enum tokens only (Part 8: no prose, no reason field)', () => {
+  await check('C4 SINK: the sink carries closed enum tokens only (Part 8: no prose, no reason field)', () => {
     const db = newRoomDb('ro-sink-enum-');
     db.exec('DROP TABLE ranker_weights');
     const sink = [];
@@ -287,7 +340,7 @@ try {
   // D. ORDERING PARITY -- the mode removes writes only, never changes the pick.
   // =========================================================================
 
-  check('D1 PARITY: two identically seeded rooms rank to the SAME non-trivial order in both modes', () => {
+  await check('D1 PARITY: two identically seeded rooms rank to the SAME non-trivial order in both modes', () => {
     const writeDb = newRoomDb('ro-order-write-');
     seedOrderingRoom(writeDb);
     const readDb = newRoomDb('ro-order-read-');
@@ -309,10 +362,12 @@ try {
       'VACUOUS-GREEN RISK: the scored order did not flip the input order; got ' + JSON.stringify(readOrder));
   });
 
-  check('D2 PARITY: the read is NOT dropped -- read-only still applies the stored Hedge weights', () => {
-    // The seam must keep the READ. A flat/ignored weight state would leave the
-    // input order intact (registry-first), which D1 already forbids; this leg
-    // pins the same claim directly against a weights-free control room.
+  await check('D2 PARITY: the read is NOT dropped -- read-only still applies the stored Hedge weights', () => {
+    // The seam must keep the READ. Dropping the handle would also stop the write,
+    // but it would silently flatten the ranking: on the MCP path no cortex nodes
+    // are threaded, so every candidate sits on the flat 0.5 D4 floor and the Hedge
+    // outcome layer is the ONLY differentiator. This leg pins the read against a
+    // db-free control.
     const seededDb = newRoomDb('ro-read-kept-');
     seedOrderingRoom(seededDb);
     const seededOrder = ranker
@@ -327,13 +382,171 @@ try {
       'the seeded read-only ranking must lead with the scored winner; got ' + seededOrder[0]);
   });
 
+  // =========================================================================
+  // E. RUNTIME NO-WRITE -- the REAL exported handler path against REAL rooms.
+  //    This is the gate. Not a grep: contradiction_check and whitespace_scan
+  //    legitimately still call openRoomDbForCaller in the same file, so a
+  //    blanket source sweep would be a FALSE gate. Byte-identity is the truth.
+  // =========================================================================
+
+  await check('E1 NO-WRITE: repeated dispatchCandidateReaches leaves .mindrian/ byte-identical', () => {
+    const dir = newRoomDir('ro-nowrite-migrated-');
+    withProbeDb(dir, seedFoldableRoom); // >= N rows: the pre-fix path WOULD have folded and written
+
+    const before = snapshotMindrian(dir);
+    assert.ok(before.exists && before.entries.length >= 1,
+      'PRECONDITION: the fixture room must already carry a migrated .mindrian/');
+
+    for (let i = 0; i < 3; i += 1) {
+      const reaches = reachesOf(dispatchCandidateReaches('s7kc', dir, { userText: COFIRE_TEXT }));
+      assert.ok(Array.isArray(reaches) && reaches.length >= 2,
+        'PRECONDITION: the pull must co-fire >= 2 candidates so the db-open path is exercised; got ' +
+        JSON.stringify(Array.isArray(reaches) ? reaches.map((r) => r.reach_id) : reaches));
+    }
+
+    assert.deepStrictEqual(snapshotMindrian(dir), before,
+      'WRITE LEAK: dispatchCandidateReaches mutated .mindrian/. A declared-read tool wrote to the room.');
+    const state = withProbeDb(dir, (db) => navigation.readHedgeWeightState(db));
+    assert.strictEqual(state, null,
+      'WRITE LEAK: a Hedge weight state was persisted by a declared-read pull; got ' + JSON.stringify(state));
+  });
+
+  await check('E1c CONTROL: the SAME fixture DOES change on disk through the write path (the gate is real)', () => {
+    const dir = newRoomDir('ro-nowrite-control-');
+    withProbeDb(dir, seedFoldableRoom);
+
+    const before = snapshotMindrian(dir);
+    const writeDb = navigation.openRoomDbForCaller(dir);
+    try {
+      ranker.rankFiredCandidates(firedPair(), { roomDir: dir, db: writeDb });
+    } finally {
+      if (writeDb) navigation.closeRoomDbForCaller(writeDb);
+    }
+    assert.notDeepStrictEqual(snapshotMindrian(dir), before,
+      'VACUOUS-GREEN RISK: even the WRITE path left the fixture unchanged, so E1 proves nothing');
+  });
+
+  await check('E2 NO-WRITE: a room with NO .mindrian/ never gains one (the largest of the three writes)', () => {
+    const dir = newRoomDir('ro-nowrite-bare-');
+    assert.strictEqual(fs.existsSync(path.join(dir, '.mindrian')), false,
+      'PRECONDITION: the bare fixture must start with no .mindrian/');
+
+    const reaches = reachesOf(dispatchCandidateReaches('s7kc', dir, { userText: COFIRE_TEXT }));
+    assert.ok(Array.isArray(reaches) && reaches.length >= 2,
+      'the bare-room pull must still return its fired candidate array; got ' + JSON.stringify(reaches));
+    assert.strictEqual(fs.existsSync(path.join(dir, '.mindrian')), false,
+      'SCHEMA-MIGRATION LEAK: a declared-read pull CREATED the room database in a Tier 0 room');
+  });
+
+  await check('E3 NO-WRITE: an unmigrated room.db is not migrated, and the fault is DISCLOSED in the result', () => {
+    const dir = newRoomDir('ro-nowrite-unmigrated-');
+    withProbeDb(dir, (db) => { db.exec('DROP TABLE ranker_weights'); }); // the pre-ranker_weights shape
+
+    const out = dispatchCandidateReaches('s7kc', dir, { userText: COFIRE_TEXT });
+    const reaches = reachesOf(out);
+    assert.ok(Array.isArray(reaches) && reaches.length >= 2,
+      'an unmigrated room must still return the full candidate set; got ' + JSON.stringify(reaches));
+    assert.strictEqual(out && out.degraded, 'read_fault',
+      'the degrade must be DISCLOSED in the tool result; got ' + JSON.stringify(out && out.degraded));
+
+    // The table must still be absent AFTER the pull. Read it with a raw read-only
+    // handle: re-opening through openRoomDb would itself re-create the table and
+    // destroy the evidence.
+    const roDb = navigation.openRoomDbReadOnlyForCaller(dir);
+    assert.ok(roDb, 'PROBE: the read-only door must return a handle for an existing room.db');
+    try {
+      const rows = roDb.prepare(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='ranker_weights'"
+      ).all();
+      assert.strictEqual(rows.length, 0,
+        'SCHEMA-MIGRATION LEAK: the pull re-created the ranker_weights table on an unmigrated room.db');
+      const events = navigation.findRecentChanges(roDb, 0, { eventType: 'reach_weight_state_unavailable' }) || [];
+      assert.strictEqual(events.length, 0,
+        'WRITE LEAK: the degrade was written into room.db instead of disclosed in the result');
+    } finally {
+      navigation.closeRoomDbForCaller(roDb);
+    }
+  });
+
+  await check('E4 NO-WRITE: a healthy pull reports degraded null (so the tool payload stays unchanged)', () => {
+    const dir = newRoomDir('ro-nowrite-healthy-');
+    withProbeDb(dir, seedOrderingRoom);
+    const out = dispatchCandidateReaches('s7kc', dir, { userText: COFIRE_TEXT });
+    assert.strictEqual(out && out.degraded, null,
+      'a healthy read must report degraded null; got ' + JSON.stringify(out && out.degraded));
+  });
+
+  // =========================================================================
+  // F. ORDER PRESERVED AT THE TOOL -- the fix removes writes, not the ranking.
+  // =========================================================================
+
+  await check('F1 ORDER: the REAL suggest_next / reach_candidates handlers still return the SCORED order', async () => {
+    const dir = newRoomDir('ro-order-handlers-');
+    fs.mkdirSync(path.join(dir, '.mindrian'), { recursive: true });
+    fs.copyFileSync(EUREKA_FIXTURE, path.join(dir, '.mindrian', 'last-eureka.json'));
+    withProbeDb(dir, seedOrderingRoom);
+
+    const priorActive = process.env.CLAUDE_ACTIVE_ROOM;
+    process.env.CLAUDE_ACTIVE_ROOM = dir;
+    try {
+      const registered = [];
+      const fakeServer = {
+        tool(name, _desc, schemaOrHandler, maybeHandler) {
+          const handler = typeof maybeHandler === 'function' ? maybeHandler : schemaOrHandler;
+          registered.push({ name: name, handler: handler });
+        },
+        server: { getClientCapabilities() { return {}; } },
+      };
+      sensorsTool.register(fakeServer, { fallbackRoomDir: dir });
+      const suggestNext = registered.find((r) => r.name === 'suggest_next');
+      const reachCandidates = registered.find((r) => r.name === 'reach_candidates');
+      assert.ok(suggestNext && reachCandidates, 'both pull tools must register through the REAL register()');
+
+      const before = snapshotMindrian(dir);
+
+      const snPayload = JSON.parse(
+        (await suggestNext.handler({ user_text: COFIRE_TEXT }, { sessionId: 's7kc' })).content[0].text);
+      assert.ok(snPayload.suggestion, 'suggest_next must return a suggestion');
+      assert.strictEqual(snPayload.suggestion.reach_id, SCORE_FIRST_REACH,
+        'RANKING REGRESSION: suggest_next must still return the SCORED top; got ' +
+        snPayload.suggestion.reach_id);
+      assert.strictEqual(snPayload.degraded, undefined,
+        'a healthy pull must OMIT the degraded field, keeping the normal payload unchanged');
+
+      const rcPayload = JSON.parse(
+        (await reachCandidates.handler({ user_text: COFIRE_TEXT }, { sessionId: 's7kc' })).content[0].text);
+      const order = rcPayload.candidates.map((r) => r.reach_id);
+      assert.strictEqual(order[0], SCORE_FIRST_REACH,
+        'RANKING REGRESSION: reach_candidates must lead with the scored winner; got ' + JSON.stringify(order));
+      assert.notStrictEqual(order[0], REGISTRY_FIRST_REACH,
+        'REGISTRY-ORDER LEAK: the handler returned SENSOR_REGISTRY order');
+      assert.strictEqual(rcPayload.count, order.length, 'count must match the returned candidate array');
+      assert.strictEqual(rcPayload.degraded, undefined,
+        'a healthy pull must OMIT the degraded field on reach_candidates too');
+
+      assert.deepStrictEqual(snapshotMindrian(dir), before,
+        'WRITE LEAK: the REAL registered handlers mutated .mindrian/');
+    } finally {
+      if (priorActive === undefined) { delete process.env.CLAUDE_ACTIVE_ROOM; }
+      else { process.env.CLAUDE_ACTIVE_ROOM = priorActive; }
+    }
+  });
+
   console.log('');
   console.log('PASS test-222-readonly-rank.cjs (' + passed + ' checks)');
-} finally {
-  for (const db of openDbs) {
-    try { closeRoomDb(db); } catch (_e) { /* best effort */ }
-  }
-  for (const dir of tempDirs) {
-    try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
-  }
 }
+
+main()
+  .catch((err) => {
+    console.error('FAIL test-222-readonly-rank.cjs');
+    console.error(err && err.stack ? err.stack : err);
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    for (const db of openDbs) {
+      try { closeRoomDb(db); } catch (_e) { /* best effort */ }
+    }
+    for (const dir of tempDirs) {
+      try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+    }
+  });
