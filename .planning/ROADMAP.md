@@ -87,10 +87,10 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 Plans:
 **Wave 1**
 
-- [ ] 237-01-PLAN.md - Wave 1. SKIP-safe `tests/run-all-237.sh` aggregator authored before any code lands, plus the Part 8 local-only and em-dash hard floors.
-- [ ] 237-02-PLAN.md - Wave 1. REACH-02: delete `chain.cjs`'s private connector-posture classifier, ride `recipe-maps.postureForCommand`, full-registry parity gate plus a structural one-authority source fence, and the `test-198-chain-run-halt` retarget in the same commit.
-- [ ] 237-03-PLAN.md - Wave 1. REACH-01 leg A: remove the decorative `decide()` default from `chain-executor.cjs` while keeping the `opts.decideFn` seam `act-command.cjs` uses correctly, proven by a call-site census.
-- [ ] 237-04-PLAN.md - Wave 1. REACH-03 reader: session-scope `deriveTurnSignals` and `sensorArtifactFiled` through one shared fail-open ownership helper, proven by a two-process `fork` fence plus four degrade legs.
+- [x] 237-01-PLAN.md - Wave 1. SKIP-safe `tests/run-all-237.sh` aggregator authored before any code lands, plus the Part 8 local-only and em-dash hard floors.
+- [x] 237-02-PLAN.md - Wave 1. REACH-02: delete `chain.cjs`'s private connector-posture classifier, ride `recipe-maps.postureForCommand`, full-registry parity gate plus a structural one-authority source fence, and the `test-198-chain-run-halt` retarget in the same commit.
+- [x] 237-03-PLAN.md - Wave 1. REACH-01 leg A: remove the decorative `decide()` default from `chain-executor.cjs` while keeping the `opts.decideFn` seam `act-command.cjs` uses correctly, proven by a call-site census.
+- [x] 237-04-PLAN.md - Wave 1. REACH-03 reader: session-scope `deriveTurnSignals` and `sensorArtifactFiled` through one shared fail-open ownership helper, proven by a two-process `fork` fence plus four degrade legs.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -250,7 +250,7 @@ Wave 4 (blocked on Wave 3):
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
 | 236. room.db Data-Loss Fixes | 0/4 | Planned | - |
-| 237. Reach Mechanism | 0/? | Not started | - |
+| 237. Reach Mechanism | 4/8 | In progress | - |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
