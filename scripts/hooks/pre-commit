@@ -3,6 +3,28 @@
 #
 # BSL 1.1. Copyright (c) Mindrian 2026.
 #
+# CANONICAL SOURCE (Phase 235-01, CIRS-01):
+#   This file is the ONE canonical git pre-commit hook body. Its byte-identical
+#   twin scripts/hooks/pre-commit-room-minto-guard.sh is what BOTH installers
+#   (scripts/setup-hooks.sh and scripts/install-pre-commit.sh) copy verbatim.
+#   Before Phase 235 these were three independently hand-authored bodies that
+#   drifted, and session-start ran both installers every session, so the
+#   narrower body silently overwrote the richer one and the born-wired gates
+#   were never live in the installed hook. Never hand-edit only one of the two
+#   files: `cmp scripts/hooks/pre-commit scripts/hooks/pre-commit-room-minto-guard.sh`
+#   must report no difference (proved by tests/test-235-cirs-commit-gate-worktree.cjs).
+#
+# Consultation confirmation (Phase 235-01 Task 1, per CLAUDE.md "Consult ALL
+# Relevant Grounding Sources"): git pre-commit hooks and Claude Code's
+# hooks/hooks.json are separate systems; this change touches only the former.
+#   Evidence: hooks/hooks.json declares only Claude-Code-internal lifecycle
+#   events (SessionStart, PreCompact, PostCompact, Stop, SessionEnd, PreToolUse,
+#   PostToolUse, UserPromptSubmit, FileChanged, CwdChanged, SubagentStop,
+#   TaskCompleted) and contains zero references to `.git/hooks`, `pre-commit`,
+#   or `git commit`. This hook is invoked by the git binary itself from
+#   $(git rev-parse --git-path hooks/pre-commit), entirely outside Claude Code's
+#   hook loader and its matchers. Changing this file cannot affect hooks.json.
+#
 # Purpose (SEC-04 / Phase 87-01a):
 #   Enforce CLAUDE.md decision #15 + Phase 81 Feynman-MINTO invariant at git
 #   commit time. The invariant states: every directory inside a Data Room must
@@ -330,6 +352,120 @@ if [ -n "$_GUARDIAN_PLUGIN_ROOT" ] && [ -f "$_GUARDIAN_PLUGIN_ROOT/scripts/feynm
       exit "$_GUARDIAN_EXIT"
     fi
   done
+fi
+
+# ===========================================================================
+# Phase 235-01 (CIRS-01): the 8 guard blocks below were previously authored
+# ONLY inside scripts/install-pre-commit.sh's HOOK_BODY heredoc, which is why
+# they were silently dropped every time setup-hooks.sh reinstalled the narrower
+# body. They are ported here verbatim (trigger regex, recovery echo, and doc
+# comment unchanged) so the union lives in ONE file. Exit code normalized to 2
+# to match this file's existing convention (git only requires nonzero).
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# Phase 108-05 - schema alias drift guard.
+#
+# Phase 235-01 note: install-pre-commit.sh's retired heredoc expanded the
+# plugin's absolute $REPO_ROOT at INSTALL time, so it could invoke this
+# unconditionally. This canonical hook resolves $REPO_ROOT at RUN time and is
+# installed into whatever repo asks for it (a user's room repo, a test
+# fixture), so the invocation carries the same `command -v node` + `[ -f ... ]`
+# existence guard every other block in this file uses. Without it the hook
+# hard-fails every commit in any repo that is not the plugin checkout.
+# ---------------------------------------------------------------------------
+if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-schema-aliases.cjs" ]; then
+  node "$REPO_ROOT/scripts/check-schema-aliases.cjs" || exit 2
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 128-03 - reject net-new chokepoint bypass on staged files.
+# Strict superset of the retired --check-chokepoint (CONTEXT finding H1).
+# Recovery: route room.db access through lib/core/navigation.cjs (Canon Part 9),
+# or add the path to ALLOWED_DIRECT_IMPORT in scripts/check-substrate.cjs.
+# Contract: docs/architecture/SUBSTRATE-CONTRACT.md
+# ---------------------------------------------------------------------------
+if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-substrate.cjs" ]; then
+  node "$REPO_ROOT/scripts/check-substrate.cjs" --diff || exit 2
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 167 (D-167-03) - harness-manifest drift guard.
+# When the manifest, its generator, OR any of the three named source maps
+# (command-registry / connector-registry / brain-orchestration-projection) is
+# staged, regenerate the manifest in memory and reject the commit on drift
+# (STALE / UNRESOLVED / MALFORMED). A change to any source map can stale the
+# manifest digests, so the trigger is path-scoped on all five paths. STRONGER
+# than the connector/projection precedent (whose --checks run only in test
+# aggregators): the manifest --check is wired into BOTH pre-commit and
+# tests/run-all-167.sh. Canon Part 8: the check is a local byte-compare +
+# map-resolve; it never touches the Brain.
+# Recovery on drift: node scripts/build-harness-manifest.cjs
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.cjs|data/harness-manifest\.json|data/command-registry\.json|data/connector-registry\.json|data/brain-orchestration-projection\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-harness-manifest.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-harness-manifest.cjs" --check || { echo "harness-manifest drift -- run: node scripts/build-harness-manifest.cjs" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 178-03 (Canon Part 11 render twin, C-3) - render-coverage gate (born-wired HARD-FAIL).
+# Recovery on drift / dark surface: node scripts/build-render-coverage.cjs
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(lib/hmi/.*\.cjs|lib/agents/.*\.cjs|lib/render/.*\.cjs|lib/core/.*\.cjs|scripts/intent-classifier\.cjs|data/render-coverage-registry\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-render-coverage.cjs" ]; then
+    node "$REPO_ROOT/scripts/check-render-coverage.cjs" --check || { echo "render-coverage drift / dark surface -- run: node scripts/build-render-coverage.cjs" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 186-02 (CORPUS-02) - corpus-stats coverage gate (Canon Part 8 / D5).
+# Recovery on drift / stale literal: node scripts/build-corpus-stats.cjs
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(CLAUDE\.md|\.claude/includes/moat\.md|docs/THE-BRAIN\.md|docs/brain-setup\.md|\.planning/PROJECT\.md|docs/MINDRIAN-CANON\.md|docs/CANON-PHASE-MAP\.md|data/corpus-stats-source\.json|docs/CORPUS-STATS\.generated\.md)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-corpus-stats.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-corpus-stats.cjs" --check || { echo "corpus-stats drift / stale literal -- run: node scripts/build-corpus-stats.cjs" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 190-04 (SFD-04/SFD-05, Canon Part 11 R16) - born-declared-shape gate (HARD-FAIL).
+# Recovery: node scripts/backfill-hitl-shape.cjs, or declare hitl_shape/hitl_stages per
+# docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason.
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|agents/.*\.md|pipelines/.*/CHAIN\.md|skills/.*/SKILL\.md)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-shape-declaration.cjs" ]; then
+    node "$REPO_ROOT/scripts/check-shape-declaration.cjs" --check || { echo "shape-declaration gap -- run: node scripts/backfill-hitl-shape.cjs, or declare hitl_shape/hitl_stages per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Quick task 20260702-help-coverage-gate (Canon Part 11 born-listed exclusion) -
+# /mos:help coverage gate (HARD-FAIL). Rejects a commit where a user-facing
+# command is absent from data/help-groups.json, a grouped/excluded name has no
+# file (ghost), or a deprecated:true command is not born-listed in
+# deprecated_aliases. Canon Part 8: LOCAL frontmatter + manifest only.
+# Recovery: add the command to data/help-groups.json, or list a deprecation in
+# deprecated_aliases.
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|data/help-groups\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-help-coverage.cjs" ]; then
+    node "$REPO_ROOT/scripts/check-help-coverage.cjs" || { echo "help-coverage gap -- add the command to data/help-groups.json, or list a deprecation in deprecated_aliases" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Quick task 260705-jeq (Canon Part 7 / Part 11) - command-registration
+# precondition sweep (HARD-FAIL). Catches the static authoring mistakes that make
+# Claude Code SILENTLY skip a command file: a broken frontmatter fence, a tab in
+# the YAML block, an illegal command name, or a case-insensitive basename
+# collision. Canon Part 8: LOCAL file reads only.
+# Recovery: fix the flagged frontmatter fence / tab / name / collision.
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^commands/.*\.md$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/lib/core/command-registration-check.cjs" ]; then
+    node "$REPO_ROOT/lib/core/command-registration-check.cjs" || { echo "command-registration precondition FAIL - a command would silently not register" >&2; exit 2; }
+  fi
 fi
 
 exit 0
