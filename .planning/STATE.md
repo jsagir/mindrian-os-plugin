@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: Infrastructure Remediation
 status: planning
-last_updated: "2026-07-28T03:37:47.926Z"
+last_updated: "2026-07-28T03:45:00.000Z"
 last_activity: 2026-07-28
 progress:
-  total_phases: 0
+  total_phases: 9
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -14,6 +14,15 @@ progress:
 ---
 
 # Project State
+
+## (2026-07-28) -- v1.16.0 "Infrastructure Remediation" ROADMAP CREATED -- 9 phases (235-243), 23/23 requirements mapped, dependency-waved
+
+- **Roadmap written:** `.planning/ROADMAP.md` (fresh file for v1.16.0; the full v1.15.0 "The Cockpit" roadmap archived byte-identical at `.planning/milestones/v1.15.0-ROADMAP.md`, matching the v1.13.1 archive precedent). Phase numbering continues from the last completed phase directory (234).
+- **Phase structure (from the 2026-07-28 nine-piece audit's own dependency synthesis, not invented):** Wave 1 parallel: **235 CIRS Commit Gate + Seam-Liveness Helper** (the leverage point) + **236 room.db Data-Loss Fixes** (urgent). Wave 2: **237 Reach Mechanism** + **238 Decision Gates** + **239 Brain-Access Surface** (all after 235), and **240 Memory** strictly after 236 (HARD dependency: Layer 2 promotions route into memory-cortex tables that `rebuildGraph` currently truncates -- landing 240 first would convert a quiet loss into a permanent one; never schedule parallel-independent). Wave 3: **241 Feynman-MINTO**, **242 The Moat** (soft-reuses 236's crash-injection proof pattern), **243 Voice-Glyph**.
+- **Coverage:** 23/23 v1.16.0 REQ-IDs mapped, no orphans, no duplicates (CIRS-01..03 -> 235; GRAPHDB-01..03 -> 236; REACH-01..03 -> 237; GATE-01/03/04 -> 238; BRAIN-01..03 -> 239; MEM-01..03 -> 240; MINTO-01..02 -> 241; MOAT-01..02 -> 242; GLYPH-01 -> 243). Traceability table filled in `.planning/REQUIREMENTS.md`.
+- **Success-criteria rigor standard:** every phase's criteria follow the `hedge-fold-has-no-production-trigger` resolution model -- mutation-proven gates (disabling the fix turns a named test red), real end-to-end runs against seeded rooms, and production call-site censuses that exclude `tests/` so a contract honored only by a test can never pass a wiring gate vacuously.
+- **Cross-cutting research rules carried into the roadmap** (bind plan-phase): langtalks-graph-expert for agent/LLM concepts (235/237/238/241), claude-api skill + claude-code-guide agent for hook-matcher/MCP/registry work (235/237/238/239), Context7 `node:sqlite` docs for any room.db transaction work (236/240/242).
+- **NEXT:** `/gsd-plan-phase 235` (and 236 may plan/execute in parallel).
 
 ## (2026-07-28) -- PHASE 233 Plan 03 COMPLETE (Wave 3, LAST PLAN) -- RCA Section 9 Defects #4/#5: HSI corpus scoping + the ordered 4-stage heal pipeline
 

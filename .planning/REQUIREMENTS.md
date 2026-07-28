@@ -57,4 +57,37 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 - MW-4 style doctrine-rot findings get a light doc fix, not a full RCA-and-fix cycle, per the audit's own rethink verdict.
 
 ## Traceability
-(filled by the roadmapper)
+
+Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactly one phase each; no orphans, no duplicates. (GATE-02 does not exist as a REQ-ID: audit finding G-2 is folded into GATE-01 by design.) Phase detail: `.planning/ROADMAP.md`.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| CIRS-01 | Phase 235 | Pending |
+| CIRS-02 | Phase 235 | Pending |
+| CIRS-03 | Phase 235 | Pending |
+| GRAPHDB-01 | Phase 236 | Pending |
+| GRAPHDB-02 | Phase 236 | Pending |
+| GRAPHDB-03 | Phase 236 | Pending (log-only) |
+| REACH-01 | Phase 237 | Pending |
+| REACH-02 | Phase 237 | Pending |
+| REACH-03 | Phase 237 | Pending |
+| GATE-01 | Phase 238 | Pending |
+| GATE-03 | Phase 238 | Pending |
+| GATE-04 | Phase 238 | Pending |
+| BRAIN-01 | Phase 239 | Pending |
+| BRAIN-02 | Phase 239 | Pending |
+| BRAIN-03 | Phase 239 | Pending (decision) |
+| MEM-01 | Phase 240 | Pending |
+| MEM-02 | Phase 240 | Pending |
+| MEM-03 | Phase 240 | Pending |
+| MINTO-01 | Phase 241 | Pending |
+| MINTO-02 | Phase 241 | Pending |
+| MOAT-01 | Phase 242 | Pending |
+| MOAT-02 | Phase 242 | Pending (doc fix) |
+| GLYPH-01 | Phase 243 | Pending |
+
+**Dependency notes (binding for scheduling):**
+- Phase 235 first: precondition for 237 and 238 (posture-index source + shared seam-liveness helper); 239 soft-reuses the helper.
+- Phase 236 parallel to 235 (urgent).
+- Phase 240 STRICTLY after 236: promotions route into memory-cortex tables that `rebuildGraph` currently truncates. Never schedule 240 parallel-independent of 236, even if the wave tooling would allow it.
+- Phases 241, 242, 243: no hard dependencies (242 soft-reuses 236's transaction/crash-injection proof pattern).
