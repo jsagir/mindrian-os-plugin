@@ -27,9 +27,16 @@
  *                               (sections_walked, sections_total, truncated).
  *
  *   pre-commit <roomPath>       run validators for every section whose
- *                               staged files live under it. Any critical or
- *                               error severity -> exit 2 (block commit);
- *                               otherwise exit 0. BLOCKING only here.
+ *                               staged files live under it. ADVISORY by
+ *                               default as of Phase 241 F-3: any critical or
+ *                               error severity still enumerates every
+ *                               violation to stderr, but the commit proceeds
+ *                               (exit 0) with a WARN line naming the
+ *                               violation count and the restore path. Pass
+ *                               --strict, or set MINTO_PRECOMMIT_STRICT=1,
+ *                               to restore the pre-241 hard-fail contract
+ *                               (exit 2, commit rejected). See Phase 241 F-3,
+ *                               .planning/phases/241-feynman-minto/241-04-PLAN.md.
  *
  *   clean-tmp <roomPath>        sweep orphan MINTO.md.tmp.*.minto files
  *                               older than 60s (crashes from 88-04-B). Exit 0.
@@ -507,7 +514,24 @@ function getStagedFiles() {
   }
 }
 
-function runPreCommit(roomDir, validators) {
+// Phase 241 F-3: advisory-default / --strict-opt-in idiom, reused from
+// scripts/check-shape-declaration.cjs:894-916 (Phase 210), the shipped
+// precedent for demoting a hard-fail gate to WARN-and-continue while
+// keeping a documented restore path. Three ways to opt back into the
+// pre-241 hard-fail contract: an explicit opts.strict (tests drive both
+// modes without mutating global environment), MINTO_PRECOMMIT_STRICT=1
+// (what the real git hook's environment can set without any change to
+// scripts/hooks/pre-commit-room-minto-guard.sh, per Resolution R-07), or a
+// trailing --strict argv flag (mirrors check-shape-declaration.cjs for a
+// human running the guardian directly).
+function preCommitStrictEnabled(opts) {
+  if (opts && opts.strict === true) return true;
+  if (process.env.MINTO_PRECOMMIT_STRICT === '1') return true;
+  if (process.argv.includes('--strict')) return true;
+  return false;
+}
+
+function runPreCommit(roomDir, validators, opts) {
   const ctx = { roomDir: roomDir, kind: 'pre-commit', now: Date.now() };
   const staged = getStagedFiles();
   if (staged.length === 0) return 0;
@@ -541,10 +565,25 @@ function runPreCommit(roomDir, validators) {
     }
   }
   if (worstSeverityIdx >= SEVERITY_ORDER.indexOf('error')) {
-    process.stderr.write('[guardian] pre-commit blocked by Feynman-MINTO violations:\n');
+    if (preCommitStrictEnabled(opts)) {
+      // The pre-241 hard-fail contract, preserved as the --strict /
+      // MINTO_PRECOMMIT_STRICT=1 opt-in.
+      process.stderr.write('[guardian] pre-commit blocked by Feynman-MINTO violations:\n');
+      for (const m of messages) process.stderr.write(m + '\n');
+      process.stderr.write('[guardian] Fix violations or use --no-verify (at your own risk).\n');
+      process.stderr.write('[guardian] strict mode: exiting 2 (MINTO_PRECOMMIT_STRICT=1 / --strict restores the pre-Phase-241 hard-fail contract).\n');
+      return 2;
+    }
+    // Phase 241 F-3: advisory default. Every violation is still enumerated
+    // to stderr (never a silent no-op, T-241-15); only the block is
+    // removed. Mirrors the check-shape-declaration.cjs WARN-not-fail idiom.
+    process.stderr.write('[guardian] pre-commit advisory by Feynman-MINTO violations (Phase 241, not blocking):\n');
     for (const m of messages) process.stderr.write(m + '\n');
-    process.stderr.write('[guardian] Fix violations or use --no-verify (at your own risk).\n');
-    return 2;
+    process.stderr.write(
+      '[guardian] WARN: ' + messages.length + ' violation' + (messages.length === 1 ? '' : 's') +
+      ' detected; not blocking (set MINTO_PRECOMMIT_STRICT=1 or pass --strict to restore hard-fail).\n'
+    );
+    return 0;
   }
   return 0;
 }
@@ -581,8 +620,10 @@ function main() {
   const mode = process.argv[2] || 'session-start';
   const roomDir = process.argv[3];
   if (!roomDir) {
-    process.stderr.write('usage: feynman-minto-guardian.cjs <mode> <roomPath>\n' +
-      '  modes: session-start | on-stop | pre-commit | clean-tmp\n');
+    process.stderr.write('usage: feynman-minto-guardian.cjs <mode> <roomPath> [--strict]\n' +
+      '  modes: session-start | on-stop | pre-commit | clean-tmp\n' +
+      '  --strict (pre-commit only): restore the pre-Phase-241 hard-fail\n' +
+      '    contract; MINTO_PRECOMMIT_STRICT=1 does the same via env.\n');
     return 0; // Advisory: never hard-fail even on bad invocation.
   }
   if (!fs.existsSync(roomDir)) {
@@ -596,7 +637,7 @@ function main() {
     switch (mode) {
       case 'session-start': return runSessionStart(roomDir, validators);
       case 'on-stop':       return runOnStop(roomDir, validators);
-      case 'pre-commit':    return runPreCommit(roomDir, validators);
+      case 'pre-commit':    return runPreCommit(roomDir, validators, { strict: process.argv.includes('--strict') });
       case 'clean-tmp':     return runCleanTmp(roomDir);
       default:
         logWarn('unknown mode: ' + mode);
@@ -627,4 +668,5 @@ module.exports = {
   runOnStop: runOnStop,
   runPreCommit: runPreCommit,
   runCleanTmp: runCleanTmp,
+  preCommitStrictEnabled: preCommitStrictEnabled,
 };
