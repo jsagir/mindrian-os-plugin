@@ -48,7 +48,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 
 ### Phase 241 -- Feynman-MINTO (F-0 already filed and open)
 
-- [ ] **MINTO-01**: The guardian's on-stop output reaches the user instead of `/dev/null`, and its report-write/ghost-pruning cannot be silently dropped by a 1-second timeout (F-1).
+- [x] **MINTO-01**: The guardian's on-stop output reaches the user instead of `/dev/null`, and its report-write/ghost-pruning cannot be silently dropped by a 1-second timeout (F-1). (Closed 2026-07-28, Phase 241 Plan 01: `runOnStop` soft walk deadline + `scripts/on-stop` capture-and-fold, both legs mutation-proven.)
 - [ ] **MINTO-02**: The critical-repair severity ladder actually triggers on the breaches navigators hit (missing MINTO.md, missing governing_thought), not only two rare crash artifacts (F-2); pre-commit friction from the same dead loop is demoted to warn until the loop is live (F-3 folds in).
 
 ### Phase 242 -- The Moat
@@ -90,7 +90,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | MEM-01 | Phase 240 | Pending |
 | MEM-02 | Phase 240 | Pending |
 | MEM-03 | Phase 240 | Pending |
-| MINTO-01 | Phase 241 | Pending |
+| MINTO-01 | Phase 241 | Complete (241-01) |
 | MINTO-02 | Phase 241 | Pending |
 | MOAT-01 | Phase 242 | Pending |
 | MOAT-02 | Phase 242 | Pending (doc fix) |
