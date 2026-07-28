@@ -84,15 +84,25 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
   3. With two concurrent sessions live on one machine (two-process test), a candidate reach in session B reflects only B's own turn signals: a stale marker seeded by session A never surfaces in B's reach; removing the session scoping turns that leg red.
 
 **Plans**: 8 plans in 4 waves
-
 Plans:
+**Wave 1**
+
 - [ ] 237-01-PLAN.md - Wave 1. SKIP-safe `tests/run-all-237.sh` aggregator authored before any code lands, plus the Part 8 local-only and em-dash hard floors.
 - [ ] 237-02-PLAN.md - Wave 1. REACH-02: delete `chain.cjs`'s private connector-posture classifier, ride `recipe-maps.postureForCommand`, full-registry parity gate plus a structural one-authority source fence, and the `test-198-chain-run-halt` retarget in the same commit.
 - [ ] 237-03-PLAN.md - Wave 1. REACH-01 leg A: remove the decorative `decide()` default from `chain-executor.cjs` while keeping the `opts.decideFn` seam `act-command.cjs` uses correctly, proven by a call-site census.
 - [ ] 237-04-PLAN.md - Wave 1. REACH-03 reader: session-scope `deriveTurnSignals` and `sensorArtifactFiled` through one shared fail-open ownership helper, proven by a two-process `fork` fence plus four degrade legs.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 237-05-PLAN.md - Wave 2. REACH-01: emit an explicit `executable` join in the generated command registry (the closed build-time allowlist), populated on `/mos:snapshot`, with a seam-liveness gate over every claim.
 - [ ] 237-06-PLAN.md - Wave 2. REACH-03 writers: stamp `session_id` on both marker writers, threading it through the fingerprint hook to the detached auto-explore spawn.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 237-07-PLAN.md - Wave 3. REACH-01: build `lib/core/chain-step-dispatcher.cjs`, the two-tier executor that genuinely spawns script-backed steps and honestly refuses prompt-backed ones with quality null.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 237-08-PLAN.md - Wave 4. REACH-01: wire the dispatcher as `chain_run`'s `onStep` default, delete the log-only stub, prove approve-to-execute end to end with an artifact on disk, and file the phase findings.
 
 ### Phase 238: Decision Gates
