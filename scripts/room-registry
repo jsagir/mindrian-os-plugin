@@ -37,6 +37,56 @@ REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
 SUBCMD="${1:-}"
 shift 2>/dev/null || true
 
+# RCA registry-active-session-unbound-inheritance -- ownership stamp for the
+# machine-wide `active` field.
+#
+# `active` is ONE slug shared by every concurrent session on the machine. An
+# UNBOUND session that inherits it cannot tell "I am the only session here, this
+# is my safe default" from "another session that is running RIGHT NOW just set
+# this". Recording WHO set it, and a process id that lives exactly as long as
+# that session, lets the reader (lib/core/resolve-active-room.cjs
+# resolveActiveOwnership) tell those apart with a pid probe instead of guessing.
+#
+# Both values are already in the environment of the only writer, because
+# set-active runs inside the owning session's own process tree:
+#   CLAUDE_CODE_SESSION_ID -- the session UUID the hook reader also resolves
+#                             (same var room_bind falls back to, RCA c123f3d7).
+#   CLAUDE_PID             -- the `claude` CLI process; verified equal to the
+#                             Bash-tool shell's PPID and alive for the whole session.
+# MINDRIAN_ACTIVE_SESSION_ID / _PID are the hermetic-test seams and win when set.
+#
+# Absent session id => the ownership fields are CLEARED, never left stale, so the
+# registry falls back to exactly today's behavior (a manual shell `set-active`
+# must not leave a previous session owning a room it did not choose). Absent pid
+# => the reader cannot probe, treats ownership as stale, and inherits as today.
+# Every gap fails OPEN; the tier-0 single-session promise never depends on this
+# stamp being present.
+_OWNER_SID="${MINDRIAN_ACTIVE_SESSION_ID:-${CLAUDE_CODE_SESSION_ID:-}}"
+_OWNER_PID="${MINDRIAN_ACTIVE_SESSION_PID:-${CLAUDE_PID:-}}"
+
+# The two ownership mutators, defined ONCE and interpolated into every stanza
+# that touches reg['active'] (set-active, create, archive). Same single-copy
+# discipline the normwin shim uses. Only CODE is interpolated here; every VALUE
+# still arrives via sys.argv (RCA windows-python-interp-and-shim).
+_OWNER_PY=$(cat <<'OWNER_PY_EOF'
+def stamp_owner(reg, sid, opid, now):
+    if sid:
+        reg['active_session'] = sid
+        reg['active_session_at'] = now
+        if opid.isdigit():
+            reg['active_session_pid'] = int(opid)
+        else:
+            reg.pop('active_session_pid', None)
+    else:
+        clear_owner(reg)
+
+def clear_owner(reg):
+    reg.pop('active_session', None)
+    reg.pop('active_session_pid', None)
+    reg.pop('active_session_at', None)
+OWNER_PY_EOF
+)
+
 # Phase 127.3 Plan 04: auto-trigger retro-bootstrap on first post-127.3
 # invocation. The first time ANY room-registry subcommand runs after this
 # version ships, walk the registry and seed missing USER.md / STATE.md /
@@ -231,6 +281,7 @@ def normwin(p):
 # RCA windows-python-interp-and-shim: values arrive via sys.argv, NEVER
 # interpolated into this source text -- a Windows path's backslashes can no
 # longer be re-parsed as Python escape sequences (matches _write_current_room).
+$_OWNER_PY
 reg_file = normwin(sys.argv[1])
 name = sys.argv[2]
 rpath = sys.argv[3]
@@ -256,12 +307,13 @@ reg['rooms'][name] = {
     'vercel_url': ''
 }
 reg['active'] = name
+stamp_owner(reg, sys.argv[6], sys.argv[7], now)
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
 os.replace(tmp, reg_file)
 print(json.dumps(reg['rooms'][name], indent=2))
-" "$REGISTRY_FILE" "$NAME" "$RPATH" "$VNAME" "$VSTAGE"
+" "$REGISTRY_FILE" "$NAME" "$RPATH" "$VNAME" "$VSTAGE" "$_OWNER_SID" "$_OWNER_PID"
     # Create the room directory under ROOMS_HOME
     mkdir -p "${ROOMS_HOME}/${RPATH}"
     # Phase 127.3 Plan 04: seed downstream-pipeline files on room creation
@@ -448,6 +500,7 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
+$_OWNER_PY
 reg_file = normwin(sys.argv[1])
 name = sys.argv[2]
 with open(reg_file) as f:
@@ -463,12 +516,13 @@ now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
 reg['rooms'][name]['status'] = 'active'
 reg['rooms'][name]['last_opened'] = now
 reg['active'] = name
+stamp_owner(reg, sys.argv[3], sys.argv[4], now)
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)
 os.replace(tmp, reg_file)
 print(name)
-" "$REGISTRY_FILE" "$NAME"
+" "$REGISTRY_FILE" "$NAME" "$_OWNER_SID" "$_OWNER_PID"
     # Quick 260723-ad9: after the registry flip, write current_room: $NAME into
     # the switched room's OWN STATE.md (the /mos:rooms open path). Resolve the
     # room dir from the just-flipped registry via the SAME 3-tier precedence the
@@ -525,6 +579,7 @@ def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
         return p[1].upper() + ':' + p[2:].replace('/', os.sep)
     return p
+$_OWNER_PY
 reg_file = normwin(sys.argv[1])
 name = sys.argv[2]
 with open(reg_file) as f:
@@ -535,6 +590,7 @@ if name not in reg.get('rooms', {}):
 reg['rooms'][name]['status'] = 'archived'
 if reg.get('active') == name:
     reg['active'] = ''
+    clear_owner(reg)
 tmp = reg_file + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(reg, f, indent=2)

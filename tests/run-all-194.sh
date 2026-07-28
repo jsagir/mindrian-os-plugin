@@ -157,6 +157,21 @@ run_if "PSB-14 doctor --bind-check (healthy/unhealthy; registers presence; no Br
 run "PSB cross-session room bleed (bound session resolves its OWN room, incl. sub-rooms)" \
   node tests/test-cross-session-room-bleed.cjs
 
+# ---------------------------------------------------------------------------
+# RCA registry-active-session-unbound-inheritance -- the UNBOUND half of the
+# same cluster. The bleed test above closes the BOUND case (session.primary now
+# wins, including for sub-rooms). This one closes the case that has no binding
+# to appeal to: an unbound session inheriting reg.active could not tell "I am
+# the only session here" from "another session that is running RIGHT NOW set
+# this". reg.active now carries an ownership stamp (active_session +
+# active_session_pid + active_session_at) written by scripts/room-registry from
+# the owning session's own environment, and the reader resolves a THREE-way
+# answer via a pid probe. Tier-0 is pinned separately on every fail-open path:
+# unowned, self, exited owner, missing pid, anonymous reader, corrupt registry.
+# ---------------------------------------------------------------------------
+run "RCA reg.active ownership (unbound session declines a LIVE foreign owner, tier-0 intact)" \
+  node tests/test-active-session-ownership.cjs
+
 echo "========================================"
 echo "  Summary (194 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"

@@ -939,12 +939,26 @@ function resolveActiveRoomDir() {
 // Deliberately calls resolveSessionRoom, NOT resolveWriteRoom: the latter's
 // leg 1 walks up from process.cwd() when given no filePath, which would let a
 // session's shell working directory silently outrank its explicit binding.
-function resolveSessionRoomDir(sessionId, machineWideDir) {
+//
+// RCA registry-active-session-unbound-inheritance: the optional third argument
+// { requireOwnership: true } asks the chokepoint to refuse a reg.active that a
+// DIFFERENT, still-live session set. When it does refuse, this returns NULL and
+// the caller must skip -- falling back to machineWideDir there would hand the
+// session the exact stranger's room the gate just declined, making the gate a
+// no-op. A THROWN fault still falls back (a resolver error must never cost a
+// session its room), so only a deliberate decline yields null.
+function resolveSessionRoomDir(sessionId, machineWideDir, opts) {
+  const requireOwnership = !!(opts && opts.requireOwnership === true);
   try {
     if (typeof _chokepointResolveSessionRoom === 'function') {
       const home = process.env.MINDRIAN_ROOMS_HOME || undefined;
-      const r = _chokepointResolveSessionRoom({ sessionId: sessionId, home: home });
+      const r = _chokepointResolveSessionRoom({
+        sessionId: sessionId,
+        home: home,
+        requireOwnership: requireOwnership,
+      });
       if (r && typeof r.abs_path === 'string' && r.abs_path.length > 0) return r.abs_path;
+      if (requireOwnership) return null;
     }
   } catch (_) { /* fall through to the machine-wide value */ }
   return machineWideDir;
@@ -2929,10 +2943,22 @@ try {
     // The machine-wide value is still resolved first, but ONLY to seed
     // resolveSessionId's hash fallback exactly as before and to serve as the
     // unbound-session fallback.
+    //
+    // RCA registry-active-session-unbound-inheritance: this site (and ONLY this
+    // site) opts into the ownership gate. D1 fixed the BOUND half -- a session
+    // with a session.primary now resolves its own room. This closes the UNBOUND
+    // half: when reg.active was set by a DIFFERENT session whose process is
+    // still running, roomDir comes back null and the whole F.1 block is skipped,
+    // so no card claims the stranger's room and no decision trace lands in it.
+    // Every uncertain case (no ownership recorded, owner is me, owner's process
+    // is gone, no session id, any fault) still inherits exactly as before, which
+    // is what keeps the tier-0 single-session user whole.
     const machineWideDir = resolveActiveRoomDir();
-    if (machineWideDir) {
-      const sessionId = resolveSessionId(machineWideDir);
-      const roomDir = resolveSessionRoomDir(sessionId, machineWideDir);
+    const sessionId = machineWideDir ? resolveSessionId(machineWideDir) : null;
+    const roomDir = machineWideDir
+      ? resolveSessionRoomDir(sessionId, machineWideDir, { requireOwnership: true })
+      : null;
+    if (roomDir) {
       // Phase 159-02 (HOW-4, DCW-01/04): the turn-start consumer. Fire BEFORE the
       // new turn's dial render, reading the PRIOR turn's persisted f1_closer_payload
       // and routing the navigator's pick through the navigation-chokepoint-owned

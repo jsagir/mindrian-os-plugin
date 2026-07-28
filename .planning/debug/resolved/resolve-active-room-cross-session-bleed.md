@@ -308,7 +308,32 @@ of these two defects. This RCA is that prediction being checked and found false.
   and the three structural properties of the hook consumer.
 - Registered in `tests/run-all-194.sh` (the owning phase runner): 14 -> 15 legs, 0 failures.
 
-## OPEN design finding (NOT fixed here, needs a navigator call)
+## RESOLVED design finding (was OPEN; closed 2026-07-28 by a follow-up session)
+
+**This section is no longer an open question.** The navigator ruled via AskUserQuestion on
+2026-07-28 for the recommended option (`active_session` in `registry.json`), and it is now
+designed, implemented, and behaviorally verified in
+`.planning/debug/resolved/registry-active-session-unbound-inheritance.md`.
+
+What actually closed it (the part this section did NOT know): a field alone cannot separate
+"I am the only session here" from "a live stranger set this", because a fresh unbound session
+never wrote `active`, so an id-match is always false and silently becomes the already-rejected
+"suppress F.1 for unbound sessions". The missing signal was LIVENESS OF THE SETTER, and it
+turned out to need no new infrastructure at all: `scripts/room-registry set-active` runs inside
+the owning session's own process tree, so `CLAUDE_CODE_SESSION_ID` and `CLAUDE_PID` (verified
+live: equal to the Bash-tool shell's PPID, the `claude` CLI process) are already in its
+environment. Stamping both beside `active` makes `registry.json` its own liveness record, and
+the reader gets a THREE-way answer via a `process.kill(pid, 0)` probe:
+unowned / self / stale => INHERIT (today's behavior); foreign-live => DECLINE.
+
+This also settles the `session-presence.cjs` bullet below. Its per-room LEDGER stays dead and
+was NOT revived: it is per-room, so it could never answer "is the session that set reg.active
+still live", and reviving it would have cost a per-turn heartbeat write plus a reaper plus a
+pre-binding call site. Only its `isAlive` primitive is reused (Canon Part 7).
+
+The original four-candidate analysis is kept verbatim below as the reasoning trail.
+
+## OPEN design finding (historical; superseded by the section above)
 
 An UNBOUND session still inherits `reg.active`. That is the DOCUMENTED contract
 (`resolve-active-room.cjs` PSB-15: reg.active "is reached only when no `.room-root` wins and the
@@ -328,7 +353,8 @@ candidate carries a real tier-0 regression surface:
   disk, see Eliminated);
 - record `active_session` alongside `active` in `registry.json` -> the cleanest and fully
   backward-compatible option (absent field = today's behavior), but it needs a `scripts/room-registry`
-  schema change plus a setter that knows the session id. RECOMMENDED next pass.
+  schema change plus a setter that knows the session id. RECOMMENDED next pass. CHOSEN by the
+  navigator 2026-07-28 and SHIPPED, extended with the pid liveness probe described above.
 
 Second-order note for whoever picks this up: a chunk of the observed "cards citing irrelevant
 rooms" pattern is NOT the bleed. The F.8 gate's option menu is built from `scored` -- ALL
