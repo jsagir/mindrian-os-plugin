@@ -11,8 +11,10 @@
 //     the stance color as a PREFERENCE, not an override. When natural voice
 //     detection yields a confident DIFFERENT color, natural detection wins
 //     (the Phase 210 item B precedence at cockpit-renderer.cjs's stance branch).
-//   Leg 3 (PRESERVE FLOOR, green now and after): with NO natural voice signal the
-//     stance color still applies as the default glyph (the capability survives).
+//   Leg 3 (SUPERSEDED BY PHASE 243): with NO natural voice signal the stance
+//     color must NOT render a glyph -- GLYPH-01 removes the stance-default
+//     fabrication (Phase 210 item B's second half dies; natural-detection-wins
+//     survives as the only rule).
 //   Leg 4 (PRESERVE FLOOR, green now and after): a null stance degrades safely --
 //     the rendered line is byte-identical to the no-stance state (the
 //     cockpit-signals try/catch degrade floor).
@@ -88,15 +90,15 @@ leg('leg 2 SOFTENED: confident natural voice detection wins over the stance pref
 // Leg 3 -- PRESERVE FLOOR: with no natural voice signal, the stance color still
 // applies as the default glyph. The capability survives the softening.
 // ---------------------------------------------------------------------------
-leg('leg 3 PRESERVE FLOOR: with no natural signal the stance color stays the default glyph', function () {
+leg('leg 3 SUPERSEDED BY PHASE 243: with no natural signal the stance color must NOT render a glyph', function () {
   const line = renderer.renderCockpit({
     room: 'test-room',
     next_move: 'map the fork',
     stance: 'redteam',
     stance_forced_color: 'red',
   });
-  assert.equal(line.indexOf(RED_GLYPH) !== -1, true,
-    'the stance default color renders when natural detection yields nothing');
+  assert.equal(line.indexOf(RED_GLYPH) !== -1, false,
+    'GLYPH-01 (Phase 243): the stance default no longer fabricates a glyph when natural detection is silent');
 });
 
 // ---------------------------------------------------------------------------
