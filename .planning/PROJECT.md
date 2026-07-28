@@ -27,35 +27,24 @@ v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Pres
 - v1.8.8 Brain Graph Optimization (2026-04-07) -- causal discovery, lazy graph bridge, fragmentation cleanup, teaching wiring, dummy-proof install
 - v1.9.0 Model Data Room (2026-04-08) -- Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis, knowledge graph (179 nodes/383 edges)
 
-## Current Milestone: v1.13.1 "Larry Reaches" (the loop, fired)
+## Current Milestone: v1.16.0 "Infrastructure Remediation"
 
-**Goal:** Close the per-turn retrieval loop so Larry's evidence-reach is real -- "do you remember X" actually retrieves X-relevant nodes -- and activate the intelligence layer that today runs in compute-and-store mode (every turn emits `routing_source: legacy` / `tier_mode: tier_0`). Ship the "When to Reach" capability-dial policy out of working-tree limbo into a tracked, version-bumped release.
+**Goal:** Close all 35 findings from the 2026-07-28 nine-piece infrastructure audit (reach mechanism, Brain-access surface, memory, Feynman-MINTO, room.db/navigation.cjs, Decision Gates, CIRS, the Moat/MWP, the De Stijl voice-glyph header). The audit's own cross-piece synthesis found one recurring failure shape across roughly twelve of the findings, a mechanism wired at one end and inert at the other, verified in code, not opinion. Sequenced by dependency, not as 35 flat tickets: fix CIRS's dead commit-time gate plus a reusable seam-liveness assertion helper first (the actual leverage point, a broken Level-6 information-flow problem, not a Level-5 rules problem), fix the two live room.db data-loss risks in parallel, then land memory's Layer 2 fix only after the room.db fix (routing promotions into the memory-cortex table that graph-rebuild currently truncates would otherwise convert a quiet loss into a permanent one), then the remaining five pieces.
 
-**Origin:** Decision Gate Option A from the temporal-graph + smart-context-assembly fan-out (8 agents, 7 MECE slices, filed at `~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/`), folded together with the full SEED-008 intelligence-layer-activation bundle.
+**Origin:** A 24-agent scrutinize/red-team/rethink workflow run this session across the 9 pieces plus one cross-piece synthesis pass, grounded against the langtalks-graph-expert corpus where a real analog existed. Consolidated report: `/tmp/claude-1000/-home-jsagi/c4225fce-73ca-43dc-90bc-1665bbeb7983/infra-scrutiny-consolidated.md`. Published artifact: https://claude.ai/code/artifact/a5cf197d-4dee-465c-b2f1-0f8bc67c7e4e. Three RCAs already exist from this session and are routed into this milestone as already-scoped work, not re-planned: `hedge-fold-has-no-production-trigger.md` (resolved), `minto-debounce-consumer-dead-end.md` (filed), `graph-rebuild-truncates-memory-journal.md` (filing in progress), plus `graph-edge-pending-undrained-dead-letter-queue.md` (debug session in progress).
 
-**Target features:**
+**Target phases (see ROADMAP.md for full detail once the roadmapper lands):**
+1. CIRS commit-gate fix + seam-liveness assertion helper (the leverage point)
+2. room.db data-loss fixes (graph-rebuild transaction wrap, open-failure typed results)
+3. Reach mechanism (fake chain execution, dual autonomy authority, session-scoped signals)
+4. Decision Gates (ledger handshake, unchecked ratification, concurrency safety, card-fire tuning)
+5. Brain-access surface (dead egress hooks, query() guard, sendPacket decision)
+6. Memory (Layer 2 promotion, dead-letter queue, test hermeticity) -- depends on phase 2 landing first
+7. Feynman-MINTO (severed guardian output, unreachable repair ladder, pre-commit friction)
+8. The Moat (HSI transaction wrap, checklist rot)
+9. Voice-glyph (fabricated statusline signal)
 
-Local loop (Option A core, zero Part-8 exposure):
-- `getRoomContext()` local in-process fusion: home-view RAW summaries + session-history fragments (windowed) + graph-ranking (getNeighborhood), seeded by the last ~2 turns; wired as the retrieval seed so the per-turn loop stops forwarding `userText:null`. Raw prose stays local -- explicitly NOT the `packet.cjs` projectText/hashText egress path.
-- Commit + version-bump the "When to Reach -- The Capability Dial" SKILL.md policy (currently a dangling uncommitted working-tree edit) with CHANGELOG entry and `canon_parts` frontmatter.
-- Tag-along: fix the `build-graph-from-sqlite.cjs:53` ReferenceError one-liner.
-
-Intelligence-layer activation (SEED-008, three sub-loops):
-- Sub-loop 1 (local): fix cascade-surfacing plumbing (Phase 95 envelope) so filing an artifact surfaces findings mid-session; wire BRAIN.md derivation so `tier_mode` rises above `tier_0`; auto-drain the brain-derivation queue; land Phase 109 navigation spine so the graph is NAVIGATED not just stored; wire the post-compact re-injection consumer.
-- Sub-loop 2 (Brain/web, Part-8-constrained): heuristic insight sensors -- first-material, lagging-component, methodology-decision, external-fact, JTBD-set, artifact-filed, gate-approach (the 7-row trigger map).
-- Sub-loop 3 (unifier): wire the shipped Phase 91 navigation engine `decide()` to read {local graph + BRAIN.md + trigger map} instead of file-presence -- the single change that flips `routing_source: legacy -> engine`.
-- Scheduled sensors: scout suite (snapshot + health + deadline + competitor + HSI + opportunity) on a cadence.
-- Sentinel hardening: fix the 5 scout-surfaced bugs BEFORE auto-firing scout (health-check arithmetic, hsi-to-graph NULL source_path, .heal-backup pollution, efficiency-telemetry 0-events, deadline-monitor STATE.md scope).
-
-**Acceptance contract (gate blocker, from SEED-008):** a scripted dogfood session in the mindrianOS room must show all 5: (1) `routing_source: engine` in a trace; (2) external-fact turn triggers WebSearch; (3) first material -> explore-domains -> non-empty room by turn 2; (4) filing surfaces cascade findings mid-session; (5) BRAIN.md derives -> tier_mode rises above tier_0.
-
-**Key context:**
-- 100% local for Option A; Part-8 constitutional brake applies only to sub-loop 2 (Brain/web).
-- Latency: per-turn assembly must stay under the 1200ms NAV timeout (graph-ranking first; FTS5 only if it underperforms).
-- Known carve-out: capability-dial policy stays CLI-honored this milestone; Desktop/Cowork `buildContext` dual-path wiring deferred (scope locked as Option A as-is).
-- Version (FOLD-IN decision, 2026-06-04): "Larry Reaches" is the CLOSING ARC of v1.13.1, NOT a new version. v1.13.1 already shipped phases 127-139 across beta.2..beta.5 (Brain-native shim, spine repair, lens engine, research-as-graph workflow, umbilical doctor). Phases 140-146 continue the SAME beta train. Next cut: `v1.13.1-beta.6`, then beta.7+ as phases land. v1.13.2 stays unclaimed; v1.14.0 stays reserved for "The Visible Room". Governing contract: `.planning/v1.13.1-EXECUTION-PLAN.md` (amended to add 140-146).
-- State note: v1.13.0 "The Closed Loop + Brain Goes Native" shipped (tagged 2026-06-02) but was never formally closed via `/gsd:complete-milestone`; v1.13.1 proceeds on top. Phase numbering continues from 139. Residual phases 128-131 + umbilical 132-139 are DONE; 140-146 are the remaining arc (STATE total_phases tracks these 7 remaining).
-- The 64-Brain-calls-ever telemetry (SEED-008) is the KPI for whether activation landed.
+**Note on this PROJECT.md's prior content:** the milestone section this replaced (v1.13.1 "Larry Reaches") was stale relative to STATE.md, which already shows v1.15.0 "The Cockpit" shipped through phase 234 before this milestone started. That drift is itself consistent with finding C-4 in this milestone's own source audit (stale generated counts/docs); reconciling the full historical record is out of scope here, this section now reflects only the current milestone.
 
 ## Platform Vision: v2.0 Mindrian Platform -- SQLite + MCP Server (aspirational, partially shipped)
 
