@@ -26,7 +26,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
 - [x] **Phase 235: CIRS Commit Gate + Seam-Liveness Helper** - The born-wired gate actually fires on every commit in every worktree, and one reusable seam-liveness assertion proves any seam live at BOTH ends (the leverage point) (completed 2026-07-28)
 - [ ] **Phase 236: room.db Data-Loss Fixes** - Graph rebuild cannot erase memory/decision/truth-claim rows (one transaction), and a busy or broken open reports its real state instead of cold-starting
-- [ ] **Phase 237: Reach Mechanism** - Approving a chain step actually runs it, one autonomy authority instead of two, and reach signals are session-scoped
+- [x] **Phase 237: Reach Mechanism** - Approving a chain step actually runs it, one autonomy authority instead of two, and reach signals are session-scoped (completed 2026-07-29)
 - [ ] **Phase 238: Decision Gates** - Gates resolve through the ledger that minted them, session-scoped and concurrency-safe, and the card-fire backstop stops firing on prose
 - [ ] **Phase 239: Brain-Access Surface** - The egress guard and PII sanitizer cover the doors user content actually walks through, and sendPacket's fate is decided explicitly
 - [ ] **Phase 240: Memory** - Layer 2 promotion fires on real continuous work, the dead-letter queue drains into the memory cortex, and the test suite is hermetic
@@ -250,7 +250,7 @@ Wave 4 (blocked on Wave 3):
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
 | 236. room.db Data-Loss Fixes | 0/4 | Planned | - |
-| 237. Reach Mechanism | 8/8 | Verifying (all plans landed, phase verification pending) | - |
+| 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
