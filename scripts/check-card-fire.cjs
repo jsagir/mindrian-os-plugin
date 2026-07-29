@@ -795,12 +795,32 @@ function normalizeRetryEntry(v, now) {
   return null;
 }
 
+// 238-05 Task 1 (GATE-03 half B, torn-read fix): writeRetryStore writes via a
+// tmp-file-plus-renameSync in the SAME directory as the target, mirroring the
+// sibling side-file's idiom (lib/core/card-fire-sidechannel.cjs::writeStoreAtomic).
+// Rename is atomic on the same filesystem, which is why the temp file must live
+// next to the target and never in os.tmpdir().
+//
+// What this fixes: a concurrent READER can never observe a partial or
+// half-written file, because the target path only ever transitions from "old
+// complete content" to "new complete content" in one atomic filesystem op.
+//
+// What this does NOT fix: lost updates. This function still overwrites
+// whatever `store` it is handed; if two callers both read the pre-state and
+// both call this with their own read-modify-write, the last rename wins and
+// the other caller's increment is gone. Closing THAT defect is Task 2's job
+// (withRetryStoreLock, the bounded-wait fence around the read-modify-write).
+// Do not mistake one fix for the other.
 function writeRetryStore(store) {
   try {
     const fp = retryFilePath();
-    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    const dir = path.dirname(fp);
+    fs.mkdirSync(dir, { recursive: true });
     // WR-02: prune on every write.
-    fs.writeFileSync(fp, JSON.stringify(pruneRetryStore(store, Date.now())), 'utf8');
+    const now = Date.now();
+    const tmp = fp + '.tmp-' + process.pid + '-' + now;
+    fs.writeFileSync(tmp, JSON.stringify(pruneRetryStore(store, now)), 'utf8');
+    fs.renameSync(tmp, fp);
   } catch (_e) {
     /* best-effort; never block on a side-file write */
   }
