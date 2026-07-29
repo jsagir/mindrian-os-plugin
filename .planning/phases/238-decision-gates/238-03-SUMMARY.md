@@ -68,7 +68,12 @@ _No plan-metadata commit for STATE.md/ROADMAP.md -- the orchestrator owns those 
 
 ## A note on concurrent-worktree git hygiene
 
-Sibling agents (238-04 on `chain.cjs`, 238-05 on `scripts/check-card-fire.cjs`) ran concurrently in this SAME worktree this wave. The shared git index surfaced a real hazard once: after `git add lib/mcp/tools/gate.cjs && git commit`, the resulting commit (`e9d0815b`, later corrected to `63e3b11e`) also carried the sibling's then-unstaged `chain.cjs` changes -- the sibling must have run their own `git add` in the window between my `add` and my `commit`. Caught immediately by inspecting `git show --stat HEAD` right after committing (a habit worth keeping any time this worktree is shared). Fixed with `git reset --soft HEAD~1` (moves the commit pointer back, keeps the index as it was) followed by `git reset HEAD -- lib/mcp/tools/chain.cjs` (unstages only the sibling's file, leaving its working-tree content byte-identical -- confirmed by `md5sum` before and after), then re-committed with only `gate.cjs` staged. No sibling work was lost, altered, or committed under this plan's authorship after the fix. Every subsequent commit in this plan was verified with `git show --stat HEAD` immediately after committing to catch a recurrence early.
+Sibling agents (238-04 on `chain.cjs`, 238-05 on `scripts/check-card-fire.cjs`) ran concurrently in this SAME worktree this wave. The shared git index surfaced the same real hazard TWICE:
+
+1. After `git add lib/mcp/tools/gate.cjs && git commit`, the resulting commit (`e9d0815b`, later corrected to `63e3b11e`) also carried the sibling's then-unstaged `chain.cjs` changes -- the sibling must have run their own `git add` in the window between my `add` and my `commit`.
+2. After `git add -f .planning/phases/238-decision-gates/238-03-SUMMARY.md && git commit` for the SUMMARY commit itself, the resulting commit (later corrected to `f1e6d5eb`) also carried the sibling's `.planning/phases/238-decision-gates/238-04-SUMMARY.md` (their own `git add -f` landed in the same narrow window).
+
+Both caught immediately by inspecting `git show --stat HEAD` right after committing (a habit worth keeping every single time in a worktree shared with concurrent siblings, not just once). Both fixed identically: `git reset --soft HEAD~1` (moves the commit pointer back, keeps the index as it was) followed by `git reset HEAD -- <sibling's path>` (unstages only the sibling's file, leaving its working-tree content byte-identical -- confirmed by `md5sum` before and after each fix), then re-committed with only this plan's own file staged. No sibling work was lost, altered, or committed under this plan's authorship after either fix.
 
 ## Files Created/Modified
 
