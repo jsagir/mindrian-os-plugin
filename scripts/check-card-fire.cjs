@@ -157,6 +157,12 @@ const PLUGIN_ROOT = path.resolve(__dirname, '..');
 // its final intercept. Pure LOCAL string work, never throws (Part 8).
 const gateRelevance = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'gate-relevance.cjs'));
 
+// 238-05 Task 2 (GATE-03 half B, lost-update fix): the Phase 87-02 file-based
+// fence, reused UNCHANGED (D-05, Canon Part 7 -- do not re-derive it and do not
+// shell out to flock). acquireLock/releaseLock already close the create-exclusive
+// TOCTOU race and already handle stale locks, dead PIDs and corrupt lock files.
+const { acquireLock, releaseLock } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'write-lock.cjs'));
+
 // data/render-coverage-registry.json is the Phase 178 R15 substrate. The interceptor
 // keys PRIMARY detection off its card-emission entries; it does NOT hand-maintain a
 // parallel gate list.
@@ -753,6 +759,92 @@ function buildEnforcementEnvelope(verdict) {
 }
 
 // ---------------------------------------------------------------------------
+// 238-05 Task 2 (GATE-03 half B, the LOST-UPDATE fix): withRetryStoreLock, the
+// bounded-wait fence around the retry-store read-modify-write.
+//
+// Measured pre-fix (238-RESEARCH.md Finding 4): 20 forked processes each doing
+// 10 bumpRetryCount calls against an isolated MINDRIAN_HOME landed a final
+// count of 3, not 200 -- 197 lost updates. Task 1's tmp-and-rename write fixes
+// torn READS; it does NOT fix this. The defect is a read-modify-write with no
+// fence: every concurrent writer reads the same pre-state and the last writer
+// wins, discarding every increment that landed between its own read and write.
+// ---------------------------------------------------------------------------
+
+// retryStoreLockRoot() -- the directory acquireLock(roomDir) is handed. It
+// derives its lock path as roomDir joined with '.mindrian' joined with
+// 'write.lock' (lib/core/write-lock.cjs::acquireLock), so passing the retry
+// file's OWN directory yields a lock file nested one level inside the
+// mindrian home (<MINDRIAN_HOME>/.mindrian/write.lock). That nesting is an
+// artifact of reusing the room-shaped primitive unchanged (Canon Part 7): it
+// can never collide with a real room's SQLite write lock, because
+// MINDRIAN_HOME is never a room directory. Do not invent a second lock module
+// to make the path prettier.
+function retryStoreLockRoot() {
+  return path.dirname(retryFilePath());
+}
+
+// The bounded-wait sizing. Named constants, not magic numbers, so the total
+// worst-case wait is legible at a glance: 50 attempts * 20ms = ~1000ms.
+//
+// Justification for affording the wait at all: Phase 241 verified against
+// real Claude Code documentation that the platform's default Stop-hook
+// timeout is 600 SECONDS per hook command, not the ~3000ms this file's own
+// older comments assumed and never checked. A worst-case wait of about one
+// second sits roughly 600x inside the real budget, so fencing here is never a
+// latency risk in production.
+const RETRY_LOCK_MAX_ATTEMPTS = 50;
+const RETRY_LOCK_SLEEP_MS = 20;
+
+// withRetryStoreLock(fn) -- run fn() with the retry-store file lock held.
+//
+// acquireLock THROWS when a live PID already holds the lock; it does not
+// wait. Dropped in unchanged and called once, 19 of 20 contenders in the
+// measured scenario above would throw and (inside the existing swallow-
+// everything catches on the read-modify-write functions) silently drop their
+// increment -- taking the count from 3 toward 1, making the defect WORSE. The
+// bounded spin below is the whole point of this function, not an
+// optimization: it retries the acquire up to RETRY_LOCK_MAX_ATTEMPTS times,
+// sleeping RETRY_LOCK_SLEEP_MS (via a real synchronous Atomics.wait sleep,
+// never a busy spin) between attempts.
+//
+// D-12 (degrade direction on fence exhaustion): if every attempt fails to
+// acquire, run fn() UNFENCED anyway rather than dropping the increment. That
+// is exactly today's (pre-238-05) behavior, so this change can never be worse
+// than the status quo on any path -- dropping the increment is the defect
+// being fixed, not an acceptable fallback. Nothing is swallowed silently on
+// this path beyond an optional stderr line (this runs inside a Stop hook, so
+// it must never throw or print to stdout).
+function withRetryStoreLock(fn) {
+  const root = retryStoreLockRoot();
+  for (let attempt = 0; attempt < RETRY_LOCK_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      acquireLock(root);
+    } catch (_acquireErr) {
+      // Did not win the fence this attempt. Sleep synchronously and retry.
+      // Atomics.wait on a one-element Int32Array backed by a SharedArrayBuffer
+      // is a real blocking sleep Node permits on the main thread, needs no
+      // dependency, and is not a CPU-spinning busy loop.
+      const sab = new SharedArrayBuffer(4);
+      const ia = new Int32Array(sab);
+      Atomics.wait(ia, 0, 0, RETRY_LOCK_SLEEP_MS);
+      continue;
+    }
+    try {
+      return fn();
+    } finally {
+      releaseLock(root);
+    }
+  }
+  // Fence exhausted (D-12): degrade to the unfenced read-modify-write rather
+  // than dropping the increment. Never worse than pre-238-05 behavior.
+  try {
+    process.stderr.write('[check-card-fire] retry-store lock fence exhausted; writing unfenced\n');
+  } catch (_e) {
+    /* stderr write must never throw the hook */
+  }
+  return fn();
+}
+
 // readRetryCount(ctxHash) / bumpRetryCount(ctxHash) / clearRetryCount(ctxHash) --
 // the LOCAL bounded-escape side-file (Part 8 LOCAL-only). Best-effort: any error is
 // swallowed (a missing/corrupt side-file degrades to a fresh count of 0, never blocks).
@@ -832,22 +924,30 @@ function readRetryCount(ctxHash) {
   return e ? e.count : 0;
 }
 
+// 238-05 Task 2: the read is moved INSIDE the fence. A read taken before the
+// lock reintroduces the exact lost-update race being fixed (a reader outside
+// the lock can still see a stale pre-state that a concurrent writer is about
+// to overwrite with its own stale-based next value).
 function bumpRetryCount(ctxHash) {
-  const store = readRetryStore();
-  const now = Date.now();
-  const e = normalizeRetryEntry(store[ctxHash], now);
-  const next = (e ? e.count : 0) + 1;
-  store[ctxHash] = { count: next, ts: now };
-  writeRetryStore(store);
-  return next;
+  return withRetryStoreLock(function () {
+    const store = readRetryStore();
+    const now = Date.now();
+    const e = normalizeRetryEntry(store[ctxHash], now);
+    const next = (e ? e.count : 0) + 1;
+    store[ctxHash] = { count: next, ts: now };
+    writeRetryStore(store);
+    return next;
+  });
 }
 
 function clearRetryCount(ctxHash) {
-  const store = readRetryStore();
-  if (ctxHash in store) {
-    delete store[ctxHash];
-    writeRetryStore(store);
-  }
+  withRetryStoreLock(function () {
+    const store = readRetryStore();
+    if (ctxHash in store) {
+      delete store[ctxHash];
+      writeRetryStore(store);
+    }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -875,24 +975,32 @@ function readSessionCount(sessionId) {
   return e ? e.count : 0;
 }
 
+// 238-05 Task 2: routed through withRetryStoreLock, same read-inside-the-fence
+// discipline as bumpRetryCount/clearRetryCount above. This counter shares the
+// SAME file and the SAME write path as the per-gate entries, so a fence
+// applied to only one accessor family would still lose the other's updates.
 function bumpSessionCount(sessionId) {
-  const store = readRetryStore();
-  const now = Date.now();
-  const key = sessionKey(sessionId);
-  const e = normalizeRetryEntry(store[key], now);
-  const next = (e ? e.count : 0) + 1;
-  store[key] = { count: next, ts: now };
-  writeRetryStore(store);
-  return next;
+  return withRetryStoreLock(function () {
+    const store = readRetryStore();
+    const now = Date.now();
+    const key = sessionKey(sessionId);
+    const e = normalizeRetryEntry(store[key], now);
+    const next = (e ? e.count : 0) + 1;
+    store[key] = { count: next, ts: now };
+    writeRetryStore(store);
+    return next;
+  });
 }
 
 function clearSessionCount(sessionId) {
-  const store = readRetryStore();
-  const key = sessionKey(sessionId);
-  if (key in store) {
-    delete store[key];
-    writeRetryStore(store);
-  }
+  withRetryStoreLock(function () {
+    const store = readRetryStore();
+    const key = sessionKey(sessionId);
+    if (key in store) {
+      delete store[key];
+      writeRetryStore(store);
+    }
+  });
 }
 
 // ---------------------------------------------------------------------------
