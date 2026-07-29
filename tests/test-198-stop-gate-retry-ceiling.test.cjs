@@ -121,6 +121,19 @@ function primaryTurn(sessionId, variant) {
 // gate signature, which is DERIVED from the option labels -- re-wording the
 // options mints a fresh turnContextHash every turn. That is the CR-04 flapping
 // shape the per-gate counter structurally cannot catch.
+//
+// Phase 238-08 (GATE-04, D-15): this fixture deliberately declares
+// sidechannel_health:'unavailable' (a direct-field override; deriveTurnSignals
+// keeps precedence for it exactly like every other direct field). This suite
+// tests the RETRY/SESSION-CEILING mechanics of the BACKSTOP arm, not GATE-04's
+// corroboration gate -- a corroborating side-channel reach record for this
+// session would ALSO populate ran_entries (readReachedGates and
+// mostRecentReachedTs read the SAME recorded entries), which would stabilize
+// turnContextHash's gateIdentity and defeat Floor 0c's flapping-key
+// requirement this leg depends on. Declaring the side channel unavailable
+// instead exercises D-15 state 3 (the last-resort arm, unconditional intercept
+// preserved), which is the historically-accurate pre-238-08 semantics this
+// fixture always relied on, without touching ran_entries at all.
 function backstopTurn(sessionId, variant) {
   return {
     session_id: sessionId,
@@ -131,6 +144,7 @@ function backstopTurn(sessionId, variant) {
       + '[2] Build the venture plan immediately\n'
       + '[3] File the evidence trail before either (variant ' + variant + ')\n',
     askuserquestion_fired: false,
+    sidechannel_health: 'unavailable',
   };
 }
 

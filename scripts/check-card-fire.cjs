@@ -212,6 +212,16 @@ const MAX_FORCE_RETRIES = 3;
 // counter cannot catch -- is bounded by this ceiling.
 const MAX_SESSION_INTERCEPTS = 12;
 
+// Phase 238-08 (GATE-04, D-15): local mirrors of lib/core/card-fire-sidechannel.cjs's
+// HEALTH_OK / HEALTH_UNAVAILABLE values. Duplicated deliberately, not re-derived via a
+// require, because the one case that needs a value here (deriveTurnSignals's own
+// require-failure degrade branch, below) is exactly the case where that module's
+// require has already failed and its exported constant is unreachable. Plain string
+// literals so classifyCardFire's D-16 comparison never needs to require the module
+// just to compare an enum value.
+const SIDECHANNEL_HEALTH_OK = 'healthy';
+const SIDECHANNEL_HEALTH_UNAVAILABLE = 'unavailable';
+
 // The session-counter key prefix in the shared side-file. A session entry lives at
 // `__session__:<session_id>` alongside the per-gate `<ctxHash>` entries; both are { count, ts }
 // shaped and both are TTL-pruned identically (WR-02), so the side-file still cannot grow
@@ -530,6 +540,53 @@ function classifyCardFire(turn, registry) {
     if (!primaryHit && !backstopHit) {
       // No gate-reaching signal on this turn -> zero forced cards (ordinary turn).
       return { intercept: false, reason: 'no-gate-signal', degrade: false };
+    }
+
+    // Phase 238-08 (GATE-04, D-15): the backstop-corroboration gate. `238-RESEARCH.md`
+    // measured that pure regex provably cannot separate a footnote reference list from
+    // a bracket-box gate -- `[1] Simon 1962.` / `[2] Rittel and Webber 1973.` and
+    // `[1] Build the plan` / `[2] File the evidence` are the SAME string shape. Both
+    // candidate replacement patterns still fired on the footnote list, and
+    // line-anchoring additionally lost the same-line bracket-box true positive (both
+    // measured, not assumed). Evidence: 5 of 6 authored false-positive fixtures fire on
+    // the shipped ASCII_BOX_UNCONDITIONAL_RE pattern today; 0 of 38 live
+    // ~/.mindrian/card-fire-intercepts.log records are backstop fires (37 of 38 are
+    // PRIMARY-arm, 1 of 38 is neither arm); the backstop's live false-positive rate on
+    // ordinary prose is real, not hypothetical. A regex cannot close this: a footnote
+    // reference list and a bracket-box gate are the same string shape, and a
+    // shape-plus-nearby-cue proxy was already tried and retired once at roughly an 86
+    // percent false-positive rate (see the retirement note above
+    // ASCII_BOX_UNCONDITIONAL_RE) -- this branch does NOT re-introduce that proxy under
+    // a new name. The remedy is architectural instead: a structural signal a citation
+    // cannot have, a corroborating side-channel reach record for THIS session. Decision
+    // ruled on 2026-07-29 (D-15, 238-08-PLAN.md).
+    //
+    // Condition: the PRIMARY arm did not hit (this branch is BACKSTOP-only), the
+    // BACKSTOP arm did hit, sidechannel_health is EXPLICITLY the healthy value (D-16:
+    // a turn carrying NEITHER new field -- the direct-field unit-test envelope shape --
+    // does not satisfy this and falls through unchanged, keeping every existing
+    // predicate assertion byte-stable), and reach_corroborated is not true. When all
+    // four hold, the backstop hit is UNCORROBORATED on a HEALTHY side channel: suppress
+    // the intercept and report degrade:false (this was never a real gate, so it must
+    // not consume retry budget -- placing this branch BEFORE the ceiling checks below
+    // is deliberate for exactly that reason).
+    //
+    // ACCEPTED RESIDUAL, stated plainly, not hidden (D-15): a genuine unrendered
+    // bracket-box gate from an OFF-REGISTRY surface, with a healthy side channel and NO
+    // reach record, no longer intercepts here. That is a real reduction in coverage,
+    // accepted because the PRIMARY arm handles the overwhelming majority of real fires
+    // (37 of 38 in the live log) and the alternative is a classifier that fires on
+    // ordinary technical prose in a dev repo. When the side channel is UNAVAILABLE
+    // (sidechannel_health is not explicitly healthy), this branch does not fire and the
+    // backstop keeps its full pre-238-08 independent authority -- the "detector of last
+    // resort" its own doctrine header claims, preserved rather than deleted.
+    if (
+      !primaryHit &&
+      backstopHit &&
+      t.sidechannel_health === SIDECHANNEL_HEALTH_OK &&
+      t.reach_corroborated !== true
+    ) {
+      return { intercept: false, degrade: false, reason: 'backstop-uncorroborated-by-side-channel' };
     }
 
     // A reached gate with no fired card is a candidate intercept. Apply the bounded escape:
@@ -1548,6 +1605,29 @@ function scanContentForAskUserQuestion(content) {
 }
 
 // ---------------------------------------------------------------------------
+// sidechannelReachIsFresh(sidechannelModule, sessionId) -- Phase 238-08 (GATE-04,
+// D-15): true when the most recent side-channel reach record for sessionId falls
+// within TURN_FRESH_MS of now. This is the SAME mostRecentReachedTs-vs-TURN_FRESH_MS
+// formula deriveTurnSignals already needed for gateIsFresh (the PRIMARY-path
+// staleness signal, card-fire-over-enforcement fix B); factored out here so it is
+// written ONCE and reused for BOTH gateIsFresh and the new reach_corroborated signal
+// below, rather than duplicated. Never throws: mostRecentReachedTs itself already
+// degrades to 0 on any fault (never-throw contract, T-209-24), and this wrapper
+// degrades to false on top of that for defensive symmetry with the rest of this file.
+// ---------------------------------------------------------------------------
+function sidechannelReachIsFresh(sidechannelModule, sessionId) {
+  try {
+    const ts = sidechannelModule.mostRecentReachedTs(sessionId);
+    const freshWindow = typeof sidechannelModule.TURN_FRESH_MS === 'number'
+      ? sidechannelModule.TURN_FRESH_MS
+      : (2 * 60 * 1000);
+    return Number.isFinite(ts) && ts > 0 && (Date.now() - ts) <= freshWindow;
+  } catch (_e) {
+    return false;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // deriveTurnSignals(env) -- normalize the turn signals from the Stop-hook stdin envelope.
 //
 // BL-01 (the live cure): the REAL Stop-hook stdin delivers a `transcript_path`, NOT the
@@ -1611,18 +1691,60 @@ function deriveTurnSignals(env) {
         // Freshness verdict: a side-channel gate counts as reached THIS turn only
         // if its most recent mint is within the turn window. An older mint is a
         // prior turn's (or prior session's) reach still inside the file TTL.
-        try {
-          const ts = sidechannel.mostRecentReachedTs(sessionId);
-          const freshWindow = typeof sidechannel.TURN_FRESH_MS === 'number'
-            ? sidechannel.TURN_FRESH_MS
-            : (2 * 60 * 1000);
-          gateIsFresh = Number.isFinite(ts) && ts > 0 && (Date.now() - ts) <= freshWindow;
-        } catch (_e3) {
-          gateIsFresh = true;
-        }
+        // Phase 238-08: reuses sidechannelReachIsFresh (the IDENTICAL
+        // mostRecentReachedTs-vs-TURN_FRESH_MS formula, also used below for
+        // reach_corroborated) rather than computing it a second time inline.
+        gateIsFresh = sidechannelReachIsFresh(sidechannel, sessionId);
       }
     } catch (_e) {
       /* degrade to empty ran_entries; BACKSTOP alone still applies */
+    }
+  }
+
+  // Phase 238-08 (GATE-04, D-15): reach_corroborated -- true when a fresh reach
+  // record exists for THIS session. Computed UNCONDITIONALLY (not only inside the
+  // ran_entries-empty branch above), because a turn can carry non-empty direct-field
+  // ran_entries (the PRIMARY path already supplying its own entries) and still need
+  // this corroboration signal for the BACKSTOP arm's decision in classifyCardFire.
+  // Direct-field envelopes keep PRECEDENCE, mirroring ran_entries / gate_subject_text
+  // above, so the unit-test seam still works. Uses the SAME sidechannelReachIsFresh
+  // helper the ran_entries-empty branch above reuses for gateIsFresh, via a SEPARATE
+  // guarded require (this module intentionally requires the side-channel module more
+  // than once across this function rather than threading a shared handle through
+  // unrelated branches; every guarded require degrades identically on a require
+  // fault). A require fault or read fault degrades to false (uncorroborated) --
+  // there is no evidence of a fresh reach when the side channel cannot be consulted.
+  let reachCorroborated = false;
+  if (typeof e.reach_corroborated === 'boolean') {
+    reachCorroborated = e.reach_corroborated;
+  } else {
+    try {
+      const sidechannelForReach = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'card-fire-sidechannel.cjs'));
+      const sessionIdForReach = typeof e.session_id === 'string' ? e.session_id : '';
+      reachCorroborated = sidechannelReachIsFresh(sidechannelForReach, sessionIdForReach);
+    } catch (_eReach) {
+      reachCorroborated = false;
+    }
+  }
+
+  // Phase 238-08 (GATE-04, D-15): sidechannel_health -- resolved via a SEPARATE
+  // guarded require of the SAME module the ran_entries-empty branch above uses for
+  // the reach-record read (the same "require it fresh at each use site" style as
+  // reach_corroborated above). A require fault degrades to the unavailable value,
+  // matching the existing degrade direction elsewhere in this function: a missing or
+  // broken module means the side channel cannot be consulted at all, which is the
+  // blind state the backstop's last-resort arm must stay armed for (D-15 state 3).
+  // Direct-field envelopes keep PRECEDENCE, mirroring ran_entries / gate_subject_text
+  // above, so the unit-test seam still works.
+  let sidechannelHealth = SIDECHANNEL_HEALTH_UNAVAILABLE;
+  if (typeof e.sidechannel_health === 'string' && e.sidechannel_health) {
+    sidechannelHealth = e.sidechannel_health;
+  } else {
+    try {
+      const sidechannelForHealth = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'card-fire-sidechannel.cjs'));
+      sidechannelHealth = sidechannelForHealth.sideChannelHealth();
+    } catch (_eHealth) {
+      sidechannelHealth = SIDECHANNEL_HEALTH_UNAVAILABLE;
     }
   }
 
@@ -1696,6 +1818,13 @@ function deriveTurnSignals(env) {
     // by the file TTL). classifyCardFire feeds this to the low-signal relevance
     // branch so a terse turn no longer force-fires a stale gate.
     gate_is_fresh: gateIsFresh,
+    // Phase 238-08 (GATE-04, D-15): the two new backstop-corroboration signals.
+    // sidechannel_health distinguishes a healthy-but-empty side channel from a
+    // blind one; reach_corroborated is true only when a FRESH reach record exists
+    // for this session. classifyCardFire's new branch reads both to decide whether
+    // an uncorroborated backstop hit on a healthy side channel should intercept.
+    sidechannel_health: sidechannelHealth,
+    reach_corroborated: reachCorroborated,
   };
 }
 

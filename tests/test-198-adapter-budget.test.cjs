@@ -327,8 +327,16 @@ test(
     if (typeof stopGateHandler._resetForTest === 'function') stopGateHandler._resetForTest();
     const boxText = 'Here are your choices:\n[1] Alpha Path\n[2] Beta Path\n[3] Gamma Path\n';
     const sessionId = 'sess-198-09-dedup-' + Date.now();
-    const first = await stopGateHandler.handleStopEvent(sessionId, { output_text: boxText, ran_entries: [] });
-    const second = await stopGateHandler.handleStopEvent(sessionId, { output_text: boxText, ran_entries: [] });
+    // Phase 238-08 (GATE-04, D-15): this is a BACKSTOP-arm turn (no ran_entries)
+    // with no side-channel reach record set up for this session, so under the
+    // new corroboration gate it would otherwise resolve
+    // backstop-uncorroborated-by-side-channel and never fire. This test proves
+    // gate-dedup fire-once, not GATE-04 corroboration, so sidechannel_health is
+    // declared 'unavailable' as a direct field (deriveTurnSignals keeps
+    // precedence for it) to exercise D-15 state 3, the pre-238-08
+    // last-resort-arm semantics this fixture always relied on.
+    const first = await stopGateHandler.handleStopEvent(sessionId, { output_text: boxText, ran_entries: [], sidechannel_health: 'unavailable' });
+    const second = await stopGateHandler.handleStopEvent(sessionId, { output_text: boxText, ran_entries: [], sidechannel_health: 'unavailable' });
     assert.equal(first.fire, true, 'a novel, relevant, material gate must fire the first time: ' + JSON.stringify(first));
     assert.equal(second.fire, false, 'the SAME gate must not fire twice in the same session (dedup): ' + JSON.stringify(second));
   })
