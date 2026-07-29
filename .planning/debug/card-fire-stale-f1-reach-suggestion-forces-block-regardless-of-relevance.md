@@ -84,3 +84,60 @@ fix: NOT APPLIED this session -- filed for a dedicated follow-up debug session r
 verification: confirmed the F.8 fix is genuinely live in the running beta.50 cache (ruling out a release-lag explanation) and confirmed this is a different mint site via direct observation across 4+ reproductions this session.
 files_changed: none.
 commits: this filing only.
+
+## Phase 238-08 Re-scoping Note (2026-07-29)
+<!-- APPEND only -- this RCA stays OPEN; this section narrows scope, it does not close it. -->
+
+This RCA remains OPEN. Phase 238 (GATE-04, plan 238-08) landed a real, related fix in
+`scripts/check-card-fire.cjs`, but on a DIFFERENT arm of the same interceptor than the one
+this RCA's own finding is about. This note states precisely what changed and, just as
+importantly, what did not.
+
+**What Phase 238 actually changed (the BACKSTOP arm, not the PRIMARY arm this RCA names).**
+238-08 gated `classifyCardFire`'s BACKSTOP intercept decision on side-channel corroboration
+whenever the side channel is healthy: an ASCII-box-shaped backstop hit (`computeBackstopHit`,
+the `[1]...[2]` / "type 1, 2, or 3" regex arms) with no corroborating reach record for the
+current session no longer force-fires, closing the citation/footnote/array-index/enum-index
+false-positive class `238-RESEARCH.md` measured live. When the side channel is UNAVAILABLE
+(missing require, corrupt or oversized file), the backstop keeps its full pre-238-08
+unconditional authority -- the detector-of-last-resort arm is preserved, not deleted. Separately,
+238-05 (same phase, earlier wave) fenced the retry-counter store's read-modify-write against a
+measured lost-update defect (197 of 200 increments lost under 20-way concurrency) and made its
+write atomic.
+
+**What this does NOT close.** This RCA's own diagnosed finding is a PRIMARY-arm defect: an F.1
+navigation-engine "next reach" candidate suggestion re-surfacing in `additionalContext` every
+turn, correctly judged irrelevant per the suggestion's own `[FIRE-IF-FORK]` relevance-skip
+instruction, still force-blocking the turn via the reason `reached-registry-gate-no-card` (the
+PRIMARY path, `ran_entries` matching a registry gate-reaching surface). 238-08's fix is scoped
+to `computeBackstopHit` / the BACKSTOP branch only (`!primaryHit && backstopHit`); the PRIMARY
+path's own existence-confirmation and relevance checks (`primary-gate-existence-unconfirmed`,
+`gate-irrelevant-to-turn` via `gateTopicallyRelevant`) are untouched by this phase. This RCA's
+own Technical Root Cause section (narrowed but not fully isolated) still stands, unresolved, and
+this note does not attempt to resolve it. `next_action` (a dedicated follow-up `/gsd-debug`
+session on the F.1 mint site) remains the correct next step.
+
+**The possible interaction (stated as a hypothesis, not a settled cause).** `238-RESEARCH.md`
+raised the hypothesis that the retry-counter lost-update defect 238-05 measured and fixed
+(197/200 increments lost under 20-way concurrency, before the fence) could have amplified this
+RCA's observed non-convergence: the retry/session counters are the bounded escape that is
+supposed to release a stuck gate after `MAX_FORCE_RETRIES` / `MAX_SESSION_INTERCEPTS`, and a
+counter that silently loses most of its increments under concurrent Stop evaluations would delay
+or defeat that release, making a force-loop look like it "never converges" even when each
+individual intercept decision is itself correct. This phase's own work did NOT produce direct
+evidence either way for THIS RCA's specific F.1 case -- 238-05's fix was verified against a
+purpose-built 20-process synthetic fork harness (`tests/test-238-retry-counter-fence.cjs`), not
+against a live F.1 reproduction, so no before/after measurement of THIS RCA's force-loop
+convergence exists yet. Named test to check it: measure force-loop convergence (cards forced
+before degrade) under N concurrent Stop evaluations on the SAME session, before and after the
+238-05 fence, using a fixture shaped like this RCA's F.1 reproduction. Until that measurement
+exists, treat the amplification claim as a hypothesis, not a cause.
+
+**The standing caution (this repo's own memory, restated because it applies directly here).** A
+fix landing on `main` in this dev repo is NOT the same as a fix being live for any session
+already running. A running session does not hot-reload a dev-repo commit, and does not pick it
+up even after a release ships and the marketplace cache updates -- the session must be
+restarted against the new cache. Do not claim any card-fire behavior (this RCA's F.1 case
+included) is fixed for a live session without first confirming a release actually shipped
+carrying this commit AND that the session in question picked it up. This 238-08 fix is
+dev-repo-only as of this note; it has not shipped in any release.
