@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 236 CLOSED (4/4 plans, gsd-verifier VERIFICATION PASSED 4/4 must-haves). Next: Phase 238 or 239 (Wave 2, unblocked by 235/237) or Phase 240 (unblocked by 236)."
-last_updated: "2026-07-29T18:40:00.000Z"
-last_activity: 2026-07-29 -- Phase 236 (room.db Data-Loss Fixes) CLOSED. All 4 plans executed and independently gsd-verifier VERIFIED (status: passed, 236-VERIFICATION.md): the verifier independently re-ran two of the four mutation proofs itself rather than trusting SUMMARY.md prose (reverted 236-01's scoped DELETE back to unscoped -- 3 scenarios turned red; reinstated the pre-236 graph-derivation.cjs collapse -- scenario 5 turned red; both reverted clean). Confirmed live: `bash tests/run-all-236.sh` PASS=11 FAIL=0 SKIP=0; the second unscoped-wipe site in scripts/build-ecosystem-graph.cjs (found mid-collision, beyond original research scope) is genuinely fixed and mutation-tested; package.json engines.node is exactly >=22.16.0; scripts/hsi-to-graph.cjs untouched across all 4 plans (Phase 242 stays disjoint); zero em-dashes across all 17 phase-touched files. ROADMAP.md Phase 236 checkbox and progress row marked complete.
+stopped_at: "Phase 236 CLOSED (4/4 plans, gsd-verifier VERIFICATION PASSED 4/4 must-haves). Phase 238 (Decision Gates) execution started -- 8 plans, 3 waves."
+last_updated: "2026-07-29T16:11:48.378Z"
+last_activity: 2026-07-29 -- Phase 236 CLOSED (carried forward, unchanged by this write); Phase 238 (Decision Gates) execution started
 progress:
   total_phases: 9
   completed_phases: 6
@@ -1560,14 +1560,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 236 (room-db-data-loss-fixes), executing after Phase 237's close and the SESSION OWNERSHIP LOCK hold lift
+**Current focus:** Phase 238 - Decision Gates
 
 ## Current Position
 
-Phase: 236 (room-db-data-loss-fixes) - EXECUTING (Phase 237 CLOSED immediately prior, 8/8 plans verified)
-Plan: 0 of 4 complete, Wave 1 (236-01, 236-03, 236-04) starting
-Status: Executing Phase 236, plan-checker VERIFICATION PASSED before dispatch
-Last activity: 2026-07-29 -- Phase 236 execution started
+Phase: 238 (Decision Gates) - EXECUTING
+Plan: 0 of 8 complete, Wave 1 (238-01, 238-02, 238-07) starting
+Status: Executing Phase 238
+Last activity: 2026-07-29 -- Phase 238 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
