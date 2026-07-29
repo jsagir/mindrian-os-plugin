@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 236 CLOSED (4/4 plans, gsd-verifier VERIFICATION PASSED 4/4 must-haves). Phase 238 (Decision Gates) execution started -- 8 plans, 3 waves."
-last_updated: "2026-07-29T16:11:48.378Z"
-last_activity: 2026-07-29 -- Phase 236 CLOSED (carried forward, unchanged by this write); Phase 238 (Decision Gates) execution started
+stopped_at: "Phase 238 CLOSED (8/8 plans, gsd-verifier VERIFICATION PASSED 8/8 must-haves). GATE-01/GATE-03/GATE-04 all Complete. Next: Phase 239 (Brain-Access Surface) or Phase 240 (Memory, depends on 236 which is done)."
+last_updated: "2026-07-29T18:04:15.063Z"
+last_activity: 2026-07-29 -- Phase 238 (Decision Gates) CLOSED. All 8 plans executed and independently gsd-verifier VERIFIED (status: passed, 238-VERIFICATION.md, 8/8 must-haves): the verifier independently re-ran 6 mutation proofs itself. `bash tests/run-all-238.sh` PASS=9 FAIL=0 SKIP=0. ROADMAP.md Phase 238 checkbox and progress row marked complete; REQUIREMENTS.md GATE-01/03/04 marked Complete.
 progress:
   total_phases: 9
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 38
-  completed_plans: 23
-  percent: 61
+  completed_plans: 31
+  percent: 78
 ---
 
 # Project State
@@ -1560,14 +1560,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 238 - Decision Gates
+**Current focus:** Phase 239 (Brain-Access Surface) or Phase 240 (Memory) -- both unblocked, Phase 238 CLOSED
 
 ## Current Position
 
-Phase: 238 (Decision Gates) - EXECUTING
-Plan: 0 of 8 complete, Wave 1 (238-01, 238-02, 238-07) starting
-Status: Executing Phase 238
-Last activity: 2026-07-29 -- Phase 238 execution started
+Phase: 238 (Decision Gates) - CLOSED (8/8 plans, gsd-verifier VERIFICATION PASSED)
+Plan: 8 of 8 complete
+Status: Phase 238 closed. Next: Phase 239 or Phase 240 (not yet planned)
+Last activity: 2026-07-29 -- Phase 238 (Decision Gates) CLOSED
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -2034,7 +2034,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 34
+- Total plans completed: 42
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -2175,6 +2175,7 @@ Progress: [█████████░] 92%
 | Phase 241 P05 | 120min | 3 tasks | 4 files |
 | 241 | 5 | - | - |
 | 243 | 2 | - | - |
+| 238 | 8 | - | - |
 
 ## Accumulated Context
 

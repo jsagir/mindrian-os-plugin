@@ -30,9 +30,9 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 
 ### Phase 238 -- Decision Gates (depends on 235: shared seam-liveness helper)
 
-- [ ] **GATE-01**: Answering a chain's halt gate resolves through the same ledger that minted it (G-1); `gate_answer` validates `chosen` against the card's actual options before ratifying (G-2).
-- [ ] **GATE-03**: Gate minting and consumption are session-scoped; the retry-counter file write is atomic (no torn writes) (G-3).
-- [ ] **GATE-04**: `check-card-fire.cjs`'s backstop pattern stops matching ordinary citation/footnote markers in prose (G-4), informed by this session's own logged over-fire instances.
+- [x] **GATE-01**: Answering a chain's halt gate resolves through the same ledger that minted it (G-1); `gate_answer` validates `chosen` against the card's actual options before ratifying (G-2).
+- [x] **GATE-03**: Gate minting and consumption are session-scoped; the retry-counter file write is atomic (no torn writes) (G-3).
+- [x] **GATE-04**: `check-card-fire.cjs`'s backstop pattern stops matching ordinary citation/footnote markers in prose (G-4), informed by this session's own logged over-fire instances.
 
 ### Phase 239 -- Brain-access surface
 
@@ -81,9 +81,9 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | REACH-01 | Phase 237 | Complete |
 | REACH-02 | Phase 237 | Complete |
 | REACH-03 | Phase 237 | Complete |
-| GATE-01 | Phase 238 | Pending |
-| GATE-03 | Phase 238 | Pending |
-| GATE-04 | Phase 238 | Pending |
+| GATE-01 | Phase 238 | Complete |
+| GATE-03 | Phase 238 | Complete |
+| GATE-04 | Phase 238 | Complete |
 | BRAIN-01 | Phase 239 | Pending |
 | BRAIN-02 | Phase 239 | Pending |
 | BRAIN-03 | Phase 239 | Pending (decision) |

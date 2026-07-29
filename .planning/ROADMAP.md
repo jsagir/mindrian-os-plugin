@@ -27,7 +27,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 - [x] **Phase 235: CIRS Commit Gate + Seam-Liveness Helper** - The born-wired gate actually fires on every commit in every worktree, and one reusable seam-liveness assertion proves any seam live at BOTH ends (the leverage point) (completed 2026-07-28)
 - [x] **Phase 236: room.db Data-Loss Fixes** - Graph rebuild cannot erase memory/decision/truth-claim rows (one transaction), and a busy or broken open reports its real state instead of cold-starting (completed 2026-07-29)
 - [x] **Phase 237: Reach Mechanism** - Approving a chain step actually runs it, one autonomy authority instead of two, and reach signals are session-scoped (completed 2026-07-29)
-- [ ] **Phase 238: Decision Gates** - Gates resolve through the ledger that minted them, session-scoped and concurrency-safe, and the card-fire backstop stops firing on prose
+- [x] **Phase 238: Decision Gates** - Gates resolve through the ledger that minted them, session-scoped and concurrency-safe, and the card-fire backstop stops firing on prose (completed 2026-07-29)
 - [ ] **Phase 239: Brain-Access Surface** - The egress guard and PII sanitizer cover the doors user content actually walks through, and sendPacket's fate is decided explicitly
 - [ ] **Phase 240: Memory** - Layer 2 promotion fires on real continuous work, the dead-letter queue drains into the memory cortex, and the test suite is hermetic
 - [x] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit (completed 2026-07-28)
@@ -120,20 +120,20 @@ Plans:
 
 Wave 1 (no dependencies, fully parallel):
 
-- [ ] 238-01-PLAN.md - Wave 1. Validation scaffolding: tests/run-all-238.sh with all nine legs pre-declared via run_if, the shared hermetic MINDRIAN_HOME + CARD_FIRE_SIDECHANNEL_PATH helper, and the forked-child worker for the GATE-03 concurrency proof.
-- [ ] 238-02-PLAN.md - Wave 1. GATE-01/GATE-03: build lib/mcp/gate-ledger.cjs (one session-keyed, single-use, TTL-bounded ledger with a process-scoped no-session sentinel) and lift validateChosenAgainstCard into an export on gate-render.cjs.
-- [ ] 238-07-PLAN.md - Wave 1. GATE-04: build the sanitized two-half fixture corpus and the table-driven corpus test, observed RED on the must-not-fire half before any classifier change.
+- [x] 238-01-PLAN.md - Wave 1. Validation scaffolding: tests/run-all-238.sh with all nine legs pre-declared via run_if, the shared hermetic MINDRIAN_HOME + CARD_FIRE_SIDECHANNEL_PATH helper, and the forked-child worker for the GATE-03 concurrency proof.
+- [x] 238-02-PLAN.md - Wave 1. GATE-01/GATE-03: build lib/mcp/gate-ledger.cjs (one session-keyed, single-use, TTL-bounded ledger with a process-scoped no-session sentinel) and lift validateChosenAgainstCard into an export on gate-render.cjs.
+- [x] 238-07-PLAN.md - Wave 1. GATE-04: build the sanitized two-half fixture corpus and the table-driven corpus test, observed RED on the must-not-fire half before any classifier change.
 
 Wave 2 (blocked on Wave 1):
 
-- [ ] 238-03-PLAN.md - Wave 2. GATE-01 G-1/G-2 gate side: re-point gate_render and gate_answer onto the shared ledger, reject an out-of-card chosen before any DB open, fix the lying tool description.
-- [ ] 238-04-PLAN.md - Wave 2. GATE-01 G-1/G-2 chain side: re-point the resume ledger, carry the rendered card in the mint payload, make the resume path read chosen and enforce the session before the halted step can run.
-- [ ] 238-05-PLAN.md - Wave 2. GATE-03 half B: bounded-wait write-lock fence plus atomic tmp-and-rename on the retry counters, proven by a 20-forked-process exact-count test.
+- [x] 238-03-PLAN.md - Wave 2. GATE-01 G-1/G-2 gate side: re-point gate_render and gate_answer onto the shared ledger, reject an out-of-card chosen before any DB open, fix the lying tool description.
+- [x] 238-04-PLAN.md - Wave 2. GATE-01 G-1/G-2 chain side: re-point the resume ledger, carry the rendered card in the mint payload, make the resume path read chosen and enforce the session before the halted step can run.
+- [x] 238-05-PLAN.md - Wave 2. GATE-03 half B: bounded-wait write-lock fence plus atomic tmp-and-rename on the retry counters, proven by a 20-forked-process exact-count test.
 
 Wave 3 (blocked on Wave 2):
 
-- [ ] 238-06-PLAN.md - Wave 3. GATE-01 SC1 end to end: prove mint id equals ratified id across the two tool modules, and give checkMintRatifierLiveness a production consumer wired into verify-release as section 18.
-- [ ] 238-08-PLAN.md - Wave 3. GATE-04 remedy: gate the backstop intercept on side-channel corroboration where the side channel is healthy, keep the last-resort arm where it is blind, turn the corpus green, and re-scope the open card-fire RCA honestly.
+- [x] 238-06-PLAN.md - Wave 3. GATE-01 SC1 end to end: prove mint id equals ratified id across the two tool modules, and give checkMintRatifierLiveness a production consumer wired into verify-release as section 18.
+- [x] 238-08-PLAN.md - Wave 3. GATE-04 remedy: gate the backstop intercept on side-channel corroboration where the side channel is healthy, keep the last-resort arm where it is blind, turn the corpus green, and re-scope the open card-fire RCA honestly.
 
 ### Phase 239: Brain-Access Surface
 
@@ -251,7 +251,7 @@ Wave 4 (blocked on Wave 3):
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
 | 236. room.db Data-Loss Fixes | 4/4 | Complete   | 2026-07-29 |
 | 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
-| 238. Decision Gates | 0/? | Not started | - |
+| 238. Decision Gates | 8/8 | Complete    | 2026-07-29 |
 | 239. Brain-Access Surface | 0/? | Not started | - |
 | 240. Memory | 0/? | Not started | - |
 | 241. Feynman-MINTO | 5/5 | Complete   | 2026-07-28 |
