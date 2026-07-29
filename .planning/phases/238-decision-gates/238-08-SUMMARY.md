@@ -253,3 +253,17 @@ No blockers for the orchestrator's phase-level wrap-up. STATE.md and ROADMAP.md 
 *Phase: 238-decision-gates*
 *Plan: 08*
 *Completed: 2026-07-29*
+
+## Self-Check: PASSED
+
+- FOUND: lib/core/card-fire-sidechannel.cjs
+- FOUND: scripts/check-card-fire.cjs
+- FOUND: tests/test-198-stop-gate-retry-ceiling.test.cjs
+- FOUND: tests/test-198-adapter-budget.test.cjs
+- FOUND: .planning/debug/card-fire-stale-f1-reach-suggestion-forces-block-regardless-of-relevance.md
+- FOUND: .planning/debug/knowledge-base.md
+- FOUND: .planning/phases/238-decision-gates/238-08-SUMMARY.md
+- FOUND: commit d1ed8c7e (Task 1)
+- FOUND: commit caa54520 (Task 2)
+- FOUND: commit 12a4ebef (Task 3 docs)
+- FOUND: commit 359d06c4 (SUMMARY.md)
