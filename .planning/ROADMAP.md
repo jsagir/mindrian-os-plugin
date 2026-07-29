@@ -70,7 +70,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 - [x] 236-01-PLAN.md - GRAPHDB-01: ownership allowlist (INDEXER_OWNED_NODE_TYPES / INDEXER_OWNED_EDGE_TYPES) + scoped rebuild DELETE, shared phase fixture, survival test observed RED before the fix. Also closed a second unscoped-wipe site found mid-collision in `scripts/build-ecosystem-graph.cjs`. Completed 2026-07-29 (commits `b3932c23`, `2f304995`, `28ad709b`, `10ee83c2`).
 - [ ] 236-02-PLAN.md - GRAPHDB-01: default runDeriveBackfill survival, crash-mid-transaction atomicity, and out-of-process WAL concurrent-reader visibility proven by observation.
 - [x] 236-03-PLAN.md - GRAPHDB-02: behavioral probe of the real thrown-error shapes, then RoomDbBusyError / RoomDbBrokenError at the openRoomDb chokepoint, plus the openRoomDb call-site census. Probe settled that `errcode` is the ONLY discriminator (busy=5, mid-migration=1, notadb=26, corrupt=11) and that "genuinely absent" is NOT a failure mode (mkdirSync creates the file, so an absent room opens successfully). Census measured 40 non-test call sites, not the estimated 25+: 1 FIXED, 4 IMPROVED-FOR-FREE, 35 CANDIDATE. Completed 2026-07-29 (commits `1de288e1`, `53d96af6`, `700f9008`).
-- [ ] 236-04-PLAN.md - GRAPHDB-03: engines.node floor corrected to >=22.16.0 (the real `timeout`-option floor, not the lower >=22.13.0 module-unflagging floor) with a lockstep sweep, plus tests/run-all-236.sh with a self-tested unscoped-DELETE regression gate.
+- [x] 236-04-PLAN.md - GRAPHDB-03: engines.node floor corrected to >=22.16.0 (the real `timeout`-option floor, not the lower >=22.13.0 module-unflagging floor) with a lockstep sweep, plus tests/run-all-236.sh with a self-tested unscoped-DELETE regression gate. Ten-file floor census with a written disposition each (4 CHANGED including the tenth file found live, `.planning/research/STACK.md`, the sentinel source behind CLAUDE.md's row; 1 ADDED; 4 REVIEWED-NO-CHANGE; 1 NOT-TOUCHED), no unclassified survivor. All 7 floor-test mutations and all 4 runner proofs demonstrated live, including empty-discovery exiting 1. `bash tests/run-all-236.sh` GREEN at PASS=8 FAIL=0 (236-02's 3 tests not yet on disk). Completed 2026-07-29 (commits `bd00e9bb`, `5d0c1b0d`, `6289efdc`).
 
 ### Phase 237: Reach Mechanism
 
@@ -249,7 +249,7 @@ Wave 4 (blocked on Wave 3):
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
-| 236. room.db Data-Loss Fixes | 2/4 | Executing | - |
+| 236. room.db Data-Loss Fixes | 3/4 | Executing | - |
 | 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |

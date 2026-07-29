@@ -20,7 +20,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 
 - [ ] **GRAPHDB-01**: `rebuildGraph` cannot erase `memory_event` rows, confirmed truth-claims, decisions, or opportunity `stage_history`; the delete-then-reindex is wrapped in one transaction so a crash or concurrent reader never sees a partial/empty state (N-1, including the SQLite transaction/WAL-visibility implications the user asked to be explicit about).
 - [x] **GRAPHDB-02**: A busy or mid-migration room.db open reports its real state (busy/broken) instead of collapsing into "no room db" / cold start (N-3). Closed by 236-03: `RoomDbBusyError` / `RoomDbBrokenError` thrown from a classified `openRoomDb`, keyed on the SQLite `errcode` observed on this runtime. Scoped to the READ-WRITE door; the read-only door (236-RESEARCH.md Pitfall 6) is a recorded, dated known gap.
-- [ ] **GRAPHDB-03** (log only, no phase-blocking fix required): the `timeout:5000` write-safety option's real version floor is documented and `package.json` engines reflects it (N-2).
+- [x] **GRAPHDB-03** (log only, no phase-blocking fix required): the `timeout:5000` write-safety option's real version floor is documented and `package.json` engines reflects it (N-2). Closed by 236-04: floor is **>=22.16.0**, the version where the `timeout` constructor option was added, NOT the lower >=22.13.0 where `node:sqlite` merely stopped needing `--experimental-sqlite`. On 22.13-22.15 the module loads and `timeout` is silently dropped, so the Phase 218-02 write-safety fix ships and does nothing. Source: Context7 against the Node.js v22.x API docs (`timeout` option version-history entry), confirmed live by a `PRAGMA busy_timeout` readback. Lockstep sweep of ten stated floors, every one with a written disposition; pinned by `tests/test-236-engines-floor.cjs` (4 scenarios, all mutation-proven). Two related surfaces (`scripts/session-start`, `scripts/sync-rooms-graph`) state the LOWER availability floor and are raised as a separate follow-up in `deferred-items.md`, because their correct value is 22.13.0 and not 22.16.0.
 
 ### Phase 237 -- Reach mechanism (depends on 235: CIRS is the posture-index source)
 
@@ -77,7 +77,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | CIRS-03 | Phase 235 | Complete |
 | GRAPHDB-01 | Phase 236 | Pending |
 | GRAPHDB-02 | Phase 236 | Complete |
-| GRAPHDB-03 | Phase 236 | Pending (log-only) |
+| GRAPHDB-03 | Phase 236 | Complete (log-only) |
 | REACH-01 | Phase 237 | Complete |
 | REACH-02 | Phase 237 | Complete |
 | REACH-03 | Phase 237 | Complete |
