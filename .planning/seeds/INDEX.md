@@ -141,6 +141,24 @@ rename procedure assumes two genuinely distinct seeds competing for one id; this
 with an orphaned old copy, so the existing `merged-into-SEED-NNN` status vocabulary fits better
 than forcing it through the rename steps.
 
+## SEED-078 - Bake the Brain/API key into onboarding by default (registered 2026-07-29)
+
+Sourced from live intern QA, not a navigator brainstorm: three separate weekly check-in calls
+(07-05, 07-21, 07-28), all logged in `~/MindrianRooms/jonathan-sagir/team/2026-07-05-interns-homework-tracker.md`,
+independently hit the same bottleneck -- the CLI install works cleanly, but the Brain/API-key
+setup step is where every tester gets stuck. Jonathan named the fix himself, live, on the 07-28
+call ("since we're not charging anything currently, there is no real reason to not bake the
+brain as part of it by default"). This seed formalizes that intent into a scoped backlog item,
+including the open question of how to preserve the API key's current role as the ONLY usage-
+visibility signal Jonathan has (Canon Part 8: the product runs entirely on the user's machine,
+never on Mindrian's own servers). Interacts with SEED-015 (install profiles, likely scoping
+mechanism) and SEED-017 (Pro tier billing, which this fix must degrade cleanly against once it
+ships). Full detail: `SEED-078-onboarding-bake-brain-key-in-by-default.md`.
+
+A sibling, narrower finding from the same 07-28 call was filed as a todo rather than a seed
+(single-behavior scope, not backlog-sized): `.planning/todos/pending/2026-07-29-deck-generation-ignores-explicit-slide-count-on-first-pass.md`
+-- an explicit "3 slides" request produced 7 slides on the first generation pass.
+
 ---
 
 ## Bundles
