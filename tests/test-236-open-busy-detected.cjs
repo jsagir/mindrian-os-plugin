@@ -129,16 +129,50 @@
  *    deferred-BEGIN-then-write shape the migrations use. Assert on the typed
  *    class, never on elapsed time.
  *
+ * POST-TASK-2 NOTE (added by Task 3, the record above is UNCHANGED)
+ * -----------------------------------------------------------------
+ * Everything above was observed BEFORE lib/core/room-db.cjs had a classifier,
+ * which is the whole point: the classifier was built from it, not the other way
+ * round. Two consequences for reading this file today:
+ *
+ *   a) openRoomDb now throws RoomDbBusyError / RoomDbBrokenError, so the raw
+ *      `errcode` / `code` / `message` fields recorded above are no longer on the
+ *      thrown object itself. Task 2 preserves the underlying discriminators as
+ *      Part 8 safe scalars on `err.meta` (`errcode`, `causeName`,
+ *      `causeMessage`), so the probe below still re-verifies every recorded
+ *      finding on each run by reading through the wrapper. Nothing was weakened:
+ *      the same numbers are still asserted, one indirection deeper.
+ *   b) The `roomDbFrame` line numbers recorded above are PRE-FIX. Task 2 added
+ *      the two try/catch wrappers, so those lines have shifted. The line numbers
+ *      are historical evidence of WHERE the throws originated (which is what
+ *      forced the two-wrapper design), not a live assertion.
+ *
  * MUTATION THAT TURNS THIS RED
  * ----------------------------
- * Revert lib/core/room-db.cjs to the bare pre-236 construction (delete the
- * classifyOpenFailure wrapper and both try/catch blocks around the
- * construction/PRAGMA block and the migration chain), or reinstate
- * `catch (_e) { db = null; }` at lib/core/graph-derivation.cjs:254-257. Either
- * reversion makes scenario 1 fail: the busy open throws a bare `Error` with
- * name "Error" instead of a RoomDbBusyError, so the instanceof assertion fails.
- * Demonstrated and reverted during Task 3; the observed red output is quoted in
- * that task's commit message.
+ * Two INDEPENDENT reversions each turn this file red, and they hit DIFFERENT
+ * scenarios. Both were actually run during Task 3, then reverted; the red output
+ * below is what was observed, not what was predicted.
+ *
+ *   (a) Revert lib/core/room-db.cjs to the bare pre-236 construction (delete
+ *       classifyOpenFailure, both classes, and the two try/catch wrappers).
+ *       Scenario 0 fails first, by name:
+ *         FAIL AssertionError [ERR_ASSERTION]: 0. lib/core/room-db.cjs exports
+ *         both typed classes
+ *       Scenario 0 exists precisely so this reversion reports a named assertion
+ *       rather than the bare "TypeError: Right-hand side of 'instanceof' is not
+ *       an object" it produced before that precondition was added.
+ *
+ *   (b) Reinstate `catch (_e) { db = null; }` at
+ *       lib/core/graph-derivation.cjs:254-257. This does NOT touch the
+ *       chokepoint, so scenarios 1 to 4 stay green; only the call-site scenario
+ *       fails:
+ *         FAIL AssertionError [ERR_ASSERTION]: 5. the demonstrated collapse site
+ *         no longer swallows: runDerivation on a CONTENDED room propagates
+ *         RoomDbBusyError instead of cold-starting with db = null
+ *       Scenario 5 was added for exactly this reason. Without it, reversion (b)
+ *       left every assertion in this file green while the originally reported
+ *       defect walked straight back in, which is the failure mode this phase
+ *       exists to eliminate.
  *
  * No em-dashes anywhere in this file (CLAUDE.md HARD RULE).
  */
@@ -154,7 +188,12 @@ const ROOM_DB_PATH = path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs');
 const LOCK_HOLDER = path.join(__dirname, 'helpers', 'room-db-lock-holder-236.cjs');
 
 const roomDbMod = require(ROOM_DB_PATH);
-const { openRoomDb, closeRoomDb } = roomDbMod;
+const { openRoomDb, closeRoomDb, RoomDbBusyError, RoomDbBrokenError } = roomDbMod;
+
+// The one demonstrated collapse site (graph-derivation.cjs:254-257), exercised
+// directly by scenario 6 so a reinstated `catch (_e) { db = null; }` cannot pass
+// this file.
+const { runDerivation } = require(path.join(REPO_ROOT, 'lib', 'core', 'graph-derivation.cjs'));
 
 // ---------------------------------------------------------------------------
 // Discriminating tokens, each in a named const so a rename breaks loudly
@@ -209,6 +248,7 @@ function callAndCatch(fn) {
 // Full own-enumerable-property census plus the fields a classifier could key on.
 function describeError(err) {
   if (!err) return null;
+  const meta = (err && err.meta && typeof err.meta === 'object') ? err.meta : null;
   return {
     constructor_name: err.constructor && err.constructor.name,
     name: err.name,
@@ -222,7 +262,46 @@ function describeError(err) {
     // whether the classifier must wrap the construction, the PRAGMA block, the
     // migration chain, or all three.
     roomDbFrame: firstRoomDbFrame(err),
+    // Post-Task-2 read-through. openRoomDb now throws the typed wrapper, so the
+    // raw SQLite discriminators live on meta as Part 8 safe scalars. Recorded
+    // separately from the top-level fields so a reader can see plainly which
+    // layer each value came from.
+    meta: meta ? {
+      classification: meta.classification,
+      stage: meta.stage,
+      errcode: meta.errcode,
+      causeName: meta.causeName,
+      causeMessage: meta.causeMessage,
+    } : null,
   };
+}
+
+// The SQLite PRIMARY result code, wherever it currently lives: on the raw error
+// (pre-Task-2 shape) or preserved on the typed wrapper's meta (post-Task-2).
+// The 0xff mask matches lib/core/room-db.cjs SQLITE_RESULT_CODE_MASK: node:sqlite
+// can surface EXTENDED result codes whose low byte is the primary code.
+function sqliteResultCodeOf(described) {
+  if (!described) return null;
+  if (typeof described.errcode === 'number') return described.errcode & 0xff;
+  if (described.meta && typeof described.meta.errcode === 'number') {
+    return described.meta.errcode & 0xff;
+  }
+  return null;
+}
+
+// The UNDERLYING error's name and message, wherever they currently live. Used to
+// keep asserting the original finding (the raw error cannot discriminate by
+// name) now that a typed wrapper sits in front of it.
+function causeNameOf(described) {
+  if (!described) return null;
+  if (described.meta && described.meta.causeName) return described.meta.causeName;
+  return described.name;
+}
+
+function causeMessageOf(described) {
+  if (!described) return null;
+  if (described.meta && described.meta.causeMessage) return described.meta.causeMessage;
+  return described.message;
 }
 
 function firstRoomDbFrame(err) {
@@ -404,21 +483,34 @@ async function probe() {
   // this breaks loudly here instead of silently changing the classifier's
   // meaning in lib/core/room-db.cjs (threat T-236-09, misclassification).
   console.log('probe self-check (recorded shapes still hold on ' + process.version + '):');
-  check('probe: busy errcode is SQLITE_BUSY and err.code is the useless constant',
+  check('probe: busy is SQLITE_BUSY and the underlying message is "database is locked"',
     observed.busyThrew
-    && (observed.busy.errcode & 0xff) === SQLITE_BUSY
-    && observed.busy.code === SQLITE_ERROR_CODE);
-  check('probe: mid-migration errcode is SQLITE_GENERIC, distinct from busy',
+    && sqliteResultCodeOf(observed.busy) === SQLITE_BUSY
+    && causeMessageOf(observed.busy) === 'database is locked');
+  check('probe: mid-migration is SQLITE_GENERIC, a DIFFERENT result code from busy',
     observed.midMigrationThrew
-    && (observed.midMigration.errcode & 0xff) === SQLITE_GENERIC
-    && observed.midMigration.errcode !== observed.busy.errcode);
+    && sqliteResultCodeOf(observed.midMigration) === SQLITE_GENERIC
+    && sqliteResultCodeOf(observed.midMigration) !== sqliteResultCodeOf(observed.busy));
   check('probe: garbage bytes are SQLITE_NOTADB, truncation is SQLITE_CORRUPT',
-    observed.corruptThrew && (observed.corrupt.errcode & 0xff) === SQLITE_NOTADB
-    && observed.truncatedThrew && (observed.truncated.errcode & 0xff) === SQLITE_CORRUPT);
-  check('probe: neither name nor constructor.name can discriminate (all are Error)',
-    observed.busy.name === 'Error' && observed.midMigration.name === 'Error'
-    && observed.corrupt.name === 'Error'
-    && observed.busy.constructor_name === 'Error');
+    observed.corruptThrew && sqliteResultCodeOf(observed.corrupt) === SQLITE_NOTADB
+    && observed.truncatedThrew && sqliteResultCodeOf(observed.truncated) === SQLITE_CORRUPT);
+  check('probe: the UNDERLYING error still cannot discriminate by name (all are Error), '
+    + 'which is why the classifier keys on errcode and not on a name or a code string',
+    causeNameOf(observed.busy) === 'Error'
+    && causeNameOf(observed.midMigration) === 'Error'
+    && causeNameOf(observed.corrupt) === 'Error');
+  // The evidence trail must stay attached to the code it justifies. Every value
+  // the classifier keys on has to remain quoted VERBATIM in the recorded-
+  // observation header above, so a reader can always find the observation a
+  // given branch was built from (threat T-236-09, misclassification).
+  check('probe: every discriminating token is still quoted verbatim in the recorded header',
+    (function () {
+      const self = fs.readFileSync(__filename, 'utf8');
+      const header = self.slice(0, self.indexOf('MUTATION THAT TURNS THIS RED'));
+      return [SQLITE_ERROR_CODE, String(SQLITE_BUSY), String(SQLITE_CORRUPT),
+        String(SQLITE_NOTADB), String(SQLITE_GENERIC)]
+        .every((token) => header.indexOf(token) !== -1);
+    })());
   check('probe: genuinely absent is NOT an open-failure mode (mkdirSync at :107 creates it)',
     observed.absentThrew === false
     && observed.absentReturnedHandle === true
@@ -435,19 +527,86 @@ async function probe() {
 // ---------------------------------------------------------------------------
 
 async function scenarios() {
-  // TODO(236-03 Task 3): 1. busy open throws instanceof RoomDbBusyError
-  // TODO(236-03 Task 3): 2. that error is NOT instanceof RoomDbBrokenError
-  // TODO(236-03 Task 3): 3. err.meta.roomDir equals the scratch room path
-  // TODO(236-03 Task 3): 4. Part 8 canary absent from message and serialized meta
-  // TODO(236-03 Task 3): 5. control: with NO lock holder the same room opens fine
-  console.log('  (scenarios pending Task 3: typed classes do not exist yet)');
+  console.log('scenarios (the typed-busy gate):');
+
+  // Precondition, checked before anything else so reverting the classifier fails
+  // HERE by name instead of blowing up later as a bare
+  // "TypeError: Right-hand side of 'instanceof' is not an object".
+  check('0. lib/core/room-db.cjs exports both typed classes',
+    typeof RoomDbBusyError === 'function' && typeof RoomDbBrokenError === 'function'
+    && RoomDbBusyError.name === BUSY_CLASS_NAME && RoomDbBrokenError.name === BROKEN_CLASS_NAME);
+
+  // One room carries the whole file: seeded with the Part 8 canary, put into a
+  // pending-migration state so the next open has real write work, then contended.
+  const room = makeScratchRoom('gate-busy');
+  seedRoom(room);
+  makeMigrationPending(room);
+
+  const holder = await startLockHolder(room);
+  const contended = callAndCatch(() => openRoomDb(room));
+  if (contended.res) closeRoomDb(contended.res);
+
+  check('1. a contended open throws RoomDbBusyError',
+    contended.err instanceof RoomDbBusyError);
+
+  // Not merely "both are typed": busy and broken must be TELLABLE APART, or the
+  // caller is no better off than it was with a single null.
+  check('2. that error is NOT a RoomDbBrokenError (busy and broken are distinguishable)',
+    !(contended.err instanceof RoomDbBrokenError)
+    && contended.err.name === BUSY_CLASS_NAME
+    && contended.err.name !== BROKEN_CLASS_NAME);
+
+  check('3. err.meta.roomDir is present and is the scratch room path',
+    contended.err.meta && contended.err.meta.roomDir === path.resolve(room));
+
+  // Canon Part 8 (T-236-08). The canary was seeded INTO the room's own rows by
+  // seedRoom. An error that escapes into a log must not carry the room with it.
+  const serializedMeta = JSON.stringify(contended.err.meta);
+  check('4. Part 8: the seeded room content leaks into NEITHER the message NOR the meta',
+    String(contended.err.message).indexOf(ROOM_CONTENT_CANARY) === -1
+    && serializedMeta.indexOf(ROOM_CONTENT_CANARY) === -1);
+
+  // --- 6: the DEMONSTRATED collapse site itself. ---------------------------
+  // ROADMAP criterion 3: "the old cold-start collapse cannot be reproduced".
+  // Scenarios 1 to 5 prove the chokepoint classifies; this one proves the one
+  // call site that was demonstrably swallowing has stopped. Without this
+  // scenario, reinstating `catch (_e) { db = null; }` at
+  // graph-derivation.cjs:254-257 would leave every assertion in this file green
+  // while the actual reported defect walked straight back in.
+  //
+  // Before Phase 236 this call returned a normal-looking trace with db = null,
+  // and the composer proceeded as if a room with history had none. It must now
+  // refuse loudly instead.
+  const derivation = callAndCatch(() => runDerivation({
+    roomDir: room,
+    // Injected so the Phase 233-02 default-deriveFn gate is not what is being
+    // measured here. The subject is the room OPEN, not the producer.
+    deriveFn: () => [],
+    artifactPairs: [],
+  }));
+  check('5. the demonstrated collapse site no longer swallows: runDerivation on a CONTENDED '
+    + 'room propagates RoomDbBusyError instead of cold-starting with db = null',
+    derivation.err instanceof RoomDbBusyError && derivation.res === null);
+
+  await stopLockHolder(holder);
+
+  // CONTROL. Without this, scenario 1 could be passing because the room is
+  // broken in some unrelated way rather than because it is contended. The same
+  // room, the same pending migration, the only difference is the lock holder.
+  const uncontended = callAndCatch(() => openRoomDb(room));
+  check('6. control: with the lock holder gone, the SAME room opens and returns a usable handle '
+    + '(so the busy result was caused by contention, not by a broken room)',
+    uncontended.err === null
+    && uncontended.res
+    && uncontended.res.prepare('SELECT count(*) AS n FROM identity').get().n >= 0);
+  if (uncontended.res) closeRoomDb(uncontended.res);
 }
 
 async function main() {
   console.log('test-236-open-busy-detected (GRAPHDB-02: typed busy open)');
   await probe();
   await scenarios();
-  console.log('\nPROBE-RECORDED (' + pass + ' scenario assertions)');
+  console.log('\nPASS (' + pass + '/' + pass + ') -- PROBE-RECORDED and the typed-busy gate holds');
 }
 
 main()
