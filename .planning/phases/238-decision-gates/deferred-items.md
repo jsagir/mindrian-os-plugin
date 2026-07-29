@@ -18,3 +18,20 @@ Out of scope per this plan's own `<out_of_scope>` section (which names only
 per the executor's Scope Boundary rule (only auto-fix issues directly caused by the current
 task's changes). Not fixed here. Surfacing for a future Phase 241-line plan or a dedicated
 quick task to either raise the recorded budget or trim `scripts/on-stop`.
+
+## Phase 238 Plan 05
+
+### tests/test-209-room-pick-sensor.cjs fails (pre-existing, out of scope)
+
+`bash tests/run-all-209.sh` reports `PASS=8 FAIL=1` with the failing leg `209-05 room-pick
+sensor (E5)` (`tests/test-209-room-pick-sensor.cjs`). The failure is inside an E5
+"REJECT-with-reason writes a typed REJECTED edge and does NOT promote" assertion, unrelated
+to card-fire, the retry store, or any file this plan touches.
+
+Confirmed pre-existing and out of scope: `tests/test-209-room-pick-sensor.cjs` is
+byte-identical to its state before this plan's commits (diffed against `e7b0efe9`, the parent
+commit at plan start), and the file contains zero references to `check-card-fire` or
+`write-lock`. This plan's files_modified are `scripts/check-card-fire.cjs` and
+`tests/test-238-retry-counter-fence.cjs` only; neither is referenced by the failing test.
+Not fixed here per the Scope Boundary rule. Surfacing for whichever future session owns the
+209-05 sensor test.
