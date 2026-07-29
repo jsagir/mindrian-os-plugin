@@ -25,7 +25,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 **Phase Numbering:** integer phases are planned milestone work; decimal phases (e.g. 236.1) are urgent insertions. Numbering continues from v1.15.0's last phase directory (234).
 
 - [x] **Phase 235: CIRS Commit Gate + Seam-Liveness Helper** - The born-wired gate actually fires on every commit in every worktree, and one reusable seam-liveness assertion proves any seam live at BOTH ends (the leverage point) (completed 2026-07-28)
-- [ ] **Phase 236: room.db Data-Loss Fixes** - Graph rebuild cannot erase memory/decision/truth-claim rows (one transaction), and a busy or broken open reports its real state instead of cold-starting
+- [x] **Phase 236: room.db Data-Loss Fixes** - Graph rebuild cannot erase memory/decision/truth-claim rows (one transaction), and a busy or broken open reports its real state instead of cold-starting (completed 2026-07-29)
 - [x] **Phase 237: Reach Mechanism** - Approving a chain step actually runs it, one autonomy authority instead of two, and reach signals are session-scoped (completed 2026-07-29)
 - [ ] **Phase 238: Decision Gates** - Gates resolve through the ledger that minted them, session-scoped and concurrency-safe, and the card-fire backstop stops firing on prose
 - [ ] **Phase 239: Brain-Access Surface** - The egress guard and PII sanitizer cover the doors user content actually walks through, and sendPacket's fate is decided explicitly
@@ -249,7 +249,7 @@ Wave 4 (blocked on Wave 3):
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
-| 236. room.db Data-Loss Fixes | 4/4 | Plans complete, pending verification | - |
+| 236. room.db Data-Loss Fixes | 4/4 | Complete   | 2026-07-29 |
 | 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
