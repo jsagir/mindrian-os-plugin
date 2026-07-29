@@ -474,6 +474,31 @@ else
 fi
 
 # ============================================================
+# 18. GATE LEDGER SEAM GATE
+# ============================================================
+# Phase 238 (GATE-01, D-08): a gate kind minted by some call site in this
+# repo (lib/mcp/tools/gate.cjs, lib/mcp/tools/chain.cjs) must have a
+# reachable ratifier, or the gate that kind raises can never be cleared --
+# the dead-seam shape lib/core/seam-liveness.cjs (Phase 235) was built to
+# catch. That helper had zero production consumers until this gate existed;
+# a seam-liveness call living only inside a test file is the exact "wired
+# at one end, inert at the other" shape this milestone exists to close.
+# scripts/check-gate-seam.cjs drives the real mint call sites, reads the
+# shared ledger's own declared vocabulary back, and checks it against the
+# frozen ratifiable-kinds list via checkMintRatifierLiveness -- exit 1 on a
+# dead seam OR an empty claim set (D-13 vacuity), exit 2 on a scanner
+# failure, never a silent 0.
+echo -e "\n${BOLD}18. Gate Ledger Seam Gate${NC}"
+
+GATE_SEAM_OUT=$(node "$PLUGIN_ROOT/scripts/check-gate-seam.cjs" 2>&1) && GATE_SEAM_CODE=0 || GATE_SEAM_CODE=$?
+if [ "$GATE_SEAM_CODE" -eq 0 ]; then
+  pass "Every minted gate kind has a reachable ratifier (mint-to-ratifier seam live)"
+else
+  fail "Gate ledger seam gate FAILED (a minted gate kind has no reachable ratifier, or the check itself could not run):"
+  echo "$GATE_SEAM_OUT"
+fi
+
+# ============================================================
 # PACKAGE-LOCK SYNC (vendored-node_modules lockstep)
 # ============================================================
 # Debug session mcp-servers-cache-missing-node-modules: release.sh Step 6.7
