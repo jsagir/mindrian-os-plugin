@@ -80,11 +80,26 @@
  * name, rather than as a bare "TypeError: Right-hand side of 'instanceof' is not
  * an object".
  *
- * OBSERVED RED OUTPUT: pasted in below by the mutation run itself, verbatim.
- * Nothing is predicted here; the mutation is actually executed, and whatever it
- * printed is what appears.
+ * OBSERVED RED OUTPUT. The mutation above was ACTUALLY RUN on 2026-07-29
+ * (v22.23.1), then reverted. Nothing here is predicted; this is verbatim what it
+ * printed, exit code 1:
  *
- *   (pending, filled by the executed mutation)
+ *   FAIL AssertionError [ERR_ASSERTION]: 1. a CONTENDED room makes runGraphRefine throw RoomDbBusyError instead of returning a normal-looking result built on db = null
+ *
+ * (The stack frames pointed at check() and scenarios() in this file. Their line
+ * numbers are omitted deliberately: pasting this record shifted them, and a line
+ * number that silently goes stale is worse evidence than none.)
+ *
+ * Scenario 0 printed "ok" in that same run, and the absent leg re-run under the
+ * mutation still returned all four keys with rounds 1 and still created
+ * .mindrian/room.db, so the red is localized to this call site and not to the
+ * chokepoint or the harness. What the contended call returned under the mutation,
+ * instead of throwing, was captured verbatim:
+ *
+ *   {"proposed":[],"verified":[],"written":[],"rounds":1}
+ *
+ * That object is the false success this gate exists to make impossible: a room
+ * that was merely locked, reported as a room with no history.
  *
  * No em-dashes anywhere in this file (CLAUDE.md HARD RULE).
  */
