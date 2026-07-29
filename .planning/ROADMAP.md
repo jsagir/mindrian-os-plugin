@@ -50,8 +50,8 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
 **Plans**: 2 plans
 
-- [x] 235-01-PLAN.md — CIRS-01/CIRS-03: consolidate the pre-commit hook to one canonical source (retiring the divergent setup-hooks.sh / install-pre-commit.sh authoring), fix release.sh's --strict-shape swallow, and mutation-proof both end to end (worktree + rival-installer-overwrite reproduction).
-- [x] 235-02-PLAN.md — CIRS-02: build the repo-wide lib/core/seam-liveness.cjs helper (3 named dead-seam shapes + live controls), wire it into build-connector-registry.cjs's coverageReport() to close the MCP-tool-file blind spot, and mutation-proof the wiring.
+- [x] 235-01-PLAN.md - CIRS-01/CIRS-03: consolidate the pre-commit hook to one canonical source (retiring the divergent setup-hooks.sh / install-pre-commit.sh authoring), fix release.sh's --strict-shape swallow, and mutation-proof both end to end (worktree + rival-installer-overwrite reproduction).
+- [x] 235-02-PLAN.md - CIRS-02: build the repo-wide lib/core/seam-liveness.cjs helper (3 named dead-seam shapes + live controls), wire it into build-connector-registry.cjs's coverageReport() to close the MCP-tool-file blind spot, and mutation-proof the wiring.
 
 ### Phase 236: room.db Data-Loss Fixes
 
@@ -67,10 +67,10 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
 **Plans**: 4 plans
 
-- [ ] 236-01-PLAN.md - GRAPHDB-01: ownership allowlist (INDEXER_OWNED_NODE_TYPES / INDEXER_OWNED_EDGE_TYPES) + scoped rebuild DELETE, shared phase fixture, survival test observed RED before the fix.
+- [ ] 236-01-PLAN.md - GRAPHDB-01: ownership allowlist (INDEXER_OWNED_NODE_TYPES / INDEXER_OWNED_EDGE_TYPES) + scoped DELETE at BOTH unscoped whole-table wipe sites, the RCA's lazygraph-ops.cjs rebuildGraph and the second site adversarial verification found at scripts/build-ecosystem-graph.cjs:146 (byte-identical statement against the same room.db, and it also gains the BEGIN/COMMIT/ROLLBACK it never had), shared phase fixture, both survival tests observed RED before their fix.
 - [ ] 236-02-PLAN.md - GRAPHDB-01: default runDeriveBackfill survival, crash-mid-transaction atomicity, and out-of-process WAL concurrent-reader visibility proven by observation.
-- [ ] 236-03-PLAN.md - GRAPHDB-02: behavioral probe of the real thrown-error shapes, then RoomDbBusyError / RoomDbBrokenError at the openRoomDb chokepoint, plus the openRoomDb call-site census.
-- [ ] 236-04-PLAN.md - GRAPHDB-03: engines.node floor corrected to >=22.13.0 with a nine-file lockstep sweep, plus tests/run-all-236.sh with a self-tested unscoped-DELETE regression gate.
+- [ ] 236-03-PLAN.md - GRAPHDB-02: behavioral probe of the real thrown-error shapes, then RoomDbBusyError / RoomDbBrokenError at the openRoomDb chokepoint, with the identical instanceof re-throw narrowing applied to BOTH demonstrated swallow-to-null sites (the RCA's graph-derivation.cjs:254-257 and the second site at graph-refine-loop.cjs:112), plus the openRoomDb call-site census (2 FIXED, 23+ residual).
+- [ ] 236-04-PLAN.md - GRAPHDB-03: engines.node floor corrected to >=22.16.0, the version that actually added the `timeout` constructor option room-db.cjs:117-118 depends on (nodejs/node PR 57752), NOT 22.13.0 which is merely where node:sqlite stopped requiring --experimental-sqlite and where `timeout` is still silently ignored; ten-file lockstep sweep routed through the generated source .planning/research/STACK.md rather than hand-editing CLAUDE.md's sentinel block, plus tests/run-all-236.sh with a self-tested unscoped-DELETE regression gate over lib/ and scripts/.
 
 ### Phase 237: Reach Mechanism
 
@@ -213,8 +213,8 @@ Wave 4 (blocked on Wave 3):
 
 **Plans**: 2 plans (both Wave 1, no interdependency, zero shared files)
 
-- [x] 242-01-PLAN.md — MOAT-01: wrap the hsi-to-graph DELETE-then-rewrite in one BEGIN/COMMIT/ROLLBACK, add the production-inert MINDRIAN_HSI_CRASH_TEST_DELAY_MS crash seam, and prove it with a three-leg test (spawn+SIGKILL crash injection, fork()'d concurrent reader, mutation proof) plus the tests/run-all-242.sh aggregator. (completed 2026-07-28)
-- [x] 242-02-PLAN.md — MOAT-02: build scripts/check-kuzu-reintroduction.cjs (dependency-manifest + live require/import scan, exit 0/1/2), wire it into scripts/verify-release as section 17, replace the dead docs/MOAT-MANDATE.md line 96 prose with a same-polarity machine-checked warning sign, and fence it with a hermetic seeded-fixture test. (completed 2026-07-28)
+- [x] 242-01-PLAN.md - MOAT-01: wrap the hsi-to-graph DELETE-then-rewrite in one BEGIN/COMMIT/ROLLBACK, add the production-inert MINDRIAN_HSI_CRASH_TEST_DELAY_MS crash seam, and prove it with a three-leg test (spawn+SIGKILL crash injection, fork()'d concurrent reader, mutation proof) plus the tests/run-all-242.sh aggregator. (completed 2026-07-28)
+- [x] 242-02-PLAN.md - MOAT-02: build scripts/check-kuzu-reintroduction.cjs (dependency-manifest + live require/import scan, exit 0/1/2), wire it into scripts/verify-release as section 17, replace the dead docs/MOAT-MANDATE.md line 96 prose with a same-polarity machine-checked warning sign, and fence it with a hermetic seeded-fixture test. (completed 2026-07-28)
 
 **Planner resolutions (recorded 2026-07-28 so the two phases can be diffed before execution):** the shared `withTransaction` helper extraction is DECLINED for this phase, so Phase 242 touches NO file under `lib/` and its file set is provably disjoint from Phase 236's `lib/core/lazygraph-ops.cjs` work. The kuzu gate lands in `scripts/verify-release` only, not `scripts/doctor.cjs`. The crash seam is `MINDRIAN_HSI_CRASH_TEST_DELAY_MS`.
 

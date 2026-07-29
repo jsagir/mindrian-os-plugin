@@ -152,17 +152,42 @@ T-234-16 (Information Disclosure: free core reaching the network under any code 
 
 ---
 
-# TASK 2: NOT ATTEMPTED - BLOCKING HUMAN-VERIFY CHECKPOINT
+# TASK 2: PARTIALLY ATTEMPTED, STILL BLOCKING - one leg closed, one leg not
 
-**This section exists to state plainly what has NOT been done, so no later reader mistakes automated confidence for observation.**
+**This section exists to state plainly what has and has not been observed, so no later reader mistakes partial success for a full pass, or dismisses real evidence gathered since the "not attempted" state above.**
 
-**No foreign host has been installed on this machine. No foreign host has been run. No foreign host has been observed loading the MindrianOS skill catalog or connecting to the `mindrian-os` MCP server. Zero evidence of any kind has been gathered on that question during this plan.**
+Updated 2026-07-28, navigator-driven live session, foreign host: **Antigravity** (Google's Gemini-based agentic IDE; not one of the plan's three named recommendations — VS Code+Copilot, Cursor, Goose — but genuinely independent of Anthropic/Claude Code, so it satisfies the checkpoint's actual intent: a host that implements the Agent Skills + MCP spec on its own).
 
-Everything phase 234 has proved so far, across all 8 plans, is proved by **static analysis and by automated tests driving JSON-RPC by hand**. That is a real and substantial body of evidence, and it is exactly what 234-RESEARCH.md said it was:
+## What WAS observed, live, with real evidence
+
+**Skill catalog: CONFIRMED loading, unprompted.** Antigravity was installed and pointed at `dist/zed` (the flat `.agents/skills/` bundle -- Antigravity uses the same `.agents/skills/<name>/SKILL.md` convention as Zed, confirmed against its own docs before testing). Asked plainly "what tools and skills do you have available?", its agent response listed a long, accurate set of real MindrianOS skill names (`ignite`, `brain-connector`, `pws-methodology`, `larry-personality`, `room`, `mos-deck-engine`, dozens more) under a clearly-labeled "MindrianOS & Methodology Suite" heading, with zero parse-error indication. This is real, unfabricated evidence: the response was not primed with the skill names, and it correctly separated them from Antigravity's own native built-in tools (file ops, terminal, web search) in the same answer.
+
+## What was NOT closed, despite real, sustained effort
+
+**MCP connection: NOT confirmed.** The `mindrian-os` server never showed as connected in Antigravity's own MCP Tools settings panel, across multiple genuinely distinct configuration attempts, each one correcting a real, diagnosed defect in the previous attempt rather than blindly retrying:
+
+1. First config (`command: node`, direct Linux path) -- Antigravity resolved it as a **native Windows process**, mangling the path to `C:\home\jsagi\dev\MindrianOS-Plugin\bin\mindrian-mcp-server.cjs` (a nonexistent Windows path) and failing with `MODULE_NOT_FOUND`. Confirms Antigravity has no automatic WSL-path remoting (unlike VS Code's Remote-WSL layer).
+2. Second config, bridged through `wsl.exe -d Ubuntu -- bash -lc "..."` -- got further: it genuinely launched inside WSL this time, but resolved a stale system Node (`v20.19.5`) lacking the `node:sqlite` built-in this codebase needs (>=22.5), via `ERR_UNKNOWN_BUILTIN_MODULE`.
+3. Third config, using the exact absolute path to the working nvm-managed Node (`v22.23.1`, independently sanity-checked in this same session to start the real server cleanly: `[mindrian-os] MCP server v1.15.3-beta.51 started`) plus explicit `export MINDRIAN_OS_ROOT=...` -- after this fix, the MCP Tools panel returned to showing **zero entries at all**, not even an error entry for `mindrian-os`.
+4. A full process kill (every Antigravity process ended via Task Manager, not just window-close) and clean relaunch was performed specifically to rule out stale in-memory config -- the panel was still empty afterward.
+
+**Root cause of step 3/4's regression is unresolved.** The config file was independently verified valid JSON matching Antigravity's own shipped schema (`.../extensions/antigravity/schemas/mcp_config.schema.json`) at every step, written to all three candidate config paths this install exposes (`~/.gemini/antigravity/`, `~/.gemini/antigravity-ide/`, `~/.gemini/config/`) to rule out picking the wrong one. Whether this specific install caches config more aggressively than a process restart clears, silently rejects the `wsl.exe`-as-command shape client-side, or something else entirely was not determined -- debugging an Electron app's internal config-loading behavior via screenshot relay, with no direct access to its logs, hit a real, honest limit.
+
+**D-06 (proprietary-content spot-check) and D-12 (axis-language review) were not reached** -- both depend on Task 2's tool-visibility step succeeding first, per the checkpoint's own ordering.
+
+## What this means for the checkpoint
+
+The acceptance criteria require BOTH the catalog loading AND the MCP server connecting with the three specific tools visible. One is genuinely met; the other is not. **Task 2 is not closed.** The honest path forward, in priority order:
+
+1. **Cursor** (the plan's second-recommended host, never attempted) -- likely simpler than Antigravity specifically, since its MCP config (`.cursor/mcp.json`) is a plain file Cursor reads directly with no Electron-settings-UI layer to fight, and no evidence yet suggests it shares Antigravity's WSL-path or config-caching behavior.
+2. Revisit Antigravity with actual log access (its own app logs, not just the chat panel's self-reported errors) if it remains the host of interest.
+3. Zed itself was also attempted this session and never produced a visible window at all (a separate WSLg/display issue, unrelated to the MCP question) -- not re-attempted after Antigravity became the focus.
+
+Everything phase 234 proved before this session, across all 8 plans, was proved by **static analysis and automated tests driving JSON-RPC by hand** -- real, substantial evidence, but explicitly not a live foreign-host observation, per 234-RESEARCH.md's own caveat:
 
 > "no foreign host is installed on this machine... every Tier-0 portability claim in this research is derived from specifications and from static analysis of the repo, not from a live run on VS Code, Cursor, Goose, or Zed."
 
-**That caveat is still open. This plan did not close it.** It cannot be closed by an agent in this sandboxed execution environment, because closing it requires physically installing third-party software (VS Code + GitHub Copilot, Cursor, or Goose) and watching its user interface with human eyes. The gap is specifically the one RESEARCH's Assumption A2 names: a tool can be present in `tools/list` and still depend on a Claude-Code-only path at call time, and only a live foreign-host run settles that.
+**That caveat is now half-closed, not fully closed.** The skill-catalog half of RESEARCH's Assumption A2 concern is answered (catalogs do load correctly on a real foreign host). The MCP-tool-visibility-and-callability half is not.
 
 The checkpoint's own verification steps (host install, catalog load, MCP connect, `graph_write` / `memory_event` / `artifact_file` visibility AND callability, plus the D-06 proprietary-content review and the D-12 axis-language review) are specified in full in `234-08-PLAN.md` Task 2 and are not restated here.
 
