@@ -67,10 +67,10 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 
 **Plans**: 4 plans
 
-- [ ] 236-01-PLAN.md - GRAPHDB-01: ownership allowlist (INDEXER_OWNED_NODE_TYPES / INDEXER_OWNED_EDGE_TYPES) + scoped rebuild DELETE, shared phase fixture, survival test observed RED before the fix.
+- [x] 236-01-PLAN.md - GRAPHDB-01: ownership allowlist (INDEXER_OWNED_NODE_TYPES / INDEXER_OWNED_EDGE_TYPES) + scoped rebuild DELETE, shared phase fixture, survival test observed RED before the fix. Also closed a second unscoped-wipe site found mid-collision in `scripts/build-ecosystem-graph.cjs`. Completed 2026-07-29 (commits `b3932c23`, `2f304995`, `28ad709b`, `10ee83c2`).
 - [ ] 236-02-PLAN.md - GRAPHDB-01: default runDeriveBackfill survival, crash-mid-transaction atomicity, and out-of-process WAL concurrent-reader visibility proven by observation.
 - [ ] 236-03-PLAN.md - GRAPHDB-02: behavioral probe of the real thrown-error shapes, then RoomDbBusyError / RoomDbBrokenError at the openRoomDb chokepoint, plus the openRoomDb call-site census.
-- [ ] 236-04-PLAN.md - GRAPHDB-03: engines.node floor corrected to >=22.13.0 with a nine-file lockstep sweep, plus tests/run-all-236.sh with a self-tested unscoped-DELETE regression gate.
+- [ ] 236-04-PLAN.md - GRAPHDB-03: engines.node floor corrected to >=22.16.0 (the real `timeout`-option floor, not the lower >=22.13.0 module-unflagging floor) with a lockstep sweep, plus tests/run-all-236.sh with a self-tested unscoped-DELETE regression gate.
 
 ### Phase 237: Reach Mechanism
 
@@ -249,7 +249,7 @@ Wave 4 (blocked on Wave 3):
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 235. CIRS Commit Gate + Seam-Liveness Helper | 2/2 | Complete   | 2026-07-28 |
-| 236. room.db Data-Loss Fixes | 0/4 | Planned | - |
+| 236. room.db Data-Loss Fixes | 1/4 | Executing | - |
 | 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
 | 238. Decision Gates | 0/? | Not started | - |
 | 239. Brain-Access Surface | 0/? | Not started | - |
