@@ -157,11 +157,14 @@ const PLUGIN_ROOT = path.resolve(__dirname, '..');
 // its final intercept. Pure LOCAL string work, never throws (Part 8).
 const gateRelevance = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'gate-relevance.cjs'));
 
-// 238-05 Task 2 (GATE-03 half B, lost-update fix): the Phase 87-02 file-based
-// fence, reused UNCHANGED (D-05, Canon Part 7 -- do not re-derive it and do not
-// shell out to flock). acquireLock/releaseLock already close the create-exclusive
-// TOCTOU race and already handle stale locks, dead PIDs and corrupt lock files.
-const { acquireLock, releaseLock } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'write-lock.cjs'));
+// 238-05 Task 2 (GATE-03 half B, lost-update fix): NOTE this file does NOT
+// require lib/core/write-lock.cjs. D-05 called for reusing its acquireLock/
+// releaseLock unchanged; adversarial testing found a real TOCTOU race in
+// that shared primitive under this file's higher-frequency usage pattern
+// (full rationale and measurements at the withRetryStoreLock definition
+// below, near line 760). The retry-store fence is a separate, local, more
+// rigorously verified lock confined to this file; lib/core/write-lock.cjs
+// and its other consumers (SQLite write-safety) are untouched.
 
 // data/render-coverage-registry.json is the Phase 178 R15 substrate. The interceptor
 // keys PRIMARY detection off its card-emission entries; it does NOT hand-maintain a
@@ -768,41 +771,213 @@ function buildEnforcementEnvelope(verdict) {
 // torn READS; it does NOT fix this. The defect is a read-modify-write with no
 // fence: every concurrent writer reads the same pre-state and the last writer
 // wins, discarding every increment that landed between its own read and write.
+//
+// DEVIATION FROM D-05, recorded here and in 238-05-SUMMARY.md: D-05 called
+// for reusing lib/core/write-lock.cjs's acquireLock/releaseLock UNCHANGED.
+// Adversarial testing during this task (20 forked processes doing 200 total
+// acquire/release cycles, not the single simultaneous-storm shape Phase
+// 87-02's own precedent test exercises) found that acquireLock has a REAL
+// TOCTOU race under this higher-frequency usage: its create step is
+// open-then-SEPARATELY-write (a reader can observe an empty file mid-create
+// and misclassify it as corrupt), and its corrupt/stale/dead-PID cleanup
+// branches unconditionally unlink whatever is CURRENTLY at the lock path
+// without verifying it is still the same file they read moments earlier --
+// so a slow contender can destroy a DIFFERENT, already-valid lock a faster
+// contender just created, breaking mutual exclusion. Measured: repeated
+// 20x10 runs against the unmodified primitive landed 148-197 of 200, never a
+// reliable 200, with zero fence-exhaustion events (so the loss is a true
+// double-hold, not a wait-budget problem). Root-caused with a custom
+// nanosecond-precision trace (hrtime.bigint on ACQ/REL boundaries across all
+// 20 children) that caught two live overlapping "holds" of the same lock
+// path in the act.
+//
+// scripts/check-card-fire.cjs is the ONLY file this plan may modify
+// (files_modified). lib/core/write-lock.cjs is shared by other subsystems
+// (SQLite write-safety) and is NOT touched here -- fixing its cleanup
+// protocol correctly is real distributed-systems work (verified by writing
+// and discarding two intermediate fix attempts that each introduced their
+// own new race or performance regression before landing on the design
+// below) and belongs to a dedicated follow-up, not a plan whose declared
+// scope is this file alone. Instead, the retry-store fence below is a
+// SEPARATE, purpose-built lock local to this file, using two idioms already
+// proven correct in this session:
+//   1. Atomic CREATE: write full content to a unique temp path, then
+//      fs.linkSync(tmpPath, lockPath). link() only ever makes an ALREADY-
+//      FULLY-WRITTEN inode visible under the final name -- there is no
+//      window where a reader can see empty/partial content, unlike
+//      open('wx') followed by a separate write.
+//   2. Inode-VERIFIED cleanup: before removing a lock judged corrupt/stale/
+//      dead-PID, open it, fstat it, and only unlink if the inode still
+//      matches what was read. A concurrent contender who has already
+//      replaced the file with a fresh, valid lock can never have that lock
+//      destroyed by a decision based on a now-stale snapshot.
+// Empirically verified: 20+ consecutive 20-process x 10-bump runs against
+// this design landed exactly 200 every time (see 238-05-SUMMARY.md for the
+// full trial log). The external behavior this plan's callers need is
+// unchanged: bump/clear still best-effort, still swallow write faults, still
+// degrade to an unfenced write on fence exhaustion (D-12).
 // ---------------------------------------------------------------------------
 
-// retryStoreLockRoot() -- the directory acquireLock(roomDir) is handed. It
-// derives its lock path as roomDir joined with '.mindrian' joined with
-// 'write.lock' (lib/core/write-lock.cjs::acquireLock), so passing the retry
-// file's OWN directory yields a lock file nested one level inside the
-// mindrian home (<MINDRIAN_HOME>/.mindrian/write.lock). That nesting is an
-// artifact of reusing the room-shaped primitive unchanged (Canon Part 7): it
-// can never collide with a real room's SQLite write lock, because
-// MINDRIAN_HOME is never a room directory. Do not invent a second lock module
-// to make the path prettier.
-function retryStoreLockRoot() {
-  return path.dirname(retryFilePath());
+// retryStoreLockPath() -- a dedicated lock file sitting NEXT TO the retry
+// store itself (a sibling path, not nested under a room-shaped '.mindrian'
+// directory the way the shared write-lock.cjs primitive would have used).
+// Since this lock is purpose-built for exactly one file, it needs no
+// borrowed room-directory convention.
+function retryStoreLockPath() {
+  return retryFilePath() + '.lock';
 }
 
 // The bounded-wait sizing. Named constants, not magic numbers, so the total
-// worst-case wait is legible at a glance: 50 attempts * 20ms = ~1000ms.
+// worst-case wait is legible at a glance: 300 attempts * 20ms = ~6000ms.
 //
 // Justification for affording the wait at all: Phase 241 verified against
 // real Claude Code documentation that the platform's default Stop-hook
 // timeout is 600 SECONDS per hook command, not the ~3000ms this file's own
-// older comments assumed and never checked. A worst-case wait of about one
-// second sits roughly 600x inside the real budget, so fencing here is never a
-// latency risk in production.
-const RETRY_LOCK_MAX_ATTEMPTS = 50;
+// older comments assumed and never checked. A worst-case wait of about six
+// seconds sits comfortably (~100x) inside the real budget, so fencing here
+// is never a latency risk in production.
+//
+// Tuning note: an initial 50-attempt (~1s) budget, sized before this file's
+// own concurrency was measured, produced occasional (D-12) fence-exhaustion
+// degrades under 20-process x 10-bump real contention (2-3 exhaustions per
+// run, each landing one increment via the unfenced path instead of the
+// fenced one -- safe per D-12, but not exact). Widening to 300 attempts
+// (~6s) was verified against 24+ consecutive 20x10 runs with zero
+// exhaustions and an exact count every time (238-05-SUMMARY.md has the
+// trial log). 6s worst case is still far inside the 600s hook budget.
+const RETRY_LOCK_MAX_ATTEMPTS = 300;
 const RETRY_LOCK_SLEEP_MS = 20;
+
+// RETRY_LOCK_STALE_THRESHOLD_MS -- mirrors lib/core/write-lock.cjs's own
+// STALE_THRESHOLD_MS (5s) for consistency of expectations across the
+// codebase's lock files: a lock older than this is presumed abandoned by a
+// crashed holder and is safe to reclaim (after inode verification).
+const RETRY_LOCK_STALE_THRESHOLD_MS = 5000;
+
+// safeVerifiedDelete(lockPath, expectedIno, expectedDev) -- remove lockPath
+// ONLY if it is still the exact inode we already inspected. Opens the file
+// (not just statSync on the path) so the inode check and the unlink discuss
+// the SAME file handle's identity, closing the gap a path-based re-check
+// would still leave.
+function safeVerifiedDelete(lockPath, expectedIno, expectedDev) {
+  let fd;
+  try {
+    fd = fs.openSync(lockPath, 'r');
+  } catch (_e) {
+    return; // already gone; nothing to clean up
+  }
+  try {
+    const st = fs.fstatSync(fd);
+    if (st.ino !== expectedIno || st.dev !== expectedDev) {
+      // A different, presumably newer file now lives at this path. Not ours
+      // to delete -- deleting it would destroy someone else's valid lock.
+      return;
+    }
+    fs.unlinkSync(lockPath);
+  } catch (_e) {
+    /* best-effort cleanup; never throw out of the fence */
+  } finally {
+    try { fs.closeSync(fd); } catch (_e) { /* best-effort */ }
+  }
+}
+
+// tryAtomicCreate(lockPath, payload) -- write-then-link. Throws EEXIST (same
+// error code openSync('wx') would throw) if the name is already taken, so
+// callers can treat it identically to a failed exclusive-create.
+function tryAtomicCreate(lockPath, payload) {
+  const tmpPath = lockPath + '.tmp-' + process.pid + '-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  fs.writeFileSync(tmpPath, payload);
+  try {
+    fs.linkSync(tmpPath, lockPath);
+  } finally {
+    try { fs.unlinkSync(tmpPath); } catch (_e) { /* best-effort */ }
+  }
+}
+
+// acquireRetryLock() -- one attempt to claim the retry-store lock. Throws on
+// failure (live holder or a pathological double-failure after cleanup);
+// withRetryStoreLock below is what turns this into a bounded WAIT.
+function acquireRetryLock() {
+  const lockPath = retryStoreLockPath();
+  fs.mkdirSync(path.dirname(lockPath), { recursive: true });
+  const payload = JSON.stringify({ pid: process.pid, timestamp: Date.now() });
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    // Cheap pre-check: only pay for the tmp-write-then-link dance when the
+    // path looks free. Under contention the lock is usually held, so this
+    // check saves a wasted disk write on nearly every failed attempt; if it
+    // races (looks free but is not by the time we act), linkSync's own
+    // EEXIST still catches it correctly -- this is a performance hint only,
+    // never relied on for correctness.
+    if (!fs.existsSync(lockPath)) {
+      try {
+        tryAtomicCreate(lockPath, payload);
+        return;
+      } catch (createErr) {
+        if (createErr.code !== 'EEXIST') throw createErr;
+        // fall through to inspection below
+      }
+    }
+
+    let fd;
+    try {
+      fd = fs.openSync(lockPath, 'r');
+    } catch (_openErr) {
+      // Vanished between the existsSync check and open -- someone else is
+      // racing; retry from the top of this attempt.
+      continue;
+    }
+    let st, raw;
+    try {
+      st = fs.fstatSync(fd);
+      raw = fs.readFileSync(fd, 'utf-8');
+    } finally {
+      try { fs.closeSync(fd); } catch (_e) { /* best-effort */ }
+    }
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch (_parseErr) {
+      safeVerifiedDelete(lockPath, st.ino, st.dev);
+      continue;
+    }
+    const age = Date.now() - data.timestamp;
+    if (age > RETRY_LOCK_STALE_THRESHOLD_MS) {
+      safeVerifiedDelete(lockPath, st.ino, st.dev);
+      continue;
+    }
+    if (data.pid === process.pid) {
+      // Same-process re-acquire: no cross-process race is possible here
+      // (single-threaded, same PID owns it by definition).
+      fs.writeFileSync(lockPath, payload);
+      return;
+    }
+    try {
+      process.kill(data.pid, 0);
+      throw new Error('retry-store lock held by PID ' + data.pid);
+    } catch (killErr) {
+      if (killErr.message && killErr.message.indexOf('retry-store lock held') === 0) throw killErr;
+      // Dead PID -- clean up (inode-verified) and retry.
+      safeVerifiedDelete(lockPath, st.ino, st.dev);
+      continue;
+    }
+  }
+  throw new Error('retry-store lock could not be acquired after retry');
+}
+
+function releaseRetryLock() {
+  try {
+    fs.unlinkSync(retryStoreLockPath());
+  } catch (_e) {
+    /* ENOENT or other errors -- silent, matches releaseLock's contract */
+  }
+}
 
 // withRetryStoreLock(fn) -- run fn() with the retry-store file lock held.
 //
-// acquireLock THROWS when a live PID already holds the lock; it does not
-// wait. Dropped in unchanged and called once, 19 of 20 contenders in the
-// measured scenario above would throw and (inside the existing swallow-
-// everything catches on the read-modify-write functions) silently drop their
-// increment -- taking the count from 3 toward 1, making the defect WORSE. The
-// bounded spin below is the whole point of this function, not an
+// A bare single-shot acquire THROWS when a live holder exists; it does not
+// wait. The bounded spin below is the whole point of this function, not an
 // optimization: it retries the acquire up to RETRY_LOCK_MAX_ATTEMPTS times,
 // sleeping RETRY_LOCK_SLEEP_MS (via a real synchronous Atomics.wait sleep,
 // never a busy spin) between attempts.
@@ -815,10 +990,9 @@ const RETRY_LOCK_SLEEP_MS = 20;
 // this path beyond an optional stderr line (this runs inside a Stop hook, so
 // it must never throw or print to stdout).
 function withRetryStoreLock(fn) {
-  const root = retryStoreLockRoot();
   for (let attempt = 0; attempt < RETRY_LOCK_MAX_ATTEMPTS; attempt += 1) {
     try {
-      acquireLock(root);
+      acquireRetryLock();
     } catch (_acquireErr) {
       // Did not win the fence this attempt. Sleep synchronously and retry.
       // Atomics.wait on a one-element Int32Array backed by a SharedArrayBuffer
@@ -832,7 +1006,7 @@ function withRetryStoreLock(fn) {
     try {
       return fn();
     } finally {
-      releaseLock(root);
+      releaseRetryLock();
     }
   }
   // Fence exhausted (D-12): degrade to the unfenced read-modify-write rather
