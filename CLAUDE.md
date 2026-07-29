@@ -114,7 +114,7 @@ A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wis
 |------------|---------|------|
 | `@modelcontextprotocol/sdk` | ^1.29.0 | MindrianOS MCP server (stdio + Streamable HTTP on one McpServer instance) |
 | `zod` | ^3.25.76 | Schema validation for MCP tools; required by the MCP SDK |
-| Node.js CJS shared core | Node >=22.5.0 | `lib/core/*.cjs` called by both the CLI and the MCP server |
+| Node.js CJS shared core | Node >=22.16.0 | `lib/core/*.cjs` called by both the CLI and the MCP server. The floor is v22.16.0 because that is where `node:sqlite`'s `timeout` constructor option (the room.db write-safety option) starts working. The lower v22.13.0 floor, where the module stopped needing `--experimental-sqlite`, is NOT sufficient: on 22.13-22.15 the module loads but `timeout` is silently ignored, so the write-safety fix ships and does nothing. Source: Context7 against the Node.js v22.x API docs, the `timeout` option version-history entry. |
 <!-- GSD:stack-end -->
 
 <!-- GSD:conventions-start source:CONVENTIONS.md -->
