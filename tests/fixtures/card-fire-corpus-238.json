@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "phase": "238-decision-gates",
+    "plan": "238-07",
+    "requirement": "GATE-04",
+    "build_date": "2026-07-29",
+    "purpose": "Pin the card-fire BACKSTOP arm's tuning (scripts/check-card-fire.cjs::computeBackstopHit / classifyCardFire) so the GATE-04 fix (238-08) cannot silently regress in either direction. Half A must never intercept; Half B must always intercept, so the fix cannot degenerate into deleting the backstop.",
+    "sanitization_statement": "Every text value in this file is authored or paraphrased for this corpus. No real person name, no real organization name, no real email address, no Hebrew source material, and no venture-specific content from any live conversation, transcript, or intercept log appears anywhere in this file. Where a fixture's SHAPE is grounded in a logged RCA, only the structural shape is reconstructed (list length, bracket placement, sentence framing); the RCA's own described content is paraphrased with generic sample-project/sample-library placeholder subject matter, never copied verbatim. This is a check performed and recorded, not an assumption: see 238-07-SUMMARY.md for the exact grep patterns run against this file to confirm no real-name/real-org tokens leaked in.",
+    "no_real_user_content_by_construction": true,
+    "live_log_entries_count": 0,
+    "live_log_entries_note": "238-RESEARCH.md measured that all 38 records in the live ~/.mindrian/card-fire-intercepts.log carry the PRIMARY-arm reason (reached-registry-gate-no-card), and running the shipped computeBackstopHit over every one of their output_text values returns false 38 times out of 38 (0/38 backstop fires). Copying any of them into this corpus verbatim would add a vacuously-passing entry today while importing real conversational content and its sanitization risk for zero corpus value. Zero entries in this file carry source:'live-log' as a result; every entry is either 'authored' (a synthetic fixture built to match a measured live false-positive shape) or 'rca' (a structural reconstruction of a shape described in a resolved/open debug RCA, paraphrased, never the RCA's original quoted text)."
+  },
+  "entries": [
+    {
+      "id": "inline-academic-citation",
+      "source": "authored",
+      "expect_fire": false,
+      "why": "An inline academic citation carrying two bracketed markers on one sentence trips the same-line bracket-box arm of ASCII_BOX_UNCONDITIONAL_RE even though nothing here poses a choice; 238-RESEARCH.md section 5b measured this exact shape as a live false positive today.",
+      "text": "The dispatch behavior mirrors the classic near-decomposability argument [1] and was confirmed again in a later replication study [2] using a different sample corpus."
+    },
+    {
+      "id": "footnote-reference-list",
+      "source": "authored",
+      "expect_fire": false,
+      "why": "A footnote reference list with two bracketed markers on separate lines followed by author-year text has the identical shape as a genuine multiline bracket-box gate, so it trips the multiline arm even though it is a bibliography, not a decision; measured as a live false positive in 238-RESEARCH.md section 5b.",
+      "text": "Two sources ground this claim.\n[1] Simon, H. 1962. The Architecture of Complexity.\n[2] Rittel, H. and Webber, M. 1973. Dilemmas in a General Theory of Planning."
+    },
+    {
+      "id": "markdown-reference-link-definitions",
+      "source": "authored",
+      "expect_fire": false,
+      "why": "Markdown reference-link definitions each end in a colon and a URL, but the two bracketed markers on separate lines still trip the multiline bracket-box arm; measured as a live false positive in 238-RESEARCH.md section 5b.",
+      "text": "See the two linked write-ups for background.\n[1]: https://example.invalid/sample-project/writeup-one\n[2]: https://example.invalid/sample-project/writeup-two"
+    },
+    {
+      "id": "array-indexing-in-prose",
+      "source": "authored",
+      "expect_fire": false,
+      "why": "Array indexing attached to an identifier reads as a same-line bracket box even though the brackets are subscript operators, not gate labels; in a dev repo two bracketed indices in ordinary technical prose is not exotic, and this is measured as a live false positive in 238-RESEARCH.md section 5b.",
+      "text": "To reproduce, read entries[1] and compare it against entries[2]; the two values should match once the sample-library patch lands."
+    },
+    {
+      "id": "code-enum-indexing",
+      "source": "authored",
+      "expect_fire": false,
+      "why": "A code enum indexing two array positions across separate lines, terminated by semicolons, trips the multiline bracket-box arm even though this is source code, not a rendered gate; measured as a live false positive in 238-RESEARCH.md section 5b.",
+      "text": "function describeStage(keys) {\n  const first = keys[1];\n  const second = keys[2];\n  return first + '-' + second;\n}"
+    },
+    {
+      "id": "benign-numbered-step-instructions",
+      "source": "rca",
+      "expect_fire": false,
+      "why": "Reconstructs the numbered-prose instruction-list shape that Phase 209-07's now-retired numbered-prose backstop arm used to over-fire on (see the retirement note above ASCII_BOX_UNCONDITIONAL_RE in scripts/check-card-fire.cjs and .planning/debug/resolved/card-fire-relevance-check-gap.md). A plain numbered list with no bracket notation correctly does not match the shipped ASCII_BOX_UNCONDITIONAL_RE today; kept as a regression control so a future edit cannot re-admit the retired arm.",
+      "text": "1. Open the sample application's settings panel.\n2. Locate the extensions folder listed under Preferences.\n3. Restart the sample application to pick up the change."
+    },
+    {
+      "id": "benign-action-footer",
+      "source": "rca",
+      "expect_fire": false,
+      "why": "Reconstructs the benign Action Footer shape from .planning/debug/resolved/backstop-benign-list-defeats-relevance-gate.md, whose root-cause finding is that a benign 2-3 item next-steps suggestion is structurally identical in size to a genuine Shape-F gate (MAX_K=3) but carries no bracket notation, so it must not fire.",
+      "text": "Here's what you could try next:\n1. Run the sample-library test suite.\n2. Review the sample-project's open issues.\n3. Draft a short status update for the team."
+    },
+    {
+      "id": "terse-turn-after-stale-reach-suggestion",
+      "source": "rca",
+      "expect_fire": false,
+      "why": "Reconstructs the terse, low-signal reply shape from .planning/debug/card-fire-stale-f1-reach-suggestion-forces-block-regardless-of-relevance.md, where a short reply correctly declining a stale candidate-reach suggestion was force-blocked. The text carries no bracket notation and is not expected to trip the backstop regex specifically; included so the corpus documents this real logged over-enforcement shape alongside the backstop-specific fixtures above.",
+      "text": "Got it, I'll leave that suggestion alone for now since it doesn't connect to what we're working on here."
+    },
+    {
+      "id": "turn-following-already-answered-gate",
+      "source": "rca",
+      "expect_fire": false,
+      "why": "Reconstructs the shape from .planning/debug/resolved/card-fire-answered-gate-refires-within-ttl-window.md, a turn that follows an already-answered gate: ordinary prose acknowledging a prior choice, no bracket notation. That RCA explicitly exonerates the backstop for all six records it examined; kept for corpus completeness.",
+      "text": "Thanks, I'll go with the second option and start filing the summary now."
+    },
+    {
+      "id": "notification-only-turn",
+      "source": "rca",
+      "expect_fire": false,
+      "why": "Reconstructs a notification-only turn shape (a background task finishing with no human turn to engage), the pattern named in scripts/check-card-fire.cjs's room-bind-gate-fires-on-notification-only-turns fix note. No bracket notation; a notification is not a rendered gate regardless of arm.",
+      "text": "Background task finished: the sample-library test suite completed with all cases passing."
+    },
+    {
+      "id": "genuine-multiline-bracket-box",
+      "source": "authored",
+      "expect_fire": true,
+      "why": "A genuine multiline bracket box with labeled options is the exact shape the multiline arm of ASCII_BOX_UNCONDITIONAL_RE exists to catch: a reached gate rendered as flat text instead of firing the interactive card. Must still fire today so the fix cannot degenerate into deleting the backstop.",
+      "text": "Pick a path forward:\n[1] Rebuild the sample-library index from scratch\n\n[2] Patch only the changed sample-project entries"
+    },
+    {
+      "id": "genuine-bulleted-bracket-box",
+      "source": "authored",
+      "expect_fire": true,
+      "why": "A genuine bulleted bracket box is a second real rendering shape a degraded gate can take. Must still fire today, per the anti-vacuity control this corpus's Half B provides.",
+      "text": "- [1] Ship the sample-library patch today\n- [2] Wait for the sample-project review first"
+    },
+    {
+      "id": "type-1-2-or-3-literal",
+      "source": "authored",
+      "expect_fire": true,
+      "why": "The literal 'type 1, 2, or 3' exemplar is arm 2 of ASCII_BOX_UNCONDITIONAL_RE, unchanged since Phase 209 Wave 1. Must still fire today.",
+      "text": "Type 1, 2, or 3 to choose how to proceed with the sample-project migration."
+    },
+    {
+      "id": "reconstructed-two-honest-paths-fork",
+      "source": "rca",
+      "expect_fire": true,
+      "why": "Reconstructs the STRUCTURE of the one genuine backstop fork logged in .planning/debug/resolved/backstop-benign-list-defeats-relevance-gate.md (gate_signature cfec3113, a two-way build-versus-file choice). That RCA's own resolution names the cfec3113 tradeoff explicitly: retiring the numbered-prose arm means the original bare-numbered rendering of this fork no longer fires, but 'a bracket-box [1]...[2] rendering of the same fork still force-fires via arms 1-3.' This entry is that bracket-box rendering, so the load-bearing anti-vacuity control is grounded in the repo's own real fork history rather than an invented example.",
+      "text": "Two honest paths here, pick one:\n[1] Build the sample-library indexing fix now\n[2] File it as a finding and revisit once more sample-project data is available"
+    }
+  ]
+}
