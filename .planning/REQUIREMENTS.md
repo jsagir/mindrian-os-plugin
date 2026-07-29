@@ -19,7 +19,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 ### Phase 236 -- room.db data-loss (urgent, parallel to 235)
 
 - [ ] **GRAPHDB-01**: `rebuildGraph` cannot erase `memory_event` rows, confirmed truth-claims, decisions, or opportunity `stage_history`; the delete-then-reindex is wrapped in one transaction so a crash or concurrent reader never sees a partial/empty state (N-1, including the SQLite transaction/WAL-visibility implications the user asked to be explicit about).
-- [ ] **GRAPHDB-02**: A busy or mid-migration room.db open reports its real state (busy/broken) instead of collapsing into "no room db" / cold start (N-3).
+- [x] **GRAPHDB-02**: A busy or mid-migration room.db open reports its real state (busy/broken) instead of collapsing into "no room db" / cold start (N-3). Closed by 236-03: `RoomDbBusyError` / `RoomDbBrokenError` thrown from a classified `openRoomDb`, keyed on the SQLite `errcode` observed on this runtime. Scoped to the READ-WRITE door; the read-only door (236-RESEARCH.md Pitfall 6) is a recorded, dated known gap.
 - [ ] **GRAPHDB-03** (log only, no phase-blocking fix required): the `timeout:5000` write-safety option's real version floor is documented and `package.json` engines reflects it (N-2).
 
 ### Phase 237 -- Reach mechanism (depends on 235: CIRS is the posture-index source)
@@ -76,7 +76,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | CIRS-02 | Phase 235 | Complete |
 | CIRS-03 | Phase 235 | Complete |
 | GRAPHDB-01 | Phase 236 | Pending |
-| GRAPHDB-02 | Phase 236 | Pending |
+| GRAPHDB-02 | Phase 236 | Complete |
 | GRAPHDB-03 | Phase 236 | Pending (log-only) |
 | REACH-01 | Phase 237 | Complete |
 | REACH-02 | Phase 237 | Complete |

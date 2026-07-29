@@ -3,18 +3,32 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 237 CLOSED (8/8 plans, verification PASSED). Phase 236 execution started (Wave 1: 236-01, 236-03, 236-04)."
-last_updated: "2026-07-29T04:35:00.000Z"
-last_activity: 2026-07-29 -- Phase 237 (Reach Mechanism) CLOSED, all 8 plans verified. Phase 236 (room.db Data-Loss Fixes) execution started: SESSION OWNERSHIP LOCK hold lifted, plan-checker VERIFICATION PASSED (with a GRAPHDB-03 version-floor correction applied to 236-04-PLAN.md, see commit de1de9f9), now executing Wave 1
+stopped_at: "Phase 236 Wave 1: 236-01 and 236-03 complete. 236-02 (GRAPHDB-01 atomicity/WAL visibility) and 236-04 (GRAPHDB-03 version floor + run-all-236.sh) remain."
+last_updated: "2026-07-29T14:23:57.470Z"
+last_activity: 2026-07-29 -- Phase 237 (Reach Mechanism) CLOSED, all 8 plans verified. Phase 236 (room.db Data-Loss Fixes) executing Wave 1: 236-01 landed the ownership allowlist + scoped rebuild DELETE; 236-03 landed GRAPHDB-02 typed open-failure classification (RoomDbBusyError / RoomDbBrokenError at the openRoomDb chokepoint) with both gates mutation-proven and a 40-site call-site census
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 38
-  completed_plans: 19
-  percent: 50
+  completed_plans: 21
+  percent: 55
 ---
 
 # Project State
+
+## (2026-07-29) -- PHASE 236 Plan 03 COMPLETE (Wave 1) -- GRAPHDB-02: a busy room, a broken room and a cold start are now three tellable-apart outcomes instead of one null
+
+- **Position:** v1.16.0 Phase 236 (room.db Data-Loss Fixes) is 2/4 plans executed (236-01 and 236-03 landed; 236-02 and 236-04 remain). `openRoomDb` now throws `RoomDbBusyError` or `RoomDbBrokenError`, both exported from `lib/core/room-db.cjs`.
+- **The probe came FIRST, and it overturned the plan's assumptions.** 236-RESEARCH.md rated the thrown-error shape LOW confidence, so Task 1 observed the real shapes on this runtime before Task 2 wrote any classifier. Recorded verbatim in `tests/test-236-open-busy-detected.cjs`'s header, observed on `process.version` **v22.23.1**: busy = `errcode 5` "database is locked"; mid-migration = `errcode 1` "SQL logic error"; garbage bytes = `errcode 26` "file is not a database"; truncated = `errcode 11` "database disk image is malformed". Own enumerable props are `["code","errcode","errstr"]` in every case.
+- **Three findings forced a different design than the plan specified.** (1) `errcode` is the ONLY stable discriminator: `name` and `constructor.name` are `Error` for every case and `code` is the constant `ERR_SQLITE_ERROR`, so a name-keyed or code-keyed classifier would have matched nothing and silently fallen through. (2) The plan directed wrapping the `DatabaseSync` construction; that would have caught **nothing**, because constructing a garbage-bytes file SUCCEEDS (corruption surfaces at the first `PRAGMA`) and a busy open throws from inside the migration chain. Construction-plus-PRAGMA and the migration chain are therefore wrapped separately, with busy checked BEFORE defaulting to broken since busy and mid-migration throw from the identical site. (3) "Genuinely absent" is **not** a failure mode at all: `fs.mkdirSync` runs first, so an absent room.db opens successfully and returns a usable handle. That is a stronger separation than a third error class would have been, and it settles ROADMAP criterion 3's "distinguishable from no room db" leg.
+- **Mutation proofs actually run, and two of them caught real weaknesses in the tests themselves.** Reverting the classifier reddens both gates. Critically, as first written **neither gate detected reinstating `catch (_e) { db = null; }` at the `graph-derivation.cjs` collapse site** -- both called `openRoomDb` directly and never exercised the demonstrated defect, so reverting the originally reported bug left every assertion green. Busy-gate scenario 5 now drives `runDerivation` against a contended room. Separately, the first no-handle-leak probe (fresh connection takes a write lock with `timeout: 0`) stayed GREEN under the leak mutation, because a leaked handle whose transaction already rolled back holds no write lock; replaced with a `/proc/self/fd` descriptor count that catches it directly (`before=0, after=3` -- room.db plus its `-wal`/`-shm` sidecars). Both rejected probes are documented in-file, since the rejection is the useful finding.
+- **Canon Part 8 (T-236-08):** `meta` carries `roomDir`, `dbPath`, a classification string, the stage, the SQLite `errcode`, and the cause NAME and MESSAGE only; the raw error object is never attached. Both gates carry a canary scenario proving a string seeded into the room's own rows appears in neither the thrown message nor the serialized meta.
+- **Census measured 40 non-test call sites, not the estimated "25+"** (`236-openroomdb-callsite-census.md`): 1 FIXED (`graph-derivation.cjs:264`), 4 IMPROVED-FOR-FREE (do not catch, now propagate a typed error unedited), 35 CANDIDATE (catch today, behavior unchanged, documented residual T-236-11). Tier A flags `lib/core/graph-refine-loop.cjs:110` as `catch (_e) { db = null; }`, byte-identical to the defect just fixed next door and the strongest follow-up candidate. The read-only door gap (236-RESEARCH.md Pitfall 6, a corrupt room reading as "zero rows") is recorded as a dated known gap, out of scope here.
+- **`scripts/hsi-to-graph.cjs` NOT touched** (Phase 242 / MOAT-01 territory), per the plan's overlap check. Across all three commits, `lib/` changes are exactly `room-db.cjs` and `graph-derivation.cjs`.
+- **Tracking-write discipline:** `roadmap.update-plan-progress` produced a correctly scoped diff this time (Phase 236 lines only), but `state.record-session` **again hit the documented corruption bug**: it overwrote `stopped_at` with `"Completed 241-05-PLAN.md"` (a Phase 241 artifact, ignoring the `236-03` argument passed to it, reading the stale value from the Session Continuity block instead) and truncated `last_activity`, discarding the Phase 237 closure record. Both fields hand-corrected and `git diff`-reviewed. The `completed_plans` 19 -> 21 jump was VERIFIED correct against the ROADMAP progress table (2+2+8+5+2+2 = 21); the prior `19` was already stale.
+- **Pre-existing, not caused here:** `tests/test-graph-derivation-verdict.cjs` fails 2 FEYNMAN/Timeline assertions. Confirmed pre-existing by restoring both source files to HEAD and re-running (byte-identical failure). Logged in `deferred-items.md`, not fixed.
+- **Commits:** `1de288e1` (Task 1 probe), `53d96af6` (Task 2 classifier), `700f9008` (Task 3 gates + census). No `COMMIT_NO_VERIFY` needed; all hooks passed clean.
+- **NEXT:** 236-02 (GRAPHDB-01 default-backfill survival, crash-mid-transaction atomicity, WAL concurrent-reader visibility) and 236-04 (GRAPHDB-03 `engines.node` floor to >=22.16.0 + `tests/run-all-236.sh`).
 
 ## (2026-07-29) -- PHASE 237 CLOSED (8/8 plans) -- Reach Mechanism: approve-to-execute is real, one autonomy authority (48/112 -> 0/112), reach is session-scoped
 
@@ -3342,8 +3356,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-28 - Completed quick task 260728-3uw: Fixed stale "Active Milestone: v1.14.0" header + dead tail status marker in ROADMAP.md (now points at v1.15.0 "The Cockpit" / Phase 233)
-Last session: 2026-07-28T15:19:20.695Z
-Stopped at: Completed 241-05-PLAN.md
+Last session: 2026-07-29T14:23:57.333Z
+Stopped at: Completed 236-03-PLAN.md (GRAPHDB-02 typed openRoomDb failure classification)
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
