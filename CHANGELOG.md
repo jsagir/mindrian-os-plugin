@@ -16,6 +16,29 @@
   existing local chokepoint, same as everything else. Canon Part 8: zero network, zero Brain,
   nothing but your own room's past decisions.
 
+### Changed
+- **The stated minimum Node version is now 22.16.0, up from 22.5.0, because that is the version
+  where the room.db write-safety setting actually starts working (Phase 236, GRAPHDB-03).** Since
+  Phase 218-02 the room's database has been opened with a five second "wait your turn" setting, so
+  that when two things try to write at the same moment the second one waits instead of failing
+  instantly. That setting is called `timeout`, and it is passed to Node's built-in `node:sqlite`
+  module. Two different Node versions matter here and they are easy to confuse. `node:sqlite`
+  stopped needing a special startup flag at v22.13.0, but the `timeout` setting itself was not
+  added until **v22.16.0**. In between, on 22.13 through 22.15, the module loads fine and the
+  code looks correct, but `node:sqlite` accepts settings it does not recognise without
+  complaining, so `timeout` is quietly thrown away and contended writes still fail at zero
+  milliseconds exactly as before. Nothing warns you. We confirmed this on a live runtime by
+  reading `PRAGMA busy_timeout` back after opening: `0` on a version without the option, `5000`
+  with it. The old floor of `>=22.5.0` was wrong twice over, because on 22.5 through 22.12
+  `require('node:sqlite')` throws outright without the flag. Source for the v22.16.0 figure:
+  Context7 against the Node.js v22.x API docs, specifically the `timeout` option's
+  version-history entry, not the module's separate unflagging entry.
+  **User-visible consequence:** npm will now refuse an install on Node 22.5.x through 22.15.x
+  that it previously accepted. That is deliberate. The code genuinely does not run safely on
+  those versions. Upgrade Node to 22.16.0 or newer (`nvm install 22`, `fnm install 22`, or your
+  package manager) before updating. CI already runs the Node 22 major line, which resolves above
+  the new floor, so CI keeps exercising a runtime users actually have.
+
 ## [1.15.3-beta.50] - 2026-07-28
 
 ### Added
