@@ -216,6 +216,39 @@ async function main() {
     clearIndexerOwnedRows(conn, ECOSYSTEM_DERIVED_EDGE_TYPES);
     console.log('Cleared existing indexer-owned graph data');
     buildEcosystemGraph(conn, resolved);
+
+    // Phase 244 (TRIG-01, T-244-09): the same eureka_fts staleness hazard as
+    // rebuildGraph's sibling reconcile (lib/core/lazygraph-ops.cjs), because
+    // this script opens the SAME <roomDir>/.mindrian/room.db shape (dbPath
+    // above) and calls the SAME clearIndexerOwnedRows on it. Runs AFTER
+    // buildEcosystemGraph, not immediately after clearIndexerOwnedRows, for
+    // the same reason as the rebuildGraph sibling: buildEcosystemGraph
+    // re-walks the WHOLE tree and reinserts every Artifact/Section node with
+    // the same deterministic id on every run, so a reconcile placed between
+    // the wipe and the rewalk would see a window where none of those nodes
+    // exist yet and would wipe the lexical index on every build, not only
+    // the rows for content that is genuinely gone. The guarded block below is
+    // duplicated verbatim from lazygraph-ops.cjs's copy (rather than
+    // extracted to a shared export) for the same reason this file already
+    // duplicates the BEGIN/COMMIT/ROLLBACK wrap shape instead of importing
+    // it: both copies must be kept in sync if either changes. Riding THIS
+    // SAME BEGIN makes it atomic for free: a crash after this DELETE but
+    // before the COMMIT below rolls back both the node rewrite and this
+    // reconcile together. No-op when FTS5 is unavailable or eureka_fts was
+    // never built on this db (the default state of every live room).
+    (function reconcileFtsIndexInline() {
+      try {
+        // eslint-disable-next-line global-require
+        const tri = require(path.join(__dirname, '..', 'lib', 'core', 'eureka', 'tri-modal-index.cjs'));
+        if (!tri.ensureFtsAvailable().ok) return;
+        if (!tri.tableExists(conn, 'eureka_fts')) return;
+        conn.prepare('DELETE FROM eureka_fts WHERE node_id NOT IN (SELECT id FROM nodes)').run();
+      } catch (_e) {
+        // Swallow and continue: a reconcile fault must never abort an
+        // otherwise-succeeding ecosystem graph build.
+      }
+    })();
+
     conn.prepare('COMMIT').run();
   } catch (err) {
     try { conn.prepare('ROLLBACK').run(); } catch (_rbErr) { /* ignore */ }
