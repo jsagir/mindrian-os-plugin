@@ -132,3 +132,7 @@ None. All five STRIDE threats this plan's `<threat_model>` names (T-244-17 throu
 - FOUND: `tests/test-244-content-sensor-fires.cjs`
 - FOUND: modifications in `lib/core/navigation-engine.cjs` (producer block after the SENS-11 block)
 - FOUND: modifications in `lib/core/insight-sensors.cjs` (require line, `SENSOR_REGISTRY`'s 18th entry, named re-export)
+- FOUND: commit `dc34fc88` (feat: SENS-16 sensor file)
+- FOUND: commit `fe690e71` (feat: wiring into decide() + registry)
+- FOUND: commit `f1f67d07` (test: 16-leg proof suite)
+- Final verification: `node tests/test-244-content-sensor-fires.cjs` -> PASS=16 FAIL=0; `bash tests/run-all-244.sh` -> PASS=7 FAIL=0 SKIP=0; `git status` -> clean
