@@ -9,8 +9,8 @@ allowed-tools:
   - Glob
   - WebSearch
   - WebFetch
-  - mcp__brain_search
-  - mcp__brain_query
+  - mcp__mindrian-brain__brain_search
+  - mcp__mindrian-brain__brain_query
 # --- Phase 144.1 connector frontmatter (generated via build-connector-registry --check) ---
 connector:
   connects_to_spine: true
