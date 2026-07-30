@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.15.3-beta.51 (in progress)
+## [1.15.3] - 2026-07-31
 
 ### Added
 - **The room now learns which of its two ranking signals has actually been right for you, not
