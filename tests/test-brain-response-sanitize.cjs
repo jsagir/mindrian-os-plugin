@@ -126,9 +126,15 @@ test('Test 9: sha256 placeholder is deterministic across runs', () => {
 
 // ---------- Hook envelope shape (SEED-003 A3) ----------
 
-test('Test 10: Hook envelope shape per SEED-003 A3 (mcp__brain_query)', () => {
+test('Test 10: Hook envelope shape per SEED-003 A3 (live plugin-scoped Brain tool name)', () => {
+  // Phase 239 (BRAIN-01): tool_name updated from the dead 'mcp__brain_query'
+  // literal to the live plugin-scoped name so this test still exercises the
+  // hook's positive-fire path after isBrainTool was anchored to
+  // BRAIN_TOOL_MATCHER. The dead literal would now (correctly) fail the
+  // in-hook isBrainTool re-check and take the passthrough branch, which
+  // would have silently made this test assert nothing real.
   const stdinJson = JSON.stringify({
-    tool_name: 'mcp__brain_query',
+    tool_name: 'mcp__plugin_mos_mindrian-brain__brain_query',
     tool_input: { cypher: 'MATCH (n) RETURN n' },
     tool_response: { text: 'JTBD framework with SSN 123-45-6789 echoed' },
     session_id: 'test-session',
@@ -181,17 +187,68 @@ test('Test 12: False-positive cap -- pattern-only mode preserves framework-name-
   }
 });
 
-// ---------- Bonus: isBrainTool matcher ----------
+// ---------- Bonus: isBrainTool matcher (Phase 239 BRAIN-01: live scopes true, dead name false) ----------
 
-test('isBrainTool matcher: mcp__brain_query true, Read false', () => {
-  assert.equal(sanitizer.isBrainTool('mcp__brain_query'), true);
-  assert.equal(sanitizer.isBrainTool('mcp__brain_search'), true);
-  assert.equal(sanitizer.isBrainTool('mcp__brain_'), true); // prefix match per spec
+test('isBrainTool matcher: both live scopes true, superseded bare-prefix form false', () => {
+  // Phase 239: live plugin-scoped and project-scoped names now resolve true.
+  assert.equal(sanitizer.isBrainTool('mcp__plugin_mos_mindrian-brain__brain_query'), true);
+  assert.equal(sanitizer.isBrainTool('mcp__plugin_mos_mindrian-brain__brain_search'), true);
+  assert.equal(sanitizer.isBrainTool('mcp__mindrian-brain__brain_query'), true);
+  assert.equal(sanitizer.isBrainTool('mcp__mindrian-brain__brain_ask'), true);
+  // Phase 239: mcp__brain_query was true before this phase; it is the
+  // superseded dead literal that never matched a live registered name once
+  // the Brain server shipped inside the "mos" plugin. Inverted, not deleted.
+  assert.equal(sanitizer.isBrainTool('mcp__brain_query'), false);
+  assert.equal(sanitizer.isBrainTool('mcp__brain_search'), false);
+  // Phase 239: the old comment claimed a bare-prefix match was correct "per
+  // spec". That claim is the fiction this phase kills -- the bare
+  // mcp__brain_ prefix never occurs as a live registered tool name.
+  assert.equal(sanitizer.isBrainTool('mcp__brain_'), false);
+  // Falsy-input legs are correct today and stay unchanged.
   assert.equal(sanitizer.isBrainTool('Read'), false);
   assert.equal(sanitizer.isBrainTool('mcp__supabase_query'), false);
   assert.equal(sanitizer.isBrainTool(''), false);
   assert.equal(sanitizer.isBrainTool(null), false);
   assert.equal(sanitizer.isBrainTool(undefined), false);
+});
+
+// ---------- Threat T3: anti-impersonation (Phase 239 BRAIN-01) ----------
+
+test('isBrainTool matcher: threat T3 anti-impersonation, foreign servers false', () => {
+  // A third-party MCP server whose name merely contains or resembles
+  // "mindrian-brain" must never be treated as the trusted Brain. The
+  // plugin-prefix group is bounded to [a-z0-9_-]+, NOT .*, precisely to
+  // block this class of impersonation.
+  assert.equal(sanitizer.isBrainTool('mcp__plugin_evil_evil-brain__brain_ask'), false);
+  assert.equal(sanitizer.isBrainTool('mcp__evil-brain__brain_ask'), false);
+  assert.equal(sanitizer.isBrainTool('mcp__plugin_mos_mindrian-brain-evil__brain_ask'), false);
+  assert.equal(sanitizer.isBrainTool('mcp__mindrian-brainX__brain_ask'), false);
+});
+
+// ---------- hooks.json parity (Phase 239 BRAIN-01, converts silent drift into a red test) ----------
+
+test('hooks.json Brain matchers equal the exported BRAIN_TOOL_MATCHER authority', () => {
+  const fs = require('node:fs');
+  const hooksPath = path.join(__dirname, '..', 'hooks', 'hooks.json');
+  const doc = JSON.parse(fs.readFileSync(hooksPath, 'utf8'));
+  const hooks = (doc && doc.hooks) || {};
+  const brainGroups = [];
+  for (const hookType of Object.keys(hooks)) {
+    const groups = Array.isArray(hooks[hookType]) ? hooks[hookType] : [];
+    for (const group of groups) {
+      const inner = Array.isArray(group.hooks) ? group.hooks : [];
+      const isBrainGroup = inner.some((h) =>
+        /part8-egress-guard-hook\.cjs|brain-response-sanitize-hook\.cjs/.test(String(h.command || ''))
+      );
+      if (isBrainGroup) brainGroups.push(group);
+    }
+  }
+  // Exactly 2 groups expected (PreToolUse + PostToolUse). A deleted group
+  // must turn this test red rather than pass vacuously over an empty set.
+  assert.equal(brainGroups.length, 2, 'expected exactly 2 Brain hook groups in hooks.json, found ' + brainGroups.length);
+  for (const group of brainGroups) {
+    assert.equal(group.matcher, sanitizer.BRAIN_TOOL_MATCHER, 'hooks.json matcher drifted from BRAIN_TOOL_MATCHER: ' + group.matcher);
+  }
 });
 
 // ---------- Bonus: empty input handling ----------
