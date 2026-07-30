@@ -194,3 +194,12 @@ None. This plan's threat model (`<threat_model>` in 239-01-PLAN.md) is fully add
 ---
 *Phase: 239-brain-access-surface*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- FOUND: tests/helpers/brain-capture-server.cjs
+- FOUND: tests/run-all-239.sh
+- FOUND: .planning/phases/239-brain-access-surface/239-01-SUMMARY.md
+- FOUND: commit 1877286 (Task 1)
+- FOUND: commit 9b07c05 (Task 2)
+- FOUND: commit 1047942e (this summary)
