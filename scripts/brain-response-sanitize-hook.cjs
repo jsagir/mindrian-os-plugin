@@ -2,11 +2,17 @@
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  *
- * Phase 117-04 -- PostToolUse hook on mcp__brain_* tool calls.
+ * Phase 117-04 -- PostToolUse hook on the live Brain MCP tool calls.
  *
  * Per SEED-003 A3 spec: scans + redacts accidental user-data echo via
  * hookSpecificOutput.updatedToolOutput before the response reaches the
- * model. Hook fires on PostToolUse for matcher 'mcp__brain_.*'.
+ * model. Phase 239 (BRAIN-01): the matcher scopes this hook to the live
+ * registered Brain tool names in both plugin scope
+ * (mcp__plugin_mos_mindrian-brain__brain_*) and project scope
+ * (mcp__mindrian-brain__brain_*); the superseded dead literal 'mcp__brain_.*'
+ * never matched a live name once the Brain server shipped inside the "mos"
+ * plugin. The in-hook isBrainTool re-check below derives from the SAME
+ * exported BRAIN_TOOL_MATCHER the hooks.json matcher is asserted equal to.
  *
  * Reads stdin JSON {tool_name, tool_input, tool_response, session_id}.
  * Emits a hook envelope JSON on stdout and exits 0.
