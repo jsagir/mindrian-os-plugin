@@ -25,6 +25,24 @@ const HOOK_SCRIPT = path.join(REPO_ROOT, 'scripts', 'jtbd-update.cjs');
 const STATE_LIB = path.join(REPO_ROOT, 'lib', 'hmi', 'jtbd-state.cjs');
 const HOOKS_JSON = path.join(REPO_ROOT, 'hooks', 'hooks.json');
 
+// MEM-03 (240-RESEARCH.md Finding 4 / .planning/phases/240-memory/240-02-PLAN.md
+// R-03): this suite reads hermetic TODAY only because promoteIfEligible's turn
+// gate always returns before atomicUpdateMemory is ever reached. The moment
+// plan 240-04 makes the promotion block reachable (MEM-01), an unsandboxed run
+// of this suite -- in particular Class 8, which fires the same message 10
+// consecutive times -- would write into the developer's REAL
+// ~/MindrianRooms/.memory/. This sandbox root is injected into every hook
+// subprocess below so that leak is closed BEFORE MEM-01 lands, not after.
+const SANDBOX_ROOMS_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'jtbd-hook-rooms-'));
+process.on('exit', function () {
+  try { fs.rmSync(SANDBOX_ROOMS_HOME, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
+});
+// Deliberately no registry.json seeded under SANDBOX_ROOMS_HOME: leaving the
+// sandbox registry EMPTY means resolveRoomDirForSlug returns null and
+// logGraphTransition is a graceful no-op, which keeps Class 8's 500ms latency
+// budget intact by never opening a room.db. Do not "fix" this by registering
+// a room here.
+
 let passed = 0;
 let failed = 0;
 
@@ -59,8 +77,12 @@ function seedOperator(roomDir, op) {
 }
 
 function runHook(event, env) {
+  // Order matters: SANDBOX_ROOMS_HOME sits BEFORE the caller-supplied `env`
+  // spread, so class 5's deliberate fake non-existent MINDRIAN_ROOMS_HOME
+  // (testing the registry-resolution-fails path) still overrides the sandbox.
+  // Every other class inherits the sandbox and never reaches the real store.
   return spawnSync('node', [HOOK_SCRIPT, event], {
-    env: Object.assign({}, process.env, env),
+    env: Object.assign({}, process.env, { MINDRIAN_ROOMS_HOME: SANDBOX_ROOMS_HOME }, env),
     encoding: 'utf8',
     input: '',
   });
@@ -259,7 +281,7 @@ function cleanup(roomDir) {
     // INSIDE-PROCESS budget (< 10ms) is asserted via debug log
     // exercised in Class 1.
     if (max > 500) { fail('Class 8: Latency budget', 'max=' + max.toFixed(1) + 'ms (>500ms)'); return; }
-    ok('Class 8: Latency budget — ' + N + ' runs max=' + max.toFixed(1) + 'ms mean=' + mean.toFixed(1) + 'ms');
+    ok('Class 8: Latency budget - ' + N + ' runs max=' + max.toFixed(1) + 'ms mean=' + mean.toFixed(1) + 'ms');
   } finally { cleanup(room); }
 })();
 

@@ -41,12 +41,23 @@
 #   Rule 1 fix the plan's <action> note authorizes: "use whichever cue /
 #   protocol triggers the same outcome".
 #
-# Cleanup discipline (W-07 carry-forward + plan CRITICAL invariant #1):
-#   scripts/room-registry has no `remove` subcommand at the time of writing.
-#   Cleanup uses a Python fallback that edits ~/MindrianRooms/.rooms/
-#   registry.json directly (atomic tmp+rename) AND removes the test room slug
-#   from ~/MindrianRooms/.memory/jtbd-history.json (so the test never pollutes
-#   real cross-session memory), wrapped in a trap on EXIT.
+# Cleanup discipline (MEM-03, phase 240 plan 240-02, replaces the W-07
+# path-list trap):
+#   The suite owns its rooms root: an OWNED mktemp -d directory, exported as
+#   MINDRIAN_ROOMS_HOME so room-registry (and every subprocess it spawns)
+#   writes ONLY inside that throwaway root. An inherited MINDRIAN_ROOMS_HOME
+#   is DELIBERATELY IGNORED and overwritten, never honoured -- honouring it
+#   would re-open exactly the problem this fix closes, because the guarded
+#   rm -rf below would then have to scrub a root the suite does not own.
+#   Hermeticity here is STRUCTURAL, not a cleanup trap that has to remember
+#   every path a run might touch: the old trap was a hand-maintained list of
+#   9 paths and missed 3 of them (.memory/audit.log, .memory/ROOM.md,
+#   .rooms/.room-graph/rooms.db), which is exactly why the real
+#   ~/MindrianRooms/.memory/audit.log accumulated 5 leaked lines carrying
+#   this suite's slug over roughly two months (see 240-RESEARCH.md Finding 4
+#   and .planning/phases/240-memory/240-02-PLAN.md). Cleanup is now one
+#   guarded `rm -rf` of the owned root: nothing to keep in sync, nothing to
+#   forget.
 #
 # Bash only. No emoji. No em-dashes. set -euo pipefail.
 
@@ -54,67 +65,51 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEST_ROOM_SLUG="test-jtbd-127.3-empirical"
-ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-${HOME}/MindrianRooms}"
+
+# OWNED throwaway root. Any inherited MINDRIAN_ROOMS_HOME is deliberately
+# overwritten below, not honoured -- see the header note above.
+ROOMS_HOME="$(mktemp -d "${TMPDIR:-/tmp}/mos-jtbd-anchor-XXXXXX")"
+export MINDRIAN_ROOMS_HOME="${ROOMS_HOME}"
+
 TEST_ROOM="${ROOMS_HOME}/${TEST_ROOM_SLUG}"
 REGISTRY_FILE="${ROOMS_HOME}/.rooms/registry.json"
 MEMORY_FILE="${ROOMS_HOME}/.memory/jtbd-history.json"
 
-# Cleanup function: removes the test room dir, deregisters it from
-# registry.json via a Python fallback (no `remove` subcommand exists), clears
-# the `active` field if it still points at the test room, and scrubs the
-# test slug from the cross-session memory file (so the test never pollutes
-# real in_flight / parked / completed entries).
+# Cleanup function: removes the ENTIRE owned root in one shot. Guarded so it
+# can never delete something it does not own: refuses unless ROOMS_HOME is a
+# non-empty absolute path matching the mos-jtbd-anchor- mktemp template and
+# is not "/", "$HOME" or "$HOME/MindrianRooms". On rejection it prints loudly
+# and skips rather than deleting blind.
+#
+# Tolerant by design (|| true): scripts/room-registry's `create` subcommand
+# spawns sync-rooms-graph and sync-rooms-brain DETACHED against $ROOMS_HOME
+# (see scripts/room-registry:336-337). They may still be writing when this
+# EXIT trap fires. A leftover directory under /tmp is acceptable; do NOT add
+# a `wait` or a sleep here to try to catch them -- that only makes the suite
+# flaky. The detached writers are accepted residual risk (T-240-12).
 cleanup() {
-  rm -rf "${TEST_ROOM}" 2>/dev/null || true
-
-  if [ -f "${REGISTRY_FILE}" ]; then
-    python3 - "${REGISTRY_FILE}" "${TEST_ROOM_SLUG}" <<'PY_EOF' 2>/dev/null || true
-import json, os, sys
-reg_path = sys.argv[1]
-slug = sys.argv[2]
-try:
-    with open(reg_path, 'r') as f:
-        reg = json.load(f)
-except Exception:
-    sys.exit(0)
-changed = False
-if isinstance(reg.get('rooms'), dict) and slug in reg['rooms']:
-    del reg['rooms'][slug]
-    changed = True
-if reg.get('active') == slug:
-    reg['active'] = ''
-    changed = True
-if changed:
-    tmp = reg_path + '.tmp'
-    with open(tmp, 'w') as f:
-        json.dump(reg, f, indent=2)
-    os.replace(tmp, reg_path)
-PY_EOF
-  fi
-
-  if [ -f "${MEMORY_FILE}" ]; then
-    python3 - "${MEMORY_FILE}" "${TEST_ROOM_SLUG}" <<'PY_EOF' 2>/dev/null || true
-import json, os, sys
-mem_path = sys.argv[1]
-slug = sys.argv[2]
-try:
-    with open(mem_path, 'r') as f:
-        mem = json.load(f)
-except Exception:
-    sys.exit(0)
-if isinstance(mem.get('rooms'), dict) and slug in mem['rooms']:
-    del mem['rooms'][slug]
-    tmp = mem_path + '.tmp'
-    with open(tmp, 'w') as f:
-        json.dump(mem, f, indent=2)
-    os.replace(tmp, mem_path)
-PY_EOF
-  fi
+  case "${ROOMS_HOME:-}" in
+    /tmp/mos-jtbd-anchor-*|/*/mos-jtbd-anchor-*)
+      REAL_STORE_ROOT="$HOME/MindrianRooms"
+      if [ -n "${ROOMS_HOME}" ] && [ "${ROOMS_HOME}" != "/" ] \
+        && [ "${ROOMS_HOME}" != "${HOME}" ] \
+        && [ "${ROOMS_HOME}" != "${REAL_STORE_ROOT}" ]; then
+        rm -rf "${ROOMS_HOME}" 2>/dev/null || true
+      else
+        echo "REFUSING TO DELETE: ROOMS_HOME='${ROOMS_HOME}' failed the ownership guard" >&2
+      fi
+      ;;
+    *)
+      echo "REFUSING TO DELETE: ROOMS_HOME='${ROOMS_HOME:-<unset>}' does not match the owned mktemp template" >&2
+      ;;
+  esac
 }
 trap cleanup EXIT
 
-# Step 1a: pre-clean any prior state, then create a fresh room.
-cleanup
+# Step 1: create a fresh room. The mktemp -d root is freshly minted with
+# nothing in it, so there is nothing to pre-clean (unlike the old trap-based
+# design, calling cleanup here would delete the very root the next line
+# writes into).
 bash "${REPO}/scripts/room-registry" create "${TEST_ROOM_SLUG}" "${TEST_ROOM_SLUG}" >/dev/null
 
 # Step 1b: seed conversation-operator.json with current=BUILD_ROOM. Without
@@ -158,14 +153,15 @@ if [ ! -f "${TEST_ROOM}/.mindrian/jtbd-state.json" ]; then
   echo "  Plan 01 (jtbd-update.cjs chokepoint reroute) likely regressed." >&2
   exit 1
 fi
-CURRENT_JTBD=$(python3 -c "
-import json
-try:
-    s = json.load(open('${TEST_ROOM}/.mindrian/jtbd-state.json'))
-    cur = s.get('current') or {}
-    print(cur.get('jtbd') or '')
-except Exception:
-    print('')
+CURRENT_JTBD=$(node -e "
+  const fs = require('fs');
+  try {
+    const s = JSON.parse(fs.readFileSync('${TEST_ROOM}/.mindrian/jtbd-state.json', 'utf8'));
+    const cur = s.current || {};
+    process.stdout.write(cur.jtbd || '');
+  } catch (_) {
+    process.stdout.write('');
+  }
 ")
 if [ "${CURRENT_JTBD}" != "decide-pursue" ]; then
   echo "FAIL: jtbd-state.json current.jtbd was '${CURRENT_JTBD}', expected 'decide-pursue'" >&2
