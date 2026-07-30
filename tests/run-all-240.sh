@@ -112,6 +112,79 @@ if [ $found -eq 0 ]; then
   exit 1
 fi
 
+# ---------------------------------------------------------------------------
+# Tri-Polar daemon-parity gate (plan 240-01 Task 2). Closes 240-RESEARCH.md
+# Assumption A7 / Open Question Q4 as CLOSED-CLEAN (Resolution R-01): lib/mcp/
+# is the MINDRIAN_MCP_FIRST daemon path, and it carries ZERO jtbd references
+# today, so there is no divergent trigger copy for MEM-01's fix to miss. This
+# gate turns that measurement into a standing check rather than a grep
+# buried in a planning document.
+# ---------------------------------------------------------------------------
+PARITY_TMP="$(mktemp -d)"
+trap 'rm -rf "$PARITY_TMP"' EXIT
+
+parity_hits() {
+  grep -rl 'jtbd' "$1" 2>/dev/null || true
+}
+
+echo "--- tri-polar parity self-test: the gate actually bites ---"
+PARITY_SELFTEST_OK=1
+mkdir -p "$PARITY_TMP/probe-dirty" "$PARITY_TMP/probe-clean"
+echo "// this probe references jtbd on purpose" > "$PARITY_TMP/probe-dirty/probe.cjs"
+echo "// this probe is unrelated" > "$PARITY_TMP/probe-clean/probe.cjs"
+
+DIRTY_HITS="$(parity_hits "$PARITY_TMP/probe-dirty")"
+if [ -n "$DIRTY_HITS" ]; then
+  echo "    caught: must_catch probe (a real jtbd reference)"
+else
+  echo "    MISS (the gate is blind to this): must_catch probe"
+  PARITY_SELFTEST_OK=0
+fi
+
+CLEAN_HITS="$(parity_hits "$PARITY_TMP/probe-clean")"
+if [ -z "$CLEAN_HITS" ]; then
+  echo "    correctly ignored: must_not_catch probe (no jtbd reference)"
+else
+  echo "    FALSE POSITIVE: must_not_catch probe -> $CLEAN_HITS"
+  PARITY_SELFTEST_OK=0
+fi
+
+if [ "$PARITY_SELFTEST_OK" -eq 1 ]; then
+  echo ">>> tri-polar parity self-test: the gate actually bites: PASSED"; PASS=$((PASS+1))
+else
+  echo ">>> tri-polar parity self-test: the gate actually bites: FAILED"; FAIL=$((FAIL+1))
+fi
+echo ""
+
+echo "--- tri-polar parity sweep: lib/mcp carries no divergent JTBD trigger ---"
+PARITY_SWEEP_OK=1
+MCP_CJS_COUNT="$(find lib/mcp -type f -name '*.cjs' | wc -l | tr -d ' ')"
+if [ "$MCP_CJS_COUNT" -eq 0 ]; then
+  echo "    lib/mcp/ is empty or gone (0 .cjs files); the parity claim below proves nothing"
+  PARITY_SWEEP_OK=0
+else
+  PARITY_HITS="$(parity_hits lib/mcp)"
+  if [ -n "$PARITY_HITS" ]; then
+    echo "    a jtbd reference has entered the MCP-first daemon path:"
+    printf '      %s\n' "$PARITY_HITS"
+    echo "    the Phase 240 MEM-01 trigger fix may now need a sibling here;"
+    echo "    re-verify Tri-Polar parity and update this gate deliberately"
+    echo "    rather than deleting it. Precedent: Phase 241-05, where the"
+    echo "    shared mindrian-core Stop path was blind on Desktop, Cowork"
+    echo "    AND CLI under the flag."
+    PARITY_SWEEP_OK=0
+  else
+    echo "    lib/mcp/ carries zero jtbd references across $MCP_CJS_COUNT .cjs files; the MINDRIAN_MCP_FIRST path routes JTBD promotion through the same lib/hmi/across-session-memory.cjs module, so there is no divergent trigger copy."
+  fi
+fi
+
+if [ "$PARITY_SWEEP_OK" -eq 1 ]; then
+  echo ">>> tri-polar parity sweep: lib/mcp carries no divergent JTBD trigger: PASSED"; PASS=$((PASS+1))
+else
+  echo ">>> tri-polar parity sweep: lib/mcp carries no divergent JTBD trigger: FAILED"; FAIL=$((FAIL+1))
+fi
+echo ""
+
 echo "======================================"
 echo "Phase 240: PASS=$PASS FAIL=$FAIL SKIP=$SKIP"
 echo "======================================"
