@@ -224,6 +224,14 @@ None - no external service configuration required.
 - Plan 240-04 still owes two further source-tripwire legs (reachability + counter-persistence) per this file's own header note; the leg list here is correctly documented as not final until Wave 3.
 - No blockers for the remaining Phase 240 plans.
 
+## Self-Check: PASSED
+
+- FOUND: tests/run-all-240.sh
+- FOUND: .planning/phases/240-memory/240-01-SUMMARY.md
+- FOUND: commit 799dadfa (Task 1)
+- FOUND: commit d425fda9 (Task 2)
+- FOUND: commit 67aebcab (SUMMARY.md, force-added per repo convention)
+
 ---
 *Phase: 240-memory*
 *Completed: 2026-07-30*
