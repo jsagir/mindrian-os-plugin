@@ -1,0 +1,202 @@
+'use strict';
+// Phase 240.1-04 -- CTXL-02 doctrine-presence gate: the SEMANTIC layer vs
+// CONTEXT layer distinction in docs/MWP-SPECIFICATION.md and
+// docs/BRAIN-MD-SCHEMA.md, pinned to INDEXER_OWNED_NODE_TYPES as the existing
+// operational boundary (lib/core/lazygraph-ops.cjs, Phase 236 / GRAPHDB-01).
+//
+// 240.1's own false-clean-illusion mitigation (ported from
+// tests/test-143.2-doctrine-presence.cjs:14-19, in this phase's own words):
+// this gate asserts the layer distinction is PRESENT and DISTINGUISHED inside
+// the NEW section slices, and deliberately does NOT assert "KuzuDB" is absent
+// from docs/MWP-SPECIFICATION.md as a whole. That doc still carries 9
+// surviving KuzuDB mentions below its own 2026-06-14 correction banner at
+// line 3, and ripping those out is out of scope here (Resolution 2 defers the
+// stale "## 3. The 9 KuzuDB Edge Types" heading rename to plan 240.1-07). A
+// whole-file mustNotContain would fight that unrelated legacy prose while
+// saying nothing about whether the new doctrine landed. mustNotContain:
+// ['KuzuDB'] below is therefore scoped to the NEW section slices ONLY.
+//
+// Also note: scripts/check-kuzu-reintroduction.cjs scans only .cjs/.js/.mjs
+// files and explicitly excludes docs/*.md (see its own header). So the
+// machine gate that normally catches a KuzuDB reintroduction will NOT catch a
+// slip in this doc prose. This test is the only thing that will.
+//
+// House rule (ported from tests/test-143.2-doctrine-presence.cjs:20-23):
+// hyphens only, no em-dashes IN THIS FILE. The em-dash (U+2014) and en-dash
+// (U+2013) characters appear ONLY as \u escapes inside the forbidden search
+// set below, never as literal characters.
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const REPO_ROOT = path.resolve(__dirname, '..');
+
+function readFile(relPath) {
+  return fs.readFileSync(path.join(REPO_ROOT, relPath), 'utf8');
+}
+
+// Cache file reads so each file is read once.
+const fileCache = {};
+function getFile(rel) {
+  if (!(rel in fileCache)) fileCache[rel] = readFile(rel);
+  return fileCache[rel];
+}
+
+let assertionCount = 0;
+function check(cond, message) {
+  assertionCount++;
+  assert.ok(cond, message);
+}
+
+// ---------------------------------------------------------------------------
+// sliceSection: locate a heading by its EXACT literal, assert it was found
+// (naming the file and the heading in the failure message), and return the
+// substring from that heading to the next '\n## ' (or end of file). Every
+// mustContain / mustNotContain assertion below runs against a SLICE, never
+// against the whole file body -- this is the direct answer to Pitfall 4
+// (240.1-RESEARCH.md): the bare words "semantic" and "context" already appear
+// 9 and 11 times in docs/MWP-SPECIFICATION.md, so a naive whole-file
+// mustContain on them would be GREEN before any work is done. No mustContain
+// token anywhere in this gate is a bare common word; every anchor below is
+// either a multi-word phrase (SEMANTIC layer / CONTEXT layer) or a unique
+// identifier (INDEXER_OWNED_NODE_TYPES, GRAPHDB-01, etc).
+// ---------------------------------------------------------------------------
+function sliceSection(body, headingLiteral, fileLabel) {
+  const idx = body.indexOf(headingLiteral);
+  assertionCount++;
+  assert.ok(
+    idx !== -1,
+    'heading not found: ' + JSON.stringify(headingLiteral) + ' in ' + fileLabel
+  );
+  const searchFrom = idx + headingLiteral.length;
+  let end = body.indexOf('\n## ', searchFrom);
+  if (end === -1) end = body.length;
+  return body.slice(idx, end);
+}
+
+const MWP = 'docs/MWP-SPECIFICATION.md';
+const BRAIN_SCHEMA = 'docs/BRAIN-MD-SCHEMA.md';
+const LAZYGRAPH = 'lib/core/lazygraph-ops.cjs';
+
+const MWP_HEADING = '## 2.8 Semantic Layer vs Context Layer';
+const BRAIN_HEADING = '## 5.1 Semantic Layer vs Context Layer';
+const CANON8_HEADING = '## 5. Canon Part 8 Contract (CRITICAL)';
+
+// The 9 tokens common to both CTXL-02a and CTXL-02b. Anchored on distinguishing
+// multi-word phrases or unique identifiers only; "semantic" and "context"
+// appear here ONLY inside the multi-word anchors "SEMANTIC layer" and
+// "CONTEXT layer".
+const SHARED_TOKENS = [
+  'SEMANTIC layer',
+  'CONTEXT layer',
+  'INDEXER_OWNED_NODE_TYPES',
+  'INDEXER_OWNED_EDGE_TYPES',
+  'rebuildGraph',
+  'lazygraph-ops.cjs',
+  'GRAPHDB-01',
+  'room.db',
+  'SQLite',
+];
+
+const PRESENCE = [
+  {
+    id: 'CTXL-02a',
+    file: MWP,
+    section: MWP_HEADING,
+    mustContain: SHARED_TOKENS,
+    mustNotContain: ['KuzuDB'],
+  },
+  {
+    id: 'CTXL-02b',
+    file: BRAIN_SCHEMA,
+    section: BRAIN_HEADING,
+    mustContain: SHARED_TOKENS.concat(['BRAIN.md']),
+    mustNotContain: ['KuzuDB'],
+  },
+  {
+    // CTXL-02c: non-weakening fence. Section 5's ALLOWED/FORBIDDEN Canon
+    // Part 8 contract must still be intact after 5.1 is inserted immediately
+    // after it (5.1 sits between section 5's content and "## 6. Version
+    // History"; slicing section 5 stops at the "## 5.1" heading itself,
+    // which is exactly the boundary this leg needs).
+    id: 'CTXL-02c',
+    file: BRAIN_SCHEMA,
+    section: CANON8_HEADING,
+    mustContain: [
+      'ALLOWED in BRAIN.md frontmatter',
+      'FORBIDDEN in BRAIN.md frontmatter',
+      'User artifact bodies',
+      'Personal identifiers',
+    ],
+  },
+];
+
+// Cache slices per (file, section) pair so each is computed once.
+const sliceCache = {};
+function getSlice(file, section) {
+  const key = file + '::' + section;
+  if (!(key in sliceCache)) {
+    sliceCache[key] = sliceSection(getFile(file), section, file);
+  }
+  return sliceCache[key];
+}
+
+for (const entry of PRESENCE) {
+  const body = getSlice(entry.file, entry.section);
+  for (const tok of entry.mustContain || []) {
+    check(
+      body.indexOf(tok) !== -1,
+      entry.id + ': required token not found in ' + entry.file + ' section ' +
+        JSON.stringify(entry.section) + ': ' + JSON.stringify(tok)
+    );
+  }
+  for (const tok of entry.mustNotContain || []) {
+    check(
+      body.indexOf(tok) === -1,
+      entry.id + ': forbidden token MUST be absent from ' + entry.file + ' section ' +
+        JSON.stringify(entry.section) + ': ' + JSON.stringify(tok)
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CTXL-02d (source-truth fence): the code the doctrine names must still
+// exist. If Phase 236's allowlist is ever renamed, this leg reddens and the
+// docs get corrected with it -- the doctrine cannot outlive the code it
+// names.
+// ---------------------------------------------------------------------------
+const lazygraphSrc = getFile(LAZYGRAPH);
+for (const tok of ['INDEXER_OWNED_NODE_TYPES', 'INDEXER_OWNED_EDGE_TYPES']) {
+  check(
+    lazygraphSrc.indexOf(tok) !== -1,
+    'CTXL-02d: source-truth fence -- ' + JSON.stringify(tok) + ' must still be declared in ' + LAZYGRAPH
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Dash sweep, scoped per Resolution 3 to CTXL-02's OWN surfaces only. This
+// deliberately does NOT include lib/core/state-ops.cjs, which carries a
+// literal em-dash on its own line 2 that plan 240.1-02 fixes under its own
+// gate; including it here would make this plan's gate red for a reason it
+// does not own and would couple two otherwise independent wave-1 plans.
+// ---------------------------------------------------------------------------
+const EM_DASH = String.fromCharCode(0x2014); // U+2014 em-dash
+const EN_DASH = String.fromCharCode(0x2013); // U+2013 en-dash
+const DASH_SURFACES = [
+  MWP,
+  BRAIN_SCHEMA,
+  'tests/test-240.1-layer-doctrine-presence.cjs',
+];
+
+for (const rel of DASH_SURFACES) {
+  const body = getFile(rel);
+  check(body.indexOf(EM_DASH) === -1, 'em-dash (U+2014) MUST be absent from ' + rel);
+  check(body.indexOf(EN_DASH) === -1, 'en-dash (U+2013) MUST be absent from ' + rel);
+}
+
+process.stdout.write(
+  'PASS test-240.1-layer-doctrine-presence.cjs (' + assertionCount + ' assertions: ' +
+  'CTXL-02a/b section presence + CTXL-02c non-weakening fence + CTXL-02d source-truth fence + dash sweep)\n'
+);
+process.exit(0);

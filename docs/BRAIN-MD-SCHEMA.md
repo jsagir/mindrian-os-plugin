@@ -193,6 +193,61 @@ Matches emit a `canon_boundary` / `warning` violation with `action_hint = "canon
 
 Hard blocks live at the runtime layer. Plan 90-01 derivation writer rejects content that trips the Part 8 scan before the file is written. This schema validator is the read-time and ship-time audit surface.
 
+## 5.1 Semantic Layer vs Context Layer
+
+room.db (the local per-room graph, SQLite, `room/.room-graph/room.db`) is one
+generic property graph: `nodes(id, type, properties)` and `edges(source,
+target, type, properties)` (`lib/core/lazygraph-ops.cjs:160-183`), with no
+separate table or column for "semantic" versus "context" data. The boundary
+lives in an ownership allowlist keyed on the `type` string, not in the DDL.
+
+| Layer | Node / edge types | Property | `rebuildGraph` behavior |
+| --- | --- | --- | --- |
+| SEMANTIC layer (schema and structure) | `Artifact`, `Section`, `BELONGS_TO` | Derivable from the filesystem | Safe to wipe and re-derive on every `rebuildGraph` |
+| CONTEXT layer (institutional knowledge) | `memory_event`, human-confirmed truth-claim nodes, decisions, opportunity `stage_history`, and the other 22 of the 23 `EDGE_TYPES` | Irreplaceable; human-confirmed or session-accumulated | Must survive `rebuildGraph` |
+
+**Enforcement.** `lib/core/lazygraph-ops.cjs:81` (`INDEXER_OWNED_NODE_TYPES`),
+`:84` (`INDEXER_OWNED_EDGE_TYPES`), and the ownership-scoped DELETE at `:131`
+are the single implementation both destructive reindex paths over room.db
+share.
+
+**The incident that proves it is load-bearing.** Phase 236 (GRAPHDB-01)
+existed because the indexer treated context-layer rows as semantic-layer rows
+and truncated them. The fix was DELETE SCOPE, not atomicity
+(`.planning/REQUIREMENTS.md:21`).
+
+**BRAIN.md's own version of the same split.** BRAIN.md sits on top of the same
+room.db, and carries the identical distinction in its own frontmatter and
+body:
+
+| BRAIN.md content | Layer | Regeneration |
+| --- | --- | --- |
+| The nine optional analysis section headings (Pattern Matches, Cross-Domain Analogies, Wicked Indicators, Unfilled Opportunity Matches, Framework Chain Predictions, Assessment Thinking Chain Position, ProblemType Classification, Flagged Contradictions, HSI Signals) | SEMANTIC (derived) | Re-derivable on demand via `/mos:brain-derive`; safe to regenerate |
+| `brain_graph_version`, `governing_thought_hash`, `staleness`, `author`, and any user-authored frontmatter or body content | CONTEXT (institutional) | Must not be silently regenerated; a version or hash mismatch surfaces as staleness, never a silent overwrite |
+
+BRAIN.md is already ahead of `STATE.md` here: it carries `brain_graph_version`
+in its required frontmatter (`lib/core/brain-md-schema.cjs:76-83`), a
+graph-version stamp `STATE.md` lacked until CTXL-01.
+
+**Canon linkage.** This is the operational expression of Canon Part 9 Memory
+Locality: "only a human confirms a truth-claim node."
+
+**External corroboration.** MotherDuck measured a +72 percentage point
+accuracy improvement and about 55 percent lower cost per run on the DABStep
+agentic analytics benchmark when context is kept in a separate curated layer
+rather than discovered ad hoc
+(https://motherduck.com/blog/context-belongs-in-the-warehouse, 2026-07-29). A
+second MotherDuck A/B result is the stronger, falsifiable version of the same
+finding: baking domain knowledge directly into the warehouse capped accuracy
+at 93 percent, while moving the identical knowledge into a separate curated
+layer reached 100 percent
+(https://motherduck.com/blog/oops-maybe-we-do-need-semantic-layers). Both are
+MotherDuck's own measurements, cited here with their source, never restated as
+MindrianOS findings.
+
+This section does not modify Section 5's Canon Part 8 ALLOWED/FORBIDDEN
+contract above; it only names the layer the contract already protects.
+
 ## 6. Version History
 
 | Version | Date | Changes |
