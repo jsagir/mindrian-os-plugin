@@ -205,6 +205,32 @@ line here is itself a contract violation.
   REJECTED_BECAUSE vocabulary); cascade-edge targets are canonical `correlation_ids`
   (Phase 130.7), not raw names, so edges do not fork across cross-label duplicates.
 
+- **Phase 239-06 (2026-07-30, BRAIN-03 decision record, NOT an export
+  addition).** `brain-client.sendPacket` is the SOLE typed-packet wire path
+  into the Brain (the M11 export list above governs `room.db`, the local
+  substrate; `sendPacket` is a Brain-substrate function and is not itself an
+  M11 export, so this entry records a decision, not a contract change --
+  `sendPacket` is not being added to or removed from any surface). As of this
+  date it has ZERO production consumers: a full census across `lib/`,
+  `scripts/`, `bin/` and `pipelines/` found no production `sendPacket(` call
+  site. In place of a consumer, the recorded decision is explicit: `sendPacket`
+  is PARKED rather than wired, because wiring it to a real production job is
+  net-new feature work, out of scope for Phase 239's remediation-only
+  milestone. Consequence: the PB8-10 classifier belt inside `sendPacket`
+  (`lib/core/brain-client.cjs`) is correct code sitting on a path no
+  production caller reaches, and must NOT be counted as live Part 8 coverage
+  -- the live in-process Part 8 coverage on the Brain door is sibling plan
+  239-05's raw-field classify-before-sanitize-before-interpolate guard in
+  `hatAwareRecommend()` and `suggestValidationSteps()`. The dated park note
+  lives at the call surface, immediately above `async function sendPacket(` in
+  `lib/core/brain-client.cjs`; this amendment is its doc-side twin, and the
+  two must not diverge. **Re-open condition:** the first real production
+  `sendPacket(` caller, caught by the existing D-08 layer-2 pre-commit guard
+  (`scripts/check-schema-aliases.cjs --check-sendpacket`, which requires any
+  new caller to be lexically preceded by `buildBrainPacket(`) and by
+  `tests/test-239-sendpacket-parked.cjs`'s census, which goes red the day one
+  appears.
+
 ## Reuse-vs-build decision (Canon Part 7)
 
 **Decision (2026-05-30):** The new `scripts/check-substrate.cjs` (Plan 02) SUPERSEDES
