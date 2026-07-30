@@ -46,6 +46,14 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 - [x] **MEM-02**: `graph-edge-pending.log`-shaped promote/park/complete events are consumed into `memory_event` rows via the Phase 150 memory cortex (M-2). REVISED 2026-07-30: the fix pre-dates this phase (commit `3c9afa2e`, `logGraphTransition` wired at all three lifecycle sites, `graph-edge-pending.log`/`writeGraphEdge` deleted entirely per the resolved RCA's Option B). Phase 240 Plan 05 closed the gap that was actually missing: the join test proving a promote survives a real `rebuildGraph` (riding Phase 236's transaction wrap), with both a correct-direction mutation (widening `INDEXER_OWNED_NODE_TYPES` reddens it) and a wrong-direction mutation (removing the BEGIN/COMMIT wrap does NOT redden it, a documented finding, not a gap) executed live.
 - [x] **MEM-03**: The JTBD test suite cannot write into the user's live memory store (M-3). (Phase 240 Plan 02: owned mktemp root for tests/test-jtbd-auto-anchor-empirical.sh, pre-emptive sandbox in tests/test-jtbd-hook-integration.cjs, 5-leg recursive `.memory`/`.rooms` hash fence at tests/test-240-memory-store-hermetic-fence.sh.)
 
+### Phase 240.1 -- Context-Layer Drift Detection (inserted 2026-07-30, urgent, informed by MotherDuck Guides research)
+
+Source: a live, reproduced STATE.md self-contradiction this session (`stopped_at` referencing Phase 236 while `Current Position` said Phase 240 executing) from concurrent-session writes, plus MotherDuck's 2026-07-29 blog post "Context belongs in the warehouse" and the Bev Turnbaugh SF meetup talk (hosted by Uncork Capital).
+
+- [ ] **CTXL-01**: STATE.md's compute-state artifact carries a schema version stamp; a regeneration detecting a version mismatch surfaces a notification instead of silently overwriting.
+- [ ] **CTXL-02**: room.db's graph schema and BRAIN.md each carry an explicit, documented SEMANTIC-layer (schema/structure) vs. CONTEXT-layer (business-term/institutional-knowledge) distinction, not an implicit conflation.
+- [ ] **CTXL-03**: A benchmark gate measures whether room context measurably improves Larry's answer accuracy on a fixed local task set, mirroring MotherDuck's DABStep methodology at MindrianOS's own scale.
+
 ### Phase 244 -- Semantic Trigger Tier (added 2026-07-30, post-milestone-close finding)
 
 Source: live investigation this session into a real navigator-reported symptom ("natural language doesn't trigger the right skill"), root-caused to `lib/core/sensors/sensor-types.cjs`'s Phase 172-07 trigger-tier doctrine (Canon Part 11 R3), which has no content-relevance tier -- only `signal`/`context` (structural) and `keyword` (lexicon fallback). Grounded via a langtalks-graph-expert corpus sweep (GraphRAG pipeline shape, "Atomic GraphRAG" multi-mode-retrieval architecture) and Tavily research (Semantic Router, RRF, MMR, GraphRAG local/global search) -- see `.planning/phases/244-semantic-trigger-tier/` once planned for the full research trail.
@@ -103,6 +111,9 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | MOAT-01 | Phase 242 | Complete (242-01) |
 | MOAT-02 | Phase 242 | Complete (242-02) |
 | GLYPH-01 | Phase 243 | Complete |
+| CTXL-01 | Phase 240.1 | Pending |
+| CTXL-02 | Phase 240.1 | Pending |
+| CTXL-03 | Phase 240.1 | Pending |
 | TRIG-01 | Phase 244 | Pending |
 | TRIG-02 | Phase 244 | Pending |
 | TRIG-03 | Phase 244 | Pending |
