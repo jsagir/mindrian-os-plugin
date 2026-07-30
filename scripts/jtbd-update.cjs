@@ -9,11 +9,19 @@
  * Sister hook to scripts/operator-update.cjs (Phase 99-04); distinct
  * scripts both registered, order-independent.
  * Skip silently (exit 0) on: no active room, empty userprompt, stop
- * with no /mos: in last response, manual override active. Transition
- * write fires when result.jtbd != current.jtbd OR same jtbd but
- * |confidence delta| > 0.15. Manual override (current.expires_at >
- * now) blocks auto-writes; jtbd-state appends `auto_blocked_by_manual`
- * history row + leaves current untouched.
+ * with no /mos: in last response, manual override active. Two paths
+ * after a real classification: a TRANSITION (result.jtbd != current.jtbd
+ * OR same jtbd but |confidence delta| > 0.15) writes state via setCurrent
+ * and fires the SENS-05 reweight, exactly as before; a NON-TRANSITION
+ * (same jtbd, delta within 0.15) now ticks current.turn_count via
+ * jtbd-state's bumpTurnCount instead of returning early. Manual override
+ * (current.expires_at > now) blocks auto-writes; jtbd-state appends
+ * `auto_blocked_by_manual` history row + leaves current untouched.
+ * MEM-01 fix (plan 240-04): the trigger for across-session promotion is
+ * now a turn count that grows on non-transition turns, decoupled from
+ * this topic-change gate, so continuous same-topic work becomes eligible
+ * for Layer 2 promotion where previously the gate below returned before
+ * the Phase 103-05 promotion block could ever run.
  * Graceful degradation per 100-CONTEXT D-11: any error -> stderr line
  * + exit 0. NEVER throw, NEVER block Larry. Latency target < 10ms
  * warm. MINDRIAN_DEBUG=1 -> <roomDir>/.mindrian/jtbd-update.log.
@@ -164,55 +172,73 @@ function main() {
     return;
   }
 
-  if (!isTransition(current, result)) {
+  const transitioned = isTransition(current, result);
+
+  if (!transitioned) {
     debugLog(roomDir, 'no transition; same jtbd, delta within ±0.15');
-    return;
+    // MEM-01 (plan 240-04): a same-topic turn no longer returns here. It
+    // ticks current.turn_count via jtbd-state's bumpTurnCount so continuous
+    // work becomes visible to the Phase 103-05 promotion block below, while
+    // setCurrent and the SENS-05 reweight (both gated on `transitioned`,
+    // below) stay untouched -- no per-turn history row, no entered_at drift.
+    // Own try/catch so a counter failure can never escape into Larry's turn,
+    // even though bumpTurnCount is itself already never-throw.
+    try {
+      const bumped = jtbdState.bumpTurnCount(roomDir, result.jtbd);
+      debugLog(roomDir, 'turn_count bumped to ' + bumped);
+    } catch (_e) { /* never throw -- counter tick is advisory */ }
   }
 
-  // setCurrent enforces manual override gate per 100-03: if
-  // current.expires_at > now and manual=false, jtbd-state appends
-  // 'auto_blocked_by_manual' history row + leaves current untouched.
-  jtbdState.setCurrent(roomDir, {
-    jtbd: result.jtbd,
-    confidence: result.confidence,
-    evidence: result.evidence,
-    trigger: event === 'userprompt' ? 'user_message' : 'stop_methodology',
-    manual: false,
-  });
+  if (transitioned) {
+    // setCurrent enforces manual override gate per 100-03: if
+    // current.expires_at > now and manual=false, jtbd-state appends
+    // 'auto_blocked_by_manual' history row + leaves current untouched.
+    jtbdState.setCurrent(roomDir, {
+      jtbd: result.jtbd,
+      confidence: result.confidence,
+      evidence: result.evidence,
+      trigger: event === 'userprompt' ? 'user_message' : 'stop_methodology',
+      manual: false,
+    });
 
-  // === Phase 144.1-06 RETRO-03 (audit item 63): route to sensor-jtbd-reweight ===
-  // The JTBD just set/changed; fire SENS-05 (jtbd-reweight) through the
-  // navigation chokepoint so the f-selector-ranker + Brain-query weighting can
-  // re-weight on the new slug. sensorJtbdReweight reads the slug + the prior
-  // transition (LOCAL only -- never the evidence text) and returns a candidate
-  // reach; we surface it as a chokepoint-routed spine_read memory_event carrying
-  // ONLY the reach handles + the JTBD/problem-type enums (Canon Part 8). Wrapped
-  // so a failure NEVER throws upward -- the Phase 100 Stop hook stays reliable.
-  try {
-    const { sensorJtbdReweight } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'sensors', 'sensor-jtbd-reweight.cjs'));
-    const reach = sensorJtbdReweight(null, {}, { roomDir: roomDir });
-    if (reach) {
-      const navigation = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'navigation.cjs'));
-      if (navigation && typeof navigation.logSpineRead === 'function') {
-        const ev = (reach.evidence && typeof reach.evidence === 'object') ? reach.evidence : {};
-        navigation.logSpineRead(roomDir, {
-          surface: reach.reach_id || 'context_block',
-          sensor: 'SENS-05',
-          dispatch: reach.dispatch || 'jtbd-reweight',
-          posture: reach.posture || 'hold',
-          jtbd: typeof ev.jtbd === 'string' ? ev.jtbd : null,
-          prior_jtbd: typeof ev.prior_jtbd === 'string' ? ev.prior_jtbd : null,
-          problem_type: typeof ev.problem_type === 'string' ? ev.problem_type : null,
-          source: 'jtbd-update',
-        });
+    // === Phase 144.1-06 RETRO-03 (audit item 63): route to sensor-jtbd-reweight ===
+    // The JTBD just set/changed; fire SENS-05 (jtbd-reweight) through the
+    // navigation chokepoint so the f-selector-ranker + Brain-query weighting can
+    // re-weight on the new slug. sensorJtbdReweight reads the slug + the prior
+    // transition (LOCAL only -- never the evidence text) and returns a candidate
+    // reach; we surface it as a chokepoint-routed spine_read memory_event carrying
+    // ONLY the reach handles + the JTBD/problem-type enums (Canon Part 8). Wrapped
+    // so a failure NEVER throws upward -- the Phase 100 Stop hook stays reliable.
+    try {
+      const { sensorJtbdReweight } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'sensors', 'sensor-jtbd-reweight.cjs'));
+      const reach = sensorJtbdReweight(null, {}, { roomDir: roomDir });
+      if (reach) {
+        const navigation = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'navigation.cjs'));
+        if (navigation && typeof navigation.logSpineRead === 'function') {
+          const ev = (reach.evidence && typeof reach.evidence === 'object') ? reach.evidence : {};
+          navigation.logSpineRead(roomDir, {
+            surface: reach.reach_id || 'context_block',
+            sensor: 'SENS-05',
+            dispatch: reach.dispatch || 'jtbd-reweight',
+            posture: reach.posture || 'hold',
+            jtbd: typeof ev.jtbd === 'string' ? ev.jtbd : null,
+            prior_jtbd: typeof ev.prior_jtbd === 'string' ? ev.prior_jtbd : null,
+            problem_type: typeof ev.problem_type === 'string' ? ev.problem_type : null,
+            source: 'jtbd-update',
+          });
+        }
       }
-    }
-  } catch (_e) { /* never throw -- reweight fire is advisory */ }
-  // === End Phase 144.1-06 additive ===
+    } catch (_e) { /* never throw -- reweight fire is advisory */ }
+    // === End Phase 144.1-06 additive ===
+  }
 
   // === Phase 103-05 additive: across-session promotion ===
   // Wrapped in try/catch so a failure in this block NEVER throws upward.
-  // Phase 100 Stop hook behavior remains byte-identical above.
+  // Reached on BOTH paths as of MEM-01 (plan 240-04): a real transition
+  // (setCurrent + the SENS-05 reweight above stay behind `transitioned`,
+  // so Phase 100 Stop hook behavior remains byte-identical) AND a
+  // non-transition turn (which now ticks turn_count above instead of
+  // returning early). See MEM-01 / plan 240-04.
   try {
     const acrossSession = require(path.join(PLUGIN_ROOT, 'lib', 'hmi', 'across-session-memory.cjs'));
     if (typeof acrossSession.isGlobalOptOut === 'function' && !acrossSession.isGlobalOptOut()) {
