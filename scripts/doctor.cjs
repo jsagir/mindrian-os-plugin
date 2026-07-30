@@ -1491,6 +1491,66 @@ function buildAcceptanceChecklist(ctx) {
         }
       },
     },
+    {
+      // Phase 244 Plan 06 (closing ROADMAP SC1 / RESEARCH BLOCKER B-2):
+      // "a presence/freshness check added to `node scripts/doctor.cjs
+      // --acceptance`, so an unbuilt index is visible rather than silently
+      // producing zero fires." This point calls the health module's check()
+      // DIRECTLY in-process (a sqlite_master read is cheap; unlike Class S it
+      // needs no separate process for model loading, so it never spawns).
+      //
+      // SEVERITY REASONING, stated explicitly so a future reader never assumes
+      // this was careless: EVERY entry in this checklist carries severity
+      // 'blocker' and --acceptance hard-aborts on any failed point. Absent is
+      // the CORRECT DEFAULT state of every room today (verified live against
+      // the 8.4 MB `rethinking-mindrianos` room.db, zero eureka_fts rows) --
+      // failing on absent would fail every release until every registered
+      // room has been rebuilt. Stale (rows pointing at nodes that no longer
+      // exist) is a genuine correctness defect that produces ghost triggers,
+      // so failing on stale is right. The LOGIC below, not a lowered severity,
+      // is what makes this point visibility rather than a blanket gate: it
+      // reports the full per-room census in `detail` on the PASSING path too
+      // (absent/empty/ok all pass), and fails ONLY when a room is classified
+      // index_stale.
+      //
+      // applies_to: ['pre-tag', 'full'] -- purely LOCAL sqlite_master reads
+      // against registered rooms, present before tag, no publish needed.
+      // DOCTOR_SKIP_EUREKA_FTS_HEALTH=1 is the hermetic-CI opt-out (mirrors
+      // DOCTOR_SKIP_EUREKA_SMOKE) for a tree with no registered room registry.
+      id: 'eureka-fts-index-visible',
+      label: 'local lexical trigger index (eureka_fts) is present and not stale, per registered room',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'eureka-fts-index-visible') {
+          return { ok: false, finding: 'eureka-fts-index-visible synthesized failure (test mode)', detail: {} };
+        }
+        if (process.env.DOCTOR_SKIP_EUREKA_FTS_HEALTH === '1') {
+          return { ok: true, finding: null, detail: { skipped: true, reason: 'DOCTOR_SKIP_EUREKA_FTS_HEALTH=1' } };
+        }
+        try {
+          const ftsHealthMod = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'eureka-fts-health-module.cjs'));
+          const result = ftsHealthMod.check({});
+          const rooms = Array.isArray(result && result.rooms) ? result.rooms : [];
+          const staleRoom = rooms.find(function (r) { return r && r.state === 'index_stale'; });
+          if (staleRoom) {
+            return {
+              ok: false,
+              finding: 'eureka_fts stale in room "' + staleRoom.room + '" ('
+                + staleRoom.orphan_rows + ' orphan row(s) pointing at deleted nodes)',
+              detail: { status: result.status, totals: result.totals, rooms: rooms },
+            };
+          }
+          return {
+            ok: true,
+            finding: null,
+            detail: { status: (result && result.status) || 'skip', totals: result && result.totals, rooms: rooms },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'eureka-fts-index-visible threw: ' + e.message, detail: {} };
+        }
+      },
+    },
   ];
 }
 
