@@ -165,6 +165,15 @@
       "fix_supported": false,
       "runner": "lib/core/doctor/graph-derive-heal-retrofit-module.cjs",
       "description": "One-time automatic retrofit (RCA 4c) for rooms whose derive queues were silently cleared before Phase 224-02's keep-on-failure fix. Walks every registered room, reuses graph-derive-health's detectRoomHealth, and re-enqueues each zero-cascade-edge room so the next in-session derive rebuilds its semantic layer. The heal runs inside check() because the ONCE pass is not gated behind --fix; the watermark then advances so it never repeats."
+    },
+    {
+      "id": "eureka-fts-health",
+      "introduced_version": "1.15.3-beta.51",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/eureka-fts-health-module.cjs",
+      "description": "Per-registered-room eureka_fts (lexical trigger index) presence, population and staleness census, read through the read-only navigation door so the census never mutates what it measures (RESEARCH BLOCKER B-2). An absent index is reported, not failed: absent is the correct default state of every room today. A stale index (rows pointing at deleted nodes) is a real defect and reports status warn."
     }
   ]
 }
