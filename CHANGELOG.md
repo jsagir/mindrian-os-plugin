@@ -1,6 +1,17 @@
 ## [Unreleased] -- v1.16.0-beta.2 (in progress)
 
 ### Added
+- **A documented, honest line on what the sensor bank actually controls about the reach dial
+  (quick-260731-35r).** When Larry surfaces the reach dial, the little ranked menu of next moves,
+  two different things are happening and it is easy to think they are one thing. The sensors, the
+  17 small detectors that watch a turn and fire when they recognise something, decide WHETHER that
+  dial appears at all. They do not decide WHAT sits at the top of it. The ordering comes entirely
+  from scoring your room's own graph nodes, on a completely separate code path that no sensor ever
+  reaches. Nothing changed in how any of it runs; what changed is that the boundary is now written
+  down at the exact function where a future reader would otherwise assume the opposite, plus a
+  finding artifact with every file and line number so anyone can check it in a minute instead of
+  tracing the code themselves. The practical payoff: nobody builds on the wrong mental model,
+  and nobody mistakes "a sensor fired" for "a sensor ranked what you are seeing."
 - 
 
 ## [1.16.0-beta.1] - 2026-07-31
