@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 240 CLOSED (6/6 plans, gsd-verifier VERIFICATION PASSED 3/3 success criteria independently re-proven via live mutations). MEM-01/02/03 all Complete. v1.16.0's 9 planned phases (235-243) are ALL CLOSED. Next: Gate 0 (official v1.15.0 stable close-out) before any v1.16.0 release cut -- phase work itself is done."
-last_updated: "2026-07-30T14:24:45.665Z"
-last_activity: 2026-07-30 -- Phase 240 (Memory) CLOSED. All 6 plans executed and independently gsd-verifier VERIFIED (status passed, 240-VERIFICATION.md, 3/3 success criteria): the verifier reverted scripts/jtbd-update.cjs's fix and confirmed the continuous-promotion test turns red, widened lazygraph-ops.cjs's INDEXER_OWNED_NODE_TYPES and confirmed the rebuild-survival test turns red, and independently built a sandbox .memory/ tree to reproduce the whole-tree-hash regression SC3 exists to catch. bash tests/run-all-240.sh PASS=8 FAIL=0 SKIP=0. Full regression battery (236, across-session-memory, jtbd-transition-graph-wiring, memory-hook-integration, 129-spine-substrate, memory-command, 150-brain-egress) matches every documented expected count exactly; the one pre-existing run-all-127.3.sh failure (test-127.3-sibling-sweep.sh) confirmed unrelated to this phase against a clean pre-240 worktree. ROADMAP.md Phase 240 checkbox and progress rows marked complete; REQUIREMENTS.md MEM-01/02/03 marked Complete. This closes all 9 phases (235-243) of the v1.16.0 milestone's planned phase work.
+stopped_at: Completed 236-04-PLAN.md (GRAPHDB-03 engines.node floor to >=22.16.0 + tests/run-all-236.sh). Phase 236 is 3/4; only 236-02 remains.
+last_updated: "2026-07-30T18:23:34.982Z"
+last_activity: 2026-07-30 -- Phase 240.1 execution started
 progress:
-  total_phases: 9
+  total_phases: 11
   completed_phases: 9
-  total_plans: 44
+  total_plans: 59
   completed_plans: 44
-  percent: 100
+  percent: 75
 ---
 
 # Project State
@@ -1586,14 +1586,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 240 — memory
+**Current focus:** Phase 240.1 — context-layer-drift-detection
 
 ## Current Position
 
-Phase: 240 (memory) — EXECUTING
-Plan: 1 of 6
-Status: Executing Phase 240
-Last activity: 2026-07-30 -- Phase 240 execution started
+Phase: 240.1 (context-layer-drift-detection) — EXECUTING
+Plan: 1 of 7
+Status: Executing Phase 240.1
+Last activity: 2026-07-30 -- Phase 240.1 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -2425,6 +2425,26 @@ Progress: [█████████░] 92%
 | Phase 145 P03 | 12min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
+
+- Phase 240.1 inserted (2026-07-30, URGENT) after Phase 240: Context-layer drift detection
+  and semantic/context distinction for the Data Room graph -- registered from a live research
+  session (`langtalks-graph-expert` ingest of a MotherDuck "Agentic AI and the Context Layer"
+  talk, Bev Turnbaugh, SF meetup hosted by Uncork Capital, plus MotherDuck's 2026-07-29 blog
+  post "Context belongs in the warehouse"). Three concrete findings drove the insertion, not
+  a vague "apply their ideas" ask: (1) STATE.md's own compute-state regeneration has no
+  schema-drift versioning or notification -- live-reproduced in this same session as a
+  self-contradicting frontmatter (`stopped_at` referencing Phase 236 while `Current Position`
+  said Phase 240 executing); (2) room.db's graph and BRAIN.md conflate semantic layer
+  (schema/joins) and context layer (business-term definitions/institutional knowledge)
+  without an explicit documented distinction; (3) MotherDuck benchmarked their context layer
+  on DABStep (+72pp accuracy, -55% cost) and MindrianOS has no equivalent benchmark for
+  whether room context measurably improves Larry's answers. `gsd-tools query phase.insert`
+  created the ROADMAP.md entry correctly, but again regressed this file's
+  `stopped_at`/`last_updated`/`last_activity` frontmatter to a stale Phase-236-era snapshot
+  (same failure class already logged against the Phase 232.1 insertion below) -- corrected
+  by hand immediately after. `state.add-roadmap-evolution` is SDK-only and unavailable in
+  this local CJS build, so this entry was appended by hand per the established
+  230/231/232-04/05/232.1 anti-clobber precedent.
 
 - Phase 233 added (2026-07-27): Graph-derive drain residual (SEED-037) -- heal ~16
   already-damaged rooms whose derive queues were silently cleared before Phase 224-02's
