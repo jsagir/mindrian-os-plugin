@@ -137,8 +137,15 @@ function main() {
   const toolInput = payload.tool_input;
   const sessionId = typeof payload.session_id === 'string' ? payload.session_id : undefined;
 
-  // Defense-in-depth: the matcher scopes this hook to mcp__brain_.* but re-check
-  // in-hook so a matcher drift cannot leak the gate open (OQ-1 backstop).
+  // Defense-in-depth (Phase 239, BRAIN-01): the matcher scopes this hook to
+  // the live Brain tool names in BOTH plugin scope
+  // (mcp__plugin_mos_mindrian-brain__brain_*) and project scope
+  // (mcp__mindrian-brain__brain_*). The in-hook re-check below derives from
+  // the SAME exported BRAIN_TOOL_MATCHER the hooks.json matcher is asserted
+  // equal to, so a matcher drift cannot leak the gate open (OQ-1 backstop).
+  // The fail-OPEN posture on a failed require below is a deliberate accepted
+  // risk (A3 / threat T6) this phase does NOT flip -- the complementary
+  // fail-CLOSED belt lands in brain-client.cjs (sibling plan 239-05).
   try {
     const sanitizer = require(SANITIZER_PATH);
     if (!sanitizer.isBrainTool(toolName)) return allow();
