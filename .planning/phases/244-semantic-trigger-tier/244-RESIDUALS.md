@@ -297,3 +297,16 @@ first; `grep -lP '\x{2014}'` returned zero matches across all 26, run in four ba
 plausibly affect. The two non-green results (`eureka-fts-index-visible` in the doctor acceptance
 roll-up, and `run-all-205.sh`'s pre-existing schema-drift failure) are both independently confirmed
 pre-existing conditions unrelated to this phase's changes, not regressions this phase introduced.
+
+**ADDENDUM (`gsd-verifier`, post-close, 2026-07-30):** `VERIFICATION.md` confirmed SC1/SC2/SC3 all
+VERIFIED, with one non-blocking coverage-gap finding on SC3: bypassing `_applyMmrDiversity`'s call
+site inside `rankForSelector` (a one-line edit, `const diversified = fused;`) leaves `bash
+tests/run-all-244.sh` fully green -- all 21 of `test-244-mmr-diversity.cjs`'s assertions call
+`_applyMmrDiversity` directly, none exercise it through `rankForSelector`'s own pipeline the way
+244-04's SC2 mutation proof does for `_applyTierFusion`. The feature is correctly wired TODAY
+(confirmed by direct source read against the live call site), but carries no regression fence
+against a future silent removal -- the exact "wired at one end" failure shape this milestone exists
+to close, here materialized as a coverage gap rather than a live defect. Non-blocking; did not gate
+phase closure. Recommended follow-up for a future plan: a fifth mutation proof in
+`test-244-mmr-diversity.cjs` mirroring 244-04's "delete the call site, confirm red" pattern, run
+through `rankForSelector` itself rather than calling `_applyMmrDiversity` in isolation.

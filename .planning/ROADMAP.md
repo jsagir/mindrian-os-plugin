@@ -34,7 +34,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 - [x] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit (completed 2026-07-28)
 - [x] **Phase 242: The Moat** - The HSI-to-graph rewrite is transaction-wrapped, and the PR checklist's dead KuzuDB warning becomes a machine-checked assertion (completed 2026-07-28)
 - [x] **Phase 243: Voice-Glyph** - The statusline's "who is speaking" signal reflects the glyph a turn actually opened with, not a fabricated default (completed 2026-07-28)
-- [ ] **Phase 244: Semantic Trigger Tier** - The sensor layer gains a real content-relevance trigger (SQLite FTS5 bm25, not keyword-fallback-only), and the dial fuses across trigger families instead of a flat score sort
+- [x] **Phase 244: Semantic Trigger Tier** - The sensor layer gains a real content-relevance trigger (SQLite FTS5 bm25, not keyword-fallback-only), and the dial fuses across trigger families instead of a flat score sort (completed 2026-07-30)
 
 ## Phase Details
 
