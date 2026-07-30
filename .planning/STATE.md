@@ -3,18 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 236-04-PLAN.md (GRAPHDB-03 engines.node floor to >=22.16.0 + tests/run-all-236.sh). Phase 236 is 3/4; only 236-02 remains.
-last_updated: "2026-07-30T18:23:34.982Z"
-last_activity: 2026-07-30 -- Phase 240.1 execution started
+stopped_at: Completed 240.1-07-PLAN.md close-out; Phase 240.1 CLOSED 7/7, gsd-verifier PASSED 3/3. Phase 244 Wave 3 (244-05/06/07) in flight; Wave 4 (244-08) queued.
+last_updated: "2026-07-30T20:10:00.000Z"
+last_activity: 2026-07-30 -- Phase 240.1 closed (7/7, verified); Phase 244 Wave 3 dispatched
 progress:
   total_phases: 11
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 59
-  completed_plans: 44
-  percent: 75
+  completed_plans: 55
+  percent: 93
 ---
 
 # Project State
+
+## (2026-07-30) -- PHASE 240.1 CLOSED (7/7 plans) -- Context-Layer Drift Detection: CTXL-01/02/03 all independently verified, not just claimed
+
+- **Position:** v1.16.0 Phase 240.1 (Context-Layer Drift Detection, urgent insertion) is CLOSED. All 7 plans executed and independently verified (`240.1-VERIFICATION.md`, status `passed`, 3/3 ROADMAP success criteria). ROADMAP.md marks the phase `[x]` complete (2026-07-30); REQUIREMENTS.md marks CTXL-01/02/03 `[x]`.
+- **Research corrected a scoping ambiguity before any code was written.** CTXL-01's original wording named "STATE.md" ambiguously across TWO different files -- `.planning/STATE.md` (external `gsd-core`, already root-caused by two prior RCAs concluding "no in-repo fix available") vs. the PER-ROOM `STATE.md` `scripts/compute-state` generates, which blind-overwrites and destroys the `gsd_state_version` stamp `scripts/room-registry` seeds at room birth (empirically reproduced live). Navigator ruling: target the per-room file. The planner then found a SEVENTH write site missing from the research census (`scripts/room-registry`'s `_write_current_room()`, already preserving every sibling key, prior art not a defect) and corrected the `PRESERVED_KEYS` design to exclude `current_room` (it must re-derive per room, not resurrect a stale active-room marker on parked rooms).
+- **Wave 1 (240.1-01, 02, 04, 05, parallel):** 01 built `tests/run-all-2401.sh` RED-first, with a glob-discipline self-test proving it cannot mistake Phase 240's `test-240-*` files for 240.1 coverage, plus a scope-escape tripwire making the locked per-room-STATE.md decision a standing machine check. 02 built `lib/core/state-version.cjs` (ported from `install-state.cjs::migrateIfNeeded`'s four-branch preserve-or-notify contract) and wired write site 1 in `state-ops.cjs` (fixing a real pre-existing em-dash and a measurably false "single Node chokepoint" comment along the way). 04 wrote the SEMANTIC-vs-CONTEXT doctrine into `docs/MWP-SPECIFICATION.md` section 2.8 and `docs/BRAIN-MD-SCHEMA.md` section 5.1, pinned to `INDEXER_OWNED_NODE_TYPES` as the operational boundary Phase 236 already had to discover the hard way. 05 built the fixture room and the grounded, verbatim-string-anchored CTXL-03 task set.
+- **Wave 2 (240.1-03, 06, parallel):** 03 built `scripts/state-write.cjs` as the bash-to-Node bridge and converted the three remaining hook write sites plus cascade Step 8 (including `on-agent-complete`'s truncating redirect), proven end to end at the real hook sites rather than only through `computeState()` directly. 06 built `scripts/ctxl-eval.cjs`, the third instance of the `huji-eval.cjs`/`skillopt-eval.cjs` two-layer idiom: judge calibration, graded anchors, correlation gate, cost ledger, before/after comparison, six deterministic zero-spend checks plus an opt-in `CTXL_EVAL_LIVE` A/B leg that skips cleanly; a null or negative delta is a recorded PASS with a finding, never a FAIL.
+- **Wave 3 (240.1-07, solo, final):** wrote the phase residual register (8 items, led by the explicit record that the `.planning/STATE.md` half is NOT fixed, citing both existing RCAs), the `room-birth.cjs` node-on-a-bash-script RCA, honored Dev-Research Compositing at `rethinking-mindrianos/research/2026-07-30-context-layer-drift-detection/` (cross-linked both ways, alongside the sibling MotherDuck research entry), and ran the full phase gate.
+- **MotherDuck source material moved from LOW to VERIFIED confidence mid-phase:** Tavily-confirmed against the primary source (`motherduck.com/blog/context-belongs-in-the-warehouse`, 2026-07-29) -- the +72pp accuracy / -55% cost-per-run DABStep figures are real, plus a second corroborating post (`oops-maybe-we-do-need-semantic-layers`) showing baking domain knowledge INTO the warehouse capped at 93% accuracy while a separate curated layer hit 100%, a stronger falsifiable version of the same split CTXL-02 names. Filed to `rethinking-mindrianos` per Dev-Research Compositing, cited by URL in both doctrine sections rather than presented as MindrianOS's own numbers.
+- **`gsd-verifier` independently re-proved, not just checked the SUMMARYs:** reverted `state-ops.cjs` to a blind `fs.writeFileSync`, confirmed `tests/run-all-2401.sh` fell from 8/8 to 1 passed / 4 failed exactly as documented, restored byte-identical, confirmed green again. Stripped the `INDEXER_OWNED_NODE_TYPES` citation from the doctrine docs and confirmed `test-240.1-layer-doctrine-presence.cjs` reddened on the exact missing-token assertion (36 assertions total), proving the gate is heading-anchored and not vacuous on the bare words "semantic"/"context" appearing elsewhere in the file. `bash tests/run-all-2401.sh` PASS=8 FAIL=0 SKIP=0. `node scripts/doctor.cjs --acceptance` 14/15 (the one failure, `verify-release-clean-tree`, traced to pre-existing unrelated dirty statusline/context-monitor WIP from a concurrent session, not a 240.1 regression). Em-dash sweep across all 21 phase-touched files: zero hits.
+- **NEXT:** Phase 244 (Semantic Trigger Tier) is the only phase left in v1.16.0, Wave 3 (244-05, 244-06, 244-07) in flight, Wave 4 (244-08) still queued. Gate 0 (the official v1.15.0 stable close-out) remains open separately and gates any v1.16.0 release CUT, not phase work itself.
 
 ## (2026-07-30) -- PHASE 240 CLOSED (6/6 plans) -- Memory: MEM-01/02/03 all independently verified, not just claimed. v1.16.0's 9 planned phases are ALL CLOSED.
 

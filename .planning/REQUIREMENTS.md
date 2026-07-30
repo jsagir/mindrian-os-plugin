@@ -50,9 +50,9 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 
 Source: a live, reproduced STATE.md self-contradiction this session (`stopped_at` referencing Phase 236 while `Current Position` said Phase 240 executing) from concurrent-session writes, plus MotherDuck's 2026-07-29 blog post "Context belongs in the warehouse" and the Bev Turnbaugh SF meetup talk (hosted by Uncork Capital).
 
-- [ ] **CTXL-01**: STATE.md's compute-state artifact carries a schema version stamp; a regeneration detecting a version mismatch surfaces a notification instead of silently overwriting.
-- [ ] **CTXL-02**: room.db's graph schema and BRAIN.md each carry an explicit, documented SEMANTIC-layer (schema/structure) vs. CONTEXT-layer (business-term/institutional-knowledge) distinction, not an implicit conflation.
-- [ ] **CTXL-03**: A benchmark gate measures whether room context measurably improves Larry's answer accuracy on a fixed local task set, mirroring MotherDuck's DABStep methodology at MindrianOS's own scale.
+- [x] **CTXL-01**: STATE.md's compute-state artifact carries a schema version stamp; a regeneration detecting a version mismatch surfaces a notification instead of silently overwriting. REVISED scope (240.1-RESEARCH.md, navigator-confirmed): targets the PER-ROOM STATE.md `scripts/compute-state` regenerates, not `.planning/STATE.md` (external gsd-core, already root-caused elsewhere as no in-repo fix available). `lib/core/state-version.cjs` wired into all 5 in-repo write sites; independently mutation-proven by `gsd-verifier`.
+- [x] **CTXL-02**: room.db's graph schema and BRAIN.md each carry an explicit, documented SEMANTIC-layer (schema/structure) vs. CONTEXT-layer (business-term/institutional-knowledge) distinction, not an implicit conflation. `docs/MWP-SPECIFICATION.md` section 2.8 and `docs/BRAIN-MD-SCHEMA.md` section 5.1, pinned to `INDEXER_OWNED_NODE_TYPES` as the operational boundary; heading-anchored doctrine-presence gate mutation-proven, not vacuous on the bare words.
+- [x] **CTXL-03**: A benchmark gate measures whether room context measurably improves Larry's answer accuracy on a fixed local task set, mirroring MotherDuck's DABStep methodology at MindrianOS's own scale. `scripts/ctxl-eval.cjs`, third instance of the `huji-eval.cjs`/`skillopt-eval.cjs` two-layer idiom; live-verified 12/12 selftest, 4 PASS + 2 correctly-skipped suite run, zero-spend `CTXL_EVAL_LIVE`-gated A/B leg.
 
 ### Phase 244 -- Semantic Trigger Tier (added 2026-07-30, post-milestone-close finding)
 
@@ -111,9 +111,9 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | MOAT-01 | Phase 242 | Complete (242-01) |
 | MOAT-02 | Phase 242 | Complete (242-02) |
 | GLYPH-01 | Phase 243 | Complete |
-| CTXL-01 | Phase 240.1 | Pending |
-| CTXL-02 | Phase 240.1 | Pending |
-| CTXL-03 | Phase 240.1 | Pending |
+| CTXL-01 | Phase 240.1 | Complete |
+| CTXL-02 | Phase 240.1 | Complete |
+| CTXL-03 | Phase 240.1 | Complete |
 | TRIG-01 | Phase 244 | Pending |
 | TRIG-02 | Phase 244 | Pending |
 | TRIG-03 | Phase 244 | Pending |
