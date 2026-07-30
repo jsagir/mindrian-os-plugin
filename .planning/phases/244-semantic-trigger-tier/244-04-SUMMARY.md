@@ -202,6 +202,10 @@ LIVE-SEAM observed rankFn args: {"roomState":{},"problemType":"WDP","tierCandida
 - Plan 08 can document `TRIG_RRF_K` in `docs/ENV-TUNING.md` alongside the existing `EUREKA_RRF_K` entry, contrasting the two dials' corpus-size rationale.
 - No blockers. The seam is proven live at both ends: a genuine production caller (`orchestration-candidate-lift.cjs`) supplies tier candidates, and `rankForSelector`'s absence path remains byte-identical to pre-244 behavior.
 
+## Self-Check: PASSED
+
+All claimed files exist on disk (`lib/workflow/f-selector-ranker.cjs`, `lib/core/orchestration-candidate-lift.cjs`, `tests/test-244-rrf-fusion.cjs`, this SUMMARY.md). All four claimed commit hashes (`6830835d`, `39dfb36d`, `2c1b90d0`, `3085742e`) are present in `git log --oneline --all`.
+
 ---
 *Phase: 244-semantic-trigger-tier*
 *Completed: 2026-07-30*
