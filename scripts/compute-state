@@ -237,7 +237,22 @@ timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Quick 260723-ad9: emit the frontmatter line-by-line so current_room is
 # included ONLY for the registry-active room (empty slug -> no line, no
-# backfill). Because the block is emitted fresh, this cannot clobber siblings.
+# backfill).
+#
+# CORRECTED (Phase 240.1 Plan 03, CTXL-01): this script is a PURE RENDER TO
+# STDOUT and never reads the target file. The emitted frontmatter block
+# below deliberately carries NO version stamp. Version preservation and
+# persistence belong to lib/core/state-version.cjs::persistState, which
+# every STATE.md write site must call -- either directly (Node callers) or
+# via scripts/state-write.cjs (bash callers piping this script's stdout
+# through it). A manual `bash scripts/compute-state <room> > STATE.md`
+# bypasses persistState entirely and WILL drop the gsd_state_version and
+# status stamps that scripts/room-registry seeds at room birth
+# (240.1-RESEARCH.md Finding 1B). The old comment here read "because the
+# block is emitted fresh, this cannot clobber siblings" -- that is true
+# within this frontmatter block and false about the block as a whole,
+# because the whole prior frontmatter is discarded by whatever caller
+# redirects this script's output.
 echo "---"
 echo "computed: ${timestamp}"
 echo "venture_stage: ${venture_stage}"

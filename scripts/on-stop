@@ -142,7 +142,13 @@ ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 if [ -d "$ROOM_DIR" ]; then
   # Room exists -- compute state and write STATE.md
   state_content=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "# Data Room State\n\nError computing state.")
-  printf '%s\n' "$state_content" > "${ROOM_DIR}/STATE.md"
+  # Phase 240.1 Plan 03 (CTXL-01): route the persist through
+  # scripts/state-write.cjs (which calls lib/core/state-version.cjs::persistState)
+  # instead of a bare redirect, so the gsd_state_version/status stamp survives
+  # regeneration at this hook-driven write site too. Never blocking: the
+  # bridge always exits 0 and the advisory stderr line is intentionally left
+  # un-redirected (not sent to /dev/null) so it stays visible.
+  printf '%s\n' "$state_content" | node "${SCRIPT_DIR}/state-write.cjs" "$ROOM_DIR" || true
 
   # Track session end
   bash "${SCRIPT_DIR}/track-analytics" session-stop 2>/dev/null &

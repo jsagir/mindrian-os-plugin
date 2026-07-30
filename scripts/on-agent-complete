@@ -127,10 +127,29 @@ for file_path in "${modified_files[@]}"; do
   cascade_count=$((cascade_count + 1))
 done
 
-# Recompute room state after all cascades are dispatched
+# Recompute room state after all cascades are dispatched.
+#
+# Phase 240.1 Plan 03 (CTXL-01): this used to be `compute-state ... >
+# STATE.md`, and the shell truncates STATE.md to ZERO BYTES before
+# compute-state even starts running (240.1-RESEARCH.md Pitfall 3), so any
+# version read at that point saw an empty file -- the version stamp
+# scripts/room-registry seeds at room birth was destroyed on every
+# post-subagent regeneration. Converted to the same capture-then-pipe shape
+# used at scripts/on-stop: capture compute-state's stdout into a variable
+# FIRST, then pipe it into scripts/state-write.cjs (which reads the PRIOR
+# on-disk STATE.md before writing, via lib/core/state-version.cjs::persistState).
+# The `2>/dev/null || true` stderr discard is kept at this one site (unlike
+# on-stop, which intentionally leaves the advisory line visible) because this
+# whole block runs inside a backgrounded `( ... ) &` subshell -- its stderr
+# is not user-visible on any surface regardless of redirection, and the
+# durable record of a version-mismatch survives anyway via the
+# schema-violations.jsonl append that persistState() performs internally.
 (
   sleep 1  # Wait for cascades to start
-  "${SCRIPT_DIR}/compute-state" "$ROOM_DIR" > "${ROOM_DIR}/STATE.md" 2>/dev/null || true
+  state_content=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "")
+  if [ -n "$state_content" ]; then
+    printf '%s\n' "$state_content" | node "${SCRIPT_DIR}/state-write.cjs" "$ROOM_DIR" 2>/dev/null || true
+  fi
 ) &
 
 # Track subagent completion
