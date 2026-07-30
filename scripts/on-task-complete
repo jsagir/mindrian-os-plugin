@@ -50,7 +50,11 @@ fi
 # 1. Recompute room state (updates venture stage, entry counts, gaps)
 state_content=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "")
 if [ -n "$state_content" ]; then
-  printf '%s\n' "$state_content" > "${ROOM_DIR}/STATE.md"
+  # Phase 240.1 Plan 03 (CTXL-01): route the persist through
+  # scripts/state-write.cjs instead of a bare redirect, so the
+  # gsd_state_version/status stamp survives regeneration at this
+  # hook-driven write site too.
+  printf '%s\n' "$state_content" | node "${SCRIPT_DIR}/state-write.cjs" "$ROOM_DIR" || true
 fi
 
 # 2. Check REASONING.md staleness across all sections
