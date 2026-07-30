@@ -3,18 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 240.1-07-PLAN.md close-out; Phase 240.1 CLOSED 7/7, gsd-verifier PASSED 3/3. Phase 244 Wave 3 (244-05/06/07) in flight; Wave 4 (244-08) queued.
-last_updated: "2026-07-30T20:10:00.000Z"
-last_activity: 2026-07-30 -- Phase 240.1 closed (7/7, verified); Phase 244 Wave 3 dispatched
+stopped_at: Completed 244-08-PLAN.md close-out (Wave 4, LAST plan of Phase 244); phase gate run end to end, 244-RESIDUALS.md written, canon ledger entry recorded, rethinking-mindrianos mirror filed. Phase 244 plan work complete 8/8; phase-level ROADMAP checkbox intentionally left unchecked for gsd-verifier.
+last_updated: "2026-07-31T00:15:00.000Z"
+last_activity: 2026-07-30 -- Phase 244 (Semantic Trigger Tier) Wave 4 (244-08) closed; all 8 plans of the phase now complete
 progress:
   total_phases: 11
-  completed_phases: 10
+  completed_phases: 11
   total_plans: 59
-  completed_plans: 55
-  percent: 93
+  completed_plans: 59
+  percent: 100
 ---
 
 # Project State
+
+## (2026-07-30) -- PHASE 244 Wave 4 (244-08) COMPLETE, LAST PLAN -- Semantic Trigger Tier: TRIG-01/02/03 all shipped, phase gate run end to end, zero production code in this closing plan
+
+- **Position:** Phase 244 (Semantic Trigger Tier) plan work is now 8/8 complete. This closing plan (244-08) wrote zero production code by design: it documented the five new env vars (`docs/ENV-TUNING.md`), wrote the phase residual register (`.planning/phases/244-semantic-trigger-tier/244-RESIDUALS.md`), recorded the canon ledger entry (`docs/CANON-PHASE-MAP.md`, `canon_parts` 3/6/7/8/9/11, additive wiring only, no frozen-set move), ran the full phase gate end to end, and mirrored the reasoning trail to the `rethinking-mindrianos` room per the Dev-Research Compositing mandate. The PHASE-LEVEL ROADMAP checkbox is intentionally left unchecked -- phase closure is the orchestrator's step after `gsd-verifier` runs, not this plan's.
+- **The phase itself (244-01 through 244-07, closed earlier this session) was a wiring phase, not a build phase.** Research found the FTS5+bm25 lexical retrieval leg and the Reciprocal Rank Fusion implementation this phase needed already shipped in production (Phase 211-02/219-02); building either from scratch would have been a Canon Part 7 violation. The real gap was that `trigger_tier` was decorative -- computed once, consumed by zero rankers. This phase added SENS-16 (`sensor-content-relevance.cjs`, the 3-layer sensor split), wired the FTS index's missing production lifecycle (lazy build-on-first-miss, closing RESEARCH BLOCKER B-2), closed a real ghost-trigger data-integrity hazard (a guarded reconcile inside `rebuildGraph`'s existing transaction, found and fixed a placement bug live before it shipped), threaded cross-family rank fusion into `f-selector-ranker.cjs` via an optional no-op-safe argument (TRIG-02), and added an MMR diversity pass with the canonical Carbonell orientation, correcting the ROADMAP's own inverted lambda wording before it shipped (TRIG-03).
+- **The phase gate is green on every command Phase 244's own code could plausibly affect.** `bash tests/run-all-244.sh`: PASS=9 FAIL=0 SKIP=0. `bash tests/run-all-219.sh` and `bash tests/run-all-236.sh`: byte-identical to every prior plan's baseline. `bash tests/run-all-205.sh`: the one pre-existing failure (`edges.review_status` schema drift from a concurrent session) reconfirmed unrelated a second, independent way (the owning file `room-db.cjs` was last touched by an unrelated Phase 236 commit, not by anything in Phase 244). `node lib/memory/run-feynman-tests.cjs` bounded-timeout SKIPPED with the two directly-relevant sub-suites (`navigation-engine-core`/`navigation-engine-offer`) run to completion and green instead. `node scripts/doctor.cjs --acceptance`: 15/16 after discarding 3 known auto-regenerated cache-file diffs (`verify-release-clean-tree` then passes); the sole remaining failure, `eureka-fts-index-visible`, is a genuine pre-existing production finding, not a Phase 244 defect (see below).
+- **A real, confirmed production finding, not a phase-244 defect:** the new `eureka-fts-index-visible` doctor point (shipped in 244-06, working exactly as designed) found TWO real rooms on this machine with orphaned, stale `eureka_fts` rows predating the 244-03 reconcile: `jonathan-contractor-motj` (451 orphan rows) and `aion-eureka-synergy` (308 orphan rows). Confirmed independently at 244-08 execution time by calling the doctor module's `check()` function directly (not just citing 244-06-SUMMARY.md). This is the doctor module doing its job -- a stale index is now visible where it was silently invisible before. Navigator action item: rebuild the two named rooms (the existing rebuild mechanism now reconciles cleanly), or use `DOCTOR_SKIP_EUREKA_FTS_HEALTH=1` for one release.
+- **Both navigator asks named in the plan (the SC3 MMR lambda inversion, and Finding F-10's exclusion-rationale correction) were already resolved earlier in the phase, not left open at close.** Re-confirmed live at 244-08: `.planning/ROADMAP.md`'s SC3 and the F-10 stack-constraint paragraph both already carry the corrected text, consistent with what shipped.
+- **The mandated langtalks-graph-expert grounding consult remains unreachable, re-checked not assumed.** `mcp__langtalks-graph-expert__*` tools were checked directly in this executing agent's own toolset at 244-08 execution time and confirmed absent -- the identical MCP-stripping condition 244-RESEARCH.md documented at research time, now independently reconfirmed at execution time rather than assumed resolved. Recorded as STILL OPEN in `244-RESIDUALS.md` Section 4, not papered over.
+- **NEXT:** Phase 244 is the only phase that was still open in v1.16.0; its plan work is now complete (8/8). `gsd-verifier` runs next; only then does the orchestrator check the phase-level ROADMAP checkbox and close out v1.16.0's plan work in full. Gate 0 (the official v1.15.0 stable close-out) remains open separately and gates any v1.16.0 release CUT, not phase work itself.
 
 ## (2026-07-30) -- PHASE 240.1 CLOSED (7/7 plans) -- Context-Layer Drift Detection: CTXL-01/02/03 all independently verified, not just claimed
 

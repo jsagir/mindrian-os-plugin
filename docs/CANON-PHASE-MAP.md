@@ -324,6 +324,20 @@ rule, the phase declares canon_parts and this map records it.
 |---------|-------------------|-------------|-----------|
 | shipped | Phase 170 dual-use-diffusion-ace | 2, 3, 4, 6, 7, 8, 9 | `.planning/phases/170-dual-use-diffusion-ace/170-CONTEXT.md`. Brain: `Framework {name:'Adoption-Capacity Theory'}` (+ Hooked Model enrichment + Self-Selling Loop), variables/cases/typology/pipeline/critiques/extensions, FEEDS_INTO chain. Trigger: `lib/core/sensors/sensor-diffusion-adoption.cjs` (SENS-09, frozen `brain_consult` reach, keyword + marker + signal modes) registered in `lib/core/insight-sensors.cjs`; `data/dispatch-framework-map.json` adoption-capacity -> "Adoption-Capacity Theory" -> `/mos:analyze-timing`; `data/framework-names.json` curated_extras; `tests/test-diffusion-adoption-sensor.cjs` 20/20. Part 8: Brain holds generic methodology only; sensor egresses generic handles + scalar evidence. |
 
+### v1.16.0 Semantic Trigger Tier addition (added 2026-07-30)
+
+Phase 244 gives a fourth `trigger_tier` member (`content`, lexical relevance to LOCAL room
+material via bm25) real runtime consumers, closing the gap its own doctrine comment already
+named ("Mints NO reach and NO edge -- it is a classifier only"). This is ADDITIVE wiring, not a
+frozen-set move: no new reach id, edge type, or node type is minted, and MAX_K=3 / DIAL_REACH_K=6
+/ the 0.70/0.15 detent are all byte-identical before and after. Per Canon Part 6 (dog-fooding) +
+the forward-compatibility rule, the phase declares canon_parts and this map records it. No
+canon-text change; map row only.
+
+| Status | Phase / Component | Canon Parts | Reference |
+|--------|-------------------|-------------|-----------|
+| shipped | Phase 244 semantic-trigger-tier | 3, 6, 7, 8, 9, 11 | `.planning/phases/244-semantic-trigger-tier/`. **Part 3** (Tri-Context Decision Gate): the new SENS-16 content-tier candidate rides the existing frozen Shape F selector path (`MAX_K=3`, `DIAL_REACH_K=6`, the 0.70/0.15 detent), unchanged by this phase's fusion/diversity passes. **Part 6** (Dog-Fooding): the phase's own closing plan (244-08) mirrors its research and residual register into the `rethinking-mindrianos` MindrianOS-dev consultant room per the Dev-Research Compositing mandate, honoring the plugin's own canon on itself. **Part 7** (Reuse Before Build): the FTS5+bm25 retrieval leg (`tri-modal-index.cjs`, Phase 211-02) and the RRF fusion primitive (`hybrid-retrieve.cjs::rrfFuse`, Phase 211-02/219-02) were reused verbatim, never rebuilt; the MMR diversity pass reuses the already-shipped `lexicalOverlap` Jaccard primitive as its sole similarity term. **Part 8** (Graph Boundary): the new SENS-16 sensor's reach evidence carries only closed scalars (`hit_count`, `coverage`, `trigger_tier`, `sub_mode`) -- no matched text, no node ids, no turn prose -- fenced at both the pre- and post-`makeReach` boundary (244-05); the MMR similarity projection reads only LOCAL command handles (`command`, `jtbd_label`, `framework`), never prose fields. **Part 9** (Memory Locality): `eureka_fts` is a derived SQL projection, not graph memory; the reconcile added in 244-03 rides the existing `rebuildGraph`/`build-ecosystem-graph.cjs` transactions rather than opening a second write path. **Part 11** (CIRS): SENS-16 rides the existing frozen `context_block` reach (fail-closed at module load if it ever drifts off the bank) and mints no 7th reach id; no new connector-registry entry was needed, matching the existing SENS-11/SENS-12 precedent of sensors riding `context_block` with no connector entry (`node scripts/build-connector-registry.cjs --check` confirmed green with 18 registered sensors). Requirements TRIG-01/02/03. No canon-text change; map row only. |
+
 ### Part 11 - The Invocation Constitution (CIRS)
 
 Ratified 2026-06-22 (canon v1.13 -> v1.14, Appendix D entry 25) in a disciplined-minimal form after a

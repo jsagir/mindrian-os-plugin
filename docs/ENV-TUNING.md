@@ -144,6 +144,144 @@ TUNABLE-LATER. Any non-finite or non-positive value falls back to the default.
 export MINDRIAN_HEDGE_ETA=0.3
 ```
 
+## Semantic Trigger Tier (Phase 244, room-local, zero egress)
+
+Phase 244 gives `trigger_tier` a fourth member, `content`: lexical relevance to
+the room's own curated material (bm25 over the `eureka_fts` FTS5 index),
+sitting between `context` and `keyword` in the frozen R3 precedence. Fusing
+that signal against the D4 command-registry ranking and keeping near-duplicate
+candidates from crowding out a genuinely different one needed two small,
+already-shipped primitives wired together, not new ones: Reciprocal Rank
+Fusion (`hybrid-retrieve.cjs::rrfFuse`) and Maximal Marginal Relevance
+diversity (`lexical-overlap.cjs::lexicalOverlap` as the similarity term). Both
+tunables below live in `lib/workflow/f-selector-ranker.cjs`, resolved once at
+module load with a numeric fallback, so a malformed operator env can never
+zero out or invert ranking. All four numeric variables are room-local ranking
+tunables with zero egress (Canon Part 8): the fused/diversified lists never
+leave the local process, and the similarity projection reads only LOCAL
+command handles (`command`, `jtbd_label`, `framework`), never prose.
+
+### TRIG_RRF_K
+
+**What:** The rank-fusion `k` in `1/(k+rank)` for the cross-family fusion pass
+(`_applyTierFusion`) that merges the D4 command-registry ranking against
+caller-supplied tier-tagged candidate lists before the `MAX_K=3` cut.
+**Default:** `25` (a positive finite number). Invalid values (non-numeric,
+zero, negative) clamp back to `25`.
+**Why not the textbook 60:** this repo's own 2026-07-04 small-corpus
+validation (`hybrid-retrieve.cjs:8-13`) prescribed `k` in 20-30, not the
+Cormack/Clarke/Buttcher SIGIR 2009 textbook default of 60: small corpora want
+LESS top-rank dampening. With `MAX_K=3`, the dial's candidate list is only 3
+to 6 items, which is exactly the small-corpus case that validation covers.
+**Honest limitation:** at `k=25` the rank-1-versus-rank-2 RRF gap is about 3.8
+percent, small relative to the frozen 0.15 `BEHAVIORAL_CHANNEL_MARGIN` detent
+threshold, so RRF ordering alone rarely flips that detent on its own. The
+diversity term (`TRIG_MMR_LAMBDA` below) is what actually changes outcomes;
+this fusion pass earns its keep mainly when a cross-family candidate is
+buried multiple ranks deep by the D4 score. `TRIG_RRF_K` is a DEDICATED
+variable, never overloading the eureka subsystem's own room-scale fusion-k
+dial: the two consumers have different corpus sizes, so sharing one dial
+would couple two unrelated tuning knobs.
+
+```bash
+export TRIG_RRF_K=25
+```
+
+### TRIG_MMR_LAMBDA
+
+**What:** `MMR_LAMBDA_RELEVANCE`, the relevance-vs-diversity weight for the
+greedy Maximal Marginal Relevance pass (`_applyMmrDiversity`) that runs after
+fusion and before the `MAX_K=3` slice, so three near-duplicate same-family
+candidates cannot occupy every top slot when a genuinely different candidate
+is available.
+**Default:** `0.7`, clamped to the closed interval `[0, 1]`. Any non-finite or
+out-of-range value falls back to `0.7`.
+**Orientation, stated in the user's terms:** this is the RELEVANCE weight, not
+a diversity weight. `1.0` means pure relevance (the diversity term is zeroed
+out, output equals plain relevance order); `0.0` means pure diversity (the
+relevance term is zeroed out, the greedy loop picks purely to minimize
+similarity to what is already selected). At the shipped default of `0.7`,
+relevance dominates but a sufficiently similar top candidate can still be
+displaced by a more diverse runner-up.
+**The ROADMAP inversion, named so it is not repeated as a bug report:**
+ROADMAP SC3 states the MMR formula as
+`(1-lambda)*relevance - lambda*max_similarity_to_selected`. That form is
+algebraically equivalent to the canonical Carbonell and Goldstein (SIGIR
+1998) orientation under `lambda' = 1 - lambda`, but the SEMANTICS OF THE KNOB
+ARE FLIPPED: writing `lambda=0.7` under the ROADMAP's form intending "mostly
+relevance" would actually produce "mostly diversity". This implementation
+follows the CANONICAL orientation (`lambda * Rel - (1-lambda) * maxSim`), and
+the constant is named `MMR_LAMBDA_RELEVANCE` so the name itself carries the
+correct semantics. SC3's one-line formula needs a navigator amendment to
+match; see `.planning/phases/244-semantic-trigger-tier/244-RESIDUALS.md`
+Section 2 for the exact wording change.
+
+```bash
+export TRIG_MMR_LAMBDA=0.7
+```
+
+### TRIG_CONTENT_MIN_HITS
+
+**What:** The floor on `hit_count`, the plain number of `eureka_fts` bm25
+matches, below which the `content` trigger tier's sensor (`SENS-16`,
+`sensor-content-relevance.cjs`) does not fire.
+**Default:** `2` (a non-negative number, read from source at doc time). Any
+non-numeric or negative value falls back to `2`.
+**Why it moves what the user sees:** raising it (for example `3`) makes the
+content tier fire only on turns with stronger corpus-relative evidence,
+reducing false positives on a thin match; lowering it (for example `1`) makes
+the tier fire more readily, at the cost of surfacing weaker single-word
+coincidences.
+
+```bash
+export TRIG_CONTENT_MIN_HITS=2
+```
+
+### TRIG_CONTENT_MIN_COVERAGE
+
+**What:** The floor on `coverage`, the fraction of sanitized query tokens
+present in the top hit's indexed text, below which the `content` trigger
+tier's sensor does not fire.
+**Default:** `0.34` (a float in `[0, 1]`, read from source at doc time). Any
+non-numeric or out-of-range value falls back to `0.34`.
+**Why coverage, not an absolute bm25 threshold:** bm25 is NOT comparable
+across queries, because it varies with query term count and corpus
+statistics, so a fixed bm25 cutoff would mean different things on different
+turns. Coverage is comparable across turns. The measured separation on the
+live `rethinking-mindrianos` room (244-RESEARCH.md Pitfall 3) supports the
+default: relevant turns landed at 40 and 100 percent coverage, one weak
+spurious match landed at 17 percent. **Research assumption A5, carried as
+STILL OPEN in the residual register:** this was measured on ONE room only; a
+second room should validate the floor before it is treated as settled.
+**Why it moves what the user sees:** raising it (for example `0.5`) requires
+a tighter lexical match before the content tier fires, reducing spurious
+single-token coincidences; lowering it (for example `0.2`) makes the tier
+more permissive, closer to the 17 percent spurious-match floor the research
+measured.
+
+```bash
+export TRIG_CONTENT_MIN_COVERAGE=0.34
+```
+
+### MOS_NO_DETACHED_FTS_BUILD
+
+**What:** A TEST SEAM, not a user knob (matching how this file treats other
+seams, for example `MINDRIAN_EUREKA_SMOKE_ALLOW_DOWNLOAD` above). Setting it
+to `1` suppresses the detached `scripts/fts-index-drain.cjs` spawn that
+`spawnFtsBuildDrain` would otherwise fire when the content tier's sensor
+enqueues a lazy index build on first miss, so a test can own the timing of
+that build itself instead of racing a background process.
+**Default:** unset (the detached spawn fires normally).
+**Why:** without this seam, a hermetic test that forces an absent or stale
+`eureka_fts` index would non-deterministically race a real detached child
+process. This is not something a user should ever need to set in normal
+operation; it exists for `tests/test-244-fts-index-lifecycle.cjs` and its
+siblings.
+
+```bash
+export MOS_NO_DETACHED_FTS_BUILD=1
+```
+
 ## Graph Derivation Floors (Phase 224, room-local, zero egress)
 
 When a room artifact is written, Phase 224 scores it against the room's other
