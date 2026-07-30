@@ -28,7 +28,7 @@ Already-scoped inputs (routed in, not re-planned): `hedge-fold-has-no-production
 - [x] **Phase 236: room.db Data-Loss Fixes** - Graph rebuild cannot erase memory/decision/truth-claim rows (one transaction), and a busy or broken open reports its real state instead of cold-starting (completed 2026-07-29)
 - [x] **Phase 237: Reach Mechanism** - Approving a chain step actually runs it, one autonomy authority instead of two, and reach signals are session-scoped (completed 2026-07-29)
 - [x] **Phase 238: Decision Gates** - Gates resolve through the ledger that minted them, session-scoped and concurrency-safe, and the card-fire backstop stops firing on prose (completed 2026-07-29)
-- [ ] **Phase 239: Brain-Access Surface** - The egress guard and PII sanitizer cover the doors user content actually walks through, and sendPacket's fate is decided explicitly
+- [x] **Phase 239: Brain-Access Surface** - The egress guard and PII sanitizer cover the doors user content actually walks through, and sendPacket's fate is decided explicitly (completed 2026-07-30)
 - [ ] **Phase 240: Memory** - Layer 2 promotion fires on real continuous work, the dead-letter queue drains into the memory cortex, and the test suite is hermetic
 - [x] **Phase 241: Feynman-MINTO** - Guardian output reaches the user instead of /dev/null, and the repair ladder triggers on the breaches navigators actually hit (completed 2026-07-28)
 - [x] **Phase 242: The Moat** - The HSI-to-graph rewrite is transaction-wrapped, and the PR checklist's dead KuzuDB warning becomes a machine-checked assertion (completed 2026-07-28)
@@ -164,8 +164,8 @@ Wave 3 (blocked on Wave 2):
 
 Wave 4 (blocked on Wave 3):
 
-- [ ] 239-04-PLAN.md - Wave 4. BRAIN-01 inbound half plus census: the PostToolUse PII sanitizer proven to fire on live names, and every remaining dead mcp__brain_ literal swept out of tracked source.
-- [ ] 239-07-PLAN.md - Wave 4. T1 mitigation: the liveness gate wired into scripts/verify-release as a new numbered section, proven to block by mutating the real tree and observing the real release gate go red.
+- [x] 239-04-PLAN.md - Wave 4. BRAIN-01 inbound half plus census: the PostToolUse PII sanitizer proven to fire on live names, and every remaining dead mcp__brain_ literal swept out of tracked source.
+- [x] 239-07-PLAN.md - Wave 4. T1 mitigation: the liveness gate wired into scripts/verify-release as a new numbered section, proven to block by mutating the real tree and observing the real release gate go red.
 
 ### Phase 240: Memory
 
@@ -252,7 +252,7 @@ Wave 4 (blocked on Wave 3):
 | 236. room.db Data-Loss Fixes | 4/4 | Complete   | 2026-07-29 |
 | 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
 | 238. Decision Gates | 8/8 | Complete    | 2026-07-29 |
-| 239. Brain-Access Surface | 5/7 | In Progress|  |
+| 239. Brain-Access Surface | 7/7 | Complete   | 2026-07-30 |
 | 240. Memory | 0/? | Not started | - |
 | 241. Feynman-MINTO | 5/5 | Complete   | 2026-07-28 |
 | 242. The Moat | 2/2 | Complete   | 2026-07-28 |
