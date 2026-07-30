@@ -1,0 +1,66 @@
+[
+  {
+    "id": "T01",
+    "question": "Who founded Quillow Systems, according to the team roster?",
+    "context_file": "team/roster.md",
+    "context_anchor": "Zoraida Thistlewood founded Quillow Systems on 2019-03-14",
+    "answer_anchors": ["Zoraida", "Thistlewood"],
+    "distractor_anchors": ["Percival", "Nkemdirim"]
+  },
+  {
+    "id": "T02",
+    "question": "How much does the Vellichor Ledger Enterprise tier cost per month?",
+    "context_file": "business-model/pricing.md",
+    "context_anchor": "costs 4,812 dollars per month",
+    "answer_anchors": ["4,812"],
+    "distractor_anchors": ["5,290"]
+  },
+  {
+    "id": "T03",
+    "question": "On what specific date was Quillow Systems founded, per the team roster?",
+    "context_file": "team/roster.md",
+    "context_anchor": "founded Quillow Systems on 2019-03-14",
+    "answer_anchors": ["2019-03-14"],
+    "distractor_anchors": ["2021-11-02"]
+  },
+  {
+    "id": "T04",
+    "question": "Which data migration protocol does the Vellichor Ledger explicitly decline to support, according to the pricing notes?",
+    "context_file": "business-model/pricing.md",
+    "context_anchor": "never supported the Vosmere migration",
+    "answer_anchors": ["Vosmere"],
+    "distractor_anchors": ["Cindergate"]
+  },
+  {
+    "id": "T05",
+    "question": "Which Quillow Systems employee previously worked at the company that makes the Cindergate Suite?",
+    "context_file": "team/roster.md",
+    "context_anchor": "previously worked at Bramblewick Analytics",
+    "answer_anchors": ["Percival", "Nkemdirim"],
+    "distractor_anchors": ["Zoraida", "Thistlewood"]
+  },
+  {
+    "id": "T06",
+    "question": "In which fictional city is Quillow Systems headquartered, per the pricing and product notes?",
+    "context_file": "business-model/pricing.md",
+    "context_anchor": "headquartered in Thornmere",
+    "answer_anchors": ["Thornmere"],
+    "distractor_anchors": ["Cravenholt"]
+  },
+  {
+    "id": "T07",
+    "question": "How many people does Quillow Systems employ, according to the team roster?",
+    "context_file": "team/roster.md",
+    "context_anchor": "employs 1,847 people",
+    "answer_anchors": ["1,847"],
+    "distractor_anchors": ["312"]
+  },
+  {
+    "id": "T08",
+    "question": "What is the name of Bramblewick Analytics' flagship product?",
+    "context_file": "market-analysis/competitors.md",
+    "context_anchor": "makes the Cindergate Suite",
+    "answer_anchors": ["Cindergate"],
+    "distractor_anchors": ["Vellichor"]
+  }
+]
