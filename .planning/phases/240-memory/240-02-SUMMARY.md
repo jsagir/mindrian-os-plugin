@@ -121,6 +121,11 @@ None - no external service configuration required.
 - Plan 240-04 (MEM-01) can now proceed without reopening a leak: `tests/test-jtbd-hook-integration.cjs` is pre-sandboxed. Per the plan's own instruction, the EXECUTED mutation proof for that specific leg (removing the sandbox injection and confirming it reddens once `promoteIfEligible`'s turn gate is fixed) is explicitly deferred to plan 240-04's own Task 3 -- it cannot be run truthfully before MEM-01 lands, since the turn gate still blocks the write today.
 - Two pre-existing, unrelated issues logged in `.planning/phases/240-memory/deferred-items.md` for a future owner (not blocking): the Phase 127.3 sibling-sweep failure, and a note on the real store's whole-tree digest volatility for any future measurement that does not scope to `.memory`/`.rooms`.
 
+## Self-Check: PASSED
+
+All 3 created/modified test files confirmed present on disk. All 4 commits
+(`03e96531`, `c833045b`, `919766cd`, `d3f1a738`) confirmed in `git log --oneline --all`.
+
 ---
 *Phase: 240-memory*
 *Completed: 2026-07-30*
