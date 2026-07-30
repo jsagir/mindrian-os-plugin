@@ -32,12 +32,14 @@
 # legitimately exits 1 -- that is the guard working exactly as designed
 # (Resolution R-02), not a defect in this file.
 #
-# (4) THIS FILE IS NOT YET COMPLETE AT THE END OF PLAN 240-01. Plan 240-04
-# appends two further source-tripwire legs (reachability + counter-persistence)
-# after it lands the MEM-01 fix they guard. A tripwire that is red for two
-# waves would make wave-merge verification unreadable, so those legs are
-# deliberately deferred rather than added here. The leg list below is
-# therefore not final until Wave 3.
+# (4) THIS FILE'S FULL LEG LIST AS OF PLAN 240-04 (four legs, beyond the
+# glob-discovered test files above): tri-polar parity self-test, tri-polar
+# parity sweep, MEM-01 reachability (the unconditional early return has not
+# come back), and MEM-01 counter persistence (current carries the fields the
+# gate reads). The reachability + counter-persistence legs were deliberately
+# deferred out of plan 240-01 (a tripwire that is red for two waves would
+# make wave-merge verification unreadable) and land here, in plan 240-04,
+# once the MEM-01 fix they guard is on disk.
 #
 # run_may_skip is REQUIRED for Phase 240 (unlike Phase 236, which had no .sh
 # leg): tests/test-240-memory-store-hermetic-fence.sh is a bash fence and may
@@ -182,6 +184,97 @@ if [ "$PARITY_SWEEP_OK" -eq 1 ]; then
   echo ">>> tri-polar parity sweep: lib/mcp carries no divergent JTBD trigger: PASSED"; PASS=$((PASS+1))
 else
   echo ">>> tri-polar parity sweep: lib/mcp carries no divergent JTBD trigger: FAILED"; FAIL=$((FAIL+1))
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
+# Leg 3 (plan 240-04): MEM-01 reachability -- the unconditional early return
+# has not come back. Tallied as ONE leg with three checks that must all
+# hold. Check (a) is non-vacuity FIRST: if the predicate this gate
+# discriminates against is gone, the sweep below proves nothing.
+# ---------------------------------------------------------------------------
+echo "--- MEM-01 reachability: the unconditional early return has not come back ---"
+LEG3_OK=1
+
+ISTRANSITION_COUNT="$(strip_comments scripts/jtbd-update.cjs | grep -c 'isTransition')"
+if [ "$ISTRANSITION_COUNT" -lt 2 ]; then
+  echo "    NON-VACUITY FAIL: isTransition appears $ISTRANSITION_COUNT time(s) in scripts/jtbd-update.cjs (need >= 2: the definition and the call). The predicate this gate discriminates against is gone, so the sweep below proves nothing."
+  LEG3_OK=0
+else
+  echo "    non-vacuity ok: isTransition appears $ISTRANSITION_COUNT times"
+fi
+
+TRANSITIONED_BOOL_COUNT="$(strip_comments scripts/jtbd-update.cjs | grep -c 'const transitioned = isTransition(')"
+if [ "$TRANSITIONED_BOOL_COUNT" -ne 1 ]; then
+  echo "    FAIL: expected exactly 1 occurrence of 'const transitioned = isTransition(' in scripts/jtbd-update.cjs, got $TRANSITIONED_BOOL_COUNT"
+  LEG3_OK=0
+else
+  echo "    named boolean present: const transitioned = isTransition( appears exactly once"
+fi
+
+BARE_RETURN_COUNT="$(strip_comments scripts/jtbd-update.cjs | grep -A2 -E 'if \(!transitioned\)' | grep -cE '^[[:space:]]*return;[[:space:]]*$')"
+if [ "$BARE_RETURN_COUNT" -ne 0 ]; then
+  echo "    FAIL: a bare 'return;' has come back immediately after 'if (!transitioned)', context:"
+  strip_comments scripts/jtbd-update.cjs | grep -A2 -E 'if \(!transitioned\)' | sed 's/^/      /'
+  echo "    Reinstating the unconditional return restores the MEM-01 deadlock in which the Phase 103-05 promotion block is never invoked on continuous work. Live evidence: twelve same-topic turns produced eleven early returns and zero Layer 2 rows (240-RESEARCH.md Finding 1)."
+  LEG3_OK=0
+else
+  echo "    bare early return absent: no unconditional 'return;' immediately follows the transitioned guard"
+fi
+
+if [ "$LEG3_OK" -eq 1 ]; then
+  echo ">>> MEM-01 reachability: the unconditional early return has not come back: PASSED"; PASS=$((PASS+1))
+else
+  echo ">>> MEM-01 reachability: the unconditional early return has not come back: FAILED"; FAIL=$((FAIL+1))
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
+# Leg 4 (plan 240-04): MEM-01 counter persistence -- current carries the
+# fields the gate reads. Tallied as ONE leg with four checks. Check (a) is
+# non-vacuity FIRST: if the literal this gate guards has been restructured,
+# the sweep below proves nothing.
+# ---------------------------------------------------------------------------
+echo "--- MEM-01 counter persistence: current carries the fields the gate reads ---"
+LEG4_OK=1
+
+NEWCURRENT_COUNT="$(strip_comments lib/hmi/jtbd-state.cjs | grep -c 'const newCurrent = {')"
+if [ "$NEWCURRENT_COUNT" -ne 1 ]; then
+  echo "    NON-VACUITY FAIL: 'const newCurrent = {' appears $NEWCURRENT_COUNT time(s) in lib/hmi/jtbd-state.cjs (need exactly 1). The literal this gate guards has been restructured, so the sweep below proves nothing."
+  LEG4_OK=0
+else
+  echo "    non-vacuity ok: const newCurrent = { appears exactly once"
+fi
+
+TURN_COUNT_FIELD_COUNT="$(strip_comments lib/hmi/jtbd-state.cjs | grep -c 'turn_count')"
+MANUAL_SET_FIELD_COUNT="$(strip_comments lib/hmi/jtbd-state.cjs | grep -c 'manual_set')"
+if [ "$TURN_COUNT_FIELD_COUNT" -lt 1 ] || [ "$MANUAL_SET_FIELD_COUNT" -lt 1 ]; then
+  echo "    FAIL: check (b) -- lib/hmi/jtbd-state.cjs must reference turn_count (found $TURN_COUNT_FIELD_COUNT) and manual_set (found $MANUAL_SET_FIELD_COUNT), both >= 1. Cite MEM-01 / plan 240-03."
+  LEG4_OK=0
+else
+  echo "    check (b) ok: turn_count ($TURN_COUNT_FIELD_COUNT) and manual_set ($MANUAL_SET_FIELD_COUNT) both present"
+fi
+
+BUMP_FN_COUNT="$(strip_comments lib/hmi/jtbd-state.cjs | grep -c 'function bumpTurnCount')"
+if [ "$BUMP_FN_COUNT" -ne 1 ]; then
+  echo "    FAIL: check (c) -- expected exactly 1 'function bumpTurnCount' in lib/hmi/jtbd-state.cjs, got $BUMP_FN_COUNT. Cite MEM-01 / plan 240-03."
+  LEG4_OK=0
+else
+  echo "    check (c) ok: function bumpTurnCount defined exactly once"
+fi
+
+BUMP_CALL_COUNT="$(strip_comments scripts/jtbd-update.cjs | grep -c 'bumpTurnCount')"
+if [ "$BUMP_CALL_COUNT" -lt 1 ]; then
+  echo "    FAIL: check (d) -- scripts/jtbd-update.cjs does not call bumpTurnCount (found $BUMP_CALL_COUNT); the writer exists but the hook never calls it. Cite MEM-01 / plan 240-04."
+  LEG4_OK=0
+else
+  echo "    check (d) ok: scripts/jtbd-update.cjs references bumpTurnCount $BUMP_CALL_COUNT time(s)"
+fi
+
+if [ "$LEG4_OK" -eq 1 ]; then
+  echo ">>> MEM-01 counter persistence: current carries the fields the gate reads: PASSED"; PASS=$((PASS+1))
+else
+  echo ">>> MEM-01 counter persistence: current carries the fields the gate reads: FAILED"; FAIL=$((FAIL+1))
 fi
 echo ""
 
