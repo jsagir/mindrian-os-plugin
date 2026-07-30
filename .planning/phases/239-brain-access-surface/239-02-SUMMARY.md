@@ -225,3 +225,16 @@ This `hooks/hooks.json` change on the `worktree-agent-acf1f8aa0b629f378` branch 
 ---
 *Phase: 239-brain-access-surface*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+- FOUND: lib/core/brain-response-sanitize.cjs
+- FOUND: hooks/hooks.json
+- FOUND: scripts/part8-egress-guard-hook.cjs
+- FOUND: scripts/brain-response-sanitize-hook.cjs
+- FOUND: tests/test-brain-response-sanitize.cjs
+- FOUND: .planning/phases/239-brain-access-surface/239-02-SUMMARY.md
+- FOUND: commit 1f08a48e (Task 1)
+- FOUND: commit e5278d3c (Task 2)
+- FOUND: commit 760ca000 (Task 3)
+- FOUND: commit 1a0589e1 (this summary)
