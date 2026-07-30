@@ -4,6 +4,11 @@ Written at phase close (244-08), after all seven build plans (244-01 through 244
 This is the one place a future reader finds what shipped, what did not, what is still owed,
 and whether the phase gate was actually run.
 
+**Dev-Research Compositing cross-link:** the durable reasoning trail for this phase is mirrored
+to `~/MindrianRooms/rethinking-mindrianos/research/2026-07-30-phase-244-semantic-trigger-tier/2026-07-30-phase-244-semantic-trigger-tier.md`,
+which cross-references back to this phase directory. Same finding, two homes, per the CLAUDE.md
+Dev-Research Compositing mandate.
+
 ---
 
 ## Section 1: What Shipped
@@ -201,6 +206,94 @@ following the `buildTierCandidates` pattern.
 
 ## Section 7: The Phase Gate Result
 
-Filled in after Task 3 ran. See `244-08-SUMMARY.md` for the full verbatim transcription of every
-gate command's output, the cross-phase baseline comparisons (219, 236, 205), and the confirmation
-method used for any pre-existing unrelated failure.
+Run end to end at 244-08 execution time (2026-07-30/31), every command observed live, not
+assumed. Full verbatim transcripts live in `244-08-SUMMARY.md`; this section is the roll-up.
+
+| Gate command | Result | Baseline comparison |
+|---|---|---|
+| `bash tests/run-all-244.sh` | PASS=9 FAIL=0 SKIP=0, exit 0 | This phase's own suite; grew from PASS=4 (244-01) through PASS=7 (244-06/07) to PASS=9 now that 244-08's no-em-dash fence also covers the closing plan's own new files |
+| `bash tests/run-all-219.sh` | Phase 219: PASS=11 FAIL=2 SKIP=0, exit 1 | Matches the 244-01/02/03/05 baseline BYTE-FOR-BYTE (PASS=11 FAIL=2 SKIP=0). The 2 failures are the pre-existing, out-of-scope `edges.review_status` schema-drift condition from a concurrent session, confirmed unrelated across every prior plan in this phase and reconfirmed here |
+| `bash tests/run-all-236.sh` | Phase 236: PASS=12 FAIL=0 SKIP=0, exit 0 | Matches the 244-03 baseline exactly (PASS=12 FAIL=0 SKIP=0) |
+| `bash tests/run-all-205.sh` | exit 1, `AssertionError: expected ok:true, got {"ok":false,"reason":"edge_write_failed","detail":"table edges has no column named review_status"}` | Matches the 244-01/04/07 baseline BYTE-FOR-BYTE (identical assertion text, identical failure site `tests/test-205-frame-node.cjs:230`). Pre-existing, unrelated to this phase (see confirmation below) |
+| `node lib/memory/f-selector-ranker.test.cjs` | `# pass 34 / # fail 0`, exit 0 | Matches the 244-04/07 baseline exactly (34/34) |
+| `node lib/memory/run-feynman-tests.cjs` | Not run to completion. Bounded to a 90-second timeout per the same policy 244-01/05/07 already documented (this runner exercises unrelated fetcher/patents/industry/notebook-copilot suites and was still producing pre-existing, unrelated failures -- `test/84-smart-notebook-copilot.test.cjs`'s `lazygraph-ops.cjs` db-handle issue, byte-identical to 244-05's and 244-07's own observation -- when the timeout hit) | SKIPPED-WITH-REASON, recorded not omitted. Substituted with the two directly-relevant sub-suites below, both run to completion and green |
+| `node lib/memory/navigation-engine-core.test.cjs` (substitute leg, this phase's actual surface) | `navigation-engine-core: 33/33 passed, 0 failed`, exit 0 | Green |
+| `node lib/memory/navigation-engine-offer.test.cjs` (substitute leg, this phase's actual surface) | `navigation-engine-offer: 11/11 passed, 0 failed`, exit 0 | Green |
+| `node scripts/build-connector-registry.cjs --check` | `connector-registry: OK`, exit 0 | Matches every prior plan's observation |
+| `node scripts/build-orchestration-projection.cjs --check` | `orchestration-projection: OK`, exit 0 | Matches every prior plan's observation |
+| `node scripts/check-render-coverage.cjs` | `render-coverage report: 16 covered, 0 excluded, 0 gap (16 entries)`; `render-coverage md-keyspace: 202 wired, 2 excluded, 0 unwired (204 declaring commands)`, exit 0 | Green, no dark surface |
+| `node scripts/check-shape-declaration.cjs --check` | exit 0, with pre-existing WARN lines (advisory-only as of Phase 210's R16 enforcement downgrade, Appendix D entry 37) across ~20 `skills/*.md` files unrelated to this phase (none of Phase 244's own files) | The plan's gate list named the bare command; the script requires `--check` or `--check-plan` (usage error otherwise), so `--check` was supplied. Advisory WARNs never block per the documented Phase 210 downgrade; none of the warned surfaces were touched by this phase |
+| `node scripts/check-substrate.cjs --diff` | exit 0, no output (no violations) | Matches every prior plan's observation |
+| `node scripts/doctor.cjs --acceptance` | 15/16 points passed; only `eureka-fts-index-visible` fails, citing `jonathan-contractor-motj` (451 orphan rows) | See below -- a real, confirmed pre-existing finding (Section 6), not a Phase 244 defect |
+| Repo-wide no-em-dash sweep over every file this phase touched | Zero matches across all 26 files (enumerated explicitly below, not globbed) | Clean |
+
+**`node scripts/doctor.cjs --acceptance`, full detail.** First run (before discarding auto-regenerated
+cache diffs): 14/16, with `verify-release-clean-tree` ALSO failing, citing `tracked-file drift: 3
+file(s)`. Investigated: `git status --short` showed exactly 3 dirty tracked files
+(`dashboard/graph.json`, `evals/plurai/211-baseline.json`, `package-lock.json`) -- the known
+auto-regenerated-cache-diff repo quirk this phase's own prior plans (244-01, 244-02, 244-05)
+already documented and discarded the same way. Discarded via `git checkout -- <3 files>`;
+`git status --short` confirmed clean. Re-ran: **15/16**, `verify-release-clean-tree` now PASSES.
+The remaining failure, `eureka-fts-index-visible`, is a genuine, confirmed pre-existing finding
+(NOT a Phase 244 code defect): it fails because two real rooms on this machine carry stale
+`eureka_fts` orphan rows PREDATING the 244-03 reconcile (research assumption A7's materialized
+risk, Section 6). Confirmed independently a second time by calling
+`lib/core/doctor/eureka-fts-health-module.cjs`'s `check()` function directly rather than trusting
+only the single-line acceptance summary (which surfaces only the first failing room by design):
+`totals: {rooms: 45, with_index: 6, absent: 37, empty: 0, stale: 2}`, `stale room(s):
+jonathan-contractor-motj, aion-eureka-synergy`. Per-room detail, read directly from the module's
+own JSON output: `jonathan-contractor-motj` (fts_rows 611, node_rows 690, orphan_rows 451),
+`aion-eureka-synergy` (fts_rows 393, node_rows 694, orphan_rows 308) -- both byte-identical to
+244-06-SUMMARY.md's own transcribed table. This is 244-06's own SC1 must_have working exactly as
+designed ("A stale index carrying rows for deleted nodes is reported as a defect, not as
+healthy"); it is a genuine navigator action item (rebuild the two named rooms via the existing
+rebuild path, or use `DOCTOR_SKIP_EUREKA_FTS_HEALTH=1` for one release), not a phase-244 code
+defect. Recorded plainly here and in Section 6.
+
+**`bash tests/run-all-205.sh` pre-existing-failure confirmation method.** This exact failure
+(byte-identical assertion text: `table edges has no column named review_status`) was FIRST
+captured as the "before" baseline via `git stash` in 244-01 -- BEFORE any Phase 244 code existed
+in this worktree -- and reconfirmed byte-identical after every one of the seven build plans
+(244-01 through 244-07) and again here at close-out. As a second, independent corroboration at
+244-08 execution time: `review_status` is a real column added by Phase 224-01's migration
+(`phase-224-edge-review-status`, `lib/core/room-db.cjs:299`, `lib/core/navigation/edges.cjs:725+`);
+`git log --oneline -3 -- lib/core/room-db.cjs` shows the file was last touched by commit `53d96af6`
+(236-03), a phase entirely unrelated to and predating Phase 244's own commits. None of Phase 244's
+`files_modified` across all 8 plans include `room-db.cjs` or `edges.cjs`. The failure is a
+pre-existing test-fixture/schema-drift condition from a concurrent session, structurally incapable
+of being caused by this phase's own changes.
+
+**`verify-release-clean-tree`, orchestrator-flagged 6-file drift, re-checked in this worktree.**
+The dispatching orchestrator's own pre-flight `doctor --acceptance` run on the merged main branch
+(immediately before dispatching this plan) observed a DIFFERENT `verify-release-clean-tree`
+failure: 6 dirty files (`lib/statusline/ctx-window.cjs`, `scripts/context-monitor`,
+`scripts/statusline-fallback-echo.cjs`, plus 3 test files), attributed to a concurrent session's
+own in-progress, uncommitted statusline/context-monitor WIP in the ORCHESTRATOR's live main-repo
+checkout. **That 6-file drift was NOT present in this worktree at any point during this plan's
+execution.** `git status --short` at the point this plan's Task 3 gate ran showed only the 3
+auto-regenerated cache files named above -- a git worktree does not inherit another checkout's
+uncommitted changes, only its committed history up to the worktree's branch point, so the
+orchestrator's own dirty main-repo tree was never reachable from here. Recorded honestly as a
+DIFFERENT, smaller, already-resolved drift than the orchestrator's pre-flight observation, not
+conflated with it.
+
+**Zero em-dashes sweep, files enumerated explicitly (not globbed), all 26 files this phase
+touched across 244-01 through 244-08:** `tests/run-all-244.sh`,
+`tests/test-244-trigger-tier-vocab.cjs`, `tests/test-244-fts-query-sanitize.cjs`,
+`lib/core/sensors/sensor-types.cjs`, `lib/core/eureka/tri-modal-index.cjs`,
+`lib/core/eureka/fts-index-lifecycle.cjs`, `scripts/fts-index-drain.cjs`,
+`tests/test-244-fts-index-lifecycle.cjs`, `tests/test-244-fts-rebuild-reconcile.cjs`,
+`lib/core/lazygraph-ops.cjs`, `scripts/build-ecosystem-graph.cjs`,
+`tests/test-244-rrf-fusion.cjs`, `lib/workflow/f-selector-ranker.cjs`,
+`lib/core/orchestration-candidate-lift.cjs`, `lib/core/sensors/sensor-content-relevance.cjs`,
+`tests/test-244-content-sensor-fires.cjs`, `lib/core/navigation-engine.cjs`,
+`lib/core/insight-sensors.cjs`, `lib/core/doctor/eureka-fts-health-module.cjs`,
+`tests/test-244-doctor-fts-health.cjs`, `data/doctor-modules.json`, `scripts/doctor.cjs`,
+`tests/test-244-mmr-diversity.cjs`, `docs/ENV-TUNING.md`, `docs/CANON-PHASE-MAP.md`,
+`.planning/phases/244-semantic-trigger-tier/244-RESIDUALS.md`. All 26 confirmed to exist on disk
+first; `grep -lP '\x{2014}'` returned zero matches across all 26, run in four batches.
+
+**Overall verdict:** the phase gate is GREEN on every command Phase 244's own code could
+plausibly affect. The two non-green results (`eureka-fts-index-visible` in the doctor acceptance
+roll-up, and `run-all-205.sh`'s pre-existing schema-drift failure) are both independently confirmed
+pre-existing conditions unrelated to this phase's changes, not regressions this phase introduced.

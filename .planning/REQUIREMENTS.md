@@ -58,9 +58,9 @@ Source: a live, reproduced STATE.md self-contradiction this session (`stopped_at
 
 Source: live investigation this session into a real navigator-reported symptom ("natural language doesn't trigger the right skill"), root-caused to `lib/core/sensors/sensor-types.cjs`'s Phase 172-07 trigger-tier doctrine (Canon Part 11 R3), which has no content-relevance tier -- only `signal`/`context` (structural) and `keyword` (lexicon fallback), and `trigger_tier` itself is consumed by zero rankers today. Grounded via a langtalks-graph-expert corpus sweep, Tavily research (RRF, MMR, GraphRAG local/global search), and 244-RESEARCH.md's own live codebase investigation, which found the FTS5+bm25 lexical leg and RRF fusion ALREADY SHIP in production (`lib/core/eureka/tri-modal-index.cjs`, `hybrid-retrieve.cjs`, Phase 211-02/219-02) -- the gap is wiring, not invention. See `.planning/phases/244-semantic-trigger-tier/244-RESEARCH.md` for the full trail, including a corrected factual error in this phase's original stack-constraint rationale (Finding F-10).
 
-- [ ] **TRIG-01**: A new sensor mints a candidate reach by querying the already-shipped `tri-modal-index.lexicalSearch` (FTS5 + `bm25()`, no new index, no embedding call, no new dependency) over room.db's curated `nodes` (never raw `fragments`). Includes wiring the index's missing production lifecycle (it exists in no live room today).
-- [ ] **TRIG-02**: `f-selector-ranker.cjs` fuses candidate scores across trigger-tier families via an optional `o.tierCandidates` argument (the `sens10`/`role_level` optional-signal idiom) calling the already-shipped `rrfFuse`, before the `MAX_K=3` cut.
-- [ ] **TRIG-03**: The top-K cut applies an MMR-shaped diversity term (reusing the already-shipped `lexicalOverlap` Jaccard primitive, `lexical-overlap.cjs:75`) so same-family candidates cannot crowd out a genuine cross-family hit, following the `_applySens10Flip`/`_applyRoleLevelBias` layered-adjustment-pass pattern already in production.
+- [x] **TRIG-01**: A new sensor mints a candidate reach by querying the already-shipped `tri-modal-index.lexicalSearch` (FTS5 + `bm25()`, no new index, no embedding call, no new dependency) over room.db's curated `nodes` (never raw `fragments`). Includes wiring the index's missing production lifecycle (it exists in no live room today). (Closed 2026-07-30, Phases 244-01/02/03/05/06: `TRIGGER_TIERS` grown to 4 + `isFallbackTier`, `lib/core/eureka/fts-index-lifecycle.cjs` lazy build-on-first-miss, the ghost-trigger reconcile inside `rebuildGraph`'s transaction, `SENS-16` `sensor-content-relevance.cjs`, and the `eureka-fts-index-visible` doctor visibility point.)
+- [x] **TRIG-02**: `f-selector-ranker.cjs` fuses candidate scores across trigger-tier families via an optional `o.tierCandidates` argument (the `sens10`/`role_level` optional-signal idiom) calling the already-shipped `rrfFuse`, before the `MAX_K=3` cut. (Closed 2026-07-30, Phase 244-04: the optional `o.tierCandidates` seam + `_applyTierFusion` + `TRIG_RRF_K`, with `orchestration-candidate-lift.cjs::buildTierCandidates` as the live production supplier.)
+- [x] **TRIG-03**: The top-K cut applies an MMR-shaped diversity term (reusing the already-shipped `lexicalOverlap` Jaccard primitive, `lexical-overlap.cjs:75`) so same-family candidates cannot crowd out a genuine cross-family hit, following the `_applySens10Flip`/`_applyRoleLevelBias` layered-adjustment-pass pattern already in production. (Closed 2026-07-30, Phase 244-07: `_applyMmrDiversity` + `MMR_LAMBDA_RELEVANCE` (canonical Carbonell orientation) + `TRIG_MMR_LAMBDA`.)
 
 ### Phase 241 -- Feynman-MINTO (F-0 already filed and open)
 
@@ -114,9 +114,9 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | CTXL-01 | Phase 240.1 | Complete |
 | CTXL-02 | Phase 240.1 | Complete |
 | CTXL-03 | Phase 240.1 | Complete |
-| TRIG-01 | Phase 244 | Pending |
-| TRIG-02 | Phase 244 | Pending |
-| TRIG-03 | Phase 244 | Pending |
+| TRIG-01 | Phase 244 | Complete (244-01/02/03/05/06) |
+| TRIG-02 | Phase 244 | Complete (244-04) |
+| TRIG-03 | Phase 244 | Complete (244-07) |
 
 **Dependency notes (binding for scheduling):**
 
