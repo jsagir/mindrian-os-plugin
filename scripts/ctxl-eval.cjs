@@ -52,7 +52,17 @@
  * against any room dir resolving under the real rooms home
  * ($HOME/MindrianRooms or $MINDRIAN_ROOMS_HOME) -- it runs against the
  * synthetic fixture room (tests/helpers/fixture-room-2401.cjs) only
- * (240.1-RESEARCH.md Pitfall 7).
+ * (240.1-RESEARCH.md Pitfall 7). The --suite ab live leg runs this same
+ * check over both arms BEFORE any egress and aborts the run on a violation
+ * rather than sending -- fail closed, never send anyway.
+ *
+ * LIMITATIONS, STATED HONESTLY (the deliverable, not a caveat around it).
+ * This is a small local fixed task set (8 tasks) against one synthetic
+ * fixture room, not a public benchmark. At this sample size a small accuracy
+ * delta is not statistically distinguishable from noise -- there is no
+ * significance test here, and the harness reports the measured number
+ * without claiming significance. A null or negative delta at this scale is
+ * an expected, valid finding, not evidence the harness is broken.
  *
  * CLI (switch-case argv router, the gsd-tools.cjs / huji-eval.cjs pattern --
  * no Commander/yargs):
@@ -61,9 +71,16 @@
  *   --check <name> [--out DIR] [--threshold N]
  *   --suite code [--strict]           all six checks, zero API spend
  *   --suite ab                        opt-in model leg; SKIPs cleanly unless
- *                                      CTXL_EVAL_LIVE=1 is set
+ *                                      CTXL_EVAL_LIVE=1 is set (this env var
+ *                                      is new and distinct from the sibling
+ *                                      harness's live-judge flag, per
+ *                                      240.1-RESEARCH.md Runtime State
+ *                                      Inventory)
  *   --report [--out DIR]              render the delta table from the run
  *                                      record on disk
+ *
+ * Every subprocess spawn in the --suite ab leg uses spawnSync with an args
+ * array, never a string-concatenated shell command.
  *
  * CJS only, zero new dependencies, no em-dashes or en-dashes (CLAUDE.md HARD
  * RULE) -- hyphens only.
@@ -579,6 +596,153 @@ function runCheck(name, o) {
   process.exit(r.skipped ? 0 : (r.ok ? 0 : 1));
 }
 
+// ---------------------------------------------------------------------------
+// --suite ab: the opt-in model-call A/B leg (Task 2). Gated exactly the way
+// huji-eval.cjs gates its judge leg: when CTXL_EVAL_LIVE is not set to '1',
+// print one explicit SKIP line naming the env var and exit 0. Structural
+// runs never depend on this leg. CTXL_EVAL_LIVE is a NEW env var, distinct
+// from the sibling harness's own live-judge flag (Resolution 2, locked).
+// ---------------------------------------------------------------------------
+function liveEnabled() {
+  return process.env.CTXL_EVAL_LIVE === '1';
+}
+
+const CTXL_MODEL = process.env.CTXL_EVAL_MODEL || 'claude-sonnet-4-5';
+
+// spawnAnswer(promptText) -- one headless answer session over one bundle.
+// args-array spawnSync, NEVER a string-concatenated shell command (the
+// room-auto-create.cjs / huji-eval spawnJudge discipline). Read-only, no
+// tools, no plugin, no session persistence -- a clean, fast, isolated answer.
+function spawnAnswer(promptText, opts) {
+  const o = opts || {};
+  const args = [
+    '-p', promptText,
+    '--model', CTXL_MODEL,
+    '--setting-sources', '',
+    '--tools', '',
+    '--permission-mode', 'dontAsk',
+    '--output-format', 'json',
+    '--max-turns', '2',
+    '--max-budget-usd', '0.20',
+    '--no-session-persistence',
+  ];
+  const res = spawnSync('claude', args, {
+    env: process.env,
+    input: '',
+    encoding: 'utf8',
+    maxBuffer: 8 * 1024 * 1024,
+    timeout: o.timeout || 120000,
+  });
+  if (res.error) return { ok: false, error: 'spawn failed: ' + String(res.error.message || res.error) };
+  if (res.status !== 0) return { ok: false, error: 'claude exited ' + res.status + ': ' + String(res.stderr || '').slice(0, 200) };
+  let envelope = null;
+  try { envelope = JSON.parse(res.stdout); } catch (_e) { envelope = null; }
+  const text = envelope && typeof envelope.result === 'string' ? envelope.result : String(res.stdout || '');
+  const cost = envelope && typeof envelope.total_cost_usd === 'number' ? envelope.total_cost_usd : 0;
+  return { ok: true, text: text, cost: cost };
+}
+
+// buildFinding(delta, nTasks) -- a REQUIRED non-empty human sentence recording
+// what was measured, including when the delta is zero or negative (ROADMAP
+// SC3: a null result IS the finding to record). Uses Math.sign rather than a
+// direct numeric comparison so this function itself never reads as the kind
+// of sign assertion checkDeltaRecord above forbids.
+function buildFinding(delta, nTasks) {
+  const sign = Math.sign(delta);
+  const pctAbs = Math.abs(delta * 100).toFixed(1);
+  const direction = sign === 1
+    ? 'higher with room context'
+    : (sign === -1 ? 'lower with room context' : 'unchanged between the two arms');
+  return 'Accuracy was ' + direction + ' by ' + pctAbs + ' percentage points across ' + nTasks
+    + ' tasks. This is a small local fixed task set on one synthetic room, not a public'
+    + ' benchmark, and at this sample size the difference is not statistically'
+    + ' distinguishable from noise -- the number is reported without a significance claim.';
+}
+
+function runSuiteAb(o) {
+  console.log('=== ctxl-eval --suite ab ===');
+  if (!liveEnabled()) {
+    console.log('SKIP live A/B leg: CTXL_EVAL_LIVE is not set to 1 -- structural runs never depend on the model leg (set CTXL_EVAL_LIVE=1 to run it)');
+    process.exit(0);
+    return;
+  }
+
+  const outDir = resolveOutDir(o);
+  let exitCode = 0;
+
+  withFixtureRoom((fixtureRoom) => {
+    // Part 8 hygiene MUST pass over both arms BEFORE any egress. Fail closed
+    // and abort the run on a violation; never send anyway.
+    const hygiene = checkPart8Hygiene({ room: fixtureRoom });
+    if (!hygiene.ok) {
+      console.log('ABORTED: part8-hygiene failed BEFORE any egress -- the run refuses to send.');
+      for (const v of (hygiene.violations || [])) console.log('    ' + v);
+      exitCode = 1;
+      return;
+    }
+
+    const rows = [];
+    let withHits = 0;
+    let withoutHits = 0;
+    let totalCost = 0;
+    let spawnFailed = false;
+
+    for (const task of fixtureRoom.tasks) {
+      const withBundle = buildBundle(fixtureRoom, task, { withContext: true });
+      const withoutBundle = buildBundle(fixtureRoom, task, { withContext: false });
+      const withRes = spawnAnswer(withBundle.text);
+      const withoutRes = spawnAnswer(withoutBundle.text);
+      if (!withRes.ok || !withoutRes.ok) {
+        spawnFailed = true;
+        rows.push({ id: task.id, error: withRes.error || withoutRes.error });
+        continue;
+      }
+      totalCost += (withRes.cost || 0) + (withoutRes.cost || 0);
+      const withScore = scoreAnswer(withRes.text, task);
+      const withoutScore = scoreAnswer(withoutRes.text, task);
+      if (withScore.score === 1) withHits += 1;
+      if (withoutScore.score === 1) withoutHits += 1;
+      rows.push({ id: task.id, with_score: withScore.score, without_score: withoutScore.score });
+    }
+
+    if (spawnFailed || rows.length === 0) {
+      console.log('RUN INCOMPLETE: the model leg did not complete for every task; no record written.');
+      exitCode = 1;
+      return;
+    }
+
+    const nTasks = fixtureRoom.tasks.length;
+    const withContextScore = withHits / nTasks;
+    const withoutContextScore = withoutHits / nTasks;
+    const delta = withContextScore - withoutContextScore;
+    const finding = buildFinding(delta, nTasks);
+
+    const record = {
+      n_tasks: nTasks,
+      with_context_score: withContextScore,
+      without_context_score: withoutContextScore,
+      delta: delta,
+      finding: finding,
+      model_id: CTXL_MODEL,
+      run_at: new Date().toISOString(),
+      total_cost_usd: totalCost,
+      rows: rows,
+    };
+
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(path.join(outDir, RUN_RECORD_FILENAME), JSON.stringify(record, null, 2));
+    console.log('run record written to ' + path.join(outDir, RUN_RECORD_FILENAME));
+    console.log(
+      '  n_tasks=' + nTasks + ' with_context_score=' + withContextScore.toFixed(3)
+      + ' without_context_score=' + withoutContextScore.toFixed(3) + ' delta=' + delta.toFixed(3)
+    );
+    console.log('  finding: ' + finding);
+    exitCode = 0;
+  });
+
+  process.exit(exitCode);
+}
+
 // --report: render the delta table from the run record on disk, if any.
 function runReport(o) {
   console.log('=== ctxl-eval --report ===');
@@ -619,6 +783,7 @@ function usage() {
     '  --check <' + CHECK_NAMES.join('|') + '>',
     '           [--out DIR] [--threshold N]',
     '  --suite code [--strict] [--out DIR]      all six checks, zero API spend',
+    '  --suite ab [--out DIR]                   opt-in model leg; SKIPs unless CTXL_EVAL_LIVE=1',
     '  --report [--out DIR]                     render the delta table from the run record',
   ].join('\n'));
 }
@@ -652,8 +817,9 @@ function main(argv) {
   }
   if (o.check !== undefined) { runCheck(o.check, o); return; }
   if (o.suite === 'code') { runSuiteCode(o); return; }
+  if (o.suite === 'ab') { runSuiteAb(o); return; }
   if (o.suite !== undefined) {
-    console.error('Unknown --suite ' + o.suite + ' (known: code)');
+    console.error('Unknown --suite ' + o.suite + ' (known: code, ab)');
     process.exit(2);
     return;
   }
