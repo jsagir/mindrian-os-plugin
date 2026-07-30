@@ -154,8 +154,8 @@ Wave 1:
 
 Wave 2 (blocked on Wave 1):
 
-- [ ] 239-02-PLAN.md - Wave 2. BRAIN-01 core: one exported BRAIN_TOOL_MATCHER consumed by both hooks.json matchers and the anchored isBrainTool re-check, with the superseded dead-name assertions inverted rather than deleted.
-- [ ] 239-05-PLAN.md - Wave 2. BRAIN-02: raw-field classify-first guard in hatAwareRecommend and suggestValidationSteps, strictly upstream of sanitizeCypherInput and of template interpolation, plus a labelled query() backstop.
+- [x] 239-02-PLAN.md - Wave 2. BRAIN-01 core: one exported BRAIN_TOOL_MATCHER consumed by both hooks.json matchers and the anchored isBrainTool re-check, with the superseded dead-name assertions inverted rather than deleted.
+- [x] 239-05-PLAN.md - Wave 2. BRAIN-02: raw-field classify-first guard in hatAwareRecommend and suggestValidationSteps, strictly upstream of sanitizeCypherInput and of template interpolation, plus a labelled query() backstop.
 
 Wave 3 (blocked on Wave 2):
 
@@ -252,7 +252,7 @@ Wave 4 (blocked on Wave 3):
 | 236. room.db Data-Loss Fixes | 4/4 | Complete   | 2026-07-29 |
 | 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
 | 238. Decision Gates | 8/8 | Complete    | 2026-07-29 |
-| 239. Brain-Access Surface | 1/7 | In Progress|  |
+| 239. Brain-Access Surface | 3/7 | In Progress|  |
 | 240. Memory | 0/? | Not started | - |
 | 241. Feynman-MINTO | 5/5 | Complete   | 2026-07-28 |
 | 242. The Moat | 2/2 | Complete   | 2026-07-28 |
