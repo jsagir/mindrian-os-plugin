@@ -43,7 +43,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 ### Phase 240 -- Memory (depends on 236 landing first)
 
 - [x] **MEM-01**: Layer 2 (across-session) JTBD promotion fires for real, continuous work, not only on topic changes; the manual-override path persists the fields its own gate checks (M-1).
-- [ ] **MEM-02**: `graph-edge-pending.log` entries get consumed (routed into `memory_event` rows via the Phase 150 memory cortex) instead of accumulating forever (M-2, debug session in progress this turn).
+- [x] **MEM-02**: `graph-edge-pending.log`-shaped promote/park/complete events are consumed into `memory_event` rows via the Phase 150 memory cortex (M-2). REVISED 2026-07-30: the fix pre-dates this phase (commit `3c9afa2e`, `logGraphTransition` wired at all three lifecycle sites, `graph-edge-pending.log`/`writeGraphEdge` deleted entirely per the resolved RCA's Option B). Phase 240 Plan 05 closed the gap that was actually missing: the join test proving a promote survives a real `rebuildGraph` (riding Phase 236's transaction wrap), with both a correct-direction mutation (widening `INDEXER_OWNED_NODE_TYPES` reddens it) and a wrong-direction mutation (removing the BEGIN/COMMIT wrap does NOT redden it, a documented finding, not a gap) executed live.
 - [x] **MEM-03**: The JTBD test suite cannot write into the user's live memory store (M-3). (Phase 240 Plan 02: owned mktemp root for tests/test-jtbd-auto-anchor-empirical.sh, pre-emptive sandbox in tests/test-jtbd-hook-integration.cjs, 5-leg recursive `.memory`/`.rooms` hash fence at tests/test-240-memory-store-hermetic-fence.sh.)
 
 ### Phase 241 -- Feynman-MINTO (F-0 already filed and open)
@@ -88,7 +88,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | BRAIN-02 | Phase 239 | Complete |
 | BRAIN-03 | Phase 239 | Complete (parked) |
 | MEM-01 | Phase 240 | Complete |
-| MEM-02 | Phase 240 | Pending |
+| MEM-02 | Phase 240 | Complete (240-05) |
 | MEM-03 | Phase 240 | Complete (240-02) |
 | MINTO-01 | Phase 241 | Complete (241-01) |
 | MINTO-02 | Phase 241 | Complete (241-04) |
