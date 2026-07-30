@@ -29,9 +29,12 @@
  * No new runtime deps. Node built-ins only (http, assert).
  */
 
-const http = require('node:http');
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const {
+  startCaptureServer,
+  captured,
+} = require('./helpers/brain-capture-server.cjs');
 
 // ---------------------------------------------------------------------------
 // Mock Brain MCP HTTP server
@@ -53,76 +56,12 @@ const EXPECTED_SCHEMAS = {
   brain_stats: { required: [], optional: [] },
 };
 
-// Captured requests, keyed by test invocation
-const captured = [];
-
+// The mock Brain MCP HTTP server and its `captured` requests array now
+// live in tests/helpers/brain-capture-server.cjs (extracted, Phase 239
+// 239-01 Task 1). `captured` is imported above and used directly below;
+// this file no longer stands up its own inline HTTP listener.
 function startMockServer() {
-  const server = http.createServer((req, res) => {
-    let body = '';
-    req.on('data', (chunk) => {
-      body += chunk;
-    });
-    req.on('end', () => {
-      let parsed = null;
-      try {
-        parsed = JSON.parse(body);
-      } catch (e) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'bad_json' }));
-        return;
-      }
-
-      // brain-client.callTool does initialize first, then tools/call.
-      if (parsed.method === 'initialize') {
-        res.writeHead(200, {
-          'Content-Type': 'text/event-stream',
-        });
-        res.end(
-          'data: ' +
-            JSON.stringify({
-              jsonrpc: '2.0',
-              id: parsed.id,
-              result: { protocolVersion: '2024-11-05', capabilities: {} },
-            }) +
-            '\n'
-        );
-        return;
-      }
-
-      if (parsed.method === 'tools/call') {
-        // Capture for assertions.
-        captured.push({
-          name: parsed.params && parsed.params.name,
-          arguments: (parsed.params && parsed.params.arguments) || {},
-        });
-        res.writeHead(200, { 'Content-Type': 'text/event-stream' });
-        res.end(
-          'data: ' +
-            JSON.stringify({
-              jsonrpc: '2.0',
-              id: parsed.id,
-              result: {
-                content: [
-                  { type: 'text', text: JSON.stringify({ ok: true }) },
-                ],
-              },
-            }) +
-            '\n'
-        );
-        return;
-      }
-
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'unknown_method' }));
-    });
-  });
-
-  return new Promise((resolve) => {
-    server.listen(0, '127.0.0.1', () => {
-      const { port } = server.address();
-      resolve({ server, port });
-    });
-  });
+  return startCaptureServer();
 }
 
 // ---------------------------------------------------------------------------
