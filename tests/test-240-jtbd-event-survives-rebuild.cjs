@@ -75,6 +75,35 @@
  * through the real lib/hmi/across-session-memory.cjs / lib/hmi/jtbd-
  * state.cjs public API, never a hand-rolled INSERT.
  *
+ * MUTATIONS RUN (Task 2, executed live 2026-07-30, both fully reverted).
+ *
+ *   MUTATION A, THE CORRECT ONE: changed INDEXER_OWNED_NODE_TYPES at
+ *   lib/core/lazygraph-ops.cjs:81 from Object.freeze(['Artifact', 'Section'])
+ *   to Object.freeze(['Artifact', 'Section', 'memory_event']). RESULT:
+ *   scenario 3 (THE JOIN) turned RED, failing on "promote jtbd_transitioned
+ *   row memory_event:jtbd_transitioned:... was DESTROYED by the rebuild".
+ *   tests/test-236-rebuild-preserves-journal.cjs ALSO reddened under the same
+ *   mutation (its own scenario 1, the node_created memory_event), confirming
+ *   both files guard the same allowlist from different rows. Reverted;
+ *   git diff --quiet lib/core/lazygraph-ops.cjs confirmed clean, both suites
+ *   re-confirmed green.
+ *
+ *   MUTATION B, THE WRONG ONE, run deliberately as a counter-demonstration
+ *   and NOT as proof of anything: commented out rebuildGraph's BEGIN
+ *   (lib/core/lazygraph-ops.cjs:668) and its COMMIT (:743), leaving the
+ *   ROLLBACK path syntactically valid. RESULT: this file stayed GREEN, all
+ *   6 scenarios passing with zero changes. This EMPIRICALLY CONFIRMS that
+ *   ROADMAP SC2's "riding Phase 236's transaction wrap" phrasing does NOT
+ *   describe what protects these rows (240-RESEARCH.md Pitfall 4; STATE.md's
+ *   live Phase 236 Plan 02 result: "the WAL test's scenario 3 stayed GREEN,
+ *   because 236-01's scoped DELETE means the irreplaceable rows are never
+ *   touched even when atomicity is gone"). Reverted; git diff --quiet
+ *   lib/core/lazygraph-ops.cjs confirmed clean.
+ *
+ *   CONCLUSION: this file pins DELETE SCOPE, not atomicity. The transaction
+ *   wrap itself is pinned by tests/test-236-rebuild-preserves-journal.cjs
+ *   scenario 2, not by this file.
+ *
  * DETERMINISTIC: no randomness in any asserted value, no network, no LLM.
  * Hermetic: MINDRIAN_ROOMS_HOME points at an fs.mkdtempSync scratch root for
  * the whole run, restored in finally, scratch removed in finally. NO
