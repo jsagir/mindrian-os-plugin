@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 239 CLOSED (7/7 plans, gsd-verifier VERIFICATION PASSED 3/3 success criteria independently re-proven via live mutations). BRAIN-01/02/03 all Complete. Next: Phase 240 (Memory) -- unblocked, plans not yet written."
-last_updated: "2026-07-30T10:53:21.844Z"
-last_activity: 2026-07-30 -- Phase 239 (Brain-Access Surface) CLOSED. All 7 plans executed and independently gsd-verifier VERIFIED (status passed, 239-VERIFICATION.md, 3/3 success criteria): the verifier mutated hooks.json and brain-client.cjs itself and confirmed both gates turn red, then restored. bash tests/run-all-239.sh PASS=9 FAIL=0 SKIP=0. bash tests/run-all-196.sh PASS=5 FAIL=0 SKIP=0 (cross-plan fixture gap from 239-02/239-04 fully resolved). ROADMAP.md Phase 239 checkbox and progress rows marked complete; REQUIREMENTS.md BRAIN-01/02/03 marked Complete.
+stopped_at: Completed 236-04-PLAN.md (GRAPHDB-03 engines.node floor to >=22.16.0 + tests/run-all-236.sh). Phase 236 is 3/4; only 236-02 remains.
+last_updated: "2026-07-30T14:24:45.665Z"
+last_activity: 2026-07-30 -- Phase 240 execution started
 progress:
   total_phases: 9
   completed_phases: 8
-  total_plans: 38
+  total_plans: 44
   completed_plans: 38
-  percent: 100
+  percent: 86
 ---
 
 # Project State
@@ -1572,14 +1572,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 239 — brain-access-surface
+**Current focus:** Phase 240 — memory
 
 ## Current Position
 
-Phase: 239 (brain-access-surface) — EXECUTING
-Plan: 1 of 7
-Status: Executing Phase 239
-Last activity: 2026-07-30 -- Phase 239 execution started
+Phase: 240 (memory) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 240
+Last activity: 2026-07-30 -- Phase 240 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
