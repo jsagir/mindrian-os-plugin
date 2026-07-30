@@ -57,3 +57,38 @@ usage data on the new skip rate is available.
 - `.planning/phases/239-brain-access-surface/239-RESEARCH.md` Open Questions 4 and 5
 - `.planning/phases/239-brain-access-surface/239-05-PLAN.md` (this plan's own `<success_criteria>` DEFERRED note)
 - `lib/core/brain-client.cjs` `hatAwareRecommend()`, `suggestValidationSteps()`
+
+## D-239-04-01: tests/agentshield-e2e-smoke.test.cjs fails pre-existing, unrelated to BRAIN-01
+
+**Filed by:** 239-04 (this plan)
+**Filed:** 2026-07-30
+**Status:** OPEN, out of scope, not fixed
+
+**Context.** Task 2's regression sweep discovered `node tests/agentshield-e2e-smoke.test.cjs`
+fails: `AssertionError: e2e: agentshield-scan-cli.cjs must exit 0 against the live repo (clean at
+the committed baseline)` (`1 !== 0`). Running `node scripts/agentshield-scan-cli.cjs` directly
+shows the real cause: the `supply_chain` surface flags `@huggingface/transformers` and
+`sqlite-vec` as `ambiguous` (2 NEW findings not in `references/security/agentshield-baseline.json`),
+which is a dependency-baseline drift, not a Brain tool-name issue.
+
+**Confirmed pre-existing, not caused by this plan.** Reverted all three of this plan's Task 2
+edits (`git checkout -- lib/core/security/agentshield-scanner.cjs lib/core/grill-engine.cjs
+lib/core/eureka/online-pattern-query.cjs`), re-ran the test: identical failure, byte-identical
+message. Re-applied this plan's edits via `git apply` afterward; `git diff --stat` confirmed the
+three files were restored to this plan's intended state.
+
+**Why out of scope.** None of `agentshield-scanner.cjs`, `grill-engine.cjs`, or
+`online-pattern-query.cjs`'s `mcp__brain_` census fixes touch `supply_chain` scanning,
+`package.json` dependencies, or `references/security/agentshield-baseline.json`. This is a
+dependency-drift finding entirely outside this plan's `files_modified` and outside BRAIN-01/02/03.
+Per the SCOPE BOUNDARY rule (only auto-fix issues directly caused by the current task's changes),
+this is logged here rather than fixed.
+
+**Recommendation.** A future session should either re-seed the baseline
+(`node scripts/agentshield-scan-cli.cjs --write-baseline`, reviewed and committed explicitly) if
+both packages are legitimate and accepted, or investigate why they are flagged `ambiguous` first.
+
+**Cross-references:**
+- `scripts/agentshield-scan-cli.cjs`
+- `references/security/agentshield-baseline.json`
+- `tests/agentshield-e2e-smoke.test.cjs`
