@@ -340,6 +340,51 @@ Artifact filed
 
 ---
 
+## 2.8 Semantic Layer vs Context Layer
+
+room.db (the local per-room graph, SQLite, `room/.room-graph/room.db`) is one
+generic property graph: `nodes(id, type, properties)` and `edges(source,
+target, type, properties)` (`lib/core/lazygraph-ops.cjs:160-183`). There is no
+separate table or column for "semantic" versus "context" data - the boundary
+is not visible in the DDL. It lives entirely in an ownership allowlist that
+discriminates by the `type` string.
+
+| Layer | Node / edge types | Property | `rebuildGraph` behavior |
+| --- | --- | --- | --- |
+| SEMANTIC layer (schema and structure) | `Artifact`, `Section`, `BELONGS_TO` | Derivable from the filesystem | Safe to wipe and re-derive on every `rebuildGraph` |
+| CONTEXT layer (institutional knowledge) | `memory_event`, human-confirmed truth-claim nodes, decisions, opportunity `stage_history`, and the other 22 of the 23 `EDGE_TYPES` | Irreplaceable; human-confirmed or session-accumulated | Must survive `rebuildGraph` |
+
+**Enforcement.** The allowlist that makes this boundary load-bearing rather
+than descriptive is `lib/core/lazygraph-ops.cjs:81` (`INDEXER_OWNED_NODE_TYPES`)
+and `:84` (`INDEXER_OWNED_EDGE_TYPES`); the ownership-scoped DELETE that reads
+it is `lib/core/lazygraph-ops.cjs:131`.
+
+**The incident that proves it is load-bearing.** Phase 236 (GRAPHDB-01)
+existed because the indexer treated context-layer rows as semantic-layer rows
+and truncated them on every `rebuildGraph`. The fix was DELETE SCOPE, not
+atomicity (`.planning/REQUIREMENTS.md:21`). Phase 240 then pinned the context
+layer's survival across a rebuild with a join test.
+
+**Canon linkage.** This is the operational expression of Canon Part 9 Memory
+Locality: "only a human confirms a truth-claim node" (`docs/MINDRIAN-CANON.md`,
+Part 9).
+
+**External corroboration.** MotherDuck measured a +72 percentage point
+accuracy improvement and about 55 percent lower cost per run on the DABStep
+agentic analytics benchmark when context is kept in a separate curated layer
+rather than discovered ad hoc
+(https://motherduck.com/blog/context-belongs-in-the-warehouse, 2026-07-29). A
+second MotherDuck A/B result is the stronger, falsifiable version of the same
+finding: baking domain knowledge directly into the warehouse capped accuracy
+at 93 percent, while moving the identical knowledge into a separate curated
+layer reached 100 percent
+(https://motherduck.com/blog/oops-maybe-we-do-need-semantic-layers). Both are
+MotherDuck's own measurements, cited here with their source, never restated as
+MindrianOS findings: mixing the two layers costs measurable accuracy, not just
+conceptual tidiness.
+
+---
+
 ## 3. The 9 KuzuDB Edge Types
 
 KuzuDB serves as the local graph backbone for every room. Edges are the primary carriers of intelligence - the "weak interactions between subsystems" that Simon identified.
