@@ -15,6 +15,16 @@
  * success, mirroring the pattern already correct in scripts/on-stop /
  * on-task-complete / on-agent-complete.
  *
+ * Phase 240.1 Plan 02 (CTXL-01) update: state-ops.cjs::computeState() no
+ * longer writes the returned stdout byte-for-byte. It now hands the rendered
+ * string to lib/core/state-version.cjs::persistState(), which may SPLICE a
+ * gsd_state_version (and status) line into the persisted copy so the
+ * pre-existing version stamp a room was seeded with is never silently
+ * destroyed (240.1-RESEARCH.md Finding 1B). The fixture room here has no
+ * frontmatter at all, so persistState's absent-version branch stamps
+ * forward; the assertion below accounts for exactly that splice rather than
+ * asserting raw byte-identity, which is no longer this function's contract.
+ *
  * Zero test frameworks. Node built-in assert only. CJS only.
  */
 
@@ -26,6 +36,10 @@ const path = require('node:path');
 const PLUGIN_ROOT = path.resolve(__dirname, '..');
 const stateOps = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'state-ops.cjs'));
 const { runCascade } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'intelligence-cascade.cjs'));
+const {
+  spliceFrontmatterKeys,
+  STATE_SCHEMA_VERSION_LITERAL,
+} = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'state-version.cjs'));
 
 let failed = 0;
 function check(name, fn) {
@@ -78,7 +92,17 @@ async function run() {
         const after = fs.readFileSync(path.join(roomDir, 'STATE.md'), 'utf8');
         assert.ok(!after.includes('STALE FIXTURE'),
           'STATE.md on disk must no longer be the stale fixture after computeState() (got: ' + after.slice(0, 120) + ')');
-        assert.strictEqual(after, returned, 'persisted content must match the returned stdout');
+        // The fixture's STATE.md carried no frontmatter at all, so
+        // persistState's absent-version branch stamps gsd_state_version
+        // forward (CTXL-01). The persisted copy is the returned stdout with
+        // exactly that splice applied, not a byte-identical copy.
+        const expectedPersisted = spliceFrontmatterKeys(
+          returned, { gsd_state_version: STATE_SCHEMA_VERSION_LITERAL }
+        );
+        assert.strictEqual(
+          after, expectedPersisted,
+          'persisted content must be the returned stdout with the CTXL-01 version stamp spliced in'
+        );
       });
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
