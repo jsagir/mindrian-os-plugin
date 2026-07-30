@@ -9,9 +9,14 @@
 // the memory MD body, the raw file path, filenames-as-content, source_path /
 // source_section, or any node properties prose.
 //
-// Phase 150 is the FIRST real sendPacket consumer, so this builder inherits the
-// weight of proving the Part-8 guards fire in production, not just in dormant
-// fixtures. This test seeds the local graph with POISONED cortex nodes
+// Phase 150's builder was DESIGNED to be the first real sendPacket consumer,
+// but the consumer call site never landed: a full Phase 239 BRAIN-03 census
+// across lib/, scripts/, bin/ and pipelines/ confirms zero production
+// sendPacket( call sites today, and sendPacket was formally PARKED in Phase
+// 239 (see the dated note above lib/core/brain-client.cjs's sendPacket()).
+// This builder still inherits the weight of proving the Part-8 guards fire
+// correctly against realistic packet content, not just in dormant fixtures.
+// This test seeds the local graph with POISONED cortex nodes
 // (memory_artifact per kind + governing_thought + navigator_persona + decision)
 // whose properties + path + source_path + source_section carry
 // FORBIDDEN_SUBSTRINGS (raw governing-thought prose, an email, an absolute
