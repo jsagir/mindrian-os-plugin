@@ -184,6 +184,88 @@ else
 fi
 echo ""
 
+# ---------------------------------------------------------------------------
+# SCOPE-ESCAPE TRIPWIRE (plan 240.1-01 Task 2): turns locked decision D-01
+# into a standing machine check. No surface this phase creates or edits
+# under lib/, scripts/, or tests/ may reference gsd-core (the external tool
+# at ~/.claude/gsd-core) or write to .planning/STATE.md -- both are the
+# documented warning signs from 240.1-RESEARCH.md Pitfall 1.
+#
+# Scoped to this phase's OWN frozen surfaces below, never a repo-wide sweep:
+# a repo-wide sweep would be a false positive by construction. scripts/
+# doctor.cjs:2293-2299 legitimately probes for a gsd-core install, and
+# tests/test-doctor-class-q.cjs:13 legitimately names it. Do not "fix" the
+# scoping by widening it to the whole repo.
+# ---------------------------------------------------------------------------
+SCOPE_ESCAPE_FROZEN_FILES=(
+  "lib/core/state-version.cjs"
+  "scripts/state-write.cjs"
+  "tests/test-240.1-state-version-preserved.cjs"
+  "tests/test-240.1-state-version-drift-gate.cjs"
+  "tests/test-240.1-hook-write-site.sh"
+)
+SCOPE_ESCAPE_TOKENS=("gsd-core" ".planning/STATE.md")
+
+# $1 = file to scan. Pipes the candidate through strip_comments FIRST, so a
+# comment that legitimately EXPLAINS the out-of-scope decision (for example
+# "gsd-core is external and out of scope") cannot itself trip the gate.
+# Prints 1 if a forbidden token survives the strip, else 0.
+scope_escape_hits() {
+  local f="$1" tok hits=0
+  for tok in "${SCOPE_ESCAPE_TOKENS[@]}"; do
+    if strip_comments "$f" | grep -qF -- "$tok"; then
+      hits=1
+    fi
+  done
+  echo "$hits"
+}
+
+echo "--- scope-escape tripwire: locked decision D-01 (CTXL-01 targets the per-room STATE.md, not .planning/STATE.md / gsd-core) ---"
+TRIPWIRE_OK=1
+
+echo "    self-test:"
+mkdir -p "$TMP/tripwire-probe"
+printf 'const x = 1; // this line is fine\nfoo("gsd-core");\n' > "$TMP/tripwire-probe/must-catch.cjs"
+printf '// gsd-core is external and out of scope (comment only)\nconst y = 2;\n' > "$TMP/tripwire-probe/must-not-catch.cjs"
+
+MUST_CATCH_RESULT="$(scope_escape_hits "$TMP/tripwire-probe/must-catch.cjs")"
+if [ "$MUST_CATCH_RESULT" -eq 1 ]; then
+  echo "      caught (must_catch): a non-comment gsd-core reference"
+else
+  echo "      MISS (must_catch, the gate is blind to this): a non-comment gsd-core reference"
+  TRIPWIRE_OK=0
+fi
+
+MUST_NOT_CATCH_RESULT="$(scope_escape_hits "$TMP/tripwire-probe/must-not-catch.cjs")"
+if [ "$MUST_NOT_CATCH_RESULT" -eq 0 ]; then
+  echo "      correctly not caught (must_not_catch): a gsd-core reference on a comment line only"
+else
+  echo "      FALSE POSITIVE (must_not_catch): strip_comments failed to swallow a comment-only gsd-core reference"
+  TRIPWIRE_OK=0
+fi
+
+echo "    real sweep over the frozen path list:"
+for f in "${SCOPE_ESCAPE_FROZEN_FILES[@]}"; do
+  if [ ! -f "$f" ]; then
+    echo "      skipped-absent: $f (lands in a later wave, never counted as a pass it did not earn)"
+    continue
+  fi
+  hit="$(scope_escape_hits "$f")"
+  if [ "$hit" -eq 1 ]; then
+    echo "      SCOPE ESCAPE: $f references a forbidden token (gsd-core or .planning/STATE.md)"
+    TRIPWIRE_OK=0
+  else
+    echo "      clean: $f"
+  fi
+done
+
+if [ "$TRIPWIRE_OK" -eq 1 ]; then
+  echo ">>> scope-escape tripwire: locked decision D-01 (CTXL-01 targets the per-room STATE.md, not .planning/STATE.md / gsd-core): PASSED"; PASS=$((PASS+1))
+else
+  echo ">>> scope-escape tripwire: locked decision D-01 (CTXL-01 targets the per-room STATE.md, not .planning/STATE.md / gsd-core): FAILED"; FAIL=$((FAIL+1))
+fi
+echo ""
+
 shopt -u nullglob
 
 echo "======================================"
