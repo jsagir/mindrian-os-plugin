@@ -74,11 +74,23 @@ if [ -f "$MARKETPLACE_DIR/.claude-plugin/marketplace.json" ]; then
     # Two-commit steady state (release.sh Step 7.5 design): after a release the
     # catalog stays at the released vN while plugin.json carries the NEXT
     # pre-release placeholder (inc(vN)). That mismatch is HEALTHY, not a drift.
-    EXPECTED_NEXT=$(node -e "try{console.log(require('semver').inc(process.argv[1],'prerelease','beta'))}catch(e){console.log('ERR')}" "$MARKET_VER" 2>/dev/null || echo "ERR")
-    if [ "$PLUGIN_VER" = "$EXPECTED_NEXT" ]; then
+    #
+    # Found + fixed 2026-07-31 (v1.15.0 Gate-0 finalize -> v1.16.0-beta.1 start):
+    # semver.inc(vN, 'prerelease', 'beta') always yields '.beta.0' for a bare
+    # stable vN, but release.sh's own finalize step (Step 7.5) hardcodes
+    # '.beta.1' as the next placeholder -- confirmed live via its own commit
+    # message ("chore: bump to v1.15.4-beta.1"). An EXACT-counter comparison
+    # against semver.inc's independent computation false-fails on every
+    # finalize's real output. The check's actual intent (per the comment
+    # above) is "same base version, one patch ahead, carrying ANY prerelease
+    # tag" -- not "matches this one library call's specific counter value".
+    # Compare bases with the prerelease suffix stripped instead.
+    PLUGIN_BASE=$(echo "$PLUGIN_VER" | cut -d- -f1)
+    EXPECTED_BASE=$(node -e "try{console.log(require('semver').inc(process.argv[1],'patch'))}catch(e){console.log('ERR')}" "$MARKET_VER" 2>/dev/null || echo "ERR")
+    if [ "$PLUGIN_BASE" = "$EXPECTED_BASE" ] && echo "$PLUGIN_VER" | grep -q -- "-beta\."; then
       pass "Two-commit steady state: marketplace=$MARKET_VER (released), plugin=$PLUGIN_VER (next placeholder)"
     else
-      fail "Version MISMATCH: plugin=$PLUGIN_VER marketplace=$MARKET_VER (neither equal nor the documented next-placeholder state)"
+      fail "Version MISMATCH: plugin=$PLUGIN_VER marketplace=$MARKET_VER (neither equal nor the documented next-placeholder state -- expected base $EXPECTED_BASE with a -beta.N suffix)"
     fi
   fi
 else
