@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 238 CLOSED (8/8 plans, gsd-verifier VERIFICATION PASSED 8/8 must-haves). GATE-01/GATE-03/GATE-04 all Complete. Next: Phase 239 (Brain-Access Surface) or Phase 240 (Memory, depends on 236 which is done)."
-last_updated: "2026-07-29T18:04:15.063Z"
-last_activity: 2026-07-29 -- Phase 238 (Decision Gates) CLOSED. All 8 plans executed and independently gsd-verifier VERIFIED (status: passed, 238-VERIFICATION.md, 8/8 must-haves): the verifier independently re-ran 6 mutation proofs itself. `bash tests/run-all-238.sh` PASS=9 FAIL=0 SKIP=0. ROADMAP.md Phase 238 checkbox and progress row marked complete; REQUIREMENTS.md GATE-01/03/04 marked Complete.
+stopped_at: Completed 236-04-PLAN.md (GRAPHDB-03 engines.node floor to >=22.16.0 + tests/run-all-236.sh). Phase 236 is 3/4; only 236-02 remains.
+last_updated: "2026-07-30T10:53:21.844Z"
+last_activity: 2026-07-30 -- Phase 239 execution started
 progress:
   total_phases: 9
   completed_phases: 7
@@ -1560,14 +1560,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 239 (Brain-Access Surface) or Phase 240 (Memory) -- both unblocked, Phase 238 CLOSED
+**Current focus:** Phase 239 — brain-access-surface
 
 ## Current Position
 
-Phase: 238 (Decision Gates) - CLOSED (8/8 plans, gsd-verifier VERIFICATION PASSED)
-Plan: 8 of 8 complete
-Status: Phase 238 closed. Next: Phase 239 or Phase 240 (not yet planned)
-Last activity: 2026-07-29 -- Phase 238 (Decision Gates) CLOSED
+Phase: 239 (brain-access-surface) — EXECUTING
+Plan: 1 of 7
+Status: Executing Phase 239
+Last activity: 2026-07-30 -- Phase 239 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 

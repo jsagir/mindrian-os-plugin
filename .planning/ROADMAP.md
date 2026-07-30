@@ -150,7 +150,7 @@ Wave 3 (blocked on Wave 2):
 
 Wave 1:
 
-- [ ] 239-01-PLAN.md - Wave 1. Validation scaffolding: the SKIP-safe run-all-239.sh aggregator with two anti-vacuity legs authored RED, plus the SSE-shaped Brain capture server extracted out of test-brain-client-params.cjs into a shared helper.
+- [x] 239-01-PLAN.md - Wave 1. Validation scaffolding: the SKIP-safe run-all-239.sh aggregator with two anti-vacuity legs authored RED, plus the SSE-shaped Brain capture server extracted out of test-brain-client-params.cjs into a shared helper.
 
 Wave 2 (blocked on Wave 1):
 
@@ -252,7 +252,7 @@ Wave 4 (blocked on Wave 3):
 | 236. room.db Data-Loss Fixes | 4/4 | Complete   | 2026-07-29 |
 | 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
 | 238. Decision Gates | 8/8 | Complete    | 2026-07-29 |
-| 239. Brain-Access Surface | 0/? | Not started | - |
+| 239. Brain-Access Surface | 1/7 | In Progress|  |
 | 240. Memory | 0/? | Not started | - |
 | 241. Feynman-MINTO | 5/5 | Complete   | 2026-07-28 |
 | 242. The Moat | 2/2 | Complete   | 2026-07-28 |
