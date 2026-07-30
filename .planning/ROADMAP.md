@@ -159,8 +159,8 @@ Wave 2 (blocked on Wave 1):
 
 Wave 3 (blocked on Wave 2):
 
-- [ ] 239-03-PLAN.md - Wave 3. BRAIN-01 liveness gate: check-brain-tool-liveness.cjs enumerating live tool names by a real stdio tools/list handshake, with the zero-match-matcher anti-vacuity rule the shipped seam helper alone would have missed.
-- [ ] 239-06-PLAN.md - Wave 3. BRAIN-03: sendPacket parked with a dated note at the call surface and in docs, the two contradictory in-repo claims reconciled, and the zero-caller census machine-checked.
+- [x] 239-03-PLAN.md - Wave 3. BRAIN-01 liveness gate: check-brain-tool-liveness.cjs enumerating live tool names by a real stdio tools/list handshake, with the zero-match-matcher anti-vacuity rule the shipped seam helper alone would have missed.
+- [x] 239-06-PLAN.md - Wave 3. BRAIN-03: sendPacket parked with a dated note at the call surface and in docs, the two contradictory in-repo claims reconciled, and the zero-caller census machine-checked.
 
 Wave 4 (blocked on Wave 3):
 
@@ -252,7 +252,7 @@ Wave 4 (blocked on Wave 3):
 | 236. room.db Data-Loss Fixes | 4/4 | Complete   | 2026-07-29 |
 | 237. Reach Mechanism | 8/8 | Complete   | 2026-07-29 |
 | 238. Decision Gates | 8/8 | Complete    | 2026-07-29 |
-| 239. Brain-Access Surface | 3/7 | In Progress|  |
+| 239. Brain-Access Surface | 5/7 | In Progress|  |
 | 240. Memory | 0/? | Not started | - |
 | 241. Feynman-MINTO | 5/5 | Complete   | 2026-07-28 |
 | 242. The Moat | 2/2 | Complete   | 2026-07-28 |
