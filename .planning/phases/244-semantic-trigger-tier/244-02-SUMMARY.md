@@ -170,3 +170,6 @@ Restored byte-identical; re-ran green (`PASS=13 FAIL=0`). This proves the body-f
 ---
 *Phase: 244-semantic-trigger-tier*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+All 3 plan files + SUMMARY.md verified present on disk; all 5 commits (dece8bfe, 6931d99e, e1ba92b0, 2649313d, 4053e3b6) verified in git log.
