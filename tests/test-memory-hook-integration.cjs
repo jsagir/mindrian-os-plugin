@@ -13,7 +13,8 @@
  *   7.  completion-detector with within-session confidence < 0.6 -> NO fire (Pitfall 6 gate)
  *   8.  scripts/memory-resume-nudge.cjs in fresh session with in_flight < 24h -> 'Last move:' variant
  *   9.  scripts/memory-resume-nudge.cjs in fresh session with in_flight 4-7d -> 'Stale job:' variant + park CTA
- *   10. scripts/jtbd-update.cjs Phase 100 Stop hook extension preserves Phase 100 behavior AND fires promoteIfEligible
+ *   10. scripts/jtbd-update.cjs Phase 100 Stop hook extension preserves Phase 100 behavior (manual-block branch)
+ *       AND fires promoteIfEligible via the plan 240-03 manual-override round trip (updated 2026-07-30)
  *
  * Test isolation via freshTmpRoot + MINDRIAN_ROOMS_HOME env override (per RESEARCH §10).
  *
@@ -428,7 +429,28 @@ function runNudge(home, currentRoomSlug) {
 // Class 10: jtbd-update.cjs Phase 100 Stop hook extension
 //   - Phase 100 setCurrent path preserved (within-session jtbd-state.json updated)
 //   - additive promoteIfEligible call writes across-session in_flight row
-// =============================================================================
+//
+// Updated by plan 240-03 (MEM-01). The original scenario pre-seeded history
+// with rows targeting the SAME jtbd so the OLD turnCount fallback (counting
+// history rows where to === cur.jtbd) reached NOISE_FLOOR_TURNS = 3 on a
+// single classifier-driven transition. That fallback was itself the
+// deadlock 240-RESEARCH.md Finding 1 identifies: jtbd-state.cjs's setCurrent
+// now unconditionally persists turn_count: 1 on EVERY transition (the
+// transition turn IS turn 1 on the new topic, R-08), so a single Stop-hook
+// transition can never again reach turnCount >= 3 by itself -- reaching 3
+// on continuous same-topic work requires bumpTurnCount, which plan 240-04
+// wires into this same additive block. Testing the old fallback path here
+// would be testing dead code.
+//
+// This class now proves the ACTUAL round trip plan 240-03 closes: a manual
+// override is active (manual_set: true, persisted per Task 1) when a real
+// auto transition attempt arrives. jtbd-state.cjs's pre-existing manual-
+// block behavior (Phase 100, untouched by this plan) blocks the auto write
+// and leaves `current` unchanged, so the additive block re-reads the SAME
+// manually-set `current` -- and because manual_set now round-trips and the
+// gate now recognizes it (Task 2), promoteIfEligible correctly promotes the
+// manually-set jtbd through the real Stop hook, with no turn_count floor
+// needed. This is reachable TODAY (does not depend on plan 240-04).
 (function class10() {
   const t = freshTmpRoot();
   try {
@@ -447,25 +469,26 @@ function runNudge(home, currentRoomSlug) {
       context: { active_room: 'room-a', active_section: null, methodology_in_flight: null, decision_gate_pending: null },
       history: [],
     }));
-    // Pre-seed within-session jtbd-state with a DIFFERENT current jtbd so the
-    // classifier's find-bottleneck output IS a real transition. Pre-populate
-    // the history with two prior find-bottleneck rows so post-transition
-    // turn_count for find-bottleneck reaches 3 (>= NOISE_FLOOR_TURNS in
-    // promoteIfEligible).
+    // Pre-seed within-session jtbd-state with an ACTIVE MANUAL OVERRIDE on a
+    // DIFFERENT jtbd than the classifier will produce, so the incoming
+    // classifier-driven transition is a real topic change that setCurrent's
+    // pre-existing manual-block branch (jtbd-state.cjs:116-130, untouched by
+    // this plan) will block.
     const now = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     fs.writeFileSync(path.join(t.roomA, '.mindrian', 'jtbd-state.json'), JSON.stringify({
       version: 1,
       current: {
-        jtbd: 'understand-market',
-        confidence: 0.7,
+        jtbd: 'decide-pursue',
+        confidence: 1.0,
         entered_at: now,
-        evidence: ['seed-different'],
-        expires_at: null,
+        evidence: ['manual_set'],
+        expires_at: expiresAt,
+        turn_count: 1,
+        manual_set: true,
       },
       history: [
-        { from: 'explore', to: 'find-bottleneck', trigger: 'auto', at: now, evidence: [] },
-        { from: 'find-bottleneck', to: 'find-bottleneck', trigger: 'auto', at: now, evidence: [] },
-        { from: 'find-bottleneck', to: 'understand-market', trigger: 'auto', at: now, evidence: [] },
+        { from: 'explore', to: 'decide-pursue', trigger: 'manual_set', at: now, evidence: ['manual_set'] },
       ],
     }, null, 2));
     // Capture state file mtime + content BEFORE running.
@@ -473,7 +496,7 @@ function runNudge(home, currentRoomSlug) {
     const beforeState = fs.readFileSync(statePath, 'utf8');
 
     // Run the Stop hook with a /mos: methodology last response so the Phase 100
-    // classifier path engages.
+    // classifier path engages and attempts a transition to find-bottleneck.
     const r = spawnSync('node', [JTBD_UPDATE, 'stop'], {
       env: Object.assign({}, process.env, {
         MINDRIAN_ROOMS_HOME: t.home,
@@ -486,8 +509,9 @@ function runNudge(home, currentRoomSlug) {
     });
     if (r.status !== 0) { fail('Class 10: Stop hook exit 0', 'exit ' + r.status + ' stderr=' + r.stderr); return; }
 
-    // (a) Phase 100 within-session preserved. Either it stayed identical (no transition fired)
-    //     or it advanced cleanly to the same/different jtbd. Either way, it must be valid JSON
+    // (a) Phase 100 within-session preserved: the manual-block branch keeps
+    //     `current` untouched (still decide-pursue, manual_set true) and
+    //     appends an auto_blocked_by_manual history row. Must be valid JSON
     //     with version 1 and a current row.
     let afterStateRaw = '';
     try { afterStateRaw = fs.readFileSync(statePath, 'utf8'); }
@@ -499,18 +523,37 @@ function runNudge(home, currentRoomSlug) {
       fail('Class 10: within-session schema preserved', 'schema mismatch: ' + afterStateRaw.slice(0, 200));
       return;
     }
-
-    // (b) across-session in_flight row should now exist for room-a (additive Phase 103-05 fired).
-    const mem = readMemoryFile(t.home);
-    const inFlight = (mem && mem.rooms && mem.rooms['room-a'] && mem.rooms['room-a'].in_flight) || [];
-    const promoted = inFlight.find(x => x.jtbd === 'find-bottleneck');
-    if (!promoted) {
-      fail('Class 10: additive promoteIfEligible fired',
-        'no across-session in_flight row for find-bottleneck; mem.rooms=' + JSON.stringify((mem && mem.rooms) || {}).slice(0, 400));
+    if (afterState.current.jtbd !== 'decide-pursue' || afterState.current.manual_set !== true) {
+      fail('Class 10: manual override held through the auto attempt',
+        'current=' + JSON.stringify(afterState.current));
+      return;
+    }
+    const blockedRow = (afterState.history || []).find(h => h && h.trigger === 'auto_blocked_by_manual');
+    if (!blockedRow) {
+      fail('Class 10: auto_blocked_by_manual row appended', 'history=' + JSON.stringify(afterState.history || []).slice(0, 400));
       return;
     }
 
-    ok('Class 10: Phase 100 Stop hook extension preserves within-session AND fires across-session promote');
+    // (b) across-session in_flight row should now exist for room-a's
+    //     manually-set jtbd (decide-pursue), proving the MEM-01 manual
+    //     round trip fires end to end through the real Stop hook: the
+    //     additive block re-reads the still-manual `current`, manual_set
+    //     round-trips true, and the reconciled gate promotes it with no
+    //     turn_count floor needed.
+    const mem = readMemoryFile(t.home);
+    const inFlight = (mem && mem.rooms && mem.rooms['room-a'] && mem.rooms['room-a'].in_flight) || [];
+    const promoted = inFlight.find(x => x.jtbd === 'decide-pursue');
+    if (!promoted) {
+      fail('Class 10: additive promoteIfEligible fired via manual round trip',
+        'no across-session in_flight row for decide-pursue; mem.rooms=' + JSON.stringify((mem && mem.rooms) || {}).slice(0, 400));
+      return;
+    }
+    if (promoted.manual_set !== true) {
+      fail('Class 10: promoted row carries manual_set true', 'row=' + JSON.stringify(promoted));
+      return;
+    }
+
+    ok('Class 10: Phase 100 Stop hook extension preserves the manual-blocked within-session state AND fires across-session promote via the manual round trip');
   } finally { t.cleanup(); }
 })();
 

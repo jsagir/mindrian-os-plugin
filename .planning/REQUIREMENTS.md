@@ -42,7 +42,7 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 
 ### Phase 240 -- Memory (depends on 236 landing first)
 
-- [ ] **MEM-01**: Layer 2 (across-session) JTBD promotion fires for real, continuous work, not only on topic changes; the manual-override path persists the fields its own gate checks (M-1).
+- [x] **MEM-01**: Layer 2 (across-session) JTBD promotion fires for real, continuous work, not only on topic changes; the manual-override path persists the fields its own gate checks (M-1).
 - [ ] **MEM-02**: `graph-edge-pending.log` entries get consumed (routed into `memory_event` rows via the Phase 150 memory cortex) instead of accumulating forever (M-2, debug session in progress this turn).
 - [x] **MEM-03**: The JTBD test suite cannot write into the user's live memory store (M-3). (Phase 240 Plan 02: owned mktemp root for tests/test-jtbd-auto-anchor-empirical.sh, pre-emptive sandbox in tests/test-jtbd-hook-integration.cjs, 5-leg recursive `.memory`/`.rooms` hash fence at tests/test-240-memory-store-hermetic-fence.sh.)
 
@@ -87,7 +87,7 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | BRAIN-01 | Phase 239 | Complete |
 | BRAIN-02 | Phase 239 | Complete |
 | BRAIN-03 | Phase 239 | Complete (parked) |
-| MEM-01 | Phase 240 | Pending |
+| MEM-01 | Phase 240 | Complete |
 | MEM-02 | Phase 240 | Pending |
 | MEM-03 | Phase 240 | Complete (240-02) |
 | MINTO-01 | Phase 241 | Complete (241-01) |
