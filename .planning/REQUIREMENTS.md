@@ -36,9 +36,9 @@ Source: the 2026-07-28 nine-piece MindrianOS-Plugin infrastructure audit (24-age
 
 ### Phase 239 -- Brain-access surface
 
-- [ ] **BRAIN-01**: The Part-8 egress guard and PII sanitizer hooks actually match the live Brain tool names (B-1).
-- [ ] **BRAIN-02**: User-typed content (opportunity fields, Blue Hat notes) cannot reach a Brain query uninspected; the egress guard covers `query()`, not only the unused `sendPacket` door (B-3).
-- [ ] **BRAIN-03** (decision, not a bug fix): `sendPacket`'s fate is decided explicitly, wire it to real jobs or park it with a dated note (B-2).
+- [x] **BRAIN-01**: The Part-8 egress guard and PII sanitizer hooks actually match the live Brain tool names (B-1). (Phase 239, gsd-verifier PASSED 2026-07-30)
+- [x] **BRAIN-02**: User-typed content (opportunity fields, Blue Hat notes) cannot reach a Brain query uninspected; the egress guard covers `query()`, not only the unused `sendPacket` door (B-3). (Phase 239, gsd-verifier PASSED 2026-07-30)
+- [x] **BRAIN-03** (decision, not a bug fix): `sendPacket`'s fate is decided explicitly, wire it to real jobs or park it with a dated note (B-2). (Phase 239: PARKED, see docs/architecture/SUBSTRATE-CONTRACT.md 2026-07-30 amendment)
 
 ### Phase 240 -- Memory (depends on 236 landing first)
 
@@ -84,9 +84,9 @@ Filled by the roadmapper 2026-07-28. 23/23 v1.16.0 requirements mapped to exactl
 | GATE-01 | Phase 238 | Complete |
 | GATE-03 | Phase 238 | Complete |
 | GATE-04 | Phase 238 | Complete |
-| BRAIN-01 | Phase 239 | Pending |
-| BRAIN-02 | Phase 239 | Pending |
-| BRAIN-03 | Phase 239 | Pending (decision) |
+| BRAIN-01 | Phase 239 | Complete |
+| BRAIN-02 | Phase 239 | Complete |
+| BRAIN-03 | Phase 239 | Complete (parked) |
 | MEM-01 | Phase 240 | Pending |
 | MEM-02 | Phase 240 | Pending |
 | MEM-03 | Phase 240 | Pending |

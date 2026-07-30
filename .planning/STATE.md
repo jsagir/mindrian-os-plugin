@@ -3,18 +3,30 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 236-04-PLAN.md (GRAPHDB-03 engines.node floor to >=22.16.0 + tests/run-all-236.sh). Phase 236 is 3/4; only 236-02 remains.
+stopped_at: "Phase 239 CLOSED (7/7 plans, gsd-verifier VERIFICATION PASSED 3/3 success criteria independently re-proven via live mutations). BRAIN-01/02/03 all Complete. Next: Phase 240 (Memory) -- unblocked, plans not yet written."
 last_updated: "2026-07-30T10:53:21.844Z"
-last_activity: 2026-07-30 -- Phase 239 execution started
+last_activity: 2026-07-30 -- Phase 239 (Brain-Access Surface) CLOSED. All 7 plans executed and independently gsd-verifier VERIFIED (status passed, 239-VERIFICATION.md, 3/3 success criteria): the verifier mutated hooks.json and brain-client.cjs itself and confirmed both gates turn red, then restored. bash tests/run-all-239.sh PASS=9 FAIL=0 SKIP=0. bash tests/run-all-196.sh PASS=5 FAIL=0 SKIP=0 (cross-plan fixture gap from 239-02/239-04 fully resolved). ROADMAP.md Phase 239 checkbox and progress rows marked complete; REQUIREMENTS.md BRAIN-01/02/03 marked Complete.
 progress:
   total_phases: 9
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 38
-  completed_plans: 31
-  percent: 78
+  completed_plans: 38
+  percent: 100
 ---
 
 # Project State
+
+## (2026-07-30) -- PHASE 239 CLOSED (7/7 plans) -- Brain-Access Surface: BRAIN-01/02/03 all independently verified, not just claimed
+
+- **Position:** v1.16.0 Phase 239 (Brain-Access Surface) is CLOSED. All 7 plans executed and independently verified (`239-VERIFICATION.md`, status `passed`, 3/3 ROADMAP success criteria). ROADMAP.md marks the phase `[x]` complete (2026-07-30); REQUIREMENTS.md marks BRAIN-01/02/03 `[x]`.
+- **Wave 1 (239-01):** authored the `run-all-239.sh` aggregator and a shared SSE-shaped Brain capture server RED-first, before any fix existed, per Nyquist discipline.
+- **Wave 2 (239-02, 239-05, parallel):** 239-02 made `BRAIN_TOOL_MATCHER` in `lib/core/brain-response-sanitize.cjs` the single authority both hook matchers and `isBrainTool` derive from, closing the dead `mcp__brain_.*` literal (B-1). 239-05 closed the live Canon Part 8 breach in `query()`: `hatAwareRecommend`/`suggestValidationSteps` now classify raw fields BEFORE `sanitizeCypherInput`/interpolation, fail-closed, plus a labelled `query()` backstop (B-3). 239-02's own executor found and documented (did not fix, correctly out of scope) that `tests/part8-egress-guard-hook.test.cjs` now fixtures a dead tool name against the newly-live matcher -- filed as an RCA for 239-04.
+- **Wave 3 (239-03, 239-06, parallel):** 239-03 built `scripts/check-brain-tool-liveness.cjs`, enumerating real Brain tool names via a live stdio `tools/list` handshake, with an anti-vacuity zero-match-matcher rule. 239-06 decided `sendPacket`'s fate explicitly: PARKED with a dated (2026-07-30), specific decision recorded in `docs/architecture/SUBSTRATE-CONTRACT.md`, not a placeholder -- BRAIN-03 was a decision, not a bug fix, and the verifier confirmed the record is real.
+- **Wave 4 (239-04, 239-07, parallel, final):** 239-04 finished BRAIN-01's inbound half (PII sanitizer PostToolUse liveness), swept every remaining dead `mcp__brain_` literal from tracked source, AND fixed the stale-fixture RCA 239-02 flagged two waves earlier -- `bash tests/run-all-196.sh` went from `Passed: 4 Failed: 1` to `Passed: 5 Failed: 0`. 239-07 wired the liveness gate into `scripts/verify-release` as a new numbered section, mutation-proven to actually block a release.
+- **A structural harness gotcha found and fixed mid-phase, not specific to this repo's code:** `Agent(isolation="worktree")` bases new worktrees off `origin/main`, not local HEAD. This repo had gone 203 commits without a push (commits land locally, push happens at release), so the very first Wave 1 dispatch FATAL'd on a worktree base mismatch (the executor's own `#48`/`#2924` verify-only guard caught it correctly and refused to self-recover, exactly as designed). Fixed by pushing local `main` to `origin` (confirmed clean fast-forward first) before every subsequent worktree dispatch across all four waves -- this recurred once more after Wave 1's own tracking commit before the push-before-dispatch discipline was fully internalized.
+- **A real, pre-existing repo-hygiene bug found and fixed along the way:** `references/personality/pws-lexicon-full.md` was committed with CRLF line endings despite `.gitattributes` mandating `eol=lf` for all `.md` files (a 2026-07-02 Windows-hardening rule). Every fresh worktree checkout re-flagged it dirty with zero actual content difference (confirmed via `git diff --ignore-all-space` = 0 lines). Renormalized once via `git add --renormalize`; will not recur.
+- **`gsd-verifier` independently re-proved, not just checked the SUMMARYs:** mutated `hooks/hooks.json` (renamed the live matcher) and `lib/core/brain-client.cjs` (disabled the `hatAwareRecommend` guard) itself -- both times the phase's own gates correctly went red, then were restored clean. `bash tests/run-all-239.sh` PASS=9 FAIL=0 SKIP=0 (up from 2/2/5 after Wave 1 alone). `bash tests/run-all-196.sh` PASS=5 FAIL=0 SKIP=0. `node tests/test-150-brain-egress.cjs` (MEM-04 zero-prose invariant) still PASSED -- no regression.
+- **NEXT:** Phase 240 (Memory) is the only phase left in v1.16.0. Unblocked (its HARD dependency on Phase 236 landed 2026-07-29). No PLAN.md exists yet for 240 -- `/gsd-plan-phase` needed before execution. Gate 0 (the official v1.15.0 stable close-out) remains open separately and gates any v1.16.0 release CUT, not phase work itself.
 
 ## (2026-07-29) -- PHASE 236 CLOSED (4/4 plans) -- room.db Data-Loss Fixes: GRAPHDB-01/02/03 all independently verified, not just claimed
 
