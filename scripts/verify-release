@@ -499,6 +499,42 @@ else
 fi
 
 # ============================================================
+# 19. BRAIN TOOL LIVENESS GATE
+# ============================================================
+# Phase 239 (BRAIN-01, threat T-239-T1): Claude Code evaluates a hook
+# matcher per tool-call event and NEVER validates it against a live tool
+# registry -- a matcher naming a tool that no longer exists does not warn
+# and does not error, it silently stops firing, forever. Before Phase 239
+# this repo's two Part-8 hook matchers read "mcp__brain_.*" while the live
+# registered names were mcp__plugin_<plugin>_<server>__<tool>, so the Canon
+# Part 8 egress guard and the PII sanitizer had both been dead for the
+# entire period the plugin shipped through the marketplace. The official
+# Claude Code plugins reference states plainly that a matcher written
+# against the bare server key never fires. This gate checks two claim
+# sources -- hook matchers (each must match at least one live name; an
+# empty claim set reads as vacuously live per lib/core/seam-liveness.cjs's
+# own contract and is therefore treated as a FAILURE here, not a pass) and
+# agent allowed-tools exact names -- against a real stdio tools/list
+# handshake, never a hand-typed list. Requirement BRAIN-01, threat T1.
+#
+# NOTE ON SECTION NUMBERING: Phase 238 (GATE-01) landed section 18 "Gate
+# Ledger Seam Gate" first. This section is numbered 19, the next free
+# integer, per this plan's collision-resolution rule (whichever phase
+# executes second renumbers; section 18 is untouched).
+echo -e "\n${BOLD}19. Brain Tool Liveness Gate${NC}"
+
+BRAIN_LIVENESS_OUT=$(node "$PLUGIN_ROOT/scripts/check-brain-tool-liveness.cjs" 2>&1) && BRAIN_LIVENESS_CODE=0 || BRAIN_LIVENESS_CODE=$?
+if [ "$BRAIN_LIVENESS_CODE" -eq 0 ]; then
+  pass "Every Brain hook matcher and agent allowed-tools entry names a live MCP tool"
+elif [ "$BRAIN_LIVENESS_CODE" -eq 1 ]; then
+  fail "Brain tool liveness gate FAILED (a hook matcher or agent allowed-tools entry names a Brain tool that does not exist):"
+  echo "$BRAIN_LIVENESS_OUT"
+else
+  fail "Brain tool liveness gate could not run (probe failure):"
+  echo "$BRAIN_LIVENESS_OUT"
+fi
+
+# ============================================================
 # PACKAGE-LOCK SYNC (vendored-node_modules lockstep)
 # ============================================================
 # Debug session mcp-servers-cache-missing-node-modules: release.sh Step 6.7
