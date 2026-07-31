@@ -50,21 +50,35 @@ navigator-declared.
 ## Implementation Decisions
 
 ### Requirement 1 - Dial-ranking fusion mechanism
-- **D-01:** Sensor/`fire_skill` signal merges into the dial's ranking as a bounded additive,
-  `reach_id`-keyed term inside `lib/workflow/reach-hedge-ranker.cjs` (the repo's own "ONE shared
-  scored-selection layer," already blending the cortex D4 score with a registry signal over the
-  same 6 frozen `reach_id`s, already importing `cortex-reach-adapter`). NOT RRF fusion - RRF
-  discards the score magnitude the frozen 0.70/0.15 RECOMMENDED-marker gate is defined on, and
-  the repo's own `f-selector-ranker.cjs` documents RRF's rank-1/rank-2 gap (~3.8% at k=25) as too
-  flat for a 6-item bank. Keep RRF as the fallback if a future signal source is NOT
-  `reach_id`-keyed.
+- **D-01 (CORRECTED by 245-RESEARCH.md finding F-1 - do not plan from the original text below):**
+  ~~Sensor/`fire_skill` signal merges into the dial's ranking as a bounded additive, `reach_id`-keyed
+  term inside `lib/workflow/reach-hedge-ranker.cjs`~~. Research exhaustively enumerated every call
+  site of both `rankFiredCandidates` and `buildReachList` and found they are **sibling consumers**
+  of the same `buildReachScoresFromCortex` output, not a pipeline - the hedge ranker reads
+  `reachScores` read-only and returns a reordered array that never reaches the dial. A fusion
+  confined to the ranker (as D-01 originally specified) satisfies Req 4 and moves the dial by
+  *nothing*, silently failing Req 1's own acceptance test. **Corrected plug point (F-1):** a new
+  exported pure function in `reach-hedge-ranker.cjs` (preserving the Part 7 intent - reuse the
+  ranker's existing scoring logic, don't fork it), merged into `reachScores` at
+  `scripts/intent-classifier.cjs:1288` via the already-shipped Phase 158-03 `Object.assign`
+  precedent (`Object.assign(reachScores, reachPenalties.discountedScores)`). This is the same
+  render callsite named in D-02, so D-02 stands unchanged.
 - **D-02:** The fired-sensor signal is already available at the render callsite via
   `decision.decision_trace.context_assembly.facts[]` (`navigation-engine.cjs::buildContextAssembly`)
   - no new plumbing/DB/Brain call needed to wire this.
-- **D-03:** `buildReachList` itself (`lib/hmi/dial-reach-orchestrator.cjs`) stays byte-unchanged -
-  its purity tripwire (`tests/test-158-reach-orchestrator-pure.cjs`) and byte-stable snapshot
-  (`tests/test-158-reach-byte-stable.cjs`) must keep passing. The fusion happens upstream, inside
-  the hedge ranker, before scores reach that function.
+- **D-03 (reaffirmed, not weakened, by F-1):** `buildReachList` itself
+  (`lib/hmi/dial-reach-orchestrator.cjs`) stays byte-unchanged - its purity tripwire
+  (`tests/test-158-reach-orchestrator-pure.cjs`) and byte-stable snapshot
+  (`tests/test-158-reach-byte-stable.cjs`) must keep passing. The corrected D-01 plug point
+  (`scripts/intent-classifier.cjs:1288`) sits upstream of `buildReachList`'s call, same as
+  originally intended - only the mechanism inside the fusion step changes, not where it sits.
+- **D-25 (new, from F-2, extends D-24):** Brain's `pattern_matches` verb is not merely starved by
+  sensor precedence (D-24) - `extractTopCandidateVerb` has exactly ONE caller in the entire
+  codebase, inside `resolveFireSkill` step 3, which a fired sensor reach makes unreachable on
+  nearly every turn (per D-24). In practice the verb is **never computed**, not just discarded.
+  Planner must add real plumbing (compute the verb independently of `resolveFireSkill`'s
+  precedence chain, not just reorder the existing chain) for Req 1's third fusion input to exist
+  at all.
 - **D-04:** Lockstep hazard flagged for the planner: `scripts/intent-classifier.cjs:2048-2108`
   independently recomputes `buildReachList` for `reach_presented` telemetry and must receive the
   same fused scores, or logged "what was offered" diverges from what actually rendered.
@@ -158,9 +172,14 @@ navigator-declared.
 - **D-21:** Prerequisite: `evidence.sensor_id` (e.g. `'SENS-11'`) must be stamped on all 12
   colliding sensors before the priority key exists to sort on - a Part-8-safe one-line add per
   sensor (evidence already accepts string primitives).
-- **D-22:** Enforcement: extend the existing `data/connector-registry.json` `sensor_index` +
-  `scripts/build-connector-registry.cjs --check` machinery so a sensor shipped without a priority
-  table entry fails the build closed, rather than silently degrading to file-registration order.
+- **D-22 (CORRECTED by 245-RESEARCH.md finding F-3):** ~~Enforcement: extend the existing
+  `data/connector-registry.json` `sensor_index` + `scripts/build-connector-registry.cjs --check`
+  machinery~~. Research found `sensor_index` is built from **command frontmatter**, not from
+  `SENSOR_REGISTRY` - it has 13 keys and is already missing SENS-10/11/12/16, three of which are
+  among the 12 `context_block` colliders Req 4 exists to order. A completeness gate built on
+  `sensor_index` as originally specified would silently exempt sensors actually in scope. Planner
+  must build the `SENS_PRIORITY` completeness check directly against `SENSOR_REGISTRY` (the true
+  source of the 12 colliders, per D-19/D-20), not against `sensor_index`.
 - **D-23:** Explicitly rejected: per-sensor `trigger_tier` as the primary tie signal. The shipped
   `classifyTriggerTier` classifier is turn-level, not sensor-level - a generic call returns the
   identical tier for every colliding sensor on the same turn, so it can't discriminate colliders
@@ -170,13 +189,76 @@ navigator-declared.
   `orchestration-candidate-lift.cjs`), just not as this requirement's primary mechanism.
 
 ### Requirement 5 - Part 8 egress-guard scoping check
-### Claude's Discretion
-No advisor-research area was run for Req 5 this discussion (not selected as a gray area - the
-navigator's 4 selections covered Req 1-4 only). Planner/researcher should treat Req 5 as
-open-investigation: root-cause the live observation from this session (a plain `brain_stats` call
-was intercepted by `part8-egress-guard-hook.cjs`'s leak-prevention card) against the guard's
-actual matcher logic, and determine correctly-conservative vs. over-firing per SPEC.md's stated
-acceptance criterion. No implementation direction is pre-decided here.
+- **D-26 (new, root-caused by 245-RESEARCH.md, reproduced deterministically across 8
+  payload/tool combos):** The guard is over-firing, not correctly conservative - and its own risk
+  ordering is inverted. `classify()`'s terminal catch-all returns `ambiguous` for a contentless
+  `{}` argument, and the hook turns any `ambiguous` verdict into `exit 2` (block). Concretely: a
+  free-form `brain_ask` call carrying a real user question is ALLOWED through, while a
+  zero-argument `brain_stats` call (no user content possible) is BLOCKED - backwards from what a
+  leak-prevention guard should do.
+- **D-27:** Fix shape is a positive emptiness recognizer placed AHEAD of the catch-all (explicitly
+  recognize "this call carries no argument / no user-suppliable content" and allow it), never
+  weakening the catch-all's default-block behavior for calls that DO carry arguments. The
+  catch-all itself stays conservative by design; only genuinely contentless calls get carved out.
+- **D-28 (flagged by 245-RESEARCH.md as its own item, not this phase's scope):** `brain_search`'s
+  documented fallback path (`pws-brain.md:100`) is currently dead - always Part-8-blocked. Unlike
+  `brain_stats`, this is NOT obviously a false positive: a search string is real user content, so
+  the block may be correct. Document the finding under Req 5's writeup; do NOT widen D-27's
+  emptiness recognizer to cover it in this phase.
+
+### Cross-cutting - semantic/Pinecone verb resolution (resolves the navigator's mid-turn
+"can Brain/Pinecone help semantically" question, and confirms the earlier CANONICAL_VERBS finding
+was real)
+- **D-29:** 245-RESEARCH.md independently confirmed the verb-vocabulary problem the navigator
+  raised is genuine: `'Run Methodology'` is reachable from 2 different sensor reaches while 5 of
+  the 10 frozen `CANONICAL_VERBS` invert to nothing at all (no sensor or Brain path can ever
+  produce them). Semantic derivation is a real fix for this - but NOT via live Pinecone. Four
+  independent blockers to a live-Pinecone leg: (1) this SPEC's own no-synchronous-Brain-call
+  constraint; (2) a real `pinecone_quota_exhausted` condition on the account; (3) `brain_search`
+  is *already* always Part-8-blocked today (D-28) - unreachable from the runtime regardless of
+  this phase; (4) wrong corpus - `pws-brain`'s Pinecone index holds the generic teaching corpus
+  (Canon Part 8), not reach/verb definitions, which are project-specific and constitutionally
+  cannot live there.
+- **D-30:** Correct mechanism instead: derive the verb/`reach_id` affinity at **build time** using
+  the already-shipped, fully local, zero-egress `lib/core/eureka/embedding-classifier.cjs`
+  (self-documented design scale: "~40-term in-memory reference set" - a 10x6 problem fits it
+  exactly), and commit the derived mapping frozen. Zero runtime cost, deterministic (required by
+  Req 4's acceptance criterion), Canon Part 7 compliant (reuses the existing classifier, no new
+  embedding infra). **Scope boundary, explicit:** this is verb-to-`reach_id` affinity only, in
+  scope for this phase's Req 1/Req 3 work. If a plan starts sourcing raw sensor *keyword
+  vocabulary* from docs/SKILL.md/commands, that is the already-deferred semantic-vocab-sourcing
+  idea (see `<deferred>` below) - out of this phase's scope, do not fold it in.
+- **D-31 (the superpowers comparison, resolved):** superpowers' automatic skill-triggering does
+  NOT transfer to Req 3's SENS-17 sensor - three independent blockers: it runs inside the model's
+  own turn while `dispatchSensors` runs in a pre-turn hook process (wrong execution context
+  entirely); it produces no *number* (buildReachList needs a score, not a judgment call); and Req
+  4's acceptance criterion requires reproducibility across runs, which model judgment cannot
+  give. There is also a doctrine tension worth naming: a "1% chance it might apply, fire it"
+  threshold sits close to the opposite of this repo's own Canon Part 12 invisibility mandate.
+  Correction to how the pattern was described earlier in this conversation: reading its actual
+  source, it is not a formal classifier or scoring mechanism - it is a plain imperative
+  instruction plus an anti-rationalization table; it works because the model itself acts as the
+  classifier, which is exactly the "wrong execution context" problem above. Where it genuinely
+  DOES transfer: its `description:` frontmatter field is the same idea as the already-deferred
+  vocab-sourcing item, and this finding strengthens that deferred item's case without changing
+  anything about SENS-17 itself.
+
+### Open Questions From Research (navigator input requested, not yet resolved)
+1. **A3 (explicitly flagged by 245-RESEARCH.md as needing confirmation before planning locks
+   it):** Should Req 1's fusion nudge (D-01's corrected mechanism) be bounded strictly below the
+   frozen 0.70 RECOMMENDED-marker floor, or should a strong sensor/Brain signal be allowed to
+   cross it and actually earn the RECOMMENDED marker? Research recommends bounding (the existing
+   `CONTRIBUTIONS` table encodes a "no single signal solo-crosses 0.70" house invariant, and
+   reordering the dial doesn't require crossing it) - but the navigator may specifically want a
+   strong signal to be able to trigger RECOMMENDED. Unresolved.
+2. Does the Req 2 `age_exceeded` trigger arm actually enqueue a re-derive, or is it computed and
+   never acted on - the same "computed, consumed by nothing" shape `trigger_tier` had before Phase
+   244? If so Req 2 has two defects stacked, not one. Not yet checked.
+3. A pre-existing telemetry/render divergence: `scripts/intent-classifier.cjs:2063`'s
+   `reach_presented` telemetry already omits the reject discount, `suppressedReachIds`, and the
+   relevance gate that the live render path applies. D-04 named this prospectively as a lockstep
+   *hazard*; research confirms it is already live today, and Req 1's fusion widens the gap further
+   unless the planner closes it.
 
 </decisions>
 
