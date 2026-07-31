@@ -1,7 +1,68 @@
 ## [Unreleased] -- v1.16.0-beta.4 (in progress)
 
 ### Added
-- 
+- **The ranked dial you pick from now actually listens to what you said, and Brain's own
+  suggestion can no longer be silently discarded (Phase 245).** The previous entry documented an
+  honest finding: the sensor bank that watches a turn decides only WHETHER a dial appears, never
+  WHAT sits on top of it -- that ranking came entirely from your room's graph-node recency, a
+  completely separate code path. This phase closes that gap for real, at the one seam that
+  actually renders the dial (`scripts/intent-classifier.cjs`), not the seam that looked like the
+  right place but turned out to be a dead end -- a same-day research pass caught that the obvious
+  fix (wiring the fusion into `reach-hedge-ranker.cjs`) would have shipped, passed every test, and
+  moved the visible dial by nothing, because that ranker and the dial's renderer read the same
+  score map without either one feeding the other. Two turns with different intent in the same
+  session now surface two different top-ranked cards, proven by literally commenting out the merge
+  and watching the acceptance test fail with the exact symptom the SPEC named, then restoring it
+  and watching it pass. Brain's own suggested next step, when Brain has one, now genuinely factors
+  into that ranking too -- previously it was computed nowhere reachable, buried behind a routing
+  precedence chain a fired sensor almost always won first, so even a fresh, correct Brain read had
+  no way to ever surface. Bounded so it stays a nudge: no single signal can push a card across the
+  frozen 0.70 "recommended" threshold on its own, verified by sweeping the fusion math with
+  deliberately extreme inputs.
+- **`BRAIN.md` now actually refreshes itself instead of quietly going stale for weeks while still
+  claiming to be fresh (Phase 245).** The re-derivation trigger, queue, and drain machinery for
+  keeping a room's Brain-derived insight current already existed, fully wired -- it just silently
+  did nothing. The drain measured its own timing budget starting *before* a slow one-time
+  `require()`, so a cold process routinely blew a 100ms budget it thought it had 100ms left in,
+  aborted after spawning zero re-derive jobs, and had already removed every job from the queue on
+  the way in. No error, no warning -- just a room that reports `staleness: "fresh"` while running
+  on a read from 12 days ago. Fixed at the root (hoist the slow require above the clock, and make
+  queue removal contingent on an actual job having spawned, so a future slow tick degrades
+  gracefully instead of losing work outright), not patched at the symptom. `BRAIN.md` now
+  re-derives on any of three real triggers: the room's governing thought changing, a section aging
+  past its staleness window, or an explicit ask -- never a blanket call on every single turn, which
+  independent research confirmed would blow the product's own 1200ms navigation budget.
+- **Six Thinking Hats can now surface itself, proactively, for the first time (Phase 245).** `hats`
+  has been one of exactly six frozen reach categories since Phase 148 -- fully built on the render
+  side, completely unreachable from the sensor side. A navigator could only ever get there by
+  picking it manually, directly contradicting the product's own doctrine for when a hats rotation
+  should be offered. A new sensor closes the gap, firing when two or more fresh, unresolved
+  contradictions accumulate in a room (one is treated as a bridge to another topic; two or more
+  unresolved is treated as a genuine perspective lock worth rotating hats on) -- tuned specifically
+  not to double-fire alongside the existing sensor that already reacts to the first contradiction.
+  Also repaired: three shipped commands had been declaring a hats trigger that pointed at a sensor
+  which fires a completely different category and could never have produced hats in the first
+  place -- a real, live registry-truth bug now corrected alongside the sensor that actually makes
+  the declaration true.
+- **When multiple signals fire on the same turn, the winner is now a documented priority, not
+  whichever file happened to load first (Phase 245).** 65% of the sensor bank can independently
+  produce the same output category on a single turn, and until now the tie always went to
+  registration order -- an accident of file layout, not a designed hierarchy. A frozen,
+  doctrine-authored priority table now decides, enforced by a completeness gate that fails the
+  build closed if a sensor ships without a ranked entry, so this can't silently drift again the way
+  the registration-order behavior did.
+- **A Part 8 privacy guard was blocking harmless, contentless Brain calls while letting real
+  user-content calls through -- backwards from what a leak-prevention guard should ever do (Phase
+  245).** Root-caused to a single over-broad catch-all with no way to recognize a call that
+  structurally cannot carry user data. A stats-style call with no arguments now passes; the
+  catch-all itself is untouched and still blocks by default on anything that actually could carry
+  content.
+- **Frozen, zero-cost mapping from the product's ten canonical routing verbs to the six dial
+  categories they can actually produce (Phase 245).** Half the vocabulary had no path to ever fire
+  at all -- not a bug exactly, but an unmeasured gap nobody had named. Derived once, offline, from
+  a local sentence encoder already shipped in this repo for an unrelated feature (Canon Part 7:
+  reuse, don't rebuild) -- zero network calls, zero ongoing cost, and ground truth checked first so
+  a close embedding score can never overrule a fact the routing engine already knows for certain.
 
 ## [1.16.0-beta.3] - 2026-07-31
 
