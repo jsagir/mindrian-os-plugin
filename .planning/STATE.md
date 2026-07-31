@@ -16,6 +16,27 @@ progress:
 
 # Project State
 
+## (2026-07-31) -- NAVIGATOR OVERRIDE: Gate 0 sequencing waived for the next v1.16.0-beta cut
+
+- **Position:** Navigator set a session goal ("plan, execute, and cut version to beta next on the
+  1.16 train") covering Phase 245. Before proceeding, the standing Gate 0 rule was surfaced
+  explicitly (ROADMAP.md: "no v1.16.0 release cut before the stable v1.15.0 close-out",
+  navigator's own 2026-07-28 directive, `release.sh --finalize` for v1.15.0 still not run) and the
+  navigator was asked directly whether to run Gate 0 first, skip it, or hold the release half of
+  the goal. **Navigator chose to skip Gate 0 and cut the next v1.16.0-beta anyway.**
+- **This is a recorded, explicit override of the navigator's own 2026-07-28 sequencing rule**, not
+  a silent decision made on their behalf. The original rule (v1.15.0 must finalize to stable
+  before any v1.16.0 beta cuts) stays written in ROADMAP.md unchanged; this entry documents that
+  the next beta cut is an intentional exception, not a rule change. v1.15.0's `release.sh
+  --finalize` (npm @latest, tag, marketplace pin) remains **not run** as of this entry -- Gate 0
+  itself is still open in ROADMAP.md, only the "it must gate the next cut" consequence is waived
+  for this one release.
+- **NEXT:** Phase 245 plan -> execute -> verify (unaffected by Gate 0 either way -- phase work was
+  never gated). Once 245 closes, cut `v1.16.0-beta.N` via `release.sh --start-prerelease` (or the
+  appropriate next-beta flow) WITHOUT first running `release.sh --finalize` for v1.15.0, per this
+  override. Future sessions: do not assume Gate 0 auto-applies to subsequent v1.16.0 cuts just
+  because it was waived once here -- confirm with the navigator again if it becomes relevant.
+
 ## (2026-07-30) -- PHASE 244 CLOSED (8/8 plans) -- Semantic Trigger Tier: TRIG-01/02/03 all independently verified, not just claimed. v1.16.0's 11 phases (9 planned + 2 urgent insertions) are ALL CLOSED.
 
 - **Position:** v1.16.0 Phase 244 (Semantic Trigger Tier) is CLOSED. All 8 plans executed and independently verified (`244-VERIFICATION.md`, overall verdict PASS with one non-blocking finding, 3/3 ROADMAP success criteria VERIFIED). ROADMAP.md marks the phase `[x]` complete (2026-07-30); REQUIREMENTS.md marks TRIG-01/02/03 `[x]`. **This closes all 11 phases (235, 236, 237, 238, 239, 240, 240.1, 241, 242, 243, 244) of the v1.16.0 "Infrastructure Remediation" milestone's phase work -- the 9 originally planned phases plus the two urgent insertions (240.1, 244) found live during the milestone itself.**
