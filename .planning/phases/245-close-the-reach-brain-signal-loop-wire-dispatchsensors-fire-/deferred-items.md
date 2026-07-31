@@ -87,3 +87,23 @@ confirmed separately: the baseline tree reports
 `hasOwnProperty('brain_pattern_verb') === false` while HEAD reports `true`, so the
 two trees genuinely are different code and the routing outputs are genuinely
 unchanged.
+
+---
+
+## A FOURTH false hats declaration, found during 245-06 (D-15 undercount)
+
+| Item | Status | Evidence | Disposition |
+|------|--------|----------|-------------|
+| `commands/hat-briefing.md` declares `reach_id: hats` with `sensor_triggers: [SENS-07]`, but SENS-07 (`lib/core/sensors/sensor-gate-approach.cjs:89`) fires `reach_id: 'context_block'`, not `hats` | pre-existing, NOT fixed | Found by writing 245-06's H10 assertion as a blanket sweep over every connector with `reach_id === 'hats'` instead of over the three surfaces D-15 named. The registry shows four command surfaces on the hats reach: `/mos:think-hats`, `/mos:persona`, `/mos:bono` (all three repaired to `SENS-17` by 245-06) and `/mos:hat-briefing`, which was never in D-15's list. Verify with: `node -e "const r=require('./data/connector-registry.json'); for (const c of r.connectors) if (c && c.reach_id==='hats') console.log(c.surface, JSON.stringify(c.sensor_triggers));"` | Out of scope for 245-06, whose `files_modified` covers three command files and whose Task 3 action block explicitly forbids chasing `sensor_index`'s other gaps. This is the SAME defect class as D-15 (a declaration asserting a link the code does not implement, threat T-245-25), so it is a real finding rather than noise. Note it is not automatically a "change it to SENS-17" fix: `/mos:hat-briefing` is a briefing surface, not a perspective rotation, so the right repair may instead be to correct its `reach_id`. That is a product call, not a mechanical one. The exclusion is documented inline in `tests/test-245-sens17-hats.cjs` above the `D15_HATS_SURFACES` list so a future reader does not mistake the narrowed assertion for an oversight. |
+
+## A stale registry-ordering assertion, found and REPAIRED during 245-06
+
+| Item | Status | Evidence | Disposition |
+|------|--------|----------|-------------|
+| `tests/test-220-url-sensor.cjs` G6c asserted `sensorUrlIngest` is the LAST row of `SENSOR_REGISTRY` | was already RED at 245-06 baseline | At the 245-06 starting commit the test scored 19/20 with `+ 'sensorContentRelevance,' / - 'sensorUrlIngest,'`. Phase 244 appended SENS-16 and did not update this assertion. | FIXED, not deferred, because 245-06's Task 2 action block explicitly directs the executor to repair any test asserting a registry LENGTH or exact ordering. The positional assertion was replaced with an index-parallel membership assertion (`SENSOR_REGISTRY_IDS[rowIdx] === SENSOR_ID`), which is strictly stronger. Test now 20/20. |
+
+## Pre-existing test failure observed during 245-06 (hats-surface sweep)
+
+| Test | Failure | Before vs after | Disposition |
+|------|---------|-----------------|-------------|
+| `tests/test-130-lens-engine-e2e.cjs` | 5 arms fail the instrumented zero-leak gate: `leaked: [{"method":"readFileSync","target":"/home/jsagi/.mindrian/persona-override.json"}]` | IDENTICAL except the printed pid | Pre-existing and NOT caused by 245-06. Proven by the file-swap method: the eight files this plan modified (3 commands, 2 skill mirrors, 3 generated data artifacts) were set aside, `git checkout --` restored the committed versions, the test re-run, and the outputs diffed. The leak is the lens engine reading the DEVELOPER's own `~/.mindrian/persona-override.json`, a machine-local file outside the repo, so the failure is environment-dependent rather than a code defect this phase can see. Out of scope: 245-06 changed only frontmatter `sensor_triggers` on these commands and touched no lens-engine code path. |
