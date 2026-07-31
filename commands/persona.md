@@ -11,6 +11,11 @@ hitl_stages:
     shapes: ["F.5"]
     mode: "gate"
 hitl_why: "Synthetic experts are generated as an independent set (F.8) then their tensions are resolved among parallel branches (F.5)."
+# Phase 118-06 reward-before-investment declaration. Grounded in the shipped
+# `list` subcommand, which returns each lens's hat color, label, domain,
+# filename and disclaimer: the structure of the six lenses is handed over before
+# the navigator commits to a generate or a parallel run.
+interactive_first_reward: schema_preview
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -22,7 +27,7 @@ autonomous_safe: true
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
-  sensor_triggers: [SENS-05]
+  sensor_triggers: [SENS-17]
   reach_id: hats
   sub_mode: persona
   framework: "Six Thinking Hats"   # MUST match the existing frameworks: value

@@ -109,7 +109,7 @@
       "source": "command",
       "connects_to_spine": true,
       "sensor_triggers": [
-        "SENS-05"
+        "SENS-17"
       ],
       "reach_id": "hats",
       "sub_mode": "bono",
@@ -926,7 +926,7 @@
       "source": "command",
       "connects_to_spine": true,
       "sensor_triggers": [
-        "SENS-05"
+        "SENS-17"
       ],
       "reach_id": "hats",
       "sub_mode": "persona",
@@ -1290,7 +1290,7 @@
       "source": "command",
       "connects_to_spine": true,
       "sensor_triggers": [
-        "SENS-05"
+        "SENS-17"
       ],
       "reach_id": "hats",
       "sub_mode": "six-hats",
@@ -3205,14 +3205,11 @@
   "sensor_index": {
     "SENS-05": [
       "/mos:analyze-needs",
-      "/mos:bono",
       "/mos:discover",
       "/mos:jtbd",
       "/mos:leadership",
       "/mos:mva-option",
-      "/mos:operator",
-      "/mos:persona",
-      "/mos:think-hats"
+      "/mos:operator"
     ],
     "SENS-06": [
       "/mos:analyze-needs",
@@ -3262,6 +3259,11 @@
       "/mos:new-project",
       "/mos:new-surface",
       "/mos:skill"
+    ],
+    "SENS-17": [
+      "/mos:bono",
+      "/mos:persona",
+      "/mos:think-hats"
     ],
     "SENS-03": [
       "/mos:brain-derive",

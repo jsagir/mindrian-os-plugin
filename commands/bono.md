@@ -48,7 +48,7 @@ allowed-tools:
 #     content toward the Brain). ---
 connector:
   connects_to_spine: true
-  sensor_triggers: [SENS-05]
+  sensor_triggers: [SENS-17]
   reach_id: hats
   sub_mode: bono
   framework: "Six Thinking Hats"   # MUST match the existing frameworks: value

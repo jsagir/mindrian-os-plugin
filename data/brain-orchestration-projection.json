@@ -217,7 +217,7 @@
       "hierarchy_rank": 4,
       "posture": "hold",
       "sensor_triggers": [
-        "SENS-05"
+        "SENS-17"
       ],
       "framework": "Six Thinking Hats",
       "chain_provenance": {
@@ -226,7 +226,7 @@
         "reach_id": "hats",
         "sub_mode": "bono",
         "firing_sensors": [
-          "SENS-05"
+          "SENS-17"
         ]
       },
       "ranking": {
@@ -235,7 +235,7 @@
         "hierarchy_rank": 4,
         "posture": "hold",
         "sensor_triggers": [
-          "SENS-05"
+          "SENS-17"
         ],
         "framework": "Six Thinking Hats"
       }
@@ -1765,7 +1765,7 @@
       "hierarchy_rank": 3,
       "posture": "hold",
       "sensor_triggers": [
-        "SENS-05"
+        "SENS-17"
       ],
       "framework": "Six Thinking Hats",
       "chain_provenance": {
@@ -1774,7 +1774,7 @@
         "reach_id": "hats",
         "sub_mode": "persona",
         "firing_sensors": [
-          "SENS-05"
+          "SENS-17"
         ]
       },
       "ranking": {
@@ -1783,7 +1783,7 @@
         "hierarchy_rank": 3,
         "posture": "hold",
         "sensor_triggers": [
-          "SENS-05"
+          "SENS-17"
         ],
         "framework": "Six Thinking Hats"
       }
@@ -2470,7 +2470,7 @@
       "hierarchy_rank": 4,
       "posture": "hold",
       "sensor_triggers": [
-        "SENS-05"
+        "SENS-17"
       ],
       "framework": "Six Thinking Hats",
       "chain_provenance": {
@@ -2479,7 +2479,7 @@
         "reach_id": "hats",
         "sub_mode": "six-hats",
         "firing_sensors": [
-          "SENS-05"
+          "SENS-17"
         ]
       },
       "ranking": {
@@ -2488,7 +2488,7 @@
         "hierarchy_rank": 4,
         "posture": "hold",
         "sensor_triggers": [
-          "SENS-05"
+          "SENS-17"
         ],
         "framework": "Six Thinking Hats"
       }

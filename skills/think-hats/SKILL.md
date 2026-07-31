@@ -6,6 +6,12 @@ help_jtbd: "Get a six-thinking-hats pass from the AI team."
 body_shape: "methodology"
 hitl_shape: "F.9"
 hitl_why: "The six thinking hats fire in a fixed sequence where the order is the method, an ordered walk."
+# Phase 118-06 reward-before-investment declaration. Grounded in the shipped
+# Session Flow below: the session opens by diagnosing which hat the navigator is
+# ALREADY wearing and naming it, which reframes their own stance back at them
+# before they invest in the six-hat walk. Same value as the sibling hats surface
+# /mos:bono.
+interactive_first_reward: reframe_question
 serves_jtbd: ["explore", "compare-options"]
 teaching: "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives."
 # --- Phase 122 workflow-layer frontmatter ---
