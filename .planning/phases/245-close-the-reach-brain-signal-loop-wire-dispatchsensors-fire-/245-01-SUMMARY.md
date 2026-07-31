@@ -327,3 +327,8 @@ None.
   file drifting is `.planning/STATE.md`, modified by the orchestrator at phase
   start) and `eureka-fts-index-visible` (the two stale-index rooms already
   recorded in STATE.md against Phase 244, a navigator action item).
+
+## Self-Check: PASSED
+
+All 6 claimed files verified present on disk. All 4 claimed commit hashes
+verified present in git history (`15fe4550`, `096399ab`, `c5e19d1d`, `9c89223c`).
