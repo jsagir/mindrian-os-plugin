@@ -4,14 +4,14 @@ milestone: v1.16.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 245 context gathered
-last_updated: "2026-07-31T08:03:24.302Z"
-last_activity: 2026-07-30 -- Phase 240.1 execution started
+last_updated: "2026-07-31T09:13:00.995Z"
+last_activity: 2026-07-31 -- Phase 245 execution started
 progress:
   total_phases: 12
   completed_phases: 11
-  total_plans: 59
-  completed_plans: 59
-  percent: 92
+  total_plans: 67
+  completed_plans: 60
+  percent: 90
 ---
 
 # Project State
@@ -24,6 +24,7 @@ progress:
   navigator's own 2026-07-28 directive, `release.sh --finalize` for v1.15.0 still not run) and the
   navigator was asked directly whether to run Gate 0 first, skip it, or hold the release half of
   the goal. **Navigator chose to skip Gate 0 and cut the next v1.16.0-beta anyway.**
+
 - **This is a recorded, explicit override of the navigator's own 2026-07-28 sequencing rule**, not
   a silent decision made on their behalf. The original rule (v1.15.0 must finalize to stable
   before any v1.16.0 beta cuts) stays written in ROADMAP.md unchanged; this entry documents that
@@ -31,6 +32,7 @@ progress:
   --finalize` (npm @latest, tag, marketplace pin) remains **not run** as of this entry -- Gate 0
   itself is still open in ROADMAP.md, only the "it must gate the next cut" consequence is waived
   for this one release.
+
 - **NEXT:** Phase 245 plan -> execute -> verify (unaffected by Gate 0 either way -- phase work was
   never gated). Once 245 closes, cut `v1.16.0-beta.N` via `release.sh --start-prerelease` (or the
   appropriate next-beta flow) WITHOUT first running `release.sh --finalize` for v1.15.0, per this
@@ -1640,14 +1642,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 240.1 — context-layer-drift-detection
+**Current focus:** Phase 245 — close-the-reach-brain-signal-loop-wire-dispatchsensors-fire-
 
 ## Current Position
 
-Phase: 240.1 (context-layer-drift-detection) — EXECUTING
-Plan: 1 of 7
-Status: Executing Phase 240.1
-Last activity: 2026-07-30 -- Phase 240.1 execution started
+Phase: 245 (close-the-reach-brain-signal-loop-wire-dispatchsensors-fire-) — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-07-31 -- Phase 245 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -2256,6 +2258,7 @@ Progress: [█████████░] 92%
 | 241 | 5 | - | - |
 | 243 | 2 | - | - |
 | 238 | 8 | - | - |
+| Phase 245 P01 | 22min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -3441,6 +3444,8 @@ Progress: [█████████░] 92%
 - [Phase 241-02]: no second consumer built for the debounce queue; scripts/intent-classifier already drains-and-acts (Phase 88-05), the RCA's original grep was checked against the wrong file - Building a second consumer would have raced two drains against the same queue in the same hook invocation, duplicating a shipped mechanism (Canon Part 7)
 - [Phase 241-02]: 241-02: both Stop-path sites switched to peek(), not a raised olderThanMs floor - peek is read-only by construction; a TTL-based drain would reintroduce a silent discard under a different tunable name
 - [Phase ?]: R-01: Tri-Polar guardian parity wired to the shared mindrian-core Stop path (241-05), not left CLI-only, per the MINDRIAN_MCP_FIRST early-exit evidence
+- [Phase 245]: 245-01: D-21's sensor_id stamp delivered as ONE central registry-driven stamp in dispatchSensors, not 18 per-sensor edits (Canon Part 7); a new sensor cannot ship unstamped
+- [Phase 245]: 245-01: the SENS_PRIORITY completeness gate enumerates SENSOR_REGISTRY_IDS, never sensor_index (D-22 corrected by F-3: sensor_index is command-frontmatter derived and already omits 4 real sensors)
 
 ### Pending Todos
 
@@ -3535,7 +3540,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-07-31T08:03:24.139Z
+Last session: 2026-07-31T09:12:40.667Z
 Stopped at: Phase 245 context gathered
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
