@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.16.0-beta.2 (in progress)
+## [1.16.0-beta.3] - 2026-07-31
 
 ### Added
 - **A documented, honest line on what the sensor bank actually controls about the reach dial
