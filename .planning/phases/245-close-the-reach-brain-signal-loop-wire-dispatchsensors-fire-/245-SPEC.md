@@ -58,10 +58,21 @@ dev-repo landing at `.planning/quick/260731-35r-phase-244-1-document-dial-render
      `dial-reach-orchestrator.cjs`'s own header comment, "never imports the orchestrator... the
      two stay decoupled").
    - Target: the dial's ranking incorporates the turn's fired sensor/verb signal, so it is
-     visibly content-reactive.
+     visibly content-reactive. **Amended during discuss-phase (245-CONTEXT.md D-24):** research
+     found `resolveFireSkill`'s precedence (`lib/core/navigation-engine.cjs:596-660`) makes a
+     fired sensor reach always win over Brain's own `pattern_matches` verb — Brain only gets a
+     say when zero sensors fire that turn, which was true on essentially none of this session's
+     observed turns. Left as designed, Req 1+Req 2 alone would NOT make the dial actually
+     "Brain-informed" per this SPEC's own Goal statement — Brain's verb would stay starved behind
+     sensor precedence. Navigator confirmed: fuse Brain's `pattern_matches` verb into the
+     dial-ranking blend as a genuine third input (alongside cortex recency and sensor signal),
+     not gated behind sensor silence.
    - Acceptance: in one session, two turns with clearly different intent (e.g. a
      contradiction-check ask vs. a cross-room ask) produce two DIFFERENT top-ranked dial items,
-     not the same card both times. Automatable as a regression test.
+     not the same card both times (automatable as a regression test); AND a turn where a fresh
+     Brain `pattern_matches` verb exists alongside a fired sensor visibly influences the dial's
+     ranking (not silently discarded by sensor precedence) — a second, distinct regression test
+     from the first.
 
 2. **Brain-consult trigger policy**: `BRAIN.md` re-derives on a defined event, not only when a
    navigator remembers to run it by hand.
@@ -176,6 +187,9 @@ as a review of Part 8 itself:
 
 - [ ] Two turns with clearly different intent in one session produce two different top-ranked
       dial items (Req 1)
+- [ ] A fresh Brain `pattern_matches` verb visibly influences the dial's ranking even on a turn
+      where a sensor also fires, not silently discarded by sensor precedence (Req 1, amended per
+      245-CONTEXT.md D-24)
 - [ ] A governing-thought change, `BRAIN_STALE_AGE_DAYS` age-out, or explicit re-derive ask
       triggers `BRAIN.md` regeneration within the phase's defined window; a turn matching none
       of those three does not trigger a live Brain call (Req 2, amended per 245-CONTEXT.md D-11)
