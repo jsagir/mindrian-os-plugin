@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 245 context gathered
-last_updated: "2026-07-31T13:08:28.629Z"
+stopped_at: Completed 245-04-PLAN.md
+last_updated: "2026-07-31T13:25:06.285Z"
 last_activity: 2026-07-31 -- Phase 245 execution started
 progress:
   total_phases: 12
   completed_phases: 11
   total_plans: 67
-  completed_plans: 62
+  completed_plans: 63
   percent: 92
 ---
 
@@ -1647,7 +1647,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 245 (close-the-reach-brain-signal-loop-wire-dispatchsensors-fire-) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Status: Ready to execute
 Last activity: 2026-07-31 -- Phase 245 execution started
 
@@ -2261,6 +2261,7 @@ Progress: [█████████░] 92%
 | Phase 245 P01 | 22min | 3 tasks | 6 files |
 | Phase 245 P02 | 3h41m | 3 tasks | 20 files |
 | Phase 245 P03 | 35m | 3 tasks | 4 files |
+| Phase 245 P04 | 34min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -3454,6 +3455,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 245-02 (navigator Option C): the reward-before-investment guardian now gates STAGED commands/*.md, not the whole directory; 102-command backfill remains open debt
 - [Phase ?]: Phase 245 R5 verdict: the Part 8 guard was OVER-FIRING (SPEC option b), not correctly conservative. Fixed with a positive empty_payload recognizer ahead of a byte-unchanged catch-all.
 - [Phase ?]: D-28 brain_search: FLAGGED, block left in place, _isFreeFormTool NOT widened. Widening is a real egress-surface change needing its own navigator decision.
+- [Phase 245]: 245-04: verb/reach affinity is derived ground-truth-first - reachIdToSkillFamily is CALLED at build time to build the inverse, and the local encoder decides only the cases the forward map leaves open
+- [Phase 245]: 245-04: AFFINITY_FLOOR (0.70) is a constant separate from AFFINITY_MARGIN (0.05) - a sentence encoder's cosine is not zero-based (unrelated English sits near 0.5), so a margin-sized absolute floor is unreachable and its null branch becomes dead code
+- [Phase 245]: 245-04: 5 of 10 CANONICAL_VERBS have no reach preimage and are recorded as explicit null, confirmed independently by the encoder; no seventh reach was minted
 
 ### Pending Todos
 
@@ -3548,8 +3552,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-07-31T13:08:19.572Z
-Stopped at: Phase 245 context gathered
+Last session: 2026-07-31T13:25:06.215Z
+Stopped at: Completed 245-04-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 

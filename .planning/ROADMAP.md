@@ -344,7 +344,7 @@ Navigator locked this slot mid-roadmap-session ("lets plan it for 1.17.beta"): t
 **Goal:** A navigator asking two different things in the same session sees two different, Brain-informed top-ranked dial items instead of the same static card, and BRAIN.md re-derives on a defined trigger (governing-thought change, `BRAIN_STALE_AGE_DAYS` age-out, or explicit ask) rather than only when someone remembers to run it by hand.
 **Requirements**: REQ-1 (dial fusion), REQ-2 (Brain trigger repair), REQ-3 (hats sensor fires proactively), REQ-4 (context_block tie-break), REQ-5 (Part 8 guard scoping), REQ-6 (verb/reach_id semantic affinity). SPEC.md's 6 numbered requirements are authoritative; no REQ-xxx ids exist in REQUIREMENTS.md for this phase.
 **Depends on:** Phase 244
-**Plans:** 3/8 plans executed
+**Plans:** 4/8 plans executed
 
 Wave structure (same-wave plans have zero `files_modified` overlap):
 
@@ -357,7 +357,7 @@ Plans:
 - [x] 245-01-PLAN.md -- REQ-4a: `evidence.sensor_id` stamped centrally in `dispatchSensors`, the frozen `SENS_PRIORITY` doctrine table, the fail-closed sensor-side completeness gate (built against `SENSOR_REGISTRY`, not the command-frontmatter `sensor_index`, per F-3), and `tests/run-all-245.sh`. [REQ-4]
 - [x] 245-02-PLAN.md -- REQ-2: repair the drain's budget accounting (requires hoisted above `start`, budget checked after the spawn), make queue removal spawn-contingent via `commitDispatched`, wire `/mos:brain-derive` into the connector spine, and pin all three trigger arms plus the negative case. [REQ-2]
 - [x] 245-03-PLAN.md -- REQ-5: `empty_payload` positive recognizer ahead of the unchanged fail-closed catch-all so a contentless `brain_stats` stops blocking, pinned through the real hook chain, plus the RCA documenting the over-firing verdict and the `brain_search` disposition. [REQ-5]
-- [ ] 245-04-PLAN.md -- REQ-6: build-time local-encoder derivation of `VERB_REACH_AFFINITY`, committed frozen, closing F-8's 5-of-10 verb coverage hole and giving `Run Methodology`'s two-way ambiguity a principled split. Zero runtime cost, zero egress, never a build gate. [REQ-6]
+- [x] 245-04-PLAN.md -- REQ-6: build-time local-encoder derivation of `VERB_REACH_AFFINITY`, committed frozen, closing F-8's 5-of-10 verb coverage hole and giving `Run Methodology`'s two-way ambiguity a principled split. Zero runtime cost, zero egress, never a build gate. [REQ-6]
 - [ ] 245-05-PLAN.md -- REQ-1a: compute Brain's `pattern_matches` verb independently of `resolveFireSkill`'s precedence chain and surface `trace.brain_pattern_verb` plus its confidence, so the verb exists downstream on a sensor-fires turn. `resolveFireSkill` byte-unchanged. [REQ-1]
 - [ ] 245-06-PLAN.md -- REQ-3: SENS-17 `sensor-perspective-lock.cjs` firing `reach_id: hats` at `freshContradictions >= 2`, registered and priority-ranked, plus the D-15 repair of three commands falsely declaring SENS-05 for hats. [REQ-3]
 - [ ] 245-07-PLAN.md -- REQ-4b + REQ-1b: the `SENS_PRIORITY` tie branch in `rankFiredCandidates`'s comparator, and the exported `buildSignalNudges` fusion whose structural bound (`FUSION_CEILING = 0.69`) keeps every fused score below the frozen 0.70 RECOMMENDED floor. [REQ-1, REQ-4]
