@@ -113,10 +113,21 @@ PART9_OK=1
 if [ ! -f "$RANKER" ]; then
   echo "    MISSING sweep target: $RANKER"; PART9_OK=0
 else
-  if strip_comments "$RANKER" | grep -nE "require\(['\"]node:sqlite|better-sqlite3|\bDatabaseSync\b|\bfs\.(read|write)" >/dev/null 2>&1; then
+  # Captured to a variable first, then grepped via a here-string, for exactly the
+  # reason block (b2) below already documents: `grep -q` stops reading as soon as
+  # it matches, which under `set -o pipefail` can SIGPIPE the upstream
+  # strip_comments and make the pipeline report non-zero even though the pattern
+  # WAS found. Block (b2) called this out as "a real, reproducible race observed
+  # on the pre-existing ranker sweep above" and fixed only its own leg; this leg
+  # kept flipping between exit 0 and exit 141 across otherwise-identical runs
+  # (observed 2026-07-31 during Phase 245-07: three consecutive PASSED runs
+  # bracketed by two FAILED ones, on a byte-identical tree). Same fix, applied to
+  # the leg the comment was written about.
+  RANKER_STRIPPED="$(strip_comments "$RANKER")"
+  if grep -nE "require\(['\"]node:sqlite|better-sqlite3|\bDatabaseSync\b|\bfs\.(read|write)" <<< "$RANKER_STRIPPED" >/dev/null 2>&1; then
     echo "    FORBIDDEN direct-db/fs token on an executable line in: $RANKER"; PART9_OK=0
   fi
-  if ! strip_comments "$RANKER" | grep -qE "require\(['\"]\.\./core/navigation\.cjs['\"]\)"; then
+  if ! grep -qE "require\(['\"]\.\./core/navigation\.cjs['\"]\)" <<< "$RANKER_STRIPPED"; then
     echo "    MISSING navigation.cjs chokepoint require in: $RANKER"; PART9_OK=0
   fi
 fi
