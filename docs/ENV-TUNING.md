@@ -503,6 +503,73 @@ script gates no build and no release by design.
 export MINDRIAN_AFFINITY_FLOOR=0.70
 ```
 
+## Reach Signal Fusion (Phase 245, room-local, zero egress)
+
+`buildSignalNudges` in `lib/workflow/reach-hedge-ranker.cjs` blends three inputs
+into a `reach_id`-keyed score map that 245-08 merges at the dial render callsite:
+the TOP-ranked fired sensor reach, every OTHER distinct fired reach, and Brain's
+suggested canonical verb routed through `verbReachAffinity`. Everything it reads
+is a `reach_id` enum, a `CANONICAL_VERBS` enum member, or a number. No prose, no
+db, no fs, no network, no Brain call.
+
+The one thing to understand before touching either variable: these are FRACTIONS
+OF HEADROOM, never additive scores. The fusion computes
+`base + fraction * (FUSION_CEILING - base)` with `FUSION_CEILING = 0.69`, which
+sits deliberately below the frozen Canon Part 3 `RECOMMEND_FLOOR` of `0.70`. That
+shape is what makes the bound STRUCTURAL: because the summed fraction is capped
+at `NUDGE_FRACTION_CAP = 0.95`, strictly below 1, the fused score is strictly
+below `0.69` for every base, no matter how the two variables below are set. The
+fusion changes WHICH reach ranks first; it can never promote a reach to
+RECOMMENDED. Setting either variable to a hostile value cannot break that
+invariant, which is why both accept a plain fallback rather than a warning.
+
+### MINDRIAN_SENSOR_TOP_FRACTION
+
+**What:** The share of the remaining distance to `FUSION_CEILING` granted to the
+`reach_id` of the TOP-ranked fired sensor reach, i.e. index 0 of the array
+`rankFiredCandidates` returned, with the Phase 245-07 `SENS_PRIORITY` tie-break
+already applied.
+**Default:** `0.60`, accepted range `(0, 1]`. Anything unset, empty,
+non-numeric, non-finite, zero, negative, or greater than 1 silently falls back.
+**Why:** at the default, a fired reach with no supplied base score fuses to
+`0.5 + 0.60 * (0.69 - 0.5) = 0.614`, which strictly exceeds the orchestrator's
+`0.5` registry default for `cross_room`. That headroom is what makes a reorder
+achievable at all: a smaller fraction leaves a fired reach unable to out-rank an
+unfired registry-only one, and Requirement 1's "the dial's top item changes when
+the signal changes" acceptance criterion quietly stops being satisfiable. Raise
+it to make a fired sensor dominate the ranking harder; lower it to make the
+supplied base scores matter more. TUNABLE-LATER from dial-outcome telemetry.
+**Scope note:** room-local and per-turn. It affects ranking ORDER only, never
+marker state, and never leaves the machine.
+
+```bash
+export MINDRIAN_SENSOR_TOP_FRACTION=0.60
+```
+
+### MINDRIAN_BRAIN_VERB_FRACTION
+
+**What:** The share of the remaining headroom granted to the `reach_id`s that
+`verbReachAffinity(brainVerb)` names, multiplied by that entry's per-reach
+weight.
+**Default:** `0.35`, accepted range `(0, 1]`, same silent-fallback parse.
+**Why:** it sits below the sensor top fraction on purpose, because a fired sensor
+is a this-turn observation while the Brain verb is a session-derived suggestion.
+The per-reach multiply is load-bearing rather than decorative: `'Run Methodology'`
+is by far the most common verb in the vocabulary and returns a TWO-entry
+`0.5 / 0.5` split across `context_block` and `brain_consult`, so an ambiguous verb
+SPLITS its fraction instead of landing at full strength on both reaches. Note
+also that 5 of the 10 canonical verbs have no reach preimage and return `null`,
+which means "contribute no verb term this turn", not "contribute zero to every
+reach", so on those turns this variable has no effect at all.
+**Scope note:** applies ONLY in `mode_a`. Canon Part 3 makes `mode_b` local-only
+and `tier_0` the Brain-absent fallback, so a Brain-derived nudge has no standing
+in either and this variable is inert there. The sensor terms are unaffected by
+tier.
+
+```bash
+export MINDRIAN_BRAIN_VERB_FRACTION=0.35
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
