@@ -54,6 +54,19 @@ const { spawn } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const PARENT_BUDGET_MS = 100;
 
+// Phase 245-02: test-only override of the parent budget so the
+// budget-exhaustion path is PROVABLE by running the shipped script rather
+// than by reading it (mirrors the TEST_245_PREFIX idiom that 245-01
+// established in tests/run-all-245.sh). Production never sets this; an
+// unset, empty, or unparseable value yields PARENT_BUDGET_MS verbatim.
+function parentBudgetMs() {
+  const raw = process.env.MOS_DRAIN_PARENT_BUDGET_MS;
+  if (raw === undefined || raw === null || raw === '') return PARENT_BUDGET_MS;
+  const n = parseInt(raw, 10);
+  if (Number.isFinite(n) && String(n) === String(raw).trim()) return n;
+  return PARENT_BUDGET_MS;
+}
+
 // ---------------------------------------------------------------------------
 // Active room resolution (mirrors scripts/intent-classifier.cjs pattern).
 // ---------------------------------------------------------------------------
@@ -146,16 +159,36 @@ async function runDrain(roomDir, opts) {
   } catch (_e) {
     return; // queue module unavailable -- soft-fail
   }
+  // Phase 245-02 (D-08 first half): warm EVERY lazily-required dependency
+  // BEFORE the budget clock starts. Q.drain lazily requires folder-memory.cjs
+  // (which pulls node:sqlite) and brain-client.cjs at drain time, and the
+  // SENS-03 fire below lazily requires navigation.cjs. On a cold hook process
+  // that module load costs 96-191ms, so it alone blew the 100ms budget before
+  // the first spawn ever ran. PARENT_BUDGET_MS was written to bound SPAWN
+  // work; loading modules inside the measured window mis-measured against it.
+  // Soft-fail: a warm-up failure must never break the hook. Q.drain hits the
+  // same failure and returns errors:1 through its own guard.
+  let navigation = null;
+  try {
+    require('../lib/core/folder-memory.cjs');
+    require('../lib/core/brain-client.cjs');
+  } catch (_e) { /* soft-fail: drain reports the same failure itself */ }
+  try {
+    navigation = require('../lib/core/navigation.cjs');
+  } catch (_e) { navigation = null; }
+
+  const budgetMs = parentBudgetMs();
   const start = Date.now();
   const result = await Q.drain(roomDir, {
     maxEntries: opts.maxEntries,
-    dryRun: true, // We handle dispatch via detached spawn below.
+    dryRun: true, // Read-only preview. We handle dispatch via detached spawn below.
   });
   // Q.drain in dryRun mode collects entries that should fire (in result.dispatched)
-  // without actually spawning. We do the spawn here.
+  // WITHOUT spawning and WITHOUT touching the queue file. We do the spawn here,
+  // then commit only what actually spawned.
+  const spawnedSections = [];
   if (Array.isArray(result.dispatched)) {
     for (const item of result.dispatched) {
-      if (Date.now() - start > PARENT_BUDGET_MS) break;
       if (opts.dryRun) {
         process.stderr.write(
           '[brain-derivation-drain] would spawn deriveSection for section=' +
@@ -163,6 +196,7 @@ async function runDrain(roomDir, opts) {
         );
         continue;
       }
+      let spawned = false;
       try {
         const child = spawn(process.execPath, [
           path.join(REPO_ROOT, 'scripts', 'brain-derivation-drain.cjs'),
@@ -173,9 +207,12 @@ async function runDrain(roomDir, opts) {
           stdio: 'ignore',
         });
         child.unref();
+        spawned = true;
       } catch (_e) {
-        // Soft-fail: spawn failure is advisory.
+        // Soft-fail: spawn failure is advisory. The entry stays queued because
+        // its section never reaches spawnedSections, so the next turn retries.
       }
+      if (spawned) spawnedSections.push(item.section);
 
       // Phase 144.1-06 RETRO-03 (audit item 68): fire SENS-03 (brain_consult /
       // brain-derivation / hold) through the navigation chokepoint so the engine
@@ -187,7 +224,6 @@ async function runDrain(roomDir, opts) {
       // boundary-audited deriveSection path, not here. Routes through
       // navigation.cjs::logSpineRead; best-effort, never throws, never blocks.
       try {
-        const navigation = require('../lib/core/navigation.cjs');
         if (navigation && typeof navigation.logSpineRead === 'function') {
           navigation.logSpineRead(roomDir, {
             surface: 'brain_consult',
@@ -199,7 +235,26 @@ async function runDrain(roomDir, opts) {
           });
         }
       } catch (_e) { /* never throw -- fire is advisory */ }
+
+      // Phase 245-02 (D-08 first half, second move): the budget check lives at
+      // the BOTTOM of the loop body, after the spawn and after the SENS-03
+      // fire, so the FIRST eligible entry always gets a child. At the top it
+      // could (and did) trip before any spawn at all, which combined with the
+      // old destructive dry run meant the queue was emptied and nothing
+      // derived. PARENT_BUDGET_MS itself is unchanged at 100.
+      if (Date.now() - start > budgetMs) break;
     }
+  }
+
+  // Phase 245-02 (D-08 second half): commit ONLY what actually spawned.
+  // Entries the dry run previewed but that never got a child (budget
+  // exhausted mid-loop, or spawn threw) stay queued and are retried next
+  // turn. That converts a silent total loss into graceful degradation.
+  // In operator --dry-run mode nothing spawned, so nothing is committed.
+  if (!opts.dryRun) {
+    try {
+      Q.commitDispatched(roomDir, spawnedSections);
+    } catch (_e) { /* never throw -- the hook stays fail-silent */ }
   }
 }
 
