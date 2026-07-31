@@ -69,14 +69,19 @@ dev-repo landing at `.planning/quick/260731-35r-phase-244-1-document-dial-render
      silently goes stale for weeks (12 days observed live this session) while still
      self-reporting `staleness: "fresh"`.
    - Target: `BRAIN.md` auto-re-derives (async, cached, non-blocking — never a synchronous call
-     in the turn's hot path) when the room's `governing_thought_hash` changes, or when a
-     navigator explicitly asks for fresh insight. This extends the existing
-     `STALENESS_MULTIPLIERS` cached-read design rather than replacing it with a live per-turn
-     call.
-   - Acceptance: in a test room, changing the governing thought (or issuing an explicit
-     re-derive ask) triggers a `BRAIN.md` regeneration within the phase's defined window,
-     verified by a changed `brain_generated_at`/`governing_thought_hash` pair; a turn with an
-     unchanged governing thought and no explicit ask does NOT trigger a live Brain call.
+     in the turn's hot path) when the room's `governing_thought_hash` changes, when it ages past
+     `BRAIN_STALE_AGE_DAYS`, or when a navigator explicitly asks for fresh insight. This extends
+     the existing `STALENESS_MULTIPLIERS` cached-read design rather than replacing it with a live
+     per-turn call. **Amended during discuss-phase (245-CONTEXT.md D-11):** research found the
+     shipped, correct mechanism for this requirement already includes `age_exceeded` staleness as
+     a third trigger alongside governing-thought-change; the navigator confirmed this is a
+     legitimate trigger, not scope creep, so the target and acceptance below include it.
+   - Acceptance: in a test room, changing the governing thought, aging a section's `BRAIN.md`
+     past `BRAIN_STALE_AGE_DAYS`, or issuing an explicit re-derive ask each triggers a `BRAIN.md`
+     regeneration within the phase's defined window, verified by a changed
+     `brain_generated_at`/`governing_thought_hash` pair; a turn with an unchanged governing
+     thought, not yet aged past `BRAIN_STALE_AGE_DAYS`, and no explicit ask does NOT trigger a
+     live Brain call.
 
 3. **`hats` reach fires proactively**: At least one sensor in the bank can independently
    produce `reach_id: 'hats'`.
@@ -171,9 +176,9 @@ as a review of Part 8 itself:
 
 - [ ] Two turns with clearly different intent in one session produce two different top-ranked
       dial items (Req 1)
-- [ ] A governing-thought change or explicit re-derive ask triggers `BRAIN.md` regeneration
-      within the phase's defined window; an unchanged turn does not trigger a live Brain call
-      (Req 2)
+- [ ] A governing-thought change, `BRAIN_STALE_AGE_DAYS` age-out, or explicit re-derive ask
+      triggers `BRAIN.md` regeneration within the phase's defined window; a turn matching none
+      of those three does not trigger a live Brain call (Req 2, amended per 245-CONTEXT.md D-11)
 - [ ] A defined trigger condition causes a real sensor to fire `reach_id: 'hats'` without a
       manual pick (Req 3)
 - [ ] Two or more sensors colliding on `context_block` in one turn resolve to a deterministic,
