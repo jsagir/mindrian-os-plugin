@@ -472,6 +472,37 @@ block a cut).
 export MINDRIAN_AFFINITY_MARGIN=0.05
 ```
 
+### MINDRIAN_AFFINITY_FLOOR
+
+**What:** The ABSOLUTE cosine below which a verb is recorded as having no reach
+affinity at all (`null`). This is a different question from
+`MINDRIAN_AFFINITY_MARGIN` above, which is a RELATIVE top1-minus-top2 spread, and
+the two need numbers on completely different scales.
+**Default:** `0.70`, accepted range `(0, 1)` exclusive, same
+garbage-falls-back-never-warns parse as the margin.
+**Why a separate constant exists:** a sentence encoder's cosine is not a
+zero-based scale. The shipped default model (`MongoDB/mdbr-leaf-ir`) returns
+roughly `0.40` to `0.55` for two ARBITRARY UNRELATED English phrases, so a
+margin-sized `0.05` absolute floor is structurally unreachable: the `null` branch
+becomes dead code and every verb gets force-fitted onto some reach. The first
+live derivation run demonstrated exactly that, emitting a 5-way `0.2` split for
+`'Synthesize'` and a 3-way split for `'Bank Opportunity'`.
+**Calibration, stated honestly rather than presented as derived:** `0.70` sits
+inside a `0.069`-wide empty band in that first live cosine matrix, separating
+every forward-map-confirmed verb (top1 in `0.7615` .. `0.8626`) from every verb
+with no reach preimage (top1 in `0.5229` .. `0.6929`). It also coincides with the
+already-frozen Canon Part 3 `RECOMMEND_FLOOR` of `0.70`, the value this codebase
+already treats as "confident enough to recommend". It is TUNABLE-LATER and is NOT
+calibrated against an outcome corpus, because none exists yet. Raise it to record
+more verbs as `null`; lower it to let weaker semantic affinities through.
+**Scope note:** like the margin, this changes nothing at runtime on its own. It
+affects only a fresh `node scripts/derive-verb-reach-affinity.cjs` run, and that
+script gates no build and no release by design.
+
+```bash
+export MINDRIAN_AFFINITY_FLOOR=0.70
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
