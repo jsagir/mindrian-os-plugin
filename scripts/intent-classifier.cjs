@@ -1248,6 +1248,180 @@ function buildDialSlotContext(roomContext, roomDir) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Phase 245-08 (Requirement 1, D-01 corrected plug point per 245-RESEARCH.md
+// F-1; D-02, D-03, D-04; Pitfall 7 / Open Question 2).
+//
+// composeDialReachScores(input) -> { reachScores, suppressedReachIds, tierMode }
+//                                  | null on a catastrophic fault
+//
+// THE ONE score composition both dial consumers use. Before this helper existed
+// there were two: the live render at renderEngineDecisionWithDial (cortex scores
+// + the Phase 158-03 reject discount + the structural relevance gate) and the
+// reach_presented telemetry recompute (cortex scores ONLY). They disagreed, so
+// the telemetry logged an offered set the navigator may never have seen. That
+// divergence is PRE-EXISTING (research confirmed it live at HEAD); Requirement 1
+// would have widened it, so it is closed here rather than documented as debt.
+//
+// WHY THIS SEAM AND NOT THE HEDGE RANKER. 245-RESEARCH.md F-1 enumerated every
+// call site of rankFiredCandidates and buildReachList and found they are SIBLING
+// consumers of the same buildReachScoresFromCortex output: nothing downstream of
+// the ranker reaches the dial. A fusion folded into rankFiredCandidates' local
+// `combined` passes every unit test and moves the dial by exactly nothing
+// (Pitfall 1, "the single most likely way this phase ships a false success").
+// The math therefore lives in the ONE shared selection layer
+// (reach-hedge-ranker.buildSignalNudges, 245-07) and the MERGE lives here, at
+// the render callsite, on the shipped Phase 158-03 `Object.assign` precedent.
+// buildReachList itself stays byte-unchanged (D-03): it is contractually pure
+// and receives only { tierMode, reachScores, suppressedReachIds }, so merging
+// upstream changes its INPUT without touching its code.
+//
+// ORDER IS LOAD-BEARING:
+//   1. cortex priors            (buildReachScoresFromCortex)
+//   2. the 158-03 reject discount fold  (discountedScores over the cortex map)
+//   3. the Requirement 1 fusion  (fused ABSOLUTE scores over the discounted map)
+//   4. the suppression set       (reject hard-suppression + the relevance gate)
+// The discount is computed upstream against the RAW cortex scores and must stay
+// step 2, before the fusion: discounting a fused score would compound a reject
+// penalty onto a signal the navigator never rejected.
+//
+// PURITY: no db, no fs, no network, no Brain call, no mutation of any argument
+// (reachScores is a fresh object the adapter minted; reachPenalties and decision
+// are read-only). Safe to call from the db-free render seam. Never throws: any
+// fault returns null and the caller degrades to exactly today's behavior.
+// ---------------------------------------------------------------------------
+function composeDialReachScores(input) {
+  try {
+    const inp = (input && typeof input === 'object') ? input : {};
+    const cortexNodes = Array.isArray(inp.cortexNodes) ? inp.cortexNodes : [];
+    const reachPenalties = (inp.reachPenalties && typeof inp.reachPenalties === 'object')
+      ? inp.reachPenalties : null;
+    const decision = (inp.decision && typeof inp.decision === 'object') ? inp.decision : null;
+    const slotContext = (inp.slotContext && typeof inp.slotContext === 'object')
+      ? inp.slotContext : {};
+
+    const adapter = require(
+      path.join(__dirname, '..', 'lib', 'hmi', 'cortex-reach-adapter.cjs')
+    );
+
+    // ---- step 1: the cortex priors (was renderEngineDecisionWithDial's :1274)
+    const reachScores = adapter.buildReachScoresFromCortex(cortexNodes);
+
+    // ---- step 2: the Phase 158-03 (RJP-01..05 / SC-07) reject-discount fold.
+    // reach_penalties is folded on the live engine arm (db open) and threaded
+    // out on ctx; here (db already closed) we MERGE the discounted scores over
+    // the cortex-derived reachScores. When reach_penalties is absent (no penalty
+    // computed) or empty (zero rejections), reachScores is unchanged (RJP-02).
+    if (reachPenalties && reachPenalties.discountedScores
+        && typeof reachPenalties.discountedScores === 'object') {
+      Object.assign(reachScores, reachPenalties.discountedScores);
+    }
+
+    // The tier mode mirrors the engine trace so the frozen 0.70/0.15 gate is
+    // applied exactly as buildReachList already does (mode_a / mode_b / tier_0).
+    const trace = (decision && decision.decision_trace) || {};
+    const tierMode = (typeof trace.brain_md_tier_mode === 'string')
+      ? trace.brain_md_tier_mode : 'tier_0';
+
+    // ---- step 3: the Requirement 1 fusion (NEW in 245-08).
+    // Both inputs are ALREADY on the decision trace at this callsite (D-02): no
+    // new plumbing, no db handle, no Brain call, no second sensor dispatch.
+    //
+    //   facts[]  the fired sensor reaches, in the order rankFiredCandidates
+    //            produced (so facts[0] is the scored winner with 245-07's
+    //            SENS_PRIORITY tie-break already applied). Each entry carries
+    //            reach_id / posture / evidence / first_seen / last_updated and
+    //            is NOT a full reach struct, so buildSignalNudges may only read
+    //            reach_id off it, which its 245-07 contract already guarantees.
+    //
+    //   brainVerb  trace.brain_pattern_verb (245-05), the ONLY correct source.
+    //            245-RESEARCH.md Pitfall 2 is explicit: reading the verb from
+    //            trace.fire_skill or from context_assembly.decision_grounding
+    //            returns the SENSOR's verb on any sensor-fires turn, which
+    //            measures the sensor twice and silently re-implements the D-24
+    //            starvation this phase exists to fix.
+    //
+    // buildSignalNudges returns FUSED ABSOLUTE scores (never deltas), bounded
+    // strictly below FUSION_CEILING 0.69 by the shape of its interpolation, so a
+    // plain Object.assign is the correct merge and NO arithmetic belongs at this
+    // callsite. Keeping every scoring decision inside the shared selection layer
+    // is what preserves Canon Part 7 and the connector-spine "no second
+    // selection brain" rule. Absent signal returns {} -> a byte-identical render.
+    try {
+      const ranker = require(
+        path.join(__dirname, '..', 'lib', 'workflow', 'reach-hedge-ranker.cjs')
+      );
+      const contextAssembly = (trace.context_assembly && typeof trace.context_assembly === 'object')
+        ? trace.context_assembly : {};
+      const facts = Array.isArray(contextAssembly.facts) ? contextAssembly.facts : [];
+      const brainVerb = (typeof trace.brain_pattern_verb === 'string')
+        ? trace.brain_pattern_verb : null;
+      const nudges = ranker.buildSignalNudges({
+        baseScores: reachScores,
+        sensorReaches: facts,
+        brainVerb: brainVerb,
+        tierMode: tierMode,
+      });
+      if (nudges && typeof nudges === 'object') {
+        Object.assign(reachScores, nudges);
+      }
+    } catch (_fusionErr) {
+      // Degrade, never break (T-245-36): an UNFUSED render is today's correct
+      // behavior, so reachScores is left exactly as steps 1 and 2 produced it.
+    }
+
+    // ---- step 4: the suppression set (was :1307-1339, moved verbatim).
+    const baseSuppressed = (reachPenalties && Array.isArray(reachPenalties.suppressedReachIds))
+      ? reachPenalties.suppressedReachIds : [];
+
+    // reach-sensor-relevance-gap B1 (root cause B): the STRUCTURAL relevance
+    // gate. Compare the live turn tokens to each cross-room-class reach's
+    // resolved slot content and DROP the off-topic ones through the SAME
+    // suppressedReachIds path buildReachList already honors -- the seam stays
+    // pure (buildReachList does the drop; this seam never mutates the reach bank
+    // or the frozen gate). No-op when there is no live turn (unit tests without
+    // a turn render byte-identically).
+    let gatedSuppressed = baseSuppressed;
+    try {
+      const relevanceGate = require(
+        path.join(__dirname, '..', 'lib', 'hmi', 'reach-relevance-gate.cjs')
+      );
+      const liveTurnText = (typeof inp.liveTurnText === 'string' && inp.liveTurnText.length > 0)
+        ? inp.liveTurnText
+        : STDIN_MESSAGE;
+      const currentRoomName = (typeof inp.currentRoomName === 'string' && inp.currentRoomName.length > 0)
+        ? inp.currentRoomName
+        : null;
+      const offTopic = relevanceGate.computeOffTopicReachIds({
+        slotContext: slotContext,
+        liveTurnText: liveTurnText,
+        currentRoomName: currentRoomName,
+      });
+      if (Array.isArray(offTopic) && offTopic.length > 0) {
+        const merged = baseSuppressed.slice();
+        for (const id of offTopic) {
+          if (merged.indexOf(id) === -1) merged.push(id);
+        }
+        gatedSuppressed = merged;
+      }
+    } catch (_gateErr) {
+      // Fail-open: a gate fault degrades to the un-gated suppression set.
+      gatedSuppressed = baseSuppressed;
+    }
+
+    return {
+      reachScores: reachScores,
+      suppressedReachIds: gatedSuppressed,
+      tierMode: tierMode,
+    };
+  } catch (_composeErr) {
+    // A null return is the documented degrade handle: both call sites fall back
+    // to exactly the behavior they had before this helper existed (the render
+    // returns the base block; the telemetry recompute skips its emit).
+    return null;
+  }
+}
+
 // SEED-020 pickShape exemption (150.5-02, documented decision): the dial render
 // stays on the shipped 143.1 renderShapeF1 resolve/format path and does NOT fold
 // through pickShape (its install-tier-0 refuse would kill the D-01 sensor-fired
@@ -1260,9 +1434,6 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
   if (source !== 'engine') return base;
 
   try {
-    const adapter = require(
-      path.join(__dirname, '..', 'lib', 'hmi', 'cortex-reach-adapter.cjs')
-    );
     const orchestrator = require(
       path.join(__dirname, '..', 'lib', 'hmi', 'dial-reach-orchestrator.cjs')
     );
@@ -1271,30 +1442,8 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
     );
 
     const cortexNodes = (ctx && Array.isArray(ctx.cortexNodes)) ? ctx.cortexNodes : [];
-    const reachScores = adapter.buildReachScoresFromCortex(cortexNodes);
-
-    // Phase 158-03 (RJP-01..05 / SC-07): apply the upstream-computed reject
-    // penalty. reach_penalties was folded on the live engine arm (db open) and
-    // threaded out on ctx; here (db already closed) we MERGE the discounted
-    // scores over the cortex-derived reachScores and pass the hard-suppression
-    // set into buildReachList. buildReachList stays PURE: it receives only
-    // scalars + a Set, never db. When reach_penalties is absent (no penalty
-    // computed) or empty (zero rejections), reachScores is unchanged and
-    // suppressedReachIds is empty -> byte-identical render (RJP-02).
     const reachPenalties = (ctx && ctx.reach_penalties && typeof ctx.reach_penalties === 'object')
       ? ctx.reach_penalties : null;
-    if (reachPenalties && reachPenalties.discountedScores
-        && typeof reachPenalties.discountedScores === 'object') {
-      Object.assign(reachScores, reachPenalties.discountedScores);
-    }
-    const suppressedReachIds = (reachPenalties && Array.isArray(reachPenalties.suppressedReachIds))
-      ? reachPenalties.suppressedReachIds : [];
-
-    // The tier mode mirrors the engine trace so the frozen 0.70/0.15 gate is
-    // applied exactly as buildReachList already does (mode_a / mode_b / tier_0).
-    const trace = (decision && decision.decision_trace) || {};
-    const tierMode = (typeof trace.brain_md_tier_mode === 'string')
-      ? trace.brain_md_tier_mode : 'tier_0';
 
     // Phase 209-01 (E3): resolve the LIVE room-context slot map so the dial rows
     // resolve {topic}/{room_name} instead of degrading to ELEVATION_DEFAULTS.
@@ -1304,44 +1453,30 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
     // absent context.
     const slotContext = buildDialSlotContext(ctx && ctx.roomContext, ctx && ctx.roomDir);
 
-    // reach-sensor-relevance-gap B1 (root cause B): the STRUCTURAL relevance gate.
-    // Compare the live turn tokens to each cross-room-class reach's resolved slot
-    // content and DROP the off-topic ones through the SAME suppressedReachIds path
-    // buildReachList already honors -- the seam stays pure (buildReachList does the
-    // drop; this seam never mutates the reach bank or the frozen gate). No-op when
-    // there is no live turn (unit tests without a turn render byte-identically).
-    let gatedSuppressed = suppressedReachIds;
-    try {
-      const relevanceGate = require(
-        path.join(__dirname, '..', 'lib', 'hmi', 'reach-relevance-gate.cjs')
-      );
-      const liveTurnText = (ctx && typeof ctx.liveTurnText === 'string' && ctx.liveTurnText.length > 0)
-        ? ctx.liveTurnText
-        : STDIN_MESSAGE;
-      const currentRoomName = (ctx && typeof ctx.roomDir === 'string' && ctx.roomDir.length > 0)
-        ? path.basename(ctx.roomDir)
-        : null;
-      const offTopic = relevanceGate.computeOffTopicReachIds({
-        slotContext: slotContext,
-        liveTurnText: liveTurnText,
-        currentRoomName: currentRoomName,
-      });
-      if (Array.isArray(offTopic) && offTopic.length > 0) {
-        const merged = suppressedReachIds.slice();
-        for (const id of offTopic) {
-          if (merged.indexOf(id) === -1) merged.push(id);
-        }
-        gatedSuppressed = merged;
-      }
-    } catch (_e) {
-      // Fail-open: a gate fault degrades to the un-gated suppression set.
-      gatedSuppressed = suppressedReachIds;
-    }
+    // Phase 245-08 (Requirement 1): CALL SITE A, the live render. The cortex
+    // priors, the 158-03 reject discount, the Requirement 1 sensor/Brain fusion
+    // and the relevance gate are all composed by the ONE shared helper that the
+    // reach_presented telemetry recompute also uses, so the logged offered set
+    // and the rendered dial can no longer disagree. buildReachList itself is
+    // byte-unchanged (D-03) and still receives only scalars plus an array.
+    const composed = composeDialReachScores({
+      cortexNodes: cortexNodes,
+      reachPenalties: reachPenalties,
+      decision: decision,
+      slotContext: slotContext,
+      liveTurnText: (ctx && typeof ctx.liveTurnText === 'string' && ctx.liveTurnText.length > 0)
+        ? ctx.liveTurnText : null,
+      currentRoomName: (ctx && typeof ctx.roomDir === 'string' && ctx.roomDir.length > 0)
+        ? path.basename(ctx.roomDir) : null,
+    });
+    // A null compose is the catastrophic-fault handle: degrade to the base block
+    // exactly as a throw from the old inline composition already did.
+    if (composed === null) return base;
 
     const reachList = orchestrator.buildReachList({
-      tierMode: tierMode,
-      reachScores: reachScores,
-      suppressedReachIds: gatedSuppressed,
+      tierMode: composed.tierMode,
+      reachScores: composed.reachScores,
+      suppressedReachIds: composed.suppressedReachIds,
     });
 
     const rendered = presenter.renderDial(reachList, {
@@ -2037,33 +2172,62 @@ function runNavigationEngine(roomDir, sessionId) {
           // + periodic-parole fences (Plan 03): nothing else records WHICH reach
           // was offered (selector_presentation is command-anonymous; the render
           // path is pure). We recompute the would-be-offered top-3 the SAME way
-          // the render seam does (buildReachScoresFromCortex -> buildReachList ->
-          // slice(0, offered_count)) so the counter matches what the navigator
-          // is shown. buildReachList stays PURE: it receives ONLY {tierMode,
-          // reachScores}; db is NEVER threaded into dial-reach-orchestrator
-          // (SC-07). Best-effort: any fault is swallowed and never blocks resolve,
-          // never throws out of the .then, never prevents the finally
+          // the render seam does so the counter matches what the navigator is
+          // shown. buildReachList stays PURE: it receives only scalars plus an
+          // array; db is NEVER threaded into dial-reach-orchestrator (SC-07).
+          // Best-effort: any fault is swallowed and never blocks resolve, never
+          // throws out of the .then, never prevents the finally
           // closeRoomDbHandle, never leaks the db handle. Payload is enum/scalar
           // only (reach_id + source_path + created_by) -- Part 8.
+          //
+          // Phase 245-08 (D-04 / 245-RESEARCH.md Pitfall 7): "the SAME way" used
+          // to be a claim, not a fact. This block called buildReachList with ONLY
+          // {tierMode, reachScores} and already omitted the 158-03 reject
+          // discount, the hard-suppression set AND the structural relevance gate
+          // that the live render applies -- a divergence that was live at HEAD
+          // before this phase, not one Requirement 1 introduced, though the
+          // fusion would have widened it. Both consumers now route through the
+          // ONE composeDialReachScores helper, and this site now passes
+          // suppressedReachIds too, so the logged "what was offered" matches what
+          // actually rendered.
+          //
+          // ONE component is still deliberately omitted here, and the reason is a
+          // genuine circular dependency rather than an oversight: reachPenalties
+          // is computed BELOW this block, because computeReachPenalties counts
+          // reach_presented rows and this block is what WRITES them. Whichever
+          // runs first is deprived. Moving the penalty computation above this
+          // emit would change what the LIVE RENDER sees (its M-floor and parole
+          // counters would stop including this turn's own presentation), which is
+          // a shipped-behavior change this phase did not authorize. So telemetry
+          // passes reachPenalties: null and is short exactly the reject
+          // discountedScores fold and the reject hard-suppression set. The tier
+          // mode, the cortex priors, the Requirement 1 fusion and the relevance
+          // gate are all shared. Stated, never silent.
           try {
             if (roomDb
                 && navigationMod
                 && typeof navigationMod.logMemoryEvent === 'function'
                 && Array.isArray(cortexNodes)
                 && cortexNodes.length > 0) {
-              const reachAdapter = require(
-                path.join(__dirname, '..', 'lib', 'hmi', 'cortex-reach-adapter.cjs')
-              );
               const reachOrchestrator = require(
                 path.join(__dirname, '..', 'lib', 'hmi', 'dial-reach-orchestrator.cjs')
               );
-              const reachTrace = (decision && decision.decision_trace) || {};
-              const reachTierMode = (typeof reachTrace.brain_md_tier_mode === 'string')
-                ? reachTrace.brain_md_tier_mode : 'tier_0';
-              const reachScores = reachAdapter.buildReachScoresFromCortex(cortexNodes);
-              const reachList = reachOrchestrator.buildReachList({
-                tierMode: reachTierMode,
-                reachScores: reachScores,
+              // Phase 245-08: CALL SITE B, the reach_presented telemetry
+              // recompute, on the SAME shared composition helper the live render
+              // uses. See the divergence note above for the one omitted input.
+              const reachComposed = composeDialReachScores({
+                cortexNodes: cortexNodes,
+                reachPenalties: null,
+                decision: decision,
+                slotContext: buildDialSlotContext(context.roomContext, roomDir),
+                liveTurnText: null,
+                currentRoomName: (typeof roomDir === 'string' && roomDir.length > 0)
+                  ? path.basename(roomDir) : null,
+              });
+              const reachList = (reachComposed === null) ? null : reachOrchestrator.buildReachList({
+                tierMode: reachComposed.tierMode,
+                reachScores: reachComposed.reachScores,
+                suppressedReachIds: reachComposed.suppressedReachIds,
               });
               if (reachList
                   && Array.isArray(reachList.reaches)
@@ -2900,6 +3064,12 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
 // Phase 194-04 (PSB-04): export the F.8 binding-gate producer + answer consumer.
 module.exports = {
   renderEngineDecisionWithDial: renderEngineDecisionWithDial,
+  // Phase 245-08 (Requirement 1): the ONE dial score composition, exported so
+  // the two acceptance regressions exercise the PRODUCTION path rather than a
+  // reimplementation of it in a fixture (245-RESEARCH.md Pitfall 1: a test that
+  // can pass without scripts/intent-classifier.cjs being touched is testing the
+  // wrong thing).
+  composeDialReachScores: composeDialReachScores,
   buildDialSlotContext: buildDialSlotContext,
   formatEngineDecisionBlock: formatEngineDecisionBlock,
   consumePriorF1Pick: consumePriorF1Pick,
