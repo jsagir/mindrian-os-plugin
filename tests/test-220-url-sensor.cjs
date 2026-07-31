@@ -44,7 +44,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 
 const SENSOR_PATH = path.join(REPO_ROOT, 'lib', 'core', 'sensors', 'sensor-url-ingest.cjs');
 const { sensorUrlIngest, SENSOR_ID } = require(SENSOR_PATH);
-const { dispatchSensors } = require(path.join(REPO_ROOT, 'lib', 'core', 'insight-sensors.cjs'));
+const { dispatchSensors, SENSOR_REGISTRY_IDS } = require(path.join(REPO_ROOT, 'lib', 'core', 'insight-sensors.cjs'));
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
 
 const FIXTURE_URL = 'https://example.com/articles/quantum-report';
@@ -266,10 +266,26 @@ check('G6c: registration diff is the three touch points only (dispatch loop unto
   assert.ok(src.indexOf("require('./sensors/sensor-url-ingest.cjs')") !== -1, 'require touch point');
   assert.match(src, /SENSOR_REGISTRY = \[[\s\S]*sensorUrlIngest,[\s\S]*?\];/, 'registry touch point');
   assert.match(src, /module\.exports = \{[\s\S]*sensorUrlIngest[\s\S]*\};/, 'export touch point');
-  // The registry appends LAST: sensorUrlIngest is the final registered row.
+  // Registration is an APPEND into SENSOR_REGISTRY, and the identity array
+  // agrees with it at the same index.
+  //
+  // Phase 245-06 repair. This used to assert `rows[rows.length - 1] ===
+  // 'sensorUrlIngest,'` ("registered LAST"), which was true only while SENS-15
+  // happened to be the newest sensor. Phase 244 appended SENS-16 and this
+  // assertion went red; Phase 245-06 appended SENS-17 and it stayed red for a
+  // second reason. "Last" was never the property worth pinning: the property
+  // this check exists for is that SENS-15 was registered THROUGH the registry
+  // array (rather than by editing the dispatch loop), and that the parallel
+  // identity array names it at the same index. Both of those are permanent, so
+  // the assertion below is strictly STRONGER than the positional one it
+  // replaces, not weaker: it additionally pins the SENSOR_REGISTRY /
+  // SENSOR_REGISTRY_IDS index-parallel invariant for this sensor.
   const registryBlock = src.match(/SENSOR_REGISTRY = \[([\s\S]*?)\];/)[1];
   const rows = registryBlock.split('\n').map((l) => l.trim()).filter((l) => /^sensor\w+,$/.test(l));
-  assert.equal(rows[rows.length - 1], 'sensorUrlIngest,', 'registered LAST');
+  const rowIdx = rows.indexOf('sensorUrlIngest,');
+  assert.ok(rowIdx !== -1, 'registered as a SENSOR_REGISTRY row');
+  assert.equal(rows.length, SENSOR_REGISTRY_IDS.length, 'registry rows and identity array stay index-parallel');
+  assert.equal(SENSOR_REGISTRY_IDS[rowIdx], SENSOR_ID, 'identity array names SENS-15 at the same index');
 });
 
 // ---------- (7) SOFT-FAIL ----------
