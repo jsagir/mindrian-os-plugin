@@ -244,13 +244,12 @@ was real)
   anything about SENS-17 itself.
 
 ### Open Questions From Research (navigator input requested, not yet resolved)
-1. **A3 (explicitly flagged by 245-RESEARCH.md as needing confirmation before planning locks
-   it):** Should Req 1's fusion nudge (D-01's corrected mechanism) be bounded strictly below the
-   frozen 0.70 RECOMMENDED-marker floor, or should a strong sensor/Brain signal be allowed to
-   cross it and actually earn the RECOMMENDED marker? Research recommends bounding (the existing
-   `CONTRIBUTIONS` table encodes a "no single signal solo-crosses 0.70" house invariant, and
-   reordering the dial doesn't require crossing it) - but the navigator may specifically want a
-   strong signal to be able to trigger RECOMMENDED. Unresolved.
+1. **A3 - RESOLVED (navigator-confirmed):** Req 1's fusion nudge (D-01's corrected mechanism)
+   stays strictly bounded below the frozen 0.70 RECOMMENDED-marker floor. The fusion changes WHICH
+   reach ranks #1; it never promotes a reach to RECOMMENDED on its own. Preserves the existing
+   `CONTRIBUTIONS` table's "no single signal solo-crosses 0.70" house invariant unchanged. Planner
+   must enforce this as an explicit bound in the fusion math (e.g. clamp the nudge magnitude so
+   `cortex_score + nudge < 0.70` whenever `cortex_score < 0.70`), not just as a comment.
 2. Does the Req 2 `age_exceeded` trigger arm actually enqueue a re-derive, or is it computed and
    never acted on - the same "computed, consumed by nothing" shape `trigger_tier` had before Phase
    244? If so Req 2 has two defects stacked, not one. Not yet checked.
