@@ -1071,6 +1071,97 @@ async function refreshNames() {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 245-01 (D-22 as CORRECTED by 245-RESEARCH.md F-3): the SENSOR-SIDE
+// SENS_PRIORITY completeness gate.
+//
+// WHAT IT PROVES: every sensor registered in lib/core/insight-sensors.cjs's
+// SENSOR_REGISTRY has a rank in the SENS_PRIORITY doctrine table, and the table
+// carries no phantom entry for a sensor that does not exist. A sensor with no
+// priority entry would silently degrade a same-reach collision back to
+// SENSOR_REGISTRY file order, which is exactly the accident Requirement 4
+// exists to abolish. So this fails the build CLOSED.
+//
+// WHY THIS DOES NOT READ `sensor_index`, AND MUST NOT BE "FIXED" TO DO SO.
+// The obvious-looking move is to gate on the `sensor_index` this same script
+// already builds a few hundred lines above. That is wrong, and it was measured
+// wrong, not guessed wrong (245-RESEARCH.md F-3, key set enumerated live):
+// `sensor_index` is derived from COMMAND FRONTMATTER (`sensor_triggers` on
+// commands/*.md), not from SENSOR_REGISTRY. It is a record of which commands
+// CLAIM a sensor, not of which sensors EXIST. It currently has 13 keys, it
+// already omits SENS-10, SENS-11, SENS-12 and SENS-16 (three of which are
+// among the 12 sensors that can fire `context_block`, i.e. exactly the
+// colliders Requirement 4 is about), and it contains ids with no registered
+// implementation behind them. A completeness gate built on it would report
+// green while silently exempting the sensors in scope. The two sides are
+// allowed to differ; only the SENSOR side answers "does every sensor have a
+// rank". Leave this reading SENSOR_REGISTRY_IDS.
+//
+// This gate adds NO key to data/connector-registry.json and does not touch the
+// sensor_index build: the generated registry must stay byte-identical.
+//
+// Canon Part 8: both requires are pure LOCAL modules, zero Brain/network.
+// ---------------------------------------------------------------------------
+function sensorPriorityCompletenessErrors() {
+  const errs = [];
+  let SENSOR_REGISTRY;
+  let SENSOR_REGISTRY_IDS;
+  let SENS_PRIORITY;
+  try {
+    const sensors = require(path.join(REPO_ROOT, 'lib', 'core', 'insight-sensors.cjs'));
+    const priority = require(path.join(REPO_ROOT, 'lib', 'core', 'sensors', 'sensor-priority.cjs'));
+    SENSOR_REGISTRY = sensors.SENSOR_REGISTRY;
+    SENSOR_REGISTRY_IDS = sensors.SENSOR_REGISTRY_IDS;
+    SENS_PRIORITY = priority.SENS_PRIORITY;
+  } catch (e) {
+    errs.push(
+      'SENSOR PRIORITY GATE: could not load the sensor modules: ' +
+        (e && e.message ? e.message : String(e))
+    );
+    return errs;
+  }
+
+  if (!Array.isArray(SENSOR_REGISTRY) || !Array.isArray(SENSOR_REGISTRY_IDS) || !Array.isArray(SENS_PRIORITY)) {
+    errs.push('SENSOR PRIORITY GATE: SENSOR_REGISTRY, SENSOR_REGISTRY_IDS and SENS_PRIORITY must all be arrays');
+    return errs;
+  }
+
+  // (1) The two parallel arrays must stay index-parallel, so an id read by
+  // registry position in dispatchSensors is always the right sensor's id.
+  if (SENSOR_REGISTRY.length !== SENSOR_REGISTRY_IDS.length) {
+    errs.push(
+      'SENSOR PRIORITY GATE: SENSOR_REGISTRY (' + SENSOR_REGISTRY.length + ' sensors) and ' +
+        'SENSOR_REGISTRY_IDS (' + SENSOR_REGISTRY_IDS.length + ' ids) have diverged. ' +
+        'A new sensor must be appended to BOTH arrays, in the same position.'
+    );
+  }
+
+  // (2) Every registered sensor must have a doctrine rank.
+  const missingFromPriority = SENSOR_REGISTRY_IDS.filter((id) => SENS_PRIORITY.indexOf(id) === -1);
+  if (missingFromPriority.length) {
+    errs.push(
+      'SENSOR PRIORITY GATE: registered sensor(s) with NO SENS_PRIORITY entry: ' +
+        missingFromPriority.join(', ') +
+        '. Add each to the ordered table in lib/core/sensors/sensor-priority.cjs ' +
+        '(its header carries the three placement rules).'
+    );
+  }
+
+  // (3) The table must carry no phantom entry for a sensor that is not
+  // registered, so the doctrine cannot quietly outlive the code.
+  const missingFromRegistry = SENS_PRIORITY.filter((id) => SENSOR_REGISTRY_IDS.indexOf(id) === -1);
+  if (missingFromRegistry.length) {
+    errs.push(
+      'SENSOR PRIORITY GATE: SENS_PRIORITY entr(ies) with NO registered sensor: ' +
+        missingFromRegistry.join(', ') +
+        '. Remove each from lib/core/sensors/sensor-priority.cjs, or register the sensor ' +
+        'in SENSOR_REGISTRY + SENSOR_REGISTRY_IDS.'
+    );
+  }
+
+  return errs;
+}
+
+// ---------------------------------------------------------------------------
 // main()
 // ---------------------------------------------------------------------------
 function main() {
@@ -1119,6 +1210,12 @@ function main() {
     if (onDiskMcp !== nextMcp) {
       errs.push('data/mcp-tool-connectors.json is STALE. Run: node scripts/build-connector-registry.cjs');
     }
+
+    // Phase 245-01 (D-22 corrected by F-3): the sensor-side SENS_PRIORITY
+    // completeness gate. Fails CLOSED when a registered sensor has no doctrine
+    // rank. Reads SENSOR_REGISTRY_IDS, NEVER sensor_index -- see the function
+    // header for why that distinction is load-bearing.
+    for (const e of sensorPriorityCompletenessErrors()) errs.push(e);
 
     // The four CONN-03 connector validations (frozen-6 reach, frozen-3 posture,
     // WFL-01 resolver-resolution framework, no (sensor,reach,sub_mode) tuple
