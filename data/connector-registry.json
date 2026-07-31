@@ -122,6 +122,23 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:brain-derive",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-03"
+      ],
+      "reach_id": "brain_consult",
+      "sub_mode": "brain-derive",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 61,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:build-knowledge",
       "source": "command",
       "connects_to_spine": true,
@@ -1490,6 +1507,21 @@
       "plan_gated": false,
       "web_scope": "green",
       "decision_surface": "F.1"
+    },
+    {
+      "surface": "skill:brain-derive",
+      "source": "skill",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "brain_consult",
+      "sub_mode": "brain-derive",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 61,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
     },
     {
       "surface": "skill:build-knowledge",
@@ -3231,6 +3263,12 @@
       "/mos:new-surface",
       "/mos:skill"
     ],
+    "SENS-03": [
+      "/mos:brain-derive",
+      "/mos:compare-ventures",
+      "/mos:mullins",
+      "agent:brain-query"
+    ],
     "SENS-07": [
       "/mos:build-thesis",
       "/mos:deep-grade",
@@ -3252,11 +3290,6 @@
       "/mos:rs-fetch",
       "/mos:rs-thesis",
       "agent:reverse-salient-agent"
-    ],
-    "SENS-03": [
-      "/mos:compare-ventures",
-      "/mos:mullins",
-      "agent:brain-query"
     ],
     "SENS-13": [
       "/mos:eureka"

@@ -13,14 +13,14 @@
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "d84fedee6f5332416aeeb895f9bf79ec45b2724fec0dfd970cb0a448b1d3f859",
-      "source_count": 198
+      "digest": "f543eca32c657910c07bf7c4ec2e71b7b4f880d5e4a6b0467ce1a5317d4e5dcf",
+      "source_count": 200
     },
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "e3702a5cdc8efff44e207a5a39c7ed087c3154f45cf5ea6c440cda4dd2f41655",
-      "source_count": 374
+      "digest": "b792f0e2c6d6f92a3e035e6236d84c60a317bfa69ecd83a6663ed1afa8127447",
+      "source_count": 375
     }
   ],
   "runtime_surfaces": [
@@ -32,7 +32,7 @@
     {
       "role": "decide_engine",
       "path": "lib/core/navigation-engine.cjs",
-      "digest": "cb848d48fb78e13b6b801f52ae06ed58f34a1ef371d43f256850e53e70c302d2"
+      "digest": "1376a060bd252f7d32f508a45d92bc77f8486c3079a5ec177e9a75dfc8183d17"
     },
     {
       "role": "cockpit",

@@ -244,7 +244,31 @@
       "id": "command:/mos:brain-derive",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:brain-derive"
+      "name": "/mos:brain-derive",
+      "reach_id": "brain_consult",
+      "sub_mode": "brain-derive",
+      "hierarchy_rank": 61,
+      "posture": "hold",
+      "sensor_triggers": [
+        "SENS-03"
+      ],
+      "chain_provenance": {
+        "command": "/mos:brain-derive",
+        "reach_id": "brain_consult",
+        "sub_mode": "brain-derive",
+        "firing_sensors": [
+          "SENS-03"
+        ]
+      },
+      "ranking": {
+        "reach_id": "brain_consult",
+        "sub_mode": "brain-derive",
+        "hierarchy_rank": 61,
+        "posture": "hold",
+        "sensor_triggers": [
+          "SENS-03"
+        ]
+      }
     },
     {
       "id": "command:/mos:build-knowledge",
@@ -3905,6 +3929,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "bono"
+    },
+    {
+      "id": "sub_mode:brain-derive",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "brain-derive"
     },
     {
       "id": "sub_mode:brain-query",

@@ -9,13 +9,39 @@ hitl_shape: "F.0"
 hitl_why: "It surfaces one derived Brain packet for a single APPROVE, REJECT, or DEFER."
 argument-hint: "[section] [--all] [--cross-room] [--dry-run] [--review-anchors] [--orphan-census] [--cross-label-dups]"
 serves_jtbd: ["audit-room"]
+# Phase 245-02: this command becomes spine-invocable below, so the Phase 118-06
+# reward-before-investment rule now applies to it. schema_preview is the value
+# the command already implements: `--dry-run` previews the target sections and
+# their cost without firing a single Brain call or writing any BRAIN.md, which
+# is a structural preview of what WOULD be derived, handed over before the user
+# invests anything. Grounded in shipped behavior, not aspirational.
+interactive_first_reward: schema_preview
 teaching: "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate."
 disable-model-invocation: false
 allowed-tools: Bash(node *), AskUserQuestion
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# --- Phase 245-02 CIRS R1 wire (Canon Part 11), promoting the Phase 172-06 exclude ---
+# The 172-06 exclude named its own promotion condition: "INV-06 promotion
+# candidate (a future mindrian-operation counterpart could make derivation
+# contextually triggered), excluded for now." That counterpart now ships: the
+# governing-thought-change enqueue, the BRAIN_STALE_AGE_DAYS session-start
+# enqueue, and the UserPromptSubmit drain make derivation contextually
+# triggered, so the explicit ask is the third arm of a live trigger set rather
+# than a manual-only maintenance knob. SENS-03 is not invented here: the drain
+# already fires sensor 'SENS-03' with surface 'brain_consult', dispatch
+# 'brain-derivation' and posture 'hold' through navigation.logSpineRead
+# (scripts/brain-derivation-drain.cjs), so this declaration describes live
+# behavior. framework: null is the additive-degrade case (CONNECTOR-CONTRACT.md
+# section 4): no methodology framework fires on APPROVE, only the derivation.
 connector:
-  excluded: true
-  reason: "Lifecycle / maintenance command. Regenerates the BRAIN.md per-folder derivation; a maintenance refresh run deliberately or by the staleness scan. INV-06 promotion candidate (a future mindrian-operation counterpart could make derivation contextually triggered), excluded for now."
+  excluded: false
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: brain_consult
+  sub_mode: brain-derive
+  framework: null
+  posture: hold
+  hierarchy_rank: 61
+  filing: memory_event_only
 ---
 
 <!-- mos:firing-block v2 -->
