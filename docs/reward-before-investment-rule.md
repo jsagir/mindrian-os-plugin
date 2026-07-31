@@ -102,10 +102,31 @@ A linter-style check at the command-spec level:
 - CI check enforces this at build time
 
 **Implementation:**
-- Library: `lib/core/mva-rule-linter.cjs` (exports `scanCommands`, `validateFrontmatter`, `REWARD_TYPES`)
+- Library: `lib/core/mva-rule-linter.cjs` (exports `scanCommands`, `scanFiles`, `validateFrontmatter`, `REWARD_TYPES`)
 - CLI: `scripts/check-reward-before-investment.cjs` (table + Larry-voice summary; exits 1 on violation)
 - Pre-commit hook: `scripts/hooks/pre-commit` invokes the CLI when any `commands/*.md` is staged
 - Bypass: `COMMIT_NO_VERIFY=1` (wave-protocol invariant per Phase 125-08 SUMMARY)
+
+**Two scopes (Phase 245-02):**
+
+| Invocation | Scope | Used by |
+| --- | --- | --- |
+| `node scripts/check-reward-before-investment.cjs [commandsDir]` | FULL AUDIT: every `*.md` in the directory. Reports the true repo-wide debt. | CI, manual sweeps |
+| `node scripts/check-reward-before-investment.cjs --staged [repoRoot]` | COMMIT GATE: only the `commands/*.md` this commit is staging, discovered via `git diff --cached --name-only --diff-filter=ACM`. Nothing staged means nothing to judge (exit 0). Exits 2 if the staged set cannot be determined, so an ungateable commit is never reported as passing. | the pre-commit hook |
+
+Why the split: the hook always CLAIMED to gate staged changes, but it passed
+the whole `commands/` directory. With 103 of 112 commands never having declared
+the field, one pre-existing offender blocked every commit that touched any
+command, which made `COMMIT_NO_VERIFY=1` mandatory rather than exceptional. The
+per-file verdict is unchanged: stage a command with a missing or invalid
+declaration and the commit is still blocked. Pinned by
+`tests/test-245-reward-guard-staged.cjs`, which asserts BOTH that unstaged debt
+no longer blocks AND that a staged offender still fails, through the CLI and
+end to end through the installed hook.
+
+The repo-wide backfill (102 commands still undeclared as of Phase 245) remains
+open and is visible through the full-audit mode. Narrowing the commit gate does
+not retire that debt; it stops the debt from blocking unrelated work.
 
 **The v1.13.0 REWARD_TYPES closed vocabulary:**
 - `reframe_question` - Larry reframes the user's sentence into a beautiful question

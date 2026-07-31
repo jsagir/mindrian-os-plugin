@@ -266,30 +266,42 @@ fi
 # Phase 118-06 guardian: reward-before-investment rule linter.
 #
 # When any commands/*.md is staged, run scripts/check-reward-before-investment
-# .cjs against commands/. The linter validates that every interactive command
-# declares an interactive_first_reward field in YAML frontmatter with a value
-# from the v1.13.0 REWARD_TYPES closed vocabulary (or `--none (scripting only)`
-# per rule doc line 81). Exits non-zero if any staged commands/*.md change
-# introduces a missing or invalid declaration.
+# .cjs against THE STAGED FILES. The linter validates that every interactive
+# command declares an interactive_first_reward field in YAML frontmatter with a
+# value from the v1.13.0 REWARD_TYPES closed vocabulary (or `--none (scripting
+# only)` per rule doc line 81). Exits non-zero if any staged commands/*.md
+# change introduces a missing or invalid declaration.
+#
+# Phase 245-02 root-cause fix: this block used to pass "$REPO_ROOT/commands",
+# scanning the WHOLE directory, which contradicted the contract stated one
+# paragraph above. With 103 of 112 commands never having declared the field,
+# one pre-existing offender blocked every commit that touched any command file,
+# so the guardian had become a permanent forced-bypass rather than a gate. It
+# now passes --staged, which discovers the file set from `git diff --cached`.
+# The per-file verdict is UNCHANGED and still fails closed: stage a command
+# with a missing or invalid declaration and the commit is still blocked. The
+# repo-wide debt remains visible through the full-audit mode (run the CLI with
+# no --staged flag), which CI and manual sweeps still use.
 #
 # Bypass: COMMIT_NO_VERIFY=1 (wave-protocol invariant per Phase 125-08
 # SUMMARY; mirrors the Phase 108 social convention -- if you bypass, open a
 # canon-amendment PR within 24 hours).
 #
 # Source-of-truth: docs/reward-before-investment-rule.md.
-# Library: lib/core/mva-rule-linter.cjs (scanCommands).
+# Library: lib/core/mva-rule-linter.cjs (scanFiles for the staged path,
+# scanCommands for the full audit; one shared classifier).
 # Recovery on failure: declare interactive_first_reward in the offending
 # commands/*.md frontmatter. Allowed values: reframe_question, instant_brief,
 # schema_preview, calibration_distribution_preview, paragraph_preview,
 # --none (scripting only).
-# Canon Part 8: zero network, zero Brain calls; LOCAL-only fs scan.
+# Canon Part 8: zero network, zero Brain calls; LOCAL-only fs + index read.
 # ---------------------------------------------------------------------------
 if [ -z "${COMMIT_NO_VERIFY:-}" ]; then
   if git diff --cached --name-only --diff-filter=ACM | grep -qE '^commands/.+\.md$'; then
     if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-reward-before-investment.cjs" ]; then
-      # Run the linter against the whole commands/ dir. The linter's exit code
-      # is the gate; its stdout/stderr are the diagnostic surface.
-      if ! node "$REPO_ROOT/scripts/check-reward-before-investment.cjs" "$REPO_ROOT/commands"; then
+      # Lint the STAGED commands/*.md only. The linter's exit code is the gate;
+      # its stdout/stderr are the diagnostic surface.
+      if ! node "$REPO_ROOT/scripts/check-reward-before-investment.cjs" --staged "$REPO_ROOT"; then
         echo "" >&2
         echo "MindrianOS pre-commit guard: reward-before-investment rule violated." >&2
         echo "See docs/reward-before-investment-rule.md for the rule + remediation values." >&2
