@@ -57,3 +57,33 @@ The other 30 tests that exercise `dispatchSensors`
 (`test-158-reach-part8-no-reason`, `test-159-part8-secretreason-sweep`,
 `test-213-part8-boundary`, `test-169-brain-boundary`). No Part 8 assertion
 needed an allowlist edit: none enumerates a closed set of evidence keys.
+
+---
+
+## Pre-existing test failures observed during 245-05 (Task 1/2 regression sweep)
+
+Method, stronger than the 245-01 file-swap: a detached git worktree was created at
+`72c6ccaa` (the last commit before 245-05 touched anything), `node_modules`
+symlinked in, and each failing test run there. Every failure reproduced with a
+BYTE-IDENTICAL assertion message. The worktree was removed afterwards.
+
+The sweep itself was `grep -rln "navigation-engine.cjs" tests/*.cjs` -> 33 files.
+30 pass; the 3 below fail, plus `test-158-reach-orchestrator-pure.cjs` which the
+plan's own verification list names explicitly.
+
+| Test | Failure at HEAD | Failure at 72c6ccaa (pre-245-05) | Disposition |
+|------|-----------------|----------------------------------|-------------|
+| `tests/test-158-reach-orchestrator-pure.cjs` | `the only require must be f-selector-ranker.cjs; found: _actBlurbGen = require('../core/act-jtbd-blurb.cjs')` | IDENTICAL | Pre-existing. The purity assertion reads `lib/hmi/dial-reach-orchestrator.cjs`, which 245-05 never touched (`git diff --quiet HEAD -- lib/hmi/dial-reach-orchestrator.cjs` is clean). The offending require was introduced by `ea3ca510`, a docs commit that predates this plan, and is visible in `git show ea3ca510:lib/hmi/dial-reach-orchestrator.cjs` at line 62. Out of scope: the fix is either an allowlist entry for `act-jtbd-blurb.cjs` or a lazy-require, both of which belong to whoever owns the blurb generator wiring. |
+| `tests/test-203-reach-sensor.cjs` | `FAIL - REJECT-with-reason writes a typed REJECTED edge and does NOT promote`, `FAIL - DEFER writes a DEFERRED edge and leaves the node proposed` | IDENTICAL | Pre-existing. Same class as the `edges.review_status` schema drift already recorded in STATE.md's Phase 244 entry (a concurrent session's `room-db.cjs` change). Nothing to do with the decision trace. |
+| `tests/test-bch-07-seam3-insertion.cjs` | `FAIL - Test 2c: decide() output is byte-identical across two dormant-seam calls` | IDENTICAL | Pre-existing, and specifically NOT caused by the two new trace fields: both are deterministic pure functions of `brain.sections.pattern_matches.body`, and the same assertion already failed before they existed. Worth someone's time later, since a decide() determinism test failing is a real signal, but it is not 245-05's signal. |
+| `tests/test-reader-184.cjs` | `AssertionError: R2: real projection carries 249 nodes` | IDENTICAL | Pre-existing. A node-count expectation in `data/brain-orchestration-projection.json` that drifted as connectors were added across Phases 244/245-01. Out of scope. |
+
+Counter-evidence that 245-05 did NOT cause these: an 800-fixture `decide()` matrix
+(11 brain shapes x 2 `brainAvailable` x 4 signal sets x 4 sensor-ctx shapes) was
+run in BOTH trees and the serialized
+`fire_skill | decision_grounding | suppress_skills | offer_next_step | weight_applied | recommended_marker`
+tuple hashed to the same sha256 (`7a3a7637...`) in both. Probe sensitivity was
+confirmed separately: the baseline tree reports
+`hasOwnProperty('brain_pattern_verb') === false` while HEAD reports `true`, so the
+two trees genuinely are different code and the routing outputs are genuinely
+unchanged.
