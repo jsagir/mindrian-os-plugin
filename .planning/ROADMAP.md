@@ -338,3 +338,14 @@ Navigator locked this slot mid-roadmap-session ("lets plan it for 1.17.beta"): t
 - [x] 244-08-PLAN.md -- Phase close: `docs/ENV-TUNING.md` section for all five new env vars, `244-RESIDUALS.md` (assumptions, non-goals, navigator asks, the open langtalks gap), canon ledger entry, full phase gate, and the Dev-Research Compositing mirror. Zero production code. [TRIG-01, TRIG-02, TRIG-03]
 
 **Planner note (2026-07-30), RESOLVED same day at planning time (not left for 244-07 to discover):** the original SC3 draft stated the MMR formula as ~~`(1-lambda)*relevance - lambda*max_similarity`~~, which is algebraically equivalent to the canonical Carbonell form but INVERTS the knob's semantics (someone writing `lambda = 0.7` meaning "mostly relevance" would get "mostly diversity"). SC3 above (the numbered criterion, not this note) already carries the corrected canonical orientation and the `MMR_LAMBDA_RELEVANCE` name -- this note is preserved for traceability only. 244-07-PLAN.md implemented against the corrected SC3 and confirmed the code and document agree (21/21 tests, both a bidirectional lambda fence and the crowding-out regression pass); no further navigator amendment needed.
+
+### Phase 245: Close the reach/Brain signal loop: wire dispatchSensors fire_skill output and Brain pattern_matches into the navigator-visible F.7 dial (currently scored only by cortex-reach-adapter.cjs graph-node recency, per the 2026-07-31 dial-rethink finding), and define a correct budget-respecting Brain-consult trigger policy (not a blanket per-invocation call)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 244
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 245 to break down)

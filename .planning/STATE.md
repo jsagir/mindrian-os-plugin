@@ -2459,6 +2459,35 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 245 added (2026-07-31): Close the reach/Brain signal loop -- wire `dispatchSensors`'s
+  `fire_skill` output and Brain's `pattern_matches` into the navigator-visible F.7 dial (today
+  scored only by `cortex-reach-adapter.cjs` graph-node recency, per the same-day
+  `2026-07-31-dial-rethink-decoupled-from-sensor-bank` finding + its dev-repo landing at
+  `.planning/quick/260731-35r-phase-244-1-document-dial-render-sensor-/260731-35r-FINDING.md`),
+  and define a correct, budget-respecting Brain-consult trigger/cadence policy. Registered from
+  a live navigator ask ("make sure any call to mindrianos plugin also calls the brain for
+  insights... this will help invocation of skills" / "do full phase planning... invokes that
+  power of mindrian contextualized") during a Larry conversation session. REUSE-CHECK before
+  filing: the navigator's literal framing ("call Brain on every invocation") was tested against
+  three already-existing constraints and narrowed, not accepted as-is -- (1) `BRAIN.md` caching
+  + `STALENESS_MULTIPLIERS` (navigation-engine-shared.cjs) already exist specifically to avoid a
+  live network call every turn; (2) the dial-rethink entry's own Section 6 already cites arXiv
+  2605.30152 showing a per-turn live consult blows the repo's documented 1200ms navigation
+  budget unless the process stays warm, and this repo's execution model is fresh-invocation-
+  per-turn; (3) live-read `rethinking-mindrianos/research/BRAIN.md` this session:
+  `brain_generated_at` 12 days stale, every one of 9 sections "(no signal)" -- Brain was queried
+  and legitimately returned empty, most plausibly because that room is a meta-dev-research room
+  outside Brain's generic-methodology corpus scope (Canon Part 8), not a connectivity bug. A
+  langtalks-graph-expert consult (4 bounded `relationship_path` queries) returned only thin
+  multi-hop co-occurrence, consistent with this corpus's already-documented thinness on
+  open-ended architecture questions -- recorded honestly as not-in-corpus, not papered over.
+  SPEC.md not yet written; `/gsd-spec-phase 245` is the next step and will Socratic-interview the
+  navigator on the still-open scoping questions (what "talking to the user properly" cashes out
+  to operationally, whether this targets venture rooms vs meta-dev rooms, the actual trigger-
+  policy design) before requirements lock. Whether this phase ships inside v1.16.0 (still
+  "executing", Gate 0 not yet cleared for release cut) or opens a new milestone was flagged to
+  the navigator, not decided silently.
+
 - Phase 240.1 inserted (2026-07-30, URGENT) after Phase 240: Context-layer drift detection
   and semantic/context distinction for the Data Room graph -- registered from a live research
   session (`langtalks-graph-expert` ingest of a MotherDuck "Agentic AI and the Context Layer"
