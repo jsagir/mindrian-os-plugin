@@ -427,6 +427,51 @@ non-integer or non-positive value falls back to the calibrated default.
 export MINDRIAN_EUREKA_REASONING_MAX_PAIRS=25
 ```
 
+## Verb/Reach Affinity Margin (Phase 245, build-time only, zero egress)
+
+Requirement 1's Brain-verb fusion term needs the INVERSE of
+`reachIdToSkillFamily`: given a canonical verb, which of the frozen six reaches
+does it key onto. That inverse is not a bijection (`'Run Methodology'` inverts to
+BOTH `context_block` and `brain_consult`, and 5 of the 10 frozen
+`CANONICAL_VERBS` have no reach preimage at all), so the affinity is derived
+semantically at BUILD time by `scripts/derive-verb-reach-affinity.cjs` using the
+already-shipped local encoder, then committed as the frozen
+`VERB_REACH_AFFINITY` table in `lib/core/verb-reach-affinity.cjs`. The runtime
+lookup is a plain frozen-object read: zero cost, zero I/O, zero network. The
+variable below tunes the DERIVATION, not the runtime.
+
+### MINDRIAN_AFFINITY_MARGIN
+
+**What:** The top1-minus-top2 cosine margin that decides, per canonical verb,
+whether one reach wins outright or several are tied. A verb whose margin is at or
+above this value maps to `{ winner: 1 }`. A verb whose margin falls below it maps
+to an even split across every reach within the margin of the top score (this is
+what gives `'Run Methodology'`'s genuine two-way ambiguity a principled
+resolution instead of an arbitrary pick). A verb whose best similarity is below
+this value in ABSOLUTE terms maps to `null`, the documented no-op for a verb with
+no reach preimage. Resolved at module load in
+`lib/core/verb-reach-affinity.cjs` (`resolveAffinityMargin()`) and read by
+`scripts/derive-verb-reach-affinity.cjs`.
+**Default:** `0.05`, accepted range `(0, 1)` exclusive. Any non-numeric,
+non-finite, non-positive, or out-of-range value silently falls back to `0.05`
+(the same garbage-falls-back-never-warns discipline as `BRAIN_STALE_AGE_DAYS`).
+**Why 0.05 and why TUNABLE-LATER:** it is a low-data starting point carried over
+from the sibling `embedding-classifier.cjs` margin discipline, not a value
+calibrated against a verb/reach outcome corpus, because no such corpus exists
+yet. Raise it (for example `0.10`) to make the derivation more conservative,
+producing more ties and more `null`s rather than confident single winners; lower
+it (for example `0.02`) to force more outright winners. Revisit once the 245-07
+fusion term has produced enough outcome edges to measure whether the split verbs
+actually behave as ties in practice.
+**Scope note:** changing this variable changes nothing at runtime on its own. It
+only affects a fresh `node scripts/derive-verb-reach-affinity.cjs` run, and that
+script gates NO build and NO release by design (an encoder failure must never
+block a cut).
+
+```bash
+export MINDRIAN_AFFINITY_MARGIN=0.05
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
