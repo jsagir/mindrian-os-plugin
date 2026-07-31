@@ -4,14 +4,14 @@ milestone: v1.16.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 245 context gathered
-last_updated: "2026-07-31T09:13:00.995Z"
+last_updated: "2026-07-31T12:58:53.906Z"
 last_activity: 2026-07-31 -- Phase 245 execution started
 progress:
   total_phases: 12
   completed_phases: 11
   total_plans: 67
-  completed_plans: 60
-  percent: 90
+  completed_plans: 61
+  percent: 91
 ---
 
 # Project State
@@ -1647,7 +1647,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 245 (close-the-reach-brain-signal-loop-wire-dispatchsensors-fire-) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-07-31 -- Phase 245 execution started
 
@@ -2259,6 +2259,7 @@ Progress: [█████████░] 92%
 | 243 | 2 | - | - |
 | 238 | 8 | - | - |
 | Phase 245 P01 | 22min | 3 tasks | 6 files |
+| Phase 245 P02 | 3h41m | 3 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -3446,6 +3447,10 @@ Progress: [█████████░] 92%
 - [Phase ?]: R-01: Tri-Polar guardian parity wired to the shared mindrian-core Stop path (241-05), not left CLI-only, per the MINDRIAN_MCP_FIRST early-exit evidence
 - [Phase 245]: 245-01: D-21's sensor_id stamp delivered as ONE central registry-driven stamp in dispatchSensors, not 18 per-sensor edits (Canon Part 7); a new sensor cannot ship unstamped
 - [Phase 245]: 245-01: the SENS_PRIORITY completeness gate enumerates SENSOR_REGISTRY_IDS, never sensor_index (D-22 corrected by F-3: sensor_index is command-frontmatter derived and already omits 4 real sensors)
+- [Phase ?]: 245-02: queue removal is contingent on an actual spawn (commitDispatched), never on a dry-run preview
+- [Phase ?]: 245-02: PARENT_BUDGET_MS stays 100; the fix stops mis-measuring against it (requires hoisted above the clock, budget checked after the spawn)
+- [Phase ?]: 245-02: Open Question 4 answered YES - the BRAIN_STALE_AGE_DAYS arm reaches a live enqueue at scripts/session-start:1094,1120
+- [Phase ?]: 245-02 (navigator Option C): the reward-before-investment guardian now gates STAGED commands/*.md, not the whole directory; 102-command backfill remains open debt
 
 ### Pending Todos
 
@@ -3540,7 +3545,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-07-31T09:12:40.667Z
+Last session: 2026-07-31T12:58:20.957Z
 Stopped at: Phase 245 context gathered
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
