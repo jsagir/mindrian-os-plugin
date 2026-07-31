@@ -107,3 +107,25 @@ unchanged.
 | Test | Failure | Before vs after | Disposition |
 |------|---------|-----------------|-------------|
 | `tests/test-130-lens-engine-e2e.cjs` | 5 arms fail the instrumented zero-leak gate: `leaked: [{"method":"readFileSync","target":"/home/jsagi/.mindrian/persona-override.json"}]` | IDENTICAL except the printed pid | Pre-existing and NOT caused by 245-06. Proven by the file-swap method: the eight files this plan modified (3 commands, 2 skill mirrors, 3 generated data artifacts) were set aside, `git checkout --` restored the committed versions, the test re-run, and the outputs diffed. The leak is the lens engine reading the DEVELOPER's own `~/.mindrian/persona-override.json`, a machine-local file outside the repo, so the failure is environment-dependent rather than a code defect this phase can see. Out of scope: 245-06 changed only frontmatter `sensor_triggers` on these commands and touched no lens-engine code path. |
+
+---
+
+## Observed during 245-08 (the render-callsite fusion)
+
+### 1. A stale scope-boundary comment in `lib/hmi/dial-reach-orchestrator.cjs`
+
+| Item | Status | Evidence | Disposition |
+|------|--------|----------|-------------|
+| The file header's `SCOPE BOUNDARY (documented 2026-07-31, quick-260731-35r)` block states that "Sensor-fired candidates from dispatchSensors NEVER reach this function's scoring" and that "WHICH reach_id ranks top ... is 100 percent cortex-node scoring". After 245-08 that is no longer true of the INPUT: `roomState.reachScores` now arrives already fused with the turn's fired-sensor and Brain-verb signal. | accurate about the FUNCTION, stale about the CALLER | The comment was written on 2026-07-31 against the pre-245-08 tree and is cited by `.planning/quick/260731-35r-.../260731-35r-FINDING.md`. Its narrow claim still holds exactly: `buildReachList` itself performs no sensor scoring and `_resolveReachScore` still just reads the supplied map. What changed is who builds that map (`scripts/intent-classifier.cjs` `composeDialReachScores`), which is upstream of this file. | NOT fixed, deliberately. `lib/hmi/dial-reach-orchestrator.cjs` must stay BYTE-UNCHANGED this phase (245-08-PLAN.md D-03 invariant, asserted by `git diff` in the plan's verification block and by two purity tripwires). Editing even a comment would break that invariant and would also compound the unrelated pre-existing failure in `test-158-reach-orchestrator-pure.cjs`. The comment's own "flip conditions" pointer names the finding doc, so the correction belongs with whoever next owns that file, alongside the `act-jtbd-blurb.cjs` require fix below. |
+
+### 2. `node scripts/doctor.cjs --acceptance`: one failing point, machine-local
+
+| Item | Status | Evidence | Disposition |
+|------|--------|----------|-------------|
+| `eureka-fts-index-visible` fails: `eureka_fts stale in room "jonathan-contractor-motj" (451 orphan row(s) pointing at deleted nodes)`. Roll-up: `Acceptance full: 15/16 points passed`. | pre-existing, environment | The check (`scripts/doctor.cjs:1506-1539`) enumerates the DEVELOPER's registered rooms under `~/MindrianRooms/` and inspects each room.db's `eureka_fts` table. Both the input and the fault live entirely outside this repository, so no in-repo diff can produce or clear it. 245-08 touched three files (`scripts/intent-classifier.cjs` and two new `tests/` files) and no eureka, FTS, or room.db code path. | NOT fixed, out of scope. Clearing it means rebuilding that one room's lexical index, which is a room-maintenance action on a user room, not a code change. Noted so the SUMMARY's "no new failure" claim is checkable rather than asserted. |
+
+### 3. The `reach_presented` telemetry recompute is still short one input, and the reason is circular
+
+| Item | Status | Evidence | Disposition |
+|------|--------|----------|-------------|
+| After 245-08, call site B (`scripts/intent-classifier.cjs`, the `reach_presented` / `gate_reached` emit) shares the tier mode, the cortex priors, the Requirement 1 fusion and the structural relevance gate with the live render, but passes `reachPenalties: null`, so it is still short the Phase 158-03 reject `discountedScores` fold and the reject hard-suppression set. | narrowed, not closed | `computeReachPenalties` counts `reach_presented` rows (`lib/workflow/reach-reject-reader.cjs:135-160`) and the telemetry block is what WRITES them, so whichever runs first is deprived of the other's output. Today's shipped order is emit-then-compute, which means the LIVE RENDER's M-floor and periodic-parole counters include this turn's own presentation. Reordering to feed telemetry would silently change that shipped behavior. | NOT fixed, deliberately, and stated in the code at the call site rather than left silent. Closing it properly is a design question (should a reach's own not-yet-shown presentation count toward its M-floor?) that belongs to whoever owns the 158-02/158-03 parole fences, not to a Requirement 1 wiring plan. Before 245-08 this site diverged on FOUR inputs; it now diverges on one. |
