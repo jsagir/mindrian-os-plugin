@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 244 CLOSED (8/8 plans, gsd-verifier PASSED with one non-blocking coverage-gap finding on SC3). All 11 v1.16.0 phases now CLOSED (phase work done). No further phase work queued; Gate 0 (v1.15.0 stable close-out) remains open separately and gates any v1.16.0 release CUT, which is why milestone status stays "executing" rather than "complete".
-last_updated: "2026-07-31T02:57:00.000Z"
-last_activity: 2026-07-31 -- Completed quick task 260731-35r: documented the dial-render/sensor-bank disjointness Phase 244's own residual register missed (buildReachList scored only by cortex-reach-adapter.cjs, never by dispatchSensors)
+stopped_at: Phase 245 context gathered
+last_updated: "2026-07-31T08:03:24.302Z"
+last_activity: 2026-07-30 -- Phase 240.1 execution started
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 11
   total_plans: 59
   completed_plans: 59
-  percent: 100
+  percent: 92
 ---
 
 # Project State
@@ -2470,6 +2470,7 @@ Progress: [█████████░] 92%
   power of mindrian contextualized") during a Larry conversation session. REUSE-CHECK before
   filing: the navigator's literal framing ("call Brain on every invocation") was tested against
   three already-existing constraints and narrowed, not accepted as-is -- (1) `BRAIN.md` caching
+
   + `STALENESS_MULTIPLIERS` (navigation-engine-shared.cjs) already exist specifically to avoid a
   live network call every turn; (2) the dial-rethink entry's own Section 6 already cites arXiv
   2605.30152 showing a per-turn live consult blows the repo's documented 1200ms navigation
@@ -3513,8 +3514,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-07-29T14:52:00.000Z
-Stopped at: Completed 236-04-PLAN.md (GRAPHDB-03 engines.node floor to >=22.16.0 + tests/run-all-236.sh). Phase 236 is 3/4; only 236-02 remains.
+Last session: 2026-07-31T08:03:24.139Z
+Stopped at: Phase 245 context gathered
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
