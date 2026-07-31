@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.16.0-beta.4 (in progress)
+## [1.16.0-beta.5] - 2026-07-31
 
 ### Added
 - **The ranked dial you pick from now actually listens to what you said, and Brain's own
