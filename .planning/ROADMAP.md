@@ -344,7 +344,7 @@ Navigator locked this slot mid-roadmap-session ("lets plan it for 1.17.beta"): t
 **Goal:** A navigator asking two different things in the same session sees two different, Brain-informed top-ranked dial items instead of the same static card, and BRAIN.md re-derives on a defined trigger (governing-thought change, `BRAIN_STALE_AGE_DAYS` age-out, or explicit ask) rather than only when someone remembers to run it by hand.
 **Requirements**: REQ-1 (dial fusion), REQ-2 (Brain trigger repair), REQ-3 (hats sensor fires proactively), REQ-4 (context_block tie-break), REQ-5 (Part 8 guard scoping), REQ-6 (verb/reach_id semantic affinity). SPEC.md's 6 numbered requirements are authoritative; no REQ-xxx ids exist in REQUIREMENTS.md for this phase.
 **Depends on:** Phase 244
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans complete
 
 Wave structure (same-wave plans have zero `files_modified` overlap):
 
@@ -361,4 +361,4 @@ Plans:
 - [x] 245-05-PLAN.md -- REQ-1a: compute Brain's `pattern_matches` verb independently of `resolveFireSkill`'s precedence chain and surface `trace.brain_pattern_verb` plus its confidence, so the verb exists downstream on a sensor-fires turn. `resolveFireSkill` byte-unchanged. [REQ-1]
 - [x] 245-06-PLAN.md -- REQ-3: SENS-17 `sensor-perspective-lock.cjs` firing `reach_id: hats` at `freshContradictions >= 2`, registered and priority-ranked, plus the D-15 repair of three commands falsely declaring SENS-05 for hats. [REQ-3]
 - [x] 245-07-PLAN.md -- REQ-4b + REQ-1b: the `SENS_PRIORITY` tie branch in `rankFiredCandidates`'s comparator, and the exported `buildSignalNudges` fusion whose structural bound (`FUSION_CEILING = 0.69`) keeps every fused score below the frozen 0.70 RECOMMENDED floor. [REQ-1, REQ-4]
-- [ ] 245-08-PLAN.md -- REQ-1c: merge the fusion into `reachScores` at the render callsite through one shared `composeDialReachScores` helper used by both the live dial and the `reach_presented` telemetry (closing the pre-existing divergence), plus the phase's two headline acceptance tests. [REQ-1]
+- [x] 245-08-PLAN.md -- REQ-1c: merge the fusion into `reachScores` at the render callsite through one shared `composeDialReachScores` helper used by both the live dial and the `reach_presented` telemetry (closing the pre-existing divergence), plus the phase's two headline acceptance tests. [REQ-1]

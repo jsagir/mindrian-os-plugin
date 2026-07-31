@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.16.0
 milestone_name: milestone
-status: executing
+status: verifying
 stopped_at: Completed 245-07-PLAN.md
-last_updated: "2026-07-31T14:20:09.170Z"
+last_updated: "2026-07-31T14:39:10.439Z"
 last_activity: 2026-07-31 -- Phase 245 execution started
 progress:
   total_phases: 12
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 67
-  completed_plans: 66
-  percent: 92
+  completed_plans: 67
+  percent: 100
 ---
 
 # Project State
@@ -1648,7 +1648,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 245 (close-the-reach-brain-signal-loop-wire-dispatchsensors-fire-) — EXECUTING
 Plan: 8 of 8
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-31 -- Phase 245 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
@@ -2265,6 +2265,7 @@ Progress: [█████████░] 92%
 | Phase 245 P05 | 41min | 2 tasks | 4 files |
 | Phase 245 P06 | 20min | 3 tasks | 15 files |
 | Phase 245 P07 | 25min | 3 tasks | 5 files |
+| Phase 245 P08 | 42min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -3467,6 +3468,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 245-06: the three D-15 false hats declarations (think-hats, persona, bono) now declare SENS-17; a FOURTH, /mos:hat-briefing on SENS-07, was found and deliberately left for a product call (deferred-items.md)
 - [Phase ?]: 245-07: the Requirement 1 fusion ships as a SEPARATE export (buildSignalNudges), not inside rankFiredCandidates, because F-1 proved the ranker and buildReachList are sibling consumers
 - [Phase ?]: 245-07: FUSION_CEILING 0.69 bounds the nudge structurally via base + fraction * (CEILING - base) with fraction < 1, resolving Open Question A3 below the frozen 0.70 RECOMMENDED floor
+- [Phase ?]: 245-08: the dial fusion merges at the render callsite (composeDialReachScores in scripts/intent-classifier.cjs), not in the hedge ranker - F-1 proved the ranker is a sibling of buildReachList, so a fusion folded there moves the dial by nothing
+- [Phase ?]: 245-08: telemetry and the live render now share one score composition, but telemetry still passes reachPenalties null - computeReachPenalties counts the very reach_presented rows that block writes, so reordering would silently change the live render's M-floor
 
 ### Pending Todos
 
@@ -3561,7 +3564,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-07-31T14:20:09.100Z
+Last session: 2026-07-31T14:38:59.202Z
 Stopped at: Completed 245-07-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
