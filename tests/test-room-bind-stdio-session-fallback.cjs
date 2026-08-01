@@ -99,6 +99,13 @@ async function run() {
   const savedEnv = process.env.CLAUDE_CODE_SESSION_ID;
   const savedHome = process.env.MINDRIAN_ROOMS_HOME;
   process.env.MINDRIAN_ROOMS_HOME = tmpHome;
+  // RCA statusline-room-health-chip-never-updates: room_bind now runs a bind-time
+  // room-health check that writes HOME/.mindrian/room-health.json. Pin HOME to the
+  // fixture too, so this test never overwrites the developer's real statusline
+  // health cache. Health coverage itself lives in
+  // tests/test-room-bind-health-signal.cjs; this test only needs the isolation.
+  const savedOsHome = process.env.HOME;
+  process.env.HOME = tmpHome;
 
   const server = makeFakeServer();
   router.registerRouterTools(server, roomDir, PLUGIN_ROOT, { compact: '' });
@@ -202,6 +209,8 @@ async function run() {
     else process.env.CLAUDE_CODE_SESSION_ID = savedEnv;
     if (savedHome === undefined) delete process.env.MINDRIAN_ROOMS_HOME;
     else process.env.MINDRIAN_ROOMS_HOME = savedHome;
+    if (savedOsHome === undefined) delete process.env.HOME;
+    else process.env.HOME = savedOsHome;
     fs.rmSync(tmpHome, { recursive: true, force: true });
   }
 

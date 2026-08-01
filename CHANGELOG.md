@@ -3,6 +3,30 @@
 ### Added
 - 
 
+### Fixed
+- **The statusline's room-health chip actually updates now, instead of showing you one frozen
+  warning forever and sending you to a command that could never clear it.** The chip that reads
+  `⚠ · -> run /mos:doctor --fix` is supposed to reflect whether your current room is healthy. In
+  practice it was stuck on whatever it happened to say the last time somebody ran a diagnostic by
+  hand in a terminal, which for most people means it either never appeared or never went away.
+  Running `/mos:doctor`, or even `/mos:doctor --fix`, did nothing to it -- not because those
+  commands were broken, but because they were never connected to it in the first place. The chip
+  reads a small cache file, and the one function in the whole codebase that writes that file had
+  exactly one caller: a manual command-line flag that nothing in the product ever runs. So the
+  warning was real once, and then it was just a fossil. Worse, the advice it gave you pointed at
+  the one command structurally incapable of helping. There WAS a second place in the code that
+  tried to wire this up, and it looked wired -- it checked whether the diagnostic module offered
+  a bind-time health function before calling it -- but that function was never written, so the
+  check was permanently false and the whole branch was dead code that read like working code, with
+  a comment promising a follow-up phase that never shipped. Now, whenever your session binds to a
+  room -- through the MCP front door or through the CLI's own binding path, both of which now run
+  the same single health check -- a real, current reading gets written, and the chip tells you what
+  is true right now. A health check that fails can never block or break a bind. And when the room
+  cannot be located at all, it says so honestly as drift rather than quietly reporting all-clear,
+  because the whole point of this fix is that a status signal you cannot trust is worse than no
+  signal. Verified end to end through the real MCP server: a stale drift warning cleared to sound
+  with a fresh timestamp on the next bind.
+
 ## [1.16.0-beta.5] - 2026-07-31
 
 ### Added

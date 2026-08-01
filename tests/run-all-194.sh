@@ -172,6 +172,19 @@ run "PSB cross-session room bleed (bound session resolves its OWN room, incl. su
 run "RCA reg.active ownership (unbound session declines a LIVE foreign owner, tier-0 intact)" \
   node tests/test-active-session-ownership.cjs
 
+# ---------------------------------------------------------------------------
+# RCA statusline-room-health-chip-never-updates. persistRoomHealth() shipped
+# with exactly one caller in the whole tree (doctor.cjs's manual --bind-check
+# CLI flag, which nothing in the product ever invokes), so the statusline
+# health chip could never move. Fixed by wiring room_bind (the D-03 binding
+# front door) to a new in-process runBindHealthCheck(). This is a hard run,
+# not run_if: both dependencies (lib/mcp/tool-router.cjs,
+# lib/statusline/room-health-cache.cjs) already ship unconditionally, so there
+# is no "module not landed yet" case to gate on.
+# ---------------------------------------------------------------------------
+run "RCA room_bind writes a fresh room-health signal (statusline chip unsticks)" \
+  node tests/test-room-bind-health-signal.cjs
+
 echo "========================================"
 echo "  Summary (194 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"

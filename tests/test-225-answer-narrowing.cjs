@@ -91,6 +91,11 @@ function spawnClassifier(home, message) {
       MINDRIAN_ROOMS_ROOT: home,
       MINDRIAN_ROOMS_HOME: home,
       CLAUDE_SESSION_ID: SESSION_ID,
+      // RCA statusline-room-health-chip-never-updates: the bind-time job the
+      // classifier reaches through consumeSessionBinding now writes the room-health
+      // cache to HOME/.mindrian/room-health.json. Pin HOME to the fixture so this
+      // test never overwrites the developer's real statusline health cache.
+      HOME: home,
     }),
     timeout: 30000,
   });
