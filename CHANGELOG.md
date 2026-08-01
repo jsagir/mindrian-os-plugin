@@ -26,6 +26,15 @@
   because the whole point of this fix is that a status signal you cannot trust is worse than no
   signal. Verified end to end through the real MCP server: a stale drift warning cleared to sound
   with a fresh timestamp on the next bind.
+- **A stale local search index could get stuck stale forever, even after a "successful" repair.**
+  Each room keeps a small lexical search index so Eureka can find relevant nodes fast. When nodes
+  get deleted, that index is supposed to self-heal the next time it rebuilds. It turned out the
+  rebuild only ever refreshed rows for nodes that still exist -- it had no way to remove rows left
+  behind by deleted ones, so once a room accumulated deleted nodes, no amount of rebuilding could
+  ever clear them. The one place in the codebase that DID know how to clean those rows up only ran
+  during a full graph rebuild, not the lightweight repair every other path relied on. Now that
+  cleanup step runs every time the index rebuilds, not just on a full rebuild, so a room's search
+  index actually recovers instead of silently staying broken behind a "fixed" label.
 
 ## [1.16.0-beta.5] - 2026-07-31
 

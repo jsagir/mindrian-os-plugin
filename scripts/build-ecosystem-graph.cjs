@@ -227,22 +227,26 @@ async function main() {
     // the same deterministic id on every run, so a reconcile placed between
     // the wipe and the rewalk would see a window where none of those nodes
     // exist yet and would wipe the lexical index on every build, not only
-    // the rows for content that is genuinely gone. The guarded block below is
-    // duplicated verbatim from lazygraph-ops.cjs's copy (rather than
-    // extracted to a shared export) for the same reason this file already
-    // duplicates the BEGIN/COMMIT/ROLLBACK wrap shape instead of importing
-    // it: both copies must be kept in sync if either changes. Riding THIS
-    // SAME BEGIN makes it atomic for free: a crash after this DELETE but
-    // before the COMMIT below rolls back both the node rewrite and this
-    // reconcile together. No-op when FTS5 is unavailable or eureka_fts was
-    // never built on this db (the default state of every live room).
+    // the rows for content that is genuinely gone. Riding THIS SAME BEGIN
+    // makes it atomic for free: a crash after the prune but before the COMMIT
+    // below rolls back both the node rewrite and this reconcile together.
+    //
+    // The prune SQL itself is NO LONGER duplicated here. Phase 244 (RCA
+    // eureka-fts-orphan-rows-block-release-gate) extracted it to
+    // tri.reconcileFtsOrphans, the one canonical copy, when the eureka_fts
+    // BUILD path turned out to need the same reconcile; this file and
+    // lazygraph-ops.cjs both delegate to it now, retiring the keep-both-copies-
+    // in-sync hazard the old comments here warned about. The helper self-guards,
+    // so this is still a no-op when FTS5 is unavailable on this build or when
+    // eureka_fts was never built on this db (the default state of every live
+    // room). The try/catch stays on this side by choice: the helper does not
+    // swallow, because on the build path a swallowed fault would be a
+    // "successful" build that silently did not reconcile.
     (function reconcileFtsIndexInline() {
       try {
         // eslint-disable-next-line global-require
         const tri = require(path.join(__dirname, '..', 'lib', 'core', 'eureka', 'tri-modal-index.cjs'));
-        if (!tri.ensureFtsAvailable().ok) return;
-        if (!tri.tableExists(conn, 'eureka_fts')) return;
-        conn.prepare('DELETE FROM eureka_fts WHERE node_id NOT IN (SELECT id FROM nodes)').run();
+        tri.reconcileFtsOrphans(conn);
       } catch (_e) {
         // Swallow and continue: a reconcile fault must never abort an
         // otherwise-succeeding ecosystem graph build.

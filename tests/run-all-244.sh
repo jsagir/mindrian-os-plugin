@@ -24,12 +24,20 @@
 #   244-01  tests/test-244-fts-query-sanitize.cjs
 #   244-0x  tests/test-244-fts-index-lifecycle.cjs
 #   244-0x  tests/test-244-fts-rebuild-reconcile.cjs
+#   244-0x  tests/test-244-fts-build-orphan-prune.cjs
 #   244-0x  tests/test-244-rrf-fusion.cjs
 #   244-0x  tests/test-244-content-sensor-fires.cjs
 #   244-0x  tests/test-244-doctor-fts-health.cjs
 #   244-0x  tests/test-244-mmr-diversity.cjs
 #
-# That is EIGHT files. The glob is the executor; the list above is the
+# test-244-fts-build-orphan-prune.cjs is the sibling of
+# test-244-fts-rebuild-reconcile.cjs: the reconcile file proves a full graph
+# REBUILD reconciles eureka_fts, the prune file proves an index BUILD
+# (requestFtsBuild -> drain -> indexNodes) reconciles it too. The build half was
+# the gap that let a stale index survive every sanctioned repair
+# (.planning/debug/eureka-fts-orphan-rows-block-release-gate.md).
+#
+# That is NINE files. The glob is the executor; the list above is the
 # reading checklist. A test named above that is missing from disk is NOT
 # reported by this runner as a failure, because a file that does not exist
 # cannot be globbed. That is the honest limitation of glob discovery and the
@@ -122,6 +130,7 @@ EMDASH_TARGETS=(
   "tests/test-244-fts-query-sanitize.cjs"
   "tests/test-244-fts-index-lifecycle.cjs"
   "tests/test-244-fts-rebuild-reconcile.cjs"
+  "tests/test-244-fts-build-orphan-prune.cjs"
   "tests/test-244-rrf-fusion.cjs"
   "tests/test-244-content-sensor-fires.cjs"
   "tests/test-244-doctor-fts-health.cjs"
