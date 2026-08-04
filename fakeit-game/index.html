@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0e0b1a" />
+<meta name="description" content="Find the Impostor - the free social party game of bluffing and deduction. One device, unlimited players. Play instantly in your browser." />
+<title>Find the Impostor - Social Party Game</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>" />
+<style>
+  :root{
+    --bg:#0e0b1a;
+    --bg-2:#171130;
+    --card:#1e1740;
+    --card-2:#251c52;
+    --ink:#f4f1ff;
+    --muted:#a79fce;
+    --line:#332a5e;
+    --brand:#ff4d6d;
+    --brand-2:#ff9e3d;
+    --accent:#7c5cff;
+    --accent-2:#3ddc97;
+    --danger:#ff5470;
+    --shadow:0 20px 60px rgba(0,0,0,.45);
+    --radius:22px;
+    --font:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font);
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(124,92,255,.25), transparent 60%),
+      radial-gradient(1000px 500px at 110% 10%, rgba(255,77,109,.18), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    line-height:1.55;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  img{max-width:100%;}
+  button{font-family:inherit;cursor:pointer;border:0;}
+  a{color:inherit;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    padding:16px 28px;border-radius:999px;font-weight:800;font-size:1.05rem;
+    color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    box-shadow:0 12px 30px rgba(255,77,109,.35);transition:transform .12s ease, box-shadow .12s ease, filter .12s;
+    text-decoration:none;
+  }
+  .btn:hover{transform:translateY(-2px);filter:brightness(1.05);}
+  .btn:active{transform:translateY(0);}
+  .btn.block{display:flex;width:100%;}
+  .btn.lg{padding:20px 34px;font-size:1.2rem;}
+  .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none;}
+  .btn.ghost:hover{border-color:var(--accent);}
+  .btn.accent{background:linear-gradient(135deg,var(--accent),#5b8bff);box-shadow:0 12px 30px rgba(124,92,255,.35);}
+  .btn.good{background:linear-gradient(135deg,var(--accent-2),#2bb6ff);box-shadow:0 12px 30px rgba(61,220,151,.3);}
+  .btn.mini{padding:10px 16px;font-size:.9rem;}
+  .btn[disabled]{opacity:.45;pointer-events:none;filter:grayscale(.4);}
+
+  /* ---------- Landing ---------- */
+  header.nav{position:sticky;top:0;z-index:40;backdrop-filter:blur(12px);
+    background:rgba(14,11,26,.72);border-bottom:1px solid var(--line);}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.15rem;letter-spacing:.3px;}
+  .brand .logo{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.2rem;
+    background:linear-gradient(135deg,var(--brand),var(--accent));box-shadow:0 8px 20px rgba(124,92,255,.4);}
+  .nav-links{display:flex;align-items:center;gap:26px;}
+  .nav-links a{color:var(--muted);text-decoration:none;font-weight:600;font-size:.95rem;}
+  .nav-links a:hover{color:var(--ink);}
+  @media(max-width:720px){.nav-links a:not(.btn){display:none;}}
+
+  .hero{padding:70px 0 40px;display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;}
+  @media(max-width:860px){.hero{grid-template-columns:1fr;text-align:center;padding:44px 0 20px;}}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border-radius:999px;font-weight:700;
+    font-size:.85rem;background:rgba(255,158,61,.14);color:var(--brand-2);border:1px solid rgba(255,158,61,.3);}
+  .hero h1{font-size:clamp(2.5rem,6vw,4.2rem);line-height:1.02;margin:18px 0 8px;font-weight:900;letter-spacing:-1px;}
+  .hero h1 .grad{background:linear-gradient(120deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero p.lead{font-size:1.2rem;color:var(--muted);max-width:520px;margin:0 auto 26px;}
+  @media(min-width:861px){.hero p.lead{margin-left:0;}}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;}
+  @media(max-width:860px){.hero-cta{justify-content:center;}}
+  .hero-stats{display:flex;gap:26px;margin-top:30px;flex-wrap:wrap;}
+  @media(max-width:860px){.hero-stats{justify-content:center;}}
+  .hero-stats .s b{display:block;font-size:1.6rem;font-weight:900;}
+  .hero-stats .s span{color:var(--muted);font-size:.85rem;}
+
+  .phone{justify-self:center;width:280px;aspect-ratio:9/18.5;border-radius:38px;padding:12px;position:relative;
+    background:linear-gradient(160deg,#2a2153,#140f2c);border:1px solid var(--line);box-shadow:var(--shadow);}
+  .phone .screen{height:100%;border-radius:28px;overflow:hidden;background:linear-gradient(160deg,#241b4d,#160f30);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;}
+  .phone .notch{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:120px;height:22px;border-radius:14px;background:#0c0920;z-index:2;}
+  .float{position:absolute;font-size:2.2rem;filter:drop-shadow(0 6px 12px rgba(0,0,0,.4));animation:bob 3.5s ease-in-out infinite;}
+  .float.a{top:6%;left:-6%;} .float.b{bottom:14%;right:-8%;animation-delay:.8s;} .float.c{top:44%;right:-10%;animation-delay:1.6s;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-14px) rotate(6deg);}}
+  .mini-card{width:100%;background:linear-gradient(135deg,var(--brand),var(--accent));border-radius:20px;padding:26px 16px;font-weight:900;font-size:1.4rem;box-shadow:0 14px 30px rgba(0,0,0,.35);}
+  .mini-tag{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-weight:800;}
+
+  section.band{padding:60px 0;}
+  .sec-head{text-align:center;max-width:640px;margin:0 auto 44px;}
+  .sec-head h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;margin:0 0 10px;letter-spacing:-.5px;}
+  .sec-head p{color:var(--muted);font-size:1.1rem;margin:0;}
+
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  @media(max-width:860px){.steps{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:460px){.steps{grid-template-columns:1fr;}}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;position:relative;overflow:hidden;}
+  .step .n{position:absolute;top:-10px;right:8px;font-size:4.5rem;font-weight:900;color:rgba(255,255,255,.05);}
+  .step .ico{font-size:2rem;margin-bottom:10px;}
+  .step h3{margin:0 0 6px;font-size:1.15rem;}
+  .step p{margin:0;color:var(--muted);font-size:.95rem;}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  @media(max-width:860px){.features{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:520px){.features{grid-template-columns:1fr;}}
+  .feat{background:linear-gradient(160deg,var(--card),var(--bg-2));border:1px solid var(--line);border-radius:var(--radius);padding:26px;}
+  .feat .ico{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:1.5rem;margin-bottom:14px;
+    background:rgba(124,92,255,.16);border:1px solid rgba(124,92,255,.3);}
+  .feat h3{margin:0 0 6px;font-size:1.1rem;}
+  .feat p{margin:0;color:var(--muted);font-size:.95rem;}
+
+  .cta-band{margin:24px auto 70px;background:linear-gradient(135deg,rgba(255,77,109,.16),rgba(124,92,255,.16));
+    border:1px solid var(--line);border-radius:30px;padding:50px 30px;text-align:center;}
+  .cta-band h2{font-size:clamp(1.8rem,4vw,2.6rem);margin:0 0 10px;font-weight:900;}
+  .cta-band p{color:var(--muted);max-width:520px;margin:0 auto 24px;font-size:1.1rem;}
+  .checks{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:18px;color:var(--muted);font-size:.9rem;font-weight:600;}
+  .checks span::before{content:"✓ ";color:var(--accent-2);font-weight:900;}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:.9rem;}
+  .foot-in{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;}
+
+  /* ---------- Game (screens) ---------- */
+  #app{display:none;position:fixed;inset:0;z-index:100;background:
+    radial-gradient(900px 500px at 50% -10%, rgba(124,92,255,.28), transparent 60%),var(--bg);
+    overflow-y:auto;}
+  #app.on{display:block;}
+  body.playing{overflow:hidden;}
+  .screen{min-height:100vh;min-height:100dvh;display:none;flex-direction:column;padding:22px 18px 34px;max-width:560px;margin:0 auto;}
+  .screen.on{display:flex;}
+  .screen-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .icon-btn{width:44px;height:44px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--ink);
+    font-size:1.2rem;display:grid;place-items:center;}
+  .icon-btn:hover{border-color:var(--accent);}
+  .screen h2.title{font-size:1.9rem;font-weight:900;margin:6px 0 4px;letter-spacing:-.5px;}
+  .screen .sub{color:var(--muted);margin:0 0 20px;}
+  .grow{flex:1;}
+  .stack{display:flex;flex-direction:column;gap:12px;}
+
+  /* players list */
+  .field{display:flex;gap:10px;margin-bottom:14px;}
+  .input{flex:1;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:14px;
+    padding:15px 16px;font-size:1.05rem;outline:none;}
+  .input:focus{border-color:var(--accent);}
+  .plist{display:flex;flex-direction:column;gap:10px;margin-bottom:8px;}
+  .prow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;}
+  .prow .av{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:1.1rem;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--accent),var(--brand));}
+  .prow .nm{flex:1;font-weight:700;}
+  .prow .rm{width:30px;height:30px;border-radius:9px;background:transparent;color:var(--muted);border:1px solid var(--line);font-size:1rem;}
+  .prow .rm:hover{color:var(--danger);border-color:var(--danger);}
+
+  .label{font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin:18px 0 10px;}
+  .chips{display:flex;gap:10px;flex-wrap:wrap;}
+  .chip{padding:11px 16px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--ink);
+    font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px;transition:.12s;}
+  .chip.sel{background:linear-gradient(135deg,var(--accent),#5b8bff);border-color:transparent;box-shadow:0 8px 20px rgba(124,92,255,.35);}
+  .chip:hover{border-color:var(--accent);}
+
+  .stepper{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;}
+  .stepper .val{flex:1;text-align:center;font-weight:900;font-size:1.2rem;}
+  .stepper button{width:44px;height:44px;border-radius:11px;background:var(--card-2);color:var(--ink);font-size:1.4rem;font-weight:800;border:1px solid var(--line);}
+  .stepper button:hover{border-color:var(--accent);}
+
+  .note{background:rgba(124,92,255,.1);border:1px solid rgba(124,92,255,.25);border-radius:14px;padding:12px 14px;color:var(--muted);font-size:.9rem;}
+  .foot-actions{margin-top:18px;}
+
+  /* pass / reveal */
+  .center-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;}
+  .pass-name{font-size:2.4rem;font-weight:900;margin:4px 0;}
+  .reveal-card{width:100%;max-width:360px;aspect-ratio:3/4.2;border-radius:26px;position:relative;perspective:1200px;margin:8px 0;}
+  .rc-inner{position:absolute;inset:0;border-radius:26px;transition:transform .55s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d;}
+  .reveal-card.flipped .rc-inner{transform:rotateY(180deg);}
+  .rc-face{position:absolute;inset:0;border-radius:26px;backface-visibility:hidden;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:26px;text-align:center;box-shadow:var(--shadow);}
+  .rc-back{background:linear-gradient(160deg,var(--card),var(--bg-2));border:1px solid var(--line);}
+  .rc-back .big{font-size:3.4rem;}
+  .rc-back .hint{color:var(--muted);margin-top:10px;font-weight:700;}
+  .rc-front{transform:rotateY(180deg);}
+  .rc-front.crew{background:linear-gradient(160deg,#20305a,#141d3a);border:1px solid #2f4a86;}
+  .rc-front.imp{background:linear-gradient(160deg,#5a1030,#2a0a1c);border:1px solid #a3244f;}
+  .rc-front .role{text-transform:uppercase;letter-spacing:3px;font-weight:900;font-size:.85rem;opacity:.8;margin-bottom:10px;}
+  .rc-front .word{font-size:2.4rem;font-weight:900;line-height:1.1;}
+  .rc-front .cat{margin-top:14px;color:var(--muted);font-weight:700;font-size:.9rem;}
+  .rc-front .imp-tip{margin-top:14px;font-size:.95rem;opacity:.9;max-width:240px;}
+
+  /* discuss */
+  .order-list{display:flex;flex-direction:column;gap:10px;}
+  .order-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;}
+  .order-row .num{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:900;background:var(--card-2);color:var(--brand-2);}
+  .order-row .nm{font-weight:700;}
+  .timer{font-size:3.2rem;font-weight:900;text-align:center;letter-spacing:2px;font-variant-numeric:tabular-nums;}
+  .timer.low{color:var(--danger);}
+
+  /* vote */
+  .vote-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:420px){.vote-grid{grid-template-columns:1fr;}}
+  .vote-btn{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:16px;padding:18px 14px;
+    font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:10px;text-align:left;}
+  .vote-btn .av{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--accent),var(--brand));}
+  .vote-btn.sel{border-color:var(--brand);box-shadow:0 8px 20px rgba(255,77,109,.3);background:var(--card-2);}
+
+  /* result */
+  .result-hero{text-align:center;padding:10px 0 6px;}
+  .result-hero .emoji{font-size:4.5rem;}
+  .result-hero h2{font-size:2.2rem;font-weight:900;margin:6px 0;}
+  .result-hero p{color:var(--muted);margin:0;}
+  .reveal-box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin:18px 0;text-align:center;}
+  .reveal-box .lbl{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:2px;font-weight:800;}
+  .reveal-box .word{font-size:1.9rem;font-weight:900;margin-top:4px;}
+  .imp-tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+  .imp-tags .tag{background:rgba(255,84,112,.15);border:1px solid rgba(255,84,112,.4);color:#ff8ba0;
+    padding:7px 14px;border-radius:999px;font-weight:800;font-size:.9rem;}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;
+    background:var(--card-2);border:1px solid var(--line);padding:12px 20px;border-radius:14px;font-weight:700;
+    z-index:200;transition:.25s;pointer-events:none;box-shadow:var(--shadow);}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .fade{animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+
+<!-- ============ LANDING ============ -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <div class="brand"><span class="logo">🎭</span> Find the Impostor</div>
+    <nav class="nav-links">
+      <a href="#how">How to Play</a>
+      <a href="#features">Features</a>
+      <a href="#" onclick="Game.launch();return false;" class="btn mini">▶ Play Now</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <span class="pill">🔥 Free • Plays in your browser</span>
+        <h1>Find the <span class="grad">Impostor</span><br/>or Fake It.</h1>
+        <p class="lead">The social party game of bluffing and deduction. One device, unlimited players. Everyone gets the secret word — except the impostor, who has to fake it well enough to survive.</p>
+        <div class="hero-cta">
+          <button class="btn lg" onclick="Game.launch()">▶ Play Now — Free</button>
+          <a href="#how" class="btn ghost lg">How it works</a>
+        </div>
+        <div class="hero-stats">
+          <div class="s"><b>3–12</b><span>Players</span></div>
+          <div class="s"><b>10+</b><span>Categories</span></div>
+          <div class="s"><b>~5 min</b><span>Per round</span></div>
+          <div class="s"><b>1</b><span>Device</span></div>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="notch"></div>
+        <span class="float a">🎭</span><span class="float b">🔍</span><span class="float c">🤫</span>
+        <div class="screen">
+          <div class="mini-tag">Your secret word</div>
+          <div class="mini-card">PENGUIN</div>
+          <div class="mini-tag">Category · Animals</div>
+          <p style="color:var(--muted);font-size:.85rem;margin:6px 0 0;">Give a subtle hint. Don't let the impostor guess it.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="band" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>How to Play</h2>
+        <p>Simple rules, endless chaos. You'll learn it in one round.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><div class="ico">🎲</div><h3>Start a Round</h3><p>Add player names and pick a category. One player is secretly the impostor.</p></div>
+        <div class="step"><div class="n">2</div><div class="ico">👀</div><h3>Pass & Peek</h3><p>Pass the device around. Everyone sees the secret word — the impostor sees only a warning.</p></div>
+        <div class="step"><div class="n">3</div><div class="ico">💬</div><h3>Drop Hints</h3><p>Take turns saying one clue about the word. The impostor has to bluff and blend in.</p></div>
+        <div class="step"><div class="n">4</div><div class="ico">🗳️</div><h3>Vote & Reveal</h3><p>Argue, accuse, then vote. Did you catch the impostor — or did they fake it?</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Why You'll Love It</h2>
+        <p>Built for game nights, road trips, and "just one more round."</p>
+      </div>
+      <div class="features">
+        <div class="feat"><div class="ico">📱</div><h3>One Device, Everyone Plays</h3><p>No app for each person, no accounts. Pass one phone or laptop and go.</p></div>
+        <div class="feat"><div class="ico">🎯</div><h3>10+ Word Packs</h3><p>Animals, Food, Movies, Sports, Space, Places, Tech, Spicy and more.</p></div>
+        <div class="feat"><div class="ico">⚡</div><h3>Fast 5-Minute Rounds</h3><p>Quick to set up, quick to play. Perfect between other games.</p></div>
+        <div class="feat"><div class="ico">👥</div><h3>3 to 12 Players</h3><p>Small gathering or big party — scale impostors up for a real challenge.</p></div>
+        <div class="feat"><div class="ico">🕵️</div><h3>1 or 2 Impostors</h3><p>Add a second impostor for bigger groups and wilder accusations.</p></div>
+        <div class="feat"><div class="ico">💸</div><h3>100% Free</h3><p>No downloads, no paywalls. Runs entirely in your browser, even offline.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="cta-band">
+      <h2>Ready to find the impostor?</h2>
+      <p>Gather your friends, grab one device, and see who's the best liar in the room.</p>
+      <button class="btn lg" onclick="Game.launch()">▶ Play Now — Free</button>
+      <div class="checks"><span>No download</span><span>No account</span><span>One device for all</span></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <div class="brand"><span class="logo">🎭</span> Find the Impostor</div>
+    <div>An original browser remake of the classic social-deduction party game.</div>
+  </div>
+</footer>
+
+<!-- ============ GAME APP ============ -->
+<div id="app">
+  <!-- SETUP -->
+  <section class="screen" id="s-setup">
+    <div class="screen-top">
+      <button class="icon-btn" onclick="Game.exit()" title="Back to home">✕</button>
+      <div class="brand" style="font-size:1rem;"><span class="logo" style="width:30px;height:30px;font-size:1rem;">🎭</span> Find the Impostor</div>
+      <span style="width:44px;"></span>
+    </div>
+    <h2 class="title">Set up the round</h2>
+    <p class="sub">Add everyone playing, then choose a word pack.</p>
+
+    <div class="field">
+      <input class="input" id="nameInput" placeholder="Add a player name…" maxlength="16"
+        onkeydown="if(event.key==='Enter')Game.addPlayer()" autocomplete="off" />
+      <button class="btn" onclick="Game.addPlayer()">Add</button>
+    </div>
+    <div class="plist" id="plist"></div>
+
+    <div class="label">Category</div>
+    <div class="chips" id="catChips"></div>
+
+    <div class="label">Impostors</div>
+    <div class="stepper">
+      <button onclick="Game.bumpImpostors(-1)">−</button>
+      <div class="val" id="impVal">1</div>
+      <button onclick="Game.bumpImpostors(1)">+</button>
+    </div>
+
+    <div class="label">Discussion timer</div>
+    <div class="chips" id="timerChips"></div>
+
+    <div class="grow"></div>
+    <div class="note" id="setupNote">Add at least 3 players to start.</div>
+    <div class="foot-actions">
+      <button class="btn block lg" id="startBtn" onclick="Game.start()" disabled>Start Round →</button>
+    </div>
+  </section>
+
+  <!-- PASS DEVICE -->
+  <section class="screen" id="s-pass">
+    <div class="screen-top">
+      <button class="icon-btn" onclick="Game.confirmQuit()" title="Quit round">✕</button>
+      <div class="sub" style="margin:0;">Pass the device</div>
+      <span style="width:44px;"></span>
+    </div>
+    <div class="center-col">
+      <div class="mini-tag" style="color:var(--muted);letter-spacing:2px;font-weight:800;">PASS TO</div>
+      <div class="pass-name" id="passName">—</div>
+      <p class="sub" id="passSub">Only <b id="passWho">they</b> should look. Tap when you're ready.</p>
+      <button class="btn accent lg" onclick="Game.goReveal()">I'm <span id="passName2">—</span> — Show my card</button>
+    </div>
+    <div class="note">Hand the device to each player privately. No peeking over shoulders!</div>
+  </section>
+
+  <!-- REVEAL CARD -->
+  <section class="screen" id="s-reveal">
+    <div class="screen-top">
+      <button class="icon-btn" onclick="Game.confirmQuit()" title="Quit round">✕</button>
+      <div class="sub" style="margin:0;" id="revealCount">Player 1 of 4</div>
+      <span style="width:44px;"></span>
+    </div>
+    <div class="center-col">
+      <div class="reveal-card" id="revealCard" onclick="Game.flipCard()">
+        <div class="rc-inner">
+          <div class="rc-face rc-back">
+            <div class="big">👆</div>
+            <div style="font-size:1.4rem;font-weight:900;margin-top:8px;" id="revealBackName">Tap to reveal</div>
+            <div class="hint">Make sure nobody else can see</div>
+          </div>
+          <div class="rc-face rc-front" id="revealFront">
+            <div class="role" id="revealRole">Crew</div>
+            <div class="word" id="revealWord">WORD</div>
+            <div class="cat" id="revealCat">Category</div>
+          </div>
+        </div>
+      </div>
+      <p class="sub" id="revealHint" style="min-height:24px;">Tap the card to see your secret.</p>
+    </div>
+    <button class="btn block lg" id="revealNext" onclick="Game.nextReveal()" style="visibility:hidden;">Got it — pass on →</button>
+  </section>
+
+  <!-- DISCUSS -->
+  <section class="screen" id="s-discuss">
+    <div class="screen-top">
+      <button class="icon-btn" onclick="Game.confirmQuit()" title="Quit round">✕</button>
+      <div class="sub" style="margin:0;">Discuss</div>
+      <span style="width:44px;"></span>
+    </div>
+    <h2 class="title">Give your hints 💬</h2>
+    <p class="sub">Go in order. Each player says <b>one word or short clue</b> about the secret word. The impostor has to bluff.</p>
+
+    <div id="timerWrap" style="display:none;margin:6px 0 18px;">
+      <div class="timer" id="timerText">0:00</div>
+      <div class="stack" style="flex-direction:row;gap:10px;margin-top:10px;">
+        <button class="btn ghost" style="flex:1;" id="timerToggle" onclick="Game.toggleTimer()">Pause</button>
+        <button class="btn ghost" style="flex:1;" onclick="Game.resetTimer()">Reset</button>
+      </div>
+    </div>
+
+    <div class="label">Speaking order</div>
+    <div class="order-list" id="orderList"></div>
+
+    <div class="grow"></div>
+    <div class="note">Talk it out, watch for hesitation, then lock in your vote.</div>
+    <button class="btn block lg foot-actions" onclick="Game.goVote()">Everyone's done — Vote →</button>
+  </section>
+
+  <!-- VOTE -->
+  <section class="screen" id="s-vote">
+    <div class="screen-top">
+      <button class="icon-btn" onclick="Game.confirmQuit()" title="Quit round">✕</button>
+      <div class="sub" style="margin:0;">Vote</div>
+      <span style="width:44px;"></span>
+    </div>
+    <h2 class="title">Who's the impostor? 🗳️</h2>
+    <p class="sub" id="voteSub">Tap the player you think is faking it, then reveal.</p>
+    <div class="vote-grid" id="voteGrid"></div>
+    <div class="grow"></div>
+    <button class="btn block lg foot-actions" id="voteBtn" onclick="Game.reveal()" disabled>Reveal the impostor →</button>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="s-result">
+    <div class="screen-top">
+      <button class="icon-btn" onclick="Game.exitToSetup()" title="New game">✕</button>
+      <div class="sub" style="margin:0;">Result</div>
+      <span style="width:44px;"></span>
+    </div>
+    <div class="result-hero">
+      <div class="emoji" id="resEmoji">🎉</div>
+      <h2 id="resTitle">Result</h2>
+      <p id="resSub">—</p>
+    </div>
+    <div class="reveal-box">
+      <div class="lbl">The secret word was</div>
+      <div class="word" id="resWord">—</div>
+      <div class="imp-tags" id="resImps"></div>
+    </div>
+    <div class="grow"></div>
+    <div class="stack">
+      <button class="btn block lg good" onclick="Game.playAgain()">Play again (same players) ↻</button>
+      <button class="btn block ghost" onclick="Game.exitToSetup()">Change players / category</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="words.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
