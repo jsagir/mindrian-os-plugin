@@ -1,6 +1,6 @@
 ---
 name: pws-brain
-description: "TEST HARNESS: run one methodology question through BOTH Brain backends (production mindrian-brain MCP and the neo4j-agent Aura Agent) and compare answers side by side"
+description: "RETIRED TEST HARNESS (superseded 2026-07-22): compared the then-production mindrian-brain MCP against the neo4j-agent Aura Agent over Neo4j. Both routes are superseded by the unified pws-brain-mcp Memgraph backend. Kept for deliberate historical re-runs only."
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Ask one generic methodology question and see how the production Brain and the experimental Aura Agent each answer it, side by side."
@@ -12,6 +12,10 @@ argument-hint: "<generic methodology question>"
 serves_jtbd: ["audit-room"]
 teaching: "When you want to see how the experimental Aura Agent answers next to the production Brain, /mos:pws-brain runs the same methodology question through both and shows the answers side by side. An evaluation harness, not a production surface."
 disable-model-invocation: true
+# Reward-before-investment (docs/reward-before-investment-rule.md): explicit opt-out.
+# This is a RETIRED, deliberately-invoked evaluation harness, not a navigator entry
+# flow, so it has no first variable reward to deliver and never will.
+interactive_first_reward: --none (scripting only)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search mcp__mindrian-brain__brain_query mcp__neo4j-agent__Larry
 # --- Quick-260716-VFT CIRS R1 exclude (Canon Part 11) ---
@@ -21,10 +25,21 @@ allowed-tools: mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search 
 # on the spine.
 connector:
   excluded: true
-  reason: "Experimental evaluation harness (2026-07-16). Manually invoked to compare the production mindrian-brain backend against the neo4j-agent Aura Agent candidate over the same live Neo4j graph; fires no reach, opens no spine wire, never sensor-triggered. Promote or delete when the evaluation concludes (Part 11 R1 EXCLUDED-with-reason, mirrors /mos:agentshield)."
+  reason: "RETIRED evaluation harness (declared 2026-07-16, superseded 2026-07-22). It compared the then-production mindrian-brain backend against the neo4j-agent Aura Agent candidate over the same live Neo4j graph. BOTH routes are now superseded by the unified pws-brain-mcp Memgraph backend (https://pws-brain-mcp.onrender.com), already the hardcoded BRAIN_URL default in lib/core/brain-client.cjs. Kept on disk as historical reference for a deliberate re-run; fires no reach, opens no spine wire, never sensor-triggered (Part 11 R1 EXCLUDED-with-reason, mirrors /mos:agentshield)."
 ---
 
 # /mos:pws-brain
+
+> **RETIRED / STALE as of 2026-07-22.** Do NOT run this to learn how the Brain
+> behaves today. BOTH routes compared below are superseded: route A's
+> `mindrian-brain` MCP and route B's `neo4j-agent` Aura Agent both spoke to the old
+> Neo4j graph. The live backend is now the unified `pws-brain-mcp` Memgraph service
+> at `https://pws-brain-mcp.onrender.com`. In-repo proof the migration already
+> shipped: `lib/core/brain-client.cjs` hardcodes that URL as its `BRAIN_URL`
+> default, and its file header names it "step 4 of the 2026-07-22 Memgraph
+> migration". A run of this harness therefore measures a backend pair production no
+> longer uses. Everything below is preserved as historical reference for a
+> deliberate re-run, not as live truth.
 
 **EXPERIMENTAL.** This is a side-by-side evaluation harness. It runs the SAME
 methodology question through two different routes to the SAME live Neo4j teaching
