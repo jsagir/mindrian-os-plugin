@@ -1,7 +1,17 @@
 ## [Unreleased] -- v1.16.0-beta.8 (in progress)
 
-### Added
-- 
+### Changed
+- **`/mos:pws-brain` now says plainly that it's retired, instead of quietly sending you down a
+  dead path.** The command was built to compare two ways of answering methodology questions
+  side by side: the production Brain, and a separate experimental Aura Agent. Both of those
+  routes have since been folded into one unified Memgraph-backed Brain, so the comparison this
+  command exists to run no longer means anything, and running it just walked you into a
+  pre-flight failure with no explanation of why. The command's description, its retirement
+  reason, and a note right under its own heading now say RETIRED and point at the real backend
+  by name, so anyone who reaches for it (navigator or Larry) understands immediately why it's
+  inert instead of guessing at a broken dependency. Nothing about the harness itself was
+  deleted, so it is still there to read as a historical record of the comparison, or to revive
+  deliberately if a future backend candidate ever needs the same side-by-side treatment again.
 
 ## [1.16.0-beta.7] - 2026-08-01
 
