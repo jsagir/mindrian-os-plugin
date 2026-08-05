@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.16.0-beta.8 (in progress)
+## [1.16.0-beta.9] - 2026-08-05
 
 ### Changed
 - **`/mos:pws-brain` now says plainly that it's retired, instead of quietly sending you down a
