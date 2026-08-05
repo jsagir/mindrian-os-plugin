@@ -769,6 +769,26 @@
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
+      "command": "/mos:grade-grant",
+      "kind": "methodology",
+      "surface": "navigator",
+      "frameworks": [],
+      "produces": "room/**/grades/*",
+      "executable": null,
+      "inputs": [
+        "a pasted grant-application draft (or a room artifact to grade)"
+      ],
+      "autonomous_safe": true,
+      "body_shape": "C",
+      "serves_jtbd": [
+        "prepare-pitch",
+        "decide-pursue"
+      ],
+      "teaching": "Grant reviewers score against a fixed rubric whether you see it or not. /mos:grade-grant runs that rubric on your draft BEFORE you submit, so the gaps a human reviewer would flag show up here first. Starts with Tnufa (Israel Innovation Authority); the same engine scores any IIA program once its rubric is filled in.",
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+    },
+    {
       "command": "/mos:grade",
       "kind": "methodology",
       "surface": "navigator",

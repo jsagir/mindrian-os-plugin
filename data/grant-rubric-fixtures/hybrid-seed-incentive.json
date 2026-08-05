@@ -1,0 +1,18 @@
+{
+  "id": "hybrid-seed-incentive",
+  "name_en": "Hybrid Seed Incentive",
+  "name_he": "",
+  "stage": "Seed",
+  "eligibility": "Startups in sectors with limited private funding",
+  "purpose": "Encourage private investment in seed-stage startups",
+  "funding_pct": "up to 40% of fundraising target",
+  "funding_cap": "NIS 3.5M",
+  "duration": "up to 3 years",
+  "status": "stub",
+  "criteria": [],
+  "_provenance": {
+    "sources": ["Notion 'IIA Grants' inline database row, fetched via Notion MCP query-data-sources"],
+    "note": "Eligibility/funding fields are real. Criteria rubric not yet built -- Tnufa (see tnufa.json) is the reviewed reference implementation; extend this fixture the same way when this program is next in scope.",
+    "session_date": "2026-08-05"
+  }
+}

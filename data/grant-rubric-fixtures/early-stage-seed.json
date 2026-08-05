@@ -1,0 +1,18 @@
+{
+  "id": "early-stage-seed",
+  "name_en": "Early-Stage Companies (Seed)",
+  "name_he": "",
+  "stage": "Seed",
+  "eligibility": "Companies raised <= NIS 7.5M, income <= NIS 3M",
+  "purpose": "Support product development",
+  "funding_pct": "50% of investment round",
+  "funding_cap": "NIS 5M",
+  "duration": "Multi-year",
+  "status": "stub",
+  "criteria": [],
+  "_provenance": {
+    "sources": ["Notion 'IIA Grants' inline database row, fetched via Notion MCP query-data-sources"],
+    "note": "Eligibility/funding fields are real. Criteria rubric not yet built -- Tnufa (see tnufa.json) is the reviewed reference implementation; extend this fixture the same way when this program is next in scope.",
+    "session_date": "2026-08-05"
+  }
+}

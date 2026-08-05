@@ -1,0 +1,18 @@
+{
+  "id": "early-stage-pre-seed",
+  "name_en": "Early-Stage Companies (Pre-Seed)",
+  "name_he": "",
+  "stage": "Pre-Seed",
+  "eligibility": "Companies raised <= NIS 1.5M, income <= NIS 300K",
+  "purpose": "Support early development",
+  "funding_pct": "60% of investment round",
+  "funding_cap": "NIS 1.5M",
+  "duration": "Multi-year",
+  "status": "stub",
+  "criteria": [],
+  "_provenance": {
+    "sources": ["Notion 'IIA Grants' inline database row, fetched via Notion MCP query-data-sources"],
+    "note": "Eligibility/funding fields are real. Criteria rubric not yet built -- Tnufa (see tnufa.json) is the reviewed reference implementation; extend this fixture the same way when this program is next in scope. Distinct from 'tnufa' (also Pre-Seed) -- this is the IIA's separate Early-Stage Pre-Seed equity-matching track, Tnufa is the ideation/grant track.",
+    "session_date": "2026-08-05"
+  }
+}

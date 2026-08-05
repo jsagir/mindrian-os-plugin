@@ -1,0 +1,18 @@
+{
+  "id": "early-stage-round-a",
+  "name_en": "Early-Stage Companies (Round A)",
+  "name_he": "",
+  "stage": "Round A",
+  "eligibility": "Companies raised <= NIS 50M, income <= NIS 30M",
+  "purpose": "Support scaling and growth",
+  "funding_pct": "30% of investment round",
+  "funding_cap": "NIS 15M",
+  "duration": "Multi-year",
+  "status": "stub",
+  "criteria": [],
+  "_provenance": {
+    "sources": ["Notion 'IIA Grants' inline database row, fetched via Notion MCP query-data-sources"],
+    "note": "Eligibility/funding fields are real. Criteria rubric not yet built -- Tnufa (see tnufa.json) is the reviewed reference implementation; extend this fixture the same way when this program is next in scope.",
+    "session_date": "2026-08-05"
+  }
+}

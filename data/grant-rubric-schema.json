@@ -1,0 +1,31 @@
+{
+  "_doc": {
+    "purpose": "Phase-quick 260805-tnufa-graphrag-grant-grader: the grant-program rubric fixture contract. One JSON Schema, N per-program fixture files under data/grant-rubric-fixtures/*.json -- mirrors the data/hitl-stages-schema.json + data/hitl-stages-fixtures/*.json shape (Canon Part 7 reuse-before-build). Adding a new IIA grant program's full criteria later is a new fixture file, never new code.",
+    "canon_part8": "This whole reference pack is real domain/product data (Israel Innovation Authority grant specifics), NOT generic PWS methodology. It ships LOCAL, bundled with the plugin install, and is NEVER pushed to the shared Brain -- confirmed empirically this session when a brain_search for Tnufa content was blocked by the Part 8 egress guard as out of scope for the generic-methodology graph.",
+    "source": "Notion 'Tnufa grant how-to?' page (PWS Backoffice > Databases > Management > Problem solvers > Library) + its 'IIA Grants' database + Chapter 9 ('A Complete Guide to the Tnufa Grant') from the full page export. See references/opportunities/tnufa-rubric.md for the full provenance and the matching-fund contradiction-resolution note.",
+    "default_on_miss": "reject (fail closed): a fixture missing a required field, or a criterion with an unknown category, is a hard error at load time, not a silent pass."
+  },
+  "record_contract": {
+    "id": "<slug: e.g. 'tnufa'>",
+    "name_en": "<English program name, e.g. 'Tnufa (Ideation)'>",
+    "name_he": "<Hebrew program name (מסלול), when known -- empty string if not yet captured>",
+    "stage": "<one of: Pre-Seed | Seed | Round A | Seed/Early | All stages>",
+    "eligibility": "<one-line eligibility summary, e.g. 'Fledgling entrepreneurs'>",
+    "purpose": "<one-line purpose summary>",
+    "funding_pct": "<string, e.g. 'up to 85%' -- kept as a string since source values are ranges/qualifiers, not bare numbers>",
+    "funding_cap": "<string, e.g. 'NIS 200,000'>",
+    "duration": "<string, e.g. '12 months'>",
+    "status": "<one of: stub | drafted | reviewed -- the fixture's OWN completeness state, distinct from the IIA program's own lifecycle>",
+    "criteria": [
+      {
+        "id": "<slug, unique within this fixture>",
+        "aspect": "<short name of the rubric dimension>",
+        "details": "<what a strong application does on this dimension>",
+        "common_mistake": "<the named failure mode from source material>",
+        "category": "<one of: eligibility | process | budget | legal | reporting | market | ip>"
+      }
+    ]
+  },
+  "category_vocabulary": ["eligibility", "process", "budget", "legal", "reporting", "market", "ip"],
+  "validation_rule": "A fixture is valid when: id/name_en/stage/eligibility/purpose/funding_pct/funding_cap/duration/status are all non-empty strings; status is a member of {stub, drafted, reviewed}; criteria is an array (possibly empty for a stub fixture); every criteria[] entry has a non-empty id/aspect/details/common_mistake and a category in category_vocabulary."
+}

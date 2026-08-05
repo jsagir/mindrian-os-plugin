@@ -1,0 +1,18 @@
+{
+  "id": "technology-incubators",
+  "name_en": "Technology Incubators",
+  "name_he": "",
+  "stage": "Seed/Early",
+  "eligibility": "Innovative startups in incubator program",
+  "purpose": "Support deep-tech startups",
+  "funding_pct": "n/a (fixed multi-year envelope)",
+  "funding_cap": "NIS 40M over 5 years",
+  "duration": "5 years (extendable)",
+  "status": "stub",
+  "criteria": [],
+  "_provenance": {
+    "sources": ["Notion 'IIA Grants' inline database row, fetched via Notion MCP query-data-sources"],
+    "note": "Eligibility/funding fields are real. Criteria rubric not yet built -- Tnufa (see tnufa.json) is the reviewed reference implementation; extend this fixture the same way when this program is next in scope.",
+    "session_date": "2026-08-05"
+  }
+}

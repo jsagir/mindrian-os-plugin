@@ -1096,6 +1096,36 @@
       }
     },
     {
+      "id": "command:/mos:grade-grant",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:grade-grant",
+      "reach_id": "context_block",
+      "sub_mode": "grade-grant",
+      "hierarchy_rank": 14,
+      "posture": "hold",
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "chain_provenance": {
+        "command": "/mos:grade-grant",
+        "reach_id": "context_block",
+        "sub_mode": "grade-grant",
+        "firing_sensors": [
+          "SENS-06"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "grade-grant",
+        "hierarchy_rank": 14,
+        "posture": "hold",
+        "sensor_triggers": [
+          "SENS-06"
+        ]
+      }
+    },
+    {
       "id": "command:/mos:grade",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -2977,6 +3007,12 @@
       "name": "grade"
     },
     {
+      "id": "skill:grade-grant",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "grade-grant"
+    },
+    {
       "id": "skill:graph",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -4067,6 +4103,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "grade-compass"
+    },
+    {
+      "id": "sub_mode:grade-grant",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "grade-grant"
     },
     {
       "id": "sub_mode:grading-agent",

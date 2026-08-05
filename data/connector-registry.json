@@ -573,6 +573,23 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:grade-grant",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "grade-grant",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 14,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:grade",
       "source": "command",
       "connects_to_spine": true,
@@ -1944,6 +1961,21 @@
       "decision_surface": null
     },
     {
+      "surface": "skill:grade-grant",
+      "source": "skill",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "grade-grant",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 14,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "skill:graph",
       "source": "skill",
       "connects_to_spine": true,
@@ -3223,6 +3255,7 @@
       "/mos:diagnose",
       "/mos:dominant-designs",
       "/mos:futures",
+      "/mos:grade-grant",
       "/mos:grade",
       "/mos:map-unknowns",
       "/mos:mos-reason",

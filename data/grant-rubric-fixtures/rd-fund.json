@@ -1,0 +1,18 @@
+{
+  "id": "rd-fund",
+  "name_en": "R&D Fund",
+  "name_he": "",
+  "stage": "All stages",
+  "eligibility": "Israeli companies across all sectors",
+  "purpose": "Support R&D activities",
+  "funding_pct": "20-50% of approved budget",
+  "funding_cap": "NIS 15M annually",
+  "duration": "Ongoing",
+  "status": "stub",
+  "criteria": [],
+  "_provenance": {
+    "sources": ["Notion 'IIA Grants' inline database row, fetched via Notion MCP query-data-sources"],
+    "note": "Eligibility/funding fields are real. Criteria rubric not yet built -- Tnufa (see tnufa.json) is the reviewed reference implementation; extend this fixture the same way when this program is next in scope.",
+    "session_date": "2026-08-05"
+  }
+}
