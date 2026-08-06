@@ -8,10 +8,16 @@
 // batches together cover all 7 categories, never silently dropping any); defensive
 // defaultReviewerDispatchCell behavior (mechanical reshape vs the neutral stub);
 // reviewerCellsToFindings parity against scoreApplication (round-trips through the SAME
-// scoring engine, byte-unchanged); grade-grant.cjs::deriveRulingVerb's 4 branches
-// (re-verified here at the orchestration-module boundary); and a REAL runDebate/
-// runDerivation round-trip (no mocking) proving the batched-cells-into-debate pipeline
-// does not silently drop work -- the design's own flagged open risk.
+// scoring engine, byte-unchanged); the fail-closed merge-collision rule (stricter status
+// wins, recorded); applyPanelChallenges' downgrade-only resolution table (sustained /
+// stands / ignored_upward / ignored_unmatched); THE DEGENERATION PIN (a cross-category
+// challenge from the debate MUST change the scored verdict and can flip the ruling to
+// rejected -- proving the panel is a debate, not 7 independent verdicts, the design's
+// own flagged open risk); writeGradingResult's additive extraProps merge (a panel
+// verdict is distinguishable in the graph, standard keys never clobbered);
+// grade-grant.cjs::deriveRulingVerb's 4 branches (re-verified here at the
+// orchestration-module boundary); and a REAL runDebate/runDerivation round-trip (no
+// mocking) proving the batched-cells-into-debate pipeline does not silently drop work.
 //
 // Canon Part 8: asserts this module never requires a network/Brain client. Canon Part 7:
 // asserts the fan-out/debate calls are the SHIPPED substrate (runCellFanout/runDebate),
@@ -161,18 +167,133 @@ async function main() {
     assert.deepEqual(verdictFromCells, verdictFromHand, 'scoreApplication runs byte-unchanged on either input shape');
   });
 
-  await check('reviewerCellsToFindings never emits two findings for the same criterion_id (category partition guarantee)', () => {
+  await check('reviewerCellsToFindings collision fails CLOSED: the stricter status wins and the collision is recorded', () => {
     const rubric = grantGrant.loadRubric('tnufa').rubric;
-    // Two cells BOTH claiming the same criterion (a defensive floor -- in a real run
-    // categories partition the 18 criteria with no overlap, so this can only happen if
-    // something upstream is broken; the function must still degrade safely).
+    // Two cells BOTH claiming the same criterion (in a real run categories partition
+    // the 18 criteria with no overlap, so a collision means something upstream is
+    // broken). Fail closed: 'absent' (stricter) must beat the earlier 'evidenced' --
+    // first-write-wins here would be the false-success failure class.
     const cells = [
       { hat: 'eligibility', evidence: [{ criterion_id: 'eligibility_applicant', status: 'evidenced', note: 'first' }] },
       { hat: 'process', evidence: [{ criterion_id: 'eligibility_applicant', status: 'absent', note: 'second' }] },
     ];
-    const findings = examine.reviewerCellsToFindings(cells, rubric);
-    const count = findings.filter((f) => f.criterion_id === 'eligibility_applicant').length;
-    assert.equal(count, 1, 'first write wins, never a duplicate finding for one criterion');
+    const collisions = [];
+    const findings = examine.reviewerCellsToFindings(cells, rubric, collisions);
+    const matched = findings.filter((f) => f.criterion_id === 'eligibility_applicant');
+    assert.equal(matched.length, 1, 'never a duplicate finding for one criterion');
+    assert.equal(matched[0].status, 'absent', 'the STRICTER status wins, never the first writer');
+    assert.equal(collisions.length, 1, 'the collision is recorded, never silent');
+    assert.equal(collisions[0].resolution, 'collision_stricter_kept');
+    assert.equal(collisions[0].kept, 'absent');
+    // Same-status duplicates are not a dispute (nothing differs).
+    const cleanCollisions = [];
+    examine.reviewerCellsToFindings([
+      { hat: 'a', evidence: [{ criterion_id: 'eligibility_applicant', status: 'evidenced' }] },
+      { hat: 'b', evidence: [{ criterion_id: 'eligibility_applicant', status: 'evidenced' }] },
+    ], rubric, cleanCollisions);
+    assert.equal(cleanCollisions.length, 0, 'a same-status duplicate records no collision');
+  });
+
+  await check('applyPanelChallenges: downgrade-only resolution (sustained / stands / ignored_upward / ignored_unmatched)', () => {
+    const findings = [
+      { criterion_id: 'suitability_self_check', status: 'evidenced', note: 'plan named' },
+      { criterion_id: 'funding_terms', status: 'asserted', note: '' },
+      { criterion_id: 'market_validation_scope', status: 'asserted', note: '' },
+    ];
+    const challenges = [
+      // sustained: budget challenges eligibility's evidenced DOWN to asserted.
+      { criterion_id: 'suitability_self_check', to_status: 'asserted', challenged_by: 'budget', reason: 'post-Tnufa funding plan has no numbers behind it' },
+      // stands: the owning reviewer rebutted -- original status kept, dispute recorded.
+      { criterion_id: 'funding_terms', to_status: 'absent', challenged_by: 'legal', reason: 'no signed source', rebutted: true },
+      // ignored_upward: a challenge may NEVER move a status up.
+      { criterion_id: 'market_validation_scope', to_status: 'evidenced', challenged_by: 'ip', reason: 'looks fine to me' },
+      // ignored_unmatched: no finding to downgrade, never invents one.
+      { criterion_id: 'not_a_real_criterion', to_status: 'absent', challenged_by: 'legal', reason: 'x' },
+    ];
+    const out = examine.applyPanelChallenges(findings, challenges);
+    assert.equal(out.disputes.length, 4, 'EVERY challenge lands in disputes, nothing silent');
+    assert.deepEqual(out.disputes.map((d) => d.resolution), ['sustained', 'stands', 'ignored_upward', 'ignored_unmatched']);
+
+    const byId = {};
+    for (const f of out.findings) byId[f.criterion_id] = f;
+    assert.equal(byId.suitability_self_check.status, 'asserted', 'the sustained challenge applied');
+    assert.ok(byId.suitability_self_check.note.includes('challenged by budget'), 'the reason lands in the note');
+    assert.equal(byId.funding_terms.status, 'asserted', 'a rebutted challenge stands at the original status');
+    assert.equal(byId.market_validation_scope.status, 'asserted', 'an upward challenge is never applied');
+    // Purity: the input findings array is never mutated.
+    assert.equal(findings[0].status, 'evidenced', 'input findings untouched');
+    // Garbage degrades, never throws.
+    assert.deepEqual(examine.applyPanelChallenges(null, null), { findings: [], disputes: [] });
+  });
+
+  await check('THE DEGENERATION PIN: a cross-category challenge changes the scored verdict and can flip the ruling to rejected', async () => {
+    const rubric = grantGrant.loadRubric('tnufa').rubric;
+    const findingsByCategory = findingsCoveringAllCategories(rubric);
+    const fanout = await examine.runReviewerFanout(rubric, { findingsByCategory }, {});
+    assert.equal(fanout.cells.length, 7);
+
+    // WITHOUT a challenge: all-evidenced, ruling 'supported'.
+    const clean = examine.consolidatePanel(fanout.cells, rubric, { dropped: fanout.dropped });
+    const cleanVerdict = grantGrant.scoreApplication(rubric, clean.findings);
+    assert.equal(cleanVerdict.score_pct, 100);
+    assert.equal(grantGrant.deriveRulingVerb(cleanVerdict, rubric).verb, 'supported');
+    assert.deepEqual(clean.disputes, [], 'no challenge, no dispute');
+
+    // WITH the debate's challenge (the budget reviewer, having read the eligibility
+    // argument via previousOutput, downgrades suitability_self_check to absent): the
+    // merged findings CHANGE before scoreApplication, the score drops, and the
+    // eligibility hard gate flips the ruling to rejected. If this assertion ever
+    // passes with an unchanged verdict, the panel has degenerated into 7 independent
+    // verdicts and the debate is a costume.
+    const challenged = examine.consolidatePanel(fanout.cells, rubric, {
+      dropped: fanout.dropped,
+      challenges: [{
+        criterion_id: 'suitability_self_check',
+        to_status: 'absent',
+        challenged_by: 'budget',
+        reason: 'no demonstrable post-Tnufa funding source in the financial model',
+      }],
+    });
+    assert.equal(challenged.disputes.length, 1);
+    assert.equal(challenged.disputes[0].resolution, 'sustained');
+    const challengedVerdict = grantGrant.scoreApplication(rubric, challenged.findings);
+    assert.ok(challengedVerdict.score_pct < cleanVerdict.score_pct, 'the debate changed the score');
+    const ruling = grantGrant.deriveRulingVerb(challengedVerdict, rubric);
+    assert.equal(ruling.verb, 'rejected', 'the sustained downgrade tripped the eligibility hard gate');
+    assert.equal(ruling.escalation.criterion_id, 'suitability_self_check');
+
+    // The disputes ride the ruling record as scalar counts (buildReviewerDebateOptions).
+    const opts = examine.buildReviewerDebateOptions(fanout.cells, 'h', rubric, {
+      verdict: challengedVerdict,
+      disputes: challenged.disputes,
+    });
+    assert.ok(opts.ruling.finding.summary.includes('1 dispute'), 'the ruling summary names the dispute count');
+    assert.ok(opts.ruling.finding.summary.includes('1 sustained'), 'and the sustained count');
+  });
+
+  await check('writeGradingResult merges caller extraProps UNDER the standard keys (panel verdicts distinguishable, never clobbered)', async () => {
+    const rubric = grantGrant.loadRubric('tnufa').rubric;
+    const allEvidenced = rubric.criteria.map((c) => ({ criterion_id: c.id, status: 'evidenced' }));
+    const verdict = grantGrant.scoreApplication(rubric, allEvidenced);
+    const roomDir = freshRoomDir();
+    const db = openRoomDb(roomDir);
+    try {
+      const res = grantGrant.writeGradingResult(db, {
+        verdict,
+        sessionId: 'test-extraprops',
+        extraProps: { mode: 'panel', dispute_count: 2, sustained_count: 1, score_pct: -999 },
+      });
+      assert.equal(res.ok, true);
+      const row = db.prepare('SELECT properties FROM nodes WHERE id = ?').get(res.node_id);
+      const props = JSON.parse(row.properties);
+      assert.equal(props.mode, 'panel', 'the caller scalar landed');
+      assert.equal(props.dispute_count, 2);
+      assert.equal(props.sustained_count, 1);
+      assert.equal(props.score_pct, verdict.score_pct, 'a caller extra can NEVER clobber a standard key');
+    } finally {
+      closeRoomDb(db);
+      fs.rmSync(roomDir, { recursive: true, force: true });
+    }
   });
 
   await check('reviewerCellsToFindings drops a criterion_id not present in the rubric, never invents one', () => {

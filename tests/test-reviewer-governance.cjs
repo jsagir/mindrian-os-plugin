@@ -12,10 +12,12 @@
  *   1. REVIEWER_GOVERNANCE has exactly the 7 category keys, well-formed data, frozen.
  *   2. enforceReviewerGovernance('eligibility', ...) rejects zero evidence and a
  *      missing criterion_id/room_location citation; accepts a proper citation.
- *   3. enforceReviewerGovernance differentiates process/legal/reporting
- *      (cite_or_retract) from budget (reconciliation_required) from market/ip
- *      (disconfirming_first) -- the SAME object shape passes/fails differently
- *      per category.
+ *   3. enforceReviewerGovernance differentiates process/legal/reporting/ip
+ *      (cite_or_retract; ip joined this branch in the 2026-08-06 design-pass
+ *      amendment -- tnufa's ip criterion is a use-of-funds checklist item, so
+ *      disconfirming-first would manufacture false violations) from budget
+ *      (reconciliation_required) from market (disconfirming_first) -- the SAME
+ *      object shape passes/fails differently per category.
  *   4. governanceForCategory returns null for an unknown category, never throws.
  *   5. assertHeterogeneity + lensDescriptor are the SAME function references
  *      re-exported from hat-governance.cjs, not duplicated (Canon Part 7).
@@ -137,8 +139,8 @@ async function main() {
   });
 
   // ----- Behavior 3: per-category differentiation -----
-  await check('behavior3: process/legal/reporting cite_or_retract; budget reconciliation_required; market/ip disconfirming_first', () => {
-    for (const cat of ['process', 'legal', 'reporting']) {
+  await check('behavior3: process/legal/reporting/ip cite_or_retract; budget reconciliation_required; market disconfirming_first', () => {
+    for (const cat of ['process', 'legal', 'reporting', 'ip']) {
       const empty = gov.enforceReviewerGovernance(cat, { stance: 'supports', evidence: [] });
       assert.equal(empty.ok, false, cat + ' rejects zero evidence');
       assert.ok(empty.violations.includes(cat + '_gap_not_flagged'));
@@ -160,7 +162,7 @@ async function main() {
     });
     assert.equal(neutralBudget.ok, true, 'a non-supports budget stance is not held to reconciliation');
 
-    for (const cat of ['market', 'ip']) {
+    for (const cat of ['market']) {
       const ok = gov.enforceReviewerGovernance(cat, marketDisconfirmingFirst());
       assert.equal(ok.ok, true, cat + ' disconfirming-first passes');
       const bad = gov.enforceReviewerGovernance(cat, marketConfirmingFirst());
@@ -173,6 +175,17 @@ async function main() {
       assert.equal(noDis.ok, false, cat + ' zero-disconfirming rejected');
       assert.ok(noDis.violations.includes(cat + '_no_disconfirming_evidence'));
     }
+
+    // ip is deliberately NOT disconfirming-first (the 2026-08-06 amendment, module
+    // header): a straightforwardly-budgeted IP claim with only confirming evidence
+    // (its mechanism + budget line named) must PASS -- disconfirming-first here would
+    // manufacture a false violation on a compliant application.
+    const ipConfirmingOnly = gov.enforceReviewerGovernance('ip', {
+      stance: 'supports',
+      evidence: [{ criterion_id: 'ip_protection_use_of_funds', room_location: 'room/legal-ip/ip-plan.md', disposition: 'confirming', note: 'patent filing budgeted at line 7; IIA disclosure duty acknowledged' }],
+    });
+    assert.equal(ipConfirmingOnly.ok, true, 'a cited, confirming-only ip claim passes (no disconfirming-first trap)');
+    assert.equal(gov.REVIEWER_GOVERNANCE.ip.evidence_policy, 'cite_or_retract', 'ip evidence_policy is cite_or_retract');
   });
 
   // ----- Behavior 4: governanceForCategory never throws -----

@@ -22,6 +22,20 @@
   governed graph door, so Brain can be asked for STRATEGIC advice about the room's shape (which
   sections are covered, partial, or missing) without a single line of your content ever leaving
   the machine.
+- **`/mos:grade-grant` can now convene a full reviewer panel instead of one holistic read --
+  and the panel actually argues.** The opt-in "Reviewer panel examination" mode fans out seven
+  adversarial reviewer personas, one per rubric category (eligibility / process / budget /
+  legal / reporting / market / ip), each reading ONLY its own criteria and asking the question
+  a real committee member asks: would I accept this section on its own? It rides the same BONO
+  fan-out and debate machinery the plugin already ships (no second engine), with a discipline
+  per seat: budget claims must show their arithmetic, market claims must cite a reason to doubt
+  before crediting demand, IP claims must name their protection mechanism and budget line. The
+  debate has teeth: a later reviewer who reads an earlier reviewer's argument can challenge its
+  finding downward (never upward -- the panel is at least as strict as its strictest reviewer),
+  a sustained challenge changes the score before it is computed, and every disagreement is
+  shown at the ruling gate instead of being averaged away. One rule survives everything: an
+  application that fails ANY eligibility criterion is rejected no matter how strong its
+  aggregate score, and the rejection reason lands in the graph as data, not as a footnote.
 
 ## [1.16.0-beta.9] - 2026-08-05
 

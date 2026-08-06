@@ -187,22 +187,39 @@ provenance and the matching-fund contradiction this rubric resolves.
        committee") before the seven-category debate argues it. The navigator may scope it
        (e.g. "only judge against what's filed in problem-definition + solution-design so
        far").
-     - `lib/core/eureka/grade-grant-examine.cjs::reviewerCellsToFindings(cells, rubric)`
-       flattens the collected cell readings back into the exact `findings[]` shape --
-       `scoreApplication` runs completely unchanged from here (step 5 below is identical
-       either way).
      - The seven category arguments debate sequentially via
        `lib/core/bono/debate-composition.cjs::runDebate`, each self-critiqued under
        `lib/core/bono/reviewer-governance.cjs`'s per-category discipline (cite-or-retract
        for process/legal/reporting, reconciliation-required for budget,
-       disconfirming-first for market/ip, plus eligibility's hard-gate flag).
+       disconfirming-first for market, mechanism-or-retract for ip, plus eligibility's
+       hard-gate flag). The debate has TEETH: each argument step reads the chain's
+       `previousOutput` (the PRIOR reviewers' arguments -- runDebate already threads it)
+       and may emit downgrade-only challenges `{criterion_id, to_status, reason}` against
+       an EARLIER reviewer's finding (e.g. budget challenges eligibility's `evidenced` on
+       `suitability_self_check` because the post-Tnufa funding plan has no numbers behind
+       it). Downward only, `evidenced -> asserted -> absent`, never upward: the panel is
+       at least as strict as its strictest reviewer.
+     - `lib/core/eureka/grade-grant-examine.cjs::consolidatePanel(cells, rubric,
+       {challenges})` merges the collected cell readings (a merge collision fails CLOSED:
+       the stricter status wins and is recorded) and applies the SUSTAINED challenges
+       BEFORE scoring, returning `{findings, disputes, dropped}` -- `scoreApplication`
+       runs completely unchanged on those findings (step 5 below is identical either
+       way), and EVERY challenge (sustained, rebutted-stands, ignored-upward) lands in
+       `disputes` so disagreement surfaces at the ruling gate instead of being silently
+       averaged away.
      - The **ruling** gate (F.5) HALTS: `lib/core/eureka/grade-grant.cjs::deriveRulingVerb`
        resolves the scored verdict into `supported | rejected | refined | undecided` --
        ANY absent eligibility criterion overrides a strong aggregate score and forces
        `rejected`, filed as a real `REJECTED_BECAUSE` graph record naming the failing
-       criterion (Canon Part 4: "why not" is graph data, never averaged away). This gate's
-       APPROVE **is** the file-verdict confirmation in panel mode (see `hitl_why` above) --
-       do not also fire a separate step-9 file prompt in this mode.
+       criterion (Canon Part 4: "why not" is graph data, never averaged away). Render the
+       `disputes` list ABOVE the percentage (a sustained downgrade is exactly what a real
+       committee argument produces; burying it under the score would be the false-success
+       failure class). On APPROVE, file via the existing step 9 spine with
+       `writeGradingResult(db, {verdict, sessionId, programName, extraProps: {mode:
+       'panel', dispute_count: <n>, sustained_count: <n>}})` -- scalar counts only, so a
+       panel-graded verdict stays distinguishable in the graph. This gate's APPROVE **is**
+       the file-verdict confirmation in panel mode (see `hitl_why` above) -- do not also
+       fire a separate step-9 file prompt in this mode.
 5. **Score.** Call `scoreApplication(rubric, findings)` from `grade-grant.cjs` with the findings
    array you just built (via a small inline `node -e` invocation, or write the findings to a
    temp JSON file and load it -- either is fine, the function is pure and source-agnostic:

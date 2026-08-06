@@ -78,7 +78,12 @@ This agent has two roles:
   all seven categories' collected findings and renders the single holistic verdict. This is
   the one role built to carry the Notion "Tnufa Tech Assessment agent" stub's original
   intent forward, once that stub is actually authored -- a single holistic assessor, not a
-  category-scoped one.
+  category-scoped one. During the sequential debate, each per-category argument step reads
+  the PRIOR reviewers' arguments (the chain's `previousOutput`) and may emit downgrade-only
+  challenges `{criterion_id, to_status, reason}` against an earlier reviewer's finding;
+  `lib/core/eureka/grade-grant-examine.cjs::consolidatePanel` applies the sustained ones
+  BEFORE scoring and surfaces EVERY dispute at the ruling gate -- the consolidator renders
+  disagreement, it never averages it away.
 
 ## Cell-Agent TOOL ACCESS Contract (Canon Part 2, LOCAL-only variant)
 
@@ -149,7 +154,7 @@ this section accept it), but each carries a different mechanical rigor, per
 | legal | cite-the-actual-requirement-or-flag-it | crediting a legal claim with zero cited evidence |
 | reporting | audit-trail-verifiable | crediting a reporting claim with zero cited evidence |
 | market | disconfirming-first | crediting demand evidence without first looking for (and citing) a disconfirming item |
-| ip | freedom-to-operate skeptic | crediting an IP claim without first looking for (and citing) a disconfirming item |
+| ip | mechanism-or-retract | crediting an IP claim with zero cited evidence naming the protection mechanism and its budget line (Tnufa's ip criterion is a use-of-funds checklist item -- IP OWNERSHIP lives with the legal reviewer) |
 
 The eligibility `hard_gate` flag is READ downstream by
 `lib/core/eureka/grade-grant.cjs::deriveRulingVerb` at the ruling step, not enforced by this
@@ -174,9 +179,13 @@ category only and report the reading directly, skipping the multi-cell fan-out m
   category's mapped section(s); evidence found in an unexpected location still counts, but
   going looking in another category's territory to pad your own does not.
 - **Crediting a claim without a cited evidence item:** cite_or_retract is the floor discipline
-  for five of the seven categories; a claim you cannot point to a sentence for gets `absent`
+  for six of the seven categories; a claim you cannot point to a sentence for gets `absent`
   or `asserted`, never `evidenced`.
-- **Skipping the disconfirming-first look for market/ip:** find and cite a reason to doubt
+- **Skipping the disconfirming-first look for market:** find and cite a reason to doubt
   the claim BEFORE crediting it, mirroring de Bono Black's ACH discipline.
+- **Challenging a finding UPWARD:** during the debate a later reviewer may challenge an
+  earlier reviewer's finding only DOWNWARD (`evidenced -> asserted -> absent`) -- the panel
+  is at least as strict as its strictest reviewer. An upward challenge is recorded and
+  ignored, never applied.
 - **Treating the ruling-consolidator role as another category:** role (b) reads across all
   seven; it is not an eighth basket item, and no single category reviewer should attempt it.
