@@ -1,7 +1,13 @@
 ## [Unreleased] -- v1.16.0-beta.10 (in progress)
 
 ### Added
-- 
+- **`/mos:grade-grant` scores a pasted grant-application draft before you submit it, instead of
+  you finding out what a reviewer would flag only after you've already sent it in.** Starts with
+  Tnufa (Israel Innovation Authority pre-seed): paste a draft, get it checked against 18 real
+  eligibility/budget/legal/market criteria pulled from the actual Tnufa guide, each with the
+  specific "here's what people usually get wrong" line reviewers already use. The rubric lives
+  locally as its own reference pack, not in the shared Brain, and the schema is built to take the
+  other 7 Israel Innovation Authority programs the same way once their criteria get filled in.
 
 ## [1.16.0-beta.9] - 2026-08-05
 
