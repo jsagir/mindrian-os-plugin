@@ -3556,6 +3556,36 @@
       }
     },
     {
+      "id": "agent:grant-reviewer",
+      "kind": "agent",
+      "methodology_tier": "mindrian-operation",
+      "name": "grant-reviewer",
+      "reach_id": "context_block",
+      "sub_mode": "grant-reviewer",
+      "hierarchy_rank": 51,
+      "posture": "hold",
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "chain_provenance": {
+        "command": "grant-reviewer",
+        "reach_id": "context_block",
+        "sub_mode": "grant-reviewer",
+        "firing_sensors": [
+          "SENS-06"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "grant-reviewer",
+        "hierarchy_rank": 51,
+        "posture": "hold",
+        "sensor_triggers": [
+          "SENS-06"
+        ]
+      }
+    },
+    {
       "id": "agent:investor",
       "kind": "agent",
       "methodology_tier": "mindrian-operation",
@@ -4115,6 +4145,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "grading-agent"
+    },
+    {
+      "id": "sub_mode:grant-reviewer",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "grant-reviewer"
     },
     {
       "id": "sub_mode:graph-explore",

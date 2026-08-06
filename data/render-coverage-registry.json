@@ -20,9 +20,9 @@
   "render_counts": {
     "card_emission": 16,
     "render_only_excluded": 0,
-    "md_declared_wired": 100,
+    "md_declared_wired": 99,
     "md_declared_unwired": 0,
-    "skill_declared_wired": 106,
+    "skill_declared_wired": 105,
     "skill_declared_unwired": 0
   },
   "entries": [
@@ -297,11 +297,6 @@
     {
       "surface": "commands/futures.md",
       "declared_shape": "F.2",
-      "wired": true
-    },
-    {
-      "surface": "commands/grade-grant.md",
-      "declared_shape": "F.8",
       "wired": true
     },
     {
@@ -811,11 +806,6 @@
     },
     {
       "surface": "skills/grade/SKILL.md",
-      "declared_shape": "F.8",
-      "wired": true
-    },
-    {
-      "surface": "skills/grade-grant/SKILL.md",
       "declared_shape": "F.8",
       "wired": true
     },

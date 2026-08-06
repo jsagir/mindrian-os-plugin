@@ -2790,6 +2790,23 @@
       "decision_surface": "F.0"
     },
     {
+      "surface": "agent:grant-reviewer",
+      "source": "agent",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "grant-reviewer",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 51,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "agent:investor",
       "source": "agent",
       "connects_to_spine": true,
@@ -3272,6 +3289,7 @@
       "/mos:validate",
       "/mos:value-proposition",
       "/mos:whitespace",
+      "agent:grant-reviewer",
       "agent:opportunity-scanner",
       "agent:persona-analyst",
       "agent:research"

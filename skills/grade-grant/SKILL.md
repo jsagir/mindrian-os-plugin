@@ -4,8 +4,17 @@ description: Grade a grant application against a local IIA grant rubric (Tnufa f
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Grade your room or a pasted draft against a real grant rubric, see exactly which room section to build next, or decompose a finished application into a room."
 body_shape: C
-hitl_shape: "F.8"
-hitl_why: "Each rubric criterion is scored independently against the pasted draft, an unordered basket of scoring jobs -- same shape as /mos:grade's six components."
+hitl_stages:
+  - stage: "file-verdict"
+    shapes: ["F.8"]
+    mode: "gate"
+  - stage: "hypothesis-confirm"
+    shapes: ["F.1"]
+    mode: "gate"
+  - stage: "ruling"
+    shapes: ["F.5"]
+    mode: "gate"
+hitl_why: "Single-pass mode (the default) reaches ONE gate: file-verdict (F.8) -- each rubric criterion is scored independently against the pasted draft or room, an unordered basket of scoring jobs, same shape as /mos:grade's six components. The opt-in Reviewer panel examination mode ALSO reaches hypothesis-confirm (F.1, anchoring the panel's what-if before the seven category reviewers debate it) and ruling (F.5, resolving the governed reviewer positions into a verb) -- ruling's APPROVE doubles as the file-verdict confirmation in panel mode, so panel mode never stacks a redundant fourth gate on top (see the Session Flow's Reviewer panel examination sub-choice)."
 serves_jtbd: ["prepare-pitch", "decide-pursue"]
 interactive_first_reward: schema_preview
 teaching: "Grant reviewers score against a fixed rubric whether you see it or not. /mos:grade-grant runs that rubric on your draft BEFORE you submit, so the gaps a human reviewer would flag show up here first. Starts with Tnufa (Israel Innovation Authority); the same engine scores any IIA program once its rubric is filled in."
@@ -87,6 +96,18 @@ re-litigated every run:
   minted in `lib/core/navigation/edges.cjs` with its own decision record) and the standard
   Section anchor nodes; the strategy composer mirrors the coaching composer's
   recommend-never-trigger idiom.
+- The quick-260806-d0x Reviewer panel examination mode (step 4b) is BONO-substrate reuse, not
+  a second fan-out engine: `lib/core/eureka/grade-grant-examine.cjs` orchestrates the SHIPPED
+  `lib/core/bono/cell-fanout.cjs::runCellFanout` + `lib/core/bono/debate-composition.cjs::
+  runDebate` (byte-unchanged), parameterized with the rubric's own `CATEGORY_VALUES` axis
+  instead of de Bono hats and governed by the new sibling
+  `lib/core/bono/reviewer-governance.cjs` (mirrors `lib/core/bono/hat-governance.cjs`'s exact
+  `{deriveFn, selfCritiqueFn, onStep}` seam contract). `agents/grant-reviewer.md` is a NEW
+  sibling agent, never a repurposed `persona-analyst.md` -- the hat vocabulary and hat-scoped
+  external-web tool access on that agent are the wrong shape for a LOCAL-only,
+  category-vocabulary reviewer. `lib/core/eureka/grade-grant.cjs::scoreApplication` and every
+  other existing export stay byte-unchanged; the panel mode is a second way to produce the
+  `findings[]` array that function already consumes, never a duplicate scoring engine.
 
 ## Canon Part 8 (LOCAL -> BRAIN: NO)
 
@@ -131,13 +152,53 @@ provenance and the matching-fund contradiction this rubric resolves.
    - **Decompose-mode.** See "Decompose an application into a room" below, then re-enter
      this flow in room-mode against the new room.
 3. **Load the rubric.** `node -e "console.log(JSON.stringify(require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/grade-grant.cjs').loadRubric('tnufa')))"` (swap the id for the chosen program).
-4. **Extract findings, quote-anchored.** For each criterion in `rubric.criteria`, read the
-   source (room sections or pasted draft) and decide `evidenced` (clearly and specifically
-   addressed -- quote the supporting line, and in room-mode name the file it came from),
-   `asserted` (claimed without real support), or `absent` (not addressed at all). This mirrors
-   `lib/core/pitch-feedback-schemas.cjs`'s EvidenceSchema anti-hallucination shape -- do not
-   mark `evidenced` on a vibe; point to the actual sentence. A criterion with no finding
-   defaults to `absent` in scoring, so leaving one out is the same as marking it a gap.
+4. **Extract findings -- pick the mode, quote-anchored either way.** Offer a sub-choice
+   (opt-in, defaults to the fast path): **[Single read]** (default) or **[Reviewer panel
+   examination]**. Both produce the SAME `findings[]` shape `scoreApplication` consumes;
+   only HOW the findings get decided differs.
+
+   - **4a. Single read (default, fast).** For each criterion in `rubric.criteria`, read the
+     source (room sections or pasted draft) and decide `evidenced` (clearly and specifically
+     addressed -- quote the supporting line, and in room-mode name the file it came from),
+     `asserted` (claimed without real support), or `absent` (not addressed at all). This
+     mirrors `lib/core/pitch-feedback-schemas.cjs`'s EvidenceSchema anti-hallucination shape
+     -- do not mark `evidenced` on a vibe; point to the actual sentence. A criterion with no
+     finding defaults to `absent` in scoring, so leaving one out is the same as marking it a
+     gap.
+   - **4b. Reviewer panel examination (opt-in -- "run the reviewer panel" / "examine this
+     adversarially" / "BONO-style").** Instead of one holistic read, seven adversarial
+     reviewer personas -- one per rubric category (eligibility / process / budget / legal /
+     reporting / market / ip) -- examine ONLY their own category's criteria in isolation,
+     each asking: *would an actual `<program>` committee member reading ONLY this section
+     accept it?* This REUSES the shipped BONO fan-out + debate substrate (Canon Part 7),
+     parameterized with the category axis instead of de Bono hats -- it is NOT a second
+     fan-out engine:
+     - `lib/core/eureka/grade-grant-examine.cjs::runReviewerFanout(rubric, sourceCtx, opts)`
+       drives `lib/core/bono/cell-fanout.cjs::runCellFanout` in two batches (5 + 2
+       categories, never asking the shared fan-out cost cap to raise -- `FUTURES_FANOUT_CAP`
+       stays 5), dispatching `agents/grant-reviewer.md` per category cell (Read/Glob only --
+       LOCAL room/draft content, never external web, never Brain).
+     - The **hypothesis-confirm** gate (F.1) HALTS here: confirm or edit the what-if
+       ("this application, as currently held, would be accepted by a `<program>` review
+       committee") before the seven-category debate argues it. The navigator may scope it
+       (e.g. "only judge against what's filed in problem-definition + solution-design so
+       far").
+     - `lib/core/eureka/grade-grant-examine.cjs::reviewerCellsToFindings(cells, rubric)`
+       flattens the collected cell readings back into the exact `findings[]` shape --
+       `scoreApplication` runs completely unchanged from here (step 5 below is identical
+       either way).
+     - The seven category arguments debate sequentially via
+       `lib/core/bono/debate-composition.cjs::runDebate`, each self-critiqued under
+       `lib/core/bono/reviewer-governance.cjs`'s per-category discipline (cite-or-retract
+       for process/legal/reporting, reconciliation-required for budget,
+       disconfirming-first for market/ip, plus eligibility's hard-gate flag).
+     - The **ruling** gate (F.5) HALTS: `lib/core/eureka/grade-grant.cjs::deriveRulingVerb`
+       resolves the scored verdict into `supported | rejected | refined | undecided` --
+       ANY absent eligibility criterion overrides a strong aggregate score and forces
+       `rejected`, filed as a real `REJECTED_BECAUSE` graph record naming the failing
+       criterion (Canon Part 4: "why not" is graph data, never averaged away). This gate's
+       APPROVE **is** the file-verdict confirmation in panel mode (see `hitl_why` above) --
+       do not also fire a separate step-9 file prompt in this mode.
 5. **Score.** Call `scoreApplication(rubric, findings)` from `grade-grant.cjs` with the findings
    array you just built (via a small inline `node -e` invocation, or write the findings to a
    temp JSON file and load it -- either is fine, the function is pure and source-agnostic:
@@ -162,8 +223,9 @@ provenance and the matching-fund contradiction this rubric resolves.
    strengthen first and why. If Brain is not connected, the roadmap's weakest-first ordering
    plus each gap's `common_mistake` already carry the coaching.
 9. **File the verdict -- node AND graph.** Ask: "File this grading run to room/**/grades/?"
-   If approved, over one db handle (`navigation.openRoomDbForCaller(roomDir)`, closed in a
-   `finally`):
+   (Reviewer panel examination mode: skip this prompt -- the ruling gate's APPROVE in 4b
+   already confirmed filing; asking twice would be a redundant halt.) If approved, over one
+   db handle (`navigation.openRoomDbForCaller(roomDir)`, closed in a `finally`):
    - `writeGradingResult(db, {verdict, sessionId, programName})` -- the typed `heuristic`
      claim node, `review_status: 'proposed'` (a human APPROVE, not this command, promotes it).
    - `navigation.writeGrantRubricGraph(db, rubric)` -- the rubric map as graph
