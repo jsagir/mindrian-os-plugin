@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.16.0-beta.10 (in progress)
+## [1.16.0-beta.11] - 2026-08-06
 
 ### Added
 - **`/mos:grade-grant` scores a pasted grant-application draft before you submit it, instead of
