@@ -8,6 +8,20 @@
   specific "here's what people usually get wrong" line reviewers already use. The rubric lives
   locally as its own reference pack, not in the shared Brain, and the schema is built to take the
   other 7 Israel Innovation Authority programs the same way once their criteria get filled in.
+- **`/mos:grade-grant` now grades your room directly, hands back a build roadmap, and can run
+  the whole thing in reverse.** Your room already holds what a Tnufa application needs, so you
+  no longer have to paste a draft: room-mode reads every populated room section and grades the
+  room itself (paste-mode stays for anyone without a room yet). Every rubric criterion now knows
+  which of the 8 room sections its evidence lives in, so the grade is no longer just a score --
+  it is an offer: "build this in room/financial-model/, and here is what a strong entry looks
+  like", weakest section first, with pure submission/reporting items kept as an honest checklist
+  instead of being forced into a fake section. The same map runs backwards: hand over a finished
+  application and it gets decomposed into a NEW dedicated room (never your live venture room, so
+  grant prose cannot pollute real venture data) and then graded as a room. And the map is real
+  graph structure now, not just JSON: criterion nodes wired to section nodes through the one
+  governed graph door, so Brain can be asked for STRATEGIC advice about the room's shape (which
+  sections are covered, partial, or missing) without a single line of your content ever leaving
+  the machine.
 
 ## [1.16.0-beta.9] - 2026-08-05
 
