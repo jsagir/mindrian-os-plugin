@@ -776,7 +776,7 @@
       "produces": "room/**/grades/*",
       "executable": null,
       "inputs": [
-        "a pasted grant-application draft (or a room artifact to grade)"
+        "a populated room (preferred), a pasted grant-application draft, or a finished application to decompose into a room"
       ],
       "autonomous_safe": true,
       "body_shape": "C",
