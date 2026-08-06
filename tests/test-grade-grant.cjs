@@ -26,13 +26,20 @@ const MODULE_PATH = path.join(REPO_ROOT, 'lib', 'core', 'eureka', 'grade-grant.c
 const {
   listPrograms,
   loadRubric,
+  validateRubric,
   scoreApplication,
   gapCategories,
+  sectionMap,
+  buildRoadmap,
   askBrainForCoaching,
+  askBrainForStrategy,
   writeGradingResult,
+  ROOM_SECTION_VALUES,
 } = require(MODULE_PATH);
 
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
+const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+const { ALLOWED_EDGE_TYPES, writeEdge } = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'edges.cjs'));
 
 let pass = 0;
 let total = 0;
@@ -170,10 +177,12 @@ check('writeGradingResult files the verdict as a proposed heuristic claim node v
     assert.equal(props.program_id, 'tnufa');
     assert.equal(props.score_pct, verdict.score_pct);
 
-    // No edges table pollution -- this module writes a node only, zero
-    // per-criterion edges in v1 (documented scope in grade-grant.cjs header).
+    // No edges table pollution from THIS function -- writeGradingResult stays
+    // node-only (quick 260806 D4). The graph edges are the separate, opt-in
+    // navigation writers (writeGrantRubricGraph / writeGradingSectionEdges),
+    // exercised in their own checks below.
     const edgeCount = db.prepare('SELECT COUNT(*) AS n FROM edges').get().n;
-    assert.equal(edgeCount, 0, 'v1 files a single claim node, no invented edge type');
+    assert.equal(edgeCount, 0, 'writeGradingResult alone files a single claim node, zero edges');
   } finally {
     closeRoomDb(db);
     fs.rmSync(roomDir, { recursive: true, force: true });
@@ -186,6 +195,208 @@ check('writeGradingResult rejects an invalid verdict rather than writing garbage
   try {
     const result = writeGradingResult(db, { verdict: { program_id: '' } });
     assert.equal(result.ok, false);
+  } finally {
+    closeRoomDb(db);
+    fs.rmSync(roomDir, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Quick 260806-grant-grader-room-graph: the room_section map, both directions,
+// as pure functions AND as typed graph structure through navigation.cjs.
+// ---------------------------------------------------------------------------
+
+check('every tnufa criterion carries a valid room_section (slug or honest null), never a forced mapping', () => {
+  const rubric = loadRubric('tnufa').rubric;
+  let nulls = 0;
+  for (const c of rubric.criteria) {
+    assert.ok(c.room_section !== undefined, c.id + ' must declare room_section explicitly');
+    if (c.room_section === null) nulls += 1;
+    else assert.ok(ROOM_SECTION_VALUES.has(c.room_section), c.id + ' carries an unknown section: ' + c.room_section);
+  }
+  assert.ok(nulls >= 1, 'pure process/reporting criteria must stay null, not get a fake section');
+  // The named process items from the mapping decision stay null.
+  for (const id of ['submission_process', 'reporting_requirements']) {
+    const c = rubric.criteria.find((x) => x.id === id);
+    assert.equal(c.room_section, null, id + ' is a post-award/process item with no room location');
+  }
+});
+
+check('validateRubric fails closed on an unknown room_section string', () => {
+  const rubric = JSON.parse(JSON.stringify(loadRubric('tnufa').rubric));
+  rubric.criteria[0].room_section = 'not-a-real-section';
+  const result = validateRubric(rubric);
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, 'fixture_invalid_room_section');
+});
+
+check('sectionMap groups criteria by section and keeps null-section criteria as process items', () => {
+  const rubric = loadRubric('tnufa').rubric;
+  const map = sectionMap(rubric);
+  assert.equal(map.ok, true);
+  const mappedCount = Object.values(map.sections).reduce((n, arr) => n + arr.length, 0);
+  assert.equal(mappedCount + map.process.length, rubric.criteria.length, 'every criterion lands exactly once');
+  assert.ok(map.mapped_sections.includes('financial-model'));
+  assert.equal(map.sections['financial-model'].length, 3, 'funding_terms + budget_planning + matching_funds_proof');
+  assert.ok(map.process.every((c) => c.room_section === null || c.room_section === undefined));
+  assert.equal(sectionMap(null).ok, false, 'garbage in, {ok:false} out, never a throw');
+});
+
+check('buildRoadmap turns gaps into per-section build plans plus a process checklist', () => {
+  const rubric = loadRubric('tnufa').rubric;
+  // Financial-model fully evidenced; everything else silent -> gapped.
+  const findings = [
+    { criterion_id: 'funding_terms', status: 'evidenced' },
+    { criterion_id: 'budget_planning', status: 'evidenced' },
+    { criterion_id: 'matching_funds_proof', status: 'evidenced' },
+  ];
+  const verdict = scoreApplication(rubric, findings);
+  const roadmap = buildRoadmap(rubric, verdict);
+  assert.equal(roadmap.ok, true);
+  assert.equal(roadmap.program_id, 'tnufa');
+  // Covered: financial-model has zero gaps.
+  assert.deepEqual(roadmap.covered_sections, ['financial-model']);
+  // No section plan points at financial-model; every plan carries build text
+  // drawn from the criterion's details field (the WHAT to build).
+  for (const plan of roadmap.section_plans) {
+    assert.notEqual(plan.room_section, 'financial-model');
+    assert.ok(ROOM_SECTION_VALUES.has(plan.room_section));
+    for (const gap of plan.gaps) {
+      assert.ok(gap.build.length > 0, gap.criterion_id + ' must carry its details as the build target');
+      assert.ok(gap.common_mistake.length > 0);
+    }
+  }
+  // The null-section criteria surface as a checklist, never inside a section plan.
+  const checklistIds = roadmap.process_checklist.map((r) => r.criterion_id);
+  assert.ok(checklistIds.includes('submission_process'));
+  assert.ok(checklistIds.includes('reporting_requirements'));
+  // Weakest section first (sorted by gap count descending).
+  for (let i = 1; i < roadmap.section_plans.length; i++) {
+    assert.ok(roadmap.section_plans[i - 1].gaps.length >= roadmap.section_plans[i].gaps.length);
+  }
+  assert.equal(buildRoadmap(rubric, null).ok, false, 'garbage verdict degrades, never throws');
+});
+
+check('askBrainForStrategy composes section-coverage ENUMS only, never room prose (Part 8)', () => {
+  const rubric = loadRubric('tnufa').rubric;
+  const findings = [
+    { criterion_id: 'funding_terms', status: 'evidenced' },
+    { criterion_id: 'budget_planning', status: 'evidenced' },
+    { criterion_id: 'matching_funds_proof', status: 'evidenced' },
+    { criterion_id: 'eligibility_applicant', status: 'evidenced' },
+    // team_section left silent -> team-execution is partial, not covered.
+  ];
+  const verdict = scoreApplication(rubric, findings);
+  const strategy = askBrainForStrategy(verdict, rubric);
+  assert.equal(strategy.ok, true);
+  assert.equal(strategy.brain_available, false, 'recommend-never-trigger: the host command owns the wire');
+  assert.equal(strategy.handles.framework, 'grant-application-strategy');
+  assert.equal(strategy.handles.section_profile['financial-model'], 'covered');
+  assert.equal(strategy.handles.section_profile['team-execution'], 'partial');
+  assert.equal(strategy.handles.section_profile['market-analysis'], 'missing');
+  for (const v of Object.values(strategy.handles.section_profile)) {
+    assert.ok(['covered', 'partial', 'missing'].includes(v), 'profile values are a closed enum');
+  }
+  const serialized = JSON.stringify(strategy.handles);
+  const sampleProse = rubric.criteria[0].details.slice(0, 30);
+  assert.ok(!serialized.includes(sampleProse), 'no rubric/room prose in the handle bag');
+});
+
+check('MAPS_TO_SECTION is a real ALLOWED_EDGE_TYPES member; an ad hoc string still rejects', () => {
+  assert.ok(ALLOWED_EDGE_TYPES.has('MAPS_TO_SECTION'));
+  const roomDir = freshRoomDir();
+  const db = openRoomDb(roomDir);
+  try {
+    const bad = writeEdge(db, {
+      source_id: 'a', target_id: 'b', edge_type: 'GRANT_GAP_IN', properties: {},
+    });
+    assert.equal(bad.ok, false);
+    assert.equal(bad.reason, 'invalid_edge_type', 'no invented edge strings sneak past the chokepoint');
+  } finally {
+    closeRoomDb(db);
+    fs.rmSync(roomDir, { recursive: true, force: true });
+  }
+});
+
+check('writeGrantRubricGraph mints criterion anchors + MAPS_TO_SECTION edges, idempotently', () => {
+  const roomDir = freshRoomDir();
+  const db = openRoomDb(roomDir);
+  try {
+    const rubric = loadRubric('tnufa').rubric;
+    const mappedCriteria = rubric.criteria.filter((c) => c.room_section !== null).length;
+    const result = navigation.writeGrantRubricGraph(db, rubric);
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(result.criteria_nodes, rubric.criteria.length, 'one anchor node per criterion, null-section ones included');
+    assert.equal(result.edges_written, mappedCriteria, 'one MAPS_TO_SECTION edge per NON-null criterion only');
+
+    const nodeRow = db.prepare("SELECT type, review_status, properties FROM nodes WHERE id = ?")
+      .get('grant_criterion:tnufa:funding_terms');
+    assert.ok(nodeRow, 'the criterion anchor must actually land');
+    assert.equal(nodeRow.type, 'grant_criterion');
+    assert.equal(nodeRow.review_status, 'confirmed', 'system-bookkeeping structural anchor, Part 9 v1.5 carve-out');
+    assert.ok(!nodeRow.properties.includes('85%'), 'no rubric prose/details on node properties (Part 8 discipline)');
+
+    const edgeRow = db.prepare(
+      "SELECT properties FROM edges WHERE source = ? AND target = ? AND type = 'MAPS_TO_SECTION'"
+    ).get('grant_criterion:tnufa:funding_terms', 'financial-model');
+    assert.ok(edgeRow, 'funding_terms MAPS_TO_SECTION financial-model must land');
+
+    const nullEdge = db.prepare(
+      "SELECT COUNT(*) AS n FROM edges WHERE source = ? AND type = 'MAPS_TO_SECTION'"
+    ).get('grant_criterion:tnufa:submission_process').n;
+    assert.equal(nullEdge, 0, 'a null-section criterion gets NO edge -- the null is honest');
+
+    // Section anchors were ensured for the referenced sections.
+    const sectionRow = db.prepare("SELECT type FROM nodes WHERE id = 'financial-model'").get();
+    assert.equal(sectionRow.type, 'Section');
+
+    // Idempotent: a second run upserts, never duplicates.
+    const before = db.prepare("SELECT COUNT(*) AS n FROM edges WHERE type = 'MAPS_TO_SECTION'").get().n;
+    const rerun = navigation.writeGrantRubricGraph(db, rubric);
+    assert.equal(rerun.ok, true);
+    const after = db.prepare("SELECT COUNT(*) AS n FROM edges WHERE type = 'MAPS_TO_SECTION'").get().n;
+    assert.equal(before, after, 're-running the rubric graph writer must not grow the edge set');
+  } finally {
+    closeRoomDb(db);
+    fs.rmSync(roomDir, { recursive: true, force: true });
+  }
+});
+
+check('writeGradingSectionEdges files one INFORMS coverage-profile edge per mapped section, scalars only', () => {
+  const roomDir = freshRoomDir();
+  const db = openRoomDb(roomDir);
+  try {
+    const rubric = loadRubric('tnufa').rubric;
+    const findings = [{ criterion_id: 'funding_terms', status: 'evidenced' }];
+    const verdict = scoreApplication(rubric, findings);
+    const written = writeGradingResult(db, { verdict, sessionId: 'test-grade-grant', programName: 'Tnufa (Ideation)' });
+    assert.equal(written.ok, true);
+    navigation.writeGrantRubricGraph(db, rubric);
+
+    const result = navigation.writeGradingSectionEdges(db, {
+      verdict_node_id: written.node_id,
+      verdict: verdict,
+      rubric: rubric,
+    });
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(result.edges_written, result.sections.length, 'one aggregate edge per mapped section');
+    assert.ok(result.sections.includes('financial-model'));
+
+    const row = db.prepare(
+      "SELECT properties FROM edges WHERE source = ? AND target = 'financial-model' AND type = 'INFORMS'"
+    ).get(written.node_id);
+    assert.ok(row, 'the verdict->section coverage edge must land');
+    const props = JSON.parse(row.properties);
+    assert.equal(props.relation, 'grant_gap_profile');
+    assert.equal(props.total, 3, 'financial-model maps 3 criteria');
+    assert.equal(props.evidenced, 1);
+    assert.equal(props.absent, 2);
+    for (const v of Object.values(props)) {
+      assert.ok(typeof v === 'number' || typeof v === 'string');
+      if (typeof v === 'string') assert.ok(v.length < 60, 'scalar handles only, never prose');
+    }
+    const garbage = navigation.writeGradingSectionEdges(db, { verdict_node_id: '', verdict: null, rubric: null });
+    assert.equal(garbage.ok, false, 'garbage degrades, never throws');
   } finally {
     closeRoomDb(db);
     fs.rmSync(roomDir, { recursive: true, force: true });

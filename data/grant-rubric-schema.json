@@ -22,10 +22,12 @@
         "aspect": "<short name of the rubric dimension>",
         "details": "<what a strong application does on this dimension>",
         "common_mistake": "<the named failure mode from source material>",
-        "category": "<one of: eligibility | process | budget | legal | reporting | market | ip>"
+        "category": "<one of: eligibility | process | budget | legal | reporting | market | ip>",
+        "room_section": "<one of the 8 standard MindrianOS room section slugs, or null for a pure post-award process/reporting item with no room-content equivalent. This is the ONE map used in BOTH directions: room-to-application (room-mode grading + the build roadmap) and application-to-room (decompose a finished application into a room). null is honest, never forced: a criterion like submission_process has no room location to point at and surfaces as a plain checklist item instead.>"
       }
     ]
   },
   "category_vocabulary": ["eligibility", "process", "budget", "legal", "reporting", "market", "ip"],
-  "validation_rule": "A fixture is valid when: id/name_en/stage/eligibility/purpose/funding_pct/funding_cap/duration/status are all non-empty strings; status is a member of {stub, drafted, reviewed}; criteria is an array (possibly empty for a stub fixture); every criteria[] entry has a non-empty id/aspect/details/common_mistake and a category in category_vocabulary."
+  "room_section_vocabulary": ["problem-definition", "market-analysis", "solution-design", "business-model", "competitive-analysis", "team-execution", "legal-ip", "financial-model", null],
+  "validation_rule": "A fixture is valid when: id/name_en/stage/eligibility/purpose/funding_pct/funding_cap/duration/status are all non-empty strings; status is a member of {stub, drafted, reviewed}; criteria is an array (possibly empty for a stub fixture); every criteria[] entry has a non-empty id/aspect/details/common_mistake and a category in category_vocabulary; and when a criteria[] entry carries room_section, it is null or a member of room_section_vocabulary (an unknown string is a hard error at load time, not a silent pass)."
 }

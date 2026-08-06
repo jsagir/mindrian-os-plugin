@@ -15,126 +15,144 @@
       "aspect": "Who can apply",
       "details": "Israeli individuals at the idea/concept stage (pre-incorporation is fine) or early-stage, pre-revenue startups with little to no external funding. Small or single-founder teams are explicitly accommodated -- team capability is still evaluated, but limited team size alone is not disqualifying.",
       "common_mistake": "Assuming any founder or team stage qualifies. Tnufa targets the earliest, pre-revenue, often pre-incorporation stage specifically -- a company already generating revenue or with a formal track record reads as too late-stage.",
-      "category": "eligibility"
+      "category": "eligibility",
+      "room_section": "team-execution"
     },
     {
       "id": "eligibility_sector",
       "aspect": "Which sectors are eligible",
       "details": "Broad eligibility across IT/software/cyber, healthcare and biotech, cleantech, agritech, advanced manufacturing, and defense/security tech, with a preference for disruptive, deep-tech innovation.",
       "common_mistake": "Believing only flashy 'high-tech' software projects get approved. This is a named misconception in the source material -- deep-tech, medical devices, agri-tech and other sectors are explicitly welcome.",
-      "category": "eligibility"
+      "category": "eligibility",
+      "room_section": "problem-definition"
     },
     {
       "id": "eligibility_project_type",
       "aspect": "What the grant actually funds",
       "details": "Prototype development, technological feasibility studies, IP protection costs (patent filings), and early market validation -- but the market validation must be directly tied to proving the technology's viability, not a general go-to-market plan.",
       "common_mistake": "Padding the budget with general business expenses (office rent, general salaries, broad business-strategy consulting) or market work that is not tied to validating the technology itself -- Tnufa does not fund either.",
-      "category": "eligibility"
+      "category": "eligibility",
+      "room_section": "solution-design"
     },
     {
       "id": "restrictions_exclusions",
       "aspect": "Who is explicitly excluded",
       "details": "Revenue-generating companies, projects that already secured substantial private or public funding, non-technological / pure business-model projects, and duplicate submissions of the same project across multiple Israel Innovation Authority tracks.",
       "common_mistake": "Applying while already generating meaningful revenue or holding substantial outside funding, or submitting the same project to more than one IIA track at once.",
-      "category": "eligibility"
+      "category": "eligibility",
+      "room_section": "business-model"
     },
     {
       "id": "funding_terms",
       "aspect": "The real funding math",
       "details": "Up to 85% of approved project expenses, capped at roughly NIS 200,000 per project per year, over a 12-month program. Non-dilutive -- no equity changes hands.",
       "common_mistake": "The source FAQ contradicts itself here (one entry says 15-25% matching, another says a 50/50 match). The IIA Grants table resolves it: an 85%-of-costs grant implies roughly 15% matching, not 50/50 -- the 50/50 figure is stray residue from how the source doc was originally generated and should not be used.",
-      "category": "budget"
+      "category": "budget",
+      "room_section": "financial-model"
     },
     {
       "id": "suitability_self_check",
       "aspect": "Is Tnufa actually the right program",
       "details": "Best fit when: the project is at the earliest development stage, the funding need is primarily technical R&D (not operating costs), the applicant is prepared for a multi-stage evaluation process, and there is a credible plan for what happens after the 12-month grant (angel, VC, or a later-stage IIA track).",
       "common_mistake": "Applying when the real need is operational/business funding rather than technical R&D, or having no articulated plan for funding beyond the Tnufa period.",
-      "category": "eligibility"
+      "category": "eligibility",
+      "room_section": "business-model"
     },
     {
       "id": "submission_process",
       "aspect": "How the application is actually submitted",
       "details": "Submitted online through the Israel Innovation Authority portal with a project description, team information, a work plan, and a budget, all attached and complete at submission.",
       "common_mistake": "Missing a required document or section at submission -- this alone commonly delays or disqualifies an otherwise strong application at the administrative-review stage.",
-      "category": "process"
+      "category": "process",
+      "room_section": null
     },
     {
       "id": "evaluation_process",
       "aspect": "How the application gets evaluated",
       "details": "A staged review: an administrative completeness check first, then a technical and financial assessment by subject-matter experts, then a committee decision.",
       "common_mistake": "Writing the technological-innovation explanation for a specialist audience only. Reviewers span technical, business, and financial backgrounds, so an explanation that only a deep specialist can follow reads as unclear, not impressive.",
-      "category": "process"
+      "category": "process",
+      "room_section": null
     },
     {
       "id": "project_description_quality",
       "aspect": "The project description itself",
       "details": "States the problem clearly, explains how the technology solves it, and is explicit about what is actually novel about the approach versus existing alternatives.",
       "common_mistake": "A vague description that asserts innovation without naming what specifically is new, or an unclear timeline for what gets built during the grant period.",
-      "category": "market"
+      "category": "market",
+      "room_section": "problem-definition"
     },
     {
       "id": "team_section",
       "aspect": "The team section",
       "details": "Presents the team's relevant technical and industry expertise, and for a small or single-founder team, explicitly addresses how expertise gaps will be covered (advisors, planned hires, contractors).",
       "common_mistake": "A small team with no stated plan for covering an obvious expertise gap (e.g. a deep-tech project with no technical co-founder and no named advisor).",
-      "category": "eligibility"
+      "category": "eligibility",
+      "room_section": "team-execution"
     },
     {
       "id": "work_plan_milestones",
       "aspect": "The work plan",
       "details": "A milestone-based plan across the 12-month period with concrete deliverables (a working prototype, a completed feasibility test, a technical validation result).",
       "common_mistake": "Milestones stated too vaguely to be checked against later, or a timeline that is not realistic for a 12-month, R&D-focused grant.",
-      "category": "process"
+      "category": "process",
+      "room_section": "solution-design"
     },
     {
       "id": "budget_planning",
       "aspect": "The budget",
       "details": "An itemized, realistic budget tied line-by-line to the work plan, focused on R&D costs (materials, lab or testing time, IP filing fees) rather than general operating costs.",
       "common_mistake": "A budget built without real research behind it (round-number guessing), or budget lines for costs Tnufa does not fund (office rent, general salaries, generic business consulting).",
-      "category": "budget"
+      "category": "budget",
+      "room_section": "financial-model"
     },
     {
       "id": "market_validation_scope",
       "aspect": "Market validation, scoped correctly",
       "details": "Early market-validation evidence is welcome (surveys, letters of interest, competitor analysis) as long as it is framed as evidence the TECHNOLOGY has real demand, not as a general business plan.",
       "common_mistake": "Treating the market-validation section as a general go-to-market pitch, or asserting demand without any supporting evidence.",
-      "category": "market"
+      "category": "market",
+      "room_section": "market-analysis"
     },
     {
       "id": "legal_ip_registration",
       "aspect": "Legal entity and IP agreements",
       "details": "A registered Israeli entity (or documented pre-incorporation individual-applicant status where applicable), with IP-ownership agreements formalized in writing among all founders/team members before applying.",
       "category": "legal",
-      "common_mistake": "Incomplete company registration, or no written IP-ownership agreement among team members -- a common source of dispute once funding arrives."
+      "common_mistake": "Incomplete company registration, or no written IP-ownership agreement among team members -- a common source of dispute once funding arrives.",
+      "room_section": "legal-ip"
     },
     {
       "id": "ip_protection_use_of_funds",
       "aspect": "Using the grant for IP protection",
       "details": "Grant funds may legitimately cover patent-filing and other IP-legal costs; the applicant retains IP ownership but must disclose IP developments to the Israel Innovation Authority during the grant period.",
       "common_mistake": "Not budgeting for IP protection at all, despite it being an explicitly eligible and often underused use of the grant.",
-      "category": "ip"
+      "category": "ip",
+      "room_section": "legal-ip"
     },
     {
       "id": "matching_funds_proof",
       "aspect": "Proving the matching contribution",
       "details": "The applicant must be able to demonstrate the roughly 15% matching contribution (personal funds or another funding source) before final approval and disbursement.",
       "common_mistake": "No clear, demonstrable source for the matching funds at application time -- a common reason for delay or rejection at the funding-proof stage.",
-      "category": "budget"
+      "category": "budget",
+      "room_section": "financial-model"
     },
     {
       "id": "reporting_requirements",
       "aspect": "Reporting once funded",
       "details": "Periodic technical and financial progress reports against the stated milestones and budget, submitted on the schedule set in the grant agreement.",
       "common_mistake": "Treating reporting as a formality. Missing or incomplete reports can pause or cancel further fund disbursement.",
-      "category": "reporting"
+      "category": "reporting",
+      "room_section": null
     },
     {
       "id": "change_management",
       "aspect": "Changing scope, budget, or team after approval",
       "details": "Material changes to project scope, budget allocation, or key team members after approval require a formal written request and Israel Innovation Authority approval before proceeding.",
       "common_mistake": "Making an unapproved change to scope, budget, or a key team member's role after the grant is awarded -- this can trigger penalties or a clawback of funds.",
-      "category": "reporting"
+      "category": "reporting",
+      "room_section": null
     }
   ],
   "_provenance": {
