@@ -20,8 +20,10 @@ test: `classify()` run directly against 8 payload/tool combinations, plus the ho
 child process with a synthetic PreToolUse envelope.
 expecting: a contentless `brain_stats` call classifies as `allow` and passes the hook with exit 0,
 while every payload carrying a byte still hits the unchanged fail-closed catch-all.
-next_action: none. Fixed in Phase 245 Plan 03. The adjacent `brain_search` finding is FLAGGED and
-deliberately left unfixed (see section 5 below).
+next_action: none. Fixed in Phase 245 Plan 03. The adjacent `brain_search` finding was FLAGGED and
+deliberately left unfixed (see section 5 below); that FLAG was subsequently REVERSED with navigator
+approval by quick task 260807-h5s, which also fixed the `METHODOLOGY_VOCAB` graph-introspection
+false positive. See the REVERSAL block appended to section 5.
 
 ## Source-of-Truth Preamble
 
@@ -237,14 +239,40 @@ Two downstream consequences a future reader needs to know:
    (`lib/core/brain-client.cjs:416-470`), and the wrong corpus. Phase 245 Plan 04 sources the
    affinity table from the LOCAL encoder at build time instead, which is unaffected by this.
 
+### REVERSAL (quick task 260807-h5s, 2026-08-07): findings 3 and 4 are RESOLVED
+
+The D-28 FLAG above is SUPERSEDED, not deleted. Phase 245 was right that widening
+`_isFreeFormTool` needed its own navigator decision; that decision has since been taken and the
+answer was to widen it. `_isFreeFormTool` now recognizes `brain_search`, and `METHODOLOGY_VOCAB`
+gained the graph-introspection tokens (`labels`, `relationshipTypes`, `propertyKeys`,
+`nodeTypeProperties`, `count`, `keys`, `schema`) whose absence was separately gating a content-free
+Cypher label census as `freeform_unmatched`.
+
+Boundary-neutrality, in one sentence: step 4's vocabulary test is a bare substring-presence check
+that real user content already defeats through a trailing comment (payload
+`{cypher:"MATCH (n) WHERE n.owner='Jonathan' RETURN n.private_meeting_notes // framework"}` returned
+`{"verdict":"allow","class":"move_set"}` against the SHIPPED pre-reversal classifier), so the actual
+Canon Part 8 boundary is step 1's default-deny `scanForContent` scan, which runs FIRST on every call
+and is byte-unchanged, which means widening step 4 cannot weaken a boundary it was never holding.
+
+Proof, not assertion: `tests/test-245-brain-envelope-shape.cjs` claim (d) asserts that a payload
+carrying an email address AND a payload carrying a funding-round string are STILL blocked with class
+`content_set` on BOTH `brain_query` and `brain_search`, post-reversal. If anyone ever weakens step 1,
+THIS decision becomes the hole.
+
+Consequence for finding 4: `commands/pws-brain.md`'s documented `brain_ask` -> `brain_search`
+fallback is now reachable at runtime, so the prose and the runtime agree. That file needed no edit;
+it never carried a caveat claiming the fallback was blocked, it simply described a behavior the
+runtime was refusing to deliver.
+
 ## Classification of every finding
 
 | # | Finding | Classification |
 |---|---------|----------------|
 | 1 | `brain_stats {}` blocked by the Part 8 guard | NEW FAILURE (fixed here) |
 | 2 | `brain_schema {}` blocked identically | NEW FAILURE, same root cause (fixed here) |
-| 3 | `brain_search` always reaches the catch-all and blocks | NEW FAILURE, FLAGGED, deliberately NOT fixed (see section above) |
-| 4 | `pws-brain.md`'s documented `brain_search` fallback is unreachable | NEW FAILURE, documentation/runtime divergence, out of scope, follows finding 3 |
+| 3 | `brain_search` always reaches the catch-all and blocks | NEW FAILURE, FLAGGED in Phase 245, RESOLVED by quick task 260807-h5s (see the REVERSAL block above) |
+| 4 | `pws-brain.md`'s documented `brain_search` fallback is unreachable | NEW FAILURE, documentation/runtime divergence, RESOLVED by quick task 260807-h5s: the runtime now delivers the fallback, so the prose needed no edit |
 | 5 | The hook fails OPEN on an internal error | WORKING AS DESIGNED. Pre-existing accepted risk A3/T6, deliberately not flipped by Phase 239. Untouched here. |
 | 6 | The Phase 239 `BRAIN_TOOL_MATCHER` scoping | WORKING. Correctly identifies both tools; the defect was downstream. |
 | 7 | Brain-less installs never saw the block | WORKING AS DESIGNED (D-08a degrade path). |
