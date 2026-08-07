@@ -107,7 +107,11 @@ async function main() {
     assert.strictEqual(r.status, 0, 'LEG 1: hook must exit 0; stderr=' + (r.stderr || ''));
     const envelope = JSON.parse(r.stdout);
     assert.ok(envelope.hookSpecificOutput, 'LEG 1: plugin-scoped live name must fire the sanitizer (hookSpecificOutput present)');
-    const text = envelope.hookSpecificOutput.updatedToolOutput.text;
+    // Quick task 260807-h5s (defect A2): updatedToolOutput is an ARRAY of
+    // content blocks. Re-pointed at the new shape; what this leg PROVES about
+    // PII redaction is unchanged.
+    assert.equal(Array.isArray(envelope.hookSpecificOutput.updatedToolOutput), true, 'LEG 1: updatedToolOutput must be an array of content blocks');
+    const text = envelope.hookSpecificOutput.updatedToolOutput[0].text;
     assert.match(text, /\[REDACTED:[0-9a-f]{8}\]/, 'LEG 1: expected a REDACTED placeholder in the sanitized text');
     assert.ok(!text.includes(LEG1_PII), 'LEG 1: PII value must be REWRITTEN, not echoed, in the sanitized text');
     assert.ok(!r.stdout.includes(LEG1_PII), 'LEG 1: the raw PII value must not appear anywhere in stdout');
@@ -133,7 +137,9 @@ async function main() {
     assert.strictEqual(r.status, 0, 'LEG 2: hook must exit 0; stderr=' + (r.stderr || ''));
     const envelope = JSON.parse(r.stdout);
     assert.ok(envelope.hookSpecificOutput, 'LEG 2: project-scoped live name must fire the sanitizer (hookSpecificOutput present)');
-    const text = envelope.hookSpecificOutput.updatedToolOutput.text;
+    // Quick task 260807-h5s (defect A2): array of content blocks, same proof.
+    assert.equal(Array.isArray(envelope.hookSpecificOutput.updatedToolOutput), true, 'LEG 2: updatedToolOutput must be an array of content blocks');
+    const text = envelope.hookSpecificOutput.updatedToolOutput[0].text;
     assert.match(text, /\[REDACTED:[0-9a-f]{8}\]/, 'LEG 2: expected a REDACTED placeholder in the sanitized text');
     assert.ok(!text.includes(LEG2_PII), 'LEG 2: PII value must be REWRITTEN, not echoed, in the sanitized text');
     assert.ok(!r.stdout.includes(LEG2_PII), 'LEG 2: the raw PII value must not appear anywhere in stdout');

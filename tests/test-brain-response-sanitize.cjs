@@ -146,11 +146,74 @@ test('Test 10: Hook envelope shape per SEED-003 A3 (live plugin-scoped Brain too
   assert.ok(envelope.hookSpecificOutput, 'hookSpecificOutput missing');
   assert.equal(envelope.hookSpecificOutput.hookEventName, 'PostToolUse');
   assert.ok(envelope.hookSpecificOutput.updatedToolOutput, 'updatedToolOutput missing');
-  assert.equal(typeof envelope.hookSpecificOutput.updatedToolOutput.text, 'string');
+  // Quick task 260807-h5s (defect A2): updatedToolOutput is an ARRAY of content
+  // blocks, never a bare object. The client-side length reducer walks the value
+  // with a reduce over content blocks, so a bare object has no reduce method and
+  // surfaces the user-visible "e.reduce is not a function" error.
+  assert.equal(
+    Array.isArray(envelope.hookSpecificOutput.updatedToolOutput),
+    true,
+    'updatedToolOutput must be an array of content blocks'
+  );
+  assert.equal(envelope.hookSpecificOutput.updatedToolOutput[0].type, 'text');
+  assert.equal(typeof envelope.hookSpecificOutput.updatedToolOutput[0].text, 'string');
   // Sanity: SSN was redacted; JTBD preserved.
-  const sanitized = envelope.hookSpecificOutput.updatedToolOutput.text;
+  const sanitized = envelope.hookSpecificOutput.updatedToolOutput[0].text;
   assert.equal(sanitized.includes('123-45-6789'), false, 'SSN leaked through hook');
   assert.ok(sanitized.includes('JTBD'), 'JTBD redacted by hook');
+});
+
+// ---------- Content-block tool_response (quick task 260807-h5s, defect A1) ----------
+
+test('Test 10b: content-block tool_response round-trips non-empty through the hook', () => {
+  // WHY THIS CASE EXISTS. Every pre-existing fixture in this file feeds the hook
+  // a synthetic tool_response of shape { text: '...' } that a real MCP transport
+  // never sends. A live MCP tool result carries content blocks. The old
+  // .text-only read therefore produced undefined on every real Brain call, text
+  // became '', and the ENTIRE Brain response was silently blanked while six
+  // green guard suites kept reporting pass. The legacy-only fixture encoded the
+  // bug's own assumption; this case makes that impossible to repeat.
+  const stdinJson = JSON.stringify({
+    tool_name: 'mcp__plugin_mos_mindrian-brain__brain_stats',
+    tool_input: {},
+    tool_response: {
+      content: [
+        { type: 'text', text: 'JTBD graph: nodes 28250 rels 22862 backend memgraph' },
+      ],
+    },
+    session_id: 'test-session-content-block',
+  });
+  const result = spawnSync('node', [HOOK_PATH], { input: stdinJson, encoding: 'utf8', timeout: 5000 });
+  assert.equal(result.status, 0, 'hook exit code != 0; stderr=' + (result.stderr || ''));
+  const envelope = JSON.parse(result.stdout);
+  assert.ok(envelope.hookSpecificOutput, 'hookSpecificOutput missing');
+  const blocks = envelope.hookSpecificOutput.updatedToolOutput;
+  assert.equal(Array.isArray(blocks), true, 'updatedToolOutput must be an array of content blocks');
+  assert.equal(blocks[0].type, 'text');
+  assert.ok(blocks[0].text.length > 0, 'content-block response was blanked to an empty string');
+  assert.ok(blocks[0].text.includes('28250'), 'distinctive live token lost in transit');
+  assert.ok(blocks[0].text.includes('22862'), 'distinctive live token lost in transit');
+});
+
+test('Test 10c: extractResponseText is the single shared text-reading seam', () => {
+  assert.equal(typeof sanitizer.extractResponseText, 'function', 'extractResponseText must be exported');
+  assert.equal(sanitizer.extractResponseText('bare string'), 'bare string');
+  assert.equal(sanitizer.extractResponseText({ text: 'legacy shape' }), 'legacy shape');
+  assert.equal(
+    sanitizer.extractResponseText({ content: [{ type: 'text', text: 'a' }, { type: 'text', text: 'b' }] }),
+    'a\nb'
+  );
+  assert.equal(sanitizer.extractResponseText([{ type: 'text', text: 'top-level array' }]), 'top-level array');
+  // Non-text blocks are skipped, never coerced.
+  assert.equal(
+    sanitizer.extractResponseText({ content: [{ type: 'image', data: 'xx' }, { type: 'text', text: 'only me' }] }),
+    'only me'
+  );
+  // Malformed shapes return '' rather than throwing: the hook's always-exit-0
+  // contract is load-bearing (threat T-h5s-05).
+  for (const bad of [null, undefined, 42, true, {}, [], { content: 'not an array' }, { content: [null, 7] }, { text: 99 }]) {
+    assert.equal(sanitizer.extractResponseText(bad), '', 'malformed shape must yield an empty string');
+  }
 });
 
 // ---------- No-op on non-Brain tools ----------
