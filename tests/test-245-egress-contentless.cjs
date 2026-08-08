@@ -123,10 +123,13 @@ function unitLeg() {
     'brain_ask methodology question'
   );
 
-  // _isFreeFormTool was NOT widened: brain_search stays out (D-28, FLAGGED).
+  // Quick task 260807-h5s is the reversal authority: the Phase 245 D-28 FLAGGED
+  // disposition (brain_search deliberately left out of _isFreeFormTool) was
+  // REVERSED with navigator approval, so the inverse assertion that used to sit
+  // here is replaced by its positive twin.
   ok(
-    guard._isFreeFormTool('mcp__plugin_mos_mindrian-brain__brain_search') === false,
-    'D-28: _isFreeFormTool must NOT recognize brain_search (deliberately not widened)'
+    guard._isFreeFormTool('mcp__plugin_mos_mindrian-brain__brain_search') === true,
+    'quick 260807-h5s: _isFreeFormTool must now recognize a scoped brain_search name'
   );
 
   // The recognizer is exported as a test seam.

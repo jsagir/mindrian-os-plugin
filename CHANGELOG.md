@@ -1,7 +1,35 @@
 ## [Unreleased] -- v1.16.0-beta.12 (in progress)
 
-### Added
-- 
+### Fixed
+- **Larry can read the Brain again. Every single Brain call was failing before this, and nothing
+  told you so.** If you asked Larry anything that needed the teaching graph -- which framework fits
+  your problem, what the corpus says, a grade, a chain recommendation -- the call died before it
+  reached him, with a host error that looks like a network fault: `e.reduce is not a function`.
+  Nothing was wrong with the network. Nothing was wrong with the graph. The Brain was up the whole
+  time, serving 28,325 nodes and 23,014 relationships in a perfectly correct response, and the
+  plugin's own connection to it was healthy too. What broke it was a hook this plugin ships to
+  sanitize Brain responses before they reach the conversation, and it broke them in two ways at
+  once. It looked for the response text in a field the protocol never puts it in, so it found
+  nothing and sanitized an empty string. Then it handed back that empty string in the wrong
+  container shape -- a bare object where an array of content blocks belongs -- so the host tried to
+  measure the length of something that was not there and threw. Every Brain response, replaced with
+  nothing, in a shape nothing could read. The reason this ran for weeks without anyone noticing is
+  the more uncomfortable half: the Brain layer was under standing instructions to fall back silently
+  and never mention failures to you. So a total outage of the single most valuable thing in the
+  product looked, from the outside, exactly like a Larry who simply had less to say. Both defects
+  are now pinned by tests that feed the hook a real protocol-shaped response and assert the text
+  survives with the container intact, so an empty-string regression fails the suite instead of
+  reaching your session. The doctrine that hid it is being revisited separately, because a fix that
+  only works until the next silent failure is not a fix.
+- **Asking the Brain about a framework by name no longer gets blocked as a possible data leak.** The
+  guard that stops your private venture content from ever reaching the shared Brain was refusing
+  ordinary methodology questions too. Asking about "jobs to be done" -- a framework name, the kind
+  of generic handle the Brain exists to answer about, and the exact query the deployment's own
+  verification step uses -- was classified as content that might leak and stopped before it left
+  your machine. Content-free graph introspection now classifies as allowed, and the guard is
+  covered from both directions: a test proves the framework-name case gets through, and a companion
+  test proves real venture content is still blocked on the same paths. The boundary did not get
+  looser; it got accurate.
 
 ## [1.16.0-beta.11] - 2026-08-06
 

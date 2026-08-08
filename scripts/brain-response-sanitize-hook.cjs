@@ -81,9 +81,15 @@ function main() {
     }
     // Phase 117-05 telemetry: detect redactions BEFORE building envelope so
     // we can emit one auto_explore_sanitizer_hit per matched pattern.
-    const text = (input.tool_response && typeof input.tool_response.text === 'string')
-      ? input.tool_response.text
-      : '';
+    //
+    // Quick task 260807-h5s (defect A1): this read used to be
+    // `input.tool_response.text` and nothing else. MCP tool results carry an
+    // ARRAY of content blocks under `.content`, not a bare `.text`, so the old
+    // read produced undefined on every live Brain call, text became '', and the
+    // ENTIRE Brain response was silently blanked before it reached the model.
+    // extractResponseText is the shared seam both this hook and buildEnvelope
+    // read through, so the defect cannot re-diverge across the two files.
+    const text = sanitizer.extractResponseText(input.tool_response);
     const detailed = sanitizer.sanitizeDetailed(text);
     if (detailed && detailed.redactions) {
       const agent = _getAgent();
@@ -117,13 +123,25 @@ function main() {
       }
     }
     // Build envelope with sanitized text (re-use sanitized output from detailed).
+    //
+    // Quick task 260807-h5s (defect A2): updatedToolOutput MUST be an ARRAY of
+    // content blocks, never the bare object this used to emit. The client-side
+    // length reducer walks the value with a reduce over content blocks, so a
+    // bare object has no reduce method and the user sees the raw
+    // "e.reduce is not a function" error instead of their Brain answer. The key
+    // name stays `updatedToolOutput`: the Claude Code binary describes
+    // `updatedMCPToolOutput` as MCP-only while telling callers to prefer
+    // `updatedToolOutput`.
     const envelope = {
       continue: true,
       hookSpecificOutput: {
         hookEventName: 'PostToolUse',
-        updatedToolOutput: {
-          text: (detailed && typeof detailed.text === 'string') ? detailed.text : sanitizer.sanitize(text),
-        },
+        updatedToolOutput: [
+          {
+            type: 'text',
+            text: (detailed && typeof detailed.text === 'string') ? detailed.text : sanitizer.sanitize(text),
+          },
+        ],
       },
     };
     return emitEnvelope(envelope);

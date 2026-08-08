@@ -36,8 +36,14 @@
 #   245-07  tests/test-245-nudge-bound.cjs
 #   245-08  tests/test-245-dial-reactivity.cjs
 #   245-0x  tests/test-245-brain-verb-not-starved.cjs
+#   245-0x  tests/test-245-reward-guard-staged.cjs
+#   h5s     tests/test-245-brain-envelope-shape.cjs
 #
-# That is FIFTEEN files. The glob is the executor; the list above is the
+# The last entry is from quick task 260807-h5s, not from Phase 245 itself. It
+# carries the test-245- prefix deliberately so this runner's glob picks it up
+# with zero execution edits, exactly as the discovery contract below intends.
+#
+# That is SEVENTEEN files. The glob is the executor; the list above is the
 # reading checklist. A test named above that is missing from disk is NOT
 # reported by this runner as a failure, because a file that does not exist
 # cannot be globbed. That is the honest limitation of glob discovery and the
@@ -143,6 +149,12 @@ EMDASH_TARGETS=(
   "tests/test-245-nudge-bound.cjs"
   "tests/test-245-dial-reactivity.cjs"
   "tests/test-245-brain-verb-not-starved.cjs"
+  # Quick task 260807-h5s makes these three phase-touched files. This fence list
+  # is hand-maintained (unlike the discovery glob above), so they are added here
+  # explicitly.
+  "tests/test-245-brain-envelope-shape.cjs"
+  "lib/core/brain-response-sanitize.cjs"
+  "scripts/brain-response-sanitize-hook.cjs"
   "lib/core/sensors/sensor-priority.cjs"
   "lib/core/sensors/sensor-perspective-lock.cjs"
   "lib/core/insight-sensors.cjs"
@@ -156,11 +168,24 @@ EMDASH_TARGETS=(
   "scripts/intent-classifier.cjs"
   "tests/run-all-245.sh"
 )
+# LC_ALL is forced to a UTF-8 locale and the grep exit code is INSPECTED, both
+# added by quick task 260807-h5s. Why: `grep -P` refuses to run at all under a
+# non-UTF-8 locale ("grep: -P supports only unibyte and UTF-8 locales") and
+# exits 2. The previous `|| true` swallowed that exit, left hits empty, and the
+# whole fence reported PASSED without ever having scanned a byte. That was
+# observed live on Git Bash for Windows, where the default locale is C, so on
+# that surface this fence was silently vacuous. A guard that cannot fail is the
+# same false-success shape this runner's found-eq-0 guard exists to close, so a
+# grep that ERRORS (rc 2 or more) is now a fence FAILURE, not a silent pass.
+# rc 0 = a hit, rc 1 = clean, rc >= 2 = the scan itself broke.
 for t in "${EMDASH_TARGETS[@]}"; do
   f="$ROOT/$t"
   if [ -f "$f" ]; then
-    hits="$(grep -lP '\x{2014}' "$f" || true)"
-    if [ -n "$hits" ]; then
+    hits="$(LC_ALL=C.UTF-8 grep -lP '\x{2014}' "$f" 2>/dev/null)"; rc=$?
+    if [ "$rc" -ge 2 ]; then
+      echo "    SCAN BROKE (grep -P unavailable or errored, rc=$rc) on: $t"
+      EMDASH_OK=0
+    elif [ -n "$hits" ]; then
       echo "    FORBIDDEN em-dash in: $t"
       EMDASH_OK=0
     fi
