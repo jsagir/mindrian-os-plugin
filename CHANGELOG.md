@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.16.0-beta.12 (in progress)
+## [1.16.0-beta.13] - 2026-08-09
 
 ### Fixed
 - **Larry can read the Brain again. Every single Brain call was failing before this, and nothing
