@@ -54,6 +54,22 @@ jobs:
           # so CI keeps exercising a runtime users actually have. Reviewed in the
           # Phase 236 GRAPHDB-03 floor census; only this comment was stale.
           node-version: '22'
+          cache: 'npm'
+
+      # WITHOUT THIS STEP THE SCAN NEVER RAN. node_modules is not tracked, and this
+      # workflow had no install step at all, so scripts/agentshield-scan-cli.cjs died on
+      # MODULE_NOT_FOUND while resolving its require chain (-> part8-egress-guard ->
+      # ... -> brain-client.cjs -> ajv) before scanning a single file. The job went red
+      # for a module-resolution error, which reads like a finding and is not one.
+      #
+      # A SECURITY GATE THAT CRASHES BEFORE IT SCANS IS A GATE THAT CANNOT FAIL. It is
+      # the same shape this repo already named in its eval suite as "the 8/8 on garbage
+      # recurrence killer": a check that prints something without ever asserting.
+      #
+      # `npm ci` (not `npm install`) so CI installs exactly the lockfile and a drifted
+      # lock fails loudly here rather than resolving to something else silently.
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
 
       - name: Run AgentShield baseline-delta scan
         # The CLI exits 1 on any finding NOT in references/security/agentshield-baseline.json;
