@@ -97,10 +97,69 @@ function runHook(payload) {
 }
 
 // ---------------------------------------------------------------------------
+// HOST-CONSUMABLE ENVELOPE SHAPES.
+//
+// This fence originally pinned updatedToolOutput to strictly an Array. That
+// over-fits. The shape is NOT documented by Claude Code: the PostToolUse
+// example in the hooks guide shows a BARE STRING ("Sanitized output"), a real
+// MCP transport sends an ARRAY of content blocks, and { content: [...] } is the
+// raw tool-result shape. All three are things a host can read. Pinning exactly
+// one undocumented form means a host that later honors the documented string
+// form would redden this suite for being right.
+//
+// So the fence asserts the two things that actually matter and are stable:
+//   1. the envelope is a shape a host can consume, and
+//   2. the text survives inside it.
+//
+// The ONE shape that is not consumable is a bare object with no content key.
+// That is the production defect: the client-side length reducer has no array to
+// walk and throws "e.reduce is not a function" into the user's face. The
+// negative assertion in CLAIM (a) proves this fence still catches it.
+//
+// Returns the concatenated text of every text block, or null when the value is
+// not a host-consumable shape at all. Non-throwing on purpose, so the negative
+// case can be asserted rather than crash the run.
+function extractHostText(value) {
+  if (typeof value === 'string') return value;
+  let blocks = null;
+  if (Array.isArray(value)) {
+    blocks = value;
+  } else if (value && typeof value === 'object' && Array.isArray(value.content)) {
+    blocks = value.content;
+  }
+  if (blocks === null) return null;
+  return blocks
+    .filter(function (b) { return b && b.type === 'text'; })
+    .map(function (b) { return typeof b.text === 'string' ? b.text : ''; })
+    .join('');
+}
+
+function describeShape(v) {
+  if (v === null) return 'null';
+  if (v === undefined) return 'undefined';
+  if (Array.isArray(v)) return 'Array(' + v.length + ')';
+  if (typeof v === 'object') return 'object with keys [' + Object.keys(v).join(',') + ']';
+  return typeof v;
+}
+
+// Asserting wrapper. Use this everywhere the suite needs the text back.
+function hostText(value, label) {
+  const text = extractHostText(value);
+  ok(
+    text !== null,
+    label + ': updatedToolOutput must be a shape a host can consume, meaning a bare string, an ' +
+      'array of content blocks, or { content: [...] }. Got ' + describeShape(value) + '. A bare ' +
+      'object carrying no content key is the exact production defect: the client-side length ' +
+      'reducer has no array to walk and throws "e.reduce is not a function".'
+  );
+  return text;
+}
+
+// ---------------------------------------------------------------------------
 // CLAIM (a): SHAPE.
 // ---------------------------------------------------------------------------
 function claimA() {
-  console.log('--- CLAIM (a): updatedToolOutput is an ARRAY of content blocks ---');
+  console.log('--- CLAIM (a): updatedToolOutput is a host-consumable envelope, never the bug shape ---');
 
   // Leg 1: the hook, driven as a child process. Inspection of the module would
   // not prove what lands on stdout, which is the thing the client parses.
@@ -118,28 +177,45 @@ function claimA() {
     envelope.hookSpecificOutput.hookEventName === 'PostToolUse',
     'CLAIM a: hookEventName must be PostToolUse'
   );
-  const hookBlocks = envelope.hookSpecificOutput.updatedToolOutput;
+  const hookText = hostText(envelope.hookSpecificOutput.updatedToolOutput, 'CLAIM a hook');
   ok(
-    Array.isArray(hookBlocks) === true,
-    'CLAIM a: hook updatedToolOutput must be strictly an Array, got ' + typeof hookBlocks +
-      '. A bare object has no reduce method and the client-side length reducer throws ' +
-      '"e.reduce is not a function" into the user\'s face.'
+    hookText.indexOf('JTBD graph census') !== -1,
+    'CLAIM a: hook envelope must still carry the response text, got ' + JSON.stringify(hookText)
   );
-  ok(hookBlocks[0].type === 'text', 'CLAIM a: hook block 0 must have type "text", got ' + hookBlocks[0].type);
-  ok(typeof hookBlocks[0].text === 'string', 'CLAIM a: hook block 0 text must be a string');
+
+  // THE NEGATIVE. The widened predicate must still reject the shape that caused
+  // the outage, or this fence has been loosened into uselessness.
+  ok(
+    extractHostText({ text: '' }) === null,
+    'CLAIM a: the bug shape { text: ... } must NOT be accepted as host-consumable'
+  );
+  ok(
+    extractHostText({ text: 'looks plausible' }) === null,
+    'CLAIM a: a bare object with a text key is still the bug shape, however populated'
+  );
+
+  // And the three documented-or-real forms must all be accepted, so a host that
+  // honors any of them does not redden this suite for being right.
+  ok(extractHostText('bare string form') === 'bare string form', 'CLAIM a: bare string form must be accepted');
+  ok(
+    extractHostText([{ type: 'text', text: 'array form' }]) === 'array form',
+    'CLAIM a: array-of-blocks form must be accepted'
+  );
+  ok(
+    extractHostText({ content: [{ type: 'text', text: 'wrapper form' }] }) === 'wrapper form',
+    'CLAIM a: { content: [...] } wrapper form must be accepted'
+  );
 
   // Leg 2: buildEnvelope, the library seam the hook is supposed to mirror.
   // Asserted separately so the two cannot re-diverge silently.
   const built = sanitizer.buildEnvelope(PLUGIN_SCOPED_STATS, {
     content: [{ type: 'text', text: 'JTBD graph census' }],
   });
-  const builtBlocks = built.hookSpecificOutput.updatedToolOutput;
+  const builtText = hostText(built.hookSpecificOutput.updatedToolOutput, 'CLAIM a buildEnvelope');
   ok(
-    Array.isArray(builtBlocks) === true,
-    'CLAIM a: buildEnvelope updatedToolOutput must be strictly an Array, got ' + typeof builtBlocks
+    builtText.indexOf('JTBD graph census') !== -1,
+    'CLAIM a: buildEnvelope must still carry the response text, got ' + JSON.stringify(builtText)
   );
-  ok(builtBlocks[0].type === 'text', 'CLAIM a: buildEnvelope block 0 must have type "text"');
-  ok(typeof builtBlocks[0].text === 'string', 'CLAIM a: buildEnvelope block 0 text must be a string');
 
   // Non-Brain tools stay untouched: the fence must not have widened the hook's
   // scope while fixing its shape.
@@ -184,9 +260,7 @@ function claimB() {
       session_id: 'h5s-claim-b',
     });
     ok(res.status === 0, label + ': hook must exit 0, got ' + res.status + ' stderr=' + (res.stderr || ''));
-    const blocks = JSON.parse(res.stdout).hookSpecificOutput.updatedToolOutput;
-    ok(Array.isArray(blocks), label + ': updatedToolOutput must be an array');
-    const text = blocks[0].text;
+    const text = hostText(JSON.parse(res.stdout).hookSpecificOutput.updatedToolOutput, label);
     ok(
       typeof text === 'string' && text.length > 0,
       label + ': the response was BLANKED to an empty string, which is the exact production defect ' +
