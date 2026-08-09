@@ -38,12 +38,13 @@
 #   245-0x  tests/test-245-brain-verb-not-starved.cjs
 #   245-0x  tests/test-245-reward-guard-staged.cjs
 #   h5s     tests/test-245-brain-envelope-shape.cjs
+#   exe     tests/test-245-skill-frontmatter-inert-keys.cjs
 #
-# The last entry is from quick task 260807-h5s, not from Phase 245 itself. It
+# The last TWO entries are not from Phase 245 itself. They
 # carries the test-245- prefix deliberately so this runner's glob picks it up
 # with zero execution edits, exactly as the discovery contract below intends.
 #
-# That is SEVENTEEN files. The glob is the executor; the list above is the
+# That is EIGHTEEN files. The glob is the executor; the list above is the
 # reading checklist. A test named above that is missing from disk is NOT
 # reported by this runner as a failure, because a file that does not exist
 # cannot be globbed. That is the honest limitation of glob discovery and the

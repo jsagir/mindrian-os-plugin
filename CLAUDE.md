@@ -12,18 +12,27 @@
 
 Before any session: `pwd` (confirm the dev workspace, not `~/.claude/plugins/*`), `git fetch origin main`, then check `git log origin/main..HEAD` (ahead) and `git log HEAD..origin/main` (behind). If the session-start hook trips the workspace guard, `cd ~/dev/MindrianOS-Plugin` and restart. Why this rule exists (the 2026-04-13 wrong-workspace incident): `docs/autopsies/2026-04-13-wrong-workspace-incident.md`.
 
+**Also check for OPEN HANDOFFS before starting.** `.planning/` is `.gitignore`d (`.planning/*`), so GSD STATE.md does NOT travel between machines. A handoff from another machine can only reach you through a tracked file. Run `ls docs/*-HANDOFF-*.md` and read anything dated within the last week; work paused on one machine is invisible here otherwise. Currently open:
+
+| Handoff | Subject |
+|---|---|
+| `docs/2026-08-09-HANDOFF-brain-envelope-and-egress-guard.md` | the Brain-unreadable outage, PR #2 (merged), PR #3 (open), and the `v1.16.0-beta.13` release still owed. Contains the WSL release commands and the `updatedToolOutput` contract verified against the Claude Code binary. |
+| `docs/2026-08-09-HANDOFF-tier0-removal-milestone.md` | Tier 0 removal / hard-require the Brain. DECIDED, unstarted. Read section 6 first: there is no always-on skill primitive, `activation:` in SKILL.md frontmatter is ignored, and the working rail already runs every turn. |
+
+**Cross-repo:** the Brain itself lives in `jsagir/ProblemsWorthSolving-Brain`, whose own `CLAUDE.md` and `docs/2026-08-09-HANDOFF-brain-consumption-surface.md` carry the graph-side state. Changes there do not show up in this repo's history at all, so check both when Brain behaviour is in question.
+
 ---
 
 ## What Is This?
 
-A commercial Claude Code + Cowork plugin. One command installs it (`claude plugin install mindrian-os@mindrian-marketplace`); no setup, Larry starts talking. Optional: Neo4j Aura (free) for graph, Brain for enrichment. Full description in the Project section below.
+A commercial Claude Code + Cowork plugin. One command installs it (`claude plugin install mindrian-os@mindrian-marketplace`); no setup, Larry starts talking. Two OPTIONAL and unrelated extras, kept apart here because conflating them has already cost a session: the **user's own room graph** can use Neo4j Aura (free tier, the user's data, their instance), and the **Brain** is a separate remote Memgraph service for methodology enrichment. Full description in the Project section below.
 
 ## The Three Layers
 
 | Layer | What | Where | Who Owns It |
 |-------|------|-------|-------------|
 | **Plugin** | Skills, commands, agents, hooks, pipelines | This repo (marketplace) | Open |
-| **Brain** | Neo4j teaching graph + Pinecone vectors + teaching intelligence (live numbers: docs/CORPUS-STATS.generated.md) | mindrian-brain.onrender.com (remote MCP) | Jonathan, SECRET IP |
+| **Brain** | Memgraph teaching graph + e5 vectors (1024-dim, local embed, no egress) + teaching intelligence (live numbers: docs/CORPUS-STATS.generated.md) | pws-brain-mcp.onrender.com (remote MCP) | Jonathan, SECRET IP |
 | **Room** | User's workspace, entries, sub-rooms, LazyGraph, exports | User's local folder + their Aura | User owns their work |
 
 ## Tri-Polar Design Rule (STRONG DEFAULT)
@@ -103,8 +112,8 @@ A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wis
 | Markdown + YAML frontmatter | Skills, agents, commands, pipelines, references |
 | JSON | plugin.json, hooks.json, .mcp.json, settings.json, STATE.md frontmatter |
 | Bash scripts (scripts/) | Room analysis, state, meeting intelligence, PDF, transcription |
-| Neo4j Aura + Brain MCP | Remote teaching graph (Streamable HTTP) at mindrian-brain.onrender.com |
-| Pinecone | Brain semantic-search vectors (pws-brain, 1024-dim) |
+| Memgraph + Brain MCP | Remote teaching graph (Streamable HTTP) at pws-brain-mcp.onrender.com. Cutover from Neo4j Aura landed 2026-07-22; lib/core/brain-client.cjs:24 is the single source of the default URL |
+| e5 (multilingual-e5-large) | Brain semantic-search vectors, 1024-dim, embedded LOCALLY (passage:/query: prefixes, no network egress). Pinecone is RETIRED |
 | Cytoscape.js (CDN) | De Stijl knowledge-graph visualization |
 | sentence-transformers + LSA (Python) | HSI computation scripts |
 
