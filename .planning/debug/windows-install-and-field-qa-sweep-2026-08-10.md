@@ -8,7 +8,7 @@ surfaces: [cli]              # cli | desktop | cowork
 brain_mode: full-loop        # full-loop | local-only | tier-0
 canon_parts: [6, 7, 12]      # 6 dog-fooding, 7 reuse-before-build, 12 pedagogy (statusline trust)
 created: 2026-08-10T16:00:00Z
-updated: 2026-08-10T16:00:00Z
+updated: 2026-08-10T20:30:00Z
 ---
 
 ## Current Focus
@@ -102,6 +102,16 @@ started: install-shell-assumption family present since the installer/statusline 
   found: no native/gyp deps; no build-tools invocation in install.sh.
   implication: the VS Build Tools time-sink is external (Node MSI optional step), fixable by a DOC change on the install page, not code.
 
+- timestamp: 2026-08-10T20:30:00Z
+  checked: LIVE Brain from an egress-open machine (cross-session handoff from the brain repo; pws-brain-mcp.onrender.com; read-tier holder key), minutes before this sweep's own sandbox test.
+  found: Brain is UP and answering. AVAIL-01 probe PASS end-to-end: initialize 200 -> brain_query 200 returning frameworkCount 181 -> search 200 (e5 sidecar warm) -> brain_write correctly 403 (write gate holds). ~26s incl cold e5 load. CALL pagerank.get() YIELD returned real ranked rows through the new bounded read tier (bounded by the outer LIMIT). b2 live suite 5/5 green.
+  implication: RESOLVES this sweep's earlier open question ("what it does NOT tell us: whether the live Brain is up"). It IS up. Therefore this sandbox's own 403 is CONFIRMED to be the agent-proxy CONNECT refusal alone - nothing plugin-side, nothing Brain-side. The client's honest-refusal shape (wired, fails safe, degrades per Canon) is correct QA signal, not a Brain outage.
+
+- timestamp: 2026-08-10T20:30:00Z
+  checked: Brain /register production status (cross-session handoff).
+  found: POST /register was 503-broken in production (missing NOT-NULL email column) until commit ecf3a3b, deployed the evening of 2026-08-10. Today is register's first working day.
+  implication: this sweep's auto-register leg (brain-client ensureAvailable -> _tryAutoRegister) would have failed even WITH open egress before today. When re-run on an egress-open machine, that run tests register's first working day; a failure THERE is a fresh finding, NOT the sandbox block (F-P). Do not retro-attribute a future register failure to the proxy.
+
 ## Findings Table
 
 | ID | Finding | Source | Class | Severity | Route |
@@ -121,6 +131,7 @@ started: install-shell-assumption family present since the installer/statusline 
 | F-M | Room-health inconsistency ("0 sections scanned / health --" then "3 sections / health low") | T2 | HYPOTHESIS (family: intern-w1-state-not-recomputed) | low | investigate |
 | F-N | Session-start "1 setup issue: MCP - /doctor" | T2 | HYPOTHESIS (family: mcp-servers-cache-missing-node-modules, doctor-brain-smoke-win-crash) | low | investigate |
 | F-O | `/ignite` hit a bug and self-healed mid-session | T1 | HYPOTHESIS (insufficient error text) | low | investigate |
+| F-P | Cloud/CI sandbox proxy denies CONNECT to the Brain host (403 at tunnel); the client's honest-refusal shape must not be read as a dead Brain in CI reports | this session (Brain verified UP from egress-open machine) | ENV-GAP + REPORTING-CAVEAT (NOT a defect; Brain healthy) | medium | DOC / mandatory caveat |
 
 ## Technical Root Cause (grounded findings only)
 
@@ -159,6 +170,8 @@ started: install-shell-assumption family present since the installer/statusline 
 - F-E (install minisite prereqs): state plainly that MindrianOS requires a Claude Pro or Max subscription on a PERSONAL or non-managed account; corporate SSO/Okta-managed Claude plans block the in-CLI upgrade (T1: Ameet, Young, Joe all hit this). Give the "create a personal account, reimburse" path as the documented workaround.
 - F-C: verify the marketplace-add transient is covered by resolved/doctor-marketplace-cache-drift-deadlock on beta.12; if the residual is "cannot add marketplace from inside a running Claude session", document the fresh-terminal recovery on the install page.
 - F-D / F-F / F-G: roadmap items already owned by the maintainer (brain-key bake-in; natural-language dispatch replacing command sprawl; Phase 130 Python-to-CJS port). No new action beyond linking this sweep as field evidence.
+- F-P (MANDATORY QA-reporting caveat; verified against a live healthy Brain): "Cloud/CI sandbox proxies deny CONNECT to pws-brain-mcp.onrender.com (403 at the tunnel). The client's 'registration failed (HTTP 403, offline or unreachable)' is the CORRECT honest-refusal shape for this case - but any sandbox-run QA that reports Brain legs as degraded MUST carry this caveat, or a healthy Brain reads as a dead one in CI reports." The point: the failure mode this milestone kept finding is TRUE STATES MISLABELED. A CI report saying "Brain degraded" when the Brain is fine is that same bug wearing a different hat. Add this caveat line to any audit template that runs Brain probes in a sandbox (RCA-TEMPLATE Source-of-Truth Preamble is the natural home).
+- Probe policy (do NOT build a new probe): two probes already exist, one per side of the wire. Brain-side: scripts/probe-live-tool-call.mjs (brain repo; four legs; distinct exit codes; exit 5 = write gate open). Plugin-side: scripts/probe-brain-contract.cjs through the SHIPPED client - the AVAIL-01 doctrine reference probe precisely because the beta.13 outage was visible only through the shipped client. A third probe would be a third thing to drift. For the one-command sandbox PASS/BLOCKED readout: wrap the shipped-client probe (scripts/probe-brain-contract.cjs) with the proxy-CONNECT pre-check demonstrated in this session (curl the Brain host through $HTTPS_PROXY; a 403 CONNECT means BLOCKED-BY-SANDBOX, print that verdict and skip the degraded-Brain interpretation). That pre-check is the ONLY genuinely new piece; everything else reuses the shipped probe.
 - CHANGELOG.md: no entry yet (report-only; entries added when/if F-A and F-I ship).
 - knowledge-base.md: add a summary block only on resolve.
 
@@ -181,7 +194,8 @@ started: install-shell-assumption family present since the installer/statusline 
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: (pending human review; report-only per user directive)
-fix: none applied - this is a gathering-stage sweep. Two grounded code findings (F-A, F-I) and two high-leverage DOC findings (F-B, F-E) are the actionable head of the list; the rest are KNOWN/roadmap/HYPOTHESIS.
-verification: n/a (no code changed)
+fix: none applied - this is a gathering-stage sweep. Two grounded code findings (F-A, F-I) and two high-leverage DOC findings (F-B, F-E) are the actionable head of the list; the rest are KNOWN/roadmap/HYPOTHESIS. F-P is a reporting caveat, not a defect.
+brain_status: LIVE BRAIN CONFIRMED HEALTHY (2026-08-10, cross-session handoff from the brain repo) - frameworkCount 181, AVAIL-01 PASS end-to-end, pagerank bounded-read-tier live, b2 5/5 green, brain_write correctly 403. This sweep's own 403 was the sandbox proxy CONNECT refusal ALONE (F-P). Register (/register) fixed at ecf3a3b and deployed the evening of 2026-08-10 - re-runs on an egress-open machine test register's first working day.
+verification: sandbox side - proxy CONNECT to pws-brain-mcp.onrender.com returns 403 (curl through $HTTPS_PROXY). Egress-open side - AVAIL-01 PASS (see Evidence, 2026-08-10T20:30:00Z). Recommended sandbox one-command readout: wrap scripts/probe-brain-contract.cjs with the proxy-CONNECT pre-check (F-P follow-up); do not build a new probe.
 files_changed: none
 commits: this sweep file only
