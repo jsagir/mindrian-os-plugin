@@ -1,0 +1,2151 @@
+{
+  "meta": {
+    "census_date": "2026-08-10",
+    "brain_url": "https://pws-brain-mcp.onrender.com",
+    "brain_stats": {
+      "backend": "memgraph",
+      "totalRecordCount": 28325,
+      "relationshipCount": 23014,
+      "dimension": 1024,
+      "namespaces": {},
+      "vectorIndexes": [
+        {
+          "name": "concept_embeddings",
+          "dimension": 384,
+          "e5Queryable": false
+        },
+        {
+          "name": "creativework_embeddings",
+          "dimension": 384,
+          "e5Queryable": false
+        },
+        {
+          "name": "entity_embeddings",
+          "dimension": 384,
+          "e5Queryable": false
+        },
+        {
+          "name": "framework_embeddings",
+          "dimension": 384,
+          "e5Queryable": false
+        },
+        {
+          "name": "mindrian_methodology_vec",
+          "dimension": 1024,
+          "e5Queryable": true
+        },
+        {
+          "name": "mindrian_methodology_vec_openai",
+          "dimension": 1536,
+          "e5Queryable": false
+        },
+        {
+          "name": "person_embeddings",
+          "dimension": 384,
+          "e5Queryable": false
+        },
+        {
+          "name": "product_embeddings",
+          "dimension": 384,
+          "e5Queryable": false
+        },
+        {
+          "name": "vector",
+          "dimension": 384,
+          "e5Queryable": false
+        }
+      ],
+      "vectorIndexSpaces": {
+        "corpusDimension": 1024,
+        "e5Queryable": [
+          "mindrian_methodology_vec"
+        ],
+        "foreignSpace": [
+          {
+            "name": "concept_embeddings",
+            "dimension": 384
+          },
+          {
+            "name": "creativework_embeddings",
+            "dimension": 384
+          },
+          {
+            "name": "entity_embeddings",
+            "dimension": 384
+          },
+          {
+            "name": "framework_embeddings",
+            "dimension": 384
+          },
+          {
+            "name": "mindrian_methodology_vec_openai",
+            "dimension": 1536
+          },
+          {
+            "name": "person_embeddings",
+            "dimension": 384
+          },
+          {
+            "name": "product_embeddings",
+            "dimension": 384
+          },
+          {
+            "name": "vector",
+            "dimension": 384
+          }
+        ]
+      }
+    },
+    "key_tier_lane_a": "read",
+    "lane_a_source": "render-live ungated read tools"
+  },
+  "canon_discrepancy": {
+    "canon_prose_count": 25,
+    "scanned_count": 50,
+    "scanned_at": "2026-08-10",
+    "enumeration_source": "frontmatter scan of commands/*.md (kind: methodology)"
+  },
+  "gap_table": [
+    {
+      "framework": "Jobs to Be Done (JTBD)",
+      "uses": 5,
+      "readiness_score": 2,
+      "status": "partial",
+      "reason": "readiness 2/4"
+    },
+    {
+      "framework": "Reverse Salient Analysis",
+      "uses": 5,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Six Thinking Hats",
+      "uses": 4,
+      "readiness_score": 1,
+      "status": "not_ready",
+      "reason": "readiness 1/4"
+    },
+    {
+      "framework": "HSI Semantic Surprise Analysis Assistant",
+      "uses": 3,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "PWS Triple Validation Compass",
+      "uses": 3,
+      "readiness_score": 2,
+      "status": "partial",
+      "reason": "readiness 2/4"
+    },
+    {
+      "framework": "S-Curve Analysis",
+      "uses": 3,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Adoption-Capacity Theory",
+      "uses": 2,
+      "readiness_score": 2,
+      "status": "partial",
+      "reason": "readiness 2/4"
+    },
+    {
+      "framework": "PWS Value Proposition",
+      "uses": 2,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Root Cause Analysis",
+      "uses": 2,
+      "readiness_score": 2,
+      "status": "partial",
+      "reason": "readiness 2/4"
+    },
+    {
+      "framework": "Scenario Planning",
+      "uses": 2,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Systems Thinking",
+      "uses": 2,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "The Pyramid Principle",
+      "uses": 2,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Adaptive Leadership",
+      "uses": 1,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Domain Selection",
+      "uses": 1,
+      "readiness_score": 2,
+      "status": "partial",
+      "reason": "readiness 2/4"
+    },
+    {
+      "framework": "Dominant Design",
+      "uses": 1,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Four Lenses of Innovation",
+      "uses": 1,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Futures Wheel",
+      "uses": 1,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Hypothesis-Driven Problem Solving",
+      "uses": 1,
+      "readiness_score": 2,
+      "status": "partial",
+      "reason": "readiness 2/4"
+    },
+    {
+      "framework": "Knowns and Unknowns Matrix Framework",
+      "uses": 1,
+      "readiness_score": 2,
+      "status": "partial",
+      "reason": "readiness 2/4"
+    },
+    {
+      "framework": "Lean Canvas",
+      "uses": 1,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+      "uses": 1,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "Mullins Model",
+      "uses": 1,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    },
+    {
+      "framework": "PEST Analysis",
+      "uses": 1,
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
+    },
+    {
+      "framework": "Red Teaming",
+      "uses": 1,
+      "readiness_score": 0,
+      "status": "not_ready",
+      "reason": "readiness 0/4"
+    }
+  ],
+  "generated_note": "GENERATED by scripts/build-brain-census.cjs - do not hand-edit",
+  "lane_a": {
+    "frameworks": [
+      {
+        "name": "Jobs to Be Done (JTBD)",
+        "uses": 5,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Jobs to Be Done (JTBD)\"",
+            "canonical_matches": [
+              "Jobs to Be Done (JTBD)"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 2/4 -> partial",
+            "readiness": {
+              "name": "Jobs to Be Done (JTBD)",
+              "readiness_score": 2,
+              "orchestration_status": "partial"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "3 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_PROCESS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Identify Situation",
+                "order": 1,
+                "description": "When I am in [specific situation]..."
+              },
+              {
+                "relationship": "HAS_PROCESS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Define Need",
+                "order": 2,
+                "description": "I want [need/desire]..."
+              },
+              {
+                "relationship": "HAS_PROCESS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Expected Outcome",
+                "order": 3,
+                "description": "So I can achieve [expected outcome]"
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:35.573Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:35.573Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:35.573Z"
+          }
+        ]
+      },
+      {
+        "name": "Reverse Salient Analysis",
+        "uses": 5,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Reverse Salient Analysis\"",
+            "canonical_matches": [
+              "Reverse Salient Analysis"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Reverse Salient Analysis",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Reverse Salient Analysis\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:36.209Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:36.209Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:36.209Z"
+          }
+        ]
+      },
+      {
+        "name": "Six Thinking Hats",
+        "uses": 4,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Six Thinking Hats\"",
+            "canonical_matches": [
+              "Six Thinking Hats"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 1/4 -> not_ready",
+            "readiness": {
+              "name": "Six Thinking Hats",
+              "readiness_score": 1,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Six Thinking Hats\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:36.844Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:36.844Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:36.844Z"
+          }
+        ]
+      },
+      {
+        "name": "HSI Semantic Surprise Analysis Assistant",
+        "uses": 3,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"HSI Semantic Surprise Analysis Assistant\"",
+            "canonical_matches": [
+              "HSI Semantic Surprise Analysis Assistant"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "HSI Semantic Surprise Analysis Assistant",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"HSI Semantic Surprise Analysis Assistant\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:37.491Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:37.491Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:37.491Z"
+          }
+        ]
+      },
+      {
+        "name": "PWS Triple Validation Compass",
+        "uses": 3,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"PWS Triple Validation Compass\"",
+            "canonical_matches": [
+              "PWS Triple Validation Compass"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 2/4 -> partial",
+            "readiness": {
+              "name": "PWS Triple Validation Compass",
+              "readiness_score": 2,
+              "orchestration_status": "partial"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "3 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "Phase",
+                "name": "Is It Real? - Problem Validation",
+                "order": 1,
+                "description": "Validate that the problem actually exists and is significant enough to warrant a solution"
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "Phase",
+                "name": "Can We Win? - Solution Feasibility",
+                "order": 2,
+                "description": "Assess whether the problem can be practically solved and if the team can deliver the solution"
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "Phase",
+                "name": "Is It Worth It? - Business Case",
+                "order": 3,
+                "description": "Evaluate potential returns and ensure the investment is justified"
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:38.938Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:38.938Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:38.938Z"
+          }
+        ]
+      },
+      {
+        "name": "S-Curve Analysis",
+        "uses": 3,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"S-Curve Analysis\"",
+            "canonical_matches": [
+              "S-Curve Analysis"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "S-Curve Analysis",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"S-Curve Analysis\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:39.959Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:39.959Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:39.959Z"
+          }
+        ]
+      },
+      {
+        "name": "Adoption-Capacity Theory",
+        "uses": 2,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Adoption-Capacity Theory\"",
+            "canonical_matches": [
+              "Adoption-Capacity Theory"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 2/4 -> partial",
+            "readiness": {
+              "name": "Adoption-Capacity Theory",
+              "readiness_score": 2,
+              "orchestration_status": "partial"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "7 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "FrameworkStep",
+                "name": "ACE Step 1: Define the innovation package",
+                "order": null,
+                "description": "Specify the core technology, the doctrine/operational practice required to exploit it, and the organizational changes required. An MMI is a system, not just a device."
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "FrameworkStep",
+                "name": "ACE Step 2: Identify demonstration point (t0)",
+                "order": null,
+                "description": "Mark the first use that reveals the innovation full strategic potential to the international system. This starts the diffusion clock."
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "FrameworkStep",
+                "name": "ACE Step 3: Code FI and OC of the innovation",
+                "order": null,
+                "description": "Rate FI (1-5) and OC sub-scores (1-5). Use the first-mover transformation depth as the OC benchmark. Store sub-scores separately."
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "FrameworkStep",
+                "name": "ACE Step 4: Profile each actor capacity",
+                "order": null,
+                "description": "Rate FI capacity (GDP, defense budget, procurement), OC capacity (org age vs t0, experimental R&D, task-focus breadth), and conceptual capacity (Adamsky) separately."
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "FrameworkStep",
+                "name": "ACE Step 5: Compute fit and predict path",
+                "order": null,
+                "description": "Compare requirement vectors to actor capacity vectors; assign one of the five response paths; derive adoption probability and time band; include demand-side control variables."
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "FrameworkStep",
+                "name": "ACE Step 6: Derive system-level forecast",
+                "order": null,
+                "description": "Project diffusion speed, adopter concentration, first-mover advantage duration, arms-race or stability dynamics, and instability risk from adopter/non-adopter imbalance."
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "FrameworkStep",
+                "name": "ACE Step 7: Multi-method empirical test",
+                "order": null,
+                "description": "Many potential adopters: quantitative logit/probit. Few, organizationally complex cases: qualitative process tracing. Link to evidence nodes with provenance."
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:41.003Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:41.003Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:41.003Z"
+          }
+        ]
+      },
+      {
+        "name": "PWS Value Proposition",
+        "uses": 2,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"PWS Value Proposition\"",
+            "canonical_matches": [
+              "PWS Value Proposition"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "PWS Value Proposition",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"PWS Value Proposition\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:41.741Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:41.741Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:41.741Z"
+          }
+        ]
+      },
+      {
+        "name": "Root Cause Analysis",
+        "uses": 2,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Root Cause Analysis\"",
+            "canonical_matches": [
+              "Root Cause Analysis"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 2/4 -> partial",
+            "readiness": {
+              "name": "Root Cause Analysis",
+              "readiness_score": 2,
+              "orchestration_status": "partial"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "3 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Apply 5 Whys Analysis",
+                "order": 1,
+                "description": "Use iterative questioning to drill down from symptoms to fundamental causes"
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Create Fishbone Diagram",
+                "order": 2,
+                "description": "Map out all potential causes using cause-and-effect visualization"
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Systems Analysis",
+                "order": 3,
+                "description": "PWS methodology framework: Systems Analysis"
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:42.395Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:42.395Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:42.395Z"
+          }
+        ]
+      },
+      {
+        "name": "Scenario Planning",
+        "uses": 2,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "6 canonical match(es) for \"Scenario Planning\"",
+            "canonical_matches": [
+              "Scenario planning methodology",
+              "Scenario Planning",
+              "Shell Scenario Planning Method",
+              "PWS-Scenario Planning Integration Framework",
+              "Scenario Planning for High Uncertainty",
+              "Scenario Planning"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Scenario Planning",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Scenario Planning\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:43.037Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:43.037Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:43.037Z"
+          }
+        ]
+      },
+      {
+        "name": "Systems Thinking",
+        "uses": 2,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "2 canonical match(es) for \"Systems Thinking\"",
+            "canonical_matches": [
+              "Systems Thinking",
+              "Systems Thinking"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Systems Thinking",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Systems Thinking\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:43.714Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:43.714Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:43.714Z"
+          }
+        ]
+      },
+      {
+        "name": "The Pyramid Principle",
+        "uses": 2,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"The Pyramid Principle\"",
+            "canonical_matches": [
+              "The Pyramid Principle"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "The Pyramid Principle",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"The Pyramid Principle\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:47.665Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:47.665Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:47.665Z"
+          }
+        ]
+      },
+      {
+        "name": "Ackoff Pyramid",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Ackoff Pyramid\"",
+            "canonical_matches": [
+              "Ackoff Pyramid"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 3/4 -> ready",
+            "readiness": {
+              "name": "Ackoff Pyramid",
+              "readiness_score": 3,
+              "orchestration_status": "ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "5 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Data",
+                "order": 1,
+                "description": "Symbols representing properties of objects and events; raw observation. Example: 'It rained 3mm.'"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Information",
+                "order": 2,
+                "description": "Processed data made useful; answers who/what/where/when. Example: 'It rained 3mm more than average.'"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Knowledge",
+                "order": 3,
+                "description": "Know-how; the application of data and information, conveyed by instructions. Example: 'When it rains more than average, flooding follows.'"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Understanding",
+                "order": 4,
+                "description": "Appreciation of why; conveyed by explanations; the synthesis tier. Example: 'Deforestation upstream removed the natural water barriers.'"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Wisdom",
+                "order": 5,
+                "description": "Evaluated understanding; deals with values and judgment; effectiveness (right goal) over efficiency; the long term. Example: 'We need reforestation AND flood defenses.'"
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:48.301Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:48.301Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:48.301Z"
+          }
+        ]
+      },
+      {
+        "name": "Adaptive Leadership",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Adaptive Leadership\"",
+            "canonical_matches": [
+              "Adaptive Leadership"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Adaptive Leadership",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Adaptive Leadership\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:48.932Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:48.932Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:48.932Z"
+          }
+        ]
+      },
+      {
+        "name": "Beautiful Question Framework",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Beautiful Question Framework\"",
+            "canonical_matches": [
+              "Beautiful Question Framework"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 4/4 -> ready",
+            "readiness": {
+              "name": "Beautiful Question Framework",
+              "readiness_score": 4,
+              "orchestration_status": "ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "3 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "WHY Phase",
+                "order": 1,
+                "description": "Understanding phase - questioning status quo and excavating root causes"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "WHAT IF Phase",
+                "order": 2,
+                "description": "Exploring phase - imagination and possibility exploration"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "HOW Phase",
+                "order": 3,
+                "description": "Acting phase - transforming ideas into actionable plans"
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:49.561Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:49.561Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:49.561Z"
+          }
+        ]
+      },
+      {
+        "name": "Domain Selection",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Domain Selection\"",
+            "canonical_matches": [
+              "Domain Selection"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 2/4 -> partial",
+            "readiness": {
+              "name": "Domain Selection",
+              "readiness_score": 2,
+              "orchestration_status": "partial"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "4 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "__Entity__",
+                "name": "Domain Generation",
+                "order": 1,
+                "description": "Generate 5-10 candidate domains before filtering. Mine four sources: Experience, Education, Curiosity, and Intersections. Quantity over quality at this stage."
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "__Entity__",
+                "name": "Domain Evaluation",
+                "order": 2,
+                "description": "Score each domain 1-5 on three criteria: Interest, Knowledge, Research Accessibility. All three must be present. High interest with low knowledge is fantasy. High knowledge with low access is frustration."
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "__Entity__",
+                "name": "Domain Validation",
+                "order": 3,
+                "description": "Test top domains with real research: Literature Scan (prior art, gaps, key players), Stakeholder Check (reachable people), and Scope Test (multiple problems, clear boundaries, manageable)."
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "__Entity__",
+                "name": "Domain Finalization",
+                "order": 4,
+                "description": "Commit with confidence: craft domain statement using template [Activity/Field] for [Stakeholder/Context] in [Setting/Condition]. Create one-sentence pitch, problem inventory, and 30-day action plan."
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:50.199Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:50.199Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:50.199Z"
+          }
+        ]
+      },
+      {
+        "name": "Dominant Design",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Dominant Design\"",
+            "canonical_matches": [
+              "Dominant Design"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Dominant Design",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Dominant Design\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:50.864Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:50.864Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:50.864Z"
+          }
+        ]
+      },
+      {
+        "name": "Four Lenses of Innovation",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "2 canonical match(es) for \"Four Lenses of Innovation\"",
+            "canonical_matches": [
+              "Four Lenses of Innovation",
+              "Four Lenses of Innovation"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Four Lenses of Innovation",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Four Lenses of Innovation\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:51.503Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:51.504Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:51.504Z"
+          }
+        ]
+      },
+      {
+        "name": "Futures Wheel",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Futures Wheel\"",
+            "canonical_matches": [
+              "Futures Wheel"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Futures Wheel",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Futures Wheel\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:52.159Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:52.159Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:52.159Z"
+          }
+        ]
+      },
+      {
+        "name": "Hypothesis-Driven Problem Solving",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Hypothesis-Driven Problem Solving\"",
+            "canonical_matches": [
+              "Hypothesis-Driven Problem Solving"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 2/4 -> partial",
+            "readiness": {
+              "name": "Hypothesis-Driven Problem Solving",
+              "readiness_score": 2,
+              "orchestration_status": "partial"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "4 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Confirm or refute",
+                "order": null,
+                "description": "Determine if hypothesis is supported by evidence"
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Formation of next step hypothesis",
+                "order": null,
+                "description": "Based on results, formulate new hypothesis or final conclusion"
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Research, analysis and conclusion",
+                "order": null,
+                "description": "Gather data and analyze to test the hypothesis"
+              },
+              {
+                "relationship": "HAS_STEP",
+                "component_type": "ProcessStep",
+                "name": "Stating initial hypothesis",
+                "order": null,
+                "description": "Formulate a testable hypothesis about the problem"
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:52.806Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:52.806Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:52.806Z"
+          }
+        ]
+      },
+      {
+        "name": "Knowns and Unknowns Matrix Framework",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Knowns and Unknowns Matrix Framework\"",
+            "canonical_matches": [
+              "Knowns and Unknowns Matrix Framework"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 2/4 -> partial",
+            "readiness": {
+              "name": "Knowns and Unknowns Matrix Framework",
+              "readiness_score": 2,
+              "orchestration_status": "partial"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "4 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Context Establishment Phase",
+                "order": 1,
+                "description": "Define scope, identify stakeholders, and set analysis parameters to establish boundaries for strategic intelligence gathering"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Knowledge Mapping Phase",
+                "order": 2,
+                "description": "Classify current facts, gaps, and confidence levels through systematic inventory and validation"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Gap Identification Phase",
+                "order": 3,
+                "description": "Surface Known Unknowns, Unknown Knowns, and probe for Unknown Unknowns using active discovery mechanisms"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Prioritization & Action Phase",
+                "order": 4,
+                "description": "Rank discoveries by risk/impact and generate monitoring & mitigation plans for proactive management"
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:53.445Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:53.445Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:53.445Z"
+          }
+        ]
+      },
+      {
+        "name": "Lean Canvas",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Lean Canvas\"",
+            "canonical_matches": [
+              "Lean Canvas"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Lean Canvas",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Lean Canvas\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:54.082Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:54.082Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:54.082Z"
+          }
+        ]
+      },
+      {
+        "name": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"MECE (Mutually Exclusive, Collectively Exhaustive)\"",
+            "canonical_matches": [
+              "MECE (Mutually Exclusive, Collectively Exhaustive)"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"MECE (Mutually Exclusive, Collectively Exhaustive)\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:54.740Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:54.740Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:54.740Z"
+          }
+        ]
+      },
+      {
+        "name": "Mullins Model",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "2 canonical match(es) for \"Mullins Model\"",
+            "canonical_matches": [
+              "Mullins Model",
+              "John Mullins Framework"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Mullins Model",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Mullins Model\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:55.390Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:55.390Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:55.390Z"
+          }
+        ]
+      },
+      {
+        "name": "PEST Analysis",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no framework name matched \"PEST Analysis\" (direct or via ALIAS_OF)",
+            "canonical_matches": []
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no framework matched \"PEST Analysis\"",
+            "readiness": null
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"PEST Analysis\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:56.029Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:56.029Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:56.029Z"
+          }
+        ]
+      },
+      {
+        "name": "Problem Definition Transformation Framework",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Problem Definition Transformation Framework\"",
+            "canonical_matches": [
+              "Problem Definition Transformation Framework"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 4/4 -> ready",
+            "readiness": {
+              "name": "Problem Definition Transformation Framework",
+              "readiness_score": 4,
+              "orchestration_status": "ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "3 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "ProblemType",
+                "name": "Undefined Problem",
+                "order": 1,
+                "description": "Broad opportunity space with future-back thinking and scattered observations. Not yet articulated."
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Event",
+                "name": "Ill-Defined Problem",
+                "order": 2,
+                "description": "General direction identified but lacks specificity and testability. Emerging opportunities that need clarification."
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "ProblemType",
+                "name": "Well-Defined Problem",
+                "order": 3,
+                "description": "Specific, measurable problem with binary/falsifiable outcomes, clear user segments, and bounded scope. Camera Test ready."
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:56.670Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:56.670Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:56.670Z"
+          }
+        ]
+      },
+      {
+        "name": "Red Teaming",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "2 canonical match(es) for \"Red Teaming\"",
+            "canonical_matches": [
+              "Red Teaming",
+              "Red Teaming"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 0/4 -> not_ready",
+            "readiness": {
+              "name": "Red Teaming",
+              "readiness_score": 0,
+              "orchestration_status": "not_ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Red Teaming\"",
+            "components": []
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:57.311Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:57.311Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:57.311Z"
+          }
+        ]
+      },
+      {
+        "name": "Usher's Model of Cumulative Synthesis",
+        "uses": 1,
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "1 canonical match(es) for \"Usher's Model of Cumulative Synthesis\"",
+            "canonical_matches": [
+              "Usher's Model of Cumulative Synthesis"
+            ]
+          }
+        },
+        "readiness": {
+          "ok": true,
+          "result": {
+            "tool": "orchestration_readiness",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "readiness 3/4 -> ready",
+            "readiness": {
+              "name": "Usher's Model of Cumulative Synthesis",
+              "readiness_score": 3,
+              "orchestration_status": "ready"
+            }
+          }
+        },
+        "structure": {
+          "ok": true,
+          "result": {
+            "tool": "discover_structure",
+            "backend": "memgraph",
+            "grounded": true,
+            "note": "4 structural component(s)",
+            "components": [
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Perception of a Problem",
+                "order": 1,
+                "description": "An unfilled want whose gratification is made possible by the presence of fortuitous conditions"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Setting the Stage",
+                "order": 2,
+                "description": "Creating mediated contingencies that engender systematic efforts to find solutions through trial and error"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Act of Insight",
+                "order": 3,
+                "description": "Essential solution found through unlearned activities resulting in new organizations of prior knowledge"
+              },
+              {
+                "relationship": "HAS_PHASE",
+                "component_type": "Phase",
+                "name": "Critical Revision",
+                "order": 4,
+                "description": "Solution studied critically and understood in fullness, requiring new acts of insight for complete integration"
+              }
+            ]
+          }
+        },
+        "provenance": [
+          {
+            "tool": "normalize_framework_name",
+            "date": "2026-08-10T09:15:57.974Z"
+          },
+          {
+            "tool": "orchestration_readiness",
+            "date": "2026-08-10T09:15:57.974Z"
+          },
+          {
+            "tool": "discover_structure",
+            "date": "2026-08-10T09:15:57.974Z"
+          }
+        ]
+      }
+    ],
+    "absence_probes": [
+      {
+        "name": "TRIZ",
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no framework name matched \"TRIZ\" (direct or via ALIAS_OF)",
+            "canonical_matches": []
+          }
+        }
+      },
+      {
+        "name": "SCAMPER",
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no framework name matched \"SCAMPER\" (direct or via ALIAS_OF)",
+            "canonical_matches": []
+          }
+        }
+      },
+      {
+        "name": "Five Whys",
+        "normalize": {
+          "ok": true,
+          "result": {
+            "tool": "normalize_name",
+            "backend": "memgraph",
+            "grounded": false,
+            "note": "no framework name matched \"Five Whys\" (direct or via ALIAS_OF)",
+            "canonical_matches": []
+          }
+        }
+      }
+    ]
+  }
+}
