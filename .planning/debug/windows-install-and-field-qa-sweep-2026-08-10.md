@@ -1,5 +1,5 @@
 ---
-status: gathering            # gathering | investigating | fixing | resolved
+status: fixing                # gathering | investigating | fixing | resolved
 kind: qa-sweep               # rca | debug-session | qa-sweep
 trigger: "windows-install-and-field-qa-sweep-2026-08-10"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli]              # cli | desktop | cowork
 brain_mode: full-loop        # full-loop | local-only | tier-0
 canon_parts: [6, 7, 12]      # 6 dog-fooding, 7 reuse-before-build, 12 pedagogy (statusline trust)
 created: 2026-08-10T16:00:00Z
-updated: 2026-08-10T16:00:00Z
+updated: 2026-08-11T00:00:00Z
 ---
 
 ## Current Focus
@@ -17,7 +17,9 @@ updated: 2026-08-10T16:00:00Z
 hypothesis: Two real-world Windows sessions (a live group install call and a JHU-TA field-use session) surface a cluster of install and first-run UX defects. Most are already-tracked Windows-shell-assumption bugs; two are freshly grounded code gaps (doctor statusline self-test spawn, update-checker no-retry); several are non-code ENV/DOC gaps.
 test: Classify every symptom WORKING / KNOWN-tracked / FIXED-already / ENV-GAP / NEW / HYPOTHESIS against the repo and the existing .planning/debug corpus.
 expecting: A per-finding table where only NEW/HYPOTHESIS items warrant a fresh /gsd:debug session; KNOWN items link to their existing session; ENV/DOC items route to the install minisite, not code.
-next_action: Human review of this sweep before any fix is opened (user directive: full RCA report only, no code changes yet).
+next_action: F-A and F-I shipped 2026-08-11 (see Resolution). Remaining actionable items: F-B/F-E
+(DOC, install minisite), F-K/F-L/F-M/F-N/F-O (HYPOTHESIS, need repro -- candidates for a fresh
+/gsd:debug session each).
 
 ## Source-of-Truth Preamble
 
@@ -106,7 +108,7 @@ started: install-shell-assumption family present since the installer/statusline 
 
 | ID | Finding | Source | Class | Severity | Route |
 |----|---------|--------|-------|----------|-------|
-| F-A | doctor statusline self-test spawns the bash script directly, not via `bash` -> Windows false "spawn error" | T1 | NEW-site of KNOWN family (windows-posix-shell-assumption-installer-statusline) | low | code (needs-source-reverify) |
+| F-A | doctor statusline self-test spawns the bash script directly, not via `bash` -> Windows false "spawn error" | T1 | NEW-site of KNOWN family (windows-posix-shell-assumption-installer-statusline) | low | FIXED 2026-08-11 (see Resolution) |
 | F-B | Node MSI "Tools for Native Modules" installs Python + VS Build Tools (the blue PowerShell hang); MindrianOS needs none | T1 | ENV-GAP | high (time-sink) | DOC (install minisite) |
 | F-C | "Failed to add marketplace" needs a full terminal restart to clear | T1 | KNOWN (resolved/doctor-marketplace-cache-drift-deadlock) | medium | verify / DOC |
 | F-D | Manual Brain-API-key step | T1 | WORKING as-designed (maintainer: next update bakes it in) | low | roadmap |
@@ -114,7 +116,7 @@ started: install-shell-assumption family present since the installer/statusline 
 | F-F | Command proliferation; users cannot tell MOS commands from native, or which to run | T1 | KNOWN (every-mos-command-unknown) + roadmap (NL dispatch) | medium | roadmap |
 | F-G | First room creation slow (installs Python mid-session) | T1 | KNOWN by-design (Phase 130 CJS-port planned) | low | roadmap |
 | F-H | Terminal focus/paste quirks (Enter ignored until mouse click) | T1 | ENV-GAP (Claude Code Windows terminal) | low | none |
-| F-I | `/mos:update` aborts on a single ECONNRESET with no retry / no auto-degrade | T2 | NEW (grounded) | medium | code (needs-source-reverify) |
+| F-I | `/mos:update` aborts on a single ECONNRESET with no retry / no auto-degrade | T2 | NEW (grounded) | medium | FIXED 2026-08-11 (retry shipped; auto-degrade noted as follow-up, see Resolution) |
 | F-J | PPTX not natively readable; python-pptx shell-out, silent break if absent | T2 | NEW / ENH | medium | code/DOC |
 | F-K | Recurring guardian error every Stop: "trace_missing_field, glyph low; 32 violations across 1 section" | T2 | HYPOTHESIS (needs repro) | medium | investigate |
 | F-L | `USER.md` "Error writing file" during room birth | T2 | HYPOTHESIS (needs repro) | medium | investigate |
@@ -180,8 +182,45 @@ started: install-shell-assumption family present since the installer/statusline 
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: (pending human review; report-only per user directive)
-fix: none applied - this is a gathering-stage sweep. Two grounded code findings (F-A, F-I) and two high-leverage DOC findings (F-B, F-E) are the actionable head of the list; the rest are KNOWN/roadmap/HYPOTHESIS.
-verification: n/a (no code changed)
-files_changed: none
-commits: this sweep file only
+root_cause: F-A and F-I confirmed and shipped 2026-08-11 as a quick-task fix pair. Both sites were
+re-verified against origin/main HEAD first (the sweep's original reads were against branch
+`claude/mindry-installation-xt5x2d` @ `aad6ba380f`, beta.12-era; main had moved ~40 commits). Both
+findings' TECHNICAL ROOT CAUSE held unchanged at re-verify time:
+  - F-A: lib/core/doctor/statusline-visibility-module.cjs moved (Phase 217 Plan 05 extracted the
+    class-G check out of the doctor CLI's inline main() into this registry-driven module), but the
+    defect itself was intact -- Step 3 still spawnSync()'d the resolved statusline-mos file path
+    directly, never through `bash`, even though settings.json ships bash-wrapped.
+  - F-I: scripts/check-version-and-sha.cjs's fetchLatestVersion() site was unchanged (same file,
+    line numbers close to the original citation); still a single-shot fetch per URL, no retry.
+fix:
+  - F-A: Step 3's spawn now branches on the EFFECTIVE statusLine.command (user-level override,
+    else plugin-level settings.json, else the shipped bash-wrapped default) -- if that command
+    starts with `bash`, spawn `bash [statuslineMos]`; otherwise (a hypothetical native-executable
+    override) direct-spawn as before. Matches the sweep's short-term patch exactly.
+  - F-I: fetchJsonRetrying() wraps each of the two raw.githubusercontent.com fetches (catalog
+    primary + plugin.json degraded fallback) in a bounded retry: 3 attempts, 250/500/1000ms
+    backoff, firing ONLY on ECONNRESET/ETIMEDOUT/EAI_AGAIN. Non-transient failures (HTTP 4xx/5xx,
+    malformed JSON) still throw on the first attempt, unretried -- STATUS=NETWORK_ERROR still
+    surfaces immediately for those. The auto-degrade-to-`/plugin update` follow-up from the
+    sweep's Required Code Changes section is NOTED, not implemented.
+verification: TDD RED/GREEN for both. F-A: tests/test-doctor-statusline-selftest-bash-invocation.cjs
+(2/2, PATH-shimmed fake `bash` proxies the Windows direct-exec failure on this POSIX runner by
+recording the invocation shape and using a non-executable stand-in script). F-I:
+tests/test-check-version-network-retry.cjs (5/5, hermetic fetchJson + sleep stubs -- transient
+retry-then-success, bounded exhaustion, increasing backoff shape, non-transient no-retry
+regression guard, and retry applied independently to both fetch legs). Pre-existing suites
+(test-check-version-latest-resolution.cjs, test-check-version-semver-prerelease.cjs,
+test-doctor-statusline-prefix-validator.cjs, test-statusline-visibility-self-heal.cjs,
+test-doctor-class-h-topology-blind.cjs) all still pass unmodified. One unrelated pre-existing
+failure was found during the regression sweep (test-doctor-legacy-config-pin-drift.cjs, Test 5
+repositories-nested schema) -- confirmed out of scope (file untouched by this fix, fails
+identically on HEAD before these commits); left for a separate session.
+files_changed:
+  - lib/core/doctor/statusline-visibility-module.cjs (F-A implementation)
+  - scripts/check-version-and-sha.cjs (F-I implementation)
+  - tests/test-doctor-statusline-selftest-bash-invocation.cjs (F-A test, new)
+  - tests/test-check-version-network-retry.cjs (F-I test, new)
+  - CHANGELOG.md ([Unreleased] Fixed entries)
+commits: test(qa-sweep) RED x2, fix(qa-sweep) GREEN x2, plus two test-harness-bug-fix commits
+(the bash shim's own shebang recursed via PATH; the backoff-shape test concatenated two
+independent retry loops) -- see git log for exact SHAs.

@@ -3,6 +3,28 @@
 ### Added
 - 
 
+### Fixed
+- **The doctor's statusline self-test no longer cries wolf on Windows.** `/mos:doctor` used to
+  spawn the plugin's `scripts/statusline-mos` script directly, skipping the `bash` wrapper that
+  the real session always uses (`settings.json`'s `statusLine.command` is
+  `bash "${CLAUDE_PLUGIN_ROOT}/scripts/statusline-mos"`). Windows has no direct-exec association
+  for an extensionless bash-shebang script, so the self-test reported a "synthetic spawn error"
+  even on a machine where the statusline itself was rendering correctly -- caught live on a group
+  Windows install call, where a tester's own diagnosis nailed it: "It's calling the script
+  directly instead of through Bash which doesn't work on Windows regardless of whether the status
+  line itself is healthy. That's a diagnostic bug, not a problem." The self-test now routes
+  through `bash` whenever the effective statusline command is the plugin's own bash script (or a
+  user override that itself starts with `bash`), matching the real runtime exactly.
+- **`/mos:update` no longer gives up on the first network hiccup.** The version checker fetched
+  both its lookup URLs from a single host (`raw.githubusercontent.com`) with no retry, so one
+  transient reset failed the whole check and printed `STATUS=NETWORK_ERROR` -- reported from a
+  field session on an institutional network (karunya.edu.in) where `/mos:update` looped on
+  `read ECONNRESET` every time. It now retries up to three times with 250/500/1000ms backoff, but
+  only for genuinely transient errors (`ECONNRESET`, `ETIMEDOUT`, `EAI_AGAIN`); a real HTTP error
+  still fails immediately so a broken fetch doesn't stall behind a pointless retry.
+  Follow-up not yet built: auto-degrading straight to the native `/plugin update` path once
+  retries exhaust, instead of handing the user two commands to paste.
+
 ## [2.0.0-beta.1] - 2026-08-10
 
 ### Fixed
