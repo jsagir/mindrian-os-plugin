@@ -182,7 +182,7 @@ candidate for a future phase).
 | 246. Live Verification + Graph Census | 0/2 | Not started | - |
 | 247. Brain Surface Contract | 2/3 | In Progress|  |
 | 248. MCP-First Room Resolution | 1/2 | In Progress | - |
-| 249. Context-Driven Enrichment | 0/TBD | Not started | - |
+| 249. Context-Driven Enrichment | 2/3 | In Progress|  |
 | 250. Honesty Rail + Doctrine Amendment | 0/TBD | Not started | - |
 | 251. Cache-Aware Trigger Redesign | 0/TBD | Not started | - |
 | 252. Guard Sweep | 0/TBD | Not started | - |

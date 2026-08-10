@@ -59,18 +59,18 @@ methodology that did not come from the Brain, without being told.
 
 ### Phase C -- Context-driven enrichment (never bulk)
 
-- [ ] **ENRICH-01**: When a live reach triggers a framework whose orchestration_readiness is
+- [x] **ENRICH-01**: When a live reach triggers a framework whose orchestration_readiness is
       0-2/4, the miss is captured as a typed enrichment-queue entry (framework, missing
       dimensions, triggering context class -- generic handles only, Part 8).
 
-- [ ] **ENRICH-02**: An enrichment pipeline turns a queue entry into graph structure (phases/
+- [x] **ENRICH-02**: An enrichment pipeline turns a queue entry into graph structure (phases/
       steps, LEADS_TO flow, FEEDS_INTO edges) with a human-reviewable diff before write, and
       an eval that CAN fail (known-answer checks per enriched framework).
 
 - [ ] **ENRICH-03**: The 4 duplicate "Jobs to Be Done" aliases collapse to one canonical node
       with ALIAS_OF edges; normalize_framework_name proves it.
 
-- [ ] **ENRICH-04**: Flagship coverage floor: the frameworks the 25 methodology commands
+- [x] **ENRICH-04**: Flagship coverage floor: the frameworks the 25 methodology commands
       actually invoke reach readiness >= 3/4 before the hard-require lands (SWEEP-02 gate).
 
 ### Phase D -- Honesty rail + doctrine (before hard-require)

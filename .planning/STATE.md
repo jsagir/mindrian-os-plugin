@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: "Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green"
-last_updated: "2026-08-10T15:03:06.022Z"
+stopped_at: Completed 249-02-PLAN.md
+last_updated: "2026-08-10T15:37:12.846Z"
 last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 6
+  total_plans: 10
+  completed_plans: 8
   percent: 29
 ---
 
@@ -2454,6 +2454,7 @@ Progress: [█████████░] 92%
 | Phase 245 P07 | 25min | 3 tasks | 5 files |
 | Phase 245 P08 | 42min | 3 tasks | 3 files |
 | Phase 246 P02 | 45min | 2 tasks | 7 files |
+| Phase 249 P02 | 55min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -3660,6 +3661,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 245-08: telemetry and the live render now share one score composition, but telemetry still passes reachPenalties null - computeReachPenalties counts the very reach_presented rows that block writes, so reordering would silently change the live render's M-floor
 - [Phase ?]: 246-02: C4 (FEEDS_INTO/LEADS_TO/ALIAS_OF) recorded as three CENSUS_QUERIES entries sharing id C4 rather than fused into one query, preserving research's Cypher strings verbatim
 - [Phase ?]: 246-02: Stopped at Task 3 operator checkpoint - admin key never read/guessed/fetched by the session; Lane A landed and committed independently of Lane B
+- [Phase 249]: 249-02: extracted buildReadinessEnvelope as a pure function so the additive dimensions field on orchestration_readiness is hermetically provable without a live Memgraph bolt connection (none reachable from this machine)
+- [Phase 249]: 249-02: checkFrameworkEval/discoverFixtures live in scripts/probe-framework-evals.mjs so both the hermetic suite and the live leg run the identical checker function
+- [Phase 249]: 249-02: filed the honest ENRICH-04 floor baseline at 4/28 passing, 24/28 missing (scripts/check-flagship-floor.cjs); both denominators printed, ratification held OPEN pending 249-03
 
 ### Pending Todos
 
@@ -3759,8 +3763,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-10T15:03:05.969Z
-Stopped at: Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green
+Last session: 2026-08-10T15:37:12.789Z
+Stopped at: Completed 249-02-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
