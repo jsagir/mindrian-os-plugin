@@ -120,7 +120,7 @@ A skill with no fork is exempt by virtue of its EXISTING `connector.excluded: tr
 - Minting a second closed-vocabulary path (`hitl_shape: none`) onto those five files would write a redundant declaration onto surfaces that already say the same thing a different way. Two signals for one fact is exactly the drift risk R16 exists to remove.
 - So a no-fork skill is exempt by ABSENCE from data/hitl-shape-backfill.json, and the R16 gate reads that absence as conformant if and only if the skill carries connector.excluded:true + reason.
 
-The five exempt skills this phase: context-engine, room-passive, pws-methodology, ui-system, brain-connector. Each is deliberately absent from data/hitl-shape-backfill.json and each carries connector.excluded:true + reason in its own frontmatter (the exemption is real, verified on disk, not a forgotten gap).
+The four exempt skills as of Phase 250-02: context-engine, room-passive, pws-methodology, ui-system. Each is deliberately absent from data/hitl-shape-backfill.json and each carries connector.excluded:true + reason in its own frontmatter (the exemption is real, verified on disk, not a forgotten gap). brain-connector shipped this phase's original exempt-five list but moved to DECLARED (Form B hitl_stages, stage brain-refusal-fork, shape F.1) once its refusal fork became a genuine Decision-Gate moment (Phase 250-02, HONEST-02) - it keeps connector.excluded:true (Canon Part 11 R1 ledger requirement) alongside its Form B declaration, per the larry-personality precedent above.
 
 Skills NEVER use `none`. A skill either (a) reaches a genuine fork and declares a real hitl_shape or hitl_stages, or (b) has no fork and is exempt via its existing connector.excluded. There is no third state.
 

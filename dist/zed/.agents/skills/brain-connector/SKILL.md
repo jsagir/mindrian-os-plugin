@@ -14,6 +14,12 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Brain MCP connection / methodology-packet skill is invoked by other reaches as a capability; it runs on demand as plumbing, not on a navigator problem-state of its own."
+# --- Phase 250-02 CIRS R16 Form B declaration (Canon Part 11) ---
+hitl_stages:
+  - stage: "brain-refusal-fork"
+    shapes: ["F.1"]
+    mode: "gate"
+hitl_why: "A Brain failure or readiness miss is a genuine Decision-Gate fork: the navigator picks the next move (connect the key, retry, use partial graph material with provenance, or continue without methodology) - never silently degraded."
 ---
 
 # Brain Connector -- Enrichment Layer
