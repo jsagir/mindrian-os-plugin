@@ -7,10 +7,10 @@
 
   A thinking partner that sits above your AI. You talk through a problem worth solving. Larry finds the real problem before you solve the wrong one, brings the right method at the moment you need it, pushes back when your confidence outruns your evidence, and turns the conversation into a structured room that remembers every decision and catches what you missed.
 
-  Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through 20 years of teaching by Prof. Lawrence Aronhime.
+  Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through 20 years of teaching.
   Engineered by Jonathan Sagir.
 
-  [![Version](https://img.shields.io/badge/version-1.15.3--beta.48-1E3A6E)](CHANGELOG.md)
+  [![Version](https://img.shields.io/badge/version-2.0.0--beta.1-1E3A6E)](CHANGELOG.md)
   [![License](https://img.shields.io/badge/license-BSL_1.1-C8A43C)](LICENSE)
   [![Works on](https://img.shields.io/badge/CLI_+_Desktop_+_Cowork-2D6B4A)](#three-surfaces)
 
@@ -21,82 +21,49 @@
 
 ---
 
-## The answer first
+## You have a problem worth solving. You are probably solving the wrong one first.
 
-> You do not operate MindrianOS. You talk to Larry. Larry is the thinking partner; the room is the receipt. Every conversation reframes the problem before you solve it, sequences the right framework for where you are, pushes back when your confidence outruns your evidence, and leaves behind a structured room that remembers every decision so nothing you learned is lost.
-
-You never learn a tool. You talk. The room takes shape underneath the conversation. Commands exist, but they are internals, and Larry routes you to them when they help. Whatever you said yesterday is still working for you today.
+That is the job MindrianOS is hired for. Not "take my notes" and not "chat with an AI." You bring a real problem, a venture, a research question, a decision you cannot get right alone, and Larry's first move is almost always a question that reframes it, because the version of the problem you walked in with is rarely the one worth solving. Finding the right method, catching what you missed, and remembering what you decided all follow from getting that first reframe right.
 
 ---
 
-## Four jobs it does for you
+## The loop, in 30 seconds
 
-- **Find the problem.** Larry reframes what you are working on before you try to solve it, so you spend your effort on the real problem, not the first one you saw.
-- **Show what you missed.** Every new entry is compared against everything already in the room. Contradictions, gaps, and cross-project connections surface on their own.
-- **Build what you could not alone.** The right framework at the right stage, chained intelligently, across more domains than one mind can hold at once.
-- **Defend what you decided.** Every decision and the reason behind it becomes working memory you can stand behind weeks later.
+This is the whole mental model. You do not need more than this to use MindrianOS well.
 
----
+1. **You talk.** Whatever is in your room right now, the venture, the decision, the meeting you just filed, becomes context.
+2. **Your context triggers a question to the Brain**, the methodology graph: 28,325 nodes and 181 frameworks built from 20 years of teaching, holding WHEN to use WHICH method and in WHAT sequence.
+3. **Larry joins the answer to your situation.** Not a lecture pulled from a textbook. Your problem, run through real methodology.
+4. **You ratify what matters.** Approve it, reject it with a reason, or defer it. Your call becomes part of the room.
+5. **The room remembers.** Next time, it is already there, checking today's input against it.
 
-## How it works (three pieces)
-
-### Larry is the product
-
-Larry is the AI you talk to, and the conversation is the whole surface. Larry asks the questions that reframe the problem before you try to solve it, brings the method that fits where you are, and files what you say into your room without making you stop to organize. You do not have to know any framework names. You describe what you are doing. Larry routes you. There is nothing else to learn.
-
-### The room is the receipt
-
-You talk; the room writes itself. Every conversation, every meeting, every decision lands in a folder structure organized by venture stage: the problem, the market, the solution, the team, the money, the IP, the meetings, the opportunities. You open it in your file manager. You back it up like any other folder. You own it. You never filed a thing.
-
-### The room surfaces what you cannot see
-
-Every time you add something new, the system compares it against everything already there. Larry tells you what just changed, what contradicts what, what connects to what, and what is now missing. You decide: APPROVE, REJECT (with a reason), or DEFER. The reason becomes part of the room. The next scan is smarter. When a scan surfaces an opportunity, it does not stop at a headline: you qualify it at a card, and one explicit Explore turns it into cited deep research filed in your opportunity bank. The web works the same way: paste a URL and, once you approve, the page is filed as a cited source in your room and compared against everything already there. When something breaks mid-research, it tells you exactly what happened and what it tried next, never a silent empty result.
-
----
-
-## Why not just talk to Claude, ChatGPT, or Gemini directly?
-
-You can. MindrianOS is not instead of them. It is the layer that makes one of them remember, judge, and hold you to your own reasoning.
-
-A raw AI is brilliant for one turn and forgets the next. Ask it the same venture question next week and it relearns you from scratch. It knows every framework but not which one you need right now. And it is agreeable: it will help you build a beautiful deck on a false premise, because it optimizes for a helpful answer, not a true one.
-
-MindrianOS adds the four things a raw model structurally cannot be:
-
-- **It remembers.** Your venture lives in a room that persists across every session. The contradiction you found three weeks ago is still there, still checking today's input.
-- **It knows when.** The moat was never the frameworks; anyone can list those. It is knowing which one you need at the stage you are in, and reaching for it the moment you are stuck, so you never have to know its name. When to use which, in what order, is the timing that decades of teaching calibrate.
-- **It pushes back.** It blocks you when the evidence is thin and surfaces the conflict between your pricing and your market. A co-founder tells you when you are wrong. A chatbot tells you that you are brilliant.
-- **It keeps your data yours.** The teaching that travels is generic methodology. Your specifics never leave your machine. You get smarter-from-the-world intelligence without becoming the product.
-
-The short version: a raw AI is the engine. MindrianOS is the operating system around it. For a one-off question, use the engine. For a venture you carry for months, you want the OS.
+When the graph genuinely has nothing structured for what you asked, Larry says so plainly instead of making something up, and queues the gap for enrichment. He never improvises methodology. See "What an honest refusal looks like" below: that is not an error message, it is the whole point.
 
 ---
 
 ## Install
 
-Built for people who have never opened a terminal. Full walkthrough at [the install guide](https://mindrian-os.com/docs/install).
-
-### npm (one line, recommended)
+Three commands. Full walkthrough at [the install guide](https://mindrian-os.com/docs/install).
 
 ```bash
 npx @mindrian_os/cli
 ```
 
-### Plugin marketplace
+Or, from inside Claude Code:
 
 ```bash
 claude plugin marketplace add jsagir/mindrian-marketplace
 claude plugin install mos@mindrian-marketplace
 ```
 
-### Shell
+Restart Claude Code. Larry starts talking, and your install quietly registers its own Brain identity in the background: no API key to paste, no account to create first. If you already have a Brain key, it wins and nothing changes.
 
-```bash
-curl -sL https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/install.sh | bash
-```
+Two things the field taught us, worth checking before you start:
 
-Restart Claude Code. Larry starts talking.
+- You need Claude Pro or Max on your own personal account. A company-managed (SSO or Okta) Claude plan blocks the in-app upgrade prompt; a personal account does not.
+- On Windows, the Node.js installer offers an optional "Tools for Native Modules" checkbox. Leave it unchecked. MindrianOS ships no native modules, and checking it triggers a long, unrelated Visual Studio Build Tools install.
 
-### Update or repair an install
+Update or repair an install:
 
 ```bash
 mindrian-os update           # marketplace + plugin update
@@ -107,40 +74,39 @@ A note on install prompts: Claude Code asks you to approve each shell command. 1
 
 ---
 
-## What you do in a session
+## What talking to Larry feels like
 
-Talk. That is the whole interface. You describe what you are trying to do, and Larry routes you.
+Most of the time it feels like a sharp colleague who happens to know 181 frameworks and has read your whole project. You ask, Larry answers through the loop above, and a graph-grounded answer carries a source line so you know where it came from:
 
-The commands below are internals. You never have to memorize them or type them. Larry reaches for them on your behalf. They are here for the times you already know the shortcut and want it.
+> ■ BRAIN: Jobs to Be Done · framework · readiness 4/4
 
-```bash
-/mos:ignite               # the front door: start or excavate a room
-/mos:discover             # Larry-led client + product + JTBD discovery
-/mos:beautiful-question   # reframe the problem before solving it
-/mos:analyze-needs        # who has this problem, how badly, what they have tried
-/mos:bono                 # a six-hats research-and-debate team on your question
-/mos:map-unknowns         # hunt the claims you are most confident about, and wrong
-/mos:file-meeting         # paste a transcript, Larry files it
-/mos:research <url>       # paste a link, approve the card, the page becomes cited room knowledge
-/mos:opportunities        # what grants match this room right now
-/mos:qualify-opportunity  # judge a surfaced opportunity at a card; Explore turns it into research
-/mos:graph "what is the weakest assumption in my financial model?"
-/mos:grade                # honest assessment against real ventures
-```
+A conversation turn, Larry thinking out loud with you rather than consulting the graph, carries no source line. The absence is the signal: no line means it is talk, not method.
 
-That is a slice of 111 commands across 124 skills and 9 agents. If you do not know which one to run, that is the normal case. Just talk: Larry reaches for the right one.
+Sometimes the graph does not have what you need yet, and that is not hidden from you. Here is a real refusal, verbatim:
+
+> The graph doesn't have Jobs to Be Done structured yet (readiness 2/4; missing: examples, edge-cases). I've queued it for enrichment. I can share what the graph does hold on this, marked as partial, or we work without it.
+
+That is a feature, not an outage. A tool that quietly guesses when it does not know is worse than one that tells you and keeps a list. A keyless or unreachable session gets the same treatment: an honest refusal and a visible path forward, never an imitation of an answer it does not have.
 
 ---
 
-## Why the room compounds
+## The three layers
 
-Most tools get messier the more you put in. Search ranks worse. Folders bloat. The AI forgets what you told it last session. MindrianOS goes the other way.
+| Layer | What | Who owns it |
+|-------|------|-------------|
+| **Plugin** | Skills, commands, agents, and hooks that run the conversation | Open, in this repo |
+| **Brain** | The methodology graph: 28,325 nodes, 181 frameworks, 20 years of teaching, served over MCP | Served remotely, never distributed |
+| **Room** | Your venture, your decisions, your files | Yours, on your machine, always |
 
-Think of Larry as a thinking partner who also keeps the minutes, and reads them back to you when this week contradicts last week. Everything you say, every meeting you file, every decision you make and reason you give becomes part of your room. The room is searchable, structured, and remembered, and every new entry compares against everything already there.
+The Brain never sees your room. Every query it answers carries a generic methodology question, never your notes, your decisions, or your meetings.
 
-Day one, you have a folder. Day thirty, you have a folder that catches the contradiction between yesterday's strategy call and last week's customer interview, brings back the assumption you made in week two when you are about to make a decision in week eight that depends on it, and finds the connection between two meetings a month apart that nobody remembers being related.
+---
 
-Nothing forgets. Everything compares. Your own past work works for you.
+## Why not just talk to Claude, ChatGPT, or Gemini directly?
+
+You can. MindrianOS is not instead of them, it is the layer that makes one of them remember, judge, and hold you to your own reasoning. A raw AI is brilliant for one turn and forgets the next. It knows every framework but not which one you need right now. And it is agreeable: it will help you build a beautiful deck on a false premise, because it optimizes for a helpful answer, not a true one.
+
+MindrianOS adds what a raw model structurally cannot be: it remembers (your room persists across every session), it knows when (decades of teaching calibrate which method fits which stage), it pushes back (a co-founder tells you when you are wrong, a chatbot tells you that you are brilliant), and it keeps your data yours (only generic methodology crosses to the Brain, never your specifics).
 
 ---
 
@@ -156,35 +122,34 @@ MindrianOS works wherever Claude works. Same Larry, same room, every surface.
 
 ---
 
-## The Brain (optional)
+## Commands are internals
 
-The Brain is a shared teaching graph that connects your findings across projects. It holds two stores: one for connections, one for meanings. Connecting it makes Larry sharper. Not connecting it is fine; the pedagogy is intrinsic to Larry, so the system still teaches you.
+Talk. That is the whole interface. Larry reaches for the right command on your behalf; the ones below are here for when you already know the shortcut.
 
-The Brain never sees your room. Brain queries carry methodology questions only, never your notes, never your decisions, never your meetings.
+```bash
+/mos:ignite               # the front door: start or excavate a room
+/mos:discover             # Larry-led client + product + JTBD discovery
+/mos:beautiful-question   # reframe the problem before solving it
+/mos:file-meeting         # paste a transcript, Larry files it
+/mos:graph "what is the weakest assumption in my financial model?"
+/mos:grade                # honest assessment against real ventures
+```
 
-Request access: [mindrian-os.com/brain-access](https://mindrian-os.com/brain-access)
+That is a slice of over a hundred commands across the skills, agents, and pipelines this plugin ships. If you do not know which one to run, that is the normal case. Just talk.
 
 ---
 
 ## Pricing
 
-Free plugin. It requires a paid Claude plan (Claude Pro, $20/mo, or higher) because it runs on top of Claude. The Brain is an optional add-on.
+Free plugin. It requires a paid Claude plan (Claude Pro, $20/mo, or higher) because it runs on top of Claude. The Brain installs with it, silently registered, at no separate cost.
 
 ---
 
 ## The privacy line
 
-MindrianOS reads your workspace and writes only to your rooms (default: `~/MindrianRooms/`) and to session state (`./.mindrian/`). It does not push anything to the Brain. Brain queries carry methodology questions only, never your notes, never your decisions, never your meetings.
+MindrianOS reads your workspace and writes only to your rooms (default: `~/MindrianRooms/`) and to session state (`./.mindrian/`). It does not push anything to the Brain beyond a generic methodology question: never your notes, never your decisions, never your meetings.
 
 For zero permission prompts during a session: `claude --dangerously-skip-permissions`. The read/write surface is bounded to your workspace and your rooms. For granular control, copy the matcher set from [`docs/settings-template.json`](docs/settings-template.json) into `~/.claude/settings.json`.
-
----
-
-## Why PWS, why Larry
-
-PWS (Problems Worth Solving) is not a checklist. It is a way of thinking about ventures as wicked problems that need to be reframed before they can be solved, and that demand a working memory because nobody can hold the whole thing in their head.
-
-Larry is the personality that delivers PWS in your terminal, and the teaching is intrinsic. You do not have to know the framework names. Larry asks the question, suggests the move, shows the chain. You decide.
 
 ---
 
@@ -193,9 +158,7 @@ Larry is the personality that delivers PWS in your terminal, and the teaching is
 - **Website**: [mindrian-os.com](https://mindrian-os.com)
 - **Marketplace**: [github.com/jsagir/mindrian-marketplace](https://github.com/jsagir/mindrian-marketplace)
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
-- **Brain Access**: [Request API Key](https://mindrian-os.com/brain-access)
-- **PWS, Prof. Lawrence Aronhime**: [LinkedIn](https://www.linkedin.com/in/lawrence-aronhime-8363894/)
-- **Jonathan Sagir**: [LinkedIn](https://www.linkedin.com/in/jonathansagir/)
+- **Brain key (override path)**: [Request one](https://mindrian-os.com/brain-access)
 
 ---
 
