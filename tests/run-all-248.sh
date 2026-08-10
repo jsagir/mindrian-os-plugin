@@ -109,6 +109,7 @@ em_dash_sweep() {
     "lib/mcp/session-room.cjs"
     "tests/test-248-resolver-census.cjs"
     "tests/test-248-room-bind-session-authoritative.cjs"
+    "tests/test-248-room-bind-honest-return.cjs"
     "tests/run-all-248.sh"
   )
   local t f
