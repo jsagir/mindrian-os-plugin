@@ -1116,6 +1116,22 @@ function formatEngineDecisionBlock(decision, routing, offerLine) {
 // marker it sits alongside).
 const NAV_UNCHANGED_MARKER = '[NAV DECISION unchanged - prior block stands]';
 
+// Phase 251-02 (CACHE-03): the executable block-size budget. 251-CACHE-
+// MEASUREMENT.md measured a pre-hygiene average NAVIGATION DECISION block of
+// ~1,275 B; 251-01's hygiene pass (suppress-when-unchanged, skeleton-to-
+// SessionStart, payload dedup) cut the fixture block to 816 B. 1100 = 816 +
+// ~284 B headroom, rounded to a clean number, staying below the 1200 B
+// ceiling (the ceiling itself stays below the old 1,275 B average, so any
+// future raise past 1200 is a visible, deliberate diff -- T-251-07).
+//
+// THE CACHE-03 RIDER RULE: the future Brain reach rides THIS existing rail,
+// inside THIS budget. Additions to the per-turn block must fit inside
+// NAV_BLOCK_BUDGET_BYTES or something else on the block must shrink to make
+// room. The injection mechanism itself never changes to accommodate the
+// reach -- no cache_control tricks, no prefix moves (measurement section 4
+// item 4). The headroom (currently ~284 B) IS the Brain-reach allowance.
+const NAV_BLOCK_BUDGET_BYTES = 1100;
+
 // Phase 251-01 (CACHE-02a): the per-session, per-room nav-block hash sidecar.
 // Follows the zeroScoreGateMarkerPath precedent (~L2703): a DEDICATED,
 // never-rotated marker file (persistDecisionTrace's decision-traces/<session>.json
@@ -3197,6 +3213,8 @@ module.exports = {
   navBlockHashPath: navBlockHashPath,
   readNavBlockHash: readNavBlockHash,
   writeNavBlockHash: writeNavBlockHash,
+  // Phase 251-02 (CACHE-03): the exported block-size budget + fence anchor.
+  NAV_BLOCK_BUDGET_BYTES: NAV_BLOCK_BUDGET_BYTES,
   // Phase 245-08 (Requirement 1): the ONE dial score composition, exported so
   // the two acceptance regressions exercise the PRODUCTION path rather than a
   // reimplementation of it in a fixture (245-RESEARCH.md Pitfall 1: a test that

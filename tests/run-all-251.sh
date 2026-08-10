@@ -27,6 +27,8 @@
 #   251-01  tests/test-251-suppress-unchanged.cjs
 #   251-01  tests/test-251-skeleton-split.cjs
 #   251-01  tests/test-251-payload-dedup.cjs
+#   251-02  tests/test-251-block-budget.cjs
+#   251-02  tests/test-251-hitrate-report.cjs
 #
 # THE found-eq-0 GUARD IS LOAD-BEARING AND MUST NOT BE SOFTENED. A harness
 # that discovers nothing must FAIL, not print green.
@@ -106,8 +108,12 @@ EMDASH_TARGETS=(
   "tests/test-251-suppress-unchanged.cjs"
   "tests/test-251-skeleton-split.cjs"
   "tests/test-251-payload-dedup.cjs"
+  "tests/test-251-block-budget.cjs"
+  "tests/test-251-hitrate-report.cjs"
   "tests/test-209-engine-arm-contract.cjs"
   "tests/run-all-251.sh"
+  "docs/HOOK-INJECTION-CACHE-DOCTRINE.md"
+  "scripts/cache-hitrate-report.cjs"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
   f="$ROOT/$t"
