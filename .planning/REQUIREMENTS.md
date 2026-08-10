@@ -60,14 +60,15 @@ methodology that did not come from the Brain, without being told.
       retired from the remote surface OR shipped with a working sidecar; the decision is
       recorded. Reasoning belongs to Larry, not the Brain.
 
-- [ ] **CONTRACT-03**: search metadata stops leaking local filesystem paths (source_file) into
+- [x] **CONTRACT-03**: search metadata stops leaking local filesystem paths (source_file) into
       served responses; framework metadata field populated or removed from the payload.
+      (Verified LIVE 2026-08-11: bare corpus filenames only on the deployed surface.)
 
 - [ ] **CONTRACT-04**: The 8 foreign-space vector indexes get a decided disposition per the
       brain repo's own rule (rebuild with the model that built them, or drop with proof
       nothing reads them); an e5-dimension guard exists at index creation.
 
-- [ ] **CONTRACT-05** (navigator ruling 2026-08-10, from the brain-service audit): a BOUNDED
+- [x] **CONTRACT-05** (navigator ruling 2026-08-10, from the brain-service audit): a BOUNDED
       READ TIER exposes raw read-only Cypher on the public surface WITHOUT admin - every
       statement wrapped by boundReadStatement + enforceMoat (row/byte/timeout caps, write
       rejection) on a public read key; brain_write stays stdio-only. This replaces the
