@@ -84,7 +84,7 @@ methodology that did not come from the Brain, without being told.
 
 ### Phase D -- Honesty rail + doctrine (before hard-require)
 
-- [ ] **HONEST-01**: The silent-fallback clause is dead everywhere: a Brain failure or a
+- [x] **HONEST-01**: The silent-fallback clause is dead everywhere: a Brain failure or a
       readiness miss surfaces to the user in-turn, plainly, and never as a quieter Larry.
       (Extends brain-connector; no fourth brain skill, Part 7.)
 
@@ -144,9 +144,11 @@ methodology that did not come from the Brain, without being told.
       (scripts/probe-brain-contract.cjs legs incl. a real search) on a cadence, and a
       FAILURE ALERTS A HUMAN out-of-band (not a log nobody reads). Never again a
       weeks-unnoticed outage: the 2026-08 outage survived because nothing external watched.
-- [ ] **AVAIL-02**: Client resilience matches the refusal taxonomy: transient failures
+
+- [x] **AVAIL-02**: Client resilience matches the refusal taxonomy: transient failures
       (unreachable) retry with bounded backoff BEFORE refusing; the refusal fires only after
       the retry budget, so a blip never becomes a user-facing refusal. Part 8 unchanged.
+
 - [ ] **AVAIL-03**: The serving plan is verified spin-down-free and single-point risks are
       enumerated (Render service + Memgraph store); the retired mindrian-brain service's
       budget redirects to the live stack. A documented restore path exists (snapshot cadence

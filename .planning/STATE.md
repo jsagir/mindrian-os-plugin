@@ -3,18 +3,57 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: "Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green. Completed this session: 249-01-PLAN.md (concurrent executor also completed 249-02-PLAN.md - see dated entries below)."
-last_updated: "2026-08-10T18:34:25+03:00"
-last_activity: 2026-08-10 — Phase 249 Plan 01 (enrichment queue + capture seams) complete
+stopped_at: Completed 250-01-PLAN.md
+last_updated: "2026-08-10T16:42:44.041Z"
+last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 10
-  completed_plans: 8
-  percent: 80
+  total_plans: 16
+  completed_plans: 9
+  percent: 56
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 250 PLAN 01 COMPLETE -- Honesty Rail: refusal kinds, shim conflation fix, AVAIL-02 transport retry, doctrine kill
+
+- **Position:** Phase 250 (Honesty Rail + Doctrine Amendment) Plan 01 is complete, 3/3 tasks,
+  fully autonomous (no checkpoints). Four typed refusal kinds
+  (`no_key`/`unreachable`/`tier_denied`/`not_ready`) land at `lib/core/tier0-messaging.cjs`'s
+  `refusalResponse`/`renderRefusal`/`larryRefusalLine`/`refuseNotReady` chokepoint. The shim's
+  live dishonesty bug is fixed: `bin/mindrian-brain-mcp-client.cjs`'s 5 raw tool handlers +
+  `brain_ask` no longer map a valid-key transport failure to the no-key sentinel.
+  AVAIL-02 bounded transport retry (2 retries, 300ms/900ms backoff) lives around
+  `brain-client.cjs`'s single tools/call HTTP dispatch seam; 401/403 stay zero-retry; the
+  null contract is preserved (retry changes WHEN null returns, never WHAT). The
+  silent-fallback doctrine is dead in `skills/brain-connector/SKILL.md` + both dist mirrors
+  (a red-then-green scoped grep fence proves it, 7 known hits pre-rewrite, 0 after),
+  `docs/install/BRAIN-SETUP.md`'s keyless sentence is honest, and site 11
+  (`brain-client.cjs`'s hardcoded tier0 chains) is MARKED for Phase 252's flip, not flipped
+  here.
+
+- **HONEST-01 and AVAIL-02 executable legs are complete for this plan's scope** (both marked
+  complete in REQUIREMENTS.md via `requirements.mark-complete`).
+
+- **Commits this session:** `e75720f3` (feat, Task 1: refusal kinds + shim fix + transport
+  retry + phase runner), `745c8545` (feat, Task 2: refusal auto-queue seam), `c28d0a43`
+  (feat, Task 3: doctrine kill + dist rebuild).
+
+- **Full detail, verbatim refusal copy, RED-proof records, doctrine fence before/after, and
+  self-check:** `.planning/phases/250-honesty-rail-doctrine-amendment/250-01-SUMMARY.md`.
+
+- **Deviation note (documented in the SUMMARY, not hidden):** Task 1's commit unintentionally
+  included Task 2's `renderRefusal`/`refuseNotReady` implementation (written together in one
+  edit); this was caught before Task 2 began, the two functions were temporarily removed to
+  force a genuine RED run against Task 2's own test file, then restored byte-identical. The
+  git diff for Task 2's commit therefore shows only the new test file (source unchanged
+  relative to Task 1's commit) even though a real RED proof was demonstrated in-session.
+
+- **NEXT:** Plan 250-02 (amendment doc: Decisions #1/#8 rewrite, ratified but not-in-force
+  until the SWEEP release), 250-03 (provenance marking, `■ BRAIN` source line), and 250-04
+  (silent registration, SEED-011 Option A) remain. None of their file scopes overlap this
+  plan's.
 
 ## (2026-08-10) -- PHASE 249 PLAN 01 COMPLETE -- Context-Driven Enrichment: enrichment queue + capture seams, ENRICH-01 done
 
@@ -2501,6 +2540,7 @@ Progress: [█████████░] 92%
 | Phase 245 P08 | 42min | 3 tasks | 3 files |
 | Phase 246 P02 | 45min | 2 tasks | 7 files |
 | Phase 249 P02 | 55min | 3 tasks | 7 files |
+| Phase 250 P01 | 7min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -3710,6 +3750,7 @@ Progress: [█████████░] 92%
 - [Phase 249]: 249-02: extracted buildReadinessEnvelope as a pure function so the additive dimensions field on orchestration_readiness is hermetically provable without a live Memgraph bolt connection (none reachable from this machine)
 - [Phase 249]: 249-02: checkFrameworkEval/discoverFixtures live in scripts/probe-framework-evals.mjs so both the hermetic suite and the live leg run the identical checker function
 - [Phase 249]: 249-02: filed the honest ENRICH-04 floor baseline at 4/28 passing, 24/28 missing (scripts/check-flagship-floor.cjs); both denominators printed, ratification held OPEN pending 249-03
+- [Phase 250]: AVAIL-02 retry wraps only the tools/call fetch seam inside callTool(), not session-init; 401/403 zero-retry falls out of existing control flow
 
 ### Pending Todos
 
@@ -3809,8 +3850,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-10T15:37:12.789Z
-Stopped at: Completed 249-02-PLAN.md
+Last session: 2026-08-10T16:42:30.153Z
+Stopped at: Completed 250-01-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
