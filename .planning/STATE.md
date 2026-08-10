@@ -3,18 +3,64 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: Completed 249-02-PLAN.md
-last_updated: "2026-08-10T15:37:12.846Z"
-last_activity: 2026-08-10 — Milestone v2.0.0 started
+stopped_at: "Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green. Completed this session: 249-01-PLAN.md (concurrent executor also completed 249-02-PLAN.md - see dated entries below)."
+last_updated: "2026-08-10T18:34:25+03:00"
+last_activity: 2026-08-10 — Phase 249 Plan 01 (enrichment queue + capture seams) complete
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 10
   completed_plans: 8
-  percent: 29
+  percent: 80
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 249 PLAN 01 COMPLETE -- Context-Driven Enrichment: enrichment queue + capture seams, ENRICH-01 done
+
+- **Position:** Phase 249 (Context-Driven Enrichment) Plan 01 is complete, 3/3 tasks, fully
+  autonomous (no checkpoints). `lib/core/enrichment-queue.cjs` clones the Part-8-audited
+  `brain-derivation-queue.cjs` mechanics (atomic tmp+fsync+rename write, self-healing reader,
+  SOFT_CAP/HARD_CAP) with the ENRICH-01 typed entry shape, keyed on canonical framework name.
+  Capture seams landed at the two 247-02 `brain-client.cjs` loop wrappers
+  (`orchestrationReadiness`/`discoverStructure`, now accepting an optional
+  `opts={roomDir,contextClass,db}`) and the `fetchFrameworkChainSlice` derivation-drain
+  piggyback -- never `decide()`, never a sensor (hot-path fence proven by a dedicated grep
+  test AND the phase runner's own fence). Census seed proof run live: 24/24 gap-table
+  frameworks landed as `census_seed` entries with honest provenance.
+
+- **ENRICH-01 is fully complete** (checked off in REQUIREMENTS.md via
+  `requirements.mark-complete`).
+
+- **Rule 2 auto-fix:** `enrichment_queue_captured` added to `navigation/memory-events.cjs`'s
+  closed `EVENT_TYPES` set -- without it the plan's own required memory_event logging would
+  have silently no-op'd (the closed set rejects unregistered event types).
+
+- **Commits this session:** `10d05524` (test, RED, Task 1), `d8efac96` (feat, GREEN, Task 1),
+  `9fdc4b1c` (test, RED, Task 2), `251c697d` (feat, GREEN, Task 2), `bdefc72a` (feat, Task 3).
+  Pushed clean to `origin/main` on the first attempt (`819313e4..bdefc72a`); a concurrent
+  249-02 executor's commit (`bb414fa4`) landed in the same shared non-worktree checkout
+  mid-session with zero file overlap, confirming the plan's stated "zero overlap by design."
+
+- **Full detail, per-file deviation list, TDD gate compliance, and self-check:**
+  `.planning/phases/249-context-driven-enrichment/249-01-SUMMARY.md`.
+
+- **Write-discipline note (STATE.md race, non-worktree shared checkout):** the concurrent
+  249-02 executor's own `state.record-session` call landed between this executor's read and
+  write, overwriting `stopped_at` to `"Completed 249-02-PLAN.md"` and clobbering the
+  genuinely-still-open Phase 246 Plan 01 Task 2 operator-checkpoint description (the same
+  documented `gsd-tools.cjs state.*` corruption class this file tracks elsewhere, here
+  triggered by a write race rather than a parser bug). `state.advance-plan` also failed
+  outright ("Cannot parse Current Plan or Total Plans in Phase from STATE.md").
+  `state.update-progress` and `roadmap.update-plan-progress 249` both worked correctly this
+  time (249's ROADMAP row now reads `2/3, In Progress`). `stopped_at` and `progress.percent`
+  hand-corrected here (29 -> 80, matching `completed_plans:8 / total_plans:10`, both already
+  ground-truth-correct per a fresh SUMMARY-file count across all 246-249 phase directories).
+
+- **NEXT:** 249-02 (dimensions server field + eval harness + floor gate) already landed
+  concurrently this session. 249-03 (operator enrichment ceremony) is next in this phase. The
+  Phase 246 Plan 01 Task 2 operator checkpoint (LOOP-01 live Brain test) remains open and
+  unrelated -- not touched or resolved by this plan.
 
 ## (2026-08-10) -- PHASE 248 PLAN 02 CHECKPOINT OPEN -- honest room_bind return + CTX-03 surface probes, Tasks 1-2 done
 
