@@ -43,7 +43,7 @@ const { z } = requireWithHeal('zod', { log: healLog });
 
 const brainClient = require('../lib/core/brain-client.cjs');
 const { wrapDirective } = require('../lib/core/directive-envelope.cjs');
-const { tier0Response: chokepointTier0 } = require('../lib/core/tier0-messaging.cjs');
+const { tier0Response: chokepointTier0, refusalResponse } = require('../lib/core/tier0-messaging.cjs');
 
 const pluginRoot = path.resolve(__dirname, '..');
 const pluginMeta = require('../.claude-plugin/plugin.json');
@@ -75,11 +75,23 @@ server.tool(
   { question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') },
   async ({ question }) => {
     if (!brainClient.isAvailable()) {
+      // Keyless path unchanged (127-02 sentinel, byte-locked).
       return asContent(wrapDirective(null, { brain_unreachable: true, command_context: 'brain_ask' }));
     }
     const raw = await brainClient.ask(question);
     if (raw == null) {
-      return asContent(wrapDirective(null, { brain_unreachable: true, command_context: 'brain_ask' }));
+      // Phase 250-01 (HONEST-01, site #9 conflation fix): a VALID-key
+      // transport failure is honestly distinct from the keyless case above --
+      // wrap refusalResponse('unreachable', ...) in the SAME wrapDirective
+      // envelope mechanism via its typed-directive pass-through, so the
+      // envelope carries kind='unreachable' and an honest reason instead of
+      // silently reusing the keyless tier0 sentinel shape.
+      const refusal = refusalResponse('unreachable', { tool: 'brain_ask' });
+      return asContent(wrapDirective({
+        directive: { guided: { questions: [], framework: null, stage: 'tier_0_' + refusal.kind } },
+        next_gate: { sub_shape: 'F.1', options: refusal.next_moves.slice() },
+        refusal: refusal,
+      }, { brain_unreachable: true, command_context: 'brain_ask' }));
     }
     const signals = (raw && typeof raw === 'object' && raw.mode_signals) ? raw.mode_signals : {};
     return asContent(wrapDirective(raw, signals));
@@ -97,7 +109,7 @@ server.tool(
   async ({ cypher, params }) => {
     if (!brainClient.isAvailable()) return asContent(tier0Response('brain_query'));
     const r = await brainClient.query(cypher, params);
-    return asContent(r == null ? tier0Response('brain_query') : r);
+    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_query' }) : r);
   }
 );
 
@@ -109,7 +121,7 @@ server.tool(
   async () => {
     if (!brainClient.isAvailable()) return asContent(tier0Response('brain_schema'));
     const r = await brainClient.schema();
-    return asContent(r == null ? tier0Response('brain_schema') : r);
+    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_schema' }) : r);
   }
 );
 
@@ -125,7 +137,7 @@ server.tool(
   async ({ query, namespace, topK }) => {
     if (!brainClient.isAvailable()) return asContent(tier0Response('brain_search'));
     const r = await brainClient.smartSearch(query, { namespace: namespace, topK: topK });
-    return asContent(r == null ? tier0Response('brain_search') : r);
+    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_search' }) : r);
   }
 );
 
@@ -137,7 +149,7 @@ server.tool(
   async () => {
     if (!brainClient.isAvailable()) return asContent(tier0Response('brain_stats'));
     const r = await brainClient.stats();
-    return asContent(r == null ? tier0Response('brain_stats') : r);
+    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_stats' }) : r);
   }
 );
 
@@ -149,7 +161,7 @@ server.tool(
   async ({ cypher }) => {
     if (!brainClient.isAvailable()) return asContent(tier0Response('brain_write'));
     const r = await brainClient.write(cypher);
-    return asContent(r == null ? tier0Response('brain_write') : r);
+    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_write' }) : r);
   }
 );
 
