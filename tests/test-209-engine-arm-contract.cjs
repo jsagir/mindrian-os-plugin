@@ -119,7 +119,8 @@ function engineDecisionFixture() {
     let threw = false;
     try { parsed = JSON.parse(m[1]); } catch (_e) { threw = true; }
     ok(!threw && parsed && typeof parsed === 'object', 'contract JSON body parses');
-    ok(parsed && Array.isArray(parsed.verbs), 'contract carries a verbs array');
+    ok(parsed && !('verbs' in parsed), '251-01 Task 3: payload dedup per CACHE-02(c) -- verbs array absent (was: contract carries a verbs array)');
+    ok(parsed && typeof parsed.verb_count === 'number' && Number.isInteger(parsed.verb_count), '251-01 Task 3: payload dedup per CACHE-02(c) -- verb_count present and numeric');
   }
 })();
 

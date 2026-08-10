@@ -1592,10 +1592,23 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
               const verbs = Array.isArray(contract.verbs)
                 ? contract.verbs.filter(function (v) { return typeof v === 'string'; })
                 : [];
+              // Phase 251-01 (CACHE-02c, payload dedup): 251-CACHE-MEASUREMENT.md
+              // section 2 -- the verbs array duplicated the labels already
+              // printed in the option rows above it (~300 B/block of pure
+              // duplication). Drop the array from the INJECTED display line
+              // ONLY; verb_count replaces it (matches the marker's verbs=N)
+              // so the shape/count/recommended contract stays introspectable.
+              // The labels live in the option rows above (rendered.text) plus
+              // the SessionStart payload legend (Task 2's NAV_CARD_FIRE_DOCTRINE).
+              // The prefix '[AskUserQuestion payload: ' stays byte-identical
+              // (greppable contract prefix). The PERSISTED f1_closer_payload
+              // (traceEntry.f1_closer_payload, ~L3505) is a SEPARATE object
+              // built from f1Payload at the call site, never from `compact`
+              // here -- it keeps its full verbs array untouched.
               const compact = {
                 shape: (typeof contract.shape === 'string') ? contract.shape : 'F.1',
                 mode: (typeof contract.mode === 'string') ? contract.mode : null,
-                verbs: verbs,
+                verb_count: verbs.length,
                 recommended: (typeof contract.recommended === 'string') ? contract.recommended : null,
               };
               block += '\n[AskUserQuestion payload: ' + JSON.stringify(compact) + ']';
