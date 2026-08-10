@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: 246-02 Task 3 checkpoint (Lane B admin-key operator step) - Lane A committed and independently citable
-last_updated: "2026-08-10T09:23:20.795Z"
+stopped_at: "Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green"
+last_updated: "2026-08-10T09:35:07.826Z"
 last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
@@ -3494,6 +3494,7 @@ Progress: [█████████░] 92%
 - RESOLVED 2026-05-12: Phase 95.6 marked complete via `gsd-tools phase complete 95.6` (10/10 plans, no verification-debt warnings). The `gsd-tools` roadmap-order "next" was Phase 104, but the maintainer override is Phase 122 (the beta.10 Workflow Layer capstone).
 - 234-03 broke the skill-mirror contract: 110 of 111 mirrors diverge, verify-release's mirror gate fails, and running build-skill-mirrors.cjs in write mode silently reverts 234-03's migration. See 234 deferred-items.md D-1.
 - Phase 246-02 Task 3 checkpoint: Lane B admin-key operator step pending. Lane A (246-02 Task 1+2) committed at b7832dd0/f7176a7a. Resume: operator runs MINDRIAN_BRAIN_KEY=<admin key> node scripts/build-brain-census.cjs --lane-b in their own terminal, or supplies a local-twin results JSON path.
+- Phase 246 Plan 01 (LOOP-01): fresh-session three-call Brain test checkpoint OPEN. Preflight green (beta.13 cache, key resolves, Render healthy, 245 fence PASS=19). Operator must open a NEW Claude Code session and run the three plugin-scope Brain calls, then report verbatim results. See 246-01-SUMMARY.md.
 
 ### Quick Tasks Completed
 
@@ -3571,8 +3572,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-10T09:20:49.306Z
-Stopped at: 246-02 Task 3 checkpoint (Lane B admin-key operator step) - Lane A committed and independently citable
+Last session: 2026-08-10T09:35:05.824Z
+Stopped at: Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
