@@ -375,14 +375,23 @@ async function legNonApprove() {
 // ---------------------------------------------------------------------------
 function pinRequiresToRealRepo(src) {
   let out = src;
+  // Phase 248-01: chain.cjs's own resolveSessionRoomDir copy (and its direct
+  // requires of ../mcp-first-flag.cjs and ../../core/resolve-active-room.cjs)
+  // was retired in favor of the shared lib/mcp/session-room.cjs resolver
+  // (Task 3, CTX-01 nine-copy collapse). Both stale pins below are removed;
+  // session-room.cjs is pinned in their place so the mutated tmp copy
+  // (written outside lib/mcp/) can still resolve its relative require.
   const relativeRequires = [
     ["require('../../core/chain-executor.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'chain-executor.cjs')],
     ["require('../../workflow/command-resolver.cjs')", path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs')],
     ["require('../gate-render.cjs')", GATE_RENDER_PATH],
-    ["require('../../core/resolve-active-room.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'resolve-active-room.cjs')],
     ["require('../../core/session-binding.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'session-binding.cjs')],
-    ["require('../mcp-first-flag.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'mcp-first-flag.cjs')],
+    ["require('../session-room.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'session-room.cjs')],
     ["require('../../core/chain-step-dispatcher.cjs')", CHAIN_STEP_DISPATCHER_PATH],
+    // Phase 238-04 added this require to chain.cjs after this harness's pin
+    // list was last updated; pinned here now so the mutated tmp copy (which
+    // this Leg 7 harness needs to load) can resolve it too.
+    ["require('../gate-ledger.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'gate-ledger.cjs')],
   ];
   for (const [needle, absTarget] of relativeRequires) {
     if (out.indexOf(needle) === -1) return null; // pre-Task-2 shape: needle not present yet

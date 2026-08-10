@@ -159,10 +159,16 @@ function extractGuardianPortion(msg) {
  * above the TMP directory (not the real repo root), so every
  * PLUGIN_ROOT-based require (the guardian binary, minto-debouncer,
  * folder-memory, ...) silently fails to resolve -- and separately, its
- * four sibling-relative requires (./gate-dedup.cjs, ./gate-render.cjs,
- * ./mcp-first-flag.cjs, ../core/resolve-active-room.cjs) fail outright
- * the moment the file does not live in lib/mcp/ anymore. Harness plumbing
- * only, never part of the mutation under test.
+ * sibling-relative requires (./gate-dedup.cjs, ./gate-render.cjs,
+ * ./session-room.cjs) fail outright the moment the file does not live in
+ * lib/mcp/ anymore. Harness plumbing only, never part of the mutation
+ * under test.
+ *
+ * Phase 248-01: stop-gate-handler.cjs's own resolveSessionRoomDir copy (and
+ * its direct requires of ./mcp-first-flag.cjs and
+ * ../core/resolve-active-room.cjs) was retired in favor of the shared
+ * lib/mcp/session-room.cjs resolver (Task 3, CTX-01 nine-copy collapse).
+ * Both stale pins below are replaced with a single ./session-room.cjs pin.
  */
 function pinRequiresToRealRepo(src) {
   let out = src;
@@ -174,8 +180,7 @@ function pinRequiresToRealRepo(src) {
   const relativeRequires = [
     ["require('./gate-dedup.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'gate-dedup.cjs')],
     ["require('./gate-render.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'gate-render.cjs')],
-    ["require('./mcp-first-flag.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'mcp-first-flag.cjs')],
-    ["require('../core/resolve-active-room.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'resolve-active-room.cjs')],
+    ["require('./session-room.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'session-room.cjs')],
   ];
   for (const [needle, absTarget] of relativeRequires) {
     assert.ok(out.indexOf(needle) !== -1, 'expected relative require not found: ' + needle);

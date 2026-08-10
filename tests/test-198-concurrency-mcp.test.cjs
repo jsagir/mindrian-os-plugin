@@ -13,6 +13,17 @@
 // module.exports._test) + writeSessionBinding (lib/core/session-binding.cjs) --
 // per the 198-02-PLAN.md Task 3 action, not a re-implementation of either.
 //
+// AMENDED by Phase 248-01 (CTX-02, same doctrine change named in
+// tests/test-198-flag-off-parity.test.cjs): the flag-OFF block below used to
+// prove the 2026-07-08 stale-room defect was STILL reproducible when
+// MINDRIAN_MCP_FIRST was unset (session ignored, reg.active wins). Phase
+// 248-01's lib/mcp/session-room.cjs collapse makes session resolution
+// UNCONDITIONAL, so that misroute is no longer reproducible in EITHER flag
+// state -- a bound session always resolves its own room now. The flag-OFF
+// block below is re-pointed to prove that STRONGER guarantee; the flag-ON
+// block and the interleaved-writes assertion are unchanged (they already
+// expected the correct, session-aware outcome).
+//
 // Node built-in assert only. No em-dashes.
 'use strict';
 const assert = require('node:assert');
@@ -57,11 +68,12 @@ writeSessionBinding('sess-B', { primary: 'room-b', bound: ['room-b'] }, { home: 
 
 try {
   // -------------------------------------------------------------------------
-  // Replay the 2026-07-08 stale-room defect with the flag OFF: the racy
-  // GLOBAL resolveActiveRoom (reg.active) wins regardless of which session is
-  // writing. Simulate reg.active pointed at room-b (e.g. a co-session set it
-  // active), then prove sess-A's write STILL lands in room-b -- the live
-  // defect, reproduced under test.
+  // DOCTRINE CHANGE (Phase 248-01, CTX-02): the 2026-07-08 stale-room defect
+  // (session ignored, racy GLOBAL resolveActiveRoom wins) is now IMPOSSIBLE
+  // for a bound session regardless of MINDRIAN_MCP_FIRST. Simulate the same
+  // hostile fixture the old defect needed -- reg.active pointed at room-b,
+  // a co-session's choice -- and prove sess-A's write still lands in its OWN
+  // bound room-a even with the flag unset.
   // -------------------------------------------------------------------------
   delete process.env.MINDRIAN_MCP_FIRST;
   const registryDir = path.join(home, '.rooms');
@@ -71,17 +83,17 @@ try {
     rooms: { 'room-b': { abs_path: roomB } },
   }));
 
-  const misroutedA = resolveWriteTargetDir('sess-A', fallback, 'cli');
-  assert.strictEqual(misroutedA, roomB, 'flag OFF: sess-A write is misrouted to reg.active room-b -- the 2026-07-08 defect, reproduced');
+  const boundAFlagOff = resolveWriteTargetDir('sess-A', fallback, 'cli');
+  assert.strictEqual(boundAFlagOff, roomA, 'flag OFF (248-01/CTX-02): sess-A write still lands in its OWN bound room-a, never the reg.active room-b -- the 2026-07-08 defect is now impossible in EITHER flag state');
 
   // -------------------------------------------------------------------------
-  // The defect becomes IMPOSSIBLE once the flag is ON: every write resolves
-  // THIS session's own bound room, never the global reg.active field.
+  // Flag ON: unchanged expectation, now proven to agree with flag-OFF above
+  // (resolution is no longer flag-gated at all).
   // -------------------------------------------------------------------------
   process.env.MINDRIAN_MCP_FIRST = 'cli';
 
   const boundA = resolveWriteTargetDir('sess-A', fallback, 'cli');
-  assert.strictEqual(boundA, roomA, 'flag ON: sess-A write lands in its OWN bound room-a, never room-b (the defect is now impossible)');
+  assert.strictEqual(boundA, roomA, 'flag ON: sess-A write lands in its OWN bound room-a, never room-b (the defect is impossible, and agrees with the flag-OFF outcome above)');
 
   // -------------------------------------------------------------------------
   // Two concurrent sessions, interleaved writes: every write lands in its own

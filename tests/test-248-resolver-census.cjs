@@ -62,11 +62,20 @@ function check(label, cond) {
 }
 
 function stripComments(src) {
-  const noBlock = src.replace(/\/\*[\s\S]*?\*\//g, '');
-  return noBlock
+  // Line comments FIRST, then block comments -- deliberately the REVERSE of
+  // tests/test-224-resolver-fallback.cjs's order. That order misfires on
+  // this repo's own doc comments: a `//` header line mentioning a glob path
+  // like `lib/mcp/tools/*.cjs` contains a literal `/*` substring, which a
+  // block-first pass treats as a comment OPEN and then swallows everything
+  // up to the NEXT unrelated `*/` (a real JSDoc closer many lines later),
+  // silently deleting real require() lines in between. Stripping `//` to
+  // end-of-line first removes that false `/*` before the block pass ever
+  // sees it, since it lives inside a genuine line comment.
+  const noLine = src
     .split('\n')
     .map((line) => line.replace(/\/\/.*$/, ''))
     .join('\n');
+  return noLine.replace(/\/\*[\s\S]*?\*\//g, '');
 }
 
 function walk(dir) {

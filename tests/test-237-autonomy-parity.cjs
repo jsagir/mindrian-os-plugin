@@ -156,14 +156,24 @@ function pinRequiresToRealRepo(src) {
   // Phase 237-08 module-header note). That require is therefore no longer
   // pinned here; every OTHER relative require this Leg 5 harness depends on
   // is unaffected by that rewire.
+  //
+  // Phase 248-01: chain.cjs's own resolveSessionRoomDir copy (and its direct
+  // requires of ../mcp-first-flag.cjs and ../../core/resolve-active-room.cjs)
+  // was retired in favor of the shared lib/mcp/session-room.cjs resolver
+  // (Task 3, CTX-01 nine-copy collapse). Both stale pins below are removed;
+  // session-room.cjs is pinned in their place so the mutated tmp copy
+  // (written outside lib/mcp/) can still resolve its relative require.
   const relativeRequires = [
     ["require('../../core/chain-executor.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'chain-executor.cjs')],
     ["require('../../workflow/command-resolver.cjs')", path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs')],
     ["require('../gate-render.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'gate-render.cjs')],
-    ["require('../../core/resolve-active-room.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'resolve-active-room.cjs')],
     ["require('../../core/session-binding.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'session-binding.cjs')],
-    ["require('../mcp-first-flag.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'mcp-first-flag.cjs')],
+    ["require('../session-room.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'session-room.cjs')],
     ["require('../../core/chain-step-dispatcher.cjs')", path.join(REPO_ROOT, 'lib', 'core', 'chain-step-dispatcher.cjs')],
+    // Phase 238-04 added this require to chain.cjs after this harness's pin
+    // list was last updated; pinned here now so the mutated tmp copy (which
+    // this Leg 5 harness needs to load) can resolve it too.
+    ["require('../gate-ledger.cjs')", path.join(REPO_ROOT, 'lib', 'mcp', 'gate-ledger.cjs')],
   ];
   for (const [needle, absTarget] of relativeRequires) {
     assert.ok(out.indexOf(needle) !== -1, 'expected relative require not found in chain.cjs: ' + needle + ' (harness pin target drifted)');
@@ -187,8 +197,14 @@ function pinRequiresToRealRepo(src) {
 function buildMutatedChainCjs(tmp) {
   const src = fs.readFileSync(CHAIN_TOOL_PATH, 'utf8');
 
-  const requireAnchor = "const { isMcpFirst } = require('../mcp-first-flag.cjs');";
-  assert.ok(src.indexOf(requireAnchor) !== -1, 'expected mcp-first-flag require anchor not found in chain.cjs; harness pin target drifted');
+  // Phase 248-01: chain.cjs's require of mcp-first-flag.cjs was retired
+  // (Task 3, CTX-01 collapse). This anchor only ever served as an injection
+  // point (a require line near the top to append the mutation function
+  // after) -- it has no functional connection to isMcpFirst. Re-pointed at
+  // chain.cjs's session-room.cjs require, which now serves the same
+  // structural role.
+  const requireAnchor = "const { resolveSessionRoomDir } = require('../session-room.cjs');";
+  assert.ok(src.indexOf(requireAnchor) !== -1, 'expected session-room require anchor not found in chain.cjs; harness pin target drifted');
 
   const connectorRegistryAbs = JSON.stringify(CONNECTOR_REGISTRY_PATH);
   const injectedFn = [
