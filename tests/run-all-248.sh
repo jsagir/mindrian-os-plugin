@@ -110,6 +110,7 @@ em_dash_sweep() {
     "tests/test-248-resolver-census.cjs"
     "tests/test-248-room-bind-session-authoritative.cjs"
     "tests/test-248-room-bind-honest-return.cjs"
+    "tests/test-248-surface-probes.cjs"
     "tests/run-all-248.sh"
   )
   local t f

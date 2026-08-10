@@ -570,6 +570,43 @@ tier.
 export MINDRIAN_BRAIN_VERB_FRACTION=0.35
 ```
 
+## MINDRIAN_MCP_FIRST (MCP daemon lifecycle, no longer a room-resolution gate)
+
+**Not documented here before Phase 248** -- this entry closes that gap, and states the flag's
+CURRENT meaning explicitly so a silent semantic drift never goes unrecorded again (research
+Open Question 2 / D-07 amendment: "a flag whose documented meaning silently changed is this
+repo's known bug class").
+
+**What it used to gate (pre-Phase 248, now REPEALED):** every one of the nine MCP room
+resolvers only consulted a session's `room_bind` write inside `if (isMcpFirst(surface))`, and
+`MINDRIAN_MCP_FIRST` is unset on every install by default (D-07) -- so a bound session's write
+was, in practice, never read. Phase 248 collapsed all nine copies into
+`lib/mcp/session-room.cjs`, whose read path calls the core session-aware resolver
+UNCONDITIONALLY. **Room RESOLUTION no longer consults this flag at all**, for any surface, in
+any state.
+
+**Its remaining LIVE consumers** (re-grepped at execution time via
+`grep -rn "isMcpFirst(" lib/ bin/ --include=*.cjs`; comments excluded, executable call sites
+only):
+
+| File | What it gates now |
+|------|--------------------|
+| `lib/mcp/mcp-first-flag.cjs` (the definition itself, plus `isWritePathEnabled`'s internal call) | The WRITE-PATH PERMISSION gate for foreign MCP hosts (`graph_write`/`memory_event`/`artifact_file`), a Phase 234-05 concern entirely orthogonal to room resolution -- "may this call write", never "which room does this call read". |
+| `bin/mindrian-mcp-server.cjs` (`isMcpFirst(surface.surface)`, the daemon's HTTP branch) | DAEMON LIFECYCLE: whether the Streamable HTTP transport wires a per-session transport map (`sessionIdGenerator: randomUUID`, real per-connection `extra.sessionId`, the pidfile/port-discovery/SSE-event-bus machinery) or the byte-identical-legacy single shared stateless transport (`sessionIdGenerator: undefined`, no per-connection session id at all). |
+
+**Why the daemon-lifecycle consumer still matters even though resolution is unconditional:**
+on the Streamable HTTP transport, `extra.sessionId` is populated PER CONNECTION only when the
+per-session transport map is active. With the flag unset, every HTTP connection shares ONE
+stateless transport and gets no per-connection session id, so `session.primary` binding
+(now honored unconditionally on the read side) has no per-connection identity to attach to in
+the first place. This is why `tests/test-248-surface-probes.cjs`'s Cowork-equivalent leg sets
+`MINDRIAN_MCP_FIRST=cowork` in its own child spawn -- a daemon-lifecycle prerequisite for
+observing the isolation proof, not a room-resolution dependency.
+
+```bash
+export MINDRIAN_MCP_FIRST=cowork   # or 'all', or a comma-separated surface list
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:

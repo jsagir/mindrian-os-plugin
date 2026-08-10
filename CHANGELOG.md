@@ -1,6 +1,26 @@
 ## [Unreleased] -- v1.16.0-beta.12 (in progress)
 
 ### Fixed
+- **Binding this session to a room now actually sticks, and `room_bind` finally tells you the
+  truth about whether it worked.** Before this, nine separate copies of the same room-lookup
+  logic were scattered across the MCP tool files, and every one of them only checked your
+  session's chosen room when a feature flag (`MINDRIAN_MCP_FIRST`) happened to be on, which it
+  is not by default on any install. So binding to a room reported success, and the very next
+  read silently used whatever room some OTHER session on your machine had last activated, not
+  the one you just picked -- `room-bind-mcp-first-off-falls-back-to-stale-global-active-room`.
+  All nine copies are now one shared resolver, and it consults your session's binding
+  unconditionally: a room you bind to is now authoritative for the rest of that session,
+  flag or no flag. A session that never binds anything keeps behaving exactly as before, byte
+  for byte. On top of that, `room_bind` itself used to report `{ok:true, bound:true}` even when
+  you named a room that does not exist on disk -- an honest-sounding lie about an effect that
+  never actually happened. It now round-trips through the same shared resolver right after
+  writing, so the response tells you what the NEXT read will actually see: `effective`,
+  `resolved_dir`, `resolved_source`, and, when the bind did not take, why not
+  (`room_not_on_disk` for a room with no directory on disk). The short-term fix this could have
+  taken instead -- writing your bind straight into the shared, machine-wide "active room"
+  pointer -- was deliberately rejected, because that would let one session's bind clobber every
+  other concurrent session on the same machine, reintroducing the exact race a prior fix
+  already closed. A standing test asserts that pointer never moves.
 - **Larry can read the Brain again. Every single Brain call was failing before this, and nothing
   told you so.** If you asked Larry anything that needed the teaching graph -- which framework fits
   your problem, what the corpus says, a grade, a chain recommendation -- the call died before it
