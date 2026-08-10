@@ -284,7 +284,9 @@ room_bind handler: writeSessionBinding(...) THEN resolveMcpSessionRoom(same sess
 | A2 | No consumer outside lib/mcp depends on the exact `{ok:true,bound:true}` room_bind response shape (additive fields assumed safe) | CTX-02 | Grep consumers at plan time; F.8 card renderer and tests are the known readers |
 | A3 | `isMcpFirst` retains non-resolution consumers (daemon lifecycle/registration) and must not be deleted outright | CTX-01 design | If none remain live, the flag itself may deserve deprecation notes; census at plan time |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All four resolved at plan time (2026-08-10): OQ1 RESOLVED - requireOwnership stays OFF, cited in 248-01 Task 2. OQ2 RESOLVED - read path ignores the flag; ENV-TUNING.md + D-07 wording amended via 248-02 Task 2. OQ3 RESOLVED - scripted surface-equivalents are the merge gate; real-host confirmation recorded at release pickup (248-02). OQ4 RESOLVED - langtalks unavailable to researcher AND planner; recorded in both plans' notes with an executor MAY-attempt clause.
 
 1. **Engage `requireOwnership` (foreign-live reg.active decline) in the shared resolver's Leg B?** Known: it ships opt-in OFF for the 9 MCP modules explicitly for zero blast radius; only the F.1 reach-card consumer opts in. Recommendation: keep OFF in Phase 248 (bound sessions never reach Leg B anyway, and the unbound tier-0 restart case depends on inheriting); note for a later phase.
 2. **What does `MINDRIAN_MCP_FIRST` mean after the collapse?** Recommendation: read path ignores it entirely; document remaining consumers (grep at plan time) and amend D-07 wording in the phase's doc updates - a flag whose documented meaning silently changed is this repo's known bug class.
