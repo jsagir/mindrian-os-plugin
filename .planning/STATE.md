@@ -1,15 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.0.0
-milestone_name: Build the Loop
-status: planning
-last_updated: "2026-08-10T08:11:36.543Z"
-last_activity: 2026-08-10
+milestone_name: milestone
+status: Defining requirements
+stopped_at: 246-02 Task 3 checkpoint (Lane B admin-key operator step) - Lane A committed and independently citable
+last_updated: "2026-08-10T09:23:20.795Z"
+last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -2265,6 +2266,7 @@ Progress: [█████████░] 92%
 | Phase 245 P06 | 20min | 3 tasks | 15 files |
 | Phase 245 P07 | 25min | 3 tasks | 5 files |
 | Phase 245 P08 | 42min | 3 tasks | 3 files |
+| Phase 246 P02 | 45min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -3469,6 +3471,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 245-07: FUSION_CEILING 0.69 bounds the nudge structurally via base + fraction * (CEILING - base) with fraction < 1, resolving Open Question A3 below the frozen 0.70 RECOMMENDED floor
 - [Phase ?]: 245-08: the dial fusion merges at the render callsite (composeDialReachScores in scripts/intent-classifier.cjs), not in the hedge ranker - F-1 proved the ranker is a sibling of buildReachList, so a fusion folded there moves the dial by nothing
 - [Phase ?]: 245-08: telemetry and the live render now share one score composition, but telemetry still passes reachPenalties null - computeReachPenalties counts the very reach_presented rows that block writes, so reordering would silently change the live render's M-floor
+- [Phase ?]: 246-02: C4 (FEEDS_INTO/LEADS_TO/ALIAS_OF) recorded as three CENSUS_QUERIES entries sharing id C4 rather than fused into one query, preserving research's Cypher strings verbatim
+- [Phase ?]: 246-02: Stopped at Task 3 operator checkpoint - admin key never read/guessed/fetched by the session; Lane A landed and committed independently of Lane B
 
 ### Pending Todos
 
@@ -3489,6 +3493,7 @@ Progress: [█████████░] 92%
 - RESOLVED 2026-05-11: tests/test-navigation-memory-events.cjs test1_enumCount now asserts EVENT_TYPES.size >= 19 (floor). 9/9 GREEN (commit a73a06c). The "One-line fix outstanding" item is closed.
 - RESOLVED 2026-05-12: Phase 95.6 marked complete via `gsd-tools phase complete 95.6` (10/10 plans, no verification-debt warnings). The `gsd-tools` roadmap-order "next" was Phase 104, but the maintainer override is Phase 122 (the beta.10 Workflow Layer capstone).
 - 234-03 broke the skill-mirror contract: 110 of 111 mirrors diverge, verify-release's mirror gate fails, and running build-skill-mirrors.cjs in write mode silently reverts 234-03's migration. See 234 deferred-items.md D-1.
+- Phase 246-02 Task 3 checkpoint: Lane B admin-key operator step pending. Lane A (246-02 Task 1+2) committed at b7832dd0/f7176a7a. Resume: operator runs MINDRIAN_BRAIN_KEY=<admin key> node scripts/build-brain-census.cjs --lane-b in their own terminal, or supplies a local-twin results JSON path.
 
 ### Quick Tasks Completed
 
@@ -3566,8 +3571,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-07-31T14:38:59.202Z
-Stopped at: Completed 245-07-PLAN.md
+Last session: 2026-08-10T09:20:49.306Z
+Stopped at: 246-02 Task 3 checkpoint (Lane B admin-key operator step) - Lane A committed and independently citable
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
