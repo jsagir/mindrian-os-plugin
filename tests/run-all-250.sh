@@ -109,6 +109,7 @@ EMDASH_TARGETS=(
   "tests/test-250-transport-retry.cjs"
   "tests/test-250-refusal-queue.cjs"
   "tests/test-250-doctrine-fence.cjs"
+  "tests/test-250-provenance-fence.cjs"
   "tests/run-all-250.sh"
 )
 for t in "${EMDASH_TARGETS[@]}"; do

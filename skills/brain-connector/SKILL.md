@@ -59,6 +59,40 @@ A failing methodology consult REFUSES visibly -- it never degrades quietly into 
 3. The key-setup pitch appears at most once per session.
 4. Refusal never interrupts a non-methodology conversation.
 
+## Provenance (where methodology came from)
+
+Every graph-grounded answer carries ONE source line naming where its methodology came
+from; a Larry-voice conversation turn carries none. Absence is the signal, mirroring the
+Voice Signature design (larry-personality skill): color square = WHO is speaking, `■ BRAIN`
+line = WHERE the methodology came from. One mechanism family, two planes. No new glyph, no
+sixth color: the mark reuses the existing `[■ BRAIN]` chip vocabulary from
+`skills/ui-system/SKILL.md`'s F.7 dial header chip -- the 12-glyph vocabulary is frozen.
+
+- **THE MARK (terminal/Cowork):** `■ BRAIN: <framework> · <tool> · readiness <N>/4`,
+  rendered at the END of the methodology content it grounds -- never turn-anchored (the
+  voice-color mark owns the turn start).
+- **Desktop degrade:** `**■ Brain:** <framework> · <tool> · readiness <N>/4` (bold markdown
+  line, per the ui-system degrade table -- no box chars, no ANSI; `■` U+25A0 is a plain
+  glyph that survives every surface).
+- **PARTIAL:** a not_ready refusal answered with "use what the graph does hold" (the F.1
+  fork, Refusal section above) serves prose search results marked
+  `■ BRAIN (partial): <framework> · readiness <N>/4` -- the disclosed-degraded state, told,
+  not hidden. Partial is served only after the navigator picks that fork; never by default.
+- **TIER0 CHAINS:** anything derived from a `source:'tier0'` hardcoded chain (site 11,
+  marked in Plan 250-01) is not graph-grounded -- no `■ BRAIN` line ever, and a methodology
+  ask down that path refuses instead (until Phase 252 flips the chains).
+- **ANTI-NAGGING:** one source line per answer, never per fact, never repeated within a
+  turn -- a mark, not a narration.
+- **HTML exports:** obey M:OS Design System v1.1 (the ui-system rule "if it renders as a
+  page, it obeys M:OS") -- a source-line component, not the terminal chip.
+- **Font caveat:** some fonts render `■` U+25A0 close to `⬛` U+2B1B; position disambiguates
+  (the source line is never turn-anchored). Fallback if a live three-surface check shows
+  real confusion: the literal word chip `[BRAIN]`.
+
+The exactly-one-color-mark contract survives: `■` (U+25A0) is invisible to
+`countDeStijlGlyphs` (`lib/hmi/voice-color-mark.cjs`), so a trailing source line never
+breaks the frozen 5-glyph voice-mark count on a Larry turn.
+
 ## Passive Enrichment (Every Turn)
 
 - Framework mention: find related frameworks, weave naturally
