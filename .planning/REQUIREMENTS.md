@@ -17,6 +17,9 @@ methodology that did not come from the Brain, without being told.
 - Consult grounding sources per CLAUDE.md (langtalks for agent/graph concepts, Context7 for
   API contracts, claude-api/claude-code-guide for host behavior). langtalks caveat: use
   relationship_path point-to-point; query_relationship BFS returns zero-edge payloads.
+  Navigator scoping 2026-08-10: langtalks consultation is MANDATORY for the critical-element
+  concepts (harness design, context engineering, memory, verification loops) and is NOT the
+  authority for stateless-MCP/protocol mechanics - those go to claude-code-guide/Context7.
 - Eval honesty (from the brain repo's own README): a test that cannot fail is not evidence.
 - Cross-repo: plugin (this repo) + jsagir/brain_ProblemsWorthSolving (server tool layer) +
   the Render deployment. A requirement is not done until the surface a user reaches is fixed.
