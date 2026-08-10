@@ -410,12 +410,16 @@ echo "$PARSED_FALLBACK" | grep -qiE "graceful" && fail
 | A5 | Renaming the fixture dir and tier0-messaging module is acceptable under "never deleted" (coverage preserved, history in git) | SWEEP-01/02 | Low - fall back to keep-names + README/header rewrite if the navigator objects |
 | A6 | `doctor.cjs --acceptance` remains CI-green-without-Brain by design (class-m self-skip), so live proof is checkpoint-only | Release proof | Low - verified at doctor.cjs:224 this session; re-check if 250/251 touch doctor |
 
-## Open Questions
+## Open Questions (RESOLVED - plan-time dispositions 2026-08-10, pointers below)
 
 1. **Does 250's amendment consequential ledger name MINDRIAN-CANON.md:21?** The researched 250 ledger names decisions.md, CLAUDE.md, BRAIN-SETUP, the fixture, and the docs list - canon :21 was not in it. Coordination with the concurrent 250 planner preferred; otherwise 252 adds it at application time with a one-line addendum note.
+   - RESOLVED: yes - 250-02 folded canon:21 into the amendment's consequential-edits ledger (item 3, verified in 250-02-SUMMARY.md). Applied in 252-03-PLAN.md Task 1; no addendum needed.
 2. **Refusal kind for the no-identity edge post-registration:** reuse `no_key`/`unreachable` or a distinct `registration_failed`? Depends on what 250-03 ships. Recommendation: reuse, unless the registration client exposes a distinct state the fixture must discriminate.
+   - RESOLVED: reuse - 250-04 reframed the no_key copy itself for the registration-failed edge (_noKeyDetail / getAutoRegisterFailureReason); no fifth kind minted. Asserted in 252-02-PLAN.md Task 2.
 3. **The "82 degradation tests" accounting:** the number is a comment-era estimate that cannot be reproduced as a file count (117 tier-0-matching test files, most exempted by vocabulary). Recommendation: the planner's test re-pointing pass produces its own enumerated list per ROUTE file and files it in the SUMMARY as the operative number - honest re-measure over inherited folklore.
+   - RESOLVED: 252-01-PLAN.md Task 3a enumerates the operative re-pointing list per ROUTE file and files it in the SUMMARY, with a hard >20-file escape valve into a supplemental plan (252-04) rather than mid-task degradation.
 4. **rs-experts' Brain/Aura probe conflation (`SKILL.md:64`):** fix in this sweep (right probe for Aura) or file as follow-up? Recommendation: fix the instruction text in the sweep (it is a doctrine-adjacent honesty issue); a code-level Aura probe, if needed, is a follow-up.
+   - RESOLVED: instruction-text fix rides 252-01-PLAN.md Task 3b (the right probe named for Aura); a code-level Aura probe is a filed follow-up, not this sweep.
 
 ## Environment Availability
 
