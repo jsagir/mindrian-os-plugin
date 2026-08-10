@@ -16,8 +16,9 @@ Before any session: `pwd` (confirm the dev workspace, not `~/.claude/plugins/*`)
 
 | Handoff | Subject |
 |---|---|
-| `docs/2026-08-09-HANDOFF-brain-envelope-and-egress-guard.md` | the Brain-unreadable outage, PR #2 (merged), PR #3 (open), and the `v1.16.0-beta.13` release still owed. Contains the WSL release commands and the `updatedToolOutput` contract verified against the Claude Code binary. |
-| `docs/2026-08-09-HANDOFF-tier0-removal-milestone.md` | Tier 0 removal / hard-require the Brain. DECIDED, unstarted. Read section 6 first: there is no always-on skill primitive, `activation:` in SKILL.md frontmatter is ignored, and the working rail already runs every turn. |
+| `docs/2026-08-10-HANDOFF-build-the-loop-milestone.md` | **THE MOST CRITICAL MILESTONE TO DATE (navigator, 2026-08-10): "Build the Loop" - the step that makes MindrianOS closest to a complete product.** Supersedes the tier0-removal PLAN (its evidence stands). Six phases, navigator-approved, grounded in same-day primary-source probes of BOTH graphs. Read this before any Brain-related work. |
+| `docs/2026-08-09-HANDOFF-brain-envelope-and-egress-guard.md` | the Brain-unreadable outage, PR #2 (merged), PR #3 (merged), and `v1.16.0-beta.13` (RELEASED 2026-08-10: npm + tag + marketplace verified; bare `npx` now tracks the newest beta via @latest promotion in release.sh). Contains the `updatedToolOutput` contract verified against the Claude Code binary. |
+| `docs/2026-08-09-HANDOFF-tier0-removal-milestone.md` | Tier 0 removal / hard-require the Brain. Evidence and blast-radius measurements still valid; its SEQUENCING is superseded by the build-the-loop handoff above. Section 6 (no always-on skill primitive) remains required reading. |
 
 **Cross-repo:** the Brain itself lives in `jsagir/ProblemsWorthSolving-Brain`, whose own `CLAUDE.md` and `docs/2026-08-09-HANDOFF-brain-consumption-surface.md` carry the graph-side state. Changes there do not show up in this repo's history at all, so check both when Brain behaviour is in question.
 
