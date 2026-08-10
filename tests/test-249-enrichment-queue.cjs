@@ -298,9 +298,11 @@ test('Test 8: SOFT_CAP 500 warning / HARD_CAP 1000 rejection', () => {
   assert.equal(eq.HARD_CAP, 1000);
 
   const roomDir = freshRoom();
-  // Seed a queue file directly at SOFT_CAP - 1 to avoid a slow 500-call loop.
+  // Seed a queue file directly AT SOFT_CAP to avoid a slow 500-call loop.
+  // enqueue() warns once the count goes STRICTLY ABOVE SOFT_CAP (donor
+  // semantics, brain-derivation-queue.cjs: `if (nextEntries.length > SOFT_CAP)`).
   const entries = [];
-  for (let i = 0; i < eq.SOFT_CAP - 1; i++) {
+  for (let i = 0; i < eq.SOFT_CAP; i++) {
     entries.push({
       framework: 'Bulk Framework ' + i, normalized: true, readiness_score: 1,
       missing_dimensions: [], context_class: {}, source: 'live_reach',
@@ -311,7 +313,7 @@ test('Test 8: SOFT_CAP 500 warning / HARD_CAP 1000 rejection', () => {
 
   const r1 = eq.enqueue(roomDir, { framework: 'Soft Cap Trigger', readiness_score: 1, source: 'live_reach', probe_provenance: 'x@y' });
   assert.equal(r1.queued, true);
-  assert.equal(r1.queue_size, eq.SOFT_CAP);
+  assert.equal(r1.queue_size, eq.SOFT_CAP + 1);
   assert.equal(r1.warning, 'queue_soft_cap');
 
   // Seed directly at HARD_CAP to prove the reject path without a slow loop.
