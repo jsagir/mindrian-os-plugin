@@ -218,7 +218,7 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "              gate + git add -f) into Commit A; MOS_SKIP_VENDOR=1 to skip"
   echo "  Step 7    : commit A on plugin repo -- 'release: v$NEW_VERSION', tag v$NEW_VERSION"
   echo "              commit on marketplace repo -- 'release: sync to v$NEW_VERSION'"
-  echo "  Step 9.5  : npm publish @mindrian_os/cli@$NEW_VERSION --tag $NPM_TAG_PREVIEW"
+  echo "  Step 9.5  : npm publish @mindrian_os/cli@$NEW_VERSION --tag $NPM_TAG_PREVIEW; then promote to @latest (navigator 2026-08-10: bare npx always serves the newest release, betas included)"
   if [ "$NO_NEXT_BUMP" = "1" ]; then
     echo "  Step 7.5  : SKIPPED (--no-next-bump). main HEAD stays at $NEW_VERSION."
   else
@@ -724,6 +724,20 @@ if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ]; then
 else
   if npm publish --tag "$NPM_TAG"; then
     echo -e "${GREEN}  Published @mindrian_os/cli@$NEW_VERSION to npm (@$NPM_TAG)${NC}"
+    # Navigator decision 2026-08-10: bare `npx @mindrian_os/cli` must always
+    # resolve the NEWEST release, betas included. Publish still tags @next
+    # (kept for consumers pinned to it), then the SAME version is promoted to
+    # @latest. For a stable release NPM_TAG is already "latest" and this is a
+    # no-op re-add. Non-fatal on failure: the publish itself succeeded, so
+    # print the manual recovery command instead of breaking lockstep.
+    if [ "$NPM_TAG" != "latest" ]; then
+      if npm dist-tag add "@mindrian_os/cli@$NEW_VERSION" latest; then
+        echo -e "${GREEN}  Promoted @mindrian_os/cli@$NEW_VERSION to @latest (bare npx now serves it)${NC}"
+      else
+        echo -e "${YELLOW}  ! dist-tag promotion to @latest failed (publish itself OK).${NC}"
+        echo "    Recover manually: npm dist-tag add @mindrian_os/cli@$NEW_VERSION latest"
+      fi
+    fi
   else
     echo ""
     echo -e "${RED}  x npm publish failed for @mindrian_os/cli@$NEW_VERSION.${NC}"
