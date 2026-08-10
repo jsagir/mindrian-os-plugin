@@ -1,0 +1,31 @@
+{
+  "_note": "v1 pins tool names, tier, and required arg names/types only (247-RESEARCH.md open question 3; schema-hash pinning is a v2 option). FINAL AUTHORITY is the brain-side hermetic self-test landed in 247-03, which reconciles this file against buildBrainServer()'s real zod schemas and updates BOTH vendored copies (this one and the brain repo's own) on any mismatch. Authored from 247-RESEARCH.md's live census, not hand-guessed.",
+  "contract_version": 1,
+  "loop_tools": {
+    "normalize_framework_name": { "tier": "read", "args": { "raw": "string" } },
+    "search": { "tier": "read", "args": { "query": "string", "topK": "int<=20" } },
+    "discover_structure": { "tier": "read", "args": { "framework_name": "string" } },
+    "orchestration_readiness": { "tier": "read", "args": { "framework_name": "string" } },
+    "feeds_into_chains": { "tier": "read", "args": { "seeds": "string[]", "max_hops": "int<=3" } },
+    "brain_stats": { "tier": "read", "args": {} }
+  },
+  "retired_remote": ["text2cypher", "brain_ask_anything"],
+  "error_semantics": {
+    "tier_denied": "HTTP 403 + MoatViolation body",
+    "invalid_key": "HTTP 401"
+  },
+  "non_contract_note": "The remaining 15 read tools registered on the deployed Brain (load_framework, intra_framework_flow, framework_techniques, commands_for_problem_type, classify_problem_type, find_frameworks_for_problem_type, find_commands_for_problem_type, find_connections, find_bottlenecks, rank_influence, find_whitespace, structural_neighbours, brain_ask, brain_search, brain_schema) are non-contract: neither promised by this document nor scheduled for removal. Adjudicating them is out of this phase's scope (247-RESEARCH.md Pitfall 6).",
+  "indexes": {
+    "keep": ["mindrian_methodology_vec"],
+    "keep_retired": ["mindrian_methodology_vec_openai"],
+    "dropped": [
+      "framework_embeddings",
+      "concept_embeddings",
+      "creativework_embeddings",
+      "entity_embeddings",
+      "person_embeddings",
+      "product_embeddings",
+      "vector"
+    ]
+  }
+}
