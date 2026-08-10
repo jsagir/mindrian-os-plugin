@@ -75,10 +75,14 @@ function buildSandbox() {
   // only invocation through `bash` (which reads+execs non-executable files)
   // succeeds. This is the POSIX proxy for the Windows direct-exec failure.
 
+  // NOTE: the shim's OWN shebang must be an ABSOLUTE path to the real bash,
+  // never `#!/usr/bin/env bash` -- with fakeBin prepended to PATH, `env`
+  // would resolve "bash" back to this very shim and recurse forever (hangs
+  // until spawnSync's timeout fires, no log line ever written).
   const logFile = path.join(base, 'bash-invocations.log');
   const shim = path.join(fakeBin, 'bash');
   fs.writeFileSync(shim,
-    '#!/usr/bin/env bash\n' +
+    '#!' + REAL_BASH + '\n' +
     'echo "argv0=bash args=$*" >> ' + JSON.stringify(logFile) + '\n' +
     'exec ' + JSON.stringify(REAL_BASH) + ' "$@"\n'
   );
