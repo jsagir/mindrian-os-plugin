@@ -54,7 +54,11 @@ Already-scoped inputs (routed in, not re-planned): `docs/2026-08-10-HANDOFF-buil
   2. A Cypher census of the methodology graph is filed as a tracked artifact: total Framework nodes, frameworks with HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure, FEEDS_INTO and LEADS_TO edge counts, and top gaps ranked by expected-use.
   3. The census is citable downstream: Phases 247 and 249 plan against its numbers instead of re-probing the graph, and the 2026-08-10 probe findings (JTBD 0/4 with 4 aliases, TRIZ/SCAMPER/Five Whys absent as Framework nodes, empty discover_structure) are confirmed or corrected on the record.
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 246-01-PLAN.md - LOOP-01 fresh-session three-call live verification (preflight + checkpoint:human-verify with the five-signature decode table)
+- [ ] 246-02-PLAN.md - LOOP-02 two-lane graph census: builder + test fence, Lane A read-tier run committed first, Lane B admin-key operator checkpoint, finalize
 
 ### Phase 247: Brain Surface Contract
 
@@ -156,7 +160,7 @@ Already-scoped inputs (routed in, not re-planned): `docs/2026-08-10-HANDOFF-buil
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 246. Live Verification + Graph Census | 0/TBD | Not started | - |
+| 246. Live Verification + Graph Census | 0/2 | Not started | - |
 | 247. Brain Surface Contract | 0/TBD | Not started | - |
 | 248. MCP-First Room Resolution | 0/TBD | Not started | - |
 | 249. Context-Driven Enrichment | 0/TBD | Not started | - |
