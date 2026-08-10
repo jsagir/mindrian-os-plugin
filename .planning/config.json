@@ -4,6 +4,15 @@
   "parallelization": true,
   "commit_docs": true,
   "model_profile": "quality",
+  "models": {
+    "planning": "fable",
+    "discuss": "fable",
+    "research": "fable",
+    "execution": "sonnet",
+    "verification": "sonnet",
+    "completion": "sonnet"
+  },
+  "_models_note": "Navigator directive 2026-08-10 (v2.0.0 Build the Loop): Fable plans and researches, Fable does NOT implement. Planning/discuss/research phase-types run on fable; execution/verification/completion run on sonnet. This is an explicit standing ask that amends the 2026-07-25 never-use-fable memory rule for THIS repo's GSD planning/research agents only. Implementation stays off fable deliberately.",
   "workflow": {
     "research": true,
     "plan_check": true,
