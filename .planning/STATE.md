@@ -3,18 +3,77 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: "Checkpoint - 251-02-PLAN.md Tasks 1-2 complete, Task 3 (live-session cache baseline, operator-only) awaiting human action. Also open: Checkpoint - 250-04-PLAN.md Tasks 1-2 complete, Task 3 (operator deploy + released-build three-surface verify) awaiting human action"
-last_updated: "2026-08-10T19:05:00.000Z"
-last_activity: 2026-08-10 - Milestone v2.0.0 started; 251-02 Tasks 1-2 landed (budget fence + doctrine + hitrate analyzer), Task 3 checkpoint pending
+stopped_at: Completed 252-01-PLAN.md
+last_updated: "2026-08-10T19:07:22.402Z"
+last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
-  completed_phases: 2
-  total_plans: 16
-  completed_plans: 12
-  percent: 29
+  completed_phases: 4
+  total_plans: 19
+  completed_plans: 16
+  percent: 84
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 252 PLAN 01 COMPLETE -- Guard sweep SWEEP-01: census, counterfeit kill, chokepoint rename, route/conform/keep
+
+- **Position:** Phase 252 (Guard Sweep) Plan 01 (SWEEP-01) is COMPLETE, all 4
+  tasks committed. Plans 02 (SWEEP-02, fixture inversion) and 03 (SWEEP-03,
+  docs + constitution sweep) have NOT started.
+
+- **Task 1 (census, born RED):** `tests/test-252-guard-census.cjs` (5 rules:
+  allowlist, seam-liveness, counterfeit-gone, doctrine fence, vocabulary
+  canaries) + `tests/run-all-252.sh`. RED before any sweep edit (census.1/2/3
+  failed for the expected pre-sweep reasons, verbatim output in
+  `252-01-SUMMARY.md`); GREEN (6/6) after Task 3a. Commit `1532dec3`.
+
+- **Task 2 (counterfeit kill + rename):** `getTier0Chain()`/`getFrameworkChain()`
+  deleted from `lib/core/brain-client.cjs` (zero CJS consumers verified by
+  fresh grep). `lib/core/tier0-messaging.cjs` renamed to
+  `refusal-messaging.cjs` via `git mv`, wire byte-locked
+  (`DIRECTOR_NOT_AVAILABLE`, five sentinel keys, `tier0Response()` shape
+  unchanged). 11 live consumers re-pointed. `skills/conversation-mode/SKILL.md`'s
+  hardcoded-chains instruction rewritten to follow the refusal rail. Commit
+  `efa4c765`.
+
+- **Task 3a (route/conform + test re-pointing):** 5 ROUTE + 5 CONFORM sites
+  now disclose the honesty rail ADDITIVELY (new `refusal`/`refusal_kind`
+  fields, visible stderr/render lines) -- every site was already
+  honest/typed before the sweep, so zero return-shape changes, zero
+  byte-locked-literal renames. `chain-recommender.cjs`'s two exported
+  functions keep their exact shapes (14+ consumers); disclosure lives on
+  stderr instead. Test re-pointing enumerated at 18 files (escape valve
+  did NOT fire), zero flips needed (no test asserted silent semantics).
+  Commit `556ed210`.
+
+- **Task 3b (instruction vocabulary + census green):** rs-fetch/rs-explain
+  needed zero changes (correctly Brain-vs-Aura already); rs-experts'
+  SKILL.md/commands.md conflation fix grew larger than research estimated
+  -- the command carries NO live Tier 1 Aura query path today (a 2026-05-22
+  BUG-2-fix removal), so the instruction text was rewritten to match the
+  shipped code, not just the wrong-probe claim. Census green 6/6. Commit
+  `cc8da033`.
+
+- **Deviations (6, all documented in `252-01-SUMMARY.md`):** 1 Rule-1 bug
+  fix + revert (rs-explain-command.cjs marker conflation, reverted the
+  literal rename after it broke an out-of-scope test, aligned render copy
+  instead), 1 Rule-2 larger-than-estimated scope fix (rs-experts
+  instruction text), 2 Rule-3 pre-commit-hook blocking fixes
+  (`interactive_first_reward` frontmatter gap + skill-mirror drift, both on
+  `commands/rs-experts.md`), 2 process-transparency notes with zero
+  behavior impact (an unstaged Task-2 comment edit folded into Task 3a's
+  commit; an unrelated e2e test's `dashboard/graph.json` side effect
+  reverted before staging).
+
+- **Deferred (out of scope, logged to
+  `.planning/phases/252-guard-sweep/deferred-items.md`):** 2 pre-existing
+  unrelated test failures (`command-registry.test.cjs`,
+  `suggest-next-workflow.test.cjs`) and 1 pre-existing hardcoded-wrong-path
+  test file (`brain-cypher-chain-slice.test.cjs`), all reproduced identical
+  on unmodified HEAD before this plan touched anything.
+
+- **Full detail:** `.planning/phases/252-guard-sweep/252-01-SUMMARY.md`
 
 ## (2026-08-10) -- PHASE 251 PLAN 02 CHECKPOINT -- Budget fence + doctrine + hitrate analyzer complete, Task 3 live-session checkpoint pending
 
@@ -23,6 +82,7 @@ progress:
   started. This is a CHECKPOINT stop, not plan completion -- CACHE-03 stays
   unchecked in `.planning/REQUIREMENTS.md` until Task 3's live-session baseline
   closes it.
+
 - **Task 1 (budget fence + doctrine):** `NAV_BLOCK_BUDGET_BYTES = 1100` exported
   from `scripts/intent-classifier.cjs` (post-251-01 fixture block measures 816 B,
   giving 284 B of Brain-reach headroom, below the 1200 B ceiling). CACHE-03 rider
@@ -30,6 +90,7 @@ progress:
   filed: mechanism, refuted ep55 hypothesis, three levers, do-not list, honest
   limits, zero em-dashes. Born RED (4/4 failing, constant + doc absent), GREEN
   after implementation. Commit `7e26fa47`.
+
 - **Task 2 (read-only analyzer):** `scripts/cache-hitrate-report.cjs` (zero-dep
   CJS, argv switch-router) parses a session JSONL and reports hit rate, deduped
   api_requests, zero-cache-read count, NAV block/dup/suppressed-marker counts --
@@ -37,12 +98,14 @@ progress:
   `tests/fixtures/cache-hitrate-fixture.jsonl` (hand-computed hit_rate = 0.87).
   Born RED (5/5 failing, script absent), GREEN after implementation. Commit
   `de1c35bc`.
+
 - **Deviation (Rule 3, test-only):** `tests/test-251-hitrate-report.cjs` was
   rewritten to spawn the analyzer as a black-box CLI subprocess instead of
   requiring it in-process -- combining this test file's own `fs.closeSync(0)`
   (the 251-01 fd0-hang workaround) with an in-process `child_process` spawn
   crashed node with a libuv assertion (`uv__close: fd > STDERR_FILENO`). No
   production code affected; full detail in `251-02-SUMMARY.md`.
+
 - **Task 3 (live-session baseline, operator-only):** NOT started. Requires a
   staleness-guard grep against the RUNNING plugin root, a real 10+ turn session
   with 3+ idle turns, then `node scripts/cache-hitrate-report.cjs
@@ -51,6 +114,7 @@ progress:
   consecutive_identical === 0 for full blocks. Full resume steps in
   `.planning/phases/251-cache-aware-trigger-redesign/251-02-SUMMARY.md`'s
   "Next Phase Readiness" section.
+
 - **Full detail:** `.planning/phases/251-cache-aware-trigger-redesign/251-02-SUMMARY.md`
 
 ## (2026-08-10) -- PHASE 250 PLAN 04 CHECKPOINT -- Silent registration Tasks 1-2 complete (both repos), Task 3 operator-deploy checkpoint pending
@@ -2768,6 +2832,7 @@ Progress: [█████████░] 92%
 | Phase 246 P02 | 45min | 2 tasks | 7 files |
 | Phase 249 P02 | 55min | 3 tasks | 7 files |
 | Phase 250 P01 | 7min | 3 tasks | 13 files |
+| Phase 252 P01 | 160 | 4 tasks | 27 files |
 
 ## Accumulated Context
 
@@ -3978,6 +4043,8 @@ Progress: [█████████░] 92%
 - [Phase 249]: 249-02: checkFrameworkEval/discoverFixtures live in scripts/probe-framework-evals.mjs so both the hermetic suite and the live leg run the identical checker function
 - [Phase 249]: 249-02: filed the honest ENRICH-04 floor baseline at 4/28 passing, 24/28 missing (scripts/check-flagship-floor.cjs); both denominators printed, ratification held OPEN pending 249-03
 - [Phase 250]: AVAIL-02 retry wraps only the tools/call fetch seam inside callTool(), not session-init; 401/403 zero-retry falls out of existing control flow
+- [Phase 252]: 252-01: census.2 seam-liveness claims = ROUTE_SET minus brain-client.cjs (its routed obligation is counterfeit deletion, independently verified by census.3, not a live consult-serve branch needing the rail)
+- [Phase 252]: 252-01: additive disclosure over destructive flip - every ROUTE/CONFORM site was already honest/typed before the sweep, so the rail wiring adds a field/stderr line rather than renaming byte-locked literals or reshaping return contracts
 
 ### Pending Todos
 
@@ -4077,8 +4144,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-10T16:42:30.153Z
-Stopped at: Completed 250-01-PLAN.md
+Last session: 2026-08-10T19:07:17.092Z
+Stopped at: Completed 252-01-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 

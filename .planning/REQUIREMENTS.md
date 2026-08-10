@@ -166,7 +166,7 @@ methodology that did not come from the Brain, without being told.
 
 ### Phase G -- Guard sweep (LAST; never split from Phase D across releases)
 
-- [ ] **SWEEP-01**: The 101 isAvailable() brain-optional guard sites route through the
+- [x] **SWEEP-01**: The 101 isAvailable() brain-optional guard sites route through the
       honesty rail (visible refusal), not silent degradation; the 82 degradation tests are
       re-pointed at refusal semantics.
 
