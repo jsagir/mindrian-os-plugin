@@ -3,26 +3,26 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: "Paused at 250-02-PLAN.md Task 3 (checkpoint:human-verify, amendment ratification)"
-last_updated: "2026-08-10T17:05:00.000Z"
-last_activity: 2026-08-10 - Phase 250 Plan 02 paused at the ratification checkpoint
+stopped_at: "Completed 250-02-PLAN.md (ratified)"
+last_updated: "2026-08-10T17:15:00.000Z"
+last_activity: 2026-08-10 - Phase 250 Plan 02 ratified and complete
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 16
-  completed_plans: 9
-  percent: 56
+  completed_plans: 10
+  percent: 63
 ---
 
 # Project State
 
-## (2026-08-10) -- PHASE 250 PLAN 02 PAUSED AT CHECKPOINT -- Doctrine amendment drafted + Form B declared, awaiting navigator ratification (Task 3)
+## (2026-08-10) -- PHASE 250 PLAN 02 COMPLETE -- Doctrine amendment ratified, Form B declared, HONEST-02 done
 
-- **Position:** Phase 250 Plan 02 is PAUSED at Task 3, a genuine `checkpoint:human-verify`.
-  Task 1 (application-timing) was pre-ruled by the navigator via the orchestrator's live
-  Decision Gate on 2026-08-10: **doc-now / rows-at-sweep** - the amendment doc merges now
-  with the explicit in-force-with-the-SWEEP-release clause; `.claude/includes/decisions.md`
-  rows flip in Phase 252's release commit. Task 2 is complete and committed (`decac6d0`):
+- **Position:** Phase 250 Plan 02 is COMPLETE, 3/3 tasks. Task 1 (application-timing) was
+  pre-ruled by the navigator via the orchestrator's live Decision Gate on 2026-08-10:
+  **doc-now / rows-at-sweep** - the amendment doc merges now with the explicit
+  in-force-with-the-SWEEP-release clause; `.claude/includes/decisions.md` rows flip in
+  Phase 252's release commit. Task 2 built and committed (`decac6d0`):
   `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` (both replacement rows verbatim, five-leg
   causal record, STATUS+EFFECTIVE clause, consequential-edits ledger including the
   MINDRIAN-CANON.md:21 coordination item folded in from `252-RESEARCH.md` and the corrected
@@ -32,12 +32,16 @@ progress:
   skills remain), and fresh dist mirrors. `tests/test-250-amendment-unit.cjs` was born RED
   (8/9 failing, doc absent) then went green (9/9).
 
-- **Task 3 is genuinely blocking:** the navigator has not yet reviewed and ratified the
-  amendment doc. HONEST-02 stays UNCHECKED in REQUIREMENTS.md until ratification. Full
-  checkpoint text, verbatim rows, and the ledger: `250-02-SUMMARY.md`.
+- **Task 3 RATIFIED 2026-08-10** via the live Decision Gate: "the amendment as written,
+  both rows verbatim, doc-now/rows-at-sweep confirmed." No wording changes requested. The
+  sign-off block in `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` section 7 is filled;
+  `tests/test-250-amendment-unit.cjs` re-verified 9/9 green after the sign-off edit;
+  `bash tests/run-all-250.sh` re-verified `PASS=6 FAIL=0 SKIP=0`. HONEST-02 is now CHECKED
+  in REQUIREMENTS.md. Full ratification record, verbatim rows, and the ledger:
+  `250-02-SUMMARY.md`.
 
-- **NEXT:** present the checkpoint to the navigator; on "ratified", fill the ratification
-  block, re-verify green, mark HONEST-02 complete, and close out this plan. Plans 250-03
+- **NEXT:** the consequential-edits ledger in the ratified amendment doc (section 6) is
+  the authoritative checklist for Phase 252's SWEEP-03 docs+constitution pass. Plans 250-03
   (provenance marking) and 250-04 (silent registration) do not depend on this outcome and
   can proceed in parallel; a separate parallel executor is working on
   `scripts/intent-classifier.cjs` + session-start (251-01) with zero file overlap expected.

@@ -187,7 +187,10 @@ rule:
   one reviewable unit" is satisfied by this ratified document carrying both replacement
   rows verbatim (sections 3 and 4); `.claude/includes/decisions.md`'s row application is
   mechanical in Phase 252's release, per the Task 1 ruling in section 1 above.
-- **Navigator sign-off:** pending Task 3 of plan 250-02 (`checkpoint:human-verify`).
+- **Navigator sign-off: RATIFIED.** The amendment as written, both rows verbatim,
+  doc-now/rows-at-sweep confirmed. Ratified by the navigator, 2026-08-10, via the live
+  Decision Gate (Task 3 of plan 250-02, `checkpoint:human-verify`). No wording changes
+  requested; the document ships as drafted.
 
 ---
 

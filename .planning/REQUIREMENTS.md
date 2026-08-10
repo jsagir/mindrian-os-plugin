@@ -88,9 +88,13 @@ methodology that did not come from the Brain, without being told.
       readiness miss surfaces to the user in-turn, plainly, and never as a quieter Larry.
       (Extends brain-connector; no fourth brain skill, Part 7.)
 
-- [ ] **HONEST-02**: Doctrine amendment rewrites Decisions #1 and #8 TOGETHER as one
+- [x] **HONEST-02**: Doctrine amendment rewrites Decisions #1 and #8 TOGETHER as one
       reviewable unit, with the causal record (the weeks-long invisible outage) inside the
       amendment text. hitl_shape declared for the refusal fork (Part 11 / CIRS).
+      RATIFIED 2026-08-10 (navigator, live Decision Gate): docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md,
+      both rows verbatim, doc-now/rows-at-sweep - decisions.md rows apply mechanically in
+      Phase 252's release, not before. Form B hitl_stages declared on brain-connector
+      (stage brain-refusal-fork, shape F.1); connector.excluded stays true.
 
 - [ ] **HONEST-03**: Larry-served methodology carries provenance: graph-grounded answers are
       distinguishable from Larry-voice conversation, and SEED-011 (Brain Silent Identity)

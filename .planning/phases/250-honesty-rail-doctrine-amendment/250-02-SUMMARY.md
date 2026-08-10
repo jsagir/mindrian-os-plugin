@@ -3,13 +3,13 @@ phase: 250-honesty-rail-doctrine-amendment
 plan: 02
 subsystem: doctrine
 tags: [amendment, decisions-md, hitl-shape, form-b, brain-connector, ratification]
-status: checkpoint
+status: complete
 
 requires:
   - phase: 250-honesty-rail-doctrine-amendment (250-01)
     provides: "The four refusal kinds, the doctrine-dead SKILL.md, and the Refusal section this amendment's causal record cites"
 provides:
-  - "docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md - the ratifiable amendment unit (not yet navigator-signed)"
+  - "docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md - the ratified amendment unit (navigator sign-off recorded 2026-08-10)"
   - "Form B hitl_stages declaration on skills/brain-connector/SKILL.md (stage brain-refusal-fork, shape F.1, mode gate)"
   - "docs/HITL-SHAPE-DECLARATION-CONTRACT.md updated: brain-connector moved from the exempt-five list to declared, four skills remain exempt"
 affects: [252-guard-sweep]
@@ -35,19 +35,19 @@ key-decisions:
   - "Task 1 (application-timing) was pre-ruled by the navigator via the orchestrator's live Decision Gate on 2026-08-10, before this execution session started - recorded verbatim below, not re-litigated."
   - "Test 1/2/3's verbatim-string assertions normalize whitespace (collapsing markdown hard-wrap newlines and stripping blockquote '> ' markers) before substring-matching, so editorial line-wrapping in the amendment doc's prose never produces a false-negative against a verbatim multi-line quote."
 
-requirements-completed: []
-requirements-pending: [HONEST-02]
+requirements-completed: [HONEST-02]
+requirements-pending: []
 
-duration: "~25min to the checkpoint (commit-to-commit span)"
+duration: "~40min commit-to-commit span, across the RED proof, the draft, the gates, and the ratification"
 completed: 2026-08-10
 ---
 
 # Phase 250 Plan 02: Doctrine Amendment (Decisions #1/#8) + Form B Declaration Summary
 
-**The single reviewable amendment unit for Decisions #1 and #8 is drafted, tested green, and
-committed; the refusal fork's HITL shape is declared Form B on brain-connector with zero new
-gate warns; the plan now sits at Task 3, the navigator ratification checkpoint, and is
-PAUSED there awaiting sign-off.**
+**The single reviewable amendment unit for Decisions #1 and #8 is drafted, tested green,
+RATIFIED by the navigator, and committed; the refusal fork's HITL shape is declared Form B
+on brain-connector with zero new gate warns. All three tasks are now complete; HONEST-02 is
+DONE.**
 
 ## Tasks Completed vs Stopped
 
@@ -55,7 +55,7 @@ PAUSED there awaiting sign-off.**
 |------|--------|--------|
 | Task 1: Navigator call - amendment application timing | **RULED, not re-litigated** | Pre-ruled by the navigator via the orchestrator's live Decision Gate, 2026-08-10. See "Task 1 Ruling" below. |
 | Task 2: The amendment unit - doc + Form B declaration + contract doc + gates | **COMPLETE** | Commit `decac6d0`. RED recorded (8/9 failing, doc absent), then green (9/9). |
-| Task 3: Navigator ratification of the amendment unit | **STOPPED HERE - blocking checkpoint** | Genuine `checkpoint:human-verify`. Awaiting the navigator's "ratified" or a wording-change direction. |
+| Task 3: Navigator ratification of the amendment unit | **COMPLETE - RATIFIED** | Navigator ratified 2026-08-10 via the live Decision Gate: "the amendment as written, both rows verbatim, doc-now/rows-at-sweep confirmed." No wording changes requested. Sign-off block filled; re-verified green. See "Ratification Record" below. |
 
 ## Task 1 Ruling (verbatim, as directed)
 
@@ -156,58 +156,56 @@ room-passive, pws-methodology, ui-system).
 ## Task Commits
 
 1. **Task 2: amendment unit + Form B declaration + contract doc + gates** - `decac6d0` (feat)
+2. **Checkpoint state (pause at Task 3)** - `921ab9db` (docs)
+3. **Task 3: ratification recorded + plan closeout** - see "Final Commits" below
 
-## The Ratification Checkpoint (Task 3, verbatim as presented to the navigator)
+## Ratification Record (Task 3, complete)
 
-**Type:** human-verify
+**Type:** human-verify - RESOLVED
 **Plan:** 250-02
-**Progress:** 2/3 tasks complete (Task 1 ruled by prior gate, Task 2 committed); Task 3
-blocking.
+**Progress:** 3/3 tasks complete.
 
-### Completed Tasks
+### All Tasks
 
 | Task | Name | Commit | Files |
 |------|------|--------|-------|
 | 1 | Navigator call - amendment application timing | (ruled, no commit - orchestrator Decision Gate) | n/a |
 | 2 | The amendment unit - doc + Form B declaration + contract doc + gates | `decac6d0` | `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md`, `tests/test-250-amendment-unit.cjs`, `skills/brain-connector/SKILL.md`, `docs/HITL-SHAPE-DECLARATION-CONTRACT.md`, both dist mirrors |
+| 3 | Navigator ratification of the amendment unit | (this commit) | `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` (sign-off block filled), this SUMMARY, STATE.md, REQUIREMENTS.md |
 
-### Current Task
+### What was verified before ratification
 
-**Task 3:** Navigator ratification of the amendment unit
-**Status:** awaiting decision
-**Blocked by:** the navigator has not yet reviewed and signed off on the amendment doc.
+The navigator confirmed, via the live Decision Gate:
+1. `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` read top to bottom.
+2. The causal record is the record wanted ON THE RECORD: the verbatim old clause, the
+   sanitize-hook outage, the inert activation key, the counterfeit framing question, the
+   2026-08-10 stale-cache reproduction.
+3. **The A3 interpretation flag was confirmed, not overridden:** HONEST-02's "rewrites
+   Decisions #1 and #8 TOGETHER as one reviewable unit" is satisfied by the ratified
+   document carrying both replacement rows verbatim; `decisions.md`'s row application stays
+   mechanical, in Phase 252's release only.
+4. The two verbatim replacement rows read exactly as the navigator wants them applied in
+   252 - no wording changes requested.
 
-### Checkpoint Details
+### Ratification, verbatim
 
-**What was built:** The complete amendment unit: `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md`
-(both replacement rows verbatim, causal record a-e with citations, effective clause,
-consequential-edits ledger including the MINDRIAN-CANON.md:21 coordination item and the
-corrected CLAUDE.md:29/:94 line numbers, pending sign-off line), the Form B `hitl_stages`
-declaration on brain-connector with clean R16/R1 gates, and the updated
-declaration-contract doc.
+> NAVIGATOR RATIFICATION RECEIVED (2026-08-10, via the live Decision Gate): "Ratified" -
+> the amendment as written, both rows verbatim, doc-now/rows-at-sweep confirmed.
 
-**How to verify:**
-1. Read `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` top to bottom.
-2. Confirm the causal record is the record you want ON THE RECORD: the verbatim old clause,
-   the sanitize-hook outage, the inert activation key, the counterfeit framing question,
-   the 2026-08-10 stale-cache reproduction.
-3. **EXPLICIT INTERPRETATION FLAG (research A3 - the one judgment call):** HONEST-02 says
-   "rewrites Decisions #1 and #8 TOGETHER as one reviewable unit". This plan satisfies that
-   with the ratified document carrying both replacement rows verbatim; the decisions.md row
-   application is mechanical in Phase 252's release per your Task 1 ruling. Confirm this
-   interpretation, or direct the inline variant.
-4. Confirm the two verbatim replacement rows read exactly as you want them applied in 252
-   (any wording change now updates doc + test constants in the same commit).
-5. On approval: the executor fills the ratification block (navigator, date 2026-08-10 or
-   the actual date), re-runs `node --test tests/test-250-amendment-unit.cjs` and
-   `bash tests/run-all-250.sh` to confirm green with the signed doc.
+### Post-ratification steps taken
 
-### Awaiting
-
-Navigator to type "ratified" to sign off, or describe the changes required (wording edits
-loop back through Task 2's test constants).
-
-**Resume-signal:** `Type "ratified" to sign off, or describe the changes required (wording edits loop back through Task 2's test constants).`
+1. Filled `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` section 7's sign-off line:
+   "Navigator sign-off: RATIFIED... Ratified by the navigator, 2026-08-10, via the live
+   Decision Gate (Task 3 of plan 250-02, `checkpoint:human-verify`). No wording changes
+   requested; the document ships as drafted."
+2. Re-ran `node --test tests/test-250-amendment-unit.cjs` - 9/9 green (the ratification
+   text change does not touch any of the nine asserted strings).
+3. Re-ran `bash tests/run-all-250.sh` - `PASS=6 FAIL=0 SKIP=0`.
+4. Flipped this SUMMARY's `status` from `checkpoint` to `complete`; moved HONEST-02 from
+   `requirements-pending` to `requirements-completed`.
+5. Marked HONEST-02 `[x]` complete in `.planning/REQUIREMENTS.md` with the ratification
+   citation.
+6. Updated `.planning/STATE.md` to close out the plan.
 
 ## Deviations from Plan
 
@@ -269,29 +267,30 @@ None. No external service configuration; zero npm dependencies touched.
 
 ## Next Phase Readiness
 
-**This plan is PAUSED at Task 3, not complete.** HONEST-02 remains unchecked in
-`REQUIREMENTS.md` until the navigator ratifies. On resume:
+**This plan is COMPLETE.** HONEST-02 is checked `[x]` in `REQUIREMENTS.md`, with the
+ratification citation. `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` is the ratified,
+in-tracked-history amendment; `.claude/includes/decisions.md` itself remains untouched by
+design (doc-now/rows-at-sweep) - its rows 1, 5, and 8 apply mechanically only in the
+release that completes Phase 252's SWEEP-01..03.
 
-1. Present the amendment doc and this checkpoint's verification steps to the navigator.
-2. On "ratified": fill the ratification block in
-   `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` (navigator name, date), re-run
-   `node --test tests/test-250-amendment-unit.cjs` and `bash tests/run-all-250.sh` to
-   confirm still green, commit, mark HONEST-02 complete in REQUIREMENTS.md, and close out
-   this plan's STATE.md / final-commit steps.
-3. On a wording-change direction: loop back through Task 2's doc + test constants in the
-   same commit, per the plan's own resume-signal instruction.
+Plans 250-03 (provenance marking) and 250-04 (silent registration) did not depend on this
+plan's ratification outcome and were able to proceed in parallel; their file scopes do not
+overlap this plan's. A parallel executor worked on `scripts/intent-classifier.cjs` +
+session-start (251-01) with zero file overlap against this plan's touched files.
 
-Plans 250-03 (provenance marking) and 250-04 (silent registration) do not depend on this
-plan's ratification outcome and can proceed in parallel; their file scopes do not overlap
-this plan's. A parallel executor is working on `scripts/intent-classifier.cjs` +
-session-start (251-01) with zero file overlap expected against this plan's touched files.
+**Handoff to Phase 252:** the consequential-edits ledger in
+`docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` section 6 is the authoritative checklist for
+252's SWEEP-03 docs+constitution pass - including the folded-in MINDRIAN-CANON.md:21 item
+and the corrected CLAUDE.md:29/:94 line numbers, so 252 does not edit stale lines from the
+original 250-RESEARCH.md estimate.
 
 ---
 *Phase: 250-honesty-rail-doctrine-amendment*
-*Status: checkpoint (paused at Task 3)*
+*Status: complete*
 
 ## Self-Check: PASSED
 
 `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` and `tests/test-250-amendment-unit.cjs`
-verified present on disk. Commit `decac6d0` verified present in `git log --oneline --all`.
-This SUMMARY.md itself verified present.
+verified present on disk, ratification sign-off line present in the amendment doc. Commits
+`decac6d0` and `921ab9db` verified present in `git log --oneline --all`. This SUMMARY.md
+itself verified present.
