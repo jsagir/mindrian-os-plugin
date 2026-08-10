@@ -117,7 +117,7 @@ methodology that did not come from the Brain, without being told.
       lands inside the user turn and EXTENDS the cache; 91-97% hit rates; ~USD 4-7/month real
       cost. The real per-turn cost is the 7 synchronous UserPromptSubmit hooks' latency.)
 
-- [ ] **CACHE-02**: RESCOPED per the measurement (navigator-approved 2026-08-10): a hygiene
+- [x] **CACHE-02**: RESCOPED per the measurement (navigator-approved 2026-08-10): a hygiene
       pass, not a re-architecture. (a) suppress-when-unchanged injection (hash vs previous
       turn), (b) move the invariant skeleton (FIRE-IF-FORK boilerplate, contract line) to
       SessionStart context, (c) kill the verb-line duplication in the AskUserQuestion payload.

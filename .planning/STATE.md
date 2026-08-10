@@ -3,18 +3,69 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: "Completed 250-02-PLAN.md (ratified)"
-last_updated: "2026-08-10T17:15:00.000Z"
-last_activity: 2026-08-10 - Phase 250 Plan 02 ratified and complete
+stopped_at: Completed 250-01-PLAN.md
+last_updated: "2026-08-10T17:20:04.011Z"
+last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 16
   completed_plans: 10
-  percent: 63
+  percent: 29
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 251 PLAN 01 COMPLETE -- CACHE-02 hygiene pass: suppress-when-unchanged, skeleton-to-SessionStart, payload dedup
+
+- **Position:** Phase 251 (Cache-Aware Trigger Redesign) Plan 01 is COMPLETE, 3/3 tasks,
+  fully autonomous (no checkpoints). All three CACHE-02 hygiene items landed on
+  `scripts/intent-classifier.cjs`'s `renderEngineDecisionWithDial`: (a) a per-session
+  sha256 hash sidecar suppresses a byte-identical repeat block to a one-line
+  `NAV_UNCHANGED_MARKER`, with the card-fire sidechannel record hoisted below the
+  suppression gate (T-251-02, SEED-021/Stop-gate consistency); (b) the FIRE-IF-FORK
+  imperative moved off the per-turn block into `scripts/session-start`'s
+  `NAV_CARD_FIRE_DOCTRINE` (874 B, re-seeded on startup/clear/compact by the existing
+  matcher); (c) the `[AskUserQuestion payload: ...]` line dropped its duplicated verbs
+  array for `verb_count`. Combined, a full non-suppressed block drops from 1,432 B to
+  816 B (-43%); a repeat drops to 45 B (-97%). `scripts/post-compact` now deletes the
+  hash sidecars so the first post-compact turn always re-emits in full.
+
+- **Requirements:** CACHE-02 marked complete in REQUIREMENTS.md (all three items a/b/c).
+  CACHE-03 (the Brain-reach block-size budget) is Plan 251-02's scope, not touched here.
+
+- **Commits this session:** `13be9314` (feat, Task 1: suppress-when-unchanged hash
+  sidecar + phase runner), `2b4b4d0f` (feat, Task 2: skeleton-to-SessionStart doctrine),
+  `35e96b2c` (feat, Task 3: payload dedup).
+
+- **Full detail, RED proofs, before/after byte table, fence results, and deviations
+  (including two Rule-3 test-tooling workarounds for a pre-existing `node --test`
+  stdin-blocking quirk, a shared-working-directory commit-splitting fix, and a
+  disclosed `git stash` process-discipline self-correction):**
+  `.planning/phases/251-cache-aware-trigger-redesign/251-01-SUMMARY.md`.
+
+- **Write-discipline note (STATE.md race, non-worktree shared checkout, repeating the
+  227-02/227-03/249-01 pattern documented elsewhere in this file):** this file's
+  frontmatter changed underneath this session between reads while writing this entry
+  (`completed_plans`/`percent`/`stopped_at`/`last_activity` all shifted, apparently
+  from a concurrent 250-series executor's own `state.*` write). Per the established
+  defensive pattern, this entry is a MANUAL ADDITIVE LOG APPEND ONLY -- frontmatter
+  progress counters are intentionally left untouched here rather than risk clobbering
+  the concurrent session's own in-flight write. `roadmap.update-plan-progress 251` was
+  run and is safe (phase-251-scoped, confirmed via `git diff` touching only the 251
+  row): ROADMAP.md now reads `251. Cache-Aware Trigger Redesign | 1/2 | In Progress`.
+  `requirements.mark-complete CACHE-02` was also run and confirmed scoped to a single
+  line in REQUIREMENTS.md.
+
+- **Five pre-existing, unrelated test failures** were found during this plan's
+  regression sweep and logged (not fixed) to
+  `.planning/phases/251-cache-aware-trigger-redesign/deferred-items.md`:
+  `test-209-declared-implies-wired`, `test-209-room-pick-sensor`, `210-E1` card-fire
+  relevance gate, `210-D` fusion-router, `210-E3` stamp sweep.
+
+- **NEXT:** Plan 251-02 (CACHE-03 block-size budget + the live cache-hit-rate baseline
+  checkpoint) rides the now-hygienic rail; its `NAV_BLOCK_BUDGET_BYTES` check should
+  measure against the new 816 B combined baseline, not the pre-251-01 1,432 B one.
 
 ## (2026-08-10) -- PHASE 250 PLAN 02 COMPLETE -- Doctrine amendment ratified, Form B declared, HONEST-02 done
 
