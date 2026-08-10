@@ -117,6 +117,46 @@ Restart-to-apply is not a formality.
 - File the upstream Claude Code bug: malformed `updatedToolOutput` throws into the session
   instead of falling back as the binary's own message promises (carried over, still open).
 
+## 6.5 Milestone identity, lineage, and references (navigator rulings 2026-08-10)
+
+**Milestone version: v2.0.0 "Build the Loop"** - the navigator chose the holistic signal over
+the incremental one; this is the step that makes MindrianOS closest to a complete product.
+
+**Where the Memgraph Render brain ORIGINATED (context of record, keep straight):**
+1. Neo4j Aura (cloud) held the original teaching graph + Pinecone vectors - both RETIRED.
+2. `jsagir/brain_ProblemsWorthSolving` (local name `mindrian-brain-local`) is the development
+   twin: a free self-hosted MCP server, ONE tool layer over two switchable backends
+   (Neo4j local service / Memgraph Docker), built precisely so backend divergence is
+   measurable with the database as the only variable. The Aura graph was migrated there
+   (~28k nodes), gate-verified 6/6 identical row sets, vector parity to 1e-4.
+3. That Memgraph backend was deployed to Render as `pws-brain-mcp.onrender.com` - the live
+   Brain the plugin defaults to (cutover 2026-07-22).
+
+Consequences the milestone must respect, straight from that repo's own README:
+- The THREE embedding spaces (7x384, 1x1024 e5, 1x1536 openai) are a DELIBERATE carry -
+  "never re-embed; vectors are copied verbatim; if you rebuild an index, use the model that
+  built it." The foreign-index cleanup is a decide-and-rebuild-with-the-right-model task,
+  not a delete task.
+- `text2cypher` runs on LOCAL Ollama by design (free, on-box); the Render deployment has no
+  Ollama sidecar, which is why it fails remotely. Contract phase decides: ship a sidecar,
+  or retire the tool from the remote surface.
+- Its own eval honesty note applies to us: the text2cypher suite scored 10/10 with every
+  question a count() - "passing a test that cannot fail is not evidence." Phase 3's
+  enrichment needs evals that CAN fail.
+- Cross-repo contract: phase 2 (Brain surface) spans BOTH repos - the plugin's client/tools
+  and the brain repo's server tool layer. Also related: `ProblemsWorthSolving-Brain`'s
+  `docs/2026-08-09-HANDOFF-brain-consumption-surface.md`.
+
+**Reference research: Phase 245** (`.planning/phases/245-close-the-reach-brain-signal-loop-
+wire-dispatchsensors-fire-`) - "close the reach-brain-signal loop, wire dispatchSensors" -
+8 plans + summaries. That phase is this milestone's direct ancestor on the plugin side: it
+wired the sensor-dispatch half of the loop; v2.0.0 builds the methodology-graph half and
+joins them.
+
+**Seeds folded into scope (navigator-selected):** SEED-045 Brain Orchestration Advisor,
+SEED-008 Close the intelligence loop, SEED-011 Brain Silent Identity, SEED-014 Brain repo as
+deployment unit of the moat.
+
 ## 7. Canon obligations (unchanged, binding)
 
 Part 8 untouchable (this changes WHEN the Brain is reached and how loudly failure surfaces,
