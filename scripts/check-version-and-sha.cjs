@@ -136,20 +136,68 @@ function resolveLatestFromCatalog(catalog) {
   return entry.version;
 }
 
+// ----- Transient-network retry-with-backoff (F-I, windows-install-and-field- -----
+// qa-sweep-2026-08-10): both CATALOG_URL and MAIN_PLUGIN_JSON_URL share the
+// raw.githubusercontent.com host, so a single host-level reset used to fail
+// the whole check in one shot (T2's /mos:update looping on "read ECONNRESET"
+// on an enterprise/edu network that resets/proxies that host). Retries apply
+// ONLY to transient net errors (ECONNRESET/ETIMEDOUT/EAI_AGAIN); any other
+// failure (HTTP 4xx/5xx, malformed JSON) throws immediately, unretried, so
+// STATUS=NETWORK_ERROR still surfaces fast for a genuinely broken fetch
+// instead of stalling behind a pointless retry. Bounded: 3 attempts max,
+// 250/500/1000ms backoff -- never unbounded, never a busy loop.
+//
+// NOTE (follow-up, not implemented here per the sweep's scope): once retries
+// exhaust, /mos:update could auto-degrade straight to the native
+// `/plugin marketplace update` + `/plugin update` path instead of handing
+// the user two commands to paste. Left as a documented follow-up.
+const RETRY_ATTEMPTS = 3;
+const RETRY_DELAYS_MS = [250, 500, 1000];
+
+function isTransientNetError(err) {
+  if (!err) return false;
+  const code = err.code || '';
+  if (code === 'ECONNRESET' || code === 'ETIMEDOUT' || code === 'EAI_AGAIN') return true;
+  const msg = String(err.message || '');
+  return /\bECONNRESET\b|\bETIMEDOUT\b|\bEAI_AGAIN\b/.test(msg);
+}
+
+function defaultSleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// fetchJsonRetrying -- wraps a single fj(url) call in a bounded retry loop.
+// `sleep` is dependency-injectable for hermetic unit tests (no real timers).
+async function fetchJsonRetrying(fj, url, sleep) {
+  let lastErr;
+  for (let attempt = 0; attempt < RETRY_ATTEMPTS; attempt++) {
+    try {
+      return await fj(url);
+    } catch (e) {
+      lastErr = e;
+      if (!isTransientNetError(e) || attempt === RETRY_ATTEMPTS - 1) throw e;
+      await sleep(RETRY_DELAYS_MS[Math.min(attempt, RETRY_DELAYS_MS.length - 1)]);
+    }
+  }
+  throw lastErr;
+}
+
 // ----- Fetch latest version: marketplace catalog pin first, degraded fallback -----
 // Resolution chain (RCA doctor-marketplace-cache-drift-deadlock P2):
 //   PRIMARY  -- the mindrian-marketplace catalog pin (the released version
 //               users actually receive from `claude plugin update`).
 //   FALLBACK -- main plugin.json (the never-released next placeholder), marked
 //               source 'main-plugin-json-degraded' so main() can disclose it.
-//   BOTH FAIL -- reject (main()'s catch keeps STATUS=NETWORK_ERROR + exit 1).
+//   BOTH FAIL -- reject (main()'s catch keeps STATUS=NETWORK_ERROR + exit 1),
+//               only after each leg's own bounded retry has exhausted.
 // `deps` is optional dependency injection for hermetic unit tests
-// (tests/test-check-version-latest-resolution.cjs).
+// (tests/test-check-version-latest-resolution.cjs, tests/test-check-version-network-retry.cjs).
 async function fetchLatestVersion(deps) {
   const fj = (deps && deps.fetchJson) || fetchJson;
+  const sleep = (deps && deps.sleep) || defaultSleep;
   let catalogErr = null;
   try {
-    const catalog = await fj(CATALOG_URL);
+    const catalog = await fetchJsonRetrying(fj, CATALOG_URL, sleep);
     const pinned = resolveLatestFromCatalog(catalog);
     if (pinned) {
       return { version: pinned, source: 'marketplace-catalog' };
@@ -158,7 +206,7 @@ async function fetchLatestVersion(deps) {
     catalogErr = e;
   }
   try {
-    const manifest = await fj(MAIN_PLUGIN_JSON_URL);
+    const manifest = await fetchJsonRetrying(fj, MAIN_PLUGIN_JSON_URL, sleep);
     if (manifest && typeof manifest.version === 'string' && manifest.version !== '') {
       return { version: manifest.version, source: 'main-plugin-json-degraded' };
     }
