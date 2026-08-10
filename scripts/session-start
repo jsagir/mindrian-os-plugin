@@ -1730,6 +1730,21 @@ if $SHOULD_CHECK; then
   ) &
 fi
 
+# Phase 251-01 (CACHE-02b, skeleton-to-SessionStart): the FIRE-IF-FORK
+# imperative (~330 B/turn) moves here from the per-turn engine block
+# (scripts/intent-classifier.cjs's renderEngineDecisionWithDial concatenation
+# no longer appends it). Delivery mechanism: SessionStart additionalContext
+# is the sanctioned mechanism (tier0-removal handoff Section 6: no always-on
+# skill primitive exists); the hooks.json SessionStart matcher
+# 'startup|clear|compact' re-seeds this doctrine after every compaction,
+# which resolves the measurement's survives-compaction caveat. PostCompact
+# cannot carry hookSpecificOutput (95-RESEARCH.md), so the compact re-seed
+# rides SessionStart(compact), not post-compact. Appended unconditionally
+# (paid once at 1.25x cache-write, then read at 0.1x for the rest of the
+# session); the per-turn block keeps only the byte-frozen marker.
+NAV_CARD_FIRE_DOCTRINE="\n\n## NAVIGATION CARD-FIRE CONTRACT (session doctrine)\n\nEvery per-turn NAVIGATION DECISION block ends with the frozen line [AskUserQuestion contract: shape=F.X verbs=N]. That marker is the per-turn gate flag; only the imperative below moved here.\n\n[FIRE-IF-FORK]: if the fork shown in the option rows above the marker is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THAT response with the options shown. If the navigator already answered in plain text or the gate is unrelated, do NOT fire it -- acknowledge and proceed instead. Never reproduce the block as text (SEED-021).\n\nThe [AskUserQuestion payload: ...] line carries shape, mode, verb_count, recommended; the option labels are the rows above it.\n\nA line reading [NAV DECISION unchanged - prior block stands] means the previous turn's decision still applies."
+context="${context}${NAV_CARD_FIRE_DOCTRINE}"
+
 # Escape string for JSON embedding
 escape_for_json() {
   local s="$1"

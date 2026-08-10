@@ -110,7 +110,7 @@ function engineDecisionFixture() {
     { cortexNodes: [] }
   );
   ok(typeof block === 'string' && block.length > 0, 'block renders');
-  ok(block.indexOf('[FIRE-IF-FORK:') !== -1, 'block carries the FIRE-IF-FORK line (E1, was dropped; 210-05 re-pointed the literal)');
+  ok(block.indexOf('[FIRE-IF-FORK:') === -1, '251-01: imperative moved to SessionStart doctrine (was: block carries the FIRE-IF-FORK line, E1/210-05)');
 
   const m = block.match(/\[AskUserQuestion payload: (\{.*\})\]/);
   ok(!!m, 'block carries an [AskUserQuestion payload: {...}] contract line');
@@ -159,7 +159,7 @@ function engineDecisionFixture() {
     { cortexNodes: [] }
   );
   ok(block.indexOf('[AskUserQuestion contract:') !== -1, 'tier_0 carries the marker');
-  ok(block.indexOf('[FIRE-IF-FORK:') !== -1, 'tier_0 carries the binding');
+  ok(block.indexOf('[FIRE-IF-FORK:') === -1, '251-01: imperative moved to SessionStart doctrine (was: tier_0 carries the binding)');
 })();
 
 // ---------------------------------------------------------------------------

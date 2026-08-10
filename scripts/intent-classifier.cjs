@@ -1577,10 +1577,16 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
           const marker = rendered.askuserquestion_marker;
           if (typeof marker === 'string' && marker.length > 0) {
             let block = base + '\n\n' + rendered.text + '\n' + marker;
-            const binding = rendered.askuserquestion_binding;
-            if (typeof binding === 'string' && binding.length > 0) {
-              block += '\n' + binding;
-            }
+            // Phase 251-01 (CACHE-02b, skeleton-to-SessionStart): the
+            // rendered.askuserquestion_binding (FIRE-IF-FORK imperative,
+            // ~330 B/turn, byte-identical every turn) no longer rides this
+            // per-turn concatenation -- it now lives ONCE in
+            // scripts/session-start's NAVIGATION CARD-FIRE CONTRACT doctrine,
+            // re-seeded on startup/clear/compact. appendAskUserQuestionTrailer
+            // itself is untouched: it still mints askuserquestion_binding and
+            // zones.footer for every OTHER consumer (the pickShape door,
+            // renderRoomChooserCard) -- only THIS concatenation stopped
+            // reading the field.
             const contract = rendered.contract;
             if (contract && typeof contract === 'object') {
               const verbs = Array.isArray(contract.verbs)
