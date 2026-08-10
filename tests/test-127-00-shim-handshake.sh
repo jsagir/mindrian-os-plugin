@@ -126,7 +126,12 @@ TEMPDIR=$(mktemp -d -t mindrian-brain-shim-127-XXXXXX)
 trap 'rm -rf "$TEMPDIR"; kill $WATCHDOG_PID 2>/dev/null || true' EXIT
 
 # Make sure no stale env contaminates the hermetic spawn.
-LIVE_OUT=$(HOME="$TEMPDIR" XDG_CONFIG_HOME="$TEMPDIR/.config" env -u MINDRIAN_BRAIN_KEY \
+# Phase 250-04 (HONEST-03): MINDRIAN_DISABLE_AUTO_REGISTER=1 keeps Test 8's
+# no-key DIRECTOR_NOT_AVAILABLE assertion deterministic once the live
+# /register endpoint exists -- without this, a live harness run would
+# silently register (mint a real token against the deployed Brain) and the
+# DIRECTOR_NOT_AVAILABLE fixture below would break.
+LIVE_OUT=$(HOME="$TEMPDIR" XDG_CONFIG_HOME="$TEMPDIR/.config" MINDRIAN_DISABLE_AUTO_REGISTER=1 env -u MINDRIAN_BRAIN_KEY \
   node -e '
     "use strict";
     const cp = require("child_process");

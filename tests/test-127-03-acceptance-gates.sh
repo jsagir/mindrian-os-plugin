@@ -32,7 +32,11 @@ record() {
 run_gate_1() {
   local TMPDIR_G1; TMPDIR_G1="$(mktemp -d -t g1-XXXXXX)"
   local OUT_FILE="$TMPDIR_G1/out.json"
-  if HOME="$TMPDIR_G1" env -u MINDRIAN_BRAIN_KEY timeout 15 node -e '
+  # Phase 250-04 (HONEST-03): MINDRIAN_DISABLE_AUTO_REGISTER=1 -- this gate's
+  # DIRECTOR_NOT_AVAILABLE expectation is a keyless-fixture assertion; once
+  # the live /register endpoint exists, a live silent registration would
+  # otherwise mint a real token here and break the fixture.
+  if HOME="$TMPDIR_G1" MINDRIAN_DISABLE_AUTO_REGISTER=1 env -u MINDRIAN_BRAIN_KEY timeout 15 node -e '
     const cp = require("child_process");
     const proc = cp.spawn(process.execPath, ["bin/mindrian-brain-mcp-client.cjs"]);
     let buf = "";

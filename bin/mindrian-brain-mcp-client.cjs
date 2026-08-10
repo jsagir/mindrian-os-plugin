@@ -66,6 +66,16 @@ function asContent(obj) {
   return { content: [{ type: 'text', text: JSON.stringify(obj) }] };
 }
 
+// Phase 250-04 (HONEST-03, SEED-011 Option A): every gate below awaits
+// brainClient.ensureAvailable() instead of calling the synchronous
+// isAvailable(). This IS the "first Brain consult" seam -- Larry's native
+// MCP tool calls in Claude Code CLI chat route through THIS shim (Desktop
+// and Cowork reach the remote pws-brain-mcp MCP server directly and are
+// unaffected), so without this change silent registration would only ever
+// fire for direct brain-client.cjs consumers (e.g. /mos: command scripts),
+// never for the primary chat-driven consult path. ensureAvailable() is a
+// pure passthrough to isAvailable() when a key already resolves (fast,
+// no network); it only awaits a mint attempt when the ladder is empty.
 const server = new McpServer({ name: 'mindrian-brain', version: version });
 
 // -- brain_ask: highest-level entry; wraps response in DirectiveEnvelope.
@@ -74,7 +84,7 @@ server.tool(
   'Natural-language methodology question. Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content. Auto-routes Pinecone/Neo4j server-side.',
   { question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') },
   async ({ question }) => {
-    if (!brainClient.isAvailable()) {
+    if (!(await brainClient.ensureAvailable())) {
       // Keyless path unchanged (127-02 sentinel, byte-locked).
       return asContent(wrapDirective(null, { brain_unreachable: true, command_context: 'brain_ask' }));
     }
@@ -107,7 +117,7 @@ server.tool(
     params: z.record(z.any()).optional().describe('Optional binding map -- generic handles only.'),
   },
   async ({ cypher, params }) => {
-    if (!brainClient.isAvailable()) return asContent(tier0Response('brain_query'));
+    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_query'));
     const r = await brainClient.query(cypher, params);
     return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_query' }) : r);
   }
@@ -119,7 +129,7 @@ server.tool(
   'Brain Neo4j schema (labels, relationship types, property keys). Memoized 30 minutes.',
   {},
   async () => {
-    if (!brainClient.isAvailable()) return asContent(tier0Response('brain_schema'));
+    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_schema'));
     const r = await brainClient.schema();
     return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_schema' }) : r);
   }
@@ -135,7 +145,7 @@ server.tool(
     topK: z.number().int().min(1).max(50).optional(),
   },
   async ({ query, namespace, topK }) => {
-    if (!brainClient.isAvailable()) return asContent(tier0Response('brain_search'));
+    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_search'));
     const r = await brainClient.smartSearch(query, { namespace: namespace, topK: topK });
     return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_search' }) : r);
   }
@@ -147,7 +157,7 @@ server.tool(
   'Brain operational stats (Pinecone index size, last-update markers).',
   {},
   async () => {
-    if (!brainClient.isAvailable()) return asContent(tier0Response('brain_stats'));
+    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_stats'));
     const r = await brainClient.stats();
     return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_stats' }) : r);
   }
@@ -159,7 +169,7 @@ server.tool(
   'Write Cypher to the Brain. Admin-tier; requires a write-capable key. Generic methodology framework writes only (Canon Part 8).',
   { cypher: z.string().describe('Cypher write query (generic methodology only).') },
   async ({ cypher }) => {
-    if (!brainClient.isAvailable()) return asContent(tier0Response('brain_write'));
+    if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_write'));
     const r = await brainClient.write(cypher);
     return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_write' }) : r);
   }
