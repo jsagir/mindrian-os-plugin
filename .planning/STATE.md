@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: Completed 250-01-PLAN.md
-last_updated: "2026-08-10T17:28:05.623Z"
+stopped_at: "Checkpoint - 250-04-PLAN.md Tasks 1-2 complete, Task 3 (operator deploy + released-build three-surface verify) awaiting human action"
+last_updated: "2026-08-10T18:15:00.000Z"
 last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
@@ -15,6 +15,74 @@ progress:
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 250 PLAN 04 CHECKPOINT -- Silent registration Tasks 1-2 complete (both repos), Task 3 operator-deploy checkpoint pending
+
+- **Position:** Phase 250 (Honesty Rail + Doctrine Amendment) Plan 04 Tasks 1-2 are
+  COMPLETE; Task 3 (`type="checkpoint:human-verify" gate="blocking"`) has NOT started.
+  This is a CHECKPOINT stop, not plan completion -- HONEST-03 is NOT marked complete
+  in REQUIREMENTS.md (its own definition of done requires the live, released-build
+  three-surface verification, which is exactly Task 3).
+
+- **Task 1 (brain repo, local commits only, never pushed):** `POST /register` at
+  `src/http/register.mjs`, mounted ahead of `/mcp` in `app.mjs`. UUIDv4-strict closed
+  schema (install_id ONLY), idempotent per install_id (keys on the existing generic
+  `user_id` column, scoped `plan='install'` -- no schema migration), register-specific
+  rate cap in a new, independently-namespaced `registerRateLimit` (separate from the
+  general `/mcp` limiter), READ-tier ceiling minted through a new `mintInstallToken()`
+  reusing supabase-keys.mjs's existing Supabase primitives (there was no prior minting
+  path in this repo to reuse -- every existing key is issued externally). Born RED,
+  5/5 green. Full brain-repo suite: 429 pass / 12 fail, all 12 confirmed pre-existing
+  environmental (live-credential) failures via a HEAD-comparison, zero regressions.
+  Local commit `01ac1fc`. **NOT pushed** (by design -- this session never pushes the
+  brain repo; Task 3's Part A is the operator push + Render redeploy).
+
+- **Task 2 (plugin):** `lib/core/resolve-brain-key.cjs` gained a 4th ladder leg
+  (`~/.mindrian-install.json`, source `'install-token'`, lowest precedence, read-only).
+  `lib/core/brain-client.cjs` gained `_tryAutoRegister()` (mints `crypto.randomUUID()`,
+  POSTs `{install_id}` ONLY, caches at mode 0600, once-per-process cap, never throws),
+  `ensureAvailable()` (the async gate), and `getAutoRegisterFailureReason()`. Wired
+  into `callTool()` AND (deviation, see below) the stdio shim's 6 tool gates.
+  `lib/core/tier0-messaging.cjs`'s no_key copy (REASONS/RENDER_COPY/larryRefusalLine/
+  UPGRADE_HINT) reframed for the failure edge (registration failed/offline); the
+  byte-locked `tier0Response()` wire shape is untouched. Born RED (genuine, proven by
+  reverting the 4 touched files to HEAD via `git checkout --`, running RED, restoring
+  via `git apply`), 5/5 green. `bash tests/run-all-250.sh` PASS=8 FAIL=0. Plugin commit
+  `b5b06331`, pushed.
+
+- **Deviation (Rule 2, load-bearing):** the plan's Task 2 file list omitted
+  `bin/mindrian-brain-mcp-client.cjs`, but the shim's gates are the ONLY seam for
+  Larry's native MCP tool calls in Claude Code CLI chat (Desktop/Cowork reach the
+  remote MCP server directly and are unaffected). Without wiring the shim's
+  `isAvailable()` gates to `await ensureAvailable()`, silent registration would only
+  ever fire for direct `brain-client.cjs` script callers -- never the primary
+  chat-driven consult path the plan's own must_haves truth statement depends on.
+  `isAvailable()` itself is unchanged; every other consumer is unaffected.
+
+- **Deviation (Rule 3, plan-directed):** `MINDRIAN_DISABLE_AUTO_REGISTER=1` added to
+  `tests/test-127-00-shim-handshake.sh` (plan-named) and `tests/test-127-03-acceptance-
+  gates.sh` Gate 1 (found via the plan's own grep-for-siblings instruction) -- both
+  spawn the live shim keyless and assert `DIRECTOR_NOT_AVAILABLE`; once `/register`
+  deploys, an unguarded live registration attempt during these hermetic runs could flip
+  the fixture.
+
+- **Disclosed process note:** a `git stash`/`stash pop` round-trip occurred once,
+  transiently, while diagnosing an UNRELATED pre-existing test failure
+  (`lib/memory/problem-type-router.test.cjs` Test 24, confirmed pre-existing against
+  unmodified HEAD, unrelated to this plan). Recognized as a violation of the
+  destructive-git-prohibition immediately and reverted in the same turn; no commit
+  landed in the stashed state, no work lost. Full disclosure in
+  `250-04-SUMMARY.md`'s Issues Encountered section.
+
+- **Requirements:** HONEST-03 remains PENDING (Tasks 1-2 are code-complete; the
+  requirement's own definition of done needs Task 3's live verification).
+
+- **Commits this session:** brain repo `01ac1fc` (LOCAL ONLY, never pushed); plugin
+  `b5b06331` (pushed).
+
+- **Full detail, both RED proofs, ladder-leg order, gate results, deviations, and the
+  verbatim Task 3 checkpoint block for the next executor to resume from:**
+  `.planning/phases/250-honesty-rail-doctrine-amendment/250-04-SUMMARY.md`.
 
 ## (2026-08-10) -- PHASE 250 PLAN 03 COMPLETE -- Provenance contract: SKILL.md section, live collision guard, dist rebuild, HONEST-03 provenance leg done
 
