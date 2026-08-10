@@ -35,3 +35,13 @@ old version dirs immediately rather than keeping N-1 while any session may refer
 ## Evidence
 This session's stop output 2026-08-11 (7 identical failures); cache listing showing only
 2.0.0-beta.1 and 2.0.0-beta.3 present after update; the session booted on the beta.7 era.
+
+## Live mitigation trial (2026-08-11, same session)
+Candidate fix #2 applied by hand as an emergency patch: `ln -s 2.0.0-beta.3 1.16.0-beta.7`
+inside the cache dir. Result: all 7 hooks resolve and fire again immediately, now running
+CURRENT code (per-fire spawn picks up the symlink; the long-lived MCP server processes
+keep their in-memory boot code, an acceptable hybrid). Zero errors on subsequent stops.
+This upgrades fix #2 from candidate to field-proven: a stable `current` symlink maintained
+by the updater gives running sessions modern hooks instead of dead ones. The updater
+change (create/repoint the symlink, or keep N-1 dirs) is the durable form of what this
+hand-made link proved.
