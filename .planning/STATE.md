@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: Completed 248-02-PLAN.md
-last_updated: "2026-08-10T19:33:19.893Z"
+stopped_at: 252-03 Tasks 1-2 complete (6931e54f, 16d754b7); parked at checkpoint before Task 3 (release ceremony, orchestrator-owned)
+last_updated: "2026-08-10T23:49:11.454Z"
 last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 7
   total_plans: 19
-  completed_plans: 15
-  percent: 57
+  completed_plans: 19
+  percent: 100
 ---
 
 # Project State
@@ -2868,6 +2868,7 @@ Progress: [█████████░] 92%
 | Phase 250 P01 | 7min | 3 tasks | 13 files |
 | Phase 252 P01 | 160 | 4 tasks | 27 files |
 | Phase 248 P02 | 95min + close-out | 4 tasks | 8 files |
+| Phase 252 P03 | 1h | 2 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -4081,6 +4082,8 @@ Progress: [█████████░] 92%
 - [Phase 252]: 252-01: census.2 seam-liveness claims = ROUTE_SET minus brain-client.cjs (its routed obligation is counterfeit deletion, independently verified by census.3, not a live consult-serve branch needing the rail)
 - [Phase 252]: 252-01: additive disclosure over destructive flip - every ROUTE/CONFORM site was already honest/typed before the sweep, so the rail wiring adds a field/stderr line rather than renaming byte-locked literals or reshaping return contracts
 - [Phase 248]: CTX-03 closed at merge scope: live CLI before/after PASS + scripted Desktop/Cowork surface-equivalents; real-host Desktop/Cowork confirmation named as a stated deferral to v2.0.0-beta release pickup, not implied done - fix-not-live-until-released hard rule: a running session never hot-reloads and the fix has not shipped in a release; scripted equivalents are the merge evidence in the interim
+- [Phase 252]: 252-03 Tasks 1-2: amendment rows 1/5/8 applied verbatim + canon:21 amended + CLAUDE.md rewritten in one atomic commit (6931e54f), test-250-amendment-unit.cjs Test 4 flipped negative-to-positive as the lockstep proof (RED-first recorded).
+- [Phase 252]: 252-03 Tasks 1-2: doctrine fence extended to living-docs scope + canon:193 cold-start rename canary (16d754b7), living docs swept to refusal doctrine; parked at checkpoint before Task 3 (operator release ceremony) per navigator ceremony ruling.
 
 ### Pending Todos
 
@@ -4182,8 +4185,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-10T19:33:19.838Z
-Stopped at: Completed 248-02-PLAN.md
+Last session: 2026-08-10T23:49:06.474Z
+Stopped at: 252-03 Tasks 1-2 complete (6931e54f, 16d754b7); parked at checkpoint before Task 3 (release ceremony, orchestrator-owned)
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
