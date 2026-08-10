@@ -32,13 +32,23 @@ methodology that did not come from the Brain, without being told.
 
 ### Phase A -- Live verification + census (do first; everything downstream reads its output)
 
-- [ ] **LOOP-01**: A fresh session on beta.13+ passes the three-call Brain test (brain_stats
+- [x] **LOOP-01**: A fresh session on beta.13+ passes the three-call Brain test (brain_stats
       counts, brain_search "jobs to be done framework" results, a synthesized methodology
       answer), with failures reported verbatim, never silently.
+      VERIFIED 2026-08-11: fresh process driving the SHIPPED beta.1 stdio shim
+      (install cache bin/mindrian-brain-mcp-client.cjs) - brain_stats PASS
+      (memgraph, 28,325/23,014, 9 indexes), brain_search PASS (12,041 bytes of
+      semantic hits), brain_ask PASS (1,879-byte GUIDED DirectiveEnvelope).
+      Same-day keyless leg: honest no-key message verbatim, then silent-register
+      chain served stats keyless (see HONEST-03).
 
-- [ ] **LOOP-02**: A Cypher census of the methodology graph is filed as a tracked artifact:
+- [x] **LOOP-02**: A Cypher census of the methodology graph is filed as a tracked artifact:
       total Framework nodes, frameworks with HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP
       structure, FEEDS_INTO and LEADS_TO edge counts, top gaps by expected-use.
+      FILED 2026-08-11: docs/CORPUS-CENSUS-2026-08-11.md (commit 729e339c), measured
+      live through the CONTRACT-05 bounded read tier. 181 frameworks, 129 (71%)
+      structureless, FEEDS_INTO 233 / LEADS_TO 1,698, floor 4/28 on the ratified
+      frontmatter-28 denominator.
 
 ### Phase B -- Brain surface contract (cross-repo)
 
@@ -96,9 +106,17 @@ methodology that did not come from the Brain, without being told.
       Phase 252's release, not before. Form B hitl_stages declared on brain-connector
       (stage brain-refusal-fork, shape F.1); connector.excluded stays true.
 
-- [ ] **HONEST-03**: Larry-served methodology carries provenance: graph-grounded answers are
+- [x] **HONEST-03**: Larry-served methodology carries provenance: graph-grounded answers are
       distinguishable from Larry-voice conversation, and SEED-011 (Brain Silent Identity)
       resolves the key ceremony so honesty does not become nagging.
+      SILENT-REGISTRATION LEG VERIFIED LIVE 2026-08-11 (the leg 250-04 left open):
+      /register fixed in production after a three-obstacle schema saga (RCA
+      register-endpoint-supabase-insert-400, resolved) - live quartet green (200 +
+      mbr_ token / idempotent same-token / 400 malformed) and the minted token
+      authenticates a real brain_stats read. Keyless shipped-client chain proven:
+      no key -> honest verbatim message -> silent register -> ~/.mindrian-install.json
+      cached -> stats serves 28,325 keyless. Both legs now landed; requirement met on
+      the user-reached surface.
       NAVIGATOR RULING 2026-08-10: SEED-011 = Option A, per-install silent registration
       (UUID -> /register -> cached install token), and it is BAKED IN BY DEFAULT - no API-key
       ceremony for Brain access on any fresh install. This is a BEHAVIOR requirement, not a
@@ -132,6 +150,11 @@ methodology that did not come from the Brain, without being told.
 
 - [ ] **CACHE-03**: The Brain reach rides the EXISTING rail (proven cache-safe by CACHE-01)
       with an explicit block-size budget; no prefix mechanism change.
+      STATE 2026-08-11: implementation SHIPPED in beta.1 (1,100 B budget fence, nav
+      block 816 B / repeat 45 B, analyzer scripts/cache-hitrate-report.cjs). The
+      closing evidence is the live measurement (251-02 T3: 10+ turn session on the
+      shipped surface, hit_rate >= 0.91) - honestly PENDING the first real post-release
+      interactive session; cannot be synthesized headless without faking the workload.
 
 ### Phase F -- MCP-First fold-in (the local-context half of the loop; absorbed v1.17.0 slot)
 
@@ -177,9 +200,19 @@ methodology that did not come from the Brain, without being told.
 
 - [ ] **SWEEP-02**: The tier-0-no-key acceptance fixture is REPURPOSED to assert the keyless
       path refuses correctly (coverage kept, assertion inverted; never deleted).
+      STATE 2026-08-11: honestly BLOCKED by design - 252-02's hard gate requires
+      check-flagship-floor.cjs exit 0 (floor GREEN) before the fixture inversion
+      lands; floor is 4/28 on the ratified frontmatter-28 denominator. Unblocks
+      after the operator admin sitting (snapshot -> 7 DROPs -> 41 self-loop DELETEs
+      -> alias collapses -> enrichment ingests per the authored runbook).
 
-- [ ] **SWEEP-03**: Docs and constitution agree in the same release: no state where docs
+- [x] **SWEEP-03**: Docs and constitution agree in the same release: no state where docs
       claim Brain-required while guards silently degrade.
+      VERIFIED 2026-08-11: the amendment-row flip + docs sweep + canon canary shipped
+      INSIDE the v2.0.0-beta.1 release (252-03 lockstep; npm @latest serves it);
+      evidence on released code: tests/test-250-amendment-unit.cjs 9/9,
+      tests/test-252-guard-census.cjs 6/6, run-all-252 PASS. Released, picked up
+      (install cache updated to beta.1 this session), verified.
 
 ## Seeds in scope
 
