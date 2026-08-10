@@ -4,17 +4,50 @@ milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
 stopped_at: "Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green"
-last_updated: "2026-08-10T14:58:00.000Z"
-last_activity: 2026-08-10 -- Phase 247 Plan 02 (Brain Surface Contract, plugin client) complete
+last_updated: "2026-08-10T15:03:06.022Z"
+last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
-  completed_phases: 1
-  total_plans: 7
+  completed_phases: 2
+  total_plans: 8
   completed_plans: 6
-  percent: 86
+  percent: 29
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 248 PLAN 02 CHECKPOINT OPEN -- honest room_bind return + CTX-03 surface probes, Tasks 1-2 done
+
+- **Position:** Phase 248 (MCP-First Room Resolution) Plan 02, Tasks 1-2 of 4 complete.
+  STOPPED at Task 3, a `checkpoint:human-verify` (gate=blocking) requiring a FRESH Claude
+  Code CLI session (release-liveness rule: the current session's MCP server predates this
+  fix and cannot demonstrate it). Task 4 (close the carried defect on the record) runs only
+  after the checkpoint returns "approved".
+
+- **What shipped in Tasks 1-2:** `room_bind` now round-trips through
+  `lib/mcp/session-room.cjs`'s shared resolver after every write and reports
+  `effective`/`resolved_dir`/`resolved_source`/`reason` honestly (the unqualified
+  `{ok:true, bound:true}` about an inert effect can no longer be reproduced) --
+  `tests/test-248-room-bind-honest-return.cjs`, 27/27 green. The CTX-03 scripted merge gate
+  (`tests/test-248-surface-probes.cjs`) is green on all three surface-equivalent transports,
+  25/25, 0 skips, including a real two-connection HTTP isolation proof (the SDK assigns
+  `extra.sessionId` per connection; each session's binds and reads stayed on its own room
+  throughout). `docs/ENV-TUNING.md` gained a net-new `MINDRIAN_MCP_FIRST` entry (none existed
+  before this phase); `docs/CANON-PHASE-MAP.md` gained a Phase 248 row; `CHANGELOG.md` gained
+  a Fixed entry under the current Unreleased heading.
+
+- **Commits this session:** `f3bbdaa5` (test, RED), `da0cc1af` (feat, GREEN, honest return),
+  `907b1708` (feat, CTX-03 probes + docs).
+
+- **Full detail, the checkpoint text verbatim, and both deviations (a doc gap, a heading
+  that does not exist in CHANGELOG.md):**
+  `.planning/phases/248-mcp-first-room-resolution/248-02-SUMMARY.md`.
+
+- **NEXT:** a human operator starts a fresh Claude Code CLI session against this dev repo
+  and runs the Task 3 verification steps (room_bind to a real room, room_state_bound in the
+  same session, a re-bind, the room-not-on-disk negative). On "approved", Task 4 closes
+  `.planning/debug/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` to
+  `resolved/` and this plan's requirements (CTX-02, CTX-03) get marked complete.
 
 ## (2026-08-10) -- PHASE 247 PLAN 02 COMPLETE -- Brain Surface Contract: plugin client, CONTRACT-01 done
 
@@ -3726,7 +3759,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-10T09:35:05.824Z
+Last session: 2026-08-10T15:03:05.969Z
 Stopped at: Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
