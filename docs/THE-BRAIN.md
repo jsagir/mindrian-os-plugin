@@ -67,9 +67,15 @@ The Brain MCP registers exactly six tools (`mcp-server-brain/lib/brain-ask.cjs`)
 
 The user never sees a tool call. They see Larry being brilliant.
 
-## Without Brain (Tier 0)
+## When The Brain Is Unreachable
 
-Everything works. Embedded references/ has a curated subset of the live graph's 177 :Framework nodes as text, plus static chain suggestions and the mode algorithm. Tier 0 Larry is good. Tier 1 Larry (with Brain) is a master teacher. The difference is textbook vs professor.
+The Brain is required for methodology. A fresh install registers silently by default (see
+`docs/install/BRAIN-SETUP.md`) and starts serving graph-grounded methodology with no key, no
+file to drop, no restart ceremony. If registration has not completed, the Brain is offline, or
+the operator explicitly opted out (`MINDRIAN_DISABLE_AUTO_REGISTER=1`), Larry refuses visibly
+rather than serving a lookalike from local text: a methodology request gets an honest
+`DIRECTOR_NOT_AVAILABLE` refusal naming the cause, with room context and conversation still
+available. Larry never improvises the graph's job from memory.
 
 ## The Flywheel
 

@@ -1,6 +1,6 @@
 # Brain Setup (v1.13.0-beta.20+)
 
-MindrianOS connects to a remote Brain (a Neo4j + Pinecone methodology graph) for framework chaining, semantic search, and orchestration. The Brain is optional; without a key the plugin still works at Tier-0 (Local: Larry + room context, no methodology orchestration).
+MindrianOS connects to a remote Brain (a Neo4j + Pinecone methodology graph) for framework chaining, semantic search, and orchestration. The Brain is required for methodology; a fresh install registers silently by default (below), and a keyless or no-identity session gets an honest refusal instead of a local imitation.
 
 ## Zero-ceremony by default (Phase 250-04, SEED-011 Option A)
 
@@ -68,20 +68,24 @@ Two-key conflict: if your legacy user-scope entry has a different Bearer token t
 
 Reports the exact failing layer if anything is wrong. Use `--json` for machine-readable output.
 
-## Tier-0 (Local Only) behavior
+## No-identity refusal (the failure edge)
 
-Without a key, every Brain command returns a Tier-0 sentinel:
+Silent registration is the default path (above); this is what happens when it has not
+completed. If registration failed, the Brain was offline, or `MINDRIAN_DISABLE_AUTO_REGISTER=1`
+was set, every Brain command returns the sentinel below -- the rare failure edge, never the
+default experience:
 ```json
 {
   "status": "DIRECTOR_NOT_AVAILABLE",
   "reason": "MINDRIAN_BRAIN_KEY not set",
   "command_context": "<command name>",
-  "upgrade_hint": "Request a Brain key at https://mindrian-os.com/brain-access",
-  "fallback_advice": "Larry can still talk with you and reflect on your room context. Methodology orchestration requires Brain."
+  "upgrade_hint": "Silent registration should have handled this automatically; if it keeps failing or you need an explicit key, request one as an override at https://mindrian-os.com/brain-access",
+  "fallback_advice": "Larry does not improvise methodology. Methodology comes from the Brain or it is refused, visibly. Conversation and room context remain available."
 }
 ```
 
-Larry's prose surface reads this and surfaces a Larry-voiced one-line upgrade hint, never an opaque error.
+Larry's prose surface reads this and surfaces a visible refusal naming the cause, never an
+opaque error and never a silent local substitute.
 
 ## Three-tier release plan
 

@@ -298,7 +298,7 @@ Artifact filed
 
 ### Layer 7: Brain Enrichment
 
-**Purpose:** Remote Neo4j knowledge graph with 21K+ nodes and 65K+ relationships providing teaching intelligence. Never required. Always amplifying.
+**Purpose:** Remote Neo4j knowledge graph with 21K+ nodes and 65K+ relationships providing teaching intelligence. Required for methodology, registered silently by default. Always amplifying, never substituted.
 
 **The Teaching Graph:**
 - Framework-to-framework chaining rules
@@ -333,9 +333,9 @@ Artifact filed
 - Context-aware variations by audience and content type
 
 **Invariants:**
-- Brain is NEVER required; Tier 0 works without any external dependency
+- Brain is required for methodology; a fresh install registers silently by default (Decision #1, Phase 250-04); a keyless or no-identity session refuses honestly rather than serving a local substitute
 - Brain data is never distributed; users get intelligence, not data
-- Every Brain query has a local fallback (local scoring when Brain unavailable)
+- A Brain query that cannot complete surfaces an honest refusal in-turn and auto-queues enrichment (Decision #8); it never serves local-heuristic output as if it were graph-grounded
 - Brain API keys are managed through Supabase with approve/revoke/extend lifecycle
 
 ---

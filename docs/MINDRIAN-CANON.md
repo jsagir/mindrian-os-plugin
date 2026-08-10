@@ -190,7 +190,7 @@ The set of options surfaced at any given gate depends on tier availability. The 
 
 **Mode B (Local Only).** Brain unreachable, or user opted into offline mode. Options are generated from the local room's recent decision history and the Navigation Engine (Phase 91). The Navigation Engine is the Local-Only routing substitute: it reads STATE.md, the local graph, and the room's methodology cache to select plausible next verbs. No RECOMMENDED marker is rendered in Mode B. The 0.7 gate is a Brain-only concept.
 
-**Tier 0 fallback.** When neither Brain nor local graph is sufficient (brand new room, empty STATE.md, first-session cold start), the gate renders a hardcoded minimal option set: Run Methodology / Reformulate / Free-Text. This keeps the navigator moving even when there is nothing to navigate against yet.
+**Cold-start minimal option set.** When neither Brain nor local graph is sufficient (brand new room, empty STATE.md, first-session cold start), the gate renders the cold-start minimal option set: Run Methodology / Reformulate / Free-Text. This keeps the navigator moving even when there is nothing to navigate against yet. A UI floor for an empty room, not Brain methodology doctrine -- it never says the Brain is optional.
 
 ### The 3-layer loop
 

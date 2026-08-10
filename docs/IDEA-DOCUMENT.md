@@ -128,5 +128,7 @@ MindrianOS-Plugin: manifest, CLAUDE.md, THE-BRAIN.md, empty structure ready.
 ## 15. Key Decisions
 
 1. ICM-native 2. GSD state 3. Three surfaces 4. Brain as Aura Agent MCP
-5. LazyGraph optional 6. Pipelines chain (Week 7) 7. Tier 0 fully works
+5. LazyGraph optional 6. Pipelines chain (Week 7) 7. Honest refusal everywhere
+(amended 2026-08, docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md -- item 7 originally read
+"Tier 0 fully works"; the Brain is required for methodology now, not an optional tier)
 8. One-command install 9. Larry default agent 10. Factory/Product separation

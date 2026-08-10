@@ -76,7 +76,7 @@ trigger: "<slug>"            # the file slug; /gsd:debug keys off this
 issue_id: ""                 # optional external tracker ID (Linear/GitHub/etc.)
 severity: medium             # blocker | high | medium | low
 surfaces: [cli]              # which Tri-Polar surfaces: cli | desktop | cowork
-brain_mode: full-loop        # full-loop | local-only | tier-0
+brain_mode: full-loop        # full-loop | no_key | unreachable | tier_denied | not_ready (the refusal-messaging.cjs kinds)
 canon_parts: []              # Canon parts the bug or fix touches, e.g. [8, 9]
 created: <YYYY-MM-DDTHH:MM:SSZ>
 updated: <YYYY-MM-DDTHH:MM:SSZ>

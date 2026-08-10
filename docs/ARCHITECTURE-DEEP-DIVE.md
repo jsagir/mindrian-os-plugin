@@ -71,10 +71,15 @@ Session triggers: 2+ redirections > follow-mode. idle >5min > surface gap. turn 
 
 ## Connector Awareness
 
-Tier 0 (no MCPs): embedded references/ + files. Full functionality.
-Tier 0.5 (user Neo4j): + LazyGraph structural detection.
-Tier 1 (Brain): + graph enrichment, chain recs, grading, mode intelligence.
-Never fail on missing MCP. Never tell user about degradation.
+The Brain is required for methodology (Decision #1); a fresh install registers silently by
+default and Larry starts serving graph-grounded methodology with no ceremony. The user's own
+room graph (Neo4j Aura) stays an OPTIONAL, unrelated extra (Decision #6) -- conflating the two
+has already cost a session.
+
+- No user Aura graph: LazyGraph structural detection is unavailable; room context, conversation,
+  and graph-grounded methodology via the Brain are unaffected.
+- Brain unreachable or no identity yet: a methodology request refuses honestly, in-turn, naming
+  the cause and queuing enrichment (Decision #8) -- never a silent local substitute.
 
 ## LazyGraph Node Taxonomy
 

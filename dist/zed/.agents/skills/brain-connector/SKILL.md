@@ -78,9 +78,10 @@ sixth color: the mark reuses the existing `[■ BRAIN]` chip vocabulary from
   fork, Refusal section above) serves prose search results marked
   `■ BRAIN (partial): <framework> · readiness <N>/4` -- the disclosed-degraded state, told,
   not hidden. Partial is served only after the navigator picks that fork; never by default.
-- **TIER0 CHAINS:** anything derived from a `source:'tier0'` hardcoded chain (site 11,
-  marked in Plan 250-01) is not graph-grounded -- no `■ BRAIN` line ever, and a methodology
-  ask down that path refuses instead (until Phase 252 flips the chains).
+- **TIER0 CHAINS (historical):** `source:'tier0'` hardcoded chains (site 11, marked in Plan
+  250-01) were deleted in Phase 252-01 -- the path no longer exists in shipped code. Any
+  answer that would have traced to one is not graph-grounded, and a methodology ask down
+  that path refuses instead.
 - **ANTI-NAGGING:** one source line per answer, never per fact, never repeated within a
   turn -- a mark, not a narration.
 - **HTML exports:** obey M:OS Design System v1.1 (the ui-system rule "if it renders as a
