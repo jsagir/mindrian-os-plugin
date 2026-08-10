@@ -1108,6 +1108,67 @@ function formatEngineDecisionBlock(decision, routing, offerLine) {
   return lines.join('\n');
 }
 
+// Phase 251-01 (CACHE-02a, suppress-when-unchanged): the one-line marker
+// emitted in place of a byte-identical repeat of the prior turn's rendered
+// NAVIGATION DECISION block. 251-CACHE-MEASUREMENT.md section 2: session
+// a396e801 measured 7/7 identical blocks in a row -- 6 of 7 emissions carried
+// zero new information. Byte-frozen (greppable, like the AskUserQuestion
+// marker it sits alongside).
+const NAV_UNCHANGED_MARKER = '[NAV DECISION unchanged - prior block stands]';
+
+// Phase 251-01 (CACHE-02a): the per-session, per-room nav-block hash sidecar.
+// Follows the zeroScoreGateMarkerPath precedent (~L2703): a DEDICATED,
+// never-rotated marker file (persistDecisionTrace's decision-traces/<session>.json
+// IS rotated at TRACE_ROTATE_AT, the wrong lifetime for a suppression signal
+// that must survive the whole session).
+function navBlockHashPath(roomDir, sessionId) {
+  return path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.nav-block-hash.json');
+}
+
+// T-251-01 (fail OPEN): a missing, corrupt, or unreadable sidecar returns
+// null, never throws -- suppression is an optimization, never a gate. A null
+// return always yields full emission at the call site.
+function readNavBlockHash(roomDir, sessionId) {
+  try {
+    if (!roomDir || !sessionId) return null;
+    const raw = fs.readFileSync(navBlockHashPath(roomDir, sessionId), 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && typeof parsed.sha256 === 'string' && parsed.sha256.length > 0) {
+      return parsed.sha256;
+    }
+    return null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+// Atomic tmp + rename write, the persistDecisionTrace idiom (~L1018-1046).
+// Payload carries ONLY {version, sha256, at, bytes} -- never block text or
+// user content (Canon Part 8, T-251-03). Fire-and-forget: a write fault
+// never blocks or crashes the turn (T-251-01), it only means suppression may
+// not kick in on the NEXT turn -- strictly no worse than pre-fix behavior.
+function writeNavBlockHash(roomDir, sessionId, sha256, bytes) {
+  try {
+    if (!roomDir || !sessionId || typeof sha256 !== 'string' || sha256.length === 0) return;
+    const filePath = navBlockHashPath(roomDir, sessionId);
+    try { fs.mkdirSync(path.dirname(filePath), { recursive: true }); } catch (_) {}
+    const payload = {
+      version: 1,
+      sha256: sha256,
+      at: new Date().toISOString(),
+      bytes: Number.isFinite(bytes) ? bytes : 0,
+    };
+    const rnd = Math.random().toString(36).slice(2, 10);
+    const tmpPath = filePath + '.tmp.' + process.pid + '.' + rnd;
+    fs.writeFileSync(tmpPath, JSON.stringify(payload, null, 2));
+    try {
+      fs.renameSync(tmpPath, filePath);
+    } catch (_e) {
+      try { fs.unlinkSync(tmpPath); } catch (_) {}
+    }
+  } catch (_e) { /* fire-and-forget */ }
+}
+
 /**
  * Phase 150-06 (D-08) -- THE RENDER UNLOCK.
  *
@@ -1431,138 +1492,183 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
   // Only the engine arm surfaces the dial. Legacy / mixed / silent keep the
   // base block unchanged (no regression; the dial is the engine-decision face).
   const source = (routing && typeof routing.source === 'string') ? routing.source : null;
-  if (source !== 'engine') return base;
 
-  try {
-    const orchestrator = require(
-      path.join(__dirname, '..', 'lib', 'hmi', 'dial-reach-orchestrator.cjs')
-    );
-    const presenter = require(
-      path.join(__dirname, '..', 'lib', 'hmi', 'dial-presenter.cjs')
-    );
+  // Phase 251-01 (CACHE-02a): finalBlock is composed EXACTLY as before (base
+  // on the non-engine / fault arms; base + rendered.text + marker + payload
+  // on the engine arm), then BOTH arms funnel through the ONE suppression
+  // gate below. engineArmFired tracks whether this turn is the engine arm's
+  // genuine full-card success path, so the sidechannel record (hoisted below
+  // the gate) fires ONLY when the gate was actually re-presented this turn.
+  let finalBlock = base;
+  let engineArmFired = false;
+  let engineArmSubject = '';
 
-    const cortexNodes = (ctx && Array.isArray(ctx.cortexNodes)) ? ctx.cortexNodes : [];
-    const reachPenalties = (ctx && ctx.reach_penalties && typeof ctx.reach_penalties === 'object')
-      ? ctx.reach_penalties : null;
-
-    // Phase 209-01 (E3): resolve the LIVE room-context slot map so the dial rows
-    // resolve {topic}/{room_name} instead of degrading to ELEVATION_DEFAULTS.
-    // reach-sensor-relevance-gap B1: this is resolved BEFORE buildReachList so the
-    // structural relevance gate can read the cross_room slot content and drop the
-    // reach BEFORE it ranks. buildDialSlotContext never throws and returns {} on
-    // absent context.
-    const slotContext = buildDialSlotContext(ctx && ctx.roomContext, ctx && ctx.roomDir);
-
-    // Phase 245-08 (Requirement 1): CALL SITE A, the live render. The cortex
-    // priors, the 158-03 reject discount, the Requirement 1 sensor/Brain fusion
-    // and the relevance gate are all composed by the ONE shared helper that the
-    // reach_presented telemetry recompute also uses, so the logged offered set
-    // and the rendered dial can no longer disagree. buildReachList itself is
-    // byte-unchanged (D-03) and still receives only scalars plus an array.
-    const composed = composeDialReachScores({
-      cortexNodes: cortexNodes,
-      reachPenalties: reachPenalties,
-      decision: decision,
-      slotContext: slotContext,
-      liveTurnText: (ctx && typeof ctx.liveTurnText === 'string' && ctx.liveTurnText.length > 0)
-        ? ctx.liveTurnText : null,
-      currentRoomName: (ctx && typeof ctx.roomDir === 'string' && ctx.roomDir.length > 0)
-        ? path.basename(ctx.roomDir) : null,
-    });
-    // A null compose is the catastrophic-fault handle: degrade to the base block
-    // exactly as a throw from the old inline composition already did.
-    if (composed === null) return base;
-
-    const reachList = orchestrator.buildReachList({
-      tierMode: composed.tierMode,
-      reachScores: composed.reachScores,
-      suppressedReachIds: composed.suppressedReachIds,
-    });
-
-    const rendered = presenter.renderDial(reachList, {
-      slotContext: slotContext,
-    });
-    if (rendered && typeof rendered.text === 'string' && rendered.text.length > 0) {
-      // 150.5-02 (DIAL-ATOM-01): thread the AskUserQuestion contract through
-      // the SEED-020 single construction door. The dispatcher mints the
-      // trailer onto the envelope's scalar marker + binding + rendered.contract;
-      // this caller only READS those fields positionally in the concatenation
-      // below (never composes the trailer string, never assigns the marker).
-      // The trailer rides EVERY engine arm including tier_0 -- that arm IS the
-      // D-01 (LOCKED 2026-06-09) sensor-fired cold card: buildReachList's tier_0
-      // path already renders the S4 framing + the no-signal confidence column,
-      // and the live card contract now rides with them. No tier_mode gating.
-      //
-      // Phase 209-01 (E2/E3): the caller now reads marker + binding + contract
-      // positionally. Each appended line is guarded on its own presence so a
-      // missing field degrades to the prior marker-only behavior rather than
-      // emitting 'undefined'. The contract line is built field-by-field from
-      // rendered.contract and JSON.stringify'd -- never string-concat unescaped
-      // label text into the bracket line (T-209-01 tampering mitigation).
-      const dispatcher = require(
-        path.join(__dirname, '..', 'lib', 'hmi', 'selector-dispatcher.cjs')
+  if (source === 'engine') {
+    try {
+      const orchestrator = require(
+        path.join(__dirname, '..', 'lib', 'hmi', 'dial-reach-orchestrator.cjs')
       );
-      dispatcher.appendAskUserQuestionTrailer(rendered, 'F.1');
-      const marker = rendered.askuserquestion_marker;
-      if (typeof marker === 'string' && marker.length > 0) {
-        let block = base + '\n\n' + rendered.text + '\n' + marker;
-        const binding = rendered.askuserquestion_binding;
-        if (typeof binding === 'string' && binding.length > 0) {
-          block += '\n' + binding;
-        }
-        const contract = rendered.contract;
-        if (contract && typeof contract === 'object') {
-          const verbs = Array.isArray(contract.verbs)
-            ? contract.verbs.filter(function (v) { return typeof v === 'string'; })
-            : [];
-          const compact = {
-            shape: (typeof contract.shape === 'string') ? contract.shape : 'F.1',
-            mode: (typeof contract.mode === 'string') ? contract.mode : null,
-            verbs: verbs,
-            recommended: (typeof contract.recommended === 'string') ? contract.recommended : null,
-          };
-          block += '\n[AskUserQuestion payload: ' + JSON.stringify(compact) + ']';
-        }
-        // Phase 209-06 (H3): the PRIMARY side-channel producer for the engine
-        // arm. Lazy-required inside its own try/catch so a writer fault never
-        // affects the rendered block. sessionId is threaded via ctx (the call
-        // site above passes resolveSessionId(roomDir)); when absent the
-        // record files under NO_SESSION_KEY (the module's documented
-        // degenerate-floor bucket, unioned into every session-scoped read).
-        try {
-          const sidechannel = require(
-            path.join(__dirname, '..', 'lib', 'core', 'card-fire-sidechannel.cjs')
-          );
-          sidechannel.recordReachedGate({
-            sessionId: (ctx && typeof ctx.sessionId === 'string') ? ctx.sessionId : undefined,
-            surface: 'scripts/intent-classifier.cjs',
-            shape: 'F.1',
-            subjectText: (typeof rendered.text === 'string' ? rendered.text : ''),
-          });
-        } catch (_e) {
-          /* never let a side-channel fault affect the rendered block */
-        }
-        return block;
-      }
-    }
-  } catch (e) {
-    // A dial render fault NEVER blocks the turn (T-150-06-02), and it no
-    // longer vanishes (the Phase 140 D-03 silent-failure class is closed at
-    // this seam, 150.5-02): classify the fault into a scalar note for the
-    // persisted decision trace via ctx.onRenderNote. Scalars only -- never
-    // e.message or a stack (a message can carry filesystem paths; the note
-    // is a classifier, not a payload). The callback is itself guarded so a
-    // faulting callback cannot throw out of the fault handler.
-    if (ctx && typeof ctx.onRenderNote === 'function') {
-      try {
-        ctx.onRenderNote({
-          event: 'dial_render_fault',
-          error_name: (e && e.name) || 'Error',
+      const presenter = require(
+        path.join(__dirname, '..', 'lib', 'hmi', 'dial-presenter.cjs')
+      );
+
+      const cortexNodes = (ctx && Array.isArray(ctx.cortexNodes)) ? ctx.cortexNodes : [];
+      const reachPenalties = (ctx && ctx.reach_penalties && typeof ctx.reach_penalties === 'object')
+        ? ctx.reach_penalties : null;
+
+      // Phase 209-01 (E3): resolve the LIVE room-context slot map so the dial rows
+      // resolve {topic}/{room_name} instead of degrading to ELEVATION_DEFAULTS.
+      // reach-sensor-relevance-gap B1: this is resolved BEFORE buildReachList so the
+      // structural relevance gate can read the cross_room slot content and drop the
+      // reach BEFORE it ranks. buildDialSlotContext never throws and returns {} on
+      // absent context.
+      const slotContext = buildDialSlotContext(ctx && ctx.roomContext, ctx && ctx.roomDir);
+
+      // Phase 245-08 (Requirement 1): CALL SITE A, the live render. The cortex
+      // priors, the 158-03 reject discount, the Requirement 1 sensor/Brain fusion
+      // and the relevance gate are all composed by the ONE shared helper that the
+      // reach_presented telemetry recompute also uses, so the logged offered set
+      // and the rendered dial can no longer disagree. buildReachList itself is
+      // byte-unchanged (D-03) and still receives only scalars plus an array.
+      const composed = composeDialReachScores({
+        cortexNodes: cortexNodes,
+        reachPenalties: reachPenalties,
+        decision: decision,
+        slotContext: slotContext,
+        liveTurnText: (ctx && typeof ctx.liveTurnText === 'string' && ctx.liveTurnText.length > 0)
+          ? ctx.liveTurnText : null,
+        currentRoomName: (ctx && typeof ctx.roomDir === 'string' && ctx.roomDir.length > 0)
+          ? path.basename(ctx.roomDir) : null,
+      });
+      // A null compose is the catastrophic-fault handle: degrade to the base
+      // block exactly as a throw from the old inline composition already did
+      // (finalBlock stays = base, engineArmFired stays false).
+      if (composed !== null) {
+        const reachList = orchestrator.buildReachList({
+          tierMode: composed.tierMode,
+          reachScores: composed.reachScores,
+          suppressedReachIds: composed.suppressedReachIds,
         });
-      } catch (_cbErr) { /* never throw out of the fault handler */ }
+
+        const rendered = presenter.renderDial(reachList, {
+          slotContext: slotContext,
+        });
+        if (rendered && typeof rendered.text === 'string' && rendered.text.length > 0) {
+          // 150.5-02 (DIAL-ATOM-01): thread the AskUserQuestion contract through
+          // the SEED-020 single construction door. The dispatcher mints the
+          // trailer onto the envelope's scalar marker + binding + rendered.contract;
+          // this caller only READS those fields positionally in the concatenation
+          // below (never composes the trailer string, never assigns the marker).
+          // The trailer rides EVERY engine arm including tier_0 -- that arm IS the
+          // D-01 (LOCKED 2026-06-09) sensor-fired cold card: buildReachList's tier_0
+          // path already renders the S4 framing + the no-signal confidence column,
+          // and the live card contract now rides with them. No tier_mode gating.
+          //
+          // Phase 209-01 (E2/E3): the caller now reads marker + binding + contract
+          // positionally. Each appended line is guarded on its own presence so a
+          // missing field degrades to the prior marker-only behavior rather than
+          // emitting 'undefined'. The contract line is built field-by-field from
+          // rendered.contract and JSON.stringify'd -- never string-concat unescaped
+          // label text into the bracket line (T-209-01 tampering mitigation).
+          const dispatcher = require(
+            path.join(__dirname, '..', 'lib', 'hmi', 'selector-dispatcher.cjs')
+          );
+          dispatcher.appendAskUserQuestionTrailer(rendered, 'F.1');
+          const marker = rendered.askuserquestion_marker;
+          if (typeof marker === 'string' && marker.length > 0) {
+            let block = base + '\n\n' + rendered.text + '\n' + marker;
+            const binding = rendered.askuserquestion_binding;
+            if (typeof binding === 'string' && binding.length > 0) {
+              block += '\n' + binding;
+            }
+            const contract = rendered.contract;
+            if (contract && typeof contract === 'object') {
+              const verbs = Array.isArray(contract.verbs)
+                ? contract.verbs.filter(function (v) { return typeof v === 'string'; })
+                : [];
+              const compact = {
+                shape: (typeof contract.shape === 'string') ? contract.shape : 'F.1',
+                mode: (typeof contract.mode === 'string') ? contract.mode : null,
+                verbs: verbs,
+                recommended: (typeof contract.recommended === 'string') ? contract.recommended : null,
+              };
+              block += '\n[AskUserQuestion payload: ' + JSON.stringify(compact) + ']';
+            }
+            finalBlock = block;
+            engineArmFired = true;
+            engineArmSubject = (typeof rendered.text === 'string' ? rendered.text : '');
+          }
+        }
+      }
+    } catch (e) {
+      // A dial render fault NEVER blocks the turn (T-150-06-02), and it no
+      // longer vanishes (the Phase 140 D-03 silent-failure class is closed at
+      // this seam, 150.5-02): classify the fault into a scalar note for the
+      // persisted decision trace via ctx.onRenderNote. Scalars only -- never
+      // e.message or a stack (a message can carry filesystem paths; the note
+      // is a classifier, not a payload). The callback is itself guarded so a
+      // faulting callback cannot throw out of the fault handler.
+      if (ctx && typeof ctx.onRenderNote === 'function') {
+        try {
+          ctx.onRenderNote({
+            event: 'dial_render_fault',
+            error_name: (e && e.name) || 'Error',
+          });
+        } catch (_cbErr) { /* never throw out of the fault handler */ }
+      }
+      finalBlock = base;
+      engineArmFired = false;
     }
   }
-  return base;
+
+  // Phase 251-01 (CACHE-02a): the ONE suppression gate BOTH arms funnel
+  // through. An empty/falsy finalBlock (no decision, or the fault arm
+  // degraded to '') bypasses the gate entirely -- there is nothing to hash
+  // or suppress.
+  if (!finalBlock) return finalBlock;
+
+  let hash = null;
+  try {
+    hash = crypto.createHash('sha256').update(finalBlock, 'utf8').digest('hex');
+    if (ctx && typeof ctx.onBlockHash === 'function') {
+      ctx.onBlockHash(hash, Buffer.byteLength(finalBlock, 'utf8'));
+    }
+  } catch (_e) {
+    // T-251-01 (fail OPEN): a hashing fault leaves hash null, so the
+    // suppression check below can never fire -- full emission proceeds.
+    hash = null;
+  }
+
+  if (hash && ctx && ctx.prevBlockHash && ctx.prevBlockHash === hash) {
+    return NAV_UNCHANGED_MARKER;
+  }
+
+  // Phase 209-06 (H3), HOISTED below the suppression gate (T-251-02,
+  // SEED-021 / Stop-gate consistency): the PRIMARY side-channel producer for
+  // the engine arm fires ONLY when the gate was genuinely re-presented this
+  // turn (engineArmFired), never on a suppressed turn where Larry saw only
+  // the one-line marker. Lazy-required inside its own try/catch so a writer
+  // fault never affects the rendered block. sessionId is threaded via ctx
+  // (the call site passes resolveSessionId(roomDir)); when absent the
+  // record files under NO_SESSION_KEY (the module's documented
+  // degenerate-floor bucket, unioned into every session-scoped read).
+  if (engineArmFired) {
+    try {
+      const sidechannel = require(
+        path.join(__dirname, '..', 'lib', 'core', 'card-fire-sidechannel.cjs')
+      );
+      sidechannel.recordReachedGate({
+        sessionId: (ctx && typeof ctx.sessionId === 'string') ? ctx.sessionId : undefined,
+        surface: 'scripts/intent-classifier.cjs',
+        shape: 'F.1',
+        subjectText: engineArmSubject,
+      });
+    } catch (_e) {
+      /* never let a side-channel fault affect the rendered block */
+    }
+  }
+
+  return finalBlock;
 }
 
 function navTestSleepMs() {
@@ -3064,6 +3170,14 @@ function consumePriorBindingAnswer(roomDir, sessionId, currentTurnAnswer, home) 
 // Phase 194-04 (PSB-04): export the F.8 binding-gate producer + answer consumer.
 module.exports = {
   renderEngineDecisionWithDial: renderEngineDecisionWithDial,
+  // Phase 251-01 (CACHE-02a): suppress-when-unchanged. NAV_UNCHANGED_MARKER
+  // and navBlockHashPath are the plan's mandated exports; readNavBlockHash /
+  // writeNavBlockHash are exported additionally so the sidecar's fail-open
+  // and roundtrip behavior is directly testable without a second reimplementation.
+  NAV_UNCHANGED_MARKER: NAV_UNCHANGED_MARKER,
+  navBlockHashPath: navBlockHashPath,
+  readNavBlockHash: readNavBlockHash,
+  writeNavBlockHash: writeNavBlockHash,
   // Phase 245-08 (Requirement 1): the ONE dial score composition, exported so
   // the two acceptance regressions exercise the PRODUCTION path rather than a
   // reimplementation of it in a fixture (245-RESEARCH.md Pitfall 1: a test that
@@ -3394,6 +3508,20 @@ try {
         // so a dial_render_fault note (ctx.onRenderNote) merges into the SAME
         // persisted decision trace routing_trace_notes already rides (the
         // shipped Phase-91 surface; zero new write paths, threat T-150.5-07).
+        //
+        // Phase 251-01 (CACHE-02a, suppress-when-unchanged): read the PRIOR
+        // turn's block hash (fail-open to null on any read fault -- a null
+        // prevBlockHash always yields full emission) unless the operator has
+        // set the kill switch MINDRIAN_NAV_NO_SUPPRESS, in which case the
+        // sidecar is simply never read and every turn renders in full. The
+        // render seam captures {hash, bytes} via onBlockHash so this closure
+        // can persist them onto the SAME decision trace + write the sidecar
+        // AFTER the block is composed, without adding a second render pass.
+        const prevNavHash = process.env.MINDRIAN_NAV_NO_SUPPRESS
+          ? null
+          : readNavBlockHash(roomDir, sessionId);
+        let navBlockHashLocal = null;
+        let navBlockBytesLocal = 0;
         const block = renderEngineDecisionWithDial(
           out.decision, routing, offerLine, {
             cortexNodes: out.cortex_nodes,
@@ -3412,11 +3540,29 @@ try {
             // buildReachList. Absent/empty -> un-discounted byte-identical render.
             reach_penalties: out.reach_penalties,
             onRenderNote: function (note) { traceEntry.dial_render_note = note; },
+            prevBlockHash: prevNavHash,
+            onBlockHash: function (hash, bytes) {
+              navBlockHashLocal = hash;
+              navBlockBytesLocal = bytes;
+            },
           }
         );
+        // Forensics for /mos:explain-decision: the hash + byte count of THIS
+        // turn's rendered block, and whether it suppressed to the marker.
+        // Absent (navBlockHashLocal null) on the empty-block bypass, which
+        // never reaches this line's traceEntry fields.
+        if (navBlockHashLocal) {
+          traceEntry.nav_block_sha256 = navBlockHashLocal;
+          traceEntry.nav_block_bytes = navBlockBytesLocal;
+          traceEntry.nav_suppressed = (block === NAV_UNCHANGED_MARKER);
+        }
         persistDecisionTrace(roomDir, sessionId, traceEntry);
         if (block && block.length > 0) {
           try { process.stdout.write(block + '\n'); } catch (_) {}
+        }
+        // Idempotent on a suppressed turn (writes the SAME hash back).
+        if (navBlockHashLocal) {
+          writeNavBlockHash(roomDir, sessionId, navBlockHashLocal, navBlockBytesLocal);
         }
         return null;
       }).catch(function () { return null; });

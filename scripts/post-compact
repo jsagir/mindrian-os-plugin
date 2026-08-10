@@ -303,6 +303,16 @@ ${TRIPLE_CONTEXT}"
 fi
 # --- end Phase 88-09 ---
 
+# Phase 251-01 (CACHE-02a): compaction rewrites history, so the prior turn's
+# NAVIGATION DECISION block may be gone from the summarized context -- delete
+# the per-session nav-block-hash sidecars (scripts/intent-classifier.cjs's
+# navBlockHashPath) so the first post-compact turn always re-emits the full
+# block rather than suppressing to the one-line marker. Glob-delete with
+# a guarded fallback: post-compact MUST NEVER crash.
+if [ -n "${ROOM_DIR:-}" ] && [ -d "${ROOM_DIR}/.mindrian/decision-traces" ]; then
+  rm -f "${ROOM_DIR}"/.mindrian/decision-traces/*.nav-block-hash.json 2>/dev/null || true
+fi
+
 # Clean up temp file after successful restore
 rm -f "$SAVE_FILE"
 
