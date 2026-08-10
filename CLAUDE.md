@@ -28,7 +28,7 @@ Before any session: `pwd` (confirm the dev workspace, not `~/.claude/plugins/*`)
 
 ## What Is This?
 
-A commercial Claude Code + Cowork plugin. One command installs it (`claude plugin install mindrian-os@mindrian-marketplace`); no setup, Larry starts talking. Two OPTIONAL and unrelated extras, kept apart here because conflating them has already cost a session: the **user's own room graph** can use Neo4j Aura (free tier, the user's data, their instance), and the **Brain** is a separate remote Memgraph service for methodology enrichment. Full description in the Project section below.
+A commercial Claude Code + Cowork plugin. One command installs it (`claude plugin install mindrian-os@mindrian-marketplace`); the Brain is part of what installs -- a fresh install registers silently and Larry starts talking with graph-grounded methodology, no key ceremony required. A keyless or unreachable session gets an honest refusal, never a silent imitation. Two OPTIONAL and unrelated extras, kept apart here because conflating them has already cost a session: the **user's own room graph** can use Neo4j Aura (free tier, the user's data, their instance), and a **manual Brain key** is the override path for an operator identity, a paid tier, or troubleshooting silent registration. Full description in the Project section below.
 
 ## The Three Layers
 
@@ -91,9 +91,9 @@ The long-form doctrine is NOT inlined here; these four lean includes load with t
 
 **MindrianOS Plugin**
 
-A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wisdom System) methodology as installable skills, commands, agents, and hooks. One-command install gives the user Larry (the AI teaching personality) plus a structured Data Room that captures insights and surfaces gaps, contradictions, and convergence; it runs on Claude's native capabilities and optionally connects to the remote Brain for enrichment.
+A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wisdom System) methodology as installable skills, commands, agents, and hooks. One-command install gives the user Larry (the AI teaching personality) plus a structured Data Room that captures insights and surfaces gaps, contradictions, and convergence; it runs on Claude's native capabilities and connects to the remote Brain by default (silent registration on first use) for methodology -- a keyless or unreachable session refuses honestly instead of improvising.
 
-**Core Value:** Run the full PWS methodology (25 methodology bots, structured pipelines, and an intelligent Data Room) inside Claude Code with zero infrastructure, guided by the same teaching intelligence that powers the classroom.
+**Core Value:** Run the full PWS methodology (25 methodology bots, structured pipelines, and an intelligent Data Room) inside Claude Code with zero infrastructure to host or manage yourself -- the plugin runs serverless, and the remote Brain is required for methodology, registering silently on first use, guided by the same teaching intelligence that powers the classroom.
 
 ### Constraints
 

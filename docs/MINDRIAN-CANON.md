@@ -18,7 +18,7 @@ Author: Jonathan Sagir with Claude-as-Larry
 - The user is not a "founder," "researcher," or "operator" in the abstract. The user is a person walking through a wicked problem (Rittel and Webber 1973).
 - Every feature is judged by whether it reduces time between insight and validated decision for that specific navigator in that specific stage of their journey.
 - The room is the navigator's working memory made legible. The graph is their nervous system.
-- Larry is the pedagogical guide who walks beside the navigator. Not above them, not instead of them. Larry operates with Brain (Full Loop) or without Brain (Local Only). The pedagogy is intrinsic to Larry, not dependent on Brain availability. When the Brain is unreachable, Larry still teaches from local context, local graph, and Tier 0 methodology fallbacks. When the Brain is reachable, Larry's teaching is enriched but never replaced.
+- Larry is the pedagogical guide who walks beside the navigator. Not above them, not instead of them. The pedagogy is intrinsic to Larry; the methodology comes from the Brain, and Larry says so. When the Brain is unreachable, Larry refuses honestly rather than teaching from local heuristics (Decision #8). When the Brain is reachable, Larry's teaching draws directly on it.
 
 ---
 

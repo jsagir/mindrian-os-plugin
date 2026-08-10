@@ -93,15 +93,35 @@ test('Test 3: all five causal-record legs are cited', () => {
   );
 });
 
-test('Test 4 (lockstep guard, Task 1 ruling: doc-now / rows-at-sweep -- decisions.md rows NOT yet rewritten): row 1 still says "Zero config; Larry works immediately." and row 8 still says "graceful degradation everywhere"', () => {
+test('Test 4 (lockstep guard FLIPPED, Phase 252-03 Task 1: decisions.md rows 1/5/8 applied verbatim from the ratified amendment): decisions.md carries the applied rows, never the pre-amendment text', () => {
   const decisions = fs.readFileSync(DECISIONS_PATH, 'utf8');
   assert.ok(
-    decisions.includes('Zero config; Larry works immediately.'),
-    'decisions.md row 1 was rewritten before the SWEEP release -- violates the Task 1 doc-now/rows-at-sweep ruling'
+    decisions.includes('the Brain is part of what installs'),
+    'decisions.md row 1 must carry the amendment\'s applied Decision #1 text -- the SWEEP release never ships without it'
   );
   assert.ok(
-    decisions.includes('graceful degradation everywhere'),
-    'decisions.md row 8 was rewritten before the SWEEP release -- violates the Task 1 doc-now/rows-at-sweep ruling'
+    decisions.includes('a keyless session gets an honest refusal and a visible path to a key'),
+    'decisions.md row 1 rationale must carry the amendment\'s applied text'
+  );
+  assert.ok(
+    decisions.includes('Honest refusal everywhere'),
+    'decisions.md row 8 must carry the amendment\'s applied Decision #8 text -- the SWEEP release never ships without it'
+  );
+  assert.ok(
+    decisions.includes('no surface conceals a failure or serves methodology the graph did not give'),
+    'decisions.md row 8 rationale must carry the amendment\'s applied text'
+  );
+  assert.ok(
+    decisions.includes('The Brain is remote by design, not optional by default'),
+    'decisions.md row 5 rationale must carry the amendment\'s wording touch'
+  );
+  assert.ok(
+    !decisions.includes('Zero config; Larry works immediately.'),
+    'decisions.md row 1 must no longer carry the pre-amendment rationale -- regression to the old row'
+  );
+  assert.ok(
+    !decisions.includes('graceful degradation everywhere'),
+    'decisions.md row 8 must no longer carry the pre-amendment rationale -- regression to the old row'
   );
 });
 
