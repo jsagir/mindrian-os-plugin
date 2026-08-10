@@ -67,6 +67,10 @@ const path = require('node:path');
 
 const brainClient = require('../lib/core/brain-client.cjs');
 const brainDerivation = require('../lib/core/brain-derivation.cjs');
+// Phase 252-01 (SWEEP-01): the honesty rail. The "Brain offline" soft-fail
+// below (exit code 0 kept, this is not an error) renders rail copy instead
+// of ad-hoc prose; 250 renders, 252 routes -- no new refusal prose drafted.
+const refusalMessaging = require('../lib/core/refusal-messaging.cjs');
 
 // ---------- Frozen constants ----------
 
@@ -183,6 +187,9 @@ function _offlineCuration(mode, roomSlug) {
       mode: mode,
       room_slug: roomSlug,
       brain_offline_from_start: true,
+      // Phase 252-01 (SWEEP-01): additive disclosure via the rail; the
+      // structured summary shape otherwise unchanged.
+      refusal_kind: 'no_key',
     },
     exit_code: 0,
   };
@@ -499,8 +506,11 @@ async function dispatch(args) {
   if (!brainOnline) {
     summary.brain_offline_from_start = true;
     summary.brain_offline_sections = targets.length;
+    // Phase 252-01 (SWEEP-01): additive field, no shape break -- the rail's
+    // kind name, for a caller that wants to distinguish the cause.
+    summary.refusal_kind = 'no_key';
     for (const sec of targets) {
-      summary.per_section.push({ section: sec, status: 'skipped', detail: 'Brain offline' });
+      summary.per_section.push({ section: sec, status: 'skipped', detail: 'no_key' });
     }
     return { summary: summary, exit_code: 0 };
   }
@@ -636,7 +646,9 @@ function renderShapeE(summary) {
   }
 
   if (summary.brain_offline_from_start === true) {
-    lines.push('  ' + SYM.WARN + ' Brain offline -- no derivation possible');
+    // Phase 252-01 (SWEEP-01): the honesty rail's kind-appropriate one-liner
+    // (250's export, no new refusal prose) replaces the old ad-hoc phrase.
+    lines.push('  ' + SYM.WARN + ' Brain offline -- ' + refusalMessaging.larryRefusalLine('no_key'));
     lines.push('  ' + '-'.repeat(68));
     lines.push('  Sections requested: ' + summary.sections_requested);
     lines.push('  Cross-room:         ' + (summary.cross_room_enabled ? 'enabled' : 'disabled'));
@@ -709,7 +721,7 @@ function renderCurationReport(summary) {
   lines.push('  ' + '-'.repeat(68));
 
   if (summary.brain_offline_from_start === true) {
-    lines.push('  ' + SYM.WARN + ' Brain offline -- no curation scan possible');
+    lines.push('  ' + SYM.WARN + ' Brain offline -- ' + refusalMessaging.larryRefusalLine('no_key'));
     lines.push('  ' + SYM.ARROW + ' Check MINDRIAN_BRAIN_KEY env var and retry');
     lines.push('');
     return lines.join('\n');

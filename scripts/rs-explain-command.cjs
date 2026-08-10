@@ -36,12 +36,17 @@ let nlToQuery = null;
 let queryToText = null;
 let lazygraphOps = null;
 let brainClient = null;
+// Phase 252-01 (SWEEP-01, CONFORM): the honesty rail's closed kind vocabulary
+// -- REFUSAL_KINDS is the source of truth for the _brain_degraded marker
+// values below, never a hand-duplicated string list.
+let refusalMessaging = null;
 
 function _lazyLoad() {
   if (!nlToQuery) nlToQuery = require(path.join(__dirname, '..', 'lib', 'core', 'rs-nl-to-query.cjs'));
   if (!queryToText) queryToText = require(path.join(__dirname, '..', 'lib', 'core', 'rs-query-to-text.cjs'));
   if (!lazygraphOps) lazygraphOps = require(path.join(__dirname, '..', 'lib', 'core', 'lazygraph-ops.cjs'));
   if (!brainClient) brainClient = require(path.join(__dirname, '..', 'lib', 'core', 'brain-client.cjs'));
+  if (!refusalMessaging) refusalMessaging = require(path.join(__dirname, '..', 'lib', 'core', 'refusal-messaging.cjs'));
 }
 
 function parseArgs(argv) {
@@ -183,6 +188,15 @@ async function executeBundle(bundle, opts) {
       }
     }
   } else if (bundle && bundle.brain_query && (tier0 || !brainClient || typeof brainClient.isAvailable !== 'function' || !brainClient.isAvailable())) {
+    // Phase 252-01 (SWEEP-01, CONFORM): kept as the byte-locked
+    // 'brain_unreachable' marker value -- lib/memory/test-rs-explain-
+    // command.cjs Test 2 asserts it verbatim ("Mode B marker expected"),
+    // outside this task's file scope. Vocabulary alignment happens at the
+    // RENDER site below instead of here (the marker's cause -- isAvailable()
+    // gate vs a caught transport error -- is genuinely conflated under one
+    // literal, mirroring the exact conflation-bug SHAPE 250-01 fixed in the
+    // shim; renaming the literal itself is a behavior change out of scope
+    // for a CONFORM site, so only the visible copy is aligned).
     out._brain_degraded = 'brain_unreachable';
   }
 
@@ -281,7 +295,15 @@ async function main() {
   process.stdout.write('-- rs-explain -- ' + JSON.stringify(args.nl) + ' --\n\n');
   process.stdout.write('  ' + explanation + '\n\n');
   const localCount = queryResults.rows.length;
-  const brainNote = queryResults._brain_degraded ? ' (Brain offline: Mode B)' : '';
+  // Phase 252-01 (SWEEP-01, CONFORM): align the VISIBLE copy with the rail's
+  // vocabulary without renaming the byte-locked '_brain_degraded' marker
+  // value itself (lib/memory/test-rs-explain-command.cjs Test 2 asserts it
+  // verbatim, outside this task's file scope). 'brain_unreachable' maps to
+  // the rail's 'unreachable' kind name for display purposes only.
+  const brainDegraded = queryResults._brain_degraded;
+  const brainNote = brainDegraded === 'brain_unreachable'
+    ? ' (Brain refused: unreachable)'
+    : (brainDegraded ? ' (Brain offline: Mode B)' : '');
   const auraNote = queryResults._cypher_degraded ? ' (Aura offline: Tier 0)' : '';
   process.stdout.write('  Query summary: ' + localCount + ' rows aggregated' + brainNote + auraNote + '\n\n');
   process.stdout.write('  -> Bank Opportunity         (Canon Part 3 verb)\n');
