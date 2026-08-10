@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: "Checkpoint - 250-04-PLAN.md Tasks 1-2 complete, Task 3 (operator deploy + released-build three-surface verify) awaiting human action"
-last_updated: "2026-08-10T18:15:00.000Z"
-last_activity: 2026-08-10 — Milestone v2.0.0 started
+stopped_at: "Checkpoint - 251-02-PLAN.md Tasks 1-2 complete, Task 3 (live-session cache baseline, operator-only) awaiting human action. Also open: Checkpoint - 250-04-PLAN.md Tasks 1-2 complete, Task 3 (operator deploy + released-build three-surface verify) awaiting human action"
+last_updated: "2026-08-10T19:05:00.000Z"
+last_activity: 2026-08-10 - Milestone v2.0.0 started; 251-02 Tasks 1-2 landed (budget fence + doctrine + hitrate analyzer), Task 3 checkpoint pending
 progress:
   total_phases: 7
   completed_phases: 2
@@ -15,6 +15,43 @@ progress:
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 251 PLAN 02 CHECKPOINT -- Budget fence + doctrine + hitrate analyzer complete, Task 3 live-session checkpoint pending
+
+- **Position:** Phase 251 (Cache-Aware Trigger Redesign) Plan 02 Tasks 1-2 are
+  COMPLETE; Task 3 (`type="checkpoint:human-verify" gate="blocking"`) has NOT
+  started. This is a CHECKPOINT stop, not plan completion -- CACHE-03 stays
+  unchecked in `.planning/REQUIREMENTS.md` until Task 3's live-session baseline
+  closes it.
+- **Task 1 (budget fence + doctrine):** `NAV_BLOCK_BUDGET_BYTES = 1100` exported
+  from `scripts/intent-classifier.cjs` (post-251-01 fixture block measures 816 B,
+  giving 284 B of Brain-reach headroom, below the 1200 B ceiling). CACHE-03 rider
+  rule named in the adjacent comment. `docs/HOOK-INJECTION-CACHE-DOCTRINE.md`
+  filed: mechanism, refuted ep55 hypothesis, three levers, do-not list, honest
+  limits, zero em-dashes. Born RED (4/4 failing, constant + doc absent), GREEN
+  after implementation. Commit `7e26fa47`.
+- **Task 2 (read-only analyzer):** `scripts/cache-hitrate-report.cjs` (zero-dep
+  CJS, argv switch-router) parses a session JSONL and reports hit rate, deduped
+  api_requests, zero-cache-read count, NAV block/dup/suppressed-marker counts --
+  aggregates only, never content. Proven against a fully synthetic 14-line
+  `tests/fixtures/cache-hitrate-fixture.jsonl` (hand-computed hit_rate = 0.87).
+  Born RED (5/5 failing, script absent), GREEN after implementation. Commit
+  `de1c35bc`.
+- **Deviation (Rule 3, test-only):** `tests/test-251-hitrate-report.cjs` was
+  rewritten to spawn the analyzer as a black-box CLI subprocess instead of
+  requiring it in-process -- combining this test file's own `fs.closeSync(0)`
+  (the 251-01 fd0-hang workaround) with an in-process `child_process` spawn
+  crashed node with a libuv assertion (`uv__close: fd > STDERR_FILENO`). No
+  production code affected; full detail in `251-02-SUMMARY.md`.
+- **Task 3 (live-session baseline, operator-only):** NOT started. Requires a
+  staleness-guard grep against the RUNNING plugin root, a real 10+ turn session
+  with 3+ idle turns, then `node scripts/cache-hitrate-report.cjs
+  <session>.jsonl` confirming hit_rate >= 0.91, 2-3 zero-cache-read requests
+  (session start/compaction only), suppressed_markers >= 1, and
+  consecutive_identical === 0 for full blocks. Full resume steps in
+  `.planning/phases/251-cache-aware-trigger-redesign/251-02-SUMMARY.md`'s
+  "Next Phase Readiness" section.
+- **Full detail:** `.planning/phases/251-cache-aware-trigger-redesign/251-02-SUMMARY.md`
 
 ## (2026-08-10) -- PHASE 250 PLAN 04 CHECKPOINT -- Silent registration Tasks 1-2 complete (both repos), Task 3 operator-deploy checkpoint pending
 
