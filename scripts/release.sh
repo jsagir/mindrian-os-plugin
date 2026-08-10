@@ -93,6 +93,7 @@ for arg in "$@"; do
     --prerelease)        BUMP_MODE="prerelease" ;;
     --finalize)          BUMP_MODE="finalize" ;;
     --start-prerelease)  BUMP_MODE="start-prerelease" ;;
+    --start-major-prerelease) BUMP_MODE="start-major-prerelease" ;;
     stable)              BUMP_MODE="finalize" ;;  # alias
     patch|minor|major)   BUMP_MODE="$arg" ;;
     --allow-ahead)       ALLOW_AHEAD=1 ;;
@@ -149,6 +150,9 @@ NEW_VERSION="$(node -e '
     out = semver.inc(cur, "patch");
   } else if (mode === "start-prerelease") {
     out = semver.inc(cur, "preminor", "beta");
+    out = semver.inc(out, "prerelease", "beta");
+  } else if (mode === "start-major-prerelease") {
+    out = semver.inc(cur, "premajor", "beta");
     out = semver.inc(out, "prerelease", "beta");
   } else if (mode === "patch" || mode === "minor" || mode === "major") {
     out = semver.inc(cur, mode);
