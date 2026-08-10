@@ -43,7 +43,7 @@ const { test, before, after, beforeEach } = require('node:test');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const BRAIN_CLIENT_PATH = path.join(REPO_ROOT, 'lib', 'core', 'brain-client.cjs');
 const RESOLVER_PATH = path.join(REPO_ROOT, 'lib', 'core', 'resolve-brain-key.cjs');
-const TIER0_PATH = path.join(REPO_ROOT, 'lib', 'core', 'tier0-messaging.cjs');
+const TIER0_PATH = path.join(REPO_ROOT, 'lib', 'core', 'refusal-messaging.cjs');
 
 function makeTmpHome(suffix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'test-250-silent-reg-' + suffix + '-'));

@@ -27,14 +27,14 @@ cd "$REPO_ROOT"
 PHASE_127_SOURCES=(
   "bin/mindrian-brain-mcp-client.cjs"
   "lib/core/directive-envelope.cjs"
-  "lib/core/tier0-messaging.cjs"
+  "lib/core/refusal-messaging.cjs"
   "lib/core/migration-snapshot.cjs"
   "scripts/migrate-brain-mcp-from-http-to-stdio.cjs"
   "lib/core/doctor/class-m-brain-smoke.cjs"
 )
 
 # Forbidden patterns. Note: https?:// is NOT in this list because
-# tier0-messaging.cjs legitimately contains the user-visible upgrade-hint URL
+# refusal-messaging.cjs legitimately contains the user-visible upgrade-hint URL
 # https://mindrian-os.com/brain-access (a help string, never fetched).
 FORBIDDEN_PATTERNS=(
   'fetch\('

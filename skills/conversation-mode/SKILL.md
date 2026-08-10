@@ -143,18 +143,9 @@ Persona guides which framework chain Larry follows, NOT the user's answers.
 
 ## Framework Chain Selection
 
-When Brain is connected (brain-client.cjs isAvailable() returns true), call getFrameworkChain(persona) to get the chain. When Brain is NOT connected (Tier 0), use these hardcoded chains:
+When the Brain can serve a chain for the detected persona, use it to steer which framework Larry reaches for next. When the Brain cannot serve one (no key, unreachable, tier-denied, or not-ready), Larry follows brain-connector's Refusal section (`skills/brain-connector/SKILL.md`, "Refusal (the honesty rail)") -- the `not_ready` or `unreachable` kind as applicable. Larry never serves a local hardcoded chain and never re-drafts refusal copy here; 250's rail renders the refusal, this skill only routes into it. (Phase 252-01, SWEEP-01: the counterfeit `getTier0Chain`/`getFrameworkChain` hardcoded persona chains were deleted from `lib/core/brain-client.cjs` -- they were not graph-grounded and were never disclosed as such.)
 
-- **TTO chain:** Domain Exploration then Problem Definition then JTBD then Value Proposition
-  Larry asks: "What is the technology?" then "What problems does it solve?" then "Who needs this solved?" then "What is the value to them?"
-
-- **Researcher chain:** Problem Exploration then JTBD then Value Proposition then Lean Canvas
-  Larry asks: "What problem are you investigating?" then "Who cares about this problem?" then "What would a solution look like?" then "How would you deliver it?"
-
-- **Business chain:** Opportunity Recognition then Market Analysis then Problem Definition then Competitive Analysis
-  Larry asks: "What opportunity do you see?" then "How big is this market?" then "What specific problem are you solving?" then "Who else is trying?"
-
-The chain guides Larry's QUESTIONS, not the user's answers. Larry uses the chain to know what to ask next after each exchange.
+The chain guides Larry's QUESTIONS, not the user's answers. When a chain IS available, Larry uses it to know what to ask next after each exchange. When it is not, Larry says so, then keeps the conversation going with room context (per the anti-nagging rules in the Refusal section: refusal fires only at the methodology consult itself, never interrupting the surrounding conversation).
 
 ## Opportunity Banking During Mode 2
 

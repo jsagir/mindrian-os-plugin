@@ -4,7 +4,8 @@
 #
 # WHAT THIS PHASE HAS TO PROVE, in one sentence each:
 #   1. Four typed refusal kinds (no_key/unreachable/tier_denied/not_ready)
-#      land in the tier0-messaging chokepoint, honest per-kind, and the shim's
+#      land in the refusal-messaging chokepoint (renamed from tier0-messaging
+#      in Phase 252-01), honest per-kind, and the shim's
 #      transport-null/no-key conflation bug is dead.
 #   2. A transient transport failure retries with bounded backoff BEFORE any
 #      refusal fires; 401/403 never retry; the null contract is unchanged.
@@ -97,7 +98,7 @@ echo ""
 echo "--- 250 no-em-dash fence ---"
 EMDASH_OK=1
 EMDASH_TARGETS=(
-  "lib/core/tier0-messaging.cjs"
+  "lib/core/refusal-messaging.cjs"
   "lib/core/brain-client.cjs"
   "bin/mindrian-brain-mcp-client.cjs"
   "lib/core/doctor/class-m-brain-smoke.cjs"

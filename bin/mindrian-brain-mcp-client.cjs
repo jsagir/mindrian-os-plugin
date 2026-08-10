@@ -43,7 +43,7 @@ const { z } = requireWithHeal('zod', { log: healLog });
 
 const brainClient = require('../lib/core/brain-client.cjs');
 const { wrapDirective } = require('../lib/core/directive-envelope.cjs');
-const { tier0Response: chokepointTier0, refusalResponse } = require('../lib/core/tier0-messaging.cjs');
+const { tier0Response: chokepointTier0, refusalResponse } = require('../lib/core/refusal-messaging.cjs');
 
 const pluginRoot = path.resolve(__dirname, '..');
 const pluginMeta = require('../.claude-plugin/plugin.json');
@@ -55,7 +55,8 @@ const version = pluginMeta.version;
 // surface reads a uniform shape regardless of tier.
 //
 // Phase 127-02 BRAIN-MCP-127-09 refactor: this is now a one-line passthrough
-// to the single chokepoint at lib/core/tier0-messaging.cjs. The local symbol
+// to the single chokepoint at lib/core/refusal-messaging.cjs (renamed from
+// tier0-messaging.cjs in Phase 252-01, SWEEP-01). The local symbol
 // is preserved so existing tests + tool closures keep their reference.
 // Delegation property: zero duplicate sentinel-shape definition lives here.
 function tier0Response(commandContext) {

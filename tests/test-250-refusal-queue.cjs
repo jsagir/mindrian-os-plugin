@@ -18,7 +18,7 @@
  *   Test 4: renderRefusal(kind, ctx) returns a non-empty multi-line string
  *     for each of the four kinds; not_ready contains the queue disclosure;
  *     unreachable never contains the no-key reason string.
- *   Test 5 (binding scope guard): zero requires of tier0-messaging refusal
+ *   Test 5 (binding scope guard): zero requires of refusal-messaging refusal
  *     symbols reachable from lib/core/sensors/ or the decide() path (the
  *     249 Pitfall-6 hot-path fence, extended to the refusal seam).
  *
@@ -33,7 +33,7 @@ const path = require('node:path');
 const { test } = require('node:test');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const CHOKEPOINT_PATH = path.join(REPO_ROOT, 'lib', 'core', 'tier0-messaging.cjs');
+const CHOKEPOINT_PATH = path.join(REPO_ROOT, 'lib', 'core', 'refusal-messaging.cjs');
 const QUEUE_RELATIVE = path.join('.mindrian', 'enrichment-queue.json');
 
 function freshChokepoint() {
@@ -157,10 +157,10 @@ test('Test 4: renderRefusal returns a non-empty multi-line string for each kind;
 // ---------------------------------------------------------------------------
 // Test 5: binding scope guard -- no refusal seam reachable from sensors/decide.
 // ---------------------------------------------------------------------------
-test('Test 5 (binding scope guard): zero tier0-messaging requires under lib/core/sensors/ or the decide() path', () => {
+test('Test 5 (binding scope guard): zero refusal-messaging requires under lib/core/sensors/ or the decide() path', () => {
   const sensorsDir = path.join(REPO_ROOT, 'lib', 'core', 'sensors');
   const navigationEngine = path.join(REPO_ROOT, 'lib', 'core', 'navigation-engine.cjs');
-  const requirePattern = /require\(\s*['"][^'"]*tier0-messaging\.cjs['"]\s*\)/;
+  const requirePattern = /require\(\s*['"][^'"]*refusal-messaging\.cjs['"]\s*\)/;
 
   if (fs.existsSync(sensorsDir)) {
     const walk = (dir) => {
@@ -169,7 +169,7 @@ test('Test 5 (binding scope guard): zero tier0-messaging requires under lib/core
         if (entry.isDirectory()) { walk(full); continue; }
         if (!entry.name.endsWith('.cjs') || entry.name.endsWith('.test.cjs')) continue;
         const src = fs.readFileSync(full, 'utf8');
-        assert.ok(!requirePattern.test(src), 'FORBIDDEN tier0-messaging require found in ' + full);
+        assert.ok(!requirePattern.test(src), 'FORBIDDEN refusal-messaging require found in ' + full);
       }
     };
     walk(sensorsDir);
@@ -177,6 +177,6 @@ test('Test 5 (binding scope guard): zero tier0-messaging requires under lib/core
 
   if (fs.existsSync(navigationEngine)) {
     const src = fs.readFileSync(navigationEngine, 'utf8');
-    assert.ok(!requirePattern.test(src), 'FORBIDDEN tier0-messaging require found in lib/core/navigation-engine.cjs');
+    assert.ok(!requirePattern.test(src), 'FORBIDDEN refusal-messaging require found in lib/core/navigation-engine.cjs');
   }
 });

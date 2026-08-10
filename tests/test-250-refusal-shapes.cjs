@@ -5,7 +5,8 @@
  * Phase 250 Plan 01, Task 1 (HONEST-01) -- refusal kind shapes + the shim
  * conflation red proof.
  * ==========================================================================
- * Proves the four typed refusal kinds at the tier0-messaging chokepoint:
+ * Proves the four typed refusal kinds at the refusal-messaging chokepoint
+ * (renamed from tier0-messaging.cjs in Phase 252-01):
  *
  *   1. REFUSAL_KINDS is frozen, exactly the four members, in order.
  *   2. refusalResponse per-kind status mapping (no_key keeps the byte-locked
@@ -37,7 +38,7 @@ const path = require('node:path');
 const { test } = require('node:test');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const CHOKEPOINT_PATH = path.join(REPO_ROOT, 'lib', 'core', 'tier0-messaging.cjs');
+const CHOKEPOINT_PATH = path.join(REPO_ROOT, 'lib', 'core', 'refusal-messaging.cjs');
 const SHIM_PATH = path.join(REPO_ROOT, 'bin', 'mindrian-brain-mcp-client.cjs');
 
 function freshChokepoint() {

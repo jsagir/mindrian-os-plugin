@@ -14,7 +14,7 @@
 #   ../scripts/migrate-brain-mcp-from-http-to-stdio.test.cjs -> Plan 127-01 (migration logic)
 #   ../lib/core/migration-snapshot.test.cjs                 -> Plan 127-01 (snapshot serializer)
 #   ../lib/core/doctor/class-m-brain-smoke.test.cjs         -> Plan 127-02 (5-layer probe)
-#   ../lib/core/tier0-messaging.test.cjs                    -> Plan 127-02 (Tier-0 chokepoint)
+#   ../lib/core/refusal-messaging.test.cjs                  -> Plan 127-02 (Tier-0 chokepoint; renamed 252-01)
 #
 # Phase 127.1 family (server-side substrate swap; Pinecone -> Neo4j HNSW):
 #   127.1-embedding-integrity.test.cjs   -> Plan 127.1-01 produces embedding-manifest.fixture.json
@@ -55,7 +55,7 @@ CJS_SUITES=(
   ../scripts/migrate-brain-mcp-from-http-to-stdio.test.cjs
   ../lib/core/migration-snapshot.test.cjs
   ../lib/core/doctor/class-m-brain-smoke.test.cjs
-  ../lib/core/tier0-messaging.test.cjs
+  ../lib/core/refusal-messaging.test.cjs
   127.1-embedding-integrity.test.cjs
   127.1-index-config.test.cjs
   127.1-query-embedder.test.cjs
