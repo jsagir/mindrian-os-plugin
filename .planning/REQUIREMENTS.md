@@ -77,13 +77,20 @@ methodology that did not come from the Brain, without being told.
 
 ### Phase E -- Cache-aware trigger redesign
 
-- [ ] **CACHE-01**: The real prompt-cache cost of the per-turn NAVIGATION DECISION injection
+- [x] **CACHE-01**: The real prompt-cache cost of the per-turn NAVIGATION DECISION injection
       is MEASURED and filed (tokens, latency, money per session class) before any redesign.
-- [ ] **CACHE-02**: Injection is redesigned stable-prefix/append-only per the measurement
-      (corpus: prompt caching is part_of context engineering; per-turn hook injection is
-      corpus whitespace, so the design rationale is written down as first-party doctrine).
-- [ ] **CACHE-03**: The Brain reach rides the redesigned rail: context triggers the
-      methodology query without breaking the prefix each turn.
+      (DONE 2026-08-10: .planning/phases/251-cache-aware-trigger-redesign/251-CACHE-MEASUREMENT.md.
+      VERDICT: the ep55 prefix-break hypothesis is FALSE for Claude Code - additionalContext
+      lands inside the user turn and EXTENDS the cache; 91-97% hit rates; ~USD 4-7/month real
+      cost. The real per-turn cost is the 7 synchronous UserPromptSubmit hooks' latency.)
+- [ ] **CACHE-02**: RESCOPED per the measurement (navigator-approved 2026-08-10): a hygiene
+      pass, not a re-architecture. (a) suppress-when-unchanged injection (hash vs previous
+      turn), (b) move the invariant skeleton (FIRE-IF-FORK boilerplate, contract line) to
+      SessionStart context, (c) kill the verb-line duplication in the AskUserQuestion payload.
+      Design rationale filed as first-party doctrine (per-turn hook injection remains corpus
+      whitespace).
+- [ ] **CACHE-03**: The Brain reach rides the EXISTING rail (proven cache-safe by CACHE-01)
+      with an explicit block-size budget; no prefix mechanism change.
 
 ### Phase F -- MCP-First fold-in (the local-context half of the loop; absorbed v1.17.0 slot)
 

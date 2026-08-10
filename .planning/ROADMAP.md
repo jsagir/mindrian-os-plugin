@@ -120,16 +120,29 @@ Plans:
 
 **Plans**: TBD
 
-### Phase 251: Cache-Aware Trigger Redesign
+### Phase 251: Cache-Aware Trigger Hygiene (RESCOPED 2026-08-10 per the CACHE-01 measurement)
 
-**Goal**: The rail the loop rides is measured before it is rebuilt: the real prompt-cache cost of the per-turn NAVIGATION DECISION injection is filed as numbers (it predates this milestone and may be a larger live bill than the Render stack), injection is redesigned stable-prefix/append-only, and the Brain reach rides the redesigned rail so context triggers the methodology query without breaking the prefix each turn. The hook layer is corpus whitespace (per-turn hook injection has NO langtalks coverage in either direction), so the design rationale is written down as first-party doctrine. Section 6 of the tier0 handoff binds: there is no always-on skill primitive; the UserPromptSubmit additionalContext rail is the mechanism that exists.
-**Depends on**: Phase 250 for the redesign legs (CACHE-02/03 land after HONEST-01 so the rail carries the honest reach, not the silent one). CACHE-01's measurement is read-only and may start early - any time after Phase 246, in parallel with Phases 247-250.
-**Requirements**: CACHE-01, CACHE-02, CACHE-03
+**Goal**: RESCOPED by navigator ruling 2026-08-10 after CACHE-01 measured the rail: the ep55
+prefix-break hypothesis is FALSE for Claude Code (additionalContext lands inside the user turn
+and EXTENDS the cache; 91-97% measured hit rates; ~USD 4-7/month real cost vs the feared
+hundreds-per-session). Measurement: `.planning/phases/251-cache-aware-trigger-redesign/251-CACHE-MEASUREMENT.md`.
+The phase is now a HYGIENE pass on the proven-safe rail: (a) suppress-when-unchanged injection
+(hash vs previous turn - one measured session emitted 7/7 byte-identical blocks), (b) move the
+invariant skeleton (FIRE-IF-FORK boilerplate, contract line) to SessionStart context for a
+40-60% per-turn cut, (c) kill the verb-line duplication in the AskUserQuestion payload
+(~300 B/block). The design rationale is still filed as first-party doctrine (the hook layer
+remains corpus whitespace). Section 6 of the tier0 handoff still binds: the UserPromptSubmit
+additionalContext rail is the mechanism that exists. Known open gaps carried honestly:
+Desktop/Cowork unmeasured (Tri-Polar), compaction-acceleration needs its own experiment, and
+the REAL felt cost is the 7 synchronous UserPromptSubmit hooks' latency (out of scope here;
+candidate for a future phase).
+**Depends on**: Phase 250 for the hygiene legs (CACHE-02/03 land after HONEST-01 so the rail carries the honest reach, not the silent one). CACHE-01 is DONE (2026-08-10).
+**Requirements**: CACHE-01 (done), CACHE-02 (rescoped), CACHE-03 (rescoped)
 **Success Criteria** (what must be TRUE):
 
-  1. The real prompt-cache cost of the per-turn NAVIGATION DECISION injection is MEASURED and filed as a tracked artifact (tokens, latency, money per session class) BEFORE any redesign merges - the redesign cites the measurement, not the suspicion.
-  2. Injection is redesigned stable-prefix/append-only per the measurement, with the design rationale written as first-party doctrine (prompt caching is part_of context engineering; prefix stability is the rule; the hook layer's corpus whitespace is named).
-  3. The Brain reach rides the redesigned rail: a context trigger fires the methodology query without breaking the prompt prefix each turn, demonstrated by before/after cache behavior on a live session.
+  1. DONE - the cache cost is measured and filed as a tracked artifact; every later change cites the measurement, not the suspicion.
+  2. The three hygiene items land with before/after byte counts recorded: suppress-when-unchanged, skeleton-to-SessionStart, duplication kill.
+  3. The Brain reach rides the existing rail with an explicit block-size budget, and a live-session check confirms cache-read rates stay at or above the measured 91-97% baseline after the Brain reach is added.
 
 **Plans**: TBD
 
