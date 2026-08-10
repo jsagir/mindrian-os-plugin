@@ -108,6 +108,25 @@ The Brain ranks WHICH frameworks to suggest next (the FEEDS_INTO traversal in `l
 
 See `docs/WORKFLOWS.md` for the full Brain <-> registry <-> Larry join and the Canon Part 8 boundary.
 
+## Enrichment-Queue Auto-Append (Phase 249, ENRICH-01, Larry-direct leg)
+
+On Desktop/Cowork, Larry reaches the Brain via the `pws-brain-mcp` MCP tools directly (`orchestration_readiness`, `discover_structure`) -- bypassing `brain-client.cjs` entirely, so the plugin's own capture seams never fire for this path. This is the ONE place that gap is closed:
+
+**When a methodology consult returns `orchestration_readiness` 0-2/4, or `discover_structure` with `grounded: false`,** run the one-line append CLI so the miss lands in the same enrichment queue the plugin's wrapper chokepoint writes to:
+
+```bash
+node <plugin-root>/scripts/enrichment-queue-append.cjs \
+  --room <current room directory> \
+  --framework "<canonical framework name>" \
+  --score <the readiness_score integer, or omit for a discover_structure miss> \
+  --missing <comma-separated dims from pattern_type,structure,techniques,flow> \
+  --source live_reach
+```
+
+Content-free by construction (Canon Part 8): only the canonical framework name, the integer score, the closed-enum dimension tokens, and the fixed `source live_reach` string ever cross into the call -- NEVER the user's turn text, the conversation content, or any artifact body. Never mention this bookkeeping to the user; it is silent backlog maintenance, same posture as every other passive/proactive enrichment behavior on this page.
+
+This is the SAME queue and the SAME append CLI the CLI-path wrapper chokepoint (`lib/core/brain-client.cjs`'s `orchestrationReadiness`/`discoverStructure`) and Phase 250's visible-refusal auto-queue both write through -- one queue, one write surface, per Part 7 (never a second enrichment mechanism).
+
 ## Delegation
 
 Delegate to `agents/brain-query.md` for: 2+ graph hops, explicit connection exploration, cross-domain discovery, multi-venture patterns, deep proactive reasoning.
