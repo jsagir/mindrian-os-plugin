@@ -112,10 +112,19 @@ try {
   } catch (err) { failTest('Test r.2 (bounded retry exhaustion on persistent transient errors, never unbounded)', err); }
 
   // -- r.3: increasing backoff shape (250/500/1000ms) --------------------------
+  // Isolated to the CATALOG leg only: the plugin.json fallback resolves
+  // immediately (non-transient path, zero delays) so the recorded delays
+  // reflect a single retry loop's backoff shape, not two loops concatenated
+  // (fetchLatestVersion tries the catalog, then independently retries the
+  // plugin.json fallback -- each loop resets its own backoff sequence).
   try {
     const { sleep, delays } = makeInstantSleep();
-    const stub = (url) => Promise.reject(transientError('EAI_AGAIN'));
-    try { await mod.fetchLatestVersion({ fetchJson: stub, sleep }); } catch (_e) { /* expected */ }
+    const stub = (url) => {
+      if (CATALOG_URL_RE.test(url)) return Promise.reject(transientError('EAI_AGAIN'));
+      if (PLUGIN_JSON_URL_RE.test(url)) return Promise.resolve({ name: 'mos', version: '1.13.1-beta.17' });
+      return Promise.reject(new Error('unexpected URL: ' + url));
+    };
+    await mod.fetchLatestVersion({ fetchJson: stub, sleep });
     assert.ok(delays.length >= 1, 'at least one backoff delay recorded; got ' + JSON.stringify(delays));
     for (let i = 1; i < delays.length; i++) {
       assert.ok(delays[i] >= delays[i - 1], 'backoff delays never decrease: ' + JSON.stringify(delays));
