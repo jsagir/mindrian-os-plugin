@@ -4,17 +4,65 @@ milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
 stopped_at: "Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green"
-last_updated: "2026-08-10T14:45:00.000Z"
-last_activity: 2026-08-10 -- Phase 248 Plan 01 (MCP-First Room Resolution, nine-copy collapse) complete
+last_updated: "2026-08-10T14:58:00.000Z"
+last_activity: 2026-08-10 -- Phase 247 Plan 02 (Brain Surface Contract, plugin client) complete
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
-  percent: 71
+  completed_plans: 6
+  percent: 86
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 247 PLAN 02 COMPLETE -- Brain Surface Contract: plugin client, CONTRACT-01 done
+
+- **Position:** Phase 247 (Brain Surface Contract) Plan 02 is complete, 3/3 tasks, fully
+  autonomous (no checkpoints). This is the PLUGIN-SIDE half of CONTRACT-01: vendored
+  `data/brain-surface-contract.json` + `docs/BRAIN-SURFACE-CONTRACT.md` (the v1 contract, 6
+  loop tools, 2 retired_remote, error semantics, index dispositions), a `tier_denied` 403
+  sentinel in `lib/core/brain-client.cjs` callTool (mirrors the existing `invalid_key` 401
+  precedent -- 403 no longer collapses into the transport-failure `null`), 5 new loop-tool
+  read wrappers, and both hermetic conformance legs (client fixture + 403 sentinel), each
+  with a demonstrated red proof. Ran the full TDD RED -> GREEN cycle for Task 2 (commits
+  `711a60af` test, `f0878a09` feat), plus an additional live sabotage-and-restore red proof
+  on the committed code.
+
+- **Requirement CONTRACT-01 marked complete** in REQUIREMENTS.md (this plan's declared
+  requirement per its frontmatter). Note the nuance: the brain-repo-side conformance leg 1
+  (the server self-test) is NOT part of this plan -- it is separate work, not yet confirmed
+  landed. This plan closes the CLIENT half only: vendored contract + client fixture test +
+  live probe script authored and ready.
+
+- **Auto-fixed during the Task 2 consumer audit (Rule 1, bug):** `schema()` was caching ANY
+  non-null `callTool` result -- including a sentinel object -- as valid schema data for its
+  30-minute TTL. A single 403 or 401 would have poisoned the cache with a denial, served to
+  every caller for up to half an hour after the Brain recovered. Fixed to skip caching when
+  the result carries `.error`. This also silently fixed the same latent bug for the
+  pre-existing `invalid_key` sentinel, not just the new `tier_denied` one.
+
+- **Live probe script executed once this session (read-tier key only, per the orchestrator's
+  explicit constraint permitting it)** to validate it correctly detects real drift, NOT as
+  247-03's required live gate. Results: legs (a) tools/list coverage and (c) brain_query 403
+  PASS; legs (b) both retired-tool 403 checks, (d) brain_search path-leak check, and (e)
+  brain_stats index-disposition check FAIL -- all four failures are EXPECTED and match
+  247-01's summary exactly: the reconciled brain-repo fixes (6 commits) are local and
+  unpushed, so Render still serves the pre-reconciliation surface. This is the probe
+  correctly catching "fixed in git, stale on Render," the exact failure mode conformance leg
+  3 exists to catch.
+
+- **Full detail, wrapper list, per-leg live evidence, and both red-proof runs:**
+  `.planning/phases/247-brain-surface-contract/247-02-SUMMARY.md`.
+
+- **NEXT:** 247-03 owns pushing the 6 reconciled brain-repo commits from 247-01, the
+  operator checkpoint (framework-field coverage measurement, `brain_ask_anything` retirement
+  decision, the 7 index drops with a snapshot), the Render redeploy, and re-running
+  `scripts/probe-brain-contract.cjs` from this repo until every leg is PASS -- exactly the
+  legs that failed in this session's validation run. Phase 249 (enrichment) now has a
+  contracted, sentinel-honest client path to all 6 loop tools via the 5 new wrappers plus
+  `stats()`. The pre-existing Phase 246 Plan 01 Task 2 operator checkpoint (LOOP-01 live
+  Brain test) remains open and unrelated -- not touched or resolved by this plan.
 
 ## (2026-08-10) -- PHASE 248 PLAN 01 COMPLETE -- MCP-First Room Resolution: nine-copy collapse, CTX-01 done, CTX-02 mechanism half done
 

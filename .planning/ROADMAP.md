@@ -180,7 +180,7 @@ candidate for a future phase).
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 246. Live Verification + Graph Census | 0/2 | Not started | - |
-| 247. Brain Surface Contract | 1/3 | In Progress|  |
+| 247. Brain Surface Contract | 2/3 | In Progress|  |
 | 248. MCP-First Room Resolution | 1/2 | In Progress | - |
 | 249. Context-Driven Enrichment | 0/TBD | Not started | - |
 | 250. Honesty Rail + Doctrine Amendment | 0/TBD | Not started | - |
