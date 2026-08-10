@@ -57,6 +57,15 @@ methodology that did not come from the Brain, without being told.
       brain repo's own rule (rebuild with the model that built them, or drop with proof
       nothing reads them); an e5-dimension guard exists at index creation.
 
+- [ ] **CONTRACT-05** (navigator ruling 2026-08-10, from the brain-service audit): a BOUNDED
+      READ TIER exposes raw read-only Cypher on the public surface WITHOUT admin - every
+      statement wrapped by boundReadStatement + enforceMoat (row/byte/timeout caps, write
+      rejection) on a public read key; brain_write stays stdio-only. This replaces the
+      nonexistent admin-key path and unblocks Lane B, the alias-collapse ceremony, and the
+      atomic-query architecture. The audit's moat-cap findings fold in: revive or delete the
+      dead BRAIN_CYPHER_MAX_ESTIMATED_ROWS config, split the double-duty timeout var, give the
+      byte cap a pre-execution arm.
+
 ### Phase C -- Context-driven enrichment (never bulk)
 
 - [x] **ENRICH-01**: When a live reach triggers a framework whose orchestration_readiness is

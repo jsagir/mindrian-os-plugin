@@ -183,10 +183,10 @@ candidate for a future phase).
 | 247. Brain Surface Contract | 2/3 | In Progress|  |
 | 248. MCP-First Room Resolution | 1/2 | In Progress | - |
 | 249. Context-Driven Enrichment | 2/3 | In Progress|  |
-| 250. Honesty Rail + Doctrine Amendment | 0/TBD | Not started | - |
+| 250. Honesty Rail + Doctrine Amendment | 1/4 | In Progress|  |
 | 251. Cache-Aware Trigger Redesign | 0/TBD | Not started | - |
 | 252. Guard Sweep | 0/TBD | Not started | - |
 
-**Coverage:** 22/22 v2.0.0 requirements mapped (LOOP-01..02 -> 246; CONTRACT-01..04 -> 247; CTX-01..03 -> 248; ENRICH-01..04 -> 249; HONEST-01..03 -> 250; CACHE-01..03 -> 251; SWEEP-01..03 -> 252; AVAIL-01..03 added by navigator ruling 2026-08-10 "always accessible": AVAIL-01 synthetic probe + out-of-band alerting -> 247-03's ceremony schedules it (the probe script already exists from 247-02), AVAIL-02 retry-before-refuse -> 250's refusal rail, AVAIL-03 spin-down/restore verification -> 247-03's ceremony). No orphans, no duplicates. Requirement source: `.planning/REQUIREMENTS.md` Traceability.
+**Coverage:** 23/23 v2.0.0 requirements mapped (CONTRACT-05 bounded read tier added by navigator ruling 2026-08-10 from the brain-service audit -> 247 server-side work, gating Lane B + the 249-03 ceremony; LOOP-01..02 -> 246; CONTRACT-01..04 -> 247; CTX-01..03 -> 248; ENRICH-01..04 -> 249; HONEST-01..03 -> 250; CACHE-01..03 -> 251; SWEEP-01..03 -> 252; AVAIL-01..03 added by navigator ruling 2026-08-10 "always accessible": AVAIL-01 synthetic probe + out-of-band alerting -> 247-03's ceremony schedules it (the probe script already exists from 247-02), AVAIL-02 retry-before-refuse -> 250's refusal rail, AVAIL-03 spin-down/restore verification -> 247-03's ceremony). No orphans, no duplicates. Requirement source: `.planning/REQUIREMENTS.md` Traceability.
 
 **Hygiene items (schedulable inside any phase, not requirements of the loop):** suspend the old `mindrian-brain` Render service + delete the dead `~/.claude.json` entry; file the upstream Claude Code `updatedToolOutput` bug report. Both carried from the handoffs, still open.
