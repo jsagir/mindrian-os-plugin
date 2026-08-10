@@ -183,7 +183,7 @@ candidate for a future phase).
 | 247. Brain Surface Contract | 2/3 | In Progress|  |
 | 248. MCP-First Room Resolution | 1/2 | In Progress | - |
 | 249. Context-Driven Enrichment | 2/3 | In Progress|  |
-| 250. Honesty Rail + Doctrine Amendment | 1/4 | In Progress|  |
+| 250. Honesty Rail + Doctrine Amendment | 3/4 | In Progress|  |
 | 251. Cache-Aware Trigger Redesign | 1/2 | In Progress|  |
 | 252. Guard Sweep | 0/TBD | Not started | - |
 

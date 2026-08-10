@@ -107,6 +107,12 @@ methodology that did not come from the Brain, without being told.
       works), with WAF hardening and the threat model in docs/BRAIN-IDENTITY-DESIGN.md. The
       no_key refusal remains for the failure edge, expected to become rare, never the default
       experience.
+      PROVENANCE LEG DONE (Plan 250-03, 2026-08-10): skills/brain-connector/SKILL.md's
+      "## Provenance" section ships in source + both dist mirrors (■ BRAIN mark,
+      absence-is-the-signal, disclosed partial marking, tier0-chain disclosure,
+      anti-nagging); the live collision guard proves ■ U+25A0 is invisible to
+      countDeStijlGlyphs. Still open: SEED-011's silent-registration behavior (Plan 250-04)
+      -- this requirement stays unchecked until both legs land.
 
 ### Phase E -- Cache-aware trigger redesign
 

@@ -4,17 +4,58 @@ milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
 stopped_at: Completed 250-01-PLAN.md
-last_updated: "2026-08-10T17:20:04.011Z"
+last_updated: "2026-08-10T17:28:05.623Z"
 last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 16
-  completed_plans: 10
+  completed_plans: 12
   percent: 29
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 250 PLAN 03 COMPLETE -- Provenance contract: SKILL.md section, live collision guard, dist rebuild, HONEST-03 provenance leg done
+
+- **Position:** Phase 250 (Honesty Rail + Doctrine Amendment) Plan 03 is COMPLETE, 1/1
+  task, fully autonomous (no checkpoints). The "## Provenance (where methodology came
+  from)" section landed in `skills/brain-connector/SKILL.md` and both dist mirrors: the
+  terminal/Cowork mark form (`■ BRAIN: <framework> · <tool> · readiness <N>/4`), the
+  Desktop bold-markdown degrade form, the disclosed partial form
+  (`■ BRAIN (partial): ...`), absence-is-the-signal (mirroring the voice-color-mark
+  design), the `source:'tier0'` not-graph-grounded/refuses rule, the one-line-per-answer
+  anti-nagging rule, the HTML-export rule, and the font caveat. No new glyph, no sixth
+  color -- reuses the existing `[■ BRAIN]` chip vocabulary.
+
+- **Live collision guard:** `tests/test-250-provenance-fence.cjs` Test 3 requires the real
+  `lib/hmi/voice-color-mark.cjs` and calls the real `countDeStijlGlyphs` on a sample turn
+  carrying one legitimate voice-color glyph plus a trailing `■ BRAIN: ...` line -- count
+  stays exactly 1, proving `■` U+25A0 is invisible to the frozen 5-glyph detector.
+
+- **Deviation (Rule 3, disclosed):** `countDeStijlGlyphs` was implemented and used
+  internally by `detectVoiceMark` but never appeared in `lib/hmi/voice-color-mark.cjs`'s
+  `module.exports` -- the plan's own Test 3 spec requires calling it live via `require()`.
+  Exported it (zero logic change, zero new glyph/color); verified zero regression across
+  all four existing voice-mark test suites.
+
+- **Requirements:** HONEST-03's provenance-contract leg is done. The SEED-011 key-ceremony
+  half of HONEST-03 rides Plan 250-04, not this plan.
+
+- **Commit this session:** `7720bc90` (feat, Task 1: provenance contract - SKILL.md
+  section + collision guard + dist rebuild).
+
+- **Full detail, RED proof, verbatim section text, gate results, and deviations:**
+  `.planning/phases/250-honesty-rail-doctrine-amendment/250-03-SUMMARY.md`.
+
+- **Shared-checkout note:** a parallel executor (251-01, Cache-Aware Trigger Redesign)
+  worked concurrently in this same non-worktree checkout; commit `7720bc90` was staged and
+  committed with a targeted `git add` of only this plan's 7 files (verified via
+  `git status` immediately before commit and `git diff --diff-filter=D` immediately after
+  -- zero unintended files, zero unintended deletions). Per the established defensive
+  pattern for this shared checkout, this entry is a MANUAL ADDITIVE LOG APPEND; frontmatter
+  progress counters were left to the `state.update-progress` command's own output rather
+  than hand-edited here.
 
 ## (2026-08-10) -- PHASE 251 PLAN 01 COMPLETE -- CACHE-02 hygiene pass: suppress-when-unchanged, skeleton-to-SessionStart, payload dedup
 
