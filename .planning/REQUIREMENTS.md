@@ -56,9 +56,12 @@ methodology that did not come from the Brain, without being told.
       (normalize_framework_name, search, discover_structure, orchestration_readiness,
       feeds_into_chains, brain_stats for health) in both repos, with a conformance test.
 
-- [ ] **CONTRACT-02**: The two server-side-LLM tools (brain_ask_anything, text2cypher) are
+- [x] **CONTRACT-02**: The two server-side-LLM tools (brain_ask_anything, text2cypher) are
       retired from the remote surface OR shipped with a working sidecar; the decision is
       recorded. Reasoning belongs to Larry, not the Brain.
+      (CLOSED 2026-08-11: text2cypher withheld since 247-01; brain_ask_anything retired from
+      the READ_TOOLS allowlist on deployed brain HEAD - verified in src/http/auth.mjs live.
+      Both stay registered over stdio. The vendored contract declared retired_remote all along.)
 
 - [x] **CONTRACT-03**: search metadata stops leaking local filesystem paths (source_file) into
       served responses; framework metadata field populated or removed from the payload.
