@@ -97,7 +97,9 @@
       }
     },
     "key_tier_lane_a": "read",
-    "lane_a_source": "render-live ungated read tools"
+    "lane_a_source": "render-live ungated read tools",
+    "key_tier_lane_b": "admin",
+    "lane_b_source": "render-live"
   },
   "canon_discrepancy": {
     "canon_prose_count": 25,
@@ -2147,5 +2149,469 @@
         }
       }
     ]
+  },
+  "lane_b": {
+    "results": {
+      "C1": {
+        "frameworks": 181
+      },
+      "C2": [
+        {
+          "edges": 21,
+          "frameworks_with_t": 4,
+          "t": "HAS_STAGE"
+        },
+        {
+          "edges": 93,
+          "frameworks_with_t": 18,
+          "t": "HAS_PROCESS_STEP"
+        },
+        {
+          "edges": 52,
+          "frameworks_with_t": 12,
+          "t": "HAS_STEP"
+        },
+        {
+          "edges": 90,
+          "frameworks_with_t": 20,
+          "t": "HAS_PHASE"
+        }
+      ],
+      "C3": {
+        "structured_frameworks": 52
+      },
+      "C4": {
+        "feeds_into": 233,
+        "leads_to": 1698,
+        "alias_of": 416
+      },
+      "C5": [
+        {
+          "label": "MethodologyChunk",
+          "c": 12401
+        },
+        {
+          "label": "Concept",
+          "c": 9257
+        },
+        {
+          "label": "__Entity__",
+          "c": 4357
+        },
+        {
+          "label": "Product",
+          "c": 1289
+        },
+        {
+          "label": "Chunk",
+          "c": 1167
+        },
+        {
+          "label": "Event",
+          "c": 1014
+        },
+        {
+          "label": "ProcessStep",
+          "c": 705
+        },
+        {
+          "label": "Person",
+          "c": 626
+        },
+        {
+          "label": "Archived",
+          "c": 602
+        },
+        {
+          "label": "Technique",
+          "c": 305
+        },
+        {
+          "label": "Document",
+          "c": 283
+        },
+        {
+          "label": "DictionaryTerm",
+          "c": 264
+        },
+        {
+          "label": "Organization",
+          "c": 186
+        },
+        {
+          "label": "Framework",
+          "c": 181
+        },
+        {
+          "label": "Book",
+          "c": 176
+        },
+        {
+          "label": "CreativeWork",
+          "c": 138
+        },
+        {
+          "label": "Phase",
+          "c": 123
+        },
+        {
+          "label": "MindrianCommand",
+          "c": 112
+        },
+        {
+          "label": "Command",
+          "c": 103
+        },
+        {
+          "label": "Example",
+          "c": 103
+        },
+        {
+          "label": "Tool",
+          "c": 102
+        },
+        {
+          "label": "Method",
+          "c": 101
+        },
+        {
+          "label": "Stage",
+          "c": 74
+        },
+        {
+          "label": "CaseStudy",
+          "c": 72
+        },
+        {
+          "label": "Room",
+          "c": 52
+        },
+        {
+          "label": "ModeTrigger",
+          "c": 43
+        },
+        {
+          "label": "CorePrinciple",
+          "c": 31
+        },
+        {
+          "label": "ProblemType",
+          "c": 26
+        },
+        {
+          "label": "Phrase",
+          "c": 25
+        },
+        {
+          "label": "Course",
+          "c": 23
+        },
+        {
+          "label": "Quote",
+          "c": 18
+        },
+        {
+          "label": "FrameworkStep",
+          "c": 15
+        },
+        {
+          "label": "Insight",
+          "c": 13
+        },
+        {
+          "label": "DataRoomSection",
+          "c": 13
+        },
+        {
+          "label": "Question",
+          "c": 8
+        },
+        {
+          "label": "Problem",
+          "c": 7
+        },
+        {
+          "label": "Reach",
+          "c": 6
+        },
+        {
+          "label": "WorthinessCriteria",
+          "c": 5
+        },
+        {
+          "label": "ValidationTool",
+          "c": 5
+        },
+        {
+          "label": "Analogy",
+          "c": 5
+        },
+        {
+          "label": "Mode",
+          "c": 5
+        },
+        {
+          "label": "AssessmentComponent",
+          "c": 5
+        },
+        {
+          "label": "InnovationStage",
+          "c": 5
+        },
+        {
+          "label": "DialPhase",
+          "c": 5
+        },
+        {
+          "label": "PyramidLevel",
+          "c": 5
+        },
+        {
+          "label": "Principle",
+          "c": 4
+        },
+        {
+          "label": "GradeBand",
+          "c": 4
+        },
+        {
+          "label": "Persona",
+          "c": 3
+        },
+        {
+          "label": "Lecture",
+          "c": 2
+        },
+        {
+          "label": "GraphRagMeta",
+          "c": 1
+        }
+      ],
+      "C6": [
+        {
+          "t": "MENTIONED_IN",
+          "c": 10256
+        },
+        {
+          "t": "RELATES_TO",
+          "c": 3568
+        },
+        {
+          "t": "LEADS_TO",
+          "c": 1698
+        },
+        {
+          "t": "PART_OF",
+          "c": 1688
+        },
+        {
+          "t": "MENTIONS",
+          "c": 1636
+        },
+        {
+          "t": "RELATED_TO",
+          "c": 664
+        },
+        {
+          "t": "ALIAS_OF",
+          "c": 416
+        },
+        {
+          "t": "ADDRESSES_PROBLEM_TYPE",
+          "c": 317
+        },
+        {
+          "t": "ENABLES",
+          "c": 295
+        },
+        {
+          "t": "USES_TECHNIQUE",
+          "c": 286
+        },
+        {
+          "t": "FEEDS_INTO",
+          "c": 233
+        },
+        {
+          "t": "HAS_STEP",
+          "c": 223
+        },
+        {
+          "t": "USES_TOOL",
+          "c": 184
+        },
+        {
+          "t": "COMPLEMENTS",
+          "c": 176
+        },
+        {
+          "t": "SHARES_THEME",
+          "c": 166
+        },
+        {
+          "t": "AUTHORED_BY",
+          "c": 114
+        },
+        {
+          "t": "HAS_PROCESS_STEP",
+          "c": 104
+        },
+        {
+          "t": "HAS_PHASE",
+          "c": 90
+        },
+        {
+          "t": "USES_FRAMEWORK",
+          "c": 86
+        },
+        {
+          "t": "PREREQUISITE",
+          "c": 73
+        },
+        {
+          "t": "TEACHES",
+          "c": 68
+        },
+        {
+          "t": "ILLUSTRATES",
+          "c": 57
+        },
+        {
+          "t": "HAS_STAGE",
+          "c": 55
+        },
+        {
+          "t": "CONTAINS",
+          "c": 53
+        },
+        {
+          "t": "REPLACED_BY",
+          "c": 52
+        },
+        {
+          "t": "APPLIED_IN_STAGE",
+          "c": 49
+        },
+        {
+          "t": "REVEALS",
+          "c": 44
+        },
+        {
+          "t": "SNAPS_TO",
+          "c": 43
+        },
+        {
+          "t": "INVOLVES",
+          "c": 35
+        },
+        {
+          "t": "HAS_EXAMPLE",
+          "c": 35
+        },
+        {
+          "t": "APPLIED_IN",
+          "c": 33
+        },
+        {
+          "t": "DEFINES",
+          "c": 28
+        },
+        {
+          "t": "AUTHORED",
+          "c": 23
+        },
+        {
+          "t": "EQUIPS_WITH",
+          "c": 20
+        },
+        {
+          "t": "APPLIED_FRAMEWORK",
+          "c": 18
+        },
+        {
+          "t": "VOICES",
+          "c": 18
+        },
+        {
+          "t": "LOOPS_TO",
+          "c": 17
+        },
+        {
+          "t": "VALIDATES",
+          "c": 12
+        },
+        {
+          "t": "CROSS_DOMAIN_ANALOGUE",
+          "c": 7
+        },
+        {
+          "t": "MOTIVATES",
+          "c": 7
+        },
+        {
+          "t": "INSTANCE_OF",
+          "c": 7
+        },
+        {
+          "t": "INTRODUCES",
+          "c": 7
+        },
+        {
+          "t": "CONTRASTS_WITH",
+          "c": 6
+        },
+        {
+          "t": "MEASURES",
+          "c": 5
+        },
+        {
+          "t": "EXTENDS",
+          "c": 5
+        },
+        {
+          "t": "TRANSFORMS_OUTPUT_TO",
+          "c": 5
+        },
+        {
+          "t": "IMPLEMENTED_AS",
+          "c": 5
+        },
+        {
+          "t": "IDENTIFIED",
+          "c": 4
+        },
+        {
+          "t": "STARTS_AT",
+          "c": 4
+        },
+        {
+          "t": "HAS_METHOD",
+          "c": 4
+        }
+      ],
+      "C7": [],
+      "C8": [],
+      "C9": [
+        {
+          "f.name": "Theory of Jobs to Be Done"
+        },
+        {
+          "f.name": "PWS-JTBD Innovation Discovery Framework"
+        },
+        {
+          "f.name": "Jobs to Be Done"
+        },
+        {
+          "f.name": "Jobs to Be Done (JTBD)"
+        },
+        {
+          "f.name": "JTBD"
+        }
+      ]
+    },
+    "lane_b_source": "render-live",
+    "key_tier_lane_b": "admin",
+    "drift_caveat": false,
+    "used_c2_fallback": false
   }
 }

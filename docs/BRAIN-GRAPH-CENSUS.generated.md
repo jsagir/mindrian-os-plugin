@@ -15,8 +15,8 @@
 | brain_stats vectorIndexes | 9 |
 | Lane A key tier | read |
 | Lane A source | render-live ungated read tools |
-| Lane B key tier | n/a |
-| Lane B source | n/a |
+| Lane B key tier | admin |
+| Lane B source | render-live |
 
 ## Canon count discrepancy (recorded, not resolved)
 
@@ -24,7 +24,148 @@ Canon prose says "the 25 methodology commands". The dated frontmatter scan of co
 
 ## Lane B aggregates
 
-PENDING - Lane B aggregate Cypher not yet run (admin key not supplied as of 2026-08-10); Lane A below is complete and citable.
+**C1 Framework totals:** 181 Framework nodes.
+
+**C2/C3 HAS_* structure coverage (grouped alternation):**
+
+| Edge type | Edges | Frameworks with edge |
+| --------- | ----- | --------------------- |
+| HAS_STAGE | 21 | 4 |
+| HAS_PROCESS_STEP | 93 | 18 |
+| HAS_STEP | 52 | 12 |
+| HAS_PHASE | 90 | 20 |
+
+C3 distinct frameworks with any structure: 52.
+
+**C4 flow edge counts:** FEEDS_INTO=233, LEADS_TO=1698, ALIAS_OF=416.
+
+**C5 label census** (nodes carry up to 6 labels, so label counts sum to MORE than the node count - the honest UNWIND form):
+
+| Label | Count |
+| ----- | ----- |
+| MethodologyChunk | 12401 |
+| Concept | 9257 |
+| __Entity__ | 4357 |
+| Product | 1289 |
+| Chunk | 1167 |
+| Event | 1014 |
+| ProcessStep | 705 |
+| Person | 626 |
+| Archived | 602 |
+| Technique | 305 |
+| Document | 283 |
+| DictionaryTerm | 264 |
+| Organization | 186 |
+| Framework | 181 |
+| Book | 176 |
+| CreativeWork | 138 |
+| Phase | 123 |
+| MindrianCommand | 112 |
+| Command | 103 |
+| Example | 103 |
+| Tool | 102 |
+| Method | 101 |
+| Stage | 74 |
+| CaseStudy | 72 |
+| Room | 52 |
+| ModeTrigger | 43 |
+| CorePrinciple | 31 |
+| ProblemType | 26 |
+| Phrase | 25 |
+| Course | 23 |
+| Quote | 18 |
+| FrameworkStep | 15 |
+| Insight | 13 |
+| DataRoomSection | 13 |
+| Question | 8 |
+| Problem | 7 |
+| Reach | 6 |
+| WorthinessCriteria | 5 |
+| ValidationTool | 5 |
+| Analogy | 5 |
+| Mode | 5 |
+| AssessmentComponent | 5 |
+| InnovationStage | 5 |
+| DialPhase | 5 |
+| PyramidLevel | 5 |
+| Principle | 4 |
+| GradeBand | 4 |
+| Persona | 3 |
+| Lecture | 2 |
+| GraphRagMeta | 1 |
+
+**C6 relationship-type census:**
+
+| Relationship type | Count |
+| ------------------ | ----- |
+| MENTIONED_IN | 10256 |
+| RELATES_TO | 3568 |
+| LEADS_TO | 1698 |
+| PART_OF | 1688 |
+| MENTIONS | 1636 |
+| RELATED_TO | 664 |
+| ALIAS_OF | 416 |
+| ADDRESSES_PROBLEM_TYPE | 317 |
+| ENABLES | 295 |
+| USES_TECHNIQUE | 286 |
+| FEEDS_INTO | 233 |
+| HAS_STEP | 223 |
+| USES_TOOL | 184 |
+| COMPLEMENTS | 176 |
+| SHARES_THEME | 166 |
+| AUTHORED_BY | 114 |
+| HAS_PROCESS_STEP | 104 |
+| HAS_PHASE | 90 |
+| USES_FRAMEWORK | 86 |
+| PREREQUISITE | 73 |
+| TEACHES | 68 |
+| ILLUSTRATES | 57 |
+| HAS_STAGE | 55 |
+| CONTAINS | 53 |
+| REPLACED_BY | 52 |
+| APPLIED_IN_STAGE | 49 |
+| REVEALS | 44 |
+| SNAPS_TO | 43 |
+| INVOLVES | 35 |
+| HAS_EXAMPLE | 35 |
+| APPLIED_IN | 33 |
+| DEFINES | 28 |
+| AUTHORED | 23 |
+| EQUIPS_WITH | 20 |
+| APPLIED_FRAMEWORK | 18 |
+| VOICES | 18 |
+| LOOPS_TO | 17 |
+| VALIDATES | 12 |
+| CROSS_DOMAIN_ANALOGUE | 7 |
+| MOTIVATES | 7 |
+| INSTANCE_OF | 7 |
+| INTRODUCES | 7 |
+| CONTRASTS_WITH | 6 |
+| MEASURES | 5 |
+| EXTENDS | 5 |
+| TRANSFORMS_OUTPUT_TO | 5 |
+| IMPLEMENTED_AS | 5 |
+| IDENTIFIED | 4 |
+| STARTS_AT | 4 |
+| HAS_METHOD | 4 |
+
+**C7 duplicate-name scan:**
+
+No duplicate Framework names found.
+
+**C8 named-absence probes (TRIZ/SCAMPER/Five Whys):**
+
+Zero rows returned - TRIZ, SCAMPER, and Five Whys are absent as Framework nodes.
+
+**C9 JTBD alias enumeration:**
+
+| Name |
+| ---- |
+| Theory of Jobs to Be Done |
+| PWS-JTBD Innovation Discovery Framework |
+| Jobs to Be Done |
+| Jobs to Be Done (JTBD) |
+| JTBD |
 
 ## Lane A per-framework census
 
