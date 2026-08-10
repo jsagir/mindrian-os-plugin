@@ -246,9 +246,80 @@ try {
   pass('Test 7 (missing bridge file -> graceful)');
 } catch (e) { failTest('Test 7 (missing bridge file -> graceful)', e); }
 
+// ---------------------------------------------------------------------------
+// RCA statusline-context-pct-stale-post-compact (2026-07-28) -- Tri-Polar gap.
+//
+// The bridge file is ONLY rewritten by a CLI statusline render. Desktop and
+// Cowork have no statusline primitive, so this echo used to render whatever the
+// last CLI session in the workspace left on disk, with no freshness check at all
+// -- a context percentage from a DIFFERENT conversation, arbitrarily old. The
+// record already carried a `timestamp` written for exactly this purpose; nothing
+// read it. Past the freshness bound the honest '-' placeholder renders instead.
+// ---------------------------------------------------------------------------
+
+function setStaleBridge(tmp, room, ctxPct, ageSeconds) {
+  const hash = crypto.createHash('md5').update(room).digest('hex').slice(0, 8);
+  const bridgeFile = path.join(tmp, '.mindrian', 'bridge', hash + '.json');
+  fs.writeFileSync(bridgeFile, JSON.stringify({
+    model_id: 'claude-sonnet-4-5',
+    model_name: 'Sonnet',
+    ctx_pct: ctxPct,
+    ctx_remaining: 100 - ctxPct,
+    ctx_size: 200000,
+    timestamp: Math.floor(Date.now() / 1000) - ageSeconds,
+  }));
+}
+
+// Test 8: a day-old bridge value never renders as this session's context.
+try {
+  const ctx = makeRoom();
+  setOperator(ctx.room, 'BUILD_ROOM');
+  setJtbd(ctx.room, 'find-bottleneck');
+  setStaleBridge(ctx.tmp, ctx.room, 93, 24 * 3600); // 24h old, pre-compact-shaped
+  const r = run(ctx.tmp, ctx.room, 'DESKTOP');
+  assert.strictEqual(r.status, 0, 'exit 0; stderr=' + r.stderr);
+  const echo = JSON.parse(r.stdout || '{}').hookSpecificOutput.additionalContext;
+  assert.ok(!/context: 93%/.test(echo), 'stale pct must NOT render; got: ' + echo);
+  assert.match(echo, /context: -/, 'renders the honest placeholder; got: ' + echo);
+  rm(ctx.tmp);
+  pass('Test 8 (stale bridge -> honest placeholder, not a stale pct)');
+} catch (e) { failTest('Test 8 (stale bridge -> honest placeholder, not a stale pct)', e); }
+
+// Test 9: a bridge with no timestamp at all cannot be trusted either.
+try {
+  const ctx = makeRoom();
+  setOperator(ctx.room, 'BUILD_ROOM');
+  setJtbd(ctx.room, 'find-bottleneck');
+  const hash = crypto.createHash('md5').update(ctx.room).digest('hex').slice(0, 8);
+  fs.writeFileSync(
+    path.join(ctx.tmp, '.mindrian', 'bridge', hash + '.json'),
+    JSON.stringify({ model_id: 'x', model_name: 'x', ctx_pct: 77, ctx_size: 200000 })
+  );
+  const r = run(ctx.tmp, ctx.room, 'DESKTOP');
+  assert.strictEqual(r.status, 0, 'exit 0; stderr=' + r.stderr);
+  const echo = JSON.parse(r.stdout || '{}').hookSpecificOutput.additionalContext;
+  assert.ok(!/context: 77%/.test(echo), 'undateable pct must NOT render; got: ' + echo);
+  rm(ctx.tmp);
+  pass('Test 9 (bridge without a timestamp -> not trusted)');
+} catch (e) { failTest('Test 9 (bridge without a timestamp -> not trusted)', e); }
+
+// Test 10: a FRESH bridge still renders (the gate is not over-tight).
+try {
+  const ctx = makeRoom();
+  setOperator(ctx.room, 'BUILD_ROOM');
+  setJtbd(ctx.room, 'find-bottleneck');
+  setStaleBridge(ctx.tmp, ctx.room, 41, 60); // 1 minute old
+  const r = run(ctx.tmp, ctx.room, 'DESKTOP');
+  assert.strictEqual(r.status, 0, 'exit 0; stderr=' + r.stderr);
+  const echo = JSON.parse(r.stdout || '{}').hookSpecificOutput.additionalContext;
+  assert.match(echo, /context: 41%/, 'a fresh pct still renders; got: ' + echo);
+  rm(ctx.tmp);
+  pass('Test 10 (fresh bridge still renders)');
+} catch (e) { failTest('Test 10 (fresh bridge still renders)', e); }
+
 if (failed > 0) {
   console.log('\n' + failed + ' test(s) FAILED');
   process.exit(1);
 }
-console.log('\nAll 7 tests PASS');
+console.log('\nAll 10 tests PASS');
 process.exit(0);

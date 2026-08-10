@@ -173,7 +173,7 @@ ok('bucket-1d: null-after-/compact used_percentage falls through to the estimate
   // current_usage null -> used_percentage null; remaining still present -> estimate.
   const r = ctxWindow.resolveCtxPct({ used_percentage: null, remaining_percentage: 100 });
   assert.equal(r.source, 'estimate', 'falls back to the estimate, not a wrong native 0');
-  assert.equal(r.pct, 0, 'remaining 100 -> estimate 0% used (byte-identical to the legacy math)');
+  assert.equal(r.pct, 0, 'remaining 100 -> 0% used');
 });
 
 ok('bucket-1d: no native + no remaining -> null (renderer suppresses the bar)', function () {
@@ -182,12 +182,62 @@ ok('bucket-1d: no native + no remaining -> null (renderer suppresses the bar)', 
   assert.equal(ctxWindow.resolveCtxPct(undefined).source, 'none', 'source none when no data');
 });
 
-ok('bucket-1d: the estimate matches the pre-quick-task AUTO_COMPACT_BUFFER math', function () {
-  // Legacy: usableRemaining = max(0, (remaining - 16.5)/(100-16.5)*100); used = 100 - usableRemaining.
-  const remaining = 50;
-  const usableRemaining = Math.max(0, ((remaining - 16.5) / (100 - 16.5)) * 100);
-  const expected = Math.max(0, Math.min(100, Math.round(100 - usableRemaining)));
-  assert.equal(ctxWindow.estimateFromRemaining(remaining), expected, 'estimate is byte-identical');
+// ---------------------------------------------------------------------------
+// RCA statusline-context-pct-stale-post-compact (2026-07-28) -- THE SCALE RULE.
+//
+// The fallback branch is a SUBSTITUTE for the native branch, so it must answer
+// the same question on the same scale. It previously rescaled remaining through
+// the AUTO_COMPACT_BUFFER (a different question: percent-of-the-way-to-auto-
+// compact), inflating the gauge by up to +16.5 points. Because the fallback is
+// reached exactly when used_percentage is null -- the turn right after /compact --
+// the gauge jumped UP after a compact, reading as a stale/frozen number.
+//
+// Grounding: 787/787 real captured host payloads across 11 model ids have
+// used_percentage + remaining_percentage === 100 EXACTLY, so 100 - remaining is an
+// exact recovery of used_percentage, needing no compact-detection heuristic and no
+// stdin field the host does not send.
+// ---------------------------------------------------------------------------
+ok('RCA scale rule: the remaining-derived branch equals the native branch', function () {
+  // For every plausible host state, both branches MUST agree. This is the
+  // regression fence: any reintroduced rescale breaks it immediately.
+  for (const used of [0, 1, 10, 25, 40, 50, 60, 70, 75, 78, 80, 90, 99, 100]) {
+    const remaining = 100 - used;
+    const native = ctxWindow.resolveCtxPct({ used_percentage: used, remaining_percentage: remaining });
+    const fallback = ctxWindow.resolveCtxPct({ used_percentage: null, remaining_percentage: remaining });
+    assert.equal(native.pct, used, 'native branch reports raw used% at used=' + used);
+    assert.equal(
+      fallback.pct, native.pct,
+      'fallback must equal native at used=' + used + ' (got ' + fallback.pct + ' vs ' + native.pct + ')'
+    );
+    assert.equal(fallback.source, 'estimate', 'source still reports provenance at used=' + used);
+  }
+});
+
+ok('RCA scale rule: the exact reported symptom (true 78 rendered as 93) is gone', function () {
+  // The navigator saw "📊 █████████░ 93%". Under the old buffer rescale a true
+  // used_percentage of 78 produced exactly 93 through the post-/compact fallback.
+  const r = ctxWindow.resolveCtxPct({ used_percentage: null, remaining_percentage: 22 });
+  assert.notEqual(r.pct, 93, 'the inflated 93 must not come back');
+  assert.equal(r.pct, 78, 'renders the true 78% used');
+});
+
+ok('RCA scale rule: estimateFromRemaining is the exact complement', function () {
+  assert.equal(ctxWindow.estimateFromRemaining(50), 50, 'remaining 50 -> 50% used');
+  assert.equal(ctxWindow.estimateFromRemaining(100), 0, 'remaining 100 -> 0% used');
+  assert.equal(ctxWindow.estimateFromRemaining(0), 100, 'remaining 0 -> 100% used');
+  assert.equal(ctxWindow.estimateFromRemaining(16.5), 84, 'the buffer value is not a scale factor');
+  assert.equal(ctxWindow.estimateFromRemaining(null), null, 'non-finite -> null');
+  assert.equal(ctxWindow.estimateFromRemaining(undefined), null, 'undefined -> null');
+});
+
+ok('RCA scale rule: AUTO_COMPACT_BUFFER survives as documentation only', function () {
+  // Retained so the real host threshold stays discoverable, but it must no longer
+  // participate in any percentage the gauge renders.
+  assert.equal(ctxWindow.AUTO_COMPACT_BUFFER, 16.5, 'constant still exported');
+  // Under the old rescale, remaining 16.5 saturated the gauge to 100. It is now
+  // simply 83.5% used, and remaining 83.5 is simply ~17% used.
+  assert.equal(ctxWindow.estimateFromRemaining(16.5), 84, 'remaining 16.5 -> 84% used, not 100');
+  assert.equal(ctxWindow.estimateFromRemaining(83.5), 17, 'remaining 83.5 -> 17% used');
 });
 
 ok('bucket-1d: used_percentage is clamped to [0,100] and rounded', function () {

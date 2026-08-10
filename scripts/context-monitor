@@ -543,48 +543,61 @@ process.stdin.on('end', () => {
     const remaining = data.context_window?.remaining_percentage;
     const usedPct = data.context_window?.used_percentage;
 
-    // Write bridge file for hooks/skills (per-room isolation)
-    // Uses dir (workspace) as hash source since roomDir isn't resolved yet
+    // --- Context window pct (Phase 121.5-03: raw scalar; renderer composes the bar) ---
+    // Pre-121.5-03 emitted a colored 10-char bar inline. Per D-03 the two-row
+    // renderer (lib/statusline/two-row-renderer.cjs renderBar) now owns the
+    // bar composition + the >=80% blink-red wrap. We hand it just the percentage.
+    // Quick-task 20260702 bucket-1(d): prefer the NATIVE context percentage the
+    // host exposes (context_window.used_percentage / exceeds_200k_tokens), with
+    // remaining_percentage as the FALLBACK for older CC / null-after-/compact.
+    // The resolver is pure + LOCAL (lib/statusline/ctx-window.cjs); lazy-required so
+    // a degraded install falls back to the inline derivation below and never blanks.
+    // ctxPct = null when NO data (fresh session before first API call) -> the
+    // renderer suppresses the bar (Phase 106-02 Test 7: no data = no bar).
+    //
+    // RCA statusline-context-pct-stale-post-compact (2026-07-28): the inline
+    // fallback below used to apply the AUTO_COMPACT_BUFFER rescale, which answers a
+    // different question than used_percentage and inflated the gauge by up to +16.5
+    // points (true 78 rendered as 93). The host emits used + remaining === 100
+    // exactly (787/787 captured payloads), so the honest derivation is
+    // 100 - remaining, matching lib/statusline/ctx-window.cjs branch-for-branch.
+    let ctxPct = null;
+    try {
+      const ctxWindow = require('../lib/statusline/ctx-window.cjs');
+      ctxPct = ctxWindow.resolveCtxPct(data.context_window).pct;
+    } catch (_ctxErr) {
+      // Graceful fallback, same scale as the resolver (never the buffer rescale).
+      if (Number.isFinite(usedPct)) {
+        ctxPct = Math.max(0, Math.min(100, Math.round(usedPct)));
+      } else if (Number.isFinite(remaining)) {
+        ctxPct = Math.max(0, Math.min(100, Math.round(100 - remaining)));
+      }
+    }
+
+    // Write bridge file for hooks/skills (per-room isolation).
+    // Uses dir (workspace) as hash source since roomDir isn't resolved yet.
+    //
+    // RCA 2026-07-28: this used to write `ctx_pct: usedPct || 0`, which coerced the
+    // post-/compact NULL used_percentage into a hard, false 0 -- the same null-to-0
+    // coercion lib/statusline/two-row-renderer.cjs:86 documents as already fixed
+    // there. It now writes the RESOLVED ctxPct (the exact number the gauge renders,
+    // one source of truth for both surfaces) and preserves null as null, so a reader
+    // can tell "unknown" apart from "empty". ctx_remaining is likewise derived from
+    // the same resolved value rather than `remaining || 100`, which turned a genuine
+    // 0 into 100.
     try {
       const bridgeFile = getBridgeFile(dir);
       const bridge = JSON.stringify({
         model_id: data.model?.id || 'unknown',
         model_name: model,
-        ctx_pct: usedPct || 0,
-        ctx_remaining: remaining || 100,
+        ctx_pct: ctxPct,
+        ctx_remaining: ctxPct === null ? null : (100 - ctxPct),
         ctx_size: data.context_window?.context_window_size || 200000,
         timestamp: Math.floor(Date.now() / 1000)
       });
       fs.writeFileSync(bridgeFile + '.tmp', bridge);
       fs.renameSync(bridgeFile + '.tmp', bridgeFile);
     } catch (e) {}
-
-    // --- Context window pct (Phase 121.5-03: raw scalar; renderer composes the bar) ---
-    // Pre-121.5-03 emitted a colored 10-char bar inline. Per D-03 the two-row
-    // renderer (lib/statusline/two-row-renderer.cjs renderBar) now owns the
-    // bar composition + the >=80% blink-red wrap. We hand it just the scaled
-    // percentage; the AUTO_COMPACT_BUFFER + remaining->used math is preserved
-    // byte-identical so existing bridge-file readers see the same scalar.
-    // Quick-task 20260702 bucket-1(d): prefer the NATIVE context percentage the
-    // host exposes (context_window.used_percentage / exceeds_200k_tokens) over the
-    // local AUTO_COMPACT_BUFFER estimate, keeping the estimate (from
-    // remaining_percentage) as the FALLBACK for older CC / null-after-/compact.
-    // The resolver is pure + LOCAL (lib/statusline/ctx-window.cjs); lazy-required so
-    // a degraded install falls back to the inline estimate below and never blanks.
-    // ctxPct = null when NO data (fresh session before first API call) -> the
-    // renderer suppresses the bar (Phase 106-02 Test 7: no data = no bar).
-    const AUTO_COMPACT_BUFFER = 16.5;
-    let ctxPct = null;
-    try {
-      const ctxWindow = require('../lib/statusline/ctx-window.cjs');
-      ctxPct = ctxWindow.resolveCtxPct(data.context_window).pct;
-    } catch (_ctxErr) {
-      // Graceful fallback: the pre-quick-task inline estimate (byte-identical math).
-      if (remaining != null) {
-        const usableRemaining = Math.max(0, ((remaining - AUTO_COMPACT_BUFFER) / (100 - AUTO_COMPACT_BUFFER)) * 100);
-        ctxPct = Math.max(0, Math.min(100, Math.round(100 - usableRemaining)));
-      }
-    }
     // LEGACY: pre-121.5-03 colored bar composition retained ONLY for the
     // graceful-fallback path below (Tier 0 / no-room case). Once the two-row
     // renderer is the sole path, this block is dead. For now, keep both

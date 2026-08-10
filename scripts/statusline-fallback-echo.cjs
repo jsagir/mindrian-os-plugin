@@ -93,6 +93,23 @@ function bridgePath(workspaceDir) {
   return path.join(os.homedir(), '.mindrian', 'bridge', hash + '.json');
 }
 
+// RCA statusline-context-pct-stale-post-compact (2026-07-28), Tri-Polar gap.
+// The bridge file is ONLY rewritten by a CLI statusline render. Desktop and
+// Cowork have no statusline primitive, so this echo was rendering whatever the
+// last CLI session in this workspace left on disk -- arbitrarily old, and from a
+// DIFFERENT conversation than the one starting now. The record already carries a
+// `timestamp` written for exactly this purpose; it was never read. A context
+// percentage describes one session's conversation, so past this bound it cannot
+// be justified for the session being started and we render the honest '-'
+// placeholder instead (the same placeholder used when no bridge exists at all).
+const BRIDGE_FRESH_SECONDS = 15 * 60;
+
+function isFreshBridge(bridge) {
+  if (!bridge || typeof bridge.timestamp !== 'number') return false;
+  const ageSeconds = Math.floor(Date.now() / 1000) - bridge.timestamp;
+  return ageSeconds >= 0 && ageSeconds <= BRIDGE_FRESH_SECONDS;
+}
+
 function bannerTouchPath() {
   return path.join(os.homedir(), '.mindrian', 'banner-state', 'statusline-visibility-warned.json');
 }
@@ -160,7 +177,7 @@ function compose(workspaceDir) {
 
   let ctxStr = '-';
   const bridge = safeJson(bridgePath(workspaceDir));
-  if (bridge && typeof bridge.ctx_pct === 'number') {
+  if (bridge && typeof bridge.ctx_pct === 'number' && isFreshBridge(bridge)) {
     ctxStr = bridge.ctx_pct + '%';
   }
 

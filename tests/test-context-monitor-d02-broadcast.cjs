@@ -124,12 +124,15 @@ function payloadFor(room, usedPct) {
   console.log('PASS: Test 1 (operator + jtbd + token at 25%)');
 }
 
-// Test 2: input 60% -> displayed ~72% (sienna band per 50/65/80 threshold).
-// scripts/context-monitor lines 491-493 transform raw used_percentage via the
-// AUTO_COMPACT_BUFFER (16.5%) math: usable = ((remaining-16.5)/(100-16.5))*100
-// then displayed_used = round(100 - usable). For input 60%, remaining=40,
-// usable=(40-16.5)/83.5*100=28.14, displayed = round(71.86) = 72. That lands
-// in the 65 <= used < 80 sienna branch. No compaction warning.
+// Test 2: input 60% -> displayed 60% (sienna band per 50/65/80 threshold).
+//
+// This comment previously documented a displayed ~72%, from the pre-quick-task
+// AUTO_COMPACT_BUFFER rescale (usable = ((remaining-16.5)/(100-16.5))*100, then
+// displayed = round(100 - usable), giving 72 for an input of 60). That rescale is
+// gone as of RCA statusline-context-pct-stale-post-compact (2026-07-28): the gauge
+// now reports the host's raw used_percentage on ONE scale through both branches of
+// lib/statusline/ctx-window.cjs, so an input of 60 displays as 60. Still inside the
+// 50 <= used < 65 band, still no compaction warning.
 {
   const room = makeRoom();
   const r = runMonitor(room, payloadFor(room, 60));

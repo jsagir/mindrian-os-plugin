@@ -4,7 +4,7 @@
   "baseline_deferred": true,
   "reason": "plurai_endpoint_unreachable",
   "detail": "transferable_call=HTTP 404 {\"message\":\"Route POST:/ioa/v1/cross-topic-connection/1.0.0 not found\",\"error\":\"Not Found\",\"statusCode\":404} | unrelated_call=HTTP 404 {\"message\":\"Route POST:/ioa/v1/cross-topic-connection/1.0.0 not found\",\"error\":\"Not Found\",\"statusCode\":404}",
-  "date": "2026-07-17",
+  "date": "2026-07-30",
   "legs": [
     "cross-topic-connection"
   ],
