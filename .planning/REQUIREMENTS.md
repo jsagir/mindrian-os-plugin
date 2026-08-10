@@ -87,11 +87,14 @@ methodology that did not come from the Brain, without being told.
 
 ### Phase F -- MCP-First fold-in (the local-context half of the loop; absorbed v1.17.0 slot)
 
-- [ ] **CTX-01**: ONE shared room-resolution ladder replaces the eight independent
+- [x] **CTX-01**: ONE shared room-resolution ladder replaces the eight independent
       gate-then-fallthrough resolver copies (7x lib/mcp/tools/* + tool-router.cjs), following
       the resolve-active-room.cjs precedent and the isWritePathEnabled precedence ladder.
+      (248-01: the census re-verified NINE copies, not eight - see 248-01-SUMMARY.md.)
 - [ ] **CTX-02**: An explicit room_bind is authoritative for the rest of its session
       regardless of flag state, and returns an honest result about whether it will apply.
+      (248-01 landed the MECHANISM half - bound sessions are authoritative flag-off; the
+      honest-return half is 248-02's job, so this stays unchecked until 248-02 closes.)
 - [ ] **CTX-03**: The carried defect (.planning/debug/room-bind-mcp-first-off-falls-back-to-
       stale-global-active-room.md) closes with a live before/after on all three surfaces.
 

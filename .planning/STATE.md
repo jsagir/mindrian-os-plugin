@@ -4,17 +4,80 @@ milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
 stopped_at: "Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green"
-last_updated: "2026-08-10T11:40:24.908Z"
-last_activity: 2026-08-10 — Milestone v2.0.0 started
+last_updated: "2026-08-10T14:45:00.000Z"
+last_activity: 2026-08-10 -- Phase 248 Plan 01 (MCP-First Room Resolution, nine-copy collapse) complete
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 7
-  completed_plans: 4
-  percent: 14
+  completed_plans: 5
+  percent: 71
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 248 PLAN 01 COMPLETE -- MCP-First Room Resolution: nine-copy collapse, CTX-01 done, CTX-02 mechanism half done
+
+- **Position:** Phase 248 (MCP-First Room Resolution) Plan 01 is complete, 3/3 tasks, fully
+  autonomous (no checkpoints). Collapsed the nine independent gate-then-fallthrough MCP room
+  resolvers (7x `lib/mcp/tools/*.cjs`, `tool-router.cjs`'s `resolveWriteTargetDir`,
+  `stop-gate-handler.cjs`'s null-floor copy - the census re-verified NINE, not the ROADMAP's
+  eight) into one shared module, `lib/mcp/session-room.cjs`. Its read path calls the core
+  session-aware ladder UNCONDITIONALLY (no `isMcpFirst` gate), which IS the CTX-02 fix: with
+  `MINDRIAN_MCP_FIRST` unset (default on every install), a session's `room_bind` write is now
+  honored by every subsequent read/write in that session. Unbound sessions stay byte-identical
+  legacy. A red-able census gate (`tests/test-248-resolver-census.cjs`) fails if a tenth
+  independent copy is ever reintroduced.
+
+- **CTX-01 is fully complete** (checked off in REQUIREMENTS.md). **CTX-02 is only the
+  MECHANISM half done** - bound sessions are authoritative regardless of flag state, proven
+  through all three seam families. The HONEST return half (`room_bind` round-tripping through
+  the resolver to report `effective`/`resolved_dir`/`reason`) is explicitly 248-02's job per
+  this plan's own objective text; REQUIREMENTS.md's CTX-02 checkbox is deliberately left
+  UNCHECKED until 248-02 closes - do not mark it complete prematurely.
+
+- **Doctrine change on the record:** the Phase 198 SPEC-7 "flag-off ignores sessionId
+  entirely" contract is repealed for BOUND sessions, written into
+  `tests/test-198-flag-off-parity.test.cjs` itself. A second test
+  (`tests/test-198-concurrency-mcp.test.cjs`) encoding the same retired contract was found
+  during verification and re-pointed the same way (not one of the plan's named breaking
+  tests - a genuine discovery, documented in the SUMMARY as a deviation).
+
+- **Collateral fixes:** three mutation-testing harnesses (`test-237-autonomy-parity.cjs`,
+  `test-237-approve-executes.cjs`, `test-241-guardian-tripolar-parity.cjs`) pinned relative
+  requires this task removed from `chain.cjs`/`stop-gate-handler.cjs`; re-pointed to pin
+  `session-room.cjs` instead. One pre-existing gap (a Phase 238-04 `gate-ledger.cjs` require
+  never added to two of those harnesses' pin lists) was exposed and fixed alongside, not
+  caused by this task but needed for the mutation proofs to run at all.
+
+- **One deferred, out-of-scope item:** `scripts/on-stop`'s line-budget overage
+  (`tests/test-198-adapter-budget.test.cjs`), confirmed via `git log` to predate this phase
+  entirely. Logged to `.planning/phases/248-mcp-first-room-resolution/deferred-items.md`, not
+  fixed (scope boundary - this task never touched that file).
+
+- **Counter note (write discipline, per this file's own documented `gsd-tools.cjs state.*`
+  corruption history):** `state.advance-plan` failed outright ("Cannot parse Current Plan or
+  Total Plans in Phase from STATE.md") and `state.update-progress` computed a correct value
+  (57%, 4/7) but did not persist it to disk - both hand-corrected here instead. Ground truth
+  verified against `.planning/phases/*/*.SUMMARY.md` files on disk (246-01, 246-02, 247-01
+  pre-existing + 248-01 this session = 4 SUMMARY files), reconciled against the pre-existing
+  frontmatter's `completed_plans: 4` (already counting all four before this session's own
+  248-01 SUMMARY was written, which this executor cannot fully audit given 246-01/246-02 are
+  themselves checkpoint-paused, not cleanly "done" - flagged, not silently trusted).
+  `completed_plans` 4 -> 5 (adds 248-01), `percent` 14 -> 71 (5/7, the prior 14% was already
+  arithmetically inconsistent with `completed_plans: 4 / total_plans: 7` = 57%, itself a stale
+  leftover from the corruption class this file tracks). `stopped_at` left UNTOUCHED - it
+  correctly still describes the genuinely open, unrelated Phase 246 Plan 01 Task 2 operator
+  checkpoint; this plan ran fully autonomously and produced no new checkpoint to record.
+
+- **Full detail, per-file deviation list, and self-check:**
+  `.planning/phases/248-mcp-first-room-resolution/248-01-SUMMARY.md`.
+
+- **NEXT:** 248-02 (honest `room_bind` return + CTX-03 live before/after) is unblocked -
+  `session-room.cjs`'s structured `{dir, slug, source}` return is exactly what its round-trip
+  design needs, and `tests/run-all-248.sh`'s 248-02 legs are already wired with own-file
+  `run_if` gates. The pre-existing Phase 246 Plan 01 Task 2 operator checkpoint (LOOP-01 live
+  Brain test) remains open and unrelated - not touched or resolved by this plan.
 
 ## (2026-08-10) -- PHASE 247 PLAN 01 COMPLETE -- Brain Surface Contract: repo reconciled, CONTRACT-03/04 landed, nothing pushed
 

@@ -86,7 +86,12 @@ Plans:
   2. An explicit room_bind is authoritative for the rest of its session regardless of `MINDRIAN_MCP_FIRST` state, and its return value honestly states whether the binding will apply - the unqualified `{ok:true, bound:true}` about an inert effect cannot be reproduced.
   3. The carried defect `.planning/debug/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` closes with a live before/after demonstrated on all three surfaces (CLI, Desktop, Cowork).
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+
+- [x] 248-01-PLAN.md - Nine-copy collapse: lib/mcp/session-room.cjs the ONE shared resolver, census gate, bound-session authority proof, doctrine re-point (CTX-01, mechanism half of CTX-02)
+- [ ] 248-02-PLAN.md - Honest room_bind return + CTX-03 live before/after close-out
 
 ### Phase 249: Context-Driven Enrichment
 
@@ -163,7 +168,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 246. Live Verification + Graph Census | 0/2 | Not started | - |
 | 247. Brain Surface Contract | 1/3 | In Progress|  |
-| 248. MCP-First Room Resolution | 0/TBD | Not started | - |
+| 248. MCP-First Room Resolution | 1/2 | In Progress | - |
 | 249. Context-Driven Enrichment | 0/TBD | Not started | - |
 | 250. Honesty Rail + Doctrine Amendment | 0/TBD | Not started | - |
 | 251. Cache-Aware Trigger Redesign | 0/TBD | Not started | - |
