@@ -10,7 +10,7 @@ Run the full PWS methodology (25 methodology bots, structured pipelines, and an 
 
 ## Current State
 
-**Shipped:** v1.9.0 Model Data Room + Self-Analysis (2026-04-08)
+**Shipped:** v1.16.0 Infrastructure Remediation (2026-08-10); latest release v1.16.0-beta.13 (Brain-envelope + egress-guard fixes live)
 
 v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presentation System (Dashboard, Wiki, Deck, Insights, Diagrams, Graph). Canvas knowledge graph with particles and glow. BYOAPI chat with Larry. Git integration (optional), KuzuDB automatic backbone, HSI pipeline, binary asset filing, Vercel one-click deploy. Dual themes (De Stijl dark + PWS light). MindrianOS branding enforced. Google Drive API integration. Model Data Room: 168 artifacts across 10 sections from real evidence. Self-analysis: HSI found 20 innovation pairs, Investment Thesis gate 7/10, reverse salient in business-model.
 
@@ -26,26 +26,34 @@ v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Pres
 - v1.8.6 MindrianRooms (2026-04-06) -- 6 phases, 35 requirements, centralized rooms, wicked hierarchy navigator
 - v1.8.8 Brain Graph Optimization (2026-04-07) -- causal discovery, lazy graph bridge, fragmentation cleanup, teaching wiring, dummy-proof install
 - v1.9.0 Model Data Room (2026-04-08) -- Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis, knowledge graph (179 nodes/383 edges)
+- v1.16.0 Infrastructure Remediation (2026-08-10) -- 12 phases (235-245), 67 plans: CIRS commit gate + seam-liveness, room.db data-loss fixes, reach + Decision Gates rewiring, Brain-access surface, memory Layer 2, Feynman-MINTO, Moat hardening, voice-glyph, semantic triggers, reach-brain-signal loop closed (v1.10-v1.15 shipped in place across the beta trains; see MILESTONES.md)
 
-## Current Milestone: v1.16.0 "Infrastructure Remediation"
+## Current Milestone: v2.0.0 "Build the Loop"
 
-**Goal:** Close all 35 findings from the 2026-07-28 nine-piece infrastructure audit (reach mechanism, Brain-access surface, memory, Feynman-MINTO, room.db/navigation.cjs, Decision Gates, CIRS, the Moat/MWP, the De Stijl voice-glyph header). The audit's own cross-piece synthesis found one recurring failure shape across roughly twelve of the findings, a mechanism wired at one end and inert at the other, verified in code, not opinion. Sequenced by dependency, not as 35 flat tickets: fix CIRS's dead commit-time gate plus a reusable seam-liveness assertion helper first (the actual leverage point, a broken Level-6 information-flow problem, not a Level-5 rules problem), fix the two live room.db data-loss risks in parallel, then land memory's Layer 2 fix only after the room.db fix (routing promotions into the memory-cortex table that graph-rebuild currently truncates would otherwise convert a quiet loss into a permanent one), then the remaining five pieces.
+**Goal:** Make the loop real: local context triggers -> methodology-graph query -> Larry
+operates the join -> human ratifies the insight -> context updates. Honesty before
+hard-require: Larry never serves methodology the graph did not give, without saying so.
+THE MOST CRITICAL MILESTONE TO DATE (navigator, 2026-08-10): the step that makes MindrianOS
+closest to a complete product.
 
-**Origin:** A 24-agent scrutinize/red-team/rethink workflow run this session across the 9 pieces plus one cross-piece synthesis pass, grounded against the langtalks-graph-expert corpus where a real analog existed. Consolidated report: `/tmp/claude-1000/-home-jsagi/c4225fce-73ca-43dc-90bc-1665bbeb7983/infra-scrutiny-consolidated.md`. Published artifact: https://claude.ai/code/artifact/a5cf197d-4dee-465c-b2f1-0f8bc67c7e4e. Three RCAs already exist from this session and are routed into this milestone as already-scoped work, not re-planned: `hedge-fold-has-no-production-trigger.md` (resolved), `minto-debounce-consumer-dead-end.md` (filed), `graph-rebuild-truncates-memory-journal.md` (filing in progress), plus `graph-edge-pending-undrained-dead-letter-queue.md` (debug session in progress).
+**Grounding:** docs/2026-08-10-HANDOFF-build-the-loop-milestone.md (navigator-approved at a
+live Decision Gate; supersedes the tier0-removal handoff's sequencing). Same-day primary-source
+probes of BOTH graphs (the Memgraph Brain via its own tools; the langtalks corpus for
+context-engineering doctrine). Phase 245 is the direct ancestor. Seeds folded in:
+SEED-045 (Brain Orchestration Advisor), SEED-008 (Close the intelligence loop),
+SEED-011 (Brain Silent Identity), SEED-014 (Brain repo as deployment unit).
 
-**Target phases (see ROADMAP.md for full detail once the roadmapper lands):**
-1. CIRS commit-gate fix + seam-liveness assertion helper (the leverage point)
-2. room.db data-loss fixes (graph-rebuild transaction wrap, open-failure typed results)
-3. Reach mechanism (fake chain execution, dual autonomy authority, session-scoped signals)
-4. Decision Gates (ledger handshake, unchecked ratification, concurrency safety, card-fire tuning)
-5. Brain-access surface (dead egress hooks, query() guard, sendPacket decision)
-6. Memory (Layer 2 promotion, dead-letter queue, test hermeticity) -- depends on phase 2 landing first
-7. Feynman-MINTO (severed guardian output, unreachable repair ladder, pre-commit friction)
-8. The Moat (HSI transaction wrap, checklist rot)
-9. Voice-glyph (fabricated statusline signal)
-
-**Note on this PROJECT.md's prior content:** the milestone section this replaced (v1.13.1 "Larry Reaches") was stale relative to STATE.md, which already shows v1.15.0 "The Cockpit" shipped through phase 234 before this milestone started. That drift is itself consistent with finding C-4 in this milestone's own source audit (stale generated counts/docs); reconciling the full historical record is out of scope here, this section now reflects only the current milestone.
-
+**Target features:**
+- Live-verify the beta.13 Brain path in a fresh session, then run the Cypher census
+- Contract the Brain tool surface to the loop-serving tools (cross-repo with
+  jsagir/brain_ProblemsWorthSolving; retire or sidecar the LLM-dependent tools)
+- Context-driven framework enrichment prioritized by live readiness misses -- never bulk
+- Honesty rail + doctrine amendment (Decisions #1 and #8 rewritten together, one unit)
+- Cache-aware trigger/hook redesign (stable prefixes; per-turn injection measured first)
+- MCP-First FOLDED IN (navigator 2026-08-10, absorbing the registered v1.17.0 slot): one
+  shared room-resolution ladder replacing the eight gate-then-fallthrough copies,
+  room_bind authoritative for its session -- the local-context half of the loop
+- Guard sweep last (101 guards, 82 tests; tier-0-no-key fixture repurposed to refusal)
 ## Platform Vision: v2.0 Mindrian Platform -- SQLite + MCP Server (aspirational, partially shipped)
 
 **Goal:** Replace the dead KuzuDB with SQLite (graph + memory system), then ship MindrianOS intelligence as a 23-tool MCP server with interactive UI (MCP Apps) that any LLM host can use.

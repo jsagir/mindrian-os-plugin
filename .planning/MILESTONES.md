@@ -1,5 +1,45 @@
 # Milestones
 
+## v1.16.0 "Infrastructure Remediation" (Completed: 2026-08-10)
+
+**No formal MILESTONE-AUDIT ran** -- closed with that documented honestly (navigator-approved
+2026-08-10), same precedent as v1.15.0 below. All 67 plans across 12 phases carry SUMMARYs and
+per-phase verification ran green; the audit gap is recorded, not hidden.
+
+**Phases completed:** 12 (235-245, including 240.1 and 244), 67 plans, executed 2026-07-28 to
+2026-07-31, ~467 commits on main since 2026-07-28.
+
+**Requirements:** 23/23 closed (CIRS, room.db/GRAPHDB, REACH, GATE, BRAIN, MEM, MINTO, MOAT,
+GLYPH families). Archives: `.planning/milestones/v1.16.0-ROADMAP.md`,
+`.planning/milestones/v1.16.0-REQUIREMENTS.md`.
+
+**Key accomplishments:**
+
+- CIRS commit-time born-wired gate revived plus a repo-wide seam-liveness assertion primitive
+  (the audit's leverage point) -- Phase 235.
+- Both live room.db data-loss risks closed (transaction-wrapped graph-rebuild, typed
+  open-failure results), memory Layer 2 landed safely on top -- Phases 236/240/240.1.
+- Reach mechanism and Decision Gates re-wired end to end: real chain execution, session-scoped
+  signals, one autonomy authority, gate-ledger handshake with concurrency safety -- Phases 237/238.
+- Brain-access surface scoped to live tool names -- the hook-matcher family whose earlier gap
+  masked the total Brain outage -- Phase 239.
+- Feynman-MINTO consumer wiring, Moat transaction wrap + kuzu gate, voice-glyph honesty,
+  semantic trigger tier -- Phases 241-244.
+- Phase 245 closed the reach-brain-signal loop (dispatchSensors wired to fire) -- the direct
+  ancestor of v2.0.0 "Build the Loop".
+
+**Open items, deliberately not fabricated as closed:**
+
+- Gate 0 (official v1.15.0 stable close-out) never ran; latest stable remains v1.15.3, latest
+  beta v1.16.0-beta.13 (released 2026-08-10 carrying the Brain-envelope + egress-guard fixes).
+- The v1.16.0 release train is NOT finalized to stable, and no v1.16.0 git tag was created by
+  this close-out DELIBERATELY: that tag name belongs to release.sh's finalize flow. GSD
+  completion is recorded here, not in the tag namespace.
+- 234-08 Task 2 (foreign-host human-verify) still requires the navigator's own hands; carries
+  forward into v2.0.0.
+- `.planning/phases/` keeps all phase directories cumulatively (repo precedent, numbering is
+  continuous from project start); phases.clear was not run.
+
 ## v1.15.0 "The Cockpit" (Shipped, rolled forward into v1.16.0: 2026-07-28)
 
 **No formal `/gsd-complete-milestone` audit ran** -- same precedent as v1.14.0 "Larry Thinks"
