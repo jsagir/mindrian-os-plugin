@@ -124,8 +124,16 @@ async function main() {
   // Row shape: { name, description, category } (all strings; description/category
   // may be empty strings when the node lacks those fields -- that is acceptable;
   // the old filter required a non-empty description, preserve that behaviour).
+  //
+  // RUN 3, 2026-08-11: the drop is now COUNTED AND REPORTED via the
+  // dropped_empty_description metadata field below. The deployed brain
+  // census fix returns the full 181-row population, so an unreported drop
+  // (~45 rows) would masquerade as a fetch regression instead of the honest
+  // read it actually is. The keep-condition below is unchanged.
   const frameworks = [];
   const rows = Array.isArray(opResult.rows) ? opResult.rows : [];
+  let droppedEmptyDescription = 0;
+  let droppedEmptyName = 0;
 
   for (const rec of rows) {
     const name = rec.name || '';
@@ -134,6 +142,10 @@ async function main() {
 
     if (name && description) {
       frameworks.push({ name, description, category });
+    } else if (name && !description) {
+      droppedEmptyDescription++;
+    } else if (!name) {
+      droppedEmptyName++;
     }
   }
 
@@ -143,12 +155,19 @@ async function main() {
       timestamp: new Date().toISOString(),
       source: 'brain-mcp',
       framework_count: frameworks.length,
+      rows_total: rows.length,
+      dropped_empty_description: droppedEmptyDescription,
+      dropped_empty_name: droppedEmptyName,
     },
     frameworks,
   };
 
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf8');
-  console.log(`Brain: Fetched ${frameworks.length} frameworks -> ${outputPath}`);
+  let summary = `Brain: Fetched ${frameworks.length} frameworks (${rows.length} rows, ${droppedEmptyDescription} dropped for empty description) -> ${outputPath}`;
+  if (droppedEmptyName > 0) {
+    summary += ` (${droppedEmptyName} dropped for empty name)`;
+  }
+  console.log(summary);
 }
 
 function writeEmptyResult(outputPath, reason) {
