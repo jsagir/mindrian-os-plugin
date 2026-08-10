@@ -86,6 +86,14 @@ methodology that did not come from the Brain, without being told.
 - [ ] **HONEST-03**: Larry-served methodology carries provenance: graph-grounded answers are
       distinguishable from Larry-voice conversation, and SEED-011 (Brain Silent Identity)
       resolves the key ceremony so honesty does not become nagging.
+      NAVIGATOR RULING 2026-08-10: SEED-011 = Option A, per-install silent registration
+      (UUID -> /register -> cached install token), and it is BAKED IN BY DEFAULT - no API-key
+      ceremony for Brain access on any fresh install. This is a BEHAVIOR requirement, not a
+      decision doc: the brain-repo /register endpoint plus the client-side silent registration
+      ship inside this milestone (cross-repo rule - not done until the user-reached surface
+      works), with WAF hardening and the threat model in docs/BRAIN-IDENTITY-DESIGN.md. The
+      no_key refusal remains for the failure edge, expected to become rare, never the default
+      experience.
 
 ### Phase E -- Cache-aware trigger redesign
 
