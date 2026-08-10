@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: Completed 250-01-PLAN.md
-last_updated: "2026-08-10T16:42:44.041Z"
-last_activity: 2026-08-10 — Milestone v2.0.0 started
+stopped_at: "Paused at 250-02-PLAN.md Task 3 (checkpoint:human-verify, amendment ratification)"
+last_updated: "2026-08-10T17:05:00.000Z"
+last_activity: 2026-08-10 - Phase 250 Plan 02 paused at the ratification checkpoint
 progress:
   total_phases: 7
   completed_phases: 2
@@ -15,6 +15,32 @@ progress:
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 250 PLAN 02 PAUSED AT CHECKPOINT -- Doctrine amendment drafted + Form B declared, awaiting navigator ratification (Task 3)
+
+- **Position:** Phase 250 Plan 02 is PAUSED at Task 3, a genuine `checkpoint:human-verify`.
+  Task 1 (application-timing) was pre-ruled by the navigator via the orchestrator's live
+  Decision Gate on 2026-08-10: **doc-now / rows-at-sweep** - the amendment doc merges now
+  with the explicit in-force-with-the-SWEEP-release clause; `.claude/includes/decisions.md`
+  rows flip in Phase 252's release commit. Task 2 is complete and committed (`decac6d0`):
+  `docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md` (both replacement rows verbatim, five-leg
+  causal record, STATUS+EFFECTIVE clause, consequential-edits ledger including the
+  MINDRIAN-CANON.md:21 coordination item folded in from `252-RESEARCH.md` and the corrected
+  drifted CLAUDE.md:29/:94 line numbers), a Form B `hitl_stages` declaration on
+  `skills/brain-connector/SKILL.md` (zero new `check-shape-declaration.cjs` warns vs the
+  53-warn baseline), the updated `docs/HITL-SHAPE-DECLARATION-CONTRACT.md` (four exempt
+  skills remain), and fresh dist mirrors. `tests/test-250-amendment-unit.cjs` was born RED
+  (8/9 failing, doc absent) then went green (9/9).
+
+- **Task 3 is genuinely blocking:** the navigator has not yet reviewed and ratified the
+  amendment doc. HONEST-02 stays UNCHECKED in REQUIREMENTS.md until ratification. Full
+  checkpoint text, verbatim rows, and the ledger: `250-02-SUMMARY.md`.
+
+- **NEXT:** present the checkpoint to the navigator; on "ratified", fill the ratification
+  block, re-verify green, mark HONEST-02 complete, and close out this plan. Plans 250-03
+  (provenance marking) and 250-04 (silent registration) do not depend on this outcome and
+  can proceed in parallel; a separate parallel executor is working on
+  `scripts/intent-classifier.cjs` + session-start (251-01) with zero file overlap expected.
 
 ## (2026-08-10) -- PHASE 250 PLAN 01 COMPLETE -- Honesty Rail: refusal kinds, shim conflation fix, AVAIL-02 transport retry, doctrine kill
 
