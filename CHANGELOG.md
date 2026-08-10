@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.16.0-beta.12 (in progress)
+## [2.0.0-beta.1] - 2026-08-10
 
 ### Fixed
 - **Binding this session to a room now actually sticks, and `room_bind` finally tells you the
