@@ -4,17 +4,60 @@ milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
 stopped_at: "Checkpoint open: Phase 246 Plan 01 Task 2 (LOOP-01 fresh-session three-call Brain test) awaiting operator - preflight (Task 1) green"
-last_updated: "2026-08-10T09:35:07.826Z"
+last_updated: "2026-08-10T11:40:24.908Z"
 last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
-  completed_phases: 0
-  total_plans: 2
-  completed_plans: 1
-  percent: 0
+  completed_phases: 1
+  total_plans: 7
+  completed_plans: 4
+  percent: 14
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 247 PLAN 01 COMPLETE -- Brain Surface Contract: repo reconciled, CONTRACT-03/04 landed, nothing pushed
+
+- **Position:** Phase 247 (Brain Surface Contract) Plan 01 is complete, 3/3 tasks. All work happened in
+  the separate deployed server repo `/home/jsagi/dev/ProblemsWorthSolving-Brain`
+  (`jsagir/ProblemsWorthSolving-Brain`), not this plugin repo. Task 1 reconciled the brain checkout
+  (15 commits behind origin/main, 4 files of unreviewed local drafts, plus one undocumented untracked
+  dependency file `src/ontology.mjs` found and reviewed alongside its parent draft) into 6 reviewed
+  local commits on top of origin/main. Task 2 hoisted the CONTRACT-03 source_file provenance strip to
+  the `scopedVectorSearch` seam in `src/graph-client.mjs` (one implementation now covers `search`,
+  `brain_search`, and arm2-expansion instead of the per-tool copy that only covered `brain_search`),
+  with a hermetic test suite and a verified red proof (temporarily neutered the sanitize function,
+  6/7 tests went red, restored). The `framework` field decision is explicitly DEFERRED to 247-03's
+  operator checkpoint -- no live Memgraph driver connection is available from this machine and this
+  plan's hard constraint forbids any key reads. Task 3 closed the CONTRACT-04 CREATE-time gap
+  (`assertRecreateAllowed()` in `src/contracts/e5-identity.mjs`, wired into
+  `scripts/migrate-neo4j-to-memgraph.mjs`'s vector-index recreation loop with a `--include-foreign`
+  override) and filed `docs/VECTOR-INDEX-DISPOSITIONS.md`, the 9-index disposition record with fresh
+  grep proofs (1 KEEP, 1 KEEP-RETIRED, 7 DROP).
+
+- **Nothing was pushed.** `git rev-list --left-right --count origin/main...HEAD` in the brain repo
+  confirmed `0  6` (0 behind, 6 ahead) at close. The push, the deploy, and the live re-probe are all
+  247-03's operator checkpoint, per the plan's own risk framing (pushing origin/main may auto-deploy
+  Render).
+
+- **A deviation the plan did not anticipate, resolved within the plan's own latitude:** the working
+  tree carried a 5th dirty item beyond the plan's expected 4 files -- an untracked `src/ontology.mjs`
+  that the `allowlist.mjs` draft hard-imports. Verified it has no history anywhere in the brain repo
+  (genuinely new, not a duplicate of shipped work) and reviewed + landed it together with the
+  allowlist commit rather than treating it as out-of-scope. A second deviation: the plan named
+  `scripts/migrate-memgraph-to-memgraph.mjs` as a second CREATE-time guard site; a full read confirmed
+  the file contains no vector-index creation at all (it defers entirely to `build-vector-index.mjs`,
+  already guarded) -- nothing was added there, documented rather than invented.
+
+- **Full detail, per-file review verdicts, and both red-proof runs:**
+  `.planning/phases/247-brain-surface-contract/247-01-SUMMARY.md`.
+
+- **NEXT:** 247-02 and 247-03 can build on this reconciled base. 247-03's operator checkpoint carries:
+  the MENTIONS-to-Framework coverage measurement + framework field populate/remove decision, the
+  `brain_ask_anything` CONTRACT-02 retirement decision, the push + Render redeploy + live re-probe, and
+  executing the 7 disposition-DROP index drops (snapshot first, admin key). The pre-existing Phase 246
+  Plan 01 Task 2 operator checkpoint (LOOP-01 live Brain test) remains open and unrelated -- not
+  touched or resolved by this plan.
 
 ## (2026-07-31) -- NAVIGATOR OVERRIDE: Gate 0 sequencing waived for the next v1.16.0-beta cut
 

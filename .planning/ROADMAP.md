@@ -57,6 +57,7 @@ Already-scoped inputs (routed in, not re-planned): `docs/2026-08-10-HANDOFF-buil
 **Plans**: 2 plans
 
 Plans:
+
 - [ ] 246-01-PLAN.md - LOOP-01 fresh-session three-call live verification (preflight + checkpoint:human-verify with the five-signature decode table)
 - [ ] 246-02-PLAN.md - LOOP-02 two-lane graph census: builder + test fence, Lane A read-tier run committed first, Lane B admin-key operator checkpoint, finalize
 
@@ -161,7 +162,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 246. Live Verification + Graph Census | 0/2 | Not started | - |
-| 247. Brain Surface Contract | 0/TBD | Not started | - |
+| 247. Brain Surface Contract | 1/3 | In Progress|  |
 | 248. MCP-First Room Resolution | 0/TBD | Not started | - |
 | 249. Context-Driven Enrichment | 0/TBD | Not started | - |
 | 250. Honesty Rail + Doctrine Amendment | 0/TBD | Not started | - |
