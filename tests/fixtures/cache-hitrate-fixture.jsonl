@@ -1,0 +1,14 @@
+{"type":"user","uuid":"synthetic-u1","message":{"role":"user","content":"synthetic fixture turn one, invented text, never a real session"}}
+{"type":"attachment","hookEvent":"UserPromptSubmit","parentUuid":"synthetic-u1","attachment":{"content":"## SYNTHETIC NAV FIXTURE BLOCK\nfixture_field: alpha\nWhy: synthetic fixture reason, never real"}}
+{"type":"assistant","requestId":"req_synthetic_1","message":{"role":"assistant","usage":{"cache_read_input_tokens":200,"cache_creation_input_tokens":0,"input_tokens":0,"output_tokens":50}}}
+{"type":"user","uuid":"synthetic-u2","message":{"role":"user","content":"synthetic fixture turn two, invented text, never a real session"}}
+{"type":"attachment","hookEvent":"UserPromptSubmit","parentUuid":"synthetic-u2","attachment":{"content":"## SYNTHETIC NAV FIXTURE BLOCK\nfixture_field: alpha\nWhy: synthetic fixture reason, never real"}}
+{"type":"assistant","requestId":"req_synthetic_1","message":{"role":"assistant","usage":{"cache_read_input_tokens":555,"cache_creation_input_tokens":555,"input_tokens":555,"output_tokens":10}}}
+{"type":"assistant","requestId":"req_synthetic_2","message":{"role":"assistant","usage":{"cache_read_input_tokens":180,"cache_creation_input_tokens":0,"input_tokens":0,"output_tokens":40}}}
+{"type":"assistant","isSidechain":true,"requestId":"req_synthetic_side1","message":{"role":"assistant","usage":{"cache_read_input_tokens":9999,"cache_creation_input_tokens":9999,"input_tokens":9999,"output_tokens":1}}}
+{"type":"user","uuid":"synthetic-u3","message":{"role":"user","content":"synthetic fixture turn three, idle room state, invented text"}}
+{"type":"attachment","hookEvent":"UserPromptSubmit","parentUuid":"synthetic-u3","attachment":{"content":"[NAV DECISION unchanged - prior block stands]"}}
+{"type":"assistant","requestId":"req_synthetic_3","message":{"role":"assistant","usage":{"cache_read_input_tokens":190,"cache_creation_input_tokens":40,"input_tokens":0,"output_tokens":30}}}
+{"type":"assistant","requestId":"req_synthetic_4","message":{"role":"assistant","usage":{"cache_read_input_tokens":0,"cache_creation_input_tokens":60,"input_tokens":30,"output_tokens":20}}}
+{"type":"user","uuid":"synthetic-u4","message":{"role":"user","content":"synthetic fixture turn four, no injection, invented text"}}
+{"type":"assistant","requestId":"req_synthetic_5","message":{"role":"assistant","usage":{"cache_read_input_tokens":300,"cache_creation_input_tokens":0,"input_tokens":0,"output_tokens":60}}}
