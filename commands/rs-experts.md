@@ -6,6 +6,7 @@ body_shape: D (Comparison Matrix)
 hitl_shape: "F.8"
 hitl_why: "A synthetic expert panel is generated as an independent set consulted in any order."
 serves_jtbd: ["find-bottleneck", "connect-domains"]
+interactive_first_reward: instant_brief
 teaching: "When you need to know who in the world is working on a reverse salient you found, /mos:rs-experts resolves the expert network via Brain Cypher MATCH. Routes you to the people who already know."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -63,10 +64,9 @@ You are Larry. This command resolves the expert network for a topic from the loc
 ## What it does
 
 1. Validates `<topic>` against Canon Part 8 (`auditQueryString` on the bound parameter; throws `ExternalEgressViolation` if forbidden bytes appear).
-2. Detects Aura availability via `brainClient.isAvailable()` plus the Aura driver / `NEO4J_URI` env var checks.
-3. Tier 1 path: runs the Cypher MATCH `(a:Author)-[:AUTHORED_BY]->(p:Paper) WHERE p.topic = $topic OPTIONAL MATCH (a)-[:AFFILIATED_WITH]->(i:Institution) RETURN a, collect(DISTINCT i) AS institutions LIMIT $limit` with parameterized `$topic` + `$limit`. Returns ranked author list with institution affiliations.
-4. Tier 0 path: emits the 3-line guidance error pointing to `/mos:rs-fetch` to populate the local mirror first.
-5. Emits Phase Gate-style transcript (CLI) or JSON (`--json`).
+2. `scripts/rs-experts-command.cjs`'s own BUG 2 fix note (2026-05-22, still current): the former Tier 1 path called `brainClient.query(cypher)`, which routes to the REMOTE Brain -- but Author/Paper/Institution nodes live in the user's LOCAL Aura mirror, not the Brain. That routing bug is fixed by REMOVAL: `brainClient` is never loaded by this command, and `brainClient.isAvailable()` does NOT gate an Aura-availability check here -- it checks the Brain key, a fully separate probe (Phase 252-01, SWEEP-01: this line previously named `brainClient.isAvailable()` as an Aura-availability detector, which was the wrong probe -- the Brain key and the Aura connection are unrelated).
+3. No live Tier 1 Aura query path ships in the current command. Every invocation surfaces the Tier 0 guidance message below, pointing to `/mos:rs-fetch`. A local-only Aura transport (not `brain-client.cjs`) restoring an Aura-specific Tier 1 query is a filed follow-up, not yet built.
+4. Emits Phase Gate-style transcript (CLI) or JSON (`--json`) carrying the Tier 0 guidance.
 
 ## UI Format
 
@@ -90,8 +90,7 @@ Expert resolution (Author / Paper / Institution) is **LOCAL-only from `room.db`*
 Degradation is clean by construction:
 
 - Brain key ABSENT -> no effect; Tier-0 resolves the whole expert network from `room.db`. No throw.
-- Aura (the local mirror) reachable -> Tier 1 Cypher MATCH on the local mirror.
-- Aura unreachable -> Tier 0 guidance message pointing at `/mos:rs-fetch`.
+- No live Tier 1 Aura query path ships today (see "What it does" above) -> Tier 0 guidance message pointing at `/mos:rs-fetch`, every invocation.
 
 The people-graph base is the local mind; the Brain is never the source of an expert's identity. This is the unchanged half of navigator decision D-200-2 (b): local-only Tier-0 stays the base.
 
@@ -124,7 +123,8 @@ The projection reuses the shipped Phase 196 guard and `rs-brain-substrate` read 
 3-line error format:
 
     x Aura not connected
-      Why: brainClient.isAvailable() returned false; expert network requires Aura
+      Why: rs-experts requires a local Aura mirror; no live Tier 1 Aura query path
+           ships yet (remote Brain is never used for Author/Paper data)
       Fix: /mos:rs-fetch <topic> first to populate the local SQLite mirror, then retry
 
     x No experts found for topic
