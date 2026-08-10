@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: resolved
 kind: rca
 trigger: "room-bind-mcp-first-off-falls-back-to-stale-global-active-room"
 issue_id: ""
@@ -8,16 +8,36 @@ surfaces: [cli]
 brain_mode: tier-0
 canon_parts: [9, 11]
 created: 2026-07-28T04:00:43Z
-updated: 2026-07-28T04:08:55Z
+updated: 2026-08-10T00:00:00Z
 ---
+
+## Source-of-Truth Preamble (code-vs-wire, resolution)
+<!-- Added 2026-08-10 per docs/RCA-TEMPLATE.md section 2.5, at resolve time. -->
+
+- **CODE claims read against:** dev repo `/home/jsagi/dev/MindrianOS-Plugin` local HEAD at
+  the fix commits (Phase 248 plans 01+02: `f3bbdaa5`, `da0cc1af`, `907b1708`, plus 248-01's
+  own commits for the nine-copy collapse).
+- **WIRE claims probe against:** (a) `tests/test-248-surface-probes.cjs`, scripted five-step
+  probes against FRESH spawns on CLI-, Desktop-, and Cowork-equivalent transports, 25/25
+  green, 0 skips; (b) the live CLI before/after in a genuinely fresh Claude Code CLI session
+  against this dev repo's `.mcp.json`, navigator-approved 2026-08-10, verbatim payloads in
+  `.planning/phases/248-mcp-first-room-resolution/248-02-LIVE-RESULT.md`.
+- **Date of resolution:** 2026-08-10.
+- **Fix-not-live-until-released status:** NOT yet released. The fix is verified live on the
+  dev-repo code only (per the two WIRE legs above). It has not shipped in a version, so no
+  install running a released build has this fix yet, per the standing
+  fix-not-live-until-released hard rule (see the Non-Code Follow-ups "release pickup TODO"
+  below for the two real-host legs that stay deferred until it does).
 
 ## Current Focus
 <!-- OVERWRITE on each update - reflects NOW -->
 
-hypothesis: CONFIRMED - `room_bind` reports success and names the correct room, but every MCP read tool ignores that session-scoped binding unless `MINDRIAN_MCP_FIRST` covers the calling surface (unset by default), and falls back through the global `resolveActiveRoom()` registry pointer to a frozen boot-time `fallbackRoomDir` closure instead.
-test: live-fired `room_bind({room: "mindrianOS"})` then `suggest_next` / `reach_candidates` in the same MCP session, before and after correcting the global registry pointer with `room-registry set-active mindrianOS`.
-expecting: after `room_bind` succeeds, subsequent tool calls in the SAME session resolve to the bound room regardless of the global registry or the MCP-first flag state.
-next_action: UPDATED 2026-07-29 (Phase 237-08 close-out). Phase 237 (REACH-03) is now COMPLETE and closed the session-scoping/signal-staleness leg this RCA's own Test 2 named (ROADMAP SC3's wording): `lib/core/insight-sensors.cjs::deriveTurnSignals` / `sensorArtifactFiled` are now scoped to the calling session via `isMarkerOwnedByCaller`, and both reach-signal marker writers (`scripts/post-write`, `scripts/auto-explore-fingerprint.cjs`/`auto-explore-fire.cjs`) now stamp `session_id`, proven end to end against the live hooks with a real two-process `fork()` fence (tests/test-237-session-scope.cjs, tests/test-237-session-scope-degrade.cjs, tests/test-237-post-write-session-stamp.cjs). This RCA's Test 1 leg -- the STRUCTURAL eight-copy room-resolver collapse (`lib/mcp/tools/*.cjs` each keeping an independent `resolveSessionRoomDir`/`isMcpFirst` copy) and making `room_bind` authoritative regardless of the MCP-first flag state -- is UNCHANGED and remains open, still carried to the **v1.17.0 "MCP-First" milestone**, because that defect is the MCP-first flag's own semantics failing, not a reach-seam defect. Phase 237-02 and 237-08 (the two 237 plans that touched `lib/mcp/tools/chain.cjs`, one of the eight resolver copies) both carried an explicit `git diff` fence proving zero touches to `isMcpFirst`/`resolveWriteRoom`/`resolveActiveRoom`/`fallbackRoomDir`, so the structural leg genuinely was not touched. Do not mark `status` resolved on the strength of the Phase 237 close-out alone -- the Test 1 leg this file's own hypothesis names is still live.
+hypothesis: RESOLVED 2026-08-10 (Phase 248, plans 01+02) - `room_bind` now round-trips through the shared resolver on every write and reports honestly whether the binding will apply; every MCP read tool resolves a bound session's binding unconditionally, regardless of `MINDRIAN_MCP_FIRST` state.
+test: live-fired `room_bind({room: "mindrianOS"})` then `suggest_next` / `reach_candidates` in the same MCP session, before and after correcting the global registry pointer with `room-registry set-active mindrianOS` (original diagnosis); re-verified 2026-08-10 via a fresh CLI session against the fixed dev-repo code, plus scripted CLI/Desktop/Cowork-equivalent probes - see Resolution.
+expecting: after `room_bind` succeeds, subsequent tool calls in the SAME session resolve to the bound room regardless of the global registry or the MCP-first flag state. CONFIRMED live 2026-08-10.
+next_action: NONE - resolved and moved to `.planning/debug/resolved/`. Release pickup TODO (Desktop/Cowork real-host legs) tracked in Non-Code Follow-ups.
+
+PRIOR (2026-07-29, Phase 237-08 close-out), kept for the record: Phase 237 (REACH-03) is now COMPLETE and closed the session-scoping/signal-staleness leg this RCA's own Test 2 named (ROADMAP SC3's wording): `lib/core/insight-sensors.cjs::deriveTurnSignals` / `sensorArtifactFiled` are now scoped to the calling session via `isMarkerOwnedByCaller`, and both reach-signal marker writers (`scripts/post-write`, `scripts/auto-explore-fingerprint.cjs`/`auto-explore-fire.cjs`) now stamp `session_id`, proven end to end against the live hooks with a real two-process `fork()` fence (tests/test-237-session-scope.cjs, tests/test-237-session-scope-degrade.cjs, tests/test-237-post-write-session-stamp.cjs). This RCA's Test 1 leg -- the STRUCTURAL eight-copy room-resolver collapse (`lib/mcp/tools/*.cjs` each keeping an independent `resolveSessionRoomDir`/`isMcpFirst` copy) and making `room_bind` authoritative regardless of the MCP-first flag state -- is UNCHANGED and remains open, still carried to the **v1.17.0 "MCP-First" milestone**, because that defect is the MCP-first flag's own semantics failing, not a reach-seam defect. Phase 237-02 and 237-08 (the two 237 plans that touched `lib/mcp/tools/chain.cjs`, one of the eight resolver copies) both carried an explicit `git diff` fence proving zero touches to `isMcpFirst`/`resolveWriteRoom`/`resolveActiveRoom`/`fallbackRoomDir`, so the structural leg genuinely was not touched. Do not mark `status` resolved on the strength of the Phase 237 close-out alone -- the Test 1 leg this file's own hypothesis names is still live.
 
 UPDATED 2026-07-29 (independent live re-reproduction, `room_state_bound` at `lib/mcp/tools/room.cjs:226-249` -- a ninth site sharing this file's exact read-path pattern, not previously named). Confirms the core diagnosis again: bound to `mindrianOS`, then to `jonathan-sagir`, and `room_state_bound` still resolved to `mindrianOS` -- the first bind's remnant, since neither `room_bind` call moved the global registry pointer. No change to the v1.17.0 routing above; this is corroborating evidence, not a new defect. It DID surface one genuinely new, UNCONFIRMED wrinkle worth carrying into the v1.17.0 scoping pass alongside the resolver-collapse work: the stale-resolved room's STATE.md payload was not merely wrong-but-readable (as this file's original Evidence documents for `/home/jsagi/room`) -- it was several thousand literal null bytes. Traced the read path (`room.cjs` -> `state-ops.cjs::getState` -> `index.cjs::safeReadFile`, a plain `fs.readFileSync`) and confirmed it cannot itself produce this from a genuinely empty file (a 0-byte file reads as `''`, which correctly hits `room.cjs:242`'s existing `state || 'No STATE.md found...'` fallback). This points at a SEPARATE, UNCONFIRMED write-side suspect -- `state-ops.cjs:44`'s `computeState()` writes STATE.md via a non-atomic `fs.writeFileSync` fed by a 10-second-timeout `execSync`, and this session independently observed a MINTO-regen/auto-commit pipeline firing on every room write, so a race or a killed exec could plausibly leave a torn/null-padded file. See the new Evidence entry below for the full trace. Not reproduced twice, not root-caused, not folded into this file's Resolution -- if it recurs, it earns its own debug file rather than being absorbed here.
 
@@ -186,14 +206,26 @@ started: observed 2026-07-28, plugin v1.15.3-beta.50. Not bisected against earli
 - `.planning/STATE.md`: same status and same correction as ROADMAP.md above -- v1.17.0 slot entry (~line 22) carries the mirrored CARRIED-IN DEFECT note, written but uncommitted, same unverified-attribution caveat.
 - **This file itself was committed** (MindrianOS-Plugin commit e65dadc2, then re-verified/annotated by the validation pass, still uncommitted after that pass -- see commits line below for final status).
 - Room-side durable copy: VERIFIED PRESENT and NOW COMMITTED at `~/MindrianRooms/rethinking-mindrianos/research/2026-07-28-room-bind-session-scope-ignored-mcp-first-off/`, cross-linked to the 2026-07-22 sibling entry. CORRECTION: the validation pass's cited commit hash (245621d59) was WRONG -- that hash is the pre-existing 2026-07-22 entry's commit, not this file's. This file was actually still untracked at validation time; committed separately as rethinking-mindrianos room commit 990f545f5. NOTE: the room copy predates the v1.17.0 split-routing proposal and still says Phase 237 owns the full structural fix; update if the split routing is confirmed.
-- knowledge-base.md: NOT yet added - this file is `status: diagnosed`, not `resolved`; add the knowledge-base block only once Phase 237 actually resolves this.
+- knowledge-base.md: ADDED 2026-08-10 - block appended covering this slug, the nine-copy
+  census correction, and the rejected write-through tripwire.
+- **Release pickup TODO (stated deferral, not an oversight):** two real-host legs remain
+  unverified and are tracked here for the release checklist to find: (1) Desktop real-host
+  confirmation, (2) Cowork real-host confirmation. Both surfaces are proven only via scripted
+  equivalents (`tests/test-248-surface-probes.cjs`) today. Re-verify both against a real
+  Desktop app session and a real Cowork multi-user session once v2.0.0-beta ships and is
+  picked up (a running session never hot-reloads; a fresh install/session is required per the
+  fix-not-live-until-released hard rule).
 
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: room_bind's session-scoped binding and every MCP read tool's room resolution are disconnected unless MINDRIAN_MCP_FIRST covers the calling surface; off by default, reads fall through to a global registry pointer and then a frozen boot-time fallback, neither of which room_bind's success response discloses.
-fix: NOT YET APPLIED (code-level). Operational mitigation applied and verified live this session: `room-registry set-active mindrianOS` corrects the global registry pointer, restoring correct end-to-end resolution without a code change. Structural fix (eight-copy resolver collapse + honest room_bind contract) is routed to the v1.17.0 "MCP-First" milestone, not Phase 237 -- flagged as an unconfirmed attribution by this session (commit c683a4b8), then confirmed directly by the navigator, committed as confirmed (commit 9cd0f627). v1.16.0 Phase 237 (REACH-03) retains only the session-scoping acceptance test.
-verification: see Evidence section above - before/after live tool calls, exact payloads captured.
+root_cause: room_bind's session-scoped binding and every MCP read tool's room resolution were disconnected unless MINDRIAN_MCP_FIRST covered the calling surface; off by default, reads fell through to a global registry pointer and then a frozen boot-time fallback, neither of which room_bind's success response disclosed. Root cause stands as originally diagnosed; nothing in the fix changed the diagnosis, only closed the gap.
+fix: Phase 248, plans 01+02, combined. Plan 01 collapsed the resolver copies into `lib/mcp/session-room.cjs` with UNCONDITIONAL session-binding reads (bound sessions are now authoritative regardless of `MINDRIAN_MCP_FIRST` state). Plan 02 made `room_bind` honest: a post-write round-trip through the SAME shared resolver, SAME sessionId, reports `effective`/`resolved_dir`/`resolved_source`/`reason` on every call, so the unqualified `{ok:true, bound:true}` about an inert effect can no longer be reproduced. Census correction: the original filing counted eight resolver copies; the real count is NINE - `lib/mcp/stop-gate-handler.cjs:78` was the missed ninth site sharing the identical gate-then-fallthrough pattern (found and collapsed in Phase 248-01); `tools/stop-gate.cjs` has no copy of its own, it was never a tenth site. The RCA's own short-term-patch suggestion (`room_bind` writing through to the global registry `active` field) was REJECTED at plan time: one session's bind would clobber every concurrent session's Leg B read, reintroducing the machine-wide race that commit `0bec81b9`/PSB already fixed. The structural fix (the resolver collapse) makes the write-through patch unnecessary, and `tests/test-248-room-bind-honest-return.cjs` Test 5 stands as the permanent tripwire proving `room_bind` never touches `registry.json`'s `active` field.
+verification: Source-of-Truth Preamble above states the code-vs-wire split. CODE = dev repo local HEAD at the fix commits. WIRE = (a) `tests/test-248-surface-probes.cjs` scripted five-step probes on CLI-, Desktop-, and Cowork-equivalent transports against fresh spawns (25/25 green, 0 skips); (b) the live CLI before/after from the human checkpoint, navigator-approved 2026-08-10, exact payloads recorded in `.planning/phases/248-mcp-first-room-resolution/248-02-LIVE-RESULT.md` (room_bind mindrianOS -> effective:true, resolved_dir the real mindrianOS path; room_state_bound followed the binding, not the stale global active pointer; a re-bind took effect for the next read; the room-not-on-disk negative returned effective:false, reason room_not_on_disk). Desktop and Cowork REAL-HOST legs are a STATED DEFERRAL (Tri-Polar rule: a skip is a stated call, never an oversight) to v2.0.0-beta release pickup, per the fix-not-live-until-released hard rule - see the Non-Code Follow-ups "release pickup TODO" line above. Scripted equivalents stand as the merge evidence in the interim.
 files_changed:
-  - (mitigation only, no code changed) `MindrianRooms/.rooms/registry.json` `active` field, via `scripts/room-registry set-active mindrianOS`
-commits: MindrianOS-Plugin e65dadc2 (original filing). ROADMAP.md/STATE.md split-routing edits from the validation pass are held UNCOMMITTED pending navigator confirmation of the attribution above. Room side: rethinking-mindrianos commit 990f545f5 (the validation pass cited 245621d59, which was wrong -- that is the pre-existing 2026-07-22 entry's commit).
+  - lib/mcp/session-room.cjs (Phase 248-01: the shared resolver collapse, unconditional session-binding reads)
+  - lib/mcp/tool-router.cjs (Phase 248-02: room_bind handler, honestBindResult() post-write round-trip)
+  - lib/mcp/stop-gate-handler.cjs (Phase 248-01: the ninth resolver copy, collapsed)
+  - tests/test-248-room-bind-honest-return.cjs, tests/test-248-surface-probes.cjs (new, Phase 248-02)
+  - tests/run-all-248.sh, CHANGELOG.md, docs/ENV-TUNING.md, docs/CANON-PHASE-MAP.md
+commits: MindrianOS-Plugin e65dadc2 (original filing). ROADMAP.md/STATE.md split-routing edits from the validation pass, and the earlier v1.17.0 routing attribution, are superseded by Phase 248 actually landing the fix (Phase 248, not Phase 237, owns the structural fix - see the room-side compositing correction below). Phase 248-01 commits per `248-01-SUMMARY.md`; Phase 248-02 commits `f3bbdaa5` (test, RED), `da0cc1af` (feat, GREEN, honest return), `907b1708` (feat, CTX-03 probes + docs), plus this close-out commit. Room side: rethinking-mindrianos commit 990f545f5 (original filing; the validation pass cited 245621d59, which was wrong), corrected 2026-08-10 to name Phase 248 as the owner of the structural fix (see `~/MindrianRooms/rethinking-mindrianos/research/2026-07-28-room-bind-session-scope-ignored-mcp-first-off/`).

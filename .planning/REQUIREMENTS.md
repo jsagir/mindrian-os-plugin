@@ -140,13 +140,18 @@ methodology that did not come from the Brain, without being told.
       the resolve-active-room.cjs precedent and the isWritePathEnabled precedence ladder.
       (248-01: the census re-verified NINE copies, not eight - see 248-01-SUMMARY.md.)
 
-- [ ] **CTX-02**: An explicit room_bind is authoritative for the rest of its session
+- [x] **CTX-02**: An explicit room_bind is authoritative for the rest of its session
       regardless of flag state, and returns an honest result about whether it will apply.
-      (248-01 landed the MECHANISM half - bound sessions are authoritative flag-off; the
-      honest-return half is 248-02's job, so this stays unchecked until 248-02 closes.)
+      (248-01 landed the MECHANISM half - bound sessions are authoritative flag-off; 248-02
+      closed the honest-return half: room_bind round-trips through the shared resolver after
+      every write and reports effective/resolved_dir/resolved_source/reason.)
 
-- [ ] **CTX-03**: The carried defect (.planning/debug/room-bind-mcp-first-off-falls-back-to-
-      stale-global-active-room.md) closes with a live before/after on all three surfaces.
+- [x] **CTX-03**: The carried defect (.planning/debug/resolved/room-bind-mcp-first-off-falls-
+      back-to-stale-global-active-room.md) closes with a live before/after on all three
+      surfaces. DEFERRAL: closed at merge scope - live CLI before/after (PASS, 2026-08-10) plus
+      scripted Desktop/Cowork surface-equivalents (25/25 green); real-host Desktop/Cowork
+      confirmation is a named, tracked deferral to v2.0.0-beta release pickup (not yet
+      released), never an implied "done" - see the resolved RCA's release-pickup TODO.
 
 ### Availability (navigator ruling 2026-08-10: "always accessible" - joins Phase B/D scope)
 

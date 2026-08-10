@@ -3,18 +3,52 @@ gsd_state_version: 1.0
 milestone: v2.0.0
 milestone_name: milestone
 status: Defining requirements
-stopped_at: Completed 252-01-PLAN.md
-last_updated: "2026-08-10T19:07:22.402Z"
+stopped_at: Completed 248-02-PLAN.md
+last_updated: "2026-08-10T19:33:19.893Z"
 last_activity: 2026-08-10 — Milestone v2.0.0 started
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 19
-  completed_plans: 16
-  percent: 84
+  completed_plans: 15
+  percent: 57
 ---
 
 # Project State
+
+## (2026-08-10) -- PHASE 248 PLAN 02 COMPLETE -- Honest room_bind return, CTX-03 live before/after PASS, carried defect closed
+
+- **Position:** Phase 248 (MCP-First Room Resolution) Plan 02 is COMPLETE, all 4 tasks done.
+  Task 3's human checkpoint returned "approved" (live CLI before/after against the fixed
+  dev-repo code). Task 4 closed the carried defect on the record. Phase 248 is now fully
+  complete (both plans 248-01 and 248-02).
+
+- **Task 3 (checkpoint, approved):** live CLI before/after in a genuinely fresh Claude Code
+  CLI session against this dev repo's `.mcp.json`, verdict PASS on the dev-repo code. AFTER
+  leg: `room_bind mindrianOS` -> `effective:true`, the real resolved path; `room_state_bound`
+  followed the binding, not the stale global active pointer; a re-bind took effect for the
+  next read; the room-not-on-disk negative returned `effective:false, reason:
+  room_not_on_disk`. BEFORE leg reconfirmed the RCA's documented dishonest behavior on the
+  shipped beta.13 surface. Full transcript: `.planning/phases/248-mcp-first-room-resolution/248-02-LIVE-RESULT.md`.
+
+- **Task 4 (close the carried defect on the record):** the RCA
+  `.planning/debug/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` moved
+  via `git mv` to `.planning/debug/resolved/`, status `diagnosed` -> `resolved`, code-vs-wire
+  preamble added, Resolution rewritten with the nine-copy census correction and the rejected
+  write-through patch named explicitly (tripwire: `tests/test-248-room-bind-honest-return.cjs`
+  Test 5). `.planning/debug/knowledge-base.md` gained a summary block for the slug. The
+  room-side compositing handoff (correcting `rethinking-mindrianos`'s research entry from
+  "Phase 237 owns the fix" to "Phase 248 landed it") was **attempted and BLOCKED** by this
+  session's `write-scope-check` hook (session bound to `jonathan-sagir`, not
+  `rethinking-mindrianos`) -- handed off, not force-bypassed; full handoff note in
+  `248-02-SUMMARY.md`.
+
+- **Requirements:** CTX-02 and CTX-03 both checked in `.planning/REQUIREMENTS.md`. CTX-03
+  carries a named, tracked deferral: real-host Desktop/Cowork confirmation is NOT yet done
+  (scripted surface-equivalents stand as the merge evidence); this fix is verified live on
+  dev-repo code only and has NOT shipped in a release yet.
+
+- **Full detail:** `.planning/phases/248-mcp-first-room-resolution/248-02-SUMMARY.md`.
 
 ## (2026-08-10) -- PHASE 252 PLAN 01 COMPLETE -- Guard sweep SWEEP-01: census, counterfeit kill, chokepoint rename, route/conform/keep
 
@@ -392,7 +426,7 @@ progress:
   Phase 246 Plan 01 Task 2 operator checkpoint (LOOP-01 live Brain test) remains open and
   unrelated -- not touched or resolved by this plan.
 
-## (2026-08-10) -- PHASE 248 PLAN 02 CHECKPOINT OPEN -- honest room_bind return + CTX-03 surface probes, Tasks 1-2 done
+## (2026-08-10) -- PHASE 248 PLAN 02 CHECKPOINT OPEN -- SUPERSEDED, see the "PHASE 248 PLAN 02 COMPLETE" entry above (checkpoint approved, Task 4 done, plan complete)
 
 - **Position:** Phase 248 (MCP-First Room Resolution) Plan 02, Tasks 1-2 of 4 complete.
   STOPPED at Task 3, a `checkpoint:human-verify` (gate=blocking) requiring a FRESH Claude
@@ -2833,6 +2867,7 @@ Progress: [█████████░] 92%
 | Phase 249 P02 | 55min | 3 tasks | 7 files |
 | Phase 250 P01 | 7min | 3 tasks | 13 files |
 | Phase 252 P01 | 160 | 4 tasks | 27 files |
+| Phase 248 P02 | 95min + close-out | 4 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -4045,6 +4080,7 @@ Progress: [█████████░] 92%
 - [Phase 250]: AVAIL-02 retry wraps only the tools/call fetch seam inside callTool(), not session-init; 401/403 zero-retry falls out of existing control flow
 - [Phase 252]: 252-01: census.2 seam-liveness claims = ROUTE_SET minus brain-client.cjs (its routed obligation is counterfeit deletion, independently verified by census.3, not a live consult-serve branch needing the rail)
 - [Phase 252]: 252-01: additive disclosure over destructive flip - every ROUTE/CONFORM site was already honest/typed before the sweep, so the rail wiring adds a field/stderr line rather than renaming byte-locked literals or reshaping return contracts
+- [Phase 248]: CTX-03 closed at merge scope: live CLI before/after PASS + scripted Desktop/Cowork surface-equivalents; real-host Desktop/Cowork confirmation named as a stated deferral to v2.0.0-beta release pickup, not implied done - fix-not-live-until-released hard rule: a running session never hot-reloads and the fix has not shipped in a release; scripted equivalents are the merge evidence in the interim
 
 ### Pending Todos
 
@@ -4144,8 +4180,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-10T19:07:17.092Z
-Stopped at: Completed 252-01-PLAN.md
+Last session: 2026-08-10T19:33:19.838Z
+Stopped at: Completed 248-02-PLAN.md
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 

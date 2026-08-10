@@ -3,7 +3,7 @@ phase: 248-mcp-first-room-resolution
 plan: 02
 subsystem: mcp
 tags: [mcp, session-binding, room-resolution, honest-return, surface-probes, checkpoint]
-status: checkpoint
+status: complete
 
 # Dependency graph
 requires:
@@ -46,12 +46,14 @@ key-decisions:
   - "CHANGELOG's Fixed entry landed under the CURRENT '[Unreleased] -- v1.16.0-beta.12 (in progress)' heading, not a 'v2.0.0-beta' heading (the plan's literal text) -- no such heading exists in the file, and the phase constraint is explicit: no version bumps. Relabeling the heading would itself be a version-identifier change"
   - "docs/ENV-TUNING.md's MINDRIAN_MCP_FIRST section is NET-NEW, not an amendment -- grepped docs/ tree-wide before writing; no prior entry existed anywhere. 'Amend' became 'add'; the outcome (an accurate, current entry) is what the plan's must_have actually asked for"
 
-requirements-completed: []
-# NOTE: this plan's frontmatter declares [CTX-02, CTX-03]. Marking them
-# complete is deferred until Task 4 closes the carried defect post-checkpoint
-# (CTX-03's own must_have names the live CLI before/after as part of the bar;
-# that leg has not run yet -- see "Checkpoint Outcome" below). Do not mark
-# complete from a mid-plan checkpoint state.
+requirements-completed: [CTX-02, CTX-03]
+# CTX-02 and CTX-03 marked complete 2026-08-10 after Task 3's checkpoint
+# returned "approved" (live CLI before/after, .planning/phases/
+# 248-mcp-first-room-resolution/248-02-LIVE-RESULT.md) and Task 4 closed the
+# carried defect on the record. CTX-03 carries a stated deferral: real-host
+# Desktop/Cowork confirmation is not yet done (scripted surface-equivalents
+# stand as the merge evidence), tracked as a release-pickup TODO in the
+# resolved RCA file, not implied "done".
 
 # Metrics
 duration: 95min
@@ -60,14 +62,14 @@ completed: 2026-08-10
 
 # Phase 248 Plan 02: Honest room_bind Return + CTX-03 Surface Probes (Tasks 1-2) Summary
 
-**room_bind now round-trips through the shared resolver after every write and reports what the next read will actually see (effective/resolved_dir/resolved_source/reason); the CTX-03 merge gate is scripted and green on all three surface-equivalent transports, including a real two-connection HTTP isolation proof. STOPPED at Task 3's human checkpoint -- the live CLI before/after has not run yet.**
+**room_bind now round-trips through the shared resolver after every write and reports what the next read will actually see (effective/resolved_dir/resolved_source/reason); the CTX-03 merge gate is scripted and green on all three surface-equivalent transports, including a real two-connection HTTP isolation proof. Task 3's human checkpoint returned "approved" (live CLI before/after, PASS on dev-repo code); Task 4 closed the carried defect on the record. Plan COMPLETE.**
 
 ## Performance
 
-- **Duration:** 95 min (Tasks 1-2 only; Task 3/4 not started)
-- **Tasks:** 2 of 4 completed (Task 3 is the checkpoint this plan stops at; Task 4 runs only after approval)
+- **Duration:** 95 min (Tasks 1-2) + checkpoint + Task 4 close-out
+- **Tasks:** 4 of 4 completed
 - **Files created:** 2 (both new test files)
-- **Files modified:** 6
+- **Files modified:** 8 (6 in Tasks 1-2, plus the RCA file and knowledge-base.md in Task 4)
 
 ## Accomplishments
 
@@ -82,8 +84,10 @@ completed: 2026-08-10
 1. **Task 1a (RED): red for honest room_bind return** - `f3bbdaa5` (test)
 2. **Task 1b (GREEN): honest room_bind return via post-write round-trip** - `da0cc1af` (feat)
 3. **Task 2: CTX-03 scripted surface-equivalent probes + doc updates** - `907b1708` (feat)
+4. **Task 3: live CLI before/after result recorded** - `dbe31beb` (docs)
+5. **Task 4: close the carried defect on the record** - see Files Created/Modified below; committed alongside this SUMMARY's plan-metadata commit.
 
-_Plan-metadata commit (this SUMMARY + STATE.md + ROADMAP.md) follows, per protocol, once the checkpoint's outcome is recorded._
+_Plan-metadata commit (this SUMMARY + STATE.md + REQUIREMENTS.md + ROADMAP.md) follows, per protocol._
 
 ## Files Created/Modified
 
@@ -95,6 +99,8 @@ _Plan-metadata commit (this SUMMARY + STATE.md + ROADMAP.md) follows, per protoc
 - `docs/ENV-TUNING.md` - net-new `MINDRIAN_MCP_FIRST` section
 - `docs/CANON-PHASE-MAP.md` - new "v2.0.0 MCP-First Room Resolution addition" section, Phase 248 row
 - `.planning/phases/248-mcp-first-room-resolution/deferred-items.md` - appended the `doctor --acceptance` pre-existing-failure entry (see Deviations)
+- `.planning/debug/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` - Task 4: moved to `.planning/debug/resolved/` via `git mv`, status `diagnosed` -> `resolved`, code-vs-wire preamble added, Resolution block rewritten (nine-copy census correction, rejected write-through named as REJECTED with its tripwire, release-pickup TODO for the two deferred real-host legs)
+- `.planning/debug/knowledge-base.md` - Task 4: appended the resolved-session summary block for this slug
 
 ## Decisions Made
 
@@ -143,36 +149,32 @@ None - no external service configuration required. Pure local code + doc changes
 
 ## Checkpoint Outcome
 
-**STOPPED at Task 3 (`checkpoint:human-verify`, gate=blocking) -- not yet run.**
+**APPROVED 2026-08-10.** The live CLI before/after ran in a fresh Claude Code CLI session against this dev repo's `.mcp.json`, executed via fresh processes (sequenced re-run after an initial concurrent probe raced). Full result: `.planning/phases/248-mcp-first-room-resolution/248-02-LIVE-RESULT.md`.
 
-Task 3 requires a FRESH Claude Code CLI session in this repo (the current session's MCP server predates this plan's fix and will not show it -- per the release-liveness hard rule, a running session never hot-reloads). It is operator-only: only a human can start a genuinely fresh CLI session against this dev repo's `.mcp.json`. The checkpoint text, verbatim, as it will be presented to the operator:
+- **BEFORE leg** (shipped beta.13 cache, fresh headless session, plugin-scope tools): reconfirmed the RCA's documented dishonest before-behavior exactly - `room_bind` returned only `{ok,bound,primary,source}` with no `effective`/`resolved_dir`/`reason`; `room_state_bound` followed the GLOBAL active room, ignoring the binding; `room_bind no-such-room-xyz` "succeeded" with no disk validation.
+- **AFTER leg** (dev-repo `bin/mindrian-mcp-server.cjs`, fresh process, sequenced): `room_bind mindrianOS` -> `ok:true, effective:true, resolved_dir` the real mindrianOS path, `resolved_source: session.primary`; `room_state_bound` followed the BINDING while the registry's `active` field held the decoy; a rebind took effect for the next read (the first-bind-remnant case is dead); `room_bind no-such-room-xyz` -> `effective:false, reason: room_not_on_disk, resolved_source: reg.active` (honest fallback disclosure).
+- **Verdict:** PASS on the dev-repo code. Desktop/Cowork surface-equivalents were already scripted-green in Task 2; real-host confirmation remains a stated deferral to release pickup, per the fix-not-live-until-released rule (NOT yet released as of this close-out).
 
-> **What was built:** Plans 248-01 + 248-02 tasks 1-2: the nine-copy collapse, unconditional binding reads, honest room_bind return, and scripted probes green on CLI-, Desktop-, and Cowork-equivalent transports. The BEFORE leg is already on the record in the RCA (Evidence 2026-07-28 03:40-03:55: bind reported success, reads resolved /home/jsagi/room; plus the 2026-07-29 two-bind remnant repro) - you do not need to re-run broken code.
->
-> **How to verify:**
-> 1. Start a FRESH Claude Code CLI session in /home/jsagi/dev/MindrianOS-Plugin (fresh session = the MCP server spawns fresh from the fixed dev-repo code via .mcp.json; this satisfies the release-liveness rule without waiting on the v2.0.0-beta train. Your CURRENT session's server predates the fix and will NOT show it - do not test here).
-> 2. Fixture: `bash scripts/room-registry set-active <some-room-that-is-NOT-mindrianOS>` (a real room, e.g. jonathan-sagir), so the global pointer is deliberately stale relative to the bind target.
-> 3. In the fresh session call room_bind({room: "mindrianOS"}) -> expect ok:true AND effective:true AND resolved_dir "/home/jsagi/MindrianRooms/mindrianOS".
-> 4. Call room_state_bound (or suggest_next / reach_candidates for the sensor-spine leg) in the SAME session -> expect room_dir "/home/jsagi/MindrianRooms/mindrianOS", NOT the room you set active in step 2 (the before-behavior).
-> 5. Re-bind: room_bind({room: "jonathan-sagir"}), then room_state_bound -> expect jonathan-sagir's path (the 2026-07-29 first-bind-remnant case, now dead).
-> 6. Optional negative: room_bind({room: "no-such-room"}) -> expect effective:false, reason "room_not_on_disk".
->
-> If STATE.md content looks corrupted (null bytes) during step 4, that is the separate UNCONFIRMED state-ops wrinkle - report it, it gets its OWN debug file, it does not block this checkpoint.
->
-> **Resume signal:** Type "approved" (all steps matched) or describe exactly which step diverged and what you saw.
+## Task 4: Close the Carried Defect on the Record
 
-Task 4 (closing the carried defect on the record: RCA file to `resolved/`, knowledge-base append, room-side compositing handoff) runs ONLY after this checkpoint returns "approved". It has not started.
+Ran after the checkpoint's "approved" per plan sequencing.
+
+- **RCA file:** `.planning/debug/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md` moved via `git mv` to `.planning/debug/resolved/`. Frontmatter `status: diagnosed` -> `resolved`, `updated` timestamp bumped. Added a Source-of-Truth (code-vs-wire) preamble at resolve time. `Resolution` block rewritten: root cause stands as originally diagnosed; fix = Phase 248 plans 01+02 combined (the nine-copy collapse into `lib/mcp/session-room.cjs` with unconditional session-binding reads, plus `room_bind`'s honest post-write round-trip return); census correction recorded (nine copies, not eight - `lib/mcp/stop-gate-handler.cjs:78` was the missed ninth; `tools/stop-gate.cjs` has no copy of its own); the RCA's own short-term registry write-through patch is named REJECTED (would reintroduce the machine-wide race fixed by `0bec81b9`/PSB; `tests/test-248-room-bind-honest-return.cjs` Test 5 is the standing tripwire). Verification cites the code-vs-wire split: CODE = dev-repo local HEAD at the fix commits; WIRE = the scripted surface probes (`tests/test-248-surface-probes.cjs`) plus the live CLI after-leg above. A "release pickup TODO" line names the two deferred real-host legs (Desktop, Cowork) explicitly so the release checklist can find them.
+- **Knowledge base:** `.planning/debug/knowledge-base.md` gained a new summary block for this slug (root cause, fix, verification, files changed, the nine-copy census lesson: count function definitions, not the `fallbackRoomDir` token).
+- **Room-side compositing handoff (Dev-Research Compositing rule):** attempted to correct `~/MindrianRooms/rethinking-mindrianos/research/2026-07-28-room-bind-session-scope-ignored-mcp-first-off/2026-07-28-room-bind-session-scope-ignored-mcp-first-off.md`, which still says Phase 237 owns the structural fix. **BLOCKED**: this session's `write-scope-check` hook refused the write - session is bound to `jonathan-sagir`, not `rethinking-mindrianos` (`Blocked: write to rethinking-mindrianos denied... To authorize, run: /mos:rooms switch rethinking-mindrianos`). Per the plan's own out-of-repo-follow-up clause ("recorded in the SUMMARY as a handoff note rather than done here if the directory is unavailable"), this is handed off rather than force-bypassed. **HANDOFF: a follow-up session bound to (or including) `rethinking-mindrianos` must update that file's "Disposition" section to state that Phase 248 (not Phase 237) landed the structural fix, resolved 2026-08-10, dev-repo record at `.planning/debug/resolved/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md`.** Not yet done.
 
 ## Next Phase Readiness
 
-Tasks 1-2's automated surface is fully proven (52 assertions across the two new test files, both phase-runner-wired, zero skips). What remains before this plan can close is entirely the human leg: approve the live CLI before/after, then Task 4's paperwork. No blockers, no architectural concerns -- both tasks landed on the researched design without a Rule 4 escalation.
+Plan COMPLETE: all 4 tasks done, checkpoint approved, defect closed on the record. CTX-02 and CTX-03 are checked in `.planning/REQUIREMENTS.md` (CTX-03 carries the named release-pickup deferral for real-host Desktop/Cowork confirmation). Two items remain open outside this plan's own commit boundary: (1) the room-side compositing handoff above, blocked by session scope, needs a `rethinking-mindrianos`-bound session to finish; (2) the release-pickup TODO itself (real-host Desktop/Cowork verification) waits on v2.0.0-beta shipping and being picked up. No blockers, no architectural concerns on the code side - both tasks landed on the researched design without a Rule 4 escalation.
 
 ---
 *Phase: 248-mcp-first-room-resolution*
-*Completed: 2026-08-10 (Tasks 1-2 only; plan not yet complete)*
+*Completed: 2026-08-10 (all 4 tasks, checkpoint approved, plan complete)*
 
 ## Self-Check: PASSED
 
 All created files verified present on disk (`tests/test-248-room-bind-honest-return.cjs`,
-`tests/test-248-surface-probes.cjs`, this SUMMARY). All three task commit hashes
-(`f3bbdaa5`, `da0cc1af`, `907b1708`) confirmed present in `git log --oneline --all`.
+`tests/test-248-surface-probes.cjs`, this SUMMARY). All task commit hashes
+(`f3bbdaa5`, `da0cc1af`, `907b1708`, `dbe31beb`) confirmed present in `git log --oneline --all`.
+RCA file confirmed present at `.planning/debug/resolved/room-bind-mcp-first-off-falls-back-to-stale-global-active-room.md`
+and absent from its old location.

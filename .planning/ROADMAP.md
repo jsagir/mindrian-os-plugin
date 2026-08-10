@@ -35,7 +35,7 @@ Already-scoped inputs (routed in, not re-planned): `docs/2026-08-10-HANDOFF-buil
 
 - [ ] **Phase 246: Live Verification + Graph Census** - A fresh session proves the beta.13 Brain path live with the three-call test, and a tracked Cypher census maps the methodology graph's real structure and gaps
 - [ ] **Phase 247: Brain Surface Contract** - The loop-serving tool set is THE declared cross-repo contract, the server-side-LLM tools get an explicit fate, and search stops leaking local paths (cross-repo with jsagir/brain_ProblemsWorthSolving)
-- [ ] **Phase 248: MCP-First Room Resolution** - One shared room-resolution ladder replaces the eight resolver copies, and room_bind is authoritative and honest for its session (the absorbed v1.17.0 slot; the local-context half of the loop)
+- [x] **Phase 248: MCP-First Room Resolution** - One shared room-resolution ladder replaces the eight resolver copies, and room_bind is authoritative and honest for its session (the absorbed v1.17.0 slot; the local-context half of the loop) (completed 2026-08-10)
 - [ ] **Phase 249: Context-Driven Enrichment** - Live readiness misses queue frameworks for structural enrichment with reviewable diffs and evals that can fail; the flagship frameworks reach the readiness floor
 - [ ] **Phase 250: Honesty Rail + Doctrine Amendment** - The silent-fallback clause is dead everywhere, Decisions #1 and #8 are rewritten together as one unit, and graph-grounded answers carry provenance
 - [ ] **Phase 251: Cache-Aware Trigger Redesign** - The per-turn injection's real prompt-cache cost is measured, injection goes stable-prefix/append-only, and the Brain reach rides the redesigned rail
@@ -91,7 +91,7 @@ Plans:
 Plans:
 
 - [x] 248-01-PLAN.md - Nine-copy collapse: lib/mcp/session-room.cjs the ONE shared resolver, census gate, bound-session authority proof, doctrine re-point (CTX-01, mechanism half of CTX-02)
-- [ ] 248-02-PLAN.md - Honest room_bind return + CTX-03 live before/after close-out
+- [x] 248-02-PLAN.md - Honest room_bind return + CTX-03 live before/after close-out
 
 ### Phase 249: Context-Driven Enrichment
 
@@ -181,7 +181,7 @@ candidate for a future phase).
 |-------|----------------|--------|-----------|
 | 246. Live Verification + Graph Census | 0/2 | Not started | - |
 | 247. Brain Surface Contract | 2/3 | In Progress|  |
-| 248. MCP-First Room Resolution | 1/2 | In Progress | - |
+| 248. MCP-First Room Resolution | 2/2 | Complete   | 2026-08-10 |
 | 249. Context-Driven Enrichment | 2/3 | In Progress|  |
 | 250. Honesty Rail + Doctrine Amendment | 3/4 | In Progress|  |
 | 251. Cache-Aware Trigger Redesign | 1/2 | In Progress|  |
