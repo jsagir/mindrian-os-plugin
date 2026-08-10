@@ -1,17 +1,15 @@
 ---
 kind: drift-baseline
 phase: 132
-audit_date: 2026-06-13
+audit_date: 2026-08-10
 status: open
-finding_ids: [I001-132-02, I001-132-04]
+finding_ids: [W007-132]
 ---
 
-<!-- gsd:drift first_seen I001-132-02=2026-06-13 -->
-<!-- gsd:drift first_seen I001-132-04=2026-06-13 -->
+<!-- gsd:drift first_seen W007-132=2026-08-10 -->
 
 # Phase 132 drift
 
 | finding_id | severity | status | detail | first_seen | last_seen | closed_date |
 |------------|----------|--------|--------|------------|-----------|-------------|
-| I001-132-02 | info | open | 132-dual-graph-correlation-hypergraph-reformat/132-02-PLAN.md has no SUMMARY.md | 2026-06-13 | 2026-06-13 |  |
-| I001-132-04 | info | open | 132-dual-graph-correlation-hypergraph-reformat/132-04-PLAN.md has no SUMMARY.md | 2026-06-13 | 2026-06-13 |  |
+| W007-132 | warn | open | Phase 132 exists on disk but not in ROADMAP.md | 2026-08-10 | 2026-08-10 |  |

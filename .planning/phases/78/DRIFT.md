@@ -1,15 +1,15 @@
 ---
 kind: drift-baseline
 phase: 78
-audit_date: 2026-06-13
+audit_date: 2026-08-10
 status: open
-finding_ids: [I001-78-01]
+finding_ids: [W007-78]
 ---
 
-<!-- gsd:drift first_seen I001-78-01=2026-06-13 -->
+<!-- gsd:drift first_seen W007-78=2026-08-10 -->
 
 # Phase 78 drift
 
 | finding_id | severity | status | detail | first_seen | last_seen | closed_date |
 |------------|----------|--------|--------|------------|-----------|-------------|
-| I001-78-01 | info | open | 78-memory-layer-assumptions/78-01-PLAN.md has no SUMMARY.md | 2026-06-13 | 2026-06-13 |  |
+| W007-78 | warn | open | Phase 78 exists on disk but not in ROADMAP.md | 2026-08-10 | 2026-08-10 |  |

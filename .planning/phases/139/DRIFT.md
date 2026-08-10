@@ -1,15 +1,15 @@
 ---
 kind: drift-baseline
 phase: 139
-audit_date: 2026-06-13
+audit_date: 2026-08-10
 status: open
-finding_ids: [I001-139-04]
+finding_ids: [W007-139]
 ---
 
-<!-- gsd:drift first_seen I001-139-04=2026-06-13 -->
+<!-- gsd:drift first_seen W007-139=2026-08-10 -->
 
 # Phase 139 drift
 
 | finding_id | severity | status | detail | first_seen | last_seen | closed_date |
 |------------|----------|--------|--------|------------|-----------|-------------|
-| I001-139-04 | info | open | 139-doctor-accumulative-engine-skeleton-and-context-fix/139-04-PLAN.md has no SUMMARY.md | 2026-06-13 | 2026-06-13 |  |
+| W007-139 | warn | open | Phase 139 exists on disk but not in ROADMAP.md | 2026-08-10 | 2026-08-10 |  |
