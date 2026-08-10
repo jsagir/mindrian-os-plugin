@@ -6,8 +6,8 @@ Zed loads skills from a FLAT `.agents/skills/<name>/` directory and does not des
 
 This file exists so the omission is RECORDED rather than silent. A skill listed below still loads on Zed, but any instruction in its SKILL.md body that points at one of these paths will not resolve there. The full content is always available in `dist/generic-claude-dir/` and in the source `skills/` tree.
 
-- Skills in this bundle: 125
-- Catalog name+description bytes: 12965 / 51200 (25% of the Zed budget)
+- Skills in this bundle: 126
+- Catalog name+description bytes: 13235 / 51200 (26% of the Zed budget)
 - Skills with omitted subdirectories: 1
 - Subdirectories omitted in total: 2
 

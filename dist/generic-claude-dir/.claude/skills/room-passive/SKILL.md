@@ -4,7 +4,11 @@ description: >
   Data Room awareness, filing intelligence, and passive monitoring. Active when
   room/ exists -- gives Larry project structure context and filing guidance.
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-activation: "resolve_room:active"
+# activation: "resolve_room:active"  <- INERT. Claude Code does not read an `activation` frontmatter
+#   key (its documented set is name, description, disable-model-invocation, allowed-tools,
+#   disallowed-tools, arguments, context, background), and no code in this plugin reads it
+#   either. Kept as a comment so the INTENT survives; it never gated anything. Pinned by
+#   tests/test-skill-frontmatter-inert-keys.cjs.
 paths:
   - "**/STATE.md"
   - "**/ROOM.md"

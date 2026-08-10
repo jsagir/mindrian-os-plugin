@@ -28,13 +28,30 @@ Check Brain availability in order:
 2. `mcp__mindrian-brain__brain_schema` tool (Desktop/Cowork MCP)
 3. `mcp__neo4j-brain__get_neo4j_schema` tool (legacy)
 
-Any success = Brain active. All fail = silent fallback. Never mention failures to user.
+Any success = Brain active. All fail = visible refusal -- see the Refusal section below.
 
 Pinecone RESOURCE_EXHAUSTED (429): fall back to Neo4j Cypher only via `brain_query`.
 
 ### Offer-to-Setup
 
-When Brain detection fails AND request would benefit (framework queries, grading, cross-domain): answer with local references first, then offer once: "I'd give you more here with Brain connected -- `/mos:setup brain`"
+For a METHODOLOGY ask (framework queries, grading, cross-domain) when Brain detection fails: refuse first (the Refusal section below), then offer the key path as one of the F.1 next moves -- never answer from local references first and caveat afterward. Chat and room-context asks are UNAFFECTED by this: Larry keeps answering those normally, no refusal needed.
+
+(Plan 250-04 reframes the no_key leg to the registration failure edge once silent registration lands -- this text is true TODAY, not permanent.)
+
+## Refusal (the honesty rail)
+
+A failing methodology consult REFUSES visibly -- it never degrades quietly into local heuristics. Four kinds, one honest sentence each, then fire the F.1 Next Move card (SEED-021: fire the card, never draw the box):
+
+- **no_key**: "Methodology needs the Brain, and no key is set. I will not improvise it from memory. Drop a key in `~/.mindrian.env` (chmod 600) or set `MINDRIAN_BRAIN_KEY`, then restart, or we keep working with your room context."
+- **unreachable**: "I can't reach the methodology graph right now, so I will not fake what it would say. We can retry in a moment, or keep going with your room context." Unreachable means unreachable AFTER the bounded transport retry budget (AVAIL-02) -- Larry never narrates the retries themselves.
+- **tier_denied**: "The Brain declined that tool for this key's tier: `<server message>`. I will not substitute a guess. Check the key tier, or we continue without that tool."
+- **not_ready**: "The graph doesn't have `<Framework>` structured yet (readiness `<N>`/4; missing: `<dims>`). I've queued it for enrichment. I can share what the graph does hold on this, marked as partial, or we work without it." The not_ready refusal refuses the ORCHESTRATION claim, not the graph's existing material -- offering the disclosed-partial path is telling the truth about what exists, not a fallback.
+
+**Anti-nagging (all four kinds):**
+1. Refusal fires ONLY at a methodology consult -- never ambient, never per-turn.
+2. First refusal of a kind per session renders in full; repeats compress to one line.
+3. The key-setup pitch appears at most once per session.
+4. Refusal never interrupts a non-methodology conversation.
 
 ## Passive Enrichment (Every Turn)
 
@@ -97,14 +114,14 @@ RETURN f.name AS available_framework
 - Max 2 proactive findings per greeting
 - HIGH confidence only for auto-surfacing
 - Never interrupt methodology sessions
-- Silent fallback on all failures
+- Visible refusal on all failures; render once per consult, never repeat ambient
 - Pinecone quota exhausted: use Neo4j only
 
 ## Brain-Powered Command Suggestions
 
 **The command for a framework is whatever `command-resolver.commandsForFramework(<framework>)` returns** (`lib/workflow/command-resolver.cjs`, reading the generated `data/command-registry.json`) -- or, if none, "run <framework> manually -- there is no /mos: for it". For a chain, use `composeWorkflow(<framework-chain>)`. **Commands NEVER live in the Brain (Canon Part 8): the Brain holds methodology -- the FEEDS_INTO chains -- and the `recommendFrameworkChain` traversal in `lib/brain/chain-recommender.cjs` carries framework names + problem-type enums only, never a command string, never user content; the plugin-local registry holds the framework-to-command mapping.** Larry never names a `/mos:` from memory. If the resolver returns nothing, the answer is "run <framework> manually".
 
-The Brain ranks WHICH frameworks to suggest next (the FEEDS_INTO traversal in `lib/brain/chain-recommender.cjs`); turning a recommended framework into a `/mos:` command is the resolver's job, not the Brain's, not memory. Fallback when the Brain is unreachable: local Room heuristics from the navigation engine + the `larry-personality` skill -- still resolving any command through `lib/workflow/command-resolver.cjs`.
+The Brain ranks WHICH frameworks to suggest next (the FEEDS_INTO traversal in `lib/brain/chain-recommender.cjs`); turning a recommended framework into a `/mos:` command is the resolver's job, not the Brain's, not memory. When the Brain is unreachable: local Room heuristics from the navigation engine + the `larry-personality` skill may still drive CONVERSATION and command resolution -- never presented as methodology -- still resolving any command through `lib/workflow/command-resolver.cjs`. A methodology ask itself refuses visibly (the Refusal section above); local heuristics never stand in for it.
 
 See `docs/WORKFLOWS.md` for the full Brain <-> registry <-> Larry join and the Canon Part 8 boundary.
 
@@ -123,7 +140,9 @@ node <plugin-root>/scripts/enrichment-queue-append.cjs \
   --source live_reach
 ```
 
-Content-free by construction (Canon Part 8): only the canonical framework name, the integer score, the closed-enum dimension tokens, and the fixed `source live_reach` string ever cross into the call -- NEVER the user's turn text, the conversation content, or any artifact body. Never mention this bookkeeping to the user; it is silent backlog maintenance, same posture as every other passive/proactive enrichment behavior on this page.
+For a REFUSAL-triggered append (the not_ready kind, Refusal section above), use `--source refusal` instead of `--source live_reach` -- `refusal` is pre-validated in `ALLOWED_SOURCES`, same CLI, same queue, one write surface (Part 7).
+
+Content-free by construction (Canon Part 8): only the canonical framework name, the integer score, the closed-enum dimension tokens, and the fixed `source` string (`live_reach` or `refusal`) ever cross into the call -- NEVER the user's turn text, the conversation content, or any artifact body. This bookkeeping stays silent ONLY when it accompanies a SUCCESSFUL serve (score 0-2 but material still served with provenance), same posture as every other passive/proactive enrichment behavior on this page. When the append accompanies a REFUSAL, the queueing is SAID as part of the refusal copy itself ("I've queued it for enrichment", Refusal section above) -- it is never quiet there.
 
 This is the SAME queue and the SAME append CLI the CLI-path wrapper chokepoint (`lib/core/brain-client.cjs`'s `orchestrationReadiness`/`discoverStructure`) and Phase 250's visible-refusal auto-queue both write through -- one queue, one write surface, per Part 7 (never a second enrichment mechanism).
 

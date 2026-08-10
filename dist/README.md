@@ -36,8 +36,8 @@ not silently assumed.
 | `generic-claude-dir/` | nested `.claude/skills/<name>/SKILL.md` plus each skill's `references/`, `scripts/`, `assets/` | VS Code, Cursor, Goose, OpenCode, Copilot, Codex, Gemini CLI, Roo Code, Amp and the rest of the Agent Skills clients that read the `.claude/skills/` convention |
 | `zed/` | FLAT `.agents/skills/<name>/SKILL.md`, no nested folders | Zed only (its loader does not descend into skill subdirectories) |
 
-- Skills in each bundle: 125
-- Catalog name+description bytes: 12965 / 51200 (25% of Zed's 50KB budget)
+- Skills in each bundle: 126
+- Catalog name+description bytes: 13235 / 51200 (26% of Zed's 50KB budget)
 - Skills whose subdirectories could not ship to Zed: 1 (2 subdirectories in total, recorded in `zed/OMITTED-ASSETS.md`)
 
 ## `generic-claude-dir/.mcp.json` is machine-specific
