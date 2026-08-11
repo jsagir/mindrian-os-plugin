@@ -202,3 +202,28 @@ Task 3 (filing the Dev-Research Compositing entry into `~/MindrianRooms/rethinki
 - Task 2 marked NOT ATTEMPTED, Task 3 marked NOT STARTED, both accurately.
 
 ## Self-Check: PASSED
+
+## Task 2 checkpoint: GATE 0 OBSERVATION RECORDED (2026-08-11, Cursor on Windows)
+
+Navigator-relayed live evidence from the Windows machine (a Cursor agent session
+performed the install; the navigator pasted its report):
+
+- **Host:** Cursor (Windows). Plugin refreshed via `npx @mindrian_os/cli` to
+  mos@mindrian-marketplace **v2.0.0-beta.5**.
+- **MCP config:** both servers wired in `C:\Users\jsagi\.cursor\mcp.json` -
+  `mindrian-os` (full plugin) and `mindrian-brain` (key from `~/.mindrian.env`).
+- **Callability evidence (the previously-unobserved half):** a real room
+  (`MindrianRooms/lunar-water-site`) was created through the MCP surface from Cursor,
+  and the session documented the working /mos:* -> MCP tool mapping (new-project ->
+  room_content, diagnose -> methodology, find-bottlenecks/systems-thinking -> analysis,
+  whitespace -> whitespace_scan). Cross-surface behavioral note worth keeping: on
+  Cursor the MCP tools return Larry's framework INSTRUCTIONS and the host agent
+  executes them - vs Claude Code where /mos:* runs directly. Tri-polar data point.
+- **Brain leg:** one `tier_0_brain_unreachable` BEFORE the required Cursor restart -
+  consistent with config-not-yet-loaded, not a server fault (the deployed Brain was
+  simultaneously green from this machine).
+- **Remaining to FULLY close the checkpoint:** post-restart green/ready confirmation
+  for both servers, the 5-step chain run filing artifacts into the room, and explicit
+  graph_write/memory_event/artifact_file visibility+callability confirmation.
+  Status moves: catalog half CLOSED (prior session), callability half OBSERVED-PARTIAL
+  (room creation proves the write path executed once; systematic check pending).
