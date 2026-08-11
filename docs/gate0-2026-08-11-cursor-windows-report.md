@@ -63,3 +63,25 @@ gate_render -32001; fresh-VM cold-path Gate 0; VS Code + Copilot attempt.
 | Observed by | navigator (jsagi), 2026-08-11 |
 | Recorded by | dev session, commit accompanying this file |
 | Gap items | .planning/debug/gate0-cursor-windows-gaps.md (3 defects, routed) |
+
+## ADDENDUM (2026-08-11, post-restart): Gate 0 COMPLETE - PASS
+
+Second navigator report after Cursor restart: both servers connect in 1-2s
+(idle -> connecting -> connected), MCP Apps registered (room-dashboard/wiki/graph),
+room bound (lunar-water-site), and LIVE tool calls verified: status_read OK (tier0,
+write path enabled), room_state OK (Pre-Opportunity, 1 artifact), brain_stats OK
+(Memgraph, 28,325 / 23,014), brain_search OK (0.94-0.96 hits), brain_ask GUIDED mode
+working as designed (grounding-or-reframe; text2cypher arm disabled_pending_schema_trim
+by policy). The earlier Brain PARTIAL flips to PASS.
+
+Navigator's completion statement (verbatim): "Installed Mindrian in Cursor on Windows.
+On load, mindrian-os and mindrian-brain MCP servers connected successfully, registered
+three MCP Apps, bound to room lunar-water-site, and responded to live tool calls.
+Brain graph is live with 28k+ nodes. Gate 0: PASS."
+
+NEW OBSERVATION, upgrades gap item 3: the plugin-channel copy runs NATIVE Windows Node
+at v1.16.0-beta.13 alongside the WSL beta.5 - the duplicate registration is
+VERSION-SKEWED, and beta.13 is the dead-Brain-leg build. Severity raised to HIGH in
+.planning/debug/gate0-cursor-windows-gaps.md: an agent addressing the plugin-channel
+instance gets the pre-fix Brain behavior. Recommended immediate operator action:
+remove or update the plugin-channel registration so only ONE version serves.

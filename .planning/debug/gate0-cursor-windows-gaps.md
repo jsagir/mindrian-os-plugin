@@ -34,7 +34,7 @@ updated: 2026-08-11T06:30:00Z
    (248/MCP-First room resolution). Evidence: { ok:false, reason:"no_session_id" }.
 
 3. **Duplicate MCP registration (marketplace plugin + user mcp.json) = 4 servers, 2x tools**
-   - ENV GAP + docs gap, severity MEDIUM. Agent may address either instance; wasted
+   - ENV GAP + docs gap, severity HIGH (upgraded 2026-08-11: the duplicate is VERSION-SKEWED - plugin channel serves native-Windows v1.16.0-beta.13, the dead-Brain-leg build, alongside WSL beta.5). Agent may address either instance; wasted
    context; confusing panel. Route: 234-05 (tool visibility) for a dedup/detection story +
    install docs (pick ONE source, document it).
 
