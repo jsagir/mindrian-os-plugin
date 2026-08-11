@@ -227,3 +227,14 @@ performed the install; the navigator pasted its report):
   graph_write/memory_event/artifact_file visibility+callability confirmation.
   Status moves: catalog half CLOSED (prior session), callability half OBSERVED-PARTIAL
   (room creation proves the write path executed once; systematic check pending).
+
+## Task 2 checkpoint: CLEARED 2026-08-11 (full navigator report received)
+
+The navigator delivered a complete Gate 0 report from Cursor/Windows - per-criterion
+verdicts, three routed defects, Windows docs notes. VERDICT: PASS with caveats (MCP
+load + catalog + ready-state + room write proven on WSL bridge; call-and-done FAIL by
+instruction-surface design + gate timeout; cold path unproven). Verbatim record:
+docs/gate0-2026-08-11-cursor-windows-report.md. Gap items routed per this checkpoint's
+own rule: .planning/debug/gate0-cursor-windows-gaps.md (gate-render -32001 -> gate
+ladder owner; room_bind no_session_id -> CTX-03 owner; dual registration -> 234-05 +
+docs). Task 2: OBSERVED AND CLEARED. Task 3 (compositing entry) unblocked.
