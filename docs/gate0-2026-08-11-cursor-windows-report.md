@@ -1,53 +1,111 @@
 # Gate 0 - Cursor on Windows: navigator's live observation (VERBATIM external record)
 
-Recorded 2026-08-11. Preserved as delivered (em-dashes preserved per the verbatim-record
-convention). This closes 234-08 Task 2's observation requirement. Sign-off block appended.
+Recorded 2026-08-11 from the navigator's own report, preserved verbatim below (em-dashes
+preserved per the verbatim-record convention; the repo's no-em-dash rule applies to
+authored prose, never to preserved external records). Closes 234-08 Task 2.
 
 ---
 
-**Tester:** jsagi (navigator) / **Machine:** Windows 11 (build 10.0.26200) / **Host:** Cursor
-(Agent mode) / **Date:** 2026-08-11 / **Caveat:** NOT a cold install (WSL, marketplace
-plugin, hand-tuned mcp.json pre-existing).
+## Gate 0 — Cursor on Windows (live observation)
 
-Install config: C:\Users\jsagi\.cursor\mcp.json, two servers via WSL bridge
-(wsl.exe -> bash -> node v22.23.1), plugin root mos/2.0.0-beta.5, env from
-/home/jsagi/.mindrian.env, MINDRIAN_ROOMS_HOME set. VS Code not tested.
+**Tester:** jsagi (navigator)
+**Machine:** Windows 11 (build 10.0.26200)
+**Host:** Cursor (Agent mode)
+**Time budget:** ~20 min
+**Date:** 2026-08-11
 
-Load behavior: FOUR server identities (duplicate registration: plugin-mos-* AND user-*),
-all ready; 36 OS tools + 6 Brain tools, twice. Cold-start stderr showed capabilities
-active=[apps], MCP Apps registered (room-dashboard/wiki/graph). (Note: a manual WSL
-launch stderr printed "v2.0.0-beta.6 started" - that launch resolved the DEV checkout,
-which sits at the beta.6 next-bump placeholder; the cache install is beta.5.)
+**Important caveat:** This was **not a cold install**. WSL Ubuntu, Claude Code marketplace plugin, and a hand-tuned `~/.cursor/mcp.json` were already present. This report is "watch it load + what broke / what worked," not a from-zero install path.
 
-WORKED: catalog loads (36+6 discoverable); WSL+Node22 path clean; skills catalog visible;
-room ops via WSL scripts (lunar-water-site created); marketplace at 2.0.0-beta.5.
+### Install configuration observed
 
-FAILED / SURPRISED:
-- Duplicate MCP servers (marketplace + user mcp.json both register) - Medium.
-- Native Windows Node + Linux paths -> path mangling C:\home\... MODULE_NOT_FOUND -
-  Blocker without WSL (confirms 234-08 static finding).
-- WSL system Node v20.19.5 -> ERR_UNKNOWN_BUILTIN_MODULE node:sqlite - Node >= 22.5 required.
-- One brain_ask returned tier_0_brain_unreachable despite key present - Medium
-  (cold-start/restart timing suspected).
-- Tools return "NOT EXECUTED - follow Reference steps" instruction surfaces - expected
-  by design on foreign hosts, but confusing without docs.
-- chain_run -> gate_render_failed: MCP -32001 Request timed out on the 4-step chain - High.
-- room_bind -> { ok:false, reason:"no_session_id" } - Medium (session binding not wired
-  on this MCP client path; the CTX-03 real-host deferral, now observed).
-- No /mos:* slash commands on Cursor - by design.
+**Config file:** `C:\Users\jsagi\.cursor\mcp.json`
 
-WINDOWS DOCS NOTES: never native-Node+Linux-paths; document Node 22+ prominently; warn
-against dual registration; uncheck "Automatically install necessary tools" in the Node
-installer; first Brain call may be slow (Render idle wake 30-60s).
+Two MCP servers, both launched via **WSL bridge** (not native Windows Node):
 
-VERDICT (this machine): install/servers/catalog PASS (with WSL bridge); Brain PARTIAL
-(one probe failed); call-and-done end-to-end FAIL (instruction-surface model + gate
-timeout); cold path NOT TESTED / likely FAIL; VS Code NOT TESTED.
-**Overall: PASS with caveats** - Tier-0 MCP load proven on Cursor+Windows given
-WSL + Node 22 + manual mcp.json. Zero-handholding cold path unproven.
+| Server | Launch | Plugin root |
+|--------|--------|-------------|
+| `mindrian-os` | `wsl.exe → bash → node v22.23.1 → mindrian-mcp-server.cjs` | `mos/2.0.0-beta.5` (WSL cache) |
+| `mindrian-brain` | same pattern → `mindrian-brain-mcp-client.cjs` | same |
 
-FOLLOW-UPS: Cursor-specific install snippet; deduplicate registration; investigate
-gate_render -32001; fresh-VM cold-path Gate 0; VS Code + Copilot attempt.
+Env loaded from `/home/jsagi/.mindrian.env` (`MINDRIAN_BRAIN_KEY` present).
+`MINDRIAN_ROOMS_HOME=/home/jsagi/MindrianRooms`.
+
+**VS Code:** No `mcp.json` under `%APPDATA%\Code` — not tested on this box.
+
+### Load behavior (Cursor MCP panel / tool discovery)
+
+On session start, **four** Mindrian MCP server identities appeared (duplicate registration):
+
+| Identifier | Status | Tool count |
+|------------|--------|------------|
+| `plugin-mos-mindrian-os` | **ready** | 36 |
+| `plugin-mos-mindrian-brain` | **ready** | 6 |
+| `user-mindrian-os` | **ready** | 36 |
+| `user-mindrian-brain` | **ready** | 6 |
+
+Both OS and Brain servers share the display name `mindrian-os` / brain equivalents — agent sees **2× duplicate tool surfaces**.
+
+Earlier in the same day, `plugin-mos-mindrian-os` had briefly shown **"loading"** before reaching ready after config changes.
+
+**Cold-start stderr** (manual WSL launch, observed once):
+
+```
+[mindrian-os] Capabilities: active=[apps] inactive=[hooks, tasks, scripts]
+[mindrian-os] MCP Apps registered: room-dashboard, room-wiki, room-graph
+[mindrian-os] MCP server v2.0.0-beta.6 started (desktop, stdio, room: .../room)
+(node) ExperimentalWarning: SQLite is an experimental feature...
+```
+
+### What worked
+
+1. **MCP tool catalog loads** — 36 OS tools + 6 Brain tools discoverable in Cursor.
+2. **WSL + Node 22 path works** — when using nvm `v22.23.1`; server starts cleanly.
+3. **Skills catalog visible** — MindrianOS skills from `mindrian-marketplace/mos` appear in Cursor agent context (e.g. `mos:*`, `larry-extended`, PWS methodology skills).
+4. **Room ops via WSL scripts** — `room-registry create lunar-water-site` succeeded; room at `/home/jsagi/MindrianRooms/lunar-water-site`.
+5. **Plugin version** — Claude marketplace reports `mos@2.0.0-beta.5` current via `npx @mindrian_os/cli`.
+
+### What failed or surprised us
+
+| Issue | Severity | Detail |
+|-------|----------|--------|
+| **Duplicate MCP servers** | Medium | Marketplace plugin *and* user `mcp.json` both register — 4 servers, 2× tools. Agent may pick wrong instance. |
+| **Native Windows Node path** | Blocker (without WSL) | Direct `command: node` + Linux path → Cursor/Antigravity mangles to `C:\home\jsagi\...` → `MODULE_NOT_FOUND`. Confirms 234-08 finding. |
+| **Node 20 insufficient** | Blocker | WSL system Node `v20.19.5` → `ERR_UNKNOWN_BUILTIN_MODULE` for `node:sqlite`. Requires **Node ≥ 22.5**. |
+| **Brain unreachable (one probe)** | Medium | `brain_ask` returned `tier_0_brain_unreachable` / `mode_rationale: brain_unreachable` despite key in `.mindrian.env`. May be cold-start / MCP restart timing. |
+| **Tools return docs, not execution** | Expected but confusing | `room_content`, `methodology`, `analysis`, `orchestration` return **"NOT EXECUTED — follow Reference steps"** + full command markdown. Cursor agent must interpret, not call-and-done. |
+| **`chain_run` timeout** | High | `gate_render_failed`: MCP error `-32001: Request timed out` when running `["diagnose","find-bottlenecks","systems-thinking","whitespace"]`. |
+| **`room_bind` no session** | Medium | `{ ok: false, reason: "no_session_id" }` — session binding not wired in this MCP client path. |
+| **No `/mos:*` slash commands** | By design | Full command suite lives in Claude Code; Cursor gets MCP + skills only. |
+
+### Windows-specific notes for install docs
+
+1. **Do not use native Windows Node with Linux plugin paths** — must use WSL bridge or install plugin on Windows with Windows paths.
+2. **Document Node 22+ requirement prominently** — v20 fails on `node:sqlite`.
+3. **Warn against dual registration** — if Cursor marketplace plugin *and* manual `mcp.json` both define `mindrian-os`, user gets duplicates. Pick one source.
+4. **Uncheck "Automatically install necessary tools"** in Node installer (per mindrian-os.com/docs/install) — saves 20–90 min on Windows.
+5. **First Brain call may be slow** — Render-hosted Brain sleeps after 15 min idle (30–60s wake per docs).
+
+### Gate 0 verdict (this machine)
+
+| Criterion | Result |
+|-----------|--------|
+| Plugin installs / MCP servers appear in Cursor | **PASS** (with WSL bridge) |
+| Servers reach **ready** state | **PASS** |
+| Tool catalog visible (≥30 OS tools) | **PASS** (36 × 2) |
+| Brain connects | **PARTIAL** (key present; one live probe failed) |
+| Callable end-to-end without agent interpretation | **FAIL** (instruction-surface model; gates timeout) |
+| Cold-install from docs alone, no WSL | **NOT TESTED / likely FAIL** |
+| VS Code | **NOT TESTED** (not installed/configured) |
+
+**Overall: PASS with caveats** — Tier-0 MCP load works on Cursor+Windows **when WSL + Node 22 + manual mcp.json are already set up**. Not yet proven as a zero-handholding cold path for a fresh Windows user.
+
+### Recommended follow-ups for devs
+
+1. Ship a **Cursor-specific install snippet** (WSL vs native Windows paths).
+2. **Deduplicate** marketplace vs user MCP registration.
+3. Investigate **`gate_render` timeout** (-32001) in Cursor MCP client.
+4. Run Gate 0 on a **fresh Windows 11 VM** with only: Git, Node 22, Cursor, `npx @mindrian_os/cli` — no pre-existing WSL state.
+5. Attempt same gate on **VS Code + Copilot** (234-08 Task 2 still open for MCP half).
 
 ---
 
