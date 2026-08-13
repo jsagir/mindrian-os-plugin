@@ -1,150 +1,307 @@
-# Feature Landscape
+# Feature Research
 
-**Domain:** MCP Intelligence Server with Memory System and Interactive UI
-**Researched:** 2026-04-09
-**Milestone:** v2.0 Mindrian Platform -- SQLite + MCP Server
+**Domain:** MindrianOS Plugin v2.1.0 "Green the Floor" - flagship-floor enrichment, batch HITL ceremony, demand-ranked long tail
+**Researched:** 2026-08-13
+**Confidence:** HIGH (every source-map row verified against disk this session; complexity estimates MEDIUM)
 
-## Table Stakes
+Research question answered: how the milestone's user-facing capabilities should work across
+(a) the batch payload-authoring ceremony, (b) the source-doc map for the 18 missing flagship
+frameworks, (c) the PEST and Scenario Planning rulings, (d) the long-tail demand-ranking
+behavior. Every finding converts to a testable requirement (marked **REQ-candidate**).
 
-Features users expect from a production MCP server with 20+ tools, memory, and interactive UI. Missing = product feels incomplete or unprofessional.
+Grounding read in full this session: `scripts/check-flagship-floor.cjs`,
+`data/flagship-floor-set.json`, the proven payload template
+`ProblemsWorthSolving-Brain/payloads/reverse-salient-analysis.mjs` + `run-ingest.mjs`,
+`lib/core/enrichment-queue.cjs`, the 2026-08-11 admin-sitting research trail
+(`~/MindrianRooms/rethinking-mindrianos/research/2026-08-11-admin-sitting-alias-collapse-execution/`),
+and a full scan of `references/methodology/*.md` + `commands/*.md` frontmatter.
+
+---
+
+## (b) THE SOURCE MAP - 18 missing flagship frameworks -> best authoring source
+
+This is the sizing artifact. "Complexity" estimates the payload-authoring effort against the
+proven template (`reverse-salient-analysis.mjs`: phases from the doc's own numbered structure,
+LEADS_TO spine, techniques only where the source names them, pattern_type only where
+source-backed). Readiness dims: pattern_type / structure / techniques / flow.
+
+**Cohort 1 - clean template fits.** Source doc has explicit turn-windowed phases, exactly the
+find-bottlenecks.md shape the proven payload was authored from. Mechanical authoring.
+
+| # | Framework (score) | Best source (path) | Chars | Structure in source | Complexity |
+|---|---|---|---|---|---|
+| 1 | HSI Semantic Surprise Analysis Assistant (0/4) | `references/methodology/score-innovation.md` | 6,809 | 5 turn-windowed phases | LOW |
+| 2 | Lean Canvas (0/4) | `references/methodology/lean-canvas.md` | 5,284 | 4 turn-windowed phases | LOW |
+| 3 | Six Thinking Hats (1/4) | `references/methodology/think-hats.md` | 6,679 | 4 phases + 6 named hats (= 6 natural Technique nodes) | LOW |
+| 4 | Root Cause Analysis (2/4) | `references/methodology/root-cause.md` | 8,041 | 4 phases (DETECT/ANALYZE/CORRECT/EMBED) + 5 NAMED methods (5 Whys, Fishbone, Fault Tree, Barrier, Change) = 5 Technique nodes | LOW - best-shaped source in the whole set |
+| 5 | Domain Selection (2/4) | `references/methodology/explore-domains.md` | 6,567 | 5 phases + IKA Scoring (named technique) | LOW |
+| 6 | Knowns and Unknowns Matrix Framework (2/4) | `references/methodology/map-unknowns.md` | 5,681 | 4 phases + the 2x2 matrix | LOW |
+| 7 | Dominant Design (0/4) | `references/methodology/dominant-designs.md` | 9,957 | 6 phases + Utterback-Abernathy model, S-Curve theory concepts | LOW-MEDIUM |
+| 8 | The Pyramid Principle (0/4) | `references/methodology/structure-argument.md` | 6,084 | 5 phases (SCQA -> MECE tree -> 80/20 -> RCA -> Workplan) | LOW-MEDIUM (shares its doc with MECE, row 13) |
+| 9 | PWS Value Proposition (0/4) | `references/methodology/value-proposition.md` | 10,246 | 5 phases + Three Gates + VPS formula + Value Canvas (named techniques) | MEDIUM (rich; choose phases as spine, gates/canvas as techniques) |
+| 10 | Systems Thinking (0/4) | `references/methodology/systems-thinking.md` (primary) + `causal-loop-diagrams.md` (technique depth) | 12,573 + 5,074 | 4 phases + the Five Moves (M1-M5) + CLD Storytelling Method | MEDIUM (richest source; TWO structure candidates - phases vs moves - author must pick ONE spine and disclose) |
+
+**Cohort 2 - judgment calls.** A source exists but attribution, shape, or authority needs a
+navigator ruling embedded in the card. NOT mechanical.
+
+| # | Framework (score) | Best source (path) | Gap / ruling needed | Complexity |
+|---|---|---|---|---|
+| 11 | Mullins Model (0/4) | `references/methodology/mullins-7-domains.md` (4,813) | 7 domains in 3 groups + scoring + decision rules - NOT sequential phases. pattern_type is matrix/parallel, structure via HAS_STAGE or HAS_STEP without a LEADS_TO chain -> lands 3/4 honestly (flow dim unsupported by source). Floor >=3 still clears. | LOW-MEDIUM |
+| 12 | Futures Wheel (0/4) | `commands/futures.md` body (9,048) - NO references/methodology doc | The command body IS the methodology (ring model: 1st/2nd/3rd-order causal rings, D-01 guided-by-ring loop). Rings map to ordered stages. Secondary: `.planning/research/futures-wheel-agent-20260614/`. Ruling: command-body-as-source is a precedent extension (template used a reference doc). | MEDIUM |
+| 13 | MECE (Mutually Exclusive, Collectively Exhaustive) (0/4) | `references/methodology/structure-argument.md` Phase 2 section ONLY | MECE is one phase inside the Pyramid Principle doc, not a standalone methodology there. Honest payload is technique-shaped and thin (likely 2-3/4 ceiling: pattern_type + techniques, weak structure). Two payloads from one doc (with row 8) - author together, disclose the shared source. | MEDIUM |
+| 14 | Adaptive Leadership (0/4) | `references/methodology/leadership.md` (9,572) | Doc is "Leadership Coach" - Adaptive is 1 of 7 theories listed (line 14). The 4 phases belong to the coach persona, not to Heifetz's Adaptive Leadership specifically. Ruling: accept the doc as the PWS-house version of the framework (disclose), or the payload overstates its source. | MEDIUM |
+| 15 | PWS Triple Validation Compass (2/4) | PARTIAL: `references/methodology/grade.md` (8,209; 5 phases, 6 scoring components) + `value-proposition.md` "Three Gates" (Is It Real / Can We Win / Is It Worth It - the "triple") | NO doc anywhere names "Triple Validation Compass" (repo-wide grep: zero hits outside command frontmatter). The concept is split across two docs. Ruling: which doc is authoritative, and whether the Three Gates (already claimed by PWS Value Proposition's payload, row 9) can also ground this one without double-attribution. | MEDIUM-HIGH |
+| 16 | Hypothesis-Driven Problem Solving (2/4) | PARTIAL: `commands/research.md` (25,520; 7 pipeline stages) | The command is a research/evidence pipeline; hypothesis-driven methodology is implicit in its stage flow, never stated as a framework. Ruling: author stages-as-structure with disclosure, or hold for a real source doc. | MEDIUM-HIGH |
+| 17 | Adoption-Capacity Theory (2/4) | PARTIAL: `references/methodology/analyze-timing.md` (7,072 - titled "S-Curve Analysis", shared frontmatter) + `commands/diffusion.md` (4,663, thin ACE description) + `lib/core/sensors/sensor-diffusion-adoption.cjs` | Weakest documented framework that has live commands. analyze-timing.md's 6 phases belong to S-Curve (already 4/4 via the untracked wave). The ACE engine is described, never documented as methodology. Ruling: thin honest payload (pattern_type + stage list from diffusion's ordered walk) vs write the missing reference doc first. | HIGH |
+| 18 | Four Lenses of Innovation (0/4) | **NO SOURCE FOUND** (dedicated). `commands/find-analogies.md` invokes it but its body is the SAPPhIRE/TRIZ analogy engine; `pipelines/analogy/CHAIN.md` has a real 5-stage structure (Decompose -> Abstract -> Search -> Transfer -> Validate) but attributes to design-by-analogy, not Four Lenses; the only literal "Four Lenses" text is `systems-thinking.md:158` - a DIFFERENT four lenses (Structure/Dynamics/Boundaries/Leverage). | HIGH - blocked on a navigator ruling: (i) author a genuine Four Lenses reference doc first, (ii) re-attribute the payload to the analogy pipeline structure with disclosure, or (iii) re-attribute `find-analogies`/`find-analogies` skill frontmatter to a framework that has a source. "NO named read source = NO payload" (the template's own rule) forbids inventing one. |
+
+**Honest sizing summary:** 10 mechanical payloads (Cohort 1), 7 judgment payloads (Cohort 2
+rows 11-17), 1 blocked-on-ruling (row 18). The template proves ~1 payload per authoring
+session-hour for Cohort 1 shapes; Cohort 2 roughly doubles that per framework because each
+embeds a ruling.
+
+**REQ-candidates from (b):**
+- Every payload cites its source doc path + char count + read-in-full date in its header comment (template invariant, testable by grep).
+- A payload for a framework whose source lacks a stated sequence does NOT emit LEADS_TO (no readiness-score chasing); floor >=3 tolerates this by design.
+- MECE + Pyramid Principle payloads authored in the same batch, cross-referencing the shared source.
+- Four Lenses gets a recorded navigator ruling BEFORE any payload work starts.
+- Reconcile the untracked 2026-08-11/12 second-machine wave (Red Teaming, S-Curve, JTBD) before authoring anything - live-probe the current per-framework scores first so no payload is double-authored.
+
+---
+
+## (a) The batch ceremony - 38 writes without 38 interruptions
+
+**Constraint stack (all non-negotiable):** every write is carded (nugget-routing HITL rule +
+the proven ENRICH-02 cycle: payload -> `run-ingest.mjs` dryRun -> APPROVE card -> `--commit`
+-> fixture eval); 38 individual cards produces rubber-stamping, which kills the card's
+meaning; and the pipeline currently DAMAGES what it ingests (prop-drop on live-node re-ingest,
+dedup self-loop minting - admin-sitting findings 2 + post-close-out), so commit order matters.
+
+**Design principle: batch by decision-homogeneity, not by count.** A card stays meaningful
+when every row on it needs the same KIND of judgment. Mixing a mechanical classification with
+an attribution dispute on one card forces the navigator to context-switch per row - that is
+what produces rubber-stamping, not row count.
+
+### Ceremony tiers
+
+**Tier A - the 20 pattern_type rulings (graph-wide 3/4 -> 4/4).** These are classification
+rulings on existing nodes, zero content authoring. ONE digest card (or one per pattern_type
+class if the evidence quality differs): a table of framework | proposed pattern_type |
+one-line evidence. Navigator approves/edits per-row in a single sitting via AskUserQuestion.
+Execution: guarded `brain_write` SETs (the proven finding-2 patch path) until the prop-drop
+pipeline fix lands - after the fix, re-ingest also works, but the SET path is already proven
+and cheaper for prop-only changes. **1-3 cards total.**
+
+**Tier B - Cohort 1 payload waves (10 mechanical payloads).** Batch dry-run: a thin batch
+wrapper over the existing runner (`run-ingest-batch.mjs` calling the same `ingestFramework`
+with `dryRun: true` per payload - reuse, no second pipeline) emits ONE aggregate report:
+framework | nodes | edges | by-label | by-edge | accepted/warn/reject | expected readiness
+after. One digest card per wave of ~5 payloads carries the report plus a path to each full
+dry-run output for spot-checks. Approve the wave, or check off exceptions row-by-row (the
+card supports per-row rejection, never all-or-nothing). Then `--commit` each approved payload
+individually (commits stay per-payload so a failure is isolated), then ONE floor re-run
+(`check-flagship-floor.cjs`) + the per-payload fixture evals as the batch's eval leg.
+**2 cards (two waves of 5).**
+
+**Tier C - Cohort 2 individual cards (7 payloads + 2 rulings).** Each of rows 11-17 gets its
+OWN card because each embeds a distinct navigator ruling (source authority, attribution,
+honest-ceiling acceptance). PEST and Scenario Planning (section c) are ruling cards, not
+payload cards. **~9 cards.**
+
+**Total: ~12-14 interruptions instead of 38+, with judgment density HIGHER per card, not
+lower.** The mechanical work concentrates into digests; the judgment work stays individual.
+
+### Sequencing (load-bearing)
+
+1. Reconcile the second-machine wave (fresh live floor run; refresh the miss list).
+2. Pipeline fixes in the brain repo FIRST: prop-drop (`src/ingest/` validator/pipeline),
+   dedup self-loop (`src/ingest/dedup.mjs` - same pass as prop-drop per the research trail),
+   normalizeName alias-aware direct-match branch. Without these, every Cohort-1 commit on a
+   live node silently drops `pattern_type` (false-success, the exact 2026-07-14 WATCH bug
+   class) and can mint fresh self-loops.
+3. Tier A can run BEFORE the pipeline fix (guarded SETs bypass the ingest pipeline).
+4. Tier B/C commits run AFTER the pipeline fix. If fixes stall, the fallback is the proven
+   two-step: ingest (structure lands) + guarded SET (prop lands) per payload - uglier, still
+   honest, already executed once for reverse-salient.
+5. Floor green -> SWEEP-02 fixture inversion lands last.
+
+**REQ-candidates from (a):**
+- Batch dry-run report generator exists and reuses `ingestFramework(payload, { dryRun: true })` - no second ingest path (testable: grep-fence).
+- Every card supports per-row rejection; a rejected row never blocks the rest of the wave.
+- No `--commit` for a Cohort-1/2 payload before the prop-drop fix merges OR the two-step SET fallback is explicitly invoked on the card.
+- After each committed wave: `check-flagship-floor.cjs` re-run recorded, per-payload fixture (`tests/fixtures/framework-evals/*.json`, graph_regression class) added and passing via `probe-framework-evals.mjs`.
+- Post-batch dedup audit: zero new ALIAS_OF self-loops (`MATCH (n)-[r:ALIAS_OF]->(n) RETURN count(r)` = 0 via read tier) - the regression the reverse-salient ingest proved possible.
+
+---
+
+## (c) The two recorded rulings
+
+### PEST Analysis (matches=0 - no :Framework node exists)
+
+**Recommended ruling: INGEST, not de-list.** The source is real:
+`references/methodology/macro-trends.md` (8,167 chars) carries "Phase 3: PEST Systems
+Analysis" with explicit Political / Economic / Social / Technological subsections, and
+`/mos:macro-trends` genuinely invokes the framework (frontmatter `frameworks: ["PEST
+Analysis"]`, uses=1). De-listing would shrink the ratified 28-name denominator and force a
+re-ratification ceremony on `data/flagship-floor-set.json` to dodge work the repo already has
+the source for.
+
+Shape of the honest payload: NEW framework node (the validator supports new-node payloads -
+the existence-aware branch is for live nodes); `pattern_type` matrix/parallel (four lenses,
+no textual sequence); P/E/S/T as 4 structure components (HAS_STEP), NO LEADS_TO (the source
+asserts no order) -> lands 3/4, clears the >=3 floor. Disclose in the payload header that
+PEST is documented as a phase within Macro-Changes Analysis, the same disclosure pattern the
+MECE payload uses.
+
+Recorded as: one Tier-C card, outcome written into the payload header + the milestone
+REQUIREMENTS entry. If the navigator instead rules de-list, the ruling artifact is an updated
+`flagship-floor-set.json` (27 names, new `ratified_at`, reason field) PLUS re-attribution of
+`commands/macro-trends.md` frontmatter - never a silent denominator edit.
+
+### Scenario Planning (3/4 readiness, matches=6 - normalizeName double-count)
+
+**Recommended ruling: FIX normalizeName, do not carve a floor-gate exception.** Root cause
+is known and named (admin-sitting finding 3): post-collapse, the canonical node
+direct-matches AND its alias branch lists it again - the count is an artifact of the
+resolver, not graph ambiguity. The fix (alias-aware direct-match branch, brain repo, flagged
+"one-line fix candidate, Rule-4 territory" in the research trail) repairs the CLASS: every
+future alias collapse would otherwise reproduce this on its new canon. It deploys over
+Render (HTTPS-served code), needing no Bolt checkpoint.
+
+Why not the exception: the exactly-1 rule is load-bearing (Pitfall 7 - a multi-match makes
+every readiness probe ambiguous because T6 takes exact-first LIMIT 1). A documented-exceptions
+file in the gate converts a code truth into data special-casing and invites the next
+exception. The gate's own header doctrine is "a navigator ruling changes DATA, not code" -
+but this is not a ruling about the floor set; it is a resolver bug with a named fix.
+
+Fallback ONLY if the fix is blocked at deploy time: a `documented_exceptions` block in
+`flagship-floor-set.json` (`{ framework, accepted_matches, reason, expires }`) that
+`check-flagship-floor.cjs` prints loudly on every run and that carries an expiry - an
+exception that cannot go stale silently. Recorded either way as a Tier-C card outcome.
+
+**REQ-candidates from (c):**
+- PEST: post-ingest live probe shows matches=1, readiness>=3; floor row flips to PASS.
+- Scenario Planning: post-fix `normalize_framework_name("Scenario Planning")` returns exactly 1; a brain-repo regression test pins the alias-aware branch (canon counted in ONE branch only - the finding-3 arithmetic lesson).
+- If the exception fallback fires: gate output contains the exception line + expiry on every run (testable via evaluateFloor fixture).
+
+---
+
+## (d) Long-tail demand ranking (90 frameworks at 0/4) - queue-driven, never bulk
+
+The machinery already half-exists and the doctrine is settled ("context-driven framework
+enrichment prioritized by live readiness misses - never bulk", carried from v2.0.0).
+`lib/core/enrichment-queue.cjs` (ENRICH-01) captures a typed entry per live readiness miss at
+`<roomDir>/.mindrian/enrichment-queue.json`: canonical name (unique key, idempotent),
+readiness_score, missing_dimensions, hit_count (incremented on re-hit), first_seen/last_seen,
+context_class - generic handles only (Part 8 audited), soft cap 500 / hard cap 1000.
+
+**What v2.1.0 adds - a READER, not a writer:**
+
+1. **Demand rank = hit_count DESC, tiebreak last_seen DESC.** A framework nobody's live
+   reach ever missed has zero demand and stays at 0/4 honestly - it is served by honest
+   refusal + auto-queue (Decision #8), which IS the correct behavior, not a gap. Most of the
+   90 never get enriched. That is the design working.
+2. **A ranked worklist surface** (script or `/mos:` admin-visible report; reuse the queue's
+   self-healing reader): top-N by demand with scores, missing dimensions, and - the useful
+   join - whether a `references/methodology/` source doc exists for the name (the same scan
+   this research ran, automated). Demand + source-in-hand = ready to author; demand +
+   NO SOURCE = a source-authoring task first, surfaced honestly.
+3. **Cross-room aggregation is safe and needed**: queues are per-room; entries are generic
+   handles only, so a multi-room merge (registry-driven walk of `~/MindrianRooms/*/`) breaks
+   no Part-8 boundary. Without it, demand fragments per room and under-counts.
+4. **Dequeue path**: each item drawn from the worklist goes through the IDENTICAL Tier-B/C
+   ceremony (payload -> dry-run -> card -> commit -> fixture -> floor-style probe). One
+   framework per pull by default; a digest card only when >=3 queued items share Cohort-1
+   shape. On commit, the queue entry is resolved (removed or marked), so hit_count restarts
+   honestly if misses recur.
+
+**Anti-feature (hard): bulk enrichment of the long tail.** Batch-generating 90 payloads from
+thin or absent sources manufactures readiness the graph didn't earn, violates "NO named read
+source = NO payload", floods the card ceremony into meaninglessness, and - per finding 2 -
+would have silently dropped every pattern_type it wrote. The queue exists precisely so demand,
+not completionism, spends the authoring budget.
+
+**REQ-candidates from (d):**
+- Worklist reader ranks by hit_count DESC / last_seen DESC (unit-testable, pure function over queue JSON fixtures).
+- Worklist joins each entry against the source-doc scan and prints SOURCE / NO SOURCE per row.
+- No batch path exists that commits >1 long-tail payload without a card per Cohort rules (grep-fence: nothing calls `ingestFramework` with `dryRun: false` outside the carded runner).
+- Resolving a queue entry on successful enrichment is idempotent and logged as a memory event (existing `enrichment_queue_captured` sibling).
+
+---
+
+## Feature Landscape (roadmap view)
+
+### Table Stakes (the milestone is incomplete without)
 
 | Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Hierarchical tool router (keep 9 routers, not 23 flat tools) | LLMs degrade at 20+ tools -- empirically proven. GitHub Copilot cut 40 to 13 for measurable gains. Block rebuilt 30+ Linear tools to 2. MindrianOS already has 9 routers covering 64 commands in tool-router.cjs. | Already built | Do NOT expand to 23 flat tools as the milestone doc suggests. Add new commands as subcommands within existing routers. |
-| Server instructions for tool orchestration | MCP spec feature (Nov 2025) that teaches LLMs multi-step workflows. GPT-4 Mini showed +60% success rate with instructions vs without. This IS where "Larry Lite" lives -- not as personality, but as methodology instinct. | Low | Declare in McpServer init response. Focus on tool relationships and workflow patterns, not personality directives. |
-| Outcome-oriented tool design | Industry consensus (Phil Schmid, MCP Bundles, Workato): tools should return complete outcomes, not CRUD operations. "track_order(email)" returns full status, not separate get_order + get_shipping + get_tracking. | Med | Audit existing 9 routers for outcome-orientation. Some currently dispatch to individual CLI commands rather than composing results. |
-| SQLite WAL-mode concurrent access | KuzuDB abandoned Oct 2025 (archived on GitHub). SQLite WAL mode solves MCP/plugin concurrent writes -- the actual blocker for co-development. Every serious embedded DB use case in 2026 uses this. | Med | better-sqlite3 is the correct choice. WAL mode is one pragma. Room.db at room/.mindrian/room.db replaces .lazygraph/ directory. |
-| Graph tables (nodes, edges, concepts) | Replacing .lazygraph/ KuzuDB schema. 19 edge types already defined in lazygraph-ops.cjs (INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES, etc). | Med | Single replacement point: lazygraph-ops.cjs. 24+ files touch KuzuDB but 90% route through this one module. |
-| Memory L0: Identity persistence | System must remember who the user is, project context, core preferences across sessions. Every memory system starts here -- MemPalace, Mem0, Claude's native memory all have this tier. | Low | One row per identity key. Rarely changes. Partially exists in STATE.md but not queryable or persistent across rooms. |
-| Memory L1: Temporal facts with validity windows | MemPalace (April 2026, 96.6% LongMemEval recall) proved temporal knowledge graphs with validity windows are SOTA. Facts have valid_from/valid_to; invalidation marks end dates without deletion. | Med | SQLite schema: entity, predicate, object, valid_from, valid_to, source, confidence. Enables "what was true about X on date Y?" queries. |
-| Memory L2: Session continuity | Session-level recall so Larry knows what happened in previous sessions. MemPalace showed +15.2% gains in multi-session recall vs turn-level approaches. | Med | session_id, started_at, ended_at, summary, key_decisions, room_path. Populated at session end via hook. |
-| Memory L3: Conversation fragments | Important quotes, specific instructions, exchanges worth preserving verbatim. The "drawer" level in MemPalace's palace metaphor. | Low | fragment_id, session_id, content, importance_score, tags. Selective storage -- not full conversation history. |
-| MCP Apps dashboard rendering | MCP Apps (SEP-1865, released Jan 2026) is THE official standard for in-chat interactive UI. Co-developed by Anthropic + OpenAI. Supported in Claude, VS Code Insiders, ChatGPT, Goose. | High | @modelcontextprotocol/ext-apps SDK. Tools declare _meta.ui.resourceUri pointing to ui:// resources. HTML rendered in sandboxed iframes. Bidirectional comms via postMessage JSON-RPC. |
-| Assumption tracking with validity lifecycle | MindrianOS Key Decision #12: "Assumptions are first-class entities." Every claim needs untested/supported/contradicted/stale status. Opportunity Score 18 -- highest underserved outcome. | Med | SQLite table: assumption_id, claim, section, status (enum), evidence[], tested_at, invalidated_by. Status transitions triggered by new evidence, time elapsed, or user override. |
-| Natural language graph queries | Users should never see SQL or Cypher. Larry translates questions to structured queries. This is a standard expectation for any graph-backed intelligence system in 2026. | Med | Pattern: user question -> Larry generates SQL -> execute against room.db -> format results as narrative response. |
-| Error handling with recovery suggestions | MCP best practice: every error response includes what went wrong AND what to try instead. Not just "tool failed" but "tool failed because X, try Y instead." | Low | Wrap all tool handlers with try/catch returning structured { error, suggestion, alternative_tool }. |
-| Tool response with "Suggested Next" | Already implemented in tool-router.cjs. Every response includes next tool + args + rationale for pipeline chaining. | Already built | This IS the MWP cascade pattern via MCP. Keep and enhance. |
+|---|---|---|---|
+| Pipeline fixes: prop-drop, dedup self-loop, normalizeName | Finding 2/3 + post-close-out finding; committing payloads through a damaging pipeline re-creates the bug class the milestone exists to close | MEDIUM | Brain repo `src/ingest/`; prop-drop + dedup are one pass |
+| 18 flagship payloads (Cohorts 1+2) | The floor's 20 misses are 18 authorable + 2 rulings | HIGH (aggregate) | Source map above; Cohort 1 mechanical, Cohort 2 judgment |
+| Tier A: 20 pattern_type rulings | 20 graph-wide frameworks at 3/4 missing ONLY pattern_type - cheapest readiness lift in the graph | LOW | Guarded SETs, 1-3 digest cards |
+| PEST + Scenario rulings recorded | Floor cannot go green without both rows resolving | LOW-MEDIUM | Section (c) |
+| Floor green + SWEEP-02 fixture inversion | The milestone's named exit gate | LOW (once above lands) | `check-flagship-floor.cjs` exit 0, then invert the fixture expectation |
+| Second-machine wave reconciliation FIRST | Kickoff numbers (8/28) predate reconcile; authoring against stale scores wastes payloads | LOW | Fresh live run + record |
 
-## Differentiators
-
-Features that set MindrianOS apart from generic MCP servers. Not expected, but high-value for an intelligence platform.
+### Differentiators
 
 | Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Intelligence cascade via MCP | Post-write triggers: graph-index -> HSI -> reverse-salients -> presentation. Already works in CLI hooks. MCP tools must fire the same cascade for surface parity. No other MCP server has write-triggered intelligence pipelines. | Med | runCascade() referenced in tool-router.cjs. Cascade must fire identically whether user is on CLI (hooks) or Desktop/Cowork (MCP). |
-| Cross-subsystem contradiction detection | When a fact in one room section contradicts another section, the system catches it automatically. MemPalace does this for simple facts; MindrianOS does it for venture intelligence across hierarchically organized sections. | High | Combines temporal facts (L1) + graph edges (CONTRADICTS, INVALIDATES) + proactive intelligence loop. This is the moat -- integration of 7 MWP layers. |
-| De Stijl interactive knowledge graph as MCP App | Cytoscape.js graph visualization rendered in-chat via MCP Apps iframe. Users click nodes, explore connections, filter by edge type -- inside Claude/ChatGPT. No context window consumed by graph rendering. | High | ext-apps SDK. HTML+JS bundle served as ui:// resource. Bidirectional: graph clicks trigger callServerTool() for deeper exploration. Existing dashboard HTML generator provides the template. |
-| Wiki view as MCP App | Room sections as navigable wiki pages rendered in-chat. Nodes = pages, edges = hyperlinks. Interactive exploration without consuming context tokens. | High | Second MCP App. Reuse existing wiki HTML generator from exports. Add callServerTool() for "dive deeper into this section" interactions. |
-| Assumption validity lifecycle engine | Automated tracking: untested -> tested (with evidence link) -> supported/contradicted -> stale (time-based decay). No other MCP server or memory system tracks claim validity with evidence linking. | Med | Status transitions triggered by: new evidence filed (auto-detect via graph-index), time elapsed (configurable staleness threshold), user override. Graph edges link assumptions to supporting/contradicting evidence. |
-| Larry Lite via server instructions | Not a personality -- a 200-line methodology instinct that teaches any host LLM WHEN to use WHICH tool, in WHAT sequence. Encodes mode engine calibration (40:30:20:10 conceptual:storytelling:problem-solving:assessment) as tool workflow guidance. | Med | Server instructions field in MCP init. Focus on: tool ordering rules (always room_state before methodology), constraint sequences, stage-appropriate tool selection. Anti-pattern: personality directives in instructions. |
-| Proactive intelligence at session start | MCP server computes catch-up summary when connected: what changed since last session, new contradictions, convergence signals, stale assumptions. No other MCP server provides session-aware onboarding. | Med | session-catchup.cjs already exists. Expose as MCP resource (session://catchup) or initial prompt containing delta summary. Memory L2 sessions table enables "last session" comparison. |
-| Bidirectional stage progression tracking | Ventures regress. When market feedback invalidates a supported assumption, the stage can move backward with full history preservation. Forward-only progress trackers miss this reality. | Med | Memory L1 temporal facts + assumption status changes = automatic regression detection. History preserved via valid_from/valid_to on all facts. |
-| Rejection as graph data | When user rejects a Larry suggestion, the reason becomes a graph node. "Why not" teaches the system as much as "yes." Negative signal capture is unique to MindrianOS. | Low | rejection_id, tool_name, suggestion, reason, timestamp. Node type in graph. Feeds back into Larry Lite's server instructions as avoidance patterns over time. |
-| Multi-room memory isolation with cross-room opt-in | Each room gets its own room.db with isolated graph + memory. Cross-room queries possible but explicitly opt-in. Privacy by default, synthesis by choice. | Med | room/.mindrian/room.db per room. Memory tables scoped by room. Cross-room = ATTACH database in SQLite for join queries across rooms. |
+|---|---|---|---|
+| Digest-card batch ceremony | Keeps HITL meaningful at 38-write scale - decision-homogeneous batching is the difference between governance and rubber-stamping | MEDIUM | Section (a); reuses run-ingest + AskUserQuestion |
+| Demand-ranked worklist with source-join | Turns the 90-framework tail from a guilt list into a priced queue; NO SOURCE rows surface the real bottleneck (source authoring, not payload authoring) | MEDIUM | Section (d) |
+| Per-payload fixture evals as regression floor | Every enrichment becomes permanent, machine-checked ground truth (graph_regression class) | LOW (pattern proven) | Existing harness |
 
-## Anti-Features
+### Anti-Features
 
-Features to explicitly NOT build. Each would dilute the product or fight existing architecture.
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| 23 flat MCP tools | LLMs degrade above 20 tools -- GitHub Copilot and Block both proved fewer = better. The milestone doc says "23 tools in 3 tiers" but tool-router.cjs already solves this with 9 hierarchical routers covering 64 commands. Expanding to 23 flat tools would REGRESS tool selection quality. | Keep the 9-router pattern. New Brain/Room/Graph capabilities become subcommands within existing routers (e.g., brain_ask becomes a subcommand of the intelligence router). |
-| Full personality in server instructions | MCP blog (Nov 2025) explicitly warns: personality directives in server instructions "don't work." Instructions are for tool workflow guidance. Larry's personality belongs in the plugin skills layer, not the MCP server. | Larry personality stays in skills/agents (plugin layer). Larry Lite = methodology instinct only -- tool ordering, workflow patterns, stage awareness. |
-| Vector embeddings in room.db | Mixing sqlite-vss or similar vector extensions into SQLite adds native compilation complexity, breaks cross-platform compatibility, and creates a dependency that fights the "zero infrastructure" promise. | Keep Pinecone for semantic search (already deployed at brain.mindrian.ai). SQLite handles structured data only: graph + memory + assumptions. |
-| Real-time collaboration in MCP Apps | MCP Apps iframes are sandboxed, single-user by design. WebSocket collaboration fights the security model and adds infrastructure MindrianOS doesn't have. | Cowork handles multi-user natively. MCP Apps are single-user interactive views. Collaborative features live in the Cowork surface, not in MCP Apps. |
-| Custom CSS forcing De Stijl in all hosts | MCP Apps provides useHostStyles() for matching host theme. Forcing De Stijl in ChatGPT or VS Code creates visual clashes and breaks host UX expectations. | De Stijl as default when no host theme detected. useHostStyles() for host-adaptive rendering. Progressive enhancement: full De Stijl in Claude, adaptive elsewhere. |
-| Cron/scheduler for memory consolidation | No persistent process in v2.0. Plugin runs in Claude's environment. node-cron requires a long-running server that doesn't exist in stdio transport mode. | Session-start hook handles all periodic work: memory consolidation, stale assumption detection, opportunity scanning. Session start IS the trigger -- no daemon needed. |
-| REST API wrapper (1:1 command-to-tool mapping) | The #1 anti-pattern in MCP server design (Phil Schmid, 2026): "A good REST API is not a good MCP server." Converting 64 CLI commands to 64 MCP tools would be catastrophic for LLM tool selection. | Outcome-oriented routers that compose multiple commands internally. The 9-router pattern already does this correctly. |
-| TypeScript for MCP server | Build step breaks "every output is an edit surface" principle. CJS files are directly inspectable and editable by both humans and Claude. Established STACK.md decision. | Plain CJS with JSDoc type annotations where needed. Zod provides runtime validation equivalent to TS compile-time checks. |
-| SQLite replacing STATE.md for room state | Creates dual source of truth with filesystem. Breaks ICM principle: "folder IS orchestration." STATE.md is the room state authority -- that is a foundational architectural decision. | STATE.md remains room state authority (ICM Layer 0). SQLite handles supplementary data: graph topology, memory tiers, assumptions. These are queryable indexes, not state replacements. |
-| Full conversation history storage | Storing all conversation turns in memory would explode storage and violate privacy expectations. Users don't expect an MCP server to record everything they say. | Memory L3 stores only explicitly important fragments: key decisions, instruction overrides, rejection reasons. Selective, not comprehensive. |
+| Feature | Why Requested | Why Problematic | Alternative |
+|---|---|---|---|
+| Bulk long-tail enrichment | "Just green everything" | Fabricated readiness from absent sources; card flood; prop-drop amplification | Demand queue, section (d) |
+| One mega-card for all 38 writes | Fewest interruptions | Zero per-row judgment; rubber-stamp by design | Decision-homogeneous tiers, ~12-14 cards |
+| Readiness-score chasing (inventing techniques/LEADS_TO) | 4/4 looks better than 3/4 | Violates the template's own "NO named source = NO payload at the sub-node level"; floor is >=3 on purpose | Author only what the source asserts |
+| Floor-gate exception for Scenario Planning as first choice | Faster than a brain-repo deploy | Converts a resolver bug into permanent data special-casing; erodes the load-bearing exactly-1 rule | Fix normalizeName; exception only as expiring fallback |
 
 ## Feature Dependencies
 
 ```
-SQLite Migration (lazygraph-ops.cjs rewrite)
-  |-> Graph tables (nodes, edges, concepts)
-  |-> Memory tables (L0 identity, L1 facts, L2 sessions, L3 fragments)
-  |-> Assumption tracking tables
-  |-> Natural language graph queries (require graph tables)
-
-MCP Apps SDK Integration (@modelcontextprotocol/ext-apps)
-  |-> ui:// resource registration in MCP server
-  |-> De Stijl dashboard as MCP App (first app, proves pattern)
-  |-> Knowledge graph visualization as MCP App (requires graph tables)
-  |-> Wiki view as MCP App (requires graph tables)
-
-Larry Lite (server instructions)
-  |-> NO dependency on SQLite or MCP Apps
-  |-> Ships independently as server instruction string in MCP init
-  |-> Evolves based on rejection data (L3 fragments) over time
-
-Intelligence Cascade via MCP
-  |-> Requires: graph tables (for graph-index step)
-  |-> Requires: runCascade() wired into MCP tool handlers
-  |-> Enables: cross-subsystem contradiction detection
-  |-> Enables: proactive intelligence at session start
-
-Assumption Tracking
-  |-> Requires: SQLite migration (assumption table)
-  |-> Requires: graph tables (evidence linking via edges)
-  |-> Enables: bidirectional stage progression detection
-  |-> Enables: proactive intelligence (stale assumption alerts)
-
-Session Catchup (proactive intelligence)
-  |-> Requires: Memory L2 (session table for "last session" comparison)
-  |-> Requires: Memory L1 (temporal facts for "what changed")
-  |-> Partially built: session-catchup.cjs exists
+Wave reconciliation ──precedes──> everything (fresh miss list)
+Pipeline fixes (brain repo) ──required by──> Tier B/C payload COMMITS
+Tier A pattern_type SETs ──independent of──> pipeline fixes (guarded-SET path)
+18 payloads + PEST ruling + Scenario fix ──required by──> Floor green
+Floor green ──required by──> SWEEP-02 fixture inversion
+Enrichment queue (shipped, ENRICH-01) ──required by──> Demand worklist reader
+Batch dry-run reporter ──enhances──> Tier B ceremony (not a blocker for Tier C)
 ```
 
-## MVP Recommendation
+## MVP Definition
 
-Prioritize (Workstream A first, then B in parallel with C):
+### Launch With (v2.1.0 core)
+- [ ] Wave reconciliation + fresh floor baseline - honest starting numbers
+- [ ] Three pipeline fixes (brain repo) - nothing commits through a damaging pipeline
+- [ ] Tier A digest batch (20 rulings) - cheapest lift, proves the digest-card shape
+- [ ] Cohort 1 payloads (10) via two digest waves - the mechanical majority
+- [ ] Cohort 2 payloads (7) via individual cards - incl. the Four Lenses ruling
+- [ ] PEST ingest ruling + Scenario normalizeName fix - the last two floor rows
+- [ ] Floor green -> SWEEP-02 fixture inversion - milestone exit gate
 
-1. **SQLite migration via lazygraph-ops.cjs** -- Replace KuzuDB. Graph tables + memory tables + assumption tables in one room.db. This unblocks everything else. Single replacement point makes this tractable.
-2. **Memory L0-L1** -- Identity persistence + temporal facts with validity windows. Immediate recall improvement. The "170 tokens to recall everything" pattern from MemPalace applies: store structured facts, load a compact summary at session start.
-3. **Assumption tracking with validity lifecycle** -- First-class assumption entities. This is the #1 underserved outcome (Opportunity Score 18) and the deepest moat feature. No competitor has this.
-4. **Larry Lite server instructions** -- 200 lines of methodology instinct in server init. Zero dependency on SQLite. Ship in parallel with Workstream A.
-5. **Intelligence cascade via MCP** -- Surface parity: MCP tools fire the same cascade as CLI hooks. Requires graph tables from step 1.
-6. **MCP Apps: De Stijl dashboard** -- First interactive in-chat UI. Proves the MCP Apps pattern. Requires ext-apps SDK integration.
+### Add After Validation
+- [ ] Demand worklist reader + source-join - once the floor is green and the queue has real post-launch traffic
+- [ ] Cross-room queue aggregation - when >1 active room produces queue entries
+- [ ] v2.0.0 carry-fold: CACHE-03 live hit-rate, AVAIL-03 operator legs, Bolt checkpoint queue (7 index DROPs + Nested Hierarchies self-loop DELETE)
 
-Defer:
-- **MCP Apps: Wiki view** -- Second interactive app. Build after dashboard pattern is proven and working in Claude + at least one other client.
-- **MCP Apps: Knowledge graph visualization** -- Third interactive app. Most complex (Cytoscape.js in iframe with bidirectional tool calls). Build last.
-- **Memory L2-L3** -- Session recall and fragments. L0-L1 cover ~80% of recall value. L2-L3 are refinements.
-- **Cross-room memory queries** -- Edge case until users have 3+ active rooms. ATTACH database pattern is straightforward when needed.
-- **Rejection as graph data** -- Valuable signal but not blocking. Add after assumption tracking proves the validity lifecycle works.
-
-## Existing Capabilities to Leverage
-
-These lib/core/*.cjs modules are the shared core that MCP tools wrap. New features MUST extend these, not create parallel paths. The co-development rule: every new capability ships as both plugin command AND MCP tool.
-
-| Module | Relevance to v2.0 | Integration Point |
-|--------|-------------------|-------------------|
-| lazygraph-ops.cjs | PRIMARY migration target. SQLite replaces KuzuDB here. 24+ files route through this single module. | Rewrite internals from KuzuDB to better-sqlite3. Keep the same exported API (openGraph, closeGraph, initSchema, indexArtifact, rebuildGraph, queryGraph, graphStats). |
-| intelligence-cascade.cjs | Cascade logic for post-write triggers. MCP tools must call this after write operations. | Wire runCascade() into MCP tool handlers that modify room content. |
-| proactive-intelligence.cjs | Gap/contradiction/convergence detection. Memory L1 temporal facts enhance detection quality. | Assumption tracking feeds new signals into proactive detection. |
-| session-state.cjs | Session tracking. Memory L2 extends this with SQLite persistence for cross-session recall. | Add session summary storage at session end. |
-| brain-client.cjs | Brain API calls. Larry Lite server instructions describe when to invoke Brain tools. | Server instructions reference Brain tools in workflow patterns. |
-| room-ops.cjs | Room CRUD operations. MCP routers already wrap this. | No change needed -- stable API. |
-| graph-ops.cjs | Graph building from room artifacts. Directly affected by SQLite migration. | Update to write SQLite graph tables instead of KuzuDB. |
-| session-catchup.cjs | Catch-up computation at MCP connect time. | Enhance with Memory L1 temporal delta: "what facts changed since last session." |
+### Future Consideration
+- [ ] Source-doc authoring for NO SOURCE long-tail entries that accumulate demand - the worklist reveals whether this is ever needed
+- [ ] SEED-framework-coverage-live-population + SEED-075 (per milestone scope; sequence after floor green)
 
 ## Sources
 
-- [MCP Server Best Practices - Phil Schmid](https://www.philschmid.de/mcp-best-practices) -- outcome-oriented design, agent-first thinking, anti-REST-wrapper pattern [HIGH confidence]
-- [The Six-Tool Pattern - MCP Bundles](https://www.mcpbundles.com/blog/mcp-tool-design-pattern) -- reducing 12+ tools to 6 via category grouping [HIGH confidence]
-- [MCP Tool Overload - DEV Community](https://dev.to/nebulagg/mcp-tool-overload-why-more-tools-make-your-agent-worse-5a49) -- empirical evidence LLMs degrade above 20 tools [HIGH confidence]
-- [Server Instructions - MCP Blog](https://blog.modelcontextprotocol.io/posts/2025-11-03-using-server-instructions/) -- teaching LLMs tool workflows, +60% GPT-4 Mini success rate [HIGH confidence]
-- [MCP Apps Official Release - MCP Blog](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/) -- SEP-1865, ui:// scheme, ext-apps SDK, iframe sandbox [HIGH confidence]
-- [MCP Apps GitHub - ext-apps](https://github.com/modelcontextprotocol/ext-apps/) -- SDK packages, API, server-side app registration [HIGH confidence]
-- [MemPalace Memory System](https://recca0120.github.io/en/2026/04/08/mempalace-ai-memory-system/) -- L0-L3 tiers, SQLite temporal KG, 96.6% recall, contradiction detection [MEDIUM confidence - very new, limited independent verification]
-- [SEP-993: Namespaces - MCP GitHub](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/993) -- official namespace proposal for tool grouping [HIGH confidence]
-- [MCP 2026 Roadmap - WorkOS](https://workos.com/blog/2026-mcp-roadmap-enterprise-readiness) -- OAuth 2.1, enterprise priorities [MEDIUM confidence]
-- [Anthropic + OpenAI MCP Apps - Inkeep](https://inkeep.com/blog/anthropic-openai-mcp-apps-extension) -- joint MCP Apps development [MEDIUM confidence]
-- [MCP Best Practices - CData](https://www.cdata.com/blog/mcp-server-best-practices-2026) -- 2026 production patterns [MEDIUM confidence]
-- [Agentic MCP Configuration - PulseMCP](https://www.pulsemcp.com/posts/agentic-mcp-configuration) -- dynamic tool loading for large servers [MEDIUM confidence]
+All primary, read this session (HIGH confidence unless noted):
+- `scripts/check-flagship-floor.cjs`, `data/flagship-floor-set.json` (gate logic + ratified 28)
+- `ProblemsWorthSolving-Brain/payloads/reverse-salient-analysis.mjs`, `run-ingest.mjs` (proven template + runner)
+- `lib/core/enrichment-queue.cjs` (ENRICH-01 mechanics: keys, caps, idempotency, Part-8 allow-list)
+- `~/MindrianRooms/rethinking-mindrianos/research/2026-08-11-admin-sitting-alias-collapse-execution/2026-08-11-admin-sitting-alias-collapse-execution.md` (5 findings + open threads + post-close-out self-loop)
+- Full scan: `references/methodology/*.md` headings + sizes; `commands/*.md` `frameworks:` frontmatter; `skills/find-analogies/SKILL.md`, `skills/pws-methodology/SKILL.md`, `pipelines/analogy/CHAIN.md` (Four Lenses trace)
+- `.planning/PROJECT.md` Current Milestone section (scope + kickoff floor state)
+- Complexity estimates: MEDIUM confidence (derived from source-shape inspection vs the one proven payload, n=1 calibration point)
 
 ---
-*Feature research for: v2.0 Mindrian Platform -- SQLite + MCP Server*
-*Researched: 2026-04-09*
+*Feature research for: MindrianOS Plugin v2.1.0 "Green the Floor"*
+*Researched: 2026-08-13*
