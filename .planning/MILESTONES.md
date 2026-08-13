@@ -1,5 +1,54 @@
 # Milestones
 
+## v2.0.0 "Build the Loop" (Completed: 2026-08-13)
+
+**No formal MILESTONE-AUDIT ran** - closed by explicit navigator ruling 2026-08-13 (same
+honest-close precedent as v1.16.0/v1.15.0 below). All 19 plans across 7 phases carry
+SUMMARYs; the requirement ledger closed on evidence, not assertion.
+
+**Phases completed:** 7 (246-252), 19 plans, executed 2026-08-10 to 2026-08-11 (two
+enactment nights + the 2026-08-11 admin sitting), closed 2026-08-13.
+
+**Requirements:** 20/23 closed on evidence; 3 carried open by navigator ruling (SWEEP-02
+floor-gated -> enrichment work; CACHE-03 pending a live interactive hit-rate session;
+AVAIL-03 operator legs). Archives: `.planning/milestones/v2.0.0-ROADMAP.md`,
+`.planning/milestones/v2.0.0-REQUIREMENTS.md`.
+
+**Known deferred items at close: 207** (57 open debug sessions + phase context questions,
+mostly pre-v2.0.0 backlog) - acknowledged per the close workflow, recorded in STATE.md
+Deferred Items, regenerable live via `gsd-tools query audit-open`.
+
+**Key accomplishments:**
+
+- The loop is real and live: room.db context -> Brain query -> Larry joins -> HITL ratifies
+  -> context updates; Tier 0 died as a consequence, with honest refusal everywhere
+  (Decisions #1/#8 amendment ratified and shipped in lockstep with the guard sweep).
+- v2.0.0-beta.5 verified on every surface (npm latest=next, tag, marketplace pin, install
+  cache, npx doctor 6/6); constitution enacted on a released build.
+- Silent per-install Brain identity (SEED-011 Option A) proven live end to end on
+  production: /register quartet green, keyless chain serves stats with honest messaging.
+- CONTRACT-05 bounded read tier shipped (raw read-only Cypher, moat-capped, public key) -
+  the seam the graph census, the alias-collapse audit, and the admin sitting all rode.
+- The 2026-08-11 admin sitting executed the alias-collapse runbook verbatim on production:
+  41 self-loops deleted, 4 alias groups collapsed (all verified by edge inspection),
+  reverse-salient payload ingested (readiness 0/4 -> 4/4, evals 3/3), floor ambiguity
+  misses cleared entirely (5/28, remaining misses are enrichment thinness).
+- AVAIL-01: hourly out-of-band synthetic probe (GitHub Action) watches the live contract
+  surface - the weeks-unnoticed-outage class is structurally dead.
+
+**Open items, deliberately not fabricated as closed:**
+
+- No v2.0.0 git tag created by this close-out DELIBERATELY (repo precedent: the tag
+  namespace belongs to release.sh's finalize flow; latest released tag is v2.0.0-beta.5).
+- Operator legs from the enactment handoff: 7 Gmail sends, mindrian-brain service
+  suspension + dead env var deletion (Render dashboard), Gate 0 foreign-host verify.
+- 7 vector-index DROPs + 1 ingest-minted self-loop (Nested Hierarchies 42214) parked for a
+  Bolt-capable checkpoint (no HTTPS DDL seam exists by design; no Render SSH key on the
+  sitting machine).
+- Pipeline gaps found by the sitting, filed not fixed: ingest silently drops framework-level
+  props on live-node re-ingest; 429 rate-limit renders as BRAIN_UNREACHABLE with zero
+  retries; normalizeName direct-match branch is not alias-aware.
+
 ## v1.16.0 "Infrastructure Remediation" (Completed: 2026-08-10)
 
 **No formal MILESTONE-AUDIT ran** -- closed with that documented honestly (navigator-approved

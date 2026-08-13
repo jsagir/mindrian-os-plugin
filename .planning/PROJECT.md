@@ -10,7 +10,7 @@ Run the full PWS methodology (25 methodology bots, structured pipelines, and an 
 
 ## Current State
 
-**Shipped:** v1.16.0 Infrastructure Remediation (2026-08-10); latest release v1.16.0-beta.13 (Brain-envelope + egress-guard fixes live)
+**Shipped:** v2.0.0 "Build the Loop" (closed 2026-08-13); latest verified release v2.0.0-beta.5 (npm latest=next, tag, marketplace pin, install cache, npx doctor 6/6). The loop is live: room.db context -> Brain query -> Larry joins -> HITL ratifies -> context updates, with honest refusal everywhere (Decisions #1/#8 amendment ratified on a released build), silent per-install Brain identity, CONTRACT-05 bounded read tier, hourly out-of-band availability probe, and the alias-collapse surgery executed and verified on the production graph (2026-08-11 admin sitting). Carried open by ruling: SWEEP-02 (enrichment-gated floor), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Between milestones - next phase numbering starts at 253.
 
 v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presentation System (Dashboard, Wiki, Deck, Insights, Diagrams, Graph). Canvas knowledge graph with particles and glow. BYOAPI chat with Larry. Git integration (optional), KuzuDB automatic backbone, HSI pipeline, binary asset filing, Vercel one-click deploy. Dual themes (De Stijl dark + PWS light). MindrianOS branding enforced. Google Drive API integration. Model Data Room: 168 artifacts across 10 sections from real evidence. Self-analysis: HSI found 20 innovation pairs, Investment Thesis gate 7/10, reverse salient in business-model.
 
@@ -27,8 +27,17 @@ v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Pres
 - v1.8.8 Brain Graph Optimization (2026-04-07) -- causal discovery, lazy graph bridge, fragmentation cleanup, teaching wiring, dummy-proof install
 - v1.9.0 Model Data Room (2026-04-08) -- Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis, knowledge graph (179 nodes/383 edges)
 - v1.16.0 Infrastructure Remediation (2026-08-10) -- 12 phases (235-245), 67 plans: CIRS commit gate + seam-liveness, room.db data-loss fixes, reach + Decision Gates rewiring, Brain-access surface, memory Layer 2, Feynman-MINTO, Moat hardening, voice-glyph, semantic triggers, reach-brain-signal loop closed (v1.10-v1.15 shipped in place across the beta trains; see MILESTONES.md)
+- v2.0.0 "Build the Loop" (2026-08-13) -- 7 phases (246-252), 19 plans: the complete-product loop live with honest refusal, constitution amendment ratified + shipped in lockstep with the guard sweep, silent Brain identity, bounded read tier, graph census + alias-collapse surgery executed on production, availability probe. Archives: milestones/v2.0.0-*.md
 
-## Current Milestone: v2.0.0 "Build the Loop"
+## Next Milestone Goals
+
+Not yet defined - run `/gsd-new-milestone` (first phase 253). Strong candidates carried on
+the record: enrichment payloads to green the SWEEP-02 floor (proven template from the admin
+sitting), the Bolt-capable checkpoint (7 index DROPs + 1 self-loop), the three pipeline
+fixes the sitting filed (ingest prop drop, 429 refusal mislabel, normalizeName
+alias-awareness), and the operator legs (Gate 0, AVAIL-03).
+
+## Previous Milestone: v2.0.0 "Build the Loop" (completed 2026-08-13)
 
 **Goal:** Make the loop real: local context triggers -> methodology-graph query -> Larry
 operates the join -> human ratifies the insight -> context updates. Honesty before

@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.0.0
-milestone_name: milestone
-status: Defining requirements
-stopped_at: 252-03 Tasks 1-2 complete (6931e54f, 16d754b7); parked at checkpoint before Task 3 (release ceremony, orchestrator-owned)
-last_updated: "2026-08-10T23:49:11.454Z"
-last_activity: 2026-08-10 — Milestone v2.0.0 started
+milestone_name: Build the Loop
+status: Milestone v2.0.0 COMPLETE (closed 2026-08-13); between milestones - next is /gsd-new-milestone (first phase 253)
+stopped_at: v2.0.0 archived (milestones/v2.0.0-ROADMAP.md + v2.0.0-REQUIREMENTS.md); 20/23 requirements closed, 3 carried open by navigator ruling
+last_updated: "2026-08-13T05:10:00.000Z"
+last_activity: 2026-08-13 — v2.0.0 "Build the Loop" closed and archived (admin sitting executed 2026-08-11)
 progress:
   total_phases: 7
   completed_phases: 7
@@ -15,6 +15,19 @@ progress:
 ---
 
 # Project State
+
+## Deferred Items
+
+Items acknowledged and deferred at the v2.0.0 milestone close on 2026-08-13 (navigator
+chose [A]cknowledge-all at the pre-close audit gate; 207 open artifacts total, regenerate
+the live list with `gsd-tools query audit-open`):
+
+| Category | Count | Disposition |
+|----------|-------|-------------|
+| Open debug sessions (.planning/debug/*.md, non-resolved) | 57 | Carried as the standing debug backlog; mostly pre-v2.0.0. Includes 4 filed by the 2026-08-11 admin sitting (429-unreachable RCA newest). |
+| Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
+| Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
+| Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
 
 ## (2026-08-10) -- PHASE 248 PLAN 02 COMPLETE -- Honest room_bind return, CTX-03 live before/after PASS, carried defect closed
 
