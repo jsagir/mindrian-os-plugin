@@ -29,13 +29,31 @@ v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Pres
 - v1.16.0 Infrastructure Remediation (2026-08-10) -- 12 phases (235-245), 67 plans: CIRS commit gate + seam-liveness, room.db data-loss fixes, reach + Decision Gates rewiring, Brain-access surface, memory Layer 2, Feynman-MINTO, Moat hardening, voice-glyph, semantic triggers, reach-brain-signal loop closed (v1.10-v1.15 shipped in place across the beta trains; see MILESTONES.md)
 - v2.0.0 "Build the Loop" (2026-08-13) -- 7 phases (246-252), 19 plans: the complete-product loop live with honest refusal, constitution amendment ratified + shipped in lockstep with the guard sweep, silent Brain identity, bounded read tier, graph census + alias-collapse surgery executed on production, availability probe. Archives: milestones/v2.0.0-*.md
 
-## Next Milestone Goals
+## Current Milestone: v2.1.0 "Green the Floor"
 
-Not yet defined - run `/gsd-new-milestone` (first phase 253). Strong candidates carried on
-the record: enrichment payloads to green the SWEEP-02 floor (proven template from the admin
-sitting), the Bolt-capable checkpoint (7 index DROPs + 1 self-loop), the three pipeline
-fixes the sitting filed (ingest prop drop, 429 refusal mislabel, normalizeName
-alias-awareness), and the operator legs (Gate 0, AVAIL-03).
+**Goal:** Every framework a methodology command invokes is READY when Larry reaches for it -
+the flagship floor goes green on a pipeline that no longer damages what it ingests, SWEEP-02
+lands, and the v2.0.0 ledger closes fully.
+
+**Target features:**
+- Ingest pipeline fixes, cross-repo (brain repo): live-node prop drop (false-success),
+  dedup self-loop minting, normalizeName alias-aware direct-match branch
+- Tier A batch: the 20 frameworks at 3/4 reach 4/4 via classified pattern_type rulings
+  (carded batch, guarded SETs until the prop-drop fix lands)
+- Flagship gap closure: 18 readiness misses authored through the proven payload template,
+  PEST Analysis absence resolved (ingest or de-list ruling), Scenario Planning match-leg
+  exception ruled (fix normalizeName or record the documented exception in the floor gate)
+- Floor green (check-flagship-floor.cjs exit 0) then SWEEP-02's fixture inversion lands
+- Demand-ranked enrichment machinery for the 90-framework long tail (queue-driven, never bulk)
+- v2.0.0 carry-fold: CACHE-03 live hit-rate measurement, AVAIL-03 operator legs, the
+  Bolt-capable checkpoint queue (7 index DROPs + Nested Hierarchies self-loop)
+- Seeds in scope: SEED-framework-coverage-live-population (re-source the UN-WIRED gate from
+  the live :Framework population), SEED-075 (grading checks framework grounding first)
+
+**Key context:** Floor at kickoff measured 8/28 (2026-08-13 live run). Graph: 146 canonical
+frameworks - 5 at 4/4, 20 at 3/4, 22 at 2/4, 9 at 1/4, 90 at 0/4. An untracked enrichment
+wave (2026-08-11/12, second machine) lifted Red Teaming, S-Curve, JTBD - reconcile its
+records first. Navigator directive: Fable model on this milestone's planning + research legs.
 
 ## Previous Milestone: v2.0.0 "Build the Loop" (completed 2026-08-13)
 

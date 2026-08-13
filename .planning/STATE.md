@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0.0
-milestone_name: Build the Loop
-status: Milestone v2.0.0 COMPLETE (closed 2026-08-13); between milestones - next is /gsd-new-milestone (first phase 253)
-stopped_at: v2.0.0 archived (milestones/v2.0.0-ROADMAP.md + v2.0.0-REQUIREMENTS.md); 20/23 requirements closed, 3 carried open by navigator ruling
-last_updated: "2026-08-13T05:10:00.000Z"
-last_activity: 2026-08-13 — v2.0.0 "Build the Loop" closed and archived (admin sitting executed 2026-08-11)
+milestone: v2.1.0
+milestone_name: Green the Floor
+status: planning
+last_updated: "2026-08-13T05:52:32.221Z"
+last_activity: 2026-08-13
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 19
-  completed_plans: 19
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -2259,7 +2258,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: Not started (defining requirements)
 Plan: —
 Status: Defining requirements
-Last activity: 2026-08-10 — Milestone v2.0.0 started
+Last activity: 2026-08-13 — Milestone v2.1.0 started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
