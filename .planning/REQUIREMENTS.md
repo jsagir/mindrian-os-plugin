@@ -67,9 +67,16 @@ methodology that did not come from the Brain, without being told.
       served responses; framework metadata field populated or removed from the payload.
       (Verified LIVE 2026-08-11: bare corpus filenames only on the deployed surface.)
 
-- [ ] **CONTRACT-04**: The 8 foreign-space vector indexes get a decided disposition per the
+- [x] **CONTRACT-04**: The 8 foreign-space vector indexes get a decided disposition per the
       brain repo's own rule (rebuild with the model that built them, or drop with proof
       nothing reads them); an e5-dimension guard exists at index creation.
+      DONE on the requirement's letter (2026-08-13 assessment): every foreign index has a
+      recorded disposition with grep proof (brain repo docs/VECTOR-INDEX-DISPOSITIONS.md,
+      7x DROP + 1x KEEP-RETIRED) and the e5-dimension creation guard is live
+      (index-creation-guard.test.mjs; assertSearchIndexRegistered fails closed at query
+      time). The PHYSICAL execution of the 7 DROPs remains parked on a Bolt-capable
+      operator checkpoint - no HTTPS seam accepts index DDL and the sitting machine has
+      no Render SSH key. Cleanup, not contract.
 
 - [x] **CONTRACT-05** (navigator ruling 2026-08-10, from the brain-service audit): a BOUNDED
       READ TIER exposes raw read-only Cypher on the public surface WITHOUT admin - every
@@ -90,8 +97,12 @@ methodology that did not come from the Brain, without being told.
       steps, LEADS_TO flow, FEEDS_INTO edges) with a human-reviewable diff before write, and
       an eval that CAN fail (known-answer checks per enriched framework).
 
-- [ ] **ENRICH-03**: The 4 duplicate "Jobs to Be Done" aliases collapse to one canonical node
+- [x] **ENRICH-03**: The 4 duplicate "Jobs to Be Done" aliases collapse to one canonical node
       with ALIAS_OF edges; normalize_framework_name proves it.
+      DONE 2026-08-11 (admin sitting): all 5 JTBD variants verified ALIAS_OF -> Jobs to Be
+      Done (JTBD) (31103); normalize_framework_name returns EXACTLY 1. Scenario Planning /
+      Four Lenses / Mullins collapses + the 41 self-loop DELETE landed in the same sitting.
+      Execution record: brain repo docs/2026-08-11-RUNBOOK-249-alias-collapse.md.
 
 - [x] **ENRICH-04**: Flagship coverage floor: the frameworks the 25 methodology commands
       actually invoke reach readiness >= 3/4 before the hard-require lands (SWEEP-02 gate).
@@ -204,11 +215,16 @@ methodology that did not come from the Brain, without being told.
 
 - [ ] **SWEEP-02**: The tier-0-no-key acceptance fixture is REPURPOSED to assert the keyless
       path refuses correctly (coverage kept, assertion inverted; never deleted).
-      STATE 2026-08-11: honestly BLOCKED by design - 252-02's hard gate requires
-      check-flagship-floor.cjs exit 0 (floor GREEN) before the fixture inversion
-      lands; floor is 4/28 on the ratified frontmatter-28 denominator. Unblocks
-      after the operator admin sitting (snapshot -> 7 DROPs -> 41 self-loop DELETEs
-      -> alias collapses -> enrichment ingests per the authored runbook).
+      STATE 2026-08-11 (updated post-sitting): still honestly BLOCKED - 252-02's hard
+      gate requires check-flagship-floor.cjs exit 0 (floor GREEN) before the fixture
+      inversion lands. The admin sitting EXECUTED the 41 self-loop DELETE, all alias
+      collapses, and the reverse-salient-analysis ingest: every ambiguity leg cleared
+      (all frameworks exactly-1 match except Scenario Planning's documented
+      normalizeName limitation), floor now 5/28. The remaining 23 misses are readiness
+      thinness (frameworks with no graph structure) - unblocking is now ENRICHMENT
+      work (more source-authored payloads), not surgery. The 7 index DROPs did not
+      execute (no DDL-capable seam from the sitting machine; CONTRACT-04 letter
+      satisfied by disposition + guard) and do not gate the floor.
 
 - [x] **SWEEP-03**: Docs and constitution agree in the same release: no state where docs
       claim Brain-required while guards silently degrade.
