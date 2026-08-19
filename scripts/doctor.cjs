@@ -154,10 +154,11 @@ function parseArgs(argv) {
     // J deployment-surfaces, K stale-first-touch-copy).
     deprecatedUsage: false,
     // Phase 127-02 BRAIN-MCP-127-08: class M (Brain end-to-end smoke).
-    // 5-layer probe (plugin root resolver, key resolver, HTTPS schema probe,
-    // MCP stdio handshake, e2e brain_schema via the shim). Diagnostic-only;
-    // class-flag invariant applies (exit 0 even on FAIL). Letter M is the
-    // next free letter after L (CONTEXT D4 text reads "K" but K is taken).
+    // 6-layer probe (plugin root resolver, key resolver, HTTPS schema probe,
+    // MCP stdio handshake, e2e brain_schema via the shim, store identity).
+    // Diagnostic-only; class-flag invariant applies (exit 0 even on FAIL).
+    // Letter M is the next free letter after L (CONTEXT D4 text reads "K"
+    // but K is taken).
     brainSmoke: false,
     // quick(260706-13z) D14: class S (Eureka local-embedding-stack smoke).
     // 4-layer probe (deps present, vec backend, model cache, graceful degrade).
@@ -370,8 +371,9 @@ Class flags (combine freely; --all activates them all):
                            transcripts at ~/.claude/projects/.../*.jsonl for /mos:<deprecated>
                            patterns; surfaces a per-command "use /mos:<new> instead" hint.
                            Phase 121.5-08 Sub-plan J. LOCAL-only, zero network.)
-  --brain-smoke            class M (Brain end-to-end smoke: 5-layer probe -- plugin root,
-                           key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema.
+  --brain-smoke            class M (Brain end-to-end smoke: 6-layer probe -- plugin root,
+                           key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema,
+                           store identity (stale-replica detection, quick 260819-c9b).
                            Diagnostic-only; reports the exact failing layer. Phase 127-02.)
   --eureka-smoke           class S (Eureka local-embedding-stack smoke: 4-layer probe --
                            deps present, vec backend, model cache, graceful degrade.
@@ -1335,7 +1337,7 @@ function buildAcceptanceChecklist(ctx) {
           }
           // 2. Spawn doctor --brain-smoke --json against ourselves to probe
           //    the live MCP server. Reuses the Phase 127-02 Class M smoke
-          //    test (5-layer probe at lib/core/doctor/class-m-brain-smoke.cjs).
+          //    test (6-layer probe at lib/core/doctor/class-m-brain-smoke.cjs).
           const doctorPath = path.join(__dirname, 'doctor.cjs');
           const r = cp.spawnSync('node', [doctorPath, '--brain-smoke', '--json'], {
             encoding: 'utf8', timeout: 30000,
@@ -1365,7 +1367,35 @@ function buildAcceptanceChecklist(ctx) {
           // 4. Compare. Match = pass, drift = activation-gap.
           const ok = wireVersion === recordVersion;
           const finding = ok ? null : ('activation gap detected: live install serves v' + wireVersion + ' but version-of-record is v' + recordVersion);
-          return { ok: ok, finding: finding, detail: { wireVersion: wireVersion, recordVersion: recordVersion } };
+          // 5. Store-identity guard (quick task 260819-c9b, WS-E1). Reuses
+          //    the SAME payload already parsed above -- no second spawn.
+          //    Two things wire-lock a release here: the store_identity
+          //    layer must not silently disappear from the payload (absent
+          //    is a not-ok finding), and a release must never be cut while
+          //    the wire is pointed at the frozen stale-replica signature
+          //    (also not-ok, quoting the layer's own named reason). Any
+          //    OTHER store-identity failure -- a transient count dip, an
+          //    unreachable Brain -- is carried into detail as information
+          //    only and does NOT flip ok: an absolute count gate would
+          //    brick the release train on ordinary graph churn, the same
+          //    reasoning that keeps the dual-graph gate in report-only
+          //    mode (scripts/check-dual-graph-health.cjs DEFAULT_MODE).
+          const storeIdentity = payload.layers.find(function (l) { return l && l.id === 'store_identity'; });
+          if (!storeIdentity) {
+            return {
+              ok: false,
+              finding: 'store_identity layer absent from brain-smoke payload',
+              detail: { wireVersion: wireVersion, recordVersion: recordVersion, layerIds: payload.layers.map(function (l) { return l && l.id; }) },
+            };
+          }
+          if (!storeIdentity.ok && /stale_replica_signature/.test(String(storeIdentity.reason || ''))) {
+            return {
+              ok: false,
+              finding: 'release is being cut against the stale replica: ' + storeIdentity.reason,
+              detail: { wireVersion: wireVersion, recordVersion: recordVersion, storeIdentity: storeIdentity },
+            };
+          }
+          return { ok: ok, finding: finding, detail: { wireVersion: wireVersion, recordVersion: recordVersion, storeIdentity: storeIdentity } };
         } catch (e) {
           return { ok: false, finding: 'activation-reached-the-wire threw: ' + e.message, detail: {} };
         }
@@ -3008,14 +3038,14 @@ function main() {
   // Phase 217 carve-out: brain-smoke (class M) stays special-cased as an async
   // dispatch block and is NOT migrated to a registry runner. The accumulative
   // engine loop is SYNCHRONOUS (it calls check(ctx) and consumes the return
-  // value inline); class M is an async 5-layer network probe (Promise-based,
+  // value inline); class M is an async 6-layer network probe (Promise-based,
   // with the Windows-safe process.exitCode teardown below). Migrating it would
   // require an async engine pass, deliberately not taken during the 211-217
   // release window (217-RESEARCH Pitfall 2, CONTEXT discretion clause A2:
   // lower-risk call under release pressure).
   //
-  // The 5-layer probe is dispatched here BEFORE the class A-L flow so the
-  // output is the canonical { class:"M", ok, layers:[5], overall_ms } shape
+  // The 6-layer probe is dispatched here BEFORE the class A-L flow so the
+  // output is the canonical { class:"M", ok, layers:[6], overall_ms } shape
   // (consumed by tests/test-127-02-doctor-class-m.sh). When combined with
   // --all, this branch still owns the output; the other class checks run
   // under it via a parallel promise chain, but for the standalone case
@@ -3778,11 +3808,26 @@ async function classMBrainSmoke(flags) {
   if (flags.json) {
     console.log(JSON.stringify(Object.assign({ class: 'M' }, result), null, 2));
   } else {
-    console.log('Class M -- Brain end-to-end smoke (5-layer probe)');
+    console.log('Class M -- Brain end-to-end smoke (6-layer probe)');
     console.log('  Overall: ' + (result.ok ? 'PASS' : 'FAIL') + '  (' + result.overall_ms + 'ms)');
     for (const layer of result.layers) {
       const marker = layer.ok ? 'PASS' : 'FAIL';
       console.log('    [' + marker + '] ' + layer.name + ' -- ' + layer.reason + ' (' + layer.ms + 'ms)');
+      // Handoff section 7 item g: report which endpoint the wire resolved
+      // to and whether it is canon. Guarded on payload being present so
+      // layers 1-5 (which never carry one) print exactly as before.
+      if (layer.payload) {
+        const p = layer.payload;
+        console.log('        endpoint=' + p.endpoint + ' node_count=' + p.node_count
+          + ' canon=' + p.canon + (p.override ? ' override=true' : ''));
+        if (p.stamp) {
+          const stampParts = [];
+          if (p.stamp.schema_version != null) stampParts.push('schema_version=' + p.stamp.schema_version);
+          if (p.stamp.last_reconciled != null) stampParts.push('last_reconciled=' + p.stamp.last_reconciled);
+          if (p.stamp.refreshed_at != null) stampParts.push('refreshed_at=' + p.stamp.refreshed_at);
+          console.log('        GraphRagMeta stamp: ' + stampParts.join(' '));
+        }
+      }
     }
   }
   // Class-flag invariant: exit 0 even on per-layer FAIL.

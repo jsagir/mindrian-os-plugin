@@ -173,15 +173,16 @@ run_gate_5() {
     if node -e '
       const j = JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));
       if (j.class !== "M") process.exit(11);
-      if (!Array.isArray(j.layers) || j.layers.length !== 5) process.exit(12);
-      // Expected: L1 PASS, L2 FAIL (no key), L3-L5 skipped
+      if (!Array.isArray(j.layers) || j.layers.length !== 6) process.exit(12);
+      // Expected: L1 PASS, L2 FAIL (no key), L3-L6 skipped
       if (j.layers[0].ok !== true) process.exit(13);
       if (j.layers[1].ok !== false) process.exit(14);
       if (j.layers[2].reason !== "skipped-prior-layer-failed") process.exit(15);
       if (j.layers[3].reason !== "skipped-prior-layer-failed") process.exit(16);
       if (j.layers[4].reason !== "skipped-prior-layer-failed") process.exit(17);
+      if (j.layers[5].reason !== "skipped-prior-layer-failed") process.exit(18);
     ' "$OUT"; then
-      record "gate-5" "PASS" "Class-M reported expected cascade (L1 PASS, L2 FAIL, L3-L5 skipped)"
+      record "gate-5" "PASS" "Class-M reported expected cascade (L1 PASS, L2 FAIL, L3-L6 skipped)"
     else
       record "gate-5" "FAIL" "Class-M cascade mismatched: $(head -c 200 "$OUT" 2>/dev/null)"
     fi

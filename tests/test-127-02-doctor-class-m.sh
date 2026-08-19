@@ -4,9 +4,9 @@
 #
 # Verifies the doctor's --brain-smoke flag wiring end-to-end:
 #   T1: --help text mentions --brain-smoke
-#   T2: --brain-smoke --json prints valid JSON with class:M, 5 layers
+#   T2: --brain-smoke --json prints valid JSON with class:M, 6 layers
 #   T3: --brain-smoke (no --json) exits 0 (class-flag invariant)
-#   T4: Tier-0 cascade (no key) -- L1 PASS, L2 FAIL, L3-L5 skipped
+#   T4: Tier-0 cascade (no key) -- L1 PASS, L2 FAIL, L3-L6 skipped
 #   T5: commands/doctor.md documents the flag
 #
 # Canon parts: 7 (reuse of existing class-dispatch pattern), 8 (LOCAL-only).
@@ -47,7 +47,7 @@ run "T1-help-mentions-brain-smoke" '
   node scripts/doctor.cjs --help 2>&1 | grep -q -- "--brain-smoke"
 '
 
-# T2: --brain-smoke --json prints valid JSON with class:M + 5 layers
+# T2: --brain-smoke --json prints valid JSON with class:M + 6 layers
 run "T2-brain-smoke-json-output" '
   TMPDIR=$(mktemp -d -t 127-02-T2-XXXXXX)
   HOME="$TMPDIR" env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke --json > "$TMPDIR/out.json" 2>/dev/null
@@ -55,7 +55,7 @@ run "T2-brain-smoke-json-output" '
     const j = JSON.parse(require(\"fs\").readFileSync(\"$TMPDIR/out.json\", \"utf8\"));
     if (j.class !== \"M\") { console.error(\"class !== M, got: \" + j.class); process.exit(11); }
     if (!Array.isArray(j.layers)) { console.error(\"layers not array\"); process.exit(12); }
-    if (j.layers.length !== 5) { console.error(\"expected 5 layers, got: \" + j.layers.length); process.exit(13); }
+    if (j.layers.length !== 6) { console.error(\"expected 6 layers, got: \" + j.layers.length); process.exit(13); }
     if (typeof j.overall_ms !== \"number\") { console.error(\"overall_ms not number\"); process.exit(14); }
   "
   rm -rf "$TMPDIR"
@@ -71,9 +71,11 @@ run "T3-class-flag-invariant-exit-0" '
 '
 
 # T4: Tier-0 path (L1 OK via MINDRIAN_OS_ROOT, L2 FAIL because no key,
-# L3-L5 cascade to skipped). MINDRIAN_OS_ROOT is the resolver's first
+# L3-L6 cascade to skipped). MINDRIAN_OS_ROOT is the resolver's first
 # precedence (env var) so L1 finds the plugin root cleanly even under
-# hermetic HOME without a real install.
+# hermetic HOME without a real install. L6 (store_identity) is always
+# reached in the skipped state here and never touches the network -- this
+# test runs with no key under a hermetic HOME.
 run "T4-tier-0-no-key-cascade" '
   TMPDIR=$(mktemp -d -t 127-02-T4-XXXXXX)
   HOME="$TMPDIR" \
@@ -94,6 +96,10 @@ run "T4-tier-0-no-key-cascade" '
     if (j.layers[4].ok !== false || j.layers[4].reason !== \"skipped-prior-layer-failed\") {
       console.error(\"L5 should be skipped; got ok=\" + j.layers[4].ok + \", reason=\" + j.layers[4].reason);
       process.exit(24);
+    }
+    if (j.layers[5].ok !== false || j.layers[5].reason !== \"skipped-prior-layer-failed\") {
+      console.error(\"L6 should be skipped; got ok=\" + j.layers[5].ok + \", reason=\" + j.layers[5].reason);
+      process.exit(25);
     }
   "
   rm -rf "$TMPDIR"
