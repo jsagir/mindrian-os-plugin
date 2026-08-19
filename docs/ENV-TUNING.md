@@ -591,7 +591,7 @@ only):
 
 | File | What it gates now |
 |------|--------------------|
-| `lib/mcp/mcp-first-flag.cjs` (the definition itself, plus `isWritePathEnabled`'s internal call) | The WRITE-PATH PERMISSION gate for foreign MCP hosts (`graph_write`/`memory_event`/`artifact_file`), a Phase 234-05 concern entirely orthogonal to room resolution -- "may this call write", never "which room does this call read". |
+| `lib/mcp/mcp-first-flag.cjs` (the definition itself, plus `isWritePathEnabled`'s internal call) | The WRITE-PATH PERMISSION gate for foreign MCP hosts (`graph_write`/`memory_event`/`artifact_file`), a Phase 234-05 concern entirely orthogonal to room resolution -- "may this call write", never "which room does this call read". 2026-08-19: since quick task 260819-bql, the default-on population also includes Claude Code itself; the flag's remaining override value is for an unidentified client or the tier1 hosts (Grok Build, OpenCode) that keep their own hook channel. |
 | `bin/mindrian-mcp-server.cjs` (`isMcpFirst(surface.surface)`, the daemon's HTTP branch) | DAEMON LIFECYCLE: whether the Streamable HTTP transport wires a per-session transport map (`sessionIdGenerator: randomUUID`, real per-connection `extra.sessionId`, the pidfile/port-discovery/SSE-event-bus machinery) or the byte-identical-legacy single shared stateless transport (`sessionIdGenerator: undefined`, no per-connection session id at all). |
 
 **Why the daemon-lifecycle consumer still matters even though resolution is unconditional:**
