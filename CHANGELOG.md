@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.6 (in progress)
+## [2.0.0-beta.7] - 2026-08-19
 
 ### Added
 - The dual-graph loop, closed (the "Build the Loop" milestone promise): local sensors supply WHEN, the Brain supplies WHICH and IN WHAT SEQUENCE, a human gate sits between. recommendChain wrapper on the one governed Brain wire (frozen v1 contract, Brain repo docs/RECOMMEND-CHAIN-CONTRACT.md); the brain_framework_chain companion finally has a consumer + chain adapter in chain-recommender (alias normalization, command-map divergence logged as typed memory events, posture authority stays LOCAL); chain offers surface on suggest_next for hookless surfaces (260819-c8j)
