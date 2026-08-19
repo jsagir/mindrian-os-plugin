@@ -7,7 +7,8 @@
     "discover_structure": { "tier": "read", "args": { "framework_name": "string" } },
     "orchestration_readiness": { "tier": "read", "args": { "framework_name": "string" } },
     "feeds_into_chains": { "tier": "read", "args": { "seeds": "string[]", "max_hops": "int<=3" } },
-    "brain_stats": { "tier": "read", "args": {} }
+    "brain_stats": { "tier": "read", "args": {} },
+    "recommend_chain": { "tier": "read", "args": { "problem_type": "string", "max_steps": "int<=6" } }
   },
   "retired_remote": ["text2cypher", "brain_ask_anything"],
   "error_semantics": {

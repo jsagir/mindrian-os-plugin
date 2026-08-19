@@ -50,6 +50,7 @@ const WRAPPER_MAP = {
   orchestration_readiness: 'orchestrationReadiness',
   feeds_into_chains: 'feedsIntoChains',
   brain_stats: 'stats',
+  recommend_chain: 'recommendChain',
 };
 
 // Call adapters: how to invoke each wrapper with representative, valid
@@ -63,6 +64,7 @@ const CALL_ADAPTERS = {
   orchestration_readiness: (brain) => brain.orchestrationReadiness('SWOT Analysis'),
   feeds_into_chains: (brain) => brain.feedsIntoChains(['SWOT Analysis'], 2),
   brain_stats: (brain) => brain.stats(),
+  recommend_chain: (brain) => brain.recommendChain('Undefined Problem', 6),
 };
 
 function freshBrainClient(url) {
@@ -162,11 +164,11 @@ test('the real vendored contract is fully conformant (zero issues)', async () =>
   assert.deepStrictEqual(issues, [], 'the vendored contract must be fully conformant: ' + JSON.stringify(issues));
 });
 
-test('contract_version is 1 and loop_tools has exactly the 6 loop tools', () => {
+test('contract_version is 1 and loop_tools has exactly the 7 loop tools', () => {
   delete require.cache[CONTRACT_PATH];
   const contract = require(CONTRACT_PATH);
   assert.strictEqual(contract.contract_version, 1);
-  assert.strictEqual(Object.keys(contract.loop_tools).length, 6);
+  assert.strictEqual(Object.keys(contract.loop_tools).length, 7);
 });
 
 test('retired_remote contains both server-side-LLM tools (CONTRACT-02)', () => {
