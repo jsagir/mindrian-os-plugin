@@ -1,3 +1,8 @@
+## [Unreleased] -- v2.0.0-beta.8 (in progress)
+
+### Added
+- 
+
 ## [2.0.0-beta.7] - 2026-08-19
 
 ### Added
