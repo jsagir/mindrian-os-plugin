@@ -173,3 +173,55 @@ not another symptom patch.
 reachable capability under CIRS (R1), confirmed by the registry-wired assertion in
 `tests/test-context-driven-trigger.cjs`. The system that models its own invocation surface
 is part of that surface, and it is not dark.
+
+---
+
+## v2 addendum (2026-08-19): two more instances of the same broken-loop signature
+
+The 2026-08-18/19 brain-plugin sync work surfaced two systems that had EXACTLY the
+143.x/144.1 disease this document diagnosed -- a stock meant to be held at a goal, with
+weak feedback and a long delay -- and applied the same cure. Recorded here because the
+model generalizes: the invocation surface was the first patient, not the only one.
+
+### Instance 2: the graph mirror (reflected-surface stock)
+
+- STOCK: plugin surfaces WITHOUT a reflective counterpart in the Brain graph. Baseline
+  measured 2026-08-18: 112 MindrianCommand nodes existed but carried ZERO framework
+  edges, and agents / skills / sensors / MCP tools / workflows (201 surfaces) had no
+  nodes at all. The mirror stock had drifted for months with NO sensor -- not even a
+  WARN-only one. Weaker than the 143.x case: the loop did not exist.
+- THE BALANCING LOOP BUILT: `scripts/mindrian-surface-sync.mjs` (ProblemsWorthSolving-
+  Brain repo) inventories every plugin surface per version (314 at 2.0.0-beta.1),
+  content-hashes each, diffs against the prior version's manifest, and emits compile-only
+  payloads (create / update / Archive-never-delete). The release checklist runs it per
+  version -- the sensor fires at RELEASE time (short delay), and the payload is the
+  actuator. Meadows #5 again: the rule is "no release without a mirror diff", not a
+  parameter tweak.
+- The hand-curated seed (payloads/framework-command-map-2026-08-18: 77 command->framework
+  mappings, 48 FEEDS_INTO chains with earned confidence, 52 problem-type wirings) is the
+  initial stock-fill; the sync mechanism is the loop that keeps it from drifting again.
+
+### Instance 3: store identity (the canon-drift stock)
+
+- STOCK: consumer wires pointed at NON-CANON graph stores. Found 2026-08-18/19: the
+  claude.ai/Cowork connector, two local config files, and a device-bridge wire all read
+  the retired Aura-era replica (frozen ~July, 730 nodes behind canon). Three separate
+  sessions produced false data-integrity verdicts from it in ONE day. The drift sensor
+  did not exist; detection was a human eyeballing a 23,014-edge signature. Luck is not a
+  balancing loop.
+- THE LOOP TO BUILD (handed off, docs/2026-08-19-HANDOFF-brain-plugin-sync-release.md
+  section 7): a GraphRagMeta version-stamp node bumped inside every admin window (the
+  sensed variable), stale-store detection on connect that banners mismatches and refuses
+  to silently mix (the actuator, at CONNECT time -- near-zero delay), /mos:doctor
+  reporting per-wire store identity (the audit surface), and suspension of the stale
+  service so a wrong wire fails LOUDLY instead of answering plausibly (removing the
+  decoy stock entirely -- the highest-leverage move on the list).
+
+### The generalized rule this document now carries
+
+Any stock the system claims to hold at a goal MUST name (a) its sensor, (b) its
+actuator, (c) the delay between deviation and correction, and (d) what happens when the
+sensor is absent. A goal with no loop is a wish. Phase 172 proved it for invocation
+coverage; the graph mirror and store identity are the second and third proofs. The next
+planner who finds a "should always be true" without a gate holding it true has found
+patient four.

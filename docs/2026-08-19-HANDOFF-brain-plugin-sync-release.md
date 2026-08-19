@@ -186,7 +186,39 @@ writes were made by either outside the governed paths - the closed admin
 wire refusing the rehearsal's replay IS the system working.
 
 ======================================================================
-8. ACCEPTANCE - how you know the couple is synced
+8. DOCUMENTATION VERSIONING (shipped 2026-08-19 with this handoff)
+======================================================================
+Three doctrine docs were updated to the post-sync reality; review them as
+part of the release, they are now load-bearing:
+
+  - docs/AGENTIC-SURFACING-PATTERN.md -> v2.0. Adds Step 7 (optional,
+    post-APPROVE only): recommend_chain -> chain_resolve -> chain_run,
+    with the Part 8 discipline stated exactly (enum-only payload, called
+    from the Larry layer, never from the agent module - anti-patterns 2
+    and 6 unchanged). Also: endpoint correction (pws-brain-mcp is live;
+    mindrian-brain.onrender.com is the retired stale replica) and
+    hookless-surface parity (the runtime protocol served at handshake
+    means the same skeleton runs on Desktop/Cowork).
+  - docs/172-SYSTEMS-MODEL.md -> v2 addendum. The broken-balancing-loop
+    diagnosis generalized to two new patients: the graph mirror (no
+    sensor at all -> mindrian-surface-sync.mjs is the new loop, fired
+    per release) and store identity (canon drift -> GraphRagMeta stamp +
+    connect-time stale-store detection + doctor store-identity + suspend
+    the decoy). Carries the generalized rule: any "should always be
+    true" without sensor + actuator + short delay is a wish, not a loop.
+  - docs/ARCHITECTURE-DEEP-DIVE.md -> Brain section rewritten to the
+    live custom-server reality (24 read tools, recommend_chain, OAuth
+    door, eval law); the Aura Agent design demoted to a quoted
+    historical block marked do-not-build-against.
+
+REMAINING DOC SWEEP (team task, one grep): search docs/ + skills/ +
+commands/ for "mindrian-brain.onrender.com" and "Aura Agent" and bring
+every hit to the section-7 store doctrine. The deep-dive doc is a legacy
+research artifact - sweep its other sections against this handoff before
+citing it in new phases.
+
+======================================================================
+9. ACCEPTANCE - how you know the couple is synced
 ======================================================================
 Run these after release + window:
   a. Fresh Desktop, plugin updated: prompt menu shows bind-room/status/act;

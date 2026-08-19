@@ -30,11 +30,28 @@ Product (Layer 4): room/, bank/, journal/, exports/.
 | Fresh subagent contexts | Pipeline stages in isolated windows |
 | Atomic commits | Atomic room filing with provenance |
 
-## Neo4j Aura Agent as Brain MCP
+## The Brain MCP (UPDATED 2026-08-19 - supersedes the Aura Agent design below)
 
-No custom server needed. Configure Aura Agent in console (no code). Tools: Cypher Templates + Similarity Search + Text2Cypher. One-click deploy as MCP server (OAuth secured). Cost: $0.35/hr active. AuraDB Free: $0. Pro: $65/mo. Break-even: 5-17 subs at $19/mo.
+The Brain is a CUSTOM MCP server (jsagir/ProblemsWorthSolving-Brain) on Render:
+`pws-brain-mcp.onrender.com/mcp`, Memgraph-backed (private pws-brain-db), 29,055 nodes /
+24,018 edges, e5-1024 vectors embedded locally, GraphRAG props at full coverage
+(pagerank 100%, 377 Louvain communities). 24 public read tools including brain_ask
+(DirectiveEnvelope router), brain_search, bounded read-only brain_query, and
+recommend_chain (problem type -> executable ordered framework chain with /mos: commands;
+the tripwire's Brain half - recommends, never triggers). Auth: Supabase brain_api_keys
+bearer keys + an OAuth PKCE front door for header-less clients (claude.ai connectors);
+access tokens are derived key rows. A GraphRAG system prompt rides the MCP handshake.
+Eval gate law: NL answer accuracy 0.71 vs 0.14 baseline - no change ships below it.
 
-Cypher templates: suggest_chain, enrich_context, get_chaining_rules, grade_room, find_connections, get_framework_phases, get_teaching_context.
+HISTORICAL (retired, do not build against): the original plan below used a Neo4j Aura
+Agent as the Brain. That service (mindrian-brain.onrender.com, Aura + Pinecone) is a
+frozen stale replica scheduled for suspension. Kept for provenance only:
+
+> No custom server needed. Configure Aura Agent in console (no code). Tools: Cypher
+> Templates + Similarity Search + Text2Cypher. One-click deploy as MCP server (OAuth
+> secured). Cost: $0.35/hr active. AuraDB Free: $0. Pro: $65/mo. Break-even: 5-17 subs
+> at $19/mo. Cypher templates: suggest_chain, enrich_context, get_chaining_rules,
+> grade_room, find_connections, get_framework_phases, get_teaching_context.
 
 ## Pipeline Chaining Rules (Week 7)
 
