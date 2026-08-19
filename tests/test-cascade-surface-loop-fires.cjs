@@ -104,10 +104,11 @@ function runBashHook(scriptPath, envelope, env, cwd) {
   // Defensive Pitfall 2 guard: MINDRIAN_ROOMS_HOME must be bound.
   assert.equal(typeof env.MINDRIAN_ROOMS_HOME, 'string',
     'Test must set MINDRIAN_ROOMS_HOME to the scratch dir (avoid leaking into the real active room)');
-  // Run with cwd pinned to the scratch dir. The shipped cascade step-9
-  // build-graph writes to a CWD-relative `./dashboard/graph.json`; pinning cwd
-  // to the tmpdir keeps that write inside the sandbox instead of dirtying the
-  // repo's dashboard (test hygiene -- a loop-fires test must not pollute main).
+  // Run with cwd pinned to the scratch dir. As of 2026-08-19 (Quick Task
+  // 260819-dmm) the shipped cascade step-9 build-graph writes to an explicit
+  // PLUGIN_ROOT-anchored path (dashboard/graph.json is generated and
+  // gitignored, untracked), so this pin is no longer load-bearing for that
+  // write; it stays as defensive cwd hygiene for the rest of the hook run.
   const res = spawnSync('bash', [scriptPath], {
     encoding: 'utf8',
     input: JSON.stringify(envelope),

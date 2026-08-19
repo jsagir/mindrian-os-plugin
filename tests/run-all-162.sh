@@ -18,10 +18,12 @@
 #
 # CWD is PINNED to the repo root before running anything (DI-162-02-05): an
 # unpinned build-graph-style run defaults output to a CWD-relative
-# ./dashboard/graph.json and would clobber the committed snapshot. None of the
-# suites below invoke build-graph (they call getGraphExport directly, which does
-# not write that file), but the pin is belt-and-suspenders for the carried W1/W2
-# integration tests.
+# ./dashboard/graph.json. As of 2026-08-19 (Quick Task 260819-dmm) that file
+# is generated and gitignored (untracked as of 2026-08-19), so there is no
+# committed snapshot left to clobber. None of the suites below invoke
+# build-graph (they call getGraphExport directly, which does not write that
+# file), but the pin is belt-and-suspenders for the carried W1/W2 integration
+# tests.
 #
 # bash only. No emoji. No em-dashes (CLAUDE.md HARD RULE). Hyphens only.
 

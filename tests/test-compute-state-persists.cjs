@@ -117,11 +117,12 @@ async function run() {
     const artifactPath = path.join(roomDir, 'market-analysis', 'research-pm-role-outlook.md');
     fs.writeFileSync(artifactPath, '# PM Role Outlook\n\nSome research content.\n');
     // scripts/build-graph (cascade Step 9, unrelated to compute-state) defaults
-    // its output to "./dashboard/graph.json" relative to CWD when only one
-    // positional arg is passed - which is exactly how Step 9 invokes it. Run
-    // the cascade with CWD pointed at the scratch dir so this pre-existing,
-    // out-of-scope behavior cannot write into the plugin repo's own
-    // dashboard/graph.json.
+    // its own output to "./dashboard/graph.json" relative to CWD, but as of
+    // 2026-08-19 (Quick Task 260819-dmm) Step 9 always passes an explicit
+    // PLUGIN_ROOT-anchored output path, so this pre-existing, out-of-scope
+    // behavior no longer reaches that default. dashboard/graph.json is
+    // generated and gitignored (untracked). The CWD pin below is kept as
+    // defensive test hygiene for the rest of the cascade run.
     const savedCwd = process.cwd();
     process.chdir(tmp);
     try {
