@@ -9,7 +9,7 @@
  * model. Phase 239 (BRAIN-01): the matcher scopes this hook to the live
  * registered Brain tool names in both plugin scope
  * (mcp__plugin_mos_mindrian-brain__brain_*) and project scope
- * (mcp__mindrian-brain__brain_*); the superseded dead literal 'mcp__brain_.*'
+ * (mcp__mindrian-brain__brain_*) plus the canonical custom-connector name (mcp__pws-brain-mcp__brain_*, added 2026-08-19 - the live server registers under it on Desktop/claude.ai); the superseded dead literal 'mcp__brain_.*'
  * never matched a live name once the Brain server shipped inside the "mos"
  * plugin. The in-hook isBrainTool re-check below derives from the SAME
  * exported BRAIN_TOOL_MATCHER the hooks.json matcher is asserted equal to.

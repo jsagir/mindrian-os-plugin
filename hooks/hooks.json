@@ -233,7 +233,7 @@
         ]
       },
       {
-        "matcher": "mcp__(?:plugin_[a-z0-9_-]+_)?mindrian-brain__.*",
+        "matcher": "mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*",
         "hooks": [
           {
             "type": "command",
@@ -335,7 +335,7 @@
         ]
       },
       {
-        "matcher": "mcp__(?:plugin_[a-z0-9_-]+_)?mindrian-brain__.*",
+        "matcher": "mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*",
         "hooks": [
           {
             "type": "command",

@@ -140,7 +140,8 @@ function main() {
   // Defense-in-depth (Phase 239, BRAIN-01): the matcher scopes this hook to
   // the live Brain tool names in BOTH plugin scope
   // (mcp__plugin_mos_mindrian-brain__brain_*) and project scope
-  // (mcp__mindrian-brain__brain_*). The in-hook re-check below derives from
+  // (mcp__mindrian-brain__brain_*) and the canonical custom-connector name
+  // (mcp__pws-brain-mcp__brain_*, added 2026-08-19). The in-hook re-check below derives from
   // the SAME exported BRAIN_TOOL_MATCHER the hooks.json matcher is asserted
   // equal to, so a matcher drift cannot leak the gate open (OQ-1 backstop).
   // The fail-OPEN posture on a failed require below is a deliberate accepted
