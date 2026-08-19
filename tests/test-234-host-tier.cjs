@@ -52,6 +52,21 @@
  * Canon Part 8: pure local calls plus a LOCAL child process under a hermetic
  * HOME with MINDRIAN_BRAIN_KEY unset. Zero network reach.
  *
+ * 2026-08-19 AMENDMENT (quick task 260819-bql, RCA
+ * .planning/debug/resolved/mcp-write-path-disabled-on-cli-host.md): Phase
+ * 234-05's claude-code default -- "harmless: slash commands and hooks do the
+ * writing" -- was reversed. It was NOT harmless: a visible-but-always-refusing
+ * door provoked ungoverned direct-disk writes with no artifact_id and no
+ * memory_event journal row, observed live in this repo's own history. The
+ * three write tools ARE the governed Part 9 door (everything they do routes
+ * through navigation.cjs), so claude-code is now PERMITTED by default, same
+ * as any other confidently-recognized host. The honest-refusal proof this
+ * suite used to pin against claude-code (Part B, B3/B4) moved to a THIRD
+ * live drive against an unidentified client -- the conservative floor still
+ * refuses, out loud, with an accurate hint. The original Gap D narrative
+ * above is UNCHANGED and still the reason the three tools are registered
+ * unconditionally in tools/list regardless of host.
+ *
  * Run: node tests/test-234-host-tier.cjs
  * Exit: 0 when every check passes, non-zero otherwise. No em-dashes.
  */
@@ -187,11 +202,12 @@ check("detectHostTier(novel client) -> hostTier 'tier0'", novel.hostTier === 'ti
 // ---------------------------------------------------------------------------
 process.stdout.write('\n-- A5: write-path gate --\n');
 
-// Claude Code keeps its byte-identical legacy default: the flag is the only
-// thing that turns the MCP write path on there, because slash commands and
-// hooks already do the writing.
-check("flag unset + claude-code -> write path OFF (legacy default preserved)",
-  withFlag(null, () => isWritePathEnabled({ surface: 'cli', clientVersion: { name: 'claude-code' } })) === false);
+// 2026-08-19 (quick task 260819-bql): Claude Code now gets the write path ON
+// by default. The three write tools ARE the governed navigation.cjs door;
+// refusing them on the home surface provoked an ungoverned direct-disk
+// bypass (RCA .planning/debug/resolved/mcp-write-path-disabled-on-cli-host.md).
+check("flag unset + claude-code -> write path ON (the three write tools ARE the governed navigation.cjs door; refusing them provoked an ungoverned direct-disk bypass)",
+  withFlag(null, () => isWritePathEnabled({ surface: 'cli', clientVersion: { name: 'claude-code' } })) === true);
 
 // THE GAP D FIX: a confidently-recognized foreign host gets the write path by
 // default, with no hand-set env var.
@@ -207,6 +223,11 @@ check("flag unset + Cursor -> write path ON (Gap D fix, no env var needed)",
 // UNIDENTIFIED client does not silently gain write access. This is not a
 // silent skip -- Part B proves the tool stays visible in tools/list and
 // returns an informative reason on call.
+//
+// These two checks are now the LOAD-BEARING conservative floor: since
+// claude-code no longer sits in the false population, the unknown-host and
+// novel-unrecognized-host checks are what proves an unidentified caller still
+// cannot silently gain write access.
 check('flag unset + unknown host -> write path OFF (conservative floor)',
   withFlag(null, () => isWritePathEnabled({ surface: 'desktop', clientVersion: undefined })) === false);
 check('flag unset + novel unrecognized host -> write path OFF',
@@ -228,8 +249,13 @@ check("MINDRIAN_MCP_FIRST=cli + claude-code on cli -> ON (explicit flag wins ove
   withFlag('cli', () => isWritePathEnabled({ surface: 'cli', clientVersion: { name: 'claude-code' } })) === true);
 check("MINDRIAN_MCP_FIRST=all + unknown host -> ON (explicit flag wins over the conservative floor)",
   withFlag('all', () => isWritePathEnabled({ surface: 'desktop', clientVersion: undefined })) === true);
-check("MINDRIAN_MCP_FIRST=cli + claude-code on DESKTOP -> OFF (flag is per-surface, unchanged)",
-  withFlag('cli', () => isWritePathEnabled({ surface: 'desktop', clientVersion: { name: 'claude-code' } })) === false);
+// 2026-08-19 (quick task 260819-bql): with claude-code now permitted by host
+// detection alone, a flag naming only 'cli' no longer produces an observable
+// OFF for a claude-code call on desktop (host detection grants it anyway).
+// The surviving per-surface fact needs a host that is STILL in the false
+// population to observe: Grok Build (tier1, has its own hook channel).
+check("MINDRIAN_MCP_FIRST=cli + Grok Build on DESKTOP -> OFF (the flag is still per-surface: naming only cli does not enable desktop)",
+  withFlag('cli', () => isWritePathEnabled({ surface: 'desktop', clientVersion: { name: 'Grok Build' } })) === false);
 
 // Defensive default: malformed input never flips a capability ON.
 [undefined, null, {}, { surface: 42 }, 'nonsense'].forEach((bad, i) => {
@@ -413,15 +439,25 @@ function toolNames(response) {
 
   // A Cursor-like identity. Recognized, tier0, not Claude Code -> permitted.
   const foreign = await driveServer('test-cursor-sim');
-  // Claude Code's own identity. Legacy default -> refused, out loud.
+  // Claude Code's own identity. 2026-08-19 (quick task 260819-bql): now
+  // PERMITTED by default, the same as a recognized tier0 host -- these three
+  // tools ARE the governed Part 9 door.
   const claude = await driveServer('claude-code');
+  // An unidentified/never-seen client. This is where the honest-refusal proof
+  // moved to once claude-code left the false population: the conservative
+  // floor still refuses, out loud, with an accurate hint.
+  const unidentified = await driveServer('SomeNewClientNeverSeenBefore');
 
-  [['foreign host (test-cursor-sim)', foreign], ['claude-code', claude]].forEach(([label, run]) => {
+  [
+    ['foreign host (test-cursor-sim)', foreign],
+    ['claude-code', claude],
+    ['unidentified client', unidentified],
+  ].forEach(([label, run]) => {
     check('the ' + label + ' drive completed the full handshake + 3 calls' +
       (run.ok ? '' : ' [' + run.reason + ' ' + (run.stderr || run.message || '') + ']'), run.ok === true);
   });
 
-  if (!foreign.ok || !claude.ok) {
+  if (!foreign.ok || !claude.ok || !unidentified.ok) {
     process.stdout.write('\n  ' + passed + ' passed, ' + failed + ' failed\n');
     process.exit(1);
     return;
@@ -451,17 +487,19 @@ function toolNames(response) {
     (foreignWrite && !foreignWrite.ok ? ' [got reason: ' + foreignWrite.reason + ']' : ''),
     foreignWrite && foreignWrite.ok === true);
 
-  // B3. The refusal is honest, specific, and actionable. Never a silent no-op.
+  // B3. 2026-08-19 (quick task 260819-bql): claude-code is now PERMITTED, the
+  // same proof shape B2 used for the foreign host. It reaches the real
+  // navigation.cjs write path against the hermetic room.db this harness
+  // already creates.
   const claudeWrite = toolPayload(claude.responses[3]);
   check('claude-code graph_write returned a parseable payload', claudeWrite !== null);
-  check('claude-code graph_write is refused (legacy default preserved)',
-    claudeWrite && claudeWrite.ok === false);
-  check("claude-code graph_write refusal names the reason 'write_path_disabled'",
-    claudeWrite && claudeWrite.reason === 'write_path_disabled');
-  check('claude-code graph_write refusal carries an actionable hint (not a silent skip)',
-    claudeWrite && typeof claudeWrite.hint === 'string' && claudeWrite.hint.length > 0);
-  check('claude-code graph_write refusal is flagged isError on the wire',
-    claude.responses[3] && claude.responses[3].result && claude.responses[3].result.isError === true);
+  check('claude-code graph_write was NOT refused by the write gate (2026-08-19 fix)',
+    claudeWrite && claudeWrite.reason !== 'write_path_disabled');
+  check('claude-code graph_write reached the REAL write path and succeeded' +
+    (claudeWrite && !claudeWrite.ok ? ' [got reason: ' + claudeWrite.reason + ']' : ''),
+    claudeWrite && claudeWrite.ok === true);
+  check('claude-code graph_write is NOT flagged isError on the wire',
+    claude.responses[3] && claude.responses[3].result && claude.responses[3].result.isError !== true);
 
   // B4. status_read states the floor honestly, on both axes, live (D-05).
   const foreignStatus = toolPayload(foreign.responses[4]);
@@ -477,11 +515,39 @@ function toolNames(response) {
     !!ff && Object.prototype.hasOwnProperty.call(ff, 'write_path_enabled'));
   check('capability_floor on the foreign host reports write_path_enabled true (matches what graph_write did)',
     !!ff && ff.write_path_enabled === true);
-  check('capability_floor on claude-code reports write_path_enabled false (matches its refusal)',
-    !!cf && cf.write_path_enabled === false);
+  // 2026-08-19 (quick task 260819-bql): matches what graph_write did (B3).
+  check('capability_floor on claude-code reports write_path_enabled true (matches what graph_write did)',
+    !!cf && cf.write_path_enabled === true);
   check("capability_floor identifies claude-code as tier1", !!cf && cf.host_tier.hostTier === 'tier1');
   check("capability_floor identifies the Cursor-like client as tier0 (recognized, no hook channel)",
     !!ff && ff.host_tier.hostTier === 'tier0' && ff.host_tier.host === 'cursor');
+
+  // B4b. The honest-refusal proof, relocated to the unidentified client.
+  // Discovery stays unconditional even where permission is refused.
+  const unidentifiedTools = toolNames(unidentified.responses[2]);
+  ['graph_write', 'memory_event', 'artifact_file'].forEach((name) => {
+    check('tools/list includes ' + name + ' on an UNIDENTIFIED client with the flag unset (discovery stays unconditional)',
+      unidentifiedTools.indexOf(name) !== -1);
+  });
+  const unidentifiedWrite = toolPayload(unidentified.responses[3]);
+  check('unidentified-client graph_write returned a parseable payload', unidentifiedWrite !== null);
+  check('unidentified-client graph_write is refused', unidentifiedWrite && unidentifiedWrite.ok === false);
+  check("unidentified-client graph_write refusal names the reason 'write_path_disabled'",
+    unidentifiedWrite && unidentifiedWrite.reason === 'write_path_disabled');
+  check('unidentified-client graph_write refusal carries an actionable hint (not a silent skip)',
+    unidentifiedWrite && typeof unidentifiedWrite.hint === 'string' && unidentifiedWrite.hint.length > 0);
+  check('unidentified-client graph_write refusal is flagged isError on the wire',
+    unidentified.responses[3] && unidentified.responses[3].result && unidentified.responses[3].result.isError === true);
+  // Stale-prose guard: catches a hint that drifts back to describing the
+  // retired "non-Claude-Code host" rule.
+  check("unidentified-client graph_write hint does not describe the retired 'non-Claude-Code' rule",
+    unidentifiedWrite && unidentifiedWrite.hint && unidentifiedWrite.hint.indexOf('non-Claude-Code') === -1);
+  const unidentifiedStatus = toolPayload(unidentified.responses[4]);
+  const uf = unidentifiedStatus && unidentifiedStatus.segments && unidentifiedStatus.segments.capability_floor;
+  check('capability_floor on the unidentified client reports write_path_enabled false',
+    !!uf && uf.write_path_enabled === false);
+  check("capability_floor identifies the unidentified client as host 'unknown'",
+    !!uf && uf.host_tier && uf.host_tier.host === 'unknown');
 
   // B5. THE REGRESSION CHECK, proved on the wire rather than argued. An
   // existing user who set MINDRIAN_MCP_FIRST by hand must see exactly what
