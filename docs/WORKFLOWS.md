@@ -21,7 +21,7 @@ These are the contract, not suggestions (verbatim from `.planning/WORKFLOW-LAYER
 ## 3. The Brain <-> registry <-> Larry join (and the Canon Part 8 boundary)
 
 ```
-   THE BRAIN (mindrian-brain.onrender.com, Neo4j)            THE PLUGIN (this repo)                      RUNTIME (Larry)
+   THE BRAIN (pws-brain-mcp.onrender.com, Memgraph)            THE PLUGIN (this repo)                      RUNTIME (Larry)
    ----------------------------------              ----------------------                      ---------------
    Framework -[:FEEDS_INTO]-> Framework            commands/*.md  frontmatter:                  command-resolver.cjs
    (the methodology chains -- generic,               frameworks: ["<exact Brain name>", ...]      commandsForFramework(fw) -> ["/mos:x", ...]

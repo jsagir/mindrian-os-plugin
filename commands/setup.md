@@ -3,6 +3,7 @@ name: setup
 description: Configure optional integrations (Brain, Velma)
 help_jtbd: "Add optional integrations: graph, Brain, MCP servers."
 body_shape: E
+interactive_first_reward: schema_preview
 hitl_shape: "F.8"
 hitl_why: "Integrations are configured as an independent set the navigator connects in any order."
 argument-hint: "[brain|velma|graph]"
@@ -95,7 +96,7 @@ Check if `MINDRIAN_BRAIN_KEY` is set (env or `.env` file). If set:
 ```json
 {
   "mindrian-brain": {
-    "url": "https://mindrian-brain.onrender.com/mcp",
+    "url": "https://pws-brain-mcp.onrender.com/mcp",
     "headers": {
       "Authorization": "Bearer {brain_key}"
     }
@@ -104,7 +105,7 @@ Check if `MINDRIAN_BRAIN_KEY` is set (env or `.env` file). If set:
 ```
 
 **Cowork:** Tell the user:
-> "Add Brain in Cowork Settings > Integrations > MCP Servers with URL: https://mindrian-brain.onrender.com/mcp and header Authorization: Bearer {first_4_chars}..."
+> "Add Brain in Cowork Settings > Integrations > MCP Servers with URL: https://pws-brain-mcp.onrender.com/mcp and header Authorization: Bearer {first_4_chars}..."
 
 If Brain key is NOT set, remind: "Run `/mos:setup brain` to connect Larry's teaching graph for enhanced intelligence."
 
@@ -202,7 +203,7 @@ Test in two stages. First wake the server and confirm it is reachable, then veri
 **Stage 1 -- Health check (no auth, wakes Render free tier):**
 
 ```bash
-curl -s -w "\n%{http_code}" --max-time 60 https://mindrian-brain.onrender.com/health
+curl -s -w "\n%{http_code}" --max-time 60 https://pws-brain-mcp.onrender.com/health
 ```
 
 **Expected:** HTTP 200 with `{"status":"ok","server":"mindrian-brain","version":"1.0.0"}`
@@ -222,7 +223,7 @@ curl -s -w "\n%{http_code}" --max-time 15 \
   -H "Authorization: Bearer <their-key>" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  https://mindrian-brain.onrender.com/mcp \
+  https://pws-brain-mcp.onrender.com/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
 ```
 
@@ -254,7 +255,7 @@ Explain to the user:
 {
   "mcpServers": {
     "mindrian-brain": {
-      "url": "https://mindrian-brain.onrender.com/mcp",
+      "url": "https://pws-brain-mcp.onrender.com/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }

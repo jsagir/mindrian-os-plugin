@@ -75,9 +75,9 @@ Optional, /usr/bin/bash. 50K nodes. Grows lazily as user works.
 Entry filed -> node created. Concept mentioned -> linked. Pattern detected -> edges.
 Projects isolated by project_id. Cross-project bridging explicit only.
 
-## 7. The Brain (Moat -- mindrian-brain.onrender.com)
+## 7. The Brain (Moat -- pws-brain-mcp.onrender.com)
 
-Neo4j Aura Agent deployed as MCP server. 5 layers:
+Custom Memgraph MCP server at pws-brain-mcp.onrender.com (the original Neo4j Aura Agent is RETIRED -- do not build against it). 5 layers:
 1. Framework Graph (21K nodes, 65K rels, chaining rules, TRANSFORMS_OUTPUT_TO)
 2. Semantic Embeddings (1,427 Pinecone vectors)
 3. Grading Engine (100+ calibrated projects, 5-component rubric)
@@ -127,7 +127,7 @@ MindrianOS-Plugin: manifest, CLAUDE.md, THE-BRAIN.md, empty structure ready.
 
 ## 15. Key Decisions
 
-1. ICM-native 2. GSD state 3. Three surfaces 4. Brain as Aura Agent MCP
+1. ICM-native 2. GSD state 3. Three surfaces 4. Brain as remote MCP
 5. LazyGraph optional 6. Pipelines chain (Week 7) 7. Honest refusal everywhere
 (amended 2026-08, docs/AMENDMENT-2026-08-DECISIONS-1-AND-8.md -- item 7 originally read
 "Tier 0 fully works"; the Brain is required for methodology now, not an optional tier)

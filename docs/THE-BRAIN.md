@@ -6,7 +6,7 @@
 
 The Brain is not a prompt. It is not a document. It is not a database.
 
-The Brain is a live intelligence service hosted at mindrian-brain.onrender.com that provides contextual teaching intelligence to every MindrianOS user. It is the difference between a chatbot that knows about JTBD and a thinking partner that knows WHEN to introduce JTBD, HOW to frame it for THIS users problem, and WHAT to chain it with next.
+The Brain is a live intelligence service hosted at pws-brain-mcp.onrender.com that provides contextual teaching intelligence to every MindrianOS user. It is the difference between a chatbot that knows about JTBD and a thinking partner that knows WHEN to introduce JTBD, HOW to frame it for THIS users problem, and WHAT to chain it with next.
 
 The Brain is Larry -- not as text, but as accumulated judgment.
 

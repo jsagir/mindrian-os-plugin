@@ -36,7 +36,7 @@ entirely (harnesses, CI, or a deliberate keyless run).
 Before beta.20, you had to run:
 ```
 claude mcp add -t http -s user -H "Authorization: Bearer $KEY" \
-  -- mindrian-brain https://mindrian-brain.onrender.com/mcp
+  -- mindrian-brain https://pws-brain-mcp.onrender.com/mcp
 ```
 and restart, and hope nothing fell through.
 

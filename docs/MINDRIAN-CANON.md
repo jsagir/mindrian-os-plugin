@@ -725,7 +725,7 @@ See Part 9 (Memory Locality and Interpretation) for the constitution that binds 
 - Decision Gate - the tri-context (LOCAL + BRAIN + SIGNAL) choice surface that converts a user's judgment into a typed graph edge.
 - Tri-context - the three inputs surfaced at every Decision Gate: LOCAL room state, BRAIN methodology, SIGNAL public data.
 - Local thinking - any bytes that describe this specific user's artifacts, meetings, assumptions, or decisions. Graph-local by constitution.
-- Brain - the remote methodology repository (mindrian-brain.onrender.com). Strategic thinking tools only. Never a store for user data.
+- Brain - the remote methodology repository (pws-brain-mcp.onrender.com). Strategic thinking tools only. Never a store for user data.
 - Canonical breach - any code path that writes LOCAL bytes to BRAIN or embeds LOCAL strings in a BRAIN query payload. See Part 8.
 
 ---

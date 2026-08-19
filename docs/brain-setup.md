@@ -20,7 +20,7 @@ Add this to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "mindrian-brain": {
-      "url": "https://mindrian-brain.onrender.com/mcp",
+      "url": "https://pws-brain-mcp.onrender.com/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }

@@ -52,7 +52,7 @@ Add this block at the top of every audit prompt, and copy the resolved values in
 ## Source-of-Truth Preamble
 
 - **CODE claims read against:** <one of: `origin/main` HEAD @ <sha>, install cache `~/.claude/plugins/mindrian-os/` @ <plugin-version>, branch `<name>` @ <sha>, specific tag `<vX.Y.Z>`>
-- **WIRE claims probe against:** <one of: deployed Brain server `mindrian-brain.onrender.com` @ <date>, local stdio shim `bin/mindrian-brain-mcp-client.cjs` @ <plugin-version>, mock server `<path>`>
+- **WIRE claims probe against:** <one of: deployed Brain server `pws-brain-mcp.onrender.com` @ <date>, local stdio shim `bin/mindrian-brain-mcp-client.cjs` @ <plugin-version>, mock server `<path>`>
 - **Date of audit:** <YYYY-MM-DD>
 - **Re-verification rule:** any source-code claim filed below MUST be re-verified against `origin/main` HEAD before it lands as a finding; otherwise the finding is provisional and tagged `needs-source-reverify`.
 ```
