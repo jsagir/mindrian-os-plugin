@@ -1,7 +1,20 @@
 ## [Unreleased] -- v2.0.0-beta.6 (in progress)
 
 ### Added
-- 
+- The dual-graph loop, closed (the "Build the Loop" milestone promise): local sensors supply WHEN, the Brain supplies WHICH and IN WHAT SEQUENCE, a human gate sits between. recommendChain wrapper on the one governed Brain wire (frozen v1 contract, Brain repo docs/RECOMMEND-CHAIN-CONTRACT.md); the brain_framework_chain companion finally has a consumer + chain adapter in chain-recommender (alias normalization, command-map divergence logged as typed memory events, posture authority stays LOCAL); chain offers surface on suggest_next for hookless surfaces (260819-c8j)
+- Hookless-surface runtime protocol served as MCP `instructions` at initialize, plus Desktop prompt-menu entries bind-room / status / act - Desktop and Cowork run the same Larry loop CLI hooks enforce (2026-08-18/19 night session)
+- Doctor class-M layer 6 `store_identity`: resolved endpoint, node-count floor 29,000, the number 28,325 recognized BY NAME as the stale-replica signature, optional GraphRagMeta stamp read (260819-c9b)
+- Dual-graph health gate live reader wired (M4 predicate rewritten to fit the server's 5s read budget, 5031ms to 688ms) and the first conclusive live baseline recorded (260819-c9b)
+- Part 8 in-process egress belt at the callTool chokepoint - free-form payload classification now covers every Brain wrapper, not 4 of 16 (260819-c8j)
+
+### Fixed
+- MCP write path enabled on the Claude Code host: graph_write / memory_event / artifact_file (the governed navigation.cjs door) no longer refuse and provoke ungoverned direct-disk filing fallbacks (260819-bql, RCA option A)
+- One resume owner for material_step gates: gate_answer now executes the halted step through the ledger entry's own resume handle; the documented ratify-then-resume flow no longer dies on the single-use ledger, and no interleaving can double-run a material step (260819-c55)
+- Part 8 hook matcher extended to the pws-brain-mcp server naming - the egress guard and response sanitizer no longer no-op on live Brain calls
+- Phase 234-01 instructions pin evolved from absence to byte-identity: the initialize channel serves exactly RUNTIME_INSTRUCTIONS, moat-vocabulary canaries asserted absent
+
+### Changed
+- Every live surface (setup templates, brain-setup docs, THE-BRAIN, WORKFLOWS, CANON glossary, session-start banner, .env.brain.template) points at the canon store pws-brain-mcp.onrender.com; Aura-era references marked RETIRED do-not-build-against; the stale replica is suspended Brain-side and answers 503
 
 ## [2.0.0-beta.5] - 2026-08-11
 
