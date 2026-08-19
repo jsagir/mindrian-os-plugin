@@ -13,6 +13,22 @@
  * phase's headline success criterion (ROADMAP SC1 / 237-RESEARCH.md's
  * REACH-01 section).
  *
+ * Quick task 260819-c55 note: chainRun(null,{gateAnswer}) -- the path every
+ * leg below drives -- is the DIRECT programmatic resume for a material_step
+ * gate. gate_answer (lib/mcp/tools/gate.cjs's MCP tool) is the MCP-surface
+ * resume verb for the SAME gate; since 260819-c55 it delegates to the
+ * identical execution ladder this direct path runs (chain.cjs's
+ * _executeResumedEntry), via a resumeFn function reference minted onto the
+ * ledger entry, never a require of chain.cjs. Both verbs consume the SAME
+ * single-use gate-ledger entry (lib/mcp/gate-ledger.cjs), so exactly ONE of
+ * them can ever execute a given gate_id -- whichever consumes it first wins,
+ * and the other is refused with unknown_or_expired_gate. This file pins the
+ * direct path's own single-use behavior (Leg 6, below); the interleavings
+ * across BOTH verbs (gate_answer-then-chain_run, chain_run-then-gate_answer,
+ * each verb called twice, plus the reject and anti-vacuity cases) are pinned
+ * in tests/test-c55-one-resume-owner.cjs, the sibling file this note
+ * cross-references.
+ *
  * Seven legs, driven end to end through lib/mcp/tools/chain.cjs's OWN public
  * API -- chainRun(steps, opts) to start, chainRun(null, {gateAnswer}) to
  * resume -- with NEITHER onStep NOR postureFn injected for the primary
@@ -46,9 +62,15 @@
  *                          <roomDir>/exports/hub.html absent and returns
  *                          the existing not-executed note. The gate still
  *                          gates.
- *   Leg 6 SINGLE USE:      a second answer against the SAME gate_id (from
- *                          Leg 3) does not execute a second time --
- *                          unknown_or_expired_gate.
+ *   Leg 6 DOUBLE-EXECUTION GUARD: a second answer against the SAME gate_id
+ *                          (from Leg 3), through this same direct path, does
+ *                          not execute a second time -- unknown_or_expired_
+ *                          gate. Quick task 260819-c55: this is the guard
+ *                          that makes the gate_answer delegation safe, not
+ *                          an isolated single-use quirk of this one path --
+ *                          the identical guard is what refuses the SECOND
+ *                          caller in every cross-verb interleaving
+ *                          tests/test-c55-one-resume-owner.cjs pins.
  *   Leg 7 MUTATION:        a tmp copy of lib/mcp/tools/chain.cjs with the
  *                          wired chain-step-dispatcher default textually
  *                          replaced by an inline log-only onStep returning
@@ -328,12 +350,17 @@ async function legsPreStateHaltApproveTraceSingleUse() {
       JSON.stringify(approveResult.chain_output && approveResult.chain_output.artifact) + ')'
   );
 
-  // Leg 6: SINGLE USE. A second answer against the SAME gate_id must not
-  // resume/execute again -- the mint-then-consume ledger stays single-use.
+  // Leg 6: DOUBLE-EXECUTION GUARD (quick task 260819-c55 relabel). A second
+  // answer against the SAME gate_id must not resume/execute again -- the
+  // mint-then-consume ledger stays single-use. This is the same guard that
+  // makes gate_answer's resumeFn delegation safe: whichever verb consumes
+  // the entry first executes, and the guard proven here is what refuses
+  // every later caller, cross-verb or same-verb (see
+  // tests/test-c55-one-resume-owner.cjs for the cross-verb interleavings).
   const replay = await chainTool.chainRun(null, { gateAnswer: approveAnswer });
   check(
     replay.ok === false && replay.reason === 'unknown_or_expired_gate',
-    '6: SINGLE USE -- a second answer against the consumed gate_id does not resume/execute again'
+    '6: DOUBLE-EXECUTION GUARD -- a second answer against the consumed gate_id does not resume/execute again'
   );
 }
 

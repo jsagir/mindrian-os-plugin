@@ -187,6 +187,24 @@ function buildSteps() {
       assert.equal(answer.ok, true, 'the chain-minted id, correctly answered, must ratify');
     });
 
+    // Quick task 260819-c55: the id-identity assertion above (Case 1) was
+    // vacuous about whether the halted step actually ran -- it only proved
+    // the two ids matched, which the OLD (broken) two-ledger world could
+    // never have passed anyway, but says nothing about execution. Before
+    // this quick task, gate_answer wrote a ratification memory_event and
+    // returned; it never touched the entry's onStepFn, so stepCounter (the
+    // injected onStep's own witness, declared above) was minted but never
+    // asserted -- the exact strand this file was written to catch stayed
+    // invisible to it. This is the half that was missing.
+    ok('gate_answer executes the halted material step exactly once (the strand this file used to miss)', function () {
+      assert.equal(stepCounter.n, 1, 'stepCounter.n must equal 1 -- the halted step must run exactly once through gate_answer');
+      assert.equal(answer.resumed, true, 'a material_step gate_answer response must carry resumed:true');
+      assert.equal(
+        answer.chain_result && answer.chain_result.executed, true,
+        'answer.chain_result.executed must be true -- the delegated resumeFn call actually ran the step'
+      );
+    });
+
     // Case 2 continued: after the answer, the ledger no longer holds the id
     // (single-use, proven on the shared Map itself, not on a response
     // field).
