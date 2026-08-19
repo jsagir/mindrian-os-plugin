@@ -1,0 +1,12 @@
+{
+  "metrics": {
+    "m1_min_cohort": 1,
+    "m2_review_required": 23,
+    "m3_no_fork": true,
+    "m3_raw_cross_label_dups": 103,
+    "m4_max_orphan_rate": 1
+  },
+  "recorded_at": "2026-08-19T06:16:02.596Z",
+  "mode": "baseline",
+  "version": 1
+}

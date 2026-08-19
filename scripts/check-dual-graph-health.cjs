@@ -133,10 +133,19 @@ const M2_CYPHER =
   'RETURN count(f) AS m2_review_required';
 
 // M4 (audit section 7): the per-label orphan-rate, max across labels.
+// Quick task 260819-c9b (WS-G) measurement: the OLDER pattern-comprehension
+// degree-count predicate this replaced blew the server's 5000ms
+// cypherReadOnly budget (measured 5031ms, returns a text error rather than
+// rows -- the budget-overrun shape the hermetic suite pins). The built-in
+// degree(n) = 0 form below is IDENTICAL IN MEANING ("this node has zero
+// relationships") and measured at 688ms live. Do not "simplify" this back
+// to the older idiom; it will exceed the budget again. (The older idiom's
+// literal syntax is deliberately not spelled out here -- the suite greps
+// for it to pin the regression.)
 const M4_CYPHER =
   'M' + 'ATCH (n) WHERE size(labels(n)) > 0 ' +
   'WITH labels(n)[0] AS lab, ' +
-  'sum(CASE WHEN size((n)--()) = 0 THEN 1 ELSE 0 END) AS orphans, count(n) AS total ' +
+  'sum(CASE WHEN degree(n) = 0 THEN 1 ELSE 0 END) AS orphans, count(n) AS total ' +
   'RETURN max(toFloat(orphans) / total) AS m4_max_orphan_rate';
 
 // The raw cross-label-dup group COUNT (informational; audit section 13).
@@ -144,6 +153,10 @@ const M3_RAW_CYPHER =
   'M' + 'ATCH (n) WHERE n.name IS NOT NULL ' +
   'WITH n.name AS nm, count(DISTINCT labels(n)[0]) AS labelcount ' +
   'WHERE labelcount > 1 RETURN count(nm) AS m3_raw_cross_label_dups';
+
+// M2's bound param. A generic curation enum, the only bound param the gate
+// sends (Canon Part 8: no user content crosses the wire).
+const REVIEW_MARKER = 'REVIEW_REQUIRED';
 
 // ---------- M3: the no-fork recommender-output metric ----------
 
@@ -248,17 +261,107 @@ function _rawCrossLabelDupCount(roomState) {
 // ---------- The default live-Brain metric reader (injectable) ----------
 
 /**
+ * _firstRowValue(res, key) -> number | null
+ *
+ * The fail-closed seam every live read passes through: accepts ONLY the
+ * { records: [ ... ] } shape with a first entry carrying `key` as a finite
+ * number. A null response, a text/error passthrough (exactly how the server
+ * reports a cypherReadOnly budget overrun), an empty records array, or a
+ * missing/non-finite key all return null. One null makes the whole read
+ * inconclusive (readLiveMetrics below) -- an unreadable metric is null,
+ * never a fabricated number.
+ *
+ * @param {*} res
+ * @param {string} key
+ * @returns {number|null}
+ */
+function _firstRowValue(res, key) {
+  if (!res || typeof res !== 'object') return null;
+  if (!Array.isArray(res.records) || res.records.length === 0) return null;
+  const row = res.records[0];
+  if (!row || typeof row !== 'object') return null;
+  const v = Number(row[key]);
+  return Number.isFinite(v) ? v : null;
+}
+
+/**
+ * readLiveMetrics(brainClient) -> Promise<metrics | null>
+ *
+ * The live four-Cypher reader (quick task 260819-c9b, WS-G). Runs
+ * M1_CYPHER/M2_CYPHER/M4_CYPHER/M3_RAW_CYPHER through brainClient.query
+ * ($-bound, Canon Part 8: only REVIEW_MARKER, a generic curation enum,
+ * crosses the wire), computes the no-fork contract LOCALLY via
+ * computeM3NoFork with an empty room state (no Brain touch -- M3 measures
+ * recommender OUTPUT, per the existing doctrine above), and prefers the
+ * LIVE m3_raw_cross_label_dups number over the local index count.
+ *
+ * Fail-closed: returns null immediately when brainClient is falsy, has no
+ * query function, or isAvailable() is false or throws; returns null if ANY
+ * of the four live reads is unreadable (_firstRowValue null); and wraps the
+ * whole body so a thrown error also returns null. On a conclusive read,
+ * returns an object carrying exactly the five REQUIRED_METRIC_KEYS.
+ *
+ * @param {object} brainClient
+ * @returns {Promise<{m1_min_cohort:number, m2_review_required:number, m3_no_fork:boolean, m3_raw_cross_label_dups:number, m4_max_orphan_rate:number}|null>}
+ */
+async function readLiveMetrics(brainClient) {
+  try {
+    if (!brainClient || typeof brainClient.query !== 'function'
+        || typeof brainClient.isAvailable !== 'function' || !brainClient.isAvailable()) {
+      return null;
+    }
+
+    const [m1Res, m2Res, m4Res, m3RawRes] = await Promise.all([
+      brainClient.query(M1_CYPHER),
+      brainClient.query(M2_CYPHER, { review_marker: REVIEW_MARKER }),
+      brainClient.query(M4_CYPHER),
+      brainClient.query(M3_RAW_CYPHER),
+    ]);
+
+    const m1 = _firstRowValue(m1Res, 'm1_min_cohort');
+    const m2 = _firstRowValue(m2Res, 'm2_review_required');
+    const m4 = _firstRowValue(m4Res, 'm4_max_orphan_rate');
+    const m3Raw = _firstRowValue(m3RawRes, 'm3_raw_cross_label_dups');
+
+    if (m1 === null || m2 === null || m4 === null || m3Raw === null) {
+      return null;
+    }
+
+    // M3's no-fork contract touches no Brain (recommender OUTPUT, not raw
+    // storage) -- computed locally per the existing doctrine.
+    const m3 = computeM3NoFork({ roomState: {} });
+
+    return {
+      m1_min_cohort: m1,
+      m2_review_required: m2,
+      m3_no_fork: m3.no_fork,
+      m3_raw_cross_label_dups: m3Raw,
+      m4_max_orphan_rate: m4,
+    };
+  } catch (_e) {
+    return null;
+  }
+}
+
+/**
  * brainReader() -> metrics | null
  *
  * The default reader: a read-only metric pull from the live Brain. Returns null
  * (inconclusive) when the Brain is unreachable, or when any metric query returns
  * a null/malformed result. Each Cypher is a read-only aggregate over methodology
- * nodes; the only bound param is a generic enum marker (Canon Part 8). This path
- * is async-by-nature, but the gate's runCheck is synchronous over an injected
- * reader; the live reader is wired by the CLI main() below via a sync drain of
- * the (cached) Brain client when invoked standalone. Tests never call this.
+ * nodes; the only bound param is a generic enum marker (Canon Part 8). The async
+ * wiring landed as readLiveMetrics (above); runCheck stays synchronous by
+ * contract, so the async read is drained by main() BEFORE runCheck is called
+ * and passed in here as `prefetched`.
+ *
+ * @param {object} brainClient
+ * @param {object|null} [prefetched] a pre-drained readLiveMetrics() result.
+ *   When omitted (or null), the returned reader keeps the pre-existing
+ *   fail-closed default (returns null) -- every current caller and test
+ *   keeps its behavior unchanged. When prefetched is a non-null object, the
+ *   returned synchronous reader returns it as-is.
  */
-function makeBrainReader(brainClient) {
+function makeBrainReader(brainClient, prefetched) {
   return function brainReader() {
     try {
       if (!brainClient || typeof brainClient.isAvailable !== 'function' || !brainClient.isAvailable()) {
@@ -267,14 +370,11 @@ function makeBrainReader(brainClient) {
     } catch (_e) {
       return null;
     }
-    // The live reader is intentionally a stub in 130.7: the gate's value is
-    // proven by the injectable-reader test suite, and the live baseline-record
-    // is a separate read-only invocation per the HARD_BRAIN_WRITE_GATE (reads
-    // carry only correlation_id + label + canonical_name enum projection). A
-    // future plan wires the four async queries (M1_CYPHER/M2_CYPHER/M4_CYPHER/
-    // M3_RAW_CYPHER) through brainClient.query and computeM3NoFork; absent that
-    // wiring the standalone CLI reports inconclusive rather than fabricating
-    // numbers (fail-closed, never false-green).
+    if (prefetched && typeof prefetched === 'object') {
+      return prefetched;
+    }
+    // No prefetched metrics supplied -- fail-closed default, unchanged from
+    // before the async wiring landed.
     return null;
   };
 }
@@ -488,20 +588,24 @@ function renderReport(res) {
 
 // ---------- CLI entry ----------
 
-function main(argv) {
+async function main(argv) {
   const args = Array.isArray(argv) ? argv.slice(2) : [];
   let mode = DEFAULT_MODE;
   if (args.indexOf('--flip-blocking') !== -1) mode = 'flip-blocking';
 
   // The standalone CLI uses the default file-backed baseline store and the live
-  // Brain reader. The live reader fails-closed (returns null -> inconclusive)
-  // until its async wiring lands; the suite proves the gate logic via the
-  // injectable reader. We never fabricate numbers here.
+  // Brain reader. The async wiring landed as readLiveMetrics: main() drains it
+  // BEFORE runCheck is called (runCheck itself stays synchronous by contract)
+  // and passes the result to makeBrainReader as `prefetched`. A Brain that is
+  // unreachable, or any single unreadable metric, still fails closed -> null ->
+  // inconclusive. We never fabricate numbers here.
   let brainClient = null;
   try { brainClient = require('../lib/core/brain-client.cjs'); } catch (_e) { brainClient = null; }
 
+  const prefetched = await readLiveMetrics(brainClient);
+
   const res = runCheck({
-    reader: makeBrainReader(brainClient),
+    reader: makeBrainReader(brainClient, prefetched),
     store: fileStore(),
     mode: mode,
   });
@@ -514,6 +618,7 @@ module.exports = {
   runCheck: runCheck,
   computeM3NoFork: computeM3NoFork,
   makeBrainReader: makeBrainReader,
+  readLiveMetrics: readLiveMetrics,
   fileStore: fileStore,
   renderReport: renderReport,
   main: main,
@@ -523,6 +628,7 @@ module.exports = {
   REQUIRED_METRIC_KEYS: REQUIRED_METRIC_KEYS,
   POST_132_ABSOLUTE_THRESHOLDS: POST_132_ABSOLUTE_THRESHOLDS,
   BASELINE_PATH: BASELINE_PATH,
+  REVIEW_MARKER: REVIEW_MARKER,
   // Cypher constants exposed so the boundary sweep can assert their read-only
   // shape (and so a future plan can wire the live async reader).
   M1_CYPHER: M1_CYPHER,
@@ -532,5 +638,8 @@ module.exports = {
 };
 
 if (require.main === module) {
-  main(process.argv);
+  main(process.argv).catch(function (e) {
+    process.stderr.write('check-dual-graph-health: fatal: ' + (e && e.message || String(e)) + '\n');
+    process.exit(1);
+  });
 }
