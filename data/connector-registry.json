@@ -3214,7 +3214,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pulls the top candidate reach through the shipped dispatchSensors path -- no navigator-facing fork. It reads the Hedge weight state through a READ-ONLY room.db handle, so the call performs no write of any kind: no schema migration, no memory_event, no weight-state snapshot."
+      "hitl_why": "Pulls the top candidate reach through the shipped dispatchSensors path -- no navigator-facing fork. It reads the Hedge weight state through a READ-ONLY room.db handle, so the call performs no write of any kind: no schema migration, no memory_event, no weight-state snapshot. Quick 260819-c8j: it may now make ONE optional read-only Brain call (chainRecommender.chainOfferForReach) when the top reach carries a brain_framework_chain companion; it passes no db handle into that call, so it still performs no write of any kind, and a Brain absence degrades to a grounded:false disclosure rather than an error."
     },
     {
       "surface": "mcp:view_compile",
