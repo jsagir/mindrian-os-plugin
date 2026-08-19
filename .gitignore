@@ -6,7 +6,16 @@
 /room/
 /export/
 
-# Dashboard generated data
+# Dashboard generated data. Untracked 2026-08-19 (Quick Task 260819-dmm): this
+# file is generated per-room by scripts/build-graph, whose OUTPUT_PATH default
+# is CWD-relative (./dashboard/graph.json on both the python and bash
+# branches). While it stayed tracked, every repo-cwd cascade run (Step 9 in
+# lib/core/intelligence-cascade.cjs) rewrote it with a temp-fixture room's
+# graph plus a fresh generatedAt, which aborted the release clean-tree
+# pre-flight (doctor.cjs verify-release-clean-tree, scripts/verify-release).
+# The committed bytes were themselves a 2026-07-15 /tmp fixture snapshot
+# shipped to every install. Never re-add this path to the index; the pattern
+# below only takes effect once the path is absent from git's tracked files.
 dashboard/graph.json
 
 # Phase 198 two-host parity leg captures (runtime output; the canonical
