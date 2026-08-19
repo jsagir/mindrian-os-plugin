@@ -131,7 +131,62 @@ window, this order:
     keys; keyless direct access stays removed (your own decision).
 
 ======================================================================
-6. ACCEPTANCE - how you know the couple is synced
+7. STORE TOPOLOGY + DRIFT PREVENTION (merged from the parallel session's
+   "Brain store sync" handoff, 2026-08-19 - one canon, every wire pointed
+   at it, replicas that know they are replicas)
+======================================================================
+Store inventory as found:
+  - CANON: Render Memgraph (pws-brain-mcp.onrender.com), 29,055/24,018.
+    The only store that counts.
+  - LOCAL SANDBOX (was replica): docker mindrian-memgraph, bolt 7690.
+    Found at the July signature (28,325/23,014), then mutated by an
+    APPROVED REHEARSAL to 30,728/43,286 incl. 2,403 Document nodes and
+    PART_OF/NEXT_CHUNK edges NOT in schema. It is a sandbox now: never
+    promote, never sync FROM it; wipe and re-pull from canon after the
+    amendment decision.
+  - RELIC: local Neo4j Windows service (bolt 7687/7688). At least one
+    consumer wire (the myneo4j raw-Cypher store in SPFO workflows, and
+    per the parallel session, a plugin brain_query path) still reads it
+    and answers pre-doctrine numbers (15,739 "orphans"). Two sources of
+    truth are live at once. Demote to read-only archive or shut down.
+  - DEAD: host.docker.internal:7689 tunnel endpoint; port unbound; Lab
+    still bookmarks it.
+
+Additional items the release MUST ship (beyond section 1):
+  d. STALE-STORE DETECTION IN CODE: on connect, compare a version stamp +
+     node/edge counts against canon; banner mismatches; refuse to silently
+     mix. The July copy was caught by eyeballing the 23,014-edge
+     signature - luck is not a sync strategy.
+  e. VERSION-STAMP THE GRAPH: one GraphRagMeta node carrying
+     schema_version, last_reconciled, and the applied-batch_id ledger;
+     bumped inside every admin window. (Add the MERGE to the window
+     runbook; the census script can read it.)
+  f. REPLICA REFRESH PROCEDURE: locals refresh FROM canon snapshots only,
+     one documented command; never healed independently.
+  g. /mos:doctor LEARNS STORE IDENTITY: report which endpoint each Brain
+     wire resolves to, which stamp it carries, canon yes/no. No session
+     should ever again mistake a copy for canon.
+  h. LAB HYGIENE (operator): recreate the 7690/canon saved connections,
+     delete the dead 7689 bookmark.
+
+Amendment ordering correction to section 3's queue: DECIDE the schema
+amendment FIRST (Document Tier-3 + PART_OF + NEXT_CHUNK; proposal in Brain
+payloads/chunk-document-repair/). Accept -> the chunk-document batch may
+run at the END of the window, recompiled against live canon beforehand
+(90-dry-run.cypher; rehearsal numbers are evidence, not targets; residue
+to re-verify: 306 amnesiacs, 172 chain gaps; file 03 stays HOLD). Reject
+-> discard the payload directory whole. Either way the decision precedes
+the window, not mid-window.
+
+Session ledger for attribution: the un-quilting session owns the canon
+work and the release commits; the parallel session owns the Lab-driven
+diagnosis, the gated sandbox rehearsal, the chunk-document payload +
+amendment proposal, and the store-sync analysis merged here. Zero canon
+writes were made by either outside the governed paths - the closed admin
+wire refusing the rehearsal's replay IS the system working.
+
+======================================================================
+8. ACCEPTANCE - how you know the couple is synced
 ======================================================================
 Run these after release + window:
   a. Fresh Desktop, plugin updated: prompt menu shows bind-room/status/act;
