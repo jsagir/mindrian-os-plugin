@@ -119,10 +119,18 @@ if (!fs.existsSync(roomDir)) {
 // multi-session HTTP branch (further below) calls createServer() again, per
 // new session.
 function createServer() {
-  const s = new McpServer({
-    name: 'mindrian-os',
-    version,
-  });
+  // 2026-08-19: serve the Desktop/Cowork runtime protocol at the MCP handshake.
+  // Hookless surfaces get the Larry loop from the CONNECTION itself (the SDK
+  // delivers `instructions` to the client model at initialize) instead of
+  // depending on per-user Project setup. See lib/mcp/runtime-instructions.cjs.
+  const { RUNTIME_INSTRUCTIONS } = require('../lib/mcp/runtime-instructions.cjs');
+  const s = new McpServer(
+    {
+      name: 'mindrian-os',
+      version,
+    },
+    { instructions: RUNTIME_INSTRUCTIONS }
+  );
 
   // Register hierarchical tool router (9 tools covering 64 CLI commands)
   // Phase 198-02: the 5th arg is this process's detected surface name, so

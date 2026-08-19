@@ -1,9 +1,9 @@
 # Agentic Surfacing Pattern
 
-**Version:** 1.0
-**Date:** 2026-05-06
-**Status:** Active (Phase 89-07 ReverseSalientAgent shipped at v1.13.0-beta.4)
-**Phase of origin:** 89-07 reverse-salient-engine (Waves 0-3)
+**Version:** 2.0
+**Date:** 2026-08-19 (v1.0: 2026-05-06)
+**Status:** Active (Phase 89-07 ReverseSalientAgent shipped at v1.13.0-beta.4; v2.0 adds the post-approve executable-recommendation step and hookless-surface parity)
+**Phase of origin:** 89-07 reverse-salient-engine (Waves 0-3); v2.0 amendments from the 2026-08-18/19 brain-plugin sync work
 **Canon parts:** Part 2 Engine 1 Act 1, Part 4, Part 8, Part 10 sub-claim 5
 
 ---
@@ -133,6 +133,48 @@ The 5-way cascade-edge mapping table (`mapDirectionToCascadeEdge`):
 | (any other; Pitfall 1 default) | any | INFORMS |
 
 The cascade write goes through the generic `upsertEdge(conn, {type, source, target, properties})` primitive in `lib/core/lazygraph-ops.cjs`. The agent never runs raw SQL. Type validation against `EDGE_TYPES` is the chokepoint's job.
+
+---
+
+## v2.0: Step 7 (optional) - the post-approve executable recommendation
+
+Added 2026-08-19, after the Brain shipped `recommend_chain` (ProblemsWorthSolving-Brain
+d7bfd69) and the plugin's suggest-to-run seam (Phase 166 runChain) matured. The skeleton
+gains an OPTIONAL seventh step that fires ONLY after an APPROVE at Step 6:
+
+```
+handleUserResponse(APPROVE)
+  -> [optional] recommend_chain(problem_type)   (Brain MCP tool, enum-only payload)
+  -> chain_resolve -> chain_run                 (Phase 166; autonomous_safe prefix,
+                                                 halt at first material gate)
+```
+
+The division of labor is the moat statement executed end to end: the agent's detect()
+supplied WHEN (local, room-aware, Brain-blind); recommend_chain supplies WHICH and IN
+WHAT SEQUENCE (an ordered framework chain with the /mos: commands operationalizing each
+step, ranked by ADDRESSES_PROBLEM_TYPE fitness, graphrag_pagerank, and FEEDS_INTO
+confidence); chain_run executes under the navigator's gates. The Brain recommends,
+never triggers.
+
+Part 8 discipline for this step, stated exactly: the recommend_chain call happens in the
+LARRY layer after the human APPROVE, never inside the agent module (anti-patterns 2 and
+6 are unchanged - the agent still never imports a brain client and never reaches the
+network). The payload is a problem-type ENUM and an integer max_steps. Nothing else
+crosses. A refusal (unknown problem type) or an unmapped step comes back honestly and is
+rendered honestly - the chain is never padded.
+
+Endpoint note (supersedes the v1.0 wording in Step 3): the live Brain is
+`pws-brain-mcp.onrender.com`. The v1.0 text named `mindrian-brain.onrender.com`; that
+service is the retired Aura-era STALE REPLICA (frozen ~2026-07) and is scheduled for
+suspension. No surface may reference it. See
+docs/2026-08-19-HANDOFF-brain-plugin-sync-release.md section 7 (store topology).
+
+Hookless-surface parity (Desktop / Cowork): the mindrian-os MCP server now serves the
+runtime protocol as MCP `instructions` at initialize (lib/mcp/runtime-instructions.cjs)
+and exposes bind-room / status / act prompts. The skeleton therefore runs on hookless
+surfaces too: detect() equivalents ride suggest_next (the same dispatchSensors path),
+Step 5's gate rides gate_render/gate_answer, and Step 7 rides chain_run - with the model
+executing the loop the hooks would otherwise force. Same skeleton, third surface.
 
 ---
 
@@ -276,4 +318,4 @@ Filed memory rule (project-wide):
 
 ---
 
-Agentic Surfacing Pattern v1.0 -- MindrianOS Plugin
+Agentic Surfacing Pattern v2.0 -- MindrianOS Plugin
