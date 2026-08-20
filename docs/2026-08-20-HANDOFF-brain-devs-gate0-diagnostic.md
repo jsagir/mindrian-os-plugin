@@ -9,6 +9,16 @@
 > **Companion artifacts:** `.planning/debug/brain-gate0-diagnostic-260820.md` (full evidence),
 > `.planning/phases/260-*/260-RESEARCH.md`, `.planning/phases/261-*/261-RESEARCH.md`,
 > `.planning/seeds/SEED-079-brain-identifier-corruption-and-role-blind-extraction.md`.
+> **Status update (same day, after this doc was written):** item 2 in section 10 below said
+> "confirm the archived block folds into 258 RECON-01" because nothing auto-fed this finding to
+> that phase's planner -- 258's CONTEXT.md/DISCUSSION-LOG.md predate this diagnostic and never
+> listed it as a canonical ref. That gap is now closed: Phase 258's plan-phase run (in progress
+> as of this update) was handed this file, `SEED-079`, and `260`/`261-RESEARCH.md` directly via
+> cross-session message, and is folding the 28000-29000 block into RECON-01's task breakdown
+> before `PLAN.md` locks. Still genuinely open: whether this is the SAME event as the
+> 2026-08-11/12 wave RECON-01 already names, or a separate older one -- that's what RECON-01's
+> own census-diff work resolves, not something to settle here. The body below is otherwise
+> unchanged and still verbatim v4.
 
 ---
 
