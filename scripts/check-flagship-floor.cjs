@@ -39,7 +39,10 @@
  * Usage: node scripts/check-flagship-floor.cjs
  * Exit codes: 0 = every invoked framework clears the floor; 1 = at least one
  * miss (the expected, honest state today -- 24 misses per the research
- * baseline); 2 = data/flagship-floor-set.json exists but is malformed.
+ * baseline); 2 = data/flagship-floor-set.json exists but is malformed;
+ * 3 = VOID, at least one probe did not cleanly succeed so this run is not a
+ * floor verdict (TRUST-02, D-07). A VOID run requires a human re-run;
+ * nothing auto-retries (D-08).
  *
  * No em-dashes.
  */
@@ -178,6 +181,55 @@ async function probeFramework(name, key) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// renderVoidDetailLines(rows) -- pure, D-06. One indented line per failure
+// entry across every VOID row (a row with two failing probes yields two
+// lines). Never a bare "VOID" with no detail. Zero I/O, zero network.
+// ---------------------------------------------------------------------------
+const _KIND_WORD = Object.freeze({ hard_error: 'hard-error', timeout: 'timeout', malformed: 'malformed' });
+
+function renderVoidDetailLines(rows) {
+  const lines = [];
+  for (const row of rows) {
+    if (row.verdict !== 'VOID' || !Array.isArray(row.failures)) continue;
+    for (const f of row.failures) {
+      const kindWord = _KIND_WORD[f.kind] || f.kind;
+      const httpPart = typeof f.httpStatus === 'number' && f.httpStatus !== 0 ? 'HTTP ' + f.httpStatus : '--';
+      const detail = typeof f.detail === 'string' ? f.detail.replace(/\s+/g, ' ').trim() : '';
+      const retryPart = typeof f.retryAfterS === 'number' ? ' retry_after=' + f.retryAfterS + 's' : '';
+      lines.push(`  - ${row.name}  ${f.probe}  ${kindWord}  ${httpPart}${retryPart}  ${detail}`);
+    }
+  }
+  return lines;
+}
+
+// ---------------------------------------------------------------------------
+// renderFloorSummaryLines(result) -- pure, D-06/D-07. Returns the pass line,
+// the miss line (qualified as a lower bound when voidCount > 0), the void
+// line (only when voidCount > 0), then the terminating banner. When
+// voidCount === 0 both the summary lines and the banner are byte-identical
+// to the pre-259 output. The VOID banner is a THIRD distinct banner --
+// never a reuse of the RED one (a VOID that reads like a RED is how the
+// false MISS gets re-invented in the operator's head).
+// ---------------------------------------------------------------------------
+function renderFloorSummaryLines(result) {
+  const lines = [];
+  const total = result.rows.length;
+  const voidCount = result.voidCount || 0;
+  const missSuffix = voidCount > 0 ? `  (lower bound, ${voidCount} row(s) VOID and not measured)` : '';
+  lines.push(`Frameworks passing (exactly-1 match AND readiness>=3): ${result.passCount}/${total}`);
+  lines.push(`Frameworks MISSING the floor: ${result.missCount}/${total}${missSuffix}`);
+  if (voidCount > 0) {
+    lines.push(`Frameworks VOIDED (probe did not cleanly succeed): ${voidCount}/${total}`);
+  }
+  if (voidCount > 0) {
+    lines.push('=== FLOOR RUN VOID (probe failures present, re-run required, this is NOT a floor verdict) ===');
+  } else {
+    lines.push(result.exitCode === 0 ? '=== FLOOR HOLDS (SWEEP-02 gate GREEN) ===' : '=== FLOOR DOES NOT HOLD (SWEEP-02 gate RED) ===');
+  }
+  return lines;
+}
+
 async function main() {
   const { resolveBrainKey } = require('../lib/core/resolve-brain-key.cjs');
   const keyInfo = resolveBrainKey();
@@ -237,14 +289,18 @@ async function main() {
       `[${row.verdict}] ${row.name} -- uses=${row.uses} matches=${row.matches == null ? 'n/a' : row.matches} score=${row.score == null ? 'n/a' : row.score}/4${httpNote}`
     );
   }
+  // Phase 259 (TRUST-02, D-06): print every VOID row's per-failure detail
+  // before the summary block, so a run containing VOIDs is never a bare
+  // "VOID" with no actionable detail.
+  if (result.voidCount > 0) {
+    for (const line of renderVoidDetailLines(result.rows)) console.log(line);
+  }
   console.log('');
-  console.log(`Frameworks passing (exactly-1 match AND readiness>=3): ${result.passCount}/${result.rows.length}`);
-  console.log(`Frameworks MISSING the floor: ${result.missCount}/${result.rows.length}`);
-  console.log(result.exitCode === 0 ? '=== FLOOR HOLDS (SWEEP-02 gate GREEN) ===' : '=== FLOOR DOES NOT HOLD (SWEEP-02 gate RED) ===');
+  for (const line of renderFloorSummaryLines(result)) console.log(line);
   process.exit(result.exitCode);
 }
 
-module.exports = { evaluateFloor, parseOverrideFile, CANON_PROSE_COMMAND_COUNT, probeFramework };
+module.exports = { evaluateFloor, parseOverrideFile, CANON_PROSE_COMMAND_COUNT, probeFramework, renderVoidDetailLines, renderFloorSummaryLines };
 
 if (require.main === module) {
   main().catch((e) => {
