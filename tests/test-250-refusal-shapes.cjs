@@ -47,12 +47,15 @@ function freshChokepoint() {
 }
 
 // ---------------------------------------------------------------------------
-// Test 1: REFUSAL_KINDS is frozen and equals the four-member closed set.
+// Test 1: REFUSAL_KINDS is frozen and equals the five-member closed set.
+// Phase 259 (TRUST-01, F-09 Option B): amended from four to five members --
+// rate_limited is appended LAST, so the four original positions (and their
+// order) are unchanged.
 // ---------------------------------------------------------------------------
-test('Test 1: REFUSAL_KINDS is frozen and equals the four refusal kinds in order', () => {
+test('Test 1: REFUSAL_KINDS is frozen and equals the five refusal kinds in order', () => {
   const mod = freshChokepoint();
   assert.ok(Array.isArray(mod.REFUSAL_KINDS), 'REFUSAL_KINDS must be an array');
-  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['no_key', 'unreachable', 'tier_denied', 'not_ready']);
+  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited']);
   assert.ok(Object.isFrozen(mod.REFUSAL_KINDS), 'REFUSAL_KINDS must be frozen');
 });
 
