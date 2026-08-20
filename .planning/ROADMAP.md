@@ -4,7 +4,8 @@
 Phases 253-256 added 2026-08-20, sourced from the complete-system-loop research set
 (`.planning/2026-08-20-FINDINGS-complete-system-loop.md` + BRIEF/ARCHAEOLOGY/LANGTALKS-COUNSEL
 companions in the same directory). Confirmed by the navigator as part of the current
-milestone, not a new one.
+milestone, not a new one. Phase 257 added 2026-08-20 from a parallel host-portability
+finding (`docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md`); it is gated on 254.
 
 ## Completed Milestones
 
@@ -120,6 +121,45 @@ stub Concept to a real Framework.
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 256 to break down)
+
+### Phase 257: Part 8 enforcement locus (host-independent egress guard)
+
+**Goal:** [To be planned] Close H3 from `docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md`:
+a direct model-issued `mcp__...mindrian-brain__brain_ask/brain_query/brain_search/brain_write`
+bypasses `lib/core/brain-client.cjs` entirely, so no belt inside that file can ever cover it, and
+it is guarded only by a `PreToolUse` hook whose MCP-tool matcher does not fire on hosts without
+MCP-scoped tool hooks (verified 2026-08-20: Codex CLI fires PreToolUse/PostToolUse for Bash tool
+events ONLY; ChatGPT custom connectors have no hook surface at all). Makes Phase 234 D-04
+("enforce governance server-side in MCP tool handlers, not via client hooks") true in code for the
+direct-call path. The handoff catalogues THREE distinct holes sharing one root cause (enforcement
+locus, not enforcement logic): H1 is Phase 254's to close, H2 shipped narrowly in 239-05
+(`hatAwareRecommend`/`suggestValidationSteps` only, plus a `query()` backstop its own comment
+labels insufficient alone), H3 is unowned and is this phase. The trap this phase exists to prevent
+is 254 shipping H1, citing 239-05, and the record concluding Part 8 is closed while H3 stays open.
+**Requirements**: TBD
+**Depends on:** Phase 254. Hard gate, not a preference: 254 reshapes `brain-client.cjs` and moves
+Brain composition into `mindrian-os`-named tool handlers, so planning 257 first would plan against
+a tree about to change. Section 4 of the handoff is a MANDATORY re-verification step (every factual
+claim there is written as a runnable command, not a frozen line number) before this phase's plan locks.
+**Repo:** MindrianOS-Plugin
+**Inherited conventions (Part 7, do not re-invent):** fail-CLOSED in code vs fail-OPEN in the hook
+(deliberate, both correct for their surface); classify the RAW value before sanitize and before
+interpolation, cloning `lib/core/bono/persona-research.cjs` approx 208-233; disclosure via
+`_logEventBestEffort(options.db, ...)` scalars-only; the `check-substrate.cjs` ALLOWED_DIRECT_IMPORT
+pre-commit trap; egress proof modelled on `tests/test-239-query-egress-canary.cjs` reusing
+`tests/helpers/brain-capture-server.cjs`; regression lock shaped like `lib/mcp/no-instructions.test.cjs`.
+**Open navigator ruling:** whether `mcp-server-brain/` (far side of the network boundary, deploys
+standalone with its own package.json and render.yaml) also carries the guard as a last line of
+defence, or stays local-only with the decision documented explicitly.
+**Adjacent, do NOT absorb:** D-239-05-01 (`.planning/phases/239-brain-access-surface/deferred-items.md`)
+is a payload-design question (send a generic handle instead of raw domain text); H3 is an
+enforcement-locus question. Flag the interaction, leave the decision.
+**Canon:** Part 8 PR gate applies (Canon Custodian review required).
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 257 to break down)
 
 **Open milestone-shape ruling (applies across all four phases):** whether 253-256 stay as
 v2.1.0 phase-family additions (current placement) or get resequenced into a successor

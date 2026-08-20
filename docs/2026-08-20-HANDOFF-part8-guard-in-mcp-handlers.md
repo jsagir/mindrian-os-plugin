@@ -1,118 +1,148 @@
-# 2026-08-20 HANDOFF: Part 8 egress guard into the Brain MCP tool handlers
+# 2026-08-20 HANDOFF: Part 8 enforcement locus, host-independent
 
-> **Status:** branch `fix/part8-guard-in-mcp-handlers` created off `main` @ `f566310c` (v2.0.0-beta.8). No code changes yet.
-> **Entry point:** `/gsd:quick` (the full task brief is section 5 below, paste-ready).
-> **Origin:** authored from a Windows session that could not honor the WORKSPACE GUARD. This file is the tracked carrier, per CLAUDE.md.
+> **Status: QUEUED. Do NOT start this yet.**
+> **Gate:** runs AFTER the `complete-system-loop` milestone Phase B lands (`.planning/2026-08-20-BRIEF-complete-system-loop.md`, section 7).
+> **Why queued:** Phase B moves Brain composition server-side into `mindrian-os` tool handlers and reshapes `brain-client.cjs`. Planning this against today's tree would plan against a tree that is about to change.
+> **Branch:** `fix/part8-guard-in-mcp-handlers` off `main` @ `f566310c` (v2.0.0-beta.8). Doc only, no code.
+> **Origin:** authored from a Windows session that could not honor the WORKSPACE GUARD. This tracked file is the carrier, per CLAUDE.md.
 
 ---
 
-## 1. The one-line job
+## 1. The job in one line
 
-Canon Part 8 enforcement on direct Brain MCP tool calls currently depends on a Claude-Code-only `PreToolUse` hook. Move it into the tool handlers so it holds on every host.
+Canon Part 8 enforcement currently lives partly in a Claude-Code-only `PreToolUse` hook. Move the remaining enforcement into code, so the boundary holds on every host and inside every call path.
 
-## 2. Why this surfaced now
+## 2. Read this before planning: it is THREE holes, not one
 
-The navigator asked whether MindrianOS could ship as an OpenAI/ChatGPT plugin. Researching that turned up a governance hole that is not ChatGPT-specific.
+The `complete-system-loop` brief already found one of these. Phase 239-05 already closed another, narrowly. The third is unfiled and is the reason this handoff exists. They share a root cause: **enforcement locus, not enforcement logic.** `classify()` is correct and shipped. The question is only where it is called from.
 
-**What is true about OpenAI hosts as of 2026-08-20 (verified, not recalled):**
+| # | Hole | Who owns it | State |
+|---|---|---|---|
+| **H1** | A Brain call made inside a `mindrian-os`-named tool handler is invisible to the hook's `mcp__*brain*` matcher | `complete-system-loop` Phase B | Named in the brief, section 3 point (3). Not yet fixed. Phase B commits to fixing it. |
+| **H2** | `brain-client.cjs` functions interpolating caller-supplied values into Cypher without classifying the RAW value first | Phase 239-05 | **Shipped, but narrow.** Covers `hatAwareRecommend()` and `suggestValidationSteps()` only, plus a `query()` backstop its own comment labels as insufficient alone. |
+| **H3** | A **direct model-issued** `mcp__...mindrian-brain__brain_ask / brain_query / brain_search / brain_write` bypasses `brain-client.cjs` entirely. Guarded ONLY by the hook, which does not fire on hosts without MCP-scoped tool hooks. | **Nobody. This handoff.** | Open. Unfiled before this doc. |
 
-- ChatGPT "plugins" are long gone. The live surfaces are **Apps SDK** (reviewed, published apps) and **custom MCP connectors** via Settings -> Apps -> Advanced -> Developer mode. Plus/Pro/Business/Enterprise only, no Free tier. Custom connectors require a **remote** endpoint (Streamable HTTP or SSE). No stdio, no local filesystem.
-- **Agent Plugins 1.0.0** shipped **2026-08-06**, published by a TSC from Amazon, Cursor, Microsoft, OpenAI and Vercel (Google joining). A plugin is a folder: required `plugin.json`, optional `skills/`, optional `mcp.json`. Vendor extensions go under reverse-DNS namespaces such as `com.example.client`, and other clients ignore what they do not understand. Supported at launch by ChatGPT, Codex, Cursor, GitHub Copilot, Kiro and VS Code. **Anthropic is not a maintainer; Claude Code keeps its own format.**
-- **Codex CLI** is the real Claude Code analog, not ChatGPT: AGENTS.md, skills at `~/.agents/skills`, subagents, stdio MCP, and hooks behind `[features].hooks = true` in `~/.codex/config.toml` (`codex_hooks` is the deprecated alias; engine is `Stage::UnderDevelopment`).
+**The trap to avoid:** Phase B ships H1's fix and cites 239-05, and it becomes easy to record "Part 8 enforcement is now in code" and move on. That would be true for H1 and H2 and false for H3. H3's path never touches `brain-client.cjs`, so no belt inside `brain-client.cjs` can ever cover it.
 
-**The Codex hook events:** SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PermissionRequest, PreCompact, PostCompact, SubagentStart, SubagentStop, Stop.
+## 3. Why H3 is real (host evidence, verified 2026-08-20)
 
-**The limitation that matters:** Codex fires `PreToolUse` / `PostToolUse` for **Bash tool events only**. No file-write events. No MCP tool events. And its `PreToolUse` can only DENY, never modify tool input.
+- **Codex CLI** has hooks behind `[features].hooks = true` in `~/.codex/config.toml` (`codex_hooks` is the deprecated alias; engine is `Stage::UnderDevelopment`). Events: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PermissionRequest, PreCompact, PostCompact, SubagentStart, SubagentStop, Stop.
+- **Codex fires PreToolUse / PostToolUse for Bash tool events ONLY.** No file-write events. No MCP tool events. Its PreToolUse can only DENY, never modify input.
+- `hooks/hooks.json` registers both Part 8 hooks against MCP-tool matchers (`mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain\|pws-brain-mcp)__.*`). On Codex, and on any host without MCP-scoped tool hooks, **neither fires, and nothing announces that.**
+- **ChatGPT** custom MCP connectors (Settings -> Apps -> Advanced -> Developer mode, Plus/Pro/Business/Enterprise, no Free) have no hook surface at all and require a remote endpoint.
+- **Agent Plugins 1.0.0** shipped 2026-08-06 (Amazon, Cursor, Microsoft, OpenAI, Vercel; Google joining). `plugin.json` + optional `skills/` + optional `mcp.json`, vendor extensions under reverse-DNS namespaces. Anthropic is not a maintainer. This is why "another host" stops being hypothetical.
 
-## 3. The hole, stated precisely
+This is not contingent on any port shipping. Phase 234 **D-04** already ruled: *"Enforce governance SERVER-SIDE, in MCP tool handlers, not via client hooks."* H3 is the part of D-04 that is decided but not yet true in code.
 
-`hooks/hooks.json` registers:
+## 4. What you must RE-VERIFY before planning (do not trust the numbers below)
 
-| Event | Matcher | Script |
-|---|---|---|
-| PreToolUse | `mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain\|pws-brain-mcp)__.*` | `scripts/part8-egress-guard-hook.cjs` |
-| PostToolUse | same matcher | `scripts/brain-response-sanitize-hook.cjs` |
+Phase B will move this ground. Every factual claim here is written as a command that regenerates it, deliberately, instead of a frozen line number. Run these first; if an answer differs from the expectation, the plan changes, and that is the point.
 
-Both are MCP-tool matchers. On Codex, and on any host without MCP-scoped tool hooks, **neither ever fires** and nothing announces that.
+```bash
+cd ~/dev/MindrianOS-Plugin
 
-`git grep part8-egress-guard origin/main` shows the guard wired into **9 local lib call sites**:
+# 4.1 Where is the guard wired NOW? (was: 9 lib call sites, 0 MCP handlers)
+git grep -n "part8-egress-guard" -- lib bin mcp-server-brain | grep -v test
 
-- `lib/core/brain-client.cjs` x5 (approx lines 450, 640, 994, 1108, 1789)
-- `lib/core/bono/persona-research.cjs`
-- `lib/core/grill-engine.cjs`
-- `lib/core/intel-pipeline.cjs`
-- `lib/core/rs-expert-brain-projection.cjs`
-- `lib/core/security/agentshield-scanner.cjs`
+# 4.2 Is H3 still open? Expect ZERO hits. Any hit means someone closed it.
+git grep -n "part8-egress-guard" -- bin/mindrian-brain-mcp-client.cjs
 
-and into **zero** MCP tool handlers:
+# 4.3 Did Phase B put Brain calls inside mindrian-os handlers? (H1 surface)
+git grep -n "brain-client" -- lib/mcp bin/mindrian-mcp-server.cjs
 
-- `bin/mindrian-brain-mcp-client.cjs` -> no reference
-- `mcp-server-brain/` -> no reference (only `lib/query-embedder.cjs` and a cypher file mention part8/egress incidentally)
+# 4.4 Did the hook matchers change?
+python3 -c "import json;h=json.load(open('hooks/hooks.json'));print(json.dumps(h,indent=1))" | grep -A3 -i "brain"
 
-**So:** anything that goes through `brain-client.cjs` is guarded in-process and is fine on every host. A **direct model-issued** `mcp__...mindrian-brain__brain_ask | brain_query | brain_search | brain_write` bypasses `brain-client.cjs` entirely and is guarded ONLY by the hook. That is the exposed path.
+# 4.5 Is the fail-CLOSED precedent still the in-code posture?
+git grep -n "fail-closed\|failClosed" -- lib/core/brain-client.cjs lib/core/bono/persona-research.cjs
 
-## 4. Why it is worth doing regardless of the ChatGPT decision
+# 4.6 What did Phase B actually claim about Part 8? Read its summaries.
+ls .planning/phases/ | tail -20
+git log --oneline main..HEAD -- lib/core/brain-client.cjs lib/mcp
+```
 
-Phase 234 **D-04** already decided: *"Enforce governance SERVER-SIDE, in MCP tool handlers, not via client hooks."* The decision is right and it is not yet true in code for the Brain tools. This closes that gap. It is the same fix for Codex, for ChatGPT, and for Claude Code hardening. It is not contingent on any port going ahead.
+## 5. What was LEARNED that this plan must inherit
 
-Related standing decisions to respect: **D-06** (nothing proprietary in a SKILL.md), **D-08** (free core stays local and copyable), **D-10** (never gate a `/mos:` methodology run behind a paid check).
+These are shipped conventions, discovered by reading 239-05's summary and the code. Reusing them is Canon Part 7. Inventing alternatives will fail review.
 
-## 5. Paste-ready task brief for `/gsd:quick`
+1. **Fail-CLOSED is the in-code posture. Fail-OPEN is the hook posture.** They differ deliberately. `scripts/part8-egress-guard-hook.cjs` fails open because a false block from a safety hook is worse than a false allow. 239-05's in-code guard is **fail-closed and disclosed**. H3 sits on the egress path in code, so it inherits **fail-closed**. This is now a decided question, not an open one, but state the reasoning in the summary rather than asserting it.
+2. **Classify the RAW value, before sanitize, before interpolation.** Clone the control flow at `lib/core/bono/persona-research.cjs` (approx lines 208-233), which 239-05 itself cloned. Two measured failure modes make this non-negotiable: template laundering via the word "Framework", and the sanitizer stripping `@` and thereby disarming the PII pattern. Classifying the assembled string is provably insufficient.
+3. **Disclosure idiom:** `_logEventBestEffort(options.db, ...)`, scalars only, silent no-op when no db handle is supplied. Do not open `room.db` directly.
+4. **Substrate trap.** `lib/core/brain-client.cjs` is NOT on `scripts/check-substrate.cjs`'s `ALLOWED_DIRECT_IMPORT` allow-list, and `scripts/hooks/pre-commit` runs `check-substrate.cjs --diff`. Adding a direct db opener inside it trips the pre-commit guard. Check the same constraint applies to `bin/mindrian-brain-mcp-client.cjs` before designing its disclosure path.
+5. **Test infrastructure already exists. Reuse it.** `tests/helpers/brain-capture-server.cjs` (SSE-shaped Brain capture server), `tests/run-all-239.sh` (SKIP-safe aggregator), and `tests/test-239-query-egress-canary.cjs` (a 7-leg mutation-tested egress proof) are the working pattern for proving an egress guard actually blocks. Model H3's proof on the canary test, not on a fresh harness.
+6. **Locked-invariant test precedent:** `lib/mcp/no-instructions.test.cjs`. H3's regression lock should follow that shape.
+7. **Every schema-touching or Brain-touching PR needs Canon Custodian review.** Part 8's own PR gate covers `mcp-server-brain/`, `lib/core/brain-*`, and any MCP tool that queries the Brain. This work touches all three.
+
+## 6. Adjacent open item, do not silently absorb
+
+**D-239-05-01** (`.planning/phases/239-brain-access-surface/deferred-items.md`, filed 2026-07-30, OPEN): should `hatAwareRecommend` / `suggestValidationSteps` send user domain text to a methodology graph **at all**, or should the Brain-bound payload be a generic methodology HANDLE derived from the domain?
+
+That is a **payload-design** question. H3 is an **enforcement-locus** question. They are different, and H3 does not resolve it. But note the interaction, because it decides how often the guard even has to fire: 239-05 measured that a benign domain like `'general'` classifies `ambiguous` and is now skipped, so these features degrade to "no Brain enrichment" far more often than before. If a future phase adopts option (b), the handle-shaped payload, the allow rate rises and the guard inspects far less user prose. Flag this in the plan; do not decide it inside H3.
+
+## 7. Paste-ready brief for the NEXT `/gsd:quick` (only after Phase B lands)
 
 ```
-Wire the already-shipped Part 8 egress guard (lib/core/part8-egress-guard.cjs, a pure LOCAL
-classifier) into the Brain MCP tool handlers so Canon Part 8 enforcement is HOST-INDEPENDENT
-instead of depending on a Claude-Code-only PreToolUse hook. Evidence and rationale:
-docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md (read it, do not re-derive).
+Close H3 from docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md: Canon Part 8 enforcement
+for DIRECT model-issued Brain MCP tool calls, which bypass lib/core/brain-client.cjs entirely
+and are guarded only by a Claude-Code-only PreToolUse hook.
 
-SCOPE (surgical, reuse before build, Canon Part 7):
-1. bin/mindrian-brain-mcp-client.cjs - call classify() inside each Brain tool handler
-   (brain_ask, brain_query, brain_search, brain_write) BEFORE any network egress. Refuse with
-   a clear Part 8 refusal payload on a non-clean verdict. Read the 5 existing call sites in
-   lib/core/brain-client.cjs FIRST and match their convention exactly. Do not invent a second
-   convention.
-2. Decide and implement whether mcp-server-brain/ also needs the guard. It sits on the FAR
-   side of the network boundary and Canon Part 8 says the Brain must never RECEIVE user
-   content, so a check there is a genuine last line of defence rather than redundancy. It
-   deploys standalone (its own package.json, render.yaml) and cannot require the local lib/
-   tree, so either vendor the pure classifier or keep it local-only and document the call.
-3. Keep the hooks in hooks.json. They become defence-in-depth, not the only belt. Do not
-   delete them.
-4. Add a locked-invariant test, modelled on lib/mcp/no-instructions.test.cjs, asserting every
-   Brain MCP tool handler routes through the guard, so this cannot silently regress.
+FIRST: run every command in section 4 of that handoff and report what changed since it was
+written. Phase B reshaped this ground. Plan against what you find, not against the handoff.
+
+SCOPE:
+1. bin/mindrian-brain-mcp-client.cjs - call classify() on the raw caller value inside each Brain
+   tool handler (brain_ask, brain_query, brain_search, brain_write) BEFORE any network egress.
+   Fail CLOSED and disclose, per section 5.1. Clone the control flow from
+   lib/core/bono/persona-research.cjs approx 208-233, the same one 239-05 cloned. Do not invent
+   a second convention.
+2. Decide and implement whether mcp-server-brain/ also needs the guard. It is on the FAR side of
+   the network boundary and Part 8 says the Brain must never RECEIVE user content, so a check
+   there is a genuine last line of defence. It deploys standalone (own package.json,
+   render.yaml) and cannot require the local lib/ tree, so either vendor the pure classifier or
+   keep it local-only and document the call explicitly.
+3. Reconcile with whatever Phase B shipped for H1. If Phase B put Brain calls inside
+   mindrian-os-named handlers, those handlers need the same treatment. State plainly which of
+   H1/H2/H3 each surface now covers, so no future reader concludes Part 8 is closed when one
+   leg is still open.
+4. Keep the hooks in hooks.json. They become defence-in-depth, not the only belt. Do not delete.
+5. Add a locked-invariant test (shape: lib/mcp/no-instructions.test.cjs) asserting every Brain
+   MCP tool handler routes through the guard. Model the egress PROOF on
+   tests/test-239-query-egress-canary.cjs and reuse tests/helpers/brain-capture-server.cjs.
 
 CONSTRAINTS:
-- Fail-safe direction is a real decision. scripts/part8-egress-guard-hook.cjs deliberately
-  fails OPEN, on the reasoning that a false block is worse than a false allow for a safety
-  hook. An in-handler guard on the egress path is a different risk profile. Decide fail-open
-  vs fail-CLOSED deliberately and justify it in the summary. Do not copy the hook posture by
-  reflex.
-- Do not change what classify() does. It is shipped and consumed by 9 modules.
+- Do not change what classify() does. It is shipped and consumed across lib/.
+- Watch the substrate trap, section 5.4. Run scripts/check-substrate.cjs --diff before commit.
 - D-10: do not gate any /mos: methodology run behind a paid check.
+- Do NOT resolve D-239-05-01. Flag the interaction, leave the decision.
 - Tri-Polar: state the effect on CLI, Desktop and Cowork.
+- Canon Custodian review is required (Part 8 PR gate).
 - No em-dashes. Hyphens only.
-- Run tests/run-all-234.sh if present, plus any brain/part8 suites, and
-  node scripts/doctor.cjs --acceptance. Report results honestly, including failures.
+- Run tests/run-all-239.sh, tests/run-all-234.sh if present, and
+  node scripts/doctor.cjs --acceptance. Report honestly, including failures.
 - Atomic commits.
 ```
 
-## 6. State when this was written
+## 8. What "future-ready" means for this doc specifically
 
-- Branch `fix/part8-guard-in-mcp-handlers` exists off `main` @ `f566310c` (v2.0.0-beta.8), in sync with `origin/main`.
-- 18 untracked files were present in the workspace (`.planning/debug/*.md`, `docs/MINDRIANOS-PRD.md`, `prototypes/`). None touch the target files. Left alone deliberately.
-- Five stashes exist, several tagged as other concurrent sessions' WIP. Left alone deliberately.
-- A stray branch of the same name was created in the stale Windows clone at `C:\Users\jsagi\Desktop\Mindrian\mindrian-os-plugin-src` (v1.16.0-beta.12) before the guard caught it, and has been deleted. That clone is NOT canonical. Ignore it.
+Three deliberate choices so this survives the milestone that is about to run:
 
-## 7. Open follow-ups, not in scope here
+- **Facts are commands, not constants.** Section 4 regenerates every claim. A line number written down today is a lie by next week; a `git grep` is not.
+- **The finding is framed by hole, not by file.** H1/H2/H3 stay meaningful even after Phase B moves the code, because they describe call paths, not locations.
+- **The dependency is stated as a gate with an exit condition,** not as a date. This runs when Phase B lands and section 4 has been re-run, whenever that is.
 
-- **The ChatGPT connector.** The navigator chose a Tier-0 ChatGPT thin connector (Brain reads only). Note honestly that this reopens **D-07**, which chose licensed-server open-core OVER Brain-as-a-service on 2026-07-18. Record that reopening explicitly rather than letting it happen silently. Good news: `mcp-server-brain/server.cjs` is already Express + `StreamableHTTPServerTransport`, stateless (`sessionIdGenerator: undefined`), `POST /mcp`, Bearer auth against Supabase `brain_api_keys`, deployed by `render.yaml`. That is most of what a ChatGPT custom connector needs. Real gaps: confirm ChatGPT accepts a static Bearer key rather than requiring OAuth; `plan: free` on Render will cold-start and read as a broken app; and with no skills channel on ChatGPT, tool descriptions become the ONLY carrier for Larry's voice, which makes D-03 load-bearing rather than advisory.
-- **Agent Plugins 1.0.0 packaging.** Worth scoping as its own phase. The 234 host survey predates the standard entirely and under-weighted Codex (7 mentions) and OpenAI (3) against Zed (106). Codex is now the closest non-Anthropic host to full parity.
-- **D-04 re-examination for Codex.** D-04 said hooks are not portable enough to carry governance. Still true for MCP-scoped hooks. Now partially stale for Codex generally, which does have SessionStart, UserPromptSubmit, Stop, PreCompact, PostCompact and SubagentStop.
+If `complete-system-loop` absorbs H3 into Phase B directly, that is a **better** outcome than running this separately. In that case: delete the queue, and make sure Phase B's summary states explicitly which of H1/H2/H3 it closed, so the record is not ambiguous.
 
-## 8. Sources
+## 9. Adjacent findings from the same session, not in scope
+
+- **ChatGPT Tier-0 connector (navigator-selected).** Record honestly that it reopens **D-07**, which chose licensed-server open-core OVER Brain-as-a-service on 2026-07-18. Reopening it deliberately is fine; reopening it silently is drift. Good news: `mcp-server-brain/server.cjs` is already Express + `StreamableHTTPServerTransport`, stateless (`sessionIdGenerator: undefined`), `POST /mcp`, Bearer auth against Supabase `brain_api_keys`, deployed by `render.yaml`. That is most of what a ChatGPT custom connector needs. Real gaps: confirm ChatGPT accepts a static Bearer key rather than requiring OAuth; Render `plan: free` cold-starts will read as a broken app; and with no skills channel on ChatGPT, tool descriptions become the ONLY carrier for Larry's voice, which makes **D-03** load-bearing rather than advisory.
+- **Agent Plugins 1.0.0 packaging.** Worth its own phase. The 234 host survey predates the standard entirely and weighted Zed 106 mentions against Codex 7 and OpenAI 3. Codex is now the closest non-Anthropic host to full parity: skills, subagents, stdio MCP, and hooks.
+- **D-04 partial staleness.** D-04 said client hooks are not portable enough to carry governance. Still true for MCP-scoped hooks, which is exactly why H3 exists. Now partially stale for Codex generally, which does have SessionStart, UserPromptSubmit, Stop, PreCompact, PostCompact and SubagentStop.
+
+## 10. Sources
 
 - Agent Plugins spec: https://github.com/agentplugins/agent-plugins-spec and https://agent-plugins.org/
 - Vercel announcement: https://vercel.com/blog/introducing-agent-plugins
-- Codex customization docs: https://learn.chatgpt.com/docs/customization/overview
+- Codex customization: https://learn.chatgpt.com/docs/customization/overview
 - Codex hooks: https://deepwiki.com/openai/codex/3.11-hooks-system and https://agenticcontrolplane.com/blog/codex-cli-hooks-reference
 - ChatGPT developer mode and MCP: https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt
+- In-repo: `.planning/2026-08-20-BRIEF-complete-system-loop.md` section 3 and 7; `.planning/phases/239-brain-access-surface/239-05-SUMMARY.md`; `.planning/phases/239-brain-access-surface/deferred-items.md`
