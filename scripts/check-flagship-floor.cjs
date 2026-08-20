@@ -79,38 +79,94 @@ function parseOverrideFile(rawText) {
 // ---------------------------------------------------------------------------
 // evaluateFloor(frameworks, probeResultsByName) -- pure gate logic.
 //   frameworks: [{ name, uses }] -- the enumerated (or override-filtered) set.
-//   probeResultsByName: { [name]: { normalizeMatches, readinessScore } }
+//   probeResultsByName: { [name]: { normalizeMatches, readinessScore,
+//     failures?: [{ probe, kind, httpStatus, detail, retryAfterS }] } }
 //     A framework with NO entry is treated as a MISS (never silently
 //     dropped from the row set -- every enumerated framework produces a row).
-// Returns { rows, passCount, missCount, exitCode }.
+//     OQ-2 (Phase 259): "never probed" is not one of D-05's three trigger
+//     types, and the live main() writes an entry for every enumerated
+//     framework, so this branch is unreachable in production -- kept MISS
+//     because tests/test-249-floor-gate.cjs pins it.
+//
+// Phase 259 (TRUST-02, D-05): a THIRD verdict, VOID, precedence:
+//   1. failures.length > 0            -> VOID (outranks PASS and MISS -- a
+//      probe that did not cleanly succeed carries no trustworthy
+//      matches/score, so judging it at all is the prediction FLOOR-03
+//      forbids)
+//   2. matches === 1 && score >= 3    -> PASS
+//   3. otherwise                      -> MISS
+// Returns { rows, passCount, missCount, voidCount, exitCode }.
+// exitCode: voidCount > 0 ? 3 : (missCount > 0 ? 1 : 0) -- D-07: VOID is a
+// hard non-zero exit distinct from both clean (0) and real-MISS (1).
 // ---------------------------------------------------------------------------
 function evaluateFloor(frameworks, probeResultsByName) {
   const rows = frameworks.map((fw) => {
     const p = (probeResultsByName && probeResultsByName[fw.name]) || null;
+    const failures = (p && Array.isArray(p.failures)) ? p.failures : [];
+    if (failures.length > 0) {
+      return { name: fw.name, uses: fw.uses, matches: p.normalizeMatches != null ? p.normalizeMatches : null, score: p.readinessScore != null ? p.readinessScore : null, verdict: 'VOID', failures };
+    }
     const matches = p ? p.normalizeMatches : null;
     const score = p ? p.readinessScore : null;
     const matchesOk = matches === 1;
     const scoreOk = typeof score === 'number' && score >= 3;
     const verdict = matchesOk && scoreOk ? 'PASS' : 'MISS';
-    return { name: fw.name, uses: fw.uses, matches, score, verdict };
+    return { name: fw.name, uses: fw.uses, matches, score, verdict, failures: [] };
   });
   const misses = rows.filter((r) => r.verdict === 'MISS');
+  const voids = rows.filter((r) => r.verdict === 'VOID');
   return {
     rows,
-    passCount: rows.length - misses.length,
+    passCount: rows.filter((r) => r.verdict === 'PASS').length,
     missCount: misses.length,
-    exitCode: misses.length > 0 ? 1 : 0,
+    voidCount: voids.length,
+    exitCode: voids.length > 0 ? 3 : (misses.length > 0 ? 1 : 0),
   };
 }
 
 // ---------------------------------------------------------------------------
 // Live wiring -- CLI only, not exercised by the hermetic suite.
 // ---------------------------------------------------------------------------
+// Phase 259 (TRUST-02): collapse whitespace runs (including raw newlines) in
+// Brain-supplied text before it is ever printed -- a log-injection and
+// disclosure control, not cosmetics. Cap at 300 chars, the sentinel
+// convention shared with lib/core/brain-client.cjs.
+function _capDetail(text) {
+  const s = typeof text === 'string' ? text : String(text == null ? '' : text);
+  return s.replace(/\s+/g, ' ').trim().slice(0, 300);
+}
+
 async function probeFramework(name, key) {
   const normRes = await brainCall('normalize_framework_name', { raw: name }, key);
   const readyRes = await brainCall('orchestration_readiness', { framework_name: name }, key);
   const normalizeMatches = normRes.ok && normRes.result && Array.isArray(normRes.result.canonical_matches) ? normRes.result.canonical_matches.length : null;
   const readinessScore = readyRes.ok && readyRes.result && readyRes.result.readiness ? readyRes.result.readiness.readiness_score : null;
+
+  // Phase 259 (TRUST-02, D-05/D-06): an additive failures[] array, one
+  // entry per failed probe. errorKind comes from build-brain-census.cjs's
+  // brainCall (Task 1); classification is never re-derived from bodyText
+  // here (that would reintroduce the string-sniffing fragility errorKind
+  // removes).
+  const failures = [];
+  if (!normRes.ok) {
+    failures.push({
+      probe: 'normalize',
+      kind: normRes.errorKind || 'hard_error',
+      httpStatus: normRes.httpStatus,
+      detail: _capDetail(normRes.bodyText),
+      retryAfterS: typeof normRes.retryAfterS === 'number' ? normRes.retryAfterS : null,
+    });
+  }
+  if (!readyRes.ok) {
+    failures.push({
+      probe: 'readiness',
+      kind: readyRes.errorKind || 'hard_error',
+      httpStatus: readyRes.httpStatus,
+      detail: _capDetail(readyRes.bodyText),
+      retryAfterS: typeof readyRes.retryAfterS === 'number' ? readyRes.retryAfterS : null,
+    });
+  }
+
   return {
     normalizeMatches,
     readinessScore,
@@ -118,6 +174,7 @@ async function probeFramework(name, key) {
     readinessOk: readyRes.ok,
     normalizeBody: normRes.ok ? null : normRes.bodyText,
     readinessBody: readyRes.ok ? null : readyRes.bodyText,
+    failures,
   };
 }
 
