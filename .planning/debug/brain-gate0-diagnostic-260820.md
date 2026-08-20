@@ -9,7 +9,8 @@ surface: brain-graph
 repo: ProblemsWorthSolving-Brain
 graph: BRAIN (pws-brain-db, Memgraph)
 canon_parts: [8]
-related_phases: [253, 254, 256, 257]
+related_phases: [258, 259, 260, 261, 254, 257]
+superseded_phase_refs: "253 and 256 were RETIRED on 2026-08-20 (commit d4998583) and replaced by 258-263. Section 11 re-points every finding in this document to the live phases."
 related_docs:
   - .planning/2026-08-20-BRIEF-complete-system-loop.md
   - .planning/debug/brain-schema-entropy-and-cooccurs-bloat.md
@@ -298,6 +299,32 @@ RETURN sep_merged, over_200ch;
 4. **The 11 unaliased split clusters** need an owner and a survivor rule.
 5. **`poverty` (27031)** confirm demotion rather than alias.
 6. **SSH key for `pws-brain-db`** if the 7 index DROPs ride this pass.
+
+## 11. Re-pointed to the live phase set (253 and 256 were retired mid-session)
+
+This diagnostic was written against phases 253 and 256. Both were **RETIRED on 2026-08-20**
+(commit `d4998583`) and replaced by 258-263 while this session was running. Nothing in
+sections 1-9 changes; only the ownership does. Mapping:
+
+| Finding | Was | Now | Why |
+|---|---|---|---|
+| **P0 archived batch** (99/100 archived, 95 in ids 28000-29000) | 253 | **258, RECON-01** | RECON-01 is scoped to attributing an untracked write wave via read-tier census diff plus a tracked GRAPH-WRITE-LOG convention. This is precisely that: an unattributed batch write, already id-bounded. RECON-01 currently has no concrete target range; this gives it one. Note the block may predate the 2026-08-11/12 wave RECON-01 names, so confirm scope before assuming they are the same event. |
+| **Root-cause hunt** ("what ran against 28000-29000") | nowhere | **258, RECON-01** | Same reason. The GRAPH-WRITE-LOG convention exists to make exactly this answerable next time. |
+| **Alias state** (40 of 51 split clusters already aliased; alias traversal rescues 0 of 59 commands) | 256 | **260, FIX-02 and FIX-03** | FIX-03's research flag says the alias-aware `normalizeName` blast radius across four name-matching readers has never been analyzed, and calls it the one sub-plan in 258-263 needing deeper research. This is live evidence for that matrix: aliasing is already dense on the split set, and a reader that does not traverse `ALIAS_OF` gets nothing from it. |
+| **`ALIAS_OF` self-loops** | 256 | **260, FIX-02** | FIX-02 kills the self-loop minting path (42214 as RCA fixture). The 11 unaliased split clusters in section 7 should be checked against that fixture before any new alias edges are minted. |
+| **Edge scarcity** (86 `USES_FRAMEWORK` total, 75 already correct, 0 archived targets) | 256 | **261 Enrichment Ceremony, and 262 floor baseline** | The edges need authoring inside the single admin window. Also resets what 262's floor run can be expected to show. |
+| **Relabel of the ~95-node block** | 253 | **261 Enrichment Ceremony** | It is a write. Per 258/260, no write lands before the reconcile and the pipeline fixes. Relabelling before FIX-01 (additive props to live nodes) risks the same silent prop drops at scale. |
+| **Identifier corruption P3** (327 `<SEP>`, 325 over 200 chars, noise nodes) | 253 | **unowned. Flag for 263 carry-folds** | No current phase covers it. It degrades every lookup and vector match and makes future merges unsafe. Should be filed as a carry-fold rather than silently dropped. |
+| **Part 8 guard blocked write** | 257 | **257, unchanged** | Still gated on 254. Phase 259 ("Plugin-Side Gate Trust") is a DIFFERENT concern despite the similar name: it is 429 handling and floor-check honesty (TRUST-01/02), not Part 8 enforcement locus. 257 is not redundant with 259. |
+| **TRIZ is id 28666, not absent** | 256 | **261** | Rides the relabel of the block. SAPPhIRE is genuinely absent and still needs creating. |
+| **Vector index cleanup** (8 of 9 foreign space) | carried queue | **261** | Needs the SSH key. Same admin window. |
+
+**One ordering consequence worth flagging to whoever plans 261.** Section 3 measured that
+relabelling recovers at most 11 of 86 edges and rescues 0 of the 59 zero-framework commands.
+So if the Enrichment Ceremony relabels the block AND authors edges in the same window, the
+floor movement in 262 will be attributable to the edge authoring, not the relabel. Worth
+sequencing or logging them separately inside the window if anyone wants to tell those two
+effects apart afterwards.
 
 ## 10. Classification
 
