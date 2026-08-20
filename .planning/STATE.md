@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 258 COMPLETE (7/7 plans): RECON-01 and RECON-02 verified and recorded. Next: Phase 260 (Pipeline Fixes) -- check 260-RESEARCH.md's current state first, another session was actively editing it during this work."
-last_updated: "2026-08-20T20:28:06.541Z"
-last_activity: 2026-08-20 - 258-07 post-window verification independently re-run (all seven 91-verify.cypher statements), first GRAPH-WRITE-LOG row landed and shape-tested, manifest/SCHEMA flipped to EXECUTED, phase 258 now 7/7 complete
+stopped_at: Completed 260-01-PLAN.md
+last_updated: "2026-08-20T21:29:17.614Z"
+last_activity: 2026-08-19 - Completed quick task 260819-dmm (clean-tree drift class killed) - re-firing the release ceremony
 progress:
   total_phases: 11
-  completed_phases: 1
-  total_plans: 11
-  completed_plans: 9
-  percent: 9
+  completed_phases: 2
+  total_plans: 16
+  completed_plans: 12
+  percent: 18
 ---
 
 # Project State
@@ -3001,6 +3001,7 @@ Progress: [█████████░] 92%
 | Phase 248 P02 | 95min + close-out | 4 tasks | 8 files |
 | Phase 252 P03 | 1h | 2 tasks | 17 files |
 | Phase 259 P04 | 55min | 3 tasks | 3 files |
+| Phase 260 P01 | 55min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -4273,6 +4274,7 @@ Progress: [█████████░] 92%
 - [Phase 252]: 252-03 Tasks 1-2: amendment rows 1/5/8 applied verbatim + canon:21 amended + CLAUDE.md rewritten in one atomic commit (6931e54f), test-250-amendment-unit.cjs Test 4 flipped negative-to-positive as the lockstep proof (RED-first recorded).
 - [Phase 252]: 252-03 Tasks 1-2: doctrine fence extended to living-docs scope + canon:193 cold-start rename canary (16d754b7), living docs swept to refusal doctrine; parked at checkpoint before Task 3 (operator release ceremony) per navigator ceremony ruling.
 - [Phase 259]: A1 holds: orchestration_readiness returns a clean readiness object (score=n/a) for an absent framework name, never a JSON-RPC error - confirmed live against PEST Analysis, a documented absent framework
+- [Phase 260]: Followed plan 260-01's PUSH FREEZE literally over the outer task's generic push-after-commit instruction; commits stay local in ProblemsWorthSolving-Brain for 260-05's batched push (FIX-04).
 
 ### Pending Todos
 
@@ -4381,8 +4383,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-20T18:18:03.254Z
-Stopped at: Phase 259 (Plugin-Side Gate Trust) complete: TRUST-01 + TRUST-02 both shipped, RCA closed, A1 discharged (holds) via live floor-run checkpoint
+Last session: 2026-08-20T21:29:17.561Z
+Stopped at: Completed 260-01-PLAN.md
 
 **260820-recon (this session, retroactive registration per precedent 260819-ws-adf):** a second Claude Code session (Windows, `jsagi-4e`) is running in parallel on this SAME checkout (`fix/part8-guard-in-mcp-handlers`, shared working tree, not a separate worktree -- confirmed via `git worktree list` and cross-session message). Reconciliation this session: verified `7d6c188b` ("research(260,261) + seed(079): feed the Gate 0 diagnostic into the planning lane") is an ancestor of HEAD via `git merge-base --is-ancestor`, confirmed on this branch only via `git branch --all --contains`, zero divergence. Read the other session's `.planning/debug/brain-gate0-diagnostic-260820.md`, `SEED-079`, `260-RESEARCH.md`, `261-RESEARCH.md` in full. Found this session's own in-flight Phase 258 plan-phase run (`a8cf24e78cf918903`) had produced a 96KB `258-RESEARCH.md` with ZERO references to the archived-batch finding (95 of 100 demoted `:Framework` nodes in contiguous id block 28000-29000, the concrete RECON-01 target) -- injected the three files via cross-session `SendMessage` to the running agent before `PLAN.md` locks, since 258's `CONTEXT.md` predates the diagnostic and never listed it as a canonical ref. Two DIRECT (non-GSD-workflow) edits made outside any `/gsd-*` command, both docs-only, zero code/test impact, made under time pressure to keep the outbound Brain-team handoff accurate while a live cross-session reconciliation was in progress: (1) added a "Status update" blockquote to the tracked `docs/2026-08-20-HANDOFF-brain-devs-gate0-diagnostic.md` (the other session's v4 handoff, committed so it crosses machines, unlike `.planning/`) noting the injection above closes the "nothing auto-feeds this to the planner" gap the doc itself flagged; (2) this STATE.md entry. Also drafted (NOT sent) a short Gmail follow-up in the same thread as the v4 handoff (`create_draft` with `replyToMessageId`) carrying the same update, leaving the carefully-authored v4 body untouched. Confirmed the repo's `_models_note` in `.planning/config.json` (fable for planning/discuss/research, sonnet for execution/verification/completion) is a deliberate 2026-08-10 navigator directive amending the 2026-07-25 never-use-fable rule for this repo's GSD agents only -- checked, not a violation, no action taken. One incidental side effect: an exploratory `gsd-tools state record-session` call with no args (checking usage) bumped `last_updated`/`Last session` timestamps with no content loss, confirmed via `git diff`.
 
