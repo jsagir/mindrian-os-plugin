@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Cross-session reconciliation: Phase 258 plan-phase in flight, Brain-dev handoff verified"
-last_updated: "2026-08-20T17:21:29.433Z"
+stopped_at: "Phase 259 (Plugin-Side Gate Trust) complete: TRUST-01 + TRUST-02 both shipped, RCA closed, A1 discharged (holds) via live floor-run checkpoint"
+last_updated: "2026-08-20T18:20:00.080Z"
 last_activity: 2026-08-19 - Completed quick task 260819-dmm (clean-tree drift class killed) - re-firing the release ceremony
 progress:
   total_phases: 11
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 11
+  completed_plans: 9
+  percent: 9
 ---
 
 # Project State
@@ -28,6 +28,45 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-20) -- PHASE 259 COMPLETE (all 4 plans) -- Plugin-Side Gate Trust: honest 429 handling + VOID-on-probe-failure, TRUST-01/TRUST-02 both shipped, A1 discharged live
+
+- **Position:** Phase 259 (Plugin-Side Gate Trust, parallel-safe, early) is fully COMPLETE:
+  259-01 (429 transport branch), 259-02 (refusal-rail rate_limited kind), 259-03 (floor-script
+  VOID verdict), 259-04 (aggregator + RCA closure + live checkpoint) all landed and committed.
+  `roadmap update-plan-progress 259` confirms 4/4 plans, 4/4 summaries, status Complete.
+
+- **259-04 (this session, wave 2, checkpointed):** Task 1 built `tests/run-all-259.sh` (glob
+  discovery, `found -eq 0` guard proven live via `TEST_259_PREFIX` override, no-em-dash fence
+  over all eleven files this phase touched) -- commit `2c792662`. Task 2 closed the open 429
+  RCA (`.planning/debug/brain-client-429-maps-to-unreachable-zero-retry.md`), discharging both
+  `needs-source-reverify` tags by named source citation (WIRE: `jsagir/ProblemsWorthSolving-Brain`
+  `src/http/rate-limit.mjs:112-131`; CODE: current dev-checkout line numbers), moved it to
+  `.planning/debug/resolved/`, filed a knowledge-base pattern-lesson block, and filed the
+  dev-research trail in both `rethinking-mindrianos/research/` and its `MindrianOS/research/`
+  mirror -- commit `6cf9a5dd`. Task 3 was a human-gated live floor-run checkpoint: the operator
+  ran `node scripts/check-flagship-floor.cjs` against the real Brain and confirmed the output
+  reads honestly (RED as expected, 11/28 pass, matching SWEEP-02's known-red state; zero VOID
+  rows this run) AND discharged assumption A1 as HOLDING -- `orchestration_readiness` returned
+  a clean `[MISS]` row (`matches=0, score=n/a`) for `PEST Analysis`, a documented absent
+  framework, not a JSON-RPC error/VOID. Full verbatim response in `259-04-SUMMARY.md`.
+
+- **Requirements:** TRUST-01 and TRUST-02 both checked in `.planning/REQUIREMENTS.md`.
+
+- **Known caveat (not this plan's to fix):** `node scripts/doctor.cjs --acceptance` reports
+  15/16, not 16/16 -- `verify-release-clean-tree` sees two tracked files (`.planning/config.json`,
+  `261-RESEARCH.md`) already dirty from a concurrent session sharing this working tree (see the
+  workspace-guard handoff note in `CLAUDE.md`), neither touched by any Phase 259 task. Logged to
+  `.planning/phases/259-plugin-side-gate-trust-parallel-safe-early/deferred-items.md`.
+
+- **Note on this update itself:** `state advance-plan` failed with the same known error this
+  STATE.md has already documented elsewhere ("Cannot parse Current Plan or Total Plans in Phase
+  from STATE.md") -- this narrative entry is the manual equivalent, matching this file's
+  established convention. `state update-progress` ran clean (9/11 plans, 82%); note the
+  frontmatter `percent` field above shows a stale/mismatched value from a known tool quirk,
+  unrelated to this phase, not fixed here (out of scope).
+
+- **Full detail:** `.planning/phases/259-plugin-side-gate-trust-parallel-safe-early/259-04-SUMMARY.md`.
 
 ## (2026-08-10) -- PHASE 248 PLAN 02 COMPLETE -- Honest room_bind return, CTX-03 live before/after PASS, carried defect closed
 
@@ -2882,6 +2921,7 @@ Progress: [█████████░] 92%
 | Phase 252 P01 | 160 | 4 tasks | 27 files |
 | Phase 248 P02 | 95min + close-out | 4 tasks | 8 files |
 | Phase 252 P03 | 1h | 2 tasks | 17 files |
+| Phase 259 P04 | 55min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -4153,6 +4193,7 @@ Progress: [█████████░] 92%
 - [Phase 248]: CTX-03 closed at merge scope: live CLI before/after PASS + scripted Desktop/Cowork surface-equivalents; real-host Desktop/Cowork confirmation named as a stated deferral to v2.0.0-beta release pickup, not implied done - fix-not-live-until-released hard rule: a running session never hot-reloads and the fix has not shipped in a release; scripted equivalents are the merge evidence in the interim
 - [Phase 252]: 252-03 Tasks 1-2: amendment rows 1/5/8 applied verbatim + canon:21 amended + CLAUDE.md rewritten in one atomic commit (6931e54f), test-250-amendment-unit.cjs Test 4 flipped negative-to-positive as the lockstep proof (RED-first recorded).
 - [Phase 252]: 252-03 Tasks 1-2: doctrine fence extended to living-docs scope + canon:193 cold-start rename canary (16d754b7), living docs swept to refusal doctrine; parked at checkpoint before Task 3 (operator release ceremony) per navigator ceremony ruling.
+- [Phase 259]: A1 holds: orchestration_readiness returns a clean readiness object (score=n/a) for an absent framework name, never a JSON-RPC error - confirmed live against PEST Analysis, a documented absent framework
 
 ### Pending Todos
 
@@ -4260,8 +4301,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-20T11:38:40.546Z
-Stopped at: Cross-session reconciliation: Phase 258 plan-phase in flight, Brain-dev handoff verified
+Last session: 2026-08-20T18:18:03.254Z
+Stopped at: Phase 259 (Plugin-Side Gate Trust) complete: TRUST-01 + TRUST-02 both shipped, RCA closed, A1 discharged (holds) via live floor-run checkpoint
 
 **260820-recon (this session, retroactive registration per precedent 260819-ws-adf):** a second Claude Code session (Windows, `jsagi-4e`) is running in parallel on this SAME checkout (`fix/part8-guard-in-mcp-handlers`, shared working tree, not a separate worktree -- confirmed via `git worktree list` and cross-session message). Reconciliation this session: verified `7d6c188b` ("research(260,261) + seed(079): feed the Gate 0 diagnostic into the planning lane") is an ancestor of HEAD via `git merge-base --is-ancestor`, confirmed on this branch only via `git branch --all --contains`, zero divergence. Read the other session's `.planning/debug/brain-gate0-diagnostic-260820.md`, `SEED-079`, `260-RESEARCH.md`, `261-RESEARCH.md` in full. Found this session's own in-flight Phase 258 plan-phase run (`a8cf24e78cf918903`) had produced a 96KB `258-RESEARCH.md` with ZERO references to the archived-batch finding (95 of 100 demoted `:Framework` nodes in contiguous id block 28000-29000, the concrete RECON-01 target) -- injected the three files via cross-session `SendMessage` to the running agent before `PLAN.md` locks, since 258's `CONTEXT.md` predates the diagnostic and never listed it as a canonical ref. Two DIRECT (non-GSD-workflow) edits made outside any `/gsd-*` command, both docs-only, zero code/test impact, made under time pressure to keep the outbound Brain-team handoff accurate while a live cross-session reconciliation was in progress: (1) added a "Status update" blockquote to the tracked `docs/2026-08-20-HANDOFF-brain-devs-gate0-diagnostic.md` (the other session's v4 handoff, committed so it crosses machines, unlike `.planning/`) noting the injection above closes the "nothing auto-feeds this to the planner" gap the doc itself flagged; (2) this STATE.md entry. Also drafted (NOT sent) a short Gmail follow-up in the same thread as the v4 handoff (`create_draft` with `replyToMessageId`) carrying the same update, leaving the carefully-authored v4 body untouched. Confirmed the repo's `_models_note` in `.planning/config.json` (fable for planning/discuss/research, sonnet for execution/verification/completion) is a deliberate 2026-08-10 navigator directive amending the 2026-07-25 never-use-fable rule for this repo's GSD agents only -- checked, not a violation, no action taken. One incidental side effect: an exploratory `gsd-tools state record-session` call with no args (checking usage) bumped `last_updated`/`Last session` timestamps with no content loss, confirmed via `git diff`.
 
