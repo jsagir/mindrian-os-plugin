@@ -291,6 +291,18 @@ async function _initializeOnce(key) {
   return res.ok;
 }
 
+// Phase 259 (TRUST-02): classify a caught error into the D-05 failure-kind
+// taxonomy at the site where the error object still exists. Measured live
+// this session on Node v22.23.1: an AbortSignal.timeout abort yields
+// e.name === 'TimeoutError' (e.code === 23, message "The operation was
+// aborted due to timeout"); a connection failure yields a plain TypeError
+// with message "fetch failed" and no distinguishing name. Once brainCall
+// returns, both collapse into the same 'fetch failed: ...' bodyText prefix,
+// so e.message alone cannot tell them apart downstream -- classify HERE.
+function _classifyThrown(e) {
+  return (e && e.name === 'TimeoutError') ? 'timeout' : 'hard_error';
+}
+
 async function brainCall(toolName, args, key) {
   const doCall = async () =>
     fetch(BRAIN_URL + '/mcp', {
@@ -313,7 +325,7 @@ async function brainCall(toolName, args, key) {
   try {
     res = await doCall();
   } catch (e) {
-    return { ok: false, httpStatus: 0, bodyText: 'fetch failed: ' + (e && e.message ? e.message : String(e)) };
+    return { ok: false, httpStatus: 0, bodyText: 'fetch failed: ' + (e && e.message ? e.message : String(e)), errorKind: _classifyThrown(e) };
   }
 
   if (!res.ok) {
@@ -330,7 +342,7 @@ async function brainCall(toolName, args, key) {
         try {
           retryRes = await doCall();
         } catch (e) {
-          return { ok: false, httpStatus: 0, bodyText: 'retry fetch failed: ' + (e && e.message ? e.message : String(e)) };
+          return { ok: false, httpStatus: 0, bodyText: 'retry fetch failed: ' + (e && e.message ? e.message : String(e)), errorKind: _classifyThrown(e) };
         }
         if (!retryRes.ok) {
           let retryBody = '';
@@ -339,14 +351,14 @@ async function brainCall(toolName, args, key) {
           } catch (_e) {
             retryBody = '';
           }
-          return { ok: false, httpStatus: retryRes.status, bodyText: retryBody };
+          return { ok: false, httpStatus: retryRes.status, bodyText: retryBody, errorKind: 'hard_error' };
         }
         res = retryRes;
       } else {
-        return { ok: false, httpStatus: res.status, bodyText };
+        return { ok: false, httpStatus: res.status, bodyText, errorKind: 'hard_error' };
       }
     } else {
-      return { ok: false, httpStatus: res.status, bodyText };
+      return { ok: false, httpStatus: res.status, bodyText, errorKind: 'hard_error' };
     }
   }
 
@@ -354,20 +366,26 @@ async function brainCall(toolName, args, key) {
   try {
     text = await res.text();
   } catch (e) {
-    return { ok: false, httpStatus: res.status, bodyText: 'body read failed: ' + (e && e.message ? e.message : String(e)) };
+    return { ok: false, httpStatus: res.status, bodyText: 'body read failed: ' + (e && e.message ? e.message : String(e)), errorKind: 'malformed' };
   }
   const dataLine = text.split('\n').find((l) => l.startsWith('data: '));
   if (!dataLine) {
-    return { ok: false, httpStatus: res.status, bodyText: 'no SSE data line in response: ' + text.slice(0, 500) };
+    return { ok: false, httpStatus: res.status, bodyText: 'no SSE data line in response: ' + text.slice(0, 500), errorKind: 'malformed' };
   }
   let parsed;
   try {
     parsed = JSON.parse(dataLine.slice(6));
   } catch (e) {
-    return { ok: false, httpStatus: res.status, bodyText: 'unparsable SSE payload: ' + text.slice(0, 500) };
+    return { ok: false, httpStatus: res.status, bodyText: 'unparsable SSE payload: ' + text.slice(0, 500), errorKind: 'malformed' };
   }
   if (parsed.error) {
-    return { ok: false, httpStatus: res.status, bodyText: JSON.stringify(parsed.error) };
+    // OQ-3 (carried risk, A1): classified hard_error under D-05's "anything
+    // that did not cleanly succeed VOIDs regardless of bucket" rule. Risk:
+    // if orchestration_readiness ever errors on an unknown framework name
+    // rather than returning a readiness object, every genuinely-absent
+    // framework would VOID instead of MISS. Not discharged at research
+    // time; discharged by the live floor-run checkpoint in Plan 259-04.
+    return { ok: false, httpStatus: res.status, bodyText: JSON.stringify(parsed.error), errorKind: 'hard_error' };
   }
   if (parsed.result && Array.isArray(parsed.result.content)) {
     const textContent = parsed.result.content.find((c) => c && c.type === 'text');
