@@ -251,7 +251,7 @@ trustworthy floor-check gate before shipping fixes against them)
 **Research flag:** the Fix 3 before/after matrix -- blast radius across all four
 name-matching readers + dedup consumer has never been analyzed (P7); this is the one
 sub-plan in the whole 258-263 set flagged as needing deeper research during planning.
-**Plans:** 3/5 plans executed
+**Plans:** 4/5 plans executed
 Plans:
 **Wave 1** *(two parallel plans, zero files_modified overlap)*
 
@@ -261,7 +261,7 @@ Plans:
 **Wave 2** *(two parallel plans; 260-03 blocked on 260-02, 260-04 blocked on 260-01 by dedup.mjs overlap)*
 
 - [x] 260-03-PLAN.md (wave 2) - FIX-03 change, its own commit: alias-aware direct branch via the `exists()` form, typed `:Framework` target, cross-branch dedup, exported NORMALIZE_NAME_CYPHER, honest tool description doubling as the deploy beacon, matrix AFTER slot filled
-- [ ] 260-04-PLAN.md (wave 2) - FIX-01: `additivePropPlan` on all three noop branches, `propReport` through `buildPlan`, the missing `provenance_note` projection closed, the two live dedup assertions deliberately amended, live round-trip handed to Phase 261 as a numbered pre-item
+- [x] 260-04-PLAN.md (wave 2) - FIX-01: `additivePropPlan` on all three noop branches, `propReport` through `buildPlan`, the missing `provenance_note` projection closed, the two live dedup assertions deliberately amended, live round-trip handed to Phase 261 as a numbered pre-item
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
