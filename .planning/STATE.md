@@ -1,12 +1,13 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1.0
-milestone_name: Green the Floor
-status: planning
-last_updated: "2026-08-13T05:52:32.221Z"
-last_activity: 2026-08-13
+milestone_name: milestone
+status: Defining requirements
+stopped_at: Phase 258 context gathered
+last_updated: "2026-08-20T11:06:53.034Z"
+last_activity: 2026-08-19 - Completed quick task 260819-dmm (clean-tree drift class killed) - re-firing the release ceremony
 progress:
-  total_phases: 0
+  total_phases: 11
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -3367,21 +3368,28 @@ Progress: [█████████░] 92%
   directly ("it's part of the current milestone... not a new one") after an initial phase_found:
   false check correctly caught that no v2.1.0 phases existed in ROADMAP.md yet despite the
   STATE.md label.
+
   - Phase 253: Framework population integrity (Gate 0) -- blocks 254/255/256, repo:
     ProblemsWorthSolving-Brain.
+
   - Phase 254: Orchestration projection consumption wiring (suggest-next/act + server-side
     composition ruling) -- depends on 253, repo: MindrianOS-Plugin.
+
   - Phase 255: Data Room section-affinity ranking (canonical taxonomy already shipped in
     lib/core/section-registry.cjs) -- depends on 253, parallel with 254, both repos.
+
   - Phase 256: Framework graph correction pass (25 edges, entity dedup, SAPPhIRE/TRIZ) --
     depends on 253, repo: ProblemsWorthSolving-Brain.
+
   - Four open navigator rulings, not silently resolved, recorded per-phase in ROADMAP.md: the
     server-side composition approval, the Gate 0 relabel triage list, the local-vs-Brain
     conflict merge rule, and whether this stays inside v2.1.0 (answered) vs a successor.
+
 - Phase 257 added (2026-08-20) by a parallel session: Part 8 enforcement locus
   (host-independent egress guard), sourced from `docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md`.
   Depends on Phase 254; not created by this session, left untouched during the same-day
   reconciliation below.
+
 - Phases 253 and 256 RETIRED same-day (2026-08-20), superseded by Phases 258-263. Spec-phase's
   own mandatory codebase-scouting step (reading REQUIREMENTS.md before questioning) surfaced
   what this session's archaeology fork had missed: `.planning/REQUIREMENTS.md` +
@@ -4252,8 +4260,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-10T23:49:06.474Z
-Stopped at: 252-03 Tasks 1-2 complete (6931e54f, 16d754b7); parked at checkpoint before Task 3 (release ceremony, orchestrator-owned)
+Last session: 2026-08-20T11:06:52.825Z
+Stopped at: Phase 258 context gathered
 
 **Phase 224 Plan 04 (this session):** the phase-close aggregate gate. `tests/run-all-224.sh` mirrors `run-all-222.sh` and runs 17 legs green (PASS=17 FAIL=0 SKIP=0): eight `test-224-*` proof legs (Reqs 1-4, 6), the Part 8 egress sweep (Req 5) over all five derivation surfaces (extended per SPEC to `fetch(`/http(s)/`node:http(s)`/`curl|wget`, MISSING-fails per T-224-15), the Part 9 chokepoint sweep (no direct-db in classifier, no raw INSERT INTO edges in drain/backfill, mandatory `navigation.cjs` require in graph-derivation), the Req 4 zero-deps git-diff, the three Req 7 structural gates, and three no-regression legs (run-all-222, test-218-write-safety, test-graph-derive-sweep). Req 7 `doctor --acceptance` is gated as a no-new-regression SUBSET check against the documented environmental baseline {coverage-gate, verify-release-clean-tree} (both pre-existing/dirty-tree; a NEW failure fails the leg -- run-all-217 written-reason idiom); `check-shape-declaration` runs with `--check` WITHOUT `--strict` (advisory-WARN). Tripwire-plant proof: planting `fetch('http://evil.example')` on an executable classifier line flipped Part 8 to FAILED (exit 1); reverted byte-clean. The eight `test-224-*` legs registered in `run-feynman-tests.cjs` TEST_FILES (224-VALIDATION test-infra contract); `docs/ENV-TUNING.md` documents `DERIVE_CONVERGES_FLOOR=0.55` + `DERIVE_INFORMS_FLOOR=0.45` (byte-matching the classifier header) with fixture-calibration provenance + D-04 no-guess note. Commits `58e901d0` test, `0262de57` feat, `b8bece52` docs. Req 5 + Req 7 completed; zero new deps; no em-dashes; no deviations. See 224-04-SUMMARY.md.
 
