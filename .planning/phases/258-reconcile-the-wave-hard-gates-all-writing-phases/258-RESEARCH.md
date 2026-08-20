@@ -4,6 +4,15 @@
 **Domain:** Cross-repo graph-integrity reconciliation on a live production Memgraph GraphRAG service (ProblemsWorthSolving-Brain), tracked from MindrianOS-Plugin's `.planning/`
 **Confidence:** HIGH on file locations and current code state (every path below was opened and read this session). MEDIUM on live-graph state (no read-tier key was used; graph numbers are quoted from tracked execution records, not re-measured).
 
+**AMENDMENT (2026-08-20, same day, post-initial-draft):** A concurrent session ran a live
+read-only Gate 0 diagnostic against `pws-brain-db` (`.planning/debug/brain-gate0-diagnostic-260820.md`)
+and re-pointed its keystone finding (the archived-batch signature) to this phase's RECON-01
+by name. That finding, plus a live label-collision risk it surfaces for RECON-02, are folded
+in below as **F-12**. See F-12 for the full correction; the short version: RECON-01 now has a
+concrete, id-bounded target it did not have before, and RECON-02's cards need one more
+pre-flight check than Pattern 2 originally specified (whether a claimant Framework's label
+itself has changed since the 2026-08-13 measurement, not just whether its id+name still bind).
+
 ---
 
 <user_constraints>
@@ -44,8 +53,8 @@ None -- discussion stayed within phase scope. No todos matched this phase closel
 
 | ID | Description (verbatim from `.planning/REQUIREMENTS.md` lines 31-43) | Research Support |
 |----|-------------|------------------|
-| RECON-01 | The untracked 2026-08-11/12 enrichment wave is fully attributed: a read-tier census diff names every delta (frameworks touched, nodes/edges added), and a tracked GRAPH-WRITE-LOG convention exists so no future write is unattributable. | Finding F-1 (census tooling exists: `scripts/run-schema-census.mjs`), Finding F-2 (**no pre-wave census exists** -- the diff basis must change), Finding F-3 (the wave already has partial named attribution: batch `2026-08-11T07:56:31.708Z`), Finding F-8 (GRAPH-WRITE-LOG file-path options + the pre-existing `GraphRagMeta` stamp overlap) |
-| RECON-02 | The 2 measured order collisions on shared step nodes ... are dis-shared via carded surgery, and the order-channel ruling is recorded: node-prop `order` is the single truth, edge `r.order` documented dead. | Finding F-4 (exact measured shape of both collisions), Finding F-5 (the card pattern on disk, two variants), Finding F-6 (the reader code that makes node-prop `order` the only truth) |
+| RECON-01 | The untracked 2026-08-11/12 enrichment wave is fully attributed: a read-tier census diff names every delta (frameworks touched, nodes/edges added), and a tracked GRAPH-WRITE-LOG convention exists so no future write is unattributable. | Finding F-1 (census tooling exists: `scripts/run-schema-census.mjs`), Finding F-2 (**no pre-wave census exists** -- the diff basis must change), Finding F-3 (the wave already has partial named attribution: batch `2026-08-11T07:56:31.708Z`), Finding F-8 (GRAPH-WRITE-LOG file-path options + the pre-existing `GraphRagMeta` stamp overlap), **Finding F-12 (AMENDMENT: a second, id-bounded attribution target from today's Gate 0 diagnostic -- ~95-100 nodes in id block 28000-29000, likely a SEPARATE untracked event from the 08-11/12 wave, needing its own root-cause hunt)** |
+| RECON-02 | The 2 measured order collisions on shared step nodes ... are dis-shared via carded surgery, and the order-channel ruling is recorded: node-prop `order` is the single truth, edge `r.order` documented dead. | Finding F-4 (exact measured shape of both collisions), Finding F-5 (the card pattern on disk, two variants), Finding F-6 (the reader code that makes node-prop `order` the only truth), **Finding F-12 (AMENDMENT: Red Teaming, a claimant on node 24219, is named in today's archived-block diagnostic -- its `:Framework` label may have changed since the 08-13 measurement; a pre-flight label-state re-verify is now required before authoring the card)** |
 | RECON-03 | The second machine's workspace is checked for untracked payload files ..., and admin-key hygiene is verified (the minted key is dead; no residual admin keys in any env). | Finding F-7 (**the requirement's premise is wrong**: the 08-11 wave used a STANDING key, not a minted one; exact key IDs + the operator checklist already written down in the Brain repo) |
 | RECON-04 | A fresh post-reconcile floor baseline replaces the stale 8/28 kickoff number; all downstream worklists derive from it. | Finding F-9 (`scripts/check-flagship-floor.cjs` + `data/flagship-floor-set.json` exist and are the baseline instrument; blocked on Phase 259's TRUST-02 for honesty) |
 </phase_requirements>
@@ -310,6 +319,27 @@ CONTEXT.md's Integration Points flags that `GraphWriteEvent` writes might route 
 
 **One real, non-obvious side effect that IS in the path:** `brain_write`'s handler (`makeBrainWriteHandler`) fires `createSnapshot()` automatically **after every real commit**. `create_snapshot` is *not* a callable MCP tool. The 08-11 runbook's "Session 0" workaround exploits this: commit a harmless no-op (`RETURN 1 AS session_open`) first to force a fresh durable checkpoint before any real surgery. **Reuse that Session 0 step verbatim** in Phase 258's payload -- it is the only pre-flight snapshot available.
 
+### F-12: AMENDMENT -- the Gate 0 live diagnostic gives RECON-01 a concrete id-bounded target, and surfaces a live label-collision risk for RECON-02's Red Teaming card [VERIFIED: `.planning/debug/brain-gate0-diagnostic-260820.md`, read-only Cypher run live against `pws-brain-db` 2026-08-20, same day as this research]
+
+A concurrent session ran a read-only Gate 0 diagnostic today and found: **186 `:Framework`-labelled nodes against an expected ~750.** Of the 100 Concept nodes self-declaring "is an innovation framework" but not carrying `:Framework`, **99 also carry `:Archived`, and 95 sit in the contiguous internal-id block 28000-29000.** The diagnostic's own conclusion: "not the signature of a scattered relabel bug... the signature of a single batch operation against one ingestion block." Its section 11 re-pointing table explicitly maps this finding to **"258, RECON-01"** by name, on the grounds that RECON-01 is scoped to attributing an untracked write and this is precisely that -- an unattributed batch write, now id-bounded to a page a human can review in one sitting.
+
+**Named contents of the archived block** (partial list, the diagnostic's own sample): Six Thinking Hats, TRIZ, Design Thinking, Lean Startup, MECE, The Pyramid Principle, The Cynefin Framework, Four Lenses of Innovation, Jobs to Be Done (JTBD), **Red Teaming**, Pattern Recognition, Issue Trees, Causal Loop Diagrams, Problems Worth Solving, The PWS Value Proposition Framework, The Taxonomy of Problems, The Opportunity Bank Framework, White Space Analysis, Human-Centered Design, Effectuation, Open Innovation.
+
+**Open question the planner must NOT silently resolve either way: is this the SAME event as the 2026-08-11/12 second-machine wave F-1..F-11 describe, or a DIFFERENT untracked write?** Nothing read this session settles it. The wave (F-3) is documented as additive (8 frameworks enriched, HAS_PROCESS_STEP chains added, 560/560 writes). The archived-block finding is subtractive/relabelling (`:Framework` stripped, `:Archived` applied) on ~95-100 *different* framework concepts, several of which long predate any 08-11/12 activity (TRIZ, Six Thinking Hats). The two are more likely to be **separate untracked events that both fall inside RECON-01's "no GRAPH-WRITE-LOG existed yet" blast radius** than the same event. RECON-01's task breakdown should treat them as two attribution targets, not conflate them: (a) the documentary/provenance-forensics attribution of the 08-11/12 second-machine wave (F-1..F-11's original scope), and (b) a root-cause hunt for what ran against id block 28000-29000 (new, from this amendment). The diagnostic's own section 9 open decision #1 calls the root-cause hunt "not in any current phase" and "the highest-value open question here" -- it is now explicitly in this phase's RECON-01.
+
+**Root-cause hunt starting point:** cross-reference the Brain repo's git history for the id-block's creation window against the 21-commit "reconcile-in-place unification program" this research's F-2/F-8/F-10 already found ran 2026-08-18/19 (Wave-1 `__Entity__` strip, 32 alias MERGEs, a 118-Framework definition backfill, a Louvain recompute, the notion2 batch). That program is the nearest known batch operation touching Framework-population-scale changes in the relevant window and is worth ruling in or out first, before assuming a third, undocumented event.
+
+**LIVE RISK FOR RECON-02, not just RECON-01:** `.planning/research/PITFALLS.md`'s 2026-08-13 measurement (this research's F-4, the basis for both order-collision cards) queried `MATCH (f:Framework)-[r]->(s)` and found **Red Teaming** as a `:Framework`-labelled claimant of node 24219. **Red Teaming is named in today's archived block.** If Red Teaming has since lost its `:Framework` label (demoted to `:Archived`/`:Concept` sometime between 08-13 and 08-20, consistent with the 08-18/19 program above), then:
+- Card 1's statement-level guard, written as `MATCH (f:Framework {name:'Red Teaming'})`, returns **zero rows** against the live canon today -- not a wrong-node risk, a **silent no-op** risk, which is worse (the runbook idiom treats zero rows as *safe*, but here zero rows would mean "the card did nothing," not "the card correctly declined to act").
+- Node 24219's *currently measured* parent-Framework count may already be 1 (Nested Hierarchies only), making today's "order collision" dormant rather than live, until Phase 261 relabels the block and Red Teaming becomes `:Framework` again -- at which point the collision reappears and RECON-02's fix (if executed today against the demoted state) would not cover it.
+- Neither `Nested Hierarchies` nor `S-Curve Analysis` (the other two order-collision claimants) appear in the diagnostic's named sample of the archived block, so this risk is specific to the Red Teaming claimant on node 24219 -- it does not obviously extend to the `Generate Innovation Opportunities` card.
+
+**Planner implication:** add one read-tier pre-flight query, run immediately before authoring (not just before executing) both order-collision cards, that checks the CURRENT label set of all four claimant frameworks (Red Teaming, Nested Hierarchies, S-Curve Analysis, and re-confirms Generate Innovation Opportunities' still-unresolved parent set from F-4). If Red Teaming currently lacks `:Framework`, the card must either (a) be sequenced to run AFTER Phase 261 relabels the block -- which would invert this phase's own D-10 ruling that RECON-02 lands inside 258, not deferred to 261 -- or (b) be written to match on the node's current actual label state (whatever it is today) with an explicit note that it may need re-verification and a second pass once 261 relabels. Do not silently assume Red Teaming is still `:Framework` because PITFALLS.md said so 7 days ago; Pitfall 4 already warns node/edge counts drift, this is that same warning applied to a claimant's LABEL, not just its id/name.
+
+**SEED-079 acknowledgment (per this repo's "a finding that never lands in a phase or seed counts as incomplete" convention):** the same diagnostic run surfaced `.planning/seeds/SEED-079-brain-identifier-corruption-and-role-blind-extraction.md` -- 327 nodes with `<SEP>`-concatenated names, 325 names over 200 chars, and framework names mistyped as `Person`/`Organization` (e.g. every De Bono hat has a `[Archived, Person, Concept]` twin). SEED-079 is explicitly UNOWNED and out of scope for 258/260/261/262 (it is a carry-fold candidate for 263), but is flagged as relevant background: RECON-01's attribution probes (Code Examples A-E) query on `.name` and should not be surprised by corrupted-name nodes producing garbage-looking rows in the results. No action required in this phase beyond awareness.
+
+**Consistency note for RECON-04:** the diagnostic and `260-RESEARCH.md`/`261-RESEARCH.md` (siblings researched the same day, same live session, against the same canon) independently measured **86 total `USES_FRAMEWORK` edges graph-wide (75 correctly targeted, 11 unlabelled, 0 archived), 112 `:MindrianCommand` nodes, and 59 of 112 (53%) reaching zero frameworks, with alias-traversal rescuing zero of them.** RECON-04's floor baseline is a different metric (the 28-framework ratified denominator via `evaluateFloor`, not the command-to-framework edge count), but if RECON-04's own probes produce a materially different total-edges or total-commands number, that is itself a signal worth surfacing rather than silently trusting -- these three documents' numbers should agree since they were measured minutes apart against the same live canon.
+
 ---
 
 ## Standard Stack
@@ -455,6 +485,8 @@ Both runbooks append an **Execution record** section listing what actually happe
 - **Adding `GraphWriteEvent` to `METHODOLOGY_LABELS` or `SUBSTRATE_LABELS`.** Pollutes the MAGE methodology projection. Agent-lane only. See F-10.
 - **Routing Phase 258's writes through `ingest_framework`.** No payload shape exists for a non-Framework node or for edge surgery, and it drags in the unfixed FIX-01/FIX-02 code. Use `brain_write`. See F-11.
 - **Authoring the `Generate Innovation Opportunities` card with a name-only guard** because its id was never recorded. Resolve the id first. See F-4.
+- **Authoring the Red Teaming order-collision card straight from the 2026-08-13 PITFALLS.md measurement without re-checking its CURRENT label.** Red Teaming is named in today's Gate 0 diagnostic archived block; its `:Framework` label may have been stripped since. See F-12, Pitfall 8.
+- **Conflating the 08-11/12 second-machine wave (F-1..F-11) with the id-28000-29000 archived-block finding (F-12) as the same event.** They are more likely two separate untracked writes. Attribute them separately.
 - **Widening `SCHEMA.md` silently.** Its own header: "the contract is never silently widened to match the graph. Amendments are commits, reviewed like code." The D-03 edit is an amendment and should read like one, with a section 7 ledger row.
 - **Em-dashes.** Both repos' CLAUDE.md forbid them. `run-schema-census.mjs`, `schema-contract.mjs` and the payload files all carry a literal `// No em-dashes.` marker.
 
@@ -533,6 +565,12 @@ Both runbooks append an **Execution record** section listing what actually happe
 **Why it happens:** Documented in the 08-11 deviations ("measured 6, not the predicted 5") and in the rethinking-room trail as finding 3.
 **How to avoid:** Any match-count prediction must count the canon in BOTH branches. Applies to RECON-04's floor probes as much as to a collapse card.
 
+### Pitfall 8: A claimant Framework's LABEL drifted, not just its id/name (F-12)
+**What goes wrong:** RECON-02's card 1 statement-level guard, `MATCH (f:Framework {name:'Red Teaming'})`, is authored straight from PITFALLS.md's 2026-08-13 measurement and returns zero rows at execution time because Red Teaming lost its `:Framework` label sometime before 2026-08-20 (it is named in the Gate 0 diagnostic's archived-block sample). The runbook idiom treats zero rows as a safe no-op, which masks this as "nothing to do" rather than "the card is stale."
+**Why it happens:** The existing guard convention (id+name double check, `WHERE id(a) <> id(canon)`) defends against internal-id reuse after deletion. It was never designed to detect a label change on a node whose id and name are both still correct.
+**How to avoid:** Before authoring either order-collision card, run a label-state check on all four claimant frameworks (Red Teaming, Nested Hierarchies, S-Curve Analysis) and the two shared-step nodes, not just an id+name re-verify. See Code Examples.
+**Warning signs:** A dry-run that returns 0 rows where the card's own docstring predicted 1+.
+
 ---
 
 ## Code Examples
@@ -595,6 +633,19 @@ RETURN id(s) AS node_id, labels(s) AS labels, s.order AS node_order,
                          edge: type(r), edge_order: r.order}) AS claimants,
        collect(DISTINCT next.name) AS leads_to,
        collect(DISTINCT prev.name) AS led_from;
+```
+
+### Pre-flight label-state re-verify for RECON-02's claimant frameworks (F-12, run BEFORE authoring either card, not just before executing)
+
+```cypher
+-- Read-tier. Confirms whether Red Teaming, Nested Hierarchies, and S-Curve Analysis
+-- still carry :Framework today, not just whether their id+name still bind.
+-- If Red Teaming (or any claimant) returns has_framework_label = false, STOP and
+-- re-plan the card against the actual current state before authoring it.
+MATCH (f) WHERE f.name IN ['Red Teaming', 'Nested Hierarchies', 'S-Curve Analysis']
+RETURN f.name AS name, id(f) AS node_id, labels(f) AS labels,
+       'Framework' IN labels(f) AS has_framework_label,
+       'Archived' IN labels(f) AS is_archived;
 ```
 
 ### The done-signal assertion for RECON-02 (goes in `91-verify.cypher`)
@@ -849,6 +900,16 @@ Per MindrianOS-Plugin's CLAUDE.md "Dev-Research Compositing (Rethinking Room)" r
    - What's unclear: whether a framework-level attribution table satisfies "fully attributed," or whether every one of ~560 writes must be enumerated.
    - Recommendation: plan for framework-level + aggregate node/edge counts per framework (achievable from the probes in Code Examples), and record explicitly that per-write enumeration is impossible without server-side request logs.
 
+5. **(F-12) Is the id-28000-29000 archived-block demotion the SAME untracked event as the 2026-08-11/12 second-machine wave, or a separate one?**
+   - What we know: the wave (F-3) is additive (frameworks enriched, steps added). The archived block is subtractive (Framework label stripped, Archived applied) on a largely different, longer-standing set of framework concepts (TRIZ, Six Thinking Hats predate any 08-11/12 activity).
+   - What's unclear: whether both trace to the same 08-18/19 "reconcile-in-place" 21-commit program, or to two unrelated incidents.
+   - Recommendation: treat as two separate RECON-01 attribution targets (documentary wave-attribution + a root-cause hunt for the archived block against Brain repo git history in the 08-18/19 window) unless the root-cause hunt proves otherwise.
+
+6. **(F-12) Has Red Teaming's `:Framework` label actually changed since the 2026-08-13 PITFALLS.md measurement?**
+   - What we know: Red Teaming is named in today's (2026-08-20) Gate 0 diagnostic's archived-block sample. Not independently re-verified this session against a fresh single-node query.
+   - What's unclear: exact current label set on the Red Teaming node.
+   - Recommendation: the pre-flight label-state query in Code Examples is a required first task before either order-collision card is authored, not merely before it is executed.
+
 ---
 
 ## Sources
@@ -893,6 +954,12 @@ Per MindrianOS-Plugin's CLAUDE.md "Dev-Research Compositing (Rethinking Room)" r
 **Rethinking room** (`~/MindrianRooms/rethinking-mindrianos/research/`)
 - Directory listing (27 dated entries)
 - `2026-08-11-admin-sitting-alias-collapse-execution/2026-08-11-admin-sitting-alias-collapse-execution.md` -- lines 1-50
+
+**F-12 amendment sources (2026-08-20, same day, added after the initial draft)**
+- `.planning/debug/brain-gate0-diagnostic-260820.md` -- full read (live read-only Cypher diagnostic against `pws-brain-db`, run same day by a concurrent session; sections 1-2, 5, 7-9, 11 directly load-bearing for F-12)
+- `.planning/seeds/SEED-079-brain-identifier-corruption-and-role-blind-extraction.md` -- full read (acknowledged, out of scope per SEED-079 itself)
+- `.planning/phases/260-pipeline-fixes-brain-repo-one-pass-one-push/260-RESEARCH.md` -- full read (sibling phase research, same live session, cross-checked for the 86-edge / alias-coverage numbers cited in F-12's consistency note)
+- `.planning/phases/261-enrichment-ceremony-single-admin-window/261-RESEARCH.md` -- full read (sibling phase research, same live session, cross-checked for the archived-block contents and the 253/256-to-258/260/261 re-pointing table)
 
 **Filesystem verification**
 - `~/Mindrian/` listing (only `mindrian-os`)
