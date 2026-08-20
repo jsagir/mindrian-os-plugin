@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "brain-client-429-maps-to-unreachable-zero-retry"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli, desktop, cowork]
 brain_mode: unreachable
 canon_parts: [8]
 created: 2026-08-11T07:05:00Z
-updated: 2026-08-11T07:05:00Z
+updated: 2026-08-20T00:00:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -24,6 +24,68 @@ hypothesis: In callTool (lib/core/brain-client.cjs, tools/call retry loop ~line 
 test: Reproduce by forcing a 429 (burn the read-key window with rapid probes, or mock the fetch seam) and observe the wrapper's refusal shape.
 expecting: refusalResponse('unreachable') from a single attempt, no retry sleeps, while direct /health returns 200.
 next_action: Add a 429 branch to callTool - either retry-with-backoff within budget (Retry-After aware) or a distinct `rate_limited` sentinel so refusal-messaging can say the true reason. Decision 8 (honest refusal) wants the real reason named, not "unreachable".
+
+## Resolution
+
+**Shipped fix, per requirement:**
+
+- **TRUST-01, transport leg** -- `lib/core/brain-client.cjs::callTool()` gained a 429 branch
+  (Phase 259 Plan 01). It reads `Retry-After` fresh per attempt, retries up to 3 times (4
+  attempts total, D-01), falls back to 500/1000/2000ms exponential backoff when the header is
+  absent or unparseable (D-02), and on exhaustion returns a distinct sentinel
+  `{ error: 'rate_limited', tool, retry_after_s, attempts, message }` -- never `null`, never
+  `BRAIN_UNREACHABLE` (D-03). The budget is a SEPARATE counter and env-var pair
+  (`MINDRIAN_BRAIN_RATELIMIT_RETRY_MAX`/`_BASE_MS`/`_MAX_WAIT_MS`) from AVAIL-02's transport
+  retry budget, so an operator who disables one does not silently disable the other.
+- **TRUST-01, refusal-rail leg** -- `lib/core/refusal-messaging.cjs` gained a fifth
+  `REFUSAL_KINDS` member, `rate_limited` -> status `BRAIN_RATE_LIMITED` (Phase 259 Plan 02,
+  F-09 Option B). This is exactly what this RCA's own `next_action` line asked for: "so
+  refusal-messaging can say the true reason." A rate limit is now named honestly instead of
+  coerced into the `unreachable` kind.
+- **TRUST-02, floor-script leg** -- `scripts/check-flagship-floor.cjs`'s `evaluateFloor` gained
+  a third verdict, `VOID` (Phase 259 Plan 03), triggered by any hard error, timeout, or
+  malformed response on either probe of a row (D-05), outranking both PASS and MISS so a probe
+  that did not cleanly succeed is never silently scored as a floor miss. Exit code 3, never
+  soft (D-07). Not part of this RCA's original scope, but the same root defect class (a
+  catch-all that silently absorbs an unhandled status) motivated closing it in the same phase.
+
+**WIRE claim `needs-source-reverify` tag: DISCHARGED.** The original filing could not capture
+the actual wire-side trigger (the Brain's 429 behavior at failure time). Read against the dev
+checkout of `jsagir/ProblemsWorthSolving-Brain` (`src/http/rate-limit.mjs` lines 112-131,
+`perKeyRateLimit`, mounted on `/mcp` per `src/http/app.mjs` lines 7 and 23):
+
+- A fixed-window counter keyed per API key (`BRAIN_HTTP_RATE_WINDOW_MS`, default
+  `DEFAULT_WINDOW_MS = 60_000`; `BRAIN_HTTP_RATE_MAX`, default `DEFAULT_MAX = 120`) tracks
+  requests per key per window in an in-process `Map`.
+- Past the budget it always sets a `Retry-After` header (`Math.max(1, Math.ceil((b.resetAt -
+  now) / 1000))` -- integer delay-seconds, floored at 1, bounded by the window) and responds
+  `res.status(429).json({ error: { code: -32005, message: 'Rate limit exceeded' } })` -- a
+  plain JSON body, NOT Server-Sent Events.
+- This confirms the hypothesis's shape exactly: a burned per-key window produces a bare 429
+  with a `Retry-After` header and a JSON-RPC-style error body, the precise input the 259-01
+  branch above now retries against and eventually reports honestly.
+
+**CODE claim re-verification rule: DISCHARGED.** The original citation ("~line 442-515", read
+against the install cache at 2.0.0-beta.5) is superseded by a read of the dev checkout at
+`origin/main`/HEAD, where the same status ladder now sits (post-259-01 fix, current line
+numbers) at `lib/core/brain-client.cjs`:
+- `:595` -- `if (!toolRes.ok)`, the ladder entry point.
+- `:604` -- `toolRes.status === 403`, the pre-existing zero-retry sentinel branch this fix's
+  429 branch copied the shape of.
+- `:635`-`:657` -- the NEW 429 branch (the fix): retries within the rate-limit budget, mints
+  `rate_limited` on exhaustion.
+- `:672` -- the pre-existing 5xx retry-within-budget branch, unmodified.
+- `:676` -- `return null`, the bug site this RCA originally flagged, still present and still
+  correct for the statuses that remain genuinely unhandled (anything that is not 403, not 429,
+  and not a 5xx in-budget retry). The 429 hole this RCA reported is closed; the catch-all
+  itself is intentional per the standing do-not-widen fence (247-02) and is not a defect.
+
+**Verification named:** `bash tests/run-all-259.sh` green (4 suites, 41 assertions, no-em-dash
+fence clean); `node --test tests/test-250-transport-retry.cjs` green (regression, null contract
+unchanged: 5xx-exhausted still `null`, 403 still `tier_denied` in one attempt); `node --test
+tests/test-249-floor-gate.cjs` green (regression, all pre-existing `evaluateFloor`/
+`parseOverrideFile` assertions unchanged). The live-run checkpoint result (Phase 259 Plan 04
+Task 3) is recorded in `259-04-SUMMARY.md`.
 
 ## Meta
 
