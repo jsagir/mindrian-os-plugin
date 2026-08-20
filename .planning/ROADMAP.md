@@ -251,11 +251,32 @@ trustworthy floor-check gate before shipping fixes against them)
 **Research flag:** the Fix 3 before/after matrix -- blast radius across all four
 name-matching readers + dedup consumer has never been analyzed (P7); this is the one
 sub-plan in the whole 258-263 set flagged as needing deeper research during planning.
-**Plans:** 0 plans
-
+**Plans:** 5 plans
 Plans:
+**Wave 1** *(two parallel plans, zero files_modified overlap)*
 
-- [ ] TBD (run /gsd-plan-phase 260 to break down)
+- [ ] 260-01-PLAN.md (wave 1) - FIX-02: live self-loop RCA (measured 165, not the 41 the source comment claims) plus the statement-level `id(a) <> id(canon)` guard, hermetic RED proof, red-proof.sh registration
+- [ ] 260-02-PLAN.md (wave 1) - FIX-03 gate: name-matching-reader census from source, BEFORE corpus + proposed-query rehearsal, and an explicit CHANGE-260 / UNCHANGED-DELIBERATE / DEFERRED ruling per reader
+
+**Wave 2** *(two parallel plans; 260-03 blocked on 260-02, 260-04 blocked on 260-01 by dedup.mjs overlap)*
+
+- [ ] 260-03-PLAN.md (wave 2) - FIX-03 change, its own commit: alias-aware direct branch via the `exists()` form, typed `:Framework` target, cross-branch dedup, exported NORMALIZE_NAME_CYPHER, honest tool description doubling as the deploy beacon, matrix AFTER slot filled
+- [ ] 260-04-PLAN.md (wave 2) - FIX-01: `additivePropPlan` on all three noop branches, `propReport` through `buildPlan`, the missing `provenance_note` projection closed, the two live dedup assertions deliberately amended, live round-trip handed to Phase 261 as a numbered pre-item
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 260-05-PLAN.md (wave 3) - FIX-04: batch integrity + suite-delta gate, navigator approval checkpoint, ONE `git push`, deploy-identity proof via `tools/list`, deployed-surface round-trip, push freeze declared
+
+**Research flag DISCHARGED at planning time (2026-08-20/21).** The FIX-03 blast radius was measured
+live read-only against canon before the plans were written: 42 `:Framework` nodes carry an outgoing
+`ALIAS_OF` to a `:Framework` and are returned by the direct branch as if canonical; 47 NON-Framework
+nodes alias into `:Framework` and are invisible to the alias branch's typed source; the fragment
+`scenario` returns 8 entries with one duplicate today and 4 with none under the proposed form; all
+four candidate Cypher forms (`exists(pattern)`, `EXISTS { }`, count-based, `reduce`) execute on this
+Memgraph build. Two corrections the plans carry forward: the live `ALIAS_OF` self-loop population is
+**165**, not the 41 in `dedup.mjs` or the singular framing in CER-05; and 157 of 186 frameworks lack
+`framework_type`, which means FIX-01 breaks two existing live dedup assertions by design and they are
+amended on the record rather than discovered mid-ceremony.
 
 ### Phase 261: Enrichment Ceremony (single admin window)
 
