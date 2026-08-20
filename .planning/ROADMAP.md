@@ -183,15 +183,27 @@ after it -- both are early tracks per SUMMARY.md's ordering rationale)
 **Research flag:** second-machine state is unverifiable from this filesystem, operator-
 dependent, plan for both outcomes.
 **Plans:** 7 plans in 5 waves
-
 Plans:
+**Wave 1**
 
 - [ ] 258-01-PLAN.md (wave 1) - GRAPH-WRITE-LOG convention + GraphWriteEvent ontology-gate registration (D-01, D-02, D-03)
 - [ ] 258-02-PLAN.md (wave 1) - RECON-01 attribution: provenance probes, forward census baseline, two-target write-up (08-11/12 wave + id 28000-29000 archived block)
 - [ ] 258-03-PLAN.md (wave 1) - RECON-03 operator prerequisite checklist + RECON-04 floor-baseline trigger, documented not executed (D-04, D-05, D-07)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 258-04-PLAN.md (wave 2) - RECON-02 pre-flight: live claimant label state, missing internal id resolution, LIVE/DORMANT rulings (F-12)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 258-05-PLAN.md (wave 3) - RECON-02 carded surgery payload, ten files, admin-window close as a numbered step (D-08, D-09, D-11)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 258-06-PLAN.md (wave 4) - The admin-window sitting: open, Session 0, dry-run, navigator approval, commit, close last (D-10, D-11)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 258-07-PLAN.md (wave 5) - Post-window verification and records: GRAPH-WRITE-LOG entry 1, execution record, SCHEMA.md ledger EXECUTED
 
 ### Phase 259: Plugin-Side Gate Trust (parallel-safe, early)
@@ -219,7 +231,9 @@ noop branch), reports applied/skipped per prop. FIX-02: the dedup path cannot mi
 `ALIAS_OF` self-loops -- statement-level `id(a) <> id(canon)` guard; the 42214 minting path
 reproduced as an RCA fixture then killed (red-proof). FIX-03: `normalizeName`'s direct-match
 branch is alias-aware, gated by a before/after matrix across all four name-matching readers
+
 + the dedup write-path consumer; its own plan and commit inside the batched push (matrix
+
 attributability, per SUMMARY.md). FIX-04: all fixes ship in ONE batched push, live
 round-trip verified on the deployed surface, push freeze declared before the ceremony
 window opens.
@@ -288,7 +302,9 @@ Plans:
 
 **Goal:** TAIL-01: a demand-ranked long-tail worklist reader over the existing ENRICH-01
 queue (hit_count DESC, SOURCE/NO SOURCE join per row), no bulk authoring -- honest refusal
+
 + auto-queue stays the designed behavior for the unranked tail. SEED-A: the framework
+
 UN-WIRED gate re-sourced from the live `:Framework` population, post-hygiene -- this is a
 direct input into Phase 254's consumption-wiring work. SEED-B: grading/contradiction paths
 check a framework's grounding (readiness) before contradicting content against it
