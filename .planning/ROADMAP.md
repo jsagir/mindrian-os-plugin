@@ -182,11 +182,17 @@ after it -- both are early tracks per SUMMARY.md's ordering rationale)
 **Avoids (per research):** payload authoring against stale floor scores; unattributed writes
 **Research flag:** second-machine state is unverifiable from this filesystem, operator-
 dependent, plan for both outcomes.
-**Plans:** 0 plans
+**Plans:** 7 plans in 5 waves
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 258 to break down)
+- [ ] 258-01-PLAN.md (wave 1) - GRAPH-WRITE-LOG convention + GraphWriteEvent ontology-gate registration (D-01, D-02, D-03)
+- [ ] 258-02-PLAN.md (wave 1) - RECON-01 attribution: provenance probes, forward census baseline, two-target write-up (08-11/12 wave + id 28000-29000 archived block)
+- [ ] 258-03-PLAN.md (wave 1) - RECON-03 operator prerequisite checklist + RECON-04 floor-baseline trigger, documented not executed (D-04, D-05, D-07)
+- [ ] 258-04-PLAN.md (wave 2) - RECON-02 pre-flight: live claimant label state, missing internal id resolution, LIVE/DORMANT rulings (F-12)
+- [ ] 258-05-PLAN.md (wave 3) - RECON-02 carded surgery payload, ten files, admin-window close as a numbered step (D-08, D-09, D-11)
+- [ ] 258-06-PLAN.md (wave 4) - The admin-window sitting: open, Session 0, dry-run, navigator approval, commit, close last (D-10, D-11)
+- [ ] 258-07-PLAN.md (wave 5) - Post-window verification and records: GRAPH-WRITE-LOG entry 1, execution record, SCHEMA.md ledger EXECUTED
 
 ### Phase 259: Plugin-Side Gate Trust (parallel-safe, early)
 
