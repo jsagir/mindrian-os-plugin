@@ -3378,6 +3378,29 @@ Progress: [█████████░] 92%
   - Four open navigator rulings, not silently resolved, recorded per-phase in ROADMAP.md: the
     server-side composition approval, the Gate 0 relabel triage list, the local-vs-Brain
     conflict merge rule, and whether this stays inside v2.1.0 (answered) vs a successor.
+- Phase 257 added (2026-08-20) by a parallel session: Part 8 enforcement locus
+  (host-independent egress guard), sourced from `docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md`.
+  Depends on Phase 254; not created by this session, left untouched during the same-day
+  reconciliation below.
+- Phases 253 and 256 RETIRED same-day (2026-08-20), superseded by Phases 258-263. Spec-phase's
+  own mandatory codebase-scouting step (reading REQUIREMENTS.md before questioning) surfaced
+  what this session's archaeology fork had missed: `.planning/REQUIREMENTS.md` +
+  `.planning/research/SUMMARY.md` (2026-08-13, HIGH confidence, 4-leg Fable research) already
+  scope v2.1.0's framework-integrity work in far more precise detail than the fresh Phase 253
+  draft (named files, specific node IDs, a full admin-ceremony protocol) -- and a live Brain
+  query taken mid-scout showed 186 `:Framework` nodes already (55/238 demoted nodes already
+  restored), evidence of over a week of real progress neither the stale 2026-05-10 debug doc
+  nor this session's own research had accounted for. Rather than write a SPEC.md duplicating
+  existing, more precise scope, retired 253/256 in place (honest paper trail, not deleted) and
+  filed Phases 258-263 as SUMMARY.md's own proposed 6-phase structure, unmodified: 258 Reconcile
+  the Wave, 259 Plugin-Side Gate Trust (both depend on 252, parallel-safe with each other), 260
+  Pipeline Fixes (depends on both 258+259), 261 Enrichment Ceremony (depends on 260, absorbs the
+  25-edge/dedup/SAPPhIRE-TRIZ findings from retired 256), 262 Floor Green + SWEEP-02 Inversion
+  (depends on 261), 263 Carry-folds + Long-Tail Reader (depends on 262). Phases 254 and 255
+  re-gated from the retired 253 onto Phase 262 (the real exit gate they actually need clean
+  before reading the Framework population). Confirmed with `gsd-tools init phase-op` before AND
+  after: phase_found:false on "253"/"v2.1.0" caught the original ROADMAP/STATE drift; phase_found
+  now correctly resolves for 253 (retired stub, still a valid phase entry) after the fix.
 
 ### Decisions
 
