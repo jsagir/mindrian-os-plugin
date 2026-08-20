@@ -2,8 +2,8 @@
 phase: 258
 slug: reconcile-the-wave-hard-gates-all-writing-phases
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-20
 ---
 
@@ -77,11 +77,11 @@ created: 2026-08-20
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 120s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies -- confirmed by gsd-plan-checker across 258-01..07 (2026-08-20)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references -- the payload directory (plan 258-05), the probe script (258-02), `docs/GRAPH-WRITE-LOG.md` + its shape test (258-01), and the `schema-contract.test.mjs` extension (258-01) are each created inside the plan wave that needs them, test-first where applicable
+- [x] No watch-mode flags
+- [x] Feedback latency < 120s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-08-20 -- gsd-plan-checker VERIFICATION PASSED (no blockers; 2 non-blocking warnings, this sign-off resolves the nyquist_compliance warning)
