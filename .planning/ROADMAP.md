@@ -182,7 +182,7 @@ after it -- both are early tracks per SUMMARY.md's ordering rationale)
 **Avoids (per research):** payload authoring against stale floor scores; unattributed writes
 **Research flag:** second-machine state is unverifiable from this filesystem, operator-
 dependent, plan for both outcomes.
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 Plans:
 **Wave 1**
 
@@ -204,7 +204,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 258-07-PLAN.md (wave 5) - Post-window verification and records: GRAPH-WRITE-LOG entry 1, execution record, SCHEMA.md ledger EXECUTED
+- [x] 258-07-PLAN.md (wave 5) - Post-window verification and records: GRAPH-WRITE-LOG entry 1, execution record, SCHEMA.md ledger EXECUTED
 
 ### Phase 259: Plugin-Side Gate Trust (parallel-safe, early)
 

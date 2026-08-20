@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 258 plan 06 complete: RECON-02 executed on live canon, admin window closed via Render MCP, confirmed by live smoke-test. Next: 258-07 verification probes + GRAPH-WRITE-LOG row."
-last_updated: "2026-08-20T20:19:53.469Z"
-last_activity: 2026-08-20 - 258-06 RECON-02 admin sitting executed inline (gsd-executor subagent MCP-access bug worked around), both cards committed with measured counts, window closed and confirmed
+stopped_at: "Phase 258 COMPLETE (7/7 plans): RECON-01 and RECON-02 verified and recorded. Next: Phase 260 (Pipeline Fixes) -- check 260-RESEARCH.md's current state first, another session was actively editing it during this work."
+last_updated: "2026-08-20T20:28:06.541Z"
+last_activity: 2026-08-20 - 258-07 post-window verification independently re-run (all seven 91-verify.cypher statements), first GRAPH-WRITE-LOG row landed and shape-tested, manifest/SCHEMA flipped to EXECUTED, phase 258 now 7/7 complete
 progress:
   total_phases: 11
   completed_phases: 1
@@ -28,6 +28,39 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-20) -- PHASE 258 COMPLETE (7/7 plans) -- RECON-01 and RECON-02 verified, recorded, ledger live
+
+- **Position:** Phase 258 (Reconcile the Wave) is fully COMPLETE. `roadmap update-plan-progress 258`
+  confirms 7/7 plans with summaries, status Complete. **Phase 260 (Pipeline Fixes) is next.**
+
+- **258-07 (this session, immediately following 258-06):** independently re-ran all seven
+  `91-verify.cypher` statements post-window (not carried forward from 258-06's own numbers) --
+  `[91.1]` done-signal confirms parents=1 on both `Identify Reverse Salients` and `Generate
+  Innovation Opportunities`. `probe-framework-evals.mjs` green. Post-window census regenerated
+  and paired against its pre-window baseline; `UNKNOWN(GraphWriteEvent)` confirmed absent, proving
+  plan 258-01's `TIER3_LABELS` registration actually reached `CANONICAL_LABELS`. First
+  `docs/GRAPH-WRITE-LOG.md` row landed, `tests/graph-write-log-shape.test.mjs` now guards real data
+  (5/5). `manifest.json.compile_only` flipped false; `SCHEMA.md` section 7's Phase 258 row moved
+  QUEUED -> EXECUTED. Full honest deviation list (including two self-referential node-count
+  nuances and a disclosed, investigated `npm test` environmental gap -- 16/639 fail, all
+  pre-existing per this repo's own CLAUDE.md baseline, none touching this batch) is in the payload
+  README's execution record and in `258-07-SUMMARY.md`.
+
+- **Discovery worth carrying forward:** `ProblemsWorthSolving-Brain` auto-deploys its live
+  production service (`pws-brain-mcp`) on every commit to `main` (`autoDeploy: commit`). Any
+  future session doing live admin-window work in that repo should expect its OWN doc/record
+  pushes to trigger real redeploys mid-session, and should re-verify admin-window state with a
+  live tool-surface check after every push rather than trusting an earlier check to still hold.
+
+- **RECON-03 and RECON-04 remain `human_needed` per D-06** (unchanged, operator-only items):
+  see `docs/2026-08-20-CHECKLIST-recon03-operator-prerequisites.md` in the Brain repo.
+
+- **Handoff note for 260:** another Claude Code session was actively editing
+  `.planning/phases/260-pipeline-fixes-brain-repo-one-pass-one-push/260-RESEARCH.md` in this same
+  working tree during 258-06/258-07 (confirmed live, modified timestamp during this session's
+  work). Re-check its current state before starting 260 rather than trusting any snapshot from
+  this session.
 
 ## (2026-08-20) -- 258-06 COMPLETE -- RECON-02 executed on live canon, admin window closed and confirmed
 
