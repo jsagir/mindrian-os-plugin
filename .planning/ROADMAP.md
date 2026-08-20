@@ -251,12 +251,12 @@ trustworthy floor-check gate before shipping fixes against them)
 **Research flag:** the Fix 3 before/after matrix -- blast radius across all four
 name-matching readers + dedup consumer has never been analyzed (P7); this is the one
 sub-plan in the whole 258-263 set flagged as needing deeper research during planning.
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 Plans:
 **Wave 1** *(two parallel plans, zero files_modified overlap)*
 
 - [x] 260-01-PLAN.md (wave 1) - FIX-02: live self-loop RCA (measured 165, not the 41 the source comment claims) plus the statement-level `id(a) <> id(canon)` guard, hermetic RED proof, red-proof.sh registration
-- [ ] 260-02-PLAN.md (wave 1) - FIX-03 gate: name-matching-reader census from source, BEFORE corpus + proposed-query rehearsal, and an explicit CHANGE-260 / UNCHANGED-DELIBERATE / DEFERRED ruling per reader
+- [x] 260-02-PLAN.md (wave 1) - FIX-03 gate: name-matching-reader census from source, BEFORE corpus + proposed-query rehearsal, and an explicit CHANGE-260 / UNCHANGED-DELIBERATE / DEFERRED ruling per reader
 
 **Wave 2** *(two parallel plans; 260-03 blocked on 260-02, 260-04 blocked on 260-01 by dedup.mjs overlap)*
 
