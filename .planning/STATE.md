@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 259 (Plugin-Side Gate Trust) complete: TRUST-01 + TRUST-02 both shipped, RCA closed, A1 discharged (holds) via live floor-run checkpoint"
-last_updated: "2026-08-20T18:20:00.080Z"
-last_activity: 2026-08-19 - Completed quick task 260819-dmm (clean-tree drift class killed) - re-firing the release ceremony
+stopped_at: "Phase 258 plan 06 complete: RECON-02 executed on live canon, admin window closed via Render MCP, confirmed by live smoke-test. Next: 258-07 verification probes + GRAPH-WRITE-LOG row."
+last_updated: "2026-08-20T20:19:53.469Z"
+last_activity: 2026-08-20 - 258-06 RECON-02 admin sitting executed inline (gsd-executor subagent MCP-access bug worked around), both cards committed with measured counts, window closed and confirmed
 progress:
   total_phases: 11
   completed_phases: 1
@@ -28,6 +28,52 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-20) -- 258-06 COMPLETE -- RECON-02 executed on live canon, admin window closed and confirmed
+
+- **Position:** Phase 258 plan 06 (RECON-02 admin-window execution) is COMPLETE. `roadmap
+  update-plan-progress 258` confirms 6/7 plans with summaries. **258-07 is next**: verification
+  probes + the `docs/GRAPH-WRITE-LOG.md` row, deliberately left for that plan per 258-06's own
+  step 7 instruction.
+
+- **What executed:** both order-collision cards from plan 258-05's payload, committed to the live
+  Brain canon (`pws-brain-mcp.onrender.com`) under full carded discipline: task 1 re-verified
+  `brain_write` reachable for real (not trusted from the prior session's handoff); task 2 forced a
+  fresh durable checkpoint (Session 0 no-op) and dry-ran every statement against live canon with no
+  hard-stops; task 3 got explicit navigator approval on both cards plus the third-claimant/stale-
+  routing residue (confirmed leave-untouched, matching the default) and the GraphWriteEvent
+  classification (kept as ruled); task 4 committed both cards in order, measured the batch read-tier
+  (1 node, 2 edges) and used those MEASURED values (never the dry-run prediction) for the
+  GraphWriteEvent singleton, stamped GraphRagMeta, then closed the window as the last scripted
+  write item. `[91.1]` confirms both collision nodes now carry exactly 1 parent Framework each.
+
+- **Two environment issues worked around, both recorded honestly in `258-06-SUMMARY.md`:** (1) a
+  `gsd-executor` subagent dispatched for this plan got ZERO MCP tool access (upstream
+  `anthropics/claude-code#13898`) and correctly refused to fabricate progress -- re-executed inline
+  in the main session instead, which has full MCP access; (2) Claude Code's own auto-mode
+  classifier blocked the first real (`dryRun:false`) `brain_write` call independent of this plan's
+  own checkpoints -- surfaced to the navigator and approved per-write.
+
+- **Scope decision, navigator-approved:** closed the admin window via Render MCP
+  (`update_environment_variables`, merge-only, never touching the secret `BRAIN_HTTP_ADMIN_KEYS`)
+  instead of the plan's assumed manual-dashboard path, since this session had real access to the
+  exact service (`srv-d9gfa03tqb8s73csfmtg`). Confirmed closed by the plan's own required
+  smoke-test signal: `brain_write` returning `"Tool brain_write not found"`.
+
+- **Honest discrepancy on record, not silently corrected:** `GraphRagMeta.node_count_at_close`
+  stamped 29114 (measured immediately before its own MERGE created that singleton node); a
+  post-close count reads 29115. Explained in the README's Commit log section -- a property of the
+  plan's literal measurement ordering, not an error.
+
+- **manifest.json note:** `unresolved_residue.stage_third_claimant` and
+  `.generate_attacks_leads_to_needs_reruling` still read "ruling requested" -- left unedited per the
+  plan's own scope (amend only if the ruling differs from default; it doesn't). The README's new
+  `## Navigator approval` section is the authoritative formal record; flagged in both places so a
+  future reader isn't misled by the manifest text alone.
+
+- **Cross-repo note:** all of 258-06's commits (`d605018`, `6af7cee`, `b120424`) landed in
+  `ProblemsWorthSolving-Brain`, not this repo. Nothing in MindrianOS-Plugin changed except this
+  STATE.md entry, `258-06-SUMMARY.md`, and the ROADMAP.md progress line.
 
 ## (2026-08-20) -- PHASE 259 COMPLETE (all 4 plans) -- Plugin-Side Gate Trust: honest 429 handling + VOID-on-probe-failure, TRUST-01/TRUST-02 both shipped, A1 discharged live
 
@@ -4216,6 +4262,7 @@ Progress: [█████████░] 92%
 - 234-03 broke the skill-mirror contract: 110 of 111 mirrors diverge, verify-release's mirror gate fails, and running build-skill-mirrors.cjs in write mode silently reverts 234-03's migration. See 234 deferred-items.md D-1.
 - Phase 246-02 Task 3 checkpoint: Lane B admin-key operator step pending. Lane A (246-02 Task 1+2) committed at b7832dd0/f7176a7a. Resume: operator runs MINDRIAN_BRAIN_KEY=<admin key> node scripts/build-brain-census.cjs --lane-b in their own terminal, or supplies a local-twin results JSON path.
 - Phase 246 Plan 01 (LOOP-01): fresh-session three-call Brain test checkpoint OPEN. Preflight green (beta.13 cache, key resolves, Render healthy, 245 fence PASS=19). Operator must open a NEW Claude Code session and run the three plugin-scope Brain calls, then report verbatim results. See 246-01-SUMMARY.md.
+- 258-06 BLOCKED at task 1 re-verification: this executor subagent has ZERO MCP tool access (ToolSearch itself returns "disabled for this session, in subagents as well as here"; direct mcp__pws-brain-mcp__brain_write and mcp__context7__resolve-library-id calls both return "No such tool available"). Matches the documented upstream bug anthropics/claude-code#13898 (MCP tools stripped from agents with a tools: frontmatter restriction), but here it is session-wide, not just Context7. Independently re-verified the PAYLOAD CONTENT claim from the 2026-08-20 handoff (payloads/order-collision-dishare-2026-08-20/01-dishare-24219.cypher and manifest.json in ProblemsWorthSolving-Brain, read directly): confirmed correct, card 1 deletes Red Teaming's HAS_PROCESS_STEP edge outright and corrects node 24219's order 3 to 5 in place, matches the handoff's description exactly. Could NOT independently re-verify the brain_write tool-surface/dryRun claim (no tool access to check), and could not run task 2's dry-run recompile (no brain_write/brain_query access). Did not proceed to task 2, did not open or close the admin window, made zero graph calls, zero commits, zero file edits in either repo. RESOLUTION NEEDED: re-dispatch 258-06 from a session or agent context that retains MCP tool access (not a tools-restricted subagent), then re-run task 1's re-verification for real before task 2.
 
 ### Quick Tasks Completed
 
