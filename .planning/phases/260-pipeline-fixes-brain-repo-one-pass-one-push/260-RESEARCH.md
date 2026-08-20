@@ -78,8 +78,24 @@ WHERE c > 1
 RETURN count(key) AS clusters, sum(CASE WHEN fw = 0 THEN 1 ELSE 0 END) AS no_framework_copy;
 ```
 
+## Live update (same day, from a session working directly in the ProblemsWorthSolving-Brain repo)
+
+A live re-derivation (case-insensitive check of all 186 `:Framework` nodes against every other node, keeping only pairs with no existing `ALIAS_OF` edge in either direction) **corrects this document's "11 unaliased split clusters" figure to 18.** 16 are resolved in a drafted (not executed, not committed) payload: `payloads/relabel-fix-260820/` in the Brain repo (`90-dry-run.cypher`, `01-demote-poverty.cypher`, `02-alias-unaliased-clusters.cypher`, `91-verify.cypher`, `99-undo.cypher`, batch id `pws-relabelfix-2026-08-20`). Follows the repo's live payload convention (`payloads/chunk-document-repair` etc.), not the older `scripts/migrations/*.mjs` pattern (targets a retired Neo4j HTTP endpoint per the Brain repo's own CLAUDE.md).
+
+**2 residue clusters need a human survivor rule before this phase's alias work touches them:**
+- **"Jobs To Be Done"** (id 45915, `[Concept, Tool]`) -- 6 candidate Framework-labeled JTBD variants already exist (32292, 28579, 31103, 18102, 34335, 26521). Picking one without a stated rule relocates the JTBD-x5 duplication problem `scripts/migrations/03-fix-framework-gaps.mjs` already flagged once.
+- **"The Pyramid Principle"** (id 39014, `[Book]`) -- an entity-type mismatch, not a duplicate: a book/citation node, not a second copy of the framework concept. Recommended: a `DESCRIBES` or `SOURCE_FOR` edge instead of `ALIAS_OF` -- flagged as a schema call this payload does not make unilaterally.
+
+Also confirms **item 5 of the v4 Gate-0 handoff** ("poverty," id 27031): CONFIRMED demote, don't alias -- it already carries an `ALIAS_OF` edge to id 37406 (`alias_backfilled_at: 2026-08-18`, mechanism `case-variant-w2a`). The payload's `01-demote-poverty.cypher` implements exactly this.
+
+**11 vs 18, resolved: not a contradiction, two different units of counting -- name the one this phase actually needs.** The diagnostic's original 11 counts at the CLUSTER level: a cluster only counts as "unaliased" if NO member carries any `ALIAS_OF` edge to anyone. The corrected 18 counts at the PAIR level: whether the specific `:Framework` node and its specific same-name twin are linked to EACH OTHER. Example -- "Root Cause Analysis" has 3 nodes: 27593 (`:Framework`), 37820 (`Product`, aliased TO 27593), 46909 (`Concept`, aliased to nothing). The cluster-level count sees one aliased member, calls the whole cluster "partially aliased," and drops it from the 11. The pair-level count sees 46909 specifically unlinked and keeps it in the 18. **For THIS phase's actual work (minting the missing links), the 18 is the right number** -- it is "which specific node still needs a link," not "which cluster needs someone's glance." The 11 is closer to a triage metric (how many clusters need attention at all) than a work list. FIX-02/FIX-03's task breakdown and the drafted payload's edge count should be sized off 18, not 11.
+
+**New hard precondition on the drafted payload, not just a nice-to-have:** the payload mints 16 new `ALIAS_OF` edges and has NOT yet been checked against FIX-02's self-loop fixture (the `id(a) <> id(canon)` guard that prevents a second 42214). This is now a blocking precondition before `02-alias-unaliased-clusters.cypher` runs, not something resolved by team sign-off alone -- flagged directly in the payload's own manifest by the session that drafted it.
+
+**Root-cause hunt for the 28000-29000 archived batch (258 RECON-01's task, cross-linked here since this phase inherits the same block via alias/relabel work): confirmed DEAD END.** Both locally-available Brain repo histories checked (`ProblemsWorthSolving-Brain`, earliest commit 2026-07-22; `mindrian-brain-local`, earliest commit 2026-07-16) -- neither reaches back to 2026-02-05. Not a committed migration script in either repo on this machine. If a record exists, it's in an Aura console audit log or a pre-repo environment.
+
 ## Open questions for the planner
 
 1. Does the FIX-03 matrix cover the no-canonical-copy case (772 of 823 clusters), or only the split case (51)?
-2. Are the 11 unaliased split clusters FIX-02's verification set, or separate work with its own owner?
+2. RESOLVED: the 18 (pair-level unlinked nodes) is FIX-02's verification set, not the original 11 (cluster-level, a different unit of counting -- see the live-update section above for why they're not a contradiction). 16 of the 18 already have a drafted resolution, gated on the self-loop-fixture precondition above; the 2 residue items need an explicit survivor rule first.
 3. Does any reader intentionally NOT traverse `ALIAS_OF`, and if so, is that recorded as a decision or is it incidental?
