@@ -3352,6 +3352,32 @@ Progress: [█████████░] 92%
 
 - Phase 127.2 inserted after Phase 127: Brain warmup ping -- hide MCP cold-start latency inside Larry's first-question render window (sibling to Phase 127 stdio shim, v1.13.1-beta.2 own gate) (URGENT)
 - Phase 143.1 inserted after Phase 143: Dial-TUI Capability Selector split out of Phase 143 (sensors vs render surface); UI-SPEC approved CLI-first (URGENT)
+- Phases 253-256 added (2026-08-20), the first phases of v2.1.0 "Green the Floor" (ROADMAP.md's
+  own header was stale -- still said "between milestones, next not defined" despite STATE.md's
+  frontmatter already naming v2.1.0; fixed same edit). Source: a live Larry conversation session
+  that independently rediscovered SEED-045's open item 1 via a 92-command Command-Framework Map
+  audit (https://claude.ai/code/artifact/ae659925-4441-4f04-982c-22b6d0843e28), then researched
+  via three parallel forks (Fable architecture brief, phase/seed archaeology, langtalks-graph-
+  expert counsel) before filing. REUSE-CHECK: archaeology confirmed Canon Part 3 (Tri-Context
+  Decision Gate) already constitutionally defines the loop being asked for, and 85 percent of the
+  routing substrate (SEED-043's 103-Command Brain graph, Phase 157's orchestration projection)
+  already ships -- this is completion, not new invention. Full research trail:
+  `.planning/2026-08-20-FINDINGS-complete-system-loop.md` + BRIEF/ARCHAEOLOGY/LANGTALKS-COUNSEL
+  companions in the same directory. Navigator confirmed placement inside the current milestone
+  directly ("it's part of the current milestone... not a new one") after an initial phase_found:
+  false check correctly caught that no v2.1.0 phases existed in ROADMAP.md yet despite the
+  STATE.md label.
+  - Phase 253: Framework population integrity (Gate 0) -- blocks 254/255/256, repo:
+    ProblemsWorthSolving-Brain.
+  - Phase 254: Orchestration projection consumption wiring (suggest-next/act + server-side
+    composition ruling) -- depends on 253, repo: MindrianOS-Plugin.
+  - Phase 255: Data Room section-affinity ranking (canonical taxonomy already shipped in
+    lib/core/section-registry.cjs) -- depends on 253, parallel with 254, both repos.
+  - Phase 256: Framework graph correction pass (25 edges, entity dedup, SAPPhIRE/TRIZ) --
+    depends on 253, repo: ProblemsWorthSolving-Brain.
+  - Four open navigator rulings, not silently resolved, recorded per-phase in ROADMAP.md: the
+    server-side composition approval, the Gate 0 relabel triage list, the local-vs-Brain
+    conflict merge rule, and whether this stays inside v2.1.0 (answered) vs a successor.
 
 ### Decisions
 
