@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 260-02-PLAN.md
-last_updated: "2026-08-20T21:51:29.009Z"
+stopped_at: Completed 260-03-PLAN.md (FIX-03 normalizeName alias-aware fix, deploy beacon, matrix AFTER leg) -- 3 commits local unpushed in ProblemsWorthSolving-Brain, per PUSH FREEZE
+last_updated: "2026-08-20T22:10:28.286Z"
 last_activity: 2026-08-19 - Completed quick task 260819-dmm (clean-tree drift class killed) - re-firing the release ceremony
 progress:
   total_phases: 11
   completed_phases: 2
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 14
   percent: 18
 ---
 
@@ -3003,6 +3003,7 @@ Progress: [█████████░] 92%
 | Phase 259 P04 | 55min | 3 tasks | 3 files |
 | Phase 260 P01 | 55min | 3 tasks | 5 files |
 | Phase 260 P02 | 45min | 3 tasks | 2 files |
+| Phase 260 P03 | 40min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -4278,6 +4279,8 @@ Progress: [█████████░] 92%
 - [Phase 260]: Followed plan 260-01's PUSH FREEZE literally over the outer task's generic push-after-commit instruction; commits stay local in ProblemsWorthSolving-Brain for 260-05's batched push (FIX-04).
 - [Phase 260]: Followed plan 260-02's PUSH FREEZE literally over the outer task's generic push-after-commit instruction, matching 260-01's precedent in the same wave; all three task commits stay local in ProblemsWorthSolving-Brain for 260-05's batched push (FIX-04).
 - [Phase 260]: 260-02 built docs/2026-08-20-MATRIX-name-matching-readers.md (FIX-03 gate): 23 name-matching readers censused, 2 ruled CHANGE-260 (normalizeName direct+alias branches), 21 UNCHANGED-DELIBERATE, hop-depth held at 1 with a 2-hop extension named DEFERRED-CER-05. Plan 260-03 is authorised to touch ONLY src/arm1-orchestrator.mjs lines 67-68.
+- [Phase 260]: FIX-03 normalizeName alias-aware fix landed (260-03): direct branch excludes self-aliases via exists(), alias branch source untyped; cross-branch dedup via reduce (not the matrix's UNWIND rehearsal) to preserve the zero-match single-row contract -- documented departure from matrix mechanism wording, within matrix's authorised scope.
+- [Phase 260]: 260-03 found and fixed a Rule-1 bug in probe-name-matching-readers.mjs's --after write path (was deleting matrix sections 8-10 on every run); fixed before any broken state was committed.
 
 ### Pending Todos
 
@@ -4386,8 +4389,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-20T21:51:28.954Z
-Stopped at: Completed 260-02-PLAN.md
+Last session: 2026-08-20T22:10:28.226Z
+Stopped at: Completed 260-03-PLAN.md (FIX-03 normalizeName alias-aware fix, deploy beacon, matrix AFTER leg) -- 3 commits local unpushed in ProblemsWorthSolving-Brain, per PUSH FREEZE
 
 **260820-recon (this session, retroactive registration per precedent 260819-ws-adf):** a second Claude Code session (Windows, `jsagi-4e`) is running in parallel on this SAME checkout (`fix/part8-guard-in-mcp-handlers`, shared working tree, not a separate worktree -- confirmed via `git worktree list` and cross-session message). Reconciliation this session: verified `7d6c188b` ("research(260,261) + seed(079): feed the Gate 0 diagnostic into the planning lane") is an ancestor of HEAD via `git merge-base --is-ancestor`, confirmed on this branch only via `git branch --all --contains`, zero divergence. Read the other session's `.planning/debug/brain-gate0-diagnostic-260820.md`, `SEED-079`, `260-RESEARCH.md`, `261-RESEARCH.md` in full. Found this session's own in-flight Phase 258 plan-phase run (`a8cf24e78cf918903`) had produced a 96KB `258-RESEARCH.md` with ZERO references to the archived-batch finding (95 of 100 demoted `:Framework` nodes in contiguous id block 28000-29000, the concrete RECON-01 target) -- injected the three files via cross-session `SendMessage` to the running agent before `PLAN.md` locks, since 258's `CONTEXT.md` predates the diagnostic and never listed it as a canonical ref. Two DIRECT (non-GSD-workflow) edits made outside any `/gsd-*` command, both docs-only, zero code/test impact, made under time pressure to keep the outbound Brain-team handoff accurate while a live cross-session reconciliation was in progress: (1) added a "Status update" blockquote to the tracked `docs/2026-08-20-HANDOFF-brain-devs-gate0-diagnostic.md` (the other session's v4 handoff, committed so it crosses machines, unlike `.planning/`) noting the injection above closes the "nothing auto-feeds this to the planner" gap the doc itself flagged; (2) this STATE.md entry. Also drafted (NOT sent) a short Gmail follow-up in the same thread as the v4 handoff (`create_draft` with `replyToMessageId`) carrying the same update, leaving the carefully-authored v4 body untouched. Confirmed the repo's `_models_note` in `.planning/config.json` (fable for planning/discuss/research, sonnet for execution/verification/completion) is a deliberate 2026-08-10 navigator directive amending the 2026-07-25 never-use-fable rule for this repo's GSD agents only -- checked, not a violation, no action taken. One incidental side effect: an exploratory `gsd-tools state record-session` call with no args (checking usage) bumped `last_updated`/`Last session` timestamps with no content loss, confirmed via `git diff`.
 
