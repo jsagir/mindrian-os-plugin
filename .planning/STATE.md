@@ -3,16 +3,24 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 09 COMPLETE: archived-block Gate 0 relabel review authored -- 100-row human review list (71 INCLUDE / 29 EXCLUDE: 5 out-of-scope, 20 live name-collision, 4 CARD REQUIRED), THE SAFETY CHECK live-reproved against canon (found 20 :Framework collisions, ~4x the plan's own ~5 named examples), guarded UNWIND relabel payload with dry-run/verify/undo, batch_id pws-blockrelabel-2026-08-21, separate from 261-10's edge authoring per the expectation-reset ruling -- 2 commits local to ProblemsWorthSolving-Brain (6ec1acf review list, 430d436 payload directory), unpushed per the standing freeze. CER-05 requirement mismatch flagged, not marked complete (this plan's frontmatter names CER-05 but REQUIREMENTS.md's CER-05 is the self-loop DELETE, plan 261-08's scope, not this plan's). Next: 261-10."
-last_updated: "2026-08-21T09:04:13.000Z"
-last_activity: "2026-08-21 - 261-09 complete: archived-block relabel review authored at the corrected 71-row INCLUDE scope (not a naive ~95, since 20 candidates would have created a second live :Framework match and 5 fall outside the declared id range), the plan's own name-collision safety rule re-proved live against canon rather than trusted from the document, TRIZ closed as one ordinary row per the Phase-256 correction plus a new live TRIZ-Concept-node finding, two data-quality findings (<SEP>-corrupted name property, pre-existing label chimeras) disclosed without changing any verdict, guarded relabel payload authored with its own batch_id/dry-run/verify/undo, never executed against canon"
+stopped_at: "Phase 261 Plan 10 COMPLETE: command-framework USES_FRAMEWORK edge derivation authored -- scripts/derive-command-framework-edges.mjs reuses the plugin's shipped scanMethodologyCommands() via an absolute-path CJS-to-ESM bridge, adds a cross-validated per-command attribution walk (the shipped function only aggregates), and resolves against live canon with 3 batched read-tier queries. Live run: 50 kind:methodology commands, 51 declared pairs, AUTHORABLE=0 (50 already carry an unstamped USES_FRAMEWORK edge, 1 -- PEST Analysis -- has no live :Framework node), UNRESOLVABLE=1. Finding: neither this batch nor 261-09's relabel moves the 59/112 zero-framework-command metric the worklist named edge authoring as the sole lever for -- recorded honestly, not papered over. Guarded compile_only payload directory authored (batch_id pws-cmdfwedges-2026-08-21), never executed -- 2 commits local to ProblemsWorthSolving-Brain (3899760 derivation, 19f67f5 payload directory), unpushed per the standing freeze. Same CER-05 frontmatter/REQUIREMENTS.md mismatch plan 261-09 flagged applies here too (this plan's frontmatter names CER-05, REQUIREMENTS.md's CER-05 is 261-08's self-loop DELETE) -- not marked complete. Next: 261-11."
+last_updated: "2026-08-21T09:23:21.000Z"
+last_activity: "2026-08-21 - 261-10 complete: frontmatter-sourced USES_FRAMEWORK derivation script and guarded edge-merge payload authored, live AUTHORABLE=0 (50/51 declared pairs already carry an unstamped edge, 1 unresolvable -- PEST Analysis, no live :Framework node), the roadmap's unreachable 25-edge claim superseded by this live measurement rather than reconciled, honest finding that this batch does not move the zero-framework-command metric recorded in both the derivation doc and the payload README rather than implied fixed"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 25
-  percent: 86
+  completed_plans: 26
+  percent: 90
 ---
+
+<!-- NOTE (261-10 executor, 2026-08-21T09:23Z): frontmatter above updated by hand, not via
+     `gsd-tools query state.*`, per this plan's own explicit instruction (the documented
+     resync-clobber bug the notes below already describe). completed_plans bumped 25->26,
+     percent recomputed 26/29=90 (89.66 rounded), stopped_at/last_activity/last_updated
+     rewritten to describe 261-10's completion. Found on disk with a correct, non-corrupted
+     261-09 frontmatter state before this edit, so no restoration was needed this time --
+     only the forward advance. -->
 
 <!-- NOTE (261-09 executor, 2026-08-21T09:04Z): frontmatter above updated by hand, not via
      `gsd-tools query state.*`, per this plan's own explicit instruction (the documented
@@ -75,6 +83,68 @@ progress:
      lagged). Not this plan's own regression. -->
 
 # Project State
+
+## (2026-08-21) -- 261-10 COMPLETE -- USES_FRAMEWORK edge derivation authored, live AUTHORABLE=0
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 10 is COMPLETE (10/13 plans). **261-11 is
+  next.**
+
+- **What executed:** Task 1 built `scripts/derive-command-framework-edges.mjs`
+  (`ProblemsWorthSolving-Brain`): a re-runnable, read-tier derivation of the missing
+  `USES_FRAMEWORK` edge list from command frontmatter (a TRACKED source), not from the roadmap's
+  retired Phase 256 entry, which cites an unreachable `claude.ai` artifact URL with no on-disk
+  copy anywhere. The script reuses the plugin's shipped `scanMethodologyCommands()` via an
+  absolute-path `require()` bridge (CJS repo into this ESM script) and adds a minimal,
+  byte-identical-regex per-command attribution walk (the shipped function only aggregates to
+  framework-name-to-use-count, discarding which command declared which framework), cross-validated
+  against the shipped function's own totals on every run (VOID/exit 3 on any mismatch, TRUST-02).
+  Resolves against live canon via 3 batched read-tier queries (not one per pair), reusing the
+  imported `probe-wave-attribution.mjs` transport, no second HTTP client.
+
+- **Live finding:** 50 `kind: methodology` commands, 28 distinct declared frameworks, 51 total
+  declared pairs. **AUTHORABLE: 0. ALREADY PRESENT: 50. UNRESOLVABLE: 1** (`PEST Analysis`, no
+  live `:Framework` node -- matches the worklist's independently-measured CER-04 row exactly).
+  The graph already silently holds 50 of the 51 frontmatter-declared edges (unstamped, `batch_id`
+  null, predating this repo's provenance convention). Task 1 also wrote `00-derivation.md`: the
+  roadmap's unreachable 25-edge claim named and contrasted against the derived 0, the 50
+  already-present pairs listed in full, the one unresolvable row with its reason, the metric
+  projection (86 total edges / 59 zero-framework commands, both unchanged), and the three-reason
+  exclusion of `payloads/framework-command-map-2026-08-18/`.
+
+- Task 2 authored the six remaining payload files at `payloads/command-framework-edges-2026-08-21/`
+  (`ProblemsWorthSolving-Brain`), `batch_id` `pws-cmdfwedges-2026-08-21`, all compile-only, never
+  executed: the merge statement double-binds both endpoints by internal id AND name (guarding
+  against the exact unbounded-`MATCH` fan-out class `docs/2026-08-20-RCA-alias-self-loop-
+  minting.md` documents) and requires `f:Framework`; the dry-run/verify pair carries the required
+  before-numbers and two negative controls; the undo is a clean full revert (every edge this
+  batch could ever write is brand new); the `README.md` states plainly that this batch, like
+  261-09's relabel, does not move the phase's own target metric.
+
+- **Honest finding, stated loudly because it changes what this phase can claim:** neither this
+  batch nor plan 261-09's archived-block relabel moves the 59/112 zero-framework-command metric
+  the worklist's own Section 9 named edge authoring as the sole remaining lever for. Recorded in
+  both `00-derivation.md` and the payload `README.md`, not papered over with a manufactured edge
+  list.
+
+- **Deviations (2, both Rule 1/3 auto-fixed, not architectural):** (1) the plan's action text
+  assumed `scanMethodologyCommands()` returns per-command frontmatter data; it actually returns
+  an aggregate only, bridged with a cross-validated per-command walk. (2) the imported `q()`
+  transport has no `params` argument; added a thin `qp()` wrapper around the same imported
+  `call()`, no second HTTP client. Both documented in `261-10-SUMMARY.md`.
+
+- **CER-05 mismatch, same class 261-09 already flagged:** this plan's own frontmatter names
+  `requirements: [CER-05]`, but `.planning/REQUIREMENTS.md`'s CER-05 is the self-loop DELETE
+  (plan 261-08's scope, still unchecked pending execution). `requirements-completed` left empty
+  in the summary rather than incorrectly checking off CER-05.
+
+- **Commits:** 2 in `ProblemsWorthSolving-Brain` (`3899760` derivation script + derivation doc,
+  `19f67f5` payload directory), local only, unpushed per the standing freeze
+  (`docs/2026-08-20-FREEZE-push-freeze-before-261.md`). Confirmed: `git log HEAD..origin/main`
+  empty (Brain repo not behind), `git log origin/main..HEAD` shows both commits (ahead, unpushed).
+
+- **Next:** Plan 261-11.
+
+---
 
 ## (2026-08-21) -- 261-09 COMPLETE -- archived-block Gate 0 relabel review authored, 71/100 INCLUDE
 
