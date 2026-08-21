@@ -328,7 +328,7 @@ Plans:
 
 **Wave 1** *(read-tier only, no window)*
 
-- [ ] 261-01-PLAN.md (wave 1) - live worklist: replaces three superseded baselines, names every CER row set, audits the 5 already-authored unexecuted payloads for reuse, attributes the 2026-08-20 heal run, and resolves its "all 184 frameworks to 4/4" claim against the live distribution
+- [x] 261-01-PLAN.md (wave 1) - live worklist: replaces three superseded baselines, names every CER row set, audits the 5 already-authored unexecuted payloads for reuse, attributes the 2026-08-20 heal run, and resolves its "all 184 frameworks to 4/4" claim against the live distribution. **DONE 2026-08-21** (`261-01-SUMMARY.md`): 11/28 PASS the two-part floor rule (not 12 by readiness alone -- Scenario Planning's 2-match FLOOR-03 disagreement now scored MISS), 19 Tier A candidates confirmed, 4/5 `aa15966` payloads found to have dropped `pattern_type` live (confirms FIX-01's need), 3 Cohort rows (Lean Canvas, Six Thinking Hats, PWS Value Proposition) dropped to PASS by live measurement. `ProblemsWorthSolving-Brain`: `d943167`, `8d520b0` (local, unpushed per freeze).
 
 **Wave 2** *(nine parallel authoring plans, zero `files_modified` overlap, all local-commit-no-push)*
 

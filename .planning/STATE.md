@@ -3,16 +3,25 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 260 COMPLETE (5/5 plans): FIX-01/02/03/04 all deployed and verified live on pws-brain-mcp.onrender.com, pushed 6cd8acc + 60e970c. Push freeze now in force until Phase 261's admin window closes. Next: Phase 261 (Enrichment Ceremony) -- surface the Four Lenses navigator ruling before its plan locks."
-last_updated: "2026-08-21T05:26:28.669Z"
-last_activity: 2026-08-21 - 260-05 batched push executed: navigator-approved, deploy proof 93s/4 attempts, all 7 FRAGMENTS round-tripped live with exact agreement, FIX-02's early individual deploy recorded honestly (not reverted)
+stopped_at: "Phase 261 Plan 01 COMPLETE: live ceremony worklist measured and committed to ProblemsWorthSolving-Brain (d943167 probe, 8d520b0 worklist doc), both local/unpushed per the standing freeze. Next: 261-02 (CER-01 Tier A)."
+last_updated: "2026-08-21T06:45:00.000Z"
+last_activity: 2026-08-21 - 261-01 complete: probe-ceremony-worklist.mjs + 2026-08-21-WORKLIST-261-ceremony.md measured live, replacing the 2026-08-13 baseline; found 4/5 aa15966 payloads dropped pattern_type on ingest (confirms FIX-01's need)
 progress:
   total_phases: 11
-  completed_phases: 2
-  total_plans: 16
-  completed_plans: 15
-  percent: 18
+  completed_phases: 3
+  total_plans: 29
+  completed_plans: 17
+  percent: 59
 ---
+<!-- NOTE (261-01 executor, 2026-08-21T06:45Z): the stopped_at/last_activity/percent fields
+     above were found corrupted on disk moments before this edit -- a concurrent session's
+     `gsd-tools query state.*` call regressed them to a stale 260-04-era snapshot (percent:27
+     mismatched its own sibling total_plans:29/completed_plans:17=59%), the exact known
+     resync-clobber bug in .planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md.
+     Restored here by hand per that doc's own recommended workaround; total_plans/completed_phases
+     left as the concurrent session's disk-scanned values (self-consistent, just the percent
+     lagged). Not this plan's own regression. -->
+
 
 # Project State
 
@@ -28,6 +37,55 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-21) -- 261-01 COMPLETE -- ceremony worklist measured live, replaces the 2026-08-13 baseline
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 01 is COMPLETE (1/13 plans). **261-02 (CER-01
+  Tier A) is next.**
+
+- **What executed:** built and ran `scripts/probe-ceremony-worklist.mjs` in
+  `ProblemsWorthSolving-Brain` (read-tier, zero writes, imports transport from
+  `probe-wave-attribution.mjs`, mirrors `orchestrationReadiness` byte-for-byte), then wrote
+  `docs/2026-08-21-WORKLIST-261-ceremony.md`, the single measured worklist every downstream
+  Phase 261 plan reads. Both committed locally in the Brain repo (`d943167`, `8d520b0`), NOT
+  pushed, per the standing freeze. Live numbers cross-check exactly against the planner's own
+  independent 2026-08-21 measurement in `261-01-PLAN.md`'s objective.
+
+- **Headline finding:** the ratified-28 floor gate (resolver-matches-exactly-1 AND readiness>=3)
+  measures **11 PASS / 17 MISS** live, not the 2026-08-13 kickoff's 8/28 nor the planner's
+  readiness-only reading of 12 -- `Scenario Planning` measures 3/4 readiness but 2 resolver
+  matches (the FLOOR-03 class), so it scores MISS under the actual gate rule.
+
+- **Reuse audit found a real live defect, not a hypothesis:** 4 of the 5 flagship payloads
+  landed in commit `aa15966` (`jobs-to-be-done.mjs`, `lean-canvas.mjs`, `minto-pyramid.mjs`,
+  `mullins-seven-domains.mjs`) already executed against canon with `pattern_type` silently
+  dropped on ingest, landing one readiness dimension short of their own documented expected
+  outcome -- confirming the FIX-01 prop-drop class (phase 260-04) with fresh live evidence.
+  `mullins-seven-domains.mjs`'s target still MISSes at 2/4 and needs a re-run now that FIX-01
+  has landed; `minto-pyramid.mjs`'s target (id 38968) is the same node
+  `payloads/relabel-fix-260820/manifest.json`'s `contested_survivor_picks` already flags as
+  disputed.
+
+- **Three frameworks dropped from Cohort 1/2 scope by live measurement:** Lean Canvas, Six
+  Thinking Hats, PWS Value Proposition all now PASS (were 0/4, 1/4, 0/4 at the 2026-08-13
+  baseline). The PWS Value Proposition write is genuinely UNATTRIBUTED -- no local payload file
+  or known write wave accounts for it, recorded as such rather than guessed at.
+
+- **Deviation, auto-fixed (Rule 1):** the probe's `[W-6]` archived-block aggregate used the exact
+  combined-query Cypher from `261-RESEARCH.md`'s Reproduce section at first, which reproducibly
+  returned a corrupted value under a garbled key once the probe had issued ~15+ prior queries in
+  the same session -- a live server-side cache-collision bug, not a probe bug (confirmed via an
+  isolated debug script). Worked around with four split single-purpose queries instead; the
+  100/99/95 figures now match `261-RESEARCH.md` exactly. Not root-caused server-side (out of
+  this read-only plan's scope); flagged in both the probe script and the worklist document.
+
+- **STATE.md frontmatter note:** found `stopped_at`/`last_activity`/`progress.percent`
+  corrupted on disk moments before this entry was written -- a concurrent session's
+  `gsd-tools query state.*` call regressed them to a stale snapshot (the exact known bug in
+  `.planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md`), independently
+  reproduced live tonight, not caused by this plan. Restored by hand per that doc's own
+  recommended workaround; see the HTML comment directly below the frontmatter block for the
+  full account.
 
 ## (2026-08-21) -- PHASE 260 COMPLETE (5/5 plans) -- FIX-01/02/03/04 deployed, verified, push freeze active
 
