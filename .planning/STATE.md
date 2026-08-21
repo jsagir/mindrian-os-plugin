@@ -3,16 +3,24 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 10 COMPLETE: command-framework USES_FRAMEWORK edge derivation authored -- scripts/derive-command-framework-edges.mjs reuses the plugin's shipped scanMethodologyCommands() via an absolute-path CJS-to-ESM bridge, adds a cross-validated per-command attribution walk (the shipped function only aggregates), and resolves against live canon with 3 batched read-tier queries. Live run: 50 kind:methodology commands, 51 declared pairs, AUTHORABLE=0 (50 already carry an unstamped USES_FRAMEWORK edge, 1 -- PEST Analysis -- has no live :Framework node), UNRESOLVABLE=1. Finding: neither this batch nor 261-09's relabel moves the 59/112 zero-framework-command metric the worklist named edge authoring as the sole lever for -- recorded honestly, not papered over. Guarded compile_only payload directory authored (batch_id pws-cmdfwedges-2026-08-21), never executed -- 2 commits local to ProblemsWorthSolving-Brain (3899760 derivation, 19f67f5 payload directory), unpushed per the standing freeze. Same CER-05 frontmatter/REQUIREMENTS.md mismatch plan 261-09 flagged applies here too (this plan's frontmatter names CER-05, REQUIREMENTS.md's CER-05 is 261-08's self-loop DELETE) -- not marked complete. Next: 261-11."
-last_updated: "2026-08-21T09:23:21.000Z"
-last_activity: "2026-08-21 - 261-10 complete: frontmatter-sourced USES_FRAMEWORK derivation script and guarded edge-merge payload authored, live AUTHORABLE=0 (50/51 declared pairs already carry an unstamped edge, 1 unresolvable -- PEST Analysis, no live :Framework node), the roadmap's unreachable 25-edge claim superseded by this live measurement rather than reconciled, honest finding that this batch does not move the zero-framework-command metric recorded in both the derivation doc and the payload README rather than implied fixed"
+stopped_at: "Phase 261 Plan 11 COMPLETE: the three pre-window artifacts authored -- payloads/emit-payload-json.mjs (a serializer, no src/ingest import, round-trips an .mjs payload to JSON for the HTTPS ingest_framework boundary), scripts/check-ceremony-batch-integrity.mjs (8-check mechanical gate, distinct exit codes 0/1/2, check 3 correctly DEFERRED TO WINDOW rather than a false PASS; ran twice, 32 PASS/0 FAIL/1 MISSING/1 DEFERRED after Task 1 -- the MISSING being Task 2's own not-yet-written runbook -- then 32 PASS/0 FAIL/0 MISSING/1 DEFERRED exit 0 after Task 2), and docs/2026-08-21-RUNBOOK-261-ceremony.md (the full ordered window sequence, Section 9 the close authored FIRST before any other section existed, all four batch_ids named, the FIX-01 round-trip transcribed as write item 1 with the before-CER-01-through-CER-04 ordering rule, a disclosed finding that the HTTPS ingest_framework tool does not surface propReport the way the in-process run-ingest.mjs does so the round-trip's load-bearing check is the direct all-seven-key read comparison instead). No payload authored, no window opened. 2 commits local to ProblemsWorthSolving-Brain (45748cc emitter+gate, 5dc4d6a runbook), unpushed per the standing freeze (59 ahead, 0 behind). requirements-completed left empty: this plan's own objective states it opens no window and closes none of CER-01 through CER-06 itself. Next: 261-12 (the admin window)."
+last_updated: "2026-08-21T09:40:00.000Z"
+last_activity: "2026-08-21 - 261-11 complete: payload JSON emitter, ceremony batch-integrity gate (8 checks, DEFERRED-vs-PASS distinction on the one check that cannot run from this machine), and the window runbook with its close section (Section 9) authored and verified before any other section existed, per the plan's own close-written-first requirement -- a real gap between the FIX-01 carry document's propReport assertions and the HTTPS admin tool's actual narrower response shape disclosed in the runbook rather than assumed away"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 26
-  percent: 90
+  completed_plans: 27
+  percent: 93
 ---
+
+<!-- NOTE (261-11 executor, 2026-08-21T09:40Z): frontmatter above updated by hand, not via
+     `gsd-tools query state.*`, per this plan's own explicit instruction (the documented
+     resync-clobber bug the notes below already describe). completed_plans bumped 26->27,
+     percent recomputed 27/29=93 (93.1 rounded), stopped_at/last_activity/last_updated
+     rewritten to describe 261-11's completion. Found on disk with a correct, non-corrupted
+     261-10 frontmatter state before this edit, so no restoration was needed this time --
+     only the forward advance. -->
 
 <!-- NOTE (261-10 executor, 2026-08-21T09:23Z): frontmatter above updated by hand, not via
      `gsd-tools query state.*`, per this plan's own explicit instruction (the documented

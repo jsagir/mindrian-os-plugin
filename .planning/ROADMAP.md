@@ -307,7 +307,7 @@ then the navigator supplied the real named source directly moments later - Rowan
 (`ProblemsWorthSolving-Brain/docs/2026-08-20-FREEZE-push-freeze-before-261.md`): the admin
 window this phase opens is exactly the release condition that lifts it.
 **Repo:** ProblemsWorthSolving-Brain
-**Plans:** 10/13 plans executed. 13 plans, 5 waves. Deliberately many and small: the authoring
+**Plans:** 11/13 plans executed. 13 plans, 5 waves. Deliberately many and small: the authoring
 plans are all local-commit-no-push under Phase 260's freeze, and the single admin window is one
 plan by D-11 necessity (261-12, 8 tasks, 4 checkpoints, sizing override stated in the plan itself).
 **Planner ruling on the 5 open questions in `261-RESEARCH.md`:** (1) relabel and edge authoring
@@ -344,7 +344,7 @@ Plans:
 
 **Wave 3** *(pre-flight, blocked on all authoring)*
 
-- [ ] 261-11-PLAN.md (wave 3) - payload JSON emitter for the HTTPS admin seam, mechanical batch-integrity gate, and the full window runbook with its close procedure written FIRST
+- [x] 261-11-PLAN.md (wave 3) - payload JSON emitter for the HTTPS admin seam, mechanical batch-integrity gate, and the full window runbook with its close procedure written FIRST. **DONE 2026-08-21** (`261-11-SUMMARY.md`): `payloads/emit-payload-json.mjs` authored (serializer only, no `src/ingest` import, round-trips an `.mjs` payload to JSON for the HTTPS `ingest_framework` boundary); `scripts/check-ceremony-batch-integrity.mjs` authored (8 named checks, distinct exit codes 0/1/2, check 3 correctly printed `DEFERRED TO WINDOW` and never counted toward PASS, ran twice -- 32 PASS/0 FAIL/1 MISSING/1 DEFERRED after Task 1 with Task 2's own not-yet-written runbook as the one MISSING, then 32 PASS/0 FAIL/0 MISSING/1 DEFERRED exit 0 once Task 2 landed); `docs/2026-08-21-RUNBOOK-261-ceremony.md` authored with Section 9 (the close) written and verified FIRST, before any other section existed, all four `batch_id` values named across Sections 4-8, the FIX-01 round-trip transcribed as write item 1 with the before-CER-01-through-CER-04 ordering rule stated in bold, and a disclosed finding that the HTTPS `ingest_framework` tool's response does not surface `propReport` the way `run-ingest.mjs`'s in-process printout does -- the round-trip's load-bearing falsification check is repointed to the direct all-seven-key read comparison instead. No payload authored, no window opened, nothing pushed. `ProblemsWorthSolving-Brain`: `45748cc`, `5dc4d6a` (local, unpushed per freeze).
 
 **Wave 4** *(THE WINDOW, one plan by D-11 necessity, INLINE ONLY, MCP required)*
 
