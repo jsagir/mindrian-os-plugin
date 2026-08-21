@@ -3,16 +3,25 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 02 COMPLETE: CER-01 Tier A pattern_type payload authored (10 INCLUDE / 9 REJECT of 19 rows, every INCLUDE grep-F-quoted), compile_only, committed locally to ProblemsWorthSolving-Brain (b1147a1 evidence, 020e180 payload directory), unpushed per the standing freeze. Next: 261-03 (CER-02 Cohort 1 batch A)."
-last_updated: "2026-08-21T07:40:00.000Z"
-last_activity: "2026-08-21 - 261-02 complete: CER-01 Tier A payload directory (00-evidence.md + guarded UNWIND write + dry-run/verify/undo/manifest/README) authored and committed locally in ProblemsWorthSolving-Brain, 10 source-quoted INCLUDE / 9 REJECT rows, zero graph calls, zero pushes"
+stopped_at: "Phase 261 Plan 03 COMPLETE: CER-02 Cohort 1 batch A authored fixture-first (HSI Semantic Surprise Analysis Assistant 3/4 honest ceiling, Root Cause Analysis 4/4, Domain Selection 4/4) -- 3 fixtures + 3 payloads committed locally to ProblemsWorthSolving-Brain (6e15b66 fixtures, 7db55ed payloads), unpushed per the standing freeze. Next: 261-04."
+last_updated: "2026-08-21T08:15:00.000Z"
+last_activity: "2026-08-21 - 261-03 complete: three CER-02 Cohort 1 batch A payloads (HSI, Root Cause Analysis, Domain Selection) authored fixture-first from source methodology docs, dry-run-only, never executed against canon"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 18
-  percent: 62
+  completed_plans: 19
+  percent: 66
 ---
+<!-- NOTE (261-03 executor, 2026-08-21T08:15Z): `state.update-progress` reproduced the exact
+     documented resync-clobber bug again (.planning/debug/gsd-tools-state-resync-clobbers-
+     stopped-at-frontmatter.md): it correctly bumped completed_plans 18->19 but regressed
+     stopped_at/last_activity to a stale 260-04-era snapshot and left percent at a mismatched
+     27 (19/29 = 66%, matching the tool's own printed computation of 66% in its JSON output,
+     just not persisted to the frontmatter). Restored by hand per this doc's own established
+     workaround (see the 261-01 and 259-04 precedent notes elsewhere in this file). Not this
+     plan's own regression. -->
+
 <!-- NOTE (261-01 executor, 2026-08-21T06:45Z): the stopped_at/last_activity/percent fields
      above were found corrupted on disk moments before this edit -- a concurrent session's
      `gsd-tools query state.*` call regressed them to a stale 260-04-era snapshot (percent:27
@@ -21,7 +30,6 @@ progress:
      Restored here by hand per that doc's own recommended workaround; total_plans/completed_phases
      left as the concurrent session's disk-scanned values (self-consistent, just the percent
      lagged). Not this plan's own regression. -->
-
 
 # Project State
 
@@ -37,6 +45,43 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-21) -- 261-03 COMPLETE -- CER-02 Cohort 1 batch A authored fixture-first, dry-run-only
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 03 is COMPLETE (3/13 plans). **261-04 is
+  next.**
+
+- **What executed:** Task 1 authored and committed three known-answer eval fixtures
+  (`tests/fixtures/framework-evals/hsi-semantic-surprise.json`, `root-cause-analysis.json`,
+  `domain-selection.json` in `ProblemsWorthSolving-Brain`) directly from their source
+  methodology docs (`references/methodology/score-innovation.md`, `root-cause.md`,
+  `explore-domains.md`, all read in full) BEFORE either payload existed -- discovered-fixture
+  count went 3 to 6, exactly +3, no registration step needed. Task 2 then authored the three
+  payloads (`payloads/hsi-semantic-surprise.mjs`, `root-cause-analysis.mjs`,
+  `domain-selection.mjs`) against those fixtures, hand-cross-checked node-for-node (phase names
+  and technique names compared programmatically, not just by eye) -- all three matched on the
+  first attempt. Both commits local (`6e15b66` fixtures, `7db55ed` payloads), NOT pushed, per
+  the standing freeze. Zero graph calls, `payloads/run-ingest.mjs` never run.
+
+- **Honest ceiling, stated not padded:** HSI Semantic Surprise Analysis Assistant's expected
+  readiness is 3/4, not 4/4 -- its 6,809-char source names zero distinct titled techniques
+  outside its five phases. Root Cause Analysis and Domain Selection both reach 4/4 (both were
+  already 2/4 live -- structure and flow already existed -- so this payload's own contribution
+  is exactly the pattern_type and techniques dimensions).
+
+- **Deviation, self-caught before verification (Rule 1):** the plan's own verification
+  instruction pointed at `src/ontology.mjs`'s `REL_TYPES` export as "the closed edge
+  vocabulary" -- but that set is declared, deliberately narrower than the live 58-rel-type
+  census (report-only, enforcement off), and does not include `USES_TECHNIQUE`, an edge type
+  six already-executed payloads in this same repo use successfully. Verified against the
+  actual gate (`src/ingest/allowlist.mjs`'s live census) and the six-payload precedent instead;
+  full table in `261-03-SUMMARY.md`.
+
+- **Concurrent-session tree hazard, worked around again:** at least one other Claude Code
+  session had its own staged-but-uncommitted changes in `ProblemsWorthSolving-Brain`
+  throughout this plan (`scripts/compare-text2cypher.mjs`, an eval-baseline-freshness plan).
+  Both commits pathspec-limited (`git commit -- <this plan's files only>`); confirmed clean via
+  `git status --short` before and after each commit.
 
 ## (2026-08-21) -- 261-02 COMPLETE -- CER-01 Tier A pattern_type payload authored, compile_only
 

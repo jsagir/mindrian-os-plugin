@@ -307,9 +307,9 @@ then the navigator supplied the real named source directly moments later - Rowan
 (`ProblemsWorthSolving-Brain/docs/2026-08-20-FREEZE-push-freeze-before-261.md`): the admin
 window this phase opens is exactly the release condition that lifts it.
 **Repo:** ProblemsWorthSolving-Brain
-**Plans:** 13 plans, 5 waves. Deliberately many and small: the authoring plans are all
-local-commit-no-push under Phase 260's freeze, and the single admin window is one plan by
-D-11 necessity (261-12, 8 tasks, 4 checkpoints, sizing override stated in the plan itself).
+**Plans:** 3/13 plans executed. 13 plans, 5 waves. Deliberately many and small: the authoring
+plans are all local-commit-no-push under Phase 260's freeze, and the single admin window is one
+plan by D-11 necessity (261-12, 8 tasks, 4 checkpoints, sizing override stated in the plan itself).
 **Planner ruling on the 5 open questions in `261-RESEARCH.md`:** (1) relabel and edge authoring
 are SEPARATE batches with separate `GRAPH-WRITE-LOG` rows and a read-tier probe between them,
 YES; (2) the navigator signs the ~95-node relabel list at a blocking checkpoint and the sign-off
@@ -333,7 +333,7 @@ Plans:
 **Wave 2** *(nine parallel authoring plans, zero `files_modified` overlap, all local-commit-no-push)*
 
 - [x] 261-02-PLAN.md (wave 2) - CER-01 Tier A: one guarded UNWIND `pattern_type` payload, every row source-quoted, unsourced rows REJECTED not defaulted. **DONE 2026-08-21** (`261-02-SUMMARY.md`): 10 INCLUDE / 9 REJECT of the 19-row Tier A set, every INCLUDE grep-F-quoted against a named source; compile_only payload directory authored (`00-evidence.md` + guarded UNWIND write + dry-run/verify/undo/manifest/README), zero graph calls. `ProblemsWorthSolving-Brain`: `b1147a1`, `020e180` (local, unpushed per freeze).
-- [ ] 261-03-PLAN.md (wave 2) - CER-02 Cohort 1 batch A: HSI, Root Cause Analysis, Domain Selection, fixtures authored first from source docs
+- [x] 261-03-PLAN.md (wave 2) - CER-02 Cohort 1 batch A: HSI, Root Cause Analysis, Domain Selection, fixtures authored first from source docs
 - [ ] 261-04-PLAN.md (wave 2) - CER-02 Cohort 1 batch B: Knowns and Unknowns, Dominant Design, Systems Thinking (one disclosed spine), plus the Pyramid Principle node-identity finding
 - [ ] 261-05-PLAN.md (wave 2) - CER-03 Cohort 2 batch A: Futures Wheel, MECE, Adaptive Leadership, each with a `RULING REQUIRED:` block and a card with a real reject branch
 - [ ] 261-06-PLAN.md (wave 2) - CER-03 Cohort 2 batch B: Triple Validation Compass (the ruling CER-03 names), Hypothesis-Driven, Adoption-Capacity, plus the Mullins payload four-point verification
