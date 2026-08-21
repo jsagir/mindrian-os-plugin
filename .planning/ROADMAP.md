@@ -251,7 +251,7 @@ trustworthy floor-check gate before shipping fixes against them)
 **Research flag:** the Fix 3 before/after matrix -- blast radius across all four
 name-matching readers + dedup consumer has never been analyzed (P7); this is the one
 sub-plan in the whole 258-263 set flagged as needing deeper research during planning.
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 **Wave 1** *(two parallel plans, zero files_modified overlap)*
 
@@ -265,7 +265,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 260-05-PLAN.md (wave 3) - FIX-04: batch integrity + suite-delta gate, navigator approval checkpoint, ONE `git push`, deploy-identity proof via `tools/list`, deployed-surface round-trip, push freeze declared
+- [x] 260-05-PLAN.md (wave 3) - FIX-04: batch integrity + suite-delta gate, navigator approval checkpoint, ONE `git push`, deploy-identity proof via `tools/list`, deployed-surface round-trip, push freeze declared
 
 **Research flag DISCHARGED at planning time (2026-08-20/21).** The FIX-03 blast radius was measured
 live read-only against canon before the plans were written: 42 `:Framework` nodes carry an outgoing

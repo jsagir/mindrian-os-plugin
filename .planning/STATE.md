@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 260-04-PLAN.md (FIX-01 additivePropPlan, provenance_note projection fix, propReport surfaced+warn-folded, live test amendment, FIX-01 round-trip carry doc for Phase 261) -- 6 commits local unpushed in ProblemsWorthSolving-Brain, per PUSH FREEZE
-last_updated: "2026-08-20T22:56:44.070Z"
-last_activity: 2026-08-19 - Completed quick task 260819-dmm (clean-tree drift class killed) - re-firing the release ceremony
+stopped_at: "Phase 260 COMPLETE (5/5 plans): FIX-01/02/03/04 all deployed and verified live on pws-brain-mcp.onrender.com, pushed 6cd8acc + 60e970c. Push freeze now in force until Phase 261's admin window closes. Next: Phase 261 (Enrichment Ceremony) -- surface the Four Lenses navigator ruling before its plan locks."
+last_updated: "2026-08-21T05:26:28.669Z"
+last_activity: 2026-08-21 - 260-05 batched push executed: navigator-approved, deploy proof 93s/4 attempts, all 7 FRAGMENTS round-tripped live with exact agreement, FIX-02's early individual deploy recorded honestly (not reverted)
 progress:
   total_phases: 11
   completed_phases: 2
@@ -28,6 +28,49 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-21) -- PHASE 260 COMPLETE (5/5 plans) -- FIX-01/02/03/04 deployed, verified, push freeze active
+
+- **Position:** Phase 260 (Pipeline Fixes) is fully COMPLETE. `roadmap update-plan-progress 260`
+  confirms 5/5 plans with summaries, status Complete. **Phase 261 (Enrichment Ceremony) is next**,
+  bound by the push freeze this phase declared.
+
+- **What executed:** all four fix plans (260-01 FIX-02 self-loop guard, 260-02 the FIX-03 gate/matrix,
+  260-03 the FIX-03 code change, 260-04 FIX-01 additive props) committed locally under a
+  non-negotiable push freeze, then 260-05 ran the batch-integrity gate (hermetic suite 34/34,
+  RED-proof two-directional, full `npm test` 639->708 with a byte-identical failing-file diff, zero
+  regressions), got explicit navigator approval on a six-part card with real measured values, pushed
+  once (`6cd8acc`), proved the deployed build matched the pushed source in 93 seconds via a
+  tool-description beacon, and round-tripped all seven `FRAGMENTS` live against the deployed MCP
+  surface with exact agreement against the local AFTER measurement. Zero divergence on any fragment.
+
+- **Two real deviations, recorded honestly, not hidden:** (1) FIX-02's guard deployed individually
+  ~9 minutes early during 260-01, an orchestrator error (told to push per this repo's general
+  convention, missed that this specific phase's contract overrode it) -- not reverted, since it is a
+  purely additive guard with no dependency on companion fixes and reverting would be a new deploy for
+  no safety benefit; (2) a concurrent, unrelated Claude Code session's own eval-boundary-repoint work
+  (15 commits) interleaved with this phase's local commits -- coordinated directly cross-session,
+  escalated to the navigator as an explicit decision after two unanswered pings over ~90 minutes,
+  rather than resolved unilaterally either way. Full accounts in
+  `ProblemsWorthSolving-Brain/docs/2026-08-20-FREEZE-push-freeze-before-261.md` section 5 and
+  `docs/2026-08-20-RECORD-fix04-batched-push.md`.
+
+- **Push freeze now in force**, binding Phase 261: no commit reaches `ProblemsWorthSolving-Brain`'s
+  `main` until Phase 261's admin window closes and its `GRAPH-WRITE-LOG.md` row lands. Payload commits
+  are explicitly ruled IN scope (any commit autodeploys the live service).
+
+- **Four items handed to Phase 261** (execution record section 8): the corrected 165-edge self-loop
+  population (CER-05's real scope, not the roadmap's assumed 41/singular), FIX-01's live round-trip
+  pre-item with an ordering requirement (before CER-01 through CER-04), a FLOOR-03 anchor re-check
+  (measures 2 today, not the assumed 1), and two unresolved `payloads/relabel-fix-260820` residue
+  items (JTBD survivor rule, Pyramid Principle entity-type call) neither created nor resolved here.
+
+- **Standing open item, unchanged by this phase:** the Four Lenses of Innovation navigator ruling
+  must still be surfaced before Phase 261's Cohort 2 work locks, per the roadmap's own ordering note.
+
+- **Cross-repo note:** all of 260's substantive commits landed in `ProblemsWorthSolving-Brain`, not
+  this repo. Nothing in MindrianOS-Plugin changed except SUMMARY.md files, this STATE.md entry, and
+  the ROADMAP.md progress line.
 
 ## (2026-08-20) -- PHASE 258 COMPLETE (7/7 plans) -- RECON-01 and RECON-02 verified, recorded, ledger live
 
