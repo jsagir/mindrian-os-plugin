@@ -3,16 +3,23 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 08 COMPLETE: CER-05 alias hygiene authored -- 165-edge self-loop DELETE (predicate-scoped, never label-scoped, relationship-only), zero active entity-dedup statements (Scenario Planning x3 already executed 249-03, Mullins alias conflicts with an already-ratified 249-03 direction, MECE x2 and Eureka Moment x5 evidence-missing), Scenario Planning to FLOOR-03 link answered (entity duplication does NOT explain the resolver's residual count of 2), and four residue cards (JTBD 45915, Pyramid Principle 39014, Minto Pyramid 38968, PWS 38305) authored for the navigator -- 3 commits local to ProblemsWorthSolving-Brain (cc7bfbf evidence, 0d7d121 payload directory, e2b81a4 cards), unpushed per the standing freeze. Next: 261-09."
-last_updated: "2026-08-21T12:55:00.000Z"
-last_activity: "2026-08-21 - 261-08 complete: CER-05 alias hygiene payload authored at the corrected 165-edge scope (not the roadmap's original single-node '42214 self-loop'), scoped by self-loop predicate never by label, zero entity dedups authored active (all four absorbed Phase 256 clusters resolved to already-executed/conflict/evidence-missing dispositions rather than guessed), Scenario Planning to FLOOR-03 link resolved with evidence in one direction, four alias residue items reach the navigator as cards with named ids and both competing rulings stated, dry-run-only, never executed against canon"
+stopped_at: "Phase 261 Plan 09 COMPLETE: archived-block Gate 0 relabel review authored -- 100-row human review list (71 INCLUDE / 29 EXCLUDE: 5 out-of-scope, 20 live name-collision, 4 CARD REQUIRED), THE SAFETY CHECK live-reproved against canon (found 20 :Framework collisions, ~4x the plan's own ~5 named examples), guarded UNWIND relabel payload with dry-run/verify/undo, batch_id pws-blockrelabel-2026-08-21, separate from 261-10's edge authoring per the expectation-reset ruling -- 2 commits local to ProblemsWorthSolving-Brain (6ec1acf review list, 430d436 payload directory), unpushed per the standing freeze. CER-05 requirement mismatch flagged, not marked complete (this plan's frontmatter names CER-05 but REQUIREMENTS.md's CER-05 is the self-loop DELETE, plan 261-08's scope, not this plan's). Next: 261-10."
+last_updated: "2026-08-21T09:04:13.000Z"
+last_activity: "2026-08-21 - 261-09 complete: archived-block relabel review authored at the corrected 71-row INCLUDE scope (not a naive ~95, since 20 candidates would have created a second live :Framework match and 5 fall outside the declared id range), the plan's own name-collision safety rule re-proved live against canon rather than trusted from the document, TRIZ closed as one ordinary row per the Phase-256 correction plus a new live TRIZ-Concept-node finding, two data-quality findings (<SEP>-corrupted name property, pre-existing label chimeras) disclosed without changing any verdict, guarded relabel payload authored with its own batch_id/dry-run/verify/undo, never executed against canon"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 24
-  percent: 83
+  completed_plans: 25
+  percent: 86
 ---
+
+<!-- NOTE (261-09 executor, 2026-08-21T09:04Z): frontmatter above updated by hand, not via
+     `gsd-tools query state.*`, per this plan's own explicit instruction (the documented
+     resync-clobber bug the notes below already describe). completed_plans bumped 24->25,
+     percent recomputed 25/29=86, stopped_at/last_activity/last_updated rewritten to describe
+     261-09's completion. Found on disk with a correct, non-corrupted 261-08 frontmatter state
+     before this edit, so no restoration was needed this time -- only the forward advance. -->
 
 <!-- NOTE (261-08 executor, 2026-08-21T12:55Z): frontmatter above updated by hand, not via
      `gsd-tools query state.*`, per this plan's own explicit instruction (the documented
@@ -68,6 +75,63 @@ progress:
      lagged). Not this plan's own regression. -->
 
 # Project State
+
+## (2026-08-21) -- 261-09 COMPLETE -- archived-block Gate 0 relabel review authored, 71/100 INCLUDE
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 09 is COMPLETE (9/13 plans). **261-10 is
+  next.**
+
+- **What executed:** Task 1 built `00-review-list.md` (`ProblemsWorthSolving-Brain`): a 100-row
+  human review list, one row per node in `[W-6]`'s archived-block listing. Since the committed
+  worklist document transcribed only `[W-6]`'s aggregate counts (not its per-node table), this
+  plan re-ran the already-committed, read-only `scripts/probe-ceremony-worklist.mjs` (zero
+  writes, existing transport) to retrieve the full listing, plus two small scratch-only
+  supplemental read-only queries (description presence, live name-collision check). THE SAFETY
+  CHECK the plan's own instructions demand ("re-prove it live... before finalizing, not just
+  assert it") found **20 of 95 in-range candidates share an exact name with a live `:Framework`
+  node** -- roughly 4x the ~5 examples the plan's prose named -- all marked `EXCLUDE`. 5 of
+  `[W-6]`'s 100 rows fall outside the plan's own declared 28000-29000 id range, marked `EXCLUDE`
+  on scope grounds. 4 near-misses marked `EXCLUDE, CARD REQUIRED`, not resolved here. Net: 71
+  `INCLUDE`, 29 `EXCLUDE`. TRIZ (28666) closed as one ordinary `INCLUDE` row per the Phase-256
+  correction, plus a new live finding (an existing `:Concept` node already carries the exact name
+  "TRIZ") disclosed without changing its verdict. Task 2 authored the six-file guarded payload
+  directory (`01-relabel-block.cypher`, `90-dry-run.cypher`, `91-verify.cypher`, `99-undo.cypher`,
+  `manifest.json`, `README.md`), batch_id `pws-blockrelabel-2026-08-21`, its own `GraphWriteEvent`
+  and `GRAPH-WRITE-LOG.md` row separate from plan 261-10's edge authoring per the
+  expectation-reset ruling. Both commits local to `ProblemsWorthSolving-Brain`
+  (`6ec1acf` review list, `430d436` payload directory), NOT pushed, per the standing freeze.
+  Zero graph writes made; `payloads/run-ingest.mjs` never run.
+
+- **The name-collision rule generalized, not narrowed, per its own stated principle:** the
+  plan's acceptance criteria specifically require checking against the ratified 28, but the
+  rule's own text and `90-dry-run.cypher`'s `[90.3]` safety check are both framed generally
+  ("a name that already resolves to a live one," not "a ratified name"). Applying the narrower
+  ratified-only reading would have left 14 additional live-`:Framework`-colliding rows marked
+  `INCLUDE`, caught only later at dry-run time. Applied the general rule instead, finding all 20
+  collisions in the human review rather than deferring 14 of them to execution time.
+
+- **Two data-quality findings disclosed, neither changing any verdict:** 99 of 100 archived-block
+  nodes carry a `<SEP>`-concatenated, multi-sentence `name` property (a merge/dedup artifact,
+  confirmed absent on every clean live Framework name checked directly) that
+  `01-relabel-block.cypher` does not clean up -- restored nodes remain invisible to the production
+  exact-name floor-gate lookup regardless of label, reinforcing this batch's own expectation
+  reset (at most 11 edges, 0 commands rescued) rather than contradicting it. 43 of 100 rows (30
+  within the INCLUDE set) carry a pre-existing 3-label chimera SCHEMA.md's own multi-label rule
+  forbids, not introduced or fixed by this batch. Both flagged for a future cleanup payload.
+
+- **CER-05 requirement mismatch, not resolved here:** this plan's PLAN.md frontmatter lists
+  `requirements: [CER-05]`, but `REQUIREMENTS.md`'s CER-05 text describes the 42214-class
+  self-loop DELETE (plan 261-08's actual scope, still unchecked there too). No requirement in
+  `REQUIREMENTS.md` (CER-01 through CER-06) actually names the archived-block relabel. Not
+  marking CER-05 complete to avoid a false completion claim; flagged for the phase's
+  requirement-to-plan mapping closeout.
+
+- **Known bugs worked around per this plan's own explicit instruction:** `ProblemsWorthSolving-
+  Brain`'s two commits pathspec-limited (`git add <files>` then `git commit -m "..." --
+  <this plan's files only>`); confirmed clean via `git status --short` and `git show --stat`
+  after each. This repo's (`MindrianOS-Plugin`) STATE.md and ROADMAP.md updated BY HAND, not via
+  `gsd-tools query state.*`/`roadmap.*`, per this plan's own explicit instruction to avoid the
+  documented resync-clobber and prose-garbling bugs eight sibling plans already hit tonight.
 
 ## (2026-08-21) -- 261-07 COMPLETE -- CER-04 PEST Analysis + CER-06 Four Lenses of Innovation authored, SAPPhIRE authored GATED
 
