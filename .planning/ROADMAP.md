@@ -307,11 +307,52 @@ then the navigator supplied the real named source directly moments later - Rowan
 (`ProblemsWorthSolving-Brain/docs/2026-08-20-FREEZE-push-freeze-before-261.md`): the admin
 window this phase opens is exactly the release condition that lifts it.
 **Repo:** ProblemsWorthSolving-Brain
-**Plans:** 0 plans
+**Plans:** 13 plans, 5 waves. Deliberately many and small: the authoring plans are all
+local-commit-no-push under Phase 260's freeze, and the single admin window is one plan by
+D-11 necessity (261-12, 8 tasks, 4 checkpoints, sizing override stated in the plan itself).
+**Planner ruling on the 5 open questions in `261-RESEARCH.md`:** (1) relabel and edge authoring
+are SEPARATE batches with separate `GRAPH-WRITE-LOG` rows and a read-tier probe between them,
+YES; (2) the navigator signs the ~95-node relabel list at a blocking checkpoint and the sign-off
+is recorded in the payload README AND the ledger row, not only the commit; (3) the 7 index DROPs
+do NOT ride this window and carry to Phase 263 CARRY-03 (no SSH key, and `brain_write` runs
+through `runIngestTx` while Memgraph refuses DDL in a multicommand transaction, so the seam is
+technically closed regardless); (4) SAPPhIRE is authored but GATED on a navigator card because
+the only source held is one paraphrased sentence; (5) `poverty` 27031 demote CONFIRMED, already
+implemented by `payloads/relabel-fix-260820/01-demote-poverty.cypher`.
+**Live re-measurement 2026-08-21 supersedes the 8/28 kickoff:** 12 of the ratified 28 clear
+readiness >= 3 (4 at 4/4, 8 at 3/4), 16 miss; `PEST Analysis` matches 0; Tier A (graph-wide 3/4
+with `pattern_type` absent) is 19 nodes, not 20; `ALIAS_OF` self-loops 165; archived block
+100 demoted / 99 archived / 95 in ids 28000-29000.
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 261 to break down)
+**Wave 1** *(read-tier only, no window)*
+
+- [ ] 261-01-PLAN.md (wave 1) - live worklist: replaces three superseded baselines, names every CER row set, audits the 5 already-authored unexecuted payloads for reuse, attributes the 2026-08-20 heal run, and resolves its "all 184 frameworks to 4/4" claim against the live distribution
+
+**Wave 2** *(nine parallel authoring plans, zero `files_modified` overlap, all local-commit-no-push)*
+
+- [ ] 261-02-PLAN.md (wave 2) - CER-01 Tier A: one guarded UNWIND `pattern_type` payload, every row source-quoted, unsourced rows REJECTED not defaulted
+- [ ] 261-03-PLAN.md (wave 2) - CER-02 Cohort 1 batch A: HSI, Root Cause Analysis, Domain Selection, fixtures authored first from source docs
+- [ ] 261-04-PLAN.md (wave 2) - CER-02 Cohort 1 batch B: Knowns and Unknowns, Dominant Design, Systems Thinking (one disclosed spine), plus the Pyramid Principle node-identity finding
+- [ ] 261-05-PLAN.md (wave 2) - CER-03 Cohort 2 batch A: Futures Wheel, MECE, Adaptive Leadership, each with a `RULING REQUIRED:` block and a card with a real reject branch
+- [ ] 261-06-PLAN.md (wave 2) - CER-03 Cohort 2 batch B: Triple Validation Compass (the ruling CER-03 names), Hypothesis-Driven, Adoption-Capacity, plus the Mullins payload four-point verification
+- [ ] 261-07-PLAN.md (wave 2) - CER-04 PEST + CER-06 Four Lenses (from the navigator-supplied source) + SAPPhIRE authored and GATED
+- [ ] 261-08-PLAN.md (wave 2) - CER-05 alias hygiene: the 165-edge self-loop DELETE scoped by predicate not label, the absorbed Phase 256 entity dedups, and all four residue items as cards
+- [ ] 261-09-PLAN.md (wave 2) - the Gate 0 archived-block relabel: per-node review list, TRIZ as one row, and the live per-name collision check that stops a restore from breaking a passing floor row
+- [ ] 261-10-PLAN.md (wave 2) - the absorbed missing-`USES_FRAMEWORK`-edge batch, derived from tracked command frontmatter because the original audit artifact is unreachable
+
+**Wave 3** *(pre-flight, blocked on all authoring)*
+
+- [ ] 261-11-PLAN.md (wave 3) - payload JSON emitter for the HTTPS admin seam, mechanical batch-integrity gate, and the full window runbook with its close procedure written FIRST
+
+**Wave 4** *(THE WINDOW, one plan by D-11 necessity, INLINE ONLY, MCP required)*
+
+- [ ] 261-12-PLAN.md (wave 4) - open, Session 0 snapshot, the FIX-01 live round-trip as write item 1, four homogeneous approval checkpoints, commit in order with a probe between the relabel and the edges, `GraphWriteEvent` per batch, CLOSE as the last scripted write item
+
+**Wave 5** *(after the close)*
+
+- [ ] 261-13-PLAN.md (wave 5) - post-close probes, one `GRAPH-WRITE-LOG` row per batch plus a retrospective row for the 2026-08-20 heal run, the execution record, ONE navigator-approved push that discharges the Phase 260 freeze, and the Phase 262 handoff (fresh floor, live `Scenario Planning` resolver count for FLOOR-03, relabel-vs-edges attribution split)
 
 ### Phase 262: Floor Green + SWEEP-02 Inversion
 
