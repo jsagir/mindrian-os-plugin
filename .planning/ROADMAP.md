@@ -297,9 +297,11 @@ Also absorbs this session's 25-missing-edge list + entity dedups (MECE x2, Eurek
 x5, Scenario Planning x3, Mullins alias) and the SAPPhIRE-creation / TRIZ-promotion finding
 from the retired Phase 256 -- net-new input into this ceremony's payload set, not yet in
 SUMMARY.md's original list.
-**Requirements**: CER-01, CER-02, CER-03, CER-04, CER-05 (CER-06 DEFERRED 2026-08-21, navigator
-ruling - see REQUIREMENTS.md's Out-of-scope section; the "ruling recorded at requirements
-time" it depended on was investigated and never actually existed).
+**Requirements**: CER-01, CER-02, CER-03, CER-04, CER-05, CER-06 (UN-DEFERRED 2026-08-21: the
+original "ruling recorded at requirements time" was investigated and found never to exist,
+then the navigator supplied the real named source directly moments later - Rowan Gibson's
+*The Four Lenses of Innovation*, recorded in full at
+`ProblemsWorthSolving-Brain/docs/2026-08-21-SOURCE-four-lenses-of-innovation.md`. Back in scope.)
 **Depends on:** Phase 260, now COMPLETE and deployed (fixes are live; see
 `260-05-SUMMARY.md`). This phase also inherits Phase 260's push freeze
 (`ProblemsWorthSolving-Brain/docs/2026-08-20-FREEZE-push-freeze-before-261.md`): the admin
