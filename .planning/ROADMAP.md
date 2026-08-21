@@ -287,18 +287,23 @@ per-item ledger. CER-01: Tier A (20 frameworks at 3/4) reach 4/4 via classified
 (fixture-first from source docs, digest waves of ~5, per-row rejection). CER-03: Cohort 2,
 7 judgment flagship payloads via individual cards, including the Triple Validation Compass
 source-attribution ruling. CER-04: PEST Analysis ingested per ruling (source:
-macro-trends.md Phase 3; new node, 4 HAS_STEP, no fabricated LEADS_TO). CER-05: the 42214
-self-loop DELETEd over HTTPS, post-batch self-loop probe returns 0, admin disable executes
-as the LAST scripted write item (admin-window discipline, the 2-day-open lesson). CER-06:
-the Four Lenses of Innovation ruling executed, no payload invented without a named source.
+macro-trends.md Phase 3; new node, 4 HAS_STEP, no fabricated LEADS_TO). CER-05: the
+self-loop population DELETEd over HTTPS (**corrected 2026-08-21 by 260-01's live measurement:
+165 edges, not the single 42214 node this line originally assumed** - see
+`ProblemsWorthSolving-Brain/docs/2026-08-20-RCA-alias-self-loop-minting.md`), post-batch
+self-loop probe returns 0, admin disable executes as the LAST scripted write item
+(admin-window discipline, the 2-day-open lesson).
 Also absorbs this session's 25-missing-edge list + entity dedups (MECE x2, Eureka Moment
 x5, Scenario Planning x3, Mullins alias) and the SAPPhIRE-creation / TRIZ-promotion finding
 from the retired Phase 256 -- net-new input into this ceremony's payload set, not yet in
 SUMMARY.md's original list.
-**Requirements**: CER-01, CER-02, CER-03, CER-04, CER-05, CER-06
-**Depends on:** Phase 260 (fixes must be live before the ceremony writes against them).
-Four Lenses navigator ruling must be recorded before this phase's Cohort 2 work starts
-(per SUMMARY.md's ordering rationale).
+**Requirements**: CER-01, CER-02, CER-03, CER-04, CER-05 (CER-06 DEFERRED 2026-08-21, navigator
+ruling - see REQUIREMENTS.md's Out-of-scope section; the "ruling recorded at requirements
+time" it depended on was investigated and never actually existed).
+**Depends on:** Phase 260, now COMPLETE and deployed (fixes are live; see
+`260-05-SUMMARY.md`). This phase also inherits Phase 260's push freeze
+(`ProblemsWorthSolving-Brain/docs/2026-08-20-FREEZE-push-freeze-before-261.md`): the admin
+window this phase opens is exactly the release condition that lifts it.
 **Repo:** ProblemsWorthSolving-Brain
 **Plans:** 0 plans
 
@@ -313,7 +318,10 @@ window-fresh run (no probe failures, per TRUST-02). FLOOR-02 (carried from v2.0.
 SWEEP-02): the tier-0-no-key acceptance fixture repurposed to assert the keyless path
 refuses correctly -- coverage kept, assertion inverted, never deleted. FLOOR-03: Scenario
 Planning measures exactly-1 on the live graph post-FIX-03 before the floor run is ratified
-(verify, never predict -- the runbook's arithmetic was wrong once already).
+(verify, never predict -- the runbook's arithmetic was wrong once already). **NOTE 2026-08-21:
+260-05's live post-deploy round-trip actually measured 2, not 1 (matrix section 7 +
+deployed round-trip agree). Re-verify live at 262's own planning time rather than trusting
+either number carried forward; do not silently keep the exactly-1 assertion.**
 **Requirements**: FLOOR-01, FLOOR-02, FLOOR-03
 **Depends on:** Phase 261
 **Repo:** ProblemsWorthSolving-Brain
