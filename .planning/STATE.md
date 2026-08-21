@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 03 COMPLETE: CER-02 Cohort 1 batch A authored fixture-first (HSI Semantic Surprise Analysis Assistant 3/4 honest ceiling, Root Cause Analysis 4/4, Domain Selection 4/4) -- 3 fixtures + 3 payloads committed locally to ProblemsWorthSolving-Brain (6e15b66 fixtures, 7db55ed payloads), unpushed per the standing freeze. Next: 261-04."
-last_updated: "2026-08-21T08:15:00.000Z"
-last_activity: "2026-08-21 - 261-03 complete: three CER-02 Cohort 1 batch A payloads (HSI, Root Cause Analysis, Domain Selection) authored fixture-first from source methodology docs, dry-run-only, never executed against canon"
+stopped_at: "Phase 261 Plan 04 COMPLETE: CER-02 Cohort 1 batch B authored fixture-first (Knowns and Unknowns Matrix Framework 4/4, Dominant Design 4/4, Systems Thinking 4/4 with a disclosed SPINE DECISION) plus the Pyramid Principle node-identity finding (RETARGET disposition for minto-pyramid.mjs) -- 3 commits local to ProblemsWorthSolving-Brain (c218cf8 fixtures, 0587bdf payloads, f9b4c38 ruling+retarget-note+cross-reference), unpushed per the standing freeze. Next: 261-05."
+last_updated: "2026-08-21T10:35:00.000Z"
+last_activity: "2026-08-21 - 261-04 complete: three CER-02 Cohort 1 batch B payloads (Knowns/Unknowns, Dominant Design, Systems Thinking) authored fixture-first, plus a node-identity finding proving minto-pyramid.mjs targets the wrong node (RETARGET), dry-run-only, never executed against canon"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 19
-  percent: 66
+  completed_plans: 20
+  percent: 69
 ---
+
+<!-- NOTE (261-04 executor, 2026-08-21T10:30Z): `state.update-progress` reproduced the exact
+     documented resync-clobber bug again (.planning/debug/gsd-tools-state-resync-clobbers-
+     stopped-at-frontmatter.md): it correctly bumped completed_plans 19->20 but regressed
+     stopped_at/last_activity/last_updated to a stale 260-04-era snapshot and left percent at a
+     mismatched 27 (20/29 = 69%, matching the tool's own printed computation of 69% in its JSON
+     output, just not persisted to the frontmatter). Restored by hand per this doc's own
+     established workaround (see the 261-01/261-03 precedent notes immediately below). `state.
+     record-session` then reproduced the SAME clobber a second time on this same plan's run
+     (stopped_at flattened to a bare "Completed 261-04-PLAN.md", last_updated/last_activity/
+     percent regressed again) -- restored by hand a second time, same workaround. Not this
+     plan's own regression. -->
+
 <!-- NOTE (261-03 executor, 2026-08-21T08:15Z): `state.update-progress` reproduced the exact
      documented resync-clobber bug again (.planning/debug/gsd-tools-state-resync-clobbers-
      stopped-at-frontmatter.md): it correctly bumped completed_plans 18->19 but regressed
@@ -45,6 +58,65 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-21) -- 261-04 COMPLETE -- CER-02 Cohort 1 batch B authored fixture-first, Pyramid Principle node-identity finding
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 04 is COMPLETE (4/13 plans). **261-05 is
+  next.**
+
+- **What executed:** Task 1 authored and committed four known-answer eval fixtures
+  (`tests/fixtures/framework-evals/knowns-unknowns-matrix.json`, `dominant-design.json`,
+  `systems-thinking.json`, `pyramid-principle.json` in `ProblemsWorthSolving-Brain`) directly
+  from their source methodology docs (`references/methodology/map-unknowns.md`,
+  `dominant-designs.md`, `systems-thinking.md` plus `causal-loop-diagrams.md` as a genuinely
+  separate secondary source, `structure-argument.md`, all read in full) BEFORE any payload
+  existed -- discovered-fixture count went 6 to 10, exactly +4. Task 2 authored three payloads
+  (`payloads/knowns-unknowns-matrix.mjs`, `dominant-design.mjs`, `systems-thinking.mjs`) against
+  those fixtures, cross-checked node-for-node programmatically -- all three matched on the first
+  attempt. Task 3 wrote `docs/2026-08-21-RULING-pyramid-principle-target.md`, a node-identity
+  FINDING (not a settled ruling) proving the already-executed `payloads/minto-pyramid.mjs`
+  enriched a different node ("Minto Pyramid", id 38968, 3/4) than the ratified flagship-floor
+  string ("The Pyramid Principle", id 30242, still 0/4), disposed RETARGET, added a header-only
+  `RETARGET NOTE:` to `minto-pyramid.mjs` (nodes/edges byte-identical, verified via `git diff`),
+  and cross-linked `payloads/relabel-fix-260820/README.md` with one `## Cross-reference` section.
+  All three commits local (`c218cf8` fixtures, `0587bdf` payloads, `f9b4c38` ruling), NOT pushed,
+  per the standing freeze. Zero graph calls, `payloads/run-ingest.mjs` never run.
+
+- **The SPINE DECISION, made testable not just documented:** Systems Thinking's source carries
+  two candidate structural decompositions (a four-phase teaching script and a Five Moves dial).
+  Chose the Five Moves, per the source's own Meta-Lens Framing section naming it as what "the
+  selector" runs at every stage. The rejected phase ("Phase 3: Find Stocks and Flows") is
+  asserted ABSENT from the authored structure as a machine-checked negative control, reusing the
+  harness's existing `fabricated_component_name` mechanism against a real name instead of a
+  nonsense placeholder.
+
+- **Honest weighing, not a mechanical box-tick:** Knowns and Unknowns Matrix Framework was
+  seriously considered as this plan's "no sequence, honest 3/4 ceiling" candidate (its own source
+  calls it "iterative... not a one-pass checklist") and rejected on the evidence: the live
+  worklist measurement already shows flow=1 for this exact framework from its one and only
+  source document, consistent with a genuine first-pass linear order rather than a chainless
+  matrix. All three Task 2 payloads ended up 4/4 linear; the flow-honesty discipline was
+  exercised through documented per-framework analysis, not satisfied by forcing an artificial
+  no-chain case.
+
+- **Deviation, self-caught before verification (Rule 1):** wrote `systems-thinking.mjs`'s header
+  as `// SPINE DECISION (mandatory...` (no colon) on first pass; the plan's own verify command
+  (`grep -q 'SPINE DECISION:'`) requires the literal colon. Caught by running the plan's own
+  verification before committing, fixed inline, no separate fix commit needed.
+
+- **Concurrent-session tree hazard, worked around again:** at least one other Claude Code
+  session landed its own commits in `ProblemsWorthSolving-Brain` throughout this plan (HEAD
+  advanced between task commits; `.planning/STATE.md`/`.planning/ROADMAP.md` in that repo
+  appeared modified then were committed away by the other session before this plan's own
+  commits). All three commits pathspec-limited (`git commit -m ... -- <this plan's files
+  only>`); confirmed clean via `git status --short` and a post-commit deletion check after each.
+
+- **`gsd-tools query state.*` resync-clobber, hit twice this plan (both restored by hand):**
+  `state.update-progress` and then `state.record-session` each independently regressed
+  `stopped_at`/`last_activity`/`last_updated`/`percent` in this file's own frontmatter to a stale
+  260-04-era snapshot -- the same documented bug
+  (`.planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md`) 261-01 and 261-03
+  already hit. Restored by hand both times, confirmed well-formed YAML after.
 
 ## (2026-08-21) -- 261-03 COMPLETE -- CER-02 Cohort 1 batch A authored fixture-first, dry-run-only
 
@@ -3194,6 +3266,7 @@ Progress: [█████████░] 92%
 | Phase 260 P02 | 45min | 3 tasks | 2 files |
 | Phase 260 P03 | 40min | 3 tasks | 5 files |
 | Phase 260 P04 | 70min | 3 tasks | 7 files |
+| Phase 261 P04 | 55min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -4473,6 +4546,8 @@ Progress: [█████████░] 92%
 - [Phase 260]: 260-03 found and fixed a Rule-1 bug in probe-name-matching-readers.mjs's --after write path (was deleting matrix sections 8-10 on every run); fixed before any broken state was committed.
 - [Phase 260]: 260-04 landed FIX-01: additivePropPlan (absent-only apply, closed allowlist), byId provenance_note projection fixed before the additive logic went live, resolveFramework decision:'enrich' wired on all 9 return paths, propReport surfaced on buildPlan and folded into warn as framework_prop_dropped. Two live dedup tests amended (dated) per Task 1's measurement (both fixtures supply framework_type, both live nodes lack it).
 - [Phase 260]: 260-04 caught and fixed a Rule-1 bug before commit: the conflict test's cloned fixture inherited an also-absent framework_type key that would have silently converted the test into an accidental enrich, contradicting its own no-overwrite guarantee; deleted the inherited key, isolating the test to the conflict boundary.
+- [Phase 261-04]: Systems Thinking: chose the Five Moves (M1-M5) spine over the four-phase teaching script, per the source's own Meta-Lens Framing section naming the Five Moves as what the selector runs at every stage -- Find Stocks and Flows (a rejected-spine phase) has no counterpart in M1-M5; the rejected phase's absence is encoded as a machine-checked negative control
+- [Phase 261-04]: The Pyramid Principle: minto-pyramid.mjs targets a different node (Minto Pyramid, id 38968, 3/4) than the ratified name (The Pyramid Principle, id 30242, 0/4) -- disposed RETARGET via a header-only note, body left untouched -- The contested-survivor conflict over node 38968's own fate remains open and unadjudicated; RETARGET does not require it to resolve first
 
 ### Pending Todos
 
@@ -4581,8 +4656,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-20T22:56:44.012Z
-Stopped at: Completed 260-04-PLAN.md (FIX-01 additivePropPlan, provenance_note projection fix, propReport surfaced+warn-folded, live test amendment, FIX-01 round-trip carry doc for Phase 261) -- 6 commits local unpushed in ProblemsWorthSolving-Brain, per PUSH FREEZE
+Last session: 2026-08-21T07:34:04.073Z
+Stopped at: Completed 261-04-PLAN.md
 
 **260820-recon (this session, retroactive registration per precedent 260819-ws-adf):** a second Claude Code session (Windows, `jsagi-4e`) is running in parallel on this SAME checkout (`fix/part8-guard-in-mcp-handlers`, shared working tree, not a separate worktree -- confirmed via `git worktree list` and cross-session message). Reconciliation this session: verified `7d6c188b` ("research(260,261) + seed(079): feed the Gate 0 diagnostic into the planning lane") is an ancestor of HEAD via `git merge-base --is-ancestor`, confirmed on this branch only via `git branch --all --contains`, zero divergence. Read the other session's `.planning/debug/brain-gate0-diagnostic-260820.md`, `SEED-079`, `260-RESEARCH.md`, `261-RESEARCH.md` in full. Found this session's own in-flight Phase 258 plan-phase run (`a8cf24e78cf918903`) had produced a 96KB `258-RESEARCH.md` with ZERO references to the archived-batch finding (95 of 100 demoted `:Framework` nodes in contiguous id block 28000-29000, the concrete RECON-01 target) -- injected the three files via cross-session `SendMessage` to the running agent before `PLAN.md` locks, since 258's `CONTEXT.md` predates the diagnostic and never listed it as a canonical ref. Two DIRECT (non-GSD-workflow) edits made outside any `/gsd-*` command, both docs-only, zero code/test impact, made under time pressure to keep the outbound Brain-team handoff accurate while a live cross-session reconciliation was in progress: (1) added a "Status update" blockquote to the tracked `docs/2026-08-20-HANDOFF-brain-devs-gate0-diagnostic.md` (the other session's v4 handoff, committed so it crosses machines, unlike `.planning/`) noting the injection above closes the "nothing auto-feeds this to the planner" gap the doc itself flagged; (2) this STATE.md entry. Also drafted (NOT sent) a short Gmail follow-up in the same thread as the v4 handoff (`create_draft` with `replyToMessageId`) carrying the same update, leaving the carefully-authored v4 body untouched. Confirmed the repo's `_models_note` in `.planning/config.json` (fable for planning/discuss/research, sonnet for execution/verification/completion) is a deliberate 2026-08-10 navigator directive amending the 2026-07-25 never-use-fable rule for this repo's GSD agents only -- checked, not a violation, no action taken. One incidental side effect: an exploratory `gsd-tools state record-session` call with no args (checking usage) bumped `last_updated`/`Last session` timestamps with no content loss, confirmed via `git diff`.
 
