@@ -3,16 +3,23 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 07 COMPLETE: CER-04 (PEST Analysis, NEW node, 4 HAS_STEP + 1 USES_TECHNIQUE, honest 3/4 clears the floor) and CER-06 (Four Lenses of Innovation, enriches the existing empty node from the navigator-supplied source, 4 HAS_STEP, honest 2/4, SHAPE PROPOSAL answering all three of the source's undecided questions) authored, plus SAPPhIRE authored GATED (no fixture by design, quotes its one-sentence source in full, does not execute without navigator approval) and one paste-ready navigator card (docs/2026-08-21-CARDS-new-nodes.md) covering all three -- 3 commits local to ProblemsWorthSolving-Brain (b46f71a fixtures, 5f3017d payloads, e8a8778 card), unpushed per the standing freeze. Next: 261-08."
-last_updated: "2026-08-21T12:40:00.000Z"
-last_activity: "2026-08-21 - 261-07 complete: CER-04 PEST Analysis (new :Framework node) and CER-06 Four Lenses of Innovation (enrichment) authored from named sources, plus SAPPhIRE authored GATED with no fixture by design, two fixtures, and one paste-ready navigator card covering all three new-node decisions, dry-run-only, never executed against canon"
+stopped_at: "Phase 261 Plan 08 COMPLETE: CER-05 alias hygiene authored -- 165-edge self-loop DELETE (predicate-scoped, never label-scoped, relationship-only), zero active entity-dedup statements (Scenario Planning x3 already executed 249-03, Mullins alias conflicts with an already-ratified 249-03 direction, MECE x2 and Eureka Moment x5 evidence-missing), Scenario Planning to FLOOR-03 link answered (entity duplication does NOT explain the resolver's residual count of 2), and four residue cards (JTBD 45915, Pyramid Principle 39014, Minto Pyramid 38968, PWS 38305) authored for the navigator -- 3 commits local to ProblemsWorthSolving-Brain (cc7bfbf evidence, 0d7d121 payload directory, e2b81a4 cards), unpushed per the standing freeze. Next: 261-09."
+last_updated: "2026-08-21T12:55:00.000Z"
+last_activity: "2026-08-21 - 261-08 complete: CER-05 alias hygiene payload authored at the corrected 165-edge scope (not the roadmap's original single-node '42214 self-loop'), scoped by self-loop predicate never by label, zero entity dedups authored active (all four absorbed Phase 256 clusters resolved to already-executed/conflict/evidence-missing dispositions rather than guessed), Scenario Planning to FLOOR-03 link resolved with evidence in one direction, four alias residue items reach the navigator as cards with named ids and both competing rulings stated, dry-run-only, never executed against canon"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 23
-  percent: 79
+  completed_plans: 24
+  percent: 83
 ---
+
+<!-- NOTE (261-08 executor, 2026-08-21T12:55Z): frontmatter above updated by hand, not via
+     `gsd-tools query state.*`, per this plan's own explicit instruction (the documented
+     resync-clobber bug the notes below already describe). completed_plans bumped 23->24,
+     percent recomputed 24/29=83, stopped_at/last_activity/last_updated rewritten to describe
+     261-08's completion. Found on disk with a correct, non-corrupted 261-07 frontmatter state
+     before this edit, so no restoration was needed this time -- only the forward advance. -->
 
 <!-- NOTE (261-05 executor, 2026-08-21T11:40Z): the frontmatter above was found corrupted on
      disk before this edit -- `stopped_at`/`last_activity`/`last_updated` had regressed to a
