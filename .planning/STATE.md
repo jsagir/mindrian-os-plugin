@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 06 COMPLETE: CER-03 Cohort 2 batch B authored (PWS Triple Validation Compass 4/4 default, Hypothesis-Driven Problem Solving 4/4, Adoption-Capacity Theory 4/4, Mullins Model verified with an honest 3/4 ceiling) with mandatory RULING REQUIRED + DISCLOSURE headers per payload plus one paste-ready navigator card (docs/2026-08-21-CARDS-cohort2-batch-b.md) carrying the CER-03-named Triple Validation Compass ruling as two separate option sets -- 3 commits local to ProblemsWorthSolving-Brain (ae504ad fixtures, b43f6d2 payloads, d8773e5 card), unpushed per the standing freeze. CER-03 now fully authored (7/7 judgment rows across both batches). Next: 261-07."
-last_updated: "2026-08-21T12:20:00.000Z"
-last_activity: "2026-08-21 - 261-06 complete: three CER-03 Cohort 2 batch B judgment payloads (PWS Triple Validation Compass, Hypothesis-Driven Problem Solving, Adoption-Capacity Theory) authored with mandatory RULING REQUIRED/DISCLOSURE headers, plus a four-point VERIFICATION of the pre-existing Mullins payload, four fixtures, and one paste-ready navigator card, dry-run-only, never executed against canon"
+stopped_at: "Phase 261 Plan 07 COMPLETE: CER-04 (PEST Analysis, NEW node, 4 HAS_STEP + 1 USES_TECHNIQUE, honest 3/4 clears the floor) and CER-06 (Four Lenses of Innovation, enriches the existing empty node from the navigator-supplied source, 4 HAS_STEP, honest 2/4, SHAPE PROPOSAL answering all three of the source's undecided questions) authored, plus SAPPhIRE authored GATED (no fixture by design, quotes its one-sentence source in full, does not execute without navigator approval) and one paste-ready navigator card (docs/2026-08-21-CARDS-new-nodes.md) covering all three -- 3 commits local to ProblemsWorthSolving-Brain (b46f71a fixtures, 5f3017d payloads, e8a8778 card), unpushed per the standing freeze. Next: 261-08."
+last_updated: "2026-08-21T12:40:00.000Z"
+last_activity: "2026-08-21 - 261-07 complete: CER-04 PEST Analysis (new :Framework node) and CER-06 Four Lenses of Innovation (enrichment) authored from named sources, plus SAPPhIRE authored GATED with no fixture by design, two fixtures, and one paste-ready navigator card covering all three new-node decisions, dry-run-only, never executed against canon"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 22
-  percent: 76
+  completed_plans: 23
+  percent: 79
 ---
 
 <!-- NOTE (261-05 executor, 2026-08-21T11:40Z): the frontmatter above was found corrupted on
@@ -61,6 +61,67 @@ progress:
      lagged). Not this plan's own regression. -->
 
 # Project State
+
+## (2026-08-21) -- 261-07 COMPLETE -- CER-04 PEST Analysis + CER-06 Four Lenses of Innovation authored, SAPPhIRE authored GATED
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 07 is COMPLETE (7/13 plans). **261-08 is
+  next.**
+
+- **What executed:** Task 1 authored two known-answer eval fixtures
+  (`tests/fixtures/framework-evals/pest-analysis.json`, `four-lenses-of-innovation.json` in
+  `ProblemsWorthSolving-Brain`) from their named sources (`references/methodology/
+  macro-trends.md` for PEST, `docs/2026-08-21-SOURCE-four-lenses-of-innovation.md` for Four
+  Lenses). Deliberately NO `sapphire.json` fixture -- a fixture would encode an answer the
+  navigator has not given yet. Discovered-fixture count went 17 to 19, exactly +2. Task 2
+  authored three creation payloads: `payloads/pest-analysis.mjs` (a genuinely NEW `:Framework`
+  node, four `HAS_STEP` components Political/Economic/Social/Technological, one source-quoted
+  `USES_TECHNIQUE` node "System Interactions Mapping," NO `LEADS_TO`, readiness 3/4 clears the
+  floor, matching `.planning/research/FEATURES.md`'s already-recorded INGEST ruling exactly);
+  `payloads/four-lenses-of-innovation.mjs` (enriches the existing empty node, four `HAS_STEP`
+  lenses from the navigator-supplied source, NO `LEADS_TO` per the source's own process note, a
+  `SHAPE PROPOSAL:` block answering all three of the source's "Explicitly NOT decided"
+  questions, a `DISCLOSURE:` naming the Systems Thinking name collision, honest 2/4, below the
+  floor and disclosed as such); `payloads/sapphire.mjs` (a `GATED:` block leads the file,
+  quoting the one available paraphrased sentence in full with its exact path and line, states no
+  primary text of Chakrabarti et al. 2005 has been read, does not execute without navigator
+  approval, names the Phase 263 alternative -- 8 `HAS_STEP` elements in the source sentence's own
+  listed order, NO `LEADS_TO`, honest unpadded 1/4). All three payloads cross-checked against
+  Task 1's fixtures where applicable; readiness vectors match. Task 3 wrote
+  `docs/2026-08-21-CARDS-new-nodes.md`: a PEST confirmation card (the de-list alternative fully
+  costed, never a silent denominator edit), a Four Lenses shape card (all three open questions,
+  each with a proposal/reason/alternative, plus the one-paragraph CER-06 history), and a SAPPhIRE
+  approval card (three options including a genuinely costless reject), cross-linked from all
+  three payload headers. All three commits local (`b46f71a` fixtures, `5f3017d` payloads,
+  `e8a8778` card), NOT pushed, per the standing freeze. Zero graph calls,
+  `payloads/run-ingest.mjs` never run.
+
+- **The readiness-arithmetic resolution, stated plainly:** the plan's own prose named PEST's
+  vector as "pattern_type 1, structure 1, techniques 0, flow 0" while also asserting the sum is
+  "3/4" -- those two statements are mutually inconsistent (1+1+0+0=2, not 3). Resolved by
+  identifying a genuine, source-quoted technique the plan's own text did not name explicitly:
+  the source's own "System Interactions" heading/imperative, authored as one `USES_TECHNIQUE`
+  node ("System Interactions Mapping"), giving the honest, source-backed vector `pattern_type 1,
+  structure 1, techniques 1, flow 0` = 3/4, matching FEATURES.md's own stated ruling ("lands
+  3/4, clears the >=3 floor") exactly. Not a fabricated fifth structure component; a real
+  technique the source names but the plan's own prose had not accounted for.
+
+- **SAPPhIRE's gate is real, not decorative:** the `GATED:` header block is the FIRST thing in
+  `payloads/sapphire.mjs`, before `SOURCE:` or anything else, and the card's reject branch states
+  plainly that a reject costs `/mos:find-analogies` nothing it has today (SAPPhIRE does not
+  currently exist), matching this plan's own threat register (T-261-33).
+
+- **Known gap noted, not fixed (out of scope, matching the 261-05/261-06 precedent):**
+  `src/ontology.mjs`'s `REL_TYPES` export omits `USES_TECHNIQUE` despite `SCHEMA.md` documenting
+  it, the live census carrying 354 such edges, and `src/contracts/schema-contract.mjs`'s
+  `SEMANTIC_EDGES` set (the actual ingest-enforced closed vocabulary) including it. Cross-checked
+  all emitted edge types against `schema-contract.mjs` instead, per the established precedent.
+
+- **Known bugs worked around per this plan's own explicit instruction:** `ProblemsWorthSolving-
+  Brain`'s three commits pathspec-limited (`git add <files>` then `git commit -- <this plan's
+  files only>`); confirmed clean via `git status --short` after each. This repo's
+  (`MindrianOS-Plugin`) STATE.md and ROADMAP.md updated BY HAND, not via `gsd-tools query
+  state.*`/`roadmap.*`, per this plan's own explicit instruction to avoid the documented
+  resync-clobber and prose-garbling bugs five sibling plans already hit tonight.
 
 ## (2026-08-21) -- 261-06 COMPLETE -- CER-03 Cohort 2 batch B judgment payloads authored (Triple Validation Compass, Hypothesis-Driven, Adoption-Capacity, Mullins verify)
 
