@@ -3,16 +3,32 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 04 COMPLETE: CER-02 Cohort 1 batch B authored fixture-first (Knowns and Unknowns Matrix Framework 4/4, Dominant Design 4/4, Systems Thinking 4/4 with a disclosed SPINE DECISION) plus the Pyramid Principle node-identity finding (RETARGET disposition for minto-pyramid.mjs) -- 3 commits local to ProblemsWorthSolving-Brain (c218cf8 fixtures, 0587bdf payloads, f9b4c38 ruling+retarget-note+cross-reference), unpushed per the standing freeze. Next: 261-05."
-last_updated: "2026-08-21T10:35:00.000Z"
-last_activity: "2026-08-21 - 261-04 complete: three CER-02 Cohort 1 batch B payloads (Knowns/Unknowns, Dominant Design, Systems Thinking) authored fixture-first, plus a node-identity finding proving minto-pyramid.mjs targets the wrong node (RETARGET), dry-run-only, never executed against canon"
+stopped_at: "Phase 261 Plan 05 COMPLETE: CER-03 Cohort 2 batch A authored (Futures Wheel 4/4, MECE 2/4 honest ceiling that does not clear the floor, Adaptive Leadership 3/4) with mandatory RULING REQUIRED + DISCLOSURE headers per payload plus one paste-ready navigator card (docs/2026-08-21-CARDS-cohort2-batch-a.md) -- 3 commits local to ProblemsWorthSolving-Brain (cf426ef fixtures, bc3293a payloads, 8f4be86 card), unpushed per the standing freeze. Next: 261-06."
+last_updated: "2026-08-21T11:45:00.000Z"
+last_activity: "2026-08-21 - 261-05 complete: three CER-03 Cohort 2 batch A judgment payloads (Futures Wheel, MECE, Adaptive Leadership) authored with mandatory RULING REQUIRED/DISCLOSURE headers, plus three fixtures and one paste-ready navigator card, dry-run-only, never executed against canon"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 20
-  percent: 69
+  completed_plans: 21
+  percent: 72
 ---
+
+<!-- NOTE (261-05 executor, 2026-08-21T11:40Z): the frontmatter above was found corrupted on
+     disk before this edit -- `stopped_at`/`last_activity`/`last_updated` had regressed to a
+     stale 2026-08-19 quick-task snapshot ("Completed 261-04-PLAN.md" / 2026-08-19 activity)
+     while `completed_plans` had already been correctly bumped 20->21 and `percent` left at a
+     mismatched 27 (21/29 = 72%). This is the same documented resync-clobber bug
+     (.planning/debug/gsd-tools-state-resync-clobbers-stopped-at-frontmatter.md) 261-01/261-03/
+     261-04 already hit; this session's own attempted `gsd-tools query state.advance-plan` call
+     (via the node CLI, since the `gsd-tools` binary itself is not on PATH here) errored outright
+     ("Cannot parse Current Plan or Total Plans in Phase from STATE.md") rather than corrupting
+     anything further, so the clobber predates this plan's own tool call and is not this plan's
+     own regression -- likely a concurrent session's write, per this repo's standing multi-session
+     hazard. Restored by hand per this doc's own established workaround; `completed_plans: 21`
+     left as-is (already correct for this plan's completion). All further STATE.md/ROADMAP.md
+     updates in this plan were made by hand, not via `gsd-tools query state.*`, per this plan's
+     own explicit instruction to work around the bug rather than re-trigger it. -->
 
 <!-- NOTE (261-04 executor, 2026-08-21T10:30Z): `state.update-progress` reproduced the exact
      documented resync-clobber bug again (.planning/debug/gsd-tools-state-resync-clobbers-
@@ -58,6 +74,62 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-21) -- 261-05 COMPLETE -- CER-03 Cohort 2 batch A judgment payloads authored (Futures Wheel, MECE, Adaptive Leadership)
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 05 is COMPLETE (5/13 plans). **261-06 is
+  next.**
+
+- **What executed:** Task 1 authored three known-answer eval fixtures
+  (`tests/fixtures/framework-evals/futures-wheel.json`, `mece.json`, `adaptive-leadership.json`
+  in `ProblemsWorthSolving-Brain`) directly from their contested sources
+  (`commands/futures.md`, `references/methodology/structure-argument.md` Phase 2 section only,
+  `references/methodology/leadership.md`, all read in full) -- discovered-fixture count went 10
+  to 13, exactly +3. Task 2 authored three JUDGMENT payloads
+  (`payloads/futures-wheel.mjs`, `payloads/mece.mjs`, `payloads/adaptive-leadership.mjs`), each
+  carrying a mandatory `RULING REQUIRED:` block (the open source-authority question, options,
+  per-option consequences, a recommended default) and a `DISCLOSURE:` block (the provenance
+  limit stated in the file a future reader opens), cross-checked node-for-node against the Task 1
+  fixtures -- all three matched. Task 3 lifted the three rulings into
+  `docs/2026-08-21-CARDS-cohort2-batch-a.md`, one paste-ready navigator card with accept AND
+  reject branches per framework, cross-linked from all three payload headers. All three commits
+  local (`cf426ef` fixtures, `bc3293a` payloads, `8f4be86` card), NOT pushed, per the standing
+  freeze. Zero graph calls, `payloads/run-ingest.mjs` never run.
+
+- **The honest ceiling, stated plainly:** MECE is one phase inside The Pyramid Principle's own
+  document (`structure-argument.md`, shared source, T-261-23's exact risk). Authored
+  technique-shaped (0 structure, 2 Technique nodes: Mutually Exclusive Test / Collectively
+  Exhaustive Test) per the plan's own shape rule, honestly ceilinged at 2/4 -- this row will NOT
+  flip to PASS even on a fully-approved, cleanly-committed ingest. Stated in the fixture, the
+  payload header, and the card's per-option table, so the navigator knows before approving, not
+  after. Futures Wheel (4/4) and Adaptive Leadership (3/4) both DO clear the floor on approval.
+
+- **Two attribution-risk negative controls, real names not nonsense placeholders:** MECE's
+  `fabricated_component_name` is populated with a genuine Pyramid Principle phase name ("Phase 1:
+  SCQA Framing") rather than a ZZZ placeholder -- since MECE's own structure is asserted empty by
+  design, any non-empty match would prove exactly the cross-framework leakage T-261-23 names.
+  Adaptive Leadership's `fabricated_framework_name` is populated with a real sibling theory
+  ("Situational Leadership") from the same seven-theory persona-doc list, testing that querying a
+  sibling does not resolve as a canonical match -- the concrete test for T-261-22's attribution
+  risk. Both reuse the 261-04 Systems Thinking SPINE DECISION precedent of repurposing the
+  fixture's existing negative-control mechanism against real content instead of nonsense.
+
+- **Deviation, self-caught before verification (Rule 1 - documentation gap):** the plan's
+  acceptance criterion "every emitted edge type appears in `src/ontology.mjs`'s closed list" names
+  a file (`REL_TYPES` export) that does not actually include `USES_TECHNIQUE`, even though every
+  existing payload in this repo emits it and the real ingest-enforced closed vocabulary
+  (`src/contracts/schema-contract.mjs`'s `SEMANTIC_EDGES`) does include it. Cross-checked against
+  the actual enforcement point instead and recorded the finding in both the Task 2 commit message
+  and the plan's own SUMMARY, rather than silently treating the criterion as satisfied or
+  substituting an unprecedented edge type.
+
+- **Concurrent-session tree hazard and the STATE.md resync-clobber, both hit again (both worked
+  around, see the executor NOTE above this section):** `ProblemsWorthSolving-Brain` all three
+  commits pathspec-limited (`git commit -m ... -- <this plan's files only>`); confirmed clean via
+  `git status --short` after each. `.planning/STATE.md`'s frontmatter in THIS repo was found
+  corrupted before this plan's own edit (stale `stopped_at`/`last_activity`, mismatched
+  `percent`) -- restored by hand, all further STATE.md/ROADMAP.md work done by hand per this
+  plan's own explicit instruction, not via `gsd-tools query state.*`.
 
 ## (2026-08-21) -- 261-04 COMPLETE -- CER-02 Cohort 1 batch B authored fixture-first, Pyramid Principle node-identity finding
 
