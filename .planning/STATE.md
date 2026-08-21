@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 01 COMPLETE: live ceremony worklist measured and committed to ProblemsWorthSolving-Brain (d943167 probe, 8d520b0 worklist doc), both local/unpushed per the standing freeze. Next: 261-02 (CER-01 Tier A)."
-last_updated: "2026-08-21T06:45:00.000Z"
-last_activity: 2026-08-21 - 261-01 complete: probe-ceremony-worklist.mjs + 2026-08-21-WORKLIST-261-ceremony.md measured live, replacing the 2026-08-13 baseline; found 4/5 aa15966 payloads dropped pattern_type on ingest (confirms FIX-01's need)
+stopped_at: "Phase 261 Plan 02 COMPLETE: CER-01 Tier A pattern_type payload authored (10 INCLUDE / 9 REJECT of 19 rows, every INCLUDE grep-F-quoted), compile_only, committed locally to ProblemsWorthSolving-Brain (b1147a1 evidence, 020e180 payload directory), unpushed per the standing freeze. Next: 261-03 (CER-02 Cohort 1 batch A)."
+last_updated: "2026-08-21T07:40:00.000Z"
+last_activity: "2026-08-21 - 261-02 complete: CER-01 Tier A payload directory (00-evidence.md + guarded UNWIND write + dry-run/verify/undo/manifest/README) authored and committed locally in ProblemsWorthSolving-Brain, 10 source-quoted INCLUDE / 9 REJECT rows, zero graph calls, zero pushes"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 17
-  percent: 59
+  completed_plans: 18
+  percent: 62
 ---
 <!-- NOTE (261-01 executor, 2026-08-21T06:45Z): the stopped_at/last_activity/percent fields
      above were found corrupted on disk moments before this edit -- a concurrent session's
@@ -37,6 +37,49 @@ the live list with `gsd-tools query audit-open`):
 | Open phase-context questions (CONTEXT.md files, phases 81-245 era + 250/251 leftovers) | ~150 | Historical planning questions inside completed phases' CONTEXT files; consult per-phase when a future milestone touches that ground. |
 | Requirements carried open (navigator ruling 2026-08-13) | 3 | SWEEP-02 (floor-gated -> enrichment payloads), CACHE-03 (live hit-rate session), AVAIL-03 (operator legs). Recorded in both v2.0.0 archives. |
 | Bolt-capable checkpoint queue | 8 | 7 ratified vector-index DROPs + 1 self-loop DELETE (Nested Hierarchies 42214). No HTTPS DDL seam exists by design. |
+
+## (2026-08-21) -- 261-02 COMPLETE -- CER-01 Tier A pattern_type payload authored, compile_only
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 02 is COMPLETE (2/13 plans). **261-03
+  (CER-02 Cohort 1 batch A) is next.**
+
+- **What executed:** classified all 19 CER-01 Tier A framework candidates
+  (`docs/2026-08-21-WORKLIST-261-ceremony.md` Section 3) against named MindrianOS-Plugin
+  methodology/command sources, then authored the full seven-file `payloads/tier-a-pattern-
+  type-2026-08-21/` payload directory in `ProblemsWorthSolving-Brain`: one guarded `UNWIND`
+  write, read-only dry-run (4 checks) and verify (3 checks, including a negative control),
+  a batch-keyed undo, a `compile_only`/`review_required` manifest, and a README with empty
+  sections for the future admin-window plan to fill. Both commits local (`b1147a1`,
+  `020e180`), NOT pushed, per the standing freeze. Zero graph calls made by this plan.
+
+- **10 INCLUDE / 9 REJECT, not a forced split:** every INCLUDE row carries a verbatim,
+  `grep -F`-verified quote from a named source file. 9 rejects for four distinct reasons: 4
+  Due Diligence framework names + Innovation of Meaning have zero source hits anywhere in the
+  repo; Minto Pyramid (id 38968) rejected on contested node identity (261-01's own RETARGET
+  finding), not missing evidence; Nested Hierarchies and Process Mapping rejected as no single
+  closed-vocabulary shape term is source-asserted with confidence; Shell Scenario Planning
+  Method rejected as no source distinct from Scenario Planning names it. Rejected rows stay at
+  3/4, which already clears the floor -- no milestone cost.
+
+- **Calibration note worth carrying forward:** almost every methodology doc in this repo uses
+  the same Larry-teaching-turn template (`### Phase N (turns X-Y)`), so treating a numbered
+  turn-range header alone as "linear" evidence would have justified that classification for
+  nearly all 19 rows uniformly. Applied the stricter bar from `reverse-salient-analysis.mjs`'s
+  own SHAPE NOTE instead (a later phase's opening question must genuinely presuppose the prior
+  phase's output) -- this is why Lean Canvas and Scenario Planning were classified `matrix`
+  (explicit "nine boxes" / "2x2 matrix... two critical uncertainties" language) rather than
+  `linear` by phase order alone, and why Nested Hierarchies was rejected rather than forced
+  into either bucket.
+
+- **Deviation, self-caught before commit (Rule 1):** `90-dry-run.cypher`'s `[90.4]` comment
+  initially used the uppercase word "SET" in prose, tripping its own zero-write-clauses
+  acceptance check. Reworded before staging; re-ran the check clean (`0`).
+
+- **Concurrent-session tree hazard, worked around:** another Claude Code session had unrelated
+  staged-but-uncommitted changes in `ProblemsWorthSolving-Brain` at authoring time (a separate
+  `02-01`/`02-measurement-completeness-automation` plan). Both of this plan's commits used
+  `git commit -- <this plan's files only>` (pathspec-limited) rather than a bare `git commit`,
+  so the other session's staged content was never swept into either commit.
 
 ## (2026-08-21) -- 261-01 COMPLETE -- ceremony worklist measured live, replaces the 2026-08-13 baseline
 
