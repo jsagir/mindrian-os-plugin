@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 261 Plan 05 COMPLETE: CER-03 Cohort 2 batch A authored (Futures Wheel 4/4, MECE 2/4 honest ceiling that does not clear the floor, Adaptive Leadership 3/4) with mandatory RULING REQUIRED + DISCLOSURE headers per payload plus one paste-ready navigator card (docs/2026-08-21-CARDS-cohort2-batch-a.md) -- 3 commits local to ProblemsWorthSolving-Brain (cf426ef fixtures, bc3293a payloads, 8f4be86 card), unpushed per the standing freeze. Next: 261-06."
-last_updated: "2026-08-21T11:45:00.000Z"
-last_activity: "2026-08-21 - 261-05 complete: three CER-03 Cohort 2 batch A judgment payloads (Futures Wheel, MECE, Adaptive Leadership) authored with mandatory RULING REQUIRED/DISCLOSURE headers, plus three fixtures and one paste-ready navigator card, dry-run-only, never executed against canon"
+stopped_at: "Phase 261 Plan 06 COMPLETE: CER-03 Cohort 2 batch B authored (PWS Triple Validation Compass 4/4 default, Hypothesis-Driven Problem Solving 4/4, Adoption-Capacity Theory 4/4, Mullins Model verified with an honest 3/4 ceiling) with mandatory RULING REQUIRED + DISCLOSURE headers per payload plus one paste-ready navigator card (docs/2026-08-21-CARDS-cohort2-batch-b.md) carrying the CER-03-named Triple Validation Compass ruling as two separate option sets -- 3 commits local to ProblemsWorthSolving-Brain (ae504ad fixtures, b43f6d2 payloads, d8773e5 card), unpushed per the standing freeze. CER-03 now fully authored (7/7 judgment rows across both batches). Next: 261-07."
+last_updated: "2026-08-21T12:20:00.000Z"
+last_activity: "2026-08-21 - 261-06 complete: three CER-03 Cohort 2 batch B judgment payloads (PWS Triple Validation Compass, Hypothesis-Driven Problem Solving, Adoption-Capacity Theory) authored with mandatory RULING REQUIRED/DISCLOSURE headers, plus a four-point VERIFICATION of the pre-existing Mullins payload, four fixtures, and one paste-ready navigator card, dry-run-only, never executed against canon"
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 29
-  completed_plans: 21
-  percent: 72
+  completed_plans: 22
+  percent: 76
 ---
 
 <!-- NOTE (261-05 executor, 2026-08-21T11:40Z): the frontmatter above was found corrupted on
@@ -61,6 +61,64 @@ progress:
      lagged). Not this plan's own regression. -->
 
 # Project State
+
+## (2026-08-21) -- 261-06 COMPLETE -- CER-03 Cohort 2 batch B judgment payloads authored (Triple Validation Compass, Hypothesis-Driven, Adoption-Capacity, Mullins verify)
+
+- **Position:** Phase 261 (Enrichment Ceremony) Plan 06 is COMPLETE (6/13 plans). **261-07 is
+  next.**
+
+- **What executed:** Task 1 authored four known-answer eval fixtures
+  (`tests/fixtures/framework-evals/triple-validation-compass.json`,
+  `hypothesis-driven-problem-solving.json`, `adoption-capacity-theory.json`, `mullins-model.json`
+  in `ProblemsWorthSolving-Brain`). Three from their contested sources (`references/methodology/
+  grade.md`, `commands/research.md`, `commands/diffusion.md` + `sensor-diffusion-adoption.cjs`);
+  the fourth to VERIFY the pre-existing `mullins-seven-domains.mjs` payload rather than source a
+  new one. Discovered-fixture count went 13 to 17, exactly +4. Task 2 authored three JUDGMENT
+  payloads (`payloads/triple-validation-compass.mjs`, `hypothesis-driven-problem-solving.mjs`,
+  `adoption-capacity-theory.mjs`) with mandatory `RULING REQUIRED:`/`DISCLOSURE:` blocks, and
+  appended a `VERIFICATION 2026-08-21:` header block to `mullins-seven-domains.mjs` (git diff
+  confirmed header-only, body unchanged, four checks all PASS, no HOLD). All three new payloads
+  cross-checked node-for-node against the Task 1 fixtures -- all matched (4/4 each). Task 3 wrote
+  `docs/2026-08-21-CARDS-cohort2-batch-b.md`, the CER-03-named Triple Validation Compass ruling
+  as two separate numbered option sets, two more accept/reject rulings, and a Mullins
+  CONFIRMATION section, cross-linked from all four payload headers. All three commits local
+  (`ae504ad` fixtures, `b43f6d2` payloads, `d8773e5` card), NOT pushed, per the standing freeze.
+  Zero graph calls, `payloads/run-ingest.mjs` never run.
+
+- **The plan's own premise, re-verified rather than repeated:** the plan stated "NO document
+  anywhere names Triple Validation Compass," citing FEATURES.md's 2026-08-13 "zero hits outside
+  frontmatter" reading. A fresh grep found 122 hits across 41 files, and -- the load-bearing
+  correction -- exactly ONE non-frontmatter, non-generated-data hit:
+  `references/personality/pws-lexicon-full.md:175`, a glossary row that DOES define the
+  framework ("Is it Real? Can we Win? Is it Worth It? The three gates every PWS must pass.").
+  Recorded plainly rather than smoothed over. The SAFER default (grade.md alone) was still
+  chosen for the payload's actual structure, to avoid colliding with PWS Value Proposition's
+  own already-live Three-Gates grounding.
+
+- **The single most important assertion this plan's objective names, verified by negative
+  control:** Adoption-Capacity Theory's structure (drawn from `commands/diffusion.md`'s own
+  six-step ACE walk) shares ZERO phase names with `analyze-timing.md`'s six S-Curve Analysis
+  phases (already live, ratified, 3/4) -- verified by a negative control naming a real S-Curve
+  phase ("Phase 4: Dominant Design Analysis") and asserting its absence.
+
+- **Mullins Model verified, not re-authored:** `payloads/mullins-seven-domains.mjs` (commit
+  `aa15966`, already executed once) got a dated `VERIFICATION 2026-08-21:` block covering four
+  named checks -- all PASS, no HOLD. The card presents this as a CONFIRMATION (accept the honest
+  3/4 ceiling, `flow` permanently unsupported), stating plainly that 3/4 already clears the floor.
+
+- **CER-03 is now fully authored:** seven judgment rows total across both batches (261-05:
+  Futures Wheel, MECE, Adaptive Leadership; 261-06: Triple Validation Compass, Hypothesis-Driven,
+  Adoption-Capacity, Mullins), matching CER-03's own requirement text ("7 judgment flagship
+  payloads land via individual cards, including the Triple Validation Compass source-attribution
+  ruling").
+
+- **Known bugs worked around per this plan's own explicit instruction:** `ProblemsWorthSolving-
+  Brain` all three commits pathspec-limited (`git commit -m ... -- <this plan's files only>`);
+  confirmed clean via `git status --short` after each, and confirmed new `.planning/*`-adjacent
+  files were not silently skipped since none were created in that repo this plan. This repo's
+  (`MindrianOS-Plugin`) STATE.md and ROADMAP.md updated BY HAND, not via `gsd-tools query
+  state.*`/`roadmap.*`, per this plan's own explicit instruction to avoid the documented
+  resync-clobber bug and prose-garbling bug four sibling plans already hit tonight.
 
 ## Deferred Items
 
