@@ -1238,9 +1238,9 @@ naming with the discovery mechanism, or use the explicit-list style instead.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Which `reach_id` should SENS-18 emit?**
+1. **Which `reach_id` should SENS-18 emit? RESOLVED.**
    - What we know: `makeReach` accepts exactly six; `brain_consult` and `deep_research` are
      suppressed on turns 1-2 by `isReachEligibleForTurn`; `context_block` is never suppressed
      and is what 12 of 19 sensors already fire.
@@ -1248,8 +1248,9 @@ naming with the discovery mechanism, or use the explicit-list style instead.
    - Recommendation: `context_block` with `posture: 'hold'` (D-06). If `deep_research` is
      preferred, the plan must state the turns 1-2 dead zone as an accepted consequence and the
      fixtures must set `turn_count >= 3`.
+   - RESOLVED (plan-phase): `context_block` adopted -- see 264-03-PLAN.md's Decisions section.
 
-2. **Does the chain array need to reach a consumer at all in this phase?**
+2. **Does the chain array need to reach a consumer at all in this phase? RESOLVED.**
    - What we know: F-09 proves no shipped consumer reads bare framework names off `companions`.
      SPEC Requirement 3's acceptance is *"an integration test drives one sample turn through
      `dispatchSensors`, the new sensor fires, and its `suggested_chain`, passed to
@@ -1259,24 +1260,31 @@ naming with the discovery mechanism, or use the explicit-list style instead.
    - Recommendation: satisfy the acceptance via `evidence.roadmap_type` + table lookup in the
      integration test; carry `companions` as observability; name "wire a live consumer" as a
      follow-on, the same way D-11 names the async-path fix.
+   - RESOLVED (plan-phase): `evidence.roadmap_type` + table lookup adopted -- see 264-05-PLAN.md's
+     "Requirement 3 resolved" section. "Wire a live consumer" named as a follow-on phase.
 
-3. **Should `/mos:present` be dropped from Agenda-Setting Manifesto, or should a framework be added for it?**
+3. **Should `/mos:present` be dropped from Agenda-Setting Manifesto, or should a framework be added for it? RESOLVED.**
    - What we know: `/mos:present` has an empty `frameworks` array, so it cannot appear in a
      framework-name chain at all; adding one would mean editing command frontmatter and
      regenerating `data/command-registry.json`, which is outside this phase's boundaries.
    - Recommendation: drop it, ship the 2-step chain in F-06, and note the gap.
+   - RESOLVED (plan-phase): dropped, per 264-01-PLAN.md Task 1's `_note` item 4.
 
-4. **The langtalks-graph-expert grounding leg was not executed.**
+4. **The langtalks-graph-expert grounding leg was not executed by this research agent. RESOLVED.**
    - What we know: `./CLAUDE.md` mandates consulting langtalks-graph-expert for agent/LLM
      engineering concepts (adversarial critic design, self-critique loops, autocurricula are all
      in scope for its corpus). MCP tools were not present in this research agent's tool surface
      and `claude mcp list` timed out from the sandbox.
    - What is unclear: whether external corpus evidence would refine D-10's panel-size ruling.
-   - Recommendation: D-10's ruling is already grounded in an in-repo empirical measurement
-     (a 9-judge panel delivering ~2.2 effective votes), which is stronger evidence for THIS
-     codebase than a general corpus would be. If external grounding is wanted, the navigator or
-     the planner should run `relationship_path` on "adversarial critic" / "self-critique" during
-     plan-phase. Flagging honestly rather than papering over it.
+   - RESOLVED (plan-checker follow-up, orchestrator session, direct MCP access):
+     `relationship_path("LLM judge", "multi-agent verification")` returns only a 2-hop
+     shared-episode edge (both terms mentioned in "Building an Advanced Agentic Harness",
+     no direct typed relationship); `get_entity("LLM judge")` returns exactly one shallow
+     citation, same episode, no panel-size discussion. Honest "thin corpus coverage" result,
+     not a "not in the corpus yet" zero -- confirms rather than refines D-10's ruling. D-10
+     stands on the stronger in-repo empirical measurement (a 9-judge panel delivering ~2.2
+     effective votes), per this repo's own precedent for when in-repo evidence outweighs a
+     general corpus.
 
 5. **CONTEXT.md's Canonical References contain two wrong paths.**
    - `lib/core/reverse-salient-agent.cjs` does not exist; the file is
