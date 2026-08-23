@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "SESSION PAUSED by navigator, mid-261-12 Task 1. Plans 261-01 through 261-11 (waves 1-3) are executed and committed. 261-12 (wave 4, the admin window) was started: navigator approved opening it via Render MCP, the open-deploy was mid-flight when the navigator asked to stop, so the window was CLOSED again immediately (BRAIN_HTTP_ADMIN=deny, redeploy confirmed live, brain_write smoke-test confirmed absent) rather than leaving a freshly-opened window across a session boundary. Zero graph writes happened in 261-12 -- no Session 0, no FIX-01 round-trip, no payload committed. No 261-12-SUMMARY.md exists; from GSD's own tracking this task is untouched. Full handoff: docs/2026-08-21-HANDOFF-phase261-ceremony-paused-before-window-work.md. Next: resume 261-12 Task 1 (re-open the window, verify BOTH brain_write and ingest_framework present, proceed inline per the plan's own EXECUTION CONSTRAINT), then 261-13, then 262, then 263."
-last_updated: "2026-08-21T16:12:20.455471Z"
-last_activity: "2026-08-21 - Session paused at navigator's request mid-261-12 Task 1. Window opened then deliberately re-closed before any window-work happened, confirmed closed via live smoke-test, full handoff written and committed."
+stopped_at: Phase 264 context gathered (auto mode)
+last_updated: "2026-08-23T17:40:43.931Z"
+last_activity: 2026-08-19 - Completed quick task 260819-dmm (clean-tree drift class killed) - re-firing the release ceremony
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 3
   total_plans: 29
   completed_plans: 27
-  percent: 93
+  percent: 25
 ---
 
 <!-- NOTE (261-11 executor, 2026-08-21T09:40Z): frontmatter above updated by hand, not via
@@ -4996,8 +4996,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-21T07:34:04.073Z
-Stopped at: Completed 261-04-PLAN.md
+Last session: 2026-08-23T17:40:43.761Z
+Stopped at: Phase 264 context gathered (auto mode)
 
 **260820-recon (this session, retroactive registration per precedent 260819-ws-adf):** a second Claude Code session (Windows, `jsagi-4e`) is running in parallel on this SAME checkout (`fix/part8-guard-in-mcp-handlers`, shared working tree, not a separate worktree -- confirmed via `git worktree list` and cross-session message). Reconciliation this session: verified `7d6c188b` ("research(260,261) + seed(079): feed the Gate 0 diagnostic into the planning lane") is an ancestor of HEAD via `git merge-base --is-ancestor`, confirmed on this branch only via `git branch --all --contains`, zero divergence. Read the other session's `.planning/debug/brain-gate0-diagnostic-260820.md`, `SEED-079`, `260-RESEARCH.md`, `261-RESEARCH.md` in full. Found this session's own in-flight Phase 258 plan-phase run (`a8cf24e78cf918903`) had produced a 96KB `258-RESEARCH.md` with ZERO references to the archived-batch finding (95 of 100 demoted `:Framework` nodes in contiguous id block 28000-29000, the concrete RECON-01 target) -- injected the three files via cross-session `SendMessage` to the running agent before `PLAN.md` locks, since 258's `CONTEXT.md` predates the diagnostic and never listed it as a canonical ref. Two DIRECT (non-GSD-workflow) edits made outside any `/gsd-*` command, both docs-only, zero code/test impact, made under time pressure to keep the outbound Brain-team handoff accurate while a live cross-session reconciliation was in progress: (1) added a "Status update" blockquote to the tracked `docs/2026-08-20-HANDOFF-brain-devs-gate0-diagnostic.md` (the other session's v4 handoff, committed so it crosses machines, unlike `.planning/`) noting the injection above closes the "nothing auto-feeds this to the planner" gap the doc itself flagged; (2) this STATE.md entry. Also drafted (NOT sent) a short Gmail follow-up in the same thread as the v4 handoff (`create_draft` with `replyToMessageId`) carrying the same update, leaving the carefully-authored v4 body untouched. Confirmed the repo's `_models_note` in `.planning/config.json` (fable for planning/discuss/research, sonnet for execution/verification/completion) is a deliberate 2026-08-10 navigator directive amending the 2026-07-25 never-use-fable rule for this repo's GSD agents only -- checked, not a violation, no action taken. One incidental side effect: an exploratory `gsd-tools state record-session` call with no args (checking usage) bumped `last_updated`/`Last session` timestamps with no content loss, confirmed via `git diff`.
 
