@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.8 (in progress)
+## [2.0.0-beta.9] - 2026-08-23
 
 ### Added
 - Roadmap-Type Selector (Phase 264): a navigator's stated research goal is silently classified into one of six scientific-roadmapping output shapes (Landscape Analysis, Technical Roadmap, Pipeline Analysis, Opportunity Analysis, Agenda-Setting Manifesto, Vision Paper) and resolved to the matching framework-name chain via the existing chain_resolve seam. New sensor SENS-18 (`lib/core/sensors/sensor-roadmap-type.cjs`), a deterministic additive-score classifier following `dual-path-detector.cjs`'s template, registered across the 3-array sensor lockstep. New `data/roadmap-type-chains.json` chain table with a five-arm drift validator mirroring the existing `dispatch-framework-map.json` precedent.
