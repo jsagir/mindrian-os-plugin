@@ -1,0 +1,28 @@
+{
+  "_note": "Phase 264 R2 roadmap-type to framework-name chain table - values are framework NAMES validated against command-resolver.cjs's framework_index via commandsForFramework, never slugs and never commands (D-05) - the file is hand-authored, NOT generated, because there is no frontmatter source of truth to generate from (D-04), contrast data/command-registry.json which IS generated - it is drift-tested by tests/test-264-roadmap-type-chains-drift.cjs, which is wired explicitly into tests/run-all-264.sh - agenda-setting-manifesto deliberately ships as a 2-step chain because /mos:present has an empty frameworks array in the registry and therefore cannot appear in a framework-name chain at all (RESEARCH Open Question 3; adding a framework to it would mean editing command frontmatter and regenerating the registry, which is outside this phase's boundaries) - Futures Wheel and Six Thinking Hats are the two framework_index names that are NOT autonomous-safe and must never be added to a chain here, because they would flip validateChainAutonomy(...).runnable to false.",
+  "landscape-analysis": [
+    "Usher's Model of Cumulative Synthesis",
+    "HSI Semantic Surprise Analysis Assistant"
+  ],
+  "technical-roadmap": [
+    "Problem Definition Transformation Framework",
+    "Reverse Salient Analysis",
+    "Knowns and Unknowns Matrix Framework"
+  ],
+  "pipeline-analysis": [
+    "Systems Thinking",
+    "Reverse Salient Analysis",
+    "S-Curve Analysis"
+  ],
+  "opportunity-analysis": [
+    "PWS Value Proposition"
+  ],
+  "agenda-setting-manifesto": [
+    "Beautiful Question Framework",
+    "MECE (Mutually Exclusive, Collectively Exhaustive)"
+  ],
+  "vision-paper": [
+    "Scenario Planning",
+    "Four Lenses of Innovation"
+  ]
+}
