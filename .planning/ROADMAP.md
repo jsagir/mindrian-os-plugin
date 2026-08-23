@@ -404,3 +404,26 @@ boundary; a permanent HTTP DDL tool (the 2-day-open-window lesson stands).
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 263 to break down)
+
+### Phase 264: Roadmap-Type Selector: challenge-driven act-chain orchestration for the research command family
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** None (independent of Phase 261-263's Brain-graph readiness/ceremony work --
+touches `act-chain`/`chain_resolve`/SENSOR_REGISTRY, not the graph population)
+**Repo:** MindrianOS-Plugin
+**Milestone note:** Not part of v2.1.0 "Green the Floor" -- appended as the next open phase
+number per PROJECT.md's continuous-numbering convention; sequence into v2.1.0's tail or a
+future milestone at planning time, navigator's call, not blocked on 262/263 completing.
+**Origin:** rethinking-mindrianos research trail
+`research/2026-08-23-scientific-roadmapping-orchestrator/` -- synthesis of Convergent
+Research's "Scientific Roadmapping" (six roadmap-type output taxonomy) + Leibo et al.'s
+"A Manifesto for Multi-Agent Intelligence Research" (autocurricula run-loop), mapped onto
+MindrianOS's existing research command family (find-bottlenecks, find-connections,
+whitespace, find-analogies, macro-trends/explore-futures, build-thesis) and orchestration
+substrate (act-chain, chain_resolve/chain_run, Workflow adversarial-verify/loop-until-dry).
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 264 to break down)
