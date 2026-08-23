@@ -3,16 +3,28 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 264 context gathered (auto mode)
-last_updated: "2026-08-23T17:40:43.931Z"
-last_activity: 2026-08-19 - Completed quick task 260819-dmm (clean-tree drift class killed) - re-firing the release ceremony
+stopped_at: "SESSION PAUSED by navigator, mid-261-12 Task 1. Plans 261-01 through 261-11 (waves 1-3) are executed and committed. 261-12 (wave 4, the admin window) was started: navigator approved opening it via Render MCP, the open-deploy was mid-flight when the navigator asked to stop, so the window was CLOSED again immediately (BRAIN_HTTP_ADMIN=deny, redeploy confirmed live, brain_write smoke-test confirmed absent) rather than leaving a freshly-opened window across a session boundary. Zero graph writes happened in 261-12 -- no Session 0, no FIX-01 round-trip, no payload committed. No 261-12-SUMMARY.md exists; from GSD's own tracking this task is untouched. Full handoff: docs/2026-08-21-HANDOFF-phase261-ceremony-paused-before-window-work.md. Next: resume 261-12 Task 1 (re-open the window, verify BOTH brain_write and ingest_framework present, proceed inline per the plan's own EXECUTION CONSTRAINT), then 261-13, then 262, then 263. UNRELATED, ADDITIVE: Phase 264 (roadmap-type-selector, a different, independent initiative -- see .planning/phases/264-.../264-CONTEXT.md) had its discuss-phase completed 2026-08-23; does not block or reorder 261-12's resume."
+last_updated: "2026-08-21T16:12:20.455471Z"
+last_activity: "2026-08-21 - Session paused at navigator's request mid-261-12 Task 1. Window opened then deliberately re-closed before any window-work happened, confirmed closed via live smoke-test, full handoff written and committed."
 progress:
-  total_phases: 12
+  total_phases: 11
   completed_phases: 3
   total_plans: 29
   completed_plans: 27
-  percent: 25
+  percent: 93
 ---
+
+<!-- NOTE (264 discuss-phase, 2026-08-23T17:40Z, hand-edited per this file's own documented
+     resync-clobber bug): an earlier `gsd-tools query state.record-session` call in this same
+     session OVERWROTE stopped_at/last_updated/last_activity/progress above with Phase 264's
+     own session info, silently discarding the mid-261-12 admin-window pause and recomputing
+     progress against a stale total_phases (12 instead of 11, corrupting percent from 93 to 25).
+     Restored verbatim from git history (95275d31~1) in the same commit that adds this note.
+     Phase 264 itself is real, independent work (264-SPEC.md + 264-CONTEXT.md committed,
+     253621af) -- it just does not belong in this frontmatter's single stopped_at slot while
+     261-12 is the actually-paused, resume-pending ceremony. Confirms the standing instruction
+     several 261-* executor notes below already state: update this frontmatter by hand for
+     any phase that is NOT the one actually paused/resumable, never via state.record-session. -->
 
 <!-- NOTE (261-11 executor, 2026-08-21T09:40Z): frontmatter above updated by hand, not via
      `gsd-tools query state.*`, per this plan's own explicit instruction (the documented
@@ -4996,8 +5008,23 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-23T17:40:43.761Z
-Stopped at: Phase 264 context gathered (auto mode)
+Last session: 2026-08-21T07:34:04.073Z
+Stopped at: Completed 261-04-PLAN.md
+
+**264 discuss-phase note (2026-08-23, hand-appended, does not touch the "Last session"/"Stopped
+at" pointer above since 261-12 is the actually-paused/resumable work):** ran `/gsd-spec-phase
+264` and `/gsd-discuss-phase 264 --auto` for an independent, navigator-originated initiative
+(roadmap-type-selector + challenge-driven act-chain orchestration, origin: rethinking-mindrianos
+research trail `2026-08-23-scientific-roadmapping-orchestrator`). 264-SPEC.md (5 requirements,
+ambiguity 0.18) and 264-CONTEXT.md/264-DISCUSSION-LOG.md committed (`c5a6312d`, `253621af`). An
+early `gsd-tools query state.record-session` call in this same session overwrote this
+frontmatter's `stopped_at`/`last_updated`/`last_activity`/`progress` AND these two
+"Last session"/"Stopped at" lines with Phase 264's own info, silently discarding the 261-12
+admin-window pause pointer and corrupting `percent` (93 -> 25, against a stale `total_phases`
+12 instead of 11) -- caught and restored verbatim from git history in the same session; see the
+frontmatter's own dated NOTE above the 261-11 executor note for the full account. Auto-advancing
+to `/gsd-plan-phase 264 --auto` next per `--auto`'s documented chain behavior; this is Phase
+264's own chain, unrelated to and not reordering 261-12/261-13/262/263.
 
 **260820-recon (this session, retroactive registration per precedent 260819-ws-adf):** a second Claude Code session (Windows, `jsagi-4e`) is running in parallel on this SAME checkout (`fix/part8-guard-in-mcp-handlers`, shared working tree, not a separate worktree -- confirmed via `git worktree list` and cross-session message). Reconciliation this session: verified `7d6c188b` ("research(260,261) + seed(079): feed the Gate 0 diagnostic into the planning lane") is an ancestor of HEAD via `git merge-base --is-ancestor`, confirmed on this branch only via `git branch --all --contains`, zero divergence. Read the other session's `.planning/debug/brain-gate0-diagnostic-260820.md`, `SEED-079`, `260-RESEARCH.md`, `261-RESEARCH.md` in full. Found this session's own in-flight Phase 258 plan-phase run (`a8cf24e78cf918903`) had produced a 96KB `258-RESEARCH.md` with ZERO references to the archived-batch finding (95 of 100 demoted `:Framework` nodes in contiguous id block 28000-29000, the concrete RECON-01 target) -- injected the three files via cross-session `SendMessage` to the running agent before `PLAN.md` locks, since 258's `CONTEXT.md` predates the diagnostic and never listed it as a canonical ref. Two DIRECT (non-GSD-workflow) edits made outside any `/gsd-*` command, both docs-only, zero code/test impact, made under time pressure to keep the outbound Brain-team handoff accurate while a live cross-session reconciliation was in progress: (1) added a "Status update" blockquote to the tracked `docs/2026-08-20-HANDOFF-brain-devs-gate0-diagnostic.md` (the other session's v4 handoff, committed so it crosses machines, unlike `.planning/`) noting the injection above closes the "nothing auto-feeds this to the planner" gap the doc itself flagged; (2) this STATE.md entry. Also drafted (NOT sent) a short Gmail follow-up in the same thread as the v4 handoff (`create_draft` with `replyToMessageId`) carrying the same update, leaving the carefully-authored v4 body untouched. Confirmed the repo's `_models_note` in `.planning/config.json` (fable for planning/discuss/research, sonnet for execution/verification/completion) is a deliberate 2026-08-10 navigator directive amending the 2026-07-25 never-use-fable rule for this repo's GSD agents only -- checked, not a violation, no action taken. One incidental side effect: an exploratory `gsd-tools state record-session` call with no args (checking usage) bumped `last_updated`/`Last session` timestamps with no content loss, confirmed via `git diff`.
 
