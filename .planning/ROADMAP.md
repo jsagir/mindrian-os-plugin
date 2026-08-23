@@ -429,10 +429,17 @@ MindrianOS's existing research command family (find-bottlenecks, find-connection
 whitespace, find-analogies, macro-trends/explore-futures, build-thesis) and orchestration
 substrate (act-chain, chain_resolve/chain_run, Workflow adversarial-verify/loop-until-dry).
 **Plans:** 5 plans in 3 waves
-
 Plans:
+**Wave 1**
+
 - [ ] 264-01-PLAN.md -- chain table + drift validator + phase aggregator with the 166 regression, chain-executor zero-diff, and em-dash gates (wave 1, R2/R5/C-01)
 - [ ] 264-02-PLAN.md -- `lib/core/salient-governance.cjs`, the synchronous two-pass adversarial RS critic, plus its unit suite (wave 1, R4)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 264-03-PLAN.md -- SENS-18 roadmap-type classifier sensor, 3-array registration lockstep, 15-fixture suite (wave 2, R1)
 - [ ] 264-04-PLAN.md -- flagship direct-`runChain` challenge-driven proof + B3 source pin over chain-executor's gate functions (wave 2, R4/R5)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 264-05-PLAN.md -- sensor-to-`chain_resolve` wiring proof + phase closing gate (wave 3, R3/R5)
