@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "SESSION PAUSED by navigator, mid-261-12 Task 1. Plans 261-01 through 261-11 (waves 1-3) are executed and committed. 261-12 (wave 4, the admin window) was started: navigator approved opening it via Render MCP, the open-deploy was mid-flight when the navigator asked to stop, so the window was CLOSED again immediately (BRAIN_HTTP_ADMIN=deny, redeploy confirmed live, brain_write smoke-test confirmed absent) rather than leaving a freshly-opened window across a session boundary. Zero graph writes happened in 261-12 -- no Session 0, no FIX-01 round-trip, no payload committed. No 261-12-SUMMARY.md exists; from GSD's own tracking this task is untouched. Full handoff: docs/2026-08-21-HANDOFF-phase261-ceremony-paused-before-window-work.md. Next: resume 261-12 Task 1 (re-open the window, verify BOTH brain_write and ingest_framework present, proceed inline per the plan's own EXECUTION CONSTRAINT), then 261-13, then 262, then 263. UNRELATED, ADDITIVE: Phase 264 (roadmap-type-selector, a different, independent initiative -- see .planning/phases/264-.../264-CONTEXT.md) had its discuss-phase completed 2026-08-23; does not block or reorder 261-12's resume."
+stopped_at: "SESSION PAUSED by navigator, mid-261-12 Task 1. Plans 261-01 through 261-11 (waves 1-3) are executed and committed. 261-12 (wave 4, the admin window) was started: navigator approved opening it via Render MCP, the open-deploy was mid-flight when the navigator asked to stop, so the window was CLOSED again immediately (BRAIN_HTTP_ADMIN=deny, redeploy confirmed live, brain_write smoke-test confirmed absent) rather than leaving a freshly-opened window across a session boundary. Zero graph writes happened in 261-12 -- no Session 0, no FIX-01 round-trip, no payload committed. No 261-12-SUMMARY.md exists; from GSD's own tracking this task is untouched. Full handoff: docs/2026-08-21-HANDOFF-phase261-ceremony-paused-before-window-work.md. Next: resume 261-12 Task 1 (re-open the window, verify BOTH brain_write and ingest_framework present, proceed inline per the plan's own EXECUTION CONSTRAINT), then 261-13, then 262, then 263. UNRELATED, ADDITIVE: Phase 264 (roadmap-type-selector, a different, independent initiative -- see .planning/phases/264-.../264-CONTEXT.md) is now planned (5 plans, 3 waves, checker-verified 2026-08-23); does not block or reorder 261-12's resume."
 last_updated: "2026-08-21T16:12:20.455471Z"
 last_activity: "2026-08-21 - Session paused at navigator's request mid-261-12 Task 1. Window opened then deliberately re-closed before any window-work happened, confirmed closed via live smoke-test, full handoff written and committed."
 progress:
@@ -13,6 +13,23 @@ progress:
   completed_plans: 27
   percent: 93
 ---
+
+<!-- NOTE (264 plan-phase, 2026-08-23T18:39Z, hand-edited per this file's own documented
+     resync-clobber bug, SECOND OCCURRENCE this session): `gsd-tools query state.planned-phase
+     --phase 264 ...` (step 13b of the plan-phase workflow) reported `{"updated":["Status"]}` --
+     claiming it touched ONLY the Status field -- but actually ALSO silently overwrote
+     stopped_at/last_updated/last_activity above with a stale, unrelated value ("Completed
+     261-04-PLAN.md", the same string previously sitting in the Session Continuity section
+     below), discarding the mid-261-12 pause pointer a second time. The tool's own success
+     report undercounted what it changed -- a real false-tool-success-report instance, not
+     hypothetical. Restored verbatim (this is the second hand-restoration this session; see the
+     264-discuss-phase NOTE below for the first, same root cause, different call site --
+     state.record-session that time, state.planned-phase this time). Confirms the pattern is not
+     one buggy call but a class: multiple `gsd-tools query state.*` mutation verbs resync this
+     frontmatter from a stale/wrong source whenever a phase other than the one actually paused
+     is the subject. Standing fix going forward: treat EVERY `state.*` mutation as
+     clobber-suspect for this repo specifically -- diff stopped_at/last_updated/last_activity
+     before and after, restore by hand if changed, never trust the tool's own "updated" list. -->
 
 <!-- NOTE (264 discuss-phase, 2026-08-23T17:40Z, hand-edited per this file's own documented
      resync-clobber bug): an earlier `gsd-tools query state.record-session` call in this same
