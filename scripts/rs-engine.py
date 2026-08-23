@@ -383,6 +383,84 @@ def semantic_similarity_matrix(embeddings: np.ndarray) -> np.ndarray:
 
 # --- SQLite edge writer ------------------------------------------------------
 
+# System provenance defaults for rs-engine's own node writes. Mirrors
+# lib/core/node-insert.cjs's SYSTEM_SOURCE_PATH / SYSTEM_CREATED_BY, using a
+# distinct source_path handle ('system:rs-engine' vs the JS module's
+# 'system:hsi-to-graph') so RS-written nodes stay distinguishable from
+# HSI-written ones per the RCA's Change 1 requirement.
+RS_ENGINE_SOURCE_PATH = "system:rs-engine"
+RS_ENGINE_CREATED_BY = "system"
+
+
+def _now_ms() -> int:
+    """Epoch milliseconds, matching the INTEGER created_at/last_seen_at
+    columns the Phase-109 migration writes (see phase-109-nodes-provenance.cjs,
+    which stores JS Date.now()-shaped epoch-ms integers)."""
+    return int(datetime.now(timezone.utc).timestamp() * 1000)
+
+
+def _nodes_table_is_migrated(conn: sqlite3.Connection) -> bool:
+    """Detect the Phase-109 provenance schema on the nodes table.
+
+    Mirrors lib/core/node-insert.cjs's isMigratedSchema: PRAGMA table_info(nodes)
+    and check for the source_path column. Defensive: any PRAGMA failure falls
+    back to the legacy 3-column shape (the wide insert would throw on a real
+    legacy db, so defaulting to legacy is the safe choice -- same rationale as
+    the JS helper).
+    """
+    try:
+        cols = conn.execute("PRAGMA table_info(nodes)").fetchall()
+        # PRAGMA table_info row shape: (cid, name, type, notnull, dflt_value, pk)
+        return any(row[1] == "source_path" for row in cols)
+    except sqlite3.Error:
+        return False
+
+
+def _upsert_node(
+    conn: sqlite3.Connection,
+    migrated: bool,
+    node_id: str,
+    node_type: str,
+    properties_json: str,
+) -> None:
+    """NOT-NULL-safe node upsert (RCA rs-engine-python-insert-not-null-and-detail-drop-regression).
+
+    Mirrors lib/core/node-insert.cjs's insertNode contract in Python. The bare
+    3-column insert this replaces crashed with
+    `NOT NULL constraint failed: nodes.source_path` on any room.db carrying
+    the Phase-109 wide nodes schema, since node-insert.cjs's Phase 140-01 fix
+    only covers its 4 JS call sites and this script is Python.
+
+    On the migrated (wide) schema, supplies the four NOT NULL provenance
+    columns with rs-engine's own system-write defaults. On the legacy
+    3-column schema, keeps the original bare insert unchanged.
+    """
+    if migrated:
+        now_ms = _now_ms()
+        conn.execute(
+            "INSERT INTO nodes "
+            "(id, type, properties, source_path, created_by, created_at, last_seen_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?) "
+            "ON CONFLICT(id) DO UPDATE SET "
+            "properties = excluded.properties, last_seen_at = excluded.last_seen_at",
+            (
+                node_id,
+                node_type,
+                properties_json,
+                RS_ENGINE_SOURCE_PATH,
+                RS_ENGINE_CREATED_BY,
+                now_ms,
+                now_ms,
+            ),
+        )
+        return
+    conn.execute(
+        "INSERT INTO nodes (id, type, properties) VALUES (?, ?, ?) "
+        "ON CONFLICT(id) DO UPDATE SET properties = excluded.properties",
+        (node_id, node_type, properties_json),
+    )
+
+
 def write_reverse_salient_edges(
     room_dir: Path,
     pairs: Sequence[Dict],
@@ -443,10 +521,11 @@ def write_reverse_salient_edges(
             "VALUES (?, ?, ?, ?) ON CONFLICT(source, target, type) "
             "DO UPDATE SET properties = excluded.properties"
         )
-        upsert_node = (
-            "INSERT INTO nodes (id, type, properties) VALUES (?, ?, ?) "
-            "ON CONFLICT(id) DO UPDATE SET properties = excluded.properties"
-        )
+        # Detect schema ONCE per invocation (D-02a both-schema safety, mirrors
+        # node-insert.cjs's per-call PRAGMA check): a migrated db requires the
+        # wide insert, a legacy 3-col db (created by the CREATE TABLE IF NOT
+        # EXISTS above, on a room with no prior migration) rejects it.
+        migrated = _nodes_table_is_migrated(conn)
 
         written = 0
         for pair in pairs:
@@ -456,19 +535,25 @@ def write_reverse_salient_edges(
                 continue
             # Upsert artifact nodes as a courtesy so downstream readers can
             # resolve them without relying on compute-hsi having run first.
-            conn.execute(
-                upsert_node,
-                (src, "Artifact", json.dumps({
+            _upsert_node(
+                conn,
+                migrated,
+                src,
+                "Artifact",
+                json.dumps({
                     "title": pair.get("source_title", ""),
                     "section": pair.get("source_section", ""),
-                })),
+                }),
             )
-            conn.execute(
-                upsert_node,
-                (tgt, "Artifact", json.dumps({
+            _upsert_node(
+                conn,
+                migrated,
+                tgt,
+                "Artifact",
+                json.dumps({
                     "title": pair.get("target_title", ""),
                     "section": pair.get("target_section", ""),
-                })),
+                }),
             )
             props = json.dumps({
                 "source": "rs-engine",

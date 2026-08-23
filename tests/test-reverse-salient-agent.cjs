@@ -21,6 +21,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
 const crypto = require('node:crypto');
 
 const AGENT_PATH = path.resolve(__dirname, '..', 'lib', 'agents', 'reverse-salient-agent.cjs');
@@ -247,6 +248,84 @@ test('Wave-1: runRsEngine schema-tolerant accepts signed_diff and signed_delta (
   const b = m._internal.normalizePair({ signed_delta: 0.7, abs_diff: 0.7, innovation_type: 'semantic_implementation' });
   assert.equal(b.signed_diff, 0.7, 'normalizePair should accept signed_delta as fallback for signed_diff');
   assert.equal(b.direction, 'semantic_implementation', 'normalizePair should accept innovation_type as fallback for direction');
+});
+
+// ---------- Regression: detectAndSurface must forward rs.detail on failure ----------
+//
+// RCA rs-engine-python-insert-not-null-and-detail-drop-regression (2026-08-24):
+// detectAndSurface's failure-path early return read only `rs.reason` off
+// runRsEngine()'s result and dropped `rs.detail`, even though runRsEngine()
+// (Phase 127.2-03 Finding F2) populates `detail` specifically so callers can
+// self-recover from missing-deps / import / schema errors. Note: runRsEngine
+// is called as a local closure inside detectAndSurface (not via
+// module.exports.runRsEngine), so require-cache mocking (per
+// withMockedRequires above) cannot intercept it here -- these tests instead
+// force the real failure path via MINDRIAN_PYTHON, exercising the exact
+// production code path end to end.
+
+function withMindrianPython(pyPath, fn) {
+  const saved = process.env.MINDRIAN_PYTHON;
+  process.env.MINDRIAN_PYTHON = pyPath;
+  clearAgentCache();
+  try {
+    return fn();
+  } finally {
+    if (saved === undefined) delete process.env.MINDRIAN_PYTHON;
+    else process.env.MINDRIAN_PYTHON = saved;
+    clearAgentCache();
+  }
+}
+
+test('Regression: detectAndSurface forwards string detail on ENOENT-class failure', () => {
+  withMindrianPython('/nonexistent/mindrian-test-python3-does-not-exist', () => {
+    const m = require(AGENT_PATH);
+    const result = m.detectAndSurface({
+      roomDir: os.tmpdir(),
+      sessionId: 'test-session',
+      mode: 'internal',
+      topk: 1,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, 'rs_engine_invocation_failed');
+    assert.ok(
+      Object.prototype.hasOwnProperty.call(result, 'detail'),
+      'detectAndSurface must forward the detail field from runRsEngine failure path'
+    );
+    assert.ok(
+      typeof result.detail === 'string' && result.detail.length > 0,
+      'detail must be a non-empty string when the child process has no stderr (ENOENT)'
+    );
+    assert.deepEqual(result.findings, []);
+  });
+});
+
+test('Regression: detectAndSurface forwards { message, diagnostic } detail object when child stderr is present', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-detail-regression-'));
+  const fakePython = path.join(tmpDir, 'fake-python3.sh');
+  const marker = 'synthetic_rs_engine_failure_marker_for_regression_test';
+  fs.writeFileSync(
+    fakePython,
+    '#!/bin/sh\n' + 'echo "' + marker + '" 1>&2\n' + 'exit 1\n'
+  );
+  fs.chmodSync(fakePython, 0o755);
+  try {
+    withMindrianPython(fakePython, () => {
+      const m = require(AGENT_PATH);
+      const result = m.detectAndSurface({
+        roomDir: os.tmpdir(),
+        sessionId: 'test-session',
+        mode: 'internal',
+        topk: 1,
+      });
+      assert.equal(result.ok, false);
+      assert.equal(result.reason, 'rs_engine_invocation_failed');
+      assert.ok(result.detail && typeof result.detail === 'object', 'detail must be an object when stderr is present');
+      assert.equal(typeof result.detail.message, 'string');
+      assert.ok(result.detail.diagnostic.includes(marker), 'diagnostic must carry the child stderr text');
+    });
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
 });
 
 // ---------- Test 18-20: emitFindingEdge call shape ----------

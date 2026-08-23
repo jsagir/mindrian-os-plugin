@@ -93,6 +93,20 @@ else
   fail "--help does NOT document --check-rs-engine"
 fi
 
+# Check 8 (RCA rs-engine-python-insert-not-null-and-detail-drop-regression,
+# 2026-08-24): detectAndSurface's failure-path early return must forward
+# rs.detail, not just rs.reason -- otherwise the F2 fix above is unreachable
+# from the public entry point /mos:find-bottlenecks actually calls, and the
+# empty-result UX (commands/find-bottlenecks.md) has nothing to disambiguate
+# "no findings" from "analyzer down" with. Functional coverage (both the
+# string-detail and { message, diagnostic }-object-detail shapes) lives in
+# tests/test-reverse-salient-agent.cjs; this is the fast static guard.
+if grep -q 'reason: rs.reason, detail: rs.detail' lib/agents/reverse-salient-agent.cjs; then
+  pass "F2-regression detectAndSurface forwards rs.detail on failure"
+else
+  fail "F2-regression detectAndSurface does NOT forward rs.detail on failure (detail-drop regression is back)"
+fi
+
 echo ""
 echo "Results: $PASS pass, $FAIL fail"
 
