@@ -407,8 +407,14 @@ Plans:
 
 ### Phase 264: Roadmap-Type Selector: challenge-driven act-chain orchestration for the research command family
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** A navigator's stated research goal is silently classified into one of six
+roadmap output-shapes and resolved to the matching framework-name chain via the existing
+`chain_resolve` seam, and the Technical Roadmap chain's `find-bottlenecks` step opts into
+the already-shipped `ralph_verify` bounded self-critique seam with a real adversarial-panel
+`selfCritiqueFn`, proving challenge-driven execution end to end without touching
+`chain-executor.cjs`'s B3 / Canon Part 3 stop-condition contract (verified, not asserted).
+**Requirements**: R1-R5 (locked in `264-SPEC.md`; this phase sits outside REQUIREMENTS.md's
+v2.1.0 REQ-ID scheme, so plans carry SPEC requirement numbers)
 **Depends on:** None (independent of Phase 261-263's Brain-graph readiness/ceremony work --
 touches `act-chain`/`chain_resolve`/SENSOR_REGISTRY, not the graph population)
 **Repo:** MindrianOS-Plugin
@@ -422,8 +428,11 @@ Research's "Scientific Roadmapping" (six roadmap-type output taxonomy) + Leibo e
 MindrianOS's existing research command family (find-bottlenecks, find-connections,
 whitespace, find-analogies, macro-trends/explore-futures, build-thesis) and orchestration
 substrate (act-chain, chain_resolve/chain_run, Workflow adversarial-verify/loop-until-dry).
-**Plans:** 0 plans
+**Plans:** 5 plans in 3 waves
 
 Plans:
-
-- [ ] TBD (run /gsd-plan-phase 264 to break down)
+- [ ] 264-01-PLAN.md -- chain table + drift validator + phase aggregator with the 166 regression, chain-executor zero-diff, and em-dash gates (wave 1, R2/R5/C-01)
+- [ ] 264-02-PLAN.md -- `lib/core/salient-governance.cjs`, the synchronous two-pass adversarial RS critic, plus its unit suite (wave 1, R4)
+- [ ] 264-03-PLAN.md -- SENS-18 roadmap-type classifier sensor, 3-array registration lockstep, 15-fixture suite (wave 2, R1)
+- [ ] 264-04-PLAN.md -- flagship direct-`runChain` challenge-driven proof + B3 source pin over chain-executor's gate functions (wave 2, R4/R5)
+- [ ] 264-05-PLAN.md -- sensor-to-`chain_resolve` wiring proof + phase closing gate (wave 3, R3/R5)
