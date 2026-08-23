@@ -428,7 +428,7 @@ Research's "Scientific Roadmapping" (six roadmap-type output taxonomy) + Leibo e
 MindrianOS's existing research command family (find-bottlenecks, find-connections,
 whitespace, find-analogies, macro-trends/explore-futures, build-thesis) and orchestration
 substrate (act-chain, chain_resolve/chain_run, Workflow adversarial-verify/loop-until-dry).
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 **Wave 1**
 
@@ -442,4 +442,4 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 264-05-PLAN.md -- sensor-to-`chain_resolve` wiring proof + phase closing gate (wave 3, R3/R5)
+- [x] 264-05-PLAN.md -- sensor-to-`chain_resolve` wiring proof + phase closing gate (wave 3, R3/R5)
