@@ -428,11 +428,11 @@ Research's "Scientific Roadmapping" (six roadmap-type output taxonomy) + Leibo e
 MindrianOS's existing research command family (find-bottlenecks, find-connections,
 whitespace, find-analogies, macro-trends/explore-futures, build-thesis) and orchestration
 substrate (act-chain, chain_resolve/chain_run, Workflow adversarial-verify/loop-until-dry).
-**Plans:** 5 plans in 3 waves
+**Plans:** 1/5 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 264-01-PLAN.md -- chain table + drift validator + phase aggregator with the 166 regression, chain-executor zero-diff, and em-dash gates (wave 1, R2/R5/C-01)
+- [x] 264-01-PLAN.md -- chain table + drift validator + phase aggregator with the 166 regression, chain-executor zero-diff, and em-dash gates (wave 1, R2/R5/C-01)
 - [ ] 264-02-PLAN.md -- `lib/core/salient-governance.cjs`, the synchronous two-pass adversarial RS critic, plus its unit suite (wave 1, R4)
 
 **Wave 2** *(blocked on Wave 1 completion)*

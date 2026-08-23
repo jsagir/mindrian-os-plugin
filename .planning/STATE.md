@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "SESSION PAUSED by navigator, mid-261-12 Task 1. Plans 261-01 through 261-11 (waves 1-3) are executed and committed. 261-12 (wave 4, the admin window) was started: navigator approved opening it via Render MCP, the open-deploy was mid-flight when the navigator asked to stop, so the window was CLOSED again immediately (BRAIN_HTTP_ADMIN=deny, redeploy confirmed live, brain_write smoke-test confirmed absent) rather than leaving a freshly-opened window across a session boundary. Zero graph writes happened in 261-12 -- no Session 0, no FIX-01 round-trip, no payload committed. No 261-12-SUMMARY.md exists; from GSD's own tracking this task is untouched. Full handoff: docs/2026-08-21-HANDOFF-phase261-ceremony-paused-before-window-work.md. Next: resume 261-12 Task 1 (re-open the window, verify BOTH brain_write and ingest_framework present, proceed inline per the plan's own EXECUTION CONSTRAINT), then 261-13, then 262, then 263. UNRELATED, ADDITIVE: Phase 264 (roadmap-type-selector) execution STARTED 2026-08-23 (5 plans, 3 waves, worktrees disabled for this repo so plans run sequentially on this same working tree); does not block or reorder 261-12's resume."
+stopped_at: "SESSION PAUSED by navigator, mid-261-12 Task 1. Plans 261-01 through 261-11 (waves 1-3) are executed and committed. 261-12 (wave 4, the admin window) was started: navigator approved opening it via Render MCP, the open-deploy was mid-flight when the navigator asked to stop, so the window was CLOSED again immediately (BRAIN_HTTP_ADMIN=deny, redeploy confirmed live, brain_write smoke-test confirmed absent) rather than leaving a freshly-opened window across a session boundary. Zero graph writes happened in 261-12 -- no Session 0, no FIX-01 round-trip, no payload committed. No 261-12-SUMMARY.md exists; from GSD's own tracking this task is untouched. Full handoff: docs/2026-08-21-HANDOFF-phase261-ceremony-paused-before-window-work.md. Next: resume 261-12 Task 1 (re-open the window, verify BOTH brain_write and ingest_framework present, proceed inline per the plan's own EXECUTION CONSTRAINT), then 261-13, then 262, then 263. UNRELATED, ADDITIVE: Phase 264 (roadmap-type-selector) execution STARTED 2026-08-23 (5 plans, 3 waves, worktrees disabled for this repo so plans run sequentially on this same working tree); does not block or reorder 261-12's resume. UPDATE 2026-08-23: 264-01 (wave 1, chain table + drift validator + phase aggregator, R2/R5/C-01) COMPLETE and committed (commits 56464b1c/bdfebc08/f6d2f0a0); next is 264-02 (salient-governance critic, R4)."
 last_updated: "2026-08-21T16:12:20.455471Z"
 last_activity: "2026-08-21 - Session paused at navigator's request mid-261-12 Task 1. Window opened then deliberately re-closed before any window-work happened, confirmed closed via live smoke-test, full handoff written and committed."
 progress:
@@ -135,6 +135,24 @@ progress:
      lagged). Not this plan's own regression. -->
 
 # Project State
+
+## (2026-08-23) -- 264-01 COMPLETE -- roadmap-type chain table + five-arm drift validator + phase aggregator (R2/R5/C-01)
+
+UNRELATED, ADDITIVE to the 261-12 pause pointer above (see the frontmatter
+`stopped_at` note). `data/roadmap-type-chains.json` ships all six roadmap-type
+slugs resolving through `command-resolver.cjs` to runnable, zero-null-step
+chains; `tests/test-264-roadmap-type-chains-drift.cjs` (five arms) and
+`tests/run-all-264.sh` (glob aggregator, `run-all-166.sh` passthrough,
+`chain-executor.cjs` zero-diff arm against `c7c33eea4`, no-em-dash fence with
+a `TEST_264_ALLOW_MISSING`-gated MISSING-target arm) both green. Commits
+`56464b1c` / `bdfebc08` / `f6d2f0a0`. Summary:
+`.planning/phases/264-roadmap-type-selector-challenge-driven-act-chain-orchestrati/264-01-SUMMARY.md`.
+`ROADMAP.md`'s Phase 264 plan-progress row updated via
+`gsd-tools query roadmap.update-plan-progress 264` (ROADMAP.md-scoped, did
+not touch this file's frontmatter). Requirements R2/R5/C-01 are `264-SPEC.md`-
+local IDs, outside `REQUIREMENTS.md`'s scope per ROADMAP.md's own Phase 264
+note, so no `requirements mark-complete` call applies here. Next: 264-02
+(`lib/core/salient-governance.cjs`, wave 1, R4).
 
 ## (2026-08-21) -- 261-10 COMPLETE -- USES_FRAMEWORK edge derivation authored, live AUTHORABLE=0
 
