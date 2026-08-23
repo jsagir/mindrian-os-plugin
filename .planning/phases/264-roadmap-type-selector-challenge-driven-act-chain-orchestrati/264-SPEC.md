@@ -84,10 +84,16 @@ execution on ONE flagship step, reusing shipped machinery throughout.
      data artifact encodes them.
    - Target: A new committed data file (e.g. `data/roadmap-type-chains.json`), validated at
      build time the same way `data/command-registry.json` is validated, mapping each roadmap
-     type to an ordered framework-name array (e.g. Technical Roadmap ->
-     `diagnose, find-bottlenecks, map-unknowns`).
+     type to an ordered FRAMEWORK-NAME array -- `composeWorkflow` takes framework names, not
+     command slugs (corrected during discuss-phase; the original draft listed command slugs
+     by mistake). Technical Roadmap -> `["Problem Definition Transformation Framework",
+     "Reverse Salient Analysis", "Knowns and Unknowns Matrix Framework"]`, verified live via
+     `commandsForFramework`/`frameworksForCommand` against `/mos:diagnose`, `/mos:find-bottlenecks`,
+     `/mos:map-unknowns`.
    - Acceptance: A validator confirms every framework name in all six chains resolves via
-     `commandsForFramework` (command-resolver.cjs) with zero dangling names; exits 0.
+     `commandsForFramework` (command-resolver.cjs) against `framework_index` (not
+     `framework-names.json` -- a name can pass a bare allowlist and still degrade to
+     `{command: null, optional: true}`) with zero dangling names; exits 0.
 
 3. **Sensor-to-`chain_resolve` wiring**: An approved reach hands off directly to the existing
    Phase 166 chain-resolution seam, no new execution path.
