@@ -20,7 +20,8 @@
     "nyquist_validation": true,
     "auto_advance": false,
     "_auto_chain_active": false,
-    "use_worktrees": false
+    "use_worktrees": false,
+    "skip_discuss": true
   },
   "model_profile_overrides": {
     "claude": {

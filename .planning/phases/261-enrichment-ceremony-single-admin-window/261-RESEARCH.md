@@ -82,10 +82,16 @@ RETURN count(c) AS total_commands,
        avg(fw_edges) AS mean_edges;
 ```
 
+## Live update (same day, from a session working directly in the ProblemsWorthSolving-Brain repo)
+
+A drafted (not executed, not committed) payload now exists covering part of this phase's write scope: `payloads/relabel-fix-260820/` in the Brain repo -- 1 write (demote "poverty," id 27031, answers open question 5 below) + 16 `MERGE ALIAS_OF` edges (of a corrected 18 unaliased split clusters, not the diagnostic's original 11 -- see `260-RESEARCH.md`'s live-update section for the full count correction and 2 residue items still needing a human rule: a JTBD survivor pick among 6 candidates, and a `DESCRIBES`/`SOURCE_FOR` edge-type call for "The Pyramid Principle"). Explicitly does NOT touch the other ~94 nodes in the 28000-29000 archived block (this phase's own relabel scope, tracked separately), the 9 vector indexes, or the 59-of-112 zero-framework-edge commands (edge authoring, not a relabel). Needs the same Bolt/SSH credential this document already flags as missing to actually run, and per this phase's own D-11 (full admin-window discipline), executes inside a reviewed admin window, not standalone.
+
+Also, the root-cause hunt for the 28000-29000 block (258 RECON-01's task) is now a **confirmed dead end** via Brain-repo git history (neither `ProblemsWorthSolving-Brain` nor `mindrian-brain-local` reaches back to 2026-02-05) -- worth knowing before this phase's relabel of that block runs, since "who did this and when" will not resolve from a commit, only from an Aura console audit log if one exists at all.
+
 ## Open questions for the planner
 
 1. Are relabel and edge-authoring logged as separate operations inside the window, so 262's movement is attributable? Recommended: yes, with a floor probe between them.
 2. Who signs off the ~95-node relabel list, and is the sign-off recorded in the runbook or only in the commit?
 3. Does the SSH key get provisioned in time for the index DROPs, or do they carry to 263?
 4. SAPPhIRE definition: approve as drafted in the complete-system-loop brief (Chakrabarti et al. 2005, the State-Action-Parts-Phenomena-Physics-Input-oRgan-Effect causal chain), or revise?
-5. `poverty` (id 27031) currently carries `[Concept, Framework]`. That is a mislabel in the opposite direction. Confirm demotion rather than leaving it in the Framework population.
+5. `poverty` (id 27031) currently carries `[Concept, Framework]`. That is a mislabel in the opposite direction. **Now CONFIRMED for demotion** (not aliasing) by live re-verification -- it already carries an `ALIAS_OF` edge to id 37406. The drafted payload's `01-demote-poverty.cypher` implements this directly.
