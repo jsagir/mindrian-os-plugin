@@ -1,7 +1,13 @@
 ## [Unreleased] -- v2.0.0-beta.8 (in progress)
 
 ### Added
-- 
+- Roadmap-Type Selector (Phase 264): a navigator's stated research goal is silently classified into one of six scientific-roadmapping output shapes (Landscape Analysis, Technical Roadmap, Pipeline Analysis, Opportunity Analysis, Agenda-Setting Manifesto, Vision Paper) and resolved to the matching framework-name chain via the existing chain_resolve seam. New sensor SENS-18 (`lib/core/sensors/sensor-roadmap-type.cjs`), a deterministic additive-score classifier following `dual-path-detector.cjs`'s template, registered across the 3-array sensor lockstep. New `data/roadmap-type-chains.json` chain table with a five-arm drift validator mirroring the existing `dispatch-framework-map.json` precedent.
+- Challenge-driven execution proof: `find-bottlenecks` (Reverse Salient) now demonstrably runs under the already-shipped `ralph_verify` bounded self-critique seam with a new synchronous, two-pass adversarial critic (`lib/core/salient-governance.cjs`), reusing `eureka-critic.cjs`'s already-ruled 2-judge-unanimous pattern rather than an N-judge panel. Proven via a direct `chainExecutor.runChain()` call (mirroring the existing `debate-composition.cjs` precedent), including a live mutation proof that flipping a gate-condition function makes the test suite go red.
+- `chain-executor.cjs`'s B3/Canon Part 3 stop-condition contract (the chain halts at the first material step, never an autonomous cross-step loop) is now pinned by a scoped sha256 hash over its six gate/stop-condition symbols plus a whole-file zero-diff check, so a future accidental edit there is caught immediately rather than discovered later.
+
+### Known limitations
+- The live `chain_resolve`/`chain_run` MCP path does not yet honor `ralph_verify` -- its async execution branch neither calls the retry seam nor passes a `selfCritiqueFn`. The challenge-driven proof above runs via a direct executor call, not the navigator-facing chain flow. Wiring the live path is a named follow-on, not done in this release.
+- The classifier and chain table are proven-composable (integration-tested end to end) but have no wired UI/reach-card surface yet.
 
 ## [2.0.0-beta.7] - 2026-08-19
 
