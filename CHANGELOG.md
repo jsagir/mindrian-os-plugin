@@ -3,6 +3,9 @@
 ### Added
 - 
 
+### Fixed
+- `/mos:organize`'s D-09 soft-alias redirected to `/mos:rooms organize`, a subcommand that never existed -- an unmatched subcommand silently fell through to `list`'s default behavior instead of failing honestly. `commands/rooms.md` now defines `organize` as a real subcommand that reports "not yet implemented" (tracked as `organize-soft-alias-redirects-to-nonexistent-target`) instead of masking the gap, and any other unrecognized `/mos:rooms` subcommand now gets the standard 3-line error instead of a silent `list` fallback. The `room_content` MCP tool's `command` schema also advertised `organize` as a valid enum value with no matching dispatcher case, so any programmatic caller got a runtime `Unknown room_content command: organize` instead of a validation-time rejection; `organize` is removed from that enum until a real handler exists.
+
 ## [2.0.0-beta.9] - 2026-08-23
 
 ### Added
