@@ -14,6 +14,62 @@ progress:
   percent: 28
 ---
 
+<!-- NOTE (269 execute-phase begin-phase, 2026-08-27T~14:05Z, hand-edited per this file's own
+     documented resync-clobber bug, SEVENTH OCCURRENCE this session): `gsd-tools query
+     state.begin-phase --phase 269 --name moat-shift-install-update-entitlement-gate-replaces-per-quer
+     --plans 5` (execute-phase workflow's validate_phase step) reported
+     `{"updated":["Status","Last Activity","Current focus","Current Position"]}` -- but the diff
+     showed it ALSO silently overwrote stopped_at/last_updated/last_activity/progress above with
+     the same stale "Completed 266-05-PLAN.md" ghost snapshot and a third distinct fabricated
+     progress-count variant (73/40, vs the 62/37 truth and the FOURTH/FIFTH occurrences' own
+     fabricated numbers) -- the ghost snapshot is not even internally consistent across repeated
+     hits of the same bug. Caught via the mandatory pre/post diff against a pre-call copy.
+     **Near-miss worth recording as its own lesson:** the first revert attempt used
+     `git checkout -- .planning/STATE.md`, which does NOT restore the pre-call working-tree
+     state when `.planning/STATE.md` carries uncommitted changes from a DIFFERENT concurrent
+     session -- it silently discarded the entire uncommitted SIXTH-occurrence NOTE block below
+     (267.1's), reverting all the way to the last git commit instead of to the immediately-prior
+     working-tree state. Caught by re-diffing the checkout result against the pre-call snapshot
+     before proceeding, then corrected by restoring the pre-call snapshot file directly (`cp` the
+     backup back over STATE.md) rather than using `git checkout --`. **Standing correction for
+     every future occurrence:** always snapshot the file to a scratch path immediately before
+     calling any `state.*`/`phase.*` mutation verb, and if it clobbers, restore FROM THAT SNAPSHOT
+     (`cp`), never `git checkout --` -- the working tree can legitimately be ahead of the last
+     commit from a concurrent session's own uncommitted hand-edits, and `git checkout --` cannot
+     tell the difference between "this tool's clobber" and "another session's real uncommitted
+     work." Per the standing precedent already established below: Phase 269 is real, independent
+     work on a different repo track from Phase 265's execution -- it does NOT belong in this
+     frontmatter's single stopped_at slot while Phase 265 execution is the actually-paused/
+     in-progress item. Frontmatter left untouched; Phase 269's execution progress is tracked via
+     ROADMAP.md's own plan checkboxes instead of this file's single-slot pointer, and via this
+     NOTE. Standing fix confirmed working a 7th time: diff-and-restore-from-snapshot immediately,
+     never trust the tool's own "updated" list, never overwrite the primary stopped_at pointer for
+     a phase that is not the one actually paused, and never use `git checkout --` as the revert
+     mechanism for a shared, actively-edited file. -->
+
+<!-- NOTE (267.1 execute-phase begin-phase, 2026-08-27T~11:50Z, hand-edited per this file's own
+     documented resync-clobber bug, SIXTH OCCURRENCE this session): `gsd-tools query
+     state.begin-phase --phase 267.1 --name hooked-model-completeness-audit-of-the-first-session-onboard
+     --plans 6` (execute-phase workflow's validate_phase step) reported
+     `{"updated":["Status","Last Activity","Current focus","Current Position"]}` -- but the diff
+     showed it ALSO silently overwrote stopped_at/last_updated/last_activity/progress above with
+     the same stale "Completed 266-05-PLAN.md" ghost snapshot and the same conflated progress
+     counts (62/37 vs a fabricated 73/40) already seen in the FOURTH and FIFTH occurrences below.
+     Caught via the mandatory pre/post diff (sha256sum + diff against a pre-call copy), reverted
+     via `git checkout -- .planning/STATE.md` immediately, confirmed byte-identical to the pre-call
+     snapshot via diff. This is the 6th distinct `state.*`/`phase.*` mutation verb call confirmed to
+     hit this bug this session (state.record-session, state.planned-phase x2, state.begin-phase x2,
+     phase.complete), the 2nd confirmed hit specifically on state.begin-phase. Per the standing
+     precedent already established below (264 discuss-phase NOTE, 267.1 plan-phase NOTE): Phase
+     267.1 is real, independent work, explicitly decoupled from Phase 267/265's execution track --
+     it does NOT belong in this frontmatter's single stopped_at slot while Phase 265 execution is
+     the actually-paused/in-progress item. Frontmatter left untouched; 267.1's execution progress
+     (waves 1-4, per-plan completion) is tracked via ROADMAP.md's own plan checkboxes instead of
+     this file's single-slot pointer, and via this NOTE for each gate this session hits. Standing
+     fix confirmed working a 6th time: diff-and-revert immediately, never trust the tool's own
+     "updated" list, never overwrite the primary stopped_at pointer for a phase that is not the one
+     actually paused. -->
+
 <!-- NOTE (267.1 plan-phase, 2026-08-27T~11:41Z, hand-edited per this file's own documented
      resync-clobber bug, FIFTH OCCURRENCE this session): `gsd-tools query state.planned-phase
      --phase 267.1 --name hooked-model-completeness-audit-of-the-first-session-onboard --plans 6`
