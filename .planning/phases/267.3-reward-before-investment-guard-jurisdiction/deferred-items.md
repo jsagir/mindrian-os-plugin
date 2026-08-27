@@ -131,3 +131,74 @@ real finding or mix two phases' history.
 
 **Suggested owner:** Phase 267.2 (it owns the GAP R-1 / GAP I-1 repairs and will need the audit
 refreshed anyway), or a `/gsd-quick --validate` pass.
+
+---
+
+## DEFERRED-267.3-D4 - the pre-commit guard's own comment still lists the v1.13.0 six
+
+**Found during:** plan 267.3-04, Task 3, while amending `REWARD_TYPES` a second time.
+
+**The finding.** `scripts/hooks/pre-commit-room-minto-guard.sh:294-296` carries a recovery
+comment that names the allowed values inline:
+
+> Recovery on failure: declare interactive_first_reward in the offending
+> commands/*.md frontmatter. Allowed values: reframe_question, instant_brief,
+> schema_preview, calibration_distribution_preview, paragraph_preview,
+> --none (scripting only).
+
+That list is the v1.13.0 original six. It went stale at plan 267.3-02, which added
+`methodology_reframe` and `--none (diagnostic surface)`, and it is now three terms behind after
+267.3-04 added `live_deliverable`. A developer reading only the hook comment would believe
+three legal values are illegal.
+
+**Blast radius: zero mechanical.** The comment is not a gate. The hook shells out to
+`scripts/check-reward-before-investment.cjs`, whose failure message prints the LIVE
+`[...REWARD_TYPES]` at run time, so the value a developer actually sees on a real failure is
+always current. Nothing reads the comment.
+
+**Why not fixed here.** Pre-existing (it was already two terms stale before this plan started)
+and it lives in a pre-commit hook script, which is outside this plan's declared file set.
+Editing a commit-gate script from inside a classification plan mixes an unrelated concern into
+this phase's diff. The general repair is better: replace the hardcoded list with a pointer to
+the rule doc's allowed-values section, so it can never go stale a fourth time.
+
+**Suggested owner:** plan 267.3-08 (close-out, which already owns "correct the rule doc's
+enforcement description"), or a `/gsd-quick --validate` pass.
+
+---
+
+## DEFERRED-267.3-D5 - the `dist/` bundles carry stale copies of the 17 mirrors
+
+**Found during:** plan 267.3-04, Task 3, immediately after `node scripts/build-skill-mirrors.cjs`.
+
+**The finding.** `scripts/build-skill-mirrors.cjs` regenerates `skills/*/SKILL.md` only. There
+is a SECOND generated surface it does not touch: `scripts/build-dist-bundles.cjs` writes
+`dist/generic-claude-dir/.claude/skills/<name>/SKILL.md` and
+`dist/zed/.agents/skills/<name>/SKILL.md`, both tracked in git, and both carry a copy of every
+one of the 17 skills this plan just changed. Measured: `skills/publish/SKILL.md` now carries
+`interactive_first_reward: live_deliverable`; `dist/zed/.agents/skills/publish/SKILL.md` carries
+no such key. All 17 are present in both dist targets and all 17 are now behind.
+
+**Why nothing caught it.** `node scripts/build-dist-bundles.cjs --check-stale` reports
+`stale=false`, because it compares a stamped `source_version` (2.0.0-beta.12) rather than
+hashing content. A source edit that does not bump the version is invisible to it, so the freshness
+check reports green on a drifted bundle. That is the same shape of gap Phase 271 found in the
+anchoring class: a sweep cleans a tree once, only a gate keeps it clean.
+
+**Blast radius.** Nothing in `scripts/verify-release` or the pre-commit hooks reads
+`dist/`, so no gate is red today. The exposure is at the version cut, where a bundle shipped to
+a generic-Claude or Zed host would carry the OLD declarations. `interactive_first_reward` is a
+declaration the linter reads out of the plugin source tree, not a runtime behavior switch, so
+the practical effect on a user is nil; the correctness effect is that a shipped artifact
+contradicts its own source.
+
+**Why not fixed here.** `dist/` is not in this plan's declared file set, regenerating it would
+add a large unrelated diff spanning many more than 17 files, and the version stamp it writes is
+release-cut business. Two separable pieces of work, and the second is the one worth having:
+
+1. Regenerate the dist bundles (mechanical, belongs to the next version cut).
+2. Give `--check-stale` a content-hash arm so a source edit without a version bump reds it, and
+   wire that arm into `scripts/verify-release`.
+
+**Suggested owner:** piece 1 at the next `scripts/release.sh` cut; piece 2 as its own
+`/gsd-quick` item or a Phase 267.3-08 close-out addition.
