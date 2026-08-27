@@ -1,0 +1,174 @@
+{
+  "$schema_note": "Hand-maintained, machine-readable capability ledger (Phase 265 Plan 01). This file lives in data/, not .planning/, because it must be readable by every tool (tests, doctor, scripts), not just a human or a GSD executor reading markdown prose. Phase 138 built a capability ledger as a 14-row markdown table inside one phase's CONTEXT.md; that table was invisible to every tool, went stale, and the phase was orphaned. That markdown-table failure is the documented root cause this file exists to end: a row here is typed, schema-validated (tests/test-265-capability-ledger-schema.cjs), and its freshness against the installed Claude Code version is machine-checked on two independent paths (the schema/freshness tests and a registered doctor organ, lib/core/doctor/capability-ledger-module.cjs), never left to a human noticing a table looks old.",
+  "schema_version": 1,
+  "phase": "265-capability-radar-absorption-routing-re-scoped-supersedes-orp",
+  "canon_parts": [6, 7, 8],
+  "ledger_covers": {
+    "from": "2.1.128",
+    "to": "2.1.246",
+    "fetched_at": "2026-08-27T06:05:17Z",
+    "installed_claude_version": "2.1.247"
+  },
+  "entries": [
+    {
+      "capability": "run_in_background-removal-fork-mode-default-on",
+      "version": "2.1.232",
+      "date": null,
+      "domain": "code",
+      "leverage": "Fork mode now runs subagents concurrently without an opt-in; the Agent tool's run_in_background parameter no longer exists when fork mode is on, closing the last species of the plugin's hand-rolled parallel-dispatch workaround.",
+      "destination": "commands/act.md commands/persona.md commands/grade.md",
+      "status": "adopting",
+      "evidence": "CHANGELOG.md 2.1.232; verified via code read of commands/act.md, commands/persona.md, commands/grade.md dispatch prose (265-RESEARCH.md section 2c, State of the Art table)"
+    },
+    {
+      "capability": "concurrent-subagent-cap-20",
+      "version": "2.1.217",
+      "date": null,
+      "domain": "code",
+      "leverage": "Caps concurrent subagents at 20 via CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS; swarm sizing in dispatch-optimizer.planDispatch caps only on context budget, not agent count, so a large room could in principle exceed 20.",
+      "destination": "commands/act.md swarm sizing",
+      "status": "adopting",
+      "evidence": "CHANGELOG.md 2.1.217; 265-RESEARCH.md section 4d table row"
+    },
+    {
+      "capability": "agent-tool-clear-error-missing-subagent-type",
+      "version": "2.1.235",
+      "date": null,
+      "domain": "code",
+      "leverage": "An omitted subagent_type now fails with a clear error listing the available agents instead of silently falling back to general-purpose; dispatch prose across the swarm commands names a file path, not an agent type, leaving Claude to infer the string, so naming the agent type explicitly is cheap insurance.",
+      "destination": "commands/act.md commands/persona.md commands/grade.md dispatch prose",
+      "status": "adopting",
+      "evidence": "CHANGELOG.md 2.1.235; code.claude.com/docs/en/sub-agents; 265-RESEARCH.md section 4c"
+    },
+    {
+      "capability": "sdk-titled-enum-schemas",
+      "version": "sdk-1.29.0",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "TitledSingleSelectEnumSchemaSchema and TitledMultiSelectEnumSchemaSchema replace the deprecated enum+enumNames shape and the untitled multi-select shape; gate-render.cjs currently emits the deprecated single-select shape and drops multi-select titles entirely, rendering raw slugified option IDs to the user instead of labels.",
+      "destination": "lib/mcp/gate-render.cjs",
+      "status": "adopting",
+      "evidence": "node_modules/@modelcontextprotocol/sdk/dist/cjs/types.js:1685-1757, SDK 1.29.0 installed; 265-RESEARCH.md section 4b"
+    },
+    {
+      "capability": "mcp-interrupted-tool-call-explicit-error",
+      "version": "2.1.246",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "The plugin's own MCP server callers now learn a headless/remote call was interrupted instead of inferring silent success from a false completed-with-no-output signal; a free diagnostic improvement with no code change needed since no hand-rolled workaround for the old behavior existed.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.246; grep for cancel/abort handling in bin/mindrian-mcp-server.cjs and lib/mcp/tool-router.cjs returns only session-close plumbing (265-RESEARCH.md section 4a)"
+    },
+    {
+      "capability": "elicitation-form-height-fix",
+      "version": "2.1.239",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Elicitation forms taller than the terminal no longer clip in fullscreen.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.239; cannot bite here since the plugin emits a single-property form (lib/mcp/gate-render.cjs:172 buildElicitRequestedSchema), one field tall regardless of option count (265-RESEARCH.md section 4b)"
+    },
+    {
+      "capability": "elicitation-url-length-fix",
+      "version": "2.1.238",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Elicitation dialogs no longer go blank for URLs longer than 4096 characters.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.238; cannot bite here since the plugin uses form mode only, never URL-mode elicitation (lib/mcp/gate-render.cjs:219 renderViaElicitation) (265-RESEARCH.md section 4b)"
+    },
+    {
+      "capability": "subagent-nesting-depth-default-3",
+      "version": "2.1.219",
+      "date": null,
+      "domain": "code",
+      "leverage": "Default nesting depth raised from 1 to 3 via CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.219; agents/framework-runner.md's no-nesting rule (lines 36, 252) is now a design choice, not a platform limit (265-RESEARCH.md section 4d)"
+    },
+    {
+      "capability": "200-per-session-spawn-cap-removed",
+      "version": "2.1.224",
+      "date": null,
+      "domain": "code",
+      "leverage": "None directly; the repo never approached the removed 200-subagent-per-session cap.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.224 (265-RESEARCH.md section 4d)"
+    },
+    {
+      "capability": "restricted-subagent-model-warning",
+      "version": "2.1.223",
+      "date": null,
+      "domain": "models",
+      "leverage": "Warns when a requested subagent model is restricted and the parent model runs instead; relevant to model-profiles.cjs resolution but requires no change today.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.223 (265-RESEARCH.md section 4d)"
+    },
+    {
+      "capability": "parallel-bash-batch-failure-isolation",
+      "version": "2.1.232",
+      "date": null,
+      "domain": "code",
+      "leverage": "A failed Bash command in a parallel batch no longer cancels the others, improving any batched Bash step this plugin already runs.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.232 (265-RESEARCH.md section 4d)"
+    },
+    {
+      "capability": "task-tool-mode-parameter-deprecated",
+      "version": "2.1.212",
+      "date": null,
+      "domain": "code",
+      "leverage": "None; the repo never used the Task tool's mode parameter.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.212 (265-RESEARCH.md section 4d)"
+    },
+    {
+      "capability": "agent-tool-clear-error-empty-tools-list",
+      "version": "2.1.208",
+      "date": null,
+      "domain": "code",
+      "leverage": "None; agents/*.md use allowed-tools, not tools, so none resolve to an empty list.",
+      "destination": "none",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.208 (265-RESEARCH.md section 4d)"
+    },
+    {
+      "capability": "skills-context-fork-background-default",
+      "version": "2.1.218",
+      "date": null,
+      "domain": "code",
+      "leverage": "Skills declared context: fork now run in background by default (opt out via background: false); zero adoption in this repo today, but eureka's fire-and-return flow is a candidate to use it.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.218; repo-wide grep for 'context: fork' returns zero hits (265-RESEARCH.md section 4d)"
+    },
+    {
+      "capability": "custom-commands-merged-into-skills",
+      "version": "docs-current",
+      "date": null,
+      "domain": "code",
+      "leverage": "A .claude/commands/x.md and a .claude/skills/x/SKILL.md both create /x and behave the same; the 113-command plus 126-generated-mirror duplication this repo maintains via scripts/build-skill-mirrors.cjs may be re-examinable, and the generator's stated Windows-compositing rationale (build-skill-mirrors.cjs line 10) may now be moot.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "Anthropic docs (current, docs-current pin); scripts/build-skill-mirrors.cjs:10 Windows compositing rationale (265-RESEARCH.md section 4d)"
+    },
+    {
+      "capability": "claude-code-fork-subagent-polarity-inversion",
+      "version": "2.1.232",
+      "date": null,
+      "domain": "code",
+      "leverage": "CLAUDE_CODE_FORK_SUBAGENT flipped from an opt-in for external builds to an opt-out (0) or headless/SDK opt-in (1); the radar reference doc teaches the old inverse polarity and must be rewritten.",
+      "destination": "references/capability-radar/capabilities-index.md",
+      "status": "adopting",
+      "evidence": "CHANGELOG.md 2.1.232; references/capability-radar/capabilities-index.md:127 teaches the inverse polarity (265-RESEARCH.md State of the Art table)"
+    }
+  ]
+}
