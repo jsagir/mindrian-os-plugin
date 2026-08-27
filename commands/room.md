@@ -6,6 +6,8 @@ argument-hint: "[overview|<section>]"
 body_shape: C
 hitl_shape: "F.1"
 hitl_why: "Room navigation offers one next move from the current room."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 11): first delivery at commands/room.md:121, the default overview's Semantic Tree, a predictable structural readout of what the navigator has already filed.
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_overview: B (Semantic Tree)
 body_shape_section: C (Room Card)
 serves_jtbd: ["audit-room"]

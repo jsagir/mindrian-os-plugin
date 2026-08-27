@@ -6,6 +6,8 @@ help_jtbd: "Turn a confirmed SyntheticExpert graph node into an invokable skills
 body_shape: E
 hitl_shape: "F.0"
 hitl_why: "It proposes materializing one confirmed SyntheticExpert into a skill for a single approve-or-reject decision."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 16): first delivery at commands/skill.md:100, the materialized skill file's emitted path, infrastructure enabling a later persona invocation rather than the value itself.
+interactive_first_reward: schema_preview
 argument-hint: "[expert]"
 serves_jtbd: ["explore"]
 teaching: "When you have a CONFIRMED SyntheticExpert in the graph and you want to talk to it as a persona anywhere in the room, /mos:skill projects that node's props (hat, name, beautiful question, research approach, evidence tier, provenance) into a room-scoped skills/<expert>/SKILL.md through the SHIPPED build-new-surface.cjs generator (kind=skill, --from-expert). The confirmed node is the source of truth; the skill is its projection."

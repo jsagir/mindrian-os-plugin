@@ -5,6 +5,8 @@ help_jtbd: "Open your room as a localhost wiki, hyperlinks via graph."
 body_shape: D (Document View)
 hitl_shape: "F.1"
 hitl_why: "The wiki view offers one next move on which article to open."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 25): first delivery at commands/wiki.md:48, the bare-invocation live Express server rendering room content, ephemeral, nothing persisted unless --export.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room", "prepare-pitch"]
 teaching: "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view. Section by section, with cross-references rendered as hyperlinks."
 ui_reference: skills/ui-system/SKILL.md
