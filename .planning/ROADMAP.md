@@ -550,6 +550,40 @@ Plans:
 
 - [ ] 267.1-06-PLAN.md - Phase gate roll-up and navigator review of the scores, the scope call, and the registrations
 
+### Phase 267.2: First-Install Hooked Loop Repair (Reward + Investment) (INSERTED)
+
+**Goal:** `.planning/research/2026-08-27-hooked-first-install-audit.md` (v2.0.0-beta.12 / main @ 86a9af2728077e715e5f6a0ebf7ac9d6dcc1d50c) scored the FIRST_INSTALL surface's Reward and Investment legs 2/10 and 1/10: the FIRST_INSTALL surface asserts a variable reward and an investment deposit as prose instructions to the model, and neither is wired.
+
+**W1 - Route the first session to a real reward (GAP R-1).** The reward promise line lives in the FIRST_INSTALL payload with no wired call. `lib/core/domain-insight-sweep.cjs` declares itself "THE single entry point for the Hooked variable-reward leg" but is invoked only from `/mos:ignite` and requires an open `db` handle that a first install has no room to provide. `scripts/check-pending-breakthrough.cjs` returns `{continue:true}` in silence when no rooms directory exists, so the flagship automatic reward is structurally silent on the one session where a first reward matters most. `COLD_START_MENU` routes the first-time user to `/mos:new-project`, the scaffold backend, while `skills/ignite/SKILL.md:50` names `/mos:ignite` the canonical front door. Two candidate mechanisms, neither pre-decided: add `/mos:ignite` to the cold-start menu, and/or give `sweepDomainInsights` a pre-room text-only path using the degradation its own header already documents.
+
+**W2 - Give the investment assertion a writer, or delete the assertion (GAP I-1).** `~/.mindrian-user.md` has zero writers repo-wide; `lib/core/user-archetype.cjs:64` READS it; the only deterministic writer `writeUserMdAtomic` (`lib/core/user-md-ops.cjs:440`) is reachable only from `lib/core/navigation/room-birth.cjs:572` and `:801` and writes to `roomDir/USER.md`, which a first install does not have. Either wire a home-directory writer, or remove the prose instruction so the product stops promising something it does not do. Hard constraint: `/mos:profile-user` is referenced by USER.md stubs in production rooms and DOES NOT EXIST, so it must not be adopted as the mechanism. Fragility item: `check-onboard --write` is itself an LLM instruction, so the onboarding state machine's advance step depends on model compliance.
+
+Each workstream flips a negative assertion in `tests/test-267-1-first-install-hooked-audit.cjs` to positive when its gap closes; flipping that pin is part of this phase's work, not a test failure to route around.
+
+Cross-references: Also touches Phase 269 (Moat Shift - Install/Update Entitlement Gate - removing the Brain-key friction step changes the onboarding Trigger/Reward/Investment legs this phase repairs, so building against the current key-gated flow risks rework). Also touches Phase 267.1 (Hooked Model Completeness Audit - the audit that registered GAP R-1 and GAP I-1, `.planning/research/2026-08-27-hooked-first-install-audit.md`).
+**Requirements**: TBD
+**Depends on:** none technically, but sequenced after Phase 269 lands its onboarding-flow change (repairing the reward and investment legs against the current key-gated first session risks throwaway work, and the audit that motivates this phase says so explicitly).
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 267.2 to break down)
+
+### Phase 267.3: Reward-Before-Investment Guard Jurisdiction (hooks and injected-prose surfaces) (INSERTED)
+
+**Goal:** The reward-before-investment hard rule has a real enforcement mechanism, and that mechanism cannot see the surface that needs it most. Three independent proofs of its scope: the `lib/core/mva-rule-linter.cjs` header stating it scans `commands/*.md` frontmatter, `scanCommands` reading `commandsDir` only, and `scripts/check-reward-before-investment.cjs` defaulting its target to `path.join(__dirname, '..', 'commands')`. Consequence: `scripts/session-start` is a bash hook with no frontmatter to carry an `interactive_first_reward` declaration, so the single most-first flow in the product, the one every user hits before any command, is structurally outside the guard. `/mos:onboard` at least carries `interactive_first_reward: reframe_question` with an honest inline "Remediation tracked as follow-up phase" comment (`commands/onboard.md:12`) while FIRST_INSTALL carries no declaration at all. This is a governance gap, not just a content gap, and it explains why the other gaps survived - nothing was ever built to catch them (GAP G-1, `.planning/research/2026-08-27-hooked-first-install-audit.md`).
+
+Open design question, not decided here: how does a bash hook or an injected-prose surface declare a first-reward contract the linter can read? A sidecar declaration file, a manifest, a comment convention the linter parses, or an extension of the born-wired connector registry are all candidates. Canon Part 11 adjacency noted, since that is the repo's existing machinery for "every invocable surface is born declared".
+
+Cross-references: this is the ONE audit finding with no Phase 269 collision and can be planned immediately. Also touches Phase 267.1 (Hooked Model Completeness Audit, `.planning/research/2026-08-27-hooked-first-install-audit.md`, the audit that registered GAP G-1).
+**Requirements**: TBD
+**Depends on:** none - independent of Phase 269 and of Phase 267.2; this is a lint-scope and declaration-contract change, not an onboarding-flow change.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 267.3 to break down)
+
 ### Phase 268: Transition Selected Workflows to MCP Tools
 
 **Goal:** Two workstreams.
