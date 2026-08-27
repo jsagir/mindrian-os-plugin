@@ -8,18 +8,53 @@ surfaces: [cli]              # cli | desktop | cowork
 brain_mode: full-loop        # full-loop | local-only | tier-0
 canon_parts: [6, 7, 12]      # 6 dog-fooding, 7 reuse-before-build, 12 pedagogy (statusline trust)
 created: 2026-08-10T16:00:00Z
-updated: 2026-08-11T00:00:00Z
+updated: 2026-08-27T00:00:00Z
 ---
 
 ## Current Focus
 <!-- OVERWRITE on each update - reflects NOW -->
 
-hypothesis: Two real-world Windows sessions (a live group install call and a JHU-TA field-use session) surface a cluster of install and first-run UX defects. Most are already-tracked Windows-shell-assumption bugs; two are freshly grounded code gaps (doctor statusline self-test spawn, update-checker no-retry); several are non-code ENV/DOC gaps.
-test: Classify every symptom WORKING / KNOWN-tracked / FIXED-already / ENV-GAP / NEW / HYPOTHESIS against the repo and the existing .planning/debug corpus.
-expecting: A per-finding table where only NEW/HYPOTHESIS items warrant a fresh /gsd:debug session; KNOWN items link to their existing session; ENV/DOC items route to the install minisite, not code.
-next_action: F-A and F-I shipped 2026-08-11 (see Resolution). Remaining actionable items: F-B/F-E
-(DOC, install minisite), F-K/F-L/F-M/F-N/F-O (HYPOTHESIS, need repro -- candidates for a fresh
-/gsd:debug session each).
+hypothesis: Original T1/T2 hypothesis holds unchanged. Three additional primary-source tester
+records now fold into this sweep, spanning a 3.5-month window both before and after the original
+2026-08-10 audit: (T3) Gaurav Thorat's 2026-08-24/25 trial install (postdates this sweep by ~2
+weeks), (T4) Gary Laben's 2026-05-08/09 Windows git-clone install plus follow-up sessions
+(predates this sweep by ~3 months), (T5) the Mindrian Summer Internship 2026 cohort's Session 1
+install QA, 2026-06-02 (predates this sweep by ~2 months). All three confirm the SAME recurring
+pattern classes this sweep already tracks (windows-posix-shell-assumption family, Brain-key-step
+friction) rather than introducing a new failure class. One genuinely new dev-side finding
+(Gaurav's Brain-access double sign-in, root-caused as a cross-origin session-cookie seam) and one
+genuinely unresolved tension (the Interns' Vercel-checkbox finding directly contradicts this
+sweep's own F-B) are the two items in this append worth a human decision.
+test: Classify every symptom WORKING / KNOWN-tracked / FIXED-already / ENV-GAP / NEW / HYPOTHESIS
+against the repo and the existing .planning/debug corpus (unchanged discipline). For this append,
+additionally: (a) confirm whether Gary Laben's two 2026-05-09 bugs (filed in his own record as
+"Phase 95.3") are fixed or dangling -- CONFIRMED FIXED, absorbed into Phase 95.6 D-01/D-03,
+shipped v1.13.0-beta.9 (2026-05-11), and still live/unreverted on current HEAD (install.sh:35-53,
+245-272; skills/mullins-scaffold/SKILL.md exists) as of 2026-08-27; (b) verify Gaurav's EBADENGINE
+doc-gap claim against the live mindrian-website install docs -- CONFIRMED still absent
+(page.tsx + install-stack.tsx, zero matches); (c) verify the 2026-08-26 research trail's claim
+that the Windows Claude-Code-CLI prereq step is undocumented -- CONFIRMED INCORRECT, the step has
+been live in install-stack.tsx:43-48 since commit 141928d6 (2026-06-04), ~11 weeks before
+Gaurav's test.
+expecting: A per-finding table where only NEW/HYPOTHESIS items warrant a fresh /gsd:debug session
+or a live repro; KNOWN/FIXED items link to their existing session or shipping phase; ENV/DOC items
+route to install docs, not code. This append adds F-P through F-X (see Findings Table); only F-X
+(Vercel-checkbox contradiction) is a genuine open question needing a real repro. F-P and F-W both
+cross-reference Phase 269 (Moat Shift -- Install/Update Entitlement Gate, `.planning/ROADMAP.md`
+lines 555-570) by name, since Phase 269 repurposes the exact same mindrian-website auth-flow
+files (`components/brain/AuthButton.tsx`, `src/app/auth/callback/route.ts`, `next.config.ts`)
+that F-P's root cause lives in.
+next_action: F-A and F-I remain shipped 2026-08-11 (see Resolution, unchanged). F-B/F-E DOC items
+remain open (install minisite). NEW from this append (2026-08-27): (1) file F-Q (EBADENGINE FAQ
+line) and F-U (Claude-Code third-party-plugin-warning FAQ line) as doc-only additions to the
+mindrian-website install docs -- no code, independent of Theo/Phase 269; (2) whoever next touches
+either F-P (Gaurav's double-sign-in seam) or Phase 269's entitlement-gate build should read the
+other first -- same auth-flow files, same seam, two different reasons to touch them, avoid
+duplicating or clobbering the other's fix; (3) F-X needs a real Windows repro (fresh Node install
+with "Tools for Native Modules" UNCHECKED, then attempt a Vercel CLI install) before F-B's
+blanket "uncheck it" advice can be trusted as complete -- do NOT amend F-B on the strength of the
+Interns' single report alone; (4) F-K/F-L/F-M/F-N/F-O remain HYPOTHESIS, unchanged, still
+candidates for a fresh /gsd:debug session each.
 
 ## Source-of-Truth Preamble
 
@@ -30,6 +65,26 @@ next_action: F-A and F-I shipped 2026-08-11 (see Resolution). Remaining actionab
 
 Checklist:
 - [x] Source-of-Truth Preamble filled before any finding filed
+
+### Additional Primary Sources (appended 2026-08-27)
+
+Three more primary-source tester records, predating and postdating the original T1/T2 audit,
+folded in per navigator instruction. None replace T1/T2; all are read as independent corroborating
+or contrasting evidence.
+
+- **(T3)** Gaurav Thorat trial install testimonial, 2026-08-24/25 (Windows + macOS), mos@2.0.0-beta.11.
+  Primary: `docs/testers/gaurav-thorat/FEEDBACK.md` (Gmail thread `1a038520179cae6b`). Root-cause
+  trail: `~/MindrianRooms/rethinking-mindrianos/research/2026-08-26-trial-install-testimonial/2026-08-26-trial-install-testimonial.md`.
+  POSTDATES this sweep by ~2 weeks -- the most recent tester record folded in here.
+- **(T4)** Gary Laben Windows git-clone install, 2026-05-08/09, plus later 2026-05-14 and
+  2026-05-30 sessions, v1.13.0-beta.6..beta.34. Primary: `docs/testers/gary-laben/FEEDBACK.md`.
+  PREDATES this sweep by ~3 months; his two 2026-05-09 bugs are the direct, named trigger
+  evidence for Phase 95.6 (see F-S/F-T below).
+- **(T5)** Mindrian Summer Internship 2026 cohort, Session 1 install QA, 2026-06-02
+  (Windows-heavy: 3 of 4 interns on Windows, 1 on Mac). Primary:
+  `docs/testers/interns/sessions/2026-06-02-session-01-install-qa.md` (LOCAL-ONLY, gitignored,
+  real names -- read but not altered here per that file's own locality rule). PREDATES this sweep
+  by ~2 months.
 
 ## Meta
 
@@ -104,6 +159,46 @@ started: install-shell-assumption family present since the installer/statusline 
   found: no native/gyp deps; no build-tools invocation in install.sh.
   implication: the VS Build Tools time-sink is external (Node MSI optional step), fixable by a DOC change on the install page, not code.
 
+- timestamp: 2026-08-27T00:00:00Z
+  checked: docs/testers/gaurav-thorat/FEEDBACK.md:24,32; mindrian-website (repo /home/jsagi/dev/mindrian-website) `website/src/components/brain/AuthButton.tsx:23-26`, `website/src/app/auth/callback/route.ts:6-10`, `website/next.config.ts:1-13` (all three last touched by commit `cebf7e66` 2026-06-04, per `git log`).
+  found: `AuthButton.tsx` calls `supabase.auth.signInWithOAuth({provider:"google", redirectTo: window.location.origin + "/auth/callback"})` -- relative to whatever origin the browser happens to be on. `route.ts` is the ONLY `?code=` consumer anywhere in the site (`exchangeCodeForSession(code)`). `next.config.ts`'s `redirects()` array has exactly one rule (`/how-it-works` -> `/docs`); no canonical-domain redirect between `mindrian-os.com` and the raw `mindrianos-jsagirs-projects.vercel.app` deployment alias exists, and no `NEXT_PUBLIC_SITE_URL` pin appears anywhere in the auth code.
+  implication: confirms, at the code level (not just from the rethinking-mindrianos research trail's own read), that whichever origin the OAuth redirect actually lands on, the session cookie set there does not carry back to the origin the user started the flow on -- so `/brain-access` falls back to the unauthenticated `BrainPublicPage` and forces a second Google sign-in. A genuine cross-origin session-cookie seam, not a copy issue. See F-P.
+
+- timestamp: 2026-08-27T00:00:00Z
+  checked: .planning/ROADMAP.md:555-570 (Phase 269: Moat Shift -- Install/Update Entitlement Gate)
+  found: Phase 269 (navigator-locked 2026-08-27) repurposes the SAME mindrian-website Google-auth gate (`/brain-access`, `AuthButton.tsx`, `auth/callback/route.ts`, `next.config.ts`) to issue an install/update entitlement credential instead of, or alongside, a per-query Brain key. ROADMAP.md:559 states explicitly: "This directly touches the SAME auth-flow code this session already root-caused for Gaurav Thorat's double-sign-in finding... fixing that seam and building this gate are the same body of work, not two separate auth flows." ROADMAP.md:563 also names `docs/testers/gaurav-thorat/FEEDBACK.md` directly.
+  implication: F-P (Gaurav's double sign-in) and Phase 269 are the same auth-flow files. Whoever picks up either should read the other first. Recorded as a cross-reference in F-P and F-W, not a resolution of either -- this sweep does not implement anything here.
+
+- timestamp: 2026-08-27T00:00:00Z
+  checked: mindrian-website `website/src/app/docs/install/page.tsx` and `website/src/components/install/install-stack.tsx`, grepped for `EBADENGINE|npm-engine|engine.*warning`.
+  found: zero matches in either file.
+  implication: Gaurav's EBADENGINE self-update noise (npm suggesting `npm install -g npm@12.0.2` on a node-engine-version mismatch, unrelated to MindrianOS) is still undocumented on the live install docs as of 2026-08-27. Genuine DOC gap, one-line FAQ-callout scope. See F-Q.
+
+- timestamp: 2026-08-27T00:00:00Z
+  checked: mindrian-website `website/src/components/install/install-stack.tsx:43-48` (the `windows` OS_DATA block); `git blame` on the same lines -> commit `141928d6` (Jonathan Sagir, 2026-06-04 13:42:47 +0300).
+  found: `windows: { ..., claudeCmd: "npm install -g @anthropic-ai/claude-code", claudeNote: "On Windows the npm method avoids the most common PATH error." }`. This block has been live since 2026-06-04, roughly 11 weeks before Gaurav's 2026-08-24 test.
+  implication: the 2026-08-26 rethinking-mindrianos research trail's claim ("Windows path requires npm install -g @anthropic-ai/claude-code first... not currently called out anywhere found") is INCORRECT -- the docs already cover this, and have for months. Corrected here, not reopened as F-B/F-E. The ~10-minute cost Gaurav experienced is the inherent time cost of npm-installing a real CLI package on Windows, not a doc gap. See F-R.
+
+- timestamp: 2026-08-27T00:00:00Z
+  checked: .planning/phases/95.6-install-cache-windows-hardening-and-skill-loop-resilience/95.6-CONTEXT.md:75-105 (D-01, D-03 decision text, "Trigger evidence" citing "[private tester archive], 2026-05-09 entry"); 95.6-04-SUMMARY.md:44 (`requirements-completed: [D-01]`); 95.6-02-SUMMARY.md:56,77 + 95.6-03-SUMMARY.md:40,61,223 (`requirements-completed: [D-03]`); 95.6-10-SUMMARY.md:11-31 (release ship + Windows-gate waiver); `ls .planning/phases/ | grep '^95'` -> only `95, 95.1, 95.2, 95.5, 95.6, 95.7` exist, no `95.3` directory.
+  found: Gary Laben's two 2026-05-09 bugs (Windows MAX_PATH git-clone failure; `install.sh` `set -euo pipefail` hard-exit on missing `skills/mullins-scaffold/SKILL.md`) are the direct, named trigger evidence for Phase 95.6 -- the symptom text in 95.6-CONTEXT.md is a verbatim match to `docs/testers/gary-laben/FEEDBACK.md`'s 2026-05-09 entry. "Phase 95.3" as cited in Gary's own FEEDBACK.md was never created as a directory; the bugs were instead absorbed into Phase 95.6 as D-01 (Windows long-path preflight) and D-03 (install.sh skill-loop hardening), both marked `requirements-completed` and shipped as part of v1.13.0-beta.9 (2026-05-11, `git push origin main --tags` -> `60fe434`/tag `9ed8280`). The Windows cold-install empirical acceptance gate (`tests/manual/95.6-windows-cold-install-acceptance.md`) was explicitly WAIVED by the maintainer 2026-05-11 ("I will not reach out to the Wave-2 tester to try; we will do it anyway") and never run by a real Windows tester after the fix landed.
+  implication: Gary's bugs are NOT dangling -- they were fixed, under a renumbered phase, not the phase number his FEEDBACK.md cites. "Phase 95.3" is a stale/incorrect label in his own record, not evidence of a false-success skip (the standing personal-memory WATCH item for that failure pattern does not apply here). The one residual gap: the code fix was never empirically re-verified on a live Windows machine after shipping -- waived explicitly and dated, not silently skipped. See F-S/F-T.
+
+- timestamp: 2026-08-27T00:00:00Z
+  checked: install.sh:35-53 (`enable_longpaths_on_windows`), install.sh:245-272 (skill-loop WARN-and-continue guard), `skills/mullins-scaffold/SKILL.md` (existence check) -- all on current `origin/main` HEAD, 2026-08-27.
+  found: both D-01 and D-03 fixes are present and unchanged on current HEAD, ~3.5 months after they shipped. `enable_longpaths_on_windows()` runs before clone and sets `git config --global core.longpaths true` on Windows. The skill loop increments `SKILL_SKIPPED` and prints `WARN: skipping skill $skill_name: no SKILL.md` to stderr instead of hard-exiting under `set -euo pipefail`. `skills/mullins-scaffold/SKILL.md` exists.
+  implication: Gary's two bugs are fixed AND the fix has not regressed or been reverted since 2026-05-11. The Phase 95.6 absorption is durable, not a since-reverted quick patch.
+
+- timestamp: 2026-08-27T00:00:00Z
+  checked: docs/testers/gary-laben/FEEDBACK.md:18-30 (2026-05-07 entry, verbatim Claude Code plugin-security-warning quote).
+  found: Gary hit Claude Code's own third-party-plugin security warning (settings.json modification + SessionStart hook, "unknown provenance," recommended against running) on both the Claude application and the PowerShell install method, and asked directly whether MindrianOS would run for every Claude Code project or only Mindrian-associated ones -- a scope question the tester onboarding docs did not answer at the time.
+  implication: same ENV-GAP bucket as this sweep's F-B/F-E -- an Anthropic/Claude-Code-side surface MindrianOS docs must address head-on, not route around. No code fix possible; DOC-only. See F-U.
+
+- timestamp: 2026-08-27T00:00:00Z
+  checked: docs/testers/interns/sessions/2026-06-02-session-01-install-qa.md, Findings F1/F2/F3/F4/F8.
+  found: F1/F4/F8 (Windows "claude not recognized" PATH failures, 3 separate reporters: Devoushka, Gaurav Thorat, David) predate this sweep by ~2 months and cross-reference quick task `260602-0pb` -- the same `windows-posix-shell-assumption-installer-statusline` family this sweep already tracks. F2 (a SEPARATE hand-authored install page from Lawrence had NO Brain-API-key request step at all, vs this sweep's F-D "manual step, working as designed" against the canonical mindrian-website flow) is a worse historical variant of F-D, resolved in-session 2026-06-02 by retiring the hand-authored page in favor of the canonical site. F3 (David's Windows Vercel CLI install would not proceed until he re-ran the Node installer WITH the "install necessary tools" / native-build-tools checkbox CHECKED, plus a terminal reopen) directly CONTRADICTS this sweep's own F-B, which instructs users to UNCHECK that exact checkbox because "MindrianOS ships no native modules and needs none of it."
+  implication: F1/F4/F8 -> cross-reference only, an earlier independent occurrence that strengthens the existing tracked family; not a new finding in its own right (F-V). F2 -> cross-reference to F-D as a worse historical variant, and to Phase 269, which removes the query-time Brain-key step from the picture entirely once shipped, obsoleting this whole finding class (F-W). F3 -> a genuine open contradiction with F-B that this sweep does NOT resolve -- either Vercel CLI itself needs the native-build-tools checkbox (making F-B's blanket advice incomplete for users who will also install Vercel) or David's fix was coincidental (the terminal reopen alone would have done it); telling users to uncheck a box Vercel actually needs would make things worse, not better, so this stays an open question pending a real repro (F-X).
+
 ## Findings Table
 
 | ID | Finding | Source | Class | Severity | Route |
@@ -123,6 +218,15 @@ started: install-shell-assumption family present since the installer/statusline 
 | F-M | Room-health inconsistency ("0 sections scanned / health --" then "3 sections / health low") | T2 | HYPOTHESIS (family: intern-w1-state-not-recomputed) | low | investigate |
 | F-N | Session-start "1 setup issue: MCP - /doctor" | T2 | HYPOTHESIS (family: mcp-servers-cache-missing-node-modules, doctor-brain-smoke-win-crash) | low | investigate |
 | F-O | `/ignite` hit a bug and self-healed mid-session | T1 | HYPOTHESIS (insufficient error text) | low | investigate |
+| F-P | Brain-access double sign-in (mindrian-os.com -> mindrianos-jsagirs-projects.vercel.app), root-caused as a cross-origin session-cookie seam (no canonical-domain redirect, no `NEXT_PUBLIC_SITE_URL` pin) | T3 (Gaurav Thorat, 2026-08-24/25) | KNOWN-TRACKED, root-caused, deliberately DEFERRED pending Theo Brain-hookup swap | medium | Phase 269 (Moat Shift -- Install/Update Entitlement Gate) touches the SAME auth-flow files for a different reason -- see Evidence above; not resolved here |
+| F-Q | Windows npm self-update `EBADENGINE` noise (npm's own engine-mismatch suggestion, unrelated to MindrianOS) still absent from live install docs | T3 (Gaurav Thorat) | ENV-GAP | low | DOC (mindrian-website install docs, one-line FAQ callout) |
+| F-R | "Windows CLI wasn't preinstalled, adds ~10 min" -- CORRECTION of the 2026-08-26 research trail's own claim, not a doc gap | T3 (Gaurav Thorat) | WORKING-as-documented (correction) | n/a | none -- do NOT reopen F-B/F-E on this claim |
+| F-S | Windows git-clone MAX_PATH (260-char) failure on the old `92-...trust-layer...` phase directory | T4 (Gary Laben, 2026-05-08/09) | KNOWN-TRACKED / FIXED (Phase 95.6 D-01, shipped v1.13.0-beta.9 2026-05-11; confirmed live+unreverted on HEAD 2026-08-27) | was high, now fixed | none -- residual: Windows cold-install empirical gate WAIVED, never re-confirmed live post-fix |
+| F-T | `install.sh` `set -euo pipefail` hard-exits the ENTIRE script on missing `skills/mullins-scaffold/SKILL.md`, leaving agent/hook/settings.json registration unfinished | T4 (Gary Laben) | KNOWN-TRACKED / FIXED (Phase 95.6 D-03, shipped v1.13.0-beta.9 2026-05-11; confirmed live+unreverted on HEAD 2026-08-27) | was high (install-breaking), now fixed | none -- same residual as F-S |
+| F-U | Claude Code's own third-party-plugin security warning + unanswered "does this run on every project?" scope question caused install hesitation | T4 (Gary Laben) | ENV-GAP | low-medium | DOC (same bucket as F-B/F-E -- prereqs/FAQ, address the warning + scope head-on) |
+| F-V | Windows PATH "claude not recognized" family (3 reporters: Devoushka, Gaurav Thorat, David) | T5 (Interns Session 1, 2026-06-02; findings F1/F4/F8) | KNOWN-TRACKED, independent earlier occurrence of the SAME windows-posix-shell-assumption-installer-statusline family this sweep already tracks | n/a | none -- corroborating evidence only, strengthens the existing tracked pattern |
+| F-W | Brain-API-key request step missing ENTIRELY from a separate hand-authored install page (worse historical variant of this sweep's F-D) | T5 (Interns Session 1; finding F2) | KNOWN-TRACKED, worse historical variant of F-D; resolved in-session 2026-06-02 by retiring the hand-authored page | n/a (historical, closed) | Phase 269 obsoletes this whole finding class once shipped (removes the query-time Brain-key step entirely) |
+| F-X | CONTRADICTS this sweep's F-B: Vercel CLI on Windows apparently needed the Node "install necessary tools" (native-build-tools) checkbox CHECKED, while F-B says uncheck it | T5 (Interns Session 1; finding F3) | HYPOTHESIS / OPEN QUESTION, unresolved tension, needs a real repro | medium (wrong advice here makes things worse, not better) | investigate -- do NOT amend F-B until repro'd |
 
 ## Technical Root Cause (grounded findings only)
 
@@ -163,6 +267,24 @@ started: install-shell-assumption family present since the installer/statusline 
 - F-D / F-F / F-G: roadmap items already owned by the maintainer (brain-key bake-in; natural-language dispatch replacing command sprawl; Phase 130 Python-to-CJS port). No new action beyond linking this sweep as field evidence.
 - CHANGELOG.md: no entry yet (report-only; entries added when/if F-A and F-I ship).
 - knowledge-base.md: add a summary block only on resolve.
+- F-Q (install docs): add a one-line FAQ callout near the Windows npm step: an `EBADENGINE`
+  warning during `npm install -g npm@...` is npm's own upgrade suggestion, unrelated to
+  MindrianOS, safe to ignore. Doc-only, independent of Theo/Phase 269.
+- F-U (install docs prereqs/FAQ): address Claude Code's third-party-plugin security warning head
+  on -- what it means, why it appears, and that MindrianOS activates per-project (answer Gary's
+  scope question in plain words), rather than routing around the warning. Same bucket as F-B/F-E.
+- F-P + F-W cross-reference (explicit, by name): **Phase 269: Moat Shift -- Install/Update
+  Entitlement Gate** (`.planning/ROADMAP.md` lines 555-570) repurposes the EXACT SAME
+  mindrian-website auth-flow files this sweep's F-P root-caused (`components/brain/AuthButton.tsx`,
+  `src/app/auth/callback/route.ts`, `next.config.ts`). Whoever picks up F-P's cross-origin
+  session-cookie fix, or Phase 269's entitlement-gate build, should read the other first -- same
+  files, same seam, two different reasons to touch them; building one without checking the other
+  risks duplicating or clobbering that work. Phase 269 also obsoletes F-W's whole finding class
+  (the query-time Brain-key request step) once shipped.
+- F-X (open question, NOT resolved here): needs a real repro on a clean Windows box -- attempt a
+  Vercel CLI install with the Node "Tools for Native Modules" checkbox UNCHECKED first; only if
+  that repro genuinely fails should F-B's "uncheck it" advice be amended to carve out a Vercel
+  exception. Do not amend F-B on the strength of the Interns' single report alone.
 
 ## Tests to Add or Update (when fixes land)
 
