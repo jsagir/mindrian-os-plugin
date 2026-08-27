@@ -2,16 +2,32 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 266-05-PLAN.md (MCPFIX-03 gap closure)
-last_updated: "2026-08-27T12:42:29.075Z"
-last_activity: 2026-08-27 -- Phase 265 execution started via /gsd-execute-phase orchestration
+status: verifying
+stopped_at: Completed 265-24-PLAN.md (second-pass phase gate, Phase 265 complete 23/23 plans)
+last_updated: "2026-08-27T20:00:00.000Z"
+last_activity: 2026-08-27 -- Phase 265 (Capability Radar Absorption + Routing, re-scoped) fully executed and independently re-verified: all 23 plans (waves 1-5 DAG-actual; frontmatter declares 6, several wave-4/5-declared plans were DAG-satisfied earlier), final gate green (run-all-265.sh 26/26 no escape flags, grants-strict 0 unratified, run-all-264.sh 14/14 with chain-executor.cjs zero-diff intact, both doctor organs green). One orchestrator-level cross-plan regression fix landed (commands/scout.md web_scope declaration-truth, commit b2a13304). Next up per ROADMAP.md ordering: Phase 267 (blocked on an unresolved ext-apps upstream dependency, do not start) or Phase 270 (Memory and Context Operator MCP -- already being actively planned/executed by a concurrent session on this same tree, several plans already landed: 270-01..270-04).
 progress:
   total_phases: 18
   completed_phases: 5
   total_plans: 62
   completed_plans: 37
   percent: 28
+  # NOTE: the four numbers above were deliberately left UNCHANGED by this Phase 265
+  # completion edit (2026-08-27), even though Phase 265 (23 plans) is now fully
+  # complete. Reason: this milestone-wide aggregate was already stale before Phase
+  # 265 started (Phase 265 itself grew from 7 to 23 plans in a second planning pass
+  # the same day the aggregate above was last computed, so total_plans:62 does not
+  # yet include the +16 growth), AND a separate concurrent session is simultaneously,
+  # legitimately mutating this exact same block for Phase 270's own progress via
+  # `gsd-tools query state.record-metric` calls (see the dated NOTEs below this
+  # frontmatter -- NINTH+ occurrence of the documented resync-clobber bug this
+  # session alone). Recomputing a correct joint total here would require enumerating
+  # every one of the 18 milestone phases' current true plan counts, which is out of
+  # scope for a Phase-265-focused hand-edit and would risk introducing yet another
+  # fabricated number into a field two sessions are already fighting over. Left
+  # honestly stale rather than guessed. A future full milestone audit should
+  # recompute this once, from ROADMAP.md's own checkbox counts, not from this
+  # tool's mutation verbs.
 ---
 
 <!-- NOTE (270 execute-plan state.record-metric after plan 270-02, 2026-08-27T~16:40Z, hand-edited
@@ -3177,9 +3193,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 265
-Plan: 01 of 23 (waves 1-6 per plan frontmatter; DAG-verified dependency graph collapses to 5 execution waves since several wave-4-declared plans only depend on wave-1/2 work)
-Status: Executing (Phase 266 shipped complete 2026-08-27: 5/5 plans, verified passed 8/8; 266-05 closed the one MCPFIX-03 gap the prior verification found. Phase 267 is queued behind 265.)
-Last activity: 2026-08-27 -- Phase 265 execution started via /gsd-execute-phase orchestration
+Plan: 23 of 23 -- COMPLETE (waves 1-6 per plan frontmatter; DAG-verified dependency graph collapses to 5 execution waves since several wave-4/5-declared plans only depended on wave-1/2/3 work and ran earlier)
+Status: Complete, independently re-verified 2026-08-27 (Phase 266 shipped complete 2026-08-27: 5/5 plans, verified passed 8/8; 266-05 closed the one MCPFIX-03 gap the prior verification found; Phase 265 built on top of it, including confirming Phase 266's MCPFIX-01/MCPFIX-02 fixes live via 265-09's and 265-24's own tripwires). Phase 267 remains blocked on an unresolved upstream ext-apps dependency per ROADMAP.md -- do not start it. Phase 270 (Memory and Context Operator MCP) is a separate, concurrent effort already underway on this same tree.
+Last activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
