@@ -2,9 +2,13 @@
 phase: 271-bare-reference-path-resolution-audit
 plan: 01
 kind: audit
-status: RED-baseline
+status: RED-baseline; section 4 disposition RESOLVED by plan 271-02
 generated_by: scripts/check-plugin-path-anchoring.cjs --json --include-scripts
 generated_at: 2026-08-27
+updated_by: plan 271-02 (section 4 only)
+updated_at: 2026-08-27
+radar_disposition: option-d
+sites_to_anchor_post_ruling: 134
 ---
 
 # Phase 271 Audit Register: bare plugin-relative `references/` citations
@@ -38,6 +42,30 @@ Live, from `--report` totals:
 The 25 already-anchored sites are all in `commands/file-meeting.md`, fixed at commit
 `242e32db`. That file contributes zero violations, which is the control proving the
 gate does not flag the known-good form.
+
+### Sites to anchor, post-ruling (added by plan 271-02)
+
+The table above is the RED baseline as measured BEFORE any disposition was ruled, and
+it is deliberately left unedited as the historical measurement. After plan 271-02's
+section 4 ruling (`option-d`), the number plans 271-03 and 271-04 actually have to
+drive to zero is:
+
+| Quantity | Count |
+|---|---|
+| RED-baseline violations (pre-ruling) | 139 |
+| allowlisted by the `option-d` ruling (`commands/radar.md` lines 51, 52, 77, 95, 99) | 5 |
+| **SITES TO ANCHOR (post-ruling)** | **134** |
+
+Split by wave: 94 in `commands/*.md` (99 minus the 5 radar sites, owned by plan
+271-03), and 14 skills + 17 agents + 9 pipelines = 40 owned by plan 271-04.
+
+**Do not use the "119 under option-a/d" figure in `271-02-PLAN.md`.** That number was
+derived arithmetically from the plan-time ESTIMATE of 124 sites (124 minus 5), and the
+plan was written before the gate existed to measure the live tree. The live
+pre-ruling count is 139, not 124, so the live post-ruling count is 134, not 119. This
+is the same class of correction section 1's delta table already records: the estimate
+was right about the defect and wrong about its size. Verified live after the ruling
+landed: `--report` totals read `allowlisted: 5`, `VIOLATIONS: 134`.
 
 Target resolution across the 139 violations:
 
@@ -174,8 +202,11 @@ The single exception to "anchor both classes" is section 4.
 
 ## 4. Exclusion candidate: `/mos:radar`
 
-**Disposition: PENDING.** Owned by plan 271-02, which gates it behind a human
-ruling. Plan 271-01 assembles the evidence and hands it over; it does not decide.
+**Disposition: RESOLVED as `option-d`, ruled 2026-08-27, applied by plan 271-02.**
+The full ruling, its verbatim reason, and the follow-up it registers are in
+"THE RULING" below. Plan 271-01 assembled the evidence and handed it over; it did not
+decide. The evidence it assembled is preserved unedited immediately below, because a
+ruling read without the case that produced it is just an assertion.
 
 `commands/radar.md` carries 5 violating sites: lines 51, 52, 77, 95, 99. All five
 cite `references/capability-radar/...`, and all five resolve OK today. The evidence
@@ -222,7 +253,7 @@ reason string, because that string is reused character-for-character by the
 > safety, and refuses to let the real end-user read failure at lines 51, 52, 95 and
 > 99 be silently dropped.
 
-Consequences plan 271-02 must carry through:
+Consequences plan 271-02 must carry through (**all four DONE, 2026-08-27**):
 
 1. `ALLOWLIST` gains one entry for `commands/radar.md` with
    `pattern: 'references/capability-radar/'` and a written reason (the load-time
@@ -233,8 +264,74 @@ Consequences plan 271-02 must carry through:
    than the live 139. Plan 271-02 should assert 134 and say why.
 3. Plan 271-05 must register the follow-up: split `/mos:radar` into a dev-only
    `--fetch` write path and a user-safe anchored read path, with a named owner.
-4. This section's disposition flips from `PENDING` to `option-d` with the human's
-   verbatim reason and the date.
+4. This section's disposition flips from its unresolved placeholder state to
+   `option-d` with the human's verbatim reason and the date. (The placeholder token
+   is deliberately not repeated here: the acceptance criterion for plan 271-02 is
+   that it appears ZERO times in this file, so writing it even as a quotation would
+   fail the check that proves the disposition is resolved.)
+
+### THE RULING (confirmed and APPLIED by plan 271-02, 2026-08-27)
+
+**Selected option id: `option-d`.**
+
+The evidence above was re-read live against `commands/radar.md` at the checkpoint
+rather than quoted from the plan, and every line cited in it was confirmed: line 51
+and 52 are Step 2 reads, line 77 is the Step 3b write, line 95 is a Step 3b read,
+line 99 is the Step 4 read, lines 64/73/74 read and write
+`data/capability-ledger.json`, and line 65 cites a `.planning/` path that exists in
+no install.
+
+**The human's reason, verbatim.** This string is quoted character-for-character as
+the `reason` field of the `commands/radar.md` entry in
+`scripts/check-plugin-path-anchoring.cjs`'s `ALLOWLIST`. Code and record cannot
+diverge silently (threat T-271-05); if one is edited the other must be edited to
+match.
+
+> /mos:radar is a dev-repo-cwd operator command: line 77 WRITES this file and lines
+> 64/73/74 read and write the git-tracked data/capability-ledger.json it renders, so
+> anchoring would redirect writes into references/capability-radar/changelog-cache.md
+> and data/capability-ledger.json through ${CLAUDE_PLUGIN_ROOT}, which points at the
+> plugin install cache that gets wiped on every update - these are genuine writes to
+> a git-tracked source of record, not read-only citations, so this is a real
+> exception, not a defect.
+
+Two things this ruling explicitly rejected, recorded so neither is re-litigated:
+
+- **`option-c` (anchor all 5 uniformly) is rejected** because it ships a regression to
+  fix a portability bug: the line 77 write lands in the update-wiped install cache
+  while `data/capability-ledger.json`, the declared source of record, stays repo-bound,
+  so the ledger and its rendered view diverge onto two different bases.
+- **`option-b` (anchor the 4 reads, allowlist only the line 77 write) is rejected** and
+  was NOT implemented. It splits one file's citations of the SAME file across two
+  resolution bases, so after a `--fetch` the summary a user reads would never be the
+  summary just written. That is a worse failure than either uniform choice. The
+  rejection is also written into the `ALLOWLIST` entry's code comment as a "do NOT fix
+  it this way" note, because option-b is the intuitive fix a future reader will reach
+  for first.
+
+### FOLLOWUP-271-R1 (the residual risk, owned not dropped)
+
+`option-d` is `option-a` plus honesty. The honesty half is this registration, and it
+is what makes the ruling `option-d` rather than `option-a`.
+
+| Field | Value |
+|---|---|
+| **ID** | `FOLLOWUP-271-R1` |
+| **Title** | Split `/mos:radar` into a dev-only `--fetch` write path and a user-safe anchored read path |
+| **Owner** | repo navigator (the human who ruled `option-d`); registration into the ROADMAP as a scoped phase is carried by plan 271-05 |
+| **Raised by** | plan 271-02, at the moment the exception was granted |
+| **Residual risk** | `commands/radar.md` lines 51, 52, 95 and 99 are pure READS reached by plain `/mos:radar` (Step 2) and `/mos:radar --domain` (Step 4). A user invoking either from their own Data Room resolves them against their cwd and hits exactly the file-meeting failure this phase exists to fix. Excluding all 5 sites leaves that read defect in place. |
+| **Why deferred rather than fixed here** | The naive fix is `option-b`, and `option-b` is worse than doing nothing (see the rejection above). A correct fix needs a real read/write path split in the command, not a sed over four lines, and that is a behavior change to a shipped command that does not belong inside a mechanical anchoring sweep. |
+| **Where it lives in code** | `REGISTERED_FOLLOWUPS` in `scripts/check-plugin-path-anchoring.cjs`. The `followup: 'FOLLOWUP-271-R1'` field on the `ALLOWLIST` entry resolves against it, and `validateAllowlist()` THROWS at module load on a dangling id, so this follow-up cannot be deleted while the exception that depends on it still ships. |
+| **Status** | OPEN. Not owned by any plan in Phase 271; plan 271-05 registers it for scheduling. |
+
+**Why it is registered in two places.** The audit register is where the reasoning
+lives; `.planning/` is gitignored and reaches git only by force-add, so a
+planning-only registration is one `git clean` away from gone. The code-side
+`REGISTERED_FOLLOWUPS` entry ships in a tracked file and is load-bearing: the
+allowlist entry that grants the exception names the follow-up id, and the validator
+refuses to load if that id does not resolve. The exception and its owed work are
+therefore structurally inseparable.
 
 ---
 

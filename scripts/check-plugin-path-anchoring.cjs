@@ -102,10 +102,74 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 //             with a missing or empty reason (T-271-02), so an unreasoned
 //             suppression cannot even be imported, let alone shipped.
 //
-// SHIPPED EMPTY by plan 271-01. Plan 271-02 populates it with the /mos:radar
-// disposition after a human ruling.
+// Optional non-validated fields carried for traceability:
+//   ruling    - the option id the human selected, so code and record cannot drift
+//   followup  - the id of the registered follow-up that owns any residual risk
+//               this exception knowingly leaves in place
+//
+// SHIPPED EMPTY by plan 271-01. Populated by plan 271-02 with the /mos:radar
+// disposition after the human ruling recorded in 271-AUDIT.md section 4.
 // ---------------------------------------------------------------------------
-const ALLOWLIST = [];
+const ALLOWLIST = [
+  {
+    // /mos:radar, ruled 2026-08-27. This is the ONE site in the 139-site sweep
+    // whose anchoring would change runtime WRITE behavior, which is why plan
+    // 271-02 exists at all. All 5 violating sites (commands/radar.md lines 51,
+    // 52, 77, 95, 99) cite references/capability-radar/, so one pattern covers
+    // the file. The reason below is quoted character-for-character in
+    // 271-AUDIT.md section 4; if you change it here, change it there too.
+    //
+    // KNOWN RESIDUAL RISK, owned not dropped: lines 51, 52, 95 and 99 are pure
+    // READS that a plain `/mos:radar` (no flags) or `/mos:radar --domain` from a
+    // user's Data Room still resolves against their cwd, so those two steps keep
+    // the file-meeting failure mode. That is deferred deliberately, not
+    // overlooked, and it is owned by FOLLOWUP-271-R1 (see below). Do NOT "fix"
+    // it by anchoring only the read sites: that splits one file's citations of
+    // the SAME file across two resolution bases, so after a --fetch the summary
+    // the user reads would never be the summary just written. Uniform exclusion
+    // now, a real read/write split later.
+    file: 'commands/radar.md',
+    pattern: 'references/capability-radar/',
+    reason:
+      '/mos:radar is a dev-repo-cwd operator command: line 77 WRITES this file and lines 64/73/74 ' +
+      'read and write the git-tracked data/capability-ledger.json it renders, so anchoring would ' +
+      'redirect writes into references/capability-radar/changelog-cache.md and ' +
+      'data/capability-ledger.json through ${CLAUDE_PLUGIN_ROOT}, which points at the plugin ' +
+      'install cache that gets wiped on every update - these are genuine writes to a git-tracked ' +
+      'source of record, not read-only citations, so this is a real exception, not a defect.',
+    ruling: 'option-d',
+    followup: 'FOLLOWUP-271-R1',
+  },
+];
+
+// ---------------------------------------------------------------------------
+// REGISTERED_FOLLOWUPS - residual risk an ALLOWLIST entry knowingly leaves in
+// place, with a named owner. An exception that defers a real defect and names
+// nobody is how the defect gets lost; every `followup` id on an ALLOWLIST entry
+// resolves here.
+//
+// This is a declaration, not a gate. It never affects the exit code, because a
+// registered follow-up is a scheduling fact and not a code violation.
+// ---------------------------------------------------------------------------
+const REGISTERED_FOLLOWUPS = [
+  {
+    id: 'FOLLOWUP-271-R1',
+    title: 'Split /mos:radar into a dev-only --fetch write path and a user-safe anchored read path',
+    raisedBy: 'plan 271-02 (the option-d ruling, 2026-08-27)',
+    owner: 'repo navigator (the human who ruled option-d); registered into the ROADMAP by plan 271-05',
+    residualRisk:
+      'commands/radar.md lines 51, 52, 95 and 99 are pure reads reached by plain /mos:radar (Step 2) ' +
+      'and /mos:radar --domain (Step 4). A user invoking those from their own Data Room resolves them ' +
+      'against their cwd and hits exactly the file-meeting failure this phase exists to fix.',
+    whyDeferred:
+      'Anchoring only the read sites splits one file\'s citations of the SAME file across two ' +
+      'resolution bases, so after a --fetch the rendered summary a user reads would never be the ' +
+      'summary just written. That is a worse failure than either uniform choice, so the fix needs a ' +
+      'real read/write path split rather than a sed over four lines.',
+    recordedIn:
+      '.planning/phases/271-bare-reference-path-resolution-audit-45-of-113-commands-cite/271-AUDIT.md section 4',
+  },
+];
 
 function validateAllowlist(list) {
   if (!Array.isArray(list)) {
@@ -126,6 +190,17 @@ function validateAllowlist(list) {
         `check-plugin-path-anchoring: ALLOWLIST[${i}] (${entry.file}) has no written reason. ` +
           'Every exception must carry a non-empty reason so the gate cannot be silenced anonymously.'
       );
+    }
+    // An optional followup id must RESOLVE. A dangling id is worse than none:
+    // it reads as owned while owning nothing.
+    if (typeof entry.followup === 'string' && entry.followup.trim() !== '') {
+      if (!REGISTERED_FOLLOWUPS.some((f) => f.id === entry.followup)) {
+        throw new Error(
+          `check-plugin-path-anchoring: ALLOWLIST[${i}] (${entry.file}) names followup ` +
+            `"${entry.followup}", which is not in REGISTERED_FOLLOWUPS. Register it with an owner ` +
+            'or remove the reference.'
+        );
+      }
     }
   });
   return list;
@@ -527,6 +602,7 @@ function main(argv) {
 
 module.exports = {
   ALLOWLIST,
+  REGISTERED_FOLLOWUPS,
   validateAllowlist,
   scanLine,
   scanSurface,
