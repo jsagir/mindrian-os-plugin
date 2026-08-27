@@ -28,5 +28,38 @@
     "default_on_miss": "reject (fail closed): a file that is not on disk, an unknown kind, an unknown reward value, a duplicate id, an empty why, or an unparseable registry is a hard error, not a silent pass. A gate that reports is better than a gate that crashes, so an unreadable registry is reported as registry_read_error rather than thrown.",
     "surface_count_principle": "The total count of declaring surfaces is NEVER hardcoded. It is always surfaces.length, read from this file by the gate at check time."
   },
-  "surfaces": []
+  "surfaces": [
+    {
+      "id": "session-start:FIRST_INSTALL",
+      "file": "scripts/session-start",
+      "kind": "injected_prose",
+      "anchor": "[MindrianOS Onboarding] First install detected.",
+      "interactive_first_reward": "--none (diagnostic surface)",
+      "why": "Delivers no qualifying variable reward today: the payload's one reward claim (domain intelligence, 'here is what I already know about your space') is a prose instruction to the model with no MindrianOS machinery behind it, so it fails the rule's own decisive attributable-to-MindrianOS test. Scored 2/10 on the Reward leg as GAP R-1 in .planning/research/2026-08-27-hooked-first-install-audit.md. Declared as an opt-out rather than a reward because that is the honest reading of what ships; the scripting opt-out would be a false claim about invocation, and Phase 267.2 owns repairing GAP R-1, not this phase, which declares the contract and does not change the flow."
+    },
+    {
+      "id": "session-start:UPDATE",
+      "file": "scripts/session-start",
+      "kind": "injected_prose",
+      "anchor": "Welcome back. The user has updated from v",
+      "interactive_first_reward": "--none (diagnostic surface)",
+      "why": "Delivers a what-is-new digest read out of CHANGELOG.md for the exact version pair the user crossed, which is real machinery (the ONBOARD_STEPS / CHANGELOG_DIFF extraction) but a fully predictable output given those two versions. That is the case docs/reward-before-investment-rule.md:59-60 already names in its own words: a state report is not a reward. Honest opt-out, no repair queued against it."
+    },
+    {
+      "id": "session-start:MODE_ROUTING",
+      "file": "scripts/session-start",
+      "kind": "injected_prose",
+      "anchor": "[MindrianOS Mode Routing] No room detected.",
+      "interactive_first_reward": "--none (diagnostic surface)",
+      "why": "Delivers a three-option routing card and nothing else: it asks the user to pick an entry mode before anything is handed back, which is investment before reward, the exact ordering this rule exists to prevent. Declared as an opt-out because no reward member of the closed vocabulary would be a true statement about it. Repairing the ordering is onboarding-flow work Phase 267.2 owns, not a declaration change."
+    },
+    {
+      "id": "session-start:COLD_START_MENU",
+      "file": "scripts/session-start",
+      "kind": "injected_prose",
+      "anchor": "COLD_START_MENU=\"---\\nGet started:",
+      "interactive_first_reward": "--none (diagnostic surface)",
+      "why": "Delivers a static four-command menu, appended by all three cold-start branches, whose command count is computed live from disk. It reports what is available rather than delivering a variable reward, so the opt-out is literal here. Its one measured defect is a routing gap and not a false reward claim: it never names /mos:ignite, the front door built to deliver the Hooked first-cycle reward (GAP R-1, same audit). Phase 267.2 owns that too."
+    }
+  ]
 }
