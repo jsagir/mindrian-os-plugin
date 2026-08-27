@@ -172,6 +172,11 @@ from the vendored SDK source instead.
 
 ## Cross-references
 
+- `~/MindrianRooms/rethinking-mindrianos/research/2026-08-27-capability-radar-265/` -- the
+  durable evidence-and-reasoning trail (Dev-Research Compositing, CLAUDE.md mandatory
+  deliverable), mirrored byte-identical to `/home/jsagi/MindrianOS/research/2026-08-27-capability-radar-265/`
+  as source-of-record. This document holds the decisions; the room entry holds why they are
+  believable.
 - `data/capability-ledger.json` -- the machine-readable ledger; rows whose disposition
   needed a judgment call carry `decision_ref: "docs/RADAR-ABSORPTION-265.md"` pointing back
   here.
