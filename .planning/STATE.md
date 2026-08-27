@@ -4,7 +4,7 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Phase 272 context gathered
-last_updated: "2026-08-27T21:10:45.909Z"
+last_updated: "2026-08-27T21:30:32.023Z"
 last_activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
 progress:
   total_phases: 23
@@ -81,6 +81,48 @@ progress:
      deliberately and additionally because of the THIRD, DIFFERENT defect recorded in the
      267.3-01 note above: it DESTROYS hand-authored prose on the "**Plans:**" line it edits.
      Phase 267.3's ROADMAP row was updated by hand instead. -->
+
+<!-- NOTE (267.3-03 execute-plan, 2026-08-27T21:29-21:30Z, hand-edited per this file's own
+     documented resync-clobber bug, THIRTEENTH AND FOURTEENTH OCCURRENCES this session):
+
+     THIRTEENTH, `gsd-tools query state.advance-plan`: returned
+     `{"advanced":false,"reason":"last_plan","current_plan":23,"total_plans":23,
+     "status":"ready_for_verification"}`, i.e. it did NOTHING legitimate -- it is not even
+     tracking Phase 267.3 (which has 8 plans, not 23; those counters belong to some other
+     phase). But it STILL clobbered the same five progress fields (23/9/90/86/39% -> a
+     fabricated 25/10/98/91/40%) and swallowed two blank lines (near lines 53 and 84). This is
+     the cleanest evidence yet that the clobber is unconditional: the verb performed no work,
+     reported that it performed no work, and corrupted the file anyway. Because nothing
+     legitimate was produced, the file was restored WHOLE from the pre-call snapshot
+     (scratchpad STATE.md.before, 5463 lines) -- byte-identical, verified by diff.
+
+     FOURTEENTH, `gsd-tools query state.record-metric --phase 267.3 --plan 03 --duration 50min
+     --tasks 3 --files 4`: returned `{"recorded":true}` and legitimately appended one metrics
+     table row ("| Phase 267.3 P03 | 50min | 3 tasks | 4 files |"), but AGAIN clobbered the same
+     five progress fields (to a fabricated 25/10/98/91/40%) and swallowed the same two blank
+     lines. Note the fabricated completed_plans is 91 here, 90 at the twelfth occurrence and 89
+     at the eleventh: still non-deterministic across runs, which continues to rule out "the tool
+     is right and the file is stale".
+
+     Recovery method, refined: rather than surgically un-editing the clobbered file, this plan
+     REBUILT STATE.md from the pre-call snapshot and re-applied only the two deltas that were
+     actually wanted (the accurate new `last_updated`, and the one metrics row). That is safer
+     than surgical reversal because it cannot leave a clobbered field un-noticed; the diff
+     between snapshot and result is then provably exactly two hunks, which was verified.
+     One trap worth recording for the next person: the first rebuild attempt anchored the row
+     insertion on the string "| Phase 267.3 P02 | ... |" and matched the NOTE PROSE above that
+     quotes that row, inserting the new row inside a comment block. Anchor on the LAST match,
+     not the first, or on the table itself. Caught by diff before it was committed.
+
+     Consequence for this plan, following the 267.3-02 precedent: `state.update-progress`,
+     `state.add-decision`, `state.record-session` and `roadmap.update-plan-progress` were NOT
+     called. The position and decisions for 267.3-03 are carried by
+     `.planning/phases/267.3-*/267.3-03-SUMMARY.md` (frontmatter `decisions:` block) and by this
+     NOTE. Progress deliberately NOT recomputed by hand for the same reason the tenth and
+     twelfth occurrences give: Phase 267.3's 8 planned plans are still not reflected in
+     total_plans, so any hand-bumped number would be as fabricated as the SDK's. ROADMAP.md's
+     267.3 row was updated by hand, because `roadmap.update-plan-progress` destroys the
+     hand-authored prose on the "**Plans:**" line (the THIRD, DIFFERENT defect above). -->
 
 
 <!-- NOTE (270 execute-plan state.record-metric after plan 270-02, 2026-08-27T~16:40Z, hand-edited
@@ -3973,6 +4015,7 @@ Progress: [█████████░] 92%
 | Phase 271 P02 | 26min | 2 tasks | 2 files |
 | Phase 267.3 P01 | 35min | 2 tasks | 2 files |
 | Phase 267.3 P02 | 40min | 3 tasks | 7 files |
+| Phase 267.3 P03 | 50min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
