@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * MindrianOS Plugin — CLI Entry Point
+ * MindrianOS Plugin - CLI Entry Point
  * Routes subcommands to lib/core modules.
  * Pattern: GSD gsd-tools.cjs (switch-case routing, async main, catch).
- * Surface-agnostic — no CLI/MCP/Desktop branching here.
+ * Surface-agnostic - no CLI/MCP/Desktop branching here.
  */
 
 'use strict';
@@ -47,7 +47,7 @@ Commands:
   funding status [roomDir] [slug]           Show funding entry details
   funding outcome [roomDir] [slug] [outcome]  Set outcome (awarded|rejected|withdrawn)
   funding compute-state [roomDir]  Compute opportunity-bank + funding STATE.md
-  persona generate [roomDir]       Generate 6 De Bono hat personas from room state
+  persona generate [roomDir] [--preview]  Routes to /mos:persona --parallel by default; --preview writes 6 labelled template-only files instead
   persona list [roomDir]           List generated personas
   persona invoke [roomDir] [hat] [artifact]  Invoke a specific hat perspective
   persona analyze [roomDir] [artifact]       Run all 6 perspectives on an artifact
@@ -317,7 +317,24 @@ async function main() {
     case 'persona': {
       switch (subcommand) {
         case 'generate': {
-          const result = personaOps.generatePersonas(roomDir);
+          // Phase 265-16 (T-265-72): default is now the ROUTE response (no
+          // files written) naming /mos:persona --parallel; --preview opts
+          // into the old template-writing behavior, every file now stamped
+          // with PREVIEW_NOTICE. Before this plan, this case always wrote 6
+          // files and printed their JSON list; after, the default prints a
+          // readable routing line instead (raw JSON stays reachable via
+          // --raw for scripting).
+          const previewIndex = argv.indexOf('--preview');
+          const preview = previewIndex !== -1;
+          if (preview) argv.splice(previewIndex, 1);
+          const opts = preview ? { mode: 'preview' } : undefined;
+          const result = personaOps.generatePersonas(roomDir, opts);
+          if (result && result.routed && !raw) {
+            process.stdout.write(
+              `Routed - run ${result.route_to} for six independently-reasoning hat perspectives with a cross-agent tension map. ${result.why} Pass --preview for a quick template-only preview instead.\n`
+            );
+            process.exit(0);
+          }
           output(result, raw, JSON.stringify(result));
           break;
         }
@@ -392,12 +409,12 @@ async function main() {
           try {
             parsed = JSON.parse(fmArg);
           } catch (_e) {
-            // Not JSON — treat as section name, optional field in argv[4]
+            // Not JSON - treat as section name, optional field in argv[4]
             const result = reasoningOps.getReasoningFrontmatter(roomDir, fmArg, argv[4] || null);
             output(result, raw, JSON.stringify(result, null, 2));
             break;
           }
-          // JSON parsed — route by action
+          // JSON parsed - route by action
           const { action, section, field, value } = parsed;
           let result;
           switch (action) {
@@ -517,7 +534,7 @@ async function main() {
           break;
         }
         case 'mermaid': {
-          // Raw Mermaid output — type from argv[3]
+          // Raw Mermaid output - type from argv[3]
           const mermaidType = argv[3] || 'room';
           let mermaid;
           if (mermaidType === 'graph') {
