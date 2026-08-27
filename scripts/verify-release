@@ -333,6 +333,47 @@ else
 fi
 
 # ============================================================
+# 10c. PLUGIN PATH ANCHORING
+# ============================================================
+# Phase 271: a bare plugin-relative path in command, skill, agent or pipeline
+# markdown (Read `references/foo.md`) resolves against the SESSION'S CURRENT
+# WORKING DIRECTORY, not the plugin install directory, so it works by pure
+# coincidence in this dev repo (whose root happens to contain references/) and
+# fails in every real Data Room a user installs into, on all three surfaces.
+# The anchored form is ${CLAUDE_PLUGIN_ROOT}/references/... for commands,
+# agents and pipelines, and the fail-closed
+# ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}}/ wrapper for hand-authored
+# skills, which a foreign Agent-Skills host can load with no plugin root set.
+#
+# This gate exists because the originating RCA,
+# .planning/debug/resolved/file-meeting-missing-reference-files.md, fixed
+# exactly ONE file (commands/file-meeting.md) and named the structural,
+# repo-wide guard as missing work in its own Non-Code Follow-ups section. A
+# one-file fix with no gate is how this class came back: the SAME disease was
+# already fixed once for `bash scripts/<name>` call sites
+# (.planning/debug/resolved/intern-w1-rooms-skill-script-path.md) and the
+# references/ pattern survived that sweep untouched, because both fixes were
+# scoped by grep pattern instead of by resolution mechanism. A sweep cleans the
+# tree once; only a release gate keeps it clean.
+#
+# Fail-closed on purpose. The gate is the phase's own oracle, and an advisory
+# WARN here would let 30-plus unanchored citations ship in a release while the
+# board still reads green.
+echo -e "\n${BOLD}10c. Plugin Path Anchoring${NC}"
+
+ANCHOR_OUT=$(node "$PLUGIN_ROOT/scripts/check-plugin-path-anchoring.cjs" --check 2>&1) && ANCHOR_CODE=0 || ANCHOR_CODE=$?
+if [ "$ANCHOR_CODE" -ne 0 ]; then
+  fail "Plugin path anchoring FAILED (bare references/ citations resolve against user cwd, not the plugin install dir):"
+  echo "$ANCHOR_OUT" | tail -12
+  echo "  Known open blocker as of Phase 271 close: 30 sites across 16 commands are ALREADY FIXED"
+  echo "  in the working tree but cannot be committed until Phase 267.3 lands (they lack the"
+  echo "  interactive_first_reward declaration the mva-rule-linter requires), plus"
+  echo "  commands/doctor.md:262. See .planning/phases/271-*/deferred-items.md (DEFERRED-271-D1)."
+else
+  pass "Every plugin-relative references/ citation is anchored (check-plugin-path-anchoring --check)"
+fi
+
+# ============================================================
 # 11. SCRIPTS EXECUTABLE
 # ============================================================
 echo -e "\n${BOLD}11. Script Permissions${NC}"
