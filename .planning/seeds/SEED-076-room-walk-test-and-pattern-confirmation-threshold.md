@@ -118,13 +118,27 @@ a foreign host cannot assume Claude-Code-specific machinery).
    concept.
 2. **"Patterns require three independent occurrences" as a confirmation gate** (from
    `forms.md`'s Context Map form) before a detected signal graduates from `PROPOSED` to a
-   confirmed pattern node -- NOT verified either way against live code. Several files have
-   occurrence/threshold-shaped names (`lib/core/icm-forest.cjs`, `lib/core/graph-
-   backfill.cjs`, `lib/core/scheduled-scanner.cjs`, `lib/core/rs-fetcher-experts.cjs`,
-   `lib/core/voice-transition-detector.cjs`) but none were read in full to confirm or rule
-   out an existing N-occurrence gate. **This SEED's first concrete action, if picked up:
-   read those five files and settle whether this already exists before writing a single new
-   line** (Canon Part 7).
+   confirmed pattern node. **RESOLVED (2026-08-28), reuse-check closed, both legs checked
+   directly:**
+   - **Code:** all five candidate files read in full via `grep`. None implements this
+     pattern. `voice-transition-detector.cjs:99` does the OPPOSITE deliberately ("SWITCH
+     always passes on the first occurrence"). `rs-fetcher-experts.cjs` has an adjacent but
+     different mechanism (`paper_count`/citation-count ranking, a continuous score, not a
+     discrete PROPOSED->CONFIRMED state-machine gate). `icm-forest.cjs`, `graph-backfill.cjs`,
+     `scheduled-scanner.cjs` only use "occurrence" in unrelated senses (co-occurrence
+     dedup, disclosure timestamps). **Confirmed gap, not already built** -- Canon Part 7
+     satisfied, safe to design fresh if picked up.
+   - **Grounding (langtalks-graph-expert, per the standing consult rule, bound together with
+     icm-architect this session):** `get_entity` on "Pattern Detection", "Evidence
+     Threshold", "Signal Aggregation", and "Confidence Score" all returned `found: false` --
+     honest "not in the corpus yet" across the board, per the tool's own contract. One
+     adjacent hit on "Deduplication" (citing the user's own prior "LangExtract and
+     Orphan-Prevention in Knowledge Graphs" note and the "Toward Robust GraphRAG" paper
+     already cited elsewhere this session) -- relevant to node-identity dedup, not to
+     occurrence-count pattern confirmation specifically. **No external literature grounding
+     available for this exact mechanism.** If built, it would be designed from icm-architect's
+     stated principle directly, not from a richer cited precedent -- worth knowing before
+     scoping it, not a blocker.
 
 ## What this is NOT proposing
 
