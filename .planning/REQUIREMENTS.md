@@ -187,7 +187,10 @@ and would be minted when the phase was planned. They are scoped to Phase 265 onl
 
 - [ ] **RADAR-09**: `Task` is present in `allowed-tools` on exactly the three reviewed swarm
       commands (act, persona, grade), each with a written reason, enforced by a set-equality
-      tripwire so a fourth command cannot acquire the grant silently.
+      tripwire so a fourth command cannot acquire the grant silently. (Its anti-silent-widening
+      property is preserved and extended by RADAR-12, which replaces this frozen three-name
+      literal with a reviewed registry covering both grant tokens; the three commands named here
+      remain granted.)
 
 - [ ] **RADAR-10**: Every command whose body dispatches subagents states its dispatch shape
       explicitly with a written reason: trending-to-absurd Expert path parallel,
@@ -216,7 +219,10 @@ renumbered, so the gap is a deliberate record of the collision and not an omissi
       bound, the reason, a non-agent reviewer and a date; a reviewed-but-unbuilt row is `pending` and
       does not fail the build; `TEST_265_GRANTS_STRICT=1` fails any built-but-unratified grant at the
       phase gate; and the tripwire enforces set equality across BOTH tokens, closing the pre-existing
-      `commands/deep-grade.md` `Agent` grant the Task-only check could not see. SUPERSEDES the frozen
+      `Agent` grants on `commands/deep-grade.md`, `commands/opportunities.md` and
+      `commands/research.md` the Task-only check could not see (three, not the one identified
+      during planning; the other two surfaced when the rewritten tripwire's own arm-1 check ran
+      against the live repo). SUPERSEDES the frozen
       three-name literal in RADAR-09 while preserving its anti-silent-widening intent.
 
 - [x] ~~**RADAR-13**~~: RETIRED before use, 2026-08-27. Duplicated **MCPFIX-01** (Phase 266): the MCP
