@@ -272,6 +272,11 @@ that closed it. The 5 SHIPPED and 9-or-10 N/A items needed no action and are not
   deliverable), mirrored byte-identical to `/home/jsagi/MindrianOS/research/2026-08-27-capability-radar-265/`
   as source-of-record. This document holds the decisions; the room entry holds why they are
   believable.
+- `~/MindrianRooms/rethinking-mindrianos/research/2026-08-27-capability-radar-265-second-pass/` --
+  the second-pass sibling trail, covering the MCP layer audit, the file-meeting deep dive (including
+  the navigator's economics-over-recall override), the generative redesign survey, the online-research
+  gap, and the persona-builder duplication finding, mirrored byte-identical to
+  `/home/jsagi/MindrianOS/research/2026-08-27-capability-radar-265-second-pass/` as source-of-record.
 - `data/capability-ledger.json` -- the machine-readable ledger; rows whose disposition
   needed a judgment call carry `decision_ref: "docs/RADAR-ABSORPTION-265.md"` pointing back
   here.
