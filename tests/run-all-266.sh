@@ -176,6 +176,14 @@ EMDASH_TARGETS=(
   "lib/core/npm-install-lock.cjs"
   "tests/test-234-tool-description-floor.cjs"
   "tests/run-all-266.sh"
+  # 266-REVIEW.md WR-01: both bin/*.cjs entry points are modified by this
+  # phase's MCPFIX-03 work (bin/mindrian-brain-mcp-client.cjs:23 even carries
+  # its own in-file "HARD RULE: no em-dashes" comment the fence never
+  # machine-checked), plus the two lock/heal test files WR-01 also named.
+  "bin/mindrian-mcp-server.cjs"
+  "bin/mindrian-brain-mcp-client.cjs"
+  "lib/core/npm-install-lock.test.cjs"
+  "lib/core/mcp-dep-heal.test.cjs"
 )
 shopt -s nullglob
 for f266 in "$ROOT"/tests/test-266-*; do

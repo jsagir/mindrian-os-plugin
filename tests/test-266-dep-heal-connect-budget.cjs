@@ -20,11 +20,27 @@
  * minutes against a 30-second host clock.
  *
  * THE FIX (production code, next task): a CONNECT_PATH_BUDGET_MS (15000 ms)
- * threaded through ensureDepsPresent/requireWithHeal/runGuardedInstall via a
- * `connectPath` option, and a per-call `timeoutMs` override on waitForUnlock so
- * the peer-wait arm is bounded too. The hook path (scripts/sessionstart-npm-
- * reconcile.cjs) keeps its full 120-second DEFAULT_INSTALL_TIMEOUT_MS budget --
- * it has no host connect clock counting against it.
+ * budget threaded through ensureDepsPresent/requireWithHeal/runGuardedInstall
+ * via a `connectPath` option, and a per-call `timeoutMs` override on
+ * waitForUnlock so the peer-wait arm is bounded too. The hook path
+ * (scripts/sessionstart-npm-reconcile.cjs) keeps its full 120-second
+ * DEFAULT_INSTALL_TIMEOUT_MS budget -- it has no host connect clock counting
+ * against it.
+ *
+ * PHASE 266 PLAN 05 (MCPFIX-03 gap closure, dated 2026-08-27): this file owns
+ * the PER-CALL contract only -- every check below exercises exactly ONE
+ * waitForUnlock / ensureDepsPresent call in isolation. The PROCESS-level
+ * contract (a cumulative wall-clock bound across the full multi-call
+ * module-scope sequence both MCP entry points actually run before answering
+ * `initialize`) lives in tests/test-266-connect-path-process-budget.cjs. This
+ * split is deliberate: a green run of THIS file alone proved the single-call
+ * bound only, and that gap is exactly how 266-VERIFICATION.md Truth #5's
+ * regression shipped (four independently-budgeted calls, each individually
+ * correct, compounding to a measured 60296ms cumulative worst case against a
+ * ~30000ms host connect timeout). CONNECT_PATH_BUDGET_MS itself is now a
+ * PER-PROCESS ceiling spanning every connect-path heal call, not a per-call
+ * number -- see lib/core/mcp-dep-heal.cjs's module header for the full
+ * arithmetic. No assertion or executable line in this file changed.
  *
  * SUBPROCESS GUARDING: two of the checks below (5 and 6) exercise code paths
  * that, PRE-FIX, block synchronously for up to WAIT_TIMEOUT_MS (200 seconds --
