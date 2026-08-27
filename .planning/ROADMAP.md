@@ -495,7 +495,7 @@ is deliberate.
 **Goal:** Fast, independently shippable fixes to the MCP transport layer, found live during Phase 265's audit. (1) CRITICAL: `lib/mcp/runtime-instructions.cjs` serves 2173 bytes against Claude Code's 2KB instructions cap (since 2.1.84), silently truncating the Canon Part 8 graph-boundary paragraph mid-sentence in every session -- fix by trimming under 2048 bytes without losing Part 8 language, and fix `no-instructions.test.cjs` to assert the real host-side byte cap instead of the wrong boundary. (2) `tool-router.cjs:648` splices 80 raw chars of `voice-dna.md` into the `room_state` tool description, shipping a malformed stray-H1 mid-word-cut description to every host. (3) `mcp-dep-heal.cjs:104` runs a blocking `spawnSync npm install` capped at 120s during MCP `initialize`, 4x the host's own ~30s connect timeout, so it always fails from the host's side first. (4) the MCP guardrail test reports 35 passed / 0 failed while covering only 8 of 36 registered tools, a false-coverage signal. Deliberately decoupled from Phase 265 (capability-radar-absorption-routing): that phase's redesign work (parallel subagent dispatch across multiple commands) is exploratory and slower; these are crisp, low-risk, mechanical fixes that should ship in the next version cut on their own schedule, not wait on the larger phase.
 **Requirements**: MCPFIX-01, MCPFIX-02, MCPFIX-03, MCPFIX-04 (minted at plan time 2026-08-27)
 **Depends on:** none -- deliberately independent of Phase 265 so it can ship on its own schedule
-**Plans:** 4/4 plans complete
+**Plans:** 5 plans (4 executed, 1 gap-closure pending: 266-VERIFICATION.md found MCPFIX-03's connect budget enforced per-call, compounding to a measured 60296ms across the 4 sequential module-scope heal calls each entry point makes, against a ~30000ms host connect timeout)
 
 Plans:
 
@@ -503,6 +503,7 @@ Plans:
 - [x] 266-02-PLAN.md -- wave 1, MCPFIX-02: replace the voice-dna.md splice in room_state with authored prose naming its five commands, delete the dead compact path at both ends
 - [x] 266-03-PLAN.md -- wave 1, MCPFIX-03: bound both arms of the dependency-heal race to a connect-path budget under the host connect timeout, keep the SessionStart hook at 120s
 - [x] 266-04-PLAN.md -- wave 2, MCPFIX-04: expand tests/test-234-tool-description-floor.cjs to every registered tool, report its own coverage, run the phase gate with no escape
+- [ ] 266-05-PLAN.md -- wave 2, MCPFIX-03 GAP CLOSURE: replace the per-call connect budget with ONE shrinking process-wide deadline armed at each entry point, short-circuit every heal call once it is spent, and add the cumulative multi-call wall-clock test the phase was missing
 
 ### Phase 267: MCP Stateless Protocol Migration
 
@@ -551,3 +552,20 @@ For each: (1) confirm it genuinely runs code rather than just describing that it
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 268 to break down)
+
+### Phase 269: Moat Shift -- Install/Update Entitlement Gate
+
+**Goal:** Move the Brain/Theo access gate off per-query Brain-API-key checks entirely. Once Theo replaces the Brain (Phase 267 / Theo's own Phase 9), Theo access becomes unconditional for any installed MindrianOS user -- no personal key required, no trial-expiry refusal. The entitlement gate moves to a different action: installing and updating MindrianOS itself requires a valid key. Theo stays remote (never bundled -- this does NOT reverse decision #5's "remote by design"; it moves decision #1's "keyless session gets an honest refusal" from query-time to install/update-time). Navigator-locked 2026-08-27: "the key will be required to install and update mindrian... there will be no dependency on key to access [Theo]... it will be accessible to any mindrianOS user... we are shifting the moat."
+
+**Concrete mechanism (navigator refinement, 2026-08-27):** the install page's existing Google-auth flow (`mindrian-website`'s `/brain-access`, Supabase `signInWithOAuth({provider:"google"})`) is repurposed. Today that flow's ONLY output is a Brain API key. Under this phase, the same Google-auth gate issues (or is extended to also issue) the install/update entitlement credential -- the general-access gate is now install-and-update, not Brain-specific. This directly touches the SAME auth-flow code this session already root-caused for Gaurav Thorat's double-sign-in finding (`components/brain/AuthButton.tsx`, `src/app/auth/callback/route.ts`, no canonical-domain redirect in `next.config.ts`) -- fixing that seam and building this gate are the same body of work, not two separate auth flows. Whether the install/update key REPLACES the Brain key outright or the two become one credential with two authorized uses is a decision for this phase's own planning, not decided here.
+
+This requires reconciling, not silently editing: `.claude/includes/decisions.md` Key Decision #1 ("a keyless session gets an honest refusal, never a silent local substitute" -- currently checked at query-time, becomes install/update-time) and #5 ("Brain is remote by design, not optional by default" -- stays true, needs a clause noting per-query keys are gone); `.claude/includes/moat.md` (the moat reframes from "pay per graph query" to "pay for the install/update right" -- the graph itself becomes freely queryable once a user is in); and the personal-memory business-model note (`project_mindrianos_business_model.md`: "Free tier = prompt-Larry + Brain MCP; paid = trained Lawrence model" -- needs revisiting against the new model).
+
+Cross-references: seeds directly into Theo's own `.planning/ROADMAP.md` Phase 9 ("Brain-Contract Cutover") open doctrine question -- "what happens to `brain_ask`/`brain_query`/`brain_search` (the three highest-traffic real callers, none contract-pinned)... no document currently states what happens to it at cutover" -- this phase's decision answers that directly: they become keyless/unconditional. Also touches Phase 234 (MindrianOS as Infrastructure: Skills, MCP Everywhere, Open Core) and Phase 267.1 (Hooked Model onboarding audit -- removing the key-friction step changes the onboarding Trigger/Reward/Investment legs). Directly resolves the Brain-key friction Gaurav Thorat's trial-install testimonial flagged (`docs/testers/gaurav-thorat/FEEDBACK.md`, the `rethinking-mindrianos` research trail).
+**Requirements**: TBD
+**Depends on:** none technically, but sequenced after Theo's own Phase 9 gets a firmer timeline for the actual install/update-gate ENGINEERING (building a check against an interim cutover state risks throwaway work). The DECISION-RECORDING half (updating decisions.md/moat.md) can happen now via this phase's own planning.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 269 to break down)
