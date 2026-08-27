@@ -106,7 +106,7 @@ Ask the user to paste their transcript text:
 
 > "Paste your meeting transcript below. I'll handle any format -- Zoom, Teams, Otter, Google Meet, or raw text."
 
-Accept multi-line paste. After receiving text, detect the transcript format using the regex patterns from `references/meeting/transcript-patterns.md`. Report the detected format:
+Accept multi-line paste. After receiving text, detect the transcript format using the regex patterns from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/transcript-patterns.md`. Report the detected format:
 
 > "Got it. Looks like a {format} transcript."
 
@@ -211,7 +211,7 @@ Then fall back to paste mode.
 Print:
 > "Not yet available. Coming in a future update. Use `--latest`, paste, `--file`, or `--audio` for now."
 
-This flag is designed in `references/meeting/live-join-interface.md` but not implemented until v3.0.
+This flag is designed in `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/live-join-interface.md` but not implemented until v3.0.
 
 ### Infer Meeting Metadata
 
@@ -257,7 +257,7 @@ and asks -- the enforcement point is unchanged.
 
 ### Parse Speaker Labels
 
-Use the regex patterns from `references/meeting/transcript-patterns.md` to extract speaker labels from the transcript.
+Use the regex patterns from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/transcript-patterns.md` to extract speaker labels from the transcript.
 
 **If speaker labels are found:** Extract all unique speakers and proceed to matching.
 
@@ -736,7 +736,7 @@ node -e "const {requireValidAt}=require('./lib/core/temporal/date-sync-gate.cjs'
 
 ### Create Filed Artifacts
 
-For each filed segment, create a markdown file in the target room section using the frontmatter from `references/meeting/artifact-template.md`:
+For each filed segment, create a markdown file in the target room section using the frontmatter from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/artifact-template.md`:
 
 **File path pattern:** `room/{section}/YYYY-MM-DD-{slug}.md`
 
@@ -837,7 +837,7 @@ One row per confirmed speaker from Step 2. Profile links use the slug from creat
 
 ### Create Full Summary
 
-Following `references/meeting/summary-template.md`, create the full meeting summary at:
+Following `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/summary-template.md`, create the full meeting summary at:
 `room/meetings/YYYY-MM-DD-{meeting-name}/summary.md`
 
 Structure:
@@ -1021,7 +1021,7 @@ After ALL filing is complete, scan filed artifacts against existing Data Room co
 
 ### Load Detection Heuristics
 
-Use `references/meeting/cross-relationship-patterns.md` (already loaded in Setup if available) for the 5 edge types:
+Use `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/cross-relationship-patterns.md` (already loaded in Setup if available) for the 5 edge types:
 
 - **INFORMS**: new artifact references or provides evidence for another section
 - **CONTRADICTS**: new artifact conflicts with existing claim
@@ -1058,7 +1058,7 @@ Present in priority order (INVALIDATES > CONTRADICTS > CONVERGES > ENABLES > INF
 
 ### Cross-Meeting Intelligence Scan
 
-After the within-meeting cross-relationship scan, perform cross-meeting pattern detection using the protocols from `references/meeting/cross-meeting-intelligence.md`:
+After the within-meeting cross-relationship scan, perform cross-meeting pattern detection using the protocols from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/cross-meeting-intelligence.md`:
 
 #### Convergence Detection
 1. Extract key topics from the current meeting's metadata (topics inferred from filed segments)

@@ -12,8 +12,21 @@ hitl_why: "It surfaces one vault action for a single approve-or-defer decision."
 body_shape_overview: E (Mini Report)
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact. Graph view comes free."
+# Phase 265-21 (docs/reward-before-investment-rule.md, --none scripting override clause):
+# vault is a deliberate lifecycle export/import command the navigator runs on purpose (mirrors
+# commands/rooms.md, commands/mva-option.md, commands/pws-brain.md's own --none declarations),
+# not a conversational entry flow with a first-reward moment to sequence.
+interactive_first_reward: --none (scripting only)
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Read Write Bash Glob AskUserQuestion
+# Phase 265 ledger T-265-105 (data/subagent-dispatch-grants.json carries a reviewed "pending"
+# row for commands/vault.md, reviewed_date 2026-08-27; ratification to "granted" is plan
+# 265-23's single-write job, not this one). Task is added here as a pre-approval because
+# import Step 3's threshold-gated review fans out one subagent per guessed-section group once
+# the row count clears VAULT_REVIEW_FANOUT_THRESHOLD; allowed-tools is a pre-approval list,
+# not a restriction list (frontmatter contract), so this removes the per-spawn permission
+# prompt rather than granting a capability the command did not already have. Scoped to the
+# invoking turn; clears on the next message.
+allowed-tools: Read Write Bash Glob AskUserQuestion Task
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true
@@ -151,15 +164,123 @@ node scripts/vault-import.cjs --path <vault> --room <room>
 
 This drives the 4-stage ICM pipeline: 01-ingest (scan + manifest), 02-classify (stub + person + meeting detectors), 03-route (file moves with collision + inbox sub-branching), 03b (team profile materialization via `scripts/create-speaker-profile --layout=import`), 03c (meeting filing with direct-copy fallback), 04-enrich (ROOM.md + per-section STATE.md + MINTO stubs + wikilinks).
 
-### Step 3: Review gate (interactive default)
+### Step 3: Review gate (interactive default, threshold-gated)
 
-If `--yes` was NOT passed, pause after Stage 02 and present the classifications to the user. Larry:
+If `--yes` was NOT passed, pause after Stage 02 and review the classifications before Stage 03
+routes a single file. This review is THRESHOLD-GATED: a small vault reviews in one pass exactly
+as before; a large one fans out across a set of section-scoped subagents. Below the threshold,
+cross-row consistency (two similar notes landing in the same section) is something one context
+gives you for free and independent agents would destroy -- so the single pass stays the default
+and the fan-out below is conditional, never automatic.
 
-1. Opens `room/imports/{id}/02-classify/output/classifications.md` and reads the classification table
-2. For each row, evaluates the classifier's guess against the file content and the venture context, and edits section or decision cells with the Edit tool when a better assignment is warranted
-3. Writes the edits back into `MANIFEST.json` via `lib/import/classifications-sync.cjs` using `syncClassificationsToManifest(classificationsMdPath, manifestPath)` - this is the canonical Larry-classification persistence path from the phase 80 locked fixes
-4. Writes the marker file `room/imports/{id}/02-classify/output/.approved` to signal that Stage 03 can proceed without re-running the stub classifier (the orchestrator skipStub logic reads this marker)
-5. Presents the summary in Body Shape E and asks the user to confirm. On confirmation, Larry re-invokes `node scripts/vault-import.cjs` with the same flags (Stage 03 picks up from the approved classifications automatically)
+**THE THRESHOLD.** `VAULT_REVIEW_FANOUT_THRESHOLD` defaults to `40` rows, overridable via the
+environment variable of the same name. This number is a judgment call, not a measurement: a
+20-note vault is trivial to review in one context, a 300-note vault is not, and 40 is roughly
+two sections' worth of notes -- the point where one context stops being able to read every file
+body carefully and starts rubber-stamping the classifier's guesses instead of admitting it ran
+out of room. `--dry-run` (Stages 01 and 02 only, no file moves, nothing to undo) is the natural
+way to size a vault before deciding whether the fan-out is worth it.
+
+#### PHASE 0 (SEQUENTIAL, orchestrator only)
+
+1. Run `node scripts/vault-import.cjs --path <vault> --room <room>` through Stage 02 exactly as
+   today.
+2. Open `room/imports/{id}/02-classify/output/classifications.md` and COUNT THE ROWS.
+3. **If the row count is BELOW `VAULT_REVIEW_FANOUT_THRESHOLD`,** run the EXISTING single-pass
+   review unchanged and skip PHASE 1 and PHASE 2's fan-out mechanics entirely: for each row,
+   evaluate the classifier's guess against the file content and the venture context, and edit
+   section or decision cells with the Edit tool directly in `classifications.md` when a better
+   assignment is warranted. Then jump straight to the shared PERSIST step at the end of PHASE 2
+   below (the single-pass path never dispatches, but it converges on the same one persistence
+   call as the fan-out path).
+4. **If the row count is AT OR ABOVE the threshold,** continue to PHASE 1.
+
+#### PHASE 1 (PARALLEL fan-out, threshold cleared)
+
+**Batch by the stub classifier's guessed section, NOT by file.** Stage 02 has already produced
+a first-pass section guess for every row, so the grouping is free. Each agent then owns a
+coherent slice (all the candidates for `market-analysis`, say), which PRESERVES intra-section
+consistency inside the agent and reduces the cross-agent surface to section BOUNDARIES only.
+Batching by file instead would maximize that surface -- the opposite of what this shape buys.
+
+Size the fan through `lib/core/dispatch-optimizer.cjs`'s `planDispatch(roomDir, opts)` and clamp
+through `lib/core/futures/orchestrator.cjs`'s `resolveFanoutCap` (`FUTURES_FANOUT_CAP`, default
+5). With 8 canonical Data Room sections plus the `inbox` bucket, the group count can exceed the
+cap of 5 -- when it does, run the groups as two batches (for example 5 + 4) rather than raising
+the cap, mirroring `commands/grade-grant.md`'s own two-batch idiom for its 7-category panel.
+
+Dispatch with the Agent tool, `subagent_type: vault-section-reviewer` (the explicit type
+string, resolving to `agents/vault-section-reviewer.md`). Do not pass any manual
+background-execution parameter -- Claude Code runs spawned subagents in the background by
+default under fork mode, the interactive default since 2.1.232. The platform caps concurrent
+subagents at 20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); the two-batch idiom above already
+stays well under that cap, but the 20 ceiling is the standing rule so a future author does not
+reintroduce an unbounded fan-out.
+
+Print a status block before dispatching:
+
+```
+[VAULT] Dispatching N section-group agents
+
+  Rows reviewed: {row count}
+  Threshold applied: {VAULT_REVIEW_FANOUT_THRESHOLD}
+
+  Agent 1: market-analysis        [running]
+  Agent 2: business-model         [running]
+  Agent 3: financial-model        [running]
+  ...
+  Agent N: inbox                  [running]
+```
+
+**EACH SUBAGENT'S CONTRACT (one guessed-section group):**
+
+- **Input:** the group's rows, the venture context summary from `room/STATE.md`, the section
+  definitions table (purpose per canonical section), and Read access to the source files named
+  in those rows.
+- **Work:** for each row, read the file and confirm or correct the section and decision cells.
+- **Returns:** the corrected rows as STRUCTURED DATA (not a markdown edit).
+- **HARD CONSTRAINT: agents MUST NOT write to `classifications.md` or `MANIFEST.json`
+  directly.** Concurrent writes from multiple parallel agents to one manifest is a corruption
+  bug waiting to happen. Agents return data; the orchestrator writes once, in PHASE 2 below.
+  `agents/vault-section-reviewer.md` carries no `Write` or `Bash` tool, so this constraint is
+  structurally enforced, not just stated.
+
+#### PHASE 2 (SEQUENTIAL reconcile, orchestrator only)
+
+1. **DETECT CROSSING REASSIGNMENTS.** This is the structural risk a naive fan-out would miss,
+   worked example: Agent A, reviewing the `business-model` group, may pull a file OUT into
+   `financial-model`, while Agent B, reviewing `financial-model`, simultaneously pushes a
+   near-identical file OUT into `business-model` -- neither saw the other's move. Detect these
+   crossing pairs by comparing every agent's returned re-assignments against every other
+   agent's, and resolve them with this rule: **a detected crossing pair is surfaced to the
+   navigator as a single either-or choice** (which file actually belongs where) rather than
+   silently applying both moves. Also detect the SOFTER version -- two near-identical files
+   ending up in different sections because different agents judged them independently -- and
+   flag it in the Step 5 summary rather than silently picking one.
+2. **APPLY THE MERGED, RECONCILED ROWS INTO `classifications.md`.** Every agent returned its
+   corrected rows as data, not a markdown edit (PHASE 1's hard constraint), so before anything
+   can be persisted the orchestrator first writes each group's corrected `section` / `decision`
+   / `evidence` cells into `classifications.md` itself, exactly as the single-pass path's Edit
+   tool would have -- this is the same file, the same cells, updated in bulk from the fan-out's
+   collected answers instead of one row at a time.
+
+**PERSIST (shared by both the single-pass path above and the fan-out path here).**
+
+However the rows were decided -- single-pass Edit-tool corrections below the threshold, or the
+fan-out's merged, reconciled rows at or above it -- persistence is the SAME one call, made
+exactly ONCE, from the orchestrator, never from an agent: `lib/import/classifications-sync.cjs`'s
+`syncClassificationsToManifest(classificationsMdPath, manifestPath)`. This is already the
+documented canonical persistence path from the phase 80 locked fixes; a second persistence path
+must not be added, fan-out or not.
+
+1. Call `syncClassificationsToManifest` once, over `classifications.md` as it now stands.
+2. Write the marker file `room/imports/{id}/02-classify/output/.approved` ONLY after that call
+   succeeds, to signal that Stage 03 can proceed without re-running the stub classifier (the
+   orchestrator skipStub logic reads this marker). Then re-invoke
+   `node scripts/vault-import.cjs` with the same flags for Stage 03, exactly as today.
+3. Present the summary in Body Shape E and ask the user to confirm. **The fan-out speeds up
+   the machine's PROPOSAL; it does not remove the human gate.** On confirmation, Stage 03 picks
+   up from the approved classifications automatically.
 
 ### Step 4: Report and undo
 
