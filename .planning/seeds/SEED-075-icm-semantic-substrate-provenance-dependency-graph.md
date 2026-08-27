@@ -94,6 +94,19 @@ future-work item) rather than the full nine-table schema sketched in the researc
 build the smallest thing that answers one real traceability question, per this repo's own
 MVP-first / reuse-before-build discipline, not the whole architecture at once.
 
+**MindrianOS already has a partial answer to Section 6.2's "what would a debugger for
+semantic content look like" question, worth scoping against rather than ignoring: the
+Feynman-Minto reasoning layer** (`/mos:mos-reason`, `lib/core/brain-derivation.cjs`,
+`lib/core/brain-md-schema.cjs`). Per-section, it already streams Feynman stages 1/2/4/5
+(essence, plain language, mental model, sweet spot) into a `governing_thought` -- a real,
+shipped "why does this section say what it says" explanation layer, regenerated on a
+staleness trigger. It is NOT the paper's source-map/provenance mechanism (it explains a
+section's CURRENT content, not which specific instruction or prior artifact produced a
+specific sentence) -- the two are complementary, not duplicates. Any SEED-075 implementation
+should read `brain-derivation.cjs` first and either compose with the governing-thought layer
+or explicitly justify not doing so, rather than build a second, disconnected explanation
+mechanism.
+
 ## Cross-references
 
 - `rethinking-mindrianos/research/2026-08-27-icm-semantic-substrate/` -- full evidence trail,
