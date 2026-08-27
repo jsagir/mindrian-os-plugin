@@ -443,3 +443,22 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 264-05-PLAN.md -- sensor-to-`chain_resolve` wiring proof + phase closing gate (wave 3, R3/R5)
+
+### Phase 265: Capability Radar Absorption + Routing (re-scoped, supersedes orphaned Phase 138)
+
+**Goal:** Turn /mos:radar from a reader into a router so Claude Code capability findings from --fetch get ABSORBED (retrofit shipped code a new capability obsoletes) and WEAPONIZED (force future phase planning to consider them) instead of rotting in a one-shot SEED or an abandoned phase. Corrects three stale facts from the original 2026-06-01 scoping (originally filed as Phase 138, orphaned when ROADMAP.md's rolling window moved past it without shipping or retiring it): (1) subagent forking is now the unconditional default in Claude Code, not a probabilistic "likely supersedes" call against SEED-003 A4 -- settled, not still open; (2) the real destination for native-default-forking adoption is the PWS parallel-fan-out-then-consolidate engines (/mos:eureka, /mos:bono, /mos:find-connections, /mos:whitespace, /mos:find-analogies), not the previously-assumed Phases 133-136 which are unrelated; (3) the capability ledger needs refreshing from 2.1.159 to 2.1.246, screening in MCP interrupted-tool-call explicit errors, MCP elicitation dialog fixes (directly relevant to this plugin's own gate_render elicitation rung), and Agent Tool's clear-error-on-missing-agent-type fallback. Supersedes SEED-003 and the orphaned Phase 138 (mark both superseded-by this phase, do not delete).
+**Requirements**: RADAR-01, RADAR-02, RADAR-03, RADAR-04, RADAR-05, RADAR-06, RADAR-07, RADAR-08, RADAR-09, RADAR-10, RADAR-11
+**Depends on:** Phase 264
+**Plans:** 7 plans in 3 waves
+
+**Scoping correction, recorded at plan time (2026-08-27):** stale fact (2) in the Goal above is itself a stale fact. Research verified against shipped code that NOT ONE of the five named PWS engines spawns a Claude Code subagent: eureka fires one detached Node process and polls, bono uses Promise.all over an in-process grid (navigator-confirmed as the intended final design), find-connections runs sequential Brain MCP queries in the main context, whitespace shells one script per subcommand, and find-analogies uses Brain calls plus a report script. Default subagent forking is a no-op for all five. The real fan-out surfaces are /mos:act --swarm, /mos:persona --parallel, /mos:grade --full, and /mos:trending-to-absurd (Expert path), and all three explicit ones instruct Claude to pass run_in_background, a parameter the platform removes in fork mode. A fourth stale fact nobody flagged is the most consequential: references/capability-radar/changelog-cache.md tops out at 2.1.128 and was last written 2026-05-05, so the ledger is 118 versions behind, not 87. The corrected reasoning is preserved in docs/RADAR-ABSORPTION-265.md rather than lost.
+
+Plans:
+
+- [ ] 265-01-PLAN.md - Wave 1 - the capability ledger, freshness tripwire, doctor organ, and phase test harness
+- [ ] 265-02-PLAN.md - Wave 1 - MCP elicitation schema currency (stops multi-select rung-1 gates showing raw slugs)
+- [ ] 265-03-PLAN.md - Wave 1 - the three swarm-command retrofits: run_in_background removal, the reviewed allowed-tools Task grant, and the reversed resolveModel fix
+- [ ] 265-04-PLAN.md - Wave 1 - explicit dispatch shapes for trending-to-absurd and explore-opportunity, plus the navigator decision on parallelizing the explore legs
+- [ ] 265-05-PLAN.md - Wave 2 - /mos:radar --fetch writes the ledger under an injection fence, and both radar reference docs corrected
+- [ ] 265-06-PLAN.md - Wave 2 - retire SEED-003 and Phase 138 by marking, close drift finding W007-138, and write the decision record
+- [ ] 265-07-PLAN.md - Wave 3 - regenerate skill and dist mirrors, file the two-home dev-research trail, and run the phase gate
