@@ -76,7 +76,7 @@ guaranteed clean once 262's exit gate is green)
 **Repo:** MindrianOS-Plugin
 **Open navigator ruling:** approve/reject server-side composition before this phase's plan
 locks its architecture.
-**Plans:** 0/0 plans complete
+**Plans:** 0 plans
 
 Plans:
 
