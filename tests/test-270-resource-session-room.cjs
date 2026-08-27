@@ -123,6 +123,16 @@ console.log('test-270-resource-session-room');
 
   const roomA = makeRoom('A');
   const roomB = makeRoom('B');
+  // Isolate MINDRIAN_ROOMS_HOME so resolveSessionRoom's reg.active leg
+  // (lib/core/resolve-active-room.cjs:513) cannot find a REAL machine's
+  // actively-bound room (found empirically while verifying plan 270-05:
+  // this leg outranks ctx.fallbackRoomDir in the resolver's floor order, so
+  // an un-isolated run silently read a real developer's live room instead
+  // of the fixture -- a false pass this test exists to prevent, not commit).
+  // Restored in the outer finally alongside the fixture cleanup.
+  const emptyRoomsHome = fs.mkdtempSync(path.join(os.tmpdir(), '270-emptyhome-'));
+  const savedRoomsHome = process.env.MINDRIAN_ROOMS_HOME;
+  process.env.MINDRIAN_ROOMS_HOME = emptyRoomsHome;
   try {
     const stub = makeStubServer();
     const ctx = { fallbackRoomDir: roomA, pluginRoot: REPO_ROOT, surface: 'cli' };
@@ -288,6 +298,9 @@ console.log('test-270-resource-session-room');
       );
     });
   } finally {
+    if (savedRoomsHome === undefined) delete process.env.MINDRIAN_ROOMS_HOME;
+    else process.env.MINDRIAN_ROOMS_HOME = savedRoomsHome;
+    cleanupRoom(emptyRoomsHome);
     cleanupRoom(roomA);
     cleanupRoom(roomB);
   }
