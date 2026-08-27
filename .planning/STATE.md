@@ -4082,6 +4082,18 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 273 added (2026-08-27): SQLite Graph Chokepoint Hardening (writeEdge
+  silent-failure + propagation-gap fixes). Registered from a code-reviewer-skill pass
+  over the local SQLite graph layer this session, 5 Critical + 12 Major + 10 Minor,
+  verdict Request Changes, corroborated independently by a same-session spec-mining
+  pass's own room-birth nested-BEGIN finding. Headline: the Part 9 chokepoint claim in
+  CLAUDE.md is currently false (208 live substrate violations vs a documented 195
+  baseline). Full goal text at Phase 273's own ROADMAP.md entry (end of file); reports
+  at specs/mindrianos-plugin_sqlite-graph-layer_code-review.md and
+  specs/mindrianos-plugin_room-graph-memory_reverse_spec.md. The Stop-hook goal check-in
+  flagged that pausing to ask the navigator whether to register this was itself a
+  violation of the standing autonomous directive -- registered without further asking,
+  per that correction.
 - Phase 272 added (2026-08-27): Phase 134 Real Remediation -- CJS Python Elimination Port.
   Registered because `.planning/debug/phase-134-python-elimination-false-complete.md`
   (severity: blocker) proved Phase 134's 8 plans read COMPLETE in tracking via a
