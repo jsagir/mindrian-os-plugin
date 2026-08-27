@@ -6,6 +6,8 @@ argument-hint: "[list|add|update]"
 body_shape: B (Semantic Tree)
 hitl_shape: "F.8"
 hitl_why: "Grant-lifecycle candidates are surfaced as an independent set the navigator triages in any order."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 13, navigator-ruled NEEDS-RULING): first delivery at commands/funding.md:57, a stage/deadline/staleness tracking report of the navigator's own pipeline, not the Tavily-sourced discovery flow the rule doc's worked example names.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["prepare-pitch", "decide-pursue"]
 teaching: "When you need to track grants and investors as a real pipeline, /mos:funding manages the lifecycle from spotted to applied to decided. Funding is a process, not a one-shot event."
 allowed-tools:

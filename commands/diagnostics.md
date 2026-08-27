@@ -5,6 +5,8 @@ help_jtbd: "Run the 4 Wave-1 algorithms (Disruption Index, Blindspot, Novelty, S
 body_shape: E
 hitl_shape: "F.1"
 hitl_why: "Diagnostics offers one next move on what to inspect."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 6): first delivery at commands/diagnostics.md:62, a one-screen scalar dashboard of four computed room metrics, a status roster rather than a reasoned reframe.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
 renaming_to: fingerprint
 renaming_target_version: "v1.14.0"

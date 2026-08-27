@@ -5,6 +5,8 @@ help_jtbd: "Keep one trustworthy now so time deltas never drift."
 body_shape: E
 hitl_shape: "F.0"
 hitl_why: "It surfaces one reference correction for a single approve-or-reject decision."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 4): first delivery at commands/correct-reference-now.md:76, a one-line confirmation that a LOCAL clock-seam correction was applied.
+interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[YYYY-MM-DD]"
 serves_jtbd: ["temporal-correction"]
 teaching: "When you see today's real date diverge from what the room thinks now is, /mos:correct-reference-now writes the true calendar date into the reference seam so every delta Larry speaks (you raised this 3 days ago) stays honest. The SessionStart hook only seeds a Date.now() floor, and a hook subprocess may not see Claude Code's injected currentDate. This command is how Larry closes that gap."

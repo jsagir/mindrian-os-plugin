@@ -6,6 +6,8 @@ argument-hint: "[list|set|show]"
 body_shape: C (Information Card)
 hitl_shape: "F.1"
 hitl_why: "The routing profile offers a single next-move selection."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 24): first delivery at commands/models.md:88, the resolved profile/model routing table, a configuration-state readout of the plugin's own operator settings.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["compare-options"]
 teaching: "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile. Different tasks deserve different models."
 ui_reference: skills/ui-system/SKILL.md

@@ -16,6 +16,8 @@ hitl_stages:
     shapes: ["F.5"]
     mode: "gate"
 hitl_why: "intel-pipeline halts at three navigator decision surfaces: calibrate (F.1) confirms the room JTBD orientation before any dispatch, fan-approve (F.1) is the explicit cost control over how wide the research fan runs, and synthesize (F.5) ratifies the bull/bear ruling before anything is written to the graph."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 20): first delivery at commands/intel-pipeline.md:99, the fan-approve card's derived research dimensions and sized fan, a structure the pipeline then goes on to dispatch and execute.
+interactive_first_reward: schema_preview
 serves_jtbd: ["plan-execution"]
 teaching: "When you have a room and a question but no time to run the research by hand, /mos:intel-pipeline reads your active JTBD, breaks it into research dimensions, fans out a small set of evidence passes, scores them, and closes the loop into your graph. You approve three things along the way: the orientation, the fan size, and the final ruling. It never writes to the graph or re-points your JTBD without you."
 # --- Phase 122 workflow-layer frontmatter ---
