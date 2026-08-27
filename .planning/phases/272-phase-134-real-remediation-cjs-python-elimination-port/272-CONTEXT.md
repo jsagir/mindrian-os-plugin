@@ -1,0 +1,205 @@
+# Phase 272: Phase 134 Real Remediation -- CJS Python Elimination Port - Context
+
+**Gathered:** 2026-08-27
+**Status:** Ready for planning
+
+<domain>
+## Phase Boundary
+
+Replace the Python analyzer scripts (`scripts/rs-engine.py`, `compute-hsi.py`,
+`lib/core/rs_math.py`/`rs_corpus.py`/`rs_hybrid.py`/`rs_cache.py`, and 7 sibling
+whitespace `.py` scripts) with in-process CJS modules, eliminating the Python/PyTorch
+(~2GB) runtime requirement for `/mos:find-bottlenecks`, `/mos:act`, and `/mos:mos-reason`
+on end-user machines. This is Change 2 (the real structural fix) from
+`.planning/debug/phase-134-python-elimination-false-complete.md` -- the actual object of
+Phase 134, which tracking falsely marked complete. Change 3 (doctor auto-stub visibility)
+is nominally in this phase's scope per ROADMAP.md but was not part of tonight's discussion.
+
+</domain>
+
+<decisions>
+## Implementation Decisions
+
+### Architecture -- do not unify embedding spaces
+- **D-01:** Preserve the existing separate-space architecture, do not attempt to unify
+  onto one encoder. Local (room-side): replace the Python `all-MiniLM-L6-v2` encoder with
+  the already-shipped `lib/core/eureka/embedding-spine.cjs` ONNX pattern
+  (`MongoDB/mdbr-leaf-ir`, q8, 384-dim -- already working, already cached). External
+  (Brain/Pinecone-side): port the Pinecone hosted-inference API call itself to a small
+  CJS `fetch` module (~40 lines), not a local model.
+- **D-02:** This phase does NOT load `Xenova/multilingual-e5-large` locally. Phase 134's
+  original design doc assumed a local 1024-dim e5 path existed in the Python code to
+  port -- verified false, it is a `NotImplementedError` stub that was never built. There
+  is no cross-engine cosine comparison today and none needs creating. Avoiding a local
+  e5-large load also sidesteps an unresolved, unrelated repo finding that e5-large's
+  ONNX weights may not load in transformers.js v4 (another effort already abandoned that
+  model for this reason) and avoids the fp32 2.24GB size regression (larger than the
+  Python runtime this phase removes).
+- **D-03:** Validation gate is rank-agreement + no `signed_diff` sign flips against a
+  fixture-room Python baseline -- NOT a cosine-similarity byte-compat threshold. A
+  near-zero differential can flip the `structural_transfer` vs `semantic_implementation`
+  classification (`lib/core/rs_math.py:252`) under drift a 0.99-cosine gate would pass
+  cleanly. Reuse the confidence-margin gate pattern already shipped in
+  `lib/core/eureka/embedding-classifier.cjs:207`, and reuse Phase 127.1's existing
+  20-query / >=80% top-5 overlap validation harness rather than inventing a new one
+  (exact file not yet located -- researcher should find it).
+
+### Rollout
+- **D-04:** Side-by-side behind an env flag. CJS becomes the default path; Python is
+  retained as a fallback, not deleted in this phase. Full Python deletion is explicitly
+  deferred to a separate, later phase. Rationale: an env flag is the only real rollback
+  mechanism for a marketplace-distributed plugin -- a fix is not live until released and
+  picked up, and a running session never hot-reloads, so reverting a hard cutover means
+  cutting an entirely new release.
+- **D-05:** Change 1 (the Python auto-install remediation shipped earlier tonight) stays
+  wired as the fallback path's safety net through the transition window. Its own RCA
+  notes it was never verified against a real clean-machine network pip install, so treat
+  it as an unproven-in-the-wild backup, not a substitute for keeping Python available.
+
+### First-run model download
+- **D-06:** Lazy download on first real use of an affected command, with a genuine
+  byte-level progress line (not a spinner -- real `{progress, loaded, total}` events do
+  fire in Node via `FileCache.put`). Extend the existing D14 cache-miss notice pattern
+  and use `ModelRegistry.is_pipeline_cached` (local-only, no network) to probe cache
+  state, replacing the current `fs.existsSync` heuristic in `embedding-spine.cjs:230`.
+- **D-07:** Fix the model-cache location bug this research surfaced: the default cache
+  dir currently lives inside the versioned plugin install directory
+  (`~/.claude/plugins/cache/mindrian-marketplace/mos/<version>/`), which
+  `lib/core/cache-prune.cjs` deletes on every version update -- meaning without a fix,
+  this becomes a re-download-on-every-update bug, not a true one-time first-run cost.
+  Default `MINDRIAN_MODEL_CACHE` to a stable path outside the versioned directory (e.g.
+  `~/.mindrian/model-cache`); it is currently opt-in only (`docs/ENV-TUNING.md:64`).
+- **D-08:** A prefetch option (`/mos:setup` or `doctor --fix` warming the cache ahead of
+  time) may be added as an ADDITIVE opt-in on top of D-06, never as a replacement for it
+  -- CLI-only prefetch hooks don't cover Desktop/Cowork installs, so the lazy-download
+  path must always exist regardless.
+
+### Open item for the planner -- not resolved in this discussion
+- **D-09:** `lib/agents/reverse-salient-agent.cjs:19` carries a standing comment/hard
+  rule: "NEVER reimplement rs-math in Node." This phase's entire premise inverts that
+  rule. This was surfaced by research but not adjudicated by the navigator in this
+  discussion -- the plan MUST open with an explicit supersede note (who/when/why this
+  rule no longer holds, or whether the phase needs to be re-scoped to respect it) before
+  any implementation work starts. Do not silently proceed past this.
+
+### Claude's Discretion
+- Exact file/module layout for the new `lib/core/rs-engine.cjs`, `rs-math.cjs`,
+  `hsi-*.cjs`, and the new Pinecone-inference proxy module -- not dictated beyond the
+  architecture in D-01.
+- Where exactly the env flag lives (config key name, default value) -- follow existing
+  repo conventions for feature flags.
+
+</decisions>
+
+<canonical_refs>
+## Canonical References
+
+**Downstream agents MUST read these before planning or implementing.**
+
+### Root cause and prior (incorrect) design
+- `.planning/debug/phase-134-python-elimination-false-complete.md` -- the RCA proving
+  Phase 134 was tracked complete but never built; full evidence trail.
+- `.planning/phases/134-cjs-port-of-python-analyzers-via-xenova-transformers-elimina/134-CONTEXT.md`
+  -- original design vision. Treat its model-choice assumption (local e5-large exists to
+  port) as VERIFIED FALSE by tonight's research -- do not re-adopt it without re-checking.
+- `.planning/research/2026-05-24-cjs-port-feasibility-spike.md` -- original AMBER-verdict
+  spike; the byte-compat risk it raised is superseded by D-01/D-02/D-03 above, not
+  resolved on its own terms.
+- `SEED-013` (`.planning/seeds/SEED-013-eliminate-python-from-user-machine-cjs-port.md`)
+  -- source seed; its own frontmatter still needs a second correction pass (carried
+  forward from the RCA, not part of this phase's discussed scope).
+
+### Code to reuse (do not reinvent)
+- `lib/core/eureka/embedding-spine.cjs` -- the shipped, working in-process ONNX embedder
+  (`MongoDB/mdbr-leaf-ir`, q8, 384-dim). `getEncoder` is the function to extend/reuse for
+  the new local encoder.
+- `lib/core/eureka/embedding-classifier.cjs:207` -- confidence-margin escalation pattern;
+  reuse for the D-03 validation gate.
+- Phase 127.1's 20-query / >=80% top-5 overlap validation harness -- reuse for accuracy
+  validation; researcher must locate the exact file (not pinned down in this discussion).
+
+### Code that must change
+- `scripts/rs-engine.py:1101-1120` -- where Pinecone hosted inference is actually called
+  today; this is what gets ported to the new CJS fetch module, not a local model.
+- `scripts/rs-engine.py:267-280`, `scripts/compute-hsi.py:353-358` -- the real local
+  Python encoder (`all-MiniLM-L6-v2`, 384-dim) being replaced.
+- `scripts/rs-engine.py:283-299` -- the `NotImplementedError` stub for local 1024-dim e5;
+  confirms Phase 134's original design target never existed in Python.
+- `lib/core/rs_math.py:252` -- `signed_diff` sign-flip classification logic; determines
+  why the validation gate must be rank-based, not cosine-based.
+
+### Standing constraint that must be reconciled
+- `lib/agents/reverse-salient-agent.cjs:19` -- "NEVER reimplement rs-math in Node."
+  See D-09. Read this before writing a single line of the port.
+- `scripts/rs-engine.py:1455-1465` -- in-code comment documenting the
+  "never mix 1024-dim external with 384-dim local" invariant this phase preserves (D-01).
+
+### Infrastructure constraints (download/cache)
+- `lib/core/cache-prune.cjs` -- deletes non-active plugin version directories; root
+  cause of the D-07 cache-location bug.
+- `docs/ENV-TUNING.md:64` -- current (opt-in only) `MINDRIAN_MODEL_CACHE` documentation.
+- `tests/eureka-offline-preload.cjs:17-22` -- documents that `HF_HUB_OFFLINE` /
+  `TRANSFORMERS_OFFLINE` are ignored by transformers.js v4; use `env.allowRemoteModels =
+  false` instead.
+- `node_modules/@huggingface/transformers/src/utils/dtypes.js:51-56` + `devices.js` --
+  default dtype is fp32 on Node (q8 only applies on wasm); quantization must be
+  explicitly requested, not assumed.
+- `node_modules/@huggingface/transformers/src/env.js:162` -- `DEFAULT_CACHE_DIR`, the
+  actual site of the D-07 bug.
+
+</canonical_refs>
+
+<code_context>
+## Existing Code Insights
+
+### Reusable Assets
+- `lib/core/eureka/embedding-spine.cjs`: the exact in-process ONNX embedder pattern this
+  phase needs for its local encoder -- clone/extend `getEncoder`, do not build a new one.
+- `lib/core/eureka/embedding-classifier.cjs`: confidence-margin gate logic, reusable for
+  the D-03 validation approach.
+- The already-shipped Change 1 (`ensure_ml_deps.py` auto-installer wiring): reusable as
+  the fallback path's safety net per D-05, not something to remove.
+
+### Established Patterns
+- Separate-embedding-space invariant: already enforced in the existing Python code
+  (`rs-engine.py:1455-1465`) and must be preserved, not "fixed," by the port.
+- `@huggingface/transformers` is already a pinned project dependency (`^4.2.0` in
+  `package.json`) -- no new dependency to add for the encoder work.
+
+### Integration Points
+- New `lib/core/rs-engine.cjs` / `rs-math.cjs` / `hsi-*.cjs` consume
+  `embedding-spine.cjs`'s encoder rather than instantiating their own.
+- New Pinecone-inference proxy module (CJS `fetch`, ~40 lines per research) sits
+  alongside these, handling the external/Brain-side calls that used to go through
+  Python's Pinecone SDK usage.
+
+</code_context>
+
+<specifics>
+## Specific Ideas
+
+No specific UI/UX "make it look like X" requests -- this was a backend architecture and
+risk-tolerance discussion. All specifics are captured as decisions above.
+
+</specifics>
+
+<deferred>
+## Deferred Ideas
+
+- **Full Python deletion** -- explicitly deferred past this phase per D-04; scope for a
+  separate, later phase once the CJS path has run in production behind the env flag.
+- **Unifying onto one local e5-large encoder** -- deferred unless/until offline-capable
+  external-corpus search becomes an explicit hard product requirement (the
+  not-recommended option from the accuracy-risk discussion).
+- **Change 3** (doctor `--drift --fix` I001 auto-stub visibility fix) and **SEED-013's
+  second frontmatter correction pass** -- both named as this phase's secondary scope in
+  ROADMAP.md, carried forward from the RCA, but not discussed in this session. Planner
+  should confirm with the navigator whether they're in-scope for 272's first plan wave or
+  a follow-up.
+
+</deferred>
+
+---
+
+*Phase: 272-phase-134-real-remediation-cjs-python-elimination-port*
+*Context gathered: 2026-08-27*
