@@ -596,29 +596,37 @@ skills (`larry-personality`, `room-passive`, `ui-system`, `pws-methodology`) and
 genuine exclusion candidate: `commands/radar.md` is dev-repo-cwd by design (line 77 WRITES into
 `references/capability-radar/changelog-cache.md`, and lines 64/73/74 read and write the
 git-tracked `data/capability-ledger.json`), so anchoring it would redirect a write into the
-update-wiped plugin install cache -- routed to a human ruling in plan 271-02.
+update-wiped plugin install cache -- routed to a human ruling in plan 271-02. **RULED
+2026-08-27: `option-d`** - all 5 `commands/radar.md` sites excluded via a reasoned
+`ALLOWLIST` entry, and the residual read-side defect at lines 51/52/95/99 registered as
+`FOLLOWUP-271-R1` with a named owner rather than dropped. Live post-ruling sites to
+anchor: **134** (the gate measured 139, not the 124 estimated above; the difference is
+traced in `271-AUDIT.md` section 1).
 
 Plans:
 
 **Wave 1**
 
-- [ ] 271-01-PLAN.md - the anchoring gate, its fixture test, the phase aggregator, and the RED-baseline audit register
+- [x] 271-01-PLAN.md - the anchoring gate, its fixture test, the phase aggregator, and the RED-baseline audit register (commits `e5855e5e`, `4618f9e5`, `b935cddb`, `cef8f045`; row checked by the 271-02 pass, which the 271-01 summary explicitly handed it to after the concurrent 270-12 agent stopped mutating this file)
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 271-02-PLAN.md - the `/mos:radar` dev-repo-cwd disposition checkpoint and the reasoned allowlist
+- [x] 271-02-PLAN.md - the `/mos:radar` dev-repo-cwd disposition checkpoint and the reasoned allowlist (commit `4061483e`; ruled **option-d**: all 5 radar sites allowlisted with a written reason, and the residual read-side defect registered as `FOLLOWUP-271-R1` with a named owner)
 
 **Wave 3** *(blocked on Wave 2)*
 
 - [ ] 271-03-PLAN.md - 93 citations anchored across 44 commands, plus skill-mirror regeneration
+  - **Post-ruling correction:** the live target is **94 sites across 45 command files**, not 93/44. `commands/radar.md` is excluded by the option-d allowlist and must not be edited by the sweep.
 
 **Wave 4** *(blocked on Wave 3)*
 
 - [ ] 271-04-PLAN.md - 26 citations anchored across 5 hand-authored skills and 6 agents; repo-wide gate turns green
+  - **Post-ruling correction:** the live target is **40 sites** (14 hand-authored skills + 17 agents + 9 pipelines across 17 files). The plan-time 26 predates the gate and missed the `pipelines/` surface entirely.
 
 **Wave 5** *(blocked on Wave 4)*
 
 - [ ] 271-05-PLAN.md - release-gate wiring, CHANGELOG, knowledge-base, compositing trail, and the bare-`scripts/` follow-up registration
+  - **Added by the 271-02 ruling:** must ALSO register `FOLLOWUP-271-R1` (split `/mos:radar` into a dev-only `--fetch` write path and a user-safe anchored read path). Owner: repo navigator. It is the residual read-side defect the option-d allowlist knowingly defers at `commands/radar.md` lines 51, 52, 95, 99. It already lives in code (`REGISTERED_FOLLOWUPS` in `scripts/check-plugin-path-anchoring.cjs`, referentially enforced) and in `271-AUDIT.md` section 4; 271-05 gives it a scheduled home here.
 
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.

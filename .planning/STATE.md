@@ -291,6 +291,50 @@ progress:
 
 # Project State
 
+## (2026-08-27) -- 271-02 COMPLETE -- /mos:radar ruled option-d, gate allowlist populated, FOLLOWUP-271-R1 owned
+
+Phase 271 wave 2. The one behavior-changing site in the 139-site bare-path sweep was
+decided by a human instead of a sed. Commit `4061483e`.
+
+**The ruling: `option-d`.** All 5 `commands/radar.md` sites (lines 51, 52, 77, 95, 99)
+are excluded from the anchoring sweep via one reasoned `ALLOWLIST` entry in
+`scripts/check-plugin-path-anchoring.cjs`. Reason, quoted verbatim into `271-AUDIT.md`
+section 4 and machine-verified for parity with the code: `/mos:radar` is a dev-repo-cwd
+operator command, line 77 WRITES the cache file and lines 64/73/74 read and write the
+git-tracked `data/capability-ledger.json` it renders, so anchoring would redirect those
+writes into the plugin install cache that is wiped on every update. Genuine writes to a
+source of record, not read-only citations. A real exception, not a defect.
+
+`option-b` (anchor the reads, allowlist only the write) was explicitly REJECTED and not
+implemented: it splits one file's citations of the SAME file across two resolution bases,
+so after a `--fetch` the summary a user reads would never be the summary just written.
+The rejection is written into the code comment because it is the intuitive wrong fix.
+
+**FOLLOWUP-271-R1** carries the residual read-side defect (lines 51/52/95/99 still
+resolve against a user's cwd on plain `/mos:radar`). Owner: repo navigator; ROADMAP
+registration carried by plan 271-05. Registered in TWO homes and made load-bearing:
+`validateAllowlist()` now throws at module load on a dangling followup id, so the
+exception cannot outlive the follow-up that justifies deferring its defect.
+
+**Live number correction:** post-ruling sites to anchor is **134**, not the `271-02-PLAN.md`
+acceptance criterion's 119. That 119 was `124 - 5` off the plan-time ESTIMATE; the gate
+measures 139 live, so the answer is `139 - 5`. The gate was NOT adjusted to hit the stale
+number. Plan 271-03's real target is 94 command sites across 45 files; plan 271-04's is 40.
+
+Verification: fixture suite 19/19, `--check` exit 1 (RED by design until 271-04),
+`run-all-271.sh` PASS=3 FAIL=1 (arm 2 RED by design), 2 files changed, zero shipped
+markdown touched.
+
+<!-- NOTE (271-02 executor, 2026-08-27): `gsd-tools query state.advance-plan` and
+     `state.record-metric` were NOT invoked for this plan. Both are documented in this
+     file's own frontmatter and note-block as reproducing the resync-clobber bug (NINTH+
+     occurrence this session: `record-metric` appends a legitimate metrics row but also
+     silently overwrites `progress:` with fabricated aggregates, and `advance-plan` fails
+     outright with "Cannot parse Current Plan or Total Plans in Phase from STATE.md").
+     The metrics rows for 271 P01 and P02 were hand-appended to the Performance Metrics
+     table instead, and `progress:` was deliberately left untouched rather than replaced
+     with a guessed number. Same workaround the 261-01, 265 and 270 executors used. -->
+
 ## (2026-08-23) -- 264-01 COMPLETE -- roadmap-type chain table + five-arm drift validator + phase aggregator (R2/R5/C-01)
 
 UNRELATED, ADDITIVE to the 261-12 pause pointer above (see the frontmatter
@@ -3828,6 +3872,8 @@ Progress: [█████████░] 92%
 | Phase 266 P05 | 25min | 3 tasks | 8 files |
 | 266 | 5 | - | - |
 | Phase 270 P02 | 55min | 3 tasks | 3 files |
+| Phase 271 P01 | 42min | 3 tasks | 4 files |
+| Phase 271 P02 | 26min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
