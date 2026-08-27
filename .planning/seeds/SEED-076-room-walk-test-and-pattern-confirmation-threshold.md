@@ -38,6 +38,63 @@ Applied the tool's own form-selection question and walk test to a real room
   OQ-7 entry (`team-execution`'s thin `SECTION_METADATA` against real Mentor-Profiles usage
   carrying role/domain-expertise/availability/cross-linking fields).
 
+## The real audit: `icm-architect` bound and run live against `launchpad-02` (2026-08-28)
+
+Per the navigator's follow-up directive ("bind the architect to any room/ICM/memory/local
+graph work from here on" -- codified as a standing consult in `CLAUDE.md`'s grounding-sources
+section and `feedback_mindrianos_dev_consult_icm_architect.md` in personal memory), the skill
+was actually invoked in Restructure/audit-only mode against a real, live room
+(`~/MindrianRooms/launchpad-02/`), not just read about. Findings, all directly verified by
+reading the actual files:
+
+- **Classification: Catalog = `ROOM.md`+`STATE.md` (root). Contract = MISSING, repo-wide.**
+  No section has a file answering "what belongs here / what should a human check" in the
+  shape icm-architect's own `stage-CONTEXT.md` template wants. Each section's `ROOM.md`
+  carries `purpose` + starter questions -- identity, not a contract.
+- **Walk test failure #1, concrete not hypothetical: 5 of 12 sections store real content
+  inline in `ROOM.md` instead of separate dated entry files.** `solution-design/`,
+  `legal-ip/`, `market-analysis/` correctly separate identity (`ROOM.md`) from product (dated
+  files). `business-model/`, `competitive-analysis/`, `financial-model/`, `problem-
+  definition/`, `team-execution/` do not -- `business-model/ROOM.md` alone is 61 lines
+  carrying the venture's actual funding split, milestone tables, and growth argument (in
+  Hebrew) directly in what is supposed to be a small, stable routing file. Textbook instance
+  of the walk test's own check: "Is any routing file carrying content payload? Move the
+  payload to a shelf; leave a pointer."
+- **This directly starves the Feynman-Minto reasoning layer -- proven, not inferred.**
+  `business-model/MINTO.md` (auto-generated, `last_generated_at: 2026-08-26T09:48:36Z`)
+  reads: `governing_thought: "Business Model synthesizes 0 artifacts..."`, "Missing Evidence:
+  only 0 artifacts filed (minimum 3 recommended)". But `ROOM.md` in the same section has real,
+  substantial content. The Feynman-Minto governing-thought generator isn't broken -- it counts
+  dated entry files, and this section's real content isn't stored as one, so the reasoning
+  layer sees nothing to reason over. This is Phase 273/SEED-075's "reliable chokepoint" theme
+  showing up one layer up: a correctly-built downstream consumer (MINTO.md generation)
+  producing a wrong answer because an upstream convention (where content is filed) was
+  violated silently, with no error anywhere in the chain.
+- **Two sections have no identity file at all.** `funding/` and `opportunity-bank/` carry only
+  an auto-generated `STATE.md` reporting `total_entries: 0` -- no `ROOM.md`, no purpose, no
+  starter questions. `team/` is fully empty (0 files) -- already correctly flagged red by
+  MindrianOS's own `STATE.md` Room Map ("EMPTY -- GAP"), confirming that part of the tooling
+  works.
+- **5 stale `.mindrian/recompile-stamps.json.tmp.*` files** (`Dead` classification, never
+  cleaned up across at least 5 sessions this week) -- small, but a real, concrete instance of
+  the class.
+- **Navigator asked directly whether MINTO.md could double as the missing contract file --
+  answered and recorded: no, and mixing them would recreate the session's own clobber bug.**
+  MINTO.md is REGENERATED on content change; a contract per invariant #4 must be STABLE,
+  hand-authored. Writing a contract into a file the generator overwrites is the exact failure
+  shape as `gsd-tools`'s `state.record-metric` clobbering hand-written STATE.md prose, one
+  layer down at the room level instead of the dev-repo level. MINTO.md's own "Evidence Gaps"
+  section ("Missing: revenue model, unit economics, pricing strategy") is the closest existing
+  thing to a contract's intent -- worth reusing as the SEED for writing a real, separate
+  per-section `CONTEXT.md`, not as the contract itself.
+
+**Net: this SEED's scope grows by one concrete, bounded item** -- standardizing the
+entry-file-vs-inline-content convention across the 5 drifted sections, giving `funding`/
+`opportunity-bank` real identity files, and cleaning the 5 dead temp files is small enough to
+be a `/gsd-quick` fix whenever picked up, independent of the larger provenance-graph/pattern-
+threshold questions above. Full trail: `~/MindrianRooms/rethinking-mindrianos/research/
+2026-08-28-icm-architect-room-structure/` (same file, audit results appended).
+
 ## One real, checked gap: the walk test fails for a tool-less cold agent
 
 The tool's walk test ("open the root, answer *where am I* and *where do I go for the current

@@ -231,6 +231,16 @@ is itself a research gap, not rigor.
 - **WebSearch/WebFetch**: anything time-sensitive or outside all of the above (release notes,
   a specific GitHub issue, a vendor's current docs page) -- per the standing MCP-stack-awareness
   rule, check the stack and ask before firing search silently.
+- **icm-architect skill** (`~/.claude/skills/icm-architect/`): any work touching room
+  structure, ICM/MWP architecture, or the local graph (SQLite substrate, room schema, section
+  scaffolding, walk-test/reference-integrity questions). Bind it to this class of work as a
+  standing consult, not a one-off -- it is a community reference implementation of the same
+  paper this repo's own `docs/MWP-SPECIFICATION.md` already cites (Van Clief & McDermott 2026,
+  arXiv 2603.16021), and it has already independently validated real findings this repo's own
+  tooling had not surfaced (see `rethinking-mindrianos/research/2026-08-28-icm-architect-
+  room-structure/` and SEED-076). Use its ten invariants, six-forms taxonomy, and walk test as
+  a checklist before shipping new room-scaffold, `room-db.cjs`/`navigation.cjs`, or
+  section-metadata work -- not just when explicitly asked to "audit."
 
 Pick the source(s) that actually cover the claim; use more than one when a finding spans
 domains (e.g. a hook-matcher bug is a Claude Code question AND may also have an agent-pipeline-
