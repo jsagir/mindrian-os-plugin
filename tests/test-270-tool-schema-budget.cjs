@@ -197,7 +197,76 @@ const BASELINE = {
   approxTokens: 7167,
 };
 
-module.exports = { BASELINE, measure };
+/*
+ * Phase 270-12 Task 2 Half C -- MEMOP-10, the AFTER number.
+ *
+ * Produced by the SAME exported measure() function above, run against the same
+ * live tools/list probe, on the same day, after every other plan in the phase
+ * had landed. That is the whole point: the phase's token effect is a
+ * SUBTRACTION of two numbers made by one function, never a claim. Pitfall P2
+ * (assuming fewer tools means fewer tokens) cuts both ways, so this constant is
+ * recorded as measured even though it went UP.
+ *
+ * What moved between BASELINE and AFTER:
+ *   ADDED to the tool budget:  context_assemble, graph_reason, identity_write
+ *                              (+3 tools, the whole toolCount delta).
+ *   MOVED, budget-neutral:     detect_dual_path and extract_shallow relocated
+ *                              into lib/mcp/tools/dual-path.cjs (plan 270-06).
+ *                              Same descriptions, same schemas, same bytes.
+ *   NOT removed:               room_state_bound stays. Plan 270-12 Task 1's
+ *                              OQ-6 navigator verdict was `keep`, so the one
+ *                              retirement this phase contemplated did not
+ *                              happen and its bytes are still counted here.
+ *
+ * What this number CANNOT show: the read surface this phase moved onto MCP
+ * Resources (room://state, mos://tree, the mos://room/{slug}/tree template).
+ * Resources are not in tools/list, so they cost zero against THIS budget while
+ * still carrying real per-turn read capability. Judge the phase on both, not on
+ * this constant alone.
+ */
+const AFTER = {
+  measuredAt: '2026-08-27',
+  plan: '270-12',
+  toolCount: 39,
+  totalDescBytes: 14136,
+  totalSchemaBytes: 19373,
+  totalBytes: 33509,
+  approxTokens: 8377,
+  routerCount: 9,
+  atomicCount: 30,
+};
+
+// Signed percentage change, rounded to two places. Positive means the budget
+// grew. No direction is assumed anywhere in this file.
+function pctChange(before, after) {
+  if (!before) return 0;
+  return Number((((after - before) / before) * 100).toFixed(2));
+}
+
+/*
+ * DELTA -- derived at module load from BASELINE and AFTER, never hand-typed.
+ * Absolute and percentage differences for the three metrics the phase's token
+ * story turns on. Exported so a SUMMARY, a ROADMAP entry, or a later phase
+ * quotes arithmetic rather than re-asserting a number.
+ */
+const DELTA = {
+  from: BASELINE.plan,
+  to: AFTER.plan,
+  toolCount: {
+    abs: AFTER.toolCount - BASELINE.toolCount,
+    pct: pctChange(BASELINE.toolCount, AFTER.toolCount),
+  },
+  totalBytes: {
+    abs: AFTER.totalBytes - BASELINE.totalBytes,
+    pct: pctChange(BASELINE.totalBytes, AFTER.totalBytes),
+  },
+  approxTokens: {
+    abs: AFTER.approxTokens - BASELINE.approxTokens,
+    pct: pctChange(BASELINE.approxTokens, AFTER.approxTokens),
+  },
+};
+
+module.exports = { BASELINE, AFTER, DELTA, measure };
 
 // Guard against the plan 270-12 re-measurement use case: `require()`-ing
 // this file for BASELINE/measure must never spawn a server or call
@@ -227,18 +296,28 @@ async function run() {
 
   const m = measure(outcome.tools);
 
+  // DRIFT ALARM, re-baselined to AFTER by plan 270-12.
+  //
+  // These two checks compared against BASELINE from plan 270-06 until this
+  // plan. Phase 270 then legitimately moved the surface (+3 tools), which is
+  // exactly the "if this legitimately changed, plan 270-12 is where the
+  // baseline is updated" escape 270-06 wrote into its own failure message.
+  // This is that update, and it is the ONLY place in the phase authorised to
+  // make it. BASELINE stays exported and byte-untouched above: it is the
+  // historical record, not a live expectation. From here on, drift is measured
+  // against AFTER, so a future unplanned tool addition trips the alarm again.
   check(
-    'the measured surface matches the recorded BASELINE toolCount',
-    m.toolCount === BASELINE.toolCount,
-    'measured=' + m.toolCount + ' baseline=' + BASELINE.toolCount +
-      ' -- if this legitimately changed, plan 270-12 is where the baseline is updated, not this file'
+    'the measured surface matches the recorded AFTER toolCount',
+    m.toolCount === AFTER.toolCount,
+    'measured=' + m.toolCount + ' after=' + AFTER.toolCount +
+      ' -- AFTER was re-baselined by plan 270-12; a later legitimate change updates it in a later plan, not here'
   );
 
-  const deltaPct = BASELINE.totalBytes === 0 ? 0 : Math.abs(m.totalBytes - BASELINE.totalBytes) / BASELINE.totalBytes * 100;
+  const deltaPct = AFTER.totalBytes === 0 ? 0 : Math.abs(m.totalBytes - AFTER.totalBytes) / AFTER.totalBytes * 100;
   check(
-    'the measured totalBytes is within ' + DRIFT_TOLERANCE_PCT + ' percent of the recorded BASELINE',
+    'the measured totalBytes is within ' + DRIFT_TOLERANCE_PCT + ' percent of the recorded AFTER',
     deltaPct <= DRIFT_TOLERANCE_PCT,
-    'measured=' + m.totalBytes + ' baseline=' + BASELINE.totalBytes + ' delta=' + deltaPct.toFixed(2) + '%'
+    'measured=' + m.totalBytes + ' after=' + AFTER.totalBytes + ' delta=' + deltaPct.toFixed(2) + '%'
   );
 
   check(
@@ -247,13 +326,46 @@ async function run() {
     'router=' + m.routerCount + ' atomic=' + m.atomicCount
   );
 
+  // The fifth check (plan 270-12): the phase's token effect is STATED as a
+  // measured delta. It asserts only that DELTA is fully populated and derived
+  // from two same-function measurements. It deliberately does NOT assert a
+  // DIRECTION. Pitfall P2 is about not ASSUMING a win; a test that failed when
+  // the number went up would be the same error wearing a green badge. The
+  // honest outcome when the budget grows is to print it and say so in the
+  // SUMMARY, which is what happens here.
+  const deltaPopulated = ['toolCount', 'totalBytes', 'approxTokens'].every((k) => (
+    DELTA[k] && typeof DELTA[k].abs === 'number' && Number.isFinite(DELTA[k].abs)
+      && typeof DELTA[k].pct === 'number' && Number.isFinite(DELTA[k].pct)
+  )) && DELTA.from === BASELINE.plan && DELTA.to === AFTER.plan;
+
+  check(
+    "the phase's token effect is stated as a measured delta",
+    deltaPopulated,
+    'DELTA ' + DELTA.from + ' -> ' + DELTA.to + ': ' +
+      'toolCount ' + DELTA.toolCount.abs + ' (' + DELTA.toolCount.pct + '%), ' +
+      'totalBytes ' + DELTA.totalBytes.abs + ' (' + DELTA.totalBytes.pct + '%), ' +
+      'approxTokens ' + DELTA.approxTokens.abs + ' (' + DELTA.approxTokens.pct + '%)'
+  );
+
   console.log(
     '\nbudget: ' + m.toolCount + ' tools, ' + m.totalDescBytes + ' desc bytes, ' +
     m.totalSchemaBytes + ' schema bytes, ' + m.totalBytes + ' total, ~' + m.approxTokens +
     ' approx tokens (router ' + m.routerCount + ' / atomic ' + m.atomicCount + ')'
   );
+  console.log(
+    'delta ' + DELTA.from + ' -> ' + DELTA.to + ': ' +
+    'toolCount ' + (DELTA.toolCount.abs >= 0 ? '+' : '') + DELTA.toolCount.abs +
+    ' (' + DELTA.toolCount.pct + '%), ' +
+    'totalBytes ' + (DELTA.totalBytes.abs >= 0 ? '+' : '') + DELTA.totalBytes.abs +
+    ' (' + DELTA.totalBytes.pct + '%), ' +
+    'approxTokens ' + (DELTA.approxTokens.abs >= 0 ? '+' : '') + DELTA.approxTokens.abs +
+    ' (' + DELTA.approxTokens.pct + '%)'
+  );
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 }
 
-module.exports = { BASELINE, measure };
+// Trailing re-export kept in sync with the one above (plan 270-06 wrote the
+// export twice; the last assignment is the one that wins, so an out-of-date
+// copy here would silently drop AFTER and DELTA for every requiring caller).
+module.exports = { BASELINE, AFTER, DELTA, measure };
