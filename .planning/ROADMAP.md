@@ -530,11 +530,16 @@ Plans:
 **Goal:** Audit `scripts/session-start`'s `FIRST_INSTALL` prose injection against this repo's own hard rule that the Hooked Model (Fogg B=MAP, Trigger-Action-Reward-Investment) is the mandatory design lens for the first step of any Mindrian surface. Already confirmed this session: real Trigger and Action legs (warm opener, three explicit choices, JTBD-formula framing for returning users). NOT yet verified: Reward and Investment. Does the onboarding flow deliver a genuine variable Reward (a real payoff visible in that same first session, not just a promise) and build real Investment (something the user puts in that increases the odds they return -- e.g. USER.md profile-building, a filed artifact, a habit cue)? Map the full loop explicitly, cite the actual prose/code for each leg, and flag any leg that is asserted in a hard-rule doc but not actually implemented. Content-level UX audit work, not protocol work -- despite sitting numerically under Phase 267, it does NOT depend on the MCP stateless migration (now known to be BLOCKED, see 267) and should be planned/executed independently, on its own schedule.
 **Requirements**: TBD
 **Depends on:** none -- independent of Phase 267's now-blocked status, planned/executed on its own schedule
-**Plans:** 0 plans
+**Plans:** 6 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 267.1 to break down)
+- [ ] 267.1-01-PLAN.md - Wave 0 validation scaffold plus the in-scope SEED-021 card-mandate fix in FIRST_INSTALL
+- [ ] 267.1-02-PLAN.md - Pre-audit grounding: hard-rule provenance (A5) and the two-question Claude Code hook consultation (A1/A2)
+- [ ] 267.1-03-PLAN.md - The scored /70 Hooked audit of FIRST_INSTALL with the cited leg-by-leg gap register
+- [ ] 267.1-04-PLAN.md - Rethinking-room mirror plus bidirectional cross-link (Dev-Research Compositing mandate)
+- [ ] 267.1-05-PLAN.md - Follow-up phase registrations 267.2 and 267.3 plus the 267.1 Cross-references paragraph
+- [ ] 267.1-06-PLAN.md - Phase gate roll-up and navigator review of the scores, the scope call, and the registrations
 
 ### Phase 268: Transition Selected Workflows to MCP Tools
 
