@@ -170,6 +170,101 @@ agent-output consolidation, so it does not answer the agent-side question; and M
 elicitation schema shapes are not an agent-engineering concept at all, correctly answered
 from the vendored SDK source instead.
 
+## 7. Second-pass findings and what was deferred
+
+Phase 265-23 is the phase's own last mile: ratify every dispatch grant wave 4 built, build the
+one MCP diagnostic that was low-risk and well-defined, and record everything else instead of
+guessing at it. This section lists what got deferred and points at `data/capability-ledger.json`
+as the machine-readable record; the rows themselves carry the full reasoning, not this list.
+
+**Deferred (status `dormant`), each a genuine architecture decision, not a mechanical fix:**
+
+- `mcp-alwaysload-per-server-eager-token-trade` -- R-8's alwaysLoad trade. States both sides (the
+  Brain cold-start case for it, the corpus's eager-loading-is-the-problem case against it), the
+  per-server lever nobody has used (split the surface into a hot always-loaded server and a
+  deferred long tail), and the explicit instruction not to silently drop it (Phase 114's
+  cold-start regression was deliberately paid for). This is the row a future session is most
+  likely to act on wrongly, so it is the one this phase's Task 3 checkpoint asked a human to read.
+- `mcp-tool-annotations-title-modern-registertool-api` -- R-6. All 36 mindrian-os registrations
+  use the legacy `server.tool()` form with no slot for `annotations`/`title`/`outputSchema`; the
+  research itself says this is its own plan (36 registrations touched), not a fold-in.
+- `mcp-requires-user-interaction-and-max-result-size-chars` -- R-11. Both `requiresUserInteraction`
+  and `_meta["anthropic/maxResultSizeChars"]` are recorded as candidates with the mechanism
+  explicitly UNVERIFIED (the former does not exist in vendored SDK 1.29.0's `ToolAnnotationsSchema`).
+- `mcp-tool-type-hooks-for-part8-boundary` -- R-12. Ranked last in the research not because it is
+  unimportant but because it is a behavior change to the constitutional guard path.
+- `dispatch-token-task-vs-agent-spelling-reconciliation` -- the `Task` vs `Agent` dispatch-grant
+  token spelling is not unified by any documented rule across the registry's 11 rows.
+- `deep-grade-sequential-rundebate-second-half` -- plan 265-20 built the calibrate/fan/consolidate
+  panel but explicitly fenced grade-grant's sequential debate step as a follow-on, not built here.
+- `cross-segment-semantic-claim-dedup` -- plan 265-19's file-meeting fan-out correctly closes its
+  OWN duplicate risk (same segment, two lenses, merged on `segment_id`) but does not address the
+  narrower, genuine gap a peer session flagged during Wave 3: the same insight restated at two
+  DIFFERENT segments is never merged today. The existing pure-JS embedding (`embedding-spine.cjs`)
+  plus sqlite-vec similarity search (`vector-store.cjs`) already running inside `room.db` is named
+  as the reuse path, per SEED-013 / Phase 134's shipped Python-elimination direction (do not
+  introduce a Python clustering library for this).
+
+**Closed, but by a DIFFERENT phase than the one that found them (recorded here so they do not
+silently vanish from Phase 265's own accounting):**
+
+- `mcp-instructions-2kb-host-boundary-overflow-fix` (2.1, finding OPEN-1) -- closed by Phase 266
+  Plan 01 (MCPFIX-01); measured 1,888 bytes on this ratification run, under the 2,048-byte cap.
+- `mcp-room-state-description-voice-dna-pollution-fix` (2.3, finding OPEN-3) -- closed by Phase
+  266 Plan 02 (MCPFIX-02, commit `6f42861f`); verified via plan 265-09's own wire-level hygiene
+  tripwire, which confirms the fix shipped and holds.
+- `mcp-dep-heal-connect-path-timeout-budget-mismatch-fix` (2.9) -- closed by Phase 266 Plans 03
+  and 05 (MCPFIX-03 and its gap closure); a single process-wide connect-path budget now bounds
+  every dependency-heal call to the host's ~30-second connect timeout.
+- `mcp-description-prose-check-coverage-and-ceiling-fix` (D-3, D-4) -- closed by Phase 266 Plan 04;
+  `tests/test-234-tool-description-floor.cjs` now checks all 36 tools, not 8, and the ceiling is
+  the real platform cap (2048 bytes) instead of a stale exemplar.
+
+**Closed by a Phase 265 plan:**
+
+- `elicitation-titled-enum-migration` (R-5, finding OPEN-2) -- closed by plan 265-02.
+- `mcp-surface-doctor-tool-count-and-zero-tool-check` (2.6 OPEN, D-5) -- closed by THIS plan's
+  Task 2 (`lib/core/doctor/mcp-surface-module.cjs`).
+- `brain-tool-descriptions-retired-backend-names-fix` (D-7) -- closed by plan 265-09.
+- `mcp-tool-count-and-token-budget-frozen-literal-drift-fix` (D-1, D-2, D-8) -- **partially**
+  closed by plan 265-17 (`bin/mindrian-mcp-server.cjs`'s header plus three docs corrected). NOT
+  fully closed: `lib/mcp/tool-router.cjs:1-6` still carries the identical "9 tools / under 7000
+  token budget" drift, explicitly handed to Phase 266's MCPFIX-02 by 265-17's own decision record,
+  and MCPFIX-02 as shipped only fixed the room_state splice (above), not this header. Ledger
+  status left `dormant`, not `shipped`, because the drift this row names is still live in one file.
+
+**Recorded historical, not edited:**
+
+- `changelog-seed-003-a1-brain-portion-dormant-claim` (D-6) -- `CHANGELOG.md:2145` was true when
+  written and superseded by Phase 127-00 (commit `5308e678`); deliberately left untouched as
+  release-managed history rather than rewritten.
+
+**Roll-up reconciliation (the audit's own Appendix: 7 OPEN, 5 SHIPPED, 9 N/A, 8 DRIFT):**
+
+| Item | Verdict | Disposition |
+|---|---|---|
+| 2.1 instructions overflow | OPEN | Closed by Phase 266 MCPFIX-01 (external); ledger row `mcp-instructions-2kb-host-boundary-overflow-fix` |
+| 2.2 elicitation schema | OPEN | Closed by 265-02; ledger row `elicitation-titled-enum-migration` |
+| 2.3 room_state pollution | OPEN | Closed by Phase 266 MCPFIX-02 (external), verified by 265-09; ledger row `mcp-room-state-description-voice-dna-pollution-fix` |
+| 2.5 mcp_tool hooks | OPEN | Dormant; ledger row `mcp-tool-type-hooks-for-part8-boundary` |
+| 2.6 doctor tool-count | OPEN | Closed by this plan's Task 2; ledger row `mcp-surface-doctor-tool-count-and-zero-tool-check` |
+| 2.9 dep-heal timeout | OPEN | Closed by Phase 266 MCPFIX-03/05 (external); ledger row `mcp-dep-heal-connect-path-timeout-budget-mismatch-fix` |
+| 2.15/2.16 annotations + _meta | OPEN | Dormant, UNVERIFIED; ledger row `mcp-requires-user-interaction-and-max-result-size-chars` |
+| SHIPPED (5 items: alwaysLoad both servers, tool-search opt-out, resource templates, no secrets in config, dist bundle alwaysLoad strip) | SHIPPED | Already fine; alwaysLoad itself carried forward as a live TRADE via ledger row `mcp-alwaysload-per-server-eager-token-trade`, the rest need no row |
+| N/A items (2.4, 2.7, 2.10, 2.11, 2.13, 2.14, 2.17, 2.18, 2.20, 2.22) | N/A | No action needed; note the audit's own Appendix states this bucket's count as 9 but lists 10 item-numbers (2.13 covers four changelog versions in one row) -- a pre-existing arithmetic note in the research doc, not corrected here since this plan does not modify that file |
+| D-1 "9 tools" claimed, 36 shipped | DRIFT | Partially closed by 265-17; ledger row `mcp-tool-count-and-token-budget-frozen-literal-drift-fix` (still dormant: `lib/mcp/tool-router.cjs` header unfixed) |
+| D-2 "under 7000 tokens" breached | DRIFT | Same row as D-1; the false claim is fixed where 265-17 touched, the real over-budget condition is tracked via the alwaysLoad row + Task 2's budget warn |
+| D-3 prose checks cover 8/36 | DRIFT | Closed by Phase 266 Plan 04 (external); ledger row `mcp-description-prose-check-coverage-and-ceiling-fix` |
+| D-4 stale 600-char ceiling exemplar | DRIFT | Same row as D-3 |
+| D-5 no tool-count cap on local server | DRIFT | Closed by this plan's Task 2 (deliberately as a report, not a cap); same ledger row as 2.6 |
+| D-6 CHANGELOG Brain alwaysLoad "dormant" | DRIFT | Recorded historical, not edited; ledger row `changelog-seed-003-a1-brain-portion-dormant-claim` |
+| D-7 retired-backend names in descriptions | DRIFT | Closed by 265-09; ledger row `brain-tool-descriptions-retired-backend-names-fix` |
+| D-8 "49 MCP tools" in LAWRENCE-BRIEFING | DRIFT | Closed by 265-17; same row as D-1 |
+
+Nothing from the audit's 7 OPEN + 8 DRIFT = 15 findings is unaccounted for: every item above either
+carries a ledger row naming its status and evidence, or names the plan (in or out of Phase 265)
+that closed it. The 5 SHIPPED and 9-or-10 N/A items needed no action and are not tracked as rows.
+
 ## Cross-references
 
 - `~/MindrianRooms/rethinking-mindrianos/research/2026-08-27-capability-radar-265/` -- the

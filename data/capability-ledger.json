@@ -2,7 +2,11 @@
   "$schema_note": "Hand-maintained, machine-readable capability ledger (Phase 265 Plan 01). This file lives in data/, not .planning/, because it must be readable by every tool (tests, doctor, scripts), not just a human or a GSD executor reading markdown prose. Phase 138 built a capability ledger as a 14-row markdown table inside one phase's CONTEXT.md; that table was invisible to every tool, went stale, and the phase was orphaned. That markdown-table failure is the documented root cause this file exists to end: a row here is typed, schema-validated (tests/test-265-capability-ledger-schema.cjs), and its freshness against the installed Claude Code version is machine-checked on two independent paths (the schema/freshness tests and a registered doctor organ, lib/core/doctor/capability-ledger-module.cjs), never left to a human noticing a table looks old.",
   "schema_version": 1,
   "phase": "265-capability-radar-absorption-routing-re-scoped-supersedes-orp",
-  "canon_parts": [6, 7, 8],
+  "canon_parts": [
+    6,
+    7,
+    8
+  ],
   "ledger_covers": {
     "from": "2.1.128",
     "to": "2.1.246",
@@ -205,6 +209,182 @@
       "destination": "commands/trending-to-absurd.md",
       "status": "dormant",
       "evidence": "265-04-SUMMARY.md Next Phase Readiness note (Plan 265-06 should record this candidate); 265-RESEARCH.md section 2d (allowed-tools is a pre-approval list, not a restriction list; omitting Task is friction, not breakage)",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-alwaysload-per-server-eager-token-trade",
+      "version": "2.1.121",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "alwaysLoad:true on both mindrian-os and mindrian-brain pins ~7,557 tokens eager into every session (7,062 + 495); this is a documented TRADE, not a bug. The case for keeping it: it closes the Brain cold-start window (references/capability-radar/capabilities-index.md:187 calls this 'the single biggest leverage adoption') and makes Canon Part 3 Mode A available at turn 1, a cost deliberately paid for in Phase 114. The case against: the corpus's two independent sources both name eager loading as THE MCP context problem, and Anthropic's own stated practice is deferred loading for exactly the more-tools-than-the-budget-justifies case. The unused lever: alwaysLoad is PER-SERVER, so the only way to get both benefits is to split the surface into a small always-loaded hot-loop server (room_bind, room_list, suggest_next, gate_render, gate_answer, stop_gate_check, status_read, plus the 6 Brain tools) and a second, deferred server carrying the long tail (methodology, intelligence, analysis, export, meeting, room_graph, orchestration, eureka_critic, the app views). That is a real architectural change with real cost -- the honest next step is measurement, which the new mcp-surface-module.cjs doctor organ (this plan, Task 2) now provides on every run via its TOTAL_SURFACE_TOKEN_BUDGET warn.",
+      "destination": ".mcp.json (both server entries), lib/mcp/tool-router.cjs, bin/mindrian-brain-mcp-client.cjs",
+      "status": "dormant",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md R-8 in full (measured 7,557 tokens on the wire, 2026-08-27); references/capability-radar/capabilities-index.md:187; Phase 114-01-01 commit 59d9459f (mindrian-os alwaysLoad) and Phase 127-00 commit 5308e678 (mindrian-brain alwaysLoad). DO NOT silently drop alwaysLoad: the cold-start regression it would reintroduce was deliberately paid for in Phase 114. Honest next step is measurement (lib/core/doctor/mcp-surface-module.cjs's TOTAL_SURFACE_TOKEN_BUDGET warn, this plan Task 2), not a unilateral split.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-tool-annotations-title-modern-registertool-api",
+      "version": "sdk-1.29.0",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "All 36 mindrian-os tool registrations use the legacy server.tool(name, desc, schema, handler) form, which has no slot for annotations, title or outputSchema. server.registerTool(name, {title, description, inputSchema, annotations}, handler) does; lib/mcp/app-views.cjs:239-245 is the in-repo precedent for the modern form. Highest-value first: readOnlyHint:true on the genuinely read-only surface (room_list, room_search, room_state, room_state_bound, graph_query, contradiction_check, whitespace_scan, reach_candidates, suggest_next, status_read, contract_version, chain_resolve, view_compile, and all three app views) and destructiveHint / non-idempotent marking on the writers (artifact_file, graph_write, memory_event, gate_answer, chain_run, room_content, room_bind). This is the cheapest available signal a permission layer or cautious host can act on.",
+      "destination": "all 36 mindrian-os tool registrations (lib/mcp/tool-router.cjs, lib/mcp/register-core-tools.cjs auto-discovered tools/*.cjs)",
+      "status": "dormant",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md R-6 in full; node_modules/@modelcontextprotocol/sdk types.d.ts:2361-2367; wire probe 2026-08-27 confirms zero of 36 tools declare annotations. The research itself says do this as its own plan, not folded into a fix -- the edit touches all 36 registrations.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "elicitation-titled-enum-migration",
+      "version": "sdk-1.29.0",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "lib/mcp/gate-render.cjs's rung-1 elicitation schemas used the deprecated SDK enum+enumNames (single-select) and untitled items.enum (multi-select, which dropped option labels entirely) shapes. Plan 265-02 migrated both to the SDK-current titled oneOf/anyOf forms (TitledSingleSelectEnumSchemaSchema, TitledMultiSelectEnumSchemaSchema), closing the defect where multi-select gates rendered raw option slugs instead of labels, and added a tripwire validating against the vendored SDK's own Zod schemas.",
+      "destination": "lib/mcp/gate-render.cjs:173-201",
+      "status": "shipped",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md R-5 and finding OPEN-2 (2.2); 265-02-SUMMARY.md (RADAR-06): 'Swapped rung-1 MCP elicitation schemas from the deprecated enum/enumNames shape to the SDK-current titled oneOf/anyOf shapes on both select modes... added a tripwire test that validates against the vendored SDK's own Zod schemas.' CLOSED, verified against 265-02's actual SUMMARY rather than assumed.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-requires-user-interaction-and-max-result-size-chars",
+      "version": "2.1.246",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "requiresUserInteraction on gate_render would stop hosts from offering 'Yes, and don't ask again' for a tool whose entire purpose is a human decision gate. _meta['anthropic/maxResultSizeChars'] on large-payload tools (room_search, graph_query, export, view_compile, reach_candidates) would let those tools opt out of the token-based persist layer. BOTH mechanisms are UNVERIFIED: requiresUserInteraction does NOT appear in vendored SDK 1.29.0's ToolAnnotationsSchema (types.d.ts:2361-2367, which carries only title/readOnlyHint/destructiveHint/idempotentHint/openWorldHint) -- the transport is probably _meta but is not confirmed. maxResultSizeChars has no corpus grounding either way (gap 3.3-6). Candidate tools: gate_render (requiresUserInteraction); room_search, graph_query, export, view_compile, reach_candidates (maxResultSizeChars).",
+      "destination": "lib/mcp/tools/gate.cjs (gate_render), lib/mcp/tool-router.cjs (room_search, graph_query, export, view_compile, reach_candidates)",
+      "status": "dormant",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md R-11 in full; CHANGELOG.md 2.1.246 and 2.1.98; vendored SDK 1.29.0 types.d.ts:2361-2367 (mechanism UNVERIFIED, do not adopt until confirmed against Claude Code docs or the claude-code-guide agent).",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-tool-type-hooks-for-part8-boundary",
+      "version": "2.1.118",
+      "date": null,
+      "domain": "code",
+      "leverage": "hooks/hooks.json is 42 of 42 'type: command'; two entries already matcher on Brain MCP tool names (:236, :338) and still shell out to Node instead of using the platform's native type:'mcp_tool' hook invocation (available since 2.1.118). references/capability-radar/capabilities-index.md:51-59 tracks this as adoption candidate A3 for structural Canon Part 8 enforcement. Ranked last not because it is unimportant but because it is a behavior change to the constitutional guard path and deserves its own plan, not a fold-in.",
+      "destination": "hooks/hooks.json:236,338",
+      "status": "dormant",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md R-12 in full; hooks/hooks.json:236,338 (existing matcher on mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.* still shells out to Node); references/capability-radar/capabilities-index.md:51-59 (candidate A3).",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "dispatch-token-task-vs-agent-spelling-reconciliation",
+      "version": "docs-current",
+      "date": null,
+      "domain": "code",
+      "leverage": "Three commands in the dispatch-grants registry declare the Agent token (deep-grade.md, opportunities.md, research.md) while eight declare Task (act.md, persona.md, grade.md, mos-reason.md, scout.md, file-meeting.md, vault.md, find-analogies.md). The two spellings are not unified by any documented rule, and docs/SUBAGENT-DISPATCH-GRANTS.md section 2 names this as a candidate for reconciliation: either both tokens genuinely need distinct semantics (unproven) or one spelling should be retired in favor of the other across the registry and every command file, which is a repo-wide rename touching 11 command files plus the registry and its tripwire test.",
+      "destination": "commands/deep-grade.md, commands/opportunities.md, commands/research.md, data/subagent-dispatch-grants.json, docs/SUBAGENT-DISPATCH-GRANTS.md, tests/test-265-swarm-task-grant.cjs",
+      "status": "dormant",
+      "evidence": "docs/SUBAGENT-DISPATCH-GRANTS.md section 2 (Task-versus-Agent token spelling reconciliation named as a ledger candidate); data/subagent-dispatch-grants.json's own tokens: ['Task','Agent'] dual-token schema (this plan's Task 1 ratification, 2026-08-27, 11 rows total).",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "deep-grade-sequential-rundebate-second-half",
+      "version": "docs-current",
+      "date": null,
+      "domain": "code",
+      "leverage": "grade-grant's reviewer panel (the house pattern plan 265-20 copied for deep-grade's calibrate-once/fan-per-component/consolidate-fail-closed shape) has a second half this plan's fan-out did not build: a sequential runDebate step for disputed scores after the parallel fan-out and fail-closed consolidation. commands/grade-grant.md's own debate is downgrade-only; deep-grade's five-component panel (Vision, Problem Definition, Feasibility, Market, Completeness) has no equivalent debate step today, so a disputed score between two graders is surfaced but never adjudicated through a structured debate.",
+      "destination": "commands/deep-grade.md step 3 Phase 2 (consolidation)",
+      "status": "dormant",
+      "evidence": "265-20-SUMMARY.md key-decisions: 'The sequential runDebate second half of grade-grant's panel is fenced as a named follow-on for plan 265-23's capability ledger, not built in this plan.'; commands/grade-grant.md's downgrade-only debate as the existing precedent.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "changelog-seed-003-a1-brain-portion-dormant-claim",
+      "version": "docs-current",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "None -- historical record correction only. CHANGELOG.md:2145 states 'SEED-003 A1's Brain portion remains dormant', which was true when written but has since been superseded.",
+      "destination": "CHANGELOG.md:2145",
+      "status": "superseded",
+      "evidence": "Phase 127-00 commit 5308e678 added the mindrian-brain entry to .mcp.json with alwaysLoad:true, activating the Brain portion of SEED-003 A1. CHANGELOG.md:2145 was deliberately NOT edited (git diff --stat CHANGELOG.md produces no output for this plan) because it is release-managed history that was true at the time it was written; rewriting shipped CHANGELOG entries after the fact would itself be the rot pattern this ledger exists to prevent. 265-17-SUMMARY.md key-decisions: 'CHANGELOG.md:2145 deliberately left untouched -- true when written, superseded by Phase 127-00 commit 5308e678, recorded for plan 265-23's ledger as superseded, not wrong.'",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "cross-segment-semantic-claim-dedup",
+      "version": "docs-current",
+      "date": null,
+      "domain": "code",
+      "leverage": "Plan 265-19's five-perspective file-meeting fan-out (Step 3b) correctly closes the fan-out's OWN duplicate risk by merging on exact segment_id (the same segment tagged by two lenses). It does NOT address a narrower, different, and genuine gap a peer session flagged during Wave 3: the same underlying insight restated at two DIFFERENT points in a meeting transcript (two different segment_ids) is never merged, because segment_id-only dedup cannot see semantic equivalence across segments. This is real and confirmed by reading 265-19-PLAN.md directly, but it is a narrower problem than the fan-out's own dedup, and the navigator and orchestrator agreed during Wave 3 this should be a ledger candidate rather than a live scope change to an already-executed plan. Existing infrastructure that would implement it without a new dependency: lib/core/eureka/embedding-spine.cjs (pure-JS embeddings via @huggingface/transformers, zero Python/new deps, already in package.json) to embed each consolidated claim, plus lib/core/eureka/vector-store.cjs (sqlite-vec-backed similarity search already running inside room.db) to query nearest-neighbor above a threshold and mint a REFINES edge + bump evidence count on a match instead of filing a new node. Per SEED-013 / Phase 134's shipped Python-elimination architectural direction, do NOT introduce a Python clustering library for this -- the existing pure-JS embedding + sqlite-vec path is reuse-before-build (Canon Part 7) and stays inside the already-paid-for dependency budget.",
+      "destination": "commands/file-meeting.md Step 3b sub-step 1 (segment_id-only merge); lib/core/eureka/embedding-spine.cjs, lib/core/eureka/vector-store.cjs (the reuse path)",
+      "status": "dormant",
+      "evidence": "265-19-PLAN.md Step 3b sub-step 1 (segment_id-only merge, confirmed not semantic, by direct read); peer-session finding during Wave 3 (recorded as a ledger candidate per the orchestrator+navigator agreement, not a live scope change to the already-executed 265-19 plan); lib/core/eureka/embedding-spine.cjs and lib/core/eureka/vector-store.cjs as the existing pure-JS + sqlite-vec infrastructure that would implement this; SEED-013 / Phase 134 (shipped Python-elimination architectural direction) as the reason not to introduce a Python clustering library.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-instructions-2kb-host-boundary-overflow-fix",
+      "version": "2.1.84",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Claude Code caps MCP server instructions at 2048 bytes at the HOST boundary since 2.1.84. lib/mcp/runtime-instructions.cjs's RUNTIME_INSTRUCTIONS constant measured 2,173 bytes during this phase's audit (125 bytes over cap), truncating mid-word inside the Canon Part 8 BOUNDARIES paragraph on every non-Claude-Code host. Fixed.",
+      "destination": "lib/mcp/runtime-instructions.cjs",
+      "status": "shipped",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md section 2.1 finding OPEN-1 (2,173 bytes measured on the wire 2026-08-27, 125-byte overflow, mid-word truncation proven against this session's own system prompt). Closed by Phase 266 Plan 01 (MCPFIX-01), NOT by a Phase 265 plan -- lib/mcp/runtime-instructions.cjs:10-15 now documents a 1950-byte budget and the 2048-byte hard cap directly against the live wire; measured 1,888 bytes on this ratification run (2026-08-27), under the cap. Recorded here so this Phase-265-identified OPEN item does not silently vanish from the audit's accounting even though a different phase closed it.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-room-state-description-voice-dna-pollution-fix",
+      "version": "docs-current",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "lib/mcp/tool-router.cjs:648's room_state tool description spliced the first 80 chars of references/personality/voice-dna.md's compact form into the wire description, producing a raw # heading, an embedded newline pair, an unterminated emphasis marker, and a sentence cut mid-phrase ('...asks on'). It was the only tool doing this. Fixed.",
+      "destination": "lib/mcp/tool-router.cjs (room_state description), lib/mcp/larry-context.cjs (compact path)",
+      "status": "shipped",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md section 2.3 finding OPEN-3. Closed by Phase 266 Plan 02 (MCPFIX-02), commit 6f42861f 'fix(266-02): remove voice-dna splice from room_state description, delete dead compact path' -- NOT by a Phase 265 plan. Verified closed via 265-09-SUMMARY.md (RADAR-14): its wire-level hygiene tripwire 'empirically confirms Phase 266's voice-dna splice fix (MCPFIX-02) shipped and holds'. grep for the splice construction in lib/mcp/tool-router.cjs now returns zero hits (confirmed on this ratification run, 2026-08-27). Recorded here so this Phase-265-identified OPEN item does not silently vanish even though a different phase closed it.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-surface-doctor-tool-count-and-zero-tool-check",
+      "version": "2.1.128",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "scripts/doctor.cjs had an L4 MCP stdio handshake and version-match check (lines ~1298-1359) but no tools/list call, no tool count, no zero-tool assertion -- the exact diagnostic gap Claude Code 2.1.128 added a host-side signal for ('/mcp now shows the tool count for connected servers and flags servers that connected with 0 tools'). Separately, D-5 named that mindrian-os (36 tools, growing silently via lib/mcp/register-core-tools.cjs's auto-discovery) has no release-time tool-count cap or check the way mcp-server-brain does. BOTH closed together by this plan's Task 2: lib/core/doctor/mcp-surface-module.cjs reports per-server tool counts for both servers, fails on a zero-tool tools/list response or a wedged/non-answering server, and warns (never fails) on a measured TOTAL_SURFACE_TOKEN_BUDGET -- deliberately WITHOUT a tool-count cap, because the Brain's 10-15 figure was set for a 6-tool server and does not transfer, and the corpus provides no recommended per-server count (gap 3.3-2).",
+      "destination": "lib/core/doctor/mcp-surface-module.cjs, data/doctor-modules.json, scripts/doctor.cjs",
+      "status": "shipped",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md R-7 (closes finding 2.6 OPEN) and D-5 (no tool-count cap on the local server); this plan's own Task 2, lib/core/doctor/mcp-surface-module.cjs and tests/test-265-mcp-surface-organ.cjs (4-arm tripwire including the zero-tool and wedged-server failure arms).",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-dep-heal-connect-path-timeout-budget-mismatch-fix",
+      "version": "2.1.242",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Both MCP entry points called ensureDepsPresent() at module load, before the SDK require. On a cold plugin cache this ran a blocking spawnSync('npm install') with timeout:120000 -- 4x the host's ~30-second connect timeout (Claude Code 2.1.242 stopped connections hanging the full 30s on a malformed/absent reply, making the mismatch a guaranteed loss rather than a race). Fixed via a single process-wide connect-path budget.",
+      "destination": "lib/core/mcp-dep-heal.cjs, bin/mindrian-mcp-server.cjs, bin/mindrian-brain-mcp-client.cjs",
+      "status": "shipped",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md section 2.9 (OPEN, timeout mismatch; the RCA in .planning/debug/resolved/mcp-servers-cache-missing-node-modules.md:58 named the race, but the 120s ceiling guaranteeing the host gives up first was not adjusted at audit time). Closed by Phase 266 Plan 03 and Plan 05 (MCPFIX-03, gap closure) -- NOT by a Phase 265 plan. bin/mindrian-mcp-server.cjs's own header now documents 'Phase 266 Plan 05 (MCPFIX-03 gap closure): arms ONE process-wide connect deadline at the earliest possible moment'; lib/core/mcp-dep-heal.cjs:86 now states the host's ~30000ms connect budget explicitly and beginConnectPathBudget()/connectPathRemainingMs() bound every heal call to it. Recorded here so this Phase-265-identified OPEN item does not silently vanish even though a different phase closed it.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-tool-count-and-token-budget-frozen-literal-drift-fix",
+      "version": "docs-current",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "bin/mindrian-mcp-server.cjs:7-8/:135, lib/mcp/tool-router.cjs:5, docs/research/PLATFORM-INDEPENDENCE-STRATEGY.md:207, docs/research/MCP-APPS-STRATEGIC-RESEARCH.md:525 and :789 all stated a frozen '9 tools' / 'under 7000 token budget' claim the wire contradicts (actual 11 router tools, 36 total server tools, ~7,062 tokens already over budget). docs/LAWRENCE-BRIEFING-v1.6.3.md:26 separately claimed '49 MCP tools' against an actual 42.",
+      "destination": "bin/mindrian-mcp-server.cjs, docs/research/PLATFORM-INDEPENDENCE-STRATEGY.md, docs/research/MCP-APPS-STRATEGIC-RESEARCH.md, docs/LAWRENCE-BRIEFING-v1.6.3.md, lib/mcp/tool-router.cjs",
+      "status": "dormant",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md D-1, D-2, D-8. PARTIALLY closed by 265-17 (RADAR-17): bin/mindrian-mcp-server.cjs's header, docs/research/PLATFORM-INDEPENDENCE-STRATEGY.md:207, docs/research/MCP-APPS-STRATEGIC-RESEARCH.md:525+:789, and docs/LAWRENCE-BRIEFING-v1.6.3.md:26 were all corrected to point at tests/test-234-tool-description-floor.cjs instead of a re-typed literal (verified: docs/LAWRENCE-BRIEFING-v1.6.3.md:26 now reads '42 MCP tools [CORRECTED, Phase 265, 2026-08-27...]'). NOT closed: lib/mcp/tool-router.cjs:1-6 still states 'Registers 9 high-level MCP tools... keeps total tool definition under 7000 tokens' verbatim, confirmed unchanged on this ratification run (2026-08-27). 265-17-SUMMARY.md's own key-decisions record this file was deliberately handed to 'Phase 266's MCPFIX-02 with exact replacement text rather than edited across the phase boundary' -- Phase 266's MCPFIX-02 shipped (commit 6f42861f) but only fixed the room_state splice, not this header. Status left dormant, not shipped, because the underlying drift this ledger row names is still live in one file.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "mcp-description-prose-check-coverage-and-ceiling-fix",
+      "version": "docs-current",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "tests/test-234-tool-description-floor.cjs applied its prose-shape checks (ceiling, capital-letter start, sentence terminator, no-em-dash) only to 8 of 36 registered tools (REWRITTEN_TOOLS), so room_state's mid-word cut and gate_answer/chain_run's over-ceiling descriptions passed a green 35/35 suite while the surface carried three live description defects. The 600-char ceiling was also derived from a stale exemplar (chain_run measured 552 at write time, 1113 on the 2026-08-27 wire probe).",
+      "destination": "tests/test-234-tool-description-floor.cjs",
+      "status": "shipped",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md D-3, D-4. Closed by Phase 266 Plan 04 (per the test file's own header: 'COVERAGE (Phase 266-04, D-3, D-4)') -- NOT by a Phase 265 plan. tests/test-234-tool-description-floor.cjs now applies every prose check to every tool in the live tools/list response (checkedNames derived from the wire), demotes REWRITTEN_TOOLS to a presence-only pin, and replaces the stale 600-char ceiling with the real platform cap (HOST_DESCRIPTION_CAP_BYTES = 2048, Claude Code 2.1.84), confirmed present in the file on this ratification run (2026-08-27). Recorded here so these Phase-265-identified DRIFT items do not silently vanish even though a different phase closed them.",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "brain-tool-descriptions-retired-backend-names-fix",
+      "version": "docs-current",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "bin/mindrian-brain-mcp-client.cjs's four Brain tool descriptions (brain_ask, brain_search, brain_stats, brain_schema at lines 85, 142, 158) named the retired Pinecone/Neo4j backend; CLAUDE.md's own stack table has stated 'Pinecone is RETIRED' since the 2026-07-22 Memgraph cutover, so the description actively misinformed the model about what the tool can do.",
+      "destination": "bin/mindrian-brain-mcp-client.cjs:85,142,158",
+      "status": "shipped",
+      "evidence": "265-RESEARCH-mcp-layer-audit.md D-7 (previously reported 2026-08-10 in docs/brain-audit-2026-08-10/2026-08-10-HANDOFF-brain-service-audit.md, still live at audit time). Closed by 265-09-SUMMARY.md (RADAR-14): 'Rewrote four Brain MCP tool descriptions to name the live Memgraph plus locally-embedded multilingual-e5-large backend instead of the retired Pinecone/Neo4j stack.'",
       "decision_ref": "docs/RADAR-ABSORPTION-265.md"
     }
   ]
