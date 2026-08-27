@@ -3,6 +3,11 @@
 ### Added
 - 
 
+### Fixed
+- Reference-file citations are now anchored with `${CLAUDE_PLUGIN_ROOT}`, so the files a command actually needs load correctly from a real Data Room instead of only from the plugin dev repo. A bare `references/...` path resolves against your session's current working directory, not the plugin install directory, so these citations worked by pure coincidence in development (where the two happen to be the same folder) and silently failed for every installed user on all three surfaces. Landed so far: 63 citations across 28 methodology commands, 14 across 5 hand-authored skills, 17 across 7 agents, and 9 across 5 pipeline stage files, for 103 of the 134 sites the audit measured. Hand-authored skills use the fail-closed `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}}` form, which refuses honestly instead of silently reading the wrong path when a foreign Agent-Skills host loads a skill with no plugin root set.
+- Added `scripts/check-plugin-path-anchoring.cjs` to the release gates (`scripts/verify-release`, gate 10c) so this class cannot silently return. A newly authored command, skill, agent, or pipeline file citing a bare plugin-relative path now fails the release gate before it can ship, which is the structural guard the originating file-meeting RCA named as missing work after fixing only its own single file.
+- **Known incomplete, stated plainly:** 31 of the 134 sites are not yet fixed at this commit. 30 of them sit in 16 methodology commands (`analyze-systems`, `causal`, `challenge-assumptions`, `compare-ventures`, `deck`, `diagnose`, `find-connections`, `leadership`, `lean-canvas`, `mullins`, `pipeline`, `publish`, `score-innovation`, `show`, `suggest-next`, `systems-thinking`) plus `commands/doctor.md`. Those commands still resolve their reference citations against your working directory. The fix is written and verified but is held behind an unrelated pre-existing linter gap tracked as Phase 267.3; it was deliberately not force-committed. The five `/mos:radar` citations are a separate, reasoned exception: that command genuinely writes to a git-tracked file in the dev repo, so anchoring it would redirect real writes into the install cache that every plugin update wipes.
+
 ## [2.0.0-beta.11] - 2026-08-24
 
 ### Added
