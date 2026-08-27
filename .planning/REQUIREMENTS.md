@@ -357,6 +357,85 @@ can ship in the next version cut on its own schedule.
       states its own coverage in its summary line so a green run can never again be read as a
       claim it did not earn.
 
+### Phase 270 - Memory and Context Operator MCP (minted at plan time 2026-08-27)
+
+Roadmap line 522 read `TBD`. These fifteen IDs are scoped to Phase 270 only and were minted at plan
+time in `270-DECISIONS.md`, matching the Phase 266 and Phase 269 precedent; plan 270-12 registers
+them here at phase close. All twelve plans executed. Every row below is `[x]` except MEMOP-14, which
+shipped one half and gated the other on a navigator verdict that came back `keep`.
+
+- [x] **MEMOP-01**: A single command, `bash tests/run-all-270.sh`, discovers and runs every Phase 270
+      test by glob, and fails loudly rather than printing green when it discovers zero files.
+      Final run: `PASS=11 FAIL=0 SKIP=0`.
+
+- [x] **MEMOP-02**: MCP Resources resolve the room per session, the same way MCP Tools already do,
+      instead of binding `roomDir` once at boot. Fixed in plan 270-05; pinned by
+      `tests/test-270-resource-session-room.cjs`. Three boot-bound call sites were deliberately left
+      alone (`registerPrompts`, `registerCapabilities`, and the `roomDir` at
+      `bin/mindrian-mcp-server.cjs:119`) and are carried forward on the ROADMAP.
+
+- [x] **MEMOP-03**: The exposed ICM tree reflects a folder created after the server booted, not a
+      snapshot frozen at startup. `mos://tree` plus `lib/mcp/tree-watcher.cjs`'s debounced
+      `sendResourceListChanged` over already-vendored chokidar (plan 270-08).
+
+- [x] **MEMOP-04**: The forest walk delegates to the two already-shipped walkers and mints no second,
+      hand-rolled directory walker. Enforced as a SOURCE tripwire by
+      `tests/test-270-no-second-walker.cjs`, not just asserted.
+
+- [x] **MEMOP-05**: The section baseline is schema-driven off `SECTION_METADATA`, never a hardcoded
+      count of 8. The tripwire derives its own forbidden-literal list from `SECTION_NAMES` at
+      runtime, so it cannot go stale against a future section-set change.
+
+- [x] **MEMOP-06**: The forest classifies directories into four classes, and a blueprint-subset room
+      (missing some canonical sections) is a NORMAL room, never an error.
+
+- [x] **MEMOP-07**: A cross-room read never writes a cross-room edge; the Part 8 aggregation fence at
+      `lib/core/navigation/edges.cjs:45` holds for the new graph-native reads (read-only
+      parameterized ATTACH, both edges tables byte-identical, apostrophe-bearing room names still
+      contribute).
+
+- [x] **MEMOP-08**: The identity write to `~/.mindrian-user.md` is reachable with no room bound, as a
+      cross-room user-level concern rather than a room-scoped one. Shipped as `identity_write` (plan
+      270-11), the first writer that file has ever had, built on `writeUserMdAtomic` UNMODIFIED.
+      MECHANISM half only; Phase 267.2 W2 still owns the TRIGGER and must not build a second writer.
+
+- [x] **MEMOP-09**: Every wire tool carries a connector descriptor with a `hitl_shape`, closing the
+      `detect_dual_path` / `extract_shallow` born-wired gap (the 13-tool grouped-router family is
+      exempt per the OQ-5 disposition). Registries regenerated, 21 -> 23 MCP-tool entries.
+
+- [x] **MEMOP-10**: The tool-schema token budget added by this phase's new tools is MEASURED with a
+      real harness, never assumed. `tests/test-270-tool-schema-budget.cjs` exports `BASELINE`
+      (270-06), `AFTER` (270-12) and a derived `DELTA`, all from one `measure()` function. Honest
+      result: the budget went UP, 36 -> 39 tools and ~7,167 -> ~8,377 approx tokens (+1,210,
+      +16.88 percent). The fifth check asserts the delta is populated and deliberately does NOT
+      assert a direction.
+
+- [x] **MEMOP-11**: `context_assemble` exposes `getRoomContext`'s four legs, with its four existing
+      budget knobs (`fragmentWindow`, `fragmentCharCap`, `topK`, `maxDepth`) surfaced as bounded
+      caller parameters.
+
+- [x] **MEMOP-12**: `context_assemble` carries an `estimate_only` mode: the cheap structural legs run
+      and return projected per-leg cost without returning bodies, the "see the cost before you pay
+      it" affordance.
+
+- [x] **MEMOP-13**: The graph-native additions ship: `findTransitiveSupport` (recursive-CTE
+      transitive support and contradiction closure, reusing `findBlockingAssumptions`'s in-file
+      pattern) and `findNearestSubRoomDecisions` (structural distance across a `room.db` boundary,
+      read-only, no new ATTACH).
+
+- [x] **MEMOP-14**: `room_state_bound` retirement is GATED behind the OQ-6 navigator verdict (a
+      manual foreign-host Resource parity check), and the phase's real AFTER/DELTA tool-schema token
+      number is measured and recorded, replacing the earlier CLAIM. **Both halves satisfied, with
+      one half deliberately not exercised:** the gate ran, the verdict was `keep`, so no retirement
+      happened. Two of three checks passed (zero prose hits for `room_state`; in-process
+      Resource/Tool parity green); the third, a real foreign non-Claude-Code MCP host, had no
+      available host and no automated harness, so **Assumption A2 stays UNVERIFIED and carried
+      forward**. The requirement was to gate the decision, not to produce a retirement.
+
+- [x] **MEMOP-15**: The navigator answered OQ-1 and OQ-2 with named options, and OQ-3/OQ-4/OQ-5/OQ-7
+      each carry a one-line disposition of record in `270-DECISIONS.md`, before any later plan
+      depended on them.
+
 ## Out of scope (recorded, not forgotten)
 
 - Bulk enrichment of the 90-framework tail (navigator doctrine: demand drives the queue).
@@ -366,11 +445,19 @@ can ship in the next version cut on its own schedule.
 
 ## Traceability
 
-55 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+70 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
-IDs (28 active, Phase 265) and MCPFIX-01..04 (Phase 266). All minted 2026-08-27: RADAR-01..11 and
-MCPFIX-01..04 at first-pass plan time, RADAR-12..31 in the Phase 265 second planning pass after the
-navigator settled nine additional workstreams. RADAR-13, RADAR-15 and RADAR-16 were retired before
+IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), and MEMOP-01..15 (Phase 270). All minted
+2026-08-27: RADAR-01..11 and MCPFIX-01..04 at first-pass plan time, RADAR-12..31 in the Phase 265
+second planning pass after the navigator settled nine additional workstreams, and MEMOP-01..15 in
+Phase 270's own planning pass. RADAR-13, RADAR-15 and RADAR-16 were retired before
 use because they duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04; the gap is deliberate and recorded.
 RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving its intent.
-Roadmap phases must map all 55 active requirements with no orphans.
+Roadmap phases must map all 70 active requirements with no orphans.
+
+**Caveat, carried on the MCPFIX and MEMOP families alike (the Phase 266 and 269 precedent):** these
+IDs were minted at plan time inside their own phase's decision record rather than being drawn from a
+pre-existing milestone requirements pass. They are phase-local working IDs promoted to this document
+at phase close, which means the behaviour each one names is real and shipped, but the ID itself did
+not exist before its phase was planned and should not be read as part of an earlier milestone's
+scope.
