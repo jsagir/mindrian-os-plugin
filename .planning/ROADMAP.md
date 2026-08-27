@@ -455,10 +455,10 @@ Plans:
 
 Plans:
 
-- [ ] 265-01-PLAN.md - Wave 1 - the capability ledger, freshness tripwire, doctor organ, and phase test harness
-- [ ] 265-02-PLAN.md - Wave 1 - MCP elicitation schema currency (stops multi-select rung-1 gates showing raw slugs)
-- [ ] 265-03-PLAN.md - Wave 1 - the three swarm-command retrofits: run_in_background removal, the reviewed allowed-tools Task grant, and the reversed resolveModel fix
-- [ ] 265-04-PLAN.md - Wave 1 - explicit dispatch shapes for trending-to-absurd and explore-opportunity, plus the navigator decision on parallelizing the explore legs
+- [x] 265-01-PLAN.md - Wave 1 - the capability ledger, freshness tripwire, doctor organ, and phase test harness
+- [x] 265-02-PLAN.md - Wave 1 - MCP elicitation schema currency (stops multi-select rung-1 gates showing raw slugs)
+- [x] 265-03-PLAN.md - Wave 1 - the three swarm-command retrofits: run_in_background removal, the reviewed allowed-tools Task grant, and the reversed resolveModel fix
+- [x] 265-04-PLAN.md - Wave 1 - explicit dispatch shapes for trending-to-absurd and explore-opportunity, plus the navigator decision on parallelizing the explore legs
 - [ ] 265-05-PLAN.md - Wave 2 - /mos:radar --fetch writes the ledger under an injection fence, and both radar reference docs corrected
 - [ ] 265-06-PLAN.md - Wave 2 - retire SEED-003 and Phase 138 by marking, close drift finding W007-138, and write the decision record
 - [ ] 265-07-PLAN.md - Wave 3 - regenerate skill and dist mirrors, file the two-home dev-research trail, and run the phase gate
@@ -473,10 +473,10 @@ shipping schedule, so 265-08 (the instructions 2KB overflow) duplicated MCPFIX-0
 265-09 and 265-17 were rescoped down to what Phase 266 does not cover. The numbering gap at 265-08
 is deliberate.
 
-- [ ] 265-09-PLAN.md - Wave 1 - Brain tool descriptions naming retired backends, plus the wire-level description hygiene tripwire Phase 266's shape checks do not cover
-- [ ] 265-10-PLAN.md - Wave 1 - file-meeting: ask the meeting date before extraction, probe transcript size, and actually render the declared F.8 gate
-- [ ] 265-11-PLAN.md - Wave 1 - lens-engine: put weighted-by-context on the existing Promise.all branch so /mos:research stops fetching lenses one at a time
-- [ ] 265-17-PLAN.md - Wave 1 - retire the frozen MCP tool counts and the breached token-budget claim in the server header and three docs
+- [x] 265-09-PLAN.md - Wave 1 - Brain tool descriptions naming retired backends, plus the wire-level description hygiene tripwire Phase 266's shape checks do not cover
+- [x] 265-10-PLAN.md - Wave 1 - file-meeting: ask the meeting date before extraction, probe transcript size, and actually render the declared F.8 gate
+- [x] 265-11-PLAN.md - Wave 1 - lens-engine: put weighted-by-context on the existing Promise.all branch so /mos:research stops fetching lenses one at a time
+- [x] 265-17-PLAN.md - Wave 1 - retire the frozen MCP tool counts and the breached token-budget claim in the server header and three docs
 - [ ] 265-12-PLAN.md - Wave 2 - the reviewed subagent-dispatch grant registry, covering both Task and Agent tokens (closes the invisible deep-grade grant)
 - [ ] 265-13-PLAN.md - Wave 2 - declaration truth: 19 unfilled [methodology] placeholders, the futures web_scope correction, and four live requires_evidence consumers
 - [ ] 265-14-PLAN.md - Wave 4 - mos-reason: one subagent per room section behind the migration-backup guard, with a cross-section coherence check
