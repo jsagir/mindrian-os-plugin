@@ -80,7 +80,7 @@ contract with every agent that touches it.
 ## Filing Intelligence
 
 When methodology produces an artifact:
-1. Suggest correct room from methodology's default (see `references/methodology/index.md`)
+1. Suggest correct room from methodology's default (see `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/index.md`)
 2. Confirm before filing -- NEVER file silently
 3. Uncertain classification: analyze content and suggest best section
 4. Cross-room relevance: file to primary, mention secondary

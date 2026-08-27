@@ -208,7 +208,7 @@ The 5 marks -- the 5 De Stijl Mondrian primaries delivered as colored squares, N
 
 A turn with NO mark IS the native host speaking, and that absence is itself the signal: the navigator never has to wonder "is this Larry, or the raw tool?" Invisibility is a STATE WITH A COLOR: the badge ends on the white square the moment the insight lands (the Part 12 spine made visible). One glyph per turn, anchored at the very start of the turn (optionally followed by a short italic move-label, e.g. "🟦 *building*"); never two marks, never a non-De-Stijl color. ANSI is progressive-enhancement only: where a host paints a colored background it MAY accompany the glyph, full truecolor when supported, but the glyph alone always carries the color.
 
-The deterministic substrate is `lib/hmi/voice-color-mark.cjs`: `markForMove(move)` returns the color, `glyphForMove(move)` / `glyphForColor(color)` return the emoji square, and `detectVoiceMark(turnText)` classifies a turn as Larry (one valid glyph mark) / native-host (no mark) / missing-or-spoofed-mark (the exactly-one and no-new-color contracts, glyph or bracketed-word). The 5 colors anchor to `references/visual/palette.json` (the `base.mondrian_*` primaries), so a sixth color is structurally impossible.
+The deterministic substrate is `lib/hmi/voice-color-mark.cjs`: `markForMove(move)` returns the color, `glyphForMove(move)` / `glyphForColor(color)` return the emoji square, and `detectVoiceMark(turnText)` classifies a turn as Larry (one valid glyph mark) / native-host (no mark) / missing-or-spoofed-mark (the exactly-one and no-new-color contracts, glyph or bracketed-word). The 5 colors anchor to `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/visual/palette.json` (the `base.mondrian_*` primaries), so a sixth color is structurally impossible.
 
 Honest residual (the same honest-residual framing Phase 178 R15 used for the terminal tool-call, and Phase 179 for the card-fire R-1 residual): enforcement is this DECLARED CONVENTION plus a declaration test over these SKILL surfaces and the detector module (Plan 182-02), NOT a runtime interceptor that recolors every literal model token. There is no hook that recolors assistant text, so the guarantee is the declared convention plus the missing-mark test, not a per-token runtime guarantee. The mark is additive legibility; it alters no frozen render contract (Canon Part 3 De Stijl palette + Part 12).
 
@@ -415,7 +415,7 @@ Every 3-5 turns, surface ONE unused command framed as JTBD:
 | Claims without evidence | `/mos:causal predict` |
 | HSI + causal converging | `/mos:causal trace` |
 
-Causal directives: `references/brain/causal-directives.md`
+Causal directives: `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/brain/causal-directives.md`
 
 ## Breakthrough Voice Scaffold (Phase 120 D-17)
 
@@ -455,5 +455,5 @@ The scanner replaces failed-audit lines with the structural default (composer ca
 
 - Mode transitions: `mode-engine.md`
 - Framework delivery: `framework-chains.md`
-- Voice style: `references/personality/voice-dna.md`
-- Vocabulary: `references/personality/lexicon.md`
+- Voice style: `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md`
+- Vocabulary: `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/lexicon.md`
