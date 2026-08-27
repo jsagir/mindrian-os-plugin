@@ -50,14 +50,22 @@ if (!hasRenderApi) {
   };
 
   // Rung (a): elicitation. Lossy on the wire -- assert the requestedSchema
-  // carries enum (ids) + enumNames (titles) only, no per-option description.
+  // carries the SDK-current titled oneOf shape (per-option const + title
+  // only, via TitledSingleSelectEnumSchemaSchema), no per-option description.
+  // Phase 265-02 (RADAR-06) retired the legacy enum/enumNames shape this
+  // check used to assert; see tests/test-265-gate-render-elicit-schema.cjs
+  // for the dedicated tripwire on the new shape.
   const elicitResult = await gateRender.renderGate(CARD, {
     capabilities: { elicitation: true },
     elicitInput: async (params) => {
       assert.ok(params && params.requestedSchema, 'elicitInput receives a requestedSchema');
       const schema = params.requestedSchema.properties.choice;
-      assert.deepStrictEqual(schema.enum, ['opt-a', 'opt-b'], 'requestedSchema enum carries option ids');
-      assert.deepStrictEqual(schema.enumNames, ['Option A', 'Option B'], 'requestedSchema enumNames carries titles only');
+      assert.deepStrictEqual(schema.oneOf, [
+        { const: 'opt-a', title: 'Option A' },
+        { const: 'opt-b', title: 'Option B' },
+      ], 'requestedSchema oneOf carries per-option const + title (SDK-current titled shape)');
+      assert.strictEqual(schema.enum, undefined, 'requestedSchema no longer carries the legacy enum key');
+      assert.strictEqual(schema.enumNames, undefined, 'requestedSchema no longer carries the legacy enumNames key');
       assert.strictEqual(schema.description, undefined, 'requestedSchema carries NO per-option description (lossy rung, Pitfall 4)');
       return { action: 'accept', content: { choice: 'opt-b' } };
     },
