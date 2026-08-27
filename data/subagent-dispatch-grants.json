@@ -48,6 +48,28 @@
       "evidence": "commands/deep-grade.md frontmatter (Agent already present, Phase 265 finding, not newly added); the token differs from the other three commands here, which all declare Task, and the 265-03 Task-only tripwire (tests/test-265-swarm-task-grant.cjs, grep on the literal Task) could not see this grant; 265-RESEARCH-generative-redesign.md 'house pattern any redesign must mirror' section (resolveFanoutCap / FUTURES_FANOUT_CAP default 5, grade-grant's two-batch idiom)"
     },
     {
+      "command": "commands/opportunities.md",
+      "token": "Agent",
+      "status": "granted",
+      "dispatch_shape": "undocumented: the command frontmatter declares the Agent dispatch token, but no prose in the command body names a subagent dispatch instruction, a subagent_type, or a fan-out shape anywhere in the file",
+      "fan_bound": "not established; no fan-out instruction exists to bound",
+      "reason": "opportunities.md already declared Agent before Phase 265 began, exactly like deep-grade, but unlike deep-grade there is no corresponding dispatch prose anywhere in the file to explain why. Found while rewriting the Task 2 tripwire (arm 1 flagged it as an undeclared row), not by the Task 1 read_first, which stated only deep-grade carried Agent -- that inventory was incomplete. Recorded here as a reviewed-but-vestigial grant rather than silently widened or silently dropped; a follow-on plan should either wire a real dispatch instruction and update this row, or remove the unused Agent token from the command file.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "commands/opportunities.md frontmatter line 16 (Agent already present, Phase 265 finding, not newly added, and NOT part of the Task 1 nine-row inventory); grep for agent/spawn/dispatch/fan-out prose in the command body returns zero hits beyond the frontmatter token itself"
+    },
+    {
+      "command": "commands/research.md",
+      "token": "Agent",
+      "status": "granted",
+      "dispatch_shape": "one subagent per research subquestion, fanning out independently and verified back as an any-order basket (the existing deep_research fan-out, per the command's own hitl_why)",
+      "fan_bound": "not established in the command body beyond the existing deep_research fan-out; no explicit numeric or resolver cap named",
+      "reason": "research.md already declared Agent before Phase 265 began, exactly like deep-grade. Its hitl_why states subquestions fan out independently and are verified as an any-order basket, and the URL-mode section names the existing deep_research fan-out as byte-unchanged, so a real dispatch shape exists here, unlike opportunities.md. Found while rewriting the Task 2 tripwire (arm 1 flagged it), not by the Task 1 read_first, which stated only deep-grade carried Agent -- that inventory was incomplete.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "commands/research.md frontmatter line 24 (Agent already present, Phase 265 finding, not newly added, and NOT part of the Task 1 nine-row inventory); commands/research.md hitl_why ('Research subquestions fan out independently and are verified as an any-order basket') and its URL-mode section ('keeps the existing deep_research fan-out below byte-unchanged')"
+    },
+    {
       "command": "commands/mos-reason.md",
       "token": "Task",
       "status": "pending",
