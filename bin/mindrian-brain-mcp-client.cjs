@@ -35,11 +35,14 @@ const path = require('path');
 // the SDK/zod requires below; requireWithHeal is the per-require backstop.
 const { ensureDepsPresent, requireWithHeal } = require('../lib/core/mcp-dep-heal.cjs');
 const healLog = (msg) => { try { process.stderr.write(msg + '\n'); } catch (e) { /* swallow */ } };
-ensureDepsPresent({ log: healLog });
+// Phase 266 Plan 03 (MCPFIX-03): this process is answering a host that is
+// already counting down a ~30-second connect timeout, so the heal is bounded
+// to CONNECT_PATH_BUDGET_MS instead of the full hook-path budget.
+ensureDepsPresent({ log: healLog, connectPath: true });
 
-const { McpServer } = requireWithHeal('@modelcontextprotocol/sdk/server/mcp.js', { log: healLog });
-const { StdioServerTransport } = requireWithHeal('@modelcontextprotocol/sdk/server/stdio.js', { log: healLog });
-const { z } = requireWithHeal('zod', { log: healLog });
+const { McpServer } = requireWithHeal('@modelcontextprotocol/sdk/server/mcp.js', { log: healLog, connectPath: true });
+const { StdioServerTransport } = requireWithHeal('@modelcontextprotocol/sdk/server/stdio.js', { log: healLog, connectPath: true });
+const { z } = requireWithHeal('zod', { log: healLog, connectPath: true });
 
 const brainClient = require('../lib/core/brain-client.cjs');
 const { wrapDirective } = require('../lib/core/directive-envelope.cjs');
