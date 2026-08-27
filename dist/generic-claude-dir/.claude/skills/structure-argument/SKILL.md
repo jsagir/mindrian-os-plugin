@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.9"
 hitl_why: "The Minto pyramid is built top-down in a fixed order, an ordered walk where each level needs the last."
 serves_jtbd: ["validate-idea", "explore"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the top-down Minto pyramid structure previews before
+# the navigator invests in filling each level).
+interactive_first_reward: schema_preview
 teaching: "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE. The right structure usually surfaces the missing premise."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -71,4 +75,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"Your structure connects to [methodology]. Want to explore that next?"
+"Your structure connects to /mos:challenge-assumptions. Want to explore that next?"

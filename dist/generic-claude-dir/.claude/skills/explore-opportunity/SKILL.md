@@ -7,6 +7,13 @@ argument-hint: "[opportunity]"
 body_shape: E (Action Report)
 hitl_shape: "F.1"
 hitl_why: "Exploration spends navigator-controlled research cost and crosses material gates; explicit per-opportunity trigger only - never auto-fired on qualify."
+# Phase 265-04 reward-before-investment declaration (blocking-gate auto-fix, not
+# the dedicated ~85-command backfill phase named in docs/reward-before-investment-rule.md).
+# Grounded in the shipped chain below: the four analysis legs (web evidence, timing,
+# analogs, demand validation) run and their findings are visible at the material filing
+# gate as a structural preview of the Minto-shaped explored artifact, before the
+# navigator invests in the approve verb that actually files it.
+interactive_first_reward: schema_preview
 serves_jtbd: ["explore"]
 teaching: "A qualified opportunity is still conceptual: a connection without a defined problem. /mos:explore-opportunity runs the analysis chain (deep research, diffusion timing, analogies, web validation) and files a Minto-shaped explored artifact - a governing thought backed by cited sources and typed graph evidence. Opportunities must be researched and explored to become well-defined problems; this is that step, and its cost stays in your hands."
 allowed-tools: Read Bash WebSearch WebFetch AskUserQuestion
@@ -62,6 +69,49 @@ The four analysis legs, in order:
 | diffusion_timing | Adoption-Capacity Theory | is the window open? (current Track-1-unrewired form, D-07) |
 | analogies | Four Lenses of Innovation | analog domains that solved this shape of problem |
 | web_validation | Jobs to Be Done (JTBD) | demand validation against the customer segment |
+
+### How the four legs dispatch, and what bounds the cost
+
+The four legs are analytically INDEPENDENT: each is a separate framing of the same fixed
+opportunity node (web evidence, timing, analogs, demand validation). No leg consumes another
+leg's output for its own analysis -- the `prev` parameter threaded through `onStep` carries
+provenance plus the offline-degrade and engine_mode stamping, not analytical input. Because of
+that independence, three of the four legs now run **in parallel**: `diffusion_timing`,
+`analogies` and `web_validation` fire concurrently, because there was never a data dependency
+between them to begin with (`lib/core/eureka/explore-chain.cjs::runAnalysisLegsParallel`,
+Phase 265-18). `deep_research` still runs FIRST, alone, as a probe.
+
+**The cost guard -- read this before assuming parallel means "spend everything".** The
+sequential chain's `quality_early_stop` (`lib/core/chain-executor.cjs::runChain`) used to end
+the run the moment a step returned LOW quality, which meant a cold `deep_research` leg
+returning `insufficient_evidence` never spent the other three legs, honoring this command's own
+`hitl_why` commitment that "Exploration spends navigator-controlled research cost." Parallel
+dispatch has no "early" left to stop at once three legs are already firing together -- so the
+guard did NOT get dropped, it moved one step earlier: `resolveExploreCostPolicy` decides the
+mode and `probeClears` evaluates the `deep_research` probe leg with the EXACT SAME quality test
+`quality_early_stop` applied, and the remaining three legs are dispatched only when the probe
+clears. Plainly: a cold corpus still costs one leg, not four.
+
+**The override.** `EXPLORE_COST_MODE` picks the mode: `cost-conscious` (the default) runs the
+probe-first guard above; `all-legs` skips the probe and fans all four legs concurrently
+unconditionally. An unrecognized value falls back to `cost-conscious` -- a typo can never select
+the more expensive path. `EXPLORE_PARALLEL=0` is the operator escape hatch: it forces the
+original sequential `runChain` path regardless of cost mode.
+
+**The fallback, never silent.** If the parallel pre-pass throws, if the engine is absent (the
+D-20 OFFER below), or if `EXPLORE_PARALLEL=0`, the run falls back to the existing sequential
+`runChain` path and reports exactly which path ran and why in the `dispatch` key of
+`exploreOpportunity`'s return (`{mode: 'sequential'|'parallel', reason, ...}`).
+
+**What did not change.** The material filing step still runs through `runChain` with its
+unchanged `gateFn`, so filing still halts for your approve verb and nothing files without it.
+`lib/core/chain-executor.cjs` has zero diff, and the Phase 264 zero-diff gate in
+`tests/run-all-264.sh` (base SHA `c7c33eea449f6f227c4cfbb86f220acaac9b5ab8`) still passes.
+
+The navigator settled parallelizing these legs as `build-now-in-265` (265-04 Task 3); the build
+landed in Phase 265 plan 265-18. This is an in-process `Promise.all` fan-out inside
+`lib/core/eureka/explore-chain.cjs`, not a subagent dispatch, so this command needs no `Task` /
+`Agent` grant in its `allowed-tools` for it.
 
 Then the MATERIAL filing step halts at the gate. On your approve verb:
 

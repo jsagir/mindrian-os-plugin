@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.5"
 hitl_why: "The 2x2 produces four parallel scenario branches the navigator resolves among."
 serves_jtbd: ["compare-options", "plan-execution"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming the two key uncertainties previews the 2x2
+# scenario matrix structure before the navigator invests in the full narrative).
+interactive_first_reward: schema_preview
 teaching: "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -69,4 +73,4 @@ Ask: "File this to market-analysis?" before writing.
 
 Then bank the harvest: the prioritized robust problems are the deliverable, not the matrix. Offer to ADD the top opportunities to the Opportunity Bank (with an HSI score and domain tags) so scenario work converts undefined futures into banked, prioritized opportunities.
 
-If the conversation reveals a connection to another methodology, suggest it. The canonical chains: scenario work feeds the Futures Wheel for second-order cascades, and the cross-scenario robust problems feed the Opportunity Bank. "This scenario work connects to [methodology]. Want to explore that next?"
+If the conversation reveals a connection to another methodology, suggest it. The canonical chains: scenario work feeds the Futures Wheel for second-order cascades, and the cross-scenario robust problems feed the Opportunity Bank. "This scenario work connects to /mos:research. Want to explore that next?"

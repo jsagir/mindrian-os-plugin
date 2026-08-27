@@ -16,7 +16,13 @@ frameworks: ["PWS Triple Validation Compass"]
 produces: "room/**/grades/*"
 inputs: ["at least one room section populated"]
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
+# Phase 265 ledger T-265-08 / navigator decision (Open Question 4, SETTLED
+# "Add Task"). Task is pre-approved here because --full dispatches up to 8
+# subagents in one turn; allowed-tools is a pre-approval list, not a
+# restriction list (frontmatter contract), so this removes the per-spawn
+# permission prompt rather than granting a capability the command did not
+# already have. Scoped to the invoking turn; clears on the next message.
+allowed-tools: Read Write Bash Glob AskUserQuestion Task
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true
@@ -105,16 +111,29 @@ Unlike standard grading (single agent evaluates all sections sequentially), `--f
 2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
    ```
    const { resolveModel } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/model-profiles.cjs');
-   const model = resolveModel('grading', roomPath);
+   const model = resolveModel(roomPath, 'grading');
    ```
-   Grading agents are quality-sensitive -- venture stage hints may push these to a higher-tier model than other agent types.
+   The signature is `resolveModel(roomDir, agentType)`. Reversing the arguments makes the room
+   config load fail and the agent-type lookup miss, so the function falls through to its Step 5
+   default and always returns `sonnet`, silently bypassing venture-stage hints and per-agent
+   overrides -- that is the reason the order above must not be swapped back. Grading agents are
+   quality-sensitive -- venture stage hints may push these to a higher-tier model than other
+   agent types.
 
-3. **Dispatch agents in parallel** using the Agent tool with `run_in_background: true`:
+3. **Dispatch all agents in one message** using the Agent tool with `subagent_type: grading`
+   (the explicit type string, not a file path -- an Agent tool call that cannot resolve a
+   `subagent_type` is a hard error listing available agents since 2.1.235). Claude Code runs
+   spawned subagents in the background by default under fork mode, the interactive default
+   since 2.1.232 -- do NOT pass any manual background-execution parameter to the Agent tool
+   call; the platform removes that kind of parameter from the Agent tool entirely once fork
+   mode is on (code.claude.com/docs/en/sub-agents). The platform caps concurrent subagents at
+   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); at most 8 is already well under the cap, but
+   clamp to 20 as the standing rule so a future author does not reintroduce an unbounded fan-out.
 
    Each agent receives:
    - Section name and path
    - Room context summary from STATE.md
-   - Instructions from `agents/grading.md` (scoped to ONE section)
+   - Instructions from `agents/grading.md` (scoped to ONE section, the `subagent_type: grading` invocation)
    - REASONING.md path for that section (if it exists)
 
    ```
@@ -230,4 +249,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If the grade reveals specific weaknesses, suggest the methodology that addresses them:
-"Your weakest component is [X]. Want to run /mos:[methodology] to strengthen it?"
+"Your weakest component is [X]. Want to stress-test it with /mos:challenge-assumptions?"

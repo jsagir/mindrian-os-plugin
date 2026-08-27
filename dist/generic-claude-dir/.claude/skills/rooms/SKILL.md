@@ -9,6 +9,7 @@ hitl_shape: "F.1"
 hitl_why: "Room switch or archive offers a single next move to pick one room."
 serves_jtbd: ["audit-room"]
 teaching: "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry. One person, many ventures."
+interactive_first_reward: --none (scripting only)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
@@ -40,9 +41,17 @@ You are Larry. This command manages multiple project rooms using **Body Shape B 
 
 ## Routing
 
-Parse user input to determine which subcommand to execute. If no subcommand is given, default to `list`.
+Parse user input to determine which subcommand to execute. If NO subcommand is given at all (bare `/mos:rooms`), default to `list`.
 
-Subcommands: `list`, `new`, `open`, `close`, `archive`, `where`, `git-setup`, `git-status`
+If a subcommand IS given but does not match one of the names below, do NOT silently fall through to `list` -- that masks a real gap as a soft no-op (see the `organize` incident, `.planning/debug/resolved/organize-soft-alias-redirects-to-nonexistent-target.md`). Show the standard 3-line error format instead:
+
+```
+x Unknown subcommand: <name>
+  Why: /mos:rooms does not define a "<name>" subcommand
+  Fix: /mos:rooms list
+```
+
+Subcommands: `list`, `new`, `open`, `close`, `archive`, `where`, `git-setup`, `git-status`, `organize`
 
 **Natural language mapping (Desktop/Cowork):**
 - "which room am I in?" / "where am I?" -> `where`
@@ -53,6 +62,7 @@ Subcommands: `list`, `new`, `open`, `close`, `archive`, `where`, `git-setup`, `g
 - "archive the old project" -> `archive`
 - "set up git for this room" / "add git" -> `git-setup`
 - "git status" / "is git configured?" -> `git-status`
+- "organize my rooms" / "reorganize portfolio" -> `organize`
 
 ---
 
@@ -616,6 +626,36 @@ If git enabled:
   [triangle-right] /mos:rooms git-setup <name> --auto-push auto   Change auto-push
   [hollow-triangle] /mos:rooms list                                See all rooms
 ```
+
+---
+
+## Subcommand: organize
+
+**Trigger:** `/mos:rooms organize [tree|propose|view|move <room> <group>]`
+
+This is the redirect target `/mos:organize` (D-09, Phase 121.5-08 Sub-plan J) points to. The
+room-portfolio tree/propose/view/move flow described by `commands/organize.md` was never
+actually built on this surface -- do NOT invent it, and do NOT fall through to `list`'s
+behavior, which silently masked this gap in the past.
+
+### Step 1: Report Not Yet Implemented
+
+Render honestly using the 3-line error pattern (Body Shape B):
+
+```
+-- MindrianOS -- Rooms -- organize -------------------------------------
+
+  x organize is not yet implemented
+  Why: no tree/propose/view/move room-portfolio flow exists on this surface yet
+  Fix: use /mos:rooms list to see your rooms, or /mos:rooms open <name> to switch
+
+  Tracked: organize-soft-alias-redirects-to-nonexistent-target
+
+  [triangle-right] /mos:rooms list      See all rooms
+  [hollow-triangle] /mos:rooms where    Quick sanity check
+```
+
+Then STOP. Never claim a tree, proposal, or move happened -- nothing executed.
 
 ---
 

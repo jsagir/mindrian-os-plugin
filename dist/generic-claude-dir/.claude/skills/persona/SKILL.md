@@ -44,7 +44,13 @@ lens_set: six-hats
 rotation_mode: parallel
 synthesizer: tension-map
 persistence: memory_event
-allowed-tools: Read Write Bash Glob
+# Phase 265 ledger T-265-08 / navigator decision (Open Question 4, SETTLED
+# "Add Task"). Task is pre-approved here because --parallel dispatches up to
+# 6 subagents in one turn; allowed-tools is a pre-approval list, not a
+# restriction list (frontmatter contract), so this removes the per-spawn
+# permission prompt rather than granting a capability the command did not
+# already have. Scoped to the invoking turn; clears on the next message.
+allowed-tools: Read Write Bash Glob Task
 ---
 
 # Persona -- AI Perspective Lenses
@@ -126,17 +132,30 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
 2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
    ```
    const { resolveModel } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/model-profiles.cjs');
-   const model = resolveModel('persona-analyst', roomPath);
+   const model = resolveModel(roomPath, 'persona-analyst');
    ```
-   All 6 agents share the same model resolution since they perform equivalent work. The venture stage determines whether persona analysis runs on a budget or quality tier.
+   The signature is `resolveModel(roomDir, agentType)`. Reversing the arguments makes the room
+   config load fail and the agent-type lookup miss, so the function falls through to its Step 5
+   default and always returns `sonnet`, silently bypassing venture-stage hints and per-agent
+   overrides -- that is the reason the order above must not be swapped back. All 6 agents share
+   the same model resolution since they perform equivalent work. The venture stage determines
+   whether persona analysis runs on a budget or quality tier.
 
-3. **Dispatch 6 agents in parallel** using the Agent tool with `run_in_background: true`:
+3. **Dispatch all 6 agents in one message** using the Agent tool with `subagent_type: persona-analyst`
+   (the explicit type string, not a file path -- an Agent tool call that cannot resolve a
+   `subagent_type` is a hard error listing available agents since 2.1.235). Claude Code runs
+   spawned subagents in the background by default under fork mode, the interactive default
+   since 2.1.232 -- do NOT pass any manual background-execution parameter to the Agent tool
+   call; the platform removes that kind of parameter from the Agent tool entirely once fork
+   mode is on (code.claude.com/docs/en/sub-agents). The platform caps concurrent subagents at
+   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); 6 is already well under the cap, but clamp to 20
+   as the standing rule so a future author does not reintroduce an unbounded fan-out here.
 
    Each agent receives:
    - Hat color and persona file path
    - Room path and room context summary from STATE.md
    - Artifact path (if provided) for focused analysis
-   - Instructions from `agents/persona-analyst.md`
+   - Instructions from `agents/persona-analyst.md` (the `subagent_type: persona-analyst` invocation)
 
    ```
    [PARALLEL] Dispatching 6 persona-analyst agents
@@ -209,6 +228,14 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
    ```
 
 **Why parallel instead of sequential?** Sequential analysis (via `analyze`) lets each hat build on the previous one. Parallel analysis gives INDEPENDENT perspectives -- later hats are not biased by earlier ones. This produces more genuine disagreements and stronger convergence signals. Use `analyze` for deep facilitated thinking; use `--parallel` for unbiased multi-perspective stress-testing.
+
+### The template preview, and what it is not
+
+The OTHER persona surface is `lib/core/persona-ops.cjs` `generatePersonas`, reached through the `room_content` MCP tool's `generate-personas` action. It is a deterministic template fill over regex-extracted room-section summaries -- there is no reasoning step anywhere in that path. Use it only for a fast structural preview of what the six hats would cover, nothing more.
+
+As of Phase 265-16, `generate-personas` ROUTES here by default instead of silently writing template files; it only produces the preview on explicit opt-in (`{"mode": "preview"}`), and every preview file it writes stamps `PREVIEW_NOTICE` on its face, in both frontmatter and body, so it is never mistaken for this command's analysis.
+
+The MCP tool cannot simply run this pipeline itself: an MCP tool handler runs server-side and cannot invoke the Agent tool, which is a client-side capability reached only through command prose like this file. That is why the fix is a route, not a rewrite of the handler.
 
 ## Persona Override (Identity-Only)
 

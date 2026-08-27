@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.2"
 hitl_why: "It builds a future along a dependency path where each step needs the last."
 serves_jtbd: ["find-problem", "connect-domains"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming the seed concept previews the ring-1 structure
+# before the navigator invests in the full multi-ring wheel).
+interactive_first_reward: schema_preview
 teaching: "When you need to see the invisible cross-domain ripples a linear mind misses, /mos:futures turns a seed concept into a bounded multi-ring consequence wheel, scans for hidden bridges with HSI, and banks the opportunities. Best when 'and then what?' matters more than a tidy diagram."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -27,7 +31,15 @@ connector:
   hierarchy_rank: 45
   filing: fileEvidenceWithReadback
   plan_gated: false
-  web_scope: null
+  # Phase 265-13 correction: /mos:futures reaches the web at two declared FW-13
+  # fire points, seedGrounding and perRingResearch in
+  # lib/core/futures/orchestrator.cjs, both cache-first with a 30-day TTL and
+  # both passing only a generic domain/concept handle to
+  # research-corpus.fetchCorpus -- a consequence body never crosses (Part 8).
+  # Honors docs/CONNECTOR-CONTRACT.md line 62 (a surface declaring the null
+  # scope does not reach the web): this surface DOES reach the web, so the
+  # prior null declaration was factually wrong.
+  web_scope: green
   surface: F.1
 ---
 

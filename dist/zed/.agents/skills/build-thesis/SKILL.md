@@ -7,12 +7,28 @@ body_shape: "methodology"
 hitl_shape: "F.9"
 hitl_why: "The Ten Questions are answered in a fixed order that builds the thesis, an ordered walk."
 serves_jtbd: ["decide-pursue", "prepare-pitch"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the Ten Questions Rapid Assessment previews the full
+# gate structure before the navigator invests in the Deep Dive).
+interactive_first_reward: schema_preview
 teaching: "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate. The output is a defensible go / no-go with reasons."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["PWS Value Proposition"]
 produces: "room/**/thesis/*"
 inputs: []
+# Phase 265-13: lets the navigation engine OFFER /mos:research at an F.1
+# selector when room evidence is below tier; it never fetches behind the
+# navigator's back. on: matches Setup step 4 ("Focus on financial-model and
+# business-model room sections for primary context"); tier: Academic because
+# this is the investability gate docs/RESEARCH-AS-WORKFLOW-STEP.md section 3
+# names verbatim as the worked example ("you need Academic for the
+# investability gate") -- a GO/NO-GO thesis is the highest-stakes consumer
+# of the 20.
+requires_evidence:
+  tier: Academic
+  on: [financial-model, business-model]
+  dispatch: /mos:research
 autonomous_safe: true
 allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
@@ -59,7 +75,7 @@ You are Larry. This command runs a full Investment Thesis analysis on the user's
 This is a two-phase structured assessment. Do NOT skip Phase 1.
 
 1. **Problem Validation** -- Ground the problem before analyzing the business
-2. **Ten Questions Rapid Assessment** -- Binary gate (6/10 to proceed)
+2. **Ten Questions Rapid Assessment** -- Binary gate (6/10 to proceed). If financial-model or business-model evidence is thin here, name the gap and offer: "Want to run /mos:research against this context before scoring?"
 3. **Deep Dive** (if gate passed) -- 6 categories with adversarial challenges
 4. **GO / NO-GO / CONDITIONAL Verdict** -- Clear recommendation with reasoning
 
@@ -71,4 +87,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to financial-model?" before writing.
 
 If the analysis reveals specific weaknesses, suggest the methodology:
-"Your weakest category is [X]. Want to run /mos:[methodology] to address it?"
+"Your weakest category is [X]. Want to stress-test it with /mos:challenge-assumptions?"

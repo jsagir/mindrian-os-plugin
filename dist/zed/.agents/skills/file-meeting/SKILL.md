@@ -40,16 +40,16 @@ You are Larry. This command turns meeting conversations into Data Room intellige
 
 Load all reference files and context before starting:
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
-2. Read `references/meeting/transcript-patterns.md` for speaker ID regex patterns
-3. Read `references/meeting/segment-classification.md` for the 6-type segment taxonomy (the SELECTION pass)
-4. Read `references/meeting/knowledge-typing.md` for the 6-enum knowledge taxonomy + conditions/counter_conditions + temporal validity (the TYPING pass)
-6. Read `references/meeting/section-mapping.md` for the 12-role x 6-type x 8-section routing matrix
-7. Read `references/meeting/artifact-template.md` for wicked-problem-aware YAML frontmatter
-8. Read `references/meeting/summary-template.md` for narrative + structured dual storage format
-9. Read `references/meeting/speaker-profile-template.md` for ICM nested folder profiles
-10. Read `references/meeting/cross-relationship-patterns.md` (if file exists -- skip gracefully if not)
-11. Read `references/meeting/cross-meeting-intelligence.md` for cross-meeting convergence/contradiction detection and action item triage protocols
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice
+2. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/transcript-patterns.md` for speaker ID regex patterns
+3. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/segment-classification.md` for the 6-type segment taxonomy (the SELECTION pass)
+4. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/knowledge-typing.md` for the 6-enum knowledge taxonomy + conditions/counter_conditions + temporal validity (the TYPING pass)
+6. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/section-mapping.md` for the 12-role x 6-type x 8-section routing matrix
+7. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/artifact-template.md` for wicked-problem-aware YAML frontmatter
+8. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/summary-template.md` for narrative + structured dual storage format
+9. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/speaker-profile-template.md` for ICM nested folder profiles
+10. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/cross-relationship-patterns.md` (if file exists -- skip gracefully if not)
+11. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/cross-meeting-intelligence.md` for cross-meeting convergence/contradiction detection and action item triage protocols
 12. Read `room/STATE.md` for venture context (if exists)
 13. Scan `room/team/` for known speaker profiles: glob `room/team/*/*/PROFILE.md`
 
@@ -99,7 +99,7 @@ Ask the user to paste their transcript text:
 
 > "Paste your meeting transcript below. I'll handle any format -- Zoom, Teams, Otter, Google Meet, or raw text."
 
-Accept multi-line paste. After receiving text, detect the transcript format using the regex patterns from `references/meeting/transcript-patterns.md`. Report the detected format:
+Accept multi-line paste. After receiving text, detect the transcript format using the regex patterns from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/transcript-patterns.md`. Report the detected format:
 
 > "Got it. Looks like a {format} transcript."
 
@@ -204,7 +204,7 @@ Then fall back to paste mode.
 Print:
 > "Not yet available. Coming in a future update. Use `--latest`, paste, `--file`, or `--audio` for now."
 
-This flag is designed in `references/meeting/live-join-interface.md` but not implemented until v3.0.
+This flag is designed in `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/live-join-interface.md` but not implemented until v3.0.
 
 ### Infer Meeting Metadata
 
@@ -219,13 +219,38 @@ Present inferences for confirmation:
 
 If the user corrects any inference, use their version. Store confirmed metadata for artifact provenance.
 
+### Step 1c. Meeting date and time
+
+Before moving to speaker identification, ask the navigator ONE question: when did this
+meeting happen? Accept an absolute date, a relative phrase ("last Tuesday", "yesterday
+morning"), or a time of day alongside either. State plainly that the phrase is resolved by
+chrono-node against `getReferenceNow()` -- the SAME resolver Step 4's `requireValidAt` gate
+uses -- so the two never disagree.
+
+**When the ingest path already carries a trustworthy timestamp** (the `--latest` provider
+tables above and the `--audio` file mtime both do): do NOT ask blind. State the date you
+found and ask the navigator to confirm or correct it. One question either way.
+
+Carry the confirmed or corrected answer forward as `whenAnswer` and pass it into Step 4's
+`requireValidAt` call (`{whenAnswer: process.env.WHEN_ANSWER||undefined}`) so the gate
+resolves and returns `GATE_PASS` on the first attempt instead of blocking.
+
+**Why the ask moved here:** an undated meeting BLOCKS at Step 4's date-sync gate, and
+blocking after the navigator has watched the whole extraction assemble is a worse experience
+than answering one question at ingest.
+
+**This does not replace the Step 4 gate.** `requireValidAt` remains the ONE enforcement
+chokepoint (D-02); this section only PRE-POPULATES `whenAnswer` so that gate resolves
+cleanly the first time. If no answer was captured here for any reason, Step 4 still blocks
+and asks -- the enforcement point is unchanged.
+
 ---
 
 ## Step 2: Speaker Identification + Profile Creation
 
 ### Parse Speaker Labels
 
-Use the regex patterns from `references/meeting/transcript-patterns.md` to extract speaker labels from the transcript.
+Use the regex patterns from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/transcript-patterns.md` to extract speaker labels from the transcript.
 
 **If speaker labels are found:** Extract all unique speakers and proceed to matching.
 
@@ -279,6 +304,35 @@ Do not surface routine or weak emotions. Only notable emotional signals that pro
 
 ---
 
+### Transcript size probe
+
+Before Step 3 begins, count words and speaker turns in the transcript. State both numbers to
+the navigator in one line, for example: "3,400 words, 62 turns -- extracting now."
+
+**Under 12,000 words:** proceed. Say nothing beyond the one line above.
+
+**At or above 12,000 words:** surface an honest offer, in Larry's voice, that this is a long
+one, and ask whether to work through it in sections. For example: "This is a long one --
+{N} words. Want me to work through it in sections, or run it straight through?"
+
+**Why 12,000 words.** A 1-hour meeting runs about 9,000 words (~13k tokens at typical
+conversational density); the largest transcript in this repo is 19,208 words (~26k tokens).
+12,000 sits between the two so the offer fires on genuinely long material and not on a
+normal meeting -- this is not a magic constant, it is reasoned from the two measured data
+points above.
+
+**What the offer does and does not do today.** This is a conversational offer, not a
+fan-out: today, working "in sections" means Larry paces the four Claimify passes across the
+conversation, nothing more. The parallel perspective-subagent extraction that actually
+splits the work across concurrent workers is plan 265-19, and it reuses this SAME probe as
+its trigger -- do not build a second probe for it.
+
+**The failure this prevents.** Per the research, a long transcript degrades with no signal
+today: the symptom reads as "Larry missed some claims," not "the pass was over budget." This
+probe turns a silent quality loss into a visible, reasoned choice.
+
+---
+
 ## Step 3: Claimify Extraction (4-Pass Pipeline)
 
 This step is the Claimify 4-pass extraction. It replaces a single flat
@@ -295,9 +349,9 @@ RESEARCH anti-pattern. The passes run per non-greeting, non-trivial segment.
 ### Pass 1: Selection
 
 Classify each segment using the 6-type SEGMENT taxonomy from
-`references/meeting/segment-classification.md` (decision, action-item, insight,
+`${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/segment-classification.md` (decision, action-item, insight,
 advice, question, noise) and the role-aware heuristics from
-`references/meeting/section-mapping.md`:
+`${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/section-mapping.md`:
 
 1. **Classify** the segment type.
 2. **Apply role-aware heuristics**:
@@ -342,7 +396,7 @@ rules in `segment-classification.md`):
 ### Pass 4: Typing + Write
 
 Classify each atomic claim against the 6-enum knowledge taxonomy in
-`references/meeting/knowledge-typing.md`
+`${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/knowledge-typing.md`
 (fact / causal / heuristic / anomaly_cue / mental_model / assumption), run the
 conditions/counter_conditions contrastive probe, extract valid_from/valid_until
 when the claim is time-bound, then mint the node:
@@ -408,7 +462,7 @@ trust Larry's classifications.
 
 ### Present Segments Batched by Type (Priority Order)
 
-Group classified segments by type. Within each type, sort by confidence. Present the highest-priority types first:
+Group classified segments by type. Within each type, sort by confidence. Present the highest-priority types first, with Larry's reasoning for each:
 
 ```
 **DECISIONS (2 segments):**
@@ -419,23 +473,64 @@ Group classified segments by type. Within each type, sort by confidence. Present
 2. Sarah (founder): "We're pausing the mobile app."
    -> solution-design | decision | HIGH confidence
    Reasoning: Product roadmap change from founder
-
-File both decisions? [all / review individually / skip]
 ```
 
-### Filing Options Per Batch
+Do this for EVERY type present (decisions, action items, insights, advice, open questions)
+before moving to the filing gate below -- the navigator sees the full extraction before being
+asked to file any of it.
 
-- **all**: File every segment in this batch
-- **review individually**: Present each one for yes/no/redirect
-- **skip**: Skip the entire batch (captures structured rejection)
+### The Filing Gate is Shape F.8 (renderShapeF8 -> consumeF8Fanout)
+
+The frontmatter above declares `hitl_shape: "F.8"` -- "Extracted nuggets are routed as an
+independent set the navigator files in any order." This is where that declaration actually
+fires, in place of a flat ASCII prompt.
+
+**1. Build ONE consolidated nugget routing table** across ALL extracted types (decisions,
+action items, insights, advice, open questions) -- one table, not one prompt per batch.
+Use the same canonical columns already shipping in `commands/ignite.md` and
+`commands/new-project.md`:
+
+```
+| nugget | target section | why |
+|--------|----------------|-----|
+| Lawrence (mentor): "Focus on B2B first, consumer can wait." | team-execution | Direct strategic direction from mentor |
+| Sarah (founder): "We're pausing the mobile app." | solution-design | Product roadmap change from founder |
+| ... one row per classified segment across every type ... |
+```
+
+**2. Render it through the shipped machinery, never a hand-rolled prompt.** Call
+`lib/hmi/shape-f8-renderer.cjs` `renderShapeF8` with the table rows as the toggle basket
+(one option per nugget: `label` is the nugget summary, `confidence` is the segment's
+classification confidence, so a >=0.70 nugget renders PRE-CHECKED per D-06 -- display-only,
+never auto-applied). Fire the returned card via **AskUserQuestion** as a multi-select (the
+contract's `multiSelect: true`). On the single confirm, hand the navigator's selected subset
+to `lib/workflow/f8-fanout-consumer.cjs` `consumeF8Fanout`, passing a per-nugget filing
+closer that writes the artifact (see Create Filed Artifacts, below) for each confirmed item.
+ONE confirm fans out to N filed artifacts -- toggling a nugget off is how the navigator skips
+it; there is no separate "review individually" mode because every nugget already IS reviewed
+individually via its own toggle.
+
+**3. Honor the paging bound.** `MAX_TOGGLE_N` is 4. A basket larger than 4 PAGES rather than
+truncates (D-05) -- a 40-nugget meeting therefore walks several pages of the same card, never
+a silently-truncated set. Do not invent a per-command cap and do not raise `MAX_TOGGLE_N`.
+
+**4. Nothing files until the navigator confirms.** Every claim minted by Step 3 Pass 4
+(`navigation.writeClaimNode`) is born `review_status: 'proposed'` -- rendering this gate as
+F.8 does not and cannot change that; the writer is the sole mint point (Canon Part 9 role 5).
+Promotion runs only through `navigation.confirmNode` with a non-agent `byUser` resolved from
+USER.md: a literal `larry`/`brain`/`system`/`assistant` is rejected by `promoteNodeStatus`
+with `agent_attribution_forbidden`. The declaration and the render finally agree.
 
 ### Handle Rejections
 
-When the user rejects a filing, offer structured rejection reasons:
+A nugget the navigator does NOT toggle on still records why, when a reason is given: offer
+structured rejection reasons for the unchecked rows --
 
-> "Why skip? [not relevant] [already known] [wrong section] [other]"
+> "Skipping {N} nuggets. Why? [not relevant] [already known] [wrong section] [other]"
 
-Capture the rejection reason. This becomes graph data per the wicked problem architecture (rejection IS data).
+Capture the rejection reason per unchecked nugget. This becomes graph data per the wicked
+problem architecture (rejection IS data, project decision 13) -- the F.8 toggle basket
+changes HOW the navigator picks, it does not change that a skip is still recorded.
 
 ### Cross-Reference Against Open Action Items
 
@@ -480,7 +575,7 @@ node -e "const {requireValidAt}=require('./lib/core/temporal/date-sync-gate.cjs'
 
 ### Create Filed Artifacts
 
-For each filed segment, create a markdown file in the target room section using the frontmatter from `references/meeting/artifact-template.md`:
+For each filed segment, create a markdown file in the target room section using the frontmatter from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/artifact-template.md`:
 
 **File path pattern:** `room/{section}/YYYY-MM-DD-{slug}.md`
 
@@ -581,7 +676,7 @@ One row per confirmed speaker from Step 2. Profile links use the slug from creat
 
 ### Create Full Summary
 
-Following `references/meeting/summary-template.md`, create the full meeting summary at:
+Following `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/summary-template.md`, create the full meeting summary at:
 `room/meetings/YYYY-MM-DD-{meeting-name}/summary.md`
 
 Structure:
@@ -765,7 +860,7 @@ After ALL filing is complete, scan filed artifacts against existing Data Room co
 
 ### Load Detection Heuristics
 
-Use `references/meeting/cross-relationship-patterns.md` (already loaded in Setup if available) for the 5 edge types:
+Use `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/cross-relationship-patterns.md` (already loaded in Setup if available) for the 5 edge types:
 
 - **INFORMS**: new artifact references or provides evidence for another section
 - **CONTRADICTS**: new artifact conflicts with existing claim
@@ -802,7 +897,7 @@ Present in priority order (INVALIDATES > CONTRADICTS > CONVERGES > ENABLES > INF
 
 ### Cross-Meeting Intelligence Scan
 
-After the within-meeting cross-relationship scan, perform cross-meeting pattern detection using the protocols from `references/meeting/cross-meeting-intelligence.md`:
+After the within-meeting cross-relationship scan, perform cross-meeting pattern detection using the protocols from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/cross-meeting-intelligence.md`:
 
 #### Convergence Detection
 1. Extract key topics from the current meeting's metadata (topics inferred from filed segments)

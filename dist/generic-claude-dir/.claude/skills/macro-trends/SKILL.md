@@ -7,12 +7,28 @@ body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "The PEST factors are scanned independently, an unordered basket of trend jobs."
 serves_jtbd: ["understand-market"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming the domain previews the PEST four-factor
+# structure before the navigator invests in the full scan).
+interactive_first_reward: schema_preview
 teaching: "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["PEST Analysis"]
 produces: "room/**/trends/*"
 inputs: []
+# Phase 265-13: lets the navigation engine OFFER /mos:research at an F.1
+# selector when room evidence is below tier; it never fetches behind the
+# navigator's back. on: matches "Ask: File this to market-analysis?" below;
+# tier: Operational because PEST's four factors are public-world facts
+# typically sourced from industry/government reports, not requiring
+# peer-reviewed Academic literature. PEST is already a curated-chain hub
+# (-> Adoption-Capacity 0.7, -> Scenario Planning 0.6), so grounding it
+# improves three downstream commands, not one.
+requires_evidence:
+  tier: Operational
+  on: [market-analysis]
+  dispatch: /mos:research
 autonomous_safe: true
 allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---
@@ -57,7 +73,7 @@ You are Larry. This command guides the user through Macro-Changes Analysis.
 
 Ask: "Quick pass or deep dive?"
 
-Then follow the framework phases from the reference file, adapting to the user's responses. You are NOT following a rigid script -- the phases are a guide. If the user provides rich context, skip ahead. If they need more exploration, slow down.
+Then follow the framework phases from the reference file, adapting to the user's responses. You are NOT following a rigid script -- the phases are a guide. If the user provides rich context, skip ahead. If they need more exploration, slow down. If market-analysis evidence for a PEST factor is thin, name the gap and offer: "Want to run /mos:research against this context before scoring it?"
 
 ## When Complete
 
@@ -65,4 +81,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The destruction patterns you've found connect to [methodology]. Want to explore that next?"
+"The destruction patterns you've found connect to /mos:research. Want to explore that next?"

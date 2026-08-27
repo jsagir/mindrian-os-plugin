@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "Candidate domains are mapped as an independent territory set the navigator ranks in any order."
 serves_jtbd: ["find-problem", "understand-market", "explore"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: intersectional collisions preview the IKA scoring
+# structure before the navigator invests in the full 5-lens decomposition).
+interactive_first_reward: schema_preview
 teaching: "When the problem could live in any of several domains, /mos:explore-domains maps the territory through IKA and Feynman decomposition. Surfaces where to look before you commit."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -67,4 +71,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"Your domain connects to [methodology]. Want to explore that next?"
+"Your domain connects to /mos:scenario-plan. Want to explore that next?"

@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.9"
 hitl_why: "The Why then What-if then How progression is a fixed-order walk."
 serves_jtbd: ["find-problem", "explore"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: Phase 1 (WHY) reframes the navigator's own sentence as
+# a sharper question before they invest beyond it, same shape as onboard).
+interactive_first_reward: reframe_question
 teaching: "When the framing feels stuck, /mos:beautiful-question reshapes the challenge as Why / What-if / How. The right question unlocks more progress than a better answer."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -65,4 +69,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The question you've crafted connects to [methodology]. Want to explore that next?"
+"The question you've crafted connects to /mos:explore-domains. Want to explore that next?"

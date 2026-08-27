@@ -7,12 +7,27 @@ body_shape: "methodology"
 hitl_shape: "F.1"
 hitl_why: "S-curve timing resolves to a single next-move read the navigator confirms."
 serves_jtbd: ["understand-market"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming the technology surfaces the S-Curve position
+# structure before the navigator invests in the full timing read).
+interactive_first_reward: schema_preview
 teaching: "When you need to know if your technology is too early, too late, or right on time, /mos:analyze-timing places it on the S-Curve. Best before you commit to a launch window."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["S-Curve Analysis", "Adoption-Capacity Theory"]
 produces: "room/**/timing/*"
 inputs: []
+# Phase 265-13: lets the navigation engine OFFER /mos:research at an F.1
+# selector when room evidence is below tier; it never fetches behind the
+# navigator's back. on: matches "Ask: File this to market-analysis?" below;
+# tier: Operational because S-Curve positioning is answered by industry
+# maturity data (adoption curves, analyst benchmarks) once the navigator
+# names the specific performance metric -- single-topic, textbook mid-flow
+# offer per the online-research audit.
+requires_evidence:
+  tier: Operational
+  on: [market-analysis]
+  dispatch: /mos:research
 autonomous_safe: true
 allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
@@ -66,7 +81,7 @@ You are Larry. This command guides the user through S-Curve Analysis.
 
 Ask: "Quick pass or deep dive?"
 
-Then follow the framework phases from the reference file. Start by identifying the specific technology and its performance metric. Do not accept "AI" or "blockchain" -- demand specificity.
+Then follow the framework phases from the reference file. Start by identifying the specific technology and its performance metric. Do not accept "AI" or "blockchain" -- demand specificity. Once the metric is named, if market-analysis evidence for its maturity curve is thin, name the gap and offer: "Want to run /mos:research against this context before placing it?"
 
 Timing is not luck. It is reading the S-Curve correctly. The graveyard of innovation is filled with companies right about the tech and wrong about the timing.
 
@@ -76,4 +91,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The timing analysis connects to [methodology]. Want to explore that next?"
+"The timing analysis connects to /mos:research. Want to explore that next?"

@@ -7,6 +7,10 @@ body_shape: C
 hitl_shape: "F.8"
 hitl_why: "Each need is scored on importance and satisfaction independently, an any-order basket of scoring jobs."
 serves_jtbd: ["validate-idea"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the importance-satisfaction scoring structure previews
+# before the navigator invests in scoring the full segment).
+interactive_first_reward: schema_preview
 teaching: "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -66,4 +70,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to competitive-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"Your validation work connects to [methodology]. Want to explore that next?"
+"Your validation work connects to /mos:lean-canvas. Want to explore that next?"
