@@ -487,7 +487,7 @@ is deliberate.
 - [x] 265-20-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - deep-grade: reconcile the 5-versus-7 rubric FIRST, then the per-component panel with grade-grant's fail-closed consolidation
 - [x] 265-21-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - vault import review and find-analogies --external: threshold-gated and dedup-gated fan-outs
 - [x] 265-22-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - diffusion: a roster parameter on runIntelPipeline's existing stages, closing the one genuine online-research gap
-- [ ] 265-23-PLAN.md - Wave 5 - ratify every wave-4 dispatch grant, build the MCP surface doctor organ, and record every deferred architecture decision in the ledger
+- [x] 265-23-PLAN.md - Wave 5 (declared) / Wave 4 (DAG-actual) - ratify every wave-4 dispatch grant, build the MCP surface doctor organ, and record every deferred architecture decision in the ledger
 - [ ] 265-24-PLAN.md - Wave 6 - second close: regenerate the mirrors again, file the second-pass dev-research trail, and run the full gate with the grant strict flag on
 
 ### Phase 266: MCP Layer Correctness Fixes
