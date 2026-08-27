@@ -425,8 +425,8 @@ Dynamics and Working Models.
   untrusted input and `tests/test-part8-poison-transcript.cjs` exists
   because of it; fanning it into five tool-capable contexts multiplies the
   injection surface. `agents/meeting-perspective-extractor.md` declares
-  `allowed-tools: Read` only -- no Write, no Bash, no Glob, no WebSearch, no
-  MCP tool.
+  `allowed-tools: Read` only -- no Write, no Bash, no Glob, no external web
+  reach, no MCP tool.
 
 **Returns:** the uniform array from `extraction-perspectives.md`'s return
 schema, with `perspective` set to the worker's assigned lens name.
