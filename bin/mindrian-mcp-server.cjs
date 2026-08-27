@@ -172,42 +172,10 @@ function createServer() {
   const { registerRouterTools } = require('../lib/mcp/tool-router.cjs');
   registerRouterTools(s, roomDir, pluginRoot, larryContext, surface.surface);
 
-  // ---------------------------------------------------------------------------
-  // Phase 115-02: dual-path opener tools (Pitfall 6 tri-polar surface coverage)
-  // ---------------------------------------------------------------------------
-  // detect_dual_path  classify turn-1 input as upload | type | ambiguous
-  // extract_shallow   parse a CV/memo/pitch paste into 1 user + 1 venture + 1-3
-  //                   claims and route filing through Phase 109 navigation.cjs
-  // Both wrap pure lib/core entries; safe for Desktop/Cowork stdio transport.
-  // ---------------------------------------------------------------------------
-  const { z } = requireWithHeal('zod', { log: healLog, connectPath: true });
-  const dualPathDetector = require('../lib/core/dual-path-detector.cjs');
-  const shallowDocParser = require('../lib/core/shallow-doc-parser.cjs');
-
-  s.tool(
-    'detect_dual_path',
-    'Phase 115 dual-path detector. 5-feature additive score classifier (RESEARCH DISCRETION-03). Classifies turn-1 input as upload | type | ambiguous; returns { path, score, features } with booleans-only features payload (Canon Part 8 telemetry-safe). Pure classification, no side effects.',
-    {
-      text: z.string().describe('The user first-turn input (CV paste, conversational answer, or any string).'),
-    },
-    async ({ text }) => {
-      const result = dualPathDetector.classify(text);
-      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
-    }
-  );
-
-  s.tool(
-    'extract_shallow',
-    'Phase 115 strategy (b) shallow-file. Parses a CV / memo / pitch paste classified as upload-path into 1 user + 1 venture + 1-3 claim nodes. Routes graph writes through lib/core/navigation.cjs setFocus + memory_event (Phase 109 chokepoint). Falls back to 0 nodes on parse failure (graceful).',
-    {
-      text: z.string().describe('CV / memo / pitch paste classified as upload-path by detect_dual_path.'),
-      sessionId: z.string().describe('Session id for navigation.setFocus + memory_event scoping.'),
-    },
-    async ({ text, sessionId }) => {
-      const result = shallowDocParser.extractShallow(text, sessionId);
-      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
-    }
-  );
+  // Phase 115-02 dual-path opener tools (detect_dual_path, extract_shallow)
+  // moved to lib/mcp/tools/dual-path.cjs in plan 270-06 (OQ-5: they were
+  // dark to the connector registry here; register-core-tools.cjs's
+  // auto-discovery now finds and wires both).
 
   // Register MCP Resources (read-only room browsing via room:// URIs).
   // Phase 270-05 (RESEARCH.md 3.4d): Resources now resolve per read through lib/mcp/session-room.cjs, the same resolver every Tool uses; MINDRIAN_ROOM stays only the boot fallback, exactly what ctx.fallbackRoomDir means to the resolver.
