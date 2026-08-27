@@ -3523,6 +3523,12 @@
       }
     },
     {
+      "id": "agent:competitor-watch-fetcher",
+      "kind": "agent",
+      "methodology_tier": "mindrian-operation",
+      "name": "competitor-watch-fetcher"
+    },
+    {
       "id": "agent:framework-runner",
       "kind": "agent",
       "methodology_tier": "mindrian-operation",
