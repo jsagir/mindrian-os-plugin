@@ -18,7 +18,8 @@
       "leverage": "Fork mode now runs subagents concurrently without an opt-in; the Agent tool's run_in_background parameter no longer exists when fork mode is on, closing the last species of the plugin's hand-rolled parallel-dispatch workaround.",
       "destination": "commands/act.md commands/persona.md commands/grade.md",
       "status": "adopting",
-      "evidence": "CHANGELOG.md 2.1.232; verified via code read of commands/act.md, commands/persona.md, commands/grade.md dispatch prose (265-RESEARCH.md section 2c, State of the Art table)"
+      "evidence": "CHANGELOG.md 2.1.232; verified via code read of commands/act.md, commands/persona.md, commands/grade.md dispatch prose (265-RESEARCH.md section 2c, State of the Art table)",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
     },
     {
       "capability": "concurrent-subagent-cap-20",
@@ -28,7 +29,8 @@
       "leverage": "Caps concurrent subagents at 20 via CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS; swarm sizing in dispatch-optimizer.planDispatch caps only on context budget, not agent count, so a large room could in principle exceed 20.",
       "destination": "commands/act.md swarm sizing",
       "status": "adopting",
-      "evidence": "CHANGELOG.md 2.1.217; 265-RESEARCH.md section 4d table row"
+      "evidence": "CHANGELOG.md 2.1.217; 265-RESEARCH.md section 4d table row",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
     },
     {
       "capability": "agent-tool-clear-error-missing-subagent-type",
@@ -148,7 +150,8 @@
       "leverage": "Skills declared context: fork now run in background by default (opt out via background: false); zero adoption in this repo today, but eureka's fire-and-return flow is a candidate to use it.",
       "destination": "none",
       "status": "dormant",
-      "evidence": "CHANGELOG.md 2.1.218; repo-wide grep for 'context: fork' returns zero hits (265-RESEARCH.md section 4d)"
+      "evidence": "CHANGELOG.md 2.1.218; repo-wide grep for 'context: fork' returns zero hits (265-RESEARCH.md section 4d)",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
     },
     {
       "capability": "custom-commands-merged-into-skills",
@@ -158,7 +161,8 @@
       "leverage": "A .claude/commands/x.md and a .claude/skills/x/SKILL.md both create /x and behave the same; the 113-command plus 126-generated-mirror duplication this repo maintains via scripts/build-skill-mirrors.cjs may be re-examinable, and the generator's stated Windows-compositing rationale (build-skill-mirrors.cjs line 10) may now be moot.",
       "destination": "none",
       "status": "dormant",
-      "evidence": "Anthropic docs (current, docs-current pin); scripts/build-skill-mirrors.cjs:10 Windows compositing rationale (265-RESEARCH.md section 4d)"
+      "evidence": "Anthropic docs (current, docs-current pin); scripts/build-skill-mirrors.cjs:10 Windows compositing rationale (265-RESEARCH.md section 4d)",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
     },
     {
       "capability": "claude-code-fork-subagent-polarity-inversion",
@@ -169,6 +173,39 @@
       "destination": "references/capability-radar/capabilities-index.md",
       "status": "adopting",
       "evidence": "CHANGELOG.md 2.1.232; references/capability-radar/capabilities-index.md:127 teaches the inverse polarity (265-RESEARCH.md State of the Art table)"
+    },
+    {
+      "capability": "trending-to-absurd-expert-path-explicit-parallel-dispatch",
+      "version": "2.1.232",
+      "date": null,
+      "domain": "code",
+      "leverage": "The trending-to-absurd Expert path's multi_agent flag now states its dispatch shape explicitly (parallel, one subagent per lens, subagent_type: persona-analyst) instead of leaving it to inference, per Plan 265-04's dispatch-shape documentation contract.",
+      "destination": "commands/trending-to-absurd.md",
+      "status": "shipped",
+      "evidence": "Phase 265 scout audit (265-RESEARCH.md section 2b); Brain topological query placing the four lens concepts in separate low-connectivity communities (weak evidence, named as weak); commands/trending-to-absurd.md \"Dispatch shape (Phase 265 RADAR-10)\" section; 265-04-SUMMARY.md Task 1",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "explore-opportunity-four-leg-parallelization",
+      "version": "2.1.232",
+      "date": null,
+      "domain": "code",
+      "leverage": "Whether explore-opportunity's four analytically-independent legs (web evidence, timing, analogs, demand validation) should run as a parallel pre-pass instead of the current sequential runChain walk. Navigator selected build-now-in-265: the parallel pre-pass ships in-phase (Plan 265-18, Wave 4) rather than deferred or kept sequential.",
+      "destination": "lib/core/eureka/explore-chain.cjs",
+      "status": "adopting",
+      "evidence": "quality_early_stop as the control-flow coupling; the tests/run-all-264.sh zero-diff arm as the constraint on chain-executor.cjs; navigator decision recorded in 265-04-SUMMARY.md Task 3, cross-verified against .planning/ROADMAP.md and 265-18-PLAN.md lines 41-46",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
+    },
+    {
+      "capability": "trending-to-absurd-allowed-tools-task-grant-candidate",
+      "version": "2.1.235",
+      "date": null,
+      "domain": "code",
+      "leverage": "commands/trending-to-absurd.md's Expert-path parallel dispatch currently omits Task from allowed-tools, so each of the 4 lens-agent spawns goes through the normal permission flow rather than a pre-approved grant; a reviewed allowed-tools: Task grant would remove that friction but is a real privilege-widening change that needs its own review, not a mechanical follow-on to Plan 265-04's dispatch-shape documentation.",
+      "destination": "commands/trending-to-absurd.md",
+      "status": "dormant",
+      "evidence": "265-04-SUMMARY.md Next Phase Readiness note (Plan 265-06 should record this candidate); 265-RESEARCH.md section 2d (allowed-tools is a pre-approval list, not a restriction list; omitting Task is friction, not breakage)",
+      "decision_ref": "docs/RADAR-ABSORPTION-265.md"
     }
   ]
 }

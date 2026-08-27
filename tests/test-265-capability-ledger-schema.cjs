@@ -29,6 +29,15 @@ const REQUIRED_KEYS = [
   'evidence',
 ];
 
+// Plan 265-06: one optional ninth key, a cross-reference to the document that
+// carries the reasoning for a row whose disposition needed a judgment call
+// rather than a mechanical read. Optional means: permitted, never required.
+// The extra-key rejection below stays in force for anything outside this set --
+// widening it further would loosen the injection fence from plan 265-05's
+// threat register (T-265-23), which this schema test exists to hold shut.
+const OPTIONAL_KEYS = ['decision_ref'];
+const ALLOWED_KEYS = REQUIRED_KEYS.concat(OPTIONAL_KEYS);
+
 const STATUS_ENUM = ['dormant', 'adopting', 'shipped', 'superseded', 'no-op'];
 const DOMAIN_ENUM = ['models', 'code', 'desktop_cowork', 'plugins_mcp', 'visualization'];
 
@@ -95,7 +104,7 @@ if (!Array.isArray(ledger.entries) || ledger.entries.length === 0) {
       if (!(k in row)) fail('entries[' + idx + '] missing required key: ' + k);
     }
     for (const k of rowKeys) {
-      if (!REQUIRED_KEYS.includes(k)) fail('entries[' + idx + '] has extra key: ' + k);
+      if (!ALLOWED_KEYS.includes(k)) fail('entries[' + idx + '] has extra key: ' + k);
     }
     if (!STATUS_ENUM.includes(row.status)) {
       fail('entries[' + idx + '].status invalid: ' + JSON.stringify(row.status));
@@ -105,6 +114,9 @@ if (!Array.isArray(ledger.entries) || ledger.entries.length === 0) {
     }
     if (typeof row.evidence !== 'string' || row.evidence.length === 0) {
       fail('entries[' + idx + '].evidence must be a non-empty string');
+    }
+    if ('decision_ref' in row && (typeof row.decision_ref !== 'string' || row.decision_ref.length === 0)) {
+      fail('entries[' + idx + '].decision_ref must be a non-empty string when present');
     }
     if (typeof row.version === 'string' && CLAUDE_CODE_VERSION_PATTERN.test(row.version)) {
       if (highestDottedVersion === null || compareDotted(row.version, highestDottedVersion) > 0) {
