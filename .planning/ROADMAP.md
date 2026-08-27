@@ -575,11 +575,48 @@ Plans:
 **Goal:** A concurrent session's full RCA (`.planning/debug/file-meeting-missing-reference-files.md`, `kind: rca`, `status: fixing`, severity High) root-caused and fixed `commands/file-meeting.md`'s specific instance: 19 citations of `references/...` as bare paths instead of `${CLAUDE_PLUGIN_ROOT}/references/...`. Bare paths resolve against session cwd, not the plugin install directory -- this works by pure coincidence in this dev repo (which happens to have its own `references/` folder at its root) and fails in every real Data Room a user actually installs into, on all three surfaces (CLI/Desktop/Cowork). The RCA's own blast-radius section names this as a repo-wide PATTERN, not fixed elsewhere: "44 of 121 commands repo-wide share this exact bare-path bug." Independently re-confirmed this session via direct grep: 45 of 113 `commands/*.md` files match the bare `references/...` pattern (count differs slightly from the RCA's own denominators, likely a skills/-mirror vs commands/ counting difference -- re-verify the exact set at plan time, do not assume either number is final). This phase's job: audit each of the ~45 matches individually (a bare `references/` mention is not automatically a bug -- confirm each is actually a load-bearing citation the model would try to resolve, not prose mentioning the word), anchor every genuine hit to `${CLAUDE_PLUGIN_ROOT}/references/...` per the file-meeting fix's own pattern, regenerate skill mirrors via `build-skill-mirrors.cjs`, and add a repo-wide lint/test so this bug class cannot silently reappear (the file-meeting RCA's own fix only covers its one file; per this repo's Part 6 dog-fooding gap pattern, a fix that isn't paired with a structural guard tends to recur elsewhere).
 **Requirements**: TBD
 **Depends on:** none directly -- do NOT re-fix `commands/file-meeting.md` itself (already fixed and verified by the RCA's own session, 2 files changed, mirror-check 112/112, phase-265 gate suite 4/4). Cross-references Phase 270 (Memory and Context Operator MCP) since path resolution against the plugin install dir vs. session cwd is itself a context-management primitive question that phase's design should be aware of. Also worth checking whether this bug class extends beyond `references/` citations to other bare-path patterns (`scripts/`, `agents/`, `pipelines/`) before scoping the fix as references-only.
-**Plans:** 0 plans
+**Plans:** 5 plans
+
+**Plan-time audit findings (re-verified by direct grep, 2026-08-27):** the live blast radius is
+larger than either prior denominator. `references/` bare citations: 45 `commands/*.md` files /
+98 sites (`commands/file-meeting.md` correctly absent, already fixed at `242e32db`), 5
+hand-authored `skills/*/SKILL.md` / 11 sites, 6 `agents/*.md` / 15 sites, `pipelines/` 0.
+Total 56 files / 124 sites. All 41 unique cited targets exist on disk, so this is purely a
+resolution-mechanism fix with no dangling citations. Two findings the ROADMAP's own scoping
+questions asked for: (a) YES, the class extends beyond `references/` -- 31 unanchored
+`bash scripts/` / `node scripts/` invocation lines remain repo-wide, including 3 in
+`commands/file-meeting.md` (lines 771, 978, 983) that the RCA's references-only fix did not
+cover; this phase MEASURES and REGISTERS that class and does not fix it, because a `Read`
+citation and a `Bash` invocation fail differently and need different verification. (b) Two
+surfaces are unreachable by mirror regeneration and must be hand-edited: the 4 command-less
+skills (`larry-personality`, `room-passive`, `ui-system`, `pws-methodology`) and
+`trending-to-absurd`, which sits on `build-skill-mirrors.cjs`'s `SKIP_LIST` (line 175). One
+genuine exclusion candidate: `commands/radar.md` is dev-repo-cwd by design (line 77 WRITES into
+`references/capability-radar/changelog-cache.md`, and lines 64/73/74 read and write the
+git-tracked `data/capability-ledger.json`), so anchoring it would redirect a write into the
+update-wiped plugin install cache -- routed to a human ruling in plan 271-02.
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 271 to break down)
+**Wave 1**
+
+- [ ] 271-01-PLAN.md - the anchoring gate, its fixture test, the phase aggregator, and the RED-baseline audit register
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 271-02-PLAN.md - the `/mos:radar` dev-repo-cwd disposition checkpoint and the reasoned allowlist
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 271-03-PLAN.md - 93 citations anchored across 44 commands, plus skill-mirror regeneration
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 271-04-PLAN.md - 26 citations anchored across 5 hand-authored skills and 6 agents; repo-wide gate turns green
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 271-05-PLAN.md - release-gate wiring, CHANGELOG, knowledge-base, compositing trail, and the bare-`scripts/` follow-up registration
 
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
