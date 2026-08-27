@@ -726,14 +726,43 @@ Cross-references: this is the ONE audit finding with no Phase 269 collision and 
 
 **Recommendation for whoever plans this phase:** widen the goal from "how does an out-of-frontmatter surface declare a first-reward contract" to ALSO include **"declare `interactive_first_reward` for all currently-missing interactive commands"**, and decide here whether the linter keeps its `--staged` scope or gains a whole-tree audit mode that makes the debt visible without waiting for an unrelated commit. Both halves are the same jurisdiction question: who must declare, on what surface, and what enforces it. Note the values are genuinely per-command and cannot be rubber-stamped - `lib/core/mva-rule-linter.cjs` binding decision B5 states the file validates only the DECLARATION and that per-command remediations are follow-up phases, and a first-pass guess during 271-03 already produced one demonstrably false declaration.
 
-**Requirements**: TBD
+**SCOPE RULING (made at plan time, 2026-08-27).** The scope-widening question above is answered YES, with a tiering the ROADMAP's own recommendation did not anticipate. Both halves are the same jurisdiction question, so both are in scope: the out-of-frontmatter declaration contract AND the whole-tree backfill of all 67 undeclared commands. The planning-time audit found a third finding neither half anticipated: the closed six-value `REWARD_TYPES` vocabulary cannot honestly describe a conversational methodology command (`analyze-systems`, `mullins`, `systems-thinking` and four others) or a diagnostic/report command (`status`, `doctor`, `heal` and five others), because five of the six terms were minted against exactly one flow each and `--none (scripting only)` is legitimate only where a real `--no-interactive`/`--script`/`-q` path exists. `docs/reward-before-investment-rule.md` names a `/mos:status` output as a non-reward in its own words, so `status` can honestly declare neither a reward type nor the scripting opt-out. A vocabulary amendment therefore GATES the backfill; that is a missing-information constraint, not a difficulty judgment, and it is why the backfill is sequenced after the ruling rather than split out. NOT absorbed by this phase, stated so a later reader does not assume otherwise: DEFERRED-271-D2 (`agents/larry-extended.md` declaring `hitl_shape: F.1` and `connector.excluded: true` simultaneously, plus 52 `skills/*/SKILL.md` advisory violations) is a Canon Part 11 SHAPE-declaration question on a different field and stays OPEN; and Phase 267.2 still owns repairing the FIRST_INSTALL Reward and Investment legs, since this phase declares the contract and does not change the onboarding flow.
+
+**Requirements**: GUARD-01, GUARD-02, GUARD-03, GUARD-04, GUARD-05, GUARD-06, GUARD-07, GUARD-08, GUARD-09, GUARD-10 (minted at plan time in `267.3-DECISIONS.md`, registered in `.planning/REQUIREMENTS.md` at phase close, per the Phase 270 precedent)
 **Depends on:** none - independent of Phase 269 and of Phase 267.2; this is a lint-scope and declaration-contract change, not an onboarding-flow change.
-**Blocks:** Phase 271 plan 03's remaining 17 command files (16 with anchoring edits held uncommitted in the working tree, plus `commands/doctor.md`). Those cannot be committed until the declaration question is ruled. See `271-03-SUMMARY.md`.
-**Plans:** 0 plans
+**Blocks:** Phase 271 plan 03's remaining 17 command files (16 with anchoring edits held uncommitted in the working tree, plus `commands/doctor.md`). Those cannot be committed until the declaration question is ruled. See `271-03-SUMMARY.md`. Plans 267.3-04 and 267.3-05 clear this block.
+**Plans:** 8 plans across 7 waves. Plan-time measurement: 46 compliant / 67 missing / 0 invalid over 113 `commands/*.md`; `scripts/verify-release` gate 10c RED; 16 command files plus 16 mirrors held uncommitted in the shared tree.
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 267.3 to break down)
+**Wave 1**
+
+- [ ] 267.3-01-PLAN.md - The measured jurisdiction map (`267.3-AUDIT.md`) plus the blocking navigator ruling on D-A (out-of-frontmatter declaration mechanism), D-B (vocabulary amendment) and D-C (lint scope), recorded with rejected alternatives in `267.3-DECISIONS.md`
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 267.3-02-PLAN.md - The declaration contract: `data/first-reward-surfaces.json`, the `REWARD_TYPES` amendment as a recorded canon amendment, `scanDeclaredSurfaces()`, the `--surfaces` CLI mode, and `tests/run-all-267.3.sh`
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 267.3-03-PLAN.md - Declare the `scripts/session-start` injected-prose branches (FIRST_INSTALL, UPDATE, MODE_ROUTING), add in-file anchor comments, add the anchor tripwire test, and wire the fail-closed surfaces gate into `scripts/verify-release`
+- [ ] 267.3-04-PLAN.md - The classification rubric plus the 17 commands blocking Phase 271, human-ruled before any frontmatter is written
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 267.3-05-PLAN.md - Unblock Phase 271: anchor `commands/doctor.md`, commit the 16 held files and their mirrors through the full pre-commit hook with no bypass, drive anchoring gate 10c green, and close the paper trail in the ROADMAP and `deferred-items.md`
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 267.3-06-PLAN.md - Backfill batch A: 25 commands (`admin` through `mos`), classified against the ruled rubric with the scripting opt-out mechanically proven, human-ruled, applied and committed
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 267.3-07-PLAN.md - Backfill batch B: the final 25 commands (`mva-report` through `wiki`), driving the whole-tree audit to 0 missing / 0 invalid for the first time since Phase 118-06
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 267.3-08-PLAN.md - Close-out: promote the whole-tree audit to a fail-closed release gate proven against an A/B fixture, correct the rule doc's enforcement description, register GUARD-01..10, update ROADMAP/CHANGELOG/knowledge-base, file the rethinking-mindrianos compositing trail, and run the phase-wide no-relaxation audit
 
 ### Phase 268: Transition Selected Workflows to MCP Tools
 
