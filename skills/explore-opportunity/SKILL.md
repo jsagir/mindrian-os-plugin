@@ -7,6 +7,13 @@ argument-hint: "[opportunity]"
 body_shape: E (Action Report)
 hitl_shape: "F.1"
 hitl_why: "Exploration spends navigator-controlled research cost and crosses material gates; explicit per-opportunity trigger only - never auto-fired on qualify."
+# Phase 265-04 reward-before-investment declaration (blocking-gate auto-fix, not
+# the dedicated ~85-command backfill phase named in docs/reward-before-investment-rule.md).
+# Grounded in the shipped chain below: the four analysis legs (web evidence, timing,
+# analogs, demand validation) run and their findings are visible at the material filing
+# gate as a structural preview of the Minto-shaped explored artifact, before the
+# navigator invests in the approve verb that actually files it.
+interactive_first_reward: schema_preview
 serves_jtbd: ["explore"]
 teaching: "A qualified opportunity is still conceptual: a connection without a defined problem. /mos:explore-opportunity runs the analysis chain (deep research, diffusion timing, analogies, web validation) and files a Minto-shaped explored artifact - a governing thought backed by cited sources and typed graph evidence. Opportunities must be researched and explored to become well-defined problems; this is that step, and its cost stays in your hands."
 allowed-tools: Read Bash WebSearch WebFetch AskUserQuestion
@@ -62,6 +69,29 @@ The four analysis legs, in order:
 | diffusion_timing | Adoption-Capacity Theory | is the window open? (current Track-1-unrewired form, D-07) |
 | analogies | Four Lenses of Innovation | analog domains that solved this shape of problem |
 | web_validation | Jobs to Be Done (JTBD) | demand validation against the customer segment |
+
+### Why the four legs run in order
+
+The four legs are analytically INDEPENDENT: each is a separate framing of the same fixed
+opportunity node (web evidence, timing, analogs, demand validation). No leg consumes another
+leg's output for its own analysis -- the `prev` parameter threaded through `onStep` carries
+provenance plus the offline-degrade and engine_mode stamping, not analytical input.
+
+They nevertheless run in order, because the ordering is control flow, not data flow. Three
+real couplings, named by their actual identifiers: `runChain`'s `quality_early_stop` branch
+ends the chain when a step returns LOW quality; `gateFn` halts on a non-push-forward posture
+before the material filing step; and the retry-with-backoff plus journal path is per-step.
+
+The cost consequence is the strongest reason the order is worth keeping: two of the four legs
+are web legs riding the frozen deep_research reach, and this command's own hitl_why commits
+that "Exploration spends navigator-controlled research cost." Sequential execution with an
+early stop means a cold deep_research leg returning `insufficient_evidence` does not spend the
+other three legs; a parallel fan-out would spend all four unconditionally.
+
+Converting the four legs to a parallel dispatch is tracked as a Phase 265 ledger candidate; it
+cannot be done by editing this file, because the ordering lives in
+`lib/core/chain-executor.cjs::runChain`, which is under a zero-diff gate in
+`tests/run-all-264.sh` (base SHA `c7c33eea449f6f227c4cfbb86f220acaac9b5ab8`).
 
 Then the MATERIAL filing step halts at the gate. On your approve verb:
 
