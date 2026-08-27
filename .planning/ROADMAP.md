@@ -532,25 +532,25 @@ Plans:
 Cross-references: the audit shipped at `.planning/research/2026-08-27-hooked-first-install-audit.md`, scoring FIRST_INSTALL 30/70, Fragile loop band (30-44), the score labelled diagnostic and not a gate (Canon Appendix D entry 31). **Navigator verdict on the score (267.1-06 Task 2 checkpoint, 2026-08-27): the 30/70 score and its cited gaps (GAP R-1, GAP I-1) stand as real findings, comparable to the 45/70 LarryReach and 38/70 `/mos:ignite` precedents** - no score-row corrections ordered. The navigator did flag that the audit's Quick win 1 recommendation ("add `/mos:ignite` to the cold-start menu") may be treating the wrong lever, since in practice `/mos:ignite` has rarely if ever triggered a session while a plain Larry greeting sometimes has; that empirical concern and the navigator's own preferred design candidate (a Brain-backed, context-sensitive greeting router) are recorded as scope for Phase 267.2, not decided or built here. The one remediation this phase shipped: the SEED-021 `AskUserQuestion` card mandate added to the FIRST_INSTALL prose (commit `f39f24d9`), bringing it into the rendering contract the two sibling cold-start branches already obeyed. **Navigator verdict on scope (OQ-3, REVERSED):** this fix should not have shipped inside an otherwise audit-only phase; the navigator ordered it deferred to Phase 267.2 instead. Per plan 267.1-06 Task 2's own constraint, the revert (of `scripts/session-start`'s SEED-021 line and the matching positive pin in `tests/test-267-1-first-install-hooked-audit.cjs`) is NOT performed inside this checkpoint task - the code and test currently still reflect the shipped-not-yet-reverted state, and the revert is registered as explicit follow-up work in Phase 267.2's own entry below. What it registered rather than fixed: Also touches Phase 267.2 (First-Install Hooked Loop Repair - GAP R-1 reward routing and GAP I-1 investment writer, registered by this audit, now also carrying the navigator's greeting-router design input and the deferred SEED-021 revert). Also touches Phase 267.3 (Reward-Before-Investment Guard Jurisdiction - GAP G-1, the one finding with no Phase 269 collision; navigator confirmed this sequencing as-is, no changes). Also touches Phase 269 (Moat Shift - Install/Update Entitlement Gate - the audit's GAP S-1, the two sign-ins across two domains before the Trigger ever fires, is documented and quantified here and OWNED there; this phase deliberately did not fix or re-decide it), citing `docs/testers/gaurav-thorat/FEEDBACK.md` by path as the primary evidence. Room mirror: the full reasoning trail lives at `~/MindrianRooms/rethinking-mindrianos/research/2026-08-27-hooked-first-install-audit/`.
 **Requirements**: TBD
 **Depends on:** none -- independent of Phase 267's now-blocked status, planned/executed on its own schedule
-**Plans:** 6 plans
+**Plans:** 6/6 plans complete. Navigator ruled on all three 267.1-06 Task 2 checkpoint items 2026-08-27: score stands, OQ-3 reversed (SEED-021 revert deferred to Phase 267.2 W0), sequencing confirmed. Phase close-out verdict CHANGES REQUESTED, entirely scoped to Phase 267.2 -- Phase 267.1 itself is COMPLETE.
 Plans:
 **Wave 1**
 
-- [ ] 267.1-01-PLAN.md - Wave 0 validation scaffold plus the in-scope SEED-021 card-mandate fix in FIRST_INSTALL
-- [ ] 267.1-02-PLAN.md - Pre-audit grounding: hard-rule provenance (A5) and the two-question Claude Code hook consultation (A1/A2)
+- [x] 267.1-01-PLAN.md - Wave 0 validation scaffold plus the in-scope SEED-021 card-mandate fix in FIRST_INSTALL (fix now slated for revert in Phase 267.2 W0 per navigator ruling)
+- [x] 267.1-02-PLAN.md - Pre-audit grounding: hard-rule provenance (A5) and the two-question Claude Code hook consultation (A1/A2) -- all three settled
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 267.1-03-PLAN.md - The scored /70 Hooked audit of FIRST_INSTALL with the cited leg-by-leg gap register
+- [x] 267.1-03-PLAN.md - The scored /70 Hooked audit of FIRST_INSTALL with the cited leg-by-leg gap register -- 30/70, Fragile loop band, navigator-confirmed
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 267.1-04-PLAN.md - Rethinking-room mirror plus bidirectional cross-link (Dev-Research Compositing mandate)
-- [ ] 267.1-05-PLAN.md - Follow-up phase registrations 267.2 and 267.3 plus the 267.1 Cross-references paragraph
+- [x] 267.1-04-PLAN.md - Rethinking-room mirror plus bidirectional cross-link (Dev-Research Compositing mandate) -- both directions verified via fs.existsSync
+- [x] 267.1-05-PLAN.md - Follow-up phase registrations 267.2 and 267.3 plus the 267.1 Cross-references paragraph
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 267.1-06-PLAN.md - Phase gate roll-up and navigator review of the scores, the scope call, and the registrations
+- [x] 267.1-06-PLAN.md - Phase gate roll-up and navigator review of the scores, the scope call, and the registrations -- all gates green, navigator ruled, phase closed
 
 ### Phase 267.2: First-Install Hooked Loop Repair (Reward + Investment) (INSERTED)
 
