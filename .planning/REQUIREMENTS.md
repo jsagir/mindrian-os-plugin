@@ -341,7 +341,7 @@ can ship in the next version cut on its own schedule.
       clear breadcrumb instead of hanging, and the SessionStart reconcile hook keeps its full
       120-second budget with the bug_001 invariant chain intact.
 
-- [ ] **MCPFIX-04**: `tests/test-234-tool-description-floor.cjs` applies every prose-shape check to
+- [x] **MCPFIX-04**: `tests/test-234-tool-description-floor.cjs` applies every prose-shape check to
       every registered tool (derived from `tools/list`, never a hand-maintained list), uses the
       platform's real 2048-byte description cap instead of the stale 600-character ceiling, and
       states its own coverage in its summary line so a green run can never again be read as a
