@@ -339,7 +339,11 @@ can ship in the next version cut on its own schedule.
       explicit connect-path budget strictly under the host's ~30-second connect timeout, both the
       install arm and the peer-wait arm are bounded by it, a heal that misses the budget emits one
       clear breadcrumb instead of hanging, and the SessionStart reconcile hook keeps its full
-      120-second budget with the bug_001 invariant chain intact.
+      120-second budget with the bug_001 invariant chain intact. 266-03 shipped the per-call budget;
+      266-VERIFICATION.md's Truth #5 found it compounding to a measured 60296ms across the 4
+      sequential module-scope heal calls each entry point makes (vs a ~30000ms host timeout); 266-05
+      (2026-08-27) closed that gap with ONE process-wide shrinking deadline, satisfying the
+      requirement at the process level it was always meant to hold at.
 
 - [x] **MCPFIX-04**: `tests/test-234-tool-description-floor.cjs` applies every prose-shape check to
       every registered tool (derived from `tools/list`, never a hand-maintained list), uses the

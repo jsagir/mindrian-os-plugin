@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 261-04-PLAN.md
-last_updated: "2026-08-27T04:55:00.000Z"
-last_activity: 2026-08-27 -- Phase 266 waves 1-2 executed (4/4 plans, all committed with passing self-checks); code review (266-REVIEW.md, 1 blocker/CR-01) and goal verification (266-VERIFICATION.md) both run; verification independently reproduced the CR-01 gap (MCPFIX-03's per-call connect budget compounds to ~60s across the 4 sequential ensureDepsPresent/requireWithHeal calls at module scope, exceeding the ~30s host connect timeout it exists to respect). Status gaps_found -- phase NOT marked complete, NOT advanced to 267. Next: /gsd-plan-phase 266 --gaps to close MCPFIX-03's gap.
+status: verifying
+stopped_at: Completed 266-05-PLAN.md (MCPFIX-03 gap closure)
+last_updated: "2026-08-27T05:28:08.874Z"
+last_activity: 2026-08-27 -- Phase 266 execution started
 progress:
-  total_phases: 17
-  completed_phases: 4
-  total_plans: 61
-  completed_plans: 36
-  percent: 24
+  total_phases: 18
+  completed_phases: 5
+  total_plans: 62
+  completed_plans: 37
+  percent: 28
 ---
 
 <!-- NOTE (264 execute-phase completion, 2026-08-23T19:32Z, hand-edited per this file's own
@@ -3057,14 +3057,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 266 — mcp-layer-correctness-fixes-fast-independently-shippable-fix
+**Current focus:** Phase 266 - mcp-layer-correctness-fixes-fast-independently-shippable-fix (all 5 plans complete)
 
 ## Current Position
 
-Phase: 266 (mcp-layer-correctness-fixes-fast-independently-shippable-fix) — VERIFICATION: gaps_found
-Plan: 4 of 4 (all executed, committed, self-checks passed)
-Status: Gaps found -- MCPFIX-03 goal-level truth not met in production (see 266-VERIFICATION.md). Phase NOT complete, NOT advanced. Run /gsd-plan-phase 266 --gaps to close.
-Last activity: 2026-08-27 -- Phase 266 waves 1-2 executed (4/4 plans); code review + goal verification found 1 gap (MCPFIX-03 cumulative connect-path budget)
+Phase: 266 (mcp-layer-correctness-fixes-fast-independently-shippable-fix) - ALL 5 PLANS COMPLETE
+Plan: 5 of 5 (266-05 closed the MCPFIX-03 gap 266-VERIFICATION.md found)
+Status: Phase complete - ready for verification
+Last activity: 2026-08-27 -- Phase 266 Plan 05 executed (0f2f3a98 RED, a99c0c95 GREEN, 07e5d9d0 docs); see 266-05-SUMMARY.md
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -3694,6 +3694,7 @@ Progress: [█████████░] 92%
 | Phase 260 P04 | 70min | 3 tasks | 7 files |
 | Phase 261 P04 | 55min | 3 tasks | 9 files |
 | 264 | 5 | - | - |
+| Phase 266 P05 | 25min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -4975,6 +4976,7 @@ Progress: [█████████░] 92%
 - [Phase 260]: 260-04 caught and fixed a Rule-1 bug before commit: the conflict test's cloned fixture inherited an also-absent framework_type key that would have silently converted the test into an accidental enrich, contradicting its own no-overwrite guarantee; deleted the inherited key, isolating the test to the conflict boundary.
 - [Phase 261-04]: Systems Thinking: chose the Five Moves (M1-M5) spine over the four-phase teaching script, per the source's own Meta-Lens Framing section naming the Five Moves as what the selector runs at every stage -- Find Stocks and Flows (a rejected-spine phase) has no counterpart in M1-M5; the rejected phase's absence is encoded as a machine-checked negative control
 - [Phase 261-04]: The Pyramid Principle: minto-pyramid.mjs targets a different node (Minto Pyramid, id 38968, 3/4) than the ratified name (The Pyramid Principle, id 30242, 0/4) -- disposed RETARGET via a header-only note, body left untouched -- The contested-survivor conflict over node 38968's own fate remains open and unadjudicated; RETARGET does not require it to resolve first
+- [Phase 266]: Module-scoped shrinking connect-path deadline instead of a call-site-threaded timeoutMs closure - The fourth connect-path heal call site (the lazy zod require inside bin/mindrian-mcp-server.cjs createServer()) is not at module scope and is re-invoked per session by the flag-ON multi-session HTTP branch; a stale zero-remaining timeoutMs there would hit runGuardedInstall's >0 guard and silently restore the full 120s hook-path default mid-session.
 
 ### Pending Todos
 
@@ -5083,8 +5085,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-21T07:34:04.073Z
-Stopped at: Completed 261-04-PLAN.md
+Last session: 2026-08-27T05:28:08.754Z
+Stopped at: Completed 266-05-PLAN.md (MCPFIX-03 gap closure)
 
 **264 discuss-phase note (2026-08-23, hand-appended, does not touch the "Last session"/"Stopped
 at" pointer above since 261-12 is the actually-paused/resumable work):** ran `/gsd-spec-phase
