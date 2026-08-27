@@ -4,7 +4,7 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Phase 272 context gathered
-last_updated: "2026-08-27T20:51:09.751Z"
+last_updated: "2026-08-27T21:10:45.909Z"
 last_activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
 progress:
   total_phases: 23
@@ -49,6 +49,38 @@ progress:
      10c RED, 16+16 held). Restored by hand and augmented with the live re-measurement. That is
      content destruction, not just a numeric clobber, and it is the more dangerous of the
      three. -->
+
+
+<!-- NOTE (267.3-02 execute-plan state.record-metric, 2026-08-27T21:10Z, hand-edited per this
+     file's own documented resync-clobber bug, TWELFTH OCCURRENCE this session):
+     `gsd-tools query state.record-metric --phase 267.3 --plan 02 --duration 40min --tasks 3
+     --files 7` returned `{"recorded":true}` and legitimately appended one metrics table row
+     ("| Phase 267.3 P02 | 40min | 3 tasks | 7 files |"), but AGAIN silently clobbered the same
+     five progress fields (23/9/90/86/39% -> a fabricated 25/10/98/90/40%) and swallowed one
+     blank line between the NOTE blocks near line 52. Same narrow clobber shape as the TENTH and
+     ELEVENTH occurrences above; stopped_at, last_activity, Current focus and Current Position
+     were NOT touched. Worth recording precisely: the fabricated completed_plans differs from
+     last time (90 here, 89 in the eleventh occurrence), so the tool is not even clobbering
+     DETERMINISTICALLY -- it recomputes a different wrong answer each run, which rules out
+     "it is right and the file is stale" as an explanation.
+     Diffed against a pre-call snapshot taken immediately before the call
+     (scratchpad STATE.presnap.md, 5430 lines) and restored ONLY the five clobbered progress
+     fields surgically, plus this blank line, keeping the legitimate new metrics row.
+     `last_updated` deliberately LEFT at the new value: that timestamp is accurate, the progress
+     numbers were not. Progress deliberately NOT recomputed by hand for the same reason the
+     tenth occurrence gives: Phase 267.3's 8 planned plans are still not reflected in
+     total_plans, so any hand-bumped number would be as fabricated as the SDK's.
+
+     Consequence for this plan: `state.advance-plan`, `state.update-progress`,
+     `state.add-decision`, `state.record-session` and `roadmap.update-plan-progress` were NOT
+     called for 267.3-02. Twelve occurrences across at least three distinct write verbs is
+     enough evidence that the write path is unsafe; the position and decisions for this plan are
+     carried by `.planning/phases/267.3-*/267.3-02-SUMMARY.md` (which records them in its own
+     frontmatter `decisions:` block) and by this NOTE, following the precedent established by
+     the 264, 267.1, 269 and 270 NOTES below. `roadmap.update-plan-progress` was skipped
+     deliberately and additionally because of the THIRD, DIFFERENT defect recorded in the
+     267.3-01 note above: it DESTROYS hand-authored prose on the "**Plans:**" line it edits.
+     Phase 267.3's ROADMAP row was updated by hand instead. -->
 
 
 <!-- NOTE (270 execute-plan state.record-metric after plan 270-02, 2026-08-27T~16:40Z, hand-edited
@@ -3940,6 +3972,7 @@ Progress: [█████████░] 92%
 | Phase 271 P01 | 42min | 3 tasks | 4 files |
 | Phase 271 P02 | 26min | 2 tasks | 2 files |
 | Phase 267.3 P01 | 35min | 2 tasks | 2 files |
+| Phase 267.3 P02 | 40min | 3 tasks | 7 files |
 
 ## Accumulated Context
 

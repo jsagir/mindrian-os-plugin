@@ -731,7 +731,7 @@ Cross-references: this is the ONE audit finding with no Phase 269 collision and 
 **Requirements**: GUARD-01, GUARD-02, GUARD-03, GUARD-04, GUARD-05, GUARD-06, GUARD-07, GUARD-08, GUARD-09, GUARD-10 (minted at plan time in `267.3-DECISIONS.md`, registered in `.planning/REQUIREMENTS.md` at phase close, per the Phase 270 precedent)
 **Depends on:** none - independent of Phase 269 and of Phase 267.2; this is a lint-scope and declaration-contract change, not an onboarding-flow change.
 **Blocks:** Phase 271 plan 03's remaining 17 command files (16 with anchoring edits held uncommitted in the working tree, plus `commands/doctor.md`). Those cannot be committed until the declaration question is ruled. See `271-03-SUMMARY.md`. Plans 267.3-04 and 267.3-05 clear this block.
-**Plans:** 1/8 plans executed. 8 plans across 7 waves. Plan-time measurement: 46 compliant / 67 missing / 0 invalid over 113 `commands/*.md`; `scripts/verify-release` gate 10c RED; 16 command files plus 16 mirrors held uncommitted in the shared tree. Re-measured live at 267.3-01 execution time (2026-08-27, HEAD `cf7eabf3`): IDENTICAL, 46 / 67 / 0 over 113, gate 10c RED with 1 violation (`commands/doctor.md:262`), 16 + 16 still held. See `267.3-AUDIT.md` Sections 1 and 4.
+**Plans:** 2/8 plans executed. 8 plans across 7 waves. Plan-time measurement: 46 compliant / 67 missing / 0 invalid over 113 `commands/*.md`; `scripts/verify-release` gate 10c RED; 16 command files plus 16 mirrors held uncommitted in the shared tree. Re-measured live at 267.3-01 execution time (2026-08-27, HEAD `cf7eabf3`): IDENTICAL, 46 / 67 / 0 over 113, gate 10c RED with 1 violation (`commands/doctor.md:262`), 16 + 16 still held. See `267.3-AUDIT.md` Sections 1 and 4.
 
 Plans:
 
@@ -741,7 +741,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 267.3-02-PLAN.md - The declaration contract: `data/first-reward-surfaces.json`, the `REWARD_TYPES` amendment as a recorded canon amendment, `scanDeclaredSurfaces()`, the `--surfaces` CLI mode, and `tests/run-all-267.3.sh`
+- [x] 267.3-02-PLAN.md - The declaration contract: `data/first-reward-surfaces.json`, the `REWARD_TYPES` amendment as a recorded canon amendment, `scanDeclaredSurfaces()`, the `--surfaces` CLI mode, and `tests/run-all-267.3.sh` (commits `1967e28d`, `9a1b9fda`, `92be6e27`; `REWARD_TYPES` now 8 members, registry ships schema-complete with `surfaces: []` for 267.3-03 to populate, `run-all-267.3.sh` PASS=4 FAIL=0, and the `commands/` audit is UNCHANGED at 46 / 67 / 0 because this plan built a mechanism and declared nothing)
 
 **Wave 3** *(blocked on Wave 2)*
 
