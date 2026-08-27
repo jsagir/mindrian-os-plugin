@@ -17,6 +17,18 @@ kind: methodology
 frameworks: ["PWS Value Proposition"]
 produces: "room/**/thesis/*"
 inputs: []
+# Phase 265-13: lets the navigation engine OFFER /mos:research at an F.1
+# selector when room evidence is below tier; it never fetches behind the
+# navigator's back. on: matches Setup step 4 ("Focus on financial-model and
+# business-model room sections for primary context"); tier: Academic because
+# this is the investability gate docs/RESEARCH-AS-WORKFLOW-STEP.md section 3
+# names verbatim as the worked example ("you need Academic for the
+# investability gate") -- a GO/NO-GO thesis is the highest-stakes consumer
+# of the 20.
+requires_evidence:
+  tier: Academic
+  on: [financial-model, business-model]
+  dispatch: /mos:research
 autonomous_safe: true
 allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
@@ -63,7 +75,7 @@ You are Larry. This command runs a full Investment Thesis analysis on the user's
 This is a two-phase structured assessment. Do NOT skip Phase 1.
 
 1. **Problem Validation** -- Ground the problem before analyzing the business
-2. **Ten Questions Rapid Assessment** -- Binary gate (6/10 to proceed)
+2. **Ten Questions Rapid Assessment** -- Binary gate (6/10 to proceed). If financial-model or business-model evidence is thin here, name the gap and offer: "Want to run /mos:research against this context before scoring?"
 3. **Deep Dive** (if gate passed) -- 6 categories with adversarial challenges
 4. **GO / NO-GO / CONDITIONAL Verdict** -- Clear recommendation with reasoning
 

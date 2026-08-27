@@ -501,7 +501,7 @@
       "hierarchy_rank": 1,
       "filing": "fileEvidenceWithReadback",
       "plan_gated": false,
-      "web_scope": null,
+      "web_scope": "green",
       "decision_surface": "F.1"
     },
     {
@@ -1882,7 +1882,7 @@
       "hierarchy_rank": 1,
       "filing": "fileEvidenceWithReadback",
       "plan_gated": false,
-      "web_scope": null,
+      "web_scope": "green",
       "decision_surface": "F.1"
     },
     {

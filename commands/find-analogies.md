@@ -6,6 +6,11 @@ body_shape: D (Comparison Matrix)
 hitl_shape: "F.8"
 hitl_why: "Cross-domain analogies are returned as an unordered set of candidates to pick from in any order."
 serves_jtbd: ["connect-domains"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Step 1-2 flow: the abstracted functional pattern previews the
+# SAPPhIRE/TRIZ candidate structure before the navigator invests in the
+# gated External Mode fetch).
+interactive_first_reward: schema_preview
 teaching: "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches. Most breakthroughs are borrowed structure."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -35,7 +40,13 @@ connector:
   hierarchy_rank: 1
   filing: fileEvidenceWithReadback
   plan_gated: false
-  web_scope: null
+  # Phase 265-13 Task 3 discovery (surfaced by the new declaration-truth
+  # tripwire's WEB_SCOPE arm, not the Task 2 fetchCorpus-only sweep):
+  # External Mode's own body names mcp__tavily__tavily-search (also in
+  # allowed-tools) with a WebSearch fallback, gated by the Part-8 egress
+  # composer + a navigator-approval AskUserQuestion before any fetch. This is
+  # the same declaration-versus-reality defect Task 2 corrected for futures.
+  web_scope: green
   surface: F.1
 ---
 

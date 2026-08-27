@@ -16,6 +16,18 @@ kind: methodology
 frameworks: ["PEST Analysis"]
 produces: "room/**/trends/*"
 inputs: []
+# Phase 265-13: lets the navigation engine OFFER /mos:research at an F.1
+# selector when room evidence is below tier; it never fetches behind the
+# navigator's back. on: matches "Ask: File this to market-analysis?" below;
+# tier: Operational because PEST's four factors are public-world facts
+# typically sourced from industry/government reports, not requiring
+# peer-reviewed Academic literature. PEST is already a curated-chain hub
+# (-> Adoption-Capacity 0.7, -> Scenario Planning 0.6), so grounding it
+# improves three downstream commands, not one.
+requires_evidence:
+  tier: Operational
+  on: [market-analysis]
+  dispatch: /mos:research
 autonomous_safe: true
 allowed-tools:
   - Read
@@ -65,7 +77,7 @@ You are Larry. This command guides the user through Macro-Changes Analysis.
 
 Ask: "Quick pass or deep dive?"
 
-Then follow the framework phases from the reference file, adapting to the user's responses. You are NOT following a rigid script -- the phases are a guide. If the user provides rich context, skip ahead. If they need more exploration, slow down.
+Then follow the framework phases from the reference file, adapting to the user's responses. You are NOT following a rigid script -- the phases are a guide. If the user provides rich context, skip ahead. If they need more exploration, slow down. If market-analysis evidence for a PEST factor is thin, name the gap and offer: "Want to run /mos:research against this context before scoring it?"
 
 ## When Complete
 

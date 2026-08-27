@@ -42,12 +42,29 @@ body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "The value-map and customer-profile fits are assessed as an independent set, an unordered basket."
 serves_jtbd: ["validate-idea", "prepare-pitch"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Setup: checking business-model/problem-definition/market-analysis
+# for existing work previews the three-gate structure before the navigator
+# invests in scoring).
+interactive_first_reward: schema_preview
 teaching: "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math. A clean gate failure beats a vague pass."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["PWS Value Proposition"]
 produces: "room/business-model/value-proposition/*"
 inputs: []
+# Phase 265-13: lets the navigation engine OFFER /mos:research at an F.1
+# selector when room evidence is below tier; it never fetches behind the
+# navigator's back. on: matches Setup step 6 ("Check room/market-analysis/
+# for existing market evidence"); tier: Operational because Gate 1's market-
+# sizing threshold (>= 6.0) is answered by industry/analyst data, not
+# necessarily peer-reviewed literature -- this is the fully-built evidence
+# CONSUMER with no producer wired to it (Gate 1 >= 6.0, Gate 2 >= 5.5,
+# "Score with evidence, not optimism").
+requires_evidence:
+  tier: Operational
+  on: [market-analysis]
+  dispatch: /mos:research
 autonomous_safe: true
 allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 144.1 connector frontmatter ---
@@ -95,7 +112,7 @@ You are Larry. This command runs the PWS Value Proposition scoring framework -- 
 
 Ask: "Quick pass or deep dive?"
 
-Then follow the three-gate sequence from the reference. Gates are SEQUENTIAL -- Gate 1 must pass (>= 6.0) before moving to Gate 2. Gate 2 must pass (>= 5.5) before Gate 3. A single gate failure kills the proposition.
+Then follow the three-gate sequence from the reference. Gates are SEQUENTIAL -- Gate 1 must pass (>= 6.0) before moving to Gate 2. Gate 2 must pass (>= 5.5) before Gate 3. A single gate failure kills the proposition. If market-analysis evidence is thin going into Gate 1, name the gap and offer: "Want to run /mos:research against this context before scoring?"
 
 Score each dimension 0-10 through conversation. ONE dimension per exchange. Challenge weak evidence. Push back on vague answers.
 
