@@ -25,26 +25,26 @@
  * not by a literal `c.tool` (which would be undefined for every JSON entry
  * and silently break this test's own correctness).
  *
- * SCOPE NOTE (also a deviation, flagged for the navigator, not silently
- * corrected): the wire today carries MORE undeclared tools than the two
- * OQ-5 named. `analysis`, `eureka_critic`, `export`, `intelligence`,
- * `meeting`, `methodology`, `orchestration`, `room_content`, `room_graph`,
- * `room_state`, `room-dashboard`, `room-graph`, and `room-wiki` are all
- * registered inside lib/mcp/tool-router.cjs's registerRouterTools() (or, for
- * the three hyphenated room-* view tools, elsewhere) with no accompanying
- * `connectors` entry either -- the SAME structural gap as detect_dual_path/
- * extract_shallow, just not named by RESEARCH.md's OQ-5. One documented
- * precedent exists (tool-router.cjs's own comment on eureka_critic: "its
- * governance dial is 'none', so it mints no connector descriptor ...
- * registration on this one governed MCP path via registerRouterTools IS the
- * Canon Part 11 wiring") but that rationale is written for eureka_critic
- * specifically, not asserted here as a blanket exemption for the rest of
- * that family -- generalizing it without navigator confirmation would be
- * this test overreaching its own scope. This test therefore asserts ground
- * truth (whatever the wire and the two connector sources actually say
- * today) rather than a hand-narrowed exclusion list, so a green run can
- * never be misread as covering more than plan 270-06 actually fixes. See
- * this plan's SUMMARY.md for the full finding.
+ * SCOPE NOTE, UPDATED by navigator ruling (270-DECISIONS.md, OQ-5
+ * disposition, 2026-08-27): plan 270-02's live wire probe found 13
+ * additional undeclared tools beyond the two OQ-5 named -- `analysis`,
+ * `eureka_critic`, `export`, `intelligence`, `meeting`, `methodology`,
+ * `orchestration`, `room_content`, `room_graph`, `room_state`,
+ * `room-dashboard`, `room-graph`, and `room-wiki` -- all registered inside
+ * lib/mcp/tool-router.cjs's registerRouterTools() (or, for the three
+ * hyphenated room-* view tools, elsewhere) with no accompanying
+ * `connectors` entry either. Rather than leave that generalization to this
+ * test's own judgment, the navigator was asked and RULED these 13 EXEMPT,
+ * explicitly extending tool-router.cjs's own documented eureka_critic
+ * precedent ("its governance dial is 'none', so it mints no connector
+ * descriptor ... registration on this one governed MCP path via
+ * registerRouterTools IS the Canon Part 11 wiring") to the whole grouped
+ * multi-command-tool family, rather than widening plan 270-06 to force
+ * individual connector declarations onto them. EXEMPT_GROUPED_ROUTER_TOOLS
+ * below is that ratified list; the missing-connector check excludes it by
+ * name, with the reason on record here, never a silent filter. If a NEW
+ * tool not in this named list ever shows up missing, it still turns this
+ * leg RED -- the exemption is closed, not a blanket wildcard.
  *
  * Canon Part 8: spawns a LOCAL process under a hermetic mkdtemp HOME with
  * MINDRIAN_BRAIN_KEY unset. Zero network reach.
@@ -234,14 +234,22 @@ function listToolsOverStdio() {
   }
 
   // -------------------------------------------------------------------------
-  // Forward direction: every tool on the wire must carry a connector.
-  // RED today -- see the SCOPE NOTE in the header for why this list is
-  // larger than the two OQ-5 named.
+  // Forward direction: every tool on the wire must carry a connector,
+  // EXCEPT the ratified exemption list below (270-DECISIONS.md OQ-5
+  // disposition, see the SCOPE NOTE in the header). Named, not a wildcard:
+  // a tool NOT in this list still turns this leg RED if it is missing.
   // -------------------------------------------------------------------------
+  const EXEMPT_GROUPED_ROUTER_TOOLS = [
+    'analysis', 'eureka_critic', 'export', 'intelligence', 'meeting',
+    'methodology', 'orchestration', 'room_content', 'room_graph', 'room_state',
+    'room-dashboard', 'room-graph', 'room-wiki',
+  ];
   const wireNames = new Set(tools.map((t) => t.name));
-  const missing = tools.map((t) => t.name).filter((n) => !declared.has(n)).sort();
+  const missing = tools.map((t) => t.name)
+    .filter((n) => !declared.has(n) && EXEMPT_GROUPED_ROUTER_TOOLS.indexOf(n) === -1)
+    .sort();
   check(
-    'every tool on the wire has a connector descriptor',
+    'every tool on the wire has a connector descriptor (or is a ratified exemption)',
     missing.length === 0,
     missing.length ? 'missing: ' + missing.join(', ') : ''
   );
