@@ -206,6 +206,23 @@
       "hitl_why": "Pure read: graph neighborhood retrieval through the navigation.cjs chokepoint, no fork."
     },
     {
+      "surface": "mcp:graph_reason",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Every mode is a pure read through the navigation.cjs chokepoint: no node minted, no edge written, and specifically NO cross-room edge materialized (edges.cjs:45, \"Cross-room aggregation forbidden\"). Contrast with graph_write's F.1: this tool never writes, the read/write line RESEARCH.md 2.5 names as the load-bearing distinction this phase preserves."
+    },
+    {
       "surface": "mcp:graph_write",
       "source": "mcp_tool",
       "connects_to_spine": true,

@@ -13,8 +13,8 @@
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "afbf473c6314115b71e6383dd31ff466525c598560e7b5342f370e9e14c77a73",
-      "source_count": 206
+      "digest": "a36a8718a0bb7e49b941076f97cb1528ce8f572bea95a4e3ecebb24284983f71",
+      "source_count": 207
     },
     {
       "role": "ranked_next_reach",
