@@ -116,3 +116,10 @@ None. This plan's `<threat_model>` fully covers the changes made (T-266-10 throu
 ---
 *Phase: 266-mcp-layer-correctness-fixes-fast-independently-shippable-fix*
 *Completed: 2026-08-27*
+
+## Self-Check: PASSED
+
+All created/modified files confirmed present on disk (tests/test-266-dep-heal-connect-budget.cjs,
+lib/core/mcp-dep-heal.cjs, lib/core/npm-install-lock.cjs, lib/core/npm-install-lock.test.cjs,
+bin/mindrian-mcp-server.cjs, bin/mindrian-brain-mcp-client.cjs, this SUMMARY.md). All four commits
+(9d39c012, 913741e5, 5fb94daf, 73e40bf7) confirmed in `git log --oneline`.
