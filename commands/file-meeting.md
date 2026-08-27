@@ -466,7 +466,7 @@ trust Larry's classifications.
 
 ### Present Segments Batched by Type (Priority Order)
 
-Group classified segments by type. Within each type, sort by confidence. Present the highest-priority types first:
+Group classified segments by type. Within each type, sort by confidence. Present the highest-priority types first, with Larry's reasoning for each:
 
 ```
 **DECISIONS (2 segments):**
@@ -477,23 +477,64 @@ Group classified segments by type. Within each type, sort by confidence. Present
 2. Sarah (founder): "We're pausing the mobile app."
    -> solution-design | decision | HIGH confidence
    Reasoning: Product roadmap change from founder
-
-File both decisions? [all / review individually / skip]
 ```
 
-### Filing Options Per Batch
+Do this for EVERY type present (decisions, action items, insights, advice, open questions)
+before moving to the filing gate below -- the navigator sees the full extraction before being
+asked to file any of it.
 
-- **all**: File every segment in this batch
-- **review individually**: Present each one for yes/no/redirect
-- **skip**: Skip the entire batch (captures structured rejection)
+### The Filing Gate is Shape F.8 (renderShapeF8 -> consumeF8Fanout)
+
+The frontmatter above declares `hitl_shape: "F.8"` -- "Extracted nuggets are routed as an
+independent set the navigator files in any order." This is where that declaration actually
+fires, in place of a flat ASCII prompt.
+
+**1. Build ONE consolidated nugget routing table** across ALL extracted types (decisions,
+action items, insights, advice, open questions) -- one table, not one prompt per batch.
+Use the same canonical columns already shipping in `commands/ignite.md` and
+`commands/new-project.md`:
+
+```
+| nugget | target section | why |
+|--------|----------------|-----|
+| Lawrence (mentor): "Focus on B2B first, consumer can wait." | team-execution | Direct strategic direction from mentor |
+| Sarah (founder): "We're pausing the mobile app." | solution-design | Product roadmap change from founder |
+| ... one row per classified segment across every type ... |
+```
+
+**2. Render it through the shipped machinery, never a hand-rolled prompt.** Call
+`lib/hmi/shape-f8-renderer.cjs` `renderShapeF8` with the table rows as the toggle basket
+(one option per nugget: `label` is the nugget summary, `confidence` is the segment's
+classification confidence, so a >=0.70 nugget renders PRE-CHECKED per D-06 -- display-only,
+never auto-applied). Fire the returned card via **AskUserQuestion** as a multi-select (the
+contract's `multiSelect: true`). On the single confirm, hand the navigator's selected subset
+to `lib/workflow/f8-fanout-consumer.cjs` `consumeF8Fanout`, passing a per-nugget filing
+closer that writes the artifact (see Create Filed Artifacts, below) for each confirmed item.
+ONE confirm fans out to N filed artifacts -- toggling a nugget off is how the navigator skips
+it; there is no separate "review individually" mode because every nugget already IS reviewed
+individually via its own toggle.
+
+**3. Honor the paging bound.** `MAX_TOGGLE_N` is 4. A basket larger than 4 PAGES rather than
+truncates (D-05) -- a 40-nugget meeting therefore walks several pages of the same card, never
+a silently-truncated set. Do not invent a per-command cap and do not raise `MAX_TOGGLE_N`.
+
+**4. Nothing files until the navigator confirms.** Every claim minted by Step 3 Pass 4
+(`navigation.writeClaimNode`) is born `review_status: 'proposed'` -- rendering this gate as
+F.8 does not and cannot change that; the writer is the sole mint point (Canon Part 9 role 5).
+Promotion runs only through `navigation.confirmNode` with a non-agent `byUser` resolved from
+USER.md: a literal `larry`/`brain`/`system`/`assistant` is rejected by `promoteNodeStatus`
+with `agent_attribution_forbidden`. The declaration and the render finally agree.
 
 ### Handle Rejections
 
-When the user rejects a filing, offer structured rejection reasons:
+A nugget the navigator does NOT toggle on still records why, when a reason is given: offer
+structured rejection reasons for the unchecked rows --
 
-> "Why skip? [not relevant] [already known] [wrong section] [other]"
+> "Skipping {N} nuggets. Why? [not relevant] [already known] [wrong section] [other]"
 
-Capture the rejection reason. This becomes graph data per the wicked problem architecture (rejection IS data).
+Capture the rejection reason per unchecked nugget. This becomes graph data per the wicked
+problem architecture (rejection IS data, project decision 13) -- the F.8 toggle basket
+changes HOW the navigator picks, it does not change that a skip is still recorded.
 
 ### Cross-Reference Against Open Action Items
 
