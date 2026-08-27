@@ -100,7 +100,7 @@ const server = new McpServer({ name: 'mindrian-brain', version: version });
 // -- brain_ask: highest-level entry; wraps response in DirectiveEnvelope.
 server.tool(
   'brain_ask',
-  'Natural-language methodology question. Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content. Auto-routes Pinecone/Neo4j server-side.',
+  'Ask the remote PWS teaching graph a natural-language methodology question. Routing happens server-side over the live Memgraph teaching graph using locally-embedded multilingual-e5-large vectors. Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
   { question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') },
   async ({ question }) => {
     if (!(await brainClient.ensureAvailable())) {
@@ -145,7 +145,7 @@ server.tool(
 // -- brain_schema: cached 30 min in brain-client; passthrough here.
 server.tool(
   'brain_schema',
-  'Brain Neo4j schema (labels, relationship types, property keys). Memoized 30 minutes.',
+  'Reports the teaching graph schema: labels, relationship types and property keys from the live Memgraph backend. Memoized for 30 minutes.',
   {},
   async () => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_schema'));
@@ -154,10 +154,11 @@ server.tool(
   }
 );
 
-// -- brain_search: semantic via Pinecone (smartSearch handles Neo4j fallback).
+// -- brain_search: semantic via locally-embedded e5 vectors, with a graph
+// fulltext fallback (smartSearch handles the fallback branch).
 server.tool(
   'brain_search',
-  'Semantic search across the curriculum graph (Pinecone with Neo4j fulltext fallback).',
+  'Runs semantic search over the teaching graph using locally-embedded multilingual-e5-large vectors, with a graph fulltext fallback when the vector search comes up empty.',
   {
     query: z.string().describe('Search query (generic methodology language -- Canon Part 8).'),
     namespace: z.string().optional(),
@@ -173,7 +174,7 @@ server.tool(
 // -- brain_stats: operational stats passthrough.
 server.tool(
   'brain_stats',
-  'Brain operational stats (Pinecone index size, last-update markers).',
+  'Reports teaching-graph size and coverage counts, plus last-update markers, from the live Memgraph backend.',
   {},
   async () => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_stats'));
