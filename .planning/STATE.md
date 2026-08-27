@@ -4,8 +4,8 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Completed 266-05-PLAN.md (MCPFIX-03 gap closure)
-last_updated: "2026-08-27T05:28:08.874Z"
-last_activity: 2026-08-27 -- Phase 266 execution started
+last_updated: "2026-08-27T05:48:40.685Z"
+last_activity: 2026-08-27 -- Phase 266 fully complete (5/5 plans) and independently re-verified passed (8/8 must-haves); 266-05 closed the MCPFIX-03 gap. `gsd-tools query phase.complete 266` (as documented elsewhere in this file, a KNOWN recurring bug class on this repo's STATE.md free-text fields) collapsed this line to a bare date and left "Current Position" reading "Phase: 267 / Status: Phase complete -- ready for verification" (stale text from 266, describing a not-yet-started phase as complete) -- both hand-corrected here per the established restore precedent.
 progress:
   total_phases: 18
   completed_phases: 5
@@ -3057,14 +3057,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 266 - mcp-layer-correctness-fixes-fast-independently-shippable-fix (all 5 plans complete)
+**Current focus:** Phase 267 - mcp-stateless-protocol-migration-bump-vendored-modelcontextp (not started). Phase 266 (mcp-layer-correctness-fixes-fast-independently-shippable-fix) is COMPLETE and independently re-verified passed, 5/5 plans, 8/8 must-haves.
 
 ## Current Position
 
-Phase: 266 (mcp-layer-correctness-fixes-fast-independently-shippable-fix) - ALL 5 PLANS COMPLETE
-Plan: 5 of 5 (266-05 closed the MCPFIX-03 gap 266-VERIFICATION.md found)
-Status: Phase complete - ready for verification
-Last activity: 2026-08-27 -- Phase 266 Plan 05 executed (0f2f3a98 RED, a99c0c95 GREEN, 07e5d9d0 docs); see 266-05-SUMMARY.md
+Phase: 267
+Plan: Not started
+Status: Not started (Phase 266 shipped complete 2026-08-27: 5/5 plans, verified passed 8/8; 266-05 closed the one MCPFIX-03 gap the prior verification found)
+Last activity: 2026-08-27 -- Phase 266 closed out; next up is Phase 267
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -3531,7 +3531,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 47
+- Total plans completed: 52
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -3695,6 +3695,7 @@ Progress: [█████████░] 92%
 | Phase 261 P04 | 55min | 3 tasks | 9 files |
 | 264 | 5 | - | - |
 | Phase 266 P05 | 25min | 3 tasks | 8 files |
+| 266 | 5 | - | - |
 
 ## Accumulated Context
 
