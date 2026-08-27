@@ -1,7 +1,8 @@
 ---
 phase: 138
 slug: capability-radar-absorption-and-routing
-status: scoped-backlog (v1.14.0; captured 2026-06-01, NOT built in v1.13.1)
+status: superseded by Phase 265 (capability-radar-absorption-routing-re-scoped-supersedes-orp) -- retired as an orphan (W007-138), never built
+superseded_by: Phase 265 capability-radar-absorption-routing-re-scoped-supersedes-orp
 priority: P2 -- standing mechanism so radar findings get ABSORBED + WEAPONIZED, not logged-and-rotted
 created: 2026-06-01
 milestone: v1.14.0
@@ -119,3 +120,43 @@ Opus 4.8 (2.1.154) ships dynamic workflows that orchestrate hundreds of agents a
 - Phase 137 (Brain<->MindrianOS sync harness -- sibling v1.14.0 backlog phase; do not confuse numbers)
 - Phase 122 workflow-layer (the router substrate reused)
 - Phase 109 navigation chokepoint (session-id scoping consumer)
+
+## Superseded by Phase 265
+
+This phase never shipped. It was scaffolded 2026-06-01 and never added to ROADMAP.md; the
+drift detector caught the orphaning as finding W007-138 on 2026-08-10, sixteen days before a
+human did -- evidence the check works. Phase 265
+(capability-radar-absorption-routing-re-scoped-supersedes-orp) retires it by marking, not
+deleting, and records the full reasoning in `docs/RADAR-ABSORPTION-265.md`. The corrections,
+next to the original errors so a future reader sees both:
+
+- `E-1`: `a4_reeval` above frames A4 (forked subagents) as an open probabilistic question
+  ("likely SUPERSEDE... This phase DECIDES adopt-vs-supersede"). Corrected: SETTLED by the
+  platform at Claude Code 2.1.232 (subagent forking is on by default). Nothing to decide.
+- `E-2`: the Bucket-F destinations above name Phases 133-136 as consumers. Corrected: those
+  phases are unrelated and long past; ROADMAP's rolling window moved. A forward-map must be
+  derived at plan time from a live ledger, never hardcoded to phase numbers in a markdown
+  table -- hardcoded numbers are exactly what rotted here.
+- `E-3`: "the ledger (this CONTEXT) promoted to the canonical capability registry" above is the
+  root cause of the rot. A markdown table inside one phase's CONTEXT.md is invisible to every
+  tool. Corrected: Phase 265 puts the ledger in a machine-readable file,
+  `data/capability-ledger.json`, schema-validated and freshness-checked on two independent
+  paths.
+- `E-4`: the `depends_on` list above claims the changelog cache "already carries the
+  2.1.148-159 findings as of 2026-06-01." Corrected: FALSE. The cache's own header reads "Last
+  fetched: 2026-05-05" and its newest entry is `### 2.1.128`.
+- `E-5`: the acceptance criteria above frame "no `CLAUDE_CODE_FORK_SUBAGENT` env default is set"
+  as the A4 win condition. Corrected: the variable still exists but its polarity inverted -- it
+  is now the opt-OUT (`=0`), not an opt-in. A tripwire asserting the literal's absence is still
+  the right shape, for the opposite reason.
+
+Four elements Phase 265 carried forward verbatim, because they were right:
+
+1. The problem framing -- "radar findings die in a dormant, stale, one-shot backlog," proven
+   true by this phase itself becoming exactly that.
+2. The reuse-not-rebuild reframe (Canon Part 7) -- reuse Phase 122's `data/command-registry.json`
+   + resolver rather than mint a new dispatcher.
+3. The four-part mechanism shape -- living ledger + a findings contract + a router at plan time
+   + a drift check. Structurally sound; only the medium (a markdown table) was wrong.
+4. The supersede-never-delete discipline -- the right disposal shape for a rotted predecessor,
+   now applied reflexively to this phase and to SEED-003.

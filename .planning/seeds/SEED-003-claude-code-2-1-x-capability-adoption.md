@@ -1,20 +1,21 @@
 ---
 id: SEED-003
-status: dormant
+status: superseded
 planted: 2026-05-05
 planted_during: v1.12.5.1 -- Phase 109 (sql-context-memory-navigation-spine), filed via /mos:radar --fetch
 trigger_when: v1.13.0 release-planning conversation opens, OR Brain MCP cold-start latency complaint surfaces, OR a tester reports proactive-intelligence not firing on first turn
 scope: large
 bundle: capability-radar-adoption
-implementing_phase: partial -- A1 -> Phase 114 (shipped v1.13.0-beta.2); A3 -> Phase 117-04 sanitizer (shipped v1.13.0-beta.8); A2 + A4 + A5 still dormant
+implementing_phase: partial -- A1 -> Phase 114 (shipped v1.13.0-beta.2); A3 -> Phase 117-04 sanitizer (shipped v1.13.0-beta.8); A2/A4/A5 carried forward to Phase 138, which itself orphaned (see needs_author_touch); Phase 265 is the actual absorption mechanism
 canon_parts: [Part 7, Part 8]
-related_phases: [114, 117]
+related_phases: [114, 117, 138, 265]
 related_seeds: []
 companion_artifacts:
   - references/capability-radar/changelog-cache.md (last fetched 2026-05-05; Claude Code 2.1.109 -> 2.1.128)
   - references/capability-radar/capabilities-index.md (carries A1-A5 cross-references)
-needs_author_touch: partial-shipped -- A1 + A3 landed. A2/A4/A5 carry-forward AND the newer 2.1.148-159 findings are now consolidated into Phase 138 (capability-radar-absorption-and-routing, v1.14.0), which supersedes this one-shot backlog with a living ledger + radar-router. Flip this seed to `superseded-by: Phase 138` when 138 ships.
-superseded_by: Phase 138 capability-radar-absorption-and-routing (pending its v1.14.0 ship)
+  - data/capability-ledger.json (Phase 265 -- the living, machine-readable successor to both markdown reference files above; a row here is schema-validated and freshness-checked on two independent paths, never left to a human noticing a table looks old)
+needs_author_touch: superseded -- what actually happened: A1 and A3 shipped (Phase 114, Phase 117-04). A2, A4, and A5 carried forward to Phase 138 (capability-radar-absorption-and-routing), which itself orphaned on disk (drift finding W007-138: scaffolded 2026-06-01, never added to ROADMAP.md, caught by the drift detector 2026-08-10, closed by Phase 265 on retirement). A4 (forked subagents) is now SETTLED by the platform at Claude Code 2.1.232 (default fork-mode-on) rather than the open adopt-versus-supersede question Phase 138 framed it as -- nothing left to decide. Phase 265 is the actual absorption mechanism: it retires both this seed and Phase 138 by marking (never deleting), and replaces the two-markdown-file pattern with `data/capability-ledger.json`, a machine-readable ledger a tool can validate instead of a human needing to notice staleness. See docs/RADAR-ABSORPTION-265.md for the full reasoning.
+superseded_by: Phase 265 capability-radar-absorption-routing-re-scoped-supersedes-orp
 ---
 
 # SEED-003: Claude Code 2.1.110-128 Capability Adoption Backlog
