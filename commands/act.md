@@ -15,6 +15,13 @@ hitl_stages:
     shapes: ["F.8"]
     mode: "parallel"
 hitl_why: "Act has three modes in one file: a ranked best-pick dial (F.7), an ordered chain (F.2 then F.9), and a parallel swarm (F.8), each a distinct decision surface."
+# Phase 265-03 reward-before-investment declaration (pre-existing gap closed
+# as a commit-gate blocker, docs/reward-before-investment-rule.md). Grounded
+# in Step 4's thinking trace (this file, "## Step 4: ..."): bare `/mos:act`
+# with zero flags shows the recommended framework, its reasoning, and its
+# source BEFORE the F.1 Run/Modify/Cancel gate asks the navigator to invest
+# a decision -- a structural preview of what would run, not the run itself.
+interactive_first_reward: schema_preview
 serves_jtbd: ["plan-execution"]
 teaching: "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -429,10 +436,19 @@ Surface the swarm-approval gate on the Shape F.1 host (the AskUserQuestion primi
 
 If user confirms:
 
-1. Dispatch all N framework-runner agents in parallel using the Agent tool with `run_in_background: true`:
-   - N comes from `plan.agents` (dispatch-optimizer result), NOT hardcoded
+1. Dispatch all N agents in one message using the Agent tool with `subagent_type: framework-runner`
+   (the explicit type string, not a file path -- an Agent tool call that cannot resolve a
+   `subagent_type` is a hard error listing available agents since 2.1.235). Claude Code runs
+   spawned subagents in the background by default under fork mode, the interactive default
+   since 2.1.232 -- do NOT pass any manual background-execution parameter to the Agent tool
+   call; the platform removes that kind of parameter from the Agent tool entirely once fork
+   mode is on (code.claude.com/docs/en/sub-agents). The platform caps concurrent subagents at
+   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); clamp N to 20 even though `plan.agents` already
+   sizes on context budget rather than agent count, since a large room could in principle exceed
+   the cap:
+   - N comes from `plan.agents` (dispatch-optimizer result), NOT hardcoded, clamped to the 20-cap above
    - Each agent receives: framework name, room path, target section, room context summary, resolved model
-   - Each agent is an independent `agents/framework-runner.md` invocation
+   - Each agent is an independent `subagent_type: framework-runner` invocation (see `agents/framework-runner.md` for its instructions)
    - Agents do NOT share context or coordinate -- they run in full isolation
 
 2. Show dispatch confirmation:

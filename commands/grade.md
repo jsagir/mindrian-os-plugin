@@ -113,12 +113,20 @@ Unlike standard grading (single agent evaluates all sections sequentially), `--f
    ```
    Grading agents are quality-sensitive -- venture stage hints may push these to a higher-tier model than other agent types.
 
-3. **Dispatch agents in parallel** using the Agent tool with `run_in_background: true`:
+3. **Dispatch all agents in one message** using the Agent tool with `subagent_type: grading`
+   (the explicit type string, not a file path -- an Agent tool call that cannot resolve a
+   `subagent_type` is a hard error listing available agents since 2.1.235). Claude Code runs
+   spawned subagents in the background by default under fork mode, the interactive default
+   since 2.1.232 -- do NOT pass any manual background-execution parameter to the Agent tool
+   call; the platform removes that kind of parameter from the Agent tool entirely once fork
+   mode is on (code.claude.com/docs/en/sub-agents). The platform caps concurrent subagents at
+   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); at most 8 is already well under the cap, but
+   clamp to 20 as the standing rule so a future author does not reintroduce an unbounded fan-out.
 
    Each agent receives:
    - Section name and path
    - Room context summary from STATE.md
-   - Instructions from `agents/grading.md` (scoped to ONE section)
+   - Instructions from `agents/grading.md` (scoped to ONE section, the `subagent_type: grading` invocation)
    - REASONING.md path for that section (if it exists)
 
    ```

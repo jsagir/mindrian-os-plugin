@@ -133,13 +133,21 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
    ```
    All 6 agents share the same model resolution since they perform equivalent work. The venture stage determines whether persona analysis runs on a budget or quality tier.
 
-3. **Dispatch 6 agents in parallel** using the Agent tool with `run_in_background: true`:
+3. **Dispatch all 6 agents in one message** using the Agent tool with `subagent_type: persona-analyst`
+   (the explicit type string, not a file path -- an Agent tool call that cannot resolve a
+   `subagent_type` is a hard error listing available agents since 2.1.235). Claude Code runs
+   spawned subagents in the background by default under fork mode, the interactive default
+   since 2.1.232 -- do NOT pass any manual background-execution parameter to the Agent tool
+   call; the platform removes that kind of parameter from the Agent tool entirely once fork
+   mode is on (code.claude.com/docs/en/sub-agents). The platform caps concurrent subagents at
+   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); 6 is already well under the cap, but clamp to 20
+   as the standing rule so a future author does not reintroduce an unbounded fan-out here.
 
    Each agent receives:
    - Hat color and persona file path
    - Room path and room context summary from STATE.md
    - Artifact path (if provided) for focused analysis
-   - Instructions from `agents/persona-analyst.md`
+   - Instructions from `agents/persona-analyst.md` (the `subagent_type: persona-analyst` invocation)
 
    ```
    [PARALLEL] Dispatching 6 persona-analyst agents
