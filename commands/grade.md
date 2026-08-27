@@ -229,9 +229,9 @@ The full-grade artifact includes all section scores, REASONING.md health, and cr
 
 ## Setup
 
-1. Read `references/methodology/grade.md` for the scoring formula, components, and artifact template
-2. Read `references/personality/voice-dna.md` for Larry's voice
-3. Read `references/personality/assessment-philosophy.md` for grading philosophy
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/grade.md` for the scoring formula, components, and artifact template
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
+3. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/assessment-philosophy.md` for grading philosophy
 4. Read ALL sections of `room/STATE.md` for venture context (if exists)
 5. Read all room sub-sections that have content -- you grade the ENTIRE venture, not one section
 

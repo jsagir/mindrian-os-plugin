@@ -122,9 +122,9 @@ Without running the full pipeline stages, perform a rapid extraction:
 2. **Contradiction**: Where does improving one dimension worsen another?
 3. **Functional Keywords**: 3-5 abstract search terms
 
-Read `references/methodology/sapphire-encoding.md` for SAPPhIRE reference (if the file exists -- Tier 0 proceeds without it).
+Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/sapphire-encoding.md` for SAPPhIRE reference (if the file exists -- Tier 0 proceeds without it).
 
-Read `references/methodology/triz-principles.md` for TRIZ parameter mapping (if the file exists -- Tier 0 proceeds without it).
+Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/triz-principles.md` for TRIZ parameter mapping (if the file exists -- Tier 0 proceeds without it).
 
 Display the decomposition:
 
@@ -149,13 +149,13 @@ Generate 3-5 cross-domain analogies from your training knowledge. For each:
 
 Prioritize FAR and CROSS-DOMAIN analogies -- near-domain analogies are obvious and less valuable.
 
-**Honesty rule (no fabricated fitness).** Tier 0 WITHOUT the engine (Step 4.5) labels each candidate with a QUALITATIVE band word only -- Surface, Behavioral, Structural, or Deep (per `references/methodology/sapphire-encoding.md`, the structural-fitness table) -- followed by the sentence "fitness not computed - qualitative label only". It NEVER prints a numeric fitness it did not measure. The decorative decimal is retired: a band word is an honest floor, a fabricated number is a lie (the fusion-router never-fabricate rule).
+**Honesty rule (no fabricated fitness).** Tier 0 WITHOUT the engine (Step 4.5) labels each candidate with a QUALITATIVE band word only -- Surface, Behavioral, Structural, or Deep (per `${CLAUDE_PLUGIN_ROOT}/references/methodology/sapphire-encoding.md`, the structural-fitness table) -- followed by the sentence "fitness not computed - qualitative label only". It NEVER prints a numeric fitness it did not measure. The decorative decimal is retired: a band word is an honest floor, a fabricated number is a lie (the fusion-router never-fabricate rule).
 
 ### Brain Mode (`--brain`)
 
 In addition to Tier 0, query Brain MCP:
 
-1. Read `references/brain/query-patterns.md` for `brain_cross_domain` and `brain_search_semantic` patterns
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for `brain_cross_domain` and `brain_search_semantic` patterns
 
 2. Run `brain_analogy_search` to find frameworks from different domains addressing the same problem type:
 ```cypher
@@ -286,7 +286,7 @@ For each fetched result, extract source title + URL, source domain, structural m
 
 ## Step 4.5: Measured Fitness (the engine)
 
-When the SAPPhIRE encodings are available (Tier 0 extracts them per `references/methodology/sapphire-encoding.md`), MEASURE the fitness instead of narrating it.
+When the SAPPhIRE encodings are available (Tier 0 extracts them per `${CLAUDE_PLUGIN_ROOT}/references/methodology/sapphire-encoding.md`), MEASURE the fitness instead of narrating it.
 
 1. Write `{source, candidates}` with full SAPPhIRE encodings -- each candidate carries `{id, domain, text, sapphire:{state_change, action, parts, phenomenon, input, real_effect, effect}, source_tier, source_date?}` -- to `room/<section>/analogies/<slug>-fitness-input.json`.
 

@@ -41,7 +41,7 @@ You are Larry. When called without a subcommand, this command auto-detects the u
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 
 ## Flow
 
@@ -137,7 +137,7 @@ You are Larry. This command connects the user to the MindrianOS Brain for enhanc
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 
 ## Flow
 
@@ -281,7 +281,7 @@ You are Larry. This command configures Modulate Velma for audio transcription.
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 
 ## Flow
 
@@ -347,7 +347,7 @@ You are Larry. This command sets up HSI (Hybrid Similarity Index) for advanced c
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 
 ## Flow
 
@@ -436,7 +436,7 @@ You are Larry. This command configures a meeting transcript source -- Read AI, V
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 
 ## Flow
 
@@ -580,7 +580,7 @@ You are Larry. This command migrates legacy room layouts into the centralized ~/
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 
 ## Flow
 

@@ -58,8 +58,8 @@ You are Larry. This command guides the user through Ackoff's DIKW Pyramid.
 
 ## Setup
 
-1. Read `references/methodology/build-knowledge.md` for framework details
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/build-knowledge.md` for framework details
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context (if exists)
 
 ## Graph Reader: Typed Claims by DIKW Rung

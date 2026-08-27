@@ -202,7 +202,7 @@ Ask: "Want me to file this assessment to your Data Room?" File to `room/competit
 |--------|-------|------------|
 | Brain required | No | Yes |
 | Calibration data | None (static rubric) | 100+ real projects |
-| Scoring model | 6-component (`references/methodology/grade.md`'s static rubric) | 5-component weighted |
+| Scoring model | 6-component (`${CLAUDE_PLUGIN_ROOT}/references/methodology/grade.md`'s static rubric) | 5-component weighted |
 | Percentile ranking | No | Yes |
 | Assessment engine | Larry directly | Grading Agent |
 

@@ -116,12 +116,12 @@ not assumed: a `brain_search` for Tnufa content was attempted and blocked by Min
 Part 8 egress guard as out of scope. The rubric ships as a bundled local reference pack
 (`data/grant-rubric-fixtures/*.json`) and is NEVER pushed to Brain. Brain is still useful here,
 but only for GENERIC coaching on a flagged gap CATEGORY (e.g. "market", "legal") -- never the
-applicant's own draft text. See `references/opportunities/tnufa-rubric.md` for the full
+applicant's own draft text. See `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/opportunities/tnufa-rubric.md` for the full
 provenance and the matching-fund contradiction this rubric resolves.
 
 ## Setup
 
-1. Read `references/opportunities/tnufa-rubric.md` for the rubric's sources and known caveats.
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/opportunities/tnufa-rubric.md` for the rubric's sources and known caveats.
 2. Load the program list: `node -e "console.log(JSON.stringify(require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/grade-grant.cjs').listPrograms()))"`.
 3. If the navigator did not name a program, default to `tnufa` (the only `reviewed` fixture
    today) and say so plainly -- do not silently guess a different program.

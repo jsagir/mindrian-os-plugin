@@ -87,8 +87,8 @@ Anti-pattern reminder (per docs/AGENTIC-SURFACING-PATTERN.md):
 
 ## Setup
 
-1. Read `references/methodology/find-bottlenecks.md` for framework details
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/find-bottlenecks.md` for framework details
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context (if exists)
 
 ## Session Flow

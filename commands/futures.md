@@ -121,7 +121,7 @@ The wheel grounds its consequences in real signal at TWO bounded fire points (D-
 ## Setup
 
 1. Read `room/STATE.md` for venture context and the active venture stage (if it exists)
-2. Read `references/personality/voice-dna.md` for Larry's voice
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 
 **Voice rules (LOCKED):**
 - Conversational, direct, no filler. NO emoji anywhere. NO em-dashes (hyphens only).
