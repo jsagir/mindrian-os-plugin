@@ -3763,6 +3763,12 @@
       }
     },
     {
+      "id": "agent:vault-section-reviewer",
+      "kind": "agent",
+      "methodology_tier": "mindrian-operation",
+      "name": "vault-section-reviewer"
+    },
+    {
       "id": "framework:Ackoff Pyramid",
       "kind": "framework",
       "methodology_tier": "pws",
