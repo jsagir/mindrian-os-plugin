@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "canon_parts": ["Part 7", "Part 11"],
+  "_doc": {
+    "purpose": "Phase 267.3 (ruling D-A): the out-of-frontmatter first-reward declaration contract for first-touch surfaces that have no frontmatter block to declare in, the motivating case being scripts/session-start, a bash hook whose FIRST_INSTALL, UPDATE, MODE_ROUTING and COLD_START_MENU branches emit user-facing first-touch prose and have nowhere to put an interactive_first_reward key. Registry-is-the-table: this file IS the contract, read at check time by scanDeclaredSurfaces() in lib/core/mva-rule-linter.cjs, never a hardcoded list inside the scanner. Record shape mirrors data/first-touch-surfaces.json (Canon Part 7, reuse before build); the _doc convention mirrors data/hitl-shape-declaration-schema.json.",
+    "reward_vocabulary": [
+      "reframe_question",
+      "instant_brief",
+      "schema_preview",
+      "calibration_distribution_preview",
+      "paragraph_preview",
+      "--none (scripting only)",
+      "methodology_reframe",
+      "--none (diagnostic surface)"
+    ],
+    "reward_vocabulary_note": "This array MIRRORS the REWARD_TYPES frozen Set in lib/core/mva-rule-linter.cjs; it does not define it. Set-equality between the two is test-enforced (lib/core/mva-rule-linter.test.cjs and tests/test-267.3-surface-declarations.cjs), so a term added here and not there, or there and not here, reds the suite. A new term is a canon amendment landed in BOTH docs/reward-before-investment-rule.md and the REWARD_TYPES Set together, never a registry-local invention.",
+    "kind_vocabulary": ["shell_script", "injected_prose", "cjs"],
+    "kind_vocabulary_note": "Copied from data/first-touch-surfaces.json's kind values, minus the kinds no record here uses (command_md and agent_md both carry frontmatter, so they declare in frontmatter and never in this registry), plus injected_prose for a named prose branch inside a larger script. Add no kind until a record actually needs it.",
+    "record_shape": {
+      "id": "Required. A unique, non-empty stable surface identifier, for example session-start:FIRST_INSTALL. No two records may share one.",
+      "file": "Required. A repo-relative path to the declaring surface. The file MUST exist on disk at check time, so a declaration cannot outlive the surface it describes.",
+      "kind": "Required. One member of kind_vocabulary.",
+      "anchor": "Required. A grep-able literal or variable name locating the prose inside the file, for example the branch variable FIRST_INSTALL, so a reader can jump from this record to the prose it describes.",
+      "interactive_first_reward": "Required. One member of reward_vocabulary, validated by the SAME validateFrontmatter() the frontmatter path uses, so the two declaration surfaces cannot drift on what a legal value is.",
+      "why": "Required. One non-empty Feynman-simplified sentence naming the surface's ACTUAL first-reward moment, in plain words, hyphens not em-dashes."
+    },
+    "validation_rule": "A record is valid when every required field in record_shape is present, id is unique across the registry, file resolves to an existing file under the repo root, kind is a member of kind_vocabulary, interactive_first_reward is a member of reward_vocabulary, and why is a non-empty string. Any violation fails closed.",
+    "default_on_miss": "reject (fail closed): a file that is not on disk, an unknown kind, an unknown reward value, a duplicate id, an empty why, or an unparseable registry is a hard error, not a silent pass. A gate that reports is better than a gate that crashes, so an unreadable registry is reported as registry_read_error rather than thrown.",
+    "surface_count_principle": "The total count of declaring surfaces is NEVER hardcoded. It is always surfaces.length, read from this file by the gate at check time."
+  },
+  "surfaces": []
+}

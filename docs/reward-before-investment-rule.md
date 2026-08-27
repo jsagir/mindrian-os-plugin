@@ -96,14 +96,15 @@ CLI tools must support automation. A user running MindrianOS from a script does 
 
 ## Detection mechanism (Phase 118-06)
 A linter-style check at the command-spec level:
-- Every command has a declared `interactive_first_reward` field in its frontmatter
-- Value must be one of the closed REWARD_TYPES vocabulary OR `--none (scripting only)`
-- If value is `--none` without the scripting justification, the command spec is rejected at review
+- Every command has a declared `interactive_first_reward` field in its frontmatter; a surface with no frontmatter declares in `data/first-reward-surfaces.json` instead
+- Value must be one of the closed REWARD_TYPES vocabulary, which includes the two opt-outs `--none (scripting only)` and `--none (diagnostic surface)`
+- If value is `--none (scripting only)` without the scripting justification, the command spec is rejected at review; `--none (diagnostic surface)` is the honest opt-out for an interactively-invoked command that only reports state
 - CI check enforces this at build time
 
 **Implementation:**
-- Library: `lib/core/mva-rule-linter.cjs` (exports `scanCommands`, `scanFiles`, `validateFrontmatter`, `REWARD_TYPES`)
+- Library: `lib/core/mva-rule-linter.cjs` (exports `scanCommands`, `scanFiles`, `scanDeclaredSurfaces`, `validateFrontmatter`, `REWARD_TYPES`)
 - CLI: `scripts/check-reward-before-investment.cjs` (table + Larry-voice summary; exits 1 on violation)
+- Registry: `data/first-reward-surfaces.json` (Phase 267.3, ruling D-A) declares the first reward for surfaces that have no frontmatter to declare in, such as the `scripts/session-start` prose branches; read by `scanDeclaredSurfaces()` and audited by the `--surfaces` CLI mode
 - Pre-commit hook: `scripts/hooks/pre-commit` invokes the CLI when any `commands/*.md` is staged
 - Bypass: `COMMIT_NO_VERIFY=1` (wave-protocol invariant per Phase 125-08 SUMMARY)
 
@@ -113,6 +114,7 @@ A linter-style check at the command-spec level:
 | --- | --- | --- |
 | `node scripts/check-reward-before-investment.cjs [commandsDir]` | FULL AUDIT: every `*.md` in the directory. Reports the true repo-wide debt. | CI, manual sweeps |
 | `node scripts/check-reward-before-investment.cjs --staged [repoRoot]` | COMMIT GATE: only the `commands/*.md` this commit is staging, discovered via `git diff --cached --name-only --diff-filter=ACM`. Nothing staged means nothing to judge (exit 0). Exits 2 if the staged set cannot be determined, so an ungateable commit is never reported as passing. | the pre-commit hook |
+| `node scripts/check-reward-before-investment.cjs --surfaces [repoRoot]` | REGISTRY AUDIT (Phase 267.3): every record in `data/first-reward-surfaces.json`, the declarations for surfaces with no frontmatter. Same three buckets, same exit contract. Wired fail-closed into `scripts/verify-release`. | the release gate, manual sweeps |
 
 Why the split: the hook always CLAIMED to gate staged changes, but it passed
 the whole `commands/` directory. With 103 of 112 commands never having declared
@@ -128,15 +130,83 @@ The repo-wide backfill (102 commands still undeclared as of Phase 245) remains
 open and is visible through the full-audit mode. Narrowing the commit gate does
 not retire that debt; it stops the debt from blocking unrelated work.
 
-**The v1.13.0 REWARD_TYPES closed vocabulary:**
+**The REWARD_TYPES closed vocabulary (v1.13.0, amended by Phase 267.3):**
 - `reframe_question` - Larry reframes the user's sentence into a beautiful question
 - `instant_brief` - the 30-second MVA pipeline output (this phase's deliverable)
 - `schema_preview` - a structural preview of what would be extracted
 - `calibration_distribution_preview` - anonymized score distribution from the calibration set
 - `paragraph_preview` - partial extraction from the first paragraph alone
 - `--none (scripting only)` - explicit opt-out, per rule doc line 81
+- `methodology_reframe` - Larry's analysis or reframe over the user's own material (Phase 267.3)
+- `--none (diagnostic surface)` - explicit opt-out for a command that reports state (Phase 267.3)
+
+The first six are the v1.13.0 original set and are never respelled. The last two were added
+by the Phase 267.3 amendment recorded below.
 
 Future expansions are canon amendments, not command-level inventions.
+
+## Vocabulary amendments
+
+A term is added to `REWARD_TYPES` only here and in `lib/core/mva-rule-linter.cjs` together.
+A code change without an entry in this section is a command-level invention wearing a
+library's clothes. Each entry records the exact token, the surface class it describes, why
+the existing vocabulary could not describe it, the ruling that minted it, and the date.
+
+### `methodology_reframe`
+
+| Field | Value |
+|---|---|
+| Token | `methodology_reframe` |
+| Surface class | A conversational methodology command whose first delivered value is Larry's analysis or reframe over the user's OWN material. The user has already supplied the substance; the variable reward is what Larry does with it in the first turn, before any further investment. |
+| Ruling | Phase 267.3, D-B (`267.3-DECISIONS.md` Section 3) |
+| Date | 2026-08-27 |
+| Evidence | `267.3-AUDIT.md` Section 3, specifically 3.1 and 3.2 |
+
+Why the existing six could not describe it. `267.3-AUDIT.md` Section 3.1 measured that five
+of the six original members were each minted against exactly one flow: `reframe_question` is
+bound to onboard's single-sentence opener, where Larry reframes a SENTENCE before any material
+exists; `instant_brief` is the 30-second MVA pipeline output; `paragraph_preview` is a partial
+extraction from a transcript's first paragraph; `schema_preview` is a structural preview of
+what WOULD be extracted, which is a promise about extraction and not an analysis; and
+`calibration_distribution_preview` is a score distribution. Section 3.2 then measured ten
+conversational methodology commands with no honest term available to them. None of the five
+describes "Larry reasons over what you brought and hands back a reframe." The term is grounded
+in this document's own reframe vocabulary rather than invented; it applies the same move to a
+different input.
+
+### `--none (diagnostic surface)`
+
+| Field | Value |
+|---|---|
+| Token | `--none (diagnostic surface)` |
+| Surface class | A command that reports state rather than delivering a variable reward. This is an OPT-OUT, not a reward. |
+| Ruling | Phase 267.3, D-B (`267.3-DECISIONS.md` Section 3) |
+| Date | 2026-08-27 |
+| Evidence | `267.3-AUDIT.md` Section 3, specifically 3.3 |
+
+Why the existing six could not describe it. This document already names the category in its
+own words, twice, under "What counts as first variable reward": "A `/mos:status` output is not
+a reward (predictable report)." and "A status report is not a reward." The gap was that the
+vocabulary gave that named category no legal value to declare. `267.3-AUDIT.md` Section 3.3
+measured nine diagnostic, operator and report commands in it. Declaring
+`--none (scripting only)` instead would be a false statement about the command's invocation,
+because the scripting override above is legitimate only IF the command is invoked with a
+`--no-interactive`, `--script`, or `-q` flag, and these commands are invoked interactively;
+`status` even declares `hitl_shape: F.1`, a genuine Decision-Gate fork, which is the opposite
+of a silent script.
+
+Why it is spelled in the `--none (...)` family. So a reader scanning frontmatter sees at a
+glance that it is an opt-out and not a reward. Two opt-outs that look alike and one reward
+vocabulary that looks different is the readable arrangement. A bare word such as
+`diagnostic_report` would read as a reward type and invite exactly the misclassification the
+ruling exists to prevent.
+
+### What an amendment does NOT authorize
+
+Declaring a value on any specific command. Binding decision B5 stands: the linter validates
+only the DECLARATION, and per-command remediations are follow-up work. The class lists cited
+above are the audit's measured signal, not a rubber stamp; each command's value is ruled
+per command against a written rubric with its own cited first-reward moment.
 
 ## Why this belongs in the room (and not just in code comments)
 This rule is not a technical decision - it is a product constraint. It needs to be visible to every future contributor, visible to Jonathan when making design decisions, and visible to users if they ask "why did MindrianOS just give me something before asking anything?"
