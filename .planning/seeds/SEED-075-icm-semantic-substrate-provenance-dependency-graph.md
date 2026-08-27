@@ -107,6 +107,22 @@ should read `brain-derivation.cjs` first and either compose with the governing-t
 or explicitly justify not doing so, rather than build a second, disconnected explanation
 mechanism.
 
+**A second adjacent piece, checked for fit rather than assumed (2026-08-28): the
+`common-ground`/`reasoning-graph` skill's decision-tree Mermaid output is a candidate FEEDER
+for this substrate, not a competing mechanism.** That skill produces `COMMON-GROUND.md` +
+a Mermaid `flowchart` per session -- decision nodes (yellow), chosen paths (green), rejected
+alternatives (gray), uncertain branches (orange), concrete implementations (blue), each edge
+weighted and source-tagged (`[stated]`/`[inferred]`/`[assumed]`/`[uncertain]`). Structurally
+this is the same shape SEED-075 already proposed for the semantic-substrate's edges (a
+deterministic/inferred split, confidence-scored, PROPOSED-vs-CONFIRMED). The gap: it is
+purely EPHEMERAL, one file per session, never persisted anywhere queryable -- a real decision
+trail that evaporates when the session ends. If SEED-075 is ever built, `COMMON-GROUND.md`'s
+decision graph is a natural INPUT (each session's rejected-alternative/chosen-path/uncertain
+nodes writing into the substrate as real provenance, closing exactly the "session reasoning
+gets lost" gap this seed exists to address) rather than a second, parallel reasoning-capture
+mechanism to reconcile against. Not scoped further here -- named so it isn't rediscovered
+independently later.
+
 ## Cross-references
 
 - `rethinking-mindrianos/research/2026-08-27-icm-semantic-substrate/` -- full evidence trail,
