@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Starting Phase 265 execution (23 plans, waves 1-6 per plan frontmatter, DAG-collapses to 5 execution waves)
-last_updated: "2026-08-27T06:00:00.000Z"
-last_activity: 2026-08-27 -- Phase 266 fully complete (5/5 plans) and independently re-verified passed (8/8 must-haves); 266-05 closed the MCPFIX-03 gap. Phase 265 (Capability Radar Absorption + Routing, re-scoped) execution begins now: 23 plans discovered via `gsd-tools query phase-plan-index 265`, none complete yet. This STATE.md update was made BY HAND, not via `gsd-tools query state.*`, per this file's own extensively-documented resync-clobber bug (see NOTEs below) -- all further per-plan STATE.md/ROADMAP.md updates during Phase 265 execution will also be made by hand.
+stopped_at: Completed 266-05-PLAN.md (MCPFIX-03 gap closure)
+last_updated: "2026-08-27T12:42:29.075Z"
+last_activity: 2026-08-27 -- Phase 265 execution started via /gsd-execute-phase orchestration
 progress:
   total_phases: 18
   completed_phases: 5
