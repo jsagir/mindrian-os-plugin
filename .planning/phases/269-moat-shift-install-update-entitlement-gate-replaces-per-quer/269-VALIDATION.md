@@ -2,8 +2,8 @@
 phase: 269
 slug: moat-shift-install-update-entitlement-gate-replaces-per-quer
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-27
 ---
 
@@ -41,10 +41,12 @@ created: 2026-08-27
 | 269-01-01 | 01 | 1 | MOAT-01 | — | decisions.md row 1 states install/update enforcement point, no query-time key language remains | unit (text assertion) | `node tests/269-doctrine-reconcile.test.cjs` | ❌ W0 | ⬜ pending |
 | 269-01-02 | 01 | 1 | MOAT-02 | — | decisions.md row 5 preserves "remote by design, not optional by default" verbatim AND carries the per-query-keys-are-gone clause | unit (verbatim-substring check) | `node tests/269-doctrine-reconcile.test.cjs` | ❌ W0 | ⬜ pending |
 | 269-01-03 | 01 | 1 | MOAT-03 | — | moat.md carries an explicit commercial-boundary clause naming install/update as the paid gate | unit (text assertion) | `node tests/269-doctrine-reconcile.test.cjs` | ❌ W0 | ⬜ pending |
-| 269-01-04 | 01 | 1 | MOAT-04 | — | phase output records all four cross-cutting flags (BUSINESS-MODEL-AND-MOAT.md, personal-memory business-model note, LICENSE BSL grant (d), Gaurav RCA gap) | unit (presence assertion) | `node tests/269-doctrine-reconcile.test.cjs` | ❌ W0 | ⬜ pending |
-| — | all | — | C6 | — | no em-dashes introduced in any file this phase touches | lint | `grep -n "—" .claude/includes/*.md` returns nothing | ✅ grep, no file needed | ⬜ pending |
-| — | all | — | — | — | CLAUDE.md still loads its four includes cleanly after edits | smoke | `node scripts/doctor.cjs --acceptance` | ✅ exists | ⬜ pending |
-| — | all | — | — | — | structural gates unaffected (no new invocable surface minted by the decision-recording plan) | structural | `node scripts/build-connector-registry.cjs --check` | ✅ exists | ⬜ pending |
+| 269-01-04 | 01 | 1 | MOAT-04 | — | phase output records all four cross-cutting flags (BUSINESS-MODEL-AND-MOAT.md, personal-memory business-model note, LICENSE BSL grant (d), Gaurav RCA gap) | unit (presence assertion) | `node tests/269-doctrine-reconcile.test.cjs` | ✅ W0/01/03 | ✅ passed |
+| 269-05-01 | 05 | 5 | MOAT-05 | T-269-14 | zero entitlement-check code ships this phase; `bin/cli.js`'s key-ceremony string is unmoved | unit (absence + verbatim-substring assertion) | `node tests/269-doctrine-reconcile.test.cjs` | ✅ W0 | ✅ passed (green from Wave 0 onward; re-asserted after every subsequent plan) |
+| 269-04-01 | 04 | 4 | MOAT-06 | T-269-10, T-269-11, T-269-12 | navigator selects one of three credential models via `checkpoint:decision`; both unchosen options recorded with a losing reason; preconditions named explicitly | manual (`checkpoint:decision`, verified post-hoc by grep) | `grep -Fq 'Credential model DECIDED:' docs/AMENDMENT-2026-08-27-DECISIONS-1-AND-5-MOAT-SHIFT.md` | ❌ pending plan 04 | ⬜ pending (blocking human decision gate, not yet run) |
+| — | all | — | C6 | — | no em-dashes introduced in any file this phase touches | lint | `LC_ALL=C.UTF-8 grep -lP '\x{2014}' <targets>` returns nothing (enforced by `tests/run-all-269.sh`'s own fence) | ✅ enforced live in aggregator | ✅ passed |
+| — | all | — | — | — | CLAUDE.md still loads its four includes cleanly after edits | smoke | `node scripts/doctor.cjs --acceptance` | ✅ exists | ✅ passed (16/17; the one pre-existing failure is concurrent-session tracked-file drift, unrelated to this phase) |
+| — | all | — | — | — | structural gates unaffected (no new invocable surface minted by the decision-recording plan) | structural | `node scripts/build-connector-registry.cjs --check` | ✅ exists | ✅ passed |
 
 **No automated test is possible for the engineering family (entitlement-check code).** There is no
 code to test yet — that family is deferred pending Theo's own Phase 9 timeline (currently two
@@ -75,11 +77,11 @@ mid-execution). Its single plan verifies only that the human/navigator precondit
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies (confirmed after Waves 1-3 executed: every 269-01/02/03 task's `<verify><automated>` ran and passed; 269-04's decision task is verified post-hoc by grep per its own plan, and 269-05 has no automated test possible for the deferred engineering family by design, both noted as manual-only above)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (Waves 1-3 ran `node tests/269-doctrine-reconcile.test.cjs` and/or `bash tests/run-all-269.sh` after every task commit, confirmed live)
+- [x] Wave 0 covers all MISSING references (`tests/269-doctrine-reconcile.test.cjs` and `tests/run-all-269.sh` both created and committed in Wave 1, RED as designed, later confirmed turning green through Waves 2-3)
+- [x] No watch-mode flags (plain Node CJS + bash, no watchers anywhere in this phase's suite)
+- [x] Feedback latency < 10s (confirmed live: `bash tests/run-all-269.sh` full run completes in well under 1 second of test time per its own `# duration_ms` output)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** Waves 1-3 (plans 01-03) verified complete 2026-08-27 -- `bash tests/run-all-269.sh` reports `Phase 269: PASS=5 FAIL=0 SKIP=0`, both Phase 250 regression legs green, connector registry check green, no-em-dash fence green. Plans 04 and 05 remain pending: both are `autonomous: false` with a leading blocking checkpoint (`checkpoint:decision` and `checkpoint:human-action` respectively) that this validation contract does not waive. Full phase approval is pending those two human gates.

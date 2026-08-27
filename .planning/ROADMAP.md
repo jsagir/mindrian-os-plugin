@@ -582,8 +582,8 @@ Cross-references: seeds directly into Theo's own `.planning/ROADMAP.md` Phase 9 
 
 Plans:
 
-- [ ] 269-01-PLAN.md - Wave 0 test infra: `tests/269-doctrine-reconcile.test.cjs` + `tests/run-all-269.sh`, committed RED as the can-fail proof
-- [ ] 269-02-PLAN.md - Reconcile `.claude/includes/decisions.md` rows 1 and 5 and add the commercial-boundary clause to `.claude/includes/moat.md`
-- [ ] 269-03-PLAN.md - File the dated amendment record and the four cross-cutting flags (BUSINESS-MODEL-AND-MOAT.md, the personal-memory note, LICENSE grant (d), the Gaurav RCA gap)
-- [ ] 269-04-PLAN.md - Blocking decision checkpoint: credential model A (replace) / B (unify) / C (promote install token), then record the choice
-- [ ] 269-05-PLAN.md - DEFERRED engineering family: `autonomous: false` behind a blocking `checkpoint:human-action` on Theo Phase 9; produces specs only, zero entitlement-check code
+- [x] 269-01-PLAN.md - Wave 0 test infra: `tests/269-doctrine-reconcile.test.cjs` + `tests/run-all-269.sh`, committed RED as the can-fail proof (commits `abfd3298`, `0a306a27`)
+- [x] 269-02-PLAN.md - Reconcile `.claude/includes/decisions.md` rows 1 and 5 and add the commercial-boundary clause to `.claude/includes/moat.md` (commits `7069e2d6`, `30be509f`)
+- [x] 269-03-PLAN.md - File the dated amendment record and the four cross-cutting flags (BUSINESS-MODEL-AND-MOAT.md, the personal-memory note, LICENSE grant (d), the Gaurav RCA gap) (commit `fdbcd8ca`) -- `bash tests/run-all-269.sh` now PASS=5 FAIL=0 SKIP=0
+- [ ] 269-04-PLAN.md - Blocking decision checkpoint: credential model A (replace) / B (unify) / C (promote install token), then record the choice. HALTED at the checkpoint:decision gate 2026-08-27, awaiting navigator answer -- not yet executed.
+- [ ] 269-05-PLAN.md - DEFERRED engineering family: `autonomous: false` behind a blocking `checkpoint:human-action` on Theo Phase 9; produces specs only, zero entitlement-check code. NOT REACHED (depends_on 269-04). Informational pre-check 2026-08-27: Theo's own `.planning/ROADMAP.md` still reads `Plans: TBD (not yet planned; blocked on Phase 8)` for Phase 9 and `Plans: TBD (not yet planned; blocked on Phase 7's schema landing first)` for Phase 8, so this gate's own checklist item 1/2 would currently fail even once reached.
