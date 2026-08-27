@@ -223,6 +223,31 @@ Present inferences for confirmation:
 
 If the user corrects any inference, use their version. Store confirmed metadata for artifact provenance.
 
+### Step 1c. Meeting date and time
+
+Before moving to speaker identification, ask the navigator ONE question: when did this
+meeting happen? Accept an absolute date, a relative phrase ("last Tuesday", "yesterday
+morning"), or a time of day alongside either. State plainly that the phrase is resolved by
+chrono-node against `getReferenceNow()` -- the SAME resolver Step 4's `requireValidAt` gate
+uses -- so the two never disagree.
+
+**When the ingest path already carries a trustworthy timestamp** (the `--latest` provider
+tables above and the `--audio` file mtime both do): do NOT ask blind. State the date you
+found and ask the navigator to confirm or correct it. One question either way.
+
+Carry the confirmed or corrected answer forward as `whenAnswer` and pass it into Step 4's
+`requireValidAt` call (`{whenAnswer: process.env.WHEN_ANSWER||undefined}`) so the gate
+resolves and returns `GATE_PASS` on the first attempt instead of blocking.
+
+**Why the ask moved here:** an undated meeting BLOCKS at Step 4's date-sync gate, and
+blocking after the navigator has watched the whole extraction assemble is a worse experience
+than answering one question at ingest.
+
+**This does not replace the Step 4 gate.** `requireValidAt` remains the ONE enforcement
+chokepoint (D-02); this section only PRE-POPULATES `whenAnswer` so that gate resolves
+cleanly the first time. If no answer was captured here for any reason, Step 4 still blocks
+and asks -- the enforcement point is unchanged.
+
 ---
 
 ## Step 2: Speaker Identification + Profile Creation
@@ -280,6 +305,35 @@ If the input was `--audio` and Velma data includes emotion scores, surface ONLY 
 > "Sarah showed high enthusiasm about the enterprise pivot."
 
 Do not surface routine or weak emotions. Only notable emotional signals that provide insight.
+
+---
+
+### Transcript size probe
+
+Before Step 3 begins, count words and speaker turns in the transcript. State both numbers to
+the navigator in one line, for example: "3,400 words, 62 turns -- extracting now."
+
+**Under 12,000 words:** proceed. Say nothing beyond the one line above.
+
+**At or above 12,000 words:** surface an honest offer, in Larry's voice, that this is a long
+one, and ask whether to work through it in sections. For example: "This is a long one --
+{N} words. Want me to work through it in sections, or run it straight through?"
+
+**Why 12,000 words.** A 1-hour meeting runs about 9,000 words (~13k tokens at typical
+conversational density); the largest transcript in this repo is 19,208 words (~26k tokens).
+12,000 sits between the two so the offer fires on genuinely long material and not on a
+normal meeting -- this is not a magic constant, it is reasoned from the two measured data
+points above.
+
+**What the offer does and does not do today.** This is a conversational offer, not a
+fan-out: today, working "in sections" means Larry paces the four Claimify passes across the
+conversation, nothing more. The parallel perspective-subagent extraction that actually
+splits the work across concurrent workers is plan 265-19, and it reuses this SAME probe as
+its trigger -- do not build a second probe for it.
+
+**The failure this prevents.** Per the research, a long transcript degrades with no signal
+today: the symptom reads as "Larry missed some claims," not "the pass was over budget." This
+probe turns a silent quality loss into a visible, reasoned choice.
 
 ---
 
