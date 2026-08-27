@@ -11,6 +11,13 @@ hitl_stages:
     shapes: ["F.9"]
     mode: "ordered"
 hitl_why: "A depth-budget trend selection (F.3) then a fixed-order push toward the absurd (F.9), never collapsed into one silent step."
+# Phase 265-04 reward-before-investment declaration (blocking-gate auto-fix, not
+# the dedicated ~85-command backfill phase named in docs/reward-before-investment-rule.md).
+# Grounded in the shipped Act 1 below: the graph-native trend seed (extracted ranked
+# candidates from the room's own connective taxonomy) surfaces at the Act 2 gate as a
+# structural preview of what a push-to-absurd run would extrapolate, before the navigator
+# invests in picking which trends to push.
+interactive_first_reward: schema_preview
 serves_jtbd: ["understand-market", "explore"]
 teaching: "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons -- the disruptive opportunity shows up at the edge first."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -72,6 +79,35 @@ This command ships FULL variance in v1: all four persona lenses and all three pa
 Call `surfacePersonaPathGate(roomDir)`. Render the returned descriptor through the Shape F selector (F.2 path-control for the path choice, F.1 next-move for the persona) with the tri-context panels (LOCAL the room / BRAIN generic S-Curve Analysis handle only / SIGNAL none this turn). The navigator picks one persona and one path. Then record the selection as graph data via `recordPersonaPathSelection(db, { persona, path, focusNodeId })` -- it writes a SELECTED_REACH typed edge with enum-only props (persona + path), so the choice becomes graph data (Part 4) the next scan can read. The chosen path sets the ring depth (`PATH_VARIANTS[path].rings`) and the gate policy (`PATH_VARIANTS[path].gate_policy`); the chosen persona sets the Larry framing for the rest of the run.
 
 When the path is Expert, the `multi_agent` flag dispatches the economic / technological / social / environmental refinement sub-agents -- these ride the EXISTING Canon Part 2 SUB-AGENT SPAWN affordance (a sub-agent inherits the persona context and returns a structured finding), NOT a new mechanism.
+
+### Dispatch shape (Phase 265 RADAR-10)
+
+THE SHAPE: the four refinement lenses (economic, technological, social, environmental)
+dispatch in parallel, all four in one message, one subagent per lens, `subagent_type:
+persona-analyst`. Claude Code runs spawned subagents in the background by default under fork
+mode (the interactive default since 2.1.232); do not pass the run-in-background parameter --
+the platform removes it in fork mode. The standing ceiling is the platform's concurrency cap of
+20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) even though N is fixed at 4 here by the lens set.
+
+THE REASON, stated so a future reader sees why rather than only a choice: (a) the four lenses each refine the SAME seed trend and none consumes another's
+output, so there is no data dependency to preserve; (b) a Brain graph query during Phase 265
+research placed the four lens concepts in separate low-connectivity communities with no direct
+edges between them -- weak evidence for independence, not a confirmed methodology rule, and it
+is named here honestly rather than overstated; (c) parallel is now the platform default shape,
+so sequential would need a reason and there is none here.
+
+THE TYPE: `subagent_type: persona-analyst` (`agents/persona-analyst.md`). Its own frontmatter
+comment names exactly this contract in its BONO cell-agent role: "per-(subdomain x hat)
+research returning a structured {stance, evidence, confidence}, dispatched in parallel by
+`lib/core/bono/cell-fanout.cjs`" -- a sub-agent that inherits a persona/lens context and
+returns a structured finding, already proven as a parallel-fanout precedent in this codebase.
+An Agent tool call with an unresolvable `subagent_type` is a hard error since 2.1.235 rather
+than a silent general-purpose fallback, so the name must resolve to a real `agents/*.md` file.
+
+`Task` is deliberately NOT added to this command's `allowed-tools` here. The navigator settled
+that grant for exactly three commands (act, persona, grade); widening it here is the silent
+privilege-widening pattern the Phase 265 threat register forbids. trending-to-absurd is a
+candidate for a future reviewed grant (recorded as a `dormant` ledger row by plan 265-06).
 
 ## The 5 acts
 
