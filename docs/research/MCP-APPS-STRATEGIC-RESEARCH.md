@@ -522,7 +522,7 @@ Current token cost comparison:
     |         (bin/mindrian-mcp-server.cjs)            |
     |                                                  |
     |  +-------------------------------------------+   |
-    |  | Tool Router (9 tools, 64 commands)         |   |
+    |  | Tool Router (11 tools, 64 cmds; test-234) |   |
     |  +-------------------------------------------+   |
     |  | MCP Apps (ui:// resources)                 |   |
     |  |  - Room Command Center                    |   |
@@ -786,7 +786,7 @@ async function saveLayout(layout) {
 Tier 1: MindrianOS MCP Server (MCP-native)
   - Works on ANY MCP client
   - Visual experience via MCP Apps
-  - 9 tool routers, 64 commands
+  - 11 tool routers, ~64 commands (see tests/test-234-tool-description-floor.cjs)
   - Brain enrichment via remote MCP
   - Distribution: npm, MCPHub, MCP Market, .mcpb
 

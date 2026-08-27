@@ -204,7 +204,7 @@ ClawHub had 341 malicious skills found in Jan 2026 audit. MindrianOS should be v
    |         MindrianOS MCP Server                           |
    |         (bin/mindrian-mcp-server.cjs)                   |
    |                                                         |
-   |  Tool Router (9 tools, 66+ commands)                    |
+   |  Tool Router (11 tools, ~64 commands; see test-234)     |
    |  MCP Apps (ui:// resources, 7+ HTML views)              |
    |  lib/core/* (shared business logic)                     |
    |  Brain client (remote MCP)                              |

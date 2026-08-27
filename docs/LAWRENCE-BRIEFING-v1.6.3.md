@@ -23,7 +23,7 @@ Everything still runs on your PWS methodology. The 26 frameworks, the teaching v
 ## The Journey: v5.0 to v1.6.3
 
 ### v5.0 (Where We Were)
-52 commands, 8 agents, 49 MCP tools. Students install, Larry talks, Data Room captures work in 8 sections, knowledge graph connects entries. Presentation system generates 6 views. It works. But: serial execution only, no cross-domain discovery, system waits to be asked.
+52 commands, 8 agents, 42 MCP tools [CORRECTED, Phase 265, 2026-08-27: originally stated as 49; measured 42 on the wire (36 mindrian-os + 6 mindrian-brain), so this figure is corrected rather than silently rewritten]. Students install, Larry talks, Data Room captures work in 8 sections, knowledge graph connects entries. Presentation system generates 6 views. It works. But: serial execution only, no cross-domain discovery, system waits to be asked.
 
 ### v1.6.0 Powerhouse (The Engine)
 8 phases built in parallel. The transformation:
