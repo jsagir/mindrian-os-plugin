@@ -88,6 +88,12 @@ const { StdioServerTransport } = requireWithHeal('@modelcontextprotocol/sdk/serv
 const { detectSurface } = require('../lib/mcp/surface-detect.cjs');
 const { registerCapabilities } = require('../lib/mcp/capability-registry.cjs');
 const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-catchup.cjs');
+// Phase 270-08: debounced sendResourceListChanged over directory churn
+// under the rooms home (mos://tree, plan 270-08 Task 1). Wired at boot
+// below and torn down via registerShutdownHandler's extraTeardown seam
+// (session-catchup.cjs, plan 270-08 addition) rather than a second
+// process.on('SIGTERM'/'SIGINT'/'beforeExit') listener.
+const { startTreeWatcher, stopTreeWatcher } = require('../lib/mcp/tree-watcher.cjs');
 // Phase 198-02 (SPEC-1/SPEC-7, D-01/D-07): the daemon needs real per-connection
 // session identity to consume the shipped Phase 194 session-binding primitives.
 // isMcpFirst gates the new transport shape so flag-OFF stays byte-identical
@@ -192,6 +198,18 @@ function createServer() {
   const { registerResources } = require('../lib/mcp/resources.cjs');
   registerResources(s, { fallbackRoomDir: roomDir, pluginRoot: pluginRoot, surface: surface.surface });
 
+  // Start the tree watcher (plan 270-08): debounced sendResourceListChanged
+  // when a directory appears or disappears under the rooms home, so
+  // mos://tree stays live with no per-turn cost. Wrapped in try/catch, and
+  // startTreeWatcher itself degrades to {ok:false} rather than throwing on
+  // a missing rooms home -- a watcher failure must never fail server boot,
+  // matching the dep-heal additive-degradation discipline.
+  try {
+    startTreeWatcher(s, {});
+  } catch (e) {
+    process.stderr.write('[mindrian-os] tree watcher failed to start: ' + (e && e.message ? e.message : String(e)) + '\n');
+  }
+
   // Register MCP Prompts (methodology workflows with Larry personality)
   const { registerPrompts } = require('../lib/mcp/prompts.cjs');
   registerPrompts(s, roomDir, pluginRoot);
@@ -213,8 +231,19 @@ const server = createServer();
 // single module-level call regardless of how many per-session servers the
 // flag-ON HTTP branch later creates -- it is a PROCESS/ROOM lifecycle
 // concern, not a per-MCP-session one.
+//
+// Phase 270-08: stopTreeWatcher rides the SAME registration as an
+// extraTeardown callback (session-catchup.cjs's own new seam) rather than a
+// second SIGTERM/SIGINT/beforeExit listener. The rooms home the tree
+// watcher watches is a DIFFERENT directory than roomDir (the single current
+// room), so the watcher's teardown must still be reachable even when
+// roomDir itself does not exist -- the else branch registers with a falsy
+// roomDir so the session-snapshot half stays the no-op it already is via
+// its own try/catch, while the watcher teardown still wires in.
 if (fs.existsSync(roomDir)) {
-  registerShutdownHandler(roomDir);
+  registerShutdownHandler(roomDir, stopTreeWatcher);
+} else {
+  registerShutdownHandler(null, stopTreeWatcher);
 }
 
 // Connect transport based on detected surface
