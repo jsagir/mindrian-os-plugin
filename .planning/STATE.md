@@ -14,6 +14,42 @@ progress:
   percent: 28
 ---
 
+<!-- NOTE (270 execute-plan state.record-metric after plan 270-02, 2026-08-27T~16:40Z, hand-edited
+     per this file's own documented resync-clobber bug, NINTH OCCURRENCE this session):
+     `gsd-tools query state.record-metric --phase 270 --plan 02 --duration 55min --tasks 3 --files 3`
+     legitimately appended one metrics table row ("| Phase 270 P02 | 55min | 3 tasks | 3 files |")
+     but ALSO silently reset last_updated and clobbered progress (18/5/62/37/28% -> a fabricated
+     22/7/85/66/32%) again, this time WITHOUT touching stopped_at/last_activity/Current
+     focus/Current Position (a narrower clobber than the begin-phase call above, but the same root
+     cause). Diffed against a pre-call snapshot, restored ONLY the two clobbered frontmatter fields
+     surgically (kept the legitimate new metrics row -- a full-file `cp` restore would have
+     discarded real, wanted output this time, unlike the begin-phase case where nothing legitimate
+     needed keeping). Also note: a Read immediately after the first surgical edit reported the file
+     had changed on disk since last read -- re-read and re-verified before the second edit; no
+     evidence a concurrent session actually wrote conflicting content, but the sequence is recorded
+     here since it is exactly the race this repo's shared-working-tree convention warns about. -->
+
+<!-- NOTE (270 execute-phase begin-phase, 2026-08-27T~15:50Z, hand-edited per this file's own
+     documented resync-clobber bug, EIGHTH OCCURRENCE this session): `gsd-tools query
+     state.begin-phase --phase 270 --name memory-and-context-operator-mcp-consolidate-scattered-local-
+     --plans 12` (execute-phase workflow's validate_phase step) reported
+     `{"updated":["Status","Last Activity","Current focus","Current Position"]}` -- but the diff
+     against a pre-call snapshot showed it ALSO silently overwrote stopped_at/last_updated/
+     last_activity/progress above (18/5/62/37/28% -> a fabricated 22/7/85/64/32%) and clobbered
+     the body's "Current focus"/"Current Position" sections, which were correctly pointing at
+     Phase 265's actual in-progress execution (and Phase 267 queued behind it), replacing them
+     with Phase 270 pointers. Per the standing correction established at the SIXTH/SEVENTH
+     occurrences below: snapshotted STATE.md to a scratch path immediately before the call,
+     diffed after, and restored FROM THAT SNAPSHOT (`cp`, not `git checkout --`) the instant the
+     clobber was confirmed -- frontmatter and body left byte-identical to pre-call state. Phase
+     270 is real, independent work on a different repo track (lib/mcp/*.cjs, per its own scope
+     note) from Phase 265's live execution -- it does NOT belong in this frontmatter's single
+     stopped_at slot while Phase 265 is the actually-paused/in-progress item. Phase 270's
+     execution progress is tracked via ROADMAP.md's own plan checkboxes and this phase's own
+     SUMMARY.md files instead of this file's single-slot pointer, and via this NOTE. Ninth
+     confirmed occurrence of the same clobber-on-every-state.*/phase.*-mutation-verb-call bug;
+     still open, still worth fixing at the tool level rather than re-litigating per phase. -->
+
 <!-- NOTE (269 execute-phase begin-phase, 2026-08-27T~14:05Z, hand-edited per this file's own
      documented resync-clobber bug, SEVENTH OCCURRENCE this session): `gsd-tools query
      state.begin-phase --phase 269 --name moat-shift-install-update-entitlement-gate-replaces-per-quer
@@ -3775,6 +3811,7 @@ Progress: [█████████░] 92%
 | 264 | 5 | - | - |
 | Phase 266 P05 | 25min | 3 tasks | 8 files |
 | 266 | 5 | - | - |
+| Phase 270 P02 | 55min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
