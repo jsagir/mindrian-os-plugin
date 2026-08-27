@@ -94,41 +94,71 @@ CLI tools must support automation. A user running MindrianOS from a script does 
 
 **Rule:** any violation of reward-before-investment is acceptable IF the command is invoked with a `--no-interactive`, `--script`, or `-q` flag. The flag is the scripting escape hatch. Interactive mode remains hard-gated by the rule.
 
-## Detection mechanism (Phase 118-06)
-A linter-style check at the command-spec level:
-- Every command has a declared `interactive_first_reward` field in its frontmatter; a surface with no frontmatter declares in `data/first-reward-surfaces.json` instead
-- Value must be one of the closed REWARD_TYPES vocabulary, which includes the two opt-outs `--none (scripting only)` and `--none (diagnostic surface)`
-- If value is `--none (scripting only)` without the scripting justification, the command spec is rejected at review; `--none (diagnostic surface)` is the honest opt-out for an interactively-invoked command that only reports state
-- CI check enforces this at build time
+## Detection mechanism (Phase 118-06, enforcement surface corrected Phase 267.3)
+A linter-style check at the command-spec level, reading from **two declaration
+sources**:
+- Every command with a frontmatter block declares `interactive_first_reward` there.
+- A surface with no frontmatter block at all (a bash script, a hook-invoked
+  `.cjs` file) declares instead in the sibling registry
+  `data/first-reward-surfaces.json` (Phase 267.3, ruling D-A).
+- Both sources validate the SAME closed REWARD_TYPES vocabulary, which includes the
+  two opt-outs `--none (scripting only)` and `--none (diagnostic surface)`.
+- If value is `--none (scripting only)` without the scripting justification, the
+  declaration is rejected; `--none (diagnostic surface)` is the honest opt-out for
+  an interactively-invoked command that only reports state (or a pure router with
+  no first-party reward, see the amendment entry below).
+- The gates below enforce this at commit time and at release time.
 
 **Implementation:**
 - Library: `lib/core/mva-rule-linter.cjs` (exports `scanCommands`, `scanFiles`, `scanDeclaredSurfaces`, `validateFrontmatter`, `REWARD_TYPES`)
 - CLI: `scripts/check-reward-before-investment.cjs` (table + Larry-voice summary; exits 1 on violation)
 - Registry: `data/first-reward-surfaces.json` (Phase 267.3, ruling D-A) declares the first reward for surfaces that have no frontmatter to declare in, such as the `scripts/session-start` prose branches; read by `scanDeclaredSurfaces()` and audited by the `--surfaces` CLI mode
-- Pre-commit hook: `scripts/hooks/pre-commit` invokes the CLI when any `commands/*.md` is staged
+- Pre-commit hook: `scripts/hooks/pre-commit-room-minto-guard.sh`'s `mva-rule-linter` arm invokes the CLI when any `commands/*.md` is staged
 - Bypass: `COMMIT_NO_VERIFY=1` (wave-protocol invariant per Phase 125-08 SUMMARY)
 
-**Two scopes (Phase 245-02):**
+**Three CLI modes, one commit gate, two release gates (Phase 245-02, widened Phase 267.3):**
 
 | Invocation | Scope | Used by |
 | --- | --- | --- |
-| `node scripts/check-reward-before-investment.cjs [commandsDir]` | FULL AUDIT: every `*.md` in the directory. Reports the true repo-wide debt. | CI, manual sweeps |
-| `node scripts/check-reward-before-investment.cjs --staged [repoRoot]` | COMMIT GATE: only the `commands/*.md` this commit is staging, discovered via `git diff --cached --name-only --diff-filter=ACM`. Nothing staged means nothing to judge (exit 0). Exits 2 if the staged set cannot be determined, so an ungateable commit is never reported as passing. | the pre-commit hook |
-| `node scripts/check-reward-before-investment.cjs --surfaces [repoRoot]` | REGISTRY AUDIT (Phase 267.3): every record in `data/first-reward-surfaces.json`, the declarations for surfaces with no frontmatter. Same three buckets, same exit contract. Wired fail-closed into `scripts/verify-release`. | the release gate, manual sweeps |
+| `node scripts/check-reward-before-investment.cjs [commandsDir]` | FULL AUDIT (default mode, no flag): every `commands/*.md` in the directory. Reports the true repo-wide debt. | **Release gate 2**: `scripts/verify-release` gate 10e (Phase 267.3, wired fail-closed once the audit read zero missing / zero invalid); CI; manual sweeps |
+| `node scripts/check-reward-before-investment.cjs --staged [repoRoot]` | COMMIT GATE: only the `commands/*.md` this commit is staging, discovered via `git diff --cached --name-only --diff-filter=ACM`. Nothing staged means nothing to judge (exit 0). Exits 2 if the staged set cannot be determined, so an ungateable commit is never reported as passing. | **The one commit gate**: `scripts/hooks/pre-commit-room-minto-guard.sh`'s `mva-rule-linter` arm, still staged-scoped exactly as Phase 245-02 built it |
+| `node scripts/check-reward-before-investment.cjs --surfaces [repoRoot]` | REGISTRY AUDIT (Phase 267.3): every record in `data/first-reward-surfaces.json`, the declarations for surfaces with no frontmatter. Same three buckets, same exit contract. | **Release gate 1**: `scripts/verify-release` gate 10d, wired fail-closed |
 
-Why the split: the hook always CLAIMED to gate staged changes, but it passed
-the whole `commands/` directory. With 103 of 112 commands never having declared
-the field, one pre-existing offender blocked every commit that touched any
-command, which made `COMMIT_NO_VERIFY=1` mandatory rather than exceptional. The
-per-file verdict is unchanged: stage a command with a missing or invalid
-declaration and the commit is still blocked. Pinned by
-`tests/test-245-reward-guard-staged.cjs`, which asserts BOTH that unstaged debt
-no longer blocks AND that a staged offender still fails, through the CLI and
-end to end through the installed hook.
+So the enforcement surface is exactly: **two declaration sources** (frontmatter,
+registry), **three CLI modes** (full audit, `--staged`, `--surfaces`), **one commit
+gate** (staged-scoped, never widened), and **two release gates** (the registry
+audit and, as of Phase 267.3, the whole-tree commands audit).
 
-The repo-wide backfill (102 commands still undeclared as of Phase 245) remains
-open and is visible through the full-audit mode. Narrowing the commit gate does
-not retire that debt; it stops the debt from blocking unrelated work.
+**Why both scopes exist, and why the commit gate is not the whole-tree gate.**
+A staged-scoped gate cannot measure a repo-wide gap. `.planning/phases/271-bare-
+reference-path-resolution-audit-45-of-113-commands-cite/deferred-items.md`
+(DEFERRED-271-D1) is the direct, dated demonstration: 16 commands had not been
+staged since the reward-before-investment rule shipped, so a pre-existing
+declaration gap on those files was invisible to every commit that did not happen
+to touch them, and plan 271-03 stalled on it. That is the general failure mode,
+not a one-off: at the moment Phase 267.3 measured it, 67 of 113 commands were
+undeclared and zero commits were blocked by that fact, because the commit gate
+by design only ever sees what is staged right now. Widening the commit gate back
+to whole-tree would undo the Phase 245-02 fix and re-create the permanent forced
+`COMMIT_NO_VERIFY=1` bypass documented below; the correct fix is a periodic,
+deliberate release-time audit instead, which is what gate 10e now is. Also see
+`267.3-07-SUMMARY.md`'s "Next Phase Readiness" for the day the whole-tree audit
+first read zero missing after this backfill landed.
+
+Why the commit gate itself is staged-scoped (Phase 245-02): the hook always
+CLAIMED to gate staged changes, but it passed the whole `commands/` directory.
+With 103 of 112 commands never having declared the field at the time, one
+pre-existing offender blocked every commit that touched any command, which made
+`COMMIT_NO_VERIFY=1` mandatory rather than exceptional. The per-file verdict is
+unchanged: stage a command with a missing or invalid declaration and the commit
+is still blocked. Pinned by `tests/test-245-reward-guard-staged.cjs`, which
+asserts BOTH that unstaged debt no longer blocks AND that a staged offender
+still fails, through the CLI and end to end through the installed hook.
+
+The repo-wide backfill is no longer open: Phase 267.3 plans 04, 06 and 07 landed
+declarations for all 67 previously-undeclared commands, and the full audit now
+reads zero missing and zero invalid over all 113 files, which is what made gate
+10e's fail-closed promotion possible without turning every release red.
 
 **The REWARD_TYPES closed vocabulary (v1.13.0, amended by Phase 267.3):**
 - `reframe_question` - Larry reframes the user's sentence into a beautiful question

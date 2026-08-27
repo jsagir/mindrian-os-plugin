@@ -436,6 +436,68 @@ shipped one half and gated the other on a navigator verdict that came back `keep
       each carry a one-line disposition of record in `270-DECISIONS.md`, before any later plan
       depended on them.
 
+### Phase 267.3 - Reward-Before-Investment Guard Jurisdiction (minted at plan time 2026-08-27)
+
+Roadmap line 735 read `TBD` before plan 267.3-01. These ten IDs were minted at plan time in
+`267.3-DECISIONS.md` Section 6, matching the Phase 266/269/270 precedent; this plan (267.3-08)
+registers them here at phase close. All eight plans executed across seven waves. Every row below
+is `[x]`.
+
+- [x] **GUARD-01**: A machine-readable declaration contract exists for surfaces with no
+      frontmatter. `data/first-reward-surfaces.json` (Phase 267.3, ruling D-A), modeled on
+      `data/first-touch-surfaces.json`'s existing shape, read by `scanDeclaredSurfaces()` in
+      `lib/core/mva-rule-linter.cjs`. Measured: `node scripts/check-reward-before-investment.cjs
+      --surfaces .` exits 0.
+
+- [x] **GUARD-02**: The reward vocabulary honestly covers every shipped command class, and every
+      addition is recorded as a canon amendment with a written reason. `REWARD_TYPES` grew from 6
+      to 9 members across two amendments: `methodology_reframe` and `--none (diagnostic surface)`
+      ruled at plan time (`267.3-DECISIONS.md` Section 3), `live_deliverable` minted
+      mid-classification for `/mos:publish` (`267.3-CLASSIFICATION.md` Row 13). Each entry recorded
+      in `docs/reward-before-investment-rule.md`'s `## Vocabulary amendments` section with its
+      surface class, ruling, date and evidence.
+
+- [x] **GUARD-03**: The linter can read a first-reward declaration for `scripts/session-start`'s
+      FIRST_INSTALL branch. The `session-start:FIRST_INSTALL` record in
+      `data/first-reward-surfaces.json`, declared `--none (diagnostic surface)` per GAP R-1
+      (Reward leg scored 2/10, `.planning/research/2026-08-27-hooked-first-install-audit.md`).
+
+- [x] **GUARD-04**: Every injected-prose first-touch surface carries a declaration. Measured: 4
+      records (`session-start:FIRST_INSTALL`, `session-start:UPDATE`,
+      `session-start:MODE_ROUTING`, `session-start:COLD_START_MENU`), all validated by gate 10d.
+
+- [x] **GUARD-05**: The 17 commands blocking Phase 271 carry honest per-command-reasoned
+      declarations, each citing the command's actual first-reward moment. `267.3-CLASSIFICATION.md`
+      Part 2, 17 rows each citing a `path:line` first delivery; landed by plans 267.3-04 and
+      267.3-05.
+
+- [x] **GUARD-06**: Phase 271's held work is committed through the full pre-commit hook with no
+      bypass, and anchoring gate 10c reads zero violations. Commit `fa2f1414` (267.3-05), 34 files,
+      `COMMIT_NO_VERIFY` unset. Measured: `check-plugin-path-anchoring.cjs --check` reads
+      VIOLATIONS 0 across all four surfaces.
+
+- [x] **GUARD-07**: Every `commands/*.md` carries a declaration, and the full audit reads zero
+      missing and zero invalid. Landed across plans 267.3-04 (17), 267.3-06 (25), 267.3-07 (25), 67
+      total. Measured: `node scripts/check-reward-before-investment.cjs` reads 113 compliant / 0
+      missing / 0 invalid, exit 0.
+
+- [x] **GUARD-08**: The debt is visible without waiting for an unrelated commit, via a whole-tree
+      audit wired fail-closed into `scripts/verify-release`. Gate 10e (this plan, 267.3-08), proven
+      against a stripped-fixture A/B test before being wired: a `commands/` copy with one
+      declaration stripped exits 1, the real tree exits 0.
+
+- [x] **GUARD-09**: The ruling is recorded with its reasoning and its rejected alternatives.
+      `267.3-DECISIONS.md`, all three legs (D-A, D-B, D-C) with navigator reasoning in Section 1.1
+      and all three rejected options (parsed-comment convention, connector-registry extension,
+      narrow-to-17 scoping) preserved with their reasons in Section 5.
+
+- [x] **GUARD-10**: No gate was relaxed, allowlisted, edited, or bypassed to make the board green.
+      Confirmed per-wave (267.3-05's `git diff HEAD~1 -- check-plugin-path-anchoring.cjs
+      scripts/hooks/ scripts/verify-release` empty; this plan's own Task 1 verify,
+      `NO_EXISTING_GATE_REMOVED`, confirms zero anchoring/surfaces/mirror lines removed from
+      `verify-release`'s diff) and independently re-confirmed by this plan's own Task 3 phase-wide
+      no-relaxation audit walking the full git log for every gate/hook file touched this phase.
+
 ## Out of scope (recorded, not forgotten)
 
 - Bulk enrichment of the 90-framework tail (navigator doctrine: demand drives the queue).
@@ -445,19 +507,20 @@ shipped one half and gated the other on a navigator verdict that came back `keep
 
 ## Traceability
 
-70 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+80 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
-IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), and MEMOP-01..15 (Phase 270). All minted
-2026-08-27: RADAR-01..11 and MCPFIX-01..04 at first-pass plan time, RADAR-12..31 in the Phase 265
-second planning pass after the navigator settled nine additional workstreams, and MEMOP-01..15 in
-Phase 270's own planning pass. RADAR-13, RADAR-15 and RADAR-16 were retired before
+IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), and GUARD-01..10
+(Phase 267.3). All minted 2026-08-27: RADAR-01..11 and MCPFIX-01..04 at first-pass plan time,
+RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
+workstreams, MEMOP-01..15 in Phase 270's own planning pass, and GUARD-01..10 in Phase 267.3
+plan 01's `267.3-DECISIONS.md` Section 6. RADAR-13, RADAR-15 and RADAR-16 were retired before
 use because they duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04; the gap is deliberate and recorded.
 RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving its intent.
-Roadmap phases must map all 70 active requirements with no orphans.
+Roadmap phases must map all 80 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX and MEMOP families alike (the Phase 266 and 269 precedent):** these
-IDs were minted at plan time inside their own phase's decision record rather than being drawn from a
-pre-existing milestone requirements pass. They are phase-local working IDs promoted to this document
-at phase close, which means the behaviour each one names is real and shipped, but the ID itself did
-not exist before its phase was planned and should not be read as part of an earlier milestone's
-scope.
+**Caveat, carried on the MCPFIX, MEMOP and GUARD families alike (the Phase 266 and 269
+precedent):** these IDs were minted at plan time inside their own phase's decision record rather
+than being drawn from a pre-existing milestone requirements pass. They are phase-local working IDs
+promoted to this document at phase close, which means the behaviour each one names is real and
+shipped, but the ID itself did not exist before its phase was planned and should not be read as
+part of an earlier milestone's scope.

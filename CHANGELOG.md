@@ -1,7 +1,19 @@
 ## [Unreleased] -- v2.0.0-beta.14 (in progress)
 
 ### Added
-- 
+- `scripts/verify-release` gains gate 10e (Phase 267.3, close-out): the whole-tree
+  `commands/*.md` `interactive_first_reward` audit (`node
+  scripts/check-reward-before-investment.cjs`, the CLI's full-audit default mode, no flag) is
+  now a fail-closed release gate, sited alongside gate 10d's registry audit. Proven against a
+  stripped-fixture A/B test before being wired (a `commands/` copy with one declaration
+  stripped exits 1, the real tree exits 0), matching the Phase 271-05 gate-proof discipline.
+  This closes the debt-ratchet gap `DEFERRED-271-D1` documented: a `--staged`-scoped commit
+  gate cannot measure a repo-wide declaration debt, which is how 67 of 113 commands went
+  undeclared for three months invisibly. The `--staged` commit gate itself is unchanged.
+  67 commands backfilled with a ruled `interactive_first_reward` declaration across this
+  phase (17 blocking Phase 271, plus 25 + 25 in the two backfill waves), and the
+  `data/first-reward-surfaces.json` registry (introduced earlier this phase) now declares
+  the first reward for 4 non-frontmatter surfaces inside `scripts/session-start`.
 
 ## [2.0.0-beta.13] - 2026-08-28
 
