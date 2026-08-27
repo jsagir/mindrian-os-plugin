@@ -56,6 +56,33 @@
 # plan 266-04, the phase's final gate, runs without it -- that is what
 # proves every listed file actually exists).
 #
+# Deliberately out of scope for Phase 266
+#
+# .planning/ is gitignored and does not travel between machines, so this
+# tracked file is the only place this record survives across a machine
+# switch. Each item below points at the research that details it. As of
+# 2026-08-27, Phase 265's data/capability-ledger.json does not exist on disk
+# yet, so these are recorded here rather than filed as ledger rows; once
+# that ledger ships, each of these becomes a row instead of a comment. Full
+# detail:
+# .planning/phases/265-capability-radar-absorption-routing-re-scoped-supersedes-orp/265-RESEARCH-mcp-layer-audit.md
+#
+#   1. alwaysLoad eager-load reconsideration, ~7,557 tokens pinned into every
+#      session (R-8).
+#   2. Missing annotations / outputSchema / title on all 36 tools (R-6).
+#   3. The deprecated elicitation enumNames shape (R-5) -- already owned by
+#      Phase 265 plan 265-02.
+#   4. Hook adoption of type: "mcp_tool" (R-12).
+#   5. A doctor tool-count and zero-tool check (R-7).
+#   6. requiresUserInteraction and _meta maxResultSizeChars, both unconfirmed
+#      transports (R-11).
+#   7. Retired-backend names (Pinecone / Neo4j) in the six Brain tool
+#      descriptions (R-9, D-7).
+#   8. Counted-facts drift: "9 tools" and "under 7000 token budget" and
+#      "49 MCP tools" (R-10, D-1, D-2, D-8).
+#   9. The total-surface token budget assertion (R-3c), deferred because the
+#      stated budget is already breached.
+#
 # bash only. No em-dashes (hyphens only).
 
 set -uo pipefail
