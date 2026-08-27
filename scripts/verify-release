@@ -374,6 +374,48 @@ else
 fi
 
 # ============================================================
+# 10d. FIRST-REWARD SURFACE DECLARATIONS
+# ============================================================
+# Phase 267.3 (ruling D-A, GUARD-04). The reward-before-investment guard reads
+# `interactive_first_reward` out of commands/*.md frontmatter. A bash hook has
+# no frontmatter block, so scripts/session-start -- which emits the very first
+# prose any user ever sees -- had nowhere to declare anything and sat outside
+# the guard entirely (GAP G-1). The declaration now lives in the sibling
+# registry data/first-reward-surfaces.json, validated by the SAME closed
+# vocabulary the frontmatter path uses.
+#
+# This gate makes the registry load-bearing. Without it the registry is a text
+# file: a record could name a deleted surface, carry a value outside the
+# vocabulary, duplicate an id, or lose its `why`, and a release would still cut
+# clean. --surfaces fails closed on every one of those (exit 0 clean, 1
+# violation, 2 ungateable), and its companion tripwire
+# tests/test-267.3-session-start-declaration.cjs additionally proves each
+# record's `anchor` still points at a live literal inside the file it names.
+#
+# WHAT IS DELIBERATELY NOT WIRED HERE, and why, so a later reader does not
+# "fix" the omission: the whole-tree commands/ audit (the CLI's default mode,
+# `node scripts/check-reward-before-investment.cjs` with no flag). It reads 67
+# missing today and it is SUPPOSED to. Wiring it now would turn every release
+# red for work this plan does not do, which produces a bypass habit rather than
+# a gate. Ruling D-C part 3 assigns that promotion to plan 267.3-08, after
+# plans 04, 06 and 07 land the 67 declarations and it genuinely reads zero.
+# Wire the gate, do not relax it, and do not turn it on before the work that
+# makes it green is done (the 271-05 discipline).
+echo -e "\n${BOLD}10d. First-Reward Surface Declarations${NC}"
+
+SURFACES_OUT=$(node "$PLUGIN_ROOT/scripts/check-reward-before-investment.cjs" --surfaces "$PLUGIN_ROOT" 2>&1) && SURFACES_CODE=0 || SURFACES_CODE=$?
+if [ "$SURFACES_CODE" -ne 0 ]; then
+  fail "First-reward surface declarations FAILED (a declared surface is missing, invalid, or points at a file that no longer exists):"
+  echo "$SURFACES_OUT" | tail -20
+  echo "  Fix the offending record in data/first-reward-surfaces.json, or restore the surface it names."
+  echo "  Legal values are the REWARD_TYPES closed vocabulary; a new term is a canon amendment,"
+  echo "  never a registry-local invention. See docs/reward-before-investment-rule.md."
+else
+  SURFACES_COUNT=$(echo "$SURFACES_OUT" | sed -n 's/^mva-rule-linter: scanning \([0-9]*\) declared surfaces$/\1/p' | head -1)
+  pass "All ${SURFACES_COUNT:-0} declared first-reward surfaces are valid (check-reward-before-investment --surfaces)"
+fi
+
+# ============================================================
 # 11. SCRIPTS EXECUTABLE
 # ============================================================
 echo -e "\n${BOLD}11. Script Permissions${NC}"
