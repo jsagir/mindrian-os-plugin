@@ -459,8 +459,8 @@ Plans:
 - [x] 265-02-PLAN.md - Wave 1 - MCP elicitation schema currency (stops multi-select rung-1 gates showing raw slugs)
 - [x] 265-03-PLAN.md - Wave 1 - the three swarm-command retrofits: run_in_background removal, the reviewed allowed-tools Task grant, and the reversed resolveModel fix
 - [x] 265-04-PLAN.md - Wave 1 - explicit dispatch shapes for trending-to-absurd and explore-opportunity, plus the navigator decision on parallelizing the explore legs
-- [ ] 265-05-PLAN.md - Wave 2 - /mos:radar --fetch writes the ledger under an injection fence, and both radar reference docs corrected
-- [ ] 265-06-PLAN.md - Wave 2 - retire SEED-003 and Phase 138 by marking, close drift finding W007-138, and write the decision record
+- [x] 265-05-PLAN.md - Wave 2 - /mos:radar --fetch writes the ledger under an injection fence, and both radar reference docs corrected
+- [x] 265-06-PLAN.md - Wave 2 - retire SEED-003 and Phase 138 by marking, close drift finding W007-138, and write the decision record
 - [ ] 265-07-PLAN.md - Wave 3 - regenerate skill and dist mirrors, file the two-home dev-research trail, and run the phase gate
 
 **Second planning pass, 2026-08-27.** The navigator settled nine additional workstreams after the
@@ -477,12 +477,12 @@ is deliberate.
 - [x] 265-10-PLAN.md - Wave 1 - file-meeting: ask the meeting date before extraction, probe transcript size, and actually render the declared F.8 gate
 - [x] 265-11-PLAN.md - Wave 1 - lens-engine: put weighted-by-context on the existing Promise.all branch so /mos:research stops fetching lenses one at a time
 - [x] 265-17-PLAN.md - Wave 1 - retire the frozen MCP tool counts and the breached token-budget claim in the server header and three docs
-- [ ] 265-12-PLAN.md - Wave 2 - the reviewed subagent-dispatch grant registry, covering both Task and Agent tokens (closes the invisible deep-grade grant)
-- [ ] 265-13-PLAN.md - Wave 2 - declaration truth: 19 unfilled [methodology] placeholders, the futures web_scope correction, and four live requires_evidence consumers
+- [x] 265-12-PLAN.md - Wave 2 - the reviewed subagent-dispatch grant registry, covering both Task and Agent tokens (closes the invisible deep-grade grant)
+- [x] 265-13-PLAN.md - Wave 2 - declaration truth: 19 unfilled [methodology] placeholders, the futures web_scope correction, and four live requires_evidence consumers
 - [ ] 265-14-PLAN.md - Wave 4 - mos-reason: one subagent per room section behind the migration-backup guard, with a cross-section coherence check
 - [ ] 265-15-PLAN.md - Wave 4 - scout step 4b: per-competitor fan-out with same-event dedup and typed failures in the shared scanner module
-- [ ] 265-16-PLAN.md - Wave 4 - persona: the generate-personas MCP action routes to /mos:persona --parallel instead of serving template output as analysis
-- [ ] 265-18-PLAN.md - Wave 4 - explore-opportunity: probe-first parallel legs with a cost guard that reproduces quality_early_stop's cost outcome, zero diff on the shared executor
+- [x] 265-16-PLAN.md - Wave 4 (declared) / Wave 2 (DAG-actual, depends only on 265-03) - persona: the generate-personas MCP action routes to /mos:persona --parallel instead of serving template output as analysis
+- [x] 265-18-PLAN.md - Wave 4 (declared) / Wave 2 (DAG-actual, depends only on 265-04) - explore-opportunity: probe-first parallel legs with a cost guard that reproduces quality_early_stop's cost outcome, zero diff on the shared executor
 - [ ] 265-19-PLAN.md - Wave 4 - file-meeting: five parallel whole-transcript extraction perspectives feeding (never bypassing) the nugget routing gate
 - [ ] 265-20-PLAN.md - Wave 4 - deep-grade: reconcile the 5-versus-7 rubric FIRST, then the per-component panel with grade-grant's fail-closed consolidation
 - [ ] 265-21-PLAN.md - Wave 4 - vault import review and find-analogies --external: threshold-gated and dedup-gated fan-outs
