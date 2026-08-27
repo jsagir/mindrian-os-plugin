@@ -3132,6 +3132,23 @@
       "hitl_why": "Mints a typed graph edge (a cascade decision, the same DEFERRED/REJECTED F.1 vocabulary navigation.cjs already writes) -- a material graph mutation, not a pure read."
     },
     {
+      "surface": "mcp:identity_write",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.1",
+      "hitl_why": "Writes a durable, cross-room claim about the user's identity to a file every room reads -- a material commitment the user should confirm rather than have inferred. Contrast with graph_write's F.1 (a typed graph edge): this is the same shape (a material write with a declared fork) applied to a different, cross-room-identity surface."
+    },
+    {
       "surface": "mcp:memory_event",
       "source": "mcp_tool",
       "connects_to_spine": true,
