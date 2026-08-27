@@ -58,10 +58,10 @@ question 2 and learns nothing"). Two layers neutralize it:
 - **Chain-level (code):** all four commands are `autonomous_safe: true`, so
   runChain auto-runs each step and never reaches a material human gate under
   `--permission-mode dontAsk`. `validateChainAutonomy` reports zero blockers.
-- **Prompt-level (natural language):** the frozen `references/methodology/rubric-huji.md`,
+- **Prompt-level (natural language):** the frozen `${CLAUDE_PLUGIN_ROOT}/references/methodology/rubric-huji.md`,
   appended via `--append-system-prompt-file`, instructs build-thesis to SCORE all
   ten questions and CONTINUE unconditionally, emitting per-question scores as
-  feedback input. `references/methodology/build-thesis-scored.md` is the
+  feedback input. `${CLAUDE_PLUGIN_ROOT}/references/methodology/build-thesis-scored.md` is the
   demo-verified fallback if the rubric override alone leaves a residual halt.
 
 ## What It Produces

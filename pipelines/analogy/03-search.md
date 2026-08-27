@@ -52,7 +52,7 @@ Also query CONTRADICTS edges that share the same TRIZ parameter pattern as the v
 
 #### Tier 2: Brain MCP (if connected)
 
-Read `references/brain/query-patterns.md` for `brain_cross_domain` and `brain_search_semantic` patterns.
+Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for `brain_cross_domain` and `brain_search_semantic` patterns.
 
 1. **brain_cross_domain**: Find bridging frameworks between the venture's domain and other domains
 2. **brain_search_semantic**: Vector search using the abstract function description as query text

@@ -21,7 +21,7 @@ If the user provided a specific problem or contradiction when starting the pipel
 
 Run `/mos:reason` with the venture's core problem, framing the decomposition around SAPPhIRE layers.
 
-Read `references/methodology/sapphire-encoding.md` for the SAPPhIRE ontology reference.
+Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/sapphire-encoding.md` for the SAPPhIRE ontology reference.
 
 For each major room artifact, extract:
 

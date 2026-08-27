@@ -31,8 +31,8 @@ chain that halt is neutralized: SCORE all ten questions and CONTINUE
 unconditionally. Never halt below 6/10. Emit the per-question 0/1 scores WITH
 their one-line evidence as feedback input for the packaging stage, not as a
 go/no-go gate. The primary mechanism is the frozen course-tier rubric
-`references/methodology/rubric-huji.md` appended at session level via
-`--append-system-prompt-file`; `references/methodology/build-thesis-scored.md` is
+`${CLAUDE_PLUGIN_ROOT}/references/methodology/rubric-huji.md` appended at session level via
+`--append-system-prompt-file`; `${CLAUDE_PLUGIN_ROOT}/references/methodology/build-thesis-scored.md` is
 the demo-verified fallback scored variant if a residual halt is observed.
 
 Course-tier discipline: score the ten questions at the depth the assignment

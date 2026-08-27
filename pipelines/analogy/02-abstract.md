@@ -25,7 +25,7 @@ The goal is to strip ALL domain-specific language and produce a purely functiona
 
 ### Step 1: Functional Verb Replacement
 
-Replace every domain-specific term with a standardized functional verb. Read `references/methodology/sapphire-encoding.md` for the functional verb vocabulary.
+Replace every domain-specific term with a standardized functional verb. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/sapphire-encoding.md` for the functional verb vocabulary.
 
 Standard functional verbs: deliver, protect, transform, connect, filter, amplify, regulate, separate, convert, store, distribute, stabilize, absorb, channel, detect, signal, adapt, repair, recycle, generate.
 
@@ -39,14 +39,14 @@ Larry should challenge domain-locked thinking aggressively: "You keep saying 'ma
 
 ### Step 2: TRIZ Parameter Mapping
 
-Read `references/methodology/triz-principles.md` for the 39 TRIZ parameters and 40 inventive principles.
+Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/triz-principles.md` for the 39 TRIZ parameters and 40 inventive principles.
 
 Map the core contradiction to TRIZ parameter space:
 1. Identify which of the 39 parameters the venture is trying to IMPROVE
 2. Identify which of the 39 parameters WORSENS as a result
 3. Look up the TRIZ Contradiction Matrix intersection for suggested inventive principles
 
-Read `references/methodology/triz-matrix.json` for the contradiction matrix data.
+Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/triz-matrix.json` for the contradiction matrix data.
 
 Format:
 ```
