@@ -647,7 +647,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [x] 271-05-PLAN.md - **COMPLETE: release-gate wiring, CHANGELOG, knowledge-base, compositing trail, and both follow-up registrations** (commits `1e104f0c`, `bd7cd93e`).
+- [x] 271-05-PLAN.md - **COMPLETE: release-gate wiring, CHANGELOG, knowledge-base, compositing trail, and both follow-up registrations** (commits `1e104f0c`, `72972d2f`).
   - **Gate 10c is live in `scripts/verify-release`, fail-closed,** proven against an A/B temp fixture rather than assumed. `verify-release` consequently reads 31 passed / 1 failed and a release cut is blocked until 271-03's remainder lands. The gate was NOT relaxed to make the board green (T-271-12 held for the second wave running).
   - **DEVIATION-271-05-A:** the plan's acceptance criterion 3 required a PASS line naming the anchoring gate. Unmeetable by construction, because the plan was written assuming waves 3 and 4 would both drive the tree to zero and wave 3 closed partial. The gate correctly FAILS on `commands/doctor.md:262` in the working tree (31 sites at HEAD). Recorded rather than papered over; the alternative was to make the gate advisory, which is the exact failure this phase exists to prevent.
   - **`doctor.cjs --acceptance` wiring deliberately omitted,** per the plan: it is a higher-traffic shared file and the release gate alone satisfies the RCA's named requirement.

@@ -25,6 +25,30 @@ re-running it is the only way to refresh this register.
 The gate is the instrument, not the fix. At the time of writing, the tree is RED by
 design: `--check` exits 1. Plans 271-03 and 271-04 turn it green.
 
+## Dev-Research Compositing cross-link (added by plan 271-05, 2026-08-27)
+
+Per CLAUDE.md's Dev-Research Compositing mandate, the durable REASONING trail behind this
+register (why bare plugin-relative paths are a resolution-mechanism defect rather than a typo
+class, why the dev repo's own `references/` folder made it structurally invisible, why a
+one-file fix predictably left 55 files broken, and the generalizable
+scope-by-mechanism-not-by-string lesson drawn from
+`.planning/debug/resolved/intern-w1-rooms-skill-script-path.md`) lives outside this repo:
+
+- **Room mirror (rethinking-mindrianos):** `~/MindrianRooms/rethinking-mindrianos/research/2026-08-27-bare-plugin-path-resolution/2026-08-27-bare-plugin-path-resolution.md`
+  **STATUS: NOT YET WRITTEN.** The write was BLOCKED by the `write-scope-check` hook:
+  "Blocked: write to rethinking-mindrianos denied. Active room is launchpad-02." That is a
+  stale room binding this GSD session never established (the known bleed WATCH item). The
+  write was NOT forced around the hook. It needs one human action,
+  `/mos:rooms switch rethinking-mindrianos`, after which the file is a single `cp` from the
+  source-of-record mirror below.
+- **Source-of-record mirror (WRITTEN, verified to resolve):** `~/MindrianOS/research/2026-08-27-bare-plugin-path-resolution/2026-08-27-bare-plugin-path-resolution.md`
+
+Both point back here by name: the entry's own "Cross-links" section cites
+`.planning/phases/271-bare-reference-path-resolution-audit-45-of-113-commands-cite`, this
+`271-AUDIT.md`, the ROADMAP Phase 271 entry, and the Phase 274 follow-up registration.
+Link resolution was verified with `test -e` rather than asserted; the results, including the
+one path that does NOT yet resolve, are recorded in `271-05-SUMMARY.md`.
+
 ---
 
 ## 1. Counts table
