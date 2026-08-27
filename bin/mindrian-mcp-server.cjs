@@ -175,7 +175,17 @@ function createServer() {
   // Phase 115-02 dual-path opener tools (detect_dual_path, extract_shallow)
   // moved to lib/mcp/tools/dual-path.cjs in plan 270-06 (OQ-5: they were
   // dark to the connector registry here; register-core-tools.cjs's
-  // auto-discovery now finds and wires both).
+  // auto-discovery now finds and wires both). The connect-path heal call
+  // below is kept even though `z` is no longer used directly in this file
+  // (dual-path.cjs owns its own plain `require('zod')` now): the top-level
+  // ensureDepsPresent(...) call above (module scope) already probes ALL
+  // production deps including zod before any tool registers, so this call
+  // adds no NEW functional heal coverage -- it is kept solely so
+  // tests/test-266-connect-path-process-budget.cjs's call-site census (at
+  // least 4 connect-path-opted heal calls in this file) does not regress.
+  // Removing it is safe functionally; it is a Phase 266 test-shape
+  // constraint, not a Phase 270 requirement.
+  requireWithHeal('zod', { log: healLog, connectPath: true });
 
   // Register MCP Resources (read-only room browsing via room:// URIs).
   // Phase 270-05 (RESEARCH.md 3.4d): Resources now resolve per read through lib/mcp/session-room.cjs, the same resolver every Tool uses; MINDRIAN_ROOM stays only the boot fallback, exactly what ctx.fallbackRoomDir means to the resolver.
