@@ -33,6 +33,17 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Auto-install Python ML deps if missing (v1.10.9, plan 85-10, LAWRENCE-001).
+# compute-hsi.py is the direct entry point for /mos:act and /mos:mos-reason's
+# HSI recomputation cascade; it never had this wiring even though the sibling
+# whitespace scripts did (RCA phase-134-python-elimination-false-complete --
+# Change 1). sentence-transformers is included even though its own import is
+# soft-guarded (Tier 1 embeddings) because an unremediated miss there still
+# hard-fails a few lines later once the Tier 2 Pinecone fallback also misses.
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+from ensure_ml_deps import ensure
+ensure(["numpy", "scikit-learn", "sentence-transformers"])
+
 # --- Guarded imports ---
 
 try:

@@ -178,3 +178,23 @@ files_changed:
   - `requirements-hsi.txt` (added `requests>=2.31`)
   - `.planning/debug/python-requirements-orphan-deps-audit.md` (this file, new)
 commits: filed with the 127.2-03 hotfix beta cut. See SUMMARY.md for the final commit hash.
+
+## Cross-Reference (added 2026-08-27)
+
+`.planning/debug/phase-134-python-elimination-false-complete.md` supersedes part of this
+file's premise: this audit assumed the Phase 134 CJS-port-of-Python-analyzers work was in
+progress (hygiene audit on a moving target). It was never started -- Phase 134's tracking
+showed all 8 plans executed via auto-generated `kind: summary-stub` SUMMARYs that never
+verified the underlying work, not real completion records. The orphan-deps hygiene findings
+in THIS file remain valid and unaffected (they're about `requirements-hsi.txt` coverage, not
+about whether the CJS port happened), but the "port is in progress" framing in the Purpose
+section above is stale.
+
+The 134 RCA's Change 1 (2026-08-27) closes a related, narrower gap this audit's F-AUDIT-04
+called "already correctly wired": `ensure_ml_deps.py`'s auto-install proxy was correctly
+built and correctly wired into 6 of the whitespace-family scripts, but was NEVER wired into
+`scripts/compute-hsi.py` or `scripts/rs-engine.py` -- the two entry points that actually gate
+`/mos:find-bottlenecks`, `/mos:act`, and `/mos:mos-reason`. Those two scripts only printed a
+manual `pip install -r requirements-hsi.txt` instruction and exited 1 on missing deps; they
+never called the auto-installer at all. Fixed by wiring `ensure_ml_deps.ensure([...])` into
+both, matching the pattern this audit's F-AUDIT-04 already validated as correct elsewhere.

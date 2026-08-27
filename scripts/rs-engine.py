@@ -50,6 +50,20 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
+# Auto-install Python ML deps if missing (v1.10.9, plan 85-10, LAWRENCE-001).
+# rs-engine.py is the direct entry point for /mos:find-bottlenecks (invoked by
+# lib/agents/reverse-salient-agent.cjs); it never had this wiring even though
+# sibling whitespace scripts did (RCA phase-134-python-elimination-false-
+# complete -- Change 1). `requests` is included here (not just numpy) because
+# it is a transitive import in lib/core/rs_corpus.py, loaded a few lines below
+# this block -- and `requests` was the actual root cause of the original
+# Windows tester 2026-05-23 silent-failure class this file's own comments
+# reference (see runRsEngine's diagnostic-forwarding logic in
+# reverse-salient-agent.cjs).
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+from ensure_ml_deps import ensure
+ensure(["numpy", "requests"])
+
 # --- Guarded imports ---------------------------------------------------------
 
 try:
