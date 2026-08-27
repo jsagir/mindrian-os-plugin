@@ -55,7 +55,43 @@ passed (13 gates plus `check-substrate.cjs --diff`, all `rc=0`; the mirror check
 whole `commands/` tree rather than only staged files, so the next latent gap does not wait
 for an unrelated sweep to discover it.
 
-**Status:** OPEN. Not owned by any Phase 271 plan. **BLOCKING plan 271-03's completion.**
+**Status:** ~~OPEN. Not owned by any Phase 271 plan. **BLOCKING plan 271-03's completion.**~~
+**RESOLVED 2026-08-28 by Phase 267.3, plans 04 and 05. Commit `fa2f1414`.**
+
+**How it was resolved, and how it was NOT.** It was fixed by 17 human-ruled declarations, not
+by a hook bypass, not by an allowlist entry, and not by editing the gate. Plan 267.3-04 wrote
+`267.3-CLASSIFICATION.md` (a reusable rubric - S-1, the four qualifying tests, disqualifiers
+D-1 and D-2, and tie-break rules TB-1 through TB-6 - plus one reasoned row per command, each
+citing the `path:line` where that command first hands the navigator something it produced), the
+navigator ruled all 17 rows, and 267.3-04 applied them. Plan 267.3-05 then committed the work.
+
+**The recommended disposition above was followed in full, both halves.** The declarations
+landed, and the whole-tree audit question was answered too: `267.3-DECISIONS.md` ruling D-C
+keeps the `--staged` commit gate exactly as Phase 245-02 built it (widening it would re-create
+the permanent forced bypass that narrowing fixed) and adds the already-existing whole-tree audit
+to `scripts/verify-release` as a fail-closed gate, wired now and promoted at phase close once
+the remaining 50 declarations land in plans 267.3-06 and 267.3-07.
+
+**Two things this resolution found that the item above did not anticipate.**
+
+1. **The closed vocabulary was itself part of the defect.** Six of the eight members were minted
+   against exactly one flow each, so ten conversational methodology commands and nine
+   diagnostic commands had no honest token at all. Phase 267.3 minted `methodology_reframe` and
+   `--none (diagnostic surface)` as recorded canon amendments (ruling D-B), and the 267.3-04
+   navigator ruling minted a ninth, `live_deliverable`, for `commands/publish.md:149`, because
+   every one of the eight prior terms could describe publish's live shareable URL only falsely.
+   Forcing a least-false token would have greened this gate on an untrue claim, which is the one
+   outcome the gate exists to prevent.
+2. **`--none (scripting only)` was forbidden on all 17 by measurement, not by opinion.** All 17
+   bodies were scanned for `--no-interactive`, `--script` and a standalone `-q`: zero hits. That
+   is TB-1, and it is what makes the 271-03 `publish` miscall unreachable by the rubric.
+
+**Final state, measured at commit `fa2f1414`:** the staged linter reads `compliant: 17 /
+missing: 0 / invalid: 0`, the full audit reads 63 / 50 / 0 (the 50 are the untouched backfill
+owned by plans 267.3-06 and 267.3-07, not residue of this item), the anchoring gate reads
+VIOLATIONS 0, `tests/run-all-271.sh` is PASS=4 FAIL=0, and `scripts/verify-release` is 34 passed
+/ 0 failed and CLEAR TO RELEASE. `COMMIT_NO_VERIFY` was unset for the commit and the full
+pre-commit hook passed on its own, unmodified.
 
 ---
 
@@ -92,6 +128,24 @@ untouched, so the change stays a pure prefix insertion consistent with the other
 The gate's `ANCHOR_SHORT_RE` matches on the prefix immediately preceding the token and
 does not require backticks, so this form registers as anchored.
 
+**APPLIED 2026-08-28 by Phase 267.3 plan 05, Task 1. Commit `fa2f1414`.** Applied in exactly
+the shape prescribed above and nothing more: one `${CLAUDE_PLUGIN_ROOT}/` prefix inserted, no
+backticks added, no sentence reworded, the `per D-19` prose untouched. The predicted behaviour
+held - the gate accepted the no-backtick form, confirming `ANCHOR_SHORT_RE` keys on the prefix
+rather than on any code fence.
+
+The site had moved from line 262 to **line 264** because plan 267.3-04 inserted two frontmatter
+lines (the declaration and its provenance comment) above it. Same file, same site, same count;
+the line number is the only thing that changed, which is why the fix was located by grepping for
+`references/personality/voice-dna.md` rather than by trusting the recorded line number.
+
+`skills/doctor/SKILL.md` was regenerated afterwards (1 mirror overwritten, `--check` OK 112/112).
+The `commands/doctor.md` diff was asserted to contain only the anchor line plus 267.3-04's two
+declaration lines: 4 changed lines total, nothing else. With this site anchored, the commands
+group reads `sites=124 violations=0 anchored=119 allowlisted=5`, and Task 1's own acceptance
+criterion 4 from plan 271-03 - a `commands` group violation total of 0 non-allowlisted - is met
+for the first time since Phase 271 opened.
+
 ---
 
 ## Execution state of plan 271-03 at the point of escalation
@@ -117,6 +171,29 @@ mirrors already regenerated, so resumption is a stage-and-commit, plus the one-l
 their 16 mirrors are still sitting modified and uncommitted in the shared tree, and
 plan 271-04 did not touch them. `git diff --numstat -- commands/` reads 16 files / 30
 lines, unchanged from the figures above.
+
+**RESOLVED 2026-08-28. The resume was executed exactly as written above.** Stage-and-commit,
+plus the one-line `doctor.md` prefix insertion, plus one final `node scripts/build-skill-mirrors.cjs`.
+No step of the recorded resume path turned out to be wrong.
+
+One safety property named here did change in between, and it is worth recording because it is a
+general lesson rather than a Phase 271 fact. This section said the held files were "safe to
+leave in the shared tree" because any session attempting to commit them hits the same
+`mva-rule-linter` gate. That protection was a side effect of the defect: once plan 267.3-04
+applied the 17 declarations in the working tree, the files sailed through the linter and could
+have been swept into any unrelated commit running `git add -A`. `267.3-04-SUMMARY.md` flagged
+this explicitly and 267.3-05 acted on it, staging all 34 files by explicit path rather than by
+wildcard and committing promptly. **A gate that happens to hold uncommitted work in place is not
+a safety mechanism; it is a blocker whose removal silently removes the safety too.**
+
+| Item | Final state (2026-08-28) |
+|---|---|
+| Unblocking commit | `fa2f1414`, 34 files, 130 insertions / 62 deletions, full pre-commit hook GREEN, `COMMIT_NO_VERIFY` unset |
+| Held in the working tree | **nothing.** `git diff --name-only -- commands/ skills/` returns zero files |
+| `commands/doctor.md` | anchored at line 264, mirror regenerated |
+| Anchoring gate, working tree and HEAD | commands `violations=0`, TOTAL **0** across all four surfaces |
+| `bash tests/run-all-271.sh` | **PASS=4 FAIL=0** (was PASS=3 FAIL=1) |
+| `scripts/verify-release` | **34 passed / 0 failed / 2 warnings, CLEAR TO RELEASE** |
 
 ---
 
@@ -152,6 +229,26 @@ and "drop `hitl_shape: F.1` because it does not" is a per-surface Canon Part 11 
 call, not a path-resolution fix. Guessing it inside a mechanical anchoring sweep is the
 exact failure mode plan 271-03 already refused once.
 
-**Status:** OPEN. Not owned by any Phase 271 plan. Natural home is whichever phase takes
-the repo-wide declaration backfill (the same scope-widening question already raised for
-Phase 267.3 at `.planning/ROADMAP.md:705`).
+**Status: OPEN.** Not owned by any Phase 271 plan, and **not owned by Phase 267.3 either.**
+
+**Natural home, corrected 2026-08-28.** The original sentence pointed at "whichever phase takes
+the repo-wide declaration backfill", which at the time read as Phase 267.3. Phase 267.3 has now
+run its 04 and 05 waves and this item is explicitly NOT absorbed. Stated plainly so no reader
+infers otherwise from the fact that D-1 was resolved next door:
+
+- Phase 267.3 ruled the **reward-declaration** jurisdiction: the `interactive_first_reward`
+  field, the `REWARD_TYPES` closed vocabulary, and who declares it on a surface with no
+  frontmatter. `267.3-DECISIONS.md` Section 7, standing constraint 6 says so in the phase's own
+  binding text: "DEFERRED-271-D2 stays OPEN and is NOT absorbed here. It is a Canon Part 11
+  SHAPE declaration question on a different field (`hitl_shape` versus `connector.excluded`)."
+- This item is the **Part 11 shape-declaration** jurisdiction: a different field, a different
+  closed vocabulary (the F.0-F.9 shapes), a different gate
+  (`scripts/check-shape-declaration.cjs`, advisory since Phase 210), and a different surface mix
+  (1 agent plus 52 `skills/*/SKILL.md`, zero commands).
+
+Same family of gap, different field, and it needs its own owner and its own ruling. It is still
+advisory-only today (WARN, exits 0), so it gates neither a commit nor a release: the 15
+`skills/*/SKILL.md` WARNs printed during commit `fa2f1414`'s pre-commit run are this item, and
+they did not block anything. The open question a future owner must rule per surface is
+unchanged: drop `connector.excluded:true` because the surface genuinely reaches the declared
+fork, or drop the `hitl_shape` because it does not.
