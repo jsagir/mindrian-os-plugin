@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "SESSION PAUSED by navigator, mid-261-12 Task 1. Plans 261-01 through 261-11 (waves 1-3) are executed and committed. 261-12 (wave 4, the admin window) was started: navigator approved opening it via Render MCP, the open-deploy was mid-flight when the navigator asked to stop, so the window was CLOSED again immediately (BRAIN_HTTP_ADMIN=deny, redeploy confirmed live, brain_write smoke-test confirmed absent) rather than leaving a freshly-opened window across a session boundary. Zero graph writes happened in 261-12 -- no Session 0, no FIX-01 round-trip, no payload committed. No 261-12-SUMMARY.md exists; from GSD's own tracking this task is untouched. Full handoff: docs/2026-08-21-HANDOFF-phase261-ceremony-paused-before-window-work.md. Next: resume 261-12 Task 1 (re-open the window, verify BOTH brain_write and ingest_framework present, proceed inline per the plan's own EXECUTION CONSTRAINT), then 261-13, then 262, then 263. UNRELATED, ADDITIVE: Phase 264 (roadmap-type-selector-challenge-driven-act-chain-orchestrati) is now FULLY COMPLETE (2026-08-23) -- 5/5 plans across 3 waves (264-01/264-02 wave1, 264-03/264-04 wave2, 264-05 wave3), all 5 SPEC.md requirements (R1-R5) plus C-01 verified, code review clean (0 blocker, 2 warning, 2 info), phase verification passed 5/5 must-haves with a live mutation proof on the B3 pin. Commits: 56464b1c/bdfebc08/f6d2f0a0 (264-01), 44f65975/ba0a4ddb (264-02), 0fcf24cc/68b868f4/a88f1cff (264-03), 62f6de84/6c6a47c4 (264-04), d9af8c90 (264-05), plus 02cf731d (REVIEW.md) and 84de6337 (VERIFICATION.md). chain-executor.cjs remains byte-identical to base c7c33eea449f6f227c4cfbb86f220acaac9b5ab8 throughout. Is the last phase in ROADMAP.md (is_last_phase:true, next_phase:null) -- nothing to auto-advance into. 261-12 remains the actually-paused, resume-pending ceremony per the pointer above; Phase 264's completion is UNRELATED, ADDITIVE, and does not reorder or block 261-12's resume."
-last_updated: "2026-08-21T16:12:20.455471Z"
-last_activity: "2026-08-21 - Session paused at navigator's request mid-261-12 Task 1. Window opened then deliberately re-closed before any window-work happened, confirmed closed via live smoke-test, full handoff written and committed."
+stopped_at: Completed 261-04-PLAN.md
+last_updated: "2026-08-27T03:54:38.490Z"
+last_activity: 2026-08-27 -- Phase 266 execution started
 progress:
-  total_phases: 11
-  completed_phases: 3
-  total_plans: 29
-  completed_plans: 27
-  percent: 93
+  total_phases: 17
+  completed_phases: 4
+  total_plans: 61
+  completed_plans: 32
+  percent: 24
 ---
 
 <!-- NOTE (264 execute-phase completion, 2026-08-23T19:32Z, hand-edited per this file's own
@@ -3057,14 +3057,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 264 — roadmap-type-selector-challenge-driven-act-chain-orchestrati
+**Current focus:** Phase 266 — mcp-layer-correctness-fixes-fast-independently-shippable-fix
 
 ## Current Position
 
-Phase: 264 (roadmap-type-selector-challenge-driven-act-chain-orchestrati) — COMPLETE
-Plan: 5 of 5
-Status: Phase 264 complete, verified, last phase in ROADMAP.md (no auto-advance target); 261-12 remains the actually-paused ceremony
-Last activity: 2026-08-23 -- Phase 264 execution complete, verified 5/5 must-haves
+Phase: 266 (mcp-layer-correctness-fixes-fast-independently-shippable-fix) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 266
+Last activity: 2026-08-27 -- Phase 266 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
