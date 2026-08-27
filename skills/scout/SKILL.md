@@ -30,7 +30,14 @@ connector:
   hierarchy_rank: 35
   filing: none
   plan_gated: false
-  web_scope: null
+  # Orchestrator discovery during Phase 265 wave 3 (surfaced by
+  # tests/test-265-declaration-truth.cjs's WEB_SCOPE arm after plan 265-15
+  # landed the Step 4b competitor fan-out): this command's body names
+  # WebSearch and mcp__tavily__tavily-search (also in allowed-tools) as its
+  # Step 4b source, gated by the Part-8 egress composer. Same
+  # declaration-versus-reality class plan 265-13 Task 3 already fixed for
+  # futures.md and find-analogies.md.
+  web_scope: green
 ---
 
 <!-- mos:firing-block v2 -->

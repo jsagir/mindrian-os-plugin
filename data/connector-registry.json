@@ -1186,7 +1186,7 @@
       "hierarchy_rank": 35,
       "filing": "none",
       "plan_gated": false,
-      "web_scope": null,
+      "web_scope": "green",
       "decision_surface": null
     },
     {
@@ -2542,7 +2542,7 @@
       "hierarchy_rank": 35,
       "filing": "none",
       "plan_gated": false,
-      "web_scope": null,
+      "web_scope": "green",
       "decision_surface": null
     },
     {
