@@ -5,6 +5,8 @@ help_jtbd: "Render your room as a presentation deck."
 body_shape: E (Action Report)
 hitl_shape: "F.1"
 hitl_why: "The 6-view present offers one next move on which view to open."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 6): first delivery at commands/present.md:87, six persisted self-contained HTML views the navigator can send to anyone, distinct from dashboard's ephemeral live render.
+interactive_first_reward: live_deliverable
 body_shape_detail: Generation results as action items, 6 views listed as outputs
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you need to walk someone through the room visually, /mos:present generates the 6-view presentation and opens it. Dashboard, Wiki, Deck, Insights, Diagrams, Graph in one artifact."

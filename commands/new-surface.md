@@ -5,6 +5,8 @@ help_jtbd: "Scaffold a new /mos surface (command/agent/skill) with its 11-key co
 body_shape: E
 hitl_shape: "F.0"
 hitl_why: "It proposes one new surface for a single approve-or-reject decision."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 2): first delivery at commands/new-surface.md:111, the emitted surface path and registry confirmation, a correctly-wired skeleton the navigator still has to hand-fill.
+interactive_first_reward: schema_preview
 argument-hint: "[kind] [name]"
 serves_jtbd: ["explore"]
 teaching: "When you are adding a new command, agent, or skill to the harness, /mos:new-surface emits the surface .md with the correct 11-key connector frontmatter so its wiring is declared, never hand-written, then regenerates the connector-registry (its real home) and the harness-manifest wiring digest. Harness-as-code for surfaces."

@@ -5,6 +5,8 @@ help_jtbd: "Update the plugin to the latest version."
 body_shape: E
 hitl_shape: "F.0"
 hitl_why: "It offers one update action to approve or defer."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 22): first delivery at commands/update.md:58, the plugin's own version-comparison verdict against the latest release.
+interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[check|reapply|force]"
 serves_jtbd: ["audit-room"]
 teaching: "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs."

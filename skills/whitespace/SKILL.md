@@ -6,6 +6,8 @@ help_jtbd: "Map the whitespace zones in your domain."
 body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "Coverage gaps are surfaced as an independent set examined in any order."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 24, navigator-ruled): first delivery at commands/whitespace.md:152, the map subcommand's density grid pairing each gap with a recommended framework.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains", "find-problem"]
 teaching: "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries."
 # --- Phase 122 workflow-layer frontmatter ---

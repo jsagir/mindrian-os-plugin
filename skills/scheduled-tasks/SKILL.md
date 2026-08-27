@@ -6,6 +6,8 @@ help_jtbd: "View and manage scheduled background sweeps."
 body_shape: E (Action Report)
 hitl_shape: "F.1"
 hitl_why: "Scheduled tasks offers one next move to confirm a schedule change."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 15): first delivery inferred from hitl_why plus the Configuration section at commands/scheduled-tasks.md:290, a view-then-confirm shape over the plugin's own scheduler configuration.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["plan-execution"]
 teaching: "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests."
 ui_reference: skills/ui-system/SKILL.md

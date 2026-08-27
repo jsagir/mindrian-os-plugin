@@ -5,6 +5,8 @@ help_jtbd: "Re-run analysis on a single artifact or section."
 body_shape: E (Action Report)
 hitl_shape: "F.8"
 hitl_why: "Meetings are re-mined into an independent set of findings examined in any order."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 9): first delivery at commands/reanalyze.md:93, the before/after delta plus narrated new convergence signals, action items and contradictions across the navigator's own filed meetings.
+interactive_first_reward: methodology_reframe
 body_shape_detail: Before/after delta showing new insights discovered
 serves_jtbd: ["file-meeting"]
 teaching: "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant."

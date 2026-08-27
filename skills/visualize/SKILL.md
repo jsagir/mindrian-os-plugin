@@ -7,6 +7,8 @@ argument-hint: "[structure|graph|chart]"
 body_shape: D (Document View)
 hitl_shape: "F.1"
 hitl_why: "A rendered view offers one next move on what to open next."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 23): first delivery at commands/visualize.md:55, a soft-alias stub passing through /mos:dashboard --mermaid's output verbatim (router sub-case).
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room", "prepare-pitch"]
 deprecated: true
 deprecated_redirect: "dashboard --mermaid"

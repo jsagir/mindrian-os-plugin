@@ -6,6 +6,8 @@ help_jtbd: "Ask your room any question; get the answer as graph paths (deprecate
 body_shape: D
 hitl_shape: "F.1"
 hitl_why: "A natural-language graph query returns a result with one next move."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 8): first delivery at commands/query.md:54, a soft-alias stub passing through /mos:graph's output verbatim (router sub-case).
+interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[question]"
 serves_jtbd: ["audit-room", "explore"]
 deprecated: true
