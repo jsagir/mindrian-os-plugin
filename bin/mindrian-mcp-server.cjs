@@ -4,8 +4,20 @@
  * MindrianOS MCP Server -- dual transport entry point (stdio + Streamable HTTP)
  *
  * Connects MindrianOS plugin capabilities to Claude Desktop and Cowork
- * via the Model Context Protocol. Uses hierarchical tool router (9 tools
- * covering 64 CLI commands) to stay under 7000 token budget.
+ * via the Model Context Protocol. The hierarchical tool router
+ * (lib/mcp/tool-router.cjs) contributes 11 topic-level tools fanning out to
+ * roughly 64 CLI commands. The server's full tool surface is larger than
+ * the router alone: three more seams register beside it --
+ * lib/mcp/register-core-tools.cjs auto-discovering every lib/mcp/tools/*.cjs
+ * module, two inline registrations in this file (detect_dual_path,
+ * extract_shallow), and the surface-gated MCP Apps views in
+ * lib/mcp/app-views.cjs. register-core-tools.cjs:56 registers every new
+ * tools/*.cjs file with no gate, no budget check and no review step -- that
+ * is HOW the total grows silently, so it is never restated here as a frozen
+ * number. The live tool count and the eager-load token total are MEASURED,
+ * not typed, by tests/test-234-tool-description-floor.cjs (Phase 266's
+ * MCPFIX-04 expands it to cover every registered tool and states its own
+ * coverage).
  *
  * Transport selection is automatic via surface detection:
  *   - CLI / Desktop: stdio (default, zero-config)
@@ -151,7 +163,9 @@ function createServer() {
     { instructions: RUNTIME_INSTRUCTIONS }
   );
 
-  // Register hierarchical tool router (9 tools covering 64 CLI commands)
+  // Register the hierarchical tool router (11 tools fanning out to ~64 CLI
+  // commands; see the header comment above for the full four-seam surface
+  // and where the live count is measured).
   // Phase 198-02: the 5th arg is this process's detected surface name, so
   // tool-router's write handlers can gate session-aware resolution behind
   // isMcpFirst(surface) per-call (D-07).
