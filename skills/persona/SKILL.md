@@ -229,6 +229,14 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
 
 **Why parallel instead of sequential?** Sequential analysis (via `analyze`) lets each hat build on the previous one. Parallel analysis gives INDEPENDENT perspectives -- later hats are not biased by earlier ones. This produces more genuine disagreements and stronger convergence signals. Use `analyze` for deep facilitated thinking; use `--parallel` for unbiased multi-perspective stress-testing.
 
+### The template preview, and what it is not
+
+The OTHER persona surface is `lib/core/persona-ops.cjs` `generatePersonas`, reached through the `room_content` MCP tool's `generate-personas` action. It is a deterministic template fill over regex-extracted room-section summaries -- there is no reasoning step anywhere in that path. Use it only for a fast structural preview of what the six hats would cover, nothing more.
+
+As of Phase 265-16, `generate-personas` ROUTES here by default instead of silently writing template files; it only produces the preview on explicit opt-in (`{"mode": "preview"}`), and every preview file it writes stamps `PREVIEW_NOTICE` on its face, in both frontmatter and body, so it is never mistaken for this command's analysis.
+
+The MCP tool cannot simply run this pipeline itself: an MCP tool handler runs server-side and cannot invoke the Agent tool, which is a client-side capability reached only through command prose like this file. That is why the fix is a route, not a rewrite of the handler.
+
 ## Persona Override (Identity-Only)
 
 The personas above are the AI TEAM around the navigator. Separately, a navigator can declare their OWN synthetic persona for a role-play or test session. This is the identity-only override surface. It is a local-only sentinel file (zero Brain egress per Canon Part 8); a navigator-set persona is navigator-confirmed (legitimate per Canon Part 9 role 5).
