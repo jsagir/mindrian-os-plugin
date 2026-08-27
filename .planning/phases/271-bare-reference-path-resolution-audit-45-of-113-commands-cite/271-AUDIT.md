@@ -5,7 +5,7 @@ kind: audit
 status: RED-baseline; section 4 disposition RESOLVED by plan 271-02
 generated_by: scripts/check-plugin-path-anchoring.cjs --json --include-scripts
 generated_at: 2026-08-27
-updated_by: plan 271-02 (section 4 only)
+updated_by: plan 271-02 (section 4 only); plan 271-04 (section 6 added)
 updated_at: 2026-08-27
 radar_disposition: option-d
 sites_to_anchor_post_ruling: 134
@@ -375,6 +375,96 @@ green check. Plan 271-05 registers this as a follow-up phase.
 
 The advisory tier NEVER affects the gate's exit code. `--check` reports and exits on
 the `references/` verdict only.
+
+---
+
+## 6. Anchor form per surface
+
+**Added by plan 271-04, Task 1, 2026-08-27.** This section answers one question before any
+`agents/*.md` file is edited: does `${CLAUDE_PLUGIN_ROOT}` actually expand inside agent
+markdown, the way it demonstrably does inside `commands/*.md`? The question is not
+rhetorical. `grep -rc 'CLAUDE_PLUGIN_ROOT' agents/*.md` returns zero across all 14 agents in
+this repo, so there is no local precedent to copy, and anchoring with a variable that does
+not expand would ship a literal `${CLAUDE_PLUGIN_ROOT}` string into every agent path, which
+is strictly worse than the bare path it replaces (threat T-271-10).
+
+### Outcome
+
+**CONFIRMED expands.**
+
+### Sources consulted, and what each returned
+
+The plan named the `claude-code-guide` agent and the `claude-api` skill as first choice.
+Recorded honestly: **neither was reachable from this executor's tool surface.** This agent
+runs with Read / Write / Edit / Bash only, with no `Task` tool to dispatch a sub-agent and no
+`claude-api` skill installed under `~/.claude/skills/`. Rather than treat that as a dead end,
+the consult went to the source those two would themselves cite: **Anthropic's own official
+`plugin-dev` plugin**, installed on this machine from the `claude-plugins-official`
+marketplace. That is a primary vendor artifact, not a training-data recollection.
+
+| # | Source | Tool | What it returned |
+|---|---|---|---|
+| 1 | `claude-code-guide` agent | none available | NOT CONSULTED. No `Task` tool on this executor. Recorded, not papered over. |
+| 2 | `claude-api` skill | none available | NOT CONSULTED. Not installed under `~/.claude/skills/`. |
+| 3 | `plugin-dev` skill `plugin-structure`, section "Path Resolution Rules" (`~/.claude/plugins/marketplaces/claude-plugins-official/plugins/plugin-dev/skills/plugin-structure/SKILL.md` lines 291-294) | Read | **DECISIVE.** Enumerates the surfaces by name: "**In component files (commands, agents, skills):** `Reference scripts at: ${CLAUDE_PLUGIN_ROOT}/scripts/helper.py`". Agents are named explicitly, in the same breath as commands, in a markdown-body example. |
+| 4 | `claude-security/agents/claude-security.md` lines 13 and 21 (Anthropic-shipped agent) | Bash grep | Uses `${CLAUDE_PLUGIN_ROOT}` twice in agent prose, under a heading literally titled "Environment and Paths (use verbatim)". Working shipped precedent, not documentation. |
+| 5 | `plugin-dev/agents/plugin-validator.md` lines 114 and 122 (Anthropic-shipped agent, authored by the team that owns the variable) | Bash grep | Same pattern, in the validator whose own job is checking `${CLAUDE_PLUGIN_ROOT}` usage for portability. |
+| 6 | `plugin-dev` skill `command-development`, `references/plugin-features-reference.md:79` | Read | The one COUNTER-signal, recorded so the finding is not one-sided: "`${CLAUDE_PLUGIN_ROOT}` is a special environment variable available in plugin **commands**". Narrower than source 3. |
+
+### Why source 6 does not overturn sources 3, 4 and 5
+
+`plugin-features-reference.md` lives inside the `command-development` skill and its whole
+scope is commands, so its "in plugin commands" phrasing describes what that document covers,
+not a boundary on where the variable works. Source 3 is the cross-surface document, it names
+agents explicitly, and two independently shipped Anthropic agents put the variable in
+production agent markdown. Three positives against one scoping artifact.
+
+### Residual uncertainty, named rather than buried
+
+No source found states a NEGATIVE, that is, none says the variable fails in agents. The
+finding is built on one affirmative doc plus two working vendor examples, which is grounding,
+not proof by absence. If a future session gains `Task` access it should re-ask
+`claude-code-guide` and append the answer here. This is recorded as a named blind spot in
+`271-04-SUMMARY.md`.
+
+### The two literal forms, handed to Tasks 2 and 3
+
+Agents (`agents/*.md`) use: `${CLAUDE_PLUGIN_ROOT}/references/...`
+
+Skills (`skills/*/SKILL.md`) use: `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/...`
+
+### Third surface the plan did not scope: `pipelines/**/*.md`
+
+The plan's frontmatter lists skills and agents only, and its objective says 26 citations. The
+gate measures 40 across 17 files, and the extra surface is `pipelines/`, 9 sites in 5 files,
+which the plan-time estimate missed because its glob was flat `pipelines/*.md` and every
+stage file lives one level down (`271-AUDIT.md` section 1 already traced this). The ROADMAP's
+Wave 4 post-ruling correction (`.planning/ROADMAP.md:631`) names the live target as 40. Form
+ruled here, since neither the plan nor the gate's recovery line names one for pipelines:
+
+Pipelines (`pipelines/**/*.md`) use the SHORT form: `${CLAUDE_PLUGIN_ROOT}/references/...`
+
+Reasoning, in three parts:
+
+1. **`pipelines/` is not a Claude Code component type.** It is a MindrianOS-invented
+   directory. Its stage files are not loaded by Claude Code at prompt-render time; they are
+   read at RUNTIME with the Read tool by `commands/pipeline.md:120` and referenced by
+   `agents/framework-runner.md:220`. So neither anchor form is expanded by Claude Code in
+   these files, and neither is evaluated by a shell.
+2. **The long form's fail-closed semantics buy nothing where nothing evaluates them.**
+   `${VAR:?message}` is shell parameter expansion. In a file no shell ever sources, the `:?`
+   clause is 130 characters of noise per site with no failure mode to close.
+3. **Pipelines are never loaded by a foreign Agent-Skills host.** That is the entire reason
+   skills carry the long form (Exception Class 3): a non-Claude-Code host can load a SKILL.md
+   and set no `CLAUDE_PLUGIN_ROOT` at all. A pipeline stage file is only ever reached through
+   `/mos:pipeline` or `/mos:act`, both first-party Claude Code component surfaces where the
+   variable is set.
+
+Anchoring is still a strict improvement on this surface even unexpanded: the model reaches a
+pipeline stage file by having already resolved an absolute plugin path to read it, so a
+literal `${CLAUDE_PLUGIN_ROOT}/` prefix is an unambiguous instruction to resolve against that
+same root. A bare path is silently resolved against the user's cwd instead, which is the
+defect this phase exists to fix.
 
 ---
 
