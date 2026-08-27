@@ -142,10 +142,11 @@ console.log('test-270-resource-session-room');
     registerResources(stub, ctx);
 
     // Sanity guard before grading: a vacuous green is the exact failure
-    // shape this phase exists to close.
-    if (stub.resources.size + stub.templates.size !== 7) {
+    // shape this phase exists to close. 9, not 7, since plan 270-08 added
+    // mos-tree and mos-room-tree.
+    if (stub.resources.size + stub.templates.size !== 9) {
       throw new Error(
-        'harness never reached real registrations: expected 7 resource+template ' +
+        'harness never reached real registrations: expected 9 resource+template ' +
         'registrations, got ' + (stub.resources.size + stub.templates.size)
       );
     }
@@ -232,6 +233,8 @@ console.log('test-270-resource-session-room');
       const expectedNames = [
         'room-state', 'room-sections', 'room-section', 'room-meetings',
         'room-intelligence', 'reasoning-state', 'reasoning-section',
+        // plan 270-08 additions:
+        'mos-tree', 'mos-room-tree',
       ];
       const actualNames = Array.from(stub.resources.keys())
         .concat(Array.from(stub.templates.keys()))
