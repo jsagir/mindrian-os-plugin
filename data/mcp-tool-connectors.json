@@ -53,6 +53,23 @@
       "hitl_why": "Executes the autonomous_safe prefix server-side (wrapping the shipped runChain) and halts at the first material step, rendering a genuine Decision-Gate fork through the SAME gate-render.cjs ladder gate_render uses, instead of executing it unattended."
     },
     {
+      "surface": "mcp:context_assemble",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "A pure read across four local legs (room state, session fragments, graph neighborhood, projected cortex) through the navigation.cjs chokepoint -- no graph mutation, no node minted, no fork. Contrast with memory_event's F.1: this tool never writes, the read/write line RESEARCH.md 2.5 names as the load-bearing distinction this phase preserves."
+    },
+    {
       "surface": "mcp:contract_version",
       "source": "mcp_tool",
       "connects_to_spine": true,
