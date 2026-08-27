@@ -10,12 +10,19 @@ serves_jtbd: ["file-meeting"]
 teaching: "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives."
 # Per docs/reward-before-investment-rule.md line 60-62: surface first-paragraph extraction preview before full transcript ask. Remediation tracked as follow-up phase.
 interactive_first_reward: paragraph_preview
+# Phase 265 Plan 19 (pre-approval): Step 3a dispatches 5 meeting-perspective-extractor
+# subagents in one turn. Task is a pre-approval list entry, not a new capability --
+# Claude Code already lets any turn spawn subagents through the normal permission
+# flow; this removes the per-spawn prompt for this dispatch shape. Tracked pending
+# in data/subagent-dispatch-grants.json (row: commands/file-meeting.md); ratification
+# to status:"granted" is plan 265-23's job, not this plan's.
 allowed-tools:
   - Read
   - Write
   - Bash
   - Glob
   - AskUserQuestion
+  - Task
 # --- Phase 165 connector (close the file-meeting orphan; D-165-07) ---
 # The meeting-filing event dispatches the blind-spot trigger sensors. Rides the
 # EXISTING 'contradiction' reach (a filed meeting that contradicts a confident
@@ -44,16 +51,17 @@ You are Larry. This command turns meeting conversations into Data Room intellige
 
 Load all reference files and context before starting:
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
-2. Read `references/meeting/transcript-patterns.md` for speaker ID regex patterns
-3. Read `references/meeting/segment-classification.md` for the 6-type segment taxonomy (the SELECTION pass)
-4. Read `references/meeting/knowledge-typing.md` for the 6-enum knowledge taxonomy + conditions/counter_conditions + temporal validity (the TYPING pass)
-6. Read `references/meeting/section-mapping.md` for the 12-role x 6-type x 8-section routing matrix
-7. Read `references/meeting/artifact-template.md` for wicked-problem-aware YAML frontmatter
-8. Read `references/meeting/summary-template.md` for narrative + structured dual storage format
-9. Read `references/meeting/speaker-profile-template.md` for ICM nested folder profiles
-10. Read `references/meeting/cross-relationship-patterns.md` (if file exists -- skip gracefully if not)
-11. Read `references/meeting/cross-meeting-intelligence.md` for cross-meeting convergence/contradiction detection and action item triage protocols
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/transcript-patterns.md` for speaker ID regex patterns
+3. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/segment-classification.md` for the 6-type segment taxonomy (the SELECTION pass)
+4. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/knowledge-typing.md` for the 6-enum knowledge taxonomy + conditions/counter_conditions + temporal validity (the TYPING pass)
+5. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/extraction-perspectives.md` for the five whole-transcript extraction perspectives dispatched at Step 3a
+6. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/section-mapping.md` for the 12-role x 6-type x 8-section routing matrix
+7. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/artifact-template.md` for wicked-problem-aware YAML frontmatter
+8. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/summary-template.md` for narrative + structured dual storage format
+9. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/speaker-profile-template.md` for ICM nested folder profiles
+10. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/cross-relationship-patterns.md` (if file exists -- skip gracefully if not)
+11. Read `${CLAUDE_PLUGIN_ROOT}/references/meeting/cross-meeting-intelligence.md` for cross-meeting convergence/contradiction detection and action item triage protocols
 12. Read `room/STATE.md` for venture context (if exists)
 13. Scan `room/team/` for known speaker profiles: glob `room/team/*/*/PROFILE.md`
 
@@ -337,41 +345,121 @@ probe turns a silent quality loss into a visible, reasoned choice.
 
 ---
 
-## Step 3: Claimify Extraction (4-Pass Pipeline)
+## Step 3: Claimify Extraction (Five-Perspective Parallel Dispatch + Consolidation)
 
-This step is the Claimify 4-pass extraction. It replaces a single flat
-classification with selection -> disambiguation -> decomposition -> typing, and
-it is the DIKW filing seam: the typing pass mints a typed truth-claim node per
-ATOMIC claim through `navigation.writeClaimNode`. Extraction IS the segmentation
-authority -- a transcript that decomposes into K atomic claims mints K claim
-nodes, never one file-level claim.
+This step replaces a single unified extraction pass with FIVE PARALLEL
+WHOLE-TRANSCRIPT PERSPECTIVE workers (Step 3a, DISPATCH) followed by one
+orchestrator-only reconciliation pass (Step 3b, CONSOLIDATION). Extraction IS
+the segmentation authority -- a transcript that decomposes into K atomic
+claims mints K claim nodes, never one file-level claim. Consolidation FEEDS
+the existing F.8 nugget routing gate in Step 4; it never replaces or bypasses it.
 
-All four passes are LLM judgment (Larry reasoning over the transcript). There is
-NO CJS extractor: extraction is judgment, and a hardcoded extractor would be the
-RESEARCH anti-pattern. The passes run per non-greeting, non-trivial segment.
+Purpose: recall. One pass over a long meeting misses what only one lens would
+have noticed. The five perspectives, their taxonomy anchors, and the uniform
+return schema are defined in
+`${CLAUDE_PLUGIN_ROOT}/references/meeting/extraction-perspectives.md` (loaded
+in Setup, alongside segment-classification.md and knowledge-typing.md).
 
-### Pass 1: Selection
+**The cost, stated plainly.** Five whole-transcript passes cost roughly FIVE
+TIMES the transcript tokens, plus five reference payloads. This is bought for
+RECALL, not for wall clock or token savings, and that trade is recorded
+honestly rather than pretended away. The Transcript size probe above (the
+12,000-word threshold wired by plan 265-10) is where the navigator is told the
+run is large, BEFORE this dispatch starts -- the cost of a long meeting is a
+stated, reasoned choice, never a silent quality loss.
+
+All extraction judgment is LLM reasoning (Larry reasoning over the full
+transcript, once per perspective). There is NO CJS extractor: extraction is
+judgment, and a hardcoded extractor would be the RESEARCH anti-pattern.
+
+---
+
+### Step 3a: Dispatch (five perspectives, one message)
+
+Dispatch FIVE subagents in ONE message, one per perspective defined in
+`${CLAUDE_PLUGIN_ROOT}/references/meeting/extraction-perspectives.md`:
+Decisions and Commitments; Technical Claims and Causal Mechanisms; Open
+Questions and Unknowns; Risks, Blockers and Anomaly Cues; Stakeholder
+Dynamics and Working Models.
+
+**Dispatch idiom:**
+
+1. Dispatch all 5 in ONE message using the Agent tool with
+   `subagent_type: meeting-perspective-extractor` (the explicit type string,
+   not a file path -- an Agent tool call that cannot resolve a
+   `subagent_type` is a hard error listing available agents since 2.1.235;
+   see `agents/meeting-perspective-extractor.md` for its instructions).
+   Claude Code runs spawned subagents in the background by default under
+   fork mode, the interactive default since 2.1.232 -- do NOT pass any
+   manual background-execution parameter to the Agent tool call; the
+   platform removes that kind of parameter from the Agent tool entirely once
+   fork mode is on (code.claude.com/docs/en/sub-agents). The platform caps
+   concurrent subagents at 20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); five
+   is well under that cap, but state it anyway as the standing rule so a
+   future author does not reintroduce an unbounded fan-out.
+2. Print a status block before dispatch:
+   ```
+   [FILE-MEETING] Dispatching 5 extraction perspectives
+     1. Decisions and Commitments
+     2. Technical Claims and Causal Mechanisms
+     3. Open Questions and Unknowns
+     4. Risks, Blockers and Anomaly Cues
+     5. Stakeholder Dynamics and Working Models
+   ```
+
+**Each worker's prompt MUST carry:**
+
+- **The FULL transcript.** Not a partial excerpt, not a segment range -- the
+  fan-out is bought for recall, and a lens that cannot see the whole meeting
+  cannot notice the thing only it would notice.
+- **The CONFIRMED Step 2 speaker roster.** Never re-derived per worker;
+  speaker identity is an upstream, human-confirmed input.
+- **Its own perspective definition, verbatim,** from
+  `extraction-perspectives.md`.
+- **`${CLAUDE_PLUGIN_ROOT}/references/meeting/segment-classification.md` and
+  `${CLAUDE_PLUGIN_ROOT}/references/meeting/knowledge-typing.md`.** NOT
+  `section-mapping.md`: workers do not propose target sections, so they do
+  not need the routing matrix. This omission is a deliberate cost decision,
+  not an oversight.
+- **The Four Claimify Passes** (below) as the worker's own procedure.
+- **An explicit no-write, no-gate, no-user-interaction contract:** return
+  structured JSON only. No `writeClaimNode`, no `writeEdge`, no artifact
+  write, no AskUserQuestion, no room state change. This worker does not
+  write anything, ever.
+- **A read-only tool grant,** with the reason named: transcript prose is
+  untrusted input and `tests/test-part8-poison-transcript.cjs` exists
+  because of it; fanning it into five tool-capable contexts multiplies the
+  injection surface. `agents/meeting-perspective-extractor.md` declares
+  `allowed-tools: Read` only -- no Write, no Bash, no Glob, no WebSearch, no
+  MCP tool.
+
+**Returns:** the uniform array from `extraction-perspectives.md`'s return
+schema, with `perspective` set to the worker's assigned lens name.
+
+#### The Four Claimify Passes (run inside each worker, per perspective)
+
+##### Pass 1: Selection
 
 Classify each segment using the 6-type SEGMENT taxonomy from
-`references/meeting/segment-classification.md` (decision, action-item, insight,
-advice, question, noise) and the role-aware heuristics from
-`references/meeting/section-mapping.md`:
+`${CLAUDE_PLUGIN_ROOT}/references/meeting/segment-classification.md` (decision, action-item, insight,
+advice, question, noise) and this worker's own perspective definition (its
+primary segment types, from `extraction-perspectives.md`):
 
 1. **Classify** the segment type.
 2. **Apply role-aware heuristics**:
    - Investor question about financials = HIGH priority
    - Mentor advice on problem framing = HIGH priority
    - Team-member status update = MEDIUM priority
-   - Use the routing matrix to determine the target room section
 3. **Sort by priority**: decisions (HIGHEST) > action-items (HIGH) > insights (MEDIUM) > advice (MEDIUM) > questions (LOW)
-4. **Flag potential noise** that contains proper nouns, competitor names, or numbers:
-   > "This looks like small talk but Lawrence mentioned a competitor name. File or skip?"
+4. **Flag potential noise** that contains proper nouns, competitor names, or numbers -- this
+   worker does not decide to skip it; it returns the row like any other for the
+   orchestrator's basket.
 
-Filler and pure social talk is tagged `no_claim` and discarded (it mints no claim
-node). The selection pass IS the priority sort -- it decides WHICH segments carry
-candidate knowledge.
+Filler and pure social talk is tagged `no_claim` and discarded (it mints no
+claim row). The selection pass IS the priority sort -- it decides WHICH
+segments carry candidate knowledge, through this worker's own lens.
 
-### Pass 2: Disambiguation
+##### Pass 2: Disambiguation
 
 For each selected segment, resolve pronouns and referents before decomposing:
 
@@ -382,10 +470,12 @@ For each selected segment, resolve pronouns and referents before decomposing:
    below-0.5 ask-the-user rule (`segment-classification.md` Classification
    Confidence Scoring, the "below 0.5 -> ask the user" threshold): when a referent
    cannot be resolved from the speaker plus the prior 2 to 3 turns, the resulting
-   atomic claim is still minted, marked `disambiguation: 'ambiguous'`, and QUEUED
-   for human review. An ambiguous claim is NEVER silently dropped.
+   atomic claim is still returned, marked `disambiguation: 'ambiguous'`, and QUEUED
+   for human review. An ambiguous claim is NEVER silently dropped. This worker
+   never asks the user directly -- the ambiguous marker travels in the
+   returned row for the orchestrator to surface.
 
-### Pass 3: Decomposition
+##### Pass 3: Decomposition
 
 Split each compound segment into ATOMIC claims (extends the Multi-Type resolution
 rules in `segment-classification.md`):
@@ -397,68 +487,140 @@ rules in `segment-classification.md`):
 3. Each atomic claim must carry exactly ONE dominant knowledge_type after typing.
    If it still reads as two types, it was not fully decomposed; split again.
 
-### Pass 4: Typing + Write
+##### Pass 4: Typing (return, do NOT write)
 
 Classify each atomic claim against the 6-enum knowledge taxonomy in
-`references/meeting/knowledge-typing.md`
+`${CLAUDE_PLUGIN_ROOT}/references/meeting/knowledge-typing.md`
 (fact / causal / heuristic / anomaly_cue / mental_model / assumption), run the
 conditions/counter_conditions contrastive probe, extract valid_from/valid_until
-when the claim is time-bound, then mint the node:
-
-For EACH atomic claim, call `navigation.writeClaimNode(db, params)` (via
-`lib/core/navigation.cjs` over a room.db handle from `openRoomDb`) with:
+when the claim is time-bound, then RETURN the row in the uniform schema
+(`extraction-perspectives.md`):
 
 ```
 {
-  text,                  // the atomic claim text (stays LOCAL, never to Brain)
-  knowledge_type,        // one of the frozen 6 enum members
-  conditions,            // "when does this hold?"  ('' if none stated)
-  counter_conditions,    // "when does this break?" ('' if none stated)
-  valid_from,            // ISO date or '' (TV-01)
-  valid_until,           // ISO date or '' (TV-01)
-  sourceSpeaker,         // the Step 2 roster speaker id
-  sourceSegment,         // the segment id (idempotency key)
-  sessionId,             // the meeting session id
-  disambiguation         // 'ambiguous' ONLY for unresolved claims (Pass 2), else omitted
+  segment_id, speaker_id, segment_type, priority, claim_text, knowledge_type,
+  conditions, counter_conditions, valid_from, valid_until, disambiguation,
+  confidence, reasoning_line, perspective
 }
 ```
 
-`writeClaimNode` mints `type='claim'`, `review_status='proposed'` (NEVER
-auto-confirmed -- Canon Part 9 role 5: a human confirms truth at a Decision Gate).
-Re-filing the same segment in the same session UPSERTs (idempotent), never
-duplicates. The claim PROSE lives only in room.db and the artifact; only the
-knowledge_type enum handle may ride to Brain downstream (Canon Part 8).
+This worker NEVER calls `navigation.writeClaimNode` itself -- that write
+happens exactly once per consolidated claim, from the single main-thread db
+handle, in Step 3b sub-step 5. The claim text stays out of this worker's
+return only in the sense that it never touches any Brain call; it rides the
+returned row back to the orchestrator, which is still LOCAL (Canon Part 8).
 
-### Knowledge-rung edges (REFINES / ROOT_CAUSES / INSTANTIATES)
+##### Show perspective reasoning
 
-When the prose justifies a relationship BETWEEN two atomic claims, mint a typed
-edge via `navigation.writeEdge` using the amended taxonomy
-(`lib/core/navigation/edges.cjs` `ALLOWED_EDGE_TYPES`):
+For EVERY classified atomic claim, this worker's `reasoning_line` field
+carries Larry's one-line reasoning, extending each line with the
+knowledge_type -- for example:
 
-- `REFINES` -- a new claim TIGHTENS or CONDITIONS a prior claim without
-  invalidating it (the missing middle between INFORMS-too-weak and
-  CONTRADICTS-wrong). Source = the refining claim.
-- `ROOT_CAUSES` -- a directional cause-to-effect edge. Source = the cause claim,
-  target = the effect claim (a `causal` claim is the natural source).
-- `INSTANTIATES` -- a concrete example claim that EVIDENCES an abstract claim.
-  Source = the concrete claim, target = the abstract `mental_model` claim.
-
-`valid_from` / `valid_until` ride the edge `properties` JSON (zero writeEdge
-signature change). The claim BODY never lands on the edge -- edge properties are
-enum and scalar only (Canon Part 8).
-
-### Show Classification Reasoning
-
-For EVERY classified atomic claim, show Larry's reasoning, extending each line
-with the knowledge_type:
-
-> "insight about market size -> market-analysis | claim: fact | Confidence: 0.85"
-> "decision about product focus -> solution-design | claim: heuristic | Confidence: 0.92"
-> "advice on hiring -> team-execution | claim: mental_model | Confidence: 0.78"
+> "insight about market size | claim: fact | Confidence: 0.85"
+> "decision about product focus | claim: heuristic | Confidence: 0.92"
+> "advice on hiring | claim: mental_model | Confidence: 0.78"
 > "unresolved referent 'they' -> queued AMBIGUOUS | claim: assumption | Confidence: 0.40"
 
-Transparency is mandatory -- even when it makes the flow longer. The user needs to
-trust Larry's classifications.
+The section-target routing (e.g. "-> market-analysis") is added later, at
+Step 4, because target-section decisions are section-mapping.md's job and
+this worker never sees that matrix. Transparency is mandatory -- even when it
+makes the flow longer. The user needs to trust Larry's classifications.
+
+---
+
+### Step 3b: Consolidation (orchestrator only, after all five workers return)
+
+A worker structurally cannot own any of the following: Step 3 requires
+showing reasoning for EVERY classified atomic claim across the WHOLE meeting;
+Step 4 is confirm-then-file per batch with structured rejection capture;
+Step 4's date-sync gate can return `GATE_BLOCK`. None of that is visible to,
+or ownable by, a single perspective worker holding only its own output. The
+orchestrator (the main conversation thread) owns every one of these seven
+ordered sub-steps:
+
+1. **Merge and deduplicate across perspectives.** Two lenses seeing the same
+   segment is the EXPECTED case, not the edge case: a decision that is also a
+   causal claim will surface twice. Merge on `segment_id`. Step 3 has NO
+   claim-level dedup today (`CLAIM_NODE_ID` gives idempotency for the same
+   segment in the same session, which is a different property), so this step
+   is genuinely new and exists because the fan-out created the duplicate.
+2. **Reconcile `knowledge_type` disagreement.** When two perspectives assign
+   different types to the same `segment_id`, do NOT average and do NOT pick
+   by confidence alone. Apply the existing rule from `knowledge-typing.md`: a
+   claim must carry exactly ONE dominant type after typing, else it splits.
+   So either split the claim into two atomic claims (Pass 3's own remedy), or
+   record the losing type in `disambiguation` and surface the disagreement in
+   the reasoning line. A silent pick is forbidden.
+3. **Mint cross-claim edges over the full set.** When the prose justifies a
+   relationship BETWEEN two consolidated atomic claims, mint a typed edge via
+   `navigation.writeEdge` using the amended taxonomy
+   (`lib/core/navigation/edges.cjs` `ALLOWED_EDGE_TYPES`):
+   - `REFINES` -- a new claim TIGHTENS or CONDITIONS a prior claim without
+     invalidating it (the missing middle between INFORMS-too-weak and
+     CONTRADICTS-wrong). Source = the refining claim.
+   - `ROOT_CAUSES` -- a directional cause-to-effect edge. Source = the cause
+     claim, target = the effect claim (a `causal` claim is the natural
+     source).
+   - `INSTANTIATES` -- a concrete example claim that EVIDENCES an abstract
+     claim. Source = the concrete claim, target = the abstract
+     `mental_model` claim.
+   `valid_from` / `valid_until` ride the edge `properties` JSON (zero
+   `writeEdge` signature change). The claim BODY never lands on the edge --
+   edge properties are enum and scalar only (Canon Part 8). This is
+   orchestrator work: the canonical `INSTANTIATES` case is a concrete claim
+   evidencing an abstract `mental_model` claim, and in a real meeting the
+   abstraction and its example are frequently 20 minutes apart and found by
+   two different perspectives -- only the orchestrator ever holds both.
+4. **Detect intra-meeting contradictions** across the FULL claim set,
+   rendered in the claim-A-versus-claim-B-with-speakers format from
+   `${CLAUDE_PLUGIN_ROOT}/references/meeting/summary-template.md`'s
+   "## Contradictions Detected" section.
+5. **Call `navigation.writeClaimNode(db, params)` ONCE PER CONSOLIDATED CLAIM
+   FROM THE SINGLE MAIN-THREAD DB HANDLE** (via `lib/core/navigation.cjs`
+   over a room.db handle from `openRoomDb`), with:
+   ```
+   {
+     text,                  // the atomic claim text (stays LOCAL, never to Brain)
+     knowledge_type,        // one of the frozen 6 enum members
+     conditions,            // "when does this hold?"  ('' if none stated)
+     counter_conditions,    // "when does this break?" ('' if none stated)
+     valid_from,            // ISO date or '' (TV-01)
+     valid_until,           // ISO date or '' (TV-01)
+     sourceSpeaker,         // the Step 2 roster speaker id
+     sourceSegment,         // the segment id (idempotency key)
+     sessionId,             // the meeting session id
+     disambiguation         // 'ambiguous' ONLY for unresolved claims (Pass 2), else omitted
+   }
+   ```
+   `lib/core/room-db.cjs` folds a 5-second busy timeout into `DatabaseSync`
+   precisely because a background worker and a live conversation can
+   contend on the same WAL file; five agents writing would multiply that for
+   no benefit -- so the main thread is the ONLY writer. `writeClaimNode`
+   mints `type='claim'`, `review_status='proposed'` (NEVER auto-confirmed --
+   Canon Part 9 role 5: a human confirms truth at a Decision Gate). Re-filing
+   the same segment in the same session UPSERTs (idempotent), never
+   duplicates. The claim PROSE lives only in room.db and the artifact; only
+   the knowledge_type enum handle may ride to Brain downstream (Canon Part 8).
+6. **Render the reasoning line for every claim.** The reasoning line rule is
+   unconditional and survives verbatim, extending each line with the
+   knowledge_type AND now naming WHICH PERSPECTIVE surfaced the claim (both,
+   when two did):
+
+   > "insight about market size -> market-analysis | claim: fact | Confidence: 0.85 | via Technical Claims and Causal Mechanisms"
+   > "decision about product focus -> solution-design | claim: heuristic | Confidence: 0.92 | via Decisions and Commitments"
+   > "advice on hiring -> team-execution | claim: mental_model | Confidence: 0.78 | via Stakeholder Dynamics and Working Models"
+   > "unresolved referent 'they' -> queued AMBIGUOUS | claim: assumption | Confidence: 0.40 | via Open Questions and Unknowns, Risks, Blockers and Anomaly Cues"
+
+   Transparency is mandatory -- even when it makes the flow longer. The user
+   needs to trust Larry's classifications.
+7. **Hand the consolidated set to Step 4 UNCHANGED.** Consolidation FEEDS the
+   F.8 nugget routing table Step 4 wires (`renderShapeF8` ->
+   `consumeF8Fanout`); it does not replace or bypass it: one consolidated
+   table, one `renderShapeF8` card, one confirm through `consumeF8Fanout`,
+   nothing files without the navigator. Every claim is still born
+   `review_status: 'proposed'` at the writer, and `promoteNodeStatus` still
+   rejects a literal `larry`, `brain`, `system` or `assistant` identity with
+   `agent_attribution_forbidden`.
 
 ---
 
