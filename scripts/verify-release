@@ -416,6 +416,45 @@ else
 fi
 
 # ============================================================
+# 10e. WHOLE-TREE FIRST-REWARD DECLARATIONS
+# ============================================================
+# Phase 267.3 (ruling D-C part 3, GUARD-08). Gate 10d above only proves the
+# SIBLING REGISTRY (data/first-reward-surfaces.json) is internally valid; it
+# says nothing about the 113 commands/*.md files themselves. The commit-time
+# hook only ever sees STAGED commands/*.md (scripts/hooks/pre-commit-room-
+# minto-guard.sh:300), so a file that is never staged again after the rule
+# shipped stays invisible forever -- this is exactly the debt-ratchet
+# DEFERRED-271-D1 measured: 67 of 113 commands went undeclared for three
+# months because no commit happened to touch them. A staged-scoped gate
+# cannot measure a repo-wide gap; only a whole-tree audit can.
+#
+# This gate runs the CLI's own full-audit default mode (no flag, no
+# --staged, no --surfaces) against the real commands/ directory and fails
+# the release closed on any missing or invalid declaration. It was left
+# deliberately unwired until now (see gate 10d's own comment above) because
+# wiring it before the 67 declarations landed would have turned every
+# release red for work still in flight, which produces a bypass habit
+# rather than a gate (the 271-05 discipline: wire the gate, do not relax
+# it, and do not turn it on before the work that makes it green is done).
+# Plans 267.3-04, 06 and 07 landed all 67 declarations; the audit now reads
+# zero missing and zero invalid over all 113 files, so this promotion is
+# safe. Do not relax, allowlist or soften this gate, and do not remove
+# gate 10d above -- the two reward gates are complementary, not redundant:
+# 10d proves the registry is valid, 10e proves the commands/ tree is valid.
+echo -e "\n${BOLD}10e. Whole-Tree First-Reward Declarations${NC}"
+
+FULL_AUDIT_OUT=$(node "$PLUGIN_ROOT/scripts/check-reward-before-investment.cjs" "$PLUGIN_ROOT/commands" 2>&1) && FULL_AUDIT_CODE=0 || FULL_AUDIT_CODE=$?
+if [ "$FULL_AUDIT_CODE" -ne 0 ]; then
+  fail "Whole-tree first-reward audit FAILED (a commands/*.md file is missing or carries an invalid interactive_first_reward):"
+  echo "$FULL_AUDIT_OUT" | tail -20
+  echo "  Fix: declare interactive_first_reward in the frontmatter of each missing/invalid command."
+  echo "  See docs/reward-before-investment-rule.md."
+else
+  FULL_AUDIT_COMPLIANT=$(echo "$FULL_AUDIT_OUT" | sed -n 's/^  compliant: \([0-9]*\)$/\1/p' | head -1)
+  pass "All ${FULL_AUDIT_COMPLIANT:-0} commands/*.md carry a valid interactive_first_reward declaration (check-reward-before-investment, full audit)"
+fi
+
+# ============================================================
 # 11. SCRIPTS EXECUTABLE
 # ============================================================
 echo -e "\n${BOLD}11. Script Permissions${NC}"
