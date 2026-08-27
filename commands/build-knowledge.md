@@ -9,6 +9,10 @@ hitl_stages:
     mode: "ordered"
 hitl_why: "The DIKW ladder is climbed in a fixed order (F.9) along a dependency path (F.2) where each rung needs the one below."
 serves_jtbd: ["explore"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming climbing-up or climbing-down surfaces the DIKW
+# ladder structure before the navigator invests further).
+interactive_first_reward: schema_preview
 teaching: "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room. Surfaces what you know, what you can decide, and what is still raw."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -114,4 +118,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"Your knowledge gaps connect to [methodology]. Want to explore that next?"
+"Your knowledge gaps connect to /mos:map-unknowns. Want to explore that next?"

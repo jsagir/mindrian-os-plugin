@@ -79,4 +79,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to solution-design?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The tension you uncovered connects to [methodology]. Want to explore that next?"
+"The tension you uncovered connects to /mos:challenge-assumptions. Want to explore that next?"

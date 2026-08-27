@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "The PEST factors are scanned independently, an unordered basket of trend jobs."
 serves_jtbd: ["understand-market"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming the domain previews the PEST four-factor
+# structure before the navigator invests in the full scan).
+interactive_first_reward: schema_preview
 teaching: "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -65,4 +69,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The destruction patterns you've found connect to [methodology]. Want to explore that next?"
+"The destruction patterns you've found connect to /mos:research. Want to explore that next?"

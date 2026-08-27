@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "Reverse-salient bottlenecks are listed as an independent set the navigator prioritizes in any order."
 serves_jtbd: ["find-bottleneck"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: mapping the system boundaries previews the Reverse
+# Salient structure before the navigator invests in the full bottleneck hunt).
+interactive_first_reward: schema_preview
 teaching: "When progress feels stuck and you cannot say where, /mos:find-bottlenecks runs Reverse Salient analysis to name the lagging component. Hughes 1983, but for your venture."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -97,4 +101,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to solution-design?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The bottleneck you found connects to [methodology]. Want to explore that next?"
+"The bottleneck you found connects to /mos:diffusion. Want to explore that next?"

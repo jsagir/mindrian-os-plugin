@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.3"
 hitl_why: "It pushes one trend toward its extreme and asks how far to go, a depth budget."
 serves_jtbd: ["understand-market", "explore"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming one trend previews the extrapolation-to-absurd
+# structure before the navigator invests in the full push).
+interactive_first_reward: schema_preview
 teaching: "When today's trends could become tomorrow's problems, /mos:explore-trends pushes them to extremes to surface the second-order effects. The future shows up at the edges first."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -67,4 +71,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The future you explored connects to [methodology]. Want to explore that next?"
+"The future you explored connects to /mos:research. Want to explore that next?"

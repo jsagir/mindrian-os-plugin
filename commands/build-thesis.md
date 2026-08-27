@@ -6,6 +6,10 @@ body_shape: "methodology"
 hitl_shape: "F.9"
 hitl_why: "The Ten Questions are answered in a fixed order that builds the thesis, an ordered walk."
 serves_jtbd: ["decide-pursue", "prepare-pitch"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the Ten Questions Rapid Assessment previews the full
+# gate structure before the navigator invests in the Deep Dive).
+interactive_first_reward: schema_preview
 teaching: "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate. The output is a defensible go / no-go with reasons."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -75,4 +79,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to financial-model?" before writing.
 
 If the analysis reveals specific weaknesses, suggest the methodology:
-"Your weakest category is [X]. Want to run /mos:[methodology] to address it?"
+"Your weakest category is [X]. Want to stress-test it with /mos:challenge-assumptions?"

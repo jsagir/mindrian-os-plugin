@@ -6,6 +6,10 @@ body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "User needs are gathered as an any-order set with no ordering constraint between them."
 serves_jtbd: ["find-problem"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the importance-versus-satisfaction plot structure
+# previews before the navigator invests in scoring every need).
+interactive_first_reward: schema_preview
 teaching: "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -70,4 +74,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The needs gaps you've found connect to [methodology]. Want to explore that next?"
+"The needs gaps you've found connect to /mos:lean-canvas. Want to explore that next?"

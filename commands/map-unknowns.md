@@ -6,6 +6,10 @@ body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "Knowns and unknowns are laid out as an independent matrix set with no fixed order."
 serves_jtbd: ["validate-idea"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the Rumsfeld matrix structure previews before the
+# navigator invests in filling each quadrant one at a time).
+interactive_first_reward: schema_preview
 teaching: "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -69,4 +73,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"Your matrix reveals [pattern]. Want to explore that with [methodology]?"
+"Your known-unknowns column names [pattern] worth chasing. Want to hand it to /mos:research?"

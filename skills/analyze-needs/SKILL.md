@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "Candidate needs are surfaced as an independent set the navigator triages in any order."
 serves_jtbd: ["find-problem"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the navigator sees the importance/satisfaction scoring
+# structure form up before investing beyond the customer-segment sentence).
+interactive_first_reward: schema_preview
 teaching: "When you need to know which customer jobs matter most, /mos:analyze-needs scores them by importance versus satisfaction. Best after you have a customer segment defined."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -67,4 +71,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The job you uncovered connects to [methodology]. Want to explore that next?"
+"The job you uncovered connects to /mos:lean-canvas. Want to explore that next?"

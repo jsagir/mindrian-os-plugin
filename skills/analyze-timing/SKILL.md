@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.1"
 hitl_why: "S-curve timing resolves to a single next-move read the navigator confirms."
 serves_jtbd: ["understand-market"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming the technology surfaces the S-Curve position
+# structure before the navigator invests in the full timing read).
+interactive_first_reward: schema_preview
 teaching: "When you need to know if your technology is too early, too late, or right on time, /mos:analyze-timing places it on the S-Curve. Best before you commit to a launch window."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -76,4 +80,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The timing analysis connects to [methodology]. Want to explore that next?"
+"The timing analysis connects to /mos:research. Want to explore that next?"

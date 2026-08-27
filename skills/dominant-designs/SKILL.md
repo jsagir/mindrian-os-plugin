@@ -7,6 +7,10 @@ body_shape: "methodology"
 hitl_shape: "F.1"
 hitl_why: "The dominant design is identified as a single next-move call."
 serves_jtbd: ["understand-market"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: naming the product category previews the competing-
+# variant census structure before the navigator invests further).
+interactive_first_reward: schema_preview
 teaching: "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -65,4 +69,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to competitive-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The design lifecycle you've mapped connects to [methodology]. Want to explore that next?"
+"The design lifecycle you've mapped connects to /mos:research. Want to explore that next?"

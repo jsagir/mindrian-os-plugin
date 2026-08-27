@@ -12,6 +12,10 @@ hitl_stages:
     mode: "ordered"
 hitl_why: "A dependency path (F.2) then a fixed-order projection walk (F.9) combining TTA, scenario, and S-curve."
 serves_jtbd: ["compare-options", "explore"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the signal table previews the TTA/Scenario/S-Curve
+# synthesis structure before the navigator invests in the full projection).
+interactive_first_reward: schema_preview
 teaching: "When the path forward branches into multiple plausible futures, /mos:explore-futures synthesizes TTA, Scenario, and S-Curve views. Helps you choose without pretending you can predict."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -60,4 +64,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The signals you've found connect to [methodology]. Want to explore that next?"
+"The signals you've found connect to /mos:research. Want to explore that next?"

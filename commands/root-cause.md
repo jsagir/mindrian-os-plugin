@@ -6,6 +6,10 @@ body_shape: "methodology"
 hitl_shape: "F.9"
 hitl_why: "The 5-Whys and fishbone drill down in a fixed order, an ordered walk toward the root."
 serves_jtbd: ["find-problem"]
+# Phase 265-13 reward-before-investment backfill (field only; grounded in the
+# shipped Session Flow: the first Why reframes the navigator's own symptom as
+# a sharper question before they invest in the full 5-Whys drill).
+interactive_first_reward: reframe_question
 teaching: "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
@@ -70,4 +74,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If the conversation reveals a connection to another methodology, suggest it:
-"The root cause you found connects to [methodology]. Want to explore that next?"
+"The root cause you found connects to /mos:find-bottlenecks. Want to explore that next?"

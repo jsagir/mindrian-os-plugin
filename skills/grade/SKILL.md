@@ -249,4 +249,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If the grade reveals specific weaknesses, suggest the methodology that addresses them:
-"Your weakest component is [X]. Want to run /mos:[methodology] to strengthen it?"
+"Your weakest component is [X]. Want to stress-test it with /mos:challenge-assumptions?"
