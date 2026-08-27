@@ -4052,6 +4052,16 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 272 added (2026-08-27): Phase 134 Real Remediation -- CJS Python Elimination Port.
+  Registered because `.planning/debug/phase-134-python-elimination-false-complete.md`
+  (severity: blocker) proved Phase 134's 8 plans read COMPLETE in tracking via a
+  `doctor --drift --fix` I001 auto-stub while the actual CJS port (eliminating Python from
+  `scripts/compute-hsi.py`/`rs-engine.py`) was never written. This session shipped only the
+  scoped mitigation (auto-install missing Python deps, commit `5dce0a24`) and deliberately did
+  NOT silently reopen or renumber Phase 134 itself -- 272 is the real remediation, tracked
+  separately per Canon Part 6/7. Full goal text at Phase 272's own ROADMAP.md entry (end of
+  file). User asked directly this session whether the Python finding had been registered as a
+  tracked phase; it had not been until this entry.
 - Phase 245 added (2026-07-31): Close the reach/Brain signal loop -- wire `dispatchSensors`'s
   `fire_skill` output and Brain's `pattern_matches` into the navigator-visible F.7 dial (today
   scored only by `cortex-reach-adapter.cjs` graph-node recency, per the same-day

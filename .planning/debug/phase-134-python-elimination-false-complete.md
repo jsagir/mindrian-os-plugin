@@ -36,6 +36,15 @@ undone, roadmap-scale work (an actual `@huggingface/transformers` CJS port of
 `scripts/rs_*.py`), not a follow-up commit. Do not mark this `status: resolved`
 (closed) until Change 2 or an explicit navigator decision to defer it further lands.
 
+**UPDATE (2026-08-27, same session, later):** navigator asked directly whether this
+finding had been registered as a tracked phase. It had not been -- registered now as
+**Phase 272: Phase 134 Real Remediation -- CJS Python Elimination Port**
+(`.planning/ROADMAP.md`, end of file; directory
+`.planning/phases/272-phase-134-real-remediation-cjs-python-elimination-port/`,
+not yet planned). Change 2 and Change 3 above are Phase 272's actual scope. This RCA
+stays open at `status: resolved-partial` -- Phase 272 is the tracking home for the
+real fix, this file remains the root-cause record.
+
 ## Current Focus
 
 status: Change 1 IMPLEMENTED and self-verified (unit test + regression suite + manual
