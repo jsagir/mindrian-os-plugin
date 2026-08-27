@@ -91,7 +91,7 @@ file on disk:
 - The moat formula itself (WHEN, WHICH, SEQUENCE) -- `docs/MOAT-MANDATE.md` carries this
   formula unchanged; the review checklist there does not reference payment at all.
 
-## Credential option space (decision pending, see plan 04)
+## Credential option space (DECIDED 2026-08-27)
 
 `269-RESEARCH.md` Research Question 1 maps three options, grounded in the current state
 that both existing credential shapes already share one Supabase `brain_api_keys` table,
@@ -112,6 +112,42 @@ Before Option C can be locked, assumption A2 from `269-RESEARCH.md` must be prob
 `POST /register` on `pws-brain-mcp.onrender.com` is documented as shipping, but its
 production deploy was not independently verified during this research. The chosen option
 gets recorded into this same section by plan 04.
+
+Credential model DECIDED: option-b, unify: one credential, two authorized uses.
+
+Navigator's rationale, quoted near-verbatim: "The existing Brain API key becomes the
+install/update entitlement credential too. Smallest blast radius: only the CHECK location
+moves (query-time to install/update-time), zero schema change, MINDRIAN_BRAIN_KEY and
+existing docs stay valid. Per-query metering columns in brain_api_keys stay in the schema
+but go unused, that's an accepted, known consequence, not an oversight to fix now."
+
+Rejected: option-a (Replace outright) breaks every existing keyed user's mental model and
+the byte-locked `reason: 'MINDRIAN_BRAIN_KEY not set'` wire string in
+`lib/core/refusal-messaging.cjs`, forces rewrites across `commands/setup.md`,
+`bin/cli.js:206-208`, and `docs/install/BRAIN-SETUP.md`, and is still per-person for a gate
+that is fundamentally per-install; option-b reaches the same refusal outcome without any of
+that blast radius.
+
+Rejected: option-c (Promote the per-install token) is unneeded because Q2 was answered as
+"refuse-to-operate, stays public," which does not need option-c's per-install-granularity
+advantage; option-c also inverts POST /register's documented "unauthenticated by design"
+contract (requiring a formal amendment to `docs/BRAIN-IDENTITY-DESIGN.md`) and needs
+coordinated changes across repos, plus carries the unverified A2 precondition (whether
+POST /register is actually live in production), not worth taking on when option-b achieves
+the same result with zero schema change.
+
+Preconditions: the dead per-query metering columns (`expires_at`, `daily_limit`,
+`total_requests`) in the `brain_api_keys` table stay in the schema unused; the navigator
+explicitly accepted this as a KNOWN consequence, not an oversight to fix now, so there is
+no pending data-migration decision, it is decided to leave them as unused dead weight.
+
+Q2 distribution reading: refuse-to-operate, stays public. Code/repo distribution stays
+exactly as-is (public, BSL-licensed); the repo and npm scope are NOT privatized. The
+plugin checks entitlement at install/update time and refuses to proceed without it. This
+matches the "graph plus the right to run it" framing already in moat.md.
+
+This is a RECORD only. Phase 269 writes zero entitlement-check code; `269-05-PLAN.md` is
+the gated home for that engineering.
 
 ## Enforcement reality
 
