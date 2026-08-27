@@ -447,9 +447,9 @@ Plans:
 ### Phase 265: Capability Radar Absorption + Routing (re-scoped, supersedes orphaned Phase 138)
 
 **Goal:** Turn /mos:radar from a reader into a router so Claude Code capability findings from --fetch get ABSORBED (retrofit shipped code a new capability obsoletes) and WEAPONIZED (force future phase planning to consider them) instead of rotting in a one-shot SEED or an abandoned phase. Corrects three stale facts from the original 2026-06-01 scoping (originally filed as Phase 138, orphaned when ROADMAP.md's rolling window moved past it without shipping or retiring it): (1) subagent forking is now the unconditional default in Claude Code, not a probabilistic "likely supersedes" call against SEED-003 A4 -- settled, not still open; (2) the real destination for native-default-forking adoption is the PWS parallel-fan-out-then-consolidate engines (/mos:eureka, /mos:bono, /mos:find-connections, /mos:whitespace, /mos:find-analogies), not the previously-assumed Phases 133-136 which are unrelated; (3) the capability ledger needs refreshing from 2.1.159 to 2.1.246, screening in MCP interrupted-tool-call explicit errors, MCP elicitation dialog fixes (directly relevant to this plugin's own gate_render elicitation rung), and Agent Tool's clear-error-on-missing-agent-type fallback. Supersedes SEED-003 and the orphaned Phase 138 (mark both superseded-by this phase, do not delete).
-**Requirements**: RADAR-01, RADAR-02, RADAR-03, RADAR-04, RADAR-05, RADAR-06, RADAR-07, RADAR-08, RADAR-09, RADAR-10, RADAR-11
+**Requirements**: RADAR-01..RADAR-12, RADAR-14, RADAR-17..RADAR-31 (RADAR-13, RADAR-15 and RADAR-16 were retired before use, superseded by Phase 266's MCPFIX-01, MCPFIX-03 and MCPFIX-04)
 **Depends on:** Phase 264
-**Plans:** 7 plans in 3 waves
+**Plans:** 23 plans in 6 waves (7 from the first planning pass, 16 added in the second pass on 2026-08-27)
 
 **Scoping correction, recorded at plan time (2026-08-27):** stale fact (2) in the Goal above is itself a stale fact. Research verified against shipped code that NOT ONE of the five named PWS engines spawns a Claude Code subagent: eureka fires one detached Node process and polls, bono uses Promise.all over an in-process grid (navigator-confirmed as the intended final design), find-connections runs sequential Brain MCP queries in the main context, whitespace shells one script per subcommand, and find-analogies uses Brain calls plus a report script. Default subagent forking is a no-op for all five. The real fan-out surfaces are /mos:act --swarm, /mos:persona --parallel, /mos:grade --full, and /mos:trending-to-absurd (Expert path), and all three explicit ones instruct Claude to pass run_in_background, a parameter the platform removes in fork mode. A fourth stale fact nobody flagged is the most consequential: references/capability-radar/changelog-cache.md tops out at 2.1.128 and was last written 2026-05-05, so the ledger is 118 versions behind, not 87. The corrected reasoning is preserved in docs/RADAR-ABSORPTION-265.md rather than lost.
 
@@ -462,6 +462,33 @@ Plans:
 - [ ] 265-05-PLAN.md - Wave 2 - /mos:radar --fetch writes the ledger under an injection fence, and both radar reference docs corrected
 - [ ] 265-06-PLAN.md - Wave 2 - retire SEED-003 and Phase 138 by marking, close drift finding W007-138, and write the decision record
 - [ ] 265-07-PLAN.md - Wave 3 - regenerate skill and dist mirrors, file the two-home dev-research trail, and run the phase gate
+
+**Second planning pass, 2026-08-27.** The navigator settled nine additional workstreams after the
+first pass shipped its plans: the MCP-layer audit, the file-meeting redesign (four parts), the six
+generative-redesign candidates, the online-research gap, the persona-builder duplication, and the
+explore-opportunity build-out (the navigator answered 265-04's Task 3 decision gate with
+`build-now-in-265`). Plans 265-08 onward are that scope. Plan 265-08 was written and then DELETED
+before commit: Phase 266 was created the same day to own the four crisp MCP fixes on an independent
+shipping schedule, so 265-08 (the instructions 2KB overflow) duplicated MCPFIX-01 exactly, and plans
+265-09 and 265-17 were rescoped down to what Phase 266 does not cover. The numbering gap at 265-08
+is deliberate.
+
+- [ ] 265-09-PLAN.md - Wave 1 - Brain tool descriptions naming retired backends, plus the wire-level description hygiene tripwire Phase 266's shape checks do not cover
+- [ ] 265-10-PLAN.md - Wave 1 - file-meeting: ask the meeting date before extraction, probe transcript size, and actually render the declared F.8 gate
+- [ ] 265-11-PLAN.md - Wave 1 - lens-engine: put weighted-by-context on the existing Promise.all branch so /mos:research stops fetching lenses one at a time
+- [ ] 265-17-PLAN.md - Wave 1 - retire the frozen MCP tool counts and the breached token-budget claim in the server header and three docs
+- [ ] 265-12-PLAN.md - Wave 2 - the reviewed subagent-dispatch grant registry, covering both Task and Agent tokens (closes the invisible deep-grade grant)
+- [ ] 265-13-PLAN.md - Wave 2 - declaration truth: 19 unfilled [methodology] placeholders, the futures web_scope correction, and four live requires_evidence consumers
+- [ ] 265-14-PLAN.md - Wave 4 - mos-reason: one subagent per room section behind the migration-backup guard, with a cross-section coherence check
+- [ ] 265-15-PLAN.md - Wave 4 - scout step 4b: per-competitor fan-out with same-event dedup and typed failures in the shared scanner module
+- [ ] 265-16-PLAN.md - Wave 4 - persona: the generate-personas MCP action routes to /mos:persona --parallel instead of serving template output as analysis
+- [ ] 265-18-PLAN.md - Wave 4 - explore-opportunity: probe-first parallel legs with a cost guard that reproduces quality_early_stop's cost outcome, zero diff on the shared executor
+- [ ] 265-19-PLAN.md - Wave 4 - file-meeting: five parallel whole-transcript extraction perspectives feeding (never bypassing) the nugget routing gate
+- [ ] 265-20-PLAN.md - Wave 4 - deep-grade: reconcile the 5-versus-7 rubric FIRST, then the per-component panel with grade-grant's fail-closed consolidation
+- [ ] 265-21-PLAN.md - Wave 4 - vault import review and find-analogies --external: threshold-gated and dedup-gated fan-outs
+- [ ] 265-22-PLAN.md - Wave 4 - diffusion: a roster parameter on runIntelPipeline's existing stages, closing the one genuine online-research gap
+- [ ] 265-23-PLAN.md - Wave 5 - ratify every wave-4 dispatch grant, build the MCP surface doctor organ, and record every deferred architecture decision in the ledger
+- [ ] 265-24-PLAN.md - Wave 6 - second close: regenerate the mirrors again, file the second-pass dev-research trail, and run the full gate with the grant strict flag on
 
 ### Phase 266: MCP Layer Correctness Fixes
 
@@ -479,9 +506,18 @@ Plans:
 
 ### Phase 267: MCP Stateless Protocol Migration
 
-**Goal:** Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Confirmed buildable: 1.30.0 already ships `sessionIdGenerator: undefined` stateless mode in both `streamableHttp.js` and `webStandardStreamableHttp.js`. Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`), since the spec deprecates the old bidirectional-stream approach; (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork) -- the spec is designed to be backward compatible with 2025 Streamable HTTP clients, confirm this repo's hosts (older Claude Code versions, other MCP clients) still connect cleanly; (4) re-test the full MCP layer against the new model. Navigator directive: fix now, not a dormant ledger candidate -- explicitly overrides the initial recommendation to defer this (see `.planning/phases/266-mcp-layer-correctness-fixes-fast-independently-shippable-fix/266-RESEARCH-stateless-spec-update.md` for full spec research). Decoupled from both Phase 265 (capability-radar redesign) and Phase 266 (fast mechanical MCP fixes) -- this is real protocol migration work, sequenced after 266's fixes land on the same files.
+**Goal:** CORRECTED SCOPE (2026-08-27, post-research) -- the original goal statement below the line was wrong on its central factual claim and has been superseded; kept for the paper trail, not as current direction.
+
+Actual finding: `@modelcontextprotocol/sdk@1.30.0`'s `types.js` is byte-identical to 1.29.0 -- the `sessionIdGenerator: undefined` pattern cited as proof of stateless-spec support predates SEP-2575 entirely and is not evidence of anything. The real 2026-07-28 spec lives in a different, new package family (`@modelcontextprotocol/core`/`/server`/`/client`/`/node`, v2), not a version bump of the `sdk` package this repo vendors.
+
+Further correction: the "Brain server" half of this phase does not belong to MindrianOS-Plugin at all. `/home/jsagi/Theo/package.json` -- a separate, actively developed repo -- describes itself verbatim as "Theo -- MindrianOS's consolidated MCP server over the Book of Innovation graph": it IS the designated Brain-hookup replacement (per the navigator's standing note that Theo replaces MindrianOS's Brain hookup soon), and it is already on `@modelcontextprotocol/sdk@1.30.0` and `zod@4.4.3` -- ahead of this repo on both, including the exact zod 3-to-4 bump this phase's research flagged as carrying a silent-failure risk. There is no Brain-server migration for MindrianOS-Plugin to build here; that work is Theo's own, in Theo's own repo, tracking ahead of this one already.
+
+**Corrected scope: the local `mindrian-os` MCP server only, and it is currently BLOCKED**, not buildable now -- it depends on an upstream `ext-apps` peer-dependency pin that has not been investigated in depth (only surfaced, not root-caused or confirmed unworkaroundable). Do not plan or execute this phase until that blocker is either resolved upstream or confirmed to have a safe local workaround. See `267-RESEARCH.md` for the full finding and `267-RESEARCH-stateless-spec-update.md` for the original (partially superseded) spec research.
+
+---
+Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD
-**Depends on:** Phase 266
+**Depends on:** Phase 266 AND the ext-apps upstream blocker clearing (or a confirmed workaround) -- BLOCKED, do not plan yet
 **Plans:** 0 plans
 
 Plans:
@@ -490,9 +526,9 @@ Plans:
 
 ### Phase 267.1: Hooked Model Completeness Audit (first-session onboarding) (INSERTED)
 
-**Goal:** Audit `scripts/session-start`'s `FIRST_INSTALL` prose injection against this repo's own hard rule that the Hooked Model (Fogg B=MAP, Trigger-Action-Reward-Investment) is the mandatory design lens for the first step of any Mindrian surface. Already confirmed this session: real Trigger and Action legs (warm opener, three explicit choices, JTBD-formula framing for returning users). NOT yet verified: Reward and Investment. Does the onboarding flow deliver a genuine variable Reward (a real payoff visible in that same first session, not just a promise) and build real Investment (something the user puts in that increases the odds they return -- e.g. USER.md profile-building, a filed artifact, a habit cue)? Map the full loop explicitly, cite the actual prose/code for each leg, and flag any leg that is asserted in a hard-rule doc but not actually implemented. Sequenced alongside Phase 267's first-session-reliability work (the stateless MCP migration improves the mechanical layer under the first session; this sub-phase checks the narrative/UX layer on top of it) -- but this is content-level UX audit work, not protocol work, and the two stay cleanly separated in the findings.
+**Goal:** Audit `scripts/session-start`'s `FIRST_INSTALL` prose injection against this repo's own hard rule that the Hooked Model (Fogg B=MAP, Trigger-Action-Reward-Investment) is the mandatory design lens for the first step of any Mindrian surface. Already confirmed this session: real Trigger and Action legs (warm opener, three explicit choices, JTBD-formula framing for returning users). NOT yet verified: Reward and Investment. Does the onboarding flow deliver a genuine variable Reward (a real payoff visible in that same first session, not just a promise) and build real Investment (something the user puts in that increases the odds they return -- e.g. USER.md profile-building, a filed artifact, a habit cue)? Map the full loop explicitly, cite the actual prose/code for each leg, and flag any leg that is asserted in a hard-rule doc but not actually implemented. Content-level UX audit work, not protocol work -- despite sitting numerically under Phase 267, it does NOT depend on the MCP stateless migration (now known to be BLOCKED, see 267) and should be planned/executed independently, on its own schedule.
 **Requirements**: TBD
-**Depends on:** Phase 267
+**Depends on:** none -- independent of Phase 267's now-blocked status, planned/executed on its own schedule
 **Plans:** 0 plans
 
 Plans:

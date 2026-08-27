@@ -199,6 +199,123 @@ and would be minted when the phase was planned. They are scoped to Phase 265 onl
       `mindrianOS/research/` mirror), cross-linked in both directions with
       `docs/RADAR-ABSORPTION-265.md`.
 
+### Phase 265 second planning pass (minted 2026-08-27, after the navigator settled nine more workstreams)
+
+RADAR-01..11 came from the first planning pass. RADAR-12..31 were minted when the navigator settled
+the MCP-layer audit, the file-meeting redesign, the six generative-redesign candidates, the
+online-research gap, the persona-builder duplication, and the explore-opportunity build-out.
+
+**Three of these IDs were retired before use.** Phase 266 (MCP Layer Correctness Fixes) was created
+the same day to own four MCP defects on a faster, independent shipping schedule. RADAR-13, RADAR-15
+and RADAR-16 duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04 respectively and were retired rather than
+renumbered, so the gap is a deliberate record of the collision and not an omission.
+
+- [ ] **RADAR-12**: Subagent-dispatch grants are governed by a reviewed registry at
+      `data/subagent-dispatch-grants.json` rather than a frozen name list. Every `commands/*.md`
+      whose `allowed-tools` carries `Task` or `Agent` has a row naming the dispatch shape, the fan
+      bound, the reason, a non-agent reviewer and a date; a reviewed-but-unbuilt row is `pending` and
+      does not fail the build; `TEST_265_GRANTS_STRICT=1` fails any built-but-unratified grant at the
+      phase gate; and the tripwire enforces set equality across BOTH tokens, closing the pre-existing
+      `commands/deep-grade.md` `Agent` grant the Task-only check could not see. SUPERSEDES the frozen
+      three-name literal in RADAR-09 while preserving its anti-silent-widening intent.
+
+- [x] ~~**RADAR-13**~~: RETIRED before use, 2026-08-27. Duplicated **MCPFIX-01** (Phase 266): the MCP
+      `instructions` 2,173-byte overflow against the 2,048-byte host cap and the host-boundary test
+      fix. Phase 266 owns `lib/mcp/runtime-instructions.cjs` and `lib/mcp/no-instructions.test.cjs`.
+
+- [ ] **RADAR-14**: No shipped Brain tool description names a backend the plugin retired (three
+      descriptions in `bin/mindrian-brain-mcp-client.cjs` still say Pinecone/Neo4j against a live
+      Memgraph plus local-e5 stack), and a wire-level HYGIENE tripwire covers every tool on both
+      servers for markdown leakage, retired backend names and mid-word truncation. Deliberately
+      complementary to MCPFIX-04's prose-SHAPE checks, with the split stated in both tests.
+
+- [x] ~~**RADAR-15**~~: RETIRED before use, 2026-08-27. Duplicated **MCPFIX-03** (Phase 266): the
+      120-second blocking `spawnSync npm install` on a ~30-second connect path. Phase 266 owns
+      `lib/core/mcp-dep-heal.cjs`.
+
+- [x] ~~**RADAR-16**~~: RETIRED before use, 2026-08-27. Duplicated **MCPFIX-04** (Phase 266):
+      expanding `tests/test-234-tool-description-floor.cjs` from 8 of 36 tools to every registered
+      tool with honest coverage reporting. Phase 266 owns that file.
+
+- [ ] **RADAR-17**: No shipped comment or doc states an MCP tool count or eager-load token budget the
+      wire contradicts (`bin/mindrian-mcp-server.cjs` "9 tools" and "under 7000 token budget", two
+      research docs, one versioned briefing), and the corrections point at the test that MEASURES the
+      numbers rather than re-typing a new frozen literal, per the Canon Part 11 run-time-enumeration
+      precedent. The one copy living in a Phase 266 file is handed across the boundary, not edited.
+
+- [ ] **RADAR-18**: Zero unfilled `[methodology]` placeholders remain in `commands/`, `skills/` or
+      `dist/`; every replacement names a `/mos:` command that resolves to a real file; and the
+      inward-facing frameworks (JTBD, 5-Whys, Minto, beautiful-question) are deliberately NOT pointed
+      at `/mos:research`.
+
+- [ ] **RADAR-19**: `web_scope` declarations match runtime reality. `/mos:futures` declares `green`
+      because `seedGrounding` and `perRingResearch` reach `fetchCorpus`; the same defect class is
+      swept rather than assumed unique; and the limits of what the declaration enforces are recorded.
+
+- [ ] **RADAR-20**: The `requires_evidence:` contract, specified since Phase 131 with a live
+      reciprocal producer and zero consumers, has at least four live consumers starting with
+      `/mos:build-thesis`, wired through `/mos:research`'s existing ask-first gate, with no bespoke
+      dispatch logic, no new `web_scope: green` and no second confirmation gate.
+
+- [ ] **RADAR-21**: `/mos:mos-reason` dispatches one subagent per populated room section behind the
+      `--regenerate-all` backup ordering guard, sized through `planDispatch`, with a consolidation
+      step that flags contradictions between section governing thoughts, and the four Feynman prompts
+      still existing in exactly two byte-equal copies.
+
+- [ ] **RADAR-22**: `/mos:scout` step 4b fans out per tracked competitor while steps 1 and 2 stay
+      sequential for the stated snapshot-before-health dependency; same-event dedup and typed
+      per-competitor failure live in the shared `scheduled-scanner.cjs` so `/mos:scheduled-tasks`
+      inherits the dedup without inheriting the unattended spend Canon Part 3 forbids.
+
+- [ ] **RADAR-23**: `/mos:deep-grade`'s rubric component count is reconciled to one authoritative
+      number, verified against `brain_grade_calibrate`'s output contract, BEFORE any per-component
+      fan-out is designed around it; the panel pulls calibration anchors once, merges fail-closed per
+      `consolidatePanel`, and renders disputes ABOVE the score.
+
+- [ ] **RADAR-24**: `/mos:file-meeting` asks for the meeting date and time before extraction begins,
+      probes transcript size against a stated threshold, renders its declared F.8 gate through
+      `renderShapeF8` and `consumeF8Fanout`, and extracts through five parallel whole-transcript
+      perspective subagents whose consolidation owns dedup, knowledge-type reconciliation, cross-claim
+      edges and the single main-thread write, feeding and never bypassing the proposed-only nugget
+      routing gate.
+
+- [ ] **RADAR-25**: The `generate-personas` MCP action no longer serves deterministic template output
+      as if it were six-agent analysis: the default routes to `/mos:persona --parallel` and writes
+      nothing, the template path is explicit opt-in and stamps every file in both frontmatter and
+      body, and the two previously disconnected surfaces cite each other.
+
+- [ ] **RADAR-26**: `/mos:explore-opportunity`'s analysis legs run concurrently behind a probe-first
+      cost guard that reproduces `quality_early_stop`'s cost outcome exactly (a cold `deep_research`
+      leg costs one leg, not four), with a documented override, a fallback to the sequential
+      `runChain` path that reports which path ran and why, and zero diff on
+      `lib/core/chain-executor.cjs`.
+
+- [ ] **RADAR-27**: `/mos:research`'s `weighted-by-context` rotation takes the existing `Promise.all`
+      branch in `lib/core/lens-engine.cjs`, with output ordering and rejection semantics proven
+      unchanged and `tests/test-219-research-contract.cjs` still passing.
+
+- [ ] **RADAR-28**: `/mos:diffusion` gets attributed per-actor capacity research through an optional
+      roster parameter on `runIntelPipeline`'s existing decompose and plan-fan stages, behind the
+      existing F.1 fan-approve gate and the existing `fetchCorpus` chokepoint; no new surface, no new
+      stage, and `web_scope` stays `null` for a recorded reason.
+
+- [ ] **RADAR-29**: `/mos:vault` import review fans out only above a stated row threshold, batched by
+      guessed section with crossing-reassignment reconciliation and a single canonical persistence
+      call; `/mos:find-analogies --external` fans only after the existing approval card, one literal
+      composer-produced query string per agent that is never re-composed, merged on mechanism identity
+      before a single comparative scoring run.
+
+- [ ] **RADAR-30**: Every second-pass MCP finding requiring a genuine architecture decision is carried
+      in `data/capability-ledger.json` with both sides of its trade and a status rather than guessed,
+      the audit's verdict roll-up is fully reconciled, and `/mos:doctor` reports live per-server MCP
+      tool counts and fails on the zero-tool and wedged-server cases.
+
+- [ ] **RADAR-31**: The second-pass dev-research compositing trail is filed in both homes
+      (`~/MindrianRooms/rethinking-mindrianos/research/2026-08-27-capability-radar-265-second-pass/`
+      and the `mindrianOS/research/` mirror), cross-linked in both directions with
+      `docs/RADAR-ABSORPTION-265.md` and to its first-pass sibling, recording honestly where the
+      navigator overrode the research.
+
 ### Phase 266 - MCP Layer Correctness Fixes (minted at plan time 2026-08-27)
 
 Roadmap line 469 read "TBD". These four IDs are scoped to Phase 266 only. Every one is a
@@ -238,7 +355,11 @@ can ship in the next version cut on its own schedule.
 - Gate 0 foreign-host verify (carried operator leg, tracked in the handoff table).
 ## Traceability
 
-38 requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
-TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..11 (Phase 265) and
-MCPFIX-01..04 (Phase 266), both minted at plan time 2026-08-27. Roadmap phases must map all 38
-with no orphans.
+55 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
+IDs (28 active, Phase 265) and MCPFIX-01..04 (Phase 266). All minted 2026-08-27: RADAR-01..11 and
+MCPFIX-01..04 at first-pass plan time, RADAR-12..31 in the Phase 265 second planning pass after the
+navigator settled nine additional workstreams. RADAR-13, RADAR-15 and RADAR-16 were retired before
+use because they duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04; the gap is deliberate and recorded.
+RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving its intent.
+Roadmap phases must map all 55 active requirements with no orphans.
