@@ -4,7 +4,7 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Phase 272 context gathered
-last_updated: "2026-08-27T18:19:28.952Z"
+last_updated: "2026-08-27T20:51:09.751Z"
 last_activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
 progress:
   total_phases: 23
@@ -13,6 +13,43 @@ progress:
   completed_plans: 86
   percent: 39
 ---
+
+<!-- NOTE (267.3-01 execute-plan state.record-metric, 2026-08-27T~20:49Z, hand-edited per this
+     file's own documented resync-clobber bug, TENTH OCCURRENCE this session):
+     `gsd-tools query state.record-metric --phase 267.3 --plan 01 --duration 35min --tasks 2
+     --files 2` returned `{"recorded":true}` and legitimately appended one metrics table row
+     ("| Phase 267.3 P01 | 35min | 2 tasks | 2 files |"), but ALSO silently clobbered progress
+     (23/9/90/86/39% -> a fabricated 25/10/98/89/40%) and appended one stray blank line near
+     line 4098. Same narrow clobber shape as the NINTH occurrence (270 P02) below: stopped_at,
+     last_activity, Current focus and Current Position were NOT touched this time.
+     Diffed against a pre-call snapshot taken immediately before the call
+     (scratchpad STATE.md.presnap, 5346 lines) and restored ONLY the five clobbered progress
+     fields surgically, keeping the legitimate new metrics row. `last_updated` was deliberately
+     LEFT at the new value because that timestamp is accurate; the progress numbers were not.
+     Deliberately NOT recomputed by hand: Phase 267.3's 8 newly-planned plans (registered at
+     cf7eabf3) are not yet reflected in total_plans, so "86 -> 87" would have been just as
+     fabricated as the SDK's own numbers. The honest reading is the pre-call one, restored
+     as-is, with this note as the record.
+
+     ELEVENTH OCCURRENCE, same plan, minutes later: `gsd-tools query state.add-decision
+     --summary "..."` returned `{"added":true}` and legitimately appended the decision line,
+     but AGAIN clobbered the same five progress fields (23/9/90/86/39% -> the same fabricated
+     25/10/98/89/40%). Restored identically. So the clobber is not specific to record-metric;
+     it fires on at least two different state.* write verbs, which means every state.* call in
+     this repo needs a pre-call snapshot until the SDK bug is fixed. Second defect in the same
+     call, logged separately because it is a different bug: add-decision wrote the phase label
+     as the literal placeholder "[Phase ?]" instead of resolving it to 267.3. Hand-corrected to
+     "[Phase 267.3]". Worth a `/gsd-debug` entry of its own; not filed here to keep this plan
+     scoped to 267.3-01.
+
+     ROADMAP.md was hit by a THIRD, DIFFERENT defect in the same session:
+     `gsd-tools query roadmap.update-plan-progress 267.3` correctly ticked the 267.3-01
+     checkbox and wrote "1/8 plans executed", but it OVERWROTE the hand-authored rest of that
+     "**Plans:**" line, destroying the plan-time measurement sentence (46/67/0 over 113, gate
+     10c RED, 16+16 held). Restored by hand and augmented with the live re-measurement. That is
+     content destruction, not just a numeric clobber, and it is the more dangerous of the
+     three. -->
+
 
 <!-- NOTE (270 execute-plan state.record-metric after plan 270-02, 2026-08-27T~16:40Z, hand-edited
      per this file's own documented resync-clobber bug, NINTH OCCURRENCE this session):
@@ -274,6 +311,50 @@ progress:
      lagged). Not this plan's own regression. -->
 
 # Project State
+
+## (2026-08-27) -- 267.3-01 COMPLETE -- jurisdiction measured and ruled option-a, GUARD-01..10 minted
+
+Phase 267.3 wave 1. The reward-before-investment guard's real reach was measured against its
+assumed reach, and the navigator ruled the three linked questions six downstream plans build
+against. Commits `de93364a` (audit) and `db0856b0` (ruling). Two phase documents, zero source
+files touched under `lib/` `scripts/` `commands/` `skills/` `data/`.
+
+**The measurement, live, matching plan-time exactly.** 46 compliant / 67 missing / 0 invalid
+over 113 `commands/*.md`; linter exits 1; anchoring gate 10c RED with its single
+`commands/doctor.md:262` violation; the 16 held command files plus 16 held skill mirrors still
+sitting uncommitted and untouched. Delta from the plan's expectation: none. One finding the
+plan did not anticipate: all 67 report `reason=missing_field`, not `no_frontmatter`, so every
+one of them already has a frontmatter block to add a key to.
+
+**The blocking finding that changed what the phase can build.** The closed six-value
+`REWARD_TYPES` vocabulary cannot honestly describe 67 of 113 shipped commands. Five of its six
+members were minted against exactly one flow each (`docs/reward-before-investment-rule.md`
+lines 64-84). Ten conversational methodology commands have no term for "Larry reasons over
+what you brought and hands back a reframe". Nine diagnostic / report commands have none
+either, and `--none (scripting only)` actively MISLABELS them, because the scripting override
+at `docs/reward-before-investment-rule.md:95` is legitimate only where a real
+`--no-interactive` / `--script` / `-q` invocation exists. The rule doc names a `/mos:status`
+output as a non-reward in its own words. So an honest backfill was blocked on a vocabulary
+amendment, which is a missing-information constraint and not a difficulty judgment.
+
+**The ruling: `option-a`, no amendments.** D-A: a new sibling registry
+`data/first-reward-surfaces.json`, modeled on `data/first-touch-surfaces.json`, sibling rather
+than extension because that file's four consumers all key off version-stamping semantics.
+D-B: exactly two new `REWARD_TYPES` members, spelled literally for plans 02/04/06/07 to copy,
+`methodology_reframe` and `--none (diagnostic surface)`, each landing as a canon amendment in
+both the linter and the rule doc. D-C: keep the `--staged` commit gate exactly as Phase 245-02
+built it, and add the already-existing whole-tree audit to `scripts/verify-release`
+fail-closed, wired in 267.3-03 and promoted to blocking only in 267.3-08 after the backfill
+makes it green. Options b, c and d are preserved in `267.3-DECISIONS.md` Section 5 with their
+rejection reasons; option-d was rejected specifically because narrowing to the 17
+Phase-271-blocking commands reproduces the exact debt-ratchet failure `DEFERRED-271-D1`
+documented this same session.
+
+GUARD-01 through GUARD-10 minted in `267.3-DECISIONS.md` Section 6, registered in
+`.planning/REQUIREMENTS.md` at phase close per the Phase 270 precedent, not now.
+
+Phase 271's 17 blocked files are NOT touched by this plan; that is wave 3 and wave 4 work
+(plans 267.3-04 and 267.3-05).
 
 ## (2026-08-27) -- 271-02 COMPLETE -- /mos:radar ruled option-d, gate allowlist populated, FOLLOWUP-271-R1 owned
 
@@ -3858,6 +3939,7 @@ Progress: [█████████░] 92%
 | Phase 270 P02 | 55min | 3 tasks | 3 files |
 | Phase 271 P01 | 42min | 3 tasks | 4 files |
 | Phase 271 P02 | 26min | 2 tasks | 2 files |
+| Phase 267.3 P01 | 35min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -4094,6 +4176,7 @@ Progress: [█████████░] 92%
   flagged that pausing to ask the navigator whether to register this was itself a
   violation of the standing autonomous directive -- registered without further asking,
   per that correction.
+
 - Phase 272 added (2026-08-27): Phase 134 Real Remediation -- CJS Python Elimination Port.
   Registered because `.planning/debug/phase-134-python-elimination-false-complete.md`
   (severity: blocker) proved Phase 134's 8 plans read COMPLETE in tracking via a
@@ -5163,6 +5246,7 @@ Progress: [█████████░] 92%
 - [Phase 261-04]: Systems Thinking: chose the Five Moves (M1-M5) spine over the four-phase teaching script, per the source's own Meta-Lens Framing section naming the Five Moves as what the selector runs at every stage -- Find Stocks and Flows (a rejected-spine phase) has no counterpart in M1-M5; the rejected phase's absence is encoded as a machine-checked negative control
 - [Phase 261-04]: The Pyramid Principle: minto-pyramid.mjs targets a different node (Minto Pyramid, id 38968, 3/4) than the ratified name (The Pyramid Principle, id 30242, 0/4) -- disposed RETARGET via a header-only note, body left untouched -- The contested-survivor conflict over node 38968's own fate remains open and unadjudicated; RETARGET does not require it to resolve first
 - [Phase 266]: Module-scoped shrinking connect-path deadline instead of a call-site-threaded timeoutMs closure - The fourth connect-path heal call site (the lazy zod require inside bin/mindrian-mcp-server.cjs createServer()) is not at module scope and is re-invoked per session by the flag-ON multi-session HTTP branch; a stale zero-remaining timeoutMs there would hit runGuardedInstall's >0 guard and silently restore the full 120s hook-path default mid-session.
+- [Phase 267.3]: D-A/D-B/D-C ruled option-a (2026-08-27): sibling registry data/first-reward-surfaces.json; two new REWARD_TYPES members methodology_reframe and --none (diagnostic surface); --staged commit gate kept, whole-tree audit added to verify-release fail-closed and promoted only when green. Full ruling with rejected options b/c/d in 267.3-DECISIONS.md.
 
 ### Pending Todos
 
