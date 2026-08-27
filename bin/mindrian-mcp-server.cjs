@@ -209,9 +209,10 @@ function createServer() {
     }
   );
 
-  // Register MCP Resources (read-only room browsing via room:// URIs)
+  // Register MCP Resources (read-only room browsing via room:// URIs).
+  // Phase 270-05 (RESEARCH.md 3.4d): Resources now resolve per read through lib/mcp/session-room.cjs, the same resolver every Tool uses; MINDRIAN_ROOM stays only the boot fallback, exactly what ctx.fallbackRoomDir means to the resolver.
   const { registerResources } = require('../lib/mcp/resources.cjs');
-  registerResources(s, roomDir);
+  registerResources(s, { fallbackRoomDir: roomDir, pluginRoot: pluginRoot, surface: surface.surface });
 
   // Register MCP Prompts (methodology workflows with Larry personality)
   const { registerPrompts } = require('../lib/mcp/prompts.cjs');
