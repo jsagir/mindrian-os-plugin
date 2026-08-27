@@ -1,0 +1,106 @@
+{
+  "schema": "subagent-dispatch-grants/v1",
+  "purpose": "Reviewed pre-approvals for the Agent or Task dispatch token in commands/*.md frontmatter; a command may not carry the token without a matching row here.",
+  "tokens": ["Task", "Agent"],
+  "grants": [
+    {
+      "command": "commands/act.md",
+      "token": "Task",
+      "status": "granted",
+      "dispatch_shape": "one framework-runner subagent per framework selected for the --swarm run, spawned in a single turn",
+      "fan_bound": "planDispatch",
+      "reason": "act's --swarm mode dispatches multiple framework-runner subagents at once; without the grant each spawn triggers the normal Claude Code permission prompt, producing a per-agent approval storm on a command meant to run unattended.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "265-03-PLAN.md Task 2 (navigator decision, Open Question 4, SETTLED Add Task); 265-RESEARCH.md section 2d and its Security Domain ASVS V4 row"
+    },
+    {
+      "command": "commands/persona.md",
+      "token": "Task",
+      "status": "granted",
+      "dispatch_shape": "one persona-analyst subagent per De Bono Six Thinking Hat lens, run in parallel under --parallel",
+      "fan_bound": "6, one per De Bono hat",
+      "reason": "persona --parallel dispatches all six hat lenses at once; up to 6 permission prompts per invocation is the friction the grant is meant to remove on a routine, frequently-run command.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "265-03-PLAN.md Task 2 (navigator decision, Open Question 4, SETTLED Add Task); 265-RESEARCH.md section 2d and its Security Domain ASVS V4 row"
+    },
+    {
+      "command": "commands/grade.md",
+      "token": "Task",
+      "status": "granted",
+      "dispatch_shape": "one grading subagent per canonical room section, run in parallel under --full",
+      "fan_bound": "8 canonical room sections",
+      "reason": "grade --full dispatches a subagent per room section; up to 8 permission prompts per run was the measured friction, and the sections are independent grading work with no shared mutable state.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "265-03-PLAN.md Task 2 (navigator decision, Open Question 4, SETTLED Add Task); 265-RESEARCH.md section 2d and its Security Domain ASVS V4 row"
+    },
+    {
+      "command": "commands/deep-grade.md",
+      "token": "Agent",
+      "status": "granted",
+      "dispatch_shape": "one grading subagent per rubric-category batch, mirroring grade-grant's reviewer-panel fan-out over one shared source",
+      "fan_bound": "resolveFanoutCap / FUTURES_FANOUT_CAP default 5",
+      "reason": "deep-grade already declared the Agent dispatch token before Phase 265 began; this row is the retroactive review the grant never received. The token spells Agent rather than Task, and the 265-03 tripwire greps for Task only, so this pre-existing grant was invisible to the exact control meant to catch a fourth command acquiring dispatch privilege.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "commands/deep-grade.md frontmatter (Agent already present, Phase 265 finding, not newly added); the token differs from the other three commands here, which all declare Task, and the 265-03 Task-only tripwire (tests/test-265-swarm-task-grant.cjs, grep on the literal Task) could not see this grant; 265-RESEARCH-generative-redesign.md 'house pattern any redesign must mirror' section (resolveFanoutCap / FUTURES_FANOUT_CAP default 5, grade-grant's two-batch idiom)"
+    },
+    {
+      "command": "commands/mos-reason.md",
+      "token": "Task",
+      "status": "pending",
+      "dispatch_shape": "one reasoning subagent per populated room section, each reading its own artifacts and running the 4-stage Feynman pass independently before results are merged",
+      "fan_bound": "planDispatch",
+      "reason": "mos-reason currently loops 8-11 sections sequentially into one context, each requiring a full artifact read plus a 4-stage reasoning pass; the sections are disjoint in and out, so parallelizing needs the dispatch grant before plan 265-14 can ship it.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "265-RESEARCH-generative-redesign.md section 1 'mos-reason - REDESIGN CANDIDATE (highest confidence)', lines 116-215"
+    },
+    {
+      "command": "commands/scout.md",
+      "token": "Task",
+      "status": "pending",
+      "dispatch_shape": "one subagent per tracked competitor, each running its own web-evidence pass",
+      "fan_bound": "the existing max 5",
+      "reason": "scout's per-competitor research is independent work already bounded at 5; plan 265-15 needs the reviewed grant before it can move that work from sequential to parallel dispatch.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "265-RESEARCH-generative-redesign.md section 2 (commands/scout.md, 298 lines) and the phase's dispatch-optimizer cost bound already governing scout's existing max"
+    },
+    {
+      "command": "commands/file-meeting.md",
+      "token": "Task",
+      "status": "pending",
+      "dispatch_shape": "one extraction subagent per perspective in the perspective set, each reading the full meeting transcript independently",
+      "fan_bound": "the perspective-set size",
+      "reason": "file-meeting's extraction currently runs one perspective at a time over the full transcript; plan 265-19 needs the reviewed grant to fan the perspective set out in parallel instead.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "265-RESEARCH-file-meeting-deep-dive.md (perspective-set extraction shape) cross-referenced with 265-RESEARCH-generative-redesign.md's fan-out house pattern"
+    },
+    {
+      "command": "commands/vault.md",
+      "token": "Task",
+      "status": "pending",
+      "dispatch_shape": "one subagent per guessed-section group, sized and gated by a cost threshold before dispatch",
+      "fan_bound": "planDispatch, threshold-gated",
+      "reason": "vault's section-guessing work groups naturally by section; plan 265-21 needs the reviewed grant to dispatch one subagent per group once the guess count clears the threshold that makes parallel dispatch worth its cost.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "265-RESEARCH-generative-redesign.md section 4 (commands/vault.md, 204 lines) and the house pattern's planDispatch sizing idiom"
+    },
+    {
+      "command": "commands/find-analogies.md",
+      "token": "Task",
+      "status": "pending",
+      "dispatch_shape": "one subagent per navigator-approved audited query, each running its own external fetch, SAPPhIRE encoding and structural mapping pass",
+      "fan_bound": "resolveFanoutCap / FUTURES_FANOUT_CAP default 5",
+      "reason": "find-analogies' --external mode does real per-query analytical work (fetch, SAPPhIRE encoding, structural mapping), but dedup risk across query families is high, so the navigator scoped the parallel grant to an audited query list rather than an open query set; plan 265-21 ships it once that audit exists.",
+      "reviewed_by": "navigator",
+      "reviewed_date": "2026-08-27",
+      "evidence": "265-RESEARCH-generative-redesign.md section 5 'find-analogies (--external only) - REDESIGN CANDIDATE, scoped, lower priority', lines 523-551 and 907-921 (dedup risk, Part 8 boundary note)"
+    }
+  ]
+}
