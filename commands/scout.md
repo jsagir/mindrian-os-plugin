@@ -8,6 +8,15 @@ hitl_why: "Sentinel scans run as an independent set of watches with no ordering 
 serves_jtbd: ["explore", "understand-market"]
 teaching: "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one."
 ui_reference: skills/ui-system/SKILL.md
+interactive_first_reward: "--none (scripting only)"
+# Phase 265 ledger T-265-71 / navigator decision (data/subagent-dispatch-grants.json,
+# reviewed 2026-08-27, status pending until plan 265-23's single ratification write).
+# Task is pre-approval here because Step 4b dispatches one subagent per tracked
+# competitor (max 5, the existing cap) in a single turn; allowed-tools is a
+# pre-approval list, not a restriction list (frontmatter contract), so this
+# removes the per-spawn permission prompt rather than granting a capability the
+# command did not already have. Scoped to the invoking turn; clears on the next
+# message.
 allowed-tools:
   - Read
   - Write
@@ -18,6 +27,7 @@ allowed-tools:
   - mcp__mindrian-brain__brain_query
   - mcp__mindrian-brain__read_neo4j_cypher
   - AskUserQuestion
+  - Task
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
@@ -119,6 +129,13 @@ Report the result:
 
 ## Step 4: Competitor Watch (SENT-03)
 
+**Hybrid step (Phase 265 Plan 15).** Steps 1 and 2 stay strictly sequential: Step 1's snapshot is
+Step 2's health-check baseline, and the file says so directly ("Always run first"). Steps 3, 5 and
+5b are order-free local scripts, not worth a subagent each. Step 4b is the ONLY step in scout with
+real latency and real per-item reasoning -- fetch, synthesis, and an adversarial cross-check, per
+competitor -- so it, and only it, becomes a fan-out. This is a HYBRID within one command, not a
+conversion of the whole file.
+
 This task requires web search capability. Search for each tracked competitor and flag contradictions with room assumptions.
 
 ### 4a: Find Tracked Competitors
@@ -131,18 +148,68 @@ Look for competitors in these locations (in order):
 If no competitors are tracked:
 > "No competitors tracked yet. Run /mos:challenge-assumptions on your competitive-analysis section to identify competitors worth monitoring."
 
-### 4b: Web Search Each Competitor
+### 4b: Web Search Each Competitor (Fan-Out)
 
-For each tracked competitor (max 5):
-1. Search for recent news: `"[competitor name]" funding OR launch OR pivot OR acquisition` (last 30 days)
-2. Summarize key findings in 2-3 bullet points
-3. Flag any finding that CONTRADICTS an assumption in the room:
-   - Check `room/competitive-analysis/*.md` for existing claims about this competitor
-   - If web search reveals contradicting information, flag as: `CONTRADICTION:[competitor]:[claim]:[new finding]`
+One subagent per tracked competitor, N capped at the EXISTING max 5 -- 5 already equals
+`FUTURES_FANOUT_CAP`, so no cap change is needed. If Step 4a found zero competitors, dispatch
+NOTHING and keep the honest refusal above verbatim; a future edit must not dispatch an empty fan.
 
-### 4c: Write Competitor Report
+For each tracked competitor, dispatch one `subagent_type: research` (`agents/research.md`)
+subagent:
 
-Write findings to `room/.intelligence/competitors-YYYY-MM-DD.md`:
+- **Input:** the competitor name, the pre-composed query string
+  `"[competitor name]" funding OR launch OR pivot OR acquisition` (last 30 days), and THE SPECIFIC
+  EXISTING CLAIMS ABOUT THAT COMPETITOR extracted by the orchestrator in Step 4a. Do not make five
+  agents each re-scan the whole `competitive-analysis/` section.
+- **Work:** run the search (Tavily, falling back to WebSearch), extract key developments (funding,
+  launches, pivots, acquisitions, partnerships), then check each finding against the supplied
+  claims.
+- **Returns:** `{competitor, ok, findings: [{text, source_url, date, entities}], contradictions:
+  [{claim, new_finding}], error}` as STRUCTURED DATA, not prose. The report frontmatter needs
+  countable values, and `consolidateCompetitorFindings` needs `date` and `entities` to detect a
+  shared event.
+- **Constraint:** the agent writes NOTHING. No file, no room state, no report. It returns data
+  only; the orchestrator is the single writer.
+- **Failure:** a failed search returns `ok: false` with a typed `error`. It never returns an empty
+  success.
+
+Only the competitor name and the pre-composed public-handle query cross toward the web; the
+supplied claims are for LOCAL comparison inside the agent and are never placed in a query string
+(Canon Part 8).
+
+**Dispatch idiom.** Dispatch all N agents in one message using the Task tool with
+`subagent_type: research` (the explicit type string, not a file path -- a Task tool call that
+cannot resolve a `subagent_type` is a hard error listing available agents since 2.1.235). Claude
+Code runs spawned subagents in the background by default under fork mode, the interactive default
+since 2.1.232 -- do NOT pass any manual background-execution parameter to the Task tool call; the
+platform removes that kind of parameter from the Task tool entirely once fork mode is on
+(code.claude.com/docs/en/sub-agents). The platform caps concurrent subagents at 20
+(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); N is at most 5, well under the cap, but clamp to 20 as
+the standing rule so a future author does not reintroduce an unbounded fan-out here.
+
+```
+[SCOUT] Dispatching N competitor agents
+```
+
+### 4c: Consolidate and Write the Competitor Report (Orchestrator Only)
+
+Call `lib/core/scheduled-scanner.cjs`'s `consolidateCompetitorFindings(results)` on the array the
+fan-out returned. It merges same-event findings across competitors (carrying `cross_referenced`),
+dedupes contradictions attached to a merged event, and returns `competitors_requested`,
+`competitors_scanned`, `competitors_failed`, `failed`, and `cross_item_flags` alongside the merged
+`findings` / `contradictions`.
+
+1. Assemble `room/.intelligence/competitors-YYYY-MM-DD.md` in the existing documented format, one
+   `##` block per competitor, with merged cross-referenced events rendered ONCE and marked as
+   affecting both competitors.
+2. Compute the frontmatter counts FROM the returned object, not by counting raw agent returns:
+   `competitors_scanned` from `competitors_scanned`, `contradictions_found` from the LENGTH of the
+   deduped `contradictions` array. Counting raw agent returns would double-count a shared event.
+3. Render any `failed` entries on their own line in the report and in the Step 6 summary. A
+   competitor whose search failed is reported as failed, never omitted.
+4. Feed `cross_item_flags` into the Step 6 Intelligence Strip alongside the existing
+   `contradictions_found` line and the existing `/mos:challenge-assumptions` suggestion. Do not
+   replace either.
 
 ```markdown
 ---
@@ -161,6 +228,8 @@ contradictions_found: N
 - [finding 2]
 
 **Room Contradictions:** [none | list contradictions]
+
+**Failed:** [none | competitor: error]
 
 ...
 ```

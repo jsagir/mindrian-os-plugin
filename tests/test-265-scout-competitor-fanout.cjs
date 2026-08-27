@@ -204,9 +204,54 @@ check('determinism: running the same input twice returns byte-identical JSON', (
 });
 
 // ---------------------------------------------------------------------------
-// Text arm (Task 2) over commands/scout.md -- appended by Task 2, not here.
-// <!-- gsd:task-2-text-arm-marker -->
+// Text arm (Task 2) over commands/scout.md
 // ---------------------------------------------------------------------------
+
+check('commands/scout.md: Step 1 snapshot script precedes Step 2 health-check script (baseline dependency survives)', () => {
+  const scoutPath = path.join(REPO_ROOT, 'commands', 'scout.md');
+  const text = fs.readFileSync(scoutPath, 'utf8');
+  const step1Idx = text.indexOf('Step 1');
+  const snapshotIdx = text.indexOf('sentinel-snapshot');
+  const healthIdx = text.indexOf('sentinel-health-check');
+  assert.ok(step1Idx !== -1, 'Step 1 heading must exist');
+  assert.ok(snapshotIdx !== -1, 'sentinel-snapshot script reference must exist');
+  assert.ok(healthIdx !== -1, 'sentinel-health-check script reference must exist');
+  assert.ok(step1Idx < snapshotIdx, 'Step 1 heading must precede the snapshot script reference');
+  assert.ok(
+    snapshotIdx < healthIdx,
+    'the snapshot script must be referenced before the health-check script (byte-offset ordering)'
+  );
+});
+
+check('commands/scout.md: names the shared consolidateCompetitorFindings function (no reimplementation)', () => {
+  const scoutPath = path.join(REPO_ROOT, 'commands', 'scout.md');
+  const text = fs.readFileSync(scoutPath, 'utf8');
+  assert.ok(text.includes('consolidateCompetitorFindings'), 'must name the shared function literally');
+  assert.ok(text.includes('scheduled-scanner.cjs'), 'must name the shared module path literally');
+  assert.equal(
+    (text.match(/SAME_EVENT_ENTITY_OVERLAP/g) || []).length,
+    0,
+    'scout.md must NOT contain a second dedup implementation'
+  );
+});
+
+check('commands/scout.md: dispatch idiom is explicit (no run_in_background, named subagent_type + concurrency ceiling)', () => {
+  const scoutPath = path.join(REPO_ROOT, 'commands', 'scout.md');
+  const text = fs.readFileSync(scoutPath, 'utf8');
+  assert.equal((text.match(/run_in_background/g) || []).length, 0, 'no run_in_background anywhere in scout.md');
+  assert.ok(text.includes('subagent_type'), 'must name an explicit subagent_type');
+  assert.ok(text.includes('CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS'), 'must name the standing concurrency ceiling');
+});
+
+check('commands/scout.md: zero-competitor honest refusal survives verbatim', () => {
+  const scoutPath = path.join(REPO_ROOT, 'commands', 'scout.md');
+  const text = fs.readFileSync(scoutPath, 'utf8');
+  assert.equal(
+    (text.match(/No competitors tracked yet/g) || []).length,
+    1,
+    'the honest zero-competitor refusal must survive exactly once, verbatim'
+  );
+});
 
 if (failures > 0) {
   console.error('\n' + failures + ' failure(s) found.');
