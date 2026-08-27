@@ -461,7 +461,7 @@ Plans:
 - [x] 265-04-PLAN.md - Wave 1 - explicit dispatch shapes for trending-to-absurd and explore-opportunity, plus the navigator decision on parallelizing the explore legs
 - [x] 265-05-PLAN.md - Wave 2 - /mos:radar --fetch writes the ledger under an injection fence, and both radar reference docs corrected
 - [x] 265-06-PLAN.md - Wave 2 - retire SEED-003 and Phase 138 by marking, close drift finding W007-138, and write the decision record
-- [ ] 265-07-PLAN.md - Wave 3 - regenerate skill and dist mirrors, file the two-home dev-research trail, and run the phase gate
+- [x] 265-07-PLAN.md - Wave 3 - regenerate skill and dist mirrors, file the two-home dev-research trail, and run the phase gate
 
 **Second planning pass, 2026-08-27.** The navigator settled nine additional workstreams after the
 first pass shipped its plans: the MCP-layer audit, the file-meeting redesign (four parts), the six
@@ -479,14 +479,14 @@ is deliberate.
 - [x] 265-17-PLAN.md - Wave 1 - retire the frozen MCP tool counts and the breached token-budget claim in the server header and three docs
 - [x] 265-12-PLAN.md - Wave 2 - the reviewed subagent-dispatch grant registry, covering both Task and Agent tokens (closes the invisible deep-grade grant)
 - [x] 265-13-PLAN.md - Wave 2 - declaration truth: 19 unfilled [methodology] placeholders, the futures web_scope correction, and four live requires_evidence consumers
-- [ ] 265-14-PLAN.md - Wave 4 - mos-reason: one subagent per room section behind the migration-backup guard, with a cross-section coherence check
-- [ ] 265-15-PLAN.md - Wave 4 - scout step 4b: per-competitor fan-out with same-event dedup and typed failures in the shared scanner module
+- [x] 265-14-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - mos-reason: one subagent per room section behind the migration-backup guard, with a cross-section coherence check
+- [x] 265-15-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - scout step 4b: per-competitor fan-out with same-event dedup and typed failures in the shared scanner module
 - [x] 265-16-PLAN.md - Wave 4 (declared) / Wave 2 (DAG-actual, depends only on 265-03) - persona: the generate-personas MCP action routes to /mos:persona --parallel instead of serving template output as analysis
 - [x] 265-18-PLAN.md - Wave 4 (declared) / Wave 2 (DAG-actual, depends only on 265-04) - explore-opportunity: probe-first parallel legs with a cost guard that reproduces quality_early_stop's cost outcome, zero diff on the shared executor
-- [ ] 265-19-PLAN.md - Wave 4 - file-meeting: five parallel whole-transcript extraction perspectives feeding (never bypassing) the nugget routing gate
-- [ ] 265-20-PLAN.md - Wave 4 - deep-grade: reconcile the 5-versus-7 rubric FIRST, then the per-component panel with grade-grant's fail-closed consolidation
-- [ ] 265-21-PLAN.md - Wave 4 - vault import review and find-analogies --external: threshold-gated and dedup-gated fan-outs
-- [ ] 265-22-PLAN.md - Wave 4 - diffusion: a roster parameter on runIntelPipeline's existing stages, closing the one genuine online-research gap
+- [x] 265-19-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - file-meeting: five parallel whole-transcript extraction perspectives feeding (never bypassing) the nugget routing gate
+- [x] 265-20-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - deep-grade: reconcile the 5-versus-7 rubric FIRST, then the per-component panel with grade-grant's fail-closed consolidation
+- [x] 265-21-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - vault import review and find-analogies --external: threshold-gated and dedup-gated fan-outs
+- [x] 265-22-PLAN.md - Wave 4 (declared) / Wave 3 (DAG-actual) - diffusion: a roster parameter on runIntelPipeline's existing stages, closing the one genuine online-research gap
 - [ ] 265-23-PLAN.md - Wave 5 - ratify every wave-4 dispatch grant, build the MCP surface doctor organ, and record every deferred architecture decision in the ledger
 - [ ] 265-24-PLAN.md - Wave 6 - second close: regenerate the mirrors again, file the second-pass dev-research trail, and run the full gate with the grant strict flag on
 
