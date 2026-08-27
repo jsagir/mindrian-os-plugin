@@ -4,14 +4,14 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Phase 272 context gathered
-last_updated: "2026-08-27T21:30:32.023Z"
-last_activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
+last_updated: "2026-08-27T22:56:23.991Z"
+last_activity: 2026-08-27
 progress:
-  total_phases: 23
-  completed_phases: 9
-  total_plans: 90
-  completed_plans: 86
-  percent: 39
+  total_phases: 25
+  completed_phases: 10
+  total_plans: 98
+  completed_plans: 93
+  percent: 40
 ---
 
 <!-- NOTE (267.3-01 execute-plan state.record-metric, 2026-08-27T~20:49Z, hand-edited per this
@@ -49,7 +49,6 @@ progress:
      10c RED, 16+16 held). Restored by hand and augmented with the live re-measurement. That is
      content destruction, not just a numeric clobber, and it is the more dangerous of the
      three. -->
-
 
 <!-- NOTE (267.3-02 execute-plan state.record-metric, 2026-08-27T21:10Z, hand-edited per this
      file's own documented resync-clobber bug, TWELFTH OCCURRENCE this session):
@@ -123,7 +122,6 @@ progress:
      total_plans, so any hand-bumped number would be as fabricated as the SDK's. ROADMAP.md's
      267.3 row was updated by hand, because `roadmap.update-plan-progress` destroys the
      hand-authored prose on the "**Plans:**" line (the THIRD, DIFFERENT defect above). -->
-
 
 <!-- NOTE (270 execute-plan state.record-metric after plan 270-02, 2026-08-27T~16:40Z, hand-edited
      per this file's own documented resync-clobber bug, NINTH OCCURRENCE this session):
@@ -3375,10 +3373,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 265
-Plan: 23 of 23 -- COMPLETE (waves 1-6 per plan frontmatter; DAG-verified dependency graph collapses to 5 execution waves since several wave-4/5-declared plans only depended on wave-1/2/3 work and ran earlier)
+Phase: 254
+Plan: Not started
 Status: Complete, independently re-verified 2026-08-27 (Phase 266 shipped complete 2026-08-27: 5/5 plans, verified passed 8/8; 266-05 closed the one MCPFIX-03 gap the prior verification found; Phase 265 built on top of it, including confirming Phase 266's MCPFIX-01/MCPFIX-02 fixes live via 265-09's and 265-24's own tripwires). Phase 267 remains blocked on an unresolved upstream ext-apps dependency per ROADMAP.md -- do not start it. Phase 270 (Memory and Context Operator MCP) is a separate, concurrent effort already underway on this same tree.
-Last activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
+Last activity: 2026-08-27
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -4016,6 +4014,7 @@ Progress: [█████████░] 92%
 | Phase 267.3 P01 | 35min | 2 tasks | 2 files |
 | Phase 267.3 P02 | 40min | 3 tasks | 7 files |
 | Phase 267.3 P03 | 50min | 3 tasks | 4 files |
+| 253 | 0 | - | - |
 
 ## Accumulated Context
 
