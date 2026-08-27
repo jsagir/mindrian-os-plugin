@@ -615,12 +615,19 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 271-03-PLAN.md - 93 citations anchored across 44 commands, plus skill-mirror regeneration
+- [~] 271-03-PLAN.md - **PARTIAL: 28 of 45 files, 63 of 94 citations anchored and committed** (commits `598fdb7c`, `78e434d2`). BLOCKED on Phase 267.3 for the remaining 17 files.
   - **Post-ruling correction:** the live target is **94 sites across 45 command files**, not 93/44. `commands/radar.md` is excluded by the option-d allowlist and must not be edited by the sweep.
+  - **DEVIATION-271-03-A:** the plan's 44-file list misses `commands/doctor.md:262`, a bare post-"See" citation with no backticks that a backtick-anchored sed cannot reach. `271-AUDIT.md` sections 1 and 2 already named it. The live set is 45 files / 94 sites.
+  - **BLOCKED, navigator ruling 2026-08-27:** the pre-commit `mva-rule-linter` (hook lines 299-313) refused 17 of the swept command files because they carry no `interactive_first_reward` declaration. Proven pre-existing: `git log --all -S` returns **zero commits ever** touching that string in those files, and this sweep's diff touches zero frontmatter lines. It surfaced only because Phase 245-02 made the linter `--staged`-scoped (a debt ratchet), and a 44-file sweep is the first commit ever to stage them. **Ruled: close at 28/45. Do NOT bypass the hook. Do NOT declare values inside a mechanical path-anchoring phase** - per `lib/core/mva-rule-linter.cjs` binding decision B5 the field is a per-command design declaration whose value cannot be read off the file, and a first-pass guess already produced one demonstrably false declaration (`publish` is `hitl_shape: F.0` interactive, so `--none (scripting only)` would have been wrong).
+  - **Held in the working tree, deliberately not reverted:** 16 command files (30 sites) with anchoring applied and verified, plus their 16 regenerated mirrors, plus `commands/doctor.md` unedited. Safe there - any session trying to commit them hits the same gate. Resume cost: stage-and-commit, one `doctor.md` prefix, one `build-skill-mirrors.cjs` run.
+  - The 16: `analyze-systems`, `causal`, `challenge-assumptions`, `compare-ventures`, `deck`, `diagnose`, `find-connections`, `leadership`, `lean-canvas`, `mullins`, `pipeline`, `publish`, `score-innovation`, `show`, `suggest-next`, `systems-thinking`.
+  - Full trace: `271-03-SUMMARY.md` and `deferred-items.md` (DEFERRED-271-D1) in the phase directory.
 
 **Wave 4** *(blocked on Wave 3)*
 
 - [ ] 271-04-PLAN.md - 26 citations anchored across 5 hand-authored skills and 6 agents; repo-wide gate turns green
+  - **NOT blocked by the 271-03 blocker (checked, not assumed).** The `mva-rule-linter` arm fires on `^commands/.+\.md$` only (hook line 300); 271-04's surface is 7 `agents/*.md`, 5 `pipelines/**/*.md` and 5 hand-authored `skills/*/SKILL.md` - **zero command files**. The arms that do fire on its surface (connector-registry, orchestration-projection, skill-mirrors, and the WARN-only advisory shape-declaration) are all currently green. `skills/trending-to-absurd/SKILL.md` stays editable because `checkSkipList()` only requires continued divergence from its command.
+  - **Note:** the "repo-wide gate turns green" goal is NOT reachable at the end of 271-04 while 271-03's 17 files remain blocked. The gate will read 31 (30 blocked command sites + `doctor.md`) after 271-04 completes its own 40.
   - **Post-ruling correction:** the live target is **40 sites** (14 hand-authored skills + 17 agents + 9 pipelines across 17 files). The plan-time 26 predates the gate and missed the `pipelines/` surface entirely.
 
 **Wave 5** *(blocked on Wave 4)*
@@ -695,8 +702,13 @@ Plans:
 Open design question, not decided here: how does a bash hook or an injected-prose surface declare a first-reward contract the linter can read? A sidecar declaration file, a manifest, a comment convention the linter parses, or an extension of the born-wired connector registry are all candidates. Canon Part 11 adjacency noted, since that is the repo's existing machinery for "every invocable surface is born declared".
 
 Cross-references: this is the ONE audit finding with no Phase 269 collision and can be planned immediately. Also touches Phase 267.1 (Hooked Model Completeness Audit, `.planning/research/2026-08-27-hooked-first-install-audit.md`, the audit that registered GAP G-1).
+**SCOPE-WIDENING QUESTION, raised by Phase 271 plan 03 (2026-08-27, navigator-directed).** This phase is currently scoped to the surfaces the linter CANNOT see (a bash hook has no frontmatter to carry a declaration). Plan 271-03 surfaced an adjacent gap on the surface the linter CAN already see: **67 of 113 commands carry no `interactive_first_reward` declaration at all** (only 46 do). Phase 118-06 (`5175d33b`, 2026-05-15) shipped the rule with 6 declarations and no backfill, and the rest accreted opportunistically as unrelated phases happened to touch files - there is no family pattern, direct twins land on opposite sides (`analyze-needs` declared, `analyze-systems` missing; `find-analogies` declared, `find-connections` missing). Phase 245-02 then made the linter `--staged`-scoped, so the debt is invisible until an unrelated sweep stages the files, which is exactly how plan 271-03 hit it and stalled at 28/45.
+
+**Recommendation for whoever plans this phase:** widen the goal from "how does an out-of-frontmatter surface declare a first-reward contract" to ALSO include **"declare `interactive_first_reward` for all currently-missing interactive commands"**, and decide here whether the linter keeps its `--staged` scope or gains a whole-tree audit mode that makes the debt visible without waiting for an unrelated commit. Both halves are the same jurisdiction question: who must declare, on what surface, and what enforces it. Note the values are genuinely per-command and cannot be rubber-stamped - `lib/core/mva-rule-linter.cjs` binding decision B5 states the file validates only the DECLARATION and that per-command remediations are follow-up phases, and a first-pass guess during 271-03 already produced one demonstrably false declaration.
+
 **Requirements**: TBD
 **Depends on:** none - independent of Phase 269 and of Phase 267.2; this is a lint-scope and declaration-contract change, not an onboarding-flow change.
+**Blocks:** Phase 271 plan 03's remaining 17 command files (16 with anchoring edits held uncommitted in the working tree, plus `commands/doctor.md`). Those cannot be committed until the declaration question is ruled. See `271-03-SUMMARY.md`.
 **Plans:** 0 plans
 
 Plans:
