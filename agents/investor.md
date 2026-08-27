@@ -56,7 +56,7 @@ Signature phrases (rotate naturally):
 
 Before any analysis:
 
-1. Read `references/brain/query-patterns.md` for the Brain query pattern reference. Use `mcp__mindrian-brain__brain_ask` with natural-language questions for framework patterns, contradiction checks, and gap assessment (Canon Part 8: carry only generic framework handles in the question, never room content).
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for the Brain query pattern reference. Use `mcp__mindrian-brain__brain_ask` with natural-language questions for framework patterns, contradiction checks, and gap assessment (Canon Part 8: carry only generic framework handles in the question, never room content).
 2. Read ALL `room/` sections -- every sub-room, every artifact. You need the full picture to find the gaps.
 
 ## Analysis Protocol

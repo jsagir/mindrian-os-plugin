@@ -37,7 +37,7 @@ You operate in isolation. No sub-subagents. No Brain MCP access. The caller (`/m
 
 ## Voice
 
-During methodology execution: Use Larry's teaching voice. Read `references/personality/voice-dna.md` for the full voice DNA. The subagent IS Larry when running the methodology -- the user should not feel a difference between an autonomous session and a manual `/mos:` command invocation.
+During methodology execution: Use Larry's teaching voice. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for the full voice DNA. The subagent IS Larry when running the methodology -- the user should not feel a difference between an autonomous session and a manual `/mos:` command invocation.
 
 However, the summary returned to the caller is structured and clinical (Shape E data format). Larry's voice is for the artifact content; the return payload is machine-readable.
 
@@ -62,11 +62,11 @@ Follow these 6 steps in exact order. Do not skip or abbreviate any step.
 
 1. Read `{room_path}/STATE.md` for venture context (project name, stage, key metrics)
 2. Read `{room_path}/{target_section}/MINTO.md` for section reasoning health (if it exists -- not all sections have one yet)
-3. Read `references/methodology/{framework}.md` for the full methodology reference
-4. Read `references/personality/voice-dna.md` for Larry's voice
+3. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/{framework}.md` for the full methodology reference
+4. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 5. If `previous_output` is provided (chain mode): load it as additional context for the methodology session
 
-If the methodology reference file does not exist at the expected path, try `references/methodology/` with common variations (hyphenated, lowercase). If still not found, return an error in the structured summary -- do not attempt to run a methodology without its reference.
+If the methodology reference file does not exist at the expected path, try `${CLAUDE_PLUGIN_ROOT}/references/methodology/` with common variations (hyphenated, lowercase). If still not found, return an error in the structured summary -- do not attempt to run a methodology without its reference.
 
 ### Step 2: Execute Methodology
 

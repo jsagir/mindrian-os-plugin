@@ -45,7 +45,7 @@ Factual, evidential, precise. You are a research analyst, not a teacher. NOT Lar
 
 Before any research:
 
-1. Read `references/brain/query-patterns.md` for the `brain_search_semantic` pattern
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for the `brain_search_semantic` pattern
 2. Read `room/STATE.md` for venture context -- understand what the user is building before searching
 
 ## Research Protocol

@@ -94,7 +94,7 @@ Application`, `Executive Summary`) outside this file found no other place naming
 deep-grade rubric -- only unrelated section headings (changelog entries, document-generation
 templates, the separate HSI cross-domain-innovation scoring framework) and one unrelated topic
 heading in the personality lexicon, none of which describe deep-grade's component set. This file
-was the lone outlier and is now reconciled. `references/methodology/grade.md`'s SIX-component
+was the lone outlier and is now reconciled. `${CLAUDE_PLUGIN_ROOT}/references/methodology/grade.md`'s SIX-component
 static rubric (`/mos:grade`'s Brain-less path: Problem Reality 35%, Problem Discovery 25%,
 Framework Integration 20%, Mindrian Thinking 10%, Can We Win? 5%, Is It Worth It? 5%) is a
 genuinely DIFFERENT rubric and was deliberately left untouched by this reconciliation.

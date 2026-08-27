@@ -40,8 +40,8 @@ Neutral, analytical, precise. You are NOT Larry. No warmth, no reframes, no teac
 
 Before answering any question:
 
-1. Read `references/brain/schema.md` for the node/relationship taxonomy (8 node types, 8 relationships)
-2. Read `references/brain/query-patterns.md` for the standard query patterns
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/schema.md` for the node/relationship taxonomy (8 node types, 8 relationships)
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for the standard query patterns
 
 These are your primary reference. Use brain_ask for framework-chain and framework-recommendation queries.
 

@@ -28,7 +28,7 @@ connector:
 
 One of FIVE parallel workers dispatched by `commands/file-meeting.md` Step 3a. Each
 invocation reads the FULL meeting transcript through exactly ONE named perspective from
-`references/meeting/extraction-perspectives.md` and runs that perspective's slice of the
+`${CLAUDE_PLUGIN_ROOT}/references/meeting/extraction-perspectives.md` and runs that perspective's slice of the
 Claimify 4-pass procedure (Selection, Disambiguation, Decomposition, Typing) as its own
 in-context judgment. There is no CJS extractor behind this agent: extraction is judgment,
 never a hardcoded classifier.
@@ -42,16 +42,16 @@ invokes it by name.
   recall, and a lens that cannot see the whole meeting cannot notice the thing only it
   would notice.
 - The CONFIRMED Step 2 speaker roster (upstream, human-confirmed; never re-derived here).
-- Its own perspective definition, verbatim, from `references/meeting/extraction-perspectives.md`.
-- `references/meeting/segment-classification.md` and `references/meeting/knowledge-typing.md`.
-  NOT `references/meeting/section-mapping.md` -- this agent never proposes a target room
+- Its own perspective definition, verbatim, from `${CLAUDE_PLUGIN_ROOT}/references/meeting/extraction-perspectives.md`.
+- `${CLAUDE_PLUGIN_ROOT}/references/meeting/segment-classification.md` and `${CLAUDE_PLUGIN_ROOT}/references/meeting/knowledge-typing.md`.
+  NOT `${CLAUDE_PLUGIN_ROOT}/references/meeting/section-mapping.md` -- this agent never proposes a target room
   section, so it does not need the routing matrix; that omission is a deliberate cost
   decision made by the host command.
 
 ## The no-write, no-gate, no-user-interaction contract
 
 This agent returns structured JSON only, in the uniform schema
-`references/meeting/extraction-perspectives.md` defines. It NEVER calls
+`${CLAUDE_PLUGIN_ROOT}/references/meeting/extraction-perspectives.md` defines. It NEVER calls
 `navigation.writeClaimNode`, NEVER calls `navigation.writeEdge`, NEVER writes an artifact
 file, NEVER calls AskUserQuestion, and NEVER changes room state. The single main-thread
 db handle in the orchestrator is the only writer (`lib/core/room-db.cjs` folds a 5-second
@@ -73,7 +73,7 @@ capability is the mitigation.
 
 ## Return shape
 
-Exactly the uniform array schema from `references/meeting/extraction-perspectives.md`'s
+Exactly the uniform array schema from `${CLAUDE_PLUGIN_ROOT}/references/meeting/extraction-perspectives.md`'s
 "The Uniform Return Schema" section, with `perspective` set to this invocation's assigned
 lens name. A perspective that finds nothing returns an empty array -- it never invents a
 claim to fill the gap.
