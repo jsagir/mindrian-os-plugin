@@ -182,9 +182,9 @@ function stripTrailingPunctuation(token) {
   return out;
 }
 
-function classifyTarget(token) {
+function classifyTarget(token, root) {
   if (token.includes('{') || token.includes('*')) return 'TEMPLATE-TARGET';
-  const abs = path.join(REPO_ROOT, token);
+  const abs = path.join(root || REPO_ROOT, token);
   if (!fs.existsSync(abs)) return 'MISSING-TARGET';
   return fs.statSync(abs).isDirectory() ? 'DIR' : 'OK';
 }
@@ -197,7 +197,7 @@ function isAllowlisted(relFile, token, list) {
  * Scan a single line for reference citation sites.
  * Returns an array of { token, anchored, why, target }.
  */
-function scanLine(line) {
+function scanLine(line, root) {
   const hits = [];
   let from = 0;
   for (;;) {
@@ -243,7 +243,7 @@ function scanLine(line) {
       token,
       anchored,
       why: backticked ? 'backtick' : triggered ? 'citation-verb' : 'list-number',
-      target: classifyTarget(token),
+      target: classifyTarget(token, root),
     });
   }
   return hits;
@@ -267,7 +267,7 @@ function scanSurface(name, relFiles, opts) {
     }
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i += 1) {
-      for (const hit of scanLine(lines[i])) {
+      for (const hit of scanLine(lines[i], options.root || REPO_ROOT)) {
         sites.push({
           surface: name,
           file: rel,
