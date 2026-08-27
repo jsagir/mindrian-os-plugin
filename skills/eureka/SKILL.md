@@ -7,6 +7,8 @@ argument-hint: "[run|status|report|html]"
 body_shape: E (Action Report)
 hitl_shape: "F.8"
 hitl_why: "Ranked opportunity candidates are surfaced as an independent any-order set to review and act on in any order."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 9, argued in full): first delivery at commands/eureka.md:216, the ranked cross-domain opportunity table with the weak-signal tail flagged, over the navigator's own room content.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains", "explore"]
 teaching: "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka ranks cross-domain pairs and flags the weak-signal tail the top-N sort buries."
 ui_reference: skills/ui-system/SKILL.md

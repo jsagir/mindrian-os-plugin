@@ -6,6 +6,8 @@ argument-hint: "[--json]"
 body_shape: E (Action Report)
 hitl_shape: "F.1"
 hitl_why: "HMI status offers one next move on the current interface state."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 18): first delivery at commands/hmi-status.md:59, a soft-alias stub forwarding verbatim to doctor's already-ruled UI-compliance status scan.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
 deprecated: true
 deprecated_redirect: "doctor --ui-compliance --json"

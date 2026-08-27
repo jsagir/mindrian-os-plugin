@@ -6,6 +6,8 @@ help_jtbd: "Open your room as a browser dashboard, De Stijl grid + graph."
 body_shape: E
 hitl_shape: "F.1"
 hitl_why: "The dashboard offers one next move on what to act on."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/dashboard.md:126, an ephemeral live rendering of already-filed room state, not a filed artifact or new analysis.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room", "prepare-pitch"]
 teaching: "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting."
 ui_reference: skills/ui-system/SKILL.md

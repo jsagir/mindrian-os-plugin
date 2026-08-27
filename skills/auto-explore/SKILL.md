@@ -6,6 +6,8 @@ help_jtbd: "Let Larry decompose your domain before you even ask."
 body_shape: "methodology"
 hitl_shape: "F.3"
 hitl_why: "The rabbit-hole exploration asks how deep to keep going, a depth budget."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 3): first delivery at commands/auto-explore.md:65, the F.1 dispatch contract carrying the domain-decomposition finding computed over the navigator's own freshly-filed artifact.
+interactive_first_reward: methodology_reframe
 argument-hint: "<file_path>"
 serves_jtbd: ["find-problem", "understand-market", "explore"]
 teaching: "In the moment a new artifact lands, /mos:auto-explore kicks off the same domain decomposition the PostToolUse hook would run. Use it on Desktop when the hook does not fire."

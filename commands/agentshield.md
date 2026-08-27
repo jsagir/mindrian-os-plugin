@@ -5,6 +5,8 @@ help_jtbd: "Scan the plugin's own agent-config surfaces for known attack pattern
 body_shape: E (Action Report)
 hitl_shape: "none"
 hitl_why: "A read-only security scan that reports per-surface status and takes no navigator decision, so it reaches no genuine fork (mirrors doctor as a deliberately-run diagnostic, but pure report with no repair gate)."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 2): first delivery at commands/agentshield.md:38, a per-surface status row (clean / ambiguous / flagged), the same shape as doctor's already-ruled diagnostic surface.
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: per-surface status rows with [clean] / [N flagged] markers, a total-findings summary, one Feynman line per flagged finding
 serves_jtbd: ["audit-room"]
 teaching: "When you want to know whether the plugin's own MCP tools, hooks, skills, CLAUDE.md, and dependencies carry a known attack pattern, /mos:agentshield scans all five surfaces and reports what is clean and what is flagged. Larry runs the scan and explains any finding in plain English."

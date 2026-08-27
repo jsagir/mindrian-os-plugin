@@ -9,6 +9,8 @@ disable-model-invocation: true
 body_shape: E (Action Report)
 hitl_shape: "F.1"
 hitl_why: "Export offers a single next move to confirm the export scope."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 11, argued in full): first delivery at commands/export.md:68, a filed, shareable HTML artifact of the whole Data Room, the "filed document" leg of live_deliverable's own definition.
+interactive_first_reward: live_deliverable
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you need to share a Data Room view with someone outside the room, /mos:export packages it as a De Stijl HTML artifact. Investor-ready, no install required on their side."
 ui_reference: skills/ui-system/SKILL.md

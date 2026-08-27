@@ -6,6 +6,8 @@ argument-hint: "[room-dir]"
 body_shape: E (Action Report)
 hitl_shape: "F.0"
 hitl_why: "It surfaces one drift repair for a single approve-or-defer decision."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 16): first delivery at commands/heal.md:56, a soft-alias stub forwarding verbatim to doctor's own already-ruled diagnostic-surface heal output.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
 deprecated: true
 deprecated_redirect: "doctor --heal-room"
