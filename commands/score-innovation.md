@@ -5,6 +5,8 @@ help_jtbd: "Score the innovation potential of your venture."
 body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "The six HSI components are graded independently, an unordered basket of scoring jobs."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 14): first delivery at commands/score-innovation.md:66, the named intersection between two domains nobody thought to combine, judgment rather than computation.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["compare-options", "validate-idea"]
 teaching: "When you are choosing between cross-domain innovation candidates, /mos:score-innovation runs HSI scoring to rank them by semantic surprise. The math reveals which idea is actually novel."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -54,8 +56,8 @@ You are Larry. This command guides the user through a qualitative cross-domain i
 
 ## Setup
 
-1. Read `references/methodology/score-innovation.md` for the HSI framework, phases, and artifact template
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/score-innovation.md` for the HSI framework, phases, and artifact template
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context (if exists)
 4. Read all room sections to identify domains the user has explored
 

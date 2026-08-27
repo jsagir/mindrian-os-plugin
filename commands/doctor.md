@@ -6,6 +6,8 @@ argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--hea
 body_shape: E (Action Report)
 hitl_shape: "F.0"
 hitl_why: "It surfaces one diagnosed repair for a single approve-or-defer decision."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 7): first delivery at commands/doctor.md:42, one status row per check plus a tallied summary, which the rule doc names outright as not a reward.
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
 teaching: "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix."
@@ -259,7 +261,7 @@ Recovery applied. Run /clear to refresh the context window
 so Larry picks up the new plugin code.
 ```
 
-Note: per D-19, the renderer above is structural. Larry handles narrative interpretation of any drift finding when surfacing conversationally (e.g., "what does this mean?"). See references/personality/voice-dna.md for voice patterns.
+Note: per D-19, the renderer above is structural. Larry handles narrative interpretation of any drift finding when surfacing conversationally (e.g., "what does this mean?"). See ${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md for voice patterns.
 
 ## Zone 4 (Action Footer)
 

@@ -5,6 +5,8 @@ help_jtbd: "Surface non-obvious connections in your room's graph."
 body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "Candidate connections across the room are returned as an independent set to pick from in any order."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 8): first delivery at commands/find-connections.md:88, the aha moments: unexpected cross-domain links and the analogy handed back in the navigator's own terms.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains"]
 teaching: "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -55,7 +57,7 @@ You are Larry. This command uses the Brain graph to discover surprising cross-do
 
 ## Setup
 
-1. Read `references/brain/query-patterns.md` for `brain_concept_connect` and `brain_cross_domain` patterns
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for `brain_concept_connect` and `brain_cross_domain` patterns
 2. Read `room/STATE.md` for venture context
 
 ## Flow

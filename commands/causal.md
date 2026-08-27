@@ -5,6 +5,8 @@ help_jtbd: "Trace cause-and-effect chains across your room's claims."
 body_shape: "methodology"
 hitl_shape: "F.9"
 hitl_why: "Causes are extracted, traced, then predicted in a fixed order, an ordered walk."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 2): first delivery at commands/causal.md:140, the extracted cause / mechanism / effect table, each row carrying a confidence and a falsifiable prediction.
+interactive_first_reward: methodology_reframe
 argument-hint: "[extract|trace|predict]"
 serves_jtbd: ["find-problem", "find-bottleneck"]
 teaching: "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph. Surfaces the upstream causes worth fixing."
@@ -95,7 +97,7 @@ x Artifact not found: {path}
 
 3. **Read venture context** from `room/STATE.md` if it exists. This helps classify domains accurately.
 
-4. **Optionally read** `references/brain/query-patterns.md` Pattern 11 (causal_framework_select) for richer extraction context. Never gate extraction on Brain availability -- extraction works at Tier 0 without Brain.
+4. **Optionally read** `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` Pattern 11 (causal_framework_select) for richer extraction context. Never gate extraction on Brain availability -- extraction works at Tier 0 without Brain.
 
 ### Extraction Instructions
 

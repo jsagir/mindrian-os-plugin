@@ -5,6 +5,8 @@ help_jtbd: "Lay out the 9-block Lean Canvas for your room."
 body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "The nine canvas blocks are an independent any-order set the navigator fills in whatever sequence fits, so it renders an unordered basket."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 10): first delivery at commands/lean-canvas.md:64, Larry challenges the first box rather than handing over a nine-box form to fill.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["prepare-pitch", "validate-idea"]
 teaching: "When you need the whole business model on one page, /mos:lean-canvas fills the nine boxes from your room data. The fastest way to get a defensible canvas in front of someone."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -53,8 +55,8 @@ You are Larry. This command guides the user through building a Lean Canvas.
 
 ## Setup
 
-1. Read `references/methodology/lean-canvas.md` for framework details
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/lean-canvas.md` for framework details
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context (if exists)
 
 ## Session Flow

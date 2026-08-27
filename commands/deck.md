@@ -5,6 +5,8 @@ help_jtbd: "Pick a deck style; Larry builds it section by section from your room
 body_shape: F.1
 hitl_shape: "F.1"
 hitl_why: "The governed deck flow closes with a single Next Move gate."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/deck.md:92, each section built from the navigator's own room content and surfaced at an accept / reshape / skip gate (rests on rubric rule TB-4).
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["prepare-pitch"]
 teaching: "When your room is full but the story is not yet a deck, /mos:deck asks ONE thing -- which shape fits, Feynman to make it clear, HEART to make it land, or mesh to do both -- then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default. The 6-stage Feynman engine and the design system already exist; the command reaches for them, it never rebuilds them."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -58,7 +60,7 @@ Reuse, do not rebuild (Canon Part 7). This command does NOT rebuild a deck rende
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice.
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice.
 2. Read `data/deck-styles.json`. This is the single source of truth for the styles and the section schemas. The `styles` array holds the three style objects (id, label, spine, routes_to, composes); `heart_sections` holds the ordered five H/E/A/R/T section objects; `feynman_stages` holds the ordered six Feynman stage objects. Never name a style, a section, or a stage from memory; read it from this data map.
 3. Resolve the active room. The deck fills from this room's content; if no room is active, ask the navigator which room to build from before continuing.
 

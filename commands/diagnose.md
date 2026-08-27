@@ -8,6 +8,8 @@ hitl_stages:
     shapes: ["F.0", "F.1"]
     mode: "gate"
 hitl_why: "Problem classification is a single decision-close that either confirms one reading (F.0) or picks one next move (F.1)."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 6): first delivery at commands/diagnose.md:82, three to five methodology commands ranked by fit, each with its reasoning, the classification itself kept silent.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["decide-pursue"]
 teaching: "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -54,7 +56,7 @@ Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__mindria
 
 **If Brain connected:**
 
-1. Read `references/brain/query-patterns.md` for `brain_framework_chain` and `brain_find_patterns` patterns
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for `brain_framework_chain` and `brain_find_patterns` patterns
 2. After the user describes their problem, run `brain_framework_chain` with:
    - `$problem_type` = inferred from the user's description
    - `$current_frameworks` = any frameworks already applied in the room (from `room/STATE.md`)
@@ -66,9 +68,9 @@ Proceed to Setup below with this additional context.
 
 ## Setup
 
-1. Read `references/methodology/diagnose.md` for classification logic and routing
-2. Read `references/methodology/problem-types.md` for the 2D classification matrix
-3. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/diagnose.md` for classification logic and routing
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/problem-types.md` for the 2D classification matrix
+3. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 4. Read `room/STATE.md` for venture context (if exists)
 
 ## Session Flow

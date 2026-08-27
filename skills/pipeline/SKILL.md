@@ -12,6 +12,8 @@ hitl_stages:
     shapes: ["F.9"]
     mode: "ordered"
 hitl_why: "A multi-stage pipeline runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 12): first delivery at commands/pipeline.md:65, the Brain-derived framework chain printed as an ordered run order the command then goes on to execute, on the --from-problem-type / --from-framework path.
+interactive_first_reward: schema_preview
 argument-hint: '[pipeline-name] [--from-problem-type <x>] [--from-framework <x>]'
 serves_jtbd: ["plan-execution"]
 teaching: "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern."
@@ -69,7 +71,7 @@ Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__mindria
 
 **If Brain connected:**
 
-1. Read `references/brain/query-patterns.md` for `brain_framework_chain` pattern
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/brain/query-patterns.md` for `brain_framework_chain` pattern
 2. When the user says just "pipeline" with no name, use Brain to suggest dynamic chains based on room state:
    - Run `brain_framework_chain` with current room frameworks to discover graph-informed sequences
    - Present Brain-recommended chains alongside the static Discovery/Thesis pipelines from chains-index.md
@@ -80,9 +82,9 @@ Proceed to Setup below with this additional context. Static chains remain the de
 
 ## Setup
 
-1. Read `references/pipeline/chains-index.md` for available pipelines
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/pipeline/chains-index.md` for available pipelines
 2. Read `room/STATE.md` for venture context (if exists)
-3. Read `references/methodology/problem-types.md` for routing awareness (if recommending)
+3. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/problem-types.md` for routing awareness (if recommending)
 
 ## Session Flow
 

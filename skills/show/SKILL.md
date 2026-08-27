@@ -6,6 +6,8 @@ help_jtbd: "Name the job; I'll show or share your work."
 body_shape: F.1
 hitl_shape: "F.1"
 hitl_why: "A show or splash view offers one next move on what to open next."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 15): first delivery at commands/show.md:50, a pure router that builds no view of its own and inherits its target's reward (the documented router sub-case).
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["prepare-pitch", "explore"]
 teaching: "When the room is full but you don't know which view answers your question, /mos:show asks your JOB in plain language -- know where I stand, find what's broken, make it land, get it into the world -- and runs the right view underneath. You name the need; the command stays hidden."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -38,7 +40,7 @@ You do NOT build any view here. You read the job map, render ONE selector, resol
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice.
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice.
 2. Read `data/publish-needs.json`. This is the single source of truth for the lanes and the jobs. The `_lanes` block holds the 4 lane labels keyed by their frozen lane ids; the `jobs` array holds each job as `{ job, jtbd_line, resolves_to, lane, persona_weight, shows }`. The `job` field is the user-voice label you show; `resolves_to` is the command you resolve to (the make-land deck job now resolves to the consolidated `/mos:deck` command, Phase 175); you NEVER show a `resolves_to` token to the navigator.
 3. Resolve the active room and read its `USER.md` `role_blend`. Call `defaultLaneForRoleBlend(role_blend)` from `lib/core/publish-needs-default-lane.cjs` to pick the OPENING lane (R6: the selector opens on the persona-default lane). On cold start, empty, or any unknown blend the mapper returns `know-stand`; trust it, never guess.
 

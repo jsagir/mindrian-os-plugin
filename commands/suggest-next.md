@@ -5,6 +5,8 @@ help_jtbd: "Get the next move Larry recommends, ranked."
 body_shape: B
 hitl_shape: "F.1"
 hitl_why: "It offers a short numbered set of next moves for the navigator to pick one."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 16): first delivery at commands/suggest-next.md:60, the framework chain and step-numbered command sequence derived from the room, with nothing deferred to a later run (rests on rubric rule TB-4).
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["plan-execution", "explore"]
 teaching: "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -67,7 +69,7 @@ When Brain is connected you may additionally weave the co-occurrence narrative b
 
 ## Setup
 
-1. Read `references/brain/query-patterns.md` for `brain_framework_chain` and `brain_find_patterns` patterns
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for `brain_framework_chain` and `brain_find_patterns` patterns
 2. Read `room/STATE.md` for current venture stage, frameworks used, and problem type
 
 ## Flow

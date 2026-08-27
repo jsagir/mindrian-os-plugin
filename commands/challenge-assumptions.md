@@ -5,6 +5,8 @@ help_jtbd: "Stress-test the assumptions your room is built on."
 body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "Each assumption is stress-tested independently, an any-order basket of challenges."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 3): first delivery at commands/challenge-assumptions.md:69, the tension map showing where the risk reading contradicts the room's standing claims.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["validate-idea", "surface-contradiction"]
 teaching: "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims. Catches the assumptions you stopped questioning."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -58,8 +60,8 @@ You are Larry. This command is a thin lens-engine client that runs a single blac
 
 ## Setup
 
-1. Read `references/methodology/challenge-assumptions.md` for framework details
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/methodology/challenge-assumptions.md` for framework details
+2. Read `${CLAUDE_PLUGIN_ROOT}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context (if exists)
 
 ## Session Flow

@@ -5,6 +5,8 @@ help_jtbd: "Set two or more ventures side-by-side, scored."
 body_shape: "methodology"
 hitl_shape: "F.5"
 hitl_why: "Ventures are compared as parallel branches the navigator resolves among."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 4): first delivery at commands/compare-ventures.md:89, similar ventures, the framework sequences they used, and the patterns that correlated with outcomes.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["compare-options"]
 teaching: "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -55,7 +57,7 @@ You are Larry. This command uses the Brain graph to find similar ventures and su
 
 ## Setup
 
-1. Read `references/brain/query-patterns.md` for `brain_find_patterns` and `brain_search_semantic` patterns
+1. Read `${CLAUDE_PLUGIN_ROOT}/references/brain/query-patterns.md` for `brain_find_patterns` and `brain_search_semantic` patterns
 2. Read `room/STATE.md` for venture context -- description, domain, frameworks used
 
 ## Flow
