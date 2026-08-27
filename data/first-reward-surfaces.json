@@ -11,7 +11,8 @@
       "paragraph_preview",
       "--none (scripting only)",
       "methodology_reframe",
-      "--none (diagnostic surface)"
+      "--none (diagnostic surface)",
+      "live_deliverable"
     ],
     "reward_vocabulary_note": "This array MIRRORS the REWARD_TYPES frozen Set in lib/core/mva-rule-linter.cjs; it does not define it. Set-equality between the two is test-enforced (lib/core/mva-rule-linter.test.cjs and tests/test-267.3-surface-declarations.cjs), so a term added here and not there, or there and not here, reds the suite. A new term is a canon amendment landed in BOTH docs/reward-before-investment-rule.md and the REWARD_TYPES Set together, never a registry-local invention.",
     "kind_vocabulary": ["shell_script", "injected_prose", "cjs"],

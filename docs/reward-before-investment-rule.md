@@ -138,19 +138,24 @@ not retire that debt; it stops the debt from blocking unrelated work.
 - `paragraph_preview` - partial extraction from the first paragraph alone
 - `--none (scripting only)` - explicit opt-out, per rule doc line 81
 - `methodology_reframe` - Larry's analysis or reframe over the user's own material (Phase 267.3)
-- `--none (diagnostic surface)` - explicit opt-out for a command that reports state (Phase 267.3)
+- `--none (diagnostic surface)` - explicit opt-out for a command that reports state, or for a pure router with no first-party reward (Phase 267.3)
+- `live_deliverable` - a real, deployed, shareable artifact produced by an irreversible action (Phase 267.3)
 
-The first six are the v1.13.0 original set and are never respelled. The last two were added
-by the Phase 267.3 amendment recorded below.
+The first six are the v1.13.0 original set and are never respelled. The last three were added
+by the two Phase 267.3 amendments recorded below.
 
 Future expansions are canon amendments, not command-level inventions.
 
 ## Vocabulary amendments
 
-A term is added to `REWARD_TYPES` only here and in `lib/core/mva-rule-linter.cjs` together.
-A code change without an entry in this section is a command-level invention wearing a
-library's clothes. Each entry records the exact token, the surface class it describes, why
-the existing vocabulary could not describe it, the ruling that minted it, and the date.
+A term is added to `REWARD_TYPES` in THREE places at once, together, or not at all: the
+allowed-values list above, the frozen Set in `lib/core/mva-rule-linter.cjs`, and the
+`_doc.reward_vocabulary` mirror in `data/first-reward-surfaces.json`. Set-equality across all
+three is test-enforced by `lib/core/mva-rule-linter.test.cjs` T13 and T14, so a term added to
+one and forgotten in another reds the suite instead of drifting quietly. A code change without
+an entry in this section is a command-level invention wearing a library's clothes. Each entry
+records the exact token, the surface class it describes, why the existing vocabulary could not
+describe it, the ruling that minted it, and the date.
 
 ### `methodology_reframe`
 
@@ -179,7 +184,7 @@ different input.
 | Field | Value |
 |---|---|
 | Token | `--none (diagnostic surface)` |
-| Surface class | A command that reports state rather than delivering a variable reward. This is an OPT-OUT, not a reward. |
+| Surface class | A command that reports state rather than delivering a variable reward, AND (per the 267.3-04 ruling below) a pure ROUTER with no first-party reward of its own. This is an OPT-OUT, not a reward. |
 | Ruling | Phase 267.3, D-B (`267.3-DECISIONS.md` Section 3) |
 | Date | 2026-08-27 |
 | Evidence | `267.3-AUDIT.md` Section 3, specifically 3.3 |
@@ -200,6 +205,57 @@ glance that it is an opt-out and not a reward. Two opt-outs that look alike and 
 vocabulary that looks different is the readable arrangement. A bare word such as
 `diagnostic_report` would read as a reward type and invite exactly the misclassification the
 ruling exists to prevent.
+
+**The router sub-case, added 2026-08-28 by the 267.3-04 navigator ruling (Row 15, `show`).**
+A pure router produces nothing of its own: `commands/show.md:40` says outright "you do NOT
+build any view here", it resolves the navigator's chosen job through `command-resolver` and
+hands the chain to `runChain`, so every reward it appears to deliver is its TARGET's reward.
+That surface neither reports state nor delivers a variable reward, and the vocabulary has no
+term for an INHERITED reward. The ruling reuses this opt-out rather than minting a tenth term
+for a single command, on the reading that the honest content of the declaration is "this
+surface has no first reward of its own", which is close enough to the term's spirit. Read this
+NARROWLY. It is a documented sub-case, not a general loosening: a future router-shaped command
+still needs its own first-delivery check against the four qualifying tests, not a rubber stamp
+from this precedent. A command that merely LOOKS like a router, and in fact produces something
+before dispatching, is not covered.
+
+### `live_deliverable`
+
+| Field | Value |
+|---|---|
+| Token | `live_deliverable` |
+| Surface class | A real, deployed, shareable artifact produced by an irreversible action: a live URL, a sent file, a filed document. This is a REWARD, not an opt-out. |
+| Ruling | Phase 267.3, plan 04 (`267.3-CLASSIFICATION.md`, `## Navigator ruling`, Row 13) |
+| Date | 2026-08-28 |
+| Evidence | `commands/publish.md:149`, where the deploy output is parsed and the live URL is handed over ("your presentation is live, share that link with anyone") |
+
+The qualifying tests, applied. The term is legitimate only where all four of this document's
+tests pass on the artifact itself, in the same framing the other terms use:
+
+1. **Unpredictable** - the navigator could not have produced the artifact themselves in the
+   available time. A deployed Data Room is not a 30-second job.
+2. **Intelligible** - they understand it instantly on sight. A live URL needs no explanation.
+3. **Valuable** - they would show it on someone else's screen. That is the whole point of a
+   shareable link.
+4. **Uniquely attributable to MindrianOS** - no general-purpose assistant produces the
+   equivalent. Nothing else deploys their room.
+
+Why the existing eight could not describe it. `reframe_question`, `instant_brief`,
+`schema_preview`, `calibration_distribution_preview` and `paragraph_preview` are each bound to
+one specific flow, and `publish` runs none of them; stretching `instant_brief` to mean "any
+fast valuable output" would dissolve the term the same way a rushed guess almost dissolved
+`--none (scripting only)` in plan 271-03. `methodology_reframe` requires Larry's analysis over
+the navigator's own material, and `publish` analyzes nothing. `--none (scripting only)` is
+forbidden twice over: `publish` declares `hitl_shape: "F.0"`, a genuine human fork, and carries
+none of `--no-interactive`, `--script` or `-q`. And `--none (diagnostic surface)` would be false
+in the OPPOSITE direction from the other eight: `publish` performs an irreversible action and
+hands back a real artifact, which is categorically not "reporting state rather than delivering a
+variable reward". Filing a knowingly-false-but-least-false declaration would green the guard on
+an untrue claim, which is the one outcome the guard exists to prevent.
+
+What this term does NOT cover. A command that merely writes a file into the room, or prints a
+path, or promises a deploy that has not happened. The artifact must exist and be shareable at
+the moment the declaration claims it is delivered.
 
 ### What an amendment does NOT authorize
 
