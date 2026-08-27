@@ -2,32 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: verified
-stopped_at: Completed 265 post-execution code review + fixes (commits 0c038f82, b7ec7500, 915f5fd1)
-last_updated: "2026-08-27T21:00:00.000Z"
-last_activity: 2026-08-27 -- Phase 265 (Capability Radar Absorption + Routing, re-scoped) fully executed, independently re-verified, AND code-reviewed: all 23 plans (waves 1-5 DAG-actual; frontmatter declares 6, several wave-4/5-declared plans were DAG-satisfied earlier), final gate green (run-all-265.sh 26/26 no escape flags, grants-strict 0 unratified, run-all-264.sh 14/14 with chain-executor.cjs zero-diff intact, both doctor organs green). The mandatory gsd-code-review pass (89-file scope, standard depth) found 2 Critical + 4 Warning + 2 Info issues -- both Criticals were real: commands/scout.md dispatched a Write+Brain-capable agent for a job promised as writes-nothing/no-Brain (CR-01, fixed by minting agents/competitor-watch-fetcher.md, commit 0c038f82), and commands/vault.md's rewritten PERSIST sequence routed files (Stage 03) one step BEFORE asking the navigator to confirm, a real human-gate bypass regression from the pre-265 text (CR-02, fixed by moving the re-invocation to after confirmation, commit b7ec7500). One trivial Warning (a non-unique doctor-organ scratch path) also fixed (WR-02, commit 915f5fd1); three Warnings + two Info items deliberately deferred as documented follow-ups in 265-REVIEW.md (advisory severity, none silent/security-bearing). One orchestrator-level cross-plan regression fix also landed during execution (commands/scout.md web_scope declaration-truth, commit b2a13304). Full independent re-verification re-run clean after all fixes. Next up per ROADMAP.md ordering: Phase 267 (blocked on an unresolved ext-apps upstream dependency, do not start) or Phase 270 (Memory and Context Operator MCP -- already being actively planned/executed by a concurrent session on this same tree, several plans already landed: 270-01..270-04).
+status: verifying
+stopped_at: Phase 272 context gathered
+last_updated: "2026-08-27T18:19:28.952Z"
+last_activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
 progress:
-  total_phases: 18
-  completed_phases: 5
-  total_plans: 62
-  completed_plans: 37
-  percent: 28
-  # NOTE: the four numbers above were deliberately left UNCHANGED by this Phase 265
-  # completion edit (2026-08-27), even though Phase 265 (23 plans) is now fully
-  # complete. Reason: this milestone-wide aggregate was already stale before Phase
-  # 265 started (Phase 265 itself grew from 7 to 23 plans in a second planning pass
-  # the same day the aggregate above was last computed, so total_plans:62 does not
-  # yet include the +16 growth), AND a separate concurrent session is simultaneously,
-  # legitimately mutating this exact same block for Phase 270's own progress via
-  # `gsd-tools query state.record-metric` calls (see the dated NOTEs below this
-  # frontmatter -- NINTH+ occurrence of the documented resync-clobber bug this
-  # session alone). Recomputing a correct joint total here would require enumerating
-  # every one of the 18 milestone phases' current true plan counts, which is out of
-  # scope for a Phase-265-focused hand-edit and would risk introducing yet another
-  # fabricated number into a field two sessions are already fighting over. Left
-  # honestly stale rather than guessed. A future full milestone audit should
-  # recompute this once, from ROADMAP.md's own checkbox counts, not from this
-  # tool's mutation verbs.
+  total_phases: 23
+  completed_phases: 9
+  total_plans: 90
+  completed_plans: 86
+  percent: 39
 ---
 
 <!-- NOTE (270 execute-plan state.record-metric after plan 270-02, 2026-08-27T~16:40Z, hand-edited
@@ -4108,6 +4092,7 @@ Progress: [█████████░] 92%
   separately per Canon Part 6/7. Full goal text at Phase 272's own ROADMAP.md entry (end of
   file). User asked directly this session whether the Python finding had been registered as a
   tracked phase; it had not been until this entry.
+
 - Phase 245 added (2026-07-31): Close the reach/Brain signal loop -- wire `dispatchSensors`'s
   `fire_skill` output and Brain's `pattern_matches` into the navigator-visible F.7 dial (today
   scored only by `cortex-reach-adapter.cjs` graph-node recency, per the same-day
@@ -5274,8 +5259,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-27T05:28:08.754Z
-Stopped at: Completed 266-05-PLAN.md (MCPFIX-03 gap closure)
+Last session: 2026-08-27T18:19:28.872Z
+Stopped at: Phase 272 context gathered
 
 **264 discuss-phase note (2026-08-23, hand-appended, does not touch the "Last session"/"Stopped
 at" pointer above since 261-12 is the actually-paused/resumable work):** ran `/gsd-spec-phase
