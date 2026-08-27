@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.12 (in progress)
+## [2.0.0-beta.13] - 2026-08-28
 
 ### Added
 - Memory and Context Operator MCP (Phase 270): three new atomic tools -- `context_assemble` (exposes the four-leg `getRoomContext` budget model with `estimate_only` cost preview before paying it), `graph_reason` (transitive support-closure and cross-room nearest-decision queries, both graph-native and previously unreachable by a flat directory walk), and `identity_write` (the first writer `~/.mindrian-user.md` has ever had). MCP Resources fixed to resolve the room per-session instead of once at boot (`room://state`), plus `mos://tree` and `mos://room/{slug}/tree` exposing the ICM forest live. **Honest tradeoff, not a win:** measured tool-schema token budget went **up** ~17% (36->39 tools, ~7,167->~8,377 approx tokens), not down -- the three new atomic tools cost more than the consolidation saved. Recorded as such, not spun.
