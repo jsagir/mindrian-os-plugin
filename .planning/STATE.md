@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 261-04-PLAN.md
-last_updated: "2026-08-27T03:54:38.490Z"
-last_activity: 2026-08-27 -- Phase 266 execution started
+last_updated: "2026-08-27T04:55:00.000Z"
+last_activity: 2026-08-27 -- Phase 266 waves 1-2 executed (4/4 plans, all committed with passing self-checks); code review (266-REVIEW.md, 1 blocker/CR-01) and goal verification (266-VERIFICATION.md) both run; verification independently reproduced the CR-01 gap (MCPFIX-03's per-call connect budget compounds to ~60s across the 4 sequential ensureDepsPresent/requireWithHeal calls at module scope, exceeding the ~30s host connect timeout it exists to respect). Status gaps_found -- phase NOT marked complete, NOT advanced to 267. Next: /gsd-plan-phase 266 --gaps to close MCPFIX-03's gap.
 progress:
   total_phases: 17
   completed_phases: 4
   total_plans: 61
-  completed_plans: 32
+  completed_plans: 36
   percent: 24
 ---
 
@@ -3061,10 +3061,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 266 (mcp-layer-correctness-fixes-fast-independently-shippable-fix) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 266
-Last activity: 2026-08-27 -- Phase 266 execution started
+Phase: 266 (mcp-layer-correctness-fixes-fast-independently-shippable-fix) — VERIFICATION: gaps_found
+Plan: 4 of 4 (all executed, committed, self-checks passed)
+Status: Gaps found -- MCPFIX-03 goal-level truth not met in production (see 266-VERIFICATION.md). Phase NOT complete, NOT advanced. Run /gsd-plan-phase 266 --gaps to close.
+Last activity: 2026-08-27 -- Phase 266 waves 1-2 executed (4/4 plans); code review + goal verification found 1 gap (MCPFIX-03 cumulative connect-path budget)
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
