@@ -4,7 +4,7 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Phase 272 context gathered
-last_updated: "2026-08-27T22:57:09.105Z"
+last_updated: "2026-08-27T22:56:23.991Z"
 last_activity: 2026-08-27
 progress:
   total_phases: 25
@@ -3373,7 +3373,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 271
+Phase: 254
 Plan: Not started
 Status: Complete, independently re-verified 2026-08-27 (Phase 266 shipped complete 2026-08-27: 5/5 plans, verified passed 8/8; 266-05 closed the one MCPFIX-03 gap the prior verification found; Phase 265 built on top of it, including confirming Phase 266's MCPFIX-01/MCPFIX-02 fixes live via 265-09's and 265-24's own tripwires). Phase 267 remains blocked on an unresolved upstream ext-apps dependency per ROADMAP.md -- do not start it. Phase 270 (Memory and Context Operator MCP) is a separate, concurrent effort already underway on this same tree.
 Last activity: 2026-08-27
@@ -3843,7 +3843,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 124
+- Total plans completed: 52
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -4015,13 +4015,6 @@ Progress: [█████████░] 92%
 | Phase 267.3 P02 | 40min | 3 tasks | 7 files |
 | Phase 267.3 P03 | 50min | 3 tasks | 4 files |
 | 253 | 0 | - | - |
-| 258 | 7 | - | - |
-| 259 | 4 | - | - |
-| 260 | 5 | - | - |
-| 265 | 23 | - | - |
-| 267.1 | 6 | - | - |
-| 269 | 5 | - | - |
-| 270 | 12 | - | - |
 
 ## Accumulated Context
 
