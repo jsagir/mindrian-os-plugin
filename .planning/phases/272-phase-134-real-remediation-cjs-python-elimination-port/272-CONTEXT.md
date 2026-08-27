@@ -222,6 +222,13 @@ risk-tolerance discussion. All specifics are captured as decisions above.
   to uphold. This is a policy call for whoever owns that invariant, not a Phase 272
   decision. Interim safe default until answered: plain-JS cosine similarity over
   BLOB-stored float vectors, not `sqlite-vec`'s extension.
+- **LangTalks grounding filed** -- `.planning/research/2026-08-27-langtalks-grounding-for-phase-272-and-273.md`.
+  Per navigator directive, `langtalks-graph-expert` consultation on graph/memory/context-
+  management topics is now standing practice for dev work, not a one-off. Most relevant
+  finding for Phase 273 (not 272 directly): the navigator's own 2026-07-25 research note
+  already diagnosed the same "chokepoint reports success while data silently doesn't move"
+  failure class Phase 273's C1 finding rediscovered, at the opposite end of the pipeline
+  (read-time collapse vs. write-time collapse), backed by the SAG paper (arXiv 2606.15971v1).
 - **Recursive-CTE graph traversal pattern** -- verified real (not a Phase 272 need, but
   worth filing so it isn't lost): `sqlite-graph`'s `src/storage/sqlite.rs:431-452` has a
   clean, portable bidirectional/depth-limited/`valid_until IS NULL`-filtered
