@@ -7,6 +7,11 @@ hitl_shape: "F.8"
 hitl_why: "The artifact is graded on independent components against the calibrated set, an any-order basket."
 serves_jtbd: ["audit-room", "compare-options"]
 teaching: "When you need a calibrated grade on the room's quality, /mos:deep-grade scores it against 100+ real student projects. Best after at least three sections are populated."
+# Per docs/reward-before-investment-rule.md: field-only declaration, mirroring
+# /mos:grade's same declaration for the same Brain-calibrated grading shape.
+# Remediation (showing the anonymized calibration distribution on cold
+# invocation) is a follow-up phase, not this plan's scope.
+interactive_first_reward: calibration_distribution_preview
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["PWS Triple Validation Compass"]
@@ -103,7 +108,7 @@ Ask: "Want me to file this assessment to your Data Room?" File to `room/competit
 |--------|-------|------------|
 | Brain required | No | Yes |
 | Calibration data | None (static rubric) | 100+ real projects |
-| Scoring model | 6-component | 5-component weighted |
+| Scoring model | 6-component (`references/methodology/grade.md`'s static rubric) | 5-component weighted |
 | Percentile ranking | No | Yes |
 | Assessment engine | Larry directly | Grading Agent |
 
