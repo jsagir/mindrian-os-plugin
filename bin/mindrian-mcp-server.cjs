@@ -48,12 +48,28 @@ const { randomUUID } = require('node:crypto');
 // any npm-dependency require below (the SDK direct requires AND the transitive
 // requires inside the lib/mcp/* modules). requireWithHeal is the per-require
 // backstop, including the lazy express / streamableHttp requires in main().
-const { ensureDepsPresent, requireWithHeal } = require('../lib/core/mcp-dep-heal.cjs');
+const { ensureDepsPresent, requireWithHeal, beginConnectPathBudget, connectPathRemainingMs } = require('../lib/core/mcp-dep-heal.cjs');
 const healLog = (msg) => { try { process.stderr.write(msg + '\n'); } catch (e) { /* swallow */ } };
 // Phase 266 Plan 03 (MCPFIX-03): this process is answering a host that is
 // already counting down a ~30-second connect timeout, so the heal is bounded
 // to CONNECT_PATH_BUDGET_MS instead of the full hook-path budget.
-ensureDepsPresent({ log: healLog, connectPath: true });
+//
+// Phase 266 Plan 05 (MCPFIX-03 gap closure): arms ONE process-wide connect
+// deadline at the earliest possible moment. Every connectPath:true heal call
+// in this file (this ensureDepsPresent, the two SDK requireWithHeal calls
+// below, and the lazy zod requireWithHeal inside createServer()) now spends
+// from this ONE shrinking budget. Before Phase 266 Plan 05 each of those four
+// calls started its own fresh 15000ms clock, for a measured worst case of
+// 60296ms, double the host's ~30000ms connect timeout the budget exists to
+// respect.
+beginConnectPathBudget();
+const depHealOutcome = ensureDepsPresent({ log: healLog, connectPath: true });
+if (depHealOutcome && depHealOutcome.ok === false) {
+  healLog(
+    '[mindrian-os] dependency heal did not complete inside the connect budget (' +
+      connectPathRemainingMs() + 'ms left); the requires below will propagate immediately rather than starting a new install'
+  );
+}
 
 const { McpServer } = requireWithHeal('@modelcontextprotocol/sdk/server/mcp.js', { log: healLog, connectPath: true });
 const { StdioServerTransport } = requireWithHeal('@modelcontextprotocol/sdk/server/stdio.js', { log: healLog, connectPath: true });
