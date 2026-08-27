@@ -116,9 +116,14 @@ Unlike standard grading (single agent evaluates all sections sequentially), `--f
 2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
    ```
    const { resolveModel } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs');
-   const model = resolveModel('grading', roomPath);
+   const model = resolveModel(roomPath, 'grading');
    ```
-   Grading agents are quality-sensitive -- venture stage hints may push these to a higher-tier model than other agent types.
+   The signature is `resolveModel(roomDir, agentType)`. Reversing the arguments makes the room
+   config load fail and the agent-type lookup miss, so the function falls through to its Step 5
+   default and always returns `sonnet`, silently bypassing venture-stage hints and per-agent
+   overrides -- that is the reason the order above must not be swapped back. Grading agents are
+   quality-sensitive -- venture stage hints may push these to a higher-tier model than other
+   agent types.
 
 3. **Dispatch all agents in one message** using the Agent tool with `subagent_type: grading`
    (the explicit type string, not a file path -- an Agent tool call that cannot resolve a

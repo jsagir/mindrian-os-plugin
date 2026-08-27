@@ -132,9 +132,14 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
 2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
    ```
    const { resolveModel } = require('${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/model-profiles.cjs');
-   const model = resolveModel('persona-analyst', roomPath);
+   const model = resolveModel(roomPath, 'persona-analyst');
    ```
-   All 6 agents share the same model resolution since they perform equivalent work. The venture stage determines whether persona analysis runs on a budget or quality tier.
+   The signature is `resolveModel(roomDir, agentType)`. Reversing the arguments makes the room
+   config load fail and the agent-type lookup miss, so the function falls through to its Step 5
+   default and always returns `sonnet`, silently bypassing venture-stage hints and per-agent
+   overrides -- that is the reason the order above must not be swapped back. All 6 agents share
+   the same model resolution since they perform equivalent work. The venture stage determines
+   whether persona analysis runs on a budget or quality tier.
 
 3. **Dispatch all 6 agents in one message** using the Agent tool with `subagent_type: persona-analyst`
    (the explicit type string, not a file path -- an Agent tool call that cannot resolve a
