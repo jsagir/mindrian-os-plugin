@@ -123,6 +123,47 @@ gets lost" gap this seed exists to address) rather than a second, parallel reaso
 mechanism to reconcile against. Not scoped further here -- named so it isn't rediscovered
 independently later.
 
+**A third adjacent piece, grounded via live Brain + Theo queries (2026-08-28), not
+assumed: the actual textual lineage behind "Feynman-Minto," plus a stage-taxonomy
+discrepancy worth flagging before either becomes a template.** Two findings:
+
+1. **Feynman-Minto's grounding is in Theo, not just in code.** `brain-derivation.cjs` was
+   cited above as the shipped mechanism; `theo_neighborhood("feynman")` and
+   `theo_neighborhood("pyramid")` pull the actual canonical-book chapters it derives from.
+   The `pyramid` chapter states the relationship explicitly, in its own text: "Remember the
+   standard from the Feynman chapter: if you can't explain your idea in plain language, you
+   don't fully understand it yet... The Pyramid Principle runs the identical test on
+   structure instead of vocabulary." I.e. the book itself treats Feynman (six-move
+   simplification: essence -> plain language -> find the breaks -> mental model -> push
+   until it breaks -> teach it back) and Pyramid/SCQA/MECE (Situation/Complication/
+   Question/Answer -> one apex claim -> MECE-grouped support) as two runs of the *same*
+   test -- one on vocabulary, one on structure. That pairing is the actual grounded
+   definition "Feynman-Minto" compresses into a name. Practical use: a per-section
+   `CONTEXT.md` contract's Human-check field (the gap SEED-076 found missing repo-wide)
+   could literally BE these two tests -- "can a stranger restate this section's
+   `governing_thought` in one sentence" (Feynman) and "does the apex claim sit on
+   MECE-grouped, non-overlapping support" (Pyramid) -- instead of a generic placeholder.
+2. **Stage-taxonomy discrepancy, found while querying Brain for the same grounding.**
+   `MATCH (s:InnovationStage) RETURN s.name, s.order, s.description` returns a 5-stage
+   sequence -- Problem Exploration ("Discovery Zone") -> Problem Framing and Refinement
+   ("Focus Zone") -> Problem Validation ("Proof Zone") -> Solution Hypothesis and Testing
+   ("Creation Zone") -> Business Case and Strategic Framing ("Launch Zone") -- that does
+   NOT match the Un-Defined / Ill-Defined / Wicked / Well-Defined / Combining-Tools taxonomy
+   the "PWS 22-task workbook" material (personal memory: `project_pws_complete_workbook.md`,
+   `project_pws_workbook_pipeline.md`) uses for what is nominally the same progression. Two
+   different 5-stage vocabularies live in the graph for the same methodology. Worth a
+   citation-check (which one is current, which is superseded, or are they two different
+   axes -- problem-type ladder vs. venture-progress zone) before either is adopted as the
+   canonical shape for a per-section contract template, since baking in the wrong one
+   ships a stale taxonomy into every future contract file.
+3. **The 22-task workbook itself is a second, independently-arrived-at candidate for the
+   same missing-contract gap.** Each of its 22 tasks already carries
+   `goal` / `why_it_matters` / `steps+substeps` / `deliverable_checklist` --
+   structurally the Inputs/Process/Outputs/Human-check shape SEED-076 found missing at the
+   room-section level, arrived at independently of icm-architect's own template.
+
+Not scoped further here either -- named so it isn't rediscovered independently later.
+
 ## Cross-references
 
 - `rethinking-mindrianos/research/2026-08-27-icm-semantic-substrate/` -- full evidence trail,
