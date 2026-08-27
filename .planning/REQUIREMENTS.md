@@ -199,6 +199,37 @@ and would be minted when the phase was planned. They are scoped to Phase 265 onl
       `mindrianOS/research/` mirror), cross-linked in both directions with
       `docs/RADAR-ABSORPTION-265.md`.
 
+### Phase 266 - MCP Layer Correctness Fixes (minted at plan time 2026-08-27)
+
+Roadmap line 469 read "TBD". These four IDs are scoped to Phase 266 only. Every one is a
+defect proven live during the Phase 265 MCP-layer audit
+(`265-RESEARCH-mcp-layer-audit.md`); the phase is deliberately independent of Phase 265 so it
+can ship in the next version cut on its own schedule.
+
+- [ ] **MCPFIX-01**: The MCP `instructions` served at initialize measure at or under 1950 bytes
+      (down from a measured 2173 against Claude Code's 2048-byte host cap since 2.1.84), the
+      Canon Part 8 BOUNDARIES paragraph survives byte-identically including its final
+      Claude-Code routing sentence, and `lib/mcp/no-instructions.test.cjs` asserts the cap at the
+      HOST boundary rather than the server boundary where it could not see the truncation.
+
+- [ ] **MCPFIX-02**: The `room_state` tool description contains no markdown heading, no embedded
+      newline, no `voice-dna.md` fingerprint and no mid-word cut; it clears the D-03 120-character
+      instruction floor on authored prose that names all five of its commands; and the one-reader
+      one-writer `compact` splice is deleted from both `lib/mcp/tool-router.cjs` and
+      `lib/mcp/larry-context.cjs`.
+
+- [ ] **MCPFIX-03**: No dependency-heal path can block the MCP `initialize` handshake beyond an
+      explicit connect-path budget strictly under the host's ~30-second connect timeout, both the
+      install arm and the peer-wait arm are bounded by it, a heal that misses the budget emits one
+      clear breadcrumb instead of hanging, and the SessionStart reconcile hook keeps its full
+      120-second budget with the bug_001 invariant chain intact.
+
+- [ ] **MCPFIX-04**: `tests/test-234-tool-description-floor.cjs` applies every prose-shape check to
+      every registered tool (derived from `tools/list`, never a hand-maintained list), uses the
+      platform's real 2048-byte description cap instead of the stale 600-character ceiling, and
+      states its own coverage in its summary line so a green run can never again be read as a
+      claim it did not earn.
+
 ## Out of scope (recorded, not forgotten)
 
 - Bulk enrichment of the 90-framework tail (navigator doctrine: demand drives the queue).
@@ -207,6 +238,7 @@ and would be minted when the phase was planned. They are scoped to Phase 265 onl
 - Gate 0 foreign-host verify (carried operator leg, tracked in the handoff table).
 ## Traceability
 
-34 requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
-TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..11 (Phase 265,
-minted at plan time 2026-08-27). Roadmap phases must map all 34 with no orphans.
+38 requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..11 (Phase 265) and
+MCPFIX-01..04 (Phase 266), both minted at plan time 2026-08-27. Roadmap phases must map all 38
+with no orphans.

@@ -462,3 +462,56 @@ Plans:
 - [ ] 265-05-PLAN.md - Wave 2 - /mos:radar --fetch writes the ledger under an injection fence, and both radar reference docs corrected
 - [ ] 265-06-PLAN.md - Wave 2 - retire SEED-003 and Phase 138 by marking, close drift finding W007-138, and write the decision record
 - [ ] 265-07-PLAN.md - Wave 3 - regenerate skill and dist mirrors, file the two-home dev-research trail, and run the phase gate
+
+### Phase 266: MCP Layer Correctness Fixes
+
+**Goal:** Fast, independently shippable fixes to the MCP transport layer, found live during Phase 265's audit. (1) CRITICAL: `lib/mcp/runtime-instructions.cjs` serves 2173 bytes against Claude Code's 2KB instructions cap (since 2.1.84), silently truncating the Canon Part 8 graph-boundary paragraph mid-sentence in every session -- fix by trimming under 2048 bytes without losing Part 8 language, and fix `no-instructions.test.cjs` to assert the real host-side byte cap instead of the wrong boundary. (2) `tool-router.cjs:648` splices 80 raw chars of `voice-dna.md` into the `room_state` tool description, shipping a malformed stray-H1 mid-word-cut description to every host. (3) `mcp-dep-heal.cjs:104` runs a blocking `spawnSync npm install` capped at 120s during MCP `initialize`, 4x the host's own ~30s connect timeout, so it always fails from the host's side first. (4) the MCP guardrail test reports 35 passed / 0 failed while covering only 8 of 36 registered tools, a false-coverage signal. Deliberately decoupled from Phase 265 (capability-radar-absorption-routing): that phase's redesign work (parallel subagent dispatch across multiple commands) is exploratory and slower; these are crisp, low-risk, mechanical fixes that should ship in the next version cut on their own schedule, not wait on the larger phase.
+**Requirements**: MCPFIX-01, MCPFIX-02, MCPFIX-03, MCPFIX-04 (minted at plan time 2026-08-27)
+**Depends on:** none -- deliberately independent of Phase 265 so it can ship on its own schedule
+**Plans:** 4 plans in 2 waves
+
+Plans:
+
+- [ ] 266-01-PLAN.md -- wave 1, MCPFIX-01: trim RUNTIME_INSTRUCTIONS under the 2048-byte host cap with the Canon Part 8 paragraph byte-identical, pin the cap at the HOST boundary, create tests/run-all-266.sh
+- [ ] 266-02-PLAN.md -- wave 1, MCPFIX-02: replace the voice-dna.md splice in room_state with authored prose naming its five commands, delete the dead compact path at both ends
+- [ ] 266-03-PLAN.md -- wave 1, MCPFIX-03: bound both arms of the dependency-heal race to a connect-path budget under the host connect timeout, keep the SessionStart hook at 120s
+- [ ] 266-04-PLAN.md -- wave 2, MCPFIX-04: expand tests/test-234-tool-description-floor.cjs to every registered tool, report its own coverage, run the phase gate with no escape
+
+### Phase 267: MCP Stateless Protocol Migration
+
+**Goal:** Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Confirmed buildable: 1.30.0 already ships `sessionIdGenerator: undefined` stateless mode in both `streamableHttp.js` and `webStandardStreamableHttp.js`. Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`), since the spec deprecates the old bidirectional-stream approach; (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork) -- the spec is designed to be backward compatible with 2025 Streamable HTTP clients, confirm this repo's hosts (older Claude Code versions, other MCP clients) still connect cleanly; (4) re-test the full MCP layer against the new model. Navigator directive: fix now, not a dormant ledger candidate -- explicitly overrides the initial recommendation to defer this (see `.planning/phases/266-mcp-layer-correctness-fixes-fast-independently-shippable-fix/266-RESEARCH-stateless-spec-update.md` for full spec research). Decoupled from both Phase 265 (capability-radar redesign) and Phase 266 (fast mechanical MCP fixes) -- this is real protocol migration work, sequenced after 266's fixes land on the same files.
+**Requirements**: TBD
+**Depends on:** Phase 266
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 267 to break down)
+
+### Phase 267.1: Hooked Model Completeness Audit (first-session onboarding) (INSERTED)
+
+**Goal:** Audit `scripts/session-start`'s `FIRST_INSTALL` prose injection against this repo's own hard rule that the Hooked Model (Fogg B=MAP, Trigger-Action-Reward-Investment) is the mandatory design lens for the first step of any Mindrian surface. Already confirmed this session: real Trigger and Action legs (warm opener, three explicit choices, JTBD-formula framing for returning users). NOT yet verified: Reward and Investment. Does the onboarding flow deliver a genuine variable Reward (a real payoff visible in that same first session, not just a promise) and build real Investment (something the user puts in that increases the odds they return -- e.g. USER.md profile-building, a filed artifact, a habit cue)? Map the full loop explicitly, cite the actual prose/code for each leg, and flag any leg that is asserted in a hard-rule doc but not actually implemented. Sequenced alongside Phase 267's first-session-reliability work (the stateless MCP migration improves the mechanical layer under the first session; this sub-phase checks the narrative/UX layer on top of it) -- but this is content-level UX audit work, not protocol work, and the two stay cleanly separated in the findings.
+**Requirements**: TBD
+**Depends on:** Phase 267
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 267.1 to break down)
+
+### Phase 268: Transition Selected Workflows to MCP Tools
+
+**Goal:** Two workstreams.
+
+**W1 -- Build the two already-confirmed candidates.** (1) `find-bottlenecks` / RS-engine -- currently a raw `node -e` shell-out to `lib/agents/reverse-salient-agent.cjs`, parsed from stdout, returning exactly one finding. Promote to a proper MCP tool with a real `outputSchema` (this repo's 36 existing tools declare zero `outputSchema`s per the Phase 265 MCP-layer audit -- this would be the first), consistent structured error handling instead of stdout-scraping, and Tri-Polar reach: callable from Desktop, Cowork, or any other MCP client, not just a Claude Code slash-command. (2) `eureka` -- currently a hand-rolled fire-and-poll pattern (fires one detached Node process, polls status up to 3 times over ~15s). The 2026-07-28 MCP spec ships a native Tasks extension (asynchronous execution of long-running operations, with polling, mid-flight input, and durable handles) built for exactly this shape -- rearchitect eureka onto the platform's own Tasks primitive instead of the hand-rolled poll loop. Explicitly OUT OF SCOPE: `find-connections` / cross-domain innovation -- analyzed and rejected this session as a weak case (thin sequential Brain queries where Larry's in-the-loop reasoning between queries is likely load-bearing).
+
+**W2 -- Every command that RUNS CODE (shells out to a script/process), examined for the same switch, with a real designed MCP schema for each qualifier, not just a verdict.** Scope is narrower and more concrete than "all remaining commands" -- it is specifically the subset Scouts A/B/C already identified as "one Node/Python dispatcher script doing its own internal sequencing" or an equivalent code-shell-out pattern, since those are the commands with actual deterministic logic worth wrapping in a schema (the pure-conversational Larry-narrated methodology commands are NOT in scope here -- flattening those into a tool call would lose the thing that makes them work). Named candidates from this session's own audit, to be confirmed/expanded, not re-discovered from scratch: `whitespace` (8 subcommands, each one script invocation), `find-analogies` (already flagged, `scripts/analogy-fitness-report.cjs`), `diagnostics` (4 Python scripts), `doctor`, `dial-memory-refresh`, `feynman-timeline-refresh`, `dashboard`, `brain-derive`, `mva-brief`/`mva-option`/`mva-report`, `explain-decision`, `correct-reference-now`, `auto-explore`, `rs-fetch`/`rs-experts`/`rs-explain`/`rs-thesis`, `scout`, `vault`, `deep-grade`, `opportunities`, `agentshield`, `room`, `diagnose`, `dogfood-flush`, `new-surface`, `publish`, `present`, `pws-brain`, `intel-pipeline`, `graph`, `memory`/`memory-cortex-reach`, `scheduled-tasks`, `models`, `setup`.
+
+For each: (1) confirm it genuinely runs code rather than just describing that it does, (2) if it qualifies, DESIGN the actual MCP tool -- a real input schema (what parameters it needs) and a real `outputSchema` (what structured result it returns), not a placeholder, (3) apply the token-cost rubric from W1's reasoning: the trade-off is not "MCP tool always costs tokens, command is always free" -- it depends entirely on the `alwaysLoad` choice, which is set per tool. A command's markdown body loads ZERO tokens until invoked (Claude Code's command system is lazy). An MCP tool registered `alwaysLoad: true` (as ALL 36 of this repo's existing tools currently are, ~7,062 tokens combined per the Phase 265 audit) pays its description+schema cost in EVERY session from turn 1 regardless of use -- the fixed tax that justifies `alwaysLoad` existing at all, worth paying only for tools genuinely needed early. A tool registered WITHOUT `alwaysLoad` costs close to nothing until the platform's own tool-search discovers it (deferred loading -- currently unused anywhere in this repo). So each qualifying candidate gets an explicit `alwaysLoad: true/false` call plus its estimated token cost, alongside its designed schema -- the deliverable is schemas ready to build from, not a bare promote/don't-promote list.
+**Requirements**: TBD
+**Depends on:** Phase 267
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 268 to break down)
