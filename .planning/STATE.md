@@ -5274,6 +5274,38 @@ Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage 
 Last session: 2026-08-27T18:19:28.872Z
 Stopped at: Phase 272 context gathered
 
+**Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
+session"/"Stopped at" pointer above, which another session in this shared working tree set to
+Phase 272, and deliberately does NOT run `gsd-tools state.*` -- the CLI is not installed on this
+box and the resync-clobber failure mode is documented 9+ times in this very file):** closed the
+two-plus-one surfaces mirror regeneration cannot reach. **40 of 40 in-scope citations anchored
+across 17 files** -- 14 sites / 11 lines / 5 hand-authored skills (`larry-personality`,
+`pws-methodology`, `ui-system`, `room-passive`, `trending-to-absurd`) using the long fail-closed
+`${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}}/` wrapper extracted programmatically from
+`skills/file-meeting/SKILL.md:49` with a byte-identity assertion; 17 sites / 16 lines / 7 agents
+and 9 sites / 9 lines / 5 pipeline stage files using the short `${CLAUDE_PLUGIN_ROOT}/` form.
+Commits `cca1791b` (audit section 6), `5f4a6845` (skills), `9d2b5e43` (agents), `054cff88`
+(pipelines), all through the full pre-commit hook with no bypass. **Task 1, the plan's own named
+risk T-271-10, answered before any agent file was opened: CONFIRMED expands.** Source is
+Anthropic's own `plugin-dev` plugin on disk, skill `plugin-structure`, `SKILL.md:291-294` ("Path
+Resolution Rules"), which names "component files (commands, agents, skills)" explicitly;
+corroborated by two shipped Anthropic agents already using the variable in agent markdown
+(`claude-security/agents/claude-security.md:13,21`, `plugin-dev/agents/plugin-validator.md:114,122`).
+The plan's first-choice sources (`claude-code-guide` agent, `claude-api` skill) were NOT reachable
+from the executor's tool surface and that is recorded as a named blind spot rather than glossed,
+along with the fact that no source states a negative. The plan's own 26-citation target was stale
+and was not used; the live 40 was re-measured with the gate first, matching the ROADMAP's
+post-ruling correction. Also ruled an anchor form for `pipelines/`, a surface no plan in this
+phase scoped (SHORT, because `pipelines/` is not a Claude Code component type and no shell ever
+evaluates the long form's `:?` clause there). **The repo-wide gate did NOT turn green, exactly as
+the ROADMAP predicted:** working tree reads 1 violation (`commands/doctor.md:262`), at HEAD 31 (30
+held command sites + doctor), and zero of that residue is 271-04's -- it is entirely 271-03's work
+blocked on Phase 267.3, verified untouched at 16 files / 30 lines. `bash tests/run-all-271.sh`
+PASS=3 FAIL=1 (the anchoring arm). No gate was relaxed. New deferred item DEFERRED-271-D2
+(`agents/larry-extended.md` declares `hitl_shape: F.1` AND `connector.excluded: true`, pre-existing,
+1 of 53 advisory violations repo-wide, WARN-only). See `271-04-SUMMARY.md`, `271-AUDIT.md` section
+6, and `deferred-items.md`.
+
 **264 discuss-phase note (2026-08-23, hand-appended, does not touch the "Last session"/"Stopped
 at" pointer above since 261-12 is the actually-paused/resumable work):** ran `/gsd-spec-phase
 264` and `/gsd-discuss-phase 264 --auto` for an independent, navigator-originated initiative

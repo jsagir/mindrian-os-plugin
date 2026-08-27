@@ -112,3 +112,46 @@ swept in silently.
 **To resume after the decision lands:** the 16 edits are already applied and their
 mirrors already regenerated, so resumption is a stage-and-commit, plus the one-line
 `doctor.md` prefix insertion and one final `node scripts/build-skill-mirrors.cjs`.
+
+**Confirmed still true at the close of plan 271-04 (2026-08-27).** The 16 files plus
+their 16 mirrors are still sitting modified and uncommitted in the shared tree, and
+plan 271-04 did not touch them. `git diff --numstat -- commands/` reads 16 files / 30
+lines, unchanged from the figures above.
+
+---
+
+## DEFERRED-271-D2: `agents/larry-extended.md` declares `hitl_shape` AND `connector.excluded:true`
+
+**Found during:** plan 271-04, Task 3, running `node scripts/check-shape-declaration.cjs --check`
+after the agent anchoring landed.
+
+**What the advisory says, verbatim:**
+
+> WARN:   - surface agents/larry-extended.md: declares hitl_shape F.1 (a genuine
+> Decision-Gate fork) AND connector.excluded:true (the no-fork exemption)
+> simultaneously
+
+**Pre-existing, not caused by plan 271-04.** This plan's diff on that file is exactly one
+line, `agents/larry-extended.md:121`, a body prose citation. `git diff --numstat --
+agents/larry-extended.md` reads `1 1`. Zero frontmatter lines were touched, and
+`hitl_shape` / `connector.excluded` are both frontmatter keys.
+
+**Scale.** It is 1 of 53 advisory violations repo-wide, the other 52 being
+`skills/*/SKILL.md` files this plan never opened (`mos`, `onboard`, `organize`, `publish`,
+`query`, `radar`, `rooms`, `scheduled-tasks`, `setup`, `snapshot`, `splash`, `stance`,
+`update`, `vault`, `visualize`, and more). This is a repo-wide declaration-contract gap in
+the same family as DEFERRED-271-D1, on a different field.
+
+**Not blocking.** The shape-declaration gate has been ADVISORY since Phase 210: it WARNs,
+enumerates every violation, and exits 0. `--strict` restores hard-fail. So it does not
+gate a commit or a release today.
+
+**Why it was NOT fixed here.** Same scope boundary that governed DEFERRED-271-D1: choosing
+between "drop `connector.excluded:true` because the agent genuinely reaches an F.1 fork"
+and "drop `hitl_shape: F.1` because it does not" is a per-surface Canon Part 11 design
+call, not a path-resolution fix. Guessing it inside a mechanical anchoring sweep is the
+exact failure mode plan 271-03 already refused once.
+
+**Status:** OPEN. Not owned by any Phase 271 plan. Natural home is whichever phase takes
+the repo-wide declaration backfill (the same scope-widening question already raised for
+Phase 267.3 at `.planning/ROADMAP.md:705`).
