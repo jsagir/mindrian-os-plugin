@@ -567,10 +567,14 @@ Plans:
 This requires reconciling, not silently editing: `.claude/includes/decisions.md` Key Decision #1 ("a keyless session gets an honest refusal, never a silent local substitute" -- currently checked at query-time, becomes install/update-time) and #5 ("Brain is remote by design, not optional by default" -- stays true, needs a clause noting per-query keys are gone); `.claude/includes/moat.md` (the moat reframes from "pay per graph query" to "pay for the install/update right" -- the graph itself becomes freely queryable once a user is in); and the personal-memory business-model note (`project_mindrianos_business_model.md`: "Free tier = prompt-Larry + Brain MCP; paid = trained Lawrence model" -- needs revisiting against the new model).
 
 Cross-references: seeds directly into Theo's own `.planning/ROADMAP.md` Phase 9 ("Brain-Contract Cutover") open doctrine question -- "what happens to `brain_ask`/`brain_query`/`brain_search` (the three highest-traffic real callers, none contract-pinned)... no document currently states what happens to it at cutover" -- this phase's decision answers that directly: they become keyless/unconditional. Also touches Phase 234 (MindrianOS as Infrastructure: Skills, MCP Everywhere, Open Core) and Phase 267.1 (Hooked Model onboarding audit -- removing the key-friction step changes the onboarding Trigger/Reward/Investment legs). Directly resolves the Brain-key friction Gaurav Thorat's trial-install testimonial flagged (`docs/testers/gaurav-thorat/FEEDBACK.md`, the `rethinking-mindrianos` research trail).
-**Requirements**: TBD
-**Depends on:** none technically, but sequenced after Theo's own Phase 9 gets a firmer timeline for the actual install/update-gate ENGINEERING (building a check against an interim cutover state risks throwaway work). The DECISION-RECORDING half (updating decisions.md/moat.md) can happen now via this phase's own planning.
-**Plans:** 0 plans
+**Requirements**: MOAT-01, MOAT-02, MOAT-03, MOAT-04, MOAT-05, MOAT-06 (phase-local working IDs minted at planning time; `.planning/REQUIREMENTS.md` carries no Phase 269 rows, so these are NOT yet backed by the project requirements doc and need formal registration)
+**Depends on:** none technically, but sequenced after Theo's own Phase 9 gets a firmer timeline for the actual install/update-gate ENGINEERING (building a check against an interim cutover state risks throwaway work). The DECISION-RECORDING half (updating decisions.md/moat.md) can happen now via this phase's own planning. Verified 2026-08-27: Theo Phase 9 is blocked on Phase 8, Phase 8 on Phase 7, and Phase 7 is mid-execution at plan 07-02 of 12, so the gating condition is TWO unplanned phases away. Plans 01 through 04 are the executable decision-recording family; plan 05 is the deferred engineering family and is held behind a blocking human-action gate.
+**Plans:** 5 plans in 5 waves
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 269 to break down)
+- [ ] 269-01-PLAN.md - Wave 0 test infra: `tests/269-doctrine-reconcile.test.cjs` + `tests/run-all-269.sh`, committed RED as the can-fail proof
+- [ ] 269-02-PLAN.md - Reconcile `.claude/includes/decisions.md` rows 1 and 5 and add the commercial-boundary clause to `.claude/includes/moat.md`
+- [ ] 269-03-PLAN.md - File the dated amendment record and the four cross-cutting flags (BUSINESS-MODEL-AND-MOAT.md, the personal-memory note, LICENSE grant (d), the Gaurav RCA gap)
+- [ ] 269-04-PLAN.md - Blocking decision checkpoint: credential model A (replace) / B (unify) / C (promote install token), then record the choice
+- [ ] 269-05-PLAN.md - DEFERRED engineering family: `autonomous: false` behind a blocking `checkpoint:human-action` on Theo Phase 9; produces specs only, zero entitlement-check code
