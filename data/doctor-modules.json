@@ -14,6 +14,15 @@
       "description": "Capability ledger staleness (Phase 265): warns when data/capability-ledger.json's ledger_covers.to trails the installed claude --version beyond MINDRIAN_LEDGER_MAX_VERSION_LAG. Check-only, cadence always."
     },
     {
+      "id": "mcp-surface",
+      "introduced_version": "2.0.0-beta.12",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/mcp-surface-module.cjs",
+      "description": "MCP tool-count and zero-tool check (Phase 265 R-7): spawns both mindrian-os and mindrian-brain over stdio and reports live per-server tool counts, failing on a zero-tool tools/list response or a wedged server. Warns (never caps) when the combined surface exceeds TOTAL_SURFACE_TOKEN_BUDGET. Check-only, cadence always."
+    },
+    {
       "id": "umbilical",
       "introduced_version": "1.13.1-beta.4",
       "cadence": "once",

@@ -1631,6 +1631,50 @@ function buildAcceptanceChecklist(ctx) {
         }
       },
     },
+    {
+      // Phase 265 Plan 23 (RADAR-30, R-7): surfaces the MCP surface doctor
+      // organ (lib/core/doctor/mcp-surface-module.cjs) on the acceptance
+      // path, mirroring the capability-ledger-fresh point immediately
+      // above. Calls the organ's check() DIRECTLY in-process; the organ
+      // itself owns both stdio spawns (Canon Part 8: zero network).
+      //
+      // SEVERITY REASONING: 'error' (a zero-tool tools/list response or a
+      // wedged/crashed server) fails this gate -- that is the exact
+      // 2.1.128 signal ("connected with 0 tools") this organ exists to
+      // catch, and it must not ship silently. 'warn' (the measured
+      // combined surface exceeds TOTAL_SURFACE_TOKEN_BUDGET) does NOT fail
+      // this gate -- per the organ's own contract it is a measurement
+      // warning, not a tool-count cap (the Brain's 10-15 figure does not
+      // transfer to a 36-tool server; see the module's header comment).
+      // The finding/detail carries the warn text either way so it is
+      // visible in acceptance output without blocking a release on it.
+      id: 'mcp-surface-tool-count',
+      label: 'MCP surface: live per-server tool count for both servers, fails on zero tools',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'mcp-surface-tool-count') {
+          return { ok: false, finding: 'mcp-surface-tool-count synthesized failure (test mode)', detail: {} };
+        }
+        if (process.env.DOCTOR_SKIP_MCP_SURFACE === '1') {
+          return { ok: true, finding: null, detail: { skipped: true, reason: 'DOCTOR_SKIP_MCP_SURFACE=1' } };
+        }
+        try {
+          const mcpSurfaceMod = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'mcp-surface-module.cjs'));
+          const result = mcpSurfaceMod.check({});
+          if (!result || result.status === 'error') {
+            return {
+              ok: false,
+              finding: 'mcp-surface-tool-count: ' + (result && result.detail || 'check() returned no detail'),
+              detail: { status: result && result.status },
+            };
+          }
+          return { ok: true, finding: null, detail: { status: result.status, detail: result.detail } };
+        } catch (e) {
+          return { ok: false, finding: 'mcp-surface-tool-count threw: ' + e.message, detail: {} };
+        }
+      },
+    },
   ];
 }
 
@@ -3746,6 +3790,14 @@ function main() {
 //
 // JSON exit (always emits on --json): { ok, ready, missing, python, fix }.
 // Human exit: actionable fix line on FAIL; concise OK line on PASS.
+//
+// Phase-134-python-elimination-false-complete RCA, Change 1 (2026-08-27):
+// `--fix` composes with `--check-rs-engine` (same convention as `--drift --fix`
+// and `--graph-derive-health --fix` / `--heal-room`) to actually install the
+// missing deps via `python -m pip install --user`, instead of only printing
+// the manual instruction. Explicit `--fix` invocation IS the consent gate --
+// same precedent as every other `--fix` composition in this file. Without
+// `--fix`, behavior is unchanged: probe-only, printed instruction.
 async function runCheckRsEngine(flags) {
   const cp = require('node:child_process');
   // Critical deps (rs-engine.py path -- failure here = /mos:find-bottlenecks down).
@@ -3753,7 +3805,14 @@ async function runCheckRsEngine(flags) {
   // Umbrella deps (broader Engine 1 Act 1 surface; missing -> warn but not fail).
   const umbrella = ['sentence_transformers', 'sklearn'];
   const all = critical.concat(umbrella);
-  const fix = 'Run: pip install -r requirements-hsi.txt --user (use python -m pip if pip is not in PATH)';
+  const fix = 'Run: pip install -r requirements-hsi.txt --user (use python -m pip if pip is not in PATH), or `/mos:doctor --check-rs-engine --fix` to install automatically';
+  // import-name -> pip-package-name (they differ for two of the four deps).
+  const pipName = {
+    requests: 'requests',
+    numpy: 'numpy',
+    sentence_transformers: 'sentence-transformers',
+    sklearn: 'scikit-learn',
+  };
 
   // Resolve python interpreter: MINDRIAN_PYTHON > python3 > python.
   // Each candidate gets a probe; first one that responds wins.
@@ -3809,14 +3868,59 @@ async function runCheckRsEngine(flags) {
     }
   }
 
-  const results = all.map(probeImport);
-  const missingCritical = results.filter(function (r) {
+  let results = all.map(probeImport);
+  let missingCritical = results.filter(function (r) {
     return critical.indexOf(r.dep) !== -1 && !r.ok;
   }).map(function (r) { return r.dep; });
-  const missingUmbrella = results.filter(function (r) {
+  let missingUmbrella = results.filter(function (r) {
     return umbrella.indexOf(r.dep) !== -1 && !r.ok;
   }).map(function (r) { return r.dep; });
-  const ok = missingCritical.length === 0;
+  let ok = missingCritical.length === 0;
+
+  // Self-remediation (--fix): attempt `python -m pip install --user` for
+  // every currently-missing dep, then re-probe. Explicit `--fix` is the
+  // consent gate (matches --drift --fix / --heal-room precedent elsewhere
+  // in this file) -- no prompt, no dry-run-first, same posture as the
+  // already-shipped scripts/lib/ensure_ml_deps.py auto-installer.
+  let remediation = null;
+  if (!ok || missingUmbrella.length > 0) {
+    if (flags.fix) {
+      const toInstall = missingCritical.concat(missingUmbrella);
+      const pipArgs = ['-m', 'pip', 'install', '--user', '--quiet']
+        .concat(toInstall.map(function (dep) { return pipName[dep] || dep; }));
+      if (!flags.json) {
+        console.log('Engine 1 Act 1: installing missing Python deps (' + toInstall.join(', ') + ')...');
+      }
+      let installResult;
+      try {
+        installResult = cp.spawnSync(python, pipArgs, { encoding: 'utf8', timeout: 300000 });
+      } catch (e) {
+        installResult = { status: -1, error: e };
+      }
+      const installOk = installResult && installResult.status === 0;
+      // Re-probe regardless of the reported install exit code -- the ground
+      // truth is whether the interpreter can import the module afterward,
+      // not pip's exit status (mirrors ensure_ml_deps.py's own re-check).
+      results = all.map(probeImport);
+      missingCritical = results.filter(function (r) {
+        return critical.indexOf(r.dep) !== -1 && !r.ok;
+      }).map(function (r) { return r.dep; });
+      missingUmbrella = results.filter(function (r) {
+        return umbrella.indexOf(r.dep) !== -1 && !r.ok;
+      }).map(function (r) { return r.dep; });
+      ok = missingCritical.length === 0;
+      remediation = {
+        attempted: true,
+        installed: toInstall,
+        pip_exit_code: installResult ? installResult.status : null,
+        resolved: installOk && missingCritical.concat(missingUmbrella).length === 0,
+        still_missing: missingCritical.concat(missingUmbrella),
+        stderr_tail: (installResult && installResult.stderr) ? String(installResult.stderr).slice(-200) : '',
+      };
+    } else {
+      remediation = { attempted: false };
+    }
+  }
 
   if (flags.json) {
     const payload = {
@@ -3828,14 +3932,23 @@ async function runCheckRsEngine(flags) {
       missing_critical: missingCritical,
       missing_umbrella: missingUmbrella,
       fix: ok ? null : fix,
+      remediation: remediation,
     };
     console.log(JSON.stringify(payload, null, 2));
   } else {
     if (ok) {
       console.log('Engine 1 Act 1 ready -- Python (' + python + ') has all critical deps: ' + critical.join(', ') + '.');
+      if (remediation && remediation.attempted) {
+        console.log('Auto-installed: ' + remediation.installed.join(', ') + '.');
+      }
       if (missingUmbrella.length > 0) {
         console.log('Note: umbrella deps missing (' + missingUmbrella.join(', ') + '); affects sibling Engine 1 surfaces. ' + fix);
       }
+    } else if (remediation && remediation.attempted) {
+      console.log('Engine 1 Act 1 (/mos:find-bottlenecks et al.) still needs Python deps after auto-install attempt.');
+      console.log('Still missing: ' + missingCritical.join(', ') + '.');
+      if (remediation.stderr_tail) console.log('pip stderr (tail): ' + remediation.stderr_tail);
+      console.log('Manual fallback -- pip install -r requirements-hsi.txt --user (use python -m pip if pip is not in PATH)');
     } else {
       console.log('Engine 1 Act 1 (/mos:find-bottlenecks et al.) needs Python deps. Missing: ' + missingCritical.join(', ') + '.');
       console.log(fix);
