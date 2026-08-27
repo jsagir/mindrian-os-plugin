@@ -19,6 +19,14 @@ produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
+# Phase 265 ledger T-265-105 (data/subagent-dispatch-grants.json carries a reviewed "pending"
+# row for commands/find-analogies.md, reviewed_date 2026-08-27; ratification to "granted" is
+# plan 265-23's single-write job, not this one). Task is added here as a pre-approval because
+# --external's Step 4 fans out one subagent per navigator-APPROVED audited query, strictly
+# after the AskUserQuestion approval card; allowed-tools is a pre-approval list, not a
+# restriction list (frontmatter contract), so this removes the per-spawn permission prompt
+# rather than granting a capability the command did not already have. Scoped to the invoking
+# turn; clears on the next message.
 allowed-tools:
   - Read
   - Write
@@ -29,6 +37,7 @@ allowed-tools:
   - mcp__mindrian-brain__brain_search
   - mcp__tavily__tavily-search
   - AskUserQuestion
+  - Task
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
@@ -169,7 +178,16 @@ LIMIT 15
 
 ### External Mode (`--external`)
 
+**This section covers `--external` only; the other three modes are unchanged.** Default Tier 0
+is one comparative reasoning act over the whole candidate set at once (prioritizing FAR and
+CROSS-DOMAIN analogies requires seeing every candidate together, not a loop), and `--brain` is
+two cheap queries -- neither has a per-item loop worth fanning out. `--external` is the one
+mode with a real per-item loop: the composer emits N audited query strings, and each one needs
+its own fetch plus a full structural extraction.
+
 The online leg is FENCED: every outbound query is composed and audited by the shipped Part-8 egress composer, and NOTHING is fetched until the navigator approves (MCP-stack-awareness HARD RULE: ask before web research).
+
+#### PHASE 0 (SEQUENTIAL, orchestrator, NON-NEGOTIABLE -- unchanged by the fan-out below)
 
 1. **Compose (never hand-write a query).** Write ONLY the abstracted pattern vocabulary from Step 3 -- `{functionalKeywords, trizPrinciples, abstractFunction}` -- to `room/<section>/analogies/<slug>-pattern.json`, then run via Bash:
 
@@ -183,9 +201,86 @@ The online leg is FENCED: every outbound query is composed and audited by the sh
 
 3. **Ask the navigator before any fetch.** If `{ok:true}`, fire an AskUserQuestion card asking the navigator to approve the web pass, showing the query count (`audited`) and the families. Do not fetch until they approve.
 
-4. **Fetch, with a documented fallback.** On approval, fetch each approved query via `mcp__tavily__tavily-search`. If Tavily is unavailable (not configured, or an error such as the 2026-07-04 402), fall back to `WebSearch` with the SAME navigator-approved audited strings -- never re-compose.
+**No agent is dispatched before the navigator approves the web pass.** The fan-out in PHASE 1
+below changes what happens AFTER approval; it changes nothing before it -- the two rules above
+stay exactly as written, and the AskUserQuestion approval card always renders before any
+`[ANALOGIES] Dispatching` status block.
 
-5. **SIGNAL flows LOCAL only.** Fetched results are filed LOCALLY only (to `room/<section>/analogies/`), never to Brain. External web content is SIGNAL (public data) per Canon Part 8: SIGNAL -> LOCAL is YES, LOCAL -> BRAIN is NO. No user-specific bytes are ever sent outbound; only the audited abstracted pattern strings cross the wire.
+#### PHASE 1 (PARALLEL fan-out, one agent per APPROVED audited query)
+
+Clamp the fan through `lib/core/futures/orchestrator.cjs`'s `resolveFanoutCap`
+(`FUTURES_FANOUT_CAP`, default 5). N is naturally small -- the composer's `audited` count is
+typically a handful of query families -- so the speedup ceiling here is modest; this fan-out is
+scoped narrowly for exactly that reason, not because the mechanism is any different from the
+other Phase 265 fan-outs.
+
+Dispatch with the Agent tool, `subagent_type: analogy-query-fetcher` (the explicit type
+string, resolving to `agents/analogy-query-fetcher.md`). Do not pass any manual
+background-execution parameter -- Claude Code runs spawned subagents in the background by
+default under fork mode, the interactive default since 2.1.232. The platform caps concurrent
+subagents at 20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); a handful of query agents stays well
+under that cap, but the 20 ceiling is the standing rule so a future author does not reintroduce
+an unbounded fan-out.
+
+Print a status block on approval, before dispatching:
+
+```
+[ANALOGIES] Dispatching N query agents
+
+  Approved queries: {audited count}
+  Families: {family list}
+```
+
+**EACH SUBAGENT'S CONTRACT (one audited query), hard constraint first because it is the one
+that could sink this implementation:**
+
+- **THE AGENT RECEIVES EXACTLY ONE AUDITED QUERY STRING, VERBATIM, AND IS FORBIDDEN FROM
+  COMPOSING, REPHRASING, EXPANDING, OR SUPPLEMENTING IT.** The agent prompt quotes the
+  command's own rule: "The composer is the ONLY source of outbound query strings." An agent
+  handed a topic and told to "search for analogies" would silently reinvent query composition
+  and blow the Canon Part 8 egress fence -- passing the audited string through verbatim, and
+  saying so in the dispatch prompt, is the entire mitigation.
+- Also input: the abstract function description and the SAPPhIRE field schema.
+- **Work:** fetch via `mcp__tavily__tavily-search`, falling back to `WebSearch` WITH THE
+  IDENTICAL STRING on a Tavily error -- never re-compose. Then per result extract
+  `{title, url, source_domain, sapphire{7 fields}, distance_class}`.
+- **Returns:** the candidate array. Filed LOCALLY only. No agent writes to Brain: SIGNAL to
+  LOCAL is yes, LOCAL to Brain is no. `agents/analogy-query-fetcher.md` carries no Brain tool
+  and no `Write` tool, so this constraint is structurally enforced, not just stated.
+
+#### PHASE 2 (SEQUENTIAL merge, orchestrator only)
+
+1. **DEDUP ON MECHANISM IDENTITY, NOT ON URL.** This is the highest dedup risk of the Phase 265
+   fan-outs. Query families are deliberately overlapping angles on the SAME abstract function,
+   so a biomimicry query, a patent query, and an academic query all returning the same
+   well-known mechanism is the EXPECTED case, not the edge case. Two candidates are the SAME
+   mechanism when their SAPPhIRE `phenomenon` and `real_effect` fields describe the same
+   physical or structural effect, even across different `source_domain` values and different
+   URLs. Merge them into one candidate carrying every source URL as provenance. Getting this
+   wrong inflates a popular mechanism's presence and corrupts the ranking: counting one
+   mechanism three times is not the same as three mechanisms each appearing once.
+2. **RUN THE FITNESS ENGINE ONCE** over the merged, deduped candidate set via Step 4.5's
+   `node scripts/analogy-fitness-report.cjs score <fitness-input.json>` -- NEVER per agent.
+   Fitness is a comparative ranking ACROSS candidates, so five agents each scoring their own
+   subset would produce five incomparable scales.
+3. Apply the existing restatement rule verbatim: a restatement can never sit at Rank 1.
+4. Render the provenance line exactly from `provenance.model` and `provenance.dim`, and
+   preserve the degrade honesty rule: if the engine degrades, fall back to the qualitative band
+   words with "fitness not computed - qualitative label only" and never a fabricated number.
+
+**FLAG THE DEDUP RISK IN THE COMMAND ITSELF.** This is the highest dedup risk of the Phase 265
+fan-outs; mechanism-identity dedup (step 1 above) is the specific mitigation. If the merged
+candidate count ever equals the raw returned candidate count across multiple runs, that is a
+signal the dedup is not firing and should be investigated, not celebrated.
+
+**SIGNAL flows LOCAL only.** The merged, deduped result is filed LOCALLY only (to
+`room/<section>/analogies/`), never to Brain. External web content is SIGNAL (public data) per
+Canon Part 8: SIGNAL -> LOCAL is YES, LOCAL -> BRAIN is NO. No user-specific bytes are ever sent
+outbound; only the audited abstracted pattern strings cross the wire.
+
+**The alternative on record.** `/mos:pipeline analogy` is the full 5-stage version of this
+compressed pipeline and is where a heavier fan-out would more naturally live; this plan
+deliberately does the narrow version here.
 
 For each fetched result, extract source title + URL, source domain, structural mapping to the venture, and analogy-distance classification.
 

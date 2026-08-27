@@ -3487,6 +3487,12 @@
       "name": "wiki"
     },
     {
+      "id": "agent:analogy-query-fetcher",
+      "kind": "agent",
+      "methodology_tier": "mindrian-operation",
+      "name": "analogy-query-fetcher"
+    },
+    {
       "id": "agent:brain-query",
       "kind": "agent",
       "methodology_tier": "mindrian-operation",
