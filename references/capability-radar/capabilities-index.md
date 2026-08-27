@@ -1,30 +1,50 @@
 # Claude Capabilities Index for MindrianOS
 
-Last updated: 2026-05-05 (folded in Claude Code 2.1.110 → 2.1.128 via /mos:radar --fetch)
+Last updated: 2026-08-27 (Phase 265 correction pass). `data/capability-ledger.json` is now
+the machine-readable source of record for tracked Claude Code capabilities; this file is
+curated human prose over it, not a duplicate of its rows.
 
-This reference is curated. Run `/mos:radar --fetch` to check the Claude Code changelog for recent additions. Adoption candidates from the most recent fetch are tracked in `.planning/seeds/SEED-003-claude-code-2-1-x-capability-adoption.md`.
+This reference is curated. Run `/mos:radar --fetch` to check the Claude Code changelog for
+recent additions - Step 3b of `commands/radar.md` writes the ledger first, this file gets
+updated by hand when a ledger row is promoted to curated prose. `SEED-003-claude-code-2-1-x-
+capability-adoption.md` is superseded by Phase 265; see the ledger for current tracking.
 
 ---
 
 ## models
 
-### Opus 4.7 (xhigh effort tier)
-- **What:** Current top-tier model. `/effort` slider exposes a maximum-reasoning xhigh tier. Auto mode available for Max subscribers.
-- **MindrianOS relevance:** Default `executor_model: "opus"` resolves to 4.7. xhigh tier is overkill for most plans but worth it for the load-bearing migration phases (108, 109). `/effort` slider lets users dial reasoning depth without leaving the conversation.
+### Opus 5 (current top-tier model)
+- **What:** The current top-tier model. `lib/core/model-profiles.cjs` maps agent types to the
+  bare alias `opus`, `sonnet`, or `haiku` - the alias resolves at the host to whatever model
+  is currently the top of that family, so a new model generation needs no config change here.
+  The `/effort` slider's maximum-reasoning xhigh tier (introduced alongside Opus 4.7, Claude
+  Code 2.1.111) is still available and still overkill for most plans, but worth it for
+  load-bearing migration phases.
+- **MindrianOS relevance:** No config key naming a fixed executor model exists anywhere in this
+  repo (that claim in an earlier version of this doc was wrong). The two real model-config
+  surfaces are
+  `lib/core/model-profiles.cjs` (agent types -> bare aliases) and `.planning/config.json`
+  (GSD only), both alias-based.
 - **Status:** available
-- **Since:** Claude Code 2.1.111
+- **Since:** current generation; historical predecessor was Opus 4.7 (Claude Code 2.1.111)
 
-### Opus 4.6 (1M Context)
-- **What:** Extended thinking, adaptive reasoning, 128K max output tokens, 1M context window
+### Opus (extended context, historical baseline: Opus 4.6)
+- **What:** Extended thinking, adaptive reasoning, 128K max output tokens, 1M context window.
+  Opus 4.6 was the generation that first shipped this combination; the `opus` alias now
+  resolves to the current top-tier generation automatically, so this entry documents the
+  capability's history rather than asserting Opus 4.6 is current.
 - **MindrianOS relevance:** Methodology sessions can go deeper with full reference loading viable. Complex pipelines (Discovery, Thesis) can hold complete Room state in context without compression.
-- **Status:** available
-- **Since:** 2026 Q1
+- **Status:** capability persists across generations via alias resolution
+- **Since:** 2026 Q1 (Opus 4.6 introduced it)
 
-### Sonnet 4.6 (200K/1M)
-- **What:** Balanced speed and intelligence. 200K default context, extendable to 1M.
+### Sonnet (balanced default, historical baseline: Sonnet 4.6)
+- **What:** Balanced speed and intelligence. 200K default context, extendable to 1M. Sonnet 4.6
+  was the generation current when this entry was first written; the `sonnet` alias resolves to
+  the current generation automatically, so this entry documents the capability's history rather
+  than asserting Sonnet 4.6 is current.
 - **MindrianOS relevance:** Default model for most users. Context compression and selective reference loading are critical. Room intelligence pipeline must stay within budget.
-- **Status:** available
-- **Since:** 2026 Q1
+- **Status:** capability persists across generations via alias resolution
+- **Since:** 2026 Q1 (Sonnet 4.6 introduced it)
 
 ### Haiku 4.5
 - **What:** Fast, cost-efficient model for background and lightweight tasks
@@ -124,15 +144,23 @@ This reference is curated. Run `/mos:radar --fetch` to check the Claude Code cha
 - **Status:** experimental
 - **Since:** 2026 Q1
 
-### Forked Subagents on External Builds (`CLAUDE_CODE_FORK_SUBAGENT=1`)
-- **What:** True forked subagents enabled outside Anthropic-internal builds via opt-in env var
-- **MindrianOS relevance:** Substrate for Canon Part 2 Engine 2 (BONO Orchestration) — spawning hat-instantiated team members in parallel. Tracked as adoption candidate A4 in SEED-003.
-- **Status:** available (opt-in)
-- **Since:** Claude Code 2.1.117
+### Fork Mode Defaults (`CLAUDE_CODE_FORK_SUBAGENT`)
+- **What:** Fork mode runs subagents concurrently. As of Claude Code 2.1.232, fork mode is ON
+  BY DEFAULT in every interactive session. The `CLAUDE_CODE_FORK_SUBAGENT` environment variable
+  still exists, but its polarity inverted: it is now the opt-OUT, not an opt-in. `=0` turns fork
+  mode off in every kind of session; `=1` turns fork mode on in non-interactive mode and the
+  Agent SDK only. A reader who sets `=1` in an interactive session today is not opting into
+  anything - fork mode is already on for them. Source: code.claude.com/docs/en/sub-agents.
+- **MindrianOS relevance:** Substrate for Canon Part 2 Engine 2 (BONO Orchestration) - spawning
+  hat-instantiated team members in parallel. Superseded SEED-003 A4; see
+  `data/capability-ledger.json` (capability `run_in_background-removal-fork-mode-default-on`)
+  and Phase 265 (capability-radar-absorption-routing) for the corrected destination mapping.
+- **Status:** available (default on, interactive sessions; opt-out via `=0`)
+- **Since:** Claude Code 2.1.232 (the polarity inversion); the variable itself existed since 2.1.117
 
 ### Agent Frontmatter `mcpServers` Declaration
 - **What:** Individual agent files can declare required MCP servers in frontmatter; loaded for main-thread sessions via `--agent`
-- **MindrianOS relevance:** Per-agent Brain MCP scoping. `mos-research` can require Brain without polluting global config; `mos-investor` (synthesis hat) can opt out. Tracked in SEED-003 A4.
+- **MindrianOS relevance:** Per-agent Brain MCP scoping. `mos-research` can require Brain without polluting global config; `mos-investor` (synthesis hat) can opt out. See `data/capability-ledger.json` and Phase 265 for current tracking; SEED-003 is superseded.
 - **Status:** available
 - **Since:** Claude Code 2.1.117
 
@@ -144,7 +172,7 @@ This reference is curated. Run `/mos:radar --fetch` to check the Claude Code cha
 
 ### `/focus` View
 - **What:** Toggleable focus view in the TUI
-- **MindrianOS relevance:** Aligns with Canon's focus-node concept (Phase 109 D-01). Statusline `🎯` glyph should coordinate with `/focus` state — when user is in focus view, render the focus node prominently.
+- **MindrianOS relevance:** Aligns with Canon's focus-node concept (Phase 109 D-01). Statusline `🎯` glyph should coordinate with `/focus` state - when user is in focus view, render the focus node prominently.
 - **Status:** available
 - **Since:** Claude Code 2.1.110
 
@@ -160,7 +188,7 @@ This reference is curated. Run `/mos:radar --fetch` to check the Claude Code cha
 
 ### `--plugin-dir` Accepts `.zip` Archives
 - **What:** `claude --plugin-dir <path>` now accepts a `.zip` archive in addition to a directory
-- **MindrianOS relevance:** Beta-tester distribution side-channel. Today: marketplace tag is the only sanctioned path; beta gating requires marketplace.json to advertise the version. Zip channel decouples — hand a tester a single `.zip` without touching marketplace state. Tracked as adoption candidate A5 in SEED-003.
+- **MindrianOS relevance:** Beta-tester distribution side-channel. Today: marketplace tag is the only sanctioned path; beta gating requires marketplace.json to advertise the version. Zip channel decouples - hand a tester a single `.zip` without touching marketplace state. Tracked as adoption candidate A5 in SEED-003.
 - **Status:** available
 - **Since:** Claude Code 2.1.128
 
@@ -202,7 +230,7 @@ This reference is curated. Run `/mos:radar --fetch` to check the Claude Code cha
 
 ### `/mcp` Tool Count + Zero-Tool Flagging
 - **What:** `/mcp` command shows the tool count for connected servers and flags servers that connected with 0 tools
-- **MindrianOS relevance:** Direct diagnostic for Brain MCP failure modes. When a tester says "Brain isn't responding," step 1 becomes `/mcp` — if Brain shows 0 tools, the failure mode is now visible. Candidate for `/mos:doctor --brain` integration.
+- **MindrianOS relevance:** Direct diagnostic for Brain MCP failure modes. When a tester says "Brain isn't responding," step 1 becomes `/mcp` - if Brain shows 0 tools, the failure mode is now visible. Candidate for `/mos:doctor --brain` integration.
 - **Status:** available
 - **Since:** Claude Code 2.1.128
 
