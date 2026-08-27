@@ -531,14 +531,23 @@ Plans:
 **Requirements**: TBD
 **Depends on:** none -- independent of Phase 267's now-blocked status, planned/executed on its own schedule
 **Plans:** 6 plans
-
 Plans:
+**Wave 1**
 
 - [ ] 267.1-01-PLAN.md - Wave 0 validation scaffold plus the in-scope SEED-021 card-mandate fix in FIRST_INSTALL
 - [ ] 267.1-02-PLAN.md - Pre-audit grounding: hard-rule provenance (A5) and the two-question Claude Code hook consultation (A1/A2)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 267.1-03-PLAN.md - The scored /70 Hooked audit of FIRST_INSTALL with the cited leg-by-leg gap register
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 267.1-04-PLAN.md - Rethinking-room mirror plus bidirectional cross-link (Dev-Research Compositing mandate)
 - [ ] 267.1-05-PLAN.md - Follow-up phase registrations 267.2 and 267.3 plus the 267.1 Cross-references paragraph
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 267.1-06-PLAN.md - Phase gate roll-up and navigator review of the scores, the scope call, and the registrations
 
 ### Phase 268: Transition Selected Workflows to MCP Tools

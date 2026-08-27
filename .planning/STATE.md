@@ -14,6 +14,29 @@ progress:
   percent: 28
 ---
 
+<!-- NOTE (267.1 plan-phase, 2026-08-27T~11:41Z, hand-edited per this file's own documented
+     resync-clobber bug, FIFTH OCCURRENCE this session): `gsd-tools query state.planned-phase
+     --phase 267.1 --name hooked-model-completeness-audit-of-the-first-session-onboard --plans 6`
+     (step 13b of the plan-phase workflow) reported `{"updated":["Status"],"phase":"267.1",
+     "plan_count":6}` -- again claiming it touched ONLY Status -- but actually ALSO silently
+     overwrote stopped_at/last_updated/last_activity above with a stale, unrelated snapshot
+     ("Completed 266-05-PLAN.md" / "Phase 265 execution started via /gsd-execute-phase
+     orchestration", last_updated bumped forward to 08:44:55Z despite the content describing an
+     EARLIER project state than what was already recorded here). Reverted via `git checkout --
+     .planning/STATE.md` immediately, confirmed clean via diff. This is now the 5th distinct
+     `state.*`/`phase.*` mutation verb call confirmed to hit this bug this session
+     (state.record-session, state.planned-phase x2, state.begin-phase, phase.complete), the
+     2nd confirmed hit specifically on state.planned-phase (see the 264 plan-phase NOTE below for
+     the first). Per the standing precedent already established below (264 discuss-phase NOTE):
+     Phase 267.1 is real, independent work (content-level Hooked Model onboarding audit, explicitly
+     decoupled from Phase 267/265's execution track per ROADMAP.md) -- it does NOT belong in this
+     frontmatter's single stopped_at slot while Phase 265 execution is the actually-paused/
+     in-progress item. Frontmatter left untouched; 267.1's planning completion (6 plans, 4 waves,
+     VERIFICATION PASSED) is recorded via ROADMAP.md's own Status line + wave annotations instead,
+     not via this file's single-slot pointer. Standing fix confirmed working a 5th time:
+     diff-and-revert immediately, never trust the tool's own "updated" list, never overwrite the
+     primary stopped_at pointer for a phase that is not the one actually paused. -->
+
 <!-- NOTE (264 execute-phase completion, 2026-08-23T19:32Z, hand-edited per this file's own
      documented resync-clobber bug, FOURTH OCCURRENCE this session): `gsd-tools query
      phase.complete 264` (execute-phase workflow's update_roadmap step) again silently
