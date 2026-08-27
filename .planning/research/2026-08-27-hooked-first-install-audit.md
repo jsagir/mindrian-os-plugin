@@ -3,6 +3,7 @@
 > Filed 2026-08-27. Scope: `scripts/session-start`'s FIRST_INSTALL prose injection, audited against Nir Eyal's Hooked Model (Trigger -> Action -> Variable Reward -> Investment) and this repo's own `docs/reward-before-investment-rule.md` hard rule. Grounded in the live code on branch main.
 >
 > Milestone: Phase 267.1 (Hooked Model Completeness Audit). Sibling docs: `.planning/research/2026-06-09-hooked-model-larryreach-loop-audit.md` (45/70, the LarryReach in-session loop), the `/mos:ignite` audit at `.planning/debug/beta13-curing-sequence-persona-and-commands-bisect.md:187-209` (38/70).
+> Room mirror: ~/MindrianRooms/rethinking-mindrianos/research/2026-08-27-hooked-first-install-audit/2026-08-27-hooked-first-install-audit.md (Dev-Research Compositing mandate, CLAUDE.md). Note: the mandate also names a mindrianOS/research/ third home; that directory does not exist in the room on disk, so this audit filed to research/<dated-entry>/ only.
 >
 > Release caveat: this audit describes `main` at commit `86a9af2728077e715e5f6a0ebf7ac9d6dcc1d50c` (the pre-fix commit named by plan 267.1-01; all citations below were spot-checked against current HEAD in plan 267.1-03 and still resolve identically). The shipped plugin a user is currently running (`v2.0.0-beta.12` per `.claude-plugin/plugin.json`) may not yet contain this commit. A `main` commit is not live until a release ships and is picked up (standing hard rule).
 
