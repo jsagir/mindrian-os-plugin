@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 266-05-PLAN.md (MCPFIX-03 gap closure)
-last_updated: "2026-08-27T05:48:40.685Z"
-last_activity: 2026-08-27 -- Phase 266 fully complete (5/5 plans) and independently re-verified passed (8/8 must-haves); 266-05 closed the MCPFIX-03 gap. `gsd-tools query phase.complete 266` (as documented elsewhere in this file, a KNOWN recurring bug class on this repo's STATE.md free-text fields) collapsed this line to a bare date and left "Current Position" reading "Phase: 267 / Status: Phase complete -- ready for verification" (stale text from 266, describing a not-yet-started phase as complete) -- both hand-corrected here per the established restore precedent.
+status: executing
+stopped_at: Starting Phase 265 execution (23 plans, waves 1-6 per plan frontmatter, DAG-collapses to 5 execution waves)
+last_updated: "2026-08-27T06:00:00.000Z"
+last_activity: 2026-08-27 -- Phase 266 fully complete (5/5 plans) and independently re-verified passed (8/8 must-haves); 266-05 closed the MCPFIX-03 gap. Phase 265 (Capability Radar Absorption + Routing, re-scoped) execution begins now: 23 plans discovered via `gsd-tools query phase-plan-index 265`, none complete yet. This STATE.md update was made BY HAND, not via `gsd-tools query state.*`, per this file's own extensively-documented resync-clobber bug (see NOTEs below) -- all further per-plan STATE.md/ROADMAP.md updates during Phase 265 execution will also be made by hand.
 progress:
   total_phases: 18
   completed_phases: 5
@@ -3061,10 +3061,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 267
-Plan: Not started
-Status: Not started (Phase 266 shipped complete 2026-08-27: 5/5 plans, verified passed 8/8; 266-05 closed the one MCPFIX-03 gap the prior verification found)
-Last activity: 2026-08-27 -- Phase 266 closed out; next up is Phase 267
+Phase: 265
+Plan: 01 of 23 (waves 1-6 per plan frontmatter; DAG-verified dependency graph collapses to 5 execution waves since several wave-4-declared plans only depend on wave-1/2 work)
+Status: Executing (Phase 266 shipped complete 2026-08-27: 5/5 plans, verified passed 8/8; 266-05 closed the one MCPFIX-03 gap the prior verification found. Phase 267 is queued behind 265.)
+Last activity: 2026-08-27 -- Phase 265 execution started via /gsd-execute-phase orchestration
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
