@@ -74,13 +74,30 @@ is nominally in this phase's scope per ROADMAP.md but was not part of tonight's 
   -- CLI-only prefetch hooks don't cover Desktop/Cowork installs, so the lazy-download
   path must always exist regardless.
 
-### Open item for the planner -- not resolved in this discussion
-- **D-09:** `lib/agents/reverse-salient-agent.cjs:19` carries a standing comment/hard
-  rule: "NEVER reimplement rs-math in Node." This phase's entire premise inverts that
-  rule. This was surfaced by research but not adjudicated by the navigator in this
-  discussion -- the plan MUST open with an explicit supersede note (who/when/why this
-  rule no longer holds, or whether the phase needs to be re-scoped to respect it) before
-  any implementation work starts. Do not silently proceed past this.
+### Rule amendment -- locked, in-scope for THIS phase
+- **D-09 (RESOLVED):** `lib/agents/reverse-salient-agent.cjs:19`'s rule 6 --
+  "NEVER reimplement rs-math in Node -- shell out to scripts/rs-engine.py" -- is amended,
+  not overridden. New wording, to land as part of this phase's implementation (see below
+  for why it can't be deferred):
+
+  > "Shell out to whichever backend the active flag selects (`rs-engine.py` or
+  > `rs-engine.cjs`) -- never inline rs-math logic directly in this agent."
+
+  This preserves the rule's actual spirit (the agent stays a thin orchestrator, it does
+  not duplicate math logic inline) while accommodating D-04's env-flag default. It does
+  NOT relax rules 1-5 in the same block (navigation.cjs-only reads, typed cascade-edge
+  writes, LOCAL-only Brain reads via folder-memory, no direct DB imports, no Brain
+  client imports) -- those are unaffected and still hold.
+
+  **Locked to Phase 272 itself, not a follow-up phase.** `reverse-salient-agent.cjs` is
+  one of the actual callers of the engine this phase replaces. If rule 6 isn't updated
+  inside this same phase, the agent keeps hard-shelling to `rs-engine.py` regardless of
+  the D-04 env flag -- Phase 272 would ship a working CJS backend this call site can
+  never reach, reproducing Phase 134's own "built but not wired to a real caller"
+  failure inside its own remediation. This is not separable work: whichever code
+  implements D-04's env-flag dispatch (which backend to call) IS this rule's update --
+  same task, not an add-on. Update the rule-6 comment text in the same commit that
+  implements the dispatch.
 
 ### Claude's Discretion
 - Exact file/module layout for the new `lib/core/rs-engine.cjs`, `rs-math.cjs`,
@@ -196,6 +213,22 @@ risk-tolerance discussion. All specifics are captured as decisions above.
   ROADMAP.md, carried forward from the RCA, but not discussed in this session. Planner
   should confirm with the navigator whether they're in-scope for 272's first plan wave or
   a follow-up.
+- **`sqlite-vec` native-binary policy question** -- surfaced by tangent while researching
+  this phase, but belongs to a different subsystem (vector search / `room.db`), not this
+  phase's Python-analyzer scope. Confirmed directly: `node_modules/sqlite-vec-linux-arm64/vec0.so`
+  is a real precompiled native binary, shipped via a per-platform npm package -- already
+  present in this repo's dependency tree, already in tension with the same "pure JS, no
+  native binaries" invariant this phase (and the whole Python-elimination effort) exists
+  to uphold. This is a policy call for whoever owns that invariant, not a Phase 272
+  decision. Interim safe default until answered: plain-JS cosine similarity over
+  BLOB-stored float vectors, not `sqlite-vec`'s extension.
+- **Recursive-CTE graph traversal pattern** -- verified real (not a Phase 272 need, but
+  worth filing so it isn't lost): `sqlite-graph`'s `src/storage/sqlite.rs:431-452` has a
+  clean, portable bidirectional/depth-limited/`valid_until IS NULL`-filtered
+  `WITH RECURSIVE` query, plain SQL, works in `node:sqlite` today, zero library or binary
+  needed. Directly relevant to how `navigation.cjs` could do multi-hop traversal, which
+  is outside this phase's scope (embedding port, not graph traversal). Worth its own seed
+  or a direct note to whoever owns `navigation.cjs`.
 
 </deferred>
 
