@@ -44,7 +44,13 @@ lens_set: six-hats
 rotation_mode: parallel
 synthesizer: tension-map
 persistence: memory_event
-allowed-tools: Read Write Bash Glob
+# Phase 265 ledger T-265-08 / navigator decision (Open Question 4, SETTLED
+# "Add Task"). Task is pre-approved here because --parallel dispatches up to
+# 6 subagents in one turn; allowed-tools is a pre-approval list, not a
+# restriction list (frontmatter contract), so this removes the per-spawn
+# permission prompt rather than granting a capability the command did not
+# already have. Scoped to the invoking turn; clears on the next message.
+allowed-tools: Read Write Bash Glob Task
 ---
 
 # Persona -- AI Perspective Lenses

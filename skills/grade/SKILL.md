@@ -16,7 +16,13 @@ frameworks: ["PWS Triple Validation Compass"]
 produces: "room/**/grades/*"
 inputs: ["at least one room section populated"]
 autonomous_safe: true
-allowed-tools: Read Write Bash Glob AskUserQuestion
+# Phase 265 ledger T-265-08 / navigator decision (Open Question 4, SETTLED
+# "Add Task"). Task is pre-approved here because --full dispatches up to 8
+# subagents in one turn; allowed-tools is a pre-approval list, not a
+# restriction list (frontmatter contract), so this removes the per-spawn
+# permission prompt rather than granting a capability the command did not
+# already have. Scoped to the invoking turn; clears on the next message.
+allowed-tools: Read Write Bash Glob AskUserQuestion Task
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true
