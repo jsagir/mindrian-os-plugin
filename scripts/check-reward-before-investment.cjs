@@ -8,7 +8,7 @@
  * invalid counts + a Larry-voice summary line, exits 1 on any missing or
  * invalid.
  *
- * Two modes:
+ * Three modes:
  *
  *   node scripts/check-reward-before-investment.cjs [commandsDir]
  *     -- FULL AUDIT. Scans every *.md in commandsDir (default: commands/).
@@ -19,6 +19,17 @@
  *     -- COMMIT GATE. Lints ONLY the commands/*.md files this commit is
  *        staging, discovered via `git diff --cached --name-only
  *        --diff-filter=ACM`. Nothing staged means nothing to judge: exit 0.
+ *
+ *   node scripts/check-reward-before-investment.cjs --surfaces [repoRoot]
+ *     -- REGISTRY AUDIT (Phase 267.3, ruling D-A). Lints every record in
+ *        data/first-reward-surfaces.json, the declarations for first-touch
+ *        surfaces that have no frontmatter block to declare in (the motivating
+ *        case is scripts/session-start, a bash hook). Same three buckets, same
+ *        renderer, same exit contract as the other two modes. Plan 267.3-03
+ *        wires this mode fail-closed into scripts/verify-release: the registry
+ *        is authored complete, so it starts green and stays green, which is
+ *        why this gate can be promoted immediately while the whole-tree
+ *        commands/ audit waits for the backfill (plan 267.3-08).
  *
  * Phase 245-02 root-cause fix. The pre-commit hook's own comment has always
  * stated its contract as "exits non-zero if any STAGED commands/*.md change
@@ -43,7 +54,8 @@
  *   0  -- every scanned command compliant (or nothing staged); the rule holds.
  *   1  -- one or more scanned commands missing/invalid; commit is blocked.
  *   2  -- the commands directory could not be read at all, OR (in --staged
- *         mode) the staged set could not be determined. Fail closed: an
+ *         mode) the staged set could not be determined, OR (in --surfaces
+ *         mode) the registry could not be read or parsed. Fail closed: an
  *         ungateable commit is not a passing commit.
  */
 'use strict';
@@ -51,7 +63,12 @@
 const path = require('node:path');
 const fs = require('node:fs');
 const { spawnSync } = require('node:child_process');
-const { scanCommands, scanFiles } = require('../lib/core/mva-rule-linter.cjs');
+const {
+  scanCommands,
+  scanFiles,
+  scanDeclaredSurfaces,
+  REWARD_TYPES,
+} = require('../lib/core/mva-rule-linter.cjs');
 
 const REPO_ROOT_DEFAULT = path.join(__dirname, '..');
 
@@ -119,9 +136,69 @@ function runStaged() {
   report(scanFiles(staged.files), repoRoot);
 }
 
+// ---------------------------------------------------------------------------
+// runSurfaces() -- the registry audit (Phase 267.3, ruling D-A).
+//
+// The count printed is the registry's OWN surfaces.length, read at check time,
+// never a literal: the registry is the table, so the table decides how many
+// rows there are (data/first-reward-surfaces.json _doc.surface_count_principle).
+// ---------------------------------------------------------------------------
+function runSurfaces() {
+  const repoRoot = path.resolve(process.argv[3] || REPO_ROOT_DEFAULT);
+  const registryPath = path.join(repoRoot, 'data', 'first-reward-surfaces.json');
+
+  const result = scanDeclaredSurfaces(registryPath, repoRoot);
+
+  if (
+    result.missing.length === 1 &&
+    result.missing[0].reason === 'registry_read_error'
+  ) {
+    process.stderr.write(
+      'mva-rule-linter: could not read the first-reward registry at '
+      + registryPath + ' (' + (result.missing[0].error || 'unknown error') + ').\n'
+      + 'Failing closed: a registry that cannot be read is not a passing registry.\n'
+    );
+    process.exit(2);
+  }
+
+  // Re-read for the count only. scanDeclaredSurfaces already proved the file
+  // parses, so this cannot throw past the guard above.
+  let declaredCount = 0;
+  try {
+    declaredCount = JSON.parse(fs.readFileSync(registryPath, 'utf8')).surfaces.length;
+  } catch (_e) {
+    declaredCount = result.compliant.length + result.missing.length + result.invalid.length;
+  }
+
+  process.stdout.write(
+    'mva-rule-linter: scanning ' + declaredCount + ' declared surfaces\n'
+  );
+  process.stdout.write('  registry: ' + path.relative(repoRoot, registryPath) + '\n');
+
+  for (const bucket of [result.compliant, result.missing, result.invalid]) {
+    for (const e of bucket) {
+      process.stdout.write(
+        '    ' + (e.id || '(no id)') + '  ' + path.relative(repoRoot, e.path) + '\n'
+      );
+    }
+  }
+
+  if (declaredCount === 0) {
+    process.stdout.write(
+      '  the registry declares no surfaces yet -- the rule has nothing to judge here.\n'
+    );
+  }
+
+  report(result, repoRoot);
+}
+
 function main() {
   if (process.argv[2] === '--staged') {
     runStaged();
+    return;
+  }
+  if (process.argv[2] === '--surfaces') {
+    runSurfaces();
     return;
   }
   const target = process.argv[2] || path.join(__dirname, '..', 'commands');
@@ -168,12 +245,15 @@ function report(result, abs) {
     process.exit(0);
   }
 
+  // The allowed-values line is DERIVED from REWARD_TYPES, never retyped. Phase
+  // 267.3 amended the vocabulary, and a hand-maintained copy here would have
+  // told a contributor to fix a violation using a stale list.
   process.stderr.write(
     '\nReward-before-investment rule violated. ' +
     'See docs/reward-before-investment-rule.md.\n' +
-    'Fix: declare interactive_first_reward in the frontmatter of each missing/invalid command.\n' +
-    'Allowed values: reframe_question, instant_brief, schema_preview, ' +
-    'calibration_distribution_preview, paragraph_preview, --none (scripting only).\n'
+    'Fix: declare interactive_first_reward in the frontmatter of each missing/invalid command, ' +
+    'or in data/first-reward-surfaces.json for a surface with no frontmatter.\n' +
+    'Allowed values: ' + [...REWARD_TYPES].join(', ') + '.\n'
   );
   process.exit(1);
 }
