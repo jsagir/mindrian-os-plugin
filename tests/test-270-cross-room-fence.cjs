@@ -97,8 +97,25 @@ function makeNestedFixture() {
 
 function buildNestedFixtureContents(home) {
   const parentDir = path.join(home, 'parent');
-  const childDir = path.join(home, 'child');
-  const labDir = path.join(home, "child's-lab");
+  // FIX (plan 270-10): the child/lab rooms must live as FILESYSTEM
+  // subdirectories of the parent room, not as siblings under `home`.
+  // rollupSubRooms resolves a NESTED_WITHIN child slug to a directory via
+  // lib/core/graph-derivation.cjs::_childDirForSlug(parentRoomDir, slug),
+  // which reads ONLY `fs.readdirSync(parentRoomDir)` -- an immediate
+  // subdirectory scan of the PARENT's own directory, never `home`. A
+  // sibling layout means _directChildSlugs correctly reads the
+  // NESTED_WITHIN edges from the parent's own room.db, but
+  // _childDirForSlug can never resolve either slug to a real directory
+  // (parentDir has no non-hidden subdirectories at all), so
+  // _readChildEdgesViaAttach is never reached and rollupSubRooms silently
+  // contributes nothing -- not the Pitfall P6 splice failure this test
+  // exists to catch, just a fixture laid out inconsistently with the
+  // function's real, already-shipped contract. This mirrors
+  // lib/core/icm-forest.cjs's own established convention (a registered
+  // sub-room is a genuine filesystem child of its parent room directory,
+  // icm-forest.cjs:316-323).
+  const childDir = path.join(parentDir, 'child');
+  const labDir = path.join(parentDir, "child's-lab");
 
   fs.mkdirSync(parentDir, { recursive: true });
   fs.mkdirSync(childDir, { recursive: true });
