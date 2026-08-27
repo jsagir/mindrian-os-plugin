@@ -1581,6 +1581,56 @@ function buildAcceptanceChecklist(ctx) {
         }
       },
     },
+    {
+      // Phase 265 Plan 01 (RADAR-01/RADAR-02): "node scripts/doctor.cjs
+      // --acceptance surfaces ledger staleness through a registered doctor
+      // module" (must_have truth). Calls the capability-ledger module's
+      // check() DIRECTLY in-process (a single JSON read + one bounded
+      // `claude --version` subprocess; no spawn of doctor.cjs itself).
+      //
+      // SEVERITY REASONING: unlike eureka-fts-index-visible's
+      // visibility-not-gate design, this point IS a hard gate. T-265-02
+      // (Repudiation: stale ledger presenting false assurance) names this
+      // exact wiring as its mitigation -- "warn on unknown version, never
+      // ok; wired to doctor --acceptance so it runs on the release gate
+      // path." A ledger that has fallen behind the installed Claude Code
+      // version by more than MINDRIAN_LEDGER_MAX_VERSION_LAG, or a version
+      // the check could not read at all, must not let a release ship
+      // silently -- that silent-pass is the exact rot pattern Phase 138's
+      // markdown ledger died from.
+      //
+      // applies_to: ['pre-tag', 'full'] -- purely LOCAL (one JSON read, one
+      // bounded local subprocess; Canon Part 8 zero network). Present before
+      // tag, no publish needed. DOCTOR_SKIP_CAPABILITY_LEDGER=1 is the
+      // hermetic-CI / offline-claude-binary opt-out, mirroring the sibling
+      // DOCTOR_SKIP_* escapes above.
+      id: 'capability-ledger-fresh',
+      label: 'capability ledger freshness: data/capability-ledger.json tracks the installed claude --version',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'capability-ledger-fresh') {
+          return { ok: false, finding: 'capability-ledger-fresh synthesized failure (test mode)', detail: {} };
+        }
+        if (process.env.DOCTOR_SKIP_CAPABILITY_LEDGER === '1') {
+          return { ok: true, finding: null, detail: { skipped: true, reason: 'DOCTOR_SKIP_CAPABILITY_LEDGER=1' } };
+        }
+        try {
+          const ledgerMod = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'capability-ledger-module.cjs'));
+          const result = ledgerMod.check({});
+          if (!result || result.status !== 'ok') {
+            return {
+              ok: false,
+              finding: 'capability-ledger-fresh: ' + (result && result.detail || 'check() returned no detail'),
+              detail: { status: result && result.status },
+            };
+          }
+          return { ok: true, finding: null, detail: { status: result.status, detail: result.detail } };
+        } catch (e) {
+          return { ok: false, finding: 'capability-ledger-fresh threw: ' + e.message, detail: {} };
+        }
+      },
+    },
   ];
 }
 

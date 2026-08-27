@@ -5,6 +5,15 @@
   "canon_parts": [6, 7, 8],
   "modules": [
     {
+      "id": "capability-ledger",
+      "introduced_version": "2.0.0-beta.12",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/capability-ledger-module.cjs",
+      "description": "Capability ledger staleness (Phase 265): warns when data/capability-ledger.json's ledger_covers.to trails the installed claude --version beyond MINDRIAN_LEDGER_MAX_VERSION_LAG. Check-only, cadence always."
+    },
+    {
       "id": "umbilical",
       "introduced_version": "1.13.1-beta.4",
       "cadence": "once",
