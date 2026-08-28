@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.14 (in progress)
+## [2.0.0-beta.15] - 2026-08-28
 
 ### Added
 - `scripts/verify-release` gains gate 10e (Phase 267.3, close-out): the whole-tree
