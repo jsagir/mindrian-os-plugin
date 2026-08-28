@@ -4,7 +4,7 @@
 //
 // Asserts, against HEAD:skills/larry-personality/SKILL.md:
 //   - the Hierarchical Navigator section exists
-//   - it quotes "the insight belongs to you; the reach belongs to the tool"
+//   - it quotes "Mindrian may propose the leap. The navigator decides whether"
 //     and "restraint is the product working correctly"
 //   - the posture-id machine-token set is EXACTLY {push_forward, hold, pull_back}
 //     -- exactly 3, no more, no fewer
@@ -27,7 +27,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const CANONICAL_POSTURE_IDS = ['hold', 'pull_back', 'push_forward'];
 
 const QUOTES = [
-  'the insight belongs to you; the reach belongs to the tool',
+  'Mindrian may propose the leap. The navigator decides whether the leap is real',
   'restraint is the product working correctly',
 ];
 

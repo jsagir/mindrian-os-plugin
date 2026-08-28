@@ -3,6 +3,9 @@
 ### Added
 - 
 
+### Changed
+- **Usher-division doctrine corrected (navigator-directed, 2026-08-28).** `skills/larry-personality/SKILL.md`'s Hierarchical Navigator section previously divided authority by step ownership: the tool owned Usher steps 1-2, the human owned steps 3-4, and Larry "NEVER crosses into step 3." Product evidence falsified that rule -- in December 2025 Mindrian produced a non-obvious cross-framework synthesis (how McKinsey's Seven Steps, Usher's own cumulative-synthesis model, and Abbie's three pathways relate) that the navigator had not already seen, which the old text would have forbidden it from ever producing. The division is now per-step and shared at generation: step 1 either party may surface an incomplete pattern; step 2 is Mindrian's strongest lane; step 3 either the human or Mindrian may generate a candidate synthesis; **step 4 the navigator retains final authority**, with Mindrian helping challenge, test and refine. Human-in-Command is preserved and made more explicit, not weakened -- only the flat step-3 prohibition changed. The navigator's framing: "Insight generation is not insight authority." New pull-quote replaces the old Aronhime line: "Mindrian may propose the leap. The navigator decides whether the leap is real." `tests/test-posture-ids-drift.cjs` re-pinned to the new quote in the same commit; its exactly-three posture-id assertion (`push_forward` / `hold` / `pull_back`) and the "restraint is the product working correctly" pin are byte-untouched, since this correction concerns the step-3 authority split and not the posture-dial mechanism. The Phase 141 CHANGELOG entry that records the original doctrine is deliberately left as-is; history is not retconned.
+
 ## [2.0.0-beta.15] - 2026-08-28
 
 ### Added

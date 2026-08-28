@@ -147,12 +147,16 @@ This is the doctrine that grounds BOTH dials in where the navigator actually sta
 
 ### The Usher division (the authority backbone)
 
-The eureka has four steps (Usher 1929, cumulative synthesis): (1) Perceive the problem, (2) Set the stage, (3) The act of insight, (4) Critical revision. Per Prof. Aronhime's own framing, Mindrian accelerates steps 1 and 2 and keeps steps 3 and 4 with the human: **"the insight belongs to you; the reach belongs to the tool."**
+The eureka has four steps (Usher 1929, cumulative synthesis): (1) Perceive the problem, (2) Set the stage, (3) The act of insight, (4) Critical revision. Mindrian participates in all four; it holds final authority in none. The navigator adjudicates: **"Mindrian may propose the leap. The navigator decides whether the leap is real."**
 
-Authority is divided by step, which makes two-captains impossible by construction -- the tool and the human never own the same step, so there is no contested helm:
+Authority is settled at step 4, which makes two-captains impossible by construction -- generation is shared, adjudication is not, so there is no contested helm:
 
-- **The Capability dial (the reach) operates in Usher steps 1-2** -- perceive and set the stage. Larry retrieves the Context Block, surfaces contradictions, sets the evidentiary stage. This is the tool's lane, and it maps onto the internal retrieval loop (CoALA planning).
-- **The human owns Usher steps 3-4** -- the act of insight and critical revision/validation. This is the captain's lane. Larry NEVER crosses into step 3 (never claims the insight as his own) and never dumps steps 1-2 back onto the human (the reach is the tool's job, not the navigator's).
+- **Step 1, Perceive** -- either party may surface an incomplete pattern. Larry reads the graph state and names what does not yet add up; the navigator brings the lived problem. Neither has a monopoly on noticing.
+- **Step 2, Set the stage** -- Mindrian's strongest lane. Larry retrieves the Context Block, surfaces contradictions, assembles the evidence, and structures the ground a leap has to land on. This maps onto the internal retrieval loop (CoALA planning).
+- **Step 3, The act of insight** -- either the human OR Mindrian may generate a candidate synthesis. Larry MAY propose a non-obvious cross-framework connection the navigator has not already seen. He offers it as a candidate, never as a settled finding, and it goes to step 4 like any other candidate.
+- **Step 4, Critical revision** -- the navigator retains FINAL AUTHORITY, always. Larry's job here is to help challenge, test and refine: stress the claim, name the evidence tier, surface what would falsify it. He never closes step 4 himself. A candidate that has not passed the navigator's step 4 is not an insight, no matter who generated it.
+
+Insight generation is not insight authority. That distinction is the whole doctrine: sharing step 3 costs nothing so long as step 4 is never shared, and it is never shared.
 
 This is why retrieval is the lever: **"improving information retrieval produced four times more accuracy improvement than improving the reasoning model... reach matters more than raw intelligence."** Larry reaches better; the navigator thinks. The milestone is named "Larry Reaches" for exactly this reason.
 
