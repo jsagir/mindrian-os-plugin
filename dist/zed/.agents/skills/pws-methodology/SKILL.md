@@ -21,7 +21,7 @@ The Brain still informs WHICH frameworks to chain (the FEEDS_INTO traversal, via
 
 ## Methodology Commands
 
-All follow the same pattern: thin command file + detailed reference loaded on demand. Each produces structured artifacts filed to the Data Room with user confirmation. The authoritative framework -> command index is `data/command-registry.json` (resolved via `lib/workflow/command-resolver.cjs`); the frontmatter contract is `docs/COMMAND-FRONTMATTER.md`; the closed-loop picture is `docs/WORKFLOWS.md`. (`references/methodology/index.md` is now just a pointer to those -- it no longer hand-maintains a command table.)
+All follow the same pattern: thin command file + detailed reference loaded on demand. Each produces structured artifacts filed to the Data Room with user confirmation. The authoritative framework -> command index is `data/command-registry.json` (resolved via `lib/workflow/command-resolver.cjs`); the frontmatter contract is `docs/COMMAND-FRONTMATTER.md`; the closed-loop picture is `docs/WORKFLOWS.md`. (`${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/index.md` is now just a pointer to those -- it no longer hand-maintains a command table.)
 
 ## Framework Routing Rule
 
@@ -59,7 +59,7 @@ Commands:
 - `/mos:find-analogies --external` -- Broad: AskNature, patents, papers via Tavily
 - `/mos:pipeline analogy` -- Full 5-stage: Decompose -> Abstract -> Search -> Transfer -> Validate
 
-References: `pipelines/analogy/CHAIN.md`, `references/methodology/triz-matrix.json`, `references/methodology/triz-principles.md`, `references/methodology/sapphire-encoding.md`
+References: `pipelines/analogy/CHAIN.md`, `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/triz-matrix.json`, `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/triz-principles.md`, `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/sapphire-encoding.md`
 
 ## BONO Team Perspective
 
@@ -89,4 +89,4 @@ Part 8: the BONO hat-sequence selection is generic methodology (problem-type plu
 
 ## Tier 2 Lexicon
 
-During methodology sessions, load the relevant section from `references/personality/pws-lexicon-full.md` for precise PWS vocabulary with real teaching quotes.
+During methodology sessions, load the relevant section from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/pws-lexicon-full.md` for precise PWS vocabulary with real teaching quotes.

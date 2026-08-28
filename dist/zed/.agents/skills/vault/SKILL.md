@@ -276,11 +276,15 @@ must not be added, fan-out or not.
 1. Call `syncClassificationsToManifest` once, over `classifications.md` as it now stands.
 2. Write the marker file `room/imports/{id}/02-classify/output/.approved` ONLY after that call
    succeeds, to signal that Stage 03 can proceed without re-running the stub classifier (the
-   orchestrator skipStub logic reads this marker). Then re-invoke
-   `node scripts/vault-import.cjs` with the same flags for Stage 03, exactly as today.
+   orchestrator skipStub logic reads this marker).
 3. Present the summary in Body Shape E and ask the user to confirm. **The fan-out speeds up
-   the machine's PROPOSAL; it does not remove the human gate.** On confirmation, Stage 03 picks
-   up from the approved classifications automatically.
+   the machine's PROPOSAL; it does not remove the human gate.** ONLY on confirmation, re-invoke
+   `node scripts/vault-import.cjs` with the same flags for Stage 03: `scripts/vault-import.cjs`'s
+   own internal gate (`if (!args.yes && !fs.existsSync(approvedMarker))`) only blocks on a
+   MISSING marker, and item 2 has already written it -- so the re-invocation itself, not just
+   the marker write, must wait for this confirmation, or Stage 03 (the actual file-routing step)
+   would execute before the navigator ever answers (Phase 265 code-review CR-02 fix; this is the
+   pre-265 ordering, restored).
 
 ### Step 4: Report and undo
 

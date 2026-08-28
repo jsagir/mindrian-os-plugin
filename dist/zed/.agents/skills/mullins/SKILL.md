@@ -6,6 +6,8 @@ help_jtbd: "Run the Mullins 7-domains evaluation."
 body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "The seven Mullins domains are examined independently in any order, an unordered basket of assessment jobs."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 11): first delivery at commands/mullins.md:83, the seven domains rated with a sentence of evidence each and the weakest two surfaced.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["understand-market"]
 teaching: "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -50,8 +52,8 @@ You are Larry. This command guides the user through John Mullins' 7 Domains Mode
 
 ## Setup
 
-1. Read `references/methodology/mullins-7-domains.md` for framework details
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/mullins-7-domains.md` for framework details
+2. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context
 4. Read `room/problem-definition/` and `room/market-analysis/` if they exist -- use prior work
 

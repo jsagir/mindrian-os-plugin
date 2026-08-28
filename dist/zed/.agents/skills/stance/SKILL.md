@@ -8,6 +8,8 @@ argument-hint: "[]"
 body_shape: F.0
 hitl_shape: F.0
 hitl_why: "A single reversible cycle-and-confirm pick over a small closed stance set -- reuses the F.0 minimum-viable gate rather than a 4-way F.1 pick, because shape-f0-renderer.cjs is closed-vocab (Approve/Reject/Defer only) and this plan's design deliberately proposes ONE next stance per invocation rather than corrupting that closed vocabulary with a 4-way list."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 20): first delivery at commands/stance.md:73, the F.0 gate proposing the next stance via a fixed, predictable round-robin cycle.
+interactive_first_reward: "--none (diagnostic surface)"
 teaching: "When you want Larry to shift how he talks to you this session -- pull evidence, deliver decisively, stay Socratic, or challenge you -- /mos:stance flips the dial in one confirm. Offered when relevant, never forced."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Bash AskUserQuestion

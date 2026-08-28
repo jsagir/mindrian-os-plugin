@@ -6,6 +6,8 @@ help_jtbd: "Bring the memory cortex to a Decision Gate when a governing thought 
 body_shape: F.1
 hitl_shape: "F.1"
 hitl_why: "A memory reach resolves to a single next move on the recalled item."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 22, navigator-ruled NEEDS-RULING): first delivery at commands/memory-cortex-reach.md:57, a Decision Gate whose actual cortex content is surfaced by the orchestrator only after approval (the show router sub-case).
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: One reach surfaced at an F.1 Decision Gate; the navigator approves before any cortex read fires
 serves_jtbd: ["navigate"]
 teaching: "When a governing thought you set has gone stale, or a fresh contradiction has just landed against a claim, your memory cortex has something to tell you. /mos:memory-cortex-reach is the navigator-facing surface the orchestrator dispatches to bring that signal to a Decision Gate. It does not re-implement the cortex; it joins the reach spine so the cortex becomes dispatchable."

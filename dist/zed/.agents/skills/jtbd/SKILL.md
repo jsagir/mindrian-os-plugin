@@ -8,6 +8,8 @@ argument-hint: "[set <jtbd> | clear | list | history] [--json]"
 body_shape: E (Action Report)
 hitl_shape: "F.1"
 hitl_why: "Setting the active JTBD is a single next-move selection."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 21): first delivery at commands/jtbd.md:93, the classifier's own inferred JTBD label plus confidence and history, a state readout of the tool's internal signal.
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: current state + last 5 history (default), 13 entries (list), full history (history), Shape F.1 picker (set with no arg), Shape E confirmation (clear, set <jtbd>)
 serves_jtbd: ["audit-room"]
 kind: methodology

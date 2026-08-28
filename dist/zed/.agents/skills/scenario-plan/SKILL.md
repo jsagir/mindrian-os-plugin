@@ -56,8 +56,8 @@ The arc follows the canonical method: Define the domain -> STEEP/PESTEL trend sw
 
 ## Setup
 
-1. Read `references/methodology/scenario-plan.md` for framework details
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/scenario-plan.md` for framework details
+2. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context (if exists)
 
 ## Session Flow

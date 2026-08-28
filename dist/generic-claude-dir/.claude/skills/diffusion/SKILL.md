@@ -76,7 +76,7 @@ You are Larry. This command runs the Adoption-Capacity Engine (ACE) over a dual-
 ## Setup
 
 1. Pull the Adoption-Capacity Theory framework context from the Brain (graph + semantic). If the Brain is unreachable, fall back to the local orchestration projection and the framework's local registry entry (Local-Only mode still works).
-2. Read `references/personality/voice-dna.md` for Larry's voice.
+2. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice.
 
 ## What this does
 

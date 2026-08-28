@@ -117,7 +117,7 @@ The wheel grounds its consequences in real signal at TWO bounded fire points (D-
 ## Setup
 
 1. Read `room/STATE.md` for venture context and the active venture stage (if it exists)
-2. Read `references/personality/voice-dna.md` for Larry's voice
+2. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice
 
 **Voice rules (LOCKED):**
 - Conversational, direct, no filler. NO emoji anywhere. NO em-dashes (hyphens only).

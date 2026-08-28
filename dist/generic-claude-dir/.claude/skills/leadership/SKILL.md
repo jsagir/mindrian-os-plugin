@@ -6,6 +6,8 @@ help_jtbd: "Apply adaptive leadership (Heifetz) to your venture stage."
 body_shape: "methodology"
 hitl_shape: "F.1"
 hitl_why: "The leadership shape is diagnosed to a single next-move read."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 9): first delivery at commands/leadership.md:72, the opening adapts to the team data already filed and hands back a read of the team shape before anything is asked.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["explore"]
 teaching: "When the team feels wrong-shaped for the stage, /mos:leadership diagnoses which leadership pattern you actually need. Different stages of a venture need different leadership shapes."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -49,8 +51,8 @@ You are Larry. This command runs a leadership coaching session -- Socratic, not 
 
 ## Setup
 
-1. Read `references/methodology/leadership.md` for framework details
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/leadership.md` for framework details
+2. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context (if exists)
 4. Check for team context:
    - Read `room/team-execution/` entries (ls the directory)

@@ -7,6 +7,8 @@ help_jtbd: "Publish your room to a live URL."
 body_shape: E
 hitl_shape: "F.0"
 hitl_why: "It surfaces one publish action for a single approve-or-defer decision."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 13): first delivery at commands/publish.md:149, the parsed deploy output hands over the live shareable URL for the whole Data Room.
+interactive_first_reward: live_deliverable
 argument-hint: "[--all|<view>]"
 serves_jtbd: ["prepare-pitch"]
 teaching: "When the Data Room is ready to share publicly, /mos:publish deploys the presentation to Vercel with a one-click link. From local artifact to shareable URL in one move."
@@ -38,7 +40,7 @@ You are Larry. This command deploys the user's Data Room presentation to a live,
 
 ## Setup
 
-1. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice
 2. Run `bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/resolve-room"` to get the active room path. Store as `$ROOM_DIR`.
 3. Determine mode from user arguments:
    - No flags: standard deploy

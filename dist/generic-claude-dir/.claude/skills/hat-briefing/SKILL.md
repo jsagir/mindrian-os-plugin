@@ -6,6 +6,8 @@ help_jtbd: "Get a per-hat briefing from the AI team on your venture."
 body_shape: C (Dashboard Grid)
 hitl_shape: "F.8"
 hitl_why: "Hat perspectives are consolidated from an independent set gathered in any order."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 15): first delivery at commands/hat-briefing.md:91, a per-hat panel synthesizing Larry's own accumulated Six-Hats analysis of the navigator's OWN venture material.
+interactive_first_reward: methodology_reframe
 body_shape_detail: 6-panel hat grid + synthesis strip
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review."

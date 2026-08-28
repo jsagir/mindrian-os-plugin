@@ -6,6 +6,8 @@ help_jtbd: "Apply systems-thinking lenses to a problem."
 body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "Stocks, flows, and loops are surfaced as an independent set with no ordering constraint."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 17): first delivery at commands/systems-thinking.md:116, the EXECUTE step hands over one question or observation per turn, one lens at a time.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["find-bottleneck"]
 teaching: "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -62,9 +64,9 @@ The difference that makes this PWS, not generic Meadows: a generic systems tool 
 
 ## Setup
 
-1. Read `references/methodology/systems-thinking.md` for the five-move definitions and the CLD storytelling method
-2. Read `references/methodology/causal-loop-diagrams.md` when the navigator picks M2 (the spine move)
-3. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/systems-thinking.md` for the five-move definitions and the CLD storytelling method
+2. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/causal-loop-diagrams.md` when the navigator picks M2 (the spine move)
+3. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice
 4. Read `room/STATE.md` for venture context and the active venture stage (if exists)
 
 ## The Five Moves (the abilities behind the dial)
@@ -166,7 +168,7 @@ ranked candidates as a Decision Gate.
    finally { navigation.closeRoomDbForCaller(db); }
    ```
    The scanner reads the generic 12-level signature mapping
-   (`references/methodology/leverage-scan-signatures.md`) and runs it over the
+   (`${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/leverage-scan-signatures.md`) and runs it over the
    local graph, returning candidates RANKED highest-leverage-first (lower Meadows
    number first). Tier-0 resilient: it runs with Brain offline. If `db` is null
    (no room.db yet), fall back to a single conceptual leverage hypothesis from

@@ -6,6 +6,8 @@ help_jtbd: "Run context-aware research that files findings as typed EvidenceClai
 body_shape: C
 hitl_shape: "F.8"
 hitl_why: "Research subquestions fan out independently and are verified as an any-order basket."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 10, navigator-ruled): first delivery at commands/research.md:256, the top-5 web findings framed and percent match-scored against the room's own existing claim graph.
+interactive_first_reward: methodology_reframe
 argument-hint: "[topic | url]"
 serves_jtbd: ["explore", "understand-market"]
 teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume."

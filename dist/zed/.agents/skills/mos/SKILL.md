@@ -6,6 +6,8 @@ help_jtbd: "Meet the navigator where they are: onboard, status, or next move."
 body_shape: E
 hitl_shape: "F.1"
 hitl_why: "The entry command offers one next move into the system."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 25): first delivery at commands/mos.md:97, the routing envelope naming the resolved target; a pure dispatcher over onboard/status/suggest-next with zero net-new behavior of its own (the router sub-case).
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: Action Report rendering of the routing decision (zone 2 names the resolved target + reason; zone 4 routes to that target as primary)
 serves_jtbd: ["explore"]
 teaching: "When you do not know which /mos:* surface to invoke, /mos:mos picks the right one. No room: onboard. Mostly empty room: status with a next-move hint. Populated room: suggest-next."

@@ -6,6 +6,8 @@ help_jtbd: "See how subsystems connect, where they break, where they leverage ea
 body_shape: "methodology"
 hitl_shape: "F.8"
 hitl_why: "System elements and leverage points are surfaced as an independent set examined in any order."
+# Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 1): first delivery at commands/analyze-systems.md:64, the system decomposed into layers with its leverage points named.
+interactive_first_reward: methodology_reframe
 serves_jtbd: ["find-bottleneck"]
 teaching: "When you need to find where leverage lives in a complex system, /mos:analyze-systems decomposes it into layers and surfaces the leverage points. Best when symptoms keep recurring."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -49,8 +51,8 @@ You are Larry. This command guides the user through Nested Hierarchies analysis.
 
 ## Setup
 
-1. Read `references/methodology/analyze-systems.md` for framework details
-2. Read `references/personality/voice-dna.md` for Larry's voice
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/analyze-systems.md` for framework details
+2. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md` for Larry's voice
 3. Read `room/STATE.md` for venture context (if exists)
 
 ## Session Flow

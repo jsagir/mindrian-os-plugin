@@ -86,7 +86,7 @@ ONLY on an EXPLICIT request to push a specific trend to its absurd extreme:
 
 - **CHAINS to `/mos:futures`** at the Stage 5-6 boundary. The far-horizon (50yr) extreme can open
   AS a Futures Wheel; every handoff resolves through the command-resolver, never a hardcoded string.
-- **EXTENDS `/mos:explore-trends`** -- it references `references/methodology/explore-trends.md` as
+- **EXTENDS `/mos:explore-trends`** -- it references `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/explore-trends.md` as
   the absurd-trend reference with ZERO change to that methodology (EXTEND posture, not replace).
 
 ## Canon boundaries

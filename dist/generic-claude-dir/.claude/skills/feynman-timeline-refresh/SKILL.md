@@ -7,6 +7,8 @@ help_jtbd: "Refresh the human-readable Timeline section in FEYNMAN.md."
 body_shape: E
 hitl_shape: "F.0"
 hitl_why: "It offers a single timeline-refresh action to approve or defer."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 12): first delivery at commands/feynman-timeline-refresh.md:49, an F.0 Action Report of sections refreshed/skipped/failed, a regeneration-status report.
+interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[--all | --section <slug>]"
 serves_jtbd: ["validate-idea", "audit-room"]
 teaching: "When a section's FEYNMAN.md timeline feels stale, /mos:feynman-timeline-refresh rebuilds the auto-section from the memory event log. Human-authored prose stays byte-preserved."

@@ -161,7 +161,7 @@ If Brain MCP is available, ask for framework recommendations using natural langu
 
 If Brain is not available or returns no results:
 
-1. Read `references/methodology/problem-types.md` for the routing table
+1. Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/problem-types.md` for the routing table
 2. Cross-reference current problem type (definition level x complexity) with the table
 3. Exclude frameworks already applied (from STATE.md)
 4. Prioritize frameworks that target the emptiest room section
@@ -256,7 +256,7 @@ After displaying the thinking trace, render the option gate on the canonical **S
 
 ### Dry-Run Mode (`/mos:act --dry-run`)
 
-Display the thinking trace (Step 4) and the execution plan following the dry-run format from `references/pipeline/act-output-contract.md`. Do NOT execute anything.
+Display the thinking trace (Step 4) and the execution plan following the dry-run format from `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/pipeline/act-output-contract.md`. Do NOT execute anything.
 
 ```
 [ACT] Execution Plan (DRY RUN)
@@ -292,7 +292,7 @@ Then, for the steps the helper greenlit:
    - First framework: targets weakest section or most pressing gap
    - Subsequent frameworks: build on previous, guided by Brain `FEEDS_INTO` relationships or natural progression (Exploration -> Analysis -> Synthesis -> Validation)
    - Never select redundant frameworks
-   - Read `references/pipeline/act-output-contract.md` for chain selection rules
+   - Read `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/pipeline/act-output-contract.md` for chain selection rules
 
 2. Display the full chain thinking trace:
 

@@ -152,8 +152,13 @@ One subagent per tracked competitor, N capped at the EXISTING max 5 -- 5 already
 `FUTURES_FANOUT_CAP`, so no cap change is needed. If Step 4a found zero competitors, dispatch
 NOTHING and keep the honest refusal above verbatim; a future edit must not dispatch an empty fan.
 
-For each tracked competitor, dispatch one `subagent_type: research` (`agents/research.md`)
-subagent:
+For each tracked competitor, dispatch one `subagent_type: competitor-watch-fetcher`
+(`agents/competitor-watch-fetcher.md`) subagent. This is a purpose-built read-only sibling
+(Phase 265 code-review CR-01 fix), not the general-purpose `agents/research.md`: research.md
+carries `Write` plus two Brain MCP tools, which this job's own "writes NOTHING... no Brain"
+contract below needs enforced structurally, not just stated in prose -- exactly the reasoning
+`agents/meeting-perspective-extractor.md` and `agents/analogy-query-fetcher.md` already record
+for minting their own narrow siblings elsewhere in this phase.
 
 - **Input:** the competitor name, the pre-composed query string
   `"[competitor name]" funding OR launch OR pivot OR acquisition` (last 30 days), and THE SPECIFIC
@@ -176,7 +181,7 @@ supplied claims are for LOCAL comparison inside the agent and are never placed i
 (Canon Part 8).
 
 **Dispatch idiom.** Dispatch all N agents in one message using the Task tool with
-`subagent_type: research` (the explicit type string, not a file path -- a Task tool call that
+`subagent_type: competitor-watch-fetcher` (the explicit type string, not a file path -- a Task tool call that
 cannot resolve a `subagent_type` is a hard error listing available agents since 2.1.235). Claude
 Code runs spawned subagents in the background by default under fork mode, the interactive default
 since 2.1.232 -- do NOT pass any manual background-execution parameter to the Task tool call; the

@@ -7,6 +7,8 @@ argument-hint: "[tree|propose|move <room> <group>]"
 body_shape: B (Semantic Tree)
 hitl_shape: "F.8"
 hitl_why: "Filing and tidy jobs are surfaced as an independent set with no ordering constraint."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/organize.md:58, a soft-alias stub passing through /mos:rooms organize's output verbatim (router sub-case).
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
 deprecated: true
 deprecated_redirect: "rooms organize"

@@ -7,6 +7,8 @@ argument-hint: "[command-name | family-id | 2 | 3 | --list]"
 body_shape: F.1
 hitl_shape: "F.1"
 hitl_why: "Help offers one next move on where to go next."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 17): first delivery at commands/help.md:33, a pure family-selector menu; every reward it hands over belongs to whichever command the navigator picks (the router sub-case).
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: F.1 Next Move (11 families as 3 sequential cards via AskUserQuestion, max 4 questions x 4 options per call)
 serves_jtbd: ["explore"]
 teaching: "When the surface feels overwhelming, /mos:help is a selector: 11 command families across 3 cards, each family's commands are the options, and the one you pick runs. Add --list for the full text view, or /mos:help <family-id> for one family's full command list."

@@ -9,6 +9,8 @@ teaching: "Maintainer-only. When you want to teach the Brain a new methodology, 
 body_shape: "action-report"
 hitl_shape: "F.9"
 hitl_why: "A methodology is parsed and registered through ordered steps, a fixed-order walk."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 19): first delivery at commands/ingest-methodology.md:123, the pipeline's own "action report" of gate/write/registration results; a maintainer-only status of GENERIC teaching knowledge, never a navigator's venture data.
+interactive_first_reward: "--none (diagnostic surface)"
 kind: utility
 autonomous_safe: false
 disable-model-invocation: true

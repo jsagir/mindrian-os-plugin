@@ -8,6 +8,8 @@ argument-hint: "[history] [set <op>] [reset] [--json]"
 body_shape: E (Action Report)
 hitl_shape: "F.1"
 hitl_why: "The operator view offers one next move on the current state."
+# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 3): first delivery at commands/operator.md:78, the bare-invocation state readout of the conversation-operator's own current value and history.
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: current state + last 5 history (default), full history (history subcommand), Shape F.1 picker (set subcommand), Shape F.4 confirmation (reset subcommand)
 serves_jtbd: ["explore"]
 teaching: "When you want to see or set how Larry should render right now, /mos:operator shows the conversation state machine: JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE."

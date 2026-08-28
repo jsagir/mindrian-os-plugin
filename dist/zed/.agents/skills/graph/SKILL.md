@@ -6,6 +6,8 @@ help_jtbd: "Ask your room a question; get the answer as graph paths."
 body_shape: C (Room Card)
 hitl_shape: "F.1"
 hitl_why: "Graph exploration offers one next move from the current node."
+# Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 14): first delivery at commands/graph.md:87, the bare-invocation node/edge/section count, a status readout of the room's graph size.
+interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: Query results as cards, graph stats as header
 serves_jtbd: ["audit-room", "explore"]
 teaching: "When you want to ask the knowledge graph a question without writing Cypher, /mos:graph translates plain English into the right traversal. Larry walks the edges so you do not have to."
