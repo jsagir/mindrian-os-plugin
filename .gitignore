@@ -40,6 +40,11 @@ room.db-shm
 **/room.db-shm
 .mindrian/
 **/.mindrian/current-session.json
+# Phase 272-08: rs-engine.cjs runtime artifacts written directly into a
+# room's root (not inside .mindrian/) -- results + embedding cache, never
+# committed for any room including the Phase 272 fixture room.
+**/.rs-engine-results.json
+**/.rs-engine-cache.json
 # Phase 99-01 exception: the conversation-operator fixture committs deterministic
 # state files (cold-start .gitkeep + resume conversation-operator.json) needed
 # by tests/test-operator-state.cjs. Hook side-channel artifacts
