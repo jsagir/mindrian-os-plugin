@@ -64,11 +64,21 @@ export MINDRIAN_EMBED_DIM=768
 ### MINDRIAN_MODEL_CACHE
 
 **What:** Directory where transformers.js caches downloaded model weights.
-**Default:** transformers.js `env.cacheDir` (the package's own cache under node_modules).
-**Why:** Point weight storage at a caller-chosen path (a shared cache, a larger disk). Set before the first embedding call; the one-time download honors it.
+**Default (Phase 272, D-07):** `$HOME/.mindrian/model-cache`, created automatically if missing. Previously defaulted to transformers.js's own package-relative `env.cacheDir` (under `node_modules/@huggingface/transformers/.cache/` in a dev checkout, or the versioned plugin install directory in a marketplace install) -- `lib/core/cache-prune.cjs` deletes that directory on every version update, turning the "one-time" model download into a re-download-on-every-update bug (RESEARCH.md Finding F-10). The new default follows the same `$HOME/.mindrian/` home-dir resolution idiom already used by `lib/core/mva-state.cjs` and `lib/core/install-state.cjs`.
+**Why:** Point weight storage at a caller-chosen path (a shared cache, a larger disk), or rely on the new stable default so a plugin update never forces a re-download. Set before the first embedding call; the one-time download honors it.
 
 ```bash
 export MINDRIAN_MODEL_CACHE=/opt/mindrian/model-cache
+```
+
+### MINDRIAN_RS_BACKEND
+
+**What:** Selects which backend `lib/core/rs-backend-dispatch.cjs::resolveBackend()` reports for reverse-salient / HSI computations (Phase 272, D-04).
+**Values:** `cjs` (default -- the new in-process CJS port) or `python` (the retained fallback, `rs-engine.py` / `compute-hsi.py`). Any unset or unrecognized value resolves to `cjs`.
+**Why:** An env flag is the only real rollback mechanism for a marketplace-distributed plugin -- a fix is not live until released and picked up, and a running session never hot-reloads, so reverting a hard cutover would otherwise mean cutting an entirely new release. `rs-backend-dispatch.cjs` is the ONE chokepoint that reads this flag; no other module decides CJS-vs-Python directly.
+
+```bash
+export MINDRIAN_RS_BACKEND=python
 ```
 
 ### MINDRIAN_EUREKA_SMOKE_TIMEOUT_MS
