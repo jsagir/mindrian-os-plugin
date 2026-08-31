@@ -45,6 +45,10 @@ room.db-shm
 # committed for any room including the Phase 272 fixture room.
 **/.rs-engine-results.json
 **/.rs-engine-cache.json
+# Phase 272-09: hsi-engine.cjs's own results file, same runtime-artifact
+# class as rs-engine.cjs's above -- never committed for any room including
+# the Phase 272 fixture room.
+**/.hsi-results.json
 # Phase 99-01 exception: the conversation-operator fixture committs deterministic
 # state files (cold-start .gitkeep + resume conversation-operator.json) needed
 # by tests/test-operator-state.cjs. Hook side-channel artifacts
