@@ -826,7 +826,7 @@ Also carries forward, not yet done: SEED-013's own frontmatter needs a second co
 Cross-references: `.planning/debug/phase-134-python-elimination-false-complete.md` (`status: resolved-partial` -- kept open in `.planning/debug/`, deliberately NOT moved to `resolved/`, since Change 1 alone does not close a `severity: blocker` finding), `.planning/debug/knowledge-base.md` (Change-1 summary block filed 2026-08-27), `.planning/debug/python-requirements-orphan-deps-audit.md` (cross-linked, narrower hygiene scope, unaffected), `.planning/phases/134-cjs-port-of-python-analyzers-via-xenova-transformers-elimina/` (the original, falsely-closed phase -- this new phase does not silently reopen or renumber it; 272 is the real remediation, 134's own record stays as historical evidence of the false-complete pattern for Change 3's own fix to reference). Canon Part 6 (dog-fooding -- the plugin's own tracking told a false story about its own state) and Part 7 (reuse-before-build -- other seeds/phases reading Phase 134's status as ground truth is exactly the failure mode Part 7 exists to prevent) both apply.
 **Requirements**: PYPORT-01, PYPORT-02, PYPORT-03, PYPORT-04, PYPORT-05, PYPORT-06, PYPORT-07 (phase-local working IDs, minted in `272-RESEARCH.md`'s Phase Requirements section 2026-08-31; `.planning/REQUIREMENTS.md` carries no Phase 272 rows yet, registered at phase close by plan 272-11 per the Phase 273/CHOKE precedent)
 **Depends on:** none technically. Sequenced after Phase 271 in this document only because it was registered during the same session, not because of a real dependency -- either can be planned/executed first.
-**Plans:** 6/11 plans executed
+**Plans:** 7/11 plans executed
 
 Plans:
 
@@ -836,7 +836,7 @@ Plans:
 - [x] 272-04-PLAN.md -- `rs-backend-dispatch.cjs` (D-04 flag chokepoint), `pinecone-inference.cjs` (D-01 /embed module), `embedding-spine.cjs` D-06/D-07 cache fixes
 - [x] 272-05-PLAN.md -- `lib/core/numeric/svd.cjs` (deterministic truncated SVD + sklearn's verified svd_flip) and `lib/core/numeric/tfidf.cjs` (sklearn-compatible TF-IDF)
 - [x] 272-06-PLAN.md -- `lib/core/rs-math.cjs`: full port of `rs_math.py` (Convention A, topic-keyword-membership signal)
-- [ ] 272-07-PLAN.md -- `lib/core/hsi-lsa.cjs` (Convention B, cosine-on-SVD) + `lib/core/hsi-spectral.cjs` (Markov/OMHMM spectral surface)
+- [x] 272-07-PLAN.md -- `lib/core/hsi-lsa.cjs` (Convention B, cosine-on-SVD) + `lib/core/hsi-spectral.cjs` (Markov/OMHMM spectral surface)
 - [ ] 272-08-PLAN.md -- `lib/core/rs-engine.cjs`: Mode A internal orchestration + REVERSE_SALIENT edge writes; generates and gates against the real candidate-cjs fixture (the phase's core numerical proof)
 - [ ] 272-09-PLAN.md -- `lib/core/hsi-engine.cjs`: Tier 1 orchestration (Tier 2 explicitly refused, not silently skipped)
 - [ ] 272-10-PLAN.md -- Wire the D-04 dispatch at all 3 real callers (reverse-salient-agent.cjs, intelligence-cascade.cjs, futures/orchestrator.cjs) + D-09 rule-6 amendment in both live copies, same commit

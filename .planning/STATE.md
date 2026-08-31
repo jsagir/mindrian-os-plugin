@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 272-06-PLAN.md
-last_updated: "2026-08-31T18:13:26.725Z"
+status: completed
+stopped_at: Completed 272-07-PLAN.md
+last_updated: "2026-08-31T18:24:44.683Z"
 last_activity: 2026-08-31 -- Phase 272 execution, 272-06 (rs-math.cjs) complete
 progress:
   total_phases: 26
   completed_phases: 12
   total_plans: 114
-  completed_plans: 107
+  completed_plans: 108
   percent: 46
 ---
 
@@ -3374,7 +3374,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — EXECUTING
-Plan: 6 of 11
+Plan: 7 of 11
 Status: 272-06 complete, ready for 272-07
 Last activity: 2026-08-31 -- Phase 272 execution, 272-06 (rs-math.cjs) complete
 
@@ -4037,6 +4037,7 @@ Progress: [█████████░] 92%
 | Phase 272 P04 | 35min | 2 tasks | 4 files |
 | Phase 272 P05 | ~15min | 2 tasks | 3 files |
 | Phase 272 P06 | 35min | 2 tasks | 1 files |
+| Phase 272 P07 | 45min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -5361,6 +5362,8 @@ Progress: [█████████░] 92%
 - [Phase 272]: 272-05: tfidf.cjs exports fitTfidf (matches test contract, not PLAN.md prose fitTransform); frozen sklearn stopword list sourced from a committed data file (sklearn-stopwords-v1.json) instead of a third inline literal, to avoid the content-filter error that killed two prior attempts
 - [Phase 272]: absDiffTopk signature is (lsaMatrix, semanticMatrix, opts) with opts.k/opts.skipDiagonal, not the plan's 4-arg prose -- tests/272-absdiff-topk.test.cjs is authoritative
 - [Phase 272]: rs-math.cjs's Task 1/Task 2 split across two commits within one new file, staged edits used since both tasks build the same file
+- [Phase ?]: 272-07: buildTransitionMatrix(modeSequence, modes) returns a plain 2D matrix, not a {matrix, modes} wrapper -- tests/272-spectral.test.cjs (authoritative) binds this way, overriding the plan's prose
+- [Phase ?]: 272-07: computeSpectralGap uses a general hand-written QR-to-Schur eigenanalysis (handles complex-conjugate pairs), not power-iteration-plus-deflation, since hsi-engine.cjs (272-09) will run this on real room-derived matrices, not just the fixture
 
 ### Pending Todos
 
@@ -5469,8 +5472,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T18:13:26.673Z
-Stopped at: Completed 272-06-PLAN.md
+Last session: 2026-08-31T18:24:44.633Z
+Stopped at: Completed 272-07-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
