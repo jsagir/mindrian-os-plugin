@@ -99,6 +99,25 @@ const ALLOWED_DIRECT_IMPORT = [
   /^scripts\/compute-state$/,
   // Phase 108 substrate self-reference (migration scripts directory):
   /^lib\/core\/migrations\//,
+  // Phase 272-08 (PYPORT-02/05): rs-engine.cjs's writeReverseSalientEdges
+  // writes REVERSE_SALIENT edges (source='rs-engine') for three existing
+  // consumers (futures/orchestrator.cjs's runRSReverseSalient,
+  // leverage-scan.cjs's Level 6-8 band, reverse-salient-agent.cjs's
+  // cascade reads). REVERSE_SALIENT is NOT a member of
+  // lib/core/navigation/edges.cjs's ALLOWED_EDGE_TYPES -- its own header
+  // (D-168, navigator-LOCKED 2026-06-18) explicitly names the
+  // lazygraph-ops.cjs legacy-array two-vocabulary unification
+  // (HSI_CONNECTION / REVERSE_SALIENT / RESOLVES_VIA) as a DEFERRED
+  // follow-on, out of that reconciliation's scope. lazygraph-ops.cjs's own
+  // EDGE_TYPES allowlist (a separate, wider vocabulary) already validates
+  // REVERSE_SALIENT and performs the identical INSERT...ON CONFLICT upsert
+  // pattern navigation/edges.cjs's writeEdge uses -- confirmed live this
+  // session, matching futures/orchestrator.cjs's own pre-existing
+  // require('../lazygraph-ops.cjs') usage for the SAME edge type via the
+  // SAME openGraph/closeGraph pair. Route REVERSE_SALIENT through
+  // navigation.cjs::writeEdge once a future phase lands the D-168-deferred
+  // unification; until then this is the one legal door for this edge type.
+  /^lib\/core\/rs-engine\.cjs$/,
 ];
 
 function isAllowedPath(p) {
