@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 272-05-PLAN.md
-last_updated: "2026-08-31T18:04:38.715Z"
-last_activity: 2026-08-31 -- Phase 272 execution started
+stopped_at: Completed 272-06-PLAN.md
+last_updated: "2026-08-31T18:13:26.725Z"
+last_activity: 2026-08-31 -- Phase 272 execution, 272-06 (rs-math.cjs) complete
 progress:
   total_phases: 26
   completed_phases: 12
   total_plans: 114
-  completed_plans: 106
+  completed_plans: 107
   percent: 46
 ---
 
@@ -3374,9 +3374,21 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — EXECUTING
-Plan: 3 of 11
-Status: Ready to execute
-Last activity: 2026-08-31 -- Phase 272 execution started
+Plan: 6 of 11
+Status: 272-06 complete, ready for 272-07
+Last activity: 2026-08-31 -- Phase 272 execution, 272-06 (rs-math.cjs) complete
+
+<!-- NOTE (272-06 execute-plan, 2026-08-31, TWELFTH occurrence of the documented
+     state.*-clobber bug, see the note block below this frontmatter for the prior
+     eleven): `gsd-tools query state.advance-plan` returned
+     {"previous_plan":1,"current_plan":2,"total_plans":11} -- an internal counter
+     disconnected from the actual "Plan: X of 11" value already in this file (which
+     read "Plan: 3 of 11" before this call, itself already stale/under-counted since
+     272-05 had just completed). The SDK's own advance-plan write REGRESSED this line
+     from 3 to 2 rather than advancing it. Hand-corrected to "Plan: 6 of 11" (272-06 is
+     this phase's 6th of 11 plans, now complete) and stopped_at/Last activity updated
+     to match. progress.completed_plans (106->107 via state.update-progress) was NOT
+     clobbered this time and is left as the SDK wrote it. -->
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -4024,6 +4036,7 @@ Progress: [█████████░] 92%
 | Phase 272 P03 | ~50min | 3 tasks | 5 files |
 | Phase 272 P04 | 35min | 2 tasks | 4 files |
 | Phase 272 P05 | ~15min | 2 tasks | 3 files |
+| Phase 272 P06 | 35min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -5346,6 +5359,8 @@ Progress: [█████████░] 92%
 - [Phase 272]: 272-03: pinecone-inference test Assert 4 takes the plan's preferred stronger-claim path, exercising the real auditQueryString/auditQueryObject ExternalEgressViolation throw contract rather than an injected-seam-only check
 - [Phase 272]: 272-04: isModelCached passes cacheDir through to ModelRegistry.is_pipeline_cached's options.cache_dir (not global env.cacheDir), and getEncoder's cache-dir assignment collapsed to one unconditional resolveCacheDir(env) call
 - [Phase 272]: 272-05: tfidf.cjs exports fitTfidf (matches test contract, not PLAN.md prose fitTransform); frozen sklearn stopword list sourced from a committed data file (sklearn-stopwords-v1.json) instead of a third inline literal, to avoid the content-filter error that killed two prior attempts
+- [Phase 272]: absDiffTopk signature is (lsaMatrix, semanticMatrix, opts) with opts.k/opts.skipDiagonal, not the plan's 4-arg prose -- tests/272-absdiff-topk.test.cjs is authoritative
+- [Phase 272]: rs-math.cjs's Task 1/Task 2 split across two commits within one new file, staged edits used since both tasks build the same file
 
 ### Pending Todos
 
@@ -5454,8 +5469,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T18:04:38.659Z
-Stopped at: Completed 272-05-PLAN.md
+Last session: 2026-08-31T18:13:26.673Z
+Stopped at: Completed 272-06-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
