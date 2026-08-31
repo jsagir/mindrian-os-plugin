@@ -228,10 +228,12 @@ test('Wave-1: composeFinding folds brain framework_chain_predictions when presen
 
 // ---------- Test 15-17: runRsEngine schema-tolerant + invocation ----------
 
-test('Wave-1: runRsEngine returns invalid_room_dir when no roomDir provided', () => {
+test('Wave-1: runRsEngine returns invalid_room_dir when no roomDir provided', async () => {
   clearAgentCache();
   const m = require(AGENT_PATH);
-  const result = m.runRsEngine({});
+  // Phase 272 D-04: runRsEngine is async (the 'cjs' backend calls rs-engine.cjs's
+  // async runModeInternal), so every caller now awaits it.
+  const result = await m.runRsEngine({});
   assert.equal(result.ok, false);
   assert.equal(result.reason, 'invalid_room_dir');
   assert.deepEqual(result.pairs, []);
@@ -263,12 +265,12 @@ test('Wave-1: runRsEngine schema-tolerant accepts signed_diff and signed_delta (
 // force the real failure path via MINDRIAN_PYTHON, exercising the exact
 // production code path end to end.
 
-function withMindrianPython(pyPath, fn) {
+async function withMindrianPython(pyPath, fn) {
   const saved = process.env.MINDRIAN_PYTHON;
   process.env.MINDRIAN_PYTHON = pyPath;
   clearAgentCache();
   try {
-    return fn();
+    return await fn();
   } finally {
     if (saved === undefined) delete process.env.MINDRIAN_PYTHON;
     else process.env.MINDRIAN_PYTHON = saved;
@@ -276,30 +278,40 @@ function withMindrianPython(pyPath, fn) {
   }
 }
 
-test('Regression: detectAndSurface forwards string detail on ENOENT-class failure', () => {
-  withMindrianPython('/nonexistent/mindrian-test-python3-does-not-exist', () => {
-    const m = require(AGENT_PATH);
-    const result = m.detectAndSurface({
-      roomDir: os.tmpdir(),
-      sessionId: 'test-session',
-      mode: 'internal',
-      topk: 1,
+// Phase 272 D-04: both of these regression tests force the Python fallback
+// branch (via MINDRIAN_RS_BACKEND=python) so they keep exercising the exact
+// production code path the RCA fixed, unaffected by the new CJS default.
+test('Regression: detectAndSurface forwards string detail on ENOENT-class failure', async () => {
+  const savedBackend = process.env.MINDRIAN_RS_BACKEND;
+  process.env.MINDRIAN_RS_BACKEND = 'python';
+  try {
+    await withMindrianPython('/nonexistent/mindrian-test-python3-does-not-exist', async () => {
+      const m = require(AGENT_PATH);
+      const result = await m.detectAndSurface({
+        roomDir: os.tmpdir(),
+        sessionId: 'test-session',
+        mode: 'internal',
+        topk: 1,
+      });
+      assert.equal(result.ok, false);
+      assert.equal(result.reason, 'rs_engine_invocation_failed');
+      assert.ok(
+        Object.prototype.hasOwnProperty.call(result, 'detail'),
+        'detectAndSurface must forward the detail field from runRsEngine failure path'
+      );
+      assert.ok(
+        typeof result.detail === 'string' && result.detail.length > 0,
+        'detail must be a non-empty string when the child process has no stderr (ENOENT)'
+      );
+      assert.deepEqual(result.findings, []);
     });
-    assert.equal(result.ok, false);
-    assert.equal(result.reason, 'rs_engine_invocation_failed');
-    assert.ok(
-      Object.prototype.hasOwnProperty.call(result, 'detail'),
-      'detectAndSurface must forward the detail field from runRsEngine failure path'
-    );
-    assert.ok(
-      typeof result.detail === 'string' && result.detail.length > 0,
-      'detail must be a non-empty string when the child process has no stderr (ENOENT)'
-    );
-    assert.deepEqual(result.findings, []);
-  });
+  } finally {
+    if (savedBackend === undefined) delete process.env.MINDRIAN_RS_BACKEND;
+    else process.env.MINDRIAN_RS_BACKEND = savedBackend;
+  }
 });
 
-test('Regression: detectAndSurface forwards { message, diagnostic } detail object when child stderr is present', () => {
+test('Regression: detectAndSurface forwards { message, diagnostic } detail object when child stderr is present', async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-detail-regression-'));
   const fakePython = path.join(tmpDir, 'fake-python3.sh');
   const marker = 'synthetic_rs_engine_failure_marker_for_regression_test';
@@ -308,10 +320,12 @@ test('Regression: detectAndSurface forwards { message, diagnostic } detail objec
     '#!/bin/sh\n' + 'echo "' + marker + '" 1>&2\n' + 'exit 1\n'
   );
   fs.chmodSync(fakePython, 0o755);
+  const savedBackend = process.env.MINDRIAN_RS_BACKEND;
+  process.env.MINDRIAN_RS_BACKEND = 'python';
   try {
-    withMindrianPython(fakePython, () => {
+    await withMindrianPython(fakePython, async () => {
       const m = require(AGENT_PATH);
-      const result = m.detectAndSurface({
+      const result = await m.detectAndSurface({
         roomDir: os.tmpdir(),
         sessionId: 'test-session',
         mode: 'internal',
@@ -324,6 +338,8 @@ test('Regression: detectAndSurface forwards { message, diagnostic } detail objec
       assert.ok(result.detail.diagnostic.includes(marker), 'diagnostic must carry the child stderr text');
     });
   } finally {
+    if (savedBackend === undefined) delete process.env.MINDRIAN_RS_BACKEND;
+    else process.env.MINDRIAN_RS_BACKEND = savedBackend;
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 });
