@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 273-03-PLAN.md
-last_updated: "2026-08-31T15:34:59.434Z"
+stopped_at: Completed 273-04-PLAN.md
+last_updated: "2026-08-31T15:40:13.251Z"
 last_activity: 2026-08-31 -- Phase 273 execution started
 progress:
   total_phases: 26
   completed_phases: 11
   total_plans: 103
-  completed_plans: 99
+  completed_plans: 100
   percent: 42
 ---
 
@@ -3374,7 +3374,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 273 (sqlite-graph-chokepoint-hardening-writeedge-silent-failure-a) — EXECUTING
-Plan: 2 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-08-31 -- Phase 273 execution started
 
@@ -4017,6 +4017,7 @@ Progress: [█████████░] 92%
 | Phase 273 P01 | 20min | 3 tasks | 3 files |
 | Phase 273 P02 | 25min | 3 tasks | 3 files |
 | Phase 273 P03 | 22min | 2 tasks | 1 files |
+| Phase 273 P04 | 15min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -5329,6 +5330,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: Used finalized CHOKE-04/05/06 requirement IDs in Phase 273 Wave 0 tests (not PATTERNS.md's preliminary CHOKE-08/11/12 draft IDs)
 - [Phase ?]: 273-03: ok never flips to false on a suppressed writeEdge write (D-01a) -- written is the new additive signal, 77 call sites / 43 files read .ok
 - [Phase ?]: 273-03: review_status_persisted is set (true or false) in both branches whenever a caller supplies review_status, not only on the base-schema gap case -- required by test-273-writeedge-base-schema.cjs Assert 6 (non-cannibalisation check)
+- [Phase 273]: 273-04: Fixed C3 with an INLINE ALLOWED_EDGE_TYPES guard in ingestion.cjs (D-03a), not routed through writeEdge -- preserves INSERT OR IGNORE semantics and avoids a Canon Part 9 regression (RESEARCH Pitfall 5). rejectedEdgeTypes surfaces rejections on the success return (T-273-14). — Routing the write through writeEdge would flip INSERT OR IGNORE (skip-on-conflict) to writeEdge's ON CONFLICT DO UPDATE, silently granting the Brain the power to overwrite existing local edge properties it does not have today.
 
 ### Pending Todos
 
@@ -5437,8 +5439,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T15:34:59.359Z
-Stopped at: Completed 273-03-PLAN.md
+Last session: 2026-08-31T15:40:13.172Z
+Stopped at: Completed 273-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
