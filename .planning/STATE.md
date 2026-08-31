@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 272-08-PLAN.md
-last_updated: "2026-08-31T18:52:28.671Z"
+status: completed
+stopped_at: Completed 272-09-PLAN.md
+last_updated: "2026-08-31T20:02:41.050Z"
 last_activity: 2026-08-31 -- Phase 272 execution, 272-08 (rs-engine.cjs) complete
 progress:
   total_phases: 26
   completed_phases: 12
   total_plans: 114
-  completed_plans: 109
+  completed_plans: 110
   percent: 46
 ---
 
@@ -3418,7 +3418,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — EXECUTING
-Plan: 9 of 11
+Plan: 10 of 11
 Status: 272-08 complete (numerical proof port), ready for 272-09
 Last activity: 2026-08-31 -- Phase 272 execution, 272-08 (rs-engine.cjs) complete
 
@@ -4094,6 +4094,7 @@ Progress: [█████████░] 92%
 | Phase 272 P06 | 35min | 2 tasks | 1 files |
 | Phase 272 P07 | 45min | 2 tasks | 2 files |
 | Phase 272 P08 | 2h40min | 2 tasks | 6 files |
+| Phase 272 P09 | 50min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -5422,6 +5423,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 272-07: computeSpectralGap uses a general hand-written QR-to-Schur eigenanalysis (handles complex-conjugate pairs), not power-iteration-plus-deflation, since hsi-engine.cjs (272-09) will run this on real room-derived matrices, not just the fixture
 - [Phase 272]: REVERSE_SALIENT edges route through lazygraph-ops.cjs::upsertEdge, not navigation.cjs::writeEdge -- navigation/edges.cjs's ALLOWED_EDGE_TYPES excludes REVERSE_SALIENT per D-168's deferred unification
 - [Phase 272]: 272-02's RANK_AGREEMENT_GATE_THRESHOLD=0.95 measures same-process Python determinism, not cross-process determinism -- Python-vs-itself cross-process only reaches ~0.42-0.50 top-K overlap on the fixture room, flagged for navigator decision
+- [Phase 272]: D-11 (2026-08-31): rank-agreement gate (PYPORT-05) redesigned from top-K pair-ID set overlap to LSA-leg Spearman rank-correlation + delta bound, plus zero confident sign flips, per 272-08's cross-process ARPACK root-cause finding. tests/272-rank-agreement.test.cjs now PASSES (lsa_score rho=0.9965, avg delta 0.0050) against the real committed fixtures, no regeneration. abs_diff/semantic_score agreement (rho 0.1491/0.7460) kept informational only, dominated by D-01's encoder swap, not port noise. Implemented as a direct continuation of 272-08 (commits 40d75f32, 2056244b).
+- [Phase 272]: hsi-engine.cjs reuses rs-engine.cjs's discoverArtifacts (confirmed byte-identical Python source behavior) rather than a second filesystem walker
+- [Phase 272]: hsi-engine.cjs does not port compute-hsi.py's .hsi-cache.json content-hash skip-cache; out of this plan's scope, recomputes every call
 
 ### Pending Todos
 
@@ -5530,8 +5534,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T18:52:28.620Z
-Stopped at: Completed 272-07-PLAN.md
+Last session: 2026-08-31T20:02:40.992Z
+Stopped at: Completed 272-09-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
