@@ -1,0 +1,10 @@
+{
+  "schema_version": "1",
+  "phase": "272",
+  "fixture_room": "tests/fixtures/272/room",
+  "artifact_count": 96,
+  "measured_top50_overlap_arpack_vs_arpack": 1.0,
+  "measured_max_signed_diff_delta": 0.0,
+  "RANK_AGREEMENT_GATE_THRESHOLD": 0.95,
+  "generated_by": "tests/fixtures/272/generate-baseline.py"
+}
