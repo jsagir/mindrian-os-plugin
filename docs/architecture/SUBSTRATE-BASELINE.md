@@ -289,4 +289,29 @@ the H1 finding: the guard is no longer inert -- a net-new chokepoint bypass cann
 - Every row is assigned to a downstream owning phase (129 / 129.5 / 130 / v1.14.0); none
   are fixed in Phase 128.
 - This report is informational and not blocking. The hook blocks only NET-NEW violations.
+
+---
+
+## 2026-08-31 re-measurement (Phase 273)
+
+Result: **208**, unchanged from the pre-fix measurement. Re-ran `node scripts/check-substrate.cjs --baseline` after landing Phase 273's C1/C2/C3 fixes (273-03: writeEdge changes-aware + PRAGMA fallback; 273-04: inline `ALLOWED_EDGE_TYPES` guard in `ingestion.cjs`), per-rule breakdown `chokepoint-require 47, m3-direct-sqlite-require 33, m4-cypher-interpolation 35, opengraph-bypass 38, raw-graph-write 55`.
+
+This is expected, not a regression. Two independent reasons, both verified by execution:
+
+1. `lib/core/navigation/` (where `ingestion.cjs` and `edges.cjs` live) is path-allowlisted at
+   `check-substrate.cjs:70` (`/^lib\/core\/navigation\//`).
+2. The guard's `RE_RAW_WRITE` regex (`check-substrate.cjs:132`) does not match
+   `INSERT OR IGNORE INTO` syntax at all.
+
+Phase 273's C3 fix (an inline `ALLOWED_EDGE_TYPES` guard in `ingestion.cjs`) was therefore
+structurally incapable of moving this count, regardless of fix quality. The remaining +13 delta
+from the previously-documented 195 is pre-existing accrual on lines this phase's scope did not
+touch; it is owned by the C4/M5-M8 fast-follow phase (busy-timeout propagation, nested-tx
+guards, unguarded ROLLBACK sites) and by the M3 regex-hole fix (widening `RE_RAW_WRITE` to
+catch `INSERT OR IGNORE`), both explicitly deferred per 273-CONTEXT.md D-02. Widening the regex
+in this phase would increase the count and make this reconciliation note uninterpretable, so it
+is deliberately not done here.
+
+Cross-reference: `.planning/phases/273-sqlite-graph-chokepoint-hardening-writeedge-silent-failure-a/`
+(273-RESEARCH.md's D-05 finding, 273-CONTEXT.md's D-05 correction, `tests/test-273-substrate-baseline-honest.cjs`).
 - The hook enforcement proof confirms a net-new raw `INSERT INTO nodes` is hard-rejected.
