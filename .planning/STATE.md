@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 272 context gathered
-last_updated: "2026-08-27T21:30:32.023Z"
+stopped_at: Phase 273 context gathered
+last_updated: "2026-08-31T13:10:50.272Z"
 last_activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
 progress:
-  total_phases: 23
-  completed_phases: 9
-  total_plans: 90
-  completed_plans: 86
-  percent: 39
+  total_phases: 25
+  completed_phases: 11
+  total_plans: 98
+  completed_plans: 96
+  percent: 44
 ---
 
 <!-- NOTE (267.3-01 execute-plan state.record-metric, 2026-08-27T~20:49Z, hand-edited per this
@@ -49,7 +49,6 @@ progress:
      10c RED, 16+16 held). Restored by hand and augmented with the live re-measurement. That is
      content destruction, not just a numeric clobber, and it is the more dangerous of the
      three. -->
-
 
 <!-- NOTE (267.3-02 execute-plan state.record-metric, 2026-08-27T21:10Z, hand-edited per this
      file's own documented resync-clobber bug, TWELFTH OCCURRENCE this session):
@@ -123,7 +122,6 @@ progress:
      total_plans, so any hand-bumped number would be as fabricated as the SDK's. ROADMAP.md's
      267.3 row was updated by hand, because `roadmap.update-plan-progress` destroys the
      hand-authored prose on the "**Plans:**" line (the THIRD, DIFFERENT defect above). -->
-
 
 <!-- NOTE (270 execute-plan state.record-metric after plan 270-02, 2026-08-27T~16:40Z, hand-edited
      per this file's own documented resync-clobber bug, NINTH OCCURRENCE this session):
@@ -5431,8 +5429,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-27T18:19:28.872Z
-Stopped at: Phase 272 context gathered
+Last session: 2026-08-31T13:10:50.134Z
+Stopped at: Phase 273 context gathered
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
