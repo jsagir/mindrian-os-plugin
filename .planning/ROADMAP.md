@@ -824,9 +824,9 @@ This session (2026-08-27, goal-directed 265-271 sweep) shipped only the near-ter
 Also carries forward, not yet done: SEED-013's own frontmatter needs a second correction pass (its 2026-07-14 self-correction fixed the seed's own status field but not Phase 134's plan/summary tracking one layer down -- same root pattern, one level deeper, unaddressed).
 
 Cross-references: `.planning/debug/phase-134-python-elimination-false-complete.md` (`status: resolved-partial` -- kept open in `.planning/debug/`, deliberately NOT moved to `resolved/`, since Change 1 alone does not close a `severity: blocker` finding), `.planning/debug/knowledge-base.md` (Change-1 summary block filed 2026-08-27), `.planning/debug/python-requirements-orphan-deps-audit.md` (cross-linked, narrower hygiene scope, unaffected), `.planning/phases/134-cjs-port-of-python-analyzers-via-xenova-transformers-elimina/` (the original, falsely-closed phase -- this new phase does not silently reopen or renumber it; 272 is the real remediation, 134's own record stays as historical evidence of the false-complete pattern for Change 3's own fix to reference). Canon Part 6 (dog-fooding -- the plugin's own tracking told a false story about its own state) and Part 7 (reuse-before-build -- other seeds/phases reading Phase 134's status as ground truth is exactly the failure mode Part 7 exists to prevent) both apply.
-**Requirements**: PYPORT-01, PYPORT-02, PYPORT-03, PYPORT-04, PYPORT-05, PYPORT-06, PYPORT-07 (phase-local working IDs, minted in `272-RESEARCH.md`'s Phase Requirements section 2026-08-31; `.planning/REQUIREMENTS.md` carries no Phase 272 rows yet, registered at phase close by plan 272-11 per the Phase 273/CHOKE precedent)
+**Requirements**: PYPORT-01, PYPORT-02, PYPORT-03, PYPORT-04, PYPORT-05, PYPORT-06, PYPORT-07 (phase-local working IDs, minted in `272-RESEARCH.md`'s Phase Requirements section 2026-08-31; registered complete in `.planning/REQUIREMENTS.md` at phase close by plan 272-11, per the Phase 273/CHOKE precedent)
 **Depends on:** none technically. Sequenced after Phase 271 in this document only because it was registered during the same session, not because of a real dependency -- either can be planned/executed first.
-**Plans:** 10/11 plans executed
+**Plans:** 11/11 plans complete
 
 Plans:
 
@@ -840,7 +840,7 @@ Plans:
 - [x] 272-08-PLAN.md -- `lib/core/rs-engine.cjs`: Mode A internal orchestration + REVERSE_SALIENT edge writes; generates and gates against the real candidate-cjs fixture (the phase's core numerical proof)
 - [x] 272-09-PLAN.md -- `lib/core/hsi-engine.cjs`: Tier 1 orchestration (Tier 2 explicitly refused, not silently skipped)
 - [x] 272-10-PLAN.md -- Wire the D-04 dispatch at all 3 real callers (reverse-salient-agent.cjs, intelligence-cascade.cjs, futures/orchestrator.cjs) + D-09 rule-6 amendment in both live copies, same commit
-- [ ] 272-11-PLAN.md -- Full regression gate (doctor --acceptance, build-connector-registry --check), PYPORT-01..07 registration in REQUIREMENTS.md, DEFERRED-SCOPE.md
+- [x] 272-11-PLAN.md -- Full regression gate (doctor --acceptance, build-connector-registry --check), PYPORT-01..07 registration in REQUIREMENTS.md, DEFERRED-SCOPE.md
 
 ### Phase 273: SQLite Graph Chokepoint Hardening (writeEdge silent-failure + propagation-gap fixes)
 

@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 272-10-PLAN.md
-last_updated: "2026-08-31T20:18:56.194Z"
-last_activity: 2026-08-31 -- Phase 272 execution, 272-10 (dispatch wiring + rule-6 amendment) complete
+stopped_at: Completed 272-11-PLAN.md
+last_updated: "2026-08-31T20:35:50.893Z"
+last_activity: 2026-08-31 -- Phase 272 execution, 272-11 (phase close: full regression gate confirmed green, PYPORT-01..07 registered, DEFERRED-SCOPE.md filed) complete
 progress:
   total_phases: 26
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 114
-  completed_plans: 111
-  percent: 97
+  completed_plans: 112
+  percent: 98
 ---
+
+<!-- NOTE (272-11 execute-plan, 2026-08-31, SEVENTEENTH+ occurrence of the
+     documented state.*-clobber bug, same class as the FOURTEENTH/FIFTEENTH/
+     SIXTEENTH documented below): three sequential `gsd-tools query state.*`
+     calls this session (add-decision, record-session, roadmap.update-plan-
+     progress) again reverted `status` to "completed" (wrong -- the v2.1.0
+     milestone as a whole is not complete, only Phase 272 is) and `percent`
+     to 50 (disconnected from the command's own correctly-computed 98%/112/114
+     JSON return earlier in this same session). Hand-corrected a further time:
+     status back to "executing" (Phase 272 itself is closed/green, but the
+     milestone continues), percent/completed_plans restored to the actually-
+     computed 98%/112/114. Root cause not re-investigated this session --
+     same bug class already tracked by the FOURTEENTH+ notes below. -->
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31): `gsd-tools query state.update-progress`
      recalculated percent correctly (JSON return: percent:97, completed:111,
@@ -3429,10 +3442,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — EXECUTING
+Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — COMPLETE
 Plan: 11 of 11
-Status: 272-10 complete (D-04 dispatch wiring + D-09 rule-6 amendment; tests/run-all-272.sh fully green), ready for 272-11 (phase close)
-Last activity: 2026-08-31 -- Phase 272 execution, 272-10 (dispatch wiring + rule-6 amendment) complete
+Status: 272-11 complete (phase close: tests/run-all-272.sh PASS=15 FAIL=0 confirmed live, doctor --acceptance 18/18, build-connector-registry --check OK, PYPORT-01..07 registered in REQUIREMENTS.md, DEFERRED-SCOPE.md filed). Phase 272 CLOSED.
+Last activity: 2026-08-31 -- Phase 272 execution, 272-11 (phase close) complete
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4128,6 +4141,7 @@ Progress: [█████████░] 92%
 | Phase 272 P08 | 2h40min | 2 tasks | 6 files |
 | Phase 272 P09 | 50min | 1 tasks | 1 files |
 | Phase 272 P10 | 55min | 2 tasks | 6 files |
+| Phase 272 P11 | 1h10min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -5460,6 +5474,7 @@ Progress: [█████████░] 92%
 - [Phase 272]: hsi-engine.cjs reuses rs-engine.cjs's discoverArtifacts (confirmed byte-identical Python source behavior) rather than a second filesystem walker
 - [Phase 272]: hsi-engine.cjs does not port compute-hsi.py's .hsi-cache.json content-hash skip-cache; out of this plan's scope, recomputes every call
 - [Phase ?]: 272-10: D-04 dispatch chokepoint wired at all 3 real callers (reverse-salient-agent.cjs, intelligence-cascade.cjs, futures/orchestrator.cjs); D-09 rule-6 amendment landed in both live copies in the same commit as the wiring
+- [Phase 272]: Phase 272 closed: full regression gate confirmed green live (run-all-272.sh PASS=15 FAIL=0, doctor --acceptance 18/18, build-connector-registry --check OK); PYPORT-01..07 registered in REQUIREMENTS.md with real evidence citations; DEFERRED-SCOPE.md names all 8 genuinely undone items including the D-11 encoder-divergence finding (CJS-mode and Python-mode surface visibly different reverse-salient rankings for the same room -- flagged prominently for any future full-Python-deletion decision).
 
 ### Pending Todos
 
@@ -5568,8 +5583,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T20:18:56.122Z
-Stopped at: Completed 272-10-PLAN.md
+Last session: 2026-08-31T20:35:50.833Z
+Stopped at: Completed 272-11-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
