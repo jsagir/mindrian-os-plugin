@@ -878,13 +878,17 @@ Not a recommendation to adopt the library (no JS binding exists; the SQL would n
 **Sibling SEED-076 registered (2026-08-28):** `.planning/seeds/SEED-076-room-walk-test-and-pattern-confirmation-threshold.md` -- checked `github.com/RinDig/icm-architect` (a community reference implementation of the same paper) against a real room; confirmed MindrianOS's room design already matches the tool's validated "Record library" form and independently validates Phase 271/274's reference-integrity approach and Phase 270's OQ-7 drift finding. One confirmed gap (the walk test fails for a tool-less foreign host), one already-built mechanism that should not be silently re-proposed (`memory_event` IS the durable-event-log pattern), and one open reuse-check (whether an N-occurrence pattern-confirmation gate already exists -- read before building). Not a build mandate; validation and vocabulary, one real open question.
 
 **Sibling SEED-084 registered (2026-08-28):** `.planning/seeds/SEED-084-enlarge-room-schema-layered-icm-structure-plus-notion-gap-close.md` -- three independent sources (a Notion "Problem Worth Solving" template diff captured 2026-04-14 in `PROJECT.md`, this session's live icm-architect audit, and Phase 270's OQ-7) converged on the same structural gaps (no first-class `funding/` section, no self-guiding room, no always-visible per-section statement). Proposes enlarging the room schema by LAYER (icm-architect's L0-L4 hierarchy, which `MindrianRooms/CLAUDE.md` already claims but no room implements past L0/L1) rather than as a flat item list, using SEED-075's Feynman-Minto grounding for the L2 contract's Human-check and the PWS 22-task workbook's task shape as the L2 contract template. Surfaces, does not resolve, an open question: three different stage-taxonomy vocabularies (Brain's `InnovationStage` zones, the 22-task workbook's problem-type ladder, and the ad-hoc `venture_stage` strings actually in use) need reconciling before the L3 reference layer can cite one canonically.
-**Requirements**: TBD
+**Requirements**: CHOKE-01, CHOKE-02, CHOKE-03, CHOKE-04, CHOKE-05, CHOKE-06
 **Depends on:** none technically. Independent of Phase 272 (different subsystem: 272 is the RS-engine Python-to-CJS port, this is the SQLite write chokepoint) despite being registered the same session -- either can be planned/executed first. Not blocking or blocked by Phase 271.
-**Plans:** 1/1 plans complete
+**Plans:** 5 plans (1/5 complete)
 
 Plans:
 
-- [x] TBD (run /gsd-plan-phase 273 to break down) (completed 2026-08-31)
+- [x] 273-01-PLAN.md -- Wave 0 verification harness: tests/run-all-273.sh, C1 + C2 RED tests (completed 2026-08-31)
+- [ ] 273-02-PLAN.md -- Wave 0 completion: C3 + D-04 + D-05 RED tests
+- [ ] 273-03-PLAN.md -- C1+C2 fix (writeEdge changes-aware + PRAGMA fallback) plus M2 comment sweep
+- [ ] 273-04-PLAN.md -- C3 fix (ingestion.cjs inline ALLOWED_EDGE_TYPES allowlist guard)
+- [ ] 273-05-PLAN.md -- Phase close: substrate baseline reconciliation, full regression, REQUIREMENTS.md registration, dev-research mirror
 
 ### Phase 274: Bare `scripts/` Invocation Anchoring (the adjacent class Phase 271 measured and did not fix)
 
