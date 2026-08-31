@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 272-04-PLAN.md
-last_updated: "2026-08-31T17:47:29.071Z"
+stopped_at: Completed 272-05-PLAN.md
+last_updated: "2026-08-31T18:04:38.715Z"
 last_activity: 2026-08-31 -- Phase 272 execution started
 progress:
   total_phases: 26
   completed_phases: 12
   total_plans: 114
-  completed_plans: 105
+  completed_plans: 106
   percent: 46
 ---
 
@@ -3374,7 +3374,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — EXECUTING
-Plan: 2 of 11
+Plan: 3 of 11
 Status: Ready to execute
 Last activity: 2026-08-31 -- Phase 272 execution started
 
@@ -4023,6 +4023,7 @@ Progress: [█████████░] 92%
 | Phase 272 P02 | 45min | 3 tasks | 9 files |
 | Phase 272 P03 | ~50min | 3 tasks | 5 files |
 | Phase 272 P04 | 35min | 2 tasks | 4 files |
+| Phase 272 P05 | ~15min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -5344,6 +5345,7 @@ Progress: [█████████░] 92%
 - [Phase 272]: 272-03: discovered embedding-spine.cjs's _test surface does not yet expose maybeEmitDownloadNotice; asserted its existence as its own RED-worthy behavioral check instead of touching the production file (272-04 must add this export as part of the D-06 fix)
 - [Phase 272]: 272-03: pinecone-inference test Assert 4 takes the plan's preferred stronger-claim path, exercising the real auditQueryString/auditQueryObject ExternalEgressViolation throw contract rather than an injected-seam-only check
 - [Phase 272]: 272-04: isModelCached passes cacheDir through to ModelRegistry.is_pipeline_cached's options.cache_dir (not global env.cacheDir), and getEncoder's cache-dir assignment collapsed to one unconditional resolveCacheDir(env) call
+- [Phase 272]: 272-05: tfidf.cjs exports fitTfidf (matches test contract, not PLAN.md prose fitTransform); frozen sklearn stopword list sourced from a committed data file (sklearn-stopwords-v1.json) instead of a third inline literal, to avoid the content-filter error that killed two prior attempts
 
 ### Pending Todos
 
@@ -5452,8 +5454,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T17:47:29.017Z
-Stopped at: Completed 272-04-PLAN.md
+Last session: 2026-08-31T18:04:38.659Z
+Stopped at: Completed 272-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
