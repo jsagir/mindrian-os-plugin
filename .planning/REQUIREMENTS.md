@@ -554,22 +554,128 @@ fixes, 273-05 phase close). Every row below is `[x]`.
       (measured=208), live `node scripts/check-substrate.cjs --baseline` also reads 208, unchanged
       from the pre-fix count.
 
+### Phase 272 - PYPORT-01..07 (CJS Python Elimination Port, Real Remediation of Phase 134)
+
+These seven IDs were minted in `272-RESEARCH.md`'s Phase Requirements section (2026-08-31) and
+scoped to Phase 272 only: replace the Python analyzer scripts (`scripts/rs-engine.py`,
+`scripts/compute-hsi.py`, `lib/core/rs_math.py`) with in-process CJS modules for the local
+(Mode A internal / Tier 1) computation path, eliminating the ~2GB Python/PyTorch runtime
+requirement for that path, while retaining Python as an explicit, env-flag-selected fallback
+(D-04) rather than deleting it. This phase is the real remediation of Phase 134, whose own
+tracking read COMPLETE while the actual port code did not exist anywhere in the repo -- see
+`.planning/debug/phase-134-python-elimination-false-complete.md` (kept open at
+`status: resolved-partial`, not moved to `resolved/`, since this phase closes Change 2 of that
+RCA's three named changes, not all three -- see DEFERRED-SCOPE.md for Change 3's status). Ten
+plans executed across six waves (272-01/02/03 Wave 0-1 RED harness, 272-04/05 Wave 2 numeric
+primitives + infra fixes, 272-06/07 Wave 3 rs-math/hsi-lsa/hsi-spectral ports, 272-08/09 Wave 4
+orchestration ports, 272-10 Wave 5 dispatch wiring, 272-11 phase close). Every row below is `[x]`.
+
+- [x] **PYPORT-01**: sklearn-parity numeric primitives (`TruncatedSVD` with the verified
+      `svd_flip` V-row argmax-abs sign rule, `TfidfVectorizer` vocabulary/idf/L2-weight parity)
+      ported with zero new npm dependencies. Fixed in `lib/core/numeric/svd.cjs` and
+      `lib/core/numeric/tfidf.cjs` (272-05). Measured: `node tests/272-svd-sign.test.cjs` and
+      `node tests/272-tfidf-parity.test.cjs` both PASS, pinned against live sklearn 1.8.0 source
+      read (the exact `u_based_decision=False` V-row rule) and a byte-for-byte cross-check of the
+      318-word `SKLEARN_ENGLISH_STOPWORDS_v1` list against a live `python3` sklearn install.
+
+- [x] **PYPORT-02**: `rs-engine.py`'s Mode A internal orchestration (artifact discovery, LSA
+      structural leg, semantic leg, pairing, `REVERSE_SALIENT` edge writes) ported end to end,
+      producing a real (non-degraded, non-fudged) candidate output against the phase's fixture
+      room. Fixed in `lib/core/rs-engine.cjs` (272-08, contract pinned by 272-02). Measured:
+      `node tests/272-rs-engine-contract.test.cjs` PASS (all 11 pair fields, atomic write
+      verified); live end-to-end run against a throwaway fixture-room copy wrote 100/100
+      `REVERSE_SALIENT` edges into `room.db` with `properties.source='rs-engine'`.
+
+- [x] **PYPORT-03**: `compute-hsi.py`'s Tier 1 orchestration (LSA leg via Convention B
+      cosine-on-SVD, Tier 1 semantic leg, per-artifact Markov/OM-HMM spectral profile, pairing/
+      scoring) ported field-for-field, with Tier 2 explicitly refused rather than silently served
+      as Tier 1. Fixed in `lib/core/hsi-lsa.cjs` + `lib/core/hsi-spectral.cjs` (272-07) and
+      `lib/core/hsi-engine.cjs` (272-09). Measured: `node tests/272-hsi-lsa-algorithm.test.cjs`
+      and `node tests/272-spectral.test.cjs` both PASS; live run against the 96-artifact fixture
+      room completed in ~1.3s with real, varied, correctly-sorted `lsa_sim`/`semantic_sim`/
+      `hsi_score` values (verified by lowering `threshold` from the default 0.30 to 0); Tier 2
+      request returns `{success:false, error:'not_implemented_this_phase'}` before any
+      computation begins (`grep -c "not_implemented_this_phase" lib/core/hsi-engine.cjs` = 4).
+
+- [x] **PYPORT-04**: a single dispatch chokepoint (`MINDRIAN_RS_BACKEND` env flag, default
+      `cjs`) gates backend selection at all three real Python-spawning callers identified by
+      RESEARCH.md Finding F-8 (`lib/agents/reverse-salient-agent.cjs`,
+      `lib/core/intelligence-cascade.cjs`, `lib/core/futures/orchestrator.cjs`) -- no module
+      outside the chokepoint decides directly -- with D-09's rule-6 amendment landed in both live
+      copies (`reverse-salient-agent.cjs:19`, `commands/find-bottlenecks.md`) in the same commit
+      as the dispatch wiring. Fixed in `lib/core/rs-backend-dispatch.cjs` (272-04, unwired) and
+      wired at all three callers (272-10). Measured: `bash tests/272-dispatch-chokepoint.sh` and
+      `bash tests/272-rule6-amended.sh` both PASS; live verification with
+      `MINDRIAN_RS_BACKEND=cjs` and `MINDRIAN_RS_BACKEND=python` both succeed against the fixture
+      room through the same caller code paths.
+
+- [x] **PYPORT-05**: a rank-agreement validation gate proving the CJS port's LSA leg (the actual
+      novel numerical work of this phase) is numerically sound against the Python baseline, with
+      zero confident `signed_diff` sign flips. D-11 (navigator ruling, 2026-08-31) replaced the
+      original top-K pair-ID set-overlap metric with a delta/correlation-based metric after
+      272-08's root-cause finding that the original metric measured Python's own cross-process
+      ARPACK non-determinism (0.42-0.50 overlap Python-vs-itself across independent processes),
+      not port correctness. Fixed in `tests/272-rank-agreement.test.cjs` +
+      `tests/fixtures/272/NOISE-FLOOR.md`/`noise-floor.json` (272-02 original gate, redesigned by
+      272-08 same day per D-11). Measured: LSA-leg Spearman rank-correlation rho = 0.9965, avg
+      delta = 0.0050, max delta = 0.0210 (matched pairs, `baseline-python.fixture.json` vs
+      `candidate-cjs.fixture.json`, 692 of 2000 pairs shared), against gate thresholds
+      `LSA_SPEARMAN_MIN=0.85`/`LSA_AVG_DELTA_MAX=0.02`/`LSA_MAX_DELTA_MAX=0.05` (2.4x-12x margin
+      above measured); 0 of 692 shared pairs show a `direction` (sign) mismatch at any confidence
+      level. **See DEFERRED-SCOPE.md's encoder-divergence callout: the SECONDARY/informational
+      `abs_diff`/`semantic_score` matched-pair agreement is weak (rho ~0.15/~0.75), a real,
+      quantified, and expected consequence of D-01's encoder swap, not a defect -- flagged there
+      for anyone considering full Python deletion.**
+
+- [x] **PYPORT-06**: the D-06 first-run model-cache probe is fixed to delegate to
+      `ModelRegistry.is_pipeline_cached` instead of a synchronous `fs.existsSync` heuristic that
+      false-positived on a partially-downloaded model directory. Fixed in
+      `lib/core/eureka/embedding-spine.cjs` (272-04). Measured: `node
+      tests/272-cache-probe.test.cjs` PASS, including the partial-download-directory case
+      (present but missing `config.json`) correctly resolving to NOT cached.
+
+- [x] **PYPORT-07**: (a) the D-07 model-cache location bug is fixed so the default cache dir
+      resolves to `$HOME/.mindrian/model-cache` instead of transformers.js's package-relative
+      default, which `lib/core/cache-prune.cjs` deletes on every plugin version update (the
+      re-download-on-every-update bug); (b) the D-01 Pinecone `/embed` hosted-inference call is
+      ported to a small CJS `fetch` module with the Part 8 dual-layer egress audit reused
+      verbatim (audit-before-fetch, audit-before-return). Fixed in
+      `lib/core/eureka/embedding-spine.cjs`'s `resolveCacheDir` and `lib/core/pinecone-inference.cjs`
+      (both 272-04). Measured: `node tests/272-cache-location.test.cjs` PASS (default resolves
+      under `$HOME/.mindrian`, explicit `MINDRIAN_MODEL_CACHE` override still honored); `node
+      tests/272-pinecone-inference.test.cjs` PASS (all 7 asserts: missing-key short-circuit,
+      audit-before-fetch/audit-before-return call order, a real `ExternalEgressViolation` throw
+      on a forbidden-pattern hit, `/embed` response-shape validation, HTTP-error envelope
+      handling, secret-hygiene guard on the `detail` field).
+
+**A real bug fixed along the way, not itself a PYPORT-NN item but load-bearing evidence the port
+was genuinely exercised, not just written:** `embedding-spine.cjs`'s `isModelCached` set
+`transformers.env.allowRemoteModels = false` for its own offline-only cache probe and never
+restored it, so the very next real `pipeline()` load in the SAME process silently inherited the
+false value and could never reach the network on a genuine cache miss -- a real first-run
+download hard-failing instead of downloading, on any cold-cache machine. Found and fixed in
+272-08 while generating the real candidate fixture (not injected, not staged -- the first live
+run against a genuinely cold cache surfaced it directly).
+
 ## Traceability
 
-86 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+93 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
-(Phase 267.3), plus CHOKE-01..06 (Phase 273). All minted 2026-08-27 except CHOKE-01..06 (minted
-2026-08-31): RADAR-01..11 and MCPFIX-01..04 at first-pass plan time,
+(Phase 267.3), CHOKE-01..06 (Phase 273), plus PYPORT-01..07 (Phase 272). All minted 2026-08-27
+except CHOKE-01..06 and PYPORT-01..07 (both minted 2026-08-31): RADAR-01..11 and MCPFIX-01..04 at
+first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
-plan 01's `267.3-DECISIONS.md` Section 6, and CHOKE-01..06 in `273-01-PLAN.md`'s frontmatter,
-finalized in `273-02-PLAN.md`'s objective. RADAR-13, RADAR-15 and RADAR-16 were retired before
+plan 01's `267.3-DECISIONS.md` Section 6, CHOKE-01..06 in `273-01-PLAN.md`'s frontmatter,
+finalized in `273-02-PLAN.md`'s objective, and PYPORT-01..07 in `272-RESEARCH.md`'s Phase
+Requirements section, registered to this document at phase close by `272-11-PLAN.md` per the
+Phase 273/CHOKE precedent. RADAR-13, RADAR-15 and RADAR-16 were retired before
 use because they duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04; the gap is deliberate and recorded.
 RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving its intent.
-Roadmap phases must map all 80 active requirements with no orphans.
+Roadmap phases must map all 87 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP and GUARD families alike (the Phase 266 and 269
+**Caveat, carried on the MCPFIX, MEMOP, GUARD and PYPORT families alike (the Phase 266 and 269
 precedent):** these IDs were minted at plan time inside their own phase's decision record rather
 than being drawn from a pre-existing milestone requirements pass. They are phase-local working IDs
 promoted to this document at phase close, which means the behaviour each one names is real and
