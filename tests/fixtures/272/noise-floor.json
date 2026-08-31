@@ -1,10 +1,49 @@
 {
-  "schema_version": "1",
+  "schema_version": "2",
   "phase": "272",
   "fixture_room": "tests/fixtures/272/room",
   "artifact_count": 96,
-  "measured_top50_overlap_arpack_vs_arpack": 1.0,
-  "measured_max_signed_diff_delta": 0.0,
-  "RANK_AGREEMENT_GATE_THRESHOLD": 0.95,
-  "generated_by": "tests/fixtures/272/generate-baseline.py"
+  "methodology": "D-11 (2026-08-31, tests/272-rank-agreement.test.cjs rewrite, continuing 272-08): the ORIGINAL v1 gate (RANK_AGREEMENT_GATE_THRESHOLD = top-K pair-ID SET overlap) measured Python-vs-itself WITHIN one process only, and 272-08 found that even Python-vs-itself ACROSS independent process invocations reaches only 0.42-0.50 top-K overlap on this fixture room -- the metric measured the wrong axis of variance, not a port defect. The gate is redesigned to a delta/correlation-based metric on the lsa_score (structural/LSA) leg specifically, matched by artifact-id pair. Top-K set overlap is retained below as v1_informational only, per D-11's explicit allowance. Full trail: 272-08-SUMMARY.md 'Known Issue' + 'Resolved (D-11)', 272-CONTEXT.md D-11.",
+  "v1_informational": {
+    "note": "The original same-process ARPACK-vs-itself measurement (272-02, generate-baseline.py). Real, correctly executed for what it tested, but not representative of the cross-process/cross-language comparison the gate is actually used for -- see methodology above.",
+    "measured_top50_overlap_arpack_vs_arpack_same_process": 1.0,
+    "measured_max_signed_diff_delta_same_process": 0.0,
+    "deprecated_threshold_RANK_AGREEMENT_GATE_THRESHOLD": 0.95
+  },
+  "cross_process_findings_272_08": {
+    "note": "272-08's controlled root-cause experiment (isolated legs, independent process invocations). See 272-08-SUMMARY.md Known Issue for the full reproducible method.",
+    "lsa_isolated_full_matrix_avg_delta_cjs_vs_python": 0.0016,
+    "lsa_isolated_full_matrix_max_delta_cjs_vs_python": 0.0196,
+    "lsa_isolated_full_matrix_avg_delta_python_vs_python_cross_process": 0.0018,
+    "lsa_isolated_full_matrix_max_delta_python_vs_python_cross_process": 0.0167,
+    "semantic_leg_identical_encoder_avg_delta_cross_process": 0.00003,
+    "semantic_leg_identical_encoder_max_delta_cross_process": 0.00005,
+    "python_vs_python_cross_process_top50_overlap": 0.42,
+    "python_vs_python_cross_process_top100_overlap": 0.44,
+    "python_vs_python_cross_process_top500_overlap": 0.47,
+    "python_vs_python_cross_process_top2000_overlap": 0.5
+  },
+  "measured_matched_pairs_cjs_vs_python_committed_fixtures": {
+    "note": "Direct measurement against the ALREADY-COMMITTED baseline-python.fixture.json (272-02) and candidate-cjs.fixture.json (272-08), matched by source/target artifact-id pair -- reproduced by tests/272-rank-agreement.test.cjs itself on every run, recorded here for provenance at the time this gate was authored.",
+    "baseline_pair_count": 2000,
+    "candidate_pair_count": 2000,
+    "shared_pair_count": 692,
+    "lsa_score_spearman": 0.9965,
+    "lsa_score_avg_delta": 0.005,
+    "lsa_score_max_delta": 0.021,
+    "abs_diff_spearman_informational": 0.1491,
+    "abs_diff_avg_delta_informational": 0.0528,
+    "abs_diff_max_delta_informational": 0.2194,
+    "semantic_score_spearman_informational": 0.746,
+    "semantic_score_avg_delta_informational": 0.0555,
+    "informational_caveat": "abs_diff and semantic_score deltas/correlation are dominated by the D-01-mandated encoder swap (Python: all-MiniLM-L6-v2, CJS: MongoDB/mdbr-leaf-ir) -- a decided architecture difference (already locked, out of this gate's scope), not port noise. Logged for navigator visibility, never gated."
+  },
+  "gate": {
+    "LSA_SPEARMAN_MIN": 0.85,
+    "LSA_AVG_DELTA_MAX": 0.02,
+    "LSA_MAX_DELTA_MAX": 0.05,
+    "CONFIDENT_SIGN_FLIP_MAX": 0
+  },
+  "gate_reasoning": "Thresholds set with deliberate margin above the empirically measured deltas, not copied verbatim (D-11 explicit instruction). LSA_SPEARMAN_MIN=0.85 sits well below the measured 0.9965 (a real regression would collapse toward the abs_diff-level 0.1491 this file also records, so 0.85 cleanly separates 'noise' from 'broken'). LSA_AVG_DELTA_MAX=0.02 is ~4x the measured 0.0050 (and ~12x 272-08's isolated 0.0016). LSA_MAX_DELTA_MAX=0.05 is ~2.4x the measured 0.021 (and ~2.5x 272-08's isolated max 0.0196). CONFIDENT_SIGN_FLIP_MAX=0 is unchanged from D-01a/D-03 -- zero confident sign flips is the actual safety property the gate exists to protect (structural_transfer vs semantic_implementation classification correctness), and the committed fixtures measure exactly 0 (any margin, any threshold) today.",
+  "generated_by": "tests/272-rank-agreement.test.cjs (D-11 methodology); original same-process v1 measurement by tests/fixtures/272/generate-baseline.py; cross-process findings by 272-08's controlled experiment (see 272-08-SUMMARY.md)"
 }
