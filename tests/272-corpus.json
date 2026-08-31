@@ -1,0 +1,128 @@
+{
+  "schema_version": "1",
+  "phase": "272",
+  "purpose": "Phase 272 room-artifact rank-agreement probe corpus -- 20 hand-selected artifact pairs from the Phase 272 synthetic fixture room, used only as documentation of representative pair relationships for future maintainers. This is NOT the 127.1 harness: it is not a Brain-methodology query corpus (Phase 127.1 uses 1024-dim multilingual-e5-large query embeddings and is not reusable as data -- wrong dimensionality, wrong content). This corpus does NOT gate anything numerically itself; the rank-agreement gate in tests/272-rank-agreement.test.cjs compares the FULL pairwise output of the fixture room, not just these 20 named pairs. Schema modeled on tests/127.1-graphrag-overlap-corpus.json (schema_version, phase, purpose, source, queries[]) reusing SHAPE only, per RESEARCH.md Correction C-2.",
+  "source": "tests/fixtures/272/room",
+  "queries": [
+    {
+      "id": "Q01",
+      "source_artifact_id": "problem-definition/data-pipeline-01",
+      "target_artifact_id": "problem-definition/performance-tuning-03",
+      "expected_relationship": "differential candidate: data pipeline and performance concerns coexist within the problem-definition section"
+    },
+    {
+      "id": "Q02",
+      "source_artifact_id": "problem-definition/notification-delivery-02",
+      "target_artifact_id": "research/data-pipeline-02",
+      "expected_relationship": "cross-cutting candidate between notification/problem-definition and data pipeline/research, no shared topic or section"
+    },
+    {
+      "id": "Q03",
+      "source_artifact_id": "assumptions/onboarding-ux-01",
+      "target_artifact_id": "research/onboarding-ux-02",
+      "expected_relationship": "structural transfer candidate: same onboarding pattern applied across assumptions -> research"
+    },
+    {
+      "id": "Q04",
+      "source_artifact_id": "problem-definition/authentication-02",
+      "target_artifact_id": "research/authentication-02",
+      "expected_relationship": "structural transfer candidate: same authentication pattern applied across problem-definition -> research"
+    },
+    {
+      "id": "Q05",
+      "source_artifact_id": "decisions/performance-tuning-01",
+      "target_artifact_id": "decisions/performance-tuning-02",
+      "expected_relationship": "close variant: two performance notes filed in the same decisions section"
+    },
+    {
+      "id": "Q06",
+      "source_artifact_id": "research/onboarding-ux-03",
+      "target_artifact_id": "research/performance-tuning-01",
+      "expected_relationship": "differential candidate: onboarding and performance concerns coexist within the research section"
+    },
+    {
+      "id": "Q07",
+      "source_artifact_id": "problem-definition/onboarding-ux-02",
+      "target_artifact_id": "research/performance-tuning-04",
+      "expected_relationship": "cross-cutting candidate between onboarding/problem-definition and performance/research, no shared topic or section"
+    },
+    {
+      "id": "Q08",
+      "source_artifact_id": "problem-definition/notification-delivery-04",
+      "target_artifact_id": "problem-definition/billing-01",
+      "expected_relationship": "differential candidate: notification and billing concerns coexist within the problem-definition section"
+    },
+    {
+      "id": "Q09",
+      "source_artifact_id": "assumptions/authentication-02",
+      "target_artifact_id": "research/notification-delivery-02",
+      "expected_relationship": "cross-cutting candidate between authentication/assumptions and notification/research, no shared topic or section"
+    },
+    {
+      "id": "Q10",
+      "source_artifact_id": "assumptions/data-pipeline-01",
+      "target_artifact_id": "research/authentication-01",
+      "expected_relationship": "cross-cutting candidate between data pipeline/assumptions and authentication/research, no shared topic or section"
+    },
+    {
+      "id": "Q11",
+      "source_artifact_id": "problem-definition/performance-tuning-02",
+      "target_artifact_id": "decisions/onboarding-ux-03",
+      "expected_relationship": "cross-cutting candidate between performance/problem-definition and onboarding/decisions, no shared topic or section"
+    },
+    {
+      "id": "Q12",
+      "source_artifact_id": "problem-definition/onboarding-ux-03",
+      "target_artifact_id": "assumptions/billing-02",
+      "expected_relationship": "cross-cutting candidate between onboarding/problem-definition and billing/assumptions, no shared topic or section"
+    },
+    {
+      "id": "Q13",
+      "source_artifact_id": "assumptions/notification-delivery-02",
+      "target_artifact_id": "problem-definition/billing-01",
+      "expected_relationship": "cross-cutting candidate between notification/assumptions and billing/problem-definition, no shared topic or section"
+    },
+    {
+      "id": "Q14",
+      "source_artifact_id": "assumptions/performance-tuning-01",
+      "target_artifact_id": "research/performance-tuning-03",
+      "expected_relationship": "structural transfer candidate: same performance pattern applied across assumptions -> research"
+    },
+    {
+      "id": "Q15",
+      "source_artifact_id": "assumptions/billing-01",
+      "target_artifact_id": "decisions/performance-tuning-02",
+      "expected_relationship": "cross-cutting candidate between billing/assumptions and performance/decisions, no shared topic or section"
+    },
+    {
+      "id": "Q16",
+      "source_artifact_id": "research/notification-delivery-04",
+      "target_artifact_id": "problem-definition/performance-tuning-02",
+      "expected_relationship": "cross-cutting candidate between notification/research and performance/problem-definition, no shared topic or section"
+    },
+    {
+      "id": "Q17",
+      "source_artifact_id": "assumptions/data-pipeline-04",
+      "target_artifact_id": "assumptions/authentication-01",
+      "expected_relationship": "differential candidate: data pipeline and authentication concerns coexist within the assumptions section"
+    },
+    {
+      "id": "Q18",
+      "source_artifact_id": "assumptions/authentication-04",
+      "target_artifact_id": "problem-definition/onboarding-ux-04",
+      "expected_relationship": "cross-cutting candidate between authentication/assumptions and onboarding/problem-definition, no shared topic or section"
+    },
+    {
+      "id": "Q19",
+      "source_artifact_id": "problem-definition/authentication-04",
+      "target_artifact_id": "decisions/data-pipeline-02",
+      "expected_relationship": "cross-cutting candidate between authentication/problem-definition and data pipeline/decisions, no shared topic or section"
+    },
+    {
+      "id": "Q20",
+      "source_artifact_id": "decisions/performance-tuning-04",
+      "target_artifact_id": "research/performance-tuning-01",
+      "expected_relationship": "structural transfer candidate: same performance pattern applied across decisions -> research"
+    }
+  ]
+}
