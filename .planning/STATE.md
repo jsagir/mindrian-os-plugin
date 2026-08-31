@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 273-05-PLAN.md (Phase 273 closed)
-last_updated: "2026-08-31T17:09:38.737Z"
+last_updated: "2026-08-31T17:24:13.055Z"
 last_activity: 2026-08-31 -- Phase 272 execution started
 progress:
   total_phases: 26
   completed_phases: 12
   total_plans: 114
-  completed_plans: 102
+  completed_plans: 103
   percent: 46
 ---
 
@@ -3374,7 +3374,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — EXECUTING
-Plan: 2 of 11
+Plan: 3 of 11
 Status: Ready to execute
 Last activity: 2026-08-31 -- Phase 272 execution started
 
@@ -4020,6 +4020,7 @@ Progress: [█████████░] 92%
 | Phase 273 P04 | 15min | 2 tasks | 1 files |
 | Phase 273 P05 | 45min | 3 tasks | 2 files |
 | Phase 272 P01 | 25min | 3 tasks | 7 files |
+| Phase 272 P02 | 45min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -5336,6 +5337,7 @@ Progress: [█████████░] 92%
 - [Phase 273]: Substrate baseline reconciled honestly to live-measured 208 (unchanged from pre-fix); documented number equals measured number with reason recorded, not laundered
 - [Phase 272]: Pinned sklearn svd_flip's V-row argmax-abs sign rule (u_based_decision=False) by reading installed sklearn 1.8.0 source live, resolving RESEARCH.md Assumption A1
 - [Phase 272]: Regenerated every Wave 0 numeric fixture (TF-IDF, stopwords, SVD, spectral) via live python3/sklearn/numpy execution rather than trusting quoted plan values, per T-272-02
+- [Phase ?]: Measured ARPACK-vs-itself noise floor is 1.0000 (bit-deterministic) on the real 272 fixture room; set RANK_AGREEMENT_GATE_THRESHOLD=0.95, replacing the inherited 127.1 threshold — Wave 0 gap required a justified, measured gate rather than an inherited unrelated-phase number
 
 ### Pending Todos
 
@@ -5444,7 +5446,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T17:09:18.415Z
+Last session: 2026-08-31T17:24:01.394Z
 Stopped at: Completed 273-05-PLAN.md (Phase 273 closed)
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
