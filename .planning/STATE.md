@@ -3,16 +3,28 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 272-09-PLAN.md
-last_updated: "2026-08-31T20:03:51.557Z"
-last_activity: 2026-08-31 -- Phase 272 execution started
+stopped_at: Completed 272-10-PLAN.md
+last_updated: "2026-08-31T20:18:56.194Z"
+last_activity: 2026-08-31 -- Phase 272 execution, 272-10 (dispatch wiring + rule-6 amendment) complete
 progress:
   total_phases: 26
   completed_phases: 12
   total_plans: 114
-  completed_plans: 110
-  percent: 46
+  completed_plans: 111
+  percent: 97
 ---
+
+<!-- NOTE (272-10 execute-plan, 2026-08-31): `gsd-tools query state.update-progress`
+     recalculated percent correctly (JSON return: percent:97, completed:111,
+     total:114) but the frontmatter write it performed reverted `status` from
+     "executing" to "completed" (wrong -- 272-11, phase close, is still
+     pending) and `stopped_at` from the hand-corrected "Completed
+     272-10-PLAN.md" back to the stale "Completed 272-09-PLAN.md", while
+     leaving `percent: 46` unwritten in the frontmatter despite computing 97
+     in its own return value. Hand-corrected all four frontmatter fields
+     (status, stopped_at, percent, and this note) to match both the
+     command's own correct JSON computation and the actual Current Position
+     section below, which the same command call did NOT clobber. -->
 
 <!-- NOTE (272-08 execute-plan, 2026-08-31, FIFTEENTH + SIXTEENTH OCCURRENCE
      of the documented resync-clobber bug, both minor, same session as the
@@ -3418,9 +3430,29 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — EXECUTING
-Plan: 1 of 11
-Status: Executing Phase 272
-Last activity: 2026-08-31 -- Phase 272 execution started
+Plan: 11 of 11
+Status: 272-10 complete (D-04 dispatch wiring + D-09 rule-6 amendment; tests/run-all-272.sh fully green), ready for 272-11 (phase close)
+Last activity: 2026-08-31 -- Phase 272 execution, 272-10 (dispatch wiring + rule-6 amendment) complete
+
+<!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
+     documented state.*-clobber bug, see the note block below this frontmatter
+     for the prior thirteen): `gsd-tools query state.advance-plan` returned
+     {"previous_plan":1,"current_plan":2,"total_plans":11} -- again disconnected
+     from the actual "Plan: X of 11" value already in this file. Worse this
+     time: BEFORE this call, the orchestrator's own `init.execute-phase`
+     pre-step had already clobbered "Plan: 10 of 11" down to "Plan: 1 of 11"
+     and status from "completed" back to "executing" with
+     stopped_at="Completed 272-09-PLAN.md" (the same STATE.md resync-clobber
+     class named in docs/2026-08-27-HANDOFF-goal-directed-phase-sweep-265-271.md,
+     "9+ occurrences" -- this is a second, distinct clobber site from the
+     advance-plan bug documented in the notes below). A premature `commit`
+     call (before running the full state_updates sequence) landed that
+     already-clobbered "Plan: 1 of 11" state into git at ae20c5a8 before this
+     hand-correction was made; this note plus the corrected values below is
+     the fix, landed in a subsequent commit, not a git-history rewrite. Hand-
+     corrected to "Plan: 11 of 11" (272-10 is this phase's 10th of 11 plans,
+     now complete, so the position advances to 11 -- ready for 272-11) and
+     stopped_at/Last activity updated to match. -->
 
 <!-- NOTE (272-08 execute-plan, 2026-08-31, THIRTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4095,6 +4127,7 @@ Progress: [█████████░] 92%
 | Phase 272 P07 | 45min | 2 tasks | 2 files |
 | Phase 272 P08 | 2h40min | 2 tasks | 6 files |
 | Phase 272 P09 | 50min | 1 tasks | 1 files |
+| Phase 272 P10 | 55min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -5426,6 +5459,7 @@ Progress: [█████████░] 92%
 - [Phase 272]: D-11 (2026-08-31): rank-agreement gate (PYPORT-05) redesigned from top-K pair-ID set overlap to LSA-leg Spearman rank-correlation + delta bound, plus zero confident sign flips, per 272-08's cross-process ARPACK root-cause finding. tests/272-rank-agreement.test.cjs now PASSES (lsa_score rho=0.9965, avg delta 0.0050) against the real committed fixtures, no regeneration. abs_diff/semantic_score agreement (rho 0.1491/0.7460) kept informational only, dominated by D-01's encoder swap, not port noise. Implemented as a direct continuation of 272-08 (commits 40d75f32, 2056244b).
 - [Phase 272]: hsi-engine.cjs reuses rs-engine.cjs's discoverArtifacts (confirmed byte-identical Python source behavior) rather than a second filesystem walker
 - [Phase 272]: hsi-engine.cjs does not port compute-hsi.py's .hsi-cache.json content-hash skip-cache; out of this plan's scope, recomputes every call
+- [Phase ?]: 272-10: D-04 dispatch chokepoint wired at all 3 real callers (reverse-salient-agent.cjs, intelligence-cascade.cjs, futures/orchestrator.cjs); D-09 rule-6 amendment landed in both live copies in the same commit as the wiring
 
 ### Pending Todos
 
@@ -5534,8 +5568,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T20:02:40.992Z
-Stopped at: Completed 272-09-PLAN.md
+Last session: 2026-08-31T20:18:56.122Z
+Stopped at: Completed 272-10-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
