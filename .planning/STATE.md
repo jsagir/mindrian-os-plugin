@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 273-02-PLAN.md
-last_updated: "2026-08-31T15:24:24.632Z"
+stopped_at: Completed 273-03-PLAN.md
+last_updated: "2026-08-31T15:34:59.434Z"
 last_activity: 2026-08-31 -- Phase 273 execution started
 progress:
-  total_phases: 25
+  total_phases: 26
   completed_phases: 11
   total_plans: 103
-  completed_plans: 98
-  percent: 44
+  completed_plans: 99
+  percent: 42
 ---
 
 <!-- NOTE (267.3-01 execute-plan state.record-metric, 2026-08-27T~20:49Z, hand-edited per this
@@ -4016,6 +4016,7 @@ Progress: [█████████░] 92%
 | Phase 267.3 P03 | 50min | 3 tasks | 4 files |
 | Phase 273 P01 | 20min | 3 tasks | 3 files |
 | Phase 273 P02 | 25min | 3 tasks | 3 files |
+| Phase 273 P03 | 22min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -5326,6 +5327,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: Deferred the CLAUDE.md Dev-Research Compositing mirror of 273-RESEARCH.md to a later plan in Phase 273 (not in 273-01's declared task scope)
 - [Phase ?]: Reworded two run-all-270.sh-derived comments to satisfy literal grep-based acceptance criteria (node --test substring, lastInsertRowid substring) without changing intent
 - [Phase ?]: Used finalized CHOKE-04/05/06 requirement IDs in Phase 273 Wave 0 tests (not PATTERNS.md's preliminary CHOKE-08/11/12 draft IDs)
+- [Phase ?]: 273-03: ok never flips to false on a suppressed writeEdge write (D-01a) -- written is the new additive signal, 77 call sites / 43 files read .ok
+- [Phase ?]: 273-03: review_status_persisted is set (true or false) in both branches whenever a caller supplies review_status, not only on the base-schema gap case -- required by test-273-writeedge-base-schema.cjs Assert 6 (non-cannibalisation check)
 
 ### Pending Todos
 
@@ -5434,8 +5437,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T15:24:24.539Z
-Stopped at: Completed 273-02-PLAN.md
+Last session: 2026-08-31T15:34:59.359Z
+Stopped at: Completed 273-03-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
