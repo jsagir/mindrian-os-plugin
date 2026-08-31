@@ -1,11 +1,16 @@
 ---
 seed: enlarge-room-schema-layered-icm-structure-plus-notion-gap-close
 canon_parts: [7, 9]
-status: proposed
+status: promoted
+promoted_to_phase: 275
+promoted: 2026-08-31
 created: 2026-08-28
 source: rethinking-mindrianos/research/2026-08-27-icm-semantic-substrate/ (addendum), SEED-075, SEED-076, PROJECT.md "Notion Template Gap Close"
 gated_on: none required to design; building is gated on resolving the taxonomy question this seed itself surfaces (see "Open question" below) and on Phase 270's OQ-7 (already surfaces item 4/6 independently)
+mandatory_consult: "langtalks-graph-expert, continuously, every stage of Phase 275's lifecycle (navigator ruling 2026-08-31) -- in addition to the standing icm-architect consult, not instead of it"
 ---
+
+**PROMOTED to Phase 275** (`.planning/ROADMAP.md`, 2026-08-31). This seed file stays as the full-detail source; the ROADMAP.md phase entry is the numbered, discoverable pointer. Still gated (see `gated_on` above) — do not run `/gsd-plan-phase 275` until both conditions clear.
 
 # SEED-084 -- Enlarge the room schema itself: merge the parked Notion gap-close backlog with tonight's live ICM audit, organized by icm-architect's layered context hierarchy
 
