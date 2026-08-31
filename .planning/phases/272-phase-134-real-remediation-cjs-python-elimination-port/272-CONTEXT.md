@@ -99,6 +99,53 @@ is nominally in this phase's scope per ROADMAP.md but was not part of tonight's 
   same task, not an add-on. Update the rule-6 comment text in the same commit that
   implements the dispatch.
 
+### Scope fence -- Mode B/C external Pinecone corpus
+- **D-10 (navigator ruling, 2026-08-31, post-research):** Mode B/C (the external Pinecone
+  corpus path in `lib/core/rs_cache.py`) is DESCOPED to a follow-up phase, per
+  272-RESEARCH.md's Open Question 1 and its own recommendation. Confirmed: D-01's
+  "~40 lines" port estimate covers only the `/embed` inference call
+  (`rs-engine.py:1098-1130`, Mode A internal); Mode B/C's real surface is Pinecone
+  control-plane plus data-plane SDK (`create_index_for_model`, `has_index`,
+  `describe_index`, `upsert_records`, paged `list()`, `query` -- `lib/core/rs_cache.py:130-461`),
+  an order of magnitude larger and out of proportion to this phase's stated goal.
+  Mode B/C also requires a `PINECONE_API_KEY` most end users do not have, so porting it
+  does not unblock the users this phase exists for -- it stays on the Python fallback
+  path D-04's env flag already provides, with zero new code. This phase's scope is Mode A
+  internal (local, `embedding-spine.cjs` ONNX pattern) plus `compute-hsi.py` Tier 1 only.
+  Full Mode B/C port is registered as follow-up scope, not lost -- the planner should not
+  attempt it and should not shrink D-01's language to imply it already covers Mode B/C.
+
+### Rank-agreement gate redesign (D-03 amendment)
+- **D-11 (navigator ruling, 2026-08-31, post-272-08 root-cause finding):** 272-08 found,
+  via a rigorous controlled experiment (full trail in `272-08-SUMMARY.md`'s "Known Issue"
+  section), that D-03's original operationalization of "rank-agreement" -- exact top-50
+  pair-ID SET overlap -- measures the wrong axis of variance. Even Python's own
+  `TruncatedSVD(algorithm="arpack")` compared against itself ACROSS independent process
+  invocations (not within one, which is what 272-02's `NOISE-FLOOR.md` actually measured)
+  only reaches 0.42-0.50 top-K overlap on this fixture room's densely-tied score
+  distribution -- nowhere near the inherited 0.95 gate. The underlying NUMBERS agree
+  almost exactly either way (avg delta ~0.0016-0.0018 across both the CJS-vs-Python and
+  Python-vs-Python-cross-process comparisons); it is specifically the "identical top-50
+  ID set" check that is too brittle for how closely many pairs compete near the top of
+  this fixture's ranking.
+  **Ruling: replace the top-K set-overlap metric with a delta/correlation-based metric**
+  (Spearman rank-correlation over the full ranking, and/or a direct avg/max delta bound
+  on the `abs_diff` scores between matched pairs) as the PRIMARY `PYPORT-05` gate. This is
+  consistent with D-03's own original language ("rank-agreement... NOT a cosine-similarity
+  byte-compat threshold") -- D-03 never mandated exact set membership, 272-02 chose that
+  operationalization and it turned out to be the wrong one for this data's tie density.
+  Top-K set overlap MAY be retained as a secondary/informational signal (not a hard gate)
+  if useful for debugging, but it does not gate phase completion.
+  **Scope:** fix `tests/272-rank-agreement.test.cjs` and `tests/fixtures/272/NOISE-FLOOR.md`
+  / `noise-floor.json` to reflect the new metric and a threshold justified against it,
+  reusing the ALREADY-CAPTURED `baseline-python.fixture.json` and `candidate-cjs.fixture.json`
+  data (272-02's and 272-08's real runs) -- no need to regenerate either fixture, only the
+  comparison method changes. Do not weaken the metric to force a specific number; derive
+  the threshold from what the actual measured deltas support (272-08 already measured
+  avg ~0.0016-0.0018, max ~0.02 -- use these as the empirical grounding). This directly
+  affects `PYPORT-05`'s pass/fail state and therefore 272-09/272-10/272-11's phase-gate
+  regression checks -- land this before Wave 5 wires real callers to rs-engine.cjs.
+
 ### Claude's Discretion
 - Exact file/module layout for the new `lib/core/rs-engine.cjs`, `rs-math.cjs`,
   `hsi-*.cjs`, and the new Pinecone-inference proxy module -- not dictated beyond the
