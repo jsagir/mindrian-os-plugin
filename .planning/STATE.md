@@ -2,17 +2,61 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 272-07-PLAN.md
-last_updated: "2026-08-31T18:24:44.683Z"
-last_activity: 2026-08-31 -- Phase 272 execution, 272-06 (rs-math.cjs) complete
+status: executing
+stopped_at: Completed 272-08-PLAN.md
+last_updated: "2026-08-31T18:52:28.671Z"
+last_activity: 2026-08-31 -- Phase 272 execution, 272-08 (rs-engine.cjs) complete
 progress:
   total_phases: 26
   completed_phases: 12
   total_plans: 114
-  completed_plans: 108
+  completed_plans: 109
   percent: 46
 ---
+
+<!-- NOTE (272-08 execute-plan, 2026-08-31, FIFTEENTH + SIXTEENTH OCCURRENCE
+     of the documented resync-clobber bug, both minor, same session as the
+     FOURTEENTH just below): `state.record-metric --phase 272 --plan 08 ...`
+     (FIFTEENTH) AGAIN reverted `status` to `completed` and `stopped_at` to
+     `Completed 272-07-PLAN.md` after the FOURTEENTH occurrence's restore --
+     hand-corrected a second time (final values: status: executing,
+     stopped_at: Completed 272-08-PLAN.md). SIXTEENTH: both
+     `state.add-decision --summary "..."` calls this session wrote the
+     literal placeholder "[Phase ?]" instead of resolving to "[Phase 272]"
+     (same defect the ELEVENTH occurrence below first documented, on a
+     different phase) -- hand-corrected both new lines to "[Phase 272]".
+     `requirements.mark-complete PYPORT-02 PYPORT-05` returned
+     not_found for both -- Phase 272's PYPORT-* requirement IDs were never
+     registered in .planning/REQUIREMENTS.md (a pre-existing gap, same class
+     as the DCW-* precedent in 159-01-SUMMARY.md); not fixed here, recorded
+     as a decision instead of a REQUIREMENTS.md registration. -->
+
+<!-- NOTE (272-08 execute-plan state.update-progress, 2026-08-31, FOURTEENTH
+     OCCURRENCE of the documented resync-clobber bug): `gsd-tools query
+     state.update-progress` returned `{"updated":true,"percent":96,
+     "completed":109,"total":114,...}` in its own JSON response, but the value
+     it actually WROTE to this file's frontmatter left `percent: 46` unchanged
+     (the command's return value and its actual write disagree with each
+     other -- a new wrinkle on this bug class) while legitimately bumping
+     `completed_plans` 108 -> 109 (one real plan, 272-08, just completed) and
+     silently reverting `status` from `executing` back to `completed` and
+     `stopped_at` from the just-hand-corrected `Completed 272-08-PLAN.md`
+     back to the stale `Completed 272-07-PLAN.md`. `last_activity` was NOT
+     touched this time. Restored `status: executing` and
+     `stopped_at: Completed 272-08-PLAN.md` by hand; kept the legitimate
+     `completed_plans: 109` bump and left `percent: 46` alone since it
+     already correctly reflects `completed_phases/total_phases` (12/26), not
+     the plan-level ratio the command's own return value confusingly implies. -->
+
+<!-- NOTE (272-08 execute-plan state.advance-plan, 2026-08-31, THIRTEENTH
+     OCCURRENCE of the documented resync-clobber bug): `gsd-tools query
+     state.advance-plan` returned `{"previous_plan":1,"current_plan":2,
+     "total_plans":11}` -- an internal counter disconnected from the actual
+     "Plan: X of 11" value already in this file (which read "Plan: 1 of 11"
+     before this call, itself already stale/under-counted since 272-07 had
+     just completed per the TWELFTH occurrence's own note below). Hand-
+     corrected the Current Position section (below the frontmatter) to
+     "Plan: 9 of 11" (272-08 is this phase's 8th of 11 plans, now complete). -->
 
 <!-- NOTE (267.3-01 execute-plan state.record-metric, 2026-08-27T~20:49Z, hand-edited per this
      file's own documented resync-clobber bug, TENTH OCCURRENCE this session):
@@ -3374,9 +3418,20 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — EXECUTING
-Plan: 7 of 11
-Status: 272-06 complete, ready for 272-07
-Last activity: 2026-08-31 -- Phase 272 execution, 272-06 (rs-math.cjs) complete
+Plan: 9 of 11
+Status: 272-08 complete (numerical proof port), ready for 272-09
+Last activity: 2026-08-31 -- Phase 272 execution, 272-08 (rs-engine.cjs) complete
+
+<!-- NOTE (272-08 execute-plan, 2026-08-31, THIRTEENTH occurrence of the
+     documented state.*-clobber bug, see the note block below this frontmatter
+     for the prior twelve): `gsd-tools query state.advance-plan` returned
+     {"previous_plan":1,"current_plan":2,"total_plans":11} -- again disconnected
+     from the actual "Plan: X of 11" value already in this file (which read
+     "Plan: 1 of 11" before this call, itself already stale/under-counted since
+     272-07 had just completed, per the TWELFTH occurrence's own note directly
+     below). Hand-corrected to "Plan: 9 of 11" (272-08 is this phase's 8th of 11
+     plans, now complete, so the position advances to 9) and stopped_at/Last
+     activity updated to match. -->
 
 <!-- NOTE (272-06 execute-plan, 2026-08-31, TWELFTH occurrence of the documented
      state.*-clobber bug, see the note block below this frontmatter for the prior
@@ -4038,6 +4093,7 @@ Progress: [█████████░] 92%
 | Phase 272 P05 | ~15min | 2 tasks | 3 files |
 | Phase 272 P06 | 35min | 2 tasks | 1 files |
 | Phase 272 P07 | 45min | 2 tasks | 2 files |
+| Phase 272 P08 | 2h40min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -5364,6 +5420,8 @@ Progress: [█████████░] 92%
 - [Phase 272]: rs-math.cjs's Task 1/Task 2 split across two commits within one new file, staged edits used since both tasks build the same file
 - [Phase ?]: 272-07: buildTransitionMatrix(modeSequence, modes) returns a plain 2D matrix, not a {matrix, modes} wrapper -- tests/272-spectral.test.cjs (authoritative) binds this way, overriding the plan's prose
 - [Phase ?]: 272-07: computeSpectralGap uses a general hand-written QR-to-Schur eigenanalysis (handles complex-conjugate pairs), not power-iteration-plus-deflation, since hsi-engine.cjs (272-09) will run this on real room-derived matrices, not just the fixture
+- [Phase 272]: REVERSE_SALIENT edges route through lazygraph-ops.cjs::upsertEdge, not navigation.cjs::writeEdge -- navigation/edges.cjs's ALLOWED_EDGE_TYPES excludes REVERSE_SALIENT per D-168's deferred unification
+- [Phase 272]: 272-02's RANK_AGREEMENT_GATE_THRESHOLD=0.95 measures same-process Python determinism, not cross-process determinism -- Python-vs-itself cross-process only reaches ~0.42-0.50 top-K overlap on the fixture room, flagged for navigator decision
 
 ### Pending Todos
 
@@ -5472,7 +5530,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T18:24:44.633Z
+Last session: 2026-08-31T18:52:28.620Z
 Stopped at: Completed 272-07-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
