@@ -505,15 +505,66 @@ is `[x]`.
 - A permanent HTTP DDL tool (the 2-day-open-window lesson stands).
 - Gate 0 foreign-host verify (carried operator leg, tracked in the handoff table).
 
+### Phase 273 - SQLite Graph Chokepoint Hardening (writeEdge silent-failure + propagation-gap fixes) (minted at plan time 2026-08-31)
+
+These six IDs were minted in `273-01-PLAN.md`'s frontmatter, finalized to this canonical
+one-per-fix-dimension mapping in `273-02-PLAN.md`'s objective, and are scoped to Phase 273 only.
+Five plans executed across three waves (273-01/02 Wave 0 RED harness, 273-03/04 Wave 1 GREEN
+fixes, 273-05 phase close). Every row below is `[x]`.
+
+- [x] **CHOKE-01**: The Wave 0 verification harness discovers every Phase 273 test file by glob
+      and hard-fails rather than reporting green on zero discovery. `tests/run-all-273.sh`
+      (273-01). Measured: `bash tests/run-all-273.sh` discovers 5 test files, `PASS=7 FAIL=0
+      SKIP=0` (includes the Part 8 source sweep and no-em-dash fence as two additional checks),
+      aggregator exits 0.
+
+- [x] **CHOKE-02**: C1 -- `writeEdge` is changes-aware: a write suppressed by the
+      confirmed-review-status guard reports an additive `written: false` field (`ok` semantics
+      left untouched, per D-01a's 43-file/77-call-site blast-radius constraint). Fixed in
+      `lib/core/navigation/edges.cjs` (273-03). Measured: `node
+      tests/test-273-writeedge-changes-aware.cjs` PASS.
+
+- [x] **CHOKE-03**: C2 -- `writeEdge` degrades gracefully against a base `lazygraph-ops.openGraph`
+      handle missing the `review_status` column via a `PRAGMA table_info(edges)` fallback
+      (`edgesHasReviewStatus(db)`), instead of throwing; `review_status_persisted` reports the
+      gap explicitly per D-06. Fixed in `lib/core/navigation/edges.cjs` (273-03). Measured: `node
+      tests/test-273-writeedge-base-schema.cjs` PASS.
+
+- [x] **CHOKE-04**: C3 -- the Brain edge-type allowlist bypass in
+      `lib/core/navigation/ingestion.cjs`'s raw `INSERT OR IGNORE` write is closed by an inline
+      `ALLOWED_EDGE_TYPES` guard (reject-and-skip, `rejectedEdgeTypes` observability field),
+      applied inline per D-03a rather than routed through `writeEdge` (whose `ON CONFLICT DO
+      UPDATE` semantics would have granted the Brain edge-property-overwrite power it does not
+      have today -- a Canon Part 9 regression). Fixed in `lib/core/navigation/ingestion.cjs`
+      (273-04). Measured: `node tests/test-273-ingestion-allowlist.cjs` PASS.
+
+- [x] **CHOKE-05**: M2 -- the misleading "Cross-room aggregation forbidden" comment, which implied
+      a checked runtime invariant that does not exist, is corrected at all 11 sites in
+      `lib/core/navigation/edges.cjs` to describe the actual structural mechanism (the function
+      signature `writeEdge(db, params)` is physically incapable of holding a second room's
+      handle). Fixed in `lib/core/navigation/edges.cjs` (273-03). Measured: `node
+      tests/test-273-cross-room-comment.cjs` PASS (11 corrected occurrences, 0 stale).
+
+- [x] **CHOKE-06**: M4/D-05 -- the documented substrate baseline is reconciled to the honest live-
+      measured number, with a dated note explaining the fixes in this phase were structurally
+      incapable of moving it (`lib/core/navigation/` is path-allowlisted at
+      `check-substrate.cjs:70`; `RE_RAW_WRITE` does not match `INSERT OR IGNORE INTO`).
+      `docs/architecture/SUBSTRATE-BASELINE.md`'s `## 2026-08-31 re-measurement (Phase 273)`
+      section (273-05). Measured: `node tests/test-273-substrate-baseline-honest.cjs` PASS
+      (measured=208), live `node scripts/check-substrate.cjs --baseline` also reads 208, unchanged
+      from the pre-fix count.
+
 ## Traceability
 
-80 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+86 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
-IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), and GUARD-01..10
-(Phase 267.3). All minted 2026-08-27: RADAR-01..11 and MCPFIX-01..04 at first-pass plan time,
+IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
+(Phase 267.3), plus CHOKE-01..06 (Phase 273). All minted 2026-08-27 except CHOKE-01..06 (minted
+2026-08-31): RADAR-01..11 and MCPFIX-01..04 at first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
-workstreams, MEMOP-01..15 in Phase 270's own planning pass, and GUARD-01..10 in Phase 267.3
-plan 01's `267.3-DECISIONS.md` Section 6. RADAR-13, RADAR-15 and RADAR-16 were retired before
+workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
+plan 01's `267.3-DECISIONS.md` Section 6, and CHOKE-01..06 in `273-01-PLAN.md`'s frontmatter,
+finalized in `273-02-PLAN.md`'s objective. RADAR-13, RADAR-15 and RADAR-16 were retired before
 use because they duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04; the gap is deliberate and recorded.
 RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving its intent.
 Roadmap phases must map all 80 active requirements with no orphans.
