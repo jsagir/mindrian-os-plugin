@@ -880,11 +880,11 @@ Not a recommendation to adopt the library (no JS binding exists; the SQL would n
 **Sibling SEED-084 registered (2026-08-28):** `.planning/seeds/SEED-084-enlarge-room-schema-layered-icm-structure-plus-notion-gap-close.md` -- three independent sources (a Notion "Problem Worth Solving" template diff captured 2026-04-14 in `PROJECT.md`, this session's live icm-architect audit, and Phase 270's OQ-7) converged on the same structural gaps (no first-class `funding/` section, no self-guiding room, no always-visible per-section statement). Proposes enlarging the room schema by LAYER (icm-architect's L0-L4 hierarchy, which `MindrianRooms/CLAUDE.md` already claims but no room implements past L0/L1) rather than as a flat item list, using SEED-075's Feynman-Minto grounding for the L2 contract's Human-check and the PWS 22-task workbook's task shape as the L2 contract template. Surfaces, does not resolve, an open question: three different stage-taxonomy vocabularies (Brain's `InnovationStage` zones, the 22-task workbook's problem-type ladder, and the ad-hoc `venture_stage` strings actually in use) need reconciling before the L3 reference layer can cite one canonically.
 **Requirements**: TBD
 **Depends on:** none technically. Independent of Phase 272 (different subsystem: 272 is the RS-engine Python-to-CJS port, this is the SQLite write chokepoint) despite being registered the same session -- either can be planned/executed first. Not blocking or blocked by Phase 271.
-**Plans:** 0 plans
+**Plans:** 1/1 plans complete
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 273 to break down)
+- [x] TBD (run /gsd-plan-phase 273 to break down) (completed 2026-08-31)
 
 ### Phase 274: Bare `scripts/` Invocation Anchoring (the adjacent class Phase 271 measured and did not fix)
 

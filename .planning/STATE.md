@@ -4,14 +4,14 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Phase 273 context gathered
-last_updated: "2026-08-31T13:10:50.272Z"
-last_activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
+last_updated: "2026-08-31T14:52:11.208Z"
+last_activity: 2026-08-31 -- Phase 273 execution started
 progress:
   total_phases: 25
-  completed_phases: 11
-  total_plans: 98
-  completed_plans: 96
-  percent: 44
+  completed_phases: 12
+  total_plans: 99
+  completed_plans: 97
+  percent: 48
 ---
 
 <!-- NOTE (267.3-01 execute-plan state.record-metric, 2026-08-27T~20:49Z, hand-edited per this
@@ -3369,14 +3369,14 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 267 - mcp-stateless-protocol-migration-bump-vendored-modelcontextp (not started). Phase 266 (mcp-layer-correctness-fixes-fast-independently-shippable-fix) is COMPLETE and independently re-verified passed, 5/5 plans, 8/8 must-haves.
+**Current focus:** Phase 273 — sqlite-graph-chokepoint-hardening-writeedge-silent-failure-a
 
 ## Current Position
 
-Phase: 265
-Plan: 23 of 23 -- COMPLETE (waves 1-6 per plan frontmatter; DAG-verified dependency graph collapses to 5 execution waves since several wave-4/5-declared plans only depended on wave-1/2/3 work and ran earlier)
-Status: Complete, independently re-verified 2026-08-27 (Phase 266 shipped complete 2026-08-27: 5/5 plans, verified passed 8/8; 266-05 closed the one MCPFIX-03 gap the prior verification found; Phase 265 built on top of it, including confirming Phase 266's MCPFIX-01/MCPFIX-02 fixes live via 265-09's and 265-24's own tripwires). Phase 267 remains blocked on an unresolved upstream ext-apps dependency per ROADMAP.md -- do not start it. Phase 270 (Memory and Context Operator MCP) is a separate, concurrent effort already underway on this same tree.
-Last activity: 2026-08-27 -- Phase 265 fully executed (23/23 plans) and independently re-verified passed; see the dated NOTE above this section for the full gate results and one orchestrator-level regression fix (scout.md web_scope, commit b2a13304)
+Phase: 273 (sqlite-graph-chokepoint-hardening-writeedge-silent-failure-a) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-08-31 -- Phase 273 execution started
 
 ### Phase 198 Plan 10 (SPEC-6 parity + SPEC-7 rollback + SPEC-8 Plurai, Wave 6, autonomous:false) - TASKS 1-2 COMPLETE, TASK 3 BLOCKED (human-verify checkpoint)
 
@@ -4014,6 +4014,7 @@ Progress: [█████████░] 92%
 | Phase 267.3 P01 | 35min | 2 tasks | 2 files |
 | Phase 267.3 P02 | 40min | 3 tasks | 7 files |
 | Phase 267.3 P03 | 50min | 3 tasks | 4 files |
+| Phase 273 P01 | 20min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -5321,6 +5322,8 @@ Progress: [█████████░] 92%
 - [Phase 261-04]: The Pyramid Principle: minto-pyramid.mjs targets a different node (Minto Pyramid, id 38968, 3/4) than the ratified name (The Pyramid Principle, id 30242, 0/4) -- disposed RETARGET via a header-only note, body left untouched -- The contested-survivor conflict over node 38968's own fate remains open and unadjudicated; RETARGET does not require it to resolve first
 - [Phase 266]: Module-scoped shrinking connect-path deadline instead of a call-site-threaded timeoutMs closure - The fourth connect-path heal call site (the lazy zod require inside bin/mindrian-mcp-server.cjs createServer()) is not at module scope and is re-invoked per session by the flag-ON multi-session HTTP branch; a stale zero-remaining timeoutMs there would hit runGuardedInstall's >0 guard and silently restore the full 120s hook-path default mid-session.
 - [Phase 267.3]: D-A/D-B/D-C ruled option-a (2026-08-27): sibling registry data/first-reward-surfaces.json; two new REWARD_TYPES members methodology_reframe and --none (diagnostic surface); --staged commit gate kept, whole-tree audit added to verify-release fail-closed and promoted only when green. Full ruling with rejected options b/c/d in 267.3-DECISIONS.md.
+- [Phase ?]: Deferred the CLAUDE.md Dev-Research Compositing mirror of 273-RESEARCH.md to a later plan in Phase 273 (not in 273-01's declared task scope)
+- [Phase ?]: Reworded two run-all-270.sh-derived comments to satisfy literal grep-based acceptance criteria (node --test substring, lastInsertRowid substring) without changing intent
 
 ### Pending Todos
 
@@ -5429,7 +5432,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T13:10:50.134Z
+Last session: 2026-08-31T14:51:58.597Z
 Stopped at: Phase 273 context gathered
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
