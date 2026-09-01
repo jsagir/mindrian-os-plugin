@@ -40,7 +40,7 @@ never invokes it by name, and it is never dispatched before that approval.
 ## What this agent receives (all inside the dispatch prompt)
 
 - **Exactly ONE audited query string, verbatim**, produced by
-  `node scripts/analogy-fitness-report.cjs compose-queries <pattern.json>`. It is passed as a
+  `node "${CLAUDE_PLUGIN_ROOT}/scripts/analogy-fitness-report.cjs" compose-queries <pattern.json>`. It is passed as a
   LITERAL string and labeled as literal in the dispatch prompt.
 - The abstract function description (the domain-independent verb + object from Step 3).
 - The SAPPhIRE field schema (`state_change, action, parts, phenomenon, input, real_effect,
