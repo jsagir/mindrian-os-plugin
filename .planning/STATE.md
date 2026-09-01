@@ -3,16 +3,30 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 274-05-PLAN.md
-last_updated: "2026-09-01T07:07:42.823Z"
-last_activity: 2026-09-01 -- Phase 274 execution, plan 05 complete
+stopped_at: Completed 274-06-PLAN.md -- Phase 274 CLOSED, 6/6 plans complete
+last_updated: "2026-09-01T07:21:55.693Z"
+last_activity: 2026-09-01 -- Completed 274-06-PLAN.md, Phase 274 CLOSED (6/6 plans)
 progress:
   total_phases: 26
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 120
-  completed_plans: 117
+  completed_plans: 118
   percent: 98
 ---
+
+<!-- NOTE (274-06 execute-plan, 2026-09-01, TWENTY-THIRD+ occurrence of the
+     documented STATE.md resync-clobber bug): after `state.record-metric`,
+     `state.add-decision` and `state.record-session`, the frontmatter's
+     `percent` field reverted from `state.update-progress`'s own correctly-
+     computed 98% (118 completed_plans / 120 total_plans) to 54% -- a
+     phase-based figure (14 completed_phases / 26 total_phases = 53.8%),
+     not the plan-based figure this field is supposed to track. `stopped_at`
+     and `last_activity` were correctly current this time (no clobber on
+     those two fields). Hand-corrected: percent back to 98, last_activity to
+     name this plan's actual completion. Root cause not re-investigated --
+     same tracked bug class as the TWENTY-SECOND+ note below, this time
+     manifesting as a phase-vs-plan denominator swap rather than a stale-
+     value revert. -->
 
 <!-- NOTE (274-05 execute-plan, 2026-09-01, TWENTY-SECOND+ occurrence of the
      documented STATE.md resync-clobber bug): the subsequent `state
@@ -3511,10 +3525,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 274 (bare-scripts-invocation-anchoring-the-adjacent-class-phase-2) — EXECUTING
-Plan: 5 of 6
-Status: 274-05 complete (mirror regen + full sweep verification, --check-scripts green); 274-06 (gate wiring + phase close) next
-Last activity: 2026-09-01 -- Phase 274 execution, plan 05 complete
+Phase: 274 (bare-scripts-invocation-anchoring-the-adjacent-class-phase-2) - CLOSED (6/6 plans complete, 2026-09-01)
+Plan: 6 of 6 (274-06-PLAN.md, phase close plan)
+Status: Complete. Gate 10f live in scripts/verify-release; ANCHOR-01..10 registered; full regression green (tests/run-all-274.sh PASS=4 FAIL=0, scripts/verify-release CLEAR TO RELEASE).
+Last activity: 2026-09-01 -- Completed 274-06-PLAN.md, Phase 274 CLOSED (6/6 plans)
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4216,6 +4230,7 @@ Progress: [█████████░] 92%
 | Phase 274 P03 | ~5min | 2 tasks | 14 files |
 | Phase 274 P04 | 12min | 2 tasks | 5 files |
 | Phase 274 P05 | 5min | 2 tasks | 1 files |
+| Phase 274 P06 | 10min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -5559,6 +5574,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 274-04: commands/status.md matcher/body drift registered as FOLLOWUP-274-R1 with evidence, not guessed at (matcher-engine ${...} semantics unconfirmed)
 - [Phase ?]: 274-04: help.md/eureka.md 6 deliberate ./scripts/... fallback lines allowlisted, not anchored; supersession question registered as FOLLOWUP-274-R2
 - [Phase 274]: 274-05: mirror regeneration required no new commit -- 274-02/03/04 pre-commit hooks already regenerated all 14 sweep-touched mirrors; live full-tree --check-scripts confirmed 0 violations (sites=156, anchored=154, allowlisted=2)
+- [Phase ?]: Gate 10f wired into scripts/verify-release, cloning gate 10c's fail-closed shape; ANCHOR-01..10 registered in REQUIREMENTS.md; Phase 274 closed 6/6.
 
 ### Pending Todos
 
@@ -5667,8 +5683,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-01T07:07:42.723Z
-Stopped at: Completed 274-05-PLAN.md
+Last session: 2026-09-01T07:21:55.604Z
+Stopped at: Completed 274-06-PLAN.md -- Phase 274 CLOSED, 6/6 plans complete
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
