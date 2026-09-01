@@ -114,7 +114,7 @@ Assemble the bull/bear + ACH-skeptic payload (claims, relations, killed claims, 
 
 ### 7. Close
 
-ONE `writeCloseLoop` call with surface `intel-pipeline` (Req 4's shared contract, the same spine `/mos:bono` terminates through). D-01's dual write (bank .md first, room.db node second, one shared artifact id) and D-02's proposed edges live INSIDE the writer, never here. Then run `bash scripts/compute-opportunity-state <roomDir>` so the opportunity bank is aware.
+ONE `writeCloseLoop` call with surface `intel-pipeline` (Req 4's shared contract, the same spine `/mos:bono` terminates through). D-01's dual write (bank .md first, room.db node second, one shared artifact id) and D-02's proposed edges live INSIDE the writer, never here. Then run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/compute-opportunity-state" <roomDir>` so the opportunity bank is aware.
 
 ## Hard rules (in-body)
 

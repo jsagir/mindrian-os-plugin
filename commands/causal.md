@@ -256,7 +256,7 @@ Explain what to look for rather than returning an empty table. Help the user und
 ```
 {warning} Knowledge graph not initialized
   JSON saved to room/.causal-extract.json (claims preserved)
-  Fix: Run /mos:setup graph then re-run the bridge with: node scripts/causal-to-graph.cjs room/
+  Fix: Run /mos:setup graph then re-run the bridge with: node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-graph.cjs" room/
 ```
 
 ## When Complete

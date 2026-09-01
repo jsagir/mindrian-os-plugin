@@ -107,7 +107,7 @@ Apply the Pyramid + MECE discipline of `/mos:structure-argument` to emit the con
 
 ## 7. Close the loop
 
-Detect a re-run first: `findPriorConclusion(db, topic_hash)` (from `lib/core/close-loop-writer.cjs`) looks up any prior conclusion on the same topic. Then make ONE `writeCloseLoop` call carrying claims / relations / killed / conclusion / knowns / unknowns / opportunities, plus `priorConclusionId` when a confirmed prior exists. The writer is the ONE spine both 223 surfaces terminate through: D-01 dual write (opportunity bank .md FIRST, room.db node SECOND, one shared artifact_id) and D-02 proposed edges live INSIDE the writer; the command never bypasses it. Every node is born `review_status: proposed` (Part 9). After the write, run `bash scripts/compute-opportunity-state <roomDir>` so the bank rollup surfaces the new opportunity nodes (Req 4).
+Detect a re-run first: `findPriorConclusion(db, topic_hash)` (from `lib/core/close-loop-writer.cjs`) looks up any prior conclusion on the same topic. Then make ONE `writeCloseLoop` call carrying claims / relations / killed / conclusion / knowns / unknowns / opportunities, plus `priorConclusionId` when a confirmed prior exists. The writer is the ONE spine both 223 surfaces terminate through: D-01 dual write (opportunity bank .md FIRST, room.db node SECOND, one shared artifact_id) and D-02 proposed edges live INSIDE the writer; the command never bypasses it. Every node is born `review_status: proposed` (Part 9). After the write, run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/compute-opportunity-state" <roomDir>` so the bank rollup surfaces the new opportunity nodes (Req 4).
 
 ## 8. Version cut + --version-log
 
