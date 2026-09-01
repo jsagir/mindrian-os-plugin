@@ -912,7 +912,7 @@ Plans:
 
 **Requirements**: ANCHOR-01, ANCHOR-02, ANCHOR-03, ANCHOR-04, ANCHOR-05, ANCHOR-06, ANCHOR-07, ANCHOR-08, ANCHOR-09, ANCHOR-10
 **Depends on:** Phase 271, which measured this class and left behind the ready-made measuring instrument: `node scripts/check-plugin-path-anchoring.cjs --report --include-scripts` (the advisory tier NEVER affects the gate's exit code, so this phase must decide whether to promote it to a hard gate as part of its own close-out, the way 271-05 wired the citation tier into `scripts/verify-release` gate 10c). Not blocked by Phase 271's CLOSED-PARTIAL status: the 31 residual `references/` sites are blocked on Phase 267.3 and touch a different token, so this phase can be planned and executed independently. Re-run the instrument at plan time and do NOT assume the 34 above is still live.
-**Plans:** 3/6 plans executed
+**Plans:** 4/6 plans executed
 
 Plans:
 **Wave 0**
@@ -923,7 +923,7 @@ Plans:
 
 - [x] 274-02-PLAN.md (wave 1) - Command sweep batch A: bono, causal, export (incl. the python3 render-pdf site), file-meeting, find-analogies, intel-pipeline, mos-reason (ANCHOR-02)
 - [x] 274-03-PLAN.md (wave 1) - Command sweep batch B: mva-brief, new-surface, publish, room, skill, snapshot, vault (ANCHOR-02)
-- [ ] 274-04-PLAN.md (wave 1) - Hand-authored skills (long fail-closed form) and the 1 agent site (short form), plus SCRIPT_ALLOWLIST entries and FOLLOWUP-274-R1/R2 registration for the status.md matcher drift and the help.md/eureka.md fallback-convention question (ANCHOR-03, ANCHOR-04, ANCHOR-06)
+- [x] 274-04-PLAN.md (wave 1) - Hand-authored skills (long fail-closed form) and the 1 agent site (short form), plus SCRIPT_ALLOWLIST entries and FOLLOWUP-274-R1/R2 registration for the status.md matcher drift and the help.md/eureka.md fallback-convention question (ANCHOR-03, ANCHOR-04, ANCHOR-06)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 

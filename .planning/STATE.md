@@ -3,16 +3,24 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 274-03-PLAN.md
-last_updated: "2026-09-01T06:50:35.677Z"
-last_activity: 2026-09-01 -- Phase 274 execution, plan 03 (command sweep batch B) complete
+stopped_at: Completed 274-04-PLAN.md
+last_updated: "2026-09-01T06:56:18.826Z"
+last_activity: 2026-09-01 -- Phase 274 execution, plan 04 (adjacent-class anchoring + allowlist/followup registration) complete
 progress:
   total_phases: 26
   completed_phases: 13
   total_plans: 120
-  completed_plans: 115
-  percent: 96
+  completed_plans: 116
+  percent: 97
 ---
+
+<!-- NOTE (274-04 execute-plan, 2026-09-01, TWENTIETH+ occurrence of the documented
+     STATE.md resync-clobber bug, same class as the NINETEENTH+ note below): after
+     `state.advance-plan` and `state.update-progress`, the frontmatter reverted `percent`
+     to 50 and `stopped_at`/`last_activity` to stale 272-11 values, disconnected from
+     `state.update-progress`'s own correctly-computed 97%/116/120 JSON return. Hand-
+     corrected: stopped_at to "Completed 274-04-PLAN.md", percent to 97, last_activity to
+     reflect this plan. Root cause not re-investigated -- same tracked bug class. -->
 
 <!-- NOTE (274-03 execute-plan, 2026-09-01, NINETEENTH+ occurrence of the documented
      STATE.md resync-clobber bug, same class as the EIGHTEENTH+ note below): after
@@ -3480,7 +3488,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 274 (bare-scripts-invocation-anchoring-the-adjacent-class-phase-2) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-09-01 -- Phase 274 execution started
 
@@ -4182,6 +4190,7 @@ Progress: [█████████░] 92%
 | Phase 274 P01 | ~25min | 3 tasks | 4 files |
 | Phase 274 P02 | 10min | 2 tasks | 14 files |
 | Phase 274 P03 | ~5min | 2 tasks | 14 files |
+| Phase 274 P04 | 12min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -5521,6 +5530,9 @@ Progress: [█████████░] 92%
 - [Phase 274]: 274-02: requirements.mark-complete ANCHOR-02 returned not_found -- Phase 274's ANCHOR-* requirement IDs are not yet registered in REQUIREMENTS.md (same pre-existing gap class as the PYPORT-*/DCW-* precedent), registration deferred to phase close, not this plan
 - [Phase 274]: Anchored all 16 bare scripts/ invocation sites in mva-brief.md, new-surface.md, publish.md, room.md, skill.md, snapshot.md, vault.md to ${CLAUDE_PLUGIN_ROOT}; regenerated 7 skill mirrors; combined with 274-02, 31/37 widened-predicate sites now anchored.
 - [Phase 274]: requirements.mark-complete ANCHOR-02 returned not_found -- ANCHOR-* requirement IDs were never registered in .planning/REQUIREMENTS.md (pre-existing gap, same class as the PYPORT-* precedent in Phase 272); not fixed here, recorded as a decision instead of a REQUIREMENTS.md registration.
+- [Phase ?]: 274-04: Disposition (a) - anchored skills/conversation-mode/SKILL.md:17 (YAML-comment dev-gate mention) uniformly with the long form rather than carving an allowlist exception
+- [Phase ?]: 274-04: commands/status.md matcher/body drift registered as FOLLOWUP-274-R1 with evidence, not guessed at (matcher-engine ${...} semantics unconfirmed)
+- [Phase ?]: 274-04: help.md/eureka.md 6 deliberate ./scripts/... fallback lines allowlisted, not anchored; supersession question registered as FOLLOWUP-274-R2
 
 ### Pending Todos
 
@@ -5629,7 +5641,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-01T06:49:53.430Z
+Last session: 2026-09-01T06:55:59.629Z
 Stopped at: Completed 272-11-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
