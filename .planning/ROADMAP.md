@@ -912,7 +912,7 @@ Plans:
 
 **Requirements**: ANCHOR-01, ANCHOR-02, ANCHOR-03, ANCHOR-04, ANCHOR-05, ANCHOR-06, ANCHOR-07, ANCHOR-08, ANCHOR-09, ANCHOR-10
 **Depends on:** Phase 271, which measured this class and left behind the ready-made measuring instrument: `node scripts/check-plugin-path-anchoring.cjs --report --include-scripts` (the advisory tier NEVER affects the gate's exit code, so this phase must decide whether to promote it to a hard gate as part of its own close-out, the way 271-05 wired the citation tier into `scripts/verify-release` gate 10c). Not blocked by Phase 271's CLOSED-PARTIAL status: the 31 residual `references/` sites are blocked on Phase 267.3 and touch a different token, so this phase can be planned and executed independently. Re-run the instrument at plan time and do NOT assume the 34 above is still live.
-**Plans:** 4/6 plans executed
+**Plans:** 5/6 plans executed
 
 Plans:
 **Wave 0**
@@ -927,7 +927,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 274-05-PLAN.md (wave 2) - Mirror regeneration (build-skill-mirrors.cjs) and full sweep verification / live count reconciliation (ANCHOR-02, ANCHOR-05)
+- [x] 274-05-PLAN.md (wave 2) - Mirror regeneration (build-skill-mirrors.cjs) and full sweep verification / live count reconciliation (ANCHOR-02, ANCHOR-05)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

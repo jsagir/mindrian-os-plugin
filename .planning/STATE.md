@@ -3,16 +3,40 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 274-04-PLAN.md
-last_updated: "2026-09-01T06:56:18.826Z"
-last_activity: 2026-09-01 -- Phase 274 execution, plan 04 (adjacent-class anchoring + allowlist/followup registration) complete
+stopped_at: Completed 274-05-PLAN.md
+last_updated: "2026-09-01T07:07:42.823Z"
+last_activity: 2026-09-01 -- Phase 274 execution, plan 05 complete
 progress:
   total_phases: 26
   completed_phases: 13
   total_plans: 120
-  completed_plans: 116
-  percent: 97
+  completed_plans: 117
+  percent: 98
 ---
+
+<!-- NOTE (274-05 execute-plan, 2026-09-01, TWENTY-SECOND+ occurrence of the
+     documented STATE.md resync-clobber bug): the subsequent `state
+     add-decision` and `state record-session` calls this same session again
+     reverted `percent` to 50 and additionally flipped `status` from
+     "executing" to "verifying" (wrong -- Phase 274 has plan 06 still
+     pending, no separate verification stage is in flight). Hand-corrected
+     both a second time within this plan's own state-update step. Root cause
+     not re-investigated -- same tracked bug class as the TWENTY-FIRST+ note
+     above. -->
+
+<!-- NOTE (274-05 execute-plan, 2026-09-01, TWENTY-FIRST+ occurrence of the documented
+     STATE.md resync-clobber bug, same class as the TWENTIETH+ note below): after
+     `state.advance-plan` and `state.update-progress`, the frontmatter reverted `percent`
+     to 50, `stopped_at` to the stale "Completed 272-11-PLAN.md", and `last_activity` to
+     "Phase 274 execution started", disconnected from `state.update-progress`'s own
+     correctly-computed 98%/117/120 JSON return (the `completed_plans: 117` count itself
+     WAS written correctly, only `percent`/`stopped_at`/`last_activity` reverted).
+     `state.advance-plan` also read the already-clobbered stale "Plan 1 of 6" from the
+     Current Position section below (a prior clobber, not this call's own doing) and
+     advanced it to "2 of 6" instead of the correct "5 of 6" (274-05 just completed,
+     274-06 is next). Hand-corrected: stopped_at to "Completed 274-05-PLAN.md", percent to
+     98, last_activity to reflect this plan, and the Current Position section below to
+     "Plan: 5 of 6". Root cause not re-investigated -- same tracked bug class. -->
 
 <!-- NOTE (274-04 execute-plan, 2026-09-01, TWENTIETH+ occurrence of the documented
      STATE.md resync-clobber bug, same class as the NINETEENTH+ note below): after
@@ -3488,9 +3512,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 274 (bare-scripts-invocation-anchoring-the-adjacent-class-phase-2) — EXECUTING
-Plan: 4 of 6
-Status: Ready to execute
-Last activity: 2026-09-01 -- Phase 274 execution started
+Plan: 5 of 6
+Status: 274-05 complete (mirror regen + full sweep verification, --check-scripts green); 274-06 (gate wiring + phase close) next
+Last activity: 2026-09-01 -- Phase 274 execution, plan 05 complete
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4191,6 +4215,7 @@ Progress: [█████████░] 92%
 | Phase 274 P02 | 10min | 2 tasks | 14 files |
 | Phase 274 P03 | ~5min | 2 tasks | 14 files |
 | Phase 274 P04 | 12min | 2 tasks | 5 files |
+| Phase 274 P05 | 5min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -5533,6 +5558,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 274-04: Disposition (a) - anchored skills/conversation-mode/SKILL.md:17 (YAML-comment dev-gate mention) uniformly with the long form rather than carving an allowlist exception
 - [Phase ?]: 274-04: commands/status.md matcher/body drift registered as FOLLOWUP-274-R1 with evidence, not guessed at (matcher-engine ${...} semantics unconfirmed)
 - [Phase ?]: 274-04: help.md/eureka.md 6 deliberate ./scripts/... fallback lines allowlisted, not anchored; supersession question registered as FOLLOWUP-274-R2
+- [Phase 274]: 274-05: mirror regeneration required no new commit -- 274-02/03/04 pre-commit hooks already regenerated all 14 sweep-touched mirrors; live full-tree --check-scripts confirmed 0 violations (sites=156, anchored=154, allowlisted=2)
 
 ### Pending Todos
 
@@ -5641,8 +5667,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-01T06:55:59.629Z
-Stopped at: Completed 272-11-PLAN.md
+Last session: 2026-09-01T07:07:42.723Z
+Stopped at: Completed 274-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
