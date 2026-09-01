@@ -19,13 +19,16 @@
 #     zero-tolerance, wired LAST so it never blocks a release for work this
 #     phase has not finished yet (271-05's own sequencing lesson).
 #
-# THE --check-scripts ARM IS EXPECTED TO FAIL UNTIL PLAN 274-05 LANDS. That
-# red is the intended RED BASELINE of this phase, not a broken test: the tree
-# genuinely carries unanchored scripts/ invocations until the sweep runs, and
-# a gate that reported green against them would be the actual defect. Plan
-# 274-01 widened the predicate and re-measured the baseline above 34 (the
-# pre-widening count) once the python3 and ./scripts/ sites are included -- do
-# NOT "fix" this runner by softening the arm; fix it by landing 274-02..05.
+# THE --check-scripts ARM TURNED GREEN IN 274-05 (2026-09-01). Through Wave 0
+# and Wave 1 (274-01..04) it was the phase's own documented RED BASELINE, not
+# a broken test: the tree genuinely carried unanchored scripts/ invocations
+# until the mirror-regeneration + full-sweep reconciliation pass in 274-05
+# closed Pitfall 1 (the mirror gap the scanner structurally cannot see) and
+# re-verified the live tree at zero violations. Plan 274-01 widened the
+# predicate and re-measured the baseline above 34 (the pre-widening count)
+# once the python3 and ./scripts/ sites are included. If this arm ever goes
+# red again, that is a real regression -- do NOT "fix" this runner by
+# softening the arm; find and fix the newly-unanchored site.
 #
 # The last arm is a DO-NOT-REGRESS arm, not a Phase 274 deliverable: it
 # re-runs the CITATION gate (--check) unchanged, so this phase's own script-
@@ -64,8 +67,8 @@ run "274 fixture suite" node tests/test-274-script-invocation-anchoring.cjs
 #    today.
 run "274 CLI invocation smoke test" bash tests/smoke-274-cli-invocation.sh
 
-# 3. The script-tier gate against the live tree. RED until 274-05 lands (see
-#    header).
+# 3. The script-tier gate against the live tree. Turned GREEN in 274-05 (see
+#    header); RED through 274-01..04 was the phase's documented baseline.
 run "274 script-tier anchoring gate (--check-scripts)" node scripts/check-plugin-path-anchoring.cjs --check-scripts
 
 # 4. DO-NOT-REGRESS: the citation tier (gate 10c, Phase 271-05) re-run
