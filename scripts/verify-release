@@ -455,6 +455,44 @@ else
 fi
 
 # ============================================================
+# 10f. PLUGIN SCRIPT-INVOCATION ANCHORING
+# ============================================================
+# Phase 274, the sibling of gate 10c. A bare `bash scripts/<name>` or
+# `node scripts/<name>` line in command, skill, agent or pipeline markdown
+# resolves against the SESSION'S CURRENT WORKING DIRECTORY, exactly the same
+# defect class 10c already gates for references/ citations, but this one
+# dies LOUDLY at runtime: exit 127 from bash, MODULE_NOT_FOUND from node, in
+# the user's face mid-command, unlike the citation class's silent degraded
+# read. See .planning/phases/274-bare-scripts-invocation-anchoring-the-
+# adjacent-class-phase-2/ for the full research and sweep record: this is
+# the FOURTH pass at one disease class in this repo (intern-w1's
+# bash-scripts-in-skills fix, the file-meeting RCA's references-only fix,
+# Phase 271's references-repo-wide sweep, and this phase's scripts-repo-wide
+# sweep), each of the first three scoped by grep pattern instead of
+# resolution mechanism, which is why each left the sibling pattern standing.
+#
+# Two tiers, two verdicts, on purpose (D-01). A Read citation and a Bash
+# invocation fail differently and need different recovery text, so folding
+# them into one exit code would make the failure output unreadable.
+#
+# Fail-closed, zero-tolerance, no grandfather clause: Phase 274 cleared all
+# known sites (verified live, sites=156 anchored=154 allowlisted=2
+# violations=0) before this gate was wired, so there is nothing to
+# grandfather. Wire the gate, do not relax it (the 271-05 discipline).
+echo -e "\n${BOLD}10f. Plugin Script-Invocation Anchoring${NC}"
+
+SCRIPTANCHOR_OUT=$(node "$PLUGIN_ROOT/scripts/check-plugin-path-anchoring.cjs" --check-scripts 2>&1) && SCRIPTANCHOR_CODE=0 || SCRIPTANCHOR_CODE=$?
+if [ "$SCRIPTANCHOR_CODE" -ne 0 ]; then
+  fail "Script-invocation anchoring FAILED (bare scripts/ invocations resolve against user cwd, not the plugin install dir):"
+  echo "$SCRIPTANCHOR_OUT" | tail -12
+  echo "  Recovery: prefix with \"\${CLAUDE_PLUGIN_ROOT}/\" (commands, agents, pipelines) or the"
+  echo "  fail-closed \"\${MINDRIAN_OS_ROOT:-\${CLAUDE_PLUGIN_ROOT:?...}}/\" form (hand-authored skills),"
+  echo "  then regenerate mirrors with build-skill-mirrors.cjs, or add a reasoned ALLOWLIST entry."
+else
+  pass "Every plugin-relative scripts/ invocation is anchored or allowlisted (check-plugin-path-anchoring --check-scripts)"
+fi
+
+# ============================================================
 # 11. SCRIPTS EXECUTABLE
 # ============================================================
 echo -e "\n${BOLD}11. Script Permissions${NC}"

@@ -554,6 +554,94 @@ fixes, 273-05 phase close). Every row below is `[x]`.
       (measured=208), live `node scripts/check-substrate.cjs --baseline` also reads 208, unchanged
       from the pre-fix count.
 
+### Phase 274 - Bare `scripts/` Invocation Anchoring (the adjacent class Phase 271 measured and did not fix) (minted 2026-09-01)
+
+These ten IDs were minted in `274-RESEARCH.md`'s Phase Requirements section (2026-09-01) and
+scoped to Phase 274 only: fix every unanchored `bash|sh|node|npx|python|python3 scripts/<name>`
+invocation site across commands, hand-authored skills, agents and pipelines (the fourth pass at
+one disease class in this repo, and the sibling of Phase 271's `references/` citation sweep),
+and promote the measuring instrument into a hard release gate the way 271-05 did for the citation
+tier. Six plans executed across four waves (274-01 Wave 0 instrument widening + fixture/smoke
+tests, 274-02/03/04 Wave 1 the command/skill/agent sweep plus allowlist and followup
+registration, 274-05 Wave 2 mirror regeneration and full-tree verification, 274-06 Wave 3 gate
+wiring and close-out). Every row below is `[x]`.
+
+- [x] **ANCHOR-01**: `check-plugin-path-anchoring.cjs`'s script tier widened from a `bash|node`
+      two-verb match to a mechanism-scoped six-verb predicate (`bash|sh|node|npx|python|python3`),
+      with `anchored`/`allowlisted`/`target` classification (parity with the citation tier) and a
+      gateable `--check-scripts` exit-code mode. Fixed in `scripts/check-plugin-path-anchoring.cjs`
+      (274-01). Measured: widened predicate surfaced 37 script-tier sites live (up from the
+      pre-widening 34, closing the `python3 scripts/render-pdf` blind spot RESEARCH.md's Pitfall 2
+      named); `node tests/test-274-script-invocation-anchoring.cjs` 20/20 PASS.
+
+- [x] **ANCHOR-02**: All 30 command-surface invocation sites anchored with the quoted short form
+      `"${CLAUDE_PLUGIN_ROOT}/scripts/<name>"`. Fixed across `commands/*.md` (274-02 batch A: bono,
+      causal, export, file-meeting, find-analogies, intel-pipeline, mos-reason; 274-03 batch B:
+      mva-brief, new-surface, publish, room, skill, snapshot, vault). Measured: live full-tree scan
+      reports 0 unanchored command-surface sites.
+
+- [x] **ANCHOR-03**: The 3 hand-authored skill sites (`skills/conversation-mode/SKILL.md:17`,
+      `skills/mva-pipeline/SKILL.md:52`, `skills/room-passive/SKILL.md:96`) anchored with the
+      byte-identical fail-closed long form already shipping at `skills/export/SKILL.md:80`. Fixed
+      in the 3 named files (274-04). Measured: `grep` confirms all 3 sites carry the
+      `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}}` prefix character-for-character.
+
+- [x] **ANCHOR-04**: The 1 agent site (`agents/analogy-query-fetcher.md:43`) anchored with the
+      short form `${CLAUDE_PLUGIN_ROOT}/`. Fixed in `agents/analogy-query-fetcher.md` (274-04).
+      Measured: live full-tree scan reports 0 unanchored agent-surface sites.
+
+- [x] **ANCHOR-05**: Generated skill mirrors regenerated from the fixed commands, proven
+      byte-consistent (`build-skill-mirrors.cjs --check` stays green). Verified in 274-05: write
+      mode reported `created 0, unchanged 112, overwritten 0, skipped 1` (all 14 sweep-touched
+      mirrors were already at expected content because 274-02/03/04's own pre-commit hooks had
+      already regenerated them at commit time). Measured: `node scripts/build-skill-mirrors.cjs
+      --check` exits 0 both before and after the confirming write-mode run.
+
+- [x] **ANCHOR-06**: Every deliberately-not-anchored site carries a reasoned `SCRIPT_ALLOWLIST`
+      entry, never a silent skip. Fixed in `scripts/check-plugin-path-anchoring.cjs` (274-04):
+      `SCRIPT_ALLOWLIST` populated with 2 reasoned entries (the `./scripts/help-renderer.cjs` and
+      `./scripts/resolve-room` deliberate cwd-relative fallback lines in `commands/help.md` and
+      `commands/eureka.md`), plus `FOLLOWUP-274-R1` (the `commands/status.md` matcher/body drift)
+      and `FOLLOWUP-274-R2` (the fail-closed `:?` form vs. the older prose-fallback convention,
+      a deferred design question) registered in `REGISTERED_FOLLOWUPS`, both with named owners
+      (repo navigator) and a stated residual risk. Measured: `validateAllowlist()` passes at
+      module load (no dangling `followup` id); live scan shows both allowlisted lines tagged
+      `[OK ALLOWLISTED]`, not `VIOLATION`.
+
+- [x] **ANCHOR-07**: The fixture test suite extended with script-tier fixtures
+      (`tests/test-274-script-invocation-anchoring.cjs`, an 8-arm suite modeled on
+      `tests/test-271-plugin-path-anchoring.cjs`) plus `tests/run-all-274.sh` as the phase
+      aggregator. Fixed in `tests/test-274-script-invocation-anchoring.cjs` and
+      `tests/run-all-274.sh` (274-01). Measured: `bash tests/run-all-274.sh` PASS=4 FAIL=0 (fixture
+      suite, CLI smoke test, script-tier gate, DO-NOT-REGRESS citation-tier gate).
+
+- [x] **ANCHOR-08**: The CLI runtime smoke test with the resolution-failure oracle (D-02's runtime
+      arm), generalized over a representative sample of real scripts (`wikilink-file.cjs`,
+      `build-new-surface.cjs`) run from a scratch cwd. Fixed in `tests/smoke-274-cli-invocation.sh`
+      (274-01). Measured: 8/8 PASS, asserting on the resolution signature (`Cannot find module` /
+      exit 127 for the bare form, successful start for the anchored form, an explicit refusal
+      message for the fail-closed long form), not business outcome.
+
+- [x] **ANCHOR-09**: The script tier wired into `scripts/verify-release` as a new hard gate
+      (**10f**), zero-tolerance, fail-closed, following the 10c wiring shape exactly, sequenced
+      LAST (Wave 3) so the gate could not go live red against unfinished sweep work (the
+      DEVIATION-271-05-A sequencing lesson this phase deliberately avoided). Fixed in
+      `scripts/verify-release` (274-06). Measured: proven to fire against a throwaway
+      `os.tmpdir()` fixture before trusting the live run (1 violation on a bare invocation, 0 on
+      the identical line anchored); live `bash scripts/verify-release` emits a `10f. Plugin
+      Script-Invocation Anchoring` PASS line; `git diff --numstat -- scripts/verify-release` shows
+      0 removed lines (pure addition).
+
+- [x] **ANCHOR-10**: The Tri-Polar Desktop/Cowork stated-gap declaration (D-02: static
+      path-correctness checking only on those two surfaces, no automated runtime execution proof,
+      a deliberate call per the Tri-Polar Design Rule, not a silent omission) plus the full
+      close-out paper trail (CHANGELOG, `knowledge-base.md`, ROADMAP row with both followups named
+      and owned, Dev-Research Compositing mirror + room entry, cross-linked both directions).
+      Fixed in `CHANGELOG.md`, `.planning/ROADMAP.md`, `.planning/debug/knowledge-base.md`,
+      `.planning/phases/274-bare-scripts-invocation-anchoring-the-adjacent-class-phase-2/274-06-SUMMARY.md`
+      (274-06). Measured: see this phase's 274-06-SUMMARY.md for the compositing-trail outcome
+      (landed or honestly recorded as blocked).
+
 ### Phase 272 - PYPORT-01..07 (CJS Python Elimination Port, Real Remediation of Phase 134)
 
 These seven IDs were minted in `272-RESEARCH.md`'s Phase Requirements section (2026-08-31) and
@@ -659,23 +747,26 @@ run against a genuinely cold cache surfaced it directly).
 
 ## Traceability
 
-93 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+103 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
-(Phase 267.3), CHOKE-01..06 (Phase 273), plus PYPORT-01..07 (Phase 272). All minted 2026-08-27
-except CHOKE-01..06 and PYPORT-01..07 (both minted 2026-08-31): RADAR-01..11 and MCPFIX-01..04 at
+(Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), plus ANCHOR-01..10
+(Phase 274). All minted 2026-08-27 except CHOKE-01..06 and PYPORT-01..07 (both minted 2026-08-31)
+and ANCHOR-01..10 (minted 2026-09-01): RADAR-01..11 and MCPFIX-01..04 at
 first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
 plan 01's `267.3-DECISIONS.md` Section 6, CHOKE-01..06 in `273-01-PLAN.md`'s frontmatter,
-finalized in `273-02-PLAN.md`'s objective, and PYPORT-01..07 in `272-RESEARCH.md`'s Phase
+finalized in `273-02-PLAN.md`'s objective, PYPORT-01..07 in `272-RESEARCH.md`'s Phase
 Requirements section, registered to this document at phase close by `272-11-PLAN.md` per the
-Phase 273/CHOKE precedent. RADAR-13, RADAR-15 and RADAR-16 were retired before
+Phase 273/CHOKE precedent, and ANCHOR-01..10 in `274-RESEARCH.md`'s Phase Requirements section,
+registered to this document at phase close by `274-06-PLAN.md` per the same precedent. RADAR-13,
+RADAR-15 and RADAR-16 were retired before
 use because they duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04; the gap is deliberate and recorded.
 RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving its intent.
-Roadmap phases must map all 87 active requirements with no orphans.
+Roadmap phases must map all 103 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP, GUARD and PYPORT families alike (the Phase 266 and 269
+**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT and ANCHOR families alike (the Phase 266 and 269
 precedent):** these IDs were minted at plan time inside their own phase's decision record rather
 than being drawn from a pre-existing milestone requirements pass. They are phase-local working IDs
 promoted to this document at phase close, which means the behaviour each one names is real and
