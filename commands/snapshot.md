@@ -93,11 +93,11 @@ room/exports/
 
 ```bash
 # Default: generate BOTH index.html (lobby) and hub.html (museum)
-node scripts/generate-hub.cjs ./room
-node scripts/generate-lobby.cjs ./room
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-hub.cjs" ./room
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-lobby.cjs" ./room
 
 # Lobby only (museum already fresh)
-node scripts/generate-lobby.cjs ./room
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-lobby.cjs" ./room
 ```
 
 ## Flags
@@ -174,6 +174,6 @@ When the user runs `/mos:snapshot`:
 
 The previous 7-view multi-file SnapshotHub is still available via:
 ```bash
-node scripts/generate-snapshot.cjs ./room
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-snapshot.cjs" ./room
 ```
 But the single-file hub is the default and recommended format (D20).

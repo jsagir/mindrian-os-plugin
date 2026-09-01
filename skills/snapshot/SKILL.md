@@ -92,11 +92,11 @@ room/exports/
 
 ```bash
 # Default: generate BOTH index.html (lobby) and hub.html (museum)
-node scripts/generate-hub.cjs ./room
-node scripts/generate-lobby.cjs ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/generate-hub.cjs" ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/generate-lobby.cjs" ./room
 
 # Lobby only (museum already fresh)
-node scripts/generate-lobby.cjs ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/generate-lobby.cjs" ./room
 ```
 
 ## Flags
@@ -173,6 +173,6 @@ When the user runs `/mos:snapshot`:
 
 The previous 7-view multi-file SnapshotHub is still available via:
 ```bash
-node scripts/generate-snapshot.cjs ./room
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/generate-snapshot.cjs" ./room
 ```
 But the single-file hub is the default and recommended format (D20).
