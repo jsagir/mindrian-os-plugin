@@ -187,6 +187,47 @@ const REGISTERED_FOLLOWUPS = [
     recordedIn:
       '.planning/phases/271-bare-reference-path-resolution-audit-45-of-113-commands-cite/271-AUDIT.md section 4',
   },
+  {
+    id: 'FOLLOWUP-274-R1',
+    title:
+      'Confirm whether an anchored (${...}-bearing) allowed-tools permission matcher pattern ' +
+      'matches correctly in Claude Code\'s matcher engine, then either anchor ' +
+      'commands/status.md:15\'s matcher to match its already-anchored body at line 67, or drop ' +
+      'the specific matcher for a bare Bash grant.',
+    raisedBy: 'plan 274-04 (Pitfall 5, the pre-existing matcher/body drift measured live this phase)',
+    owner: 'repo navigator',
+    residualRisk:
+      'A user with a strict tool-approval policy sees an unnecessary permission prompt on ' +
+      '/mos:status (degraded UX, not a functional failure -- commands/status.md:67 already ' +
+      'executes the anchored form correctly).',
+    whyDeferred:
+      'Matcher-engine ${...} pattern semantics are unconfirmed and this phase\'s own scope ' +
+      'explicitly forbids guessing at them; verified zero-blast-radius for the rest of this ' +
+      'phase\'s sweep (only status.md and its mirror carry a Bash(...scripts/...) matcher in the ' +
+      'whole tree).',
+    recordedIn:
+      '.planning/phases/274-bare-scripts-invocation-anchoring-the-adjacent-class-phase-2/274-04-SUMMARY.md',
+  },
+  {
+    id: 'FOLLOWUP-274-R2',
+    title:
+      'Decide whether the ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}} fail-closed form ' +
+      'supersedes the older cwd-relative ./scripts/... prose-fallback convention in ' +
+      'commands/help.md and commands/eureka.md, repo-wide.',
+    raisedBy: 'plan 274-04 (Open Question 1)',
+    owner: 'repo navigator',
+    residualRisk:
+      'If CLAUDE_PLUGIN_ROOT is genuinely unset on a real surface, help/eureka fall back to a ' +
+      'cwd-relative path that only resolves by coincidence, the same class of failure this whole ' +
+      'phase exists to close, just deliberately scoped out of the sweep for these 2 files pending ' +
+      'this ruling.',
+    whyDeferred:
+      'Changing documented fallback behavior is a design decision, not a mechanical anchoring ' +
+      'fix, and is out of scope for a phase whose job is anchoring, not redesigning fallback ' +
+      'semantics.',
+    recordedIn:
+      '.planning/phases/274-bare-scripts-invocation-anchoring-the-adjacent-class-phase-2/274-04-SUMMARY.md',
+  },
 ];
 
 function validateAllowlist(list) {
@@ -238,7 +279,47 @@ validateAllowlist(ALLOWLIST);
 // case, so anchoring them would be nonsense (an anchored fallback for an
 // unset anchor). Do not add speculative entries here ahead of that plan.
 // ---------------------------------------------------------------------------
-const SCRIPT_ALLOWLIST = [];
+const SCRIPT_ALLOWLIST = [
+  {
+    // commands/help.md lines 77 and 87 (and their generated mirror, structurally
+    // excluded from this scanner's surface enumeration -- see the mirror-skip
+    // comment above). These are the DOCUMENTED fallback behavior for the
+    // CLAUDE_PLUGIN_ROOT-unset case ("Fall back to `node ./scripts/help-
+    // renderer.cjs ...` if CLAUDE_PLUGIN_ROOT is unset"), not an authoring
+    // mistake. Anchoring a fallback for an unset anchor is nonsensical: the
+    // whole point of the fallback line is to still work when
+    // ${CLAUDE_PLUGIN_ROOT} has nothing to expand to. The newer fail-closed
+    // `:?` form may supersede this convention entirely -- that is a design
+    // question this plan defers rather than guesses at (FOLLOWUP-274-R2).
+    file: 'commands/help.md',
+    pattern: 'scripts/help-renderer.cjs',
+    reason:
+      'This is the DOCUMENTED fallback behavior for the CLAUDE_PLUGIN_ROOT-unset case ' +
+      '("Fall back to `node ./scripts/help-renderer.cjs ...` if CLAUDE_PLUGIN_ROOT is unset"), not ' +
+      'an authoring mistake. Anchoring a fallback for an unset anchor is nonsensical -- the whole ' +
+      'point of the fallback is to still work when ${CLAUDE_PLUGIN_ROOT} has nothing to expand to. ' +
+      'The newer fail-closed `:?` form may supersede this prose-fallback convention entirely, which ' +
+      'is a design question this plan defers rather than guesses at.',
+    ruling: 'allowlisted (274-04)',
+    followup: 'FOLLOWUP-274-R2',
+  },
+  {
+    // commands/eureka.md line 76 (and its generated mirror, structurally
+    // excluded). Same reasoning as the help.md entry above: "When
+    // CLAUDE_PLUGIN_ROOT is unset, fall back to `./scripts/resolve-room`."
+    file: 'commands/eureka.md',
+    pattern: 'scripts/resolve-room',
+    reason:
+      'This is the DOCUMENTED fallback behavior for the CLAUDE_PLUGIN_ROOT-unset case ("When ' +
+      'CLAUDE_PLUGIN_ROOT is unset, fall back to `./scripts/resolve-room`"), not an authoring ' +
+      'mistake. Anchoring a fallback for an unset anchor is nonsensical -- the whole point of the ' +
+      'fallback is to still work when ${CLAUDE_PLUGIN_ROOT} has nothing to expand to. The newer ' +
+      'fail-closed `:?` form may supersede this prose-fallback convention entirely, which is a ' +
+      'design question this plan defers rather than guesses at.',
+    ruling: 'allowlisted (274-04)',
+    followup: 'FOLLOWUP-274-R2',
+  },
+];
 
 validateAllowlist(SCRIPT_ALLOWLIST);
 
@@ -293,6 +374,12 @@ const SCRIPT_INVOKE_RE = new RegExp(
 const SCRIPT_ANCHOR_SHORT_RE = /^\$\{CLAUDE_PLUGIN_ROOT\}\/$/;
 const SCRIPT_ANCHOR_LONG_RE = /^\$\{MINDRIAN_OS_ROOT:-\$\{CLAUDE_PLUGIN_ROOT:[^}\n]{0,120}\}\}\/$/;
 // An allowed-tools permission matcher opening, ending at the match.
+// NOTE (FOLLOWUP-274-R1): commands/status.md:15 declares a bare, unanchored
+// matcher `Bash(node scripts/mos-status.cjs:*)` while the body at line 67
+// already executes the anchored form. This is a pre-existing matcher/body
+// drift, NOT fixed in this phase because anchored ${...}-bearing matcher
+// semantics in Claude Code's own matcher engine are unconfirmed -- see
+// REGISTERED_FOLLOWUPS['FOLLOWUP-274-R1'] for the full evidence and owner.
 const PERMISSION_MATCHER_RE = /(?:Bash|Read|Write|Edit)\([^)\n]{0,120}$/;
 
 // ---------------------------------------------------------------------------
