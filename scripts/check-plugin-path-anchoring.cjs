@@ -61,22 +61,40 @@
  * hand-authored when commands/<name>.md does not exist, or when <name> is in the
  * generator's SKIP_LIST.
  *
- * ADVISORY TIER (--include-scripts, NEVER affects the exit code). The adjacent
- * class of bare `bash scripts/<name>` / `node scripts/<name>` invocations is
- * measured and reported, never gated. A Read citation and a Bash invocation fail
- * differently and need different verification, so mixing them into one verdict
- * would make the fix diff unreviewable. Lines whose match sits inside an
- * allowed-tools permission pattern such as Bash(node scripts/mos-status.cjs:*)
- * are excluded, because a permission matcher declares a pattern and never
- * resolves a path; the exclusion count is printed so it stays visible.
+ * SCRIPT TIER (--include-scripts for --report/--json, --check-scripts for a
+ * gateable exit code). Phase 274's widening of the adjacent class of bare
+ * `bash|sh|node|npx|python|python3 scripts/<name>` invocations: scoped by
+ * RESOLUTION MECHANISM (every unanchored plugin-relative scripts/ invocation,
+ * whatever verb precedes it), not by the string `bash|node`, so a
+ * `python3 scripts/render-pdf` site is measured, not invisible (274-RESEARCH.md
+ * Pitfall 2, the "pass-five trap" -- three prior anchoring passes each scoped
+ * by grep pattern and each left a sibling pattern standing). Every site now
+ * carries the same anchored/allowlisted/target classification the citation
+ * tier already has (Phase 271-01's own predicate never had this weakness;
+ * before 274-01 the script tier was a raw match counter where deleting a line
+ * and anchoring a line looked identical in the report). A Read citation and a
+ * Bash invocation still fail differently and need different verification, so
+ * the two tiers stay independently gateable (--check for citations, --check-
+ * scripts for scripts) rather than folding into one verdict. Lines whose
+ * match sits inside an allowed-tools permission pattern such as
+ * Bash(node scripts/mos-status.cjs:*) are excluded, because a permission
+ * matcher declares a pattern and never resolves a path; the exclusion count
+ * is printed so it stays visible.
  *
  * MODES:
  *   --report (default) - every group, file:line, matched token, target tag,
  *                        per-surface and total counts. ALWAYS exits 0.
  *   --check            - violations plus totals; exits 1 when the non-allowlisted
  *                        references/ violation total is greater than 0.
+ *   --check-scripts    - the script-tier sibling of --check; exits 1 when the
+ *                        non-allowlisted scripts/ invocation violation total
+ *                        is greater than 0. NEVER touches the citation tier's
+ *                        own totals.violations -- the two tiers stay
+ *                        independently gateable, per the phase's own
+ *                        two-tiers-two-verdicts design.
  *   --json             - machine-readable dump of the same scan.
- *   --include-scripts  - adds the advisory scripts tier to --report and --json.
+ *   --include-scripts  - adds the script tier to --report and --json (report
+ *                        only, does not affect --check's exit code).
  *
  * This is a dev-time check script, not one of Canon Part 11's four invocable
  * surface classes (command, agent, pipeline, Decision-Gate skill), so R16's
@@ -209,6 +227,22 @@ function validateAllowlist(list) {
 validateAllowlist(ALLOWLIST);
 
 // ---------------------------------------------------------------------------
+// SCRIPT_ALLOWLIST - the script tier's own exception list, same shape and
+// same validator as ALLOWLIST above (Canon Part 7: reuse validateAllowlist(),
+// never write a second one). SHIPPED EMPTY by plan 274-01, exactly as
+// ALLOWLIST shipped empty from plan 271-01 and was populated by a later plan.
+//
+// Plan 274-04 populates this array with the deliberate `./scripts/` fallback
+// exceptions in commands/help.md and commands/eureka.md (274-RESEARCH.md
+// Pitfall 3): those lines document behavior for the CLAUDE_PLUGIN_ROOT-unset
+// case, so anchoring them would be nonsense (an anchored fallback for an
+// unset anchor). Do not add speculative entries here ahead of that plan.
+// ---------------------------------------------------------------------------
+const SCRIPT_ALLOWLIST = [];
+
+validateAllowlist(SCRIPT_ALLOWLIST);
+
+// ---------------------------------------------------------------------------
 // Lexical predicate pieces.
 //
 // T-271-01: every quantifier below is BOUNDED and no quantifier is nested inside
@@ -236,8 +270,28 @@ const LIST_NUMBER_RE = /^\s{0,8}\d{1,3}\.\s{0,4}\**$/;
 // A character that means the needle is the TAIL of a longer path (docs/references/...).
 const PATH_CHAR_RE = /[A-Za-z0-9._-]$/;
 
-// Advisory tier: a bare scripts/ invocation.
-const SCRIPT_INVOKE_RE = /\b(?:bash|node)\s+scripts\/[A-Za-z0-9._-]{1,120}/g;
+// Script tier: a scripts/ invocation, widened per ANCHOR-01 from the two-verb
+// `bash|node` form to the full verb set actually present in the tree
+// (274-RESEARCH.md Pitfall 2: a predicate scoped to `bash|node` is invisible
+// to `python3 scripts/render-pdf`). Group 1 = verb, group 2 = optional
+// opening quote, group 3 = an optional anchor prefix (the long fail-closed
+// form, the short form, or a bare `./`) captured so scanScriptInvocations can
+// classify WHICH case fired, group 4 = the script name. Every quantifier is
+// bounded or a single unnested class (T-271-01's no-catastrophic-backtracking
+// constraint, reused verbatim: the `{0,120}` bound inside the long-anchor
+// alternative is the same magnitude the citation tier already uses).
+const SCRIPT_ANCHOR_LONG_TXT = '\\$\\{MINDRIAN_OS_ROOT:-\\$\\{CLAUDE_PLUGIN_ROOT:[^}\\n]{0,120}\\}\\}/';
+const SCRIPT_ANCHOR_SHORT_TXT = '\\$\\{CLAUDE_PLUGIN_ROOT\\}/';
+const SCRIPT_INVOKE_RE = new RegExp(
+  `\\b(bash|sh|node|npx|python3|python)\\s+(["']?)(${SCRIPT_ANCHOR_LONG_TXT}|${SCRIPT_ANCHOR_SHORT_TXT}|\\./)?` +
+    'scripts/([A-Za-z0-9._-]{1,120})',
+  'g'
+);
+// The two accepted script-tier anchor prefixes, siblings of the citation
+// tier's ANCHOR_SHORT_RE/ANCHOR_LONG_RE, anchored at scripts/ instead of
+// references/. Tested against SCRIPT_INVOKE_RE's own group 3 capture.
+const SCRIPT_ANCHOR_SHORT_RE = /^\$\{CLAUDE_PLUGIN_ROOT\}\/$/;
+const SCRIPT_ANCHOR_LONG_RE = /^\$\{MINDRIAN_OS_ROOT:-\$\{CLAUDE_PLUGIN_ROOT:[^}\n]{0,120}\}\}\/$/;
 // An allowed-tools permission matcher opening, ending at the match.
 const PERMISSION_MATCHER_RE = /(?:Bash|Read|Write|Edit)\([^)\n]{0,120}$/;
 
@@ -368,7 +422,14 @@ function scanSurface(name, relFiles, opts) {
   };
 }
 
-/** Scan the advisory bare-scripts tier over the same files. */
+/**
+ * Scan the script tier over the same files (ANCHOR-01). Each site now
+ * carries `anchored` / `allowlisted` / `target`, the same classification
+ * shape the citation tier's scanSurface() already has, so the report carries
+ * an honest denominator instead of a raw match count (274-RESEARCH.md
+ * Pattern 3: "deleting a line and anchoring a line look identical" was the
+ * pre-274 weakness this closes).
+ */
 function scanScriptInvocations(name, relFiles, root) {
   const base = root || REPO_ROOT;
   const sites = [];
@@ -392,11 +453,30 @@ function scanScriptInvocations(name, relFiles, root) {
           excluded += 1;
           continue;
         }
-        sites.push({ surface: name, file: rel, line: i + 1, token: m[0] });
+        const prefix = m[3] || '';
+        const anchored = SCRIPT_ANCHOR_SHORT_RE.test(prefix) || SCRIPT_ANCHOR_LONG_RE.test(prefix);
+        const token = `scripts/${m[4]}`;
+        sites.push({
+          surface: name,
+          file: rel,
+          line: i + 1,
+          token,
+          anchored,
+          allowlisted: !anchored && isAllowlisted(rel, token, SCRIPT_ALLOWLIST),
+          target: classifyTarget(token, base),
+        });
       }
     }
   }
-  return { name, sites, excluded };
+  const violations = sites.filter((s) => !s.anchored && !s.allowlisted);
+  return {
+    name,
+    sites,
+    excluded,
+    violations,
+    anchored: sites.filter((s) => s.anchored),
+    allowlisted: sites.filter((s) => s.allowlisted),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -485,6 +565,13 @@ function runScan(opts) {
     result.advisoryTotals = {
       sites: result.advisory.reduce((n, g) => n + g.sites.length, 0),
       excluded: result.advisory.reduce((n, g) => n + g.excluded, 0),
+      violations: result.advisory.reduce((n, g) => n + g.violations.length, 0),
+      anchored: result.advisory.reduce((n, g) => n + g.anchored.length, 0),
+      allowlisted: result.advisory.reduce((n, g) => n + g.allowlisted.length, 0),
+      missingTarget: result.advisory.reduce(
+        (n, g) => n + g.violations.filter((v) => v.target === 'MISSING-TARGET').length,
+        0
+      ),
     };
   }
   return result;
@@ -498,6 +585,12 @@ const RECOVERY =
   'Recovery: anchor each citation with ${CLAUDE_PLUGIN_ROOT}/ (commands, agents) or the ' +
   'fail-closed ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}}/ form (hand-authored skills), ' +
   'or add a reasoned ALLOWLIST entry.';
+
+const SCRIPT_RECOVERY =
+  'Recovery: prefix each scripts/ invocation with ${CLAUDE_PLUGIN_ROOT}/ (commands, agents, ' +
+  'pipelines) or the fail-closed ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}}/ form ' +
+  '(hand-authored skills), then regenerate mirrors with build-skill-mirrors.cjs, or add a ' +
+  'reasoned SCRIPT_ALLOWLIST entry.';
 
 function printReport(scan, opts) {
   const violationsOnly = (opts || {}).violationsOnly === true;
@@ -521,13 +614,20 @@ function printReport(scan, opts) {
   }
 
   if (scan.advisory) {
-    console.log('\n=== ADVISORY (not gated by this phase): bare scripts/ invocations ===');
+    console.log('\n=== SCRIPT TIER: scripts/ invocations (informational under --report, gated under --check-scripts) ===');
     for (const g of scan.advisory) {
-      for (const s of g.sites) console.log(`  ${s.file}:${s.line}  ${s.token}`);
+      const rows = violationsOnly ? g.violations : g.sites;
+      for (const s of rows) {
+        const tags = [s.target];
+        if (s.anchored) tags.push('ANCHORED');
+        if (s.allowlisted) tags.push('ALLOWLISTED');
+        console.log(`  ${s.file}:${s.line}  ${s.token}  [${tags.join(' ')}]`);
+      }
     }
     console.log(
-      `  -- advisory sites=${scan.advisoryTotals.sites} ` +
-        `permission-matcher exclusions=${scan.advisoryTotals.excluded} (never affects exit code)`
+      `  -- script tier: sites=${scan.advisoryTotals.sites} anchored=${scan.advisoryTotals.anchored} ` +
+        `allowlisted=${scan.advisoryTotals.allowlisted} violations=${scan.advisoryTotals.violations} ` +
+        `permission-matcher exclusions=${scan.advisoryTotals.excluded}`
     );
   }
 
@@ -546,7 +646,7 @@ function printReport(scan, opts) {
 
 function main(argv) {
   const args = argv.slice(2);
-  const includeScripts = args.includes('--include-scripts');
+  const includeScripts = args.includes('--include-scripts') || args.includes('--check-scripts');
   const scan = runScan({ includeScripts });
 
   let mode = 'report';
@@ -554,6 +654,9 @@ function main(argv) {
     switch (a) {
       case '--check':
         mode = 'check';
+        break;
+      case '--check-scripts':
+        mode = 'check-scripts';
         break;
       case '--json':
         mode = 'json';
@@ -576,7 +679,9 @@ function main(argv) {
   }
 
   if (mode === 'help') {
-    console.log('usage: check-plugin-path-anchoring.cjs [--report|--check|--json] [--include-scripts]');
+    console.log(
+      'usage: check-plugin-path-anchoring.cjs [--report|--check|--check-scripts|--json] [--include-scripts]'
+    );
     return 0;
   }
 
@@ -596,12 +701,29 @@ function main(argv) {
     return 0;
   }
 
+  if (mode === 'check-scripts') {
+    // The script tier's own gate (ANCHOR-01). This NEVER touches
+    // scan.totals.violations (the citation tier) -- the two tiers stay
+    // independently gateable, per the phase's own two-tiers-two-verdicts
+    // design (a Read citation and a Bash invocation fail differently and
+    // need different recovery text).
+    printReport(scan, { violationsOnly: true });
+    if (scan.advisoryTotals.violations > 0) {
+      console.error(`\nFAIL: ${scan.advisoryTotals.violations} unanchored plugin-relative scripts/ invocation(s).`);
+      console.error(SCRIPT_RECOVERY);
+      return 1;
+    }
+    console.log('\nOK: every plugin-relative scripts/ invocation is anchored or allowlisted.');
+    return 0;
+  }
+
   printReport(scan, { violationsOnly: false });
   return 0;
 }
 
 module.exports = {
   ALLOWLIST,
+  SCRIPT_ALLOWLIST,
   REGISTERED_FOLLOWUPS,
   validateAllowlist,
   scanLine,
@@ -613,6 +735,7 @@ module.exports = {
   main,
   REPO_ROOT,
   RECOVERY,
+  SCRIPT_RECOVERY,
 };
 
 if (require.main === module) {
