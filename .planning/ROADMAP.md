@@ -910,13 +910,28 @@ Plans:
 
 **Also carries `FOLLOWUP-271-R1`** (registered here by plan 271-05, previously code-only): split `/mos:radar` into a dev-only `--fetch` write path and a user-safe anchored read path. Owner: repo navigator (the human who ruled `option-d`). Residual risk: `commands/radar.md` lines 51, 52, 95 and 99 are pure READS reached by plain `/mos:radar` (Step 2) and `/mos:radar --domain` (Step 4), so a user invoking either from their own Data Room hits exactly the file-meeting failure. It belongs here rather than in a phase of its own because it is the same read/write-path-split question this phase must answer for the dev-only `scripts/` invocations. **The naive fix is `option-b` and `option-b` is worse than doing nothing:** anchoring only the reads splits one file's citations of the SAME file across two resolution bases, so after a `--fetch` the summary a user reads would never be the summary just written. It lives in code at `REGISTERED_FOLLOWUPS` in `scripts/check-plugin-path-anchoring.cjs`, where `validateAllowlist()` throws at module load on a dangling id, so the exception and its owed work cannot be separated.
 
-**Requirements**: TBD
+**Requirements**: ANCHOR-01, ANCHOR-02, ANCHOR-03, ANCHOR-04, ANCHOR-05, ANCHOR-06, ANCHOR-07, ANCHOR-08, ANCHOR-09, ANCHOR-10
 **Depends on:** Phase 271, which measured this class and left behind the ready-made measuring instrument: `node scripts/check-plugin-path-anchoring.cjs --report --include-scripts` (the advisory tier NEVER affects the gate's exit code, so this phase must decide whether to promote it to a hard gate as part of its own close-out, the way 271-05 wired the citation tier into `scripts/verify-release` gate 10c). Not blocked by Phase 271's CLOSED-PARTIAL status: the 31 residual `references/` sites are blocked on Phase 267.3 and touch a different token, so this phase can be planned and executed independently. Re-run the instrument at plan time and do NOT assume the 34 above is still live.
-**Plans:** 0 plans
+**Plans:** 6 plans (planned 2026-09-01, not yet executed)
 
 Plans:
+**Wave 0**
 
-- [ ] TBD (run /gsd-plan-phase 274 to break down)
+- [ ] 274-01-PLAN.md (wave 0) - Extend check-plugin-path-anchoring.cjs's script tier (widened predicate, anchored/allowlisted/target classification, --check-scripts mode) plus the Wave 0 fixture suite and CLI runtime smoke test (ANCHOR-01, ANCHOR-07, ANCHOR-08)
+
+**Wave 1** *(three parallel plans, zero files_modified overlap)*
+
+- [ ] 274-02-PLAN.md (wave 1) - Command sweep batch A: bono, causal, export (incl. the python3 render-pdf site), file-meeting, find-analogies, intel-pipeline, mos-reason (ANCHOR-02)
+- [ ] 274-03-PLAN.md (wave 1) - Command sweep batch B: mva-brief, new-surface, publish, room, skill, snapshot, vault (ANCHOR-02)
+- [ ] 274-04-PLAN.md (wave 1) - Hand-authored skills (long fail-closed form) and the 1 agent site (short form), plus SCRIPT_ALLOWLIST entries and FOLLOWUP-274-R1/R2 registration for the status.md matcher drift and the help.md/eureka.md fallback-convention question (ANCHOR-03, ANCHOR-04, ANCHOR-06)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 274-05-PLAN.md (wave 2) - Mirror regeneration (build-skill-mirrors.cjs) and full sweep verification / live count reconciliation (ANCHOR-02, ANCHOR-05)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 274-06-PLAN.md (wave 3) - Gate 10f wiring into scripts/verify-release, REQUIREMENTS.md registration, CHANGELOG/ROADMAP/knowledge-base close-out, and the dev-research compositing trail (ANCHOR-09, ANCHOR-10)
 
 ### Phase 275: Enlarge Room Schema by ICM Layer (Notion Gap-Close + icm-architect Audit Convergence)
 
