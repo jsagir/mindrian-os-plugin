@@ -912,7 +912,7 @@ Plans:
 
 **Requirements**: ANCHOR-01, ANCHOR-02, ANCHOR-03, ANCHOR-04, ANCHOR-05, ANCHOR-06, ANCHOR-07, ANCHOR-08, ANCHOR-09, ANCHOR-10
 **Depends on:** Phase 271, which measured this class and left behind the ready-made measuring instrument: `node scripts/check-plugin-path-anchoring.cjs --report --include-scripts` (the advisory tier NEVER affects the gate's exit code, so this phase must decide whether to promote it to a hard gate as part of its own close-out, the way 271-05 wired the citation tier into `scripts/verify-release` gate 10c). Not blocked by Phase 271's CLOSED-PARTIAL status: the 31 residual `references/` sites are blocked on Phase 267.3 and touch a different token, so this phase can be planned and executed independently. Re-run the instrument at plan time and do NOT assume the 34 above is still live.
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 
 Plans:
 **Wave 0**
@@ -931,7 +931,28 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 274-06-PLAN.md (wave 3) - Gate 10f wiring into scripts/verify-release, REQUIREMENTS.md registration, CHANGELOG/ROADMAP/knowledge-base close-out, and the dev-research compositing trail (ANCHOR-09, ANCHOR-10)
+- [x] 274-06-PLAN.md (wave 3) - Gate 10f wiring into scripts/verify-release, REQUIREMENTS.md registration, CHANGELOG/ROADMAP/knowledge-base close-out, and the dev-research compositing trail (ANCHOR-09, ANCHOR-10)
+
+**Outcome:** all 6 plans landed; the full sweep is verified green (`bash tests/run-all-274.sh`
+PASS=4 FAIL=0, `scripts/verify-release` clean end to end including the new gate 10f) and the
+class is now structurally blocked at release time, not just cleaned up once. Two items were
+deliberately measured and registered rather than fixed in this phase:
+**FOLLOWUP-274-R1** (the `commands/status.md` `allowed-tools` matcher still reads the pre-274
+bare form while the command body underneath it is already anchored -- a pre-existing,
+low-severity permission-prompt drift, not a functional failure; owner: repo navigator, since
+confirming whether an anchored `${...}`-bearing matcher pattern matches correctly in Claude
+Code's own matcher engine could not be done safely without guessing) and
+**FOLLOWUP-274-R2** (whether the newer fail-closed `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?...}}`
+form should supersede the older `./scripts/...` cwd-relative fallback convention used in
+`commands/help.md` and `commands/eureka.md` -- a design question, not a defect; owner: repo
+navigator). Both are registered in code at `REGISTERED_FOLLOWUPS` in
+`scripts/check-plugin-path-anchoring.cjs`, where `validateAllowlist()` throws at module load on
+a dangling id, so neither can be silently dropped. **D-02's Tri-Polar gap, stated explicitly:**
+verification on the CLI surface includes both static path-correctness AND an actual runtime
+smoke test (`tests/smoke-274-cli-invocation.sh`); Desktop and Cowork get the SAME static
+path-correctness check applied to their invocation sites, but NO automated runtime execution
+proof on those two surfaces -- a deliberate, named call per this repo's own Tri-Polar Design
+Rule, not a silent omission, since no automation harness exists for either surface today.
 
 ### Phase 275: Enlarge Room Schema by ICM Layer (Notion Gap-Close + icm-architect Audit Convergence)
 

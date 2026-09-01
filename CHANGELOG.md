@@ -3,6 +3,22 @@
 ### Added
 - 
 
+### Fixed
+- Bare `scripts/<name>` invocations (`bash scripts/foo`, `node scripts/foo.cjs`) are now
+  anchored with `CLAUDE_PLUGIN_ROOT` (or the fail-closed `MINDRIAN_OS_ROOT` form for
+  hand-authored skills), so a Bash tool invocation resolves against the plugin install
+  directory instead of the user's own session cwd. The real security finding, not just a
+  reliability improvement: a bare invocation previously executed whatever file happened to
+  exist at that relative path inside the user's own Data Room -- a local code-execution
+  shadowing vector, not only a portability bug, since a same-named file at `scripts/<name>`
+  in a user's room would silently substitute for the plugin's own script. Phase 274 (the
+  sibling of Phase 271's `references/` citation fix, and the fourth pass at this disease
+  class in this repo): 30 command-surface sites, 3 hand-authored skill sites, and 1 agent
+  site anchored; a fresh full-tree scan confirms zero unanchored sites remain (`sites=156
+  anchored=154 allowlisted=2 violations=0`, script tier). `scripts/verify-release` gains
+  gate 10f, cloning gate 10c's exact fail-closed shape, so this class cannot silently
+  return in a future command.
+
 ### Changed
 - **Usher-division doctrine corrected (navigator-directed, 2026-08-28).** `skills/larry-personality/SKILL.md`'s Hierarchical Navigator section previously divided authority by step ownership: the tool owned Usher steps 1-2, the human owned steps 3-4, and Larry "NEVER crosses into step 3." Product evidence falsified that rule -- in December 2025 Mindrian produced a non-obvious cross-framework synthesis (how McKinsey's Seven Steps, Usher's own cumulative-synthesis model, and Abbie's three pathways relate) that the navigator had not already seen, which the old text would have forbidden it from ever producing. The division is now per-step and shared at generation: step 1 either party may surface an incomplete pattern; step 2 is Mindrian's strongest lane; step 3 either the human or Mindrian may generate a candidate synthesis; **step 4 the navigator retains final authority**, with Mindrian helping challenge, test and refine. Human-in-Command is preserved and made more explicit, not weakened -- only the flat step-3 prohibition changed. The navigator's framing: "Insight generation is not insight authority." New pull-quote replaces the old Aronhime line: "Mindrian may propose the leap. The navigator decides whether the leap is real." `tests/test-posture-ids-drift.cjs` re-pinned to the new quote in the same commit; its exactly-three posture-id assertion (`push_forward` / `hold` / `pull_back`) and the "restraint is the product working correctly" pin are byte-untouched, since this correction concerns the step-3 authority split and not the posture-dial mechanism. The Phase 141 CHANGELOG entry that records the original doctrine is deliberately left as-is; history is not retconned.
 
