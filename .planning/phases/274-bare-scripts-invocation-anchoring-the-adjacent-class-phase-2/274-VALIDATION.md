@@ -89,3 +89,37 @@ anchoring, mirror regen, gate wiring) built on this foundation and are now thems
 Verification Map above); `bash tests/run-all-274.sh` PASS=4 FAIL=0; `bash scripts/verify-release`
 runs clean end to end including the new gate 10f. Signed off by 274-06 (phase close plan),
 2026-09-01.
+
+---
+
+## Dev-Research Compositing Trail (274-06, Task 3)
+
+Per CLAUDE.md's standing Dev-Research Compositing mandate, this phase's durable reasoning trail
+was authored and attempted at both mandated homes. Outcome, honestly recorded, matching the
+271-05 precedent exactly (same hook, same class of stale binding):
+
+- **Room write: BLOCKED, not bypassed.** The `Write` to
+  `~/MindrianRooms/rethinking-mindrianos/research/2026-09-01-bare-scripts-invocation-anchoring-274/`
+  was refused by the `write-scope-check` PreToolUse hook, verbatim: "Blocked: write to
+  rethinking-mindrianos denied. Active room is jonathan-contractor-motj." That binding is stale
+  (this GSD session never established it) -- the same class of drift 271-05 hit under a
+  different wrong room name (`launchpad-02` then, `jonathan-contractor-motj` now). The hook was
+  NOT bypassed via a Bash heredoc or any other write-scope-check evasion.
+- **Sibling-repo mirror: LANDED and verified.** The full reasoning trail (security framing,
+  the fourth-pass pattern lesson, the three instrument defects, the mirror-drift finding, the
+  DEVIATION-271-05-A sequencing lesson this phase deliberately avoided, both registered
+  followups) is written at
+  `~/MindrianOS/research/2026-09-01-bare-scripts-invocation-anchoring-274/2026-09-01-bare-scripts-invocation-anchoring-274.md`
+  -- verified present with `test -e` immediately after the write. This is CLAUDE.md's stated
+  "source-of-record" mirror location; no reasoning was lost.
+- **Outstanding human action, one command:** `/mos:rooms switch rethinking-mindrianos`, after
+  which the room copy is a single `cp` of the sibling-repo mirror above. The compositing
+  mandate is half-satisfied (source-of-record landed, room copy blocked) and is recorded as
+  such here, not claimed as fully complete.
+- **A separate finding surfaced while investigating the mirror path (not a compositing
+  failure of this phase):** `~/MindrianRooms/mindrianOS/research/` (a room, distinct from the
+  `~/MindrianOS/research/` sibling repo used above) has had no new phase entries land since
+  roughly 2026-07-08. It was never the mandated mirror target -- CLAUDE.md's "mirrored to
+  `mindrianOS/research/` as source-of-record" refers to the sibling repo, confirmed by Phase
+  271/272/273's own mirrors all landing correctly there -- but the name collision is worth
+  flagging for the next reader who might assume the room copy is the mirror.
