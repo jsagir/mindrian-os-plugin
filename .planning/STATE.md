@@ -3,16 +3,24 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 274-01-PLAN.md
-last_updated: "2026-09-01T06:39:27.913Z"
-last_activity: 2026-09-01 -- Completed 274-01-PLAN.md (script-tier instrument widened, --check-scripts added, RED-first fixture + CLI smoke tests GREEN)
+stopped_at: Completed 274-02-PLAN.md
+last_updated: "2026-09-01T06:45:16.386Z"
+last_activity: 2026-09-01 -- Phase 274 execution, plan 02 (command sweep batch A) complete
 progress:
   total_phases: 26
   completed_phases: 13
   total_plans: 120
-  completed_plans: 113
-  percent: 94
+  completed_plans: 114
+  percent: 95
 ---
+
+<!-- NOTE (274-02 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the documented
+     STATE.md resync-clobber bug, same class as the SEVENTEENTH+ note below): after
+     `state.advance-plan` and `state.update-progress`, the frontmatter reverted `percent`
+     to 50 and left `stopped_at`/`last_activity` at the stale 272-11 values, disconnected
+     from `state.update-progress`'s own correctly-computed 95%/114/120 JSON return. Hand-
+     corrected: stopped_at to "Completed 274-02-PLAN.md", percent to 95, last_activity to
+     reflect this plan. Root cause not re-investigated -- same tracked bug class. -->
 
 <!-- NOTE (272-11 execute-plan, 2026-08-31, SEVENTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the FOURTEENTH/FIFTEENTH/
@@ -3464,9 +3472,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 274 (bare-scripts-invocation-anchoring-the-adjacent-class-phase-2) — EXECUTING
-Plan: 2 of 6 (274-01 complete, 274-02 next)
-Status: Executing Phase 274 -- Wave 0 (instrument + tests) complete
-Last activity: 2026-09-01 -- Completed 274-01-PLAN.md
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-09-01 -- Phase 274 execution started
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4164,6 +4172,7 @@ Progress: [█████████░] 92%
 | Phase 272 P10 | 55min | 2 tasks | 6 files |
 | Phase 272 P11 | 1h10min | 2 tasks | 3 files |
 | Phase 274 P01 | ~25min | 3 tasks | 4 files |
+| Phase 274 P02 | 10min | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -5499,6 +5508,8 @@ Progress: [█████████░] 92%
 - [Phase 272]: Phase 272 closed: full regression gate confirmed green live (run-all-272.sh PASS=15 FAIL=0, doctor --acceptance 18/18, build-connector-registry --check OK); PYPORT-01..07 registered in REQUIREMENTS.md with real evidence citations; DEFERRED-SCOPE.md names all 8 genuinely undone items including the D-11 encoder-divergence finding (CJS-mode and Python-mode surface visibly different reverse-salient rankings for the same room -- flagged prominently for any future full-Python-deletion decision).
 - [Phase 274]: 274-01: SCRIPT_INVOKE_RE stays a single capturing regex (verb/quote/anchor-prefix/name) rather than a needle-based text walk; anchored classification does not require the whole path be double-quoted, matching the citation tier's actual shipped scanLine() behavior rather than 274-RESEARCH.md's Pattern 3 prose spec
 - [Phase 274]: 274-01: ANCHOR-01/07/08 requirement IDs are not yet registered in .planning/REQUIREMENTS.md (requirements.mark-complete returned not_found for all three, same pre-existing gap class as the PYPORT-*/DCW-* precedents) -- not fixed here, tracked as this decision instead
+- [Phase 274]: 274-02: Regenerated skill mirrors as part of each task commit (Rule 3, RESEARCH.md Pitfall 1) since the pre-commit hook blocks a command edit without its matching mirror
+- [Phase 274]: 274-02: requirements.mark-complete ANCHOR-02 returned not_found -- Phase 274's ANCHOR-* requirement IDs are not yet registered in REQUIREMENTS.md (same pre-existing gap class as the PYPORT-*/DCW-* precedent), registration deferred to phase close, not this plan
 
 ### Pending Todos
 
@@ -5607,7 +5618,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-01T06:39:16.598Z
+Last session: 2026-09-01T06:44:26.161Z
 Stopped at: Completed 272-11-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
