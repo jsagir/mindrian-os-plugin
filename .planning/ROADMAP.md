@@ -912,12 +912,12 @@ Plans:
 
 **Requirements**: ANCHOR-01, ANCHOR-02, ANCHOR-03, ANCHOR-04, ANCHOR-05, ANCHOR-06, ANCHOR-07, ANCHOR-08, ANCHOR-09, ANCHOR-10
 **Depends on:** Phase 271, which measured this class and left behind the ready-made measuring instrument: `node scripts/check-plugin-path-anchoring.cjs --report --include-scripts` (the advisory tier NEVER affects the gate's exit code, so this phase must decide whether to promote it to a hard gate as part of its own close-out, the way 271-05 wired the citation tier into `scripts/verify-release` gate 10c). Not blocked by Phase 271's CLOSED-PARTIAL status: the 31 residual `references/` sites are blocked on Phase 267.3 and touch a different token, so this phase can be planned and executed independently. Re-run the instrument at plan time and do NOT assume the 34 above is still live.
-**Plans:** 6 plans (planned 2026-09-01, not yet executed)
+**Plans:** 1/6 plans executed
 
 Plans:
 **Wave 0**
 
-- [ ] 274-01-PLAN.md (wave 0) - Extend check-plugin-path-anchoring.cjs's script tier (widened predicate, anchored/allowlisted/target classification, --check-scripts mode) plus the Wave 0 fixture suite and CLI runtime smoke test (ANCHOR-01, ANCHOR-07, ANCHOR-08)
+- [x] 274-01-PLAN.md (wave 0) - Extend check-plugin-path-anchoring.cjs's script tier (widened predicate, anchored/allowlisted/target classification, --check-scripts mode) plus the Wave 0 fixture suite and CLI runtime smoke test (ANCHOR-01, ANCHOR-07, ANCHOR-08)
 
 **Wave 1** *(three parallel plans, zero files_modified overlap)*
 

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 272-11-PLAN.md
-last_updated: "2026-08-31T20:35:50.893Z"
-last_activity: 2026-08-31 -- Phase 272 execution, 272-11 (phase close: full regression gate confirmed green, PYPORT-01..07 registered, DEFERRED-SCOPE.md filed) complete
+stopped_at: Completed 274-01-PLAN.md
+last_updated: "2026-09-01T06:39:27.913Z"
+last_activity: 2026-09-01 -- Completed 274-01-PLAN.md (script-tier instrument widened, --check-scripts added, RED-first fixture + CLI smoke tests GREEN)
 progress:
   total_phases: 26
   completed_phases: 13
-  total_plans: 114
-  completed_plans: 112
-  percent: 98
+  total_plans: 120
+  completed_plans: 113
+  percent: 94
 ---
 
 <!-- NOTE (272-11 execute-plan, 2026-08-31, SEVENTEENTH+ occurrence of the
@@ -3438,14 +3438,35 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 272 — phase-134-real-remediation-cjs-python-elimination-port
+**Current focus:** Phase 274 — bare-scripts-invocation-anchoring-the-adjacent-class-phase-2
+
+<!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
+     documented state.*-clobber bug, same class as the SEVENTEENTH documented
+     below): `state.update-progress` returned {"percent":94,"completed":113,
+     "total":120,...} in its own JSON response, but the frontmatter write it
+     performed left `percent: 50` unchanged (the command's own computation and
+     its actual write disagree, the same wrinkle the FOURTEENTH occurrence
+     first documented). Separately, `state.record-session` updated only "Last
+     session" and left `stopped_at`/`last_activity` at the stale
+     "Completed 272-11-PLAN.md" / "Phase 274 execution started" values.
+     `state.add-decision` also reproduced the SIXTEENTH occurrence's known
+     defect verbatim: it wrote the literal placeholder "[Phase ?]" instead of
+     resolving to "[Phase 274]" -- hand-corrected below.
+     `requirements.mark-complete ANCHOR-01 ANCHOR-07 ANCHOR-08` returned
+     not_found for all three -- Phase 274's ANCHOR-* requirement IDs were
+     never registered in .planning/REQUIREMENTS.md (the same pre-existing gap
+     class as the PYPORT-*/DCW-* precedents); not fixed here, recorded as a
+     decision instead of a REQUIREMENTS.md registration. Hand-corrected
+     `percent: 94`, `stopped_at: Completed 274-01-PLAN.md`, `last_activity`,
+     and the Current Position section below to match the command's own
+     correctly-computed values and the actual plan state. -->
 
 ## Current Position
 
-Phase: 272 (phase-134-real-remediation-cjs-python-elimination-port) — COMPLETE
-Plan: 11 of 11
-Status: 272-11 complete (phase close: tests/run-all-272.sh PASS=15 FAIL=0 confirmed live, doctor --acceptance 18/18, build-connector-registry --check OK, PYPORT-01..07 registered in REQUIREMENTS.md, DEFERRED-SCOPE.md filed). Phase 272 CLOSED.
-Last activity: 2026-08-31 -- Phase 272 execution, 272-11 (phase close) complete
+Phase: 274 (bare-scripts-invocation-anchoring-the-adjacent-class-phase-2) — EXECUTING
+Plan: 2 of 6 (274-01 complete, 274-02 next)
+Status: Executing Phase 274 -- Wave 0 (instrument + tests) complete
+Last activity: 2026-09-01 -- Completed 274-01-PLAN.md
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4142,6 +4163,7 @@ Progress: [█████████░] 92%
 | Phase 272 P09 | 50min | 1 tasks | 1 files |
 | Phase 272 P10 | 55min | 2 tasks | 6 files |
 | Phase 272 P11 | 1h10min | 2 tasks | 3 files |
+| Phase 274 P01 | ~25min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -5475,6 +5497,8 @@ Progress: [█████████░] 92%
 - [Phase 272]: hsi-engine.cjs does not port compute-hsi.py's .hsi-cache.json content-hash skip-cache; out of this plan's scope, recomputes every call
 - [Phase ?]: 272-10: D-04 dispatch chokepoint wired at all 3 real callers (reverse-salient-agent.cjs, intelligence-cascade.cjs, futures/orchestrator.cjs); D-09 rule-6 amendment landed in both live copies in the same commit as the wiring
 - [Phase 272]: Phase 272 closed: full regression gate confirmed green live (run-all-272.sh PASS=15 FAIL=0, doctor --acceptance 18/18, build-connector-registry --check OK); PYPORT-01..07 registered in REQUIREMENTS.md with real evidence citations; DEFERRED-SCOPE.md names all 8 genuinely undone items including the D-11 encoder-divergence finding (CJS-mode and Python-mode surface visibly different reverse-salient rankings for the same room -- flagged prominently for any future full-Python-deletion decision).
+- [Phase 274]: 274-01: SCRIPT_INVOKE_RE stays a single capturing regex (verb/quote/anchor-prefix/name) rather than a needle-based text walk; anchored classification does not require the whole path be double-quoted, matching the citation tier's actual shipped scanLine() behavior rather than 274-RESEARCH.md's Pattern 3 prose spec
+- [Phase 274]: 274-01: ANCHOR-01/07/08 requirement IDs are not yet registered in .planning/REQUIREMENTS.md (requirements.mark-complete returned not_found for all three, same pre-existing gap class as the PYPORT-*/DCW-* precedents) -- not fixed here, tracked as this decision instead
 
 ### Pending Todos
 
@@ -5583,7 +5607,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-08-31T20:35:50.833Z
+Last session: 2026-09-01T06:39:16.598Z
 Stopped at: Completed 272-11-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
