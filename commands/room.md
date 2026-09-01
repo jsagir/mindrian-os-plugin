@@ -352,7 +352,7 @@ If no `room/` directory exists, use 3-line error format.
 Run the export generation script:
 
 ```bash
-node scripts/generate-export.cjs "./room"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-export.cjs" "./room"
 ```
 
 This generates a self-contained HTML file at `room/exports/YYYY-MM-DD-{room-name}.html`.

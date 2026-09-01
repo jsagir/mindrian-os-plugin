@@ -75,7 +75,7 @@ Check if `$ROOM_DIR/exports/presentation/index.html` exists.
 
 If not: "Let me generate your presentation first."
 ```bash
-node scripts/generate-presentation.cjs "$ROOM_DIR"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-presentation.cjs" "$ROOM_DIR"
 ```
 
 ### 2. First-Time Setup (DEPLOY-01)
@@ -208,7 +208,7 @@ When the user runs `/mos:publish` again (project already linked):
 
 **No presentation generated:**
 > "Your room doesn't have a presentation yet. Let me generate one first..."
-Then run `node scripts/generate-presentation.cjs "$ROOM_DIR"` and retry.
+Then run `node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-presentation.cjs" "$ROOM_DIR"` and retry.
 
 **Deploy fails:**
 > "The deploy failed. Here's what Vercel said: {error}. Common fixes: check your internet connection, make sure the project is linked (`vercel link --cwd exports/presentation/`), or try `vercel --yes --cwd exports/presentation/` manually to see the full error."

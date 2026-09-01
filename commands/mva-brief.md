@@ -59,7 +59,7 @@ the UserPromptSubmit hook (Plan 118-00).
 
 ## Instructions for the model
 
-Invoke `node scripts/mva-run.cjs` via Bash with no arguments. The script reads
+Invoke `node "${CLAUDE_PLUGIN_ROOT}/scripts/mva-run.cjs"` via Bash with no arguments. The script reads
 the pending state file, runs the orchestrator, and writes the rendered output
 to stdout.
 
