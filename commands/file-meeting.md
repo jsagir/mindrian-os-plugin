@@ -768,7 +768,7 @@ When writing the artifact content, auto-insert [[concept-name]] links for key co
 
 **Native wikilink injection (NATIVE-01/02):** Immediately after writing each filed artifact, run:
 ```bash
-node scripts/wikilink-file.cjs "$ROOM_DIR" "$ARTIFACT_PATH"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/wikilink-file.cjs" "$ROOM_DIR" "$ARTIFACT_PATH"
 ```
 This uses `lib/vault/wikilink-builder.cjs` to inject team-name wikilinks at write time so the artifact arrives pre-linked. Errors are logged but non-fatal -- filing never aborts because of a wikilink pass.
 
@@ -975,12 +975,12 @@ Type: {segment_type}
 **Native wikilink injection (NATIVE-01/02):** After writing each filed-to stub AND the meeting summary.md, run the wikilink wrapper to inject team links and filed-to footer lines at write time:
 ```bash
 # For each filed-to stub
-node scripts/wikilink-file.cjs "$ROOM_DIR" "$STUB_PATH" \
+node "${CLAUDE_PLUGIN_ROOT}/scripts/wikilink-file.cjs" "$ROOM_DIR" "$STUB_PATH" \
   --filed-to-target="{section}/YYYY-MM-DD-{slug}.md" \
   --meeting-slug="YYYY-MM-DD-{meeting-name}"
 
 # For the meeting summary
-node scripts/wikilink-file.cjs "$ROOM_DIR" "$SUMMARY_PATH" \
+node "${CLAUDE_PLUGIN_ROOT}/scripts/wikilink-file.cjs" "$ROOM_DIR" "$SUMMARY_PATH" \
   --meeting-slug="YYYY-MM-DD-{meeting-name}"
 ```
 See `lib/vault/wikilink-builder.cjs` for the canonical builders. The wrapper fails soft -- if the room has zero team profiles or scan errors, filing still completes cleanly.
