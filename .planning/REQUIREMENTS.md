@@ -111,7 +111,7 @@ canonical frameworks (5 at 4/4, 20 at 3/4, 22 at 2/4, 9 at 1/4, 90 at 0/4).
 - [ ] **FLOOR-01**: check-flagship-floor.cjs exits 0 on a window-fresh run (no probe
       failures, per TRUST-02).
 
-- [ ] **FLOOR-02** (carried from v2.0.0 SWEEP-02): the tier-0-no-key acceptance fixture is
+- [x] **FLOOR-02** (carried from v2.0.0 SWEEP-02): the tier-0-no-key acceptance fixture is
       REPURPOSED to assert the keyless path refuses correctly - coverage kept, assertion
       inverted, never deleted.
 
