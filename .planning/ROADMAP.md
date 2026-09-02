@@ -86,7 +86,7 @@ orchestration projection this phase consumes has a Theo-side analog (`/home/jsag
 designated Brain successor, weeks not months from its cutover per Phase 262's own dated
 measurement) -- state explicitly in RESEARCH.md whether the composition work targets a surface
 Theo will also need adapting, so the eventual flip is a smaller diff, not a rediscovery.
-**Plans:** 2/6 plans executed
+**Plans:** 3/6 plans executed
 Plans:
 **Wave 1**
 
@@ -99,7 +99,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 254-04-PLAN.md (wave 3) -- the Brain-composition census enumerating every `mindrian-os` handler that reaches the Brain (COMP-01)
+- [x] 254-04-PLAN.md (wave 3) -- the Brain-composition census enumerating every `mindrian-os` handler that reaches the Brain (COMP-01)
 - [ ] 254-05-PLAN.md (wave 3) -- the `ambiguous`-verdict disclosure in the `callTool` belt plus D-06's two-leg normalize round-trip probe (COMP-02)
 
 **Wave 4** *(blocked on Wave 3 completion)*

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 254-03-PLAN.md
-last_updated: "2026-09-02T15:37:36.901Z"
+stopped_at: Completed 254-04-PLAN.md
+last_updated: "2026-09-02T16:27:18.833Z"
 last_activity: 2026-09-02 -- Completed 254-03-PLAN.md (WIRE-04 framework-vocabulary-drift gate)
 progress:
   total_phases: 26
   completed_phases: 16
   total_plans: 131
-  completed_plans: 127
-  percent: 97
+  completed_plans: 128
+  percent: 62
 ---
 
 <!-- NOTE (254-03 execute-plan, 2026-09-02, TWENTY-SEVENTH+ occurrence of the
@@ -3590,7 +3590,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 254 (orchestration-projection-consumption-wiring-suggest-next-act) — EXECUTING
-Plan: 2 of 6 pending next (Wave 2, depends_on 254-01); 254-01 and 254-03 (both Wave 1) are complete
+Plan: 3 of 6 pending next (Wave 2, depends_on 254-01); 254-01 and 254-03 (both Wave 1) are complete
 Status: Ready to execute 254-02
 Last activity: 2026-09-02 -- Completed 254-03-PLAN.md (WIRE-04 framework-vocabulary-drift gate)
 
@@ -4303,6 +4303,7 @@ Progress: [█████████░] 92%
 | 262 | 5 | - | - |
 | Phase 254 P01 | 20min | 2 tasks | 4 files |
 | Phase 254 P03 | 25min | 3 tasks | 5 files |
+| Phase 254 P04 | ~20min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -5655,6 +5656,8 @@ Progress: [█████████░] 92%
 - [Phase 262]: D-05 closed: FLOOR-03 re-ruled, exactly-1 stands, measured 2 is a hop-depth-1 alias resolver defect, Theo's ALIAS_FORK is the target fix shape
 - [Phase 254]: D-03 blend-never-replace implemented exactly as locked: chain-source.cjs tries the projection multi-hop path first, falls through to the registry-composed floor, never returns empty (the two most common real seeds proven non-empty).
 - [Phase ?]: WIRE-04 gate reads the registry framework set by flattening commands[].frameworks[] at run time rather than trusting command-registry.json's framework_index convenience field, so it never depends on that generator-authored shortcut staying byte-identical to its own source.
+- [Phase ?]: Phase 254-04 (COMP-01): container is a declaration module (lib/mcp/brain-composition-census.cjs) plus provenance comments at each call site -- a doc table goes stale invisibly, inline comments alone cannot be reconciled by a test.
+- [Phase ?]: Phase 254-04: bound_ms differs per reaching site -- brain-router.cjs Tier 3 is 2000ms (explicit Promise.race), suggest_next's chainOfferForReach is 20000ms (brain-client.cjs's default BRAIN_REQUEST_TIMEOUT_MS, no override on that path).
 
 ### Pending Todos
 
@@ -5764,8 +5767,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-02T15:37:22.967Z
-Stopped at: Completed 262-05-PLAN.md
+Last session: 2026-09-02T16:27:18.744Z
+Stopped at: Completed 254-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
