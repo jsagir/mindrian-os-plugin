@@ -398,11 +398,15 @@ successor now weeks (not months) from cutover -- `check-flagship-floor.cjs` and
 `scripts/build-brain-census.cjs` are both currently UNLISTED on Theo's own 7-file adaptation
 list. This phase adds a tripwire (unrecognized envelope -> VOID, not a false MISS) rather than
 adapting to Theo's shape now, and gets both files added to Theo's adaptation list.
-**Plans:** 0 plans
+**Plans:** 5 plans in 4 waves
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 262 to break down)
+- [ ] 262-01-PLAN.md - Wave 0 measurement floor: ratified-denominator integrity test, the D-07 SEP-projection probe, and the tests/run-all-262.sh aggregator (FLOOR-01)
+- [ ] 262-02-PLAN.md - The Theo tripwire: unrecognized response envelope becomes a VOID (kind unrecognized_shape), never a silent false RED (FLOOR-01, D-04)
+- [ ] 262-03-PLAN.md - FLOOR-02: the keyless fixture repurposed to no-identity-refusal, gate 1 hardened with a no-methodology-served negative assertion, wire string byte-locked (FLOOR-02, D-06)
+- [ ] 262-04-PLAN.md - The live, human-gated measurement sitting: dated floor verdict, FLOOR-03 re-measurement, SEP counts, write-seam check (FLOOR-01, FLOOR-03)
+- [ ] 262-05-PLAN.md - The signed gap ledger plus the Brain-repo work order and the Theo adaptation-list note (FLOOR-01, FLOOR-02, FLOOR-03, D-01/D-02/D-05)
 
 ### Phase 263: Carry-folds + Long-Tail Reader (post-green)
 
