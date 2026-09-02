@@ -151,7 +151,17 @@ were ever created under this number.
 
 ### Phase 257: Part 8 enforcement locus (host-independent egress guard)
 
-**Goal:** [To be planned] Close H3 from `docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md`:
+**Goal:** Make the already-shipped Part 8 guard's verdict VISIBLE and CORRECTLY CLASSIFIED at the
+model-facing surface, lock it with a wire-level structural invariant, and rule explicitly on the one
+surface that genuinely has no local belt. (RESHAPED 2026-09-02 by `257-RESEARCH.md` + `257-CONTEXT.md`:
+H3 as originally written below is FALSE and has been since `ca32b612`, 2026-08-19 09:26, two and a half
+hours BEFORE the handoff's own base commit. The stdio shim delegates fully through
+`brain-client.cjs::callTool`, which carries the fail-closed belt; a live wire probe measured four
+`egress_blocked` refusals and zero captured bytes. What is actually broken is honesty at the RETURN
+path, G1/G2/G3. The genuinely uncovered surface is `pws-brain-mcp` direct-HTTPS, which is Desktop's and
+Cowork's path. Original text preserved below for the record.)
+
+**Original framing (disproven, kept for provenance):** Close H3 from `docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md`:
 a direct model-issued `mcp__...mindrian-brain__brain_ask/brain_query/brain_search/brain_write`
 bypasses `lib/core/brain-client.cjs` entirely, so no belt inside that file can ever cover it, and
 it is guarded only by a `PreToolUse` hook whose MCP-tool matcher does not fire on hosts without
@@ -163,7 +173,8 @@ locus, not enforcement logic): H1 is Phase 254's to close, H2 shipped narrowly i
 (`hatAwareRecommend`/`suggestValidationSteps` only, plus a `query()` backstop its own comment
 labels insufficient alone), H3 is unowned and is this phase. The trap this phase exists to prevent
 is 254 shipping H1, citing 239-05, and the record concluding Part 8 is closed while H3 stays open.
-**Requirements**: TBD
+**Requirements**: LOCUS-01, LOCUS-02, LOCUS-03, LOCUS-04, LOCUS-05, LOCUS-06, LOCUS-07, LOCUS-08,
+LOCUS-09, LOCUS-10 (minted at plan time 2026-09-02, registered in `.planning/REQUIREMENTS.md`)
 **Depends on:** Phase 254. Hard gate, not a preference: 254 reshapes `brain-client.cjs` and moves
 Brain composition into `mindrian-os`-named tool handlers, so planning 257 first would plan against
 a tree about to change. Section 4 of the handoff is a MANDATORY re-verification step (every factual
@@ -175,9 +186,12 @@ interpolation, cloning `lib/core/bono/persona-research.cjs` approx 208-233; disc
 `_logEventBestEffort(options.db, ...)` scalars-only; the `check-substrate.cjs` ALLOWED_DIRECT_IMPORT
 pre-commit trap; egress proof modelled on `tests/test-239-query-egress-canary.cjs` reusing
 `tests/helpers/brain-capture-server.cjs`; regression lock shaped like `lib/mcp/no-instructions.test.cjs`.
-**Open navigator ruling:** whether `mcp-server-brain/` (far side of the network boundary, deploys
-standalone with its own package.json and render.yaml) also carries the guard as a last line of
-defence, or stays local-only with the decision documented explicitly.
+**Navigator ruling: RESOLVED 2026-09-02 (D-01 + D-02, `257-CONTEXT.md`).** Far side: LOCAL-ONLY,
+documented. No far-side guard is built. `mcp-server-brain/` in this repo is the DEAD Neo4j+Pinecone
+service the operator was told to suspend; the live far side is `ProblemsWorthSolving-Brain` (ESM), and
+a far-side check runs on content already RECEIVED over TLS, so it can prevent USE but never RECEIPT.
+Direct-HTTP: ACCEPT AND DOCUMENT; deprecating or rerouting `pws-brain-mcp` is a separate larger phase.
+Both rulings are recorded in `docs/257-NOTE-part8-enforcement-locus-rulings.md`.
 **Adjacent, do NOT absorb:** D-239-05-01 (`.planning/phases/239-brain-access-surface/deferred-items.md`)
 is a payload-design question (send a generic handle instead of raw domain text); H3 is an
 enforcement-locus question. Flag the interaction, leave the decision.
@@ -188,11 +202,19 @@ too -- once Theo consolidates room-side operational tools into the same catalog 
 tools (per Theo's own CLAUDE.md architecture doctrine), check whether this phase's
 enforcement-locus fix needs to also cover the Theo-catalog surface, not just today's
 `mindrian-os` server, before this phase's research locks.
-**Plans:** 0 plans
+**Plans:** 9 plans in 5 waves
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 257 to break down)
+- [ ] 257-01-PLAN.md - mint the `egress_blocked` refusal kind + amend the two frozen downstream contracts (W1)
+- [ ] 257-02-PLAN.md - additive `refusal` + `egress_disclosure` pass-through in `wrapDirective()` (W1)
+- [ ] 257-03-PLAN.md - correct the record: census parenthetical + dated handoff correction (W1)
+- [ ] 257-04-PLAN.md - the D-01/D-02 rulings note + the Theo T-1/T-2/T-3 forward-compat note (W1)
+- [ ] 257-05-PLAN.md - baseline honesty: capture pre-change gates + de-freeze the two red 239 arms (W1)
+- [ ] 257-06-PLAN.md - shim honest-refusal wiring: G1 branch + `honestRefusal` helper, proven on the wire (W2)
+- [ ] 257-07-PLAN.md - the locked egress invariant (spawn + live `tools/list`) + `run-all-257.sh` (W3)
+- [ ] 257-08-PLAN.md - `registerTool` + `z.strictObject` migration, closing undeclared-key smuggling (W4)
+- [ ] 257-09-PLAN.md - Part 8 gate battery, LOCUS registration, Canon Custodian checkpoint (W5)
 
 **Open milestone-shape ruling:** RESOLVED 2026-08-20. Phases 253/256 retired in favor of
 258-263 (v2.1.0's own pre-existing, more precise research); 254/255/257 stay as v2.1.0

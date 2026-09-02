@@ -865,13 +865,106 @@ rediscover them:**
    vocabulary, `KNOWN_METHODOLOGIES`) so it is measured on every run rather than silently
    unmeasured, and is named here as a follow-up for a future phase to close.
 
+### Phase 257 - Part 8 enforcement locus (host-independent egress guard) (minted at plan time 2026-09-02)
+
+These ten IDs were minted during Phase 257 planning (2026-09-02), ratifying `257-CONTEXT.md`'s
+navigator rulings D-01 through D-11 and `257-RESEARCH.md`'s recommended phase shape. They are
+phase-local working IDs, promoted to this document at phase close by `257-09-PLAN.md` per the Phase
+254/272/274 precedent. Rows are `- [ ]` until `257-09` finalizes each one with its measured proof.
+
+Context that reshaped the phase: the 2026-08-20 handoff's H3 ("a direct model-issued Brain tool call
+bypasses `brain-client.cjs` entirely") is FALSE and has been since `ca32b612` (2026-08-19 09:26), two
+and a half hours before the handoff's own base commit. The stdio shim delegates fully through
+`callTool`, which carries the fail-closed belt; a live wire probe measured four `egress_blocked`
+refusals and zero captured bytes. What is real is a honesty defect at the RETURN path (G1/G2/G3) plus
+one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop's and Cowork's path).
+
+- [ ] **LOCUS-01**: `brain_ask` renders an `egress_blocked` sentinel as an honest, typed refusal,
+      never a well-formed empty `DirectiveEnvelope`. Fixed in `lib/core/refusal-messaging.cjs`
+      (257-01, `egress_blocked` minted as the sixth refusal kind with its own `BRAIN_EGRESS_BLOCKED`
+      status) and `bin/mindrian-brain-mcp-client.cjs` (257-06).
+
+- [ ] **LOCUS-02**: Phase 254's `egress_disclosure` survives to the `brain_ask` response, making
+      COMP-02 non-vacuous on the highest-traffic Brain tool. Fixed in
+      `lib/core/directive-envelope.cjs` (257-02). The same fixed-key builder was also discarding the
+      `refusal` object the Phase 250-01 honest-refusal branch passes in, so that earlier fix was
+      partly vacuous too; both fields are now carried additively.
+
+- [ ] **LOCUS-03**: every Brain tool the live server advertises is proven ON THE WIRE to leak zero
+      bytes on a canary, with an honest typed refusal in the response and an `ambiguous` payload
+      proceeding and disclosing. `tests/test-257-brain-tool-egress-invariant.cjs` (257-07); the tool
+      list is derived from the server's own `tools/list` and reconciled in both directions, never a
+      frozen array.
+
+- [ ] **LOCUS-04**: the record is corrected. The false parenthetical at
+      `lib/mcp/brain-composition-census.cjs:37-38` is replaced with an evidence-bearing statement, and
+      `docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md` carries an append-only dated correction
+      (257-03).
+
+- [ ] **LOCUS-05**: the far-side ruling (D-01) is documented with both halves, the pragmatic finding
+      that this repo's `mcp-server-brain/` is the dead service and the principled finding that a
+      far-side guard can prevent USE but never RECEIPT. `docs/257-NOTE-part8-enforcement-locus-rulings.md`
+      (257-04).
+
+- [ ] **LOCUS-06**: the direct-HTTP gap (D-02) is documented with the four-path coverage table and the
+      open high-severity RCA cited by filename. Same file (257-04). Includes the D-05 flag that
+      `query()`'s `null` contract stays frozen and G2's conflation is pinned by test rather than fixed.
+
+- [ ] **LOCUS-07**: all six Brain tools reject undeclared keys before any handler runs, closing the
+      smuggling class Theo's GUARD-01 measured. `bin/mindrian-brain-mcp-client.cjs` migrated from
+      positional `server.tool()` to `server.registerTool()` with `z.strictObject` input schemas
+      (257-08). Measured on this repo's own pins: a plain shape ACCEPTS `{roomSecret:'LEAK'}` and
+      silently drops it; `z.strictObject` rejects with `unrecognized_keys`.
+
+- [ ] **LOCUS-08**: baseline honesty. The two pre-existing red 239 arms froze the pre-2026-08-19 hook
+      matcher literal; both now derive it from `hooks/hooks.json` at run time, and the pre-change and
+      post-change counts are both recorded (257-05). No 257 report claims a green suite without citing
+      the recorded baseline.
+
+- [ ] **LOCUS-09**: the Theo forward-compatibility note (D-08) covering T-1 (the hook matcher goes
+      dark on flip day), T-2 (catalog consolidation makes name-based enforcement structurally
+      impossible, leaving `registerContentTool` as the only viable locus) and T-3 (Theo is local
+      today, so the window is open now). `docs/257-NOTE-theo-forward-compat-enforcement-locus.md`
+      (257-04).
+
+- [ ] **LOCUS-10**: the Canon Part 8 PR gate is discharged in the shape D-11 specifies: the real
+      automated leg (`doctor.cjs --acceptance` Class O `agentshield-all-surfaces-clean`, which
+      delegates to `classify()`), the suites reported against their recorded baseline, and a blocking
+      human Canon Custodian checkpoint naming the diff surface and which of the four Brain paths the
+      change covers and which it deliberately does not. `257-COMPLIANCE.md` (257-09).
+
+**The three stated decisions this phase made at plan time, recorded so a future reader does not have
+to rediscover them:**
+
+1. **The D-01/D-02 rulings live in a standalone phase note, NOT in `docs/MINDRIAN-CANON.md`.**
+   CONTEXT.md left the container to Claude's discretion. Amending the Canon in this repo is a
+   machinery event (Appendix D entry, header Version bump, `docs/CANON-PHASE-MAP.md` ledger row, and
+   navigator gating for frozen-property additions), and these are enforcement-locus rulings rather
+   than doctrine changes: the `LOCAL data -> BRAIN: NO` invariant is untouched by both. Invoking that
+   machinery would inflate the phase and imply a doctrine change that did not happen. The note is made
+   discoverable through the corrected census comment and the handoff correction block, which both
+   point at it by filename. The Canon Custodian checkpoint surfaces this decision explicitly for
+   reversal if the navigator wants the ruling inside the Canon itself.
+
+2. **The two frozen-literal 239 failures are FIXED IN-PHASE, not spun out** (D-10 required a stated
+   decision either way). The fix is two constants replaced by a read of the file they were copied
+   from. The failure is Pitfall 4, the exact anti-pattern this phase exists to prevent, sitting inside
+   the suite meant to guard against it, while this phase ships a new test whose entire discipline is
+   derive-never-freeze. Leaving it red would also force every downstream report to carry an asterisk.
+
+3. **`query()`'s `null`-return contract stays FROZEN** (D-05). G2's block-versus-outage conflation on
+   `brain_query` is real and is NOT fixed: roughly 82 degradation tests key on the `null` return
+   (`lib/core/brain-client.cjs:640-643`). Instead the current conflated behavior is PINNED by an arm
+   of `tests/test-257-brain-tool-egress-invariant.cjs` and commented at the call site, so it cannot
+   change silently and a future contract change has to be a deliberate phase.
+
 ## Traceability
 
-109 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+119 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
-plus WIRE-01..04 / COMP-01..02 (Phase 254). All minted 2026-08-27 except CHOKE-01..06 and
+plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257). All minted 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), and WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02): RADAR-01..11 and MCPFIX-01..04 at
 first-pass plan time,
@@ -888,9 +981,12 @@ RADAR-13,
 RADAR-15 and RADAR-16 were retired before
 use because they duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04; the gap is deliberate and recorded.
 RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving its intent.
-Roadmap phases must map all 109 active requirements with no orphans.
+LOCUS-01..10 were minted in Phase 257's plan set (2026-09-02), ratifying `257-CONTEXT.md`'s
+D-01..D-11 and `257-RESEARCH.md`'s recommended phase shape, and are registered here at plan time
+as `- [ ]` rows to be finalized with measured proof by `257-09-PLAN.md` at phase close.
+Roadmap phases must map all 119 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR and WIRE/COMP families alike (the
+**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP and LOCUS families alike (the
 Phase 266 and 269
 precedent):** these IDs were minted at plan time inside their own phase's decision record rather
 than being drawn from a pre-existing milestone requirements pass. They are phase-local working IDs
