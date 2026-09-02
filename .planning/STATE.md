@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 254-04-PLAN.md
-last_updated: "2026-09-02T16:27:18.833Z"
-last_activity: 2026-09-02 -- Completed 254-03-PLAN.md (WIRE-04 framework-vocabulary-drift gate)
+stopped_at: Completed 254-05-PLAN.md
+last_updated: "2026-09-02T16:47:42.837Z"
+last_activity: 2026-09-02 -- Completed 254-05-PLAN.md (COMP-02 ambiguous-disclosure + D-06 normalize round-trip probe)
 progress:
   total_phases: 26
   completed_phases: 16
   total_plans: 131
-  completed_plans: 128
-  percent: 62
+  completed_plans: 129
+  percent: 98
 ---
 
 <!-- NOTE (254-03 execute-plan, 2026-09-02, TWENTY-SEVENTH+ occurrence of the
@@ -3590,9 +3590,29 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 254 (orchestration-projection-consumption-wiring-suggest-next-act) — EXECUTING
-Plan: 3 of 6 pending next (Wave 2, depends_on 254-01); 254-01 and 254-03 (both Wave 1) are complete
-Status: Ready to execute 254-02
-Last activity: 2026-09-02 -- Completed 254-03-PLAN.md (WIRE-04 framework-vocabulary-drift gate)
+Plan: 254-02 and 254-06 pending; 254-01, 254-03, 254-04, and 254-05 are complete (254-05 is Wave 3, depends_on: [])
+Status: Ready to execute 254-02 (Wave 2, depends_on 254-01) or 254-06 (final wave)
+Last activity: 2026-09-02 -- Completed 254-05-PLAN.md (COMP-02 ambiguous-disclosure + D-06 normalize round-trip probe)
+
+<!-- NOTE (254-05 execute-plan, 2026-09-02, resync-clobber bug, same class as
+     the notes below): after `state.record-metric`, `state.add-decision` (x2)
+     and `state.record-session`, the frontmatter's `percent` field reverted
+     from `state.update-progress`'s own correctly-computed 98% (129
+     completed_plans / 131 total_plans) to 62 (the stale phase-based figure).
+     `last_activity` also reverted to the stale pre-254-05 value. Also:
+     `state.add-decision` hardcodes an em-dash (` — `) as the summary/
+     rationale joiner (gsd-core/bin/lib/state.cjs:479) when both --summary
+     and --rationale are passed separately -- this repo's own hard no-
+     em-dash rule (CLAUDE.md), so both new decision lines were hand-corrected
+     to a plain hyphen joiner instead, matching the existing workaround
+     convention visible in the 254-04 decision lines just above them (fold
+     rationale into --summary with a manual " -- ", skip --rationale
+     entirely). Hand-corrected: percent back to 98, last_activity to name
+     this plan's actual completion, and the Current Position section below
+     updated to reflect the true non-linear state (254-01/03/04/05 complete,
+     254-02/06 pending) rather than the counter's naive linear "Plan: N of
+     6" implication. Root cause not re-investigated -- same tracked bug
+     class as the notes below. -->
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4304,6 +4324,7 @@ Progress: [█████████░] 92%
 | Phase 254 P01 | 20min | 2 tasks | 4 files |
 | Phase 254 P03 | 25min | 3 tasks | 5 files |
 | Phase 254 P04 | ~20min | 3 tasks | 5 files |
+| Phase 254 P05 | 7min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -5658,6 +5679,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: WIRE-04 gate reads the registry framework set by flattening commands[].frameworks[] at run time rather than trusting command-registry.json's framework_index convenience field, so it never depends on that generator-authored shortcut staying byte-identical to its own source.
 - [Phase ?]: Phase 254-04 (COMP-01): container is a declaration module (lib/mcp/brain-composition-census.cjs) plus provenance comments at each call site -- a doc table goes stale invisibly, inline comments alone cannot be reconciled by a test.
 - [Phase ?]: Phase 254-04: bound_ms differs per reaching site -- brain-router.cjs Tier 3 is 2000ms (explicit Promise.race), suggest_next's chainOfferForReach is 20000ms (brain-client.cjs's default BRAIN_REQUEST_TIMEOUT_MS, no override on that path).
+- [Phase ?]: COMP-02 closed via D-02 Option A: callTool discloses ambiguous Part 8 verdicts additively via egress_disclosure and still proceeds; Option B (fail-closed) explicitly not implemented -- matches navigator-ruled D-02; block/allow/sentinels/null stay byte-unchanged, proven by 5 regression-pin arms
+- [Phase ?]: D-06 discharged: BRAIN_PROBLEM_TYPE_ALIASES stays pinned to the incumbent's 3 canonical names this phase, not re-pointed to Theo's ids -- no single value satisfies both incumbent and Theo id sets; Theo is not deployable yet; named as a Theo-side follow-up for Plan 06
 
 ### Pending Todos
 
@@ -5767,8 +5790,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-02T16:27:18.744Z
-Stopped at: Completed 254-04-PLAN.md
+Last session: 2026-09-02T16:47:42.771Z
+Stopped at: Completed 254-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
