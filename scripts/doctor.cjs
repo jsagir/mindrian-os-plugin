@@ -1002,7 +1002,7 @@ function buildAcceptanceChecklist(ctx) {
       // surface aborts here. Canon Part 8: both --check gates regenerate in
       // memory from LOCAL sources; zero Brain / network.
       id: 'coverage-gate',
-      label: 'connector + orchestration-projection + render-coverage + skill-mirrors gates pass (no dark surface); shape-declaration advisory as of Phase 210 (WARNs inline, never blocks)',
+      label: 'connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors gates pass (no dark surface); shape-declaration advisory as of Phase 210 (WARNs inline, never blocks)',
       severity: 'blocker',
       applies_to: ['pre-tag', 'full'],
       run: async function () {
@@ -1013,6 +1013,14 @@ function buildAcceptanceChecklist(ctx) {
         const gates = [
           { id: 'connector', script: 'build-connector-registry.cjs' },
           { id: 'projection', script: 'build-orchestration-projection.cjs' },
+          // Phase 254 Plan 03 (WIRE-04): the framework-vocabulary-drift gate rides
+          // the SAME coverage-gate organ. A silent divergence between the three
+          // committed framework vocabularies (KNOWN_FRAMEWORKS, the registry's
+          // declared frameworks, and the projection's framework nodes) is the
+          // measured root cause of the one-step-chain defect Plans 01/02 of Phase
+          // 254 fix; this gate makes any FUTURE undeclared divergence a blocker
+          // too. A declared entry with a stated reason never fails this gate.
+          { id: 'framework-vocabulary', script: 'check-framework-vocabulary-drift.cjs' },
           // Phase 178-03 (Canon Part 11 render twin, C-3): the render-coverage gate
           // rides the SAME doctor --acceptance organ as the two CIRS gates. A render
           // GAP (a reachable Decision-Gate surface not routed through the SEED-020

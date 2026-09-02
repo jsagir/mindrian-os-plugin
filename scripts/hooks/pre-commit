@@ -214,6 +214,29 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.
 fi
 
 # ---------------------------------------------------------------------------
+# Phase 254 Plan 03 guardian: framework-vocabulary-drift (WIRE-04).
+#
+# When lib/core/framework-chain-composer.cjs, data/command-registry.json,
+# data/brain-orchestration-projection.json, lib/mcp/brain-router.cjs, or the
+# gate script itself is staged, run the WIRE-04 declared-drift-ledger gate.
+# It fails the commit on an UNDECLARED divergence between KNOWN_FRAMEWORKS,
+# the registry's declared frameworks, and the projection's framework nodes --
+# never on a declared entry with a stated reason. It also fails on a dangling
+# declaration (a ledger entry naming a composer name that no longer exists)
+# or a broken alias target (an alias_of pointing at a registry name that
+# disappeared), so the ledger itself cannot silently rot. Generated nothing;
+# reads three committed local sources in memory. Canon Part 8: the check
+# never touches the Brain.
+# Recovery on drift: node scripts/check-framework-vocabulary-drift.cjs --report
+# (the guard runs:  node scripts/check-framework-vocabulary-drift.cjs --check )
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(lib/core/framework-chain-composer\.cjs|data/command-registry\.json|data/brain-orchestration-projection\.json|lib/mcp/brain-router\.cjs|scripts/check-framework-vocabulary-drift\.cjs)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-framework-vocabulary-drift.cjs" ]; then
+    node "$REPO_ROOT/scripts/check-framework-vocabulary-drift.cjs" --check || { echo "framework-vocabulary drift -- run: node scripts/check-framework-vocabulary-drift.cjs --report" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 # Quick task 260705-sy9 guardian: skill-mirror staleness tripwire.
 #
 # Every commands/<name>.md is mirrored into skills/<name>/SKILL.md (the Windows

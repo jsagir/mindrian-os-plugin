@@ -293,6 +293,16 @@ if ! node "$PLUGIN_DIR/scripts/build-orchestration-projection.cjs" --check; then
   echo "  Recovery: node scripts/build-orchestration-projection.cjs"
   exit 1
 fi
+# Phase 254 Plan 03 (WIRE-04): the framework-vocabulary-drift gate rides the
+# SAME release surface as the two CIRS gates above. An UNDECLARED divergence
+# between KNOWN_FRAMEWORKS, the registry's declared frameworks, and the
+# projection's framework nodes is a HARD ABORT before any version mutation;
+# a declared entry with a stated reason in DECLARED_NON_PWS never blocks.
+if ! node "$PLUGIN_DIR/scripts/check-framework-vocabulary-drift.cjs" --check; then
+  echo -e "${RED}ABORT: framework-vocabulary drift gate failed -- an undeclared framework-name divergence exists.${NC}"
+  echo "  Recovery: node scripts/check-framework-vocabulary-drift.cjs --report"
+  exit 1
+fi
 # Phase 178-03 (Canon Part 11 render twin, C-3): the render-coverage gate rides the
 # SAME release surface as the two CIRS gates. A render GAP (a reachable Decision-Gate
 # surface not routed through the SEED-020 card-emission door) is a HARD ABORT before
