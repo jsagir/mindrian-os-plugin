@@ -6,11 +6,11 @@ promoted_to_phase: 275
 promoted: 2026-08-31
 created: 2026-08-28
 source: rethinking-mindrianos/research/2026-08-27-icm-semantic-substrate/ (addendum), SEED-075, SEED-076, PROJECT.md "Notion Template Gap Close"
-gated_on: none required to design; building is gated on resolving the taxonomy question this seed itself surfaces (see "Open question" below) and on Phase 270's OQ-7 (already surfaces item 4/6 independently)
+gated_on: "gate 1 (taxonomy question this seed itself surfaces, see 'Open question' below) RESOLVED 2026-09-02, see '## ADDENDUM 2026-09-02' below; gate 2 (Phase 270's OQ-7, already surfaces item 4/6 independently) STILL OPEN, still blocking"
 mandatory_consult: "langtalks-graph-expert, continuously, every stage of Phase 275's lifecycle (navigator ruling 2026-08-31) -- in addition to the standing icm-architect consult, not instead of it"
 ---
 
-**PROMOTED to Phase 275** (`.planning/ROADMAP.md`, 2026-08-31). This seed file stays as the full-detail source; the ROADMAP.md phase entry is the numbered, discoverable pointer. Still gated (see `gated_on` above) — do not run `/gsd-plan-phase 275` until both conditions clear.
+**PROMOTED to Phase 275** (`.planning/ROADMAP.md`, 2026-08-31). This seed file stays as the full-detail source; the ROADMAP.md phase entry is the numbered, discoverable pointer. Still gated (see `gated_on` above) - gate 1 (taxonomy question) cleared 2026-09-02, see `## ADDENDUM 2026-09-02` below; do not run `/gsd-plan-phase 275` until gate 2 (Phase 270's OQ-7) also clears.
 
 # SEED-084 -- Enlarge the room schema itself: merge the parked Notion gap-close backlog with tonight's live ICM audit, organized by icm-architect's layered context hierarchy
 
@@ -141,3 +141,80 @@ UNRESOLVED as of this writing -- worth a INDEX.md entry independent of this seed
   actually implementing per-room.
 - `.planning/debug/resolved/registry-active-room-concurrent-session-collision.md` -- the
   analogous, already-fixed concurrent-session failure class named above.
+
+## ADDENDUM 2026-09-02 -- Taxonomy question RESOLVED (gate 1 of 2)
+
+**The ruling.** These are three distinct axes, not three versions of one taxonomy. Each answers
+a different question and owns a different ICM layer: the problem-type ladder (UDP/IDP/WDP +
+Wicked escalation) answers "what KIND of problem is on the table" and is an L1 ROUTING concern,
+canonical wherever routing already happens in shared plugin code (`problem-type-router.cjs`,
+Shape F, Larry's silent classification) -- it does NOT belong in a room's L3 reference layer.
+`venture_stage` (Pre-Opportunity/Discovery/Validation/Design/Investment/QA) answers "how far
+along is THIS venture" and is an L0 IDENTITY concern -- the room's current value stays at L0
+(`STATE.md`, unchanged), but the axis's SCHEMA (the allowed values, what each means, and the
+`stage_relevance` mapping already hardcoded in `lib/core/room-skeleton-scaffold.cjs`) is the
+one piece that belongs in L3, because a schema is a stable factory recipe even though a
+per-room value is not. Brain `InnovationStage` answers "where in the Brain's own teaching
+curriculum does a methodology sit" and has zero runtime consumers anywhere in this repo today
+-- it is out of scope for Phase 275's room-side L3 file entirely, unless a later phase
+deliberately wires Brain curriculum position into a room. Concretely: Phase 275's L3
+`references/` file should contain the `venture_stage` axis SCHEMA (promoted out of the
+hardcoded `SECTION_METADATA` object into a documented, room-visible file), not a copy of the
+room's current stage value and not the problem-type ladder.
+
+**The grounding.**
+
+- *langtalks-graph-expert*: CONSULT UNAVAILABLE -- no `mcp__langtalks-graph-expert__*` tool was
+  present in the execution session (not a "not in the corpus" result; the server itself was
+  unreachable). Recorded honestly rather than fabricated; the two questions this consult would
+  have asked are preserved in the trail for a future session to actually run.
+- *icm-architect L3 doctrine* (`~/.claude/skills/icm-architect/references/core.md`): the L3 row
+  answers "What rules apply?", role "factory (stable)"; "L3 = the recipe... L4 = the
+  ingredients and the dish"; "reference material... kept structurally separate from working
+  artifacts, because they ask different things of the model." A per-room stage VALUE is working
+  state (L0), not a stable recipe (L3); the axis SCHEMA is the recipe.
+- *File:line anchors*: problem-type ladder is wired into
+  `lib/core/problem-type-router.cjs:14-16,48,88,115,145-289`,
+  `lib/workflow/f-selector-ranker.cjs:51,418-451`, `lib/core/persona-taxonomy.cjs:120-133`,
+  `lib/brain/chain-recommender.cjs:72,182-214`, `lib/mcp/larry-server-instructions.md:50-77`.
+  `venture_stage` is wired into `templates/room-skeleton/STATE.md.tmpl:6`,
+  `scripts/room-registry:9,160,264,303,432`, `scripts/analyze-room:59,63-64,115,581-631`,
+  `scripts/update-icm-index:96`, and critically `lib/core/room-skeleton-scaffold.cjs:48-56,378`
+  (`SECTION_METADATA`'s `stage_relevance` -- the exact mechanism Phase 275 would extend). Brain
+  `InnovationStage` appears only in `data/brain-census.generated.json:2358`,
+  `docs/BRAIN-GRAPH-CENSUS.generated.md:88` (5 nodes), and schema docs -- zero hits under
+  `lib/` or `scripts/`. The disconfirming test (grep for any consumer that reads one vocabulary
+  and derives/writes the other) found no cross-derivation anywhere; the hypothesis stands
+  confirmed.
+
+**The two discrepancies settled.** (a) SEED-084's ladder listing ("Un-Defined / Ill-Defined /
+Wicked / Well-Defined / Combining Tools") does not match any artifact in this repo. The shipped
+code is a closed three-value enum (UDP/IDP/WDP) with Wicked as a `wicked_score >= 8`
+score-triggered escalation, not a co-equal fourth value; Larry's own prompt orders it Un-Defined
+/ Ill-Defined / Well-Defined / Wicked (Wicked last, matching the escalation semantics). (b)
+"Combining Tools" and "22-task" have zero hits anywhere in this repo -- that material is
+external PWS/MindrianV2 workbook provenance, not a repo asset, and appears to have bled into
+SEED-084's listing by conflation rather than reflecting a real fifth ladder value here.
+
+**The Theo answer.** Analog found, not "no analog." `/home/jsagi/Theo/notes/knowledge-graph.md`
+("Layer 2: Domain ontology") states problem types are cross-cutting vocabulary that neither the
+Journey-Phase progression tree nor the Tool-Type tree owns -- an explicit "poly-hierarchy: two
+real trees, not one tree with looser cross-links pretending to be a second dimension." Theo's
+`graph-rulebook.md` goes further: it added a dedicated `ADDRESSES` edge
+(`(:Phase)-[:ADDRESSES]->(:DomainConcept)`) specifically so problem-type and phase/stage never
+collapse into one label, rejecting a merge onto the existing `INSTANCE_OF` edge on measurement
+("a Phase is not an instance of a problem type"). Same question, different graph, same
+structural answer: stage/progression and problem-type are separate axes, kept as separate
+structure, never merged.
+
+**What would overturn this ruling.** A real code path that reads `venture_stage` to set or
+classify `problem_type` (or vice versa) -- searched for, not found, but Phase 275's own build
+work could still surface one. A runtime consumer of Brain `InnovationStage` appearing in `lib/`
+or `scripts/` (currently zero) -- if a future phase pipes Brain curriculum position into a room,
+that axis needs its own placement decided. A live langtalks-graph-expert consult, once the MCP
+server is reachable, returning content that contradicts the layered-versus-merged framing above
+-- the one grounding leg this ruling could not obtain live.
+
+**Research trail.** Full consults, census tables, and reasoning:
+`rethinking-mindrianos/research/2026-09-02-venture-stage-taxonomy-axes-ruling-275/`, mirrored to
+`mindrianOS/research/2026-09-02-venture-stage-taxonomy-axes-ruling-275/`.

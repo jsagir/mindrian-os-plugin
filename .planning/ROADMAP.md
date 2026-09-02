@@ -1035,9 +1035,17 @@ Rule, not a silent omission, since no automation harness exists for either surfa
 
 **The proposal (full detail in SEED-084, do not re-derive here):** enlarge the room schema **by LAYER**, not by flat item list. `MindrianRooms/CLAUDE.md` already claims the icm-architect L0-L4 hierarchy (identity / routing / contracts / reference / artifacts) but no room implements it past L0/L1. This phase builds the claimed layers for real: L1 gets a per-section `STATEMENT` (the one sentence always true, always visible) plus a stable room-root pointer for the self-guiding-room gap; L2 gets the missing per-section `CONTEXT.md` contract (what the section reads/does/writes, populated with SEED-075's Feynman-Minto Human-check, using the PWS 22-task workbook's task shape as template); L3 gets a genuinely new `references/`/`_shared/` folder per room (taxonomy, brand/voice, section schema) that today only exists claimed at the fleet root; L4 gets SEED-076's inline-content drift fixed. The Notion-diff section-set changes (`marketing-sales/` split from `market-analysis/`, `funding/` promoted to first-class, `value-proposition/` as its own top-level section) are the L4/L0 consequence of doing the layering properly, not a separate ask — do them in the same pass.
 
-**Gated, not ready to plan yet.** Two conditions from SEED-084 itself must clear first:
+**Gated, not ready to plan yet.** Two conditions from SEED-084 itself, one now cleared:
 
-1. **The taxonomy open question this seed surfaces but does not resolve:** three vocabularies coexist for "what stage is this venture" — Brain's `InnovationStage` zones (Discovery/Focus/Proof/Creation/Launch), the PWS 22-task workbook's problem-type ladder (Un-Defined/Ill-Defined/Wicked/Well-Defined/Combining Tools), and the ad-hoc `venture_stage` strings actually written into rooms (`INDEX.md`: "Investment", "Pre-Opportunity", "Discovery", "Validation", "Design", "QA"). Building the L3 reference layer without resolving which is canonical (or confirming they are legitimately different axes) bakes ambiguity into every future room. Scope this as the FIRST slice if this phase is picked up, before any section-schema work.
+1. **RESOLVED 2026-09-02.** The taxonomy open question this seed surfaced but did not resolve:
+   three vocabularies coexist for "what stage is this venture" - Brain's `InnovationStage` zones
+   (Discovery/Focus/Proof/Creation/Launch), the PWS problem-type ladder (Un-Defined/Ill-Defined/
+   Well-Defined + Wicked escalation), and the ad-hoc `venture_stage` strings actually written
+   into rooms (`INDEX.md`: "Investment", "Pre-Opportunity", "Discovery", "Validation", "Design",
+   "QA"). Ruling: these are three distinct axes, not one taxonomy - problem-type is L1 routing,
+   `venture_stage` is L0 identity whose SCHEMA (not its per-room value) belongs at L3, and Brain
+   `InnovationStage` has zero runtime consumers in this repo today. Full ruling, grounding, and
+   research trail: SEED-084's `## ADDENDUM 2026-09-02` section.
 2. **Phase 270's OQ-7** — confirmed still open as of this ROADMAP entry (Phase 270's own OQ-7 line: "SURFACED ONLY, built by neither this phase nor any plan in it"). Re-check its status at plan time rather than assuming it moved.
 
 **MANDATORY (navigator ruling, 2026-08-31): langtalks-graph-expert must be consulted CONTINUOUSLY throughout every stage of this phase's lifecycle** — discuss, research, plan, and execute — not as a one-time check at research time. This phase is memory/context-engineering/agent-architecture work (layered context hierarchy, per-section contracts, a reference/factory layer) squarely inside `langtalks-graph-expert`'s corpus (memory, RAG, knowledge graphs, context engineering, agent protocols). Every plan this phase produces, and every task within those plans that touches the layer design, must show a live `mcp__langtalks-graph-expert__*` consult in its `<read_first>` or task notes, not just a passing citation. This is IN ADDITION TO, not instead of, the existing standing `icm-architect` consult (`feedback_mindrianos_dev_consult_icm_architect.md`) — both apply, langtalks for the memory/context-engineering literature grounding, icm-architect for the concrete room-structure validation (ten invariants, six-forms taxonomy, walk test).
@@ -1045,7 +1053,7 @@ Rule, not a silent omission, since no automation harness exists for either surfa
 **What NOT to steal / re-propose (Canon Part 7, per SEED-084):** `lib/core/room-skeleton-scaffold.cjs` and `lib/core/section-registry.cjs` already implement schema-driven section scaffolding — this phase EXTENDS their schema, it does not replace the mechanism. `/mos:onboard` and session-start nudges already partially cover the self-guiding-room gap for the CLI/Larry path; the real gap is the foreign-host-without-tools case specifically.
 
 **Requirements**: TBD
-**Depends on:** SEED-084's own gate (taxonomy question resolution) and Phase 270's OQ-7 (still open). Do not run `/gsd-plan-phase 275` until both are explicitly addressed — this entry exists so the work is numbered and discoverable, not so it is immediately actionable.
+**Depends on:** Phase 270's OQ-7 (still open) - SEED-084's own taxonomy gate resolved 2026-09-02, see its `## ADDENDUM 2026-09-02`. Do not run `/gsd-plan-phase 275` until OQ-7 is explicitly addressed - this entry exists so the work is numbered and discoverable, not so it is immediately actionable.
 **Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):** the
 taxonomy open question this seed surfaces (which "venture stage" vocabulary is canonical) is
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
@@ -1055,4 +1063,4 @@ analogous vocabulary question before re-deriving one locally.
 
 Plans:
 
-- [ ] TBD (blocked on SEED-084's taxonomy question + Phase 270 OQ-7; run /gsd-discuss-phase 275 once both are resolved)
+- [ ] TBD (blocked on Phase 270 OQ-7; SEED-084's taxonomy question RESOLVED 2026-09-02, see its `## ADDENDUM 2026-09-02` - run /gsd-discuss-phase 275 once OQ-7 is resolved)
