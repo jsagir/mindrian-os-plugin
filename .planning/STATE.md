@@ -2,17 +2,30 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 262-04-PLAN.md
-last_updated: "2026-09-02T13:49:10.095Z"
-last_activity: 2026-09-02 -- Phase 262 execution started
+status: verifying
+stopped_at: Completed 262-05-PLAN.md
+last_updated: "2026-09-02T14:02:25.941Z"
+last_activity: 2026-09-02 -- Completed 262-05-PLAN.md (Phase 262 all 5 plans shipped, ready for verification)
 progress:
   total_phases: 26
-  completed_phases: 15
+  completed_phases: 16
   total_plans: 125
-  completed_plans: 124
-  percent: 58
+  completed_plans: 125
+  percent: 100
 ---
+
+<!-- NOTE (262-05 execute-plan, 2026-09-02, TWENTY-FIFTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the TWENTY-FOURTH+
+     note below): after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     `state.update-progress`'s own correctly-computed 100% (125 completed_plans
+     / 125 total_plans, this being the phase's and the plan's own last plan) to
+     62 -- a phase-based figure (16 completed_phases / 26 total_phases = 61.5%),
+     not the plan-based figure this field is supposed to track. `last_activity`
+     was also left at the stale phase-start value instead of naming this plan's
+     completion. Hand-corrected: percent back to 100, last_activity to name this
+     plan's actual completion. Root cause not re-investigated -- same tracked
+     bug class as the TWENTY-FOURTH+ note below. -->
 
 <!-- NOTE (262-03 execute-plan, 2026-09-02, TWENTY-FOURTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the TWENTY-THIRD+
@@ -3540,8 +3553,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 262 (floor-green-sweep-02-inversion) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
-Last activity: 2026-09-02 -- Phase 262 execution started
+Status: Phase complete — ready for verification
+Last activity: 2026-09-02 -- Completed 262-05-PLAN.md (Phase 262 all 5 plans shipped, ready for verification)
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4248,6 +4261,7 @@ Progress: [█████████░] 92%
 | Phase 262 P02 | 25min | 2 tasks | 2 files |
 | Phase 262 P03 | 45m | 3 tasks | 5 files |
 | Phase 262-floor-green-sweep-02-inversion P04 | ~10min | 2 tasks | 0 files |
+| Phase 262 P05 | 45min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -5596,6 +5610,8 @@ Progress: [█████████░] 92%
 - [Phase 262]: D-04 implemented in full: unrecognized_shape is additive-only VOID tripwire in probeFramework, zero change to evaluateFloor/parseOverrideFile/renderFloorSummaryLines/main/module.exports
 - [Phase 262]: FLOOR-02 shipped independent of FLOOR-01's exit code (D-06); gate 1 hardened into a refusal proof with an exact 5-key shape lock plus a negative no-methodology-served assertion
 - [Phase 262]: Navigator approved 262-04's live measurement evidence (VOID=0, PASS=20/MISS=8 of 28, Scenario Planning match count=2, brain_write/ingest_framework ABSENT, Theo /health=502); D-01 and D-05 re-confirmed against fresh numbers, proceeding to 262-05
+- [Phase 262]: D-01 closed: FLOOR-01 ratified this milestone as measured, attributed and routed (20/28 PASS, 0 VOID), denominator not narrowed
+- [Phase 262]: D-05 closed: FLOOR-03 re-ruled, exactly-1 stands, measured 2 is a hop-depth-1 alias resolver defect, Theo's ALIAS_FORK is the target fix shape
 
 ### Pending Todos
 
@@ -5705,8 +5721,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-02T13:49:10.035Z
-Stopped at: Completed 262-04-PLAN.md
+Last session: 2026-09-02T14:02:25.881Z
+Stopped at: Completed 262-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

@@ -368,7 +368,7 @@ Plans:
 
 **Wave 5** *(after the close)*
 
-- [ ] 261-13-PLAN.md (wave 5) - post-close probes, one `GRAPH-WRITE-LOG` row per batch plus a retrospective row for the 2026-08-20 heal run, the execution record, ONE navigator-approved push that discharges the Phase 260 freeze, and the Phase 262 handoff (fresh floor, live `Scenario Planning` resolver count for FLOOR-03, relabel-vs-edges attribution split)
+- [x] 261-13-PLAN.md (wave 5) - post-close probes, one `GRAPH-WRITE-LOG` row per batch plus a retrospective row for the 2026-08-20 heal run, the execution record, ONE navigator-approved push that discharges the Phase 260 freeze, and the Phase 262 handoff (fresh floor, live `Scenario Planning` resolver count for FLOOR-03, relabel-vs-edges attribution split) (completed 2026-09-02)
 
 ### Phase 262: Floor Green + SWEEP-02 Inversion
 
@@ -398,7 +398,7 @@ successor now weeks (not months) from cutover -- `check-flagship-floor.cjs` and
 `scripts/build-brain-census.cjs` are both currently UNLISTED on Theo's own 7-file adaptation
 list. This phase adds a tripwire (unrecognized envelope -> VOID, not a false MISS) rather than
 adapting to Theo's shape now, and gets both files added to Theo's adaptation list.
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 **Wave 1**
 
@@ -415,7 +415,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 262-05-PLAN.md - The signed gap ledger plus the Brain-repo work order and the Theo adaptation-list note (FLOOR-01, FLOOR-02, FLOOR-03, D-01/D-02/D-05)
+- [x] 262-05-PLAN.md - The signed gap ledger plus the Brain-repo work order and the Theo adaptation-list note (FLOOR-01, FLOOR-02, FLOOR-03, D-01/D-02/D-05)
 
 ### Phase 263: Carry-folds + Long-Tail Reader (post-green)
 
