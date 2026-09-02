@@ -36,6 +36,12 @@
  *   Arm 5 - no laundering into the disclosure (canary egresses, disclosure does not)
  *   Arm 6 - sentinel siblings undecorated (403 tier_denied on an ambiguous payload)
  *   Arm 7 - belt still first (no-key null contract byte-unchanged; block-with-key unchanged)
+ *   Arm 8 - CR-01 regression (254-REVIEW.md): query()'s own bare-array
+ *     normalization branch (brain-client.cjs::query(), NOT callTool()/ask())
+ *     must preserve egress_disclosure at the TOP level of its returned
+ *     shape, not leave it orphaned nested at result.records.egress_disclosure.
+ *     Every arm above exercises ask() only -- Arm 8 is query()'s own
+ *     regression pin.
  *
  * No em-dashes (hyphens only).
  */
@@ -284,6 +290,56 @@ async function main() {
     const resultWithKey = await brainWithKey.ask(BLOCK_TEXT);
     assert.deepStrictEqual(resultWithKey, { error: 'egress_blocked', tool: 'brain_ask', egress_class: 'content_set' });
   });
+
+  // -------------------------------------------------------------------------
+  // Arm 8: CR-01 regression -- query()'s own top-level disclosure (254-REVIEW.md).
+  // -------------------------------------------------------------------------
+  await record(
+    "Arm 8: query()'s bare-array normalization preserves egress_disclosure at the top level (CR-01)",
+    async () => {
+      const brain = freshBrainClient(url);
+      resetCaptured();
+      resetToolScript();
+
+      const verdict = guard.classify({ cypher: AMBIGUOUS_TEXT }, { toolName: 'brain_query' });
+      assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
+
+      // The Brain MCP brain_query tool's normal shape: JSON.stringify(records)
+      // where records is a BARE ARRAY of row objects (query()'s own docblock,
+      // lib/core/brain-client.cjs:797-830). This is the exact shape CR-01
+      // found broken -- _attachEgressDisclosure attaches egress_disclosure to
+      // this array, then query()'s `{ records: result }` wrapper constructs a
+      // brand-new object that must explicitly carry the property forward.
+      const bareArrayBody =
+        'data: ' +
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          result: { content: [{ type: 'text', text: JSON.stringify([{ name: 'Jobs to be Done' }]) }] },
+        }) +
+        '\n';
+      setToolScript([{ body: bareArrayBody }]);
+
+      const result = await brain.query(AMBIGUOUS_TEXT);
+
+      assert.ok(result && typeof result === 'object', 'result must be a non-null object');
+      assert.ok(Array.isArray(result.records), "query() must still normalize to { records: [...] }");
+      assert.strictEqual(result.records.length, 1);
+      assert.ok(
+        Object.prototype.hasOwnProperty.call(result, 'egress_disclosure'),
+        "CR-01: query()'s own returned shape must carry egress_disclosure at the TOP level, not nested at result.records.egress_disclosure"
+      );
+      assert.strictEqual(result.egress_disclosure.verdict, 'ambiguous');
+      assert.strictEqual(result.egress_disclosure.tool, 'brain_query');
+      assert.strictEqual(result.egress_disclosure.disposition, 'proceeded');
+      assert.ok(
+        !Object.prototype.hasOwnProperty.call(result.records, 'egress_disclosure'),
+        'the disclosure must not remain stranded on the nested records array once query() normalizes'
+      );
+
+      resetToolScript();
+    }
+  );
 
   await stopCaptureServer(server);
 
