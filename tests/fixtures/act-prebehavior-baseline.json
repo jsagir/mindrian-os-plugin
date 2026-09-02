@@ -7,7 +7,8 @@
       "planChainRun (act-command.cjs:131-147)",
       "renderChainReport (act-command.cjs:151-226)"
     ],
-    "note": "PRE === POST is asserted by tests/test-act-on-runchain.cjs after the migration."
+    "note": "PRE === POST is asserted by tests/test-act-on-runchain.cjs after the migration.",
+    "phase_254_update": "Phase 254 Plan 02 Task 3 (WIRE-03, D-03 step 4) added ONE deliberate line to each render below -- the 'Chain source:' disclosure line, directly under the chain line -- via renderChainReport's new chainPick parameter. Every other byte is unchanged from the original 166-04 capture."
   },
   "cases": {
     "case1_whole_autonomous": {
@@ -32,7 +33,7 @@
         "stopAt": null,
         "stopReason": null
       },
-      "render": "-- MindrianOS -- act --chain -- from-problem-type ill-defined --\n\nChain (recommender + resolver):\n  Six Thinking Hats  ->  SWOT  ->  Porter Five Forces\n\nSteps:\n  1. /mos:think-hats  (Six Thinking Hats)  (autonomous_safe -- would run)\n  2. /mos:swot  (SWOT)  (autonomous_safe -- would run)\n  3. /mos:porter  (Porter Five Forces)  (autonomous_safe -- would run)\n\nrunnable: true  |  blockers: 0\n\nWhole chain is autonomous_safe -- /mos:act --chain may run all 3 steps with checkpoints between them.\n\n---\n> /mos:think-hats  -- the chain starts here\n> /mos:status  -- room state\n"
+      "render": "-- MindrianOS -- act --chain -- from-problem-type ill-defined --\n\nChain (recommender + resolver):\n  Six Thinking Hats  ->  SWOT  ->  Porter Five Forces\n  Chain source: registry floor (the projection carries no chain edge for \"Six Thinking Hats\")\n\nSteps:\n  1. /mos:think-hats  (Six Thinking Hats)  (autonomous_safe -- would run)\n  2. /mos:swot  (SWOT)  (autonomous_safe -- would run)\n  3. /mos:porter  (Porter Five Forces)  (autonomous_safe -- would run)\n\nrunnable: true  |  blockers: 0\n\nWhole chain is autonomous_safe -- /mos:act --chain may run all 3 steps with checkpoints between them.\n\n---\n> /mos:think-hats  -- the chain starts here\n> /mos:status  -- room state\n"
     },
     "case2_gated_halt": {
       "plan": {
@@ -50,7 +51,7 @@
         },
         "stopReason": "not autonomous_safe"
       },
-      "render": "-- MindrianOS -- act --chain -- from-framework Six Thinking Hats --\n\nChain (recommender + resolver):\n  Six Thinking Hats  ->  Business Model Canvas  ->  SWOT\n\nSteps:\n  1. /mos:think-hats  (Six Thinking Hats)  (autonomous_safe -- would run)\n  2. /mos:business-model  (Business Model Canvas)  <-- needs you here\n  3. /mos:swot  (SWOT)  (after the gate)\n\nrunnable: false  |  blockers: 1\n\n[■ BRAIN] [GATE] Chain step 2: /mos:business-model for Business Model Canvas\nThis step is not autonomous_safe -- it needs your eyes.\n\n▷ 1) Approve  -- cascade now\n▷ 2) Reject   -- capture reason -> graph data\n▷ 3) Defer    -- queue for milestone audit\n[AskUserQuestion contract: shape=F.0 verbs=3]\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THIS response with the 3 options above; if the navigator already answered in plain text or the gate is unrelated to the current conversation, do NOT fire it - acknowledge and proceed instead; do not reproduce this block as text (SEED-021)]\n\n---\n> /mos:business-model  -- the step that needs you\n> /mos:status  -- room state\n"
+      "render": "-- MindrianOS -- act --chain -- from-framework Six Thinking Hats --\n\nChain (recommender + resolver):\n  Six Thinking Hats  ->  Business Model Canvas  ->  SWOT\n  Chain source: registry floor (the projection carries no chain edge for \"Six Thinking Hats\")\n\nSteps:\n  1. /mos:think-hats  (Six Thinking Hats)  (autonomous_safe -- would run)\n  2. /mos:business-model  (Business Model Canvas)  <-- needs you here\n  3. /mos:swot  (SWOT)  (after the gate)\n\nrunnable: false  |  blockers: 1\n\n[■ BRAIN] [GATE] Chain step 2: /mos:business-model for Business Model Canvas\nThis step is not autonomous_safe -- it needs your eyes.\n\n▷ 1) Approve  -- cascade now\n▷ 2) Reject   -- capture reason -> graph data\n▷ 3) Defer    -- queue for milestone audit\n[AskUserQuestion contract: shape=F.0 verbs=3]\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THIS response with the 3 options above; if the navigator already answered in plain text or the gate is unrelated to the current conversation, do NOT fire it - acknowledge and proceed instead; do not reproduce this block as text (SEED-021)]\n\n---\n> /mos:business-model  -- the step that needs you\n> /mos:status  -- room state\n"
     },
     "case3_stop_killswitch": {
       "plan": {
@@ -68,7 +69,7 @@
         },
         "stopReason": "not autonomous_safe"
       },
-      "render": "-- MindrianOS -- act --chain -- default seed (no ProblemType set) --\n\nChain (recommender + resolver):\n  Cynefin  ->  JTBD  ->  Scenario Planning\n\nSteps:\n  1. /mos:cynefin  (Cynefin)  (autonomous_safe -- would run)\n  2. /mos:jtbd  (JTBD)  <-- needs you here\n  3. /mos:scenario-plan  (Scenario Planning)  (after the gate)\n\nrunnable: false  |  blockers: 1\n\n[■ BRAIN] [GATE] Chain step 2: /mos:jtbd for JTBD\nThis step is not autonomous_safe -- it needs your eyes.\n\n▷ 1) Approve  -- cascade now\n▷ 2) Reject   -- capture reason -> graph data\n▷ 3) Defer    -- queue for milestone audit\n[AskUserQuestion contract: shape=F.0 verbs=3]\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THIS response with the 3 options above; if the navigator already answered in plain text or the gate is unrelated to the current conversation, do NOT fire it - acknowledge and proceed instead; do not reproduce this block as text (SEED-021)]\n\n---\n> /mos:jtbd  -- the step that needs you\n> /mos:status  -- room state\n"
+      "render": "-- MindrianOS -- act --chain -- default seed (no ProblemType set) --\n\nChain (recommender + resolver):\n  Cynefin  ->  JTBD  ->  Scenario Planning\n  Chain source: registry floor (the projection carries no chain edge for \"Cynefin\")\n\nSteps:\n  1. /mos:cynefin  (Cynefin)  (autonomous_safe -- would run)\n  2. /mos:jtbd  (JTBD)  <-- needs you here\n  3. /mos:scenario-plan  (Scenario Planning)  (after the gate)\n\nrunnable: false  |  blockers: 1\n\n[■ BRAIN] [GATE] Chain step 2: /mos:jtbd for JTBD\nThis step is not autonomous_safe -- it needs your eyes.\n\n▷ 1) Approve  -- cascade now\n▷ 2) Reject   -- capture reason -> graph data\n▷ 3) Defer    -- queue for milestone audit\n[AskUserQuestion contract: shape=F.0 verbs=3]\n[FIRE-IF-FORK: if this fork is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THIS response with the 3 options above; if the navigator already answered in plain text or the gate is unrelated to the current conversation, do NOT fire it - acknowledge and proceed instead; do not reproduce this block as text (SEED-021)]\n\n---\n> /mos:jtbd  -- the step that needs you\n> /mos:status  -- room state\n"
     }
   }
 }

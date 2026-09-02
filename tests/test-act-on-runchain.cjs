@@ -13,6 +13,11 @@
 // output is byte/behavior-identical to tests/fixtures/act-prebehavior-baseline.json
 // (the SHIPPED behavior captured BEFORE the refactor by test-act-prebehavior-snapshot.cjs).
 //
+// Phase 254 Plan 02 Task 3 UPDATE: the baseline fixture's three render strings now
+// include the ONE deliberate, in-scope addition this phase makes -- the "Chain source:"
+// disclosure line (WIRE-03, D-03 step 4). This is the one intentional line-item drift
+// this suite's baseline absorbs; every other byte is unchanged from the 166-04 capture.
+//
 // Behaviors (mirror the plan <behavior> block):
 //   Test 1  whole-chain autonomous_safe path: runChain runs end to end, no gate, and the
 //           renderChainReport bytes == baseline case 1; plan.stopAt null.
@@ -35,6 +40,24 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const act = require(path.join(REPO_ROOT, 'scripts', 'act-command.cjs'));
 const executor = require(path.join(REPO_ROOT, 'lib', 'core', 'chain-executor.cjs'));
 const recipeMaps = require(path.join(REPO_ROOT, 'lib', 'core', 'recipe-maps.cjs'));
+
+// Phase 254 Plan 02 Task 3: renderChainReport gained a 6th param, chainPick,
+// consumed via chainSource.describeSource(chainPick) for the disclosure line
+// (WIRE-03, D-03 step 4). This suite's fixtures are hand-built workflow
+// arrays, not live resolveChainSource() output, so each case supplies a
+// synthetic registry-floor chainPick seeded from its own frameworkChain[0] --
+// deterministic and independent of the live projection artifact.
+function chainPickFor(fix) {
+  return {
+    seed: fix.frameworkChain[0],
+    frameworks: fix.frameworkChain,
+    source: 'registry-floor',
+    confidence: null,
+    hops: null,
+    transforms: null,
+    kinds: null,
+  };
+}
 
 const BASELINE = JSON.parse(
   fs.readFileSync(path.join(REPO_ROOT, 'tests', 'fixtures', 'act-prebehavior-baseline.json'), 'utf8')
@@ -91,7 +114,7 @@ const CASE3 = {
 function capture(fix) {
   const plan = act.planChainRun(fix.workflow, fix.autonomyReport);
   const render = act.renderChainReport(
-    fix.seedLabel, fix.frameworkChain, fix.workflow, fix.autonomyReport, plan
+    fix.seedLabel, fix.frameworkChain, fix.workflow, fix.autonomyReport, plan, chainPickFor(fix)
   );
   return {
     plan: {

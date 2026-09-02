@@ -7,10 +7,15 @@
  * Phase 122-04 -- /mos:act --chain CLI helper (the autonomy gate)
  * ==============================================================
  * The script behind commands/act.md's --chain mode. It: picks the framework
- * chain for the room state via the chain recommender (lib/brain/chain-recommender.cjs
- * recommendFrameworkChain -- FEEDS_INTO traversal over framework names +
- * problem-type enums; Canon Part 8: never a command string, never user content),
- * composes that chain into a /mos: command sequence via the resolver
+ * chain for the room state via lib/workflow/chain-source.cjs::resolveChainSource
+ * (Phase 254, WIRE-03, D-03 blend-never-replace) -- projection-first, the
+ * shipped multi-hop projection recommender (lib/workflow/local-chain-recommender.cjs)
+ * wins when it has an edge for the seed, falling through to today's registry-
+ * composed answer (lib/brain/chain-recommender.cjs recommendFrameworkChain --
+ * FEEDS_INTO traversal over framework names + problem-type enums; Canon Part
+ * 8: never a command string, never user content) as a disclosed floor when it
+ * does not -- the SAME seam /mos:suggest-next calls, so the two structurally
+ * cannot disagree. Composes that chain into a /mos: command sequence via the resolver
  * (lib/workflow/command-resolver.cjs composeWorkflow -- the only door), calls
  * validateChainAutonomy(workflow) FIRST, then walks the steps in order: at the
  * FIRST step whose command is not autonomous_safe: true (or whose framework has
@@ -43,8 +48,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const recommender = require(path.join(REPO_ROOT, 'lib', 'brain', 'chain-recommender.cjs'));
 const resolver = require(path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs'));
+// Phase 254 / WIRE-03 / D-03: the ONE shared chain-source seam --
+// projection-first with a disclosed registry floor. Both /mos:act --chain
+// and /mos:suggest-next call this same function so they cannot disagree.
+const chainSource = require(path.join(REPO_ROOT, 'lib', 'workflow', 'chain-source.cjs'));
 // Phase 121.5-10 Sub-plan K (audit Section 5.3 second-highest leverage):
 // promote /mos:act --chain [GATE] from BESPOKE bracket text to F.0 Mini
 // Decision Gate via pickShape. The locked [■ BRAIN] chip lands on the
@@ -285,12 +293,13 @@ function planChainRun(workflow, autonomyReport) {
 
 // ---------- render (Shape E / F.0 action report) ----------
 
-function renderChainReport(seedLabel, frameworkChain, workflow, autonomyReport, plan) {
+function renderChainReport(seedLabel, frameworkChain, workflow, autonomyReport, plan, chainPick) {
   const out = [];
   out.push('-- MindrianOS -- act --chain -- ' + seedLabel + ' --');
   out.push('');
   out.push('Chain (recommender + resolver):');
   out.push('  ' + frameworkChain.join('  ->  '));
+  out.push('  ' + chainSource.describeSource(chainPick));
   out.push('');
   out.push('Steps:');
   for (const s of workflow) {
@@ -470,12 +479,13 @@ function main(argv) {
     else { opts = {}; seedLabel = 'default seed (no ProblemType set)'; }
   }
 
-  const frameworkChain = recommender.recommendFrameworkChain(opts);
+  const chainPick = chainSource.resolveChainSource(opts);
+  const frameworkChain = chainPick.frameworks;
   const workflow = resolver.composeWorkflow(frameworkChain);
   // Autonomy check FIRST.
   const autonomyReport = resolver.validateChainAutonomy(workflow);
   const plan = planChainRun(workflow, autonomyReport);
-  process.stdout.write(renderChainReport(seedLabel, frameworkChain, workflow, autonomyReport, plan));
+  process.stdout.write(renderChainReport(seedLabel, frameworkChain, workflow, autonomyReport, plan, chainPick));
 
   // Phase 129-04: journal the dispatch AFTER stdout so the gate render is never
   // delayed. Best-effort; never load-bearing for the user-visible output.
