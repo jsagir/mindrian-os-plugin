@@ -178,6 +178,20 @@ const HONEST_MISS_READINESS_PAYLOAD = {
   readiness: { name: 'Scenario Planning', readiness_score: 0, orchestration_status: 'not_ready', dimensions: {} },
 };
 
+// CR-01 regression fixture: the incumbent Brain's documented "framework not
+// found" sentinel, taken verbatim from data/brain-census.generated.json's
+// PEST Analysis row (lane_a.frameworks[].readiness.result). The `readiness`
+// key is PRESENT but explicitly `null` -- distinct from Theo's shape (key
+// entirely absent) and from the honest-MISS shape above (key present, an
+// object with readiness_score: 0). This must stay MISS, never VOID.
+const NOT_FOUND_READINESS_PAYLOAD = {
+  tool: 'orchestration_readiness',
+  backend: 'memgraph',
+  grounded: false,
+  note: 'no framework matched "PEST Analysis"',
+  readiness: null,
+};
+
 const DUMMY_KEY = 'test-key-not-a-real-secret';
 
 test('Layer B: probeFramework against loopback capture server', async (t) => {
@@ -238,5 +252,17 @@ test('Layer B: probeFramework against loopback capture server', async (t) => {
     const frameworks = [fw('Scenario Planning', 4)];
     const r = floor.evaluateFloor(frameworks, { 'Scenario Planning': probeResult });
     assert.equal(r.rows[0].verdict, 'MISS', 'zero is a measurement; a missing key is not');
+  });
+
+  await t.test('B5 (CR-01 regression guard): a present-but-null readiness key (incumbent Brain "framework not found" sentinel) produces failures: [] and verdict MISS, not VOID', async () => {
+    cap.resetToolScript();
+    cap.resetCaptured();
+    cap.setToolScript([scriptEntry(INCUMBENT_NORMALIZE_PAYLOAD), scriptEntry(NOT_FOUND_READINESS_PAYLOAD)]);
+    const probeResult = await floor.probeFramework('PEST Analysis', DUMMY_KEY);
+    assert.deepStrictEqual(probeResult.failures, [], 'a present readiness:null is the incumbent\'s documented not-found sentinel, not an unrecognized shape');
+    assert.equal(probeResult.readinessScore, null);
+    const frameworks = [fw('PEST Analysis', 4)];
+    const r = floor.evaluateFloor(frameworks, { 'PEST Analysis': probeResult });
+    assert.equal(r.rows[0].verdict, 'MISS', 'readiness:null must stay MISS, never VOID (this is the exact regression CR-01 caught)');
   });
 });

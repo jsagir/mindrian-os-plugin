@@ -176,7 +176,15 @@ async function probeFramework(name, key) {
   const normRes = await brainCall('normalize_framework_name', { raw: name }, key);
   const readyRes = await brainCall('orchestration_readiness', { framework_name: name }, key);
   const normalizeMatches = normRes.ok && normRes.result && Array.isArray(normRes.result.canonical_matches) ? normRes.result.canonical_matches.length : null;
-  const readinessScore = readyRes.ok && readyRes.result && readyRes.result.readiness ? readyRes.result.readiness.readiness_score : null;
+  // Phase 262-02-inversion (CR-01 fix): the incumbent Brain's documented
+  // "framework not found" sentinel is a `readiness` key that is PRESENT but
+  // explicitly `null` (see data/brain-census.generated.json's PEST Analysis
+  // row) -- distinct from Theo's shape, where the `readiness` key is
+  // entirely ABSENT. hasReadinessKey captures which case this is so the
+  // unrecognized_shape guard below can tell "not found" (must stay MISS)
+  // apart from "unreadable/shape-confused" (must VOID).
+  const hasReadinessKey = readyRes.ok && readyRes.result && Object.prototype.hasOwnProperty.call(readyRes.result, 'readiness');
+  const readinessScore = hasReadinessKey && readyRes.result.readiness ? readyRes.result.readiness.readiness_score : null;
 
   // Phase 259 (TRUST-02, D-05/D-06): an additive failures[] array, one
   // entry per failed probe. errorKind comes from build-brain-census.cjs's
@@ -213,16 +221,31 @@ async function probeFramework(name, key) {
     failures.push({
       probe: 'normalize',
       kind: 'unrecognized_shape',
-      httpStatus: typeof normRes.httpStatus === 'number' ? normRes.httpStatus : null,
+      // Phase 262-02-inversion (WR-01 fix): see the matching comment on the
+      // readiness push site below -- ok === true means a 2xx was received,
+      // even though brainCall's success path doesn't surface httpStatus.
+      httpStatus: 200,
       detail: _capDetail('normalize_framework_name payload carried no numeric canonical_matches length; result keys: ' + _resultKeys(normRes)),
       retryAfterS: null,
     });
   }
-  if (readyRes.ok === true && typeof readinessScore !== 'number') {
+  // Phase 262-02-inversion (CR-01 fix): only VOID when the `readiness`
+  // wrapper key itself is missing (the real Theo/shape-confusion signal) or
+  // present-but-non-numeric. A present `readiness: null` is the incumbent's
+  // own documented not-found sentinel and must stay MISS, not VOID.
+  const readinessShapeUnrecognized =
+    readyRes.ok === true &&
+    (!hasReadinessKey || (readyRes.result.readiness != null && typeof readinessScore !== 'number'));
+  if (readinessShapeUnrecognized) {
     failures.push({
       probe: 'readiness',
       kind: 'unrecognized_shape',
-      httpStatus: typeof readyRes.httpStatus === 'number' ? readyRes.httpStatus : null,
+      // Phase 262-02-inversion (WR-01 fix): brainCall's ok:true return path
+      // never surfaces an httpStatus field, but ok === true from this
+      // direct-fetch client always means a 2xx response was received -- the
+      // call succeeded, so 200 is a known fact even though brainCall
+      // doesn't carry it through. Literal, not derived from readyRes.httpStatus.
+      httpStatus: 200,
       detail: _capDetail('orchestration_readiness payload carried no numeric readiness.readiness_score; result keys: ' + _resultKeys(readyRes)),
       retryAfterS: null,
     });
