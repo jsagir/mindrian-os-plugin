@@ -86,7 +86,7 @@ orchestration projection this phase consumes has a Theo-side analog (`/home/jsag
 designated Brain successor, weeks not months from its cutover per Phase 262's own dated
 measurement) -- state explicitly in RESEARCH.md whether the composition work targets a surface
 Theo will also need adapting, so the eventual flip is a smaller diff, not a rediscovery.
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 Plans:
 **Wave 1**
 
@@ -104,7 +104,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 254-06-PLAN.md (wave 4) -- the R7 structural fence, the D-07 Theo adaptation-list note, and the REQUIREMENTS.md registration
+- [x] 254-06-PLAN.md (wave 4) -- the R7 structural fence, the D-07 Theo adaptation-list note, and the REQUIREMENTS.md registration
 
 ### Phase 255: Data Room section-affinity ranking
 

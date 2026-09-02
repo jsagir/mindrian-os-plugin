@@ -3,16 +3,33 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 254-02-PLAN.md
-last_updated: "2026-09-02T17:02:52.529Z"
-last_activity: 2026-09-02 -- Completed 254-02-PLAN.md (WIRE-03 suggest-next/act consumer wiring, structural single-caller proof)
+stopped_at: Completed 254-06-PLAN.md (phase 254 complete, all 6 plans)
+last_updated: "2026-09-02T17:16:14.402Z"
+last_activity: 2026-09-02 -- Completed 254-06-PLAN.md (phase 254 close-out: R7 structural fence, Theo adaptation-list note, WIRE-01..04/COMP-01..02 registered in REQUIREMENTS.md)
 progress:
   total_phases: 26
-  completed_phases: 16
+  completed_phases: 17
   total_plans: 131
-  completed_plans: 130
-  percent: 99
+  completed_plans: 131
+  percent: 100
 ---
+
+<!-- NOTE (254-06 execute-plan, 2026-09-02, TWENTY-NINTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the TWENTY-EIGHTH+
+     note below): after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     `state.update-progress`'s own correctly-computed 100% (131 completed_plans
+     / 131 total_plans, this being the phase's and the plan's own last plan) to
+     65 -- a phase-based figure (17 completed_phases / 26 total_phases = 65.4%),
+     not the plan-based figure this field is supposed to track. `last_activity`
+     was also left at the stale pre-254-06 value ("Completed 254-05-PLAN.md")
+     instead of naming this plan's actual completion. Hand-corrected: percent
+     back to 100, last_activity to name this plan's actual completion.
+     `stopped_at` was correctly written by `state.record-session` this time and
+     needed no correction. `completed_phases` incrementing to 17 (from 16) is
+     itself correct here -- Phase 254 is now fully complete (this is its last
+     plan) -- so that field was left as written. Root cause not re-investigated
+     -- same tracked bug class as the TWENTY-EIGHTH+ note below. -->
 
 <!-- NOTE (254-02 execute-plan, 2026-09-02, TWENTY-EIGHTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the TWENTY-SEVENTH+
@@ -4348,6 +4365,7 @@ Progress: [█████████░] 92%
 | Phase 254 P04 | ~20min | 3 tasks | 5 files |
 | Phase 254 P05 | 7min | 3 tasks | 4 files |
 | Phase 254 P02 | 35min | 3 tasks | 4 files |
+| Phase 254 P06 | 40min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -5705,6 +5723,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: COMP-02 closed via D-02 Option A: callTool discloses ambiguous Part 8 verdicts additively via egress_disclosure and still proceeds; Option B (fail-closed) explicitly not implemented -- matches navigator-ruled D-02; block/allow/sentinels/null stay byte-unchanged, proven by 5 regression-pin arms
 - [Phase ?]: D-06 discharged: BRAIN_PROBLEM_TYPE_ALIASES stays pinned to the incumbent's 3 canonical names this phase, not re-pointed to Theo's ids -- no single value satisfies both incumbent and Theo id sets; Theo is not deployable yet; named as a Theo-side follow-up for Plan 06
 - [Phase ?]: Phase 254 Plan 02: WIRE-03 wiring uses a named-set structural proof (not a bare count) after finding scripts/pipeline-command.cjs as a pre-existing, out-of-scope third caller of recommendFrameworkChain.
+- [Phase ?]: 254-06: R7 fence proves structurally that no module reachable from decide() gained a Brain require across the whole phase; navigation-engine.cjs is byte-unchanged (35/35 assertions)
+- [Phase ?]: 254-06: WIRE-01..04 and COMP-01..02 registered [x] in REQUIREMENTS.md (103 -> 109 active requirements, scripted recount); BRAIN_PROBLEM_TYPE_ALIASES pinned not re-pointed and lib/mcp/brain-router.cjs added to Theo's adaptation list via written note
 
 ### Pending Todos
 
@@ -5814,8 +5834,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-02T17:02:44.777Z
-Stopped at: Completed 254-02-PLAN.md
+Last session: 2026-09-02T17:16:14.340Z
+Stopped at: Completed 254-06-PLAN.md (phase 254 complete, all 6 plans)
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
