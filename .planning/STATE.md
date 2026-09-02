@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 274-06-PLAN.md -- Phase 274 CLOSED, 6/6 plans complete
-last_updated: "2026-09-02T13:15:52.536Z"
-last_activity: 2026-09-01 -- Completed 274-06-PLAN.md, Phase 274 CLOSED (6/6 plans)
+status: executing
+stopped_at: Completed 262-01-PLAN.md
+last_updated: "2026-09-02T13:24:35.325Z"
+last_activity: 2026-09-02 -- Phase 262 execution started
 progress:
   total_phases: 26
-  completed_phases: 14
-  total_plans: 120
-  completed_plans: 118
-  percent: 98
+  completed_phases: 15
+  total_plans: 125
+  completed_plans: 121
+  percent: 58
 ---
 
 <!-- NOTE (274-06 execute-plan, 2026-09-01, TWENTY-THIRD+ occurrence of the
@@ -3500,7 +3500,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 274 — bare-scripts-invocation-anchoring-the-adjacent-class-phase-2
+**Current focus:** Phase 262 — floor-green-sweep-02-inversion
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -3525,10 +3525,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 274 (bare-scripts-invocation-anchoring-the-adjacent-class-phase-2) - CLOSED (6/6 plans complete, 2026-09-01)
-Plan: 6 of 6 (274-06-PLAN.md, phase close plan)
-Status: Complete. Gate 10f live in scripts/verify-release; ANCHOR-01..10 registered; full regression green (tests/run-all-274.sh PASS=4 FAIL=0, scripts/verify-release CLEAR TO RELEASE).
-Last activity: 2026-09-01 -- Completed 274-06-PLAN.md, Phase 274 CLOSED (6/6 plans)
+Phase: 262 (floor-green-sweep-02-inversion) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-09-02 -- Phase 262 execution started
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4231,6 +4231,7 @@ Progress: [█████████░] 92%
 | Phase 274 P04 | 12min | 2 tasks | 5 files |
 | Phase 274 P05 | 5min | 2 tasks | 1 files |
 | Phase 274 P06 | 10min | 3 tasks | 6 files |
+| Phase 262-floor-green-sweep-02-inversion P01 | 20min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -5575,6 +5576,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 274-04: help.md/eureka.md 6 deliberate ./scripts/... fallback lines allowlisted, not anchored; supersession question registered as FOLLOWUP-274-R2
 - [Phase 274]: 274-05: mirror regeneration required no new commit -- 274-02/03/04 pre-commit hooks already regenerated all 14 sweep-touched mirrors; live full-tree --check-scripts confirmed 0 violations (sites=156, anchored=154, allowlisted=2)
 - [Phase ?]: Gate 10f wired into scripts/verify-release, cloning gate 10c's fail-closed shape; ANCHOR-01..10 registered in REQUIREMENTS.md; Phase 274 closed 6/6.
+- [Phase ?]: D-07 answered by measurement: orchestration projection has 0 <SEP> occurrences and 28 framework nodes, all methodology_tier=pws (2026-09-02); projection half only, section-affinity ranking still open
 
 ### Pending Todos
 
@@ -5684,8 +5686,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-01T07:21:55.604Z
-Stopped at: Completed 274-06-PLAN.md -- Phase 274 CLOSED, 6/6 plans complete
+Last session: 2026-09-02T13:24:35.261Z
+Stopped at: Completed 262-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
