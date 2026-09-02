@@ -109,19 +109,57 @@ canonical frameworks (5 at 4/4, 20 at 3/4, 22 at 2/4, 9 at 1/4, 90 at 0/4).
 ### Phase family E - Floor Green + SWEEP-02 (the exit gate)
 
 - [ ] **FLOOR-01**: check-flagship-floor.cjs exits 0 on a window-fresh run (no probe
-      failures, per TRUST-02).
+      failures, per TRUST-02). NOTE 2026-09-02 (D-01, Phase 262 Plan 05): this milestone
+      closes FLOOR-01 as "measured, attributed and routed" against a window-fresh,
+      zero-VOID run (20/28 PASS, 8/28 MISS measured against the incumbent Brain on
+      2026-09-02) - the "exits 0" condition itself moves to whichever phase reopens the
+      Brain-repo write seam, because six of the eight MISS rows need a graph write and
+      `brain_write` / `ingest_framework` were measured ABSENT that same date. Full per-row
+      root cause, owner and evidence: `docs/262-FLOOR-01-GAP-LEDGER.md`. The Brain-repo
+      remediation request: `docs/262-WORKORDER-brain-repo-floor-remediation.md`. The
+      28-name ratified denominator was NOT narrowed to reach this disposition; narrowing it
+      was considered and is recorded as a rejected option in the gap ledger, so the record
+      shows the gate was not gamed. The checkbox state itself is left to `/gsd-verify-work`
+      to set - this annotation only records the disposition, deliberately, so a later
+      reader knows the box was left unchecked on purpose rather than forgotten.
 
-- [x] **FLOOR-02** (carried from v2.0.0 SWEEP-02): the tier-0-no-key acceptance fixture is
+- [x] **FLOOR-02** (carried from v2.0.0 SWEEP-02): SHIPPED 2026-09-02 (Phase 262 Plan 03) as
+      `tests/fixtures/127-03-acceptance/no-identity-refusal/` (git-mv-repurposed from
+      `tier-0-no-key`, history followed) - the tier-0-no-key acceptance fixture is
       REPURPOSED to assert the keyless path refuses correctly - coverage kept, assertion
-      inverted, never deleted.
+      inverted, never deleted. The README was inverted to assert refusal, gate 1 was
+      hardened with the honesty assertions plus a negative no-methodology-served assertion,
+      the byte-locked `DIRECTOR_NOT_AVAILABLE` wire string was left unchanged, and all of
+      `tests/run-all-127.sh` is green. D-06 note: this shipped decoupled from FLOOR-01's
+      exit code, because there is no technical coupling and the fixture never contacts the
+      Brain.
 
-- [ ] **FLOOR-03**: NOTE 2026-08-21, from 260-05's live post-deploy round-trip: `Scenario
-      Planning` measures **2**, not the exactly-1 this requirement assumes (matrix section
-      7 + the deployed round-trip agree, see `docs/2026-08-20-RECORD-fix04-batched-push.md`
-      in ProblemsWorthSolving-Brain). This requirement needs a fresh ruling before 262 runs
-      the floor check - either the anchor was wrong, or 2 genuinely correct results is the
-      expected outcome and the assertion needs updating. Re-verify at the live graph before
-      262's plan locks; do not carry the exactly-1 assumption forward unchanged.
+- [ ] **FLOOR-03**: SUPERSEDED 2026-09-02 (D-05, Phase 262 Plan 05) - the note below this
+      line is retained for provenance (the history of the two wrong carried-forward numbers
+      is not erased) but no longer reflects the live ruling. Original note: NOTE 2026-08-21,
+      from 260-05's live post-deploy round-trip: `Scenario Planning` measures **2**, not the
+      exactly-1 this requirement assumes (matrix section 7 + the deployed round-trip agree,
+      see `docs/2026-08-20-RECORD-fix04-batched-push.md` in ProblemsWorthSolving-Brain).
+      This requirement's assertion was left unresolved as of that note - either the
+      anchor was wrong, or 2 genuinely correct results is the expected outcome and the
+      assertion needs updating. The note called for re-verification at the live graph
+      before 262's plan locks, and for the exactly-1 assumption not to be carried forward
+      unchanged. RULING 2026-09-02: measured live (`node scripts/check-flagship-floor.cjs`,
+      and the direct `normalize_framework_name({ raw: 'Scenario Planning' })` probe)
+      against the incumbent Brain on 2026-09-02, the count is still **2**
+      (`["Shell Scenario Planning Method", "Scenario planning methodology"]`). Traced
+      mechanism: the alias branch of `NORMALIZE_NAME_CYPHER` stops at hop depth 1, so an
+      intermediate alias node (23450) is emitted as canonical alongside the terminal node
+      (34362), and `reduce` dedups by string rather than by node, so both survive. Ruling:
+      exactly-1 remains the correct assertion; the measured 2 is a resolver defect, not a
+      legitimate multi-canonical result - the graph is wrong, not the requirement. Theo's
+      own `resolveFramework` (`normalize-framework-name.ts`) already refuses on this exact
+      shape with a named `ALIAS_FORK` code rather than silently returning two canonical
+      matches, so the fix has a working reference implementation, not a from-scratch design
+      (D-05). Routing: a read-path Cypher fix in the Brain repo, needing no admin window
+      (unlike the other FLOOR-01 rows), carried by
+      `docs/262-WORKORDER-brain-repo-floor-remediation.md`. Full detail:
+      `docs/262-FLOOR-01-GAP-LEDGER.md` Section 6.
 
 ### Phase family F - Long Tail + Carry-folds (post-green)
 
