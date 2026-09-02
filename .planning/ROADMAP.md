@@ -86,12 +86,12 @@ orchestration projection this phase consumes has a Theo-side analog (`/home/jsag
 designated Brain successor, weeks not months from its cutover per Phase 262's own dated
 measurement) -- state explicitly in RESEARCH.md whether the composition work targets a surface
 Theo will also need adapting, so the eventual flip is a smaller diff, not a rediscovery.
-**Plans:** 1/6 plans executed
+**Plans:** 2/6 plans executed
 Plans:
 **Wave 1**
 
 - [x] 254-01-PLAN.md (wave 1) -- the projection-first chain-source seam `lib/workflow/chain-source.cjs` plus the phase aggregator and the WIRE-01/WIRE-02 suites
-- [ ] 254-03-PLAN.md (wave 1) -- the framework-vocabulary drift gate and its wiring into pre-commit, release and doctor (WIRE-04)
+- [x] 254-03-PLAN.md (wave 1) -- the framework-vocabulary drift gate and its wiring into pre-commit, release and doctor (WIRE-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
