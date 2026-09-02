@@ -87,14 +87,23 @@ designated Brain successor, weeks not months from its cutover per Phase 262's ow
 measurement) -- state explicitly in RESEARCH.md whether the composition work targets a surface
 Theo will also need adapting, so the eventual flip is a smaller diff, not a rediscovery.
 **Plans:** 6 plans in 4 waves
-
 Plans:
+**Wave 1**
 
 - [ ] 254-01-PLAN.md (wave 1) -- the projection-first chain-source seam `lib/workflow/chain-source.cjs` plus the phase aggregator and the WIRE-01/WIRE-02 suites
-- [ ] 254-02-PLAN.md (wave 2) -- wire `suggest-next-command.cjs` and `act-command.cjs` to the one seam, with the source-disclosure line (WIRE-03)
 - [ ] 254-03-PLAN.md (wave 1) -- the framework-vocabulary drift gate and its wiring into pre-commit, release and doctor (WIRE-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 254-02-PLAN.md (wave 2) -- wire `suggest-next-command.cjs` and `act-command.cjs` to the one seam, with the source-disclosure line (WIRE-03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 254-04-PLAN.md (wave 3) -- the Brain-composition census enumerating every `mindrian-os` handler that reaches the Brain (COMP-01)
 - [ ] 254-05-PLAN.md (wave 3) -- the `ambiguous`-verdict disclosure in the `callTool` belt plus D-06's two-leg normalize round-trip probe (COMP-02)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 254-06-PLAN.md (wave 4) -- the R7 structural fence, the D-07 Theo adaptation-list note, and the REQUIREMENTS.md registration
 
 ### Phase 255: Data Room section-affinity ranking
