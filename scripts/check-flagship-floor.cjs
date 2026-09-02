@@ -42,7 +42,27 @@
  * baseline); 2 = data/flagship-floor-set.json exists but is malformed;
  * 3 = VOID, at least one probe did not cleanly succeed so this run is not a
  * floor verdict (TRUST-02, D-07). A VOID run requires a human re-run;
- * nothing auto-retries (D-08).
+ * nothing auto-retries (D-08). Exit 3's four triggers: hard_error, timeout,
+ * malformed (all Phase 259, TRUST-02), and unrecognized_shape (Phase 262,
+ * D-04, below).
+ *
+ * Phase 262 (D-04, "The Theo Flip"): a successful call whose payload this
+ * gate cannot read is a MEASUREMENT FAILURE, not a measurement. Theo (the
+ * designated Brain successor) returns normalize_framework_name as
+ * {canonical, matched_via, coverage} (no canonical_matches key) and
+ * orchestration_readiness as {framework, score, ...} (no readiness
+ * wrapper) -- shapes this gate's readers do not recognize. Left unguarded,
+ * both probes would report ok:true with normalizeMatches/readinessScore
+ * resolving to null, and the gate would print a silent false
+ * "0/28 FLOOR DOES NOT HOLD" indistinguishable from a genuinely red floor.
+ * probeFramework below pushes a failures[] entry with kind
+ * 'unrecognized_shape' whenever a successful call yields a non-numeric
+ * matches or score, routing the case through the existing VOID machinery
+ * unchanged. This gate's READERS are deliberately NOT adapted to Theo's
+ * actual shape here -- that is flip-day work, gated on theo-mcp.onrender.com
+ * serving traffic, and belongs with Theo's other seven named
+ * adaptation-list files. A future reader should not mistake this tripwire
+ * for that adaptation.
  *
  * No em-dashes.
  */
@@ -139,6 +159,19 @@ function _capDetail(text) {
   return s.replace(/\s+/g, ' ').trim().slice(0, 300);
 }
 
+// ---------------------------------------------------------------------------
+// _resultKeys(res) -- Phase 262 (D-04). Module-private, NOT exported. Returns
+// a short, printable description of what a probe's payload actually carried,
+// for the unrecognized_shape failure detail. Every value it can return is
+// Brain-controlled text, so its output is only ever consumed through
+// _capDetail above (ASVS V7, log injection).
+// ---------------------------------------------------------------------------
+function _resultKeys(res) {
+  if (!res || !res.result) return 'no result object';
+  if (Array.isArray(res.result)) return 'array[' + res.result.length + ']';
+  return Object.keys(res.result).join(', ');
+}
+
 async function probeFramework(name, key) {
   const normRes = await brainCall('normalize_framework_name', { raw: name }, key);
   const readyRes = await brainCall('orchestration_readiness', { framework_name: name }, key);
@@ -170,6 +203,31 @@ async function probeFramework(name, key) {
     });
   }
 
+  // Phase 262 (D-04, "The Theo Flip"): a successful call whose payload
+  // yields a non-numeric matches/score is a measurement failure, not a
+  // measurement. Guarded on ok === true so a hard_error/timeout row never
+  // gets a duplicate second failure entry (renderVoidDetailLines prints one
+  // line per entry). typeof !== 'number', not a null check: covers null,
+  // undefined, and a string-typed score, the same silent-degradation class.
+  if (normRes.ok === true && typeof normalizeMatches !== 'number') {
+    failures.push({
+      probe: 'normalize',
+      kind: 'unrecognized_shape',
+      httpStatus: typeof normRes.httpStatus === 'number' ? normRes.httpStatus : null,
+      detail: _capDetail('normalize_framework_name payload carried no numeric canonical_matches length; result keys: ' + _resultKeys(normRes)),
+      retryAfterS: null,
+    });
+  }
+  if (readyRes.ok === true && typeof readinessScore !== 'number') {
+    failures.push({
+      probe: 'readiness',
+      kind: 'unrecognized_shape',
+      httpStatus: typeof readyRes.httpStatus === 'number' ? readyRes.httpStatus : null,
+      detail: _capDetail('orchestration_readiness payload carried no numeric readiness.readiness_score; result keys: ' + _resultKeys(readyRes)),
+      retryAfterS: null,
+    });
+  }
+
   return {
     normalizeMatches,
     readinessScore,
@@ -186,7 +244,7 @@ async function probeFramework(name, key) {
 // entry across every VOID row (a row with two failing probes yields two
 // lines). Never a bare "VOID" with no detail. Zero I/O, zero network.
 // ---------------------------------------------------------------------------
-const _KIND_WORD = Object.freeze({ hard_error: 'hard-error', timeout: 'timeout', malformed: 'malformed' });
+const _KIND_WORD = Object.freeze({ hard_error: 'hard-error', timeout: 'timeout', malformed: 'malformed', unrecognized_shape: 'unrecognized-shape' });
 
 function renderVoidDetailLines(rows) {
   const lines = [];
