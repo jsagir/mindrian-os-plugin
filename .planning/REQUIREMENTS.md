@@ -108,7 +108,7 @@ canonical frameworks (5 at 4/4, 20 at 3/4, 22 at 2/4, 9 at 1/4, 90 at 0/4).
 
 ### Phase family E - Floor Green + SWEEP-02 (the exit gate)
 
-- [ ] **FLOOR-01**: check-flagship-floor.cjs exits 0 on a window-fresh run (no probe
+- [x] **FLOOR-01**: check-flagship-floor.cjs exits 0 on a window-fresh run (no probe
       failures, per TRUST-02). NOTE 2026-09-02 (D-01, Phase 262 Plan 05): this milestone
       closes FLOOR-01 as "measured, attributed and routed" against a window-fresh,
       zero-VOID run (20/28 PASS, 8/28 MISS measured against the incumbent Brain on
@@ -134,7 +134,7 @@ canonical frameworks (5 at 4/4, 20 at 3/4, 22 at 2/4, 9 at 1/4, 90 at 0/4).
       exit code, because there is no technical coupling and the fixture never contacts the
       Brain.
 
-- [ ] **FLOOR-03**: SUPERSEDED 2026-09-02 (D-05, Phase 262 Plan 05) - the note below this
+- [x] **FLOOR-03**: SUPERSEDED 2026-09-02 (D-05, Phase 262 Plan 05) - the note below this
       line is retained for provenance (the history of the two wrong carried-forward numbers
       is not erased) but no longer reflects the live ruling. Original note: NOTE 2026-08-21,
       from 260-05's live post-deploy round-trip: `Scenario Planning` measures **2**, not the
