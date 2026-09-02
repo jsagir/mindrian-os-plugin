@@ -274,7 +274,7 @@ else
     fail "Test 7: live JSON-RPC initialize -> serverInfo.name == mindrian-brain" "$INIT_OK"
   fi
 
-  # Test 8: brain_schema Tier-0 sentinel.
+  # Test 8: brain_schema keyless refusal sentinel (byte-locked wire string).
   SCHEMA_OK=$(printf '%s' "$RESULT_JSON" | node -e '
     let buf = "";
     process.stdin.on("data", (d) => { buf += d.toString("utf8"); });
@@ -297,9 +297,9 @@ else
     });
   ' 2>/dev/null)
   if [ "$SCHEMA_OK" = "PASS" ]; then
-    ok "Test 8: live tools/call brain_schema returns DIRECTOR_NOT_AVAILABLE"
+    ok "Test 8: live tools/call brain_schema refuses with DIRECTOR_NOT_AVAILABLE (keyless, no methodology served)"
   else
-    fail "Test 8: live tools/call brain_schema returns DIRECTOR_NOT_AVAILABLE" "$SCHEMA_OK"
+    fail "Test 8: live tools/call brain_schema refuses with DIRECTOR_NOT_AVAILABLE (keyless, no methodology served)" "$SCHEMA_OK"
   fi
 
   # Test 9: brain_ask DirectiveEnvelope shape.

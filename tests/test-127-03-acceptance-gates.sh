@@ -2,10 +2,10 @@
 # Phase 127 Plan 03 -- CONTEXT acceptance gates 1-5 (BRAIN-MCP-127-10).
 #
 # Five gates exercised end-to-end:
-#   Gate 1: clean install, no key -> Tier-0 sentinel returned
+#   Gate 1: clean install, no key -> honest refusal returned, zero methodology served
 #   Gate 2: clean install with live key -> non-null Brain payload (SKIP if no live key)
 #   Gate 3: Lawrence-state legacy user-scope HTTP entry -> migration removes it
-#   Gate 4: Tier-0 cohort -> canonical shim startup line on stderr
+#   Gate 4: no-identity (keyless) cohort -> canonical shim startup line on stderr
 #   Gate 5: Class-M smoke parity -> expected 5-layer cascade
 #
 # Exit 0 iff no FAIL is present. SKIP is non-fatal.
@@ -48,23 +48,61 @@ run_gate_1() {
     setTimeout(() => {
       const lines = buf.split("\n").filter(Boolean);
       let found = false;
+      let failReason = "no parseable brain_schema response";
       for (const line of lines) {
         try {
           const msg = JSON.parse(line);
           if (msg.id === 2 && msg.result && msg.result.content) {
             const text = msg.result.content[0].text;
             const parsed = JSON.parse(text);
-            if (parsed.status === "DIRECTOR_NOT_AVAILABLE") { found = true; break; }
+            // Byte-locked wire string. Never rename this assertion target.
+            if (parsed.status !== "DIRECTOR_NOT_AVAILABLE") {
+              failReason = "status !== DIRECTOR_NOT_AVAILABLE: " + JSON.stringify(parsed.status);
+              break;
+            }
+            // Sub-assertion 1: honesty. Exact REASON_NO_KEY constant.
+            if (parsed.reason !== "MINDRIAN_BRAIN_KEY not set") {
+              failReason = "reason mismatch: " + JSON.stringify(parsed.reason);
+              break;
+            }
+            // Sub-assertion 2: path out.
+            if (!/brain-access/.test(parsed.upgrade_hint || "")) {
+              failReason = "upgrade_hint missing brain-access: " + JSON.stringify(parsed.upgrade_hint);
+              break;
+            }
+            // Sub-assertion 3: shape lock. Exactly the 5 tier0Response() keys.
+            const keys = Object.keys(parsed).sort().join(",");
+            const expectedKeys = "command_context,fallback_advice,reason,status,upgrade_hint";
+            if (keys !== expectedKeys) {
+              failReason = "key shape drifted, got [" + keys + "], want [" + expectedKeys + "]";
+              break;
+            }
+            // Sub-assertion 4: the negative, the whole point of the inversion.
+            // No methodology content served on the keyless path.
+            const forbiddenKeys = ["canonical_matches", "readiness", "frameworks", "nodes", "edges", "records", "chain", "results"];
+            const leaked = forbiddenKeys.filter((k) => Object.prototype.hasOwnProperty.call(parsed, k));
+            if (leaked.length > 0) {
+              failReason = "methodology key leaked on keyless path: " + leaked.join(",");
+              break;
+            }
+            const serialized = JSON.stringify(parsed);
+            if (/canonical_matches|readiness_score|orchestration_status/.test(serialized)) {
+              failReason = "methodology content leaked in serialized payload";
+              break;
+            }
+            found = true;
+            break;
           }
-        } catch (e) {}
+        } catch (e) { failReason = "parse error: " + e.message; }
       }
       proc.kill("SIGTERM");
+      if (!found) { process.stderr.write(failReason + "\n"); }
       process.exit(found ? 0 : 1);
     }, 5000);
   ' >"$OUT_FILE" 2>&1; then
-    record "gate-1" "PASS" "Tier-0 sentinel returned on brain_schema"
+    record "gate-1" "PASS" "keyless path refused honestly (no_key -> DIRECTOR_NOT_AVAILABLE) and served zero methodology content"
   else
-    record "gate-1" "FAIL" "expected DIRECTOR_NOT_AVAILABLE sentinel; got: $(cat "$OUT_FILE" 2>/dev/null | head -c 200)"
+    record "gate-1" "FAIL" "$(cat "$OUT_FILE" 2>/dev/null | tail -1 | head -c 200)"
   fi
   rm -rf "$TMPDIR_G1"
 }
@@ -146,7 +184,7 @@ CLAUDE_SHIM
   rm -rf "$TMPDIR_G3"
 }
 
-# Gate 4: Tier-0 cohort -- shim startup line
+# Gate 4: no-identity (keyless) cohort -- shim startup line
 run_gate_4() {
   local TMPDIR_G4; TMPDIR_G4="$(mktemp -d -t g4-XXXXXX)"
   local STDERR_FILE="$TMPDIR_G4/stderr.log"
