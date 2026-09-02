@@ -398,7 +398,7 @@ successor now weeks (not months) from cutover -- `check-flagship-floor.cjs` and
 `scripts/build-brain-census.cjs` are both currently UNLISTED on Theo's own 7-file adaptation
 list. This phase adds a tripwire (unrecognized envelope -> VOID, not a false MISS) rather than
 adapting to Theo's shape now, and gets both files added to Theo's adaptation list.
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 Plans:
 **Wave 1**
 
@@ -406,7 +406,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 262-02-PLAN.md - The Theo tripwire: unrecognized response envelope becomes a VOID (kind unrecognized_shape), never a silent false RED (FLOOR-01, D-04)
+- [x] 262-02-PLAN.md - The Theo tripwire: unrecognized response envelope becomes a VOID (kind unrecognized_shape), never a silent false RED (FLOOR-01, D-04)
 - [ ] 262-03-PLAN.md - FLOOR-02: the keyless fixture repurposed to no-identity-refusal, gate 1 hardened with a no-methodology-served negative assertion, wire string byte-locked (FLOOR-02, D-06)
 
 **Wave 3** *(blocked on Wave 2 completion)*
