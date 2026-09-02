@@ -398,7 +398,7 @@ successor now weeks (not months) from cutover -- `check-flagship-floor.cjs` and
 `scripts/build-brain-census.cjs` are both currently UNLISTED on Theo's own 7-file adaptation
 list. This phase adds a tripwire (unrecognized envelope -> VOID, not a false MISS) rather than
 adapting to Theo's shape now, and gets both files added to Theo's adaptation list.
-**Plans:** 3/5 plans executed
+**Plans:** 4/5 plans executed
 Plans:
 **Wave 1**
 
@@ -411,7 +411,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 262-04-PLAN.md - The live, human-gated measurement sitting: dated floor verdict, FLOOR-03 re-measurement, SEP counts, write-seam check (FLOOR-01, FLOOR-03)
+- [x] 262-04-PLAN.md - The live, human-gated measurement sitting: dated floor verdict, FLOOR-03 re-measurement, SEP counts, write-seam check (FLOOR-01, FLOOR-03)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
