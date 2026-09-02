@@ -4,8 +4,8 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 254-06-PLAN.md (phase 254 complete, all 6 plans)
-last_updated: "2026-09-02T17:57:31.045Z"
-last_activity: 2026-09-02
+last_updated: "2026-09-02T21:48:52.178Z"
+last_activity: 2026-09-02 -- Phase 257 planning complete
 progress:
   total_phases: 26
   completed_phases: 17
@@ -3631,7 +3631,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 255
 Plan: Not started
 Status: Ready to execute 254-02 (Wave 2, depends_on 254-01) or 254-06 (final wave)
-Last activity: 2026-09-02
+Last activity: 2026-09-02 -- Phase 257 planning complete
 
 <!-- NOTE (254-05 execute-plan, 2026-09-02, resync-clobber bug, same class as
      the notes below): after `state.record-metric`, `state.add-decision` (x2)

@@ -203,17 +203,29 @@ tools (per Theo's own CLAUDE.md architecture doctrine), check whether this phase
 enforcement-locus fix needs to also cover the Theo-catalog surface, not just today's
 `mindrian-os` server, before this phase's research locks.
 **Plans:** 9 plans in 5 waves
-
 Plans:
+**Wave 1**
 
 - [ ] 257-01-PLAN.md - mint the `egress_blocked` refusal kind + amend the two frozen downstream contracts (W1)
 - [ ] 257-02-PLAN.md - additive `refusal` + `egress_disclosure` pass-through in `wrapDirective()` (W1)
 - [ ] 257-03-PLAN.md - correct the record: census parenthetical + dated handoff correction (W1)
 - [ ] 257-04-PLAN.md - the D-01/D-02 rulings note + the Theo T-1/T-2/T-3 forward-compat note (W1)
 - [ ] 257-05-PLAN.md - baseline honesty: capture pre-change gates + de-freeze the two red 239 arms (W1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 257-06-PLAN.md - shim honest-refusal wiring: G1 branch + `honestRefusal` helper, proven on the wire (W2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 257-07-PLAN.md - the locked egress invariant (spawn + live `tools/list`) + `run-all-257.sh` (W3)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 257-08-PLAN.md - `registerTool` + `z.strictObject` migration, closing undeclared-key smuggling (W4)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 257-09-PLAN.md - Part 8 gate battery, LOCUS registration, Canon Custodian checkpoint (W5)
 
 **Open milestone-shape ruling:** RESOLVED 2026-08-20. Phases 253/256 retired in favor of
@@ -1068,6 +1080,7 @@ Rule, not a silent omission, since no automation harness exists for either surfa
    `venture_stage` is L0 identity whose SCHEMA (not its per-room value) belongs at L3, and Brain
    `InnovationStage` has zero runtime consumers in this repo today. Full ruling, grounding, and
    research trail: SEED-084's `## ADDENDUM 2026-09-02` section.
+
 2. **Phase 270's OQ-7** — confirmed still open as of this ROADMAP entry (Phase 270's own OQ-7 line: "SURFACED ONLY, built by neither this phase nor any plan in it"). Re-check its status at plan time rather than assuming it moved.
 
 **MANDATORY (navigator ruling, 2026-08-31): langtalks-graph-expert must be consulted CONTINUOUSLY throughout every stage of this phase's lifecycle** — discuss, research, plan, and execute — not as a one-time check at research time. This phase is memory/context-engineering/agent-architecture work (layered context hierarchy, per-section contracts, a reference/factory layer) squarely inside `langtalks-graph-expert`'s corpus (memory, RAG, knowledge graphs, context engineering, agent protocols). Every plan this phase produces, and every task within those plans that touches the layer design, must show a live `mcp__langtalks-graph-expert__*` consult in its `<read_first>` or task notes, not just a passing citation. This is IN ADDITION TO, not instead of, the existing standing `icm-architect` consult (`feedback_mindrianos_dev_consult_icm_architect.md`) — both apply, langtalks for the memory/context-engineering literature grounding, icm-architect for the concrete room-structure validation (ten invariants, six-forms taxonomy, walk test).
