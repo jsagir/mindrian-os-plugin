@@ -218,3 +218,14 @@ server is reachable, returning content that contradicts the layered-versus-merge
 **Research trail.** Full consults, census tables, and reasoning:
 `rethinking-mindrianos/research/2026-09-02-venture-stage-taxonomy-axes-ruling-275/`, mirrored to
 `mindrianOS/research/2026-09-02-venture-stage-taxonomy-axes-ruling-275/`.
+
+**Follow-up, same day.** The langtalks-graph-expert gap above was closed later the same session
+(the orchestrating session had the tool the quick task's own executor lacked). Live
+`query_relationship` calls on all three preserved questions returned an honest `edges: []` on
+each -- topically adjacent corpus material (two real agent-memory/context-engineering sources)
+but zero formed relationships answering any of the three questions as posed. Per the tool's own
+contract this is "not in the corpus yet," not a contradiction and not a corroboration; it does
+not change the ruling above. Full detail appended to the research trail's own
+"Update 2026-09-02 (follow-up)" section. With this leg run, the ruling is FULLY closed rather
+than provisionally closed -- the "what would overturn this" list above still stands as the
+standing re-open condition, minus the langtalks item, which is now discharged.
