@@ -4,14 +4,14 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 254-06-PLAN.md (phase 254 complete, all 6 plans)
-last_updated: "2026-09-02T17:16:14.402Z"
-last_activity: 2026-09-02 -- Completed 254-06-PLAN.md (phase 254 close-out: R7 structural fence, Theo adaptation-list note, WIRE-01..04/COMP-01..02 registered in REQUIREMENTS.md)
+last_updated: "2026-09-02T17:57:31.045Z"
+last_activity: 2026-09-02
 progress:
   total_phases: 26
   completed_phases: 17
   total_plans: 131
   completed_plans: 131
-  percent: 100
+  percent: 65
 ---
 
 <!-- NOTE (254-06 execute-plan, 2026-09-02, TWENTY-NINTH+ occurrence of the
@@ -3628,10 +3628,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 254 (orchestration-projection-consumption-wiring-suggest-next-act) — EXECUTING
-Plan: 254-02 and 254-06 pending; 254-01, 254-03, 254-04, and 254-05 are complete (254-05 is Wave 3, depends_on: [])
+Phase: 255
+Plan: Not started
 Status: Ready to execute 254-02 (Wave 2, depends_on 254-01) or 254-06 (final wave)
-Last activity: 2026-09-02 -- Completed quick task 260902-s7d (SEED-084 taxonomy resolution, Phase 275 gate 1). Phase 254 CLOSED same day (6/6 plans, 254-06 final). Hand-corrected per the documented STATE.md resync-clobber convention -- this field had reverted to naming 254-05.
+Last activity: 2026-09-02
 
 <!-- NOTE (254-05 execute-plan, 2026-09-02, resync-clobber bug, same class as
      the notes below): after `state.record-metric`, `state.add-decision` (x2)
@@ -4161,7 +4161,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 57
+- Total plans completed: 63
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -4366,6 +4366,7 @@ Progress: [█████████░] 92%
 | Phase 254 P05 | 7min | 3 tasks | 4 files |
 | Phase 254 P02 | 35min | 3 tasks | 4 files |
 | Phase 254 P06 | 40min | 3 tasks | 3 files |
+| 254 | 6 | - | - |
 
 ## Accumulated Context
 
