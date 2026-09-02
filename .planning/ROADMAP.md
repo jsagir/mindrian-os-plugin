@@ -76,6 +76,12 @@ guaranteed clean once 262's exit gate is green)
 **Repo:** MindrianOS-Plugin
 **Open navigator ruling:** approve/reject server-side composition before this phase's plan
 locks its architecture.
+**Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md "Consult
+ALL Relevant Grounding Sources"):** before this phase's research locks, check whether the
+orchestration projection this phase consumes has a Theo-side analog (`/home/jsagi/Theo`, the
+designated Brain successor, weeks not months from its cutover per Phase 262's own dated
+measurement) -- state explicitly in RESEARCH.md whether the composition work targets a surface
+Theo will also need adapting, so the eventual flip is a smaller diff, not a rediscovery.
 **Plans:** 0 plans
 
 Plans:
@@ -101,6 +107,10 @@ ranking term + local mapping)
 **Open navigator ruling:** the explicit local-vs-Brain conflict merge rule (langtalks
 counsel: "when local and Brain signals disagree, the merge rule must be explicit, not
 emergent").
+**Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):**
+check whether `DataRoomSection` projection and the section-affinity edge vocabulary have a
+Theo-side equivalent before this phase's research locks -- Theo is the designated Brain
+successor and is weeks from cutover per Phase 262's own dated measurement.
 **Plans:** 0 plans
 
 Plans:
@@ -154,6 +164,12 @@ defence, or stays local-only with the decision documented explicitly.
 is a payload-design question (send a generic handle instead of raw domain text); H3 is an
 enforcement-locus question. Flag the interaction, leave the decision.
 **Canon:** Part 8 PR gate applies (Canon Custodian review required).
+**Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):**
+the direct model-issued `mcp__...mindrian-brain__*` bypass H3 closes has a Theo-shaped question
+too -- once Theo consolidates room-side operational tools into the same catalog as content
+tools (per Theo's own CLAUDE.md architecture doctrine), check whether this phase's
+enforcement-locus fix needs to also cover the Theo-catalog surface, not just today's
+`mindrian-os` server, before this phase's research locks.
 **Plans:** 0 plans
 
 Plans:
@@ -367,10 +383,21 @@ deployed round-trip agree). Re-verify live at 262's own planning time rather tha
 either number carried forward; do not silently keep the exactly-1 assertion.**
 **Requirements**: FLOOR-01, FLOOR-02, FLOOR-03
 **Depends on:** Phase 261
-**Repo:** ProblemsWorthSolving-Brain
+**Repo:** MindrianOS-Plugin (CORRECTED 2026-09-02, per 262-RESEARCH.md's "Repo Ruling" -- the
+gate script, the ratified denominator, the FLOOR-02 fixture and the tracked requirement IDs all
+live here; the Brain repo's own independent `.planning/ROADMAP.md` has zero occurrences of
+FLOOR-01/02/03 or "Phase 262," verified by grep. FLOOR-01's *measurement* runs entirely in this
+repo; its *remediation* for 6 of 8 rows is Brain-repo work, handed off as a written work order,
+never executed inline -- kept as a "ProblemsWorthSolving-Brain" pointer, not this phase's repo).
 **Downstream:** Phases 254 and 255 (this session's consumption-wiring and section-affinity
 work) both depend on THIS phase, not on the retired Phase 253 -- they read the `:Framework`
 population and need it green.
+**Theo flip (load-bearing, not a footnote -- see 262-RESEARCH.md "The Theo Flip"):** the gate
+this phase measures reads response shapes that do not exist on Theo, the designated Brain
+successor now weeks (not months) from cutover -- `check-flagship-floor.cjs` and
+`scripts/build-brain-census.cjs` are both currently UNLISTED on Theo's own 7-file adaptation
+list. This phase adds a tripwire (unrecognized envelope -> VOID, not a false MISS) rather than
+adapting to Theo's shape now, and gets both files added to Theo's adaptation list.
 **Plans:** 0 plans
 
 Plans:
@@ -399,6 +426,11 @@ session: srv-d9geq2urnols73cimkfg@ssh.oregon.render.com), snapshot-first, one at
 **Out of scope (recorded, not forgotten):** bulk enrichment of the 90-framework tail
 (navigator doctrine: demand drives the queue); any change to WHAT crosses the Part 8
 boundary; a permanent HTTP DDL tool (the 2-day-open-window lesson stands).
+**Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):**
+SEED-A/SEED-B's framework-grounding checks and the long-tail worklist reader both read the
+incumbent `:Framework` population directly -- re-verify against Theo's population (712 nodes,
+149 frameworks as of 2026-09-01, far smaller than the incumbent's) before assuming this
+phase's queue logic ports unchanged at cutover.
 **Plans:** 0 plans
 
 Plans:
@@ -715,6 +747,11 @@ Each workstream flips a negative assertion in `tests/test-267-1-first-install-ho
 Cross-references: Also touches Phase 269 (Moat Shift - Install/Update Entitlement Gate - removing the Brain-key friction step changes the onboarding Trigger/Reward/Investment legs this phase repairs, so building against the current key-gated flow risks rework). Also touches Phase 267.1 (Hooked Model Completeness Audit - the audit that registered GAP R-1 and GAP I-1, `.planning/research/2026-08-27-hooked-first-install-audit.md`).
 **Requirements**: TBD
 **Depends on:** none technically, but sequenced after Phase 269 lands its onboarding-flow change (repairing the reward and investment legs against the current key-gated first session risks throwaway work, and the audit that motivates this phase says so explicitly).
+**Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):**
+Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/unconditional --
+before this phase's research locks, confirm whether the reward/investment repair should assume
+the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
+rather than designing against the current key-gated one.
 **Plans:** 0 plans
 
 Plans:
@@ -787,6 +824,11 @@ Plans:
 For each: (1) confirm it genuinely runs code rather than just describing that it does, (2) if it qualifies, DESIGN the actual MCP tool -- a real input schema (what parameters it needs) and a real `outputSchema` (what structured result it returns), not a placeholder, (3) apply the token-cost rubric from W1's reasoning: the trade-off is not "MCP tool always costs tokens, command is always free" -- it depends entirely on the `alwaysLoad` choice, which is set per tool. A command's markdown body loads ZERO tokens until invoked (Claude Code's command system is lazy). An MCP tool registered `alwaysLoad: true` (as ALL 36 of this repo's existing tools currently are, ~7,062 tokens combined per the Phase 265 audit) pays its description+schema cost in EVERY session from turn 1 regardless of use -- the fixed tax that justifies `alwaysLoad` existing at all, worth paying only for tools genuinely needed early. A tool registered WITHOUT `alwaysLoad` costs close to nothing until the platform's own tool-search discovers it (deferred loading -- currently unused anywhere in this repo). So each qualifying candidate gets an explicit `alwaysLoad: true/false` call plus its estimated token cost, alongside its designed schema -- the deliverable is schemas ready to build from, not a bare promote/don't-promote list.
 **Requirements**: TBD
 **Depends on:** Phase 267
+**Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):**
+Theo's own architecture already widens its tool catalog to absorb the `mindrian-os` operational
+surface into one server -- before this phase's research locks, check whether any command
+promoted to an MCP tool here should be schema-designed with Theo's eventual single-catalog
+shape in mind, so it does not need a second design pass at cutover.
 **Plans:** 0 plans
 
 Plans:
@@ -973,6 +1015,11 @@ Rule, not a silent omission, since no automation harness exists for either surfa
 
 **Requirements**: TBD
 **Depends on:** SEED-084's own gate (taxonomy question resolution) and Phase 270's OQ-7 (still open). Do not run `/gsd-plan-phase 275` until both are explicitly addressed — this entry exists so the work is numbered and discoverable, not so it is immediately actionable.
+**Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):** the
+taxonomy open question this seed surfaces (which "venture stage" vocabulary is canonical) is
+exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
+labels -- when this phase becomes actionable, check whether Theo has already settled an
+analogous vocabulary question before re-deriving one locally.
 **Plans:** 0 plans
 
 Plans:

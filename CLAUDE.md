@@ -242,6 +242,21 @@ is itself a research gap, not rigor.
   room-structure/` and SEED-076). Use its ten invariants, six-forms taxonomy, and walk test as
   a checklist before shipping new room-scaffold, `room-db.cjs`/`navigation.cjs`, or
   section-metadata work -- not just when explicitly asked to "audit."
+- **Theo** (`/home/jsagi/Theo`, esp. `notes/graph-rulebook.md`, `notes/knowledge-graph.md`, and
+  `.planning/ROADMAP.md` Phase 9 "Brain-Contract Cutover"): standing consult (navigator ruling,
+  2026-09-02) for ANY phase whose research touches the Brain graph, framework resolution,
+  readiness scoring, or anything `check-flagship-floor.cjs`-adjacent. Theo is the pre-scoped
+  successor that `pws-brain-mcp` cuts over to (Phase 9); it is not deployable yet (no remote
+  hosting story, its own Phase 8.4 not started), so a phase should still plan and ship against
+  the CURRENT Brain -- but its research must state explicitly whether the finding/fix has a
+  Theo-side analog, and if so what it is, so cutover is a smaller diff instead of a rediscovery.
+  Concrete precedent: Phase 262 found a hop-depth-1 `ALIAS_OF` defect in the current Brain's
+  `NORMALIZE_NAME_CYPHER` (a fork silently returns 2 "canonical" matches); Theo's own
+  `resolveFramework` (`src/mcp/content/normalize-framework-name.ts`) already treats the identical
+  shape as `ALIAS_FORK` and refuses honestly instead of guessing -- worth knowing before writing a
+  new guard for the old Brain that Theo's design already solved differently. Check Theo's own
+  `{phase}-MOS-LEARNING.md` files (one per Theo phase, `## Schema and contract changes for the
+  local room graph` section) before assuming a gap is unaddressed there.
 
 Pick the source(s) that actually cover the claim; use more than one when a finding spans
 domains (e.g. a hook-matcher bug is a Claude Code question AND may also have an agent-pipeline-
