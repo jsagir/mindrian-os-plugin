@@ -3,16 +3,30 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 262-05-PLAN.md
-last_updated: "2026-09-02T15:19:19.610Z"
-last_activity: 2026-09-02 -- Phase 254 planning complete
+stopped_at: Completed 254-01-PLAN.md
+last_updated: "2026-09-02T15:26:32.750Z"
+last_activity: 2026-09-02 -- Completed 254-01-PLAN.md (chain-source blend seam, WIRE-01/WIRE-02)
 progress:
   total_phases: 26
   completed_phases: 16
-  total_plans: 125
-  completed_plans: 125
-  percent: 62
+  total_plans: 131
+  completed_plans: 126
+  percent: 96
 ---
+
+<!-- NOTE (254-01 execute-plan, 2026-09-02, TWENTY-SIXTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the TWENTY-FIFTH+
+     note below): after `state.record-metric`, `state.add-decision` and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     `state.update-progress`'s own correctly-computed 96% (126 completed_plans
+     / 131 total_plans) to 62 -- a phase-based figure (16 completed_phases /
+     26 total_phases = 61.5%), not the plan-based figure this field is
+     supposed to track. `stopped_at` and `last_activity` were also left at
+     stale pre-254 values instead of naming this plan's completion.
+     Hand-corrected: percent back to 96, stopped_at to "Completed
+     254-01-PLAN.md", last_activity to name this plan's actual completion.
+     Root cause not re-investigated -- same tracked bug class as the
+     TWENTY-FIFTH+ note below. -->
 
 <!-- NOTE (262-05 execute-plan, 2026-09-02, TWENTY-FIFTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the TWENTY-FOURTH+
@@ -3526,7 +3540,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 262 — floor-green-sweep-02-inversion
+**Current focus:** Phase 254 — orchestration-projection-consumption-wiring-suggest-next-act
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -3551,10 +3565,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 263
-Plan: Not started
+Phase: 254 (orchestration-projection-consumption-wiring-suggest-next-act) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-09-02 -- Phase 254 planning complete
+Last activity: 2026-09-02 -- Completed 254-01-PLAN.md (chain-source blend seam, WIRE-01/WIRE-02)
 
 <!-- NOTE (272-10 execute-plan, 2026-08-31, FOURTEENTH occurrence of the
      documented state.*-clobber bug, see the note block below this frontmatter
@@ -4263,6 +4277,7 @@ Progress: [█████████░] 92%
 | Phase 262-floor-green-sweep-02-inversion P04 | ~10min | 2 tasks | 0 files |
 | Phase 262 P05 | 45min | 3 tasks | 4 files |
 | 262 | 5 | - | - |
+| Phase 254 P01 | 20min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -5613,6 +5628,7 @@ Progress: [█████████░] 92%
 - [Phase 262]: Navigator approved 262-04's live measurement evidence (VOID=0, PASS=20/MISS=8 of 28, Scenario Planning match count=2, brain_write/ingest_framework ABSENT, Theo /health=502); D-01 and D-05 re-confirmed against fresh numbers, proceeding to 262-05
 - [Phase 262]: D-01 closed: FLOOR-01 ratified this milestone as measured, attributed and routed (20/28 PASS, 0 VOID), denominator not narrowed
 - [Phase 262]: D-05 closed: FLOOR-03 re-ruled, exactly-1 stands, measured 2 is a hop-depth-1 alias resolver defect, Theo's ALIAS_FORK is the target fix shape
+- [Phase 254]: D-03 blend-never-replace implemented exactly as locked: chain-source.cjs tries the projection multi-hop path first, falls through to the registry-composed floor, never returns empty (the two most common real seeds proven non-empty).
 
 ### Pending Todos
 
@@ -5722,7 +5738,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-02T14:02:25.881Z
+Last session: 2026-09-02T15:26:32.678Z
 Stopped at: Completed 262-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
