@@ -86,7 +86,7 @@ orchestration projection this phase consumes has a Theo-side analog (`/home/jsag
 designated Brain successor, weeks not months from its cutover per Phase 262's own dated
 measurement) -- state explicitly in RESEARCH.md whether the composition work targets a surface
 Theo will also need adapting, so the eventual flip is a smaller diff, not a rediscovery.
-**Plans:** 4/6 plans executed
+**Plans:** 5/6 plans executed
 Plans:
 **Wave 1**
 
@@ -95,7 +95,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 254-02-PLAN.md (wave 2) -- wire `suggest-next-command.cjs` and `act-command.cjs` to the one seam, with the source-disclosure line (WIRE-03)
+- [x] 254-02-PLAN.md (wave 2) -- wire `suggest-next-command.cjs` and `act-command.cjs` to the one seam, with the source-disclosure line (WIRE-03)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

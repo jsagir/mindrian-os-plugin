@@ -3,16 +3,38 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 254-05-PLAN.md
-last_updated: "2026-09-02T16:47:42.837Z"
-last_activity: 2026-09-02 -- Completed 254-05-PLAN.md (COMP-02 ambiguous-disclosure + D-06 normalize round-trip probe)
+stopped_at: Completed 254-02-PLAN.md
+last_updated: "2026-09-02T17:02:52.529Z"
+last_activity: 2026-09-02 -- Completed 254-02-PLAN.md (WIRE-03 suggest-next/act consumer wiring, structural single-caller proof)
 progress:
   total_phases: 26
   completed_phases: 16
   total_plans: 131
-  completed_plans: 129
-  percent: 98
+  completed_plans: 130
+  percent: 99
 ---
+
+<!-- NOTE (254-02 execute-plan, 2026-09-02, TWENTY-EIGHTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the TWENTY-SEVENTH+
+     note below): after `state.record-metric`, `state.add-decision` and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     `state.update-progress`'s own correctly-computed 99% (130 completed_plans
+     / 131 total_plans) to 62 -- a phase-based figure (16 completed_phases /
+     26 total_phases = 61.5%), not the plan-based figure this field is
+     supposed to track. `last_activity` was also left at the stale pre-254-02
+     value ("Completed 254-05-PLAN.md") instead of naming this plan's
+     completion. Hand-corrected: percent back to 99, last_activity to name
+     this plan's actual completion. `stopped_at` was correctly written by
+     `state.record-session` this time and needed no correction. Root cause
+     not re-investigated -- same tracked bug class as the TWENTY-SEVENTH+
+     note below.
+
+     ALSO NOTE: `state.advance-plan` failed outright with "Cannot parse
+     Current Plan or Total Plans in Phase from STATE.md" (the same documented
+     failure mode as prior occurrences) -- not retried. This phase's
+     non-linear wave execution (254-01 and 254-03/04/05 already complete,
+     254-02 was the last Wave-2 plan pending, 254-06 remains) is not modeled
+     by that command's linear "Plan: N of M" counter regardless. -->
 
 <!-- NOTE (254-03 execute-plan, 2026-09-02, TWENTY-SEVENTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the TWENTY-SIXTH+
@@ -4325,6 +4347,7 @@ Progress: [█████████░] 92%
 | Phase 254 P03 | 25min | 3 tasks | 5 files |
 | Phase 254 P04 | ~20min | 3 tasks | 5 files |
 | Phase 254 P05 | 7min | 3 tasks | 4 files |
+| Phase 254 P02 | 35min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -5681,6 +5704,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 254-04: bound_ms differs per reaching site -- brain-router.cjs Tier 3 is 2000ms (explicit Promise.race), suggest_next's chainOfferForReach is 20000ms (brain-client.cjs's default BRAIN_REQUEST_TIMEOUT_MS, no override on that path).
 - [Phase ?]: COMP-02 closed via D-02 Option A: callTool discloses ambiguous Part 8 verdicts additively via egress_disclosure and still proceeds; Option B (fail-closed) explicitly not implemented -- matches navigator-ruled D-02; block/allow/sentinels/null stay byte-unchanged, proven by 5 regression-pin arms
 - [Phase ?]: D-06 discharged: BRAIN_PROBLEM_TYPE_ALIASES stays pinned to the incumbent's 3 canonical names this phase, not re-pointed to Theo's ids -- no single value satisfies both incumbent and Theo id sets; Theo is not deployable yet; named as a Theo-side follow-up for Plan 06
+- [Phase ?]: Phase 254 Plan 02: WIRE-03 wiring uses a named-set structural proof (not a bare count) after finding scripts/pipeline-command.cjs as a pre-existing, out-of-scope third caller of recommendFrameworkChain.
 
 ### Pending Todos
 
@@ -5790,8 +5814,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-02T16:47:42.771Z
-Stopped at: Completed 254-05-PLAN.md
+Last session: 2026-09-02T17:02:44.777Z
+Stopped at: Completed 254-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
