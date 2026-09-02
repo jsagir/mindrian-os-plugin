@@ -7,14 +7,21 @@
  * Phase 122-04 -- /mos:suggest-next CLI helper (the resolver-composed command sequence)
  * ====================================================================================
  * The script behind commands/suggest-next.md. Reads the room's ProblemType
- * (and active JTBD, if present) from room/STATE.md, runs the chain recommender
- * (lib/brain/chain-recommender.cjs recommendFrameworkChain -- a FEEDS_INTO
- * traversal over framework names + problem-type enums; Canon Part 8: never a
- * command string, never user content), composes that framework chain into a
- * /mos: command SEQUENCE via the resolver (lib/workflow/command-resolver.cjs
- * composeWorkflow -- the only door), and prints BOTH the framework chain and
- * its command sequence. A framework with no /mos: command renders as
- * "(no /mos: for this -- run it manually)" (degrade, do not fabricate).
+ * (and active JTBD, if present) from room/STATE.md, then sources the
+ * framework chain from lib/workflow/chain-source.cjs::resolveChainSource
+ * (Phase 254, WIRE-01/WIRE-02, D-03 blend-never-replace): projection-first --
+ * the shipped multi-hop projection recommender (lib/workflow/local-chain-
+ * recommender.cjs) wins when it has an edge for the seed -- falling through
+ * to today's registry-composed answer (lib/brain/chain-recommender.cjs
+ * recommendFrameworkChain, a FEEDS_INTO traversal over framework names +
+ * problem-type enums; Canon Part 8: never a command string, never user
+ * content) as a disclosed floor when it does not. Either way the chain
+ * composes into a /mos: command SEQUENCE via the resolver
+ * (lib/workflow/command-resolver.cjs composeWorkflow -- the only door), and
+ * the render prints the framework chain, its source (projection vs registry
+ * floor, Decision 8 -- no silent degrade), and its command sequence. A
+ * framework with no /mos: command renders as "(no /mos: for this -- run it
+ * manually)" (degrade, do not fabricate).
  *
  * Larry NEVER names a /mos: command from memory: every command line here came
  * back from composeWorkflow / the generated data/command-registry.json.
@@ -41,8 +48,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const recommender = require(path.join(REPO_ROOT, 'lib', 'brain', 'chain-recommender.cjs'));
 const resolver = require(path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs'));
+// Phase 254 / WIRE-01 / WIRE-02 / D-03: the ONE shared chain-source seam --
+// projection-first with a disclosed registry floor. Both /mos:suggest-next
+// and /mos:act --chain call this same function so they cannot disagree.
+const chainSource = require(path.join(REPO_ROOT, 'lib', 'workflow', 'chain-source.cjs'));
 // Phase 121.5-10 Sub-plan K (audit Section 5.3 highest-leverage promotion):
 // promote /mos:suggest-next from NONE to F.1 via rankForSelector + pickShape.
 // The locked Brain-suggestion content template (chip + question line + two-
@@ -299,9 +309,11 @@ function main(argv) {
     };
   }
 
-  // Recommend the framework chain (FEEDS_INTO traversal; framework names +
-  // enums only), then compose the /mos: command SEQUENCE via the resolver.
-  const frameworkChain = recommender.recommendFrameworkChain(opts);
+  // Source the framework chain from the projection-first blend seam (Phase
+  // 254, WIRE-01/WIRE-02), then compose the /mos: command SEQUENCE via the
+  // resolver (R4, the one door -- untouched by this seam).
+  const chainPick = chainSource.resolveChainSource(opts);
+  const frameworkChain = chainPick.frameworks;
   const workflow = resolver.composeWorkflow(frameworkChain);
 
   const hasKnownType = Boolean(args.problemType || args.fromFramework || roomState.problemType || roomState.activeJtbd);
@@ -342,6 +354,7 @@ function main(argv) {
   }
   out.push('Recommended framework chain:');
   out.push('  ' + frameworkChain.join('  ->  '));
+  out.push('  ' + chainSource.describeSource(chainPick));
   out.push('');
   out.push('Command sequence (resolver-composed -- run in order):');
   out.push(renderSequence(workflow));
