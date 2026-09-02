@@ -60,7 +60,7 @@ proposed 6-phase structure, filed unmodified. No plans were ever created under t
 
 ### Phase 254: Orchestration projection consumption wiring (suggest-next, act, server-side composition)
 
-**Goal:** [To be planned] Wire `/mos:suggest-next` and `/mos:act` to consume the real Brain
+**Goal:** Wire `/mos:suggest-next` and `/mos:act` to consume the real Brain
 orchestration projection (SEED-045 open item 1 / SEED-043; substrate ~85% shipped, never
 wired) instead of `recipe-maps.cjs` alone. Includes the navigator-ruled server-side
 composition option (mindrian-os MCP tool handlers composing Brain calls at explicit
@@ -69,24 +69,33 @@ fail-closed belt in `brain-client.cjs` is a same-phase prerequisite, not a follo
 server-side calls bypass the per-tool-call egress-guard hook's name-matching. Per-turn
 `decide()`/sensor dispatch stays projection-fed (R7: no live Brain call at decide()/rank
 time) -- this phase does not touch that path.
-**Requirements**: TBD
+**Requirements**: WIRE-01, WIRE-02, WIRE-03, WIRE-04, COMP-01, COMP-02 (minted 2026-09-02 per 254-CONTEXT.md D-05, ratifying 254-RESEARCH.md's proposed family; registered to .planning/REQUIREMENTS.md at phase close by 254-06-PLAN.md, per the Phase 266/269/272/274 precedent)
 **Depends on:** Phase 262 (Floor Green -- re-gated 2026-08-20; the retired Phase 253 was its
 original dependency, this phase's own work reads the `:Framework` population, which is only
 guaranteed clean once 262's exit gate is green)
 **Repo:** MindrianOS-Plugin
-**Open navigator ruling:** approve/reject server-side composition before this phase's plan
-locks its architecture.
+**Navigator ruling (RESOLVED 2026-09-02, D-01):** RATIFY server-side Brain composition. Research
+found it already ships in two released, tested places (`orchestration act*`'s Tier-3 live Brain
+call in `brain-router.cjs`, and `suggest_next`'s chain offer in `sensors.cjs`), so the real
+question was ratify-vs-remove, not approve-vs-decline. Both sites stay; this phase enumerates them
+(COMP-01) and closes the one residual `ambiguous`-verdict gap in the `callTool` belt with
+disclose-and-proceed (COMP-02, D-02 Option A).
 **Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md "Consult
 ALL Relevant Grounding Sources"):** before this phase's research locks, check whether the
 orchestration projection this phase consumes has a Theo-side analog (`/home/jsagi/Theo`, the
 designated Brain successor, weeks not months from its cutover per Phase 262's own dated
 measurement) -- state explicitly in RESEARCH.md whether the composition work targets a surface
 Theo will also need adapting, so the eventual flip is a smaller diff, not a rediscovery.
-**Plans:** 0 plans
+**Plans:** 6 plans in 4 waves
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 254 to break down)
+- [ ] 254-01-PLAN.md (wave 1) -- the projection-first chain-source seam `lib/workflow/chain-source.cjs` plus the phase aggregator and the WIRE-01/WIRE-02 suites
+- [ ] 254-02-PLAN.md (wave 2) -- wire `suggest-next-command.cjs` and `act-command.cjs` to the one seam, with the source-disclosure line (WIRE-03)
+- [ ] 254-03-PLAN.md (wave 1) -- the framework-vocabulary drift gate and its wiring into pre-commit, release and doctor (WIRE-04)
+- [ ] 254-04-PLAN.md (wave 3) -- the Brain-composition census enumerating every `mindrian-os` handler that reaches the Brain (COMP-01)
+- [ ] 254-05-PLAN.md (wave 3) -- the `ambiguous`-verdict disclosure in the `callTool` belt plus D-06's two-leg normalize round-trip probe (COMP-02)
+- [ ] 254-06-PLAN.md (wave 4) -- the R7 structural fence, the D-07 Theo adaptation-list note, and the REQUIREMENTS.md registration
 
 ### Phase 255: Data Room section-affinity ranking
 
