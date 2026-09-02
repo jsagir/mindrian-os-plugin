@@ -783,28 +783,115 @@ download hard-failing instead of downloading, on any cold-cache machine. Found a
 272-08 while generating the real candidate fixture (not injected, not staged -- the first live
 run against a genuinely cold cache surfaced it directly).
 
+### Phase 254 - Orchestration projection consumption wiring (suggest-next, act, server-side composition) (minted 2026-09-02)
+
+These six IDs were minted in `254-CONTEXT.md` D-05 (2026-09-02), ratifying the family
+`254-RESEARCH.md` proposed, and scoped to Phase 254 only: wire the shipped-but-unwired
+multi-hop projection recommender into `/mos:suggest-next` and `/mos:act --chain` (Wave 1, local
+only, zero Brain calls), and ratify + govern the server-side Brain-composition surfaces that
+were already shipped and running in production before this phase (Wave 2, D-01). Six plans
+executed across two waves (254-01 the chain-source blend seam, 254-02 the suggest-next/act
+consumer wiring, 254-03 the vocabulary-drift gate, all Wave 1; 254-04 the COMP-01 composition
+census, 254-05 the COMP-02 ambiguous-disclosure fix plus the D-06 normalize probe, both Wave 2;
+254-06 the R7 structural fence, the Theo note, and this registration). Every row below is `[x]`.
+
+- [x] **WIRE-01**: `/mos:suggest-next` produces a multi-step chain sourced from the projection
+      when the projection has edges for the seed. Fixed in `lib/workflow/chain-source.cjs`
+      (254-01), wired into `scripts/suggest-next-command.cjs` (254-02). Measured:
+      `node tests/test-254-projection-chain-source.cjs` PASS (6 arms + module-loads guard); live
+      `--from-framework "S-Curve Analysis"` prints a genuine 2-step numbered sequence
+      (`S-Curve Analysis -> Adoption-Capacity Theory`, confidence 0.82) where before this phase it
+      collapsed to one step.
+
+- [x] **WIRE-02**: When the projection has no edge for the seed, the surface degrades to the
+      current registry-composed answer with a disclosed source, never to empty. Fixed in
+      `lib/workflow/chain-source.cjs` (254-01). Measured: `node tests/test-254-degrade-floor.cjs`
+      PASS (6 arms + module-loads guard); live-verified the two most common real invocations
+      (`Beautiful Question Framework` for the ill-defined case AND the no-problem-type default)
+      both resolve to a non-empty `registry-floor` answer, the exact case a straight replace was
+      proven to break.
+
+- [x] **WIRE-03**: `/mos:act --chain` composes from the same source as `suggest-next`; the two
+      cannot disagree. Fixed in `scripts/suggest-next-command.cjs` and `scripts/act-command.cjs`,
+      both wired to `lib/workflow/chain-source.cjs::resolveChainSource` (254-02). Measured:
+      `node tests/test-254-one-chain-source.cjs` PASS (49/49 assertions across 7 arms: a
+      structural single-caller proof over a named allowed set, behavioural agreement on both the
+      projection and registry-floor cases, the second-numbered-step proof, never-empty coverage,
+      exit-0 contract, R4-one-door-intact).
+
+- [x] **WIRE-04**: The three framework vocabularies (`KNOWN_FRAMEWORKS`, `command-registry.json`,
+      the projection) can no longer silently diverge - a drift gate fails the build. Fixed in
+      `scripts/check-framework-vocabulary-drift.cjs` (254-03), wired into
+      `scripts/hooks/pre-commit`, `scripts/release.sh` Step 2.4, and `scripts/doctor.cjs`'s
+      coverage-gate roll-up. Measured: `node scripts/check-framework-vocabulary-drift.cjs --check`
+      exits 0 (`framework-vocabulary: OK`) against the live tree; `node
+      tests/test-254-vocabulary-drift.cjs` PASS (9 arms); an injected-drift proof (an unclassified
+      composer name) fires `undeclared_composer_name` while the live tree stays green afterward.
+
+- [x] **COMP-01**: Every `mindrian-os`-named tool handler that reaches the Brain is enumerated in
+      one place and routes through the `callTool` belt. Fixed in
+      `lib/mcp/brain-composition-census.cjs` (254-04): a frozen `COMPOSITION_SITES` array (4
+      entries, 2 reaching, 2 provenance-only) reconciled bidirectionally against source. Measured:
+      `node tests/test-254-composition-census.cjs` PASS (8 arms); proves structurally that no file
+      under `lib/mcp/` opens a wire outside `brain-client.cjs::callTool`.
+
+- [x] **COMP-02**: The `callTool` belt's verdict handling matches the hook's, or the divergence is
+      a stated, tested decision. Fixed in `lib/core/brain-client.cjs` (254-05, D-02 Option A): an
+      additive `egress_disclosure` field is attached to the three success returns when the belt
+      captures an `ambiguous` verdict, and the call still proceeds (Option B, fail-closed, was
+      explicitly rejected for this phase). Measured: `node tests/test-254-ambiguous-disclosure.cjs`
+      PASS (7 arms, live-wire proof over the loopback capture server: proceed-and-disclose,
+      block/allow/null/sentinel regression pins, a no-laundering canary, belt-ordering).
+
+**The two stated decisions this phase made, recorded here so a future reader does not have to
+rediscover them:**
+
+1. **`BRAIN_PROBLEM_TYPE_ALIASES` is PINNED, not re-pointed.** `lib/core/brain-client.cjs:1607-1616`
+   projects the incumbent's three canonical problem-type names; none of the three is a live Theo
+   `DomainConcept` id, and no single value satisfies both populations. The standing rule is to
+   ship against the CURRENT Brain (Theo is not deployable yet - no remote hosting story, its own
+   Phase 8.4 not started). The map is pinned by `tests/test-254-normalize-roundtrip-probe.cjs`
+   (Arms 4-5), so the flip-day change is a single-line-per-key diff against a test that already
+   names the target, not a rediscovery. The exact incumbent-to-Theo mapping and the full reasoning
+   are recorded in `docs/254-NOTE-theo-adaptation-list-additions.md` Section 4.
+
+2. **The MCP `suggest_next` / `orchestration act*` surfaces are NOT wired to the new chain
+   source.** `lib/mcp/brain-router.cjs::recommend()` returns a chain of COMMAND SLUGS validated
+   against its own `KNOWN_METHODOLOGIES` list, not a chain of framework NAMES like
+   `chain-source.cjs` produces - wiring it needs its own vocabulary reconciliation and its own
+   regression suite, out of this phase's budget. The divergence between the CLI-surface (wired)
+   and MCP-surface (unwired) vocabularies is instrumented by
+   `scripts/check-framework-vocabulary-drift.cjs`'s report-only advisory tier (the fourth
+   vocabulary, `KNOWN_METHODOLOGIES`) so it is measured on every run rather than silently
+   unmeasured, and is named here as a follow-up for a future phase to close.
+
 ## Traceability
 
-103 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+109 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
-(Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), plus ANCHOR-01..10
-(Phase 274). All minted 2026-08-27 except CHOKE-01..06 and PYPORT-01..07 (both minted 2026-08-31)
-and ANCHOR-01..10 (minted 2026-09-01): RADAR-01..11 and MCPFIX-01..04 at
+(Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
+plus WIRE-01..04 / COMP-01..02 (Phase 254). All minted 2026-08-27 except CHOKE-01..06 and
+PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), and WIRE-01..04 /
+COMP-01..02 (minted 2026-09-02): RADAR-01..11 and MCPFIX-01..04 at
 first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
 plan 01's `267.3-DECISIONS.md` Section 6, CHOKE-01..06 in `273-01-PLAN.md`'s frontmatter,
 finalized in `273-02-PLAN.md`'s objective, PYPORT-01..07 in `272-RESEARCH.md`'s Phase
 Requirements section, registered to this document at phase close by `272-11-PLAN.md` per the
-Phase 273/CHOKE precedent, and ANCHOR-01..10 in `274-RESEARCH.md`'s Phase Requirements section,
-registered to this document at phase close by `274-06-PLAN.md` per the same precedent. RADAR-13,
+Phase 273/CHOKE precedent, ANCHOR-01..10 in `274-RESEARCH.md`'s Phase Requirements section,
+registered to this document at phase close by `274-06-PLAN.md` per the same precedent, and
+WIRE-01..04 / COMP-01..02 in `254-CONTEXT.md` D-05, ratifying `254-RESEARCH.md`'s proposed
+family, registered to this document at phase close by `254-06-PLAN.md` per the same precedent.
+RADAR-13,
 RADAR-15 and RADAR-16 were retired before
 use because they duplicated MCPFIX-01, MCPFIX-03 and MCPFIX-04; the gap is deliberate and recorded.
 RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving its intent.
-Roadmap phases must map all 103 active requirements with no orphans.
+Roadmap phases must map all 109 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT and ANCHOR families alike (the Phase 266 and 269
+**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR and WIRE/COMP families alike (the
+Phase 266 and 269
 precedent):** these IDs were minted at plan time inside their own phase's decision record rather
 than being drawn from a pre-existing milestone requirements pass. They are phase-local working IDs
 promoted to this document at phase close, which means the behaviour each one names is real and
