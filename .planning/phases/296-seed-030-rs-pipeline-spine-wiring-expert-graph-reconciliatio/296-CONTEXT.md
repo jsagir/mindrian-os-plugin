@@ -87,6 +87,18 @@ corrected decisions the planner must actually build against are these:
   `refusal-messaging.cjs`'s shipped copy verbatim (`renderRefusal('unreachable', ...)` /
   `larryRefusalLine('unreachable')`). Inventing a seventh phrasing when six already
   exist in `REFUSAL_KINDS` is exactly the duplication Canon Part 7 forbids.
+- **Phase 228 is an orphaned duplicate registration of THIS SAME seed (found
+  investigating research Open Question 4):** `.planning/milestones/v1.15.0-ROADMAP.md`
+  registered `### Phase 228: RS pipeline vector-repoint and expert-graph reconciliation
+  (SEED-030)` on 2026-07-15 (STATE.md:5100-5118), with the identical staleness framing
+  this phase's own CONTEXT.md independently re-derived. Its directory
+  (`.planning/phases/228-.../`) contains only a `.gitkeep` — zero CONTEXT.md,
+  RESEARCH.md, PLAN.md, or SUMMARY.md ever landed. It lived in the v1.15.0 milestone,
+  which has since closed and archived; a later commit (`bdb70365`) explicitly excluded
+  228 from the active pipeline that continued. **Resolution: Phase 296 is 228's live
+  successor in the current v2.1.0 milestone.** Phase 228 should be marked superseded
+  (matching this repo's own convention elsewhere, e.g. SEED-084 → Phase 275) rather than
+  silently left to be rediscovered a third time — named here so it is not.
 - **Phase 295 dependency — not a real blocker (F-10):** ROADMAP.md's "Depends on: Phase
   295" is `phase.add` heading boilerplate (a known pattern this repo's own CLAUDE.md
   names). The *coincidental* real dependency it might have named is already satisfied:
