@@ -821,7 +821,7 @@ Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/u
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 6/10 plans executed
+**Plans:** 7/10 plans executed
 
 Plans:
 
@@ -842,7 +842,7 @@ Plans:
 
 **Wave 4**
 
-- [ ] 267.2-07-PLAN.md - HOOK-07, W1b delivery: the room-free Instant Brief gets a deterministic caller. Fired as a detached unref-ed child with stdout captured, drained as `additionalContext` on a later turn. `runPipeline` is NEVER called inline: `lib/core/mva-dispatcher.cjs`'s own binding decision B2 is a 45s global / 35s per-agent budget against a 3000ms hook ceiling (D-D). Proven with no room and no API keys
+- [x] 267.2-07-PLAN.md - HOOK-07, W1b delivery: the room-free Instant Brief gets a deterministic caller. Fired as a detached unref-ed child with stdout captured, drained as `additionalContext` on a later turn. `runPipeline` is NEVER called inline: `lib/core/mva-dispatcher.cjs`'s own binding decision B2 is a 45s global / 35s per-agent budget against a 3000ms hook ceiling (D-D). Proven with no room and no API keys
 
 **Wave 5**
 

@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 267.2-06-PLAN.md
-last_updated: "2026-09-03T10:13:27.046Z"
-last_activity: 2026-09-03 -- Completed 267.2-06-PLAN.md (first-install-router.cjs UserPromptSubmit hook: one-shot gate, local classify+route, scalar telemetry, born-wired registration, HOOK-08)
+stopped_at: Completed 267.2-07-PLAN.md
+last_updated: "2026-09-03T10:30:22.658Z"
+last_activity: 2026-09-03 -- Completed 267.2-07-PLAN.md (first-install-router.cjs reward fire + drain legs: detached spawn of mva-run.cjs, capture-file drain into additionalContext, bounded drain_timeout retry, HOOK-07)
 progress:
   total_phases: 26
   completed_phases: 18
   total_plans: 150
-  completed_plans: 146
-  percent: 97
+  completed_plans: 147
+  percent: 98
 ---
+
+<!-- NOTE (267.2-07 execute-plan, 2026-09-03, FORTY-SIXTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `stopped_at`/`last_activity`
+     reverted to naming 267.2-04's completion instead of this plan's, and
+     `percent` reverted from the correct 98 (147/150 completed_plans, as
+     `state.update-progress` itself just computed) to a stale 69. Only these
+     three fields were affected -- `completed_plans`/`total_plans` were
+     written correctly. Hand-corrected: stopped_at and last_activity to name
+     267.2-07's actual completion, percent back to 98. Root cause already
+     tracked for a future dedicated debug session per this plan's own
+     instructions; not re-investigated here. -->
 
 <!-- NOTE (267.2-06 execute-plan, 2026-09-03, FORTY-FIFTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3895,7 +3908,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 267.2 (first-install-hooked-loop-repair-reward-investment-inserted) — EXECUTING
-Plan: 7 of 10
+Plan: 8 of 10
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 267.2 execution started
 
@@ -4648,6 +4661,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P04 | 25min | 3 tasks | 4 files |
 | Phase 267.2 P05 | 45m | 3 tasks | 3 files |
 | Phase 267.2 P06 | 45min | 3 tasks | 3 files |
+| Phase 267.2 P07 | 45min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6035,6 +6049,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 267.2-06: Router owns state.json as sole authority after arming; never re-reads check-onboard marker on a later turn (Pitfall 3).
 - [Phase ?]: 267.2-06: outcome_observed telemetry fires exactly once via an outcome_observed_at_ms field, avoiding repeat firing every turn while phase stays 'routed' pending 267.2-07.
 - [Phase ?]: 267.2-06: scripts/first-install-router.cjs is a hooks/hooks.json surface, confirmed outside build-connector-registry.cjs's and check-shape-declaration.cjs's scan scope -- needs no connector descriptor or hitl_shape declaration.
+- [Phase ?]: 267.2-07: reward fires on the turn after outcome_observed, not same-turn as routing, to keep 267.2-06's outcome_observed telemetry test green
+- [Phase 267.2-07]: Reward drain readiness uses MVA pipeline_status=complete as primary signal, one-turn-stable non-empty capture file as fallback
 
 ### Pending Todos
 
@@ -6153,7 +6169,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T10:13:04.205Z
+Last session: 2026-09-03T10:30:22.588Z
 Stopped at: Completed 267.2-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
