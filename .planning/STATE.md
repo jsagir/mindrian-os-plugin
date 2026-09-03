@@ -4,7 +4,7 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 276-07-PLAN.md
-last_updated: "2026-09-03T19:42:11.619Z"
+last_updated: "2026-09-03T19:59:26.594Z"
 last_activity: "2026-09-03 -- Phase 276 Plan 07 (four detector fixes: enumeration guard, negation demotion, barrel re-export hop, includes() dispatch; WEAK-tier sibling-writes ruling; ledger amendment) complete: 3 tasks, commits 02287c30/48fe8a61/c4e05426"
 progress:
   total_phases: 90
