@@ -146,10 +146,17 @@ function test6_singleEventPerCall() {
   } finally { cleanup(tmp); }
 }
 
-function test7_rollbackOnBadInput() {
+function test7_duplicateIdWithinBatchUpserts() {
+  // R17-01 (260903-gdm, navigator-confirmed Task 4, Confirm 1): storeBrainSuggestions
+  // now routes its node write through lib/core/node-insert.cjs::insertNode, whose
+  // default ON CONFLICT(id) DO UPDATE means a PK collision (same job_id +
+  // suggestion_index within one batch) is a silent upsert, not a throw that rolls
+  // back the whole batch. This test used to assert the OPPOSITE (rollback on PK
+  // collision, r.ok === false); that assumption is no longer true by design, so the
+  // test is rewritten to assert the new, approved behavior: the batch succeeds and
+  // the duplicate id lands as exactly one row (last write wins), never two.
   const { tmp, db } = makeRoom();
   try {
-    // PK collision forces transaction rollback.
     const packet = {
       job_id: 'job-rollback',
       job: 'test',
@@ -160,9 +167,12 @@ function test7_rollbackOnBadInput() {
     };
     const cntBefore = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type = 'brain_insight'").get().n;
     const r = navigation.storeBrainSuggestions(db, packet, 'sess-7');
-    equal(r.ok, false);
+    equal(r.ok, true, 'a same-batch duplicate id no longer fails the whole ingestion call');
     const cntAfter = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type = 'brain_insight'").get().n;
-    equal(cntAfter, cntBefore, 'rollback restored row count');
+    equal(cntAfter, cntBefore + 1, 'the duplicate id upserts to exactly one row, not two, not zero');
+    const row = db.prepare("SELECT properties FROM nodes WHERE id = 'brain_insight:job-rollback:0'").get();
+    ok(row, 'the upserted row exists at the deterministic id');
+    ok(/s0-dup/.test(row.properties), 'the second (later) suggestion body wins the upsert');
     db.close();
   } finally { cleanup(tmp); }
 }
@@ -201,7 +211,7 @@ function test9_sourcePathProvenance() {
 }
 
 function run() {
-  const tests = [test1_emptyPacketRejection, test2_singleSuggestionRoundtrip, test3_bulkHundredSuggestions, test4_part9Invariant, test5_edgeProposalsIngested, test6_singleEventPerCall, test7_rollbackOnBadInput, test8_confidenceDefault, test9_sourcePathProvenance];
+  const tests = [test1_emptyPacketRejection, test2_singleSuggestionRoundtrip, test3_bulkHundredSuggestions, test4_part9Invariant, test5_edgeProposalsIngested, test6_singleEventPerCall, test7_duplicateIdWithinBatchUpserts, test8_confidenceDefault, test9_sourcePathProvenance];
   let pass = 0; let fail = 0;
   for (const t of tests) {
     try { t(); pass++; process.stdout.write('PASS ' + t.name + '\n'); }

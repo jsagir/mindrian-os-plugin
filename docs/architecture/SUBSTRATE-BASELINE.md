@@ -315,3 +315,44 @@ is deliberately not done here.
 Cross-reference: `.planning/phases/273-sqlite-graph-chokepoint-hardening-writeedge-silent-failure-a/`
 (273-RESEARCH.md's D-05 finding, 273-CONTEXT.md's D-05 correction, `tests/test-273-substrate-baseline-honest.cjs`).
 - The hook enforcement proof confirms a net-new raw `INSERT INTO nodes` is hard-rejected.
+
+---
+
+## 2026-09-03 re-measurement (260903-gdm, R17 node-write consolidation Task 3)
+
+Result: **205**, down from 208. Re-ran `node scripts/check-substrate.cjs --baseline` after
+landing Tasks 1-3 of the R17 node-write-consolidation plan (16 sites across 11 files routed
+through `lib/core/node-insert.cjs::insertNode`), per-rule breakdown `chokepoint-require 47,
+m3-direct-sqlite-require 33, m4-cypher-interpolation 35, opengraph-bypass 38, raw-graph-write 52`.
+
+This matches the plan's stated expectation exactly: `raw-graph-write` drops by 3 (55 to 52),
+every other rule count is UNCHANGED from the 2026-08-31 measurement (47/33/35/38 all identical).
+
+The `-3` on `raw-graph-write` accounts for the three sites that are NOT under
+`lib/core/navigation/`'s path allowlist (`check-substrate.cjs:70`) and so were counted as raw
+`INSERT INTO nodes` violations before this task:
+
+- `lib/core/graph-ops.cjs:225` (the 3-column legacy `indexOpportunity` fallback)
+- `lib/core/breakthrough/schema.cjs:126` (the `breakthrough` node write)
+- `lib/core/doctor/umbilical-module.cjs:459` (`ensureNode`, the umbilical-cord FK-target write)
+
+The 11 sibling `lib/core/navigation/*` sites consolidated in Task 2 contributed ZERO to this
+count either before or after (path-allowlisted), so their consolidation is invisible to this
+guard by design; their only regression net is the named behavioral test suite (Tasks 2 and 3),
+all green.
+
+`lib/core/node-insert.cjs`'s own two `INSERT INTO nodes` statements (the chokepoint's low-level
+primitive) remain counted in `raw-graph-write` throughout, unchanged by this task -- they are
+the sanctioned door every other production site now routes through, not a bypass.
+
+Two named coverage gaps remain OUTSIDE this chokepoint after Task 3, per the ratified R17
+exclusions (NOT closed by this consolidation, carried forward, never to be described as R17
+being fully closed):
+
+- `lib/core/navigation/memory-events.cjs:772` -- append-only bookkeeping dedupe contract, only
+  ever writes `memory_event` nodes.
+- `lib/core/rs-sqlite-mirror.cjs:407` -- bulk-write hot path; a per-row `insertNode` call would
+  add a `PRAGMA table_info(nodes)` round trip per row.
+
+Cross-reference: `.planning/quick/260903-gdm-implement-r17-node-write-consolidation-t/260903-gdm-PLAN.md`,
+`tests/test-273-substrate-baseline-honest.cjs`.
