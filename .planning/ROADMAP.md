@@ -821,7 +821,7 @@ Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/u
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 7/10 plans executed
+**Plans:** 8/10 plans executed
 
 Plans:
 
@@ -846,7 +846,7 @@ Plans:
 
 **Wave 5**
 
-- [ ] 267.2-08-PLAN.md - HOOK-09, W1 prose leg + C-5: FIRST_INSTALL asks ONE open question and renders no menu (D-B); `${COLD_START_MENU}` the variable stays byte-identical because it feeds three branches (D-F); `data/first-reward-surfaces.json` moves to `instant_brief` with an honest `why`; the GAP R-1 prose-citation pin flips
+- [x] 267.2-08-PLAN.md - HOOK-09, W1 prose leg + C-5: FIRST_INSTALL asks ONE open question and renders no menu (D-B); `${COLD_START_MENU}` the variable stays byte-identical because it feeds three branches (D-F); `data/first-reward-surfaces.json` moves to `instant_brief` with an honest `why`; the GAP R-1 prose-citation pin flips
 
 **Wave 6**
 

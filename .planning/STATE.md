@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 267.2-07-PLAN.md
-last_updated: "2026-09-03T10:30:22.658Z"
-last_activity: 2026-09-03 -- Completed 267.2-07-PLAN.md (first-install-router.cjs reward fire + drain legs: detached spawn of mva-run.cjs, capture-file drain into additionalContext, bounded drain_timeout retry, HOOK-07)
+stopped_at: Completed 267.2-08-PLAN.md
+last_updated: "2026-09-03T10:39:28.068Z"
+last_activity: 2026-09-03 -- Completed 267.2-08-PLAN.md (FIRST_INSTALL payload hands first contact to scripts/first-install-router.cjs, one open free-text question replaces the reward/investment menu; data/first-reward-surfaces.json declares instant_brief; HOOK-09)
 progress:
   total_phases: 26
   completed_phases: 18
   total_plans: 150
-  completed_plans: 147
-  percent: 98
+  completed_plans: 148
+  percent: 99
 ---
+
+<!-- NOTE (267.2-08 execute-plan, 2026-09-03, FORTY-SEVENTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent`/`last_activity`
+     fields reverted to stale values (percent 69, last_activity "Phase 267.2
+     execution started" -- both from earlier in this same phase) despite
+     `state.update-progress` having already written the correct 148/150 (99)
+     moments earlier in this same session. Hand-corrected: percent back to
+     99, last_activity to name this plan's actual completion. `completed_plans`
+     itself (148) was NOT affected, only `percent`/`last_activity`. Root cause
+     already tracked for a future dedicated debug session per the standing
+     CLAUDE.md note; not re-investigated here. -->
 
 <!-- NOTE (267.2-07 execute-plan, 2026-09-03, FORTY-SIXTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3908,7 +3921,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 267.2 (first-install-hooked-loop-repair-reward-investment-inserted) — EXECUTING
-Plan: 8 of 10
+Plan: 9 of 10
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 267.2 execution started
 
@@ -4662,6 +4675,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P05 | 45m | 3 tasks | 3 files |
 | Phase 267.2 P06 | 45min | 3 tasks | 3 files |
 | Phase 267.2 P07 | 45min | 3 tasks | 2 files |
+| Phase 267.2 P08 | 35min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -6051,6 +6065,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 267.2-06: scripts/first-install-router.cjs is a hooks/hooks.json surface, confirmed outside build-connector-registry.cjs's and check-shape-declaration.cjs's scan scope -- needs no connector descriptor or hitl_shape declaration.
 - [Phase ?]: 267.2-07: reward fires on the turn after outcome_observed, not same-turn as routing, to keep 267.2-06's outcome_observed telemetry test green
 - [Phase 267.2-07]: Reward drain readiness uses MVA pipeline_status=complete as primary signal, one-turn-stable non-empty capture file as fallback
+- [Phase ?]: 267.2-08: FIRST_INSTALL asks ONE open free-text question (D-B), no menu, no AskUserQuestion card; names scripts/first-install-router.cjs as the surface that routes it
+- [Phase ?]: 267.2-08: data/first-reward-surfaces.json session-start:FIRST_INSTALL record flipped --none (diagnostic surface) to instant_brief, honest why field states the one-turn-later residual
 
 ### Pending Todos
 
@@ -6170,8 +6186,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T10:30:22.588Z
-Stopped at: Completed 267.2-04-PLAN.md
+Last session: 2026-09-03T10:39:27.995Z
+Stopped at: Completed 267.2-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
