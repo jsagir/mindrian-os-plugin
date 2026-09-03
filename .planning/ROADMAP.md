@@ -1090,7 +1090,7 @@ Plans:
 - [x] 296-03-PLAN.md - scripts/rs-vector-bridge.cjs, the D-02 CJS vector bridge, and the Pitfall-1 both-backends guard
 - [x] 296-04-PLAN.md - retire lib/core/rs_cache.py's Pinecone SDK layer for a per-room local sidecar
 - [x] 296-05-PLAN.md - thread room scope through rs-engine.py, rs_hybrid.py, the CJS bridge and the differential scorer; name the auto-explore dispatch leftover
-- [ ] 296-06-PLAN.md - two-sided Pinecone residue gate, operator docs, full gate sweep, and the human HSI Tier 2 checkpoint
+- [x] 296-06-PLAN.md - two-sided Pinecone residue gate, operator docs, full gate sweep, and the human HSI Tier 2 checkpoint (navigator-ratified 2026-09-03, all 4 points, no overrides)
 
 Local working requirement IDs (minted at planning time; `.planning/REQUIREMENTS.md` carries no ROADMAP-mapped IDs for this phase, matching the PYPORT / CHOKE / TOOLHON precedent):
 
