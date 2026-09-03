@@ -40,17 +40,31 @@ ok('The FIRST_INSTALL region does not carry the SEED-021 citation (W0 revert of 
     + 'that the 267.1-06 Task 2 navigator ruling ordered reverted in this phase');
 });
 
-ok('The FIRST_INSTALL region contains the restored pre-f39f24d9 wording "Offer three approaches:"', function () {
+ok('The FIRST_INSTALL region no longer carries the bare pre-f39f24d9 "Offer three approaches:" '
+  + 'wording (superseded by 267.2-08\'s prose rewrite, per D-N item 6: "W0\'s revert is partly '
+  + 'superseded by W1\'s own prose rewrite two waves later")', function () {
+  // W0 (this file's original job) restored the bare pre-f39f24d9 three-approach wording as the
+  // literal evidence that the SEED-021 AskUserQuestion mandate had been cleanly reverted, not
+  // rewritten into something else. Decision D-N item 6 named in advance that this literal would
+  // not survive 267.2-08's own prose rewrite (D-B: one open question replaces the three-approach
+  // menu entirely), and ordered the two changes to ship as separate recorded acts rather than be
+  // collapsed into one edit. This assertion is therefore now a NEGATIVE pin matching that plan:
+  // if a future session reintroduces a three-approach menu, it has regressed BOTH W0's revert
+  // intent (no model-facing multi-option menu on this turn) and 267.2-08's repair (D-B).
   const fi = readRegion(SESSION_START, FIRST_INSTALL_ANCHOR);
-  assert.notEqual(fi.indexOf('Offer three approaches:'), -1,
-    'W0 incomplete: FIRST_INSTALL does not contain the restored bare pre-f39f24d9 wording '
-    + '"Offer three approaches:"');
+  assert.equal(fi.indexOf('Offer three approaches:'), -1,
+    '267.2-08 regressed: FIRST_INSTALL regained the pre-f39f24d9 "Offer three approaches:" menu '
+    + 'wording that plan 267.2-08 (D-B) deliberately replaced with one open question');
 });
 
-ok('Sanity guard: the sliced FIRST_INSTALL region is longer than 2000 characters (a bad slice '
-  + 'cannot make the two negative assertions above pass vacuously)', function () {
+ok('Sanity guard: the sliced FIRST_INSTALL region is longer than 1200 characters (a bad slice '
+  + 'cannot make the negative assertions above pass vacuously)', function () {
+  // Threshold lowered from 2000 to 1200 by 267.2-08, which deliberately shrank this payload
+  // (removed the unbacked domain-intelligence promise, the eight-field ~/.mindrian-user.md
+  // capture instruction, and the three-option menu). See the matching note in
+  // tests/test-267-1-first-install-hooked-audit.cjs.
   const fi = readRegion(SESSION_START, FIRST_INSTALL_ANCHOR);
-  assert.ok(fi.length > 2000,
+  assert.ok(fi.length > 1200,
     'sanity check failed: the FIRST_INSTALL slice looks truncated (length ' + fi.length + ')');
 });
 

@@ -124,27 +124,44 @@ ok('Action leg: the FIRST_INSTALL block does NOT carry the SEED-021 AskUserQuest
   // well-meaning session re-adds AskUserQuestion/SEED-021 here, that is a regression of the
   // navigator's own reversed scope call, not a fix, and must fail loudly.
   const fi = region(FIRST_INSTALL_ANCHOR);
-  assert.ok(fi.length > 2000, 'sanity check failed: the FIRST_INSTALL slice looks truncated (length ' + fi.length + ')');
+  // Threshold lowered from 2000 to 1200 by 267.2-08: that plan deliberately shrank this payload
+  // (removed the unbacked domain-intelligence promise, the eight-field ~/.mindrian-user.md
+  // capture instruction, and the three-option menu), so a smaller-but-real region is expected,
+  // not a truncation. 1200 still catches a genuinely truncated or empty slice.
+  assert.ok(fi.length > 1200, 'sanity check failed: the FIRST_INSTALL slice looks truncated (length ' + fi.length + ')');
   assert.equal(fi.indexOf('AskUserQuestion'), -1,
     'Action leg regressed: FIRST_INSTALL regained the AskUserQuestion mandate that the 267.2 W0 '
     + 'revert (commit f39f24d9 reverted, per the 267.1-06 Task 2 navigator ruling) removed');
   assert.equal(fi.indexOf('SEED-021'), -1,
     'Action leg regressed: FIRST_INSTALL regained the SEED-021 citation that the 267.2 W0 revert '
     + '(commit f39f24d9 reverted, per the 267.1-06 Task 2 navigator ruling) removed');
-  assert.notEqual(fi.indexOf('1. Conversational Q&A'), -1, 'option 1 label missing from FIRST_INSTALL');
-  assert.notEqual(fi.indexOf('2. Document paste'), -1, 'option 2 label missing from FIRST_INSTALL');
-  assert.notEqual(fi.indexOf('3. Skip'), -1, 'option 3 label missing from FIRST_INSTALL');
+  // 267.2-08 (D-B) replaced the three-option menu with one open question, so the three numbered
+  // option labels are gone by design. Assert no numbered-list menu marker sequence (e.g. "1. ",
+  // "2. ") survives at all: a menu on this turn would be investment before reward, the exact
+  // defect this phase fixes.
+  assert.equal(/(^|\n)\s*\d+\.\s/.test(fi), false,
+    'Action leg regressed: FIRST_INSTALL carries a numbered-list menu marker again -- '
+    + 'a menu on this turn is investment before reward, the exact ordering 267.2-08 fixed');
 });
 
-ok('Action leg: FIRST_INSTALL still asserts the reward and investment legs as prose only (GAP R-1 / GAP I-1 unremediated by design)', function () {
+ok('Action leg: FIRST_INSTALL hands first contact to the router with no unbacked reward or '
+  + 'investment promise (GAP R-1 / GAP I-1 repaired, 267.2-08)', function () {
   const fi = region(FIRST_INSTALL_ANCHOR);
-  // These two literals are the audit's cited evidence for GAP R-1 (no domain-intelligence reward
-  // routing) and GAP I-1 (no USER.md writer). If they disappear, the audit's citations are stale
-  // and the deliverable must be revisited -- Phase 267.2 is where they are supposed to change.
-  assert.notEqual(fi.indexOf('Based on your work in [domain]'), -1,
-    'GAP R-1 citation stale: the reward-leg prose literal is gone from FIRST_INSTALL');
-  assert.notEqual(fi.indexOf('~/.mindrian-user.md'), -1,
-    'GAP I-1 citation stale: the USER.md prose literal is gone from FIRST_INSTALL');
+  // These two literals were the audit's own cited evidence for GAP R-1 (no domain-intelligence
+  // reward routing) and GAP I-1 (no USER.md writer). Both are now gone by design: the reward is
+  // delivered by scripts/first-install-router.cjs machinery, not promised in prose, and the
+  // investment ask (~/.mindrian-user.md capture) is emitted by the router AFTER the reward, per
+  // docs/reward-before-investment-rule.md, never asked for in the session-start payload itself.
+  assert.equal(fi.indexOf('Based on your work in [domain]'), -1,
+    'GAP R-1 regressed: the unbacked domain-intelligence reward promise returned to FIRST_INSTALL; '
+    + 'the reward must be delivered by scripts/first-install-router.cjs, not promised in prose');
+  assert.equal(fi.indexOf('~/.mindrian-user.md'), -1,
+    'GAP I-1 regressed: the ~/.mindrian-user.md investment ask returned to FIRST_INSTALL; per '
+    + 'docs/reward-before-investment-rule.md the ask must be emitted by the router AFTER the '
+    + 'reward, not requested in the session-start payload');
+  assert.notEqual(fi.indexOf('first-install-router'), -1,
+    'FIRST_INSTALL no longer names scripts/first-install-router.cjs as the surface that owns the '
+    + 'handoff -- the positive proof that the reward/investment repair actually wired something');
 });
 
 ok('GAP G-1: the reward-before-investment guard has jurisdiction over commands/ only, never hooks', function () {
