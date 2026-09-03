@@ -164,7 +164,10 @@ function main() {
 
   let db;
   try {
-    db = new DatabaseSync(dbPath);
+    // Phase 276 C4: busy-timeout option, one line, see lib/core/room-db.cjs:242-251
+    // for the full reasoning. Pure read (findSurfaceableTensions) opened via
+    // the read-write door; option added for correctness on the door.
+    db = new DatabaseSync(dbPath, { timeout: 5000 });
   } catch (_e) {
     return emitEmpty();
   }
@@ -343,7 +346,10 @@ function contribute() {
     catch (_) { return fi.emptyFragment(); }
 
     let db;
-    try { db = new DatabaseSync(dbPath); }
+    // Phase 276 C4: busy-timeout option, one line, see lib/core/room-db.cjs:242-251
+    // for the full reasoning. Pure read (findSurfaceableTensions), same
+    // reasoning as the sibling site above.
+    try { db = new DatabaseSync(dbPath, { timeout: 5000 }); }
     catch (_) { return fi.emptyFragment(); }
 
     try {

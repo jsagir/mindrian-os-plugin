@@ -118,7 +118,9 @@ function main() {
   try { DatabaseSync = require('node:sqlite').DatabaseSync; }
   catch (_) { softWarn('node:sqlite unavailable -- skipping'); return 0; }
   let db;
-  try { db = new DatabaseSync(ROOM_DB); }
+  // Phase 276 C4: busy-timeout option, one line, see lib/core/room-db.cjs:242-251
+  // for the full reasoning.
+  try { db = new DatabaseSync(ROOM_DB, { timeout: 5000 }); }
   catch (_) { softWarn('could not open room.db'); return 0; }
 
   const rendered = renderLiveBlock(db);

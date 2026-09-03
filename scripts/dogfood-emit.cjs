@@ -36,7 +36,9 @@ function openRoomDb() {
   let DatabaseSync;
   try { DatabaseSync = require('node:sqlite').DatabaseSync; }
   catch (_) { return null; }
-  try { return new DatabaseSync(ROOM_DB); } catch (_) { return null; }
+  // Phase 276 C4: busy-timeout option, one line, see lib/core/room-db.cjs:242-251
+  // for the full reasoning.
+  try { return new DatabaseSync(ROOM_DB, { timeout: 5000 }); } catch (_) { return null; }
 }
 
 function atomicTruncate(filePath) {

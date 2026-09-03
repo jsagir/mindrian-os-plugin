@@ -240,7 +240,11 @@ function main() {
   let db = null;
   try {
     fs.mkdirSync(DB_DIR, { recursive: true });
-    db = new DatabaseSync(DB_PATH);
+    // Phase 276 C4: busy-timeout option, one line, see lib/core/room-db.cjs:242-251
+    // for the full reasoning. This opens rooms.db (the roomsHome-level graph,
+    // .rooms/.room-graph/rooms.db), NOT a per-room room.db, but it is still a
+    // genuine writer (initRoomSchema/seedStages/syncRooms) that can contend.
+    db = new DatabaseSync(DB_PATH, { timeout: 5000 });
     db.exec('PRAGMA journal_mode = WAL');
     db.exec('PRAGMA foreign_keys = ON');
 

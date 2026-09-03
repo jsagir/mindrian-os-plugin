@@ -439,19 +439,24 @@ async function main() {
   // ---------------------------------------------------------------------
   console.log('\n-- census sites B1-B3 (source-level pin: different db file than room.db) --');
 
-  pinNoTimeout(
-    'B1', 'lib/core/cross-room-store.cjs', 'db = new DatabaseSync(storeDbPath(roomsHome));',
+  // B1-B3 flip from absence to presence pins in 276-09: the option was added at the source
+  // (option-only, D-276-4), but a behavioral elapsed-floor proof stays unreachable here for
+  // the SAME reason documented above -- these sites open a different sqlite file than
+  // room.db, which the shared room-db-lock-holder-236.cjs cannot target without being
+  // extended (forbidden by this file's own declared scope).
+  pinHasTimeout(
+    'B1', 'lib/core/cross-room-store.cjs', 'db = new DatabaseSync(storeDbPath(roomsHome), { timeout: 5000 });',
     'opens <roomsHome>/.rooms/cross-room.db, NOT room.db; the shipped '
     + 'room-db-lock-holder-236.cjs hardcodes the room.db path and cannot target this sibling '
     + 'database without being extended, which this plan\'s declared file scope forbids'
   );
-  pinNoTimeout(
+  pinHasTimeout(
     'B2', 'lib/workflow/cross-room-umbilical-closer.cjs',
-    'db = new DatabaseSync(rejectionDbPath(roomsHome));',
+    'db = new DatabaseSync(rejectionDbPath(roomsHome), { timeout: 5000 });',
     'opens <roomsHome>/.rooms/cross-room-rejections.db, NOT room.db; same reasoning as B1'
   );
-  pinNoTimeout(
-    'B3', 'lib/core/breakthrough/review-queue.cjs', 'const db = new DatabaseSync(dbPath);',
+  pinHasTimeout(
+    'B3', 'lib/core/breakthrough/review-queue.cjs', 'const db = new DatabaseSync(dbPath, { timeout: 5000 });',
     'opens <roomsHome>/.rooms/breakthrough-review-queue.db, NOT room.db; same reasoning as B1'
   );
 

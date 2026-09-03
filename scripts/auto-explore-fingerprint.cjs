@@ -102,7 +102,12 @@ function getArtifactCount(dbPath) {
   }
   let db;
   try {
-    db = new DatabaseSync(dbPath);
+    // Phase 276 C4: busy-timeout option, one line, see lib/core/room-db.cjs:242-251
+    // for the full reasoning. This site is currently a pure read (SELECT
+    // COUNT) opened via the read-write door, not the read-only door; the
+    // option is added for correctness on the door, not because this specific
+    // read path can measurably wait on it.
+    db = new DatabaseSync(dbPath, { timeout: 5000 });
   } catch (_e) {
     return -1;
   }
@@ -132,7 +137,11 @@ function dailyCapHit(dbPath) {
   }
   let db;
   try {
-    db = new DatabaseSync(dbPath);
+    // Phase 276 C4: busy-timeout option, one line, see lib/core/room-db.cjs:242-251
+    // for the full reasoning. Pure read (findRecentChanges) opened via the
+    // read-write door; option added for correctness, same as the sibling
+    // getArtifactCount site above.
+    db = new DatabaseSync(dbPath, { timeout: 5000 });
   } catch (_e) {
     return false;
   }
