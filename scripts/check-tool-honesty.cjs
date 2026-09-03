@@ -535,8 +535,17 @@ function splitBranches(handlerBodyText) {
       if (depths[lm.index] !== baseDepth) continue;
       const isCase = /^case/.test(lm[0]);
       if (isCase) {
-        let idx = lm.index + lm[0].length;
-        while (idx < masked.length && /\s/.test(masked[idx])) idx += 1;
+        // D-1 fix (phase 276-06): lm[0].length already swallowed the
+        // blanked-out quoted command value, because labelRe runs over
+        // masked text where every string literal (delimiters included) is
+        // replaced by spaces, so \bcase\s+ greedily matches straight
+        // through to the following colon. Anchor at lm.index + 4 (the
+        // literal length of the token "case") instead, then skip
+        // whitespace in the ORIGINAL handlerBodyText, not masked -- both
+        // halves are required, changing only one leaves idx still past the
+        // real quote character.
+        let idx = lm.index + 4;
+        while (idx < masked.length && /\s/.test(handlerBodyText[idx])) idx += 1;
         const qc = handlerBodyText[idx];
         if (qc !== "'" && qc !== '"' && qc !== '`') continue;
         const endQ = skipQuotedForward(handlerBodyText, idx, qc);
@@ -561,8 +570,17 @@ function splitBranches(handlerBodyText) {
     // NEXT label that actually carries code. A literal "runs to the next
     // case" cut would wrongly starve the earlier label's real behavior and
     // manufacture a false HIGH RISK on ordinary JS fall-through syntax --
-    // this is Rule 1 (auto-fix bug), verified against real fall-through in
-    // this codebase (room_content's new-project/setup/update/help group).
+    // this is Rule 1 (auto-fix bug). CORRECTION (phase 276-06): this
+    // comment previously claimed the grouping was "verified against real
+    // fall-through in this codebase (room_content's new-project/setup/
+    // update/help group)". That verification could not have happened as
+    // stated, because D-1 (the case-label regex running over masked text)
+    // made the switch path produce zero labels, so no fall-through group
+    // was ever exercised before this phase's fix. What is actually true
+    // after the D-1 fix: the grouping IS exercised by room_content's
+    // new-project/setup/update/help fall-through group, and it is verified
+    // by tests/test-276-tool-honesty-switch-branches.cjs as of phase 276.
+    // It was NOT verified before that test existed.
     for (let li = 0; li < labels.length; li += 1) {
       const lab = labels[li];
       if (lab.isDefault) {
