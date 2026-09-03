@@ -202,14 +202,14 @@ too -- once Theo consolidates room-side operational tools into the same catalog 
 tools (per Theo's own CLAUDE.md architecture doctrine), check whether this phase's
 enforcement-locus fix needs to also cover the Theo-catalog surface, not just today's
 `mindrian-os` server, before this phase's research locks.
-**Plans:** 3/9 plans executed
+**Plans:** 4/9 plans executed
 Plans:
 **Wave 1**
 
 - [x] 257-01-PLAN.md - mint the `egress_blocked` refusal kind + amend the two frozen downstream contracts (W1)
 - [x] 257-02-PLAN.md - additive `refusal` + `egress_disclosure` pass-through in `wrapDirective()` (W1)
 - [x] 257-03-PLAN.md - correct the record: census parenthetical + dated handoff correction (W1)
-- [ ] 257-04-PLAN.md - the D-01/D-02 rulings note + the Theo T-1/T-2/T-3 forward-compat note (W1)
+- [x] 257-04-PLAN.md - the D-01/D-02 rulings note + the Theo T-1/T-2/T-3 forward-compat note (W1)
 - [ ] 257-05-PLAN.md - baseline honesty: capture pre-change gates + de-freeze the two red 239 arms (W1)
 
 **Wave 2** *(blocked on Wave 1 completion)*

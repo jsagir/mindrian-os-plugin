@@ -901,12 +901,12 @@ one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop'
       `docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md` carries an append-only dated correction
       (257-03).
 
-- [ ] **LOCUS-05**: the far-side ruling (D-01) is documented with both halves, the pragmatic finding
+- [x] **LOCUS-05**: the far-side ruling (D-01) is documented with both halves, the pragmatic finding
       that this repo's `mcp-server-brain/` is the dead service and the principled finding that a
       far-side guard can prevent USE but never RECEIPT. `docs/257-NOTE-part8-enforcement-locus-rulings.md`
       (257-04).
 
-- [ ] **LOCUS-06**: the direct-HTTP gap (D-02) is documented with the four-path coverage table and the
+- [x] **LOCUS-06**: the direct-HTTP gap (D-02) is documented with the four-path coverage table and the
       open high-severity RCA cited by filename. Same file (257-04). Includes the D-05 flag that
       `query()`'s `null` contract stays frozen and G2's conflation is pinned by test rather than fixed.
 
@@ -921,7 +921,7 @@ one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop'
       post-change counts are both recorded (257-05). No 257 report claims a green suite without citing
       the recorded baseline.
 
-- [ ] **LOCUS-09**: the Theo forward-compatibility note (D-08) covering T-1 (the hook matcher goes
+- [x] **LOCUS-09**: the Theo forward-compatibility note (D-08) covering T-1 (the hook matcher goes
       dark on flip day), T-2 (catalog consolidation makes name-based enforcement structurally
       impossible, leaving `registerContentTool` as the only viable locus) and T-3 (Theo is local
       today, so the window is open now). `docs/257-NOTE-theo-forward-compat-enforcement-locus.md`
