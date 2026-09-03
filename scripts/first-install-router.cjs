@@ -711,9 +711,94 @@ function _buildInvestmentContext() {
     + 'production rooms and does not exist.';
 }
 
+// ---------- CR-02 (267.2-REVIEW.md): detect an in-flight /mos:ignite birth this session ----------
+//
+// /mos:ignite's own Gate B1 Door 1 is a multi-turn identity capture (a two-step
+// AskUserQuestion persona pick), typically consuming 2+ further user turns before B2/B3
+// follow. This router advances its own state machine on every turn independently, with
+// no signal from /mos:ignite's own gate state -- so the investment ask can land on a turn
+// where the user is still mid-way through /mos:ignite's own persona pick, injecting a
+// second, competing "who are you" ask for information ignite already captured (or is
+// actively capturing).
+//
+// PARTIAL FIX, stated honestly (see 267.2-CR-02-DEFERRED.md for the residual gap this
+// does NOT close). The one genuinely reachable, low-risk signal a headless UserPromptSubmit
+// hook can check without a room and without inventing a new cross-surface coordination
+// primitive: lib/core/scratchpad-ops.cjs's birth_gate_answers journal. writeScratchpadBirthAnswer
+// is called by commands/ignite.md's B1 gate the MOMENT the navigator completes the two-step
+// persona pick (ignite.md:160), well before B2/B3. Filtering that journal for a 'B1' entry
+// whose ts is at or after THIS first-install session's own armed_at_ms (this router's own
+// state.json, set once at arm time) scopes the check to "did ignite's own B1 complete during
+// THIS first-install conversation" -- no new marker, no new writer, no edit to commands/ignite.md.
+//
+// What this DOES close: once B1 has completed, ignite already holds role_blend for this
+// session -- asking again is pure redundancy, so the investment ask is skipped and the
+// already-known role_blend is folded into the deterministic identity seed instead (no model
+// round-trip needed for it).
+//
+// What this does NOT close (the honest residual): while B1's own two-step card is still
+// PENDING (no entry written yet), there is no artifact anywhere a hook can read to know an
+// interactive card is mid-render -- Claude Code exposes no such state to hooks. That window
+// stays open; 267.2-CR-02-DEFERRED.md names the follow-up needed to close it for real.
+function _checkIgniteBirthCaptured(state) {
+  try {
+    const scratchpadOps = require('../lib/core/scratchpad-ops.cjs');
+    const pad = scratchpadOps.readScratchpad();
+    const answers = Array.isArray(pad.birth_gate_answers) ? pad.birth_gate_answers : [];
+    const armedAtMs = (state && typeof state.armed_at_ms === 'number') ? state.armed_at_ms : 0;
+    const b1 = answers.find(function (a) {
+      return a && a.gate_id === 'B1' && typeof a.ts === 'number' && a.ts >= armedAtMs;
+    });
+    if (!b1) return { captured: false, roleBlend: null };
+    const roleBlend = (b1.role_blend && typeof b1.role_blend === 'object' && !Array.isArray(b1.role_blend))
+      ? b1.role_blend : null;
+    return { captured: true, roleBlend: roleBlend };
+  } catch (_e) {
+    // Any failure here degrades to "not captured" -- the ordinary ask path below is always
+    // a safe fallback, never a hard stop.
+    return { captured: false, roleBlend: null };
+  }
+}
+
 function _askInvestment(state) {
-  const seedResult = _seedIdentityFile();
+  const igniteBirth = _checkIgniteBirthCaptured(state);
   const askedAtMs = Date.now();
+
+  if (igniteBirth.captured) {
+    // /mos:ignite's own B1 already captured identity information this session. Seed the
+    // deterministic delta as usual, PLUS the role_blend B1 already resolved (no model needed
+    // for it -- it is already known), and skip the prose ask entirely rather than injecting a
+    // second, competing "who are you" prompt into whatever ignite gate the user is now on.
+    const extraDelta = igniteBirth.roleBlend ? { role_blend: igniteBirth.roleBlend } : undefined;
+    const seedResult = _seedIdentityFile(extraDelta);
+    const askedState = Object.assign({}, state, {
+      phase: 'investment_asked',
+      investment_asked_at_ms: askedAtMs,
+      seed_written: seedResult.seedWritten,
+      seed_write_failed: seedResult.writeFailed,
+      investment_ask_skipped: true,
+      investment_ask_skip_reason: 'ignite_birth_captured',
+    });
+    _atomicWriteState(askedState);
+
+    try {
+      _appendTelemetry({
+        schema_version: 1,
+        event: 'investment_asked',
+        ts_ms: askedAtMs,
+        seed_written: seedResult.seedWritten,
+        write_failed: seedResult.writeFailed,
+        turns_since_reward: 1,
+        skip_reason: 'ignite_birth_captured',
+      });
+    } catch (_e) { /* telemetry is best-effort */ }
+
+    // CR-02: no prose ask emitted -- ignite already asked, and the user may still be
+    // answering one of its own gates this very turn.
+    return emitEmpty();
+  }
+
+  const seedResult = _seedIdentityFile();
   const askedState = Object.assign({}, state, {
     phase: 'investment_asked',
     investment_asked_at_ms: askedAtMs,
@@ -735,6 +820,7 @@ function _askInvestment(state) {
       // hardcoded constant baked into the telemetry consumer, in case a future turn
       // model changes that.
       turns_since_reward: 1,
+      skip_reason: null,
     });
   } catch (_e) { /* telemetry is best-effort */ }
 
