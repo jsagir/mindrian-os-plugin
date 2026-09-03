@@ -665,23 +665,37 @@ else
   # declaration.cjs reds the moment that literal stops existing.
   COLD_START_MENU="---\nGet started:\n  /mos:new-project .... Start a new venture project\n  /mos:help ........... See what Larry can help with\n  /mos:diagnose ....... Classify your problem type\n\nOr just talk -- Larry is a thinking partner first.\nType /mos: to see ${LIVE_COMMAND_COUNT} commands.\n  /mos:update ......... Check for latest features\n---"
 
+  # FIRST_INSTALL_HANDOFF (Phase 267.2 W1, HOOK-09): the FIRST_INSTALL
+  # branch's own trailing block, replacing that branch's use of
+  # ${COLD_START_MENU} (decision D-F: the COLD_START_MENU variable itself
+  # stays byte-identical and is still interpolated by the UPDATE and
+  # MODE_ROUTING branches below). Names the one open question as the next
+  # move and hands the rest of the turn to scripts/first-install-router.cjs,
+  # which classifies the user's free-text answer locally and routes it.
+  FIRST_INSTALL_HANDOFF="---\nThat one question is the whole ask. scripts/first-install-router.cjs is already listening on this turn -- it classifies your answer locally and routes what happens next, no menu required.\n---"
+
   # Enable auto-update by default for new installs
   if [ "$ONBOARD_TYPE" = "FIRST_INSTALL" ]; then
     mkdir -p "$HOME/.mindrian" 2>/dev/null
     touch "$HOME/.mindrian/auto-update" 2>/dev/null
   fi
 
-  # FIRST-REWARD DECLARATION (Phase 267.3, ruling D-A). Declared in
-  # data/first-reward-surfaces.json as id `session-start:FIRST_INSTALL`,
-  # interactive_first_reward `--none (diagnostic surface)`. That is an OPT-OUT,
-  # not a reward: the payload's domain-intelligence line is a prose instruction
-  # to the model with no machinery behind it, so this branch delivers no
-  # qualifying variable reward today (GAP R-1, Reward leg 2/10, in
-  # .planning/research/2026-08-27-hooked-first-install-audit.md). Phase 267.2
-  # owns repairing that; 267.3 only made the gap declarable and visible. Read
-  # the record's `why` field before changing either the prose or the value.
+  # FIRST-REWARD DECLARATION (Phase 267.3, ruling D-A; rewritten Phase 267.2
+  # W1, HOOK-09). Declared in data/first-reward-surfaces.json as id
+  # `session-start:FIRST_INSTALL`, interactive_first_reward `instant_brief`.
+  # This branch no longer promises a reward in prose: it hands first contact
+  # to scripts/first-install-router.cjs, which classifies the user's one-
+  # sentence free-text answer locally and, on the venture-shaped path, fires
+  # the room-free Instant Brief pipeline (lib/core/mva-orchestrator.cjs) out
+  # of band, draining the rendered result as additionalContext one turn
+  # later (closing GAP R-1, .planning/research/2026-08-27-hooked-first-
+  # install-audit.md). The registry record was updated in this same change.
+  # Change the prose below and you must revisit the record: the registry's
+  # `anchor` field points at a literal inside this assignment, and
+  # tests/test-267.3-session-start-declaration.cjs reds the moment that
+  # literal stops existing.
   if [ "$ONBOARD_TYPE" = "FIRST_INSTALL" ]; then
-    context="${stable_prefix}\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[MindrianOS Onboarding] First install detected.\n\nThis is the user's very first session with MindrianOS. Welcome them warmly using one of your signature openers (\"Very simply...\", \"Here's the thing...\", \"One thing I've learned...\"). Be conversational and direct. No emoji. No filler phrases like \"I'd be happy to help\" or \"Great question!\".\n\nYour goal: build deep context about this user so every future interaction is smarter.\n\nStart by asking who they are and what they do. Frame it as valuable, not bureaucratic: \"Five minutes here saves hours later -- I'll know your domain, your goals, and how to actually help.\"\n\nOffer three approaches:\n1. Conversational Q&A -- you ask 3-5 questions about their role, domain, current focus, and goals\n2. Document paste -- \"Paste your LinkedIn bio or a short blurb about yourself and I'll build your profile from that\"\n3. Skip -- \"You can skip this entirely and jump straight to working. I'll learn about you as we go.\"\n\nIf the user engages with approach 1 or 2, build a USER.md file in their home directory (~/.mindrian-user.md) capturing: name, role, domain, subdomain, technical level, current focus, goal, expertise areas.\n\nIf they provide context, follow up with domain intelligence: \"Based on your work in [domain], here is what I already know about your space\" -- then suggest relevant frameworks and room sections.\n\nAfter building context OR if the user skips, present capabilities as natural actions (not slash commands):\n- You can tell Larry about a meeting you had and he will file and analyze it\n- You can ask Larry to diagnose what type of problem you are working on\n- You can ask Larry to grade your venture honestly\n- You can ask Larry to find relevant grants and opportunities\n- You can ask Larry to get 6 different perspectives on your work\n- You can ask Larry to query your knowledge graph\n- You can start a new project and Larry will set up your Data Room\n\nAfter the onboarding conversation completes or the user skips, run: bash \"${PLUGIN_ROOT}/scripts/check-onboard\" --write\n\nThen show the command menu below.\n\n${COLD_START_MENU}"
+    context="${stable_prefix}\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[MindrianOS Onboarding] First install detected.\n\nThis is the user's very first session with MindrianOS. Welcome them warmly using one of your signature openers (\"Very simply...\", \"Here's the thing...\", \"One thing I've learned...\"). Be conversational and direct. No emoji. No filler phrases like \"I'd be happy to help\" or \"Great question!\". Your turn wears exactly one De Stijl glyph, per Canon Part 12.\n\nAsk ONE open question, in your own voice, about what they are working on or what brought them here today, and accept a free-text answer. Do NOT render a command menu, an options card, or a numbered list on this turn: scripts/first-install-router.cjs classifies that free-text answer and injects the routing instruction itself, so nothing here needs to be chosen or offered by the model.\n\nAfter the user answers, present capabilities as natural actions (not slash commands):\n- You can tell Larry about a meeting you had and he will file and analyze it\n- You can ask Larry to diagnose what type of problem you are working on\n- You can ask Larry to grade your venture honestly\n- You can ask Larry to find relevant grants and opportunities\n- You can ask Larry to get 6 different perspectives on your work\n- You can ask Larry to query your knowledge graph\n- You can start a new project and Larry will set up your Data Room\n\nAfter the onboarding conversation completes or the user skips, run: bash \"${PLUGIN_ROOT}/scripts/check-onboard\" --write\n\n${FIRST_INSTALL_HANDOFF}"
 
   # FIRST-REWARD DECLARATION (Phase 267.3, ruling D-A). Declared in
   # data/first-reward-surfaces.json as id `session-start:UPDATE`,
