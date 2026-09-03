@@ -640,6 +640,16 @@ function _drainReward(state) {
 // role_blend and problem_type are never guessed from the greeting bucket -- the bucket is
 // an intent signal, not a role, and a fabricated role is worse than a null one.
 //
+// journey_stage value (deviation, Rule 1 bug fix during execution): 267.2-DECISIONS.md's
+// D-E text names the literal string 'first_install', but readUserMd's journey_stage field
+// is schema-tolerant against lib/core/persona-taxonomy.cjs's JOURNEY_STAGES enum (the
+// Hero's Journey stages -- ordinary_world, call_to_adventure, ... return_with_elixir):
+// an out-of-enum value silently coerces to null on read (readUserMd:318-323), which is
+// exactly the class of write-read disagreement this plan's Task 1 (C-3) exists to fix,
+// just recurring on a different field. 'ordinary_world' is the enum's own first stage --
+// "the hero's normal life before the adventure begins" -- the correct semantic match for
+// "a first-install session, before anything has happened", and it round-trips correctly.
+//
 // This is a second CALLER of writeUserMdAtomic, not a second implementation of it --
 // exactly the distinction lib/mcp/tools/identity.cjs:25-31 draws in its own header, and
 // what MEMOP-08 forbids is the latter, not the former (decision D-E).
@@ -649,7 +659,7 @@ function _seedIdentityFile() {
   try {
     const existing = readUserMd(userMdPath);
     const delta = {
-      journey_stage: 'first_install',
+      journey_stage: 'ordinary_world',
       last_detected_at: new Date().toISOString(),
     };
     const merged = existing ? Object.assign({}, existing, delta) : delta;
