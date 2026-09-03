@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 267.2-09-PLAN.md
-last_updated: "2026-09-03T10:58:35.576Z"
-last_activity: 2026-09-03 -- Completed 267.2-09-PLAN.md (router's reward_delivered -> investment_asked -> done legs wired via read-modify-write against writeUserMdAtomic; lib/core/user-archetype.cjs's write-read disagreement (research C-3) fixed at the reader; GAP I-1 flipped CLOSED; HOOK-10)
+stopped_at: 267.2-10 Tasks 1-2 complete (HOOK-01..HOOK-12 registered, VALIDATION.md reconciled, gate roll-up measured, dev-research trail staged); Task 3 blocking navigator checkpoint PENDING
+last_updated: "2026-09-03T11:15:11.980Z"
+last_activity: 2026-09-03 -- 267.2-10 Tasks 1-2 complete; Task 3 (blocking navigator checkpoint) PENDING, phase 267.2 NOT yet closed
 progress:
   total_phases: 26
   completed_phases: 18
@@ -13,6 +13,24 @@ progress:
   completed_plans: 149
   percent: 99
 ---
+
+<!-- NOTE (267.2-10 execute-plan, 2026-09-03, FORTY-NINTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.add-decision` and `state.record-session`, the frontmatter's
+     `completed_phases`/`completed_plans`/`percent`/`last_activity` fields all
+     jumped to values claiming Phase 267.2 (and this plan) are FULLY complete
+     (completed_phases 19, completed_plans 150, percent 73, last_activity a
+     stale "Phase 267.2 execution started" string) despite this plan's own
+     Task 3 (a blocking navigator sign-off checkpoint) being explicitly NOT
+     executed by this run. The likely trigger this time: this plan's own
+     267.2-10-SUMMARY.md now exists on disk, and the resync appears to count
+     a SUMMARY.md's mere existence as phase/plan completion regardless of
+     whether the plan's own tasks are actually done. Hand-corrected:
+     completed_phases back to 18, completed_plans back to 149, percent back
+     to 99 (149/150), last_activity rewritten to state plainly that Task 3
+     is pending and the phase is NOT closed. Root cause already tracked for
+     a future dedicated debug session per the standing CLAUDE.md note; not
+     re-investigated here. -->
 
 <!-- NOTE (267.2-09 execute-plan, 2026-09-03, FORTY-EIGHTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -6084,6 +6102,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: C-3 fixed at the reader (lib/core/user-archetype.cjs), scoping the USER.md scan to canonical_role's value plus the prose body, never the raw whole file or role_blend — Every other caller of writeUserMdAtomic would still read back wrong if fixed at the writer instead (267.2-09 D-G)
 - [Phase 267.2]: journey_stage seed value corrected to 'ordinary_world' (not the literal 'first_install' named in D-E) — 'first_install' is not in persona-taxonomy.cjs's JOURNEY_STAGES enum and silently coerces to null on read; 'ordinary_world' is the enum's own first Hero's Journey stage and round-trips correctly
 - [Phase 267.2]: The router's own pre-existing renameSync for its unrelated state.json bookkeeping is not a second ~/.mindrian-user.md writer — No-second-writer guards are scoped to lines referencing userMdPath, not a blanket whole-file substring ban, to avoid false-positiving against 267.2-06/07's own state persistence
+- [Phase 267.2]: 267.2-10 Tasks 1-2 complete: HOOK-01..HOOK-12 registered in REQUIREMENTS.md, 267.2-VALIDATION.md reconciled, full gate set measured green as a delta against 267.2-BASELINE.md (267.1 flipped RED->GREEN). Pre-existing pre-commit hook byte-drift fixed. Dev-research trail authored and staged, blocked at the room by write-scope-check, not bypassed. — Task 3 (blocking navigator sign-off checkpoint, D-C/D-D/D-H/D-K judgment calls plus the actual first-install prose) was intentionally NOT executed, simulated, or auto-approved by this executor run. Phase 267.2 remains open pending human ruling in the orchestrating conversation.
 
 ### Pending Todos
 
@@ -6203,8 +6222,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T10:58:35.490Z
-Stopped at: Completed 267.2-09-PLAN.md
+Last session: 2026-09-03T11:15:11.903Z
+Stopped at: 267.2-10 Tasks 1-2 complete (HOOK-01..HOOK-12 registered, VALIDATION.md reconciled, gate roll-up measured, dev-research trail staged); Task 3 blocking navigator checkpoint PENDING
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
