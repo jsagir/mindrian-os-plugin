@@ -4,6 +4,23 @@
 - 
 
 ### Fixed
+- The `meeting` MCP tool's `file-meeting` command returned a completion-shaped response
+  ("## File Meeting", room state, a filing-protocol section, the echoed transcript, a
+  "Meeting filed" footer) while writing nothing - no `writeClaimNode`, no `artifact_file`
+  call, no room.db mutation anywhere in the handler. Worse, the one thing the branch did
+  try to do (hand back `references/meeting/filing-protocol.md`) also returned nothing
+  usable, because that reference file did not exist on disk and the branch silently
+  dropped the section on a missed read. Fixed: an honest tool description naming
+  `artifact_file` as the real write path and `/mos:file-meeting` as the fuller CLI path;
+  a leading, machine-checkable `**filed: false**` marker on all three meeting branches
+  (`file-meeting`, `pipeline`, `speakers`); an explicit missing-reference signal instead
+  of silent omission; and a real `references/meeting/filing-protocol.md` carrying the
+  Phase 150.8 Claimify four-pass protocol in surface-neutral form, pinned by
+  `tests/test-kwl-meeting-mcp-honesty.cjs` (registered in `tests/run-all-266.sh`).
+  What did NOT change: the MCP surface still does not call `writeClaimNode` itself, and
+  the Tri-Polar parity gap this defect surfaced - the CLI (`/mos:file-meeting`) has had
+  real DIKW-typed meeting filing since 2026-06-12, Desktop and Cowork never have - remains
+  open, tracked in `.planning/debug/meeting-file-meeting-false-success.md`.
 - Bare `scripts/<name>` invocations (`bash scripts/foo`, `node scripts/foo.cjs`) are now
   anchored with `CLAUDE_PLUGIN_ROOT` (or the fail-closed `MINDRIAN_OS_ROOT` form for
   hand-authored skills), so a Bash tool invocation resolves against the plugin install

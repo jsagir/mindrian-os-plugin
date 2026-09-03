@@ -157,6 +157,9 @@ run "234 tool description floor"                  node tests/test-234-tool-descr
 run "npm install lock contract"                   node lib/core/npm-install-lock.test.cjs
 run "mcp dep heal contract"                       node lib/core/mcp-dep-heal.test.cjs
 run "connector registry born-wired --check"       node scripts/build-connector-registry.cjs --check
+# Quick 260903-kwl: meeting MCP tool honesty (no test-266- prefix, so this is
+# the documented explicit-gate-line home for it, per this block's own header).
+run "kwl meeting mcp honesty"                     node tests/test-kwl-meeting-mcp-honesty.cjs
 
 # ---------------------------------------------------------------------------
 # NO-EM-DASH FENCE (C-01): clone the donor's fence at run-all-264.sh
@@ -184,6 +187,9 @@ EMDASH_TARGETS=(
   "bin/mindrian-brain-mcp-client.cjs"
   "lib/core/npm-install-lock.test.cjs"
   "lib/core/mcp-dep-heal.test.cjs"
+  # Quick 260903-kwl
+  "tests/test-kwl-meeting-mcp-honesty.cjs"
+  "references/meeting/filing-protocol.md"
 )
 shopt -s nullglob
 for f266 in "$ROOT"/tests/test-266-*; do

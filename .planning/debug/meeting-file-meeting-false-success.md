@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: partial-close
 kind: rca
 trigger: "meeting-file-meeting-false-success"
 issue_id: ""
@@ -8,16 +8,28 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [8]
 created: 2026-09-03T13:55:00Z
-updated: 2026-09-03T13:55:00Z
+updated: 2026-09-03T15:20:00Z
 ---
 
 ## Current Focus
 <!-- OVERWRITE on each update - reflects NOW -->
 
+**Partial close (quick 260903-kwl).** Change 1 (the honesty fix: description, no-write
+marker, missing-reference signal) and the Change 2 scope check (pipeline and speakers
+branches confirmed same read-only shape, same fix applied) are SHIPPED. This is NOT a
+full resolution: the Technical Root Cause section's real defect - the Tri-Polar parity
+gap where the CLI (`/mos:file-meeting`) has had real DIKW-typed meeting filing since
+2026-06-12 and Desktop/Cowork never have, because the MCP surface still never calls
+`navigation.writeClaimNode` - is explicitly OUT OF SCOPE for this pass and stays OPEN.
+The recommended shape in the Consult section (small single-job tool calls, each with a
+gate_render/gate_answer confirmation step) is still design-only, not yet approved or
+built. Do not move this file to `resolved/` or add a `knowledge-base.md` entry until
+that gap itself is closed by a future, separately-scoped GSD plan.
+
 hypothesis: `meeting`'s `file-meeting` command never wrote anything (no `insertNode`, no `artifact_file`, no room.db mutation) despite its own tool description claiming it does ("parses a transcript and files it as a room entry"), and its response text ("## File Meeting" header, echoed transcript, no error) reads as a filing confirmation to any caller, human or model, that does not independently verify the write.
 test: read the handler in full, confirmed it. Independently verified against a live call this session: `room.db` mtime unchanged before/after a real `file-meeting` call with a full real transcript as `context`.
 expecting: confirmed, no further test needed to establish the root cause. Remaining open question is scope of fix (see Required Code Changes).
-next_action: navigator decision on which fix track to take (see Required Code Changes, two tracks named).
+next_action: the honesty half (Change 1 + Change 2 scope check) is done. Next action belongs to a future, separately-scoped GSD plan: build the recommended shape in the Consult section (small single-job MCP tool calls walking the Claimify protocol, persisting through `artifact_file`, confirming through `gate_render`/`gate_answer`) so Desktop and Cowork reach real DIKW-typed filing, closing the Tri-Polar gap this RCA names.
 
 ## Meta
 
@@ -116,18 +128,18 @@ Per navigator instruction, consulted `icm-architect` (direct architectural doctr
 ## Required Code Changes
 <!-- Explicit, imperative, one block per change -->
 
-- Change 1 (short-term patch, recommended for immediate fix):
+- Change 1 (short-term patch, recommended for immediate fix) - SHIPPED (quick 260903-kwl):
   - Location: `lib/mcp/tool-router.cjs:1362` (tool description) and `:1372-1381` (`file-meeting` branch response construction)
   - Current behavior: description states "file-meeting parses a transcript and files it as a room entry"; response returns transcript + reference doc with no filing-status signal.
   - Required behavior: correct the description to state what the tool actually does ("file-meeting surfaces the filing protocol and room context so the calling model can file the transcript via `artifact_file`; it does not write anything itself"). Add an explicit, structured field to the response - e.g. a leading line `**No write occurred. Use artifact_file to actually file this content.**` or a machine-checkable `filed: false` marker - so neither a human nor a model reading the response can mistake it for a completion.
-  - Short-term patch: the description and response-text correction above. No behavior change, no risk to existing callers, ships same-day.
-  - Long-term fix: a real design decision, NOT to be resolved as part of this patch - should `file-meeting` actually perform the parse-and-file itself (matching its current description's promise), turning it into a real write path like `artifact_file`? That is a feature-scope question for the navigator, separate from the honesty fix above.
-- Change 2 (scope check, same severity class, not yet confirmed):
+  - Short-term patch: the description and response-text correction above. No behavior change, no risk to existing callers, ships same-day. DONE: description rewritten, `NO_WRITE_MARKER` (`**filed: false**`) added via a `noWriteBanner()` helper, explicit missing-reference else arm added.
+  - Long-term fix: a real design decision, NOT to be resolved as part of this patch - should `file-meeting` actually perform the parse-and-file itself (matching its current description's promise), turning it into a real write path like `artifact_file`? That is a feature-scope question for the navigator, separate from the honesty fix above. STILL OPEN - see Current Focus.
+- Change 2 (scope check, same severity class) - CONFIRMED and FIXED (quick 260903-kwl):
   - Location: `lib/mcp/tool-router.cjs:1384-1402`, the `pipeline` and `speakers` branches of the same tool
   - Current behavior: read-only, reference-doc-plus-context pattern, same shape as `file-meeting` - not independently write-verified this pass.
   - Required behavior: confirm whether either branch's description overclaims a write the way `file-meeting`'s did; if so, apply the identical description/response correction.
-  - Short-term patch: n/a until confirmed.
-  - Long-term fix: n/a until confirmed.
+  - Short-term patch: CONFIRMED both branches were read-only (matching the shared tool description's overclaim, not an independent per-branch overclaim) and applied the identical `noWriteBanner()` + missing-reference-else-arm treatment to both.
+  - Long-term fix: n/a - both branches are, and remain, reference-only by design; no write path is scoped for either.
 
 ## Tests to Add or Update
 
@@ -158,7 +170,29 @@ Per navigator instruction, consulted `icm-architect` (direct architectural doctr
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: confirmed - see Technical Root Cause above.
-fix: PENDING navigator decision on Change 1's exact wording/shape and whether Change 2's scope check is wanted now or deferred.
-verification: PENDING
-files_changed: []
-commits: []
+fix: PARTIAL - the honesty half only (Change 1 + Change 2 scope check). Description
+  rewritten to assert no capability the handler lacks; NO_WRITE_MARKER (`**filed: false**`)
+  leads all three meeting branches; each branch signals an explicit not-found line instead
+  of silently omitting a missing reference; references/meeting/filing-protocol.md created
+  as a faithful, surface-neutral extract of commands/file-meeting.md Step 3 so the
+  file-meeting branch's safeReadFile actually resolves now. NOT fixed: the MCP surface
+  still does not call navigation.writeClaimNode; the Tri-Polar parity gap remains open,
+  tracked here (see Current Focus) and in the CHANGELOG entry that names it explicitly.
+verification: `node tests/test-kwl-meeting-mcp-honesty.cjs` (37/37 assertions, 5 scenarios:
+  DESCRIPTION_HONEST, NO_WRITE_MARKER_ALL_BRANCHES, PROTOCOL_PRESENT, NO_WRITE_PROPERTY,
+  DRIFT_GUARD), registered in `tests/run-all-266.sh` (explicit gate line + EMDASH_TARGETS).
+  `bash tests/run-all-266.sh` reports FAIL=0. `node tests/test-234-tool-description-floor.cjs`
+  passes over the wire for all 39 registered tools. `node tests/test-270-tool-schema-budget.cjs`
+  passes; measured delta: 39 tools, 14781 desc bytes, 21900 schema bytes, 36681 total bytes,
+  ~9170 approx tokens. `git diff --numstat commands/file-meeting.md` shows zero deletions.
+files_changed:
+  - lib/mcp/tool-router.cjs
+  - references/meeting/filing-protocol.md
+  - commands/file-meeting.md
+  - skills/file-meeting/SKILL.md (auto-generated mirror, regenerated)
+  - tests/test-kwl-meeting-mcp-honesty.cjs
+  - tests/run-all-266.sh
+  - CHANGELOG.md
+commits:
+  - 3a35f4f6 (fix(mcp): make meeting tool description and branches honest about writing nothing)
+  - 2f1f4cf3 (docs(meeting): add the real filing-protocol.md the MCP meeting tool tries to read)
