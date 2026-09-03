@@ -142,7 +142,7 @@ Larry adds a brief observation about the export. Examples:
 
 This mode is the reverse of export. It converts any Obsidian vault or folder of Markdown files into a fully-structured MindrianOS Data Room. Content classifier routes notes to sections, person detector builds team profiles, meeting detector files meetings, Obsidian wikilinks preserve and convert to room-relative paths, and a permanent IMPORT-REPORT.md is filed under `room/imports/{date}-{topic}/`.
 
-> **Routing note (PRECONDITIONS.md):** `bin/mindrian-tools.cjs` is currently broken by a better-sqlite3 / lazygraph-ops MODULE_NOT_FOUND. Route `/mos:vault import` directly to `node scripts/vault-import.cjs`, never through `mindrian-tools.cjs`.
+> **Routing note (PRECONDITIONS.md):** `bin/mindrian-tools.cjs` is currently broken by a better-sqlite3 / lazygraph-ops MODULE_NOT_FOUND. Route `/mos:vault import` directly to `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/vault-import.cjs"`, never through `mindrian-tools.cjs`.
 
 ### Step 1: Parse flags
 
@@ -159,7 +159,7 @@ This mode is the reverse of export. It converts any Obsidian vault or folder of 
 Invoke directly:
 
 ```bash
-node scripts/vault-import.cjs --path <vault> --room <room>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/vault-import.cjs" --path <vault> --room <room>
 ```
 
 This drives the 4-stage ICM pipeline: 01-ingest (scan + manifest), 02-classify (stub + person + meeting detectors), 03-route (file moves with collision + inbox sub-branching), 03b (team profile materialization via `scripts/create-speaker-profile --layout=import`), 03c (meeting filing with direct-copy fallback), 04-enrich (ROOM.md + per-section STATE.md + MINTO stubs + wikilinks).
@@ -183,7 +183,7 @@ way to size a vault before deciding whether the fan-out is worth it.
 
 #### PHASE 0 (SEQUENTIAL, orchestrator only)
 
-1. Run `node scripts/vault-import.cjs --path <vault> --room <room>` through Stage 02 exactly as
+1. Run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/vault-import.cjs" --path <vault> --room <room>` through Stage 02 exactly as
    today.
 2. Open `room/imports/{id}/02-classify/output/classifications.md` and COUNT THE ROWS.
 3. **If the row count is BELOW `VAULT_REVIEW_FANOUT_THRESHOLD`,** run the EXISTING single-pass
@@ -279,7 +279,7 @@ must not be added, fan-out or not.
    orchestrator skipStub logic reads this marker).
 3. Present the summary in Body Shape E and ask the user to confirm. **The fan-out speeds up
    the machine's PROPOSAL; it does not remove the human gate.** ONLY on confirmation, re-invoke
-   `node scripts/vault-import.cjs` with the same flags for Stage 03: `scripts/vault-import.cjs`'s
+   `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/vault-import.cjs"` with the same flags for Stage 03: `scripts/vault-import.cjs`'s
    own internal gate (`if (!args.yes && !fs.existsSync(approvedMarker))`) only blocks on a
    MISSING marker, and item 2 has already written it -- so the re-invocation itself, not just
    the marker write, must wait for this confirmation, or Stage 03 (the actual file-routing step)

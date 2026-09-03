@@ -81,6 +81,58 @@ export MINDRIAN_MODEL_CACHE=/opt/mindrian/model-cache
 export MINDRIAN_RS_BACKEND=python
 ```
 
+### MINDRIAN_RS_ROOM
+
+**What:** Absolute path to the room whose signal cache the RS external and hybrid modes
+(`lib/core/rs_cache.py`) read and write (Phase 296, the per-room sidecar at
+`<room>/research/<topic-slug>/.rs-signal-cache/`).
+**Default:** unset. Every in-repo caller now passes the room explicitly, so this variable is
+normally never needed. It exists as the fallback the `lib/core/rs-pinecone-bridge.cjs` child
+process uses to thread room scope into a spawned Python subprocess, and as an operator override.
+**Precedence:** an explicit `room_dir` argument wins first, then `MINDRIAN_RS_ROOM`, then
+`MINDRIAN_ROOM`, then no scope at all.
+**Why:** with neither this nor `MINDRIAN_ROOM` set, a read function degrades to an empty result
+with one stderr line, and `upsert_corpus` raises `ValueError` rather than writing a cache into a
+guessed room -- writing into a guess is worse than failing loudly.
+
+```bash
+export MINDRIAN_RS_ROOM=/path/to/MindrianRooms/my-room
+```
+
+### MINDRIAN_RS_BRIDGE
+
+**What:** Absolute path to the CJS vector bridge script `lib/core/rs_cache.py` spawns for
+text-to-vector embedding, a test and debugging seam.
+**Default:** `<repo>/scripts/rs-vector-bridge.cjs`.
+**Why this is a SCRIPT path, not the native-extension path:** this variable names the CJS entry
+point Python spawns over JSON stdio; it never touches how that script itself locates the native
+`sqlite-vec` extension. The native-extension path stays locked to
+`require('sqlite-vec').getLoadablePath()` per the `T-211-03` mitigation and is not
+operator-configurable through this or any other environment variable.
+
+```bash
+export MINDRIAN_RS_BRIDGE=/path/to/alternate/rs-vector-bridge.cjs
+```
+
+### MINDRIAN_NODE
+
+**What:** The node binary `lib/core/rs_cache.py` invokes when spawning the vector bridge.
+**Default:** `node`.
+**Why:** the mirror of the existing `MINDRIAN_PYTHON` seam in `lib/core/rs-pinecone-bridge.cjs`
+(which selects the `python3` binary a CJS caller spawns) -- this is the Python-side equivalent,
+selecting the `node` binary a Python caller spawns.
+
+```bash
+export MINDRIAN_NODE=/usr/local/bin/node
+```
+
+**Correction on `RS_EMBEDDING_MODEL=minilm` (Phase 296):** this value no longer opts a caller out
+of a remote path on the RS external and hybrid modes, because there is no remote path left to opt
+out of after `lib/core/rs_cache.py`'s Pinecone retirement -- every embed on this path already runs
+through the same local encoder regardless of this value. It retains no meaning on the
+external/hybrid signal-cache path; it is not documented here as a live tunable so this correction
+is not deleted silently, only its former opt-out effect is.
+
 ### MINDRIAN_EUREKA_SMOKE_TIMEOUT_MS
 
 **What:** Per-layer timebox (ms) for the `doctor --eureka-smoke` model probe (L3).

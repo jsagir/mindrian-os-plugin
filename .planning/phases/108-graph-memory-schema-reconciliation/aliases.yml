@@ -273,6 +273,36 @@ edge_aliases:
 
 node_aliases:
 
+  # --- Eureka vector-store tables (3 entries, backfilled 2026-09-03) ---
+  # Shipped Phase 211-01 (embedding-spine.cjs) + quick 260706-13z (vector-store.cjs),
+  # predates this backfill by two months; never registered here until Phase 296's
+  # research (F-2) quoted the literal DDL in a markdown research doc and tripped this
+  # hook's regex for the first time. Real, already-shipped tables, not new schema.
+
+  - codex_term: eureka_vec
+    resolution: NEW
+    canonical_name: eureka_vec
+    source_phase: 211
+    canon_parts: [Part 9]
+    related_existing: lib/core/eureka/vector-store.cjs
+    notes: "sqlite-vec vec0 virtual table for local semantic search, when the sqlite-vec extension loads. Deliberately NOT written through navigation.cjs: vector-store.cjs:32-45 documents this as Part-9-compliant because these are rebuildable derived projections (zero typed edges, zero memory_event rows, zero node mutations), not first-class graph state."
+
+  - codex_term: eureka_vec_fallback
+    resolution: NEW
+    canonical_name: eureka_vec_fallback
+    source_phase: 211
+    canon_parts: [Part 9]
+    related_existing: lib/core/eureka/vector-store.cjs
+    notes: "Plain-BLOB sibling of eureka_vec, selected by the same runtime capability probe when the sqlite-vec extension does not load. Same Part-9 rebuildable-projection justification as eureka_vec; see vector-store.cjs:32-45."
+
+  - codex_term: eureka_meta
+    resolution: NEW
+    canonical_name: eureka_meta
+    source_phase: 211
+    canon_parts: [Part 9]
+    related_existing: lib/core/eureka/vector-store.cjs
+    notes: "Key/value sidecar (embedding_model, embedding_dim) for the eureka vector store's dim-mismatch drop-and-rebuild path. Same Part-9 rebuildable-projection justification as eureka_vec."
+
   # --- Codex-proposed nodes (14 entries) ---
 
   - codex_term: room

@@ -49,7 +49,7 @@ brief without baking the orchestrator into Claude Code's hook protocol.
 
 ## What to do
 
-1. Run `/mos:mva-brief` (or invoke `node scripts/mva-run.cjs` via Bash directly).
+1. Run `/mos:mva-brief` (or invoke `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mva-run.cjs"` via Bash directly).
 2. Relay the stdout to the user VERBATIM, in your normal Larry voice (no extra
    framing). The renderer already speaks in Larry's GUIDED voice; double-voicing
    breaks the pedagogical contract.

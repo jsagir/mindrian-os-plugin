@@ -1549,7 +1549,7 @@
         "find-bottleneck",
         "connect-domains"
       ],
-      "teaching": "When you need to know who in the world is working on a reverse salient you found, /mos:rs-experts resolves the expert network via Brain Cypher MATCH. Routes you to the people who already know.",
+      "teaching": "When you need to know who in the world is working on a reverse salient you found, /mos:rs-experts resolves the expert network from your local room mirror, populated by /mos:rs-fetch. Routes you to the people who already know.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },

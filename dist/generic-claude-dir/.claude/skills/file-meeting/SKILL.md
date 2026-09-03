@@ -342,6 +342,13 @@ probe turns a silent quality loss into a visible, reasoned choice.
 
 ## Step 3: Claimify Extraction (Five-Perspective Parallel Dispatch + Consolidation)
 
+> Quick 260903-kwl: `references/meeting/filing-protocol.md` is the
+> surface-neutral extract of this step, handed back by the MCP `meeting` tool
+> on Claude Desktop and Cowork. This CLI command keeps its own inline copy of
+> the protocol deliberately - the extract cannot carry the subagent dispatch
+> below or the F.8 gate in Step 4, both CLI-only machinery. `tests/test-kwl-meeting-mcp-honesty.cjs`
+> is the drift guard that pins the shared taxonomies across both files.
+
 This step replaces a single unified extraction pass with FIVE PARALLEL
 WHOLE-TRANSCRIPT PERSPECTIVE workers (Step 3a, DISPATCH) followed by one
 orchestrator-only reconciliation pass (Step 3b, CONSOLIDATION). Extraction IS
@@ -763,7 +770,7 @@ When writing the artifact content, auto-insert [[concept-name]] links for key co
 
 **Native wikilink injection (NATIVE-01/02):** Immediately after writing each filed artifact, run:
 ```bash
-node scripts/wikilink-file.cjs "$ROOM_DIR" "$ARTIFACT_PATH"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/wikilink-file.cjs" "$ROOM_DIR" "$ARTIFACT_PATH"
 ```
 This uses `lib/vault/wikilink-builder.cjs` to inject team-name wikilinks at write time so the artifact arrives pre-linked. Errors are logged but non-fatal -- filing never aborts because of a wikilink pass.
 
@@ -970,12 +977,12 @@ Type: {segment_type}
 **Native wikilink injection (NATIVE-01/02):** After writing each filed-to stub AND the meeting summary.md, run the wikilink wrapper to inject team links and filed-to footer lines at write time:
 ```bash
 # For each filed-to stub
-node scripts/wikilink-file.cjs "$ROOM_DIR" "$STUB_PATH" \
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/wikilink-file.cjs" "$ROOM_DIR" "$STUB_PATH" \
   --filed-to-target="{section}/YYYY-MM-DD-{slug}.md" \
   --meeting-slug="YYYY-MM-DD-{meeting-name}"
 
 # For the meeting summary
-node scripts/wikilink-file.cjs "$ROOM_DIR" "$SUMMARY_PATH" \
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/wikilink-file.cjs" "$ROOM_DIR" "$SUMMARY_PATH" \
   --meeting-slug="YYYY-MM-DD-{meeting-name}"
 ```
 See `lib/vault/wikilink-builder.cjs` for the canonical builders. The wrapper fails soft -- if the room has zero team profiles or scan errors, filing still completes cleanly.

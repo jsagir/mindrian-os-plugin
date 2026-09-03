@@ -102,7 +102,7 @@ Before PHASE 1 begins, run the deterministic backup and
 tier-0 safety pass via the Bash tool:
 
 ```
-node scripts/vault-regenerate-all.cjs <roomDir>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/vault-regenerate-all.cjs" <roomDir>
 ```
 
 The helper creates `<roomDir>/.migration-backup/YYYY-MM-DD-HHMMSS/`, copies
@@ -208,7 +208,7 @@ Print a status block before waiting, mirroring `grade --full` and `persona --par
   stays exactly where it is, byte-identical, and exists ONLY so the drift test keeps enforcing
   byte equality on the two remaining copies (library + this file's documentation); it is never a
   third editable source and it is never re-typed into the subagent definition.
-- **Work:** run `node scripts/vault-section-minto-generator.cjs <roomDir> --plan --section <name>`,
+- **Work:** run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/vault-section-minto-generator.cjs" <roomDir> --plan --section <name>`,
   parse the JSON, Read EVERY listed artifact IN FULL (not just the excerpt -- the excerpts in the
   payload are first-line previews; Feynman stages 1, 2, 4, 5 need the full body to do honest
   work), apply the four Feynman stages received as input, assemble the merged narrative object
@@ -236,7 +236,7 @@ kept here as the canonical reference the orchestrator hands each subagent as ins
 Run via the Bash tool:
 
 ```
-node scripts/vault-section-minto-generator.cjs <roomDir> --plan --section <section-name>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/vault-section-minto-generator.cjs" <roomDir> --plan --section <section-name>
 ```
 
 Capture stdout. It is a JSON object conforming to the shape:
@@ -423,7 +423,7 @@ Use the Write tool to emit the JSON file. Validate it is parseable by running `n
 Run via Bash:
 
 ```
-node scripts/vault-section-minto-generator.cjs <roomDir> --write --section <section-name> --narrative <tempfile-path>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/vault-section-minto-generator.cjs" <roomDir> --write --section <section-name> --narrative <tempfile-path>
 ```
 
 Capture stdout and stderr. A successful run prints `wrote MINTO.md: <abs-path>`. A schema violation prints `ERROR: narrative schema validation failed: ...` and exits non-zero. If it fails, leave the temp file in place for debugging, surface the error to the user, and move on to the next section.

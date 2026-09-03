@@ -1061,7 +1061,21 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 294 to break down)
 
-### Phase 295: SEED-029: Local-Embedding Vector Spine in room.db, Retire Pinecone for Room + Signal
+### Phase 295 [CLOSED 2026-09-03, substantially-shipped-elsewhere]: SEED-029: Local-Embedding Vector Spine in room.db, Retire Pinecone for Room + Signal
+
+**Closed (navigator-ratified 2026-09-03, per Phase 296-RESEARCH.md Finding F-10):** this
+phase's own "Depends on: Phase 294" line was `phase.add` heading boilerplate, not a real
+dependency, and was never planned. SEED-029's real technical ask -- a local embedding layer
+with vector persistence in room.db -- shipped anyway, under Phase 211 (`embedding-spine.cjs`)
+and quick `260706-13z` (`vector-store.cjs`), with deliberate, documented improvements over
+what the seed originally specified (see F-10 for the full comparison table). That covers
+SEED-029's acceptance items 1, 2, 3, and 5 for the ROOM corpus. The one piece that did NOT
+ship under those phases -- retiring the pre-built Pinecone index for the SIGNAL corpus (the
+seed's own F8 cross-room-bleed finding) -- was Phase 296's actual work (SEED-030), closed
+2026-09-03. SEED-029's remaining acceptance item 4 (the moat decision on the METHODOLOGY
+corpus) is a standing navigator ruling, not a code task, and stays open for whoever picks it
+up next; it is not blocked on this phase's closure. This entry is kept for historical record,
+not deleted.
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -1074,14 +1088,34 @@ Plans:
 
 ### Phase 296: SEED-030: RS Pipeline Spine-Wiring + Expert-Graph Reconciliation
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 295
-**Plans:** 0 plans
+**Goal:** The reverse-salient discovery pipeline runs fully local: the external and hybrid signal corpus is fetched, embedded by the one shipped local encoder and cached per room instead of in a Pinecone namespace, and `rs-experts` answers "no transport", "unreachable" and "genuinely zero experts" as three distinguishable honest outcomes instead of one hand-rolled string.
+**Requirements**: RSLOCAL-01, RSLOCAL-02, RSLOCAL-03, RSLOCAL-04, RSEXP-01, RSEXP-02, RSFENCE-01
+**Depends on:** none. The `Depends on: Phase 295` line was `phase.add` heading boilerplate; 296-RESEARCH.md F-10 established that SEED-029's technical shape shipped under Phase 211 plus quick `260706-13z`, not under Phase 295, which remains an unplanned stub. Phase 296 does not wait on it.
+**Plans:** 5/6 plans executed
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 296 to break down)
+- [x] 296-01-PLAN.md - Wave-0 harness, shared both-backends room fixture, and the two already-true regression fences (F-3 and F-9)
+- [x] 296-02-PLAN.md - rs-experts three-cause degrade through refusal-messaging.cjs, plus the corrected command doc and regenerated mirrors
+- [x] 296-03-PLAN.md - scripts/rs-vector-bridge.cjs, the D-02 CJS vector bridge, and the Pitfall-1 both-backends guard
+- [x] 296-04-PLAN.md - retire lib/core/rs_cache.py's Pinecone SDK layer for a per-room local sidecar
+- [x] 296-05-PLAN.md - thread room scope through rs-engine.py, rs_hybrid.py, the CJS bridge and the differential scorer; name the auto-explore dispatch leftover
+- [x] 296-06-PLAN.md - two-sided Pinecone residue gate, operator docs, full gate sweep, and the human HSI Tier 2 checkpoint (navigator-ratified 2026-09-03, all 4 points, no overrides)
+
+Local working requirement IDs (minted at planning time; `.planning/REQUIREMENTS.md` carries no ROADMAP-mapped IDs for this phase, matching the PYPORT / CHOKE / TOOLHON precedent):
+
+| ID | Requirement |
+|---|---|
+| RSLOCAL-01 | `lib/core/rs_cache.py` makes zero Pinecone SDK calls; the external and hybrid signal corpus is fetched and embedded locally |
+| RSLOCAL-02 | Python never reads room.db's vector tables directly; one CJS bridge owns every vector operation, backend-agnostic across `eureka_vec` and `eureka_vec_fallback` |
+| RSLOCAL-03 | The signal cache is per room, closing the SEED-029 F8 cross-room corpus bleed |
+| RSLOCAL-04 | No cosine mixes 384-dim local vectors with 1024-dim e5 vectors; the unified corpus lives in one embedding space |
+| RSEXP-01 | `rs-experts` degrades through `lib/core/refusal-messaging.cjs` with three distinguishable causes, and a genuinely empty result renders as a success |
+| RSEXP-02 | `rs-experts` loads no `brainClient` and carries no `mcp__mindrian-brain__` tool; `PINECONE_API_KEY` and the `pinecone` package stay for `compute-hsi.py` Tier 2 and `pinecone-inference.cjs` |
+| RSFENCE-01 | Phase-296 test infrastructure exists and the connector-registry, internal-mode zero-Pinecone, `rs-explain` byte-locked marker and Phase 272 contract fences stay green |
+
+Supersedes Phase 228, which registered this same seed in the closed v1.15.0 milestone and never
+received a CONTEXT, RESEARCH, PLAN or SUMMARY (its directory holds only a `.gitkeep`).
 
 ### Phase 297: SEED-031: Regulation Layer — Larry as User-Facing Connector, metacognition cost guardrail
 

@@ -8,13 +8,14 @@ corpus into a single indexable corpus, plus a cross-corpus post-filter
 that keeps only pairs where one side is a room artifact and the other is
 an external document.
 
-Architecture (Plan 89-05):
+Architecture (Plan 89-05, external cache repointed by Plan 296-05):
   - Room side: walk the room filesystem (skip lazygraph, obsidian, etc.),
     reuse the discover_artifacts pattern from scripts/rs-engine.py so Mode
     A and Mode C see the same artifact shape.
-  - External side: reuse the Pinecone rs-external cache from Plan 89-03.
-    Cold path fetches via lib.core.rs_corpus and upserts; warm path reads
-    cached multilingual-e5-large vectors directly.
+  - External side: reuse the per-room local signal cache (lib.core.rs_cache,
+    Plan 296-05; was the Pinecone rs-external cache in Plan 89-03). Cold
+    path fetches via lib.core.rs_corpus and upserts to the room's own
+    sidecar; warm path reads the cached local-encoder vectors directly.
   - Unified corpus: flat list of dicts with `origin` in {room, external}
     and `global_id` that is globally unique across both sides.
   - origin_mask: numpy bool array, True=room, False=external. Enables O(1)
@@ -28,9 +29,13 @@ Public API:
 
 Part 8 Graph Boundary (Canon, mandatory):
   Zero user-content egress. Room artifacts are read locally and used as
-  LSA / semantic inputs in-process only. The external corpus metadata
-  stored in Pinecone (via rs_cache.upsert_corpus) is strictly public
-  OpenAlex/arXiv/Tavily data. Room content never touches Pinecone.
+  LSA / semantic inputs in-process only. Nothing is stored in a remote
+  service on this path any more (Plan 296-05): external abstracts and
+  public metadata (via rs_cache.upsert_corpus) are cached in the room's own
+  local sidecar and never leave the machine after the OpenAlex/arXiv/Tavily
+  fetch. Room content never touches that sidecar either -- the two sides
+  stay in separate dict shapes (origin=room vs origin=external) all the way
+  through this module.
 
 Three-surface coverage (CLAUDE.md tri-polar rule):
   CLI     Consumed by scripts/rs-engine.py --mode hybrid.
@@ -76,8 +81,8 @@ except ImportError:  # pragma: no cover
     from lib.core.rs_corpus_exclude import SKIP_DIRS, SKIP_FILES, MIN_BODY_CHARS
 
 # Maximum external docs we will fold into the unified corpus. Plan 89-05
-# canonical value is 2000 (aligns with Pinecone rs-external namespace cap
-# MAX_NAMESPACE_VECTORS = 10_000 / 5, leaving room for multiple topics).
+# canonical value is 2000 (aligns with the local signal cache's namespace
+# cap MAX_NAMESPACE_VECTORS = 10_000 / 5, leaving room for multiple topics).
 DEFAULT_EXTERNAL_TARGET = 2000
 
 # External target is bounded so a misconfigured caller cannot balloon the
@@ -164,8 +169,10 @@ def _load_room_artifacts(room_path: Path) -> List[Dict[str, Any]]:
 def _load_external_records(
     topic: str,
     external_target: int,
+    room_dir: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    """Fetch (cold) or read (warm) the external corpus via Plan 89-03 cache.
+    """Fetch (cold) or read (warm) the external corpus via the per-room local
+    signal cache (Plan 296-05; was Plan 89-03's Pinecone cache).
 
     Returns (records, cache_meta).
       records:    list of {id, values, metadata} as returned by rs_cache.
@@ -173,15 +180,16 @@ def _load_external_records(
                    corpus_size}.
 
     Routes:
-      - If PINECONE_API_KEY is missing or RS_EMBEDDING_MODEL=minilm:
-        returns ([], {"cache_mode": "bypass", ...}). Caller falls back to
-        local MiniLM + rs_corpus fetch (Plan 89-02 path).
+      - If rs_cache fails to import, or room_dir does not resolve: returns
+        ([], {"cache_mode": "bypass", ...}). Caller falls back to local
+        MiniLM + rs_corpus fetch (Plan 89-02 path).
       - If cache is warm (age <= TTL): skip fetch, return cached records.
-      - If cold: fetch via rs_corpus, upsert to Pinecone, re-read so the
-        semantic vectors are the server-side multilingual-e5-large ones.
+      - If cold: fetch via rs_corpus, upsert to the local signal cache,
+        re-read so the vectors used downstream come from the cache's own
+        round-trip (not a from-memory list).
 
-    Consumes Plan 89-03's public API verbatim. No new Pinecone calls live
-    here; this module is a composition layer.
+    Consumes lib.core.rs_cache's public API verbatim, scoped to room_dir. No
+    new network calls live here; this module is a composition layer.
     """
     try:
         from lib.core.rs_cache import (
@@ -203,31 +211,23 @@ def _load_external_records(
             "skip_reason": f"rs_cache import failed: {e}",
         }
 
-    # Bypass check: the Plan 89-03 bypass conditions.
-    api_key = os.environ.get("PINECONE_API_KEY")
-    model_env = os.environ.get("RS_EMBEDDING_MODEL", "").strip().lower()
-    if not api_key:
+    # Bypass check: the room must resolve. The local signal cache is scoped
+    # to a room by construction (lib.core.rs_cache, closes SEED-029 finding
+    # F8) -- reading it against a guessed room is not an option this loader
+    # takes.
+    if not room_dir:
         return [], {
             "cache_mode": "bypass",
             "cache_age_days": None,
             "cache_namespace": None,
             "cache_ttl_days": None,
             "corpus_size": 0,
-            "skip_reason": "PINECONE_API_KEY not set",
-        }
-    if model_env == "minilm":
-        return [], {
-            "cache_mode": "bypass",
-            "cache_age_days": None,
-            "cache_namespace": None,
-            "cache_ttl_days": None,
-            "corpus_size": 0,
-            "skip_reason": "RS_EMBEDDING_MODEL=minilm (user opted out)",
+            "skip_reason": "no room scope for the signal cache",
         }
 
     ns = namespace_slug(topic)
     try:
-        age_days = get_namespace_freshness(ns)
+        age_days = get_namespace_freshness(ns, room_dir=room_dir)
     except Exception as e:
         print(
             f"[rs-hybrid] freshness check failed ({e}); treating as cold.",
@@ -239,11 +239,11 @@ def _load_external_records(
         # WARM path.
         print(
             f"[rs-hybrid] Cache hit (age={age_days:.1f} days, ttl={TTL_DAYS}). "
-            f"Using Pinecone namespace {ns}.",
+            f"Using local signal cache {ns}.",
             file=sys.stderr,
         )
         try:
-            records = fetch_all_from_namespace(ns, limit=external_target)
+            records = fetch_all_from_namespace(ns, limit=external_target, room_dir=room_dir)
             return records, {
                 "cache_mode": "warm",
                 "cache_age_days": round(age_days, 2) if age_days is not None else None,
@@ -291,8 +291,8 @@ def _load_external_records(
         }
 
     try:
-        upsert_corpus(topic, docs)
-        records = fetch_all_from_namespace(ns, limit=external_target)
+        upsert_corpus(topic, docs, room_dir=room_dir)
+        records = fetch_all_from_namespace(ns, limit=external_target, room_dir=room_dir)
     except Exception as e:
         print(
             f"[rs-hybrid] upsert/fetch failed ({e}); dropping to bypass.",
@@ -323,9 +323,9 @@ def _external_records_to_dicts(records: Sequence[Dict[str, Any]]) -> List[Dict[s
     bridge-writer (Plan 89-06) can resolve both sides via the existing
     resolvePairIdentity() without per-mode branches.
 
-    Attached _vector field carries the cached multilingual-e5-large
-    embedding when present; rs-engine will prefer it over local MiniLM to
-    keep warm/cold semantic consistency with Mode B.
+    Attached _vector field carries the cached local-encoder embedding when
+    present; rs-engine will prefer it over local MiniLM to keep warm/cold
+    semantic consistency with Mode B.
     """
     out: List[Dict[str, Any]] = []
     for rec in records:
@@ -348,7 +348,7 @@ def _external_records_to_dicts(records: Sequence[Dict[str, Any]]) -> List[Dict[s
             "global_id": f"external::{external_id}",
             "origin": "external",
             "external_id": external_id,
-            "pinecone_id": rid,
+            "cache_id": rid,
             "source": source,
             "title": title,
             "doi": doi,
@@ -363,9 +363,9 @@ def _external_records_to_dicts(records: Sequence[Dict[str, Any]]) -> List[Dict[s
 def _external_docs_to_dicts(docs: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Bypass-path shape: raw rs_corpus docs -> unified-corpus dicts.
 
-    Used when Pinecone is unavailable and the caller cold-fetched via
-    rs_corpus.fetch_corpus directly. Vectors are not attached (caller embeds
-    locally via MiniLM).
+    Used when the signal cache is unavailable and the caller cold-fetched
+    via rs_corpus.fetch_corpus directly. Vectors are not attached (caller
+    embeds locally via MiniLM).
     """
     out: List[Dict[str, Any]] = []
     for doc in docs:
@@ -385,7 +385,7 @@ def _external_docs_to_dicts(docs: Sequence[Dict[str, Any]]) -> List[Dict[str, An
             "global_id": f"external::{external_id}",
             "origin": "external",
             "external_id": external_id,
-            "pinecone_id": rid,
+            "cache_id": rid,
             "source": source,
             "title": title,
             "doi": doi,
@@ -408,8 +408,8 @@ def build_unified_corpus(
 
     Returns:
       corpus:      flat list of dicts. Room artifacts first (preserved
-                   discover order), then external docs (Pinecone namespace
-                   order or fetch order on bypass path).
+                   discover order), then external docs (local signal-cache
+                   namespace order or fetch order on bypass path).
       origin_mask: np.ndarray[bool], True=room, False=external. Same length
                    as corpus. Used by filter_cross_corpus_pairs.
       metadata:    {room_count, external_count, room_id, topic, topic_slug,
@@ -439,8 +439,10 @@ def build_unified_corpus(
     room_artifacts = _load_room_artifacts(room_path_obj)
     room_id = room_path_obj.name
 
-    # External side.
-    records, cache_meta = _load_external_records(topic, external_target)
+    # External side. room_path_obj is already resolved and directory-checked
+    # above; pass it straight through so the signal cache reads/writes are
+    # scoped to this room (Plan 296-05, closes SEED-029 finding F8).
+    records, cache_meta = _load_external_records(topic, external_target, room_dir=str(room_path_obj))
     if records:
         external_dicts = _external_records_to_dicts(records)
     else:
@@ -453,7 +455,7 @@ def build_unified_corpus(
         try:
             from lib.core.rs_corpus import fetch_corpus
             print(
-                "[rs-hybrid] Bypass path: fetching via rs_corpus (no Pinecone).",
+                "[rs-hybrid] Bypass path: fetching via rs_corpus (no signal cache).",
                 file=sys.stderr,
             )
             fetch_target = max(external_target * 2, external_target + 200)

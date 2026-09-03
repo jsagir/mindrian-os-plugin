@@ -348,7 +348,7 @@ If no `room/` directory exists, use 3-line error format.
 Run the export generation script:
 
 ```bash
-node scripts/generate-export.cjs "./room"
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/generate-export.cjs" "./room"
 ```
 
 This generates a self-contained HTML file at `room/exports/YYYY-MM-DD-{room-name}.html`.

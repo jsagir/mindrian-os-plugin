@@ -82,7 +82,7 @@ Push back on vague answers. If the user proposes a new reach, redirect: a new to
 Delegate the file emission to the scaffold backend (`scripts/build-new-surface.cjs`), the new-project delegation pattern. Write the spec to a temp JSON file, then run:
 
 ```bash
-node scripts/build-new-surface.cjs --spec /tmp/new-surface-spec.json
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/build-new-surface.cjs" --spec /tmp/new-surface-spec.json
 ```
 
 The backend:
@@ -97,7 +97,7 @@ The surface lands in `connector-registry.json` (its real home) and only TRANSITI
 Prove the surface is well-formed, registered, and the manifest is clean:
 
 ```bash
-node scripts/build-new-surface.cjs --check --kind <kind> --name <name>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/build-new-surface.cjs" --check --kind <kind> --name <name>
 ```
 
 This asserts: the 11 connector keys are present, the reach_id is in the frozen 6, the posture is in the frozen 3, the surface is REGISTERED in `connector-registry.json`, and the harness-manifest `--check` is clean. A finding (MISSING_KEY / OFF_FROZEN / NOT_REGISTERED / MANIFEST_STALE) exits non-zero with a recovery line.

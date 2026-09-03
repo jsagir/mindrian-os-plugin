@@ -93,7 +93,7 @@ When methodology produces an artifact:
 
 After writing a new file, immediately run:
 ```bash
-node scripts/wikilink-file.cjs "$ROOM_DIR" "$NEW_FILE_PATH" \
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/wikilink-file.cjs" "$ROOM_DIR" "$NEW_FILE_PATH" \
   [--filed-to-target="market-analysis/2026-04-09-tam.md"] \
   [--meeting-slug="2026-04-09-align-strategy-session"]
 ```

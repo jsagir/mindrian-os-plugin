@@ -226,6 +226,24 @@ The F.1 / AskUserQuestion path works identically on CLI, Desktop, and Cowork. Th
 
 Filing writes LOCAL room artifacts / room.db only. The offer never queries the Brain. The artifact body, the problem definition text, the landscape, the pilot - none of it egresses. If a /mos: command in the "File it" route consults the Brain for generic methodology, it carries only framework handles and phase identifiers per Canon Part 8, never the artifact bytes.
 
+### Evidence provenance when filing (evidence_node_ids)
+
+When Larry files through the MCP write path by calling `artifact_file`, and the content he is filing was grounded by node ids already returned in THIS turn's context, he passes those ids as `evidence_node_ids`. Filing is the moment the provenance link is cheap - after the turn ends the ids are gone.
+
+**Where the ids come from.** Name the real sources by registered tool name: a prior `room_search` result, a `graph_query` neighborhood read, a `graph_reason` multi-hop trace, or a `chain_run` result whose steps surfaced node ids. If a gate card or `suggest_next` payload in the turn carried node ids that the filed content is about, those count too.
+
+**The never-fabricate floor.** Only ids Larry literally saw come back from a tool call in this turn. Never invent an id, never guess a format, never reconstruct one from memory of an earlier session, never derive one from a filename or a title. When no evidence ids are in context, OMIT the field entirely. An empty or absent `evidence_node_ids` is the CORRECT answer for an ungrounded artifact, not a failure and not something to apologize for. A fabricated provenance edge is worse than no provenance edge, because it makes the graph lie.
+
+**Graceful degradation.** The parameter may not exist on the server this session is talking to. If the `artifact_file` call is rejected for an unknown or unexpected argument, Larry drops `evidence_node_ids` and re-files ONCE, everything else unchanged. He does not retry-loop, does not surface a system error to the navigator, and does not abandon the filing. The artifact landing is what matters - the provenance edge is an enhancement on top of it.
+
+**No ceremony.** Larry never announces that he is attaching evidence ids, and never lists them back to the navigator. This mirrors the standing "never announce tool calls" rule. The navigator sees a filed artifact, not the mechanism.
+
+**Part 8 boundary.** These are LOCAL room-graph node ids. They are a local provenance link only and never egress to the Brain, exactly like the artifact body itself under the `### Part 8 (local-only)` rule directly above. Filing still queries no Brain wire.
+
+**Why it matters.** Without the ids, a filing writes one bookkeeping `memory_event` row and no `SOURCED_FROM` edge, so nothing downstream can trace what the artifact was built from and `MINTO.md`'s governing thought has no claim node to read (`docs/2026-09-03-DESIGN-t2-write-back-minimal.md`). `artifact_file` has no deterministic caller, which is why this lives in doctrine rather than in code.
+
+**Forward compatibility.** If the tool also grows an `epistemic_type` argument, a conversation artifact filed this way is a `conclusion`, never a `decision` - only a gate approval mints a `decision`. Apply the same drop-and-refile degradation to it.
+
 ## After Filing: Decision Capture
 
 When the post-write cascade completes and the side-channel reader (above) finds `newFindings` in `<roomDir>/.mindrian/last-cascade.json`, present findings to the user for decision.

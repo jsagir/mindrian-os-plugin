@@ -48,7 +48,7 @@ import sqlite3
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 # Auto-install Python ML deps if missing (v1.10.9, plan 85-10, LAWRENCE-001).
 # rs-engine.py is the direct entry point for /mos:find-bottlenecks (invoked by
@@ -122,6 +122,11 @@ try:
         is_fresh as _rs_cache_is_fresh,
         TTL_DAYS as _RS_CACHE_TTL_DAYS,
     )
+    # Module reference (not just the named re-exports above) so the SEED-018
+    # semantic gate can call rs_cache._embed_via_bridge directly and build its
+    # topic vector from the SAME local encoder that produced the record
+    # vectors it gates -- see _gate_records_cached below (Plan 296-05).
+    from lib.core import rs_cache
     _RS_CACHE_AVAILABLE = True
 except Exception as _rs_cache_import_err:  # pragma: no cover -- defensive
     _RS_CACHE_AVAILABLE = False
@@ -934,11 +939,12 @@ def _corpus_docs_to_artifacts(docs: Sequence[Dict]) -> List[Dict]:
 def _records_to_artifacts(records: Sequence[Dict]) -> List[Dict]:
     """Shape rs_cache records (id + values + metadata) into artifact dicts.
 
-    Plan 89-03 warm path: records come straight from Pinecone and carry the
-    abstract in metadata['abstract'], the public DOI in metadata['doi'],
-    and the human title in metadata['title']. Integrated-embedding values
-    live in record['values']; we attach them so the caller can build the
-    semantic matrix directly without re-embedding.
+    Plan 296-05 warm path: records come straight from the per-room local
+    signal cache (lib.core.rs_cache) and carry the abstract in
+    metadata['abstract'], the public DOI in metadata['doi'], and the human
+    title in metadata['title']. The local encoder's vectors live in
+    record['values']; we attach them so the caller can build the semantic
+    matrix directly without re-embedding.
     """
     artifacts: List[Dict] = []
     for rec in records:
@@ -967,20 +973,26 @@ def _records_to_artifacts(records: Sequence[Dict]) -> List[Dict]:
             "year": meta.get("year") or None,
             "authors": [],
             "doi": meta.get("doi") or None,
-            "_pinecone_values": rec.get("values") or [],
+            "_cached_values": rec.get("values") or [],
         })
     return artifacts
 
 
-def _pinecone_path_available() -> Tuple[bool, str]:
-    """Return (ok, reason). Reason is empty on success, explanatory on skip."""
+def _signal_cache_available(room_dir: Optional[Any] = None) -> Tuple[bool, str]:
+    """Return (ok, reason). Reason is empty on success, explanatory on skip.
+
+    Renamed from the prior remote-key gate (Plan 296-05). The former hosted
+    API-key presence check and the RS_EMBEDDING_MODEL=minilm opt-out are both
+    DROPPED here: neither means anything against a per-room local sidecar
+    cache, and leaving the key check in place would make the local path
+    unreachable for the overwhelming majority of users, who have no key. In
+    their place: the room must resolve, since the local cache is scoped to a
+    room by construction (lib.core.rs_cache, closes SEED-029 finding F8).
+    """
     if not _RS_CACHE_AVAILABLE:
         return False, f"rs_cache import failed: {globals().get('_rs_cache_import_err_msg', 'unknown')}"
-    if not os.environ.get("PINECONE_API_KEY"):
-        return False, "PINECONE_API_KEY not set"
-    model_env = os.environ.get("RS_EMBEDDING_MODEL", "").strip().lower()
-    if model_env == "minilm":
-        return False, "RS_EMBEDDING_MODEL=minilm (user opted out of Pinecone path)"
+    if not room_dir:
+        return False, "no room scope for the signal cache"
     return True, ""
 
 
@@ -992,7 +1004,7 @@ def _build_sem_matrix_from_records(artifacts: Sequence[Dict]) -> Optional[np.nda
     """
     vectors: List[List[float]] = []
     for a in artifacts:
-        v = a.get("_pinecone_values") or []
+        v = a.get("_cached_values") or []
         if not v:
             return None
         vectors.append(list(v))
@@ -1011,9 +1023,13 @@ def _build_sem_matrix_from_records(artifacts: Sequence[Dict]) -> Optional[np.nda
 # tested in Plan 200-01). Until this wiring it had NO production caller -- it was
 # dormant. The helpers below call it on the two live Mode B corpus paths:
 #
-#   1. Pinecone (warm/cold) path: gate the raw `records` (each carrying its
-#      server-side e5 vector in record['values']) against a topic vector from the
-#      SAME Pinecone inference, BEFORE _records_to_artifacts.
+#   1. Local signal-cache (warm/cold) path: gate the raw `records` (each carrying
+#      its local-encoder vector in record['values']) against a topic vector from
+#      the SAME encoder (rs_cache._embed_via_bridge), BEFORE _records_to_artifacts.
+#      Plan 296-05: rerouted off Pinecone inference -- after the repoint, records
+#      carry local 384-dim vectors, so a topic vector from a different encoder
+#      would either produce a dimension mismatch or a meaningless cosine, and in
+#      both cases the gate would stop filtering without raising.
 #   2. Local fallback path (Plan 89-02): gate the fetched `docs` using the reused
 #      local MiniLM encoder (_embed_local_minilm), batched so the model loads once.
 #
@@ -1095,67 +1111,58 @@ def _gate_with_starvation_guard(
     return guarded
 
 
-def _embed_topic_via_pinecone(topic: str) -> Optional[List[float]]:
-    """Embed `topic` into the rs-external e5 space via Pinecone inference.
+def _embed_topic_via_signal_cache(topic: str) -> Optional[List[float]]:
+    """Embed `topic` through rs_cache's local encoder (Plan 296-05).
 
-    Reuses the SAME multilingual-e5-large model the cold path upserts with, so
-    the topic vector is directly comparable to the record vectors already stored
-    in record['values']. `input_type=query` matches how Pinecone embeds a query
-    against passage-embedded records (e5 is asymmetric).
+    Reuses the SAME local encoder (rs_cache._embed_via_bridge, which wraps
+    scripts/rs-vector-bridge.cjs -> lib/core/eureka/embedding-spine.cjs) that
+    produced the record vectors this topic vector is compared against. This
+    is the load-bearing part of the reroute: after the repoint, records carry
+    local 384-dim vectors, so a topic vector from ANY other encoder either
+    produces a dimension mismatch or a meaningless cosine -- and in both
+    cases the gate stops filtering off-topic documents without raising.
 
-    Returns a plain float list, or None on ANY failure (no key, SDK missing,
-    network error, unexpected shape) so the caller degrades to a safe no-op.
-    Adds no new encoder and no new egress class -- Pinecone inference is the
-    existing cold-path encoder.
+    Returns a plain float list, or None on ANY failure (rs_cache unavailable,
+    bridge unreachable, unexpected shape) so the caller degrades to a safe
+    no-op. Adds no new encoder and no new egress class -- the bridge is the
+    same local encoder the rest of this repoint already uses.
     """
     if not _RS_CACHE_AVAILABLE:
         return None
-    api_key = os.environ.get("PINECONE_API_KEY")
-    if not api_key:
-        return None
     try:
-        from pinecone import Pinecone  # type: ignore
-        pc = Pinecone(api_key=api_key)
-        resp = pc.inference.embed(
-            model="multilingual-e5-large",
-            inputs=[topic],
-            parameters={"input_type": "query", "truncate": "END"},
-        )
-        item = resp[0]
-        # Dense embedding items expose `values` (attr) or ['values'] (dict-like).
-        if isinstance(item, dict):
-            values = item.get("values")
-        else:
-            values = getattr(item, "values", None)
-        if not values:
-            return None
-        return [float(x) for x in values]
-    except Exception as e:  # pragma: no cover -- live-only path
+        vectors, provenance = rs_cache._embed_via_bridge([topic])
+    except Exception as e:  # pragma: no cover -- defensive
         print(
             f"[rs-engine] semantic gate: topic embed unavailable ({e}); "
             f"gate no-op for this run.",
             file=sys.stderr,
         )
         return None
+    if not vectors or provenance is None:
+        return None
+    return [float(x) for x in vectors[0]]
 
 
-def _gate_records_pinecone(topic: str, records: List[Dict]) -> List[Dict]:
-    """Gate Pinecone `records` by the semantic floor before _records_to_artifacts.
+def _gate_records_cached(topic: str, records: List[Dict]) -> List[Dict]:
+    """Gate local signal-cache `records` by the semantic floor before
+    _records_to_artifacts.
 
-    Each record carries its e5 vector in record['values']; the topic vector comes
-    from the same Pinecone inference. No-op (returns records unchanged) when the
-    topic vector is unavailable.
+    Renamed from the prior remote-cache gate (Plan 296-05). Each record carries
+    its local-encoder vector in record['values']; the topic vector now comes
+    from the SAME encoder via _embed_topic_via_signal_cache, not a different
+    one. No-op (returns records unchanged) when the topic vector is
+    unavailable.
     """
     if not records:
         return records
-    topic_vec = _embed_topic_via_pinecone(topic)
+    topic_vec = _embed_topic_via_signal_cache(topic)
     if not topic_vec:
         return records
     return _gate_with_starvation_guard(
         topic_vec,
         records,
         lambda rec: rec.get("values") or [],
-        label="pinecone-records",
+        label="signal-cache-records",
     )
 
 
@@ -1192,18 +1199,21 @@ def run_mode_external(
     threshold: float,
     no_thesis: bool,
 ) -> Tuple[Dict, Path]:
-    """Mode B: fetch external corpus (cached via Pinecone), run LSA + abs_diff.
+    """Mode B: fetch external corpus (cached in the per-room local signal
+    cache), run LSA + abs_diff.
 
-    Plan 89-03 wiring: the Pinecone rs-external index caches embedded
-    corpora per topic. On each call:
+    Plan 296-05 wiring: lib.core.rs_cache's per-room local sidecar caches
+    embedded corpora per topic, scoped to room_dir. On each call:
       1. Compute namespace for topic (rs_cache.namespace_slug).
-      2. Check freshness. If < 30 days, skip fetch and use the cached
-         vectors directly (warm path).
+      2. Check freshness, scoped to this room. If < 30 days, skip fetch and
+         use the cached vectors directly (warm path).
       3. Else, fetch_corpus -> upsert_corpus -> fetch_all_from_namespace
-         (cold path; Pinecone embeds server-side via multilingual-e5-large).
+         (cold path; embeds through the local encoder bridge, then re-reads
+         so the vectors used for scoring came from the cache, not a
+         from-memory list).
       4. Fall back to the Plan 89-02 local path (fetch_corpus + local
-         MiniLM embedding) when Pinecone is unavailable or the user opts
-         out via RS_EMBEDDING_MODEL=minilm.
+         MiniLM embedding) when the signal cache is unavailable (rs_cache
+         import failed, or the room does not resolve).
 
     Returns (result dict, corpus_dir) -- CLI writes results JSON inside
     corpus_dir at {room}/research/{topic-slug}/.rs-engine-results.json.
@@ -1218,20 +1228,20 @@ def run_mode_external(
     target_n = max(topk * 20, topk * 2)
 
     # Freshness + cache decision.
-    pinecone_ok, pinecone_skip_reason = _pinecone_path_available()
+    signal_ok, signal_skip_reason = _signal_cache_available(room_dir=room_dir)
     cache_mode = "bypass"
     cache_age_days: Optional[float] = None
     cache_namespace: Optional[str] = None
     records: List[Dict] = []
     docs: List[Dict] = []
 
-    if pinecone_ok:
+    if signal_ok:
         ns = _rs_cache_namespace_slug(topic)
         cache_namespace = ns
         try:
-            cache_age_days = _rs_cache_freshness(ns)
+            cache_age_days = _rs_cache_freshness(ns, room_dir=room_dir)
         except Exception as e:
-            print(f"rs-engine: Pinecone freshness check failed ({e})", file=sys.stderr)
+            print(f"rs-engine: signal cache freshness check failed ({e})", file=sys.stderr)
             cache_age_days = None
 
         if _rs_cache_is_fresh(cache_age_days, ttl_days=_RS_CACHE_TTL_DAYS):
@@ -1239,11 +1249,11 @@ def run_mode_external(
             cache_mode = "warm"
             print(
                 f"[rs-engine] Cache hit (age={cache_age_days:.1f} days, "
-                f"ttl={_RS_CACHE_TTL_DAYS}). Using Pinecone namespace {ns}.",
+                f"ttl={_RS_CACHE_TTL_DAYS}). Using local signal cache {ns}.",
                 file=sys.stderr,
             )
             try:
-                records = _rs_cache_fetch_all(ns, limit=target_n)
+                records = _rs_cache_fetch_all(ns, limit=target_n, room_dir=room_dir)
             except Exception as e:
                 print(
                     f"rs-engine: warm-path fetch failed ({e}); "
@@ -1254,9 +1264,9 @@ def run_mode_external(
                 cache_mode = "bypass"
 
         if cache_mode != "warm":
-            # COLD path: fetch from external APIs, upsert to Pinecone,
-            # then re-fetch so the vectors come from Pinecone's server-side
-            # embedding (not a local re-compute).
+            # COLD path: fetch from external APIs, upsert to the local
+            # signal cache, then re-fetch so the vectors used for scoring
+            # come from the cache's own round-trip (not a from-memory list).
             age_label = "unset" if cache_age_days is None else f"{cache_age_days:.1f} days"
             print(
                 f"[rs-engine] Cache miss (age={age_label}). "
@@ -1266,23 +1276,23 @@ def run_mode_external(
             docs = fetch_corpus(topic, target_n=target_n)
             if len(docs) >= 2:
                 try:
-                    _rs_cache_upsert(topic, docs)
+                    _rs_cache_upsert(topic, docs, room_dir=room_dir)
                     cache_mode = "cold"
-                    # Re-read from Pinecone so semantic matrix uses the
-                    # server-side multilingual-e5-large vectors.
-                    records = _rs_cache_fetch_all(ns, limit=target_n)
+                    # Re-read from the local signal cache so the semantic
+                    # matrix uses the cached (round-tripped) local vectors.
+                    records = _rs_cache_fetch_all(ns, limit=target_n, room_dir=room_dir)
                 except Exception as e:
                     print(
-                        f"rs-engine: Pinecone upsert/fetch failed ({e}); "
+                        f"rs-engine: local signal cache upsert/fetch failed ({e}); "
                         f"falling back to local embedding path.",
                         file=sys.stderr,
                     )
                     records = []
                     cache_mode = "bypass"
     else:
-        # Pinecone path not available -- preserve Plan 89-02 behavior.
+        # Signal cache path not available -- preserve Plan 89-02 behavior.
         print(
-            f"[rs-engine] Pinecone cache skipped ({pinecone_skip_reason}); "
+            f"[rs-engine] Signal cache skipped ({signal_skip_reason}); "
             f"using Plan 89-02 local embedding path.",
             file=sys.stderr,
         )
@@ -1303,11 +1313,12 @@ def run_mode_external(
 
     # Build artifacts + texts depending on path taken.
     if records:
-        # SEED-018 H2 LIVE-WIRE (Pinecone path): drop off-topic records using the
-        # e5 vectors they already carry vs a topic vector from the same Pinecone
-        # inference, BEFORE they become artifacts and reach the differential.
-        # Starvation-guarded + no-op when the topic vector is unavailable.
-        records = _gate_records_pinecone(topic, records)
+        # SEED-018 H2 LIVE-WIRE (local signal-cache path): drop off-topic records
+        # using the local-encoder vectors they already carry vs a topic vector
+        # from the SAME encoder, BEFORE they become artifacts and reach the
+        # differential. Starvation-guarded + no-op when the topic vector is
+        # unavailable.
+        records = _gate_records_cached(topic, records)
         artifacts = _records_to_artifacts(records)
     else:
         # Fallback to Plan 89-02 behavior.
@@ -1336,7 +1347,7 @@ def run_mode_external(
                     "cache_mode": cache_mode,
                     "cache_age_days": round(cache_age_days, 2) if cache_age_days is not None else None,
                     "cache_namespace": cache_namespace,
-                    "cache_ttl_days": _RS_CACHE_TTL_DAYS if pinecone_ok else None,
+                    "cache_ttl_days": _RS_CACHE_TTL_DAYS if signal_ok else None,
                     "topk_requested": topk,
                     "threshold": threshold,
                     "no_thesis": bool(no_thesis),
@@ -1365,7 +1376,7 @@ def run_mode_external(
         else:
             # Vectors missing -- rare but defensible. Drop to local path.
             print(
-                "rs-engine: Pinecone records missing values; "
+                "rs-engine: cached records missing values; "
                 "falling back to local embedding for semantic matrix.",
                 file=sys.stderr,
             )
@@ -1426,7 +1437,7 @@ def run_mode_external(
             "cache_mode": cache_mode,
             "cache_age_days": round(cache_age_days, 2) if cache_age_days is not None else None,
             "cache_namespace": cache_namespace,
-            "cache_ttl_days": _RS_CACHE_TTL_DAYS if pinecone_ok else None,
+            "cache_ttl_days": _RS_CACHE_TTL_DAYS if signal_ok else None,
             "topk_requested": topk,
             "threshold": threshold,
             "embedding_model": model_used,
@@ -1451,17 +1462,19 @@ def _count_by_source(docs: Sequence[Dict]) -> Dict[str, int]:
 
 # --- Mode C (hybrid) runner --------------------------------------------------
 
-# Design note on semantic similarity for the unified corpus (Plan 89-05):
-#   The external side carries cached 1024-dim multilingual-e5-large vectors
-#   when the Pinecone path is available. The room side carries no vectors
-#   on first run. Mixing 1024-dim (external) with 384-dim local MiniLM
-#   (room) would be a dimensional bug (plan Risk 1). The safe path is to
-#   embed the entire unified corpus in a single model space -- local
-#   MiniLM via compute_embeddings() -- so both sides share 384-dim and the
-#   pairwise cosine is well-defined. The cached e5-large vectors are
-#   retained on the external-doc side metadata for future callers
-#   (Plan 89-07 may surface them for downstream reranking) but do not
-#   drive the hybrid abs-diff pass.
+# Design note on semantic similarity for the unified corpus (Plan 89-05,
+# updated Plan 296-05): the external side used to carry cached 1024-dim
+# multilingual-e5-large vectors from Pinecone, which would have been a
+# dimensional bug (plan Risk 1) if mixed directly with the room side's
+# 384-dim local MiniLM vectors. Plan 296-05's repoint of lib.core.rs_cache
+# onto the local signal cache CLOSES that hazard by construction: the
+# external side now also carries local 384-dim vectors from the same
+# encoder as the room side. The safe path below is UNCHANGED regardless --
+# embed the entire unified corpus in a single model space (local MiniLM via
+# compute_embeddings()) so the pairwise cosine is well-defined -- because
+# doing so also lets a run with a cold, empty, or unavailable signal cache
+# degrade the same way it always has, rather than depending on the cache
+# having already run.
 
 
 def run_mode_hybrid(
@@ -1504,6 +1517,21 @@ def run_mode_hybrid(
         raise NotImplementedError(
             "rs-engine: --mode hybrid requires lib.core.rs_hybrid. "
             f"Import failed: {globals().get('_rs_hybrid_import_err_msg', 'unknown')}"
+        )
+
+    # Signal-cache availability check (mirrors run_mode_external's gate,
+    # Plan 296-05). Not blocking: build_unified_corpus's own
+    # _load_external_records degrades to an empty external side
+    # (cache_mode="bypass") on its own when the signal cache cannot be
+    # reached, via the room_dir it now threads through. This call exists so
+    # the reason is narrated up front instead of only discoverable later in
+    # hybrid_meta.
+    signal_ok, signal_skip_reason = _signal_cache_available(room_dir=str(room_dir))
+    if not signal_ok:
+        print(
+            f"[rs-engine hybrid] Signal cache skipped ({signal_skip_reason}); "
+            f"external side of the unified corpus will be empty this run.",
+            file=sys.stderr,
         )
 
     # Build the unified corpus + origin mask via rs_hybrid.

@@ -183,7 +183,7 @@ The online leg is FENCED: every outbound query is composed and audited by the sh
 1. **Compose (never hand-write a query).** Write ONLY the abstracted pattern vocabulary from Step 3 -- `{functionalKeywords, trizPrinciples, abstractFunction}` -- to `room/<section>/analogies/<slug>-pattern.json`, then run via Bash:
 
    ```bash
-   node scripts/analogy-fitness-report.cjs compose-queries room/<section>/analogies/<slug>-pattern.json
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/analogy-fitness-report.cjs" compose-queries room/<section>/analogies/<slug>-pattern.json
    ```
 
    The composer is the ONLY source of outbound query strings. Never hand-compose a query, and never send one it did not return.
@@ -251,7 +251,7 @@ that could sink this implementation:**
    wrong inflates a popular mechanism's presence and corrupts the ranking: counting one
    mechanism three times is not the same as three mechanisms each appearing once.
 2. **RUN THE FITNESS ENGINE ONCE** over the merged, deduped candidate set via Step 4.5's
-   `node scripts/analogy-fitness-report.cjs score <fitness-input.json>` -- NEVER per agent.
+   `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/analogy-fitness-report.cjs" score <fitness-input.json>` -- NEVER per agent.
    Fitness is a comparative ranking ACROSS candidates, so five agents each scoring their own
    subset would produce five incomparable scales.
 3. Apply the existing restatement rule verbatim: a restatement can never sit at Rank 1.
@@ -284,7 +284,7 @@ When the SAPPhIRE encodings are available (Tier 0 extracts them per `${MINDRIAN_
 2. Run the engine via Bash:
 
    ```bash
-   node scripts/analogy-fitness-report.cjs score room/<section>/analogies/<slug>-fitness-input.json
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/analogy-fitness-report.cjs" score room/<section>/analogies/<slug>-fitness-input.json
    ```
 
 3. Use the returned `rows` (rank, band, fused, restatementFlag) and `provenance` to render Step 5. The numbers are MEASURED; never hand-compute a decimal.

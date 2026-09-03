@@ -14,7 +14,7 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 # intern-w1-mode-gate-skip fix NOTE (kept, not removed -- see below): this
 # connector.excluded:true is TRUE and REQUIRED for the R1 connector-coverage
 # ledger (data/connector-coverage-ledger.json, enforced HARD-FAIL by
-# `node scripts/build-connector-registry.cjs --check`, R2/R9 gap===0
+# `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/build-connector-registry.cjs" --check`, R2/R9 gap===0
 # invariant): conversation-mode genuinely does not connect_to_spine (it is not
 # a sensor-triggered reach through dispatchSensors -> decide() -> resolver; it
 # is the mode/lane picker that runs ambient every turn, layered ABOVE reach

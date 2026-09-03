@@ -59,7 +59,7 @@ Before entering the standard methodology dialogue below, invoke ReverseSalientAg
 Procedure (CLI / Desktop / Cowork):
 
 1. Resolve the active room directory (use `scripts/resolve-room` or the active STATE.md path).
-2. Call `node -e "(async () => { const agent = require('./lib/agents/reverse-salient-agent.cjs'); const r = agent.detectAndSurface({ roomDir, sessionId, mode: 'internal', topk: 1 }); console.log(JSON.stringify(r)); })()"` -- the agent runs scripts/rs-engine.py via child_process and returns the top finding.
+2. Call `node -e "(async () => { const agent = require('./lib/agents/reverse-salient-agent.cjs'); const r = await agent.detectAndSurface({ roomDir, sessionId, mode: 'internal', topk: 1 }); console.log(JSON.stringify(r)); })()"` -- the agent runs whichever backend the active flag selects (rs-engine.py or rs-engine.cjs) and returns the top finding.
 3. If the agent returns `{ ok: true, findings: [<finding>] }`:
    - Present the F.0 surface (header carries the persona suffix from USER.md role_blend; body carries the finding text + Brain framework chain).
    - On APPROVE: cascade edge writes via the existing typed-edge primitive; `reverse_salient_acted_on` memory_event records the response.
@@ -79,7 +79,7 @@ The disambiguation is critical because the agent layer historically swallowed th
 Anti-pattern reminder (per docs/AGENTIC-SURFACING-PATTERN.md):
 - Never print findings to console; the F.0 dispatcher IS the surfacing surface.
 - Never query the Brain directly; the agent reads pre-derived BRAIN.md via folder-memory.readQuadruple (LOCAL only, Canon Part 8).
-- Never reimplement rs-math in Node; the agent shells out to scripts/rs-engine.py.
+- Shell out to whichever backend the active flag selects (`rs-engine.py` or `rs-engine.cjs`); never inline rs-math logic directly in the agent.
 
 ## Setup
 
