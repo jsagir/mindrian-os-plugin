@@ -122,6 +122,30 @@ server.tool(
         refusal: refusal,
       }, { brain_unreachable: true, command_context: 'brain_ask' }));
     }
+    // Phase 257 (D-03, LOCUS-01, G1) -- THE MEASURED DEFECT. brainClient.ask()
+    // can also resolve to the Part 8 sentinel OBJECT
+    // {error:'egress_blocked', tool:'brain_ask', egress_class:...} -- which is
+    // NOT null, so before this branch existed control fell all the way through
+    // to `wrapDirective(raw, signals)` below and rendered a well-formed EMPTY
+    // DirectiveEnvelope with no trace of the block: the words 'egress_blocked',
+    // 'error' and 'content_set' appeared nowhere in what the model received.
+    // The sentinel is deliberately an OBJECT rather than null
+    // (lib/core/brain-client.cjs:576-580) precisely so a constitutional
+    // refusal can never be confused with a transport outage -- this branch is
+    // the honest-refusal idiom for that object, cloned from the `raw == null`
+    // branch immediately above. CRITICAL: signals must NOT carry the
+    // transport-outage flag the branch above sets -- that would re-create the
+    // exact refusal-versus-outage conflation this branch exists to fix, one
+    // layer up in the signals plane. Only `tool` and `egress_class` cross
+    // into refusalResponse; the question text is never echoed.
+    if (raw && typeof raw === 'object' && raw.error === 'egress_blocked') {
+      const refusal = refusalResponse('egress_blocked', { tool: 'brain_ask', egress_class: raw.egress_class });
+      return asContent(wrapDirective({
+        directive: { guided: { questions: [], framework: null, stage: 'tier_0_' + refusal.kind } },
+        next_gate: { sub_shape: 'F.1', options: refusal.next_moves.slice() },
+        refusal: refusal,
+      }, { command_context: 'brain_ask' }));
+    }
     const signals = (raw && typeof raw === 'object' && raw.mode_signals) ? raw.mode_signals : {};
     return asContent(wrapDirective(raw, signals));
   }
