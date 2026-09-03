@@ -2945,6 +2945,23 @@
       "hitl_why": "Executes the autonomous_safe prefix server-side (wrapping the shipped runChain) and halts at the first material step, rendering a genuine Decision-Gate fork through the SAME gate-render.cjs ladder gate_render uses, instead of executing it unattended."
     },
     {
+      "surface": "mcp:claim_write",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.1",
+      "hitl_why": "Writes a proposed DIKW claim node through the node-insert.cjs chokepoint, a material graph write (not a pure read), the same F.1 shape graph_write/memory_event/artifact_file already carry. The write itself renders no fork; the genuine Decision-Gate fork it later passes through is gate_answer, which already declares F.1 and promotes this node to confirmed."
+    },
+    {
       "surface": "mcp:context_assemble",
       "source": "mcp_tool",
       "connects_to_spine": true,
