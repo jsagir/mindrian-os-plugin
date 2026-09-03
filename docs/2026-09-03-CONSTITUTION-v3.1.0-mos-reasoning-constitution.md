@@ -1,6 +1,6 @@
 ---
 name: mos:reasoning-constitution
-version: 3.1.1
+version: 3.1.2
 status: RATIFIED (navigator sign-off 2026-09-03)
 supersedes: 3.1.0
 ---
@@ -28,7 +28,7 @@ Evidence standard held throughout: file and line, or `unresolved` naming what wo
 | Brain/Theo consolidation | Silent on capability parity | Conditioned on the two-engine contract (design below) | RULED (R20), **DESIGN FINAL** (navigator, 2026-09-03) -- `compute_graph_metric` lives in the Brain repo and gets consumed by Theo, neither is MindrianOS-Plugin's code to write; this repo's role ends at the filed design and the shipped `brain_query` fix |
 | brain_query silent-empty bug | Not mentioned | Fixed | **SHIPPED**: commits `f264c843`, `8aca8af7` |
 | Write-back path (T2) | Implied it exists | Confirmed it doesn't; minimal design filed | DESIGN FILED (`docs/2026-09-03-DESIGN-t2-write-back-minimal.md`), not yet implemented |
-| Completion bar / first candidate | Named a transcript and framework | Both confirmed not to exist anywhere | `unresolved`, navigator will supply a real candidate (R21) |
+| Completion bar / first candidate | Named a transcript and framework | Both confirmed not to exist anywhere | **SATISFIED 2026-09-03** -- navigator supplied a real transcript (IRIS/`iris2026` room) + BONO Six Hats; certified, run, traced, independently write-verified |
 | Provenance ledger discipline | Dropped from v2.2.0 | Reinstated permanently | RULED (R15), governs this document going forward |
 
 Three items are **shipped code**, verified and committed on `main`. Everything else is a ruled decision with a filed design, awaiting its own implementation pass -- not silently assumed done.
@@ -87,7 +87,7 @@ With:
 
 Replace v3.0.0's named first candidate (J. Edwards Innovation Critique / TCCC transcript) -- confirmed by exhaustive filesystem and graph search to not exist anywhere -- with:
 
-> `unresolved`. Per ruling R21 (navigator, 2026-09-03): the first certification candidate will be filed in a room as ICM Data nodes with source spans *before* it is named as the candidate, not named first and searched for after. The navigator will supply it. Until then, this bar reads `unresolved`, which is itself a valid completion state under this document's own L10.
+> **SATISFIED, 2026-09-03.** Per ruling R21, the navigator supplied a real transcript first, filed before being named as the candidate: `sessions/2026-09-03-roy-munin-ido-gur-investor-intro.md` in the `iris2026` room (real speakers -- Roy Munin, Ido Gur, Jonathan Sagir -- real minute:second timestamps, filed via `artifact_file`, write independently verified against `room.db`'s own mtime before/after, not trusted from the tool's response alone). The navigator named Six Thinking Hats (BONO) as the framework. The certification ran for real: Tier A + Tier B spec, all six hats grounded in transcript quotes with timestamps, a tension map, one synthesis claim, and one traced insight (Jonathan Sagir, (33:48)) verified against the source quote -- the trace holds without stretching. T10's boilerplate check: 0 of 6 Tier A fields restate their own name. Full record: `sessions/2026-09-03-think-hats-ido-gur-iris-fit-t9-certification.md`, same room, same independent write verification. This is the completion bar's own falsifier test, passed by an independent reader (this session did not write the constitution's rulings and the transcript's content) tracing a real output to a real span.
 
 ---
 
@@ -143,7 +143,7 @@ R1-R14 unchanged from v3.0.0. R15-R21 below, each with real status, not aspirati
 | R18 | Operator-level cap attaches to the 5-state operator (`lib/conversation/operator.cjs`), not the 3-lane conversation-mode system (reversed 2026-09-03; the flagged concern in 2.3 confirmed the 3-lane system cannot carry a per-turn cap). `DECISION_GATE` stays a render-lock state. | RULED (revised), **declared mapping shipped** (`epistemicCapForOperator`/`isWithinCap`), enforcement path still open |
 | R19 | `/mos:operator set` migrated onto `gate-render.cjs`/`gate-ledger.cjs`. | **SHIPPED** -- `e29a7480`, `a114a4ad`, `17a60439` |
 | R20 | "Theo is the Brain" framing on hold pending the two-engine contract. Theo owns canon/provenance + deterministic graph computation; MAGE-class analytics stay on Memgraph as a computation service. `brain_query`'s empty-return bug fixed first. | RULED, `brain_query` fix **SHIPPED** (`f264c843`, `8aca8af7`), contract design **FINAL** (Part 3 above, navigator sign-off 2026-09-03), cross-repo ratified on Theo's side (Theo's own `CLAUDE.md` independently adopted the same analytics-boundary split). Implementation is explicitly out of MindrianOS-Plugin's scope -- `compute_graph_metric` belongs to the Brain repo (Jonathan's own IP) and Theo's own consumption of it; this repo's contribution ends here. |
-| R21 | The completion bar's first candidate is filed as real ICM Data nodes with source spans before being named, supplied by the navigator. | RULED, bar reads `unresolved` until supplied |
+| R21 | The completion bar's first candidate is filed as real ICM Data nodes with source spans before being named, supplied by the navigator. | **SATISFIED** -- IRIS investor-intro transcript + BONO Six Hats, filed, certified, traced (`iris2026` room, `sessions/2026-09-03-think-hats-ido-gur-iris-fit-t9-certification.md`) |
 
 ---
 
