@@ -47,6 +47,20 @@
  * lib/core/ (not scripts/) precisely so one implementation can also serve a
  * future MCP handler on Desktop/Cowork.
  *
+ * Plan 267.2-07 (HOOK-07) extends the state machine with the reward legs:
+ * routed -> reward_pending -> reward_delivered. Decision D-D fixes the
+ * architecture: this hook NEVER calls lib/core/mva-orchestrator.cjs's
+ * runPipeline inline -- runPipeline dispatches through a 45s global / 35s
+ * per-agent budget (lib/core/mva-dispatcher.cjs's binding decision B2),
+ * measured at up to 5337ms on the fresh-install no-key path (267.2-01),
+ * against a 3000ms hook ceiling. Instead this hook fires
+ * scripts/mva-run.cjs as a DETACHED, unref-ed child with its stdout
+ * captured to a file, exactly the shape scripts/brain-derivation-drain.cjs
+ * documents in its own header, and drains the captured render on a LATER
+ * turn. Honest residual, stated not hidden: the reward is delivered by
+ * machinery rather than by a prose promise (closing GAP R-1), but it lands
+ * one turn after the sentence that triggers it, not the same turn.
+ *
  * Canon Part 8 discipline (copied verbatim in spirit from
  * scripts/mva-detect.cjs:25-29): the raw prompt lives ONLY in the in-memory
  * `prompt` variable for the classification call; it is never written to
@@ -68,7 +82,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { spawnSync } = require('node:child_process');
+const { spawnSync, spawn } = require('node:child_process');
 
 const HOOK_EVENT_NAME = 'UserPromptSubmit';
 const STDIN_TIMEOUT_MS = 200;
@@ -386,6 +400,94 @@ function _emitOutcomeObserved(state) {
   return emitEmpty();
 }
 
+// ---------- The reward fire: detached, fire-and-forget, never inline (D-D) ----------
+//
+// Runs once the outcome has already been observed on an earlier turn (so
+// `existingState.phase === 'routed' && existingState.outcome_observed_at_ms`
+// is set -- see main()). Gated on the shipped MVA classifier's own verdict
+// (lib/core/mva-state.cjs::readPending), never on this router's opinion, and
+// never fabricates a pending record: mva-detect.cjs / mva-classifier.cjs own
+// that write, including the length guards, English-only rule and Hebrew
+// refusal path. A throw anywhere in this block degrades to an honest skip;
+// the envelope still emits and the state machine still advances.
+
+const SKIP_REASONS = Object.freeze(['no_pending', 'hebrew_refusal', 'already_running']);
+
+function _fireReward(state) {
+  const startMs = Date.now();
+  let sha8 = null;
+  let skipReason = null;
+  let capturePath = null;
+  let sentenceSha256 = null;
+
+  try {
+    const mvaState = require('../lib/core/mva-state.cjs');
+    const pending = mvaState.readPending();
+    if (!pending || typeof pending.sentence_sha256 !== 'string' || pending.sentence_sha256.length < 8) {
+      skipReason = 'no_pending';
+    } else if (pending.hebrew_refusal === true) {
+      skipReason = 'hebrew_refusal';
+    } else if (mvaState.isAlreadyRunning()) {
+      skipReason = 'already_running';
+    } else {
+      sentenceSha256 = pending.sentence_sha256;
+      sha8 = sentenceSha256.slice(0, 8);
+      const dir = firstInstallDir();
+      fs.mkdirSync(dir, { recursive: true });
+      capturePath = path.join(dir, 'brief-' + sha8 + '.md');
+      let fd = null;
+      try {
+        fd = fs.openSync(capturePath, 'w');
+        // Detached, unref-ed child (mirrors scripts/brain-derivation-drain.cjs
+        // and scripts/auto-explore-fingerprint.cjs). This process does NOT
+        // await the child and does NOT require mva-orchestrator.cjs -- the
+        // child (scripts/mva-run.cjs) is the only caller of runPipeline.
+        const child = spawn(process.execPath, [path.join(__dirname, 'mva-run.cjs')], {
+          detached: true,
+          stdio: ['ignore', fd, 'ignore'],
+          env: process.env,
+        });
+        child.unref();
+      } finally {
+        if (fd !== null) {
+          try { fs.closeSync(fd); } catch (_e) { /* parent's copy only; best-effort */ }
+        }
+      }
+    }
+  } catch (_e) {
+    // Any throw degrades to the skip path. An honest skip that is recorded
+    // is worth more than a fabricated reward.
+    sha8 = null;
+    capturePath = null;
+    if (!skipReason || SKIP_REASONS.indexOf(skipReason) === -1) skipReason = 'no_pending';
+  }
+
+  const firedAtMs = Date.now();
+  const rewardState = Object.assign({}, state, {
+    phase: 'reward_pending',
+    sha8: sha8,
+    fired_at_ms: firedAtMs,
+    capture_path: capturePath,
+    skip_reason: skipReason,
+    drain_retries: 0,
+  });
+  _atomicWriteState(rewardState);
+
+  try {
+    _appendTelemetry({
+      schema_version: 1,
+      event: 'reward_fired',
+      ts_ms: firedAtMs,
+      sentence_sha256: sentenceSha256,
+      sha8: sha8,
+      skip_reason: skipReason,
+      elapsed_ms: Date.now() - startMs,
+    });
+  } catch (_e) { /* telemetry is best-effort */ }
+
+  return emitEmpty();
+}
+
 // ---------- Main ----------
 
 function main() {
@@ -422,9 +524,15 @@ function main() {
     return _emitOutcomeObserved(existingState);
   }
 
+  if (existingState.phase === 'routed' && existingState.outcome_observed_at_ms) {
+    // Outcome already observed on an earlier turn: this turn fires the
+    // reward (plan 267.2-07) and advances routed -> reward_pending.
+    return _fireReward(existingState);
+  }
+
   // Any other phase (reward_pending / reward_delivered / investment_asked /
-  // done, or 'routed' with outcome already observed): this plan's work here
-  // is done. Plans 267.2-07 and 267.2-09 own everything past 'routed'.
+  // done): this plan's drain leg (plan 267.2-07 Task 2) and plan 267.2-09
+  // own everything from here.
   return emitEmpty();
 }
 
