@@ -910,7 +910,7 @@ one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop'
       open high-severity RCA cited by filename. Same file (257-04). Includes the D-05 flag that
       `query()`'s `null` contract stays frozen and G2's conflation is pinned by test rather than fixed.
 
-- [ ] **LOCUS-07**: all six Brain tools reject undeclared keys before any handler runs, closing the
+- [x] **LOCUS-07**: all six Brain tools reject undeclared keys before any handler runs, closing the
       smuggling class Theo's GUARD-01 measured. `bin/mindrian-brain-mcp-client.cjs` migrated from
       positional `server.tool()` to `server.registerTool()` with `z.strictObject` input schemas
       (257-08). Measured on this repo's own pins: a plain shape ACCEPTS `{roomSecret:'LEAK'}` and

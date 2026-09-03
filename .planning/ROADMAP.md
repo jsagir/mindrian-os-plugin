@@ -202,7 +202,7 @@ too -- once Theo consolidates room-side operational tools into the same catalog 
 tools (per Theo's own CLAUDE.md architecture doctrine), check whether this phase's
 enforcement-locus fix needs to also cover the Theo-catalog surface, not just today's
 `mindrian-os` server, before this phase's research locks.
-**Plans:** 7/9 plans executed
+**Plans:** 8/9 plans executed
 Plans:
 **Wave 1**
 
@@ -222,7 +222,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 257-08-PLAN.md - `registerTool` + `z.strictObject` migration, closing undeclared-key smuggling (W4)
+- [x] 257-08-PLAN.md - `registerTool` + `z.strictObject` migration, closing undeclared-key smuggling (W4)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
