@@ -30,9 +30,14 @@ function freshChokepoint() {
   return require(CHOKEPOINT_PATH);
 }
 
-test('REFUSAL_KINDS is a frozen five-member array ending in rate_limited', () => {
+// Phase 257 (LOCUS-01, D-03) amended REFUSAL_KINDS again, from five members
+// to six (egress_blocked appended last). This test's original intent -- the
+// four positions rate_limited itself amended are unchanged -- is preserved
+// by pinning rate_limited at index 4, rather than asserting it is last.
+test('REFUSAL_KINDS is a frozen six-member array with rate_limited pinned at index 4', () => {
   const mod = freshChokepoint();
-  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited'], 'rate_limited must be appended last, the original four unchanged');
+  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked'], 'rate_limited stays at index 4; egress_blocked (Phase 257) is now appended after it');
+  assert.equal(mod.REFUSAL_KINDS[4], 'rate_limited', 'the original four positions rate_limited was appended after are unchanged');
   assert.ok(Object.isFrozen(mod.REFUSAL_KINDS), 'REFUSAL_KINDS must still be frozen');
 });
 

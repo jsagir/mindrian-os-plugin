@@ -8,7 +8,9 @@
  * Proves the four typed refusal kinds at the refusal-messaging chokepoint
  * (renamed from tier0-messaging.cjs in Phase 252-01):
  *
- *   1. REFUSAL_KINDS is frozen, exactly the four members, in order.
+ *   1. REFUSAL_KINDS is frozen, exactly the six members, in order (amended
+ *      by Phase 259 to add rate_limited, then Phase 257 to add
+ *      egress_blocked, both appended last).
  *   2. refusalResponse per-kind status mapping (no_key keeps the byte-locked
  *      DIRECTOR_NOT_AVAILABLE wire string; the other three get sibling
  *      statuses). Shape: {status, kind, reason, command_context, next_moves,
@@ -47,15 +49,16 @@ function freshChokepoint() {
 }
 
 // ---------------------------------------------------------------------------
-// Test 1: REFUSAL_KINDS is frozen and equals the five-member closed set.
-// Phase 259 (TRUST-01, F-09 Option B): amended from four to five members --
-// rate_limited is appended LAST, so the four original positions (and their
-// order) are unchanged.
+// Test 1: REFUSAL_KINDS is frozen and equals the six-member closed set.
+// Phase 259 (TRUST-01, F-09 Option B) amended from four to five members
+// (rate_limited appended last); Phase 257 (LOCUS-01, D-03) amends from five
+// to six (egress_blocked appended last). The original five positions (and
+// their order) are unchanged.
 // ---------------------------------------------------------------------------
-test('Test 1: REFUSAL_KINDS is frozen and equals the five refusal kinds in order', () => {
+test('Test 1: REFUSAL_KINDS is frozen and equals the six refusal kinds in order', () => {
   const mod = freshChokepoint();
   assert.ok(Array.isArray(mod.REFUSAL_KINDS), 'REFUSAL_KINDS must be an array');
-  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited']);
+  assert.deepStrictEqual(mod.REFUSAL_KINDS, ['no_key', 'unreachable', 'tier_denied', 'not_ready', 'rate_limited', 'egress_blocked']);
   assert.ok(Object.isFrozen(mod.REFUSAL_KINDS), 'REFUSAL_KINDS must be frozen');
 });
 
