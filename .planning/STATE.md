@@ -3,16 +3,23 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-03-PLAN.md
-last_updated: "2026-09-03T20:43:47.574Z"
+stopped_at: Completed 339-04-PLAN.md
+last_updated: "2026-09-03T20:53:49.081Z"
 last_activity: 2026-09-03 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 186
-  completed_plans: 170
-  percent: 91
+  completed_plans: 172
+  percent: 92
 ---
+
+<!-- NOTE (339-04 execute-plan, 2026-09-03, resync-clobber pattern, same class as every note
+     in this file): state.update-progress correctly computed percent=92 (completed_plans
+     172 / total_plans 186), but a subsequent state.record-session call in this same run
+     re-clobbered percent back to the stale 21, same tracked bug class as every prior note
+     here. Hand-corrected back to 92. stopped_at / last_activity / "Current Position" were
+     all left untouched (record-session's own field updates, verified correct). -->
 
 <!-- NOTE (339-03 execute-plan, 2026-09-03, resync-clobber pattern, same class as every note
      in this file): `state.update-progress` correctly computed percent=91 (completed_plans
@@ -4020,7 +4027,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
-Plan: 4 of 14
+Plan: 5 of 14
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 339 execution started
 
@@ -4854,6 +4861,7 @@ Progress: [█████████░] 92%
 | Phase 339 P02 | 40min | 3 tasks | 3 files |
 | Phase 276 P14 | 15min | 3 tasks | 2 files |
 | Phase 339 P03 | 45min | 4 tasks | 5 files |
+| Phase 339 P04 | 35min | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -6284,6 +6292,9 @@ Progress: [█████████░] 92%
 - [Phase 276]: 276-14: meeting file-meeting wired through the governed F.8 gate (writeClaimNode then gate_render/gate_answer), opt-in via knowledge_type/claim_text, no second gate mechanism
 - [Phase 339]: test-339-gate-zero-write.sh (FLIP-09) verified GREEN in wave 1 against Theo's live coverage ruling at commit 81dfac8; porcelain sha256 byte-identical in both repos before/after
 - [Phase 339]: test-254 Arms 4-5 extended for the two-table origin-keyed alias selector (FLIP-02); header-comment edit reverted to keep git diff's first hunk at line 255 per PLAN.md's own acceptance criterion, overriding PATTERNS.md's suggestion to also update the header
+- [Phase 339]: 339-04: Origin-derived alias selector (THEO_ORIGINS array + BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT/_THEO) replaces the single alias table; PROBLEM_TYPE_HANDLE_RE and the pass-through return trimmed; stay byte-identical
+- [Phase 339]: 339-04: brain_schema memo keyed on resolved origin as defense-in-depth (D-13 corrected) -- no flush function created; the correction is stated in-code, not just in 339-CONTEXT.md
+- [Phase 339]: 339-04: FLIP-03 left unchecked in REQUIREMENTS.md -- this plan lands only the enrichment_queue_captured log-line leg; the capture-arm leg in enrichment-queue.cjs is plan 339-05's scope
 
 ### Pending Todos
 
@@ -6405,8 +6416,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T20:43:47.469Z
-Stopped at: Completed 339-03-PLAN.md
+Last session: 2026-09-03T20:53:48.985Z
+Stopped at: Completed 339-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

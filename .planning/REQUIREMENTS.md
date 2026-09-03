@@ -1022,6 +1022,7 @@ section.
       intent bucket by a local, LLM-free, network-free, Part-8-clean classifier. Shipped 267.2-05:
       `lib/core/greeting-intent-detector.cjs` (`classify`, `BUCKETS`), mirroring
       `lib/core/dual-path-detector.cjs`'s additive-score shape. `tests/test-267-2-greeting-classifier.cjs`
+
       - 36 assertions PASS, including a source grep confirming zero occurrences of
       `fetch`/`node:http(s)`/`brain-client`/`process.env`, and a bounded-runtime guard (17-row
       corpus in 2-3ms against a 250ms budget).
@@ -1109,28 +1110,39 @@ and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
 - [ ] **FLIP-01**: No runtime site resolves the Brain origin from its own literal; every one
       derives from `brain-client.cjs`'s exported `getBrainUrl()` or from a frozen constant that
       moves in the same commit as line 24 (Cut: PREP + FLIP).
-- [ ] **FLIP-02**: `BRAIN_PROBLEM_TYPE_ALIASES` projects onto the vocabulary of the RESOLVED
+
+- [x] **FLIP-02**: `BRAIN_PROBLEM_TYPE_ALIASES` projects onto the vocabulary of the RESOLVED
       origin, and a `MINDRIAN_BRAIN_URL` change moves vocabulary and URL together (Cut: PREP).
+
 - [ ] **FLIP-03**: `_maybeCaptureEnrichmentMiss` captures a Theo-shaped readiness miss in BOTH
       Theo payload shapes (scored and refusal-only), and `{matched:0,total:0}` is never collapsed
       with `{matched:0,total:N>0}` (Cut: PREP).
+
 - [ ] **FLIP-04**: The `unreachable` and `no_key` refusal copy names the two-command update path,
       sourced from ONE shared constant that doctor and docs also read (Cut: PREP).
-- [ ] **FLIP-05**: `brain_schema`'s memo cannot serve a schema fetched from a different origin
+
+- [x] **FLIP-05**: `brain_schema`'s memo cannot serve a schema fetched from a different origin
       than the one currently resolved (Cut: PREP).
+
 - [ ] **FLIP-06**: Desktop and Cowork connector docs name Theo's `/mcp` endpoint under the
       unchanged `mindrian-brain` key with no `Authorization` header, and every generated mirror is
       regenerated rather than hand-edited (Cut: PREP).
+
 - [ ] **FLIP-07**: `docs/339-NOTE-theo-desktop-connector-key.md` exists and states the
       egress-guard reason the key matters (Cut: PREP).
+
 - [ ] **FLIP-08**: Phase 269-05 Task 1's checklist reads the three real legs against live
       sources, and no item can read PASS while its real leg is unchecked (Cut: PREP).
+
 - [ ] **FLIP-09**: The FLIP release cannot be cut until a human confirms Theo's coverage ruling,
       read live, with zero repository writes (Cut: FLIP).
+
 - [ ] **FLIP-10**: `brain-client.cjs:24` resolves to `https://theo-mcp.onrender.com`, bare origin,
       and the docblock at `:4-7` no longer names the incumbent (Cut: FLIP).
+
 - [ ] **FLIP-11**: `class-m-brain-smoke.cjs` layer 6 reports an honest verdict against Theo
       (canon origin, stats key, node floor all correct for the shipped default) (Cut: FLIP).
+
 - [ ] **FLIP-12**: An installed session running the FLIP release returns structured Theo answers
       through `brain_stats` and `brain_ask`, and the result is reported to Session T as 09-12
       Task 2's resume signal (Cut: POST).
