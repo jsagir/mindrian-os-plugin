@@ -1,17 +1,9 @@
 ---
 phase: 276
-status: draft
-ruled: PENDING
+status: ratified
+ruled: 2026-09-03
 plans_gated: [276-12, 276-14]
 ---
-
-<!--
-DRAFT PREP ARTIFACT (276-05, Task 1/2 prep). This file is NOT ratified. Both
-OQ-276-1 and OQ-276-2 are BLOCKING navigator decisions, presented below with
-their options laid out and the ruling slot left empty. When the navigator
-selects, a continuation agent fills the ANSWER sections with the verbatim
-ruling and flips status to `ratified` (Task 3 of 276-05-PLAN.md).
--->
 
 ## OQ-276-1 ANSWER
 
@@ -23,69 +15,60 @@ comparable against the current operator's DIKW cap (5 rungs,
 `lib/conversation/operator.cjs:133` `EPISTEMIC_LEVELS`). Which mapping is
 authoritative, and where does it live?
 
-**Grounded fact found during read_first that bears directly on this ruling:**
-`typed-claim.cjs:162-169`'s `writeClaimNode` already calls `insertNode` with a
-HARDCODED `epistemic_type: 'extracted_fact'` for every claim regardless of its
-`knowledge_type`. All 6 `KNOWLEDGE_TYPES` members currently collapse onto ONE
-`epistemic_type` value. There is no per-member mapping today; the "mapping"
-that exists is a constant, not a table.
+**Selected: b + d** - map at the claim writer, cap-comparison deferred.
 
-**STATUS: AWAITING NAVIGATOR RULING.**
+**Navigator's ruling, verbatim:**
 
-### Options presented (verbatim from 276-05-PLAN.md Task 1)
+> "b + d: map at the claim writer, cap-comparison deferred". Meaning: the
+> knowledge_type -> epistemic_type mapping table lives in
+> `lib/core/navigation/typed-claim.cjs` next to `KNOWLEDGE_TYPES`, honoring
+> `node-insert.cjs:110-112`'s own comment that per-writer mapping belongs at
+> the call site; pinned by a test; the operator-cap comparison against the
+> DIKW rungs (`operator.cjs:133` EPISTEMIC_LEVELS) is named as an explicit
+> follow-up of this phase (registered in 276-16's close-out), not silently
+> built or dropped.
 
-**Option a: Mapping table in node-insert.cjs, epistemic_type stays canonical**
-- Pros: One fail-closed gate stays the single authority. `knowledge_type`
-  becomes a per-writer input that maps INTO an existing `epistemic_type`, so
-  no enum grows and no existing write path changes. The mapping is readable
-  at the chokepoint Canon Part 9 already names.
-- Cons: Puts a claim-domain concern inside the generic node-write gate, which
-  its own comment (`node-insert.cjs:110-112`) currently says it does not want
-  ("the per-writer mapping lives in each call site's insertNode(...) call,
-  not here").
+**Grounded fact this ruling supersedes:** `typed-claim.cjs:162-169`'s
+`writeClaimNode` currently calls `insertNode` with a HARDCODED
+`epistemic_type: 'extracted_fact'` for every claim regardless of its
+`knowledge_type`. All 6 `KNOWLEDGE_TYPES` members collapse onto ONE
+`epistemic_type` value today; the "mapping" that exists pre-ruling is a
+constant, not a table. This is the behavior plan 276-12 replaces.
 
-**Option b: Mapping table in typed-claim.cjs, at the claim writer**
-- Pros: Honors `node-insert.cjs`'s own stated design ("mapping lives at the
-  call site"). Keeps the claim vocabulary and its epistemic projection
-  together in the module that already owns `KNOWLEDGE_TYPES`
-  (`typed-claim.cjs:53`) and the protected-key discipline
-  (`typed-claim.cjs:65-68`). Smallest blast radius.
-- Cons: A second claim writer added later could map differently, so the
-  mapping is a convention enforced by review rather than by a gate. Needs a
-  test to pin it.
+**Placement, RATIFIED:** the mapping table lives in
+`lib/core/navigation/typed-claim.cjs`, alongside the `KNOWLEDGE_TYPES` Set it
+projects from, not inside `lib/core/node-insert.cjs`'s generic fail-closed
+gate. `ALLOWED_EPISTEMIC_TYPES` stays the single canonical target enum; the
+table only projects into it. A test pins the table so a second claim writer
+added later cannot silently diverge.
 
-**Option c: A new shared vocabulary module that all three import**
-- Pros: One home, importable by the operator cap
-  (`operator.cjs:138` `OPERATOR_EPISTEMIC_CAP`), the node gate
-  (`node-insert.cjs:113`) and the claim writer (`typed-claim.cjs:53`), so a
-  future comparison of a node's epistemic_type against the operator cap
-  becomes a function call rather than a rediscovery.
-- Cons: Largest change. Touches three modules including two chokepoints, in a
-  phase whose thesis is propagation of existing fixes rather than new
-  construction. Risks the same sprawl Phase 273 D-02 avoided.
+**Scope, RATIFIED:** only the `knowledge_type` -> `epistemic_type` direction
+is built in this phase. The operator-cap comparison
+(`epistemic_type` vs. `operator.cjs:133` `EPISTEMIC_LEVELS` /
+`operator.cjs:138` `OPERATOR_EPISTEMIC_CAP`) is a NAMED follow-up, owned by
+plan 276-16's close-out, not silently built and not silently dropped.
 
-**Option d: Rule the mapping now, build only what 276-12 needs**
-- Pros: Records the authoritative mapping as a DECISION in this file and
-  implements only the direction plan 276-12 actually consumes
-  (knowledge_type to epistemic_type), leaving the operator-cap comparison as
-  a named follow-up with an owner. Unblocks the build without spending this
-  phase's capacity on the full bridge.
-- Cons: Leaves the cap-comparison half unbuilt, so the CLAUDE.md trap narrows
-  rather than closes. Must be stated as such, not presented as a full close.
+**Mapping table -- STATUS: PROPOSED, not navigator-ratified.** The navigator
+did not dictate the row-by-row content; only the placement (typed-claim.cjs)
+and the scope (this direction only, cap-comparison deferred) are ratified
+above. The table below is the executor-proposed content, derived from the
+real 6 `KNOWLEDGE_TYPES` members (`typed-claim.cjs:53`) and the real 10
+`ALLOWED_EPISTEMIC_TYPES` members (`node-insert.cjs:113`). It is pinned by
+276-12's test and confirmable at 276-16's human verification -- not to be
+presented as navigator-ratified.
 
-**Planner's lean (stated per Task 1's action instruction, not a ruling):**
-Option b, on the strength of `node-insert.cjs`'s own comment already pointing
-mapping ownership at the call site, combined with Option d's scope discipline
-(rule the knowledge_type-to-epistemic_type direction now; name the
-operator-cap comparison as an explicit follow-up rather than silently
-building or silently dropping it). A hybrid "b+d" reading is plausible but is
-NOT assumed here; the navigator selects a-d as written, or states a different
-combination explicitly.
+| `knowledge_type` (`typed-claim.cjs:53`) | `epistemic_type` (`node-insert.cjs:113`) | Reason (one line) |
+|---|---|---|
+| `fact` | `extracted_fact` | A stated fact pulled directly from a transcript segment; matches the pre-ruling hardcoded default, so this row is a no-op for the most common case. |
+| `causal` | `derived_fact` | A causal claim is reasoned from stated facts (cause implies effect), not itself directly extracted, matching `derived_fact`'s "reasoned from other facts" character. |
+| `heuristic` | `interpretation` | A heuristic is a general rule someone is applying to the situation, an interpretive generalization rather than a literal observation or extraction. |
+| `anomaly_cue` | `observation` | An anomaly cue names something noticed as unusual; that noticing is itself an observation, the most literal `epistemic_type` available. |
+| `mental_model` | `model_derived_assertion` | A mental-model claim is explicitly a model-derived construct; the epistemic-type name and the knowledge-type name share the same root concept. |
+| `assumption` | `assumption` | Both vocabularies use the identical token; this is the one direct 1:1 name match across the two enums, no projection needed. |
 
-**If the ruling implies a mapping,** it must be recorded here as a table, one
-row per `KNOWLEDGE_TYPES` member (fact, causal, heuristic, anomaly_cue,
-mental_model, assumption), each with an `epistemic_type` target drawn from
-`ALLOWED_EPISTEMIC_TYPES`, and the file:line where the mapping will live.
+This table is written at `lib/core/navigation/typed-claim.cjs` by plan
+276-12, replacing the hardcoded `epistemic_type: 'extracted_fact'` constant
+at `typed-claim.cjs:169` cited above.
 
 ## OQ-276-2 ANSWER
 
@@ -93,75 +76,39 @@ mental_model, assumption), each with an `epistemic_type` target drawn from
 can reach a real DIKW claim write, and where does the human confirmation sit
 relative to that write?
 
-**Constraints already locked (D-276-1, not reopened by this question):** a
-`writeClaimNode` MCP primitive routed through `node-insert.cjs`, `gate_render`
-and `gate_answer` wiring, small single-job tool calls, no duplicated Claimify
-extraction logic. Canon Part 9 forbids a second write path:
-`lib/core/node-insert.cjs` is the single node-write chokepoint. What remains
-open is surface granularity and gate order.
+**Selected: a** - one tool, write-then-gate: `claim_write` files at
+`proposed`, `gate_answer` promotes.
 
-**STATUS: AWAITING NAVIGATOR RULING.**
+**Navigator's ruling, verbatim:**
 
-### Options presented (verbatim from 276-05-PLAN.md Task 2)
+> "a: one tool, write at proposed, gate_answer promotes". Meaning: ONE MCP
+> tool, working name `claim_write`, home `lib/mcp/tools/claim.cjs` (minted by
+> 276-12); files the claim node at `review_status: proposed` through
+> `typed-claim.cjs`'s `writeClaimNode` -> `lib/core/node-insert.cjs` ONLY (no
+> second write path); the shipped `gate_answer` approve branch
+> (`gate.cjs:168-235`, `navigation.confirmNode`) promotes it;
+> `writePathRefusal` (`graph.cjs:100-108`) applies; Canon Part 9 is honored at
+> `confirmed`, and "proposed before confirmed" is the same standing pattern
+> `artifact_file` and every other `insertNode` caller already accept.
 
-**Option a: One tool, write-then-gate: claim_write files at proposed,
-gate_answer promotes**
-- Pros: Smallest surface. Reuses the shipped `gate_answer` approve branch
-  (`gate.cjs:168-235`), which already promotes via `navigation.confirmNode`
-  and writes SOURCED_FROM provenance. A claim exists in the graph
-  immediately, visible even if the human never answers.
-- Cons: A proposed claim exists before any human saw it. Canon Part 9 says
-  only a human confirms a truth-claim node, which this honors at the
-  `confirmed` level but not at the `exists` level.
+**Tool to mint, RATIFIED:** `claim_write`, home `lib/mcp/tools/claim.cjs`,
+minted by plan 276-12. No `claim_confirm` or second tool. Option c (two
+tools) is not selected.
 
-**Option b: One tool, gate-then-write: claim_write renders a gate first and
-writes only on approve**
-- Pros: Nothing enters the graph without a human. Strictest reading of Canon
-  Part 9 and of `filing-protocol.md:174-176`'s "Nothing files without the
-  navigator confirming."
-- Cons: Couples the write tool to the renderer ladder, so a headless or
-  non-interactive surface either blocks or silently degrades. The gate ledger
-  is in-memory and single-use (`gate.cjs:45-63`), so a restart between render
-  and answer loses the pending claim with nothing on disk.
+**Routing, RATIFIED:** the write routes through
+`typed-claim.cjs`'s `writeClaimNode` -> `lib/core/node-insert.cjs` and no
+other path. `writePathRefusal` (`lib/mcp/tools/graph.cjs:100-108`) applies at
+call time exactly as it does for `graph_write` and `memory_event`. Promotion
+from `proposed` to `confirmed` runs only through the shipped `gate_answer`
+approve branch (`gate.cjs:168-235`), which calls `navigation.confirmNode`.
 
-**Option c: Two tools: claim_write (proposed only) plus an explicit
-claim_confirm that routes through gate_answer**
-- Pros: Two small single-job tools, matching D-276-1's "small single-job tool
-  calls". Each is independently testable and independently honest in its
-  description.
-- Cons: Adds two tool registrations rather than one, and a second HITL
-  declaration surface under Canon Part 11. Grows the description budget
-  `test-270` (`tests/test-270-tool-schema-budget.cjs`) measures.
-
-**Planner's lean (stated per Task 2's action instruction, not a ruling):**
-Option a. It reuses the shipped `gate_answer` approve branch byte-for-byte
-(the same promotion path `artifact_file` already rides per Canon Part 9,
-matching the existing `writeClaimNode` precedent of landing at `proposed` on
-insert, `typed-claim.cjs:158`), needs no new gate-ledger persistence work,
-and keeps the tool count at one. The "proposed exists before a human saw it"
-cons is the same shape `artifact_file` and every other `insertNode` caller
-already accepts (review_status='proposed' is the standing pattern, not a new
-risk this tool introduces).
-
-**Routing statement required regardless of option:** the write routes through
-`lib/core/node-insert.cjs` (via `typed-claim.cjs`'s `writeClaimNode`, which
-already calls `insertNode`), never a second write path, and
-`writePathRefusal` (`graph.cjs:100-108`) applies at call time exactly as it
-does for `graph_write` and `memory_event`.
-
-**Tool name(s) to mint:** to be stated by the navigator's ruling. `claim_write`
-is the working name used throughout `276-RESEARCH.md` and this plan's
-frontmatter (`artifacts_this_phase_produces` names `lib/mcp/tools/claim.cjs`
-as the home, minted by 276-12); if Option c is selected, `claim_confirm` is
-the working name for the second tool, pending navigator confirmation.
-
-**What the tool description must NOT claim:** to be stated by the navigator's
-ruling, but per the honesty-fix pattern already proven on `meeting`
-(`3a35f4f6`), the description must not claim a write is confirmed/final when
-it is only proposed, and must not claim the five-perspective subagent fan-out
-or the F.8 filing gate are reachable from this tool (per
-`filing-protocol.md:44-54`, both are CLI-only and structurally unreachable
-from MCP).
+**What the tool description must NOT claim:** per the honesty-fix pattern
+already proven on `meeting` (`3a35f4f6`), `claim_write`'s description must
+not claim the written claim is confirmed or final -- it is `proposed` until a
+human approves through `gate_answer`. It must not claim the five-perspective
+subagent fan-out or the F.8 filing gate are reachable from this tool; per
+`filing-protocol.md:44-54` both are CLI-only and structurally unreachable
+from MCP.
 
 ## Dispositions of record (not re-decided by any later plan)
 
