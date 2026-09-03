@@ -5,6 +5,7 @@
 > **Why queued:** Phase B moves Brain composition server-side into `mindrian-os` tool handlers and reshapes `brain-client.cjs`. Planning this against today's tree would plan against a tree that is about to change.
 > **Branch:** `fix/part8-guard-in-mcp-handlers` off `main` @ `f566310c` (v2.0.0-beta.8). Doc only, no code.
 > **Origin:** authored from a Windows session that could not honor the WORKSPACE GUARD. This tracked file is the carrier, per CLAUDE.md.
+> **CORRECTED 2026-09-02 (Phase 257):** a dated correction sits at the end of this file. H3 as stated below (sections 1, 2, 3) is disproven for `mindrian-brain`; the belt already covers it. This handoff is corrected, not retired -- its conventions (section 5) still bind.
 
 ---
 
@@ -146,3 +147,65 @@ If `complete-system-loop` absorbs H3 into Phase B directly, that is a **better**
 - Codex hooks: https://deepwiki.com/openai/codex/3.11-hooks-system and https://agenticcontrolplane.com/blog/codex-cli-hooks-reference
 - ChatGPT developer mode and MCP: https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt
 - In-repo: `.planning/2026-08-20-BRIEF-complete-system-loop.md` section 3 and 7; `.planning/phases/239-brain-access-surface/239-05-SUMMARY.md`; `.planning/phases/239-brain-access-surface/deferred-items.md`
+
+## CORRECTION 2026-09-02 (Phase 257): H3 as written is false
+
+Everything above this heading is left exactly as originally written. Nothing is deleted or
+softened. This block records what Phase 257's research (`257-RESEARCH.md`) measured live on
+2026-09-02, against this handoff's own re-verification protocol in section 4.
+
+**What was claimed.** Section 2's table, verbatim: "H3 | A **direct model-issued**
+`mcp__...mindrian-brain__brain_ask / brain_query / brain_search / brain_write` bypasses
+`brain-client.cjs` entirely. Guarded ONLY by the hook, which does not fire on hosts without
+MCP-scoped tool hooks. | Nobody. This handoff. | Open. Unfiled before this doc." Section 3
+restated the same claim as host evidence for why H3 is real.
+
+**What is true.** `bin/mindrian-brain-mcp-client.cjs` is a pure stdio transport wrapper that
+requires `lib/core/brain-client.cjs` at line 62. All four Brain handlers (`brain_ask`,
+`brain_query`, `brain_search`, `brain_write`) delegate through `callTool`, which has carried
+the fail-closed `part8-egress-guard.classify()` belt since commit `ca32b612`. The claim that
+this traffic "bypasses `brain-client.cjs` entirely" is false and has been false since that
+commit landed.
+
+**The commit-order proof.** `ca32b612` at 2026-08-19 09:26:51 +0300 versus this handoff's own
+base commit `f566310c` at 2026-08-19 11:55:23 +0300. `git merge-base --is-ancestor ca32b612
+f566310c` returns true. The belt was already in the tree this handoff branched from, two and a
+half hours before the branch point. The claim was false at the moment it was written, not
+merely stale by the time it was read.
+
+**The live wire proof.** A synthetic canary (`CANARY7F3A2B dana@acme.io`) driven through all
+four Brain wrappers against `tests/helpers/brain-capture-server.cjs` produced four blocks and
+zero captured bytes:
+
+| Wrapper (the shim's exact call) | Return value | Bytes captured on wire | Canary on wire |
+|---|---|---|---|
+| `brainClient.ask(canary)` | `{"error":"egress_blocked","tool":"brain_ask","egress_class":"content_set"}` | `[]` | false |
+| `brainClient.smartSearch(canary)` | `{"error":"egress_blocked","tool":"brain_search","egress_class":"content_set"}` | `[]` | false |
+| `brainClient.query(cypher-with-canary)` | `null` | `[]` | false |
+| `brainClient.write(cypher-with-canary)` | `{"error":"egress_blocked","tool":"brain_write","egress_class":"content_set"}` | `[]` | false |
+
+**The root cause, named.** Pitfall 2 (`257-RESEARCH.md`): `git grep part8-egress-guard --
+bin/` returns zero, because the belt lives in `lib/core/brain-client.cjs`, not in `bin/`. This
+handoff read that absence as absence of coverage. A filename grep cannot follow a delegation --
+`bin/mindrian-brain-mcp-client.cjs` calls `brainClient.ask()` / `.query()` / `.smartSearch()` /
+`.write()`, and those functions call `callTool()`, where the belt actually sits. The same error
+produced the false parenthetical corrected in `lib/mcp/brain-composition-census.cjs` (Phase 257
+Plan 03, Task 1 of this same plan): "that traffic never touches brain-client.cjs at all."
+
+**What this handoff got RIGHT, and this phase inherits unchanged.** Section 5's conventions
+still bind: fail-CLOSED in code versus fail-OPEN in the hook; classify the raw value before
+sanitize and before interpolation, per `lib/core/bono/persona-research.cjs` approx lines
+208-233; the `check-substrate.cjs` `ALLOWED_DIRECT_IMPORT` trap; the egress-proof and
+regression-lock test shapes (`tests/test-239-query-egress-canary.cjs`,
+`lib/mcp/no-instructions.test.cjs`). Section 4's re-verification discipline is what caught this
+error -- running the commands instead of trusting the frozen prose is exactly what worked.
+Section 6's instruction not to silently absorb D-239-05-01 also still stands; Phase 257 does
+not resolve it either.
+
+**What is actually open, and where it is ruled on.** `pws-brain-mcp`, registered as direct
+HTTPS with zero local plugin code anywhere in the path -- Desktop's and Cowork's path by
+design. See `docs/257-NOTE-part8-enforcement-locus-rulings.md` (Phase 257 Plan 04) for the
+ruling on that surface; it is not restated here.
+
+**Status.** This handoff is CORRECTED, not retired. Its conventions still bind. Its central
+claim about `mindrian-brain` does not.
