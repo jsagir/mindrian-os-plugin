@@ -163,3 +163,15 @@ No blockers.
 ---
 *Phase: 339-brain-to-theo-cutover-release-flip-brain-client-default-orig*
 *Completed: 2026-09-03*
+
+## Self-Check: PASSED
+
+- FOUND: tests/test-339-cross-repo-note.sh
+- FOUND: tests/test-339-269-05-checklist.sh
+- FOUND: tests/test-339-gate-zero-write.sh
+- FOUND: .planning/phases/339-brain-to-theo-cutover-release-flip-brain-client-default-orig/339-03-SUMMARY.md
+- FOUND: dc80655d (Task 1 commit)
+- FOUND: d012e565 (Task 2 commit)
+- FOUND: 631c31dc (Task 3 commit)
+- FOUND: f13062db (Task 4 commit)
+- FOUND: 3cdefed8 (SUMMARY commit)
