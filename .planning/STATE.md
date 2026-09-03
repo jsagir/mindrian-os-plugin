@@ -4,15 +4,39 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 276-07-PLAN.md
-last_updated: "2026-09-03T19:59:26.594Z"
-last_activity: "2026-09-03 -- Phase 276 Plan 07 (four detector fixes: enumeration guard, negation demotion, barrel re-export hop, includes() dispatch; WEAK-tier sibling-writes ruling; ledger amendment) complete: 3 tasks, commits 02287c30/48fe8a61/c4e05426"
+last_updated: "2026-09-03T20:05:00.991Z"
+last_activity: 2026-09-03 -- Phase 339 execution started
 progress:
-  total_phases: 90
+  total_phases: 89
   completed_phases: 19
-  total_plans: 180
-  completed_plans: 160
+  total_plans: 186
+  completed_plans: 165
   percent: 89
 ---
+
+<!-- NOTE (276-08 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
+     throughout this file, but the CROSS-PHASE variant): `state.update-progress` correctly
+     computed percent=89 (completed_plans 165 / total_plans 186) but did not persist it into
+     the frontmatter -- it stayed at the stale 21 until hand-corrected here, matching every
+     prior occurrence in this file. Different from those prior occurrences in one respect: this
+     is not a same-phase plan-counter drift -- a genuinely CONCURRENT session started executing
+     Phase 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) on this same
+     shared working tree while this plan (276-08) was still in progress, and its own
+     `state.advance-plan`/`state.record-session` calls landed on "Current focus" / "Current
+     Position" / "stopped_at" / "last_activity" BEFORE this plan's own state-update step ran.
+     Per the shared_tree_guard's own instruction (never fight a concurrently-active session's
+     legitimate position) and per this plan's own phase_rules ("hand-correct with a dated NOTE
+     per the file's convention" when state commands clobber), this plan's execute-plan step
+     deliberately did NOT run `state.advance-plan` or `state.record-session` -- both would have
+     overwritten Phase 339's now-current "Current focus"/"Current Position"/"stopped_at" fields
+     with stale Phase 276 information, corrupting the OTHER session's live state rather than
+     recording this one's. Only the additive commands (`state.record-metric`, the Performance
+     Metrics table row for Phase 276 P08; `state.add-decision`, the 276-08 dry-run-against-
+     extractClaims decision) were run, plus this hand-corrected `percent` field. Phase 276
+     Plan 08 (orchestration/export/room_content honesty propagation, commits d66a8a68/
+     43e3308e/15d65f47, SUMMARY at .planning/phases/276-.../276-08-SUMMARY.md) is COMPLETE;
+     "Current Position" correctly continues to point at Phase 339 because that is where live
+     execution actually is now, not because 276-08 is unfinished. -->
 
 <!-- NOTE (session close-out, 2026-09-03, SIXTIETH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3938,7 +3962,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 276 — mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs
+**Current focus:** Phase 339 — brain-to-theo-cutover-release-flip-brain-client-default-orig
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -3963,10 +3987,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 276 (mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs) — EXECUTING
-Plan: 12 of 16
-Status: Ready to execute
-Last activity: 2026-09-03 -- Phase 276 Plan 07 (four detector fixes: enumeration guard, negation demotion, barrel re-export hop, includes() dispatch; WEAK-tier sibling-writes ruling; ledger amendment) complete: 3 tasks, commits 02287c30/48fe8a61/c4e05426
+Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
+Plan: 1 of 14
+Status: Executing Phase 339
+Last activity: 2026-09-03 -- Phase 339 execution started
 
 <!-- NOTE (276-07 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
      throughout this file): `state.advance-plan` blindly incremented the linear "Plan: N of 16"
@@ -4792,6 +4816,7 @@ Progress: [█████████░] 92%
 | Phase 276 P10 | 50min | 3 tasks | 2 files |
 | Phase 276 P12 | 7min | 3 tasks | 8 files |
 | Phase 276 P07 | ~2h | 3 tasks | 6 files |
+| Phase 276 P08 | 55min | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -6214,6 +6239,7 @@ Progress: [█████████░] 92%
 - [Phase 276-10]: D-276-5 return-shape typed reasons (room_db_busy/room_db_broken/room_db_open_failed) at spine-events, plus a busy-only read-only-door retry so getCurrentJTBD/getCurrentOperator never misreport a busy room as cold start -- spine-events cannot re-throw (its whole contract is a {ok,reason} return); the RED test's Group D assertions required the real logged value under contention, not just a reason key, so the fix reuses the already-shipped read-only door (WAL readers never block writers) rather than the plan's literal minimal option
 - [Phase 276]: 276-12: claim_write MCP tool ships, writing proposed DIKW claims through typed-claim.cjs/node-insert.cjs; typed-claim.cjs's knowledge_type-to-epistemic_type mapping table built per 276-DECISIONS.md OQ-276-1, replacing the hardcoded extracted_fact constant
 - [Phase 276]: WEAK-tier sibling-writes discount NOT extended to per-command/tool-scoped WEAK claims (classifyBranch ruling) - room_graph rows re-measured live are per-command not tool-scoped as RESEARCH.md said, and 2 of 10 hide a real undetected write (graph-ops to lazygraph depth-2 dotted call); a blanket discount would have silently hidden that real gap
+- [Phase 276]: 276-08: room_content and orchestration honesty rewrites are dry-run against check-tool-honesty.cjs's own extractClaims() before landing, to catch a disclosure sentence accidentally tripping a STRONG/WEAK verb token before it becomes a committed false positive.
 
 ### Pending Todos
 

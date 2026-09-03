@@ -822,7 +822,7 @@ Critical priority per navigator instruction, timed against Theo's approaching pr
 
 **Requirements**: TOOLHON-01, TOOLHON-02, TOOLHON-03, TOOLHON-04, TOOLHON-05, TOOLHON-06, TOOLHON-07, TOOLHON-08, TOOLHON-09, TOOLHON-10, TOOLHON-11, TOOLHON-12, TOOLHON-13, TOOLHON-14 (minted in `276-RESEARCH.md`'s requirement table, distributed across the 16 plans below, registered in `.planning/REQUIREMENTS.md` at phase close by plan 276-16, per the Phase 272 `PYPORT-` / Phase 273 `CHOKE-` / Phase 274 `ANCHOR-` precedent)
 **Depends on:** none technically. The ROADMAP previously read "Depends on: Phase 275" -- verified 2026-09-03 to be spurious: Phase 275 (room-schema-by-ICM-layer) has no substantive link to MCP/substrate false-success fixes, is itself gated and not yet plannable (blocked on Phase 270's OQ-7), and this line matches the known `gsd-tools.cjs query phase.add` heading-boilerplate pattern already caught once for this same phase entry, not a real dependency (same disclosure pattern as Phase 272's "sequenced after Phase 271 only because registered the same session, not a real dependency"). Corrected here rather than left to silently block planning.
-**Plans:** 10/16 plans executed
+**Plans:** 11/16 plans executed
 
 Plans:
 
@@ -841,7 +841,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1; four plans, disjoint file trees)*
 
 - [x] 276-07-PLAN.md - detector triage: the command-name-in-enumeration guard (F-2..F-8), the negation-window fix and the one-level barrel re-export hop with `resolveRepoLocalPath` containment proven by a negative case (F-10 A and B), the `includes()` dispatch half of B-4, and the WEAK-tier sibling-writes ruling recorded at the decision site (TOOLHON-02, TOOLHON-05)
-- [ ] 276-08-PLAN.md - the `lib/mcp/tool-router.cjs` description fixes: `orchestration.scout`, `export` and `room_content`, plus the revised NOT-EXECUTED membership rule ("does the description claim it", not "does it mutate and lack a branch") and every false completion assertion removed (TOOLHON-03, TOOLHON-04)
+- [x] 276-08-PLAN.md - the `lib/mcp/tool-router.cjs` description fixes: `orchestration.scout`, `export` and `room_content`, plus the revised NOT-EXECUTED membership rule ("does the description claim it", not "does it mutate and lack a branch") and every false completion assertion removed (TOOLHON-03, TOOLHON-04)
 - [x] 276-09-PLAN.md - C4 option-only propagation per D-276-4 at Group A and Group B, with Groups C and D excluded quoting `room-db.cjs:251`, the census re-measured at execution time, and the `openRoomDb` re-route registered as a named follow-up at the code site (TOOLHON-09)
 - [x] 276-10-PLAN.md - C5 return-shape variant at BOTH `_emit` sites through one shared helper, `err.name` before `instanceof`, the F-selector getters resolved by measurement, the run-time `no_room_db` census, and M8's comment correction proven comments-only (TOOLHON-10, TOOLHON-11, TOOLHON-14)
 
