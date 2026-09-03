@@ -79,7 +79,7 @@ TOOLHON-13 and TOOLHON-14 (per `276-RESEARCH.md`'s requirement table) are covere
 - [ ] `tests/test-276-busy-timeout-propagation.cjs` - TOOLHON-09
 - [ ] `tests/test-276-spine-events-typed-reason.cjs` - TOOLHON-10, TOOLHON-11
 - [ ] `tests/test-276-theo-description-parity.cjs` - TOOLHON-12, skip-when-absent
-- [ ] `tests/helpers/held-write-lock.cjs` - the ONE shared held-exclusive-write-lock fixture TOOLHON-09 and TOOLHON-10 both use. Build once and share; two independent lock fixtures would reproduce the propagation gap inside the phase's own suite
+- [x] `tests/helpers/room-db-lock-holder-236.cjs` - ALREADY SHIPS (Phase 236-03, 121 lines): a separate-process lock holder using `BEGIN IMMEDIATE` plus a real INSERT, an IPC ready/release protocol, and distinct exit codes (2 = could not open, 3 = could not acquire) so a child that never locked cannot be mistaken for one that did. TOOLHON-09 and TOOLHON-10 REUSE it (extend by argument if a non-room.db path is needed). Do NOT author `tests/helpers/held-write-lock.cjs`; a second lock fixture would reproduce the propagation gap inside the phase's own suite (276-PATTERNS.md correction)
 
 ---
 
