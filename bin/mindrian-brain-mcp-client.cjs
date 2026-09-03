@@ -85,6 +85,23 @@ function asContent(obj) {
   return { content: [{ type: 'text', text: JSON.stringify(obj) }] };
 }
 
+// Phase 257 (D-03/D-05, LOCUS-01, Task 2) -- maps a raw brainClient result to
+// a typed refusal on the two non-success shapes a raw-passthrough tool can
+// see: `result == null` (the pre-existing transport-failure contract) and the
+// Part 8 sentinel object `{error:'egress_blocked',...}` (a constitutional
+// block, distinct from an outage). Zero shape definition lives here (Part 7)
+// -- this helper only chooses WHICH chokepoint call to make, mirroring
+// tier0Response's one-line delegation immediately above. Any other result
+// (success payload, or a sentinel with a different .error) passes through
+// unchanged, by identity.
+function honestRefusal(result, toolName) {
+  if (result == null) return refusalResponse('unreachable', { tool: toolName });
+  if (result && typeof result === 'object' && result.error === 'egress_blocked') {
+    return refusalResponse('egress_blocked', { tool: toolName, egress_class: result.egress_class });
+  }
+  return result;
+}
+
 // Phase 250-04 (HONEST-03, SEED-011 Option A): every gate below awaits
 // brainClient.ensureAvailable() instead of calling the synchronous
 // isAvailable(). This IS the "first Brain consult" seam -- Larry's native
@@ -162,7 +179,17 @@ server.tool(
   async ({ cypher, params }) => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_query'));
     const r = await brainClient.query(cypher, params);
-    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_query' }) : r);
+    // Phase 257 (D-05, G2, ACCEPTED GAP): query()'s null-return contract is
+    // NOT changed by this phase. query() returns null on a Part 8 block at
+    // lib/core/brain-client.cjs:884, BEFORE callTool() ever runs, so this
+    // call site can never see the egress_blocked sentinel -- honestRefusal()
+    // is a deliberate no-op on the block path here, always taking the
+    // `result == null` -> 'unreachable' branch. This conflation (a block
+    // reported as an outage) is a KNOWN and ACCEPTED gap for this phase,
+    // pinned by roughly 82 degradation tests keyed on query()'s null
+    // contract and by Plan 07's own invariant test so it cannot drift
+    // silently. See docs/257-NOTE-part8-enforcement-locus-rulings.md section 3.
+    return asContent(honestRefusal(r, 'brain_query'));
   }
 );
 
@@ -174,7 +201,7 @@ server.tool(
   async () => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_schema'));
     const r = await brainClient.schema();
-    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_schema' }) : r);
+    return asContent(honestRefusal(r, 'brain_schema'));
   }
 );
 
@@ -191,7 +218,7 @@ server.tool(
   async ({ query, namespace, topK }) => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_search'));
     const r = await brainClient.smartSearch(query, { namespace: namespace, topK: topK });
-    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_search' }) : r);
+    return asContent(honestRefusal(r, 'brain_search'));
   }
 );
 
@@ -203,7 +230,7 @@ server.tool(
   async () => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_stats'));
     const r = await brainClient.stats();
-    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_stats' }) : r);
+    return asContent(honestRefusal(r, 'brain_stats'));
   }
 );
 
@@ -215,7 +242,7 @@ server.tool(
   async ({ cypher }) => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_write'));
     const r = await brainClient.write(cypher);
-    return asContent(r == null ? refusalResponse('unreachable', { tool: 'brain_write' }) : r);
+    return asContent(honestRefusal(r, 'brain_write'));
   }
 );
 
