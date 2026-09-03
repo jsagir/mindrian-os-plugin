@@ -1601,7 +1601,8 @@ Plans:
 **Rollback:** revert line 24 in a patch release, or `MINDRIAN_BRAIN_URL` per install. Valid only while `pws-brain-mcp` still runs, which is why decommission waits for the soak.
 
 **Coordination (two sessions):** Session T in `~/Theo` resumes Phase 9 at 09-12 Task 2 (human gate) and owns Task 3 (soak, suspend `srv-d9gfa03tqb8s73csfmtg` then `srv-d9geq2urnols73cimkfg`, never delete) and Task 4 (close-out). Session M in `~/dev/MindrianOS-Plugin` owns this phase. The seam is the flip record's section 2 plus 09-12's resume signal.
-**Requirements**: TBD
+**Requirements**: FLIP-01, FLIP-02, FLIP-03, FLIP-04, FLIP-05, FLIP-06, FLIP-07, FLIP-08,
+FLIP-09, FLIP-10, FLIP-11, FLIP-12
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
 **Plans:** 14 plans
 

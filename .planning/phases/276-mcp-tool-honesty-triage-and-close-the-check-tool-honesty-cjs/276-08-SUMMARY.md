@@ -208,3 +208,7 @@ None - no external service configuration required.
 ---
 *Phase: 276-mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs*
 *Completed: 2026-09-03*
+
+## Self-Check: PASSED
+
+`lib/mcp/tool-router.cjs` and this SUMMARY.md verified present on disk; all four commits (`d66a8a68`, `43e3308e`, `15d65f47`, `bd4d2972`) verified present in `git log --oneline --all`.

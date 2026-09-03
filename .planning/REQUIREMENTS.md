@@ -1098,16 +1098,54 @@ section.
 | `node scripts/check-shape-declaration.cjs --check` | not measured | GREEN, exit 0 (advisory WARN-only per Canon Part 11, 53 pre-existing violations, none touching any 267.2 file, never blocks) |
 | `node scripts/doctor.cjs --acceptance` | not measured | 17/18 PASS; the one FAIL (`verify-release-clean-tree`, tracked-file drift) is entirely the concurrent session's own in-flight changes (`scripts/__pycache__/compute-hsi.cpython-312.pyc`, six deleted `tests/fixtures/sample-room-personas/personas/*.md`) - confirmed via `git status --short` before and after this plan's own commits, none of those paths touched by any 267.2 plan |
 
+### Phase 339 - Brain-to-Theo cutover release (minted at plan time 2026-09-03)
+
+These twelve IDs were minted in `339-RESEARCH.md`'s `<phase_requirements>` table (2026-09-03),
+following the Phase 254 D-05 precedent for minting a requirement family at plan time, and scoped
+to Phase 339 only: ship the plugin release(s) that move every installed user's Brain traffic from
+the incumbent (`https://pws-brain-mcp.onrender.com`) to Theo (`https://theo-mcp.onrender.com`),
+and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
+
+- [ ] **FLIP-01**: No runtime site resolves the Brain origin from its own literal; every one
+      derives from `brain-client.cjs`'s exported `getBrainUrl()` or from a frozen constant that
+      moves in the same commit as line 24 (Cut: PREP + FLIP).
+- [ ] **FLIP-02**: `BRAIN_PROBLEM_TYPE_ALIASES` projects onto the vocabulary of the RESOLVED
+      origin, and a `MINDRIAN_BRAIN_URL` change moves vocabulary and URL together (Cut: PREP).
+- [ ] **FLIP-03**: `_maybeCaptureEnrichmentMiss` captures a Theo-shaped readiness miss in BOTH
+      Theo payload shapes (scored and refusal-only), and `{matched:0,total:0}` is never collapsed
+      with `{matched:0,total:N>0}` (Cut: PREP).
+- [ ] **FLIP-04**: The `unreachable` and `no_key` refusal copy names the two-command update path,
+      sourced from ONE shared constant that doctor and docs also read (Cut: PREP).
+- [ ] **FLIP-05**: `brain_schema`'s memo cannot serve a schema fetched from a different origin
+      than the one currently resolved (Cut: PREP).
+- [ ] **FLIP-06**: Desktop and Cowork connector docs name Theo's `/mcp` endpoint under the
+      unchanged `mindrian-brain` key with no `Authorization` header, and every generated mirror is
+      regenerated rather than hand-edited (Cut: PREP).
+- [ ] **FLIP-07**: `docs/339-NOTE-theo-desktop-connector-key.md` exists and states the
+      egress-guard reason the key matters (Cut: PREP).
+- [ ] **FLIP-08**: Phase 269-05 Task 1's checklist reads the three real legs against live
+      sources, and no item can read PASS while its real leg is unchecked (Cut: PREP).
+- [ ] **FLIP-09**: The FLIP release cannot be cut until a human confirms Theo's coverage ruling,
+      read live, with zero repository writes (Cut: FLIP).
+- [ ] **FLIP-10**: `brain-client.cjs:24` resolves to `https://theo-mcp.onrender.com`, bare origin,
+      and the docblock at `:4-7` no longer names the incumbent (Cut: FLIP).
+- [ ] **FLIP-11**: `class-m-brain-smoke.cjs` layer 6 reports an honest verdict against Theo
+      (canon origin, stats key, node floor all correct for the shipped default) (Cut: FLIP).
+- [ ] **FLIP-12**: An installed session running the FLIP release returns structured Theo answers
+      through `brain_stats` and `brain_ask`, and the result is reported to Session T as 09-12
+      Task 2's resume signal (Cut: POST).
+
 ## Traceability
 
-131 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+143 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
 plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
-(Phase 267.2). All minted 2026-08-27 except CHOKE-01..06 and
+(Phase 267.2), plus FLIP-01..12 (Phase 339). All minted 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
-COMP-01..02 (minted 2026-09-02), and HOOK-01..12 (minted 2026-09-03): RADAR-01..11 and MCPFIX-01..04 at
+COMP-01..02 (minted 2026-09-02), HOOK-01..12 (minted 2026-09-03), and FLIP-01..12
+(minted 2026-09-03): RADAR-01..11 and MCPFIX-01..04 at
 first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
@@ -1128,9 +1166,13 @@ as `- [ ]` rows to be finalized with measured proof by `257-09-PLAN.md` at phase
 HOOK-01..12 were minted in Phase 267.2's plan set (2026-09-03), ratifying `267.2-DECISIONS.md`
 D-A's proposed `HOOK-` family and coverage table, and are registered here at phase close by
 `267.2-10-PLAN.md` per the Phase 254/257/265/267.3/270/272/274 precedent.
-Roadmap phases must map all 131 active requirements with no orphans.
+FLIP-01..12 were minted in Phase 339's plan set (2026-09-03), ratifying 339-RESEARCH.md's
+proposed family, and are registered here at plan time as - [ ] rows to be finalized with
+measured proof at phase close.
+Roadmap phases must map all 143 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS and HOOK families
+**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK and FLIP
+families
 alike (the
 Phase 266 and 269
 precedent):** these IDs were minted at plan time inside their own phase's decision record rather
