@@ -1,11 +1,42 @@
 # Substrate Baseline Violation Report
 
 Status: INFORMATIONAL (not blocking)
-Date: 2026-05-30
+Date: 2026-05-30 (original report; see "Current Baseline" below for the live number)
 Phase: 128-03 (Substrate Contract ADR + CI Guards, Wave 3)
 Source: `node scripts/check-substrate.cjs --baseline`
 Contract: docs/architecture/SUBSTRATE-CONTRACT.md
 Canon: Part 6 (dog-fooding), Part 8 (graph boundary), Part 9 (memory locality)
+
+---
+
+## Current Baseline [GENERATED -- do not hand-edit this section]
+
+**205 violations**, measured by `node scripts/check-substrate.cjs --baseline` at commit
+`48db8772` (2026-09-03, Phase 276-15). Per-rule breakdown: `chokepoint-require 47,
+m3-direct-sqlite-require 33, m4-cypher-interpolation 35, opengraph-bypass 38,
+raw-graph-write 52`.
+
+This is the ONE number this document currently claims as "the baseline." It is identical
+to the number in the last dated re-measurement section below (2026-09-03, R17), because
+this phase's own substrate-adjacent work (plans 276-09 and 276-10) did not move it:
+276-09 added a `{timeout: 5000}` constructor OPTION to existing `DatabaseSync` openers
+(no new opener, no new raw write, no new chokepoint bypass -- none of
+`check-substrate.cjs`'s five rules pattern-match on a constructor option), and 276-10
+changed a caught-error's classification string and a doc comment inside
+`spine-events.cjs`/`room-db.cjs` (no SQL, no `require()` of a banned module, no Cypher).
+Neither plan added, removed, or moved a line any of the five rules scan for. Re-run
+`node tests/test-273-substrate-baseline-honest.cjs` to reproduce: it independently
+measures `scanRepo()` and compares against this document's own last-dated section,
+exiting 0 only when the two agree.
+
+Every number below this point that is NOT inside a section explicitly marked
+`[GENERATED]` is **[HAND-WRITTEN]**: narrative analysis, per-file owning-phase tables, and
+dated historical snapshots. Regenerate a `[GENERATED]` section by re-running the command
+named in its own heading; edit a `[HAND-WRITTEN]` section by hand, the way any other prose
+documentation is edited. The historical figures below (195, 208) are dated point-in-time
+measurements from PAST re-measurements, not competing claims about today's count -- each
+is anchored to its own dated heading and is never the number a fresh reader should treat
+as current.
 
 ---
 
@@ -23,7 +54,9 @@ wired into the live pre-commit hook (commit 1aba10d0, Phase 128-03 Task 1).
   GUARD, not the migration (per the ADR Scope boundary section and CONTEXT Open
   Decision 3).
 
-The full-repo scan found 195 violations across 5 rules. The tables below enumerate them
+The full-repo scan AT THE TIME OF THIS ORIGINAL REPORT (Phase 128-03, 2026-05-30) found
+195 violations across 5 rules -- a dated historical snapshot, not the current count (see
+"Current Baseline" above for that). The tables below enumerate the Phase-128 snapshot
 grouped by rule, each row carrying its owning downstream phase.
 
 ---
@@ -282,7 +315,10 @@ the H1 finding: the guard is no longer inert -- a net-new chokepoint bypass cann
 
 ## Summary
 
-- 195 pre-existing violations enumerated across 5 rules. This is the known-debt ledger.
+- 195 pre-existing violations enumerated across 5 rules at the Phase-128-03 (2026-05-30)
+  original report. This is the known-debt ledger as it stood then; see "Current Baseline"
+  at the top of this document for today's measured count (205, unchanged since the
+  2026-09-03 R17 re-measurement below).
 - The #1 bypass is `lib/core/lazygraph-ops.cjs` (opened by ~15 callers via `openGraph`),
   writing the bare 3-column un-provenanced schema that diverges from the Phase-109
   provenance schema on the same `room.db`.
@@ -356,3 +392,42 @@ being fully closed):
 
 Cross-reference: `.planning/quick/260903-gdm-implement-r17-node-write-consolidation-t/260903-gdm-PLAN.md`,
 `tests/test-273-substrate-baseline-honest.cjs`.
+
+---
+
+## 2026-09-03 re-measurement (Phase 276-15, D-05 reconciliation)
+
+Result: **205**, unchanged from the R17 measurement above. Re-ran
+`node scripts/check-substrate.cjs --baseline` at commit `48db8772`, per-rule breakdown
+`chokepoint-require 47, m3-direct-sqlite-require 33, m4-cypher-interpolation 35,
+opengraph-bypass 38, raw-graph-write 52` -- identical across all five rules to the
+2026-09-03 R17 figure directly above.
+
+This closes Phase 273 D-05's deferred update: D-05 deferred correcting this document to
+Phase 276 on the reasoning that "that phase's C4 and M5 through M8 work is what can
+actually move the count." Phase 276's C4 work (plan 276-09, the busy-timeout constructor
+option) and its M8 work (plan 276-10, the `spine-events.cjs` typed-reason classification
+and the `room-db.cjs` doc-comment correction) both landed. Neither moved this count, and
+that is stated plainly here rather than claimed as unearned credit: `check-substrate.cjs`'s
+five rules scan for banned `require()` targets, raw `INSERT`/`UPDATE`/`DELETE` SQL text,
+`openGraph(` bypass call sites, direct `node:sqlite`/`better-sqlite3` requires, and
+Cypher `MATCH` string interpolation. A constructor OPTION added to an existing
+`new DatabaseSync(...)` call, and a caught-error classification string plus a doc comment,
+are none of those five shapes -- the fix shape (option-only propagation, D-276-4; a return-
+value reclassification, D-276-5) was deliberately chosen NOT to touch a chokepoint, a raw
+write, an opener, a driver require, or a Cypher string, so this guard correctly reports no
+movement. Falsely crediting 276-09/276-10 for a substrate-count change they structurally
+cannot produce is exactly what D-05 named as the failure mode to avoid.
+
+This document's three prior occurrences of "195"/"208"/"205" (the Phase 128-03 original
+report, the 2026-08-31 Phase 273 re-measurement, and the 2026-09-03 R17 re-measurement)
+are dated historical snapshots, each anchored to its own heading, not competing claims
+about today's count. The "Current Baseline" section at the top of this document is the
+one number a fresh reader should treat as current; it is regenerated by re-running the
+command named in its own heading, never hand-corrected.
+
+`node scripts/check-substrate.cjs --diff` at the same commit reports no net-new direct
+import: this phase introduced zero new substrate violations.
+
+Cross-reference: `.planning/phases/276-mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs/276-15-PLAN.md`,
+`tests/test-273-substrate-baseline-honest.cjs`, `276-09-SUMMARY.md`, `276-10-SUMMARY.md`.
