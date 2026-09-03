@@ -106,18 +106,34 @@ You may NOT render the gate as an ASCII box (the `■ ... [1] [2] [3]` block) an
 
 Every single-pick gate in this block (the Door 1 persona pick and the Door 4 free-text routing) renders as an ARROW-KEY-navigable single-select AskUserQuestion card. The navigator moves with the up/down arrows and confirms one option; it is NOT an ASCII box the navigator "types 1, 2, or 3" into. No card, no picture (SEED-021): if you draw the gate you fire the card, never an ASCII box only -- the Wave-1 GA-4 card-fire interceptor (scripts/check-card-fire.cjs) catches a reached-gate turn that did not fire the card. The frozen F.1 keyboard contract is honored here, never redefined.
 
-### The four doors -- persona-first (one canonical card)
+### The four doors -- persona-first (Door 1 is a two-step card, Doors 2-4 unchanged)
 
-Fire ONE AskUserQuestion card with header "Arrival" and the question "Who are you arriving as?" The card carries four doors, and every door resolves the same {role_blend, blueprintFamily, arrival_asset} tuple that threads into B2's birthRoom opts. role_blend is a single-axis {key:1.0} blend drawn ONLY from the frozen 7-key vocabulary ROLE_BLEND_KEYS (lib/core/persona-override.cjs); the doctrine cites that frozen set by name and NEVER redefines it inline. blueprintFamily derives from the captured role: researcher / student / domain_expert -> exploration; founder / operator / investor -> venture.
+Door 1 fires as a TWO-STEP AskUserQuestion sequence (decision D-I), then Doors 2-4 follow as before. Every door resolves the same {role_blend, blueprintFamily, arrival_asset} tuple that threads into B2's birthRoom opts. role_blend is a single-axis {key:1.0} blend drawn ONLY from the frozen 7-key vocabulary ROLE_BLEND_KEYS (lib/core/persona-override.cjs); the doctrine cites that frozen set by name and NEVER redefines it inline. blueprintFamily derives from the captured role: researcher / student / domain_expert / mentor -> exploration; founder / operator / investor -> venture. `mentor` sits on the exploration side (decision D-H): a mentor guides someone ELSE's work rather than owning a venture of their own -- the same reason `domain_expert` already sits in exploration, deep knowledge applied across ventures rather than ownership of one.
 
-**Door 1 -- Persona pick (default, single-select arrow-key).** The six persona options, each setting role_blend from ROLE_BLEND_KEYS and deriving blueprintFamily:
+**Door 1 -- Persona pick (default, TWO-STEP single-select arrow-key).** `AskUserQuestion` renders at most 4 options per question, and the 7 frozen `ROLE_BLEND_KEYS` do not fit in one card, so Door 1 fires as two steps in sequence rather than one six-option (and now under-counted seven-option) card. Both steps stay inside the 4-option cap. The FIRE THE CARD / SEED-021 no-card-no-picture mandate above applies to BOTH steps: if you draw either step's gate you fire that step's card, never an ASCII box only.
 
-  - Researcher          -- role_blend={researcher:1.0},    blueprintFamily=exploration
-  - Student             -- role_blend={student:1.0},       blueprintFamily=exploration
-  - Founder / business  -- role_blend={founder:1.0},       blueprintFamily=venture
-  - Operator            -- role_blend={operator:1.0},      blueprintFamily=venture
-  - Investor            -- role_blend={investor:1.0},      blueprintFamily=venture
-  - Domain expert       -- role_blend={domain_expert:1.0}, blueprintFamily=exploration
+Step 1, header "Arrival", question "Who are you arriving as?", exactly four options:
+
+  - Building something
+  - Studying something
+  - Backing or guiding someone
+  - Something else
+
+Step 2 fires immediately after step 1, narrowed by the step-1 pick, at most three options per branch, each setting role_blend from ROLE_BLEND_KEYS and deriving blueprintFamily:
+
+  - `Building something` narrows to:
+    - Founder / business  -- role_blend={founder:1.0},  blueprintFamily=venture
+    - Operator            -- role_blend={operator:1.0}, blueprintFamily=venture
+  - `Studying something` narrows to:
+    - Researcher          -- role_blend={researcher:1.0},    blueprintFamily=exploration
+    - Student             -- role_blend={student:1.0},       blueprintFamily=exploration
+    - Domain expert       -- role_blend={domain_expert:1.0}, blueprintFamily=exploration
+  - `Backing or guiding someone` narrows to:
+    - Investor            -- role_blend={investor:1.0}, blueprintFamily=venture
+    - Mentor              -- role_blend={mentor:1.0},   blueprintFamily=exploration (D-H)
+  - `Something else` -- no step 2 fires; falls through to Door 2 (CV), Door 3 (hypothesis) or Door 4 (free-text routing) below, all unchanged by this two-step restructure.
+
+Do NOT mint a new frozen key for a Portfolio Manager persona or any other new role here (decision D-J): extending `ROLE_BLEND_KEYS` is a five-file order-sensitive change across `lib/workflow/f-selector-ranker.cjs`, `lib/core/shallow-doc-parser.cjs`, `lib/core/session-register.cjs`, `lib/core/user-md-ops.cjs` and `lib/core/persona-override.cjs`, plus a Canon ratification. `investor` remains the closest alias; carried forward as an open Canon question.
 
 **Door 2 -- CV (arrival_asset=cv-upload).** When the navigator picks "Paste my CV" or pastes CV text inline, run the Phase 115 dual-path: detect_dual_path -> extract_shallow (shallow-doc-parser, reuse verbatim) to pull canonical_role, venture, and domains. Resolve role_blend via blendFromCanonicalRole (single-axis {key:1.0}, drawn from the same frozen ROLE_BLEND_KEYS); a parsed venture derives blueprintFamily=venture. Reflect it back ("Got it -- you are a [role] working on [venture]. What decision is stuck?").
 
@@ -145,7 +161,7 @@ After the navigator picks, call writeScratchpadBirthAnswer({gate_id: 'B1', optio
 
 Once role_blend is captured by ANY door (1, 2, or 3), call resolveSessionRegister(role_blend) (lib/core/session-register.cjs) and carry its role_key forward as the SESSION's persona register for the rest of the conversation. This is ROADMAP Phase 204 branch 3: each persona is talked-with differently later (tone, depth, which reaches fire, which frameworks surface) per Canon Part 12. The register's voice reference is agents/larry-extended.md's existing persona_variants[role_key] string; no new copy is authored here, the frozen 10-key map is reused verbatim. resolveSessionRegister returns null on cold start (no role captured), and Larry falls back to the neutral voice; it never fabricates a default persona.
 
-Tri-Polar (card-incapable surfaces ONLY): "Who are you arriving as? (a) researcher, (b) student, (c) founder/business, (d) operator, (e) investor, (f) domain expert, (g) paste your CV, (h) state a hypothesis you want to test -- type a letter, paste your CV, or describe your start."
+Tri-Polar (card-incapable surfaces ONLY): "Who are you arriving as? (a) researcher, (b) student, (c) founder/business, (d) operator, (e) investor, (f) domain expert, (g) mentor, (h) paste your CV, (i) state a hypothesis you want to test -- type a letter, paste your CV, or describe your start." A plain text list has no option cap, so it stays one step; it carries all seven ROLE_BLEND_KEYS personas plus the CV and hypothesis entries so the card path and the card-incapable path offer the same set (PATTERNS.md A9: "fix both or they drift").
 
 ### Auto-fire the Engine 1 math; gate the results (Req 8; Part 10 sub-claim 5 + Part 3 gate)
 
