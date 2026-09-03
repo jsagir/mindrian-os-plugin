@@ -28,7 +28,17 @@ function region(anchor) {
   return src.slice(i, src.indexOf('\n', i));
 }
 
-ok('GAP I-1: ~/.mindrian-user.md has no writer under lib/, scripts/, hooks/', function () {
+ok('GAP I-1: ~/.mindrian-user.md has exactly the pre-existing reader (lib/core/user-archetype.cjs) '
+  + 'and the shipped writer (lib/mcp/tools/identity.cjs, Phase 270-11 identity_write), and no '
+  + 'scripts/ or hooks/ file is writer-shaped for this path', function () {
+  // GAP I-1 originally meant "the FIRST_INSTALL path has no writer for ~/.mindrian-user.md
+  // anywhere in lib/, scripts/, hooks/". Phase 270-11 shipped identity_write
+  // (lib/mcp/tools/identity.cjs), the MECHANISM half of closing that gap, built on the
+  // pre-existing writeUserMdAtomic (Part 7 reuse-before-build). .planning/REQUIREMENTS.md
+  // MEMOP-08 binds Phase 267.2 W2 to owning the TRIGGER without building a second writer -- so
+  // this leg's job now is to pin the exact file SET (not a brittle integer count) so a THIRD
+  // file appearing here is the signal to re-run the audit. Plan 267.2-09 is the one authorised
+  // to add scripts/first-install-router.cjs to this set.
   const grep1 = spawnSync('grep', ['-rn', 'mindrian-user\\.md', 'lib/', 'scripts/', 'hooks/'], { cwd: REPO, encoding: 'utf8' });
   assert.ok(grep1.status === 0 || grep1.status === 1, 'grep exited unexpectedly: ' + grep1.status + ' ' + grep1.stderr);
   const lines = (grep1.stdout || '').split('\n').filter(Boolean);
@@ -38,24 +48,54 @@ ok('GAP I-1: ~/.mindrian-user.md has no writer under lib/, scripts/, hooks/', fu
   // executable write code, so it is excluded before counting real source-code references.
   const codeLines = lines.filter(function (l) { return l.indexOf('scripts/session-start:') !== 0; });
 
-  assert.equal(codeLines.length, 1,
-    'GAP I-1 closed or changed shape: expected exactly one lib/scripts/hooks source reference to '
-    + '~/.mindrian-user.md, found ' + codeLines.length + ' - re-run the 267.1 audit. All matches: '
-    + JSON.stringify(lines));
-  assert.ok(codeLines[0].indexOf('lib/core/user-archetype.cjs:') === 0,
-    'GAP I-1 closed or changed shape: the sole code reference moved out of lib/core/user-archetype.cjs - '
-    + 're-run the 267.1 audit. Got: ' + codeLines[0]);
-  assert.ok(codeLines[0].indexOf('safeReadFile') !== -1,
-    'GAP I-1 closed or changed shape: the reference is no longer a safeReadFile call (may now be a '
-    + 'writer) - re-run the 267.1 audit. Got: ' + codeLines[0]);
+  const fileSet = new Set(codeLines.map(function (l) { return l.split(':')[0]; }));
+  const expectedFiles = ['lib/core/user-archetype.cjs', 'lib/mcp/tools/identity.cjs'];
+  assert.equal(fileSet.size, expectedFiles.length,
+    'GAP I-1 closed or changed shape: expected exactly the file set '
+    + JSON.stringify(expectedFiles) + ', found ' + JSON.stringify(Array.from(fileSet))
+    + ' - re-run the 267.1 audit. All matches: ' + JSON.stringify(lines));
+  for (const f of expectedFiles) {
+    assert.ok(fileSet.has(f),
+      'GAP I-1 closed or changed shape: expected file ' + f + ' missing from the reference set - '
+      + 're-run the 267.1 audit. Found set: ' + JSON.stringify(Array.from(fileSet)));
+  }
 
+  const readerLines = codeLines.filter(function (l) { return l.indexOf('lib/core/user-archetype.cjs:') === 0; });
+  assert.ok(readerLines.length > 0,
+    'GAP I-1 closed or changed shape: lib/core/user-archetype.cjs no longer references '
+    + '~/.mindrian-user.md - re-run the 267.1 audit.');
+  assert.ok(readerLines.every(function (l) { return l.indexOf('safeReadFile') !== -1; }),
+    'GAP I-1 closed or changed shape: the lib/core/user-archetype.cjs reference is no longer a '
+    + 'safeReadFile call (may now be a writer) - re-run the 267.1 audit. Got: ' + JSON.stringify(readerLines));
+
+  const writerPattern = /writeFileSync|writeUserMdAtomic|appendFileSync|createWriteStream/;
+
+  // identity.cjs's actual write call (writeUserMdAtomic(userMdPath, data)) does not literally
+  // contain the string "mindrian-user.md" on its own line -- the path is built earlier via
+  // USER_MD_PATH() (lib/mcp/tools/identity.cjs:71-73) and passed in as a variable. So confirming
+  // identity.cjs really is writer-shaped requires reading its own full source, not filtering the
+  // mindrian-user.md grep above.
+  const identitySrc = fs.readFileSync(path.join(REPO, 'lib', 'mcp', 'tools', 'identity.cjs'), 'utf8');
+  const identityWriterLines = identitySrc.split('\n').filter(function (l) { return writerPattern.test(l); });
+  assert.ok(identityWriterLines.length > 0,
+    'GAP I-1 closed or changed shape: lib/mcp/tools/identity.cjs no longer contains a '
+    + 'writer-shaped call (writeFileSync|writeUserMdAtomic|appendFileSync|createWriteStream) - '
+    + 're-run the 267.1 audit.');
+
+  // No scripts/ or hooks/ file may be writer-shaped for THIS path: scope the check to lines that
+  // already reference ~/.mindrian-user.md (grep2, extended to skills/ and commands/ for full
+  // repo-wide coverage), then assert none of the scripts/ or hooks/ lines among them are
+  // writer-shaped. scripts/session-start:684 is prose injected as model context, not executable
+  // write code, and does not match writerPattern today -- if it or any other scripts/ or hooks/
+  // file ever became writer-shaped for this path, that is a second writer and MEMOP-08 forbids it.
   const grep2 = spawnSync('grep', ['-rn', 'mindrian-user\\.md', 'lib/', 'scripts/', 'hooks/', 'skills/', 'commands/'], { cwd: REPO, encoding: 'utf8' });
   assert.ok(grep2.status === 0 || grep2.status === 1, 'grep exited unexpectedly: ' + grep2.status + ' ' + grep2.stderr);
   const lines2 = (grep2.stdout || '').split('\n').filter(Boolean);
-  const writerPattern = /writeFileSync|writeUserMdAtomic|appendFileSync|createWriteStream/;
-  for (const l of lines2) {
+  const scriptsOrHooksLines = lines2.filter(function (l) { return l.indexOf('scripts/') === 0 || l.indexOf('hooks/') === 0; });
+  for (const l of scriptsOrHooksLines) {
     assert.ok(!writerPattern.test(l),
-      'GAP I-1 closed: a writer for ~/.mindrian-user.md now exists - re-run the 267.1 audit. Offending line: ' + l);
+      'GAP I-1 closed: a second writer for ~/.mindrian-user.md now exists under scripts/ or hooks/, '
+      + 'violating MEMOP-08 (must not build a second writer) - re-run the 267.1 audit. Offending line: ' + l);
   }
 });
 
@@ -75,13 +115,22 @@ ok('GAP R-1: the cold-start menu does not route the first-time user to /mos:igni
     + 'names it the canonical front door) - re-run the 267.1 audit');
 });
 
-ok('Action leg: the FIRST_INSTALL block carries the SEED-021 AskUserQuestion mandate (closed in 267.1-01)', function () {
+ok('Action leg: the FIRST_INSTALL block does NOT carry the SEED-021 AskUserQuestion mandate '
+  + '(reverted in 267.2-03 W0, per the 267.1-06 Task 2 navigator ruling)', function () {
+  // Phase 267.1 shipped this mandate out of scope inside an otherwise audit-only phase (commit
+  // f39f24d9). The navigator reversed that scope call at the 267.1-06 Task 2 checkpoint and
+  // ordered the revert deferred to Phase 267.2 W0. This pin is therefore a NEGATIVE pin matching
+  // the audit's own original pre-fix framing (267.1-VALIDATION.md row 267.1-01-04): if a future
+  // well-meaning session re-adds AskUserQuestion/SEED-021 here, that is a regression of the
+  // navigator's own reversed scope call, not a fix, and must fail loudly.
   const fi = region(FIRST_INSTALL_ANCHOR);
   assert.ok(fi.length > 2000, 'sanity check failed: the FIRST_INSTALL slice looks truncated (length ' + fi.length + ')');
-  assert.notEqual(fi.indexOf('AskUserQuestion'), -1,
-    'Action leg regressed: FIRST_INSTALL lost the AskUserQuestion mandate landed in 267.1-01 task 1');
-  assert.notEqual(fi.indexOf('SEED-021'), -1,
-    'Action leg regressed: FIRST_INSTALL lost the SEED-021 citation landed in 267.1-01 task 1');
+  assert.equal(fi.indexOf('AskUserQuestion'), -1,
+    'Action leg regressed: FIRST_INSTALL regained the AskUserQuestion mandate that the 267.2 W0 '
+    + 'revert (commit f39f24d9 reverted, per the 267.1-06 Task 2 navigator ruling) removed');
+  assert.equal(fi.indexOf('SEED-021'), -1,
+    'Action leg regressed: FIRST_INSTALL regained the SEED-021 citation that the 267.2 W0 revert '
+    + '(commit f39f24d9 reverted, per the 267.1-06 Task 2 navigator ruling) removed');
   assert.notEqual(fi.indexOf('1. Conversational Q&A'), -1, 'option 1 label missing from FIRST_INSTALL');
   assert.notEqual(fi.indexOf('2. Document paste'), -1, 'option 2 label missing from FIRST_INSTALL');
   assert.notEqual(fi.indexOf('3. Skip'), -1, 'option 3 label missing from FIRST_INSTALL');
@@ -109,19 +158,51 @@ ok('GAP G-1: the reward-before-investment guard has jurisdiction over commands/ 
   const linterSrc = fs.readFileSync(path.join(REPO, 'lib', 'core', 'mva-rule-linter.cjs'), 'utf8');
   const cliSrc = fs.readFileSync(path.join(REPO, 'scripts', 'check-reward-before-investment.cjs'), 'utf8');
 
+  // Phase 267.3 (commit 9a1b9fda, landed before this plan touched this file) legitimately added
+  // scanDeclaredSurfaces(), a SEPARATE registry-based path (data/first-reward-surfaces.json) for
+  // bash hooks like scripts/session-start, which have no frontmatter for scanCommands to read.
+  // Its own comments explain that exclusion in prose that happens to contain the literal
+  // substring "session-start" and "'hooks'" was already absent, but a bare indexOf() over the
+  // whole file cannot distinguish an explanatory COMMENT from actual scanning-jurisdiction CODE.
+  // This out-of-scope staleness (same category as GAP I-1's, discovered here only because
+  // 267.2-BASELINE.md's measurement never reached past GAP I-1 to exercise this leg at all) is
+  // fixed minimally by checking non-comment code lines only, so the assertion measures the real
+  // invariant (scanCommands/scanDeclaredSurfaces never scan session-start's own file, never treat
+  // 'hooks' as a jurisdiction directory) instead of any incidental prose mention.
+  function nonCommentLines(src) {
+    let inBlock = false;
+    return src.split('\n').filter(function (l) {
+      const t = l.trim();
+      if (inBlock) {
+        if (t.indexOf('*/') !== -1) inBlock = false;
+        return false;
+      }
+      if (t.indexOf('/*') === 0) {
+        if (t.indexOf('*/') === -1) inBlock = true;
+        return false;
+      }
+      if (t.indexOf('//') === 0 || t.indexOf('*') === 0) return false;
+      return true;
+    }).join('\n');
+  }
+  const linterCode = nonCommentLines(linterSrc);
+  const cliCode = nonCommentLines(cliSrc);
+
   assert.ok(cliSrc.indexOf("path.join(__dirname, '..', 'commands')") !== -1,
     'GAP G-1 changed shape: scripts/check-reward-before-investment.cjs no longer targets commands/ by default - '
     + 're-run the 267.1 audit');
-  assert.equal(linterSrc.indexOf('session-start'), -1,
-    'GAP G-1 closed or changed shape: lib/core/mva-rule-linter.cjs now references session-start - re-run the 267.1 audit');
-  assert.equal(cliSrc.indexOf('session-start'), -1,
-    'GAP G-1 closed or changed shape: scripts/check-reward-before-investment.cjs now references session-start - '
-    + 're-run the 267.1 audit');
-  assert.equal(linterSrc.indexOf("'hooks'"), -1,
-    'GAP G-1 closed or changed shape: lib/core/mva-rule-linter.cjs now references \'hooks\' - re-run the 267.1 audit');
-  assert.equal(cliSrc.indexOf("'hooks'"), -1,
-    'GAP G-1 closed or changed shape: scripts/check-reward-before-investment.cjs now references \'hooks\' - '
-    + 're-run the 267.1 audit');
+  assert.equal(linterCode.indexOf('session-start'), -1,
+    'GAP G-1 closed or changed shape: lib/core/mva-rule-linter.cjs now references session-start in CODE '
+    + '(not just a comment) - re-run the 267.1 audit');
+  assert.equal(cliCode.indexOf('session-start'), -1,
+    'GAP G-1 closed or changed shape: scripts/check-reward-before-investment.cjs now references session-start '
+    + 'in CODE (not just a comment) - re-run the 267.1 audit');
+  assert.equal(linterCode.indexOf("'hooks'"), -1,
+    'GAP G-1 closed or changed shape: lib/core/mva-rule-linter.cjs now references \'hooks\' in CODE '
+    + '(not just a comment) - re-run the 267.1 audit');
+  assert.equal(cliCode.indexOf("'hooks'"), -1,
+    'GAP G-1 closed or changed shape: scripts/check-reward-before-investment.cjs now references \'hooks\' '
+    + 'in CODE (not just a comment) - re-run the 267.1 audit');
 });
 
 ok('Reachability: a virgin HOME still yields FIRST_INSTALL from scripts/check-onboard', function () {
