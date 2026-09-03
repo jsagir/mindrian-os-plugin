@@ -19,6 +19,9 @@
       }
     ]
   },
+  "_firstInstallRouterOrdering": {
+    "_note": "Phase 267.2-06 (HOOK-08). scripts/first-install-router.cjs is registered in the UserPromptSubmit chain immediately AFTER scripts/mva-detect.cjs and before scripts/brain-derivation-drain.cjs. This is metadata for a human reader (and any future drift test) -- it is NOT consumed by Claude Code's hook loader, which only reads the 'hooks' key below. ORDERING IS LOAD BEARING: the router consumes the pending MVA state that mva-detect.cjs writes on the same turn, so running before it would read a stale or absent state. Do not reorder these two entries without re-checking this dependency."
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -379,6 +382,15 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/mva-detect.cjs\"",
+            "timeout": 1500
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/first-install-router.cjs\"",
             "timeout": 1500
           }
         ]
