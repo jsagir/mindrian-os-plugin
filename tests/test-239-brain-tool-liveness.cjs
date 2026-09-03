@@ -47,6 +47,28 @@ const HOOKS_JSON_PATH = path.join(ROOT, 'hooks', 'hooks.json');
 const gate = require(SCRIPT_PATH);
 const seamLiveness = require('../lib/core/seam-liveness.cjs');
 
+// ---------------------------------------------------------------------------
+// derivePreToolUseBrainMatcher(hooksJsonText) -- Phase 257 (D-10): read the
+// live PreToolUse Brain-guard matcher from hooks/hooks.json at TEST TIME
+// instead of freezing it as a constant. A frozen matcher literal is Pitfall
+// 4 (257-RESEARCH.md): it went stale on 2026-08-19 when the `pws-brain-mcp`
+// alternation was added to this exact matcher, and it left this arm red for
+// two weeks inside the suite meant to guard against exactly this failure
+// mode. Rule: derive from source, never freeze.
+// ---------------------------------------------------------------------------
+function derivePreToolUseBrainMatcher(hooksJsonText) {
+  const doc = JSON.parse(hooksJsonText);
+  const groups = doc && doc.hooks && Array.isArray(doc.hooks.PreToolUse) ? doc.hooks.PreToolUse : [];
+  for (const group of groups) {
+    const inner = group && Array.isArray(group.hooks) ? group.hooks : [];
+    const isGuard = inner.some(
+      (h) => h && typeof h.command === 'string' && h.command.indexOf('part8-egress-guard-hook.cjs') !== -1
+    );
+    if (isGuard && typeof group.matcher === 'string') return group.matcher;
+  }
+  return null;
+}
+
 let failures = 0;
 function assert(cond, label) {
   if (cond) {
@@ -99,8 +121,14 @@ async function main() {
   // -------------------------------------------------------------------------
   {
     const original = fs.readFileSync(HOOKS_JSON_PATH, 'utf8');
-    const liveMatcherLiteral = 'mcp__(?:plugin_[a-z0-9_-]+_)?mindrian-brain__.*';
-    const idx = original.indexOf(liveMatcherLiteral);
+    const liveMatcherLiteral = derivePreToolUseBrainMatcher(original);
+    assert(
+      typeof liveMatcherLiteral === 'string' &&
+        liveMatcherLiteral.length > 0 &&
+        liveMatcherLiteral.indexOf('mindrian-brain') !== -1,
+      'LEG 3 setup: the derived PreToolUse Brain matcher is a non-empty string naming mindrian-brain (a structurally broken hooks.json fails loudly here)'
+    );
+    const idx = typeof liveMatcherLiteral === 'string' ? original.indexOf(liveMatcherLiteral) : -1;
     assert(idx !== -1, 'LEG 3 setup: the live matcher literal is present in hooks.json exactly as expected');
 
     if (idx !== -1) {
