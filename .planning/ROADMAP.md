@@ -202,7 +202,7 @@ too -- once Theo consolidates room-side operational tools into the same catalog 
 tools (per Theo's own CLAUDE.md architecture doctrine), check whether this phase's
 enforcement-locus fix needs to also cover the Theo-catalog surface, not just today's
 `mindrian-os` server, before this phase's research locks.
-**Plans:** 5/9 plans executed
+**Plans:** 6/9 plans executed
 Plans:
 **Wave 1**
 
@@ -214,7 +214,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 257-06-PLAN.md - shim honest-refusal wiring: G1 branch + `honestRefusal` helper, proven on the wire (W2)
+- [x] 257-06-PLAN.md - shim honest-refusal wiring: G1 branch + `honestRefusal` helper, proven on the wire (W2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
