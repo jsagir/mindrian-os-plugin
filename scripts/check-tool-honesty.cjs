@@ -998,13 +998,89 @@ function isPartOfHyphenatedToken(lower, matchIndex, matchLength) {
   return before === '-' || after === '-';
 }
 
-function classifySentenceVerbTier(sentence) {
+// isEnumeratedCommandName -- a verb-shaped token that is actually one of the
+// SCANNED TOOL'S OWN command names, sitting inside its own command
+// enumeration (phase 276-07, F-2 through F-8: `export`'s description names
+// "publish" and "snapshot" as WEAK_VERBS, but both are literal
+// EXPORT_COMMANDS entries inside "Choose by audience: dashboard for..., ...,
+// publish to push an artifact outward, ...", a COMMAND LIST, not a prose
+// claim about what the tool does). Same disease class as
+// isPartOfHyphenatedToken (a command-literal token misread as a verb), but
+// for a BARE unhyphenated command name sitting in its own tool's
+// parenthetical/enumerated command list rather than inside a hyphenated
+// compound.
+//
+// Two INDEPENDENT signals are both required, so a single command name used
+// as a genuine verb in an ordinary sentence still counts as a claim:
+//   1. The token is a member of the tool's OWN resolved command vocabulary
+//      (passed in, already resolved by extractCommandVocabulary -- this
+//      function does not re-derive it).
+//   2. The token sits in an ENUMERATION CONTEXT: it touches a list separator
+//      (a comma, or the word "and"/"or") on at least one side, OR sits
+//      inside a parenthetical, AND the sentence names at least two OTHER
+//      members of the same command vocabulary (a lone command-shaped word
+//      next to "and" is still ambiguous; a real multi-member enumeration is
+//      not).
+//
+// Err toward COUNTING the verb when only one signal holds: a missed guard
+// leaves a visible false positive (this phase's own subject), while an
+// over-broad guard hides a real defect invisibly (the disease this whole
+// phase exists to cure) -- the asymmetry is deliberate, not an oversight.
+function isEnumeratedCommandName(sentence, matchIndex, matchLength, vocabulary) {
+  if (!vocabulary || vocabulary.length === 0) return false;
+  const lower = sentence.toLowerCase();
+  const word = lower.slice(matchIndex, matchIndex + matchLength);
+  const isVocabMember = vocabulary.some((c) => c !== '(default)' && c.toLowerCase() === word);
+  if (!isVocabMember) return false;
+
+  const before = lower.slice(Math.max(0, matchIndex - 12), matchIndex);
+  const after = lower.slice(matchIndex + matchLength, matchIndex + matchLength + 12);
+  const touchesComma = /,\s*$/.test(before) || /^\s*,/.test(after);
+  const touchesAndOr = /\b(?:and|or)\s*$/.test(before) || /^\s*(?:and|or)\b/.test(after);
+  const openCount = (lower.slice(0, matchIndex).match(/\(/g) || []).length;
+  const closeCount = (lower.slice(0, matchIndex).match(/\)/g) || []).length;
+  const insideParen = openCount > closeCount;
+  if (!touchesComma && !touchesAndOr && !insideParen) return false;
+
+  const namedHere = sentenceNamesCommand(sentence, vocabulary);
+  const others = namedHere.filter((c) => c.toLowerCase() !== word);
+  return others.length >= 2;
+}
+
+// FILE_NOUN_DEMOTION_WORDS / isFileNounUsage -- demotes the bare STRONG_VERBS
+// entry 'file' from a verb reading when immediately followed by a noun that
+// makes it read as a compound noun phrase ("file contents", "file path",
+// "file system") rather than the verb "to file" (phase 276-07, F-10 Bug A:
+// context_assemble's "Never returns raw file contents." was read as a
+// POSITIVE STRONG persistence claim, because "Never returns raw " intervenes
+// between the negator and "file", wider than isLocallyNegated's adjacency
+// window). This narrow noun-phrase demotion is chosen over widening
+// isLocallyNegated's window repo-wide, because it fixes the exact defect
+// (a STRONG-verb-shaped noun phrase) without loosening the negation check
+// for every OTHER sentence on this surface -- narrower effect, per the
+// plan's own instruction to implement whichever of the two is narrower.
+// Widening the negation window was evaluated and NOT needed: no other known
+// finding depends on a negator separated from its verb by intervening
+// words, so adding that broader change now would be an untested surface
+// increase with no proven case behind it. Only the bare 'file' entry is
+// demoted this way; 'files'/'filed'/'filing' are unaffected, and 'file'
+// itself stays a real write verb everywhere else on this surface --
+// STRONG_VERBS itself is NOT modified.
+const FILE_NOUN_DEMOTION_WORDS = ['contents', 'path', 'paths', 'name', 'names', 'system'];
+function isFileNounUsage(lower, matchIndex, matchLength) {
+  const after = lower.slice(matchIndex + matchLength, matchIndex + matchLength + 12);
+  return new RegExp('^\\s+(?:' + FILE_NOUN_DEMOTION_WORDS.join('|') + ')\\b').test(after);
+}
+
+function classifySentenceVerbTier(sentence, vocabulary) {
   const lower = sentence.toLowerCase();
   for (const v of STRONG_VERBS) {
     const re = new RegExp('\\b' + v + '\\b', 'g');
     let vm;
     while ((vm = re.exec(lower)) !== null) {
       if (isPartOfHyphenatedToken(lower, vm.index, vm[0].length)) continue;
+      if (isEnumeratedCommandName(sentence, vm.index, vm[0].length, vocabulary)) continue;
+      if (v === 'file' && isFileNounUsage(lower, vm.index, vm[0].length)) continue;
       if (!isLocallyNegated(lower, vm.index, vm[0].length)) return 'STRONG';
     }
   }
@@ -1021,6 +1097,7 @@ function classifySentenceVerbTier(sentence) {
     let vm;
     while ((vm = re.exec(lower)) !== null) {
       if (isPartOfHyphenatedToken(lower, vm.index, vm[0].length)) continue;
+      if (isEnumeratedCommandName(sentence, vm.index, vm[0].length, vocabulary)) continue;
       if (!isLocallyNegated(lower, vm.index, vm[0].length)) return 'WEAK';
     }
   }
@@ -1050,7 +1127,7 @@ function extractClaims(description, vocabulary) {
       result.globalCancel = true;
       continue;
     }
-    const tier = classifySentenceVerbTier(sentence);
+    const tier = classifySentenceVerbTier(sentence, vocabulary);
     if (!tier) continue;
     const namedCommands = sentenceNamesCommand(sentence, vocabulary);
     if (namedCommands.length > 0) {
