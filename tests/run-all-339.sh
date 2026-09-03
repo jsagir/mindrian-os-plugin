@@ -156,11 +156,15 @@ echo "discovered $found test file(s)"
 echo ""
 
 # ---------------------------------------------------------------------------
-# ORIGIN-LITERAL SWEEP: invoke the FLIP-01 source scan directly rather than
+# ORIGIN-LITERAL SWEEP: the FLIP-01 source scan IS
+# tests/test-339-origin-single-source.cjs, invoked directly rather than
 # re-implementing a grep loop here. See the header comment above for why the
-# 276-style forbidden-token list is the WRONG shape for this phase.
+# 276-style forbidden-token list is the WRONG shape for this phase. It is
+# NOT re-invoked in a second named arm here: it already matches the
+# tests/test-339-* glob above (DISCOVERY section), and running it twice
+# would double-count the same evidence under two labels. A later reader
+# must NOT "restore" a duplicate invocation here.
 # ---------------------------------------------------------------------------
-run "339 origin-literal sweep (tests/test-339-origin-single-source.cjs)" node tests/test-339-origin-single-source.cjs
 
 # ---------------------------------------------------------------------------
 # RELATED SUITES THIS PHASE MUST NOT REGRESS, run as named arms.
