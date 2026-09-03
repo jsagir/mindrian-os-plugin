@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 257-08-PLAN.md
+stopped_at: Completed 257-09-PLAN.md (Phase 257 complete, verified, closed)
 last_updated: "2026-09-03T07:29:55.791Z"
 last_activity: 2026-09-03
 progress:
@@ -13,6 +13,20 @@ progress:
   completed_plans: 140
   percent: 69
 ---
+
+<!-- NOTE (/gsd-progress orchestrator pass, 2026-09-03, THIRTY-NINTH+
+     occurrence of the documented STATE.md resync-clobber bug, same class as
+     the notes below): after phase.complete "257" plus two subsequent
+     `state.update`/commit calls (VERIFICATION.md, PROJECT.md), `stopped_at`
+     reverted to a stale "Completed 257-08-PLAN.md" -- phase 257's own 09
+     plan (Tasks 1-3, including the Canon Custodian checkpoint) was already
+     fully complete and verified 10/10 by this point. completed_phases (18),
+     total_plans/completed_plans (140/140) and percent (69, = 18/26 phase
+     completion, a different denominator than the 140/140 plan-count metric
+     beside it) were NOT affected this time -- both numbers are internally
+     consistent as-is, so only stopped_at needed hand-correction. Root cause
+     already tracked for a future `/gsd-debug` session per the 2026-09-01
+     handoff; not re-investigated here. -->
 
 <!-- NOTE (257-09 execute-plan, 2026-09-03, THIRTY-EIGHTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
