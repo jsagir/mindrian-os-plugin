@@ -59,6 +59,23 @@ function loadOperatorModule() {
   return operator;
 }
 
+// Gate machinery (Phase 260903-eu9). Loaded lazily, same rationale as
+// loadOperatorModule above -- the script keeps working if wave ordering
+// shifts these modules around.
+let gateRenderMod = null;
+function loadGateRender() {
+  if (gateRenderMod) return gateRenderMod;
+  gateRenderMod = require(path.join(PLUGIN_ROOT, 'lib', 'mcp', 'gate-render.cjs'));
+  return gateRenderMod;
+}
+
+let sessionBindingMod = null;
+function loadSessionBinding() {
+  if (sessionBindingMod) return sessionBindingMod;
+  sessionBindingMod = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'session-binding.cjs'));
+  return sessionBindingMod;
+}
+
 // ANSI colors (skills/ui-system/SKILL.md section 4 -- exact copy from scripts/doctor.cjs).
 const C = {
   reset: '\x1b[0m',
@@ -166,6 +183,33 @@ function suggestedF1Default(currentOp) {
   return 'JUST_TALK';
 }
 
+// -- Gate card composition (Phase 260903-eu9) ------------------------
+// Builds the superset card gate-render.cjs normalizes and renders, and that
+// gate-ledger.cjs mints/consumes on the `set <op>` path. One option per
+// OPERATORS member plus a trailing Free-Text affordance (F-9); id and label
+// are both the operator name so validateChosenAgainstCard resolves a raw
+// CLI argument directly against an option id. `kind` MUST be 'general'
+// (F-5) -- ratifiableGateKinds() is a frozen list and 'general' is the one
+// this surface is allowed to mint.
+function buildOperatorGateCard(state) {
+  const op = loadOperatorModule();
+  const OPS = op.OPERATORS;
+  const def = suggestedF1Default(state.current);
+  const options = OPS.map((o) => ({
+    id: o,
+    label: o,
+    description: o === state.current ? '(current -- selecting this is a no-op)' : null,
+    rank: o === def ? 1 : null,
+  }));
+  options.push({ id: 'free-text', label: 'Free-Text' });
+  return {
+    header: '[F.1 Next Move]',
+    kind: 'general',
+    selectMode: 'single',
+    options: options,
+  };
+}
+
 // -- Renderers (Shape E, Shape F.1, Shape F.4) ----------------------
 
 // Pad a string to width (left-justified, ASCII space).
@@ -267,28 +311,26 @@ function renderShapeE(state, room, opts) {
   return lines.join('\n');
 }
 
-function renderShapeF1(state, room) {
+async function renderShapeF1(state, room) {
   const slug = room.slug || 'unknown';
-  const op = loadOperatorModule();
-  const OPS = op.OPERATORS;
-  const def = suggestedF1Default(state.current);
+  const card = buildOperatorGateCard(state);
+  const gateRender = loadGateRender();
+  const sessionBinding = loadSessionBinding();
+  const sessionId = sessionBinding.resolveEffectiveSessionId(undefined, undefined);
+  // This path mints NOTHING into the gate ledger (F-3): it only composes and
+  // renders the card so the human can read it. Minting a gate_id no later
+  // process can consume is the dead-seam shape this repo hunts.
+  const result = await gateRender.renderGate(card, { capabilities: {}, sessionId: sessionId });
+  const bodyLines = (result.rendered.zones.body || '').split('\n').map((l) => '   ' + l);
+
   const lines = [];
   lines.push(C.dim + '-- ' + slug + ' -- operator -- set --' + C.reset);
   lines.push('');
   lines.push('  ' + C.green + G.filledSquare + C.reset + ' Manual operator transition');
   lines.push('     ' + C.dim + 'current: ' + state.current + C.reset);
   lines.push('');
-  lines.push('  ' + C.cyan + '[F.1 Next Move]' + C.reset);
-  for (const o of OPS) {
-    const isDefault = o === def;
-    const isCurrent = o === state.current;
-    const glyph = isDefault ? (C.cyan + G.rightTriFilled + C.reset) : (C.dim + G.rightTriEmpty + C.reset);
-    let suffix = '';
-    if (isCurrent) suffix = ' ' + C.dim + '(current -- selecting this is a no-op)' + C.reset;
-    lines.push('   ' + glyph + ' ' + o + suffix);
-  }
-  // Free-Text option always last.
-  lines.push('   ' + C.dim + G.rightTriEmpty + C.reset + ' Free-Text');
+  lines.push('  ' + C.cyan + result.rendered.zones.header + C.reset);
+  for (const l of bodyLines) lines.push(l);
   lines.push('');
   // Zone 4
   lines.push('  ' + C.cyan + '▶ /mos:operator             ' + C.reset + C.dim + '# cancel and re-show state' + C.reset);
@@ -350,7 +392,7 @@ function writeError3Line(headline, why, fix) {
 
 // -- Main dispatch ---------------------------------------------------
 
-function main() {
+async function main() {
   const flags = parseArgs(process.argv.slice(2));
   const room = resolveActiveRoom();
 
@@ -412,18 +454,24 @@ function main() {
   }
 
   if (flags.subcommand === 'set') {
-    // No opArg: render F.1 picker only.
+    // No opArg: render F.1 picker only. This path mints NOTHING into the
+    // gate ledger (F-3): a gate_id no later process can consume is the
+    // dead-seam shape this repo hunts.
     if (!flags.opArg) {
       if (flags.json) {
+        const card = buildOperatorGateCard(state);
+        const normalized = loadGateRender().normalizeCard(card);
         process.stdout.write(JSON.stringify({
           subcommand: 'set',
           room: room.slug,
           state: state,
           options: OPERATORS,
           default_suggestion: suggestedF1Default(state.current),
+          card: normalized,
+          gate_id: normalized.gate_id,
         }, null, 2) + '\n');
       } else {
-        process.stdout.write(renderShapeF1(state, room));
+        process.stdout.write(await renderShapeF1(state, room));
       }
       process.exit(0);
     }
@@ -658,10 +706,8 @@ function main() {
   process.exit(2);
 }
 
-try {
-  main();
-} catch (e) {
+main().catch((e) => {
   process.stderr.write(C.red + 'x ' + C.reset + 'operator-command crashed\n');
   process.stderr.write('  ' + (e && e.message ? e.message : String(e)) + '\n');
   process.exit(2);
-}
+});
