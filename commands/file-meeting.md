@@ -347,6 +347,13 @@ probe turns a silent quality loss into a visible, reasoned choice.
 
 ## Step 3: Claimify Extraction (Five-Perspective Parallel Dispatch + Consolidation)
 
+> Quick 260903-kwl: `references/meeting/filing-protocol.md` is the
+> surface-neutral extract of this step, handed back by the MCP `meeting` tool
+> on Claude Desktop and Cowork. This CLI command keeps its own inline copy of
+> the protocol deliberately - the extract cannot carry the subagent dispatch
+> below or the F.8 gate in Step 4, both CLI-only machinery. `tests/test-kwl-meeting-mcp-honesty.cjs`
+> is the drift guard that pins the shared taxonomies across both files.
+
 This step replaces a single unified extraction pass with FIVE PARALLEL
 WHOLE-TRANSCRIPT PERSPECTIVE workers (Step 3a, DISPATCH) followed by one
 orchestrator-only reconciliation pass (Step 3b, CONSOLIDATION). Extraction IS
