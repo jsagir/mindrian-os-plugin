@@ -821,7 +821,7 @@ Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/u
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 5/10 plans executed
+**Plans:** 6/10 plans executed
 
 Plans:
 
@@ -838,7 +838,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 267.2-06-PLAN.md - HOOK-08, W1b decision layer + W1d: `scripts/first-install-router.cjs` as a `UserPromptSubmit` hook cloned in shape from `scripts/mva-detect.cjs`. Owns its own one-shot state so a model-run `check-onboard --write` cannot disarm it (Pitfall 3), never blocks, never exits non-zero. Registered AFTER `mva-detect` in the chain, born wired, with scalar-only telemetry that also measures whether the ignite route actually produced a room (Pitfall 5)
+- [x] 267.2-06-PLAN.md - HOOK-08, W1b decision layer + W1d: `scripts/first-install-router.cjs` as a `UserPromptSubmit` hook cloned in shape from `scripts/mva-detect.cjs`. Owns its own one-shot state so a model-run `check-onboard --write` cannot disarm it (Pitfall 3), never blocks, never exits non-zero. Registered AFTER `mva-detect` in the chain, born wired, with scalar-only telemetry that also measures whether the ignite route actually produced a room (Pitfall 5)
 
 **Wave 4**
 

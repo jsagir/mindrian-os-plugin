@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 267.2-05-PLAN.md
-last_updated: "2026-09-03T10:03:24.521Z"
-last_activity: 2026-09-03 -- Completed 267.2-05-PLAN.md (local greeting intent classifier + routing table, HOOK-05/HOOK-06)
+stopped_at: Completed 267.2-06-PLAN.md
+last_updated: "2026-09-03T10:13:27.046Z"
+last_activity: 2026-09-03 -- Completed 267.2-06-PLAN.md (first-install-router.cjs UserPromptSubmit hook: one-shot gate, local classify+route, scalar telemetry, born-wired registration, HOOK-08)
 progress:
   total_phases: 26
   completed_phases: 18
   total_plans: 150
-  completed_plans: 145
+  completed_plans: 146
   percent: 97
 ---
+
+<!-- NOTE (267.2-06 execute-plan, 2026-09-03, FORTY-FIFTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x3) and
+     `state.record-session`, the frontmatter's `stopped_at`/`last_activity`
+     reverted to naming 267.2-04's completion instead of this plan's, and
+     `percent` reverted from the correct 97 (146/150 completed_plans, as
+     `state.update-progress` itself just computed) to a stale 69. Only these
+     three fields were affected -- `completed_plans`/`total_plans` were
+     written correctly. Hand-corrected: stopped_at and last_activity to name
+     267.2-06's actual completion, percent back to 97. Root cause already
+     tracked for a future dedicated debug session per this plan's own
+     instructions; not re-investigated here. -->
 
 <!-- NOTE (267.2-05 execute-plan, 2026-09-03, FORTY-FOURTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3882,7 +3895,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 267.2 (first-install-hooked-loop-repair-reward-investment-inserted) — EXECUTING
-Plan: 6 of 10
+Plan: 7 of 10
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 267.2 execution started
 
@@ -4634,6 +4647,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P03 | 45min | 3 tasks | 4 files |
 | Phase 267.2 P04 | 25min | 3 tasks | 4 files |
 | Phase 267.2 P05 | 45m | 3 tasks | 3 files |
+| Phase 267.2 P06 | 45min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6018,6 +6032,9 @@ Progress: [█████████░] 92%
 - [Phase 267.2-04]: Task 1 (ignite.md edit) and Task 2 (skill-mirror regen) landed in one commit because the repo's pre-commit hook enforces build-skill-mirrors --check on every commit
 - [Phase 267.2]: 267.2-05: Followed D-C's fixed routing table (new_venture->ignite, prior_work->clarify, just_talk->larry, ambiguous->larry) and D-G's rejection of user-archetype.cjs's tie-break bug in the classifier's decision rule.
 - [Phase 267.2]: 267.2-05: Reworded greeting-intent-detector.cjs's header comment (Rule 1 auto-fix) so it does not spell out the literal forbidden network/fs tokens its own zero-network test grep checks for.
+- [Phase ?]: 267.2-06: Router owns state.json as sole authority after arming; never re-reads check-onboard marker on a later turn (Pitfall 3).
+- [Phase ?]: 267.2-06: outcome_observed telemetry fires exactly once via an outcome_observed_at_ms field, avoiding repeat firing every turn while phase stays 'routed' pending 267.2-07.
+- [Phase ?]: 267.2-06: scripts/first-install-router.cjs is a hooks/hooks.json surface, confirmed outside build-connector-registry.cjs's and check-shape-declaration.cjs's scan scope -- needs no connector descriptor or hitl_shape declaration.
 
 ### Pending Todos
 
@@ -6136,7 +6153,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T10:03:07.660Z
+Last session: 2026-09-03T10:13:04.205Z
 Stopped at: Completed 267.2-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
