@@ -1,10 +1,11 @@
 ---
 phase: 276
 slug: mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-09-03
+reconciled: 2026-09-03 (plan 276-15, Task 3)
 ---
 
 # Phase 276 - Validation Strategy
@@ -37,32 +38,42 @@ created: 2026-09-03
 
 ## Per-Task Verification Map
 
-Task IDs are assigned by the planner; rows are keyed by requirement until then. The planner MUST map every task onto one of these rows or add a row here in the same commit.
+Reconciled 2026-09-03 by plan 276-15 Task 3, from the real plan/task numbers and measured
+results recorded in every `276-NN-SUMMARY.md`. Zero `TBD` remain in the Task ID or Plan
+columns.
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | 0 | TOOLHON-01 | T-276-01 | `splitBranches` on a `switch (command)` fixture returns a non-empty `branchMap`; authored and observed FAILING against the pre-fix splitter before the fix lands (`209b604f` RED / `75278850` GREEN precedent) | unit | `node tests/test-276-tool-honesty-switch-branches.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | TOOLHON-01 | T-276-01 | The nine pre-existing assertions still hold after the splitter change | unit | `node tests/test-ljj-tool-honesty.cjs` | ✅ | ⬜ pending |
-| TBD | TBD | 2 | TOOLHON-02 | T-276-02 | Live `scanAll()` rows compared against the checked-in disposition ledger `tests/fixtures/tool-honesty/276-dispositions.json`; any scan row absent from the ledger fails, any ledger row absent from the scan fails as stale | integration | `node tests/test-276-tool-honesty-findings-closed.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 2 | TOOLHON-03 | T-276-03 | `orchestration`'s description asserts no write the MCP handler cannot reach; the `scout*` family self-discloses reference-only in-band | unit | `node tests/test-276-orchestration-scout-honesty.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 2 | TOOLHON-04 | T-276-03 | `room_content`'s WRITE-surface list names only commands that reach a write primitive; the `new-project`/`setup`/`update` group carries a NOT-EXECUTED banner | unit | `node tests/test-276-room-content-honesty.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | TOOLHON-05 | T-276-01 | Every documented detector boundary (B-1..B-5) is either asserted or explicitly listed in the script header | unit | folded into `node tests/test-276-tool-honesty-switch-branches.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 2 | TOOLHON-06 | T-276-04 | Every `ALLOWED_UNVERIFIED` entry has a non-empty reason, a triage date, and resolves to a live scan row; MEDIUM/UNKNOWN are declared never-suppressible (D-276-2) | unit | `node tests/test-276-allowed-unverified-contract.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 1 | TOOLHON-07 | - | The meeting Tri-Polar gap carries a recorded disposition (D-276-1: in this phase, gated on the wave-1 vocabulary ruling) and `.planning/debug/meeting-file-meeting-false-success.md` reflects it | doc | `grep -n "D-276-1" .planning/debug/meeting-file-meeting-false-success.md` | ✅ | ⬜ pending |
-| TBD | TBD | 1 | TOOLHON-08 | - | ROADMAP Phase 276 entry carries no `Depends on: Phase 275` and reconciles the finding count to the measured value | doc | `grep -c "Depends on:\*\* Phase 275" .planning/ROADMAP.md` returns 0 | ✅ | ⬜ pending |
-| TBD | TBD | 2 | TOOLHON-09 | T-276-05 | C4: under a held exclusive write lock on connection A, the opener under test on connection B waits (elapsed-time floor asserted, not just the return value) instead of failing in ~0 ms with `SQLITE_BUSY` | integration | `node tests/test-276-busy-timeout-propagation.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 2 | TOOLHON-10 | T-276-05 | C5: `spineEvents.logSpineRead` under the held lock returns `reason: 'room_db_busy'` (never `no_room_db`); a garbage-byte room.db returns `room_db_broken`; both against the real module | integration | `node tests/test-276-spine-events-typed-reason.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 2 | TOOLHON-11 | T-276-05 | Every `no_room_db`-producing site is enumerated at run time from the tree, and each either fires only when `fs.statSync` genuinely fails or has been migrated to a typed reason | unit | folded into `node tests/test-276-spine-events-typed-reason.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 3 | TOOLHON-12 | T-276-06 | The five Theo description constants (pinned to Theo `83a1ce2`) diff against the plugin's live registration strings; IDENTICAL / DIFFERS reported per constant with first divergence offset; SKIPS (does not fail) when the Theo checkout is absent | integration | `node tests/test-276-theo-description-parity.cjs` | ❌ W0 | ⬜ pending |
-| TBD | TBD | all | all | - | Every registered description still clears the 120-char floor, prose shape, and 2048-byte wire cap | integration | `node tests/test-234-tool-description-floor.cjs` | ✅ | ⬜ pending |
-| TBD | TBD | all | all | - | Total description + schema byte budget within the 10 percent drift tolerance | integration | `node tests/test-270-tool-schema-budget.cjs` | ✅ | ⬜ pending |
-| TBD | TBD | all | all | - | The `meeting` honesty fix is not regressed | unit | `node tests/test-kwl-meeting-mcp-honesty.cjs` | ✅ | ⬜ pending |
-| TBD | TBD | all | all | - | No em-dash in any touched file | lint | `bash tests/run-all-266.sh` (`EMDASH_TARGETS`) | ✅ | ⬜ pending |
-| TBD | TBD | all | all | - | Advisory gate posture unchanged unless deliberately hardened by a named plan | integration | `node scripts/doctor.cjs --acceptance` | ✅ | ⬜ pending |
+| 276-01/T3 | 276-01 (RED); 276-06/T1 (GREEN) | 0-1 | TOOLHON-01 | T-276-01 | `splitBranches` on a `switch (command)` fixture returns a non-empty `branchMap`; authored and observed FAILING against the pre-fix splitter (`4c4f98a3` RED), flipped GREEN by `b88a39d3` | unit | `node tests/test-276-tool-honesty-switch-branches.cjs` | ✅ | ✅ green (17 passed, 0 failed) |
+| 276-06/T1 | 276-06 | 1 | TOOLHON-01 | T-276-01 | The nine pre-existing assertions still hold after the splitter change | unit | `node tests/test-ljj-tool-honesty.cjs` | ✅ | ✅ green (16 passed, 0 failed) |
+| 276-04/T1 (created); 276-06/T3, 276-07/T3, 276-15/T2 (amended/re-frozen) | 276-04, 276-06, 276-07, 276-15 | 0-5 | TOOLHON-02 | T-276-02 | Live `scanAll()` rows compared against the checked-in disposition ledger `tests/fixtures/tool-honesty/276-dispositions.json`; any scan row absent from the ledger fails, any ledger row absent from the scan fails as stale | integration | `node tests/test-276-tool-honesty-findings-closed.cjs` | ✅ | ✅ green (148 passed, 0 failed) |
+| 276-03/T1 (RED); 276-08/T1+T3 (GREEN) | 276-03, 276-08 | 1-2 | TOOLHON-03 | T-276-03 | `orchestration`'s description asserts no write the MCP handler cannot reach; the `scout*` family self-discloses reference-only in-band | unit | `node tests/test-276-orchestration-scout-honesty.cjs` | ✅ | ✅ green (12 passed, 0 failed) |
+| 276-03/T2 (RED); 276-08/T3 (GREEN) | 276-03, 276-08 | 1-2 | TOOLHON-04 | T-276-03 | `room_content`'s WRITE-surface list names only commands that reach a write primitive; the `new-project`/`setup`/`update` group carries a NOT-EXECUTED banner | unit | `node tests/test-276-room-content-honesty.cjs` | ✅ | ✅ green (26 passed, 0 failed) |
+| 276-01/T3 (RED); 276-06/T2 (GREEN) | 276-01, 276-06 | 0-1 | TOOLHON-05 | T-276-01 | Every documented detector boundary (B-1..B-6) is either asserted or explicitly listed in the script header | unit | folded into `node tests/test-276-tool-honesty-switch-branches.cjs` | ✅ | ✅ green |
+| 276-04/T2 (created); 276-06/T2 (GREEN); 276-15/T2 (deviation 1, HIGH_RISK positive control decoupled from the live tree) | 276-04, 276-06, 276-15 | 0-1, 5 | TOOLHON-06 | T-276-04 | Every `ALLOWED_UNVERIFIED` entry has a non-empty reason, a triage date, and resolves to a live scan row; MEDIUM/UNKNOWN are declared never-suppressible (D-276-2); the HIGH_RISK positive control stays valid even after global HIGH_RISK reaches 0 | unit | `node tests/test-276-allowed-unverified-contract.cjs` | ✅ | ✅ green (11 passed, 0 failed) |
+| 276-05 | 276-05 | 1 | TOOLHON-07 | - | The meeting Tri-Polar gap carries a recorded disposition (D-276-1) and `.planning/debug/meeting-file-meeting-false-success.md` reflects it | doc | `grep -n "D-276-1" .planning/debug/meeting-file-meeting-false-success.md` | ✅ | ✅ green |
+| 276-05 | 276-05 | 1 | TOOLHON-08 | - | ROADMAP Phase 276 entry carries no `Depends on: Phase 275` and reconciles the finding count to the measured value | doc | `grep -c "Depends on:\*\* Phase 275" .planning/ROADMAP.md` returns 0 | ✅ | ✅ green |
+| 276-02 (RED); 276-09/T1-T3 (GREEN) | 276-02, 276-09 | 1-2 | TOOLHON-09 | T-276-05 | C4: under a held exclusive write lock on connection A, the opener under test on connection B waits (elapsed-time floor asserted, not just the return value) instead of failing in ~0 ms with `SQLITE_BUSY` | integration | `node tests/test-276-busy-timeout-propagation.cjs` | ✅ | ✅ green (20 passed, 0 failed) |
+| 276-02 (RED); 276-10/T1-T2 (GREEN) | 276-02, 276-10 | 1-2 | TOOLHON-10 | T-276-05 | C5: `spineEvents`'s emit sites and getters under the held lock return `reason: 'room_db_busy'` (never `no_room_db`); a garbage-byte room.db returns `room_db_broken`; both against the real module | integration | `node tests/test-276-spine-events-typed-reason.cjs` | ✅ | ✅ green (16 passed, 0 failed) |
+| 276-02 (RED); 276-10/T1-T2 (GREEN) | 276-02, 276-10 | 1-2 | TOOLHON-11 | T-276-05 | Every `no_room_db`-producing site is enumerated at run time from the tree, and each either fires only when `fs.statSync` genuinely fails or has been migrated to a typed reason | unit | folded into `node tests/test-276-spine-events-typed-reason.cjs` | ✅ | ✅ green |
+| 276-04/T3 (created); 276-11 (surfaced gate_render DIFFERS via D-276-3); 276-13 (measured + coordination SEED filed) | 276-04, 276-11, 276-13 | 0-1, 2, 4 | TOOLHON-12 | T-276-06 | The five Theo description constants diff against the plugin's live registration strings; IDENTICAL / DIFFERS reported per constant with first divergence offset; SKIPS (does not fail) when the Theo checkout is absent; the test itself is a coordination signal (advisory, exits 0 by design even with DIFFERS present) | integration | `node tests/test-276-theo-description-parity.cjs` | ✅ | ✅ green (exits 0; 2 pre-existing/expected DIFFERS reported, not gated: `gate_render` mirror task registered for Theo, `gate_answer` pre-existing and unrelated) |
+| 276-12/T1-T3 | 276-12 | 3 | TOOLHON-07 (DIKW write primitive) | - | `claim_write` writes a real DIKW claim through `writeClaimNode` -> `node-insert.cjs`, refused at two independent layers on an invalid `knowledge_type`, born wired with an F.1 `hitl_shape` | integration | `node tests/test-276-claim-write-primitive.cjs` | ✅ | ✅ green (44 assertions pass) |
+| 276-14/T1-T3 | 276-14 | 4 | TOOLHON-14 | - | `meeting`'s `file-meeting` command, called with `knowledge_type`+`claim_text`, writes a typed claim and renders a `gate_render` confirmation card; promotion to `confirmed` happens only through the shipped `gate_answer` approve branch, proven against `room.db` independently of the tool's own response text; the ledger is single-use | integration | `node tests/test-276-meeting-gate-wiring.cjs` | ✅ | ✅ green (14 assertions pass) |
+| 276-11/T2 (fix); 276-15/T2 (deviation 2, promoted to a permanent test) | 276-11, 276-15 | 2, 5 | TOOLHON-02 (boundary B-6) | T-276-02 | `graph_write`'s `read_version` parameter `.describe()` string discloses the CAS fail-open (missing source node, guard read error) alongside the surviving conflict-rejection claim; boundary B-6 means `scanAll()` cannot see this, so a standalone over-the-wire regex assertion is the only proof, now permanent | unit | `node tests/test-276-b6-parameter-describe.cjs` | ✅ | ✅ green (5 passed, 0 failed) |
+| 276-15/T1 | 276-15 | 5 | TOOLHON-14 (substrate baseline reconciliation, Phase 273 D-05) | T-276-36 | The substrate baseline document states one measured number per measure, regenerated by its own script, with generated/hand-written sections marked; falsely crediting this phase's C4/M8 work for a count it structurally cannot move is avoided | doc/integration | `node tests/test-273-substrate-baseline-honest.cjs` | ✅ | ✅ green (measured=205, matches the documented Current Baseline) |
+| 276-15/T2 | 276-15 | 5 | TOOLHON-02 (ledger re-freeze) | T-276-02 | The disposition ledger's `frozen_sweep` matches the live post-fix scan surface (37 tools / 131 branches); every entry reconciled; `ALLOWED_UNVERIFIED` confirmed empty | integration | `node tests/test-276-tool-honesty-findings-closed.cjs` (Group F) | ✅ | ✅ green |
+| all | all | all | all | - | Every registered description still clears the 120-char floor, prose shape, and 2048-byte wire cap | integration | `node tests/test-234-tool-description-floor.cjs` | ✅ | ✅ green (172 passed, 0 failed, 40/40 coverage) |
+| all | all | all | all | - | Total description + schema byte budget within the 10 percent drift tolerance of the most recently recorded baseline | integration | `node tests/test-270-tool-schema-budget.cjs` | ✅ | ✅ green (5 passed, 0 failed) |
+| all | all | all | all | - | The `meeting` honesty fix is not regressed | unit | `node tests/test-kwl-meeting-mcp-honesty.cjs` | ✅ | ✅ green (37 passed, 0 failed) |
+| all | all | all | all | - | No em-dash in any touched file | lint | `bash tests/run-all-266.sh` (`EMDASH_TARGETS`) | ✅ | ✅ green (PASS=11 FAIL=0 SKIP=0) |
+| all | all | all | all | - | Advisory gate posture unchanged unless deliberately hardened by a named plan | integration | `node scripts/doctor.cjs --acceptance` | ✅ | ✅ green (17/18; sole failure `verify-release-clean-tree` is pre-existing shared-tree drift, unrelated to this phase, named in the roll-up) |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
-TOOLHON-13 and TOOLHON-14 (per `276-RESEARCH.md`'s requirement table) are covered by the wave-1 decision plan and the meeting-pipeline build wave respectively; their rows are added by the planner once task IDs exist.
+TOOLHON-13 (the DIKW / `ALLOWED_EPISTEMIC_TYPES` / `knowledge_type` vocabulary mapping ruling) was
+decided by plan 276-05 (navigator ruling, decision-only, no automated test -- recorded in
+`276-DECISIONS.md` OQ-276-1) and consumed by plan 276-12's `KNOWLEDGE_TYPE_TO_EPISTEMIC_TYPE`
+mapping table.
 
 ---
 
@@ -96,11 +107,28 @@ TOOLHON-13 and TOOLHON-14 (per `276-RESEARCH.md`'s requirement table) are covere
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 120s
-- [ ] `nyquist_compliant: true` set in frontmatter
+Reconciled 2026-09-03 by plan 276-15 Task 3, against the real execution record across all
+15 executed plans (276-01 through 276-15; 276-16 is the still-pending close-out plan, not
+counted here).
 
-**Approval:** pending
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies -- every task in every
+      `276-NN-PLAN.md` carries a `<verify><automated>` block; confirmed by grep across all
+      15 plan files (zero tasks found without one).
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify -- every task
+      commit across the phase ran its own automated verify command before committing (per
+      the task_commit_protocol every executor followed); no gap.
+- [x] Wave 0 covers all MISSING references -- every file marked `❌ W0` in the original
+      table (created by plan 276-01/276-04/276-02) now exists and is exercised by
+      `bash tests/run-all-276.sh`'s glob discovery (13/13 PASS, confirmed above).
+- [x] No watch-mode flags -- every automated command in the Per-Task Verification Map above
+      is a one-shot `node tests/test-*.cjs` or `bash tests/run-all-*.sh` invocation; no
+      `--watch` flag anywhere in this phase's test suite.
+- [x] Feedback latency < 120s -- `bash tests/run-all-276.sh` measured at 31.8s real time
+      (`time bash tests/run-all-276.sh`, 2026-09-03), well under the 120s target stated in
+      the Test Infrastructure table above.
+- [x] `nyquist_compliant: true` set in frontmatter
+
+**Approval:** granted 2026-09-03 (plan 276-15 Task 3, gate roll-up below). All six sign-off
+items are genuinely true as measured, not asserted; see the Per-Task Verification Map above
+for the row-by-row evidence and `276-15-SUMMARY.md`'s Gate Roll-Up section for the full
+before/after delta table.
