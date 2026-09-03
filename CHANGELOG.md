@@ -1,7 +1,22 @@
 ## [Unreleased] -- v2.0.0-beta.16 (in progress)
 
 ### Added
-- 
+- `scripts/check-tool-honesty.cjs`: a standing, advisory MCP tool-honesty gate that
+  statically scans every `server.tool()` registration and command branch across
+  `lib/mcp/tool-router.cjs`, `lib/mcp/tools/*.cjs` and `lib/mcp/contract-version.cjs`
+  for a description-vs-behavior mismatch (a tool description claiming it writes/files/
+  persists something its handler never actually reaches a write primitive for) - the
+  broader sweep `.planning/debug/meeting-file-meeting-false-success.md`'s Non-Code
+  Follow-ups section named as unscoped work once the `meeting` tool itself was fixed
+  (quick 260903-kwl). Wired advisory (`--check` WARNs and exits 0, `--strict` restores
+  hard-fail, `--report` prints the full per-branch table) at pre-commit (path-scoped to
+  the MCP tool surface), `doctor --acceptance` (new `tool-honesty` coverage-gate entry),
+  and `release.sh` (outside the SHAPE-GATE sentinel pair) - the same advisory-on-
+  introduction posture `check-shape-declaration.cjs` established at Phase 210. First live
+  run against the current tree (36 tools, 130 command branches scanned): 1 HIGH RISK
+  finding, 8 MEDIUM, 1 UNKNOWN, 0 fixed by this change. Every finding is untriaged;
+  human review is the named next step before any finding is fixed or the gate is
+  hardened to `--strict`.
 
 ### Fixed
 - The `meeting` MCP tool's `file-meeting` command returned a completion-shaped response
