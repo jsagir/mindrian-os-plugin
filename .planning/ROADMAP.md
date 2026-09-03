@@ -618,6 +618,16 @@ Further correction: the "Brain server" half of this phase does not belong to Min
 
 **Navigator ruling (2026-09-01, RESOLVES the three-way decision `267-RESEARCH.md`'s primary recommendation left open): WAIT UPSTREAM.** Do not vendor the two SDK-v1-dependent ext-apps internals; do not gate MCP Apps off. Re-verified live against npm this session: `@modelcontextprotocol/ext-apps` is still at `1.7.5` (dist-tag `latest`), peer dep still `@modelcontextprotocol/sdk: ^1.29.0` -- unchanged since the 07-23 finding, confirmed not stale. Consequence, stated plainly so a future session does not silently re-litigate this: **Phase 268's W1 (MCP-tool transition) stays blocked indefinitely**, with no target date, until ext-apps ships a v2-compatible release. Revisit by re-running the same npm check above; do not re-open the vendor-vs-gate-off question without a new navigator ruling.
 
+---
+Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
+**Requirements**: TBD
+**Depends on:** Phase 266 AND the ext-apps upstream blocker clearing (or a confirmed workaround) -- BLOCKED, do not plan yet
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 267 to break down)
+
 ### Phase 270: Memory and Context Operator MCP
 
 **Goal:** Navigator observation, 2026-08-27: memory and context in this repo are scattered across many discrete MCP tools (`memory_event`, `graph_write`, `artifact_file`, `room_state_bound`, `graph_query`, `whitespace_scan`...) with no single thing owning the memory lifecycle end to end -- surfaced directly by this session's own finding that `~/.mindrian-user.md` (the promised cross-room "who is this user" file) has zero writers anywhere in the repo despite onboarding prose asserting it exists (Phase 267.1's GAP I-1, now Phase 267.2's W2). Theo's own package.json already frames itself as "MindrianOS's *consolidated* MCP server" for the Brain side -- the room side never got the equivalent treatment. Research this phase's actual shape: does consolidating room-side memory operations into one coherent "operator" surface (rather than many small tools) reduce real friction, or is the current fragmentation load-bearing (e.g. each tool's narrow scope is itself a Part 8 safety property, per `lib/mcp/*` tool descriptions -- verify before assuming consolidation is strictly better)? At minimum this phase should determine: (1) whether the cross-room identity write (Phase 267.2 W2's job) should be built as a first tool under this new operator rather than a one-off function, (2) whether Part 8's Brain-boundary enforcement (currently a documented convention, not a schema-level guarantee) can be made structurally enforced by a memory-operator tool's own input/output schema, and (3) how this interacts with Theo eventually becoming the consolidated Brain-side MCP -- does a room-side "memory operator" mirror that architecture, or is the analogy wrong because Brain content and room content have fundamentally different locality guarantees (Part 8: room data never leaves; Brain content is already remote by design).
@@ -1535,15 +1545,36 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 338 to break down)
 
----
-Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
+### Phase 339: Brain-to-Theo cutover release: flip brain-client default origin to theo-mcp.onrender.com, sweep old-origin sites, refresh 269-05 readiness checklist
+
+**Goal:** Execute the Brain-to-Theo cutover from the plugin side: ship the single change Theo's `09-FLIP-RECORD.md` (status 2026-09-03: AUTHORIZED, not yet executed) names, as a plugin release, so every installed user's Brain traffic moves to Theo and Theo's own Phase 9 plan 09-12 can pass its Task 2 human gate. Registered 2026-09-03 by navigator directive ("make the transition to Theo, clean cutover, two sessions in parallel: one in Theo, one in MindrianOS"). This is NOT Phase 267 (the SDK v2 migration, blocked upstream on ext-apps, re-verified 2026-09-03: `@modelcontextprotocol/ext-apps` still 1.7.5, peer `sdk ^1.29.0`); it is a URL flip against the v1 SDK the repo already runs.
+
+**The one required change:** `lib/core/brain-client.cjs:24`, default from `https://pws-brain-mcp.onrender.com` to `https://theo-mcp.onrender.com`. BARE origin, no path, no trailing slash: the client appends `/mcp` and `/register` itself, and a `/mcp` suffix 404s, which the client renders as "Brain unreachable" rather than a config error. Same commit: the stale docblock at lines 4-7. Live on 2026-09-03: `GET https://theo-mcp.onrender.com/health` returns `{"status":"ok"}`, keyless.
+
+**Explicitly NOT required for the flip** (per the flip record, section 2): arg keys (`tests/test-247-contract-client.cjs` stays green untouched); the `mindrian-brain` shim server key; `BRAIN_TOOL_MATCHER` / `hooks/hooks.json` for a URL-only flip; the `brain_query` `{rows, diagnostics}` shape adaptation (already shipped, commit `21fdd7bc`, verified closed 2026-09-03).
+
+**Plugin-side work that rides the same release, on the plugin's schedule:**
+
+1. Sweep the hard-coded old origin so no second literal survives. Runtime sites first: `lib/core/mcp-profiles.cjs`, `lib/core/enrichment-queue.cjs`, `lib/core/doctor/class-m-brain-smoke.cjs` (+ `.test.cjs`), `scripts/probe-brain-contract.cjs`, `scripts/build-brain-census.cjs`, `scripts/rs-experts-command.cjs`, `scripts/rs-thesis-command.cjs`, `scripts/sessionstart-post-update-preflight.cjs`. Rule: every runtime site derives from `brain-client.cjs`'s exported endpoint resolver, never its own literal. Then user-facing surfaces: `commands/pws-brain.md`, `commands/setup.md`, `skills/pws-brain/SKILL.md`, `skills/setup/SKILL.md`, their `dist/*` mirrors, `docs/brain-setup.md`, `docs/install/BRAIN-SETUP.md`, `docs/THE-BRAIN.md`, `CLAUDE.md` (Three Layers table + stack table), fixtures `tests/fixtures/246-census-fixture.json` and `tests/test-245-skill-frontmatter-inert-keys.cjs`. Dated handoffs and RCAs under `docs/` are historical records: leave them.
+2. Flush the `brain_schema` 30-minute memo across the flip (a cached incumbent schema would describe labels Theo does not carry). Also the retired-backend wording in `bin/mindrian-brain-mcp-client.cjs` tool descriptions ("live Memgraph backend").
+3. Rewrite Phase 269-05's six-item Theo-readiness checklist. It is stale in a dangerous direction: items 1-3 now read PASS while the real legs went unchecked. The real gate, per Theo's `09-MOS-LEARNING.md` addendum of 2026-09-02: (a) coverage re-measured live against a PINNED Brain count (post Theo Phase 10 close on 2026-09-03: Theo 1252 nodes / 1518 rels / 419 named Frameworks vs Brain 29,200 / 24,375 / 258 at `Brain@56bf75a`), (b) Theo Phase 06.2 live, meaning summaries on disk (4/4 as of 2026-09-03), (c) 09-12's infrastructure legs (08.4 closed 2026-09-02, 09-11 remote parity 0 mismatches 2026-09-03, `/register` compat route). Leg (a) is a navigator RULING, not a mechanical check; record it in Theo's flip record before the release ships.
+4. Cutover communication. Once `pws-brain-mcp` is suspended (Theo 09-12 Task 3, only after a soak window), any install that has not updated gets an honest "Brain unreachable" refusal (a `main` commit is not live until released AND picked up). Draft the tester note and the CHANGELOG entry; state the two-command update path.
+5. Release: run touched-phase suites, `scripts/verify-release`, then `scripts/release.sh <next version>` (CHANGELOG currently carries `v2.0.0-beta.16 (in progress)`; latest tag `v2.0.0-beta.15`; the tree is 295 commits ahead of `origin/main`, push before cutting). The release is human-held. Phase 276 is mid-execution in the same working tree: pause it at a wave boundary for the cut.
+6. Post-release verification, reported back to the Theo session as 09-12 Task 2's resume signal: on an installed session running the release, exercise `brain_stats` / `brain_ask` through Larry and confirm structured Theo answers; run `scripts/probe-brain-contract.cjs` (leg inversions are EXPECTED and documented, not failures); reply with the shipped version and "flip verified".
+
+**Tri-Polar:** CLI traffic goes through the local shim (`mindrian-brain` key), zero change. Desktop and Cowork reach the remote directly: if the connector re-registers under a new key, `BRAIN_TOOL_MATCHER` gains one alternation token and `hooks/hooks.json` changes in the same commit (a parity test enforces byte equality); if only the URL moves, no change. Canon Part 8 unchanged: Theo is keyless and nothing user-specific crosses.
+
+**Rollback:** revert line 24 in a patch release, or `MINDRIAN_BRAIN_URL` per install. Valid only while `pws-brain-mcp` still runs, which is why decommission waits for the soak.
+
+**Coordination (two sessions):** Session T in `~/Theo` resumes Phase 9 at 09-12 Task 2 (human gate) and owns Task 3 (soak, suspend `srv-d9gfa03tqb8s73csfmtg` then `srv-d9geq2urnols73cimkfg`, never delete) and Task 4 (close-out). Session M in `~/dev/MindrianOS-Plugin` owns this phase. The seam is the flip record's section 2 plus 09-12's resume signal.
 **Requirements**: TBD
-**Depends on:** Phase 266 AND the ext-apps upstream blocker clearing (or a confirmed workaround) -- BLOCKED, do not plan yet
+**Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
 **Plans:** 0 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 267 to break down)
+- [ ] TBD (run /gsd-plan-phase 339 to break down)
+
 
 ### Phase 267.1: Hooked Model Completeness Audit (first-session onboarding) (INSERTED)
 

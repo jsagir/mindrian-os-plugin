@@ -5287,6 +5287,8 @@ Progress: [█████████░] 92%
   before reading the Framework population). Confirmed with `gsd-tools init phase-op` before AND
   after: phase_found:false on "253"/"v2.1.0" caught the original ROADMAP/STATE drift; phase_found
   now correctly resolves for 253 (retired stub, still a valid phase entry) after the fix.
+- Phase 339 added (2026-09-03): Brain-to-Theo cutover release. Navigator directive: make the transition to Theo, clean cutover, two parallel sessions (T in ~/Theo resumes Phase 9 at 09-12 Task 2; M in this repo owns 339). The flip is one line (brain-client.cjs:24 default origin to https://theo-mcp.onrender.com) plus a release; Theo 09-FLIP-RECORD.md reads AUTHORIZED, not yet executed. NOT Phase 267 (SDK v2 migration, still blocked upstream: ext-apps 1.7.5 peer sdk ^1.29.0, re-verified 2026-09-03).
+
 
 ### Decisions
 
