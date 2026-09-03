@@ -41,15 +41,14 @@ completed: 2026-09-03
 
 # Phase 296 Plan 06: Two-Sided Pinecone Residue Gate + Operator Docs + Changelog Summary
 
-**`tests/296-pinecone-residue.sh` proves the Pinecone retirement was surgical in both directions (asserts PRESENCE of the two D-06-protected surfaces and ABSENCE of the retired one); `docs/ENV-TUNING.md` and `CHANGELOG.md` are updated; the full 296 gate sweep is green. Task 3, the human-verify checkpoint ratifying two planner decisions and confirming HSI Tier 2 survived, is PAUSED awaiting the navigator -- not resolved by this executor.**
+**`tests/296-pinecone-residue.sh` proves the Pinecone retirement was surgical in both directions (asserts PRESENCE of the two D-06-protected surfaces and ABSENCE of the retired one); `docs/ENV-TUNING.md` and `CHANGELOG.md` are updated; the full 296 gate sweep is green. Task 3, the human-verify checkpoint ratifying two planner decisions and confirming HSI Tier 2 survived, was presented to the navigator via AskUserQuestion and RATIFIED on all four points — see "Checkpoint Resolved" below.**
 
-## Status: PAUSED AT CHECKPOINT
+## Status: CHECKPOINT RATIFIED — PHASE COMPLETE
 
-Tasks 1 and 2 (both `type="auto"`) are complete and committed. Task 3
-(`type="checkpoint:human-verify" gate="blocking"`, `autonomous: false`) has been reached and
-halted per plan instruction and per this executor's mandate: **do not resolve it, do not guess,
-report it verbatim to the orchestrator.** See "Task 3: Checkpoint Reached" below for the exact
-question set.
+Tasks 1, 2, and 3 are all complete. Task 3 (`type="checkpoint:human-verify" gate="blocking"`,
+`autonomous: false`) was correctly halted by the executor and not auto-resolved, then presented
+to the real navigator by the orchestrator. All four ratifications came back as the recommended
+defaults, no overrides. See "Checkpoint Resolved" below for the recorded answers.
 
 ## Performance
 
@@ -373,6 +372,29 @@ decision is being overridden.
 **If step 6 is overridden:** per the plan's own instruction, the override must NOT be implemented
 at this checkpoint. A storage-location change or a dispatch-chokepoint rewiring is its own plan
 with its own tests, not a drive-by edit here.
+
+### Checkpoint Resolved (2026-09-03)
+
+Navigator answers, recorded verbatim per the plan's own instruction:
+
+- **Step 4 (HSI Tier 2):** Orchestrator checked `PINECONE_API_KEY` directly rather than asking
+  the navigator to run a shell command — the key IS configured (present in this repo's `.env`,
+  not exported into the executor's shell session, which is why the executor couldn't see it).
+  Navigator ratified: key-presence confirmation is sufficient; no live Tier 2 invocation spent.
+  Rationale accepted: this phase's code path (F-2's Python-read fence, the `rs_cache.py`
+  rewrite) never touches Tier 2's import or key read, so there is nothing in this phase's diff
+  that could have broken it.
+- **Step 6(a) (sidecar vs. room.db):** RATIFIED, no override. Per-room sidecar stands as
+  implemented in 296-04.
+- **Step 6(b) (`auto-explore-fire.cjs` named-not-rewired):** RATIFIED, no override. Stands as
+  implemented in 296-05.
+- **Step 7 (Phase 228 / Phase 295 disposition):** RATIFIED the recommended disposition — Phase
+  228 marked superseded by Phase 296 (in `.planning/milestones/v1.15.0-ROADMAP.md`); Phase 295
+  closed as substantially-shipped-elsewhere (in `.planning/ROADMAP.md`, current milestone).
+  Both edits made by the orchestrator immediately after this checkpoint resolved — see their
+  own commits.
+
+**Resume signal received: "approved" (via the four ratifications above).** Phase 296 is closed.
 
 ## Issues Encountered
 
