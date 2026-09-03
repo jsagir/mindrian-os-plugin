@@ -187,3 +187,55 @@ test('Test 7: shim source no longer conflates transport-null with the no-key sen
 
   assert.match(src, /brain_ask/, 'brain_ask handler must still be present');
 });
+
+// ---------------------------------------------------------------------------
+// Test 8 (Phase 339, 2026-09-03, FLIP-04b): the update-path pin. D-08
+// (339-CONTEXT.md) amends the refusal copy so BOTH `unreachable` and
+// `no_key` name the two-command update path verbatim, and NEXT_MOVES.
+// unreachable gains an `update` handle. WHY the update path lives in
+// RENDER_COPY (the multi-line render arrays, no length cap) and NOT in
+// REASONS (which feed larryRefusalLine's <=120-char single line, Test 6
+// above): the two commands alone are 76 characters
+// (`/plugin marketplace update` = 27, `claude plugin update
+// mos@mindrian-marketplace` = 46, plus a separator), which cannot fit
+// inside a 120-char line with any framing, and putting it in REASONS would
+// break Test 6 on the next edit even though larryRefusalLine reads a
+// hard-coded switch independent of REASONS today (verified at
+// lib/core/refusal-messaging.cjs:454-472 -- its returns are its own
+// hard-coded strings, so this addition to RENDER_COPY cannot break Test 6's
+// cap).
+// ---------------------------------------------------------------------------
+test('Test 8: unreachable and no_key copy name the update path; REASONS never carries it', () => {
+  const mod = freshChokepoint();
+
+  const unreachableCopy = mod.renderRefusal('unreachable', { tool: 'brain_query' });
+  assert.ok(
+    unreachableCopy.includes('claude plugin update mos@mindrian-marketplace'),
+    'rendered unreachable copy must name the two-command update path'
+  );
+
+  const noKeyCopy = mod.renderRefusal('no_key', { tool: 'brain_query' });
+  assert.ok(
+    noKeyCopy.includes('claude plugin update mos@mindrian-marketplace'),
+    'rendered no_key copy must name the two-command update path'
+  );
+
+  const unreachableResponse = mod.refusalResponse('unreachable', { tool: 'brain_query' });
+  assert.ok(Array.isArray(unreachableResponse.next_moves), 'unreachable next_moves must be an array');
+  assert.ok(unreachableResponse.next_moves.includes('retry'), 'NEXT_MOVES.unreachable must still carry retry');
+  assert.ok(unreachableResponse.next_moves.includes('continue_without'), 'NEXT_MOVES.unreachable must still carry continue_without');
+  assert.ok(unreachableResponse.next_moves.includes('update'), 'NEXT_MOVES.unreachable must gain the update handle');
+
+  // Guard: the update-path literal must NOT appear in any REASONS entry
+  // (the 120-char-capped statusline path), for every kind in REFUSAL_KINDS.
+  // Exercised through the public refusalResponse().reason field, which is
+  // REASONS[k](ctx) verbatim -- never by reaching into the unexported
+  // REASONS table directly.
+  for (const kind of mod.REFUSAL_KINDS) {
+    const r = mod.refusalResponse(kind, { tool: 'brain_query', framework: 'SWOT Analysis', readiness_score: 1, missing_dimensions: ['structure'] });
+    assert.ok(
+      !r.reason.includes('claude plugin update'),
+      'REASONS.' + kind + ' must never carry the update-path literal (it would break Test 6\'s 120-char cap)'
+    );
+  }
+});
