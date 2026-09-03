@@ -884,7 +884,7 @@ one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop'
       (257-01, `egress_blocked` minted as the sixth refusal kind with its own `BRAIN_EGRESS_BLOCKED`
       status) and `bin/mindrian-brain-mcp-client.cjs` (257-06).
 
-- [ ] **LOCUS-02**: Phase 254's `egress_disclosure` survives to the `brain_ask` response, making
+- [x] **LOCUS-02**: Phase 254's `egress_disclosure` survives to the `brain_ask` response, making
       COMP-02 non-vacuous on the highest-traffic Brain tool. Fixed in
       `lib/core/directive-envelope.cjs` (257-02). The same fixed-key builder was also discarding the
       `refusal` object the Phase 250-01 honest-refusal branch passes in, so that earlier fix was

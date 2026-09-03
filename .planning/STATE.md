@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 257-01-PLAN.md
-last_updated: "2026-09-03T03:52:10.444Z"
-last_activity: 2026-09-03 -- Completed 257-01-PLAN.md
+stopped_at: Completed 257-02-PLAN.md
+last_updated: "2026-09-03T03:58:46.388Z"
+last_activity: 2026-09-03 -- Completed 257-02-PLAN.md
 progress:
   total_phases: 26
   completed_phases: 17
   total_plans: 140
-  completed_plans: 132
-  percent: 94
+  completed_plans: 133
+  percent: 95
 ---
+
+<!-- NOTE (257-02 execute-plan, 2026-09-03, THIRTY-FIRST+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the THIRTIETH+
+     note below): after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     `state.update-progress`'s own correctly-computed 95% (133 completed_plans
+     / 140 total_plans) to 65 -- a phase-based figure (17 completed_phases /
+     26 total_phases = 65.4%), not the plan-based figure this field is
+     supposed to track. `last_activity` was also left at the stale pre-257-02
+     value ("Completed 257-01-PLAN.md") instead of naming this plan's actual
+     completion. Hand-corrected: percent back to 95, last_activity to name
+     this plan's actual completion. Root cause not re-investigated -- same
+     tracked bug class as the THIRTIETH+ note below. -->
 
 <!-- NOTE (257-01 execute-plan, 2026-09-03, THIRTIETH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the TWENTY-NINTH+
@@ -3644,7 +3657,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 257 (part-8-enforcement-locus-host-independent-egress-guard) — EXECUTING
-Plan: 1 of 9 complete (257-01 done; 257-02 through 257-09 pending, wave 1 = 257-01 only per depends_on: [])
+Plan: 2 of 9 complete (257-01 done; 257-02 through 257-09 pending, wave 1 = 257-01 only per depends_on: [])
 Status: Ready to execute 257-02 (and other Wave-1-eligible plans per their own depends_on)
 Last activity: 2026-09-03 -- Completed 257-01-PLAN.md
 
@@ -4383,6 +4396,7 @@ Progress: [█████████░] 92%
 | Phase 254 P06 | 40min | 3 tasks | 3 files |
 | 254 | 6 | - | - |
 | Phase 257 P01 | 35min | 2 tasks | 5 files |
+| Phase 257 P02 | 25 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -5744,6 +5758,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 254-06: WIRE-01..04 and COMP-01..02 registered [x] in REQUIREMENTS.md (103 -> 109 active requirements, scripted recount); BRAIN_PROBLEM_TYPE_ALIASES pinned not re-pointed and lib/mcp/brain-router.cjs added to Theo's adaptation list via written note
 - [Phase 257]: egress_class values coerced against classify()'s real closed set (content_set/empty_payload/move_set/unproven_packet/freeform_unmatched/unknown), never an invented list
 - [Phase 257]: rephrase_generically added to NEXT_MOVES only after confirming zero existing consumers of any next_moves handle by name (git grep across lib/scripts/bin/tests)
+- [Phase ?]: wrapDirective: two named fields only (egress_disclosure, refusal), never a generic top-level-field copy — Prevents arbitrary Brain-returned keys from reaching the model; proven live via a mutation-leg test that flips the pass-through to a generic copy and watches the no-laundering arms fail
+- [Phase ?]: Test harness: node:test + node:assert/strict, matching 257-01's own precedent, not 254's hand-rolled harness — Plan's literal action text specifies node:test plus node:assert; 254's docblock says it deliberately does not use node:test
 
 ### Pending Todos
 
@@ -5854,8 +5870,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T03:52:02.879Z
-Stopped at: Completed 254-06-PLAN.md (phase 254 complete, all 6 plans)
+Last session: 2026-09-03T03:58:29.779Z
+Stopped at: Completed 257-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
