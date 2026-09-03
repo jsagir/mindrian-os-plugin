@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "frozen_at_commit": "b88a39d3",
+  "frozen_sweep": {
+    "tools": 36,
+    "branches": 130,
+    "high_risk": 5,
+    "medium": 18,
+    "low": 0,
+    "unknown": 1,
+    "ok": 106
+  },
+  "dispositions": [
+    {
+      "tool": "orchestration",
+      "command": "scout",
+      "finding_id": "F-1",
+      "verdict_at_freeze": "HIGH_RISK",
+      "disposition": "description-correction",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-08",
+      "reason": "lib/mcp/tool-router.cjs:1491 claims room and scout operations are ordinary reads and writes, but scout has no branch and falls through to the reference-echo fallback at lib/mcp/tool-router.cjs:1623-1655 (Suggested Next reads Scout intelligence gathered - analyze room while nothing is gathered). commands/scout.md genuinely writes, so the description describes the CLI command, not the MCP tool. Fix is a description correction, not a suppression."
+    },
+    {
+      "tool": "room_content",
+      "command": "new-project",
+      "finding_id": "F-11",
+      "verdict_at_freeze": "HIGH_RISK",
+      "disposition": "real-bug-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-08",
+      "reason": "lib/mcp/tool-router.cjs:738 claims This is the WRITE surface (new-project, setup, file-opportunity, create-funding, invoke-persona). The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo; fireCascade is downstream bookkeeping, not project creation. Real defect, matching the rooms-open-false-success shape."
+    },
+    {
+      "tool": "room_content",
+      "command": "setup",
+      "finding_id": "F-12",
+      "verdict_at_freeze": "HIGH_RISK",
+      "disposition": "real-bug-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-08",
+      "reason": "lib/mcp/tool-router.cjs:738 claims This is the WRITE surface (new-project, setup, file-opportunity, create-funding, invoke-persona). The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo, same defect as new-project and update; setup never writes despite the claim."
+    },
+    {
+      "tool": "room_content",
+      "command": "update",
+      "finding_id": "F-13",
+      "verdict_at_freeze": "HIGH_RISK",
+      "disposition": "real-bug-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-08",
+      "reason": "lib/mcp/tool-router.cjs:738 claims Create and update the entities that live inside a room. The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo; update performs no create-or-update write despite the description's explicit claim."
+    },
+    {
+      "tool": "room_content",
+      "command": "invoke-persona",
+      "finding_id": "F-14",
+      "verdict_at_freeze": "HIGH_RISK",
+      "disposition": "description-correction",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-08",
+      "reason": "lib/mcp/tool-router.cjs:738 names invoke-persona explicitly as part of the WRITE surface. lib/core/persona-ops.cjs:550-571's invokePersona reads a persona file via fs.readdirSync/safeReadFile and returns it or an error object; it performs zero writes. Description correction, not a real write gap."
+    },
+    {
+      "tool": "export",
+      "command": "export",
+      "finding_id": "F-2",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS wrongly matches publish and snapshot as prose verbs when they are command-name tokens inside tool-router.cjs:1456's own audience enumeration. Underlying honesty issue is real and separately owned by 276-08: tool-router.cjs:1476-1480's three false completion assertions (Snapshot generated, Dashboard generated, Export complete) when nothing was generated."
+    },
+    {
+      "tool": "export",
+      "command": "radar",
+      "finding_id": "F-3",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS false-attributes publish/snapshot as prose verbs inside tool-router.cjs:1456's command enumeration. Same stacked issue as export.export; 276-08 separately owns tool-router.cjs:1476-1480's false completion assertions."
+    },
+    {
+      "tool": "export",
+      "command": "dashboard",
+      "finding_id": "F-4",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS false-attributes publish/snapshot as prose verbs inside tool-router.cjs:1456's command enumeration. 276-08 separately owns tool-router.cjs:1479's Dashboard generated false completion assertion for this row."
+    },
+    {
+      "tool": "export",
+      "command": "wiki",
+      "finding_id": "F-5",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS false-attributes publish/snapshot as prose verbs inside tool-router.cjs:1456's command enumeration. Same stacked issue as export.export; 276-08 owns the underlying tool-router.cjs:1465-1483 reference-echo handler."
+    },
+    {
+      "tool": "export",
+      "command": "present",
+      "finding_id": "F-6",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS false-attributes publish/snapshot as prose verbs inside tool-router.cjs:1456's command enumeration. Same stacked issue as export.export; 276-08 owns the underlying tool-router.cjs:1465-1483 reference-echo handler."
+    },
+    {
+      "tool": "export",
+      "command": "publish",
+      "finding_id": "F-7",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS matches the bare token publish as a prose verb even though it names itself, the export command, at tool-router.cjs:1456. 276-08 separately owns the underlying reference-echo handler at tool-router.cjs:1465-1483."
+    },
+    {
+      "tool": "export",
+      "command": "snapshot",
+      "finding_id": "F-8",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS matches the bare token snapshot as a prose verb even though it names itself, the export command, at tool-router.cjs:1456. 276-08 separately owns tool-router.cjs:1476's Snapshot generated false completion assertion."
+    },
+    {
+      "tool": "gate_render",
+      "command": "(default)",
+      "finding_id": "F-9",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "description-correction",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-11",
+      "reason": "lib/mcp/tools/gate.cjs:113 says Returns a minted gate_id. gate.cjs:45-70 shows _mintLiveGate delegates to gateLedger.mintGate, an in-memory TTL-bounded single-use ledger, not persistent state. D-276-3: an in-memory gate-ledger mint is not persistence, so the fix is a description correction, not adding minted to STRONG_VERBS. Theo mirror task owned by 276-13."
+    },
+    {
+      "tool": "context_assemble",
+      "command": "(default)",
+      "finding_id": "F-10",
+      "verdict_at_freeze": "UNKNOWN",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "Two stacked detector bugs. check-tool-honesty.cjs:979-983 isLocallyNegated requires immediate adjacency, so file in STRONG_VERBS (line 947) matches as a noun in context.cjs:36's Never returns raw file contents without being recognized as negated. Second, locateFunctionBody cannot follow navigation.cjs:562's getRoomContext: roomContext.getRoomContext barrel re-export from context.cjs:61's call. Expected OK if both detector fixes land."
+    },
+    {
+      "tool": "room_graph",
+      "command": "graph-index",
+      "finding_id": "F-15",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 carries a WEAK tool-scoped claim (build/interrogate/render). classifyBranch at check-tool-honesty.cjs:1118-1119 already discounts a STRONG tool-scoped claim to LOW when anyBranchWrites, but not a WEAK one, so a mixed-mode tool where graph-rebuild writes leaves graph-index at MEDIUM. Pending 276-07's ruling on extending the discount to WEAK; may be amended to documented-no-action/MEDIUM if the ruling is not to extend it."
+    },
+    {
+      "tool": "room_graph",
+      "command": "graph-rebuild",
+      "finding_id": "F-16",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim on a mixed-mode tool. check-tool-honesty.cjs:1118-1119's sibling-writes discount currently applies to STRONG tier only. graph-rebuild is itself one of the writing commands; pending 276-07's ruling on the WEAK-tier discount, may be amended if the ruling is not to extend it."
+    },
+    {
+      "tool": "room_graph",
+      "command": "graph-query",
+      "finding_id": "F-17",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+    },
+    {
+      "tool": "room_graph",
+      "command": "graph-stats",
+      "finding_id": "F-18",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+    },
+    {
+      "tool": "room_graph",
+      "command": "reasoning-get",
+      "finding_id": "F-19",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+    },
+    {
+      "tool": "room_graph",
+      "command": "reasoning-verify",
+      "finding_id": "F-20",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+    },
+    {
+      "tool": "room_graph",
+      "command": "reasoning-list",
+      "finding_id": "F-21",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+    },
+    {
+      "tool": "room_graph",
+      "command": "visualize-room",
+      "finding_id": "F-22",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only render command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+    },
+    {
+      "tool": "room_graph",
+      "command": "visualize-graph",
+      "finding_id": "F-23",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only render command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+    },
+    {
+      "tool": "room_graph",
+      "command": "visualize-chain",
+      "finding_id": "F-24",
+      "verdict_at_freeze": "MEDIUM",
+      "disposition": "detector-fix",
+      "expected_final_verdict": "OK",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only render command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+    }
+  ]
+}
