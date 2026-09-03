@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 267.2-08-PLAN.md
-last_updated: "2026-09-03T10:39:28.068Z"
-last_activity: 2026-09-03 -- Completed 267.2-08-PLAN.md (FIRST_INSTALL payload hands first contact to scripts/first-install-router.cjs, one open free-text question replaces the reward/investment menu; data/first-reward-surfaces.json declares instant_brief; HOOK-09)
+stopped_at: Completed 267.2-09-PLAN.md
+last_updated: "2026-09-03T10:58:35.576Z"
+last_activity: 2026-09-03 -- Completed 267.2-09-PLAN.md (router's reward_delivered -> investment_asked -> done legs wired via read-modify-write against writeUserMdAtomic; lib/core/user-archetype.cjs's write-read disagreement (research C-3) fixed at the reader; GAP I-1 flipped CLOSED; HOOK-10)
 progress:
   total_phases: 26
   completed_phases: 18
   total_plans: 150
-  completed_plans: 148
+  completed_plans: 149
   percent: 99
 ---
+
+<!-- NOTE (267.2-09 execute-plan, 2026-09-03, FORTY-EIGHTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x3) and
+     `state.record-session`, the frontmatter's `percent`/`last_activity`
+     fields reverted to stale values (percent 69, last_activity "Phase 267.2
+     execution started" -- both from earlier in this same phase) despite
+     `state.update-progress` having already written the correct 149/150 (99)
+     moments earlier in this same session. Hand-corrected: percent back to
+     99, last_activity to name this plan's actual completion. `completed_plans`
+     itself (149) was NOT affected, only `percent`/`last_activity`. Root cause
+     already tracked for a future dedicated debug session per the standing
+     CLAUDE.md note; not re-investigated here. -->
 
 <!-- NOTE (267.2-08 execute-plan, 2026-09-03, FORTY-SEVENTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3921,7 +3934,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 267.2 (first-install-hooked-loop-repair-reward-investment-inserted) — EXECUTING
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 267.2 execution started
 
@@ -4676,6 +4689,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P06 | 45min | 3 tasks | 3 files |
 | Phase 267.2 P07 | 45min | 3 tasks | 2 files |
 | Phase 267.2 P08 | 35min | 3 tasks | 4 files |
+| Phase 267.2 P09 | 50min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -6067,6 +6081,9 @@ Progress: [█████████░] 92%
 - [Phase 267.2-07]: Reward drain readiness uses MVA pipeline_status=complete as primary signal, one-turn-stable non-empty capture file as fallback
 - [Phase ?]: 267.2-08: FIRST_INSTALL asks ONE open free-text question (D-B), no menu, no AskUserQuestion card; names scripts/first-install-router.cjs as the surface that routes it
 - [Phase ?]: 267.2-08: data/first-reward-surfaces.json session-start:FIRST_INSTALL record flipped --none (diagnostic surface) to instant_brief, honest why field states the one-turn-later residual
+- [Phase ?]: C-3 fixed at the reader (lib/core/user-archetype.cjs), scoping the USER.md scan to canonical_role's value plus the prose body, never the raw whole file or role_blend — Every other caller of writeUserMdAtomic would still read back wrong if fixed at the writer instead (267.2-09 D-G)
+- [Phase 267.2]: journey_stage seed value corrected to 'ordinary_world' (not the literal 'first_install' named in D-E) — 'first_install' is not in persona-taxonomy.cjs's JOURNEY_STAGES enum and silently coerces to null on read; 'ordinary_world' is the enum's own first Hero's Journey stage and round-trips correctly
+- [Phase 267.2]: The router's own pre-existing renameSync for its unrelated state.json bookkeeping is not a second ~/.mindrian-user.md writer — No-second-writer guards are scoped to lines referencing userMdPath, not a blanket whole-file substring ban, to avoid false-positiving against 267.2-06/07's own state persistence
 
 ### Pending Todos
 
@@ -6186,8 +6203,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T10:39:27.995Z
-Stopped at: Completed 267.2-08-PLAN.md
+Last session: 2026-09-03T10:58:35.490Z
+Stopped at: Completed 267.2-09-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

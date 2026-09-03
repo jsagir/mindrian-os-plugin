@@ -821,7 +821,7 @@ Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/u
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 8/10 plans executed
+**Plans:** 9/10 plans executed
 
 Plans:
 
@@ -850,7 +850,7 @@ Plans:
 
 **Wave 6**
 
-- [ ] 267.2-09-PLAN.md - HOOK-10, W2: the investment trigger. A hook-side read-modify-write CALLER of the shipped `writeUserMdAtomic`, never a second writer (MEMOP-08, D-E), gated strictly behind the reward (D-L, test-pinned). Fixes research C-3 at the reader so a founder stops reading back as a student (D-G). GAP I-1 flips to CLOSED
+- [x] 267.2-09-PLAN.md - HOOK-10, W2: the investment trigger. A hook-side read-modify-write CALLER of the shipped `writeUserMdAtomic`, never a second writer (MEMOP-08, D-E), gated strictly behind the reward (D-L, test-pinned). Fixes research C-3 at the reader so a founder stops reading back as a student (D-G). GAP I-1 flips to CLOSED
 
 **Wave 7**
 
