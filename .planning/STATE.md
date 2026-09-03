@@ -3,16 +3,25 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-01-PLAN.md
-last_updated: "2026-09-03T20:15:42.023Z"
+stopped_at: Completed 339-02-PLAN.md
+last_updated: "2026-09-03T20:29:49.076Z"
 last_activity: 2026-09-03 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 186
-  completed_plans: 166
-  percent: 21
+  completed_plans: 168
+  percent: 90
 ---
+
+<!-- NOTE (339-02 execute-plan, 2026-09-03, resync-clobber pattern, same class as every note
+     in this file): `state.update-progress` correctly computed percent=90 (completed_plans
+     168 / total_plans 186) and returned that value in its own JSON, but did not persist it
+     into the frontmatter -- it stayed at the stale 21 until hand-corrected here. `stopped_at`
+     and `Current Position`'s `Plan: N of M` counter were both written correctly by
+     `state.advance-plan`/`state.record-session` this run (no clobber on those two fields this
+     time), so only `percent` needed hand-correction. Root cause not re-investigated -- same
+     tracked bug class as every other note in this file. -->
 
 <!-- NOTE (276-08 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
      throughout this file, but the CROSS-PHASE variant): `state.update-progress` correctly
@@ -3988,7 +3997,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
-Plan: 2 of 14
+Plan: 3 of 14
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 339 execution started
 
@@ -4819,6 +4828,7 @@ Progress: [█████████░] 92%
 | Phase 276 P08 | 55min | 3 tasks | 1 files |
 | Phase 339 P01 | 55min | 3 tasks | 4 files |
 | Phase 276 P11 | ~40min | 3 tasks | 3 files |
+| Phase 339 P02 | 40min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6244,6 +6254,8 @@ Progress: [█████████░] 92%
 - [Phase 276]: 276-08: room_content and orchestration honesty rewrites are dry-run against check-tool-honesty.cjs's own extractClaims() before landing, to catch a disclosure sentence accidentally tripping a STRONG/WEAK verb token before it becomes a committed false positive.
 - [Phase 339]: Minted FLIP-01..FLIP-12 at plan time per Phase 254 D-05 precedent - Follows established precedent for requirement families that don't exist in the milestone-wide requirements pass
 - [Phase 276]: 276-11: gate_render/graph_write/brain_ask description-only honesty fixes; D-276-3/D-276-6 flip-day items closed, honest-empty trio recorded as finding not fix
+- [Phase 339]: Fixture success checks in test-339-enrichment-theo-shapes.cjs use captureReadinessMiss's real return shape (result.queued on a genuine capture, result.captured only on early not-a-miss/error returns), confirmed against test-249's own convention before asserting
+- [Phase 339]: test-339-update-path-single-source.cjs Arm 5 anti-drift scan surfaced a genuine pre-existing triple-copy of the update-path literal at scripts/self-update:68 (not named in 339-CONTEXT.md); documented as a 339-06 work-list item rather than fixed in this test-only plan
 
 ### Pending Todos
 
@@ -6365,8 +6377,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T20:15:03.689Z
-Stopped at: Completed 339-01-PLAN.md
+Last session: 2026-09-03T20:29:48.970Z
+Stopped at: Completed 339-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
