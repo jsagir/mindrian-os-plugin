@@ -49,7 +49,7 @@
  *
  * Plan 267.2-07 (HOOK-07) extends the state machine with the reward legs:
  * routed -> reward_pending -> reward_delivered. Decision D-D fixes the
- * architecture: this hook NEVER calls lib/core/mva-orchestrator.cjs's
+ * architecture: this hook NEVER calls the MVA orchestrator module's
  * runPipeline inline -- runPipeline dispatches through a 45s global / 35s
  * per-agent budget (lib/core/mva-dispatcher.cjs's binding decision B2),
  * measured at up to 5337ms on the fresh-install no-key path (267.2-01),
@@ -440,8 +440,9 @@ function _fireReward(state) {
         fd = fs.openSync(capturePath, 'w');
         // Detached, unref-ed child (mirrors scripts/brain-derivation-drain.cjs
         // and scripts/auto-explore-fingerprint.cjs). This process does NOT
-        // await the child and does NOT require mva-orchestrator.cjs -- the
-        // child (scripts/mva-run.cjs) is the only caller of runPipeline.
+        // await the child and does NOT require the MVA orchestrator module
+        // directly -- the child (scripts/mva-run.cjs) is the only caller
+        // of runPipeline.
         const child = spawn(process.execPath, [path.join(__dirname, 'mva-run.cjs')], {
           detached: true,
           stdio: ['ignore', fd, 'ignore'],
@@ -542,9 +543,9 @@ function _drainReward(state) {
         try {
           const mvaState = require('../lib/core/mva-state.cjs');
           const pending = mvaState.readPending();
-          // lib/core/mva-orchestrator.cjs calls markComplete() on every
-          // terminating path, including all-agents-failed, so this is the
-          // primary readiness signal.
+          // The MVA orchestrator calls markComplete() on every terminating
+          // path, including all-agents-failed, so this is the primary
+          // readiness signal.
           mvaComplete = !!(pending && pending.pipeline_status === 'complete');
         } catch (_e) { mvaComplete = false; }
         // Fallback: the capture file has already survived one full turn
