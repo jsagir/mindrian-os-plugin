@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 267.2-03-PLAN.md
-last_updated: "2026-09-03T09:45:27.695Z"
-last_activity: 2026-09-03 -- Completed 267.2-03-PLAN.md (W0 revert + 267.1 audit test repair)
+stopped_at: Completed 267.2-04-PLAN.md
+last_updated: "2026-09-03T09:54:57.316Z"
+last_activity: 2026-09-03 -- Completed 267.2-04-PLAN.md (ignite Door 1 persona coverage + folded todo close)
 progress:
   total_phases: 26
   completed_phases: 18
   total_plans: 150
-  completed_plans: 143
-  percent: 95
+  completed_plans: 144
+  percent: 96
 ---
+
+<!-- NOTE (267.2-04 execute-plan, 2026-09-03, FORTY-THIRD+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     the correct 96 (144/150, set by `state.update-progress` moments earlier)
+     to a stale 69, and `last_activity` reverted to a stale "Phase 267.2
+     execution started" string instead of naming this plan's actual
+     completion. Hand-corrected: percent back to 96, last_activity to name
+     this plan's completion (`completed_plans`/`total_plans` were NOT
+     affected, only `percent`/`last_activity`). Root cause already tracked
+     for a future `/gsd-debug` session per the 2026-09-01 handoff; not
+     re-investigated here. -->
 
 <!-- NOTE (267.2-03 execute-plan, 2026-09-03, FORTY-SECOND+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -27,7 +40,6 @@ progress:
      matched the fresh disk-scan output at 143/150, so left as-is). Root
      cause already tracked for a future `/gsd-debug` session per the
      2026-09-01 handoff; not re-investigated here. -->
-
 
 <!-- NOTE (267.2-02 execute-plan, 2026-09-03, FORTY-FIRST+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3856,7 +3868,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 267.2 (first-install-hooked-loop-repair-reward-investment-inserted) — EXECUTING
-Plan: 4 of 10
+Plan: 5 of 10
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 267.2 execution started
 
@@ -4606,6 +4618,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P01 | 15min | 2 tasks | 2 files |
 | Phase 267.2 P02 | 20min | 2 tasks | 2 files |
 | Phase 267.2 P03 | 45min | 3 tasks | 4 files |
+| Phase 267.2 P04 | 25min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -5986,6 +5999,8 @@ Progress: [█████████░] 92%
 - [Phase 267.2-02]: node:child_process named as an allowed built-in but not required directly - withIsolatedHome hands callers a ready env object rather than spawning anything itself
 - [Phase 267.2-03]: GAP G-1's substring pin was found stale (invalidated by Phase 267.3 comments) and fixed with a minimal comment-stripping check, despite the plan's own 'do not touch GAP G-1' note, since leaving it broken blocked the plan's own required exits-0 verification (Rule 1 bug fix + Rule 3 blocking issue).
 - [Phase 267.2-03]: Logged the pre-existing scripts/hooks/pre-commit vs pre-commit-room-minto-guard.sh byte-drift (commit 51f7bcb9, unrelated to this plan) to deferred-items.md rather than fixing it, per CONTEXT.md D-06 scope discipline.
+- [Phase 267.2-04]: Applied D-H/D-I/D-J from 267.2-DECISIONS.md verbatim: mentor maps to blueprintFamily=exploration, Door 1 restructured into a two-step AskUserQuestion pick, Portfolio Manager not minted
+- [Phase 267.2-04]: Task 1 (ignite.md edit) and Task 2 (skill-mirror regen) landed in one commit because the repo's pre-commit hook enforces build-skill-mirrors --check on every commit
 
 ### Pending Todos
 
@@ -6103,8 +6118,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T09:45:18.216Z
-Stopped at: Completed 267.2-03-PLAN.md
+Last session: 2026-09-03T09:54:57.257Z
+Stopped at: Completed 267.2-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

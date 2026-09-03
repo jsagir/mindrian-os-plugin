@@ -821,7 +821,7 @@ Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/u
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 3/10 plans executed
+**Plans:** 4/10 plans executed
 
 Plans:
 
@@ -833,7 +833,7 @@ Plans:
 **Wave 2** *(parallel; zero files_modified overlap)*
 
 - [x] 267.2-03-PLAN.md - HOOK-03/04, W0: the navigator-ordered `f39f24d9` SEED-021 revert in `scripts/session-start`, the Action-leg pin inversion, and the GAP I-1 leg repair to post-270-11 reality. Both test edits in ONE wave because the file aborts on first failure (research Pitfall 7)
-- [ ] 267.2-04-PLAN.md - HOOK-11, folded todo: `/mos:ignite` Door 1 becomes a two-step pick reaching all 7 frozen `ROLE_BLEND_KEYS` within the 4-option `AskUserQuestion` cap, `mentor` included at `blueprintFamily=exploration` (D-H), Tri-Polar fallback fixed in lockstep, drift pin added, Portfolio Manager NOT minted (D-J)
+- [x] 267.2-04-PLAN.md - HOOK-11, folded todo: `/mos:ignite` Door 1 becomes a two-step pick reaching all 7 frozen `ROLE_BLEND_KEYS` within the 4-option `AskUserQuestion` cap, `mentor` included at `blueprintFamily=exploration` (D-H), Tri-Polar fallback fixed in lockstep, drift pin added, Portfolio Manager NOT minted (D-J)
 - [ ] 267.2-05-PLAN.md - HOOK-05/06, W1a+W1c: `lib/core/greeting-intent-detector.cjs`, a pure per-bucket-scored classifier with a mandatory negative-weight feature, `ambiguous` on a tie, scalars-only features, zero network; plus the frozen 4-bucket to 3-outcome routing table (D-C) and its exhaustive pin
 
 **Wave 3**
