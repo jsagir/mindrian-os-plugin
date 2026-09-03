@@ -50,6 +50,27 @@
   anchored=154 allowlisted=2 violations=0`, script tier). `scripts/verify-release` gains
   gate 10f, cloning gate 10c's exact fail-closed shape, so this class cannot silently
   return in a future command.
+- **MCP tool honesty, close of the triage phase (Phase 276).** The `check-tool-honesty.cjs`
+  gate's own `switch (command)` branch splitter was dead code (a masked-text regex
+  swallowed every case label), so `room_state`/`room_content`/`room_graph` were graded
+  against their whole handler body instead of per command; fixing the one-line bug took the
+  live sweep from 10 findings to a corrected 24 (5 HIGH RISK, 18 MEDIUM, 1 UNKNOWN) with
+  discovery totals unchanged (36 tools / 130 branches both before and after). Every one of
+  those 24 now carries a written disposition in a checked-in ledger a test diffs against the
+  live scan in both directions; global HIGH RISK is 0. Corrected the `orchestration`,
+  `export`, `room_content`, `gate_render` and `graph_write` descriptions so none claims a
+  write, a render, or a persisted mint its handler cannot perform, and removed every false
+  completion assertion ("Snapshot generated", "Dashboard generated", "Export complete",
+  "Scout intelligence gathered"). Propagated the Node >=22.16.0 busy-timeout option to every
+  room.db (and sibling-db) opener that can genuinely contend (proven under a held write lock:
+  elapsed time moved from ~0.3ms instant failure to a genuine ~5s bounded wait), and
+  `spine-events.cjs` now reports typed `room_db_busy`/`room_db_broken` reasons instead of
+  claiming there is no database about one it just proved exists. Shipped a new `claim_write`
+  MCP tool (the first Desktop/Cowork-reachable real DIKW claim write) and wired the `meeting`
+  tool's `file-meeting` command through the governed `gate_render`/`gate_answer` confirmation
+  gate, with promotion to `confirmed` proven against `room.db` independently of the tool's own
+  response text. Full record: `.planning/phases/276-mcp-tool-honesty-triage-and-close-the-
+  check-tool-honesty-cjs/`.
 
 ### Changed
 - **RS pipeline spine-wiring + expert-graph reconciliation (Phase 296, SEED-030).** `lib/core/rs_cache.py`'s remote `rs-external` Pinecone index/namespace path (one namespace per topic, 1024-dim `multilingual-e5-large` integrated embeddings) is retired and replaced by a per-room local sidecar cache at `<room>/research/<topic-slug>/.rs-signal-cache/{vectors.jsonl,manifest.json}`, embedded through the one shipped local encoder (`embedding-spine.cjs::embedTexts`) via the new `scripts/rs-vector-bridge.cjs` JSON-stdio bridge (the D-02 answer). `scripts/rs-engine.py` Mode B/C, `lib/core/rs_hybrid.py`, `lib/core/rs-pinecone-bridge.cjs` and `lib/core/rs-differential-scorer.cjs` all thread an explicit room scope end to end.

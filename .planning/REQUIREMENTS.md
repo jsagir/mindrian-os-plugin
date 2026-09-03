@@ -1099,6 +1099,146 @@ section.
 | `node scripts/check-shape-declaration.cjs --check` | not measured | GREEN, exit 0 (advisory WARN-only per Canon Part 11, 53 pre-existing violations, none touching any 267.2 file, never blocks) |
 | `node scripts/doctor.cjs --acceptance` | not measured | 17/18 PASS; the one FAIL (`verify-release-clean-tree`, tracked-file drift) is entirely the concurrent session's own in-flight changes (`scripts/__pycache__/compute-hsi.cpython-312.pyc`, six deleted `tests/fixtures/sample-room-personas/personas/*.md`) - confirmed via `git status --short` before and after this plan's own commits, none of those paths touched by any 267.2 plan |
 
+### Phase 276 - Same-Disease Consolidation (MCP plus local-graph false-success deep fixes) (minted at research time 2026-09-03)
+
+These fourteen IDs were minted in `276-RESEARCH.md`'s requirement table, scoped to Phase 276 only.
+Sixteen plans executed across seven waves (276-01..04 Wave 0 test infrastructure, 276-05 Wave 1
+navigator decision, 276-06 Wave 1 the D-1 GREEN fix and the frozen ledger, 276-07..10 Wave 2
+detector triage plus C4/C5 Layer-2 propagation, 276-11..12 Wave 3 the flip-day descriptions and the
+claim-write primitive, 276-13..14 Wave 4 Theo coordination and the meeting gate wiring, 276-15
+Wave 5 the substrate-baseline reconciliation and ledger re-freeze, 276-16 Wave 6 this close-out).
+All fourteen landed; every row below is `[x]`.
+
+- [x] **TOOLHON-01**: The `switch (command)` branch splitter in `check-tool-honesty.cjs` actually
+      splits branches; `room_state`/`room_content`/`room_graph` report per-command reachability, not
+      whole-handler reachability. RED in `276-01`, GREEN in `276-06` (one-line fix, anchor at
+      `lm.index + 4`, skip whitespace in the original text rather than the masked text). Fixed in
+      `scripts/check-tool-honesty.cjs`. Measured: `node
+      tests/test-276-tool-honesty-switch-branches.cjs` 17 passed / 0 failed, exit 0 (was 6 passed /
+      11 failed pre-fix, `276-01-SUMMARY.md`); live sweep bucket split moved from 10 non-OK findings
+      to 24 with the tool/branch discovery totals unchanged (36/130 both before and after,
+      `276-06-SUMMARY.md`).
+
+- [x] **TOOLHON-02**: Every finding in the post-fix sweep carries a recorded disposition (real-bug-
+      fixed / detector-fixed / description-corrected / triaged-allowlist-with-reason); no finding is
+      closed by silence. Frozen in `276-06` (24 entries), amended in `276-07`, re-frozen against the
+      final 37-tool/131-branch surface in `276-15`. Fixed in
+      `tests/fixtures/tool-honesty/276-dispositions.json`. Measured: `node
+      tests/test-276-tool-honesty-findings-closed.cjs` 148 passed / 0 failed, exit 0 (`276-15-
+      SUMMARY.md`); ledger `frozen_sweep` matches the live scan exactly (HIGH_RISK 0, MEDIUM 12
+      permanently visible per D-276-2, LOW 0, UNKNOWN 0, OK 119).
+
+- [x] **TOOLHON-03**: `orchestration.scout`'s description no longer asserts a write the MCP handler
+      cannot perform, and the `scout*` family self-discloses its reference-only nature in-band.
+      Fixed in `lib/mcp/tool-router.cjs` (`276-08`). Measured: `node
+      tests/test-276-orchestration-scout-honesty.cjs` 12 passed / 0 failed, exit 0 (was 6 passed / 6
+      failed RED at `276-03`); live `checkTree()` HIGH_RISK count fell to 0 globally.
+
+- [x] **TOOLHON-04**: `room_content`'s description no longer names `new-project`, `setup` or
+      `invoke-persona` as part of "the WRITE surface" while their branches echo a reference file; the
+      enumeration names only the four commands that genuinely reach a write primitive. Fixed in
+      `lib/mcp/tool-router.cjs` (`276-08`). Measured: `node tests/test-276-room-content-honesty.cjs`
+      26 passed / 0 failed, exit 0 (was 18 passed / 8 failed RED at `276-03`); `room_content`
+      HIGH_RISK rows fell from 4 to 0.
+
+- [x] **TOOLHON-05**: The detector's own known boundaries (argument-gated writes, barrel re-exports,
+      subprocess writes, dispatch-shape coverage, write-primitive semantics, and the newly-minted
+      B-6 parameter-describe blind spot) are enumerated in the script header and covered by an
+      assertion or an explicit documented-boundary note. Fixed in `scripts/check-tool-honesty.cjs`
+      (`276-01` RED, `276-06` the KNOWN BOUNDARIES block, `276-07` the B-2/B-4 detector fixes).
+      Measured: `node tests/test-276-tool-honesty-switch-branches.cjs`'s TOOLHON05_BOUNDARIES group
+      passes (all of B-1 through B-6 present in the header, `276-06-SUMMARY.md`).
+
+- [x] **TOOLHON-06**: `ALLOWED_UNVERIFIED`'s entry contract is enforced, not merely commented: an
+      entry without a stated reason fails a test, and the suppression path covers (or explicitly
+      declines to cover) MEDIUM and UNKNOWN. Fixed in `scripts/check-tool-honesty.cjs` (`276-06` the
+      declaration-site field documentation; `276-15` decoupled the HIGH_RISK positive control onto a
+      synthetic fixture once the phase's own work drove live HIGH_RISK to 0). Measured: `node
+      tests/test-276-allowed-unverified-contract.cjs` 11 passed / 0 failed, exit 0; the array ships
+      and stays empty.
+
+- [x] **TOOLHON-07**: The `meeting` Tri-Polar parity gap has an explicit, recorded disposition -
+      ruled to stay in this phase (D-276-1, `276-DECISIONS.md`, plan `276-05`) rather than be handed
+      to a separate phase - and, within that ruling, a real DIKW claim-write path was built: the
+      `claim_write` MCP primitive (`276-12`) and meeting filing wired through the governed
+      `gate_render`/`gate_answer` gate with confirmation proven against `room.db` (`276-14`). Fixed
+      in `lib/mcp/tools/claim.cjs`, `lib/core/navigation/typed-claim.cjs`, `lib/mcp/tool-router.cjs`.
+      Measured: `node tests/test-276-claim-write-primitive.cjs` 44 assertions pass (`276-12-
+      SUMMARY.md`); `node tests/test-276-meeting-gate-wiring.cjs` 7 groups / 14 assertions pass,
+      exit 0 - a `gate_answer` approve promotes a real `confirmed` node read independently via
+      `node:sqlite`, and a second answer to the same `gate_id` is refused
+      (`unknown_or_expired_gate`, `276-14-SUMMARY.md`).
+
+- [x] **TOOLHON-08**: The ROADMAP's stale `Depends on: Phase 275` line for Phase 276 is corrected,
+      and the ROADMAP's "9 findings" count is reconciled with the measured 10-then-24-then-final
+      split. Fixed in `.planning/ROADMAP.md` (the `Depends on:` line was already corrected by the
+      navigator before this plan ran, confirmed rather than re-edited; the "9 findings" text is
+      corrected by this plan, `276-16`). Measured: `grep -c "Depends on:\*\* Phase 275"
+      .planning/ROADMAP.md` returns 0; Layer 1 item 1 now states the measured sequence (10 at the
+      live sweep, 24 after the D-1 detector fix, and the final post-fix split of 0 HIGH_RISK / 12
+      MEDIUM / 0 UNKNOWN / 119 OK across 37 tools / 131 branches, per `276-15-SUMMARY.md`).
+
+- [x] **TOOLHON-09**: C4 - the busy-timeout constructor option (`{timeout: 5000}`) is propagated,
+      option-only per D-276-4, to every read-write room.db (and sibling-db) opener that can genuinely
+      contend, with the excluded read-only and `:memory:` groups named and reasoned rather than
+      silently skipped. Fixed across 13 production files (`276-09`). Measured: `node
+      tests/test-276-busy-timeout-propagation.cjs` 20 passed / 0 failed, exit 0; A1-A5's elapsed
+      time under a genuinely held foreign write lock moved from ~0.3-1.4ms (instant `SQLITE_BUSY`
+      failure) to ~5018-5032ms (a genuine bounded busy-wait, `276-09-SUMMARY.md`).
+
+- [x] **TOOLHON-10**: C5 - `spine-events.cjs`'s `_emit` and `_emitWithOperatorEdge` report a typed
+      `room_db_busy` / `room_db_broken` / `room_db_open_failed` reason instead of unconditionally
+      claiming `no_room_db` about a database they just proved exists, discriminating on `err.name`
+      before `instanceof`; `getCurrentJTBD`/`getCurrentOperator` (the F-selector path) were verified
+      for the same swallow and fixed via a read-only-door retry. Fixed in
+      `lib/core/navigation/spine-events.cjs` (`276-10`). Measured: `node
+      tests/test-276-spine-events-typed-reason.cjs` 16 passed / 0 failed, exit 0 (was 12 passed / 6
+      failed RED at `276-02`).
+
+- [x] **TOOLHON-11**: Every production `no_room_db`-producing site is enumerated at run time, never
+      from a frozen list, and either genuinely means it or has been migrated to a typed reason.
+      Census folded into `276-02`/`276-10`'s own test. Measured: 35 sites enumerated live at run
+      time (not the 27 the original research prose cited, itself the argument for a run-time
+      census); zero `=== 'no_room_db'` consumers exist tree-wide, re-grepped at `276-10`'s execution
+      time; two sibling sites sharing the identical catch-and-mislabel shape
+      (`lib/core/breakthrough/scanner.cjs:124`, `lib/core/navigation/lens-nodes.cjs:254`) are named
+      as carried-forward findings in this plan's follow-up section below, not silently dropped.
+
+- [x] **TOOLHON-12**: The five Theo-absorbed-tool description constants are diffed against the
+      plugin's own live registration strings, reported IDENTICAL/DIFFERS per constant with the first
+      divergence offset, skip-when-absent and non-blocking. Fixed via
+      `tests/test-276-theo-description-parity.cjs` (`276-04` minted, pinned Theo `83a1ce2`; `276-13`
+      re-measured against Theo HEAD `dfb44b2`). Measured: as of `276-13`'s final measurement, 4
+      constants IDENTICAL (`room_bind`, `graph_write`, `chain_run`, and `gate_render` before this
+      phase's own `276-11` fix) / 1 DIFFERS (`gate_answer`, pre-existing, offset 585, 1462 vs 1152
+      bytes, cause independently confirmed by a zero-count grep against Theo's own source); the
+      `gate_render` divergence this phase's own honesty fix opened is registered as an owed,
+      coordinated-not-executed Theo mirror task in
+      `docs/2026-09-03-THEO-SEED-tool-honesty-ts-ast-port.md` per Theo D-04.
+
+- [x] **TOOLHON-13**: The three flip-day same-disease items living in the plugin but outside the
+      checker's `lib/mcp/` scan set get an explicit in/out call, not a silent skip: `brain_ask`'s
+      `mode_signals` fallback description (IN, fixed), the honest-empty trio -
+      `enrichCausalEdges`/`hatAwareRecommend`/`suggestValidationSteps` (OUT of code-fix scope, IN as
+      a re-measured, recorded finding, carried forward below), `graph_write`'s CAS fail-open
+      disclosure on the `read_version` parameter (IN, fixed). Fixed in
+      `bin/mindrian-brain-mcp-client.cjs` and `lib/mcp/tools/graph.cjs` (`276-11`). Measured: both
+      fixes sit outside `check-tool-honesty.cjs`'s scan set by design (a Brain-shim file, and a
+      parameter `.describe()` string behind boundary B-6), so `checkTree()`'s buckets are unaffected;
+      the standing over-the-wire regex proof (promoted to a permanent test by `276-15`), `node
+      tests/test-276-b6-parameter-describe.cjs`, 5 passed / 0 failed, exit 0.
+
+- [x] **TOOLHON-14**: M8's `RoomDbBusyError` documented retry contract is corrected to state what the
+      code actually offers (the `timeout: 5000` constructor option IS the retry, implemented in
+      SQLite, not JS), and `docs/architecture/SUBSTRATE-BASELINE.md`'s three-figure (195/208/205)
+      drift - Phase 273 D-05's own deferred reconciliation - is resolved by a regenerated GENERATED
+      "Current Baseline" section. Fixed in `lib/core/room-db.cjs` (`276-10`) and
+      `docs/architecture/SUBSTRATE-BASELINE.md` (`276-15`). Measured: a stripped-comment diff proof
+      shows 152 non-comment/non-blank lines byte-identical before and after the `276-10` doc-comment
+      edit; `node tests/test-273-substrate-baseline-honest.cjs` passes, measured=205 at commit
+      `48db8772` (`276-15-SUMMARY.md`), stating plainly that this phase's own C4/M8 work was
+      structurally incapable of moving the count.
+
 ### Phase 339 - Brain-to-Theo cutover release (minted at plan time 2026-09-03)
 
 These twelve IDs were minted in `339-RESEARCH.md`'s `<phase_requirements>` table (2026-09-03),
@@ -1149,15 +1289,16 @@ and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
 
 ## Traceability
 
-143 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+157 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
 plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
-(Phase 267.2), plus FLIP-01..12 (Phase 339). All minted 2026-08-27 except CHOKE-01..06 and
+(Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339). All minted
+2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
-COMP-01..02 (minted 2026-09-02), HOOK-01..12 (minted 2026-09-03), and FLIP-01..12
-(minted 2026-09-03): RADAR-01..11 and MCPFIX-01..04 at
+COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
+(all minted 2026-09-03): RADAR-01..11 and MCPFIX-01..04 at
 first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
@@ -1178,12 +1319,15 @@ as `- [ ]` rows to be finalized with measured proof by `257-09-PLAN.md` at phase
 HOOK-01..12 were minted in Phase 267.2's plan set (2026-09-03), ratifying `267.2-DECISIONS.md`
 D-A's proposed `HOOK-` family and coverage table, and are registered here at phase close by
 `267.2-10-PLAN.md` per the Phase 254/257/265/267.3/270/272/274 precedent.
+TOOLHON-01..14 were minted in `276-RESEARCH.md`'s requirement table (2026-09-03), scoped to
+Phase 276 only, and are registered here at phase close by `276-16-PLAN.md` per the same precedent.
 FLIP-01..12 were minted in Phase 339's plan set (2026-09-03), ratifying 339-RESEARCH.md's
 proposed family, and are registered here at plan time as - [ ] rows to be finalized with
 measured proof at phase close.
-Roadmap phases must map all 143 active requirements with no orphans.
+Roadmap phases must map all 157 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK and FLIP
+**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON and
+FLIP
 families
 alike (the
 Phase 266 and 269
