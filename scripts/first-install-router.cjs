@@ -618,6 +618,113 @@ function _drainReward(state) {
   return emitEmpty();
 }
 
+// ---------- The investment leg: seed the identity file, then ask (D-L: gated on reward_delivered) ----------
+//
+// Runs on the first turn where state.phase reads 'reward_delivered'. This leg is
+// UNREACHABLE from any earlier phase -- main()'s dispatch below only calls this function
+// when existingState.phase === 'reward_delivered', and PHASES/isValidTransition enforce
+// that 'reward_delivered' can only be reached via the fire/drain legs plan 267.2-07
+// shipped. That is decision D-L: the investment ask can never precede the reward, on any
+// path, because getting the order wrong reproduces the exact defect this phase exists to
+// fix (research finding C-3).
+//
+// SEED THE FILE, deterministically (decision D-E). The path is resolved INSIDE this
+// function, never at module scope -- lib/mcp/tools/identity.cjs:65-73 documents this as
+// threat T-270-13 and research Pitfall 6 records a live incident where a module-load-time
+// constant wrote into a real developer home. Read-modify-write: readUserMd() then
+// writeUserMdAtomic() with the existing record spread under the delta, because
+// buildFrontmatter (lib/core/user-md-ops.cjs) does Object.assign(emptyUser(), data) and
+// does NOT merge with the existing file -- a bare write would clobber every field the
+// caller does not re-supply (decision D-N item 1). The delta carries only what a local
+// hook can derive without a model: journey_stage and last_detected_at. canonical_role,
+// role_blend and problem_type are never guessed from the greeting bucket -- the bucket is
+// an intent signal, not a role, and a fabricated role is worse than a null one.
+//
+// This is a second CALLER of writeUserMdAtomic, not a second implementation of it --
+// exactly the distinction lib/mcp/tools/identity.cjs:25-31 draws in its own header, and
+// what MEMOP-08 forbids is the latter, not the former (decision D-E).
+function _seedIdentityFile() {
+  const { readUserMd, writeUserMdAtomic } = require('../lib/core/user-md-ops.cjs');
+  const userMdPath = path.join(homeDir(), '.mindrian-user.md');
+  try {
+    const existing = readUserMd(userMdPath);
+    const delta = {
+      journey_stage: 'first_install',
+      last_detected_at: new Date().toISOString(),
+    };
+    const merged = existing ? Object.assign({}, existing, delta) : delta;
+    writeUserMdAtomic(userMdPath, merged);
+    return { seedWritten: true, writeFailed: false };
+  } catch (_e) {
+    // Never echo the caught error's message: it can carry a filesystem path the caller
+    // did not supply (threat T-267.2-32, mirroring T-270-30).
+    return { seedWritten: false, writeFailed: true };
+  }
+}
+
+// Honest residual, stated not hidden: the deterministic seed above proves the file
+// exists after a first session, but canonical_role / role_blend / problem_type still
+// depend on the model calling identity_write with whatever the user actually answers,
+// because only a model can read meaning out of free text -- a local hook cannot.
+function _buildInvestmentContext() {
+  return '[first-install-router] phase=investment_asked. '
+    + 'The reward has already landed this session. Now make ONE investment ask, in your '
+    + 'own Larry voice, carrying exactly one De Stijl glyph (Canon Part 12), framed as '
+    + 'something that makes every future session better for the user, never as a '
+    + 'bureaucratic form. Ask what best describes them and where they currently stand. '
+    + 'Whatever they answer, call the identity_write MCP tool with it, using ONLY the '
+    + 'fields that tool actually accepts: canonical_role, journey_stage, problem_type, '
+    + 'venture_stage, larry_persona, brain_persona, user_id, role_blend. Do not ask for '
+    + 'the eight fields the old session-start prose used to promise (name, role, domain, '
+    + 'subdomain, technical level, current focus, goal, expertise areas) -- only role maps '
+    + 'to a real schema field. Anything the user shares beyond that schema belongs in the '
+    + 'prose body of ~/.mindrian-user.md, which writeUserMdAtomic preserves untouched. Do '
+    + 'NOT invoke /mos:profile-user for this: it is referenced by USER.md stubs in '
+    + 'production rooms and does not exist.';
+}
+
+function _askInvestment(state) {
+  const seedResult = _seedIdentityFile();
+  const askedAtMs = Date.now();
+  const askedState = Object.assign({}, state, {
+    phase: 'investment_asked',
+    investment_asked_at_ms: askedAtMs,
+    seed_written: seedResult.seedWritten,
+    seed_write_failed: seedResult.writeFailed,
+  });
+  _atomicWriteState(askedState);
+
+  try {
+    _appendTelemetry({
+      schema_version: 1,
+      event: 'investment_asked',
+      ts_ms: askedAtMs,
+      seed_written: seedResult.seedWritten,
+      write_failed: seedResult.writeFailed,
+      // This leg fires on the very next router turn after reward_delivered was
+      // recorded (main()'s dispatch below acts immediately, with no wait state of
+      // its own), so this is always 1 today. Carried as a real integer field, not a
+      // hardcoded constant baked into the telemetry consumer, in case a future turn
+      // model changes that.
+      turns_since_reward: 1,
+    });
+  } catch (_e) { /* telemetry is best-effort */ }
+
+  return emitContinueWithContext(_buildInvestmentContext());
+}
+
+// ---------- The final leg: investment_asked -> done, one turn later ----------
+
+function _advanceToDone(state) {
+  const doneAtMs = Date.now();
+  const doneState = Object.assign({}, state, {
+    phase: 'done',
+    done_at_ms: doneAtMs,
+  });
+  _atomicWriteState(doneState);
+  return emitEmpty();
+}
+
 // ---------- Main ----------
 
 function main() {
@@ -667,9 +774,17 @@ function main() {
     return _drainReward(existingState);
   }
 
-  // Any other phase (reward_delivered / investment_asked / done): this
-  // plan's work here is done. Plan 267.2-09 owns everything past
-  // reward_delivered.
+  if (existingState.phase === 'reward_delivered') {
+    // Plan 267.2-09 leg: seed ~/.mindrian-user.md and emit the investment ask, strictly
+    // after the reward (decision D-L). Never reachable from any earlier phase.
+    return _askInvestment(existingState);
+  }
+
+  if (existingState.phase === 'investment_asked') {
+    return _advanceToDone(existingState);
+  }
+
+  // Any other phase (done): this router's work here is complete.
   return emitEmpty();
 }
 
