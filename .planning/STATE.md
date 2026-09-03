@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 276 PLANNED (16 plans, 7 waves, plan-checker VERIFICATION PASSED with 2 non-blocking warnings; scope broadened 2026-09-03 to Same-Disease Consolidation, C4/C5 from Phase 273 folded in, Theo forward-compat recorded). Next - /gsd-execute-phase 276 (git fetch origin main first; local is ~209 ahead). Phase 267.2 remains COMPLETE (see 267.2-VERIFICATION.md); the prior stopped_at string was the documented resync-clobber, hand-corrected again
-last_updated: "2026-09-03T16:38:53.545Z"
-last_activity: 2026-09-03 -- Phase 276 planning complete
+stopped_at: Completed 296-01-PLAN.md
+last_updated: "2026-09-03T17:55:16.702Z"
+last_activity: 2026-09-03 -- Phase 296 execution started
 progress:
-  total_phases: 26
-  completed_phases: 19
-  total_plans: 166
-  completed_plans: 150
-  percent: 90
+  total_phases: 89
+  completed_phases: 4
+  total_plans: 160
+  completed_plans: 58
+  percent: 4
 ---
 
 <!-- NOTE (session close-out, 2026-09-03, SIXTIETH+ occurrence of the
@@ -3938,7 +3938,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 267.2 — first-install-hooked-loop-repair-reward-investment-inserted
+**Current focus:** Phase 296 — SEED-030: RS Pipeline Spine-Wiring + Expert-Graph Reconciliation
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -3963,10 +3963,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 267.3
-Plan: Not started
+Phase: 296 (SEED-030: RS Pipeline Spine-Wiring + Expert-Graph Reconciliation) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-09-03 -- Phase 276 planning complete
+Last activity: 2026-09-03 -- Phase 296 execution started
 
 <!-- NOTE (254-05 execute-plan, 2026-09-02, resync-clobber bug, same class as
      the notes below): after `state.record-metric`, `state.add-decision` (x2)
@@ -4721,6 +4721,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P08 | 35min | 3 tasks | 4 files |
 | Phase 267.2 P09 | 50min | 3 tasks | 5 files |
 | 267.2 | 10 | - | - |
+| Phase 296 P01 | 45min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -6126,6 +6127,8 @@ Progress: [█████████░] 92%
 - [Phase 267.2]: journey_stage seed value corrected to 'ordinary_world' (not the literal 'first_install' named in D-E) — 'first_install' is not in persona-taxonomy.cjs's JOURNEY_STAGES enum and silently coerces to null on read; 'ordinary_world' is the enum's own first Hero's Journey stage and round-trips correctly
 - [Phase 267.2]: The router's own pre-existing renameSync for its unrelated state.json bookkeeping is not a second ~/.mindrian-user.md writer — No-second-writer guards are scoped to lines referencing userMdPath, not a blanket whole-file substring ban, to avoid false-positiving against 267.2-06/07's own state persistence
 - [Phase 267.2]: 267.2-10 Tasks 1-2 complete: HOOK-01..HOOK-12 registered in REQUIREMENTS.md, 267.2-VALIDATION.md reconciled, full gate set measured green as a delta against 267.2-BASELINE.md (267.1 flipped RED->GREEN). Pre-existing pre-commit hook byte-drift fixed. Dev-research trail authored and staged, blocked at the room by write-scope-check, not bypassed. — Task 3 (blocking navigator sign-off checkpoint, D-C/D-D/D-H/D-K judgment calls plus the actual first-install prose) was intentionally NOT executed, simulated, or auto-approved by this executor run. Phase 267.2 remains open pending human ruling in the orchestrating conversation.
+- [Phase 296-01]: lib/core/rs_cache.py exempted by name from tests/run-all-296.sh's Part 8 sweep (documented RSLOCAL-04 retirement target, tests/296-dim-invariant.sh is the real enforcement gate)
+- [Phase 296-01]: bash tests/run-all-296.sh needs TEST_296_ALLOW_MISSING=1 to exit 0 until plan 296-03 creates scripts/rs-vector-bridge.cjs (mirrors tests/run-all-272.sh's identical multi-wave rollout escape hatch)
 
 ### Pending Todos
 
@@ -6247,8 +6250,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T11:15:11.903Z
-Stopped at: 267.2-10 Tasks 1-2 complete (HOOK-01..HOOK-12 registered, VALIDATION.md reconciled, gate roll-up measured, dev-research trail staged); Task 3 blocking navigator checkpoint PENDING
+Last session: 2026-09-03T17:55:16.620Z
+Stopped at: Completed 296-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
