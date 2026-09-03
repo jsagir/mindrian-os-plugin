@@ -115,6 +115,13 @@ run_if "SPEC-4 gate renderer ladder (elicitation / thin-adapter card / structure
   lib/mcp/gate-render.cjs \
   node tests/test-198-gate-renderers.test.cjs
 
+# quick task 260903-h27 -- T2 gate-card schema half: subjectNodeId /
+# evidenceNodeIds carried on the normalized superset card + threaded through
+# the four gate-card call sites.
+run_if "SPEC-4 T2 gate-card node fields (subjectNodeId/evidenceNodeIds)" \
+  lib/mcp/gate-render.cjs \
+  node tests/test-h27-gate-card-node-fields.cjs
+
 # ---------------------------------------------------------------------------
 # SPEC-5 -- thin-plugin adapter (hooks carry zero business logic). Gates on
 # the D-06 import-audit + line-count budget module the owning plan lands.

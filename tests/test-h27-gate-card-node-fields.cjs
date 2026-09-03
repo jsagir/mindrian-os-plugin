@@ -27,6 +27,44 @@ if (!hasNormalizeCard) {
   process.exit(0);
 }
 
+let gateTool;
+let chainTool;
+let stopGateHandler;
+try {
+  gateTool = require('../lib/mcp/tools/gate.cjs');
+  chainTool = require('../lib/mcp/tools/chain.cjs');
+  stopGateHandler = require('../lib/mcp/stop-gate-handler.cjs');
+} catch (e) {
+  console.log('SKIP: test-h27-gate-card-node-fields -- Task 2 call-site modules not present yet. ' + (e.code || e.message));
+  process.exit(0);
+}
+
+const { z } = require('zod');
+
+// Minimal fake MCP server, cloned from tests/test-198-contract-schema.test.cjs's
+// makeFakeServer -- captures every server.tool(name, description, schema,
+// handler) call, mirroring the real McpServer.tool() 4-arg shape, and exposes
+// a fake .server.getClientCapabilities() reporting NO elicitation (headless
+// text rung, deterministic).
+function makeFakeServer() {
+  const registered = [];
+  return {
+    tool(name, description, schemaOrHandler, maybeHandler) {
+      let schema = {};
+      let handler = schemaOrHandler;
+      if (typeof maybeHandler === 'function') {
+        schema = schemaOrHandler || {};
+        handler = maybeHandler;
+      }
+      registered.push({ name, description, schema, handler });
+    },
+    _registered: registered,
+    server: {
+      getClientCapabilities() { return {}; },
+    },
+  };
+}
+
 let passed = 0;
 function check(label, cond) {
   assert.ok(cond, label);
@@ -186,7 +224,118 @@ function check(label, cond) {
     check('gate-render.cjs contains no insertNode/writeEdge/SOURCED_FROM token', !/insertNode|writeEdge|SOURCED_FROM/.test(src));
   }
 
-  console.log('PASS: test-h27-gate-card-node-fields (' + passed + ' assertions -- Task 1: normalizeCard subjectNodeId/evidenceNodeIds)');
+  // -----------------------------------------------------------------------
+  // Task 2: call-site coverage.
+  // -----------------------------------------------------------------------
+
+  // gate_render + chain_run + framework_run each expose both new params as
+  // zod schemas: .safeParse accepts absence, rejects a wrong type.
+  {
+    const gateServer = makeFakeServer();
+    gateTool.register(gateServer, {});
+    const gateRenderTool = gateServer._registered.find((r) => r.name === 'gate_render');
+    check('gate_render tool registered', !!gateRenderTool);
+    check('gate_render.subject_node_id is a zod schema', gateRenderTool.schema.subject_node_id && typeof gateRenderTool.schema.subject_node_id.safeParse === 'function');
+    check('gate_render.evidence_node_ids is a zod schema', gateRenderTool.schema.evidence_node_ids && typeof gateRenderTool.schema.evidence_node_ids.safeParse === 'function');
+    const gateRenderShape = z.object(gateRenderTool.schema);
+    check('gate_render schema PARSES with both new params absent', gateRenderShape.safeParse({ options: [{ label: 'A' }] }).success === true);
+    check('gate_render schema REJECTS a wrong-typed subject_node_id', gateRenderShape.safeParse({ options: [{ label: 'A' }], subject_node_id: 42 }).success === false);
+    check('gate_render schema REJECTS a wrong-typed evidence_node_ids', gateRenderShape.safeParse({ options: [{ label: 'A' }], evidence_node_ids: 'not-an-array' }).success === false);
+
+    const chainServer = makeFakeServer();
+    chainTool.register(chainServer, {});
+    const chainRunTool = chainServer._registered.find((r) => r.name === 'chain_run');
+    check('chain_run tool registered', !!chainRunTool);
+    check('chain_run.subject_node_id is a zod schema', chainRunTool.schema.subject_node_id && typeof chainRunTool.schema.subject_node_id.safeParse === 'function');
+    check('chain_run.evidence_node_ids is a zod schema', chainRunTool.schema.evidence_node_ids && typeof chainRunTool.schema.evidence_node_ids.safeParse === 'function');
+    const chainRunShape = z.object(chainRunTool.schema);
+    check('chain_run schema PARSES with both new params absent', chainRunShape.safeParse({ chain: ['x'] }).success === true);
+    check('chain_run schema REJECTS a wrong-typed subject_node_id', chainRunShape.safeParse({ chain: ['x'], subject_node_id: 42 }).success === false);
+    check('chain_run schema REJECTS a wrong-typed evidence_node_ids', chainRunShape.safeParse({ chain: ['x'], evidence_node_ids: 'not-an-array' }).success === false);
+
+    let sensorsTool;
+    try {
+      sensorsTool = require('../lib/mcp/tools/sensors.cjs');
+    } catch (e) {
+      sensorsTool = null;
+    }
+    if (sensorsTool) {
+      const sensorsServer = makeFakeServer();
+      sensorsTool.register(sensorsServer, {});
+      const frameworkRunTool = sensorsServer._registered.find((r) => r.name === 'framework_run');
+      check('framework_run tool registered', !!frameworkRunTool);
+      check('framework_run.subject_node_id is a zod schema', frameworkRunTool.schema.subject_node_id && typeof frameworkRunTool.schema.subject_node_id.safeParse === 'function');
+      check('framework_run.evidence_node_ids is a zod schema', frameworkRunTool.schema.evidence_node_ids && typeof frameworkRunTool.schema.evidence_node_ids.safeParse === 'function');
+      const frameworkRunShape = z.object(frameworkRunTool.schema);
+      check('framework_run schema PARSES with both new params absent', frameworkRunShape.safeParse({ chain: ['x'] }).success === true);
+      check('framework_run schema REJECTS a wrong-typed subject_node_id', frameworkRunShape.safeParse({ chain: ['x'], subject_node_id: 42 }).success === false);
+      check('framework_run schema REJECTS a wrong-typed evidence_node_ids', frameworkRunShape.safeParse({ chain: ['x'], evidence_node_ids: 'not-an-array' }).success === false);
+    }
+
+    // A gate_render call carrying both fields mints a ledger entry whose card
+    // carries them (reach through _internal._liveGates, the same seam the
+    // existing 198 tests use).
+    const gateRenderResponse = await gateRenderTool.handler(
+      { gate_id: 'gate-h27-callsite', header: 'h', kind: undefined, ambiguous: undefined, select_mode: undefined, options: [{ label: 'A' }], subject_node_id: 'n-callsite', evidence_node_ids: ['e-callsite-1', 'e-callsite-2'] },
+      {}
+    );
+    check('gate_render call handler returns ok:true', JSON.parse(gateRenderResponse.content[0].text).ok === true);
+    const livedEntry = gateTool._internal._liveGates.get('gate-h27-callsite');
+    check('gate_render mints a live-gate ledger entry', !!livedEntry);
+    check('the minted ledger entry card carries subjectNodeId', livedEntry && livedEntry.card && livedEntry.card.subjectNodeId === 'n-callsite');
+    check('the minted ledger entry card carries evidenceNodeIds', livedEntry && livedEntry.card && JSON.stringify(livedEntry.card.evidenceNodeIds) === JSON.stringify(['e-callsite-1', 'e-callsite-2']));
+    // Clean up the ledger entry so a re-run of this test (same process) does
+    // not collide on the fixed gate_id.
+    gateTool._internal._liveGates.delete('gate-h27-callsite');
+  }
+
+  // _buildMaterialStepCard(step) with no nodeCtx yields null/[] and with one
+  // yields the passed values.
+  {
+    const buildCard = chainTool._internal._buildMaterialStepCard;
+    check('_buildMaterialStepCard is exported for direct coverage', typeof buildCard === 'function');
+    const stepFixture = { step: 1, framework: 'fixture-framework', command: 'fixture-command' };
+    const noCtxCard = buildCard(stepFixture);
+    check('_buildMaterialStepCard with no nodeCtx: subject_node_id is null', noCtxCard.subject_node_id === null);
+    check('_buildMaterialStepCard with no nodeCtx: evidence_node_ids is []', Array.isArray(noCtxCard.evidence_node_ids) && noCtxCard.evidence_node_ids.length === 0);
+    const withCtxCard = buildCard(stepFixture, { subjectNodeId: 'n-step', evidenceNodeIds: ['e-step-1'] });
+    check('_buildMaterialStepCard with nodeCtx: subject_node_id carried', withCtxCard.subject_node_id === 'n-step');
+    check('_buildMaterialStepCard with nodeCtx: evidence_node_ids carried', JSON.stringify(withCtxCard.evidence_node_ids) === JSON.stringify(['e-step-1']));
+  }
+
+  // buildStopGateCard(turn) run through normalizeCard yields null/[] and
+  // never throws.
+  {
+    const turn = { output_text: 'Some prior turn output with no option boxes.' };
+    let stopCard;
+    let threw = false;
+    try {
+      stopCard = gateRender.normalizeCard(stopGateHandler.buildStopGateCard(turn));
+    } catch (_e) {
+      threw = true;
+    }
+    check('buildStopGateCard -> normalizeCard never throws', threw === false);
+    check('buildStopGateCard -> normalizeCard: subjectNodeId defaults to null', stopCard && stopCard.subjectNodeId === null);
+    check('buildStopGateCard -> normalizeCard: evidenceNodeIds defaults to []', stopCard && Array.isArray(stopCard.evidenceNodeIds) && stopCard.evidenceNodeIds.length === 0);
+  }
+
+  // Repo-level scope floor: the five touched lib/mcp files contain no
+  // insertNode, writeEdge, or SOURCED_FROM token.
+  {
+    const touchedFiles = [
+      'lib/mcp/gate-render.cjs',
+      'lib/mcp/tools/gate.cjs',
+      'lib/mcp/tools/chain.cjs',
+      'lib/mcp/tools/sensors.cjs',
+      'lib/mcp/stop-gate-handler.cjs',
+    ];
+    for (const rel of touchedFiles) {
+      const src = fs.readFileSync(path.resolve(__dirname, '..', rel), 'utf8');
+      check(rel + ' contains no insertNode/writeEdge/SOURCED_FROM token', !/insertNode|writeEdge|SOURCED_FROM/.test(src));
+    }
+  }
+
+  console.log('PASS: test-h27-gate-card-node-fields (' + passed + ' assertions -- Task 1: normalizeCard subjectNodeId/evidenceNodeIds; Task 2: call-site coverage)');
   process.exit(0);
 })().catch((e) => {
   console.error('FAIL: test-h27-gate-card-node-fields -- ' + (e && e.stack ? e.stack : e));
