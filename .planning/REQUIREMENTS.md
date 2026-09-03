@@ -890,7 +890,7 @@ one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop'
       `refusal` object the Phase 250-01 honest-refusal branch passes in, so that earlier fix was
       partly vacuous too; both fields are now carried additively.
 
-- [ ] **LOCUS-03**: every Brain tool the live server advertises is proven ON THE WIRE to leak zero
+- [x] **LOCUS-03**: every Brain tool the live server advertises is proven ON THE WIRE to leak zero
       bytes on a canary, with an honest typed refusal in the response and an `ambiguous` payload
       proceeding and disclosing. `tests/test-257-brain-tool-egress-invariant.cjs` (257-07); the tool
       list is derived from the server's own `tools/list` and reconciled in both directions, never a

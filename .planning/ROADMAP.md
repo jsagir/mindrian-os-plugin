@@ -202,7 +202,7 @@ too -- once Theo consolidates room-side operational tools into the same catalog 
 tools (per Theo's own CLAUDE.md architecture doctrine), check whether this phase's
 enforcement-locus fix needs to also cover the Theo-catalog surface, not just today's
 `mindrian-os` server, before this phase's research locks.
-**Plans:** 6/9 plans executed
+**Plans:** 7/9 plans executed
 Plans:
 **Wave 1**
 
@@ -218,7 +218,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 257-07-PLAN.md - the locked egress invariant (spawn + live `tools/list`) + `run-all-257.sh` (W3)
+- [x] 257-07-PLAN.md - the locked egress invariant (spawn + live `tools/list`) + `run-all-257.sh` (W3)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

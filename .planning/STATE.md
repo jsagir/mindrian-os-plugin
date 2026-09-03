@@ -3,16 +3,30 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 257-06-PLAN.md
-last_updated: "2026-09-03T05:43:16.612Z"
-last_activity: 2026-09-03 -- Completed 257-06-PLAN.md
+stopped_at: Completed 257-07-PLAN.md
+last_updated: "2026-09-03T05:53:00.269Z"
+last_activity: 2026-09-03 -- Completed 257-07-PLAN.md
 progress:
   total_phases: 26
   completed_phases: 17
   total_plans: 140
-  completed_plans: 137
-  percent: 98
+  completed_plans: 138
+  percent: 99
 ---
+
+<!-- NOTE (257-07 execute-plan, 2026-09-03, THIRTY-SIXTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     the correct 99 (138/140, set by `state.update-progress` moments earlier)
+     to a stale 65, and `stopped_at`/`last_activity` reverted to stale
+     pre-257-07 values ("Completed 257-06-PLAN.md" / "Completed
+     257-01-PLAN.md") instead of naming this plan's actual completion.
+     Hand-corrected: percent back to 99, stopped_at and last_activity to
+     name this plan's completion (`completed_plans`/`total_plans` were NOT
+     affected, only `percent`/`stopped_at`/`last_activity`). Root cause
+     already tracked for a future `/gsd-debug` session per the 2026-09-01
+     handoff; not re-investigated here. -->
 
 <!-- NOTE (257-06 execute-plan, 2026-09-03, THIRTY-FIFTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3711,7 +3725,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 257 (part-8-enforcement-locus-host-independent-egress-guard) — EXECUTING
-Plan: 6 of 9 complete (257-01 done; 257-02 through 257-09 pending, wave 1 = 257-01 only per depends_on: [])
+Plan: 7 of 9 complete (257-01 done; 257-02 through 257-09 pending, wave 1 = 257-01 only per depends_on: [])
 Status: Ready to execute 257-02 (and other Wave-1-eligible plans per their own depends_on)
 Last activity: 2026-09-03 -- Completed 257-01-PLAN.md
 
@@ -4455,6 +4469,7 @@ Progress: [█████████░] 92%
 | Phase 257 P04 | 6min | 2 tasks | 3 files |
 | Phase 257 P05 | 6min | 2 tasks | 3 files |
 | Phase 257 P06 | 40 | 3 tasks | 2 files |
+| Phase 257 P07 | 35min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -5825,6 +5840,8 @@ Progress: [█████████░] 92%
 - [Phase 257]: D-10 executed: both frozen-literal 239 arms fixed inside 257-05 (hooks.json matcher derived at test time, never frozen); run-all-239.sh now 9 passed/0 failed
 - [Phase 257]: 257-BASELINE.md established Assumption A5 (research never ran it): doctor --acceptance Class O agentshield-all-surfaces-clean PASSES on this tree, 18/18 acceptance points
 - [Phase ?]: 257-06: brain_ask honestly renders a Part 8 block as a typed egress_blocked refusal instead of an empty envelope; the same sentinel maps to a typed refusal on the four other raw-passthrough tools via a new honestRefusal() helper; brain_query stays a documented, pinned D-05 exception since query() can never see the sentinel.
+- [Phase 257]: One shim spawn for the whole 257-07 invariant suite (not per-arm): persistent request()/notify() harness over one stdio connection keeps 11 arms at 1 process spawn, ~220ms wall time vs the 10s budget.
+- [Phase 257]: EXPECTATION_MAP in tests/test-257-brain-tool-egress-invariant.cjs is the sole permitted tool-name literal, reconciled bidirectionally against a live tools/list every run so a rename or a newly-added tool both fail loudly.
 
 ### Pending Todos
 
@@ -5935,7 +5952,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T05:43:16.559Z
+Last session: 2026-09-03T05:52:38.455Z
 Stopped at: Completed 257-06-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
