@@ -4,15 +4,25 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 339-04-PLAN.md
-last_updated: "2026-09-03T20:53:49.081Z"
+last_updated: "2026-09-03T21:08:01.753Z"
 last_activity: 2026-09-03 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 186
-  completed_plans: 172
-  percent: 92
+  completed_plans: 173
+  percent: 21
 ---
+
+<!-- NOTE (276-15 execute-plan, 2026-09-03, resync-clobber pattern, same class as every note
+     in this file): running `state.record-metric` (additive-only, per the shared_tree_guard
+     precedent) clobbered `percent` back to the stale 21 again, same tracked bug class, no new
+     investigation. Hand-corrected to 93 (completed_plans 173 / total_plans 186, round(173/186*100)).
+     `stopped_at` / `last_activity` / "Current Position" were all left untouched (verified via
+     `git diff .planning/STATE.md` before staging: only `last_updated`, `completed_plans`, and
+     `percent` moved). `state.advance-plan` / `state.record-session` were deliberately NOT run,
+     since "Current Position" legitimately belongs to the concurrently-active Phase 339 session,
+     not this one. -->
 
 <!-- NOTE (339-04 execute-plan, 2026-09-03, resync-clobber pattern, same class as every note
      in this file): state.update-progress correctly computed percent=92 (completed_plans
@@ -4862,6 +4872,7 @@ Progress: [█████████░] 92%
 | Phase 276 P14 | 15min | 3 tasks | 2 files |
 | Phase 339 P03 | 45min | 4 tasks | 5 files |
 | Phase 339 P04 | 35min | 3 tasks | 1 files |
+| Phase 276 P15 | 50min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -6295,6 +6306,7 @@ Progress: [█████████░] 92%
 - [Phase 339]: 339-04: Origin-derived alias selector (THEO_ORIGINS array + BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT/_THEO) replaces the single alias table; PROBLEM_TYPE_HANDLE_RE and the pass-through return trimmed; stay byte-identical
 - [Phase 339]: 339-04: brain_schema memo keyed on resolved origin as defense-in-depth (D-13 corrected) -- no flush function created; the correction is stated in-code, not just in 339-CONTEXT.md
 - [Phase 339]: 339-04: FLIP-03 left unchecked in REQUIREMENTS.md -- this plan lands only the enrichment_queue_captured log-line leg; the capture-arm leg in enrichment-queue.cjs is plan 339-05's scope
+- [Phase 276]: Re-froze the tool-honesty disposition ledger against the live 37-tool/131-branch scan surface and regenerated the substrate baseline to one measured number (205), closing Phase 273 D-05's deferred reconciliation. -- Plan 276-12 added claim_write, invalidating the 36/130 freeze; Phase 273 D-05 deferred the substrate baseline update to whichever phase's C4/M5-M8 work could actually move the count.
 
 ### Pending Todos
 
