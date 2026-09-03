@@ -488,6 +488,135 @@ function _fireReward(state) {
   return emitEmpty();
 }
 
+// ---------- The reward drain: consumed on a later turn, never wedges ----------
+//
+// Runs on every turn where state.json reads phase 'reward_pending'. A
+// skipped fire (sha8 null) advances straight through with its skip_reason
+// carried forward, so the investment gate in plan 267.2-09 still opens on a
+// session where no brief was ever eligible (decision D-L: the investment ask
+// never precedes the reward ATTEMPT). Never throws, never exits non-zero: a
+// missing, empty, unreadable or malformed capture file is a not-ready state
+// or a bounded timeout, never an error.
+
+const DRAIN_MAX_RETRIES = 5;
+const MAX_INJECTED_CHARS = 6000;
+
+function _advanceToRewardDelivered(state, extra) {
+  const deliveredAtMs = Date.now();
+  const deliveredState = Object.assign({}, state, {
+    phase: 'reward_delivered',
+    delivered_at_ms: deliveredAtMs,
+  }, extra || {});
+  _atomicWriteState(deliveredState);
+  return deliveredAtMs;
+}
+
+function _drainReward(state) {
+  // The fire leg recorded a skip: advance straight through, reason carried.
+  if (!state.sha8) {
+    const deliveredAtMs = _advanceToRewardDelivered(state, {});
+    try {
+      _appendTelemetry({
+        schema_version: 1,
+        event: 'reward_delivered',
+        ts_ms: deliveredAtMs,
+        sha8: null,
+        brief_bytes: 0,
+        turns_waited: 0,
+        skip_reason: state.skip_reason || null,
+      });
+    } catch (_e) { /* best-effort */ }
+    return emitEmpty();
+  }
+
+  const retriesSoFar = typeof state.drain_retries === 'number' ? state.drain_retries : 0;
+
+  let ready = false;
+  let briefBytes = 0;
+  try {
+    if (state.capture_path && fs.existsSync(state.capture_path)) {
+      const st = fs.statSync(state.capture_path);
+      if (st.size > 0) {
+        briefBytes = st.size;
+        let mvaComplete = false;
+        try {
+          const mvaState = require('../lib/core/mva-state.cjs');
+          const pending = mvaState.readPending();
+          // lib/core/mva-orchestrator.cjs calls markComplete() on every
+          // terminating path, including all-agents-failed, so this is the
+          // primary readiness signal.
+          mvaComplete = !!(pending && pending.pipeline_status === 'complete');
+        } catch (_e) { mvaComplete = false; }
+        // Fallback: the capture file has already survived one full turn
+        // with non-zero size, since scripts/mva-run.cjs writes its whole
+        // rendered brief in a single stdout write at process exit.
+        const stableFallback = retriesSoFar >= 1;
+        ready = mvaComplete || stableFallback;
+      }
+    }
+  } catch (_e) {
+    ready = false;
+  }
+
+  if (ready) {
+    let briefText = null;
+    try {
+      briefText = fs.readFileSync(state.capture_path, 'utf8');
+    } catch (_e) {
+      briefText = null;
+    }
+    if (typeof briefText === 'string' && briefText.length > 0) {
+      let injected = briefText;
+      if (injected.length > MAX_INJECTED_CHARS) {
+        injected = injected.slice(0, MAX_INJECTED_CHARS) + '\n\n[truncated -- brief continues beyond this point]';
+      }
+      const framing = 'This is the user\'s Instant Brief: already rendered by the wired MVA '
+        + 'pipeline, one turn ago. Hand it over to the user in your own voice, with exactly '
+        + 'one De Stijl glyph (Canon Part 12). Do NOT re-run any command to produce it -- it '
+        + 'is already complete.\n\n';
+      const deliveredAtMs = _advanceToRewardDelivered(state, {});
+      try {
+        _appendTelemetry({
+          schema_version: 1,
+          event: 'reward_delivered',
+          ts_ms: deliveredAtMs,
+          sha8: state.sha8,
+          brief_bytes: briefBytes,
+          turns_waited: retriesSoFar,
+          skip_reason: null,
+        });
+      } catch (_e) { /* best-effort */ }
+      return emitContinueWithContext(framing + injected);
+    }
+    // Read failed or came back empty despite a non-zero stat: fall through
+    // to the not-ready / retry path below rather than treating this as ready.
+  }
+
+  const nextRetries = retriesSoFar + 1;
+  if (nextRetries >= DRAIN_MAX_RETRIES) {
+    // The counter is what stops a failed pipeline from silently costing the
+    // user the rest of the flow: force reward_delivered so the investment
+    // gate can still open.
+    const deliveredAtMs = _advanceToRewardDelivered(state, { skip_reason: 'drain_timeout' });
+    try {
+      _appendTelemetry({
+        schema_version: 1,
+        event: 'reward_delivered',
+        ts_ms: deliveredAtMs,
+        sha8: state.sha8,
+        brief_bytes: briefBytes,
+        turns_waited: nextRetries,
+        skip_reason: 'drain_timeout',
+      });
+    } catch (_e) { /* best-effort */ }
+    return emitEmpty();
+  }
+
+  const retryState = Object.assign({}, state, { drain_retries: nextRetries });
+  _atomicWriteState(retryState);
+  return emitEmpty();
+}
+
 // ---------- Main ----------
 
 function main() {
@@ -530,9 +659,16 @@ function main() {
     return _fireReward(existingState);
   }
 
-  // Any other phase (reward_pending / reward_delivered / investment_asked /
-  // done): this plan's drain leg (plan 267.2-07 Task 2) and plan 267.2-09
-  // own everything from here.
+  if (existingState.phase === 'reward_pending') {
+    // Drain leg (plan 267.2-07 Task 2): reward_pending -> reward_delivered,
+    // either because the capture file is ready or because the bounded
+    // retry counter forced a drain_timeout.
+    return _drainReward(existingState);
+  }
+
+  // Any other phase (reward_delivered / investment_asked / done): this
+  // plan's work here is done. Plan 267.2-09 owns everything past
+  // reward_delivered.
   return emitEmpty();
 }
 
