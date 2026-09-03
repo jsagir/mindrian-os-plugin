@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 339 context gathered
-last_updated: "2026-09-03T18:36:24.565Z"
-last_activity: 2026-09-03 -- Phase 276 execution started
+last_updated: "2026-09-03T18:48:11.882Z"
+last_activity: "2026-09-03 -- Phase 276 Plan 10 (spine-events typed reasons, C5) complete: 3 tasks, commits d5a03565/a8380d52/a14aa768"
 progress:
   total_phases: 90
   completed_phases: 19
   total_plans: 166
-  completed_plans: 157
+  completed_plans: 158
   percent: 21
 ---
 
@@ -3964,9 +3964,22 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 276 (mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs) — EXECUTING
-Plan: 8 of 16
+Plan: 10 of 16
 Status: Ready to execute
-Last activity: 2026-09-03 -- Phase 276 execution started
+Last activity: 2026-09-03 -- Phase 276 Plan 10 (spine-events typed reasons, C5) complete: 3 tasks, commits d5a03565/a8380d52/a14aa768
+
+<!-- NOTE (276-10 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
+     throughout this file): `state.advance-plan` incremented the linear "Plan: N of 16" counter
+     from a STALE "8 of 16" (already one behind ground truth before this plan started, since
+     276-09 had already landed 3 commits and its own SUMMARY.md) to "9 of 16" -- still one behind,
+     because phase 276 executes in non-linear waves (SUMMARY files on disk: 01, 02, 03, 04, 05, 06,
+     09, 10 -- 07/08 not yet planned/executed, same pattern documented for phase 254 elsewhere in
+     this file). Hand-corrected to "Plan: 10 of 16" to match the highest-numbered, most recently
+     completed plan (this one), per the standing convention every prior occurrence in this file
+     used. completed_plans (157->158, one increment) and total_plans (166) were left as `state
+     advance-plan` computed them -- both are global-milestone counters, not phase-local, and a
+     single plan completing should increment the global count by exactly one regardless of which
+     phase-local plan number it lands on. -->
 
 <!-- NOTE (254-05 execute-plan, 2026-09-02, resync-clobber bug, same class as
      the notes below): after `state.record-metric`, `state.add-decision` (x2)
@@ -4728,6 +4741,7 @@ Progress: [█████████░] 92%
 | Phase 276-mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs P05 | 4min | 3 tasks | 2 files |
 | Phase 276 P06 | 55min | 3 tasks | 2 files |
 | Phase 276 P09 | 70min | 3 tasks | 14 files |
+| Phase 276 P10 | 50min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6147,6 +6161,7 @@ Progress: [█████████░] 92%
 - [Phase 276]: The ten room_graph.* MEDIUM ledger entries record 276-RESEARCH.md's default recommendation (detector-fix, expected OK, owner 276-07) pending that plan's actual WEAK-tier sibling-writes-discount ruling, since 276-07 has not yet run
 - [Phase 276]: 276-09: D-276-4 option-only propagation applied to 16 new sites; openRoomDb re-route deferred to 276-16
 - [Phase 276]: 276-09: test-276-busy-timeout-propagation.cjs A6/B1-B3 pins flipped from absence to presence checks in lockstep with production fixes
+- [Phase 276-10]: D-276-5 return-shape typed reasons (room_db_busy/room_db_broken/room_db_open_failed) at spine-events, plus a busy-only read-only-door retry so getCurrentJTBD/getCurrentOperator never misreport a busy room as cold start -- spine-events cannot re-throw (its whole contract is a {ok,reason} return); the RED test's Group D assertions required the real logged value under contention, not just a reason key, so the fix reuses the already-shipped read-only door (WAL readers never block writers) rather than the plan's literal minimal option
 
 ### Pending Todos
 
@@ -6268,7 +6283,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T18:36:08.232Z
+Last session: 2026-09-03T18:47:43.858Z
 Stopped at: Phase 339 context gathered
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
