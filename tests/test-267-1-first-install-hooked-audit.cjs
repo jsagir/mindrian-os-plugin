@@ -28,44 +28,52 @@ function region(anchor) {
   return src.slice(i, src.indexOf('\n', i));
 }
 
-ok('GAP I-1: ~/.mindrian-user.md has exactly the pre-existing reader (lib/core/user-archetype.cjs) '
-  + 'and the shipped writer (lib/mcp/tools/identity.cjs, Phase 270-11 identity_write), and no '
-  + 'scripts/ or hooks/ file is writer-shaped for this path', function () {
+ok('GAP I-1 CLOSED: the FIRST_INSTALL path now has a writer -- scripts/first-install-router.cjs '
+  + 'is a hook-side CALLER of the single shipped writeUserMdAtomic primitive, alongside the '
+  + 'pre-existing reader (lib/core/user-archetype.cjs) and MCP caller (lib/mcp/tools/identity.cjs, '
+  + 'Phase 270-11 identity_write) -- and no OTHER scripts/ or hooks/ file is writer-shaped for '
+  + 'this path', function () {
   // GAP I-1 originally meant "the FIRST_INSTALL path has no writer for ~/.mindrian-user.md
   // anywhere in lib/, scripts/, hooks/". Phase 270-11 shipped identity_write
   // (lib/mcp/tools/identity.cjs), the MECHANISM half of closing that gap, built on the
-  // pre-existing writeUserMdAtomic (Part 7 reuse-before-build). .planning/REQUIREMENTS.md
-  // MEMOP-08 binds Phase 267.2 W2 to owning the TRIGGER without building a second writer -- so
-  // this leg's job now is to pin the exact file SET (not a brittle integer count) so a THIRD
-  // file appearing here is the signal to re-run the audit. Plan 267.2-09 is the one authorised
-  // to add scripts/first-install-router.cjs to this set.
+  // pre-existing writeUserMdAtomic (Part 7 reuse-before-build). Plan 267.2-09 (HOOK-10) shipped
+  // the TRIGGER half: scripts/first-install-router.cjs now seeds ~/.mindrian-user.md itself,
+  // strictly after the reward (decision D-L), through the same writeUserMdAtomic primitive
+  // (decision D-E) -- so GAP I-1 is now CLOSED, not just mechanism-ready. This leg pins the
+  // exact THREE-file SET (not a brittle integer count) so a FOURTH file appearing here is the
+  // signal to re-run the audit.
   const grep1 = spawnSync('grep', ['-rn', 'mindrian-user\\.md', 'lib/', 'scripts/', 'hooks/'], { cwd: REPO, encoding: 'utf8' });
   assert.ok(grep1.status === 0 || grep1.status === 1, 'grep exited unexpectedly: ' + grep1.status + ' ' + grep1.stderr);
   const lines = (grep1.stdout || '').split('\n').filter(Boolean);
 
-  // scripts/session-start's FIRST_INSTALL prose block mentions the literal path as instructional
-  // text for the model to act on (pinned separately below as the Action-leg finding) -- it is not
-  // executable write code, so it is excluded before counting real source-code references.
+  // scripts/session-start no longer references the literal path at all post-267.2-08 (the
+  // FIRST_INSTALL prose hands off to the router instead), but the exclusion is kept defensively
+  // in case a future prose edit reintroduces an instructional mention, which is not executable
+  // write code.
   const codeLines = lines.filter(function (l) { return l.indexOf('scripts/session-start:') !== 0; });
 
   const fileSet = new Set(codeLines.map(function (l) { return l.split(':')[0]; }));
-  const expectedFiles = ['lib/core/user-archetype.cjs', 'lib/mcp/tools/identity.cjs'];
+  const expectedFiles = [
+    'lib/core/user-archetype.cjs',
+    'lib/mcp/tools/identity.cjs',
+    'scripts/first-install-router.cjs',
+  ];
   assert.equal(fileSet.size, expectedFiles.length,
-    'GAP I-1 closed or changed shape: expected exactly the file set '
+    'GAP I-1 changed shape again: expected exactly the file set '
     + JSON.stringify(expectedFiles) + ', found ' + JSON.stringify(Array.from(fileSet))
     + ' - re-run the 267.1 audit. All matches: ' + JSON.stringify(lines));
   for (const f of expectedFiles) {
     assert.ok(fileSet.has(f),
-      'GAP I-1 closed or changed shape: expected file ' + f + ' missing from the reference set - '
+      'GAP I-1 changed shape again: expected file ' + f + ' missing from the reference set - '
       + 're-run the 267.1 audit. Found set: ' + JSON.stringify(Array.from(fileSet)));
   }
 
   const readerLines = codeLines.filter(function (l) { return l.indexOf('lib/core/user-archetype.cjs:') === 0; });
   assert.ok(readerLines.length > 0,
-    'GAP I-1 closed or changed shape: lib/core/user-archetype.cjs no longer references '
+    'GAP I-1 changed shape again: lib/core/user-archetype.cjs no longer references '
     + '~/.mindrian-user.md - re-run the 267.1 audit.');
   assert.ok(readerLines.every(function (l) { return l.indexOf('safeReadFile') !== -1; }),
-    'GAP I-1 closed or changed shape: the lib/core/user-archetype.cjs reference is no longer a '
+    'GAP I-1 changed shape again: the lib/core/user-archetype.cjs reference is no longer a '
     + 'safeReadFile call (may now be a writer) - re-run the 267.1 audit. Got: ' + JSON.stringify(readerLines));
 
   const writerPattern = /writeFileSync|writeUserMdAtomic|appendFileSync|createWriteStream/;
@@ -78,20 +86,46 @@ ok('GAP I-1: ~/.mindrian-user.md has exactly the pre-existing reader (lib/core/u
   const identitySrc = fs.readFileSync(path.join(REPO, 'lib', 'mcp', 'tools', 'identity.cjs'), 'utf8');
   const identityWriterLines = identitySrc.split('\n').filter(function (l) { return writerPattern.test(l); });
   assert.ok(identityWriterLines.length > 0,
-    'GAP I-1 closed or changed shape: lib/mcp/tools/identity.cjs no longer contains a '
+    'GAP I-1 changed shape again: lib/mcp/tools/identity.cjs no longer contains a '
     + 'writer-shaped call (writeFileSync|writeUserMdAtomic|appendFileSync|createWriteStream) - '
     + 're-run the 267.1 audit.');
 
-  // No scripts/ or hooks/ file may be writer-shaped for THIS path: scope the check to lines that
-  // already reference ~/.mindrian-user.md (grep2, extended to skills/ and commands/ for full
-  // repo-wide coverage), then assert none of the scripts/ or hooks/ lines among them are
-  // writer-shaped. scripts/session-start:684 is prose injected as model context, not executable
-  // write code, and does not match writerPattern today -- if it or any other scripts/ or hooks/
-  // file ever became writer-shaped for this path, that is a second writer and MEMOP-08 forbids it.
+  // scripts/first-install-router.cjs is NOW writer-shaped too, by design (plan 267.2-09, HOOK-10):
+  // it constructs userMdPath at call time (never at module scope, threat T-270-13) and calls
+  // writeUserMdAtomic through the same shared primitive as identity.cjs -- confirmed the same way,
+  // by reading its own full source rather than filtering the mindrian-user.md grep above.
+  // Scoped to lines that reference `userMdPath` -- the router's own state.json/telemetry
+  // bookkeeping (_atomicWriteState's writeFileSync, _appendTelemetry's appendFileSync) also
+  // matches writerPattern but writes a wholly different, unrelated file, and must not be
+  // mistaken for a second ~/.mindrian-user.md writer.
+  const routerSrc = fs.readFileSync(path.join(REPO, 'scripts', 'first-install-router.cjs'), 'utf8');
+  const routerWriterLines = routerSrc.split('\n').filter(function (l) {
+    return writerPattern.test(l) && l.indexOf('userMdPath') !== -1;
+  });
+  assert.ok(routerWriterLines.length > 0,
+    'GAP I-1 changed shape again: scripts/first-install-router.cjs no longer contains a '
+    + 'userMdPath-scoped writer-shaped call (writeFileSync|writeUserMdAtomic|appendFileSync|'
+    + 'createWriteStream) - re-run the 267.1 audit.');
+  assert.ok(routerWriterLines.every(function (l) { return l.indexOf('writeUserMdAtomic') !== -1; }),
+    'GAP I-1 changed shape again: scripts/first-install-router.cjs is writer-shaped through '
+    + 'something other than writeUserMdAtomic - that is a second atomic-write implementation, '
+    + 'forbidden by MEMOP-08. Got: ' + JSON.stringify(routerWriterLines));
+
+  // No FOURTH scripts/ or hooks/ file may be writer-shaped for THIS path: scope the check to
+  // lines that already reference ~/.mindrian-user.md (grep2, extended to skills/ and commands/
+  // for full repo-wide coverage), exclude the two now-expected scripts/ writer lines
+  // (first-install-router.cjs, both delegating to writeUserMdAtomic), then assert none of the
+  // REMAINING scripts/ or hooks/ lines are writer-shaped. MEMOP-08 forbids a second writer
+  // (a second IMPLEMENTATION); scripts/first-install-router.cjs is a second CALLER of the one
+  // shipped implementation, which is exactly what decision D-E in 267.2-DECISIONS.md rules is
+  // legal.
   const grep2 = spawnSync('grep', ['-rn', 'mindrian-user\\.md', 'lib/', 'scripts/', 'hooks/', 'skills/', 'commands/'], { cwd: REPO, encoding: 'utf8' });
   assert.ok(grep2.status === 0 || grep2.status === 1, 'grep exited unexpectedly: ' + grep2.status + ' ' + grep2.stderr);
   const lines2 = (grep2.stdout || '').split('\n').filter(Boolean);
-  const scriptsOrHooksLines = lines2.filter(function (l) { return l.indexOf('scripts/') === 0 || l.indexOf('hooks/') === 0; });
+  const scriptsOrHooksLines = lines2.filter(function (l) {
+    return (l.indexOf('scripts/') === 0 || l.indexOf('hooks/') === 0)
+      && l.indexOf('scripts/first-install-router.cjs:') !== 0;
+  });
   for (const l of scriptsOrHooksLines) {
     assert.ok(!writerPattern.test(l),
       'GAP I-1 closed: a second writer for ~/.mindrian-user.md now exists under scripts/ or hooks/, '

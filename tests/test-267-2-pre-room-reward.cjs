@@ -264,12 +264,23 @@ helpers.withIsolatedHome(function (ctx) {
   };
   fs.writeFileSync(path.join(firstInstallDir, 'state.json'), JSON.stringify(seededState), 'utf8');
 
+  // Deviation (Rule 1 - stale test, discovered while executing plan 267.2-09): exactly
+  // DRAIN_MAX_RETRIES (5) turns is the precise number that forces drain_timeout and lands
+  // on reward_delivered -- confirmed against scripts/first-install-router.cjs's own
+  // DRAIN_MAX_RETRIES constant. This loop originally ran 6 turns, with the 6th turn
+  // intended as a "does it stay put" sanity check against the OLD catch-all behavior,
+  // where reward_delivered was a dead end. Plan 267.2-09 (HOOK-10) wires reward_delivered
+  // forward into investment_asked by design (decision D-L), so a 6th turn here now
+  // legitimately advances past reward_delivered -- that transition is plan 267.2-09's own
+  // roundtrip test's job (tests/test-267-2-user-md-roundtrip.cjs), not this file's. Reduced
+  // to 5 turns so this test keeps testing exactly what its own name says: the drain
+  // mechanism's bounded retry counter forcing reward_delivered, nothing past it.
   const runs = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 5; i++) {
     runs.push(runRouter(env, 'no-key degradation drain turn ' + i));
   }
 
-  ok('NO-KEY DEGRADATION: all 6 drain turns exit 0 and never emit a non-continue envelope', function () {
+  ok('NO-KEY DEGRADATION: all 5 drain turns exit 0 and never emit a non-continue envelope', function () {
     for (const r of runs) {
       assert.equal(r.status, 0, 'router exited non-zero: ' + r.status + ' stderr=' + r.stderr);
       const envelope = JSON.parse(r.stdout);
