@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 296-04-PLAN.md
-last_updated: "2026-09-03T18:37:46.016Z"
+stopped_at: Completed 296-05-PLAN.md
+last_updated: "2026-09-03T19:01:20.588Z"
 last_activity: 2026-09-03 -- Phase 296 execution started
 progress:
   total_phases: 89
   completed_phases: 4
   total_plans: 160
-  completed_plans: 61
+  completed_plans: 62
   percent: 4
 ---
 
@@ -3964,7 +3964,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 296 (SEED-030: RS Pipeline Spine-Wiring + Expert-Graph Reconciliation) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 296 execution started
 
@@ -4725,6 +4725,7 @@ Progress: [█████████░] 92%
 | Phase 296 P02 | 50min | 2 tasks | 8 files |
 | Phase 296 P03 | 55min | 2 tasks | 3 files |
 | Phase 296-04 P04 | 35min | 2 tasks | 3 files |
+| Phase 296 P05 | 30min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -6138,6 +6139,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 296-03: Ambient backend on this worktree checkout resolves real sqlite-vec (node module resolution walks up to the main repo's node_modules); both sqlite-vec and cjs-fallback legs were genuinely exercised natively, not just through the forced MINDRIAN_FORCE_NO_VEC0 seam
 - [Phase 296-04]: Sidecar cache location followed the plan's planner_decision verbatim (<room>/research/<slug>/.rs-signal-cache/), no override taken
 - [Phase 296-04]: Read functions recover the topic slug from the namespace string (_slug_from_namespace) rather than requiring an unavailable topic argument, since namespace_slug and rs_corpus.topic_slug apply identical normalization
+- [Phase 296]: 296-05: followed planner_decision verbatim - auto-explore-fire.cjs's hybrid spawn is named/fenced (272-10 bypass), not rewired onto rs-backend-dispatch.cjs
+- [Phase 296]: 296-05: added a third _signal_cache_available call site in run_mode_hybrid (non-blocking narration) since no Mode C call existed pre-repoint, satisfying the plan's both-call-sites instruction
+- [Phase 296]: 296-05: rs-pinecone-bridge.cjs kept its Pinecone-era filename (three modules share its cosineSimilarity function object); repointed internals only, rename deferred to Phase 283 if ever
 
 ### Pending Todos
 
@@ -6259,8 +6263,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T18:37:45.946Z
-Stopped at: Completed 296-04-PLAN.md
+Last session: 2026-09-03T19:01:20.522Z
+Stopped at: Completed 296-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
