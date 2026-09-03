@@ -822,7 +822,7 @@ Critical priority per navigator instruction, timed against Theo's approaching pr
 
 **Requirements**: TOOLHON-01, TOOLHON-02, TOOLHON-03, TOOLHON-04, TOOLHON-05, TOOLHON-06, TOOLHON-07, TOOLHON-08, TOOLHON-09, TOOLHON-10, TOOLHON-11, TOOLHON-12, TOOLHON-13, TOOLHON-14 (minted in `276-RESEARCH.md`'s requirement table, distributed across the 16 plans below, registered in `.planning/REQUIREMENTS.md` at phase close by plan 276-16, per the Phase 272 `PYPORT-` / Phase 273 `CHOKE-` / Phase 274 `ANCHOR-` precedent)
 **Depends on:** none technically. The ROADMAP previously read "Depends on: Phase 275" -- verified 2026-09-03 to be spurious: Phase 275 (room-schema-by-ICM-layer) has no substantive link to MCP/substrate false-success fixes, is itself gated and not yet plannable (blocked on Phase 270's OQ-7), and this line matches the known `gsd-tools.cjs query phase.add` heading-boilerplate pattern already caught once for this same phase entry, not a real dependency (same disclosure pattern as Phase 272's "sequenced after Phase 271 only because registered the same session, not a real dependency"). Corrected here rather than left to silently block planning.
-**Plans:** 8/16 plans executed
+**Plans:** 9/16 plans executed
 
 Plans:
 
@@ -848,7 +848,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2)*
 
 - [ ] 276-11-PLAN.md - `gate_render`'s in-memory-mint disclosure per D-276-3 (no `STRONG_VERBS` widening), `graph_write`'s CAS fail-open disclosure on the `read_version` describe (boundary B-6 territory), and the Brain shim's DirectiveEnvelope correction. The honest-empty trio stays OUT of the code-fix scope as a re-measured recorded finding (TOOLHON-13, TOOLHON-02)
-- [ ] 276-12-PLAN.md - the claim-write MCP primitive, RED then GREEN, routed through `lib/core/node-insert.cjs` with `writePathRefusal`, its success shape constructed FROM the write's own result, born wired with a shape chosen from the contract, and honest on the checker's first sweep (TOOLHON-07)
+- [x] 276-12-PLAN.md - the claim-write MCP primitive, RED then GREEN, routed through `lib/core/node-insert.cjs` with `writePathRefusal`, its success shape constructed FROM the write's own result, born wired with a shape chosen from the contract, and honest on the checker's first sweep (TOOLHON-07)
 
 **Wave 4** *(blocked on Wave 3)*
 

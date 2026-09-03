@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 339 context gathered
-last_updated: "2026-09-03T18:48:11.882Z"
-last_activity: "2026-09-03 -- Phase 276 Plan 10 (spine-events typed reasons, C5) complete: 3 tasks, commits d5a03565/a8380d52/a14aa768"
+stopped_at: Completed 276-12-PLAN.md (claim-write MCP primitive)
+last_updated: "2026-09-03T19:09:30.011Z"
+last_activity: "2026-09-03 -- Phase 276 Plan 12 (claim-write MCP primitive) complete: 3 tasks, commits 0fef3e80/ddd13ddf/90b73eb0"
 progress:
   total_phases: 90
   completed_phases: 19
   total_plans: 166
-  completed_plans: 158
-  percent: 21
+  completed_plans: 159
+  percent: 96
 ---
 
 <!-- NOTE (session close-out, 2026-09-03, SIXTIETH+ occurrence of the
@@ -3964,9 +3964,25 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 276 (mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs) — EXECUTING
-Plan: 10 of 16
+Plan: 12 of 16
 Status: Ready to execute
-Last activity: 2026-09-03 -- Phase 276 Plan 10 (spine-events typed reasons, C5) complete: 3 tasks, commits d5a03565/a8380d52/a14aa768
+Last activity: 2026-09-03 -- Phase 276 Plan 12 (claim-write MCP primitive) complete: 3 tasks, commits 0fef3e80/ddd13ddf/90b73eb0
+
+<!-- NOTE (276-12 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
+     throughout this file): `state.advance-plan` incremented the linear "Plan: N of 16" counter
+     from a STALE "10 of 16" (already behind ground truth before this plan started -- SUMMARY
+     files on disk at 276-12 time: 01, 02, 03, 04, 05, 06, 09, 10, 12; 07/08/11/13/14/15/16 not
+     yet planned/executed, phase 276 runs in non-linear waves) to "11 of 16" -- still behind,
+     since 276-12 (not 276-11) is what actually completed this session. Hand-corrected to
+     "Plan: 12 of 16" to match the highest-numbered, most recently completed plan, per the
+     standing convention every prior occurrence in this file used. Also: `state.update-progress`
+     returned the correct percent (96, from completed_plans 159 / total_plans 166) but did not
+     persist it into the frontmatter -- it stayed at the stale 21 until hand-corrected here.
+     completed_plans (158->159, one increment) and total_plans (166) were left as `state
+     advance-plan` computed them -- both are global-milestone counters, not phase-local, and a
+     single plan completing should increment the global count by exactly one regardless of which
+     phase-local plan number it lands on. Root cause not re-investigated -- same tracked bug
+     class as every other note in this file. -->
 
 <!-- NOTE (276-10 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
      throughout this file): `state.advance-plan` incremented the linear "Plan: N of 16" counter
@@ -4742,6 +4758,7 @@ Progress: [█████████░] 92%
 | Phase 276 P06 | 55min | 3 tasks | 2 files |
 | Phase 276 P09 | 70min | 3 tasks | 14 files |
 | Phase 276 P10 | 50min | 3 tasks | 2 files |
+| Phase 276 P12 | 7min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -6162,6 +6179,7 @@ Progress: [█████████░] 92%
 - [Phase 276]: 276-09: D-276-4 option-only propagation applied to 16 new sites; openRoomDb re-route deferred to 276-16
 - [Phase 276]: 276-09: test-276-busy-timeout-propagation.cjs A6/B1-B3 pins flipped from absence to presence checks in lockstep with production fixes
 - [Phase 276-10]: D-276-5 return-shape typed reasons (room_db_busy/room_db_broken/room_db_open_failed) at spine-events, plus a busy-only read-only-door retry so getCurrentJTBD/getCurrentOperator never misreport a busy room as cold start -- spine-events cannot re-throw (its whole contract is a {ok,reason} return); the RED test's Group D assertions required the real logged value under contention, not just a reason key, so the fix reuses the already-shipped read-only door (WAL readers never block writers) rather than the plan's literal minimal option
+- [Phase 276]: 276-12: claim_write MCP tool ships, writing proposed DIKW claims through typed-claim.cjs/node-insert.cjs; typed-claim.cjs's knowledge_type-to-epistemic_type mapping table built per 276-DECISIONS.md OQ-276-1, replacing the hardcoded extracted_fact constant
 
 ### Pending Todos
 
@@ -6283,8 +6301,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T18:47:43.858Z
-Stopped at: Phase 339 context gathered
+Last session: 2026-09-03T19:09:29.945Z
+Stopped at: Completed 276-12-PLAN.md (claim-write MCP primitive)
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
