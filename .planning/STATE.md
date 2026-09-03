@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: 267.2-10 Tasks 1-2 complete (HOOK-01..HOOK-12 registered, VALIDATION.md reconciled, gate roll-up measured, dev-research trail staged); Task 3 blocking navigator checkpoint PENDING
+stopped_at: Phase 276 PLANNED (16 plans, 7 waves, plan-checker VERIFICATION PASSED with 2 non-blocking warnings; scope broadened 2026-09-03 to Same-Disease Consolidation, C4/C5 from Phase 273 folded in, Theo forward-compat recorded). Next - /gsd-execute-phase 276 (git fetch origin main first; local is ~209 ahead). Phase 267.2 remains COMPLETE (see 267.2-VERIFICATION.md); the prior stopped_at string was the documented resync-clobber, hand-corrected again
 last_updated: "2026-09-03T16:38:53.545Z"
 last_activity: 2026-09-03 -- Phase 276 planning complete
 progress:
   total_phases: 26
   completed_phases: 19
-  total_plans: 150
+  total_plans: 166
   completed_plans: 150
-  percent: 73
+  percent: 90
 ---
 
 <!-- NOTE (session close-out, 2026-09-03, SIXTIETH+ occurrence of the
