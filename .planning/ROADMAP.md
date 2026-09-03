@@ -812,7 +812,7 @@ Critical priority per navigator instruction, timed against Theo's approaching pr
 
 **Requirements**: TOOLHON-01, TOOLHON-02, TOOLHON-03, TOOLHON-04, TOOLHON-05, TOOLHON-06, TOOLHON-07, TOOLHON-08, TOOLHON-09, TOOLHON-10, TOOLHON-11, TOOLHON-12, TOOLHON-13, TOOLHON-14 (minted in `276-RESEARCH.md`'s requirement table, distributed across the 16 plans below, registered in `.planning/REQUIREMENTS.md` at phase close by plan 276-16, per the Phase 272 `PYPORT-` / Phase 273 `CHOKE-` / Phase 274 `ANCHOR-` precedent)
 **Depends on:** none technically. The ROADMAP previously read "Depends on: Phase 275" -- verified 2026-09-03 to be spurious: Phase 275 (room-schema-by-ICM-layer) has no substantive link to MCP/substrate false-success fixes, is itself gated and not yet plannable (blocked on Phase 270's OQ-7), and this line matches the known `gsd-tools.cjs query phase.add` heading-boilerplate pattern already caught once for this same phase entry, not a real dependency (same disclosure pattern as Phase 272's "sequenced after Phase 271 only because registered the same session, not a real dependency"). Corrected here rather than left to silently block planning.
-**Plans:** 3/16 plans executed
+**Plans:** 4/16 plans executed
 
 Plans:
 
@@ -821,7 +821,7 @@ Plans:
 - [x] 276-01-PLAN.md - `tests/run-all-276.sh` (glob discovery, found-eq-0 guard provable via `TEST_276_PREFIX`, Part 8 sweep, no-em-dash fence), the synthetic `switch (command)` fixture, and the RED proof that `splitBranches` is dead code (TOOLHON-01, TOOLHON-05)
 - [x] 276-02-PLAN.md - the two Layer 2 held-lock tests, both REUSING the shipped `tests/helpers/room-db-lock-holder-236.cjs` rather than authoring a second lock helper. C4 asserts an elapsed-time floor, not a return value; C5 pins `room_db_busy` / `room_db_broken` and resolves RESEARCH A11 by reading the two getters' catch bodies (TOOLHON-09, TOOLHON-10, TOOLHON-11)
 - [x] 276-03-PLAN.md - the two Layer 1 description pins, measured over the wire: `orchestration.scout` (F-1) and `room_content` (F-11..F-14), both forbidding the false claim BY LITERAL and requiring a SUBSET of the two shipped disclosure markers (TOOLHON-03, TOOLHON-04)
-- [ ] 276-04-PLAN.md - the two-directional ledger diff, the `ALLOWED_UNVERIFIED` contract made structural, and the skip-when-absent non-blocking Theo parity signal pinned to Theo `83a1ce2` (TOOLHON-02, TOOLHON-06, TOOLHON-12)
+- [x] 276-04-PLAN.md - the two-directional ledger diff, the `ALLOWED_UNVERIFIED` contract made structural, and the skip-when-absent non-blocking Theo parity signal pinned to Theo `83a1ce2` (TOOLHON-02, TOOLHON-06, TOOLHON-12)
 
 **Wave 1** *(blocked on Wave 0)*
 
