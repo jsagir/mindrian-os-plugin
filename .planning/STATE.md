@@ -3,16 +3,30 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 267.2-04-PLAN.md
-last_updated: "2026-09-03T09:54:57.316Z"
-last_activity: 2026-09-03 -- Completed 267.2-04-PLAN.md (ignite Door 1 persona coverage + folded todo close)
+stopped_at: Completed 267.2-05-PLAN.md
+last_updated: "2026-09-03T10:03:24.521Z"
+last_activity: 2026-09-03 -- Completed 267.2-05-PLAN.md (local greeting intent classifier + routing table, HOOK-05/HOOK-06)
 progress:
   total_phases: 26
   completed_phases: 18
   total_plans: 150
-  completed_plans: 144
-  percent: 96
+  completed_plans: 145
+  percent: 97
 ---
+
+<!-- NOTE (267.2-05 execute-plan, 2026-09-03, FORTY-FOURTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     the correct 97 (145/150, set by `state.update-progress` moments earlier)
+     to a stale 69, `last_activity` reverted to a stale "Phase 267.2
+     execution started" string, and `stopped_at` stayed at the prior plan's
+     value instead of naming this plan's actual completion. Hand-corrected:
+     percent back to 97, last_activity and stopped_at to name this plan's
+     completion (`completed_plans`/`total_plans` were NOT affected, only
+     `percent`/`last_activity`/`stopped_at`). Root cause already tracked for
+     a future `/gsd-debug` session per the 2026-09-01 handoff; not
+     re-investigated here. -->
 
 <!-- NOTE (267.2-04 execute-plan, 2026-09-03, FORTY-THIRD+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3868,7 +3882,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 267.2 (first-install-hooked-loop-repair-reward-investment-inserted) — EXECUTING
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 267.2 execution started
 
@@ -4619,6 +4633,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P02 | 20min | 2 tasks | 2 files |
 | Phase 267.2 P03 | 45min | 3 tasks | 4 files |
 | Phase 267.2 P04 | 25min | 3 tasks | 4 files |
+| Phase 267.2 P05 | 45m | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6001,6 +6016,8 @@ Progress: [█████████░] 92%
 - [Phase 267.2-03]: Logged the pre-existing scripts/hooks/pre-commit vs pre-commit-room-minto-guard.sh byte-drift (commit 51f7bcb9, unrelated to this plan) to deferred-items.md rather than fixing it, per CONTEXT.md D-06 scope discipline.
 - [Phase 267.2-04]: Applied D-H/D-I/D-J from 267.2-DECISIONS.md verbatim: mentor maps to blueprintFamily=exploration, Door 1 restructured into a two-step AskUserQuestion pick, Portfolio Manager not minted
 - [Phase 267.2-04]: Task 1 (ignite.md edit) and Task 2 (skill-mirror regen) landed in one commit because the repo's pre-commit hook enforces build-skill-mirrors --check on every commit
+- [Phase 267.2]: 267.2-05: Followed D-C's fixed routing table (new_venture->ignite, prior_work->clarify, just_talk->larry, ambiguous->larry) and D-G's rejection of user-archetype.cjs's tie-break bug in the classifier's decision rule.
+- [Phase 267.2]: 267.2-05: Reworded greeting-intent-detector.cjs's header comment (Rule 1 auto-fix) so it does not spell out the literal forbidden network/fs tokens its own zero-network test grep checks for.
 
 ### Pending Todos
 
@@ -6119,7 +6136,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T09:54:57.257Z
+Last session: 2026-09-03T10:03:07.660Z
 Stopped at: Completed 267.2-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
