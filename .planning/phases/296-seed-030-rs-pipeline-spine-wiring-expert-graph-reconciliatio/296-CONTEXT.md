@@ -29,6 +29,74 @@ research should note this phase's local-vector repoint once it lands).
 <decisions>
 ## Implementation Decisions
 
+### REVISION — post-research correction (2026-09-03, per 296-RESEARCH.md)
+
+Research (51 tool uses, live-executed cross-checks, full findings F-1 through F-10 in
+296-RESEARCH.md) found that D-01 and D-03's factual premises below were **stale** — not
+wrong in intent, wrong about what the current code actually does. Corrected here rather
+than left to silently produce no-op tasks (the researcher's own explicit warning: "a plan
+executing D-01/D-03 literally would target a module that writes nothing and remove a
+coupling that does not exist"). Original D-01–D-04 kept below for audit trail; the
+corrected decisions the planner must actually build against are these:
+
+- **D-01 (CORRECTED):** `rs-engine.py`'s internal and cross-room modes already call ZERO
+  Pinecone (F-3) — that acceptance criterion is already satisfied, twice over (also via
+  Phase 272's `rs-engine.cjs`). The real, remaining Pinecone surface is narrower and
+  different: `lib/core/rs_cache.py` (external/hybrid corpus cache, F-4), explicitly
+  named in Phase 272's own `pinecone-inference.cjs` header as "descoped to a follow-up
+  phase." **Phase 296 is that follow-up phase.** Retire `rs_cache.py`'s Pinecone
+  index/namespace path; replace with a local embed-and-cache path through
+  `embedding-spine.cjs::embedTexts` (the same local encoder everything else already
+  uses — do not instantiate a second one). `rs_corpus.py` (the fetcher) is untouched —
+  zero Pinecone calls already (F-4 item 2). Stays Python per original D-04 reasoning.
+- **D-02 (CORRECTED, was open-discretion, now locked by F-2):** Do NOT read
+  `eureka_vec`/`eureka_vec_fallback` via a direct Python `sqlite3 SELECT`. `sqlite-vec`
+  is a hard `package.json` dependency on every real install — a direct read passes in
+  this dev checkout (no sqlite-vec installed, fallback table active) and throws
+  `OperationalError: no such module: vec0` for every actual user. Use a **CJS-side
+  export/bridge step** instead (mirrors the existing `rs-pinecone-bridge.cjs` shape,
+  which already shells `python3` from CJS in the opposite direction). This is not
+  merely permitted by the old Discretion clause anymore — F-2 makes it required.
+- **D-03 (CORRECTED — the premise was false, not just stale):** `rs-experts` has had NO
+  remote Brain-Cypher coupling since 2026-05-22 (`2f0e4e79`, predates SEED-030's own
+  2026-06-17 evidence date) — there is nothing to "keep remote." The seed's Option A
+  vs. Option B framing does not apply; there is no live Tier-1 Aura path to choose
+  between. The actual, plannable gap (F-7): the existing Tier-0 message conflates three
+  distinct causes (no transport ships / transport unreachable / topic genuinely has
+  zero experts) into one hand-rolled string — and cause (c) is a CORRECT answer being
+  mis-dressed as a fault. Fix: route through the already-shipped
+  `lib/core/refusal-messaging.cjs` (`REFUSAL_KINDS.unreachable` → `BRAIN_UNREACHABLE`),
+  mirroring the in-family precedent `rs-explain-command.cjs` already uses (independent
+  `_brain_degraded` / `_cypher_degraded` markers that never collapse into one string).
+  **Theo cutover confirms both halves of this correction, not just permits it:** Theo
+  has no Person/Author/Institution node type (17 declared labels, none of that shape) —
+  keeping rs-experts LOCAL-only is *structurally required* by the eventual cutover, not
+  a compromise. And Theo's own `CONN-05` "empty-versus-broken discipline" is the exact
+  design precedent for the message fix — this repo's `refusal-messaging.cjs` already
+  implements the CJS-side version of the same principle.
+- **D-05 (NEW, from F-8):** `scripts/auto-explore-fire.cjs` spawns `rs-engine.py --mode
+  hybrid` directly, bypassing `rs-backend-dispatch.cjs`. Hybrid is exactly the mode this
+  phase touches — include it in the blast radius. Whether to also route it through the
+  dispatch chokepoint is a navigator scope call, not optional to at least name.
+- **D-06 (NEW, from Runtime State Inventory):** `PINECONE_API_KEY` and the `pinecone`
+  package stay — still load-bearing for `compute-hsi.py` Tier 2 and
+  `lib/core/pinecone-inference.cjs` (Phase 272, deliberately kept, out of scope here).
+  Scope removal to `rs_cache.py`'s SDK calls only. No blanket key/package removal.
+- **Discretion on exact degrade wording — REVOKED (F-7):** the old Discretion clause
+  ("exact wording of the Brain unreachable message") is superseded. Use
+  `refusal-messaging.cjs`'s shipped copy verbatim (`renderRefusal('unreachable', ...)` /
+  `larryRefusalLine('unreachable')`). Inventing a seventh phrasing when six already
+  exist in `REFUSAL_KINDS` is exactly the duplication Canon Part 7 forbids.
+- **Phase 295 dependency — not a real blocker (F-10):** ROADMAP.md's "Depends on: Phase
+  295" is `phase.add` heading boilerplate (a known pattern this repo's own CLAUDE.md
+  names). The *coincidental* real dependency it might have named is already satisfied:
+  SEED-029's technical shape shipped under Phase 211 + quick `260706-13z`, not under
+  295 (which is an unplanned stub). Phase 296 does not wait on Phase 295. Whether to
+  formally close/redirect the 295 stub is a separate navigator call, orthogonal to
+  planning 296 now.
+
+### Original decisions (kept for audit trail — see REVISION above for what to build)
+
 ### RS vector repoint (D-01, D-02)
 - **D-01:** Do NOT port `scripts/rs-engine.py` / `lib/core/rs_corpus.py` to CJS in this
   phase. They stay Python. Repoint them to read the SAME local vector data
