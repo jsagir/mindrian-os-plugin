@@ -18,9 +18,17 @@
  *   five-color contract (green/cyan/yellow/red/gray; no magenta/blue)
  *   four-zone anatomy (Zone 1 header, Zone 2 body, Zone 3 omitted, Zone 4 footer)
  *   Shape E body shape (Phase 99 D-13; canonical body_shape declaration in commands/operator.md)
- *   Shape F.1 selector + Shape F.4 confirmation as structural markers per
- *   Phase 95.1-04 D-19 deferral pattern; Larry handles conversational selection
- *   until Phase 88.2 ships the canonical AskUserQuestion primitive.
+ *   `set` composes its F.1 card through lib/mcp/gate-render.cjs and ratifies
+ *   through lib/mcp/gate-ledger.cjs + lib/core/navigation.cjs (Phase
+ *   260903-eu9, superseding the Phase 95.1-04 D-19 deferral pattern this
+ *   comment used to describe). The mint and consume happen in the SAME
+ *   process: the ledger is an in-memory Map (lib/mcp/gate-ledger.cjs), and
+ *   this CLI is two separate short-lived Node processes across the two
+ *   invocations (`set` with no arg, then `set <op>`) -- a gate_id minted by
+ *   the first cannot be handed to the second, so the full mint -> consume
+ *   round trip runs inside the single `set <op>` invocation instead.
+ *   `reset`'s F.4 block (renderShapeF4) is still hand-printed and is the
+ *   named follow-up this migration deliberately left out of scope.
  *
  * Self-dog-food: this script's runtime output MUST pass the Phase 95.1 class F
  * UI Ruling System drift detector. The script's SOURCE must also pass:

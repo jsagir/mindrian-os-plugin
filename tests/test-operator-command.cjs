@@ -628,6 +628,91 @@ const VS16_WARNING = new RegExp('\u26A0\uFE0F', 'g');
   } catch (e) { fail(label, e); }
 })();
 
+// ---------- Test 21 ----------
+
+(function test_21_gate_round_trip_is_real() {
+  const label = 'Test 21: set <op> --json carries a real gate round trip';
+  const scratch = makeScratchDir('t21');
+  try {
+    setupSyntheticRegistry(scratch, {
+      state: { current: 'EXPLORE_CAPTURE', previous: 'JUST_TALK', history: [] },
+    });
+    const res = runCmd(['--json', 'set', 'BUILD_ROOM'], { MINDRIAN_ROOMS_HOME: scratch });
+    assert.equal(res.status, 0, 'set BUILD_ROOM --json: exit 0; got ' + res.status + ' stderr=' + res.stderr);
+    let j;
+    try { j = JSON.parse(res.stdout); } catch (e) {
+      throw new Error('set BUILD_ROOM --json: stdout not valid JSON: ' + e.message + '\nstdout=' + res.stdout);
+    }
+    assert.ok(j.gate, 'set BUILD_ROOM --json: gate field missing');
+    assert.equal(typeof j.gate.gate_id, 'string', 'gate.gate_id must be a string');
+    assert.ok(j.gate.gate_id.length > 0, 'gate.gate_id must be non-empty');
+    assert.equal(j.gate.verdict, 'approve', 'gate.verdict must be approve');
+    assert.deepEqual(j.gate.chosen, ['BUILD_ROOM'], 'gate.chosen must be the resolved option id, not a raw label');
+    ok(label);
+  } catch (e) { fail(label, e); } finally { rmrf(scratch); }
+})();
+
+// ---------- Test 22 ----------
+
+(function test_22_out_of_card_choice_fails_closed() {
+  const label = 'Test 22: out-of-card choice fails closed (FREE-TEXT and free-text)';
+  const scratch = makeScratchDir('t22');
+  try {
+    const reg = setupSyntheticRegistry(scratch, {
+      state: { current: 'BUILD_ROOM', previous: 'EXPLORE_CAPTURE', history: [] },
+    });
+    const before = readState(reg.roomDir);
+
+    const resUpper = runCmd(['set', 'FREE-TEXT'], { MINDRIAN_ROOMS_HOME: scratch });
+    assert.equal(resUpper.status, 1, 'set FREE-TEXT: exit 1; got ' + resUpper.status);
+    assert.ok(resUpper.stderr.toLowerCase().indexOf('unknown operator') !== -1,
+      'set FREE-TEXT: stderr must name the rejection');
+    const afterUpper = readState(reg.roomDir);
+    assert.deepEqual(afterUpper, before, 'set FREE-TEXT: state file must be unchanged');
+
+    const resLower = runCmd(['set', 'free-text'], { MINDRIAN_ROOMS_HOME: scratch });
+    assert.equal(resLower.status, 1, 'set free-text: exit 1; got ' + resLower.status);
+    assert.ok(resLower.stderr.toLowerCase().indexOf('unknown operator') !== -1,
+      'set free-text: stderr must name the rejection');
+    const afterLower = readState(reg.roomDir);
+    assert.deepEqual(afterLower, before, 'set free-text: state file must be unchanged');
+
+    ok(label);
+  } catch (e) { fail(label, e); } finally { rmrf(scratch); }
+})();
+
+// ---------- Test 23 ----------
+
+(function test_23_gate_single_use_in_process() {
+  const label = 'Test 23: gate-ledger.cjs single-use property (in-process)';
+  try {
+    const gateLedger = require(path.join(REPO, 'lib', 'mcp', 'gate-ledger.cjs'));
+    const gateId = 'gate-test-23-' + Date.now().toString(36);
+    const sessionId = 'test-23-session';
+    gateLedger.mintGate(gateId, { card: { gate_id: gateId, options: [] }, sessionId: sessionId, kind: 'general' });
+    const first = gateLedger.consumeGate(gateId, sessionId);
+    assert.ok(first, 'first consume must return the minted entry (truthy)');
+    const second = gateLedger.consumeGate(gateId, sessionId);
+    assert.equal(second, null, 'second consume of the same gate_id must return null (single-use)');
+    ok(label);
+  } catch (e) { fail(label, e); }
+})();
+
+// ---------- Test 24 ----------
+
+(function test_24_source_reaches_gate_machinery() {
+  const label = 'Test 24: source-level proof scripts/operator-command.cjs requires the gate machinery';
+  try {
+    const src = fs.readFileSync(SCRIPT, 'utf8');
+    const stripped = src.split('\n').filter((l) => !/^\s*(\*|\/\/|\/\*)/.test(l)).join('\n');
+    assert.ok(/gate-ledger\.cjs/.test(stripped),
+      'comment-stripped source must reference gate-ledger.cjs (a comment alone does not satisfy this)');
+    assert.ok(/gate-render\.cjs/.test(stripped),
+      'comment-stripped source must reference gate-render.cjs (a comment alone does not satisfy this)');
+    ok(label);
+  } catch (e) { fail(label, e); }
+})();
+
 // ---------- Summary ----------
 
 const total = passed + failed;
