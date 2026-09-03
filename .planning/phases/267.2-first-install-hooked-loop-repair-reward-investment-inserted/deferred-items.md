@@ -4,7 +4,14 @@ Out-of-scope discoveries found during execution, logged here per the executor's 
 rule (only auto-fix issues directly caused by the current task's changes). Not fixed by any
 267.2 plan unless explicitly noted otherwise.
 
-## 1. `scripts/hooks/pre-commit` has drifted from `scripts/hooks/pre-commit-room-minto-guard.sh`
+## 1. `scripts/hooks/pre-commit` has drifted from `scripts/hooks/pre-commit-room-minto-guard.sh` — RESOLVED 2026-09-03 (plan 267.2-10, commit `3b3ecfdf`)
+
+**Resolution:** the missing 23-line WIRE-04 block was copied verbatim from `scripts/hooks/pre-commit`
+into `scripts/hooks/pre-commit-room-minto-guard.sh` at the same relative position (`diff` now returns
+nothing; both files byte-identical). `bash tests/run-all-267.3.sh` and `bash tests/run-all-267.2.sh`
+both went fully green as a result. Fixed at 267.2-10 phase close per this item's own recommendation
+below, under Rule 1 (bug) + Rule 3 (blocking, required for this plan's own gate-roll-up acceptance
+criteria). The original finding is preserved below for the record.
 
 **Found during:** 267.2-03 Task 2/3 verification (`bash tests/run-all-267.3.sh`).
 

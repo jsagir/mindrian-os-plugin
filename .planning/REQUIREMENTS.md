@@ -965,15 +965,149 @@ to rediscover them:**
    of `tests/test-257-brain-tool-egress-invariant.cjs` and commented at the call site, so it cannot
    change silently and a future contract change has to be a deliberate phase.
 
+### Phase 267.2 - First-Install Hooked Loop Repair (Reward + Investment) (minted at plan time 2026-09-03)
+
+Roadmap line 817 read `TBD`. These twelve IDs were minted during Phase 267.2 planning
+(`267.2-DECISIONS.md` D-A), ratifying `267.2-RESEARCH.md`'s proposed `HOOK-` family and its
+coverage table (W0, W1a-d, W2, Folded, Cross). They are phase-local working IDs, registered here at
+phase close by `267.2-10-PLAN.md` per the Phase 254/257/265/267.3/270/272/274 precedent. Every row
+below is `[x]`.
+
+Context that reshaped the phase: research Critical Corrections C-1 through C-6 found the evidence
+base CONTEXT.md was gathered against was already stale by plan time - Phase 270-11 had shipped
+`identity_write` (a real writer for `~/.mindrian-user.md`, making W2 a TRIGGER task per MEMOP-08,
+not a writer task) and Phase 267.3 had pinned the FIRST_INSTALL prose with anchor literals. The
+phase's own headline research finding: in this repo the failure mode is almost never a missing
+mechanism, it is a mechanism with no caller - three separate instances (`identity_write` had no
+trigger, `lib/core/mva-orchestrator.cjs::runPipeline` had no hook caller, `renderShapeF1`'s
+`personaContext` seam shipped but was never wired) named in `267.2-RESEARCH.md`'s "Don't Hand-Roll"
+section.
+
+- [x] **HOOK-01**: The pre-change PASS/FAIL of `bash tests/run-all-267.1.sh` is recorded in
+      `267.2-BASELINE.md` before any code edit lands. Recorded (267.2-01): commit `3195ff79`,
+      plugin `2.0.0-beta.16`, exit 1, `PASS=2 FAIL=1 SKIP=0`, aborting at the GAP I-1 assertion
+      before printing a single `ok` line - so every leg below it was UNEXECUTED, not passing, at
+      baseline. Same plan measured `runPipeline`'s real worst-case wall-clock cost (max 5337ms
+      across 3 no-key isolated-HOME runs) against the largest `UserPromptSubmit` hook timeout
+      (3000ms), empirically CONFIRMING decision D-D's detached-spawn architecture rather than
+      assuming it (appended to `267.2-DECISIONS.md`'s `## D-D measured confirmation`).
+
+- [x] **HOOK-02**: `tests/run-all-267.2.sh` discovers `tests/test-267-2-*` by glob, fails on zero
+      discovery, carries explicit gate lines and the no-em-dash fence; an isolated-HOME fixture
+      helper is exported for reuse. Shipped 267.2-02: `tests/run-all-267.2.sh` (glob discovery,
+      `found -eq 0` hard failure provable via `TEST_267_2_PREFIX`, three explicit gate lines for
+      `test-209-session-start-exemplar.cjs`/`test-267-1-first-install-hooked-audit.cjs`/
+      `run-all-267.3.sh`) and `tests/test-267-2-helpers.cjs` (`withIsolatedHome`, `keylessEnv`,
+      `readRegion`, `assertNoRawText`), reused by four later plans.
+
+- [x] **HOOK-03**: The `f39f24d9` SEED-021 clause is absent from the FIRST_INSTALL region and the
+      267.1 Action-leg pin asserts its absence. Shipped 267.2-03: `scripts/session-start`'s
+      FIRST_INSTALL `context=` assignment reverted to bare `"Offer three approaches:"` (one line
+      changed), `tests/test-267-2-w0-revert.cjs` added as a permanent negative pin. Note: plan
+      267.2-08's later prose rewrite (D-B, one open question) superseded the literal "Offer three
+      approaches:" wording two waves later, a predicted, deliberate staleness per decision D-N item
+      6 - `test-267-2-w0-revert.cjs`'s presence pin was flipped to an absence pin at that point,
+      while its `AskUserQuestion`/SEED-021 absence pins (this requirement's actual behavior) stayed
+      unchanged and green throughout.
+
+- [x] **HOOK-04**: The 267.1 GAP I-1 leg reflects post-270-11 reality, so
+      `tests/test-267-1-first-install-hooked-audit.cjs` executes past its first assertion. Repaired
+      267.2-03: the brittle `codeLines.length === 1` integer count (invalidated by Phase 270-11's
+      `identity_write` shipment) replaced with a file-SET assertion; the file went from 0 printed
+      assertions (aborted) to 8/8 passing. Flipped to CLOSED 267.2-09 once the trigger landed: the
+      expected reference set grew to three files including the router's own writer-shaped line,
+      confirmed to delegate to `writeUserMdAtomic` and nothing else.
+
+- [x] **HOOK-05**: A first-install user's first free-text sentence is classified into a named
+      intent bucket by a local, LLM-free, network-free, Part-8-clean classifier. Shipped 267.2-05:
+      `lib/core/greeting-intent-detector.cjs` (`classify`, `BUCKETS`), mirroring
+      `lib/core/dual-path-detector.cjs`'s additive-score shape. `tests/test-267-2-greeting-classifier.cjs`
+      - 36 assertions PASS, including a source grep confirming zero occurrences of
+      `fetch`/`node:http(s)`/`brain-client`/`process.env`, and a bounded-runtime guard (17-row
+      corpus in 2-3ms against a 250ms budget).
+
+- [x] **HOOK-06**: Every classifier bucket maps to exactly one of the three D-02 outcomes,
+      exhaustively test-pinned over the bucket enum. Shipped 267.2-05: `ROUTING_TABLE` frozen
+      (`new_venture->ignite`, `prior_work->clarify`, `just_talk->larry`, `ambiguous->larry`, per
+      decision D-C). `tests/test-267-2-routing-table.cjs` - 6 assertions PASS, iterating the
+      exported `BUCKETS` enum rather than restating it, confirming exhaustive coverage and that
+      `ROUTING_TABLE`/`BUCKETS`/`OUTCOMES` are all frozen.
+
+- [x] **HOOK-07**: A first-install session delivers a qualifying variable reward through wired
+      machinery, with no room and with zero API keys set. Shipped 267.2-07:
+      `scripts/first-install-router.cjs`'s `_fireReward`/`_drainReward` legs, a detached, unref-ed
+      spawn of `scripts/mva-run.cjs` (the room-free Instant Brief pipeline) per decision D-D, fired
+      on one turn and drained on a later one. `tests/test-267-2-pre-room-reward.cjs` - 16 assertions
+      PASS: source-level room-free guard, a real fire through the router's actual armed -> routed ->
+      reward_pending turns, sub-1500ms non-blocking measurement, and a keyless 5-turn degradation
+      run that still reaches `reward_delivered` via the bounded `drain_timeout` fallback.
+
+- [x] **HOOK-08**: The router's bucket and downstream outcome are instrumented with a scalar-only
+      record; no raw sentence reaches disk. Shipped 267.2-06: `scripts/first-install-router.cjs`
+      appends `routed` (bucket/outcome/margin/confidence/`sentence_sha256`, never the raw sentence)
+      and `outcome_observed` events to `~/.mindrian/telemetry/v1.13/first-install-router.jsonl`.
+      `tests/test-267-2-router-telemetry.cjs` - 10 assertions PASS, including a whole-tree walk of
+      the isolated HOME confirming no 8-or-more character substring of the input sentence appears
+      anywhere on disk.
+
+- [x] **HOOK-09**: `data/first-reward-surfaces.json` stays truthful and its four anchors stay live
+      after the FIRST_INSTALL rewrite. Shipped 267.2-08: the `session-start:FIRST_INSTALL` record's
+      `interactive_first_reward` flipped from `--none (diagnostic surface)` to `instant_brief` with
+      an honest `why` naming the one-turn-later residual (D-D) and the venture-shaped precondition;
+      `COLD_START_MENU` stayed byte-identical (D-F) via the new `FIRST_INSTALL_HANDOFF` variable.
+      `bash tests/run-all-267.3.sh` confirms all four anchors remain live substrings.
+
+- [x] **HOOK-10**: `~/.mindrian-user.md` is written during the FIRST_INSTALL conversation, strictly
+      after the reward, through the shipped `writeUserMdAtomic` path with no second writer, and
+      `detectArchetype` reads the result correctly. Shipped 267.2-09: `_seedIdentityFile`
+      (read-modify-write via `readUserMd` then `writeUserMdAtomic`, decision D-E) writes
+      `journey_stage`/`last_detected_at` deterministically, gated on `reward_delivered` (decision
+      D-L); `lib/core/user-archetype.cjs` fixed at the reader (`_archetypeScanText`, decision D-G) so
+      research finding C-3's write-read disagreement (`canonical_role: founder` misreading as
+      `student`) no longer reproduces. `tests/test-267-2-user-md-roundtrip.cjs` - 6 assertions PASS
+      (ROUNDTRIP, PART 8, C-3 FIXED, READ-MODIFY-WRITE, ORDERING, NO SECOND WRITER/MEMOP-08).
+
+- [x] **HOOK-11**: `/mos:ignite` Door 1 reaches all 7 `ROLE_BLEND_KEYS` within the 4-option
+      `AskUserQuestion` cap, `mentor` included with a defined `blueprintFamily`, drift-pinned.
+      Shipped 267.2-04: `commands/ignite.md` Door 1 restructured into a two-step pick (decision D-I),
+      `mentor -> exploration` (decision D-H), `portfolio_manager` explicitly NOT minted (decision
+      D-J). `tests/test-267-2-ignite-persona-coverage.cjs` - 13 assertions PASS, requiring the live
+      `ROLE_BLEND_KEYS` array rather than restating it.
+
+- [x] **HOOK-12**: The new hook is born wired, the HOOK ids are registered in
+      `.planning/REQUIREMENTS.md`, and the dev-research trail is composited to the
+      `rethinking-mindrianos` room. This plan (267.2-10): `scripts/first-install-router.cjs` is a
+      `hooks/hooks.json` surface confirmed (267.2-06, re-confirmed here) outside
+      `build-connector-registry.cjs`'s scan scope, so born-wired is satisfied by its
+      `hooks/hooks.json` registration plus a clean `--check` (zero drift). The twelve rows above are
+      this section. The dev-research trail compositing is Task 2 of this plan; see its own commit
+      for the outcome (landed, or blocked-and-staged per the write-scope-check guard, recorded
+      honestly either way).
+
+**Gate roll-up measured by this plan (267.2-10 Task 1), reported as a delta against
+`267.2-BASELINE.md`, never as a bare claim:**
+
+| Command | Baseline (267.2-01, pre-change) | This plan (post-change) |
+|---------|----------------------------------|--------------------------|
+| `bash tests/run-all-267.1.sh` | RED, exit 1, `PASS=2 FAIL=1 SKIP=0`; aborted at GAP I-1 before printing any assertion in the audit test - every leg below it UNEXECUTED | GREEN, exit 0, `PASS=3 FAIL=0 SKIP=0`; the audit test now executes all 8 of its own assertions |
+| `bash tests/run-all-267.2.sh` | n/a (file did not exist at baseline) | GREEN, exit 0, `PASS=12 FAIL=0 SKIP=0` (one pre-existing FAIL - the `scripts/hooks/pre-commit`/`pre-commit-room-minto-guard.sh` byte-drift logged in `deferred-items.md` item 1 - was fixed by this plan's own Task 1, see Deviations) |
+| `bash tests/run-all-267.3.sh` | not measured by 267.2-01 (out of that plan's scope) | GREEN, exit 0, `PASS=5 FAIL=0 SKIP=0` |
+| `node scripts/build-connector-registry.cjs --check` | not measured | GREEN, exit 0, `connector-registry: OK` |
+| `node scripts/build-skill-mirrors.cjs --check` | not measured | GREEN, exit 0, 112 mirrors match |
+| `node scripts/check-plugin-path-anchoring.cjs --check` | not measured | GREEN, exit 0, 0 violations across 160 files |
+| `node scripts/check-shape-declaration.cjs --check` | not measured | GREEN, exit 0 (advisory WARN-only per Canon Part 11, 53 pre-existing violations, none touching any 267.2 file, never blocks) |
+| `node scripts/doctor.cjs --acceptance` | not measured | 17/18 PASS; the one FAIL (`verify-release-clean-tree`, tracked-file drift) is entirely the concurrent session's own in-flight changes (`scripts/__pycache__/compute-hsi.cpython-312.pyc`, six deleted `tests/fixtures/sample-room-personas/personas/*.md`) - confirmed via `git status --short` before and after this plan's own commits, none of those paths touched by any 267.2 plan |
+
 ## Traceability
 
-119 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+131 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
-plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257). All minted 2026-08-27 except CHOKE-01..06 and
-PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), and WIRE-01..04 /
-COMP-01..02 (minted 2026-09-02): RADAR-01..11 and MCPFIX-01..04 at
+plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
+(Phase 267.2). All minted 2026-08-27 except CHOKE-01..06 and
+PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
+COMP-01..02 (minted 2026-09-02), and HOOK-01..12 (minted 2026-09-03): RADAR-01..11 and MCPFIX-01..04 at
 first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
@@ -991,9 +1125,13 @@ RADAR-12 supersedes the frozen three-name literal in RADAR-09 while preserving i
 LOCUS-01..10 were minted in Phase 257's plan set (2026-09-02), ratifying `257-CONTEXT.md`'s
 D-01..D-11 and `257-RESEARCH.md`'s recommended phase shape, and are registered here at plan time
 as `- [ ]` rows to be finalized with measured proof by `257-09-PLAN.md` at phase close.
-Roadmap phases must map all 119 active requirements with no orphans.
+HOOK-01..12 were minted in Phase 267.2's plan set (2026-09-03), ratifying `267.2-DECISIONS.md`
+D-A's proposed `HOOK-` family and coverage table, and are registered here at phase close by
+`267.2-10-PLAN.md` per the Phase 254/257/265/267.3/270/272/274 precedent.
+Roadmap phases must map all 131 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP and LOCUS families alike (the
+**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS and HOOK families
+alike (the
 Phase 266 and 269
 precedent):** these IDs were minted at plan time inside their own phase's decision record rather
 than being drawn from a pre-existing milestone requirements pass. They are phase-local working IDs

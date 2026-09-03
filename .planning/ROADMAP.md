@@ -814,14 +814,18 @@ Plans:
 Each workstream flips a negative assertion in `tests/test-267-1-first-install-hooked-audit.cjs` to positive when its gap closes; flipping that pin is part of this phase's work, not a test failure to route around.
 
 Cross-references: Also touches Phase 269 (Moat Shift - Install/Update Entitlement Gate - removing the Brain-key friction step changes the onboarding Trigger/Reward/Investment legs this phase repairs, so building against the current key-gated flow risks rework). Also touches Phase 267.1 (Hooked Model Completeness Audit - the audit that registered GAP R-1 and GAP I-1, `.planning/research/2026-08-27-hooked-first-install-audit.md`).
-**Requirements**: TBD
+**Requirements**: HOOK-01..HOOK-12 (minted at plan time in `267.2-DECISIONS.md` D-A, registered in
+`.planning/REQUIREMENTS.md` at phase close by plan 267.2-10, per the Phase 254/257/265/267.3/270/272/274
+precedent for phase-local working IDs)
 **Depends on:** none technically, but sequenced after Phase 269 lands its onboarding-flow change (repairing the reward and investment legs against the current key-gated first session risks throwaway work, and the audit that motivates this phase says so explicitly).
 **Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):**
 Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/unconditional --
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 9/10 plans executed
+**Plans:** 9/10 plans executed; the 10th (267.2-10) closes the phase: HOOK-01..12 registered,
+`267.2-VALIDATION.md` reconciled, the gate roll-up measured as a delta against `267.2-BASELINE.md`,
+the dev-research trail composited, and a blocking navigator sign-off checkpoint (Task 3) pending.
 
 Plans:
 
