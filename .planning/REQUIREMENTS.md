@@ -896,7 +896,7 @@ one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop'
       list is derived from the server's own `tools/list` and reconciled in both directions, never a
       frozen array.
 
-- [ ] **LOCUS-04**: the record is corrected. The false parenthetical at
+- [x] **LOCUS-04**: the record is corrected. The false parenthetical at
       `lib/mcp/brain-composition-census.cjs:37-38` is replaced with an evidence-bearing statement, and
       `docs/2026-08-20-HANDOFF-part8-guard-in-mcp-handlers.md` carries an append-only dated correction
       (257-03).

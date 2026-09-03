@@ -3,16 +3,32 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 257-02-PLAN.md
-last_updated: "2026-09-03T03:58:46.388Z"
-last_activity: 2026-09-03 -- Completed 257-02-PLAN.md
+stopped_at: Completed 257-03-PLAN.md
+last_updated: "2026-09-03T04:04:05.771Z"
+last_activity: 2026-09-03 -- Completed 257-03-PLAN.md
 progress:
   total_phases: 26
   completed_phases: 17
   total_plans: 140
-  completed_plans: 133
-  percent: 95
+  completed_plans: 134
+  percent: 96
 ---
+
+<!-- NOTE (257-03 execute-plan, 2026-09-03, THIRTY-SECOND+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     the correct 96 (134/140, set by `state.update-progress` moments earlier)
+     to a stale 65, and `last_activity` reverted from "Completed
+     257-03-PLAN.md" to "Completed 257-01-PLAN.md" instead of naming this
+     plan's actual completion. Hand-corrected: percent back to 96,
+     last_activity to name this plan's completion (`completed_plans`/`total_plans`
+     were NOT affected, only `percent`/`last_activity`). Root cause already
+     tracked for a future `/gsd-debug` session per the 2026-09-01 handoff; not
+     re-investigated here. -->
+
+<!-- ORIGINAL NOTES BELOW, PRESERVED -->
+
 
 <!-- NOTE (257-02 execute-plan, 2026-09-03, THIRTY-FIRST+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the THIRTIETH+
@@ -3657,7 +3673,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 257 (part-8-enforcement-locus-host-independent-egress-guard) — EXECUTING
-Plan: 2 of 9 complete (257-01 done; 257-02 through 257-09 pending, wave 1 = 257-01 only per depends_on: [])
+Plan: 3 of 9 complete (257-01 done; 257-02 through 257-09 pending, wave 1 = 257-01 only per depends_on: [])
 Status: Ready to execute 257-02 (and other Wave-1-eligible plans per their own depends_on)
 Last activity: 2026-09-03 -- Completed 257-01-PLAN.md
 
@@ -4397,6 +4413,7 @@ Progress: [█████████░] 92%
 | 254 | 6 | - | - |
 | Phase 257 P01 | 35min | 2 tasks | 5 files |
 | Phase 257 P02 | 25 | 2 tasks | 2 files |
+| Phase 257 P03 | 3min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -5760,6 +5777,8 @@ Progress: [█████████░] 92%
 - [Phase 257]: rephrase_generically added to NEXT_MOVES only after confirming zero existing consumers of any next_moves handle by name (git grep across lib/scripts/bin/tests)
 - [Phase ?]: wrapDirective: two named fields only (egress_disclosure, refusal), never a generic top-level-field copy — Prevents arbitrary Brain-returned keys from reaching the model; proven live via a mutation-leg test that flips the pass-through to a generic copy and watches the no-laundering arms fail
 - [Phase ?]: Test harness: node:test + node:assert/strict, matching 257-01's own precedent, not 254's hand-rolled harness — Plan's literal action text specifies node:test plus node:assert; 254's docblock says it deliberately does not use node:test
+- [Phase ?]: Corrected Seam A false parenthetical in brain-composition-census.cjs with commit-order (ca32b612 predates handoff base f566310c by 2.5h) and wire evidence inline
+- [Phase ?]: Appended dated CORRECTION 2026-09-02 block to 2026-08-20 handoff, append-only (0 deletions); root cause named as filename-grep-cannot-see-delegation (Pitfall 2)
 
 ### Pending Todos
 
@@ -5870,8 +5889,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T03:58:29.779Z
-Stopped at: Completed 257-02-PLAN.md
+Last session: 2026-09-03T04:04:05.711Z
+Stopped at: Completed 257-03-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
