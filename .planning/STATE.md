@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 296-01-PLAN.md
-last_updated: "2026-09-03T17:55:16.702Z"
+stopped_at: Completed 296-02-PLAN.md
+last_updated: "2026-09-03T18:08:27.601Z"
 last_activity: 2026-09-03 -- Phase 296 execution started
 progress:
   total_phases: 89
   completed_phases: 4
   total_plans: 160
-  completed_plans: 58
+  completed_plans: 59
   percent: 4
 ---
 
@@ -3964,7 +3964,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 296 (SEED-030: RS Pipeline Spine-Wiring + Expert-Graph Reconciliation) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 296 execution started
 
@@ -4722,6 +4722,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P09 | 50min | 3 tasks | 5 files |
 | 267.2 | 10 | - | - |
 | Phase 296 P01 | 45min | 3 tasks | 4 files |
+| Phase 296 P02 | 50min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -6129,6 +6130,8 @@ Progress: [█████████░] 92%
 - [Phase 267.2]: 267.2-10 Tasks 1-2 complete: HOOK-01..HOOK-12 registered in REQUIREMENTS.md, 267.2-VALIDATION.md reconciled, full gate set measured green as a delta against 267.2-BASELINE.md (267.1 flipped RED->GREEN). Pre-existing pre-commit hook byte-drift fixed. Dev-research trail authored and staged, blocked at the room by write-scope-check, not bypassed. — Task 3 (blocking navigator sign-off checkpoint, D-C/D-D/D-H/D-K judgment calls plus the actual first-install prose) was intentionally NOT executed, simulated, or auto-approved by this executor run. Phase 267.2 remains open pending human ruling in the orchestrating conversation.
 - [Phase 296-01]: lib/core/rs_cache.py exempted by name from tests/run-all-296.sh's Part 8 sweep (documented RSLOCAL-04 retirement target, tests/296-dim-invariant.sh is the real enforcement gate)
 - [Phase 296-01]: bash tests/run-all-296.sh needs TEST_296_ALLOW_MISSING=1 to exit 0 until plan 296-03 creates scripts/rs-vector-bridge.cjs (mirrors tests/run-all-272.sh's identical multi-wave rollout escape hatch)
+- [Phase ?]: rs-experts resolveExpertTier: three distinguishable causes (AURA_TRANSPORT_ABSENT/BRAIN_UNREACHABLE/success) routed through refusal-messaging.cjs, authors key omitted on refusal branches per Theo CONN-05
+- [Phase ?]: commands/rs-experts.md corrected: no longer claims a Brain-Cypher MATCH (F-6, coupling removed 2026-05-22); names all three refusal codes; adds Theo cutover note
 
 ### Pending Todos
 
@@ -6250,8 +6253,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T17:55:16.620Z
-Stopped at: Completed 296-01-PLAN.md
+Last session: 2026-09-03T18:08:27.540Z
+Stopped at: Completed 296-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
