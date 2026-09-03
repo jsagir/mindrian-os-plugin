@@ -214,7 +214,9 @@ process.stdout.write('\n-- STRICT_EXIT --\n');
 process.stdout.write('\n-- HYGIENE --\n');
 {
   const src = fs.readFileSync(SCRIPT_PATH, 'utf8');
-  const hasEmDash = /—/.test(src);
+  // Unicode escape, not a literal em-dash character, so THIS file's own
+  // source stays clean under the repo-wide no-em-dash fence.
+  const hasEmDash = src.indexOf('\u2014') !== -1;
   check('script source contains no em-dash', !hasEmDash);
 
   // Strip full-line // comments, block comments, and JSDoc-style lines before

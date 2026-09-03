@@ -503,4 +503,26 @@ if git diff --cached --name-only | grep -qE '^commands/.*\.md$'; then
   fi
 fi
 
+# ---------------------------------------------------------------------------
+# Quick task 260903-ljj - MCP tool-honesty advisory gate (description-vs-
+# behavior mismatch scanner, RCA .planning/debug/meeting-file-meeting-false-
+# success.md's named follow-up sweep). ADVISORY, not HARD-FAIL: the surface
+# has never been swept this way and the findings need human triage first
+# (Phase 210 posture, same as the shape-declaration block above).
+#
+# Deliberately NO `|| { ...; exit 2; }` tail here, and that omission is
+# load-bearing, not an oversight: the script's own `--check` already exits 0
+# by design on findings (it WARNs and enumerates instead of failing), so
+# adding a failure tail would silently re-harden this gate the day someone
+# changes the script's default posture without anyone noticing the hook
+# quietly started blocking commits. Recovery: run `node scripts/
+# check-tool-honesty.cjs --report` to see the full per-branch table, or add a
+# triaged entry to ALLOWED_UNVERIFIED in scripts/check-tool-honesty.cjs.
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(lib/mcp/tool-router\.cjs|lib/mcp/tools/.*\.cjs|lib/mcp/contract-version\.cjs)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-tool-honesty.cjs" ]; then
+    node "$REPO_ROOT/scripts/check-tool-honesty.cjs" --check
+  fi
+fi
+
 exit 0

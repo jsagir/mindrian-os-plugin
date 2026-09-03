@@ -160,6 +160,9 @@ run "connector registry born-wired --check"       node scripts/build-connector-r
 # Quick 260903-kwl: meeting MCP tool honesty (no test-266- prefix, so this is
 # the documented explicit-gate-line home for it, per this block's own header).
 run "kwl meeting mcp honesty"                     node tests/test-kwl-meeting-mcp-honesty.cjs
+# Quick 260903-ljj: the standing MCP tool-honesty scanner (no test-266-
+# prefix either, same documented explicit-gate-line home).
+run "ljj tool-honesty gate suite"                 node tests/test-ljj-tool-honesty.cjs
 
 # ---------------------------------------------------------------------------
 # NO-EM-DASH FENCE (C-01): clone the donor's fence at run-all-264.sh
@@ -190,6 +193,9 @@ EMDASH_TARGETS=(
   # Quick 260903-kwl
   "tests/test-kwl-meeting-mcp-honesty.cjs"
   "references/meeting/filing-protocol.md"
+  # Quick 260903-ljj
+  "scripts/check-tool-honesty.cjs"
+  "tests/test-ljj-tool-honesty.cjs"
 )
 shopt -s nullglob
 for f266 in "$ROOT"/tests/test-266-*; do

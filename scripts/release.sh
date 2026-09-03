@@ -348,6 +348,18 @@ else
   echo "  note: shape-declaration gate is advisory as of Phase 210 (WARN, never abort; --strict-shape restores hard-fail)"
 fi
 # SHAPE-GATE-END
+
+# Quick task 260903-ljj: the MCP tool-honesty description-vs-behavior scanner,
+# advisory on introduction -- same posture as the shape-declaration gate just
+# above, deliberately placed OUTSIDE the SHAPE-GATE-BEGIN/SHAPE-GATE-END
+# sentinel pair (tests/test-235-release-shape-gate.cjs extracts and executes
+# the text BETWEEN those two sentinels at run time; anything added inside them
+# becomes live test input for that specific gate, not this one). `|| true`
+# never aborts the cut; the script's own `--check` already exits 0 by design
+# on findings, printing WARN lines to stderr instead of failing.
+node "$PLUGIN_DIR/scripts/check-tool-honesty.cjs" --check || true
+echo "  note: tool-honesty gate is advisory on introduction (WARN, never abort; --strict restores hard-fail on the script directly)"
+
 echo -e "${GREEN}  coverage gates passed (no dark surface)${NC}"
 
 # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---

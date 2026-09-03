@@ -1002,7 +1002,7 @@ function buildAcceptanceChecklist(ctx) {
       // surface aborts here. Canon Part 8: both --check gates regenerate in
       // memory from LOCAL sources; zero Brain / network.
       id: 'coverage-gate',
-      label: 'connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors gates pass (no dark surface); shape-declaration advisory as of Phase 210 (WARNs inline, never blocks)',
+      label: 'connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors gates pass (no dark surface); shape-declaration and tool-honesty are advisory (WARNs inline, never blocks)',
       severity: 'blocker',
       applies_to: ['pre-tag', 'full'],
       run: async function () {
@@ -1042,6 +1042,17 @@ function buildAcceptanceChecklist(ctx) {
           // phase re-hardens. The other three gates above KEEP blocker semantics.
           // The gate still enumerates the tree at run time; no hardcoded count.
           { id: 'shape-declaration', script: 'check-shape-declaration.cjs' },
+          // Quick task 260903-ljj: the MCP tool-honesty description-vs-behavior
+          // scanner rides the SAME advisory-by-default posture as the
+          // shape-declaration entry above. Its --check exits 0 by design even
+          // on a tree carrying HIGH RISK findings (it WARNs and enumerates
+          // each one in stderrTail instead of failing), so the r.status === 0
+          // ok test below never fails the roll-up on an advisory finding;
+          // --strict on the script restores hard-fail once the live findings
+          // are triaged and the gate is deliberately re-hardened. The gate
+          // still enumerates every server.tool() registration at run time;
+          // no hardcoded tool/branch/command count.
+          { id: 'tool-honesty', script: 'check-tool-honesty.cjs' },
         ];
         const results = [];
         for (const g of gates) {
