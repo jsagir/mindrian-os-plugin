@@ -69,11 +69,25 @@ function loadGateRender() {
   return gateRenderMod;
 }
 
+let gateLedgerMod = null;
+function loadGateLedger() {
+  if (gateLedgerMod) return gateLedgerMod;
+  gateLedgerMod = require(path.join(PLUGIN_ROOT, 'lib', 'mcp', 'gate-ledger.cjs'));
+  return gateLedgerMod;
+}
+
 let sessionBindingMod = null;
 function loadSessionBinding() {
   if (sessionBindingMod) return sessionBindingMod;
   sessionBindingMod = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'session-binding.cjs'));
   return sessionBindingMod;
+}
+
+let navigationMod = null;
+function loadNavigationModule() {
+  if (navigationMod) return navigationMod;
+  navigationMod = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'navigation.cjs'));
+  return navigationMod;
 }
 
 // ANSI colors (skills/ui-system/SKILL.md section 4 -- exact copy from scripts/doctor.cjs).
@@ -475,9 +489,47 @@ async function main() {
       }
       process.exit(0);
     }
-    // Validate op argument.
+    // -- Gate cycle: mint -> consume -> validate (T-eu9-01/02 mitigations) --
+    // Replaces the old ad-hoc OPERATORS.indexOf(opArg) === -1 check. The
+    // mint and consume happen in the SAME process (F-2): the gate ledger is
+    // in-memory, so a gate_id minted by one CLI invocation cannot be handed
+    // to a later one.
     const opArg = flags.opArg;
-    if (OPERATORS.indexOf(opArg) === -1) {
+    const gateRender = loadGateRender();
+    const gateLedger = loadGateLedger();
+    const sessionBinding = loadSessionBinding();
+    const card = buildOperatorGateCard(state);
+    const normalized = gateRender.normalizeCard(card);
+    const gateSessionId = sessionBinding.resolveEffectiveSessionId(undefined, undefined);
+    gateLedger.mintGate(normalized.gate_id, { card: normalized, sessionId: gateSessionId, kind: 'general' });
+    const live = gateLedger.consumeGate(normalized.gate_id, gateSessionId);
+
+    if (!live || live.ok === false) {
+      const why = !live ? 'unknown_or_expired_gate' : live.reason;
+      if (flags.json) {
+        process.stdout.write(JSON.stringify({
+          subcommand: 'set',
+          room: room.slug,
+          transition: {
+            success: false,
+            violations: [{ category: 'gate', severity: 'error', message: why }],
+          },
+        }, null, 2) + '\n');
+      } else {
+        writeError3Line(
+          'gate consume failed: ' + state.current + ' -> ' + opArg,
+          why,
+          '/mos:operator set  # re-render the F.1 card'
+        );
+        process.stdout.write(renderShapeE(state, room, { entries: 5 }));
+      }
+      process.exit(1);
+    }
+
+    // free-text is a card affordance for the conversational surface, not a
+    // transition target -- reject it here with the same 3-line error shape
+    // used for an unrecognized operator name.
+    if (opArg === 'free-text') {
       if (flags.json) {
         process.stdout.write(JSON.stringify({
           subcommand: 'set',
@@ -490,7 +542,35 @@ async function main() {
       } else {
         writeError3Line(
           'unknown operator: ' + opArg,
-          'allowed operators are ' + OPERATORS.join(' | '),
+          'free-text is a card affordance for the conversational surface, not a transition target',
+          '/mos:operator set  # render F.1 picker'
+        );
+        process.stdout.write(renderShapeE(state, room, { entries: 5 }));
+      }
+      process.exit(1);
+    }
+
+    // Value-domain check against the minted card's own options (ASVS V5;
+    // T-eu9-01). Keep the exact 'unknown operator: <opArg>' headline so
+    // Test 5's stderr assertion holds.
+    const validChosen = gateRender.validateChosenAgainstCard(live.card, [opArg]);
+    if (!validChosen) {
+      const validOptionIds = (live.card && Array.isArray(live.card.options))
+        ? live.card.options.map((o) => o.id)
+        : [];
+      if (flags.json) {
+        process.stdout.write(JSON.stringify({
+          subcommand: 'set',
+          room: room.slug,
+          transition: {
+            success: false,
+            violations: [{ category: 'argument', severity: 'error', message: 'unknown operator ' + opArg }],
+          },
+        }, null, 2) + '\n');
+      } else {
+        writeError3Line(
+          'unknown operator: ' + opArg,
+          'chosen_not_in_card_options; allowed operators are ' + validOptionIds.join(' | '),
           '/mos:operator set  # render F.1 picker'
         );
         process.stdout.write(renderShapeE(state, room, { entries: 5 }));
@@ -520,10 +600,64 @@ async function main() {
       }
       process.exit(0);
     }
-    // Fire the transition.
-    let result;
+    // Ratify the decision (F-6, F-7). The mint/consume round trip above is
+    // mandatory and fails closed; this write is best-effort because a room
+    // with no room.db yet is a normal, common state (a fresh scratch room,
+    // or operator.cjs's own documented Decision #8 graceful-degradation
+    // case) and blocking a transition on graph absence would be a
+    // regression, not a hardening.
+    const answer = gateRender.normalizeGateAnswer(normalized.gate_id, validChosen, 'approve');
+    let ratifiedEvent = null;
     try {
-      result = transition(room.abs_path, opArg, 'manual_set', {});
+      const nav = loadNavigationModule();
+      const db = nav.openRoomDbForCaller(room.abs_path);
+      if (db) {
+        try {
+          ratifiedEvent = nav.logMemoryEvent(db, 'mcp_client_event_logged', {
+            label: 'gate_answer',
+            gate_id: answer.gate_id,
+            chosen: answer.chosen,
+            verdict: answer.verdict,
+          });
+        } finally {
+          nav.closeRoomDbForCaller(db);
+        }
+      }
+    } catch (_e) {
+      ratifiedEvent = null;
+    }
+    const gateInfo = { gate_id: answer.gate_id, verdict: answer.verdict, chosen: answer.chosen, ratified_event: ratifiedEvent };
+
+    // Fire the transition. Ordering doctrine: the ratification write above
+    // runs BEFORE this call -- the act may be irreversible, so an act that
+    // runs must never be unrecorded, while a ratification recorded for an
+    // act that then faulted stays visible and is the recoverable direction
+    // (mirrors lib/mcp/tools/gate.cjs lines 242-247). Fired ONLY on an
+    // approve verdict.
+    let result;
+    if (answer.verdict !== 'approve') {
+      if (flags.json) {
+        process.stdout.write(JSON.stringify({
+          subcommand: 'set',
+          room: room.slug,
+          transition: {
+            success: false,
+            violations: [{ category: 'gate', severity: 'error', message: 'verdict was not approve: ' + answer.verdict }],
+          },
+          gate: gateInfo,
+        }, null, 2) + '\n');
+      } else {
+        writeError3Line(
+          'transition not fired: ' + state.current + ' -> ' + opArg,
+          'gate verdict was ' + answer.verdict + ', not approve',
+          '/mos:operator set  # render F.1 picker for valid options'
+        );
+        process.stdout.write(renderShapeE(state, room, { entries: 5 }));
+      }
+      process.exit(1);
+    }
+    try {
+      result = transition(room.abs_path, answer.chosen[0], 'manual_set', {});
     } catch (e) {
       if (flags.json) {
         process.stdout.write(JSON.stringify({
@@ -533,6 +667,7 @@ async function main() {
             success: false,
             violations: [{ category: 'transition', severity: 'error', message: e.message }],
           },
+          gate: gateInfo,
         }, null, 2) + '\n');
       } else {
         writeError3Line(
@@ -551,6 +686,7 @@ async function main() {
           subcommand: 'set',
           room: room.slug,
           transition: { success: false, violations: violations },
+          gate: gateInfo,
         }, null, 2) + '\n');
       } else {
         const reason = violations[0] && violations[0].message ? violations[0].message : 'unknown';
@@ -576,6 +712,7 @@ async function main() {
           entered_at: newState.entered_at,
         },
         state: newState,
+        gate: gateInfo,
       }, null, 2) + '\n');
     } else {
       process.stdout.write(renderShapeE(newState, room, {
