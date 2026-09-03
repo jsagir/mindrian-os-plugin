@@ -823,7 +823,7 @@ Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/u
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 9/10 plans executed; the 10th (267.2-10) closes the phase: HOOK-01..12 registered,
+**Plans:** 10/10 plans complete
 `267.2-VALIDATION.md` reconciled, the gate roll-up measured as a delta against `267.2-BASELINE.md`,
 the dev-research trail composited, and a blocking navigator sign-off checkpoint (Task 3) pending.
 
@@ -858,7 +858,7 @@ Plans:
 
 **Wave 7**
 
-- [ ] 267.2-10-PLAN.md - HOOK-12: register `HOOK-01..HOOK-12`, reconcile `267.2-VALIDATION.md` against real plan numbers (D-M), run the full gate set reported as a DELTA against the recorded baseline rather than a bare green claim, composite the dev-research trail to `rethinking-mindrianos` (never bypassing `write-scope-check`), and a BLOCKING navigator sign-off on the actual first-install experience with the released-build limitation stated
+- [x] 267.2-10-PLAN.md - HOOK-12: register `HOOK-01..HOOK-12`, reconcile `267.2-VALIDATION.md` against real plan numbers (D-M), run the full gate set reported as a DELTA against the recorded baseline rather than a bare green claim, composite the dev-research trail to `rethinking-mindrianos` (never bypassing `write-scope-check`), and a BLOCKING navigator sign-off on the actual first-install experience with the released-build limitation stated
 
 **Stated gaps this phase does not close** (recorded, not overlooked): Claude Desktop and Cowork get no hook-side router, so the classifier ships as a pure `lib/core/` function reusable by a future MCP handler while the CLI hook is the only wiring (D-K); the reward lands one turn after the triggering sentence (D-D); `identity_write`'s frontmatter clobber on a second call, `user-archetype`'s first-declared tie-break, the Portfolio Manager vocabulary question, and `check-onboard --write`'s own model-compliance fragility are all registered with named owners in `267.2-DECISIONS.md` D-N.
 
