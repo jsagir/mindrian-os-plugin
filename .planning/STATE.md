@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 257-08-PLAN.md
-last_updated: "2026-09-03T06:09:46.916Z"
-last_activity: 2026-09-03 -- Completed 257-08-PLAN.md
+stopped_at: 257-09 Tasks 1-2 of 3 complete (Task 3 Canon Custodian checkpoint pending)
+last_updated: "2026-09-03T06:22:50.461Z"
+last_activity: 2026-09-03 -- 257-09 Tasks 1-2 of 3 complete, Task 3 (blocking human-verify checkpoint) pending navigator review
 progress:
   total_phases: 26
   completed_phases: 17
@@ -13,6 +13,20 @@ progress:
   completed_plans: 139
   percent: 99
 ---
+
+<!-- NOTE (257-09 execute-plan, 2026-09-03, THIRTY-EIGHTH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-session`, the frontmatter reverted to a garbled state
+     (completed_phases 18, completed_plans 140/140, percent 69 -- internally
+     inconsistent, and wrong regardless: 257-09's plan is NOT complete, only
+     Tasks 1-2 of its 3 tasks are; Task 3 is a blocking human-verify checkpoint
+     this execution is explicitly barred from simulating or auto-approving).
+     last_activity also reverted to a stale "Completed 257-01-PLAN.md" string.
+     Hand-corrected: completed_phases back to 17, completed_plans back to 139,
+     percent back to 99, stopped_at and last_activity to accurately state
+     257-09 is Tasks-1-2-of-3-complete/Task-3-pending, NOT a completed plan.
+     Root cause already tracked for a future `/gsd-debug` session per the
+     2026-09-01 handoff; not re-investigated here. -->
 
 <!-- NOTE (257-08 execute-plan, 2026-09-03, THIRTY-SEVENTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -26,7 +40,6 @@ progress:
      `percent`/`last_activity`). Root cause already tracked for a future
      `/gsd-debug` session per the 2026-09-01 handoff; not re-investigated
      here. -->
-
 
 <!-- NOTE (257-07 execute-plan, 2026-09-03, THIRTY-SIXTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -727,6 +740,55 @@ progress:
      lagged). Not this plan's own regression. -->
 
 # Project State
+
+## (2026-09-03) -- 257-09 CHECKPOINT -- Compliance record + LOCUS registration complete, Task 3 Canon Custodian checkpoint pending
+
+- **Position:** Phase 257 (Part 8 Enforcement Locus, host-independent egress guard) Plan 09
+  Tasks 1-2 are COMPLETE; Task 3 (`type="checkpoint:human-verify" gate="blocking"`) has NOT
+  started, and was deliberately NOT executed, simulated, or auto-approved by this execution
+  per explicit instruction. This is a CHECKPOINT stop, not plan or phase completion --
+  LOCUS-10 stays `- [ ]` in `.planning/REQUIREMENTS.md` until Task 3's actual navigator
+  approval closes it. This is also the last plan of Phase 257 and of the 8-plan wave sequence
+  that preceded it (257-01 through 257-08, all landed on this branch immediately before this
+  session).
+
+- **Task 1 (`257-COMPLIANCE.md`, the Part 8 PR gate discharge record):** every command D-11
+  names run this session with verbatim output beside its `257-BASELINE.md` value: `doctor
+  --acceptance` Class O PASS (transient unrelated L4 flake on run 1, clean 18/18 on run 2),
+  `run-all-257.sh` 8/0/0, `run-all-239.sh` 9/0/0 against the recorded 7/2/0 baseline (D-10
+  honesty delta, not a bare green claim), `run-all-234.sh` PASS=8/FAIL=3 unchanged from
+  baseline (pre-existing, out of scope), `check-substrate.cjs --diff` clean, `check-shape-
+  declaration.cjs --check` 53 WARN/exit 0 matching Plan 08's own before/after, four
+  RESEARCH.md-measured-green suites all still green, full `git diff --stat` against the
+  phase's starting commit (`80275080`, 18 files changed). Sections A (PR gate question
+  answered file-by-file), B (four-path coverage table), C (seven named gaps not closed) all
+  written. Not git-tracked (`.planning/*` gitignored; new planning artifacts are never
+  force-added per this repo's established convention, matching `257-BASELINE.md`'s own
+  precedent).
+
+- **Task 2 (LOCUS-10 registration + ROADMAP finalization):** LOCUS-10's automated half cited
+  in full in `.planning/REQUIREMENTS.md`; the row's checkbox deliberately left `- [ ]` because
+  its own text names the pending human sign-off as part of what it certifies (a disclosed,
+  explicit departure from the plan's literal "[x]" wording, reasoned in full in
+  `257-09-SUMMARY.md`). Traceability section confirmed already correct (extended incrementally
+  by 257-01..04's own commits). `.planning/ROADMAP.md` Phase 257 `**Plans:**` line and Wave 5
+  entry updated to state Tasks 1-2 complete / Task 3 pending. Commit `6fbb9898`.
+
+- **Dev-Research Compositing:** attempted, blocked by the same stale room-binding guard
+  Phase 254/262/271/274 already hit (active room `jonathan-contractor-motj`, not
+  `rethinking-mindrianos`). Not rebound, phase not held, per established precedent. Full
+  intended content reproduced verbatim in `257-09-SUMMARY.md` as a named follow-up.
+
+- **Task 3 (Canon Custodian sign-off, navigator-only):** NOT started. Requires reading
+  `257-COMPLIANCE.md` in full (especially Sections B and C), confirming the diff surface
+  against the expected file list (two named files beyond that list, explained: the two
+  frozen-downstream-contract test files D-03 required amending), confirming the four-path
+  coverage claim, confirming the D-01/D-02 rulings are stated as given, confirming the 239
+  before/after is honest, and answering the Canon's own PR-gate question. Resume signal:
+  "approved" closes the phase; anything else is a re-planning event per the plan's own
+  `<resume-signal>` instruction.
+
+- **Full detail:** `.planning/phases/257-part-8-enforcement-locus-host-independent-egress-guard/257-09-SUMMARY.md`
 
 ## (2026-08-27) -- 267.3-01 COMPLETE -- jurisdiction measured and ruled option-a, GUARD-01..10 minted
 
@@ -5970,7 +6032,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T06:09:46.861Z
+Last session: 2026-09-03T06:22:50.408Z
 Stopped at: Completed 257-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
