@@ -366,10 +366,107 @@ function firstBodyLine(filePath) {
   return 'Artifact contributes evidence to this section.';
 }
 
+// Quick task 260903-i2x (T2 read half) -- reads the highest-confidence,
+// most-recent conclusion/decision node for this section, straight from
+// room.db, so deriveGoverningThought below can render REAL reasoning-node
+// text instead of the count-based template once such a node exists.
+//
+// Canon Part 9 / substrate mandate M2: navigation.cjs is the ONLY door to
+// room.db. openRoomDbReadOnlyForCaller (navigation.cjs:450-467) is the right
+// MODE of that door here because a doc generator must never migrate or
+// mutate the room it is describing -- the plain openRoomDbForCaller mode
+// runs 13 schema-creation clauses (each an "IF NOT EXISTS" table create) plus
+// 5 migrations on every open, which is wrong for a read-only describer. This closes the handle
+// via navigation.closeRoomDbForCaller because there is deliberately no
+// read-only sibling close function (same re-export, tolerant of a bare
+// DatabaseSync).
+//
+// Lazy-required INSIDE the function, inside try/catch, mirroring the
+// existing tryEnqueueBrainDerivation lazy-require idiom at line ~598 -- this
+// keeps the generator's cold path free of the navigation module and keeps a
+// missing/incompatible module from ever breaking the render.
+//
+// The whole function body is one try/catch returning null on ANY failure. A
+// legacy un-migrated 3-column room.db has no confidence / created_at
+// columns (node-insert.cjs::isMigratedSchema's two-schema reality) and this
+// query will throw against it -- that is EXPECTED and exactly why the whole
+// body degrades to null rather than propagating.
+function readGoverningThoughtFromGraph(roomDir, sectionSlug) {
+  let navigation;
+  try {
+    navigation = require('../lib/core/navigation.cjs');
+  } catch (_e) {
+    return null;
+  }
+  try {
+    const db = navigation.openRoomDbReadOnlyForCaller(roomDir);
+    if (!db) return null;
+    try {
+      // The Artifact + properties.section join shape is the shipped one at
+      // lib/core/graph-ops.cjs:242 (json_extract(properties,'$.section') on
+      // an Artifact node) -- cited rather than inventing a second
+      // convention. DERIVED_FROM is included alongside SOURCED_FROM in the
+      // edge-type match so a node reachable only via the Phase 120-00
+      // structural edge is still found, not just T2's own new edge.
+      const row = db.prepare(
+        `SELECT json_extract(n.properties,'$.text') AS text
+         FROM nodes n
+         WHERE json_extract(n.properties,'$.epistemic_type') IN ('conclusion','decision')
+           AND json_extract(n.properties,'$.text') IS NOT NULL
+           AND json_extract(n.properties,'$.text') != ''
+           AND (
+             json_extract(n.properties,'$.section') = ?
+             OR n.id IN (
+               SELECT e.source FROM edges e
+               WHERE e.type IN ('SOURCED_FROM','DERIVED_FROM')
+                 AND e.target IN (
+                   SELECT a.id FROM nodes a
+                   WHERE a.type = 'Artifact'
+                     AND json_extract(a.properties,'$.section') = ?
+                 )
+             )
+           )
+         ORDER BY COALESCE(n.confidence, 0) DESC, COALESCE(n.created_at, 0) DESC
+         LIMIT 1`
+      ).get(sectionSlug, sectionSlug);
+      if (row && typeof row.text === 'string' && row.text.length > 0) {
+        return row.text;
+      }
+      return null;
+    } finally {
+      navigation.closeRoomDbForCaller(db);
+    }
+  } catch (_e) {
+    return null;
+  }
+}
+
 function deriveGoverningThought(section, artifacts) {
   const title = slugToTitle(section.name);
   const n = artifacts.length;
-  return `${title} synthesizes ${n} artifact${n === 1 ? '' : 's'} into a coherent argument for this section of the venture.`;
+  const fallback = `${title} synthesizes ${n} artifact${n === 1 ? '' : 's'} into a coherent argument for this section of the venture.`;
+  // Quick task 260903-i2x: try the graph first (section.parentRoomDir is
+  // already in scope at both call sites two lines above their own call, so
+  // no signature change is needed). On day one there are zero such nodes in
+  // any existing room, so the fallback IS the normal path until the Task 2
+  // write paths have run for a while; the fallback gets removed only once a
+  // room is observed producing real conclusion nodes through normal use,
+  // never on a fixed date.
+  //
+  // Idempotence consequence (WIKI-07): the byte-identical-on-re-run contract
+  // now holds PER GRAPH STATE rather than absolutely. Two runs with an
+  // unchanged graph are still byte-identical; a run after a new conclusion
+  // node lands legitimately produces new content, which is the entire point
+  // of this change.
+  const roomDir = section && section.parentRoomDir;
+  const sectionSlug = section && section.name;
+  if (typeof roomDir === 'string' && roomDir.length > 0 && typeof sectionSlug === 'string' && sectionSlug.length > 0) {
+    const graphThought = readGoverningThoughtFromGraph(roomDir, sectionSlug);
+    if (typeof graphThought === 'string' && graphThought.length > 0) {
+      return graphThought;
+    }
+  }
+  return fallback;
 }
 
 function deriveClaims(artifacts, sectionDir, max = 5) {
@@ -1527,6 +1624,7 @@ module.exports = {
   renderSectionMinto,
   collectSectionArtifacts,
   deriveGoverningThought,
+  readGoverningThoughtFromGraph,
   deriveClaims,
   deriveMeceTree,
   deriveGaps,
