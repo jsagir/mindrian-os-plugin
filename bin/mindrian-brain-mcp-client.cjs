@@ -148,7 +148,7 @@ const server = new McpServer({ name: 'mindrian-brain', version: version });
 server.registerTool(
   'brain_ask',
   {
-    description: 'Ask the remote PWS teaching graph a natural-language methodology question. Routing happens server-side over the live Memgraph teaching graph using locally-embedded multilingual-e5-large vectors. Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
+    description: 'Ask the remote PWS teaching graph a natural-language methodology question. Routing happens server-side over the live Memgraph teaching graph using locally-embedded multilingual-e5-large vectors. Returns a DirectiveEnvelope carrying the directive content; the envelope\'s mode is set from the upstream response\'s mode signals when present, and falls back to the default mode (GUIDED) when they are absent. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
     inputSchema: z.strictObject({ question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') }),
   },
   async ({ question }) => {
