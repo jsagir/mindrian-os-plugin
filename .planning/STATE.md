@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 276-03-PLAN.md
-last_updated: "2026-09-03T18:03:15.279Z"
+last_updated: "2026-09-03T18:14:26.862Z"
 last_activity: 2026-09-03 -- Phase 276 execution started
 progress:
-  total_phases: 89
+  total_phases: 90
   completed_phases: 19
   total_plans: 166
-  completed_plans: 155
+  completed_plans: 156
   percent: 21
 ---
 
@@ -3964,7 +3964,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 276 (mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs) — EXECUTING
-Plan: 6 of 16
+Plan: 7 of 16
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 276 execution started
 
@@ -4726,6 +4726,7 @@ Progress: [█████████░] 92%
 | Phase 276 P03 | 27min | 2 tasks | 2 files |
 | Phase 276 P04 | 33min | 3 tasks | 3 files |
 | Phase 276-mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs P05 | 4min | 3 tasks | 2 files |
+| Phase 276 P06 | 55min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -5287,8 +5288,8 @@ Progress: [█████████░] 92%
   before reading the Framework population). Confirmed with `gsd-tools init phase-op` before AND
   after: phase_found:false on "253"/"v2.1.0" caught the original ROADMAP/STATE drift; phase_found
   now correctly resolves for 253 (retired stub, still a valid phase entry) after the fix.
-- Phase 339 added (2026-09-03): Brain-to-Theo cutover release. Navigator directive: make the transition to Theo, clean cutover, two parallel sessions (T in ~/Theo resumes Phase 9 at 09-12 Task 2; M in this repo owns 339). The flip is one line (brain-client.cjs:24 default origin to https://theo-mcp.onrender.com) plus a release; Theo 09-FLIP-RECORD.md reads AUTHORIZED, not yet executed. NOT Phase 267 (SDK v2 migration, still blocked upstream: ext-apps 1.7.5 peer sdk ^1.29.0, re-verified 2026-09-03).
 
+- Phase 339 added (2026-09-03): Brain-to-Theo cutover release. Navigator directive: make the transition to Theo, clean cutover, two parallel sessions (T in ~/Theo resumes Phase 9 at 09-12 Task 2; M in this repo owns 339). The flip is one line (brain-client.cjs:24 default origin to https://theo-mcp.onrender.com) plus a release; Theo 09-FLIP-RECORD.md reads AUTHORIZED, not yet executed. NOT Phase 267 (SDK v2 migration, still blocked upstream: ext-apps 1.7.5 peer sdk ^1.29.0, re-verified 2026-09-03).
 
 ### Decisions
 
@@ -6142,6 +6143,7 @@ Progress: [█████████░] 92%
 - [Phase 276]: TOOLHON-02/06/12 tests built: ledger diff RED by design, ALLOWED_UNVERIFIED suppression proven behaviorally (positive+negative controls), Theo parity measured live (gate_answer differs at offset 585, chain_run corrected to IDENTICAL vs research's stale claim)
 - [Phase ?]: OQ-276-1: mapping table lives in typed-claim.cjs (b+d), operator-cap comparison deferred to 276-16
 - [Phase ?]: OQ-276-2: claim_write is one MCP tool, writes at proposed through node-insert.cjs, gate_answer promotes
+- [Phase 276]: The ten room_graph.* MEDIUM ledger entries record 276-RESEARCH.md's default recommendation (detector-fix, expected OK, owner 276-07) pending that plan's actual WEAK-tier sibling-writes-discount ruling, since 276-07 has not yet run
 
 ### Pending Todos
 
@@ -6263,7 +6265,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T18:03:00.825Z
+Last session: 2026-09-03T18:14:26.796Z
 Stopped at: Completed 276-03-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
