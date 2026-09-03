@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 296-05-PLAN.md
-last_updated: "2026-09-03T19:01:20.588Z"
+stopped_at: "296-06 Task 3 checkpoint:human-verify (gate=blocking) pending navigator answer -- Tasks 1-2 complete and committed, do not treat as phase-complete"
+last_updated: "2026-09-03T19:19:24.603Z"
 last_activity: 2026-09-03 -- Phase 296 execution started
 progress:
   total_phases: 89
@@ -13,6 +13,20 @@ progress:
   completed_plans: 62
   percent: 4
 ---
+
+<!-- HAND-CORRECTED (296-06 executor, 2026-09-03): state add-blocker / state
+     record-session both auto-resynced completed_phases 4->5, completed_plans
+     62->63, percent 4->6, apparently because 296-06-SUMMARY.md now exists on
+     disk -- the same documented STATE.md resync-clobber bug the SIXTIETH+
+     occurrence note directly below already tracks (a SUMMARY.md's mere
+     existence counted as phase/plan completion, regardless of this plan's
+     own Task 3 checkpoint being explicitly NOT executed). Reverted the three
+     counters to their pre-session values by hand, per this file's own
+     established convention. Phase 296 / Plan 296-06 is NOT complete: Task 3
+     (checkpoint:human-verify, gate=blocking) is paused awaiting the
+     navigator. Not re-investigating the root cause here; already tracked for
+     a future /gsd-debug session. -->
+
 
 <!-- NOTE (session close-out, 2026-09-03, SIXTIETH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -6165,6 +6179,7 @@ Progress: [█████████░] 92%
 - Phase 246-02 Task 3 checkpoint: Lane B admin-key operator step pending. Lane A (246-02 Task 1+2) committed at b7832dd0/f7176a7a. Resume: operator runs MINDRIAN_BRAIN_KEY=<admin key> node scripts/build-brain-census.cjs --lane-b in their own terminal, or supplies a local-twin results JSON path.
 - Phase 246 Plan 01 (LOOP-01): fresh-session three-call Brain test checkpoint OPEN. Preflight green (beta.13 cache, key resolves, Render healthy, 245 fence PASS=19). Operator must open a NEW Claude Code session and run the three plugin-scope Brain calls, then report verbatim results. See 246-01-SUMMARY.md.
 - 258-06 BLOCKED at task 1 re-verification: this executor subagent has ZERO MCP tool access (ToolSearch itself returns "disabled for this session, in subagents as well as here"; direct mcp__pws-brain-mcp__brain_write and mcp__context7__resolve-library-id calls both return "No such tool available"). Matches the documented upstream bug anthropics/claude-code#13898 (MCP tools stripped from agents with a tools: frontmatter restriction), but here it is session-wide, not just Context7. Independently re-verified the PAYLOAD CONTENT claim from the 2026-08-20 handoff (payloads/order-collision-dishare-2026-08-20/01-dishare-24219.cypher and manifest.json in ProblemsWorthSolving-Brain, read directly): confirmed correct, card 1 deletes Red Teaming's HAS_PROCESS_STEP edge outright and corrects node 24219's order 3 to 5 in place, matches the handoff's description exactly. Could NOT independently re-verify the brain_write tool-surface/dryRun claim (no tool access to check), and could not run task 2's dry-run recompile (no brain_write/brain_query access). Did not proceed to task 2, did not open or close the admin window, made zero graph calls, zero commits, zero file edits in either repo. RESOLUTION NEEDED: re-dispatch 258-06 from a session or agent context that retains MCP tool access (not a tools-restricted subagent), then re-run task 1's re-verification for real before task 2.
+- 296-06 Task 3 (checkpoint:human-verify, gate=blocking): paused awaiting navigator ratification of two planner_decision blocks (296-04 sidecar storage location, 296-05 auto-explore dispatch bypass), a Tier-2 HSI same-range-or-no-key answer, and a disposition for orphaned Phase 228/295 registrations. tests/296-pinecone-residue.sh passes; PRESENCE+ABSENCE both confirmed. Full checkpoint text in 296-06-SUMMARY.md.
 
 ### Quick Tasks Completed
 
@@ -6263,8 +6278,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T19:01:20.522Z
-Stopped at: Completed 296-05-PLAN.md
+Last session: 2026-09-03T19:19:24.539Z
+Stopped at: 296-06 Task 3 checkpoint:human-verify (gate=blocking) pending navigator answer -- Tasks 1-2 complete and committed, do not treat as phase-complete
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
