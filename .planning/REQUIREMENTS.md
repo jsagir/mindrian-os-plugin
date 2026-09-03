@@ -931,7 +931,15 @@ one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop'
       automated leg (`doctor.cjs --acceptance` Class O `agentshield-all-surfaces-clean`, which
       delegates to `classify()`), the suites reported against their recorded baseline, and a blocking
       human Canon Custodian checkpoint naming the diff surface and which of the four Brain paths the
-      change covers and which it deliberately does not. `257-COMPLIANCE.md` (257-09).
+      change covers and which it deliberately does not. Automated half COMPLETE and recorded in
+      `257-COMPLIANCE.md` (257-09 Task 1): Class O PASS, `run-all-257.sh` 8/0/0, `run-all-239.sh` 9/0/0
+      (baseline 7/2/0, D-10 delta stated), `run-all-234.sh` PASS=8/FAIL=3 (pre-existing, cited against
+      `257-BASELINE.md`, out of scope), `check-substrate.cjs --diff` clean, four regression suites
+      green, full diff surface and Sections A/B/C recorded. This row stays `[ ]` because the row's own
+      definition includes the human Canon Custodian sign-off (Task 3, `type="checkpoint:human-verify"
+      gate="blocking"`), which is a mandatory, unautomatable human gate and has NOT yet run at the time
+      this row was written (257-09's own execution agent is explicitly barred from simulating or
+      auto-approving it). Flip to `[x]` only after Task 3's actual resume signal is "approved".
 
 **The three stated decisions this phase made at plan time, recorded so a future reader does not have
 to rediscover them:**
