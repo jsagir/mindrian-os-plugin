@@ -19,13 +19,18 @@
  * each, a documented membership rule); check-tool-honesty.cjs:76-82 copied
  * it as prose only. This file is the structural half that was missing.
  *
- * Groups A, B and C exercise the CURRENT tree (array ships empty, the
- * HIGH_RISK-only guard is intact) and pass today. Group D requires the
- * declaration-site field documentation (tool, command, reason, triaged)
- * that plan 276-06 adds, and is the one assertion expected to fail today --
- * a future contributor should read the entry contract at the declaration
- * site, not infer it from the consumption site the way this phase's own
- * research had to.
+ * Groups A, B and C exercise the checker mechanism (array ships empty, the
+ * HIGH_RISK-only guard is intact). Group D requires the declaration-site
+ * field documentation (tool, command, reason, triaged) that plan 276-06
+ * adds. Both negative controls (MEDIUM, UNKNOWN) in Group B stay behavioral
+ * against the real live scanAll() / ALLOWED_UNVERIFIED (D-276-2's
+ * never-suppressible guarantee has to hold against the actual codebase, not
+ * a fixture standing in for it). The HIGH_RISK positive control (phase
+ * 276-15, deviation directive 1) is sourced from a SYNTHETIC fixture
+ * (tests/fixtures/tool-honesty/positive.cjs) rather than the live tree: this
+ * whole phase's goal is driving HIGH_RISK to 0, so a suppression-path proof
+ * that depended on a live HIGH_RISK row existing would go red the moment
+ * the phase succeeded -- the same move 276-07 made for the UNKNOWN control.
  *
  * Canon Part 8: LOCAL only. node:fs, node:path, node:assert/strict only. No
  * network, no Brain call, no room.db write. No em-dashes.
@@ -120,7 +125,6 @@ process.stdout.write('\n-- GROUP B: MEDIUM and UNKNOWN are never suppressible by
 {
   const baseline = checker.scanAll();
   const mediumRow = baseline.rows.find((r) => r.verdict === 'MEDIUM');
-  const highRiskRow = baseline.rows.find((r) => r.verdict === 'HIGH_RISK');
 
   // UNKNOWN, phase 276-07: sourced from a dedicated synthetic fixture
   // (tests/fixtures/tool-honesty/unresolvable.cjs), NOT the live tree.
@@ -138,12 +142,28 @@ process.stdout.write('\n-- GROUP B: MEDIUM and UNKNOWN are never suppressible by
   });
   const unknownRow = unknownScan.rows.find((r) => r.verdict === 'UNKNOWN');
 
+  // HIGH_RISK positive control, phase 276-15 (deviation directive 1): sourced
+  // from the SAME synthetic fixture test-ljj-tool-honesty.cjs's own
+  // POSITIVE_SYNTHETIC assertion already uses (tests/fixtures/tool-honesty/
+  // positive.cjs, fixture_positive.(default) -- a STRONG "files ... into the
+  // room" claim over a handler with no reachable write primitive), NOT the
+  // live tree. This phase (276) drove global HIGH_RISK to 0: a test whose
+  // suppression-path proof required the codebase to stay broken would have
+  // gone red the moment the phase succeeded at its own goal. Reusing the
+  // already-shipped fixture (rather than minting a second one) keeps exactly
+  // one canonical HIGH_RISK synthetic in the suite.
+  const highRiskFixturePath = path.join(REPO_ROOT, 'tests', 'fixtures', 'tool-honesty', 'positive.cjs');
+  const highRiskScan = checker.scanAll({
+    files: [{ absPath: highRiskFixturePath, relPath: 'tests/fixtures/tool-honesty/positive.cjs' }],
+  });
+  const highRiskRow = highRiskScan.rows.find((r) => r.verdict === 'HIGH_RISK');
+
   check('a live MEDIUM row exists today to exercise the never-suppressible guard against',
     !!mediumRow, mediumRow ? undefined : 'no MEDIUM row found in the current tree');
   check('the synthetic unresolvable fixture produces an UNKNOWN row to exercise the never-suppressible guard against',
     !!unknownRow, unknownRow ? undefined : 'fixture_unresolvable did not resolve to UNKNOWN -- fixture shape drifted');
-  check('a live HIGH_RISK row exists today as the suppression path\'s positive control',
-    !!highRiskRow, highRiskRow ? undefined : 'no HIGH_RISK row found in the current tree');
+  check('the synthetic positive fixture produces a HIGH_RISK row as the suppression path\'s positive control',
+    !!highRiskRow, highRiskRow ? undefined : 'fixture_positive did not resolve to HIGH_RISK -- fixture shape drifted');
 
   // checker.ALLOWED_UNVERIFIED is the SAME array instance scanAll()'s
   // consumption-site loop (check-tool-honesty.cjs:1161-1168) reads from --
@@ -199,13 +219,15 @@ process.stdout.write('\n-- GROUP B: MEDIUM and UNKNOWN are never suppressible by
         reason: 'D-276-2 test probe: positive control, HIGH_RISK IS the one tier the mechanism suppresses once triaged.',
         triaged: '2026-09-03',
       });
-      const afterHigh = checker.scanAll();
+      const afterHigh = checker.scanAll({
+        files: [{ absPath: highRiskFixturePath, relPath: 'tests/fixtures/tool-honesty/positive.cjs' }],
+      });
       const row = afterHigh.rows.find((r) => r.tool === highRiskRow.tool && r.command === highRiskRow.command);
       check(
-        'positive control: an ALLOWED_UNVERIFIED entry naming a live HIGH_RISK row (' + highRiskRow.tool + '.' + highRiskRow.command
+        'positive control: an ALLOWED_UNVERIFIED entry naming the synthetic HIGH_RISK row (' + highRiskRow.tool + '.' + highRiskRow.command
           + ') DOES suppress to OK -- proves the mechanism itself works, so Group B is not vacuous',
         !!row && row.verdict === 'OK' && /^allow-listed \(triaged\)/.test(row.reason || ''),
-        'live verdict after synthetic allowlist entry: ' + (row ? row.verdict + ' / ' + row.reason : 'MISSING')
+        'verdict after synthetic allowlist entry: ' + (row ? row.verdict + ' / ' + row.reason : 'MISSING')
       );
     }
   } finally {

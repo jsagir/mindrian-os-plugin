@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "frozen_at_commit": "b88a39d3",
+  "frozen_at_commit": "e484f4b3",
   "frozen_sweep": {
-    "tools": 36,
-    "branches": 130,
-    "high_risk": 5,
-    "medium": 18,
+    "tools": 37,
+    "branches": 131,
+    "high_risk": 0,
+    "medium": 12,
     "low": 0,
-    "unknown": 1,
-    "ok": 106
+    "unknown": 0,
+    "ok": 119
   },
   "dispositions": [
     {
@@ -19,7 +19,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "lib/mcp/tool-router.cjs:1491 claims room and scout operations are ordinary reads and writes, but scout has no branch and falls through to the reference-echo fallback at lib/mcp/tool-router.cjs:1623-1655 (Suggested Next reads Scout intelligence gathered - analyze room while nothing is gathered). commands/scout.md genuinely writes, so the description describes the CLI command, not the MCP tool. Fix is a description correction, not a suppression."
+      "reason": "lib/mcp/tool-router.cjs:1491 claims room and scout operations are ordinary reads and writes, but scout has no branch and falls through to the reference-echo fallback at lib/mcp/tool-router.cjs:1623-1655 (Suggested Next reads Scout intelligence gathered - analyze room while nothing is gathered). commands/scout.md genuinely writes, so the description describes the CLI command, not the MCP tool. Fix is a description correction, not a suppression.",
+      "resolved_at_commit": "15d65f47"
     },
     {
       "tool": "room_content",
@@ -29,7 +30,8 @@
       "disposition": "real-bug-fix",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "lib/mcp/tool-router.cjs:738 claims This is the WRITE surface (new-project, setup, file-opportunity, create-funding, invoke-persona). The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo; fireCascade is downstream bookkeeping, not project creation. Real defect, matching the rooms-open-false-success shape."
+      "reason": "lib/mcp/tool-router.cjs:738 claims This is the WRITE surface (new-project, setup, file-opportunity, create-funding, invoke-persona). The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo; fireCascade is downstream bookkeeping, not project creation. Real defect, matching the rooms-open-false-success shape.",
+      "resolved_at_commit": "15d65f47"
     },
     {
       "tool": "room_content",
@@ -39,7 +41,8 @@
       "disposition": "real-bug-fix",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "lib/mcp/tool-router.cjs:738 claims This is the WRITE surface (new-project, setup, file-opportunity, create-funding, invoke-persona). The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo, same defect as new-project and update; setup never writes despite the claim."
+      "reason": "lib/mcp/tool-router.cjs:738 claims This is the WRITE surface (new-project, setup, file-opportunity, create-funding, invoke-persona). The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo, same defect as new-project and update; setup never writes despite the claim.",
+      "resolved_at_commit": "15d65f47"
     },
     {
       "tool": "room_content",
@@ -49,7 +52,8 @@
       "disposition": "real-bug-fix",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "lib/mcp/tool-router.cjs:738 claims Create and update the entities that live inside a room. The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo; update performs no create-or-update write despite the description's explicit claim."
+      "reason": "lib/mcp/tool-router.cjs:738 claims Create and update the entities that live inside a room. The four-label fall-through group at lib/mcp/tool-router.cjs:756-773 (new-project/setup/update/help) is a pure reference echo; update performs no create-or-update write despite the description's explicit claim.",
+      "resolved_at_commit": "15d65f47"
     },
     {
       "tool": "room_content",
@@ -59,7 +63,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "lib/mcp/tool-router.cjs:738 names invoke-persona explicitly as part of the WRITE surface. lib/core/persona-ops.cjs:550-571's invokePersona reads a persona file via fs.readdirSync/safeReadFile and returns it or an error object; it performs zero writes. Description correction, not a real write gap."
+      "reason": "lib/mcp/tool-router.cjs:738 names invoke-persona explicitly as part of the WRITE surface. lib/core/persona-ops.cjs:550-571's invokePersona reads a persona file via fs.readdirSync/safeReadFile and returns it or an error object; it performs zero writes. Description correction, not a real write gap.",
+      "resolved_at_commit": "15d65f47"
     },
     {
       "tool": "export",
@@ -69,7 +74,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect.",
+      "resolved_at_commit": "43e3308e"
     },
     {
       "tool": "export",
@@ -79,7 +85,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect.",
+      "resolved_at_commit": "43e3308e"
     },
     {
       "tool": "export",
@@ -89,7 +96,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect.",
+      "resolved_at_commit": "43e3308e"
     },
     {
       "tool": "export",
@@ -99,7 +107,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect.",
+      "resolved_at_commit": "43e3308e"
     },
     {
       "tool": "export",
@@ -109,7 +118,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect.",
+      "resolved_at_commit": "43e3308e"
     },
     {
       "tool": "export",
@@ -119,7 +129,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect.",
+      "resolved_at_commit": "43e3308e"
     },
     {
       "tool": "export",
@@ -129,7 +140,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-08",
-      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect.",
+      "resolved_at_commit": "43e3308e"
     },
     {
       "tool": "gate_render",
@@ -139,7 +151,8 @@
       "disposition": "description-correction",
       "expected_final_verdict": "OK",
       "owner_plan": "276-11",
-      "reason": "lib/mcp/tools/gate.cjs:113 says Returns a minted gate_id. gate.cjs:45-70 shows _mintLiveGate delegates to gateLedger.mintGate, an in-memory TTL-bounded single-use ledger, not persistent state. D-276-3: an in-memory gate-ledger mint is not persistence, so the fix is a description correction, not adding minted to STRONG_VERBS. Theo mirror task owned by 276-13."
+      "reason": "lib/mcp/tools/gate.cjs:113 says Returns a minted gate_id. gate.cjs:45-70 shows _mintLiveGate delegates to gateLedger.mintGate, an in-memory TTL-bounded single-use ledger, not persistent state. D-276-3: an in-memory gate-ledger mint is not persistence, so the fix is a description correction, not adding minted to STRONG_VERBS. Theo mirror task owned by 276-13.",
+      "resolved_at_commit": "02468fcb"
     },
     {
       "tool": "context_assemble",
@@ -149,7 +162,8 @@
       "disposition": "detector-fix",
       "expected_final_verdict": "OK",
       "owner_plan": "276-07",
-      "reason": "Two stacked detector bugs. check-tool-honesty.cjs:979-983 isLocallyNegated requires immediate adjacency, so file in STRONG_VERBS (line 947) matches as a noun in context.cjs:36's Never returns raw file contents without being recognized as negated. Second, locateFunctionBody cannot follow navigation.cjs:562's getRoomContext: roomContext.getRoomContext barrel re-export from context.cjs:61's call. Expected OK if both detector fixes land."
+      "reason": "Two stacked detector bugs. check-tool-honesty.cjs:979-983 isLocallyNegated requires immediate adjacency, so file in STRONG_VERBS (line 947) matches as a noun in context.cjs:36's Never returns raw file contents without being recognized as negated. Second, locateFunctionBody cannot follow navigation.cjs:562's getRoomContext: roomContext.getRoomContext barrel re-export from context.cjs:61's call. Expected OK if both detector fixes land.",
+      "resolved_at_commit": "02287c30"
     },
     {
       "tool": "room_graph",
@@ -271,5 +285,9 @@
       "owner_plan": "276-07",
       "reason": "tool-router.cjs:1231's intelligence description ('Run intelligence operations: find connections, grade ventures, build thesis, research.') carries a WEAK claim ('build') that extractClaims attaches per-command to every named vocabulary member in the sentence, including grade. Newly surfaced by plan 276-07 Task 2's own B-4 includes()-dispatch fix: before that fix, EUREKA_COMPUTE_COMMANDS.includes(command)'s branch body was NOT recognized as consumed, so it stayed part of sharedBodyText and leaked into EVERY command's effectiveText -- including grade's -- making grade falsely resolve WRITES via a write primitive that belongs to a DIFFERENT command's body. After the fix isolates that body into its own branch, grade correctly resolves NO_WRITE and the pre-existing WEAK claim becomes visible. eureka-run/eureka-status/eureka-report are the tool's real writing siblings. Plan 276-07's WEAK-tier sibling-writes ruling (classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) applies identically here: NOT extended, so this MEDIUM stays permanently visible rather than being cleared by 'a sibling writes' reasoning. Per D-276-2 this is a closed finding, not unfinished work."
     }
-  ]
+  ],
+  "refrozen_at": {
+    "commit": "e484f4b3",
+    "reason": "Re-frozen by plan 276-15 (TOOLHON-14/D-276-2 close-out): the original b88a39d3 freeze (36 tools / 130 branches) was invalidated by plan 276-12 adding the claim_write tool, which moved the scanned surface to 37 tools / 131 branches. Every entry below was reconciled against the live scan at this commit: 14 entries whose expected_final_verdict was OK are confirmed resolved (each carries a resolved_at_commit naming the fix), and the 12 room_graph/intelligence entries whose expected_final_verdict is MEDIUM are confirmed still live with that exact verdict, per D-276-2 (permanently visible, never suppressed). HIGH_RISK is 0."
+  }
 }
