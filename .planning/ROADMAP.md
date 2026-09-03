@@ -1051,7 +1051,21 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 294 to break down)
 
-### Phase 295: SEED-029: Local-Embedding Vector Spine in room.db, Retire Pinecone for Room + Signal
+### Phase 295 [CLOSED 2026-09-03, substantially-shipped-elsewhere]: SEED-029: Local-Embedding Vector Spine in room.db, Retire Pinecone for Room + Signal
+
+**Closed (navigator-ratified 2026-09-03, per Phase 296-RESEARCH.md Finding F-10):** this
+phase's own "Depends on: Phase 294" line was `phase.add` heading boilerplate, not a real
+dependency, and was never planned. SEED-029's real technical ask -- a local embedding layer
+with vector persistence in room.db -- shipped anyway, under Phase 211 (`embedding-spine.cjs`)
+and quick `260706-13z` (`vector-store.cjs`), with deliberate, documented improvements over
+what the seed originally specified (see F-10 for the full comparison table). That covers
+SEED-029's acceptance items 1, 2, 3, and 5 for the ROOM corpus. The one piece that did NOT
+ship under those phases -- retiring the pre-built Pinecone index for the SIGNAL corpus (the
+seed's own F8 cross-room-bleed finding) -- was Phase 296's actual work (SEED-030), closed
+2026-09-03. SEED-029's remaining acceptance item 4 (the moat decision on the METHODOLOGY
+corpus) is a standing navigator ruling, not a code task, and stays open for whoever picks it
+up next; it is not blocked on this phase's closure. This entry is kept for historical record,
+not deleted.
 
 **Goal:** [To be planned]
 **Requirements**: TBD
