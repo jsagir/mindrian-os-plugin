@@ -1,11 +1,11 @@
 ---
 name: mos:reasoning-constitution
-version: 3.1.0
+version: 3.1.1
 status: RATIFIED (navigator sign-off 2026-09-03)
-supersedes: 3.0.0
+supersedes: 3.1.0
 ---
 
-# MindrianOS Reasoning Constitution v3.1.0
+# MindrianOS Reasoning Constitution v3.1.1
 
 This is not a rewrite of v3.0.0 -- it is v3.0.0 with every claim the assessment found wrong actually corrected, and every ruling the navigator made actually recorded. Read this file's Part 0 first; it tells you what changed and why. Everything in v3.0.0 not named below stands unchanged: the Levels table, the epistemic-type enum, support states, contradiction types, provenance/trace doctrine, identity/time doctrine, frameworks-as-lenses, retrieval-over-Theo doctrine, decision logic, information-needs doctrine, MECE doctrine, the private inspect-and-revise checklist, and the reject-generic-AI-reasoning-reflexes list all carry forward from v3.0.0 verbatim -- go there for those sections rather than have them retyped here with transcription risk.
 
@@ -15,13 +15,15 @@ Evidence standard held throughout: file and line, or `unresolved` naming what wo
 
 ## Part 0: What changed, and its status right now
 
+**v3.1.1, 2026-09-03: R18 reversed.** After the flagged concern in 2.3 below was confirmed against `skills/conversation-mode/SKILL.md:84-85`, the epistemic-level cap is reattached to `lib/conversation/operator.cjs` (the 5-state conversation operator), not the 3-lane conversation-mode system. Everything else in v3.1.0 is unchanged.
+
 | Item | v3.0.0 said | v3.1.0 says | Status |
 |---|---|---|---|
 | GraphWriteEvent | Every ICM write emits it, stated as fact | No ICM write emits it today; design filed for the minimal fix | DESIGN FILED, not yet implemented |
 | Tripwire location | "chain_run and the brain-client write path" | Real chokepoint is `edges.cjs::writeEdge` (edges) + no single chokepoint exists for nodes yet | R17 scoped, sequencing set |
 | Edge vocabulary | 5 edges "added by ruling" | Only SOURCED_FROM is actually new; 4 already live. Deprecation target corrected RELATES_TO -> RELATED_TO | IMPLEMENTED 2026-09-03 (quick 260903-gct): SOFT deprecation -- RELATED_TO stays allowlisted, warns once per process, returns deprecated:true |
 | epistemic_type validation | Implied ready to add | Needs a node-write consolidation pass first (12 files / 16 sites, ~2 developer-days) | SCOPED (R17), sequencing set, not yet implemented |
-| Operator level cap | Stated as the design | Ruled off the 5-operator machine entirely, reattached to the 3-lane conversation-mode system | RULED (R18), **one open concern flagged below, not yet implemented** |
+| Operator level cap | Stated as the design | Reattached to the 5-state conversation operator (`lib/conversation/operator.cjs`), not the 3-lane conversation-mode system (R18 reversed 2026-09-03) | RULED (R18-revised), **declared mapping shipped** (`epistemicCapForOperator`/`isWithinCap`), **enforcement path explicitly still open** |
 | Gate exclusivity | "only a Shape F gate emits decision" | True now -- the one confirmed exception (`/mos:operator set`) is fixed | **SHIPPED** (R19): commits `e29a7480`, `a114a4ad`, `17a60439` |
 | Brain/Theo consolidation | Silent on capability parity | Conditioned on the two-engine contract (design below) | RULED (R20), design filed, not yet implemented |
 | brain_query silent-empty bug | Not mentioned | Fixed | **SHIPPED**: commits `f264c843`, `8aca8af7` |
@@ -73,9 +75,11 @@ Replace v3.0.0's claim:
 
 With:
 
-> **Ruling R18 (navigator, 2026-09-03):** the epistemic-level cap does not attach to the 5-state conversation operator (`JUST_TALK`/`EXPLORE_CAPTURE`/`BUILD_ROOM`/`METHODOLOGY`/`DECISION_GATE`, `lib/conversation/operator.cjs:62`). It attaches to the 3-lane conversation-mode system (`skills/conversation-mode/SKILL.md:91-105`: chat -> Data/Information, brainstorm -> Knowledge, build -> Wisdom/Understanding), which already carries the DIKW mapping. `DECISION_GATE` stays a render-lock state and never appears on a depth ladder.
+> **Ruling R18-revised (navigator, 2026-09-03):** the epistemic-level cap attaches to the 5-state conversation operator (`JUST_TALK`/`EXPLORE_CAPTURE`/`BUILD_ROOM`/`METHODOLOGY`/`DECISION_GATE`, `lib/conversation/operator.cjs:62`), reversing the first R18 (which had attached it to the 3-lane conversation-mode system). The mapping table, carried forward unchanged from v3.0.0: JUST_TALK and EXPLORE_CAPTURE cap at Information; BUILD_ROOM at Knowledge; METHODOLOGY at Understanding; DECISION_GATE is a render-lock state, off the depth ladder entirely. v3.0.0's clause "DECISION_GATE alone may emit Wisdom" is SUPERSEDED: under this mapping, no operator state reaches Wisdom.
 >
-> **Flagged before implementation, per the navigator's own instruction to say so if there's a reason the three-lane system can't carry this:** conversation-mode's 3-lane pick is documented elsewhere in this same skill set as a **session-start, one-time** gate ("`/mos:ignite`... decides which lane a fresh session enters before any room exists" -- `larry-personality` skill, "Ignite and the mode-select gate" section) -- not a per-turn transitioning state machine the way `operator.cjs`'s `transition()` function is (9 transition rules, changes state within a session). If conversation-mode's lane genuinely never changes after session start, attaching a per-turn depth cap to it means the cap cannot respond to what's actually happening turn-by-turn -- which was the entire point of the original rule (cap what Larry may produce *that turn*). This is `unresolved`: it needs a direct read of `conversation-mode/SKILL.md`'s actual state-transition behavior (does the lane ever change mid-session, and if so, what triggers it) before implementation starts. Not a reason to reject R18 -- a reason to read one more file first.
+> **The flagged concern is now RESOLVED, not unresolved.** What settled it: `skills/conversation-mode/SKILL.md:84-85` -- "One re-surface per turn-cluster. Do not nag the picker every turn." and "Never auto-switch lanes. A lane change is always a navigator pick at the Decision Gate, never a unilateral Larry decision." This confirms the lane is gate-limited and navigator-driven, not a per-turn state, exactly as the flagged concern predicted: a cap meant to bound what Larry may produce *that turn* cannot live on a state that changes at most once per turn-cluster, on a rare navigator re-pick. `operator.cjs`'s `transition()` function (9 transition rules, changes state within a session) can carry a per-turn cap; the 3-lane system structurally cannot. This document's own instruction to "read one more file first" is what produced this reversal -- the flag did its job.
+>
+> **Implementation status: DECLARED, NOT ENFORCED.** The mapping is implemented as `epistemicCapForOperator` and `isWithinCap` in `lib/conversation/operator.cjs` (quick task 260903-hod). Nothing calls either function in a production path yet. The natural consumer is the T2 write-back path (`docs/2026-09-03-DESIGN-t2-write-back-minimal.md`), which is a filed design and not implemented, so there is nothing to enforce against today.
 >
 > **Gate exclusivity is now true.** `act`/`act-chain`/`act-swarm` were already clean (return markdown, no gate contact). `/mos:operator set` was the one confirmed exception -- **shipped** (R19, commits `e29a7480`, `a114a4ad`, `17a60439`): it now mints, consumes, validates, and ratifies through the real gate ledger inside one process call (necessary because the ledger is an in-process `Map` and this CLI script exits after every invocation -- a naive render-then-answer-later flow across two separate processes was structurally impossible; the fix runs the full cycle in one call instead, since the human's choice already happened out of band). `/mos:operator reset` has the identical disease and is a named, deliberate follow-up -- not silently migrated, not silently ignored.
 
@@ -136,7 +140,7 @@ R1-R14 unchanged from v3.0.0. R15-R21 below, each with real status, not aspirati
 | R15 | The LIVE/REF/AUTH provenance ledger is a permanent structural element of this document, not a one-time drafting artifact. A version bump that drops a tag without a citation is itself a Law 3 violation. | **ADOPTED**, governs this document |
 | R16 | Add `SOURCED_FROM` only (4 of the originally-listed 5 edges already live). Deprecate `RELATED_TO`, not `RELATES_TO`. | IMPLEMENTED 2026-09-03 (quick 260903-gct): SOFT deprecation -- `RELATED_TO` stays allowlisted, warns once per process (`MOS_DEP_EDGE_RELATED_TO`), returns `deprecated:true` |
 | R17 | `epistemic_type` required on every written node, sequenced: node-write consolidation first (12 files / 16 sites, ~2 developer-days estimated, `memory-events.cjs` and `rs-sqlite-mirror.cjs` excluded with named reasons), then validation at the single chokepoint. | SCOPED, sequencing set, not yet implemented |
-| R18 | Operator-level cap attaches to the 3-lane conversation-mode system, not the 5-state operator. `DECISION_GATE` stays a render-lock state. | RULED, **one architectural concern flagged (2.3 above)**, not yet implemented |
+| R18 | Operator-level cap attaches to the 5-state operator (`lib/conversation/operator.cjs`), not the 3-lane conversation-mode system (reversed 2026-09-03; the flagged concern in 2.3 confirmed the 3-lane system cannot carry a per-turn cap). `DECISION_GATE` stays a render-lock state. | RULED (revised), **declared mapping shipped** (`epistemicCapForOperator`/`isWithinCap`), enforcement path still open |
 | R19 | `/mos:operator set` migrated onto `gate-render.cjs`/`gate-ledger.cjs`. | **SHIPPED** -- `e29a7480`, `a114a4ad`, `17a60439` |
 | R20 | "Theo is the Brain" framing on hold pending the two-engine contract. Theo owns canon/provenance + deterministic graph computation; MAGE-class analytics stay on Memgraph as a computation service. `brain_query`'s empty-return bug fixed first. | RULED, `brain_query` fix **SHIPPED** (`f264c843`, `8aca8af7`), contract design filed (Part 3 above), cross-repo ratified on Theo's side |
 | R21 | The completion bar's first candidate is filed as real ICM Data nodes with source spans before being named, supplied by the navigator. | RULED, bar reads `unresolved` until supplied |
