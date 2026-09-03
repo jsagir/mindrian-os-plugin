@@ -277,12 +277,26 @@ function runBrokenAssertions() {
 async function runGetterAssertions() {
   console.log('\n-- Assertion group D: getCurrentJTBD / getCurrentOperator (RESEARCH A11) --');
   const roomHistory = makeScratchRoom('history');
-  seedFullRoom(roomHistory);
+
+  // MUST be the pending-migration fixture, not a fully-migrated room. Verified live before
+  // finalizing this assertion: on a fully-migrated room, getCurrentJTBD/getCurrentOperator's own
+  // openRoomDb() call succeeds cleanly under contention (idempotent no-op migrations need no
+  // write lock, per the identical finding that shaped the busy-path fixture above), and the
+  // subsequent SELECT also succeeds under WAL (readers never block writers) -- so the getters
+  // would genuinely read the true event-log data even while a lock is held, proving nothing
+  // about the catch-and-fallback path this assertion exists to exercise. Only the
+  // pending-migration fixture makes openRoomDb() itself throw, forcing the getters through their
+  // actual catch body.
+  makePendingMigrationRoom(roomHistory);
 
   // Write REAL history via the real spine-events log*Transition helpers, BEFORE the lock is
   // held, so the room genuinely has a jtbd_transitioned and an operator_transitioned event on
   // record. This is the F-selector concern named in Phase 273: a room with real history must
-  // not be reported as though it had none.
+  // not be reported as though it had none. Each write below also repairs the pending-migration
+  // sentinel it depends on (logJtbdTransition/logOperatorTransition call openRoomDb
+  // internally, which completes the migration chain since no lock is held yet at this point in
+  // the fixture setup), so the sentinel is deliberately re-deleted afterward to restore the
+  // contention shape for the assertions below.
   const jtbdWrite = spineEvents.logJtbdTransition(roomHistory, { kind: 'primary', from: null, to: 'reduce-churn' });
   const operatorWrite = spineEvents.logOperatorTransition(roomHistory, { from: 'analyst', to: 'strategist' });
   check('fixture precondition: the history-seeding jtbd_transitioned write succeeded',
@@ -290,13 +304,21 @@ async function runGetterAssertions() {
   check('fixture precondition: the history-seeding operator_transitioned write succeeded',
     !!operatorWrite && operatorWrite.ok === true, 'result=' + JSON.stringify(operatorWrite));
 
+  // Restore the pending-migration contention shape (the two writes above ran openRoomDb to
+  // completion, which re-satisfies the sentinel).
+  {
+    const raw = new DatabaseSync(roomDbPath(roomHistory), { timeout: 0 });
+    raw.prepare('DELETE FROM identity WHERE key = ?').run('phase_109_session_focus_v1');
+    raw.close();
+  }
+
   // Deliberately absent cache: log*Transition writes ONLY to room.db (never touches the
   // jtbd-state.json / conversation-operator.json cache files), so this scratch room's cache is
   // absent by construction. Confirmed independently rather than assumed.
   const jtbdCachePath = path.join(roomHistory, '.mindrian', 'jtbd-state.json');
   const operatorCachePath = path.join(roomHistory, '.mindrian', 'conversation-operator.json');
   check('fixture precondition: the JTBD JSON cache file is genuinely absent for this room '
-    + '(so a fallback CANNOT accidentally supply a value)',
+    + '(so a fallback CANNOT accidentally supply the real value)',
     !fs.existsSync(jtbdCachePath), 'path=' + jtbdCachePath);
   check('fixture precondition: the operator JSON cache file is genuinely absent for this room',
     !fs.existsSync(operatorCachePath), 'path=' + operatorCachePath);
@@ -312,21 +334,32 @@ async function runGetterAssertions() {
     const jtbdUnderContention = spineEvents.getCurrentJTBD(roomHistory);
     const operatorUnderContention = spineEvents.getCurrentOperator(roomHistory);
 
+    // JTBD: jtbdState.getCurrent has no synthesized default, so a busy-degraded read returns
+    // bare `null` -- byte-identical to a genuine cold start. Asserting the REAL value
+    // ('reduce-churn') is the honest, precise proof (not merely `!== null`).
     check(
-      'CONTRACT: a busy room with REAL jtbd_transitioned history must not be reported as a '
-      + 'room with no JTBD (getCurrentJTBD must not return null while a foreign write lock is '
-      + 'held, since the room genuinely has history)',
-      jtbdUnderContention !== null,
+      'CONTRACT: a busy room with REAL jtbd_transitioned history must report the REAL current '
+      + "JTBD ('reduce-churn'), not degrade to the cache fallback while a foreign write lock is "
+      + 'held (the room genuinely has history; the cache is deliberately absent)',
+      !!jtbdUnderContention && jtbdUnderContention.jtbd === 'reduce-churn',
       'ACTUAL=' + JSON.stringify(jtbdUnderContention)
-      + ' -- today this degrades through the bare catch to the (absent) cache fallback, which '
-      + 'is byte-identical to a genuine cold start'
+      + " -- today this degrades through the bare catch to jtbdState.getCurrent(), which has no "
+      + "on-disk cache to read and returns bare null: byte-identical to a genuine cold start"
     );
+    // Operator: operator.getCurrent DOES synthesize a default ('JUST_TALK', the correct value
+    // for a genuinely brand-new room) when no cache file exists, so a bare `!== null` check
+    // would pass even on a fully cold-started degraded read -- the honest assertion is that the
+    // REPORTED CURRENT OPERATOR matches the REAL logged transition ('strategist'), not the
+    // synthesized cold-start default.
     check(
-      'CONTRACT: a busy room with REAL operator_transitioned history must not be reported as a '
-      + 'room with no operator (getCurrentOperator must not return null while a foreign write '
-      + 'lock is held, since the room genuinely has history)',
-      operatorUnderContention !== null,
+      'CONTRACT: a busy room with REAL operator_transitioned history must report the REAL '
+      + "current operator ('strategist'), not silently substitute the synthesized cold-start "
+      + "default ('JUST_TALK') while a foreign write lock is held",
+      !!operatorUnderContention && operatorUnderContention.current === 'strategist',
       'ACTUAL=' + JSON.stringify(operatorUnderContention)
+      + " -- today this degrades through the bare catch to operator.getCurrent(), which "
+      + "SYNTHESIZES a default 'JUST_TALK' state when no cache file exists: the exact value a "
+      + "genuinely brand-new room with zero history would also show"
     );
 
     await stopLockHolder(holder);
