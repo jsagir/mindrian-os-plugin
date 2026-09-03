@@ -106,6 +106,15 @@ const PHASES = Object.freeze([
  * next phase after `fromPhase` in PHASES. No I/O. Exported so tests (this
  * plan's and the two that follow it) can drive the machine without
  * spawning the hook as a child process.
+ *
+ * WR-04 (267.2-REVIEW.md): this predicate is NOT called anywhere in main()'s
+ * dispatch chain below. The actual enforcement that a phase can only be
+ * reached from its one legal predecessor is provided by construction of
+ * main()'s own if/else chain (each branch reads one specific existing phase
+ * and writes one specific next phase), not by this function. Do not credit
+ * this function with an enforcement guarantee it does not provide; it is
+ * a test-driving convenience only, until (if ever) it is wired into main()
+ * as a defense-in-depth guard.
  * @param {string} fromPhase
  * @param {string} toPhase
  * @returns {boolean}
@@ -647,11 +656,15 @@ function _drainReward(state) {
 //
 // Runs on the first turn where state.phase reads 'reward_delivered'. This leg is
 // UNREACHABLE from any earlier phase -- main()'s dispatch below only calls this function
-// when existingState.phase === 'reward_delivered', and PHASES/isValidTransition enforce
-// that 'reward_delivered' can only be reached via the fire/drain legs plan 267.2-07
-// shipped. That is decision D-L: the investment ask can never precede the reward, on any
-// path, because getting the order wrong reproduces the exact defect this phase exists to
-// fix (research finding C-3).
+// when existingState.phase === 'reward_delivered', and that 'reward_delivered' can only be
+// reached via the fire/drain legs plan 267.2-07 shipped is enforced by construction of
+// main()'s own if/else dispatch chain below (each branch both reads AND writes one
+// specific phase), NOT by isValidTransition (WR-04, 267.2-REVIEW.md: isValidTransition is
+// exported for tests that want to drive the machine without spawning a child process, but
+// main()'s dispatch never calls it -- do not credit it with an enforcement guarantee it
+// does not actually provide). That is decision D-L: the investment ask can never precede
+// the reward, on any path, because getting the order wrong reproduces the exact defect
+// this phase exists to fix (research finding C-3).
 //
 // SEED THE FILE, deterministically (decision D-E). The path is resolved INSIDE this
 // function, never at module scope -- lib/mcp/tools/identity.cjs:65-73 documents this as
