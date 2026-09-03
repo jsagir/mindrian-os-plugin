@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: 267.2-10 Tasks 1-2 complete (HOOK-01..HOOK-12 registered, VALIDATION.md reconciled, gate roll-up measured, dev-research trail staged); Task 3 blocking navigator checkpoint PENDING
-last_updated: "2026-09-03T16:56:45.140Z"
+stopped_at: Completed 276-02-PLAN.md
+last_updated: "2026-09-03T17:23:19.583Z"
 last_activity: 2026-09-03 -- Phase 276 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 166
-  completed_plans: 151
+  completed_plans: 152
   percent: 21
 ---
 
@@ -3964,7 +3964,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 276 (mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs) — EXECUTING
-Plan: 2 of 16
+Plan: 3 of 16
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 276 execution started
 
@@ -4722,6 +4722,7 @@ Progress: [█████████░] 92%
 | Phase 267.2 P09 | 50min | 3 tasks | 5 files |
 | 267.2 | 10 | - | - |
 | Phase 276 P01 | 6min | 3 tasks | 3 files |
+| Phase 276 P02 | 30min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6128,6 +6129,9 @@ Progress: [█████████░] 92%
 - [Phase 267.2]: The router's own pre-existing renameSync for its unrelated state.json bookkeeping is not a second ~/.mindrian-user.md writer — No-second-writer guards are scoped to lines referencing userMdPath, not a blanket whole-file substring ban, to avoid false-positiving against 267.2-06/07's own state persistence
 - [Phase 267.2]: 267.2-10 Tasks 1-2 complete: HOOK-01..HOOK-12 registered in REQUIREMENTS.md, 267.2-VALIDATION.md reconciled, full gate set measured green as a delta against 267.2-BASELINE.md (267.1 flipped RED->GREEN). Pre-existing pre-commit hook byte-drift fixed. Dev-research trail authored and staged, blocked at the room by write-scope-check, not bypassed. — Task 3 (blocking navigator sign-off checkpoint, D-C/D-D/D-H/D-K judgment calls plus the actual first-install prose) was intentionally NOT executed, simulated, or auto-approved by this executor run. Phase 267.2 remains open pending human ruling in the orchestrating conversation.
 - [Phase 276-01]: Assertion 1 of the D-1 RED test calls splitBranches directly on a handler body located via the checker's own exported primitives, instead of asserting on scanAll() rows -- scanAll() always emits one row per z.enum vocabulary command regardless of whether splitBranches actually recognized any case label, so a rows-presence assertion would have silently passed pre-fix
+- [Phase 276]: 276-02: A1's C4 fixture must be a bare identity-only room, not fully-migrated -- a schema-init (create-table-if-not-exists) statement on an existing table needs no write lock under WAL, so a full fixture makes the assertion pass vacuously.
+- [Phase 276]: 276-02: C5's busy fixture must delete the Phase 109 migration sentinel (not use a fully-migrated room) so spine-events.cjs's own _emit catch block genuinely fires under contention; on a fully-migrated room the busy error surfaces one call deeper inside logEvent's own catch instead.
+- [Phase 276]: 276-02: TOOLHON-11's run-time census measured 35 no_room_db producer sites (not the 27 RESEARCH.md cites), and its catch-after-openRoomDb heuristic found 2 sibling defect sites beyond spine-events.cjs (scanner.cjs:124, lens-nodes.cjs:254) -- flagged for a future plan, not fixed here.
 
 ### Pending Todos
 
@@ -6249,8 +6253,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T16:56:45.078Z
-Stopped at: 267.2-10 Tasks 1-2 complete (HOOK-01..HOOK-12 registered, VALIDATION.md reconciled, gate roll-up measured, dev-research trail staged); Task 3 blocking navigator checkpoint PENDING
+Last session: 2026-09-03T17:23:19.390Z
+Stopped at: Completed 276-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
