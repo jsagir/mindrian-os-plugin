@@ -132,6 +132,17 @@ const ALLOWED_DIRECT_IMPORT = [
   // lib/core/*.test.cjs surface, so the pre-existing 208-violation baseline
   // this plan's Task 3 measures against is not perturbed by a broader fix.
   /^lib\/core\/node-insert-.*\.test\.cjs$/,
+  // Phase 296-03 (SEED-030, F-2): the D-02 CJS-to-Python vector bridge. It
+  // requires room-db.cjs ONLY to open a caller-owned, allowExtension:true
+  // handle (Pattern 1 -- the same openRoomDb(roomDir, {allowExtension:true})
+  // idiom scripts/entity-extract.cjs and lib/core/eureka/research-filing.cjs
+  // already use) so vector-store.cjs's sqlite-vec capability probe can
+  // register on it. It performs ZERO node/edge/memory_event writes -- it
+  // reads only the eureka_vec / eureka_vec_fallback / eureka_meta derived
+  // projections through vector-store.cjs's own caller-owned-handle contract
+  // (Canon Part 9: rebuildable projections, not graph state). Allow-listed
+  // alongside the other substrate-adjacent room-db.cjs consumers above.
+  /^scripts\/rs-vector-bridge\.cjs$/,
 ];
 
 function isAllowedPath(p) {
