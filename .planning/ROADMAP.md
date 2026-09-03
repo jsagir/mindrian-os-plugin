@@ -821,11 +821,42 @@ Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/u
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 0 plans
+**Plans:** 10 plans in 7 waves (planned 2026-09-03). Requirement family `HOOK-01..HOOK-12` minted at plan time per the Phase 254/257/265/267.3/270/272/274 precedent and registered in `.planning/REQUIREMENTS.md` by plan 267.2-10. Planner calls recorded in `267.2-DECISIONS.md` (D-A..D-N).
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 267.2 to break down)
+**Wave 1** *(parallel; no production code touched)*
+
+- [ ] 267.2-01-PLAN.md - HOOK-01: record `267.2-BASELINE.md` BEFORE any code edit (the 267.1 suite is RED today for a reason unrelated to this phase, research C-2), plus the unmeasured `runPipeline` hook-budget measurement research left at LOW confidence, appended to `267.2-DECISIONS.md` as the D-D confirmation
+- [ ] 267.2-02-PLAN.md - HOOK-02: `tests/run-all-267.2.sh` (glob discovery, found-eq-0 guard provable via the PREFIX override, three explicit gate lines, two-array em-dash fence) plus `tests/test-267-2-helpers.cjs`, the isolated-HOME fixture four later tests need and the mitigation for research Pitfall 6
+
+**Wave 2** *(parallel; zero files_modified overlap)*
+
+- [ ] 267.2-03-PLAN.md - HOOK-03/04, W0: the navigator-ordered `f39f24d9` SEED-021 revert in `scripts/session-start`, the Action-leg pin inversion, and the GAP I-1 leg repair to post-270-11 reality. Both test edits in ONE wave because the file aborts on first failure (research Pitfall 7)
+- [ ] 267.2-04-PLAN.md - HOOK-11, folded todo: `/mos:ignite` Door 1 becomes a two-step pick reaching all 7 frozen `ROLE_BLEND_KEYS` within the 4-option `AskUserQuestion` cap, `mentor` included at `blueprintFamily=exploration` (D-H), Tri-Polar fallback fixed in lockstep, drift pin added, Portfolio Manager NOT minted (D-J)
+- [ ] 267.2-05-PLAN.md - HOOK-05/06, W1a+W1c: `lib/core/greeting-intent-detector.cjs`, a pure per-bucket-scored classifier with a mandatory negative-weight feature, `ambiguous` on a tie, scalars-only features, zero network; plus the frozen 4-bucket to 3-outcome routing table (D-C) and its exhaustive pin
+
+**Wave 3**
+
+- [ ] 267.2-06-PLAN.md - HOOK-08, W1b decision layer + W1d: `scripts/first-install-router.cjs` as a `UserPromptSubmit` hook cloned in shape from `scripts/mva-detect.cjs`. Owns its own one-shot state so a model-run `check-onboard --write` cannot disarm it (Pitfall 3), never blocks, never exits non-zero. Registered AFTER `mva-detect` in the chain, born wired, with scalar-only telemetry that also measures whether the ignite route actually produced a room (Pitfall 5)
+
+**Wave 4**
+
+- [ ] 267.2-07-PLAN.md - HOOK-07, W1b delivery: the room-free Instant Brief gets a deterministic caller. Fired as a detached unref-ed child with stdout captured, drained as `additionalContext` on a later turn. `runPipeline` is NEVER called inline: `lib/core/mva-dispatcher.cjs`'s own binding decision B2 is a 45s global / 35s per-agent budget against a 3000ms hook ceiling (D-D). Proven with no room and no API keys
+
+**Wave 5**
+
+- [ ] 267.2-08-PLAN.md - HOOK-09, W1 prose leg + C-5: FIRST_INSTALL asks ONE open question and renders no menu (D-B); `${COLD_START_MENU}` the variable stays byte-identical because it feeds three branches (D-F); `data/first-reward-surfaces.json` moves to `instant_brief` with an honest `why`; the GAP R-1 prose-citation pin flips
+
+**Wave 6**
+
+- [ ] 267.2-09-PLAN.md - HOOK-10, W2: the investment trigger. A hook-side read-modify-write CALLER of the shipped `writeUserMdAtomic`, never a second writer (MEMOP-08, D-E), gated strictly behind the reward (D-L, test-pinned). Fixes research C-3 at the reader so a founder stops reading back as a student (D-G). GAP I-1 flips to CLOSED
+
+**Wave 7**
+
+- [ ] 267.2-10-PLAN.md - HOOK-12: register `HOOK-01..HOOK-12`, reconcile `267.2-VALIDATION.md` against real plan numbers (D-M), run the full gate set reported as a DELTA against the recorded baseline rather than a bare green claim, composite the dev-research trail to `rethinking-mindrianos` (never bypassing `write-scope-check`), and a BLOCKING navigator sign-off on the actual first-install experience with the released-build limitation stated
+
+**Stated gaps this phase does not close** (recorded, not overlooked): Claude Desktop and Cowork get no hook-side router, so the classifier ships as a pure `lib/core/` function reusable by a future MCP handler while the CLI hook is the only wiring (D-K); the reward lands one turn after the triggering sentence (D-D); `identity_write`'s frontmatter clobber on a second call, `user-archetype`'s first-declared tie-break, the Portfolio Manager vocabulary question, and `check-onboard --write`'s own model-compliance fragility are all registered with named owners in `267.2-DECISIONS.md` D-N.
 
 ### Phase 267.3: Reward-Before-Investment Guard Jurisdiction (hooks and injected-prose surfaces) (INSERTED)
 
