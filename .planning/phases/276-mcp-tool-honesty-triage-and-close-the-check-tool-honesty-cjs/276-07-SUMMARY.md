@@ -212,3 +212,7 @@ None. No external service configuration required.
 ---
 *Phase: 276-mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs*
 *Completed: 2026-09-03*
+
+## Self-Check: PASSED
+
+All created/modified files verified present on disk (`scripts/check-tool-honesty.cjs`, `tests/fixtures/tool-honesty/276-dispositions.json`, `tests/test-276-allowed-unverified-contract.cjs`, `tests/fixtures/tool-honesty/reexport-outside-root.cjs`, `tests/fixtures/tool-honesty/unresolvable.cjs`, `tests/fixtures/tool-honesty/unresolvable-target.cjs`, this SUMMARY.md) and all three task commits (`02287c30`, `48fe8a61`, `c4e05426`) verified present in `git log --oneline --all`.
