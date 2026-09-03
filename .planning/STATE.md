@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 276-12-PLAN.md (claim-write MCP primitive)
-last_updated: "2026-09-03T19:09:30.011Z"
-last_activity: "2026-09-03 -- Phase 276 Plan 12 (claim-write MCP primitive) complete: 3 tasks, commits 0fef3e80/ddd13ddf/90b73eb0"
+stopped_at: Completed 276-07-PLAN.md
+last_updated: "2026-09-03T19:42:11.619Z"
+last_activity: "2026-09-03 -- Phase 276 Plan 07 (four detector fixes: enumeration guard, negation demotion, barrel re-export hop, includes() dispatch; WEAK-tier sibling-writes ruling; ledger amendment) complete: 3 tasks, commits 02287c30/48fe8a61/c4e05426"
 progress:
   total_phases: 90
   completed_phases: 19
-  total_plans: 166
-  completed_plans: 159
-  percent: 96
+  total_plans: 180
+  completed_plans: 160
+  percent: 89
 ---
 
 <!-- NOTE (session close-out, 2026-09-03, SIXTIETH+ occurrence of the
@@ -3966,7 +3966,39 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 276 (mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs) — EXECUTING
 Plan: 12 of 16
 Status: Ready to execute
-Last activity: 2026-09-03 -- Phase 276 Plan 12 (claim-write MCP primitive) complete: 3 tasks, commits 0fef3e80/ddd13ddf/90b73eb0
+Last activity: 2026-09-03 -- Phase 276 Plan 07 (four detector fixes: enumeration guard, negation demotion, barrel re-export hop, includes() dispatch; WEAK-tier sibling-writes ruling; ledger amendment) complete: 3 tasks, commits 02287c30/48fe8a61/c4e05426
+
+<!-- NOTE (276-07 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
+     throughout this file): `state.advance-plan` blindly incremented the linear "Plan: N of 16"
+     counter from "12 of 16" (already ahead of this run -- 276-12 completed in a separate,
+     concurrent session before this one started plan 07, phase 276 executes in non-linear waves)
+     to "13 of 16", which would have wrongly implied plan 13 is next when 276-07 (this run) is what
+     actually just completed. Hand-corrected back to "Plan: 12 of 16" to match the highest-numbered,
+     most recently completed plan on disk (12, since 12 > 7), per the standing convention every
+     prior occurrence in this file used (see the 276-12 and 276-10 notes immediately below). Also:
+     `state.advance-plan` inflated `total_plans` from 166 to 179 (+13, an implausible single-plan
+     jump) and dropped `percent` to 21 (from a correct ~96) in the SAME call. Hand-corrected:
+     `total_plans` back to 166 (a global-milestone counter, unaffected by which phase-local plan
+     number just landed), `completed_plans` left at the tool's own 159->160 increment (correct: one
+     plan completed, one increment), `percent` recomputed as 160/166 (96). Root cause not
+     re-investigated -- same tracked bug class as every other note in this file. SUPERSEDED
+     immediately below by this SAME run's follow-up correction, once `state.update-progress`
+     (called next in the same session) proved 166 was itself stale. -->
+
+<!-- NOTE (276-07 execute-plan, 2026-09-03, second resync-clobber in the SAME run, immediately
+     after the note above): `state.update-progress` was then run to recalculate the progress bar
+     from disk (per execute-plan.md's own instructed step order). Its RETURNED JSON was correct
+     (`percent: 89, completed: 160, total: 180` -- 180, not the 166 hand-corrected above, is the
+     true disk-measured total_plans count; the 166 guess above was itself stale, carried over from
+     `state.advance-plan`'s own pre-call frontmatter read rather than a real disk recount) but the
+     value it WROTE into the frontmatter was `percent: 21` -- the exact same
+     computed-correctly / persisted-incorrectly split documented in the 276-12 note below
+     ("`state.update-progress` returned the correct percent... but did not persist it into the
+     frontmatter"). Hand-corrected: `total_plans: 180`, `completed_plans: 160` (both left as the
+     tool wrote them -- correct), `percent: 89` (taken from the tool's own returned JSON, not its
+     mis-written frontmatter value), `stopped_at` also corrected (still read a stale
+     "Completed 276-12-PLAN.md" after this call). Root cause not re-investigated -- same tracked
+     bug class as every other note in this file. -->
 
 <!-- NOTE (276-12 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
      throughout this file): `state.advance-plan` incremented the linear "Plan: N of 16" counter
@@ -4759,6 +4791,7 @@ Progress: [█████████░] 92%
 | Phase 276 P09 | 70min | 3 tasks | 14 files |
 | Phase 276 P10 | 50min | 3 tasks | 2 files |
 | Phase 276 P12 | 7min | 3 tasks | 8 files |
+| Phase 276 P07 | ~2h | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -6180,6 +6213,7 @@ Progress: [█████████░] 92%
 - [Phase 276]: 276-09: test-276-busy-timeout-propagation.cjs A6/B1-B3 pins flipped from absence to presence checks in lockstep with production fixes
 - [Phase 276-10]: D-276-5 return-shape typed reasons (room_db_busy/room_db_broken/room_db_open_failed) at spine-events, plus a busy-only read-only-door retry so getCurrentJTBD/getCurrentOperator never misreport a busy room as cold start -- spine-events cannot re-throw (its whole contract is a {ok,reason} return); the RED test's Group D assertions required the real logged value under contention, not just a reason key, so the fix reuses the already-shipped read-only door (WAL readers never block writers) rather than the plan's literal minimal option
 - [Phase 276]: 276-12: claim_write MCP tool ships, writing proposed DIKW claims through typed-claim.cjs/node-insert.cjs; typed-claim.cjs's knowledge_type-to-epistemic_type mapping table built per 276-DECISIONS.md OQ-276-1, replacing the hardcoded extracted_fact constant
+- [Phase 276]: WEAK-tier sibling-writes discount NOT extended to per-command/tool-scoped WEAK claims (classifyBranch ruling) - room_graph rows re-measured live are per-command not tool-scoped as RESEARCH.md said, and 2 of 10 hide a real undetected write (graph-ops to lazygraph depth-2 dotted call); a blanket discount would have silently hidden that real gap
 
 ### Pending Todos
 
@@ -6301,8 +6335,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T19:09:29.945Z
-Stopped at: Completed 276-12-PLAN.md (claim-write MCP primitive)
+Last session: 2026-09-03T19:42:11.476Z
+Stopped at: Completed 276-07-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
