@@ -39,27 +39,45 @@ through the MCP `meeting` tool and never through the CLI slash command.
 ## The honest surface gap, stated up front
 
 An MCP caller cannot execute the full CLI pipeline. Naming why, plainly,
-rather than leaving a model to discover it by trial and error:
+rather than leaving a model to discover it by trial and error - and naming
+each gap's own status now that plans 276-12 and 276-14 have closed two of
+the three named here:
 
-- **The five-perspective subagent fan-out (Step 3a Dispatch) is unreachable.**
-  The CLI dispatches five subagents in one message via the Agent tool with
-  `subagent_type: meeting-perspective-extractor`. An MCP tool call has no
-  Agent tool and no subagent registry to dispatch into.
-- **The F.8 filing gate is unreachable.** Step 4's confirm-then-file gate
-  renders through `renderShapeF8` and resolves through `consumeF8Fanout`, both
-  driven by `AskUserQuestion` - a CLI render surface an MCP tool call does not
-  have access to.
-- **A direct `navigation.writeClaimNode` call is unreachable.** No MCP tool
-  registered today exposes `writeClaimNode` directly. The write path an MCP
-  caller CAN reach is `artifact_file`.
+- **Gap 1, the five-perspective subagent fan-out (Step 3a Dispatch).
+  STILL OPEN, structurally unreachable from MCP.** The CLI dispatches five
+  subagents in one message via the Agent tool with `subagent_type:
+  meeting-perspective-extractor`. An MCP tool call has no Agent tool and no
+  subagent registry to dispatch into on this surface. This is not fixable
+  from MCP, only declarable: use `/mos:file-meeting` on the CLI for the
+  real five-perspective dispatch.
+- **Gap 2, the F.8 filing gate. CLOSED by plan 276-14.** The `meeting`
+  tool's `file-meeting` command, called with `knowledge_type` and
+  `claim_text`, writes the claim at `review_status: 'proposed'` through the
+  same `writeClaimNode` primitive `claim_write` uses, then renders a
+  confirmation card by composing `gate-render.cjs`'s `renderGate` and the
+  shared `gate-ledger.cjs` mint - never a second gate mechanism. A claim
+  reaches `confirmed` ONLY through a separate `gate_answer` call's approve
+  branch and `navigation.confirmNode` (which ratifies a typed decision node
+  sourced from the claim); the `file-meeting` call itself never asserts
+  confirmation, and omitting `knowledge_type`/`claim_text` still returns
+  the original reference-only response, unchanged.
+- **Gap 3, a direct claim write. CLOSED by plan 276-12.** The `claim_write`
+  MCP tool writes one typed DIKW claim through `writeClaimNode`, which
+  routes through `lib/core/node-insert.cjs`, the single node-write
+  chokepoint every writer in this repo shares. An invalid `knowledge_type`
+  is refused at the schema boundary and again by `writeClaimNode` itself,
+  never silently coerced to a nearby value.
 
-What an MCP caller CAN do: walk the Four Claimify Passes below itself, in one
-context, over the transcript it already holds, and persist each claim it
-confirms through `artifact_file` - the real, MCP-reachable write path. This is
-an honest, reduced form of the CLI protocol, not an equivalent one. When the
-user is on the CLI, point them at `/mos:file-meeting` for the fuller path:
-five-perspective dispatch, F.8 gate, and the direct `writeClaimNode` call, all
-in one governed flow.
+What an MCP caller CAN do today: walk the Four Claimify Passes below
+itself, in one context, over the transcript it already holds; persist each
+claim it confirms through `artifact_file` (the general-purpose write path),
+or, on `file-meeting` specifically, through the `knowledge_type`/
+`claim_text` pair that writes the claim AND renders the F.8 confirmation
+gate in one call. This is an honest, reduced form of the CLI protocol, not
+an equivalent one: Gap 1, the five-perspective fan-out, still has no MCP
+path at all. When the user is on the CLI, point them at `/mos:file-meeting`
+for the fuller path: five-perspective dispatch, the F.8 gate, and the
+direct `writeClaimNode` call, all in one governed flow.
 
 ## Inputs this protocol assumes
 
@@ -181,9 +199,18 @@ merge machinery is a CLI-only shape:
   and the filed artifact. Only the `knowledge_type` enum handle may ride to
   the Brain downstream - never the transcript text, never the claim body. This
   rule is load-bearing precisely because a model walking this protocol on the
-  MCP surface is one careless `brain_*` call away from a constitutional
-  breach; there is no F.8 gate here to catch it first the way the CLI's
-  Step 4 does.
+  MCP surface is one careless `brain_*` call away from a constitutional breach;
+  there is no F.8 gate here to catch it first the way the CLI's
+  Step 4 does. Plan 276-14 narrows, but does not eliminate, this risk: the
+  F.8 gate that was missing from this surface now exists for the claim
+  CONFIRMATION step (Gap 2 above), so that one step of the flow is no
+  longer entirely ungoverned. It is not a Brain-call guard - `gate_render`/
+  `gate_answer` ratify a claim, they do not intercept a stray `brain_*`
+  call anywhere else in the protocol, so a model can still make one at any
+  other point while walking it. `tests/test-276-meeting-gate-wiring.cjs`
+  assertion group G pins the `meeting` tool's own branches (the wiring
+  itself, not the model's own tool-use decisions) as Brain-call free, which
+  is the guard this plan actually adds.
 
 ## Where to go next
 
