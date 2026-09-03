@@ -812,7 +812,7 @@ Critical priority per navigator instruction, timed against Theo's approaching pr
 
 **Requirements**: TOOLHON-01, TOOLHON-02, TOOLHON-03, TOOLHON-04, TOOLHON-05, TOOLHON-06, TOOLHON-07, TOOLHON-08, TOOLHON-09, TOOLHON-10, TOOLHON-11, TOOLHON-12, TOOLHON-13, TOOLHON-14 (minted in `276-RESEARCH.md`'s requirement table, distributed across the 16 plans below, registered in `.planning/REQUIREMENTS.md` at phase close by plan 276-16, per the Phase 272 `PYPORT-` / Phase 273 `CHOKE-` / Phase 274 `ANCHOR-` precedent)
 **Depends on:** none technically. The ROADMAP previously read "Depends on: Phase 275" -- verified 2026-09-03 to be spurious: Phase 275 (room-schema-by-ICM-layer) has no substantive link to MCP/substrate false-success fixes, is itself gated and not yet plannable (blocked on Phase 270's OQ-7), and this line matches the known `gsd-tools.cjs query phase.add` heading-boilerplate pattern already caught once for this same phase entry, not a real dependency (same disclosure pattern as Phase 272's "sequenced after Phase 271 only because registered the same session, not a real dependency"). Corrected here rather than left to silently block planning.
-**Plans:** 4/16 plans executed
+**Plans:** 5/16 plans executed
 
 Plans:
 
@@ -825,7 +825,7 @@ Plans:
 
 **Wave 1** *(blocked on Wave 0)*
 
-- [ ] 276-05-PLAN.md - **the navigator decision plan (D-276-1), `autonomous: false`, writes `276-DECISIONS.md` only, no code.** OQ-276-1 rules the three-vocabulary collision (`EPISTEMIC_LEVELS` vs `ALLOWED_EPISTEMIC_TYPES` vs `KNOWLEDGE_TYPES`); OQ-276-2 rules the claim-write surface shape and the gate placement. Restates D-276-1..D-276-6 as dispositions of record (TOOLHON-07)
+- [x] 276-05-PLAN.md - **the navigator decision plan (D-276-1), `autonomous: false`, writes `276-DECISIONS.md` only, no code.** OQ-276-1 rules the three-vocabulary collision (`EPISTEMIC_LEVELS` vs `ALLOWED_EPISTEMIC_TYPES` vs `KNOWLEDGE_TYPES`); OQ-276-2 rules the claim-write surface shape and the gate placement. Restates D-276-1..D-276-6 as dispositions of record (TOOLHON-07)
 - [ ] 276-06-PLAN.md - **the D-1 GREEN fix in a commit separate from 276-01's RED commit** (`209b604f`/`75278850` precedent), the false verification claim inside the honesty checker corrected, the B-1..B-6 boundary enumeration (B-6 newly minted), and the disposition ledger frozen against the post-fix sweep (TOOLHON-01, TOOLHON-05, TOOLHON-06, TOOLHON-02)
 
 **Wave 2** *(blocked on Wave 1; four plans, disjoint file trees)*
