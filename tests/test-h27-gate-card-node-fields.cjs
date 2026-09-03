@@ -319,12 +319,23 @@ function check(label, cond) {
     check('buildStopGateCard -> normalizeCard: evidenceNodeIds defaults to []', stopCard && Array.isArray(stopCard.evidenceNodeIds) && stopCard.evidenceNodeIds.length === 0);
   }
 
-  // Repo-level scope floor: the five touched lib/mcp files contain no
-  // insertNode, writeEdge, or SOURCED_FROM token.
+  // Repo-level scope floor: at the time this quick task (260903-h27) shipped
+  // the gate-card-SCHEMA half, none of these lib/mcp files were expected to
+  // carry the node-WRITING half's own tokens yet -- that half was filed and
+  // deliberately deferred (see CLAUDE.md's open-handoff row at the time).
+  // Quick task 260903-i2x then shipped exactly that node-writing half and
+  // wired lib/mcp/tools/gate.cjs's gate_answer approve branch to
+  // navigation.writeReasoningNode -- gate.cjs is REMOVED from this floor
+  // list for that reason (a real, planned, ratified change, not scope
+  // creep). The floor stays live for the four files this task's own DC-2 /
+  // DC-3 findings say must stay untouched: gate-render.cjs (schema-only,
+  // never a node writer), chain.cjs (DC-2: haltedStep.framework was already
+  // threaded, no edit needed), sensors.cjs (DC-3: mints no gate-ledger
+  // entry, its USES_FRAMEWORK edge is structurally unreachable, named
+  // deliberate follow-up), and stop-gate-handler.cjs (not node-scoped).
   {
     const touchedFiles = [
       'lib/mcp/gate-render.cjs',
-      'lib/mcp/tools/gate.cjs',
       'lib/mcp/tools/chain.cjs',
       'lib/mcp/tools/sensors.cjs',
       'lib/mcp/stop-gate-handler.cjs',
