@@ -1,5 +1,5 @@
 ---
-status: partial-close
+status: resolved
 kind: rca
 trigger: "meeting-file-meeting-false-success"
 issue_id: ""
@@ -8,28 +8,57 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [8]
 created: 2026-09-03T13:55:00Z
-updated: 2026-09-03T15:20:00Z
+updated: 2026-09-04T00:00:00Z
 ---
 
 ## Current Focus
 <!-- OVERWRITE on each update - reflects NOW -->
 
-**Partial close (quick 260903-kwl).** Change 1 (the honesty fix: description, no-write
-marker, missing-reference signal) and the Change 2 scope check (pipeline and speakers
-branches confirmed same read-only shape, same fix applied) are SHIPPED. This is NOT a
-full resolution: the Technical Root Cause section's real defect - the Tri-Polar parity
-gap where the CLI (`/mos:file-meeting`) has had real DIKW-typed meeting filing since
-2026-06-12 and Desktop/Cowork never have, because the MCP surface still never calls
-`navigation.writeClaimNode` - is explicitly OUT OF SCOPE for this pass and stays OPEN.
-The recommended shape in the Consult section (small single-job tool calls, each with a
-gate_render/gate_answer confirmation step) is still design-only, not yet approved or
-built. Do not move this file to `resolved/` or add a `knowledge-base.md` entry until
-that gap itself is closed by a future, separately-scoped GSD plan.
+**Resolved (Phase 276, plans 276-12 and 276-14).** This RCA's own Current Focus stated the
+condition for closing it plainly: two of the three gaps named in the Consult section's
+recommended shape had to close before this file could honestly move to `resolved/`. Both
+have, measured, not asserted.
+
+- **Gap 3 (a direct claim write reachable from MCP), CLOSED by plan 276-12.** A new
+  `claim_write` MCP tool (`lib/mcp/tools/claim.cjs`) writes a real 6-value `knowledge_type`
+  DIKW claim through `typed-claim.cjs`'s `writeClaimNode` -> `lib/core/node-insert.cjs`, the
+  same governed chokepoint `commands/file-meeting.md`'s CLI pipeline already used. Proven by
+  `tests/test-276-claim-write-primitive.cjs` (44 assertions), independently reading `room.db`
+  after every write rather than trusting the tool's own response.
+- **Gap 2 (the F.8 filing gate wired to a real write), CLOSED by plan 276-14.** The `meeting`
+  tool's `file-meeting` command, called with `knowledge_type` and `claim_text`, now writes
+  the claim and renders a `gate_render` confirmation card; promotion to `confirmed` happens
+  only through the shipped `gate_answer` approve branch, proven against `room.db`
+  independently of the tool's own response text
+  (`tests/test-276-meeting-gate-wiring.cjs`, 7 groups / 14 assertions). A second answer to
+  the same `gate_id` is refused (`unknown_or_expired_gate`), confirming the single-use
+  ledger held.
+- **Gap 1 (the five-perspective subagent fan-out), STILL OPEN, and this is the reasoning for
+  closing the file anyway.** `references/meeting/filing-protocol.md`'s own gap enumeration
+  (rewritten by plan 276-14) states this plainly: no Agent tool and no subagent registry
+  exist on the MCP surface, so the CLI's Step 3a five-subagent dispatch is structurally
+  unreachable from Desktop or Cowork, not merely unbuilt. This is a declared limitation of
+  the MCP transport itself, not an open defect this repo's own code could close by writing
+  more of it - the identical distinction this RCA's own Consult section drew between Gap 1
+  ("Not fixable, only declarable") and Gap 2 ("This one IS reachable and is NOT wired").
+  Per this RCA's own condition for a `resolved` verdict: the sole remaining gap being
+  structurally unreachable is a declared limitation, not an open defect, so `resolved` is
+  the honest disposition rather than a narrowed `partial-close`.
+
+Both writes this resolution rests on were independently verified against `room.db`, never
+trusted from a tool's own response text - the exact discipline this RCA's Problem Statement
+names as the reason the original defect went unnoticed ("a caller who trusts the response
+text believes content was filed... when nothing was").
 
 hypothesis: `meeting`'s `file-meeting` command never wrote anything (no `insertNode`, no `artifact_file`, no room.db mutation) despite its own tool description claiming it does ("parses a transcript and files it as a room entry"), and its response text ("## File Meeting" header, echoed transcript, no error) reads as a filing confirmation to any caller, human or model, that does not independently verify the write.
 test: read the handler in full, confirmed it. Independently verified against a live call this session: `room.db` mtime unchanged before/after a real `file-meeting` call with a full real transcript as `context`.
 expecting: confirmed, no further test needed to establish the root cause. Remaining open question is scope of fix (see Required Code Changes).
-next_action: the honesty half (Change 1 + Change 2 scope check) is done. Next action belongs to a future, separately-scoped GSD plan: build the recommended shape in the Consult section (small single-job MCP tool calls walking the Claimify protocol, persisting through `artifact_file`, confirming through `gate_render`/`gate_answer`) so Desktop and Cowork reach real DIKW-typed filing, closing the Tri-Polar gap this RCA names.
+next_action: none - resolved. The recommended shape in the Consult section shipped in
+  Phase 276 (plans 276-12, 276-14): a small single-job `claim_write` MCP tool walking the
+  DIKW-typed write path, confirming through the existing `gate_render`/`gate_answer`
+  machinery, exactly as recommended. Gap 1 (the five-perspective subagent fan-out) remains
+  a declared, structurally unreachable limitation of the MCP transport, not an open action
+  item.
 
 ## Meta
 
@@ -170,29 +199,45 @@ Per navigator instruction, consulted `icm-architect` (direct architectural doctr
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: confirmed - see Technical Root Cause above.
-fix: PARTIAL - the honesty half only (Change 1 + Change 2 scope check). Description
-  rewritten to assert no capability the handler lacks; NO_WRITE_MARKER (`**filed: false**`)
-  leads all three meeting branches; each branch signals an explicit not-found line instead
-  of silently omitting a missing reference; references/meeting/filing-protocol.md created
-  as a faithful, surface-neutral extract of commands/file-meeting.md Step 3 so the
-  file-meeting branch's safeReadFile actually resolves now. NOT fixed: the MCP surface
-  still does not call navigation.writeClaimNode; the Tri-Polar parity gap remains open,
-  tracked here (see Current Focus) and in the CHANGELOG entry that names it explicitly.
-verification: `node tests/test-kwl-meeting-mcp-honesty.cjs` (37/37 assertions, 5 scenarios:
-  DESCRIPTION_HONEST, NO_WRITE_MARKER_ALL_BRANCHES, PROTOCOL_PRESENT, NO_WRITE_PROPERTY,
-  DRIFT_GUARD), registered in `tests/run-all-266.sh` (explicit gate line + EMDASH_TARGETS).
-  `bash tests/run-all-266.sh` reports FAIL=0. `node tests/test-234-tool-description-floor.cjs`
-  passes over the wire for all 39 registered tools. `node tests/test-270-tool-schema-budget.cjs`
-  passes; measured delta: 39 tools, 14781 desc bytes, 21900 schema bytes, 36681 total bytes,
-  ~9170 approx tokens. `git diff --numstat commands/file-meeting.md` shows zero deletions.
+fix: RESOLVED, in two stages.
+  Stage 1 (quick 260903-kwl) - the honesty half: description rewritten to assert no
+  capability the handler lacks; NO_WRITE_MARKER (`**filed: false**`) leads all three
+  meeting branches; each branch signals an explicit not-found line instead of silently
+  omitting a missing reference; references/meeting/filing-protocol.md created as a faithful,
+  surface-neutral extract of commands/file-meeting.md Step 3 so the file-meeting branch's
+  safeReadFile actually resolves.
+  Stage 2 (Phase 276, plans 276-12 and 276-14) - the real write and gate: a new `claim_write`
+  MCP tool (`lib/mcp/tools/claim.cjs`) writes a real 6-value `knowledge_type` DIKW claim
+  through `typed-claim.cjs`'s `writeClaimNode` -> `lib/core/node-insert.cjs`; the `meeting`
+  tool's `file-meeting` command, given `knowledge_type` and `claim_text`, now writes that
+  claim and renders a `gate_render` confirmation card, with promotion to `confirmed` gated
+  exclusively through the shipped `gate_answer` approve branch. Desktop and Cowork now reach
+  real DIKW-typed meeting filing, closing the Tri-Polar parity gap this RCA named. The one
+  remaining named gap (the five-perspective subagent fan-out) is a declared, structurally
+  unreachable MCP-transport limitation, not an open defect - see Current Focus.
+verification: Stage 1: `node tests/test-kwl-meeting-mcp-honesty.cjs` (37/37 assertions, 5
+  scenarios: DESCRIPTION_HONEST, NO_WRITE_MARKER_ALL_BRANCHES, PROTOCOL_PRESENT,
+  NO_WRITE_PROPERTY, DRIFT_GUARD), registered in `tests/run-all-266.sh`. Stage 2:
+  `node tests/test-276-claim-write-primitive.cjs` (44 assertions, independently reads
+  `room.db` after every write); `node tests/test-276-meeting-gate-wiring.cjs` (7 groups / 14
+  assertions - the gate is reached, confirmation proven against `room.db` independently of
+  the tool's response text, the ledger is single-use, the shipped kwl fixture stays intact
+  with zero assertions changed since the new path is opt-in). `bash tests/run-all-266.sh`
+  and `bash tests/run-all-276.sh` both report FAIL=0.
 files_changed:
   - lib/mcp/tool-router.cjs
+  - lib/mcp/tools/claim.cjs
+  - lib/core/navigation/typed-claim.cjs
   - references/meeting/filing-protocol.md
   - commands/file-meeting.md
   - skills/file-meeting/SKILL.md (auto-generated mirror, regenerated)
   - tests/test-kwl-meeting-mcp-honesty.cjs
+  - tests/test-276-claim-write-primitive.cjs
+  - tests/test-276-meeting-gate-wiring.cjs
   - tests/run-all-266.sh
   - CHANGELOG.md
 commits:
   - 3a35f4f6 (fix(mcp): make meeting tool description and branches honest about writing nothing)
   - 2f1f4cf3 (docs(meeting): add the real filing-protocol.md the MCP meeting tool tries to read)
+  - 0fef3e80 / ddd13ddf / 90b73eb0 (276-12: the claim_write MCP primitive, RED/GREEN/born-wired)
+  - 4e18dc7a / 421dcea8 / dfa6f5c2 (276-14: the meeting gate wiring, RED/GREEN/docs)

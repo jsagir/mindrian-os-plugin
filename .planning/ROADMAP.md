@@ -863,6 +863,117 @@ Plans:
 
 - [ ] 276-16-PLAN.md - phase close, `autonomous: false`: register TOOLHON-01..14 with measured evidence, reconcile the ROADMAP count and plan list, CHANGELOG, seven-plus named follow-ups each with an owner, the meeting-RCA disposition, the dev-research compositing trail in both homes, and a **blocking human verification of Desktop or Cowork meeting filing against `room.db`** (TOOLHON-07, TOOLHON-08, TOOLHON-02)
 
+**Carried forward (named owners).** Phase 273's C4/C5 were deferred and nearly orphaned once
+already; this phase's own deferrals get a home here instead, following the Phase 267.3
+"SCOPE, explicit" and Phase 271 `REGISTERED_FOLLOWUPS` shape:
+
+- **Route `lazygraph-ops.openGraph` through `openRoomDb`** (D-276-4's named follow-up, would
+  also close Phase 273's M12 and C2's residue). Deferred because `openRoomDb` is synchronous
+  and returns a bare handle while `openGraph` is async and returns `{db, conn}` across
+  roughly 50 call sites (re-measured live by `276-09`, up from the plan's own ~38 estimate),
+  and because it runs a 7-step migration chain on every open -- the same ~40-file regression
+  shape Phase 273 D-01a already rejected. Owner: repo navigator.
+- **The Theo-side TS-AST checker port**, filed as
+  `docs/2026-09-03-THEO-SEED-tool-honesty-ts-ast-port.md` by plan `276-13`, to be captured as
+  a SEED in Theo's own `.planning/seeds/` via that repo's `/gsd-capture`, before Theo plan
+  `09-12` authorizes the flip. Owner: whoever works the Theo repo. Never executed from here
+  (Theo D-04).
+- **The `gate_render` Theo mirror task** (the one description this phase changed on a
+  Theo-absorbed tool: adopt the plugin's corrected sentence at
+  `src/mcp/operational/gate-render.ts:89-93`, quoted verbatim in the SEED document above),
+  plus the `gate_answer` pre-existing divergence (offset 585, plugin 1462 / theo 1152 bytes,
+  independently confirmed pre-existing by a zero-count grep against Theo's own source,
+  reported but not registered as a second mirror task by `276-13`). Owner: whoever works the
+  Theo repo.
+- **The `STATE.md` resync-clobber bug** as a dedicated `/gsd-debug` session against
+  `@opengsd/gsd-core` under `$HOME/.claude/gsd-core/`, not this repo. Sixty-plus documented
+  occurrences across this session and every prior handoff that touched it (up from the
+  20+ this ROADMAP entry originally cited). Out of repo scope by the same logic Theo's tools
+  are out of repo scope. Owner: repo navigator.
+- **The operator-cap comparison against the DIKW rungs** (`epistemic_type` vs.
+  `lib/conversation/operator.cjs:133` `EPISTEMIC_LEVELS` / `:138` `OPERATOR_EPISTEMIC_CAP`),
+  OQ-276-1(d): ratified as scoped OUT of this phase by the navigator (`276-DECISIONS.md`
+  OQ-276-1), the knowledge_type -> epistemic_type mapping direction only was built (`276-12`).
+  This close-out's own human verification (Task 3 below) is where the navigator can confirm
+  the proposed mapping table's row content, which is executor-proposed and not yet
+  navigator-ratified. Owner: repo navigator.
+- **The two sibling `no_room_db` sites**: `lib/core/breakthrough/scanner.cjs:124` and
+  `lib/core/navigation/lens-nodes.cjs:254` (whose own header comment literally says "mirrors
+  spine-events"), discovered by `276-02`'s run-time census and re-confirmed present by
+  `276-10`'s own Group E run, sharing the identical catch-and-mislabel shape
+  `lib/core/navigation/spine-events.cjs` had before this phase's own C5 fix. Owner: repo
+  navigator.
+- **The `NOT EXECUTED.` literal detector gap**: `classifyBranch`'s `hasBanner` check
+  (`scripts/check-tool-honesty.cjs`) recognizes `noWriteBanner()`/`**filed: false**` but has
+  no equivalent recognition of the `NOT EXECUTED.` banner literal, so every command wired
+  into `UNIMPLEMENTED_MUTATING_ORCHESTRATION` relies entirely on a claim-free description to
+  read OK; the banner itself earns no detector credit. Found by `276-08`. Owner: whoever next
+  touches `scripts/check-tool-honesty.cjs`.
+- **The honest-empty trio at flip time**: `enrichCausalEdges` (zero production callers today,
+  two prose-only references), `hatAwareRecommend` (one caller, pipes raw JSON, no rendering
+  layer) and `suggestValidationSteps` (one caller, returns an explicit
+  `{enriched:false,steps:0}` on empty) all return honest empties against Theo's labels today,
+  but the first future caller inherits an un-audited empty-versus-absent contract at exactly
+  the moment the Theo flip makes empties the common case. Re-measured and confirmed unchanged
+  from `276-RESEARCH.md`'s original characterization by `276-11`. Owner: repo navigator / the
+  first future caller.
+- **The `~/.mindrian/card-fire-reached.json` debris entry** `claim:test-session-276-12:3d693cca`,
+  left by `276-12`'s pre-hermetic test run before that plan's own Deviation 2 fix pinned
+  `MINDRIAN_ROOMS_HOME` to a scratch directory. User-state debris, named here for cleanup per
+  this plan's own phase_rules; `~/.mindrian` was deliberately NOT edited by this plan.
+  Verified at this plan's own execution time: `~/.mindrian/card-fire-reached.json` now reads
+  `{}` (2 bytes), so the entry is already absent -- likely cleared by ordinary process since
+  `276-12` ran, not by any action this plan took. Owner: repo navigator, if it ever recurs.
+- **Worktree-per-session as the structural answer to the three collision classes** this phase
+  met firsthand in its own shared working tree: the git-index race (`276-15`'s Task 1 commit
+  absorbed into an unrelated Phase 339 commit, `e484f4b3`), the STATE.md resync-clobber
+  (multiple plans in this phase hand-corrected `percent` after a concurrent session's
+  legitimate write), and the room-registry bleed that blocks the compositing write below.
+  Documented here as a recommendation only, not built (out of this repo's scope; the fix
+  lives in how sessions are spawned, not in this codebase). Owner: repo navigator /
+  `@opengsd/gsd-core` direction.
+- **Hardening `check-tool-honesty.cjs` to `--strict`.** The quick-260903-ljj SUMMARY names
+  this as available only after the finding list is empty. The live list is not empty by
+  design (D-276-2: MEDIUM stays permanently visible, never suppressible) -- 12 MEDIUM rows
+  remain, all with a written `documented-no-action` disposition (`276-15-SUMMARY.md`).
+  Whether that residual MEDIUM count is "empty enough" to harden the gate is a navigator
+  decision, not a planner one. Owner: repo navigator.
+- **`cross-room-store.cjs` / `cross-room-umbilical-closer.cjs`'s fallback swallow.**
+  `276-09`'s busy-timeout fix narrows the contention window but `withStore`/
+  `withRejectionStore`'s `catch (_e) { return fallback; }` still cannot distinguish a busy
+  outcome from any other failure at the caller. Changing the fallback contract is a
+  caller-visible behavior change, out of `276-09`'s option-only scope. Owner: repo navigator.
+- **The two-hop `resolveReachability` boundary behind `graph-index`/`graph-rebuild`.**
+  `276-07` found these two `room_graph` commands genuinely write via a depth-2 dotted call
+  chain (`lib/core/graph-ops.cjs` -> `lib/core/lazygraph-ops.cjs`) the detector's one-hop
+  reachability model cannot see -- a real, separate boundary (candidate B-7), distinct from
+  the WEAK-tier ruling that keeps the other 8 `room_graph` rows at documented-no-action.
+  Owner: whoever next touches `scripts/check-tool-honesty.cjs`.
+- **`scripts/verify-release`'s one pre-existing plugin-path-anchoring failure**
+  (`commands/file-meeting.md:350`, predating this phase at commit `2f1f4cf3`), measured for
+  the first time as this phase's own baseline by `276-15`. Not fixed here; `scripts/
+  release.sh` was not run by this phase. Owner: repo navigator.
+- **The nine mega-tools with no connector descriptor and no `hitl_shape`** (RESEARCH
+  constraint C-3, open question 5): `room_state`, `room_content`, `room_graph`,
+  `methodology`, `analysis`, `intelligence`, `meeting`, `export`, `orchestration` plus
+  `eureka_critic` -- only `room_bind` has one today. Whether Canon Part 11 R16 covers MCP
+  tools is OQ-3, still unresolved. Registered as a finding, not built. Owner: repo navigator.
+
+**Dev-Research Compositing:** the durable reasoning trail belongs at
+`~/MindrianRooms/rethinking-mindrianos/research/2026-09-03-same-disease-consolidation/`,
+cross-linked back to this phase directory in both directions per CLAUDE.md's mandate.
+**Status: STAGED, not landed.** The write was attempted and blocked by the
+`scripts/write-scope-check` PreToolUse guard: the registry's active room is
+`jonathan-contractor-motj`, not `rethinking-mindrianos`. The guard was NOT bypassed, per the
+`267.3-08`/`270-12` precedent. The full trail (the one-disease-two-layers thesis, the D-1
+discovery, the propagation-gap framing, the icm-architect five-instance promotion bar, the
+measured before/after, and D-276-1 through D-276-6 with rejected alternatives) is staged at
+`276-16-COMPOSITING-TRAIL-STAGED.md` in this phase directory. **Pending navigator action**
+(three steps): (1) `/mos:rooms switch rethinking-mindrianos`, (2) copy the staged file's body
+to `~/MindrianRooms/rethinking-mindrianos/research/2026-09-03-same-disease-consolidation/2026-09-03-same-disease-consolidation.md`,
+(3) mirror it to `~/MindrianOS/research/`. This line is the repo-to-room half of the
+cross-link; the room-to-repo half is in the staged file's own header.
+
 ### Phase 277: SEED-004: Fix write-scope-check Nested-Room False-Positive Bug
 
 **Goal:** [To be planned]
