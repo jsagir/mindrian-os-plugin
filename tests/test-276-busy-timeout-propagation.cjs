@@ -254,6 +254,21 @@ function pinNoTimeout(censusId, relFile, exactSnippet, reasonLabel) {
   );
 }
 
+// Presence counterpart of pinNoTimeout, for sites Phase 276-09 fixed at the option level
+// without a behavioral elapsed-floor proof being reachable (a genuine read, or a sibling
+// db file the shared lock helper cannot target). Checks the opener's constructor call
+// itself (not merely anywhere in the file) carries `timeout: 5000`.
+function pinHasTimeout(censusId, relFile, exactSnippet, reasonLabel) {
+  const src = readSrc(relFile);
+  const idx = src.indexOf(exactSnippet);
+  check(
+    censusId + ' (source-level pin, not behavioral) ' + relFile
+    + ' opener carries timeout:5000 -- ' + reasonLabel,
+    idx !== -1 && src.slice(idx, idx + 400).split('\n')[0].indexOf('timeout: 5000') !== -1,
+    'found at ' + relFile + ':offset ' + idx + (idx === -1 ? ' (snippet NOT FOUND, source drifted)' : '')
+  );
+}
+
 // ---------------------------------------------------------------------------
 // RUNTIME FLOOR (Assertion group C)
 // ---------------------------------------------------------------------------
@@ -408,11 +423,15 @@ async function main() {
 
   // A6: source-level pin. See header for the empirically-verified WAL-reader-never-blocks
   // finding that makes a behavioral assertion here meaningless (RESEARCH:940 census entry).
-  pinNoTimeout(
-    'A6', 'lib/core/venture-shape-nudge.cjs', 'db = new DatabaseSync(dbPath);',
+  // Phase 276-09 added the option here for correctness (the site is opened read-write, not
+  // via the read-only door) even though this read-intent path never measurably waits on it;
+  // the pin is therefore a PRESENCE check post-fix, not an absence check.
+  pinHasTimeout(
+    'A6', 'lib/core/venture-shape-nudge.cjs', 'db = new DatabaseSync(dbPath, { timeout: 5000 });',
     'read-intent opener; verified live that a plain read succeeds in <1ms under a held '
     + 'foreign write lock (WAL readers never block writers), so an elapsed-floor assertion '
-    + 'would pass vacuously both before and after any timeout is added'
+    + 'would pass vacuously both before and after the timeout option is present; the option '
+    + 'is added for correctness on the read-write door regardless'
   );
 
   // ---------------------------------------------------------------------
