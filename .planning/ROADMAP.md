@@ -810,13 +810,48 @@ Critical priority per navigator instruction, timed against Theo's approaching pr
 - **D-276-6 (Theo):** of the 24, only `gate_render` lands on a Theo-absorbed tool, but `gate_answer` (1462 vs 1152 bytes) and `chain_run` (1113 vs 1006) descriptions have ALREADY diverged from Theo's constants at Theo `83a1ce2` -- Theo's `gate_answer` predates the `SOURCED_FROM`/`USES_FRAMEWORK` clause from `2c8dfddf`. The five-constant byte-diff is a skip-when-absent, non-blocking signal in this phase's validation, and the Theo-side SEED recommends a TS-AST port of the methodology (a direct run of the current checker against Theo scans zero tools and reports OK).
 - **D-276-3:** an in-memory gate-ledger mint is not persistence. `gate_render`'s disposition is a description correction ("mints an in-memory gate id, persists nothing"), not adding `minted` to `STRONG_VERBS` to flip it HIGH RISK. Because `gate_render` is one of Theo's 5 absorbed tools, this correction gets a Theo-side mirror task.
 
-**Requirements**: TBD (mint working IDs at plan time, e.g. `TOOLHON-01..NN`, matching the Phase 272 `PYPORT-`/Phase 273 `CHOKE-` precedent)
+**Requirements**: TOOLHON-01, TOOLHON-02, TOOLHON-03, TOOLHON-04, TOOLHON-05, TOOLHON-06, TOOLHON-07, TOOLHON-08, TOOLHON-09, TOOLHON-10, TOOLHON-11, TOOLHON-12, TOOLHON-13, TOOLHON-14 (minted in `276-RESEARCH.md`'s requirement table, distributed across the 16 plans below, registered in `.planning/REQUIREMENTS.md` at phase close by plan 276-16, per the Phase 272 `PYPORT-` / Phase 273 `CHOKE-` / Phase 274 `ANCHOR-` precedent)
 **Depends on:** none technically. The ROADMAP previously read "Depends on: Phase 275" -- verified 2026-09-03 to be spurious: Phase 275 (room-schema-by-ICM-layer) has no substantive link to MCP/substrate false-success fixes, is itself gated and not yet plannable (blocked on Phase 270's OQ-7), and this line matches the known `gsd-tools.cjs query phase.add` heading-boilerplate pattern already caught once for this same phase entry, not a real dependency (same disclosure pattern as Phase 272's "sequenced after Phase 271 only because registered the same session, not a real dependency"). Corrected here rather than left to silently block planning.
-**Plans:** 0 plans
+**Plans:** 16 plans across 7 waves (0 through 6)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 276 to break down)
+**Wave 0** *(test infrastructure; RED by design, parallel, zero files_modified overlap)*
+
+- [ ] 276-01-PLAN.md - `tests/run-all-276.sh` (glob discovery, found-eq-0 guard provable via `TEST_276_PREFIX`, Part 8 sweep, no-em-dash fence), the synthetic `switch (command)` fixture, and the RED proof that `splitBranches` is dead code (TOOLHON-01, TOOLHON-05)
+- [ ] 276-02-PLAN.md - the two Layer 2 held-lock tests, both REUSING the shipped `tests/helpers/room-db-lock-holder-236.cjs` rather than authoring a second lock helper. C4 asserts an elapsed-time floor, not a return value; C5 pins `room_db_busy` / `room_db_broken` and resolves RESEARCH A11 by reading the two getters' catch bodies (TOOLHON-09, TOOLHON-10, TOOLHON-11)
+- [ ] 276-03-PLAN.md - the two Layer 1 description pins, measured over the wire: `orchestration.scout` (F-1) and `room_content` (F-11..F-14), both forbidding the false claim BY LITERAL and requiring a SUBSET of the two shipped disclosure markers (TOOLHON-03, TOOLHON-04)
+- [ ] 276-04-PLAN.md - the two-directional ledger diff, the `ALLOWED_UNVERIFIED` contract made structural, and the skip-when-absent non-blocking Theo parity signal pinned to Theo `83a1ce2` (TOOLHON-02, TOOLHON-06, TOOLHON-12)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [ ] 276-05-PLAN.md - **the navigator decision plan (D-276-1), `autonomous: false`, writes `276-DECISIONS.md` only, no code.** OQ-276-1 rules the three-vocabulary collision (`EPISTEMIC_LEVELS` vs `ALLOWED_EPISTEMIC_TYPES` vs `KNOWLEDGE_TYPES`); OQ-276-2 rules the claim-write surface shape and the gate placement. Restates D-276-1..D-276-6 as dispositions of record (TOOLHON-07)
+- [ ] 276-06-PLAN.md - **the D-1 GREEN fix in a commit separate from 276-01's RED commit** (`209b604f`/`75278850` precedent), the false verification claim inside the honesty checker corrected, the B-1..B-6 boundary enumeration (B-6 newly minted), and the disposition ledger frozen against the post-fix sweep (TOOLHON-01, TOOLHON-05, TOOLHON-06, TOOLHON-02)
+
+**Wave 2** *(blocked on Wave 1; four plans, disjoint file trees)*
+
+- [ ] 276-07-PLAN.md - detector triage: the command-name-in-enumeration guard (F-2..F-8), the negation-window fix and the one-level barrel re-export hop with `resolveRepoLocalPath` containment proven by a negative case (F-10 A and B), the `includes()` dispatch half of B-4, and the WEAK-tier sibling-writes ruling recorded at the decision site (TOOLHON-02, TOOLHON-05)
+- [ ] 276-08-PLAN.md - the `lib/mcp/tool-router.cjs` description fixes: `orchestration.scout`, `export` and `room_content`, plus the revised NOT-EXECUTED membership rule ("does the description claim it", not "does it mutate and lack a branch") and every false completion assertion removed (TOOLHON-03, TOOLHON-04)
+- [ ] 276-09-PLAN.md - C4 option-only propagation per D-276-4 at Group A and Group B, with Groups C and D excluded quoting `room-db.cjs:251`, the census re-measured at execution time, and the `openRoomDb` re-route registered as a named follow-up at the code site (TOOLHON-09)
+- [ ] 276-10-PLAN.md - C5 return-shape variant at BOTH `_emit` sites through one shared helper, `err.name` before `instanceof`, the F-selector getters resolved by measurement, the run-time `no_room_db` census, and M8's comment correction proven comments-only (TOOLHON-10, TOOLHON-11, TOOLHON-14)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 276-11-PLAN.md - `gate_render`'s in-memory-mint disclosure per D-276-3 (no `STRONG_VERBS` widening), `graph_write`'s CAS fail-open disclosure on the `read_version` describe (boundary B-6 territory), and the Brain shim's DirectiveEnvelope correction. The honest-empty trio stays OUT of the code-fix scope as a re-measured recorded finding (TOOLHON-13, TOOLHON-02)
+- [ ] 276-12-PLAN.md - the claim-write MCP primitive, RED then GREEN, routed through `lib/core/node-insert.cjs` with `writePathRefusal`, its success shape constructed FROM the write's own result, born wired with a shape chosen from the contract, and honest on the checker's first sweep (TOOLHON-07)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 276-13-PLAN.md - the Theo parity run with the commit re-pinned at execution time, every divergence classified as caused-by-this-phase or pre-existing, and the coordinated SEED recommending a TS-AST port with the zero-tools-scanned false-success warning up front (TOOLHON-12, TOOLHON-13)
+- [ ] 276-14-PLAN.md - the meeting filing path wired through `gate_render` / `gate_answer`, confirmation verified against `room.db` rather than a response, the per-branch `**filed: false**` decision stated, and `references/meeting/filing-protocol.md`'s gap enumeration corrected to match the code (TOOLHON-07)
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 276-15-PLAN.md - `SUBSTRATE-BASELINE.md` regenerated by its own script resolving the 195/208/205 drift (Phase 273 D-05's deferral, now due), the ledger re-frozen against the post-fix scan surface, and the full gate set reported as a DELTA with the advisory posture confirmed unchanged (TOOLHON-14, TOOLHON-02)
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 276-16-PLAN.md - phase close, `autonomous: false`: register TOOLHON-01..14 with measured evidence, reconcile the ROADMAP count and plan list, CHANGELOG, seven-plus named follow-ups each with an owner, the meeting-RCA disposition, the dev-research compositing trail in both homes, and a **blocking human verification of Desktop or Cowork meeting filing against `room.db`** (TOOLHON-07, TOOLHON-08, TOOLHON-02)
 
 ### Phase 277: SEED-004: Fix write-scope-check Nested-Room False-Positive Bug
 
