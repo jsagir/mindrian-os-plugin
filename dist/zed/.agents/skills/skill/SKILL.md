@@ -75,7 +75,7 @@ Push back on a proposed node: it cannot materialize until a human confirms it. P
 Delegate the file emission to the shipped generator (the new-surface delegation pattern):
 
 ```bash
-node scripts/build-new-surface.cjs --from-expert <surname|nodeId>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/build-new-surface.cjs" --from-expert <surname|nodeId>
 ```
 
 The backend:
@@ -88,7 +88,7 @@ The backend:
 Prove the emitted skill is well-formed:
 
 ```bash
-node scripts/build-new-surface.cjs --check --kind skill --name <expert>
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/build-new-surface.cjs" --check --kind skill --name <expert>
 ```
 
 For a render-only expert skill this asserts the exclusion is well-formed (`excluded: true` + a non-empty `reason`, and NO `reach_id`, so no 7th reach leaks in). A finding exits non-zero with a recovery line.

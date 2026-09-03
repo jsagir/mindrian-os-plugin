@@ -252,7 +252,7 @@ Explain what to look for rather than returning an empty table. Help the user und
 ```
 {warning} Knowledge graph not initialized
   JSON saved to room/.causal-extract.json (claims preserved)
-  Fix: Run /mos:setup graph then re-run the bridge with: node scripts/causal-to-graph.cjs room/
+  Fix: Run /mos:setup graph then re-run the bridge with: node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/causal-to-graph.cjs" room/
 ```
 
 ## When Complete

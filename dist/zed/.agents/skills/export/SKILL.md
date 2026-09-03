@@ -61,7 +61,7 @@ If the user requests `hub`, or runs `/mos:export` with no argument, or says "exp
 
 2. **Run the hub generator (MANDATORY -- never generate HTML by hand):**
    ```bash
-   node scripts/generate-hub.cjs ./room
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/generate-hub.cjs" ./room
    ```
 
 3. **Report the result:**
@@ -92,7 +92,7 @@ If a valid PDF document type is provided:
 
 2. **Run the render script:**
    ```bash
-   python3 scripts/render-pdf {type} --room room/
+   python3 "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/render-pdf" {type} --room room/
    ```
 
 3. **Report the result** in Larry's voice:
