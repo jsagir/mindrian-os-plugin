@@ -13,7 +13,7 @@
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "275814438e17128c105ba9ee410a705bde87571b0a4cef1d6495b2a4813e63ce",
+      "digest": "32e0f1a5108c39023b603789a36f9edef87df1be111db5e2eee553731f4ef69a",
       "source_count": 208
     },
     {
@@ -42,7 +42,7 @@
     {
       "role": "brain_orchestration",
       "path": "lib/core/directive-envelope.cjs",
-      "digest": "ec07b7120664093f2f13f074b10383de22029e3da68b950371272fed1cf1f85d"
+      "digest": "ed2451cb75df1ac7b09d5f71b10fc6e5426f182c9339713f49f759fe3a04c81e"
     }
   ]
 }

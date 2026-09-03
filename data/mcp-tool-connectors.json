@@ -16,7 +16,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Files a markdown artifact and mints a memory_event node through navigation.cjs -- a material room-content write, not a pure read."
+      "hitl_why": "Files a markdown artifact and mints a memory_event node through navigation.cjs, plus a typed claim node with SOURCED_FROM provenance edges -- a material room-content write, not a pure read."
     },
     {
       "surface": "mcp:chain_resolve",
@@ -169,7 +169,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "F.1",
-      "hitl_why": "Ratifies a gate decision; an approve verdict routes a material write through navigation.cjs (Part 9) -- the fork the human already resolved via gate_render."
+      "hitl_why": "Ratifies a gate decision; an approve verdict routes a material write through navigation.cjs (Part 9) -- the fork the human already resolved via gate_render -- and now also writes a typed decision node with SOURCED_FROM/USES_FRAMEWORK provenance edges, promoted to confirmed via confirmNode."
     },
     {
       "surface": "mcp:gate_render",
