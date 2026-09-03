@@ -198,7 +198,10 @@ const BASELINE = {
 };
 
 /*
- * Phase 270-12 Task 2 Half C -- MEMOP-10, the AFTER number.
+ * Phase 270-12 Task 2 Half C -- MEMOP-10, the AFTER number. SUPERSEDED
+ * in-place by plan 276-12 below (kept here, in the same field shape, as the
+ * historical 270-12 measurement -- see the 276-12 re-baseline note under the
+ * live AFTER constant for why it moved again).
  *
  * Produced by the SAME exported measure() function above, run against the same
  * live tools/list probe, on the same day, after every other plan in the phase
@@ -207,7 +210,7 @@ const BASELINE = {
  * (assuming fewer tools means fewer tokens) cuts both ways, so this constant is
  * recorded as measured even though it went UP.
  *
- * What moved between BASELINE and AFTER:
+ * What moved between BASELINE and this 270-12 measurement:
  *   ADDED to the tool budget:  context_assemble, graph_reason, identity_write
  *                              (+3 tools, the whole toolCount delta).
  *   MOVED, budget-neutral:     detect_dual_path and extract_shallow relocated
@@ -224,7 +227,7 @@ const BASELINE = {
  * still carrying real per-turn read capability. Judge the phase on both, not on
  * this constant alone.
  */
-const AFTER = {
+const AFTER_270_12 = {
   measuredAt: '2026-08-27',
   plan: '270-12',
   toolCount: 39,
@@ -234,6 +237,40 @@ const AFTER = {
   approxTokens: 8377,
   routerCount: 9,
   atomicCount: 30,
+};
+
+/*
+ * Plan 276-12 (TOOLHON-07) -- the AFTER re-baseline this plan is authorised
+ * to make (276-12-PLAN.md Task 2 acceptance criteria: "a new tool adds
+ * description and schema bytes, so if the total exceeds the drift tolerance
+ * the baseline moves DELIBERATELY with the measured percentage recorded and
+ * named in the commit message"). The 270-12 AFTER above had already drifted
+ * BEFORE this plan touched anything -- phases 271-275 landed tool
+ * description/schema edits between 2026-08-27 and 2026-09-03 without ever
+ * re-running this file's own measurement, and DRIFT_TOLERANCE_PCT (10%) is
+ * never relaxed to paper over that, per this plan's own instructions.
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs, same
+ * listToolsOverStdio + measure() pair, no new arithmetic) immediately after
+ * plan 276-12's Task 2 GREEN commit landed claim_write:
+ *   toolCount 39 -> 40 (the ENTIRE toolCount delta is claim_write; the pre-
+ *     existing tools/list count matched AFTER_270_12.toolCount exactly, so
+ *     the byte drift below is prose-content drift on EXISTING tools from
+ *     271-275, not a tool-count discrepancy).
+ *   totalBytes 33509 -> 38970 (+4840 bytes total across the tree; measured
+ *     16.30% against the stale 270-12 figure before this update, which is
+ *     what tripped the drift alarm and authorised this re-baseline).
+ */
+const AFTER = {
+  measuredAt: '2026-09-03',
+  plan: '276-12',
+  toolCount: 40,
+  totalDescBytes: 15449,
+  totalSchemaBytes: 23521,
+  totalBytes: 38970,
+  approxTokens: 9743,
+  routerCount: 9,
+  atomicCount: 31,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget

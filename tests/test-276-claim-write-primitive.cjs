@@ -101,7 +101,19 @@ function check(label, cond, detail) {
 // Setup: a bare temp room, room.db pre-created through the sanctioned
 // opener (openRoomDbForCaller requires the file to already exist -- it
 // never creates one), a stub server capturing every real registration.
+//
+// Hermetic room resolution: lib/core/resolve-active-room.cjs defaults its
+// `home` to $HOME/MindrianRooms and reads that home's registry.json for an
+// active-session hit -- on a real dev machine that registry is real and
+// would silently redirect this test's writes into someone's actual room.
+// MINDRIAN_ROOMS_HOME is pointed at a fresh, registry-less scratch dir (the
+// same env-var seam resolve-active-room.cjs's own header names as the
+// hermetic-test override) so resolveSessionRoom finds no hit and floors to
+// ctx.fallbackRoomDir -- the temp room this test actually reads back.
 // ---------------------------------------------------------------------------
+process.env.MINDRIAN_ROOMS_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-276-12-roomshome-'));
+delete process.env.CLAUDE_ACTIVE_ROOM;
+
 function makeTempRoom() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-276-12-claim-'));
   const db = openRoomDb(dir);
