@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: 267.2-10 Tasks 1-2 complete (HOOK-01..HOOK-12 registered, VALIDATION.md reconciled, gate roll-up measured, dev-research trail staged); Task 3 blocking navigator checkpoint PENDING
-last_updated: "2026-09-03T12:39:55.344Z"
+stopped_at: Phase 267.2 COMPLETE (all 10 plans, Task 3 checkpoint approved via real AskUserQuestion card, post-approval code review found 2 BLOCKERs both fixed with tests, verified 12/12 independently). Next: pick from open phases (253/255/256/263/268/275 pending or not_started, 267 blocked on ext-apps upstream)
+last_updated: "2026-09-03T16:45:00.000Z"
 last_activity: 2026-09-03
 progress:
   total_phases: 26
@@ -13,6 +13,18 @@ progress:
   completed_plans: 150
   percent: 73
 ---
+
+<!-- NOTE (session close-out, 2026-09-03, SIXTIETH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     stopped_at reverted to a stale "Task 3 ... PENDING" string hours after
+     the checkpoint was actually approved and the phase fully closed
+     (267.2-10-SUMMARY.md, 267.2-VERIFICATION.md, PROJECT.md all confirm
+     COMPLETE). completed_phases/total_plans/percent were NOT affected this
+     time and remain internally consistent (19/26, 150/150, 73%). Root cause
+     already tracked for a future /gsd-debug session per the 2026-08-27/
+     2026-09-01 handoffs; not re-investigated here, per the standing
+     convention established throughout this session (58+ prior occurrences
+     hand-corrected the same way). -->
 
 <!-- NOTE (267.2-10 execute-plan, 2026-09-03, FORTY-NINTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
