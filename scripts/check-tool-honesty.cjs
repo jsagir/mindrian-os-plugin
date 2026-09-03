@@ -64,6 +64,51 @@
  *   F. classifyBranch -- the claim x reachability matrix, with an in-band
  *      noWriteBanner(/ NO_WRITE_MARKER check that always wins.
  *
+ * KNOWN BOUNDARIES (phase 276-06, 276-RESEARCH.md "Detector Boundaries").
+ * Six named boundaries this detector does not (fully) close, each stated
+ * plainly rather than left to be discovered by a false result:
+ *
+ *   B-1 Argument-gated writes (FALSE NEGATIVE). A write inside a guard on an
+ *       optional parameter counts as reachable even when no caller supplies
+ *       it. Example: lib/mcp/tools/dual-path.cjs:52 calls
+ *       extractShallow(text, sessionId) with two arguments while
+ *       lib/core/shallow-doc-parser.cjs:191 gates its navigation.setFocus
+ *       write behind `if (opts && opts.db)`. Not closed by this phase.
+ *   B-2 Barrel re-exports (FALSE UNKNOWN). lib/core/navigation.cjs is a
+ *       facade of `NAME: mod.NAME` assignments, so locateFunctionBody finds
+ *       no local definition and the branch reports UNKNOWN. Systemic,
+ *       because navigation.cjs is the mandated Canon Part 9 chokepoint.
+ *       Plan 276-07 is the owner of the one-level re-export follow.
+ *   B-3 Subprocess-mediated writes (FALSE NEGATIVE). A write performed by a
+ *       spawned script is invisible. Example: orchestration.rooms-open
+ *       writes through a spawned room-registry.cjs. ACCEPTED as a
+ *       documented boundary: a blanket "any spawn counts as a write" rule
+ *       creates the opposite failure (false positives on every spawn).
+ *   B-4 Dispatch-shape coverage (FALSE NEGATIVE). splitBranches recognizes
+ *       top-level `switch (command)` and top-level `if (command === 'x')`.
+ *       It does NOT recognize `ARRAY.includes(command)` or
+ *       `command.startsWith(prefix)`, both used in this repo. Plan 276-07
+ *       is the owner of the `includes()` half; `startsWith` stays
+ *       documented, because a prefix maps to many commands and a
+ *       prefix-dispatched tool is intentionally undifferentiated.
+ *   B-5 Write-primitive semantics (conceptual, not fully tractable). "A
+ *       write primitive is reachable" does not mean "the write the
+ *       description promises happens." Example: `analysis` classifies OK
+ *       for all its commands because pipelineState.recordStep writes a
+ *       bookkeeping file, not the analysis output the description implies.
+ *       Consequence stated plainly: an OK verdict means no detectable
+ *       mismatch, NEVER a positive proof of honesty -- no summary anywhere
+ *       may present a clean OK count as a clean surface.
+ *   B-6 Parameter describe strings are never scanned (FALSE NEGATIVE, NEW
+ *       in phase 276). scanAll reads only the second positional argument to
+ *       server.tool(, so a claim made inside a zod .describe() string is
+ *       invisible to the detector. Discovered while tracing graph_write's
+ *       read_version describe string: lib/mcp/tools/graph.cjs:226 asserts
+ *       "a lost update is rejected as a conflict instead of silently
+ *       clobbering" while reconcile-guard.cjs:77-85 fails open on a missing
+ *       node. Not closed by this phase; the CAS fail-open disclosure is
+ *       plan 276-11's work.
+ *
  * No em-dashes. CJS only. process.argv switch-case routing.
  */
 
@@ -78,6 +123,34 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // ONLY after a human has triaged a HIGH RISK finding and recorded why the
 // mismatch is acceptable. Suppressing a finding before triage defeats the
 // entire purpose of this script -- never pre-populate this array.
+//
+// ENTRY CONTRACT (phase 276-06, documented here at the declaration site
+// rather than left inferable from the consumption site alone). Each entry
+// is a plain object carrying exactly four required fields:
+//   tool     - the tool name, matched against a row's `tool` field.
+//   command  - the command/branch name (or '(default)'), matched against a
+//              row's `command` field.
+//   reason   - a human-written explanation of why this specific HIGH RISK
+//              finding is a triaged false positive, not a real defect.
+//   triaged  - who/when the triage happened (a short string; this script
+//              does not enforce a format on it beyond presence).
+//
+// MEMBERSHIP RULE. An entry is admissible ONLY for a finding proven to be a
+// false positive that the detector genuinely cannot be made to stop
+// producing. A proven false positive is normally a DETECTOR FIX, not an
+// allowlist entry -- adding an entry here should be the exception, made
+// only when fixing the detector itself is not tractable (see the KNOWN
+// BOUNDARIES block above for the boundaries that fall into this category,
+// e.g. B-3's subprocess-mediated writes).
+//
+// TWO MECHANICAL FACTS a contributor must know before touching this array:
+//   1. Suppression applies to HIGH_RISK rows ONLY. A matching entry
+//      rewrites that one row's verdict to OK (see the consumption loop
+//      after scanAll's row-building pass, below).
+//   2. MEDIUM and UNKNOWN verdicts are NEVER suppressible by this
+//      mechanism, by design, per D-276-2. There is no code path in this
+//      file that lets an ALLOWED_UNVERIFIED entry touch a MEDIUM or
+//      UNKNOWN row; only a HIGH_RISK row's verdict is ever rewritten.
 // ---------------------------------------------------------------------------
 const ALLOWED_UNVERIFIED = [];
 
