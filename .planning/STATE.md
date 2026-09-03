@@ -4,7 +4,7 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 339-01-PLAN.md
-last_updated: "2026-09-03T20:15:31.024Z"
+last_updated: "2026-09-03T20:15:42.023Z"
 last_activity: 2026-09-03 -- Phase 339 execution started
 progress:
   total_phases: 89
@@ -6243,6 +6243,7 @@ Progress: [█████████░] 92%
 - [Phase 276]: WEAK-tier sibling-writes discount NOT extended to per-command/tool-scoped WEAK claims (classifyBranch ruling) - room_graph rows re-measured live are per-command not tool-scoped as RESEARCH.md said, and 2 of 10 hide a real undetected write (graph-ops to lazygraph depth-2 dotted call); a blanket discount would have silently hidden that real gap
 - [Phase 276]: 276-08: room_content and orchestration honesty rewrites are dry-run against check-tool-honesty.cjs's own extractClaims() before landing, to catch a disclosure sentence accidentally tripping a STRONG/WEAK verb token before it becomes a committed false positive.
 - [Phase 339]: Minted FLIP-01..FLIP-12 at plan time per Phase 254 D-05 precedent - Follows established precedent for requirement families that don't exist in the milestone-wide requirements pass
+- [Phase 276]: 276-11: gate_render/graph_write/brain_ask description-only honesty fixes; D-276-3/D-276-6 flip-day items closed, honest-empty trio recorded as finding not fix
 
 ### Pending Todos
 
