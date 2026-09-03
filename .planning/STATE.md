@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 339 context gathered
-last_updated: "2026-09-03T18:32:22.031Z"
+last_updated: "2026-09-03T18:36:24.565Z"
 last_activity: 2026-09-03 -- Phase 276 execution started
 progress:
   total_phases: 90
   completed_phases: 19
   total_plans: 166
-  completed_plans: 156
+  completed_plans: 157
   percent: 21
 ---
 
@@ -3964,7 +3964,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 276 (mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs) — EXECUTING
-Plan: 7 of 16
+Plan: 8 of 16
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 276 execution started
 
@@ -4727,6 +4727,7 @@ Progress: [█████████░] 92%
 | Phase 276 P04 | 33min | 3 tasks | 3 files |
 | Phase 276-mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs P05 | 4min | 3 tasks | 2 files |
 | Phase 276 P06 | 55min | 3 tasks | 2 files |
+| Phase 276 P09 | 70min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -6144,6 +6145,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: OQ-276-1: mapping table lives in typed-claim.cjs (b+d), operator-cap comparison deferred to 276-16
 - [Phase ?]: OQ-276-2: claim_write is one MCP tool, writes at proposed through node-insert.cjs, gate_answer promotes
 - [Phase 276]: The ten room_graph.* MEDIUM ledger entries record 276-RESEARCH.md's default recommendation (detector-fix, expected OK, owner 276-07) pending that plan's actual WEAK-tier sibling-writes-discount ruling, since 276-07 has not yet run
+- [Phase 276]: 276-09: D-276-4 option-only propagation applied to 16 new sites; openRoomDb re-route deferred to 276-16
+- [Phase 276]: 276-09: test-276-busy-timeout-propagation.cjs A6/B1-B3 pins flipped from absence to presence checks in lockstep with production fixes
 
 ### Pending Todos
 
@@ -6265,7 +6268,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T18:32:21.916Z
+Last session: 2026-09-03T18:36:08.232Z
 Stopped at: Phase 339 context gathered
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
