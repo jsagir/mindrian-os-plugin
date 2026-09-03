@@ -114,11 +114,43 @@ function honestRefusal(result, toolName) {
 // no network); it only awaits a mint attempt when the ladder is empty.
 const server = new McpServer({ name: 'mindrian-brain', version: version });
 
+// ---------------------------------------------------------------------------
+// Phase 257 Plan 08 (D-09, LOCUS-07) -- the undeclared-key smuggling gap.
+// Provenance: the Theo consult's GUARD-01
+// (/home/jsagi/Theo/src/mcp/register-content-tool.ts, a different repo, read
+// only) measured that a plain zod raw-shape input schema silently ACCEPTS an
+// undeclared key and drops it before the handler ever sees it -- a call
+// carrying {question:'x', roomSecret:'LEAK'} succeeds, the handler receives
+// only {question:'x'}, and nothing logs, rejects, or traces the extra field.
+// A Part 8 violation the content classifier structurally cannot see, because
+// classify() only ever inspects keys the schema declared.
+//
+// MEASURED THIS PHASE, on this repo's own installed pins (see
+// tests/test-257-strict-input-shapes.cjs Arms Z1-Z3): the same gap exists
+// here. A strict zod object shape closes it: safeParse rejects with an
+// unrecognized_keys issue instead of silently dropping the field.
+//
+// MEASURED MECHANISM (Arm Z4, do not "simplify" this back to the OLD
+// positional registration form). The SDK's positional tool-registration
+// overload (name, description, schema, callback) detects its schema
+// argument with isZodRawShapeCompat, which returns FALSE for a ZodObject
+// instance (a ZodObject is a schema, not a raw shape) -- so passing a strict
+// zod object positionally falls into the annotations branch and THROWS
+// ("expected a Zod schema or ToolAnnotations, but received an unrecognized
+// object"). The config-object registration overload used below (name,
+// {description, inputSchema}, callback) routes inputSchema through
+// getZodSchemaObject, which returns a ZodObject unchanged -- this is the
+// only form that preserves strictness on the pinned SDK, which is why every
+// registration in this file was migrated to it.
+// ---------------------------------------------------------------------------
+
 // -- brain_ask: highest-level entry; wraps response in DirectiveEnvelope.
-server.tool(
+server.registerTool(
   'brain_ask',
-  'Ask the remote PWS teaching graph a natural-language methodology question. Routing happens server-side over the live Memgraph teaching graph using locally-embedded multilingual-e5-large vectors. Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
-  { question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') },
+  {
+    description: 'Ask the remote PWS teaching graph a natural-language methodology question. Routing happens server-side over the live Memgraph teaching graph using locally-embedded multilingual-e5-large vectors. Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
+    inputSchema: z.strictObject({ question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') }),
+  },
   async ({ question }) => {
     if (!(await brainClient.ensureAvailable())) {
       // Keyless path unchanged (127-02 sentinel, byte-locked).
@@ -169,12 +201,18 @@ server.tool(
 );
 
 // -- brain_query: raw Cypher (generic methodology handles only).
-server.tool(
+// NOTE: strictness applies at the TOP level only, to reject undeclared
+// sibling keys of cypher/params. `params` itself stays z.record(z.any()) --
+// it is a Cypher binding map whose keys are legitimately arbitrary. Do NOT
+// make params strict internally; that would break legitimate bindings.
+server.registerTool(
   'brain_query',
-  'Cypher query against the Brain teaching graph. Generic framework handles only (Canon Part 8). Returns { records: [...] } on success.',
   {
-    cypher: z.string().describe('Cypher query string.'),
-    params: z.record(z.any()).optional().describe('Optional binding map -- generic handles only.'),
+    description: 'Cypher query against the Brain teaching graph. Generic framework handles only (Canon Part 8). Returns { records: [...] } on success.',
+    inputSchema: z.strictObject({
+      cypher: z.string().describe('Cypher query string.'),
+      params: z.record(z.any()).optional().describe('Optional binding map -- generic handles only.'),
+    }),
   },
   async ({ cypher, params }) => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_query'));
@@ -194,10 +232,12 @@ server.tool(
 );
 
 // -- brain_schema: cached 30 min in brain-client; passthrough here.
-server.tool(
+server.registerTool(
   'brain_schema',
-  'Reports the teaching graph schema: labels, relationship types and property keys from the live Memgraph backend. Memoized for 30 minutes.',
-  {},
+  {
+    description: 'Reports the teaching graph schema: labels, relationship types and property keys from the live Memgraph backend. Memoized for 30 minutes.',
+    inputSchema: z.strictObject({}),
+  },
   async () => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_schema'));
     const r = await brainClient.schema();
@@ -207,13 +247,15 @@ server.tool(
 
 // -- brain_search: semantic via locally-embedded e5 vectors, with a graph
 // fulltext fallback (smartSearch handles the fallback branch).
-server.tool(
+server.registerTool(
   'brain_search',
-  'Runs semantic search over the teaching graph using locally-embedded multilingual-e5-large vectors, with a graph fulltext fallback when the vector search comes up empty.',
   {
-    query: z.string().describe('Search query (generic methodology language -- Canon Part 8).'),
-    namespace: z.string().optional(),
-    topK: z.number().int().min(1).max(50).optional(),
+    description: 'Runs semantic search over the teaching graph using locally-embedded multilingual-e5-large vectors, with a graph fulltext fallback when the vector search comes up empty.',
+    inputSchema: z.strictObject({
+      query: z.string().describe('Search query (generic methodology language -- Canon Part 8).'),
+      namespace: z.string().optional(),
+      topK: z.number().int().min(1).max(50).optional(),
+    }),
   },
   async ({ query, namespace, topK }) => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_search'));
@@ -223,10 +265,12 @@ server.tool(
 );
 
 // -- brain_stats: operational stats passthrough.
-server.tool(
+server.registerTool(
   'brain_stats',
-  'Reports teaching-graph size and coverage counts, plus last-update markers, from the live Memgraph backend.',
-  {},
+  {
+    description: 'Reports teaching-graph size and coverage counts, plus last-update markers, from the live Memgraph backend.',
+    inputSchema: z.strictObject({}),
+  },
   async () => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_stats'));
     const r = await brainClient.stats();
@@ -235,10 +279,12 @@ server.tool(
 );
 
 // -- brain_write: admin-tier; not user-surfaced but proxied for parity.
-server.tool(
+server.registerTool(
   'brain_write',
-  'Write Cypher to the Brain. Admin-tier; requires a write-capable key. Generic methodology framework writes only (Canon Part 8).',
-  { cypher: z.string().describe('Cypher write query (generic methodology only).') },
+  {
+    description: 'Write Cypher to the Brain. Admin-tier; requires a write-capable key. Generic methodology framework writes only (Canon Part 8).',
+    inputSchema: z.strictObject({ cypher: z.string().describe('Cypher write query (generic methodology only).') }),
+  },
   async ({ cypher }) => {
     if (!(await brainClient.ensureAvailable())) return asContent(tier0Response('brain_write'));
     const r = await brainClient.write(cypher);
