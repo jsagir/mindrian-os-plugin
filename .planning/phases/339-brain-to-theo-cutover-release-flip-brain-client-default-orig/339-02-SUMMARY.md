@@ -134,4 +134,13 @@ No blockers.
 *Phase: 339-brain-to-theo-cutover-release-flip-brain-client-default-orig*
 *Completed: 2026-09-03*
 
-## Self-Check: PENDING
+## Self-Check: PASSED
+
+- FOUND: tests/test-339-enrichment-theo-shapes.cjs
+- FOUND: tests/test-339-update-path-single-source.cjs
+- FOUND: tests/test-339-schema-memo-origin-keyed.cjs
+- FOUND: .planning/phases/339-brain-to-theo-cutover-release-flip-brain-client-default-orig/339-02-SUMMARY.md
+- FOUND: 0a9c0774 (Task 1 commit)
+- FOUND: be641e88 (Task 2 commit)
+- FOUND: c45fe65f (Task 3 commit)
+- FOUND: cc22d69f (SUMMARY commit)
