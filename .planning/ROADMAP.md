@@ -822,7 +822,7 @@ Critical priority per navigator instruction, timed against Theo's approaching pr
 
 **Requirements**: TOOLHON-01, TOOLHON-02, TOOLHON-03, TOOLHON-04, TOOLHON-05, TOOLHON-06, TOOLHON-07, TOOLHON-08, TOOLHON-09, TOOLHON-10, TOOLHON-11, TOOLHON-12, TOOLHON-13, TOOLHON-14 (minted in `276-RESEARCH.md`'s requirement table, distributed across the 16 plans below, registered in `.planning/REQUIREMENTS.md` at phase close by plan 276-16, per the Phase 272 `PYPORT-` / Phase 273 `CHOKE-` / Phase 274 `ANCHOR-` precedent)
 **Depends on:** none technically. The ROADMAP previously read "Depends on: Phase 275" -- verified 2026-09-03 to be spurious: Phase 275 (room-schema-by-ICM-layer) has no substantive link to MCP/substrate false-success fixes, is itself gated and not yet plannable (blocked on Phase 270's OQ-7), and this line matches the known `gsd-tools.cjs query phase.add` heading-boilerplate pattern already caught once for this same phase entry, not a real dependency (same disclosure pattern as Phase 272's "sequenced after Phase 271 only because registered the same session, not a real dependency"). Corrected here rather than left to silently block planning.
-**Plans:** 13/16 plans executed
+**Plans:** 14/16 plans executed
 
 Plans:
 
@@ -852,7 +852,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 276-13-PLAN.md - the Theo parity run with the commit re-pinned at execution time, every divergence classified as caused-by-this-phase or pre-existing, and the coordinated SEED recommending a TS-AST port with the zero-tools-scanned false-success warning up front (TOOLHON-12, TOOLHON-13)
+- [x] 276-13-PLAN.md - the Theo parity run with the commit re-pinned at execution time, every divergence classified as caused-by-this-phase or pre-existing, and the coordinated SEED recommending a TS-AST port with the zero-tools-scanned false-success warning up front (TOOLHON-12, TOOLHON-13)
 - [x] 276-14-PLAN.md - the meeting filing path wired through `gate_render` / `gate_answer`, confirmation verified against `room.db` rather than a response, the per-branch `**filed: false**` decision stated, and `references/meeting/filing-protocol.md`'s gap enumeration corrected to match the code (TOOLHON-07)
 
 **Wave 5** *(blocked on Wave 4)*
