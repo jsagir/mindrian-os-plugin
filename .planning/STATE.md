@@ -4945,6 +4945,15 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 276 added (2026-09-03): MCP Tool Honesty - Triage and Close. Triages and
+  closes the 9 findings (1 HIGH RISK, 8 MEDIUM, 1 UNKNOWN) from `check-tool-honesty.cjs`'s
+  first live sweep (quick 260903-ljj), resolves the still-open Tri-Polar gap named in
+  `.planning/debug/meeting-file-meeting-false-success.md`, and decides the detector's
+  known dataflow-blindness limitation. Registered navigator-critical, timed against
+  Theo's approaching production deployment. `phase.add`'s own known heading bug fired
+  again (the full description landed as the literal ROADMAP.md heading instead of
+  being split into a title + Goal field) -- caught and hand-corrected in the same pass,
+  not left for a future session to trip over.
 - Phase 273 added (2026-08-27): SQLite Graph Chokepoint Hardening (writeEdge
   silent-failure + propagation-gap fixes). Registered from a code-reviewer-skill pass
   over the local SQLite graph layer this session, 5 Critical + 12 Major + 10 Minor,

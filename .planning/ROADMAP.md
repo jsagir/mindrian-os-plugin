@@ -762,6 +762,17 @@ Plans:
   - Room mirror: `~/MindrianRooms/rethinking-mindrianos/research/2026-08-27-bare-plugin-path-resolution/`, mirrored to `~/MindrianOS/research/`, cross-linked both directions and both links verified to resolve.
   - **Added by the 271-02 ruling:** must ALSO register `FOLLOWUP-271-R1` (split `/mos:radar` into a dev-only `--fetch` write path and a user-safe anchored read path). Owner: repo navigator. It is the residual read-side defect the option-d allowlist knowingly defers at `commands/radar.md` lines 51, 52, 95, 99. It already lives in code (`REGISTERED_FOLLOWUPS` in `scripts/check-plugin-path-anchoring.cjs`, referentially enforced) and in `271-AUDIT.md` section 4; 271-05 gives it a scheduled home here.
 
+### Phase 276: MCP Tool Honesty - Triage and Close
+
+**Goal:** Triage and close all 9 findings from `scripts/check-tool-honesty.cjs`'s first live sweep (quick task 260903-ljj, 36 tools / 130 branches): 1 HIGH RISK (`orchestration.scout` -- claims "ordinary reads and writes", falls through to a read-only reference echo), 8 MEDIUM, 1 UNKNOWN. For each: fix the real bug (honesty-fix pattern already proven this session on the `meeting` tool), fix the detector if it's a false positive (never suppress via `ALLOWED_UNVERIFIED` without root-causing why), or correct the description if it's a genuine scaffolding-tool-by-design case. Also resolve the still-open real defect named in `.planning/debug/meeting-file-meeting-false-success.md` (status `partial-close`): the Tri-Polar gap where Desktop/Cowork never reach Phase 150.8's real, verified DIKW meeting-filing pipeline (Claimify 4-pass extraction, typed claim writes, human-confirmation gate) -- either scope and plan the fix in this phase or hand it to its own phase with a stated reason. Also decide whether to extend the checker for the known `extract_shallow`-class limitation (an argument-gated write invisible to static analysis) or accept it as a documented detector boundary. Critical priority per navigator instruction, timed against Theo's approaching production deployment as a separate MCP service -- Theo's own ~27 tools warrant the same audit treatment in its own repo, named here as an out-of-repo recommendation, not built in this phase.
+**Requirements**: TBD
+**Depends on:** Phase 275
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 276 to break down)
+
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD
