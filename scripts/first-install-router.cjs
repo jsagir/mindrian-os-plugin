@@ -860,7 +860,21 @@ function main() {
     }
     const armedAtMs = Date.now();
     const armedState = { phase: 'armed', armed_at_ms: armedAtMs, schema_version: 1 };
-    _atomicWriteState(armedState);
+    const armWriteOk = _atomicWriteState(armedState);
+    if (!armWriteOk) {
+      // WR-01 (267.2-REVIEW.md): the ONE-SHOT GATE depends on state.json actually
+      // persisting. If it cannot be written (permissions, a full disk, a read-only home),
+      // _readState() will keep returning null on every later turn, which -- if this branch
+      // proceeded to classify and route anyway -- would re-run _classifyAndRoute (including
+      // injecting "invoke /mos:ignite" prose) on every subsequent, unrelated turn for the
+      // rest of the session. Fail THIS turn closed instead: emit and exit without ever
+      // classifying the prompt. The onboarding marker read above is harmless to repeat
+      // (this router never calls check-onboard --write), so a transient write failure
+      // self-heals the moment the underlying filesystem issue clears; a persistent one
+      // degrades to "the router never arms," never to "the router injects ignite prose
+      // into an unrelated later turn."
+      return emitEmpty();
+    }
     // Continue this turn: classify the same prompt that just armed the router.
     return _classifyAndRoute(armedState, prompt, t0);
   }
