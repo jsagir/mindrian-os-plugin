@@ -97,7 +97,18 @@ const { spawn } = require('node:child_process');
 
 const { openRoomDb, closeRoomDb } = require('../lib/core/room-db.cjs');
 const navigation = require('../lib/core/navigation.cjs');
-const { insertNode } = require('../lib/core/node-insert.cjs');
+const { insertNode, ALLOWED_EPISTEMIC_TYPES } = require('../lib/core/node-insert.cjs');
+
+// R17-02: preserve whatever epistemic_type an existing row already carries
+// (never silently reclassify it during a metadata-only refresh); fall back
+// to 'observation' for a pre-R17-02 row that predates this field (these two
+// call sites operate on already-indexed Artifact nodes -- system-bookkeeping
+// class, same as the lazygraph-ops.cjs / rs-engine.cjs Artifact writers).
+function existingOrDefaultEpistemicType(props) {
+  return (typeof props.epistemic_type === 'string' && ALLOWED_EPISTEMIC_TYPES.has(props.epistemic_type))
+    ? props.epistemic_type
+    : 'observation';
+}
 const { extractEntities } = require('../lib/core/eureka/entity-extractor.cjs');
 const triModal = require('../lib/core/eureka/tri-modal-index.cjs');
 // Tier-2a (quick-task 260714-k44): the LOCAL embedding WHAT-vs-WHY classifier. It
@@ -352,7 +363,7 @@ function applyArtifactMetadata(db, art) {
     // The node already exists (we just SELECTed it), so this UPSERT takes the
     // ON CONFLICT branch: properties refresh, review_status + provenance
     // columns stay exactly as they were (merge discipline, assumption A5).
-    insertNode(db, row.id, row.type, propsJson);
+    insertNode(db, row.id, row.type, propsJson, { epistemic_type: existingOrDefaultEpistemicType(props) });
     return 'applied';
   } catch (_e) {
     return 'skipped'; // defensive: one bad artifact never kills the batch
@@ -705,7 +716,7 @@ function applyFrameworkTerms(db, artifactId, terms) {
     try { propsJson = JSON.stringify(props); } catch (_e) { return 'skipped'; }
     // The node already exists (just SELECTed), so this UPSERT takes the ON
     // CONFLICT branch: properties refresh, review_status + provenance untouched.
-    insertNode(db, row.id, row.type, propsJson);
+    insertNode(db, row.id, row.type, propsJson, { epistemic_type: existingOrDefaultEpistemicType(props) });
     return 'applied';
   } catch (_e) {
     return 'skipped';

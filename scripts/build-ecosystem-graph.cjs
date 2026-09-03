@@ -330,9 +330,12 @@ function buildEcosystemGraph(conn, resolved) {
     // reindex into a permanent loss. insertNode detects both schema
     // generations, so legacy 3-column dbs keep working unchanged.
     const artifactProps = JSON.stringify({ title, section, methodology, created, content_hash: contentHash });
+    // R17-02: 'observation' -- same system-bookkeeping class as the
+    // lazygraph-ops.cjs / rs-engine.cjs Artifact writers.
     insertNode(conn, id, 'Artifact', artifactProps, {
       source_path: relPath,
       created_by: 'system',
+      epistemic_type: 'observation',
     });
 
     // Upsert Section node (includes vertical prefix for sub-rooms)
@@ -341,6 +344,7 @@ function buildEcosystemGraph(conn, resolved) {
     insertNode(conn, section, 'Section', sectionProps, {
       source_path: 'section:' + section,
       created_by: 'system',
+      epistemic_type: 'observation',
     });
 
     // BELONGS_TO edge

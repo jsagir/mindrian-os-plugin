@@ -148,8 +148,10 @@ async function main() {
         // (and stays a bare 3-col insert on an un-migrated db). D-02 + D-02a.
         // insertNode issues no BEGIN of its own, so calling it inside this
         // transaction cannot nest one (SQLite rejects a nested BEGIN).
-        insertNode(conn, srcSection, 'Section', JSON.stringify({ name: srcSection, label: srcLabel }));
-        insertNode(conn, tgtSection, 'Section', JSON.stringify({ name: tgtSection, label: tgtLabel }));
+        // R17-02: 'observation' -- system-bookkeeping structural anchor, same
+        // class as every other Section writer.
+        insertNode(conn, srcSection, 'Section', JSON.stringify({ name: srcSection, label: srcLabel }), { epistemic_type: 'observation' });
+        insertNode(conn, tgtSection, 'Section', JSON.stringify({ name: tgtSection, label: tgtLabel }), { epistemic_type: 'observation' });
 
         const edgeProps = JSON.stringify({
           differential_score: rs.differential_score || 0,
