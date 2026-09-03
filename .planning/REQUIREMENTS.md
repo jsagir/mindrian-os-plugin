@@ -916,7 +916,7 @@ one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop'
       (257-08). Measured on this repo's own pins: a plain shape ACCEPTS `{roomSecret:'LEAK'}` and
       silently drops it; `z.strictObject` rejects with `unrecognized_keys`.
 
-- [ ] **LOCUS-08**: baseline honesty. The two pre-existing red 239 arms froze the pre-2026-08-19 hook
+- [x] **LOCUS-08**: baseline honesty. The two pre-existing red 239 arms froze the pre-2026-08-19 hook
       matcher literal; both now derive it from `hooks/hooks.json` at run time, and the pre-change and
       post-change counts are both recorded (257-05). No 257 report claims a green suite without citing
       the recorded baseline.
