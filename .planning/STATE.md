@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 267.2 COMPLETE (all 10 plans, Task 3 checkpoint approved via real AskUserQuestion card, post-approval code review found 2 BLOCKERs both fixed with tests, verified 12/12 independently). Next: pick from open phases (253/255/256/263/268/275 pending or not_started, 267 blocked on ext-apps upstream)
-last_updated: "2026-09-03T16:45:00.000Z"
-last_activity: 2026-09-03
+stopped_at: 267.2-10 Tasks 1-2 complete (HOOK-01..HOOK-12 registered, VALIDATION.md reconciled, gate roll-up measured, dev-research trail staged); Task 3 blocking navigator checkpoint PENDING
+last_updated: "2026-09-03T16:38:53.545Z"
+last_activity: 2026-09-03 -- Phase 276 planning complete
 progress:
   total_phases: 26
   completed_phases: 19
@@ -3966,7 +3966,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 267.3
 Plan: Not started
 Status: Ready to execute
-Last activity: 2026-09-03
+Last activity: 2026-09-03 -- Phase 276 planning complete
 
 <!-- NOTE (254-05 execute-plan, 2026-09-02, resync-clobber bug, same class as
      the notes below): after `state.record-metric`, `state.add-decision` (x2)
@@ -4954,6 +4954,7 @@ Progress: [█████████░] 92%
   again (the full description landed as the literal ROADMAP.md heading instead of
   being split into a title + Goal field) -- caught and hand-corrected in the same pass,
   not left for a future session to trip over.
+
 - Phase 273 added (2026-08-27): SQLite Graph Chokepoint Hardening (writeEdge
   silent-failure + propagation-gap fixes). Registered from a code-reviewer-skill pass
   over the local SQLite graph layer this session, 5 Critical + 12 Major + 10 Minor,
