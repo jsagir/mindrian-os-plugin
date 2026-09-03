@@ -1067,13 +1067,13 @@ Plans:
 **Goal:** The reverse-salient discovery pipeline runs fully local: the external and hybrid signal corpus is fetched, embedded by the one shipped local encoder and cached per room instead of in a Pinecone namespace, and `rs-experts` answers "no transport", "unreachable" and "genuinely zero experts" as three distinguishable honest outcomes instead of one hand-rolled string.
 **Requirements**: RSLOCAL-01, RSLOCAL-02, RSLOCAL-03, RSLOCAL-04, RSEXP-01, RSEXP-02, RSFENCE-01
 **Depends on:** none. The `Depends on: Phase 295` line was `phase.add` heading boilerplate; 296-RESEARCH.md F-10 established that SEED-029's technical shape shipped under Phase 211 plus quick `260706-13z`, not under Phase 295, which remains an unplanned stub. Phase 296 does not wait on it.
-**Plans:** 2/6 plans executed
+**Plans:** 3/6 plans executed
 
 Plans:
 
 - [x] 296-01-PLAN.md - Wave-0 harness, shared both-backends room fixture, and the two already-true regression fences (F-3 and F-9)
 - [x] 296-02-PLAN.md - rs-experts three-cause degrade through refusal-messaging.cjs, plus the corrected command doc and regenerated mirrors
-- [ ] 296-03-PLAN.md - scripts/rs-vector-bridge.cjs, the D-02 CJS vector bridge, and the Pitfall-1 both-backends guard
+- [x] 296-03-PLAN.md - scripts/rs-vector-bridge.cjs, the D-02 CJS vector bridge, and the Pitfall-1 both-backends guard
 - [ ] 296-04-PLAN.md - retire lib/core/rs_cache.py's Pinecone SDK layer for a per-room local sidecar
 - [ ] 296-05-PLAN.md - thread room scope through rs-engine.py, rs_hybrid.py, the CJS bridge and the differential scorer; name the auto-explore dispatch leftover
 - [ ] 296-06-PLAN.md - two-sided Pinecone residue gate, operator docs, full gate sweep, and the human HSI Tier 2 checkpoint

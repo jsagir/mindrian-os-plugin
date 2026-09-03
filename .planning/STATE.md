@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 296-02-PLAN.md
-last_updated: "2026-09-03T18:08:27.601Z"
+stopped_at: Completed 296-03-PLAN.md
+last_updated: "2026-09-03T18:26:22.337Z"
 last_activity: 2026-09-03 -- Phase 296 execution started
 progress:
   total_phases: 89
   completed_phases: 4
   total_plans: 160
-  completed_plans: 59
+  completed_plans: 60
   percent: 4
 ---
 
@@ -3964,7 +3964,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 296 (SEED-030: RS Pipeline Spine-Wiring + Expert-Graph Reconciliation) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 296 execution started
 
@@ -4723,6 +4723,7 @@ Progress: [█████████░] 92%
 | 267.2 | 10 | - | - |
 | Phase 296 P01 | 45min | 3 tasks | 4 files |
 | Phase 296 P02 | 50min | 2 tasks | 8 files |
+| Phase 296 P03 | 55min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6132,6 +6133,8 @@ Progress: [█████████░] 92%
 - [Phase 296-01]: bash tests/run-all-296.sh needs TEST_296_ALLOW_MISSING=1 to exit 0 until plan 296-03 creates scripts/rs-vector-bridge.cjs (mirrors tests/run-all-272.sh's identical multi-wave rollout escape hatch)
 - [Phase ?]: rs-experts resolveExpertTier: three distinguishable causes (AURA_TRANSPORT_ABSENT/BRAIN_UNREACHABLE/success) routed through refusal-messaging.cjs, authors key omitted on refusal branches per Theo CONN-05
 - [Phase ?]: commands/rs-experts.md corrected: no longer claims a Brain-Cypher MATCH (F-6, coupling removed 2026-05-22); names all three refusal codes; adds Theo cutover note
+- [Phase ?]: 296-03: Allow-listed scripts/rs-vector-bridge.cjs in check-substrate.cjs ALLOWED_DIRECT_IMPORT (Pattern 1 caller-owned handle, mirrors entity-extract.cjs/research-filing.cjs's pre-existing openRoomDb(allowExtension:true) idiom)
+- [Phase ?]: 296-03: Ambient backend on this worktree checkout resolves real sqlite-vec (node module resolution walks up to the main repo's node_modules); both sqlite-vec and cjs-fallback legs were genuinely exercised natively, not just through the forced MINDRIAN_FORCE_NO_VEC0 seam
 
 ### Pending Todos
 
@@ -6253,8 +6256,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T18:08:27.540Z
-Stopped at: Completed 296-02-PLAN.md
+Last session: 2026-09-03T18:26:22.230Z
+Stopped at: Completed 296-03-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
