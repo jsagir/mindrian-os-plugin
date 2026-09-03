@@ -84,13 +84,19 @@
  *       writes through a spawned room-registry.cjs. ACCEPTED as a
  *       documented boundary: a blanket "any spawn counts as a write" rule
  *       creates the opposite failure (false positives on every spawn).
- *   B-4 Dispatch-shape coverage (FALSE NEGATIVE). splitBranches recognizes
- *       top-level `switch (command)` and top-level `if (command === 'x')`.
- *       It does NOT recognize `ARRAY.includes(command)` or
- *       `command.startsWith(prefix)`, both used in this repo. Plan 276-07
- *       is the owner of the `includes()` half; `startsWith` stays
- *       documented, because a prefix maps to many commands and a
- *       prefix-dispatched tool is intentionally undifferentiated.
+ *   B-4 Dispatch-shape coverage (FALSE NEGATIVE, half closed phase 276-07).
+ *       splitBranches recognizes top-level `switch (command)`, top-level
+ *       `if (command === 'x')`, AND (phase 276-07) top-level
+ *       `ARRAY.includes(command)` where ARRAY is a locally-defined array
+ *       literal of string literals resolvable via the same
+ *       resolveIdentifierArray helper extractCommandVocabulary already
+ *       uses -- e.g. lib/mcp/tool-router.cjs:1246's
+ *       `EUREKA_COMPUTE_COMMANDS.includes(command)`. It does NOT recognize
+ *       `command.startsWith(prefix)`, and that half stays a DOCUMENTED
+ *       boundary, not a defect: a prefix maps to many commands and a
+ *       prefix-dispatched tool is intentionally undifferentiated, so there
+ *       is no single finite command set to resolve statically the way an
+ *       array literal has one.
  *   B-5 Write-primitive semantics (conceptual, not fully tractable). "A
  *       write primitive is reachable" does not mean "the write the
  *       description promises happens." Example: `analysis` classifies OK
@@ -579,10 +585,15 @@ function extractHandlerBody(handlerArgText) {
 }
 
 // ---------------------------------------------------------------------------
-// Stage C -- splitBranches(handlerBodyText)
+// Stage C -- splitBranches(handlerBodyText, fileText, fileMasked)
+// fileText/fileMasked are OPTIONAL (phase 276-07): they are only needed to
+// resolve an `ARRAY.includes(command)` dispatch guard's array literal back
+// to its member command names (B-4, half closed). A caller that omits them
+// (e.g. a synthetic fixture string with no owning file) still gets the
+// switch/if recognition unchanged; only the includes() half degrades.
 // Returns { branchMap: { [command]: ownText }, sharedBodyText }.
 // ---------------------------------------------------------------------------
-function splitBranches(handlerBodyText) {
+function splitBranches(handlerBodyText, fileText, fileMasked) {
   const masked = maskNonCode(handlerBodyText);
   const depths = computeDepthArray(masked);
   const consumed = [];
@@ -690,6 +701,20 @@ function splitBranches(handlerBodyText) {
     while ((cm = cmdRe.exec(condOriginal)) !== null) {
       matchedCommands.push(cm[2]);
     }
+    // B-4 half closed (phase 276-07): `ARRAY.includes(command)` is a
+    // dispatch guard exactly like `command === 'x'`, just against a
+    // whole array instead of one literal. ARRAY must be a locally-defined
+    // array literal of string literals resolvable via resolveIdentifierArray
+    // (the SAME helper extractCommandVocabulary already uses for the
+    // `...IDENT` spread case) -- a computed or imported array is left
+    // unresolved rather than guessed at.
+    const includesRe = /([A-Za-z_$][\w$]*)\.includes\s*\(\s*command\s*\)/;
+    const incM = includesRe.exec(condOriginal);
+    if (incM && fileText && fileMasked) {
+      for (const cmd of resolveIdentifierArray(incM[1], fileText, fileMasked)) {
+        matchedCommands.push(cmd);
+      }
+    }
     if (matchedCommands.length === 0) continue; // not a command-comparison if
     let i = closeParen + 1;
     while (i < masked.length && /\s/.test(masked[i])) i += 1;
@@ -785,16 +810,15 @@ function readModuleCached(absPath, cache) {
   return src;
 }
 
-// locateFunctionBody(sourceText, fnName, bodyCache, cacheKeyPrefix) -- finds
-// `function fn(`, `async function fn(`, `fn: function(`, `fn: (`, `fn = (`
-// (with optional async), or an ES6 shorthand `fn(...) {`. Brace-matches the
-// body via the masked text; for an expression-bodied arrow (no `{`), takes
-// the text up to the next top-level `;`. Returns the body text, or null.
-function locateFunctionBody(sourceText, fnName, bodyCache, cacheKeyPrefix) {
-  const cacheKey = cacheKeyPrefix ? cacheKeyPrefix + '::' + fnName : null;
-  if (cacheKey && bodyCache && bodyCache.has(cacheKey)) return bodyCache.get(cacheKey);
-
-  const masked = maskNonCode(sourceText);
+// locateDirectFunctionBody(sourceText, masked, fnName) -- finds `function
+// fn(`, `async function fn(`, `fn: function(`, `fn: (`, `fn = (` (with
+// optional async), or an ES6 shorthand `fn(...) {`. Brace-matches the body
+// via the masked text; for an expression-bodied arrow (no `{`), takes the
+// text up to the next top-level `;`. Returns the body text, or null. Pulled
+// out of locateFunctionBody (phase 276-07) so followReexportHop below can
+// search a HOPPED-TO module's own text for a genuine local definition
+// without re-entering the hop logic itself (the depth-one stop).
+function locateDirectFunctionBody(sourceText, masked, fnName) {
   const escaped = fnName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const patterns = [
     new RegExp('\\bfunction\\s+' + escaped + '\\s*\\('),
@@ -805,7 +829,6 @@ function locateFunctionBody(sourceText, fnName, bodyCache, cacheKeyPrefix) {
     new RegExp('\\b' + escaped + '\\s*\\('), // shorthand method -- loosest, checked last
   ];
 
-  let result = null;
   for (const re of patterns) {
     const m = re.exec(masked);
     if (!m) continue;
@@ -822,8 +845,7 @@ function locateFunctionBody(sourceText, fnName, bodyCache, cacheKeyPrefix) {
     if (masked[i] === '{') {
       const close = scanBalanced(masked, i);
       if (close === -1) continue;
-      result = sourceText.slice(i + 1, close);
-      break;
+      return sourceText.slice(i + 1, close);
     }
     // Expression-bodied arrow, or a shorthand-method false match with no
     // body brace at all: only accept if a `{` genuinely follows within a
@@ -841,9 +863,90 @@ function locateFunctionBody(sourceText, fnName, bodyCache, cacheKeyPrefix) {
         } else if (c === ';' && depth === 0) break;
         j += 1;
       }
-      result = sourceText.slice(i, j);
-      break;
+      return sourceText.slice(i, j);
     }
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Barrel re-export hop (phase 276-07, F-10 Bug B / boundary B-2).
+// lib/core/navigation.cjs is a facade of `NAME: mod.NAME` (or
+// `NAME: mod.OTHERNAME`) object-literal property ASSIGNMENTS -- not local
+// function definitions -- so locateDirectFunctionBody's six patterns above
+// find nothing and every branch whose only write is a
+// `navigation.<reexport>()` call reports UNKNOWN. Since navigation.cjs is
+// the mandated Canon Part 9 chokepoint, this is systemic: any tool escapes
+// today only because it also calls something else the scanner can resolve
+// (luck, not coverage).
+//
+// DEPTH ONE ONLY: the hop resolves the re-export's OWN module and calls
+// locateDirectFunctionBody there (never followReexportHop again), so a
+// re-export of a re-export stays unresolved rather than being chased
+// further. A one-hop cap matches this scanner's existing depth discipline
+// elsewhere (resolveReachability's own dotted/bare call resolution is one
+// hop from the branch text; bodyReachesWrite's same-file local chase is a
+// SEPARATE, same-file-bounded depth). Recursing through an arbitrary chain
+// of facades would turn a bounded static heuristic into an unbounded graph
+// walk with no stated stopping rule -- out of scope here.
+//
+// CONTAINMENT IS MANDATORY, NOT ASSUMED: the resolved module path is routed
+// through the EXISTING resolveRepoLocalPath and its
+// `startsWith(rootWithSep)` check -- no second path resolver is written
+// for this hop. This scanner runs inside a pre-commit hook; an uncontained
+// file read here, following a `require()` argument the scanner does not
+// control, would be an arbitrary-file-read primitive sitting in every
+// developer's commit path. A negative fixture
+// (tests/fixtures/tool-honesty/reexport-outside-root.cjs) pins this: a
+// re-export naming a path outside the repo root resolves to nothing.
+const REEXPORT_MODULE_CACHE = new Map();
+function readReexportModule(absPath) {
+  if (REEXPORT_MODULE_CACHE.has(absPath)) return REEXPORT_MODULE_CACHE.get(absPath);
+  let src = null;
+  try {
+    src = fs.readFileSync(absPath, 'utf8');
+  } catch (_e) {
+    src = null;
+  }
+  REEXPORT_MODULE_CACHE.set(absPath, src);
+  return src;
+}
+
+function followReexportHop(sourceText, masked, fnName, moduleAbsPath) {
+  if (!moduleAbsPath) return null; // no module-file context (e.g. a synthetic in-memory source) -- hop not applicable
+  const escaped = fnName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const reexportRe = new RegExp('\\b' + escaped + '\\s*:\\s*([A-Za-z_$][\\w$]*)\\.([A-Za-z_$][\\w$]*)\\s*,');
+  const rm = reexportRe.exec(masked);
+  if (!rm) return null;
+  const identName = rm[1];
+  const targetFnName = rm[2];
+
+  const requireBindings = collectRequireBindings(sourceText, masked);
+  const reqPath = requireBindings[identName];
+  if (!reqPath) return null; // identName is not a require()-bound module identifier in this file
+
+  const resolvedAbs = resolveRepoLocalPath(reqPath, moduleAbsPath, REPO_ROOT);
+  if (!resolvedAbs) return null; // outside the repo root, absolute, or a traversal -- abandon the hop, never read
+
+  const targetSrc = readReexportModule(resolvedAbs);
+  if (targetSrc === null) return null;
+
+  const targetMasked = maskNonCode(targetSrc);
+  return locateDirectFunctionBody(targetSrc, targetMasked, targetFnName);
+}
+
+// locateFunctionBody(sourceText, fnName, bodyCache, cacheKeyPrefix) -- tries
+// a direct local definition first (locateDirectFunctionBody), then, ONLY
+// when cacheKeyPrefix is a real module file path, a one-level barrel
+// re-export hop (followReexportHop). Returns the body text, or null.
+function locateFunctionBody(sourceText, fnName, bodyCache, cacheKeyPrefix) {
+  const cacheKey = cacheKeyPrefix ? cacheKeyPrefix + '::' + fnName : null;
+  if (cacheKey && bodyCache && bodyCache.has(cacheKey)) return bodyCache.get(cacheKey);
+
+  const masked = maskNonCode(sourceText);
+  let result = locateDirectFunctionBody(sourceText, masked, fnName);
+  if (result === null) {
+    result = followReexportHop(sourceText, masked, fnName, cacheKeyPrefix);
   }
 
   if (cacheKey && bodyCache) bodyCache.set(cacheKey, result);
@@ -1283,7 +1386,7 @@ function scanAll(opts) {
 
       toolCount += 1;
       const claims = extractClaims(description, vocabulary);
-      const { branchMap, sharedBodyText } = splitBranches(handlerBodyText);
+      const { branchMap, sharedBodyText } = splitBranches(handlerBodyText, fileText, fileMasked);
 
       const reachByCommand = {};
       for (const cmd of vocabulary) {
@@ -1434,4 +1537,7 @@ module.exports = {
   splitBranches,
   resolveReachability,
   defaultScanFiles,
+  locateFunctionBody,
+  followReexportHop,
+  resolveRepoLocalPath,
 };
