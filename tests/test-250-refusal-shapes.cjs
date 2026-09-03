@@ -152,8 +152,38 @@ test('Test 7: shim source no longer conflates transport-null with the no-key sen
   const conflationHits = src.match(/r == null \? tier0Response/g) || [];
   assert.equal(conflationHits.length, 0, 'the shim must not map transport-null to tier0Response anywhere');
 
-  const unreachableHits = src.match(/refusalResponse\('unreachable'/g) || [];
-  assert.ok(unreachableHits.length >= 5, 'the shim must call refusalResponse(\'unreachable\', ...) at least 5 times (the 5 raw tools); found ' + unreachableHits.length);
+  // Phase 257 Plan 06 introduced a shared honestRefusal(result, toolName) helper that
+  // consolidates the transport-null -> 'unreachable' mapping (previously inlined once
+  // per raw tool) into a single call site. A flat count of the literal
+  // `refusalResponse('unreachable'` substring no longer reflects the real invariant --
+  // it now legitimately appears once inside the helper instead of once per tool. Check
+  // the actual invariant instead: every one of the 5 raw tools is wired to something
+  // that calls refusalResponse('unreachable', ...) on transport-null, whether inline
+  // or through honestRefusal().
+  const RAW_TOOLS = ['brain_query', 'brain_schema', 'brain_search', 'brain_stats', 'brain_write'];
+
+  const honestRefusalDef = src.match(/function honestRefusal\([^)]*\)\s*{[^}]*}/);
+  const honestRefusalCallsUnreachable = !!honestRefusalDef
+    && /refusalResponse\('unreachable'/.test(honestRefusalDef[0]);
+
+  let wiredCount = 0;
+  for (const tool of RAW_TOOLS) {
+    const viaHelper = new RegExp('honestRefusal\\([^)]*,\\s*\'' + tool + '\'\\)').test(src);
+    const viaInline = new RegExp(
+      "refusalResponse\\('unreachable'[^)]*tool:\\s*'" + tool + "'"
+    ).test(src);
+    if ((viaHelper && honestRefusalCallsUnreachable) || viaInline) wiredCount += 1;
+  }
+  assert.ok(
+    wiredCount >= 5,
+    'all 5 raw tools (' + RAW_TOOLS.join(', ') + ') must route to refusalResponse(\'unreachable\', ...) '
+      + 'on transport-null, whether inline or via honestRefusal(); wired: ' + wiredCount
+  );
+
+  // brain_ask keeps its own bespoke envelope-wrapped 'unreachable' refusal (D-03/G1's
+  // egress_blocked branch lives alongside it, not through the raw-tool helper).
+  const brainAskInline = /refusalResponse\('unreachable'[^)]*tool:\s*'brain_ask'/.test(src);
+  assert.ok(brainAskInline, "brain_ask must still call refusalResponse('unreachable', ...) directly");
 
   assert.match(src, /brain_ask/, 'brain_ask handler must still be present');
 });
