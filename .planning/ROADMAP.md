@@ -1604,7 +1604,7 @@ Plans:
 **Requirements**: FLIP-01, FLIP-02, FLIP-03, FLIP-04, FLIP-05, FLIP-06, FLIP-07, FLIP-08,
 FLIP-09, FLIP-10, FLIP-11, FLIP-12
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
-**Plans:** 2/14 plans executed
+**Plans:** 3/14 plans executed
 
 Plans:
 
@@ -1612,7 +1612,7 @@ Plans:
 
 - [x] 339-01-PLAN.md - FLIP-01..12 requirement family, tests/run-all-339.sh aggregator, origin-single-source scan
 - [x] 339-02-PLAN.md - enrichment Theo-shapes, update-path drift and schema-memo tests
-- [ ] 339-03-PLAN.md - cross-repo note, 269-05 checklist and gate-zero-write arms, plus test-254 and test-250 extensions
+- [x] 339-03-PLAN.md - cross-repo note, 269-05 checklist and gate-zero-write arms, plus test-254 and test-250 extensions
 
 **Wave 2 (PREP adaptations, all incumbent-safe)**
 
