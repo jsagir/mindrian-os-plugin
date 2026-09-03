@@ -697,6 +697,21 @@ CLAUDE.md mandates consulting every authoritative source for the claim being mad
 | all | No em-dash in any touched file | lint | `bash tests/run-all-266.sh` (EMDASH_TARGETS, `:176-208`) | exists |
 | all | Advisory gate posture unchanged unless deliberately hardened | integration | `node scripts/doctor.cjs --acceptance` | exists |
 
+### Phase Requirements to Test Map, Layer 2 and Theo (SECOND PASS, added 2026-09-03)
+
+The three verification shapes the navigator named explicitly. Note the discipline that runs through all of them: **verify by observed output, never by an assertion that restates the code.** That is the same discipline that caught the D-1 bug (a header comment claimed a verification that had never run) and the same one Theo's own `05-REVIEW CR-01` records failing on its side ("rule 5 reported green over a live violation of the invariant it exists to protect").
+
+| Req ID | Behavior | Test type | Automated command | File exists? |
+|--------|----------|-----------|-------------------|-------------|
+| TOOLHON-01 | **RED proof against the pre-fix splitter.** `splitBranches` on a `switch (command)` fixture returns a non-empty `branchMap`. Must be authored and observed FAILING against the current `check-tool-honesty.cjs` before the fix lands, per the `209b604f` (RED) / `75278850` (GREEN) precedent this same script was built under. | unit | `node tests/test-276-tool-honesty-switch-branches.cjs` | Wave 0 |
+| TOOLHON-02 | **Disposition verified by re-run output, not by assertion.** The test executes `scanAll()` and compares the live verdict rows against a checked-in expected-disposition ledger (`tests/fixtures/tool-honesty/276-dispositions.json`), failing on ANY row present in the scan but absent from the ledger. A new finding introduced later cannot pass silently, and a ledger entry for a row that no longer exists fails as stale. | integration | `node tests/test-276-tool-honesty-findings-closed.cjs` | Wave 0 |
+| TOOLHON-09 | **C4 busy-timeout, proven under a held write lock.** Open a temp room.db, hold an exclusive write transaction on connection A, then attempt the opener under test on connection B and assert the typed outcome. Without a timeout the second open fails in ~0ms with `SQLITE_BUSY`; with `timeout: 5000` it waits. Assert the elapsed-time floor, not just the return value, or the test passes on an opener that never actually waited. | integration | `node tests/test-276-busy-timeout-propagation.cjs` | Wave 0 |
+| TOOLHON-10 | **C5 typed reason, proven under a held write lock.** Same held-lock fixture. Call `spineEvents.logSpineRead(roomDir, ...)` while the lock is held and assert `reason` is a distinct busy reason (`room_db_busy`), NOT `no_room_db`. Then corrupt a room.db with garbage bytes and assert `room_db_broken`. Both must be observed against the real module, not a stub. | integration | `node tests/test-276-spine-events-typed-reason.cjs` | Wave 0 |
+| TOOLHON-11 | **Every `no_room_db`-producing site is enumerated at run time, never from a frozen list.** The test greps the tree for the literal and asserts each production site either produces it only when `fs.statSync` genuinely fails, or has been migrated to a typed reason. Prevents the propagation gap from silently reopening. | unit | folded into `test-276-spine-events-typed-reason.cjs` | Wave 0 |
+| TOOLHON-12 | **Theo mirror-task verification: a pinned five-constant diff.** Extract `ROOM_BIND_DESCRIPTION`, `GRAPH_WRITE_DESCRIPTION`, `GATE_RENDER_DESCRIPTION`, `GATE_ANSWER_DESCRIPTION`, `CHAIN_RUN_DESCRIPTION` from `/home/jsagi/Theo/src/mcp/operational/*.ts` **pinned to Theo commit `83a1ce2`**, and diff each against the plugin's own live registration string. Report IDENTICAL / DIFFERS per constant with the first divergence offset. The test must SKIP (not fail) when the Theo checkout is absent, because Theo is out of repo and CI has no copy. | integration | `node tests/test-276-theo-description-parity.cjs` | Wave 0 |
+
+**Verification posture note for TOOLHON-12.** This is a coordination signal, not a gate. It must never block a plugin commit, because the plugin cannot fix Theo's file from this repo (Theo D-04 discipline: coordinated, not executed cross-repo). Recommended output shape: a report line the planner reads, mirroring `check-tool-honesty --report`, plus a non-zero exit only under an explicit `--strict` flag nothing wires by default.
+
 ### Sampling Rate
 
 - **Per task commit:** `node tests/test-ljj-tool-honesty.cjs && node scripts/check-tool-honesty.cjs --report | tail -30`
@@ -713,7 +728,15 @@ CLAUDE.md mandates consulting every authoritative source for the claim being mad
 - [ ] `tests/test-276-allowed-unverified-contract.cjs` - covers TOOLHON-06
 - [ ] `tests/fixtures/tool-honesty/switch-dispatch.cjs` - a synthetic `switch (command)` fixture with one writing case and one echo case (the existing 5 fixtures at `tests/fixtures/tool-honesty/` cover only positive/negated/banner/depth1 shapes)
 
-No framework install needed.
+**Second-pass additions (Layer 2 and Theo):**
+
+- [ ] `tests/test-276-busy-timeout-propagation.cjs` - covers TOOLHON-09
+- [ ] `tests/test-276-spine-events-typed-reason.cjs` - covers TOOLHON-10, TOOLHON-11
+- [ ] `tests/test-276-theo-description-parity.cjs` - covers TOOLHON-12, skip-when-absent
+- [ ] `tests/fixtures/tool-honesty/276-dispositions.json` - the expected-disposition ledger TOOLHON-02 diffs against
+- [ ] `tests/helpers/held-write-lock.cjs` - the shared held-exclusive-write-lock fixture both TOOLHON-09 and TOOLHON-10 need. **Build this once and share it**; two independent lock fixtures would be exactly the propagation gap this phase exists to close, reproduced inside its own test suite.
+
+No framework install needed. Node v22.23.1 is above the v22.16.0 floor at which `DatabaseSync`'s `timeout` option starts working, so the TOOLHON-09 test is meaningful on this machine. **On a runtime between v22.13 and v22.15 the option is silently ignored** (CLAUDE.md stack table), so the test must assert the elapsed-time floor rather than merely that no throw occurred, or it would pass vacuously on such a runtime.
 
 ---
 
@@ -858,3 +881,420 @@ No framework install needed.
 
 **Research date:** 2026-09-03
 **Valid until:** 2026-09-17 for the detector analysis (stable, local, no external dependency). **Re-run `node scripts/check-tool-honesty.cjs --report` at plan time regardless** - the tree is shared and 5 commits are unpushed.
+
+---
+---
+
+# SECOND PASS: Layer 2 (substrate) and Theo Cross-Check
+
+**Appended 2026-09-03** after the navigator broadened Phase 276 from "MCP Tool Honesty - Triage and Close" to "Same-Disease Consolidation - MCP + Local-Graph False-Success Deep Fixes" (`.planning/ROADMAP.md:765`). **Everything above this line stands unchanged, including the D-1 finding**, which remains the phase's highest-value single item. This pass adds the same file:line grounding for Layer 2 and for the Theo forward-compatibility work.
+
+## What the broadened scope changes
+
+| | First pass (narrow scope) | Second pass (broadened scope) |
+|---|---|---|
+| Layers | 1 (MCP descriptions) | 2 (MCP descriptions + local-graph substrate) |
+| Finding sources | `check-tool-honesty.cjs` only | plus Phase 273's unfixed Criticals C4/C5, which the checker structurally cannot reach |
+| Theo | named as an out-of-repo recommendation | plus a REQUIRED in-repo cross-check of 5 absorbed tools and 3 flip-day items |
+| Dependency line | refuted by this research | **already corrected in the ROADMAP** by the navigator, citing this research's reasoning |
+
+**The unifying thesis is now explicit in the ROADMAP and should drive the plan's structure:** Layer 1 and Layer 2 are the same disease one layer apart. Layer 1 is "a tool says it wrote and did not." Layer 2 is "the substrate says there is no database when there is one, or reports a write succeeded that was discarded." Both are instances of the standing WATCH item `feedback_false_success_silent_skip_gates_academy_testers.md`, OPEN since 2026-07-14.
+
+**One correction to the ROADMAP's own Layer 1 text, carried forward from the first pass:** it still says "the 9 findings." The measured count is **10** (1 HIGH + 8 MEDIUM + 1 UNKNOWN), and **24** once D-1 is fixed. See the first pass for the measurement.
+
+---
+
+## Layer 2, C4: the `DatabaseSync` opener census
+
+### Why Phase 273 did not fix this, quoted
+
+The deferral was **deliberate and reasoned, not dropped**. `.planning/phases/273-sqlite-graph-chokepoint-hardening-writeedge-silent-failure-a/273-CONTEXT.md`, decision **D-02**, verbatim:
+
+> "**D-02:** Full propagation of the same fix pattern to its ~20 sibling openers (C4's busy-timeout gap), the other 8 `BEGIN` sites lacking the nested-transaction guard (M6), the 3 migrations with unguarded `ROLLBACK` (M7), and the 33+ call sites not yet consuming typed errors (C5/M8) is explicitly OUT of this phase's scope -- **registered as a fast-follow phase, not silently dropped.** Rationale: the two-fix core is landable and high-value on its own; full propagation is roadmap-scale work in its own right and would make this phase sprawl."
+
+And the phase's own domain statement (`273-CONTEXT.md:18-20`):
+
+> "Full propagation of every good fix to every sibling site (C4's ~20 openers, M5-M8's transaction/retry/runtime-floor issues) is explicitly a fast-follow, not this phase's scope."
+
+**Phase 276 IS the fast-follow phase D-02 registered.** The planner should say so in the plan objective; it converts "two Criticals were left unfixed" into "a named, scheduled commitment is being honored," which is a materially different and more accurate framing.
+
+`273-deferred-items.md` contains only one entry, an unrelated pre-existing test-path bug. C4/C5 were never in it because they were never in scope to begin with; the deferral lives in CONTEXT D-02, which is the right place.
+
+**One additional debt D-02 hands to this phase, easy to miss:** `273-CONTEXT.md` D-05 also defers the `docs/architecture/SUBSTRATE-BASELINE.md` number update here, on the reasoning that "that phase's C4/M5-M8 work is what can actually move the count; updating the number here would either lock in unreduced debt or falsely credit this phase's fixes for a change they structurally cannot produce." Measured now: the doc's prose still says **195** at `docs/architecture/SUBSTRATE-BASELINE.md:26` and `:285`, while its own later re-measurements record **208** (`:297`) and then **205** (`:323`). Three numbers in one document. This is icm-architect's named anti-pattern ("schema documents that mandate names the actual files stopped using") in numeric form, and it is inherited work, not new scope.
+
+### The census: 32 production sites across 27 files
+
+`grep -rln "new DatabaseSync(" lib/ scripts/` returns **35 files**, matching the navigator's measurement. Of those, 3 are excluded by inspection: `lib/wiki/editor-src/node_modules/@types/node/sqlite.d.ts` is a vendored type stub with 8 doc-comment occurrences, and the rest of the excluded set are `*.test.cjs` files. That leaves **32 production call sites**.
+
+**The load-bearing classification is not "which have `timeout`" but "which DATABASE do they open."** A busy timeout only matters where two writers can contend for the same file. Grouping by that:
+
+#### Group A: room.db, READ-WRITE, no timeout - the real C4 exposure (7 sites, 6 files)
+
+| # | Site | Database | Fix shape |
+|---|------|----------|-----------|
+| A1 | `lib/core/lazygraph-ops.cjs:434` (`openGraph`, `dbPath = <room>/.mindrian/room.db`, `:427-429`) | room.db | **Propagate the OPENER.** ~38 call sites, the most-used opener in the repo. |
+| A2 | `lib/hmi/selector-telemetry.cjs:235` (`dbPath` built at `:228`) | room.db | propagate the option, or the opener |
+| A3 | `lib/hmi/shape-f0-renderer.cjs:116` (`dbPath` at `:112`) | room.db | propagate the option |
+| A4 | `lib/hmi/shape-f6-plan-review-renderer.cjs:229` (`dbPath` at `:224`) | room.db | propagate the option |
+| A5 | `lib/hmi/shape-f6-plan-review-renderer.cjs:283` | room.db | propagate the option |
+| A6 | `lib/core/venture-shape-nudge.cjs:97` | room.db (read-intent, opened read-write) | propagate the option, or switch to the read-only door |
+| A7 | `scripts/dogfood-derive.cjs:121`, `scripts/dogfood-emit.cjs:39`, `scripts/sync-rooms-graph:243`, `scripts/auto-explore-fingerprint.cjs:105` and `:135`, `scripts/preflight-tension-surface.cjs:167` and `:346` | room.db (dev/ops scripts) | lower priority; propagate the option |
+
+#### Group B: a DIFFERENT database, read-write, no timeout (4 sites)
+
+| # | Site | Database | Note |
+|---|------|----------|------|
+| B1 | `lib/core/cross-room-store.cjs:68` (`withStore`, `storeDbPath(roomsHome)`) | `<roomsHome>/.rooms/<store>.db` | **NOT room.db.** `openRoomDb` is structurally wrong here (it takes a `roomDir` and runs 13 CREATE TABLEs plus 5 room migrations). Fix = propagate the OPTION only. The `withStore` wrapper "silently swallows lock contention into a fallback value" (`:59-61` comment confirms open/close-per-call with a `fallback` return), which is why the reviewer named it. |
+| B2 | `lib/workflow/cross-room-umbilical-closer.cjs:83` (`withRejectionStore`) | `<roomsHome>/.rooms/<rejection>.db` | identical shape to B1, explicitly "mirroring cross-room-store's discipline" (`:75-76`). Same fix. |
+| B3 | `lib/core/breakthrough/review-queue.cjs:74` | `<roomsHome>/.rooms/breakthrough-review-queue.db` | not room.db; option only |
+| B4 | `lib/core/breakthrough/review-queue.cjs:80` | `:memory:` | no-op; in-memory cannot contend |
+
+#### Group C: read-only opens - out of C4 scope by construction (7 sites)
+
+`lib/core/session-presence.cjs:291`, `lib/core/coverage-rollup.cjs:93`, `lib/core/graph-derivation.cjs:507`, `lib/core/navigation/spine-events.cjs:439` (all `'file:' + path + '?mode=ro'`), plus `lib/core/chat-context-builder.cjs:134`, `lib/core/proactive-intelligence.cjs:141`, `scripts/serve-dashboard-live:357`, `scripts/scout-cadence-guard.cjs:164`, `scripts/check-graph-export-typemap.cjs:60` (all `{ readOnly: true }`).
+
+**WAL readers never block writers**, which `room-db.cjs:251` states explicitly ("a longer wait, never a new failure mode; WAL readers never block writers"). A busy timeout on a read-only handle buys nothing. **Recommend excluding Group C from C4 with that reason stated**, rather than bolting a no-op option onto 9 sites to make a count look complete. That would be exactly the cosmetic-compliance failure this phase exists to avoid.
+
+#### Group D: `:memory:` and version probes - no-op (4 sites)
+
+`lib/core/eureka/tri-modal-index.cjs:254`, `lib/core/doctor/class-s-eureka-smoke.cjs:119` and `:122`, `scripts/doctor.cjs:2850`.
+
+#### Group E: the one correct site
+
+`lib/core/room-db.cjs:259-260` - both construction branches pass `timeout: 5000`, added by Phase 218-02 D-05. The comment at `:242-251` explains why, and `:252-257` explains why the construction and the three PRAGMA execs are wrapped together (Phase 236 observed that constructing a garbage-bytes file SUCCEEDS and corruption only surfaces at `PRAGMA journal_mode = WAL`).
+
+### "Propagate the option" or "propagate the opener"? The evidence
+
+**The question the navigator asked is the right one, and the answer differs per group.** Reading `room-db.cjs`'s opener contract (`:235-333`) settles it.
+
+`openRoomDb(roomDir, opts)` does far more than construct a handle. In order: `auditBypassIfNeeded` (`:237`), `mkdirSync` the `.mindrian` dir (`:243`), construct with `timeout: 5000` (`:259-260`), three PRAGMA execs (`:261-265`), typed-error classification of any open failure with a handle-close-before-throw so a failed open never leaks a lock (`:266-275`), then a SEPARATE try wrapping the full migration chain: `lazygraph.initSchema`, `memory.initMemorySchema`, Phase 109 provenance, Phase 109 session_focus, Phase 160-04 bitemporal, Phase 222-01 ranker_weights, Phase 224-01 edge review_status (`:277-310`).
+
+That has three consequences the planner must weigh:
+
+1. **For Group A (room.db, read-write), "propagate the opener" is the RIGHT answer and it is also the bigger fix.** It buys the timeout, the typed errors, AND schema consistency. `lazygraph-ops.openGraph` (A1) is precisely the opener whose schema divergence from `room-db.cjs` was Phase 273's **C2** and **M12** ("two competing schema authorities for `nodes`/`edges` depending on which opener touches a room.db first", `ROADMAP.md:1020`). Routing A1 through `openRoomDb` would close C4, M12, and the residual half of C2 in one move.
+2. **But it is NOT a drop-in, and the plan must not assume it is.** `openGraph` is `async` and returns `{ db, conn }` (`lazygraph-ops.cjs:424-426`); `openRoomDb` is synchronous and returns a bare handle. **38 call sites** depend on the current shape. `room-db.cjs:31` already requires `lazygraph-ops.cjs` at module top level, which `273-CONTEXT.md` records as making a migration-side fix circular. And `openRoomDb` runs a 7-step migration chain on EVERY open, which `tool-router.cjs:594-603` documents as the exact reason a status-line read must never use it ("a status line must never be able to trigger a schema migration as a side effect of merely being READ").
+3. **For Groups B, C, D, "propagate the opener" is structurally wrong.** `openRoomDb` takes a `roomDir` and builds `<roomDir>/.mindrian/room.db`. It cannot open `<roomsHome>/.rooms/*.db` or `:memory:` at all.
+
+**Recommended split, and the planner should state it as a decision rather than let it emerge:**
+
+| Group | Fix | Rationale |
+|-------|-----|-----------|
+| A1 (`lazygraph-ops.openGraph`) | **Propagate the OPENER**, as its own plan with a 38-call-site migration and a shape-compatibility shim | Closes C4 + M12 + C2's residue together. Highest value, highest risk, deserves isolation. |
+| A2-A7 | **Propagate the OPTION** (`{ timeout: 5000 }`) | Small, safe, mechanical. Several are read-intent sites where the read-only door would be even better. |
+| B1-B3 | **Propagate the OPTION only** | Different database; the opener does not apply. |
+| B4, C, D | **Explicitly excluded, with the reason recorded in the plan** | In-memory cannot contend; WAL readers never block writers. Do not pad the count. |
+
+**Guard against a cosmetic fix.** Adding `{ timeout: 5000 }` to 32 constructors and declaring C4 closed would satisfy a grep and change almost nothing, because most of those sites cannot contend. The honest measure of C4 is **"can a contended write on room.db now wait instead of failing in 0ms,"** which is what TOOLHON-09's held-lock test asserts.
+
+---
+
+## Layer 2, C5: the typed-error propagation gap
+
+### The defect, at file:line
+
+`lib/core/navigation/spine-events.cjs`, `_emit` (`:133-145`):
+
+```js
+function _emit(roomDir, eventType, payload) {
+  if (!_hasRoomDb(roomDir)) {
+    return { ok: false, reason: 'no_room_db' };      // :134-136  CORRECT
+  }
+  let db;
+  try {
+    db = roomDbMod.openRoomDb(roomDir);
+  } catch (_e) {
+    return { ok: false, reason: 'no_room_db' };      // :140-142  WRONG
+  }
+```
+
+`_hasRoomDb` (`:114-123`) has ALREADY proven the file exists via `fs.statSync(...).isFile()`. So by the time control reaches `:141`, "no room db" is a statement the code has just disproven. The only two errors `openRoomDb` can throw at that point are `RoomDbBusyError` and `RoomDbBrokenError` (or an unclassifiable stranger it re-throws as itself, `room-db.cjs:272-275`). **None of them means "no database."** The catch binds `_e` and discards it entirely.
+
+`_emitWithOperatorEdge` (`:214-223`) is a byte-for-byte repeat of the same four lines. **Two sites, one bug, which is itself the propagation pattern in miniature.**
+
+### Why this is the exact failure GRAPHDB-02 was built to prevent
+
+`room-db.cjs:148-157`, the `RoomDbBusyError` doc comment, names this outcome as the thing it exists to stop:
+
+> "It is deliberately distinct from `RoomDbBrokenError` (nothing is damaged; waiting fixes it) and deliberately distinct from 'no room db' / cold start (the room HAS history, it is just unreachable this instant). **Treating a busy room as a cold start is exactly the data-loss path GRAPHDB-02 exists to close.**"
+
+And `RoomDbBrokenError` (`:168-175`):
+
+> "Also distinct from 'no room db' / cold start: **a broken room has history that must not be silently overwritten by a fresh start.**"
+
+The typed errors were built. `spine-events.cjs` throws them away.
+
+### The "2 of 35+ call sites that consume the typed errors" - located
+
+Grepping `RoomDbBusyError|RoomDbBrokenError` across `lib/`, `scripts/`, `bin/` excluding tests returns exactly two consumers outside `room-db.cjs` itself:
+
+**Consumer 1 - `lib/core/graph-refine-loop.cjs:126-136`:**
+```js
+const rdb = _roomDb();
+try {
+  db = rdb.openRoomDb(roomDir);
+  owned = true;
+} catch (e) {
+  if (e instanceof rdb.RoomDbBusyError || e instanceof rdb.RoomDbBrokenError) throw e;
+  db = null;
+}
+```
+Note the lazy-require indirection at `:29-44` (`_roomDb()` caches the module and re-exports the two classes), which exists so `instanceof` compares against the same module instance.
+
+**Consumer 2 - `lib/core/graph-derivation.cjs:263-268`**, using the direct top-level import from `:65`:
+```js
+try {
+  db = openRoomDb(roomDir);
+} catch (e) {
+  if (e instanceof RoomDbBusyError || e instanceof RoomDbBrokenError) throw e;
+  db = null;
+}
+```
+
+**The consuming pattern, stated so the planner can propagate it:** *narrow the swallow.* Re-throw the two typed classes; keep the pre-existing `db = null` for every other error so a genuine cold start stays a cold start. Both sites carry the identical justification comment (`graph-derivation.cjs:258-262`, `graph-refine-loop.cjs:125-131`): "this site adds no classification logic, it only stops swallowing the two typed classes... strictly narrower than the previous behavior, never wider."
+
+**One caution the planner must carry.** `spine-events.cjs` cannot simply re-throw. Its whole contract is a `{ok, reason}` return - its own header states it "returns `{ ok:false, reason:'no_room_db' }` when `<roomDir>/.mindrian/room.db` [is absent]" (`:24`), and every caller is written against that. So C5's fix is the **return-shape variant** of the same pattern: classify in the catch and return a DISTINCT reason, rather than re-throw. Recommended reasons, matching the existing snake_case convention: `room_db_busy` and `room_db_broken`, with the unclassifiable stranger keeping `no_room_db` or, better, a third `room_db_open_failed`.
+
+**A second caution: `err.name`, not only `instanceof`.** `room-db.cjs:158-166` sets `this.name` explicitly and says why: "so `err.name` still discriminates across a module-instance boundary, where `instanceof` can fail on a duplicated require." `spine-events.cjs` reaches `room-db.cjs` through `roomDbMod`, and this repo has already been bitten by duplicated-require identity. **Check `err.name` first, `instanceof` second.**
+
+### Who consumes `reason` today, and what they should see instead
+
+`no_room_db` is **produced** at 27 sites and, measurably, **branched on** at zero. A grep for `=== 'no_room_db'` across `lib/`, `scripts/`, `bin/`, `hooks/` returns **no matches**. That is an important, slightly deflating finding and it should be reported honestly rather than dressed up:
+
+- **The good news:** no caller currently makes a wrong decision by string-matching the reason, so adding new reason values breaks nothing. The fix is low-risk.
+- **The real damage is upstream of any branch.** `_emit` returns `{ok: false}`. Every caller sees a falsy result and treats the event as not logged. On a busy room that is a **silently dropped spine event** - the `memory_event` row that CLAUDE.md says is the local mind's record of what happened simply never exists, and nothing anywhere reports that it should have. The reason string is what a human or a debug session reads afterward, and today it says the wrong thing.
+- **The F-selector concern named in Phase 273 is real but indirect.** `ROADMAP.md:1016`: "A momentarily-busy room reads as an empty cold-start room to the F-selector." The path is not a `reason` branch; it is `getCurrentJTBD` (`spine-events.cjs:283`) and `getCurrentOperator` (`:315`) returning nothing on a busy open, so the selector sees a room with no JTBD and no operator, which is indistinguishable from cold start. **The planner should verify those two functions' own catch behavior as part of C5**; they are in the same file and were not named in the ROADMAP text.
+
+**Recommended scope for C5:** fix the two `_emit` sites, verify and fix `getCurrentJTBD`/`getCurrentOperator` if they share the swallow, and add the enumeration test (TOOLHON-11) so the 27 production sites cannot silently regrow the gap.
+
+---
+
+## Layer 2, M8: `RoomDbBusyError`'s retry contract - explicit IN/OUT call
+
+**Where the contract is documented:** `lib/core/room-db.cjs:150-153`, in the `RoomDbBusyError` header comment:
+
+> "The room exists and is intact, but another connection holds the write lock right now. **A caller catches this and RETRIES, backs off, or tells the user to close the other session.**"
+
+**Confirmed zero implementations.** Grepping `RoomDbBusyError` across `lib/`, `scripts/`, `bin/`, `hooks/` and filtering for `retry|backoff|sleep|attempt` returns **no matches**. The only two consumers (`graph-refine-loop.cjs:134`, `graph-derivation.cjs:266`) re-throw; neither retries, backs off, or surfaces a close-the-other-session message. The word "RETRIES" is capitalized in a doc comment and honored nowhere.
+
+**Recommendation: IN, but as the smallest possible piece.**
+
+**Why in.** It is the same disease by the strictest reading: a documented contract that nothing honors is a claim the code does not deliver, which is exactly what Layer 1 is about. The ROADMAP already flags it as "arguably the same disease... the planner should make an explicit in/out call on M8 rather than silently ignoring it." And there is a cheap dependency: **C4's `timeout: 5000` propagation IS a retry mechanism**, implemented inside SQLite rather than in JS. Once Group A carries the timeout, most contention resolves before a `RoomDbBusyError` is ever constructed, which materially shrinks what a JS-level retry would need to do.
+
+**Why the smallest piece.** Building a general retry/backoff wrapper is real design work (how many attempts, what jitter, does it apply to reads, what does a caller see on exhaustion) and would compete with C4/C5 for plan capacity.
+
+**Recommended minimal M8 disposition, pick ONE:**
+- **Option 1 (preferred, near-zero cost):** correct the comment to describe what the code actually offers. `openRoomDb` already waits up to 5s via SQLite's own busy handler; the honest sentence is "a caller that reaches this has already waited out the 5s busy window, so retrying immediately will not help - surface it or tell the user to close the other session." That converts a false promise into a true statement, which is the phase's whole thesis applied to a comment. **This is the same move as F-1 and F-9: fix the claim, not the code, when the code is right.**
+- **Option 2 (if plan capacity allows):** add one bounded retry helper in `room-db.cjs` and adopt it at the two existing consumers only. Do not sweep it repo-wide in this phase.
+
+**Do NOT** leave M8 untouched, because the ROADMAP explicitly asks for a stated call, and "no decision" is the one outcome it rules out.
+
+---
+
+## icm-architect consult (MANDATORY per CLAUDE.md, applied and reported honestly)
+
+Read: `~/.claude/skills/icm-architect/SKILL.md` (the ten invariants, the six forms, the walk test, the guardrails). Its four references were noted but not fully read: `core.md`, `forms.md`, `system-map.md`, `reference-integrity.md`.
+
+### What it says plainly: it has nothing directly on this
+
+**icm-architect is a workspace-structure skill.** Its subject is folder architecture as agent orchestration (Van Clief & McDermott, arXiv:2603.16021). It has **zero** material on SQLite busy timeouts, typed error propagation, or constructor-option plumbing. Stating that plainly rather than stretching it, exactly as its own honesty posture and the RCA's langtalks entry both model. **Anyone claiming icm-architect "validates" the C4/C5 fix shape at the code level would be manufacturing grounding.**
+
+### What genuinely transfers: four items, cited
+
+1. **The anti-pattern list contains this phase's own promotion bar, and Phase 276 clears it.** SKILL.md Guardrails: *"patterns declared top-down (one team complaining is a gripe - the same shape appearing three independent times is structure)."* Phase 276 has the same false-success shape from **five independent sources**: the `rooms-open` RCA (2026-07-27), the `meeting/file-meeting` RCA (2026-09-03), the `check-tool-honesty` sweep, Phase 273's code-review pass, and Theo's own independently-discovered "false failure" in `delegate.ts`. That is well past the bar. **This is the strongest single justification for consolidating rather than scattering, and it comes from the mandated consult.**
+
+2. **The `SUBSTRATE-BASELINE.md` number drift is a named anti-pattern.** SKILL.md Guardrails: *"schema documents that mandate names the actual files stopped using (update the schema or the files - pick one)."* The doc says 195 at `:26` and `:285`, 208 at `:297`, 205 at `:323`. Three numbers, one document. Invariant 9 adds the fix direction: *"Generated indexes (file maps, logs) are rebuilt by script, never hand-edited."* The baseline should be **regenerated from `node scripts/check-substrate.cjs --baseline`** as part of this phase, not hand-corrected to whichever number is currently right. Phase 273 D-05 already assigned this here.
+
+3. **The walk test's move-safety clause applies directly to the A1 opener re-route.** SKILL.md walk test: *"After a restructure: does every reference that existed before the move still resolve? A moved file that something still points at is a break, not a tidy-up."* Re-routing `lazygraph-ops.openGraph` through `openRoomDb` is a move in exactly this sense: **38 call sites point at a function whose async-ness and `{db, conn}` return shape would change.** The skill's `references/reference-integrity.md` is its "move-safety gate: what points at a file, case-folded destinations, copy-verify-remove" and is the right read before that specific plan is written. **Recommend the planner load it for the A1 plan only**, not for the whole phase.
+
+4. **Invariant 5 (factory vs product) reinforces the "propagate the opener" preference for Group A.** The opener contract - timeout, PRAGMAs, typed errors, migration chain - is *factory* material: stable, reusable, identical regardless of caller. Having two openers with divergent schema authority (Phase 273's M12) is the invariant's failure mode. This is the same reasoning the RCA already applied to the Claimify protocol living duplicated-by-omission across two surfaces (`.planning/debug/meeting-file-meeting-false-success.md:122`).
+
+**Net:** the consult contributes a real promotion-bar justification, a named anti-pattern for the baseline doc, a concrete pre-read for the riskiest plan, and one architectural preference. It contributes nothing to the code-level fix mechanics, and that is stated rather than papered over.
+
+---
+
+## Theo Cross-Check
+
+All read-only against `/home/jsagi/Theo`, **pinned to commit `83a1ce2`** ("phase-11: ship 11-MOS-LEARNING.md and close the CALIBRATE requirement family").
+
+### B1: which of the 24 findings land on a Theo-absorbed tool
+
+The D-1 fix was applied **in analysis only** (a patched copy in the scratchpad; the repo's `scripts/check-tool-honesty.cjs` is untouched, and landing the fix is the phase's first plan). Running the patched checker and intersecting the 24 non-OK rows against Theo's five absorbed tools:
+
+```
+non-OK total 24
+tools with findings: room_content, room_graph, export, orchestration, context_assemble, gate_render
+THEO-ABSORBED tools with findings: gate_render
+```
+
+**Exactly one hit: `gate_render` (finding F-9, MEDIUM).** The other four absorbed tools are clean on this detector:
+
+| Theo-absorbed tool | Plugin verdict | Reason |
+|---|---|---|
+| `room_bind.(default)` | OK | a write primitive is reachable |
+| `graph_write.(default)` | OK | a write primitive is reachable |
+| `gate_answer.(default)` | OK | a write primitive is reachable |
+| `chain_run.(default)` | OK | no persistence claim found |
+| **`gate_render.(default)`** | **MEDIUM** | weak tool-scoped claim, no reachable write |
+
+That is a clean, small coordination surface: **one mirror task, not five.**
+
+### B1a: the five description constants, diffed and measured
+
+Each constant located and extracted, then compared byte-for-byte against the plugin's live registration string:
+
+| Tool | Theo constant | Theo file:line | Plugin site | Length (plugin / Theo) | Result |
+|---|---|---|---|---|---|
+| `room_bind` | `ROOM_BIND_DESCRIPTION` | `src/mcp/operational/room-bind.ts:101` | `lib/mcp/tool-router.cjs:1696` | 254 / 254 | **IDENTICAL** |
+| `graph_write` | `GRAPH_WRITE_DESCRIPTION` | `src/mcp/operational/graph-write.ts:103` | `lib/mcp/tools/graph.cjs:219` | 157 / 157 | **IDENTICAL** |
+| `gate_render` | `GATE_RENDER_DESCRIPTION` | `src/mcp/operational/gate-render.ts:89` | `lib/mcp/tools/gate.cjs:113` | 323 / 323 | **IDENTICAL** |
+| `gate_answer` | `GATE_ANSWER_DESCRIPTION` | `src/mcp/operational/gate-answer.ts:105` | `lib/mcp/tools/gate.cjs:170` | 1462 / 1152 | **ALREADY DIVERGED** |
+| `chain_run` | `CHAIN_RUN_DESCRIPTION` | `src/mcp/operational/chain-run.ts:90` | `lib/mcp/tools/chain.cjs` | 1113 / 1006 | **ALREADY DIVERGED** |
+
+**The `gate_answer` divergence is real, already live, and nobody has noticed.** First divergence at character 585. Both sides read "...js (Part 9) -- never a direct DB write." and then split:
+
+- **Plugin continues:** "An approve verdict ALSO writes a typed decision node with SOURCED_FROM provenance edges to the card's subject/evidence node ids, plus a USES_FRAMEWORK edge when the gate came from a chain halt with an active framework; the node is promoted to confirmed via navigation.confirmNode, recording the human APPROVE."
+- **Theo continues:** "When the gate_id was minted by a chain_run halt at a material step..."
+
+Confirmed independently: `grep -c "SOURCED_FROM\|USES_FRAMEWORK" src/mcp/operational/gate-answer.ts` returns **0**. That clause was added to the plugin by quick 260903-i2x (`2c8dfddf`, the T2 node-writing half, this same session). **Theo's catalog currently under-describes what `gate_answer` actually does after the flip**, which is the benign direction but is still a description-vs-behavior gap, and it proves the drift channel is live rather than theoretical.
+
+*(Extraction caveat, reported rather than hidden: the `chain_run` reconstruction passes through an escaped quote that a regex-based extractor handles imperfectly, so the 1113/1006 length delta is real but the exact divergence offset for `chain_run` is not trustworthy from this pass. TOOLHON-12's test should extract via a TypeScript-aware path or by importing the compiled module, not a regex. Naming this is itself the point: a parity test built on a lossy extractor would report green over a real divergence, which is `05-REVIEW CR-01`'s exact failure.)*
+
+### B1b: resolving the `minted` question in Theo's light - recommendation reversed from the first pass
+
+The first pass flagged that `STRONG_VERBS` (`check-tool-honesty.cjs:855-859`) contains `mint`/`mints` but not `minted`, and that adding the inflection would flip `gate_render` to HIGH RISK. The navigator's steer, and it is the right call, is to **correct the description rather than touch the verb vocabulary**. The Theo evidence makes the case decisive:
+
+1. **The claim is genuinely imprecise, not merely tripping a heuristic.** `gate.cjs:113` says "Returns a minted gate_id that gate_answer must reference to ratify." A reader has no way to know the mint is a process-lifetime in-memory Map entry (`_mintLiveGate` at `gate.cjs:64-70` delegates to `gateLedger.mintGate`, and the block comment at `:45-63` describes it as "a small in-memory, single-use live-gate ledger"). "Minted" reads as durable. **A gate_id does not survive a server restart, and nothing says so.**
+2. **Widening `STRONG_VERBS` would be the wrong lever twice over.** It would fire on every legitimate use of "minted" across the surface, and it would treat a vocabulary change as a substitute for saying the true thing. The phase's own rule is fix the claim, not the detector, when the code is right.
+3. **Theo's copy is byte-identical, so the fix must be mirrored or Theo ships the imprecise text forever.**
+
+**Recommended disposition for F-9, updated:** rewrite the final sentence to something like *"Returns a gate_id minted into this server process's in-memory ledger, which `gate_answer` must reference to ratify; nothing is persisted and the id does not survive a restart."* Then register the **one Theo mirror task** against `GATE_RENDER_DESCRIPTION` (`src/mcp/operational/gate-render.ts:89-93`), coordinated per Theo's D-04 discipline, never executed from this repo.
+
+**Bonus effect worth naming:** that sentence contains "nothing is persisted," which is close to `NEGATION_PATTERNS` territory (`check-tool-honesty.cjs:865-872`). It would not currently match any of the six patterns; the planner may want to add `/\bnothing\s+is\s+persisted\b/` alongside the existing `/\bnothing\s+is\s+written\b/`, which is a one-line, well-precedented change rather than a verb-vocabulary widening.
+
+### B2: the three flip-day items outside the checker's scan - IN/OUT calls
+
+The checker's declared scan set is `lib/mcp/tool-router.cjs` + `lib/mcp/tools/*.cjs` + `lib/mcp/contract-version.cjs` (`check-tool-honesty.cjs:1057-1074`). All three items below sit outside it, which is precisely why they need a manual call.
+
+#### (a) `mode_signals` - the Brain shim's DirectiveEnvelope promise. **Recommendation: IN, one-line description fix.**
+
+- **The consuming code:** `bin/mindrian-brain-mcp-client.cjs:198`, inside the `brain_ask` handler: `const signals = (raw && typeof raw === 'object' && raw.mode_signals) ? raw.mode_signals : {};` then `return asContent(wrapDirective(raw, signals));`
+- **The description that promises it:** `bin/mindrian-brain-mcp-client.cjs:151`: *"...Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content..."*
+- **The honest reading, and a correction to the ROADMAP's framing.** The description does **not** literally contain the string `mode_signals`; it promises a DirectiveEnvelope with a default mode. Theo's `09-MOS-LEARNING.md` says "`mode_signals` no longer arrives... The tool description text that promises it is now wrong." The mismatch is real but indirect: after the flip `raw.mode_signals` is always absent, `signals` is always `{}`, and the envelope's mode degrades to whatever `wrapDirective` defaults to. **The description keeps promising a mode-carrying envelope while the mode signal is structurally gone.**
+- **Why IN:** it is a description-vs-behavior mismatch in the plugin's own file, it is exactly this phase's subject, and it costs one sentence. **Why it is cheap and safe:** the fix is honest disclosure, not behavior change. The line already degrades gracefully (`? raw.mode_signals : {}`), so nothing breaks either way.
+- **Scope guard the planner must set:** fix the description only. Do NOT start the Brain-shim flip adaptation here; that is Phase 267/269's named 7-file list.
+
+#### (b) `enrichCausalEdges` / `hatAwareRecommend` / `suggestValidationSteps` honest empties. **Recommendation: OUT of the code-fix scope, IN as a one-paragraph recorded finding.**
+
+- **Definitions:** `lib/core/brain-client.cjs:1183` (`enrichCausalEdges`), `:1279` (`hatAwareRecommend`), `:1415` (`suggestValidationSteps`), all exported at `:2197-2199`.
+- **The question asked was "do any callers render an empty as 'no findings'?" The measured answer is no, for the callers that exist.**
+  - `suggestValidationSteps` has exactly one caller, `lib/core/opportunity-ops.cjs:1359`, inside `enrichOpportunity`. Its empty handling (`:1360-1362`) is `if (!result || !result.steps || result.steps.length === 0) return { enriched: false, steps: 0 };` - it returns an explicit **not-enriched** signal and **emits no markdown section at all**. The "## Suggested Validation" heading (`:1366`) is only reached on a non-empty result. **Structurally cannot render an empty as a finding.**
+  - `hatAwareRecommend` has exactly one caller outside `brain-client.cjs`: `commands/hat-briefing.md:139`, which pipes the raw JSON to stdout for inspection. No rendering layer.
+  - `enrichCausalEdges` has **zero** production callers. The only two references outside its own definition are prose: `lib/brain/ROOM.md:31` and a comment at `lib/brain/chain-recommender.cjs:46`, both describing a Phase 5 dependency, neither a call.
+- **Why OUT:** there is no defect to fix. Reporting one would be manufacturing work, which is the mirror-image dishonesty of the one this phase exists to correct.
+- **Why partly IN:** the risk is *forward-looking* and worth one recorded paragraph. `enrichCausalEdges` having zero callers means the first future caller inherits an un-audited empty-vs-absent contract at the exact moment the flip makes empties the common case. Record it; do not build for it.
+
+#### (c) `graph_write`'s stale-version check failing open on a missing node. **Recommendation: IN, one-clause description addition. This is the strongest of the three.**
+
+- **The behavior, traced end to end:**
+  - `lib/mcp/tools/graph.cjs:150-154` calls `navigation.checkLostUpdate(db, p.sourceId, p.readVersion)` and returns `lost_update_conflict` only when `cas.conflict` is true.
+  - `lib/core/navigation/reconcile-guard.cjs:77` runs `SELECT last_modified_at FROM nodes WHERE id = ?`. **On a missing node the row is undefined, so `current` becomes `null`** (`:78-80`).
+  - `checkReconcile` (`:37-46`) then hits its explicit guard: *"NULL/absent on EITHER side -> no reliable CAS token -> no claim (Pitfall 1)"* and returns `{ status: 'no-claim' }`.
+  - `conflict` is therefore `false`, and the write proceeds as if the CAS check passed.
+  - `:82-85` fails open a second time, on a guard read error, with the comment *"Fail OPEN: a guard read error degrades to the normal write, never a lockout."*
+- **The behavior is deliberate and defensible.** Theo's `05-MOS-LEARNING.md` states it: *"fails open on a missing node, deliberately... Do not read a pass here as proof the node existed."* The code says the same at `:69-70` and `:83-84`. **The defect is not the fail-open; it is that the description does not disclose it.**
+- **What the description currently claims.** `lib/mcp/tools/graph.cjs:226-227`: *"Optional CAS token (last_modified_at) from a prior read of source_id; **a lost update is rejected as a conflict instead of silently clobbering**."* A caller supplying a `read_version` and receiving no conflict reasonably concludes the node existed and was unchanged. Neither is guaranteed. **This is a documented false-pass, which is the same disease as F-1 with a smaller blast radius.**
+- **Why IN:** it is a one-clause fix inside a file the checker already scans, it needs no behavior change, and Theo's `GRAPH_WRITE_DESCRIPTION` is byte-identical today, so fixing it now means the mirror task is registered before the flip rather than after.
+- **Note for the planner:** this lands on the `read_version` **parameter** `.describe()` string, not the tool description. `check-tool-honesty.cjs` reads only the 2nd positional argument to `server.tool(` (`scanAll:1108-1111`) and never inspects parameter describes, so the checker will not verify this fix. It needs its own assertion, and this is itself a small detector-coverage finding worth recording alongside B-1..B-5.
+
+### B3: does the methodology port to Theo's registrars?
+
+**One paragraph, for an out-of-repo SEED recommendation, not a build.**
+
+**Not without structural change, and the gap is bigger than a path swap.** Theo registers through two wrappers over `server.registerTool` - `registerContentTool` (`src/mcp/register-content-tool.ts:135`, with a **required** `description: string` config field at `:106` and `inputSchema: sealed` at `:151-152`) and `registerOperationalTool` - used at **23** call sites in `src/mcp/content/*.ts` and **5** in `src/mcp/operational/*.ts`, confirming the ROADMAP's corrected count of **28**, not "~27". Three structural mismatches follow. **First, discovery:** `findServerToolCalls` matches `/server\.tool\s*\(/` (`check-tool-honesty.cjs:478-490`) and `scanAll` reads four POSITIONAL arguments (`:1106-1113`); Theo's shape is `registerContentTool(server, { name, description, inputSchema }, cb)`, so a direct run scans **zero tools and reports OK** - a false success inside a false-success detector, which is exactly the outcome to warn the Theo side about. **Second, language:** `maskNonCode` (`:170-220`) handles JS strings, comments and regex literals but knows nothing of TypeScript type annotations, generics (`registerContentTool<OutputArgs, InputArgs>`), or `as const`; angle brackets are not in `scanBalanced`'s pair map (`:227`), so generic call sites would confuse the forward scanner. **Third, and most consequential, the write-primitive vocabulary has no analog:** `resolveWritePrimitives` (`:370-409`) derives its names by `require()`ing three CJS modules and reading `module.exports`, which cannot work against TypeScript sources, and Theo's writes go through `delegate.ts` to the plugin's handlers at call time rather than through a local `navigation.cjs`, so the whole depth-1 reachability model would need rebuilding around the delegation boundary. **The honest SEED recommendation is therefore "port the METHODOLOGY, not the script"** - the six-stage architecture, the claim-tier vocabulary with its negation and hyphenated-token guards, the ALLOWED_UNVERIFIED discipline, and above all the fix-the-detector-never-allowlist rule that took the first sweep from 34 to 1. A TypeScript implementation should use the compiler's own AST (`ts.createSourceFile`), which removes stages A through C entirely and would make Theo's version **shorter** than the plugin's, not longer. Cite this phase, note that the plugin's own detector shipped with a dead switch parser (D-1) as the cautionary case for AST-over-regex, and file it via Theo's `/gsd-capture` before `09-12` authorizes the flip.
+
+---
+
+## Updated Phase Requirements (TOOLHON-01..14)
+
+Supersedes the eight-ID table in the first pass. Same minting precedent (PYPORT-/CHOKE-/ANCHOR-): phase-local working IDs, registered to `.planning/REQUIREMENTS.md` at phase close by the final plan.
+
+| ID | Layer | Description |
+|----|-------|-------------|
+| TOOLHON-01 | Detector | The `switch (command)` branch splitter actually splits branches; `room_state`/`room_content`/`room_graph` report per-command reachability. Proven by a test observed FAILING against the pre-fix script. |
+| TOOLHON-02 | L1 | Every finding in the post-fix sweep carries a recorded disposition, verified against a checked-in ledger by re-run output rather than by assertion. |
+| TOOLHON-03 | L1 | `orchestration.scout`'s description asserts no write the MCP handler cannot perform; the `scout*` family self-discloses in-band. |
+| TOOLHON-04 | L1 | `room_content`'s description names only commands that reach a write; the `new-project`/`setup`/`update` group carries the NOT-EXECUTED banner. |
+| TOOLHON-05 | Detector | Every known detector boundary (argument-gated writes, barrel re-exports, subprocess writes, unrecognized dispatch shapes, write-primitive semantics, **parameter-describe strings**) is enumerated in the script header and either asserted or explicitly documented. |
+| TOOLHON-06 | Detector | `ALLOWED_UNVERIFIED`'s entry contract is enforced by a test, not by a comment; the MEDIUM/UNKNOWN suppression question is answered explicitly. |
+| TOOLHON-07 | L1 | The `meeting` Tri-Polar parity gap has an explicit recorded disposition and the RCA reflects it. |
+| TOOLHON-08 | Meta | The ROADMAP's "9 findings" count is reconciled with the measured 10 / post-fix 24. *(The stale `Depends on: Phase 275` line is already corrected by the navigator; verify only.)* |
+| **TOOLHON-09** | **L2 (C4)** | The busy timeout is propagated to every read-write opener that can genuinely contend, with the excluded groups (read-only, `:memory:`, non-room.db) named and reasoned in the plan rather than silently skipped. Proven under a held write lock with an elapsed-time floor. |
+| **TOOLHON-10** | **L2 (C5)** | `spine-events.cjs`'s `_emit` and `_emitWithOperatorEdge` report a distinct typed reason for a busy or broken room.db instead of `no_room_db`, discriminating on `err.name` first. `getCurrentJTBD`/`getCurrentOperator` are verified for the same swallow. |
+| **TOOLHON-11** | **L2 (C5)** | Every production site that produces `no_room_db` is enumerated at run time and either genuinely means it or has been migrated, so the propagation gap cannot silently regrow. |
+| **TOOLHON-12** | **Theo** | The five absorbed-tool description constants are diffed against the plugin's, pinned to Theo commit `83a1ce2`, reported as a non-blocking coordination signal that skips when Theo is absent. The one live finding (`gate_render`) has a registered Theo mirror task. |
+| **TOOLHON-13** | **Theo / L1** | The three flip-day items get their explicit in/out call: `mode_signals` description (IN), the honest-empty trio (OUT of code fix, IN as a recorded finding), `graph_write`'s CAS fail-open disclosure (IN). |
+| **TOOLHON-14** | **L2 (M8 + inherited)** | M8's retry contract is either made true or made honest, with the choice stated. `docs/architecture/SUBSTRATE-BASELINE.md` is regenerated by script rather than hand-corrected, resolving the 195/208/205 three-number drift Phase 273 D-05 deferred here. |
+
+**Recommended wave shape** (the planner owns the final call; this is the dependency reasoning, not a plan):
+
+- **Wave 0** - test scaffolding: `run-all-276.sh`, the RED switch-branch test, the shared held-write-lock helper, the disposition ledger.
+- **Wave 1** - TOOLHON-01 (the detector fix). **Everything in Layer 1 depends on this**; triaging before it runs closes the wrong list.
+- **Wave 2** - Layer 1 dispositions (TOOLHON-02..07) and Layer 2 (TOOLHON-09..11) in parallel. They touch disjoint files (`lib/mcp/**` vs `lib/core/**`) and share no state.
+- **Wave 3** - Theo coordination (TOOLHON-12, TOOLHON-13) plus the tail (TOOLHON-08, TOOLHON-14). TOOLHON-12 must run **after** the `gate_render` description lands, or it diffs against text that is about to change.
+
+---
+
+## Second-Pass Assumptions Log
+
+Appends to the first pass's A1-A7.
+
+| # | Claim | Section | Risk if wrong |
+|---|-------|---------|---------------|
+| A8 | Group C (read-only opens) is genuinely out of C4 scope because WAL readers never block writers. | C4 census | Low. Grounded in `room-db.cjs:251`'s own statement. If wrong, 9 more sites need the option, which is mechanical. |
+| A9 | Re-routing `lazygraph-ops.openGraph` through `openRoomDb` is high-value but high-risk and deserves its own plan. | C4 fix shape | The 38-call-site count and the async/`{db,conn}` shape mismatch are verified; the risk assessment is judgment. **Navigator may prefer option-only everywhere, which is smaller and closes less.** |
+| A10 | Zero callers branch on `reason === 'no_room_db'`, so adding new reason values is low-risk. | C5 | Verified by grep across `lib/`, `scripts/`, `bin/`, `hooks/`. A dynamic string comparison or a hook shell script comparing JSON text would evade the grep. |
+| A11 | `getCurrentJTBD`/`getCurrentOperator` share the same swallow as `_emit`. | C5 scope | **Not verified.** Their catch bodies were not read this pass. Flagged as a planner task, not asserted. |
+| A12 | M8 is best resolved by correcting the comment (Option 1). | M8 | Judgment. The navigator may want a real retry helper. Either satisfies the ROADMAP's demand for a stated call. |
+| A13 | The `chain_run` 1113/1006 length delta is real, but the exact divergence offset is not trustworthy from this pass's regex extractor. | Theo B1a | Stated as a caveat, not a finding. The `gate_answer` divergence IS trustworthy (independently confirmed by a zero-count grep for `SOURCED_FROM`). |
+| A14 | Theo commit `83a1ce2` is the right pin. | Theo | It is HEAD of the Theo checkout as read on 2026-09-03. Theo is actively developed; re-pin at plan time. |
+| A15 | The `mode_signals` mismatch is indirect (the description promises a mode-carrying envelope, not the literal field). | Flip-day (a) | Verified: the string `mode_signals` does not appear in the description at `:151`. This slightly narrows the ROADMAP's claim, which said "the tool description text that promises it." Reported as a correction, not a contradiction. |
+
+---
+
+## Second-Pass Sources
+
+All read or executed 2026-09-03. Additive to the first pass's list.
+
+**Plugin repo:**
+- `lib/core/room-db.cjs` (:145-333, the typed errors, `classifyOpenFailure`, the full `openRoomDb` contract)
+- `lib/core/navigation/spine-events.cjs` (:100-150, :198-232, :283-330, :431-445)
+- `lib/core/navigation/reconcile-guard.cjs` (:37-92)
+- `lib/core/graph-refine-loop.cjs` (:29-44, :125-136), `lib/core/graph-derivation.cjs` (:65, :258-272, :499-510)
+- `lib/core/lazygraph-ops.cjs` (:422-436), `lib/core/cross-room-store.cjs` (:56-70), `lib/workflow/cross-room-umbilical-closer.cjs` (:75-84), `lib/core/breakthrough/review-queue.cjs` (:62-80)
+- `lib/hmi/selector-telemetry.cjs` (:223-237), `lib/hmi/shape-f0-renderer.cjs` (:104-118), `lib/hmi/shape-f6-plan-review-renderer.cjs` (:221-230)
+- `lib/core/venture-shape-nudge.cjs` (:82-99), `lib/core/chat-context-builder.cjs` (:126-135), `lib/core/proactive-intelligence.cjs` (:133-142), `lib/core/session-presence.cjs` (:283-292), `lib/core/coverage-rollup.cjs` (:85-94)
+- `bin/mindrian-brain-mcp-client.cjs` (:147-215)
+- `lib/core/brain-client.cjs` (:1183, :1279, :1415, :2197-2199), `lib/core/opportunity-ops.cjs` (:1352-1375)
+- `lib/mcp/tools/graph.cjs` (:141-155, :217-251)
+- `docs/architecture/SUBSTRATE-BASELINE.md` (:26, :285, :297, :308, :323)
+- `.planning/phases/273-sqlite-graph-chokepoint-hardening-writeedge-silent-failure-a/273-CONTEXT.md` (domain :10-20, D-01..D-05 :45-90, :215), `273-RESEARCH.md` (:23, :57, :70, :418, :766), `deferred-items.md` (full)
+- `.planning/ROADMAP.md` Phase 276 as rewritten (:765-830)
+
+**Theo (`/home/jsagi/Theo`, read-only, commit `83a1ce2`):**
+- `src/mcp/operational/{room-bind,graph-write,gate-render,gate-answer,chain-run}.ts` (the five `*_DESCRIPTION` constants and surrounding comments)
+- `src/mcp/register-content-tool.ts` (:98-152), `src/mcp/register-graph-tool.ts` (:16-56)
+- `src/mcp/content/` and `src/mcp/operational/` directory listings and registrar call counts (23 + 5 = 28)
+
+**Skill:**
+- `~/.claude/skills/icm-architect/SKILL.md` (ten invariants, six forms, walk test, guardrails, references index)
+
+**Measured runs:**
+- `grep -rln "new DatabaseSync(" lib/ scripts/` = 35 files; 32 production sites after excluding `*.test.cjs` and the vendored `sqlite.d.ts`
+- `grep -rn "RoomDbBusyError|RoomDbBrokenError"` excluding tests = 2 consumers outside `room-db.cjs`
+- `grep -rn "=== 'no_room_db'"` across `lib/ scripts/ bin/ hooks/` = **0 matches**; 27 production sites produce it
+- retry-implementation grep (`RoomDbBusyError` filtered by `retry|backoff|sleep|attempt`) = **0 matches**
+- patched-checker run intersected with Theo's five absorbed tools = 24 non-OK, exactly 1 on a Theo tool (`gate_render`)
+- five-constant byte diff: 3 IDENTICAL, 2 already diverged
+- `grep -c "SOURCED_FROM\|USES_FRAMEWORK" Theo/src/mcp/operational/gate-answer.ts` = **0**
+
+**Second-pass confidence:** HIGH for the C4 census, the C5 defect and its two consumers, the M8 zero-implementation finding, the Theo 24-to-5 intersection, and the five-constant diff (all executed). MEDIUM for the C4 fix-shape recommendation (A9, a judgment on risk) and the M8 disposition (A12). The one explicitly unverified item is A11 (`getCurrentJTBD`/`getCurrentOperator`), flagged rather than assumed.
