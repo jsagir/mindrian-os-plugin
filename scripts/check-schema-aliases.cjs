@@ -433,6 +433,17 @@ const ALLOWED_SENDPACKET_FILES = [
   /^lib\/core\/navigation\//,
   /^tests\//,
   /^scripts\//,
+  // lib/core/mindrian-brain-shim.test.cjs is a meta-test (Phase 127-00): its
+  // own source contains the literal string sendPacket( inside a regex/label
+  // that checks for the ABSENCE of a bypass in the file it tests (the shim),
+  // not an actual call site. Audited across all 274 tracked *.test.cjs files
+  // in this repo (Phase 257 regression_gate, 2026-09-03): this is the ONLY
+  // one containing the string sendPacket( at all, so a narrow single-file
+  // exemption is used here rather than a blanket *.test.cjs pattern -- this
+  // check is a real D-08 security chokepoint and should stay narrow. This is
+  // the first commit to re-stage this exact file since the layer 2 check
+  // started enforcing, so the false positive had never fired before now.
+  /^lib\/core\/mindrian-brain-shim\.test\.cjs$/,
 ];
 
 function isAllowedSendpacketPath(p) {
