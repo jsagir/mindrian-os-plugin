@@ -255,71 +255,120 @@ async function main() {
   });
 
   // -------------------------------------------------------------------------
-  // Arm 4: BRAIN_PROBLEM_TYPE_ALIASES pin.
+  // Arm 4: two-table pin (BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT /
+  // BRAIN_PROBLEM_TYPE_ALIASES_THEO) + the origin-keyed selector + the
+  // unknown-token pass-through.
   // -------------------------------------------------------------------------
-  record('Arm 4: BRAIN_PROBLEM_TYPE_ALIASES pin + unknown-token pass-through', () => {
-    // STATED DECISION (D-07, this phase's Wave 1 budget call): the map is
-    // NOT re-pointed to Theo's live DomainConcept ids (UnDefined, IllDefined,
-    // WellDefined, Wicked, Trinity, Compass) in this phase. Theo's live ids
-    // and the incumbent's three canonical names ('Undefined Problem' /
-    // 'Ill-Defined Problem' / 'Well-Defined Problem') share no single value,
-    // so no re-point satisfies both. The standing rule is to plan and ship
-    // against the CURRENT Brain (Theo is not deployable: no remote hosting
-    // story, its own Phase 08.4 not started). Re-pointing today would trade
-    // a live regression for a future convenience that is not live yet.
-    // Removing the map entirely is worse: an unmapped 'udp' would pass
-    // through unchanged as 'udp' and go honest-empty on the incumbent too,
-    // which is strictly worse than the current projection. So the map is
-    // PINNED here (this arm + Arm 5) and named as a Theo-side follow-up in
-    // Plan 06's Theo note, with the exact incumbent-to-Theo mapping written
-    // down, turning a future rediscovery into a single-line diff.
-    const map = extractObjectLiteral(brainClientSrc, 'const BRAIN_PROBLEM_TYPE_ALIASES = Object.freeze(');
-    const keys = Object.keys(map);
-    assert.strictEqual(keys.length, 8, 'BRAIN_PROBLEM_TYPE_ALIASES must carry exactly its 8 known keys');
+  record('Arm 4: two-table alias pin, origin-keyed selector, unknown-token pass-through', () => {
+    // DECISION (Phase 339, 2026-09-03): supersedes this arm's original D-07
+    // "not re-pointed" decision. Theo's own matching rule
+    // (recommend-chain.ts:65-69) is toLower(m.id) = toLower($problemType)
+    // and NOTHING MORE -- no suffix folding -- so the incumbent's
+    // 'Undefined Problem' matches nothing on Theo, while an UNMAPPED
+    // 'Undefined' would have matched Theo's 'UnDefined' case-insensitively.
+    // The map itself is what breaks the post-flip match; a single shared
+    // table can never be correct for both origins at once. The fix is two
+    // frozen tables (one per origin) plus an origin-keyed selector that
+    // reads BRAIN_URL, so a MINDRIAN_BRAIN_URL revert moves vocabulary and
+    // URL together and the FLIP cut itself needs zero edit to this
+    // mechanism.
+    const incumbentMap = extractObjectLiteral(brainClientSrc, 'const BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT = Object.freeze(');
+    const theoMap = extractObjectLiteral(brainClientSrc, 'const BRAIN_PROBLEM_TYPE_ALIASES_THEO = Object.freeze(');
 
-    const canonicalTargets = new Set(Object.values(map));
+    const incumbentKeys = Object.keys(incumbentMap);
+    const theoKeys = Object.keys(theoMap);
+    assert.strictEqual(incumbentKeys.length, 8, 'BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT must carry exactly its 8 known keys');
+    assert.strictEqual(theoKeys.length, 8, 'BRAIN_PROBLEM_TYPE_ALIASES_THEO must carry exactly its 8 known keys');
     assert.deepStrictEqual(
-      Array.from(canonicalTargets).sort(),
-      ['Ill-Defined Problem', 'Undefined Problem', 'Well-Defined Problem'],
-      'the 8 keys must project onto exactly the 3 incumbent canonical names'
+      incumbentKeys.slice().sort(),
+      theoKeys.slice().sort(),
+      'the two tables must carry the IDENTICAL key set -- a key present in one and missing from the other is drift'
     );
 
+    const incumbentTargets = new Set(Object.values(incumbentMap));
+    assert.deepStrictEqual(
+      Array.from(incumbentTargets).sort(),
+      ['Ill-Defined Problem', 'Undefined Problem', 'Well-Defined Problem'],
+      'the incumbent table\'s 8 keys must project onto exactly the 3 incumbent canonical names (unchanged)'
+    );
+
+    const theoTargets = new Set(Object.values(theoMap));
+    assert.deepStrictEqual(
+      Array.from(theoTargets).sort(),
+      ['IllDefined', 'UnDefined', 'WellDefined'],
+      'the Theo table\'s 8 keys must project onto exactly the 3 Theo canonical ids'
+    );
+
+    // Theo's live DomainConcept ids, verbatim from
+    // /home/jsagi/Theo/src/mcp/content/recommend-chain.ts:47, sourced as a
+    // frozen array declared IN THIS TEST rather than a live cross-repo
+    // read: this arm's own hermetic constraint (stated in the file header
+    // above) means the test never reaches across the filesystem to Theo at
+    // run time, only cites the file and line where a human verified it.
+    const THEO_LIVE_IDS = Object.freeze(['UnDefined', 'IllDefined', 'WellDefined', 'Wicked', 'Trinity', 'Compass']);
+    for (const v of theoTargets) {
+      assert.ok(THEO_LIVE_IDS.includes(v), 'every Theo table value must be a member of Theo\'s live id list: ' + v);
+    }
+
+    // Structural proof for THEO_ORIGINS: declared as a frozen ARRAY (a set
+    // of origins), not a bare string literal, so a future Theo staging
+    // origin is a one-line addition rather than a re-architecture. A direct
+    // regex on the marker's own opening character is the correct tool here
+    // (not extractBraceBlock, which brace-matches object literals -- an
+    // array literal opens with '[', not '{').
+    const theoOriginsDeclIdx = brainClientSrc.indexOf('const THEO_ORIGINS = Object.freeze(');
+    assert.ok(theoOriginsDeclIdx !== -1, 'const THEO_ORIGINS = Object.freeze( declaration not found');
+    const theoOriginsDeclSlice = brainClientSrc.slice(theoOriginsDeclIdx, theoOriginsDeclIdx + 200);
+    assert.ok(
+      /const THEO_ORIGINS = Object\.freeze\(\s*\[/.test(theoOriginsDeclSlice),
+      'THEO_ORIGINS must be declared as Object.freeze([...]), a frozen ARRAY of origins, not a bare string literal'
+    );
+
+    // The origin-keyed selector: structural proof that vocabulary and URL
+    // are wired to one switch without invoking an unexported function --
+    // the body must read BRAIN_URL and reference BOTH table identifiers.
+    const selectorBody = extractFunctionBody(brainClientSrc, 'function _brainProblemTypeAliases(');
+    assert.ok(selectorBody.includes('BRAIN_URL'), '_brainProblemTypeAliases must read BRAIN_URL to key its selection on the resolved origin');
+    assert.ok(selectorBody.includes('BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT'), '_brainProblemTypeAliases must reference BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT');
+    assert.ok(selectorBody.includes('BRAIN_PROBLEM_TYPE_ALIASES_THEO'), '_brainProblemTypeAliases must reference BRAIN_PROBLEM_TYPE_ALIASES_THEO');
+
     // Unknown-token pass-through, proven STRUCTURALLY (not by invoking the
-    // unexported private function -- this task's files_modified excludes
-    // lib/core/brain-client.cjs, so the function stays untouched and
-    // unexported; a structural proof over its real source is the correct
-    // tool here, mirroring test-239's LEG 5 source-order precedent).
+    // unexported private function -- a structural proof over its real
+    // source is the correct tool here, mirroring test-239's LEG 5
+    // source-order precedent). The accessor is retargeted from the old
+    // single-table literal to the new selector-returned table.
     const body = extractFunctionBody(brainClientSrc, 'function _normalizeBrainProblemType(raw) {');
-    const aliasLookupIdx = body.indexOf('BRAIN_PROBLEM_TYPE_ALIASES[lc]');
+    const aliasLookupIdx = body.indexOf('table[lc]');
     const finalPassThroughIdx = body.lastIndexOf('return trimmed;');
-    assert.ok(aliasLookupIdx !== -1, '_normalizeBrainProblemType must still look up BRAIN_PROBLEM_TYPE_ALIASES[lc]');
+    assert.ok(aliasLookupIdx !== -1, '_normalizeBrainProblemType must look up table[lc] against the origin-selected table');
     assert.ok(finalPassThroughIdx !== -1, '_normalizeBrainProblemType must still carry the pass-through return trimmed;');
     assert.ok(
       finalPassThroughIdx > aliasLookupIdx,
-      'the pass-through return must come AFTER the alias lookup, proving an unknown token falls through unchanged ' +
-        'rather than being coerced or dropped'
+      'the pass-through return must come AFTER the table lookup, proving an unknown token falls through unchanged ' +
+        'rather than being coerced or dropped -- this is what keeps Wicked, Trinity and Compass working on both origins'
     );
   });
 
   // -------------------------------------------------------------------------
-  // Arm 5: map separation preserved.
+  // Arm 5: map separation preserved, against the UNION of both brain tables.
   // -------------------------------------------------------------------------
-  record('Arm 5: BRAIN_PROBLEM_TYPE_ALIASES and chain-recommender PROBLEM_TYPE_ALIASES stay disjoint', () => {
-    const brainMap = extractObjectLiteral(brainClientSrc, 'const BRAIN_PROBLEM_TYPE_ALIASES = Object.freeze(');
+  record('Arm 5: UNION of both brain tables and chain-recommender PROBLEM_TYPE_ALIASES stay disjoint', () => {
+    const incumbentMap = extractObjectLiteral(brainClientSrc, 'const BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT = Object.freeze(');
+    const theoMap = extractObjectLiteral(brainClientSrc, 'const BRAIN_PROBLEM_TYPE_ALIASES_THEO = Object.freeze(');
     const localMap = extractObjectLiteral(chainRecommenderSrc, 'const PROBLEM_TYPE_ALIASES = Object.freeze(');
 
-    const brainVals = new Set(Object.values(brainMap));
+    const brainVals = new Set([...Object.values(incumbentMap), ...Object.values(theoMap)]);
     const localVals = new Set(Object.values(localMap));
     const overlap = Array.from(brainVals).filter((v) => localVals.has(v));
 
     assert.deepStrictEqual(
       overlap,
       [],
-      'the two maps must never share a value -- a Brain node-name target and a local UDP/IDP/WDP router code ' +
-        'must not be conflatable by a future edit'
+      'the UNION of both brain tables must never share a value with the local map -- a Brain node-name/Theo-id ' +
+        'target and a local UDP/IDP/WDP router code must not be conflatable by a future edit'
     );
     process.stdout.write(
-      '    Arm 5: brain-client values=' + JSON.stringify(Array.from(brainVals)) +
+      '    Arm 5: brain-table union=' + JSON.stringify(Array.from(brainVals)) +
         ' chain-recommender values=' + JSON.stringify(Array.from(localVals)) + ' overlap=[]\n'
     );
   });
