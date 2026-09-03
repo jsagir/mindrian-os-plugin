@@ -66,70 +66,70 @@
       "command": "export",
       "finding_id": "F-2",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
+      "disposition": "description-correction",
       "expected_final_verdict": "OK",
-      "owner_plan": "276-07",
-      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS wrongly matches publish and snapshot as prose verbs when they are command-name tokens inside tool-router.cjs:1456's own audience enumeration. Underlying honesty issue is real and separately owned by 276-08: tool-router.cjs:1476-1480's three false completion assertions (Snapshot generated, Dashboard generated, Export complete) when nothing was generated."
+      "owner_plan": "276-08",
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
     },
     {
       "tool": "export",
       "command": "radar",
       "finding_id": "F-3",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
+      "disposition": "description-correction",
       "expected_final_verdict": "OK",
-      "owner_plan": "276-07",
-      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS false-attributes publish/snapshot as prose verbs inside tool-router.cjs:1456's command enumeration. Same stacked issue as export.export; 276-08 separately owns tool-router.cjs:1476-1480's false completion assertions."
+      "owner_plan": "276-08",
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
     },
     {
       "tool": "export",
       "command": "dashboard",
       "finding_id": "F-4",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
+      "disposition": "description-correction",
       "expected_final_verdict": "OK",
-      "owner_plan": "276-07",
-      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS false-attributes publish/snapshot as prose verbs inside tool-router.cjs:1456's command enumeration. 276-08 separately owns tool-router.cjs:1479's Dashboard generated false completion assertion for this row."
+      "owner_plan": "276-08",
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
     },
     {
       "tool": "export",
       "command": "wiki",
       "finding_id": "F-5",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
+      "disposition": "description-correction",
       "expected_final_verdict": "OK",
-      "owner_plan": "276-07",
-      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS false-attributes publish/snapshot as prose verbs inside tool-router.cjs:1456's command enumeration. Same stacked issue as export.export; 276-08 owns the underlying tool-router.cjs:1465-1483 reference-echo handler."
+      "owner_plan": "276-08",
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
     },
     {
       "tool": "export",
       "command": "present",
       "finding_id": "F-6",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
+      "disposition": "description-correction",
       "expected_final_verdict": "OK",
-      "owner_plan": "276-07",
-      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS false-attributes publish/snapshot as prose verbs inside tool-router.cjs:1456's command enumeration. Same stacked issue as export.export; 276-08 owns the underlying tool-router.cjs:1465-1483 reference-echo handler."
+      "owner_plan": "276-08",
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
     },
     {
       "tool": "export",
       "command": "publish",
       "finding_id": "F-7",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
+      "disposition": "description-correction",
       "expected_final_verdict": "OK",
-      "owner_plan": "276-07",
-      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS matches the bare token publish as a prose verb even though it names itself, the export command, at tool-router.cjs:1456. 276-08 separately owns the underlying reference-echo handler at tool-router.cjs:1465-1483."
+      "owner_plan": "276-08",
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
     },
     {
       "tool": "export",
       "command": "snapshot",
       "finding_id": "F-8",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
+      "disposition": "description-correction",
       "expected_final_verdict": "OK",
-      "owner_plan": "276-07",
-      "reason": "check-tool-honesty.cjs:951-954 WEAK_VERBS matches the bare token snapshot as a prose verb even though it names itself, the export command, at tool-router.cjs:1456. 276-08 separately owns tool-router.cjs:1476's Snapshot generated false completion assertion."
+      "owner_plan": "276-08",
+      "reason": "check-tool-honesty.cjs:951-954's WEAK_VERBS false-attribution of publish/snapshot as prose verbs (this row's original F-2..F-8 finding) was fixed by plan 276-07's isEnumeratedCommandName guard (checker commit fix(276-07): enumeration guard and file-noun negation demotion). That detector fix is DONE. What surfaces now is the REAL, separate issue: tool-router.cjs:1456 sentence 1 ('Render what is already filed in a room into a shareable artifact.') is a genuine STRONG tool-scoped 'filed' claim, and export is a pure reference-echo tool with no reachable write anywhere -- Task 1's own acceptance criteria required this claim to keep surfacing (a run that silenced export entirely would mean the guard was too broad). Live verdict is now HIGH_RISK, citing sentence 1's claim, not the enumeration sentence. 276-08 owns making this row OK (fix tool-router.cjs:1476-1480's false completion assertions and either wire a real write or apply the honest no-write banner) -- 276-07's detector-fix half is complete; the remaining half is a description/behavior correction, not a detector defect."
     },
     {
       "tool": "gate_render",
@@ -156,100 +156,120 @@
       "command": "graph-index",
       "finding_id": "F-15",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 carries a WEAK tool-scoped claim (build/interrogate/render). classifyBranch at check-tool-honesty.cjs:1118-1119 already discounts a STRONG tool-scoped claim to LOW when anyBranchWrites, but not a WEAK one, so a mixed-mode tool where graph-rebuild writes leaves graph-index at MEDIUM. Pending 276-07's ruling on extending the discount to WEAK; may be amended to documented-no-action/MEDIUM if the ruling is not to extend it."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND (re-measured live; 276-RESEARCH.md's 'tool-scoped' characterization did not hold under extractClaims). graph-index genuinely DOES write: lib/core/graph-ops.cjs's indexArtifact delegates to lib/core/lazygraph-ops.cjs:569's indexArtifact, which performs a real `conn.prepare(...).run(...)` INSERT against the room's LazyGraph SQLite substrate inside a transaction. The detector cannot see it: resolveReachability's dotted-call resolution is one hop deep, and the real INSERT sits behind a SECOND dotted hop (graph-ops.indexArtifact -> lazygraph.indexArtifact) this scanner does not chase -- a separate reachability-depth boundary, not one of B-1..B-6, discovered during this plan's triage and out of this task's four-defect scope (named in 276-07-SUMMARY.md as a candidate for a future plan, not fixed here). Plan 276-07 RULED NOT to extend the sibling-writes discount to the WEAK tier specifically so this real, undetected write stays visible rather than being cleared by 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "graph-rebuild",
       "finding_id": "F-16",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim on a mixed-mode tool. check-tool-honesty.cjs:1118-1119's sibling-writes discount currently applies to STRONG tier only. graph-rebuild is itself one of the writing commands; pending 276-07's ruling on the WEAK-tier discount, may be amended if the ruling is not to extend it."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND (re-measured live; 276-RESEARCH.md's 'tool-scoped' characterization did not hold under extractClaims). graph-rebuild genuinely DOES write: lib/core/graph-ops.cjs's rebuildGraph delegates to lib/core/lazygraph-ops.cjs:663's rebuildGraph, which performs a real `conn.prepare('BEGIN').run()` transaction with INSERT statements against the room's LazyGraph SQLite substrate. The detector cannot see it: resolveReachability's dotted-call resolution is one hop deep, and the real writes sit behind a SECOND dotted hop (graph-ops.rebuildGraph -> lazygraph.rebuildGraph) this scanner does not chase -- a separate reachability-depth boundary, not one of B-1..B-6, discovered during this plan's triage and out of this task's four-defect scope (named in 276-07-SUMMARY.md as a candidate for a future plan, not fixed here). Plan 276-07 RULED NOT to extend the sibling-writes discount to the WEAK tier specifically so this real, undetected write stays visible rather than being cleared by 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "graph-query",
       "finding_id": "F-17",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND, not tool-scoped as 276-RESEARCH.md characterized it (re-measured live via extractClaims: the description's one sentence names all 13 commands across four parenthetical clauses, so the same WEAK phrase attaches to every named command including graph-query, whose own clause verb carries no persistence meaning). Plan 276-07 RULED NOT to extend the STRONG-tier sibling-writes discount (check-tool-honesty.cjs classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) to the WEAK tier: graph-query is genuinely read-only, but a blanket tool-wide discount would have also silently cleared graph-index/graph-rebuild's real undetected write (see their own entries) behind the same 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "graph-stats",
       "finding_id": "F-18",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND, not tool-scoped as 276-RESEARCH.md characterized it (re-measured live via extractClaims: the description's one sentence names all 13 commands across four parenthetical clauses, so the same WEAK phrase attaches to every named command including graph-stats, whose own clause verb carries no persistence meaning). Plan 276-07 RULED NOT to extend the STRONG-tier sibling-writes discount (check-tool-honesty.cjs classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) to the WEAK tier: graph-stats is genuinely read-only, but a blanket tool-wide discount would have also silently cleared graph-index/graph-rebuild's real undetected write (see their own entries) behind the same 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "reasoning-get",
       "finding_id": "F-19",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND, not tool-scoped as 276-RESEARCH.md characterized it (re-measured live via extractClaims: the description's one sentence names all 13 commands across four parenthetical clauses, so the same WEAK phrase attaches to every named command including reasoning-get, whose own clause verb carries no persistence meaning). Plan 276-07 RULED NOT to extend the STRONG-tier sibling-writes discount (check-tool-honesty.cjs classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) to the WEAK tier: reasoning-get is genuinely read-only, but a blanket tool-wide discount would have also silently cleared graph-index/graph-rebuild's real undetected write (see their own entries) behind the same 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "reasoning-verify",
       "finding_id": "F-20",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND, not tool-scoped as 276-RESEARCH.md characterized it (re-measured live via extractClaims: the description's one sentence names all 13 commands across four parenthetical clauses, so the same WEAK phrase attaches to every named command including reasoning-verify, whose own clause verb carries no persistence meaning). Plan 276-07 RULED NOT to extend the STRONG-tier sibling-writes discount (check-tool-honesty.cjs classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) to the WEAK tier: reasoning-verify is genuinely read-only, but a blanket tool-wide discount would have also silently cleared graph-index/graph-rebuild's real undetected write (see their own entries) behind the same 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "reasoning-list",
       "finding_id": "F-21",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND, not tool-scoped as 276-RESEARCH.md characterized it (re-measured live via extractClaims: the description's one sentence names all 13 commands across four parenthetical clauses, so the same WEAK phrase attaches to every named command including reasoning-list, whose own clause verb carries no persistence meaning). Plan 276-07 RULED NOT to extend the STRONG-tier sibling-writes discount (check-tool-honesty.cjs classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) to the WEAK tier: reasoning-list is genuinely read-only, but a blanket tool-wide discount would have also silently cleared graph-index/graph-rebuild's real undetected write (see their own entries) behind the same 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "visualize-room",
       "finding_id": "F-22",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only render command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND, not tool-scoped as 276-RESEARCH.md characterized it (re-measured live via extractClaims: the description's one sentence names all 13 commands across four parenthetical clauses, so the same WEAK phrase attaches to every named command including visualize-room, whose own clause verb carries no persistence meaning). Plan 276-07 RULED NOT to extend the STRONG-tier sibling-writes discount (check-tool-honesty.cjs classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) to the WEAK tier: visualize-room is genuinely read-only, but a blanket tool-wide discount would have also silently cleared graph-index/graph-rebuild's real undetected write (see their own entries) behind the same 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "visualize-graph",
       "finding_id": "F-23",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only render command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND, not tool-scoped as 276-RESEARCH.md characterized it (re-measured live via extractClaims: the description's one sentence names all 13 commands across four parenthetical clauses, so the same WEAK phrase attaches to every named command including visualize-graph, whose own clause verb carries no persistence meaning). Plan 276-07 RULED NOT to extend the STRONG-tier sibling-writes discount (check-tool-honesty.cjs classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) to the WEAK tier: visualize-graph is genuinely read-only, but a blanket tool-wide discount would have also silently cleared graph-index/graph-rebuild's real undetected write (see their own entries) behind the same 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
     },
     {
       "tool": "room_graph",
       "command": "visualize-chain",
       "finding_id": "F-24",
       "verdict_at_freeze": "MEDIUM",
-      "disposition": "detector-fix",
-      "expected_final_verdict": "OK",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
       "owner_plan": "276-07",
-      "reason": "tool-router.cjs:914 WEAK tool-scoped claim. check-tool-honesty.cjs:1118-1119's sibling-writes discount to LOW applies to STRONG tier only, not WEAK, leaving this read-only render command at MEDIUM. Pending 276-07's ruling; may be amended to documented-no-action/MEDIUM if the ruling is not to extend the discount."
+      "reason": "tool-router.cjs:914's WEAK claim is PER-COMMAND, not tool-scoped as 276-RESEARCH.md characterized it (re-measured live via extractClaims: the description's one sentence names all 13 commands across four parenthetical clauses, so the same WEAK phrase attaches to every named command including visualize-chain, whose own clause verb carries no persistence meaning). Plan 276-07 RULED NOT to extend the STRONG-tier sibling-writes discount (check-tool-honesty.cjs classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) to the WEAK tier: visualize-chain is genuinely read-only, but a blanket tool-wide discount would have also silently cleared graph-index/graph-rebuild's real undetected write (see their own entries) behind the same 'a sibling writes' reasoning. Per D-276-2 this MEDIUM stays permanently visible with this written reason -- a closed finding, not unfinished work."
+    },
+    {
+      "tool": "intelligence",
+      "command": "research",
+      "finding_id": "F-25",
+      "verdict_at_freeze": "N/A (row did not exist at 276-06 freeze time; surfaced by 276-07 Task 2)",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:1231's intelligence description ('Run intelligence operations: find connections, grade ventures, build thesis, research.') carries a WEAK claim ('build') that extractClaims attaches per-command to every named vocabulary member in the sentence, including research. Newly surfaced by plan 276-07 Task 2's own B-4 includes()-dispatch fix: before that fix, EUREKA_COMPUTE_COMMANDS.includes(command)'s branch body was NOT recognized as consumed, so it stayed part of sharedBodyText and leaked into EVERY command's effectiveText -- including research's -- making research falsely resolve WRITES via a write primitive that belongs to a DIFFERENT command's body. After the fix isolates that body into its own branch, research correctly resolves NO_WRITE and the pre-existing WEAK claim becomes visible. eureka-run/eureka-status/eureka-report are the tool's real writing siblings. Plan 276-07's WEAK-tier sibling-writes ruling (classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) applies identically here: NOT extended, so this MEDIUM stays permanently visible rather than being cleared by 'a sibling writes' reasoning. Per D-276-2 this is a closed finding, not unfinished work."
+    },
+    {
+      "tool": "intelligence",
+      "command": "grade",
+      "finding_id": "F-26",
+      "verdict_at_freeze": "N/A (row did not exist at 276-06 freeze time; surfaced by 276-07 Task 2)",
+      "disposition": "documented-no-action",
+      "expected_final_verdict": "MEDIUM",
+      "owner_plan": "276-07",
+      "reason": "tool-router.cjs:1231's intelligence description ('Run intelligence operations: find connections, grade ventures, build thesis, research.') carries a WEAK claim ('build') that extractClaims attaches per-command to every named vocabulary member in the sentence, including grade. Newly surfaced by plan 276-07 Task 2's own B-4 includes()-dispatch fix: before that fix, EUREKA_COMPUTE_COMMANDS.includes(command)'s branch body was NOT recognized as consumed, so it stayed part of sharedBodyText and leaked into EVERY command's effectiveText -- including grade's -- making grade falsely resolve WRITES via a write primitive that belongs to a DIFFERENT command's body. After the fix isolates that body into its own branch, grade correctly resolves NO_WRITE and the pre-existing WEAK claim becomes visible. eureka-run/eureka-status/eureka-report are the tool's real writing siblings. Plan 276-07's WEAK-tier sibling-writes ruling (classifyBranch's WEAK-TIER SIBLING-WRITES RULING comment) applies identically here: NOT extended, so this MEDIUM stays permanently visible rather than being cleared by 'a sibling writes' reasoning. Per D-276-2 this is a closed finding, not unfinished work."
     }
   ]
 }

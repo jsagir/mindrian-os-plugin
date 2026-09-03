@@ -1063,6 +1063,17 @@ const NEGATION_PATTERNS = [
   /\bnothing\s+is\s+written\b/i,
   /\bno\s+writes?\s+occurs?\b/i,
   /\breference\s+only\b/i,
+  // phase 276-07 (D-276-3, plan 276-11's own honest gate_render rewrite
+  // needs this): "nothing is persisted" is the identical global-disclaimer
+  // shape as the existing "nothing is written" entry above, just with the
+  // synonym an in-memory-only mint uses. Added HERE (the detector), never
+  // as a STRONG_VERBS addition of "minted" -- D-276-3 is explicit that an
+  // in-memory gate-ledger mint is not persistence, the fix is a description
+  // correction (owned by 276-11), and widening the verb vocabulary would be
+  // the wrong lever twice over (it would fire on every legitimate use of
+  // "minted" AND treat a vocabulary change as a substitute for saying the
+  // true thing).
+  /\bnothing\s+is\s+persisted\b/i,
 ];
 
 function sentenceHasNegation(sentence) {
@@ -1249,6 +1260,53 @@ function extractClaims(description, vocabulary) {
 
 // ---------------------------------------------------------------------------
 // Stage F -- classifyBranch
+//
+// WEAK-TIER SIBLING-WRITES RULING (phase 276-07, F-15..F-24, decided ONCE
+// here rather than left as an undecided bucket). The toolClaim/STRONG branch
+// below discounts a tool-scoped STRONG claim to LOW when ctx.anyBranchWrites
+// -- a sibling command in the same mixed-mode tool does write, so the whole
+// tool's persistence claim is explainable even though THIS branch alone
+// does not write. The question this ruling answers: does a WEAK claim (on
+// EITHER path -- a per-command cmdClaim or a tool-scoped toolClaim) inherit
+// that same sibling-writes discount?
+//
+// RULED: NO. The discount is NOT extended to the WEAK tier. Left unchanged
+// on this point; every WEAK claim with no reachable write still lands
+// MEDIUM regardless of a writing sibling.
+//
+// REJECTED ALTERNATIVE, and why it was rejected. room_graph's own ten rows
+// (F-15..F-24, tool-router.cjs:914) were the concrete test case, and
+// re-measuring them (rather than trusting 276-RESEARCH.md's characterization
+// of the claim as "tool-scoped") showed the claim is actually PER-COMMAND:
+// the description's single sentence names all 13 commands inside four
+// parenthetical clauses, so extractClaims's sentence-level matching assigns
+// the SAME WEAK phrase to every named command, including ones whose own
+// clause verb ("interrogate", "work ... over") is not a persistence verb at
+// all. Extending the discount looked at first like the obvious fix these
+// ten rows wanted. Triage found otherwise: two of the ten
+// (graph-index, graph-rebuild) delegate to lib/core/graph-ops.cjs's
+// indexArtifact/rebuildGraph, which perform REAL `conn.prepare(...).run(...)`
+// INSERTs against the room's LazyGraph SQLite substrate (lib/core/
+// lazygraph-ops.cjs:569) -- a genuine write this detector cannot see, because
+// resolveReachability's dotted-call resolution is only ONE hop deep and the
+// real INSERT sits behind a SECOND dotted hop (graph-ops.indexArtifact ->
+// lazygraph.indexArtifact), a depth this scanner does not chase (a new,
+// separate reachability-depth boundary, out of this task's four-defect
+// scope -- not fixed here, named in the plan's own SUMMARY as a discovered
+// item for a future plan, not silently absorbed into this ruling).
+// Extending the sibling-writes discount to WEAK would have mapped ALL TEN
+// rows uniformly to OK (per this plan's own ledger contract for the EXTEND
+// case), which would have silently hidden those two real, undetected writes
+// behind "a sibling writes, so this is fine" reasoning -- exactly the
+// invisible false negative D-276-2 warns against, on the very rows a
+// blanket rule was supposed to clean up. A blunt tool-wide discount cannot
+// distinguish "genuinely read-only, over-attributed by sentence-level
+// coarseness" (8 of the 10) from "genuinely writes, undetected by a
+// different depth limit" (2 of the 10) without first fixing the second
+// problem -- which this task does not own. Per D-276-2, a permanently
+// visible MEDIUM with a written, honest reason is a closed finding under
+// this phase's own definition; that is the ten room_graph ledger entries'
+// final disposition (documented-no-action / MEDIUM), not detector-fix / OK.
 // ---------------------------------------------------------------------------
 function classifyBranch(ctx) {
   const hasBanner = NO_WRITE_BANNER_CALL_RE.test(ctx.effectiveText)

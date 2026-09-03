@@ -120,13 +120,28 @@ process.stdout.write('\n-- GROUP B: MEDIUM and UNKNOWN are never suppressible by
 {
   const baseline = checker.scanAll();
   const mediumRow = baseline.rows.find((r) => r.verdict === 'MEDIUM');
-  const unknownRow = baseline.rows.find((r) => r.verdict === 'UNKNOWN');
   const highRiskRow = baseline.rows.find((r) => r.verdict === 'HIGH_RISK');
+
+  // UNKNOWN, phase 276-07: sourced from a dedicated synthetic fixture
+  // (tests/fixtures/tool-honesty/unresolvable.cjs), NOT the live tree.
+  // The live tree's only UNKNOWN row (context_assemble.(default)) was
+  // closed by plan 276-07's own Task 1 (negation demotion) and Task 2 (the
+  // barrel re-export hop) -- both root-cause fixes. A test whose precondition
+  // requires the live tree to STAY broken is fragile by construction: this
+  // whole phase's goal is closing findings, so the live-tree UNKNOWN count
+  // trending toward zero is success, not a test failure. The fixture pins
+  // the probe permanently, the same way POSITIVE_SYNTHETIC/NEGATED_SYNTHETIC
+  // already decouple test-ljj-tool-honesty.cjs from live-tree drift.
+  const unknownFixturePath = path.join(REPO_ROOT, 'tests', 'fixtures', 'tool-honesty', 'unresolvable.cjs');
+  const unknownScan = checker.scanAll({
+    files: [{ absPath: unknownFixturePath, relPath: 'tests/fixtures/tool-honesty/unresolvable.cjs' }],
+  });
+  const unknownRow = unknownScan.rows.find((r) => r.verdict === 'UNKNOWN');
 
   check('a live MEDIUM row exists today to exercise the never-suppressible guard against',
     !!mediumRow, mediumRow ? undefined : 'no MEDIUM row found in the current tree');
-  check('a live UNKNOWN row exists today to exercise the never-suppressible guard against',
-    !!unknownRow, unknownRow ? undefined : 'no UNKNOWN row found in the current tree');
+  check('the synthetic unresolvable fixture produces an UNKNOWN row to exercise the never-suppressible guard against',
+    !!unknownRow, unknownRow ? undefined : 'fixture_unresolvable did not resolve to UNKNOWN -- fixture shape drifted');
   check('a live HIGH_RISK row exists today as the suppression path\'s positive control',
     !!highRiskRow, highRiskRow ? undefined : 'no HIGH_RISK row found in the current tree');
 
@@ -164,7 +179,9 @@ process.stdout.write('\n-- GROUP B: MEDIUM and UNKNOWN are never suppressible by
         reason: 'D-276-2 test probe: UNKNOWN must never be suppressible; this synthetic entry must have zero effect on the live verdict.',
         triaged: '2026-09-03',
       });
-      const afterUnknown = checker.scanAll();
+      const afterUnknown = checker.scanAll({
+        files: [{ absPath: unknownFixturePath, relPath: 'tests/fixtures/tool-honesty/unresolvable.cjs' }],
+      });
       const row = afterUnknown.rows.find((r) => r.tool === unknownRow.tool && r.command === unknownRow.command);
       check(
         'D-276-2: an ALLOWED_UNVERIFIED entry naming a live UNKNOWN row (' + unknownRow.tool + '.' + unknownRow.command
