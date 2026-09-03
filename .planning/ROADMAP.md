@@ -1478,6 +1478,17 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 336 to break down)
 
+### Phase 337: SEED-079: Fix Brain Identifier Corruption + the Role-Blind Extraction Pass Behind It
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 336
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 337 to break down)
+
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD
