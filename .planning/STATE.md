@@ -4,7 +4,7 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 339-02-PLAN.md
-last_updated: "2026-09-03T20:29:49.076Z"
+last_updated: "2026-09-03T20:37:28.274Z"
 last_activity: 2026-09-03 -- Phase 339 execution started
 progress:
   total_phases: 89
@@ -13,6 +13,20 @@ progress:
   completed_plans: 168
   percent: 90
 ---
+
+<!-- NOTE (276-14 execute-plan, 2026-09-03, resync-clobber pattern, same class as every note
+     in this file): running `state.record-metric` and `state.add-decision` (both additive-only,
+     per the shared_tree_guard precedent -- `state.advance-plan`/`state.record-session` were
+     deliberately NOT run, since "Current Position" legitimately belongs to the concurrently-
+     active Phase 339 session, not this one) clobbered `percent` back to the stale 21 again,
+     same tracked bug class, no new investigation. Hand-corrected back to 90 (completed_plans
+     168 / total_plans 186, matching the 339-02 note immediately below, which computed the
+     same figure). `stopped_at` / `last_activity` / "Current Position" were all left untouched
+     (verified via diff against a pre-command snapshot), matching the 276-08/276-11 precedent.
+     Phase 276 Plan 14 (meeting file-meeting wired through the governed F.8 gate, commits
+     4e18dc7a/421dcea8/dfa6f5c2, SUMMARY at .planning/phases/276-.../276-14-SUMMARY.md) is
+     COMPLETE; "Current Position" correctly continues to point at Phase 339 because that is
+     where live execution actually is now, not because 276-14 is unfinished. -->
 
 <!-- NOTE (339-02 execute-plan, 2026-09-03, resync-clobber pattern, same class as every note
      in this file): `state.update-progress` correctly computed percent=90 (completed_plans
@@ -4829,6 +4843,7 @@ Progress: [█████████░] 92%
 | Phase 339 P01 | 55min | 3 tasks | 4 files |
 | Phase 276 P11 | ~40min | 3 tasks | 3 files |
 | Phase 339 P02 | 40min | 3 tasks | 3 files |
+| Phase 276 P14 | 15min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6256,6 +6271,7 @@ Progress: [█████████░] 92%
 - [Phase 276]: 276-11: gate_render/graph_write/brain_ask description-only honesty fixes; D-276-3/D-276-6 flip-day items closed, honest-empty trio recorded as finding not fix
 - [Phase 339]: Fixture success checks in test-339-enrichment-theo-shapes.cjs use captureReadinessMiss's real return shape (result.queued on a genuine capture, result.captured only on early not-a-miss/error returns), confirmed against test-249's own convention before asserting
 - [Phase 339]: test-339-update-path-single-source.cjs Arm 5 anti-drift scan surfaced a genuine pre-existing triple-copy of the update-path literal at scripts/self-update:68 (not named in 339-CONTEXT.md); documented as a 339-06 work-list item rather than fixed in this test-only plan
+- [Phase 276]: 276-14: meeting file-meeting wired through the governed F.8 gate (writeClaimNode then gate_render/gate_answer), opt-in via knowledge_type/claim_text, no second gate mechanism
 
 ### Pending Todos
 
