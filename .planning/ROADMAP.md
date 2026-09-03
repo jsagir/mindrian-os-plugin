@@ -202,7 +202,7 @@ too -- once Theo consolidates room-side operational tools into the same catalog 
 tools (per Theo's own CLAUDE.md architecture doctrine), check whether this phase's
 enforcement-locus fix needs to also cover the Theo-catalog surface, not just today's
 `mindrian-os` server, before this phase's research locks.
-**Plans:** 8/9 plans executed; 257-09 Tasks 1-2 of 3 complete (Task 3, the mandatory Canon
+**Plans:** 9/9 plans complete
 Custodian checkpoint, is a blocking human-verify gate and has not yet run)
 Plans:
 **Wave 1**
@@ -227,7 +227,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 257-09-PLAN.md - Part 8 gate battery, LOCUS registration, Canon Custodian checkpoint (W5).
+- [x] 257-09-PLAN.md - Part 8 gate battery, LOCUS registration, Canon Custodian checkpoint (W5).
       Tasks 1 (`257-COMPLIANCE.md`) and 2 (LOCUS-10 automated half + Traceability + this ROADMAP
       entry) complete 2026-09-03; Task 3 (blocking human-verify checkpoint) pending navigator
       review.
