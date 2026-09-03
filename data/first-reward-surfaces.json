@@ -35,8 +35,8 @@
       "file": "scripts/session-start",
       "kind": "injected_prose",
       "anchor": "[MindrianOS Onboarding] First install detected.",
-      "interactive_first_reward": "--none (diagnostic surface)",
-      "why": "Delivers no qualifying variable reward today: the payload's one reward claim (domain intelligence, 'here is what I already know about your space') is a prose instruction to the model with no MindrianOS machinery behind it, so it fails the rule's own decisive attributable-to-MindrianOS test. Scored 2/10 on the Reward leg as GAP R-1 in .planning/research/2026-08-27-hooked-first-install-audit.md. Declared as an opt-out rather than a reward because that is the honest reading of what ships; the scripting opt-out would be a false claim about invocation, and Phase 267.2 owns repairing GAP R-1, not this phase, which declares the contract and does not change the flow."
+      "interactive_first_reward": "instant_brief",
+      "why": "The branch now hands first contact to scripts/first-install-router.cjs, which classifies the user's one-sentence free-text answer locally and, when the shipped MVA classifier judges that sentence venture-shaped, fires the room-free Instant Brief pipeline (lib/core/mva-orchestrator.cjs) out of band as a detached child process. The rendered result is drained and injected as additionalContext on a later turn, not the same turn: the brief lands one turn after the triggering sentence (plan 267.2-07, decision D-D). Stated plainly rather than declared stronger than the machinery supports: a session whose free-text answer never qualifies as venture-shaped delivers no brief. Closes GAP R-1 (.planning/research/2026-08-27-hooked-first-install-audit.md), repaired by Phase 267.2 plans 267.2-06 (the router's arm/route legs), 267.2-07 (the reward fire/drain legs) and this plan (the prose handoff)."
     },
     {
       "id": "session-start:UPDATE",
