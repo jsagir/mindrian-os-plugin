@@ -193,6 +193,27 @@ async function main() {
     } else {
       promises.push(Promise.resolve({ ok: false, reason: 'discovery_cycle_missing' }));
     }
+    // Plan 296-05 (SEED-030): this spawn bypasses lib/core/rs-backend-dispatch.cjs,
+    // which that module's own header (lines 38-44) already flags as the unfinished
+    // Phase 272-10 wiring -- tests/272-dispatch-chokepoint.sh and
+    // tests/272-rule6-amended.sh stay RED by design until that wiring lands.
+    //
+    // Phase 296 deliberately did NOT complete that wiring here. Reason:
+    // rs-backend-dispatch.cjs's resolveBackend() defaults to 'cjs', and
+    // lib/core/rs-engine.cjs (the CJS port) implements Mode A internal ONLY.
+    // Routing this --mode hybrid spawn through the chokepoint today would land
+    // hybrid on a backend that cannot serve it. Completing 272-10 for this
+    // caller needs Mode C in CJS first, which is a later phase's job.
+    //
+    // Phase 296 DID change what this spawn's Mode C path does underneath: the
+    // external corpus scripts/rs-engine.py's hybrid mode reads is now a
+    // per-room local sidecar cache (lib/core/rs_cache.py) instead of a
+    // Pinecone namespace, and PINECONE_API_KEY is no longer required for it.
+    //
+    // This spawn's failure is swallowed into markFailed(..., 'all_pipelines_empty')
+    // below, so a break here shows up as rising auto_explore_skipped telemetry
+    // rather than a visible error -- which is why tests/296-blast-radius.test.cjs
+    // fences the argv contract between this spawn and rs-engine.py's parser.
     if (fs.existsSync(rsScript)) {
       promises.push(spawnAsync('python3', [rsScript, '--mode', 'hybrid', '--room', roomDir, '--topk', '5'], {
         env: env,
