@@ -331,19 +331,24 @@ function _classifyAndRoute(state, prompt, t0) {
     // degrade to the safe ambiguous/larry defaults already set above
   }
 
+  // WR-02 (267.2-REVIEW.md): computed here, before the state write, so it can be PERSISTED
+  // onto state.json (not just telemetry) -- _fireReward needs this to correlate against
+  // lib/core/mva-state.cjs's pending record at fire time, several turns later.
+  const sentenceSha = (typeof prompt === 'string' && prompt.length > 0)
+    ? crypto.createHash('sha256').update(prompt, 'utf8').digest('hex')
+    : null;
+
   const routedAtMs = Date.now();
   const routedState = Object.assign({}, state, {
     phase: 'routed',
     routed_at_ms: routedAtMs,
     bucket: bucket,
     outcome: outcome,
+    sentence_sha256: sentenceSha,
   });
   _atomicWriteState(routedState);
 
   try {
-    const sentenceSha = (typeof prompt === 'string' && prompt.length > 0)
-      ? crypto.createHash('sha256').update(prompt, 'utf8').digest('hex')
-      : null;
     const features = (classification && classification.features) ? classification.features : {};
     _appendTelemetry({
       schema_version: 1,
@@ -410,8 +415,24 @@ function _emitOutcomeObserved(state) {
 // that write, including the length guards, English-only rule and Hebrew
 // refusal path. A throw anywhere in this block degrades to an honest skip;
 // the envelope still emits and the state machine still advances.
+//
+// WR-02 (267.2-REVIEW.md): `pending` is a SHARED, session-scoped record
+// (lib/core/mva-state.cjs) written independently by scripts/mva-detect.cjs on EVERY
+// UserPromptSubmit turn -- it runs immediately before this router in the hook chain
+// (hooks/hooks.json's own ordering note) -- guarded only by isAlreadyRunning(), never by
+// "already consumed" or "matches the sentence that drove THIS router's routing decision."
+// This router's own state machine takes at least 2 additional user turns between the
+// routing decision (which reads the triggering sentence) and this fire turn (which reads
+// whatever `pending` currently holds). If the user's intervening turn is independently
+// classified as venture-shaped by mva-detect.cjs's own classifier, `pending.sentence_sha256`
+// is silently overwritten before this fire leg ever reads it, and the "Instant Brief"
+// delivered later is rendered for the wrong (later, unrelated) sentence. Guard: compare
+// `pending.sentence_sha256` against `state.sentence_sha256` (persisted by _classifyAndRoute
+// at routing time) and skip, named, on a mismatch rather than silently firing for the
+// wrong sentence. A missing state.sentence_sha256 (older state.json shape, or a null
+// prompt at routing time) degrades to the pre-fix behavior -- no correlation to check.
 
-const SKIP_REASONS = Object.freeze(['no_pending', 'hebrew_refusal', 'already_running']);
+const SKIP_REASONS = Object.freeze(['no_pending', 'hebrew_refusal', 'already_running', 'pending_sentence_mismatch']);
 
 function _fireReward(state) {
   const startMs = Date.now();
@@ -423,12 +444,16 @@ function _fireReward(state) {
   try {
     const mvaState = require('../lib/core/mva-state.cjs');
     const pending = mvaState.readPending();
+    const routedSentenceSha256 = (typeof state.sentence_sha256 === 'string' && state.sentence_sha256.length > 0)
+      ? state.sentence_sha256 : null;
     if (!pending || typeof pending.sentence_sha256 !== 'string' || pending.sentence_sha256.length < 8) {
       skipReason = 'no_pending';
     } else if (pending.hebrew_refusal === true) {
       skipReason = 'hebrew_refusal';
     } else if (mvaState.isAlreadyRunning()) {
       skipReason = 'already_running';
+    } else if (routedSentenceSha256 && pending.sentence_sha256 !== routedSentenceSha256) {
+      skipReason = 'pending_sentence_mismatch';
     } else {
       sentenceSha256 = pending.sentence_sha256;
       sha8 = sentenceSha256.slice(0, 8);

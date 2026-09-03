@@ -130,8 +130,16 @@ helpers.withIsolatedHome(function (ctx) {
   const env = helpers.keylessEnv(ctx.env);
   env.MINDRIAN_ROOMS_HOME = path.join(ctx.home, 'nonexistent-rooms-home');
 
+  // WR-02 fix (267.2-REVIEW.md): _fireReward now correlates pending.sentence_sha256
+  // against state.sentence_sha256 (the sha256 of THIS turn's own FIRE_PROMPT, persisted by
+  // _classifyAndRoute at routing time). The pending record seeded below must therefore
+  // carry the SAME sentence's hash -- an unrelated fixture literal (as this test used
+  // before the correlation check existed) would now be treated as
+  // skip_reason: pending_sentence_mismatch and the fire assertions below would never see
+  // a non-null sha8. sha256(FIRE_PROMPT) IS the real, deterministic pending seed a
+  // production mva-detect.cjs run would have written for this exact routed sentence.
   const fixedSha256 = crypto.createHash('sha256')
-    .update('267.2-07 pre-room-reward test fixture sentence, never a real user sentence', 'utf8')
+    .update(FIRE_PROMPT, 'utf8')
     .digest('hex');
   const expectedSha8 = fixedSha256.slice(0, 8);
   const expectedCapturePath = path.join(ctx.home, '.mindrian', 'first-install', 'brief-' + expectedSha8 + '.md');
