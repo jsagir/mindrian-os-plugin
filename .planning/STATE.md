@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 276-02-PLAN.md
-last_updated: "2026-09-03T17:23:19.583Z"
+stopped_at: Completed 276-03-PLAN.md
+last_updated: "2026-09-03T17:38:23.197Z"
 last_activity: 2026-09-03 -- Phase 276 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 166
-  completed_plans: 152
+  completed_plans: 153
   percent: 21
 ---
 
@@ -3964,7 +3964,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 276 (mcp-tool-honesty-triage-and-close-the-check-tool-honesty-cjs) — EXECUTING
-Plan: 3 of 16
+Plan: 4 of 16
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 276 execution started
 
@@ -4723,6 +4723,7 @@ Progress: [█████████░] 92%
 | 267.2 | 10 | - | - |
 | Phase 276 P01 | 6min | 3 tasks | 3 files |
 | Phase 276 P02 | 30min | 2 tasks | 2 files |
+| Phase 276 P03 | 27min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6132,6 +6133,8 @@ Progress: [█████████░] 92%
 - [Phase 276]: 276-02: A1's C4 fixture must be a bare identity-only room, not fully-migrated -- a schema-init (create-table-if-not-exists) statement on an existing table needs no write lock under WAL, so a full fixture makes the assertion pass vacuously.
 - [Phase 276]: 276-02: C5's busy fixture must delete the Phase 109 migration sentinel (not use a fully-migrated room) so spine-events.cjs's own _emit catch block genuinely fires under contention; on a fully-migrated room the busy error surfaces one call deeper inside logEvent's own catch instead.
 - [Phase 276]: 276-02: TOOLHON-11's run-time census measured 35 no_room_db producer sites (not the 27 RESEARCH.md cites), and its catch-after-openRoomDb heuristic found 2 sibling defect sites beyond spine-events.cjs (scanner.cjs:124, lens-nodes.cjs:254) -- flagged for a future plan, not fixed here.
+- [Phase 276-03]: Group C's room_content membership check uses proximity-based banner-driving Set discovery (IDENT.has( within 800 chars of NOT EXECUTED), not a naive Set-literal scan, because WRITE_TOOLS already quotes new-project/setup/update for an unrelated reason and would pass vacuously today
+- [Phase 276-03]: Group D/E (room_content) extract each real function's source via Function.prototype.toString() and call the checker's resolveWritePrimitives/resolveReachability directly, bypassing scanAll()/splitBranches() because 276-01's own D-1 bug makes every room_content branch indistinguishable via the buggy switch splitter today
 
 ### Pending Todos
 
@@ -6253,8 +6256,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T17:23:19.390Z
-Stopped at: Completed 276-02-PLAN.md
+Last session: 2026-09-03T17:38:23.087Z
+Stopped at: Completed 276-03-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
