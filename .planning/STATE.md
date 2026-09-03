@@ -3,16 +3,30 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 267.2-01-PLAN.md
-last_updated: "2026-09-03T09:24:39.190Z"
-last_activity: 2026-09-03 -- Completed 267.2-01-PLAN.md (baseline + D-D measured confirmation)
+stopped_at: Completed 267.2-02-PLAN.md
+last_updated: "2026-09-03T09:31:53.560Z"
+last_activity: 2026-09-03 -- Completed 267.2-02-PLAN.md (shared test infrastructure - aggregator + isolated-HOME fixture helper)
 progress:
   total_phases: 26
   completed_phases: 18
   total_plans: 150
-  completed_plans: 141
-  percent: 94
+  completed_plans: 142
+  percent: 95
 ---
+
+<!-- NOTE (267.2-02 execute-plan, 2026-09-03, FORTY-FIRST+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     the correct 95 (142/150, set by `state.update-progress` moments earlier)
+     to a stale 69, and `last_activity` reverted to a stale "Phase 267.2
+     execution started" string instead of naming this plan's actual
+     completion. Hand-corrected: percent back to 95, last_activity to name
+     this plan's completion (`completed_plans`/`total_plans` were NOT
+     affected, only `percent`/`last_activity`). Root cause already tracked
+     for a future `/gsd-debug` session per the 2026-09-01 handoff; not
+     re-investigated here. -->
+
 
 <!-- NOTE (267.2-01 execute-plan, 2026-09-03, FORTIETH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the notes below):
@@ -3828,7 +3842,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 267.2 (first-install-hooked-loop-repair-reward-investment-inserted) — EXECUTING
-Plan: 2 of 10
+Plan: 3 of 10
 Status: Ready to execute
 Last activity: 2026-09-03 -- Phase 267.2 execution started
 
@@ -4576,6 +4590,7 @@ Progress: [█████████░] 92%
 | Phase 257 P08 | 55min | 3 tasks | 2 files |
 | 257 | 9 | - | - |
 | Phase 267.2 P01 | 15min | 2 tasks | 2 files |
+| Phase 267.2 P02 | 20min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -5952,6 +5967,8 @@ Progress: [█████████░] 92%
 - [Phase 257]: 257-08: all six Brain tool registrations migrated to z.strictObject (including the two zero-parameter tools); Arm E's wire-level before/after comparison found zero regression, so the plan's named exception path was not needed.
 - [Phase 257]: 257-08: additionalProperties:false was already present in the advertised JSON Schema for four of six tools before this migration (a zodToJsonSchema converter artifact, not new hardening); recorded honestly in Arm F rather than claimed as new evidence across the board.
 - [Phase 267.2]: D-D measured confirmation (267.2-01): runPipeline max 5337ms vs 3000ms hook ceiling - detached-spawn architecture CONFIRMED
+- [Phase 267.2-02]: tests/test-267-2-helpers.cjs deliberately matches the aggregator's own glob (needed for require() reuse); guards itself with a SKIP print + exit 0 under require.main===module so run_may_skip classifies it correctly
+- [Phase 267.2-02]: node:child_process named as an allowed built-in but not required directly - withIsolatedHome hands callers a ready env object rather than spawning anything itself
 
 ### Pending Todos
 
@@ -6067,8 +6084,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T09:24:39.077Z
-Stopped at: Completed 267.2-01-PLAN.md
+Last session: 2026-09-03T09:31:53.497Z
+Stopped at: Completed 267.2-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

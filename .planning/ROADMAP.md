@@ -821,14 +821,14 @@ Phase 269 already ties the key-gate removal to Theo's cutover becoming keyless/u
 before this phase's research locks, confirm whether the reward/investment repair should assume
 the post-cutover keyless flow (Theo, weeks not months away per Phase 262) as the target state
 rather than designing against the current key-gated one.
-**Plans:** 1/10 plans executed
+**Plans:** 2/10 plans executed
 
 Plans:
 
 **Wave 1** *(parallel; no production code touched)*
 
 - [x] 267.2-01-PLAN.md - HOOK-01: record `267.2-BASELINE.md` BEFORE any code edit (the 267.1 suite is RED today for a reason unrelated to this phase, research C-2), plus the unmeasured `runPipeline` hook-budget measurement research left at LOW confidence, appended to `267.2-DECISIONS.md` as the D-D confirmation
-- [ ] 267.2-02-PLAN.md - HOOK-02: `tests/run-all-267.2.sh` (glob discovery, found-eq-0 guard provable via the PREFIX override, three explicit gate lines, two-array em-dash fence) plus `tests/test-267-2-helpers.cjs`, the isolated-HOME fixture four later tests need and the mitigation for research Pitfall 6
+- [x] 267.2-02-PLAN.md - HOOK-02: `tests/run-all-267.2.sh` (glob discovery, found-eq-0 guard provable via the PREFIX override, three explicit gate lines, two-array em-dash fence) plus `tests/test-267-2-helpers.cjs`, the isolated-HOME fixture four later tests need and the mitigation for research Pitfall 6
 
 **Wave 2** *(parallel; zero files_modified overlap)*
 
