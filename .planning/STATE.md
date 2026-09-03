@@ -3,16 +3,31 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 254-06-PLAN.md (phase 254 complete, all 6 plans)
-last_updated: "2026-09-02T21:48:52.178Z"
-last_activity: 2026-09-02 -- Phase 257 planning complete
+stopped_at: Completed 257-01-PLAN.md
+last_updated: "2026-09-03T03:52:10.444Z"
+last_activity: 2026-09-03 -- Completed 257-01-PLAN.md
 progress:
   total_phases: 26
   completed_phases: 17
-  total_plans: 131
-  completed_plans: 131
-  percent: 65
+  total_plans: 140
+  completed_plans: 132
+  percent: 94
 ---
+
+<!-- NOTE (257-01 execute-plan, 2026-09-03, THIRTIETH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the TWENTY-NINTH+
+     note below): after `state.record-metric`, `state.add-decision` (x2) and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     `state.update-progress`'s own correctly-computed 94% (132 completed_plans
+     / 140 total_plans) to 65 -- a phase-based figure (17 completed_phases /
+     26 total_phases = 65.4%), not the plan-based figure this field is
+     supposed to track. `stopped_at` and `last_activity` were also left at
+     stale pre-257-01 values ("Completed 254-06-PLAN.md" / "Phase 257
+     execution started") instead of naming this plan's actual completion.
+     Hand-corrected: percent back to 94, stopped_at to "Completed
+     257-01-PLAN.md", last_activity to name this plan's actual completion.
+     Root cause not re-investigated -- same tracked bug class as the
+     TWENTY-NINTH+ note below. -->
 
 <!-- NOTE (254-06 execute-plan, 2026-09-02, TWENTY-NINTH+ occurrence of the
      documented STATE.md resync-clobber bug, same class as the TWENTY-EIGHTH+
@@ -3603,7 +3618,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 254 — orchestration-projection-consumption-wiring-suggest-next-act
+**Current focus:** Phase 257 — part-8-enforcement-locus-host-independent-egress-guard
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -3628,10 +3643,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 255
-Plan: Not started
-Status: Ready to execute 254-02 (Wave 2, depends_on 254-01) or 254-06 (final wave)
-Last activity: 2026-09-02 -- Phase 257 planning complete
+Phase: 257 (part-8-enforcement-locus-host-independent-egress-guard) — EXECUTING
+Plan: 1 of 9 complete (257-01 done; 257-02 through 257-09 pending, wave 1 = 257-01 only per depends_on: [])
+Status: Ready to execute 257-02 (and other Wave-1-eligible plans per their own depends_on)
+Last activity: 2026-09-03 -- Completed 257-01-PLAN.md
 
 <!-- NOTE (254-05 execute-plan, 2026-09-02, resync-clobber bug, same class as
      the notes below): after `state.record-metric`, `state.add-decision` (x2)
@@ -4367,6 +4382,7 @@ Progress: [█████████░] 92%
 | Phase 254 P02 | 35min | 3 tasks | 4 files |
 | Phase 254 P06 | 40min | 3 tasks | 3 files |
 | 254 | 6 | - | - |
+| Phase 257 P01 | 35min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -5726,6 +5742,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 254 Plan 02: WIRE-03 wiring uses a named-set structural proof (not a bare count) after finding scripts/pipeline-command.cjs as a pre-existing, out-of-scope third caller of recommendFrameworkChain.
 - [Phase ?]: 254-06: R7 fence proves structurally that no module reachable from decide() gained a Brain require across the whole phase; navigation-engine.cjs is byte-unchanged (35/35 assertions)
 - [Phase ?]: 254-06: WIRE-01..04 and COMP-01..02 registered [x] in REQUIREMENTS.md (103 -> 109 active requirements, scripted recount); BRAIN_PROBLEM_TYPE_ALIASES pinned not re-pointed and lib/mcp/brain-router.cjs added to Theo's adaptation list via written note
+- [Phase 257]: egress_class values coerced against classify()'s real closed set (content_set/empty_payload/move_set/unproven_packet/freeform_unmatched/unknown), never an invented list
+- [Phase 257]: rephrase_generically added to NEXT_MOVES only after confirming zero existing consumers of any next_moves handle by name (git grep across lib/scripts/bin/tests)
 
 ### Pending Todos
 
@@ -5836,7 +5854,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-02T17:16:14.340Z
+Last session: 2026-09-03T03:52:02.879Z
 Stopped at: Completed 254-06-PLAN.md (phase 254 complete, all 6 plans)
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last

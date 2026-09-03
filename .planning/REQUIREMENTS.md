@@ -879,7 +879,7 @@ and a half hours before the handoff's own base commit. The stdio shim delegates 
 refusals and zero captured bytes. What is real is a honesty defect at the RETURN path (G1/G2/G3) plus
 one genuinely uncovered surface (`pws-brain-mcp` direct-HTTPS, which is Desktop's and Cowork's path).
 
-- [ ] **LOCUS-01**: `brain_ask` renders an `egress_blocked` sentinel as an honest, typed refusal,
+- [x] **LOCUS-01**: `brain_ask` renders an `egress_blocked` sentinel as an honest, typed refusal,
       never a well-formed empty `DirectiveEnvelope`. Fixed in `lib/core/refusal-messaging.cjs`
       (257-01, `egress_blocked` minted as the sixth refusal kind with its own `BRAIN_EGRESS_BLOCKED`
       status) and `bin/mindrian-brain-mcp-client.cjs` (257-06).
