@@ -653,16 +653,34 @@ function _drainReward(state) {
 // This is a second CALLER of writeUserMdAtomic, not a second implementation of it --
 // exactly the distinction lib/mcp/tools/identity.cjs:25-31 draws in its own header, and
 // what MEMOP-08 forbids is the latter, not the former (decision D-E).
-function _seedIdentityFile() {
+//
+// WR-03 (267.2-REVIEW.md): readUserMd() consults the persona-override seam BEFORE the
+// real file (lib/core/persona-override.cjs), so a bare readUserMd() call here would
+// merge this delta onto the OVERRIDE's synthetic struct while an override is active,
+// then persist that merge back to the REAL file -- silently resetting every field the
+// override does not carry. {ignoreOverride: true} (added by this same fix pass) makes
+// this read-modify-write always operate on the real on-disk record, which is what a
+// WRITE path needs; display-time readers still want the override and must not pass it.
+//
+// `extraDelta` (CR-02): an optional second delta merged in ALONGSIDE the deterministic
+// journey_stage/last_detected_at pair, for a caller that already has additional,
+// deterministically-known fields to seed (e.g. a role_blend /mos:ignite's own B1 gate
+// already captured this session) without asking the model to re-derive them.
+function _seedIdentityFile(extraDelta) {
   const { readUserMd, writeUserMdAtomic } = require('../lib/core/user-md-ops.cjs');
   const userMdPath = path.join(homeDir(), '.mindrian-user.md');
   try {
-    const existing = readUserMd(userMdPath);
-    const delta = {
+    const existing = readUserMd(userMdPath, { ignoreOverride: true });
+    const delta = Object.assign({
       journey_stage: 'ordinary_world',
       last_detected_at: new Date().toISOString(),
-    };
-    const merged = existing ? Object.assign({}, existing, delta) : delta;
+    }, extraDelta || {});
+    const merged = existing ? Object.assign({}, existing, delta) : Object.assign({}, delta);
+    if (delta.role_blend && typeof delta.role_blend === 'object') {
+      const existingRoleBlend = (existing && existing.role_blend && typeof existing.role_blend === 'object')
+        ? existing.role_blend : {};
+      merged.role_blend = Object.assign({}, existingRoleBlend, delta.role_blend);
+    }
     writeUserMdAtomic(userMdPath, merged);
     return { seedWritten: true, writeFailed: false };
   } catch (_e) {
