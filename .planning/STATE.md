@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 267.2 context gathered
-last_updated: "2026-09-03T09:10:24.632Z"
-last_activity: 2026-09-03 -- Phase 267.2 planning complete
+stopped_at: Completed 267.2-01-PLAN.md
+last_updated: "2026-09-03T09:24:39.190Z"
+last_activity: 2026-09-03 -- Completed 267.2-01-PLAN.md (baseline + D-D measured confirmation)
 progress:
   total_phases: 26
   completed_phases: 18
-  total_plans: 140
-  completed_plans: 140
-  percent: 69
+  total_plans: 150
+  completed_plans: 141
+  percent: 94
 ---
+
+<!-- NOTE (267.2-01 execute-plan, 2026-09-03, FORTIETH+ occurrence of the
+     documented STATE.md resync-clobber bug, same class as the notes below):
+     after `state.record-metric`, `state.add-decision` and
+     `state.record-session`, the frontmatter's `percent` field reverted from
+     the correct 94 (141/150, set by `state.update-progress` moments earlier)
+     to a stale 69, and `last_activity` reverted to a stale "Phase 267.2
+     execution started" string instead of naming this plan's actual
+     completion. Hand-corrected: percent back to 94, last_activity to name
+     this plan's completion (`completed_plans`/`total_plans` were NOT
+     affected, only `percent`/`last_activity`). Root cause already tracked
+     for a future `/gsd-debug` session per the 2026-09-01 handoff; not
+     re-investigated here. -->
 
 <!-- NOTE (/gsd-progress orchestrator pass, 2026-09-03, THIRTY-NINTH+
      occurrence of the documented STATE.md resync-clobber bug, same class as
@@ -3789,7 +3802,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 257 — part-8-enforcement-locus-host-independent-egress-guard
+**Current focus:** Phase 267.2 — first-install-hooked-loop-repair-reward-investment-inserted
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -3814,10 +3827,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 258
-Plan: Not started
-Status: Ready to execute 257-02 (and other Wave-1-eligible plans per their own depends_on)
-Last activity: 2026-09-03 -- Phase 267.2 planning complete
+Phase: 267.2 (first-install-hooked-loop-repair-reward-investment-inserted) — EXECUTING
+Plan: 2 of 10
+Status: Ready to execute
+Last activity: 2026-09-03 -- Phase 267.2 execution started
 
 <!-- NOTE (254-05 execute-plan, 2026-09-02, resync-clobber bug, same class as
      the notes below): after `state.record-metric`, `state.add-decision` (x2)
@@ -4562,6 +4575,7 @@ Progress: [█████████░] 92%
 | Phase 257 P07 | 35min | 2 tasks | 2 files |
 | Phase 257 P08 | 55min | 3 tasks | 2 files |
 | 257 | 9 | - | - |
+| Phase 267.2 P01 | 15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -5937,6 +5951,7 @@ Progress: [█████████░] 92%
 - [Phase 257]: 257-08: all four Task 1 measurements matched the plan's stated values exactly (SDK 1.29.0/zod 3.25.76); zero divergence, so the migration proceeded per the plan's own STOP-on-divergence gate.
 - [Phase 257]: 257-08: all six Brain tool registrations migrated to z.strictObject (including the two zero-parameter tools); Arm E's wire-level before/after comparison found zero regression, so the plan's named exception path was not needed.
 - [Phase 257]: 257-08: additionalProperties:false was already present in the advertised JSON Schema for four of six tools before this migration (a zodToJsonSchema converter artifact, not new hardening); recorded honestly in Arm F rather than claimed as new evidence across the board.
+- [Phase 267.2]: D-D measured confirmation (267.2-01): runPipeline max 5337ms vs 3000ms hook ceiling - detached-spawn architecture CONFIRMED
 
 ### Pending Todos
 
@@ -6051,8 +6066,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T08:12:10.179Z
-Stopped at: Phase 267.2 context gathered
+Last session: 2026-09-03T09:24:39.077Z
+Stopped at: Completed 267.2-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
