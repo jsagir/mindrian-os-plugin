@@ -1569,11 +1569,44 @@ Plans:
 **Coordination (two sessions):** Session T in `~/Theo` resumes Phase 9 at 09-12 Task 2 (human gate) and owns Task 3 (soak, suspend `srv-d9gfa03tqb8s73csfmtg` then `srv-d9geq2urnols73cimkfg`, never delete) and Task 4 (close-out). Session M in `~/dev/MindrianOS-Plugin` owns this phase. The seam is the flip record's section 2 plus 09-12's resume signal.
 **Requirements**: TBD
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
-**Plans:** 0 plans
+**Plans:** 14 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 339 to break down)
+**Wave 1 (tests first)**
+
+- [ ] 339-01-PLAN.md - FLIP-01..12 requirement family, tests/run-all-339.sh aggregator, origin-single-source scan
+- [ ] 339-02-PLAN.md - enrichment Theo-shapes, update-path drift and schema-memo tests
+- [ ] 339-03-PLAN.md - cross-repo note, 269-05 checklist and gate-zero-write arms, plus test-254 and test-250 extensions
+
+**Wave 2 (PREP adaptations, all incumbent-safe)**
+
+- [ ] 339-04-PLAN.md - brain-client: origin-derived alias selector, origin-keyed schema memo, capture log shape
+- [ ] 339-05-PLAN.md - enrichment-queue two additive arms, brain-router Tier-3 disclosure
+- [ ] 339-06-PLAN.md - lib/core/update-path.cjs and the refusal-copy amendment
+- [ ] 339-07-PLAN.md - the literal sweep onto getBrainUrl(), plus the prose and banner sites
+- [ ] 339-08-PLAN.md - Desktop and Cowork connector docs, regenerated mirrors, backend-agnostic shim descriptions
+- [ ] 339-09-PLAN.md - docs/339-NOTE-theo-desktop-connector-key.md and the 269-05 checklist rewrite
+
+**Wave 3 (PREP written record)**
+
+- [ ] 339-10-PLAN.md - PREP CHANGELOG entry and the tester cutover note draft
+
+**Wave 4 (PREP cut, human-held)**
+
+- [ ] 339-11-PLAN.md - PREP CUT: clean-tree gate, push, suites, verify-release, release.sh --prerelease, post-release checks
+
+**Wave 5 (the flip)**
+
+- [ ] 339-12-PLAN.md - line 24, the docblock, class-m constants, the test-245 tripwire with CLAUDE.md, FLIP CHANGELOG
+
+**Wave 6 (FLIP cut, human-held)**
+
+- [ ] 339-13-PLAN.md - FLIP CUT: blocking coverage gate, the Session T cue, release.sh --prerelease
+
+**Wave 7 (post-release)**
+
+- [ ] 339-14-PLAN.md - FLIP-12 installed verification, the Session T resume signal with six flip-day fields, close-out
 
 ### Phase 267.1: Hooked Model Completeness Audit (first-session onboarding) (INSERTED)
 
