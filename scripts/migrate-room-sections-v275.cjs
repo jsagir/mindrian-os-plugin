@@ -93,6 +93,7 @@ const {
   IDENTITY_DIRECTORIES,
   scaffoldRoomSkeleton,
   renderTemplate,
+  escapeYamlDoubleQuoted,
 } = scaffold;
 const { isIndexableArtifactFile } = sectionRegistry;
 
@@ -374,7 +375,13 @@ function backfillStatementIfMissing(roomMdPath, slug, result) {
   }
   const meta = SECTION_METADATA[slug];
   const statementValue = meta ? (meta.statement || meta.purpose) : '';
-  const newLine = 'statement: ' + statementValue;
+  // CR-01/WR-03 fix: the backfilled line must be YAML-safe the same way
+  // scaffoldRoomSkeleton's own frontmatter render is (shared
+  // escapeYamlDoubleQuoted helper, single source of truth per Canon Part 7).
+  // An unquoted mid-scalar ": " in statementValue would otherwise corrupt a
+  // previously-well-formed legacy room's frontmatter, violating this
+  // script's own additive-only, never-corrupts-a-room invariant.
+  const newLine = 'statement: "' + escapeYamlDoubleQuoted(statementValue) + '"';
   const lines = parsed.fmText.split(/\r?\n/);
   const sectionLineIdx = lines.findIndex((l) => /^\s*section:\s*/.test(l));
   let newLines;
