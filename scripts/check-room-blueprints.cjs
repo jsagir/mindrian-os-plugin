@@ -58,7 +58,8 @@ function loadValidSectionSlugs() {
     // Fallback: hardcode the frozen set so the CI check never fails due to a
     // scaffold require error. The frozen set is the canonical contract.
   }
-  // Frozen fallback (from room-skeleton-scaffold.cjs:36-45 as of Phase 155-05):
+  // Frozen fallback (from room-skeleton-scaffold.cjs SECTION_NAMES as of Phase 275,
+  // the 11-slug table -- opportunity-bank, funding, strategy grew the frozen 8):
   return new Set([
     'problem-definition',
     'market-analysis',
@@ -68,39 +69,30 @@ function loadValidSectionSlugs() {
     'team-execution',
     'legal-ip',
     'financial-model',
+    'opportunity-bank',
+    'funding',
+    'strategy',
   ]);
 }
 
-// The "opportunity-bank" slug is NOT in the frozen SECTION_NAMES (it is a
-// directory concept used by the opportunity pipeline, not an ICM scaffold
-// section). However, BIRTH-FLOW-BRIEF.md Section 3 explicitly names it as a
-// persona-conditional section for the exploration, problem-first, portfolio,
-// and program families. The plan action says: "if a desired section concept
-// does not exist as a frozen slug, substitute the closest existing slug."
+// HISTORICAL (superseded by Phase 275, D-01): "opportunity-bank" used to sit
+// outside the frozen SECTION_NAMES table (a directory concept used by the
+// opportunity pipeline, not an ICM scaffold section), and this extension set
+// carried it so the CI check would accept it as a real blueprint slug even
+// though the scaffold skipped it gracefully. Phase 275 promoted
+// opportunity-bank INTO SECTION_NAMES for real, so it is now validated by
+// loadValidSectionSlugs() above like any other frozen slug; keeping it here
+// too would hide a future regression (a typo'd or removed frozen slug would
+// silently pass). Removed.
 //
-// Per plan constraint: "Do NOT invent new section slugs -- the frozen table is
-// authoritative for the scaffold." However, the room-skeleton-scaffold.cjs CI
-// check vs the blueprint file is a SEPARATE concern from what the scaffold
-// actually creates on disk. The blueprint file carries INTENT sections (what
-// the persona USES); the scaffold converts those to real dirs only for slugs
-// it knows about (others are skipped gracefully with a warning).
-//
-// The check-room-blueprints.cjs validator uses VALID_SECTION_SLUGS to assert
-// that blueprint sections are REAL scaffold sections, not invented ones. This
-// means "opportunity-bank" must be validated differently. Since the plan
-// explicitly says to ADD a comment field and NOT invent slugs -- and
-// opportunity-bank is used in the birth flow broadly -- we extend the VALID
-// set for the CI check to include the opportunity-bank slug (it is a real
-// directory the room uses, even if the scaffold creates it differently).
-// This is documented here so future audits understand the design boundary.
-//
-// Phase 179-04: the "assumptions" slug is extended in the SAME way and for the
-// SAME reason. The hypothesis blueprint family (Door 3) uses assumptions as a
-// persona-conditional section (the navigator's "I believe ___" surfaces the
-// assumptions to challenge). Like opportunity-bank it is a real directory the
-// room uses but is NOT in the frozen SECTION_NAMES scaffold table; the scaffold
-// skips it gracefully while the CI check accepts it as a valid blueprint slug.
-const EXTENDED_VALID_SLUGS_FOR_CHECK = new Set(['opportunity-bank', 'assumptions']);
+// "assumptions" is the sole remaining intent-only slug (Phase 179-04, the
+// hypothesis-driven Door 3 family). It surfaces the navigator's "I believe
+// ___" for challenge and is a real directory the room uses, but it is NOT in
+// the frozen SECTION_NAMES scaffold table; the scaffold skips it gracefully
+// while the CI check accepts it as a valid blueprint slug.
+// tests/test-hypothesis-family-and-claim.cjs:84 asserts this file still
+// references the "assumptions" slug -- do not remove it.
+const EXTENDED_VALID_SLUGS_FOR_CHECK = new Set(['assumptions']);
 
 function validate() {
   const errors = [];
