@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-10-PLAN.md
-last_updated: "2026-09-04T09:03:22.763Z"
+stopped_at: Completed 339-11-PLAN.md (v2.0.0-beta.17 released and verified on all four surfaces)
+last_updated: "2026-09-04T09:05:22.943Z"
 last_activity: 2026-09-04 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
-  total_plans: 186
-  completed_plans: 179
-  percent: 96
+  total_plans: 194
+  completed_plans: 180
+  percent: 93
 ---
 
 <!-- NOTE (339-10 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
@@ -28,6 +28,14 @@ progress:
      Position"'s "Plan: 10 of 14" was correctly advanced by `state.advance-plan` with no
      clobber needed. Root cause not re-investigated -- same tracked bug class as every other
      note in this file. -->
+
+<!-- NOTE (339-11 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
+     above): `roadmap.update-plan-progress` + `state.advance-plan` correctly moved
+     completed_plans 179 -> 180 and "Plan: 10 of 14" -> "Plan: 11 of 14", but also picked up
+     total_plans 186 -> 194 (Phase 275's 8 newly-registered plans landing concurrently on the
+     shared tree) and clobbered percent back to the stale 21. Hand-corrected to 93 =
+     round(180/194*100). stopped_at was not touched by either verb; hand-corrected here to
+     name 339-11 and its outcome. Root cause not re-investigated -- same tracked bug class. -->
 
 <!-- NOTE (339-05 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.update-progress` correctly computed percent=94 (completed_plans
@@ -4065,7 +4073,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
-Plan: 10 of 14
+Plan: 11 of 14
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 339 execution started
 
