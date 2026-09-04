@@ -7,7 +7,12 @@
 #   Gate 3: no Brain MCP coupling (Canon Part 8).
 #   Gate 4: no direct room-db.cjs require (Canon Part 9 chokepoint preserved).
 #   Gate 5: zero em-dash characters across new files (HARD RULE).
-#   Gate 6: SECTION_NAMES has 8 entries; IDENTITY_DIRECTORIES has 5.
+#   Gate 6: the section/identity tables cannot drift apart (SECTION_METADATA
+#     covers every SECTION_NAMES entry with real fields; every
+#     IDENTITY_DIRECTORIES entry carries its required fields). This gate
+#     proves table drift is impossible, not any particular count -- the
+#     sanctioned home of the exactly-N count assertions is
+#     lib/core/room-skeleton-scaffold.test.cjs's Bonus Test 15.
 
 set -e
 cd "$(dirname "$0")/.."
@@ -52,12 +57,66 @@ EMDASH_FILES=$(grep -l "$(printf '\xe2\x80\x94')" \
   templates/room-skeleton/*.tmpl 2>/dev/null || true)
 [ -z "$EMDASH_FILES" ] || fail 5 "em-dash U+2014 in: $EMDASH_FILES"
 
-# Gate 6: 8 sections + 5 identity dirs
+# Gate 6: table-drift invariant -- SECTION_METADATA cannot fall out of sync
+# with SECTION_NAMES, and every IDENTITY_DIRECTORIES entry carries its
+# required fields. This proves the tables cannot drift apart; it does not
+# restate any particular count (that literal's one sanctioned home is
+# lib/core/room-skeleton-scaffold.test.cjs's Bonus Test 15).
 node -e "
   const s = require('./lib/core/room-skeleton-scaffold.cjs');
-  if (s.SECTION_NAMES.length !== 8) { console.error('SECTION_NAMES != 8: ' + s.SECTION_NAMES.length); process.exit(1); }
-  if (Object.keys(s.IDENTITY_DIRECTORIES).length !== 5) { console.error('IDENTITY_DIRECTORIES != 5: ' + Object.keys(s.IDENTITY_DIRECTORIES).length); process.exit(1); }
-" || fail 6 "section / identity counts wrong"
 
-echo "OK: 119-02 scaffold complete (5 templates + skeleton orchestrator + thinness voice + chokepoint invariant + 8 ICM sections + zero em-dashes)"
+  if (s.SECTION_NAMES.length <= 0) {
+    console.error('SECTION_NAMES must be non-empty');
+    process.exit(1);
+  }
+
+  const metaKeys = Object.keys(s.SECTION_METADATA);
+  if (metaKeys.length !== s.SECTION_NAMES.length) {
+    console.error('SECTION_METADATA key count (' + metaKeys.length + ') does not match SECTION_NAMES length (' + s.SECTION_NAMES.length + ')');
+    process.exit(1);
+  }
+
+  for (const slug of s.SECTION_NAMES) {
+    const meta = s.SECTION_METADATA[slug];
+    if (!meta) {
+      console.error('SECTION_METADATA missing entry for SECTION_NAMES slug: ' + slug);
+      process.exit(1);
+    }
+    if (typeof meta.purpose !== 'string' || meta.purpose.length === 0) {
+      console.error('SECTION_METADATA[' + slug + '].purpose must be a non-empty string');
+      process.exit(1);
+    }
+    if (typeof meta.statement !== 'string' || meta.statement.length === 0) {
+      console.error('SECTION_METADATA[' + slug + '].statement must be a non-empty string');
+      process.exit(1);
+    }
+    if (!Array.isArray(meta.stage_relevance)) {
+      console.error('SECTION_METADATA[' + slug + '].stage_relevance must be an array');
+      process.exit(1);
+    }
+    if (!Array.isArray(meta.default_methodologies)) {
+      console.error('SECTION_METADATA[' + slug + '].default_methodologies must be an array');
+      process.exit(1);
+    }
+  }
+
+  const identityKeys = Object.keys(s.IDENTITY_DIRECTORIES);
+  if (identityKeys.length <= 0) {
+    console.error('IDENTITY_DIRECTORIES must be non-empty');
+    process.exit(1);
+  }
+  for (const name of identityKeys) {
+    const entry = s.IDENTITY_DIRECTORIES[name];
+    if (typeof entry.directory_type !== 'string' || entry.directory_type.length === 0) {
+      console.error('IDENTITY_DIRECTORIES[' + name + '].directory_type must be a non-empty string');
+      process.exit(1);
+    }
+    if (typeof entry.purpose !== 'string' || entry.purpose.length === 0) {
+      console.error('IDENTITY_DIRECTORIES[' + name + '].purpose must be a non-empty string');
+      process.exit(1);
+    }
+  }
+" || fail 6 "SECTION_METADATA / IDENTITY_DIRECTORIES table drift detected"
+
+echo "OK: 119-02 scaffold complete (5 templates + skeleton orchestrator + thinness voice + chokepoint invariant + SECTION_METADATA/IDENTITY_DIRECTORIES drift-proof + zero em-dashes)"
 exit 0

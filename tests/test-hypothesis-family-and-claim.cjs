@@ -8,9 +8,12 @@
 //     LOCKED default_methodologies (structure-argument / challenge-assumptions /
 //     validate / research), arrival_assets including `hypothesis-arrival`.
 //   - check-room-blueprints.cjs is green at 9 families and accepts the
-//     `assumptions` + `opportunity-bank` non-frozen slugs.
+//     `assumptions` non-frozen slug.
 //   - the scaffold resolves the hypothesis family section set (problem-definition
-//     is scaffold-creatable; non-frozen slugs skip gracefully without error).
+//     is scaffold-creatable; the still-non-frozen `assumptions` slug skips
+//     gracefully without error).
+//   - Phase 275 (D-01) promoted `opportunity-bank` INTO the frozen SECTION_NAMES
+//     table; `assumptions` alone remains the non-frozen, intent-only slug.
 //
 // Task 2 assertions (the truth-claim filing doctrine + per-role framing):
 //   - commands/ignite.md Door 3 cites writeClaimNode with review_status proposed
@@ -101,13 +104,14 @@ check('the scaffold resolves the hypothesis family without error', () => {
   }
 });
 
-check('the frozen SECTION_NAMES table is untouched by the family add (no assumptions slug)', () => {
+check('assumptions stays non-frozen; Phase 275 promoted opportunity-bank into SECTION_NAMES', () => {
   const scaffold = require(path.join(REPO_ROOT, 'lib', 'core', 'room-skeleton-scaffold.cjs'));
   assert.ok(Array.isArray(scaffold.SECTION_NAMES), 'SECTION_NAMES must be an array');
   assert.equal(scaffold.SECTION_NAMES.includes('assumptions'), false,
     'assumptions must NOT be added to the frozen SECTION_NAMES table');
-  assert.equal(scaffold.SECTION_NAMES.includes('opportunity-bank'), false,
-    'opportunity-bank must NOT be in the frozen SECTION_NAMES table');
+  assert.equal(scaffold.SECTION_NAMES.includes('opportunity-bank'), true,
+    'Phase 275 D-01 promoted opportunity-bank into the frozen SECTION_NAMES table ' +
+    '(see SEED-084 ## RULING 2026-09-04); this assertion must track that truth, not the pre-275 one');
 });
 
 // ---------------------------------------------------------------------------
