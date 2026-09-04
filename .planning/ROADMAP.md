@@ -2145,7 +2145,7 @@ Rule, not a silent omission, since no automation harness exists for either surfa
 **What NOT to steal / re-propose (Canon Part 7, per SEED-084):** `lib/core/room-skeleton-scaffold.cjs` and `lib/core/section-registry.cjs` already implement schema-driven section scaffolding — this phase EXTENDS their schema, it does not replace the mechanism. `/mos:onboard` and session-start nudges already partially cover the self-guiding-room gap for the CLI/Larry path; the real gap is the foreign-host-without-tools case specifically.
 
 **Requirements**: TBD
-**Depends on:** Phase 270's OQ-7 (schema half CLOSED 2026-09-04; section-adoption half still open, needs a navigator Decision Gate — see `## ADDENDUM 2026-09-04` in SEED-084) - SEED-084's own taxonomy gate resolved 2026-09-02, see its `## ADDENDUM 2026-09-02`. Do not run `/gsd-plan-phase 275` until the section-adoption Decision Gate is answered - this entry exists so the work is numbered and discoverable, not so it is immediately actionable.
+**Depends on:** none remaining — Phase 270's OQ-7 is FULLY RESOLVED 2026-09-04 (both the schema half and the section-adoption half; see SEED-084's `## RULING 2026-09-04`, `## ADDENDUM 2026-09-04g`, and `## ADDENDUM 2026-09-04j`). Navigator decision, all sourced against Brain + Theo + the actual 2026-04-14 Notion primary source: adopt `opportunity-bank`, `funding`, and `strategy` into `SECTION_NAMES` (8 → 11); `value-proposition` stays sub-structure inside `business-model`; `meetings` needs no change (already correctly modeled as a structural dir, not a section); `marketing-sales` and `research-documents` deferred (real intended content per the primary source, just never built — worth re-raising at planning time, not yet evidenced in code). `/gsd-plan-phase 275` is UNBLOCKED and can run.
 **Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):** the
 taxonomy open question this seed surfaces (which "venture stage" vocabulary is canonical) is
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
@@ -2155,4 +2155,4 @@ analogous vocabulary question before re-deriving one locally.
 
 Plans:
 
-- [ ] TBD (OQ-7 schema half CLOSED 2026-09-04; section-adoption half needs a navigator Decision Gate first - see SEED-084 `## ADDENDUM 2026-09-04` - run /gsd-discuss-phase 275 once that gate is answered)
+- [ ] TBD (OQ-7 FULLY RESOLVED 2026-09-04 - see SEED-084 `## RULING 2026-09-04` / `## ADDENDUM 2026-09-04g` / `## ADDENDUM 2026-09-04j` - run /gsd-plan-phase 275 now)
