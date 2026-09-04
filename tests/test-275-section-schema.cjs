@@ -538,6 +538,47 @@ console.log('Section 7: migration -- dry-run inert, real run additive, idempoten
 console.log('');
 
 // ---------------------------------------------------------------------------
+// Section 7b: migration backfill produces valid YAML (WR-03 regression test)
+// ---------------------------------------------------------------------------
+console.log('Section 7b: migration backfill -- strategy statement backfill stays gray-matter-parseable (WR-03)');
+{
+  const tmpDir = makeTmpDir('m275-mig-strategy-');
+  try {
+    fs.writeFileSync(path.join(tmpDir, '.room-root'), '');
+    // Synthetic pre-Phase-275 legacy room: strategy/ROOM.md exists but is
+    // missing the `statement:` key entirely, the exact shape
+    // backfillStatementIfMissing targets. Before CR-01's fix this backfill
+    // wrote an unquoted, unescaped value containing ": " and corrupted an
+    // otherwise well-formed frontmatter block (WR-03).
+    fs.mkdirSync(path.join(tmpDir, 'strategy'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmpDir, 'strategy', 'ROOM.md'),
+      '---\nsection: strategy\npurpose: legacy strategy purpose\n---\n\n# Strategy\n\nLegacy body content.\n'
+    );
+
+    const realRun = cp.spawnSync('node', [MIGRATE_SCRIPT, tmpDir], { encoding: 'utf8' });
+    assert(realRun.status === 0, 'a real migration run against a legacy strategy room exits 0: ' + realRun.stderr);
+
+    const strategyContent = fs.readFileSync(path.join(tmpDir, 'strategy', 'ROOM.md'), 'utf8');
+    let backfillParses = false;
+    let backfillCorrect = false;
+    try {
+      const parsed = grayMatter(strategyContent);
+      backfillParses = !!parsed.data;
+      backfillCorrect = parsed.data.statement === (scaffold.SECTION_METADATA['strategy'].statement || scaffold.SECTION_METADATA['strategy'].purpose);
+    } catch (_e) {
+      backfillParses = false;
+    }
+    assert(backfillParses, 'a legacy strategy/ROOM.md backfilled with a statement still gray-matter-parses');
+    assert(backfillCorrect, 'the backfilled statement value round-trips exactly through YAML parsing');
+    assert(strategyContent.includes('Legacy body content.'), 'legacy body content survives the backfill byte-for-byte');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+console.log('');
+
+// ---------------------------------------------------------------------------
 // Section 8: do-not-regress
 // ---------------------------------------------------------------------------
 console.log('Section 8: do-not-regress -- scaffold ok:true, warnings/errors separation, table coverage');
