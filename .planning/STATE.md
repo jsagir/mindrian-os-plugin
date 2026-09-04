@@ -3,16 +3,25 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 275-05-PLAN.md
-last_updated: "2026-09-04T11:27:51.400Z"
+stopped_at: Completed 275-07-PLAN.md
+last_updated: "2026-09-04T11:40:45.484Z"
 last_activity: 2026-09-04 -- Phase 275 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 194
-  completed_plans: 186
-  percent: 21
+  completed_plans: 187
+  percent: 96
 ---
+
+<!-- NOTE (275-07 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
+     in this file): `state.update-progress` correctly computed percent=96 (completed_plans
+     187 / total_plans 194) in its own JSON return but did not persist it into the
+     frontmatter -- it stayed at the stale 21 until hand-corrected here. `stopped_at` /
+     "Current Position"'s "Plan: N of 8" counter were both written correctly by
+     `state.record-session`/`state.advance-plan` this run (no clobber on those two fields
+     this time), so only `percent` needed hand-correction. Root cause not re-investigated --
+     same tracked bug class as every other note in this file. -->
 
 <!-- NOTE (339-10 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.update-progress` correctly computed percent=96 (completed_plans
@@ -4073,7 +4082,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 275 (enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 275 execution started
 
@@ -4932,6 +4941,7 @@ Progress: [█████████░] 92%
 | Phase 275 P03 | 12min | 2 tasks | 2 files |
 | Phase 275 P04 | 32min | 2 tasks | 4 files |
 | Phase 275 P05 | 70min | 2 tasks | 8 files |
+| Phase 275 P07 | 55min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6386,6 +6396,8 @@ Progress: [█████████░] 92%
 - [Phase 275]: D-09: solution-design's moat/defensibility Human check, cross-linked to competitive-analysis, honestly named as a Larry heuristic not Theo book-canon
 - [Phase 275]: D-02: Value Proposition stays sub-structure inside business-model, all three corroborating sources named in the contract
 - [Phase 275]: D-12: Mentor-Profiles named concretely in team-execution.md, pointing at ../references/SUB-SCHEMAS.md instead of duplicating the field list
+- [Phase 275]: 275-07: strategy's six Tier-1 commands are a deliberate documented exception (wildcard produces path, promoted by SEED-084 ADDENDUM 2026-09-04g's DECIDED ruling), not a match to the literal ground-truth definition
+- [Phase 275]: 275-07: dead-slug corrections in SECTION-SCHEMA.md Section 6 are described by defect, not by reconstructing the dead slug's literal spelling, per the plan's own acceptance-criteria escape hatch
 
 ### Pending Todos
 
@@ -6507,8 +6519,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T11:27:51.335Z
-Stopped at: Completed 275-05-PLAN.md
+Last session: 2026-09-04T11:40:45.411Z
+Stopped at: Completed 275-07-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

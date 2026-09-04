@@ -2151,7 +2151,7 @@ taxonomy open question this seed surfaces (which "venture stage" vocabulary is c
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
 labels -- when this phase becomes actionable, check whether Theo has already settled an
 analogous vocabulary question before re-deriving one locally.
-**Plans:** 5/8 plans executed
+**Plans:** 6/8 plans executed
 Plans:
 **Wave 1**
 
@@ -2166,7 +2166,7 @@ Plans:
 
 - [x] 275-04-PLAN.md - reconcile the seven stale count assertions, keeping the single-legitimate-home rule test-270-baseline-schema-driven.cjs names by file and line (wave 3)
 - [x] 275-05-PLAN.md - the L2 contracts for the 8 original sections, including the solution-design moat check cross-linked to competitive-analysis (wave 3)
-- [ ] 275-07-PLAN.md - the two L3 reference documents: SECTION-SCHEMA.md (venture_stage axis, both methodology grains, the precedence rule) and SUB-SCHEMAS.md (wave 3)
+- [x] 275-07-PLAN.md - the two L3 reference documents: SECTION-SCHEMA.md (venture_stage axis, both methodology grains, the precedence rule) and SUB-SCHEMAS.md (wave 3)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
