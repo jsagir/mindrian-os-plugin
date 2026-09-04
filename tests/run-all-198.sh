@@ -101,6 +101,14 @@ run_if "SPEC-2 room_search ranks before capping (late relevant match survives)" 
   lib/mcp/tools/room.cjs \
   node tests/test-room-search-rank-before-cap.cjs
 
+# room_search HTML blindness (quick task 260904-ng7): room_search skipped
+# every non-.md file before opening it, so .html briefs, rubrics, and decks
+# were silently unsearchable. Proves .html content is now found, markup-only
+# tokens and script/style interiors are not, and .md behavior is unchanged.
+run_if "SPEC-2 room_search finds .html content, rejects markup-only false positives" \
+  lib/mcp/tools/room.cjs \
+  node tests/test-room-search-html-blindness.cjs
+
 # ---------------------------------------------------------------------------
 # SPEC-3 -- server-side chain execution honoring postures (halt-at-material).
 # ---------------------------------------------------------------------------
