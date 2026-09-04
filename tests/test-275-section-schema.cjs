@@ -263,7 +263,10 @@ console.log('Section 4: L2 contracts -- structural shape, live citations, cross-
       if (!marker.test(content)) allHaveMarkers = false;
     }
     if (/^---\r?\n/.test(content)) noFrontmatter = false;
-    if (/—/.test(content)) noEmDashes = false;
+    // Detect via code point, not a literal em-dash character in this file's
+    // own source (this repo's no-em-dash rule is about prose, not a lint
+    // regex that must name the character it looks for).
+    if (content.includes(String.fromCharCode(8212))) noEmDashes = false;
     if (!content.includes('Never inline content into `ROOM.md`')) allHaveNeverInline = false;
 
     const humanCheckMatch = content.match(/## Human check\n([\s\S]*?)(\n## |\n?$)/);
