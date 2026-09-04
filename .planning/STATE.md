@@ -3,16 +3,31 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-09-PLAN.md
-last_updated: "2026-09-04T05:48:56.857Z"
+stopped_at: Completed 339-10-PLAN.md
+last_updated: "2026-09-04T06:00:44.052Z"
 last_activity: 2026-09-04 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 186
-  completed_plans: 178
+  completed_plans: 179
   percent: 96
 ---
+
+<!-- NOTE (339-10 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
+     in this file): `state.update-progress` correctly computed percent=96 (completed_plans
+     179 / total_plans 186) in its own JSON return but did not persist it into the
+     frontmatter -- it stayed at the stale 21 until hand-corrected here. A subsequent
+     `state.record-metric` call (additive-only, per the shared_tree_guard precedent)
+     RE-CLOBBERED percent back to 21 again, same tracked bug class, no new investigation.
+     Hand-corrected back to 96 a second time, after record-metric. `state.add-decision`
+     (also additive-only) RE-CLOBBERED percent back to 21 a THIRD time; hand-corrected back
+     to 96 again. `state.record-session` (stopped_at/Last session/Stopped-at body line all
+     correctly written this time, no clobber on those fields) RE-CLOBBERED percent back to
+     21 a FOURTH time in the same run; hand-corrected back to 96 a fourth time. "Current
+     Position"'s "Plan: 10 of 14" was correctly advanced by `state.advance-plan` with no
+     clobber needed. Root cause not re-investigated -- same tracked bug class as every other
+     note in this file. -->
 
 <!-- NOTE (339-05 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.update-progress` correctly computed percent=94 (completed_plans
@@ -4050,7 +4065,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
-Plan: 9 of 14
+Plan: 10 of 14
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 339 execution started
 
@@ -4903,6 +4918,7 @@ Progress: [█████████░] 92%
 | Phase 339 P07 | 55min | 3 tasks | 11 files |
 | Phase 339 P08 | 22min | 3 tasks | 13 files |
 | Phase 339 P09 | 20min | 2 tasks | 2 files |
+| Phase 339 P10 | 45min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6344,6 +6360,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 339-07: generated census artifacts (brain-census.generated.json, BRAIN-GRAPH-CENSUS.generated.md) left unchanged; re-census against Theo registered as deferred
 - [Phase 339]: 339-08: every literal pws-brain-mcp.onrender.com occurrence removed from the six Task-1 files (incl. commands/setup.md's CLI curl targets and both retired-harness reason strings), per the plan's unconditional acceptance bullet
 - [Phase 339]: 339-09: kept mindrian-brain as the sole prescribed connector key, wrote the reciprocal cross-repo note Theo already links to, and rewrote 269-05 Task 1 to three real Theo-readiness legs instead of a false-green six-item checklist
+- [Phase 339]: 339-10: CHANGELOG entry sources D-06a from 339-CONTEXT.md verbatim (not the plan's own paraphrase); tester note deliberately narrower than STYLE-GUIDE.md's full 8-section structure, per the plan's own action spec
 
 ### Pending Todos
 
@@ -6465,8 +6482,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T05:47:34.883Z
-Stopped at: Completed 339-09-PLAN.md
+Last session: 2026-09-04T06:00:43.995Z
+Stopped at: Completed 339-10-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
