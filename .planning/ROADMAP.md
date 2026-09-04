@@ -873,11 +873,13 @@ already; this phase's own deferrals get a home here instead, following the Phase
   roughly 50 call sites (re-measured live by `276-09`, up from the plan's own ~38 estimate),
   and because it runs a 7-step migration chain on every open -- the same ~40-file regression
   shape Phase 273 D-01a already rejected. Owner: repo navigator.
+
 - **The Theo-side TS-AST checker port**, filed as
   `docs/2026-09-03-THEO-SEED-tool-honesty-ts-ast-port.md` by plan `276-13`, to be captured as
   a SEED in Theo's own `.planning/seeds/` via that repo's `/gsd-capture`, before Theo plan
   `09-12` authorizes the flip. Owner: whoever works the Theo repo. Never executed from here
   (Theo D-04).
+
 - **The `gate_render` Theo mirror task** (the one description this phase changed on a
   Theo-absorbed tool: adopt the plugin's corrected sentence at
   `src/mcp/operational/gate-render.ts:89-93`, quoted verbatim in the SEED document above),
@@ -885,11 +887,13 @@ already; this phase's own deferrals get a home here instead, following the Phase
   independently confirmed pre-existing by a zero-count grep against Theo's own source,
   reported but not registered as a second mirror task by `276-13`). Owner: whoever works the
   Theo repo.
+
 - **The `STATE.md` resync-clobber bug** as a dedicated `/gsd-debug` session against
   `@opengsd/gsd-core` under `$HOME/.claude/gsd-core/`, not this repo. Sixty-plus documented
   occurrences across this session and every prior handoff that touched it (up from the
   20+ this ROADMAP entry originally cited). Out of repo scope by the same logic Theo's tools
   are out of repo scope. Owner: repo navigator.
+
 - **The operator-cap comparison against the DIKW rungs** (`epistemic_type` vs.
   `lib/conversation/operator.cjs:133` `EPISTEMIC_LEVELS` / `:138` `OPERATOR_EPISTEMIC_CAP`),
   OQ-276-1(d): ratified as scoped OUT of this phase by the navigator (`276-DECISIONS.md`
@@ -897,18 +901,21 @@ already; this phase's own deferrals get a home here instead, following the Phase
   This close-out's own human verification (Task 3 below) is where the navigator can confirm
   the proposed mapping table's row content, which is executor-proposed and not yet
   navigator-ratified. Owner: repo navigator.
+
 - **The two sibling `no_room_db` sites**: `lib/core/breakthrough/scanner.cjs:124` and
   `lib/core/navigation/lens-nodes.cjs:254` (whose own header comment literally says "mirrors
   spine-events"), discovered by `276-02`'s run-time census and re-confirmed present by
   `276-10`'s own Group E run, sharing the identical catch-and-mislabel shape
   `lib/core/navigation/spine-events.cjs` had before this phase's own C5 fix. Owner: repo
   navigator.
+
 - **The `NOT EXECUTED.` literal detector gap**: `classifyBranch`'s `hasBanner` check
   (`scripts/check-tool-honesty.cjs`) recognizes `noWriteBanner()`/`**filed: false**` but has
   no equivalent recognition of the `NOT EXECUTED.` banner literal, so every command wired
   into `UNIMPLEMENTED_MUTATING_ORCHESTRATION` relies entirely on a claim-free description to
   read OK; the banner itself earns no detector credit. Found by `276-08`. Owner: whoever next
   touches `scripts/check-tool-honesty.cjs`.
+
 - **The honest-empty trio at flip time**: `enrichCausalEdges` (zero production callers today,
   two prose-only references), `hatAwareRecommend` (one caller, pipes raw JSON, no rendering
   layer) and `suggestValidationSteps` (one caller, returns an explicit
@@ -917,6 +924,7 @@ already; this phase's own deferrals get a home here instead, following the Phase
   the moment the Theo flip makes empties the common case. Re-measured and confirmed unchanged
   from `276-RESEARCH.md`'s original characterization by `276-11`. Owner: repo navigator / the
   first future caller.
+
 - **The `~/.mindrian/card-fire-reached.json` debris entry** `claim:test-session-276-12:3d693cca`,
   left by `276-12`'s pre-hermetic test run before that plan's own Deviation 2 fix pinned
   `MINDRIAN_ROOMS_HOME` to a scratch directory. User-state debris, named here for cleanup per
@@ -924,6 +932,7 @@ already; this phase's own deferrals get a home here instead, following the Phase
   Verified at this plan's own execution time: `~/.mindrian/card-fire-reached.json` now reads
   `{}` (2 bytes), so the entry is already absent -- likely cleared by ordinary process since
   `276-12` ran, not by any action this plan took. Owner: repo navigator, if it ever recurs.
+
 - **Worktree-per-session as the structural answer to the three collision classes** this phase
   met firsthand in its own shared working tree: the git-index race (`276-15`'s Task 1 commit
   absorbed into an unrelated Phase 339 commit, `e484f4b3`), the STATE.md resync-clobber
@@ -932,27 +941,32 @@ already; this phase's own deferrals get a home here instead, following the Phase
   Documented here as a recommendation only, not built (out of this repo's scope; the fix
   lives in how sessions are spawned, not in this codebase). Owner: repo navigator /
   `@opengsd/gsd-core` direction.
+
 - **Hardening `check-tool-honesty.cjs` to `--strict`.** The quick-260903-ljj SUMMARY names
   this as available only after the finding list is empty. The live list is not empty by
   design (D-276-2: MEDIUM stays permanently visible, never suppressible) -- 12 MEDIUM rows
   remain, all with a written `documented-no-action` disposition (`276-15-SUMMARY.md`).
   Whether that residual MEDIUM count is "empty enough" to harden the gate is a navigator
   decision, not a planner one. Owner: repo navigator.
+
 - **`cross-room-store.cjs` / `cross-room-umbilical-closer.cjs`'s fallback swallow.**
   `276-09`'s busy-timeout fix narrows the contention window but `withStore`/
   `withRejectionStore`'s `catch (_e) { return fallback; }` still cannot distinguish a busy
   outcome from any other failure at the caller. Changing the fallback contract is a
   caller-visible behavior change, out of `276-09`'s option-only scope. Owner: repo navigator.
+
 - **The two-hop `resolveReachability` boundary behind `graph-index`/`graph-rebuild`.**
   `276-07` found these two `room_graph` commands genuinely write via a depth-2 dotted call
   chain (`lib/core/graph-ops.cjs` -> `lib/core/lazygraph-ops.cjs`) the detector's one-hop
   reachability model cannot see -- a real, separate boundary (candidate B-7), distinct from
   the WEAK-tier ruling that keeps the other 8 `room_graph` rows at documented-no-action.
   Owner: whoever next touches `scripts/check-tool-honesty.cjs`.
+
 - **`scripts/verify-release`'s one pre-existing plugin-path-anchoring failure**
   (`commands/file-meeting.md:350`, predating this phase at commit `2f1f4cf3`), measured for
   the first time as this phase's own baseline by `276-15`. Not fixed here; `scripts/
   release.sh` was not run by this phase. Owner: repo navigator.
+
 - **The nine mega-tools with no connector descriptor and no `hitl_shape`** (RESEARCH
   constraint C-3, open question 5): `room_state`, `room_content`, `room_graph`,
   `methodology`, `analysis`, `intelligence`, `meeting`, `export`, `orchestration` plus
@@ -1715,7 +1729,7 @@ Plans:
 **Requirements**: FLIP-01, FLIP-02, FLIP-03, FLIP-04, FLIP-05, FLIP-06, FLIP-07, FLIP-08,
 FLIP-09, FLIP-10, FLIP-11, FLIP-12
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
-**Plans:** 4/14 plans executed
+**Plans:** 5/14 plans executed
 
 Plans:
 
@@ -1728,7 +1742,7 @@ Plans:
 **Wave 2 (PREP adaptations, all incumbent-safe)**
 
 - [x] 339-04-PLAN.md - brain-client: origin-derived alias selector, origin-keyed schema memo, capture log shape
-- [ ] 339-05-PLAN.md - enrichment-queue two additive arms, brain-router Tier-3 disclosure
+- [x] 339-05-PLAN.md - enrichment-queue two additive arms, brain-router Tier-3 disclosure
 - [ ] 339-06-PLAN.md - lib/core/update-path.cjs and the refusal-copy amendment
 - [ ] 339-07-PLAN.md - the literal sweep onto getBrainUrl(), plus the prose and banner sites
 - [ ] 339-08-PLAN.md - Desktop and Cowork connector docs, regenerated mirrors, backend-agnostic shim descriptions

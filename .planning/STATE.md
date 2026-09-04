@@ -3,16 +3,29 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-04-PLAN.md
-last_updated: "2026-09-03T21:08:01.753Z"
-last_activity: 2026-09-03 -- Phase 339 execution started
+stopped_at: Completed 339-05-PLAN.md
+last_updated: "2026-09-04T04:44:13.591Z"
+last_activity: 2026-09-04 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 186
-  completed_plans: 173
-  percent: 21
+  completed_plans: 174
+  percent: 94
 ---
+
+<!-- NOTE (339-05 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
+     in this file): `state.update-progress` correctly computed percent=94 (completed_plans
+     174 / total_plans 186) in its own JSON return but did not persist it into the
+     frontmatter -- it stayed at the stale 21 until hand-corrected here. A subsequent
+     `state.record-session` call also did not update `stopped_at` despite receiving
+     "Completed 339-05-PLAN.md" as its argument (frontmatter and the bottom "Stopped at:"
+     line both stayed at the 339-04 value) -- hand-corrected both. `state.advance-plan`
+     also clobbered "Current Position"'s "Plan: N of 14" counter from 5 to 2 (a regression,
+     not an advance, since plan 5 -- this run -- is what just completed); hand-corrected
+     back to "Plan: 5 of 14" per the standing convention (highest-numbered, most recently
+     completed plan on disk). Root cause not re-investigated -- same tracked bug class as
+     every other note in this file. -->
 
 <!-- NOTE (276-15 execute-plan, 2026-09-03, resync-clobber pattern, same class as every note
      in this file): running `state.record-metric` (additive-only, per the shared_tree_guard
@@ -4039,7 +4052,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
 Plan: 5 of 14
 Status: Ready to execute
-Last activity: 2026-09-03 -- Phase 339 execution started
+Last activity: 2026-09-04 -- Phase 339 execution started
 
 <!-- NOTE (276-07 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
      throughout this file): `state.advance-plan` blindly incremented the linear "Plan: N of 16"
@@ -4873,6 +4886,7 @@ Progress: [█████████░] 92%
 | Phase 339 P03 | 45min | 4 tasks | 5 files |
 | Phase 339 P04 | 35min | 3 tasks | 1 files |
 | Phase 276 P15 | 50min | 3 tasks | 5 files |
+| Phase 339 P05 | 55min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6307,6 +6321,7 @@ Progress: [█████████░] 92%
 - [Phase 339]: 339-04: brain_schema memo keyed on resolved origin as defense-in-depth (D-13 corrected) -- no flush function created; the correction is stated in-code, not just in 339-CONTEXT.md
 - [Phase 339]: 339-04: FLIP-03 left unchecked in REQUIREMENTS.md -- this plan lands only the enrichment_queue_captured log-line leg; the capture-arm leg in enrichment-queue.cjs is plan 339-05's scope
 - [Phase 276]: Re-froze the tool-honesty disposition ledger against the live 37-tool/131-branch scan surface and regenerated the substrate baseline to one measured number (205), closing Phase 273 D-05's deferred reconciliation. -- Plan 276-12 added claim_write, invalidating the 36/130 freeze; Phase 273 D-05 deferred the substrate baseline update to whichever phase's C4/M5-M8 work could actually move the count.
+- [Phase 339]: 339-05: two additive Theo capture arms close the enrichment-queue's one true silent failure, and a module-scope carrier discloses the D-03b Tier-3 router miss (next_gate absent) that isAvailable()-gating cannot see post-flip - Both changes are provably unreachable by an incumbent payload; the carrier variable avoids widening brainRoute()'s return contract, which would have let a chainless object be read as a real recommendation
 
 ### Pending Todos
 
@@ -6428,8 +6443,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-03T20:53:48.985Z
-Stopped at: Completed 339-04-PLAN.md
+Last session: 2026-09-04T04:44:13.534Z
+Stopped at: Completed 339-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

@@ -1254,7 +1254,7 @@ and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
 - [x] **FLIP-02**: `BRAIN_PROBLEM_TYPE_ALIASES` projects onto the vocabulary of the RESOLVED
       origin, and a `MINDRIAN_BRAIN_URL` change moves vocabulary and URL together (Cut: PREP).
 
-- [ ] **FLIP-03**: `_maybeCaptureEnrichmentMiss` captures a Theo-shaped readiness miss in BOTH
+- [x] **FLIP-03**: `_maybeCaptureEnrichmentMiss` captures a Theo-shaped readiness miss in BOTH
       Theo payload shapes (scored and refusal-only), and `{matched:0,total:0}` is never collapsed
       with `{matched:0,total:N>0}` (Cut: PREP).
 
