@@ -1,7 +1,20 @@
-## [Unreleased] -- v2.0.0-beta.20 (in progress)
+## [Unreleased] -- v2.0.0-beta.21 (in progress)
 
-### Added
-- 
+### Fixed
+- `room_search` no longer skips every non-`.md` file in a room. `lib/mcp/tools/room.cjs`'s
+  file walk widened its allowlist to `.html` and `.htm` (grounded in the repo's own canonical
+  artifact extension list, `graph-backfill.cjs`'s `ARTIFACT_EXT`), so search now finds content
+  inside HTML briefs, rubrics, and decks that a room's own tools already generate. A new
+  dependency-free, line-preserving text pass strips markup before matching, so `<script>`,
+  `<style>`, and comment regions cannot produce a false hit, and the reported line number stays
+  correct against the source file. 22-check regression suite added
+  (`tests/test-room-search-html-blindness.cjs`).
+- Filed, not fixed in this cut: the same root cause (a docblock in
+  `lib/core/doc-text-extractor.cjs` incorrectly claims the `cheerio` HTML parser is available;
+  it is in neither `package.json` nor `node_modules`) means `.html` room artifacts still
+  contribute no text to graph derivation, candidate production, or LazyGraph. Adding `cheerio`
+  is a dependency and release decision, tracked at
+  `.planning/debug/html-artifacts-invisible-to-graph-derivation.md`.
 
 ## [2.0.0-beta.19] - 2026-09-04
 
