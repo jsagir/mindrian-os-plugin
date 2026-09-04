@@ -1730,7 +1730,47 @@ Plans:
 **Requirements**: FLIP-01, FLIP-02, FLIP-03, FLIP-04, FLIP-05, FLIP-06, FLIP-07, FLIP-08,
 FLIP-09, FLIP-10, FLIP-11, FLIP-12
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
-**Plans:** 13/14 plans executed
+**Plans:** 14/14 plans complete
+
+**Close-out (2026-09-04).** Both releases shipped and verified on all four surfaces (npm, git tag,
+marketplace pin, install cache): the PREP cut `v2.0.0-beta.17` (commit `cf99f110`) carried every
+incumbent-safe adaptation, and the FLIP cut `v2.0.0-beta.19` (commit `39a096aa`) moved
+`lib/core/brain-client.cjs:24` to `https://theo-mcp.onrender.com`, a bare origin, confirmed directly
+in the installed cache. Cold-start latency on the first successful call after the cut: 1.726 seconds
+against the 20 second budget. `scripts/probe-brain-contract.cjs` legs a and d passed clean; legs b, c
+and e inverted exactly as documented (Theo serves `text2cypher` with no allowlist gate; Theo's
+refusals are typed codes like `PLAN_REJECTED` rather than `BoundedReadRefusal` text; Theo's Aura
+instance carries none of the incumbent's Memgraph index names). The D-03 regression check proved
+both enrichment-queue shapes live in the shipped bytes: `orchestration_readiness_theo@` for a covered
+framework and `orchestration_readiness_theo_refusal@FRAMEWORK_NOT_FOUND@` for an uncovered one, with
+an honest-empty coverage block and no raw refusal text leaked (Canon Part 8 held). The resume signal
+("v2.0.0-beta.19 flip verified", all six flip-day fields) was sent to Session T for Theo's own
+09-12 Task 2.
+
+**What this phase deliberately did NOT close, and who owns it:**
+
+- **Decommission of `pws-brain-mcp` and `pws-brain-db`.** Theo 09-12 Task 3, operator-held. Soak
+  window set by the navigator (several days, per the standing never-same-day rule); suspend only,
+  never delete; compute suspended before data. Watch item from this phase: intermittent Theo-side
+  rate-limiting (explicit JSON-RPC `-32005 Rate limit exceeded`, roughly 40-60% of calls over one
+  observed 20-minute window), corroborated three independent ways and not a code defect, but worth
+  tracking through the soak.
+
+- **Sending the tester cutover note.** `docs/testers/outbox/2026-09-03-theo-cutover.md` now carries
+  the real shipped version (`v2.0.0-beta.19`) but stays `status: drafted`, `sent_to: []`, and its
+  suspend-date placeholder unfilled. The operator's, after a decommission date exists.
+
+- **Re-census against Theo.** Deferred, per plan 339-07's three stated reasons; not reopened here.
+- **`lib/brain/chain-recommender.cjs`'s Theo-shape adaptation.** D-03 consumer 2, a named follow-up,
+  rides as-is (still incumbent-shaped) until its own phase.
+
+- **`brain_write` and `ingest_framework` write paths.** Both meet `WRITE_PATH_DISABLED` by design;
+  Theo's own governed payload mechanism is a separate phase's territory, not this one's.
+
+- **The 30 uncovered Frameworks** (20 leadership/teams, 5 due diligence, 5 misc) bind Theo's
+  decommission task per the coverage ruling, not this flip; `/mos:leadership` and due-diligence
+  consults answer thinner through Theo (an honest-empty coverage block, not an error) until they are
+  ingested or waived by name.
 
 Plans:
 
@@ -1767,7 +1807,7 @@ Plans:
 
 **Wave 7 (post-release)**
 
-- [ ] 339-14-PLAN.md - FLIP-12 installed verification, the Session T resume signal with six flip-day fields, close-out
+- [x] 339-14-PLAN.md - FLIP-12 installed verification, the Session T resume signal with six flip-day fields, close-out
 
 ### Phase 267.1: Hooked Model Completeness Audit (first-session onboarding) (INSERTED)
 

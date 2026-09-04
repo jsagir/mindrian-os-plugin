@@ -1,6 +1,6 @@
 ---
 type: cutover-notice
-version: "[VERSION-PLACEHOLDER-FILLED-BY-339-14-AFTER-TAG]"
+version: "v2.0.0-beta.19"
 status: drafted
 gmail_draft_id: ""
 subject: "MindrianOS is moving its methodology graph to a new home"

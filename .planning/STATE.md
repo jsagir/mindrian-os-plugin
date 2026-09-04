@@ -3,16 +3,27 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 275-08-PLAN.md
-last_updated: "2026-09-04T12:27:29.702Z"
-last_activity: 2026-09-04
+stopped_at: Completed 339-14-PLAN.md (Phase 339 CLOSED: PREP v2.0.0-beta.17 + FLIP v2.0.0-beta.19 both shipped and verified)
+last_updated: "2026-09-04T13:14:22.002Z"
+last_activity: 2026-09-04 -- Phase 339 closed out (14/14 plans); Phase 275 also closed (8/8 plans) concurrently this session
 progress:
   total_phases: 89
-  completed_phases: 20
+  completed_phases: 21
   total_plans: 194
-  completed_plans: 189
-  percent: 22
+  completed_plans: 191
+  percent: 98
 ---
+
+<!-- NOTE (339-14 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
+     in this file): `state.record-session` (run for this plan's own close-out) reverted
+     `stopped_at`, `status` and `last_activity` back to Phase 275's own close-out values
+     (275-08 finished concurrently on the shared tree during this phase's own Part B) and
+     `percent` back to a stale 22. Hand-corrected here: completed_phases 20 -> 21 (Phase 339
+     itself is now fully closed, 14/14 summaries), completed_plans 190 -> 191 (339-14's own
+     SUMMARY landing), percent = round(191/194*100) = 98. `stopped_at`/`status`/`last_activity`
+     rewritten to name Phase 339's own close-out rather than Phase 275's, since this session's
+     actual last action was 339-14, not 275-08. Root cause not re-investigated -- same tracked
+     bug class as every other note in this file. -->
 
 <!-- NOTE (275-08 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.update-progress` correctly computed percent=97 (completed_plans
@@ -6542,7 +6553,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T12:06:43.009Z
+Last session: 2026-09-04T13:14:21.925Z
 Stopped at: Completed 275-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
