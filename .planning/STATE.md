@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 275-01-PLAN.md
-last_updated: "2026-09-04T10:45:13.520Z"
+stopped_at: Completed 275-02-PLAN.md
+last_updated: "2026-09-04T10:59:39.692Z"
 last_activity: 2026-09-04 -- Phase 275 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 194
-  completed_plans: 182
+  completed_plans: 183
   percent: 21
 ---
 
@@ -4073,7 +4073,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 275 (enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 275 execution started
 
@@ -4928,6 +4928,7 @@ Progress: [█████████░] 92%
 | Phase 339 P09 | 20min | 2 tasks | 2 files |
 | Phase 339 P10 | 45min | 2 tasks | 2 files |
 | Phase 275 P01 | 24min | 3 tasks | 4 files |
+| Phase 275 P02 | 55min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6372,6 +6373,9 @@ Progress: [█████████░] 92%
 - [Phase 339]: 339-10: CHANGELOG entry sources D-06a from 339-CONTEXT.md verbatim (not the plan's own paraphrase); tester note deliberately narrower than STYLE-GUIDE.md's full 8-section structure, per the plan's own action spec
 - [Phase 275-01]: SECTION_NAMES grown 8 to 11 (opportunity-bank, funding, strategy); 4 dead/misfiled command citations corrected against data/command-registry.json ground truth
 - [Phase 275-01]: langtalks-graph-expert MCP tool not present in executor tool set - recorded as honest unavailability, not blocking, per plan mandatory_consults
+- [Phase ?]: 275-02 D-10 executed: statement rendered as both a frontmatter key and a body blockquote (foreign-host/no-MCP-tools reader)
+- [Phase ?]: 275-02 contract-file naming convention fixed: templates/room-skeleton/section-contracts/<slug>.md, verbatim copy to <room>/<slug>/CONTEXT.md, no frontmatter, fixed heading order
+- [Phase ?]: 275-02 REFERENCE_DOCS frozen allowlist locked to SECTION-SCHEMA.md and SUB-SCHEMAS.md, never a glob
 
 ### Pending Todos
 
@@ -6493,8 +6497,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T10:45:13.456Z
-Stopped at: Completed 275-01-PLAN.md
+Last session: 2026-09-04T10:59:39.629Z
+Stopped at: Completed 275-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
