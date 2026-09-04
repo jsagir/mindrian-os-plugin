@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.19 (in progress)
+## [2.0.0-beta.19] - 2026-09-04
 
 ### Changed
 - **The flip.** `lib/core/brain-client.cjs` line 24's default origin moves from the incumbent
