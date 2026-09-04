@@ -6,7 +6,15 @@
 
 The Brain is not a prompt. It is not a document. It is not a database.
 
-The Brain is a live intelligence service hosted at pws-brain-mcp.onrender.com that provides contextual teaching intelligence to every MindrianOS user. It is the difference between a chatbot that knows about JTBD and a thinking partner that knows WHEN to introduce JTBD, HOW to frame it for THIS users problem, and WHAT to chain it with next.
+The Brain is a live intelligence service hosted at theo-mcp.onrender.com that provides contextual teaching intelligence to every MindrianOS user. It is the difference between a chatbot that knows about JTBD and a thinking partner that knows WHEN to introduce JTBD, HOW to frame it for THIS users problem, and WHAT to chain it with next.
+
+A Desktop or Cowork connector reaches this host directly, under the unchanged connector key
+`mindrian-brain` and with no `Authorization` header (the key names the plugin's Brain slot,
+not the server -- see `docs/339-NOTE-theo-desktop-connector-key.md`). The plugin's own bundled
+CLI shim reaches the Brain through `lib/core/brain-client.cjs`, whose `BRAIN_URL` default is
+the single source of truth for which host the CLI talks to; that default uses the bare
+origin, not the `/mcp` path, since the client appends `/mcp` and `/register` itself. A direct
+connector must include the `/mcp` path explicitly for exactly that reason.
 
 The Brain is Larry -- not as text, but as accumulated judgment.
 

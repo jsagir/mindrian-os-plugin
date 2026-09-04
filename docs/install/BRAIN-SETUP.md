@@ -36,9 +36,19 @@ entirely (harnesses, CI, or a deliberate keyless run).
 Before beta.20, you had to run:
 ```
 claude mcp add -t http -s user -H "Authorization: Bearer $KEY" \
-  -- mindrian-brain https://pws-brain-mcp.onrender.com/mcp
+  -- mindrian-brain https://theo-mcp.onrender.com/mcp
 ```
 and restart, and hope nothing fell through.
+
+The connector key `mindrian-brain` names the plugin's Brain slot, not the server. It stays
+the same across a backend move because the plugin's egress guard and response sanitizer
+recognize the key, not the host. See `docs/339-NOTE-theo-desktop-connector-key.md`.
+
+Note the URL asymmetry: a direct connector like the command above points at the bare
+`/mcp` endpoint WITH the path, because it hits the MCP endpoint itself. The plugin's own
+bundled CLI shim uses the BARE origin, because its client code appends `/mcp` (and
+`/register`) itself. Swapping these produces `/mcp/mcp`, a 404 that renders as "Brain
+unreachable" rather than a config error.
 
 From beta.20 onward, the plugin bundles its own stdio shim via `.mcp.json`. No manual `claude mcp add` is required. The bundled stdio entry replaces the legacy user-scope HTTP-transport registration on first launch via auto-migration.
 

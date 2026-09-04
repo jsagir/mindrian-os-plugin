@@ -20,14 +20,26 @@ Add this to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "mindrian-brain": {
-      "url": "https://pws-brain-mcp.onrender.com/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
+      "url": "https://theo-mcp.onrender.com/mcp"
     }
   }
 }
 ```
+
+No auth header is needed. The remote Brain accepts the connection with a real key, a
+garbage key, or no header at all -- it returns identical results either way, so this
+config has no ceremony to get wrong.
+
+The connector key `mindrian-brain` names the plugin's Brain slot, not the server behind it.
+It stays the same even though the server changed, because the plugin's egress guard and
+response sanitizer recognize connections by this key, not by host. See
+`docs/339-NOTE-theo-desktop-connector-key.md` for the mechanism.
+
+Mind the URL asymmetry if you also look at the plugin's own bundled CLI shim: a direct
+connector like this one points at `https://theo-mcp.onrender.com/mcp`, WITH the `/mcp`
+path, because it hits the MCP endpoint itself. The plugin's own default is the BARE origin,
+because its client code appends `/mcp` (and `/register`) itself. Swapping these produces
+`/mcp/mcp`, which 404s and renders as "Brain unreachable" rather than a clear config error.
 
 Then restart Claude Desktop. Six Brain tools will appear automatically.
 
