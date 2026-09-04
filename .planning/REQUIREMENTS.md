@@ -1258,7 +1258,7 @@ and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
       Theo payload shapes (scored and refusal-only), and `{matched:0,total:0}` is never collapsed
       with `{matched:0,total:N>0}` (Cut: PREP).
 
-- [ ] **FLIP-04**: The `unreachable` and `no_key` refusal copy names the two-command update path,
+- [x] **FLIP-04**: The `unreachable` and `no_key` refusal copy names the two-command update path,
       sourced from ONE shared constant that doctor and docs also read (Cut: PREP).
 
 - [x] **FLIP-05**: `brain_schema`'s memo cannot serve a schema fetched from a different origin

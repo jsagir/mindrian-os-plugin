@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-05-PLAN.md
-last_updated: "2026-09-04T04:44:13.591Z"
+stopped_at: Completed 339-06-PLAN.md
+last_updated: "2026-09-04T04:57:38.885Z"
 last_activity: 2026-09-04 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 186
-  completed_plans: 174
+  completed_plans: 175
   percent: 94
 ---
 
@@ -4050,9 +4050,22 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
-Plan: 5 of 14
+Plan: 6 of 14
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 339 execution started
+
+<!-- NOTE (339-06 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
+     in this file): `state.advance-plan` correctly advanced "Plan: N of 14" to 6 in-place, but
+     `state.update-progress` (run twice, once before and once after 339-06-SUMMARY.md existed
+     on disk) computed percent=94 correctly in its own JSON both times yet did not persist it
+     into the frontmatter -- it reverted to the stale 21 after each call. `state.record-session`
+     updated "Last session" but left the frontmatter `stopped_at` and the body "Stopped at:"
+     line both pointing at 339-05. Hand-corrected: frontmatter `percent` to 94 (completed_plans
+     175 / total_plans 186, round(175/186*100)), frontmatter `stopped_at` and the body "Stopped
+     at:" line both to "Completed 339-06-PLAN.md". "Current Position" above and
+     `completed_plans` (175, correctly picked up by the second update-progress call once the
+     SUMMARY.md existed) needed no correction. Root cause not re-investigated -- same tracked
+     bug class as every other note in this file. -->
 
 <!-- NOTE (276-07 execute-plan, 2026-09-03, resync-clobber pattern, same class as the notes
      throughout this file): `state.advance-plan` blindly incremented the linear "Plan: N of 16"
@@ -6322,6 +6335,7 @@ Progress: [█████████░] 92%
 - [Phase 339]: 339-04: FLIP-03 left unchecked in REQUIREMENTS.md -- this plan lands only the enrichment_queue_captured log-line leg; the capture-arm leg in enrichment-queue.cjs is plan 339-05's scope
 - [Phase 276]: Re-froze the tool-honesty disposition ledger against the live 37-tool/131-branch scan surface and regenerated the substrate baseline to one measured number (205), closing Phase 273 D-05's deferred reconciliation. -- Plan 276-12 added claim_write, invalidating the 36/130 freeze; Phase 273 D-05 deferred the substrate baseline update to whichever phase's C4/M5-M8 work could actually move the count.
 - [Phase 339]: 339-05: two additive Theo capture arms close the enrichment-queue's one true silent failure, and a module-scope carrier discloses the D-03b Tier-3 router miss (next_gate absent) that isAvailable()-gating cannot see post-flip - Both changes are provably unreachable by an incumbent payload; the carrier variable avoids widening brainRoute()'s return contract, which would have let a chainless object be read as a real recommendation
+- [Phase 339]: 339-06: D-08/FLIP-04: both unreachable and no_key refusal copy name the two-command update path from one frozen source (lib/core/update-path.cjs); it lives in RENDER_COPY not REASONS to respect the 120-char single-line cap; scripts/self-update's pre-existing triple-copy (flagged by 339-02's own Arm 5 test) fixed by sourcing it at runtime instead
 
 ### Pending Todos
 
@@ -6443,8 +6457,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T04:44:13.534Z
-Stopped at: Completed 339-05-PLAN.md
+Last session: 2026-09-04T04:53:47.979Z
+Stopped at: Completed 339-06-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

@@ -973,20 +973,21 @@ already; this phase's own deferrals get a home here instead, following the Phase
   `eureka_critic` -- only `room_bind` has one today. Whether Canon Part 11 R16 covers MCP
   tools is OQ-3, still unresolved. Registered as a finding, not built. Owner: repo navigator.
 
-**Dev-Research Compositing:** the durable reasoning trail belongs at
+**Dev-Research Compositing:** the durable reasoning trail lives at
 `~/MindrianRooms/rethinking-mindrianos/research/2026-09-03-same-disease-consolidation/`,
 cross-linked back to this phase directory in both directions per CLAUDE.md's mandate.
-**Status: STAGED, not landed.** The write was attempted and blocked by the
-`scripts/write-scope-check` PreToolUse guard: the registry's active room is
-`jonathan-contractor-motj`, not `rethinking-mindrianos`. The guard was NOT bypassed, per the
-`267.3-08`/`270-12` precedent. The full trail (the one-disease-two-layers thesis, the D-1
-discovery, the propagation-gap framing, the icm-architect five-instance promotion bar, the
-measured before/after, and D-276-1 through D-276-6 with rejected alternatives) is staged at
-`276-16-COMPOSITING-TRAIL-STAGED.md` in this phase directory. **Pending navigator action**
-(three steps): (1) `/mos:rooms switch rethinking-mindrianos`, (2) copy the staged file's body
-to `~/MindrianRooms/rethinking-mindrianos/research/2026-09-03-same-disease-consolidation/2026-09-03-same-disease-consolidation.md`,
-(3) mirror it to `~/MindrianOS/research/`. This line is the repo-to-room half of the
-cross-link; the room-to-repo half is in the staged file's own header.
+**Status: LANDED 2026-09-04.** The write was originally attempted and blocked by the
+`scripts/write-scope-check` PreToolUse guard (registry's active room was
+`jonathan-contractor-motj`, not `rethinking-mindrianos`); the guard was NOT bypassed, per the
+`267.3-08`/`270-12` precedent, and the content was staged instead at
+`276-16-COMPOSITING-TRAIL-STAGED.md` in this phase directory. The pending navigator action
+was then completed: (1) `/mos:rooms switch rethinking-mindrianos` (active room switched,
+session-bound, verified against the registry), (2) the staged body landed at
+`~/MindrianRooms/rethinking-mindrianos/research/2026-09-03-same-disease-consolidation/2026-09-03-same-disease-consolidation.md`
+(auto-committed by the room's autocommit hook), (3) mirrored to
+`~/MindrianOS/research/2026-09-03-same-disease-consolidation/2026-09-03-same-disease-consolidation.md`.
+The STAGED file in this phase directory is kept as the historical record of the block; the
+landed copy in the room is now the canonical one.
 
 ### Phase 277: SEED-004: Fix write-scope-check Nested-Room False-Positive Bug
 
@@ -1729,7 +1730,7 @@ Plans:
 **Requirements**: FLIP-01, FLIP-02, FLIP-03, FLIP-04, FLIP-05, FLIP-06, FLIP-07, FLIP-08,
 FLIP-09, FLIP-10, FLIP-11, FLIP-12
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
-**Plans:** 5/14 plans executed
+**Plans:** 6/14 plans executed
 
 Plans:
 
@@ -1743,7 +1744,7 @@ Plans:
 
 - [x] 339-04-PLAN.md - brain-client: origin-derived alias selector, origin-keyed schema memo, capture log shape
 - [x] 339-05-PLAN.md - enrichment-queue two additive arms, brain-router Tier-3 disclosure
-- [ ] 339-06-PLAN.md - lib/core/update-path.cjs and the refusal-copy amendment
+- [x] 339-06-PLAN.md - lib/core/update-path.cjs and the refusal-copy amendment
 - [ ] 339-07-PLAN.md - the literal sweep onto getBrainUrl(), plus the prose and banner sites
 - [ ] 339-08-PLAN.md - Desktop and Cowork connector docs, regenerated mirrors, backend-agnostic shim descriptions
 - [ ] 339-09-PLAN.md - docs/339-NOTE-theo-desktop-connector-key.md and the 269-05 checklist rewrite
