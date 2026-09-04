@@ -1730,7 +1730,7 @@ Plans:
 **Requirements**: FLIP-01, FLIP-02, FLIP-03, FLIP-04, FLIP-05, FLIP-06, FLIP-07, FLIP-08,
 FLIP-09, FLIP-10, FLIP-11, FLIP-12
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
-**Plans:** 8/14 plans executed
+**Plans:** 9/14 plans executed
 
 Plans:
 
@@ -1747,7 +1747,7 @@ Plans:
 - [x] 339-06-PLAN.md - lib/core/update-path.cjs and the refusal-copy amendment
 - [x] 339-07-PLAN.md - the literal sweep onto getBrainUrl(), plus the prose and banner sites
 - [x] 339-08-PLAN.md - Desktop and Cowork connector docs, regenerated mirrors, backend-agnostic shim descriptions
-- [ ] 339-09-PLAN.md - docs/339-NOTE-theo-desktop-connector-key.md and the 269-05 checklist rewrite
+- [x] 339-09-PLAN.md - docs/339-NOTE-theo-desktop-connector-key.md and the 269-05 checklist rewrite
 
 **Wave 3 (PREP written record)**
 
@@ -2117,14 +2117,35 @@ Rule, not a silent omission, since no automation harness exists for either surfa
    `InnovationStage` has zero runtime consumers in this repo today. Full ruling, grounding, and
    research trail: SEED-084's `## ADDENDUM 2026-09-02` section.
 
-2. **Phase 270's OQ-7** — confirmed still open as of this ROADMAP entry (Phase 270's own OQ-7 line: "SURFACED ONLY, built by neither this phase nor any plan in it"). Re-check its status at plan time rather than assuming it moved.
+2. **Phase 270's OQ-7 — PARTIALLY RESOLVED 2026-09-04.** OQ-7 has two sub-points; they resolved
+   differently:
+
+   - The SCHEMA half is now CLOSED, no navigator sign-off needed to plan against it: SEED-084's
+     `## ADDENDUM 2026-09-04` found `SECTION_METADATA`'s `default_methodologies` array
+     (`lib/core/room-skeleton-scaffold.cjs:47-55`) is the same kind of L3 fact as
+     `stage_relevance` — promote both in the same pass, at both the section grain and the
+     `data/room-blueprints.json` family grain. Grounding this also found a real, verified defect
+     in scope for this phase's own work: 2 of the 10 `default_methodologies` slugs
+     (`domain-explorer`, `scenario-analysis`) match zero command in the live
+     `data/command-registry.json` — dead references from an upstream rename never propagated
+     (the propagation-gap shape Phase 273/276 already named), fix in the same L3 pass.
+
+   - The SECTION-ADOPTION half — which of the 5 Notion-diff candidate sections (Meetings, Value
+     Proposition, Marketing and Sales, Funding Options, Research Documents) actually get added to
+     the frozen 8-entry `SECTION_NAMES`, plus the `team-execution` Mentor-Profiles schema
+     thickening — is STILL OPEN. This changes what every future room is scaffolded with (a Canon
+     Part 3 Tri-Context-Gate-weight call), so it stays a navigator Decision Gate rather than
+     something this addendum settles unilaterally. A grounded recommendation is on record
+     (favor `funding-options` as the highest-evidence single addition — three independent sources
+     converge on it, live-audited as a bare empty shell today; weigh the other four
+     individually, not as a bundle).
 
 **MANDATORY (navigator ruling, 2026-08-31): langtalks-graph-expert must be consulted CONTINUOUSLY throughout every stage of this phase's lifecycle** — discuss, research, plan, and execute — not as a one-time check at research time. This phase is memory/context-engineering/agent-architecture work (layered context hierarchy, per-section contracts, a reference/factory layer) squarely inside `langtalks-graph-expert`'s corpus (memory, RAG, knowledge graphs, context engineering, agent protocols). Every plan this phase produces, and every task within those plans that touches the layer design, must show a live `mcp__langtalks-graph-expert__*` consult in its `<read_first>` or task notes, not just a passing citation. This is IN ADDITION TO, not instead of, the existing standing `icm-architect` consult (`feedback_mindrianos_dev_consult_icm_architect.md`) — both apply, langtalks for the memory/context-engineering literature grounding, icm-architect for the concrete room-structure validation (ten invariants, six-forms taxonomy, walk test).
 
 **What NOT to steal / re-propose (Canon Part 7, per SEED-084):** `lib/core/room-skeleton-scaffold.cjs` and `lib/core/section-registry.cjs` already implement schema-driven section scaffolding — this phase EXTENDS their schema, it does not replace the mechanism. `/mos:onboard` and session-start nudges already partially cover the self-guiding-room gap for the CLI/Larry path; the real gap is the foreign-host-without-tools case specifically.
 
 **Requirements**: TBD
-**Depends on:** Phase 270's OQ-7 (still open) - SEED-084's own taxonomy gate resolved 2026-09-02, see its `## ADDENDUM 2026-09-02`. Do not run `/gsd-plan-phase 275` until OQ-7 is explicitly addressed - this entry exists so the work is numbered and discoverable, not so it is immediately actionable.
+**Depends on:** Phase 270's OQ-7 (schema half CLOSED 2026-09-04; section-adoption half still open, needs a navigator Decision Gate — see `## ADDENDUM 2026-09-04` in SEED-084) - SEED-084's own taxonomy gate resolved 2026-09-02, see its `## ADDENDUM 2026-09-02`. Do not run `/gsd-plan-phase 275` until the section-adoption Decision Gate is answered - this entry exists so the work is numbered and discoverable, not so it is immediately actionable.
 **Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):** the
 taxonomy open question this seed surfaces (which "venture stage" vocabulary is canonical) is
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
@@ -2134,4 +2155,4 @@ analogous vocabulary question before re-deriving one locally.
 
 Plans:
 
-- [ ] TBD (blocked on Phase 270 OQ-7; SEED-084's taxonomy question RESOLVED 2026-09-02, see its `## ADDENDUM 2026-09-02` - run /gsd-discuss-phase 275 once OQ-7 is resolved)
+- [ ] TBD (OQ-7 schema half CLOSED 2026-09-04; section-adoption half needs a navigator Decision Gate first - see SEED-084 `## ADDENDUM 2026-09-04` - run /gsd-discuss-phase 275 once that gate is answered)

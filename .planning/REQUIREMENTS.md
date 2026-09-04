@@ -1268,10 +1268,10 @@ and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
       unchanged `mindrian-brain` key with no `Authorization` header, and every generated mirror is
       regenerated rather than hand-edited (Cut: PREP).
 
-- [ ] **FLIP-07**: `docs/339-NOTE-theo-desktop-connector-key.md` exists and states the
+- [x] **FLIP-07**: `docs/339-NOTE-theo-desktop-connector-key.md` exists and states the
       egress-guard reason the key matters (Cut: PREP).
 
-- [ ] **FLIP-08**: Phase 269-05 Task 1's checklist reads the three real legs against live
+- [x] **FLIP-08**: Phase 269-05 Task 1's checklist reads the three real legs against live
       sources, and no item can read PASS while its real leg is unchecked (Cut: PREP).
 
 - [ ] **FLIP-09**: The FLIP release cannot be cut until a human confirms Theo's coverage ruling,
