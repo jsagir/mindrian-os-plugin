@@ -69,9 +69,19 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const CONTRACT_PATH = path.join(REPO_ROOT, 'data', 'brain-surface-contract.json');
 
-// Mirrors lib/core/brain-client.cjs line ~24 (the single source of the
-// default URL for the deployed Render edge).
-const BRAIN_URL = process.env.MINDRIAN_BRAIN_URL || 'https://pws-brain-mcp.onrender.com';
+// Phase 339, 2026-09-03: origin resolved through getBrainUrl(), the single
+// source of truth (lib/core/brain-client.cjs). This closes a real risk:
+// post-flip, a self-declared BRAIN_URL literal here would silently probe
+// the INCUMBENT origin while every leg's output still claims to describe
+// "the Brain". Resolving through getBrainUrl() means this probe always
+// tests the origin the plugin actually ships. This deliberately does NOT
+// change the five legs below, their assertions, or leg e's expected-red
+// status pending the seven operator index DROPs (plan 339-14 records which
+// legs invert against Theo; those inversions are EXPECTED, not failures).
+// getBrainUrl() itself still honors a MINDRIAN_BRAIN_URL override, so
+// nothing is lost by removing the second env read that used to live here.
+const { getBrainUrl } = require('../lib/core/brain-client.cjs');
+const BRAIN_URL = getBrainUrl();
 const BRAIN_REQUEST_TIMEOUT_MS = Number(process.env.MINDRIAN_BRAIN_TIMEOUT_MS) || 20000;
 
 const ABS_PATH_RE = /^(?:[/~]|[A-Za-z]:[\\/]|\\\\)/;
