@@ -38,7 +38,7 @@ function rmTmp(dir) {
   try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
 }
 
-test('Integration 1: fresh placeholder room -> full scaffold (8 sections + 5 identity dirs + 3 root files)', () => {
+test('Integration 1: fresh placeholder room -> full scaffold (all sections + identity dirs + 3 root files)', () => {
   const roomDir = makePlaceholderRoom();
   try {
     const r = scaffoldRoomSkeleton(roomDir, {
@@ -50,11 +50,18 @@ test('Integration 1: fresh placeholder room -> full scaffold (8 sections + 5 ide
     assert.strictEqual(r.state_written, true);
     assert.strictEqual(r.minto_written, true);
     assert.strictEqual(r.user_written, true);
-    assert.strictEqual(r.sections_created.length, 8);
-    assert.strictEqual(r.identity_files_created.length, 5);
+    assert.strictEqual(r.sections_created.length, SECTION_NAMES.length);
+    assert.strictEqual(r.identity_files_created.length, Object.keys(IDENTITY_DIRECTORIES).length);
     assert.strictEqual(r.thinness_acknowledged, true);
+    // The warnings channel (plan 275-02) never turns result.ok false: a
+    // not-yet-authored section-contract/reference-doc template degrades to
+    // a named warning, and r.ok stays true even while r.warnings is
+    // non-empty (section-contracts/ and references/ hold no real templates
+    // yet, so this fresh scaffold DOES produce warnings today).
+    assert.ok(Array.isArray(r.warnings), 'r.warnings must be an array');
+    assert.strictEqual(r.ok, true, 'r.ok must stay true even when r.warnings is non-empty');
 
-    // All 8 sections + identity dirs + 3 root files materialized
+    // All sections + identity dirs + 3 root files materialized
     for (const section of SECTION_NAMES) {
       assert.ok(fs.existsSync(path.join(roomDir, section, 'ROOM.md')), `missing ${section}/ROOM.md`);
     }
@@ -91,7 +98,7 @@ test('Integration 2: partial scaffold -> idempotent fill (missing pieces only)',
     assert.strictEqual(r.minto_written, true);
     assert.strictEqual(r.user_written, true);
     assert.strictEqual(r.sections_created.length, 0, 'sections should not be recreated');
-    assert.strictEqual(r.identity_files_created.length, 5, 'identity dirs should be filled');
+    assert.strictEqual(r.identity_files_created.length, Object.keys(IDENTITY_DIRECTORIES).length, 'identity dirs should be filled');
 
     // Pre-existing ROOM.md content preserved (byte-identical)
     const existing = fs.readFileSync(path.join(roomDir, 'problem-definition', 'ROOM.md'), 'utf8');
@@ -138,8 +145,8 @@ test('Integration 3: human-authored STATE.md -> byte-preserved + sections filled
     assert.strictEqual(after, before, 'human STATE.md was overwritten');
     assert.strictEqual(r.state_written, false);
     // Sections + identity files STILL filled (idempotent)
-    assert.strictEqual(r.sections_created.length, 8);
-    assert.strictEqual(r.identity_files_created.length, 5);
+    assert.strictEqual(r.sections_created.length, SECTION_NAMES.length);
+    assert.strictEqual(r.identity_files_created.length, Object.keys(IDENTITY_DIRECTORIES).length);
     assert.ok(fs.existsSync(path.join(roomDir, 'problem-definition', 'ROOM.md')));
     assert.ok(fs.existsSync(path.join(roomDir, 'team', 'ROOM.md')));
   } finally { rmTmp(roomDir); }
