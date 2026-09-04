@@ -6,8 +6,10 @@
  * Phase 89.5 Plan 05 -- /mos:rs-experts CLI wrapper.
  *
  * BUG 2 FIX (routing, 2026-05-22): the former Tier 1 path called
- * brainClient.query(cypher) which routes to the REMOTE Brain
- * (pws-brain-mcp.onrender.com) when MINDRIAN_BRAIN_KEY is set.
+ * brainClient.query(cypher) which routes to the REMOTE Brain (the origin
+ * resolved by getBrainUrl(), lib/core/brain-client.cjs; named via the
+ * resolver rather than a host as of phase 339, 2026-09-03) when
+ * MINDRIAN_BRAIN_KEY is set.
  * Author/Paper/Institution nodes do NOT exist in the remote Brain --
  * they live in the user's LOCAL Aura mirror (populated via /mos:rs-fetch).
  * Routing to the remote Brain would always return empty results AND

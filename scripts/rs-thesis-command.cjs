@@ -7,9 +7,11 @@
  *
  * BUG 2 FIX (routing, 2026-05-22): the former Tier 1 path called
  * brainClient.query(cypher) with a MATCH on RSDiscovery nodes. brain-client
- * routes to the REMOTE Brain (pws-brain-mcp.onrender.com) when
- * MINDRIAN_BRAIN_KEY is set. RSDiscovery IS USER DATA -- sending it to the
- * remote Brain is a Canon Part 8 breach (LOCAL -> BRAIN: NO).
+ * routes to the REMOTE Brain (the origin resolved by getBrainUrl(),
+ * lib/core/brain-client.cjs; named via the resolver rather than a host as
+ * of phase 339, 2026-09-03) when MINDRIAN_BRAIN_KEY is set. RSDiscovery IS
+ * USER DATA -- sending it to the remote Brain is a Canon Part 8 breach
+ * (LOCAL -> BRAIN: NO).
  *
  * Fix: the Tier 1 path (remote Brain) is REMOVED. This command now ALWAYS
  * uses the Tier 0 SQLite path (local room.db). The --tier flag still works
