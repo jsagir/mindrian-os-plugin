@@ -144,11 +144,26 @@ const server = new McpServer({ name: 'mindrian-brain', version: version });
 // registration in this file was migrated to it.
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Phase 339, 2026-09-03 (D-13, PREP half). The plugin is between two Brain
+// backends for the duration of the Theo cutover soak: the tool descriptions
+// below no longer name a specific graph engine, embedding model, or auth
+// tier, because any such claim is wrong on one side of the flip. Backend-
+// agnostic wording is true on BOTH sides at every moment of the soak.
+//
+// What these edits deliberately do NOT change: tool NAMES (verify-release
+// gate 19 checks these against every hooks.json Brain matcher and every
+// agent allowed-tools entry -- renaming a tool would break that gate, a
+// description edit cannot); and connector declarations (those live in
+// markdown frontmatter, not in this CJS file, which is why neither
+// build-connector-registry.cjs nor check-shape-declaration.cjs walks bin/).
+// ---------------------------------------------------------------------------
+
 // -- brain_ask: highest-level entry; wraps response in DirectiveEnvelope.
 server.registerTool(
   'brain_ask',
   {
-    description: 'Ask the remote PWS teaching graph a natural-language methodology question. Routing happens server-side over the live Memgraph teaching graph using locally-embedded multilingual-e5-large vectors. Returns a DirectiveEnvelope carrying the directive content; the envelope\'s mode is set from the upstream response\'s mode signals when present, and falls back to the default mode (GUIDED) when they are absent. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
+    description: 'Ask the remote teaching graph a natural-language methodology question. Routing happens server-side. Returns a DirectiveEnvelope carrying the directive content; the envelope degrades harmlessly to an empty signals set when the upstream response carries none. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
     inputSchema: z.strictObject({ question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') }),
   },
   async ({ question }) => {
@@ -235,7 +250,7 @@ server.registerTool(
 server.registerTool(
   'brain_schema',
   {
-    description: 'Reports the teaching graph schema: labels, relationship types and property keys from the live Memgraph backend. Memoized for 30 minutes.',
+    description: 'Reports the teaching graph schema: labels, relationship types and property keys from the remote teaching graph. Memoized for 30 minutes.',
     inputSchema: z.strictObject({}),
   },
   async () => {
@@ -250,7 +265,7 @@ server.registerTool(
 server.registerTool(
   'brain_search',
   {
-    description: 'Runs semantic search over the teaching graph using locally-embedded multilingual-e5-large vectors, with a graph fulltext fallback when the vector search comes up empty.',
+    description: 'Semantic search over the teaching graph.',
     inputSchema: z.strictObject({
       query: z.string().describe('Search query (generic methodology language -- Canon Part 8).'),
       namespace: z.string().optional(),
@@ -268,7 +283,7 @@ server.registerTool(
 server.registerTool(
   'brain_stats',
   {
-    description: 'Reports teaching-graph size and coverage counts, plus last-update markers, from the live Memgraph backend.',
+    description: 'Reports teaching-graph size and coverage counts, plus last-update markers, from the remote teaching graph.',
     inputSchema: z.strictObject({}),
   },
   async () => {
@@ -282,7 +297,7 @@ server.registerTool(
 server.registerTool(
   'brain_write',
   {
-    description: 'Write Cypher to the Brain. Admin-tier; requires a write-capable key. Generic methodology framework writes only (Canon Part 8).',
+    description: 'Write Cypher to the Brain. The remote may refuse writes unconditionally regardless of key. Generic methodology framework writes only (Canon Part 8).',
     inputSchema: z.strictObject({ cypher: z.string().describe('Cypher write query (generic methodology only).') }),
   },
   async ({ cypher }) => {
