@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.21 (in progress)
+## [2.0.0-beta.21] - 2026-09-04
 
 ### Fixed
 - `room_search` no longer skips every non-`.md` file in a room. `lib/mcp/tools/room.cjs`'s
