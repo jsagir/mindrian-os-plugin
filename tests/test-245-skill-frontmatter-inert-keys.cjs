@@ -28,10 +28,12 @@
  *
  * CLAIM (b): CLAUDE.md DOES NOT BRIEF AGENTS ON A BACKEND THAT NO LONGER EXISTS.
  *
- *   The Memgraph cutover shipped 2026-07-22 (lib/core/brain-client.cjs:24 defaults to
- *   pws-brain-mcp.onrender.com in this branch AND in the installed release). CLAUDE.md
- *   went on describing the Brain as "Neo4j teaching graph + Pinecone vectors" at
- *   mindrian-brain.onrender.com for eighteen days.
+ *   The Memgraph cutover shipped 2026-07-22 (lib/core/brain-client.cjs:24 defaulted to
+ *   pws-brain-mcp.onrender.com there). CLAUDE.md went on describing the Brain as "Neo4j
+ *   teaching graph + Pinecone vectors" at mindrian-brain.onrender.com for eighteen days.
+ *   A second cutover shipped 2026-09-03 (Phase 339): line 24 now defaults to
+ *   theo-mcp.onrender.com, the current backend in this branch AND in the installed
+ *   release.
  *
  *   CLAUDE.md is MANDATORY initial context for every GSD agent. So every fresh agent was
  *   briefed on a backend that does not exist and reasoned from it. A wrong hook breaks
@@ -120,14 +122,16 @@ function claimB() {
   const p = path.join(ROOT, 'CLAUDE.md');
   const text = fs.readFileSync(p, 'utf8');
 
-  // Ground truth, asserted rather than assumed: the client's default IS the Memgraph host.
+  // Ground truth, asserted rather than assumed: the client's default IS the Theo host.
   const client = fs.readFileSync(path.join(ROOT, 'lib', 'core', 'brain-client.cjs'), 'utf8');
   const url = (client.match(/const BRAIN_URL = [^\n]*'(https:\/\/[^']+)'/) || [])[1];
   ok(
-    url === 'https://pws-brain-mcp.onrender.com',
-    'CLAIM b: expected brain-client.cjs to default to pws-brain-mcp.onrender.com, got ' + url +
-      '. If the backend genuinely moved, update this test AND CLAUDE.md together -- that pairing ' +
-      'is the entire point of this claim.'
+    url === 'https://theo-mcp.onrender.com',
+    'CLAIM b: expected brain-client.cjs to default to theo-mcp.onrender.com, got ' + url +
+      '. If the backend genuinely moves again, update all THREE paired files together, in the ' +
+      'SAME commit: this test (the literal above), CLAUDE.md (lines naming the current default), ' +
+      'and lib/core/brain-client.cjs line 24 (the single source of the default). Changing any one ' +
+      'alone is exactly the failure this claim exists to catch.'
   );
 
   // A line describing the CURRENT Brain must not name the retired stack. Historical and

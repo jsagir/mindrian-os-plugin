@@ -48,7 +48,7 @@ A commercial Claude Code + Cowork plugin. One command installs it (`claude plugi
 | Layer | What | Where | Who Owns It |
 |-------|------|-------|-------------|
 | **Plugin** | Skills, commands, agents, hooks, pipelines | This repo (marketplace) | Open |
-| **Brain** | Memgraph teaching graph + e5 vectors (1024-dim, local embed, no egress) + teaching intelligence (live numbers: docs/CORPUS-STATS.generated.md) | pws-brain-mcp.onrender.com (remote MCP) | Jonathan, SECRET IP |
+| **Brain** | Theo, the graph-native teaching backend (Phase 339 cutover, 2026-09-03) + e5 vectors (1024-dim, local embed, no egress) + teaching intelligence (docs/CORPUS-STATS.generated.md describes the prior Memgraph-backed incumbent's corpus, not yet regenerated against Theo) | theo-mcp.onrender.com (remote MCP) | Jonathan, SECRET IP |
 | **Room** | User's workspace, entries, sub-rooms, LazyGraph, exports | User's local folder + their Aura | User owns their work |
 
 ## Tri-Polar Design Rule (STRONG DEFAULT)
@@ -128,7 +128,7 @@ A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wis
 | Markdown + YAML frontmatter | Skills, agents, commands, pipelines, references |
 | JSON | plugin.json, hooks.json, .mcp.json, settings.json, STATE.md frontmatter |
 | Bash scripts (scripts/) | Room analysis, state, meeting intelligence, PDF, transcription |
-| Memgraph + Brain MCP | Remote teaching graph (Streamable HTTP) at pws-brain-mcp.onrender.com. Cutover from Neo4j Aura landed 2026-07-22; lib/core/brain-client.cjs:24 is the single source of the default URL |
+| Theo + Brain MCP | Remote teaching graph (Streamable HTTP) at theo-mcp.onrender.com. Cutover from Neo4j Aura to Memgraph (pws-brain-mcp.onrender.com) landed 2026-07-22; cutover from Memgraph to Theo landed 2026-09-03 (Phase 339). lib/core/brain-client.cjs:24 is the single source of the default URL |
 | e5 (multilingual-e5-large) | Brain semantic-search vectors, 1024-dim, embedded LOCALLY (passage:/query: prefixes, no network egress). Pinecone is RETIRED |
 | Cytoscape.js (CDN) | De Stijl knowledge-graph visualization |
 | sentence-transformers + LSA (Python) | HSI computation scripts |
