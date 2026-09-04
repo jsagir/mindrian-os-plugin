@@ -2,17 +2,32 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 275-07-PLAN.md
-last_updated: "2026-09-04T11:47:10.631Z"
+status: verifying
+stopped_at: Completed 275-08-PLAN.md
+last_updated: "2026-09-04T12:06:43.083Z"
 last_activity: 2026-09-04 -- Phase 275 execution started
 progress:
   total_phases: 89
-  completed_phases: 19
+  completed_phases: 20
   total_plans: 194
-  completed_plans: 188
-  percent: 21
+  completed_plans: 189
+  percent: 97
 ---
+
+<!-- NOTE (275-08 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
+     in this file): `state.update-progress` correctly computed percent=97 (completed_plans
+     189 / total_plans 194) in its own JSON return but did not persist it into the
+     frontmatter -- it stayed at the stale 21 until hand-corrected here (this is Phase 275's own
+     close-out, plan 275-08). A subsequent `state.record-metric` call (additive-only, per the
+     shared_tree_guard precedent) RE-CLOBBERED percent back to 21 (not observed directly this
+     time, but two `state.add-decision` calls plus `state.record-session` ran after it and the
+     frontmatter read back at 22, not 21 or 97, before this hand-correction -- consistent with
+     the same clobber class landing on a slightly different stale value depending on which verb
+     fired last). `stopped_at` ("Completed 275-08-PLAN.md") and "Current Position"'s "Plan: 8 of
+     8" / "Status: Phase complete" were both written correctly by `state.record-session`/
+     `state.advance-plan` this run (no clobber on those fields), so only `percent` needed
+     hand-correction. Root cause not re-investigated -- same tracked bug class as every other
+     note in this file. -->
 
 <!-- NOTE (275-07 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.update-progress` correctly computed percent=96 (completed_plans
@@ -4083,7 +4098,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 275 (enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit) — EXECUTING
 Plan: 8 of 8
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-04 -- Phase 275 execution started
 
 <!-- NOTE (339-06 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
@@ -4943,6 +4958,7 @@ Progress: [█████████░] 92%
 | Phase 275 P05 | 70min | 2 tasks | 8 files |
 | Phase 275 P07 | 55min | 2 tasks | 2 files |
 | Phase 275 P06 | 55min | 2 tasks | 3 files |
+| Phase 275 P08 | 95min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -6402,6 +6418,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: D-07 executed: opportunity-bank/funding pipeline relationship named in both directions (Feeds:/Reads from: lines, /mos:funding create, [[opportunity-bank/{source}]] wikilink)
 - [Phase ?]: D-08/D-11 executed: funding.md documents both Dilutive and Non-Dilutive funding types; only non-dilutive is implemented today, dilutive build deferred by name to a future phase
 - [Phase ?]: D-06 executed: strategy.md names six Tier 1 commands, grounded in the graph-asserted Reverse Salient Analysis FEEDS_INTO Scenario Planning edge (confidence 0.65)
+- [Phase 275]: D-13 executed: migration is additive and idempotent; L4 inline-content drift is report-only, never rewritten
+- [Phase 275]: REQUIREMENTS.md ICML-01..16 minted and closed with real measurements; phase's own 10-arm aggregator (tests/run-all-275.sh) passes twice in a row
 
 ### Pending Todos
 
@@ -6523,8 +6541,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T11:46:51.177Z
-Stopped at: Completed 275-07-PLAN.md
+Last session: 2026-09-04T12:06:43.009Z
+Stopped at: Completed 275-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

@@ -2151,7 +2151,7 @@ taxonomy open question this seed surfaces (which "venture stage" vocabulary is c
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
 labels -- when this phase becomes actionable, check whether Theo has already settled an
 analogous vocabulary question before re-deriving one locally.
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans complete
 Plans:
 **Wave 1**
 
@@ -2174,4 +2174,4 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 275-08-PLAN.md - the idempotent additive migration for existing rooms, the phase assertion suite, run-all-275.sh, and the REQUIREMENTS.md block (wave 5)
+- [x] 275-08-PLAN.md - the idempotent additive migration for existing rooms, the phase assertion suite, run-all-275.sh, and the REQUIREMENTS.md block (wave 5)
