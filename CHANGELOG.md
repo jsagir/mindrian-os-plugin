@@ -1,7 +1,40 @@
-## [Unreleased] -- v2.0.0-beta.18 (in progress)
+## [Unreleased] -- v2.0.0-beta.19 (in progress)
 
-### Added
-- 
+### Changed
+- **The flip.** `lib/core/brain-client.cjs` line 24's default origin moves from the incumbent
+  Brain to `https://theo-mcp.onrender.com`, a BARE origin (no path, no trailing slash). For a
+  user: Larry's methodology now comes from Theo, and nothing about how you use MindrianOS
+  changes. Rollback stays one line: revert line 24 in a patch release, or set
+  `MINDRIAN_BRAIN_URL` on one install. Both paths are valid only while the previous service is
+  still running. The previous service is SUSPENDED after a soak window, never deleted, compute
+  suspended before data.
+- Doctor's class M layer 6 store-identity check is now complete across both cuts. The
+  dual-shape `brain_stats` read shipped in the PREP cut (safe against both Brains). This cut
+  moves the two values that had to move WITH the origin: the canon endpoint (`CANON_BRAIN_URL`)
+  and the per-origin node floor (`CANON_NODE_FLOOR = 29000` for the incumbent,
+  `THEO_NODE_FLOOR = 1000` for Theo). The floor keys on the resolved origin, so a
+  `MINDRIAN_BRAIN_URL` rollback restores the incumbent's floor in the same motion.
+- The `test-245` tripwire (`tests/test-245-skill-frontmatter-inert-keys.cjs`) and `CLAUDE.md`
+  moved together with line 24, in the same commit, per the pairing that tripwire exists to
+  enforce.
+
+### Known, expected behavior after the flip
+- `/mos:leadership` and due-diligence consults answer thinner through Theo until the 30
+  uncovered names are ingested (Theo holds the `/mos:leadership` command node with zero
+  framework links); this is an honest-empty coverage block, not an error. Covered: 228 of 258,
+  88.4%. Uncovered: 30 of 258. The 30 names bind Theo's decommission task, not this flip.
+- `brain_write` always refuses with `WRITE_PATH_DISABLED`: canon writes go through Theo's own
+  governed payload path, and this is not a tier a better key opens.
+- A count-store query plan may draw `PLAN_REJECTED`; answer it by adding a property filter, not
+  by concluding the tool is broken.
+- `scripts/probe-brain-contract.cjs` legs invert as expected, documented not broken: legs a and
+  d port cleanly; leg b inverts because Theo SERVES `text2cypher` (the expected 403 does not
+  arrive) and `brain_ask_anything` still draws an unknown-tool error, but for a different reason
+  (Theo has no allowlist gate at all); leg c partially inverts because `BoundedReadRefusal` is
+  incumbent-authored text while Theo's refusals are typed codes; leg e inverts entirely because
+  it asserts Memgraph index names Theo's Aura instance does not have.
+- The enrichment queue will capture on nearly every `orchestration_readiness` call during soak.
+  That is canon thinness correctly measured, bounded and deduped by framework name, not a leak.
 
 ## [2.0.0-beta.17] - 2026-09-04
 
