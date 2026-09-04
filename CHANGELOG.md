@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.16 (in progress)
+## [Unreleased] -- v2.0.0-beta.17 (in progress)
 
 ### Added
 - `scripts/check-tool-honesty.cjs`: a standing, advisory MCP tool-honesty gate that
@@ -71,6 +71,19 @@
   gate, with promotion to `confirmed` proven against `room.db` independently of the tool's own
   response text. Full record: `.planning/phases/276-mcp-tool-honesty-triage-and-close-the-
   check-tool-honesty-cjs/`.
+- **The phase's one true silent failure: a Theo readiness miss vanishing with nothing written
+  anywhere (Phase 339, plan 339-05, D-03 consumer 3).** `lib/core/enrichment-queue.cjs`'s
+  `captureReadinessMiss` gains two additive capture arms recognizing Theo's own
+  `orchestration_readiness` payload shapes, a scored RESOLVED miss and a REFUSAL miss, each
+  guarded so an incumbent-shaped payload cannot reach either new branch;
+  `tests/test-339-enrichment-theo-shapes.cjs` went from 3 of 7 fixtures green to 7 of 7.
+  Operational expectation for the soak window, named so nobody reads it as a leak: post-flip
+  nearly every `orchestration_readiness` call will capture, because Theo's own header reports
+  148 of 149 Frameworks with zero technique linkage, the queue is bounded (`SOFT_CAP`/
+  `HARD_CAP`) and deduped by framework name, and that is canon thinness correctly measured,
+  not a defect. What did NOT change: the incumbent's own two capture shapes (`grounded`,
+  `readiness_score`) are untouched, proven by `tests/test-249-enrichment-queue.cjs` staying
+  13 of 13 green.
 
 ### Changed
 - **RS pipeline spine-wiring + expert-graph reconciliation (Phase 296, SEED-030).** `lib/core/rs_cache.py`'s remote `rs-external` Pinecone index/namespace path (one namespace per topic, 1024-dim `multilingual-e5-large` integrated embeddings) is retired and replaced by a per-room local sidecar cache at `<room>/research/<topic-slug>/.rs-signal-cache/{vectors.jsonl,manifest.json}`, embedded through the one shipped local encoder (`embedding-spine.cjs::embedTexts`) via the new `scripts/rs-vector-bridge.cjs` JSON-stdio bridge (the D-02 answer). `scripts/rs-engine.py` Mode B/C, `lib/core/rs_hybrid.py`, `lib/core/rs-pinecone-bridge.cjs` and `lib/core/rs-differential-scorer.cjs` all thread an explicit room scope end to end.
@@ -82,6 +95,89 @@
   - **Phase 228** is this same seed's orphaned earlier registration in the closed v1.15.0 milestone (directory holds only a `.gitkeep`, no CONTEXT/RESEARCH/PLAN/SUMMARY ever landed); Phase 296 is its live successor in v2.1.0.
   - `tests/296-pinecone-residue.sh` is the two-sided boundary gate for this change: it asserts PRESENCE of the surfaces D-06 kept (`requirements-hsi.txt`'s `pinecone` declaration, `compute-hsi.py`'s `PINECONE_API_KEY` read, `pinecone-inference.cjs`'s `api.pinecone.io` egress) and ABSENCE of the retired surface, since an over-eager cleanup silently breaking `compute-hsi.py` Tier 2 was judged the likelier failure mode here, not a missed removal.
 - **Usher-division doctrine corrected (navigator-directed, 2026-08-28).** `skills/larry-personality/SKILL.md`'s Hierarchical Navigator section previously divided authority by step ownership: the tool owned Usher steps 1-2, the human owned steps 3-4, and Larry "NEVER crosses into step 3." Product evidence falsified that rule -- in December 2025 Mindrian produced a non-obvious cross-framework synthesis (how McKinsey's Seven Steps, Usher's own cumulative-synthesis model, and Abbie's three pathways relate) that the navigator had not already seen, which the old text would have forbidden it from ever producing. The division is now per-step and shared at generation: step 1 either party may surface an incomplete pattern; step 2 is Mindrian's strongest lane; step 3 either the human or Mindrian may generate a candidate synthesis; **step 4 the navigator retains final authority**, with Mindrian helping challenge, test and refine. Human-in-Command is preserved and made more explicit, not weakened -- only the flat step-3 prohibition changed. The navigator's framing: "Insight generation is not insight authority." New pull-quote replaces the old Aronhime line: "Mindrian may propose the leap. The navigator decides whether the leap is real." `tests/test-posture-ids-drift.cjs` re-pinned to the new quote in the same commit; its exactly-three posture-id assertion (`push_forward` / `hold` / `pull_back`) and the "restraint is the product working correctly" pin are byte-untouched, since this correction concerns the step-3 authority split and not the posture-dial mechanism. The Phase 141 CHANGELOG entry that records the original doctrine is deliberately left as-is; history is not retconned.
+- **The Brain problem-type alias table is now origin-selected (Phase 339, plan 339-04,
+  FLIP-02, D-03 consumer 1).** `lib/core/brain-client.cjs`'s single
+  `BRAIN_PROBLEM_TYPE_ALIASES` table is replaced by two frozen tables,
+  `BRAIN_PROBLEM_TYPE_ALIASES_INCUMBENT` and `BRAIN_PROBLEM_TYPE_ALIASES_THEO`, selected by
+  a new `_brainProblemTypeAliases()` function reading the resolved origin against a new
+  exported `THEO_ORIGINS` set, so a future `MINDRIAN_BRAIN_URL` change moves vocabulary and
+  URL together instead of the two drifting apart. What did NOT change: today's wire traffic
+  is byte-identical, because the incumbent origin still selects the incumbent table
+  (`tests/test-254-normalize-roundtrip-probe.cjs` Arms 4-5 green).
+- **The `brain_schema` memo is now keyed by origin, as defense in depth (Phase 339, plan
+  339-04, FLIP-05, D-13 as corrected).** The original D-13 ask was a flush mechanism;
+  research corrected the premise, recorded here plainly: no flush exists to perform, because
+  `BRAIN_URL` is a module-scope const resolved once at require time and the memo is
+  process-local, so no running process can ever observe an origin change during its own
+  lifetime. The origin-keyed guard ships anyway, becoming load-bearing the day anything
+  makes the origin mutable per process. What did NOT change: the 30-minute cache TTL and
+  the existing sentinel guard are untouched; `tests/test-339-schema-memo-origin-keyed.cjs`
+  (all 7 arms) is green.
+- **A fourth silent-degrade consumer, now disclosed rather than shipped unnamed (Phase 339,
+  plan 339-05, D-03b).** `lib/mcp/brain-router.cjs`'s Tier-3 `brainRoute()` previously fell
+  back to the Tier-2 local heuristic with no trace whenever a Brain response arrived without
+  a usable `next_gate`. `recommend()` now attaches an additive `brain_router_note:
+  'answered_no_next_gate'` field when that happens, carried through a module-scope variable
+  that never changes `brainRoute()`'s own return contract. What did NOT change: an
+  incumbent-shaped payload with `next_gate` present produces a byte-identical return object,
+  with no new field.
+- **The update path is now named in the `unreachable` and `no_key` refusal copy, from a
+  single frozen source (Phase 339, plan 339-06, FLIP-04, D-08).** `lib/core/update-path.cjs`
+  is the one place the two-command update path (`/plugin marketplace update`, then
+  `claude plugin update mos@mindrian-marketplace`) is spelled out; both refusal shapes in
+  `lib/core/refusal-messaging.cjs` now name it, and `unreachable`'s old bare-retry promise is
+  replaced with copy that does not promise what a suspended origin cannot deliver. The
+  honest limit, carried verbatim from this plan's own code comment: "This copy ships in
+  bytes. An install that has not updated prints the OLD string, because a main commit is not
+  live until released AND picked up. This change is the durable fix for the next origin move
+  and for honesty; the levers that reach today's stale population are the soak window and
+  the tester note."
+- **The origin literal sweep (Phase 339, plan 339-07, FLIP-01, D-12).**
+  `scripts/probe-brain-contract.cjs` and `scripts/build-brain-census.cjs`, the two remaining
+  runtime sites that declared their own Brain origin literal, now resolve it through
+  `getBrainUrl()` like every other call site; `tests/test-339-origin-single-source.cjs` is
+  fully green (0 violations, was 6). The generated census artifacts
+  (`data/brain-census.generated.json`, `docs/BRAIN-GRAPH-CENSUS.generated.md`) are left
+  unchanged, for three recorded reasons: the generator carries no `--check` release gate by
+  design, because a release gate must never depend on live network; Lane B requires an
+  operator-supplied admin key and Theo has none, so `brain_write` refuses unconditionally;
+  and re-running Lane A against Theo today would silently discard the census record the
+  2026-08 phases were measured against, replacing a census of the incumbent's 29,200-node
+  graph with one of Theo's own (measured live at 1,253 nodes). Re-census against Theo is
+  registered as a deferred item, not addressed by any plan in this phase.
+- **Desktop and Cowork connector docs now point at Theo (Phase 339, plan 339-08, FLIP-06,
+  D-09).** Six hand-authored sources and their generated mirrors now name
+  `https://theo-mcp.onrender.com/mcp`, WITH the `/mcp` path, as the connector URL, under the
+  unchanged connector key `mindrian-brain`, with the `Authorization` header dropped, because
+  Theo returns byte-identical payloads for a real key, a garbage key, and no header at all.
+  What did NOT change: `BRAIN_TOOL_MATCHER` and `hooks/hooks.json` were not touched.
+- **The reciprocal cross-repo record and the 269-05 readiness-gate rewrite (Phase 339, plan
+  339-09, FLIP-07, FLIP-08, D-10, D-14).** `docs/339-NOTE-theo-desktop-connector-key.md` now
+  exists at the path Theo's own shipped README already cites, naming `mindrian-brain` as the
+  sole prescribed connector key; a third alternation token for `BRAIN_TOOL_MATCHER` was
+  deliberately not added. Phase 269-05's Task 1 checklist, which read PASS from facts that
+  were never in question, is rewritten to three legs sourced from live, dated Theo records;
+  the three retired items are kept in place with a dated reason rather than deleted.
+
+**The flip-day content fact, verbatim from Session T (D-06a):** `/mos:leadership` and
+due-diligence consults answer thinner through Theo until the 30 names are ingested (Theo
+holds the `/mos:leadership` command node with zero framework links); this is an
+honest-empty coverage block, not an error. The 30 uncovered names bind Theo's own
+decommission task, NOT this flip, per the coverage ruling. The named-Frameworks ratio is
+RETIRED as a coverage measure: coverage is a set question, `Covered: 228 of 258, 88.4%`,
+`Uncovered: 30 of 258`.
+
+**What this release does NOT reach.** Two populations are unreachable by any release code
+can touch. Every install that has not run the two-command update prints the OLD refusal
+copy, because a main commit is not live until released AND picked up. Every hand-registered
+Claude Desktop or Cowork connector lives in a config file that is not in any git repo.
+Neither is reachable by code; the soak window and the tester note (`docs/testers/outbox/
+2026-09-03-theo-cutover.md`) are the only levers that reach them.
+
+Also worth naming so nobody compresses it: decommission of the incumbent Brain waits for the
+soak window; the incumbent is SUSPENDED and never deleted; the two Render services are
+stopped compute-before-data (`pws-brain-mcp` then `pws-brain-db`); and the per-install
+`MINDRIAN_BRAIN_URL` rollback lever is valid ONLY while the incumbent still runs.
 
 ## [2.0.0-beta.15] - 2026-08-28
 
