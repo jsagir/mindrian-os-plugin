@@ -2144,15 +2144,22 @@ Rule, not a silent omission, since no automation harness exists for either surfa
 
 **What NOT to steal / re-propose (Canon Part 7, per SEED-084):** `lib/core/room-skeleton-scaffold.cjs` and `lib/core/section-registry.cjs` already implement schema-driven section scaffolding — this phase EXTENDS their schema, it does not replace the mechanism. `/mos:onboard` and session-start nudges already partially cover the self-guiding-room gap for the CLI/Larry path; the real gap is the foreign-host-without-tools case specifically.
 
-**Requirements**: TBD
+**Requirements**: ICML-01 .. ICML-16 (minted at plan time 2026-09-04; written into `.planning/REQUIREMENTS.md` by plan 275-08, the phase-close plan)
 **Depends on:** none remaining — Phase 270's OQ-7 is FULLY RESOLVED 2026-09-04 (both the schema half and the section-adoption half; see SEED-084's `## RULING 2026-09-04`, `## ADDENDUM 2026-09-04g`, and `## ADDENDUM 2026-09-04j`). Navigator decision, all sourced against Brain + Theo + the actual 2026-04-14 Notion primary source: adopt `opportunity-bank`, `funding`, and `strategy` into `SECTION_NAMES` (8 → 11); `value-proposition` stays sub-structure inside `business-model`; `meetings` needs no change (already correctly modeled as a structural dir, not a section); `marketing-sales` and `research-documents` deferred (real intended content per the primary source, just never built — worth re-raising at planning time, not yet evidenced in code). `/gsd-plan-phase 275` is UNBLOCKED and can run.
 **Theo forward-compatibility (navigator ruling, 2026-09-02, standing rule -- CLAUDE.md):** the
 taxonomy open question this seed surfaces (which "venture stage" vocabulary is canonical) is
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
 labels -- when this phase becomes actionable, check whether Theo has already settled an
 analogous vocabulary question before re-deriving one locally.
-**Plans:** 0 plans
+**Plans:** 8 plans across 5 waves (planned 2026-09-04)
 
 Plans:
 
-- [ ] TBD (OQ-7 FULLY RESOLVED 2026-09-04 - see SEED-084 `## RULING 2026-09-04` / `## ADDENDUM 2026-09-04g` / `## ADDENDUM 2026-09-04j` - run /gsd-plan-phase 275 now)
+- [ ] 275-01-PLAN.md - the section tables: SECTION_NAMES 8 to 11, three new SECTION_METADATA entries, the L1 statement field, all seven propagation-gap citation corrections, section-registry promotion, blueprint data and CI gate (wave 1)
+- [ ] 275-02-PLAN.md - the three ICM layer mechanisms in the scaffold: L1 statement render, L2 per-section CONTEXT.md writer, L3 references/ factory directory writer (wave 2)
+- [ ] 275-03-PLAN.md - de-duplicate the two runtime SECTION_NAMES mirrors (room-birth.cjs, grade-grant.cjs) onto the scaffold export (wave 2)
+- [ ] 275-04-PLAN.md - reconcile the seven stale count assertions, keeping the single-legitimate-home rule test-270-baseline-schema-driven.cjs names by file and line (wave 3)
+- [ ] 275-05-PLAN.md - the L2 contracts for the 8 original sections, including the solution-design moat check cross-linked to competitive-analysis (wave 3)
+- [ ] 275-07-PLAN.md - the two L3 reference documents: SECTION-SCHEMA.md (venture_stage axis, both methodology grains, the precedence rule) and SUB-SCHEMAS.md (wave 3)
+- [ ] 275-06-PLAN.md - the L2 contracts for the 3 new sections, including the opportunity-bank to funding pipeline in both directions and the dilutive/non-dilutive scope (wave 4)
+- [ ] 275-08-PLAN.md - the idempotent additive migration for existing rooms, the phase assertion suite, run-all-275.sh, and the REQUIREMENTS.md block (wave 5)
