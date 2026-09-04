@@ -2152,14 +2152,26 @@ exactly the kind of schema-direction question Theo's own graph-rulebook governs 
 labels -- when this phase becomes actionable, check whether Theo has already settled an
 analogous vocabulary question before re-deriving one locally.
 **Plans:** 8 plans across 5 waves (planned 2026-09-04)
-
 Plans:
+**Wave 1**
 
 - [ ] 275-01-PLAN.md - the section tables: SECTION_NAMES 8 to 11, three new SECTION_METADATA entries, the L1 statement field, all seven propagation-gap citation corrections, section-registry promotion, blueprint data and CI gate (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 275-02-PLAN.md - the three ICM layer mechanisms in the scaffold: L1 statement render, L2 per-section CONTEXT.md writer, L3 references/ factory directory writer (wave 2)
 - [ ] 275-03-PLAN.md - de-duplicate the two runtime SECTION_NAMES mirrors (room-birth.cjs, grade-grant.cjs) onto the scaffold export (wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 275-04-PLAN.md - reconcile the seven stale count assertions, keeping the single-legitimate-home rule test-270-baseline-schema-driven.cjs names by file and line (wave 3)
 - [ ] 275-05-PLAN.md - the L2 contracts for the 8 original sections, including the solution-design moat check cross-linked to competitive-analysis (wave 3)
 - [ ] 275-07-PLAN.md - the two L3 reference documents: SECTION-SCHEMA.md (venture_stage axis, both methodology grains, the precedence rule) and SUB-SCHEMAS.md (wave 3)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 275-06-PLAN.md - the L2 contracts for the 3 new sections, including the opportunity-bank to funding pipeline in both directions and the dilutive/non-dilutive scope (wave 4)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 275-08-PLAN.md - the idempotent additive migration for existing rooms, the phase assertion suite, run-all-275.sh, and the REQUIREMENTS.md block (wave 5)
