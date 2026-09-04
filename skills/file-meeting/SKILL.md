@@ -342,7 +342,7 @@ probe turns a silent quality loss into a visible, reasoned choice.
 
 ## Step 3: Claimify Extraction (Five-Perspective Parallel Dispatch + Consolidation)
 
-> Quick 260903-kwl: `references/meeting/filing-protocol.md` is the
+> Quick 260903-kwl: `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/meeting/filing-protocol.md` is the
 > surface-neutral extract of this step, handed back by the MCP `meeting` tool
 > on Claude Desktop and Cowork. This CLI command keeps its own inline copy of
 > the protocol deliberately - the extract cannot carry the subagent dispatch
