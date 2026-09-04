@@ -1264,7 +1264,7 @@ and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
 - [x] **FLIP-05**: `brain_schema`'s memo cannot serve a schema fetched from a different origin
       than the one currently resolved (Cut: PREP).
 
-- [ ] **FLIP-06**: Desktop and Cowork connector docs name Theo's `/mcp` endpoint under the
+- [x] **FLIP-06**: Desktop and Cowork connector docs name Theo's `/mcp` endpoint under the
       unchanged `mindrian-brain` key with no `Authorization` header, and every generated mirror is
       regenerated rather than hand-edited (Cut: PREP).
 

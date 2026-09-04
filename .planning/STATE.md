@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-07-PLAN.md
-last_updated: "2026-09-04T05:20:30.063Z"
+stopped_at: Completed 339-08-PLAN.md
+last_updated: "2026-09-04T05:37:21.078Z"
 last_activity: 2026-09-04 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 186
-  completed_plans: 176
+  completed_plans: 177
   percent: 95
 ---
 
@@ -4050,7 +4050,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
-Plan: 7 of 14
+Plan: 8 of 14
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 339 execution started
 
@@ -4901,6 +4901,7 @@ Progress: [█████████░] 92%
 | Phase 276 P15 | 50min | 3 tasks | 5 files |
 | Phase 339 P05 | 55min | 2 tasks | 2 files |
 | Phase 339 P07 | 55min | 3 tasks | 11 files |
+| Phase 339 P08 | 22min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -6340,6 +6341,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 339-07: session-start banner drops the Brain host entirely rather than deriving it via a node spawn; doctor class M layer 6 stays the one authoritative origin reporter
 - [Phase ?]: 339-07: doctor L6 below-floor test count moved from 1000 to 500 because 1000 is the coming Theo floor and would silently invert on flip
 - [Phase ?]: 339-07: generated census artifacts (brain-census.generated.json, BRAIN-GRAPH-CENSUS.generated.md) left unchanged; re-census against Theo registered as deferred
+- [Phase 339]: 339-08: every literal pws-brain-mcp.onrender.com occurrence removed from the six Task-1 files (incl. commands/setup.md's CLI curl targets and both retired-harness reason strings), per the plan's unconditional acceptance bullet
 
 ### Pending Todos
 
@@ -6461,8 +6463,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T05:20:30.002Z
-Stopped at: Completed 339-07-PLAN.md
+Last session: 2026-09-04T05:37:21.020Z
+Stopped at: Completed 339-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

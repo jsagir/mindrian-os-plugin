@@ -1730,7 +1730,7 @@ Plans:
 **Requirements**: FLIP-01, FLIP-02, FLIP-03, FLIP-04, FLIP-05, FLIP-06, FLIP-07, FLIP-08,
 FLIP-09, FLIP-10, FLIP-11, FLIP-12
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
-**Plans:** 7/14 plans executed
+**Plans:** 8/14 plans executed
 
 Plans:
 
@@ -1746,7 +1746,7 @@ Plans:
 - [x] 339-05-PLAN.md - enrichment-queue two additive arms, brain-router Tier-3 disclosure
 - [x] 339-06-PLAN.md - lib/core/update-path.cjs and the refusal-copy amendment
 - [x] 339-07-PLAN.md - the literal sweep onto getBrainUrl(), plus the prose and banner sites
-- [ ] 339-08-PLAN.md - Desktop and Cowork connector docs, regenerated mirrors, backend-agnostic shim descriptions
+- [x] 339-08-PLAN.md - Desktop and Cowork connector docs, regenerated mirrors, backend-agnostic shim descriptions
 - [ ] 339-09-PLAN.md - docs/339-NOTE-theo-desktop-connector-key.md and the 269-05 checklist rewrite
 
 **Wave 3 (PREP written record)**
