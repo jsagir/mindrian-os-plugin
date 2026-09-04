@@ -1287,18 +1287,169 @@ and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
       through `brain_stats` and `brain_ask`, and the result is reported to Session T as 09-12
       Task 2's resume signal (Cut: POST).
 
+### Phase 275 - Enlarge Room Schema by ICM Layer (minted at plan time 2026-09-04)
+
+These sixteen IDs were minted in the Phase 275 plan set (no `275-RESEARCH.md` was produced for
+this phase; SEED-084's own ten-addendum trail covers the what and why, cited throughout the
+plan set), scoped to Phase 275 only: build the ICM layered context hierarchy (L0-L4) for real,
+per room, for the first time, and give existing rooms a migration path onto it. Eight plans
+executed across five waves (275-01 Wave 1 the section tables and citation corrections; 275-02
+and 275-03 Wave 2 the three ICM layer mechanisms in the scaffold plus the runtime-mirror
+de-duplication; 275-04, 275-05, 275-07 Wave 3 the test reconciliation plus the L2 contracts for
+the 8 original sections plus the two L3 reference documents; 275-06 Wave 4 the L2 contracts for
+the 3 new sections; 275-08 Wave 5 the migration script, the phase assertion suite, and this
+registration). Every row below is `[x]`, with each `Measured:` clause taken from the
+corresponding plan's own SUMMARY.md or re-run live by 275-08 to obtain.
+
+- [x] **ICML-01**: `SECTION_NAMES` grows 8 to 11 (`opportunity-bank`, `funding`, `strategy`),
+      with matching `SECTION_METADATA` entries for all 11. Fixed in
+      `lib/core/room-skeleton-scaffold.cjs` (275-01). Measured: `275-01-SUMMARY.md` records the
+      grown table verified live; re-confirmed by `275-08`'s `tests/test-275-section-schema.cjs`
+      Section 1 (this run): `SECTION_NAMES` and `Object.keys(SECTION_METADATA)` are set-equal at
+      11 entries.
+
+- [x] **ICML-02**: All seven bad `default_methodologies` citations corrected: two dead slugs
+      (`domain-explorer`, `scenario-analysis`) removed across five citations, plus two live
+      commands refiled to the section they actually produce into (`trending-to-absurd` to
+      `opportunity-bank`, `analyze-needs` to `market-analysis`). Fixed in
+      `lib/core/room-skeleton-scaffold.cjs` (275-01). Measured: `275-01-SUMMARY.md`'s
+      before/after `default_methodologies` table, every slug re-verified live against
+      `data/command-registry.json`; re-confirmed by `tests/test-275-section-schema.cjs` Section 2
+      (this run, 4/4 PASS): every citation resolves live, `trending-to-absurd` appears only under
+      `opportunity-bank`, `analyze-needs` only under `market-analysis`, neither dead slug appears
+      anywhere.
+
+- [x] **ICML-03**: `section-registry.cjs` promotes `opportunity-bank` and `funding` from
+      `EXTENDED_SECTION_META` into `CORE_SECTIONS` and registers `strategy`; `references` added
+      to `STRUCTURAL_DIRS`; `CONTEXT.md` excluded from `isIndexableArtifactFile`. Fixed in
+      `lib/core/section-registry.cjs` (275-01). Measured: `275-01-SUMMARY.md` records the
+      byte-identical-copy promotion and the collision-checked `strategy` color; re-confirmed by
+      `tests/test-275-section-schema.cjs` Section 1 (this run): `Object.keys(CORE_SECTIONS)` is
+      set-equal to `SECTION_NAMES` at 11 entries.
+
+- [x] **ICML-04**: `data/room-blueprints.json` and `scripts/check-room-blueprints.cjs`
+      reconciled to the 11-slug vocabulary; CI gate green with `EXPECTED_FAMILY_COUNT` unchanged
+      at 9. Fixed in `data/room-blueprints.json`, `scripts/check-room-blueprints.cjs` (275-01).
+      Measured: `node scripts/check-room-blueprints.cjs --check` re-run live by 275-08 -> `PASS: 9
+      families, all section slugs valid, all arrays non-empty.`
+
+- [x] **ICML-05**: The two runtime `SECTION_NAMES` mirrors (`room-birth.cjs`, `grade-grant.cjs`)
+      read the scaffold's own export live instead of carrying a hand-copied literal. Fixed in
+      `lib/core/navigation/room-birth.cjs`, `lib/core/eureka/grade-grant.cjs` (275-03). Measured:
+      `275-03-SUMMARY.md`'s verification run printed `11 11 11` across all three sources, and a
+      real `room.db` measurement (`SELECT COUNT(*) FROM nodes WHERE type='Section'`) went from 8
+      to 11; re-confirmed by `tests/test-275-section-schema.cjs` Section 1 (this run): all four
+      section-vocabulary sources (`SECTION_NAMES`, `SECTION_METADATA`, `CORE_SECTIONS`,
+      `roomBirth.SECTION_NAMES`, `grade-grant.ROOM_SECTION_VALUES`) are set-equal at 11 entries.
+
+- [x] **ICML-06**: The seven stale count-literal assertion sites this phase's own table growth
+      turned RED are green again, with the exactly-N literal kept at exactly one sanctioned home
+      (`lib/core/room-skeleton-scaffold.test.cjs` Bonus Test 15) and every other site deriving
+      from the table. Fixed in `lib/core/room-skeleton-scaffold.test.cjs`,
+      `tests/test-room-skeleton-scaffold-integration.cjs`, `tests/test-119-02-scaffold.sh`,
+      `tests/test-hypothesis-family-and-claim.cjs` (275-04). Measured: `275-04-SUMMARY.md`'s
+      "Known Red: Now Green" table, all seven sites confirmed GREEN by direct execution; re-run
+      live by 275-08 via `tests/run-all-275.sh` arms 3/4/5/7: `node --test
+      lib/core/room-skeleton-scaffold.test.cjs` 19/19 pass, `node
+      tests/test-room-skeleton-scaffold-integration.cjs` 3/3 pass, `bash
+      tests/test-119-02-scaffold.sh` PASSED, `node tests/test-hypothesis-family-and-claim.cjs` 9
+      checks passed.
+
+- [x] **ICML-07**: L1: every section `ROOM.md` carries `statement` in frontmatter and as a body
+      blockquote. Fixed in `templates/room-skeleton/ROOM.md.section.tmpl`,
+      `lib/core/room-skeleton-scaffold.cjs` (275-02). Measured:
+      `tests/test-275-section-schema.cjs` Section 3 (this run): every scaffolded section
+      `ROOM.md` carries the statement in frontmatter AND as a body blockquote, and no file
+      matches an unrendered `{{TOKEN}}`.
+
+- [x] **ICML-08**: L2: all eleven sections get a scaffolded, idempotent `CONTEXT.md` contract.
+      Fixed in `templates/room-skeleton/section-contracts/*.md`,
+      `lib/core/room-skeleton-scaffold.cjs`'s `writeSectionContracts` (275-02, 275-05, 275-06).
+      Measured: `tests/test-275-section-schema.cjs` Section 4 (this run): `contracts_created.length
+      === SECTION_NAMES.length` (11/11), zero `contract_template_missing:` warnings, every landed
+      `CONTEXT.md` byte-identical to its template.
+
+- [x] **ICML-09**: L2: `solution-design`'s Human check carries the moat/defensibility question,
+      cross-linked to `competitive-analysis` in both directions, citing `.claude/includes/moat.md`
+      verbatim. Fixed in `templates/room-skeleton/section-contracts/solution-design.md`,
+      `competitive-analysis.md` (275-05). Measured: `tests/test-275-section-schema.cjs` Section 4
+      (this run): `solution-design.md` contains "hard to copy" and names `competitive-analysis`;
+      `competitive-analysis.md` names `solution-design`.
+
+- [x] **ICML-10**: L2: the `opportunity-bank` to `funding` pipeline is named in both directions;
+      `funding` names both Dilutive and Non-Dilutive funding types with the implemented
+      (non-dilutive) half distinguished honestly from the deferred (dilutive) half. Fixed in
+      `templates/room-skeleton/section-contracts/opportunity-bank.md`, `funding.md` (275-06).
+      Measured: `tests/test-275-section-schema.cjs` Section 4 (this run):
+      `opportunity-bank.md` names `/mos:funding create`; `funding.md` contains
+      `[[opportunity-bank/`, `Dilutive`, and `Non-Dilutive`.
+
+- [x] **ICML-11**: L3: every room gets a `references/` directory with its own identity file.
+      Fixed in `lib/core/room-skeleton-scaffold.cjs`'s `IDENTITY_DIRECTORIES` (275-02). Measured:
+      `tests/test-275-section-schema.cjs` Section 5 (this run): `references/ROOM.md` is present
+      on a fresh scaffold, and `references` is absent from `discoverSections(room).all`.
+
+- [x] **ICML-12**: L3: the `venture_stage` axis schema, both `default_methodologies`
+      grains (section-grain and family-grain) with their precedence rule, and the three-tier
+      command-citation map are documented. Fixed in
+      `templates/room-skeleton/references/SECTION-SCHEMA.md` (275-07). Measured:
+      `tests/test-275-section-schema.cjs` Section 5 (this run): `SECTION-SCHEMA.md` names all 5
+      `VALID_STAGES` values (derived live from `lib/core/model-profiles.cjs`'s `STAGE_HINTS`),
+      all 11 section slugs, all 9 blueprint families, and `familyActive`.
+
+- [x] **ICML-13**: L3: `funding`'s Stage/Outcome sub-schema, `opportunity-bank`'s Knight-position
+      sub-schema, and `team-execution`'s Mentor-Profiles sub-schema are documented. Fixed in
+      `templates/room-skeleton/references/SUB-SCHEMAS.md` (275-07). Measured:
+      `tests/test-275-section-schema.cjs` Section 5 (this run): `SUB-SCHEMAS.md` names all four
+      funding stages (Discovered, Researched, Applying, Submitted), all three outcomes (awarded,
+      rejected, withdrawn), `Knight`, and `last_consulted`.
+
+- [x] **ICML-14**: An idempotent, additive migration script brings an existing room onto the
+      11-section L0/L1/L2/L3 schema, with `--dry-run` provably inert and human-authored content
+      never overwritten. Fixed in `scripts/migrate-room-sections-v275.cjs` (275-08). Measured:
+      the plan's own Task 1 automated verify command, re-run live: `OK migration additive +
+      idempotent + dry-run clean`; `tests/test-275-section-schema.cjs` Section 7 (this run, 8/8
+      PASS): `--dry-run` leaves a full recursive content snapshot unchanged, one real run brings
+      a synthetic legacy room to the full 11-section shape, pre-existing human content and an
+      ad-hoc `opportunity-bank/` file both survive byte-for-byte, and a second run is
+      byte-identical to the first.
+
+- [x] **ICML-15**: L4: inline-content drift is reported, never rewritten. Fixed in
+      `scripts/migrate-room-sections-v275.cjs`'s `--report-drift` pass, and every contract
+      template's Outputs clause (275-08). Measured: `tests/test-275-section-schema.cjs` Section 6
+      (this run, 4/4 PASS): `--report-drift` exits 0 against a synthetic drifted room, names the
+      drifted section by slug, and leaves the room's full content snapshot unchanged.
+
+- [x] **ICML-16**: `tests/run-all-275.sh` aggregates the phase's proofs (all ten arms, including
+      two do-not-regress arms) and passes. Fixed in `tests/run-all-275.sh` (275-08). Measured:
+      `bash tests/run-all-275.sh` -> `Phase 275: PASS=10 FAIL=0`, exit 0, run twice in a row with
+      the identical result.
+
+**Deferred follow-ups, named so neither is lost:**
+
+1. **Dilutive/equity funding tracking** in the `/mos:funding` command surface (D-11): the command
+   surface today implements only the non-dilutive (grant) half; a dilutive/equity stage machine
+   is a command-surface build with a different blast radius than this schema phase, deliberately
+   left for a future phase. Target shape: SEED-084 `## ADDENDUM 2026-09-04j` (the primary
+   source's own Dilutive-vs-Non-Dilutive Funding Options nesting).
+2. **`marketing-sales`** as a candidate section: the 2026-04-14 Notion primary source upgraded
+   this from "no evidence" to "real intended content, never built" (Marketing Strategies, Sales
+   Strategies and Pipelines). Not added this phase (zero code/Theo grounding at decision time);
+   worth re-raising at a future planning pass rather than left deferred silently.
+
 ## Traceability
 
-157 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+173 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
 plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
-(Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339). All minted
+(Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339), plus ICML-01..16
+(Phase 275). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
-(all minted 2026-09-03): RADAR-01..11 and MCPFIX-01..04 at
+(all minted 2026-09-03), and ICML-01..16 (minted 2026-09-04): RADAR-01..11 and MCPFIX-01..04 at
 first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
@@ -1324,9 +1475,13 @@ Phase 276 only, and are registered here at phase close by `276-16-PLAN.md` per t
 FLIP-01..12 were minted in Phase 339's plan set (2026-09-03), ratifying 339-RESEARCH.md's
 proposed family, and are registered here at plan time as - [ ] rows to be finalized with
 measured proof at phase close.
-Roadmap phases must map all 157 active requirements with no orphans.
+ICML-01..16 were minted in the Phase 275 plan set (2026-09-04; no `275-RESEARCH.md` was
+produced, SEED-084's own addendum trail covers the what and why), scoped to Phase 275 only, and
+are registered here at phase close by `275-08-PLAN.md` per the Phase 254/257/265/267.2/267.3/
+270/272/274/276/339 precedent.
+Roadmap phases must map all 173 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON and
+**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML and
 FLIP
 families
 alike (the
