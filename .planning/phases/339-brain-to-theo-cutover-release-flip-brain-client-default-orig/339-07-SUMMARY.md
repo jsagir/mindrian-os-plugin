@@ -156,6 +156,6 @@ None. No hardcoded empty/placeholder UI-facing values were introduced by this pl
 
 None. Every file touched maps to a `mitigate` disposition already named in this plan's own `<threat_model>` (T-339-01, T-339-20, T-339-21, T-339-22, T-339-36, T-339-37, T-339-38); no new network endpoint, auth path, file-access pattern, or schema change at a trust boundary was introduced outside that register.
 
-## Self-Check
+## Self-Check: PASSED
 
-See `## Self-Check` section appended below.
+All 11 files modified by this plan verified present on disk (`scripts/probe-brain-contract.cjs`, `scripts/build-brain-census.cjs`, `lib/core/mcp-profiles.cjs`, `scripts/rs-experts-command.cjs`, `scripts/rs-thesis-command.cjs`, `scripts/sessionstart-post-update-preflight.cjs`, `scripts/session-start`, `.env.brain.template`, `lib/core/doctor/class-m-brain-smoke.cjs`, `lib/core/doctor/class-m-brain-smoke.test.cjs`, `tests/fixtures/246-census-fixture.json`), plus this SUMMARY.md. All 4 commit hashes verified present in `git log --oneline --all`: `b75b36d2` (Task 1), `d1bd258b` (Task 2), `7353e60f` (Task 3), `b0a4cbd8` (SUMMARY filing). No missing items.
