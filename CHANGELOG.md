@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.17 (in progress)
+## [2.0.0-beta.17] - 2026-09-04
 
 ### Added
 - `scripts/check-tool-honesty.cjs`: a standing, advisory MCP tool-honesty gate that
