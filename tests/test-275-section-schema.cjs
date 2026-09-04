@@ -23,6 +23,10 @@ const os = require('node:os');
 const fs = require('node:fs');
 const path = require('node:path');
 const cp = require('node:child_process');
+// WR-02 fix: gray-matter is the repo's own YAML frontmatter parser (already
+// a package.json dependency); Section 3 uses it to actually parse generated
+// ROOM.md frontmatter instead of regex-matching raw bytes.
+const grayMatter = require('gray-matter');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SCAFFOLD_PATH = path.join(REPO_ROOT, 'lib', 'core', 'room-skeleton-scaffold.cjs');
@@ -205,24 +209,64 @@ console.log('Section 3: L1 statement -- every section carries it in frontmatter 
     walk(tmpDir);
     assert(noUnrenderedTokens, 'no file in a fresh room matches an unrendered {{TOKEN}}');
 
+    // WR-02 fix: parse each generated ROOM.md's frontmatter with gray-matter
+    // (the repo's own YAML frontmatter parser) instead of regex-matching raw
+    // bytes. A regex substring match cannot detect an unquoted YAML-significant
+    // character (e.g. a mid-scalar ": ") corrupting the frontmatter block --
+    // CR-01 shipped green under the old regex-only assertion.
+    let allFrontmatterParses = true;
+    const parseFailures = [];
     for (const slug of scaffold.SECTION_NAMES) {
       const roomMdPath = path.join(tmpDir, slug, 'ROOM.md');
       const content = fs.readFileSync(roomMdPath, 'utf8');
       const meta = scaffold.SECTION_METADATA[slug];
-      const hasFrontmatterStatement = new RegExp('^statement: ' + escapeRe(meta.statement), 'm').test(content);
       const hasBodyBlockquote = content.includes('> ' + meta.statement);
-      if (!hasFrontmatterStatement || !hasBodyBlockquote) allCarryStatement = false;
+      let parsedOk = false;
+      try {
+        const parsed = grayMatter(content);
+        parsedOk = !!parsed.data && parsed.data.statement === meta.statement;
+      } catch (_e) {
+        parsedOk = false;
+      }
+      if (!parsedOk || !hasBodyBlockquote) {
+        allCarryStatement = false;
+        allFrontmatterParses = false;
+        parseFailures.push(slug);
+      }
     }
     assert(allCarryStatement, 'every scaffolded section ROOM.md carries the statement in frontmatter AND as a body blockquote');
+    assert(allFrontmatterParses, 'every scaffolded section ROOM.md frontmatter block gray-matter-parses with parsed.data.statement === meta.statement' +
+      (parseFailures.length > 0 ? ' (offenders: ' + parseFailures.join(', ') + ')' : ''));
+
+    // Same class of check for the non-ICM identity directories (Canon
+    // decision 15): the same escapeYamlDoubleQuoted mechanism protects
+    // IDENTITY_DIRECTORIES purpose text, independently reproduced against
+    // references/ROOM.md during the CR-01 fix pass.
+    let allIdentityFrontmatterParses = true;
+    const identityParseFailures = [];
+    for (const dirName of Object.keys(scaffold.IDENTITY_DIRECTORIES)) {
+      const identityRoomMdPath = path.join(tmpDir, dirName, 'ROOM.md');
+      const content = fs.readFileSync(identityRoomMdPath, 'utf8');
+      const meta = scaffold.IDENTITY_DIRECTORIES[dirName];
+      let parsedOk = false;
+      try {
+        const parsed = grayMatter(content);
+        parsedOk = !!parsed.data && parsed.data.purpose === meta.purpose;
+      } catch (_e) {
+        parsedOk = false;
+      }
+      if (!parsedOk) {
+        allIdentityFrontmatterParses = false;
+        identityParseFailures.push(dirName);
+      }
+    }
+    assert(allIdentityFrontmatterParses, 'every scaffolded identity-directory ROOM.md frontmatter block gray-matter-parses with parsed.data.purpose === meta.purpose' +
+      (identityParseFailures.length > 0 ? ' (offenders: ' + identityParseFailures.join(', ') + ')' : ''));
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 }
 console.log('');
-
-function escapeRe(s) {
-  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 
 // ---------------------------------------------------------------------------
 // Section 4: L2 contracts (ICML-08, ICML-09, ICML-10)
