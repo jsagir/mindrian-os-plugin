@@ -2151,7 +2151,7 @@ taxonomy open question this seed surfaces (which "venture stage" vocabulary is c
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
 labels -- when this phase becomes actionable, check whether Theo has already settled an
 analogous vocabulary question before re-deriving one locally.
-**Plans:** 6/8 plans executed
+**Plans:** 7/8 plans executed
 Plans:
 **Wave 1**
 
@@ -2170,7 +2170,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 275-06-PLAN.md - the L2 contracts for the 3 new sections, including the opportunity-bank to funding pipeline in both directions and the dilutive/non-dilutive scope (wave 4)
+- [x] 275-06-PLAN.md - the L2 contracts for the 3 new sections, including the opportunity-bank to funding pipeline in both directions and the dilutive/non-dilutive scope (wave 4)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

@@ -4,14 +4,14 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 275-07-PLAN.md
-last_updated: "2026-09-04T11:40:45.484Z"
+last_updated: "2026-09-04T11:47:10.631Z"
 last_activity: 2026-09-04 -- Phase 275 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 194
-  completed_plans: 187
-  percent: 96
+  completed_plans: 188
+  percent: 21
 ---
 
 <!-- NOTE (275-07 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
@@ -4082,7 +4082,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 275 (enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 275 execution started
 
@@ -4942,6 +4942,7 @@ Progress: [█████████░] 92%
 | Phase 275 P04 | 32min | 2 tasks | 4 files |
 | Phase 275 P05 | 70min | 2 tasks | 8 files |
 | Phase 275 P07 | 55min | 2 tasks | 2 files |
+| Phase 275 P06 | 55min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6398,6 +6399,9 @@ Progress: [█████████░] 92%
 - [Phase 275]: D-12: Mentor-Profiles named concretely in team-execution.md, pointing at ../references/SUB-SCHEMAS.md instead of duplicating the field list
 - [Phase 275]: 275-07: strategy's six Tier-1 commands are a deliberate documented exception (wildcard produces path, promoted by SEED-084 ADDENDUM 2026-09-04g's DECIDED ruling), not a match to the literal ground-truth definition
 - [Phase 275]: 275-07: dead-slug corrections in SECTION-SCHEMA.md Section 6 are described by defect, not by reconstructing the dead slug's literal spelling, per the plan's own acceptance-criteria escape hatch
+- [Phase ?]: D-07 executed: opportunity-bank/funding pipeline relationship named in both directions (Feeds:/Reads from: lines, /mos:funding create, [[opportunity-bank/{source}]] wikilink)
+- [Phase ?]: D-08/D-11 executed: funding.md documents both Dilutive and Non-Dilutive funding types; only non-dilutive is implemented today, dilutive build deferred by name to a future phase
+- [Phase ?]: D-06 executed: strategy.md names six Tier 1 commands, grounded in the graph-asserted Reverse Salient Analysis FEEDS_INTO Scenario Planning edge (confidence 0.65)
 
 ### Pending Todos
 
@@ -6519,7 +6523,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T11:40:45.411Z
+Last session: 2026-09-04T11:46:51.177Z
 Stopped at: Completed 275-07-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
