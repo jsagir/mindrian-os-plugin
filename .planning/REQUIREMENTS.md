@@ -1247,7 +1247,7 @@ to Phase 339 only: ship the plugin release(s) that move every installed user's B
 the incumbent (`https://pws-brain-mcp.onrender.com`) to Theo (`https://theo-mcp.onrender.com`),
 and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
 
-- [ ] **FLIP-01**: No runtime site resolves the Brain origin from its own literal; every one
+- [x] **FLIP-01**: No runtime site resolves the Brain origin from its own literal; every one
       derives from `brain-client.cjs`'s exported `getBrainUrl()` or from a frozen constant that
       moves in the same commit as line 24 (Cut: PREP + FLIP).
 
@@ -1280,7 +1280,7 @@ and hand Theo's Phase 9 plan 09-12 its Task 2 resume signal.
 - [ ] **FLIP-10**: `brain-client.cjs:24` resolves to `https://theo-mcp.onrender.com`, bare origin,
       and the docblock at `:4-7` no longer names the incumbent (Cut: FLIP).
 
-- [ ] **FLIP-11**: `class-m-brain-smoke.cjs` layer 6 reports an honest verdict against Theo
+- [x] **FLIP-11**: `class-m-brain-smoke.cjs` layer 6 reports an honest verdict against Theo
       (canon origin, stats key, node floor all correct for the shipped default) (Cut: FLIP).
 
 - [ ] **FLIP-12**: An installed session running the FLIP release returns structured Theo answers

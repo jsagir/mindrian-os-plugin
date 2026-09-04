@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-06-PLAN.md
-last_updated: "2026-09-04T04:57:38.885Z"
+stopped_at: Completed 339-07-PLAN.md
+last_updated: "2026-09-04T05:20:30.063Z"
 last_activity: 2026-09-04 -- Phase 339 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 186
-  completed_plans: 175
-  percent: 94
+  completed_plans: 176
+  percent: 95
 ---
 
 <!-- NOTE (339-05 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
@@ -4050,7 +4050,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
-Plan: 6 of 14
+Plan: 7 of 14
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 339 execution started
 
@@ -4900,6 +4900,7 @@ Progress: [█████████░] 92%
 | Phase 339 P04 | 35min | 3 tasks | 1 files |
 | Phase 276 P15 | 50min | 3 tasks | 5 files |
 | Phase 339 P05 | 55min | 2 tasks | 2 files |
+| Phase 339 P07 | 55min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -6336,6 +6337,9 @@ Progress: [█████████░] 92%
 - [Phase 276]: Re-froze the tool-honesty disposition ledger against the live 37-tool/131-branch scan surface and regenerated the substrate baseline to one measured number (205), closing Phase 273 D-05's deferred reconciliation. -- Plan 276-12 added claim_write, invalidating the 36/130 freeze; Phase 273 D-05 deferred the substrate baseline update to whichever phase's C4/M5-M8 work could actually move the count.
 - [Phase 339]: 339-05: two additive Theo capture arms close the enrichment-queue's one true silent failure, and a module-scope carrier discloses the D-03b Tier-3 router miss (next_gate absent) that isAvailable()-gating cannot see post-flip - Both changes are provably unreachable by an incumbent payload; the carrier variable avoids widening brainRoute()'s return contract, which would have let a chainless object be read as a real recommendation
 - [Phase 339]: 339-06: D-08/FLIP-04: both unreachable and no_key refusal copy name the two-command update path from one frozen source (lib/core/update-path.cjs); it lives in RENDER_COPY not REASONS to respect the 120-char single-line cap; scripts/self-update's pre-existing triple-copy (flagged by 339-02's own Arm 5 test) fixed by sourcing it at runtime instead
+- [Phase ?]: 339-07: session-start banner drops the Brain host entirely rather than deriving it via a node spawn; doctor class M layer 6 stays the one authoritative origin reporter
+- [Phase ?]: 339-07: doctor L6 below-floor test count moved from 1000 to 500 because 1000 is the coming Theo floor and would silently invert on flip
+- [Phase ?]: 339-07: generated census artifacts (brain-census.generated.json, BRAIN-GRAPH-CENSUS.generated.md) left unchanged; re-census against Theo registered as deferred
 
 ### Pending Todos
 
@@ -6457,8 +6461,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T04:53:47.979Z
-Stopped at: Completed 339-06-PLAN.md
+Last session: 2026-09-04T05:20:30.002Z
+Stopped at: Completed 339-07-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
