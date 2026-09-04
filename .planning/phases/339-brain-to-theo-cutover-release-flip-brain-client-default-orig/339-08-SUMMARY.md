@@ -190,3 +190,7 @@ The plan's phase-level `<verification>` block asserts `grep -rn 'pws-brain-mcp.o
 ---
 *Phase: 339-brain-to-theo-cutover-release-flip-brain-client-default-orig*
 *Completed: 2026-09-04*
+
+## Self-Check: PASSED
+
+All 9 created/modified files verified present on disk; all 4 commits (`be7966bf`, `226b16ed`, `5674d985`, `0fe28d65`) verified present in `git log --oneline --all`.
