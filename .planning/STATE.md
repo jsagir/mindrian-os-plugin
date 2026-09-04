@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 275-02-PLAN.md
-last_updated: "2026-09-04T10:59:39.692Z"
+stopped_at: Completed 275-03-PLAN.md
+last_updated: "2026-09-04T11:09:27.448Z"
 last_activity: 2026-09-04 -- Phase 275 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 194
-  completed_plans: 183
+  completed_plans: 184
   percent: 21
 ---
 
@@ -4073,7 +4073,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 275 (enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 275 execution started
 
@@ -4929,6 +4929,7 @@ Progress: [█████████░] 92%
 | Phase 339 P10 | 45min | 2 tasks | 2 files |
 | Phase 275 P01 | 24min | 3 tasks | 4 files |
 | Phase 275 P02 | 55min | 3 tasks | 3 files |
+| Phase 275 P03 | 12min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6376,6 +6377,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: 275-02 D-10 executed: statement rendered as both a frontmatter key and a body blockquote (foreign-host/no-MCP-tools reader)
 - [Phase ?]: 275-02 contract-file naming convention fixed: templates/room-skeleton/section-contracts/<slug>.md, verbatim copy to <room>/<slug>/CONTEXT.md, no frontmatter, fixed heading order
 - [Phase ?]: 275-02 REFERENCE_DOCS frozen allowlist locked to SECTION-SCHEMA.md and SUB-SCHEMAS.md, never a glob
+- [Phase ?]: 275-03: room-birth SECTION_NAMES and grade-grant ROOM_SECTION_VALUES both rebound to scaffold.SECTION_NAMES live reads; grade-grant required room-skeleton-scaffold.cjs (leaf module) over room-birth.cjs for cycle safety
+- [Phase ?]: 275-03: phase-162-section-nodes.cjs:63 stale 'canonical 8' comment deferred as named follow-up (out of declared files_modified scope)
 
 ### Pending Todos
 
@@ -6497,8 +6500,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T10:59:39.629Z
-Stopped at: Completed 275-02-PLAN.md
+Last session: 2026-09-04T11:09:27.383Z
+Stopped at: Completed 275-03-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

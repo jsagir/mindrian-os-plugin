@@ -2151,7 +2151,7 @@ taxonomy open question this seed surfaces (which "venture stage" vocabulary is c
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
 labels -- when this phase becomes actionable, check whether Theo has already settled an
 analogous vocabulary question before re-deriving one locally.
-**Plans:** 2/8 plans executed
+**Plans:** 3/8 plans executed
 Plans:
 **Wave 1**
 
@@ -2160,7 +2160,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 275-02-PLAN.md - the three ICM layer mechanisms in the scaffold: L1 statement render, L2 per-section CONTEXT.md writer, L3 references/ factory directory writer (wave 2)
-- [ ] 275-03-PLAN.md - de-duplicate the two runtime SECTION_NAMES mirrors (room-birth.cjs, grade-grant.cjs) onto the scaffold export (wave 2)
+- [x] 275-03-PLAN.md - de-duplicate the two runtime SECTION_NAMES mirrors (room-birth.cjs, grade-grant.cjs) onto the scaffold export (wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
