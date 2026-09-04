@@ -45,7 +45,20 @@ set -euo pipefail
 
 MODE="${1:-help}"
 
-cat >&2 <<'EOF'
+# Phase 339 Plan 06 (FLIP-04, D-08): the plugin-update command line below is
+# sourced from lib/core/update-path.cjs, the single source of the two-command
+# update path, so this deprecated stub cannot drift from it (three retyped
+# copies is exactly the drift D-08 exists to prevent).
+# tests/test-339-update-path-single-source.cjs Arm 5 polices the OTHER
+# direction: the literal must appear nowhere in lib/ or scripts/ except
+# inside update-path.cjs itself, so it is fetched here, never retyped.
+SELF_UPDATE_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PLUGIN_UPDATE_CMD="$(node -e "process.stdout.write(require(process.argv[1]).PLUGIN_UPDATE_COMMAND)" "${SELF_UPDATE_REPO_ROOT}/lib/core/update-path.cjs" 2>/dev/null || true)"
+if [ -z "${PLUGIN_UPDATE_CMD}" ]; then
+  PLUGIN_UPDATE_CMD="the plugin-update command from .claude/includes/release-process.md"
+fi
+
+cat >&2 <<EOF
 ══════════════════════════════════════════════════════════════════════════
 DEPRECATED -- scripts/self-update is a no-op as of 2026-04-26
 ══════════════════════════════════════════════════════════════════════════
@@ -65,7 +78,7 @@ USE INSTEAD (in this order):
 
   3. From the bash CLI (equivalent to the slash commands):
         claude plugin marketplace update
-        claude plugin update mos@mindrian-marketplace
+        ${PLUGIN_UPDATE_CMD}
 
 After update, restart Claude Code and verify with /mos:help.
 
