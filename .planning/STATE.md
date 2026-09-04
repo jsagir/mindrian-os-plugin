@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 339-11-PLAN.md (v2.0.0-beta.17 released and verified on all four surfaces)
-last_updated: "2026-09-04T09:05:22.943Z"
-last_activity: 2026-09-04 -- Phase 339 execution started
+stopped_at: Completed 275-01-PLAN.md
+last_updated: "2026-09-04T10:45:13.520Z"
+last_activity: 2026-09-04 -- Phase 275 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 194
-  completed_plans: 180
-  percent: 93
+  completed_plans: 182
+  percent: 21
 ---
 
 <!-- NOTE (339-10 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
@@ -4047,7 +4047,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 339 — brain-to-theo-cutover-release-flip-brain-client-default-orig
+**Current focus:** Phase 275 — enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4072,10 +4072,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 339 (brain-to-theo-cutover-release-flip-brain-client-default-orig) — EXECUTING
-Plan: 11 of 14
+Phase: 275 (enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit) — EXECUTING
+Plan: 2 of 8
 Status: Ready to execute
-Last activity: 2026-09-04 -- Phase 339 execution started
+Last activity: 2026-09-04 -- Phase 275 execution started
 
 <!-- NOTE (339-06 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` correctly advanced "Plan: N of 14" to 6 in-place, but
@@ -4927,6 +4927,7 @@ Progress: [█████████░] 92%
 | Phase 339 P08 | 22min | 3 tasks | 13 files |
 | Phase 339 P09 | 20min | 2 tasks | 2 files |
 | Phase 339 P10 | 45min | 2 tasks | 2 files |
+| Phase 275 P01 | 24min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -6369,6 +6370,8 @@ Progress: [█████████░] 92%
 - [Phase 339]: 339-08: every literal pws-brain-mcp.onrender.com occurrence removed from the six Task-1 files (incl. commands/setup.md's CLI curl targets and both retired-harness reason strings), per the plan's unconditional acceptance bullet
 - [Phase 339]: 339-09: kept mindrian-brain as the sole prescribed connector key, wrote the reciprocal cross-repo note Theo already links to, and rewrote 269-05 Task 1 to three real Theo-readiness legs instead of a false-green six-item checklist
 - [Phase 339]: 339-10: CHANGELOG entry sources D-06a from 339-CONTEXT.md verbatim (not the plan's own paraphrase); tester note deliberately narrower than STYLE-GUIDE.md's full 8-section structure, per the plan's own action spec
+- [Phase 275-01]: SECTION_NAMES grown 8 to 11 (opportunity-bank, funding, strategy); 4 dead/misfiled command citations corrected against data/command-registry.json ground truth
+- [Phase 275-01]: langtalks-graph-expert MCP tool not present in executor tool set - recorded as honest unavailability, not blocking, per plan mandatory_consults
 
 ### Pending Todos
 
@@ -6490,8 +6493,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T06:00:43.995Z
-Stopped at: Completed 339-10-PLAN.md
+Last session: 2026-09-04T10:45:13.456Z
+Stopped at: Completed 275-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

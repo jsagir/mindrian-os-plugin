@@ -2151,11 +2151,11 @@ taxonomy open question this seed surfaces (which "venture stage" vocabulary is c
 exactly the kind of schema-direction question Theo's own graph-rulebook governs for its own
 labels -- when this phase becomes actionable, check whether Theo has already settled an
 analogous vocabulary question before re-deriving one locally.
-**Plans:** 8 plans across 5 waves (planned 2026-09-04)
+**Plans:** 1/8 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 275-01-PLAN.md - the section tables: SECTION_NAMES 8 to 11, three new SECTION_METADATA entries, the L1 statement field, all seven propagation-gap citation corrections, section-registry promotion, blueprint data and CI gate (wave 1)
+- [x] 275-01-PLAN.md - the section tables: SECTION_NAMES 8 to 11, three new SECTION_METADATA entries, the L1 statement field, all seven propagation-gap citation corrections, section-registry promotion, blueprint data and CI gate (wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
