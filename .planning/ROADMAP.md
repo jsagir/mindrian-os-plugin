@@ -1730,7 +1730,7 @@ Plans:
 **Requirements**: FLIP-01, FLIP-02, FLIP-03, FLIP-04, FLIP-05, FLIP-06, FLIP-07, FLIP-08,
 FLIP-09, FLIP-10, FLIP-11, FLIP-12
 **Depends on:** Phase 269 (269-05 gate rewrite), Theo Phase 08.4 (deployed origin), Theo Phase 9 (09-12 Task 2 consumes this release)
-**Plans:** 12/14 plans executed
+**Plans:** 13/14 plans executed
 
 Plans:
 
@@ -1763,7 +1763,7 @@ Plans:
 
 **Wave 6 (FLIP cut, human-held)**
 
-- [ ] 339-13-PLAN.md - FLIP CUT: blocking coverage gate, the Session T cue, release.sh --prerelease
+- [x] 339-13-PLAN.md - FLIP CUT: blocking coverage gate, the Session T cue, release.sh --prerelease
 
 **Wave 7 (post-release)**
 
