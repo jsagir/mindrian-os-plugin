@@ -92,16 +92,23 @@ Check if `MINDRIAN_BRAIN_KEY` is set (env or `.env` file). If set:
 ```json
 {
   "mindrian-brain": {
-    "url": "https://pws-brain-mcp.onrender.com/mcp",
-    "headers": {
-      "Authorization": "Bearer {brain_key}"
-    }
+    "url": "https://theo-mcp.onrender.com/mcp"
   }
 }
 ```
+No `Authorization` header is needed -- the remote Brain accepts a real key, a garbage key,
+or no header at all and returns identical results either way.
 
 **Cowork:** Tell the user:
-> "Add Brain in Cowork Settings > Integrations > MCP Servers with URL: https://pws-brain-mcp.onrender.com/mcp and header Authorization: Bearer {first_4_chars}..."
+> "Add Brain in Cowork Settings > Integrations > MCP Servers with URL: https://theo-mcp.onrender.com/mcp. No header needed."
+
+The connector key `mindrian-brain` names the plugin's Brain slot, not the server behind it,
+so it never changes even when the server does -- see
+`docs/339-NOTE-theo-desktop-connector-key.md`. Mind the URL asymmetry too: a direct Desktop
+or Cowork connector uses the `/mcp` path because it hits the MCP endpoint itself, while the
+plugin's own bundled CLI shim uses the bare origin because its client appends `/mcp` (and
+`/register`) itself; swapping these produces `/mcp/mcp`, a 404 that reads as "Brain
+unreachable" rather than a config error.
 
 If Brain key is NOT set, remind: "Run `/mos:setup brain` to connect Larry's teaching graph for enhanced intelligence."
 
@@ -199,7 +206,7 @@ Test in two stages. First wake the server and confirm it is reachable, then veri
 **Stage 1 -- Health check (no auth, wakes Render free tier):**
 
 ```bash
-curl -s -w "\n%{http_code}" --max-time 60 https://pws-brain-mcp.onrender.com/health
+curl -s -w "\n%{http_code}" --max-time 60 https://theo-mcp.onrender.com/health
 ```
 
 **Expected:** HTTP 200 with `{"status":"ok","server":"mindrian-brain","version":"1.0.0"}`
@@ -219,7 +226,7 @@ curl -s -w "\n%{http_code}" --max-time 15 \
   -H "Authorization: Bearer <their-key>" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  https://pws-brain-mcp.onrender.com/mcp \
+  https://theo-mcp.onrender.com/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
 ```
 
@@ -251,14 +258,18 @@ Explain to the user:
 {
   "mcpServers": {
     "mindrian-brain": {
-      "url": "https://pws-brain-mcp.onrender.com/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
+      "url": "https://theo-mcp.onrender.com/mcp"
     }
   }
 }
 ```
+
+No `Authorization` header is needed -- the remote Brain returns identical results with a
+real key, a garbage key, or no header at all. The connector key `mindrian-brain` names the
+plugin's Brain slot, not the server, and stays the same across a backend move -- see
+`docs/339-NOTE-theo-desktop-connector-key.md`. A direct connector needs the `/mcp` path
+because it hits the MCP endpoint itself, unlike the plugin's own bundled CLI shim, which
+defaults to the bare origin and appends `/mcp` (and `/register`) itself.
 
 ## Important Rules
 

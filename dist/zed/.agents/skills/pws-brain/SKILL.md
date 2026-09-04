@@ -25,7 +25,7 @@ allowed-tools: mcp__mindrian-brain__brain_ask mcp__mindrian-brain__brain_search 
 # on the spine.
 connector:
   excluded: true
-  reason: "RETIRED evaluation harness (declared 2026-07-16, superseded 2026-07-22). It compared the then-production mindrian-brain backend against the neo4j-agent Aura Agent candidate over the same live Neo4j graph. BOTH routes are now superseded by the unified pws-brain-mcp Memgraph backend (https://pws-brain-mcp.onrender.com), already the hardcoded BRAIN_URL default in lib/core/brain-client.cjs. Kept on disk as historical reference for a deliberate re-run; fires no reach, opens no spine wire, never sensor-triggered (Part 11 R1 EXCLUDED-with-reason, mirrors /mos:agentshield)."
+  reason: "RETIRED evaluation harness (declared 2026-07-16, superseded 2026-07-22). It compared the then-production mindrian-brain backend against the neo4j-agent Aura Agent candidate over the same live Neo4j graph. BOTH routes are now superseded by the unified pws-brain-mcp Memgraph backend, whose origin lib/core/brain-client.cjs defines once as its BRAIN_URL default (Phase 339 moves that origin from Memgraph to Theo; this reason string does not hardcode a host so it does not need updating again when it does). Kept on disk as historical reference for a deliberate re-run; fires no reach, opens no spine wire, never sensor-triggered (Part 11 R1 EXCLUDED-with-reason, mirrors /mos:agentshield)."
 ---
 
 # /mos:pws-brain
@@ -33,13 +33,13 @@ connector:
 > **RETIRED / STALE as of 2026-07-22.** Do NOT run this to learn how the Brain
 > behaves today. BOTH routes compared below are superseded: route A's
 > `mindrian-brain` MCP and route B's `neo4j-agent` Aura Agent both spoke to the old
-> Neo4j graph. The live backend is now the unified `pws-brain-mcp` Memgraph service
-> at `https://pws-brain-mcp.onrender.com`. In-repo proof the migration already
-> shipped: `lib/core/brain-client.cjs` hardcodes that URL as its `BRAIN_URL`
-> default, and its file header names it "step 4 of the 2026-07-22 Memgraph
-> migration". A run of this harness therefore measures a backend pair production no
-> longer uses. Everything below is preserved as historical reference for a
-> deliberate re-run, not as live truth.
+> Neo4j graph. The live backend is now the unified `pws-brain-mcp` Memgraph service.
+> In-repo proof the migration already shipped: `lib/core/brain-client.cjs` names
+> that service's origin as its `BRAIN_URL` default, and its file header names it
+> "step 4 of the 2026-07-22 Memgraph migration" (check that file, not this doc, for
+> the current URL -- Phase 339 is moving it again, to Theo). A run of this harness
+> therefore measures a backend pair production no longer uses. Everything below is
+> preserved as historical reference for a deliberate re-run, not as live truth.
 
 **EXPERIMENTAL.** This is a side-by-side evaluation harness. It runs the SAME
 methodology question through two different routes to the SAME live Neo4j teaching
