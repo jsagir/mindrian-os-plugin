@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 275-04-PLAN.md
-last_updated: "2026-09-04T11:17:15.362Z"
+stopped_at: Completed 275-05-PLAN.md
+last_updated: "2026-09-04T11:27:51.400Z"
 last_activity: 2026-09-04 -- Phase 275 execution started
 progress:
   total_phases: 89
   completed_phases: 19
   total_plans: 194
-  completed_plans: 185
+  completed_plans: 186
   percent: 21
 ---
 
@@ -4073,7 +4073,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 275 (enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit) — EXECUTING
-Plan: 5 of 8
+Plan: 6 of 8
 Status: Ready to execute
 Last activity: 2026-09-04 -- Phase 275 execution started
 
@@ -4931,6 +4931,7 @@ Progress: [█████████░] 92%
 | Phase 275 P02 | 55min | 3 tasks | 3 files |
 | Phase 275 P03 | 12min | 2 tasks | 2 files |
 | Phase 275 P04 | 32min | 2 tasks | 4 files |
+| Phase 275 P05 | 70min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -6382,6 +6383,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 275-03: phase-162-section-nodes.cjs:63 stale 'canonical 8' comment deferred as named follow-up (out of declared files_modified scope)
 - [Phase ?]: Gate 6 rewritten as a SECTION_METADATA/IDENTITY_DIRECTORIES drift invariant (not a restated count); negative-tested on a scratch copy
 - [Phase ?]: opportunity-bank flipped true in test-hypothesis-family-and-claim.cjs per Phase 275 D-01; assumptions stays non-frozen
+- [Phase 275]: D-09: solution-design's moat/defensibility Human check, cross-linked to competitive-analysis, honestly named as a Larry heuristic not Theo book-canon
+- [Phase 275]: D-02: Value Proposition stays sub-structure inside business-model, all three corroborating sources named in the contract
+- [Phase 275]: D-12: Mentor-Profiles named concretely in team-execution.md, pointing at ../references/SUB-SCHEMAS.md instead of duplicating the field list
 
 ### Pending Todos
 
@@ -6503,8 +6507,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-04T11:17:15.289Z
-Stopped at: Completed 275-04-PLAN.md
+Last session: 2026-09-04T11:27:51.335Z
+Stopped at: Completed 275-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
