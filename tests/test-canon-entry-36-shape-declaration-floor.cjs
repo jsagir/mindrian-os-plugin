@@ -30,10 +30,10 @@
  *           intentionally out of numeric order).
  *   Test 7 (frozen scalars unchanged): MAX_K=3, DIAL_REACH_K=6, and the 0.70/0.15
  *           gate are byte-present in the canon (R16 mints no scalar).
- *   Test 8 (version bump): header /^Version: 1\.25$/m AND footer
- *           /_Mindrian Canon v1\.25 - MindrianOS Plugin_/ (anchor moved 1.24 -> 1.25 by
- *           Phase 340 Wave A's Appendix D entry 38, the Sourced Claims Doctrine).
- *   Test 9 (map row, light): docs/CANON-PHASE-MAP.md carries a "v1.25" token AND an
+ *   Test 8 (version bump): header /^Version: 1\.26$/m AND footer
+ *           /_Mindrian Canon v1\.26 - MindrianOS Plugin_/ (anchor moved 1.25 -> 1.26 by
+ *           Phase 340 Wave B's Appendix D entry 39, the graph/room-substrate amendment).
+ *   Test 9 (map row, light): docs/CANON-PHASE-MAP.md carries a "v1.26" token AND an
  *           "entry 36" / "R16" reference AND flips Phase 190 to shipped.
  *
  * House rule: hyphens only, no em-dashes. Canon Part 8: zero Brain / network.
@@ -151,15 +151,15 @@ ok('R16 restates the frozen scalars UNCHANGED',
   /MAX_K=3/.test(part11Flat) && /DIAL_REACH_K=6/.test(part11Flat) && /UNCHANGED by R16/.test(part11Flat));
 
 // ---------------------------------------------------------------------------
-// Test 8: the header + footer version bump to 1.25 (anchor moved by Phase 340 Wave A entry 38).
+// Test 8: the header + footer version bump to 1.26 (anchor moved by Phase 340 Wave B entry 39).
 // ---------------------------------------------------------------------------
-ok('header carries Version: 1.25', /^Version: 1\.25$/m.test(canon));
-ok('footer carries Mindrian Canon v1.25', /_Mindrian Canon v1\.25 - MindrianOS Plugin_/.test(canon));
+ok('header carries Version: 1.26', /^Version: 1\.26$/m.test(canon));
+ok('footer carries Mindrian Canon v1.26', /_Mindrian Canon v1\.26 - MindrianOS Plugin_/.test(canon));
 
 // ---------------------------------------------------------------------------
-// Test 9: the CANON-PHASE-MAP carries a v1.25 token + an entry-36 / R16 ref + shipped.
+// Test 9: the CANON-PHASE-MAP carries a v1.26 token + an entry-36 / R16 ref + shipped.
 // ---------------------------------------------------------------------------
-ok('CANON-PHASE-MAP carries a "v1.25" token', /v1\.25/.test(map));
+ok('CANON-PHASE-MAP carries a "v1.26" token', /v1\.26/.test(map));
 ok('CANON-PHASE-MAP references entry 36 / R16',
   /entry 36/.test(map) && /R16/.test(map));
 ok('CANON-PHASE-MAP flips Phase 190 shape-f-declaration-mandate to shipped',

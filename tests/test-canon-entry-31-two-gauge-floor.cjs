@@ -39,10 +39,10 @@
  *           assert each prior entry heading is still present per-number. (Entries
  *           17 and 18 are intentionally out of numeric order; assert per-number
  *           presence, NOT sequential ordering.)
- *   Test 9 (version bump): header /^Version: 1\.25$/m AND footer
- *           /_Mindrian Canon v1\.25 - MindrianOS Plugin_/. (Canon moved 1.24 -> 1.25
- *           at the Phase 340 Wave A Sourced Claims Doctrine amendment, Appendix D
- *           entry 38; entry 31's invariants are unchanged, only the version anchor tracks
+ *   Test 9 (version bump): header /^Version: 1\.26$/m AND footer
+ *           /_Mindrian Canon v1\.26 - MindrianOS Plugin_/. (Canon moved 1.25 -> 1.26
+ *           at the Phase 340 Wave B graph/room-substrate amendment, Appendix D
+ *           entry 39; entry 31's invariants are unchanged, only the version anchor tracks
  *           the current canon.)
  *   Test 10 (map row, light): docs/CANON-PHASE-MAP.md carries a "v1.21" token AND an
  *           "entry 31" / "two-gauge" reference.
@@ -153,10 +153,10 @@ for (let n = 1; n <= 30; n++) {
 }
 
 // ---------------------------------------------------------------------------
-// Test 9: the header + footer version (canon at 1.25 after the Phase 340 Wave A Sourced Claims Doctrine amendment; anchor tracks the version forward, entry-31 invariants unchanged).
+// Test 9: the header + footer version (canon at 1.26 after the Phase 340 Wave B graph/room-substrate amendment; anchor tracks the version forward, entry-31 invariants unchanged).
 // ---------------------------------------------------------------------------
-ok('header carries Version: 1.25', /^Version: 1\.25$/m.test(canon));
-ok('footer carries Mindrian Canon v1.25', /_Mindrian Canon v1\.25 - MindrianOS Plugin_/.test(canon));
+ok('header carries Version: 1.26', /^Version: 1\.26$/m.test(canon));
+ok('footer carries Mindrian Canon v1.26', /_Mindrian Canon v1\.26 - MindrianOS Plugin_/.test(canon));
 
 // ---------------------------------------------------------------------------
 // Test 10: the CANON-PHASE-MAP carries a v1.21 token + an entry-31 / two-gauge ref.
