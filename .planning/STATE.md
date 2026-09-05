@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 340-01-PLAN.md
-last_updated: "2026-09-05T19:50:34.636Z"
+stopped_at: Completed 340-02-PLAN.md
+last_updated: "2026-09-05T20:07:46.689Z"
 last_activity: 2026-09-05 -- Phase 340 execution started
 progress:
   total_phases: 90
   completed_phases: 22
   total_plans: 199
-  completed_plans: 194
+  completed_plans: 195
   percent: 24
 ---
 
@@ -4108,7 +4108,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 340 (canon-currency-audit-and-amendment-v1-24-to-next-close-the-d) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-09-05 -- Phase 340 execution started
 
@@ -4972,6 +4972,7 @@ Progress: [█████████░] 92%
 | Phase 275 P08 | 95min | 3 tasks | 4 files |
 | 275 | 8 | - | - |
 | Phase 340 P01 | 35min | 2 tasks | 2 files |
+| Phase 340 P02 | 35min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -6434,6 +6435,8 @@ Progress: [█████████░] 92%
 - [Phase 275]: D-13 executed: migration is additive and idempotent; L4 inline-content drift is report-only, never rewritten
 - [Phase 275]: REQUIREMENTS.md ICML-01..16 minted and closed with real measurements; phase's own 10-arm aggregator (tests/run-all-275.sh) passes twice in a row
 - [Phase 340]: Wave 0 (340-01) re-verified every canon-amendment citation live rather than trusting 340-RESEARCH.md; call-site counts and shape-declaration violation counts had moved since research ran (documented as MOVED in 340-LIVE-VERIFICATION.md), confirming the phase's own re-verify-at-execution-time discipline was necessary.
+- [Phase ?]: Navigator APPROVE WITH EDITS on 2026-09-05: stripped literal 'Aronhime' from Appendix D entry 38, replaced with SEED-086's own prescribed citation ('2026-09-04 external fabrication-hedge report'), distinct from the openly-credited Aronhime-advisor naming in entries 29/30/34
+- [Phase ?]: Rule 1 fix: entry 38's draft quoted the persona-mirror sentence verbatim, duplicating the 'A hedge word is not a source.' anchor in the Canon; replaced with a paraphrase to satisfy the plan's own exactly-one-occurrence fence
 
 ### Pending Todos
 
@@ -6556,8 +6559,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-05T19:50:34.561Z
-Stopped at: Completed 340-01-PLAN.md
+Last session: 2026-09-05T20:07:46.621Z
+Stopped at: Completed 340-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
