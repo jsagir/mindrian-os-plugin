@@ -3,16 +3,27 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 340-03-PLAN.md
-last_updated: "2026-09-05T20:27:20.800Z"
+stopped_at: Completed 340-04-PLAN.md
+last_updated: "2026-09-05T20:47:10.553Z"
 last_activity: 2026-09-05 -- Phase 340 execution started
 progress:
   total_phases: 90
   completed_phases: 22
   total_plans: 199
-  completed_plans: 196
-  percent: 24
+  completed_plans: 197
+  percent: 99
 ---
+
+<!-- NOTE (340-04 execute-plan, 2026-09-05, resync-clobber pattern, same class as every other
+     note in this file): `state.update-progress` correctly computed percent=99
+     (completed_plans 197 / total_plans 199) in its own JSON return but did not persist it into
+     the frontmatter -- it stayed at the stale 24 until hand-corrected here. A subsequent
+     `state.add-decision` call (additive-only, per the shared_tree_guard precedent) RE-CLOBBERED
+     percent back to 24; hand-corrected back to 99 a second time, after add-decision and
+     record-session both ran. `stopped_at` ("Completed 340-04-PLAN.md") was written correctly by
+     `state.record-session` (no clobber on that field this time), so only `percent` needed the
+     second hand-correction. Root cause not re-investigated -- same tracked bug class as every
+     other note in this file. -->
 
 <!-- NOTE (339-14 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.record-session` (run for this plan's own close-out) reverted
@@ -4108,7 +4119,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 340 (canon-currency-audit-and-amendment-v1-24-to-next-close-the-d) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-09-05 -- Phase 340 execution started
 
@@ -4974,6 +4985,7 @@ Progress: [█████████░] 92%
 | Phase 340 P01 | 35min | 2 tasks | 2 files |
 | Phase 340 P02 | 35min | 3 tasks | 6 files |
 | Phase 340 P03 | 45min | 3 tasks | 6 files |
+| Phase 340 P04 | 55min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -6440,6 +6452,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: Rule 1 fix: entry 38's draft quoted the persona-mirror sentence verbatim, duplicating the 'A hedge word is not a source.' anchor in the Canon; replaced with a paraphrase to satisfy the plan's own exactly-one-occurrence fence
 - [Phase 340]: Navigator APPROVED (plain) Wave B's four drafted prose pieces and picked Appendix B Form B (additive citation block beneath the unchanged five-row table) over Form A (full table replacement), since Form B leaves existing bytes untouched and is easier to floor-test.
 - [Phase 340]: Rule 1 auto-fix: moved tests/test-canon-entry-38-sourced-claims-floor.cjs's hard-pinned version anchor 1.25 -> 1.26 even though the plan's action text only named the entry-31 and entry-36 tests, since leaving it untouched would have broken the aggregator the instant canon v1.26 landed.
+- [Phase ?]: 340-04: Ruling A=COMMANDS (Core Value command-surface figure enumerated from disk, not the historical V2 bot-prompt count), Ruling B=REMOVE ROW (dead docu-optimizer skill row deleted), Ruling C=state-with-caveat (Part 2 corpus-size cited with the not-regenerated-against-Theo caveat) — Navigator-approved at the Task-1 blocking checkpoint 2026-09-05 before any canon byte landed; resolves the three named judgment calls left open by the drafted prose.
 
 ### Pending Todos
 
@@ -6562,8 +6575,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-05T20:27:20.718Z
-Stopped at: Completed 340-03-PLAN.md
+Last session: 2026-09-05T20:47:10.489Z
+Stopped at: Completed 340-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
