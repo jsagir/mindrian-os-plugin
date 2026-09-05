@@ -8,7 +8,7 @@ surfaces: [cli]              # only surface observed so far; desktop/cowork not 
 brain_mode: full-loop        # not actually diagnosed yet, default placeholder
 canon_parts: [9, 11]         # candidate: Part 9 memory locality / session scoping, Part 11 born-wired hook scope
 created: 2026-08-27T00:00:00Z
-updated: 2026-08-27T00:00:00Z
+updated: 2026-09-05T00:00:00Z
 ---
 
 ## Current Focus
@@ -29,6 +29,21 @@ next_action: open via /gsd:debug in MindrianOS-Plugin. Read the SessionStart / P
   hypothesis. Also check the existing rethinking-mindrianos research trail commit
   "room_bind session-scope 2026-07-28" (see Related debug sessions below) - this may already
   be a partially-diagnosed instance of the same class.
+
+update 2026-09-05: a SECOND, related-but-distinct symptom confirmed live, this time FROM
+  INSIDE the actual mindrian-os dev repo itself (cwd /home/jsagi/dev/MindrianOS-Plugin, doing
+  legitimate GSD dev-repo work all session - Phase 276 resume, Phase 340 registration/discuss/
+  research), not a sibling repo. See new Evidence entry below for the full detail. Two things
+  this adds to the hypothesis: (1) the bleed is not sibling-repo-specific - it fires even
+  inside the plugin's own home repo during pure dev-repo (no-room) work, so "resolve room from
+  a global/last-used store ignoring cwd" may be too narrow a hypothesis; a session doing
+  dev-repo work in THIS repo should be the easiest case to get right and still wasn't. (2) the
+  card shape differs from the original observation: this session saw an F.8 room-SELECT
+  prompt (paginated, "page 1 of 15", a different subset of rooms shown on each of 4 separate
+  firings across one session) via UserPromptSubmit, not the F.1 stale-single-room
+  navigation-decision card from the original report - worth checking whether these are two
+  independent hook behaviors or one shared resolver rendering two different card shapes
+  depending on whether a "last room" happens to be cached.
 
 ## Meta
 
@@ -205,6 +220,35 @@ started: first noticed 2026-08-27, this session. Unknown whether this is a new r
     only APPEARS in this transcript (a rendering/attribution issue), that is a different and
     arguably more serious bug. Check which, first, before assuming it is the same root cause
     as the hook-based bleed.
+
+- timestamp: 2026-09-05 (single Claude Code session, ~2 hours, doing continuous GSD dev-repo
+    work in /home/jsagi/dev/MindrianOS-Plugin itself - not a sibling repo)
+  checked: UserPromptSubmit hook output across the whole session, correlated against what the
+    session was actually doing at each firing
+  found: the same room-bind prompt fired FOUR separate times via UserPromptSubmit, each time
+    rendering "-- mindrianOS -- bind session -- select rooms --" with a paginated checklist
+    ("page 1 of 15") and an `[AskUserQuestion contract: shape=F.8 verbs=0]` /
+    `[FIRE-IF-FORK: ...]` trailer instructing a multi-select room-bind card to be fired. The
+    four firings showed DIFFERENT room subsets each time (first: untitled-2026-06-01-1702 /
+    haim-battlefield-intake / rethinking-mindrianos / polygon; later firings mixed in
+    pws-website / mindrianOS / align-ecosystem / cohort-testers-style names, and one showed a
+    checkbox already ticked on "untitled-2026-06-01-1702" with no session action having
+    selected it) - not a frozen/cached stale snapshot repeating identically, but seemingly a
+    live re-render of the room registry (or a paginated/rotating view into it) on every
+    qualifying turn. At no point in this session did the receiving Claude actually call
+    room_bind, answer the card, or do anything but decline to fire it (per the existing
+    no-antecedent-content discipline) - yet the prompt kept re-firing on later turns instead of
+    respecting the earlier non-response as "not now."
+  implication: this session never worked in ANY MindrianOS room the whole time (pure dev-repo
+    work: gsd-execute-phase 276, gsd-phase (add) 340, gsd-discuss-phase 340,
+    gsd-plan-phase --research-phase 340) and never triggered a room-scoped tool itself, yet the
+    UserPromptSubmit hook attempted to force a room-bind decision repeatedly regardless. The
+    "page 1 of 15" + shifting-subset pattern suggests whatever renders this prompt is doing a
+    fresh registry read (or partial/paginated one) per firing rather than caching a single
+    stale room - a DIFFERENT mechanism shape than the original report's single-room F.1
+    stale-navigation-card, even though the failure CLASS (unsolicited room-scoped content in a
+    session with no room binding) is the same. See the Current Focus update above for how this
+    changes the working hypothesis.
 
 ## Technical Root Cause
 
