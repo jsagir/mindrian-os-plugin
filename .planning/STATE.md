@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 340 context gathered
-last_updated: "2026-09-05T17:52:37.001Z"
-last_activity: "2026-09-04 - Completed quick task 260904-ng7: fix room_search .html blindness (lib/mcp/tools/room.cjs:119)"
+status: executing
+stopped_at: Completed 340-01-PLAN.md
+last_updated: "2026-09-05T19:50:34.636Z"
+last_activity: 2026-09-05 -- Phase 340 execution started
 progress:
   total_phases: 90
-  completed_phases: 21
-  total_plans: 194
-  completed_plans: 191
-  percent: 23
+  completed_phases: 22
+  total_plans: 199
+  completed_plans: 194
+  percent: 24
 ---
 
 <!-- NOTE (339-14 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
@@ -4082,7 +4082,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 275 — enlarge-room-schema-by-icm-layer-notion-gap-close-icm-archit
+**Current focus:** Phase 340 — canon-currency-audit-and-amendment-v1-24-to-next-close-the-d
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4107,10 +4107,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 276
-Plan: Not started
-Status: Phase complete - ready for verification
-Last activity: 2026-09-04 - Completed quick task 260904-ng7: fix room_search .html blindness (lib/mcp/tools/room.cjs:119)
+Phase: 340 (canon-currency-audit-and-amendment-v1-24-to-next-close-the-d) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-09-05 -- Phase 340 execution started
 
 <!-- NOTE (339-06 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` correctly advanced "Plan: N of 14" to 6 in-place, but
@@ -4971,6 +4971,7 @@ Progress: [█████████░] 92%
 | Phase 275 P06 | 55min | 2 tasks | 3 files |
 | Phase 275 P08 | 95min | 3 tasks | 4 files |
 | 275 | 8 | - | - |
+| Phase 340 P01 | 35min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6432,6 +6433,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: D-06 executed: strategy.md names six Tier 1 commands, grounded in the graph-asserted Reverse Salient Analysis FEEDS_INTO Scenario Planning edge (confidence 0.65)
 - [Phase 275]: D-13 executed: migration is additive and idempotent; L4 inline-content drift is report-only, never rewritten
 - [Phase 275]: REQUIREMENTS.md ICML-01..16 minted and closed with real measurements; phase's own 10-arm aggregator (tests/run-all-275.sh) passes twice in a row
+- [Phase 340]: Wave 0 (340-01) re-verified every canon-amendment citation live rather than trusting 340-RESEARCH.md; call-site counts and shape-declaration violation counts had moved since research ran (documented as MOVED in 340-LIVE-VERIFICATION.md), confirming the phase's own re-verify-at-execution-time discipline was necessary.
 
 ### Pending Todos
 
@@ -6554,8 +6556,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-05T17:52:36.904Z
-Stopped at: Phase 340 context gathered
+Last session: 2026-09-05T19:50:34.561Z
+Stopped at: Completed 340-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
