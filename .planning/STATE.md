@@ -2,17 +2,31 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 340-04-PLAN.md
-last_updated: "2026-09-05T20:47:10.553Z"
+status: verifying
+stopped_at: Completed 340-05-PLAN.md (phase close-out, ready for /gsd-verify-work)
+last_updated: "2026-09-05T21:03:00.923Z"
 last_activity: 2026-09-05 -- Phase 340 execution started
 progress:
   total_phases: 90
-  completed_phases: 22
+  completed_phases: 24
   total_plans: 199
-  completed_plans: 197
+  completed_plans: 198
   percent: 99
 ---
+
+<!-- NOTE (340-05 execute-plan, 2026-09-05, resync-clobber pattern, same class as every other
+     note in this file): `state.update-progress` correctly computed percent=99
+     (completed_plans 198 / total_plans 199, the +1 from this plan's own SUMMARY landing) in
+     its own JSON return but did not persist it into the frontmatter -- it stayed at the stale
+     26 until hand-corrected here. `completed_phases` hand-corrected 23 -> 24: Phase 340 is now
+     fully closed (5/5 summaries; `roadmap.update-plan-progress 340` independently confirms
+     `"status": "Complete"`). `stopped_at` needed a hand-fix too, for an unrelated reason: the
+     first `state.record-session` call in this session passed three POSITIONAL args
+     (`"" "Completed 340-05-PLAN.md..." "None"`), but this SDK verb takes NAMED args
+     (`--stopped-at`, `--resume-file`) -- the positional call silently no-op'd on `stopped_at`
+     rather than erroring, leaving it stuck at 340-04's own value. Re-run with
+     `--stopped-at "Completed 340-05-PLAN.md..."` fixed it. Root cause of the percent-clobber
+     itself not re-investigated -- same tracked bug class as every other note in this file. -->
 
 <!-- NOTE (340-04 execute-plan, 2026-09-05, resync-clobber pattern, same class as every other
      note in this file): `state.update-progress` correctly computed percent=99
@@ -4120,7 +4134,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 340 (canon-currency-audit-and-amendment-v1-24-to-next-close-the-d) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-05 -- Phase 340 execution started
 
 <!-- NOTE (339-06 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
@@ -4986,6 +5000,7 @@ Progress: [█████████░] 92%
 | Phase 340 P02 | 35min | 3 tasks | 6 files |
 | Phase 340 P03 | 45min | 3 tasks | 6 files |
 | Phase 340 P04 | 55min | 3 tasks | 8 files |
+| Phase 340 P05 | 50min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6453,6 +6468,7 @@ Progress: [█████████░] 92%
 - [Phase 340]: Navigator APPROVED (plain) Wave B's four drafted prose pieces and picked Appendix B Form B (additive citation block beneath the unchanged five-row table) over Form A (full table replacement), since Form B leaves existing bytes untouched and is easier to floor-test.
 - [Phase 340]: Rule 1 auto-fix: moved tests/test-canon-entry-38-sourced-claims-floor.cjs's hard-pinned version anchor 1.25 -> 1.26 even though the plan's action text only named the entry-31 and entry-36 tests, since leaving it untouched would have broken the aggregator the instant canon v1.26 landed.
 - [Phase ?]: 340-04: Ruling A=COMMANDS (Core Value command-surface figure enumerated from disk, not the historical V2 bot-prompt count), Ruling B=REMOVE ROW (dead docu-optimizer skill row deleted), Ruling C=state-with-caveat (Part 2 corpus-size cited with the not-regenerated-against-Theo caveat) — Navigator-approved at the Task-1 blocking checkpoint 2026-09-05 before any canon byte landed; resolves the three named judgment calls left open by the drafted prose.
+- [Phase ?]: Phase 340 close-out: staged the Dev-Research Compositing room copy rather than bypassing the write-scope-check guard; landed the durable entry at the unguarded mirror (~/MindrianOS/research/) instead, pending a navigator room-switch.
 
 ### Pending Todos
 
@@ -6575,8 +6591,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-05T20:47:10.489Z
-Stopped at: Completed 340-04-PLAN.md
+Last session: 2026-09-05T21:03:00.703Z
+Stopped at: Completed 340-05-PLAN.md (phase close-out, ready for /gsd-verify-work)
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
