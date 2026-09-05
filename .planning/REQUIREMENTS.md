@@ -1437,20 +1437,92 @@ corresponding plan's own SUMMARY.md or re-run live by 275-08 to obtain.
    Strategies and Pipelines). Not added this phase (zero code/Theo grounding at decision time);
    worth re-raising at a future planning pass rather than left deferred silently.
 
+### Phase 340 - Canon currency (CANON-) (minted at plan time 2026-09-05, registered at phase close by 340-05-PLAN.md)
+
+These ten IDs were proposed in `340-CONTEXT.md`'s `<phase_requirements>` recommendation
+(2026-09-05) and finalized to this canonical one-per-doctrine-slice mapping across the three
+navigator-gated amendment waves (Wave A = canon v1.25, Wave B = canon v1.26, Wave C = canon
+v1.27), following the Phase 254/257/265/267.2/267.3/270/272/274/276/339/275 precedent for
+minting a requirement family at plan time and registering it here at phase close. Every ID below
+is `[x]`, evidenced by `340-CLOSE-OUT-SWEEP.md`'s post-amendment re-check.
+
+- [x] **CANON-01**: Part 12 Sourced Claims Doctrine plus its `agents/larry-extended.md` mirror
+      (Appendix D entry 38, canon v1.25). Measured: `340-CLOSE-OUT-SWEEP.md` Section 1 item 2 -
+      `test-canon-entry-38-sourced-claims-floor.cjs` PASS (58 assertions); Section 2 item 8 -
+      `grep -c "A hedge word is not a source."` returns 1 for both `docs/MINDRIAN-CANON.md` and
+      `agents/larry-extended.md`.
+
+- [x] **CANON-02**: Part 9 two-chokepoint doctrinal split, `lib/core/navigation.cjs` navigate and
+      `lib/core/node-insert.cjs` write named as two distinct constitutional properties (Appendix D
+      entry 39, canon v1.26). Measured: `340-CLOSE-OUT-SWEEP.md` Section 1 item 2 -
+      `test-canon-entry-39-graph-substrate-floor.cjs` PASS (103 assertions), whose Part 9 slice
+      assertions cover both files by name.
+
+- [x] **CANON-03**: Part 4 typed-edge-vocabulary reconciliation (fifteen edge types ratified) plus
+      the non-frozen, enumerated-from-disk framing (Appendix D entry 39, canon v1.26). Measured:
+      `340-CLOSE-OUT-SWEEP.md` Section 3 item 13 - all 44 live `ALLOWED_EDGE_TYPES` members return
+      a non-zero Canon citation count; zero residual Part 4 gap.
+
+- [x] **CANON-04**: Appendix B ICM Layer 1-3 real code citations to Phase 275's shipped
+      mechanisms (Appendix D entry 39, canon v1.26). Measured: `340-CLOSE-OUT-SWEEP.md` Section 1
+      item 2 - the same entry-39 floor test's Appendix B slice assertions (carries
+      `lib/core/room-skeleton-scaffold.cjs`, `STATEMENT`, `CONTEXT.md`, `references/`,
+      `lib/core/section-registry.cjs`) all PASS.
+
+- [x] **CANON-05**: Appendix C Glossary Brain origin corrected to `theo-mcp.onrender.com`, "Brain"
+      kept as the constitutional role name per Phase 339 D-09 (Appendix D entry 40, canon v1.27).
+      Measured: `340-CLOSE-OUT-SWEEP.md` Section 2 item 6 - Appendix C slice contains 0 occurrences
+      of `pws-brain-mcp.onrender.com`; the retired origin survives, correctly, only in the
+      Appendix D historical slice (4 hits, item 6).
+
+- [x] **CANON-06**: Part 2 Engine 1 backend currency - Pinecone retired, e5 / multilingual-e5-large
+      named as the live local-embed backend (Appendix D entry 40, canon v1.27). Measured:
+      `340-CLOSE-OUT-SWEEP.md` Section 2 item 7 - Part 2 slice contains 0 occurrences of
+      `Pinecone`; entry-40 floor test's `multilingual-e5-large` / `embedded LOCALLY` assertions
+      PASS.
+
+- [x] **CANON-07**: Part 7 methodology-command surface de-frozen from a stale "25 methodology
+      commands" count to a surface enumerated from disk, in both the Canon and CLAUDE.md
+      (Appendix D entry 40, canon v1.27). Measured: `340-CLOSE-OUT-SWEEP.md` Section 2 item 4 -
+      `grep -c "25 methodology commands"` returns 0 for both `docs/MINDRIAN-CANON.md` and
+      `CLAUDE.md`.
+
+- [x] **CANON-08**: Part 11 R16 declared-surface snapshot refreshed to 249 declaring (113 commands
+      + 10 agents + 4 pipelines + 122 skills), doctrine unchanged (Appendix D entry 40, canon
+      v1.27). Measured: `340-CLOSE-OUT-SWEEP.md` Section 3 item 14 - the re-measured declaring sum
+      is 249, identical to what Wave C wrote; the three self-disclaiming doctrine sentences
+      survive byte-identical (Section 1 item 1, `run-all-340.sh`'s entry-40 leg).
+
+- [x] **CANON-09**: CLAUDE.md project-instruction siblings landed in the SAME commit as their
+      Canon counterparts, including the docu-optimizer Project Skills row removal per the
+      navigator's Ruling B (Appendix D entry 40, canon v1.27). Measured:
+      `340-CLOSE-OUT-SWEEP.md` Section 3 item 16 - `git show --stat 8019e3e4` lists `CLAUDE.md`
+      and `docs/MINDRIAN-CANON.md` together in one commit (the Pitfall 3 lockstep, confirmed);
+      Section 2 item 5 - `grep -c "docu-optimizer"` (folded into the entry-40 floor test's own
+      CLAUDE.md assertions) returns 0.
+
+- [x] **CANON-10**: `tests/run-all-340.sh` exists and runs seven real green legs; frozen scalars
+      unweakened and Appendix D entries 1-37 preserved across all three waves; findings filed to
+      the rethinking-mindrianos research room and mirrored. Measured: `340-CLOSE-OUT-SWEEP.md`
+      Section 1 item 1 - `bash tests/run-all-340.sh` exits 0, `Passed: 7 Failed: 0 Skipped: 0`;
+      Section 1 item 3 - the two pre-existing red canon tests (out of scope, pinned to canon v1.4)
+      have an IDENTICAL failure set to the pre-amendment baseline, no regression; the research-room
+      filing is this same plan's Task 2, cross-referenced below.
+
 ## Traceability
 
-173 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+183 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
 plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
 (Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339), plus ICML-01..16
-(Phase 275). All minted
+(Phase 275), plus CANON-01..10 (Phase 340). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
-(all minted 2026-09-03), and ICML-01..16 (minted 2026-09-04): RADAR-01..11 and MCPFIX-01..04 at
-first-pass plan time,
+(all minted 2026-09-03), ICML-01..16 (minted 2026-09-04), and CANON-01..10 (minted 2026-09-05):
+RADAR-01..11 and MCPFIX-01..04 at first-pass plan time,
 RADAR-12..31 in the Phase 265 second planning pass after the navigator settled nine additional
 workstreams, MEMOP-01..15 in Phase 270's own planning pass, GUARD-01..10 in Phase 267.3
 plan 01's `267.3-DECISIONS.md` Section 6, CHOKE-01..06 in `273-01-PLAN.md`'s frontmatter,
@@ -1479,10 +1551,13 @@ ICML-01..16 were minted in the Phase 275 plan set (2026-09-04; no `275-RESEARCH.
 produced, SEED-084's own addendum trail covers the what and why), scoped to Phase 275 only, and
 are registered here at phase close by `275-08-PLAN.md` per the Phase 254/257/265/267.2/267.3/
 270/272/274/276/339 precedent.
-Roadmap phases must map all 173 active requirements with no orphans.
+CANON-01..10 were proposed in `340-CONTEXT.md`'s `<phase_requirements>` recommendation
+(2026-09-05), scoped to Phase 340 only, and are registered here at phase close by
+`340-05-PLAN.md` per the Phase 254/257/265/267.2/267.3/270/272/274/276/339/275 precedent.
+Roadmap phases must map all 183 active requirements with no orphans.
 
-**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML and
-FLIP
+**Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
+FLIP and CANON
 families
 alike (the
 Phase 266 and 269
