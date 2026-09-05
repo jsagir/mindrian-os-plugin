@@ -70,9 +70,9 @@ The full constitution is docs/MINDRIAN-CANON.md (load on demand); the phase-to-c
 - **Part 8 - Graph Boundary (LOCAL -> BRAIN: NO).** User data NEVER egresses to the Brain; it serves generic methodology only. Writing user-specific bytes to Brain is a constitutional breach. Deep dive: docs/MINDRIAN-CANON.md (Part 8).
 - **Part 3 - Tri-Context Decision Gate.** Material choices pass a LOCAL + BRAIN + SIGNAL gate returning APPROVE / REJECT (with reason) / DEFER, rendered through Shape F (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 frozen). Deep dive: docs/MINDRIAN-CANON.md (Part 3).
 - **Part 6 - Dog-Fooding Mandate.** The plugin is a venture in its own room; honoring its own canon here is the strong default, since a real violation surfaces as a CONTRADICTS edge against it. Deep dive: docs/MINDRIAN-CANON.md (Part 6).
-- **Part 7 - Reuse Before Build.** Search the 25 methodology commands first and justify any net-new surface against them, since duplicating an existing command is the more common failure mode than missing a genuine gap. Deep dive: docs/MINDRIAN-CANON.md (Part 7).
+- **Part 7 - Reuse Before Build.** Search the methodology surface enumerated from disk first (commands/*.md, plus agents/*.md, pipelines/*/CHAIN.md, skills/*/SKILL.md where the work spans surface classes) and justify any net-new surface against it, since duplicating an existing surface is the more common failure mode than missing a genuine gap. Deep dive: docs/MINDRIAN-CANON.md (Part 7).
 - **Part 9 - Memory Locality.** SQL (room.db) is the local mind; Brain reasons over typed packets, never raw memory; only a human confirms a truth-claim node. Deep dive: docs/MINDRIAN-CANON.md (Part 9).
-- **Part 11 - Invocation Constitution (CIRS).** Every invocable surface is born WIRED or EXCLUDED (R1/R2); the born-wired gate fails the build closed; one governed path. Every invocable surface across ALL FOUR classes -- a command, an agent, a pipeline, OR a skill that reaches a genuine Decision-Gate fork -- is ALSO born with a declared HITL shape (hitl_shape/hitl_why or hitl_stages), checked by scripts/check-shape-declaration.cjs at commit + release + doctor --acceptance as an ADVISORY lint signal as of Phase 210 (WARN with every violation enumerated, never a block; --strict restores hard-fail) (R16, the declaration mandate itself unchanged, the shape-plane sibling of R2/R9); a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have. The surface count is enumerated from disk at run time (currently 126 declared + 5 skill-exempt), never a frozen literal. Any future GSD discuss/plan/verify session discovers this mandate here because every GSD agent reads project CLAUDE.md as mandatory initial context. Deep dives: docs/MINDRIAN-CANON.md (Part 11), docs/HITL-SHAPE-DECLARATION-CONTRACT.md.
+- **Part 11 - Invocation Constitution (CIRS).** Every invocable surface is born WIRED or EXCLUDED (R1/R2); the born-wired gate fails the build closed; one governed path. Every invocable surface across ALL FOUR classes -- a command, an agent, a pipeline, OR a skill that reaches a genuine Decision-Gate fork -- is ALSO born with a declared HITL shape (hitl_shape/hitl_why or hitl_stages), checked by scripts/check-shape-declaration.cjs at commit + release + doctor --acceptance as an ADVISORY lint signal as of Phase 210 (WARN with every violation enumerated, never a block; --strict restores hard-fail) (R16, the declaration mandate itself unchanged, the shape-plane sibling of R2/R9); a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have. The surface count is enumerated from disk at run time (249 declaring as of Appendix D entry 40, per 340-LIVE-VERIFICATION.md - the declaring/excluded splits are no longer disjoint, 53 advisory WARN-level conflicts open), never a frozen literal. Any future GSD discuss/plan/verify session discovers this mandate here because every GSD agent reads project CLAUDE.md as mandatory initial context. Deep dives: docs/MINDRIAN-CANON.md (Part 11), docs/HITL-SHAPE-DECLARATION-CONTRACT.md.
 - **Part 12 - Pedagogy (Invisibility).** Larry is measured by how invisible he is when the insight lands; every Larry turn wears a De Stijl color mark; default to withholding grades and compliments, since praise and scores pull attention onto Larry instead of the insight the user just reached. Deep dive: docs/MINDRIAN-CANON.md (Part 12).
 
 ## Verification
@@ -106,7 +106,7 @@ The long-form doctrine is NOT inlined here; these four lean includes load with t
 
 A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wisdom System) methodology as installable skills, commands, agents, and hooks. One-command install gives the user Larry (the AI teaching personality) plus a structured Data Room that captures insights and surfaces gaps, contradictions, and convergence; it runs on Claude's native capabilities and connects to the remote Brain by default (silent registration on first use) for methodology -- a keyless or unreachable session refuses honestly instead of improvising.
 
-**Core Value:** Run the full PWS methodology (25 methodology bots, structured pipelines, and an intelligent Data Room) inside Claude Code with zero infrastructure to host or manage yourself -- the plugin runs serverless, and the remote Brain is required for methodology, registering silently on first use, guided by the same teaching intelligence that powers the classroom.
+**Core Value:** Run the full PWS methodology (a growing methodology-command surface enumerated from disk, structured pipelines, and an intelligent Data Room) inside Claude Code with zero infrastructure to host or manage yourself -- the plugin runs serverless, and the remote Brain is required for methodology, registering silently on first use, guided by the same teaching intelligence that powers the classroom.
 
 ### Constraints
 
@@ -156,7 +156,7 @@ A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wis
 
 - No em-dashes anywhere; use hyphens. Feynman-simplified, JTBD-oriented prose.
 - Every directory gets a `ROOM.md` identity file (ICM Layer 0); the filesystem is the source of truth (no DB for room state).
-- Reuse before build: search the 25 methodology commands first; every feature works on all three surfaces.
+- Reuse before build: search the methodology surface enumerated from disk first (commands/*.md, agents/*.md, pipelines/*/CHAIN.md, skills/*/SKILL.md); every feature works on all three surfaces.
 
 <!-- GSD:conventions-end -->
 
@@ -285,7 +285,5 @@ design analog worth checking in langtalks). Source of truth for the langtalks-sp
 
 ## Project Skills
 
-| Skill | Description | Path |
-|-------|-------------|------|
-| docu-optimizer | Optimize CLAUDE.md and docs/ ecosystem following Boris Cherny and Thariq Shihipar's best practices | `.claude/skills/docu-optimizer/SKILL.md` |
+No project skills currently registered.
 <!-- GSD:skills-end -->
