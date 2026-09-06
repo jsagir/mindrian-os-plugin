@@ -141,3 +141,57 @@ restarted against the new cache. Do not claim any card-fire behavior (this RCA's
 included) is fixed for a live session without first confirming a release actually shipped
 carrying this commit AND that the session in question picked it up. This 238-08 fix is
 dev-repo-only as of this note; it has not shipped in any release.
+
+## New Reproduction (2026-09-06, live observation, this session)
+
+A cleaner, more minimal reproduction than any prior entry: turn 1 of a brand-new
+session, before any tool call, before any AskUserQuestion, before any gate-shaped
+content of any kind. The full assistant output for that turn was:
+
+  "I'm Larry. What decision is stuck? (Tell me, or paste a doc/CV.)"
+
+(preceded by a single De Stijl voice glyph). No brackets, no numbered list, no
+`[1]`/`[2]` shape, zero MCP tool calls that turn. The following turn's `Stop
+hook feedback` still fired: `rendering your choices as a selectable card`,
+plus the standard `Stop hook stopped continuation` / `Stop hook blocking error
+from command: node "${CLAUDE_PLUGIN_ROOT}/scripts/check-card-fire.cjs"` trio.
+
+This strengthens the existing diagnosis rather than changing it: with zero
+BACKSTOP-shaped text possible (nothing bracket-shaped was ever emitted), the
+force-block can only be PRIMARY-path (`ran_entries` intersecting a registry
+gate-reaching surface via the side channel), corroborating this RCA's own
+Technical Root Cause over an alternative "maybe it is a marginal BACKSTOP
+false match" reading. Not independently isolated to an exact `additionalContext`
+capture this session (no side-channel file dump taken this time), so this is
+filed as a same-shape reproduction count, not a new root-cause claim.
+
+next_action still stands as filed: a dedicated `/gsd-debug` session against
+`scripts/check-card-fire.cjs`'s PRIMARY-arm F.1 mint site, now with 5+ distinct
+reproductions across at least two sessions on different dates (2026-07-28 and
+2026-09-06).
+
+## Second reproduction, same session, later turn (2026-09-06)
+
+A second, independent instance in the same conversation, later, mid a long
+multi-hour dev-work session (not turn 1 this time). The full assistant output
+for the flagged turn was a plain status update with no embedded question at
+all, e.g. (paraphrased shape, not verbatim): "Good so far -- [status recap].
+I'll hold here until you've got the full result or it stops on something."
+No brackets, no enumerated options, no AskUserQuestion call, no MCP tool call
+that turn. The following turn's `Stop hook feedback` still fired the same
+`rendering your choices as a selectable card` plus the standard three-line
+trio.
+
+Distinct from the first reproduction in this file in one useful way: that one
+was a cold turn-1 greeting; this one landed deep in an active multi-turn
+tool-using session, ruling out "only fires on session-start machinery" as a
+narrowing hypothesis. Also distinct from a separate, earlier turn in the same
+session where the hook fired on a message that DID pose a real binary choice
+in prose (`"push on X, or leave this as a known gap?"`) without an
+AskUserQuestion call -- that earlier case is arguably a correct catch per this
+project's own Decision Gates doctrine, not a reproduction of this bug, and is
+deliberately NOT counted here. Only genuinely fork-free turns are being
+tallied as reproductions of the PRIMARY-path force-block described above.
+
+Reproduction count: 6+ distinct instances across at least two sessions on two
+dates. `next_action` unchanged.
