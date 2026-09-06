@@ -11,8 +11,16 @@
  * (mcp__plugin_mos_mindrian-brain__brain_*) and project scope
  * (mcp__mindrian-brain__brain_*) plus the canonical custom-connector name (mcp__pws-brain-mcp__brain_*, added 2026-08-19 - the live server registers under it on Desktop/claude.ai); the superseded dead literal 'mcp__brain_.*'
  * never matched a live name once the Brain server shipped inside the "mos"
- * plugin. The in-hook isBrainTool re-check below derives from the SAME
- * exported BRAIN_TOOL_MATCHER the hooks.json matcher is asserted equal to.
+ * plugin.
+ *
+ * Quick task 260906-gr1: the in-hook re-check below now derives from
+ * BRAIN_SHAPED_TOOL_MATCHER, not BRAIN_TOOL_MATCHER. The widened scope is
+ * what lets a non-canonical connector key such as `theo`
+ * (mcp__theo__brain_ask) reach the sanitizer at all -- before this change a
+ * theo-keyed response took the passthrough branch below unconditionally, so
+ * it got ZERO PII redaction. Being in scope here means the response gets
+ * SANITIZED, never that the connector is TRUSTED: isBrainTool (the trust
+ * predicate) is byte-unchanged.
  *
  * Reads stdin JSON {tool_name, tool_input, tool_response, session_id}.
  * Emits a hook envelope JSON on stdout and exits 0.
@@ -75,7 +83,7 @@ function main() {
   try {
     const input = readStdin();
     const toolName = String((input && input.tool_name) || '');
-    if (!sanitizer.isBrainTool(toolName)) {
+    if (!sanitizer.isBrainShapedTool(toolName)) {
       // Passthrough for non-Brain tools.
       return emitPassthrough();
     }

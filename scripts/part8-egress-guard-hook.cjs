@@ -137,19 +137,24 @@ function main() {
   const toolInput = payload.tool_input;
   const sessionId = typeof payload.session_id === 'string' ? payload.session_id : undefined;
 
-  // Defense-in-depth (Phase 239, BRAIN-01): the matcher scopes this hook to
-  // the live Brain tool names in BOTH plugin scope
-  // (mcp__plugin_mos_mindrian-brain__brain_*) and project scope
-  // (mcp__mindrian-brain__brain_*) and the canonical custom-connector name
-  // (mcp__pws-brain-mcp__brain_*, added 2026-08-19). The in-hook re-check below derives from
-  // the SAME exported BRAIN_TOOL_MATCHER the hooks.json matcher is asserted
-  // equal to, so a matcher drift cannot leak the gate open (OQ-1 backstop).
+  // Defense-in-depth (Phase 239, BRAIN-01; widened by quick task 260906-gr1):
+  // the in-hook re-check below derives from BRAIN_SHAPED_TOOL_MATCHER, not
+  // BRAIN_TOOL_MATCHER. The widened scope is what lets a non-canonical
+  // connector key such as `theo` (mcp__theo__brain_ask) reach classify() at
+  // all -- before this change, `isBrainTool` matched neither the plugin
+  // scope (mcp__plugin_mos_mindrian-brain__brain_*), the project scope
+  // (mcp__mindrian-brain__brain_*), nor the canonical custom-connector name
+  // (mcp__pws-brain-mcp__brain_*), so a theo-keyed call took the
+  // unconditional allow() below and got ZERO Part 8 enforcement. Being in
+  // scope here means the payload gets INSPECTED by classify(), never that
+  // the connector is TRUSTED: isBrainTool (the trust predicate) is
+  // byte-unchanged, so no foreign key gains an allow it had not earned.
   // The fail-OPEN posture on a failed require below is a deliberate accepted
   // risk (A3 / threat T6) this phase does NOT flip -- the complementary
   // fail-CLOSED belt lands in brain-client.cjs (sibling plan 239-05).
   try {
     const sanitizer = require(SANITIZER_PATH);
-    if (!sanitizer.isBrainTool(toolName)) return allow();
+    if (!sanitizer.isBrainShapedTool(toolName)) return allow();
   } catch (_) {
     // If the sanitizer cannot load, fail-OPEN (hook-internal error, A3).
     return allow();
