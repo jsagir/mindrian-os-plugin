@@ -6,6 +6,7 @@
 `mindrian-brain` as the Claude Desktop and Cowork connector key, already drops the
 `Authorization` header, and already cites this exact file by path. This document is the
 plugin-side half of a decision Session T has already shipped. It is not a proposal.
+Section 2's residual risk is now CLOSED IN CODE by quick task 260906-gr1; see Section 8.
 
 This document does NOT amend `docs/MINDRIAN-CANON.md`, does NOT widen `BRAIN_TOOL_MATCHER`,
 and does NOT change `hooks/hooks.json`.
@@ -98,3 +99,45 @@ hunt for separately:
 - `221df3e`: the close-out staging.
 - `11d6f82`: the README change that already prescribes `mindrian-brain`, already drops the
   `Authorization` header, and already cites this file by path.
+
+## 8. SUPERSEDED, 2026-09-06: the Section 2 residual risk is closed in code
+
+SUPERSEDED. Quick task 260906-gr1 closes the residual risk this note recorded in Section 2,
+and this section states plainly what changed, what did not, and what a Theo-side reader needs
+to know.
+
+**(a) The claim that no longer holds.** Section 2 stated: "`scripts/part8-egress-guard-hook.cjs:152`
+reads `if (!sanitizer.isBrainTool(toolName)) return allow();`, an UNCONDITIONAL allow when the
+tool name does not match." That sentence described the live behavior as of Phase 339 and it is
+no longer true. The hook now reads `if (!sanitizer.isBrainShapedTool(toolName)) return allow();`,
+and `isBrainShapedTool` recognizes any connector key whose bare tool name has the shape
+`brain_<verb>` -- so a `theo`-keyed call such as `mcp__theo__brain_ask` reaches `classify()`
+instead of taking the unconditional allow. The same inversion applies to the PostToolUse
+sanitizer in `scripts/brain-response-sanitize-hook.cjs`. The test that now proves this inversion
+is `tests/test-260906-gr1-brain-shaped-tool-gate.cjs` (Group 1, "the bypass proof"), together
+with the retargeted foreign-name legs in `tests/part8-egress-guard-hook.test.cjs` and
+`tests/test-239-pii-sanitizer-liveness.cjs`.
+
+**(b) What did not move.** Section 4's specific rejection of a THIRD TRUSTED ALTERNATION TOKEN
+(adding `theo` as a name the guard TRUSTS) still stands and was not reversed. `isBrainTool`'s
+trusted-key list -- `mindrian-brain` and `pws-brain-mcp` -- is byte-unchanged, and `theo` is
+still not in it; no future backend gets to add itself to that trusted vocabulary by fiat, and
+the guard's trust vocabulary is still not a moving target. What DID change is a different thing
+Section 4 never addressed: the HARNESS MATCHER's SCRUTINY scope, meaning which calls even reach
+inspection at all. That scope was widened by a structural `brain_<verb>` rule (any connector key,
+one shared suffix), not by adding a named trusted key. Section 4 is a statement about trust; this
+closure is a statement about scrutiny; the two are different questions and neither contradicts
+the other.
+
+**(c) The two-predicates distinction, for a Theo-side reader.** `isBrainTool` answers "is this
+THE trusted Brain connector?" and `isBrainShapedTool` answers "might this be carrying
+methodology traffic to a Brain backend, so Part 8 must inspect it?" As of this closure, `theo`
+gained SCRUTINY, not TRUST: a `theo`-keyed call is now inspected and can be blocked or gated by
+Canon Part 8, exactly like a `mindrian-brain`-keyed call, but it still is not treated as the
+trusted Brain door for any purpose that depends on trust rather than inspection.
+
+**(d) `mindrian-brain` remains the prescribed connector key.** Theo's README at commit `11d6f82`
+needs no change: this closure protects users who do not read that instruction (or a future
+backend that ships its own preferred key), it does not replace the instruction. Registering
+under `mindrian-brain` is still the correct, documented path; the code-level fix in Section 8
+is a backstop for the case where that path is not followed, not a substitute for it.

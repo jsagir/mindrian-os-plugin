@@ -17,7 +17,9 @@
  *   3  MUTATION: staling one hooks.json matcher turns the gate red, then
  *      the file is restored byte-identical and the gate is green again
  *   4  MUTATION: renaming the server (composed against a mutated server
- *      name) turns the pure evaluator red -- no file is touched
+ *      name) no longer defeats the widened brain_<verb> suffix rule (quick
+ *      task 260906-gr1 made this deliberately connector-agnostic) -- no
+ *      file is touched
  *   5  MUTATION: renaming one live tool turns the exact-claim source red,
  *      while the wildcard matcher(s) stay green under the SAME mutation
  *      (a deliberate, honestly-stated design property, not a gap)
@@ -152,11 +154,22 @@ async function main() {
   }
 
   // -------------------------------------------------------------------------
-  // LEG 4: MUTATION, rename the server. The REAL matchers (from
-  // extractBrainHookMatchers, untouched) are evaluated against a
-  // liveToolNames set composed with a MUTATED server name. No file on disk
-  // is touched by this leg; the mutation lives entirely in the composed
-  // in-memory array.
+  // LEG 4: MUTATION, rename the server. Quick task 260906-gr1 widened both
+  // hooks/hooks.json Brain matchers to BRAIN_SHAPED_TOOL_MATCHER, whose
+  // second alternation is a connector-agnostic brain_<verb> suffix rule that
+  // matches ANY connector key by design (DD-1: "Theo can add brain_foo
+  // tomorrow and it is covered with zero edits here" -- the exact property
+  // that closes the theo-keyed bypass). LEG 1 above already proved every
+  // live bare tool name has the brain_<word> shape, so a renamed server no
+  // longer defeats the widened wildcard matcher's live claim set. This is
+  // the INTENDED, permanent consequence of closing the connector-key bypass
+  // -- a stronger posture than before, not a regression in this liveness
+  // gate. The gate's sensitivity to a genuinely dead/stale matcher LITERAL
+  // is still covered by LEG 3 above (a hand-mutated hooks.json matcher still
+  // turns the gate red); its sensitivity to a single renamed TOOL is still
+  // covered by LEG 5 below via the exact-claim source, which this widening
+  // does not touch. No file on disk is touched by this leg; the mutation
+  // lives entirely in the composed in-memory array.
   // -------------------------------------------------------------------------
   {
     const realMatchers = gate.extractBrainHookMatchers().map((m) => m.matcher);
@@ -164,7 +177,14 @@ async function main() {
     const mutatedServerName = serverName + '-v2';
     const mutatedLive = gate.composeScopedNames(bareNames, pluginName, mutatedServerName);
     const verdict4 = gate.evaluateLiveness({ matchers: realMatchers, exactClaims: [], liveToolNames: mutatedLive });
-    assert(verdict4.ok === false, 'LEG 4: a renamed server turns evaluateLiveness red for the real matchers');
+    assert(
+      verdict4.perMatcher.every((pm) => pm.matched.length > 0),
+      'LEG 4: a renamed server still matches the widened brain_<verb> suffix rule for every real matcher (260906-gr1: connector-agnostic by design, not a gap)'
+    );
+    assert(
+      verdict4.ok === true,
+      'LEG 4: evaluateLiveness stays green under a server rename because every matcher retains a non-empty live claim set'
+    );
   }
 
   // -------------------------------------------------------------------------

@@ -289,8 +289,22 @@ test('isBrainTool matcher: threat T3 anti-impersonation, foreign servers false',
 });
 
 // ---------- hooks.json parity (Phase 239 BRAIN-01, converts silent drift into a red test) ----------
+//
+// Quick task 260906-gr1 retargets this test's per-group assertion from
+// BRAIN_TOOL_MATCHER to BRAIN_SHAPED_TOOL_MATCHER (DD-2: the harness gate is
+// the OUTER gate -- if a call does not match hooks.json's matcher, Claude
+// Code never invokes the hook script at all, so the harness gate has to
+// carry the WIDER scope, not the narrower trust scope). The parity MECHANISM
+// itself is unchanged: hooks.json's two Brain groups must still equal
+// exactly one exported constant, drift is still a red test, and the
+// "exactly 2 groups" vacuity guard is kept byte-for-byte. What is ADDED is a
+// literal pin on BRAIN_TOOL_MATCHER (below), which makes the trusted-key
+// freeze strictly STRONGER than this mutual-equality assertion alone: before
+// this task, nothing pinned BRAIN_TOOL_MATCHER's literal, so both the
+// hooks.json copies and the exported constant could in principle have
+// drifted together and stayed green.
 
-test('hooks.json Brain matchers equal the exported BRAIN_TOOL_MATCHER authority', () => {
+test('hooks.json Brain matchers equal the exported BRAIN_SHAPED_TOOL_MATCHER authority', () => {
   const fs = require('node:fs');
   const hooksPath = path.join(__dirname, '..', 'hooks', 'hooks.json');
   const doc = JSON.parse(fs.readFileSync(hooksPath, 'utf8'));
@@ -310,8 +324,16 @@ test('hooks.json Brain matchers equal the exported BRAIN_TOOL_MATCHER authority'
   // must turn this test red rather than pass vacuously over an empty set.
   assert.equal(brainGroups.length, 2, 'expected exactly 2 Brain hook groups in hooks.json, found ' + brainGroups.length);
   for (const group of brainGroups) {
-    assert.equal(group.matcher, sanitizer.BRAIN_TOOL_MATCHER, 'hooks.json matcher drifted from BRAIN_TOOL_MATCHER: ' + group.matcher);
+    assert.equal(group.matcher, sanitizer.BRAIN_SHAPED_TOOL_MATCHER, 'hooks.json matcher drifted from BRAIN_SHAPED_TOOL_MATCHER: ' + group.matcher);
   }
+});
+
+test('BRAIN_TOOL_MATCHER is pinned to its exact literal string (quick task 260906-gr1 freeze)', () => {
+  assert.equal(
+    sanitizer.BRAIN_TOOL_MATCHER,
+    'mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*',
+    'BRAIN_TOOL_MATCHER drifted from its frozen literal'
+  );
 });
 
 // ---------- Bonus: empty input handling ----------

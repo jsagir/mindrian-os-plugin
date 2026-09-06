@@ -8,8 +8,13 @@
 // until their surface exists.
 //
 // Hook contract (RESEARCH / write-scope-check clone):
-//   - non-Brain tool_name           -> exit 0 (passthrough, isBrainTool recheck)
-//   - foreign Brain-like server name -> exit 0 (passthrough, threat T3, Phase 239)
+//   - non-Brain-shaped tool_name     -> exit 0 (passthrough, isBrainShapedTool recheck)
+//   - foreign Brain-shaped server name -> SCRUTINIZED, not trusted (threat T3,
+//     Phase 239, widened by quick task 260906-gr1): reaches classify(), so it
+//     blocks on CONTENT-SET exactly like the real Brain door would, while
+//     isBrainTool on that same name still stays false (never trusted).
+//   - foreign, non-Brain-shaped server name -> exit 0 (passthrough, T-gr1-04:
+//     the guard stays Brain-specific, not a general MCP egress firewall)
 //   - verdict block (CONTENT-SET)    -> exit 2 + Part 8 stderr message (PB8-04)
 //   - clean MOVE-SET                 -> exit 0 (PB8-04)
 //   - malformed/garbage stdin        -> exit 0 fail-OPEN (A3 accepted risk)
@@ -21,16 +26,17 @@
 // exercisable without a live Brain wire. This env override is test-only.
 //
 // Phase 239 (BRAIN-01) bare-vs-scoped decision rule: this file drives the HOOK
-// SCRIPT over stdin, which calls sanitizer.isBrainTool(toolName) BEFORE ever
-// calling classify() (see scripts/part8-egress-guard-hook.cjs:151), so every
-// tool_name fixture below that is meant to be RECOGNIZED as the Brain door
-// must be a live SCOPED name -- the bare form fails isBrainTool and the hook
-// allow()s before classify() ever runs. Every live scoped name is DERIVED at
-// run time from scripts/check-brain-tool-liveness.cjs's
-// enumerateLiveBrainTools() + composeScopedNames(), never hand-typed
-// (RESEARCH.md Pitfall 5). The only hand-typed literal is the DELIBERATE
-// negative fixture for threat T3 (a foreign server name that must never
-// resolve as live).
+// SCRIPT over stdin, which calls sanitizer.isBrainShapedTool(toolName) (widened
+// by quick task 260906-gr1; was isBrainTool) BEFORE ever calling classify()
+// (see scripts/part8-egress-guard-hook.cjs:151), so every tool_name fixture
+// below that is meant to be RECOGNIZED as the Brain door must be a live
+// SCOPED name -- the bare form fails isBrainShapedTool and the hook allow()s
+// before classify() ever runs. Every live scoped name is DERIVED at run time
+// from scripts/check-brain-tool-liveness.cjs's enumerateLiveBrainTools() +
+// composeScopedNames(), never hand-typed (RESEARCH.md Pitfall 5). The only
+// hand-typed literals are the DELIBERATE negative fixtures for threat T3 (a
+// foreign server name that must never resolve as TRUSTED, even though a
+// Brain-shaped one is now scrutinized).
 //
 // Zero-dep: child_process spawnSync with a JSON stdin envelope. CJS only. No em-dashes.
 
@@ -112,14 +118,26 @@ async function main() {
     tool_input: { question: 'opaque blob with no clear content and no proven move-set shape' },
     session_id: 's4',
   });
-  // Threat T3 (Phase 239): DELIBERATE hand-typed literal. A foreign MCP
-  // server whose name merely resembles the Brain must never be recognized as
-  // the Brain door; naming it literally here is the point of this negative
-  // fixture (grep-exempt per this plan's acceptance criteria).
+  // Threat T3 (Phase 239, widened by quick task 260906-gr1): DELIBERATE
+  // hand-typed literal. A foreign MCP server whose name merely resembles the
+  // Brain must never be recognized as the TRUSTED Brain door (isBrainTool
+  // stays false); naming it literally here is the point of this negative
+  // fixture (grep-exempt per this plan's acceptance criteria). Its bare tool
+  // name ends in brain_query, so as of 260906-gr1 it IS Brain-shaped
+  // (isBrainShapedTool true) and therefore SCRUTINIZED -- see
+  // foreign_server_t3_scrutinized below. A separate fixture,
+  // FOREIGN_SERVER_NON_BRAIN_SHAPED, proves a foreign name that is NOT
+  // Brain-shaped at all still gets zero scrutiny, preserving the
+  // "Brain-specific, not a general MCP egress firewall" contract.
   const FOREIGN_SERVER = envelope({
     tool_name: 'mcp__plugin_evil_evil-brain__brain_query',
     tool_input: { cypher: 'note from jane@startup.com re: 2.3M ARR model' },
     session_id: 's5',
+  });
+  const FOREIGN_SERVER_NON_BRAIN_SHAPED = envelope({
+    tool_name: 'mcp__plugin_evil_evil-brain__list_files',
+    tool_input: { cypher: 'note from jane@startup.com re: 2.3M ARR model' },
+    session_id: 's5b',
   });
 
   // -------------------------------------------------------------------------
@@ -148,16 +166,34 @@ async function main() {
   })();
 
   // -------------------------------------------------------------------------
-  // Threat T3 (Phase 239): a foreign MCP server whose name merely resembles
-  // the Brain must ALSO exit 0 (passthrough via isBrainTool, BEFORE classify()
-  // ever runs), even when its tool_input carries the exact CONTENT-SET
-  // payload that would BLOCK if it were recognized as the real Brain door.
-  // This is the scoping proof: the guard is Brain-specific, not a general
-  // egress firewall for every MCP tool.
+  // Threat T3 (Phase 239, widened by quick task 260906-gr1): a foreign MCP
+  // server whose bare tool name is Brain-shaped (ends brain_<verb>) is now
+  // SCRUTINIZED -- it reaches classify() -- because the widened harness gate
+  // (BRAIN_SHAPED_TOOL_MATCHER) closes the exact bypass a `theo`-keyed
+  // connector exploited. Scrutiny is NOT trust: isBrainTool on this name
+  // stays false, so the foreign server never gains an allow it had not
+  // earned. Inspection is fail-safe, so a CONTENT-SET payload from it BLOCKS
+  // (exit 2), same as it would for the real Brain door. This inverts the
+  // pre-260906-gr1 assertion below (foreign names always passed through
+  // untouched); the corrected contract is "not trusted", not "not scrutinized".
   // -------------------------------------------------------------------------
-  (function foreign_server_t3() {
+  (function foreign_server_t3_scrutinized() {
     const r = runHook(FOREIGN_SERVER);
-    assert.strictEqual(r.status, 0, 'T3: a foreign server name must exit 0 (passthrough), never recognized as the Brain door');
+    assert.strictEqual(r.status, 2, 'T3: a Brain-shaped foreign server name is scrutinized and blocks on CONTENT-SET (inspection is fail-safe, not trust)');
+    assert.ok(/part 8/i.test(r.stderr), 'T3: block must emit a Part 8 stderr message');
+  })();
+
+  // -------------------------------------------------------------------------
+  // Threat T-gr1-04 (quick task 260906-gr1): a foreign MCP server whose bare
+  // tool name is NOT Brain-shaped at all (no brain_ suffix) must still exit 0
+  // (passthrough), even when its tool_input carries the exact CONTENT-SET
+  // payload that would BLOCK if it were Brain-shaped. This is the scoping
+  // proof the original T3 fixture intended: the guard is Brain-specific, not
+  // a general egress firewall for every MCP tool on every connector.
+  // -------------------------------------------------------------------------
+  (function foreign_server_non_brain_shaped_passthrough() {
+    const r = runHook(FOREIGN_SERVER_NON_BRAIN_SHAPED);
+    assert.strictEqual(r.status, 0, 'a non-Brain-shaped foreign server name must exit 0 (passthrough), never scrutinized');
   })();
 
   // -------------------------------------------------------------------------

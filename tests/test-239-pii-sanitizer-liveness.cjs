@@ -15,26 +15,41 @@
  * RESEARCH.md Pitfall 5 (fixtures must be derived from the live enumeration,
  * never hand-typed): every live tool name fixture below is DERIVED at run
  * time from scripts/check-brain-tool-liveness.cjs's enumerateLiveBrainTools()
- * + composeScopedNames(), never hand-typed. The only two hand-typed literals
- * in this file are DELIBERATE NEGATIVE fixtures: the foreign-server name for
- * threat T3 (LEG 4) and the superseded dead name (LEG 5), both of which must
- * never resolve as live -- naming them literally is the point of the test.
+ * + composeScopedNames(), never hand-typed. The hand-typed literals in this
+ * file are DELIBERATE NEGATIVE fixtures: the foreign-server names for threat
+ * T3 (LEG 4 and LEG 4b) and the superseded dead name (LEG 5), none of which
+ * must ever resolve as TRUSTED -- naming them literally is the point of the
+ * test.
  *
- * Six legs:
- *   LEG 1 -- plugin-scoped live name fires the sanitizer (PII rewritten).
- *   LEG 2 -- project-scoped live name fires the sanitizer (PII rewritten).
- *   LEG 3 -- non-Brain tool_name (Write) passes through unmodified.
- *   LEG 4 -- threat T3: a foreign MCP server response passes through
- *            unrewritten (a sanitizer tuned to the Brain contract must not
- *            touch a third party's bytes).
- *   LEG 5 -- the superseded dead name (mcp__brain_query, bare prefix form)
- *            is now inert (passthrough); it never existed as a live
- *            registered tool name in production, so treating it as inert is
- *            the Phase 239 correction, not a regression.
- *   LEG 6 -- MUTATION: revert isBrainTool to the pre-239 bare-prefix body,
- *            prove the live name from LEG 1 now falls through unrewritten
- *            (the gate reopening), restore the file byte-identical in a
- *            finally, and re-prove LEG 1 green again.
+ * Quick task 260906-gr1 widened the hook's gating predicate from isBrainTool
+ * (trust) to isBrainShapedTool (scrutiny). LEG 4 below is retargeted
+ * accordingly: a foreign server name that is ALSO Brain-shaped (its bare
+ * tool name ends brain_<verb>) is now correctly SANITIZED, not passed
+ * through -- inspection is fail-safe and does not grant trust. LEG 4b is new
+ * and carries the property the original LEG 4 intended: a foreign server
+ * name that is NOT Brain-shaped at all still passes through untouched, so a
+ * sanitizer tuned to the Brain contract still does not touch bytes outside
+ * its scope.
+ *
+ * Seven legs:
+ *   LEG 1  -- plugin-scoped live name fires the sanitizer (PII rewritten).
+ *   LEG 2  -- project-scoped live name fires the sanitizer (PII rewritten).
+ *   LEG 3  -- non-Brain tool_name (Write) passes through unmodified.
+ *   LEG 4  -- threat T3: a foreign, Brain-SHAPED MCP server response is
+ *             SANITIZED (scrutinized), while the connector itself gains no
+ *             TRUST (isBrainTool on the same name stays false).
+ *   LEG 4b -- a foreign, NON-Brain-shaped MCP server response passes through
+ *             unrewritten (a sanitizer tuned to the Brain contract must not
+ *             touch a third party's bytes it was never scoped to inspect).
+ *   LEG 5  -- the superseded dead name (mcp__brain_query, bare prefix form)
+ *             is now inert (passthrough); it never existed as a live
+ *             registered tool name in production, so treating it as inert is
+ *             the Phase 239 correction, not a regression.
+ *   LEG 6  -- MUTATION: revert isBrainShapedTool (the predicate the hook
+ *             actually consults as of 260906-gr1) to a pre-fix bare-prefix
+ *             body, prove the live name from LEG 1 now falls through
+ *             unrewritten (the gate reopening), restore the file
+ *             byte-identical in a finally, and re-prove LEG 1 green again.
  *
  * No em-dashes anywhere (CLAUDE.md HARD RULE). Pure CJS, zero npm deps.
  */
@@ -168,14 +183,21 @@ async function main() {
   })();
 
   // ---------------------------------------------------------------------
-  // LEG 4 (threat T3): a foreign MCP server whose name merely resembles the
-  // Brain must NOT have its response rewritten by a sanitizer tuned to the
-  // Brain contract. DELIBERATE hand-typed literal -- this name must never
-  // resolve as live; naming it literally is the point of this negative
-  // fixture (grep-exempt per this plan's acceptance criteria).
+  // LEG 4 (threat T3, widened by quick task 260906-gr1): a foreign MCP
+  // server whose name merely resembles the Brain gains no TRUST -- isBrainTool
+  // on this name stays false -- but its bare tool name ends brain_ask, so it
+  // IS Brain-shaped and is now correctly SCRUTINIZED (sanitized), the same
+  // widening that closes the theo bypass. Inspection is fail-safe: sanitizing
+  // a response is not the same as trusting the connector. DELIBERATE
+  // hand-typed literal -- this name must never resolve as TRUSTED; naming it
+  // literally is the point of this negative fixture (grep-exempt per this
+  // plan's acceptance criteria).
   // ---------------------------------------------------------------------
   const FOREIGN_SERVER_NAME = 'mcp__plugin_evil_evil-brain__brain_ask';
   (function leg4() {
+    const sanitizerModule = require(SANITIZE_MODULE_PATH);
+    assert.strictEqual(sanitizerModule.isBrainTool(FOREIGN_SERVER_NAME), false, 'LEG 4 setup: the foreign name must never be TRUSTED');
+    assert.strictEqual(sanitizerModule.isBrainShapedTool(FOREIGN_SERVER_NAME), true, 'LEG 4 setup: the foreign name IS Brain-shaped (ends brain_ask)');
     const r = runHook({
       tool_name: FOREIGN_SERVER_NAME,
       tool_input: { question: 'x' },
@@ -184,12 +206,40 @@ async function main() {
     });
     assert.strictEqual(r.status, 0, 'LEG 4: hook must exit 0; stderr=' + (r.stderr || ''));
     const envelope = JSON.parse(r.stdout);
+    assert.ok(
+      envelope.hookSpecificOutput,
+      'LEG 4 (T3): a Brain-shaped foreign server response must now be SANITIZED (scrutinized), not passed through -- inspection is fail-safe, not trust'
+    );
+    const text = envelope.hookSpecificOutput.updatedToolOutput[0].text;
+    assert.ok(!text.includes(LEG1_PII), 'LEG 4: PII value must be REWRITTEN, not echoed, for a Brain-shaped foreign name');
+    ok('LEG 4 (threat T3): Brain-shaped foreign server name ' + FOREIGN_SERVER_NAME + ' is scrutinized (sanitized) while remaining untrusted (anti-impersonation holds)');
+  })();
+
+  // ---------------------------------------------------------------------
+  // LEG 4b: a foreign MCP server whose name is NOT Brain-shaped at all (no
+  // brain_ suffix on the bare tool name) must still pass through unrewritten.
+  // This is the property the original LEG 4 intended to prove: a sanitizer
+  // tuned to the Brain contract must not touch a third party's bytes outside
+  // its scope. DELIBERATE hand-typed literal (grep-exempt, same as LEG 4).
+  // ---------------------------------------------------------------------
+  const FOREIGN_SERVER_NON_SHAPED_NAME = 'mcp__plugin_evil_evil-brain__list_files';
+  (function leg4b() {
+    const sanitizerModule = require(SANITIZE_MODULE_PATH);
+    assert.strictEqual(sanitizerModule.isBrainShapedTool(FOREIGN_SERVER_NON_SHAPED_NAME), false, 'LEG 4b setup: this name must NOT be Brain-shaped');
+    const r = runHook({
+      tool_name: FOREIGN_SERVER_NON_SHAPED_NAME,
+      tool_input: { question: 'x' },
+      tool_response: { text: 'contact ' + LEG1_PII + ' now' },
+      session_id: 'leg4b-foreign-server-non-shaped',
+    });
+    assert.strictEqual(r.status, 0, 'LEG 4b: hook must exit 0; stderr=' + (r.stderr || ''));
+    const envelope = JSON.parse(r.stdout);
     assert.strictEqual(
       envelope.hookSpecificOutput,
       undefined,
-      'LEG 4 (T3): a foreign server response must PASS THROUGH unrewritten, never sanitized by the Brain-tuned redactor'
+      'LEG 4b: a non-Brain-shaped foreign server response must PASS THROUGH unrewritten, never sanitized by the Brain-tuned redactor'
     );
-    ok('LEG 4 (threat T3): foreign server name ' + FOREIGN_SERVER_NAME + ' passes through unrewritten (anti-impersonation holds)');
+    ok('LEG 4b: non-Brain-shaped foreign server name ' + FOREIGN_SERVER_NON_SHAPED_NAME + ' passes through unrewritten (scope holds)');
   })();
 
   // ---------------------------------------------------------------------
@@ -219,10 +269,15 @@ async function main() {
   })();
 
   // ---------------------------------------------------------------------
-  // LEG 6: MUTATION PROOF. Revert isBrainTool to the pre-239 bare-prefix
-  // body, prove LEG 1's live name now falls through unrewritten (the gate
-  // reopening), restore unconditionally in a finally, then re-prove LEG 1
-  // green again. Mutation window is held to the single spawn below only.
+  // LEG 6: MUTATION PROOF. Quick task 260906-gr1 retargets the hook's gating
+  // predicate to isBrainShapedTool (scrutiny), so THAT is the function whose
+  // body must be mutated to prove the dead-seam-reopening property; mutating
+  // isBrainTool (the trust predicate, unused by this hook as of gr1) would
+  // prove nothing about the hook's actual routing. Revert isBrainShapedTool
+  // to a pre-fix bare-prefix body, prove LEG 1's live plugin-scoped name now
+  // falls through unrewritten (the gate reopening), restore unconditionally
+  // in a finally, then re-prove LEG 1 green again. Mutation window is held to
+  // the single spawn below only.
   // ---------------------------------------------------------------------
   await (async function leg6MutationProof() {
     const preMutationStatus = spawnSync('git', ['status', '--porcelain', '--', SANITIZE_MODULE_RELPATH], {
@@ -237,16 +292,16 @@ async function main() {
 
     const original = fs.readFileSync(SANITIZE_MODULE_PATH, 'utf8');
     const liveBody =
-      "function isBrainTool(toolName) {\n" +
-      "  return typeof toolName === 'string' && _BRAIN_TOOL_RE.test(toolName);\n" +
+      "function isBrainShapedTool(toolName) {\n" +
+      "  return typeof toolName === 'string' && _BRAIN_SHAPED_TOOL_RE.test(toolName);\n" +
       "}";
     const revertedBody =
-      "function isBrainTool(toolName) {\n" +
+      "function isBrainShapedTool(toolName) {\n" +
       "  return typeof toolName === 'string' && toolName.indexOf('mcp__brain_') === 0;\n" +
       "}";
     assert.ok(
       original.includes(liveBody),
-      'LEG 6 setup: could not find the exact anchored isBrainTool body to mutate -- a refactor may have moved it'
+      'LEG 6 setup: could not find the exact anchored isBrainShapedTool body to mutate -- a refactor may have moved it'
     );
 
     try {
@@ -258,9 +313,9 @@ async function main() {
       assert.strictEqual(
         envelope.hookSpecificOutput,
         undefined,
-        'LEG 6a: reverting isBrainTool to the pre-239 bare-prefix body must make the live plugin-scoped name FALL THROUGH unrewritten (the dead-seam gate reopening)'
+        'LEG 6a: reverting isBrainShapedTool to a pre-fix bare-prefix body must make the live plugin-scoped name FALL THROUGH unrewritten (the dead-seam gate reopening)'
       );
-      ok('LEG 6a: reverted isBrainTool reopens the dead seam -- the live plugin-scoped name from LEG 1 now falls through unrewritten');
+      ok('LEG 6a: reverted isBrainShapedTool reopens the dead seam -- the live plugin-scoped name from LEG 1 now falls through unrewritten');
     } finally {
       fs.writeFileSync(SANITIZE_MODULE_PATH, original);
     }
@@ -283,17 +338,23 @@ async function main() {
   })();
 
   console.log('');
-  console.log('test-239-pii-sanitizer-liveness: all 6 legs PASSED (' + okCount + ' assertions ok)');
+  console.log('test-239-pii-sanitizer-liveness: all 7 legs PASSED (' + okCount + ' assertions ok)');
   process.exit(0);
 }
 
 main().catch(function (e) {
   console.error('FAIL: ' + (e && e.stack ? e.stack : e));
   // Best-effort restore in case a mutation is left in flight by an
-  // unexpected throw outside LEG 6's own try/finally.
+  // unexpected throw outside LEG 6's own try/finally. Quick task 260906-gr1:
+  // LEG 6 now mutates isBrainShapedTool (not isBrainTool), so the recovery
+  // heuristic checks for THAT function's reverted bare-prefix body.
   try {
     const cur = fs.readFileSync(SANITIZE_MODULE_PATH, 'utf8');
-    if (cur.indexOf("toolName.indexOf('mcp__brain_') === 0") !== -1 && cur.indexOf('_BRAIN_TOOL_RE') === -1) {
+    const revertedMarker =
+      "isBrainShapedTool(toolName) {\n" +
+      "  return typeof toolName === 'string' && toolName.indexOf('mcp__brain_') === 0;\n" +
+      "}";
+    if (cur.indexOf(revertedMarker) !== -1) {
       const restore = spawnSync('git', ['checkout', '--', SANITIZE_MODULE_RELPATH], { cwd: ROOT });
       if (restore.status === 0) console.error('recovered: restored ' + SANITIZE_MODULE_RELPATH + ' via git checkout');
     }
