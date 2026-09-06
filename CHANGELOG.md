@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.24 (in progress)
+## [2.0.0-beta.25] - 2026-09-06
 
 ### Added
 - 
