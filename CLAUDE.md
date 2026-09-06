@@ -285,5 +285,7 @@ design analog worth checking in langtalks). Source of truth for the langtalks-sp
 
 ## Project Skills
 
-No project skills currently registered.
+| Skill | Description | Path |
+|-------|-------------|------|
+| claude-md-optimizer | Optimizes oversized CLAUDE.md/AGENTS.md/copilot-instructions.md files via progressive disclosure (6-phase guided workflow: detect, analyze, plan, review, execute, validate) - MIT licensed, https://github.com/wrsmith108/claude-md-optimizer | .claude/skills/claude-md-optimizer/SKILL.md |
 <!-- GSD:skills-end -->
