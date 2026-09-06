@@ -1,6 +1,6 @@
 {
   "name": "@mindrian_os/cli",
-  "version": "2.0.0-beta.25",
+  "version": "2.0.0-beta.26",
   "description": "Install MindrianOS into Claude Code with one command -- `npx @mindrian_os/cli`. Ships the MindrianOS plugin (Larry + PWS methodology + Data Room) plus a setup/diagnostics CLI (install/doctor/update).",
   "scripts": {
     "mcp": "node bin/mindrian-mcp-server.cjs",
