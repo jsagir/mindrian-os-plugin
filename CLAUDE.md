@@ -10,7 +10,7 @@
 
 `~/.claude/plugins/mindrian-os/` is NOT a dev workspace. It is a plugin install cache. Every commit, every git operation, every GSD phase MUST run from `/home/jsagi/dev/MindrianOS-Plugin/`. Running from the plugin cache silently diverges from GitHub and from every user's install.
 
-Before any session: `pwd` (confirm the dev workspace, not `~/.claude/plugins/*`), `git fetch origin main`, then check `git log origin/main..HEAD` (ahead) and `git log HEAD..origin/main` (behind). If the session-start hook trips the workspace guard, `cd ~/dev/MindrianOS-Plugin` and restart. Why this rule exists (the 2026-04-13 wrong-workspace incident): `docs/autopsies/2026-04-13-wrong-workspace-incident.md`.
+Before any session: `pwd` (confirm the dev workspace, not `~/.claude/plugins/*`), `git fetch origin main`, then check `git log origin/main..HEAD` (ahead) and `git log HEAD..origin/main` (behind). If the session-start hook trips the workspace guard, `cd ~/dev/MindrianOS-Plugin` and restart. Why this rule exists (the 2026-04-13 wrong-workspace incident): `docs/autopsies/2026-04-13-wrong-workspace-incident.md`. Read this repo's version with `node lib/core/repo-version.cjs`, never by searching the tree -- a stale checkout under `.claude/worktrees/` will answer a tree search with a months-old version (`docs/autopsies/2026-09-06-worktree-version-contamination-incident.md`).
 
 **Also check for OPEN HANDOFFS before starting.** `.planning/` is `.gitignore`d (`.planning/*`), so GSD STATE.md does NOT travel between machines. A handoff from another machine can only reach you through a tracked file. Run `ls docs/*-HANDOFF-*.md` and read anything dated within the last week; work paused on one machine is invisible here otherwise.
 

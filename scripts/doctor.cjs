@@ -1311,6 +1311,59 @@ function buildAcceptanceChecklist(ctx) {
       },
     },
     {
+      // QUICK-260906-t3s -- catches unregistered checkout directories piling
+      // up under .claude/worktrees/: agent-session worktrees whose linked-
+      // worktree admin record has gone stale (a moved repo root, a deleted
+      // branch, a crashed cleanup) so `git worktree prune` can no longer see
+      // them and they sit on disk forever. On 2026-09-06 this reached 46
+      // orphans / 3.9GB, and an unscoped version search walked into one of
+      // them and returned a months-old answer as if it were current (see
+      // docs/autopsies/2026-09-06-worktree-version-contamination-incident.md).
+      // BLOCKER, not advisory (DD-4 of that quick task's plan): the clean
+      // state is exactly zero and the fix is a single command, so unlike the
+      // large-disputed-violation-set advisory gates (shape-declaration,
+      // tool-honesty), a hard fail here is honest and cheap. `--advisory` on
+      // the underlying script exists for a release train that ever needs to
+      // move past this anyway; it is not wired here on purpose.
+      // Canon Part 8: every check this entry runs is a local filesystem read
+      // or a local `git` plumbing call, spawned in-process. Zero network.
+      id: 'worktree-hygiene',
+      label: 'no unregistered checkout directories under .claude/worktrees/',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'worktree-hygiene') {
+          return { ok: false, finding: 'worktree-hygiene synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        const scriptPath = path.join(pluginRoot, 'scripts', 'check-worktree-hygiene.cjs');
+        if (!fs.existsSync(scriptPath)) {
+          return { ok: false, finding: 'worktree-hygiene: script missing at ' + scriptPath, detail: { note: 'script missing' } };
+        }
+        try {
+          const r = cp.spawnSync('node', [scriptPath, '--check', '--json'], { encoding: 'utf8', timeout: 30000, cwd: pluginRoot });
+          let parsed;
+          try {
+            parsed = JSON.parse(r.stdout || '{}');
+          } catch (e) {
+            return { ok: false, finding: 'worktree-hygiene: could not parse script output: ' + e.message, detail: { stdout: (r.stdout || '').slice(-500), stderr: (r.stderr || '').slice(-500) } };
+          }
+          const nonRegistered = Array.isArray(parsed.nonRegistered) ? parsed.nonRegistered : [];
+          const ok = r.status === 0;
+          const finding = ok
+            ? null
+            : nonRegistered.length + ' unregistered worktree checkout(s) under .claude/worktrees/; fix with: node scripts/check-worktree-hygiene.cjs --prune --confirm';
+          return {
+            ok: ok,
+            finding: finding,
+            detail: { orphanCount: nonRegistered.length, review: nonRegistered.filter(function (x) { return x.status !== 'safe-orphan'; }) },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'worktree-hygiene threw: ' + e.message, detail: {} };
+        }
+      },
+    },
+    {
       // Phase 127.2 Plan 04 Instance #7 -- Class N acceptance point:
       // "activation reached the wire."
       //
