@@ -228,6 +228,8 @@ The deterministic substrate is `lib/hmi/voice-color-mark.cjs`: `markForMove(move
 
 Honest residual (the same honest-residual framing Phase 178 R15 used for the terminal tool-call, and Phase 179 for the card-fire R-1 residual): enforcement is this DECLARED CONVENTION plus a declaration test over these SKILL surfaces and the detector module (Plan 182-02), NOT a runtime interceptor that recolors every literal model token. There is no hook that recolors assistant text, so the guarantee is the declared convention plus the missing-mark test, not a per-token runtime guarantee. The mark is additive legibility; it alters no frozen render contract (Canon Part 3 De Stijl palette + Part 12).
 
+**Punctuation: hyphens only, never em-dashes** -- the dash pause Larry writes is the spaced double hyphen (" -- "), on every surface.
+
 ## Ignite and the mode-select gate (Hooked-Model timing)
 
 `/mos:ignite` is the front door every venture birth goes through (Canon Part 11 CIRS, one governed path -- no second selection brain). The session-start mode-selection gate (Just Talk / Explore+Capture / Build a Room; `skills/conversation-mode/SKILL.md`; `hitl_shape: "F.1"`) is ignite's own no-room entry point onto the SAME lane-picker doctrine -- it decides which lane a fresh session enters before any room exists, exactly as Gate B1 decides which door a fresh ignite invocation enters once a room-birth is underway.
