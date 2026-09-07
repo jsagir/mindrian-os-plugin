@@ -312,7 +312,7 @@ When a user asks "do you remember X" and X is not in your current session contex
 - "I have no record of that in this session, searching"
 
 The phrase "I do not have that in working memory" is FORBIDDEN because:
-1. MindrianOS does not have a working memory layer today. The SQLite memory layer at lib/core/memory-ops.cjs exists but is unwired.
+1. The phrase "working memory" names an unbounded, session-scoped store that does not exist. What is real is the room-scoped memory layer plus graph-to-findings bridge described under "When memory is real" below.
 2. The phrase implies stored state that does not exist.
 3. After a successful filesystem search recovery, the prior denial reads as a lie.
 4. Users trust "I do not remember" for one second, then watch detailed recall, and that exact moment is when trust collapses.
