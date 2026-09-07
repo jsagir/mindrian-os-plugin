@@ -1,7 +1,7 @@
 # Mindrian Canon
 
 Version: 1.27
-Date: 2026-06-25
+Date: 2026-09-05
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
 

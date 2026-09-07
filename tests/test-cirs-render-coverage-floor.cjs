@@ -17,9 +17,13 @@
  *           ruling set, named as the render-plane peer of R2 + R9, distinct from R3.
  *   Test 2: the FULL prior FLOOR R1-R14 is PRESERVED (every prior rule still a
  *           member of the closed ruling set; the additive move did not drop any).
- *   Test 3: the closed-set BOUND is enumerated as "R1-R15" (the frozen-set move
- *           R1-R14 -> R1-R15 landed) and the stale "R1-R14" bound is gone from the
- *           enumerating references; the header/footer carry Version 1.16.
+ *   Test 3: the closed-set BOUND is enumerated as "R1-R<N>" with N >= 15 (the
+ *           frozen-set move R1-R14 -> R1-R15 landed and holds as a floor; a LATER
+ *           additive rule, e.g. R16, moves N further and must not false-fail this
+ *           floor -- discovered live at N=16 on 2026-09-07, unrelated to this plan's
+ *           scope) and the stale "R1-R14" bound is gone from the enumerating
+ *           references; the header/footer carry Version 1.27 (the anchor tracks the
+ *           live canon forward; the R15 invariant this test guards is unchanged).
  *   Test 4: the render gate's covered/excluded/gap counting contract is BYTE-STABLE
  *           (a class-blind recount of the registry entries equals the reported
  *           counts; the XOR partition holds). NEVER asserts a `.size` total.
@@ -71,13 +75,14 @@ for (let n = 1; n <= 14; n++) {
 }
 
 // ---------------------------------------------------------------------------
-// Test 3: the closed-set BOUND moved R1-R14 -> R1-R15; Version is 1.16.
+// Test 3: the closed-set BOUND moved R1-R14 -> R1-R15; Version is 1.27.
 // ---------------------------------------------------------------------------
-ok('the closed-set bound is enumerated as "R1-R15" (the frozen-set move landed)',
-  /MUST satisfy R1-R15/.test(canonFlat));
-ok('the stale "MUST satisfy R1-R14" bound is gone', !/MUST satisfy R1-R14/.test(canonFlat));
-ok('header carries Version: 1.16', /^Version: 1\.16$/m.test(canon));
-ok('footer carries Mindrian Canon v1.16', /_Mindrian Canon v1\.16 - MindrianOS Plugin_/.test(canon));
+const mustSatisfyBound = canonFlat.match(/MUST satisfy R1-R(\d+)/);
+ok('the closed-set bound is enumerated as "R1-R<N>" with N >= 15 (the frozen-set move R1-R14 -> R1-R15 landed and holds as a floor for later additive rules)',
+  !!mustSatisfyBound && Number(mustSatisfyBound[1]) >= 15);
+ok('the stale "MUST satisfy R1-R14" bound is gone', !/MUST satisfy R1-R14\b/.test(canonFlat));
+ok('header carries Version: 1.27', /^Version: 1\.27$/m.test(canon));
+ok('footer carries Mindrian Canon v1.27', /_Mindrian Canon v1\.27 - MindrianOS Plugin_/.test(canon));
 ok('Appendix D entry 27 (Part 11 R15) is present',
   /^27\.\s+\*\*Part 11 R15 \(Render Coverage\) minted/m.test(canon));
 
@@ -99,7 +104,16 @@ ok('the gate report exposes covered/excluded/gap counts',
 
 // Class-blind recount: re-evaluate the pinned predicate over the registry entries
 // independent of the gate's tally, then assert byte-equality.
-const registryEntries = Array.isArray(reg.entries) ? reg.entries : [];
+//
+// The registry's own generated_note (Phase 209-03 B3) documents it now merges THREE
+// keyspaces: (1) render entry points (this test's R15 concern, keyed by `entry` +
+// `kind` + `render_coverage`), (2) commands/*.md hitl_shape declarations, and
+// (3) skills/*/SKILL.md declarations, both keyed by `surface` + `declared_shape` +
+// `wired`. Keyspaces 2 and 3 are the R16 declaration-mandate plane, a different rule
+// this floor does not pin. Scope the recount to keyspace 1 only (entries carrying the
+// `entry` field), matching what gate.renderCoverageReport() itself reports over.
+const registryEntries = (Array.isArray(reg.entries) ? reg.entries : [])
+  .filter((e) => e && typeof e.entry === 'string');
 const recount = { covered: 0, excluded: 0, gap: 0 };
 for (const e of registryEntries) {
   if (e.render_coverage === 'render-only-excluded') {
