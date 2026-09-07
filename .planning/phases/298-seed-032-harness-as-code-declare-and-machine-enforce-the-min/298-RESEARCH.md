@@ -1092,6 +1092,78 @@ Every row names something a machine can check: a command plus an exit code, a by
 
 ---
 
+## LangTalks Grounding: Harness (corpus-cited, added 2026-09-07 at the navigator's request)
+
+Source: the LangTalks knowledge graph (`/home/jsagi/langtalks-graph-expert/.planning/graphs/graph.json`, last modified 2026-08-27; 9,260 nodes, 21,492 edges, 46 sources, 148 episode nodes). Every claim below comes from a live `get_entity` / `relationship_path` / `multihop_query` call, and every passage was read from the local source file at the cited character offset. Hebrew LangTalks passages are paraphrased in English and marked as such. Nothing here rests on training knowledge.
+
+### Coverage: what the corpus holds and what it does not
+
+| Entity queried | In corpus? | Sources |
+|---|---|---|
+| `harness engineering` | yes | Fragmented #307 "Harness Engineering - The Hard Part of AI Coding" |
+| `agent harness` | yes | SDS 985 (Richmond Alake); Vanishing Gradients Ep. 57 (Shreya Shankar) |
+| `harness` | yes | LangTalks ep 70 "Our Claude Code Tips"; ep 71 "Claw Architectures" (NanoClaw); data4sci "Building an Advanced Agentic Harness"; Latent Space (Databricks) |
+| `guardrails` | yes | LangTalks ep 35 (Almog Baku); VG Ep. 57; the ICM Architect note |
+| `verification loops` | yes | claude.com "Building verification loops in Claude Code with skills" (2026-07-22) |
+| `deterministic checks` | yes | data4sci harness post |
+| `observability` | yes | data4sci harness post; LangTalks ep 67 (FinOps); Memgraph Atomic GraphRAG; Deep Papers Agent-as-a-Judge |
+| `agent evaluation` | yes | Agent Factory note (Google Cloud Tech) |
+| `LLM as a judge` | yes | LangTalks ep 61; VG Ep. 57; Agent Factory note; Lex #490 |
+| `context engineering` | yes | LangTalks ep 55, 57, 62, 63, 65, 66, 67; claude.com "New rules of context engineering" (2026-07-24) |
+| `evals`, `policy enforcement`, `idempotency`, `false positives`, `hooks`, `agentic harness` | **not in the corpus yet** | - |
+
+Graph paths (typed edges, all `EXTRACTED` confidence):
+
+- `Harness Engineering --part_of--> AI Coding Agent --part_of--> AI` (4 hops to `Guardrails` through ep 35)
+- `Blast Radius --part_of--> Harness Engineering`; `Blast Radius --builds_on--> File <--builds_on-- context engineering` (harness and context engineering meet at the file boundary)
+- `Agent Harness --builds_on--> Agent` (3 hops to `Observability` through ep 67)
+- `Verification loops --part_of--> Claude Code --part_of--> Harness` (2 hops)
+- `agent harness` x `guardrails`: one shared episode (VG Ep. 57); shortest path runs through the claude.com "New rules" post
+
+### The passages, by source
+
+**Fragmented #307 - Harness Engineering** (`sources/research/markdown/url-https-fragmentedpodcast-com-episodes-307.md`, Mar 17 2026). "The hard part of AI coding isn't generating code - it's controlling quality, safety, and drift." Names the five pillars for shaping an agent's environment: agent legibility, closed feedback loops, persistent memory, entropy control, blast radius controls. Credits Mitchell Hashimoto with coining the term; cites OpenAI's Codex codebase post, Stripe's Minions (forked Goose to build custom agents), and "Superpowers by Jesse Vincent - skills that enforce a proper software engineering process."
+
+**data4sci - Building an Advanced Agentic Harness** (Goncalves, Jul 2026, `url-https-data4sci-com-blog-building-an-adva.md`). The load-bearing quotes for 298:
+
+- Composition over framework: "We build small, testable primitives ... and wire them together with a deliberately thin orchestrator. Each primitive exists because naive agents fail in a specific, predictable way."
+- The verification hierarchy (char 17268 is the `deterministic checks` citation): "not all checks cost the same, so we arrange them as a hierarchy: deterministic structural checks that are essentially free, and an LLM judge for subjective quality that costs real tokens. The rule is to always run the cheap tier first and only escalate survivors." And: "the Worker produces and the Critic evaluates, so the generator is never grading its own homework."
+- The flight recorder (char 18992 is the `observability` citation): "an append-only log of structured events that can answer what happened in what order ... The schema is flat and boring: a list of JSON-serializable dicts you can dump to a file ... You don't need a proprietary format to get real observability, just a sufficient schema."
+- Error classes drive recovery, not blind retries: transient (back off and retry), validation (feed the structured error back), missing information ("retrying is actively harmful ... re-plan without it"), policy violation ("fatal, we should halt immediately").
+- "Tighten `verify_report()` and every future run is held to the new bar." / "Never take the LLM at its word, not even about node names."
+- The honest boundary: "A single successful demo proves the harness can work; nothing in this post proves it actually works in most cases. That is the job of an eval harness."
+
+**claude.com - Building verification loops in Claude Code with skills** (Jul 22 2026, `url-https-claude-com-blog-building-verificat.md`). "A verification loop is a repeating cycle where an AI agent checks its own work - running tests, linters, or custom checks - and fixes what fails before moving on." "A good practice is to list your exact build and test commands in CLAUDE.md so Claude doesn't have to infer them." On what qualifies: "'Reject any migration that drops a column without a backfill step' is a deterministic rule no generic linter will catch but a project-specific one will. Anything you keep having to enforce by hand as a manual check qualifies for capture as a loop." The placement ladder - standalone, embedded, chained, on every PR: "The signal that you've outgrown standalone is when you're running it after every change." "What started as a habit ('I always run /verify after /simplify') becomes a contract ('/simplify always runs /verify when it finishes')." And the caution: "Hold off on PR-wide gates while the chain is still in flux; every adjustment becomes a team-visible event."
+
+**claude.com - The new rules of context engineering for Claude 5 generation models** (Jul 24 2026, `url-https-claude-com-blog-the-new-rules-of-c.md`). "We removed over 80% of Claude Code's system prompt ... with no measurable loss on our coding evaluations." The failure they found in their own transcripts: "several conflicting messages in a single request like 'leave documentation as appropriate,' or 'DO NOT add comments' as our system prompt, skills, and user requests clash with each other." The shift: "Then: Give Claude rules. Now: Let Claude use judgement." "Then: Repeat yourself. Now: Simple tool descriptions." Progressive disclosure: "consider having a tree of files that can be loaded at the right time." On harness builders specifically: "if you are building your own agent harness, this is where you should spend a lot of time" (the system prompt). "Rubrics allow Claude to try and verify your taste ... by spinning up verifier agents with those rubrics." "Generally you should prefer files that are in code as it provides clear, high-fidelity instructions."
+
+**Vanishing Gradients Ep. 57 - Shreya Shankar** (`url-https-hugobowne-substack-com-p-episode-5.md`; the corpus holds the episode page, not a transcript). The page's own summary: "Error analysis: why you need humans reviewing the first 50-100 traces"; "Guardrails like retries, validators, and 'gleaning'"; "How LLM judges work - rubrics, pairwise comparisons, and cost trade-offs." This is the only episode the corpus links to BOTH `agent harness` and `guardrails`.
+
+**Agent Factory - Deep Dive into Agent Evaluation** (Google Cloud Tech, `note-agent-factory-deep-dive-into-agent-evalu.md`, char 847). "LM evaluation is like a school exam. You're testing knowledge with static Q&A. But agent evaluation is more like a job performance review." "Traditional testing is deterministic - same input, same output almost every time ... agents don't work that way ... Instead of focusing on single outputs, you have to look at behavior over time."
+
+**SDS 985 - Richmond Alake** (`url-https-www-superdatascience-com-podcast-s.md`, char 71584). The host's closing summary: Alake "advocates for a memory first agent harness and a key principle he emphasizes is reducing cognitive load for both LLMs and developers."
+
+**LangTalks ep 35 - LLM app dev guide, Almog Baku** (`langtalks/transcripts/ep35.txt`, char 12772; Hebrew, paraphrased). Two metrics are needed, not one: a north-star metric that pushes business impact forward, and a guardrail that makes sure no damage happens ("you generate a thousand-word blog easily, and just as easily a sentence about your competitor slips in where it should not"). A guardrail can be "an LLM that checks after the fact the things you define for it" - competitors, offensiveness, and so on.
+
+**LangTalks ep 70 - Our Claude Code Tips** (`langtalks/transcripts/ep70.txt`, char 4688; Hebrew, paraphrased). Speaker 0 on closing the loop: "I very much believe in the concept of proof of work and definition of done, and I think it is super important to know how you close that loop ... how the agent, in the end, knows to check itself and not to end the loop until it tells you: the definition of done, the contract we defined between me and you, is really done." Speaker 1 on feedback that is policy rather than a one-off edit: deleting a button is not the change; "there must not be more than two buttons on a page" is - "feedback that is relevant to all pages, not something tactical like deleting the button."
+
+**LangTalks ep 71 - Claw Architectures, Gavriel Cohen (NanoClaw)** (`langtalks/transcripts/ep71.txt`, char 8350; Hebrew, paraphrased). A human-in-the-loop approval policy at the gateway: reading email can be free, sending email carries an approval policy; "every time the agent tries to send, the request is frozen in the air and the vault asks the orchestrator for approval; the orchestrator pushes a card to the end user showing what the agent is trying to send ... it does not ask for your approval; if you do not approve it simply will not continue, it gets a refusal." Credentials are injected from outside the agent's environment, never exposed to it. The underlying harness is the Claude Agent SDK, so the user's existing skills and marketplace "all connect quite simply."
+
+### What Phase 298 takes from this (planner-facing)
+
+1. **The D8 ladder is the corpus's cheap-tier-first rule applied to enforcement.** data4sci: run the free deterministic tier first, escalate survivors only; claude.com: hold off on PR-wide gates while the chain is in flux. `declared` is the free tier, `logged` is the flight recorder, `blocking` is the team-visible gate. Nothing in the corpus argues for skipping a rung.
+2. **Promotion needs human-labeled traces, and the corpus gives the only sourced figure: 50-100 traces (VG Ep. 57).** The `promotion_rule` field should express a minimum count of human-labeled evidence rows, not a bare false-positive rate; a rate over unlabeled rows is the Pitfall 5 the research already names. The navigator sets the number; this is the only sourced one available.
+3. **The evidence log is a flat, boring JSONL flight recorder.** data4sci's schema fields worth carrying into the D-02 row: an event id, a parent pointer (the policy id), the action taken, a verdict, latency, and a snapshot of state at write time. No proprietary format; a list of JSON-serializable dicts.
+4. **Producer and critic stay separate.** `build-harness-manifest.cjs` produces; `run-harness.cjs` and `evaluatePromotion()` judge and never write the artifacts they judge. Larry (the worker) never self-certifies voice compliance; `check-voice-style.cjs` (the critic) does. "The generator is never grading its own homework."
+5. **Error classes, not retries, decide the runner's exits.** A ghost gate (policy names a runner file that is missing) is the "missing information" class: refuse `converged: true`, never retry. A `blocking` policy failing is the "policy violation" class: halt with exit 1. A spawn failure of a `logged` policy is transient: record it and continue (SEED-033's bounded retry, not a loop).
+6. **Declare once, point from the persona, never restate.** The "New rules" post's own finding (conflicting rules across system prompt, skills and user requests; "Then: Repeat yourself / Now: Simple tool descriptions") is the design argument for `memory-write-policy.json` holding D3/D4/D5 and the three Larry surfaces holding pointers. With 6 bytes of headroom on the Desktop wire (research item 6), restating the policy there is not only unaffordable, the corpus says it is counterproductive.
+7. **List the runner and the doctor point in CLAUDE.md's Verification section.** "List your exact build and test commands in CLAUDE.md so Claude doesn't have to infer them." One line each: `node scripts/run-harness.cjs --check` and the `harness-policies` acceptance point. A small task, worth a plan line.
+8. **The placement ladder maps onto the four slices.** Standalone (`run-harness.cjs --check`, slice 1) -> embedded (doctor `harness-policies` point, after slice 1 is green, spec req 9) -> chained (pre-commit guard regex widened to `data/harness-policies/`, Pitfall 6) -> every PR (out of 298's scope; noted as the natural next rung).
+9. **The voice-style log measures behavior over time, not a single turn.** Agent Factory: "you have to look at behavior over time." The doctor line for D-04 should report a windowed rate (violations per N turns in the log), never pass/fail on the last turn. This is consistent with the never-failing `status: 'ok'` decision.
+10. **The F.8 basket is the corpus's HITL gateway pattern.** NanoClaw's "frozen in the air; no approval means refusal, not a nag" is D-01's silent close and SEED-040's `NOT_REMEMBERED_BECAUSE` in one sentence. The card is pushed by the orchestrator (the F.8 renderer), the agent does not plead, and an unapproved candidate is a refusal with a recorded reason.
+11. **Every `promotion_rule` is a definition-of-done contract (ep 70).** The runner may not report `converged: true` while any policy's DoD is unmet; that is spec requirement 4 stated in the corpus's words.
+12. **Corpus gaps the plan should not paper over.** `evals`, `idempotency`, `policy enforcement` and `hooks` are not in the corpus yet. The idempotency contract (second run is a no-op, empty `git status --porcelain`) therefore rests on the design doc and the runner's own tests, not on external grounding - state that in the plan rather than implying corpus support.
+
 ## Assumptions Log
 
 | # | Claim | Section | Risk if wrong |
@@ -1188,6 +1260,10 @@ Everything else in this document is `[VERIFIED]` from a repo read, a live comman
 ### Secondary (MEDIUM confidence)
 
 - The per-script flag/exit-code table: mechanically extracted by grep, so "the string appears" is proven and "the flag is parsed" is inferred (see Assumption A2).
+
+### LangTalks corpus (HIGH for the quotations; corpus-cited, see the LangTalks Grounding section)
+
+- `/home/jsagi/langtalks-graph-expert/.planning/graphs/graph.json` (last modified 2026-08-27) queried live via `get_entity`, `relationship_path`, `multihop_query`, `graph_stats`; passages read from `sources/research/markdown/*.md` and `sources/langtalks/transcripts/ep35.txt`, `ep70.txt`, `ep71.txt` at the cited character offsets. Six entities (`evals`, `policy enforcement`, `idempotency`, `false positives`, `hooks`, `agentic harness`) returned `found: false` and are recorded as corpus gaps, not filled from memory.
 
 ### Tertiary (LOW confidence)
 
