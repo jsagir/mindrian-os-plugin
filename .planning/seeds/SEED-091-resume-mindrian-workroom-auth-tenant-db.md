@@ -91,6 +91,31 @@ are already done and verified. The real work is: (1) Supabase Auth wiring, (2) a
 control-plane schema with correct RLS, (3) refactoring the app's data-access layer off "read the
 local filesystem" onto "read this tenant's room" -- a real but bounded surface, not a new product.
 
+## Addendum (2026-09-07) -- OpenCode checked as a possible foundation, rejected on the same axes as AgentOS; one idea kept
+
+Navigator asked directly: "can we use OpenCode to build a Mindrian?" Checked live via Tavily, not
+assumed -- OpenCode (MIT, sst/anomaly, 150k+ stars) is a Go-TUI + Bun/JS-server client-server AI
+coding agent, model-agnostic across 75+ providers.
+
+**Verdict: reject as a foundation/runtime, on the identical four axes that killed AgentOS as a
+foundation** (`research/2026-07-05-rebuild-vs-surgery/03-ignite-persona-ui-agentos.md`) --
+arguably a sharper collision this time, since OpenCode is a direct category competitor to Claude
+Code itself, not an adjacent orchestration framework:
+1. **Delivery model** -- adopting it means Mindrian stops being a Claude Code plugin and becomes a
+   fork of a competing agent CLI. Bigger collision than AgentOS's (a different category), because
+   this one replaces the actual host Mindrian lives in today.
+2. **Runtime** -- two full agent loops competing for the same job, not a small workflow layer vs.
+   an orchestration add-on.
+3. **Stack** -- Go + Bun/JS vs. this repo's hard CJS-only / no-build-step / markdown+bash rule.
+4. **Moat** -- OpenCode is a coding-agent (LSP diagnostics, git-snapshot undo, file edits); has zero
+   relationship to Theo/the teaching graph. Building on it advances nothing this repo actually
+   protects.
+
+**What's worth keeping, same "steal the idea, not the dependency" move as the AgentOS verdict:**
+OpenCode's client-server split -- one server, N clients (TUI/web/desktop/IDE) attached
+concurrently without clobbering each other's state -- is a real, production-proven answer to the
+exact gap SEED-039 names and Phase 198 needs. Cross-linked there, not duplicated here.
+
 ## Breadcrumbs
 
 - `dev/mindrian-workroom` -- the real repo (Next.js 16 / React 19 / BlockNote, deployed to Vercel

@@ -149,3 +149,15 @@ New `<room>/.mindrian/sessions/` ledger: who is currently bound and live in this
   canonical resolver, the navigation.cjs chokepoint, the cascade verbs, doctor, the orphan-sweep.
 - SEED-034 already fixed the WRITE-INDEX resolver disagreement (root-cause #1) but left the GUARD
   and SESSION dimensions open; this seed closes them. Sequencing: canon leads (this SEED), code follows.
+- **No longer just a race-condition fix -- now a hosting-architecture blocker.** Checked live
+  2026-09-07 (rethinking-mindrianos session): this seed is the named hard dependency of Phase 198's
+  "one durable MCP daemon, multiple clients attached concurrently" vision, and of SEED-091's
+  resume-mindrian-workroom plan -- both need exactly what this seed is missing: per-CONNECTION room
+  state on a shared server process, not one global mutable field. External validation, not internal
+  guessing: OpenCode (MIT-licensed, 150k+ stars, `sst`/`anomaly`) ships precisely this shape in
+  production -- a client-server split (Go TUI + Bun/JS HTTP server) where "multiple frontends can
+  connect to the same server" without one client's state clobbering another's. Worth studying its
+  session/connection model as a reference for Pillar 1 here (the shape, not the Go/Bun stack --
+  this repo stays CJS). Breadcrumb, not a scope change: SEED-091 (`.planning/seeds/
+  SEED-091-resume-mindrian-workroom-auth-tenant-db.md`) and `rethinking-mindrianos/research/
+  2026-09-07-*` carry the fuller reasoning.
