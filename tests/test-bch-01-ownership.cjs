@@ -63,10 +63,11 @@ if (schema) {
   ok(validateObservation({ confidence: 0.5 }).ok === true, 'confidence of 0.5 passes (in [0,1])');
 }
 
-// (5) Source-scan assert: the BCH-03 two-pass doctrine is documented in the prompt.
-const PROMPT = path.join(ROOT, 'lib/mcp/larry-server-instructions.md');
+// (5) Source-scan assert: the BCH-03 two-pass doctrine is documented on a
+// surface Larry actually loads at runtime (skills/larry-personality/SKILL.md).
+const PROMPT = path.join(ROOT, 'skills/larry-personality/SKILL.md');
 const promptSrc = fs.existsSync(PROMPT) ? fs.readFileSync(PROMPT, 'utf8') : '';
-ok(/two-pass/.test(promptSrc), 'larry-server-instructions.md documents the two-pass ordering (BCH-03 anchor)');
+ok(/two-pass/.test(promptSrc), 'skills/larry-personality/SKILL.md documents the two-pass ordering (BCH-03 anchor)');
 
 console.log(failed === 0 ? 'PASS test-bch-01 (engine owns the decision; schema cannot carry composed state)' : ('FAIL test-bch-01 (' + failed + ' assertion(s) failed)'));
 process.exit(failed === 0 ? 0 : 1);
