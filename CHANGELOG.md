@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.26 (in progress)
+## [2.0.0-beta.27] - 2026-09-07
 
 ### Added
 - Larry recognizes Theo by name on all three surfaces. `agents/larry-extended.md` gained
