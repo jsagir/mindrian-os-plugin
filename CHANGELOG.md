@@ -1,7 +1,52 @@
 ## [Unreleased] -- v2.0.0-beta.26 (in progress)
 
 ### Added
-- 
+- Larry recognizes Theo by name on all three surfaces. `agents/larry-extended.md` gained
+  `## If asked about Theo by name` (Theo is MindrianOS's own teaching-graph backend behind every
+  `brain_*` call; a direct by-name question gets an honest brief answer, never volunteered), with a
+  narrow inline carve-out on the Never-Do "mention databases or architecture" rule (quick
+  260907-i8j). The Desktop/Cowork MCP wire, `lib/mcp/runtime-instructions.cjs`, gained a THEO
+  clause inside the 1,950-byte served budget (1888 -> 1944 bytes) with the Canon Part 8 BOUNDARIES
+  paragraph byte-identical and still the tail (quick 260907-m2j). No endpoint, host, or wiring
+  detail is disclosed on any surface.
+- `### Honest about thin grounding` in `skills/larry-personality/SKILL.md`: on any thin `brain_*`
+  signal (an empty DirectiveEnvelope `signals` set, a zero or ambiguous `normalize_framework_name`
+  match, a low `orchestration_readiness` score) one capability-honesty clause rides inside the
+  answer Larry is already giving, naming no backend noun. Finishes wiring Decision #8, "Honest
+  refusal everywhere", into Larry's voice (quick 260907-i8j).
+- `lib/core/repo-version.cjs`: the one canonical answer to "what version is this repo" (module +
+  CLI), refusing with a named error instead of guessing when resolved from a `.claude/worktrees/*`
+  checkout (quick 260906-t3s).
+- `scripts/check-worktree-hygiene.cjs` plus a `worktree-hygiene` blocker in `doctor --acceptance`:
+  diffs `.claude/worktrees/*` on disk against `git worktree list`, classifies every unregistered
+  checkout (`live-gitdir` / `safe-orphan` / `review`) by hashing its files against the object
+  database, and is the only governed delete path (`--prune --confirm`; `review` is never
+  auto-deleted). 18 hermetic tests (quick 260906-t3s).
+- `docs/CANON-PHASE-MAP.md` `## Amendment cascade rule`: every canon amendment discovers the
+  version-pinning tests by an escaped-regex-aware grep instead of a hand-named list, and bumps
+  `Date:` together with `Version:` (quick 260907-m2l).
+- `docs/autopsies/2026-09-06-worktree-version-contamination-incident.md`, cross-referenced from
+  CLAUDE.md's WORKSPACE GUARD (quick 260906-t3s).
+
+### Fixed
+- Canon version floors: `test-205-elevation-doctrine-floor` (pinned 1.24) and
+  `test-cirs-render-coverage-floor` (pinned 1.16) cascaded to the live v1.27;
+  `test-bono-verdict` and `test-canon-part-9-ratification` redesigned from live-header equality
+  (structurally doomed the moment a later entry ships) to append-only provenance plus a monotonic
+  floor; the `run-all-340.sh` quarantine on part-9-ratification lifted; `docs/MINDRIAN-CANON.md`
+  `Date:` restored to 2026-09-05, the v1.27 commit date, after Phase 340's three bumps dropped it
+  (quick 260907-m2l).
+- Four stale lines in `agents/larry-extended.md` (em-dash wording under a hyphens-only rule, a
+  hardcoded sensor count now read from the registry, a nonexistent `lib/memory/user-md-persona.cjs`
+  path corrected to `lib/core/user-md-ops.cjs`, a moved dual-path registration note) and a
+  memory-layer contradiction in `skills/larry-personality/SKILL.md` (quick 260907-m2j).
+
+### Removed
+- `lib/mcp/larry-server-instructions.md`: an orphan loaded by nothing at runtime that named nine
+  tools which do not exist and opened with the exact first-contact string `test-143.2` forbids.
+  Its one live rule, the BCH-03 two-pass turn-ordering doctrine, relocated verbatim into
+  `skills/larry-personality/SKILL.md`; `tests/test-bch-01-ownership.cjs` repointed at it
+  (quick 260907-m2j).
 
 ## [2.0.0-beta.25] - 2026-09-06
 
