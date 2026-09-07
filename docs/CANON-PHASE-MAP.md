@@ -18,6 +18,22 @@ Canon reference: docs/MINDRIAN-CANON.md (v1.27)
 
 Every phase plan that touches a canon concept must declare `canon_parts:` in its CONTEXT.md frontmatter. The declaration is how drift-detection (Phase 92 proposed) knows which canon obligations the phase carries.
 
+## Amendment cascade rule
+
+Every canon amendment (a `Version:` bump) carries three obligations. Skipping any one of them is how Phase 340's three same-day bumps (v1.24 -> v1.27) shipped two floor tests red into `run-all-164`, `run-all-178`, and `run-all-205`, and left a third quarantined.
+
+**1. Discover the tests by grep, never by memory.** A canon version anchor can live in a test file two ways: a plain markdown literal (`Version: 1.27`) or inside a JS regex literal (`/Version:\s*1\.24/`). Find every test that pins one, with:
+
+```
+grep -l 'MINDRIAN-CANON' tests/*.cjs | xargs grep -lE 'Version:[^0-9]*1\\?\.[0-9]|Mindrian Canon v1\\?\.[0-9]'
+```
+
+The `1\\?\.` alternation is why this command works where a naive `grep -lE 'Version:\s*1\.'` does not: it matches both forms. Phase 340 hand-named two floor tests scoped by the `test-canon-entry-N-*-floor.cjs` filename convention -- `tests/test-205-elevation-doctrine-floor.cjs` and `tests/test-cirs-render-coverage-floor.cjs` are named by PHASE, not by ENTRY, so that convention never found them, and they shipped red. As of 2026-09-07 the command above returns nine files.
+
+**2. Then triage each hit into one of two buckets, do not blanket-bump.** A test guarding the CURRENT doctrine moves its anchor forward to the new version. A test guarding a PAST amendment must never assert the live header equals the version that amendment landed at -- that assertion is guaranteed to fail the moment any later entry ships. It asserts the amendment's own presence instead (its Appendix D entry text, or its append-only row in this file's Version history table) plus a monotonic floor on the live version. `tests/test-canon-part-9-ratification.cjs` and `tests/test-bono-verdict.cjs` are the worked examples of this second bucket. Warning: compare major and minor as integers, never as a float -- `1.4` is greater than `1.13` as a float and lower as a version. A map-row assertion pinning a HISTORICAL Version history row, as `test-canon-entry-31` does at `v1.21`, is correct as written and must NOT be bumped.
+
+**3. Move `Date:` with `Version:`.** Every canon amendment changes BOTH header lines in the same commit. The `Date:` value is the ratification date recorded in that version's Version history row below, which is also the author date of the commit that set the new `Version:`. Phase 340's three bumps on 2026-09-05 moved `Version:` and left `Date:` at `2026-06-25`, stranding the header by more than two months.
+
 ---
 
 ## Map

@@ -17,12 +17,16 @@
 # simply by creating the file the run_if already names -- no aggregator edit
 # required per wave.
 #
-# tests/test-canon-crossref-completeness.cjs and
-# tests/test-canon-part-9-ratification.cjs are DELIBERATELY NOT registered
-# here: both were already RED on main before this phase started (version
-# anchors pinned to canon v1.4 and to a pre-Phase-109 document state, per
-# 340-LIVE-VERIFICATION.md's "Pre-existing RED baseline" section). Fixing
-# historical test anchors is a separate concern, out of this phase's scope.
+# tests/test-canon-part-9-ratification.cjs was repaired on 2026-09-07 (quick
+# task 260907-m2l): its v1.4 header pins became an append-only provenance check
+# (the map's Version history row for Part 9) plus a monotonic floor on the live
+# canon version, so it no longer goes red on every later amendment. It is
+# registered below as a real run leg.
+#
+# tests/test-canon-crossref-completeness.cjs REMAINS deliberately unregistered:
+# its failure is a pre-Phase-109 document-state anchor, a different defect
+# class from the version cascade (per 340-LIVE-VERIFICATION.md's "Pre-existing
+# RED baseline" section). Fixing it is out of scope here.
 #
 # bash only. No emoji. No em-dashes.
 
@@ -93,6 +97,9 @@ run "entry-36 shape-declaration regression (version anchor moves each wave)" \
 
 run "195 seven-kind regression (Part 9 memory complement, guards wave B's Part 9 edit)" \
   node tests/test-195-canon-7-kind-floor.cjs
+
+run "canon Part 9 ratification regression (repaired 260907-m2l: append-only provenance + monotonic floor, no longer a live-header pin)" \
+  node tests/test-canon-part-9-ratification.cjs
 
 echo "========================================"
 echo "  Summary (340 verification)"
