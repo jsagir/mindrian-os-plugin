@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: verifying
+status: executing
 stopped_at: Phase 298 context gathered
-last_updated: "2026-09-07T17:06:14.461Z"
+last_updated: "2026-09-07T19:51:54.750Z"
 last_activity: 2026-09-05 -- Phase 340 execution started
 progress:
   total_phases: 90
@@ -4134,7 +4134,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 340 (canon-currency-audit-and-amendment-v1-24-to-next-close-the-d) — EXECUTING
 Plan: 5 of 5
-Status: Phase complete — ready for verification
+Status: Ready to execute
 Last activity: 2026-09-05 -- Phase 340 execution started
 
 <!-- NOTE (339-06 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note

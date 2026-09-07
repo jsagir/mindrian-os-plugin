@@ -1275,23 +1275,38 @@ Plans:
 **Requirements**: R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, R-09, R-10, R-11 (locked in 298-SPEC.md)
 **Depends on:** Phase 297 (absorbed)
 **Plans:** 15 plans in 7 waves
-
 Plans:
+**Wave 1**
 
 - [ ] 298-01-PLAN.md - Wave 0: red-test baseline capture, tests/run-all-298.sh, five test-298 stubs
 - [ ] 298-02-PLAN.md - the committed converged-room fixture, scaffold-born and scrubbed (D-03)
 - [ ] 298-03-PLAN.md - lift the transcript reader into lib/hmi/turn-text.cjs, repoint check-card-fire
 - [ ] 298-04-PLAN.md - readable F.8 governance basket rows and the Part 8 comment correction (D-01, D-01a)
 - [ ] 298-05-PLAN.md - the D3/D4/D5 operating policy in the skill and the agent; Desktop wire untouched
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 298-06-PLAN.md - scripts/check-graph-derive-health.cjs, a wrapper over the shipped detector (SEED-037 4d)
 - [ ] 298-07-PLAN.md - the rung-2 voice Stop hook and the append-only evidence log (D-04)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 298-08-PLAN.md - evaluatePromotion, the never-warn doctor module, the D-04a proposal filed not built
 - [ ] 298-09-PLAN.md - data/harness-policies/: the closed _schema.json and the eleven slice-1 policies
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 298-10-PLAN.md - scripts/run-harness.cjs: tiered --check, rung semantics, ghosts, --policy review (D-02)
-- [ ] 298-11-PLAN.md - the runner's --room convergence scan and the fixture idempotence proof (D-03a)
 - [ ] 298-12-PLAN.md - generator v2: policies, larry_surfaces and fixture_ref, plus policy validation
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 298-11-PLAN.md - the runner's --room convergence scan and the fixture idempotence proof (D-03a)
 - [ ] 298-13-PLAN.md - the contract-parity checks inside --check: phrase set plus the 1,950-byte budget
 - [ ] 298-14-PLAN.md - widen the pre-commit drift guard, repair the two red tests, expose policies
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 298-15-PLAN.md - the harness-policies doctor acceptance point, CLAUDE.md, phase-close baseline diff
 
 ### Phase 299: SEED-033: Apply Ralph-Loop Lessons to MindrianOS Autonomous Execution
