@@ -222,7 +222,7 @@ The gate passes at HEAD and will scan this script the moment it is registered.
 **The two lines of real work** (everything else is plumbing):
 
 ```javascript
-const hasLongDash = /[ - -]/.test(text);          // written as escapes on purpose
+const hasLongDash = /[\u2014\u2013]/.test(text);          // written as escapes on purpose
 const markOk = require('../lib/hmi/voice-color-mark.cjs').detectVoiceMark(text).valid;
 ```
 
