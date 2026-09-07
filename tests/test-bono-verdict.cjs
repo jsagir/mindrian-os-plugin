@@ -543,7 +543,12 @@ guard('Part 3 ruling: the ruling routes through wireAccept on APPROVE; a residua
 });
 
 // ===========================================================================
-// (11) E1 CANON -- MINDRIAN-CANON.md is v1.13 with Appendix D entry 24.
+// (11) E1 CANON -- Appendix D entry 24 (SyntheticExpert) carries its own
+// bump-to-1.13 record; entry 23 stays stacked beneath it; the live canon is at
+// or above v1.13 (a monotonic floor, never a live-header pin).
+//
+// Monotonic FLOOR (grep-discoverable per the Amendment cascade rule in
+// docs/CANON-PHASE-MAP.md): Version: 1.13 minimum, never a pin.
 // ===========================================================================
 guard('E1 CANON: Appendix D entry 24 (SyntheticExpert) carries its own bump-to-1.13 record; entry 23 (NESTED_WITHIN) preserved beneath it; live canon is at or above v1.13 (monotonic floor, not a live-header pin -- a pin here is guaranteed to fail the moment any later amendment ships)', () => {
   const src = fs.readFileSync(CANON, 'utf8');

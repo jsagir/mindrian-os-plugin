@@ -76,6 +76,10 @@ function t4_part9AmendmentRecordedAndFloorHeld() {
   // table carries an append-only v1.4 row naming Part 9 and its ratification.
   // This row never changes, so it survives every later amendment (unlike a live
   // header equality check).
+  //
+  // Monotonic FLOOR (grep-discoverable per the Amendment cascade rule in
+  // docs/CANON-PHASE-MAP.md): Version: 1.4 minimum, never a pin -- a future
+  // amendment does not need to touch this floor, only confirm it still holds.
   const vh = sectionBlock(m, '## Version history');
   const v14Line = vh.split('\n').find((l) => /^\|\s*v1\.4\s/.test(l));
   ok(v14Line, 'map Version history table has a v1.4 row');
@@ -117,6 +121,9 @@ function t8_mapCanonReferenceTracksLiveCanon() {
   // the map's reference token must LOCKSTEP the canon's own header version. A
   // future amendment that bumps the canon and forgets the map now goes red
   // here, a real drift the old assertion could never catch.
+  //
+  // Monotonic FLOOR (grep-discoverable per the Amendment cascade rule in
+  // docs/CANON-PHASE-MAP.md): Version: 1.4 minimum, never a pin.
   const m = read(MAP);
   const c = read(CANON);
   const refMatch = /^Canon reference: docs\/MINDRIAN-CANON\.md \(v(\d+)\.(\d+)\)\s*$/m.exec(m);
