@@ -1,0 +1,71 @@
+{
+  "phase": "298",
+  "padded_phase": "298",
+  "phase_dir": ".planning/phases/298-seed-032-harness-as-code-declare-and-machine-enforce-the-min",
+  "phase_name": "SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness (absorbing Phase 297 per D7)",
+  "started_at": "2026-09-07T20:30:00Z",
+  "checkpoint_reason": "context at 88 percent; navigator asked to compact mid-advisor-research",
+  "mode": {
+    "advisor_mode": true,
+    "calibration_tier": "minimal_decisive",
+    "non_technical_owner_framing": true,
+    "signal": "USER-PROFILE learning_style: guided (outcome-language framing); vendor rating opinionated"
+  },
+  "spec_loaded": true,
+  "spec_path": ".planning/phases/298-seed-032-harness-as-code-declare-and-machine-enforce-the-min/298-SPEC.md",
+  "spec_source_of_truth": "docs/superpowers/specs/2026-09-07-harness-manifest-v2-design.md",
+  "locked_decisions_source": ".planning/research/2026-09-07-larry-rework-decisions.md (D1-D9)",
+  "selected_areas": [
+    "What you see when Larry asks to remember (basket card contents; pre-check default; post-confirm clause or silence)",
+    "How you decide to tighten a rule (promotion review surface: raw JSONL vs doctor one-liner vs run-harness --evidence report)",
+    "What a converged room looks like in the fixture (bare 11-section scaffold vs realistic seeded room)",
+    "Where the voice-style log shows up (file only vs doctor informational line vs cockpit chip)"
+  ],
+  "areas_completed": ["basket card contents", "promotion review surface", "converged-room fixture realism", "voice-log visibility"],
+  "decisions": [
+    {"area": "basket card contents", "decision": "Readable rows on the superset F.8 card: label = claim text (truncated), description = knowledge_type -> target_section, confidence, source_path; pre-check at confidence >= 0.70 display-only (already shipped, shape-f8-renderer.cjs:42-44,95-103); Larry stays silent after confirm; post-confirm re-enters decide() so the next line is a next-move offer. Fix the stale raiser.cjs:18 comment that misreads Part 8. Two files (governance.cjs SELECT adds n.properties; raiser maps text/kind/section into label + description) plus tests. MAX_TOGGLE_N=4 pages past four candidates; elicitation rung is label-only so the label must carry the claim text.", "picked": "recommended"},
+    {"area": "promotion review surface", "decision": "run-harness.cjs --policy <id> prints counts, last N findings, promotion rule MET/NOT MET, and the exact one-line rung edit; the harness-policies acceptance point echoes the same verdict as a PASS/FAIL suffix; both call ONE exported evaluatePromotion(policy, lines) in lib/hmi/voice-style-log.cjs. JSONL result field carries a human-labelable value (fire | false_positive | true_positive) so max_false_positive_rate is computable. Raw JSONL remains the fallback; the report header prints the file path. No statusline chip (cockpit rule: static fields earn no space).", "picked": "recommended"},
+    {"area": "converged-room fixture realism", "decision": "Scaffold-born, text-only: scaffoldRoomSkeleton() once into data/harness-fixtures/converged-room/, STATE.md regenerated once by scripts/compute-state, commit ~33 text files, no room.db, no .mindrian/. Absent queue == empty; absent traces == healthy; absent db == zero proposed via openRoomDbReadOnlyForCaller (null read). Planner rule: the runner never opens the db through openGraph (creates files on first touch). The proposed-node SQL path gets a separate throwaway-db unit test. The runner ignores venture_stage on the fixture.", "picked": "recommended"},
+    {"area": "voice-log visibility", "decision": "JSONL log under MINDRIAN_HOME plus ONE status:'ok' doctor MODULE line (registry-only wiring in data/doctor-modules.json, cadence always, flag null) reporting the count since the last release, mirroring lib/core/doctor/card-fire-health-module.cjs one-for-one; the module never returns warn; 'since last release' uses a version stamp per JSONL row or the doctor-applied.json watermark. It cannot ride the req-9 harness-policies acceptance point (every acceptance entry is severity blocker). Cockpit chip: filed as a co-design proposal only (the orphan ~/.mindrian/voice-mark.json side-channel makes it cheap), NOT built in 298.", "picked": "recommended"}
+  ],
+  "folded_todos": [
+    {"file": "2026-07-12-never-git-stash-mid-merge-conflict-resolution-it-drops-merge.md", "as": "locked constraint for every 298 plan: never git stash; use git show HEAD: for baselines"},
+    {"file": "2026-09-07-theo-gate-render-description-mirror-fix.md", "as": "cross-repo note: T-side task, referenced from .planning/coordination/2026-09-07-M-TO-T-harness-v2-compatibility-brief.md"},
+    {"file": "2026-07-08-f7-rescope-212-213-against-registercapability.md", "as": "reviewed and folded as a reminder only: when policies for eureka phases are declared, check registerCapability interplay; weak keyword match"},
+    {"file": "2026-07-17-ingest-skill-description-insight-to-brain.md", "as": "reviewed and folded as a T-side note only; weak keyword match"}
+  ],
+  "deferred_ideas": [
+    "INV-1 validator defect (lib/memory/validators/navigation-invariants.cjs applies the 8 brain_md_* trace fields to every trace entry; 4 of 5 persistDecisionTrace writers in scripts/intent-classifier.cjs never carry them). Verdict from quick 260907-r55: plugin defect, recurs on any binding-gate room incl. the 298 fixture. Open a /gsd-debug slug to scope INV-1 by entry kind; the 298 fixture must not inherit that noise."
+  ],
+  "advisor_research_agents": [
+    {"area": "basket card contents", "agent_id": "a4ac2a7b8782d08b6"},
+    {"area": "promotion review surface", "agent_id": "abcf5904342e11ce0"},
+    {"area": "converged-room fixture realism", "agent_id": "a858665d3d7c72026"},
+    {"area": "voice-log visibility", "agent_id": "a09f52be2324844ce"}
+  ],
+  "advisor_results": [
+    {
+      "area": "promotion review surface",
+      "options": [
+        {"option": "Runner report + doctor one-liner: `run-harness.cjs --policy <id>` prints counts, last N findings, promotion rule MET/NOT MET, and the exact one-line rung edit; the scheduled harness-policies acceptance point echoes the same verdict as a PASS/FAIL suffix (doctor.cjs:3008-3010 idiom; card-fire-health-module.cjs:41-46,151 already folds a MINDRIAN_HOME log into one row)", "pros": "runner is spec-bound to report-never-promote (spec lines 120,163); doctor one-liner is an existing idiom; verdict visible on every release run; printed edit makes promotion a copy-paste diff", "cons": "two printers must share ONE evaluator or drift (2026-07-11 printer-must-match-counter lesson, card-fire-health-module.cjs:8-9); JSONL result field needs a human-labelable value (fire | false_positive | true_positive) or max_false_positive_rate is uncomputable", "complexity": "run-harness.cjs (new anyway) + 1 doctor entry (already scheduled) + test-298-*", "recommendation": "BUILD THIS, with one exported evaluatePromotion(policy, lines) in lib/hmi/voice-style-log.cjs that both printers call"},
+        {"option": "Raw JSONL only (open ~/.mindrian/harness-evidence/<id>.jsonl, count by hand)", "pros": "zero code; how the card-fire 86 percent verdict was actually reached (check-card-fire.cjs:283-289)", "cons": "that reading is called a multi-hour forensic reconstruction (check-card-fire.cjs:1240-1241); no enforcement of decide-before-reading; TTL pruning (1263-1264) shrinks the window silently; 58 files", "complexity": "0 files", "recommendation": "fallback only; the report header always prints the file path"}
+      ],
+      "rationale": "The runner owns the policy directory and is spec-bound to report and stop; doctor already reads a MINDRIAN_HOME log into one acceptance row; so the decision surface is the runner report with the doctor one-liner as its release-time echo, both calling one shared evaluator. A statusline chip is ruled out by the cockpit's own rule that static or absent fields earn no space (cockpit-renderer.cjs:74-78): a promotion verdict changes once per release, not per turn."
+    }
+  ],
+  "advisor_results_voice_log": {
+      "area": "voice-log visibility",
+      "options": [
+        {"option": "JSONL file + one status:'ok' doctor MODULE line (options a+b)", "pros": "exact precedent: lib/core/doctor/card-fire-health-module.cjs:24,38-45,151 reads the same MINDRIAN_HOME log idiom and returns status ok with a count in detail; registry-only wiring (data/doctor-modules.json, cadence always, flag null) so no engine code; pull-based so Part 12 untouched; the file IS the req-3 evidence log", "cons": "pull not push (navigator sees nothing unless he runs /mos:doctor); 'since last release' needs a version stamp per JSONL row or the doctor-applied.json watermark", "complexity": "2 new lib/script files + 1 module + 2 registry entries (hooks.json Stop entry in the check-card-fire shape at 209-211; doctor-modules.json) + 1 policy JSON. Risks: Stop 3000ms budget; the module must never return warn (nag); it CANNOT ride the req-9 harness-policies acceptance point because every buildAcceptanceChecklist entry is severity blocker (doctor.cjs:1605-1612); advisory exists only as inline WARN", "recommendation": "SHIP as the rung-2 default"},
+        {"option": "Cockpit statusline chip when last N turns had a violation (option c)", "pros": "push visibility; cockpit-signals.cjs already reads a ~/.mindrian/voice-mark.json side-channel (28-33,129) that has NO writer (cockpit-renderer.cjs:339-343, Phase 243 V-1); check-voice-style.cjs is the natural writer", "cons": "violates the standing HARD RULE (statusline co-designed, never a solo pick); MAX_K=3 frozen (cockpit-renderer.cjs:351); a persistent 'Larry slipped' chip contradicts Part 12 on the one always-visible surface; hot-path JSONL read on every ~300ms redraw", "complexity": "cockpit-signals + renderer + byte-stable fixtures + STATUSLINE-CONTRACT", "recommendation": "file as a co-design proposal only; NOT in Phase 298"}
+      ],
+      "rationale": "The log-only rung exists to produce evidence a human reads before promoting; the codebase already has the exact shape for read-a-MINDRIAN_HOME-log-report-a-count-never-fail in the card-fire-health doctor module, so the voice log mirrors it one-for-one and stays pull-based. The chip is cheap because of the orphan voice-mark.json side-channel, but the navigator's own rule makes it a co-design item, never this phase's decision."
+  },
+  "advisor_results_fixture": {
+      "area": "converged-room fixture realism",
+      "recommended": "(a) scaffold-born: scaffoldRoomSkeleton() once into data/harness-fixtures/converged-room/, STATE.md regenerated once by scripts/compute-state (the only writer of computed:, compute-state:257-259), commit text files only (33 files, ~220K), NO room.db, NO .mindrian/. Absent derive queue == empty by contract (gsd-graph-derive-sweep.cjs:97-104); absent decision-traces == the validator's declared healthy state (navigation-invariants.cjs:228-232) so the INV-1 defect cannot leak in; openRoomDbReadOnlyForCaller returns null when room.db is absent (spine-events.cjs:523-533) so zero-proposed is a clean null read. RISK the planner must honor: the runner routes its db read through openRoomDbReadOnlyForCaller, never openGraph (lazygraph-ops.cjs:426-434 mkdirs .mindrian + creates room.db + initSchema on every open, which would dirty the fixture on run one). The proposed-node SQL path (governance.cjs:57) gets a separate throwaway-db unit test. venture_stage on an empty room is noise the runner ignores.",
+      "not_recommended": "(b) copy a seeded room with room.db: no 11-section candidate exists (memory-continuity/room-a|b do not exist; cascade-e2e has 3 sections, claim-room 2, surface-e2e 1; none ships room.db); committing room.db needs git add -f past .gitignore:35-41 ('never commit room.db'); initSchema migrations silently rewrite the binary and flip porcelain; WAL sidecars appear on read; SEED-037 silent-clear residue and INV-1 trace noise would be inherited."
+  },
+  "advisor_results_basket": "see 298-ADVISOR-basket-card.md in this directory (Option B recommended: readable rows on the superset card, 0.70 pre-check already shipped, Larry silent after confirm; note the raiser.cjs:18 'Part 8: no body renders' comment misreads Part 8, which fences Brain egress only; the card renders locally with zero Brain tokens)",
+  "resume_instructions": "After compaction: (1) read this file and .planning/research/2026-09-07-larry-rework-decisions.md; (2) collect the four advisor results (task notifications, or SendMessage each agent_id asking for its comparison table if the notification was lost); (3) synthesize per workflows/discuss-phase/modes/advisor.md: verify 5 columns, trim to 1-2 options (minimal_decisive), rewrite rationale in outcome language; (4) table-first AskUserQuestion per area, record decisions here after each; (5) write 298-CONTEXT.md from workflows/discuss-phase/templates/context.md with spec_lock, canonical_refs (spec, design artifact, decisions file, T-side brief, SEED-032/033/037/040/062/085, harness-manifest generator, 298-SPEC.md), code_context, folded todos, deferred ideas; (6) DISCUSSION-LOG.md; commit both via gsd-tools query commit; state.record-session; (7) hand off: /gsd-plan-phase 298."
+}
