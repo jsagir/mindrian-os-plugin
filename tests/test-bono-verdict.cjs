@@ -37,8 +37,10 @@
  *        does NOT re-run a completed step (the isNext hard gate).
  *   (10) Part 3 ruling -- the ruling routes through wireAccept / a REJECT routes
  *        through wireReject carrying the reason (REJECTED_BECAUSE).
- *   (11) E1 CANON -- MINDRIAN-CANON.md header + footer are v1.13 AND Appendix D
- *        entry 24 (SyntheticExpert) exists (stacked on Phase 169's v1.12 / entry 23).
+ *   (11) E1 CANON -- Appendix D entry 24 (SyntheticExpert) carries its own
+ *        bump-to-1.13 record, entry 23 (NESTED_WITHIN) is preserved beneath it,
+ *        and the live canon is at or above v1.13 (a monotonic floor, never a
+ *        live-header pin to the exact version entry 24 landed at).
  *   (12) Part 8 sweep -- delegate to tests/test-bono-part8-leak.cjs (assert it exits 0).
  *
  * If the verdict finds a REAL defect in Waves 1-5 it surfaces it as a FINDING
@@ -72,6 +74,20 @@ const CANON = path.join(REPO_ROOT, 'docs', 'MINDRIAN-CANON.md');
 const PART8_SCAN = path.join(REPO_ROOT, 'tests', 'test-bono-part8-leak.cjs');
 
 const EM_DASH = String.fromCharCode(0x2014);
+
+// Semver-style tuple comparison for the canon-version floor in guard 11, NOT
+// float comparison: 1.4 is greater than 1.13 as a float and lower as a version,
+// so major and minor are always compared as integers, major first, minor only
+// on a major tie.
+function parseCanonVersionTuple(src) {
+  const m = /^Version:\s*(\d+)\.(\d+)\s*$/m.exec(src);
+  assert.ok(m, 'the CANON header has no parseable "Version: X.Y" line');
+  return { major: Number(m[1]), minor: Number(m[2]) };
+}
+function atLeastVersion(tuple, major, minor) {
+  if (tuple.major !== major) return tuple.major > major;
+  return tuple.minor >= minor;
+}
 
 const TMP_ROOTS = [];
 function mkRoom(prefix) {
@@ -529,19 +545,19 @@ guard('Part 3 ruling: the ruling routes through wireAccept on APPROVE; a residua
 // ===========================================================================
 // (11) E1 CANON -- MINDRIAN-CANON.md is v1.13 with Appendix D entry 24.
 // ===========================================================================
-guard('E1 CANON: MINDRIAN-CANON.md header + footer are v1.13 AND Appendix D entry 24 mentioning SyntheticExpert exists (stacked on Phase 169 v1.12 / entry 23)', () => {
+guard('E1 CANON: Appendix D entry 24 (SyntheticExpert) carries its own bump-to-1.13 record; entry 23 (NESTED_WITHIN) preserved beneath it; live canon is at or above v1.13 (monotonic floor, not a live-header pin -- a pin here is guaranteed to fail the moment any later amendment ships)', () => {
   const src = fs.readFileSync(CANON, 'utf8');
-  // Header Version line.
-  assert.ok(/^Version:\s*1\.13\s*$/m.test(src), 'the CANON header Version line is NOT 1.13 (the E1 amendment did not land at the live target)');
-  // Footer version line.
-  assert.ok(/Mindrian Canon v1\.13/.test(src), 'the CANON footer is NOT v1.13');
-  // Appendix D entry 24 mentioning SyntheticExpert.
+  // Appendix D entry 24 mentioning SyntheticExpert -- its OWN append-only record
+  // of the version it landed at, not the live header.
   assert.ok(/^24\.\s+\*\*Node-type amendment: SyntheticExpert/m.test(src),
     'Appendix D entry 24 (SyntheticExpert node-type amendment) is absent');
   assert.ok(/Canon version bumped to 1\.13/.test(src), 'the entry-24 version-bump line (to 1.13) is absent');
   // Stacked on Phase 169 (entry 23 / v1.12 still present).
   assert.ok(/^23\.\s+\*\*Edge-vocabulary amendment: NESTED_WITHIN/m.test(src), 'the prior Phase-169 entry 23 (NESTED_WITHIN) is gone (the stack was broken)');
-  return 'CANON header + footer are v1.13; Appendix D entry 24 (SyntheticExpert) present; entry 23 (NESTED_WITHIN / v1.12) preserved beneath it';
+  // The monotonic floor: the live canon never regressed below where entry 24 landed.
+  const tuple = parseCanonVersionTuple(src);
+  assert.ok(atLeastVersion(tuple, 1, 13), 'live canon header is below v1.13 (the entry-24 floor does not hold)');
+  return 'Appendix D entry 24 (SyntheticExpert) present with its own bump-to-1.13 record; entry 23 (NESTED_WITHIN / v1.12) preserved beneath it; live canon at or above v1.13';
 });
 
 // ===========================================================================
