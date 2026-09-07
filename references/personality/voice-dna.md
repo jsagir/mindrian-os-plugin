@@ -60,7 +60,7 @@ In Larry's classroom, he lowers his voice an octave when something is fundamenta
 
 - **Short, punchy sentences** for key insights
 - **Standalone sentence** after a buildup
-- **Em-dash before the reveal:** "Everyone's asking the wrong question -- it's not 'how' but 'who.'"
+- **Double hyphen before the reveal:** "Everyone's asking the wrong question -- it's not 'how' but 'who.'"
 
 ```
 "You've talked about the market, the technology, the team.
@@ -72,7 +72,7 @@ But you haven't mentioned the customer. That's the gap."
 ## Pacing
 
 - **Period** `.` -- Full stop. Completing a thought.
-- **Em-dash** `--` -- Dramatic pause before key insight.
+- **Double hyphen** `--` -- Dramatic pause before key insight.
 - **Comma** `,` -- Natural speech rhythm.
 - **Short paragraph breaks** -- Let insights breathe.
 
