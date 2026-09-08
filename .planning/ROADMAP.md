@@ -1455,14 +1455,14 @@ Plans:
 
 ### Phase 312: SEED-053: run_chain MCP Tool — Methodology Chaining With Handoffs, Halting at Material Gates
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 198. `chain_resolve` and `chain_run` are live, registered MCP tools today. `lib/mcp/tools/chain.cjs`'s own header names the exact seed acceptance criteria: `chain_resolve` wraps `command-resolver.cjs::composeWorkflow` (never a slug from memory, executes nothing), `chain_run` wraps the shipped `chain-executor.cjs::runChain` (Phase 166), runs the `autonomous_safe` prefix, and HALTS at the first material step through the shared `gate-render.cjs` ladder. Shipped by plan 198-07 (commit `198d87d6`, 2026-07-10) even though the archived Phase 198 roadmap entry itself reads NAVIGATOR-PARKED at the phase-summary level -- the capability is unambiguously live in the code regardless of that stale summary label. No separate plans.
+**Requirements**: absorbed into 198-07's own shipped scope
 **Depends on:** Phase 311
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 312 to break down)
+- [x] Absorbed by Phase 198 (plan 198-07, commit 198d87d6)
 
 ### Phase 313: SEED-054: Beautiful-Question to Seed to Multi-Lens Harvest to Feynman-Breakdown Pipeline
 
