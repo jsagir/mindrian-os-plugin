@@ -3,16 +3,34 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-04-PLAN.md
-last_updated: "2026-09-08T11:36:23.971Z"
+stopped_at: Completed 298-05-PLAN.md
+last_updated: "2026-09-08T11:44:36.274Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 202
-  percent: 94
+  completed_plans: 203
+  percent: 95
 ---
+
+<!-- NOTE (298-05 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `state.update-progress` correctly computed `percent: 95` (completed_plans
+     203 / total_plans 214) in its own returned JSON but persisted the stale `percent: 26` into
+     the frontmatter -- hand-corrected to 95; `completed_plans: 203` was written correctly and
+     needed no fix. `state.advance-plan` correctly advanced "Plan: N of 15" to 5 in the body's
+     "## Current Position" section (checked below) -- no correction needed there this run.
+     `state.record-session` correctly updated the frontmatter `stopped_at` to
+     "Completed 298-05-PLAN.md" this run -- no clobber on that field this time. A separate,
+     unrelated bug also observed this run: `state.add-decision` dropped the `--phase 298` value
+     and wrote the literal placeholder "[Phase ?]" instead of "[Phase 298]" into the Decisions
+     entry two lines below the "## Current Position" note stack (in the earlier decisions block,
+     not reproduced here) -- hand-corrected there to "[Phase 298]"; the `state.add-decision`
+     verb's own `cmdStateAddDecision` (bin/lib/state.cjs) needs a `--phase` argument even though
+     the router's `parseNamedArgs` allowlist for `add-decision` does not list `phase` as an
+     accepted flag, so the phase silently falls through to its own `'?'` default -- a distinct
+     root cause from the percent-clobber pattern, not re-investigated further here. -->
+
 
 <!-- NOTE (298-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every
      other note in this file): `state.update-progress` correctly computed percent=93
@@ -4145,9 +4163,19 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 4 of 15
+Plan: 5 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
+
+<!-- NOTE (298-05 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `state.advance-plan` this run correctly incremented "Plan: N of 15" to 5,
+     which IS the highest-numbered, most recently completed plan on disk (this run's own
+     298-05) -- no correction needed there. But it left `Status` at "Ready to execute" again
+     (same clobber the 298-04 note below already documents); hand-corrected to "Executing Phase
+     298" (Phase 298 has 10 plans still to go), matching the standing convention every prior
+     note in this file uses. Frontmatter `percent`/`stopped_at` clobbers for this same run are
+     documented in the separate NOTE immediately after the frontmatter block above. Root cause
+     not re-investigated -- same tracked bug class as every other note in this file. -->
 
 <!-- NOTE (298-04 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` this run correctly incremented "Plan: N of 15" to 4,
@@ -5043,6 +5071,7 @@ Progress: [█████████░] 92%
 | Phase 298-seed-032-harness-as-code-declare-and-machine-enforce-the-min P02 | 12min | 2 tasks | 33 files |
 | Phase 298 P03 | 14min | 2 tasks | 2 files |
 | Phase 298 P04 | 55min | 3 tasks | 4 files |
+| Phase 298 P05 | 40min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6519,6 +6548,7 @@ Progress: [█████████░] 92%
 - [Phase 298]: CLAIM_LABEL_MAX = 80 chars for F.8 toggle labels, three-ASCII-period ellipsis truncation
 - [Phase 298]: Extended raiser _enrich() to carry claim_text/knowledge_type/source_path/preview through unmodified so the readable-row build has real data
 - [Phase 298]: test-189-cascade-f9.cjs F.9 failure classified pre-existing via throwaway-worktree reproduction at pre-Task-1 commit f6776972
+- [Phase 298]: Desktop wire (lib/mcp/runtime-instructions.cjs) left untouched in 298-05 (R-07): served constant measures 1944/1950 bytes (6 bytes headroom, unchanged), a comparable D3/D4/D5 clause needs 120-180 bytes, and the byte-frozen BOUNDARIES paragraph must remain last -- R-07 satisfied instead by SKILL.md and larry-extended.md, which have byte headroom
 
 ### Pending Todos
 
@@ -6650,8 +6680,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T11:36:23.906Z
-Stopped at: Completed 298-04-PLAN.md
+Last session: 2026-09-08T11:44:36.218Z
+Stopped at: Completed 298-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
