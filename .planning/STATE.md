@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-12-PLAN.md
-last_updated: "2026-09-08T14:15:13.442Z"
+stopped_at: Completed 298-11-PLAN.md
+last_updated: "2026-09-08T14:28:28.486Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 209
+  completed_plans: 210
   percent: 98
 ---
 
@@ -4166,6 +4166,33 @@ Plan: 12 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
 
+<!-- NOTE (298-11 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file, and the out-of-numeric-order case this plan's own dispatch context warned
+     about): plan NUMBER 11 completed AFTER plan NUMBER 12 already completed (298-12-SUMMARY.md
+     already existed on disk before this run; 298-11-SUMMARY.md is new this run). `git status
+     --porcelain` read clean before this run started; no uncommitted foreign edits encountered,
+     no destructive git command considered (per the incident context this run's dispatch named).
+     `state.advance-plan` naively wrote "Plan: N of 15" = 13 (current+1 from the frontmatter's
+     own prior 12) and clobbered "Status" to "Ready to execute" -- both hand-corrected above to
+     12 and "Executing Phase 298", matching this file's own established convention (the
+     highest-numbered, most recently completed plan on disk; 298-12-SUMMARY.md is still the
+     highest-numbered SUMMARY on disk after this run, since 11 < 12 -- confirmed by listing
+     `.planning/phases/298-.../*.SUMMARY.md` before deciding). `state.update-progress` correctly
+     computed percent=98 (completed_plans 210 / total_plans 214) in its own returned JSON but
+     persisted the stale `percent: 26` into the frontmatter -- hand-corrected to 98 above;
+     `completed_plans: 210` was written correctly and needed no fix. `state.record-session`
+     reported `{"recorded":true,"updated":["Last session"]}` but did NOT update the frontmatter
+     `stopped_at` field (read back as the stale "Completed 298-12-PLAN.md") nor the body's own
+     "Stopped at:" line below -- both hand-corrected to "Completed 298-11-PLAN.md" (frontmatter
+     above; body line under Session Continuity). `requirements.mark-complete R-04 R-05` returned
+     not_found as expected (Phase 298's requirements are locked in 298-SPEC.md, not the
+     requirements registry this verb reads) -- recorded, not treated as a bug, matching every
+     prior 298-* note's own handling of this same expected gap. `roadmap
+     update-plan-progress 298 298-11 complete` flips only the 298-11 row to [x]; wave 5 is NOT
+     marked complete (298-13 and 298-14 remain pending, per this plan's own dispatch scope
+     boundary). Root cause of the state.* clobber pattern not re-investigated -- same tracked
+     bug class as every other note in this file. -->
+
 <!-- NOTE (298-12 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `git status --porcelain` read clean before this run started; no uncommitted
      foreign edits encountered, no destructive git command considered. This is the SECOND and
@@ -6856,8 +6883,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T14:15:13.361Z
-Stopped at: Completed 298-12-PLAN.md
+Last session: 2026-09-08T14:28:28.399Z
+Stopped at: Completed 298-11-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
