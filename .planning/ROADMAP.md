@@ -1072,14 +1072,14 @@ Plans:
 
 ### Phase 283: SEED-013: Eliminate Python From the User-Machine Surface
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 272. Phase 272 ("Phase 134 Real Remediation -- CJS Python Elimination Port") is this exact seed's real remediation -- it replaces the same `scripts/*.py` HSI/reverse-salient analyzers this seed named, closes the Phase 134 false-complete finding the RCA documented, and is COMPLETE (11/11 plans). No separate plans.
+**Requirements**: absorbed into 272's own scope
 **Depends on:** Phase 282
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 283 to break down)
+- [x] Absorbed by Phase 272 (see 272-CONTEXT.md and .planning/debug/phase-134-python-elimination-false-complete.md)
 
 ### Phase 284: SEED-014: Spin Brain MCP Server Out Into Its Own Deployment Repo
 
@@ -1355,14 +1355,15 @@ Plans:
 
 ### Phase 303: SEED-040: HITL Memory Governance — What How Who the Room Remembers
 
-**Goal:** [To be planned]
+**Goal:** [To be planned] Depends on Phase 188 (F.8 multi-select, COMPLETE 2026-07-01), the F.9 cascade/reconcile seed, SEED-039 (multi-session reconcile, Phase 302), and Phase 109 (navigation.cjs Part-9 chokepoint). SEED-040's own framing: F.8 + F.9 ARE the memory-governance HITL surface, not just generic selectors -- the realization that room memory writes are today largely implicit, and the navigator has no structured say over WHAT gets remembered, HOW it is stored, or WHO it is attributed to.
+**In scope, added 2026-09-08 (Phase 298 wave 1-2 review session):** SEED-092 (grounding-grader harness policy -- promote the Sourced Claims rule from a stated rung to a logged one) is folded into this phase's scope rather than left as an independent future phase. SEED-092's own text names why: this phase already owns the F.8 basket surface a grounding grader would feed, and Phase 298 plan 04 already made that basket's rows readable, which is the precondition a human confirmation needs to be informed rather than a rubber stamp. Plan this phase's scope to include SEED-092's rung-2 detector alongside the base HITL memory-governance work, not as a separate follow-on.
 **Requirements**: TBD
 **Depends on:** Phase 302
 **Plans:** 0 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 303 to break down)
+- [ ] TBD (run /gsd-plan-phase 303 to break down; read SEED-040 and SEED-092 together)
 
 ### Phase 304: SEED-042: Always-On Act RedTeam Toggle, Ask-Tell Dial CLI Affordance
 
@@ -1529,49 +1530,50 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 318 to break down)
 
-### Phase 319: SEED-062: Close the Engine Gap — No Agentic Runtime in This Codebase
+### Phase 319: Host Runtime Decision Record — SEED-062+063+064+065+067 Consolidation
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Record, in one phase, the 2026-07-18 host-runtime research session's finding and its answer, rather than five separate phase stubs whose own seed files already cross-reference each other as one investigation. SEED-062 is the finding (no agentic runtime exists in this codebase -- `lib/workflow/command-resolver.cjs::composeWorkflow` self-documents as "Read-only: executes nothing", `lib/core/chain-executor.cjs::runChain` requires a caller-supplied `onStep`). SEED-063 is the answer -- its own `related:` field names it "the answer to it": OpenCode as the host-runtime fork target, license-verified MIT with no CLA/DCO, capability-verified against source at commit b8142c7. SEED-064 is explicitly "held in reserve" (severity low, documentation-only) -- Grok Build, the runner-up OpenCode's Stop-hook resolution displaced. SEED-065 is a supporting constraint on the same decision: the MCP ceiling (unsolicited server-to-client requests MUST NOT per SEP-2260, `includeContext` dead three ways, sampling supported by roughly two production coding hosts) -- why a host-side runtime is needed at all rather than shipping persona/proactivity over MCP alone. SEED-067 is a second supporting constraint: subscription passthrough is contractually forbidden by Anthropic's terms, not a general limitation, so a host-runtime fork does not widen the addressable market via BYO-subscription.
+This phase's job: plan the actual decision record -- confirm each finding still holds against the current repo state (all four were verified 2026-07-18, over a year of development ago in this fast-moving repo), record the OpenCode-fork decision formally (or supersede it if circumstances changed), and close out SEED-064/065/067 as supporting documentation rather than independent phases.
+**Requirements**: TBD (mint at plan time; see the five seed files for the full evidentiary record -- do not re-derive from titles alone)
 **Depends on:** Phase 318
 **Plans:** 0 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 319 to break down)
+- [ ] TBD (run /gsd-plan-phase 319 to break down; read SEED-062/063/064/065/067 in full before planning, not just this consolidated summary)
 
 ### Phase 320: SEED-063: Evaluate OpenCode as Host Runtime Fork Target
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 319. SEED-063 is part of the 2026-07-18 host-runtime research session; consolidated into Phase 319's Host Runtime Decision Record rather than planned as an independent phase. No separate plans.
+**Requirements**: absorbed into 319
 **Depends on:** Phase 319
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 320 to break down)
+- [x] Absorbed by Phase 319 (see SEED-063's own `related:` field and 319's consolidated goal text)
 
 ### Phase 321: SEED-064: Document Grok Build as Runner-Up Host Runtime, Governance Fail
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 319. SEED-064 is part of the 2026-07-18 host-runtime research session; consolidated into Phase 319's Host Runtime Decision Record rather than planned as an independent phase. No separate plans.
+**Requirements**: absorbed into 319
 **Depends on:** Phase 320
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 321 to break down)
+- [x] Absorbed by Phase 319 (see SEED-064's own `related:` field and 319's consolidated goal text)
 
 ### Phase 322: SEED-065: Resolve the MCP Ceiling — Persona Proactivity Cannot Ship Over MCP
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 319. SEED-065 is part of the 2026-07-18 host-runtime research session; consolidated into Phase 319's Host Runtime Decision Record rather than planned as an independent phase. No separate plans.
+**Requirements**: absorbed into 319
 **Depends on:** Phase 321
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 322 to break down)
+- [x] Absorbed by Phase 319 (see SEED-065's own `related:` field and 319's consolidated goal text)
 
 ### Phase 323: SEED-066: Document Collaborative-Shell Licence Findings, AFFiNE Docmost Disqualified
 
@@ -1586,36 +1588,36 @@ Plans:
 
 ### Phase 324: SEED-067: Document Subscription-Passthrough Prohibition, Anthropic Terms
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 319. SEED-067 is part of the 2026-07-18 host-runtime research session; consolidated into Phase 319's Host Runtime Decision Record rather than planned as an independent phase. No separate plans.
+**Requirements**: absorbed into 319
 **Depends on:** Phase 323
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 324 to break down)
+- [x] Absorbed by Phase 319 (see SEED-067's own `related:` field and 319's consolidated goal text)
 
 ### Phase 325: SEED-068: Be Infrastructure, Not an Application
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 234. The seed file itself already records the consolidation ("Consolidated with SEED-069 into one phase", `implementing_phase: 234`); Phase 234 ("MindrianOS as infrastructure: skills+MCP everywhere, open-core at the network boundary (SEED-068+069 consolidation)", archived in `.planning/milestones/v1.15.0-ROADMAP.md`, 7/8 plans executed) shipped this seed's scope before this later duplicate entry was ever planned. No separate plans.
+**Requirements**: absorbed into 234's own D-01..D-13 decision set
 **Depends on:** Phase 324
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 325 to break down)
+- [x] Absorbed by Phase 234 (see .planning/milestones/v1.15.0-ROADMAP.md Phase 234, and SEED-068's own frontmatter)
 
 ### Phase 326: SEED-069: Open Core, Where the Boundary Is a Network Boundary
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 234. Same consolidation as Phase 325 (SEED-068): the seed file itself records "Consolidated with SEED-068 into one phase", `implementing_phase: 234`; Phase 234 already shipped the network-boundary open-core decision (7/8 plans executed, archived in `.planning/milestones/v1.15.0-ROADMAP.md`). No separate plans.
+**Requirements**: absorbed into 234's own D-01..D-13 decision set
 **Depends on:** Phase 325
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 326 to break down)
+- [x] Absorbed by Phase 234 (see .planning/milestones/v1.15.0-ROADMAP.md Phase 234, and SEED-069's own frontmatter)
 
 ### Phase 327: SEED-070: Capture the Stale-Bytes Lesson From the 2026-07-19 Eureka Live Test
 
@@ -1683,27 +1685,27 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 332 to break down)
 
-### Phase 333: SEED-076a: Room-as-GraphRAG Conversational Component, BYOAPI Larry-Voiced
+### Phase 333: Room-as-GraphRAG: Walk-Test Then Build — SEED-076a+076b Consolidation
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Sequence SEED-076b before SEED-076a, in one phase, per SEED-076b's own text ("building either mechanism is gated on Task 1's finding"). Task 1 first: walk-test MindrianOS's existing room structure against a real community-validated ICM reference implementation (Record library + Context map) to confirm which of the two candidate mechanisms SEED-076a needs already exists versus genuinely needs building -- SEED-076b's own framing is "two adoptable mechanisms named, one may already exist," so building 076a's Room-as-GraphRAG conversational component (BYOAPI, Larry-voiced, provenance-aware) without that check risks re-implementing something the room's own structure already provides. This phase's job: run the walk-test (autonomous_safe, no gate required per SEED-076b's own frontmatter), then plan and build only the mechanism(s) the walk-test finds genuinely missing.
+**Requirements**: TBD (mint at plan time; SEED-076a for the target-state design, SEED-076b for the walk-test method and gating)
 **Depends on:** Phase 332
 **Plans:** 0 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 333 to break down)
+- [ ] TBD (run /gsd-plan-phase 333 to break down; SEED-076b's Task 1 walk-test plans first, SEED-076a's build plans second)
 
 ### Phase 334: SEED-076b: Room Walk-Test + Pattern-Confirmation Threshold Against ICM Reference Form
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 333. SEED-076b's own text gates SEED-076a's build on this seed's Task 1 finding ("building either mechanism is gated on Task 1's finding"); consolidated into 333's Room-as-GraphRAG phase as its first sequenced task rather than planned as an independent phase. No separate plans.
+**Requirements**: absorbed into 333
 **Depends on:** Phase 333
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 334 to break down)
+- [x] Absorbed by Phase 333 (see SEED-076b's own gating text and 333's consolidated goal text)
 
 ### Phase 335: SEED-077: Feynman-MINTO Wired Into the Graph — Per-Artifact Queryable Explanation
 

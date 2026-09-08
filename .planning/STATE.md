@@ -4183,6 +4183,35 @@ Last activity: 2026-09-08 -- Phase 298 execution started
      before staging to confirm zero touch on the unrelated Phase 283/303/319-322/324-326/
      333-334 lines. -->
 
+<!-- CORRECTION (orchestrator, 2026-09-08, immediately after the 298-07 note above landed):
+     the note above misdiagnosed its own evidence. There is no rogue hook. `.mindrian/
+     last-cascade.json` is the documented CASC-01 side-channel (Phase 95: "Side-channel
+     cascade payload at <roomDir>/.mindrian/last-cascade.json with atomic mktemp+mv-f
+     write; bash post-write emits hookSpecificOutput.additionalContext envelope only" --
+     see this file's own Phase 95/143/143.3 history a few thousand lines below). Its
+     `session_id` field (`0a0555b6-92be-4392-acd7-672ee682582e`) is THIS orchestrator
+     session's id, because the ROADMAP.md/SEED-092.md edits it references were made BY
+     this orchestrator, in this same conversation, on the navigator's explicit direction
+     ("lets fuse whatever phaes we can then") after a real AskUserQuestion decision gate
+     the navigator answered in full -- the gate that "never surfaced," per the 298-07
+     note, surfaced in the orchestrator's own turn, which a fresh subagent has no
+     visibility into. The 298-07 executor read an uncommitted concurrent write from its
+     own orchestrator, mistook the session-scoped bookkeeping side-channel for an
+     independent actor, and then ran `git checkout --` on ROADMAP.md and STATE.md --
+     an unauthorized destructive git action against another party's approved,
+     in-progress work, taken on a wrong inference and without asking. This is now
+     logged as a genuine WATCH item for this repo's own dev practice, not a security
+     finding about the harness: running a sequential-mode (non-worktree) subagent on
+     the main tree WHILE the orchestrator ALSO edits shared files concurrently is a
+     real two-writer race (this repo's `workflow.use_worktrees` is `false`
+     project-wide), independent of and in addition to the long-documented `state.*`
+     SDK-verb clobber pattern every other note in this file tracks. Practical fix
+     going forward this session: no orchestrator-side edit to STATE.md/ROADMAP.md
+     while a subagent is dispatched against the main tree; sequence strictly. The
+     ROADMAP.md fusion (Phases 283/319-322/324-326/333-334/303) and this file's own
+     Roadmap Evolution entry for it were re-applied immediately below, verified via
+     `git diff` before commit. -->
+
 <!-- NOTE (298-06 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` correctly incremented "Plan: N of 15" to 6 (the
      highest-numbered, most recently completed plan on disk, this run's own 298-06) -- no
@@ -5326,6 +5355,36 @@ Progress: [█████████░] 92%
 | Phase 145 P03 | 12min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
+
+- Phases 283, 319-322, 324-326, 333-334, 303 edited in place (2026-09-08, Phase 298
+  wave 1-2 review session, `/gsd-phase --edit`-equivalent, intent pre-approved via an
+  AskUserQuestion decision gate before writing; re-applied a second time after a
+  concurrent 298-07 subagent wrongly reverted the first application via `git checkout
+  --`, see the CORRECTION note above "## Current Position"). Three stale-duplicate
+  closures, both their content already shipped in an earlier phase, marked ABSORBED
+  per the Phase 297 precedent (number and position preserved, no renumbering): Phase
+  283 (SEED-013, eliminate Python) -> absorbed by Phase 272 (Phase 134's real
+  remediation, 11/11, same scope verbatim). Phase 325 (SEED-068) and Phase 326
+  (SEED-069) -> both absorbed by Phase 234 (`.planning/milestones/v1.15.0-ROADMAP.md`,
+  "SEED-068+069 consolidation", 7/8 executed); both seed files' own frontmatter
+  already said "consolidated, implementing_phase: 234" before this edit. Two
+  5-phase and 2-phase fusions, same ABSORBED pattern, lowest-numbered phase kept as
+  primary: Phase 319 (SEED-062) retitled "Host Runtime Decision Record", absorbing
+  320 (SEED-063), 321 (SEED-064), 322 (SEED-065), 324 (SEED-067) -- one 2026-07-18
+  research session whose own seed files' `related:` fields already named each other
+  as one cluster (063 is "the answer to" 062; 064 is "held in reserve"; 065 and 067
+  are supporting constraints on the same decision). Phase 333 (SEED-076a) retitled
+  "Room-as-GraphRAG: Walk-Test Then Build", absorbing 334 (SEED-076b) -- 076b's own
+  text gates 076a's build on its Task 1 finding. One scope fold, not an absorption:
+  Phase 303 (SEED-040, HITL Memory Governance) gained an "In scope, added 2026-09-08"
+  paragraph naming SEED-092 (the grounding-grader harness policy filed the same
+  session) as folded into its scope, since 303 already owns the F.8 basket surface
+  that grader feeds; SEED-092's own seed file frontmatter gained a matching
+  `home_phase: 303` field and an updated `trigger_when`. depends_on chains
+  re-verified against the full phase-number set after every edit: zero invalid
+  references. All eleven target phases were empty `[To be planned]` stubs before
+  this edit (zero plans, zero real content), so no executed work or plan history
+  was at risk either time.
 
 - Phase 276 added (2026-09-03): MCP Tool Honesty - Triage and Close. Triages and
   closes the 9 findings (1 HIGH RISK, 8 MEDIUM, 1 UNKNOWN) from `check-tool-honesty.cjs`'s

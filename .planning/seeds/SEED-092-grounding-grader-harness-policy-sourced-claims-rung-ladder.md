@@ -3,8 +3,9 @@ id: SEED-092
 status: dormant
 planted: 2026-09-08
 planted_during: "Phase 298 (SEED-032: Harness-as-Code), wave 1 execution"
-trigger_when: "when a second slice of data/harness-policies/ is scoped after Phase 298 ships (the eleven slice-1 policies are the 298-09 set; this is the first slice-2 candidate); or when SEED-086 (hedge-laundered fabrication, no detector reaches it) is promoted, since this seed is the harness-side home for that detector; or when the Sourced Claims floor test (tests/test-canon-entry-38-sourced-claims-floor.cjs) is next revised"
+trigger_when: "Phase 303 (SEED-040, HITL Memory Governance) planning: folded into 303's scope 2026-09-08 (ROADMAP.md edit, this same review session) rather than left as an independent phase, since 303 already owns the F.8 basket surface this grader feeds. Also fires standalone if 303 is delayed and a second slice of data/harness-policies/ is scoped after Phase 298 ships first (the eleven slice-1 policies are the 298-09 set; this would be the first slice-2 candidate); or when SEED-086 (hedge-laundered fabrication, no detector reaches it) is promoted, since this seed is the harness-side home for that detector; or when the Sourced Claims floor test (tests/test-canon-entry-38-sourced-claims-floor.cjs) is next revised"
 scope: medium
+home_phase: 303
 ---
 
 # SEED-092: A grounding-grader harness policy: promote the Sourced Claims rule from a stated rung to a logged one through the Phase 298 rung ladder
