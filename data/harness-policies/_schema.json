@@ -1,0 +1,42 @@
+{
+  "_doc": {
+    "purpose": "Phase 298 (SEED-032, Harness-as-Code): the closed policy vocabulary every file in data/harness-policies/ must validate against. Registry-is-the-table: this file IS the schema (the vocabulary enums inline), mirroring data/hitl-shape-declaration-schema.json's own idiom. Read by scripts/build-harness-manifest.cjs at --check time (an invalid policy file fails --check naming the file and the failing key, and the manifest is not regenerated) and by scripts/run-harness.cjs when it loads the policy directory to decide, per policy, whether to report-only, spawn-and-log, or spawn-and-fail-the-tier. This schema DECLARES the vocabulary; it does not execute a policy and does not re-implement the runner.",
+    "rung_vocabulary": ["declared", "logged", "blocking"],
+    "rung_meaning": [
+      { "rung": "declared", "meaning": "listed in the report only. Nothing is spawned. This is the honest default for a policy with no evidence log yet, or a policy that is a declared ghost (runner is null)." },
+      { "rung": "logged", "meaning": "the runner spawns the policy's runner and appends one JSONL line to evidence_log; the finding never fails the tier, regardless of exit code." },
+      { "rung": "blocking", "meaning": "the runner spawns the policy's runner; a non-zero exit fails the tier the policy applies_to." }
+    ],
+    "kind_vocabulary": ["gate", "voice", "memory", "contract"],
+    "kind_meaning": [
+      { "kind": "gate", "meaning": "a check script or doctor module: a deterministic pass/fail scanner over repo state." },
+      { "kind": "voice", "meaning": "a rule over Larry's own turn output, evaluated at the Stop hook." },
+      { "kind": "memory", "meaning": "a write policy: what channel, what verb, what confirmation gate a memory operation must pass through." },
+      { "kind": "contract", "meaning": "a parity set: phrases or invariants that must be present across named surfaces, byte budgets included." }
+    ],
+    "applies_to_vocabulary": ["pre-flight", "pre-tag", "full", "stop-hook", "room"],
+    "policy_fields": [
+      { "field": "id", "type": "string", "meaning": "unique, kebab-case, matches the filename without the .json extension." },
+      { "field": "kind", "type": "string, member of kind_vocabulary", "meaning": "what class of check this policy declares." },
+      { "field": "runner", "type": "string or null", "meaning": "the script the runner spawns, or null for an honest declared ghost. See runner_path_rule." },
+      { "field": "args", "type": "array of strings", "meaning": "passed to the runner verbatim, no interpolation. Empty array when the runner takes none, or when runner is null." },
+      { "field": "rung", "type": "string, member of rung_vocabulary", "meaning": "the enforcement level this policy runs at TODAY, never an aspiration." },
+      { "field": "evidence_log", "type": "string or null", "meaning": "a path under MINDRIAN_HOME the policy's evidence accumulates in, or null when no log exists yet." },
+      { "field": "promotion_rule", "type": "object, see promotion_rule_doc", "meaning": "decided before any log is read; the runner reports whether it is met and never edits rung itself." },
+      { "field": "owner", "type": "string", "meaning": "the exclusive owner surface for this policy's behavior (the 9-property architecture ownership column)." },
+      { "field": "pinned_by", "type": "array of strings", "meaning": "test files that already pin this policy's underlying behavior." },
+      { "field": "applies_to", "type": "array of strings, members of applies_to_vocabulary", "meaning": "which tier(s) the runner considers this policy for." },
+      { "field": "notes", "type": "string", "meaning": "one paragraph, hyphens only, stating which rung the policy is on and why." }
+    ],
+    "runner_path_rule": "runner is either null (an honest declared ghost, counted as a ghost, never counted as passing) or a repo-relative path that begins with the literal prefix scripts/, contains no parent-directory segment (no ..), is not an absolute path, and resolves inside the repository root when joined to it. A path that escapes the root, an absolute path, or a path containing a parent-directory segment is rejected at --check. The runner is always spawned with an argv array (spawnSync('node', [resolved, ...args])), never a shell string, and args is passed verbatim with no interpolation, so args can never smuggle a second command.",
+    "promotion_rule_doc": {
+      "shape": { "window_runs": "integer, the evidence window the rate is computed over", "max_false_positive_rate": "number between 0 and 1", "min_true_positives": "integer, the minimum count of human-labeled true-positive rows required before a promotion verdict can be MET" },
+      "counting_rule": "max_false_positive_rate is computed as false_positives / (true_positives + false_positives), over HUMAN-LABELED rows only. A JSONL row whose result is still the default 'fire' (unlabeled) counts as NEITHER a true positive NOR a false positive. Counting unlabeled rows as an implicit true positive, or excluding them from the denominator in a way that makes an unreviewed log read as a zero-percent false-positive rate, auto-satisfies any threshold and manufactures a false success (the T-233-04 / T-217-01 defect class). A promotion verdict of MET on a log nobody has read is always wrong.",
+      "decided_before_the_log_is_read": "Every promotion_rule is authored at declaration time, before any evidence exists. The runner and the doctor module both call ONE exported evaluatePromotion(policy, lines) and report MET or NOT MET against the rule as written; neither computes a different rule and neither may loosen it to make a verdict pass.",
+      "promotion_is_a_human_edit": "Promotion is a one-line human edit to rung in the policy's own file, reviewed in a diff, made by a human after reading evaluatePromotion's verdict. The runner never promotes a policy itself, and never demotes one either; both directions are the same one-line human edit."
+    },
+    "gate_count_principle": "The gate set this schema's policies draw from is enumerated from disk at check time (scripts/check-*.cjs minus its *.test.cjs companions) and is NEVER a frozen literal in this file or in the generator, mirroring data/hitl-shape-declaration-schema.json's own surface_count_principle. The count is whatever the enumeration finds; migrating a gate into a policy file never requires editing a count anywhere.",
+    "validation_rule": "An unknown top-level key on a policy file, an unknown rung, an unknown kind, an unknown applies_to member, a missing required field from policy_fields, or a runner that fails runner_path_rule is a hard --check failure naming the file and the failing key. memory-write-policy.json and contract-parity-larry.json each carry a small set of additional keys beyond the eleven common fields (channels/verbs/basket_fires_at/claim_review_status/toggled_off_writes/narrated for the former; surfaces/byte_budget for the latter); those two files' extra keys are explicitly permitted and are not unknown-key violations.",
+    "default_on_miss": "reject (fail closed): a policy file that fails validation is reported by name and skipped from digesting, and --check still fails overall. The generator never regenerates the manifest against an invalid policy directory."
+  }
+}
