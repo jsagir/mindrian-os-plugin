@@ -1322,14 +1322,14 @@ Plans:
 
 ### Phase 300: SEED-035: SyntheticExpert to Per-Project Skill
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 203. All three of SEED-035's sub-claims are shipped: the front door (`/mos:skill`, `commands/skill.md`, born-wired, materializes a CONFIRMED SyntheticExpert node through the shipped `build-new-surface.cjs` generator), the proactive trigger (`lib/core/sensors/sensor-expert-skill.cjs`, Phase 203-03 SENS-11, rides the existing `context_block` reach, mints no 7th reach per the seed's own caution), and the fan-out expert genesis (`lib/core/expert-genesis.cjs`, Phase 203-01). Phase 203 ("Synthetic-Expert-as-Project-Skill", archived in `.planning/milestones/v1.15.0-ROADMAP.md`) shipped COMPLETE 2026-07-02, explicitly labeled "Cluster I... (SEED-035)". Fifth instance of the stale-duplicate-stub pattern closed this session (283/325/326/299 were the first four). No separate plans.
+**Requirements**: absorbed into 203's own scope
 **Depends on:** Phase 299
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 300 to break down)
+- [x] Absorbed by Phase 203 (see .planning/milestones/v1.15.0-ROADMAP.md Phase 203, and SEED-035's own frontmatter)
 
 ### Phase 301: SEED-036: Generate website commands-canon.json From the Plugin Command-Registry
 
