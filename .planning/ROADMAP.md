@@ -1433,14 +1433,14 @@ Plans:
 
 ### Phase 310: SEED-051: Fix release.sh Tag-Verify Window Too Tight
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Stop `scripts/release.sh` Step 5.5 crying wolf on a good push. Extract the gate's abort-vs-warn logic into a pure, hook-injectable library (`scripts/release-lib/verify-tag-push.sh`), add an independent `git ls-remote origin refs/heads/main` sha-match check as the "push demonstrably succeeded" condition, and downgrade the still-not-visible-tag outcome from `exit 1` to a non-fatal yellow warning when that check passes, so Steps 9.8/10/11 still close their own boxes. A genuinely failed or partial push keeps the existing hard abort. Widening the shipped retry defaults (SEED-051-A) stays deferred.
+**Requirements**: SEED-051-B, SEED-051-C
 **Depends on:** Phase 309
-**Plans:** 0 plans
+**Plans:** 1 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 310 to break down)
+- [ ] 310-01-PLAN.md -- verify-tag-push library with injected git probes, Step 5.5 rewired to warn-on-confirmed-push, and a byte-level scope tripwire proving no other release gate moved
 
 ### Phase 311: SEED-052: GSD Each mos Command as Its Own Mini-Product, JTBD Audience F-Shape
 
