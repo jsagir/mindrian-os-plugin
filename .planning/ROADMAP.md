@@ -1274,7 +1274,7 @@ Plans:
 **Goal:** Declare and machine-enforce the agent harness MindrianOS already runs: harness manifest v2 (three additive keys, maps stays three), a closed policy directory with an enforcement rung per policy, one idempotent policy runner, the SEED-037 4d derive-health gate, and the Larry persona as the manifest's first declared consumer. Absorbs Phase 297's regulation policy (D7).
 **Requirements**: R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, R-09, R-10, R-11 (locked in 298-SPEC.md)
 **Depends on:** Phase 297 (absorbed)
-**Plans:** 13/15 plans executed
+**Plans:** 14/15 plans executed
 Plans:
 **Wave 1**
 
@@ -1299,11 +1299,11 @@ Plans:
 - [x] 298-10-PLAN.md - scripts/run-harness.cjs: tiered --check, rung semantics, ghosts, --policy review (D-02)
 - [x] 298-12-PLAN.md - generator v2: policies, larry_surfaces and fixture_ref, plus policy validation
 
-**Wave 5** *(blocked on Wave 4 completion)*
+**Wave 5** *(complete)*
 
 - [x] 298-11-PLAN.md - the runner's --room convergence scan and the fixture idempotence proof (D-03a)
 - [x] 298-13-PLAN.md - the contract-parity checks inside --check: phrase set plus the 1,950-byte budget
-- [ ] 298-14-PLAN.md - widen the pre-commit drift guard, repair the two red tests, expose policies
+- [x] 298-14-PLAN.md - widen the pre-commit drift guard, repair the two red tests, expose policies
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
