@@ -4,8 +4,8 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Completed 311-01-PLAN.md
-last_updated: "2026-09-08T19:08:26.070Z"
-last_activity: 2026-09-08 -- Phase 311 (SEED-052 smallest slice) execution complete
+last_updated: "2026-09-08T19:12:41.466Z"
+last_activity: 2026-09-08 -- Phase 311 execution and verification complete
 progress:
   total_phases: 90
   completed_phases: 25
@@ -4185,10 +4185,23 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 311 (SEED-052: GSD each command as a mini-product -- smallest slice, admin visibility into recommendation scorer) — EXECUTING
+Phase: 311 (SEED-052: admin visibility into recommendation scorer) — COMPLETE, VERIFIED
 Plan: 1 of 1
-Status: Phase complete — ready for verification
-Last activity: 2026-09-08 -- Phase 311 execution complete (wired opts.isAdmin fail-closed filter into f-selector-ranker.cjs at the 3 navigator-facing rankForSelector call sites, closing the live /mos:admin recommendation leak; 4th call site (dial-reach-orchestrator.cjs) proven untouched via pinned sha256)
+Status: Phase complete and verified (311-VERIFICATION.md, status passed, 7/7 must-haves)
+Last activity: 2026-09-08 -- Phase 311 execution and verification complete (wired opts.isAdmin
+  fail-closed filter into f-selector-ranker.cjs at the 3 navigator-facing rankForSelector call
+  sites, closing the live /mos:admin recommendation leak; 4th call site
+  dial-reach-orchestrator.cjs proven untouched via pinned sha256)
+
+<!-- NOTE (311-close, 2026-09-08, resync-clobber pattern, same class as every note in this file):
+     `phase.complete`'s own `state_updated` call jumped "Current Position" straight to
+     `Phase: 339 / Plan: Not started` (its own `next_phase` suggestion) instead of reflecting
+     Phase 311's actual completion, and reverted `percent` from the correctly-computed 100 back
+     to a stale 28. Hand-corrected to record Phase 311 as complete and verified; 339 is a
+     suggestion for what to plan next, not something this session has started. Two harmless
+     WARNING lines also printed this run ("STATE.md field 'Current Phase Name'/'Last Activity
+     Description' not found -- update skipped"), consistent with this file's own long-drifted
+     format versus what some `state.*` verbs still expect; no content was lost, only skipped. -->
 
 <!-- NOTE (298-15 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file, and the LAST plan of Phase 298 -- all 15 plans, all 6 waves, now complete):
@@ -5061,7 +5074,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 90
+- Total plans completed: 91
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -5336,6 +5349,7 @@ Progress: [█████████░] 92%
 | Phase 298 P14 | 35min | 3 tasks | 5 files |
 | Phase 298 P15 | 55min | 3 tasks | 4 files |
 | Phase 311 P01 | 35min | 3 tasks | 7 files |
+| 311 | 1 | - | - |
 
 ## Accumulated Context
 
