@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-08-PLAN.md
-last_updated: "2026-09-08T13:11:21.529Z"
+stopped_at: Completed 298-09-PLAN.md
+last_updated: "2026-09-08T13:26:59.723Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 206
-  percent: 96
+  completed_plans: 207
+  percent: 97
 ---
 
 <!-- NOTE (298-05 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
@@ -4162,7 +4162,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 8 of 15
+Plan: 9 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
 
@@ -4227,6 +4227,22 @@ Last activity: 2026-09-08 -- Phase 298 execution started
      line were both written correctly by `state.record-session` ("Completed 298-08-PLAN.md"),
      needing no fix. Root cause not re-investigated -- same tracked bug class as every other
      note in this file. -->
+
+<!-- NOTE (298-09 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `git status --porcelain` read clean before this run started; no uncommitted
+     foreign edits encountered, no destructive git command considered. `state.advance-plan`
+     correctly incremented "Plan: N of 15" to 9 (this run's own 298-09) -- no correction needed
+     there. `state.update-progress` correctly computed percent=97 (completed_plans 207 /
+     total_plans 214) in its own returned JSON but persisted the stale `percent: 26` into the
+     frontmatter -- hand-corrected to 97; `completed_plans: 207` was written correctly and
+     needed no fix. `stopped_at` was clobbered to "Completed 298-08-PLAN.md" (the prior plan's
+     value, not this run's) by `state.record-session` -- hand-corrected to "Completed
+     298-09-PLAN.md" in the frontmatter; the body's own "Status" line was separately clobbered
+     to "Ready to execute" by the same advance-plan/record-session sequence -- hand-corrected to
+     "Executing Phase 298" (6 plans still to go), matching the standing convention every prior
+     note in this file uses. `state.add-decision --phase 298` worked correctly all three times
+     this run (no "[Phase ?]" placeholder regression this time). Root cause not re-investigated
+     -- same tracked bug class as every other note in this file. -->
 
 <!-- NOTE (298-06 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` correctly incremented "Plan: N of 15" to 6 (the
@@ -5149,6 +5165,7 @@ Progress: [█████████░] 92%
 | Phase 298 P05 | 40min | 2 tasks | 2 files |
 | Phase 298 P06 | 15min | 2 tasks | 2 files |
 | Phase 298 P08 | 40min | 3 tasks | 5 files |
+| Phase 298 P09 | 40min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -6660,6 +6677,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: min_true_positives compares against the total labeled count (true_positives + false_positives), matching the plan's literal action text over the research note's paraphrased variant
 - [Phase ?]: false_positive_rate is null, not 0, when zero rows are labeled, proving Pitfall 5's fake-zero-percent auto-qualify cannot happen
 - [Phase ?]: the doctor module's policiesDir()/loadPolicy() degrade a missing data/harness-policies/<id>.json (not landed until 298-09) to a bare {id} object; evaluatePromotion's own malformed-rule path is the single place that condition is reported
+- [Phase 298]: voice policies' min_true_positives set to 50, the low end of the sourced 50-100 human-reviewed-traces figure from Vanishing Gradients Ep. 57
+- [Phase 298]: gate-shape-declaration and gate-tool-honesty declared at rung logged (advisory today), not blocking, matching current scripts/doctor.cjs and scripts/release.sh behavior
+- [Phase 298]: contract-parity-larry.json phrases list only test-pinned strings plus the two beta.27 gaps, excluding structural checks and the orphaned larry-prompt file
 
 ### Pending Todos
 
@@ -6791,7 +6811,7 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T13:11:21.466Z
+Last session: 2026-09-08T13:26:30.627Z
 Stopped at: Completed 298-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
