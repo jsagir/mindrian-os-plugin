@@ -1344,14 +1344,14 @@ Plans:
 
 ### Phase 302: SEED-039: Per-Session Room Binding and Multi-Session Reconciliation
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 225. Phase 225 ("Per-session room binding and multi-session reconciliation (SEED-039)", archived in `.planning/milestones/v1.15.0-ROADMAP.md`, 3/3 plans complete) is this exact seed by name, built to close the resolver-fragmentation gap shared with Phase 224/SEED-034. No separate plans.
+**Requirements**: absorbed into 225's own scope
 **Depends on:** Phase 301
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 302 to break down)
+- [x] Absorbed by Phase 225 (see the archived milestone entry, and SEED-039's own frontmatter)
 
 ### Phase 303: SEED-040: HITL Memory Governance — What How Who the Room Remembers
 
@@ -1367,36 +1367,36 @@ Plans:
 
 ### Phase 304: SEED-042: Always-On Act RedTeam Toggle, Ask-Tell Dial CLI Affordance
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 192. Phase 192 ("Shape-F HITL Selector Completion", COMPLETE 2026-07-02) shipped both halves the seed's own text ranked: 192-03 the cross-surface every-turn footer-affordance baseline, and 192-04 the statusline `[stance]` chip CLI enhancement (`lib/statusline/cockpit-signals.cjs`, `cockpit-renderer.cjs`), plus a Plurai posture-framing-fidelity eval gate the seed's own acceptance sketch did not even ask for. No separate plans.
+**Requirements**: absorbed into 192's own scope
 **Depends on:** Phase 303
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 304 to break down)
+- [x] Absorbed by Phase 192 (see the archived milestone entry, and SEED-042's own frontmatter)
 
 ### Phase 305: SEED-043: Brain Command Recommendation — Brain Proposes, Human Triggers
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 191. Phase 191 ("Brain Orchestration Advisor", COMPLETE 2026-07-02) is built directly against the seed's own "Brain RECOMMENDS, navigator TRIGGERS, spine EXECUTES" reframe -- its own text states "The Brain ADVISES orchestration, never controls it" and its net-new wire 2 is a `decide()` command-recommendation candidate returning `{command_slug, hitl_shape, confidence}` from the local command subgraph, feeding the F.7 dial. No separate plans.
+**Requirements**: absorbed into 191's own scope
 **Depends on:** Phase 304
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 305 to break down)
+- [x] Absorbed by Phase 191 (see the archived milestone entry, and SEED-043's own frontmatter (which the Phase 191 CONTEXT.md cites directly))
 
 ### Phase 306: SEED-044: Cross-Room Umbilical Cord — F-Shape Gate Connecting Relevant Items Across Rooms
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 195. Phase 195 ("Fractal + Cross-Room Memory", COMPLETE 2026-07-01, 6/6 plans) explicitly scoped "full SEED-022 + SEED-044" in one phase (its own CONTEXT.md: "SEED-044's UMBILICAL_TO edge lives in a REGISTRY-LEVEL cross-room store"); the shipped code carries the seed's own vocabulary directly (`lib/workflow/cross-room-umbilical-closer.cjs`, `lib/core/doctor/umbilical-module.cjs`, `lib/core/resolve-umbilical-target.cjs`). No separate plans.
+**Requirements**: absorbed into 195's own scope
 **Depends on:** Phase 305
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 306 to break down)
+- [x] Absorbed by Phase 195 (see the archived milestone entry, and SEED-044's own frontmatter and Phase 195's CONTEXT.md)
 
 ### Phase 307: SEED-046: Artifact Is Not Conversation — Enforce Clean Deliverable Voice on Filed Artifacts
 
