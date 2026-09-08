@@ -83,3 +83,32 @@ command is not a fix.
   this slice surfaces something real before committing to the rest ("If it does, graduate this
   to a phase, sized per-cluster... not one 107-command mega-phase"). Not re-scoped here.
 - Any change to `scripts/admin-command-gate.cjs` (the execution-time gate). Untouched.
+
+## Scope Addendum (post pattern-mapping, 2026-09-08)
+
+Pattern mapping traced `rankForSelector`'s actual production call sites - not known when the
+above decisions were locked, so recording the resulting scope call here rather than leaving it
+for the planner to guess.
+
+**Four call sites found, three need the wire, one does not:**
+- `lib/core/navigation-engine-offer.cjs:113` - surfaces `items` as the actual `decide()` offer
+  the navigator sees. **Needs `isAdmin`.**
+- `lib/core/unknowns/orchestrator.cjs:345` - surfaces `items` as the F.1 Next-Move set the
+  navigator chooses from. **Needs `isAdmin`.**
+- `scripts/suggest-next-command.cjs:334` - surfaces `rankedItems` as the rendered `/mos:suggest-next`
+  recommendation list. **Needs `isAdmin`.**
+- `lib/hmi/dial-reach-orchestrator.cjs:179` (`_d4SignalFloor`) - its own comment states plainly
+  "the returned commands are not what the dial renders"; it calls the ranker only to extract a
+  D4 scoring-signal float for the dial's provenance decomposition, never to surface a command
+  recommendation to the navigator. **Does NOT need `isAdmin`** - wiring it would touch a file
+  with zero user-facing effect. Leave untouched.
+
+Because the ranker's `opts.isAdmin` defaults to `false` (fail-closed: unset means "not admin",
+per the caller-injects-a-capability pattern this mirrors), the untouched fourth call site is
+still SAFE by construction even though it is not updated - it simply never had a leak in the
+first place, since its output never reaches the navigator.
+
+Compute `isAdmin` at each of the three call sites via `checkAdminIdentity(...).admin`
+(`scripts/check-admin-identity.cjs:126`), once per call, passed straight into `rankForSelector`'s
+opts - no caching, no new shared state, matching the file's own existing per-call injection
+style (`opts._applyDecayWeight`).
