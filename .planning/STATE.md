@@ -4,8 +4,8 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Completed 310-01-PLAN.md
-last_updated: "2026-09-08T20:22:07.131Z"
-last_activity: 2026-09-08 -- Phase 310 (SEED-051) execution complete, Step 5.5 abort-to-warn fix
+last_updated: "2026-09-08T20:29:13.930Z"
+last_activity: 2026-09-08 -- Phase 310 execution and verification complete
 progress:
   total_phases: 90
   completed_phases: 27
@@ -4185,11 +4185,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 310 (seed-051-release-tag-verify-window-too-tight) — EXECUTING
+Phase: 310 (SEED-051: release.sh Step 5.5 tag-verify warn gate) — COMPLETE, VERIFIED
 Plan: 1 of 1
-Status: Plan 310-01 execution complete, ready for verification (310-01-SUMMARY.md written,
-  self-check passed; 3 tasks committed atomically -- f2703fc4, ace95be4, 34a20ed4)
-Last activity: 2026-09-08 -- Phase 310 (SEED-051) execution complete: scripts/release.sh Step
+Status: Phase complete and verified (310-01-VERIFICATION.md, status passed, 6/6 must-haves)
+Last activity: 2026-09-08 -- Phase 310 execution and verification complete. Step
   5.5's abort-vs-warn decision extracted into scripts/release-lib/verify-tag-push.sh
   (mos_verify_tag_at_origin, 0/10/1 return-code contract), an independent
   `git ls-remote origin refs/heads/main` sha-match check added as the "push demonstrably
@@ -4199,6 +4198,14 @@ Last activity: 2026-09-08 -- Phase 310 (SEED-051) execution complete: scripts/re
   SKIP=2 (2 skips are a documented pre-existing, out-of-scope Step 9.7 test issue, not a
   regression -- see deferred-items.md). doctor --acceptance --pre-flight: 1/1 passed. Zero real
   git push, npm publish, or GitHub network call anywhere in this phase's own tests.
+
+<!-- NOTE (310-close, 2026-09-08, resync-clobber pattern, same class as the 311-close and
+     318-close notes and every note throughout this file): `phase.complete`'s own
+     `state_updated` call jumped "Current Position" to `Phase: 311 / Plan: Not started`
+     (an already-completed phase, not even a next_phase suggestion this time) instead of
+     recording Phase 310's actual completion. Hand-corrected the same way as 311's and 318's
+     closes; re-read the full paragraph above before committing to confirm no orphaned or
+     duplicated text, learning from the 318-close mistake earlier this session. -->
 
 <!-- NOTE (310-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note in
      this file): `state.advance-plan` (no --phase/--plan args passed) again read the EXISTING
@@ -5144,7 +5151,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 92
+- Total plans completed: 93
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -5423,6 +5430,7 @@ Progress: [█████████░] 92%
 | Phase 318 P01 | 35 | - tasks | - files |
 | 318 | 1 | - | - |
 | Phase 310 P01 | ~90 minutes | 3 tasks | 5 files |
+| 310 | 1 | - | - |
 
 ## Accumulated Context
 
