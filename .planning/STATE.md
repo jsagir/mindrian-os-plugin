@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-03-PLAN.md
-last_updated: "2026-09-08T11:25:14.234Z"
+stopped_at: Completed 298-04-PLAN.md
+last_updated: "2026-09-08T11:36:23.971Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 201
-  percent: 26
+  completed_plans: 202
+  percent: 94
 ---
 
 <!-- NOTE (298-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every
@@ -4145,9 +4145,22 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 3 of 15
+Plan: 4 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
+
+<!-- NOTE (298-04 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `state.advance-plan` this run correctly incremented "Plan: N of 15" to 4,
+     which for once IS the highest-numbered, most recently completed plan on disk (this run's
+     own 298-04) -- no correction needed there. But it left `Status` at "Ready to execute";
+     hand-corrected to "Executing Phase 298" (Phase 298 has 11 plans still to go), matching the
+     standing convention every prior note in this file uses. `state.update-progress` computed
+     `percent: 94` correctly in its own returned JSON (completed 202 / total 214) but persisted
+     the stale `percent: 26` into the frontmatter -- hand-corrected to 94; `completed_plans: 202`
+     was written correctly and needed no fix. `state.record-session` correctly updated the
+     frontmatter `stopped_at` and this section's own "Status"/"Last activity" fields are untouched
+     by that call (its own note above already covers the 298-03 case). Root cause not
+     re-investigated -- same tracked bug class as every other note in this file. -->
 
 <!-- NOTE (298-03 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` linearly incremented "Plan: N of 15" to 4 (next plan to
@@ -5029,6 +5042,7 @@ Progress: [█████████░] 92%
 | Phase 298 P01 | 6min | 3 tasks | 7 files |
 | Phase 298-seed-032-harness-as-code-declare-and-machine-enforce-the-min P02 | 12min | 2 tasks | 33 files |
 | Phase 298 P03 | 14min | 2 tasks | 2 files |
+| Phase 298 P04 | 55min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -6502,6 +6516,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 298-02: converged-room fixture scaffolded once via scaffoldRoomSkeleton + scripts/compute-state (scratch MINDRIAN_ROOMS_HOME), scrubbed of 2 em-dashes + 4 ANSI bytes, committed as 33 static files. total_entries:13, venture_stage:Investment are structural artifacts of the scaffold/compute-state disagreement.
 - [Phase 298]: Re-verified prior session's uncommitted Task 2 diff against the plan line-by-line before committing, rather than trusting it at face value — Prior session was cut off before running any verification
 - [Phase 298]: Classified 3 exit-1 card-fire tests as pre-existing via a throwaway worktree checked out at 64b9f7ec (pre-Task-2 commit) — Identical exit codes at both commits prove the Task 2 diff did not cause the failures
+- [Phase 298]: CLAIM_LABEL_MAX = 80 chars for F.8 toggle labels, three-ASCII-period ellipsis truncation
+- [Phase 298]: Extended raiser _enrich() to carry claim_text/knowledge_type/source_path/preview through unmodified so the readable-row build has real data
+- [Phase 298]: test-189-cascade-f9.cjs F.9 failure classified pre-existing via throwaway-worktree reproduction at pre-Task-1 commit f6776972
 
 ### Pending Todos
 
@@ -6633,8 +6650,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T11:23:42.577Z
-Stopped at: Completed 298-03-PLAN.md
+Last session: 2026-09-08T11:36:23.906Z
+Stopped at: Completed 298-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
