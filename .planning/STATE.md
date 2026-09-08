@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-09-PLAN.md
-last_updated: "2026-09-08T13:26:59.723Z"
+stopped_at: Completed 298-10-PLAN.md
+last_updated: "2026-09-08T13:59:03.780Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 207
+  completed_plans: 208
   percent: 97
 ---
 
@@ -4162,7 +4162,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 9 of 15
+Plan: 10 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
 
@@ -4243,6 +4243,25 @@ Last activity: 2026-09-08 -- Phase 298 execution started
      note in this file uses. `state.add-decision --phase 298` worked correctly all three times
      this run (no "[Phase ?]" placeholder regression this time). Root cause not re-investigated
      -- same tracked bug class as every other note in this file. -->
+
+<!-- NOTE (298-10 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `git status --porcelain` read clean before this run started; no uncommitted
+     foreign edits encountered, no destructive git command considered. `state.advance-plan`
+     correctly incremented "Plan: N of 15" to 10 (this run's own 298-10) -- no correction needed
+     there. `state.update-progress` (run twice: once before 298-10-SUMMARY.md existed on disk,
+     returning completed_plans=207/percent=97 unchanged from 298-09; once after, returning
+     completed_plans=208/percent=97) correctly computed percent=97 both times in its own
+     returned JSON but persisted the stale `percent: 26` into the frontmatter after the second
+     call -- hand-corrected to 97; `completed_plans: 208` was written correctly and needed no
+     fix. The body's own "Status" line was clobbered to "Ready to execute" by the
+     advance-plan/record-session sequence -- hand-corrected to "Executing Phase 298" (5 plans
+     still to go), matching the standing convention every prior note in this file uses.
+     `stopped_at` (frontmatter) was written correctly this run ("Completed 298-10-PLAN.md"),
+     needing no fix. `state.record-session` needed NAMED args (`--stopped-at`, `--resume-file`)
+     on the first call -- the positional-arg form silently no-op'd on "Last session" only, same
+     class as the 340-05 note far below; the named-arg retry succeeded. `state.add-decision
+     --phase 298` worked correctly both times this run (no "[Phase ?]" placeholder regression).
+     Root cause not re-investigated -- same tracked bug class as every other note in this file. -->
 
 <!-- NOTE (298-06 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` correctly incremented "Plan: N of 15" to 6 (the
@@ -5166,6 +5185,7 @@ Progress: [█████████░] 92%
 | Phase 298 P06 | 15min | 2 tasks | 2 files |
 | Phase 298 P08 | 40min | 3 tasks | 5 files |
 | Phase 298 P09 | 40min | 3 tasks | 14 files |
+| Phase 298 P10 | 55min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6680,6 +6700,8 @@ Progress: [█████████░] 92%
 - [Phase 298]: voice policies' min_true_positives set to 50, the low end of the sourced 50-100 human-reviewed-traces figure from Vanishing Gradients Ep. 57
 - [Phase 298]: gate-shape-declaration and gate-tool-honesty declared at rung logged (advisory today), not blocking, matching current scripts/doctor.cjs and scripts/release.sh behavior
 - [Phase 298]: contract-parity-larry.json phrases list only test-pinned strings plus the two beta.27 gaps, excluding structural checks and the orphaned larry-prompt file
+- [Phase 298]: 298-10: logged-rung evidence appends always go through the one shared voice-style-log writer (tagged by policy_id), not a per-policy evidence_log path -- a per-path writer is out of scope
+- [Phase 298]: 298-10: tests/run-all-298.sh's converged-fixture leg now recognizes the runner's own not-yet-implemented --room refusal as SKIPPED (Rule 3 fix, restores the aggregator's own SKIP-while-partially-landed contract)
 
 ### Pending Todos
 
@@ -6811,8 +6833,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T13:26:30.627Z
-Stopped at: Completed 298-08-PLAN.md
+Last session: 2026-09-08T13:59:03.651Z
+Stopped at: Completed 298-10-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
