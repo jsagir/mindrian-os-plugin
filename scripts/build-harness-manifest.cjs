@@ -46,7 +46,11 @@
  *       read the three maps -> write data/harness-manifest.json
  *   node scripts/build-harness-manifest.cjs --check
  *       regenerate in memory, assert STALE / UNRESOLVED / MALFORMED, exit-1 on
- *       any finding with a stderr recovery line, else print an OK line
+ *       any finding with a stderr recovery line, else print an OK line. Phase
+ *       298 (SEED-032) Plan 13: --check ALSO runs every `kind: "contract"`
+ *       policy in data/harness-policies/ INLINE (runContractChecks below) --
+ *       pure file reads a faster feedback path onto the truths the nine
+ *       frozen-phrase tests already pin, never a second source of truth.
  *   node scripts/build-harness-manifest.cjs --refresh
  *       re-derive the digests + re-write the artifact (idempotent)
  *
@@ -617,6 +621,88 @@ function loadPolicies(rootDir) {
 }
 
 // ---------------------------------------------------------------------------
+// runContractChecks(rootDir) -- Phase 298 Plan 13 (SEED-032, R-06). Runs every
+// `kind: "contract"` policy in data/harness-policies/ INLINE (pure file
+// reads, no spawn, no runner): each declared phrase must be a literal
+// substring of its declared surface file, and the declared byte_budget's
+// EVALUATED constant (required and read, never file-statted) must sit at or
+// under its declared limit. The generator HARDCODES NO PHRASE of its own --
+// `contract-parity-larry.json` is the single declaration (T-298-27); a grep
+// for two of its pinned phrases inside this file must return zero. A missing
+// phrase or a busted budget produces ONE named finding: the surface role,
+// path and the exact missing phrase, or the constant name, the measured
+// bytes and the limit -- so the failure is actionable without opening the
+// policy file. Returns an array of finding strings (empty = clean).
+// ---------------------------------------------------------------------------
+function runContractChecks(rootDir) {
+  const dirAbs = rootDir || REPO_ROOT;
+  const { policies } = loadPolicies(POLICIES_ABS);
+  const findings = [];
+  const RECOVERY_CONTRACT =
+    'Recovery: restore the declared phrase, or the declared byte budget, or ' +
+    'update data/harness-policies/<id>.json if the contract itself changed, ' +
+    'then re-run node scripts/build-harness-manifest.cjs --check.';
+
+  for (const entry of policies) {
+    const policy = entry && entry.policy;
+    if (!policy || policy.kind !== 'contract') continue;
+    const fileName = entry.fileName;
+
+    const surfaces = Array.isArray(policy.surfaces) ? policy.surfaces : [];
+    for (const surface of surfaces) {
+      if (!surface || typeof surface.path !== 'string') continue;
+      const absSurfacePath = path.join(dirAbs, surface.path);
+      const buf = readBytes(absSurfacePath);
+      const text = buf ? buf.toString('utf8') : null;
+      const phrases = Array.isArray(surface.phrases) ? surface.phrases : [];
+      for (const phrase of phrases) {
+        if (typeof phrase !== 'string') continue;
+        if (text === null || text.indexOf(phrase) === -1) {
+          findings.push(
+            'CONTRACT: ' + fileName + ' declares the phrase ' + JSON.stringify(phrase) +
+              ' on surface "' + (surface.role || surface.path) + '" (' + surface.path +
+              '), but it is not present on disk. ' + RECOVERY_CONTRACT
+          );
+        }
+      }
+    }
+
+    const budget = policy.byte_budget;
+    if (budget && typeof budget.path === 'string' && typeof budget.constant === 'string' &&
+        typeof budget.limit === 'number') {
+      const absModulePath = path.resolve(dirAbs, budget.path);
+      let value;
+      try {
+        const resolved = require.resolve(absModulePath);
+        delete require.cache[resolved];
+        const mod = require(absModulePath);
+        value = mod && mod[budget.constant];
+      } catch (_e) {
+        value = undefined;
+      }
+      if (typeof value !== 'string') {
+        findings.push(
+          'CONTRACT: ' + fileName + ' declares byte_budget constant "' + budget.constant +
+            '" on ' + budget.path + ', but requiring the module and reading that export ' +
+            'failed. ' + RECOVERY_CONTRACT
+        );
+      } else {
+        const measured = Buffer.byteLength(value, 'utf8');
+        if (measured > budget.limit) {
+          findings.push(
+            'CONTRACT: ' + fileName + ' byte_budget constant "' + budget.constant + '" (' +
+              budget.path + ') measured ' + measured + ' bytes, exceeding its declared ' +
+              'limit of ' + budget.limit + ' bytes. ' + RECOVERY_CONTRACT
+          );
+        }
+      }
+    }
+  }
+
+  return findings;
+}
+
+// ---------------------------------------------------------------------------
 // buildManifest() -- the core. Emits the declared descriptor object:
 //   { ontology_ref, generated_note, methodology_tier, version, maps }
 // where maps is EXACTLY the three { role, path, digest, source_count } entries
@@ -921,7 +1007,11 @@ function runCheck() {
   // the failing key; one bad file is reported and skipped, never aborting the
   // rest of the scan (T-233-01 / T-217-01 self-DoS-avoidance pattern).
   const { findings: policyFindings } = loadPolicies(POLICIES_ABS);
-  const all = [...stale, ...unresolved, ...malformed, ...policyFindings];
+  // Phase 298 Plan 13 (R-06): the contract-* policies, run inline as a fourth
+  // finding class beside stale/unresolved/malformed -- a dropped Larry phrase
+  // or a busted Desktop-wire byte budget fails --check by name.
+  const contractFindings = runContractChecks(REPO_ROOT);
+  const all = [...stale, ...unresolved, ...malformed, ...policyFindings, ...contractFindings];
   if (all.length) {
     console.error(all.join('\n'));
     console.error(
@@ -987,6 +1077,7 @@ if (require.main === module) {
     primaryArrayCount,
     loadPolicies,
     validatePolicyFile,
+    runContractChecks,
     MAP_BINDINGS,
     RUNTIME_SURFACE_BINDINGS,
     LARRY_SURFACE_BINDINGS,
