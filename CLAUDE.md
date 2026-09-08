@@ -64,6 +64,8 @@ Run the relevant suite after edits, before declaring a task done. Users never ru
 - **Release gate:** `scripts/verify-release`, and `scripts/release.sh <version>` for the five-gate version lockstep (never bump versions by hand).
 - **Born-wired / projection / render gates:** `node scripts/build-connector-registry.cjs --check`, `node scripts/build-orchestration-projection.cjs --check`, `node scripts/check-render-coverage.cjs`.
 - **Acceptance roll-up:** `node scripts/doctor.cjs --acceptance`.
+- **Harness policy runner:** `node scripts/run-harness.cjs --check` (standalone), `--tier pre-tag` (release-tier form), `--room <dir>` (Layer 0 convergence check), `--policy <id>` (promotion review).
+- **Harness acceptance point:** `node scripts/doctor.cjs --acceptance` includes a `harness-policies` blocker that spawns the runner, so a declared policy that stops running fails the release train.
 
 ## Modular References (@include)
 
