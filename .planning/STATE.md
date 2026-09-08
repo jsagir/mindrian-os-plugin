@@ -4,8 +4,8 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Completed 318-01-PLAN.md
-last_updated: "2026-09-08T19:42:17.771Z"
-last_activity: 2026-09-08 -- Phase 318 Plan 01 execution complete (null-negative reconciliation)
+last_updated: "2026-09-08T19:49:03.115Z"
+last_activity: 2026-09-08 -- Phase 318 execution and verification complete
 progress:
   total_phases: 90
   completed_phases: 26
@@ -4185,16 +4185,19 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 318 (seed-061-skillopt-smoke-calibration-reconciliation) — EXECUTING
+Phase: 318 (SEED-061: skillopt smoke calibration reconciliation) — COMPLETE, VERIFIED
 Plan: 1 of 1
-Status: Phase complete — ready for verification
-Last activity: 2026-09-08 -- Phase 318 Plan 01 execution complete (null-negative reconciliation
-  pass added to scripts/skillopt-funnel.cjs: normalizeQueryText/buildPositiveIndex/
-  reconcileNullNegatives, roster-wide index wiring under --skills scoping, resume-path verdict
-  force closing Finding 5's staleness hole, --reconcile-audit CLI mode, nine offline selftest
-  cases A-I, five-leg proving-case test with tracked fixtures, new leg in run-all-230.sh;
-  0 of 23 corrections on the real Phase 230 corpus, honestly reported; SEED-061 steps 2-4 remain
-  open, zero subscription quota spent)
+Status: Phase complete and verified (318-VERIFICATION.md, status passed, 7/7 must-haves)
+Last activity: 2026-09-08 -- Phase 318 execution and verification complete (deterministic
+  exact-match null-negative reconciliation added to skillopt-funnel.cjs, closing SEED-061's
+  disclosed false-alarm bug for both the fresh-judge and resume-run paths; 0-of-23 correction
+  on the real Phase 230 corpus today, disclosed honestly, not overclaimed -- the guard is
+  load-bearing at fleet scale, human relabeling per SEED-061 step 2 stays the follow-up)
+
+<!-- NOTE (318-close, 2026-09-08, resync-clobber pattern, same class as the 311-close note
+     below and every note throughout this file): `phase.complete`'s own `state_updated` call
+     again jumped "Current Position" straight to its `next_phase` suggestion (339) instead of
+     recording Phase 318's actual completion. Hand-corrected the same way as 311's close. -->
 
 <!-- NOTE (318-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note in
      this file): `state advance-plan` (no --phase/--plan args passed) read the EXISTING
@@ -5110,7 +5113,7 @@ Progress: [█████████░] 92%
 
 **Velocity:**
 
-- Total plans completed: 91
+- Total plans completed: 92
 - Average duration: --
 - Total execution time: 0 hours
 
@@ -5387,6 +5390,7 @@ Progress: [█████████░] 92%
 | Phase 311 P01 | 35min | 3 tasks | 7 files |
 | 311 | 1 | - | - |
 | Phase 318 P01 | 35 | - tasks | - files |
+| 318 | 1 | - | - |
 
 ## Accumulated Context
 
