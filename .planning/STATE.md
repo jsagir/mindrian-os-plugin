@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-05-PLAN.md
-last_updated: "2026-09-08T11:44:36.274Z"
+stopped_at: Completed 298-06-PLAN.md
+last_updated: "2026-09-08T11:56:13.351Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 203
+  completed_plans: 204
   percent: 95
 ---
 
@@ -30,7 +30,6 @@ progress:
      the router's `parseNamedArgs` allowlist for `add-decision` does not list `phase` as an
      accepted flag, so the phase silently falls through to its own `'?'` default -- a distinct
      root cause from the percent-clobber pattern, not re-investigated further here. -->
-
 
 <!-- NOTE (298-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every
      other note in this file): `state.update-progress` correctly computed percent=93
@@ -4163,9 +4162,23 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 5 of 15
+Plan: 6 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
+
+<!-- NOTE (298-06 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `state.advance-plan` correctly incremented "Plan: N of 15" to 6 (the
+     highest-numbered, most recently completed plan on disk, this run's own 298-06) -- no
+     correction needed there. `state.update-progress` correctly computed percent=95
+     (completed_plans 204 / total_plans 214) in its own returned JSON but persisted the stale
+     `percent: 26` into the frontmatter -- hand-corrected to 95; `completed_plans: 204` was
+     written correctly and needed no fix. `Status` was clobbered back to "Ready to execute" by
+     the same advance-plan call -- hand-corrected to "Executing Phase 298" (9 plans still to
+     go), matching the standing convention every prior note in this file uses. `percent` was
+     re-clobbered to 26 a second time by the later `state.record-session` call in this same
+     run (stopped_at itself was written correctly by that call, in both frontmatter and the
+     body's "Stopped at:" line) -- hand-corrected to 95 again after that call. Root cause not
+     re-investigated -- same tracked bug class as every other note in this file. -->
 
 <!-- NOTE (298-05 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` this run correctly incremented "Plan: N of 15" to 5,
@@ -5072,6 +5085,7 @@ Progress: [█████████░] 92%
 | Phase 298 P03 | 14min | 2 tasks | 2 files |
 | Phase 298 P04 | 55min | 3 tasks | 4 files |
 | Phase 298 P05 | 40min | 2 tasks | 2 files |
+| Phase 298 P06 | 15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6549,6 +6563,7 @@ Progress: [█████████░] 92%
 - [Phase 298]: Extended raiser _enrich() to carry claim_text/knowledge_type/source_path/preview through unmodified so the readable-row build has real data
 - [Phase 298]: test-189-cascade-f9.cjs F.9 failure classified pre-existing via throwaway-worktree reproduction at pre-Task-1 commit f6776972
 - [Phase 298]: Desktop wire (lib/mcp/runtime-instructions.cjs) left untouched in 298-05 (R-07): served constant measures 1944/1950 bytes (6 bytes headroom, unchanged), a comparable D3/D4/D5 clause needs 120-180 bytes, and the byte-frozen BOUNDARIES paragraph must remain last -- R-07 satisfied instead by SKILL.md and larry-extended.md, which have byte headroom
+- [Phase 298]: 298-06: check-graph-derive-health.cjs ships as a thin wrapper over the shipped detectRoomHealth/check; the ghost-refusal and governance.cjs PENDING items from the 298-01 test stub are deliberately deferred to plans 298-04 (already discharged) and 298-10/298-11 (not yet built), documented in the SUMMARY rather than built prematurely against a subject that does not exist yet
 
 ### Pending Todos
 
@@ -6680,8 +6695,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T11:44:36.218Z
-Stopped at: Completed 298-05-PLAN.md
+Last session: 2026-09-08T11:56:13.290Z
+Stopped at: Completed 298-06-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
