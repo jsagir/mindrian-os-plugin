@@ -13,6 +13,14 @@
  *   (e) source-grep: the closer file requires no local database driver and opens no
  *       room database directly.
  *
+ * Phase 298-04 (D-01) extension: renderGovernanceBasket's toggle LABEL is now the
+ * truncated claim text, not the candidate_id, so the (a) pre-check assertions below
+ * look up each option by contract.superset_options[i].id instead of comparing a
+ * label directly to a candidate id. New assertions pin the readable-row fold
+ * (contract.superset_options carrying id/label/description/rank), the Part 8
+ * no-egress property of the serialized card, and that the frozen MAX_TOGGLE_N
+ * paging / 0.70 pre-check behavior from this call site is unchanged.
+ *
  * Plain node script, no framework. Hyphens only, no em-dashes.
  */
 
@@ -48,14 +56,74 @@ function makeNavSpy() {
 // ---- (a) render pre-check is display-only (zero edges) -----------------------
 const navA = makeNavSpy();
 const renderCandidates = [
-  { candidate_id: 'claim:hot', kind: 'claim', confidence: 0.85, target_section: 'strategy/hot' },
-  { candidate_id: 'assumption:cold', kind: 'assumption', confidence: 0.40, target_section: 'risks/cold' },
+  {
+    candidate_id: 'claim:hot', kind: 'claim', confidence: 0.85, target_section: 'strategy/hot',
+    claim_text: 'Cold start kills early activation before day 3', knowledge_type: 'causal',
+    source_path: 'strategy/CONTEXT.md',
+  },
+  {
+    candidate_id: 'assumption:cold', kind: 'assumption', confidence: 0.40, target_section: 'risks/cold',
+    claim_text: 'Users will tolerate a slower onboarding flow', knowledge_type: 'assumption',
+    source_path: 'risks/CONTEXT.md',
+  },
 ];
 const rendered = raiser.renderGovernanceBasket(renderCandidates, {});
 ok('basket declares hitl_shape F.8', rendered.contract.hitl_shape === 'F.8');
-ok('high-confidence claim:hot renders PRE-CHECKED', rendered.contract.preChecked.indexOf('claim:hot') !== -1);
-ok('sub-threshold assumption:cold NOT pre-checked', rendered.contract.preChecked.indexOf('assumption:cold') === -1);
+// Phase 298-04 (D-01): the label is now the truncated claim text, not the
+// candidate_id, so look each option up by contract.superset_options[i].id
+// rather than comparing a label directly to a candidate id.
+const hotOption = rendered.contract.superset_options.find((o) => o.id === 'claim:hot');
+const coldOption = rendered.contract.superset_options.find((o) => o.id === 'assumption:cold');
+ok('high-confidence claim:hot renders PRE-CHECKED', !!hotOption && rendered.contract.preChecked.indexOf(hotOption.label) !== -1);
+ok('sub-threshold assumption:cold NOT pre-checked', !!coldOption && rendered.contract.preChecked.indexOf(coldOption.label) === -1);
 ok('rendering writes ZERO edges (display-only)', navA.edges.length === 0);
+
+// ---- Phase 298-04 (D-01): readable-row superset_options fold -----------------
+ok(
+  'superset_options has one entry per rendered candidate',
+  Array.isArray(rendered.contract.superset_options) && rendered.contract.superset_options.length === renderCandidates.length
+);
+ok(
+  'every superset_options entry carries id/label/description/rank',
+  rendered.contract.superset_options.every((o) => typeof o.id === 'string'
+    && typeof o.label === 'string' && typeof o.description === 'string' && typeof o.rank === 'number')
+);
+ok(
+  'superset_options[0].description matches "<kind> -> <section>, conf 0.xx, from <path>"',
+  /^\w+ -> .+, conf 0\.\d+, from /.test(rendered.contract.superset_options[0].description)
+);
+ok(
+  'superset_options[0].label is NOT the candidate id and equals the truncated claim text',
+  rendered.contract.superset_options[0].label !== rendered.contract.superset_options[0].id
+    && rendered.contract.superset_options[0].label === renderCandidates[0].claim_text
+);
+
+// ---- Phase 298-04: Part 8 no-egress assertion ---------------------------------
+const renderedSerialized = JSON.stringify(rendered);
+ok('Part 8: serialized rendered card contains no brain_ substring', renderedSerialized.indexOf('brain_') === -1);
+const raiserSrc = fs.readFileSync(
+  path.join(REPO_ROOT, 'lib', 'core', 'memory', 'governance-candidate-raiser.cjs'), 'utf8'
+);
+ok('Part 8: raiser module requires no brain-client.cjs (no network egress)', !/require\(['"][^'"]*brain-client\.cjs['"]\)/.test(raiserSrc));
+
+// ---- Phase 298-04: frozen scalars unchanged from this call site --------------
+// Five candidates -> paging behavior (D-05), never truncation to four; the 0.70
+// pre-check threshold (D-06) still holds. No claim_text supplied here, so labels
+// fall back to candidate_id -- exactly the pre-298-04 fallback path.
+const fiveCandidates = [
+  { candidate_id: 'claim:one', kind: 'claim', confidence: 0.82, target_section: 'sec/one' },
+  { candidate_id: 'claim:two', kind: 'claim', confidence: 0.55, target_section: 'sec/two' },
+  { candidate_id: 'claim:three', kind: 'claim', confidence: 0.30, target_section: 'sec/three' },
+  { candidate_id: 'claim:four', kind: 'claim', confidence: 0.20, target_section: 'sec/four' },
+  { candidate_id: 'claim:five', kind: 'claim', confidence: 0.10, target_section: 'sec/five' },
+];
+const renderedFive = raiser.renderGovernanceBasket(fiveCandidates, {});
+ok(
+  'five candidates: full option count reflects MAX_TOGGLE_N paging, not a 4-item truncation',
+  renderedFive.contract.options.length === 5 && renderedFive.contract.paged === true && renderedFive.contract.pages === 2
+);
+ok('five candidates: confidence 0.82 is pre-checked', renderedFive.contract.preChecked.indexOf('claim:one') !== -1);
+ok('five candidates: confidence 0.55 is NOT pre-checked', renderedFive.contract.preChecked.indexOf('claim:two') === -1);
 
 // ---- (b) confirm writes exactly one REMEMBERED_AS edge -----------------------
 const navB = makeNavSpy();
