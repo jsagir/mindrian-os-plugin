@@ -211,6 +211,15 @@
             "timeout": 3000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-voice-style.cjs\"",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "SessionEnd": [
