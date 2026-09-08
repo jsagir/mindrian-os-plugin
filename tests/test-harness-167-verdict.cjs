@@ -55,7 +55,16 @@ const MANIFEST_GEN = path.join(REPO_ROOT, 'scripts', 'build-harness-manifest.cjs
 const RECIPE_MAPS = path.join(REPO_ROOT, 'lib', 'core', 'recipe-maps.cjs');
 const CHAIN_EXECUTOR = path.join(REPO_ROOT, 'lib', 'core', 'chain-executor.cjs');
 const NEW_SURFACE_GEN = path.join(REPO_ROOT, 'scripts', 'build-new-surface.cjs');
-const INSTALL_PRECOMMIT = path.join(REPO_ROOT, 'scripts', 'install-pre-commit.sh');
+// Phase 298-14 repoint (read this before changing INSTALL_PRECOMMIT again):
+// this constant originally pointed at scripts/install-pre-commit.sh. Phase
+// 235-01 (commits 7409a69f and 43565da3) rewrote that script to byte-copy
+// scripts/hooks/pre-commit-room-minto-guard.sh and to author no hook content
+// of its own, so the D-167-03 check below went red against a file that no
+// longer carries the guard. INSTALL_PRECOMMIT now names the canonical guard
+// file directly: scripts/hooks/pre-commit-room-minto-guard.sh, which
+// scripts/hooks/pre-commit is byte-identical to and which
+// scripts/install-pre-commit.sh copies verbatim.
+const INSTALL_PRECOMMIT = path.join(REPO_ROOT, 'scripts', 'hooks', 'pre-commit-room-minto-guard.sh');
 const RUN_ALL_167 = path.join(REPO_ROOT, 'tests', 'run-all-167.sh');
 const PART8_BOUNDARY = path.join(REPO_ROOT, 'tests', 'test-harness-manifest-part8-boundary.cjs');
 const MODEL_PROFILES = path.join(REPO_ROOT, 'lib', 'core', 'model-profiles.cjs');
@@ -181,10 +190,14 @@ guard('D-167-02: recipe-maps.loadManifest() returns the declared binding AND pos
 // ===========================================================================
 // GROUP 3 -- D-167-03: manifest --check wired into BOTH pre-commit AND CI.
 // ===========================================================================
-guard('D-167-03: manifest --check wired into BOTH the installable pre-commit template AND tests/run-all-167.sh', () => {
+guard('D-167-03: manifest --check wired into BOTH the live canonical pre-commit hook AND tests/run-all-167.sh', () => {
   const tmpl = fs.readFileSync(INSTALL_PRECOMMIT, 'utf8');
-  assert.ok(/build-harness-manifest\.cjs --check/.test(tmpl),
-    'the installable pre-commit template does NOT wire build-harness-manifest.cjs --check (a fresh clone misses the guard)');
+  // Phase 298-14: the live hook wraps the path in a shell quote
+  // (`"$REPO_ROOT/...build-harness-manifest.cjs" --check`), so the invocation
+  // regex tolerates an optional closing quote before the whitespace, mirroring
+  // tests/test-harness-manifest-precommit-wiring.cjs CHECK 2's convention.
+  assert.ok(/build-harness-manifest\.cjs"?\s+--check/.test(tmpl),
+    'the canonical pre-commit hook does NOT wire build-harness-manifest.cjs --check (a fresh clone misses the guard)');
 
   const agg = fs.readFileSync(RUN_ALL_167, 'utf8');
   assert.ok(/build-harness-manifest\.cjs["'][[:space:]]*\)?[[:space:]]*--check|build-harness-manifest\.cjs/.test(agg) && /--check/.test(agg),
@@ -193,7 +206,7 @@ guard('D-167-03: manifest --check wired into BOTH the installable pre-commit tem
   assert.ok(/build-harness-manifest\.cjs"?\s+--check/.test(agg) || /build-harness-manifest\.cjs[^\n]*--check/.test(agg),
     'tests/run-all-167.sh does NOT invoke build-harness-manifest.cjs with --check');
 
-  return 'build-harness-manifest.cjs --check present in BOTH scripts/install-pre-commit.sh AND tests/run-all-167.sh (stronger than the connector/projection CI-only precedent)';
+  return 'build-harness-manifest.cjs --check present in BOTH scripts/hooks/pre-commit-room-minto-guard.sh AND tests/run-all-167.sh (stronger than the connector/projection CI-only precedent)';
 });
 
 // ===========================================================================

@@ -1,30 +1,37 @@
 'use strict';
 /*
  * Phase 167-02 Task 2 (D-167-03) - assert the harness-manifest drift guard is
- * wired into the INSTALLABLE pre-commit template.
+ * wired into the LIVE canonical pre-commit hook.
  *
- * The live .git/hooks/pre-commit copy is NOT git-tracked (standard git
- * convention; both the shipped command-registry and brain-packet-schema guards
- * document this). The tracked source of the live hook is
- * scripts/install-pre-commit.sh -- the template a fresh dev clone runs to
- * inherit every guard. So this test asserts on the TEMPLATE: if the template
- * carries the manifest guard, a fresh clone gets it.
+ * Phase 298-14 repoint (read this before changing TEMPLATE_PATH again):
+ * this test originally asserted against scripts/install-pre-commit.sh, on the
+ * theory that the live .git/hooks/pre-commit copy is not git-tracked and
+ * install-pre-commit.sh was the tracked source a fresh clone inherits its
+ * guards from. Phase 235-01 (commits 7409a69f and 43565da3) rewrote
+ * install-pre-commit.sh to byte-copy scripts/hooks/pre-commit-room-minto-guard.sh
+ * and to author no hook content of its own, so from that point on
+ * install-pre-commit.sh carries none of the guard lines this test looks for --
+ * the guard is live and correct, the test pointed at the wrong file, and every
+ * check below went red. TEMPLATE_PATH now names the canonical guard file
+ * directly: scripts/hooks/pre-commit-room-minto-guard.sh, which
+ * scripts/hooks/pre-commit is byte-identical to and which install-pre-commit.sh
+ * copies verbatim.
  *
  * This is the regression fence behind D-167-03's "BOTH" requirement: the
- * manifest --check fires at commit time (the live hook + the template here) AND
- * in CI (the run-all-167.sh leg). The connector/projection precedent wired its
- * --check ONLY into a test aggregator; D-167-03 is STRONGER -- it closes that
- * drift gap for the manifest by also wiring the live pre-commit.
+ * manifest --check fires at commit time (the live hook here) AND in CI (the
+ * run-all-167.sh leg). The connector/projection precedent wired its --check
+ * ONLY into a test aggregator; D-167-03 is STRONGER -- it closes that drift gap
+ * for the manifest by also wiring the live pre-commit.
  *
  * The test asserts (each failure exits non-zero):
  *
- *   CHECK 1 -- PATH TRIGGER: the template carries a path-scoped
+ *   CHECK 1 -- PATH TRIGGER: the hook carries a path-scoped
  *     git diff --cached --name-only | grep -qE trigger matching ALL FIVE paths
  *     (the manifest + its generator + the three named source maps:
  *     command-registry / connector-registry / brain-orchestration-projection),
  *     since a change to any source map can stale the manifest digests.
  *
- *   CHECK 2 -- THE --check INVOCATION: the template runs
+ *   CHECK 2 -- THE --check INVOCATION: the hook runs
  *     node ... build-harness-manifest.cjs --check.
  *
  *   CHECK 3 -- RECOVERY LINE: a drift recovery line names
@@ -35,12 +42,23 @@
  *     command -v node + -f generator preconditions (degrade gracefully when
  *     node or the generator is absent), mirroring the shipped guards.
  *
- *   CHECK 5 -- ADDITIVE (regression guard): the template STILL carries the
+ *   CHECK 5 -- ADDITIVE (regression guard): the hook STILL carries the
  *     command-registry guard and the brain-packet-schema guard. The manifest
  *     block is ADDITIVE; it must not displace the shipped guards.
  *
- *   CHECK 6 -- NO EM-DASH: neither the template nor this test contains the
+ *   CHECK 6 -- NO EM-DASH: neither the hook nor this test contains the
  *     U+2014 codepoint (referenced by escape, never as a literal).
+ *
+ *   CHECK 7 (Phase 298-14) -- BYTE-IDENTICAL TWIN: scripts/hooks/pre-commit and
+ *     scripts/hooks/pre-commit-room-minto-guard.sh stay byte-identical, since a
+ *     reinstall via setup-hooks.sh's cmp-then-copy idiom would silently
+ *     overwrite whichever file diverged.
+ *
+ *   CHECK 8 (Phase 298-14) -- TRIGGER WIDENING (Pitfall 6): the drift trigger
+ *     fires on data/harness-policies/ and data/harness-fixtures/ so a policy or
+ *     fixture edit cannot land with a stale manifest digest. Pinned by
+ *     extracting the trigger line and testing it with grep -qE against a
+ *     sample staged-path list, not merely asserting the substring is present.
  *
  * House rule: hyphens only, no em-dashes.
  */
@@ -48,9 +66,11 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { execSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const TEMPLATE_PATH = path.join(REPO_ROOT, 'scripts', 'install-pre-commit.sh');
+const TEMPLATE_PATH = path.join(REPO_ROOT, 'scripts', 'hooks', 'pre-commit-room-minto-guard.sh');
+const TWIN_PATH = path.join(REPO_ROOT, 'scripts', 'hooks', 'pre-commit');
 const SELF_PATH = __filename;
 
 let passed = 0;
@@ -164,6 +184,50 @@ check('CHECK 6 - no em-dash (U+2014) in the template or this test', () => {
     !self.includes(emDash),
     'this test contains a forbidden em-dash (U+2014); use hyphens'
   );
+});
+
+// ---------------------------------------------------------------------------
+// CHECK 7 (Phase 298-14) -- BYTE-IDENTICAL TWIN: the two hook files stay
+// byte-identical, or a setup-hooks.sh reinstall would overwrite the divergent
+// one and silently drop whichever edit was not applied to both.
+// ---------------------------------------------------------------------------
+check('CHECK 7 - scripts/hooks/pre-commit and scripts/hooks/pre-commit-room-minto-guard.sh stay byte-identical', () => {
+  execSync('cmp -s ' + JSON.stringify(TWIN_PATH) + ' ' + JSON.stringify(TEMPLATE_PATH));
+});
+
+// ---------------------------------------------------------------------------
+// CHECK 8 (Phase 298-14, Pitfall 6) -- TRIGGER WIDENING: the drift trigger
+// fires on data/harness-policies/ and data/harness-fixtures/, pinned by
+// extracting the trigger line and testing it with grep -qE against a sample
+// staged-path list -- would fail if the widening were reverted.
+// ---------------------------------------------------------------------------
+check('CHECK 8 - drift trigger fires on data/harness-policies/ and data/harness-fixtures/ (Pitfall 6 widening)', () => {
+  const lines = template.split('\n');
+  const triggerLine = lines.find((l) => /grep -qE '.*build-harness-manifest/.test(l));
+  assert.ok(triggerLine, 'could not find the manifest drift trigger line in the hook');
+  const match = triggerLine.match(/grep -qE '([^']+)'/);
+  assert.ok(match, 'could not extract the trigger regex from the drift trigger line');
+  const regex = new RegExp(match[1]);
+
+  const positives = [
+    'scripts/build-harness-manifest.cjs',
+    'data/harness-manifest.json',
+    'data/command-registry.json',
+    'data/connector-registry.json',
+    'data/brain-orchestration-projection.json',
+    'data/harness-policies/gate-card-fire.json',
+    'data/harness-fixtures/converged-room/STATE.md',
+  ];
+  for (const p of positives) {
+    assert.ok(regex.test(p), 'widened trigger does not match expected positive path: ' + p);
+  }
+  const negatives = [
+    'data/doctor-modules.json',
+    'data/harness-policies/CONTEXT.md.bak',
+  ];
+  for (const n of negatives) {
+    assert.ok(!regex.test(n), 'widened trigger over-matches negative path: ' + n);
+  }
 });
 
 console.log('');
