@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-10-PLAN.md
-last_updated: "2026-09-08T13:59:03.780Z"
+stopped_at: Completed 298-12-PLAN.md
+last_updated: "2026-09-08T14:15:13.442Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 208
-  percent: 97
+  completed_plans: 209
+  percent: 98
 ---
 
 <!-- NOTE (298-05 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
@@ -4162,9 +4162,32 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 10 of 15
+Plan: 12 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
+
+<!-- NOTE (298-12 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `git status --porcelain` read clean before this run started; no uncommitted
+     foreign edits encountered, no destructive git command considered. This is the SECOND and
+     LAST plan in wave 4 (298-10 landed first); with this plan's own commit (cdb528c8), wave 4
+     is now fully complete. `state.advance-plan` incremented "Plan: N of 15" to 11 (a naive
+     current+1 from 298-10's own 10), NOT this run's own plan number 12 - 298-11 has not
+     executed yet (no 298-11-SUMMARY.md on disk), so 11 would have MISSTATED the highest
+     completed plan - hand-corrected to 12, matching this file's own established convention
+     (the highest-numbered, most recently completed plan on disk; confirmed by re-reading the
+     298-06 through 298-10 notes below/above before deciding, all internally consistent with
+     each other). `state.update-progress` correctly computed percent=98 (completed_plans 209 /
+     total_plans 214) in its own returned JSON but persisted the stale `percent: 26` into the
+     frontmatter -- hand-corrected to 98; `completed_plans: 209` was written correctly and
+     needed no fix. The body's own "Status" line was clobbered to "Ready to execute" by the
+     advance-plan/record-session sequence -- hand-corrected to "Executing Phase 298", matching
+     the standing convention every prior note in this file uses. `stopped_at` (frontmatter) was
+     written correctly this run ("Completed 298-12-PLAN.md") via `state.record-session`'s named
+     args (`--stopped-at`, `--resume-file`), needing no fix. `requirements.mark-complete R-01
+     R-02` returned not_found as expected (Phase 298's requirements are locked in
+     298-SPEC.md, not the requirements registry this verb reads) -- recorded, not treated as a
+     bug. Root cause not re-investigated -- same tracked bug class as every other note in this
+     file. -->
 
 <!-- NOTE (298-07 execute-plan, 2026-09-08, hand-edited directly per the standing session
      directive rather than via `gsd-tools state.*`: this run's probe of the `commit` verb
@@ -6833,8 +6856,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T13:59:03.651Z
-Stopped at: Completed 298-10-PLAN.md
+Last session: 2026-09-08T14:15:13.361Z
+Stopped at: Completed 298-12-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
