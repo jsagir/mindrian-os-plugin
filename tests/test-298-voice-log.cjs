@@ -32,12 +32,11 @@ const { spawnSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SUBJECT = path.join(REPO_ROOT, 'scripts', 'check-voice-style.cjs');
 const TEST_NAME = 'test-298-voice-log.cjs';
+const voiceStyleLog = require(path.join(REPO_ROOT, 'lib', 'hmi', 'voice-style-log.cjs'));
 
 const ASSERTIONS_IMPLEMENTED = true;
 
-const PENDING = [
-  'evaluatePromotion called twice leaves the log file mtime unchanged -- owned by plan 298-08, which lands evaluatePromotion itself; not implemented here.',
-];
+const PENDING = [];
 
 let passCount = 0;
 let failCount = 0;
@@ -242,6 +241,71 @@ function main() {
     assertTrue(!!env, 'stdout parses to an object');
     assertEqual(env.continue, true, 'continue is true');
     assertTrue(!('hookSpecificOutput' in env), 'no hookSpecificOutput key');
+  });
+
+  // -------------------------------------------------------------------
+  // evaluatePromotion (plan 298-08, D-02, R-03): the one evaluator, pure
+  // and side-effect free, that refuses MET on unlabeled evidence.
+  // -------------------------------------------------------------------
+  function makeRow(result) {
+    return {
+      ts: Date.now(),
+      timestamp: new Date().toISOString(),
+      policy_id: 'voice-hyphens-only',
+      version: 'test',
+      result: result || 'fire',
+      detail: '',
+      session_id: '',
+    };
+  }
+  const SAMPLE_POLICY = {
+    id: 'voice-hyphens-only',
+    rung: 'logged',
+    promotion_rule: { window_runs: 200, max_false_positive_rate: 0.2, min_true_positives: 5 },
+  };
+
+  record('evaluatePromotion: an unreviewed log of 50 fire rows returns met:false naming the labeled-row shortfall', () => {
+    const rows = [];
+    for (let i = 0; i < 50; i += 1) rows.push(makeRow('fire'));
+    const verdict = voiceStyleLog.evaluatePromotion(SAMPLE_POLICY, rows);
+    assertEqual(verdict.met, false, 'met is false on an all-unreviewed log');
+    assertTrue(
+      verdict.reasons.some((r) => /labeled/i.test(r)),
+      'a reason names the labeled-row shortfall'
+    );
+    assertEqual(verdict.false_positive_rate, null, 'false_positive_rate is not zero-by-omission (it is null, not 0)');
+    assertEqual(verdict.fires, 50, 'fires counts every row, labeled or not');
+  });
+
+  record('evaluatePromotion: a labeled log meeting the rule returns met:true with a next_rung and a non-empty edit_line', () => {
+    const rows = [];
+    for (let i = 0; i < 8; i += 1) rows.push(makeRow('true_positive'));
+    rows.push(makeRow('false_positive'));
+    const verdict = voiceStyleLog.evaluatePromotion(SAMPLE_POLICY, rows);
+    assertEqual(verdict.met, true, 'met is true when the rule is satisfied');
+    assertEqual(verdict.next_rung, 'blocking', 'next_rung is one rung up from logged');
+    assertTrue(typeof verdict.edit_line === 'string' && verdict.edit_line.length > 0, 'edit_line is a non-empty string');
+  });
+
+  record('evaluatePromotion: a labeled log exceeding max_false_positive_rate returns met:false', () => {
+    const rows = [];
+    for (let i = 0; i < 3; i += 1) rows.push(makeRow('true_positive'));
+    for (let i = 0; i < 5; i += 1) rows.push(makeRow('false_positive'));
+    const verdict = voiceStyleLog.evaluatePromotion(SAMPLE_POLICY, rows);
+    assertEqual(verdict.met, false, 'met is false when the false-positive rate exceeds the threshold');
+  });
+
+  record('evaluatePromotion: calling it twice leaves the log file mtime unchanged and does not mutate the input array', () => {
+    voiceStyleLog.appendVoiceStyleRow({ policy_id: 'voice-hyphens-only', result: 'true_positive', detail: 'fixture row' });
+    const lp = voiceStyleLog.voiceStyleLogPath();
+    const rows = voiceStyleLog.readVoiceStyleRows(lp);
+    const snapshotBefore = JSON.stringify(rows);
+    const mtimeBefore = fs.statSync(lp).mtimeMs;
+    voiceStyleLog.evaluatePromotion(SAMPLE_POLICY, rows);
+    voiceStyleLog.evaluatePromotion(SAMPLE_POLICY, rows);
+    const mtimeAfter = fs.statSync(lp).mtimeMs;
+    assertEqual(mtimeAfter, mtimeBefore, 'log file mtime unchanged across two evaluatePromotion calls');
+    assertEqual(JSON.stringify(rows), snapshotBefore, 'the input rows array is not mutated');
   });
 
   // -------------------------------------------------------------------
