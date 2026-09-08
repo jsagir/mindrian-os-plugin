@@ -61,6 +61,9 @@ const chainSource = require(path.join(REPO_ROOT, 'lib', 'workflow', 'chain-sourc
 // (Larry NEVER names a /mos: from memory; every command came from
 // composeWorkflow / the generated registry).
 const ranker = require(path.join(REPO_ROOT, 'lib', 'workflow', 'f-selector-ranker.cjs'));
+// Phase 311 (SEED-052, D-04/D-05): reuse the already-shipped identity
+// checker; no second admin-identity heuristic.
+const { checkAdminIdentity } = require(path.join(REPO_ROOT, 'scripts', 'check-admin-identity.cjs'));
 const dispatcher = require(path.join(REPO_ROOT, 'lib', 'hmi', 'selector-dispatcher.cjs'));
 const jtbdTaxonomy = require(path.join(REPO_ROOT, 'lib', 'hmi', 'jtbd-taxonomy.json'));
 
@@ -331,12 +334,15 @@ function main(argv) {
   if (roomState.activeJtbd) rankerRoomState.activeJtbd = roomState.activeJtbd;
   let rankedItems = [];
   try {
+    // Phase 311 (SEED-052, D-04): computed per call, no caching.
+    const isAdmin = checkAdminIdentity().admin === true;
     rankedItems = ranker.rankForSelector({
       jtbd: roomState.activeJtbd || null,
       problemType: roomState.problemType || null,
       roomState: rankerRoomState,
       packetOptional: null,
       k: 3,
+      isAdmin,
     });
   } catch (_e) {
     rankedItems = [];
