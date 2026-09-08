@@ -59,9 +59,10 @@ function insertNode(db, node) {
   const now = Date.now();
   db.prepare(
     "INSERT INTO nodes (id, type, properties, source_path, created_by, confidence, review_status, created_at, last_seen_at, source_section) " +
-    "VALUES (?, ?, '{}', ?, ?, ?, ?, ?, ?, ?)"
+    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
   ).run(
-    node.id, node.type, node.source_path || node.id, node.created_by || 'user',
+    node.id, node.type, (typeof node.properties === 'string') ? node.properties : '{}',
+    node.source_path || node.id, node.created_by || 'user',
     (typeof node.confidence === 'number') ? node.confidence : null,
     node.review_status || 'proposed', now, now, node.source_section || node.source_path || node.id
   );
@@ -124,6 +125,46 @@ ok('exactly two candidates surface', candidates.length === 2);
 
 // defensive: bad handle returns [] and never throws.
 ok('null db returns [] (defensive)', Array.isArray(navigation.findGovernanceCandidates(null, 'r', {})) && navigation.findGovernanceCandidates(null, 'r', {}).length === 0);
+
+// (e) a proposed claim node whose properties blob carries text + knowledge_type
+// surfaces with claim_text and knowledge_type populated (Phase 298-04, D-01).
+// This also discharges D-03's ask for a throwaway-db unit test of the
+// proposed-node SQL path -- this harness already exists here, reused rather than
+// duplicated (Canon Part 7).
+insertNode(db, {
+  id: 'claim:epsilon',
+  type: 'claim',
+  confidence: 0.61,
+  review_status: 'proposed',
+  source_path: 'strategy/epsilon',
+  properties: JSON.stringify({ text: 'Users abandon onboarding at step 3', knowledge_type: 'causal' }),
+});
+
+// (f) a proposed claim node whose properties column holds a malformed string
+// still surfaces, with claim_text and knowledge_type null, and the call does
+// not throw.
+insertNode(db, {
+  id: 'claim:zeta',
+  type: 'claim',
+  confidence: 0.61,
+  review_status: 'proposed',
+  source_path: 'strategy/zeta',
+  properties: '{not valid json',
+});
+
+const candidatesEF = navigation.findGovernanceCandidates(db, 'test-room', {});
+const epsilon = candidatesEF.find((c) => c.candidate_id === 'claim:epsilon');
+const zeta = candidatesEF.find((c) => c.candidate_id === 'claim:zeta');
+const typedClaim = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'typed-claim.cjs'));
+
+ok('(e) claim:epsilon surfaces', !!epsilon);
+ok('(e) claim_text populated from properties blob', !!epsilon && epsilon.claim_text === 'Users abandon onboarding at step 3');
+ok('(e) knowledge_type populated from properties blob', !!epsilon && epsilon.knowledge_type === 'causal');
+ok('(e) knowledge_type is a member of the closed KNOWLEDGE_TYPES set', !!epsilon && typedClaim.KNOWLEDGE_TYPES.has(epsilon.knowledge_type));
+
+ok('(f) claim:zeta still surfaces despite a malformed properties blob', !!zeta);
+ok('(f) claim_text is null on a malformed blob', !!zeta && zeta.claim_text === null);
+ok('(f) knowledge_type is null on a malformed blob', !!zeta && zeta.knowledge_type === null);
 
 db.close();
 
