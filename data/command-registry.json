@@ -6,6 +6,7 @@
       "command": "/mos:act",
       "kind": "meta",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -23,6 +24,7 @@
       "command": "/mos:admin",
       "kind": "utility",
       "surface": "internal",
+      "visibility": "admin",
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -40,6 +42,7 @@
       "command": "/mos:agentshield",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -57,6 +60,7 @@
       "command": "/mos:analyze-needs",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -78,6 +82,7 @@
       "command": "/mos:analyze-systems",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Systems Thinking"
       ],
@@ -97,6 +102,7 @@
       "command": "/mos:analyze-timing",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "S-Curve Analysis",
         "Adoption-Capacity Theory"
@@ -117,6 +123,7 @@
       "command": "/mos:auto-explore",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -136,6 +143,7 @@
       "command": "/mos:beautiful-question",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Beautiful Question Framework"
       ],
@@ -156,6 +164,7 @@
       "command": "/mos:bono",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Six Thinking Hats"
       ],
@@ -176,6 +185,7 @@
       "command": "/mos:brain-derive",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -193,6 +203,7 @@
       "command": "/mos:build-knowledge",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Ackoff Pyramid"
       ],
@@ -212,6 +223,7 @@
       "command": "/mos:build-thesis",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "PWS Value Proposition"
       ],
@@ -232,6 +244,7 @@
       "command": "/mos:causal",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Root Cause Analysis"
       ],
@@ -252,6 +265,7 @@
       "command": "/mos:challenge-assumptions",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Red Teaming"
       ],
@@ -272,6 +286,7 @@
       "command": "/mos:compare-ventures",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "PWS Triple Validation Compass"
       ],
@@ -291,6 +306,7 @@
       "command": "/mos:correct-reference-now",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -308,6 +324,7 @@
       "command": "/mos:dashboard",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -326,6 +343,7 @@
       "command": "/mos:deck",
       "kind": "mechanical",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": "",
       "executable": null,
@@ -343,6 +361,7 @@
       "command": "/mos:deep-grade",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "PWS Triple Validation Compass"
       ],
@@ -365,6 +384,7 @@
       "command": "/mos:diagnose",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Problem Definition Transformation Framework"
       ],
@@ -384,6 +404,7 @@
       "command": "/mos:diagnostics",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "HSI Semantic Surprise Analysis Assistant"
       ],
@@ -403,6 +424,7 @@
       "command": "/mos:dial-memory-refresh",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": "room/*/FEYNMAN.md",
       "executable": null,
@@ -421,6 +443,7 @@
       "command": "/mos:diffusion",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Adoption-Capacity Theory"
       ],
@@ -440,6 +463,7 @@
       "command": "/mos:discover",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -459,6 +483,7 @@
       "command": "/mos:doctor",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -476,6 +501,7 @@
       "command": "/mos:dogfood-flush",
       "kind": "utility",
       "surface": "internal",
+      "visibility": "admin",
       "frameworks": [],
       "produces": "~/MindrianRooms/mindrian/STATE.md",
       "executable": null,
@@ -493,6 +519,7 @@
       "command": "/mos:dominant-designs",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Dominant Design"
       ],
@@ -512,6 +539,7 @@
       "command": "/mos:eureka",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -530,6 +558,7 @@
       "command": "/mos:explain-decision",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -547,6 +576,7 @@
       "command": "/mos:explore-domains",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Domain Selection"
       ],
@@ -568,6 +598,7 @@
       "command": "/mos:explore-futures",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Scenario Planning"
       ],
@@ -588,6 +619,7 @@
       "command": "/mos:explore-opportunity",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -605,6 +637,7 @@
       "command": "/mos:explore-trends",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "S-Curve Analysis"
       ],
@@ -625,6 +658,7 @@
       "command": "/mos:export",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -642,6 +676,7 @@
       "command": "/mos:feynman-timeline-refresh",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": "room/*/FEYNMAN.md",
       "executable": null,
@@ -660,6 +695,7 @@
       "command": "/mos:file-meeting",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -677,6 +713,7 @@
       "command": "/mos:find-analogies",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Four Lenses of Innovation"
       ],
@@ -696,6 +733,7 @@
       "command": "/mos:find-bottlenecks",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -715,6 +753,7 @@
       "command": "/mos:find-connections",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Usher's Model of Cumulative Synthesis"
       ],
@@ -734,6 +773,7 @@
       "command": "/mos:funding",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -752,6 +792,7 @@
       "command": "/mos:futures",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Futures Wheel"
       ],
@@ -772,6 +813,7 @@
       "command": "/mos:grade-grant",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": "room/**/grades/*",
       "executable": null,
@@ -792,6 +834,7 @@
       "command": "/mos:grade",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "PWS Triple Validation Compass"
       ],
@@ -813,6 +856,7 @@
       "command": "/mos:graph",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -831,6 +875,7 @@
       "command": "/mos:hat-briefing",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Six Thinking Hats"
       ],
@@ -850,6 +895,7 @@
       "command": "/mos:heal",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -867,6 +913,7 @@
       "command": "/mos:help",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -884,6 +931,7 @@
       "command": "/mos:hmi-status",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -901,6 +949,7 @@
       "command": "/mos:ignite",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -919,6 +968,7 @@
       "command": "/mos:ingest-methodology",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -936,6 +986,7 @@
       "command": "/mos:intel-pipeline",
       "kind": "meta",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -953,6 +1004,7 @@
       "command": "/mos:jtbd",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -972,6 +1024,7 @@
       "command": "/mos:leadership",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Adaptive Leadership"
       ],
@@ -991,6 +1044,7 @@
       "command": "/mos:lean-canvas",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Lean Canvas"
       ],
@@ -1011,6 +1065,7 @@
       "command": "/mos:macro-trends",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "PEST Analysis"
       ],
@@ -1030,6 +1085,7 @@
       "command": "/mos:map-unknowns",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Knowns and Unknowns Matrix Framework"
       ],
@@ -1049,6 +1105,7 @@
       "command": "/mos:memory-cortex-reach",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1066,6 +1123,7 @@
       "command": "/mos:memory",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1083,6 +1141,7 @@
       "command": "/mos:models",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1100,6 +1159,7 @@
       "command": "/mos:mos-reason",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "The Pyramid Principle"
       ],
@@ -1119,6 +1179,7 @@
       "command": "/mos:mos",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1136,6 +1197,7 @@
       "command": "/mos:mullins",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Mullins Model"
       ],
@@ -1155,6 +1217,7 @@
       "command": "/mos:mva-brief",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1172,6 +1235,7 @@
       "command": "/mos:mva-option",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1189,6 +1253,7 @@
       "command": "/mos:mva-report",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1206,6 +1271,7 @@
       "command": "/mos:new-project",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1223,6 +1289,7 @@
       "command": "/mos:new-surface",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1240,6 +1307,7 @@
       "command": "/mos:onboard",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1257,6 +1325,7 @@
       "command": "/mos:operator",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1274,6 +1343,7 @@
       "command": "/mos:opportunities",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1291,6 +1361,7 @@
       "command": "/mos:organize",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1308,6 +1379,7 @@
       "command": "/mos:persona",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Six Thinking Hats"
       ],
@@ -1327,6 +1399,7 @@
       "command": "/mos:pipeline",
       "kind": "meta",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1344,6 +1417,7 @@
       "command": "/mos:present",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1361,6 +1435,7 @@
       "command": "/mos:publish",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1378,6 +1453,7 @@
       "command": "/mos:pws-brain",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1395,6 +1471,7 @@
       "command": "/mos:qualify-opportunity",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1412,6 +1489,7 @@
       "command": "/mos:query",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1430,6 +1508,7 @@
       "command": "/mos:radar",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1447,6 +1526,7 @@
       "command": "/mos:reanalyze",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1464,6 +1544,7 @@
       "command": "/mos:research",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Hypothesis-Driven Problem Solving"
       ],
@@ -1484,6 +1565,7 @@
       "command": "/mos:room",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1501,6 +1583,7 @@
       "command": "/mos:rooms",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1518,6 +1601,7 @@
       "command": "/mos:root-cause",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Root Cause Analysis"
       ],
@@ -1537,6 +1621,7 @@
       "command": "/mos:rs-experts",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -1557,6 +1642,7 @@
       "command": "/mos:rs-explain",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -1576,6 +1662,7 @@
       "command": "/mos:rs-fetch",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -1596,6 +1683,7 @@
       "command": "/mos:rs-thesis",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Reverse Salient Analysis"
       ],
@@ -1615,6 +1703,7 @@
       "command": "/mos:scenario-plan",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Scenario Planning"
       ],
@@ -1635,6 +1724,7 @@
       "command": "/mos:scheduled-tasks",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1652,6 +1742,7 @@
       "command": "/mos:score-innovation",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "HSI Semantic Surprise Analysis Assistant"
       ],
@@ -1672,6 +1763,7 @@
       "command": "/mos:scout",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1690,6 +1782,7 @@
       "command": "/mos:setup",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1707,6 +1800,7 @@
       "command": "/mos:show",
       "kind": "mechanical",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": "",
       "executable": null,
@@ -1725,6 +1819,7 @@
       "command": "/mos:skill",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1742,6 +1837,7 @@
       "command": "/mos:snapshot",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": {
@@ -1766,6 +1862,7 @@
       "command": "/mos:speakers",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1783,6 +1880,7 @@
       "command": "/mos:splash",
       "kind": "utility",
       "surface": "internal",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1800,6 +1898,7 @@
       "command": "/mos:stance",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1817,6 +1916,7 @@
       "command": "/mos:status",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1835,6 +1935,7 @@
       "command": "/mos:structure-argument",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "The Pyramid Principle",
         "MECE (Mutually Exclusive, Collectively Exhaustive)"
@@ -1856,6 +1957,7 @@
       "command": "/mos:suggest-next",
       "kind": "meta",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1874,6 +1976,7 @@
       "command": "/mos:systems-thinking",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Systems Thinking"
       ],
@@ -1893,6 +1996,7 @@
       "command": "/mos:think-hats",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Six Thinking Hats"
       ],
@@ -1913,6 +2017,7 @@
       "command": "/mos:trending-to-absurd",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "S-Curve Analysis"
       ],
@@ -1933,6 +2038,7 @@
       "command": "/mos:update",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -1950,6 +2056,7 @@
       "command": "/mos:user-needs",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -1969,6 +2076,7 @@
       "command": "/mos:validate",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -1990,6 +2098,7 @@
       "command": "/mos:validate-proposition",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "PWS Value Proposition"
       ],
@@ -2010,6 +2119,7 @@
       "command": "/mos:vault",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -2027,6 +2137,7 @@
       "command": "/mos:visualize",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,
@@ -2045,6 +2156,7 @@
       "command": "/mos:whitespace",
       "kind": "methodology",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [
         "HSI Semantic Surprise Analysis Assistant"
       ],
@@ -2065,6 +2177,7 @@
       "command": "/mos:wiki",
       "kind": "utility",
       "surface": "navigator",
+      "visibility": null,
       "frameworks": [],
       "produces": null,
       "executable": null,

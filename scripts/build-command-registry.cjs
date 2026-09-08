@@ -305,6 +305,16 @@ function buildRegistry() {
     const name = typeof fm.name === 'string' && fm.name ? fm.name : f.replace(/\.md$/, '');
     const command = '/mos:' + name;
     const kind = typeof fm.kind === 'string' && fm.kind ? fm.kind : 'utility';
+    // Phase 311 (SEED-052, smallest slice): extract `visibility` (currently
+    // only the literal `admin`) mirroring the existing `teaching` block below.
+    // This is the authored admin-visibility marker the D4 scorer
+    // (lib/workflow/f-selector-ranker.cjs) filters on -- mirrored here so the
+    // scorer never needs a second command-metadata source. Trimmed string or
+    // null (absent on 111 of 113 commands today).
+    const visibility =
+      typeof fm.visibility === 'string' && fm.visibility.trim() !== ''
+        ? fm.visibility.trim()
+        : null;
     const frameworks = Array.isArray(fm.frameworks) ? fm.frameworks.slice() : [];
     const produces = fm.produces === undefined ? null : fm.produces;
     const inputs = Array.isArray(fm.inputs) ? fm.inputs.slice() : [];
@@ -366,6 +376,7 @@ function buildRegistry() {
       command,
       kind,
       surface,
+      visibility,
       frameworks,
       produces,
       executable,
