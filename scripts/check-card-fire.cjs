@@ -157,6 +157,14 @@ const PLUGIN_ROOT = path.resolve(__dirname, '..');
 // its final intercept. Pure LOCAL string work, never throws (Part 8).
 const gateRelevance = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'gate-relevance.cjs'));
 
+// Phase 298-03: the transcript reader (readTranscriptTurn/readTranscriptTail plus the
+// four helper functions it used) moved to lib/hmi/turn-text.cjs, the single transcript
+// reader shared with a later Stop-hook consumer (298-07). This file keeps
+// gateSignature/matchedGlyphSpan (card-fire-domain logic that needs gateRelevance
+// above) and recomputes askuserquestion_fired + gate_signature locally from what
+// turn-text.cjs returns.
+const turnText = require('../lib/hmi/turn-text.cjs');
+
 // 238-05 Task 2 (GATE-03 half B, lost-update fix): NOTE this file does NOT
 // require lib/core/write-lock.cjs. D-05 called for reusing its acquireLock/
 // releaseLock unchanged; adversarial testing found a real TOCTOU race in
@@ -242,12 +250,9 @@ const RETRY_TTL_MS = 24 * 60 * 60 * 1000;
 // SAME RETRY_TTL_MS as the retry side-file (WR-02) so it cannot grow without bound.
 const INTERCEPT_LOG_TEXT_CAP = 4000;
 
-// WR-08: the transcript-read tail cap. readTranscriptTurn reads at most the LAST this-many
-// bytes of the transcript file so a pathological multi-hundred-MB Stop transcript cannot
-// stall the 3000ms hook. Detection semantics are unchanged: the LAST assistant message and
-// its gate signature both live at the tail. 2 MiB comfortably holds many recent turns; a
-// partial leading line introduced by the byte cut is dropped by the per-line JSON try/catch.
-const TRANSCRIPT_TAIL_BYTES = 2 * 1024 * 1024;
+// WR-08 (298-03): the transcript-read tail cap moved to lib/hmi/turn-text.cjs
+// (TRANSCRIPT_TAIL_BYTES) along with readTranscriptTail itself; re-exported below as
+// turnText.TRANSCRIPT_TAIL_BYTES so this file's own export name is unchanged.
 
 // The ASCII-box gate glyphs / literal anti-pattern the BACKSTOP scans for. A reached
 // gate that renders as flat text instead of firing the card carries these.
@@ -1387,9 +1392,15 @@ function silentSuccess() {
 // ---------------------------------------------------------------------------
 // readTranscriptTurn(transcriptPath) -- parse the Stop-hook transcript JSONL and extract
 // the signals a transcript can yield. Mirrors the scripts/on-stop:33 idiom: the Stop hook
-// delivers a `transcript_path` (a LOCAL .jsonl file, one JSON object per line); we read it,
-// walk the lines, and pull:
-//   - output_text         : the text of the LAST assistant message (drives the BACKSTOP).
+// delivers a `transcript_path` (a LOCAL .jsonl file, one JSON object per line).
+//
+// Phase 298-03: the parse walk itself (WR-08 tail-capped read, per-line JSON parse,
+// role:user window reset, assistant-content collection) moved to
+// lib/hmi/turn-text.cjs::readTurnText, the single transcript reader shared with a
+// later Stop-hook consumer (298-07). This function is now a thin wrapper: it calls
+// turnText.readTurnText for the shared parse, then computes the two fields that stay
+// card-fire DOMAIN logic (they need gateRelevance / ASCII_BOX_GLYPH_RE, which
+// turn-text.cjs deliberately does not depend on):
 //   - askuserquestion_fired: true ONLY if the LAST assistant message fired the AskUserQuestion
 //                            card. Scoped to the SAME message that produced output_text (WR-06):
 //                            a STALE earlier card must NOT suppress interception of the CURRENT
@@ -1400,209 +1411,34 @@ function silentSuccess() {
 //                            Anchored on the GATE, never the user message and never an assistant
 //                            counter, so the no-role:user path has no livelock hole (CR-03) and
 //                            two distinct gates get distinct counters (WR-07).
-// WR-08 (read cap): only the LAST TRANSCRIPT_TAIL_BYTES of the file are read, so a pathological
-// multi-hundred-MB transcript cannot stall the 3000ms hook. The LAST assistant message and its
-// gate signature live at the tail; a partial leading line from the byte cut is dropped by the
-// per-line JSON try/catch -- detection semantics unchanged.
 // Defensive (Part 8 / on-stop discipline): a missing / unreadable / malformed transcript
-// returns empty signals; NEVER throws. The transcript content stays LOCAL -- read, scanned,
-// discarded; never egressed (gate_signature is a sha256 hash, not the message text itself).
+// returns empty signals; NEVER throws (turnText.readTurnText already degrades this way; this
+// wrapper's own additions -- scanContentForAskUserQuestion and gateSignature -- are themselves
+// never-throw). The transcript content stays LOCAL -- read, scanned, discarded; never egressed
+// (gate_signature is a sha256 hash, not the message text itself).
 // ---------------------------------------------------------------------------
 function readTranscriptTurn(transcriptPath) {
-  const empty = {
-    output_text: '',
-    askuserquestion_fired: false,
-    gate_signature: '',
-    preceding_user_text: '',
-    preceding_user_text_source: 'none',
-  };
-  if (typeof transcriptPath !== 'string' || !transcriptPath.trim()) return empty;
-  const raw = readTranscriptTail(transcriptPath);
-  if (raw === null) return empty;
-  let lastAssistantText = '';
-  // WR-06 (Phase 209-07, H2 widened): askFired is now an OR across every assistant
-  // message of the CURRENT TURN (since the last role:user record), not the LAST
-  // assistant message alone. The original Wave-1 fix (LAST-message-only) closed the
-  // whole-transcript cross-turn bleed but over-corrected: a turn where the card
-  // fires in an earlier assistant message and a LATER assistant message in the SAME
-  // turn happens to carry gate-shaped text (e.g. a recap) would classify as no-card.
-  // currentTurnAssistantContents collects every assistant message's content since
-  // the last user boundary and RESETS on each role:user record, so:
-  //   - fired-then-glyph within one turn -> askFired true (the fix).
-  //   - a stale card from turn N does NOT mask a no-card box in turn N+1 (the
-  //     original WR-06 cross-turn bleed stays fixed -- a user record resets the
-  //     window).
-  // CR-03 INVARIANT (unchanged, restated): user messages bound the WINDOW only.
-  // They are NEVER folded into gate_signature or turnContextHash -- the retry key
-  // is anchored on gate-identifying CONTENT alone (below), never on message counts
-  // or user-message presence/absence. A transcript with no role:user record (a
-  // compaction summary lead, or an auto-fire-before-the-user-types flow) is simply
-  // ONE window spanning the whole tail (the degenerate case: the reset never fires,
-  // so all assistant messages accumulate) -- this is intentional, not a gap.
-  let currentTurnAssistantContents = [];
-  // Phase 210-05 (item 210-E-1): capture the LAST role:user record's text so the
-  // relevance predicate can see the preceding user turn. Per the CR-03 invariant
-  // (restated above) this text feeds ONLY the relevance verdict in classifyCardFire;
-  // it is NEVER folded into gate_signature or turnContextHash.
-  let lastPrecedingUserText = '';
-  // room-bind-gate-fires-on-notification-only-turns (2026-07-23): the source
-  // classification alongside lastPrecedingUserText -- 'typed' | 'tool_result' | 'none'
-  // (see classifyPrecedingUserContentSource). Feeds ONLY the PRIMARY-path relevance
-  // check in classifyCardFire, same CR-03 scoping as lastPrecedingUserText itself.
-  let lastPrecedingUserTextSource = 'none';
-  const lines = raw.split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    let obj;
-    try {
-      obj = JSON.parse(trimmed);
-    } catch (_e) {
-      continue; // skip a malformed line, never throw (also drops the WR-08 partial head line)
-    }
-    if (!obj || typeof obj !== 'object') continue;
-    const msg = obj.message && typeof obj.message === 'object' ? obj.message : obj;
-    const role = msg.role || obj.type;
-    if (role === 'user') {
-      // A user record resets the CURRENT-TURN window (T-209-29): a card fired in a
-      // PRIOR turn must never mask a no-card box in the NEXT turn. It is NEVER part
-      // of the retry key (CR-03 above). Phase 210-05 adds ONE more use: the LAST
-      // user record's text is captured for the relevance verdict (and ONLY that
-      // verdict -- never the signature, never the hash).
-      const userContent = (msg.content !== undefined && msg.content !== null)
-        ? msg.content
-        : (obj.content !== undefined ? obj.content : null);
-      lastPrecedingUserText = extractAssistantText(userContent);
-      lastPrecedingUserTextSource = classifyPrecedingUserContentSource(userContent);
-      currentTurnAssistantContents = [];
-      continue;
-    }
-    if (role === 'assistant') {
-      const text = extractAssistantText(msg.content);
-      if (text) lastAssistantText = text;
-      // Prefer the message.content; fall back to a top-level obj.content only when
-      // this same record carries it (no cross-record bleed).
-      const content = (msg.content !== undefined && msg.content !== null)
-        ? msg.content
-        : (obj.content !== undefined ? obj.content : null);
-      currentTurnAssistantContents.push(content);
-    }
-  }
+  const turn = turnText.readTurnText(transcriptPath);
   // H2: askFired is an OR across every assistant message since the last user
   // boundary (the CURRENT turn), not the last message alone.
-  const askFired = currentTurnAssistantContents.some(scanContentForAskUserQuestion);
+  const askFired = turn.assistant_contents.some(turnText.scanContentForAskUserQuestion);
   // CR-03 / WR-07 ROOT ANCHOR: the gate signature over the LAST assistant message's
   // gate-identifying content (Part 8: a sha256 hash, the raw message text never leaves this
   // function). Growth-invariant, per-gate, present whenever a gate is detected.
-  const gateSig = gateSignature(lastAssistantText);
+  const gateSig = gateSignature(turn.output_text);
   return {
-    output_text: lastAssistantText,
+    output_text: turn.output_text,
     askuserquestion_fired: askFired,
     gate_signature: gateSig,
-    preceding_user_text: lastPrecedingUserText,
-    preceding_user_text_source: lastPrecedingUserTextSource,
+    preceding_user_text: turn.preceding_user_text,
+    preceding_user_text_source: turn.preceding_user_text_source,
   };
 }
 
-// readTranscriptTail(transcriptPath) -- WR-08: read at most the LAST TRANSCRIPT_TAIL_BYTES of
-// the transcript file. For a file at or under the cap this is a plain read; for a larger file
-// we open a descriptor, stat the size, and read only the trailing window. Returns the UTF-8
-// string, or null on any error (the caller degrades to empty signals). Never throws.
-function readTranscriptTail(transcriptPath) {
-  let fd = null;
-  try {
-    const st = fs.statSync(transcriptPath);
-    const size = st.size;
-    if (size <= TRANSCRIPT_TAIL_BYTES) {
-      return fs.readFileSync(transcriptPath, 'utf8');
-    }
-    fd = fs.openSync(transcriptPath, 'r');
-    const start = size - TRANSCRIPT_TAIL_BYTES;
-    const buf = Buffer.alloc(TRANSCRIPT_TAIL_BYTES);
-    const bytesRead = fs.readSync(fd, buf, 0, TRANSCRIPT_TAIL_BYTES, start);
-    return buf.slice(0, bytesRead).toString('utf8');
-  } catch (_e) {
-    return null;
-  } finally {
-    if (fd !== null) {
-      try { fs.closeSync(fd); } catch (_e2) { /* best-effort */ }
-    }
-  }
-}
-
-// extractAssistantText(content) -- flatten an assistant message's content into text. Content
-// is either a plain string or an array of blocks; we concatenate the text blocks. Never throws.
-function extractAssistantText(content) {
-  if (typeof content === 'string') return content;
-  if (!Array.isArray(content)) return '';
-  const parts = [];
-  for (const block of content) {
-    if (typeof block === 'string') { parts.push(block); continue; }
-    if (block && typeof block === 'object' && typeof block.text === 'string') {
-      parts.push(block.text);
-    }
-  }
-  return parts.join('\n');
-}
-
-// classifyPrecedingUserContentSource(content) -- room-bind-gate-fires-on-notification-only-turns
-// (2026-07-23): distinguishes a genuinely HUMAN-typed preceding user turn from a SYNTHETIC
-// transcript record that merely carries the role:user marker with no human-authored text at
-// all -- a tool_result envelope (a background tool call's result, e.g. a Gmail create_draft
-// response) or an automated task-notification block (a background subagent's completion
-// notice, which Claude Code surfaces as a role:user record with no natural-language text
-// field). extractAssistantText correctly (if unhelpfully) resolves BOTH shapes to '', which
-// pre-fix code could not distinguish from a genuinely short/terse HUMAN turn ("ok", "go on")
-// -- the exact conflation live-session-running-stale-plugin-cache-fixes-inert.md's 2026-07-06
-// evidence entry diagnosed and this fix separates. Returns one of:
-//   'typed'       - at least one block carries real human-authored text (or a non-empty bare
-//                   string) -- KEEP the existing conservative force-floor for this case.
-//   'tool_result' - every content block is a tool_result / non-text synthetic envelope, so
-//                   NO human text field exists anywhere in the record -- the PRIMARY-path
-//                   relevance check must NOT treat this as "insufficient signal from a human",
-//                   because there was no human turn to have insufficient signal.
-//   'none'        - no content at all (null/undefined/empty array/empty string) -- an
-//                   unexplained absence, not a CONFIRMED synthetic record; stays conservative.
-// Never throws.
-function classifyPrecedingUserContentSource(content) {
-  try {
-    if (typeof content === 'string') {
-      return content.trim() ? 'typed' : 'none';
-    }
-    if (!Array.isArray(content) || content.length === 0) return 'none';
-    let sawSynthetic = false;
-    for (const block of content) {
-      if (typeof block === 'string') {
-        if (block.trim()) return 'typed';
-        continue;
-      }
-      if (block && typeof block === 'object') {
-        if (typeof block.text === 'string' && block.text.trim()) return 'typed';
-        // A tool_result block (type:'tool_result', or carrying a tool_use_id) is the
-        // CONFIRMED synthetic shape from the RCA evidence. Any other object-shaped block
-        // with no text field is treated the same way (never promoted to 'typed' on a guess).
-        sawSynthetic = true;
-      }
-    }
-    return sawSynthetic ? 'tool_result' : 'none';
-  } catch (_e) {
-    return 'none';
-  }
-}
-
-// scanContentForAskUserQuestion(content) -- true if any tool_use block names the
-// AskUserQuestion tool. Tolerates string content, a single block, or an array. Never throws.
-function scanContentForAskUserQuestion(content) {
-  if (!content) return false;
-  const blocks = Array.isArray(content) ? content : [content];
-  for (const block of blocks) {
-    if (!block || typeof block !== 'object') continue;
-    const isToolUse = block.type === 'tool_use' || typeof block.name === 'string';
-    const name = typeof block.name === 'string' ? block.name : '';
-    if (isToolUse && /AskUserQuestion/i.test(name)) return true;
-  }
-  return false;
-}
+// readTranscriptTail(transcriptPath) -- re-exported from lib/hmi/turn-text.cjs (298-03 lift);
+// this file's own export name is unchanged so lib/mcp/stop-gate-handler.cjs and any other
+// consumer of check-card-fire.cjs's exports.readTranscriptTail keep working unmodified.
+const readTranscriptTail = turnText.readTranscriptTail;
 
 // ---------------------------------------------------------------------------
 // sidechannelReachIsFresh(sidechannelModule, sessionId) -- Phase 238-08 (GATE-04,
@@ -1919,7 +1755,7 @@ module.exports = {
   MAX_SESSION_INTERCEPTS,
   SESSION_KEY_PREFIX,
   RETRY_TTL_MS,
-  TRANSCRIPT_TAIL_BYTES,
+  TRANSCRIPT_TAIL_BYTES: turnText.TRANSCRIPT_TAIL_BYTES,
   ASCII_BOX_GLYPH_RE,
   computeBackstopHit,
   matchedGlyphSpan,
@@ -1932,7 +1768,7 @@ module.exports = {
   consumeReachedGatesForVerdict,
   readTranscriptTurn,
   readTranscriptTail,
-  classifyPrecedingUserContentSource,
+  classifyPrecedingUserContentSource: turnText.classifyPrecedingUserContentSource,
   pruneRetryStore,
   normalizeRetryEntry,
   sessionKey,
