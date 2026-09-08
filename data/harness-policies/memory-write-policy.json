@@ -10,7 +10,7 @@
   "pinned_by": ["tests/test-189-governance-candidates.cjs", "tests/test-189-f8-governance-gate.cjs"],
   "applies_to": ["room"],
   "channels": {
-    "Belief": "the room graph, reached only through lib/core/navigation.cjs",
+    "Belief": "the room graph, reached only through navigation.cjs",
     "Progress": "STATE.md",
     "Experience": ".planning/seeds/ plus memory_event"
   },
