@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 318-01-PLAN.md
-last_updated: "2026-09-08T19:49:03.115Z"
-last_activity: 2026-09-08 -- Phase 318 execution and verification complete
+stopped_at: Completed 310-01-PLAN.md
+last_updated: "2026-09-08T20:22:07.131Z"
+last_activity: 2026-09-08 -- Phase 310 (SEED-051) execution complete, Step 5.5 abort-to-warn fix
 progress:
   total_phases: 90
-  completed_phases: 26
-  total_plans: 216
-  completed_plans: 215
+  completed_phases: 27
+  total_plans: 217
+  completed_plans: 216
   percent: 100
 ---
 
@@ -4185,14 +4185,45 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 318 (SEED-061: skillopt smoke calibration reconciliation) — COMPLETE, VERIFIED
+Phase: 310 (seed-051-release-tag-verify-window-too-tight) — EXECUTING
 Plan: 1 of 1
-Status: Phase complete and verified (318-VERIFICATION.md, status passed, 7/7 must-haves)
-Last activity: 2026-09-08 -- Phase 318 execution and verification complete (deterministic
-  exact-match null-negative reconciliation added to skillopt-funnel.cjs, closing SEED-061's
-  disclosed false-alarm bug for both the fresh-judge and resume-run paths; 0-of-23 correction
-  on the real Phase 230 corpus today, disclosed honestly, not overclaimed -- the guard is
-  load-bearing at fleet scale, human relabeling per SEED-061 step 2 stays the follow-up)
+Status: Plan 310-01 execution complete, ready for verification (310-01-SUMMARY.md written,
+  self-check passed; 3 tasks committed atomically -- f2703fc4, ace95be4, 34a20ed4)
+Last activity: 2026-09-08 -- Phase 310 (SEED-051) execution complete: scripts/release.sh Step
+  5.5's abort-vs-warn decision extracted into scripts/release-lib/verify-tag-push.sh
+  (mos_verify_tag_at_origin, 0/10/1 return-code contract), an independent
+  `git ls-remote origin refs/heads/main` sha-match check added as the "push demonstrably
+  succeeded" condition, and Step 5.5 rewired so a still-not-visible tag after retries now warns
+  and continues to Steps 9.8/10/11 instead of hard-aborting the release ceremony, but only when
+  that independent check confirms the push landed. bash tests/run-all-310.sh: PASS=9 FAIL=0
+  SKIP=2 (2 skips are a documented pre-existing, out-of-scope Step 9.7 test issue, not a
+  regression -- see deferred-items.md). doctor --acceptance --pre-flight: 1/1 passed. Zero real
+  git push, npm publish, or GitHub network call anywhere in this phase's own tests.
+
+<!-- NOTE (310-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` (no --phase/--plan args passed) again read the EXISTING
+     frontmatter Current Position (Phase 318, "Plan: 1 of 1", a single-plan phase already
+     complete/verified) rather than the phase actually being executed (310) -- not applicable
+     here, since 310 is a brand-new single-plan phase. It returned
+     `{advanced:false,reason:"last_plan",current_plan:1,total_plans:1,status:"ready_for_verification"}`
+     and wrote `status: verifying` into the frontmatter (accepted as written -- appropriate next
+     state) plus a DOWNGRADED body "Status" line ("Phase complete -- ready for verification",
+     dropping the prior "COMPLETE, VERIFIED" wording) while leaving the body's "## Current
+     Position" Phase/Plan/Last-activity content entirely on stale Phase 318 text.
+     `state.update-progress` correctly computed `percent: 100` in its own returned JSON
+     (completed_plans 216 / total_plans 217) but persisted a stale `percent: 30` into the
+     frontmatter -- hand-corrected to 100 above, same clobber class documented in the 311-close
+     note below. `completed_phases: 27`, `total_plans: 217`, `completed_plans: 216` were written
+     correctly (disk-scanned counts) and needed no fix. `last_activity` in the frontmatter was
+     left as the stale "Phase 318 execution and verification complete (deterministic" fragment
+     -- hand-corrected above. `state.add-decision --phase 310` wrote the decision entry
+     correctly with the literal `[Phase 310]` prefix (a named `--phase` flag was passed, so the
+     documented `[Phase ?]` bug did not reproduce). `state.record-session --stopped-at "Completed
+     310-01-PLAN.md"` correctly updated the frontmatter `stopped_at` AND the body's own "Stopped
+     at:" line under Session Continuity -- no correction needed on either. The body's "##
+     Current Position" section itself was hand-rewritten above (Phase 318 -> Phase 310, Status
+     rewritten to reflect execution-complete-pending-verification, Last activity replaced)
+     since no automated verb touched it correctly for this phase transition. -->
 
 <!-- NOTE (318-close, 2026-09-08, resync-clobber pattern, same class as the 311-close note
      below and every note throughout this file): `phase.complete`'s own `state_updated` call
@@ -5391,6 +5422,7 @@ Progress: [█████████░] 92%
 | 311 | 1 | - | - |
 | Phase 318 P01 | 35 | - tasks | - files |
 | 318 | 1 | - | - |
+| Phase 310 P01 | ~90 minutes | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -6915,6 +6947,7 @@ Progress: [█████████░] 92%
 - [Phase 298]: harness-policies blocker echoes run-harness.cjs's own parsed --json counts for its finding string, never a separately-computed tally
 - [Phase 311]: Wired opts.isAdmin fail-closed filter into f-selector-ranker.cjs, closing the live /mos:admin recommendation leak at the 3 navigator-facing rankForSelector call sites (navigation-engine-offer.cjs, unknowns/orchestrator.cjs, suggest-next-command.cjs), reusing checkAdminIdentity() per Canon Part 7; lib/hmi/dial-reach-orchestrator.cjs left untouched (proven via pinned sha256, its ranker output never reaches the navigator).
 - [Phase 318]: Fix landed in skillopt-funnel.cjs, not skillopt-genqueries.cjs (D-01); exact-match-only reconciliation, no fuzzy/semantic matching (D-02); positive index built roster-wide before --skills scoping (Finding 3); resume-path verdict force added in onSettle, closing a staleness hole found during implementation (Finding 5); measured 0 of 23 corrections on the real Phase 230 corpus, honestly reported rather than overclaiming D7 impact.
+- [Phase 310]: Extracted Step 5.5's abort-vs-warn decision into scripts/release-lib/verify-tag-push.sh (0/10/1 return-code contract) and added an independent git ls-remote origin refs/heads/main sha-match check as the push-demonstrably-succeeded condition; a still-not-visible tag now warns and continues instead of hard-aborting the release ceremony, but only when that independent check confirms the push landed. — SEED-051: the v1.15.0 stable release false alarm (2026-07-02) proved set -e alone is not sufficient evidence a combined git push origin main --tags fully landed; an explicit independent check was required per 310-CONTEXT.md.
 
 ### Pending Todos
 
@@ -7046,8 +7079,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T19:42:13.067Z
-Stopped at: Completed 318-01-PLAN.md
+Last session: 2026-09-08T20:22:07.062Z
+Stopped at: Completed 310-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
