@@ -314,6 +314,90 @@ function enumerateQueries(queriesDir, skillsFilter) {
 }
 
 // --------------------------------------------------------------------------
+// normalizeQueryText(s) - the ENTIRE normalization surface for the null-negative
+// reconciliation pass (CONTEXT.md D-02): collapse whitespace runs to one space,
+// trim, then lowercase. Reuses the existing oneLine helper (never a second
+// whitespace collapser). Anything beyond whitespace and case - punctuation
+// stripping, stemming, token reordering, any semantic or fuzzy similarity - is
+// exactly the fuzzy matching D-02 forbids.
+// --------------------------------------------------------------------------
+function normalizeQueryText(s) {
+  return oneLine(s).toLowerCase();
+}
+
+// --------------------------------------------------------------------------
+// buildPositiveIndex(items) - Map<normalizedQueryText, Set<expected_skill>>,
+// built from every should_trigger item carrying a non-empty string
+// expected_skill. Pure, no I/O. This is the roster-wide collision surface the
+// null-negative reconciliation pass matches against; callers MUST build it from
+// the FULL unfiltered item array (Finding 3) so a --skills scoped run still sees
+// positives owned by skills outside its scope.
+// --------------------------------------------------------------------------
+function buildPositiveIndex(items) {
+  const index = new Map();
+  for (const item of Array.isArray(items) ? items : []) {
+    if (!item || item.kind !== 'should_trigger') continue;
+    if (typeof item.expected_skill !== 'string') continue;
+    const skill = item.expected_skill.trim();
+    if (!skill) continue;
+    const key = normalizeQueryText(item.query);
+    if (!index.has(key)) index.set(key, new Set());
+    index.get(key).add(skill);
+  }
+  return index;
+}
+
+// --------------------------------------------------------------------------
+// reconcileNullNegatives(items, index) - D-02 exact-match correction pass. Pure
+// and synchronous; returns a NEW items array and never mutates an input item.
+// Rule table (applied per item, in this order):
+//   kind !== 'should_not_trigger'          -> pass through unchanged
+//   expected_skill != null                 -> pass through unchanged (already labeled)
+//   no index hit for the normalized text   -> pass through, push to remaining_null
+//   every candidate equals item.skill      -> pass through, push to remaining_null
+//   exactly one foreign candidate          -> corrected copy, push to corrections
+//   two+ distinct foreign candidates       -> pass through, push to ambiguous AND remaining_null
+// "Foreign candidate" = a candidate skill strictly different from item.skill.
+// Candidate lists are sorted before use so output ordering is deterministic.
+// --------------------------------------------------------------------------
+function reconcileNullNegatives(items, index) {
+  const list = Array.isArray(items) ? items : [];
+  const idx = index instanceof Map ? index : new Map();
+  const outItems = [];
+  const corrections = [];
+  const ambiguous = [];
+  const remaining_null = [];
+
+  for (const item of list) {
+    if (!item || item.kind !== 'should_not_trigger') { outItems.push(item); continue; }
+    if (item.expected_skill != null) { outItems.push(item); continue; }
+
+    const key = normalizeQueryText(item.query);
+    const candidates = idx.get(key);
+    if (!candidates || candidates.size === 0) {
+      outItems.push(item);
+      remaining_null.push({ skill: item.skill, unit_id: item.unit_id, query: item.query });
+      continue;
+    }
+
+    const foreign = Array.from(candidates).filter((c) => c !== item.skill).sort();
+    if (foreign.length === 0) {
+      outItems.push(item);
+      remaining_null.push({ skill: item.skill, unit_id: item.unit_id, query: item.query });
+    } else if (foreign.length === 1) {
+      outItems.push(Object.assign({}, item, { expected_skill: foreign[0] }));
+      corrections.push({ unit_id: item.unit_id, skill: item.skill, query: item.query, corrected_to: foreign[0] });
+    } else {
+      outItems.push(item);
+      ambiguous.push({ skill: item.skill, unit_id: item.unit_id, query: item.query, candidates: foreign });
+      remaining_null.push({ skill: item.skill, unit_id: item.unit_id, query: item.query });
+    }
+  }
+
+  return { items: outItems, corrections, ambiguous, remaining_null };
+}
+
+// --------------------------------------------------------------------------
 // classifySkills(units) - apply the locked flag rule per skill and build the
 // per-skill funnel-results rows. units = array of { item, unit, verdict? }.
 //   verdict 'not_evaluated' iff the skill has zero ok units.
@@ -375,7 +459,17 @@ async function runFunnel(opts) {
 
   const rosterText = buildRosterStubs(o.inventory || []);
   const skillsFilter = o.skills && o.skills.length ? new Set(o.skills) : null;
-  const items = enumerateQueries(queriesDir, skillsFilter);
+  // Finding 3: enumerate UNFILTERED and build the positive index from the FULL
+  // roster-wide array, then apply the caller's skill scope AFTER indexing. A
+  // --skills scoped smoke run would otherwise be blind to positives owned by
+  // skills outside the filter, which is where most of the collision surface
+  // lives. enumerateQueries's own signature and filter behavior stay unchanged
+  // so no other caller regresses.
+  const allItems = enumerateQueries(queriesDir, null);
+  const positiveIndex = buildPositiveIndex(allItems);
+  const scopedItems = skillsFilter ? allItems.filter((it) => skillsFilter.has(it.skill)) : allItems;
+  const labelReconciliation = reconcileNullNegatives(scopedItems, positiveIndex);
+  const items = labelReconciliation.items;
 
   fs.mkdirSync(unitsDir, { recursive: true });
 
@@ -427,7 +521,20 @@ async function runFunnel(opts) {
       if (unit) {
         if (unit.status === 'ok') okCount += 1; else notEvalCount += 1;
         spawnedCount += 1;
-        units.push({ item: res.item, unit, verdict: unit.payload || null });
+        // Finding 5: the persisted unit.payload's expected_skill is whatever label
+        // the PRIOR run used, which can be a stale null the current reconciliation
+        // has since corrected. Force the CURRENT (reconciled) item label onto the
+        // resumed verdict for scoring, mirroring the invariant judgeOneQuery already
+        // documents above ("Force the expected label onto the verdict..."). The
+        // persisted unit JSON on disk is NEVER rewritten; this override is in
+        // memory only, for scoring in THIS run.
+        let verdict = unit.payload || null;
+        if (verdict) {
+          verdict = Object.assign({}, verdict, {
+            expected_skill: res.item.expected_skill === undefined ? null : res.item.expected_skill,
+          });
+        }
+        units.push({ item: res.item, unit, verdict });
       }
       return;
     }
@@ -468,11 +575,20 @@ async function runFunnel(opts) {
   const reconciliation = { spawned: spawnedCount, ok: okCount, not_evaluated: notEvalCount };
   const reconcileOk = reconciliation.spawned === reconciliation.ok + reconciliation.not_evaluated;
 
+  // Additive key, deliberately named label_reconciliation (NOT reconciliation -
+  // that key already holds the D5 spawned/ok/not_evaluated identity above, and
+  // colliding the two would corrupt the no-silent-skip gate).
   const funnelResults = {
     reconciliation,
     reconcile_ok: reconcileOk,
     concurrency: cfg.concurrency,
     skills: results,
+    label_reconciliation: {
+      corrections: labelReconciliation.corrections,
+      corrected_count: labelReconciliation.corrections.length,
+      ambiguous_count: labelReconciliation.ambiguous.length,
+      remaining_null_count: labelReconciliation.remaining_null.length,
+    },
   };
 
   // Persist funnel-results.json (guarded) unless the caller is a pure in-memory test.
@@ -484,7 +600,7 @@ async function runFunnel(opts) {
     writeAtomic(target, JSON.stringify(funnelResults, null, 2) + '\n');
   }
 
-  return { results, reconciliation, reconcileOk, concurrency: cfg.concurrency, funnelResults };
+  return { results, reconciliation, reconcileOk, concurrency: cfg.concurrency, funnelResults, labelReconciliation };
 }
 
 // Persist a unit record + its .done sentinel (both guarded).
@@ -687,6 +803,9 @@ module.exports = {
   enumerateQueries,
   classifySkills,
   resolveFunnelConfig,
+  normalizeQueryText,
+  buildPositiveIndex,
+  reconcileNullNegatives,
   HARD_CAP_CONCURRENCY,
   PINNED_SONNET,
 };
