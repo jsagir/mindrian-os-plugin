@@ -1,12 +1,11 @@
 ---
 created: 2026-09-08T00:00:00.000Z
-title: Feed the runtime-HITL contract and gate-placement grid into Phase 299 discuss-phase
-area: phase-299-input
+title: Audit autonomous_safe posture against the reversibility x consequence grid
+area: harness-audit
 files:
-  - .planning/phases/298-seed-032-harness-as-code-declare-and-machine-enforce-the-min/298-CONTEXT.md
+  - lib/core/recipe-maps.cjs
   - lib/core/chain-executor.cjs
   - lib/mcp/tools/gate.cjs
-resolves_phase: "299"
 ---
 
 ## Problem
@@ -58,3 +57,18 @@ answers the gate" the intended and sufficient default already.
 
 Sibling seed carrying the knowledge-injection-axis half of the same source (graph-native
 query routing, not a Phase 299 input): `.planning/seeds/SEED-094-knowledge-layer-query-router-graph-traversal-vs-community-summary-vs-hybrid.md`.
+
+
+## Update 2026-09-08 (Phase 299 closed as absorbed by Phase 201)
+
+Phase 299 (SEED-033) closed as ABSORBED BY PHASE 201 during this session's discuss-phase pass:
+SEED-033's own two required-capability asks (L1 bounded retry, L2 graph-refine loop) were both
+already shipped in Phase 201 (COMPLETE 2026-07-02), two weeks after the seed itself was filed.
+This todo's actual content - the 9b runtime-HITL four-requirement contract and the reversibility
+x consequence gate-placement grid, both from the navigator-supplied AI-systems reference - has
+no phase to land in anymore. Retargeted as a standing audit item, not phase-gated: is
+`lib/core/recipe-maps.cjs`'s `postureForCommand` derived along a reversibility axis, a consequence
+axis, both, or neither? Surface it whenever a future phase next touches `autonomous_safe` posture
+or widens what runs unattended (a natural moment: SEED-033's own L1 already runs bounded retries
+inside autonomous_safe steps per Phase 201-02 - does ITS retry cap reflect a reversibility
+judgment, or was it picked for another reason?).

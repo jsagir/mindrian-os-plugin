@@ -1311,14 +1311,14 @@ Plans:
 
 ### Phase 299: SEED-033: Apply Ralph-Loop Lessons to MindrianOS Autonomous Execution
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** ABSORBED BY PHASE 201. SEED-033's own two "Required capability" asks are already shipped: L1 (bounded verify-retry on autonomous_safe steps, chain-executor.cjs:272/582, "SEED-033 L1 (Phase 201-02)") and L2 (the propose -> fact-check -> refine graph loop, lib/core/graph-refine-loop.cjs, "SEED-033 L2 (Phase 201-03)", wired into find-analogies). Phase 201 ("Harness-as-Code Manifest + Ralph-Loop Runtime", archived in .planning/milestones/v1.15.0-ROADMAP.md) is COMPLETE 2026-07-02, two weeks after the seed itself was filed 2026-06-18. An offline eval classifier (lib/core/ralph-loop-gate.cjs, Phase 201-04, tests/test-201-ralph-loop-gate.cjs) also shipped, judging loop traces against the seed's four hard invariants. No separate plans.
+**Requirements**: absorbed into 201's own scope
 **Depends on:** Phase 298
-**Plans:** 0 plans
+**Plans:** 0 plans (absorbed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 299 to break down)
+- [x] Absorbed by Phase 201 (see .planning/milestones/v1.15.0-ROADMAP.md Phase 201, and SEED-033's own frontmatter/text)
 
 ### Phase 300: SEED-035: SyntheticExpert to Per-Project Skill
 
