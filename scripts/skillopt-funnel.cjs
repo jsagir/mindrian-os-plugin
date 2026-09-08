@@ -928,9 +928,57 @@ async function runSelftest() {
 }
 
 // --------------------------------------------------------------------------
+// runReconcileAudit(outDir, skillsFilter) - --reconcile-audit reporting mode
+// (Phase 318 Task 3). Enumerates the corpus at <outDir>/queries UNFILTERED,
+// builds the positive index roster-wide (Finding 3), then reconciles a
+// scope-filtered view purely for reporting. Spawns nothing, writes nothing.
+// Returns a process exit code: 0 on a normal report, 2 with a named reason
+// printed when the corpus is missing or empty (no-silent-skip discipline, the
+// same doctrine tests/run-all-230.sh documents in its own header - never
+// report a false clean zero for an absent corpus).
+// --------------------------------------------------------------------------
+function runReconcileAudit(outDir, skillsFilter) {
+  const queriesDir = path.join(outDir, 'queries');
+  const allItems = enumerateQueries(queriesDir, null);
+  if (allItems.length === 0) {
+    console.error('FATAL skillopt-funnel --reconcile-audit: corpus missing or empty reason=no_items_found dir=' + queriesDir);
+    return 2;
+  }
+  const positiveIndex = buildPositiveIndex(allItems);
+  const scoped = skillsFilter && skillsFilter.size > 0 ? allItems.filter((it) => skillsFilter.has(it.skill)) : allItems;
+  const rec = reconcileNullNegatives(scoped, positiveIndex);
+
+  const positives = scoped.filter((it) => it.kind === 'should_trigger').length;
+  const negatives = scoped.filter((it) => it.kind === 'should_not_trigger').length;
+  const nullNegatives = scoped.filter((it) => it.kind === 'should_not_trigger' && it.expected_skill == null).length;
+
+  console.log('reconcile-audit: scope=' + (skillsFilter ? Array.from(skillsFilter).join(',') : 'all') + ' dir=' + queriesDir);
+  console.log('reconcile-audit: total=' + scoped.length + ' should_trigger=' + positives + ' should_not_trigger=' + negatives + ' null_negatives=' + nullNegatives);
+  console.log('reconcile-audit: corrected=' + rec.corrections.length + ' ambiguous=' + rec.ambiguous.length + ' residual_null=' + rec.remaining_null.length);
+  if (rec.corrections.length) {
+    console.log('reconcile-audit: corrections');
+    for (const c of rec.corrections) console.log('  ' + c.skill + ' -> ' + c.corrected_to + ' :: ' + c.query);
+  }
+  if (rec.ambiguous.length) {
+    console.log('reconcile-audit: ambiguous (left null, not scored - D-02 refuses to guess)');
+    for (const a of rec.ambiguous) console.log('  ' + a.skill + ' :: ' + a.query + ' candidates=' + a.candidates.join(','));
+  }
+  if (rec.remaining_null.length) {
+    console.log('reconcile-audit: residual null negatives (raw list, no similarity score, no ranking - D-02 boundary, Finding 2)');
+    for (const r of rec.remaining_null) console.log('  ' + r.skill + ' :: ' + r.query);
+  }
+  return 0;
+}
+
+// --------------------------------------------------------------------------
 // main - switch-case argv router (gsd-tools.cjs pattern), no Commander/yargs.
 //   --selftest                deterministic fixtures, no spawn, exit
 //   --dry-run                 build + print one judge arg vector, spawn NOTHING
+//   --reconcile-audit         report reconciliation counts + residual null-negative
+//                             rows over <outDir>/queries, honoring --skills for the
+//                             reported scope while always indexing roster-wide.
+//                             Spawns nothing, writes nothing, exits 2 on a missing
+//                             or empty corpus (Phase 318 Task 3).
 //   --skills <csv>            limit evaluated skills (roster stays full)
 //   --concurrency <n>         pool size (default 3, hard cap 4)
 //   --out <dir>               out directory (default PHASE_OUT_DIR)
@@ -954,6 +1002,16 @@ async function main(argv) {
   let skills = null;
   const skIdx = args.indexOf('--skills');
   if (skIdx >= 0 && args[skIdx + 1]) skills = args[skIdx + 1].split(',').map((s) => s.trim()).filter(Boolean);
+
+  // --reconcile-audit returns before any spawn path and before loadInventory
+  // (same shape as --dry-run's zero-spend return): the audit never needs the
+  // skill roster, only the on-disk query corpus.
+  if (args.includes('--reconcile-audit')) {
+    const skillsFilterAudit = skills && skills.length ? new Set(skills) : null;
+    const code = runReconcileAudit(outDir, skillsFilterAudit);
+    if (code !== 0) process.exit(code);
+    return;
+  }
 
   let concurrency = DEFAULT_CONCURRENCY;
   const cIdx = args.indexOf('--concurrency');

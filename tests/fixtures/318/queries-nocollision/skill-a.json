@@ -1,0 +1,10 @@
+{
+  "skill": "skill-a",
+  "family": "plain:a",
+  "queries": [
+    { "query": "skill-a alternate unrelated query with no collision", "expected_skill": "skill-a", "family": "plain:a", "split": "train", "kind": "should_trigger" },
+    { "query": "skill-a filler query one", "expected_skill": "skill-a", "family": "plain:a", "split": "train", "kind": "should_trigger" },
+    { "query": "skill-a filler query two", "expected_skill": "skill-a", "family": "plain:a", "split": "validation", "kind": "should_trigger" },
+    { "query": "show me the current status of my room", "expected_skill": "skill-a", "family": "plain:a", "split": "train", "kind": "should_trigger" }
+  ]
+}

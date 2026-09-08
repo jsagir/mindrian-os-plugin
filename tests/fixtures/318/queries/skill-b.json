@@ -1,0 +1,10 @@
+{
+  "skill": "skill-b",
+  "family": "plain:b",
+  "queries": [
+    { "query": "FIXTURE-318-COLLIDE: draft a project proposal outline", "expected_skill": null, "family": "plain:b", "split": "train", "kind": "should_not_trigger" },
+    { "query": "skill-b filler query one", "expected_skill": "skill-b", "family": "plain:b", "split": "train", "kind": "should_trigger" },
+    { "query": "skill-b filler query two", "expected_skill": "skill-b", "family": "plain:b", "split": "train", "kind": "should_trigger" },
+    { "query": "skill-b filler query three", "expected_skill": "skill-b", "family": "plain:b", "split": "validation", "kind": "should_trigger" }
+  ]
+}

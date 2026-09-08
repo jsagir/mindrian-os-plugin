@@ -75,6 +75,16 @@ run_if "230-02a genqueries: stratified train/validation split selftest" "scripts
 run_if "230-02b funnel: flag rule + reconciliation + induced probe selftest" "scripts/skillopt-funnel.cjs" \
   node scripts/skillopt-funnel.cjs --selftest
 
+# Phase 318 (SEED-061 step 1): the null-negative reconciliation proving case -- a
+# should_not_trigger query labeled expected_skill:null that collides with a real
+# should_trigger positive elsewhere in the roster is corrected before classifySkills'
+# flag rule ever sees it, including the resume-path staleness hole. Deliberately
+# gated inside THIS harness family (no separate tests/run-all-318.sh): the fix lives
+# inside scripts/skillopt-funnel.cjs, so its proof belongs where it cannot silently
+# stop running.
+run_if "318 skillopt-funnel: null-negative reconciliation proving case (SEED-061 step 1)" "tests/test-skillopt-null-negative-reconciliation-318.cjs" \
+  node tests/test-skillopt-null-negative-reconciliation-318.cjs
+
 # 230-03 (D3/D7): the flagged-only real trigger-test loop selftest -- the Skill-fire
 # detector (pinned against the LIVE captures), best-by-validation selection, and the
 # regressed_query_count == 0 do-no-harm gate. Guarded on the live firing capture

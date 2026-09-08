@@ -1,0 +1,10 @@
+{
+  "skill": "skill-c",
+  "family": "plain:c",
+  "queries": [
+    { "query": "what's the status of my room", "expected_skill": null, "family": "plain:c", "split": "train", "kind": "should_not_trigger" },
+    { "query": "skill-c filler query one", "expected_skill": "skill-c", "family": "plain:c", "split": "train", "kind": "should_trigger" },
+    { "query": "skill-c filler query two", "expected_skill": "skill-c", "family": "plain:c", "split": "train", "kind": "should_trigger" },
+    { "query": "skill-c filler query three", "expected_skill": "skill-c", "family": "plain:c", "split": "validation", "kind": "should_trigger" }
+  ]
+}
