@@ -78,6 +78,18 @@ NC='\033[0m'
 PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 MARKETPLACE_DIR="$HOME/mindrian-marketplace"
 
+# Phase 310 (SEED-051-B/-C): source the tag-verify decision library HERE, in
+# the preamble, not at the Step 5.5 call site. Step 5.5 runs AFTER Step 9's
+# push -- a missing or broken library discovered there would fail at the
+# worst possible moment (constraint C5). Sourcing this early fails before
+# any mutation, and --dry-run also proves the library loads.
+RELEASE_LIB_DIR="$PLUGIN_DIR/scripts/release-lib"
+if [ ! -f "$RELEASE_LIB_DIR/verify-tag-push.sh" ]; then
+  echo -e "${RED}scripts/release-lib/verify-tag-push.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/verify-tag-push.sh"
+
 # --- Step 0: Parse bump type + flags ---
 BUMP_MODE=""
 ALLOW_AHEAD=0
@@ -234,7 +246,7 @@ if [ "$DRY_RUN" = "1" ]; then
     echo "              ${YELLOW}NOTE: $CURRENT_AHEAD pre-existing commit(s) ahead of origin -- the guard will require --allow-ahead to push them with the release${NC}"
   fi
   echo "  Step 9    : git push origin main --tags (plugin); git push (marketplace)"
-  echo "  Step 5.5  : verify tag v$NEW_VERSION at origin (RELEASE_TAG_PUSH_RETRIES retries, SKIP_TAG_VERIFY=1 to bypass)"
+  echo "  Step 5.5  : verify tag v$NEW_VERSION at origin (RELEASE_TAG_PUSH_RETRIES retries, SKIP_TAG_VERIFY=1 to bypass) ; warns instead of aborting when origin/main already matches local HEAD"
   echo "  Step 9.6a : install minisite RETIRED 2026-06-09 (off by default; --minisite re-enables)"
   if [ "$NO_MINISITE" != "1" ]; then
     echo "              ${YELLOW}--minisite engaged: would sync install minisite to v$NEW_VERSION (vercel-CLI deploy)${NC}"
@@ -1343,6 +1355,14 @@ cd "$MARKETPLACE_DIR" && git push origin master 2>&1
 # through origin's refs BEFORE proceeding. Retry policy: RELEASE_TAG_PUSH_RETRIES
 # attempts (default 3), RELEASE_TAG_PUSH_BACKOFF_S backoff (default 5s).
 # SKIP_TAG_VERIFY=1 bypass exists for emergency bypass (audit-logged; NOT recommended).
+# Phase 310 (SEED-051-B/-C): the abort-vs-warn decision now lives in
+# scripts/release-lib/verify-tag-push.sh (mos_verify_tag_at_origin, sourced
+# in the preamble). A tag still not visible after retries downgrades to a
+# non-fatal WARNING only when an independent `git ls-remote origin
+# refs/heads/main` check confirms origin/main already matches local HEAD --
+# i.e. the push demonstrably succeeded and GitHub's tag replication is just
+# lagging. If that main-sha check does not confirm the push, the original
+# hard abort is preserved unchanged.
 echo ""
 echo "=== Step 5.5: Verify tag v$NEW_VERSION is at origin ==="
 
@@ -1351,22 +1371,26 @@ if [ "${SKIP_TAG_VERIFY:-0}" = "1" ]; then
 else
   TAG_PUSH_RETRIES="${RELEASE_TAG_PUSH_RETRIES:-3}"
   TAG_PUSH_BACKOFF_S="${RELEASE_TAG_PUSH_BACKOFF_S:-5}"
-  ATTEMPT=1
-  TAG_VERIFIED=0
   cd "$PLUGIN_DIR"
-  while [ "$ATTEMPT" -le "$TAG_PUSH_RETRIES" ]; do
-    if git ls-remote --tags origin 2>/dev/null | grep -q "refs/tags/v$NEW_VERSION$"; then
-      TAG_VERIFIED=1
-      echo -e "${GREEN}  ✓ tag v$NEW_VERSION verified at origin (attempt $ATTEMPT/$TAG_PUSH_RETRIES)${NC}"
-      break
-    fi
-    if [ "$ATTEMPT" -lt "$TAG_PUSH_RETRIES" ]; then
-      echo "  ... tag not yet visible at origin; retry $((ATTEMPT+1))/$TAG_PUSH_RETRIES in ${TAG_PUSH_BACKOFF_S}s"
-      sleep "$TAG_PUSH_BACKOFF_S"
-    fi
-    ATTEMPT=$((ATTEMPT+1))
-  done
-  if [ "$TAG_VERIFIED" != "1" ]; then
+
+  release_tag_probe_at_origin() {
+    git ls-remote --tags origin 2>/dev/null | grep -q "refs/tags/$1\$"
+  }
+  release_main_sha_at_origin() {
+    git ls-remote origin refs/heads/main 2>/dev/null | awk '{print $1}'
+  }
+  : "${MOS_TAG_PROBE_HOOK:=release_tag_probe_at_origin}"
+  : "${MOS_MAIN_SHA_HOOK:=release_main_sha_at_origin}"
+
+  LOCAL_HEAD_SHA="$(git rev-parse HEAD 2>/dev/null || true)"
+
+  TAG_VERIFY_RC=0
+  mos_verify_tag_at_origin "v$NEW_VERSION" "$TAG_PUSH_RETRIES" "$TAG_PUSH_BACKOFF_S" "$LOCAL_HEAD_SHA" || TAG_VERIFY_RC=$?
+
+  if [ "$TAG_VERIFY_RC" = "10" ]; then
+    : # non-fatal by design (SEED-051): origin/main already carries this push, so the
+      # ceremony must continue to Steps 9.8 / 10 / 11 instead of ending on a false red.
+  elif [ "$TAG_VERIFY_RC" != "0" ]; then
     echo -e "${RED}  x tag v$NEW_VERSION NOT visible at origin after $TAG_PUSH_RETRIES attempts${NC}"
     echo "    Investigate: git ls-remote --tags origin | grep v$NEW_VERSION"
     echo "    Recovery: git push origin v$NEW_VERSION (push the tag explicitly)"
