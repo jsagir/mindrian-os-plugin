@@ -1524,11 +1524,11 @@ Plans:
 **Goal:** Close SEED-061 step 1 only: the deterministic null-negative labeling fix. A `should_not_trigger` eval query generated with `expected_skill: null` that actually has a real target skill elsewhere in the roster is currently scored as a TRAIN miss against the unrelated skill under test, inflating `classifySkills`'s flag count with false alarms that are really the judge being correct. Add a pure, offline, exact-match reconciliation pass to `scripts/skillopt-funnel.cjs` (NOT `skillopt-genqueries.cjs`, per CONTEXT.md's architecture trace), prove it with zero live model or subprocess calls, and report honestly what it does and does not repair. Steps 2 to 4 of the seed (re-label `smoke-labels.json`, re-run the 13-skill smoke, re-check the D7 gate) stay deferred behind the navigator's own spend decision.
 **Requirements**: SEED-061-STEP-1 (the seed text is the requirement register; no formal REQ IDs minted)
 **Depends on:** Phase 317
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 
-- [ ] 318-01-PLAN.md - Deterministic null-negative reconciliation in skillopt-funnel.cjs, offline unit + end-to-end proving-case tests, `--reconcile-audit` reporting mode, wired into the Phase 230 harness gate
+- [x] 318-01-PLAN.md - Deterministic null-negative reconciliation in skillopt-funnel.cjs, offline unit + end-to-end proving-case tests, `--reconcile-audit` reporting mode, wired into the Phase 230 harness gate
 
 ### Phase 319: Host Runtime Decision Record — SEED-062+063+064+065+067 Consolidation
 

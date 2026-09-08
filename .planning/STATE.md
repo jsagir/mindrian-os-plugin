@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 311-01-PLAN.md
-last_updated: "2026-09-08T19:12:41.466Z"
-last_activity: 2026-09-08 -- Phase 311 execution and verification complete
+stopped_at: Completed 318-01-PLAN.md
+last_updated: "2026-09-08T19:42:17.771Z"
+last_activity: 2026-09-08 -- Phase 318 Plan 01 execution complete (null-negative reconciliation)
 progress:
   total_phases: 90
-  completed_phases: 25
-  total_plans: 215
-  completed_plans: 214
+  completed_phases: 26
+  total_plans: 216
+  completed_plans: 215
   percent: 100
 ---
 
@@ -4185,13 +4185,49 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 311 (SEED-052: admin visibility into recommendation scorer) — COMPLETE, VERIFIED
+Phase: 318 (seed-061-skillopt-smoke-calibration-reconciliation) — EXECUTING
 Plan: 1 of 1
-Status: Phase complete and verified (311-VERIFICATION.md, status passed, 7/7 must-haves)
-Last activity: 2026-09-08 -- Phase 311 execution and verification complete (wired opts.isAdmin
-  fail-closed filter into f-selector-ranker.cjs at the 3 navigator-facing rankForSelector call
-  sites, closing the live /mos:admin recommendation leak; 4th call site
-  dial-reach-orchestrator.cjs proven untouched via pinned sha256)
+Status: Phase complete — ready for verification
+Last activity: 2026-09-08 -- Phase 318 Plan 01 execution complete (null-negative reconciliation
+  pass added to scripts/skillopt-funnel.cjs: normalizeQueryText/buildPositiveIndex/
+  reconcileNullNegatives, roster-wide index wiring under --skills scoping, resume-path verdict
+  force closing Finding 5's staleness hole, --reconcile-audit CLI mode, nine offline selftest
+  cases A-I, five-leg proving-case test with tracked fixtures, new leg in run-all-230.sh;
+  0 of 23 corrections on the real Phase 230 corpus, honestly reported; SEED-061 steps 2-4 remain
+  open, zero subscription quota spent)
+
+<!-- NOTE (318-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note in
+     this file): `state advance-plan` (no --phase/--plan args passed) read the EXISTING
+     frontmatter Current Position (Phase 311, "Plan: 1 of 1", a single-plan phase already
+     verified complete) and returned `{advanced:false, reason:"last_plan", ...,
+     status:"ready_for_verification"}` -- not applicable to Phase 318, a brand-new single-plan
+     phase this session executed for the first time. `state update-progress` correctly computed
+     percent=100 (completed_plans 215 / total_plans 216, rounded) and wrote it directly --
+     matched, no correction needed. `state record-session --stopped-at "Completed
+     318-01-PLAN.md"` correctly updated BOTH the frontmatter `stopped_at` AND the body's own
+     "Stopped at:" line under Session Continuity -- no correction needed on either (this run did
+     NOT repeat the documented stopped_at-silent-noop bug some earlier phases hit). `state
+     add-decision --phase 318 --summary "test"` was invoked once accidentally with a placeholder
+     string before the real summary was ready; the "test" line landed correctly under the
+     `[Phase 318]` prefix (decision-entry mechanics themselves fine) and was hand-corrected in
+     place to the real Phase 318 decision content, rather than appended a second time.
+     `roadmap update-plan-progress 318` correctly flipped ROADMAP.md's 318 row to complete.
+     `requirements mark-complete SEED-061-STEP-1` returned not_found as expected (Phase 318's
+     requirement is locked in its own PLAN.md frontmatter, not the central requirements
+     registry) -- recorded, not treated as a bug, matching every prior seed-derived phase's own
+     handling of this same expected gap. The body's own "## Current Position" section was NOT
+     touched by any automated verb this run -- it stayed on stale Phase 311 content (with a
+     leftover "Status: Phase complete -- ready for verification" string from Phase 311's own
+     close-out) until hand-rewritten here to Phase 318 / Plan 1 of 1 / this session's own
+     activity description. Root cause of the Current-Position-not-touched pattern not
+     re-investigated -- same tracked bug class as every other note in this file. Frontmatter also
+     drifted this run: `percent` reverted to a stale 29 (state update-progress's own returned
+     JSON correctly computed 100) and the frontmatter `last_activity` field stayed on the stale
+     Phase 311 string even after `state record-session` ran (only the body's "Stopped at:" line
+     and `stopped_at` frontmatter field were updated by that verb, not `last_activity`) --
+     hand-corrected above: percent to 100, last_activity to name Phase 318's completion.
+     `completed_phases: 26` was written correctly (25 prior + Phase 318, now roadmap-confirmed
+     complete) and needed no fix. -->
 
 <!-- NOTE (311-close, 2026-09-08, resync-clobber pattern, same class as every note in this file):
      `phase.complete`'s own `state_updated` call jumped "Current Position" straight to
@@ -5350,6 +5386,7 @@ Progress: [█████████░] 92%
 | Phase 298 P15 | 55min | 3 tasks | 4 files |
 | Phase 311 P01 | 35min | 3 tasks | 7 files |
 | 311 | 1 | - | - |
+| Phase 318 P01 | 35 | - tasks | - files |
 
 ## Accumulated Context
 
@@ -6873,6 +6910,7 @@ Progress: [█████████░] 92%
 - [Phase 298]: 298-14: exposed policies through recipe-maps.cjs loadManifest() via a two-line tolerant read, confined to _loadManifest (R-10)
 - [Phase 298]: harness-policies blocker echoes run-harness.cjs's own parsed --json counts for its finding string, never a separately-computed tally
 - [Phase 311]: Wired opts.isAdmin fail-closed filter into f-selector-ranker.cjs, closing the live /mos:admin recommendation leak at the 3 navigator-facing rankForSelector call sites (navigation-engine-offer.cjs, unknowns/orchestrator.cjs, suggest-next-command.cjs), reusing checkAdminIdentity() per Canon Part 7; lib/hmi/dial-reach-orchestrator.cjs left untouched (proven via pinned sha256, its ranker output never reaches the navigator).
+- [Phase 318]: Fix landed in skillopt-funnel.cjs, not skillopt-genqueries.cjs (D-01); exact-match-only reconciliation, no fuzzy/semantic matching (D-02); positive index built roster-wide before --skills scoping (Finding 3); resume-path verdict force added in onSettle, closing a staleness hole found during implementation (Finding 5); measured 0 of 23 corrections on the real Phase 230 corpus, honestly reported rather than overclaiming D7 impact.
 
 ### Pending Todos
 
@@ -7004,8 +7042,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T19:08:26.005Z
-Stopped at: Completed 311-01-PLAN.md
+Last session: 2026-09-08T19:42:13.067Z
+Stopped at: Completed 318-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
