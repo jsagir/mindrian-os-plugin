@@ -3,7 +3,7 @@ phase: 298
 slug: seed-032-harness-as-code-declare-and-machine-enforce-the-min
 status: draft
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-09-07
 ---
 
@@ -71,13 +71,13 @@ Task IDs are assigned by the planner; the rows below are the requirement-level p
 
 ## Wave 0 Requirements
 
-- [ ] **Baseline capture before any edit** - record the pre-existing red tests verbatim (the two manifest-cluster tests `test-harness-manifest-precommit-wiring.cjs` and `test-harness-167-verdict.cjs`, plus the four persona-cluster tests the research names), so "no new failures" is provable
-- [ ] `tests/run-all-298.sh` - copy `tests/run-all-201.sh`; no framework to install
-- [ ] `tests/test-298-policies-schema.cjs` - covers R-02, R-03
-- [ ] `tests/test-298-runner-idempotent.cjs` - covers R-04
-- [ ] `tests/test-298-derive-health.cjs` - covers R-05 (and hosts the D-03 throwaway-db `governance.cjs:57` unit test)
-- [ ] `tests/test-298-voice-log.cjs` - covers R-08
-- [ ] `tests/test-298-contract-parity.cjs` - covers R-06
+- [x] **Baseline capture before any edit** - record the pre-existing red tests verbatim (the two manifest-cluster tests `test-harness-manifest-precommit-wiring.cjs` and `test-harness-167-verdict.cjs`, plus the four persona-cluster tests the research names), so "no new failures" is provable
+- [x] `tests/run-all-298.sh` - copy `tests/run-all-201.sh`; no framework to install
+- [x] `tests/test-298-policies-schema.cjs` - covers R-02, R-03
+- [x] `tests/test-298-runner-idempotent.cjs` - covers R-04
+- [x] `tests/test-298-derive-health.cjs` - covers R-05 (and hosts the D-03 throwaway-db `governance.cjs:57` unit test)
+- [x] `tests/test-298-voice-log.cjs` - covers R-08
+- [x] `tests/test-298-contract-parity.cjs` - covers R-06
 - [ ] `data/harness-fixtures/converged-room/` - scaffold-born, exactly 33 text files, em-dashes and ANSI escapes scrubbed from the `compute-state` output before commit (research Pitfall 3)
 
 ---

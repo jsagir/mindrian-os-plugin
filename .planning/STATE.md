@@ -3,16 +3,28 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 298 context gathered
-last_updated: "2026-09-07T19:51:54.750Z"
-last_activity: 2026-09-05 -- Phase 340 execution started
+stopped_at: Completed 298-01-PLAN.md
+last_updated: "2026-09-08T04:03:18.720Z"
+last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
-  total_plans: 199
-  completed_plans: 198
-  percent: 26
+  total_plans: 214
+  completed_plans: 199
+  percent: 93
 ---
+
+<!-- NOTE (298-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every
+     other note in this file): `state.update-progress` correctly computed percent=93
+     (completed_plans 199 / total_plans 214) in its own JSON return but did not persist it
+     into the frontmatter -- it stayed at the stale 26 until hand-corrected here. A
+     subsequent `state.add-decision` call (additive-only, per the shared_tree_guard
+     precedent) did not re-clobber it this time (checked after both add-decision calls and
+     record-session; frontmatter read back at 26, not 93, before this hand-correction, so
+     the clobber landed somewhere in that sequence as usual). `stopped_at` was written
+     correctly by `state.record-session` this run (no clobber on that field), so only
+     `percent` needed hand-correction. Root cause not re-investigated -- same tracked bug
+     class as every other note in this file. -->
 
 <!-- NOTE (340-05 execute-plan, 2026-09-05, resync-clobber pattern, same class as every other
      note in this file): `state.update-progress` correctly computed percent=99
@@ -4107,7 +4119,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 340 — canon-currency-audit-and-amendment-v1-24-to-next-close-the-d
+**Current focus:** Phase 298 — SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4132,10 +4144,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 340 (canon-currency-audit-and-amendment-v1-24-to-next-close-the-d) — EXECUTING
-Plan: 5 of 5
+Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
+Plan: 2 of 15
 Status: Ready to execute
-Last activity: 2026-09-05 -- Phase 340 execution started
+Last activity: 2026-09-08 -- Phase 298 execution started
 
 <!-- NOTE (339-06 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` correctly advanced "Plan: N of 14" to 6 in-place, but
@@ -5001,6 +5013,7 @@ Progress: [█████████░] 92%
 | Phase 340 P03 | 45min | 3 tasks | 6 files |
 | Phase 340 P04 | 55min | 3 tasks | 8 files |
 | Phase 340 P05 | 50min | 2 tasks | 3 files |
+| Phase 298 P01 | 6min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -6469,6 +6482,8 @@ Progress: [█████████░] 92%
 - [Phase 340]: Rule 1 auto-fix: moved tests/test-canon-entry-38-sourced-claims-floor.cjs's hard-pinned version anchor 1.25 -> 1.26 even though the plan's action text only named the entry-31 and entry-36 tests, since leaving it untouched would have broken the aggregator the instant canon v1.26 landed.
 - [Phase ?]: 340-04: Ruling A=COMMANDS (Core Value command-surface figure enumerated from disk, not the historical V2 bot-prompt count), Ruling B=REMOVE ROW (dead docu-optimizer skill row deleted), Ruling C=state-with-caveat (Part 2 corpus-size cited with the not-regenerated-against-Theo caveat) — Navigator-approved at the Task-1 blocking checkpoint 2026-09-05 before any canon byte landed; resolves the three named judgment calls left open by the drafted prose.
 - [Phase ?]: Phase 340 close-out: staged the Dev-Research Compositing room copy rather than bypassing the write-scope-check guard; landed the durable entry at the unguarded mirror (~/MindrianOS/research/) instead, pending a navigator room-switch.
+- [Phase 298]: 298-01: baseline narrowed research's six predicted pre-existing red tests to five; test-205-elevation-doctrine-floor.cjs now passes (v1.27 pin reconciled)
+- [Phase 298]: 298-01: kept all 7 run-all-298.sh legs per task spec despite a miscounted grep-c acceptance criterion (expected 7, arithmetic gives 9 for a 7-leg aggregator)
 
 ### Pending Todos
 
@@ -6600,8 +6615,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-07T17:06:14.259Z
-Stopped at: Phase 298 context gathered
+Last session: 2026-09-08T04:03:18.654Z
+Stopped at: Completed 298-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

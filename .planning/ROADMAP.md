@@ -1274,11 +1274,11 @@ Plans:
 **Goal:** Declare and machine-enforce the agent harness MindrianOS already runs: harness manifest v2 (three additive keys, maps stays three), a closed policy directory with an enforcement rung per policy, one idempotent policy runner, the SEED-037 4d derive-health gate, and the Larry persona as the manifest's first declared consumer. Absorbs Phase 297's regulation policy (D7).
 **Requirements**: R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, R-09, R-10, R-11 (locked in 298-SPEC.md)
 **Depends on:** Phase 297 (absorbed)
-**Plans:** 15 plans in 7 waves
+**Plans:** 1/15 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 298-01-PLAN.md - Wave 0: red-test baseline capture, tests/run-all-298.sh, five test-298 stubs
+- [x] 298-01-PLAN.md - Wave 0: red-test baseline capture, tests/run-all-298.sh, five test-298 stubs
 - [ ] 298-02-PLAN.md - the committed converged-room fixture, scaffold-born and scrubbed (D-03)
 - [ ] 298-03-PLAN.md - lift the transcript reader into lib/hmi/turn-text.cjs, repoint check-card-fire
 - [ ] 298-04-PLAN.md - readable F.8 governance basket rows and the Part 8 comment correction (D-01, D-01a)
