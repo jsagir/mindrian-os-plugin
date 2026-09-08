@@ -435,9 +435,14 @@ fi
 # aggregators): the manifest --check is wired into BOTH pre-commit and
 # tests/run-all-167.sh. Canon Part 8: the check is a local byte-compare +
 # map-resolve; it never touches the Brain.
+# Phase 298 (Pitfall 6) - the trigger is widened with two prefix branches:
+# any JSON file under data/harness-policies/ and any path under
+# data/harness-fixtures/. The manifest digests the policy directory and the
+# fixture, so an edit to either without a regeneration leaves a stale digest -
+# the same drift class this phase exists to close.
 # Recovery on drift: node scripts/build-harness-manifest.cjs
 # ---------------------------------------------------------------------------
-if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.cjs|data/harness-manifest\.json|data/command-registry\.json|data/connector-registry\.json|data/brain-orchestration-projection\.json)$'; then
+if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.cjs|data/harness-manifest\.json|data/command-registry\.json|data/connector-registry\.json|data/brain-orchestration-projection\.json|data/harness-policies/.*\.json|data/harness-fixtures/.*)$'; then
   if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-harness-manifest.cjs" ]; then
     node "$REPO_ROOT/scripts/build-harness-manifest.cjs" --check || { echo "harness-manifest drift -- run: node scripts/build-harness-manifest.cjs" >&2; exit 2; }
   fi
