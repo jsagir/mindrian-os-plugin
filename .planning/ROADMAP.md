@@ -1274,7 +1274,7 @@ Plans:
 **Goal:** Declare and machine-enforce the agent harness MindrianOS already runs: harness manifest v2 (three additive keys, maps stays three), a closed policy directory with an enforcement rung per policy, one idempotent policy runner, the SEED-037 4d derive-health gate, and the Larry persona as the manifest's first declared consumer. Absorbs Phase 297's regulation policy (D7).
 **Requirements**: R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, R-09, R-10, R-11 (locked in 298-SPEC.md)
 **Depends on:** Phase 297 (absorbed)
-**Plans:** 6/15 plans executed
+**Plans:** 7/15 plans executed
 Plans:
 **Wave 1**
 
@@ -1287,7 +1287,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 298-06-PLAN.md - scripts/check-graph-derive-health.cjs, a wrapper over the shipped detector (SEED-037 4d)
-- [ ] 298-07-PLAN.md - the rung-2 voice Stop hook and the append-only evidence log (D-04)
+- [x] 298-07-PLAN.md - the rung-2 voice Stop hook and the append-only evidence log (D-04)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
