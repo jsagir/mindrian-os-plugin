@@ -1364,6 +1364,75 @@ function buildAcceptanceChecklist(ctx) {
       },
     },
     {
+      // Phase 298 Plan 15 (SEED-032, Harness-as-Code) -- the final rung on
+      // the placement ladder: standalone (`run-harness --check`) becomes
+      // embedded here (a doctor acceptance point) and chained (the widened
+      // pre-commit guard). Wired LAST, only after slice 1 was confirmed
+      // green (`node scripts/run-harness.cjs --check --json` exit 0 on a
+      // clean tree), per the D-4 precedent from quick 260906-t3s: every
+      // `buildAcceptanceChecklist` entry is `severity: 'blocker'` and
+      // `--acceptance` hard-aborts with no `--allow` override, so a
+      // blocker's first run must be a true green.
+      //
+      // WHY BLOCKER, NOT ADVISORY: a declared harness policy that stops
+      // running is a silent governance hole -- every acceptance entry here
+      // is a blocker by construction (see `eureka-fts-index-visible`'s own
+      // comment above for the general reasoning); informational reporting
+      // for this same surface already lives in the `voice-style-log`
+      // doctor MODULE (plan 298-08), which is the advisory sibling.
+      //
+      // Canon Part 8: the only I/O below is a local filesystem existence
+      // check plus one local `spawnSync('node', [...])` of a repo-relative
+      // script, argv array (never a shell string). Zero network.
+      id: 'harness-policies',
+      label: 'every declared harness policy runs and no blocking policy failed',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'harness-policies') {
+          return { ok: false, finding: 'harness-policies synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        const scriptPath = path.join(pluginRoot, 'scripts', 'run-harness.cjs');
+        if (!fs.existsSync(scriptPath)) {
+          return { ok: false, finding: 'harness-policies: script missing at ' + scriptPath, detail: { note: 'script missing' } };
+        }
+        try {
+          const r = cp.spawnSync('node', [scriptPath, '--check', '--json'], { encoding: 'utf8', timeout: 30000, cwd: pluginRoot });
+          let parsed;
+          try {
+            parsed = JSON.parse(r.stdout || '{}');
+          } catch (e) {
+            return { ok: false, finding: 'harness-policies: could not parse script output: ' + e.message, detail: { stdout: (r.stdout || '').slice(-500), stderr: (r.stderr || '').slice(-500) } };
+          }
+          const counts = parsed.counts || {};
+          const policies = Array.isArray(parsed.policies) ? parsed.policies : [];
+          const failedIds = policies.filter(function (p) { return p.verdict === 'fail'; }).map(function (p) { return p.id; });
+          const ok = r.status === 0;
+          // The 2026-07-11 printer-must-match-counter lesson: the failing
+          // finding echoes the SAME 'Totals: ...' verdict string
+          // run-harness.cjs's own printReport() prints in text mode
+          // (scripts/run-harness.cjs:413-416), built here from the same
+          // parsed counts object, never a separately-computed tally, plus
+          // the exact recovery command.
+          const totalsLine = 'Totals: ' + (counts.pass || 0) + ' pass, ' + (counts.fail || 0) + ' fail, ' +
+            (counts.ghost || 0) + ' ghost, ' + (counts.declared || 0) + ' declared, ' + (counts.total || 0) + ' total.';
+          const finding = ok
+            ? null
+            : (failedIds.length + ' failing harness polic' + (failedIds.length === 1 ? 'y' : 'ies') +
+               (failedIds.length ? ' (' + failedIds.join(', ') + ')' : '') + '; ' + totalsLine +
+               ' Fix with: node scripts/run-harness.cjs --check');
+          return {
+            ok: ok,
+            finding: finding,
+            detail: { counts: counts, failedIds: failedIds },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'harness-policies threw: ' + e.message, detail: {} };
+        }
+      },
+    },
+    {
       // Phase 127.2 Plan 04 Instance #7 -- Class N acceptance point:
       // "activation reached the wire."
       //
