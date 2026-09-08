@@ -1447,11 +1447,11 @@ Plans:
 **Goal:** Wire the already-declared `visibility: admin` command frontmatter through the command registry into the D4 recommendation scorer, so a non-admin navigator is never offered /mos:admin or /mos:dogfood-flush as a recommendation. This is SEED-052's own named smallest-experiment slice; the full 107-command JTBD/audience/F-shape mini-product scope stays deferred.
 **Requirements**: SEED-052-A, SEED-052-B, SEED-052-C, SEED-052-D
 **Depends on:** Phase 310
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 
-- [ ] 311-01-PLAN.md -- registry visibility field, fail-closed opts.isAdmin filter in the D4 ranker, and isAdmin wiring at the 3 navigator-facing call sites
+- [x] 311-01-PLAN.md -- registry visibility field, fail-closed opts.isAdmin filter in the D4 ranker, and isAdmin wiring at the 3 navigator-facing call sites
 
 ### Phase 312: SEED-053: run_chain MCP Tool — Methodology Chaining With Handoffs, Halting at Material Gates
 

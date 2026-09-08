@@ -2,17 +2,41 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 298-15-PLAN.md
-last_updated: "2026-09-08T15:07:49.864Z"
-last_activity: 2026-09-08 -- Phase 298 execution started
+status: verifying
+stopped_at: Completed 311-01-PLAN.md
+last_updated: "2026-09-08T19:08:26.070Z"
+last_activity: 2026-09-08 -- Phase 311 (SEED-052 smallest slice) execution complete
 progress:
   total_phases: 90
-  completed_phases: 24
-  total_plans: 214
-  completed_plans: 213
+  completed_phases: 25
+  total_plans: 215
+  completed_plans: 214
   percent: 100
 ---
+
+<!-- NOTE (311-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `state.advance-plan --phase 311 --plan 1` ignored the passed phase/plan
+     args entirely -- this verb reads and increments the EXISTING frontmatter Current Position
+     (Phase 298, "Plan: 15 of 15"), which is not applicable to a brand-new single-plan phase; it
+     returned `{advanced:false, reason:"last_plan", current_plan:15, total_plans:15}` and wrote
+     `status: verifying` + `completed_phases: 25` into the frontmatter with no corresponding
+     change to the body's "## Current Position" section (left reading stale Phase 298 content).
+     `state.update-progress` correctly computed `percent: 100` (completed_plans 214 /
+     total_plans 215, rounded) in its own returned JSON but persisted the stale `percent: 28`
+     into the frontmatter -- hand-corrected to 100 above. `completed_plans: 214` and
+     `total_plans: 215` were written correctly (both counts scan disk directly) and needed no
+     fix. `last_activity` was left as the stale "Phase 298 execution started" string -- hand-
+     corrected above. `completed_phases: 25` accepted as written (298 was the prior 24th
+     completed phase per its own already-committed Current Position; 311, a single-plan phase
+     now fully verified complete, is a plausible 25th -- not independently cross-checked against
+     ROADMAP.md's own phase-status table beyond a visual scan). `state.add-decision --phase 311`
+     wrote the decision entry correctly with the literal `[Phase 311]` prefix (no repeat of the
+     documented `[Phase ?]` bug, since a named `--phase` flag was passed). `state.record-session
+     --stopped-at "Completed 311-01-PLAN.md"` correctly updated the frontmatter `stopped_at` AND
+     the body's own "Stopped at:" line under Session Continuity -- no correction needed on
+     either. The body's "## Current Position" section itself was hand-rewritten below (Phase
+     298 -> Phase 311, Plan 15 of 15 -> Plan 1 of 1, Status -> Phase complete, Last activity
+     updated) since no automated verb touched it for this phase transition. -->
 
 <!-- NOTE (298-05 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.update-progress` correctly computed `percent: 95` (completed_plans
@@ -4161,10 +4185,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 15 of 15
+Phase: 311 (SEED-052: GSD each command as a mini-product -- smallest slice, admin visibility into recommendation scorer) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
-Last activity: 2026-09-08 -- Phase 298 execution started
+Last activity: 2026-09-08 -- Phase 311 execution complete (wired opts.isAdmin fail-closed filter into f-selector-ranker.cjs at the 3 navigator-facing rankForSelector call sites, closing the live /mos:admin recommendation leak; 4th call site (dial-reach-orchestrator.cjs) proven untouched via pinned sha256)
 
 <!-- NOTE (298-15 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file, and the LAST plan of Phase 298 -- all 15 plans, all 6 waves, now complete):
@@ -5311,6 +5335,7 @@ Progress: [█████████░] 92%
 | Phase 298 P13 | 35min | 2 tasks | 2 files |
 | Phase 298 P14 | 35min | 3 tasks | 5 files |
 | Phase 298 P15 | 55min | 3 tasks | 4 files |
+| Phase 311 P01 | 35min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -6833,6 +6858,7 @@ Progress: [█████████░] 92%
 - [Phase 298]: 298-14: repointed both red manifest-cluster tests at scripts/hooks/pre-commit-room-minto-guard.sh instead of the emptied scripts/install-pre-commit.sh (R-11)
 - [Phase 298]: 298-14: exposed policies through recipe-maps.cjs loadManifest() via a two-line tolerant read, confined to _loadManifest (R-10)
 - [Phase 298]: harness-policies blocker echoes run-harness.cjs's own parsed --json counts for its finding string, never a separately-computed tally
+- [Phase 311]: Wired opts.isAdmin fail-closed filter into f-selector-ranker.cjs, closing the live /mos:admin recommendation leak at the 3 navigator-facing rankForSelector call sites (navigation-engine-offer.cjs, unknowns/orchestrator.cjs, suggest-next-command.cjs), reusing checkAdminIdentity() per Canon Part 7; lib/hmi/dial-reach-orchestrator.cjs left untouched (proven via pinned sha256, its ranker output never reaches the navigator).
 
 ### Pending Todos
 
@@ -6964,8 +6990,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T15:07:49.781Z
-Stopped at: Completed 298-15-PLAN.md
+Last session: 2026-09-08T19:08:26.005Z
+Stopped at: Completed 311-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
