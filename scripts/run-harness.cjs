@@ -2,19 +2,28 @@
 'use strict';
 
 /*
- * scripts/run-harness.cjs -- Phase 298 (SEED-032, Harness-as-Code) Plan 10.
+ * scripts/run-harness.cjs -- Phase 298 (SEED-032, Harness-as-Code) Plans
+ * 10 and 11.
  * =====================================================================
  * WHAT THIS IS: the policy runner. It reads `data/harness-policies/` (one
  * hand-authored JSON file per policy, validated against `_schema.json`'s
  * closed vocabularies), runs each policy at its declared tier and rung, and
- * prints (or spawns and reports) the verdict. This is the one genuinely new
- * artifact in Phase 298 -- everything else in the phase is declaration or
- * thin wrapping around a gate that already runs.
+ * prints (or spawns and reports) the verdict. It also carries the `--room
+ * <dir>` Layer 0 convergence scan (plan 298-11, R-04/R-05): a room is
+ * converged when a ROOM.md sits in every non-hidden section, its STATE.md
+ * `total_entries` matches the on-disk count, the derive queue is empty,
+ * zero truth-claim nodes are pending human confirmation, and the
+ * `gate-graph-derive-health` policy is not a ghost. This is the one
+ * genuinely new artifact in Phase 298 -- everything else in the phase is
+ * declaration or thin wrapping around a gate that already runs.
  *
  * WHAT THIS DELIBERATELY DOES NOT DO:
- *   - It never repairs a room. It observes and reports; it writes nothing to
- *     a room at all in this plan (the single `<room>/.mindrian/harness-run.json`
- *     write lands with the `--room` convergence branch in plan 298-11).
+ *   - It never repairs a room. It observes and reports; the ONLY write it
+ *     ever makes is `<room>/.mindrian/harness-run.json`, and only when a
+ *     `.mindrian` directory already exists in that room -- it never creates
+ *     that directory itself, so a run against the committed
+ *     `data/harness-fixtures/converged-room` fixture (which deliberately
+ *     ships with no `.mindrian/`) writes NOTHING AT ALL.
  *   - It never calls a model, per SEED-062. Zero model calls, zero network
  *     requests, zero Brain-client reference, anywhere in this file.
  *   - It never promotes a rung (R-03, D8). No assignment to `rung` exists
@@ -22,14 +31,15 @@
  *     file, made after reading the `--policy` review this file prints.
  *   - It never opens a room database for writing (D-03a). None of the three
  *     write-path database openers this repo's D-03a source grep checks for
- *     are referenced anywhere in this file, and that stays true from this
- *     first commit even though the `--room` branch that would need a
- *     READ-ONLY door lands in plan 298-11, not here.
+ *     are referenced anywhere in this file; the `--room` branch's only
+ *     database door is the READ-ONLY `navigation.openRoomDbReadOnlyForCaller`.
  *
- * EXIT CONVENTION: 0 clean (no blocking policy failed), 1 a blocking policy
- * failed (or a policy file failed schema validation), 2 a scanner or usage
- * fault (an unknown flag, a missing flag value, an unknown `--policy` id, or
- * the not-yet-implemented `--room` branch).
+ * EXIT CONVENTION: 0 clean (no blocking policy failed, or a `--room` scan
+ * reports converged), 1 a blocking policy failed (or a policy file failed
+ * schema validation), or a `--room` scan reports not converged; 2 a scanner
+ * or usage fault (an unknown flag, a missing flag value, an unknown
+ * `--policy` id, or a `--room` path that does not exist or is not a
+ * directory).
  *
  * Canon Part 8 (Graph Boundary): every operation here is a local filesystem
  * read, a local JSON parse, or a local `spawnSync('node', [...])` of a
@@ -57,6 +67,19 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { appendVoiceStyleRow, readVoiceStyleRows, evaluatePromotion, mindrianHome } = require('../lib/hmi/voice-style-log.cjs');
+const { readQueue } = require('./gsd-graph-derive-sweep.cjs');
+const navigation = require('../lib/core/navigation.cjs');
+const { findGovernanceCandidates } = require('../lib/core/navigation/governance.cjs');
+
+// GATE_GRAPH_DERIVE_HEALTH_ID: the one policy id the convergence scan checks
+// by name for R-05's ghost-refusal rule. Not a magic string re-typed at each
+// call site.
+const GATE_GRAPH_DERIVE_HEALTH_ID = 'gate-graph-derive-health';
+
+// HARNESS_RUN_REPORT_RELATIVE: the single write target the --room branch is
+// ever allowed to touch, and only when `.mindrian` already exists in the
+// target room (see scanRoom's own header comment for the fixture reasoning).
+const HARNESS_RUN_REPORT_RELATIVE = path.join('.mindrian', 'harness-run.json');
 
 // REQUIRED_POLICY_FIELDS: the eleven common fields every policy file carries,
 // per _schema.json's policy_fields. memory-write-policy.json and
@@ -98,7 +121,8 @@ function usage() {
     '  --check              run policies and report (default action)',
     '  --tier <t>            restrict --check to policies whose applies_to contains <t>',
     '  --policy <id>         print the promotion review for one policy (never spawns)',
-    '  --room <dir>          room convergence check (NOT YET IMPLEMENTED -- plan 298-11)',
+    '  --room <dir>          Layer 0 room convergence check (R-04/R-05); read-only, writes',
+    '                        <room>/.mindrian/harness-run.json only when that dir already exists',
     '  --json                emit the --check report as one JSON object',
     '  --root <dir>          operate against <dir> instead of the live repo root (tests use this)',
     '  --help                show this message',
@@ -479,11 +503,301 @@ function runPolicyReview(rootDir, policyId) {
 }
 
 // ---------------------------------------------------------------------------
+// --room <dir>: the Layer 0 convergence branch (plan 298-11, R-04/R-05).
+// Convergence is a SCAN, not a memory -- every check below reads the room's
+// own files (and, for zero_proposed_claims, a READ-ONLY door into room.db)
+// fresh on every call. The runner never repairs a room (SEED-037 4c is a
+// separate, human-gated action) and never regenerates STATE.md, so it never
+// self-invalidates against the very timestamp it must not compare.
+// ---------------------------------------------------------------------------
+
+// parseRoomStateFrontmatter(roomDir): a minimal line-based reader of the
+// STATE.md frontmatter block, pulling exactly the two keys this scan needs.
+// `total_entries` (compute-state:259) is the ONLY comparable count.
+// `computed` (compute-state:257) is an ISO timestamp -- read here so the
+// report can carry it as a freshness stamp, and NEVER compared against
+// anything (Pitfall 1). `venture_stage` is deliberately never read at all:
+// a scaffold-born room writes Pre-Opportunity while compute-state
+// re-derives Investment purely from directory presence, so the two
+// structurally disagree on any full scaffold (D-03, Correction 3) and
+// comparing it would make every fresh scaffold report non-convergent.
+function parseRoomStateFrontmatter(roomDir) {
+  try {
+    const raw = fs.readFileSync(path.join(roomDir, 'STATE.md'), 'utf8');
+    const match = raw.match(/^---\n([\s\S]*?)\n---/);
+    if (!match) return { total_entries: null, computed: null };
+    let totalEntries = null;
+    let computed = null;
+    for (const line of match[1].split('\n')) {
+      const kv = line.match(/^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$/);
+      if (!kv) continue;
+      if (kv[1] === 'total_entries') {
+        const n = parseInt(kv[2].trim(), 10);
+        totalEntries = Number.isNaN(n) ? null : n;
+      } else if (kv[1] === 'computed') {
+        computed = kv[2].trim();
+      }
+    }
+    return { total_entries: totalEntries, computed };
+  } catch (_e) {
+    return { total_entries: null, computed: null };
+  }
+}
+
+// listNonHiddenTopDirs(roomDir): the same section enumeration rule
+// compute-state:91 uses (skip anything starting with a dot). Enumerated
+// fresh from disk every call -- never the frozen SECTION_NAMES list -- so a
+// room that grew a section outside the frozen eleven is still checked.
+function listNonHiddenTopDirs(roomDir) {
+  let entries;
+  try {
+    entries = fs.readdirSync(roomDir, { withFileTypes: true });
+  } catch (_e) {
+    return [];
+  }
+  return entries
+    .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
+    .map((e) => e.name)
+    .sort();
+}
+
+// countEntries(roomDir): reproduces compute-state:96 exactly -- top-level
+// non-hidden directories only, `*.md` at maxdepth 1, excluding `ROOM.md`,
+// never recursed, never counting files at the room root. Returns 13 on the
+// committed scaffold-born fixture (Correction 2).
+function countEntries(roomDir) {
+  let total = 0;
+  for (const name of listNonHiddenTopDirs(roomDir)) {
+    const sectionDir = path.join(roomDir, name);
+    let files;
+    try {
+      files = fs.readdirSync(sectionDir, { withFileTypes: true });
+    } catch (_e) {
+      continue;
+    }
+    for (const f of files) {
+      if (!f.isFile()) continue;
+      if (!f.name.endsWith('.md')) continue;
+      if (f.name === 'ROOM.md') continue;
+      total += 1;
+    }
+  }
+  return total;
+}
+
+// checkRoomMdPresent(roomDir): every non-hidden top-level directory holds a
+// ROOM.md. Enumerated from disk, never the frozen section list.
+function checkRoomMdPresent(roomDir) {
+  const missing = [];
+  for (const name of listNonHiddenTopDirs(roomDir)) {
+    if (!fs.existsSync(path.join(roomDir, name, 'ROOM.md'))) missing.push(name);
+  }
+  return { passed: missing.length === 0, missing };
+}
+
+// checkDeriveQueueEmpty(roomDir): reuses readQueue's missing-is-empty
+// contract rather than re-reading the queue file (Reuse Before Build).
+function checkDeriveQueueEmpty(roomDir) {
+  const q = readQueue(roomDir);
+  const entries = q && Array.isArray(q.entries) ? q.entries : [];
+  return { passed: entries.length === 0, count: entries.length };
+}
+
+// countProposedClaims(roomDir): the ONLY database door this branch may use
+// is navigation.openRoomDbReadOnlyForCaller (D-03a). Opened inside its own
+// try/catch that yields null on any failure (including "no room.db exists",
+// which is the committed fixture's own case -- it has no .mindrian/ at
+// all); the null handle passes straight to findGovernanceCandidates, which
+// is null-handle-safe and returns []. Closed in a finally when non-null.
+function countProposedClaims(roomDir) {
+  let db = null;
+  try {
+    db = navigation.openRoomDbReadOnlyForCaller(roomDir);
+  } catch (_e) {
+    db = null;
+  }
+  try {
+    const candidates = findGovernanceCandidates(db, path.basename(roomDir), {});
+    return Array.isArray(candidates) ? candidates.length : 0;
+  } finally {
+    if (db) {
+      try {
+        navigation.closeRoomDbForCaller(db);
+      } catch (_e2) {
+        /* ignore -- a close failure on a read-only handle is not this
+           scan's concern */
+      }
+    }
+  }
+}
+
+// scanRoom(roomDir, policies, rootDir): the report builder. `policies` is
+// the already-loaded policy set (loadPolicies(rootDir).policies) so this
+// function re-implements no policy loading; `rootDir` is passed through to
+// classifyPolicy for the gate-graph-derive-health ghost check, since a
+// runner path is always resolved relative to the POLICY root, never the
+// room being scanned (these differ under --root in the ghost-refusal test).
+// `converged` is true only when every check passes AND derive_health_declared
+// is true AND the derive queue is empty (R-05: a ghost derive-health gate is
+// the missing-information error class -- refuse converged:true, name the
+// ghost, never retry).
+function scanRoom(roomDir, policies, rootDir) {
+  const effectiveRoot = rootDir || roomDir;
+  const findings = [];
+
+  const roomMd = checkRoomMdPresent(roomDir);
+  if (!roomMd.passed) {
+    findings.push('room_md_present: missing ROOM.md in ' + roomMd.missing.join(', '));
+  }
+
+  const frontmatter = parseRoomStateFrontmatter(roomDir);
+  const onDisk = countEntries(roomDir);
+  const entryCountMatches = frontmatter.total_entries !== null && frontmatter.total_entries === onDisk;
+  if (!entryCountMatches) {
+    findings.push(
+      'entry_count_matches: STATE.md total_entries=' + String(frontmatter.total_entries) + ' vs on-disk=' + onDisk
+    );
+  }
+
+  const queueCheck = checkDeriveQueueEmpty(roomDir);
+  if (!queueCheck.passed) {
+    findings.push('derive_queue_empty: ' + queueCheck.count + ' entries pending in the derive queue');
+  }
+
+  const proposedCount = countProposedClaims(roomDir);
+  const zeroProposedClaims = proposedCount === 0;
+  if (!zeroProposedClaims) {
+    findings.push('zero_proposed_claims: ' + proposedCount + ' proposed truth-claim node(s) pending human confirmation');
+  }
+
+  const derivePolicy = Array.isArray(policies) ? policies.find((p) => p.id === GATE_GRAPH_DERIVE_HEALTH_ID) : undefined;
+  let deriveHealthDeclared = false;
+  if (!derivePolicy) {
+    findings.push('derive_health_declared: policy "' + GATE_GRAPH_DERIVE_HEALTH_ID + '" is not loaded');
+  } else {
+    deriveHealthDeclared = classifyPolicy(derivePolicy, effectiveRoot) === 'runnable';
+    if (!deriveHealthDeclared) {
+      const detail = resolveRunnerPath(derivePolicy, effectiveRoot);
+      findings.push(
+        'derive_health_declared: "' + GATE_GRAPH_DERIVE_HEALTH_ID + '" is a ghost (' + (detail.reason || 'runner unavailable') + ')'
+      );
+    }
+  }
+
+  const checks = {
+    room_md_present: roomMd.passed,
+    entry_count_matches: entryCountMatches,
+    derive_queue_empty: queueCheck.passed,
+    zero_proposed_claims: zeroProposedClaims,
+    derive_health_declared: deriveHealthDeclared,
+  };
+
+  const converged =
+    Object.keys(checks).every((k) => checks[k] === true) && deriveHealthDeclared && queueCheck.passed;
+
+  // Deterministic key order (no timestamp, no duration, no clock-derived
+  // value anywhere in this object) so two consecutive runs against an
+  // unchanged room serialize byte-identically (R-04's headline proof).
+  return {
+    room: roomDir,
+    converged,
+    checks,
+    total_entries_declared: frontmatter.total_entries,
+    total_entries_on_disk: onDisk,
+    computed_stamp: frontmatter.computed,
+    findings,
+  };
+}
+
+// printRoomReport: text or --json, mirroring printReport's own asJson branch.
+function printRoomReport(report, asJson) {
+  if (asJson) {
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+  console.log('run-harness --room ' + report.room);
+  console.log('converged: ' + report.converged);
+  console.log('checks:');
+  for (const key of Object.keys(report.checks)) {
+    console.log('  ' + key + ': ' + report.checks[key]);
+  }
+  console.log('total_entries: declared=' + report.total_entries_declared + ' on_disk=' + report.total_entries_on_disk);
+  console.log('computed_stamp: ' + report.computed_stamp);
+  if (report.findings.length) {
+    console.log('findings:');
+    for (const f of report.findings) console.log('  - ' + f);
+  }
+}
+
+// maybeWriteRoomReport(roomDir, report): the single write this branch is
+// ever allowed to make, and ONLY when a `.mindrian` directory already
+// exists in the room. The runner never creates that directory itself (the
+// forbidden write-path opener named in this file's header comment would do
+// that on first touch, and D-03a forbids calling it here). The committed
+// data/harness-fixtures/converged-room fixture deliberately ships with no
+// `.mindrian/`, so a run against it writes NOTHING AT ALL -- which is
+// exactly what keeps `git status --porcelain
+// data/harness-fixtures/converged-room` empty after every run.
+function maybeWriteRoomReport(roomDir, report) {
+  const mindrianDir = path.join(roomDir, '.mindrian');
+  let mindrianExists = false;
+  try {
+    mindrianExists = fs.statSync(mindrianDir).isDirectory();
+  } catch (_e) {
+    mindrianExists = false;
+  }
+  if (!mindrianExists) return false;
+  try {
+    fs.writeFileSync(path.join(mindrianDir, 'harness-run.json'), JSON.stringify(report, null, 2) + '\n');
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+// runRoomConvergence: the --room CLI entry point. Exit 0 converged, 1 not
+// converged, 2 a scanner fault (the room path itself does not exist or is
+// not a directory, or the scan throws) -- a missing ROOM.md or a queue
+// mismatch is NEVER a fault, it is an honest not-converged verdict (exit 1).
+function runRoomConvergence(root, roomDir, asJson) {
+  let stat;
+  try {
+    stat = fs.statSync(roomDir);
+  } catch (_e) {
+    console.error('run-harness: --room directory does not exist: ' + roomDir);
+    process.exit(2);
+    return;
+  }
+  if (!stat.isDirectory()) {
+    console.error('run-harness: --room path is not a directory: ' + roomDir);
+    process.exit(2);
+    return;
+  }
+
+  const loaded = loadPolicies(root);
+  for (const err of loaded.errors) {
+    console.error('run-harness: policy file ' + err.file + ' invalid: ' + err.reason + ' (skipped)');
+  }
+
+  let report;
+  try {
+    report = scanRoom(roomDir, loaded.policies, root);
+  } catch (e) {
+    console.error('run-harness: --room scan faulted: ' + (e && e.message ? e.message : e));
+    process.exit(2);
+    return;
+  }
+
+  printRoomReport(report, asJson);
+  maybeWriteRoomReport(roomDir, report);
+  process.exit(report.converged ? 0 : 1);
+}
+
+// ---------------------------------------------------------------------------
 // main(): argv switch loop copied in shape from check-worktree-hygiene.cjs
 // (lines 396-448) -- unknown-flag and missing-value exit 2, --check an
-// explicit no-op default. --room is accepted now (stable flag surface from
-// the start) but prints a not-yet-implemented notice and exits 2 until plan
-// 298-11 lands the branch.
+// explicit no-op default. --room dispatches to runRoomConvergence (plan
+// 298-11).
 // ---------------------------------------------------------------------------
 function main() {
   const argv = process.argv.slice(2);
@@ -548,10 +862,7 @@ function main() {
   }
 
   if (roomDir) {
-    console.error(
-      'run-harness: --room convergence branch is not yet implemented (lands in plan 298-11); received ' + roomDir
-    );
-    process.exit(2);
+    runRoomConvergence(root, roomDir, asJson);
     return;
   }
 
@@ -569,6 +880,8 @@ module.exports = {
   printReport,
   resolveEvidenceLogPath,
   formatVerdictLine,
+  countEntries,
+  scanRoom,
   main,
 };
 
