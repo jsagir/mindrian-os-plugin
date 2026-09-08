@@ -1274,7 +1274,7 @@ Plans:
 **Goal:** Declare and machine-enforce the agent harness MindrianOS already runs: harness manifest v2 (three additive keys, maps stays three), a closed policy directory with an enforcement rung per policy, one idempotent policy runner, the SEED-037 4d derive-health gate, and the Larry persona as the manifest's first declared consumer. Absorbs Phase 297's regulation policy (D7).
 **Requirements**: R-01, R-02, R-03, R-04, R-05, R-06, R-07, R-08, R-09, R-10, R-11 (locked in 298-SPEC.md)
 **Depends on:** Phase 297 (absorbed)
-**Plans:** 14/15 plans executed
+**Plans:** 15/15 plans complete
 Plans:
 **Wave 1**
 
@@ -1305,9 +1305,9 @@ Plans:
 - [x] 298-13-PLAN.md - the contract-parity checks inside --check: phrase set plus the 1,950-byte budget
 - [x] 298-14-PLAN.md - widen the pre-commit drift guard, repair the two red tests, expose policies
 
-**Wave 6** *(blocked on Wave 5 completion)*
+**Wave 6** *(complete)*
 
-- [ ] 298-15-PLAN.md - the harness-policies doctor acceptance point, CLAUDE.md, phase-close baseline diff
+- [x] 298-15-PLAN.md - the harness-policies doctor acceptance point, CLAUDE.md, phase-close baseline diff
 
 ### Phase 299: SEED-033: Apply Ralph-Loop Lessons to MindrianOS Autonomous Execution
 

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-14-PLAN.md
-last_updated: "2026-09-08T14:47:59.075Z"
+stopped_at: Completed 298-15-PLAN.md
+last_updated: "2026-09-08T15:07:49.864Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
-  completed_phases: 23
+  completed_phases: 24
   total_plans: 214
-  completed_plans: 212
-  percent: 99
+  completed_plans: 213
+  percent: 100
 ---
 
 <!-- NOTE (298-05 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
@@ -4162,9 +4162,28 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 14 of 15
-Status: Executing Phase 298
+Plan: 15 of 15
+Status: Phase complete — ready for verification
 Last activity: 2026-09-08 -- Phase 298 execution started
+
+<!-- NOTE (298-15 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file, and the LAST plan of Phase 298 -- all 15 plans, all 6 waves, now complete):
+     `state.advance-plan` correctly advanced "Plan: N of 15" to 15 this run -- no correction
+     needed there. It also clobbered "Status" to "Ready to execute" -- hand-corrected above to
+     "Phase complete -- ready for verification", matching this file's own established
+     convention for a phase's final plan (verbatim precedent: Phase 340's own Current Position
+     block read exactly that string when its 5th-of-5 plan completed, commit 42b02f4c).
+     `state.update-progress` correctly computed `percent: 100` (completed_plans 213 /
+     total_plans 214, rounded) in its own returned JSON but persisted the stale `percent: 27`
+     into the frontmatter -- hand-corrected to 100. `completed_phases: 24` was written
+     correctly by the same call (23 prior complete phases + Phase 298, now verified complete
+     via 15/15 298-*-SUMMARY.md files present on disk) and needed no fix.
+     `state.record-metric`, `state.add-decision --phase 298`, and `state.record-session
+     --stopped-at "Completed 298-15-PLAN.md"` all wrote correctly this run, including the
+     `[Phase 298]` decision-entry prefix (no repeat of the 298-05 note's documented
+     add-decision `[Phase ?]` bug, since this run's own call passed `--phase 298` as a named
+     flag rather than a positional arg). Root cause of the percent/Status clobber itself not
+     re-investigated -- same tracked bug class as every other note in this file. -->
 
 <!-- NOTE (298-11 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file, and the out-of-numeric-order case this plan's own dispatch context warned
@@ -5291,6 +5310,7 @@ Progress: [█████████░] 92%
 | Phase 298 P10 | 55min | 2 tasks | 3 files |
 | Phase 298 P13 | 35min | 2 tasks | 2 files |
 | Phase 298 P14 | 35min | 3 tasks | 5 files |
+| Phase 298 P15 | 55min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -6812,6 +6832,7 @@ Progress: [█████████░] 92%
 - [Phase 298]: 298-14: widened pre-commit drift trigger with two directory-prefix branches (data/harness-policies/, data/harness-fixtures/), closing Pitfall 6
 - [Phase 298]: 298-14: repointed both red manifest-cluster tests at scripts/hooks/pre-commit-room-minto-guard.sh instead of the emptied scripts/install-pre-commit.sh (R-11)
 - [Phase 298]: 298-14: exposed policies through recipe-maps.cjs loadManifest() via a two-line tolerant read, confined to _loadManifest (R-10)
+- [Phase 298]: harness-policies blocker echoes run-harness.cjs's own parsed --json counts for its finding string, never a separately-computed tally
 
 ### Pending Todos
 
@@ -6943,8 +6964,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T14:47:58.992Z
-Stopped at: Completed 298-14-PLAN.md
+Last session: 2026-09-08T15:07:49.781Z
+Stopped at: Completed 298-15-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
