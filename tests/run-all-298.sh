@@ -57,6 +57,10 @@ run_if "298-01 runner idempotence" "tests/test-298-runner-idempotent.cjs" \
   node tests/test-298-runner-idempotent.cjs
 run_if "298 harness-manifest --check" "data/harness-manifest.json" \
   node scripts/build-harness-manifest.cjs --check
+run_if "298-11 check-graph-derive-health --room fixture" "scripts/check-graph-derive-health.cjs" \
+  node scripts/check-graph-derive-health.cjs --room data/harness-fixtures/converged-room
+run_if "298-15 run-harness --check --tier pre-tag" "scripts/run-harness.cjs" \
+  node scripts/run-harness.cjs --check --tier pre-tag
 
 # 298 runner converged fixture: guarded on scripts/run-harness.cjs existing,
 # but the --room convergence branch itself lands in plan 298-11 (a second
