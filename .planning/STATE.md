@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-01-PLAN.md
-last_updated: "2026-09-08T04:09:57.613Z"
+stopped_at: Completed 298-03-PLAN.md
+last_updated: "2026-09-08T11:25:14.234Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 200
+  completed_plans: 201
   percent: 26
 ---
 
@@ -4146,8 +4146,21 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
 Plan: 3 of 15
-Status: Ready to execute
+Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
+
+<!-- NOTE (298-03 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `state.advance-plan` linearly incremented "Plan: N of 15" to 4 (next plan to
+     work on) rather than 3 (the highest-numbered, most recently completed plan on disk, per the
+     standing convention every prior note in this file uses -- see the 276-07/276-12 notes just
+     below). Hand-corrected back to "Plan: 3 of 15" and `Status` to "Executing Phase 298" (Phase
+     298 has 12 plans still to go). `state.update-progress` computed `percent: 94` correctly in
+     its own returned JSON (completed 201 / total 214) but persisted the stale `percent: 26` into
+     the frontmatter -- hand-corrected to 94; `completed_plans: 201` was written correctly and
+     needed no fix. `state.record-session` updated "Last session" but left the frontmatter
+     `stopped_at` and the body "Stopped at:" line both pointing at 298-01 -- hand-corrected both
+     to "Completed 298-03-PLAN.md". Root cause not re-investigated -- same tracked bug class as
+     every other note in this file. -->
 
 <!-- NOTE (339-06 execute-plan, 2026-09-04, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` correctly advanced "Plan: N of 14" to 6 in-place, but
@@ -4697,7 +4710,7 @@ Phase 106-02 closure (2026-05-03):
 
 Phase 106-02 outcome: D-02 context-window broadcast delivered. scripts/context-monitor renders 📊 token-budget glyph on every ctx threshold branch (50/65/80 contract preserved per researcher lock), ⚙️ {operator} when current != JUST_TALK, 🎯 {jtbd} when JTBD state present, and ⚠ compaction-imminent text replacing the skull glyph at >=80%. 7-test broadcast suite + 3-glyph carve-out fence (📊 🎯 ⚙️ exclusive; ⚠ pre-existing in 10 production files, sanity-only) replace Wave 0 stubs. Feynman 165/169 = exact baseline match (zero new failures). STATUS-106-02 flipped to Complete. Two deviations documented in 106-02-SUMMARY.md: auto-compact-aware test inputs (Tests 2/3 input fixup) and exclusive-vs-shared glyph split in fence.
 
-Status: Ready to execute
+Status: Executing Phase 298
 
 Resume note (2026-05-01): PC died after `/gsd:plan-phase 99 --auto` completed. Phase 99 PLAN files (99-01..99-05) sit on disk under `.planning/phases/99-conversation-operator-state-machine/` (gitignored per `.planning/` rule). Last commit `fbfe3e6` (CONTEXT + DISCUSSION-LOG only). No `feat(99-XX)` commits - execution never started. Phase 95.1 is closed (9/9 plans, see `a563850`); 95.1 is no longer current focus. Local commits ahead of `origin/main` by 1 (`fbfe3e6` unpushed).
 
@@ -5015,6 +5028,7 @@ Progress: [█████████░] 92%
 | Phase 340 P05 | 50min | 2 tasks | 3 files |
 | Phase 298 P01 | 6min | 3 tasks | 7 files |
 | Phase 298-seed-032-harness-as-code-declare-and-machine-enforce-the-min P02 | 12min | 2 tasks | 33 files |
+| Phase 298 P03 | 14min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6486,6 +6500,8 @@ Progress: [█████████░] 92%
 - [Phase 298]: 298-01: baseline narrowed research's six predicted pre-existing red tests to five; test-205-elevation-doctrine-floor.cjs now passes (v1.27 pin reconciled)
 - [Phase 298]: 298-01: kept all 7 run-all-298.sh legs per task spec despite a miscounted grep-c acceptance criterion (expected 7, arithmetic gives 9 for a 7-leg aggregator)
 - [Phase ?]: 298-02: converged-room fixture scaffolded once via scaffoldRoomSkeleton + scripts/compute-state (scratch MINDRIAN_ROOMS_HOME), scrubbed of 2 em-dashes + 4 ANSI bytes, committed as 33 static files. total_entries:13, venture_stage:Investment are structural artifacts of the scaffold/compute-state disagreement.
+- [Phase 298]: Re-verified prior session's uncommitted Task 2 diff against the plan line-by-line before committing, rather than trusting it at face value — Prior session was cut off before running any verification
+- [Phase 298]: Classified 3 exit-1 card-fire tests as pre-existing via a throwaway worktree checked out at 64b9f7ec (pre-Task-2 commit) — Identical exit codes at both commits prove the Task 2 diff did not cause the failures
 
 ### Pending Todos
 
@@ -6617,8 +6633,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T04:09:36.825Z
-Stopped at: Completed 298-01-PLAN.md
+Last session: 2026-09-08T11:23:42.577Z
+Stopped at: Completed 298-03-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
