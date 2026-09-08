@@ -1,0 +1,13 @@
+{
+  "id": "gate-graph-derive-health",
+  "kind": "gate",
+  "runner": "scripts/check-graph-derive-health.cjs",
+  "args": ["--all", "--json"],
+  "rung": "logged",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 30, "max_false_positive_rate": 0.1, "min_true_positives": 10 },
+  "owner": "derive-gate",
+  "pinned_by": ["tests/test-233-graph-derive-health.cjs", "tests/test-298-derive-health.cjs"],
+  "applies_to": ["room", "full"],
+  "notes": "This gate wraps lib/core/doctor/graph-derive-health-module.cjs's detectRoomHealth (Canon Part 7 reuse before build: the SEED-037 4d derivation-health signal already ships, with two existing consumers, and this is a third consumer, never a second copy). The committed converged-room fixture has no room.db, so a run against it reports status skip, and skip is the correct green case, not a failure. Declared at rung logged for one release per requirement 5, promoted to blocking only by the D8 rule once a log exists and promotion_rule is met; it is the runner's first declared policy because SEED-037 established that Larry must never write into a graph nothing downstream derives."
+}

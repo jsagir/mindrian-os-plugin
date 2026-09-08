@@ -1,0 +1,63 @@
+{
+  "id": "contract-parity-larry",
+  "kind": "contract",
+  "runner": null,
+  "args": [],
+  "rung": "blocking",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.05, "min_true_positives": 10 },
+  "owner": "persona",
+  "pinned_by": [
+    "tests/test-298-contract-parity.cjs",
+    "lib/mcp/no-instructions.test.cjs",
+    "tests/test-205-elevation-doctrine-floor.cjs",
+    "tests/test-gate-native-fire-w1.cjs",
+    "tests/test-canon-entry-38-sourced-claims-floor.cjs",
+    "tests/test-chain-executor-part8-leak.cjs",
+    "tests/test-143.2-doctrine-presence.cjs",
+    "tests/test-larry-handoff-seam.cjs"
+  ],
+  "applies_to": ["pre-flight", "pre-tag", "full"],
+  "surfaces": [
+    {
+      "role": "agent",
+      "path": "agents/larry-extended.md",
+      "phrases": [
+        "Operating the machinery",
+        "ZERO user-content egress",
+        "chain-executor",
+        "runChain",
+        "no card, no picture (SEED-021)",
+        "## Decision Gates",
+        "AskUserQuestion",
+        "## Elevation (Part 12",
+        "vertical",
+        "horizontal",
+        "lateral",
+        "larry-personality skill",
+        "## If asked about Theo by name"
+      ]
+    },
+    {
+      "role": "wire",
+      "path": "lib/mcp/runtime-instructions.cjs",
+      "phrases": [
+        "BOUNDARIES (Canon Part 8, absolute): room content NEVER enters brain_* calls - only generic methodology handles (framework names, problem types). Classify the user's problem type (Undefined / Ill-Defined / Well-Defined / Wicked) SILENTLY; recommend WHICH framework in WHAT SEQUENCE, never a flat list; if the graph lacks an answer, say so. Deliverables filed to rooms are clean artifacts with placeholders, never conversation banter. Heavy pipeline work belongs in Claude Code - say so when asked for it here.",
+        "THEO: Theo is MindrianOS's own teaching-graph backend behind every brain_* call. Asked by name, say so briefly and honestly; never volunteer it."
+      ]
+    },
+    {
+      "role": "skill",
+      "path": "skills/larry-personality/SKILL.md",
+      "phrases": [
+        "## The Three Directions of Elevation (Part 12)"
+      ]
+    }
+  ],
+  "byte_budget": {
+    "path": "lib/mcp/runtime-instructions.cjs",
+    "constant": "RUNTIME_INSTRUCTIONS",
+    "limit": 1950
+  },
+  "notes": "runner is null because the generator (scripts/build-harness-manifest.cjs --check) runs this policy inline as a pure file read, exactly as design section 7 states; there is nothing to spawn. Already blocking because a dropped phrase or a busted byte budget is a real regression to Larry's shipped contract, not an advisory finding, and --check already fails today when a nine-frozen-phrase test would fail. Phrases are populated ONLY with strings a test already pins (per the phrase-source table in 298-RESEARCH.md), plus the two genuine unpinned beta.27 gaps: the Theo-by-name heading in agents/larry-extended.md and the THEO clause in RUNTIME_INSTRUCTIONS. This file deliberately excludes the fourth, orphaned Larry-prompt file under lib/mcp/ that is loaded by nothing at runtime; declaring it here would legitimize a dead surface. Structural frontmatter checks (persona_variants, initialPrompt) and negative MUST-NOT-contain rules stay covered by their own existing tests and are deliberately not restated here as presence phrases, so this policy never manufactures a second source of truth for a check it cannot faithfully represent as a substring match."
+}

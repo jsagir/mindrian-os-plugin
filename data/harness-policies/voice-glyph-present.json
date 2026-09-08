@@ -1,0 +1,13 @@
+{
+  "id": "voice-glyph-present",
+  "kind": "voice",
+  "runner": "scripts/check-voice-style.cjs",
+  "args": [],
+  "rung": "declared",
+  "evidence_log": "$MINDRIAN_HOME/voice-style.jsonl",
+  "promotion_rule": { "window_runs": 100, "max_false_positive_rate": 0.1, "min_true_positives": 50 },
+  "owner": "voice",
+  "pinned_by": ["tests/test-298-voice-log.cjs"],
+  "applies_to": ["stop-hook"],
+  "notes": "Every Larry turn opens with exactly one De Stijl glyph naming the move (detectVoiceMark's valid contract in lib/hmi/voice-color-mark.cjs). This rule already holds in practice today; declared here (not logged) because no window of evidence has been reviewed by a human yet, even though the same Stop hook and voice-style.jsonl log this phase shipped mechanically evaluates it. min_true_positives is grounded in the same sourced figure as voice-hyphens-only: the 50 to 100 human-reviewed-traces baseline from Vanishing Gradients Ep. 57 (Shreya Shankar), low end adopted as the promotion floor."
+}

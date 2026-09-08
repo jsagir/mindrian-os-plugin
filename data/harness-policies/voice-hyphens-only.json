@@ -1,0 +1,13 @@
+{
+  "id": "voice-hyphens-only",
+  "kind": "voice",
+  "runner": "scripts/check-voice-style.cjs",
+  "args": [],
+  "rung": "declared",
+  "evidence_log": "$MINDRIAN_HOME/voice-style.jsonl",
+  "promotion_rule": { "window_runs": 100, "max_false_positive_rate": 0.1, "min_true_positives": 50 },
+  "owner": "voice",
+  "pinned_by": ["tests/test-298-voice-log.cjs"],
+  "applies_to": ["stop-hook"],
+  "notes": "No em-dashes or en-dashes in Larry's own turn output. Rung 1 (the rule stated in prose) has been declared three times already by quick 260907-qta; the machinery to log it mechanically (rung 2, the Stop hook plus lib/hmi/voice-style-log.cjs) shipped earlier in this phase, but this declaration conservatively enters at declared pending a human's own review of the first window of evidence. min_true_positives is grounded in the only sourced figure available: the 50 to 100 human-reviewed-traces baseline from Vanishing Gradients Ep. 57 (Shreya Shankar); this policy adopts the low end of that range as its promotion floor."
+}

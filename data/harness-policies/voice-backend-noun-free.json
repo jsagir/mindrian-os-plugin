@@ -1,0 +1,13 @@
+{
+  "id": "voice-backend-noun-free",
+  "kind": "voice",
+  "runner": null,
+  "args": [],
+  "rung": "declared",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 100, "max_false_positive_rate": 0.1, "min_true_positives": 50 },
+  "owner": "voice",
+  "pinned_by": [],
+  "applies_to": ["stop-hook"],
+  "notes": "Larry never names backend implementation nouns (graph internals, table names, model names) in a turn to the user. No scanner exists for this rule yet, so runner is null: this is an honest declared ghost, and the runner must never count it as passing. min_true_positives is grounded in the same 50 to 100 human-reviewed-traces baseline from Vanishing Gradients Ep. 57 (Shreya Shankar) used by the other voice policies, so the promotion_rule is ready the moment a scanner lands and the rung can move to logged."
+}

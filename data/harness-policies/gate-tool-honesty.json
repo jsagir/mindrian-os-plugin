@@ -1,0 +1,13 @@
+{
+  "id": "gate-tool-honesty",
+  "kind": "gate",
+  "runner": "scripts/check-tool-honesty.cjs",
+  "args": ["--check"],
+  "rung": "logged",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.1, "min_true_positives": 10 },
+  "owner": "doctor",
+  "pinned_by": ["tests/test-276-tool-honesty-findings-closed.cjs", "tests/test-276-tool-honesty-switch-branches.cjs", "tests/test-ljj-tool-honesty.cjs"],
+  "applies_to": ["pre-tag", "full"],
+  "notes": "This gate is advisory in release.sh today (invoked as check-tool-honesty.cjs --check with the failure swallowed by || true) and rides the same advisory-by-default posture as gate-shape-declaration in scripts/doctor.cjs. Declaring it at rung logged (not blocking) matches what it already does today. No evidence log exists for this gate today (34 of 35 gates lack one), so it enters at logged and cannot promote to blocking until a log exists and promotion_rule is met, per D8."
+}

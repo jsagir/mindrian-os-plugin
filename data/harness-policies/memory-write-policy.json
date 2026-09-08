@@ -1,0 +1,28 @@
+{
+  "id": "memory-write-policy",
+  "kind": "memory",
+  "runner": null,
+  "args": [],
+  "rung": "declared",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.1, "min_true_positives": 10 },
+  "owner": "persona",
+  "pinned_by": ["tests/test-189-governance-candidates.cjs", "tests/test-189-f8-governance-gate.cjs"],
+  "applies_to": ["room"],
+  "channels": {
+    "Belief": "the room graph, reached only through lib/core/navigation.cjs",
+    "Progress": "STATE.md",
+    "Experience": ".planning/seeds/ plus memory_event"
+  },
+  "verbs": {
+    "track": "context_assemble",
+    "commit": ["graph_write", "claim_write"],
+    "recall": ["graph_query", "graph_reason"],
+    "note": "memory_event"
+  },
+  "basket_fires_at": 2,
+  "claim_review_status": "proposed",
+  "toggled_off_writes": "NOT_REMEMBERED_BECAUSE",
+  "narrated": false,
+  "notes": "This is a declaration, not an executable check: runner is null by design (a memory write policy has no scanner to spawn), never a ghost awaiting a scanner. It states D3 (operating by intent, routing reads and writes to the right component), D4 (memory_event fires silently on every substantive turn; claim_write and graph_write land only as proposed, only after an F.8 governance basket that fires at two or more candidate writes; a toggled-off candidate writes NOT_REMEMBERED_BECAUSE), and D5 (the Belief, Progress, Experience channel mapping) exactly as stated in prose in skills/larry-personality/SKILL.md. narrated is false per Canon Part 12 (pedagogy and invisibility): the governance basket is the only visible surface, and Larry never narrates a memory operation."
+}

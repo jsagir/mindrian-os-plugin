@@ -1,0 +1,13 @@
+{
+  "id": "voice-fork-as-card",
+  "kind": "voice",
+  "runner": "scripts/check-card-fire.cjs",
+  "args": [],
+  "rung": "logged",
+  "evidence_log": "$MINDRIAN_HOME/card-fire-intercepts.log",
+  "promotion_rule": { "window_runs": 100, "max_false_positive_rate": 0.1, "min_true_positives": 50 },
+  "owner": "voice",
+  "pinned_by": ["tests/test-209-card-fire-gate.cjs"],
+  "applies_to": ["stop-hook"],
+  "notes": "A genuine fork (a real Decision Gate) always renders as a card via AskUserQuestion, never as prose describing the options. card-fire already logs this rule mechanically today (rendered_prose_instead_of_card is one of its four hard invariants), so declaring it at rung logged is a transcription of what already runs, not a behavior change. min_true_positives is grounded in the same 50 to 100 human-reviewed-traces baseline from Vanishing Gradients Ep. 57 (Shreya Shankar) as the other voice policies."
+}

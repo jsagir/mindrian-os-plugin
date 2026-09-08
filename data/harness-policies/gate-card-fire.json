@@ -1,0 +1,13 @@
+{
+  "id": "gate-card-fire",
+  "kind": "gate",
+  "runner": "scripts/check-card-fire.cjs",
+  "args": [],
+  "rung": "logged",
+  "evidence_log": "$MINDRIAN_HOME/card-fire-intercepts.log",
+  "promotion_rule": { "window_runs": 200, "max_false_positive_rate": 0.15, "min_true_positives": 20 },
+  "owner": "hooks",
+  "pinned_by": ["tests/test-209-card-fire-gate.cjs", "tests/test-doctor-card-fire-health.cjs"],
+  "applies_to": ["stop-hook"],
+  "notes": "This is the D8 precedent: the only one of the 35 check-*.cjs gates that already writes a real evidence log (card-fire-intercepts.log under MINDRIAN_HOME, TTL-pruned at 24 hours today). Its own 86 percent false-positive history, recorded before this phase, is exactly why the declared/logged/blocking ladder and the labeled-rows-only promotion rule exist: a raw fire count alone would have looked like a healthy gate. It runs with no flags (stdin envelope, not argv), and enters this declaration at rung logged, matching what it already runs at today, not blocking."
+}

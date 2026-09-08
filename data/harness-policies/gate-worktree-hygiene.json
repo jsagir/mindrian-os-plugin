@@ -1,0 +1,13 @@
+{
+  "id": "gate-worktree-hygiene",
+  "kind": "gate",
+  "runner": "scripts/check-worktree-hygiene.cjs",
+  "args": ["--check", "--json"],
+  "rung": "blocking",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.05, "min_true_positives": 5 },
+  "owner": "doctor",
+  "pinned_by": ["tests/test-260906-t3s-worktree-hygiene.cjs"],
+  "applies_to": ["pre-tag", "full"],
+  "notes": "Already blocking: this gate is an existing scripts/doctor.cjs acceptance point (id worktree-hygiene, severity blocker) invoked with --check --json exactly as declared here, so declaring it at rung blocking is a transcription, not a behavior change. No evidence log exists for it today (34 of 35 gates lack one), so promotion_rule is decided now, before any log exists, and is retained for schema completeness and for a future demotion-then-repromotion review, never for an upcoming promotion since blocking is already the ceiling rung."
+}

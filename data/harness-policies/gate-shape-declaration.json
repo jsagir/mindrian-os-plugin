@@ -1,0 +1,13 @@
+{
+  "id": "gate-shape-declaration",
+  "kind": "gate",
+  "runner": "scripts/check-shape-declaration.cjs",
+  "args": ["--check"],
+  "rung": "logged",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.1, "min_true_positives": 10 },
+  "owner": "doctor",
+  "pinned_by": ["tests/test-canon-entry-36-shape-declaration-floor.cjs", "tests/test-shape-declaration-advisory.cjs"],
+  "applies_to": ["pre-tag", "full"],
+  "notes": "This gate has been advisory WARN since Phase 210 (the codebase's own prior decision, not new here): --check exits 0 on a violating tree and enumerates every violation instead of failing, and --strict restores the pre-210 hard-fail. Declaring it at rung logged (not blocking) matches what it already does today; declaring it blocking would silently turn an advisory gate into a release blocker, which this phase explicitly avoids. No evidence log exists for this gate today (34 of 35 gates lack one), so it enters at logged and cannot promote to blocking until a log exists and promotion_rule is met, per D8."
+}
