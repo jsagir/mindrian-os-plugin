@@ -717,11 +717,214 @@ async function runSelftest() {
     const probeUnit = JSON.parse(fs.readFileSync(path.join(tmpOut, 'funnel', 'units', 'funnel-sP-0.json'), 'utf8'));
     assert.strictEqual(probeUnit.not_evaluated_reason, 'induced_probe', 'selftest: --probe-mark must record reason induced_probe');
     assert.ok(NOT_EVALUATED_REASONS.includes(probeUnit.not_evaluated_reason), 'selftest: probe reason in closed vocabulary');
+
+    // ======================================================================
+    // Null-negative reconciliation selftest block (Phase 318, SEED-061 step 1).
+    // Cases A-G are pure in-memory calls into buildPositiveIndex/
+    // reconcileNullNegatives; they need no tmpOut and no spawn. Cases H and I
+    // drive a real runFunnel call with an injected fakeSpawn (zero-spawn rule
+    // held throughout).
+    // ======================================================================
+
+    // Case A: cross-skill exact match, different casing + collapsed whitespace,
+    // corrects the null negative to the foreign skill.
+    {
+      const idxA = buildPositiveIndex([
+        { skill: 'sX', kind: 'should_trigger', expected_skill: 'sX', query: 'do   the THING' },
+      ]);
+      const rA = reconcileNullNegatives(
+        [{ skill: 'sY', kind: 'should_not_trigger', expected_skill: null, query: 'Do the thing', unit_id: 'u-a' }],
+        idxA
+      );
+      assert.strictEqual(rA.items[0].expected_skill, 'sX', 'selftest reconcile: Case A cross-skill exact match (case/whitespace) must correct to sX');
+      assert.strictEqual(rA.corrections.length, 1, 'selftest reconcile: Case A must record exactly one correction');
+    }
+
+    // Case B: a null negative with no roster match stays null and lands in remaining_null.
+    {
+      const idxB = buildPositiveIndex([
+        { skill: 'sX', kind: 'should_trigger', expected_skill: 'sX', query: 'completely unrelated query' },
+      ]);
+      const rB = reconcileNullNegatives(
+        [{ skill: 'sY', kind: 'should_not_trigger', expected_skill: null, query: 'nothing matches this at all', unit_id: 'u-b' }],
+        idxB
+      );
+      assert.strictEqual(rB.items[0].expected_skill, null, 'selftest reconcile: Case B no-match negative must stay null');
+      assert.strictEqual(rB.remaining_null.length, 1, 'selftest reconcile: Case B must land in remaining_null');
+    }
+
+    // Case C: an already-labeled negative is returned byte-identical (never touched).
+    {
+      const already = { skill: 'sY', kind: 'should_not_trigger', expected_skill: 'sC-target', query: 'Do the thing', unit_id: 'u-c' };
+      const idxC = buildPositiveIndex([
+        { skill: 'sX', kind: 'should_trigger', expected_skill: 'sX', query: 'do the thing' },
+      ]);
+      const rC = reconcileNullNegatives([already], idxC);
+      assert.deepStrictEqual(rC.items[0], already, 'selftest reconcile: Case C already-labeled negative must be returned byte-identical');
+      assert.strictEqual(rC.corrections.length, 0, 'selftest reconcile: Case C must record zero corrections');
+    }
+
+    // Case D: the REAL Phase 230 near-miss pair (harvested at plan time from
+    // out/queries/jtbd.json's negative and out/queries/status.json's positive)
+    // must stay null. This is the tripwire: it fails the moment fuzzy/semantic
+    // matching is ever added, because the two strings are real data that are
+    // similar, never identical.
+    {
+      const idxD = buildPositiveIndex([
+        { skill: 'status', kind: 'should_trigger', expected_skill: 'status', query: 'show me the current status of my room' },
+      ]);
+      const rD = reconcileNullNegatives(
+        [{ skill: 'jtbd', kind: 'should_not_trigger', expected_skill: null, query: "what's the status of my room", unit_id: 'u-d' }],
+        idxD
+      );
+      assert.strictEqual(rD.items[0].expected_skill, null, 'selftest reconcile: Case D real Phase 230 near-miss pair must stay null (no fuzzy match, exact-match only per D-02)');
+    }
+
+    // Case E: a positive owned by the negative's OWN skill is not a correction.
+    {
+      const idxE = buildPositiveIndex([
+        { skill: 'sY', kind: 'should_trigger', expected_skill: 'sY', query: 'do the thing' },
+      ]);
+      const rE = reconcileNullNegatives(
+        [{ skill: 'sY', kind: 'should_not_trigger', expected_skill: null, query: 'do the thing', unit_id: 'u-e' }],
+        idxE
+      );
+      assert.strictEqual(rE.items[0].expected_skill, null, 'selftest reconcile: Case E same-skill match must not correct');
+      assert.strictEqual(rE.corrections.length, 0, 'selftest reconcile: Case E must record zero corrections');
+    }
+
+    // Case F: two distinct foreign candidates leave the label null and record an ambiguity.
+    {
+      const idxF = buildPositiveIndex([
+        { skill: 'sX', kind: 'should_trigger', expected_skill: 'sX', query: 'do the thing' },
+        { skill: 'sZ', kind: 'should_trigger', expected_skill: 'sZ', query: 'do the thing' },
+      ]);
+      const rF = reconcileNullNegatives(
+        [{ skill: 'sY', kind: 'should_not_trigger', expected_skill: null, query: 'do the thing', unit_id: 'u-f' }],
+        idxF
+      );
+      assert.strictEqual(rF.items[0].expected_skill, null, 'selftest reconcile: Case F ambiguous multi-candidate must stay null');
+      assert.strictEqual(rF.ambiguous.length, 1, 'selftest reconcile: Case F must record one ambiguity');
+      assert.strictEqual(rF.remaining_null.length, 1, 'selftest reconcile: Case F ambiguous item must also land in remaining_null');
+    }
+
+    // Case G: purity, arity 2, and no spawn/fs/network token anywhere in the
+    // three reconciliation function sources.
+    {
+      assert.strictEqual(reconcileNullNegatives.length, 2, 'selftest reconcile: Case G reconcileNullNegatives must have arity 2');
+      const srcG = reconcileNullNegatives.toString() + buildPositiveIndex.toString() + normalizeQueryText.toString();
+      assert.ok(!/spawnSync|spawnImpl|child_process|execSync|execFile|fetch\(|readFileSync|writeFileSync/.test(srcG),
+        'selftest reconcile: Case G reconciliation functions must be pure (no spawn/fs/network token)');
+    }
+
+    // Case H: a runFunnel call scoped with skills:['sX'] still corrects against a
+    // positive owned by a skill outside the scope (proves Finding 3 is handled:
+    // the positive index is built roster-wide, before the caller's scope narrows
+    // the evaluated items).
+    {
+      const mkSet = (skill, queries) => ({ skill, family: 'plain:s', queries });
+      const hSpawn = (args) => {
+        const prompt = args[1] || '';
+        const q = (prompt.match(/USER QUERY: (.*)/) || [])[1] || '';
+        let predicted = null;
+        if (q === 'RECONCILE-H-COLLIDE') predicted = 'sY';
+        else if (q.startsWith('sX filler')) predicted = 'sX';
+        else if (q.startsWith('sY filler')) predicted = 'sY';
+        return { status: 0, stdout: JSON.stringify({ structured_output: { query: q, predicted_skill: predicted, expected_skill: null, confidence: 'high', reasoning: 'deterministic fixture' }, session_id: 'sess-h', total_cost_usd: 0.01 }) };
+      };
+      const sXQueries = [
+        { query: 'RECONCILE-H-COLLIDE', expected_skill: null, family: 'plain:s', split: 'train', kind: 'should_not_trigger' },
+        { query: 'sX filler one', expected_skill: 'sX', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sX filler two', expected_skill: 'sX', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sX filler three', expected_skill: 'sX', family: 'plain:s', split: 'validation', kind: 'should_trigger' },
+      ];
+
+      const hQueriesDir = path.join(tmpOut, 'queries-reconcile-h');
+      fs.mkdirSync(hQueriesDir, { recursive: true });
+      fs.writeFileSync(path.join(hQueriesDir, 'sX.json'), JSON.stringify(mkSet('sX', sXQueries)));
+      fs.writeFileSync(path.join(hQueriesDir, 'sY.json'), JSON.stringify(mkSet('sY', [
+        { query: 'RECONCILE-H-COLLIDE', expected_skill: 'sY', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sY filler one', expected_skill: 'sY', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sY filler two', expected_skill: 'sY', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sY filler three', expected_skill: 'sY', family: 'plain:s', split: 'validation', kind: 'should_trigger' },
+      ])));
+
+      const withForeign = await runFunnel({ inventory: fixtureInventory, queriesDir: hQueriesDir, outDir: tmpOut, spawnImpl: hSpawn, skills: ['sX'], config: { concurrency: 2 }, _noWriteResults: true });
+      const sXWith = withForeign.results.find((r) => r.skill === 'sX');
+      assert.ok(sXWith, 'selftest reconcile: Case H sX must appear in scoped results');
+      assert.strictEqual(sXWith.verdict, 'pass', 'selftest reconcile: Case H sX must pass with the foreign positive present (--skills scoped run, full-roster index)');
+      assert.strictEqual(sXWith.train_miss_count, 0, 'selftest reconcile: Case H sX must have zero train misses with the foreign positive present');
+
+      // Same run WITHOUT the sY query set present: the false alarm this phase removes.
+      const hQueriesDirNoForeign = path.join(tmpOut, 'queries-reconcile-h-noforeign');
+      fs.mkdirSync(hQueriesDirNoForeign, { recursive: true });
+      fs.writeFileSync(path.join(hQueriesDirNoForeign, 'sX.json'), JSON.stringify(mkSet('sX', sXQueries)));
+      const withoutForeign = await runFunnel({ inventory: fixtureInventory, queriesDir: hQueriesDirNoForeign, outDir: tmpOut, spawnImpl: hSpawn, skills: ['sX'], config: { concurrency: 2 }, _noWriteResults: true });
+      const sXWithout = withoutForeign.results.find((r) => r.skill === 'sX');
+      assert.strictEqual(sXWithout.verdict, 'flagged', 'selftest reconcile: Case H sX must flag without the foreign positive (the false alarm this phase removes)');
+      assert.strictEqual(sXWithout.train_miss_count, 1, 'selftest reconcile: Case H sX must have exactly one train miss without the foreign positive');
+    }
+
+    // Case I: a pre-seeded resumed unit whose persisted payload carries the stale
+    // null label is scored against the reconciled label (Finding 5), and the
+    // persisted unit JSON on disk is proven unchanged afterwards (in-memory
+    // override only, never re-persisted).
+    {
+      const mkSet = (skill, queries) => ({ skill, family: 'plain:s', queries });
+      const iQueriesDir = path.join(tmpOut, 'queries-reconcile-i');
+      fs.mkdirSync(iQueriesDir, { recursive: true });
+      fs.writeFileSync(path.join(iQueriesDir, 'sI.json'), JSON.stringify(mkSet('sI', [
+        { query: 'RECONCILE-I-COLLIDE', expected_skill: null, family: 'plain:s', split: 'train', kind: 'should_not_trigger' },
+        { query: 'sI filler one', expected_skill: 'sI', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sI filler two', expected_skill: 'sI', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sI filler three', expected_skill: 'sI', family: 'plain:s', split: 'validation', kind: 'should_trigger' },
+      ])));
+      fs.writeFileSync(path.join(iQueriesDir, 'sJ.json'), JSON.stringify(mkSet('sJ', [
+        { query: 'RECONCILE-I-COLLIDE', expected_skill: 'sJ', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sJ filler one', expected_skill: 'sJ', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sJ filler two', expected_skill: 'sJ', family: 'plain:s', split: 'train', kind: 'should_trigger' },
+        { query: 'sJ filler three', expected_skill: 'sJ', family: 'plain:s', split: 'validation', kind: 'should_trigger' },
+      ])));
+
+      // Pre-seed sI's collision unit as already done, with the STALE null label
+      // and a predicted_skill that already correctly names the foreign skill
+      // (mirroring a prior run's judge, which sees the full roster and would
+      // correctly predict sJ regardless of what expected label it was fed).
+      const iUnitsDir = path.join(tmpOut, 'funnel', 'units');
+      fs.mkdirSync(iUnitsDir, { recursive: true });
+      const staleVerdict = { query: 'RECONCILE-I-COLLIDE', predicted_skill: 'sJ', expected_skill: null, confidence: 'high', reasoning: 'prior run, pre-reconciliation' };
+      const staleUnit = makeUnitRecord({ unitId: 'funnel-sI-0', model: PINNED_SONNET, env: { session_id: 'sess-i-prior', total_cost_usd: 0.01 }, exit: 0, status: 'ok', payload: staleVerdict });
+      const staleUnitPath = path.join(iUnitsDir, 'funnel-sI-0.json');
+      fs.writeFileSync(staleUnitPath, JSON.stringify(staleUnit));
+      fs.writeFileSync(path.join(iUnitsDir, 'funnel-sI-0.done'), '');
+      const staleUnitBytesBefore = fs.readFileSync(staleUnitPath, 'utf8');
+
+      const iSpawn = (args) => {
+        const prompt = args[1] || '';
+        const q = (prompt.match(/USER QUERY: (.*)/) || [])[1] || '';
+        let predicted = null;
+        if (q === 'RECONCILE-I-COLLIDE') predicted = 'sJ';
+        else if (q.startsWith('sI filler')) predicted = 'sI';
+        else if (q.startsWith('sJ filler')) predicted = 'sJ';
+        return { status: 0, stdout: JSON.stringify({ structured_output: { query: q, predicted_skill: predicted, expected_skill: null, confidence: 'high', reasoning: 'deterministic fixture' }, session_id: 'sess-i', total_cost_usd: 0.01 }) };
+      };
+
+      const iRun = await runFunnel({ inventory: fixtureInventory, queriesDir: iQueriesDir, outDir: tmpOut, spawnImpl: iSpawn, config: { concurrency: 2 }, _noWriteResults: true });
+      const sIResult = iRun.results.find((r) => r.skill === 'sI');
+      assert.ok(sIResult, 'selftest reconcile: Case I sI must appear in results');
+      assert.strictEqual(sIResult.verdict, 'pass', 'selftest reconcile: Case I resumed unit must score against the reconciled label, not the stale persisted null (train_miss_count 0)');
+      assert.strictEqual(sIResult.train_miss_count, 0, 'selftest reconcile: Case I resumed unit must have zero train misses once scored against the reconciled label');
+
+      const staleUnitBytesAfter = fs.readFileSync(staleUnitPath, 'utf8');
+      assert.strictEqual(staleUnitBytesAfter, staleUnitBytesBefore, 'selftest reconcile: Case I persisted unit JSON must be byte-identical after the run (in-memory override only, never rewritten)');
+      const staleUnitParsedAfter = JSON.parse(staleUnitBytesAfter);
+      assert.strictEqual(staleUnitParsedAfter.payload.expected_skill, null, 'selftest reconcile: Case I persisted unit payload must still carry its ORIGINAL stale null expected_skill on disk');
+    }
   } finally {
     fs.rmSync(tmpOut, { recursive: true, force: true });
   }
 
-  console.log('OK - skillopt-funnel self-test passed: miss->flag, medium->flag, clean->pass, unparseable->not_evaluated, resume skip, reconciliation gate, concurrency clamp, induced probe.');
+  console.log('OK - skillopt-funnel self-test passed: miss->flag, medium->flag, clean->pass, unparseable->not_evaluated, resume skip, reconciliation gate, concurrency clamp, induced probe, null-negative reconciliation (exact match, no-match, already-labeled, near-miss immunity, self-skill immunity, ambiguity, purity, --skills full-roster visibility, resume-path correctness).');
 }
 
 // --------------------------------------------------------------------------
