@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-07-PLAN.md
-last_updated: "2026-09-08T12:16:15.658Z"
+stopped_at: Completed 298-08-PLAN.md
+last_updated: "2026-09-08T13:11:21.529Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 205
+  completed_plans: 206
   percent: 96
 ---
 
@@ -4162,7 +4162,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 7 of 15
+Plan: 8 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
 
@@ -4211,6 +4211,22 @@ Last activity: 2026-09-08 -- Phase 298 execution started
      ROADMAP.md fusion (Phases 283/319-322/324-326/333-334/303) and this file's own
      Roadmap Evolution entry for it were re-applied immediately below, verified via
      `git diff` before commit. -->
+
+<!-- NOTE (298-08 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `git status --porcelain` read clean before this run started (the
+     orchestrator's own commit ebd29ffa landed cleanly before this dispatch, matching the
+     dispatch prompt's own claim), so no uncommitted foreign edits were encountered and no
+     destructive git command was ever considered. `state.advance-plan` correctly incremented
+     "Plan: N of 15" to 8 (this run's own 298-08) -- no correction needed there.
+     `state.update-progress` correctly computed percent=96 (completed_plans 206 / total_plans
+     214) in its own returned JSON but persisted the stale `percent: 26` into the frontmatter
+     -- hand-corrected to 96; `completed_plans: 206` was written correctly and needed no fix.
+     `Status` was clobbered to "Ready to execute" by the same advance-plan call --
+     hand-corrected to "Executing Phase 298" (7 plans still to go), matching the standing
+     convention every prior note in this file uses. `stopped_at` and the body "Stopped at:"
+     line were both written correctly by `state.record-session` ("Completed 298-08-PLAN.md"),
+     needing no fix. Root cause not re-investigated -- same tracked bug class as every other
+     note in this file. -->
 
 <!-- NOTE (298-06 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan` correctly incremented "Plan: N of 15" to 6 (the
@@ -5132,6 +5148,7 @@ Progress: [█████████░] 92%
 | Phase 298 P04 | 55min | 3 tasks | 4 files |
 | Phase 298 P05 | 40min | 2 tasks | 2 files |
 | Phase 298 P06 | 15min | 2 tasks | 2 files |
+| Phase 298 P08 | 40min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -6640,6 +6657,9 @@ Progress: [█████████░] 92%
 - [Phase 298]: test-189-cascade-f9.cjs F.9 failure classified pre-existing via throwaway-worktree reproduction at pre-Task-1 commit f6776972
 - [Phase 298]: Desktop wire (lib/mcp/runtime-instructions.cjs) left untouched in 298-05 (R-07): served constant measures 1944/1950 bytes (6 bytes headroom, unchanged), a comparable D3/D4/D5 clause needs 120-180 bytes, and the byte-frozen BOUNDARIES paragraph must remain last -- R-07 satisfied instead by SKILL.md and larry-extended.md, which have byte headroom
 - [Phase 298]: 298-06: check-graph-derive-health.cjs ships as a thin wrapper over the shipped detectRoomHealth/check; the ghost-refusal and governance.cjs PENDING items from the 298-01 test stub are deliberately deferred to plans 298-04 (already discharged) and 298-10/298-11 (not yet built), documented in the SUMMARY rather than built prematurely against a subject that does not exist yet
+- [Phase ?]: min_true_positives compares against the total labeled count (true_positives + false_positives), matching the plan's literal action text over the research note's paraphrased variant
+- [Phase ?]: false_positive_rate is null, not 0, when zero rows are labeled, proving Pitfall 5's fake-zero-percent auto-qualify cannot happen
+- [Phase ?]: the doctor module's policiesDir()/loadPolicy() degrade a missing data/harness-policies/<id>.json (not landed until 298-09) to a bare {id} object; evaluatePromotion's own malformed-rule path is the single place that condition is reported
 
 ### Pending Todos
 
@@ -6771,8 +6791,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T12:16:15.658Z
-Stopped at: Completed 298-07-PLAN.md
+Last session: 2026-09-08T13:11:21.466Z
+Stopped at: Completed 298-08-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
