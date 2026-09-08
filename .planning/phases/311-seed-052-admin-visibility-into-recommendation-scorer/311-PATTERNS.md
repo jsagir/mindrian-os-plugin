@@ -112,7 +112,7 @@ Add a third early-continue in the exact same style directly after the existing t
 
 ---
 
-### Caller site(s) — where `isAdmin()` gets computed and passed in
+### Caller site(s) - where `isAdmin()` gets computed and passed in
 
 **Primary analog:** `lib/core/navigation-engine-offer.cjs` `resolveOffer()`, lines 108-120:
 ```javascript
