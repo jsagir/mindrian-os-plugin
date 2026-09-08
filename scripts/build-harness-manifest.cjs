@@ -73,7 +73,7 @@ const GENERATED_NOTE =
 // metadata, never pws teaching IP and never user content.
 const TIER_OP = 'mindrian-operation';
 
-const MANIFEST_VERSION = 1;
+const MANIFEST_VERSION = 2;
 
 // ---------------------------------------------------------------------------
 // THE THREE-MAP BINDING (HIGH-1, D-167-01). EXACTLY three entries, one per map.
@@ -154,6 +154,50 @@ const RUNTIME_SURFACE_BINDINGS = Object.freeze([
 ]);
 
 // ---------------------------------------------------------------------------
+// THE LARRY SURFACE BINDINGS (Phase 298, SEED-032, D-201-1 sibling). Larry
+// speaks through exactly THREE surfaces; each is its OWN declared, digested
+// binding, kept OUT of RUNTIME_SURFACE_BINDINGS (which stays exactly four -
+// tests/test-201-harness-manifest.cjs's EXPECTED_SURFACE_ROLES pins that
+// length). buildSurfaceEntry(binding) is REUSED VERBATIM (Part 7): a
+// `{ role, path, digest }` triple, digest-only, no source_count, matching the
+// runtime-surface entry shape exactly.
+//
+// role -> the speaking surface (the file that IS that surface):
+//   cli_agent            agents/larry-extended.md          (the CLI agent)
+//   personality_skill     skills/larry-personality/SKILL.md (the skill)
+//   desktop_cowork_wire   lib/mcp/runtime-instructions.cjs  (the Desktop/Cowork wire)
+// ---------------------------------------------------------------------------
+const LARRY_SURFACE_BINDINGS = Object.freeze([
+  Object.freeze({
+    role: 'cli_agent',
+    relPath: 'agents/larry-extended.md',
+    absPath: path.join(REPO_ROOT, 'agents/larry-extended.md'),
+  }),
+  Object.freeze({
+    role: 'personality_skill',
+    relPath: 'skills/larry-personality/SKILL.md',
+    absPath: path.join(REPO_ROOT, 'skills/larry-personality/SKILL.md'),
+  }),
+  Object.freeze({
+    role: 'desktop_cowork_wire',
+    relPath: 'lib/mcp/runtime-instructions.cjs',
+    absPath: path.join(REPO_ROOT, 'lib/mcp/runtime-instructions.cjs'),
+  }),
+]);
+
+// ---------------------------------------------------------------------------
+// THE POLICY DIRECTORY + FIXTURE DIRECTORY (Phase 298, SEED-032). Both are
+// digested as ONE directory-wide entry (path, digest[, count]) - the manifest
+// never enumerates a directory's individual files as rows, exactly as it never
+// enumerates a map's individual sources as rows (HIGH-1's own discipline
+// extended one level).
+// ---------------------------------------------------------------------------
+const POLICIES_DIR = 'data/harness-policies';
+const POLICIES_ABS = path.join(REPO_ROOT, POLICIES_DIR);
+const FIXTURE_DIR = 'data/harness-fixtures/converged-room';
+const FIXTURE_ABS = path.join(REPO_ROOT, FIXTURE_DIR);
+
+// ---------------------------------------------------------------------------
 // The Part 8 boundary-scan field allowlists (D-167-06, BOG-10 sibling). SINGLE
 // SOURCE OF TRUTH the Wave-1 boundary scan
 // (tests/test-harness-manifest-part8-boundary.cjs) asserts against. A top-level
@@ -173,6 +217,14 @@ const NODE_FIELD_ALLOWLIST = Object.freeze([
   // generic { role, path, digest } machinery triple (a subset of
   // ENTRY_FIELD_ALLOWLIST); no source_count, no user-content channel.
   'runtime_surfaces',
+  // Phase 298 (SEED-032): three additive generic machinery fields carrying no
+  // user content. `policies` and `fixture_ref` are DIRECTORY-DIGEST objects
+  // (path, digest[, count]), never a per-file enumeration. `larry_surfaces` is
+  // the same { role, path, digest } machinery triple as runtime_surfaces, just
+  // Larry's own three speaking surfaces kept in a separate frozen array.
+  'policies',
+  'larry_surfaces',
+  'fixture_ref',
 ]);
 
 // Every maps entry is EXACTLY { role, path, digest, source_count }. A maps-entry
@@ -263,6 +315,308 @@ function buildSurfaceEntry(binding) {
 }
 
 // ---------------------------------------------------------------------------
+// listFilesRecursive(rootDir) -- list every FILE under rootDir (recursing into
+// subdirectories), as paths relative to rootDir using '/' separators
+// regardless of OS, in a plain lexicographic sort over the FULL relative path.
+// Returns [] for a missing or unreadable directory (degrade, never throw).
+// ---------------------------------------------------------------------------
+function listFilesRecursive(rootDir) {
+  const out = [];
+  function walk(dirAbs, relPrefix) {
+    let entries;
+    try {
+      entries = fs.readdirSync(dirAbs, { withFileTypes: true });
+    } catch (_e) {
+      return;
+    }
+    for (const entry of entries) {
+      const relPath = relPrefix ? relPrefix + '/' + entry.name : entry.name;
+      const absPath = path.join(dirAbs, entry.name);
+      if (entry.isDirectory()) {
+        walk(absPath, relPath);
+      } else if (entry.isFile()) {
+        out.push(relPath);
+      }
+    }
+  }
+  walk(rootDir, '');
+  return out.sort();
+}
+
+// ---------------------------------------------------------------------------
+// digestDirectory(dirPath) -- digest a DIRECTORY as ONE value (Phase 298,
+// SEED-032). There is NO shipped directory-digest precedent in this file (the
+// three existing digests are all single-file digestBytes calls), so THE
+// COMPOSITION RULE IS STATED HERE, the way every other invariant in this file
+// is stated:
+//
+//   1. List every file under dirPath, recursing into subdirectories.
+//   2. Sort the relative paths with a plain lexicographic sort (the full
+//      relative path, '/' separators, no OS-specific ordering).
+//   3. For each file, in that sorted order, build the line:
+//        <relative-path> + NUL(\0) + <lowercase-hex-sha256-of-the-file-bytes> + \n
+//   4. Concatenate those lines in order and return the sha256 hex of the
+//      concatenation.
+//
+// This makes the digest filesystem-independent (relative paths only) and
+// RENAME-SENSITIVE: renaming a file with byte-identical content changes the
+// digest, because the relative path is part of what is hashed - which is the
+// correct behavior for a declared harness fingerprint. A missing directory (or
+// an empty one) yields the sha256 of the empty buffer, the SAME stable
+// sentinel readBytes's degrade path already uses for a missing single file.
+// ---------------------------------------------------------------------------
+function digestDirectory(dirPath) {
+  const files = listFilesRecursive(dirPath);
+  if (files.length === 0) {
+    return digestBytes(Buffer.from(''));
+  }
+  const lines = files.map((relPath) => {
+    const buf = readBytes(path.join(dirPath, relPath));
+    const fileDigest = buf ? digestBytes(buf) : digestBytes(Buffer.from(''));
+    return relPath + '\0' + fileDigest + '\n';
+  });
+  return digestBytes(Buffer.from(lines.join(''), 'utf8'));
+}
+
+// ---------------------------------------------------------------------------
+// listPolicyFileNames(dirAbs) -- the policy directory's *.json files, EXCLUDING
+// `_schema.json` (the vocabulary declaration itself, not a policy) and any
+// non-JSON file (e.g. CONTEXT.md). Sorted for determinism. Returns [] for a
+// missing/unreadable directory (degrade, never throw).
+// ---------------------------------------------------------------------------
+function listPolicyFileNames(dirAbs) {
+  let entries;
+  try {
+    entries = fs.readdirSync(dirAbs);
+  } catch (_e) {
+    return [];
+  }
+  return entries.filter((f) => f.endsWith('.json') && f !== '_schema.json').sort();
+}
+
+// ---------------------------------------------------------------------------
+// loadPolicySchema() -- read data/harness-policies/_schema.json's `_doc` block
+// (the closed vocabularies + runner_path_rule + policy_fields). Returns null
+// on any failure so a caller can degrade to a single MALFORMED finding rather
+// than throwing (mirrors readBytes's degrade discipline).
+// ---------------------------------------------------------------------------
+function loadPolicySchema() {
+  try {
+    const raw = fs.readFileSync(path.join(POLICIES_ABS, '_schema.json'), 'utf8');
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && parsed._doc ? parsed._doc : null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// EXTRA_KEYS_BY_POLICY_ID -- the narrow extra-key exception
+// data/harness-policies/_schema.json's own `_doc.validation_rule` documents in
+// prose (that file has no separate machine-readable field for it): two
+// migration-slice-1 policy files carry a small set of additional keys beyond
+// the eleven common `policy_fields`. This states that SAME exception verbatim
+// rather than inventing a new one or restating a different description of it.
+// ---------------------------------------------------------------------------
+const EXTRA_KEYS_BY_POLICY_ID = Object.freeze({
+  'memory-write-policy': Object.freeze([
+    'channels', 'verbs', 'basket_fires_at', 'claim_review_status',
+    'toggled_off_writes', 'narrated',
+  ]),
+  'contract-parity-larry': Object.freeze([
+    'surfaces', 'byte_budget',
+  ]),
+});
+
+// ---------------------------------------------------------------------------
+// isValidRunnerPath(runner) -- the schema's own runner_path_rule, implemented:
+// null (an honest declared ghost) is always valid; otherwise runner must be a
+// repo-relative string beginning with the literal prefix "scripts/", carrying
+// no parent-directory ("..") segment, never an absolute path, and resolving
+// inside the repository root when joined to it.
+// ---------------------------------------------------------------------------
+function isValidRunnerPath(runner) {
+  if (runner === null) return true;
+  if (typeof runner !== 'string' || runner.length === 0) return false;
+  if (!runner.startsWith('scripts/')) return false;
+  if (path.isAbsolute(runner)) return false;
+  if (runner.split('/').includes('..')) return false;
+  const resolved = path.resolve(REPO_ROOT, runner);
+  const rel = path.relative(REPO_ROOT, resolved);
+  return rel !== '' && rel !== '..' && !rel.startsWith('..' + path.sep) && !path.isAbsolute(rel);
+}
+
+// ---------------------------------------------------------------------------
+// validatePolicyFile(policy, fileName, schema) -- validate ONE parsed policy
+// object against the closed vocabularies + runner_path_rule READ from the
+// schema (never restated as a second hardcoded copy). Returns an array of
+// finding strings, each naming the file and the failing key; an empty array
+// means the file is valid. Fails closed: every rejection reason from the
+// schema's `default_on_miss` is enforced here.
+// ---------------------------------------------------------------------------
+function validatePolicyFile(policy, fileName, schema) {
+  const findings = [];
+  const RECOVERY_POLICY =
+    'Recovery: fix data/harness-policies/' + fileName +
+    ' against data/harness-policies/_schema.json, then re-run ' +
+    'node scripts/build-harness-manifest.cjs --check.';
+
+  if (!policy || typeof policy !== 'object' || Array.isArray(policy)) {
+    findings.push(
+      'MALFORMED: policy file ' + fileName + ' is not a JSON object. ' + RECOVERY_POLICY
+    );
+    return findings;
+  }
+  if (!schema || typeof schema !== 'object') {
+    findings.push(
+      'MALFORMED: policy file ' + fileName + ' cannot be validated - ' +
+        'data/harness-policies/_schema.json is missing or invalid. ' + RECOVERY_POLICY
+    );
+    return findings;
+  }
+
+  const commonFields = Array.isArray(schema.policy_fields)
+    ? schema.policy_fields.map((f) => f && f.field).filter((f) => typeof f === 'string')
+    : [];
+  const id = typeof policy.id === 'string' ? policy.id : '';
+  const extraAllowed = EXTRA_KEYS_BY_POLICY_ID[id] || [];
+  const allowedKeys = new Set([...commonFields, ...extraAllowed]);
+
+  // Unknown top-level key.
+  for (const key of Object.keys(policy)) {
+    if (!allowedKeys.has(key)) {
+      findings.push(
+        'MALFORMED: policy file ' + fileName + ' carries unknown top-level key "' + key +
+          '" (not one of the schema\'s policy_fields, and not an extra key the schema ' +
+          'permits for this policy id). ' + RECOVERY_POLICY
+      );
+    }
+  }
+
+  // Missing required field.
+  for (const field of commonFields) {
+    if (!Object.prototype.hasOwnProperty.call(policy, field)) {
+      findings.push(
+        'MALFORMED: policy file ' + fileName + ' is missing required key "' + field + '". ' +
+          RECOVERY_POLICY
+      );
+    }
+  }
+
+  // rung: member of the closed rung_vocabulary.
+  const rungVocab = Array.isArray(schema.rung_vocabulary) ? schema.rung_vocabulary : [];
+  if (Object.prototype.hasOwnProperty.call(policy, 'rung') && !rungVocab.includes(policy.rung)) {
+    findings.push(
+      'MALFORMED: policy file ' + fileName + ' carries unknown "rung" value ' +
+        JSON.stringify(policy.rung) + ' (not a member of the schema\'s rung_vocabulary). ' +
+        RECOVERY_POLICY
+    );
+  }
+
+  // kind: member of the closed kind_vocabulary.
+  const kindVocab = Array.isArray(schema.kind_vocabulary) ? schema.kind_vocabulary : [];
+  if (Object.prototype.hasOwnProperty.call(policy, 'kind') && !kindVocab.includes(policy.kind)) {
+    findings.push(
+      'MALFORMED: policy file ' + fileName + ' carries unknown "kind" value ' +
+        JSON.stringify(policy.kind) + ' (not a member of the schema\'s kind_vocabulary). ' +
+        RECOVERY_POLICY
+    );
+  }
+
+  // applies_to: every member is in the closed applies_to_vocabulary.
+  const appliesVocab = Array.isArray(schema.applies_to_vocabulary) ? schema.applies_to_vocabulary : [];
+  if (Object.prototype.hasOwnProperty.call(policy, 'applies_to')) {
+    if (!Array.isArray(policy.applies_to)) {
+      findings.push(
+        'MALFORMED: policy file ' + fileName + ' "applies_to" is not an array. ' + RECOVERY_POLICY
+      );
+    } else {
+      for (const member of policy.applies_to) {
+        if (!appliesVocab.includes(member)) {
+          findings.push(
+            'MALFORMED: policy file ' + fileName + ' carries unknown "applies_to" member ' +
+              JSON.stringify(member) + ' (not a member of the schema\'s applies_to_vocabulary). ' +
+              RECOVERY_POLICY
+          );
+        }
+      }
+    }
+  }
+
+  // promotion_rule: exactly its three documented keys.
+  if (Object.prototype.hasOwnProperty.call(policy, 'promotion_rule')) {
+    const pr = policy.promotion_rule;
+    const requiredPrKeys = ['window_runs', 'max_false_positive_rate', 'min_true_positives'];
+    if (!pr || typeof pr !== 'object' || Array.isArray(pr)) {
+      findings.push(
+        'MALFORMED: policy file ' + fileName + ' "promotion_rule" is not an object. ' +
+          RECOVERY_POLICY
+      );
+    } else {
+      const missingPr = requiredPrKeys.filter(
+        (k) => !Object.prototype.hasOwnProperty.call(pr, k)
+      );
+      if (missingPr.length) {
+        findings.push(
+          'MALFORMED: policy file ' + fileName + ' "promotion_rule" is missing key(s): ' +
+            missingPr.join(', ') + '. ' + RECOVERY_POLICY
+        );
+      }
+    }
+  }
+
+  // runner: the schema's own runner_path_rule (read, not restated).
+  if (Object.prototype.hasOwnProperty.call(policy, 'runner') && !isValidRunnerPath(policy.runner)) {
+    findings.push(
+      'MALFORMED: policy file ' + fileName + ' "runner" value ' + JSON.stringify(policy.runner) +
+        ' violates the schema\'s runner_path_rule (' +
+        (typeof schema.runner_path_rule === 'string'
+          ? schema.runner_path_rule
+          : 'see data/harness-policies/_schema.json') +
+        '). ' + RECOVERY_POLICY
+    );
+  }
+
+  return findings;
+}
+
+// ---------------------------------------------------------------------------
+// loadPolicies(rootDir) -- read + validate every policy file in the policy
+// directory. Per-file try/catch (T-233-01 / T-217-01 self-DoS-avoidance
+// pattern): one malformed file is reported by name and skipped from the
+// returned `policies` list, and the loop NEVER aborts the rest of the scan.
+// Returns { policies: [{fileName, id, policy}], findings: string[] }.
+// ---------------------------------------------------------------------------
+function loadPolicies(rootDir) {
+  const dirAbs = rootDir || POLICIES_ABS;
+  const schema = loadPolicySchema();
+  const fileNames = listPolicyFileNames(dirAbs);
+  const policies = [];
+  const findings = [];
+
+  for (const fileName of fileNames) {
+    let parsed;
+    try {
+      parsed = JSON.parse(fs.readFileSync(path.join(dirAbs, fileName), 'utf8'));
+    } catch (e) {
+      findings.push(
+        'MALFORMED: policy file ' + fileName + ' is not valid JSON (' + e.message + '). ' +
+          'Recovery: fix the JSON syntax in data/harness-policies/' + fileName + '.'
+      );
+      continue;
+    }
+    const fileFindings = validatePolicyFile(parsed, fileName, schema);
+    if (fileFindings.length) {
+      for (const f of fileFindings) findings.push(f);
+      continue;
+    }
+    policies.push({ fileName, id: parsed.id, policy: parsed });
+  }
+
+  return { policies, findings };
+}
+
+// ---------------------------------------------------------------------------
 // buildManifest() -- the core. Emits the declared descriptor object:
 //   { ontology_ref, generated_note, methodology_tier, version, maps }
 // where maps is EXACTLY the three { role, path, digest, source_count } entries
@@ -272,6 +626,8 @@ function buildSurfaceEntry(binding) {
 function buildManifest() {
   const maps = MAP_BINDINGS.map((b) => buildMapEntry(b));
   const runtime_surfaces = RUNTIME_SURFACE_BINDINGS.map((b) => buildSurfaceEntry(b));
+  const larry_surfaces = LARRY_SURFACE_BINDINGS.map((b) => buildSurfaceEntry(b));
+  const policyCount = listPolicyFileNames(POLICIES_ABS).length;
   return {
     ontology_ref:
       'data/command-registry.json + data/connector-registry.json + ' +
@@ -281,6 +637,16 @@ function buildManifest() {
     version: MANIFEST_VERSION,
     maps: maps,
     runtime_surfaces: runtime_surfaces,
+    policies: {
+      path: POLICIES_DIR,
+      digest: digestDirectory(POLICIES_ABS),
+      count: policyCount,
+    },
+    larry_surfaces: larry_surfaces,
+    fixture_ref: {
+      path: FIXTURE_DIR,
+      digest: digestDirectory(FIXTURE_ABS),
+    },
   };
 }
 
@@ -310,6 +676,23 @@ function serializeManifest(manifest) {
       path: s.path,
       digest: s.digest,
     })),
+    policies: {
+      path: manifest.policies && manifest.policies.path,
+      digest: manifest.policies && manifest.policies.digest,
+      count: manifest.policies && manifest.policies.count,
+    },
+    larry_surfaces: (Array.isArray(manifest.larry_surfaces)
+      ? manifest.larry_surfaces
+      : []
+    ).map((s) => ({
+      role: s.role,
+      path: s.path,
+      digest: s.digest,
+    })),
+    fixture_ref: {
+      path: manifest.fixture_ref && manifest.fixture_ref.path,
+      digest: manifest.fixture_ref && manifest.fixture_ref.digest,
+    },
   };
   return JSON.stringify(clean, null, 2) + '\n';
 }
@@ -456,6 +839,70 @@ function validateManifest(manifest) {
     }
   }
 
+  // ---- LARRY-SURFACE DRIFT (Phase 298, SEED-032). Copies the runtime-surface
+  // drift loop above EXACTLY, over LARRY_SURFACE_BINDINGS / committed.larry_surfaces
+  // instead. ----
+  const committedLarrySurfaces =
+    committed && Array.isArray(committed.larry_surfaces) ? committed.larry_surfaces : [];
+  for (const binding of LARRY_SURFACE_BINDINGS) {
+    if (!fs.existsSync(binding.absPath)) {
+      unresolved.push(
+        'UNRESOLVED: the ' + binding.role + ' larry surface "' +
+          binding.relPath + '" does not exist on disk (a fabricated / missing ' +
+          'surface binding). ' + RECOVERY
+      );
+      continue;
+    }
+    const declaredLarry = committedLarrySurfaces.find(
+      (s) => s && s.role === binding.role
+    );
+    if (!declaredLarry || typeof declaredLarry.digest !== 'string') continue;
+    const actualLarry = digestBytes(fs.readFileSync(binding.absPath));
+    if (declaredLarry.digest !== actualLarry) {
+      stale.push(
+        'STALE: the ' + binding.role + ' larry surface (' + binding.relPath +
+          ') digest in the manifest drifts from the on-disk file - the DECLARED ' +
+          'harness and the RUNNING harness have diverged. ' + RECOVERY
+      );
+    }
+  }
+
+  // ---- POLICIES DIRECTORY DRIFT (Phase 298). A directory-digest divergence
+  // between the committed manifest's `policies.digest` and the live directory. ----
+  if (!fs.existsSync(POLICIES_ABS)) {
+    unresolved.push(
+      'UNRESOLVED: the policies directory "' + POLICIES_DIR +
+        '" does not exist on disk (a fabricated / missing policies binding). ' + RECOVERY
+    );
+  } else if (committed && committed.policies && typeof committed.policies.digest === 'string') {
+    const actualPolicies = digestDirectory(POLICIES_ABS);
+    if (committed.policies.digest !== actualPolicies) {
+      stale.push(
+        'STALE: the policies directory (' + POLICIES_DIR + ') digest in the manifest ' +
+          'drifts from the on-disk directory - a policy file changed without regenerating. ' +
+          RECOVERY
+      );
+    }
+  }
+
+  // ---- FIXTURE_REF DRIFT (Phase 298). A directory-digest divergence between
+  // the committed manifest's `fixture_ref.digest` and the live directory. ----
+  if (!fs.existsSync(FIXTURE_ABS)) {
+    unresolved.push(
+      'UNRESOLVED: the fixture directory "' + FIXTURE_DIR +
+        '" does not exist on disk (a fabricated / missing fixture_ref binding). ' + RECOVERY
+    );
+  } else if (committed && committed.fixture_ref && typeof committed.fixture_ref.digest === 'string') {
+    const actualFixture = digestDirectory(FIXTURE_ABS);
+    if (committed.fixture_ref.digest !== actualFixture) {
+      stale.push(
+        'STALE: the fixture_ref directory (' + FIXTURE_DIR + ') digest in the manifest ' +
+          'drifts from the on-disk directory - the converged-room fixture changed without ' +
+          'regenerating. ' + RECOVERY
+      );
+    }
+  }
+
   return { stale, unresolved, malformed };
 }
 
@@ -469,7 +916,12 @@ function validateManifest(manifest) {
 function runCheck() {
   const manifest = buildManifest();
   const { stale, unresolved, malformed } = validateManifest(manifest);
-  const all = [...stale, ...unresolved, ...malformed];
+  // Phase 298 (SEED-032): validate every policy file against the closed
+  // schema. An invalid policy file is a MALFORMED finding naming the file and
+  // the failing key; one bad file is reported and skipped, never aborting the
+  // rest of the scan (T-233-01 / T-217-01 self-DoS-avoidance pattern).
+  const { findings: policyFindings } = loadPolicies(POLICIES_ABS);
+  const all = [...stale, ...unresolved, ...malformed, ...policyFindings];
   if (all.length) {
     console.error(all.join('\n'));
     console.error(
@@ -497,7 +949,10 @@ function writeManifest() {
     'Wrote data/harness-manifest.json (' + manifest.maps.length + ' map entries: ' +
       manifest.maps.map((e) => e.role).join(', ') + '; ' +
       manifest.runtime_surfaces.length + ' runtime surfaces: ' +
-      manifest.runtime_surfaces.map((e) => e.role).join(', ') + ')'
+      manifest.runtime_surfaces.map((e) => e.role).join(', ') + '; ' +
+      manifest.policies.count + ' policies digested; ' +
+      manifest.larry_surfaces.length + ' larry surfaces: ' +
+      manifest.larry_surfaces.map((e) => e.role).join(', ') + ')'
   );
 }
 
@@ -528,9 +983,15 @@ if (require.main === module) {
     serializeManifest,
     validateManifest,
     digestBytes,
+    digestDirectory,
     primaryArrayCount,
+    loadPolicies,
+    validatePolicyFile,
     MAP_BINDINGS,
     RUNTIME_SURFACE_BINDINGS,
+    LARRY_SURFACE_BINDINGS,
+    POLICIES_DIR,
+    FIXTURE_DIR,
     NODE_FIELD_ALLOWLIST,
     ENTRY_FIELD_ALLOWLIST,
     MANIFEST_PATH,

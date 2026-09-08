@@ -222,6 +222,77 @@ function sha256File(rel) {
   } catch (e) { fail(label, e); }
 })();
 
+// ---------------------------------------------------------------------------
+// PHASE 298 (SEED-032) - the v2 manifest shape: three additive top-level keys
+// (policies, larry_surfaces, fixture_ref), maps still exactly three,
+// larry_surfaces its own frozen 3-entry array, and idempotent regeneration.
+// EXPECTED_SURFACE_ROLES and its length-4 assertion above are untouched.
+// ---------------------------------------------------------------------------
+const EXPECTED_TOP_LEVEL_KEYS_V2 = [
+  'ontology_ref', 'generated_note', 'methodology_tier', 'version',
+  'maps', 'runtime_surfaces', 'policies', 'larry_surfaces', 'fixture_ref',
+];
+
+(function phase298_v2TopLevelKeyOrder() {
+  const label = 'Phase 298 - committed manifest top-level keys equal the nine expected names in order';
+  try {
+    const onDisk = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+    assert.deepEqual(Object.keys(onDisk), EXPECTED_TOP_LEVEL_KEYS_V2,
+      label);
+    assert.equal(onDisk.version, 2, label + ': version is 2');
+    assert.equal(onDisk.maps.length, 3, label + ': maps stays exactly 3');
+    ok(label);
+  } catch (e) { fail(label, e); }
+})();
+
+(function phase298_larrySurfacesShape() {
+  const label = 'Phase 298 - larry_surfaces is its own frozen 3-entry { role, path, digest } array';
+  try {
+    const onDisk = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+    assert.ok(Array.isArray(onDisk.larry_surfaces), label + ': larry_surfaces is an array');
+    assert.equal(onDisk.larry_surfaces.length, 3, label + ': exactly three larry surfaces');
+    for (const s of onDisk.larry_surfaces) {
+      assert.equal(Object.keys(s).sort().join(','), 'digest,path,role',
+        label + ': entry ' + JSON.stringify(s.role) + ' carries exactly role/path/digest');
+      assert.ok(/^[0-9a-f]{64}$/.test(s.digest), label + ': digest is sha256 hex');
+      assert.ok(fs.existsSync(path.join(REPO_ROOT, s.path)),
+        label + ': path "' + s.path + '" exists on disk');
+    }
+    ok(label);
+  } catch (e) { fail(label, e); }
+})();
+
+(function phase298_policiesAndFixtureRefShape() {
+  const label = 'Phase 298 - policies carries {path, digest, count} and fixture_ref carries {path, digest}, nothing else';
+  try {
+    const onDisk = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+    assert.equal(Object.keys(onDisk.policies).sort().join(','), 'count,digest,path',
+      label + ': policies carries exactly path/digest/count');
+    assert.ok(/^[0-9a-f]{64}$/.test(onDisk.policies.digest), label + ': policies.digest is sha256 hex');
+    assert.ok(Number.isInteger(onDisk.policies.count) && onDisk.policies.count > 0,
+      label + ': policies.count is a positive integer');
+
+    assert.equal(Object.keys(onDisk.fixture_ref).sort().join(','), 'digest,path',
+      label + ': fixture_ref carries exactly path/digest');
+    assert.ok(/^[0-9a-f]{64}$/.test(onDisk.fixture_ref.digest), label + ': fixture_ref.digest is sha256 hex');
+    ok(label);
+  } catch (e) { fail(label, e); }
+})();
+
+(function phase298_idempotentRegeneration() {
+  const label = 'Phase 298 - regenerating the manifest twice yields byte-identical output (idempotent write branch)';
+  try {
+    const before = fs.readFileSync(MANIFEST_PATH, 'utf8');
+    const firstRegen = gen.serializeManifest(gen.buildManifest());
+    assert.equal(before, firstRegen,
+      label + ': the committed manifest is byte-identical to the regeneration');
+    const secondRegen = gen.serializeManifest(gen.buildManifest());
+    assert.equal(firstRegen, secondRegen,
+      label + ': two consecutive regenerations from the live sources are byte-identical');
+    ok(label);
+  } catch (e) { fail(label, e); }
+})();
+
 process.stdout.write('\n');
 process.stdout.write(
   'test-201-harness-manifest: ' + passed + ' passed, ' + failed + ' failed\n'

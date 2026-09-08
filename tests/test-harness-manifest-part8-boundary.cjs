@@ -317,9 +317,82 @@ function loadManifest() {
   } catch (e) { fail(label, e); }
 })();
 
+// ---------------------------------------------------------------------------
+// CHECK 7 (Phase 298, SEED-032) -- the widened allowlist: NODE_FIELD_ALLOWLIST
+// grows by exactly the three v2 names. BEFORE this phase the allowlist carried
+// six entries (ontology_ref, generated_note, methodology_tier, version, maps,
+// runtime_surfaces -- the last added by Phase 201); AFTER, nine (the plan
+// text's own "final length 8" figure undercounts by one, since it treats
+// runtime_surfaces as if it were still absent from the pre-298 allowlist; the
+// actual pre-298 count is six, not five, and CHECK 1 above -- which requires
+// EVERY top-level manifest key be allowlisted -- proves nine is the only
+// value consistent with the nine actual top-level keys the committed manifest
+// carries. Recorded as a deviation in 298-12-SUMMARY.md).
+// ---------------------------------------------------------------------------
+(function check7_widenedAllowlistV2() {
+  const label = 'CHECK 7 - NODE_FIELD_ALLOWLIST widens by exactly the three v2 names (policies, larry_surfaces, fixture_ref)';
+  try {
+    assert.equal(gen.NODE_FIELD_ALLOWLIST.length, 9,
+      label + ': NODE_FIELD_ALLOWLIST carries nine entries (six pre-298 + three v2 additions)');
+    for (const name of ['policies', 'larry_surfaces', 'fixture_ref']) {
+      assert.ok(gen.NODE_FIELD_ALLOWLIST.includes(name),
+        label + ': "' + name + '" is on the allowlist');
+    }
+    ok(label);
+  } catch (e) { fail(label, e); }
+})();
+
+// ---------------------------------------------------------------------------
+// CHECK 8 (Phase 298, SEED-032) -- every string value under policies,
+// larry_surfaces and fixture_ref is EITHER a repo-relative path that exists on
+// disk, a 64-character lowercase hex digest, or (structurally) a number - no
+// room content, no user path, per Canon Part 8.
+// ---------------------------------------------------------------------------
+(function check8_v2KeysGenericValuesOnly() {
+  const label = 'CHECK 8 - every string value under policies/larry_surfaces/fixture_ref is a repo-relative path, a hex digest, or a number';
+  try {
+    const m = loadManifest();
+    const HEX64 = /^[0-9a-f]{64}$/;
+
+    function assertGenericString(value, where) {
+      if (HEX64.test(value)) return;
+      // Otherwise it must be a repo-relative path that exists on disk.
+      const abs = path.join(REPO_ROOT, value);
+      assert.ok(fs.existsSync(abs),
+        label + ': ' + where + ' value ' + JSON.stringify(value) +
+          ' is neither a sha256 hex digest nor a repo-relative path that exists on disk');
+      assert.equal(ROOM_PATH_RX.test(value), false, label + ': ' + where + ' carries no room/ path');
+      assert.equal(EMAIL_RX.test(value), false, label + ': ' + where + ' carries no email');
+    }
+
+    // policies: { path, digest, count }.
+    assertGenericString(m.policies.path, 'policies.path');
+    assertGenericString(m.policies.digest, 'policies.digest');
+    assert.ok(Number.isInteger(m.policies.count), label + ': policies.count is a number');
+
+    // larry_surfaces: [{ role, path, digest }].
+    assert.ok(Array.isArray(m.larry_surfaces) && m.larry_surfaces.length > 0,
+      label + ': larry_surfaces has entries to scan');
+    for (const s of m.larry_surfaces) {
+      // role is a short generic enum handle, not a path/digest - just confirm
+      // it carries no room/ path and no email (the same forbidden-value floor).
+      assert.equal(ROOM_PATH_RX.test(s.role), false, label + ': larry_surfaces role carries no room/ path');
+      assert.equal(EMAIL_RX.test(s.role), false, label + ': larry_surfaces role carries no email');
+      assertGenericString(s.path, 'larry_surfaces.path');
+      assertGenericString(s.digest, 'larry_surfaces.digest');
+    }
+
+    // fixture_ref: { path, digest }.
+    assertGenericString(m.fixture_ref.path, 'fixture_ref.path');
+    assertGenericString(m.fixture_ref.digest, 'fixture_ref.digest');
+
+    ok(label);
+  } catch (e) { fail(label, e); }
+})();
+
 process.stdout.write('\n');
 process.stdout.write(
   'harness-manifest Part-8 boundary scan: ' + passed + ' passed, ' +
-    failed + ' failed (6 checks)\n'
+    failed + ' failed (8 checks)\n'
 );
 process.exit(failed === 0 ? 0 : 1);
