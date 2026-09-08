@@ -3,39 +3,52 @@
 
 /**
  * tests/test-298-runner-idempotent.cjs -- Phase 298 (harness-as-code) Plan
- * 01 (stub) / Plan 10 (this task) / Plan 11 (convergence + idempotence).
+ * 01 (stub) / Plan 10 (tier/rung-exit/ghost/never-promote/D-03a) / Plan 11
+ * (convergence + idempotence, this task).
  *
- * Proves R-04 (tiered check, rung exit contract) and R-03 (never promotes)
- * for the half of scripts/run-harness.cjs plan 298-10 builds. Carries the
- * VALIDATION.md T-298-06 through T-298-09 rows:
+ * Proves R-04 (tiered check, rung exit contract, converged no-op), R-05
+ * (ghost refusal) and R-03 (never promotes) for scripts/run-harness.cjs.
+ * Carries the VALIDATION.md T-298-06 through T-298-09 and T-298-11 rows:
  *   T-298-06 R-04 tiered check: --tier filters strictly by applies_to
  *   T-298-07 R-04 rung exit contract: blocking failure exits 1; logged
  *     failure exits 0 with one JSONL line
  *   T-298-08 R-04 converged no-op: runner writes only
  *     <room>/.mindrian/harness-run.json; second run is byte-identical
- *     (PLAN 298-11 -- the --room branch does not exist yet, left PENDING)
  *   T-298-09 R-04 read-only door (D-03a): runner never opens the write path
+ *   T-298-11 R-05 ghost refusal: a ghosted gate-graph-derive-health policy
+ *     is the missing-information error class -- refuse converged:true,
+ *     name the ghost, never retry
  *
  * SUBJECT: scripts/run-harness.cjs
  *
  * D-03a is encoded here as a source grep so the read-only-door rule cannot
- * be forgotten later, and it is proved TRUE from plan 298-10's first commit
- * even though the --room branch that would need a read-only door lands in
- * plan 298-11.
+ * be forgotten later.
  *
  * Anti-vacuous-pass contract (T-233-04 false-success class): while SUBJECT is
  * absent this test SKIPs and exits 0. The moment SUBJECT lands, this test
- * FAILs (exit 1) until ASSERTIONS_IMPLEMENTED is flipped to true and the
- * PENDING checklist below is actually implemented -- it can never pass
- * vacuously in between. Plan 298-10 flips ASSERTIONS_IMPLEMENTED to true and
- * implements the tier/rung-exit/ghost/never-promote/D-03a entries below; the
- * convergence and idempotence entries stay PENDING for plan 298-11.
+ * FAILs (exit 1) until ASSERTIONS_IMPLEMENTED is flipped to true and every
+ * PENDING entry is actually implemented -- it can never pass vacuously in
+ * between. Plan 298-10 flipped ASSERTIONS_IMPLEMENTED to true and
+ * implemented the tier/rung-exit/ghost-in-`--check`/never-promote/D-03a
+ * entries; plan 298-11 (this task) implements the remaining convergence,
+ * idempotence and `--room` ghost-refusal entries, leaving PENDING empty.
  *
- * Every fixture below is a disposable directory built with fs.mkdtempSync,
- * passed to the runner through its --root flag (and, where a spawned policy
- * needs its own MINDRIAN_HOME, through a disposable MINDRIAN_HOME too) --
- * the real data/harness-policies/ and the real ~/.mindrian are NEVER
- * touched or mutated by this suite.
+ * DISPOSABLE-FIXTURE CONVENTION AND ITS ONE STATED EXCEPTION: every OTHER
+ * fixture in this file is a disposable directory built with
+ * fs.mkdtempSync, passed to the runner through its --root or --room flag
+ * (and, where a spawned policy needs its own MINDRIAN_HOME, through a
+ * disposable MINDRIAN_HOME too) -- the real data/harness-policies/ and the
+ * real ~/.mindrian are NEVER touched or mutated by this suite. The
+ * convergence-and-idempotence block below is the ONE deliberate exception:
+ * it runs `--room` against the COMMITTED data/harness-fixtures/converged-
+ * room fixture rather than a temp copy, because the requirement it proves
+ * (R-04's headline truth) is specifically that `git status --porcelain` on
+ * the REAL, COMMITTED fixture stays empty after a run -- a disposable temp
+ * copy could never prove that, since a temp directory is never tracked by
+ * git in the first place. The ghost-refusal block copies the real policy
+ * files into a temp directory precisely so the rewritten ghost policy
+ * never touches the real data/harness-policies/, and asserts that
+ * separately.
  *
  * Run: node tests/test-298-runner-idempotent.cjs
  */
@@ -48,16 +61,17 @@ const { spawnSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SUBJECT = path.join(REPO_ROOT, 'scripts', 'run-harness.cjs');
 const TEST_NAME = 'test-298-runner-idempotent.cjs';
+const FIXTURE_ROOM_RELATIVE = path.join('data', 'harness-fixtures', 'converged-room');
+const FIXTURE_ROOM_ABS = path.join(REPO_ROOT, FIXTURE_ROOM_RELATIVE);
+const REAL_POLICIES_DIR = path.join(REPO_ROOT, 'data', 'harness-policies');
 
 const ASSERTIONS_IMPLEMENTED = true;
 
-// PENDING: owned by plan 298-11 (the --room convergence branch lands there,
-// on the same SUBJECT file). Not implemented here.
-const PENDING = [
-  '298-11: two consecutive --room data/harness-fixtures/converged-room runs both exit 0 with converged: true and leave git status --porcelain empty',
-  '298-11: the two reports are byte-identical',
-  '298-11: data/harness-fixtures/converged-room/.mindrian does not exist afterwards',
-];
+// PENDING: every entry plan 298-11 owned has been implemented below. Kept
+// as an empty array (rather than deleted) so the anti-vacuous-pass shape
+// (SKIP while absent, FAIL while PENDING non-empty, PASS once implemented)
+// stays visible for the next plan that touches this SUBJECT.
+const PENDING = [];
 
 let passCount = 0;
 let failCount = 0;
@@ -133,6 +147,25 @@ function runRunner(root, args, extraEnv) {
 
 function rmDir(dir) {
   fs.rmSync(dir, { recursive: true, force: true });
+}
+
+// runRoomCommand: unlike runRunner (which always injects --root), the
+// --room block needs full control over whether --root is present at all
+// (the convergence/idempotence cases omit it entirely, so the runner's
+// default root resolves to the live repo; the ghost-refusal case supplies
+// a temp --root). cwd is pinned to REPO_ROOT so a relative --room path and
+// a relative `git status --porcelain` invocation agree on what "relative"
+// means.
+function runRoomCommand(args) {
+  return spawnSync(process.execPath, [SUBJECT].concat(args), { encoding: 'utf8', cwd: REPO_ROOT });
+}
+
+function gitPorcelain(relativePath) {
+  return spawnSync('git', ['status', '--porcelain', relativePath], { encoding: 'utf8', cwd: REPO_ROOT }).stdout;
+}
+
+function writeLines(filePath, lines) {
+  fs.writeFileSync(filePath, lines.join('\n') + '\n');
 }
 
 function main() {
@@ -269,10 +302,150 @@ function main() {
     assertEqual(matches, 0, 'zero D-03a write-path references in scripts/run-harness.cjs');
   });
 
-  console.log('');
-  console.log('PENDING (owned by plan 298-11):');
-  PENDING.forEach((line) => console.log('  - ' + line));
-  console.log('');
+  // -------------------------------------------------------------------------
+  // T-298-08 / R-04: convergence and idempotence against the COMMITTED
+  // fixture. See the file header for why this block runs against the real,
+  // tracked data/harness-fixtures/converged-room rather than a temp copy.
+  // -------------------------------------------------------------------------
+  record('convergence + idempotence: two --room runs against the committed fixture both exit 0 with converged: true, and stdout is byte-identical', () => {
+    const r1 = runRoomCommand(['--room', FIXTURE_ROOM_RELATIVE, '--json']);
+    const r2 = runRoomCommand(['--room', FIXTURE_ROOM_RELATIVE, '--json']);
+    assertEqual(r1.status, 0, 'first run exit code');
+    assertEqual(r2.status, 0, 'second run exit code');
+    const report1 = JSON.parse(r1.stdout);
+    const report2 = JSON.parse(r2.stdout);
+    assertEqual(report1.converged, true, 'first run converged verdict');
+    assertEqual(report2.converged, true, 'second run converged verdict');
+    if (r1.stdout !== r2.stdout) {
+      throw new Error('the two runs produced different stdout -- a non-deterministic (likely clock-derived) field leaked into the report');
+    }
+  });
+
+  // Kept as its own record entry, independent of the converged-verdict
+  // assertion above, so a ghost-ordering regression (Pitfall 10) fails
+  // exactly one assertion instead of masking the other.
+  record('convergence + idempotence: zero writes -- .mindrian is never created under the fixture and git status --porcelain stays empty', () => {
+    if (fs.existsSync(path.join(FIXTURE_ROOM_ABS, '.mindrian'))) {
+      throw new Error('.mindrian was created under the committed fixture -- the runner must never create it (D-03a sibling rule)');
+    }
+    const status = gitPorcelain(FIXTURE_ROOM_RELATIVE);
+    assertEqual(status, '', 'git status --porcelain on the fixture must be empty after two runs');
+  });
+
+  record('convergence + idempotence: exported countEntries returns 13 against the fixture (in-process)', () => {
+    const { countEntries } = require(SUBJECT);
+    assertEqual(countEntries(FIXTURE_ROOM_ABS), 13, 'countEntries(fixture)');
+  });
+
+  // -------------------------------------------------------------------------
+  // T-298-11 / R-05: ghost refusal. A copy of the real policy set, never
+  // the real data/harness-policies/ itself, carries the rewritten ghost.
+  // -------------------------------------------------------------------------
+  record('ghost refusal: a ghosted gate-graph-derive-health policy refuses converged:true and names the ghost', () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-298-ghost-policies-'));
+    const destDir = path.join(tempRoot, 'data', 'harness-policies');
+    fs.mkdirSync(destDir, { recursive: true });
+    try {
+      const files = fs.readdirSync(REAL_POLICIES_DIR).filter((f) => f.endsWith('.json'));
+      for (const f of files) {
+        const raw = fs.readFileSync(path.join(REAL_POLICIES_DIR, f), 'utf8');
+        if (f === 'gate-graph-derive-health.json') {
+          const policy = JSON.parse(raw);
+          policy.runner = null;
+          fs.writeFileSync(path.join(destDir, f), JSON.stringify(policy, null, 2));
+        } else {
+          fs.writeFileSync(path.join(destDir, f), raw);
+        }
+      }
+      const res = runRoomCommand(['--root', tempRoot, '--room', FIXTURE_ROOM_RELATIVE, '--json']);
+      assertEqual(res.status, 1, 'a ghosted health gate must refuse converged:true (exit 1)');
+      const report = JSON.parse(res.stdout);
+      assertEqual(report.converged, false, 'converged verdict');
+      assertEqual(report.checks.derive_health_declared, false, 'derive_health_declared check');
+      const namesTheGhost = report.findings.some(
+        (line) => line.indexOf('gate-graph-derive-health') !== -1 && line.indexOf('ghost') !== -1
+      );
+      if (!namesTheGhost) {
+        throw new Error('report findings do not name gate-graph-derive-health as a ghost: ' + JSON.stringify(report.findings));
+      }
+    } finally {
+      rmDir(tempRoot);
+    }
+  });
+
+  record('ghost refusal: the real data/harness-policies/ directory is never touched', () => {
+    assertEqual(gitPorcelain('data/harness-policies'), '', 'git status --porcelain on the real policy directory must be empty');
+  });
+
+  // -------------------------------------------------------------------------
+  // Non-converged rooms: a missing ROOM.md, and a dirty derive queue with an
+  // existing .mindrian (the report-write case). Both are disposable
+  // fs.mkdtempSync rooms.
+  // -------------------------------------------------------------------------
+  record('non-converged: a room missing one section ROOM.md exits 1 and names room_md_present', () => {
+    const room = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-298-missing-room-'));
+    try {
+      fs.mkdirSync(path.join(room, 'section-a'));
+      fs.writeFileSync(path.join(room, 'section-a', 'ROOM.md'), '# section-a\n');
+      fs.writeFileSync(path.join(room, 'section-a', 'entry1.md'), '# entry\n');
+      fs.mkdirSync(path.join(room, 'section-b')); // deliberately no ROOM.md
+      writeLines(path.join(room, 'STATE.md'), [
+        '---',
+        'computed: 2026-01-01T00:00:00Z',
+        'venture_stage: Investment',
+        'total_entries: 1',
+        '---',
+        '# Data Room State',
+      ]);
+      const res = runRoomCommand(['--room', room, '--json']);
+      assertEqual(res.status, 1, 'missing ROOM.md must not converge (exit 1)');
+      const report = JSON.parse(res.stdout);
+      assertEqual(report.converged, false, 'converged verdict');
+      assertEqual(report.checks.room_md_present, false, 'room_md_present check');
+    } finally {
+      rmDir(room);
+    }
+  });
+
+  record('non-converged: a room with an existing .mindrian and a non-empty derive queue gets a written report and converged:false', () => {
+    const room = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-298-dirty-queue-'));
+    try {
+      fs.mkdirSync(path.join(room, 'section-a'));
+      fs.writeFileSync(path.join(room, 'section-a', 'ROOM.md'), '# section-a\n');
+      fs.writeFileSync(path.join(room, 'section-a', 'entry1.md'), '# entry\n');
+      writeLines(path.join(room, 'STATE.md'), [
+        '---',
+        'computed: 2026-01-01T00:00:00Z',
+        'venture_stage: Investment',
+        'total_entries: 1',
+        '---',
+        '# Data Room State',
+      ]);
+      fs.mkdirSync(path.join(room, '.mindrian'));
+      fs.writeFileSync(
+        path.join(room, '.mindrian', 'graph-derive-queue.json'),
+        JSON.stringify({ entries: [{ roomDir: room, enqueued_at: '2026-01-01T00:00:00Z' }] }, null, 2)
+      );
+      const res = runRoomCommand(['--room', room, '--json']);
+      const reportPath = path.join(room, '.mindrian', 'harness-run.json');
+      if (!fs.existsSync(reportPath)) {
+        throw new Error('expected ' + reportPath + ' to be written when .mindrian already exists in the room');
+      }
+      const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+      assertEqual(report.converged, false, 'converged verdict (non-empty derive queue)');
+      assertEqual(report.checks.derive_queue_empty, false, 'derive_queue_empty check');
+      assertEqual(res.status, 1, 'exit code');
+    } finally {
+      rmDir(room);
+    }
+  });
+
+  if (PENDING.length > 0) {
+    console.log('');
+    console.log('PENDING:');
+    PENDING.forEach((line) => console.log('  - ' + line));
+    console.log('');
+  }
 
   if (failCount > 0) {
     process.exit(1);
