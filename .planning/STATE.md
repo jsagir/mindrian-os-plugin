@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 298-11-PLAN.md
-last_updated: "2026-09-08T14:28:28.486Z"
+stopped_at: Completed 298-13-PLAN.md
+last_updated: "2026-09-08T14:36:50.698Z"
 last_activity: 2026-09-08 -- Phase 298 execution started
 progress:
   total_phases: 90
   completed_phases: 23
   total_plans: 214
-  completed_plans: 210
-  percent: 98
+  completed_plans: 211
+  percent: 99
 ---
 
 <!-- NOTE (298-05 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
@@ -4162,7 +4162,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 298 (SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness) — EXECUTING
-Plan: 12 of 15
+Plan: 13 of 15
 Status: Executing Phase 298
 Last activity: 2026-09-08 -- Phase 298 execution started
 
@@ -4215,6 +4215,27 @@ Last activity: 2026-09-08 -- Phase 298 execution started
      298-SPEC.md, not the requirements registry this verb reads) -- recorded, not treated as a
      bug. Root cause not re-investigated -- same tracked bug class as every other note in this
      file. -->
+
+<!-- NOTE (298-13 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
+     in this file): `git status --porcelain` read clean before this run started; no
+     uncommitted foreign edits encountered, no destructive git command considered. This is
+     the SECOND of three plans in wave 5 (298-11 landed first; 298-14 remains pending).
+     `state.advance-plan` correctly wrote "Plan: N of 15" = 13 this run (current+1 from
+     298-12's own 12, and this run's own plan number, so no correction needed there) but
+     clobbered the body's own "Status" line to "Ready to execute" -- hand-corrected to
+     "Executing Phase 298", matching the standing convention every prior note in this file
+     uses. `state.update-progress` correctly computed percent=99 (completed_plans 211 /
+     total_plans 214) in its own returned JSON but persisted the stale `percent: 26` into the
+     frontmatter -- hand-corrected to 99; `completed_plans: 211` was written correctly and
+     needed no fix. `stopped_at` (frontmatter) and the body's own "Stopped at:" line were both
+     written correctly this run ("Completed 298-13-PLAN.md") via `state.record-session`'s
+     named args (`--stopped-at`, `--resume-file`), needing no fix. `requirements.mark-complete
+     R-06` returned not_found as expected (Phase 298's requirements are locked in
+     298-SPEC.md, not the requirements registry this verb reads) -- recorded, not treated as a
+     bug. `roadmap update-plan-progress 298 298-13 complete` flips only the 298-13 row to [x];
+     wave 5 is NOT marked complete (298-14 remains pending, per this plan's own dispatch scope
+     boundary). Root cause of the state.* clobber pattern not re-investigated -- same tracked
+     bug class as every other note in this file. -->
 
 <!-- NOTE (298-07 execute-plan, 2026-09-08, hand-edited directly per the standing session
      directive rather than via `gsd-tools state.*`: this run's probe of the `commit` verb
@@ -5236,6 +5257,7 @@ Progress: [█████████░] 92%
 | Phase 298 P08 | 40min | 3 tasks | 5 files |
 | Phase 298 P09 | 40min | 3 tasks | 14 files |
 | Phase 298 P10 | 55min | 2 tasks | 3 files |
+| Phase 298 P13 | 35min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -6752,6 +6774,8 @@ Progress: [█████████░] 92%
 - [Phase 298]: contract-parity-larry.json phrases list only test-pinned strings plus the two beta.27 gaps, excluding structural checks and the orphaned larry-prompt file
 - [Phase 298]: 298-10: logged-rung evidence appends always go through the one shared voice-style-log writer (tagged by policy_id), not a per-policy evidence_log path -- a per-path writer is out of scope
 - [Phase 298]: 298-10: tests/run-all-298.sh's converged-fixture leg now recognizes the runner's own not-yet-implemented --room refusal as SKIPPED (Rule 3 fix, restores the aggregator's own SKIP-while-partially-landed contract)
+- [Phase 298]: 298-13: contract findings appended as a fourth array (stale, unresolved, malformed, contract) in runCheck(); the three existing arrays stay untouched — keeps every existing test that reads validateManifest's shape green while adding R-06 enforcement
+- [Phase 298]: 298-13: reused loadPolicies()'s existing schema validation and EXTRA_KEYS_BY_POLICY_ID exception rather than a second contract-specific loader — one validated reader, contract check only ever sees a well-formed policy object
 
 ### Pending Todos
 
@@ -6883,8 +6907,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T14:28:28.399Z
-Stopped at: Completed 298-11-PLAN.md
+Last session: 2026-09-08T14:36:20.019Z
+Stopped at: Completed 298-13-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
