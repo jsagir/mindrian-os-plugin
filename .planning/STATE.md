@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 310-01-PLAN.md
-last_updated: "2026-09-08T20:29:13.930Z"
-last_activity: 2026-09-08 -- Phase 310 execution and verification complete
+stopped_at: Phase 341 context gathered
+last_updated: "2026-09-09T09:59:55.954Z"
+last_activity: 2026-09-09 -- Phase 341 context gathered; Phase 342 registered; v2.0.0-beta.29 released
 progress:
-  total_phases: 90
+  total_phases: 92
   completed_phases: 27
   total_plans: 217
   completed_plans: 216
@@ -4185,10 +4185,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 310 (SEED-051: release.sh Step 5.5 tag-verify warn gate) — COMPLETE, VERIFIED
-Plan: 1 of 1
-Status: Phase complete and verified (310-01-VERIFICATION.md, status passed, 6/6 must-haves)
-Last activity: 2026-09-08 -- Phase 310 execution and verification complete. Step
+Phase: 341 (Install and update overhaul: npm-source plugin artifact) - CONTEXT GATHERED, not planned
+Plan: 0 of 0 (next: /gsd-plan-phase 341)
+Status: Discuss complete 2026-09-09 (341-CONTEXT.md, 341-DISCUSSION-LOG.md; advisor mode, 3 areas ratified: shrinkwrap + loader npm ci, release set of four, opt-in Eureka enable + honest class S). Phase 342 (Theo-aware intelligence layer) registered, frontmatter declarations held for the Theo session's canonical names; intelligence-layer catalogs A/B/C being written into the 342 dir.
+Last activity: 2026-09-09 -- Phase 341 context gathered. Earlier today v2.0.0-beta.29 shipped (npm latest/next, tag at origin, marketplace pin, doctor --acceptance 20/20) after Step 8's ahead-of-origin guard correctly refused 92 unpushed commits and the remaining ceremony steps were completed by hand. Previous: 2026-09-08 -- Phase 310 execution and verification complete. Step
   5.5's abort-vs-warn decision extracted into scripts/release-lib/verify-tag-push.sh
   (mos_verify_tag_at_origin, 0/10/1 return-code contract), an independent
   `git ls-remote origin refs/heads/main` sha-match check added as the "push demonstrably
@@ -4198,6 +4198,16 @@ Last activity: 2026-09-08 -- Phase 310 execution and verification complete. Step
   SKIP=2 (2 skips are a documented pre-existing, out-of-scope Step 9.7 test issue, not a
   regression -- see deferred-items.md). doctor --acceptance --pre-flight: 1/1 passed. Zero real
   git push, npm publish, or GitHub network call anywhere in this phase's own tests.
+
+<!-- NOTE (341-discuss, 2026-09-09, resync-clobber pattern, same class as every note in this
+     file): `state.record-session --stopped-at "Phase 341 context gathered"` correctly updated
+     `stopped_at`, `last_updated`, `total_phases` (90 -> 92, Phases 341 and 342 added) and the
+     "Last session / Stopped at" lines, but re-serialized frontmatter `last_activity` into a
+     truncated fragment ("...complete. Step", the first line of the body paragraph below) and
+     wrote `percent: 29` over the correct 100 (216/217 plans). Hand-corrected both, and moved
+     "Current Position" to Phase 341 (context gathered) since the verb does not touch it; the
+     Phase 310 paragraph is reconnected under "Previous:" rather than orphaned (the 318-close
+     lesson). -->
 
 <!-- NOTE (310-close, 2026-09-08, resync-clobber pattern, same class as the 311-close and
      318-close notes and every note throughout this file): `phase.complete`'s own
@@ -7089,8 +7099,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-08T20:22:07.062Z
-Stopped at: Completed 310-01-PLAN.md
+Last session: 2026-09-09T09:59:55.808Z
+Stopped at: Phase 341 context gathered
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
