@@ -157,3 +157,20 @@ these rules unchanged.
 - Consequence for 342: the command layer is synced (refresh it); the framework layer is the gap for Eureka
   and Whitespace (and to be checked for each of the 30 handles); RS already has a canonical framework name
   the plugin can declare in commands frontmatter today, once `--refresh-names` admits it.
+
+## Navigator framing 2026-09-09: "we might need to wrap them as MCPs mindrian is using"
+
+Most engines are ALREADY MCP tools on the local `mindrian-os` server (.mcp.json -> bin/mindrian-mcp-server.cjs):
+`intelligence` (find-connections, build-thesis, compare-ventures, research, deep-grade, grade, leadership,
+whitespace, eureka-run/status/report), `analysis` (analyze-systems, analyze-timing, find-bottlenecks,
+root-cause, systems-thinking, macro-trends, explore-trends, explore-futures, dominant-designs,
+scenario-plan, causal-extract/trace/predict), `methodology` (find-analogies, explore-domains,
+score-innovation, ...), `whitespace_scan`, `contradiction_check`, `graph_reason`, `eureka_critic`.
+The catalogs (342-CATALOG-A/B/C) record per engine which MCP surface exists; any engine WITHOUT one is a
+plugin-side gap to close in this phase.
+
+Direction is fixed by Canon Part 8 and by topology: Theo is remote; the local MCP server runs on the
+navigator's machine with the room. Theo cannot and must not call into it. "Wrapped as MCP" therefore
+means the LOCAL surface exists for chain_run and for the hosts (CLI / Desktop / Cowork) to invoke; the
+awareness leg is Theo knowing the handle names (command + framework + MCP tool name) so `recommend_chain`
+can name them. No Theo -> plugin call-in is to be built.
