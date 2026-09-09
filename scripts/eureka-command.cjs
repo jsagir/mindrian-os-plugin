@@ -66,6 +66,11 @@ const ENTITY_EXTRACT = require('./entity-extract.cjs');
 // Phase 226-03: the pure De Stijl html renderer for the `html` subcommand (D6/G-4:
 // the mode banner rides with the shareable export). Render-only, zero-egress.
 const { renderReportHtml } = require('../lib/core/eureka/report-html.cjs');
+// Phase 341 Plan 02 (D-09): the on-demand embedding-stack installer for the
+// `enable` subcommand. Room-independent (installs into a user-level side
+// directory), so this is the one require in this file with no room-path
+// coupling at all.
+const { buildEurekaInstallArgv, enableEureka } = require('../lib/core/eureka/eureka-enable.cjs');
 
 // ---------------------------------------------------------------------------
 // Path contract: everything this command writes lives under here.
@@ -256,6 +261,7 @@ const USAGE = [
   '  html               render the last report to a shareable De Stijl html export (mode banner rides with it)',
   '  reasoning-prompts  reasoning-mode stage: emit the rubric prompt files from the seeded pairs + mappings',
   '  reasoning-score    reasoning-mode stage: replay the answers, write the mode:reasoning report',
+  '  enable             install the local embedding stack (one-time, about 380 MB)',
   '  help               show this usage',
   '',
   'Flags:',
@@ -265,6 +271,7 @@ const USAGE = [
   '  --no-extract    skip the automatic entity-extraction pre-step on run',
   '  --mappings <p>  reasoning-prompts: session-written mappings.json override',
   '  --answers <p>   reasoning-score: session-written answers.json override',
+  '  --dry-run       enable only: print the resolved install argv, spawn nothing',
 ].join('\n');
 
 // ---------------------------------------------------------------------------
@@ -277,6 +284,8 @@ function parseArgs(argv) {
     topProvided: false, help: false, noExtract: false,
     // Phase 226-03: optional overrides forwarded to the reasoning stages.
     mappings: null, answers: null,
+    // Phase 341 Plan 02 (D-09): dry-run for the `enable` subcommand only.
+    dryRun: false,
   };
   const positional = [];
   for (let i = 0; i < argv.length; i += 1) {
@@ -286,6 +295,7 @@ function parseArgs(argv) {
       case '--help': out.help = true; break;
       case '--offline': out.offline = true; break;
       case '--no-extract': out.noExtract = true; break;
+      case '--dry-run': out.dryRun = true; break;
       case '--top': out.top = parseInt(argv[i += 1], 10); out.topProvided = true; break;
       case '--graph': out.graph = argv[i += 1]; break;
       case '--mappings': out.mappings = argv[i += 1]; break;
@@ -296,6 +306,26 @@ function parseArgs(argv) {
   if (!Number.isFinite(out.top) || out.top <= 0) out.top = 25;
   out.roomDir = positional[0] || null;
   out.sub = (positional[1] || '').toLowerCase();
+  // Phase 341 Plan 02 (D-09): `enable` is room-independent (it installs into
+  // a user-level side directory, never the room). The narrowest possible
+  // bypass of the two-positional ROOM_DIR SUBCOMMAND shape: a bare `enable`
+  // with no ROOM_DIR positional at all is recognized here and normalized to
+  // sub='enable', so it never has to fall through to "unknown subcommand".
+  // Every other subcommand's positional shape and room requirement is
+  // untouched.
+  if (out.sub === '' && out.roomDir === 'enable') {
+    out.sub = 'enable';
+    out.roomDir = '.';
+  }
+  // Rule 1 (bug fix, found live while wiring `enable`): a bare `help` with
+  // no ROOM_DIR positional fell into the same "unknown subcommand" trap
+  // (roomDir='help', sub='') instead of printing USAGE like `-h`/`--help`
+  // already do. This is a pre-existing defect unrelated to D-09, but this
+  // plan's own verify command (`... help | grep -q enable`) surfaces it, so
+  // it is fixed here as a one-line normalization, not worked around.
+  if (out.sub === '' && out.roomDir === 'help') {
+    out.help = true;
+  }
   return out;
 }
 
@@ -595,6 +625,26 @@ async function cmdReasoningScore(opts) {
   return code;
 }
 
+// `enable`: Phase 341 Plan 02 (D-09). Installs the local embedding stack
+// into ~/.mindrian/eureka-deps/ on demand. Deliberately does NOT call
+// dirExists(roomDir) or resolveSubstrate -- this subcommand is
+// room-independent by design, the narrowest possible bypass of the room
+// requirement every other subcommand carries. --dry-run prints the
+// resolved install argv and spawns nothing.
+async function cmdEnable(opts) {
+  if (opts.dryRun) {
+    const built = buildEurekaInstallArgv({});
+    process.stdout.write(JSON.stringify({ command: built.command, argv: built.argv, prefix: built.prefix }) + '\n');
+    return 0;
+  }
+  const result = await enableEureka({});
+  process.stdout.write(result.message + '\n');
+  if (!result.ok && result.stderrTail) {
+    process.stderr.write(result.stderrTail + '\n');
+  }
+  return result.ok ? 0 : 1;
+}
+
 // ---------------------------------------------------------------------------
 // main -- the testable seam. Returns a numeric exit code (async for run).
 // ---------------------------------------------------------------------------
@@ -615,9 +665,10 @@ async function main(argv) {
     case 'html': return cmdHtml(opts);
     case 'reasoning-prompts': return cmdReasoningPrompts(opts);
     case 'reasoning-score': return cmdReasoningScore(opts);
+    case 'enable': return cmdEnable(opts);
     case 'help': process.stdout.write(USAGE + '\n'); return 0;
     default:
-      printError('unknown subcommand', 'no subcommand "' + opts.sub + '"', 'run one of: run | start | status | report | html | reasoning-prompts | reasoning-score | help');
+      printError('unknown subcommand', 'no subcommand "' + opts.sub + '"', 'run one of: run | start | status | report | html | reasoning-prompts | reasoning-score | enable | help');
       return 1;
   }
 }

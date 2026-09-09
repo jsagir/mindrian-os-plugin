@@ -2,7 +2,7 @@
 name: eureka
 description: Surface cross-domain opportunity candidates from your room at portfolio scale
 help_jtbd: "Rank cross-domain opportunity pairs and surface the weak-signal tail."
-argument-hint: "[run|status|report|html]"
+argument-hint: "[run|status|report|html|enable]"
 body_shape: E (Action Report)
 hitl_shape: "F.8"
 hitl_why: "Ranked opportunity candidates are surfaced as an independent any-order set to review and act on in any order."
@@ -64,6 +64,7 @@ Parse the user's input after `/mos:eureka`. The primary job IS the scan, so **no
 | `status` | E (Action Report) | Report the current scan state for this room |
 | `report` | E (Action Report) | Re-render the last completed report without re-scanning |
 | `html` | E (Action Report) | Render the last report to a shareable De Stijl html export (the mode banner rides with it) |
+| `enable` | E (Action Report) | Install the local embedding stack on demand |
 
 ## Pre-flight: Room Check
 
@@ -165,6 +166,29 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR html
 The dispatcher reads the existing `portfolio-report.json` (it invents no second data shape), renders `portfolio-report.html` under `.mindrian/eureka/`, and prints the path plus the mode line. The export is zero-network (inline CSS only, no CDN, Canon Part 8) so it never phones home from a second reader's machine.
 
 Tell the navigator: **the mode banner rides WITH the export.** A reasoning-mode html opens with a red `REASONING MODE - LOWER-CONFIDENCE RESULT` banner and the full caveat; an embedded-mode html names its mode verbatim. A second reader who did not run the scan cannot mistake a reasoning result for an embedded one.
+
+## Subcommand: enable
+
+**Body Shape:** E (Action Report).
+
+Install the local embedding stack (about 380 MB, one-time) into `~/.mindrian/eureka-deps/`, platform-scoped so a Mac never downloads a Windows-only binary and vice versa. This subcommand is room-independent -- it never touches the active room -- so it runs the same way whether or not a room is bound:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/eureka-command.cjs" ROOM_DIR enable
+```
+
+Render ONE Shape E block per outcome:
+
+- **Already installed:** "Very simply: the embedding stack is already installed. Nothing to do -- /mos:eureka run will use it directly."
+- **Installed now:** "Very simply: the embedding stack is installed. The model weights download once on the first real embedding call."
+- **Failed:** the 3-line error pattern, quoting the reason the dispatcher printed:
+  ```
+  x Eureka enable failed
+    Why: [reason from the enable command's output]
+    Fix: /mos:eureka enable
+  ```
+
+The SAME install is also reachable through `/mos:doctor --fix eureka` (Task 3 of this plan), so a navigator who meets the gap through the doctor never has to learn a second command.
 
 ## Reasoning mode (lower-confidence fallback)
 
