@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.28 (in progress)
+## [2.0.0-beta.29] - 2026-09-09
 
 ### Added
 - **Phase 298 (SEED-032): Harness-as-Code.** MindrianOS declares and machine-enforces its own
