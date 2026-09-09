@@ -211,8 +211,16 @@ can name them. No Theo -> plugin call-in is to be built.
 - Stale tool grants: agents/investor.md and agents/research.md still grant
   `mcp__pinecone-brain__search-records` although Pinecone is RETIRED per CLAUDE.md; agents/investor.md
   has no dispatch site anywhere in the repo (description-only "PROACTIVE", unwired).
-- Part 8 contrast to VERIFY before Theo registration: grade-grant.cjs `askBrainForCoaching` sends only a
-  generic handle (framework + gap categories, "recommend-never-trigger"); the catalog reports
-  find-connections and compare-ventures sending free-text descriptions toward the Brain. Whether that
-  text passes the Phase 257 host-independent egress guard (typed egress_blocked refusal) or bypasses it
-  is a Canon Part 8 question for the navigator, not settled here.
+- Part 8, VERIFIED (2026-09-09): find-connections and compare-ventures do not bypass anything. Their
+  command files instruct the model to call `mcp__mindrian-brain__brain_query` / `brain_search` /
+  `read_neo4j_cypher` (commands/find-connections.md:18-21, commands/compare-ventures.md:18-22, :83), i.e.
+  the client stdio shim = path P1, which the Phase 257 host-independent egress guard covers
+  (lib/core/part8-egress-guard.cjs names find_connections). The guard, not the command, rules on what
+  crosses. grade-grant.cjs `askBrainForCoaching` remains the cleanest generic-handle example. Catalog B's
+  phrase "send free-text descriptions to Brain" should be read as "submit a search through the guarded
+  shim".
+- Already Theo-reachable TODAY through the recommend_chain -> chain_run spine (frameworks declared +
+  autonomous_safe true): find-connections ("Usher's Model of Cumulative Synthesis"), compare-ventures
+  ("PWS Triple Validation Compass"), deep-grade ("PWS Triple Validation Compass"). Catalog C's closing
+  table enumerates reachability for the analysis family; the 342 plan's first task is that table for
+  all 30 handles.
