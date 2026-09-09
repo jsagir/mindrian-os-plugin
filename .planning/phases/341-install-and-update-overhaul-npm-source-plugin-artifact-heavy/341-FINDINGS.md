@@ -116,16 +116,30 @@ hooks/, commands/, skills/, agents/, lib/, scripts/, bin/, data/, references/, t
 assets/, dist/). `@huggingface/transformers` leaves `dependencies`; Eureka installs it on demand
 (explicit, user-visible, into a side dir) with the existing `encoder_unavailable` degrade.
 
-Dependency delivery, two designs for the discuss step (both keep the tarball self-describing):
-- PRIMARY: `bundleDependencies` = the pure-JS runtime set (29.1 MB, 6,665 files measured), NO
-  lockfile at tarball root, so the loader's install is documented-skipped. Zero network at
-  install, zero exposure to the 60-second install timeout, identical on Windows/Mac/Linux.
-- ALTERNATIVE: ship `npm-shrinkwrap.json` (documented requirement for npm-source plugins) and
-  let the loader run `npm ci --ignore-scripts`; must prove the 29 MB set installs inside 60 s
-  on a slow Windows box, else partial node_modules (documented) and the self-heal carries it.
+Dependency delivery - RATIFIED at the discuss step (2026-09-09, advisor research, navigator pick):
+- `npm-shrinkwrap.json` at the plugin root; the loader runs `npm ci --ignore-scripts` on install/update
+  (the documented npm-source path). Platform-correct by construction: sqlite-vec ships five platform
+  packages as optionalDependencies and the shrinkwrap carries all five with os/cpu constraints, so a Windows
+  box resolves sqlite-vec-windows-x64. Measured on this box (npm 10.9.8): `npm ci --ignore-scripts` for the
+  127-package set 9.3 s cold cache / 4.3 s warm, about 6x headroom under the loader's documented 60 s
+  cutoff; 139 installed packages scanned, zero preinstall/install/postinstall scripts, so `--ignore-scripts`
+  costs nothing. Tarball measured 2,092 entries / 30.5 MiB. The existing backstop (mcp-dep-heal.cjs
+  `requireWithHeal` + sessionstart-npm-reconcile.cjs) stays live for the timeout tail, not dead code.
+  Keep `devDependencies` empty as stated policy: `npm ci` `omit` defaults to empty unless NODE_ENV=production.
+- REJECTED, `bundleDependencies`: measured pack bundled only `sqlite-vec-linux-arm64` (the publish host's
+  arch); the other four platform packages were absent and cannot be forced in as hard dependencies (npm
+  refuses with EBADPLATFORM). Windows/Mac/x64-Linux would get `sqlite-vec` present but `require.resolve`
+  throwing, silently degrading vector-store.cjs to cjs-fallback with no error surface, and neither self-heal
+  detects it (both test only top-level `dependencies` dir existence). Publish output becomes host-dependent:
+  the same defect class as Step 6.7's arm64-only @img/* vendoring. Also mutually exclusive with any
+  lockfile (`npm ci` removes a present node_modules first).
+- TRAP (measured): `files: ["lib"]` also packs `lib/wiki/editor-src/node_modules` (9,119 entries), pushing
+  the tarball to 16,893 entries / 251.5 MiB, 4.5 MiB under the ceiling. npm's node_modules exclusion is
+  root-only and root .gitignore does not prevent it. Exclude `lib/wiki/editor-src` explicitly (editor-dist
+  is the runtime artifact); the ceiling policy asserts entry count + unpacked bytes, not packed size.
 
-Projected: ~30 MB product + ~29 MB pure-JS deps, ~8.7k entries - ~4x under the platform's
-stated 256 MiB ceiling, under the 20k-entry ceiling.
+Projected: tarball ~2,092 entries / 30.5 MiB (measured `npm pack --dry-run` on the candidate tree); the
+pure-JS deps (29 MB) resolve per machine at install. Both far under the 256 MiB / 20,000-entry ceiling.
 
 Deleted outright: release.sh Step 6.7 vendoring and the Commit A/B node_modules churn; the
 2026-05-21 "32M pure JS" premise; `install.sh` as a primary path; `/mos:update` Steps 6-7 and

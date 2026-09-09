@@ -142,3 +142,18 @@ these rules unchanged.
   REGISTRY level (Theo naming the handle, chain_run reaching it, and an honest "model not installed, run
   /mos:eureka enable" render must all work on a slim install); the `enable` subcommand must not change
   `command: "/mos:eureka"` identity; keep data/framework-names.json and `--refresh-names` intact.
+
+## Live Theo facts (generic handles only, queried 2026-09-09 from the plugin session)
+
+- `command_neighborhood("/mos:eureka")` -> Theo DOES know the command: kind utility, surface navigator,
+  autonomousSafe false, jtbdLabel "Connect Domains", reach context_block / posture hold / hierarchyRank 3 /
+  decisionSurface F.1 / subMode eureka-portfolio, `frameworks: []`, sensors [], feedsInto [],
+  `mappedBy: "command-registry@2.0.0-beta.12"` (the command sync EXISTS and is stale: current is beta.30).
+  Diagnostic warning: property `declaration_side` absent in Theo's database (a schema-drift note for the
+  Theo side).
+- `normalize_framework_name("Eureka")` -> FRAMEWORK_NOT_FOUND. `("Whitespace")` -> FRAMEWORK_NOT_FOUND.
+  `("Reverse Salient")` -> canonical "Reverse Salient Analysis", matched_via alias. coverage.total = 420
+  live `:Framework` nodes (data/framework-names.json snapshot holds 105 + 7: four months stale).
+- Consequence for 342: the command layer is synced (refresh it); the framework layer is the gap for Eureka
+  and Whitespace (and to be checked for each of the 30 handles); RS already has a canonical framework name
+  the plugin can declare in commands frontmatter today, once `--refresh-names` admits it.
