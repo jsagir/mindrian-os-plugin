@@ -100,3 +100,45 @@ these rules unchanged.
 - Class S live bug to fix on the way: class-s-eureka-smoke.cjs:180 calls the async
   `isModelCached` without await (cache-miss branch unreachable).
 - SEED-049 D14's unshipped first-run Larry-voiced notice for the lazy model download.
+
+## Research findings (advisor research, 2026-09-09) - facts, not yet ratified decisions
+
+- The Theo -> local trigger spine ALREADY EXISTS and is already fenced: lib/brain/chain-recommender.cjs:594
+  `chainOfferForReach` -> :616 `brainClient.recommendChain(problemType)` -> :626 `adaptChainToRunInput` ->
+  chain_run; :644-646 verbatim: "NEVER computes posture: posture authority stays LOCAL in recipe-maps.cjs via
+  chain_run; the Brain recommends, never triggers (fence 6)". lib/core/brain-client.cjs:1879-1888
+  `recommendChain` sends Theo only `problem_type` + `max_steps`.
+- The door is closed by VOCABULARY, not transport. lib/workflow/command-resolver.cjs:85-90
+  `commandsForFramework` reads only `framework_index`; :110-121 `composeWorkflow` yields `command: null,
+  optional: true` for a framework with no command; :131-140 `validateChainAutonomy` blocks any step not
+  `autonomous_safe: true`. data/command-registry.json:538-556 `/mos:eureka`: `frameworks: []`,
+  `autonomous_safe: false`; live `postureForCommand('/mos:eureka')` -> posture `halt` (control:
+  `/mos:deep-grade` -> `run`). No eureka recipe in NAMED_RECIPES (recipe-maps.cjs:355-361, one recipe,
+  PWS_grading) nor in SENS10_CAUSE_RECIPES (:286).
+- The vocabulary gate is THEO-SIDE. scripts/build-command-registry.cjs:516 refuses any `frameworks:` value not
+  in data/framework-names.json, a build-time snapshot of Theo's `:Framework` node names, `snapshot_date:
+  "2026-05-12"` (four months before the 2026-09-03 cutover), 105 names + 7 curated_extras, refreshed by
+  `node scripts/build-command-registry.cjs --refresh-names`. No eureka/RS/whitespace name exists in it; the
+  nearest is "HSI Semantic Surprise Analysis Assistant". Frontmatter is the single edit surface (:318
+  `frameworks`, :339 `autonomous_safe`; compare commands/deep-grade.md:17,20).
+- data/brain-orchestration-projection.json (384 nodes / 73 edges) is LOCAL despite its name: it already
+  carries `command:/mos:eureka` (reach_id context_block, sub_mode eureka-portfolio, hierarchy_rank 3, posture
+  hold, sensor_triggers SENS-13) plus `skill:eureka` and `sub_mode:eureka-portfolio` nodes; consumers are
+  local (local-chain-recommender.cjs:48, navigation-engine.cjs:1092, decide-projection-reader.cjs:15);
+  tests/test-orchestration-projection-part8-boundary.cjs:38-45 forbids any brain-client require in the
+  generator. Nothing pushes it to Theo. Theo's own `orchestration_readiness` tool documents the same:
+  "the plugin-side orchestration projection is NOT synced into Theo".
+- Chain executor rules a Theo-named engine would inherit: lib/core/chain-executor.cjs:190-236 a step is
+  material when the posture verb is not `run`, when irreversible, or `step.material === true`; :332-335 a
+  step auto-runs only when posture is `push_forward` AND reversible. Keeping `hold` means a Theo-recommended
+  chain halts at a navigator gate rather than auto-launching a portfolio scan.
+- Recommended landing (advisor, Option A): register each engine as a Theo-known `:Framework` (Theo side) +
+  declare `frameworks:` (and, if ever, `autonomous_safe`) in each command's frontmatter (plugin side) +
+  `--refresh-names`; NOT a second dedicated Theo trigger tool (a second selection brain and a second
+  transport next to chain_resolve/chain_run, against Canon Part 7 and the one-governed-path rule).
+- Phase 341 must NOT preclude (verified list): keep `data/` in the npm `files` whitelist
+  (command-registry.json, framework-names.json, connector-registry.json, brain-orchestration-projection.json,
+  harness-manifest.json are runtime reads); capability must never be conditional on the model at the
+  REGISTRY level (Theo naming the handle, chain_run reaching it, and an honest "model not installed, run
+  /mos:eureka enable" render must all work on a slim install); the `enable` subcommand must not change
+  `command: "/mos:eureka"` identity; keep data/framework-names.json and `--refresh-names` intact.
