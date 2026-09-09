@@ -174,3 +174,25 @@ navigator's machine with the room. Theo cannot and must not call into it. "Wrapp
 means the LOCAL surface exists for chain_run and for the hosts (CLI / Desktop / Cowork) to invoke; the
 awareness leg is Theo knowing the handle names (command + framework + MCP tool name) so `recommend_chain`
 can name them. No Theo -> plugin call-in is to be built.
+
+## Correction from Catalog A (2026-09-09): the MCP surfaces are mostly reference-echo stubs
+
+- The `intelligence` / `analysis` / `methodology` MCP branches for RS (find-bottlenecks), HSI
+  (score-innovation, whitespace) and most other engines call `buildContext()`
+  (lib/mcp/tool-router.cjs:489): they return the command's reference doc + room state so the MODEL performs
+  the methodology in conversation. They do not execute engine code. Only Eureka's eureka-run/status/report
+  and `eureka_critic` execute for real over MCP today. (Detail: 342-CATALOG-A-insight-engines.md.)
+- Phase 268 "Transition Selected Workflows to MCP Tools" (ROADMAP.md:2025) already owns real tools with
+  real `outputSchema`s for find-bottlenecks/RS and Eureka (W1) and every code-running command (W2);
+  zero plans; depends on Phase 267 (MCP SDK v2), blocked upstream on ext-apps (navigator ruling
+  2026-09-01); carries the 2026-09-02 ruling to schema-design promoted tools for Theo's single catalog.
+- Three-surface consequence for 342: on the CLI a Theo-named handle already reaches a working engine
+  (chain_run invokes the /mos: command; Larry runs it). On Desktop/Cowork (no slash commands) a
+  Theo-recommended step on a stubbed engine lands on the reference-echo. 342 delivers AWARENESS on all
+  surfaces now; REAL execution on hookless surfaces is gated by 268 -> 267 -> upstream. Do not design
+  a Theo-side trigger against a tool that is not there yet; design the handle names to survive both.
+- Other Catalog A facts: entity-classifier.cjs egresses candidate entity names + an excerpt to the raw
+  Anthropic LLM transport (its docblock states Part 8 does not govern that boundary); rs-fetch/rs-explain
+  are live Theo touchpoints via brain-client.cjs while rs-thesis/rs-experts strip Brain access; Phase 161
+  is a phantom (goal shipped as Phase 211); `/mos:scout hsi` hardcodes `python3 compute-hsi.py`,
+  bypassing the Phase 272 CJS backend-dispatch chokepoint (a defect to file, see also SEED-013).
