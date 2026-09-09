@@ -196,3 +196,23 @@ can name them. No Theo -> plugin call-in is to be built.
   are live Theo touchpoints via brain-client.cjs while rs-thesis/rs-experts strip Brain access; Phase 161
   is a phantom (goal shipped as Phase 211); `/mos:scout hsi` hardcodes `python3 compute-hsi.py`,
   bypassing the Phase 272 CJS backend-dispatch chokepoint (a defect to file, see also SEED-013).
+
+## Catalog B highlights (intelligence commands, 15 engines; detail: 342-CATALOG-B-intelligence-commands.md)
+
+- 10 of 15 MCP surfaces are the same `buildContext()` reference-echo (tool-router.cjs:489); the real
+  scripts, agents and Brain calls fire only where Claude Code executes the command's own instructions.
+- THREE engines have NO MCP registration at all: intel-pipeline, explore-opportunity, grade-grant.
+  Desktop and Cowork cannot invoke them; CLI slash commands only. A 342 plugin-side gap.
+- `whitespace` is three unrelated things under one name: (1) the CLI Python HSI/UMAP pipeline that writes
+  anonymized data to the Brain, (2) the MCP `whitespace_scan` tool (a pure local SQL gap scan over
+  open_question / unsupported-claim nodes), (3) the Brain-side `find_whitespace` graph algorithm this
+  repo never calls directly. Theo naming must not collapse these: propose distinct handles (e.g.
+  "Whitespace Gap Scan (local)" vs "HSI Whitespace Map") rather than one "Whitespace".
+- Stale tool grants: agents/investor.md and agents/research.md still grant
+  `mcp__pinecone-brain__search-records` although Pinecone is RETIRED per CLAUDE.md; agents/investor.md
+  has no dispatch site anywhere in the repo (description-only "PROACTIVE", unwired).
+- Part 8 contrast to VERIFY before Theo registration: grade-grant.cjs `askBrainForCoaching` sends only a
+  generic handle (framework + gap categories, "recommend-never-trigger"); the catalog reports
+  find-connections and compare-ventures sending free-text descriptions toward the Brain. Whether that
+  text passes the Phase 257 host-independent egress guard (typed egress_blocked refusal) or bypasses it
+  is a Canon Part 8 question for the navigator, not settled here.
