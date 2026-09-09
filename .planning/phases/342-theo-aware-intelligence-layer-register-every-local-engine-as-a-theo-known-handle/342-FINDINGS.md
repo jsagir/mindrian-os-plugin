@@ -224,3 +224,32 @@ can name them. No Theo -> plugin call-in is to be built.
   ("PWS Triple Validation Compass"), deep-grade ("PWS Triple Validation Compass"). Catalog C's closing
   table enumerates reachability for the analysis family; the 342 plan's first task is that table for
   all 30 handles.
+
+## Catalog C highlights (analysis + graph engines, 21 engines; detail: 342-CATALOG-C-analysis-graph-engines.md)
+
+- Most of the 13 `analysis` MCP commands run zero deterministic code: `buildContext()` hands Larry the
+  command markdown to reason over live. Real backing logic exists only for find-bottlenecks (the RS
+  engine), futures (`futures/orchestrator.cjs`) and diagnostics (four Python scripts).
+- `causal-trace` / `causal-predict` are structurally dead: commands/causal.md's own body refuses both
+  ("ships in v1.7.0"), unmet at v2.0.0-beta.30; the MCP enum values resolve to nothing. Do NOT register
+  them in Theo until they exist.
+- The word "whitespace" names two unrelated engines (graph-native `whitespace_scan`, pure SQL, zero Brain;
+  vs the HSI/Python-backed `/mos:whitespace`). Distinct Theo handles are mandatory.
+- Locally shipped framework names ("PEST Analysis", "Dominant Design", "Futures Wheel",
+  "Adoption-Capacity Theory") are absent from the Brain's FEEDS_INTO-linked snapshot, so Theo cannot
+  recommend them by name although the local chain machinery already runs them. Theo-side: add them
+  with FEEDS_INTO links; plugin-side: --refresh-names.
+- THE structural gap: every graph-native tool (contradiction_check, whitespace_scan, graph_reason,
+  memory-cortex-reach, and the reach/sensor dispatch machinery) declares no `frameworks:` name.
+  They are unreachable through the Theo -> chain_run seam regardless of Theo's vocabulary. This is
+  LOCAL vocabulary work (commands frontmatter + registry regeneration), the plugin half of 342.
+- Catalog C's closing section traces brain-client.recommendChain -> chain-recommender.cjs
+  chainOfferForReach -> adaptChainToRunInput -> command-resolver composeWorkflow / commandsForFramework
+  -> chain-executor runChain and tabulates, per engine, reachable-today vs not.
+
+## Hand-off status
+
+- 2026-09-09: catalogs A (6 engines), B (15), C (21) = 42 engines, committed; paths sent to the Theo
+  session with the request to reconcile each catalog's "proposed Theo name" column against Theo's live
+  `:Framework` set (exact or alias only) and return the canonical list before the plugin-side
+  frontmatter declarations are written.
