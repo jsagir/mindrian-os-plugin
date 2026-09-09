@@ -2,17 +2,31 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 341 context gathered
-last_updated: "2026-09-09T15:22:24.581Z"
-last_activity: 2026-09-09 -- Phase 341 planned (10 plans, 10 waves, checker passed); Phase 342 registered; v2.0.0-beta.29 released
+status: executing
+stopped_at: Completed 341-01-PLAN.md
+last_updated: "2026-09-09T17:25:54.361Z"
+last_activity: 2026-09-09 -- Phase 341 execution started
 progress:
   total_phases: 92
   completed_phases: 27
-  total_plans: 217
-  completed_plans: 216
-  percent: 100
+  total_plans: 227
+  completed_plans: 217
+  percent: 96
 ---
+
+<!-- NOTE (341-01 execute-plan, 2026-09-09, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` correctly advanced the body's "## Current Position" ->
+     "Plan: 2 of 10" this run -- no correction needed there. `state.update-progress` correctly
+     computed `percent: 96` (completed_plans 217 / total_plans 227) in its own returned JSON but
+     persisted the stale `percent: 29` into the frontmatter -- hand-corrected to 96; `completed_plans:
+     217` and `total_plans: 227` were written correctly (both counts scan disk directly) and needed
+     no fix. `state.add-decision --phase 341` wrote the decision entry correctly with the literal
+     `[Phase 341]` prefix (no repeat of the documented `[Phase ?]` bug, since a named `--phase` flag
+     was passed). `state.record-session --stopped-at "Completed 341-01-PLAN.md"` correctly updated
+     the frontmatter `stopped_at` AND the body's own "Stopped at:" line under Session Continuity, but
+     ALSO re-clobbered frontmatter `percent` back to the stale 29 in the same write (a second clobber
+     within this single run, after the first hand-correction above) -- hand-corrected to 96 a second
+     time. Same root cause as every other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (311-01 execute-plan, 2026-09-08, resync-clobber pattern, same class as every note
      in this file): `state.advance-plan --phase 311 --plan 1` ignored the passed phase/plan
@@ -4160,7 +4174,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 298 — SEED-032: Harness-as-Code - Declare and Machine-Enforce the MindrianOS Agent Harness
+**Current focus:** Phase 341 — Install and update overhaul: npm-source plugin artifact, heavy-dep cut, one install location, transactional update
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -4185,10 +4199,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 341 (Install and update overhaul: npm-source plugin artifact) - PLANNED, ready to execute
-Plan: 0 of 10 (next: /gsd-execute-phase 341)
-Status: Ready to execute. 10 plans in 10 sequential waves (341-01..341-10, 30 tasks, one blocking human checkpoint at 341-06 cold-install proof); gsd-plan-checker VERIFICATION PASSED on revision iteration 1 (the one blocker, an unfilled VALIDATION.md, regenerated from the plans); decision coverage 13/13. Phase 342 registered, plugin-side frontmatter held for the Theo session's canonical names; intelligence-layer catalogs A/B/C (42 engines) handed to the Theo session.
-Last activity: 2026-09-09 -- Phase 341 planned and verified (research HIGH, pattern map, validation contract, 10 plans). Earlier today v2.0.0-beta.29 shipped (npm latest/next, tag at origin, marketplace pin, doctor --acceptance 20/20) after Step 8's ahead-of-origin guard correctly refused 92 unpushed commits and the remaining ceremony steps were completed by hand. Previous: 2026-09-08 -- Phase 310 execution and verification complete. Step
+Phase: 341 (Install and update overhaul: npm-source plugin artifact, heavy-dep cut, one install location, transactional update) — EXECUTING
+Plan: 2 of 10
+Status: Ready to execute
+Last activity: 2026-09-09 -- Phase 341 execution started
   5.5's abort-vs-warn decision extracted into scripts/release-lib/verify-tag-push.sh
   (mos_verify_tag_at_origin, 0/10/1 return-code contract), an independent
   `git ls-remote origin refs/heads/main` sha-match check added as the "push demonstrably
@@ -5448,6 +5462,7 @@ Progress: [█████████░] 92%
 | 318 | 1 | - | - |
 | Phase 310 P01 | ~90 minutes | 3 tasks | 5 files |
 | 310 | 1 | - | - |
+| Phase 341 P01 | 25min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -6975,6 +6990,7 @@ Progress: [█████████░] 92%
 - [Phase 311]: Wired opts.isAdmin fail-closed filter into f-selector-ranker.cjs, closing the live /mos:admin recommendation leak at the 3 navigator-facing rankForSelector call sites (navigation-engine-offer.cjs, unknowns/orchestrator.cjs, suggest-next-command.cjs), reusing checkAdminIdentity() per Canon Part 7; lib/hmi/dial-reach-orchestrator.cjs left untouched (proven via pinned sha256, its ranker output never reaches the navigator).
 - [Phase 318]: Fix landed in skillopt-funnel.cjs, not skillopt-genqueries.cjs (D-01); exact-match-only reconciliation, no fuzzy/semantic matching (D-02); positive index built roster-wide before --skills scoping (Finding 3); resume-path verdict force added in onSettle, closing a staleness hole found during implementation (Finding 5); measured 0 of 23 corrections on the real Phase 230 corpus, honestly reported rather than overclaiming D7 impact.
 - [Phase 310]: Extracted Step 5.5's abort-vs-warn decision into scripts/release-lib/verify-tag-push.sh (0/10/1 return-code contract) and added an independent git ls-remote origin refs/heads/main sha-match check as the push-demonstrably-succeeded condition; a still-not-visible tag now warns and continues instead of hard-aborting the release ceremony, but only when that independent check confirms the push landed. — SEED-051: the v1.15.0 stable release false alarm (2026-07-02) proved set -e alone is not sufficient evidence a combined git push origin main --tags fully landed; an explicit independent check was required per 310-CONTEXT.md.
+- [Phase 341]: 341-01: run_red_until aggregator helper lands EXPECTED-RED (not FAIL) for a guard-absent tripwire that is still failing as designed, and FAILs if it stops failing while the guard is absent
 
 ### Pending Todos
 
@@ -7106,8 +7122,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-09T09:59:55.808Z
-Stopped at: Phase 341 context gathered
+Last session: 2026-09-09T17:25:54.291Z
+Stopped at: Completed 341-01-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
