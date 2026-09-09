@@ -3,16 +3,34 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 341-01-PLAN.md
-last_updated: "2026-09-09T17:25:54.361Z"
+stopped_at: Completed 341-02-PLAN.md
+last_updated: "2026-09-09T17:45:25.767Z"
 last_activity: 2026-09-09 -- Phase 341 execution started
 progress:
   total_phases: 92
   completed_phases: 27
   total_plans: 227
-  completed_plans: 217
+  completed_plans: 218
   percent: 96
 ---
+
+<!-- NOTE (341-02 execute-plan, 2026-09-09, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` correctly advanced the body's "## Current Position" ->
+     "Plan: 3 of 10" this run -- no correction needed there. `state.update-progress` correctly
+     computed `percent: 96` (completed_plans 218 / total_plans 227) in its own returned JSON but
+     persisted the stale `percent: 29` into the frontmatter -- hand-corrected to 96.
+     `state.record-metric --phase 341 --plan 02` clobbered frontmatter `percent` back to 29 in the
+     SAME write that correctly appended the `Phase 341 P02 | 55min | 3 tasks | 11 files` row to the
+     Performance Metrics table -- hand-corrected to 96 a second time. `state.add-decision --phase
+     341` (with a named `--phase` flag, so no repeat of the `[Phase ?]` bug) ALSO re-clobbered
+     `percent` back to 29 in the same write that correctly appended the decision entry -- hand-
+     corrected to 96 a third time. `state.record-session --stopped-at "Completed 341-02-PLAN.md"`
+     correctly updated the frontmatter `stopped_at` AND the body's own "Stopped at:" line, but ALSO
+     re-clobbered `percent` back to 29 in the same write -- hand-corrected to 96 a fourth time. Every
+     state verb that touches this frontmatter block in a single execute-plan run clobbers `percent`
+     back to whatever stale value preceded the run's FIRST correction, not just `state.update-
+     progress`; this run needed four separate hand-corrections across four different verb calls.
+     Same root cause as every other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (341-01 execute-plan, 2026-09-09, resync-clobber pattern, same class as every note in
      this file): `state.advance-plan` correctly advanced the body's "## Current Position" ->
@@ -4200,7 +4218,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 341 (Install and update overhaul: npm-source plugin artifact, heavy-dep cut, one install location, transactional update) — EXECUTING
-Plan: 2 of 10
+Plan: 3 of 10
 Status: Ready to execute
 Last activity: 2026-09-09 -- Phase 341 execution started
   5.5's abort-vs-warn decision extracted into scripts/release-lib/verify-tag-push.sh
@@ -5463,6 +5481,7 @@ Progress: [█████████░] 92%
 | Phase 310 P01 | ~90 minutes | 3 tasks | 5 files |
 | 310 | 1 | - | - |
 | Phase 341 P01 | 25min | 3 tasks | 3 files |
+| Phase 341 P02 | 55min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -6991,6 +7010,7 @@ Progress: [█████████░] 92%
 - [Phase 318]: Fix landed in skillopt-funnel.cjs, not skillopt-genqueries.cjs (D-01); exact-match-only reconciliation, no fuzzy/semantic matching (D-02); positive index built roster-wide before --skills scoping (Finding 3); resume-path verdict force added in onSettle, closing a staleness hole found during implementation (Finding 5); measured 0 of 23 corrections on the real Phase 230 corpus, honestly reported rather than overclaiming D7 impact.
 - [Phase 310]: Extracted Step 5.5's abort-vs-warn decision into scripts/release-lib/verify-tag-push.sh (0/10/1 return-code contract) and added an independent git ls-remote origin refs/heads/main sha-match check as the push-demonstrably-succeeded condition; a still-not-visible tag now warns and continues instead of hard-aborting the release ceremony, but only when that independent check confirms the push landed. — SEED-051: the v1.15.0 stable release false alarm (2026-07-02) proved set -e alone is not sufficient evidence a combined git push origin main --tags fully landed; an explicit independent check was required per 310-CONTEXT.md.
 - [Phase 341]: 341-01: run_red_until aggregator helper lands EXPECTED-RED (not FAIL) for a guard-absent tripwire that is still failing as designed, and FAILs if it stops failing while the guard is absent
+- [Phase 341]: Phase 341 Plan 02: single eureka-deps-resolver.cjs createRequire authority + eureka-enable.cjs probe/lock/spawn/re-probe installer, wired into /mos:eureka enable and a now-real doctor --fix eureka, landed before the payload cut.
 
 ### Pending Todos
 
@@ -7122,8 +7142,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-09T17:25:54.291Z
-Stopped at: Completed 341-01-PLAN.md
+Last session: 2026-09-09T17:45:25.578Z
+Stopped at: Completed 341-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
