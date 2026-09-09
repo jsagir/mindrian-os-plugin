@@ -6024,6 +6024,7 @@ Progress: [█████████░] 92%
   now correctly resolves for 253 (retired stub, still a valid phase entry) after the fix.
 
 - Phase 339 added (2026-09-03): Brain-to-Theo cutover release. Navigator directive: make the transition to Theo, clean cutover, two parallel sessions (T in ~/Theo resumes Phase 9 at 09-12 Task 2; M in this repo owns 339). The flip is one line (brain-client.cjs:24 default origin to https://theo-mcp.onrender.com) plus a release; Theo 09-FLIP-RECORD.md reads AUTHORIZED, not yet executed. NOT Phase 267 (SDK v2 migration, still blocked upstream: ext-apps 1.7.5 peer sdk ^1.29.0, re-verified 2026-09-03).
+- Phase 341 added (2026-09-09): Install and update overhaul - npm-source plugin artifact, heavy-dep cut, one install location, transactional update. Trigger: documented update path fails in `git clone` on Windows 11 (navigator QA teardown) and Linux (dev box), same day; root cause = release.sh Step 6.7 vendoring a 410 MB node_modules (380 MB transformers/onnxruntime/sharp, added by 211-01 after the 2026-05-21 pure-JS audit) into a 755 MB tag. Navigator-locked at a Decision Gate: npm-source plugin. Findings: `.planning/phases/341-*/341-FINDINGS.md`. Not planned yet.
 
 ### Decisions
 
