@@ -639,18 +639,45 @@ Plans:
 **Requirements**: D-01 .. D-13 (no REQ-IDs are registered for this phase in REQUIREMENTS.md; the CONTEXT.md locked decisions ARE the requirements, plus the folded registry-drift todo which rides D-08). Discretion items resolved by research: the exact `files` list with `!` negations (`docs/` and `dist/` do NOT ship, zero runtime readers each), the `.planning` runtime readers (`pitch-feedback-schemas.cjs` self-test writes to `os.tmpdir()`; `drift-baseline`, `skillopt-schemas` and `reconcile-runner` ship), shrinkwrap generation at the former Step 6.7 slot with no `NODE_ENV=production`, and `install.sh` retired (four documented distribution paths, none of which need it).
 **Depends on:** Phase 340
 **Plans:** 10 plans
-
 Plans:
+**Wave 1**
 
 - [ ] 341-01-PLAN.md - Wave 0 scaffold: `tests/run-all-341.sh` aggregator with a new `run_red_until` lane, plus the two RED tripwires that pin the phase's two silent-failure modes (`npm-shrinkwrap.json` absent from the pack payload, and the heavy dependency still in `dependencies`). Autonomous (D-02, D-03, D-04, D-13)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 341-02-PLAN.md - Eureka side-directory delivery: `lib/core/eureka-deps-resolver.cjs` (the one `createRequire` authority), `lib/core/eureka/eureka-enable.cjs`, `/mos:eureka enable` on the unchanged `/mos:eureka` identity, and a real `doctor --fix eureka`. Lands BEFORE the cut so the pre-tag gate never goes red. Autonomous (D-09, D-12, D-13)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 341-03-PLAN.md - Class S honesty: L1 split into capability-reachable (blocker) plus a new advisory `model_installed` layer resolved through the same authority, the live un-awaited `isModelCached` bug fixed, the doctor point's layer-count literal moved in the same commit, the honest slim-install degrade across every consumer, and the D-12 no-Brain-reach topology tripwire. Autonomous (D-10, D-11, D-12, D-13)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 341-04-PLAN.md - The payload cut: `package.json` `files` allowlist with four `!` negations, `@huggingface/transformers` out of `dependencies`, `npm-shrinkwrap.json` generated and listed, the two at-risk runtime readers closed, and the two harness policies with their offline runners (`release-payload-ceiling` blocking, `registry-drift` logged). Autonomous (D-02, D-03, D-04, D-05, D-08, D-13)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 341-05-PLAN.md - Release ceremony surgery: Step 4 writes an exact npm pin with `ref` and `url` deleted, Step 6.7's vendoring replaced by an injectable `scripts/release-lib/shrinkwrap-gate.sh`, the Commit-B untrack block and `MOS_SKIP_VENDOR` gone, Step 9.5 delegating to the ceiling runner, doctor comparing `source.version`, and both Phase 310 scope tripwires rebaselined in the same execution. Autonomous (D-01, D-04, D-06, D-08, D-13)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 341-06-PLAN.md - Cold-install proof (D-13 step 2, BLOCKING): `scripts/collect-cold-install-evidence.cjs`, a three-platform human-verify checkpoint, the tracked `docs/install/COLD-INSTALL-PROOF-341.md`, and a gate test that rejects placeholders. Nothing later ships until this passes. Has a checkpoint (D-01, D-04, D-13)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 341-07-PLAN.md - One install location: `scripts/migrate-legacy-install-location.cjs` (verify, then verified backup, then guarded remove), the Class I fix wired to it, `install.sh` deleted with its `check-first-touch-drift` entry in the same commit, and `docs/install/PACKAGING-PATHS.md` refreshed. Autonomous (D-05, D-13)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 341-08-PLAN.md - Collapse `/mos:update` to Check, Confirm, loader, Verify: Steps 6 and 7 deleted, the SHA leg and the api.github.com tag-ref call retired, and the `post-update-restart-pending` touch-file with its writer, SessionStart reader, statusline signal and doctor flag removed. Autonomous (D-07, D-13)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 341-09-PLAN.md - Retire doctor classes A (install-cache) and H (install-incomplete), each in one commit spanning module, registry, renderer, help text and doc, with unreachability proved by literal command output first. Autonomous (D-13)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 341-10-PLAN.md - Retire the legacy-topology halves of classes I and J (vocabulary drops to `marketplace-cache | dev-clone | not-found`), then close the phase with the tracked `docs/install/INSTALL-OVERHAUL-341.md` carrying a full D-01..D-13 coverage table, the OPEN-HANDOFFS entry, and the rethinking-mindrianos research trail. Autonomous (D-01 .. D-13)
 
 ### Phase 342: Theo-aware intelligence layer: register every local engine (Eureka, RS, whitespace, the intelligence and analysis families) as a Theo-known handle, triggerable through chain_run

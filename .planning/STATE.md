@@ -4,8 +4,8 @@ milestone: v2.1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Phase 341 context gathered
-last_updated: "2026-09-09T09:59:55.954Z"
-last_activity: 2026-09-09 -- Phase 341 context gathered; Phase 342 registered; v2.0.0-beta.29 released
+last_updated: "2026-09-09T15:22:24.581Z"
+last_activity: 2026-09-09 -- Phase 341 planned (10 plans, 10 waves, checker passed); Phase 342 registered; v2.0.0-beta.29 released
 progress:
   total_phases: 92
   completed_phases: 27
@@ -4185,10 +4185,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 341 (Install and update overhaul: npm-source plugin artifact) - CONTEXT GATHERED, not planned
-Plan: 0 of 0 (next: /gsd-plan-phase 341)
-Status: Discuss complete 2026-09-09 (341-CONTEXT.md, 341-DISCUSSION-LOG.md; advisor mode, 3 areas ratified: shrinkwrap + loader npm ci, release set of four, opt-in Eureka enable + honest class S). Phase 342 (Theo-aware intelligence layer) registered, frontmatter declarations held for the Theo session's canonical names; intelligence-layer catalogs A/B/C being written into the 342 dir.
-Last activity: 2026-09-09 -- Phase 341 context gathered. Earlier today v2.0.0-beta.29 shipped (npm latest/next, tag at origin, marketplace pin, doctor --acceptance 20/20) after Step 8's ahead-of-origin guard correctly refused 92 unpushed commits and the remaining ceremony steps were completed by hand. Previous: 2026-09-08 -- Phase 310 execution and verification complete. Step
+Phase: 341 (Install and update overhaul: npm-source plugin artifact) - PLANNED, ready to execute
+Plan: 0 of 10 (next: /gsd-execute-phase 341)
+Status: Ready to execute. 10 plans in 10 sequential waves (341-01..341-10, 30 tasks, one blocking human checkpoint at 341-06 cold-install proof); gsd-plan-checker VERIFICATION PASSED on revision iteration 1 (the one blocker, an unfilled VALIDATION.md, regenerated from the plans); decision coverage 13/13. Phase 342 registered, plugin-side frontmatter held for the Theo session's canonical names; intelligence-layer catalogs A/B/C (42 engines) handed to the Theo session.
+Last activity: 2026-09-09 -- Phase 341 planned and verified (research HIGH, pattern map, validation contract, 10 plans). Earlier today v2.0.0-beta.29 shipped (npm latest/next, tag at origin, marketplace pin, doctor --acceptance 20/20) after Step 8's ahead-of-origin guard correctly refused 92 unpushed commits and the remaining ceremony steps were completed by hand. Previous: 2026-09-08 -- Phase 310 execution and verification complete. Step
   5.5's abort-vs-warn decision extracted into scripts/release-lib/verify-tag-push.sh
   (mos_verify_tag_at_origin, 0/10/1 return-code contract), an independent
   `git ls-remote origin refs/heads/main` sha-match check added as the "push demonstrably
@@ -4198,6 +4198,13 @@ Last activity: 2026-09-09 -- Phase 341 context gathered. Earlier today v2.0.0-be
   SKIP=2 (2 skips are a documented pre-existing, out-of-scope Step 9.7 test issue, not a
   regression -- see deferred-items.md). doctor --acceptance --pre-flight: 1/1 passed. Zero real
   git push, npm publish, or GitHub network call anywhere in this phase's own tests.
+
+<!-- NOTE (341-planned, 2026-09-09, resync-clobber pattern, same class as every note in this
+     file): `state.planned-phase --phase 341 --plans 10` reported `updated: ["Status"]` but wrote
+     frontmatter `status: completed` (the milestone is still verifying; the phase is planned, not
+     complete) and re-serialized frontmatter `last_activity` from the body paragraph, dangling
+     "Step" fragment included. Hand-corrected: `status: verifying` restored, `last_activity` set to
+     the one-line 341-planned summary, and "Current Position" moved to PLANNED / 0 of 10. -->
 
 <!-- NOTE (341-discuss, 2026-09-09, resync-clobber pattern, same class as every note in this
      file): `state.record-session --stopped-at "Phase 341 context gathered"` correctly updated
