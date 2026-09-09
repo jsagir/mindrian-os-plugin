@@ -1,7 +1,54 @@
 ## [Unreleased] -- v2.0.0-beta.28 (in progress)
 
 ### Added
-- 
+- **Phase 298 (SEED-032): Harness-as-Code.** MindrianOS declares and machine-enforces its own
+  agent harness for the first time. `data/harness-policies/` is the closed, versioned schema:
+  eleven slice-1 policies (five gates, four voice rules, the memory-write declaration, the
+  Larry contract-parity declaration), each carrying an enforcement rung (`declared` / `logged`
+  / `blocking`) read from disk, never hardcoded. `scripts/run-harness.cjs` is the one idempotent
+  policy runner: a tiered `--check`, a `--room <dir>` convergence scan (proven idempotent twice
+  in a row against a committed fixture, byte-identical output, zero writes), and a `--policy
+  <id>` promotion review that prints one evaluator's verdict and never recomputes it.
+  `scripts/build-harness-manifest.cjs` goes to manifest v2 (three additive keys -- `policies`,
+  `larry_surfaces`, `fixture_ref` -- `maps` stays exactly three) and now runs the Larry
+  contract-parity checks inline, so `--check` fails closed the moment any of Larry's three
+  speaking surfaces drops a core-contract phrase or the Desktop wire exceeds its 1,950-byte
+  budget. `node scripts/doctor.cjs --acceptance` gained a `harness-policies` blocker that spawns
+  the runner, wiring the whole harness into the release train's own gate. The pre-commit drift
+  guard now fires on any edit under `data/harness-policies/` or `data/harness-fixtures/`, so the
+  manifest's own digest cannot silently rot. Two long-red manifest-cluster tests were repaired
+  (repointed at the file that actually carries the guard after Phase 235-01's rewrite) rather
+  than left recorded as known-broken. 15 plans, 6 waves, goal-backward verified.
+- **Admin-only commands stop leaking into recommendations (SEED-052).** The Brain
+  recommendation scorer (`lib/workflow/f-selector-ranker.cjs`) now reads each command's
+  `visibility` field (mirrored into `data/command-registry.json` by the generator) and filters
+  out `visibility: admin` candidates for a non-admin navigator, fail-closed by default. Closes a
+  live, reproduced leak: `/mos:admin` was ranking as the #2 recommendation for every navigator,
+  admin or not, before this fix.
+- **Skill-optimization smoke calibration reconciliation (SEED-061).** `scripts/skillopt-funnel.cjs`
+  gained a deterministic, exact-match reconciliation pass over `enumerateQueries`'s full-roster
+  output: a `should_not_trigger` negative labeled `expected_skill: null` that exactly collides
+  with a real positive elsewhere in the roster is corrected before the flag rule scores it,
+  closing a disclosed false-alarm class from Phase 230's smoke calibration (`230-07-CALIBRATION.md`).
+  The fix also closes a resume-path staleness hole: a resumed funnel run now re-applies the
+  reconciled label instead of reading a stale persisted verdict. Zero live model calls anywhere
+  in the fix or its tests.
+- **`scripts/release.sh` Step 5.5 stops crying wolf on a good push (SEED-051).** The tag-push
+  verification gate now checks an independent `git ls-remote` on `origin/main`'s SHA before
+  deciding whether a still-not-visible tag is a real failure or just GitHub replication lag.
+  When the push demonstrably landed, a slow tag now prints a warning and the ceremony continues
+  through the acceptance/marketplace/post-verify steps; when it did not land, the original hard
+  abort is preserved. The abort-vs-warn decision lives in a new, independently testable library,
+  `scripts/release-lib/verify-tag-push.sh`. Reproduces and fixes the exact false alarm hit on
+  the v1.15.0 release ceremony (2026-07-02).
+
+### Changed
+- Twelve stale-duplicate roadmap phase stubs (283, 297, 299, 300, 302, 304, 305, 306, 309, 312,
+  325, 326) closed as `ABSORBED BY PHASE <N>`, each citing the specific already-shipped phase
+  and code evidence, after tracing that their seeds' own required capabilities were already
+  live -- no renumbering, no plans lost, roadmap now tells the truth about what still needs
+  building. Two further clusters fused (319 absorbs 320-322/324 into one Host Runtime Decision
+  Record; 333 absorbs 334 into one Room-as-GraphRAG walk-test-then-build phase).
 
 ## [2.0.0-beta.27] - 2026-09-07
 
