@@ -57,21 +57,31 @@ run "310 leg 2: preamble (lines 1-79) tripwire" leg2_preamble
 
 # --- Leg 3: exhaustive step-block tripwire ----------------------------------
 #
-# Splits the CURRENT release.sh on `^# --- Step` the same way Task 1's
-# generator did, keyed by header text (line-number independent). Two blocks
-# are EXPECTED to differ from the fixture, both explicitly authorized by the
-# plan's <prime_directive> (exactly 3 allowed edit regions):
-#   - "# --- Step 5.5 ..." -- the rewritten gate itself (Hunk B).
-#   - "# --- Step 1: ..." -- this block's span mechanically CONTAINS the
-#     dry-run preview section, which is where the Step 5.5 preview-line edit
-#     (Hunk C, prime_directive region 2, "the dry-run preview line") lives.
-#     The header-based split has no narrower boundary for that line, so this
-#     block legitimately differs too. To keep the tripwire meaningful (not
-#     just "skip Step 1 wholesale"), this leg additionally proves the ONLY
-#     difference inside Step 1 is that one authorized preview line: it
-#     normalizes the current preview line back to its pre-Phase-310 wording
-#     and re-hashes; the result MUST equal the fixture's pinned Step 1 hash.
-# Every OTHER block (26 of 28) must be byte-identical to the fixture.
+# Splits the CURRENT release.sh on `^# --- Step` the same way the fixture's
+# own generating command did, keyed by header text (line-number independent).
+#
+# Phase 341 Plan 05 REBASELINE (2026-09-10): tests/fixtures/310-release-step-
+# block-hashes.txt was regenerated WHOLESALE from the post-341-edit
+# release.sh, using the fixture's own literal generating command with no
+# normalization applied. Because of that, every block -- including the ones
+# that changed in Phase 310 (Step 5.5) and in Phase 341 (Step 4, Step 6.7,
+# Step 9.5, Step 7.5, Step 7, the PREAMBLE) -- now hash-matches the fixture
+# DIRECTLY. The old per-block special-casing (skip-hash-check for Step 5.5,
+# normalize-then-compare for Step 1) existed only because the OLD fixture
+# predated Phase 310's own edit and needed a bridge for that one line; a
+# freshly regenerated fixture needs no bridge. This leg is therefore now a
+# single uniform pass: every block must be byte-identical to the fixture,
+# every block in the fixture must still be present (set-equality both
+# directions), and the header count must match. The NEXT phase that touches
+# release.sh mints its own fresh fixture the same way, rather than growing a
+# second special-case.
+#
+# Phase 341's authorized regions for THIS rebaseline (documented here, not
+# enforced by per-block code, since the fixture itself already reflects
+# them): Step 4 (npm source rewrite), Step 6.7 (shrinkwrap generation
+# replaces vendoring), Step 9.5 (ceiling-runner delegation), Step 7.5 (Commit-
+# B untrack block deleted), Step 7 (header comment describes npm-source
+# distribution), and the PREAMBLE (top-of-file "What it does" comment).
 leg3_step_block_tripwire() {
   local f="$RELEASE_SH"
   local total_lines
@@ -102,48 +112,13 @@ leg3_step_block_tripwire() {
     cur_headers+=("$header")
     hash="$(sed -n "${start},${end}p" "$f" | sha256sum | awk '{print $1}')"
 
-    if [[ "$header" == "# --- Step 5.5"* ]]; then
-      # Expected to differ (Hunk B). No equality assertion; just require it
-      # was present in the fixture too (header text itself unchanged).
-      if [[ -z "${fix_hash[$header]:-}" ]]; then
-        echo "Step 5.5 header not found in fixture (header text drifted?): $header"
-        mismatch=1
-      fi
-      continue
-    fi
-
-    if [[ "$header" == "# --- Step 1:"* ]]; then
-      if [[ -z "${fix_hash[$header]:-}" ]]; then
-        echo "Step 1 header not found in fixture: $header"
-        mismatch=1
-        continue
-      fi
-      # Normalize the single authorized dry-run preview line (Hunk C) back
-      # to its pre-Phase-310 wording, then re-hash and compare. Hashed
-      # directly off the sed/pipe stream (never captured into a shell
-      # variable first) so trailing blank lines in the block are preserved
-      # byte-for-byte -- `$(...)` command substitution strips trailing
-      # newlines, which previously produced a false mismatch.
-      local normalized_hash
-      normalized_hash="$(sed -n "${start},${end}p" "$f" | sed \
-        's/Step 5\.5  : verify tag v\$NEW_VERSION at origin (RELEASE_TAG_PUSH_RETRIES retries, SKIP_TAG_VERIFY=1 to bypass) ; warns instead of aborting when origin\/main already matches local HEAD/Step 5.5  : verify tag v$NEW_VERSION at origin (RELEASE_TAG_PUSH_RETRIES retries, SKIP_TAG_VERIFY=1 to bypass)/' \
-        | sha256sum | awk '{print $1}')"
-      if [[ "$normalized_hash" != "${fix_hash[$header]}" ]]; then
-        echo "Step 1 block differs by MORE than the single authorized dry-run preview line (Hunk C):"
-        echo "  expected (after normalizing the preview line): ${fix_hash[$header]}"
-        echo "  got:                                            $normalized_hash"
-        mismatch=1
-      fi
-      continue
-    fi
-
     if [[ -z "${fix_hash[$header]:-}" ]]; then
       echo "block added or renamed (not in fixture): $header"
       mismatch=1
       continue
     fi
     if [[ "$hash" != "${fix_hash[$header]}" ]]; then
-      echo "HASH MISMATCH (block weakened/changed outside Task 2 scope): $header"
+      echo "HASH MISMATCH (block weakened/changed outside an authorized rebaseline): $header"
       mismatch=1
     fi
   done
@@ -169,7 +144,7 @@ leg3_step_block_tripwire() {
 
   return "$mismatch"
 }
-run "310 leg 3: exhaustive step-block scope tripwire (26 unchanged, Step 1 delta authorized+verified, Step 5.5 rewritten)" leg3_step_block_tripwire
+run "310 leg 3: exhaustive step-block scope tripwire (28 blocks, uniform hash match against the Phase 341 rebaseline)" leg3_step_block_tripwire
 
 # --- Leg 4: gate-count tripwire ---------------------------------------------
 

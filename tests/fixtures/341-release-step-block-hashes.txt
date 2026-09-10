@@ -1,10 +1,10 @@
-# Phase 310 baseline -- pre-change sha256 of every `# --- Step` block in scripts/release.sh
-# Generated: 2026-09-10T00:00:00Z
-# Purpose: the byte-level scope tripwire (tests/run-all-310.sh leg 3) proves that only an
-# authorized region changes in a given phase; every other block must stay byte-identical to
-# this file.
+# Phase 341 baseline -- sha256 of every `# --- Step` block in scripts/release.sh, minted at the
+# end of Plan 05 (the release-ceremony surgery plan). tests/run-all-341.sh's own step-block
+# tripwire (written in Plan 01) reads the header-count data line below rather than a
+# hard-coded literal.
 #
-# Generating command (reproducible):
+# Generating command (reproducible -- identical to tests/fixtures/310-release-step-block-hashes.txt's
+# own documented command):
 #   F=scripts/release.sh
 #   mapfile -t LINES < <(grep -n '^# --- Step' "$F" | cut -d: -f1)
 #   N=${#LINES[@]}; TOTAL_LINES=$(wc -l < "$F")
@@ -17,33 +17,19 @@
 #   done
 #
 # Block i runs from its header line to the line before the next header (last block runs to EOF).
-# Format per data line: <sha256>  <header line text or pinned label>
+# Format per data line: <sha256>  <header line text>, except the one bare-integer header-count
+# line below (labeled with the literal string tests/run-all-341.sh's parser looks for).
 #
-# Phase 341 Plan 05 REBASELINE (2026-09-10): this fixture was regenerated wholesale from the
-# post-341-edit release.sh using the exact command above (no normalization applied at
-# generation time -- every hash below is the literal, current content). Phase 341's authorized
-# edit regions, all now baked into this fresh baseline (leg 3's per-block special-casing for
-# these regions is retired -- see tests/run-all-310.sh's own comment):
-#   - "# --- Step 4: ..." header + body -- D-01 npm-source rewrite (source object rebuilt
-#     wholesale as {source, package, version}, ref/url deleted, no registry key).
-#   - "# --- Step 6.7: ..." header + body -- D-06 vendoring replaced by npm-shrinkwrap.json
-#     generation delegated to scripts/release-lib/shrinkwrap-gate.sh.
-#   - "# --- Step 9.5: ..." body -- D-06/D-08 payload gate: node_modules/ ban and the
-#     docs/+release.sh blacklist alternatives removed, delegates to
-#     check-release-payload-ceiling.cjs --check.
-#   - "# --- Step 7.5: ..." body -- the Commit-B `git rm -r --cached node_modules` untrack
-#     block deleted (nothing to untrack any more).
-#   - "# --- Step 7: ..." body -- header comment updated to describe npm-source distribution
-#     instead of vendored node_modules (no code-path change).
-#   - the top-of-file preamble region (lines 1-79) -- the "What it does" comment block updated
-#     to describe the D-01/D-06 pipeline (Step 4 npm source, Step 6.7 shrinkwrap generation).
-# The Phase 310 Step 5.5 rewrite and its Step 1 dry-run-preview single-line delta remain
-# baked into this same fresh baseline (both blocks are ordinary hash-matched entries now;
-# no code-level normalization is needed since this whole fixture is current-state, not
-# pre-310 pinned).
+# Companion PREAMBLE(1-79) and EXIT1_NONCOMMENT_COUNT baselines for this same generation live in
+# tests/fixtures/310-release-step-block-hashes.txt (16c188a4da7649e33b7f7787db343f436c4d690fbb1912b31c812199b26f0946
+# and 49 respectively, measured on this identical post-341-edit release.sh) -- not duplicated here
+# as bare data lines because tests/run-all-341.sh's step-block leg only special-cases the one
+# header-count label below; a second unlabeled pinned line would be mis-parsed as an expected
+# (and therefore missing) `# --- Step` header.
+#
+# Generated: 2026-09-10T00:00:00Z
 
-16c188a4da7649e33b7f7787db343f436c4d690fbb1912b31c812199b26f0946  PREAMBLE(1-79)
-49  EXIT1_NONCOMMENT_COUNT
+28  STEP_BLOCK_COUNT
 dcce124483c6419295cb13ae5d56718a3a37a28fe4687d2d9bd5b5caa7838a51  # --- Step 0: Parse bump type + flags ---
 8ac50432c8f28bd9286ca28dc76e175e6063f2ca9f8da2d940a8a3c839dff4b9  # --- Step 0.5: semver preflight ---
 38459c14075ddbc148682221d28e4ef03a96e8d71417a3a41954e034e1fdbff4  # --- Step 1: Get current version + compute NEW_VERSION via semver ---
