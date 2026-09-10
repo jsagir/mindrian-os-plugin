@@ -5,7 +5,7 @@ milestone_name: milestone
 status: executing
 stopped_at: Completed 341-05-PLAN.md
 last_updated: "2026-09-10T05:31:53.463Z"
-last_activity: "2026-09-10 -- Plan 341-04 complete: package.json cut to the runtime tree"
+last_activity: 2026-09-10 -- quick task 260910-dk1 complete (intel-pipeline research pipe contract, verified 6/6); Phase 341 wave 6 halted at the cold-install checkpoint (Linux PASS, Windows/Mac pending); v2.0.0-beta.31 released
 progress:
   total_phases: 92
   completed_phases: 27
@@ -7091,6 +7091,7 @@ Progress: [█████████░] 92%
 - 258-06 BLOCKED at task 1 re-verification: this executor subagent has ZERO MCP tool access (ToolSearch itself returns "disabled for this session, in subagents as well as here"; direct mcp__pws-brain-mcp__brain_write and mcp__context7__resolve-library-id calls both return "No such tool available"). Matches the documented upstream bug anthropics/claude-code#13898 (MCP tools stripped from agents with a tools: frontmatter restriction), but here it is session-wide, not just Context7. Independently re-verified the PAYLOAD CONTENT claim from the 2026-08-20 handoff (payloads/order-collision-dishare-2026-08-20/01-dishare-24219.cypher and manifest.json in ProblemsWorthSolving-Brain, read directly): confirmed correct, card 1 deletes Red Teaming's HAS_PROCESS_STEP edge outright and corrects node 24219's order 3 to 5 in place, matches the handoff's description exactly. Could NOT independently re-verify the brain_write tool-surface/dryRun claim (no tool access to check), and could not run task 2's dry-run recompile (no brain_write/brain_query access). Did not proceed to task 2, did not open or close the admin window, made zero graph calls, zero commits, zero file edits in either repo. RESOLUTION NEEDED: re-dispatch 258-06 from a session or agent context that retains MCP tool access (not a tools-restricted subagent), then re-run task 1's re-verification for real before task 2.
 
 ### Quick Tasks Completed
+| 260910-dk1 | Fix intel-pipeline research pipe contract: extractContext object call and lens_set to lensSet translation, with an injectable driver seam and a regression test | 2026-09-10 | b6830e1d | Verified | [260910-dk1-fix-intel-pipeline-research-pipe-contrac](./quick/260910-dk1-fix-intel-pipeline-research-pipe-contrac/) |
 
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|

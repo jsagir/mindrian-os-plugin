@@ -114,3 +114,15 @@ None. The threat register in the plan (T-dk1-01 topic derivation, T-dk1-02 seam 
 - FOUND: commit `eef4f021` (`git log --oneline --all | grep eef4f021`)
 - FOUND: `.planning/todos/completed/2026-09-10-intel-pipeline-fan-halt-lens-key-mismatch.md`
 - MISSING (expected): `.planning/todos/pending/2026-09-10-intel-pipeline-fan-halt-lens-key-mismatch.md` (moved, confirmed absent)
+
+## Post-review (2026-09-10)
+
+- Code review (260910-dk1-REVIEW.md): no blockers. WR-01 (test left 4 temp dirs per run, 35 found after one
+  run) fixed in b6830e1d: mkTmp now records every dir and cleanupTmp removes them before exit, mirroring
+  test-223's rmSync idiom; re-run 34/34 with zero leftover dirs. IN-01 (the `dimension` field passed to
+  runSourceLens is not read by the driver today) accepted as harmless intent-documenting; IN-02 (the
+  _extractor/_lensDriver seam gate is shape-checked, not flag-gated) accepted: the seams are unreachable
+  from MCP input and from every current caller; revisit if a programmatic caller is wired.
+- Verification (260910-dk1-VERIFICATION.md): passed, 6/6 must-haves.
+- The one FAIL in bash tests/run-all-223.sh (DESENSITIZE asymmetry, commands/bono.md) is pre-existing since
+  274-02 and filed separately: .planning/todos/pending/2026-09-10-bono-desensitize-asymmetry-sens-05-mirror-empty.md
