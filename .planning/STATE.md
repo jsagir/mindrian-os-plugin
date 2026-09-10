@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 341-03-PLAN.md
-last_updated: "2026-09-10T03:46:23.487Z"
-last_activity: 2026-09-09 -- Phase 341 execution started
+stopped_at: Completed 341-04-PLAN.md
+last_updated: "2026-09-10T04:12:18.782Z"
+last_activity: "2026-09-10 -- Plan 341-04 complete: package.json cut to the runtime tree"
 progress:
   total_phases: 92
   completed_phases: 27
   total_plans: 227
-  completed_plans: 219
-  percent: 96
+  completed_plans: 220
+  percent: 97
 ---
 
 <!-- NOTE (341-03 execute-plan, 2026-09-10, resync-clobber pattern, same class as every note in
@@ -4231,21 +4231,42 @@ See: .planning/PROJECT.md (updated 2026-04-09)
      and the Current Position section below to match the command's own
      correctly-computed values and the actual plan state. -->
 
+<!-- NOTE (341-04 execute-plan, 2026-09-10, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` correctly advanced the body's "## Current Position" ->
+     "Plan: 5 of 10" this run -- no correction needed there. `state.update-progress` correctly
+     computed `percent: 97` (completed_plans 220 / total_plans 227) in its own returned JSON but
+     persisted the stale `percent: 29` into the frontmatter -- hand-corrected to 97.
+     `state.record-metric --phase 341 --plan 04` clobbered frontmatter `percent` back to 29 in the
+     SAME write that correctly appended the `Phase 341 P04 | 100min | 3 tasks | 15 files` row to
+     the Performance Metrics table -- hand-corrected to 97 a second time. `state.add-decision
+     --phase 341` (named `--phase` flag, no repeat of the `[Phase ?]` bug) ALSO re-clobbered
+     `percent` back to 29 in the same write that correctly appended the decision entry --
+     hand-corrected to 97 a third time. `state.record-session --stopped-at "Completed
+     341-04-PLAN.md"` correctly updated the frontmatter `stopped_at` AND the body's own "Stopped
+     at:" line, but ALSO re-clobbered `percent` back to 29 in the same write -- hand-corrected to
+     97 a fourth time. Identical four-clobber shape to every prior 341-0N note in this file; same
+     root cause, not re-investigated further here. Separately observed (not caused by this run):
+     an unrelated commit (`01ae0169`, "docs(341): add D-07a...") landed on `main` between this
+     plan's Task 1 and Task 2 commits, touching only `341-CONTEXT.md` and `341-DISCUSSION-LOG.md`
+     -- outside this plan's declared files, left untouched per the destructive-git-prohibition and
+     incident-context rules governing this session. -->
+
 ## Current Position
 
 Phase: 341 (Install and update overhaul: npm-source plugin artifact, heavy-dep cut, one install location, transactional update) — EXECUTING
-Plan: 4 of 10
+Plan: 5 of 10
 Status: Ready to execute
-Last activity: 2026-09-09 -- Phase 341 execution started
-  5.5's abort-vs-warn decision extracted into scripts/release-lib/verify-tag-push.sh
-  (mos_verify_tag_at_origin, 0/10/1 return-code contract), an independent
-  `git ls-remote origin refs/heads/main` sha-match check added as the "push demonstrably
-  succeeded" condition, and Step 5.5 rewired so a still-not-visible tag after retries now warns
-  and continues to Steps 9.8/10/11 instead of hard-aborting the release ceremony, but only when
-  that independent check confirms the push landed. bash tests/run-all-310.sh: PASS=9 FAIL=0
-  SKIP=2 (2 skips are a documented pre-existing, out-of-scope Step 9.7 test issue, not a
-  regression -- see deferred-items.md). doctor --acceptance --pre-flight: 1/1 passed. Zero real
-  git push, npm publish, or GitHub network call anywhere in this phase's own tests.
+Last activity: 2026-09-10 -- Plan 341-04 complete: package.json cut to the runtime tree
+  (23-entry files allowlist, 4 negations), npm-shrinkwrap.json shipped (zero dev entries, all
+  5 sqlite-vec platform packages), @huggingface/transformers removed from dependencies, and two
+  harness policies stood up (release-payload-ceiling blocking, registry-drift logged). Both plan
+  341-01 EXPECTED-RED tripwires now green. npm pack --dry-run --json: entryCount ~1830,
+  unpackedSize ~29.1 MB, well under both ceilings. bash tests/run-all-341.sh: PASS=18 FAIL=0
+  SKIP=10 EXPECTED-RED=0. bash tests/run-all-310.sh: PASS=9 FAIL=0 SKIP=2 (zero regression).
+  node scripts/doctor.cjs --acceptance --pre-tag: 17/17 points passed. Zero real git push, npm
+  publish, or GitHub network call anywhere in this plan's own tests. Plan 341-05 (cold-install
+  proof on Windows/Mac/Linux, per D-13) is next; the release ceremony itself is untouched, per
+  this plan's own stated scope.
 
 <!-- NOTE (341-planned, 2026-09-09, resync-clobber pattern, same class as every note in this
      file): `state.planned-phase --phase 341 --plans 10` reported `updated: ["Status"]` but wrote
@@ -5499,6 +5520,7 @@ Progress: [█████████░] 92%
 | Phase 341 P01 | 25min | 3 tasks | 3 files |
 | Phase 341 P02 | 55min | 3 tasks | 11 files |
 | Phase 341 P03 | 25min | 3 tasks | 8 files |
+| Phase 341 P04 | 100min | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -7029,6 +7051,8 @@ Progress: [█████████░] 92%
 - [Phase 341]: 341-01: run_red_until aggregator helper lands EXPECTED-RED (not FAIL) for a guard-absent tripwire that is still failing as designed, and FAILs if it stops failing while the guard is absent
 - [Phase 341]: Phase 341 Plan 02: single eureka-deps-resolver.cjs createRequire authority + eureka-enable.cjs probe/lock/spawn/re-probe installer, wired into /mos:eureka enable and a now-real doctor --fix eureka, landed before the payload cut.
 - [Phase 341]: Class S L5 (model_installed) is advisory-appended, never inserted, and the isModelCached await bug is fixed with a dedicated regression trap.
+- [Phase 341]: npm 10.9.8's npm shrinkwrap renames package-lock.json rather than generating a parallel file; the two are byte-identical by construction
+- [Phase 341]: requirements.mark-complete D-02/D-03/D-04/D-05/D-08/D-13 returned not_found for all six -- Phase 341's D-* decision IDs were never registered in .planning/REQUIREMENTS.md (same pre-existing gap class as the ANCHOR-*/PYPORT-*/DCW-* precedents); not fixed here, recorded as a decision instead
 
 ### Pending Todos
 
@@ -7160,8 +7184,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-10T03:46:23.385Z
-Stopped at: Completed 341-03-PLAN.md
+Last session: 2026-09-10T04:11:06.328Z
+Stopped at: Completed 341-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
