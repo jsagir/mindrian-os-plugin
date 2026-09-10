@@ -80,3 +80,14 @@ Phase 342 (Theo-aware intelligence layer); Phase 285 (selective install); SEED-0
 ## Grounding legs consulted
 
 claude-code-guide (official Claude Code docs, verbatim quotes pinned); three gsd-advisor-researcher runs (local repo + official npm docs, read-only, no publish, no web search); langtalks-graph-expert (not in the corpus yet: the relationship query degenerated into a keyword BFS with zero edges); Theo (`command_neighborhood`, `normalize_framework_name`, generic handles only).
+
+## Mid-execution addition (2026-09-10, before wave 8): post-install/update verified health run
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Fold into 341-08 as the Verify step's automatic half | D-07a; touch-file preflight becomes a version-change-triggered doctor run + statusline mark; plan 341-08 revised and re-checked | ✓ |
+| Own follow-on phase | 341 ships with a window where nothing auto-verifies | |
+| Plant a seed only | Decide later | |
+
+**Statusline shape (co-design rule):** version + check glyph, one segment (selected) vs health tier word vs Larry line only.
+**Navigator's addition (verbatim):** "i want the user to get healthe check on Theo as well and get some random insight from theo and larry togetehr as immidiate after doctor run." Captured as D-07a (d) and (e): Theo probe reuses class M / the availability probe, detached; one generic-handle insight, Larry-framed, once per update.

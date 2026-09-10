@@ -64,6 +64,29 @@ awareness/trigger of the intelligence layer (Phase 342), selective install profi
   SHA leg (`SHA_DIFFERS_INVERSION_HOTFIX`, the api.github.com tag-ref call at
   scripts/check-version-and-sha.cjs:222) is retired: published npm versions are immutable, so an
   in-version hotfix is a new version.
+- **D-07a (added 2026-09-10, navigator, mid-execution before wave 8):** The first session after any
+  install or update VERIFIES ITSELF and rewards the navigator. (a) Trigger: the plugin version changed
+  since last seen (`installed_plugins.json` version vs a last-seen marker under `~/.mindrian/`), which
+  replaces the retired touch-file as the post-update signal; the loader cannot forget to set it.
+  (b) Local verification, bounded and offline, inside the existing SessionStart hook budget (the
+  preflight hook runs at 12 s today, hooks/hooks.json): the doctor points that already exist -
+  `install-state`, `session-start-active-version`, `activation-reached-the-wire`,
+  `mcp-surface-tool-count`, `harness-policies`. Full `doctor --all` stays opt-in. (c) Statusline: ONE
+  segment, version plus glyph - `mos beta.N` with a check mark when the bounded set passes, a warning
+  glyph plus the failing count when it does not; the detail is Larry's first line. Co-designed with the
+  navigator (this session), per the statusline rule. (d) Theo health: after the local set, probe Theo
+  reachability by REUSING the shipped class M brain-smoke / brain-client availability probe (Canon Part
+  7), DETACHED so session start never blocks on the network, honest refusal on failure (Decision #8).
+  (e) One insight, Theo and Larry together: with Theo reachable, fetch ONE generic methodology nugget
+  keyed by a generic handle only (the active room's problem type or stage; never room content, Canon
+  Part 8) and let Larry frame it in one sentence as a question or nudge (GUIDED, never a lecture),
+  delivered on the first turn after the verification line, once per install or update, never per
+  session. This is the Hooked variable reward for the first-step surface (standing rule). Reuse the
+  Phase 267.2 detached-spawn delivery pattern (scripts/first-install-router.cjs) rather than a second
+  mechanism. (f) Declared as a harness policy in a NEW `session-start` tier of
+  `data/harness-policies/`, rung `logged` (on a navigator's machine a failed verification is surfaced,
+  never blocking). Lands in plan 341-08 as the Verify step's automatic half; the 341-08 plan is revised
+  and re-checked before wave 8 executes.
 - **D-08:** Two harness policies in `data/harness-policies/` riding the existing `harness-policies`
   doctor point (scripts/doctor.cjs:1387-1390, blocker, applies_to pre-tag + full), so they run at Step
   6.6 (pre-tag, failure = rollback) and Step 9.8 (full): (a) `release-payload-ceiling`, rung `blocking`,
