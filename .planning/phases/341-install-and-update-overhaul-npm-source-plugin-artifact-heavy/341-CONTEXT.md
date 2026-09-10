@@ -87,6 +87,34 @@ awareness/trigger of the intelligence layer (Phase 342), selective install profi
   `data/harness-policies/`, rung `logged` (on a navigator's machine a failed verification is surfaced,
   never blocking). Lands in plan 341-08 as the Verify step's automatic half; the 341-08 plan is revised
   and re-checked before wave 8 executes.
+- **D-07b (added 2026-09-10, navigator: "hyper critical, needs strong harness"):** The Eureka opt-in
+  card on the first session after any install or update. (a) Placement: immediately after the D-07a
+  verification line, on the same first turn, delivered through the same 267.2 router branch (no second
+  delivery mechanism); when the 267.2 first-install reward owns the first turn, the card fires on the
+  next turn of the SAME session, never a later session. (b) Precondition, all three: the embedding
+  stack is NOT installed (the wave-2 resolver lib/core/eureka-deps-resolver.cjs finds nothing under
+  ~/.mindrian/eureka-deps and class S L5 `model_installed` is not ok); no standing answer for this
+  version; the version-change trigger of D-07a fired. (c) The card is a real card: AskUserQuestion on the
+  CLI, the MCP gate card (gate_render) on Desktop/Cowork, never an ASCII box (SEED-021), never a silent
+  download. Copy, locked verbatim (navigator 2026-09-10): "Eureka spots connections between your claims
+  by meaning, not keywords. It needs a one-time 380 MB local model download. Install it now?" Options:
+  `Install now` (runs the wave-2 `/mos:eureka enable` path with visible progress; on success class S L5
+  flips to ok and the state records `installed`), `Not now` (state records `declined` for this version),
+  `Never ask again` (state records `never`). (d) Re-ask rule, locked: `declined` is silent for the life
+  of that version and re-asks exactly once on the next version change; `never` is permanent until the
+  navigator runs `/mos:eureka enable` themselves (which clears it); `installed` never asks. Never per
+  session, never on a timer. (e) One state authority: the D-07a `lib/core/session-verify-state.cjs`
+  module (marker under ~/.mindrian/, survives cache-prune) carries
+  `eureka_optin: { choice: installed|declined|never, version, at }`; no second marker file.
+  (f) Harness, strong: a policy `eureka-optin-once` in the `session-start` tier with an offline runner
+  and fixture states (fresh / installed / declined-same-version / declined-older-version / never /
+  first-install-reward-pending), asserting exactly the expected fire or no-fire for each; rung `logged`
+  at runtime (a navigator's machine is never blocked) and the same runner wired into
+  `bash tests/run-all-341.sh` as an always-green leg so the dev side is blocking; a doctor line in the
+  `--session-start` tier reports the current opt-in state honestly. (g) Part 8: the card and the
+  install carry no room content; the model download fetches public weights by model id only (the
+  existing embedding-spine.cjs contract). Lands in plan 341-08 with D-07a; the plan is revised and
+  re-checked before wave 8 executes.
 - **D-08:** Two harness policies in `data/harness-policies/` riding the existing `harness-policies`
   doctor point (scripts/doctor.cjs:1387-1390, blocker, applies_to pre-tag + full), so they run at Step
   6.6 (pre-tag, failure = rollback) and Step 9.8 (full): (a) `release-payload-ceiling`, rung `blocking`,

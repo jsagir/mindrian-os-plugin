@@ -91,3 +91,19 @@ claude-code-guide (official Claude Code docs, verbatim quotes pinned); three gsd
 
 **Statusline shape (co-design rule):** version + check glyph, one segment (selected) vs health tier word vs Larry line only.
 **Navigator's addition (verbatim):** "i want the user to get healthe check on Theo as well and get some random insight from theo and larry togetehr as immidiate after doctor run." Captured as D-07a (d) and (e): Theo probe reuses class M / the availability probe, detached; one generic-handle insight, Larry-framed, once per update.
+
+## Mid-execution addition (2026-09-10, before wave 8): Eureka opt-in card after install/update (D-07b)
+
+**Navigator (verbatim):** "i want a hook that asked user and explains to use waht is eurika engins and would he like to install it, immidialt afetr instaling or updating mindrian !!!! this isjyper cirical needs strong harnes. make sure that if user already has eurik it wont keep asking him about it !"
+
+| Option (re-ask after "Not now") | Selected |
+|---|---|
+| After the next install/update only | ✓ |
+| Never unless /mos:eureka enable | |
+| After next update, and once when first needed | |
+
+| Option (card copy) | Selected |
+|---|---|
+| Longer Larry sentence | |
+| Shorter: "Eureka spots connections between your claims by meaning, not keywords. It needs a one-time 380 MB local model download. Install it now?" | ✓ |
+| Navigator writes it | |
