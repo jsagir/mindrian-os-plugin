@@ -1,0 +1,13 @@
+{
+  "id": "release-payload-ceiling",
+  "kind": "gate",
+  "runner": "scripts/check-release-payload-ceiling.cjs",
+  "args": ["--check"],
+  "rung": "blocking",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.1, "min_true_positives": 10 },
+  "owner": "doctor",
+  "pinned_by": ["tests/test-341-payload-ceiling.cjs"],
+  "applies_to": ["pre-tag", "full"],
+  "notes": "Enters at blocking, not logged, because the platform does NOT enforce the 256 MiB / 20000-entry ceiling on the npm source path - measured against Claude Code 2.1.266, where that check is reachable only from the command source. This policy is the only enforcement that exists for this artifact, so a logged rung would be an honest-looking no-op. The runner is offline: npm pack --dry-run --json makes no registry call. It asserts entryCount and unpackedSize, never packed size, because compression ratio is not a property the platform reads."
+}
