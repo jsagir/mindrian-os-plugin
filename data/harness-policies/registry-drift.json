@@ -1,0 +1,13 @@
+{
+  "id": "registry-drift",
+  "kind": "gate",
+  "runner": "scripts/check-registry-drift.cjs",
+  "args": ["--check"],
+  "rung": "logged",
+  "evidence_log": "$MINDRIAN_HOME/registry-drift.jsonl",
+  "promotion_rule": { "window_runs": 20, "max_false_positive_rate": 0.1, "min_true_positives": 3 },
+  "owner": "doctor",
+  "pinned_by": ["tests/test-341-registry-drift.cjs"],
+  "applies_to": ["pre-tag", "full"],
+  "notes": "On logged today because no evidence exists yet. D-08 requires exactly one release at logged before a human promotion. Promotion is a one-line human edit to rung, reviewed in a diff, never an automatic change. The runner compares the current data/command-registry.json against the previous release's copy (git tag, or the committed tests/fixtures/341-registry-drift-baseline.json fallback on a fresh clone with no tags) and reports commands that vanished without an explicit deprecation entry - the folded 2026-07-03 registry-drift todo."
+}

@@ -1,0 +1,683 @@
+{
+  "_note": "Phase 341 fallback baseline for scripts/check-registry-drift.cjs, taken 2026-09-10. Used only when CHECK_REGISTRY_DRIFT_BASELINE is unset and no v* git tag baseline can be read (a fresh clone with no tags). Deliberately stripped to only what the diff needs so this fixture does not rot on every unrelated registry regeneration.",
+  "commands": [
+    {
+      "command": "/mos:act",
+      "kind": "meta",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:admin",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": "admin"
+    },
+    {
+      "command": "/mos:agentshield",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:analyze-needs",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:analyze-systems",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:analyze-timing",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:auto-explore",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:beautiful-question",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:bono",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:brain-derive",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:build-knowledge",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:build-thesis",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:causal",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:challenge-assumptions",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:compare-ventures",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:correct-reference-now",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:dashboard",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:deck",
+      "kind": "mechanical",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:deep-grade",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:diagnose",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:diagnostics",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:dial-memory-refresh",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:diffusion",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:discover",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:doctor",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:dogfood-flush",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": "admin"
+    },
+    {
+      "command": "/mos:dominant-designs",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:eureka",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:explain-decision",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:explore-domains",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:explore-futures",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:explore-opportunity",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:explore-trends",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:export",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:feynman-timeline-refresh",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:file-meeting",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:find-analogies",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:find-bottlenecks",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:find-connections",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:funding",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:futures",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:grade-grant",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:grade",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:graph",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:hat-briefing",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:heal",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:help",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:hmi-status",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:ignite",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:ingest-methodology",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:intel-pipeline",
+      "kind": "meta",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:jtbd",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:leadership",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:lean-canvas",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:macro-trends",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:map-unknowns",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:memory-cortex-reach",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:memory",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:models",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:mos-reason",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:mos",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:mullins",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:mva-brief",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:mva-option",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:mva-report",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:new-project",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:new-surface",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:onboard",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:operator",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:opportunities",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:organize",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:persona",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:pipeline",
+      "kind": "meta",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:present",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:publish",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:pws-brain",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:qualify-opportunity",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:query",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:radar",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:reanalyze",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:research",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:room",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:rooms",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:root-cause",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:rs-experts",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:rs-explain",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:rs-fetch",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:rs-thesis",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:scenario-plan",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:scheduled-tasks",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:score-innovation",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:scout",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:setup",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:show",
+      "kind": "mechanical",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:skill",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:snapshot",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:speakers",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:splash",
+      "kind": "utility",
+      "surface": "internal",
+      "visibility": null
+    },
+    {
+      "command": "/mos:stance",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:status",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:structure-argument",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:suggest-next",
+      "kind": "meta",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:systems-thinking",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:think-hats",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:trending-to-absurd",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:update",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:user-needs",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:validate",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:validate-proposition",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:vault",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:visualize",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:whitespace",
+      "kind": "methodology",
+      "surface": "navigator",
+      "visibility": null
+    },
+    {
+      "command": "/mos:wiki",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null
+    }
+  ]
+}
