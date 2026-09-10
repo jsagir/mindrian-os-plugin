@@ -118,6 +118,15 @@ run_if "REGRESSION 254 composition census (must stay green)" \
   tests/test-254-composition-census.cjs \
   node tests/test-254-composition-census.cjs
 
+# quick-260910-h32 pins the deletion of scripts/sync-rooms-brain (Canon Part 8
+# script-level Brain-write egress) with a default-deny census over scripts/.
+# The quick file name is deliberate: run_if takes an explicit path and the
+# glob census above globs only tests/test-257-*.cjs, so this file does not
+# trip that aggregator's member census.
+run_if "QUICK 260910-h32 no brain-write egress from scripts/ (Part 8)" \
+  tests/test-quick-260910-h32-no-brain-write-from-scripts.cjs \
+  node tests/test-quick-260910-h32-no-brain-write-from-scripts.cjs
+
 echo "========================================"
 echo "  Summary (257 verification)"
 echo "  Passed: $PASS   Failed: $FAIL   Skipped: $SKIP"
