@@ -163,7 +163,7 @@ const server = new McpServer({ name: 'mindrian-brain', version: version });
 server.registerTool(
   'brain_ask',
   {
-    description: 'Ask the remote teaching graph a natural-language methodology question. Routing happens server-side. Returns a DirectiveEnvelope carrying the directive content; the envelope degrades harmlessly to an empty signals set when the upstream response carries none. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
+    description: 'Ask the remote teaching graph a natural-language methodology question. Routing happens server-side. Returns a DirectiveEnvelope whose directive and next_gate are composed from the graph-grounded rows behind the answer plus a recommended framework chain; grounding.rows names the rows the answer stands on, and an empty grounding.rows means thin footing, not a clean answer. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
     inputSchema: z.strictObject({ question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') }),
   },
   async ({ question }) => {

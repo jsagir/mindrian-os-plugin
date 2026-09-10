@@ -395,9 +395,10 @@ into Larry's voice for the thin-coverage case. Decision #8 already settled the d
 subsection is the missing wiring, not a new rule.
 
 The trigger is a SIGNAL, never a fixed roster of command names. Any brain_* result carrying one
-of these shapes fires the clause: an empty `signals` set in the DirectiveEnvelope `brain_ask`
-returns (the tool's own description says the envelope "degrades harmlessly to an empty signals
-set when the upstream response carries none"); a `normalize_framework_name` result with zero
+of these shapes fires the clause: the `brain_ask` tool's own description now says its
+DirectiveEnvelope's `directive` and `next_gate` are composed from the graph-grounded rows behind
+the answer, and that an empty `grounding.rows` means thin footing, not a clean answer -- an empty
+`grounding.rows` is exactly that signal; a `normalize_framework_name` result with zero
 canonical matches or with multiple ambiguous ones (the healthy floor is exactly one match); a low
 `orchestration_readiness` `readiness_score` (the floor is 3). Any low-confidence signal counts,
 including ones from tools not named here -- this is signal-driven, not a hardcoded list.
