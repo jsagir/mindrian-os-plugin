@@ -52,7 +52,10 @@ let failed = 0;
 function check(name, cond) {
   if (cond) { passed += 1; console.log('  ok - ' + name); } else { failed += 1; console.log('  NOT OK - ' + name); }
 }
-function mkTmp(prefix) { return fs.mkdtempSync(path.join(os.tmpdir(), prefix)); }
+const TMP_DIRS = [];
+function mkTmp(prefix) { const d = fs.mkdtempSync(path.join(os.tmpdir(), prefix)); TMP_DIRS.push(d); return d; }
+// Review WR-01 (quick-260910-dk1): remove every temp dir this run created, mirroring test-223's rmSync idiom.
+function cleanupTmp() { for (const d of TMP_DIRS) { try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* best effort */ } } }
 function deepEq(a, b) {
   try { assert.deepStrictEqual(a, b); return true; } catch (_e) { return false; }
 }
@@ -222,7 +225,8 @@ async function main() {
   await b3();
   b4();
   console.log('\n' + (failed === 0 ? 'PASS' : 'FAIL') + ' - test-quick-260910-dk1-intel-pipeline-lens-contract: ' + passed + ' passed, ' + failed + ' failed');
+  cleanupTmp();
   process.exit(failed === 0 ? 0 : 1);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => { console.error(e); cleanupTmp(); process.exit(1); });
