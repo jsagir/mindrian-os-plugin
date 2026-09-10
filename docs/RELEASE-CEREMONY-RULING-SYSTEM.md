@@ -41,7 +41,7 @@ A release is a release only when ALL are in sync (enforced by `release.sh`, neve
 2. `.claude-plugin/plugin.json` version.
 3. `package.json` version.
 4. git tag `v<version>` on Commit A.
-5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` version + `source.ref == v<version>`.
+5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` version + `source.version == <version>` (npm source, `package: @mindrian_os/cli`, no `v` prefix; the git `ref`/`url` pin was retired by Phase 341 D-01/D-06 as of v2.0.0-beta.31, 2026-09-10).
 Plus the dual-website / install-minisite lockstep (Step 9.6a minisite, 9.6b mindrian-website) and the npm publish of `@mindrian_os/cli`. The minisite/website carry the npx COMMAND string (`npx @mindrian_os/cli`) -- update it on rename, not just the version.
 
 **5a -- the catalog advertises the RELEASED stable, never the dev next-bump (load-bearing).** The marketplace `marketplace.json.version` is what `claude plugin install` LABELS users with NOW. It MUST equal the released `NEW_VERSION` with `source.ref == vNEW_VERSION`. Commit B's next-bump advances ONLY the plugin repo's `plugin.json` + `package.json` (the next dev cycle) -- it MUST NOT touch `marketplace.json`. A catalog that advances to the dev next-bump pushes users onto a pre-release they never opted into (2026-06-02: a tester installed `1.13.1-beta.1` minutes after the `1.13.0` finalize because the old Commit B bumped the catalog version; RCA `marketplace-catalog-advertises-dev-next-bump`). Invariant to assert post-cut: `marketplace.json.version === source.ref without the leading 'v'`.
@@ -61,7 +61,7 @@ Plus the dual-website / install-minisite lockstep (Step 9.6a minisite, 9.6b mind
 ## RULE 8 -- Clean-tree + ahead guard
 
 - `release.sh` aborts at Step 2.5 if the working tree is dirty (tracked files). Restore/commit drift first. A prior interrupted cut can leave uncommitted version bumps -- `git checkout -- plugin.json package.json CHANGELOG.md` (and the marketplace `marketplace.json`) to reset before re-cutting.
-- `node_modules` is tracked on origin/main (vendored for the marketplace MCP servers since beta.37). `release.sh` Step 6.7 vendors it into Commit A; Step 7.5 un-tracks it for main HEAD. Do not hand-fix the tracking.
+- `node_modules` is NOT tracked and is never vendored (Phase 341 D-03/D-04, v2.0.0-beta.31): the published tarball carries `npm-shrinkwrap.json` (generated at Step 6.7 behind `scripts/release-lib/shrinkwrap-gate.sh`) and the Claude Code loader runs its own `npm ci --ignore-scripts` per machine, so every platform resolves its own native packages. The `release-payload-ceiling` harness policy (blocking, Step 6.6 pre-tag) refuses a tarball over 20,000 entries or 256 MiB unpacked. Do not vendor `node_modules` again: the 2026-05-21 "32M pure JS" premise expired on 2026-07-05 (Phase 211-01 added the 380 MB embedding stack) and the resulting 755 MB tag that died in `git clone` on Windows and Linux is why Phase 341 exists.
 - Use `--allow-ahead` when the chain is many commits ahead of origin (expected after a multi-phase build).
 
 ## RULE 9 -- Canon boundaries hold during the ceremony

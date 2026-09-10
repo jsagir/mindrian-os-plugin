@@ -25,4 +25,4 @@ Third-party plugins do not auto-push (a stale user is correct-by-design). The tw
 claude plugin update mos@mindrian-marketplace   # installs the latest version
 ```
 
-Deep dive (vendored node_modules rule, marketplace-pinning, beta-gating, the 2026-04-13 incident): docs/autopsies/2026-04-13-wrong-workspace-incident.md.
+Deep dive (marketplace-pinning, beta-gating, the 2026-04-13 incident): docs/autopsies/2026-04-13-wrong-workspace-incident.md. The vendored node_modules rule described there was RETIRED by Phase 341 (v2.0.0-beta.31): dependencies ship as `npm-shrinkwrap.json` inside the npm tarball and the loader installs them per machine; see docs/RELEASE-CEREMONY-RULING-SYSTEM.md RULE 8.
