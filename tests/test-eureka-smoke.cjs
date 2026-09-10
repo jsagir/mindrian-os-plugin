@@ -4,14 +4,19 @@
  * quick(260706-13z) offline contract tests for the Class S eureka smoke probe.
  *
  * (a) UNIT via mock seams (no deps, no model, no network):
- *     - all-pass: four mocked layers -> overall ok, 4 layers, overall_ms present.
+ *     - all-pass: five mocked layers -> overall ok, 5 layers, overall_ms present.
  *     - NON-cascading: an L1 failure does NOT skip L4 (offline machines must
  *       still prove graceful degrade).
  *     - an L3 "timeout" (ok:false) leaves L4 still running.
  * (b) INTEGRATION: spawn `node scripts/doctor.cjs --eureka-smoke --json`, assert
- *     exit 0 (class-flag invariant) + parseable payload + exactly 4 layers. The
+ *     exit 0 (class-flag invariant) + parseable payload + exactly 5 layers. The
  *     deps are installed in this repo and L3 is cache-state-agnostic (a cache
  *     miss is a graceful PASS), so this is deterministic offline.
+ *
+ * Phase 341 Plan 03 (D-11): L5 (model_installed) is ADVISORY -- it is mocked
+ * alongside L1-L4 in every unit arm below, but its ok:false never flips the
+ * overall verdict; see tests/test-341-class-s-layer-split.cjs for the
+ * dedicated advisory-semantics and cache-miss-reachability arms.
  */
 
 const assert = require('node:assert');
@@ -42,18 +47,19 @@ async function main() {
   console.log('quick(260706-13z) class-S eureka smoke (offline, mock seams)');
 
   // ----- unit: all-pass shape -----
-  await test('unit: all four mocked layers pass -> overall ok, 4 layers, overall_ms', async function () {
+  await test('unit: all five mocked layers pass -> overall ok, 5 layers, overall_ms', async function () {
     const r = await smoke.checkEurekaSmoke({
       mockL1: okLayer('deps ok'),
       mockL2: okLayer('sqlite-vec ok'),
       mockL3: okLayer('cache hit'),
       mockL4: okLayer('degrades'),
+      mockL5: okLayer('model installed'),
     });
     assert.strictEqual(r.ok, true, 'overall ok');
-    assert.strictEqual(r.layers.length, 4, 'exactly 4 layers');
+    assert.strictEqual(r.layers.length, 5, 'exactly 5 layers');
     assert.deepStrictEqual(
       r.layers.map(function (l) { return l.id; }),
-      ['deps_present', 'vec_backend', 'model_probe', 'graceful_degrade'],
+      ['deps_present', 'vec_backend', 'model_probe', 'graceful_degrade', 'model_installed'],
       'layer ids in the wire-locked order'
     );
     assert.strictEqual(typeof r.overall_ms, 'number', 'overall_ms present');
@@ -67,9 +73,10 @@ async function main() {
       mockL2: okLayer('vec ok'),
       mockL3: okLayer('cache miss ok'),
       mockL4: okLayer('degrades even with no deps'),
+      mockL5: okLayer('model installed'),
     });
     assert.strictEqual(r.ok, false, 'overall fails when L1 fails');
-    assert.strictEqual(r.layers.length, 4, 'all 4 layers still ran (no skip)');
+    assert.strictEqual(r.layers.length, 5, 'all 5 layers still ran (no skip)');
     assert.strictEqual(r.layers[0].ok, false, 'L1 failed');
     assert.strictEqual(r.layers[3].ok, true, 'L4 STILL ran and passed');
     assert.strictEqual(r.layers[3].reason, 'degrades even with no deps', 'L4 result is the real mock, not a skip stub');
@@ -82,6 +89,7 @@ async function main() {
       mockL2: okLayer('vec ok'),
       mockL3: failLayer('getEncoder timed out after 20000ms'),
       mockL4: okLayer('degrades'),
+      mockL5: okLayer('model installed'),
     });
     assert.strictEqual(r.ok, false, 'overall fails on L3 hang');
     assert.strictEqual(r.layers[2].ok, false, 'L3 is the failing layer');
@@ -89,8 +97,8 @@ async function main() {
     assert.strictEqual(r.layers[3].ok, true, 'L4 still ran after L3 failed');
   });
 
-  // ----- integration: real doctor spawn, exit 0, 4 layers -----
-  await test('integration: doctor --eureka-smoke --json exits 0 with 4 layers', function () {
+  // ----- integration: real doctor spawn, exit 0, 5 layers -----
+  await test('integration: doctor --eureka-smoke --json exits 0 with 5 layers', function () {
     const doctorPath = path.join(__dirname, '..', 'scripts', 'doctor.cjs');
     const r = cp.spawnSync('node', [doctorPath, '--eureka-smoke', '--json'], {
       encoding: 'utf8', timeout: 40000,
@@ -100,7 +108,8 @@ async function main() {
     assert.doesNotThrow(function () { payload = JSON.parse(r.stdout); }, 'stdout is parseable JSON');
     assert.strictEqual(payload.class, 'S', 'class S');
     assert.ok(Array.isArray(payload.layers), 'layers array present');
-    assert.strictEqual(payload.layers.length, 4, 'exactly 4 layers (cache-state-agnostic)');
+    assert.strictEqual(payload.layers.length, 5, 'exactly 5 layers (cache-state-agnostic)');
+    assert.strictEqual(payload.layers[4].id, 'model_installed', 'L5 is model_installed');
     assert.strictEqual(typeof payload.ok, 'boolean', 'overall ok is a boolean');
   });
 

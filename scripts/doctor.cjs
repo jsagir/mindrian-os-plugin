@@ -1606,21 +1606,30 @@ function buildAcceptanceChecklist(ctx) {
       },
     },
     {
-      // quick(260706-13z) D14(e) -- Class S acceptance point:
-      // "The local eureka embedding stack is ready (deps, vec backend, model
-      // cache, graceful degrade)." Spawns doctor --eureka-smoke --json against
-      // ourselves and gates on payload.ok === true with all 4 layers present.
-      // The probe NEVER downloads a model (cache miss is a graceful PASS), so
-      // this is safe inside a release gate on airgapped CI.
+      // quick(260706-13z) D14(e) -- Class S acceptance point.
+      // Phase 341 Plan 03 (D-11) split the probe into a blocker half (L1-L4:
+      // "is the capability reachable") and an advisory half (L5
+      // model_installed: "is the model actually installed"). Spawns
+      // doctor --eureka-smoke --json against ourselves and gates on
+      // payload.ok === true with all 5 layers present -- payload.ok already
+      // excludes the advisory layer from its own reduction (checkEurekaSmoke),
+      // so a slim install with the model absent still passes this gate
+      // honestly instead of failing it or being skipped. The probe NEVER
+      // downloads a model (cache miss is a graceful PASS, and the Pitfall-6
+      // un-awaited isModelCached bug that made a cold cache download inside
+      // this very gate is fixed as of this plan), so this is safe inside a
+      // release gate on airgapped CI.
       //
       // applies_to: ['pre-tag','full'] -- the stack is entirely repo-local
       // (node_modules + local model cache), present before tag, no publish
       // needed. ADD-ONLY: no existing checklist entry's logic is touched.
-      // DOCTOR_SKIP_EUREKA_SMOKE=1 is the hermetic-CI opt-out (mirrors
+      // DOCTOR_SKIP_EUREKA_SMOKE=1 remains the hermetic-CI opt-out (mirrors
       // DOCTOR_SKIP_ACTIVATION_GATE) for a tree where the optional eureka deps
-      // were intentionally not installed.
+      // were intentionally not installed; per D-11 it is never needed on the
+      // shipped artifact itself, because the slim install now passes on its
+      // own (the advisory layer never blocks it).
       id: 'eureka-smoke-stack-ready',
-      label: 'Class S: local eureka embedding stack ready (deps, vec backend, model cache, graceful degrade)',
+      label: 'Class S: local eureka capability reachable (blocker) + embedding model installed (advisory)',
       severity: 'blocker',
       applies_to: ['pre-tag', 'full'],
       run: async function () {
@@ -1645,18 +1654,33 @@ function buildAcceptanceChecklist(ctx) {
           if (!payload || !Array.isArray(payload.layers)) {
             return { ok: false, finding: 'eureka-smoke payload missing layers array', detail: { payloadKeys: payload ? Object.keys(payload) : [] } };
           }
-          if (payload.layers.length !== 4) {
-            return { ok: false, finding: 'eureka-smoke expected 4 layers, got ' + payload.layers.length, detail: { layerIds: payload.layers.map(function (l) { return l && l.id; }) } };
+          if (payload.layers.length !== 5) {
+            return { ok: false, finding: 'eureka-smoke expected 5 layers, got ' + payload.layers.length, detail: { layerIds: payload.layers.map(function (l) { return l && l.id; }) } };
           }
           if (payload.ok !== true) {
-            const firstFail = payload.layers.find(function (l) { return l && !l.ok; });
+            // A non-advisory (blocker) failure -- capability itself is unreachable.
+            const firstFail = payload.layers.find(function (l) { return l && !l.ok && !l.advisory; });
             return {
               ok: false,
               finding: 'eureka stack not ready: ' + (firstFail ? (firstFail.name + ' -- ' + firstFail.reason) : 'unknown layer'),
               detail: { layers: payload.layers },
             };
           }
-          return { ok: true, finding: null, detail: { layers: payload.layers.map(function (l) { return { id: l.id, ok: l.ok }; }) } };
+          // Passing path (D-10 "never a silent no-op" applied to the gate
+          // itself): the advisory layer's reason is INCLUDED here even though
+          // it never blocked the gate, so "model not installed" is always
+          // visible to the operator, never hidden behind a green result.
+          return {
+            ok: true,
+            finding: null,
+            detail: {
+              layers: payload.layers.map(function (l) {
+                const entry = { id: l.id, ok: l.ok };
+                if (l.advisory) entry.reason = l.reason;
+                return entry;
+              }),
+            },
+          };
         } catch (e) {
           return { ok: false, finding: 'eureka-smoke-stack-ready threw: ' + e.message, detail: {} };
         }
