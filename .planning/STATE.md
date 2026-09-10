@@ -3,16 +3,26 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 341-04-PLAN.md
-last_updated: "2026-09-10T04:12:18.782Z"
+stopped_at: Completed 341-05-PLAN.md
+last_updated: "2026-09-10T05:31:53.463Z"
 last_activity: "2026-09-10 -- Plan 341-04 complete: package.json cut to the runtime tree"
 progress:
   total_phases: 92
   completed_phases: 27
   total_plans: 227
-  completed_plans: 220
+  completed_plans: 221
   percent: 97
 ---
+
+<!-- NOTE (341-05 execute-plan, 2026-09-10, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` correctly advanced the body's "## Current Position" ->
+     "Plan: 6 of 10" this run -- no correction needed there. `state.update-progress` correctly
+     computed `percent: 97` (completed_plans 221 / total_plans 227) in its own returned JSON but
+     persisted the stale `percent: 29` into the frontmatter -- hand-corrected to 97 (the only
+     correction needed this run; `state.record-metric` and both `state.add-decision` calls did
+     NOT re-clobber `percent` this time, unlike the four-clobber pattern documented in the 341-01
+     through 341-03 notes below). Same root cause as every other note in this file, not
+     re-investigated further here. -->
 
 <!-- NOTE (341-03 execute-plan, 2026-09-10, resync-clobber pattern, same class as every note in
      this file): `state.advance-plan` correctly advanced the body's "## Current Position" ->
@@ -4254,7 +4264,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 341 (Install and update overhaul: npm-source plugin artifact, heavy-dep cut, one install location, transactional update) — EXECUTING
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Last activity: 2026-09-10 -- Plan 341-04 complete: package.json cut to the runtime tree
   (23-entry files allowlist, 4 negations), npm-shrinkwrap.json shipped (zero dev entries, all
@@ -5521,6 +5531,7 @@ Progress: [█████████░] 92%
 | Phase 341 P02 | 55min | 3 tasks | 11 files |
 | Phase 341 P03 | 25min | 3 tasks | 8 files |
 | Phase 341 P04 | 100min | 3 tasks | 15 files |
+| Phase 341 P05 | 130min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -7053,6 +7064,8 @@ Progress: [█████████░] 92%
 - [Phase 341]: Class S L5 (model_installed) is advisory-appended, never inserted, and the isModelCached await bug is fixed with a dedicated regression trap.
 - [Phase 341]: npm 10.9.8's npm shrinkwrap renames package-lock.json rather than generating a parallel file; the two are byte-identical by construction
 - [Phase 341]: requirements.mark-complete D-02/D-03/D-04/D-05/D-08/D-13 returned not_found for all six -- Phase 341's D-* decision IDs were never registered in .planning/REQUIREMENTS.md (same pre-existing gap class as the ANCHOR-*/PYPORT-*/DCW-* precedents); not fixed here, recorded as a decision instead
+- [Phase 341]: doctor.cjs version-of-record-published accepts either the npm source shape or the legacy git-ref shape during the transition (continuity requirement)
+- [Phase 341]: tests/run-all-310.sh leg 3 retired its Step 5.5/Step 1 normalization special-casing after the fixture was regenerated wholesale in Plan 05
 
 ### Pending Todos
 
@@ -7184,8 +7197,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-10T04:11:06.328Z
-Stopped at: Completed 341-04-PLAN.md
+Last session: 2026-09-10T05:31:53.187Z
+Stopped at: Completed 341-05-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
