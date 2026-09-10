@@ -82,11 +82,11 @@ MEMORY_FILE="${ROOMS_HOME}/.memory/jtbd-history.json"
 # and skips rather than deleting blind.
 #
 # Tolerant by design (|| true): scripts/room-registry's `create` subcommand
-# spawns sync-rooms-graph and sync-rooms-brain DETACHED against $ROOMS_HOME
-# (see scripts/room-registry:336-337). They may still be writing when this
-# EXIT trap fires. A leftover directory under /tmp is acceptable; do NOT add
-# a `wait` or a sleep here to try to catch them -- that only makes the suite
-# flaky. The detached writers are accepted residual risk (T-240-12).
+# spawns sync-rooms-graph DETACHED against $ROOMS_HOME. It may still be
+# writing when this EXIT trap fires. A leftover directory under /tmp is
+# acceptable; do NOT add a `wait` or a sleep here to try to catch it -- that
+# only makes the suite flaky. The detached writer is accepted residual risk
+# (T-240-12).
 cleanup() {
   case "${ROOMS_HOME:-}" in
     /tmp/mos-jtbd-anchor-*|/*/mos-jtbd-anchor-*)

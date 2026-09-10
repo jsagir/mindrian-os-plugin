@@ -37,7 +37,8 @@ const path = require('path');
 const crypto = require('crypto');
 
 // ---------------------------------------------------------------------------
-// Brain client (lazy-loaded, fire-and-forget pattern from sync-rooms-brain)
+// Brain client (lazy-loaded, fire-and-forget pattern, same style as the
+// retired room-hierarchy sync writer removed 2026-09-10, quick task 260910-h32)
 // ---------------------------------------------------------------------------
 
 const PLUGIN_ROOT = path.resolve(__dirname, '..');

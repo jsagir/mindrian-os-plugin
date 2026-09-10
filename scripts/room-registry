@@ -332,9 +332,9 @@ print(json.dumps(reg['rooms'][name], indent=2))
       *)  REAL_ROOMDIR="${ROOMS_HOME}/${RPATH}" ;;
     esac
     _write_current_room "${REAL_ROOMDIR}" "${NAME}"
-    # Fire-and-forget graph sync (D-16: never blocks)
+    # Fire-and-forget local SQLite graph sync (D-16: never blocks). The Brain half
+    # was removed 2026-09-10 as a Canon Part 8 breach (quick task 260910-h32).
     node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
-    node "${SCRIPT_DIR}/sync-rooms-brain" "$ROOMS_HOME" >/dev/null 2>&1 &
     ;;
 
   read)
@@ -597,9 +597,9 @@ with open(tmp, 'w') as f:
 os.replace(tmp, reg_file)
 print('archived')
 " "$REGISTRY_FILE" "$NAME"
-    # Fire-and-forget graph sync (D-16: never blocks)
+    # Fire-and-forget local SQLite graph sync (D-16: never blocks). The Brain half
+    # was removed 2026-09-10 as a Canon Part 8 breach (quick task 260910-h32).
     node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
-    node "${SCRIPT_DIR}/sync-rooms-brain" "$ROOMS_HOME" >/dev/null 2>&1 &
     ;;
 
   get-active)
