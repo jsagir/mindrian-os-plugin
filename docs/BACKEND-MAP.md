@@ -117,13 +117,17 @@ MindrianOS has **TWO graphs**. Every file in this repo is classified by which gr
 | `write-scope-check.cjs` | Node variant |
 | `write-whitespace-sections.cjs` | Writes whitespace section pages |
 
-### BRIDGE (Brain read + Room write) (3)
+### BRIDGE (Brain read + Room write) (2)
 
 | Script | Purpose |
 |--------|---------|
 | `interpret-whitespace.cjs` | Reads Brain frameworks, writes interpretations into room |
 | `whitespace-to-brain.cjs` | ⚠ Misleading name -- reads Brain, writes to room. Rename to `whitespace-from-brain.cjs` |
-| `sync-rooms-brain` | Reads Brain framework registry, writes to room registry cache |
+
+Note: `sync-rooms-brain` was deleted 2026-09-10 under Canon Part 8 (quick task
+260910-h32). Its original BRIDGE classification understated what it did -- it
+actually wrote room name, venture name, stage, status and path TO the Brain, not
+just to a room registry cache.
 
 ### INFRA (no graph touch) (32)
 

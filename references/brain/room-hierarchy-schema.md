@@ -3,6 +3,12 @@
 Schema for Room/RoomGroup hierarchy in both KuzuDB (local) and Neo4j Brain (remote).
 Added in Phase 59.2. Additive-only -- filesystem + registry.json remain operational truth.
 
+> **RETIRED (2026-09-10, quick task 260910-h32):** the Neo4j/Brain half of this
+> schema is retired. `scripts/sync-rooms-brain` was deleted because it egressed
+> room names, venture names, stages, statuses and paths to the Brain, a Canon
+> Part 8 breach. The KuzuDB/local half remains live via `scripts/sync-rooms-graph`.
+> This document is kept as the record of what the Brain-side schema WAS.
+
 ## Node Types
 
 ### Room
@@ -76,7 +82,7 @@ Connects Room to Framework nodes based on methodology commands run in that room.
 |------|----|------------|-------|
 | Room | Framework | first_used (datetime), usage_count (int) | Created from room/.analytics.json |
 
-Source: `track-analytics` records command usage per room. `sync-rooms-brain` maps commands to Framework node names.
+Source: `track-analytics` records command usage per room. `sync-rooms-brain` maps commands to Framework node names. (RETIRED 2026-09-10 with the script; kept as history.)
 
 ### SHARES_THEME (Brain only)
 Cross-room content similarity detected from problem-definition keywords.
@@ -201,12 +207,12 @@ RETURN r.name, s.name AS stage,
 | Script | Target | Trigger | Frequency |
 |--------|--------|---------|-----------|
 | `scripts/sync-rooms-graph` | KuzuDB local | session-start, room-registry create/archive | Every session + on room changes |
-| `scripts/sync-rooms-brain` | Neo4j Brain | session-start (when Brain available) | Best-effort, per session |
+| `scripts/sync-rooms-brain` | Neo4j Brain (RETIRED 2026-09-10) | none -- script deleted, Canon Part 8 | never |
 
-Both scripts are idempotent and fire-and-forget. Failure degrades gracefully:
-- Brain unavailable -> KuzuDB only
+The one surviving script is idempotent and fire-and-forget. Failure degrades
+gracefully across the two remaining tiers:
 - KuzuDB unavailable -> filesystem only (Tier 0)
-- Both unavailable -> everything still works from registry.json
+- Everything still works from registry.json even if KuzuDB never runs
 
 ## Additive-Only Rule (D-15 through D-18)
 
