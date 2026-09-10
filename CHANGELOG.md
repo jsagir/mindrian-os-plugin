@@ -1,7 +1,43 @@
 ## [Unreleased] -- v2.0.0-beta.30 (in progress)
 
-### Added
-- 
+### Changed - install and update overhaul, Phase 341 waves 1-5 (SEED teardown 2026-09-09)
+
+- The plugin is now delivered as an npm artifact, not a git checkout. `package.json` `files` is the
+  runtime tree only (24 entries with `!` negations; `docs/`, `dist/`, `.planning/`, `tests/`, and
+  `lib/wiki/editor-src` no longer ship); `npm pack --dry-run` measures about 1,830 entries / 29 MB
+  unpacked against the 755 MB / 16,597-file tag it replaces (341-04-SUMMARY.md).
+- `@huggingface/transformers` and its onnxruntime/sharp stack (380 MB of native binaries for every
+  platform) left `dependencies`. Eureka's embedding model is now an explicit one-time opt-in:
+  `/mos:eureka enable` (mirrored by `doctor --fix eureka`) installs it platform-scoped into
+  `~/.mindrian/eureka-deps/`, shared across plugin versions; `lib/core/eureka-deps-resolver.cjs` is the
+  single resolution authority and never throws (341-02).
+- `npm-shrinkwrap.json` ships inside the tarball so the Claude Code loader's own
+  `npm ci --ignore-scripts` restores the 29 MB pure-JS runtime set per machine (all five sqlite-vec
+  platform packages resolve locally). `bundleDependencies` was rejected by measurement: it packs only
+  the publish host's platform package.
+- Doctor class S is honest on a slim install: five layers, `capability reachable` is the blocker and
+  `model_installed` an advisory carrying the exact enable command; the un-awaited `isModelCached`
+  (formerly class-s-eureka-smoke.cjs:180) is fixed and trapped by a regression test; every consumer
+  degrades through one `ENCODER_UNAVAILABLE_HINT`; a tripwire pins that Eureka, critic included, has no
+  Brain/Theo reach (341-03).
+- Release ceremony: Step 6.7's node_modules vendoring is gone (its slot now generates the shrinkwrap
+  behind `scripts/release-lib/shrinkwrap-gate.sh`); Step 4 writes an exact npm `source.version` pin
+  to the marketplace (git `ref`/`url` retired); Step 9.5's blanket `node_modules/` grep became the
+  payload assertion; doctor's `version-of-record-published` compares `source.version` (legacy git shape
+  still accepted during the transition) (341-05).
+- Two harness policies on the pre-tag rung, Phase 298 shape: `release-payload-ceiling` (blocking,
+  entryCount <= 20000 and unpackedSize <= 268435456 from `npm pack --dry-run --json`) and
+  `registry-drift` (logged; a command that silently vanishes from the registry is surfaced) (341-04).
+- New phase aggregator `tests/run-all-341.sh` with an EXPECTED-RED lane (`run_red_until`): a
+  tripwire that passes while its artifact is still absent is a FAIL, not a pass (341-01).
+
+### Fixed
+
+- `tests/test-release-bump-tag-and-publish-gates.cjs` cases 10/11: `\Z` is not a JavaScript
+  regex end-of-string anchor (it matched a literal "Z"), which truncated the Step 9.7 block and hid its
+  `exit 1`. The documented "package-name drift" was not the cause. Phase 310's two SKIPs are now one.
+- `/mos:eureka help` with no room bound fell into "unknown subcommand" instead of printing usage.
+
 
 ## [2.0.0-beta.29] - 2026-09-09
 
