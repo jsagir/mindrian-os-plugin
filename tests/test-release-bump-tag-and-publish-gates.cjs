@@ -7,7 +7,7 @@
  * Owning plan: 126-04 (release.sh tag-push verification + install-minisite
  * HARD lockstep + npx-publish self-test).
  *
- * 13-case fixture covering 3 new release.sh gates against scaffolded states:
+ * 15-case fixture covering release.sh gates against scaffolded states:
  *   1. tag-push gate (happy path)
  *   2. tag-push gate (push fails)
  *   3. tag-push gate (push succeeds but verify fails; retry exhausts)
@@ -24,6 +24,11 @@
  *  11. npx-publish self-test (npx fails)
  *  12. npx-publish self-test (npx exits 0 but no scaffold)
  *  13. --dry-run shows all THREE new gates (Step 5.5 / 9.6 / 9.7 / 9.8)
+ *  14. Phase 341 D-06: Step 6.7 slot delegates to release-lib/shrinkwrap-gate.sh
+ *      (behavioral round-trip under fake hooks, zero real npm)
+ *  15. Phase 341 D-06/D-08: Step 9.5 blacklist drops node_modules/ + the
+ *      unanchored release.sh alternative, delegates to the ceiling runner
+ *      (behavioral: the real runner passes against this repo's own tree)
  *
  * Test architecture:
  *   - Each test scaffolds a sandboxed plugin + marketplace + minisite repo
@@ -399,8 +404,8 @@ run('Test 10 (npx-publish self-test -- structural: Step 9.7 block exists)', func
   if (!/Step 9\.7/.test(src)) {
     throw new Error('release.sh must include Step 9.7 (npx-publish self-test)');
   }
-  if (!/npx[^\n]*@mindrian_os\/install/.test(src)) {
-    throw new Error('Step 9.7 must run `npx @mindrian_os/install@<version>`');
+  if (!/npx[^\n]*@mindrian_os\/cli/.test(src)) {
+    throw new Error('Step 9.7 must run `npx @mindrian_os/cli@<version>`');
   }
 });
 
@@ -411,7 +416,7 @@ run('Test 11 (npx-publish self-test -- failure aborts release)', function () {
   // The Step 9.7 block must call `exit 1` on the npx-fails branch.
   // Anchor on the `# --- Step 9.7:` block header (not just any "Step 9.7"
   // mention -- the file header comment block also references Step 9.7).
-  const m = /# --- Step 9\.7[\s\S]*?(?=# --- Step|\Z)/.exec(src);
+  const m = /# --- Step 9\.7[\s\S]*?(?=# --- Step|$)/.exec(src);
   if (!m) {
     throw new Error('could not locate # --- Step 9.7 --- block');
   }
@@ -424,7 +429,7 @@ run('Test 11 (npx-publish self-test -- failure aborts release)', function () {
 
 run('Test 12 (npx-publish self-test -- exit-0-no-scaffold is treated as failure)', function () {
   const src = fs.readFileSync(RELEASE_SH, 'utf8');
-  const m = /# --- Step 9\.7[\s\S]*?(?=# --- Step|\Z)/.exec(src);
+  const m = /# --- Step 9\.7[\s\S]*?(?=# --- Step|$)/.exec(src);
   if (!m) {
     throw new Error('could not locate # --- Step 9.7 --- block');
   }
@@ -447,6 +452,80 @@ run('Test 13 (--dry-run output shows Step 5.5, 9.6, 9.7, 9.8)', function () {
       throw new Error('--dry-run output missing step names: ' + missing.join(', ') + '\nstdout tail:\n' + r.stdout.slice(-1500));
     }
   } finally { rmSandbox(sb); }
+});
+
+// --------------------- Test 14: Step 6.7 slot generates a shrinkwrap -------
+// Phase 341 Plan 05 (D-06). Structural: Step 6.7's slot must delegate to the
+// injectable release-lib rather than re-implementing vendoring inline.
+// Behavioral: drives the ACTUAL scripts/release-lib/shrinkwrap-gate.sh via
+// the same MOS_SHRINKWRAP_HOOK / MOS_PACK_PROBE_HOOK seams
+// tests/test-341-release-shrinkwrap-gate.cjs uses -- no real npm shrinkwrap,
+// no real npm pack, zero network.
+
+run('Test 14 (Step 6.7 slot delegates to release-lib/shrinkwrap-gate.sh and the library round-trips under fake hooks)', function () {
+  const src = fs.readFileSync(RELEASE_SH, 'utf8');
+  if (!/release-lib\/shrinkwrap-gate\.sh/.test(src)) {
+    throw new Error('Step 6.7 must source scripts/release-lib/shrinkwrap-gate.sh');
+  }
+  if (!/mos_generate_shrinkwrap/.test(src)) {
+    throw new Error('Step 6.7 must call mos_generate_shrinkwrap');
+  }
+  const lib = path.join(REPO_ROOT, 'scripts', 'release-lib', 'shrinkwrap-gate.sh');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rel-gates-shrinkwrap-'));
+  try {
+    sh('git init -q', { cwd: dir });
+    sh('git config user.email test@test.invalid && git config user.name Test', { cwd: dir });
+    fs.writeFileSync(path.join(dir, 'npm-shrinkwrap.json'), JSON.stringify({ packages: {} }) + '\n');
+    const script = [
+      'set -uo pipefail',
+      '. "' + lib + '"',
+      'shrinkwrap_ok14() { return 0; }',
+      'pack_ok14() { echo \'[{"files":[{"path":"npm-shrinkwrap.json"}]}]\'; }',
+      'export MOS_SHRINKWRAP_HOOK=shrinkwrap_ok14',
+      'export MOS_PACK_PROBE_HOOK=pack_ok14',
+      'rc=0',
+      'mos_generate_shrinkwrap "' + dir + '" || rc=$?',
+      'echo "rc=$rc"',
+    ].join('\n');
+    const r = spawnSync('bash', ['-c', script], { encoding: 'utf8', timeout: 15000 });
+    const out = (r.stdout || '') + (r.stderr || '');
+    if (out.indexOf('rc=0') === -1) throw new Error('mos_generate_shrinkwrap did not return 0 under passing fake hooks:\n' + out);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// --------------------- Test 15: Step 9.5 payload gate on the new whitelist -
+// Phase 341 Plan 05 (D-06/D-08). Structural: Step 9.5's blacklist drops the
+// unanchored release\.sh alternative and the node_modules/ blanket ban, and
+// delegates to the ceiling runner. Behavioral: runs the REAL ceiling runner
+// (offline -- npm pack --dry-run --json makes no registry call) against
+// this repo's own current tree and asserts it reports OK, i.e. the new
+// whitelist actually passes Step 9.5's real gate today.
+
+run('Test 15 (Step 9.5 blacklist drops node_modules/ + unanchored release.sh, delegates to the ceiling runner, which passes today)', function () {
+  const src = fs.readFileSync(RELEASE_SH, 'utf8');
+  const step95Idx = src.indexOf('# --- Step 9.5:');
+  if (step95Idx === -1) throw new Error('could not locate # --- Step 9.5 --- block');
+  const nextHeaderIdx = src.indexOf('# --- Step', step95Idx + 1);
+  const step95Block = src.slice(step95Idx, nextHeaderIdx === -1 ? src.length : nextHeaderIdx);
+  if (!/check-release-payload-ceiling\.cjs/.test(step95Block)) {
+    throw new Error('Step 9.5 must delegate to scripts/check-release-payload-ceiling.cjs --check');
+  }
+  if (/grep -Eq '[^\n]*\|release\\\.sh'/.test(step95Block)) {
+    throw new Error('Step 9.5 must NOT retain the unanchored release\\.sh blacklist alternative');
+  }
+  if (/grep -Eq 'node_modules\/'/.test(step95Block)) {
+    throw new Error('Step 9.5 must NOT retain the blanket node_modules/ ban (D-06: the tarball legitimately has none)');
+  }
+  const r = spawnSync('node', [path.join(REPO_ROOT, 'scripts', 'check-release-payload-ceiling.cjs'), '--check'], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    timeout: 60000,
+  });
+  if (r.status !== 0) {
+    throw new Error('check-release-payload-ceiling.cjs --check exited ' + r.status + ' against this repo\'s own tree:\n' + (r.stdout || '') + (r.stderr || ''));
+  }
 });
 
 // ------------------------ Summary ----------------------------------------

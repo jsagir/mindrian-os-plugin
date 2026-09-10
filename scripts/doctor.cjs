@@ -716,6 +716,62 @@ function safeRename(src, dst) {
 //   DOCTOR_TEST_FAIL_POINT=<point_id>   synthesize a failure of the named point
 //   DOCTOR_VERIFY_RELEASE_PATH=<path>   override scripts/verify-release path
 
+// evaluateMarketplaceSourcePin(source, ver) -- pure helper, exported for
+// hermetic tests (Phase 341 D-01/D-06/T-341-17). Compares a marketplace
+// plugins[0].source object against the released version. Accepts EITHER
+// shape during the git-to-npm transition:
+//   - npm shape (source.version present): source.source must be 'npm',
+//     source.package must be '@mindrian_os/cli', source.version must equal
+//     ver exactly (no v prefix), and NEITHER a residual 'ref' NOR a
+//     residual 'url' key may be present -- a stale ref/url sitting beside a
+//     correct version is exactly the half-migrated state D-01 warns about.
+//   - legacy git shape (source.ref present, no source.version): source.ref
+//     must equal 'v' + ver. Accepted only until the marketplace catalog's
+//     first post-341 release flips it to the npm shape (release.sh Step 4).
+// Neither shape recognized (no version, no ref) is a failure.
+function evaluateMarketplaceSourcePin(source, ver) {
+  if (!source || typeof source !== 'object') {
+    return { ok: false, finding: 'marketplace plugins[0].source is missing or not an object', detail: { source: source } };
+  }
+  const hasVersion = Object.prototype.hasOwnProperty.call(source, 'version');
+  const hasRef = Object.prototype.hasOwnProperty.call(source, 'ref');
+  const hasUrl = Object.prototype.hasOwnProperty.call(source, 'url');
+
+  if (hasVersion) {
+    // npm shape (or a half-migrated attempt at it).
+    if (hasRef || hasUrl) {
+      return {
+        ok: false,
+        finding: 'marketplace source carries a residual ref/url key alongside version (half-migrated D-01 state): ' + JSON.stringify(source),
+        detail: { source: source, residualRef: source.ref, residualUrl: source.url },
+      };
+    }
+    if (source.source !== 'npm' || source.package !== '@mindrian_os/cli') {
+      return {
+        ok: false,
+        finding: 'marketplace source is not the npm shape {source:npm, package:@mindrian_os/cli}: got ' + JSON.stringify(source),
+        detail: { source: source },
+      };
+    }
+    if (source.version !== ver) {
+      return { ok: false, finding: 'marketplace source.version is ' + source.version + ', expected ' + ver, detail: { version: source.version, expected: ver } };
+    }
+    return { ok: true, finding: null, detail: { shape: 'npm', version: source.version } };
+  }
+
+  if (hasRef) {
+    // Legacy git shape, accepted during the transition (the live
+    // marketplace has not flipped yet as of Phase 341 Plan 05).
+    const expectedRef = 'v' + ver;
+    if (source.ref !== expectedRef) {
+      return { ok: false, finding: 'marketplace source.ref is ' + source.ref + ', expected ' + expectedRef, detail: { ref: source.ref, expected: expectedRef } };
+    }
+    return { ok: true, finding: null, detail: { shape: 'git-legacy', ref: source.ref } };
+  }
+
+  return { ok: false, finding: 'marketplace source has neither a version nor a ref key: ' + JSON.stringify(source), detail: { source: source } };
+}
+
 function buildAcceptanceChecklist(ctx) {
   const home = ctx.home;
   const pluginRoot = ctx.pluginRoot;
@@ -845,7 +901,7 @@ function buildAcceptanceChecklist(ctx) {
     },
     {
       id: 'version-of-record-published',
-      label: 'git tag exists + marketplace source.ref pinned + npm view returns the version',
+      label: 'git tag exists + marketplace source.version pinned + npm view returns the version',
       severity: 'blocker',
       applies_to: ['full'],
       run: async function () {
@@ -862,7 +918,7 @@ function buildAcceptanceChecklist(ctx) {
           // bumps main HEAD to the next pre-release placeholder (e.g.
           // beta.27 after beta.26 ships), which by definition has no tag
           // yet. The gate must verify the LAST SHIPPED version is live
-          // across all three records (tag + marketplace ref + npm), not
+          // across all three records (tag + marketplace source + npm), not
           // the placeholder.
           const tagProbe = cp.spawnSync('git', ['-C', pluginRoot, 'describe', '--tags', '--abbrev=0', '--match=v*'], { encoding: 'utf8' });
           let ver;
@@ -876,13 +932,19 @@ function buildAcceptanceChecklist(ctx) {
           // (a) git tag exists, reachable from origin/main.
           const t = cp.spawnSync('git', ['-C', pluginRoot, 'rev-parse', '--verify', 'refs/tags/v' + ver], { encoding: 'utf8' });
           if (t.status !== 0) return { ok: false, finding: 'git tag v' + ver + ' not found', detail: { stderr: (t.stderr || '').slice(-200) } };
-          // (b) marketplace source.ref pinned to v<ver>.
+          // (b) marketplace source.version pinned to <ver> (D-01/D-06, npm
+          // source; no v prefix). During the git-to-npm transition this also
+          // accepts the legacy source.ref === 'v'+ver shape (the LIVE
+          // marketplace has not flipped yet as of this phase), via the pure
+          // helper below so a fixture-driven unit test can exercise every
+          // branch without touching the real marketplace.json.
           const mpPath = path.join(home, 'mindrian-marketplace', '.claude-plugin', 'marketplace.json');
           let mp;
           try { mp = JSON.parse(fs.readFileSync(mpPath, 'utf8')); }
           catch (e) { return { ok: false, finding: 'marketplace.json unreadable: ' + e.message, detail: { mpPath: mpPath } }; }
-          const ref = mp.plugins && mp.plugins[0] && mp.plugins[0].source && mp.plugins[0].source.ref;
-          if (ref !== 'v' + ver) return { ok: false, finding: 'marketplace source.ref is ' + ref + ', expected v' + ver, detail: { ref: ref, expected: 'v' + ver } };
+          const source = mp.plugins && mp.plugins[0] && mp.plugins[0].source;
+          const sourceCheck = evaluateMarketplaceSourcePin(source, ver);
+          if (!sourceCheck.ok) return { ok: false, finding: sourceCheck.finding, detail: sourceCheck.detail };
           // (c) npm view -- THIS IS THE ONE NETWORK CALL in this point.
           const n = cp.spawnSync('npm', ['view', '@mindrian_os/cli@' + ver, 'version'], { encoding: 'utf8', timeout: 30000 });
           if (n.status !== 0) return { ok: false, finding: 'npm view failed: ' + (n.stderr || '').slice(-200), detail: { status: n.status } };
@@ -4258,7 +4320,7 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
 // Phase 225-02 (REQ-4): additive export of the WAL-reset advisory helpers for
 // hermetic unit testing via injected seams (tests/test-225-wal-advisory.cjs).
 // Additive-only append -- existing keys are never reordered.
-module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt };
+module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt, evaluateMarketplaceSourcePin };
 
 if (require.main === module) {
   main();
