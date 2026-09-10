@@ -134,10 +134,16 @@ run_may_skip() {
 DISCOVERED_TEST_FILES=()
 shopt -s nullglob
 found=0
+# Quick 260910-hni, MEASURED GAP CLOSED: run_may_skip was wired to the *.sh
+# glob only, so a .cjs test printing a leading SKIP line was counted PASSED
+# -- a green report over a gate that never ran, the exact false-success
+# disease this runner's own header says it exists to close. Zero existing
+# tests/test-339-*.cjs emitted a leading SKIP line at authoring time
+# (verified by grep), so no other arm's accounting flips.
 for t in "$PREFIX"*.cjs; do
   found=$((found+1))
   DISCOVERED_TEST_FILES+=("$t")
-  run "$(basename "$t")" node "$t"
+  run_may_skip "$(basename "$t")" node "$t"
 done
 for t in "$PREFIX"*.sh; do
   # Never re-run this runner against itself if it happens to match its own prefix.
