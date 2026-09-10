@@ -1,7 +1,32 @@
 ## [Unreleased] -- v2.0.0-beta.32 (in progress)
 
-### Added
-- 
+### Fixed - Theo answers Larry end to end (quick task 260910-hni)
+
+- `brain_ask` through the plugin no longer returns an empty DirectiveEnvelope on every Theo answer.
+  `lib/core/brain-client.cjs` `ask()` now composes `directive.guided.framework`, `next_gate.options`
+  (ranked framework chain with the `/mos:` commands Theo links to each framework) and a new additive
+  `grounding` field (Theo's ranked book rows: chapterId, section, score, snippet) from Theo's
+  `structured_rows` + `recommend_chain`. The question's own words are never echoed back (Canon Part 8).
+  Incumbent-shaped responses pass through byte-unchanged. Live e2e through the MCP shim: framework
+  Design Thinking, 4 chain options, 8 grounding rows.
+- `askOp()` accepts Theo's op-mode shape (`rows` + `coverage`); it had been degrading every curated op to
+  zero rows because Theo never sends a `count` key.
+- `lib/mcp/brain-router.cjs` routes `/mos:act` chains from the commands Theo attaches to each framework,
+  so Tier 3 is graph-grounded again instead of silently falling to the local heuristic.
+- `lib/core/part8-egress-guard.cjs` recognizes the `recommend_chain` payload shape (rung enum +
+  step budget) as a known safe shape. `tests/run-all-339.sh` now counts a `.cjs` leg that prints SKIP
+  as skipped, not passed.
+- Larry's thin-grounding clause (`skills/larry-personality/SKILL.md`) keys on an empty `grounding.rows`
+  instead of the retired "empty signals set" wording.
+
+### Removed - Canon Part 8 (quick task 260910-h32)
+
+- `scripts/sync-rooms-brain` and its three detached spawns (`scripts/session-start`, twice in
+  `scripts/room-registry`). It string-interpolated every room's name, venture, stage, status and path
+  into `brain_write` Cypher and sent it to the Brain origin on every SessionStart (observed: 1,498
+  POSTs, 55 rooms, Authorization header on each). Room state already lives in local SQLite via
+  `sync-rooms-graph`. A default-deny census test (`tests/test-quick-260910-h32-no-brain-write-from-scripts.cjs`,
+  registered in `run-all-257.sh`) keeps it from coming back.
 
 ## [2.0.0-beta.31] - 2026-09-10
 
