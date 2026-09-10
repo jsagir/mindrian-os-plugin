@@ -8,7 +8,8 @@ files:
   - lib/lens-engine/source-lens-driver.cjs
   - lib/core/research-context-extractor.cjs
 source: "Windows QA session RCA (C:\\Users\\jsagi\\handoffs\\RCA-intel-pipeline-fan-halt.md, found on beta.29, reported persisting in beta.31); confirmed by reading on main 2026-09-10"
-status: pending
+status: completed
+resolution: "Fixed by quick task 260910-dk1: defaultResearchFn now calls extractContext with one object and passes camelCase lensSet, mirroring lib/mcp/tool-router.cjs. Hermetic regression test tests/test-quick-260910-dk1-intel-pipeline-lens-contract.cjs proves it and runs as a leg of tests/run-all-223.sh."
 ---
 
 ## Problem

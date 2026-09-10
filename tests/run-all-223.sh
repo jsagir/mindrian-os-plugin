@@ -84,6 +84,12 @@ run_if "223-02 supersedes-chain (Req 2 walker + D-04 NULL review_status)" "tests
   node tests/test-223-supersedes-chain.cjs
 run_if "223-04 intel-pipeline (Req 3 dry-run + 3 gate halts + quality-low HALT)" "tests/test-223-intel-pipeline.cjs" \
   node tests/test-223-intel-pipeline.cjs
+# quick-260910-dk1 pins the 2026-09-10 fan-halt defect (extractContext called
+# positionally + snake_case lens_set never translated to camelCase lensSet).
+# The quick file name is deliberate: run_if takes an explicit path and this
+# aggregator globs nothing over tests/test-223-*.cjs.
+run_if "quick-260910-dk1 intel-pipeline lens contract (extractContext object arg + camelCase lensSet)" "tests/test-quick-260910-dk1-intel-pipeline-lens-contract.cjs" \
+  node tests/test-quick-260910-dk1-intel-pipeline-lens-contract.cjs
 
 # ---------------------------------------------------------------------------
 # The five phase-223 surfaces the constitutional sweeps pin.
