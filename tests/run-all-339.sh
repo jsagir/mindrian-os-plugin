@@ -217,6 +217,12 @@ EMDASH_TARGETS=(
   "skills/pws-brain/SKILL.md"
   "docs/339-NOTE-theo-desktop-connector-key.md"
   "tests/run-all-339.sh"
+  # Quick 260911-ddd (DDD-03): new production targets, registered here so a
+  # missing entry cannot silently escape this fence.
+  "lib/core/brain-prewarm.cjs"
+  "lib/mcp/brain-route-bound.cjs"
+  "lib/mcp/brain-composition-census.cjs"
+  "docs/ENV-TUNING.md"
 )
 for t in "${DISCOVERED_TEST_FILES[@]}"; do
   EMDASH_TARGETS+=("$t")
