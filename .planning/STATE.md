@@ -5,7 +5,7 @@ milestone_name: milestone
 status: executing
 stopped_at: Completed 341-05-PLAN.md
 last_updated: "2026-09-10T05:31:53.463Z"
-last_activity: 2026-09-10 -- quick task 260910-hni complete (Theo brain_ask composition live e2e, verified 8/8); quick task 260910-h32 complete (sync-rooms-brain Part 8 egress removed); Phase 341 wave 6 halted at the cold-install checkpoint (Linux PASS, Windows/Mac pending); v2.0.0-beta.31 released
+last_activity: 2026-09-11 -- quick task 260911-axz complete (doctor origin-and-shadow layer, THEO_NODE_FLOOR 27000, connector note scoped, SEED-082 triggered, census regenerated against Theo; verified 11/11); 2026-09-10: 260910-hni + 260910-h32 complete, v2.0.0-beta.33 released; Phase 341 wave 6 halted at the cold-install checkpoint (Linux PASS, Windows/Mac pending)
 progress:
   total_phases: 92
   completed_phases: 27
@@ -4266,7 +4266,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 341 (Install and update overhaul: npm-source plugin artifact, heavy-dep cut, one install location, transactional update) — EXECUTING
 Plan: 6 of 10
 Status: Ready to execute
-Last activity: 2026-09-10 -- Completed quick task 260910-hni: Theo brain_ask composition, live e2e verified 8/8; Completed quick task 260910-h32: removed dead sync-rooms-brain Brain egress (Canon Part 8), census test registered; Plan 341-04 complete: package.json cut to the runtime tree
+Last activity: 2026-09-11 -- Completed quick task 260911-axz: doctor origin-and-shadow layer, floor 27000, SEED-082 triggered, census against Theo (verified 11/11); Completed quick task 260910-hni: Theo brain_ask composition, live e2e verified 8/8; Completed quick task 260910-h32: removed dead sync-rooms-brain Brain egress (Canon Part 8), census test registered; Plan 341-04 complete: package.json cut to the runtime tree
   (23-entry files allowlist, 4 negations), npm-shrinkwrap.json shipped (zero dev entries, all
   5 sqlite-vec platform packages), @huggingface/transformers removed from dependencies, and two
   harness policies stood up (release-payload-ceiling blocking, registry-drift logged). Both plan
@@ -7094,6 +7094,7 @@ Progress: [█████████░] 92%
 
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
+| 260911-axz | Doctor grows a 7th class M layer (L0 origin-and-shadow connector, TDD RED/GREEN) catching the exact Tier 0 failure a beta.33 install hit; THEO_NODE_FLOOR moved 1000 -> 27000; Desktop connector note + 339-12-SUMMARY.md + SEED-082 corrected/triggered; census re-run live against Theo (27,951 nodes / 39,732 relationships / 452 Framework, zero delta from the plan's measurement). One live bug found and fixed (Theo's PLAN_REJECTED soft-refusal was silently dropping C4's fields). | 2026-09-11 | aef768cf | Verified (11/11, live) | [260911-axz-theo-qa-memo-follow-ups-doctor-detects-a](./quick/260911-axz-theo-qa-memo-follow-ups-doctor-detects-a/) |
 | 260910-hni | Theo e2e: brain_ask DirectiveEnvelope composed inside brain-client from Theo structured_rows + recommend_chain (rung heuristic, chain options with /mos: commands, grounding rows); askOp accepts Theo coverage shape; brain-router routes opt.commands; recommend_chain egress shape arm; live e2e smoke PASS against Theo; run-all-339 SKIP accounting fixed for .cjs | 2026-09-10 | 5dfd7583 | Verified (8/8, live) | [260910-hni-theo-e2e-compose-brain-ask-directiveenve](./quick/260910-hni-theo-e2e-compose-brain-ask-directiveenve/) |
 | 260910-h32 | Remove dead sync-rooms-brain Canon Part 8 egress: three detached spawns dropped (session-start:375, room-registry:337/602), writer deleted, docs retired, 5-arm default-deny census test registered in run-all-257.sh. Observed pre-fix: 1,498 brain_write POSTs, 55 rooms + auth header per SessionStart. | 2026-09-10 | a23d8ee1 | Verified (plan verify + doctor 20/20) | [260910-h32-remove-dead-sync-rooms-brain-egress-drop](./quick/260910-h32-remove-dead-sync-rooms-brain-egress-drop/) |
 | 260910-dk1 | Fix intel-pipeline research pipe contract: extractContext object call and lens_set to lensSet translation, with an injectable driver seam and a regression test | 2026-09-10 | b6830e1d | Verified | [260910-dk1-fix-intel-pipeline-research-pipe-contrac](./quick/260910-dk1-fix-intel-pipeline-research-pipe-contrac/) |
