@@ -1,0 +1,795 @@
+=== Baseline reds captured at HEAD 5ce0dd3ab8159d30b32d98694d8916839053e92a (2026-09-11T06:50:56Z) ===
+
+--- node tests/test-339-update-path-single-source.cjs ---
+Phase 339-02 (FLIP-04) update-path single-source scan -- HERMETIC
+  ok  Arm 1: release-process.md fenced block yields exactly two non-empty command lines
+  ok  Arm 2: lib/core/update-path.cjs exports byte-identical MARKETPLACE_UPDATE_COMMAND, PLUGIN_UPDATE_COMMAND, UPDATE_PATH_SENTENCE
+  ok  Arm 3: every lib/core/update-path.cjs export is frozen (mutation throws or no-ops)
+  ok  Arm 4: refusal-messaging.cjs renderRefusal for unreachable AND no_key both include PLUGIN_UPDATE_COMMAND
+
+  2 occurrence(s) of the literal found:
+    lib/core/update-path.cjs:48
+    scripts/collect-cold-install-evidence.cjs:365
+  FAIL Arm 5: lib/ and scripts/ carry exactly one non-comment occurrence of the literal update-path string (lib/core/update-path.cjs itself)
+    AssertionError [ERR_ASSERTION]: the literal must appear nowhere outside lib/core/update-path.cjs; found: scripts/collect-cold-install-evidence.cjs:365
++ actual - expected
+
++ [
++   'scripts/collect-cold-install-evidence.cjs:365'
++ ]
+- []
+
+    at /home/jsagi/dev/MindrianOS-Plugin/tests/test-339-update-path-single-source.cjs:309:12
+    at record (/home/jsagi/dev/MindrianOS-Plugin/tests/test-339-update-path-single-source.cjs:222:7)
+    at main (/home/jsagi/dev/MindrianOS-Plugin/tests/test-339-update-path-single-source.cjs:302:3)
+    at Object.<anonymous> (/home/jsagi/dev/MindrianOS-Plugin/tests/test-339-update-path-single-source.cjs:326:1)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+
+Phase 339-02 (FLIP-04) update-path single-source scan: FAIL (1 failures)
+EXIT: 1
+
+--- bash tests/run-all-127.sh ---
+========================================
+  Phase 127 scoped test runner
+========================================
+
+--- Running: test-127-00-shim-handshake.sh ---
+  ok Test 1: .mcp.json is valid JSON
+  ok Test 2: .mcp.json has both mindrian-os and mindrian-brain entries
+  ok Test 3: mindrian-brain.command === "node"
+  ok Test 4: mindrian-brain.args[0] uses ${CLAUDE_PLUGIN_ROOT} pattern
+  ok Test 5: mindrian-brain.alwaysLoad === true
+  ok Test 6: mindrian-os.args[0] uses ${CLAUDE_PLUGIN_ROOT} pattern (consistency)
+  ok Test 7: live JSON-RPC initialize -> serverInfo.name == mindrian-brain
+  ok Test 8: live tools/call brain_schema refuses with DIRECTOR_NOT_AVAILABLE (keyless, no methodology served)
+  ok Test 9: live tools/call brain_ask returns DirectiveEnvelope GUIDED brain_unreachable
+
+PASSED: 9
+FAILED: 0
+ALL 9 HANDSHAKE TESTS PASS
+>>> test-127-00-shim-handshake.sh: PASSED
+
+--- Running: test-127-01-migration-safety.sh ---
+PASS: T1-clean-no-legacy
+PASS: T2-legacy-same-key-execute
+PASS: T3-legacy-different-key-refuse
+PASS: T4-already-migrated-idempotency
+PASS: T5-SG-1-claude-json-byte-equality
+PASS: T6-SG-4-no-raw-identifiers-in-log
+PASS: T7-SG-2-snapshot-mode-0600
+PASS: T8-SG-3-dry-run-no-side-effects
+
+==== RESULTS ====
+PASS: 8
+FAIL: 0
+ALL 4 SAFETY GUARDS VERIFIED
+>>> test-127-01-migration-safety.sh: PASSED
+
+--- Running: test-127-02-doctor-class-m.sh ---
+PASS: T1-help-mentions-brain-smoke
+PASS: T2-brain-smoke-json-output
+PASS: T3-class-flag-invariant-exit-0
+PASS: T4-no-identity-refusal-cascade
+PASS: T5-doctor-md-lists-brain-smoke
+
+==== RESULTS ====
+PASS: 5
+FAIL: 0
+CLASS M WIRED + LIVE PROBE VERIFIED
+>>> test-127-02-doctor-class-m.sh: PASSED
+
+--- Running: test-127-03-acceptance-gates.sh ---
+Running CONTEXT acceptance gates 1-5...
+
+==== ACCEPTANCE GATES ====
+  gate-1     PASS :: keyless path refused honestly (no_key -> DIRECTOR_NOT_AVAILABLE) and served zero methodology content
+  gate-2     SKIP :: MINDRIAN_TEST_LIVE_KEY not set
+  gate-3     PASS :: migration removed legacy entry, snapshot + log present
+  gate-4     PASS :: shim emitted canonical startup line
+  gate-5     FAIL :: Class-M cascade mismatched: {
+  "class": "M",
+  "ok": false,
+  "layers": [
+    {
+      "id": "origin_shadow",
+      "name": "L0 origin and shadow connector",
+      "ok": true,
+      "reason": "no shadowing mindrian-brain entry f
+
+VERDICT: 1 gate(s) FAILED
+>>> test-127-03-acceptance-gates.sh: FAILED
+
+--- Running: test-127-03-canon-part-8-adversarial.sh ---
+Canon Part 8 adversarial sweep across Phase 127 production sources...
+
+CANON PART 8 ADVERSARIAL AUDIT: PASS (delegation property holds across 6 Phase 127 sources)
+>>> test-127-03-canon-part-8-adversarial.sh: PASSED
+
+--- Running: test-127-03-no-em-dashes.sh ---
+
+Scanned 28 Phase 127 files (sources + tests + fixtures + docs)
+NO-EM-DASHES HARD RULE: PASS across all Phase 127 files
+>>> test-127-03-no-em-dashes.sh: PASSED
+
+--- Running: ../lib/core/mindrian-brain-shim.test.cjs ---
+  ok shim file exists and is executable (mode & 0o111)
+  ok shim source registers exactly 6 tools (brain_ask|query|schema|search|stats|write)
+  ok shim source contains zero Brain network surface (fetch / http. / brain.mindrian / onrender)
+  ok shim source contains zero sendPacket( / buildBrainPacket calls (Phase 110 contract)
+  ok shim file starts with #!/usr/bin/env node shebang
+  ok shim spawn writes "[mindrian-brain] MCP server v... started (stdio)" to stderr within 3s
+
+PASSED: 6
+FAILED: 0
+>>> ../lib/core/mindrian-brain-shim.test.cjs: PASSED
+
+--- Running: ../lib/core/directive-envelope.test.cjs ---
+  ok wrapDirective(null, {}) returns Tier-0 sentinel envelope
+  ok wrapDirective({text:"..."}, {}) defaults to mode=GUIDED
+  ok wrapDirective(resp, {user_said_just_tell_me:true}) returns AUTONOMOUS
+  ok wrapDirective(resp, {session_count:9, room_mature:true, in_commit_phase:true}) returns HYBRID
+  ok wrapDirective(resp, {is_first_material:true}) returns GUIDED (never autonomous on cold start)
+  ok every envelope contains user_override map with the 3 documented overrides
+  ok every envelope contains next_gate.sub_shape matching /^F\.[1-5]$/ and options array
+  ok selectMode({}) returns mode=GUIDED by default (DEFAULT_MODE invariant)
+  ok DEFAULT_MODE constant exported and === "GUIDED" (Larry pedagogical canon lock)
+
+PASSED: 9
+FAILED: 0
+>>> ../lib/core/directive-envelope.test.cjs: PASSED
+
+--- Running: ../scripts/migrate-brain-mcp-from-http-to-stdio.test.cjs ---
+PASS: T1 planMigration returns action=none when no legacy entry present
+PASS: T2 planMigration returns action=remove when legacy Bearer matches current key
+PASS: T3 planMigration returns action=refuse on two-key conflict
+PASS: T4 planMigration second call returns action=already_migrated after executePlan(remove)
+PASS: T5 executePlan dryRun=true returns would_have, no removeFn call, no files written
+PASS: T6 executePlan writes snapshot BEFORE invoking removeFn (SG-2 ordering)
+PASS: T7 SG-1 HARD INVARIANT: ~/.claude.json byte-identical before+after executePlan
+[migrate-brain-mcp] WARNING: legacy user-scope mindrian-brain Bearer differs from current ~/.mindrian.env key; auto-migration refused -- run `claude mcp remove --scope user mindrian-brain` after rotating keys
+PASS: T8 executePlan with action=refuse writes stderr warning, no removeFn, no snapshot, no log
+PASS: T9 migrations.jsonl has exactly one removed record with fingerprint/source/action/ts (SG-4)
+PASS: T10 CLI --dry-run exits 0 and prints "dry-run" without spawning claude
+PASS: T11 CLI --help prints usage and exits 0
+
+==== RESULTS ====
+PASS: 11
+FAIL: 0
+>>> ../scripts/migrate-brain-mcp-from-http-to-stdio.test.cjs: PASSED
+
+--- Running: ../lib/core/migration-snapshot.test.cjs ---
+PASS: T1 fingerprintEntry returns 16 hex chars
+PASS: T2 fingerprintEntry distinguishes by args[0] and is deterministic
+PASS: T3 fingerprintEntry uses source-name "mindrian-brain:" prefix per TELEMETRY-121-02
+PASS: T4 snapshotPath replaces colons with dashes for Windows filesystem safety
+PASS: T5 readMigrationsLog returns [] when log file does not exist
+PASS: T6 appendMigrationLog creates log with mode 0600 and round-trips via readMigrationsLog
+PASS: T7 isAlreadyMigrated returns true after matching record appended, false for different fingerprint
+PASS: T8 appendMigrationLog rejects record containing Bearer-shaped string (SG-4 invariant)
+PASS: T9 appendMigrationLog rejects record containing UUID-shaped value (SG-4 invariant)
+
+==== RESULTS ====
+PASS: 9
+FAIL: 0
+>>> ../lib/core/migration-snapshot.test.cjs: PASSED
+
+--- Running: ../lib/core/doctor/class-m-brain-smoke.test.cjs ---
+  ok LAYERS constant: 7 frozen entries with stable ids, origin_shadow first
+  ok fixBrainSmoke(result) is a no-op (diagnostic-only invariant)
+  ok L1 broken -> L2-L6 cascade to skipped-prior-layer-failed (L0 unaffected, passes)
+  ok L1 OK + L2 no key -> L3-L6 cascade to skipped
+  ok L1+L2 OK + L3 returns null -> L4-L6 cascade to skipped
+  ok L1+L2+L3 OK + L4 timeout -> L5-L6 cascade to skipped
+  ok checkBrainSmoke() returns { ok, layers:[7], overall_ms }
+  ok All 7 layers PASS via mocks; overall_ms < 30000 (30s budget)
+  ok Each layer.ms is non-negative number
+  ok opts injection seams enable hermetic testing + Class M referenced in source
+  ok Test A: shadow present (user scope) -- not-ok, names scope/host, exact fix line, plugin-provides sentence, zero secret leak
+  ok Test B: shadow present (local scope) -- scope local, fix line -s local
+  ok Test C: no shadow -- ok true, reason says none found
+  ok Test D: the plugin's own .mcp.json shim is never consulted; reader called once with the Claude Code path
+  ok Test E: resolved-origin row -- resolved_origin/is_theo/override/theo_health carried, reason names origin
+  ok Test F: theo_health rejection degrades honestly -- no throw, no theo_health key, ok unaffected
+  ok Test G: non-Theo origin, MINDRIAN_BRAIN_URL override -- is_theo false, override true, ok follows shadow only
+  ok Test H: shadow present does not blind L1-L6 -- all 7 layers run, zero skipped-prior-layer-failed
+  ok Test I: THEO_NODE_FLOOR === 27000 (exported), CANON_NODE_FLOOR unchanged at 29000
+  ok L6 store_identity: Theo-shaped stats ({nodes,relationships,labels}) dual-read PASS (added, not retargeted)
+  ok L6 store_identity: neither totalRecordCount nor nodes -- honest FAIL naming both fields (added, not retargeted)
+  ok L6 store_identity: stale-replica signature, below-floor, canon pass, null fail-closed, stamp present/absent
+
+PASSED: 22
+FAILED: 0
+>>> ../lib/core/doctor/class-m-brain-smoke.test.cjs: PASSED
+
+--- Running: ../lib/core/refusal-messaging.test.cjs ---
+  ok DIRECTOR_NOT_AVAILABLE constant equals exact wire string
+  ok tier0Response("brain_ask") returns canonical sentinel shape
+  ok tier0Response(null) coerces command_context to "unknown"
+[mindrian-os] Brain key not loaded: permissions too open: /home/jsagi/dev/MindrianOS-Plugin/.env is mode 0644, must be 0600
+  ok isAvailable() returns false when MINDRIAN_BRAIN_KEY is unset and no env-file
+  ok isAvailable() returns true when MINDRIAN_BRAIN_KEY is set in env
+  ok larryTier0Hint() one-line string, <120 chars, contains "Brain" + "key", zero em-dashes
+  ok shim tier0Response delegates to chokepoint (byte-identical output for all 6 tool names)
+  ok plan 127-00 shim test file still PASSES after refactor
+
+PASSED: 8
+FAILED: 0
+>>> ../lib/core/refusal-messaging.test.cjs: PASSED
+
+--- Running: 127.1-embedding-integrity.test.cjs ---
+fixture missing -- run Plan 127.1-01 to generate tests/fixtures/127.1/embedding-manifest.fixture.json (MINDRIAN_127_1_FIXTURE_MODE not set to 1)
+>>> 127.1-embedding-integrity.test.cjs: FAILED
+
+--- Running: 127.1-index-config.test.cjs ---
+fixture missing -- run Plan 127.1-02 to generate tests/fixtures/127.1/index-config.fixture.json (MINDRIAN_127_1_FIXTURE_MODE not set to 1)
+>>> 127.1-index-config.test.cjs: FAILED
+
+--- Running: 127.1-query-embedder.test.cjs ---
+TAP version 13
+# Subtest: 127.1 query-embedder -- module constants are locked
+ok 1 - 127.1 query-embedder -- module constants are locked
+  ---
+  duration_ms: 0.894875
+  type: 'test'
+  ...
+# Subtest: 127.1 query-embedder -- embedQuery returns a 1024-length numeric array
+ok 2 - 127.1 query-embedder -- embedQuery returns a 1024-length numeric array
+  ---
+  duration_ms: 1.704311
+  type: 'test'
+  ...
+# Subtest: 127.1 query-embedder -- embedQuery applies the e5 `query: ` prefix
+ok 3 - 127.1 query-embedder -- embedQuery applies the e5 `query: ` prefix
+  ---
+  duration_ms: 0.311558
+  type: 'test'
+  ...
+# Subtest: 127.1 query-embedder -- rejects a non-string input
+ok 4 - 127.1 query-embedder -- rejects a non-string input
+  ---
+  duration_ms: 0.724196
+  type: 'test'
+  ...
+# Subtest: 127.1 query-embedder -- rejects an empty-string input
+ok 5 - 127.1 query-embedder -- rejects an empty-string input
+  ---
+  duration_ms: 0.675091
+  type: 'test'
+  ...
+# Subtest: 127.1 query-embedder -- rejects a wrong-length backend vector, naming the observed length
+ok 6 - 127.1 query-embedder -- rejects a wrong-length backend vector, naming the observed length
+  ---
+  duration_ms: 0.342941
+  type: 'test'
+  ...
+# Subtest: 127.1 query-embedder -- rejects a non-numeric backend vector
+ok 7 - 127.1 query-embedder -- rejects a non-numeric backend vector
+  ---
+  duration_ms: 0.387195
+  type: 'test'
+  ...
+# Subtest: 127.1 query-embedder -- backend unreachable rejects with `embedding backend unavailable`
+ok 8 - 127.1 query-embedder -- backend unreachable rejects with `embedding backend unavailable`
+  ---
+  duration_ms: 0.327893
+  type: 'test'
+  ...
+# Subtest: 127.1 query-embedder -- backend non-2xx rejects with `embedding backend unavailable`
+ok 9 - 127.1 query-embedder -- backend non-2xx rejects with `embedding backend unavailable`
+  ---
+  duration_ms: 0.7536
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 20.911297
+OK 127.1-query-embedder 1024-dim e5-large verified
+>>> 127.1-query-embedder.test.cjs: PASSED
+
+--- Running: 127.1-graphrag-overlap.test.cjs ---
+fixture missing -- Plan 127.1-03 must run before this gate (MINDRIAN_127_1_FIXTURE_MODE not set to 1); missing: tests/fixtures/127.1/overlap-baseline.fixture.json, tests/fixtures/127.1/overlap-neo4j.fixture.json
+>>> 127.1-graphrag-overlap.test.cjs: FAILED
+
+========================================
+  Summary (127 scoped)
+========================================
+  Total:  16
+  Passed: 12
+  Failed: 4
+  Time:   16s
+
+  Failed (see header for plan ownership):
+    - test-127-03-acceptance-gates.sh
+    - 127.1-embedding-integrity.test.cjs
+    - 127.1-index-config.test.cjs
+    - 127.1-graphrag-overlap.test.cjs
+========================================
+EXIT: 1
+
+--- bash tests/run-all-257.sh ---
+
+--- Plan 01 (LOCUS-01) refusal egress kind ---
+TAP version 13
+# Subtest: Arm 1: REFUSAL_KINDS is a frozen six-member array, rate_limited at index 4, egress_blocked last
+ok 1 - Arm 1: REFUSAL_KINDS is a frozen six-member array, rate_limited at index 4, egress_blocked last
+  ---
+  duration_ms: 32.836227
+  type: 'test'
+  ...
+# Subtest: Arm 2: egress_blocked status is BRAIN_EGRESS_BLOCKED and distinct from every other kind's status
+ok 2 - Arm 2: egress_blocked status is BRAIN_EGRESS_BLOCKED and distinct from every other kind's status
+  ---
+  duration_ms: 0.565991
+  type: 'test'
+  ...
+# Subtest: Arm 3: no-echo -- a canary under message/question/cypher/query never reaches any rendered surface
+ok 3 - Arm 3: no-echo -- a canary under message/question/cypher/query never reaches any rendered surface
+  ---
+  duration_ms: 0.292351
+  type: 'test'
+  ...
+# Subtest: Arm 4: unrecognized egress_class coerces to unknown, raw value never appears in the reason
+ok 4 - Arm 4: unrecognized egress_class coerces to unknown, raw value never appears in the reason
+  ---
+  duration_ms: 0.243742
+  type: 'test'
+  ...
+# Subtest: Arm 5: every REFUSAL_KINDS status is present in doctor's STRUCTURED_REFUSAL_STATUSES
+ok 5 - Arm 5: every REFUSAL_KINDS status is present in doctor's STRUCTURED_REFUSAL_STATUSES
+  ---
+  duration_ms: 0.872599
+  type: 'test'
+  ...
+# Subtest: Arm 6: egress_blocked copy never says unreachable or down
+ok 6 - Arm 6: egress_blocked copy never says unreachable or down
+  ---
+  duration_ms: 0.349376
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 46.07748
+>>> Plan 01 (LOCUS-01) refusal egress kind: PASSED
+
+--- Plan 02 (LOCUS-02) envelope passthrough ---
+TAP version 13
+# Subtest: Arm 1: egress_disclosure survives wrapDirective with all five fields intact
+ok 1 - Arm 1: egress_disclosure survives wrapDirective with all five fields intact
+  ---
+  duration_ms: 1.695995
+  type: 'test'
+  ...
+# Subtest: Arm 2: a real refusalResponse() object survives wrapDirective with status/kind/reason/command_context/next_moves
+ok 2 - Arm 2: a real refusalResponse() object survives wrapDirective with status/kind/reason/command_context/next_moves
+  ---
+  duration_ms: 0.810525
+  type: 'test'
+  ...
+# Subtest: Arm 3: absence of both fields keeps the exact seven-key array in order; Tier-0 sentinel is unchanged
+ok 3 - Arm 3: absence of both fields keeps the exact seven-key array in order; Tier-0 sentinel is unchanged
+  ---
+  duration_ms: 0.915863
+  type: 'test'
+  ...
+# Subtest: Arm 4: a canary on an unknown top-level key never reaches the envelope (no generic pass-through)
+ok 4 - Arm 4: a canary on an unknown top-level key never reaches the envelope (no generic pass-through)
+  ---
+  duration_ms: 0.38274
+  type: 'test'
+  ...
+# Subtest: Arm 5: mutating the source egress_disclosure/refusal after the call does not change the envelope copies
+ok 5 - Arm 5: mutating the source egress_disclosure/refusal after the call does not change the envelope copies
+  ---
+  duration_ms: 0.398481
+  type: 'test'
+  ...
+# Subtest: Arm 6: non-object egress_disclosure/refusal values (string, array, null) are not attached
+ok 6 - Arm 6: non-object egress_disclosure/refusal values (string, array, null) are not attached
+  ---
+  duration_ms: 0.435805
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23.493553
+>>> Plan 02 (LOCUS-02) envelope passthrough: PASSED
+
+--- Plan 06 (LOCUS-01/02) shim honest refusal, G1/G3 wire proof ---
+Phase 257-06 (LOCUS-01/LOCUS-02) shim honest-refusal wire suite
+  ok  Arm 1: G1 on the wire -- a blocked brain_ask names itself, zero bytes reach the Brain
+  ok  Arm 2: anti-regression -- the measured BEFORE (empty, refusal-less) shape cannot return
+  ok  Arm 3: block is not outage -- mode_rationale and BRAIN_UNREACHABLE stay absent
+  ok  Arm 5: no laundering -- the canary appears nowhere in the response or on the wire
+  ok  Arm 4: G3 on the wire -- ambiguous proceeds and egress_disclosure reaches the model
+  ok  Arm 6: the other tools -- brain_search and brain_write convert the sentinel to a typed refusal
+  ok  Arm 7: the accepted G2 gap, PINNED -- brain_query still reports unreachable on a block (D-05)
+  ok  Arm 8: honestRefusal() unit arms (extracted from the real shim source)
+  hygiene: 3 shim process(es) spawned this run, none still alive after cleanup
+
+Phase 257-06 shim honest-refusal suite: PASS (0 failures)
+>>> Plan 06 (LOCUS-01/02) shim honest refusal, G1/G3 wire proof: PASSED
+
+--- Plan 07 (LOCUS-03, D-06) brain-tool egress invariant, the locked proof ---
+(node:33368) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Phase 257-07 (LOCUS-03, D-06) brain-tool egress invariant
+  ok  Arm 1a: tools/list returns a non-empty array
+  ok  Arm 1b: FORWARD -- every EXPECTATION_MAP entry exists in the live tools/list (a rename fails here)
+  ok  Arm 1c: INVERSE -- every live tools/list entry exists in EXPECTATION_MAP (a newly-added tool fails here)
+  ok  Arm 2: zero egress on a canary, per canary-carrying tool (brain_ask, brain_query, brain_search, brain_write)
+  ok  Arm 2b: non-canary-carrying tools (brain_schema, brain_stats) complete without error
+  ok  Arm 3: honest typed refusal, per tool
+  ok  Arm 4: ambiguous proceeds and discloses (verdict verified in-process first)
+  ok  Arm 5: allow still works -- the guard discriminates, it does not block unconditionally
+  ok  Arm 6: no laundering -- the canary appears nowhere in any Arm 2 response or the capture record
+  ok  Arm 7a: the belt self-check (Arm 2 shape) can fail -- run against a real call that DID reach the wire
+  ok  Arm 7b: the honest-refusal self-check (Arm 3 shape) can fail -- run with a deliberately wrong expected kind
+  hygiene: 1 shim process(es) spawned this run, none still alive after cleanup
+  wall time: 508ms
+
+Phase 257-07 brain-tool egress invariant: PASS (0 failures)
+>>> Plan 07 (LOCUS-03, D-06) brain-tool egress invariant, the locked proof: PASSED
+
+--- Plan 08 (LOCUS-07) strict input shapes ---
+Phase 257-08 (D-09, LOCUS-07) strict input shapes -- undeclared-key smuggling gap
+    package.json pin: @modelcontextprotocol/sdk ^1.29.0, zod ^3.25.76
+    installed:        @modelcontextprotocol/sdk 1.29.0, zod 3.25.76
+  ok  Arm Z1: installed SDK/zod versions derived from node_modules (not frozen)
+  ok  Arm Z2: a plain z.object shape ACCEPTS and silently drops an undeclared key
+  ok  Arm Z3: z.strictObject REJECTS the same undeclared key with unrecognized_keys
+  ok  Arm Z4a: positional tool() with a strictObject schema THROWS
+  ok  Arm Z4b: registerTool() with a strictObject inputSchema is ACCEPTED
+  ok  Arm Z4c: registerTool() with a raw shape is ALSO accepted (uniform migration path)
+  ok  Arm A: undeclared-key rejection on the wire, per tool (brain_ask, brain_query, brain_schema, brain_search, brain_stats, brain_write)
+  ok  Arm B: the handler did not run -- zero outbound capture-server requests for every Arm A call
+  ok  Arm C: declared arguments alone still pass validation (non-error), per tool
+  ok  Arm D: brain_query's params map stays permissive for arbitrary sibling keys inside it
+    brain_schema (arguments absent): before.isError=true after.isError=true
+    brain_schema (arguments:{}):    before.isError=false after.isError=false
+    brain_stats (arguments absent): before.isError=true after.isError=true
+    brain_stats (arguments:{}):    before.isError=false after.isError=false
+  ok  Arm E: zero-parameter tools, both call shapes, before vs after (brain_schema, brain_stats)
+  FAIL Arm F: catalog parity, before vs after (names, descriptions, declared parameters, additionalProperties:false)
+    AssertionError [ERR_ASSERTION]: brain_ask: description string changed (must be byte-identical): before="Ask the remote PWS teaching graph a natural-language methodology question. Routing happens server-side over the live Memgraph teaching graph using locally-embedded multilingual-e5-large vectors. Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly." after="Ask the remote teaching graph a natural-language methodology question. Routing happens server-side. Returns a DirectiveEnvelope whose directive and next_gate are composed from the graph-grounded rows behind the answer plus a recommended framework chain; grounding.rows names the rows the answer stands on, and an empty grounding.rows means thin footing, not a clean answer. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly."
++ actual - expected
+
++ 'Ask the remote teaching graph a natural-language methodology question. Routing happens server-side. Returns a DirectiveEnvelope whose directive and next_gate are composed from the graph-grounded rows behind the answer plus a recommended framework chain; grounding.rows names the rows the answer stands on, and an empty grounding.rows means thin footing, not a clean answer. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.'
+- 'Ask the remote PWS teaching graph a natural-language methodology question. Routing happens server-side over the live Memgraph teaching graph using locally-embedded multilingual-e5-large vectors. Returns a DirectiveEnvelope (default mode: GUIDED) carrying the directive content. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.'
+
+    at /home/jsagi/dev/MindrianOS-Plugin/tests/test-257-strict-input-shapes.cjs:476:16
+    at Array.forEach (<anonymous>)
+    at /home/jsagi/dev/MindrianOS-Plugin/tests/test-257-strict-input-shapes.cjs:473:18
+    at recordAsync (/home/jsagi/dev/MindrianOS-Plugin/tests/test-257-strict-input-shapes.cjs:114:11)
+    at main (/home/jsagi/dev/MindrianOS-Plugin/tests/test-257-strict-input-shapes.cjs:468:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    pre-migration brain_ask + undeclared key: isError=false
+    pre-migration brain_ask + undeclared key: response text (truncated): {"packet_version":"1.0","packet_type":"DirectiveEnvelope","mode":"GUIDED","mode_rationale":"default_guided_pedagogical_canon","directive":{"guided":{"questions":[],"framework":null,"stage":null}},"user_override":{"just tell me":"switch to AUTONOMOUS, run framework end-to-end","let me think":"switch 
+  ok  Arm G: mutation leg -- the pre-migration brain_ask registration does NOT reject an undeclared key
+  hygiene: 2 shim process(es) spawned this run, none still alive after cleanup
+  wall time: 582ms
+
+Phase 257-08 strict input shapes: FAIL (1 failures)
+>>> Plan 08 (LOCUS-07) strict input shapes: FAILED
+
+--- REGRESSION 239 query egress canary (must stay green) ---
+Phase 239-05 (BRAIN-02) query egress canary suite
+    LEG 1 captured (must be empty of canary): []
+  ok  LEG 1: opportunity.domain canary caught before the wire
+    LEG 2 captured (must be empty of canary): []
+  ok  LEG 2: Blue Hat methodology_notes canary caught before the wire
+    LEG 3 captured (must be empty of both PII forms): []
+  ok  LEG 3: PII canary (jane@startup.com) caught before the wire
+    LEG 4 verdicts: bare-cypher={"verdict":"ambiguous","class":"freeform_unmatched","reason":"no methodology vocabulary match"} templated-cypher={"verdict":"allow","class":"move_set","reason":"generic methodology vocabulary handle"} raw-field={"verdict":"ambiguous","class":"freeform_unmatched","reason":"no methodology vocabulary match"}
+  ok  LEG 4: template-laundering regression (T4)
+    LEG 5: sanitizeCypherInput(jane@startup.com) = janestartup.com | raw verdict=block | sanitized verdict=ambiguous
+    LEG 5 source-order: classify( at char 1137, sanitizeCypherInput( at char 1888 (ordering holds)
+  ok  LEG 5: sanitize-before-classify ordering regression (T5)
+(node:33408) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[mindrian-os] brain_query_unrecognized_shape: the Brain returned a response shape (object, keys: [ok]) that query() does not recognize. This is a CONTRACT MISMATCH, NOT an empty answer -- the caller still receives records: [] so it does not crash, but every downstream reader should treat this as unresolved until the response contract is reconciled.
+    LEG 6: captured.length=2 tool names=["brain_query","brain_query"]
+  ok  LEG 6: anti-vacuity -- a should-pass payload actually reaches the wire
+  ok  LEG 7: automated companion -- classify( present in both guarded functions
+
+Phase 239-05 canary suite: PASS (0 failures)
+>>> REGRESSION 239 query egress canary (must stay green): PASSED
+
+--- REGRESSION 254 ambiguous disclosure (must stay green) ---
+Phase 254-05 (COMP-02) ambiguous-disclosure suite
+(node:33416) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+    Arm 1 disclosure: {"verdict":"ambiguous","egress_class":"freeform_unmatched","reason":"no methodology vocabulary match","tool":"brain_ask","disposition":"proceeded"}
+  ok  Arm 1: an ambiguous verdict proceeds and discloses
+  ok  Arm 2: a block verdict stays byte-unchanged, no disclosure
+  ok  Arm 3: an allow verdict returns no egress_disclosure at all
+  ok  Arm 4: transport exhaustion returns bare null, never decorated
+    Arm 5 wire (must contain canary): [{"name":"brain_ask","arguments":{"question":"CANARY254D2A9 unrelated content probe"}}]
+    Arm 5 disclosure (must NOT contain canary): {"verdict":"ambiguous","egress_class":"freeform_unmatched","reason":"no methodology vocabulary match","tool":"brain_ask","disposition":"proceeded"}
+  ok  Arm 5: the disclosure names the verdict, never carries the canary
+  ok  Arm 6: a tier_denied sentinel is never decorated
+[mindrian-os] Brain key not loaded: MINDRIAN_BRAIN_KEY not set (env), and neither /tmp/test-254-nokeyhome-QqPMfL/.mindrian.env nor /tmp/test-254-nokeyhome-QqPMfL/.env nor /tmp/test-254-nokeyhome-QqPMfL/.mindrian-install.json contains a usable key
+  ok  Arm 7: the key gate still precedes the belt
+  ok  Arm 8: query()'s bare-array normalization preserves egress_disclosure at the top level (CR-01)
+
+Phase 254-05 ambiguous-disclosure suite: PASS (0 failures)
+>>> REGRESSION 254 ambiguous disclosure (must stay green): PASSED
+
+--- REGRESSION 254 composition census (must stay green) ---
+  ok    census module loads
+  ok    Arm 1: declared covers discovered
+  ok    Arm 2: discovered covers declared (no stale entries)
+  ok    Arm 3: no lib/mcp/ file opens its own wire
+  ok    Arm 4: every reaching entry states a numeric bound_ms > 0
+  ok    Arm 5: every reaching entry names belt: callTool
+  ok    Arm 6: validateSites enforces a non-empty reason
+  ok    Arm 7: each call site carries the brain-composition-census provenance string
+  ok    Arm 8: the declaration module never hardcodes a site count (identity, not count)
+
+test-254-composition-census.cjs: 9 passed, 0 failed
+>>> REGRESSION 254 composition census (must stay green): PASSED
+
+--- QUICK 260910-h32 no brain-write egress from scripts/ (Part 8) ---
+PASSED: test-quick-260910-h32-no-brain-write-from-scripts.cjs
+  Arm 1: scripts/sync-rooms-brain absent on disk
+  Arm 2: zero of 335 tracked scripts/ files mention "sync-rooms-brain"
+  Arm 3: default-deny census clean (allowlisted hit file(s): scripts/whitespace-to-brain.cjs)
+  Arm 4: ALLOWLIST reconciled both directions (1 entry)
+  Arm 5: mutation leg confirms the matcher detects real calls and clears prose-only mentions
+>>> QUICK 260910-h32 no brain-write egress from scripts/ (Part 8): PASSED
+
+========================================
+  Summary (257 verification)
+  Passed: 8   Failed: 1   Skipped: 0
+========================================
+EXIT: 1
+
+--- node tests/test-262-unrecognized-shape-voids.cjs ---
+TAP version 13
+# Subtest: A1: a row with a failures[] entry of kind unrecognized_shape is VOID, not MISS
+ok 1 - A1: a row with a failures[] entry of kind unrecognized_shape is VOID, not MISS
+  ---
+  duration_ms: 0.813548
+  type: 'test'
+  ...
+# Subtest: A2: that result has voidCount=1, exitCode=3, and missCount does NOT include the row
+ok 2 - A2: that result has voidCount=1, exitCode=3, and missCount does NOT include the row
+  ---
+  duration_ms: 0.251099
+  type: 'test'
+  ...
+# Subtest: A3: renderVoidDetailLines emits a line naming the row, the probe, and "unrecognized-shape" (hyphenated), never the raw token
+ok 3 - A3: renderVoidDetailLines emits a line naming the row, the probe, and "unrecognized-shape" (hyphenated), never the raw token
+  ---
+  duration_ms: 0.450157
+  type: 'test'
+  ...
+# Subtest: A4: renderFloorSummaryLines emits the VOID banner, not the RED banner, when unrecognized_shape is present
+ok 4 - A4: renderFloorSummaryLines emits the VOID banner, not the RED banner, when unrecognized_shape is present
+  ---
+  duration_ms: 0.175116
+  type: 'test'
+  ...
+# Subtest: A5 (no-regression): the three pre-existing kinds still VOID, and an all-clean fixture is exitCode=0 GREEN
+ok 5 - A5 (no-regression): the three pre-existing kinds still VOID, and an all-clean fixture is exitCode=0 GREEN
+  ---
+  duration_ms: 0.307096
+  type: 'test'
+  ...
+# Subtest: Layer B: probeFramework against loopback capture server
+    # Subtest: B1: Theo-shaped payloads (no canonical_matches key, no readiness wrapper) produce two unrecognized_shape failures
+    ok 1 - B1: Theo-shaped payloads (no canonical_matches key, no readiness wrapper) produce two unrecognized_shape failures
+      ---
+      duration_ms: 4351.462377
+      type: 'test'
+      ...
+    # Subtest: B2: feeding the B1 probe result into evaluateFloor yields VOID / exit 3, not the MISS-everything false RED
+    ok 2 - B2: feeding the B1 probe result into evaluateFloor yields VOID / exit 3, not the MISS-everything false RED
+      ---
+      duration_ms: 2791.24204
+      type: 'test'
+      ...
+    # Subtest: B3 (misfire guard): the incumbent Brain shapes still produce failures: [] and evaluateFloor verdicts PASS
+    not ok 3 - B3 (misfire guard): the incumbent Brain shapes still produce failures: [] and evaluateFloor verdicts PASS
+      ---
+      duration_ms: 3315.046848
+      type: 'test'
+      location: '/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:231:11'
+      failureType: 'testCodeFailure'
+      error: |-
+        the tripwire must not misfire on the incumbent shape
+        + actual - expected
+        
+        + [
+        +   {
+        +     detail: 'normalize_framework_name payload carried no numeric canonical_matches length; result keys: canonical, matched_via, coverage, diagnostics',
+        +     httpStatus: 200,
+        +     kind: 'unrecognized_shape',
+        +     probe: 'normalize',
+        +     retryAfterS: null
+        +   },
+        +   {
+        +     detail: 'orchestration_readiness payload carried no numeric readiness.readiness_score; result keys: framework, score, inputs, evidence, unsynced_inputs, coverage, diagnostics',
+        +     httpStatus: 200,
+        +     kind: 'unrecognized_shape',
+        +     probe: 'readiness',
+        +     retryAfterS: null
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          probe: 'normalize'
+          kind: 'unrecognized_shape'
+          httpStatus: 200
+          detail: 'normalize_framework_name payload carried no numeric canonical_matches length; result keys: canonical, matched_via, coverage, diagnostics'
+          retryAfterS: ~
+        1:
+          probe: 'readiness'
+          kind: 'unrecognized_shape'
+          httpStatus: 200
+          detail: 'orchestration_readiness payload carried no numeric readiness.readiness_score; result keys: framework, score, inputs, evidence, unsynced_inputs, coverage, diagnostics'
+          retryAfterS: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:236:12)
+        process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:231:3)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: B4 (honest-MISS guard): empty canonical_matches array and readiness_score=0 produce failures: [] and verdict MISS, not VOID
+    not ok 4 - B4 (honest-MISS guard): empty canonical_matches array and readiness_score=0 produce failures: [] and verdict MISS, not VOID
+      ---
+      duration_ms: 3090.372587
+      type: 'test'
+      location: '/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:244:11'
+      failureType: 'testCodeFailure'
+      error: |-
+        an empty array and a zero score are readable numeric values, not unrecognized shapes
+        + actual - expected
+        
+        + [
+        +   {
+        +     detail: 'normalize_framework_name payload carried no numeric canonical_matches length; result keys: canonical, matched_via, coverage, diagnostics',
+        +     httpStatus: 200,
+        +     kind: 'unrecognized_shape',
+        +     probe: 'normalize',
+        +     retryAfterS: null
+        +   },
+        +   {
+        +     detail: 'orchestration_readiness payload carried no numeric readiness.readiness_score; result keys: framework, score, inputs, evidence, unsynced_inputs, coverage, diagnostics',
+        +     httpStatus: 200,
+        +     kind: 'unrecognized_shape',
+        +     probe: 'readiness',
+        +     retryAfterS: null
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          probe: 'normalize'
+          kind: 'unrecognized_shape'
+          httpStatus: 200
+          detail: 'normalize_framework_name payload carried no numeric canonical_matches length; result keys: canonical, matched_via, coverage, diagnostics'
+          retryAfterS: ~
+        1:
+          probe: 'readiness'
+          kind: 'unrecognized_shape'
+          httpStatus: 200
+          detail: 'orchestration_readiness payload carried no numeric readiness.readiness_score; result keys: framework, score, inputs, evidence, unsynced_inputs, coverage, diagnostics'
+          retryAfterS: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:249:12)
+        process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:244:3)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: B5 (CR-01 regression guard): a present-but-null readiness key (incumbent Brain "framework not found" sentinel) produces failures: [] and verdict MISS, not VOID
+    not ok 5 - B5 (CR-01 regression guard): a present-but-null readiness key (incumbent Brain "framework not found" sentinel) produces failures: [] and verdict MISS, not VOID
+      ---
+      duration_ms: 2803.563179
+      type: 'test'
+      location: '/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:257:11'
+      failureType: 'testCodeFailure'
+      error: |-
+        a present readiness:null is the incumbent's documented not-found sentinel, not an unrecognized shape
+        + actual - expected
+        
+        + [
+        +   {
+        +     detail: 'normalize_framework_name payload carried no numeric canonical_matches length; result keys: canonical, matched_via, coverage, diagnostics',
+        +     httpStatus: 200,
+        +     kind: 'unrecognized_shape',
+        +     probe: 'normalize',
+        +     retryAfterS: null
+        +   },
+        +   {
+        +     detail: 'orchestration_readiness payload carried no numeric readiness.readiness_score; result keys: framework, score, inputs, evidence, unsynced_inputs, coverage, diagnostics',
+        +     httpStatus: 200,
+        +     kind: 'unrecognized_shape',
+        +     probe: 'readiness',
+        +     retryAfterS: null
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          probe: 'normalize'
+          kind: 'unrecognized_shape'
+          httpStatus: 200
+          detail: 'normalize_framework_name payload carried no numeric canonical_matches length; result keys: canonical, matched_via, coverage, diagnostics'
+          retryAfterS: ~
+        1:
+          probe: 'readiness'
+          kind: 'unrecognized_shape'
+          httpStatus: 200
+          detail: 'orchestration_readiness payload carried no numeric readiness.readiness_score; result keys: framework, score, inputs, evidence, unsynced_inputs, coverage, diagnostics'
+          retryAfterS: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:262:12)
+        process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:257:3)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..5
+not ok 6 - Layer B: probeFramework against loopback capture server
+  ---
+  duration_ms: 16365.559054
+  type: 'test'
+  location: '/home/jsagi/dev/MindrianOS-Plugin/tests/test-262-unrecognized-shape-voids.cjs:197:1'
+  failureType: 'subtestsFailed'
+  error: '3 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..6
+# tests 11
+# suites 0
+# pass 7
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16376.441215
+EXIT: 1
