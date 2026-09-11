@@ -152,17 +152,52 @@ test('Arm 1: Theo rows + stubbed recommendChain/query compose a full envelope, o
   assert.ok(['UnDefined', 'IllDefined', 'WellDefined', 'Wicked'].includes(composed.directive.guided.stage));
   assert.equal(composed.next_gate.sub_shape, 'F.1');
   assert.equal(composed.next_gate.options.length, 4);
+
+  // Quick 260911-ddd (DDD-01): command-bearing-first stable partition.
+  // Design Thinking (step 1) and Red Teaming (step 3) both carry a command
+  // and keep Theo's relative order; Disruptive Innovation (step 2) and
+  // Creative Destruction (step 4) carry none and keep Theo's relative
+  // order. Post-sort order: Design Thinking, Red Teaming, Disruptive
+  // Innovation, Creative Destruction -- this is the shipped Arm 1 fixture
+  // where the TOP step already has a command, so directive.guided.framework
+  // stays 'Design Thinking' above.
+  assert.deepEqual(composed.next_gate.options.map((o) => o.framework), [
+    'Design Thinking', 'Red Teaming', 'Disruptive Innovation', 'Creative Destruction',
+  ]);
   assert.deepEqual(composed.next_gate.options[0].commands, ['diagnose', 'build-mvp']);
-  assert.deepEqual(composed.next_gate.options[2].commands, ['challenge-assumptions']);
-  assert.deepEqual(composed.next_gate.options[1].commands, []); // Disruptive Innovation has no edges
+  assert.deepEqual(composed.next_gate.options[1].commands, ['challenge-assumptions']);
+  assert.deepEqual(composed.next_gate.options[2].commands, []); // Disruptive Innovation has no edges
   assert.deepEqual(composed.next_gate.options[3].commands, []); // Creative Destruction has no edges
 
+  // Confidence is unchanged by the sort -- assert per framework, not per
+  // index, since the sort moves frameworks but must never move a value.
+  const confidenceByFramework = {};
+  for (const o of composed.next_gate.options) confidenceByFramework[o.framework] = o.confidence;
+  assert.equal(confidenceByFramework['Design Thinking'], 0.9);
+  assert.equal(confidenceByFramework['Disruptive Innovation'], 0.85);
+  assert.equal(confidenceByFramework['Red Teaming'], 0.83);
+  assert.equal(confidenceByFramework['Creative Destruction'], 0.76);
+
+  // The shipped global "confidence must be non-increasing" check is now
+  // FALSE by design: post-sort the series reads 0.9, 0.83, 0.85, 0.76 (it
+  // rises from Red Teaming to Disruptive Innovation because the sort groups
+  // by command-bearing-ness, not by confidence). Replaced by non-increasing
+  // WITHIN each partition.
   const confidences = composed.next_gate.options.map((o) => o.confidence);
   for (const c of confidences) assert.ok(c >= 0.5 && c <= 0.9);
-  for (let i = 1; i < confidences.length; i++) {
-    assert.ok(confidences[i] <= confidences[i - 1], 'confidence must be non-increasing');
-  }
-  assert.equal(confidences[0], 0.9); // top step reads exactly 0.9
+  const commandBearingConf = confidences.slice(0, 2); // Design Thinking, Red Teaming
+  const commandLessConf = confidences.slice(2); // Disruptive Innovation, Creative Destruction
+  assert.ok(commandBearingConf[1] <= commandBearingConf[0], 'command-bearing partition must be non-increasing');
+  assert.ok(commandLessConf[1] <= commandLessConf[0], 'command-less partition must be non-increasing');
+  assert.equal(confidences[0], 0.9); // the first sorted option is also the top-degree step here
+
+  // theo_rank carries Theo's own rank on every option, surviving the
+  // reorder: Design Thinking=1, Red Teaming=3, Disruptive Innovation=2,
+  // Creative Destruction=4.
+  assert.deepEqual(composed.next_gate.options.map((o) => o.theo_rank), [1, 3, 2, 4]);
+
+  // grounding.option_order names the applied ordering on the success path.
+  assert.equal(composed.grounding.option_order, 'command_bearing_first');
 
   assert.equal(composed.grounding.rows.length, 3);
   for (const r of composed.grounding.rows) {
@@ -182,6 +217,175 @@ test('Arm 1: Theo rows + stubbed recommendChain/query compose a full envelope, o
   assert.deepEqual(lastParams.names, [
     'Design Thinking', 'Disruptive Innovation', 'Red Teaming', 'Creative Destruction',
   ]);
+});
+
+// ---------------------------------------------------------------------------
+// Quick 260911-ddd (DDD-01) arms: command-bearing-first partition, theo_rank,
+// grounding.option_order.
+// ---------------------------------------------------------------------------
+test('Arm DDD-1 (260911-ddd): mixed chain, top step has NO command -- a command-bearing framework surfaces at options[0] (live IllDefined shape)', async () => {
+  const brainClient = freshBrainClient('test-key-260911-ddd-arm1');
+  const payload = {
+    answer_mode: 'structured_rows',
+    rows: [{ chapterId: 'c1', section: 's', score: 1, snippet: 'x' }],
+    query_terms: ['x'],
+  };
+  const chainStub = {
+    problem_type: 'IllDefined',
+    chain: [
+      { step: 1, framework: 'Design Thinking', degree: 291 },
+      { step: 2, framework: 'Disruptive Innovation', degree: 255 },
+      { step: 3, framework: 'Red Teaming', degree: 239 },
+      { step: 4, framework: 'Creative Destruction', degree: 189 },
+    ],
+    coverage: { matched: 1, total: 6, status: 'partial' },
+  };
+  const queryStub = async () => ({
+    records: [
+      { framework: 'Red Teaming', commands: ['/mos:challenge-assumptions'] },
+    ],
+  });
+
+  const composed = await brainClient._test._composeTheoAsk(
+    payload,
+    'which opportunity should we chase next',
+    { recommendChain: async () => chainStub, query: queryStub }
+  );
+
+  assert.deepEqual(composed.next_gate.options.map((o) => o.framework), [
+    'Red Teaming', 'Design Thinking', 'Disruptive Innovation', 'Creative Destruction',
+  ]);
+  assert.equal(composed.directive.guided.framework, 'Red Teaming');
+  assert.equal(composed.next_gate.options[0].theo_rank, 3);
+
+  const commandLessFrameworks = composed.next_gate.options
+    .filter((o) => !Array.isArray(o.commands) || o.commands.length === 0)
+    .map((o) => o.framework);
+  assert.deepEqual(commandLessFrameworks, ['Design Thinking', 'Disruptive Innovation', 'Creative Destruction']);
+  assert.equal(commandLessFrameworks.length, 3);
+
+  const theoRankByFramework = {};
+  for (const o of composed.next_gate.options) theoRankByFramework[o.framework] = o.theo_rank;
+  assert.equal(theoRankByFramework['Design Thinking'], 1);
+  assert.equal(theoRankByFramework['Disruptive Innovation'], 2);
+  assert.equal(theoRankByFramework['Creative Destruction'], 4);
+
+  assert.equal(composed.grounding.option_order, 'command_bearing_first');
+});
+
+test('Arm DDD-2 (260911-ddd): an all-command chain and a no-command chain both come back in Theo order, theo_rank strictly ascending', async () => {
+  const brainClient = freshBrainClient('test-key-260911-ddd-arm2');
+  const payload = {
+    answer_mode: 'structured_rows',
+    rows: [{ chapterId: 'c1', section: 's', score: 1, snippet: 'x' }],
+    query_terms: ['x'],
+  };
+
+  // All-command: every step carries at least one command -- the
+  // command-bearing queue holds everything, the command-less queue is
+  // empty, so concatenation is the identity.
+  const allCommandChain = {
+    chain: [
+      { step: 1, framework: 'Alpha', degree: 300 },
+      { step: 2, framework: 'Beta', degree: 200 },
+      { step: 3, framework: 'Gamma', degree: 100 },
+    ],
+  };
+  const allCommandQuery = async () => ({
+    records: [
+      { framework: 'Alpha', commands: ['/mos:cmd-alpha'] },
+      { framework: 'Beta', commands: ['/mos:cmd-beta'] },
+      { framework: 'Gamma', commands: ['/mos:cmd-gamma'] },
+    ],
+  });
+  const allCommandOut = await brainClient._test._composeTheoAsk(payload, 'q', {
+    recommendChain: async () => allCommandChain,
+    query: allCommandQuery,
+  });
+  assert.deepEqual(allCommandOut.next_gate.options.map((o) => o.framework), ['Alpha', 'Beta', 'Gamma']);
+  const allRanks = allCommandOut.next_gate.options.map((o) => o.theo_rank);
+  assert.deepEqual(allRanks, [1, 2, 3]);
+  for (let i = 1; i < allRanks.length; i++) assert.ok(allRanks[i] > allRanks[i - 1], 'theo_rank must be strictly ascending');
+
+  // No-command: no step carries any command -- the command-less queue
+  // holds everything, the command-bearing queue is empty, concatenation is
+  // again the identity.
+  const noCommandChain = {
+    chain: [
+      { step: 1, framework: 'Alpha', degree: 300 },
+      { step: 2, framework: 'Beta', degree: 200 },
+      { step: 3, framework: 'Gamma', degree: 100 },
+    ],
+  };
+  const noCommandOut = await brainClient._test._composeTheoAsk(payload, 'q', {
+    recommendChain: async () => noCommandChain,
+    query: async () => ({ records: [] }),
+  });
+  assert.deepEqual(noCommandOut.next_gate.options.map((o) => o.framework), ['Alpha', 'Beta', 'Gamma']);
+  const noRanks = noCommandOut.next_gate.options.map((o) => o.theo_rank);
+  assert.deepEqual(noRanks, [1, 2, 3]);
+  for (let i = 1; i < noRanks.length; i++) assert.ok(noRanks[i] > noRanks[i - 1], 'theo_rank must be strictly ascending');
+});
+
+test('Arm DDD-3 (260911-ddd): theo_rank falls back to the 1-based Theo-chain index when step is absent, never to the post-sort index', async () => {
+  const brainClient = freshBrainClient('test-key-260911-ddd-arm3');
+  const payload = {
+    answer_mode: 'structured_rows',
+    rows: [{ chapterId: 'c1', section: 's', score: 1, snippet: 'x' }],
+    query_terms: ['x'],
+  };
+  // Neither step carries a `step` field -- theo_rank must fall back to the
+  // 1-based index WITHIN Theo's own chain array, computed BEFORE the sort.
+  const chainStub = {
+    chain: [
+      { framework: 'Alpha', degree: 300 }, // index 0 -> fallback rank 1, no command
+      { framework: 'Beta', degree: 200 },  // index 1 -> fallback rank 2, has a command
+    ],
+  };
+  const queryStub = async () => ({ records: [{ framework: 'Beta', commands: ['/mos:cmd-beta'] }] });
+
+  const composed = await brainClient._test._composeTheoAsk(payload, 'q', {
+    recommendChain: async () => chainStub,
+    query: queryStub,
+  });
+
+  // Beta (command-bearing) sorts first, Alpha second -- but theo_rank must
+  // reflect the ORIGINAL Theo index (2 then 1), never the post-sort
+  // position (which would read 1 then 2).
+  assert.deepEqual(composed.next_gate.options.map((o) => o.framework), ['Beta', 'Alpha']);
+  assert.deepEqual(composed.next_gate.options.map((o) => o.theo_rank), [2, 1]);
+});
+
+test('Arm DDD-4 (260911-ddd): grounding.option_order is present on the degraded catch path too (chain unreachable, options [])', async () => {
+  const brainClient = freshBrainClient('test-key-260911-ddd-arm4');
+  const payload = {
+    answer_mode: 'structured_rows',
+    rows: [{ chapterId: 'c1', section: 's', score: 1, snippet: 'x' }],
+    query_terms: ['x'],
+  };
+  // A step whose `degree` getter throws forces an exception AFTER
+  // chainStatus has already resolved to 'ok' (steps.length > 0), inside the
+  // top/confidence computation -- this is the way to reach the function's
+  // own trailing catch block from the outside, since a throwing
+  // recommendChain or query is already caught by its own inner try/catch
+  // and degrades chainStatus instead of propagating.
+  const explodingStep = new Proxy({ step: 1, framework: 'Boom' }, {
+    get(target, prop) {
+      if (prop === 'degree') throw new Error('simulated degree-accessor failure');
+      return target[prop];
+    },
+  });
+  const chainStub = { chain: [explodingStep] };
+
+  const composed = await brainClient._test._composeTheoAsk(payload, 'q', {
+    recommendChain: async () => chainStub,
+    query: async () => ({ records: [] }),
+  });
+
+  assert.deepEqual(composed.next_gate.options, []);
+  assert.equal(composed.directive.guided.framework, null);
+  assert.equal(composed.grounding.chain_status, 'unreachable');
+  assert.equal(composed.grounding.option_order, 'command_bearing_first');
 });
 
 // ---------------------------------------------------------------------------

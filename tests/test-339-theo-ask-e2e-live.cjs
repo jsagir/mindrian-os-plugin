@@ -117,6 +117,26 @@ async function main() {
     envelope.mode_rationale !== 'brain_unreachable'
   );
 
+  // Quick 260911-ddd (DDD-01): command-bearing-first partition, theo_rank,
+  // and grounding.option_order, proven live against the real Brain.
+  const liveOptions = (envelope.next_gate && Array.isArray(envelope.next_gate.options))
+    ? envelope.next_gate.options
+    : [];
+  const anyLiveOptionHasCommand = liveOptions.some((o) => Array.isArray(o.commands) && o.commands.length > 0);
+  check(
+    'when any option carries a command, options[0].commands.length > 0 (command-bearing-first partition)',
+    !anyLiveOptionHasCommand
+      || (liveOptions[0] && Array.isArray(liveOptions[0].commands) && liveOptions[0].commands.length > 0)
+  );
+  check(
+    'options[0].theo_rank is a finite number',
+    !!(liveOptions[0] && Number.isFinite(liveOptions[0].theo_rank))
+  );
+  check(
+    "grounding.option_order === 'command_bearing_first'",
+    !!(envelope.grounding && envelope.grounding.option_order === 'command_bearing_first')
+  );
+
   // Honest coverage reporting over the brainRoute-equivalent slug mapping:
   // never a silent pass either way.
   const options = (envelope.next_gate && Array.isArray(envelope.next_gate.options)) ? envelope.next_gate.options : [];
