@@ -1,3 +1,8 @@
+## [Unreleased] -- v2.0.0-beta.38 (in progress)
+
+### Added
+- 
+
 ## [2.0.0-beta.37] - 2026-09-11
 
 ### Fixed - hooks.json no longer prints an unknown-keys warning at every session start (quick task 260911-juq)
