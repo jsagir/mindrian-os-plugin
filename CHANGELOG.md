@@ -23,6 +23,26 @@
   2026-09-11 run date in the document's own prose. The incumbent census lane still renders
   byte-identically from the pre-existing incumbent data.
 
+### Changed - Larry's chain leads with a runnable framework, and a cold Theo stops losing the race (quick task 260911-ddd)
+
+- `brain_ask` through the plugin now orders `next_gate.options` command-bearing first: frameworks that
+  at least one `/mos:` command declares come before frameworks that none does, with Theo's own order
+  kept inside each group. Every option carries `theo_rank` (the step Theo returned) and the envelope's
+  `grounding.option_order` reads `command_bearing_first`, so Theo's ranking is reconstructible from the
+  envelope. On the IllDefined chain this puts Red Teaming (`challenge-assumptions`) ahead of Design
+  Thinking, which no command declares; the count of command-less options does not change, only the
+  order. `/mos:act`'s routed confidence now describes the option actually surfaced.
+- The Brain MCP shim fires one content-free `theo_health` probe, detached, when it starts, so the
+  hosted origin is awake before the first real question on every surface (the shim loads on CLI,
+  Desktop and Cowork alike); the CLI `session-start` hook fires the same probe. The probe writes only
+  `{at, ok, origin_host}` to `~/.mindrian/brain-prewarm.json`, never a response body, and nothing on
+  the MCP channel.
+- `/mos:act`'s Tier 3 Brain race bound moved from a frozen 2000 ms literal to one constant,
+  `lib/mcp/brain-route-bound.cjs`, default 6000 ms (the measured 2.034 s cold wake plus two warm
+  follow-on calls, since `ask()` now makes three Theo calls per question), overridable with
+  `MINDRIAN_BRAIN_ROUTE_TIMEOUT_MS`; the composition census reads the same constant. The local
+  heuristic is still computed before the race, so a genuinely down Theo still answers at once.
+
 ### Changed
 
 - `docs/339-NOTE-theo-desktop-connector-key.md` gains a new Section 9 scoping the keep-the-name
