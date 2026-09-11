@@ -238,6 +238,25 @@ test('Arm 7: each call site carries the brain-composition-census provenance stri
   assert.strictEqual(missing.length, 0, "file(s) missing the 'brain-composition-census' provenance string: " + JSON.stringify(missing));
 });
 
+test('Arm 9 (Quick 260911-ddd, DDD-02): the brain-router bound_ms is the single-source leaf constant, and no raced literal survives in brain-router.cjs', function () {
+  if (!mod) throw new Error('module not loaded, arm skipped');
+  const boundLeaf = require('../lib/mcp/brain-route-bound.cjs');
+  const routerEntry = mod.COMPOSITION_SITES.find(function (e) {
+    return e.file === 'lib/mcp/brain-router.cjs' && e.reaches_brain === true;
+  });
+  assert.ok(routerEntry, 'sanity: the brain-router reaching entry exists');
+  assert.strictEqual(
+    routerEntry.bound_ms,
+    boundLeaf.BRAIN_ROUTE_TIMEOUT_MS,
+    'brain-router census entry bound_ms must equal the single-source leaf constant'
+  );
+
+  const routerCode = codeOf(path.join(REPO_ROOT, 'lib', 'mcp', 'brain-router.cjs'));
+  const raced = routerCode.match(/new Error\('timeout'\)\),\s*\d+/g) || [];
+  const staleLiteral = raced.filter(function (m) { return /\b2000\b/.test(m); });
+  assert.strictEqual(staleLiteral.length, 0, 'brain-router.cjs must not race against the old 2000 literal');
+});
+
 test('Arm 8: the declaration module never hardcodes a site count (identity, not count)', function () {
   if (loadError) throw new Error('module not loaded, arm skipped');
   const src = fs.readFileSync(CENSUS_PATH, 'utf8');

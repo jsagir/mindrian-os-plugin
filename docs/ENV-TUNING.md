@@ -669,6 +669,59 @@ observing the isolation proof, not a room-resolution dependency.
 export MINDRIAN_MCP_FIRST=cowork   # or 'all', or a comma-separated surface list
 ```
 
+## Brain Cold-Start Cover (Quick 260911-ddd, DDD-02)
+
+The Tier 3 race in `lib/mcp/brain-router.cjs` and the content-free pre-warm in
+`lib/core/brain-prewarm.cjs` exist for the same reason: a Render instance
+waking from spin-down was measured at 2.034 s on the FIRST Theo call alone,
+and `brainClient.ask()` makes THREE sequential Theo calls since quick
+260910-hni (brain_ask, then recommend_chain, then brain_query). Both
+variables below are read defensively with a numeric fallback, so a malformed
+operator env can never zero out or invert either bound.
+
+### MINDRIAN_BRAIN_ROUTE_TIMEOUT_MS
+
+**What:** The Tier 3 race bound (ms) in `lib/mcp/brain-router.cjs`'s
+`Promise.race` between `brainRoute()` (the live Theo call) and a timeout.
+Single source of truth: `lib/mcp/brain-route-bound.cjs`, read by both
+`brain-router.cjs` and `brain-composition-census.cjs`'s `bound_ms` entry, so
+neither can drift out of sync with the other.
+**Default:** `6000` (a positive integer). Any non-numeric, non-integer, or
+non-positive value falls back to `6000`.
+**Why:** the old `2000` bound could not cover even a WARM three-call
+composition on a slow link, let alone a cold one -- every cold window
+silently degraded `/mos:act` to the local Tier 2 heuristic with no
+disclosure of why. `6000` is the measured `2.034` s cold wake plus two warm
+follow-on calls (roughly `1` s) with roughly 2x headroom. The accepted cost:
+when Theo is genuinely down, the race now rejects at `6` s instead of `2` s
+-- but `localRec` is already computed BEFORE the race starts, so the Tier 2
+answer is instant once the race loses and `/mos:act` still resolves either
+way.
+
+```bash
+export MINDRIAN_BRAIN_ROUTE_TIMEOUT_MS=9000
+```
+
+### MINDRIAN_BRAIN_PREWARM_TIMEOUT_MS
+
+**What:** How long `lib/core/brain-prewarm.cjs`'s `prewarm()` holds the
+marker write open waiting for its content-free `theo_health` probe to
+settle, fired once at MCP shim startup (`bin/mindrian-brain-mcp-client.cjs`,
+never awaited, never blocking a tool handler) and again as a CLI-only extra
+from `scripts/session-start`.
+**Default:** `15000` (a positive integer). Any non-numeric, non-integer, or
+non-positive value falls back to `15000`.
+**Why 15000 is generous without costing anyone anything:** this timeout does
+NOT bound the wake itself -- the request reaching Render is what wakes the
+instance, and aborting our own wait does not cancel that in-flight wake on
+Render's side. The timeout only bounds how long this process holds the
+marker write open; even a wait that gives up still leaves Render's wake
+running, so the NEXT real call benefits from it regardless.
+
+```bash
+export MINDRIAN_BRAIN_PREWARM_TIMEOUT_MS=20000
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:

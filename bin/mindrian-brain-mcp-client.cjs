@@ -311,6 +311,20 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   process.stderr.write('[mindrian-brain] MCP server v' + version + ' started (stdio)\n');
+
+  // Quick 260911-ddd (DDD-02): fire a content-free Brain pre-warm here,
+  // never awaited and never referenced by any tool handler below. Tri-Polar
+  // point: .mcp.json registers this shim with alwaysLoad: true, so it
+  // starts on Claude Code CLI, Claude Desktop and Cowork alike -- this is
+  // the one surface-neutral pre-warm point (brain-prewarm). The
+  // scripts/session-start detached spawn is a CLI-only extra, never the
+  // only path.
+  try {
+    const { prewarm } = require('../lib/core/brain-prewarm.cjs');
+    prewarm().catch(() => {});
+  } catch (_e) {
+    // Pre-warm is best-effort; it must never block or fail shim startup.
+  }
 }
 
 main().catch((err) => {

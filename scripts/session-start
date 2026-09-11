@@ -1911,6 +1911,28 @@ unset _BRAIN_KEY_JSON _BRAIN_AVAILABLE _BRAIN_REASON
 # --- END Brain status ---
 
 # ---------------------------------------------------------------------------
+# Quick 260911-ddd (DDD-02): CLI-only pre-warm extra, never the only path.
+#
+# The MCP shim (bin/mindrian-brain-mcp-client.cjs) already fires this same
+# probe at startup on all three surfaces (CLI, Desktop, Cowork) because
+# .mcp.json registers it with alwaysLoad: true -- that is the one
+# surface-neutral pre-warm point. This spawn is a CLI-only belt-and-braces
+# extra: session-start fires earlier in the CLI turn than the shim
+# necessarily connects, so firing it here too shortens the CLI cold window
+# further without duplicating any state (both calls write the same marker
+# idempotently).
+#
+# This is NOT the egress quick 260910-h32 removed: that was a brain_write of
+# room data. This is a content-free theo_health READ with no arguments and
+# no room bytes -- it reintroduces no Brain write. Detached, guarded idiom
+# (matches the existing `( node ... >/dev/null 2>&1 || true ) &` pattern
+# used elsewhere in this file, e.g. the feynman-minto-guardian spawn below).
+# Deliberately NOT inside the `if [ -d "$ROOM_DIR" ]` guard: pre-warm has
+# nothing to do with a room.
+# ---------------------------------------------------------------------------
+( node "${PLUGIN_ROOT}/lib/core/brain-prewarm.cjs" >/dev/null 2>&1 || true ) &
+
+# ---------------------------------------------------------------------------
 # 260517-dcw dogfood-bridge drain (Canon Part 6 Product-as-Venture)
 # ---------------------------------------------------------------------------
 # Drain ~/.mindrian/dogfood-queue.jsonl into ~/MindrianRooms/mindrian/room.db
