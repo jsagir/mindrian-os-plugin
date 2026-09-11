@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Phase 198 SPEC-5 -- thin-plugin adapter (hooks carry zero business logic).
 // Real behavior (D-06): a measured check over the MIGRATED hook surfaces
-// hooks/hooks.json's own _mcpFirst198Migrated marker names -- an import
+// data/hooks-markers.json's own _mcpFirst198Migrated marker names (moved out
+// of hooks/hooks.json by quick task 260911-juq so the hook loader stops
+// warning on unknown top-level keys) -- an import
 // audit (no `require(...lib/core/...)` / `lib/workflow` / `lib/memory`
 // business module from a hook script's own text) plus a line-count budget --
 // proves those scripts wake, query mindrian-core, and render its response,
@@ -249,13 +251,15 @@ test('sanity control: the SAME forbidden-token audit FAILS on a fixture that leg
   assert.ok(match, 'a fixture that legitimately calls memory-lifecycle.cjs inside the flag-ON span must be caught by the same pattern');
 });
 
-test('hooks.json _mcpFirst198Migrated carries the Stop migration marker; the Stop matcher still dispatches run-hook.cmd on-stop unchanged', () => {
+test('data/hooks-markers.json _mcpFirst198Migrated carries the Stop migration marker; hooks.json Stop matcher still dispatches run-hook.cmd on-stop unchanged', () => {
+  const hooksMarkersPath = path.join(REPO_ROOT, 'data', 'hooks-markers.json');
   const hooksJsonPath = path.join(REPO_ROOT, 'hooks', 'hooks.json');
+  const markers = JSON.parse(fs.readFileSync(hooksMarkersPath, 'utf8'));
   const parsed = JSON.parse(fs.readFileSync(hooksJsonPath, 'utf8'));
-  const surfaces = (parsed._mcpFirst198Migrated && parsed._mcpFirst198Migrated.surfaces) || [];
+  const surfaces = (markers._mcpFirst198Migrated && markers._mcpFirst198Migrated.surfaces) || [];
   assert.ok(
     surfaces.some((s) => s && s.script === 'scripts/on-stop'),
-    'hooks.json _mcpFirst198Migrated.surfaces must name scripts/on-stop'
+    'data/hooks-markers.json _mcpFirst198Migrated.surfaces must name scripts/on-stop'
   );
   const stopBlock = (parsed.hooks && parsed.hooks.Stop) || [];
   const dispatchesOnStop = stopBlock.some((entry) =>
