@@ -223,6 +223,12 @@ EMDASH_TARGETS=(
   "lib/mcp/brain-route-bound.cjs"
   "lib/mcp/brain-composition-census.cjs"
   "docs/ENV-TUNING.md"
+  # Quick 260911-iko: new production targets, registered here so a missing
+  # entry cannot silently escape this fence.
+  "lib/core/install-id.cjs"
+  "scripts/doctor.cjs"
+  "commands/doctor.md"
+  "docs/THEO-INSTALL-ID.md"
 )
 for t in "${DISCOVERED_TEST_FILES[@]}"; do
   EMDASH_TARGETS+=("$t")

@@ -123,7 +123,7 @@ These siblings own their own exit contracts and are not part of the class-flag d
 - `--dogfood-acceptance` -> the Canon Part 6 dog-fooding acceptance pass.
 - `--claims` -> the claims-verification leg.
 - `--check-rs-engine` -> the reason-select engine probe (NOT part of `--all`).
-- `--reset-install-id` -> rotates the opaque per-install bucket key the plugin sends to Theo, prints `install id rotated`, never prints the value, and always exits 0.
+- `--reset-install-id` -> rotates the opaque per-install bucket key the plugin sends to Theo, prints `install id rotated`, never prints the value, and always exits 0. Full contract: `docs/THEO-INSTALL-ID.md`.
 - `--post-update` -> the post-`claude plugin update` confirmation pass.
 - `--bind-check <roomDir>` -> a lightweight LOCAL room-health check run at BIND-TIME (never per-turn, never a Brain call). NEVER-BLOCK: an unhealthy room degrades to an advisory and STILL exits 0.
 - `--light-npx` -> the lighter npx-roundtrip variant for `--acceptance`.

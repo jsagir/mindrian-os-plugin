@@ -1,7 +1,20 @@
 ## [Unreleased] -- v2.0.0-beta.36 (in progress)
 
-### Added
-- 
+### Added - a per-install opaque header lets Theo bucket without learning who you are (quick task 260911-iko)
+
+- Every Brain call now carries `x-theo-install-id`: a 32-character lowercase hex value
+  minted once from `crypto.randomBytes(16)`, stored at `~/.mindrian/theo-install-id.json`
+  (mode 0600) beside the pre-warm marker. It rides both of `callTool`'s wire requests
+  (the session initialize and the tools/call), and is simply omitted, never an error,
+  when it cannot be minted or read. This lets Theo tell one install calling twice from
+  two installs calling once, with nothing else about the install attached to it.
+- `node scripts/doctor.cjs --reset-install-id` rotates the id on demand, prints exactly
+  `install id rotated`, and never prints the value. The doctor's Brain-smoke layer 0
+  also grows an `install_id_present` boolean, reported the same way: presence only,
+  never the value.
+- Canon Part 8 position, stated once and reproduced in full at
+  `docs/THEO-INSTALL-ID.md`: the id is an opaque CSPRNG handle, never derived from
+  identity, never logged, never printed in full.
 
 ## [2.0.0-beta.35] - 2026-09-11
 
