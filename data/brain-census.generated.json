@@ -1,266 +1,265 @@
 {
   "meta": {
-    "census_date": "2026-08-10",
-    "brain_url": "https://pws-brain-mcp.onrender.com",
+    "census_date": "2026-09-11",
+    "brain_url": "https://theo-mcp.onrender.com",
     "brain_stats": {
-      "backend": "memgraph",
-      "totalRecordCount": 28325,
-      "relationshipCount": 23014,
-      "dimension": 1024,
-      "namespaces": {},
-      "vectorIndexes": [
+      "nodes": 27951,
+      "relationships": 39732,
+      "labels": [
         {
-          "name": "concept_embeddings",
-          "dimension": 384,
-          "e5Queryable": false
+          "label": "BrainRecord",
+          "count": 147
         },
         {
-          "name": "creativework_embeddings",
-          "dimension": 384,
-          "e5Queryable": false
+          "label": "Chapter",
+          "count": 35
         },
         {
-          "name": "entity_embeddings",
-          "dimension": 384,
-          "e5Queryable": false
+          "label": "Chunk",
+          "count": 210
         },
         {
-          "name": "framework_embeddings",
-          "dimension": 384,
-          "e5Queryable": false
+          "label": "DomainConcept",
+          "count": 6
         },
         {
-          "name": "mindrian_methodology_vec",
-          "dimension": 1024,
-          "e5Queryable": true
+          "label": "Framework",
+          "count": 452
         },
         {
-          "name": "mindrian_methodology_vec_openai",
-          "dimension": 1536,
-          "e5Queryable": false
+          "label": "Mention",
+          "count": 13273
         },
         {
-          "name": "person_embeddings",
-          "dimension": 384,
-          "e5Queryable": false
+          "label": "MethodologyChunk",
+          "count": 12401
         },
         {
-          "name": "product_embeddings",
-          "dimension": 384,
-          "e5Queryable": false
+          "label": "MindrianCommand",
+          "count": 113
         },
         {
-          "name": "vector",
-          "dimension": 384,
-          "e5Queryable": false
+          "label": "Phase",
+          "count": 6
+        },
+        {
+          "label": "ProcessStep",
+          "count": 728
+        },
+        {
+          "label": "Reach",
+          "count": 6
+        },
+        {
+          "label": "Root",
+          "count": 1
+        },
+        {
+          "label": "TaxonomyRecord",
+          "count": 270
+        },
+        {
+          "label": "Technique",
+          "count": 304
+        },
+        {
+          "label": "ToolType",
+          "count": 6
         }
       ],
-      "vectorIndexSpaces": {
-        "corpusDimension": 1024,
-        "e5Queryable": [
-          "mindrian_methodology_vec"
-        ],
-        "foreignSpace": [
+      "diagnostics": {
+        "hasWarning": false,
+        "notifications": [],
+        "gqlStatusObjects": [
           {
-            "name": "concept_embeddings",
-            "dimension": 384
-          },
-          {
-            "name": "creativework_embeddings",
-            "dimension": 384
-          },
-          {
-            "name": "entity_embeddings",
-            "dimension": 384
-          },
-          {
-            "name": "framework_embeddings",
-            "dimension": 384
-          },
-          {
-            "name": "mindrian_methodology_vec_openai",
-            "dimension": 1536
-          },
-          {
-            "name": "person_embeddings",
-            "dimension": 384
-          },
-          {
-            "name": "product_embeddings",
-            "dimension": 384
-          },
-          {
-            "name": "vector",
-            "dimension": 384
+            "gqlStatus": "00000",
+            "statusDescription": "note: successful completion",
+            "severity": "UNKNOWN",
+            "classification": "UNKNOWN"
           }
-        ]
+        ],
+        "warningGqlStatuses": []
       }
     },
     "key_tier_lane_a": "read",
     "lane_a_source": "render-live ungated read tools",
     "key_tier_lane_b": "admin",
-    "lane_b_source": "render-live"
+    "lane_b_source": "theo-live brain_stats + brain_schema (whole-graph Cypher refused by Theo read allow-list)"
   },
   "canon_discrepancy": {
     "canon_prose_count": 25,
     "scanned_count": 50,
-    "scanned_at": "2026-08-10",
+    "scanned_at": "2026-09-11",
     "enumeration_source": "frontmatter scan of commands/*.md (kind: methodology)"
   },
   "gap_table": [
     {
       "framework": "Jobs to Be Done (JTBD)",
       "uses": 5,
-      "readiness_score": 2,
-      "status": "partial",
-      "reason": "readiness 2/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Reverse Salient Analysis",
       "uses": 5,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Six Thinking Hats",
       "uses": 4,
-      "readiness_score": 1,
-      "status": "not_ready",
-      "reason": "readiness 1/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "HSI Semantic Surprise Analysis Assistant",
       "uses": 3,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "PWS Triple Validation Compass",
       "uses": 3,
-      "readiness_score": 2,
-      "status": "partial",
-      "reason": "readiness 2/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "S-Curve Analysis",
       "uses": 3,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Adoption-Capacity Theory",
       "uses": 2,
-      "readiness_score": 2,
-      "status": "partial",
-      "reason": "readiness 2/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "PWS Value Proposition",
       "uses": 2,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Root Cause Analysis",
       "uses": 2,
-      "readiness_score": 2,
-      "status": "partial",
-      "reason": "readiness 2/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Scenario Planning",
       "uses": 2,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Systems Thinking",
       "uses": 2,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "The Pyramid Principle",
       "uses": 2,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
+    },
+    {
+      "framework": "Ackoff Pyramid",
+      "uses": 1,
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Adaptive Leadership",
       "uses": 1,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
+    },
+    {
+      "framework": "Beautiful Question Framework",
+      "uses": 1,
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Domain Selection",
       "uses": 1,
-      "readiness_score": 2,
-      "status": "partial",
-      "reason": "readiness 2/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Dominant Design",
       "uses": 1,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Four Lenses of Innovation",
       "uses": 1,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Futures Wheel",
       "uses": 1,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Hypothesis-Driven Problem Solving",
       "uses": 1,
-      "readiness_score": 2,
-      "status": "partial",
-      "reason": "readiness 2/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Knowns and Unknowns Matrix Framework",
       "uses": 1,
-      "readiness_score": 2,
-      "status": "partial",
-      "reason": "readiness 2/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Lean Canvas",
       "uses": 1,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "MECE (Mutually Exclusive, Collectively Exhaustive)",
       "uses": 1,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "Mullins Model",
       "uses": 1,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
       "framework": "PEST Analysis",
@@ -270,11 +269,25 @@
       "reason": "readiness probe absent or failed - treated as a gap"
     },
     {
+      "framework": "Problem Definition Transformation Framework",
+      "uses": 1,
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
+    },
+    {
       "framework": "Red Teaming",
       "uses": 1,
-      "readiness_score": 0,
-      "status": "not_ready",
-      "reason": "readiness 0/4"
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
+    },
+    {
+      "framework": "Usher's Model of Cumulative Synthesis",
+      "uses": 1,
+      "readiness_score": null,
+      "status": null,
+      "reason": "readiness probe absent or failed - treated as a gap"
     }
   ],
   "generated_note": "GENERATED by scripts/build-brain-census.cjs - do not hand-edit",
@@ -286,73 +299,129 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Jobs to Be Done (JTBD)\"",
-            "canonical_matches": [
-              "Jobs to Be Done (JTBD)"
-            ]
+            "canonical": "Jobs to Be Done (JTBD)",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 2/4 -> partial",
-            "readiness": {
-              "name": "Jobs to Be Done (JTBD)",
-              "readiness_score": 2,
-              "orchestration_status": "partial"
+            "framework": "Jobs to Be Done (JTBD)",
+            "score": 2,
+            "inputs": {
+              "has_structure": true,
+              "has_ordering": true,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 3,
+              "ordering_edges": 2,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "3 structural component(s)",
-            "components": [
+            "framework": "Jobs to Be Done (JTBD)",
+            "steps": [
               {
-                "relationship": "HAS_PROCESS_STEP",
-                "component_type": "ProcessStep",
                 "name": "Identify Situation",
-                "order": 1,
-                "description": "When I am in [specific situation]..."
+                "position": 1,
+                "ordered": true
               },
               {
-                "relationship": "HAS_PROCESS_STEP",
-                "component_type": "ProcessStep",
                 "name": "Define Need",
-                "order": 2,
-                "description": "I want [need/desire]..."
+                "position": 2,
+                "ordered": true
               },
               {
-                "relationship": "HAS_PROCESS_STEP",
-                "component_type": "ProcessStep",
                 "name": "Expected Outcome",
-                "order": 3,
-                "description": "So I can achieve [expected outcome]"
+                "position": 3,
+                "ordered": true
               }
-            ]
+            ],
+            "ordering": {
+              "components": 3,
+              "leads_to_edges": 2,
+              "heads": 1,
+              "ordered_components": 3,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 1,
+              "total": 22,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:35.573Z"
+            "date": "2026-09-11T05:40:11.183Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:35.573Z"
+            "date": "2026-09-11T05:40:11.183Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:35.573Z"
+            "date": "2026-09-11T05:40:11.183Z"
           }
         ]
       },
@@ -362,51 +431,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Reverse Salient Analysis\"",
-            "canonical_matches": [
-              "Reverse Salient Analysis"
-            ]
+            "canonical": "Reverse Salient Analysis",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Reverse Salient Analysis",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Reverse Salient Analysis",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Reverse Salient Analysis\"",
-            "components": []
+            "framework": "Reverse Salient Analysis",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:36.209Z"
+            "date": "2026-09-11T05:40:15.818Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:36.209Z"
+            "date": "2026-09-11T05:40:15.818Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:36.209Z"
+            "date": "2026-09-11T05:40:15.818Z"
           }
         ]
       },
@@ -416,51 +547,169 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Six Thinking Hats\"",
-            "canonical_matches": [
-              "Six Thinking Hats"
-            ]
+            "canonical": "Six Thinking Hats",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 1/4 -> not_ready",
-            "readiness": {
-              "name": "Six Thinking Hats",
-              "readiness_score": 1,
-              "orchestration_status": "not_ready"
+            "framework": "Six Thinking Hats",
+            "score": 3,
+            "inputs": {
+              "has_structure": true,
+              "has_ordering": false,
+              "has_technique": true,
+              "pattern_known": true
+            },
+            "evidence": {
+              "structure_components": 11,
+              "ordering_edges": 0,
+              "technique_links": 1,
+              "orchestration_status": "active"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Six Thinking Hats\"",
-            "components": []
+            "framework": "Six Thinking Hats",
+            "steps": [
+              {
+                "name": "A team, real people or a research swarm, gets assembled with each slot bound to one hat's discipline for this round, not their default personality",
+                "position": 1,
+                "ordered": false
+              },
+              {
+                "name": "Black is risk: what could go wrong, what are we assuming that might be false, argued as genuine critical judgment, not reflexive pessimism.",
+                "position": 2,
+                "ordered": false
+              },
+              {
+                "name": "Blue closes it with a ruling: supported, rejected, refined into a sharper version, or undecided, with the specific unknown named rather than waved at",
+                "position": 3,
+                "ordered": false
+              },
+              {
+                "name": "Each hat then reports under its own rules: White has to cite a source or retract the claim; Black has to actively hunt for the evidence that would disprove the hypothesis before it's allowed to complain in general terms; Yellow has to back its optimism with something real; Green's ideas get written down as provocations, not proposals to defend; Red owes nobody an explanation.",
+                "position": 4,
+                "ordered": false
+              },
+              {
+                "name": "letting them disagree with each other",
+                "position": 5,
+                "ordered": false
+              },
+              {
+                "name": "Red is feeling: the gut reaction, stated with zero justification required, because a feeling doesn't need permission to exist.",
+                "position": 6,
+                "ordered": false
+              },
+              {
+                "name": "staging six honest readings",
+                "position": 7,
+                "ordered": false
+              },
+              {
+                "name": "state one hypothesis in plain, falsifiable language, precise enough that a stranger could tell you exactly what would prove it wrong",
+                "position": 8,
+                "ordered": false
+              },
+              {
+                "name": "the six readings get laid against each other, one hat's argument at a time, over that same one hypothesis",
+                "position": 9,
+                "ordered": false
+              },
+              {
+                "name": "White is facts: what do we actually know, what's missing, no interpretation allowed.",
+                "position": 10,
+                "ordered": false
+              },
+              {
+                "name": "you name the scope",
+                "position": 11,
+                "ordered": false
+              }
+            ],
+            "ordering": {
+              "components": 11,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 11,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 1,
+              "total": 22,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:36.844Z"
+            "date": "2026-09-11T05:40:20.243Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:36.844Z"
+            "date": "2026-09-11T05:40:20.243Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:36.844Z"
+            "date": "2026-09-11T05:40:20.243Z"
           }
         ]
       },
@@ -470,51 +719,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"HSI Semantic Surprise Analysis Assistant\"",
-            "canonical_matches": [
-              "HSI Semantic Surprise Analysis Assistant"
-            ]
+            "canonical": "HSI Semantic Surprise Analysis Assistant",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "HSI Semantic Surprise Analysis Assistant",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "HSI Semantic Surprise Analysis Assistant",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"HSI Semantic Surprise Analysis Assistant\"",
-            "components": []
+            "framework": "HSI Semantic Surprise Analysis Assistant",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:37.491Z"
+            "date": "2026-09-11T05:40:25.576Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:37.491Z"
+            "date": "2026-09-11T05:40:25.576Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:37.491Z"
+            "date": "2026-09-11T05:40:25.576Z"
           }
         ]
       },
@@ -524,73 +835,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"PWS Triple Validation Compass\"",
-            "canonical_matches": [
-              "PWS Triple Validation Compass"
-            ]
+            "canonical": "PWS Triple Validation Compass",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 2/4 -> partial",
-            "readiness": {
-              "name": "PWS Triple Validation Compass",
-              "readiness_score": 2,
-              "orchestration_status": "partial"
+            "framework": "PWS Triple Validation Compass",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "3 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "Phase",
-                "name": "Is It Real? - Problem Validation",
-                "order": 1,
-                "description": "Validate that the problem actually exists and is significant enough to warrant a solution"
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "Phase",
-                "name": "Can We Win? - Solution Feasibility",
-                "order": 2,
-                "description": "Assess whether the problem can be practically solved and if the team can deliver the solution"
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "Phase",
-                "name": "Is It Worth It? - Business Case",
-                "order": 3,
-                "description": "Evaluate potential returns and ensure the investment is justified"
-              }
-            ]
+            "framework": "PWS Triple Validation Compass",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:38.938Z"
+            "date": "2026-09-11T05:40:29.904Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:38.938Z"
+            "date": "2026-09-11T05:40:29.904Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:38.938Z"
+            "date": "2026-09-11T05:40:29.904Z"
           }
         ]
       },
@@ -600,51 +951,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"S-Curve Analysis\"",
-            "canonical_matches": [
-              "S-Curve Analysis"
-            ]
+            "canonical": "S-Curve Analysis",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "S-Curve Analysis",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "S-Curve Analysis",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"S-Curve Analysis\"",
-            "components": []
+            "framework": "S-Curve Analysis",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:39.959Z"
+            "date": "2026-09-11T05:40:34.057Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:39.959Z"
+            "date": "2026-09-11T05:40:34.057Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:39.959Z"
+            "date": "2026-09-11T05:40:34.057Z"
           }
         ]
       },
@@ -654,101 +1067,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Adoption-Capacity Theory\"",
-            "canonical_matches": [
-              "Adoption-Capacity Theory"
-            ]
+            "canonical": "Adoption-Capacity Theory",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 2/4 -> partial",
-            "readiness": {
-              "name": "Adoption-Capacity Theory",
-              "readiness_score": 2,
-              "orchestration_status": "partial"
+            "framework": "Adoption-Capacity Theory",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "7 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "FrameworkStep",
-                "name": "ACE Step 1: Define the innovation package",
-                "order": null,
-                "description": "Specify the core technology, the doctrine/operational practice required to exploit it, and the organizational changes required. An MMI is a system, not just a device."
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "FrameworkStep",
-                "name": "ACE Step 2: Identify demonstration point (t0)",
-                "order": null,
-                "description": "Mark the first use that reveals the innovation full strategic potential to the international system. This starts the diffusion clock."
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "FrameworkStep",
-                "name": "ACE Step 3: Code FI and OC of the innovation",
-                "order": null,
-                "description": "Rate FI (1-5) and OC sub-scores (1-5). Use the first-mover transformation depth as the OC benchmark. Store sub-scores separately."
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "FrameworkStep",
-                "name": "ACE Step 4: Profile each actor capacity",
-                "order": null,
-                "description": "Rate FI capacity (GDP, defense budget, procurement), OC capacity (org age vs t0, experimental R&D, task-focus breadth), and conceptual capacity (Adamsky) separately."
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "FrameworkStep",
-                "name": "ACE Step 5: Compute fit and predict path",
-                "order": null,
-                "description": "Compare requirement vectors to actor capacity vectors; assign one of the five response paths; derive adoption probability and time band; include demand-side control variables."
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "FrameworkStep",
-                "name": "ACE Step 6: Derive system-level forecast",
-                "order": null,
-                "description": "Project diffusion speed, adopter concentration, first-mover advantage duration, arms-race or stability dynamics, and instability risk from adopter/non-adopter imbalance."
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "FrameworkStep",
-                "name": "ACE Step 7: Multi-method empirical test",
-                "order": null,
-                "description": "Many potential adopters: quantitative logit/probit. Few, organizationally complex cases: qualitative process tracing. Link to evidence nodes with provenance."
-              }
-            ]
+            "framework": "Adoption-Capacity Theory",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:41.003Z"
+            "date": "2026-09-11T05:40:38.412Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:41.003Z"
+            "date": "2026-09-11T05:40:38.412Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:41.003Z"
+            "date": "2026-09-11T05:40:38.412Z"
           }
         ]
       },
@@ -758,51 +1183,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"PWS Value Proposition\"",
-            "canonical_matches": [
-              "PWS Value Proposition"
-            ]
+            "canonical": "PWS Value Proposition",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "PWS Value Proposition",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "PWS Value Proposition",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"PWS Value Proposition\"",
-            "components": []
+            "framework": "PWS Value Proposition",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:41.741Z"
+            "date": "2026-09-11T05:40:42.583Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:41.741Z"
+            "date": "2026-09-11T05:40:42.583Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:41.741Z"
+            "date": "2026-09-11T05:40:42.583Z"
           }
         ]
       },
@@ -812,73 +1299,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Root Cause Analysis\"",
-            "canonical_matches": [
-              "Root Cause Analysis"
-            ]
+            "canonical": "Root Cause Analysis",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 2/4 -> partial",
-            "readiness": {
-              "name": "Root Cause Analysis",
-              "readiness_score": 2,
-              "orchestration_status": "partial"
+            "framework": "Root Cause Analysis",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "3 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "ProcessStep",
-                "name": "Apply 5 Whys Analysis",
-                "order": 1,
-                "description": "Use iterative questioning to drill down from symptoms to fundamental causes"
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "ProcessStep",
-                "name": "Create Fishbone Diagram",
-                "order": 2,
-                "description": "Map out all potential causes using cause-and-effect visualization"
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "ProcessStep",
-                "name": "Systems Analysis",
-                "order": 3,
-                "description": "PWS methodology framework: Systems Analysis"
-              }
-            ]
+            "framework": "Root Cause Analysis",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:42.395Z"
+            "date": "2026-09-11T05:40:46.902Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:42.395Z"
+            "date": "2026-09-11T05:40:46.902Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:42.395Z"
+            "date": "2026-09-11T05:40:46.902Z"
           }
         ]
       },
@@ -888,56 +1415,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "6 canonical match(es) for \"Scenario Planning\"",
-            "canonical_matches": [
-              "Scenario planning methodology",
-              "Scenario Planning",
-              "Shell Scenario Planning Method",
-              "PWS-Scenario Planning Integration Framework",
-              "Scenario Planning for High Uncertainty",
-              "Scenario Planning"
-            ]
+            "canonical": "Scenario Planning",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Scenario Planning",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Scenario Planning",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Scenario Planning\"",
-            "components": []
+            "framework": "Scenario Planning",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:43.037Z"
+            "date": "2026-09-11T05:40:51.108Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:43.037Z"
+            "date": "2026-09-11T05:40:51.108Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:43.037Z"
+            "date": "2026-09-11T05:40:51.108Z"
           }
         ]
       },
@@ -947,52 +1531,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "2 canonical match(es) for \"Systems Thinking\"",
-            "canonical_matches": [
-              "Systems Thinking",
-              "Systems Thinking"
-            ]
+            "canonical": "Systems Thinking",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Systems Thinking",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Systems Thinking",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Systems Thinking\"",
-            "components": []
+            "framework": "Systems Thinking",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:43.714Z"
+            "date": "2026-09-11T05:40:56.459Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:43.714Z"
+            "date": "2026-09-11T05:40:56.459Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:43.714Z"
+            "date": "2026-09-11T05:40:56.459Z"
           }
         ]
       },
@@ -1002,51 +1647,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"The Pyramid Principle\"",
-            "canonical_matches": [
-              "The Pyramid Principle"
-            ]
+            "canonical": "The Pyramid Principle",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "The Pyramid Principle",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "The Pyramid Principle",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"The Pyramid Principle\"",
-            "components": []
+            "framework": "The Pyramid Principle",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:47.665Z"
+            "date": "2026-09-11T05:41:00.835Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:47.665Z"
+            "date": "2026-09-11T05:41:00.836Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:47.665Z"
+            "date": "2026-09-11T05:41:00.836Z"
           }
         ]
       },
@@ -1056,87 +1763,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Ackoff Pyramid\"",
-            "canonical_matches": [
-              "Ackoff Pyramid"
-            ]
+            "canonical": "Ackoff Pyramid",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 3/4 -> ready",
-            "readiness": {
-              "name": "Ackoff Pyramid",
-              "readiness_score": 3,
-              "orchestration_status": "ready"
+            "framework": "Ackoff Pyramid",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "5 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Data",
-                "order": 1,
-                "description": "Symbols representing properties of objects and events; raw observation. Example: 'It rained 3mm.'"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Information",
-                "order": 2,
-                "description": "Processed data made useful; answers who/what/where/when. Example: 'It rained 3mm more than average.'"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Knowledge",
-                "order": 3,
-                "description": "Know-how; the application of data and information, conveyed by instructions. Example: 'When it rains more than average, flooding follows.'"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Understanding",
-                "order": 4,
-                "description": "Appreciation of why; conveyed by explanations; the synthesis tier. Example: 'Deforestation upstream removed the natural water barriers.'"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Wisdom",
-                "order": 5,
-                "description": "Evaluated understanding; deals with values and judgment; effectiveness (right goal) over efficiency; the long term. Example: 'We need reforestation AND flood defenses.'"
-              }
-            ]
+            "framework": "Ackoff Pyramid",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:48.301Z"
+            "date": "2026-09-11T05:41:05.120Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:48.301Z"
+            "date": "2026-09-11T05:41:05.120Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:48.301Z"
+            "date": "2026-09-11T05:41:05.120Z"
           }
         ]
       },
@@ -1146,51 +1879,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Adaptive Leadership\"",
-            "canonical_matches": [
-              "Adaptive Leadership"
-            ]
+            "canonical": "Adaptive Leadership",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Adaptive Leadership",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Adaptive Leadership",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": null
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Adaptive Leadership\"",
-            "components": []
+            "framework": "Adaptive Leadership",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:48.932Z"
+            "date": "2026-09-11T05:41:09.537Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:48.932Z"
+            "date": "2026-09-11T05:41:09.537Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:48.932Z"
+            "date": "2026-09-11T05:41:09.537Z"
           }
         ]
       },
@@ -1200,73 +1995,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Beautiful Question Framework\"",
-            "canonical_matches": [
-              "Beautiful Question Framework"
-            ]
+            "canonical": "Beautiful Question Framework",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 4/4 -> ready",
-            "readiness": {
-              "name": "Beautiful Question Framework",
-              "readiness_score": 4,
-              "orchestration_status": "ready"
+            "framework": "Beautiful Question Framework",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "3 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "WHY Phase",
-                "order": 1,
-                "description": "Understanding phase - questioning status quo and excavating root causes"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "WHAT IF Phase",
-                "order": 2,
-                "description": "Exploring phase - imagination and possibility exploration"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "HOW Phase",
-                "order": 3,
-                "description": "Acting phase - transforming ideas into actionable plans"
-              }
-            ]
+            "framework": "Beautiful Question Framework",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:49.561Z"
+            "date": "2026-09-11T05:41:13.750Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:49.561Z"
+            "date": "2026-09-11T05:41:13.750Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:49.561Z"
+            "date": "2026-09-11T05:41:13.750Z"
           }
         ]
       },
@@ -1276,80 +2111,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Domain Selection\"",
-            "canonical_matches": [
-              "Domain Selection"
-            ]
+            "canonical": "Domain Selection",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 2/4 -> partial",
-            "readiness": {
-              "name": "Domain Selection",
-              "readiness_score": 2,
-              "orchestration_status": "partial"
+            "framework": "Domain Selection",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "4 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "__Entity__",
-                "name": "Domain Generation",
-                "order": 1,
-                "description": "Generate 5-10 candidate domains before filtering. Mine four sources: Experience, Education, Curiosity, and Intersections. Quantity over quality at this stage."
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "__Entity__",
-                "name": "Domain Evaluation",
-                "order": 2,
-                "description": "Score each domain 1-5 on three criteria: Interest, Knowledge, Research Accessibility. All three must be present. High interest with low knowledge is fantasy. High knowledge with low access is frustration."
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "__Entity__",
-                "name": "Domain Validation",
-                "order": 3,
-                "description": "Test top domains with real research: Literature Scan (prior art, gaps, key players), Stakeholder Check (reachable people), and Scope Test (multiple problems, clear boundaries, manageable)."
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "__Entity__",
-                "name": "Domain Finalization",
-                "order": 4,
-                "description": "Commit with confidence: craft domain statement using template [Activity/Field] for [Stakeholder/Context] in [Setting/Condition]. Create one-sentence pitch, problem inventory, and 30-day action plan."
-              }
-            ]
+            "framework": "Domain Selection",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:50.199Z"
+            "date": "2026-09-11T05:41:18.138Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:50.199Z"
+            "date": "2026-09-11T05:41:18.138Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:50.199Z"
+            "date": "2026-09-11T05:41:18.138Z"
           }
         ]
       },
@@ -1359,51 +2227,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Dominant Design\"",
-            "canonical_matches": [
-              "Dominant Design"
-            ]
+            "canonical": "Dominant Design",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Dominant Design",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Dominant Design",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Dominant Design\"",
-            "components": []
+            "framework": "Dominant Design",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:50.864Z"
+            "date": "2026-09-11T05:41:22.466Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:50.864Z"
+            "date": "2026-09-11T05:41:22.466Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:50.864Z"
+            "date": "2026-09-11T05:41:22.466Z"
           }
         ]
       },
@@ -1413,52 +2343,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "2 canonical match(es) for \"Four Lenses of Innovation\"",
-            "canonical_matches": [
-              "Four Lenses of Innovation",
-              "Four Lenses of Innovation"
-            ]
+            "canonical": "Four Lenses of Innovation",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Four Lenses of Innovation",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Four Lenses of Innovation",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Four Lenses of Innovation\"",
-            "components": []
+            "framework": "Four Lenses of Innovation",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:51.503Z"
+            "date": "2026-09-11T05:41:27.868Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:51.504Z"
+            "date": "2026-09-11T05:41:27.868Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:51.504Z"
+            "date": "2026-09-11T05:41:27.868Z"
           }
         ]
       },
@@ -1468,51 +2459,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Futures Wheel\"",
-            "canonical_matches": [
-              "Futures Wheel"
-            ]
+            "canonical": "Futures Wheel",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Futures Wheel",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Futures Wheel",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Futures Wheel\"",
-            "components": []
+            "framework": "Futures Wheel",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:52.159Z"
+            "date": "2026-09-11T05:41:32.242Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:52.159Z"
+            "date": "2026-09-11T05:41:32.242Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:52.159Z"
+            "date": "2026-09-11T05:41:32.242Z"
           }
         ]
       },
@@ -1522,80 +2575,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Hypothesis-Driven Problem Solving\"",
-            "canonical_matches": [
-              "Hypothesis-Driven Problem Solving"
-            ]
+            "canonical": "Hypothesis-Driven Problem Solving",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 2/4 -> partial",
-            "readiness": {
-              "name": "Hypothesis-Driven Problem Solving",
-              "readiness_score": 2,
-              "orchestration_status": "partial"
+            "framework": "Hypothesis-Driven Problem Solving",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "4 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "ProcessStep",
-                "name": "Confirm or refute",
-                "order": null,
-                "description": "Determine if hypothesis is supported by evidence"
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "ProcessStep",
-                "name": "Formation of next step hypothesis",
-                "order": null,
-                "description": "Based on results, formulate new hypothesis or final conclusion"
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "ProcessStep",
-                "name": "Research, analysis and conclusion",
-                "order": null,
-                "description": "Gather data and analyze to test the hypothesis"
-              },
-              {
-                "relationship": "HAS_STEP",
-                "component_type": "ProcessStep",
-                "name": "Stating initial hypothesis",
-                "order": null,
-                "description": "Formulate a testable hypothesis about the problem"
-              }
-            ]
+            "framework": "Hypothesis-Driven Problem Solving",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:52.806Z"
+            "date": "2026-09-11T05:41:36.611Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:52.806Z"
+            "date": "2026-09-11T05:41:36.611Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:52.806Z"
+            "date": "2026-09-11T05:41:36.611Z"
           }
         ]
       },
@@ -1605,80 +2691,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Knowns and Unknowns Matrix Framework\"",
-            "canonical_matches": [
-              "Knowns and Unknowns Matrix Framework"
-            ]
+            "canonical": "Knowns and Unknowns Matrix Framework",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 2/4 -> partial",
-            "readiness": {
-              "name": "Knowns and Unknowns Matrix Framework",
-              "readiness_score": 2,
-              "orchestration_status": "partial"
+            "framework": "Knowns and Unknowns Matrix Framework",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "4 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Context Establishment Phase",
-                "order": 1,
-                "description": "Define scope, identify stakeholders, and set analysis parameters to establish boundaries for strategic intelligence gathering"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Knowledge Mapping Phase",
-                "order": 2,
-                "description": "Classify current facts, gaps, and confidence levels through systematic inventory and validation"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Gap Identification Phase",
-                "order": 3,
-                "description": "Surface Known Unknowns, Unknown Knowns, and probe for Unknown Unknowns using active discovery mechanisms"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Prioritization & Action Phase",
-                "order": 4,
-                "description": "Rank discoveries by risk/impact and generate monitoring & mitigation plans for proactive management"
-              }
-            ]
+            "framework": "Knowns and Unknowns Matrix Framework",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:53.445Z"
+            "date": "2026-09-11T05:41:40.798Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:53.445Z"
+            "date": "2026-09-11T05:41:40.798Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:53.445Z"
+            "date": "2026-09-11T05:41:40.798Z"
           }
         ]
       },
@@ -1688,51 +2807,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Lean Canvas\"",
-            "canonical_matches": [
-              "Lean Canvas"
-            ]
+            "canonical": "Lean Canvas",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Lean Canvas",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Lean Canvas",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Lean Canvas\"",
-            "components": []
+            "framework": "Lean Canvas",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:54.082Z"
+            "date": "2026-09-11T05:41:45.023Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:54.082Z"
+            "date": "2026-09-11T05:41:45.023Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:54.082Z"
+            "date": "2026-09-11T05:41:45.023Z"
           }
         ]
       },
@@ -1742,51 +2923,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"MECE (Mutually Exclusive, Collectively Exhaustive)\"",
-            "canonical_matches": [
-              "MECE (Mutually Exclusive, Collectively Exhaustive)"
-            ]
+            "canonical": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "MECE (Mutually Exclusive, Collectively Exhaustive)",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"MECE (Mutually Exclusive, Collectively Exhaustive)\"",
-            "components": []
+            "framework": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:54.740Z"
+            "date": "2026-09-11T05:41:49.371Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:54.740Z"
+            "date": "2026-09-11T05:41:49.371Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:54.740Z"
+            "date": "2026-09-11T05:41:49.371Z"
           }
         ]
       },
@@ -1796,52 +3039,96 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "2 canonical match(es) for \"Mullins Model\"",
-            "canonical_matches": [
-              "Mullins Model",
-              "John Mullins Framework"
-            ]
+            "coverage": {
+              "matched": 0,
+              "total": 452,
+              "status": "empty"
+            },
+            "refusal": {
+              "code": "ALIAS_CYCLE",
+              "detail": "alias resolution from `Mullins Model` revisited `Mullins Model` after 2 hop(s); the cycle is `Mullins Model` -> `John Mullins Framework` -> `Mullins Model`"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Mullins Model",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "coverage": {
+              "matched": 0,
+              "total": 452,
+              "status": "empty"
+            },
+            "refusal": {
+              "code": "ALIAS_CYCLE",
+              "detail": "alias resolution from `Mullins Model` revisited `Mullins Model` after 2 hop(s); the cycle is `Mullins Model` -> `John Mullins Framework` -> `Mullins Model`"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Mullins Model\"",
-            "components": []
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "refusal": {
+              "code": "ALIAS_CYCLE",
+              "detail": "alias resolution from `Mullins Model` revisited `Mullins Model` after 2 hop(s); the cycle is `Mullins Model` -> `John Mullins Framework` -> `Mullins Model`"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:55.390Z"
+            "date": "2026-09-11T05:41:55.319Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:55.390Z"
+            "date": "2026-09-11T05:41:55.319Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:55.390Z"
+            "date": "2026-09-11T05:41:55.319Z"
           }
         ]
       },
@@ -1851,45 +3138,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no framework name matched \"PEST Analysis\" (direct or via ALIAS_OF)",
-            "canonical_matches": []
+            "canonical": "PEST Analysis",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no framework matched \"PEST Analysis\"",
-            "readiness": null
+            "framework": "PEST Analysis",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"PEST Analysis\"",
-            "components": []
+            "framework": "PEST Analysis",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:56.029Z"
+            "date": "2026-09-11T05:42:00.759Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:56.029Z"
+            "date": "2026-09-11T05:42:00.759Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:56.029Z"
+            "date": "2026-09-11T05:42:00.759Z"
           }
         ]
       },
@@ -1899,73 +3254,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Problem Definition Transformation Framework\"",
-            "canonical_matches": [
-              "Problem Definition Transformation Framework"
-            ]
+            "canonical": "Problem Definition Transformation Framework",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 4/4 -> ready",
-            "readiness": {
-              "name": "Problem Definition Transformation Framework",
-              "readiness_score": 4,
-              "orchestration_status": "ready"
+            "framework": "Problem Definition Transformation Framework",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "3 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "ProblemType",
-                "name": "Undefined Problem",
-                "order": 1,
-                "description": "Broad opportunity space with future-back thinking and scattered observations. Not yet articulated."
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Event",
-                "name": "Ill-Defined Problem",
-                "order": 2,
-                "description": "General direction identified but lacks specificity and testability. Emerging opportunities that need clarification."
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "ProblemType",
-                "name": "Well-Defined Problem",
-                "order": 3,
-                "description": "Specific, measurable problem with binary/falsifiable outcomes, clear user segments, and bounded scope. Camera Test ready."
-              }
-            ]
+            "framework": "Problem Definition Transformation Framework",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:56.670Z"
+            "date": "2026-09-11T05:42:05.016Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:56.670Z"
+            "date": "2026-09-11T05:42:05.016Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:56.670Z"
+            "date": "2026-09-11T05:42:05.016Z"
           }
         ]
       },
@@ -1975,52 +3370,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "2 canonical match(es) for \"Red Teaming\"",
-            "canonical_matches": [
-              "Red Teaming",
-              "Red Teaming"
-            ]
+            "canonical": "Red Teaming",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 0/4 -> not_ready",
-            "readiness": {
-              "name": "Red Teaming",
-              "readiness_score": 0,
-              "orchestration_status": "not_ready"
+            "framework": "Red Teaming",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no HAS_PHASE/HAS_STAGE/HAS_PROCESS_STEP/HAS_STEP structure for \"Red Teaming\"",
-            "components": []
+            "framework": "Red Teaming",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:57.311Z"
+            "date": "2026-09-11T05:42:09.440Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:57.311Z"
+            "date": "2026-09-11T05:42:09.440Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:57.311Z"
+            "date": "2026-09-11T05:42:09.440Z"
           }
         ]
       },
@@ -2030,80 +3486,113 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "1 canonical match(es) for \"Usher's Model of Cumulative Synthesis\"",
-            "canonical_matches": [
-              "Usher's Model of Cumulative Synthesis"
-            ]
+            "canonical": "Usher's Model of Cumulative Synthesis",
+            "matched_via": "exact",
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "readiness": {
           "ok": true,
           "result": {
-            "tool": "orchestration_readiness",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "readiness 3/4 -> ready",
-            "readiness": {
-              "name": "Usher's Model of Cumulative Synthesis",
-              "readiness_score": 3,
-              "orchestration_status": "ready"
+            "framework": "Usher's Model of Cumulative Synthesis",
+            "score": 0,
+            "inputs": {
+              "has_structure": false,
+              "has_ordering": false,
+              "has_technique": false,
+              "pattern_known": false
+            },
+            "evidence": {
+              "structure_components": 0,
+              "ordering_edges": 0,
+              "technique_links": 0,
+              "orchestration_status": "draft"
+            },
+            "unsynced_inputs": [
+              "pattern_known"
+            ],
+            "coverage": {
+              "matched": 1,
+              "total": 452,
+              "status": "partial"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
             }
           }
         },
         "structure": {
           "ok": true,
           "result": {
-            "tool": "discover_structure",
-            "backend": "memgraph",
-            "grounded": true,
-            "note": "4 structural component(s)",
-            "components": [
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Perception of a Problem",
-                "order": 1,
-                "description": "An unfilled want whose gratification is made possible by the presence of fortuitous conditions"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Setting the Stage",
-                "order": 2,
-                "description": "Creating mediated contingencies that engender systematic efforts to find solutions through trial and error"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Act of Insight",
-                "order": 3,
-                "description": "Essential solution found through unlearned activities resulting in new organizations of prior knowledge"
-              },
-              {
-                "relationship": "HAS_PHASE",
-                "component_type": "Phase",
-                "name": "Critical Revision",
-                "order": 4,
-                "description": "Solution studied critically and understood in fullness, requiring new acts of insight for complete integration"
-              }
-            ]
+            "framework": "Usher's Model of Cumulative Synthesis",
+            "steps": [],
+            "ordering": {
+              "components": 0,
+              "leads_to_edges": 0,
+              "heads": 0,
+              "ordered_components": 0,
+              "unordered_components": 0,
+              "branching": false
+            },
+            "coverage": {
+              "matched": 0,
+              "total": 22,
+              "status": "empty"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         },
         "provenance": [
           {
             "tool": "normalize_framework_name",
-            "date": "2026-08-10T09:15:57.974Z"
+            "date": "2026-09-11T05:42:13.642Z"
           },
           {
             "tool": "orchestration_readiness",
-            "date": "2026-08-10T09:15:57.974Z"
+            "date": "2026-09-11T05:42:13.642Z"
           },
           {
             "tool": "discover_structure",
-            "date": "2026-08-10T09:15:57.974Z"
+            "date": "2026-09-11T05:42:13.642Z"
           }
         ]
       }
@@ -2114,11 +3603,28 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no framework name matched \"TRIZ\" (direct or via ALIAS_OF)",
-            "canonical_matches": []
+            "coverage": {
+              "matched": 0,
+              "total": 452,
+              "status": "empty"
+            },
+            "refusal": {
+              "code": "FRAMEWORK_NOT_FOUND",
+              "detail": "no live `:Framework` carries the name `TRIZ`"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         }
       },
@@ -2127,11 +3633,28 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no framework name matched \"SCAMPER\" (direct or via ALIAS_OF)",
-            "canonical_matches": []
+            "coverage": {
+              "matched": 0,
+              "total": 452,
+              "status": "empty"
+            },
+            "refusal": {
+              "code": "FRAMEWORK_NOT_FOUND",
+              "detail": "no live `:Framework` carries the name `SCAMPER`"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         }
       },
@@ -2140,11 +3663,28 @@
         "normalize": {
           "ok": true,
           "result": {
-            "tool": "normalize_name",
-            "backend": "memgraph",
-            "grounded": false,
-            "note": "no framework name matched \"Five Whys\" (direct or via ALIAS_OF)",
-            "canonical_matches": []
+            "coverage": {
+              "matched": 0,
+              "total": 452,
+              "status": "empty"
+            },
+            "refusal": {
+              "code": "FRAMEWORK_NOT_FOUND",
+              "detail": "no live `:Framework` carries the name `Five Whys`"
+            },
+            "diagnostics": {
+              "hasWarning": false,
+              "notifications": [],
+              "gqlStatusObjects": [
+                {
+                  "gqlStatus": "00000",
+                  "statusDescription": "note: successful completion",
+                  "severity": "UNKNOWN",
+                  "classification": "UNKNOWN"
+                }
+              ],
+              "warningGqlStatuses": []
+            }
           }
         }
       }
@@ -2153,465 +3693,229 @@
   "lane_b": {
     "results": {
       "C1": {
-        "frameworks": 181
-      },
-      "C2": [
-        {
-          "edges": 21,
-          "frameworks_with_t": 4,
-          "t": "HAS_STAGE"
-        },
-        {
-          "edges": 93,
-          "frameworks_with_t": 18,
-          "t": "HAS_PROCESS_STEP"
-        },
-        {
-          "edges": 52,
-          "frameworks_with_t": 12,
-          "t": "HAS_STEP"
-        },
-        {
-          "edges": 90,
-          "frameworks_with_t": 20,
-          "t": "HAS_PHASE"
-        }
-      ],
-      "C3": {
-        "structured_frameworks": 52
-      },
-      "C4": {
-        "feeds_into": 233,
-        "leads_to": 1698,
-        "alias_of": 416
+        "frameworks": 452,
+        "source": "brain_stats.labels (not a Cypher count; Theo refuses the whole-graph plan C1 shares)"
       },
       "C5": [
+        {
+          "label": "BrainRecord",
+          "c": 147
+        },
+        {
+          "label": "Chapter",
+          "c": 35
+        },
+        {
+          "label": "Chunk",
+          "c": 210
+        },
+        {
+          "label": "DomainConcept",
+          "c": 6
+        },
+        {
+          "label": "Framework",
+          "c": 452
+        },
+        {
+          "label": "Mention",
+          "c": 13273
+        },
         {
           "label": "MethodologyChunk",
           "c": 12401
         },
         {
-          "label": "Concept",
-          "c": 9257
-        },
-        {
-          "label": "__Entity__",
-          "c": 4357
-        },
-        {
-          "label": "Product",
-          "c": 1289
-        },
-        {
-          "label": "Chunk",
-          "c": 1167
-        },
-        {
-          "label": "Event",
-          "c": 1014
-        },
-        {
-          "label": "ProcessStep",
-          "c": 705
-        },
-        {
-          "label": "Person",
-          "c": 626
-        },
-        {
-          "label": "Archived",
-          "c": 602
-        },
-        {
-          "label": "Technique",
-          "c": 305
-        },
-        {
-          "label": "Document",
-          "c": 283
-        },
-        {
-          "label": "DictionaryTerm",
-          "c": 264
-        },
-        {
-          "label": "Organization",
-          "c": 186
-        },
-        {
-          "label": "Framework",
-          "c": 181
-        },
-        {
-          "label": "Book",
-          "c": 176
-        },
-        {
-          "label": "CreativeWork",
-          "c": 138
+          "label": "MindrianCommand",
+          "c": 113
         },
         {
           "label": "Phase",
-          "c": 123
+          "c": 6
         },
         {
-          "label": "MindrianCommand",
-          "c": 112
-        },
-        {
-          "label": "Command",
-          "c": 103
-        },
-        {
-          "label": "Example",
-          "c": 103
-        },
-        {
-          "label": "Tool",
-          "c": 102
-        },
-        {
-          "label": "Method",
-          "c": 101
-        },
-        {
-          "label": "Stage",
-          "c": 74
-        },
-        {
-          "label": "CaseStudy",
-          "c": 72
-        },
-        {
-          "label": "Room",
-          "c": 52
-        },
-        {
-          "label": "ModeTrigger",
-          "c": 43
-        },
-        {
-          "label": "CorePrinciple",
-          "c": 31
-        },
-        {
-          "label": "ProblemType",
-          "c": 26
-        },
-        {
-          "label": "Phrase",
-          "c": 25
-        },
-        {
-          "label": "Course",
-          "c": 23
-        },
-        {
-          "label": "Quote",
-          "c": 18
-        },
-        {
-          "label": "FrameworkStep",
-          "c": 15
-        },
-        {
-          "label": "Insight",
-          "c": 13
-        },
-        {
-          "label": "DataRoomSection",
-          "c": 13
-        },
-        {
-          "label": "Question",
-          "c": 8
-        },
-        {
-          "label": "Problem",
-          "c": 7
+          "label": "ProcessStep",
+          "c": 728
         },
         {
           "label": "Reach",
           "c": 6
         },
         {
-          "label": "WorthinessCriteria",
-          "c": 5
-        },
-        {
-          "label": "ValidationTool",
-          "c": 5
-        },
-        {
-          "label": "Analogy",
-          "c": 5
-        },
-        {
-          "label": "Mode",
-          "c": 5
-        },
-        {
-          "label": "AssessmentComponent",
-          "c": 5
-        },
-        {
-          "label": "InnovationStage",
-          "c": 5
-        },
-        {
-          "label": "DialPhase",
-          "c": 5
-        },
-        {
-          "label": "PyramidLevel",
-          "c": 5
-        },
-        {
-          "label": "Principle",
-          "c": 4
-        },
-        {
-          "label": "GradeBand",
-          "c": 4
-        },
-        {
-          "label": "Persona",
-          "c": 3
-        },
-        {
-          "label": "Lecture",
-          "c": 2
-        },
-        {
-          "label": "GraphRagMeta",
+          "label": "Root",
           "c": 1
-        }
-      ],
-      "C6": [
-        {
-          "t": "MENTIONED_IN",
-          "c": 10256
         },
         {
-          "t": "RELATES_TO",
-          "c": 3568
+          "label": "TaxonomyRecord",
+          "c": 270
         },
         {
-          "t": "LEADS_TO",
-          "c": 1698
+          "label": "Technique",
+          "c": 304
         },
         {
-          "t": "PART_OF",
-          "c": 1688
-        },
-        {
-          "t": "MENTIONS",
-          "c": 1636
-        },
-        {
-          "t": "RELATED_TO",
-          "c": 664
-        },
-        {
-          "t": "ALIAS_OF",
-          "c": 416
-        },
-        {
-          "t": "ADDRESSES_PROBLEM_TYPE",
-          "c": 317
-        },
-        {
-          "t": "ENABLES",
-          "c": 295
-        },
-        {
-          "t": "USES_TECHNIQUE",
-          "c": 286
-        },
-        {
-          "t": "FEEDS_INTO",
-          "c": 233
-        },
-        {
-          "t": "HAS_STEP",
-          "c": 223
-        },
-        {
-          "t": "USES_TOOL",
-          "c": 184
-        },
-        {
-          "t": "COMPLEMENTS",
-          "c": 176
-        },
-        {
-          "t": "SHARES_THEME",
-          "c": 166
-        },
-        {
-          "t": "AUTHORED_BY",
-          "c": 114
-        },
-        {
-          "t": "HAS_PROCESS_STEP",
-          "c": 104
-        },
-        {
-          "t": "HAS_PHASE",
-          "c": 90
-        },
-        {
-          "t": "USES_FRAMEWORK",
-          "c": 86
-        },
-        {
-          "t": "PREREQUISITE",
-          "c": 73
-        },
-        {
-          "t": "TEACHES",
-          "c": 68
-        },
-        {
-          "t": "ILLUSTRATES",
-          "c": 57
-        },
-        {
-          "t": "HAS_STAGE",
-          "c": 55
-        },
-        {
-          "t": "CONTAINS",
-          "c": 53
-        },
-        {
-          "t": "REPLACED_BY",
-          "c": 52
-        },
-        {
-          "t": "APPLIED_IN_STAGE",
-          "c": 49
-        },
-        {
-          "t": "REVEALS",
-          "c": 44
-        },
-        {
-          "t": "SNAPS_TO",
-          "c": 43
-        },
-        {
-          "t": "INVOLVES",
-          "c": 35
-        },
-        {
-          "t": "HAS_EXAMPLE",
-          "c": 35
-        },
-        {
-          "t": "APPLIED_IN",
-          "c": 33
-        },
-        {
-          "t": "DEFINES",
-          "c": 28
-        },
-        {
-          "t": "AUTHORED",
-          "c": 23
-        },
-        {
-          "t": "EQUIPS_WITH",
-          "c": 20
-        },
-        {
-          "t": "APPLIED_FRAMEWORK",
-          "c": 18
-        },
-        {
-          "t": "VOICES",
-          "c": 18
-        },
-        {
-          "t": "LOOPS_TO",
-          "c": 17
-        },
-        {
-          "t": "VALIDATES",
-          "c": 12
-        },
-        {
-          "t": "CROSS_DOMAIN_ANALOGUE",
-          "c": 7
-        },
-        {
-          "t": "MOTIVATES",
-          "c": 7
-        },
-        {
-          "t": "INSTANCE_OF",
-          "c": 7
-        },
-        {
-          "t": "INTRODUCES",
-          "c": 7
-        },
-        {
-          "t": "CONTRASTS_WITH",
+          "label": "ToolType",
           "c": 6
-        },
-        {
-          "t": "MEASURES",
-          "c": 5
-        },
-        {
-          "t": "EXTENDS",
-          "c": 5
-        },
-        {
-          "t": "TRANSFORMS_OUTPUT_TO",
-          "c": 5
-        },
-        {
-          "t": "IMPLEMENTED_AS",
-          "c": 5
-        },
-        {
-          "t": "IDENTIFIED",
-          "c": 4
-        },
-        {
-          "t": "STARTS_AT",
-          "c": 4
-        },
-        {
-          "t": "HAS_METHOD",
-          "c": 4
         }
       ],
-      "C7": [],
-      "C8": [],
-      "C9": [
-        {
-          "f.name": "Theory of Jobs to Be Done"
+      "C6": {
+        "relationship_types": [
+          "ADDRESSES",
+          "ADDRESSES_PROBLEM_TYPE",
+          "ALIAS_OF",
+          "APPLIED_IN",
+          "COMPLEMENTS",
+          "CONTRASTS_WITH",
+          "ENABLES",
+          "EQUIPS_WITH",
+          "EXTENDS",
+          "FEEDS_INTO",
+          "FOLLOWS",
+          "HAS_CHUNK",
+          "HAS_PHASE",
+          "HAS_PROCESS_STEP",
+          "HAS_STEP",
+          "HAS_TECHNIQUE",
+          "IMPLEMENTED_AS",
+          "INCORPORATES",
+          "INSTANCE_OF",
+          "LEADS_TO",
+          "LOOPS_TO",
+          "MENTIONED_IN",
+          "MENTIONS",
+          "NEXT_CHUNK",
+          "NEXT_IN_RECIPE",
+          "PART_OF",
+          "PRECEDES",
+          "PREREQUISITE",
+          "PRODUCES_INPUT_FOR",
+          "RELATED_TO",
+          "RELATES_TO",
+          "REQUIRES_KNOWLEDGE_OF",
+          "SOURCED_FROM",
+          "SUPPORTS",
+          "TEACHES",
+          "USES_FRAMEWORK",
+          "USES_TECHNIQUE",
+          "USES_TOOL",
+          "WIRED_TO"
+        ],
+        "property_keys_count": 492
+      },
+      "C2": {
+        "refused": true,
+        "error": "PLAN_REJECTED: plan operator `Distinct` is not on the read allow-list"
+      },
+      "C2a": {
+        "refused": true,
+        "error": "PLAN_REJECTED: plan operator `DirectedRelationshipTypeScan` is not on the read allow-list"
+      },
+      "C2b": {
+        "refused": true,
+        "error": "PLAN_REJECTED: plan operator `DirectedRelationshipTypeScan` is not on the read allow-list"
+      },
+      "C2c": {
+        "refused": true,
+        "error": "PLAN_REJECTED: plan operator `DirectedRelationshipTypeScan` is not on the read allow-list"
+      },
+      "C2d": {
+        "refused": true,
+        "error": "PLAN_REJECTED: plan operator `DirectedRelationshipTypeScan` is not on the read allow-list"
+      },
+      "C3": {
+        "refused": true,
+        "error": "PLAN_REJECTED: plan operator `Distinct` is not on the read allow-list"
+      },
+      "C4": {
+        "feeds_into": {
+          "refused": true,
+          "error": "PLAN_REJECTED: plan operator `RelationshipCountFromCountStore` is not on the read allow-list"
         },
-        {
-          "f.name": "PWS-JTBD Innovation Discovery Framework"
+        "leads_to": {
+          "refused": true,
+          "error": "PLAN_REJECTED: plan operator `RelationshipCountFromCountStore` is not on the read allow-list"
         },
-        {
-          "f.name": "Jobs to Be Done"
-        },
-        {
-          "f.name": "Jobs to Be Done (JTBD)"
-        },
-        {
-          "f.name": "JTBD"
+        "alias_of": {
+          "refused": true,
+          "error": "PLAN_REJECTED: plan operator `RelationshipCountFromCountStore` is not on the read allow-list"
         }
-      ]
+      },
+      "C7": {
+        "rows": [],
+        "diagnostics": {
+          "hasWarning": false,
+          "notifications": [],
+          "gqlStatusObjects": [
+            {
+              "gqlStatus": "02000",
+              "statusDescription": "note: no data",
+              "severity": "UNKNOWN",
+              "classification": "UNKNOWN"
+            }
+          ],
+          "warningGqlStatuses": []
+        }
+      },
+      "C8": {
+        "rows": [
+          {
+            "f.name": "TRIZ / Genrich Altshuller Innovation Algorithm"
+          }
+        ],
+        "diagnostics": {
+          "hasWarning": false,
+          "notifications": [],
+          "gqlStatusObjects": [
+            {
+              "gqlStatus": "00000",
+              "statusDescription": "note: successful completion",
+              "severity": "UNKNOWN",
+              "classification": "UNKNOWN"
+            }
+          ],
+          "warningGqlStatuses": []
+        }
+      },
+      "C9": {
+        "rows": [
+          {
+            "f.name": "Jobs to Be Done (JTBD)"
+          },
+          {
+            "f.name": "JTBD"
+          },
+          {
+            "f.name": "Jobs to Be Done"
+          },
+          {
+            "f.name": "PWS-JTBD Innovation Discovery Framework"
+          },
+          {
+            "f.name": "Theory of Jobs to Be Done"
+          },
+          {
+            "f.name": "Jobs to Be Done / JTBD"
+          }
+        ],
+        "diagnostics": {
+          "hasWarning": false,
+          "notifications": [],
+          "gqlStatusObjects": [
+            {
+              "gqlStatus": "00000",
+              "statusDescription": "note: successful completion",
+              "severity": "UNKNOWN",
+              "classification": "UNKNOWN"
+            }
+          ],
+          "warningGqlStatuses": []
+        }
+      }
     },
-    "lane_b_source": "render-live",
+    "lane_b_source": "theo-live brain_stats + brain_schema (whole-graph Cypher refused by Theo read allow-list)",
     "key_tier_lane_b": "admin",
     "drift_caveat": false,
-    "used_c2_fallback": false
+    "used_c2_fallback": false,
+    "theo_shape": true
   }
 }

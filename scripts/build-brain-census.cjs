@@ -463,6 +463,15 @@ function renderMarkdown(census) {
   lines.push('> ' + GENERATED_NOTE + '. This file is rendered by scripts/build-brain-census.cjs. Edit the source lane data, not this file.');
   lines.push('');
 
+  // Quick task 260911-axz: name the origin and run date in prose near the
+  // top, not only in the Census Meta table below, so a reader who lands
+  // mid-file cannot mistake a Theo census for the incumbent one. Additive
+  // and gated on the Theo shape; the incumbent render carries no such line.
+  if ((laneB && laneB.theo_shape) || _isTheoStatsShape(meta.brain_stats)) {
+    lines.push('**This census describes the Theo origin `' + _fmtVal(meta.brain_url) + '` as of ' + _fmtVal(meta.census_date) + '.**');
+    lines.push('');
+  }
+
   // ---- Census Meta ----
   lines.push('## Census Meta');
   lines.push('');
@@ -470,7 +479,11 @@ function renderMarkdown(census) {
   lines.push('| ----- | ----- |');
   lines.push('| Census date | ' + _fmtVal(meta.census_date) + ' |');
   lines.push('| Brain URL | ' + _fmtVal(meta.brain_url) + ' |');
-  if (meta.brain_stats) {
+  if (meta.brain_stats && _isTheoStatsShape(meta.brain_stats)) {
+    lines.push('| brain_stats nodes | ' + _fmtVal(meta.brain_stats.nodes) + ' |');
+    lines.push('| brain_stats relationships | ' + _fmtVal(meta.brain_stats.relationships) + ' |');
+    lines.push('| brain_stats labels | ' + _fmtVal(Array.isArray(meta.brain_stats.labels) ? meta.brain_stats.labels.length : null) + ' |');
+  } else if (meta.brain_stats) {
     lines.push('| brain_stats backend | ' + _fmtVal(meta.brain_stats.backend) + ' |');
     lines.push('| brain_stats totalRecordCount | ' + _fmtVal(meta.brain_stats.totalRecordCount) + ' |');
     lines.push('| brain_stats relationshipCount | ' + _fmtVal(meta.brain_stats.relationshipCount) + ' |');
@@ -505,6 +518,124 @@ function renderMarkdown(census) {
       'PENDING - Lane B aggregate Cypher not yet run (admin key not supplied as of ' +
         _fmtVal(meta.census_date) + '); Lane A below is complete and citable.'
     );
+  } else if (laneB.theo_shape) {
+    // Quick task 260911-axz: the Theo lane. Sourced from brain_stats (C1,
+    // C5) and brain_schema (C6-equivalent) rather than the whole-graph
+    // Cypher those incumbent queries need; C2, C2a-d, C3, C4, C7, C8, C9 are
+    // still attempted and any refusal is rendered as a refusal, never a
+    // blank section.
+    const r = laneB.results || {};
+    lines.push('Source: Theo live `brain_stats` + `brain_schema`. Theo\'s read allow-list rejects a whole-graph ' +
+      'AllNodesScan plan (the C1/C5 queries share it), so those two are answered directly from `brain_stats` ' +
+      'instead of Cypher; every other query below was still attempted and any refusal is recorded honestly.');
+    lines.push('');
+    lines.push('**C1 Framework totals (source: brain_stats.labels, not a Cypher count):** ' + _fmtVal(r.C1 && r.C1.frameworks) + ' Framework nodes.');
+    lines.push('');
+    if (r.C2 && r.C2.refused) {
+      lines.push('**C2/C3 HAS_* structure coverage:** refused by Theo -- ' + _fmtVal(r.C2.error));
+    } else if (Array.isArray(r.C2)) {
+      lines.push('**C2/C3 HAS_* structure coverage (grouped alternation):**');
+      lines.push('');
+      lines.push('| Edge type | Edges | Frameworks with edge |');
+      lines.push('| --------- | ----- | --------------------- |');
+      for (const row of r.C2) {
+        lines.push('| ' + _fmtVal(row.t) + ' | ' + _fmtVal(row.edges) + ' | ' + _fmtVal(row.frameworks_with_t) + ' |');
+      }
+    } else if (r.C2a || r.C2b || r.C2c || r.C2d) {
+      lines.push('**C2/C3 HAS_* structure coverage (single-type fallback used, grouped alternation refused):**');
+      lines.push('');
+      lines.push('| Edge type | Edges | Frameworks with edge |');
+      lines.push('| --------- | ----- | --------------------- |');
+      for (const key of ['C2a', 'C2b', 'C2c', 'C2d']) {
+        const row = r[key];
+        if (!row) continue;
+        if (row.refused) {
+          lines.push('| ' + key + ' | refused | ' + _fmtVal(row.error) + ' |');
+          continue;
+        }
+        const rr = Array.isArray(row) ? row[0] : row;
+        if (!rr) continue;
+        lines.push('| ' + _fmtVal(rr.t) + ' | ' + _fmtVal(rr.edges) + ' | ' + _fmtVal(rr.frameworks_with_t) + ' |');
+      }
+    }
+    lines.push('');
+    if (r.C3 && r.C3.refused) {
+      lines.push('C3 distinct frameworks with any structure: refused by Theo -- ' + _fmtVal(r.C3.error));
+    } else {
+      lines.push('C3 distinct frameworks with any structure: ' + _fmtVal(r.C3 && r.C3.structured_frameworks) + '.');
+    }
+    lines.push('');
+    {
+      const c4 = r.C4 || {};
+      const c4str = (sub) => {
+        const v = c4[sub];
+        if (v && typeof v === 'object' && v.refused) return 'refused (' + _fmtVal(v.error) + ')';
+        return _fmtVal(v);
+      };
+      lines.push('**C4 flow edge counts:** FEEDS_INTO=' + c4str('feeds_into') + ', LEADS_TO=' + c4str('leads_to') + ', ALIAS_OF=' + c4str('alias_of') + '.');
+    }
+    lines.push('');
+    lines.push('**C5 label census** (source: `brain_stats.labels`, a per-label count Theo already provides; ' +
+      'the incumbent\'s "counts sum to more than the node count" UNWIND caveat does not apply here and is not repeated):');
+    lines.push('');
+    lines.push('| Label | Count |');
+    lines.push('| ----- | ----- |');
+    for (const row of Array.isArray(r.C5) ? r.C5 : []) {
+      lines.push('| ' + _fmtVal(row.label) + ' | ' + _fmtVal(row.c) + ' |');
+    }
+    lines.push('');
+    lines.push('**C6 relationship-type census** (source: `brain_schema`; Theo reports relationship TYPE NAMES ' +
+      'without per-type counts, so the count column is n/a - never fabricated, never silently zero):');
+    lines.push('');
+    if (r.C6 && r.C6.refused) {
+      lines.push('refused by Theo -- ' + _fmtVal(r.C6.error));
+    } else {
+      lines.push('| Relationship type | Count |');
+      lines.push('| ------------------ | ----- |');
+      for (const t of (r.C6 && r.C6.relationship_types) || []) {
+        lines.push('| ' + _fmtVal(t) + ' | n/a |');
+      }
+      lines.push('');
+      lines.push('property_keys count: ' + _fmtVal(r.C6 && r.C6.property_keys_count) + '.');
+    }
+    lines.push('');
+    lines.push('**C7 duplicate-name scan:**');
+    lines.push('');
+    if (r.C7 && r.C7.refused) {
+      lines.push('refused by Theo -- ' + _fmtVal(r.C7.error));
+    } else if (!Array.isArray(r.C7) || r.C7.length === 0) {
+      lines.push('No duplicate Framework names found.');
+    } else {
+      lines.push('| Normalized key | Names | Count |');
+      lines.push('| -------------- | ----- | ----- |');
+      for (const row of r.C7) {
+        lines.push('| ' + _fmtVal(row.k) + ' | ' + _fmtVal(Array.isArray(row.names) ? row.names.join(', ') : row.names) + ' | ' + _fmtVal(row.c) + ' |');
+      }
+    }
+    lines.push('');
+    lines.push('**C8 named-absence probes (TRIZ/SCAMPER/Five Whys):**');
+    lines.push('');
+    if (r.C8 && r.C8.refused) {
+      lines.push('refused by Theo -- ' + _fmtVal(r.C8.error));
+    } else if (!Array.isArray(r.C8) || r.C8.length === 0) {
+      lines.push('Zero rows returned - TRIZ, SCAMPER, and Five Whys are absent as Framework nodes.');
+    } else {
+      lines.push('Rows returned (NOT absent): ' + r.C8.map((row) => row['f.name'] || row.name).join(', '));
+    }
+    lines.push('');
+    lines.push('**C9 JTBD alias enumeration:**');
+    lines.push('');
+    if (r.C9 && r.C9.refused) {
+      lines.push('refused by Theo -- ' + _fmtVal(r.C9.error));
+    } else if (!Array.isArray(r.C9) || r.C9.length === 0) {
+      lines.push('Zero rows returned.');
+    } else {
+      lines.push('| Name |');
+      lines.push('| ---- |');
+      for (const row of r.C9) {
+        lines.push('| ' + _fmtVal(row['f.name'] || row.name) + ' |');
+      }
+    }
   } else {
     if (laneB.drift_caveat) {
       lines.push(
@@ -822,6 +953,159 @@ async function _runLaneB(key) {
 }
 
 // ---------------------------------------------------------------------------
+// _isTheoStatsShape(stats) - the same dual-shape discipline
+// lib/core/doctor/class-m-brain-smoke.cjs's _layer6 already uses: recognize
+// the incumbent's key (totalRecordCount) FIRST implicitly by requiring its
+// absence here, so the incumbent path can never be misclassified as Theo.
+// True when stats is an object carrying a finite `nodes` number and an
+// array `labels`, and no `totalRecordCount` at all (quick task 260911-axz).
+// ---------------------------------------------------------------------------
+function _isTheoStatsShape(stats) {
+  return !!stats
+    && typeof stats === 'object'
+    && typeof stats.nodes === 'number'
+    && Number.isFinite(stats.nodes)
+    && Array.isArray(stats.labels)
+    && !('totalRecordCount' in stats);
+}
+
+// ---------------------------------------------------------------------------
+// _looksLikePlanRejection(result) - Theo's read allow-list refusal does NOT
+// surface as an HTTP error or a JSON-RPC `error` field (both of which
+// brainCall() already turns into `{ ok: false, bodyText }`): it surfaces as
+// an ok:true tool result whose content is the plain-text string
+// "PLAN_REJECTED: plan operator `X` is not on the read allow-list", which
+// brainCall()'s JSON.parse failure wraps as `{ text: <that string> }`
+// (found live, quick task 260911-axz, running C2/C3 against Theo -- both
+// use `count(DISTINCT f)`, which Theo's allow-list rejects). Without this
+// check, a caller reading `r.ok` alone would treat a refusal as a success
+// and either render a blank section or, for C4, silently drop every field
+// (`JSON.stringify` omits `undefined`-valued keys), which is exactly the
+// "blank section" and silent-loss failure this generator exists to avoid.
+// ---------------------------------------------------------------------------
+function _looksLikePlanRejection(result) {
+  return !!result && typeof result === 'object' && typeof result.text === 'string'
+    && /PLAN_REJECTED|not on the (read )?allow-?list/i.test(result.text);
+}
+
+// ---------------------------------------------------------------------------
+// _theoQueryOutcome(r) - normalizes a brainCall() outcome into either the
+// raw result or a `{ refused: true, error }` object, covering BOTH refusal
+// shapes Theo can hand back: an HTTP/transport failure (r.ok === false) and
+// the soft PLAN_REJECTED text payload above (r.ok === true). Every call site
+// in _runLaneBTheo routes through this one function so a refusal is never
+// classified two different ways in two different places.
+// ---------------------------------------------------------------------------
+function _theoQueryOutcome(r) {
+  if (!r.ok) return { refused: true, error: r.bodyText };
+  if (_looksLikePlanRejection(r.result)) return { refused: true, error: r.result.text };
+  return r.result;
+}
+
+function _isRefused(value) {
+  return !!value && typeof value === 'object' && value.refused === true;
+}
+
+// ---------------------------------------------------------------------------
+// _runLaneBTheo(key, brainStats) - Theo lane B (quick task 260911-axz).
+// Additive only: never edits CENSUS_QUERIES or the incumbent _runLaneB
+// above. Sources C1 and C5 directly from the already-fetched brainStats
+// (Theo's read allow-list rejects the whole-graph AllNodesScan plan both of
+// those Cypher queries share), sources C6 from brain_schema (type NAMES
+// without per-type counts -- honestly recorded as n/a, never fabricated or
+// silently zero), and STILL ATTEMPTS C2, C2a-d, C3, C4, C7, C8, C9 through
+// brainCall('brain_query', ...), recording { refused: true, error } for any
+// id Theo refuses (either refusal shape, via _theoQueryOutcome) instead of
+// throwing (tests/test-246-census-guard.cjs pins all 13 query ids as Part 8
+// allow-classified; nothing here removes or rewords a query, only how a
+// refusal is recorded).
+// ---------------------------------------------------------------------------
+async function _runLaneBTheo(key, brainStats) {
+  const results = {};
+
+  // C1: Framework total from brain_stats.labels, not a Cypher count.
+  const frameworkEntry = (brainStats.labels || []).find((l) => l && l.label === 'Framework');
+  results.C1 = {
+    frameworks: frameworkEntry ? frameworkEntry.count : null,
+    source: 'brain_stats.labels (not a Cypher count; Theo refuses the whole-graph plan C1 shares)',
+  };
+
+  // C5-equivalent: brain_stats.labels IS already a per-label census; no
+  // UNWIND is needed or attempted.
+  results.C5 = (brainStats.labels || []).map((l) => ({ label: l && l.label, c: l && l.count }));
+
+  // C6-equivalent: brain_schema's relationship TYPE NAMES, no per-type
+  // counts, plus a property_keys count.
+  const schemaRes = await brainCall('brain_schema', {}, key);
+  const schemaOutcome = _theoQueryOutcome(schemaRes);
+  if (_isRefused(schemaOutcome)) {
+    results.C6 = schemaOutcome;
+  } else {
+    const schemaResult = schemaOutcome || {};
+    results.C6 = {
+      relationship_types: Array.isArray(schemaResult.relationship_types) ? schemaResult.relationship_types : [],
+      property_keys_count: Array.isArray(schemaResult.property_keys) ? schemaResult.property_keys.length : null,
+    };
+  }
+
+  const c2 = CENSUS_QUERIES.find((q) => q.id === 'C2');
+  const r2 = await brainCall('brain_query', { cypher: c2.cypher }, key);
+  const c2Outcome = _theoQueryOutcome(r2);
+  results.C2 = c2Outcome;
+  if (_isRefused(c2Outcome)) {
+    for (const subId of ['C2a', 'C2b', 'C2c', 'C2d']) {
+      const q = CENSUS_QUERIES.find((qq) => qq.id === subId);
+      const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+      results[subId] = _theoQueryOutcome(r);
+    }
+  }
+
+  const c3 = CENSUS_QUERIES.find((q) => q.id === 'C3');
+  const r3 = await brainCall('brain_query', { cypher: c3.cypher }, key);
+  const c3Outcome = _theoQueryOutcome(r3);
+  results.C3 = _isRefused(c3Outcome) ? c3Outcome : (Array.isArray(c3Outcome) ? c3Outcome[0] : c3Outcome);
+
+  const c4entries = CENSUS_QUERIES.filter((q) => q.id === 'C4');
+  const c4merged = {};
+  for (const q of c4entries) {
+    const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+    const outcome = _theoQueryOutcome(r);
+    if (_isRefused(outcome)) {
+      c4merged[q.sub] = outcome;
+      continue;
+    }
+    const row = Array.isArray(outcome) ? outcome[0] : outcome;
+    c4merged[q.sub] = row ? (q.sub in row ? row[q.sub] : null) : null;
+  }
+  results.C4 = c4merged;
+
+  for (const id of ['C7', 'C8', 'C9']) {
+    const q = CENSUS_QUERIES.find((qq) => qq.id === id);
+    const r = await brainCall('brain_query', { cypher: q.cypher }, key);
+    results[id] = _theoQueryOutcome(r);
+  }
+
+  return { results, usedFallback: false, theo_shape: true };
+}
+
+// ---------------------------------------------------------------------------
+// _isColdStartLikeFailure(callResult) - true when a brainCall() result looks
+// like Theo has not woken up yet (Render cold start) rather than a real,
+// persistent outage: a fetch failure (httpStatus 0), a client-side timeout
+// (errorKind 'timeout'), or a 502/503 from the edge. Quick task 260911-axz's
+// cold-start-one-retry rule (--lane-a) keys on this predicate so a genuine
+// outage (still failing after the 30s warm-up) is never mistaken for a
+// cold start and retried forever.
+// ---------------------------------------------------------------------------
+function _isColdStartLikeFailure(callResult) {
+  if (!callResult || callResult.ok) return false;
+  if (callResult.errorKind === 'timeout') return true;
+  if (callResult.httpStatus === 0) return true;
+  if (callResult.httpStatus === 502 || callResult.httpStatus === 503) return true;
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // main() - four-mode CLI.
 // ---------------------------------------------------------------------------
 async function main() {
@@ -854,6 +1138,26 @@ async function main() {
       console.error('Brain key unavailable: ' + r.reason);
       process.exit(1);
     }
+
+    // Cold start, one retry (quick task 260911-axz): Theo runs on Render and
+    // sleeps. A reachability probe up front, separate from _runLaneA's own
+    // per-framework loop, lets a cold-start failure retry ONCE after a 30s
+    // warm-up window before any real probing begins. Only a SECOND failure
+    // after the warm-up concludes a real outage; this generator then stops
+    // and reports rather than writing a partial artifact.
+    let reachProbe = await brainCall('brain_stats', {}, r.key);
+    if (_isColdStartLikeFailure(reachProbe)) {
+      console.error('[census] Theo unreachable on first attempt (' + (reachProbe.httpStatus || 'no status')
+        + ' ' + reachProbe.bodyText + '); this may be a Render cold start. Waiting 30s and retrying ONCE.');
+      await new Promise((resolve) => setTimeout(resolve, 30000));
+      reachProbe = await brainCall('brain_stats', {}, r.key);
+      if (_isColdStartLikeFailure(reachProbe)) {
+        console.error('[census] Theo still unreachable after the 30s retry: ' + (reachProbe.httpStatus || 'no status')
+          + ' ' + reachProbe.bodyText + '. Concluding a real outage, not a cold start. Refusing to write a partial artifact.');
+        process.exit(1);
+      }
+    }
+
     const scanned = scanMethodologyCommands();
     const laneAResult = await _runLaneA(r.key);
     const census = loadExisting();
@@ -888,18 +1192,31 @@ async function main() {
       console.error('Brain key unavailable: ' + r.reason);
       process.exit(1);
     }
-    const laneB = await _runLaneB(r.key);
+    // Shape detection (quick task 260911-axz): a brain_stats call selects
+    // the Theo lane (_runLaneBTheo) when its shape matches; otherwise
+    // _runLaneB runs exactly as today, unedited. Recognizing the
+    // incumbent's shape first (via the absence check inside
+    // _isTheoStatsShape) is the proof of inertness: the incumbent path
+    // cannot change.
+    const statsProbe = await brainCall('brain_stats', {}, r.key);
+    const brainStats = statsProbe.ok ? statsProbe.result : null;
+    const isTheoShape = _isTheoStatsShape(brainStats);
+    const laneB = isTheoShape ? await _runLaneBTheo(r.key, brainStats) : await _runLaneB(r.key);
+    const laneBSource = isTheoShape
+      ? 'theo-live brain_stats + brain_schema (whole-graph Cypher refused by Theo read allow-list)'
+      : 'render-live';
     const census = loadExisting();
     census.lane_b = {
       results: laneB.results,
-      lane_b_source: 'render-live',
+      lane_b_source: laneBSource,
       key_tier_lane_b: 'admin',
       drift_caveat: false,
       used_c2_fallback: laneB.usedFallback,
     };
+    if (isTheoShape) census.lane_b.theo_shape = true;
     census.meta = Object.assign({}, census.meta, {
       key_tier_lane_b: 'admin',
-      lane_b_source: 'render-live',
+      lane_b_source: laneBSource,
     });
     writeOut(census);
     console.log('Lane B complete: results for ' + Object.keys(laneB.results).join(', '));
