@@ -255,3 +255,178 @@ test('Arm 12: installIdHeaderName is the exact lowercase constant', () => {
   assert.equal(installIdHeaderName, 'x-theo-install-id');
   assert.equal(installIdHeaderName, installIdHeaderName.toLowerCase());
 });
+
+// ===========================================================================
+// Task 2 arms (13-16): the wire header, the absence path, the doctor flag,
+// and the L0 row. Each wire arm clears BOTH module caches before requiring,
+// because brain-client.cjs resolves BRAIN_URL at module scope and memoizes
+// both the key and the install-id header per process.
+// ===========================================================================
+
+const crypto = require('node:crypto');
+
+function _clearWireCaches() {
+  try { delete require.cache[require.resolve(path.join(REPO_ROOT, 'lib', 'core', 'brain-client.cjs'))]; } catch (_e) {}
+  try { delete require.cache[require.resolve(installIdModulePath)]; } catch (_e) {}
+}
+
+function _makeFetchRecorder(responder) {
+  const recorded = [];
+  const fetchFn = async function (url, init) {
+    recorded.push({ url: String(url), headers: (init && init.headers) || {} });
+    return responder ? responder(url, init) : {
+      ok: true,
+      status: 200,
+      headers: { get: () => 'application/json' },
+      text: async () => '{}',
+      json: async () => ({}),
+      arrayBuffer: async () => new ArrayBuffer(0),
+    };
+  };
+  return { recorded, fetchFn };
+}
+
+// ---------------------------------------------------------------------------
+// Arm 13: the header rides every wire call (D-04)
+// ---------------------------------------------------------------------------
+test('Arm 13: x-theo-install-id rides both the initialize and the tools/call fetch', async () => {
+  const homeDir = freshHomeDir();
+  const prevHome = process.env.MINDRIAN_HOME;
+  const prevKey = process.env.MINDRIAN_BRAIN_KEY;
+  const prevUrl = process.env.MINDRIAN_BRAIN_URL;
+  process.env.MINDRIAN_HOME = homeDir;
+  process.env.MINDRIAN_BRAIN_KEY = 'test-key-260911-iko';
+  process.env.MINDRIAN_BRAIN_URL = 'https://theo-mcp.onrender.com';
+  _clearWireCaches();
+
+  const expectedId = getInstallId({ homeDir });
+
+  const { recorded, fetchFn } = _makeFetchRecorder();
+  const prevFetch = globalThis.fetch;
+  globalThis.fetch = fetchFn;
+  try {
+    const brainClient = require(path.join(REPO_ROOT, 'lib', 'core', 'brain-client.cjs'));
+    await brainClient.callTool('theo_health', {});
+  } finally {
+    globalThis.fetch = prevFetch;
+    if (prevHome === undefined) delete process.env.MINDRIAN_HOME; else process.env.MINDRIAN_HOME = prevHome;
+    if (prevKey === undefined) delete process.env.MINDRIAN_BRAIN_KEY; else process.env.MINDRIAN_BRAIN_KEY = prevKey;
+    if (prevUrl === undefined) delete process.env.MINDRIAN_BRAIN_URL; else process.env.MINDRIAN_BRAIN_URL = prevUrl;
+    _clearWireCaches();
+  }
+
+  assert.ok(recorded.length >= 2, 'expected at least 2 recorded requests (initialize + tools/call), got ' + recorded.length);
+  for (const req of recorded) {
+    const headerVal = req.headers[installIdHeaderName];
+    assert.equal(typeof headerVal, 'string', 'every recorded request must carry ' + installIdHeaderName);
+    assert.match(headerVal, ID_SHAPE_RE);
+    assert.equal(headerVal, expectedId);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Arm 14: the header is absent when the id is null (D-04)
+// ---------------------------------------------------------------------------
+test('Arm 14: the header is omitted, never an error, when the install id cannot be read', async () => {
+  const parent = freshHomeDir();
+  const regularFile = path.join(parent, 'i-am-a-file');
+  fs.writeFileSync(regularFile, 'x', 'utf8');
+  const bogusHomeDir = path.join(regularFile, 'nested', 'homedir');
+
+  const prevHome = process.env.MINDRIAN_HOME;
+  const prevKey = process.env.MINDRIAN_BRAIN_KEY;
+  const prevUrl = process.env.MINDRIAN_BRAIN_URL;
+  process.env.MINDRIAN_HOME = bogusHomeDir;
+  process.env.MINDRIAN_BRAIN_KEY = 'test-key-260911-iko-arm14';
+  process.env.MINDRIAN_BRAIN_URL = 'https://theo-mcp.onrender.com';
+  _clearWireCaches();
+
+  // Prove the real degrade path -- no monkey-patching of the module.
+  assert.equal(getInstallId({ homeDir: bogusHomeDir }), null);
+
+  const { recorded, fetchFn } = _makeFetchRecorder();
+  const prevFetch = globalThis.fetch;
+  globalThis.fetch = fetchFn;
+  let threw = false;
+  try {
+    const brainClient = require(path.join(REPO_ROOT, 'lib', 'core', 'brain-client.cjs'));
+    await brainClient.callTool('theo_health', {});
+  } catch (_e) {
+    threw = true;
+  } finally {
+    globalThis.fetch = prevFetch;
+    if (prevHome === undefined) delete process.env.MINDRIAN_HOME; else process.env.MINDRIAN_HOME = prevHome;
+    if (prevKey === undefined) delete process.env.MINDRIAN_BRAIN_KEY; else process.env.MINDRIAN_BRAIN_KEY = prevKey;
+    if (prevUrl === undefined) delete process.env.MINDRIAN_BRAIN_URL; else process.env.MINDRIAN_BRAIN_URL = prevUrl;
+    _clearWireCaches();
+  }
+
+  assert.equal(threw, false, 'callTool must not throw when the install id is unavailable');
+  assert.ok(recorded.length >= 2, 'expected at least 2 recorded requests even without the header, got ' + recorded.length);
+  for (const req of recorded) {
+    const keys = Object.keys(req.headers).map((k) => k.toLowerCase());
+    assert.equal(keys.includes(installIdHeaderName), false, 'no recorded request may carry ' + installIdHeaderName + ' when the id is unavailable');
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Arm 15: the doctor flag rotates (D-05)
+// ---------------------------------------------------------------------------
+test('Arm 15: node scripts/doctor.cjs --reset-install-id rotates, prints one line, never the value', () => {
+  const { spawnSync } = require('node:child_process');
+  const homeDir = freshHomeDir();
+  const doctorPath = path.join(REPO_ROOT, 'scripts', 'doctor.cjs');
+
+  const before = getInstallId({ homeDir });
+
+  const result = spawnSync('node', [doctorPath, '--reset-install-id'], {
+    env: Object.assign({}, process.env, { MINDRIAN_HOME: homeDir }),
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0);
+  assert.equal(result.stdout.trim(), 'install id rotated');
+  assert.equal(/[a-f0-9]{32}/.test(result.stdout), false, 'stdout must never contain a 32-hex substring');
+  assert.equal(result.stderr, '');
+
+  const after = JSON.parse(fs.readFileSync(installIdPath(homeDir), 'utf8')).id;
+  assert.match(after, ID_SHAPE_RE);
+  assert.notEqual(after, before);
+});
+
+// ---------------------------------------------------------------------------
+// Arm 16: L0 reports presence and never the value (D-03)
+// ---------------------------------------------------------------------------
+test('Arm 16: class-m-brain-smoke L0 carries install_id_present as a boolean only, never the value', async () => {
+  const { checkBrainSmoke } = require(path.join(REPO_ROOT, 'lib', 'core', 'doctor', 'class-m-brain-smoke.cjs'));
+  const CANON_BRAIN_URL = 'https://theo-mcp.onrender.com';
+  const someId = crypto.randomBytes(16).toString('hex');
+
+  const baseSeams = {
+    mockScopedServers: () => [],
+    mockBrainUrl: () => CANON_BRAIN_URL,
+    mockTheoHealth: async () => null,
+    mockResolveRoot: () => ({ ok: true, root: '/fake/plugin/root' }),
+    mockResolveKey: () => ({ available: true, key: 'fake-key' }),
+    mockSchema: async () => ({ ok: true }),
+    mockSpawn: async () => ({ ok: true }),
+    mockStats: async () => ({ ok: true }),
+    mockQuery: async () => ({ ok: true }),
+  };
+
+  const withId = await checkBrainSmoke(Object.assign({}, baseSeams, {
+    mockInstallId: () => someId,
+  }));
+  const l0WithId = withId.layers[0];
+  assert.equal(typeof l0WithId.payload.install_id_present, 'boolean');
+  assert.equal(l0WithId.payload.install_id_present, true);
+  assert.equal(/[a-f0-9]{32}/.test(JSON.stringify(withId)), false, 'no 32-hex substring may appear anywhere in the L0 report when an id is present');
+
+  const withoutId = await checkBrainSmoke(Object.assign({}, baseSeams, {
+    mockInstallId: () => null,
+  }));
+  const l0WithoutId = withoutId.layers[0];
+  assert.equal(typeof l0WithoutId.payload.install_id_present, 'boolean');
+  assert.equal(l0WithoutId.payload.install_id_present, false);
+  assert.equal(/[a-f0-9]{32}/.test(JSON.stringify(withoutId)), false, 'no 32-hex substring may appear anywhere in the L0 report when no id is present');
+});

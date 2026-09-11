@@ -255,6 +255,12 @@ function parseArgs(argv) {
     // reads through the read-only navigation door + a LOCAL queue write; zero
     // network surface (Canon Part 8).
     graphDeriveHealth: false,
+    // Quick 260911-iko (D-05): --reset-install-id is a SIBLING flag, like
+    // --report-registration-bug, NOT a class flag: it is deliberately NOT
+    // added to the --all activation block below, and it carries its own
+    // always-exit-0 contract (rotation either succeeds or the state dir is
+    // not writable; neither case is a doctor-drift finding).
+    resetInstallId: false,
   };
   for (const arg of argv) {
     if (arg === '--fix') flags.fix = true;
@@ -286,6 +292,10 @@ function parseArgs(argv) {
     // the --all activation block below (same exclusion rationale as
     // --check-rs-engine: --all is class A-M drift detection, not escalation).
     else if (arg === '--report-registration-bug') flags.reportRegistrationBug = true;
+    // Quick 260911-iko (D-05): --reset-install-id rotates the opaque
+    // per-install bucket key. SIBLING flag, own exit-0 contract, see the
+    // parseArgs default comment above.
+    else if (arg === '--reset-install-id') flags.resetInstallId = true;
     else if (arg === '--post-update') flags.postUpdate = true;
     else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
     else if (arg === '--claims') flags.claims = true;
@@ -461,6 +471,11 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            host-side core bug. stdout only; --json for the machine shape.
                            Exit 0 whenever the report assembles (even offline); non-zero
                            only if the assembler itself throws. NOT in --all.
+  --reset-install-id       (Quick task 260911-iko) rotates the opaque per-install bucket
+                           key the plugin sends to Theo as the x-theo-install-id header.
+                           Mints a fresh id, replaces the state-dir file, prints exactly
+                           "install id rotated", never prints the value, and always exits
+                           0 (even when the state dir is not writable). NOT in --all.
   --post-update            (Phase 127.2 Plan 04 Instance #7) atomically activate
                            freshly-landed cache-staging bytes via scripts/post-update-
                            activation.cjs (delegates to --fix pipeline + writes the
@@ -3140,6 +3155,26 @@ function main() {
       if (roomDir) presence.reap({ roomDir: roomDir });
     } catch (_) {}
     process.exit(0); // never-block: an unhealthy bind still exits 0 (advisory).
+    return;
+  }
+
+  // Quick 260911-iko (D-05): --reset-install-id dispatch. Dispatched BEFORE
+  // the class-flag block and BEFORE --acceptance, same position/shape as
+  // --bind-check above: own dispatch, own always-exit-0 contract. Never
+  // prints the id value, not even on the failure path (D-03).
+  if (flags.resetInstallId) {
+    let rotated = null;
+    try {
+      rotated = require(path.join(__dirname, '..', 'lib', 'core', 'install-id.cjs')).resetInstallId();
+    } catch (_e) {
+      rotated = null;
+    }
+    if (typeof rotated === 'string') {
+      console.log('install id rotated');
+    } else {
+      console.log('install id rotation failed (state dir not writable)');
+    }
+    process.exit(0);
     return;
   }
 
