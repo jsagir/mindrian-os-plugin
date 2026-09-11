@@ -371,9 +371,10 @@ Class flags (combine freely; --all activates them all):
                            transcripts at ~/.claude/projects/.../*.jsonl for /mos:<deprecated>
                            patterns; surfaces a per-command "use /mos:<new> instead" hint.
                            Phase 121.5-08 Sub-plan J. LOCAL-only, zero network.)
-  --brain-smoke            class M (Brain end-to-end smoke: 6-layer probe -- plugin root,
-                           key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema,
-                           store identity (stale-replica detection, quick 260819-c9b).
+  --brain-smoke            class M (Brain end-to-end smoke: 7-layer probe -- origin and
+                           shadow connector (quick 260911-axz), plugin root, key resolver,
+                           HTTPS schema, MCP stdio handshake, e2e brain_schema, store identity
+                           (stale-replica detection, quick 260819-c9b).
                            Diagnostic-only; reports the exact failing layer. Phase 127-02.)
   --eureka-smoke           class S (Eureka local-embedding-stack smoke: 4-layer probe --
                            deps present, vec backend, model cache, graceful degrade.
@@ -4198,15 +4199,17 @@ async function classMBrainSmoke(flags) {
   if (flags.json) {
     console.log(JSON.stringify(Object.assign({ class: 'M' }, result), null, 2));
   } else {
-    console.log('Class M -- Brain end-to-end smoke (6-layer probe)');
+    console.log('Class M -- Brain end-to-end smoke (7-layer probe)');
     console.log('  Overall: ' + (result.ok ? 'PASS' : 'FAIL') + '  (' + result.overall_ms + 'ms)');
     for (const layer of result.layers) {
       const marker = layer.ok ? 'PASS' : 'FAIL';
       console.log('    [' + marker + '] ' + layer.name + ' -- ' + layer.reason + ' (' + layer.ms + 'ms)');
       // Handoff section 7 item g: report which endpoint the wire resolved
-      // to and whether it is canon. Guarded on payload being present so
-      // layers 1-5 (which never carry one) print exactly as before.
-      if (layer.payload) {
+      // to and whether it is canon. Branches on layer.id so the pre-existing
+      // store_identity shape stays byte-identical and the new origin_shadow
+      // shape (quick task 260911-axz) gets its own rendering instead of
+      // printing "endpoint=undefined node_count=undefined canon=undefined".
+      if (layer.payload && layer.id === 'store_identity') {
         const p = layer.payload;
         console.log('        endpoint=' + p.endpoint + ' node_count=' + p.node_count
           + ' canon=' + p.canon + (p.override ? ' override=true' : ''));
@@ -4216,6 +4219,18 @@ async function classMBrainSmoke(flags) {
           if (p.stamp.last_reconciled != null) stampParts.push('last_reconciled=' + p.stamp.last_reconciled);
           if (p.stamp.refreshed_at != null) stampParts.push('refreshed_at=' + p.stamp.refreshed_at);
           console.log('        GraphRagMeta stamp: ' + stampParts.join(' '));
+        }
+      } else if (layer.payload && layer.id === 'origin_shadow') {
+        const p = layer.payload;
+        console.log('        origin=' + p.resolved_origin + ' theo=' + p.is_theo
+          + (p.override ? ' override=true' : ''));
+        if (p.theo_health) {
+          console.log('        theo_health mode=' + p.theo_health.mode
+            + (p.theo_health.build_sha != null ? ' sha=' + p.theo_health.build_sha : ''));
+        }
+        for (const s of (p.shadows || [])) {
+          console.log('        shadow: scope=' + s.scope + ' host=' + s.url_host
+            + ' fix=`claude mcp remove mindrian-brain -s ' + s.scope + '`');
         }
       }
     }

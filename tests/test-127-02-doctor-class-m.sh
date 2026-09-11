@@ -47,7 +47,7 @@ run "T1-help-mentions-brain-smoke" '
   node scripts/doctor.cjs --help 2>&1 | grep -q -- "--brain-smoke"
 '
 
-# T2: --brain-smoke --json prints valid JSON with class:M + 6 layers
+# T2: --brain-smoke --json prints valid JSON with class:M + 7 layers, L0 first
 run "T2-brain-smoke-json-output" '
   TMPDIR=$(mktemp -d -t 127-02-T2-XXXXXX)
   HOME="$TMPDIR" env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke --json > "$TMPDIR/out.json" 2>/dev/null
@@ -55,7 +55,8 @@ run "T2-brain-smoke-json-output" '
     const j = JSON.parse(require(\"fs\").readFileSync(\"$TMPDIR/out.json\", \"utf8\"));
     if (j.class !== \"M\") { console.error(\"class !== M, got: \" + j.class); process.exit(11); }
     if (!Array.isArray(j.layers)) { console.error(\"layers not array\"); process.exit(12); }
-    if (j.layers.length !== 6) { console.error(\"expected 6 layers, got: \" + j.layers.length); process.exit(13); }
+    if (j.layers.length !== 7) { console.error(\"expected 7 layers, got: \" + j.layers.length); process.exit(13); }
+    if (j.layers[0].id !== \"origin_shadow\") { console.error(\"layers[0].id !== origin_shadow, got: \" + j.layers[0].id); process.exit(15); }
     if (typeof j.overall_ms !== \"number\") { console.error(\"overall_ms not number\"); process.exit(14); }
   "
   rm -rf "$TMPDIR"
@@ -70,8 +71,9 @@ run "T3-class-flag-invariant-exit-0" '
   test "$EC" -eq 0
 '
 
-# T4: no-identity path (L1 OK via MINDRIAN_OS_ROOT, L2 FAIL because no key,
-# L3-L6 cascade to skipped). MINDRIAN_OS_ROOT is the resolver's first
+# T4: no-identity path (L0 OK -- a hermetic HOME carries no ~/.claude.json
+# and therefore no shadow; L1 OK via MINDRIAN_OS_ROOT; L2 FAIL because no
+# key; L3-L6 cascade to skipped). MINDRIAN_OS_ROOT is the resolver's first
 # precedence (env var) so L1 finds the plugin root cleanly even under
 # hermetic HOME without a real install. L6 (store_identity) is always
 # reached in the skipped state here and never touches the network -- this
@@ -83,23 +85,25 @@ run "T4-no-identity-refusal-cascade" '
     env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke --json > "$TMPDIR/out.json" 2>/dev/null
   node -e "
     const j = JSON.parse(require(\"fs\").readFileSync(\"$TMPDIR/out.json\", \"utf8\"));
-    if (j.layers[0].ok !== true) { console.error(\"L1 should be true (via MINDRIAN_OS_ROOT); got: \" + j.layers[0].reason); process.exit(20); }
-    if (j.layers[1].ok !== false) { console.error(\"L2 ok should be false (no key)\"); process.exit(21); }
-    if (j.layers[2].ok !== false || j.layers[2].reason !== \"skipped-prior-layer-failed\") {
-      console.error(\"L3 should be skipped; got ok=\" + j.layers[2].ok + \", reason=\" + j.layers[2].reason);
-      process.exit(22);
-    }
+    if (j.layers[0].id !== \"origin_shadow\") { console.error(\"layers[0].id !== origin_shadow, got: \" + j.layers[0].id); process.exit(19); }
+    if (j.layers[0].ok !== true) { console.error(\"L0 should be true (hermetic HOME carries no ~/.claude.json, no shadow); got: \" + j.layers[0].reason); process.exit(20); }
+    if (j.layers[1].ok !== true) { console.error(\"L1 should be true (via MINDRIAN_OS_ROOT); got: \" + j.layers[1].reason); process.exit(21); }
+    if (j.layers[2].ok !== false) { console.error(\"L2 ok should be false (no key)\"); process.exit(22); }
     if (j.layers[3].ok !== false || j.layers[3].reason !== \"skipped-prior-layer-failed\") {
-      console.error(\"L4 should be skipped; got ok=\" + j.layers[3].ok + \", reason=\" + j.layers[3].reason);
+      console.error(\"L3 should be skipped; got ok=\" + j.layers[3].ok + \", reason=\" + j.layers[3].reason);
       process.exit(23);
     }
     if (j.layers[4].ok !== false || j.layers[4].reason !== \"skipped-prior-layer-failed\") {
-      console.error(\"L5 should be skipped; got ok=\" + j.layers[4].ok + \", reason=\" + j.layers[4].reason);
+      console.error(\"L4 should be skipped; got ok=\" + j.layers[4].ok + \", reason=\" + j.layers[4].reason);
       process.exit(24);
     }
     if (j.layers[5].ok !== false || j.layers[5].reason !== \"skipped-prior-layer-failed\") {
-      console.error(\"L6 should be skipped; got ok=\" + j.layers[5].ok + \", reason=\" + j.layers[5].reason);
+      console.error(\"L5 should be skipped; got ok=\" + j.layers[5].ok + \", reason=\" + j.layers[5].reason);
       process.exit(25);
+    }
+    if (j.layers[6].ok !== false || j.layers[6].reason !== \"skipped-prior-layer-failed\") {
+      console.error(\"L6 should be skipped; got ok=\" + j.layers[6].ok + \", reason=\" + j.layers[6].reason);
+      process.exit(26);
     }
   "
   rm -rf "$TMPDIR"
