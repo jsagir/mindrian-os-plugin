@@ -1,12 +1,12 @@
 {
   "name": "@mindrian_os/cli",
-  "version": "2.0.0-beta.35",
+  "version": "2.0.0-beta.37",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@mindrian_os/cli",
-      "version": "2.0.0-beta.35",
+      "version": "2.0.0-beta.37",
       "license": "BSL-1.1",
       "dependencies": {
         "@ig3/markdown-it-wikilinks": "^1.0.2",
