@@ -108,3 +108,16 @@ Corrected the `[Unreleased]` heading from the PREP cut's placeholder (`v2.0.0-be
 ## Requirements Completed
 
 FLIP-01, FLIP-10, FLIP-11 -- the flip and its paired values are moved and committed, and the FLIP cut has a written record. The flip is NOT yet released; that is plan 339-13, the FLIP CUT, a separate human-held gate.
+
+## Dated note, 2026-09-11: the documented rollback lever is dead
+
+APPEND ONLY. No line above this heading is edited; this file remains a historical record of what was true on 2026-09-03.
+
+The one-line rollback recorded at line 92 above (set `MINDRIAN_BRAIN_URL` to the incumbent, or revert `lib/core/brain-client.cjs` line 24, "both valid only while the incumbent runs") has expired exactly as its own qualifier anticipated. Both halves of the evidence, measured live on 2026-09-11:
+
+- `https://mindrian-brain.onrender.com/mcp` returns HTTP 503 (Render "Service Suspended"). The incumbent host is gone, not merely stale.
+- `https://pws-brain-mcp.onrender.com/mcp` is still alive but answers 401 without a key, and it is no longer a valid rollback target regardless of key availability: the beta.33 `brain_ask` composition (quick task 260910-hni) is written against Theo's response shape (`directive.guided.framework`, `next_gate.options` ranked chain, the additive `grounding` field), not the incumbent's.
+
+The per-origin `CANON_NODE_FLOOR = 29000` fallback in `lib/core/doctor/class-m-brain-smoke.cjs` stays in place as a mechanism even though no origin can exercise it today: removing it would be a second edit for no gain, and it costs nothing to leave dormant.
+
+Filed as part of quick task 260911-axz (the Theo QA memo follow-ups), alongside a new class M layer 0 (`origin_shadow`) that detects the specific failure mode this expired lever cannot fix: a user-scope Claude Code connector shadowing the plugin's own shim. See `docs/339-NOTE-theo-desktop-connector-key.md` Section 9.

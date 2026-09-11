@@ -141,3 +141,40 @@ needs no change: this closure protects users who do not read that instruction (o
 backend that ships its own preferred key), it does not replace the instruction. Registering
 under `mindrian-brain` is still the correct, documented path; the code-level fix in Section 8
 is a backstop for the case where that path is not followed, not a substitute for it.
+
+## 9. Claude Code: do NOT add a user-level mindrian-brain server (2026-09-11)
+
+This section SCOPES Section 1 rather than reversing it. Section 1's advice stays exactly as
+written for the surfaces it was written for: the keep-the-name, point-at-`/mcp`, send-no-
+`Authorization` prescription is for **Claude Desktop and Cowork only**, because those surfaces
+have no plugin shim to collide with. In Claude Code, the plugin already provides `mindrian-brain`
+through its own `.mcp.json` stdio shim (project scope, in Claude Code's own vocabulary), so a
+user-level twin of the same name shadows it rather than complementing it.
+
+**The observation.** On 2026-09-11 a live beta.33 install ran Larry at Tier 0 for an entire
+session because a user-scope `~/.claude.json` entry named `mindrian-brain` (type `http`, stale
+`Authorization` header) pointed at `https://mindrian-brain.onrender.com/mcp`, which returns HTTP
+503 from Render's "Service Suspended" page. Class M probes IN PROCESS through
+`lib/core/brain-client.cjs`, which resolves to Theo, so every other doctor layer passed while the
+user's actual Claude Code session talked to the suspended shadow instead of the plugin's own
+shim. The probe was not wrong; it was blind to the one thing that mattered.
+
+**The fix.** Remove the shadowing entry, never repoint it:
+
+```
+claude mcp remove mindrian-brain -s user
+claude mcp remove mindrian-brain -s local
+```
+
+Use `-s user` for a top-level `~/.claude.json` `mcpServers` entry, `-s local` for the
+`projects["<dir>"].mcpServers` variant.
+
+**Why removal, and not a URL swap.** A raw HTTP connector reaches Theo directly and therefore
+bypasses `lib/core/brain-client.cjs`, losing the beta.33 `brain_ask` composition (the framework
+directive, the ranked `next_gate` chain with its `/mos:` commands, and the grounding rows). So
+repointing the twin's URL at Theo would fix the 503 and still leave the user with a thinner
+Larry -- the shim, not a URL, is the correct connector for Claude Code.
+
+**The backstop.** Class M layer 0 (`origin_shadow`, quick task 260911-axz) now detects this case
+on every `--brain-smoke` run and prints the exact scope, host, and `claude mcp remove` fix line
+above, so a future install does not have to rediscover this the same way.

@@ -1,7 +1,38 @@
 ## [Unreleased] -- v2.0.0-beta.34 (in progress)
 
-### Added
-- 
+### Added - doctor sees the Tier 0 shadow, Theo's node floor stops rubber-stamping (quick task 260911-axz)
+
+- `node scripts/doctor.cjs --brain-smoke` grows a new layer 0 (`origin_shadow`), ahead of the
+  existing 6-layer probe, closing the exact blind spot a live install hit: on 2026-09-11 a
+  beta.33 install ran Larry at Tier 0 for an entire session because a user-scope
+  `~/.claude.json` `mindrian-brain` entry (type `http`, stale `Authorization` header) shadowed
+  the plugin's own `.mcp.json` stdio shim of the same name and returned HTTP 503. Doctor did not
+  detect it, because the smoke probe runs IN PROCESS through `lib/core/brain-client.cjs`, which
+  resolves to Theo, so every other layer passed. Layer 0 reports, in one row: the resolved Brain
+  origin, whether it is Theo, whether `MINDRIAN_BRAIN_URL` overrode it, Theo's live `mode` and
+  `build_stamp.sha`, and (when present) the exact scope, host, and `claude mcp remove
+  mindrian-brain -s <scope>` fix line for a shadowing connector. It never prints an
+  `Authorization` value or any other header value, and it never short-circuits layers 1-6: a
+  shadow finding is reported alongside their own verdicts, not instead of them.
+- `THEO_NODE_FLOOR` (`lib/core/doctor/class-m-brain-smoke.cjs`) moved from `1000` to `27000`,
+  a 3.4 percent margin under the 27,951 nodes measured live on 2026-09-11. The old floor would
+  have passed a 96 percent content loss without a single not-ok row. `CANON_NODE_FLOOR` (29000,
+  for a rolled-back origin) is unchanged.
+- `data/brain-census.generated.json` and `docs/BRAIN-GRAPH-CENSUS.generated.md` regenerated
+  against the live Theo origin (`https://theo-mcp.onrender.com`), naming the origin and the
+  2026-09-11 run date in the document's own prose. The incumbent census lane still renders
+  byte-identically from the pre-existing incumbent data.
+
+### Changed
+
+- `docs/339-NOTE-theo-desktop-connector-key.md` gains a new Section 9 scoping the keep-the-name
+  Desktop/Cowork connector advice away from Claude Code: the plugin already provides
+  `mindrian-brain` there through its own stdio shim, so a user-level twin of the same name
+  shadows rather than complements it.
+- `.planning/seeds/SEED-082-bidirectional-command-framework-sync-drift-detection.md` moved to
+  `status: triggered`, carrying the 21-beta command-registry version skew, the zero-Sensor /
+  84-Reach projection gap, the 9-methodology-command framework sync gap, and the Sensor
+  claim-side-versus-existence-side open design question.
 
 ## [2.0.0-beta.33] - 2026-09-10
 
