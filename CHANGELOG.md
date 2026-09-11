@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.34 (in progress)
+## [2.0.0-beta.35] - 2026-09-11
 
 ### Added - doctor sees the Tier 0 shadow, Theo's node floor stops rubber-stamping (quick task 260911-axz)
 
