@@ -138,6 +138,18 @@ run_if "SPEC-5 hooks/ adapter-only budget (import audit + line-count)" \
   lib/mcp/hook-adapter-audit.cjs \
   node tests/test-198-adapter-budget.test.cjs
 
+# SPEC-5 -- hooks/hooks.json top level is hooks-only (quick task 260911-juq).
+# Claude Code 2.1.268 warned "hooks.json: unknown keys ... ignored" on every
+# session start because two build-metadata markers sat at the top level of
+# hooks/hooks.json alongside the real "hooks" key. This leg guards both the
+# fix (top level is exactly ["hooks"]) and the fix's own failure mode (the
+# markers silently going dead in their new sidecar, data/hooks-markers.json,
+# which would make migratedSurfaces() return [] and the D-06 budget above
+# vacuous without ever failing).
+run_if "SPEC-5 hooks.json top level is hooks-only (loader unknown-keys warning, quick 260911-juq)" \
+  tests/test-quick-260911-juq-hooks-json-top-level.cjs \
+  node tests/test-quick-260911-juq-hooks-json-top-level.cjs
+
 # SPEC-5 / D-05 bounded escape (mcp-first-path-retry-ceiling-hardcoded-zero,
 # 2026-07-28). The Stop-gate handler used to hardcode BOTH bounded-escape
 # counters to zero before every classifyCardFire call, so MAX_FORCE_RETRIES and

@@ -1,5 +1,19 @@
 ## [Unreleased] -- v2.0.0-beta.36 (in progress)
 
+### Fixed - hooks.json no longer prints an unknown-keys warning at every session start (quick task 260911-juq)
+
+- Claude Code 2.1.268 printed, on every session start on every surface that loads the
+  plugin manifest: `hooks.json: unknown keys "_mcpFirst198Migrated",
+  "_firstInstallRouterOrdering" ignored`. Both keys were our own build metadata, never
+  hook configuration, so the loader was correct to ignore them and correct to complain.
+  They now live in `data/hooks-markers.json`, and `hooks/hooks.json`'s top level is
+  exactly one key, `hooks`. No matcher, command, or timeout inside the hooks block
+  changed; the block is byte-identical to the pre-fix file.
+- New guard test `tests/test-quick-260911-juq-hooks-json-top-level.cjs`, registered as
+  a leg of `bash tests/run-all-198.sh`, keeps both halves of this fix honest going
+  forward: the top level cannot silently grow a stray key again, and the sidecar path
+  cannot silently go dead and make the D-06 adapter budget vacuous.
+
 ### Added - a per-install opaque header lets Theo bucket without learning who you are (quick task 260911-iko)
 
 - Every Brain call now carries `x-theo-install-id`: a 32-character lowercase hex value
