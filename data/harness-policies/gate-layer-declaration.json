@@ -1,0 +1,13 @@
+{
+  "id": "gate-layer-declaration",
+  "kind": "gate",
+  "runner": "scripts/check-layer-declaration.cjs",
+  "args": [],
+  "rung": "logged",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.1, "min_true_positives": 10 },
+  "owner": "doctor",
+  "pinned_by": ["tests/test-344-layer-gate.cjs"],
+  "applies_to": ["pre-tag", "full"],
+  "notes": "The gate itself is FAIL CLOSED by default: a surface born without a layer, or one declaring a value outside the closed vocabulary, or a none declaration missing layer_why, exits 1 unconditionally, with no --strict opt-out. This rung governs only whether the release tier fails on that exit code, and it enters at logged (not blocking) because no evidence log exists for this gate yet, matching the posture gate-shape-declaration.json records for the same reason. Promotion to blocking, and any wiring into scripts/hooks/pre-commit, is a separate one-line human edit after a window of green whole-tree runs; it is never automatic and is not part of this phase. As of this gate's own birth, before the 344-03 backfill lands, a bare run over the real repo exits 1 because no surface has declared a layer yet - that is the honest pre-backfill state, not a defect in the gate."
+}

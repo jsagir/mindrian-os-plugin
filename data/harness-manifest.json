@@ -47,8 +47,8 @@
   ],
   "policies": {
     "path": "data/harness-policies",
-    "digest": "10960f4c9e8f0cdb9f7e322ae3ddadb58c75e86c0c056dd67c5e29d97944c17f",
-    "count": 13
+    "digest": "84c06eb389a00150b0a8613cb1f019f1fc65c5d959a84cf048f20d12c37a42f3",
+    "count": 14
   },
   "larry_surfaces": [
     {
