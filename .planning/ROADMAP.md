@@ -691,6 +691,17 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 342 to break down)
 
+### Phase 343: The room-graph audit node and the counter-metric rule (graph-engineering learning, 2026-09-14): the plugin is the upper layer of a two-layer system, a graph of agents with one reviewer node (the navigator at the gate), and it is missing the two watcher roles every optimizing node needs. Origin: the same day's langtalks-graph-expert audit found 168 edges pointing at nodes that did not exist, invisible to every query for weeks, the exact fail-open-on-missing-endpoint disease graph_write's read_version guard discloses (276-11) but nothing measures. Five deliverables. (1) /mos:doctor --room-graph-integrity: a per-room census of defects reported as counts only under SEED-074's hard guard, no health or risk claim: edge endpoints with no node, claim nodes with no structural anchor (no SOURCED_FROM or equivalent), stub or placeholder nodes, proposed claims older than N days, unresolved CONTRADICTS; reads every room through the Phase 232.1 read-only navigation door and never mutates. (2) The same measurement registered in SENSOR_REGISTRY as an insight sensor, so a room crossing a defect threshold fires a reach candidate through the shipped dispatchSensors path instead of waiting for a manual doctor run. (3) Counter-metric doctrine: every sensor or reach that optimizes a quantity declares its paired watcher in the registry entry; the first pair ships with it, claims filed versus claims later contradicted or never cited, and divergence surfaces as a finding. (4) The help family map labels every command by its engineering layer (prompt, context, harness, loop, graph) and documents the six loop-versus-graph signals (task shape, parallelism, tools per step, auditable roles, fault isolation, who verifies) as the stated rule for when chain_resolve composes a chain versus runs a single framework; a step is material exactly when it needs the independent reviewer. (5) Release lockstep gains a seventh place: a plugin release is not done until Theo has re-emitted its command layer against it, added to VERSION-BUMP-CHECKLIST.md and release.sh beside the six existing places, closing the seam that let five betas ship with zero Theo re-syncs. Does not re-scope Phase 273 (writeEdge hardening) or 276-11 (fail-open disclosure); it measures what they guard. Consults icm-architect (standing rule for room and local-graph work) and langtalks-graph-expert before any graph-design assumption.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 342
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 343 to break down)
+
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD
