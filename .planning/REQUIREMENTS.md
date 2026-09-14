@@ -1543,7 +1543,7 @@ constitutionally.
       `scripts/backfill-layer.cjs`, whose apply pass is idempotent and leaves every other
       frontmatter key, every body line and every byte outside the layer block unchanged.
 
-- [ ] **LAYER-07**: Every `agents/*.md`, every `pipelines/*/CHAIN.md`, every qualifying
+- [x] **LAYER-07**: Every `agents/*.md`, every `pipelines/*/CHAIN.md`, every qualifying
       `skills/*/SKILL.md`, and every MCP tool connector descriptor carries its layer through the
       same map and the same generator path.
 

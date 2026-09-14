@@ -3,9 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 344-03-PLAN.md
-last_updated: "2026-09-14T13:58:12.849Z"
-last_activity: 2026-09-14 -- 344-03 completed (navigator ratified all twelve working decisions, layer backfill applied to all 113 commands)
+stopped_at: Completed 344-04-PLAN.md
+last_updated: "2026-09-14T14:31:46.445Z"
+last_activity: 2026-09-14 -- 344-04 completed (agent/pipeline/skill layer backfill extended to
+  220 map entries; 27 MCP tool connector descriptors now carry layer;
+  tests/test-344-surface-layer-parity.cjs proves the gate zero over the real tree)
 progress:
   total_phases: 97
   completed_phases: 27
@@ -4289,12 +4291,28 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - EXECUTING
-Plan: 344-01/02/03/05 complete (non-linear wave execution); 344-04/06/07/08/09 pending
-Status: Ready to execute (344-04 is the next unblocked plan in wave order)
-Last activity: 2026-09-14 -- 344-03 completed (navigator ratified all twelve working decisions;
-  the layer backfill applied to all 113 commands/*.md; tests/test-344-layer-backfill.cjs RED then
-  GREEN; command-registry.json, harness-manifest.json, and 112 skill mirrors regenerated as
-  auto-fixed pre-commit-guard blockers; doctor --acceptance 20/20 post-commit)
+Plan: 344-01/02/03/04/05 complete (non-linear wave execution); 344-06/07/08/09 pending
+Status: Ready to execute (344-06 is the next unblocked plan in wave order)
+Last activity: 2026-09-14 -- 344-04 completed (data/layer-backfill.json extended from 113 command
+  rows to 220 total entries across agent/pipeline/skill; 37 exempt skills confirmed absent from the
+  map per WD-7; 27 MCP tool connector descriptors now carry layer via a two-key extension to
+  build-connector-registry.cjs's normalizeMcpToolEntry; tests/test-344-surface-layer-parity.cjs
+  proves scripts/check-layer-declaration.cjs reports zero undeclared over the real 284-surface tree;
+  doctor --acceptance 20/20 post-commit)
+
+<!-- NOTE (344-04 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in
+     Phase from STATE.md"), skipped -- the Plan/Status lines above were hand-corrected instead.
+     `state.record-metric --phase 344 --plan 04` correctly appended the `Phase 344 P04 | ~55min |
+     3 tasks | 44 files` row without disturbing frontmatter `percent` this run. `state.update-progress`
+     correctly computed `percent: 82` in its own returned JSON but persisted the stale `percent: 28`
+     into the frontmatter -- hand-corrected to 82. `state.add-decision --phase 344` also embedded a
+     literal em-dash between the summary and rationale clauses (a house-rule violation this repo
+     forbids everywhere) AND re-clobbered frontmatter `percent` back to 28 in the same write --
+     hand-corrected both: the em-dash to a hyphen, `percent` back to 82 a second time.
+     `state.record-session --stopped-at "Completed 344-04-PLAN.md"` correctly updated `stopped_at`
+     and did not re-clobber `percent`. Same root cause as every other note in this file, not
+     re-investigated further here. -->
 
 <!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
      this file): `state.advance-plan` returned {"previous_plan":4,"current_plan":5,"total_plans":9}
@@ -5564,6 +5582,7 @@ Progress: [█████████░] 92%
 | Phase 344 P02 | 5min | 3 tasks | 7 files |
 | Phase 344 P05 | 55min | 2 tasks | 4 files |
 | Phase 344 P03 | 35min | 3 tasks | 227 files |
+| Phase 344 P04 | ~55min | 3 tasks | 44 files |
 
 ## Accumulated Context
 
@@ -7116,6 +7135,7 @@ Progress: [█████████░] 92%
 - [Phase 344-05]: Plan's rule-8 fix_supported citation (tests/test-298-contract-parity.cjs) is stale; the actual gate is tests/test-doctor-module-contract-parity.cjs. Ran both.
 - [Phase 344]: Navigator ratified all twelve working decisions (WD-1..WD-12) in docs/LAYER-DECLARATION-CONTRACT.md as written at the 344-03 checkpoint
 - [Phase 344]: Skill-mirror and harness-manifest regeneration auto-applied under Rule 3 in 344-03 Task 3, even though neither file is in the plan's files_modified list, because the pre-commit hook hard-blocks a staged commands/*.md or command-registry.json change against either artifact going stale
+- [Phase 344]: Non-command surfaces inherit their 1-to-1 mirrored command's already-ratified layer verbatim (30 skills), rather than re-guessing - a skill that mirrors a command byte-for-byte engineers the identical own-rung layer by construction (WD-6); zero mismatches confirmed against the 55 mechanically pre-resolved mirrors before applying
 
 ### Pending Todos
 
@@ -7255,8 +7275,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T13:58:12.703Z
-Stopped at: Completed 344-03-PLAN.md
+Last session: 2026-09-14T14:31:46.353Z
+Stopped at: Completed 344-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
