@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: Plan 343-08 labeled every help card by its engineering layer and wrote the six loop-versus-graph signals (CENSUS-14)
-stopped_at: Completed 343-08-PLAN.md
-last_updated: "2026-09-14T18:33:43.812Z"
-last_activity: "2026-09-14 -- 343-08 completed (help family map layer label + loop-versus-graph signals, CENSUS-14)"
+status: "Plan 343-05 computed the first counter-metric pair (CENSUS-09): claim-counter-metric.cjs"
+stopped_at: Completed 343-05-PLAN.md
+last_updated: "2026-09-14T18:57:33.413Z"
+last_activity: "2026-09-14 -- 343-05 completed (first counter-metric pair computed, doctrine Section 7 dated reading)"
 progress:
   total_phases: 98
   completed_phases: 28
@@ -4354,9 +4354,29 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
-Plan: 343-08 complete (5/9 plans; 343-05, 343-06, 343-07, 343-09 remain, executed out of wave
+Plan: 343-05, 343-08 complete (6/9 plans; 343-06, 343-07, 343-09 remain, executed out of wave
   order per the plan's own recorded WD-11/WD-17 dependency inversion on 344-03)
-Status: Plan 343-08 labeled every help card by its engineering layer (CENSUS-14): scripts/help-
+Status: Plan 343-05 computed the first counter-metric pair declared in 343-04: lib/core/
+  navigation/claim-counter-metric.cjs (countClaimCounterMetric(db), CITATION_LAG_DAYS=30) counts
+  claims_filed, claims_filed_past_citation_lag, claims_with_contradicts_edge, and
+  claims_no_incoming_edge_past_citation_lag over the shipped CONTRADICTS edge vocabulary, plus a
+  tri-state divergence boolean (true/false/null, never a ratio). lib/core/doctor/room-graph-
+  integrity-module.cjs now reports claim_counter_metric per room and totals.claim_counter_metric
+  (four summed counts plus rooms_diverged/rooms_not_diverged/rooms_not_measurable -- the boolean
+  is never summed or averaged). docs/COUNTER-METRIC-DOCTRINE.md gained Section 7, a dated
+  2026-09-14 fleet reading (55 rooms measured, 46 with a room.db: claims_filed 7836, past-lag
+  7028, contradicts 0, no-incoming-past-lag 7026, rooms_diverged 12 / not_diverged 16 /
+  not_measurable 18), replacing the research-time snapshot and naming SENS-06's watched_by record
+  in both directions. tests/test-343-counter-metric-pair.cjs: 9 scenarios, RED (9ae3a8dc) then
+  GREEN (9afb1ac2) for the statement home, then the organ extension (e76d7f81). One documented
+  deviation (not auto-fixed, out of scope): `node scripts/doctor.cjs --json --cascade-rooms`
+  cannot surface claim_counter_metric on this machine because the accumulative engine resolves
+  its running version from the local marketplace-cache install (2.0.0-beta.37), which lags this
+  repo's own version (2.0.0-beta.40) and defers every cadence:always flag:null module introduced
+  at beta.40 (pre-existing, also affects Phase 344's icm-part-wiring); the doctrine's reading was
+  produced instead by calling the organ's exported check() directly. Full detail in
+  343-05-SUMMARY.md.
+Previously: Plan 343-08 labeled every help card by its engineering layer (CENSUS-14): scripts/help-
   renderer.cjs reads data/command-registry.json's generated layer field once into a per-command
   map, validated against data/layer-declaration-schema.json's vocabulary (never copied as a
   literal list); a total-absence halts naming 344-03, a partial gap renders the [no-layer]
@@ -4371,7 +4391,7 @@ Status: Plan 343-08 labeled every help card by its engineering layer (CENSUS-14)
   WHOLE file including frontmatter, which false-positives against 344-03's own pre-existing
   layer/layer_why frontmatter plus the plan's own mandatory doc-filename citation; the test's scan
   was scoped to the markdown body only (frontmatter excluded). Full detail in 343-08-SUMMARY.md.
-Previously: Plan 343-04 shipped the counter-metric declaration and its fourth gate
+Before that: Plan 343-04 shipped the counter-metric declaration and its fourth gate
   arm: lib/core/sensors/sensor-priority.cjs's SENS_PRIORITY reshaped from
   twenty id strings to twenty frozen { id, optimizes, watched_by, why }
   records (WD-8, order and rank contract byte-identical to the prior table),
@@ -5798,6 +5818,7 @@ Progress: [█████████░] 92%
 | Phase 343 P03 | 55min | 3 tasks | 9 files |
 | Phase 343 P04 | 70min | 3 tasks | 5 files |
 | Phase 343 P08 | 25min | 3 tasks | 5 files |
+| Phase 343 P05 | 65min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -7374,6 +7395,7 @@ Progress: [█████████░] 92%
 - [Phase 343]: SENS_PRIORITY reshaped to per-id { id, optimizes, watched_by, why } records (WD-8); 18 of 20 sensors paired, SENS-01/SENS-05 explicit null/null - one home per fact over a third index-parallel array; a fourth fail-closed build gate arm now enforces the pairing
 - [Phase 343]: docs/COUNTER-METRIC-DOCTRINE.md ships with the counting rule quoted verbatim and the first pair's 2026-09-14 reading (7,794 filed, 0 contradicted, 7,791 never cited) - prevents 0 contradicted from reading as a perfect score; sets no threshold and produces no score per SEED-074
 - [Phase 343]: 343-08: scoped the help.md vocabulary/count acceptance scan to prose body only (frontmatter excluded), since the plan's literal whole-file check false-positives against 344-03's own pre-existing frontmatter plus the mandatory LOOP-VERSUS-GRAPH-SIGNALS.md filename citation
+- [Phase 343]: The divergence boolean's null-vs-0 split between legacy (null) and unreadable (0) schema variants is deliberate: computeDivergence reacts only to whether claims_filed_past_citation_lag is a number, per the plan's own behavior list
 
 ### Pending Todos
 
@@ -7513,8 +7535,33 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T18:33:43.706Z
-Stopped at: Completed 343-08-PLAN.md
+Last session: 2026-09-14T18:57:15.960Z
+Stopped at: Completed 343-05-PLAN.md
+
+**Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
+declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
+(`countClaimCounterMetric(db)`, `CITATION_LAG_DAYS=30`): four counts over the shipped
+CONTRADICTS edge vocabulary (claims_filed, claims_filed_past_citation_lag,
+claims_with_contradicts_edge, claims_no_incoming_edge_past_citation_lag) plus a tri-state
+divergence boolean, never a ratio; reuses `schemaVariant` from the 343-02 sibling rather than
+re-implementing the PRAGMA gate. `lib/core/doctor/room-graph-integrity-module.cjs` extended:
+`claim_counter_metric` per room, `totals.claim_counter_metric` (four summed counts plus
+rooms_diverged/rooms_not_diverged/rooms_not_measurable -- the boolean is never summed or
+averaged). `docs/COUNTER-METRIC-DOCTRINE.md` Section 7 (dated 2026-09-14): 55 rooms measured, 46
+with a room.db, claims_filed 7836, past-lag 7028, contradicts 0, no-incoming-past-lag 7026,
+rooms_diverged 12 / not_diverged 16 / not_measurable 18, replacing the 343-04 research-time
+snapshot and naming SENS-06's watched_by record in both directions. `tests/test-343-counter-
+metric-pair.cjs`: 9 scenarios, TDD RED (9ae3a8dc) then GREEN (9afb1ac2) for the statement home,
+then the organ extension (e76d7f81). `bash tests/run-all-343.sh` PASS=9 FAIL=0 SKIP=2;
+`node scripts/doctor.cjs --acceptance` 20/20 on a clean tree. One documented deviation (not
+auto-fixed, out of scope): `node scripts/doctor.cjs --json --cascade-rooms` cannot surface
+`claim_counter_metric` on this machine because the accumulative engine resolves its running
+version from the LOCAL marketplace-cache install (2.0.0-beta.37), which lags this repo's own
+version (2.0.0-beta.40, `node lib/core/repo-version.cjs`) and defers every cadence:always
+flag:null module introduced at beta.40 (confirmed pre-existing: Phase 344's icm-part-wiring is
+deferred the same way, unrelated to this plan); the doctrine's reading was instead produced by
+calling the organ's exported `check(ctx)` directly, the byte-identical function the engine would
+invoke once the cache catches up. See `343-05-SUMMARY.md`.
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

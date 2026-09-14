@@ -1694,7 +1694,7 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
       `node tests/test-343-counter-metric-declaration.cjs` and the extended
       `node tests/test-245-priority-complete.cjs` both pass (8/8 checks each).
 
-- [ ] **CENSUS-09**: the first counter-metric pair is computed from `room.db` with the
+- [x] **CENSUS-09**: the first counter-metric pair is computed from `room.db` with the
       existing edge vocabulary and reported as counts plus one boolean, never a score,
       carrying the unread-log counting rule.
 

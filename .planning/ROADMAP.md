@@ -698,7 +698,7 @@ Plans:
 **Goal:** Every room's local graph is measured by a counts-only audit organ that names four defect classes and refuses to judge them, the same measurement fires as an insight sensor on a per-room threshold, every sensor declares the counter-metric that watches what it optimizes, the release lockstep has one home plus a Theo re-emit gate that fails closed, and the help family map labels every command by its engineering layer.
 **Requirements**: CENSUS-01 .. CENSUS-17
 **Depends on:** Phase 342 (and, for plan 343-08 only, Phase 344's 344-03 command backfill: a deliberate, recorded dependency inversion)
-**Plans:** 5/9 plans executed
+**Plans:** 6/9 plans executed
 
 Plans:
 
@@ -706,7 +706,7 @@ Plans:
 - [x] 343-02-PLAN.md - the counts-only room-graph integrity organ: four measurable defect statements in one shared statement home, read-only door, null and never zero on a legacy schema, the writer gaps named in its own output
 - [x] 343-03-PLAN.md - lib/core/navigation/CONTEXT.md replaces the stale ROOM.md, one routing row in the loaded CLAUDE.md include, the wrong lazygraph path corrected and the .room-graph name collision annotated at all five sites
 - [x] 343-04-PLAN.md - the counter-metric declaration inside sensor-priority.cjs as per-id records, a fourth fail-closed arm on the shipped build gate, and the doctrine with the counting rule quoted verbatim
-- [ ] 343-05-PLAN.md - the first counter-metric pair computed from room.db: four counts and one tri-state boolean, never a ratio, with a measured dated reading in the doctrine
+- [x] 343-05-PLAN.md - the first counter-metric pair computed from room.db: four counts and one tri-state boolean, never a ratio, with a measured dated reading in the doctrine
 - [ ] 343-06-PLAN.md - SENS-19 in all six registration places plus the ungated ctx producer block, firing the existing contradiction reach on a per-room threshold, proved end to end through decide()
 - [ ] 343-07-PLAN.md - one home for the lockstep count, then the Theo command-layer stamp gate in the release preamble. One blocking navigator checkpoint before the release-train edit (autonomous: false)
 - [x] 343-08-PLAN.md - the help family map layer label read from the generated registry, and the six loop-versus-graph signals as the stated chain-composition rule. Depends on 344-03
