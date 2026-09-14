@@ -1,0 +1,453 @@
+{
+  "commands/act.md": {
+    "layer": "graph"
+  },
+  "commands/admin.md": {
+    "layer": "harness",
+    "layer_why": "Opens the admin panel to inspect and rotate Brain API keys, a credential/registry management operation over the harness, not new methodology output.",
+    "rubric_stopped_at": 3
+  },
+  "commands/agentshield.md": {
+    "layer": "harness",
+    "layer_why": "Scans the plugin's own MCP tools, hooks, skills, CLAUDE.md and dependencies for known attack patterns, a measurement pass over the harness itself.",
+    "rubric_stopped_at": 3
+  },
+  "commands/analyze-needs.md": {
+    "layer": "loop"
+  },
+  "commands/analyze-systems.md": {
+    "layer": "loop"
+  },
+  "commands/analyze-timing.md": {
+    "layer": "loop"
+  },
+  "commands/auto-explore.md": {
+    "layer": "loop",
+    "layer_why": "Runs the same domain-decomposition cycle the PostToolUse hook fires automatically, a single agent cycle to a stopping condition, kind:utility only because it is hook-triggered rather than navigator-typed.",
+    "rubric_stopped_at": 3
+  },
+  "commands/beautiful-question.md": {
+    "layer": "loop"
+  },
+  "commands/bono.md": {
+    "layer": "graph"
+  },
+  "commands/brain-derive.md": {
+    "layer": "context",
+    "layer_why": "Rebuilds a room section's Brain-derived context on demand, changing what the model sees this turn without engineering new methodology.",
+    "rubric_stopped_at": 3
+  },
+  "commands/build-knowledge.md": {
+    "layer": "graph"
+  },
+  "commands/build-thesis.md": {
+    "layer": "loop"
+  },
+  "commands/causal.md": {
+    "layer": "loop"
+  },
+  "commands/challenge-assumptions.md": {
+    "layer": "graph"
+  },
+  "commands/compare-ventures.md": {
+    "layer": "loop"
+  },
+  "commands/correct-reference-now.md": {
+    "layer": "context",
+    "layer_why": "Writes the true calendar date into the room's temporal reference, a session/context fact correction, not a methodology cycle or scaffolding change.",
+    "rubric_stopped_at": 3
+  },
+  "commands/dashboard.md": {
+    "layer": "none",
+    "layer_why": "Opens the live or snapshot De Stijl view; a render-only view of already-produced room state, the rubric's own literal none example.",
+    "rubric_stopped_at": 3
+  },
+  "commands/deck.md": {
+    "layer": "loop",
+    "layer_why": "One governed flow (pick a shape, Feynman or HEART) that runs to completion and files a deck artifact, the same single-cycle shape as a methodology command, kind:mechanical only because it composes existing content rather than analyzing new content.",
+    "rubric_stopped_at": 3
+  },
+  "commands/deep-grade.md": {
+    "layer": "loop"
+  },
+  "commands/diagnose.md": {
+    "layer": "graph"
+  },
+  "commands/diagnostics.md": {
+    "layer": "loop"
+  },
+  "commands/dial-memory-refresh.md": {
+    "layer": "context"
+  },
+  "commands/diffusion.md": {
+    "layer": "loop"
+  },
+  "commands/discover.md": {
+    "layer": "loop"
+  },
+  "commands/doctor.md": {
+    "layer": "harness",
+    "layer_why": "Diagnoses install-cache drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name.",
+    "rubric_stopped_at": 3
+  },
+  "commands/dogfood-flush.md": {
+    "layer": "context"
+  },
+  "commands/dominant-designs.md": {
+    "layer": "loop"
+  },
+  "commands/eureka.md": {
+    "layer": "loop",
+    "layer_why": "Ranks cross-domain pairs into fundable-opportunity flags in one analysis cycle to a stopping condition, the same shape as a methodology command.",
+    "rubric_stopped_at": 3
+  },
+  "commands/explain-decision.md": {
+    "layer": "none",
+    "layer_why": "Shows the Navigation Engine trace for the last turn; a pure diagnostic render of a decision already made, not itself an engineering rung.",
+    "rubric_stopped_at": 3
+  },
+  "commands/explore-domains.md": {
+    "layer": "loop"
+  },
+  "commands/explore-futures.md": {
+    "layer": "graph"
+  },
+  "commands/explore-opportunity.md": {
+    "layer": "graph",
+    "layer_why": "Explicitly runs the analysis chain (deep dive across multiple methodology steps) for a qualified opportunity -- a command that dispatches a chain, the rubric's own step 1 signal.",
+    "rubric_stopped_at": 3
+  },
+  "commands/explore-trends.md": {
+    "layer": "loop"
+  },
+  "commands/export.md": {
+    "layer": "none",
+    "layer_why": "Packages an already-built room view as a shareable HTML artifact; a render/export of existing state, engineering no new rung.",
+    "rubric_stopped_at": 3
+  },
+  "commands/feynman-timeline-refresh.md": {
+    "layer": "context"
+  },
+  "commands/file-meeting.md": {
+    "layer": "loop",
+    "layer_why": "Captures a transcript and files the resulting intelligence into room sections in one filing cycle to completion, the same shape as a methodology command that produces an artifact.",
+    "rubric_stopped_at": 3
+  },
+  "commands/find-analogies.md": {
+    "layer": "loop"
+  },
+  "commands/find-bottlenecks.md": {
+    "layer": "loop"
+  },
+  "commands/find-connections.md": {
+    "layer": "loop"
+  },
+  "commands/funding.md": {
+    "layer": "harness",
+    "layer_why": "Manages the grant/investor pipeline lifecycle (spotted to applied to decided) as a tracked registry, a harness-scaffolding operation.",
+    "rubric_stopped_at": 3
+  },
+  "commands/futures.md": {
+    "layer": "loop"
+  },
+  "commands/grade-grant.md": {
+    "layer": "graph"
+  },
+  "commands/grade.md": {
+    "layer": "loop"
+  },
+  "commands/graph.md": {
+    "layer": "none",
+    "layer_why": "Translates a plain-English question into a graph traversal and displays the result; a read-only query/render view, not new engineering.",
+    "rubric_stopped_at": 3
+  },
+  "commands/hat-briefing.md": {
+    "layer": "loop"
+  },
+  "commands/heal.md": {
+    "layer": "harness",
+    "layer_why": "Deprecated alias for /mos:doctor --heal-room; the underlying job is repairing structural drift, the rubric's own step 3 repair signal.",
+    "rubric_stopped_at": 3
+  },
+  "commands/help.md": {
+    "layer": "harness",
+    "layer_why": "A command-family selector that dispatches the navigator to the right surface; routing/dispatch scaffolding, not new methodology or context.",
+    "rubric_stopped_at": 3
+  },
+  "commands/hmi-status.md": {
+    "layer": "harness",
+    "layer_why": "Deprecated alias for /mos:doctor --ui-compliance; the underlying job is measuring UI Ruling System compliance, a doctor-organ measurement.",
+    "rubric_stopped_at": 3
+  },
+  "commands/ignite.md": {
+    "layer": "graph",
+    "layer_why": "Walks three sequential birth gates (starting point, blueprint approve, first win), each an independent human-ratified checkpoint -- the rubric's own step 1 signal for halting at a material step for an independent reviewer, repeated three times.",
+    "rubric_stopped_at": 3
+  },
+  "commands/ingest-methodology.md": {
+    "layer": "graph",
+    "layer_why": "Runs the maintainer's named 7-step pipeline (encode, Part-8 bound, and on) end to end, a multi-step coordinated flow over shared state.",
+    "rubric_stopped_at": 3
+  },
+  "commands/intel-pipeline.md": {
+    "layer": "graph"
+  },
+  "commands/jtbd.md": {
+    "layer": "loop"
+  },
+  "commands/leadership.md": {
+    "layer": "loop"
+  },
+  "commands/lean-canvas.md": {
+    "layer": "loop"
+  },
+  "commands/macro-trends.md": {
+    "layer": "loop"
+  },
+  "commands/map-unknowns.md": {
+    "layer": "loop"
+  },
+  "commands/memory-cortex-reach.md": {
+    "layer": "harness",
+    "layer_why": "Surfaces a stale governing thought or a fresh contradiction against a claim by reading the memory cortex, a harness-level memory measurement, the rubric's own step 3 memory_event signal.",
+    "rubric_stopped_at": 3
+  },
+  "commands/memory.md": {
+    "layer": "none",
+    "layer_why": "Shows the three memory layers (within-session, across-session, cross-room); a read-only diagnostic display of existing state.",
+    "rubric_stopped_at": 3
+  },
+  "commands/models.md": {
+    "layer": "harness",
+    "layer_why": "Opens the routing profile and lets the navigator switch which model routes which kind of work; a configuration/registry toggle over the harness.",
+    "rubric_stopped_at": 3
+  },
+  "commands/mos-reason.md": {
+    "layer": "loop"
+  },
+  "commands/mos.md": {
+    "layer": "harness",
+    "layer_why": "Picks the right /mos:* surface to invoke when the navigator does not know which one to use; a routing/dispatch mechanism, the ICM Layer 1 routing job implemented as harness scaffolding.",
+    "rubric_stopped_at": 3
+  },
+  "commands/mullins.md": {
+    "layer": "loop"
+  },
+  "commands/mva-brief.md": {
+    "layer": "graph",
+    "layer_why": "Explicitly runs a 6-agent fan-out and deploys a shareable brief, the rubric's own step 1 fan-out signal by name.",
+    "rubric_stopped_at": 3
+  },
+  "commands/mva-option.md": {
+    "layer": "harness",
+    "layer_why": "Routes the navigator's pick from the 3-option MVA footer into the correct next move; a dispatch mechanism, not new methodology output.",
+    "rubric_stopped_at": 3
+  },
+  "commands/mva-report.md": {
+    "layer": "harness",
+    "layer_why": "Measures whether a prior conversation fired the right things at the right time and reports compliance, the same measurement job class as a doctor organ.",
+    "rubric_stopped_at": 3
+  },
+  "commands/new-project.md": {
+    "layer": "harness",
+    "layer_why": "Creates room scaffolding and registers the new room in the room registry; the rubric's own step 3 signal names both \"add scaffolding\" and \"a registry\" verbatim.",
+    "rubric_stopped_at": 3
+  },
+  "commands/new-surface.md": {
+    "layer": "harness",
+    "layer_why": "Emits a new command/agent/skill .md file with the correct connector descriptor; adding a tool to the harness, the rubric's own step 3 signal verbatim.",
+    "rubric_stopped_at": 3
+  },
+  "commands/onboard.md": {
+    "layer": "loop",
+    "layer_why": "A single guided walkthrough cycle that builds the navigator's first room to a stopping condition, the same shape as a methodology command's cycle-to-artifact.",
+    "rubric_stopped_at": 3
+  },
+  "commands/operator.md": {
+    "layer": "prompt",
+    "layer_why": "Shows or sets how Larry should render this session (JUST_TALK, EXPLORE_CAPTURE, and so on); shapes the output style of subsequent turns, the rubric's own step 5 signal.",
+    "rubric_stopped_at": 3
+  },
+  "commands/opportunities.md": {
+    "layer": "harness",
+    "layer_why": "Surfaces the Opportunity Bank registry with HSI scores and manages it as a live pipeline; a registry-management operation over the harness.",
+    "rubric_stopped_at": 3
+  },
+  "commands/organize.md": {
+    "layer": "harness",
+    "layer_why": "Deprecated alias for /mos:rooms organize; the underlying job is managing the room portfolio hierarchy, a registry operation.",
+    "rubric_stopped_at": 3
+  },
+  "commands/persona.md": {
+    "layer": "graph"
+  },
+  "commands/pipeline.md": {
+    "layer": "graph"
+  },
+  "commands/present.md": {
+    "layer": "none",
+    "layer_why": "Generates and opens the 6-view presentation of an already-built room; a render-only view, engineering no new rung.",
+    "rubric_stopped_at": 3
+  },
+  "commands/publish.md": {
+    "layer": "harness",
+    "layer_why": "Deploys the presentation to Vercel hosting infrastructure with a one-click link; wiring a real external tool, not merely rendering a view.",
+    "rubric_stopped_at": 3
+  },
+  "commands/pws-brain.md": {
+    "layer": "none",
+    "layer_why": "Runs the same methodology question against the experimental Aura Agent next to the production Brain and shows both; a diagnostic comparison view.",
+    "rubric_stopped_at": 3
+  },
+  "commands/qualify-opportunity.md": {
+    "layer": "loop",
+    "layer_why": "Presents a single human-ratified decision gate over one harvested candidate and files the qualify/reject verdict, the same single-hitl-fork cycle shape as a methodology command.",
+    "rubric_stopped_at": 3
+  },
+  "commands/query.md": {
+    "layer": "none",
+    "layer_why": "Deprecated alias for /mos:graph; the underlying job is a read-only natural-language graph query and render.",
+    "rubric_stopped_at": 3
+  },
+  "commands/radar.md": {
+    "layer": "none",
+    "layer_why": "Tracks new Claude capabilities and displays them; a capability-awareness diagnostic view, engineering no rung.",
+    "rubric_stopped_at": 3
+  },
+  "commands/reanalyze.md": {
+    "layer": "loop",
+    "layer_why": "Re-runs the cascade pattern detection cycle on an already-filed meeting to a stopping condition, the same shape as a methodology re-run.",
+    "rubric_stopped_at": 3
+  },
+  "commands/research.md": {
+    "layer": "loop"
+  },
+  "commands/room.md": {
+    "layer": "none",
+    "layer_why": "Opens the room view with its current state; a render-only default entry-point view.",
+    "rubric_stopped_at": 3
+  },
+  "commands/rooms.md": {
+    "layer": "harness",
+    "layer_why": "Manages the multi-room registry (switch, list, archive); a registry operation over the harness, the rubric's own step 3 signal verbatim.",
+    "rubric_stopped_at": 3
+  },
+  "commands/root-cause.md": {
+    "layer": "loop"
+  },
+  "commands/rs-experts.md": {
+    "layer": "loop"
+  },
+  "commands/rs-explain.md": {
+    "layer": "loop"
+  },
+  "commands/rs-fetch.md": {
+    "layer": "graph"
+  },
+  "commands/rs-thesis.md": {
+    "layer": "loop"
+  },
+  "commands/scenario-plan.md": {
+    "layer": "loop"
+  },
+  "commands/scheduled-tasks.md": {
+    "layer": "harness",
+    "layer_why": "Defines a recurring Cowork job against the room, adding a scheduling mechanism to the harness.",
+    "rubric_stopped_at": 3
+  },
+  "commands/score-innovation.md": {
+    "layer": "loop"
+  },
+  "commands/scout.md": {
+    "layer": "harness",
+    "layer_why": "Fires the sentinel background checks proactively across the room, a measurement/scanning mechanism over the harness, the same job class as a doctor organ.",
+    "rubric_stopped_at": 3
+  },
+  "commands/setup.md": {
+    "layer": "harness",
+    "layer_why": "Walks through wiring optional integrations (Brain, Velma); a configuration/tool-wiring operation over the harness.",
+    "rubric_stopped_at": 3
+  },
+  "commands/show.md": {
+    "layer": "harness",
+    "layer_why": "Asks the navigator's job in plain language and routes to the matching view command; a dispatch mechanism, the same routing job class as /mos:mos and /mos:help.",
+    "rubric_stopped_at": 3
+  },
+  "commands/skill.md": {
+    "layer": "prompt",
+    "layer_why": "Projects a confirmed SyntheticExpert persona into the conversation; shapes the voice/persona of subsequent requests, the rubric's own step 5 signal verbatim.",
+    "rubric_stopped_at": 3
+  },
+  "commands/snapshot.md": {
+    "layer": "none",
+    "layer_why": "Packages the Data Room into a portable frozen bundle for sharing; a render/export of existing content, engineering no new rung.",
+    "rubric_stopped_at": 3
+  },
+  "commands/speakers.md": {
+    "layer": "none",
+    "layer_why": "Shows a filed meeting's participants, roles and attendance; a read-only diagnostic display.",
+    "rubric_stopped_at": 3
+  },
+  "commands/splash.md": {
+    "layer": "none",
+    "layer_why": "Displays the decorative MindrianOS Mondrian banner; engineers no rung at all, the rubric's own literal none case.",
+    "rubric_stopped_at": 3
+  },
+  "commands/stance.md": {
+    "layer": "prompt",
+    "layer_why": "Shifts how Larry talks this session (pull evidence, decisive, Socratic, challenge); shapes voice and wording of subsequent requests, the rubric's own step 5 signal verbatim.",
+    "rubric_stopped_at": 3
+  },
+  "commands/status.md": {
+    "layer": "none",
+    "layer_why": "Shows the governing thought per section plus health glyphs for a fast read; a read-only diagnostic display.",
+    "rubric_stopped_at": 3
+  },
+  "commands/structure-argument.md": {
+    "layer": "loop"
+  },
+  "commands/suggest-next.md": {
+    "layer": "graph"
+  },
+  "commands/systems-thinking.md": {
+    "layer": "loop"
+  },
+  "commands/think-hats.md": {
+    "layer": "graph"
+  },
+  "commands/trending-to-absurd.md": {
+    "layer": "graph"
+  },
+  "commands/update.md": {
+    "layer": "harness",
+    "layer_why": "Checks for and installs a newer plugin version via the native plugin loader; an install-cache/tooling maintenance operation over the harness.",
+    "rubric_stopped_at": 3
+  },
+  "commands/user-needs.md": {
+    "layer": "loop"
+  },
+  "commands/validate.md": {
+    "layer": "loop"
+  },
+  "commands/value-proposition.md": {
+    "layer": "loop"
+  },
+  "commands/vault.md": {
+    "layer": "none",
+    "layer_why": "Exports the Data Room as a nested Obsidian vault for offline reading; a render/export of existing content.",
+    "rubric_stopped_at": 3
+  },
+  "commands/visualize.md": {
+    "layer": "none",
+    "layer_why": "Deprecated alias for /mos:dashboard --mermaid; the underlying job is a render-only knowledge-graph view.",
+    "rubric_stopped_at": 3
+  },
+  "commands/whitespace.md": {
+    "layer": "loop"
+  },
+  "commands/wiki.md": {
+    "layer": "none",
+    "layer_why": "Opens the Data Room as linked wiki pages; a render-only view of already-filed content.",
+    "rubric_stopped_at": 3
+  }
+}
