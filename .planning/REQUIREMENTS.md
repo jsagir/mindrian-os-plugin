@@ -1556,12 +1556,12 @@ constitutionally.
       "Commands that write here" and "Inputs" are read as the room-side declaration, giving the
       L2 contract its first code consumer.
 
-- [ ] **LAYER-10**: `docs/LAYER-CONTRACT.md` is the pinned layer contract with one section per
+- [x] **LAYER-10**: `docs/LAYER-CONTRACT.md` is the pinned layer contract with one section per
       vocabulary member carrying definition, core question, implementing components with file
       paths, the layer above and below, what is thin or missing, and the single owner surface,
       plus an amendment ledger.
 
-- [ ] **LAYER-11**: Every corpus-grounded claim in `docs/LAYER-CONTRACT.md` carries its source id
+- [x] **LAYER-11**: Every corpus-grounded claim in `docs/LAYER-CONTRACT.md` carries its source id
       and hop count from the phase langtalks consult, every single-source rung says so in its own
       row, and the GRAPH rung states that graph engineering is not in the corpus and cites the
       structured note directly.
@@ -1577,7 +1577,7 @@ constitutionally.
 - [ ] **LAYER-14**: The proposed Canon Appendix B wording is drafted in a tracked file and handed
       to Phase 340 as a named input, and Phase 344 lands zero bytes in `docs/MINDRIAN-CANON.md`.
 
-- [ ] **LAYER-15**: `docs/LAYER-CONTRACT.md` names `data/command-registry.json`'s `layer` field
+- [x] **LAYER-15**: `docs/LAYER-CONTRACT.md` names `data/command-registry.json`'s `layer` field
       as the single interface Phase 343 item 4 consumes for the help family map, states that lane
       and layer are orthogonal axes, carries no frozen surface count, and `data/help-groups.json`
       is unchanged by this phase.

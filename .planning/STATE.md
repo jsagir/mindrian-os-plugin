@@ -3,17 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 344-04-PLAN.md
-last_updated: "2026-09-14T14:31:46.445Z"
-last_activity: 2026-09-14 -- 344-04 completed (agent/pipeline/skill layer backfill extended to
-  220 map entries; 27 MCP tool connector descriptors now carry layer;
-  tests/test-344-surface-layer-parity.cjs proves the gate zero over the real tree)
+stopped_at: Completed 344-06-PLAN.md
+last_updated: "2026-09-14T14:52:15.858Z"
+last_activity: 2026-09-14 -- 344-04 completed (data/layer-backfill.json extended from 113 command
 progress:
   total_phases: 97
   completed_phases: 27
   total_plans: 274
-  completed_plans: 225
-  percent: 82
+  completed_plans: 227
+  percent: 83
 ---
 
 <!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
@@ -4291,14 +4289,32 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - EXECUTING
-Plan: 344-01/02/03/04/05 complete (non-linear wave execution); 344-06/07/08/09 pending
-Status: Ready to execute (344-06 is the next unblocked plan in wave order)
-Last activity: 2026-09-14 -- 344-04 completed (data/layer-backfill.json extended from 113 command
-  rows to 220 total entries across agent/pipeline/skill; 37 exempt skills confirmed absent from the
-  map per WD-7; 27 MCP tool connector descriptors now carry layer via a two-key extension to
-  build-connector-registry.cjs's normalizeMcpToolEntry; tests/test-344-surface-layer-parity.cjs
-  proves scripts/check-layer-declaration.cjs reports zero undeclared over the real 284-surface tree;
-  doctor --acceptance 20/20 post-commit)
+Plan: 344-01/02/03/04/05/06 complete (non-linear wave execution); 344-07/08/09 pending
+Status: Ready to execute (344-07 is the next unblocked plan in wave order)
+Last activity: 2026-09-14 -- 344-06 completed (docs/LAYER-CONTRACT.md ships as the pinned five-rung
+  layer contract, superseding docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md for architecture claims;
+  corpus grounding table cites eleven relations by hop count and source, states the context-to-harness
+  single-source caveat, carries the graph-engineering ABSENT row; WD-3 and WD-5 owner-surface cells
+  keep their NAVIGATOR DECISION markers with a dated ruling beneath each; help family map interface
+  named for Phase 343 item 4 (data/command-registry.json's layer field, joined in
+  scripts/help-renderer.cjs); data/help-groups.json confirmed unmodified; amendment ledger seeded;
+  tests/test-344-layer-contract-doc.cjs derives its expected rung list from the schema and is
+  mutation-proven; bash tests/run-all-344.sh PASS=11 FAIL=0 SKIP=2, one fewer SKIP than baseline)
+
+<!-- NOTE (344-06 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in
+     Phase from STATE.md"), skipped -- the Plan/Status/Last-activity lines above were hand-corrected
+     instead. `state.update-progress` correctly computed `percent: 83` (completed_plans 227 /
+     total_plans 274) in its own returned JSON but persisted the stale `percent: 28` into the
+     frontmatter -- hand-corrected to 83. `state.record-metric --phase 344 --plan 06` required
+     explicit `--flag` form (positional args failed with "phase, plan, and duration required");
+     once retried with flags it appended its row without disturbing frontmatter `percent`.
+     `state.add-decision --phase 344` again embedded a literal em-dash between the summary and
+     rationale clauses (same house-rule violation documented at the 344-04 note below) -- hand-
+     corrected the one line to a hyphen; net em-dash count in this file confirmed unchanged
+     (17, before and after). `state.record-session --stopped-at "Completed 344-06-PLAN.md"`
+     correctly updated `stopped_at`/`Last session` and did not re-clobber `percent` this run.
+     Same root cause as every other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (344-04 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
      this file): `state.advance-plan` errored outright ("Cannot parse Current Plan or Total Plans in
@@ -5583,6 +5599,7 @@ Progress: [█████████░] 92%
 | Phase 344 P05 | 55min | 2 tasks | 4 files |
 | Phase 344 P03 | 35min | 3 tasks | 227 files |
 | Phase 344 P04 | ~55min | 3 tasks | 44 files |
+| Phase 344 P06 | 10min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -7136,6 +7153,7 @@ Progress: [█████████░] 92%
 - [Phase 344]: Navigator ratified all twelve working decisions (WD-1..WD-12) in docs/LAYER-DECLARATION-CONTRACT.md as written at the 344-03 checkpoint
 - [Phase 344]: Skill-mirror and harness-manifest regeneration auto-applied under Rule 3 in 344-03 Task 3, even though neither file is in the plan's files_modified list, because the pre-commit hook hard-blocks a staged commands/*.md or command-registry.json change against either artifact going stale
 - [Phase 344]: Non-command surfaces inherit their 1-to-1 mirrored command's already-ratified layer verbatim (30 skills), rather than re-guessing - a skill that mirrors a command byte-for-byte engineers the identical own-rung layer by construction (WD-6); zero mismatches confirmed against the 55 mechanically pre-resolved mirrors before applying
+- [Phase 344]: 344-06: docs/LAYER-CONTRACT.md ships as the pinned five-rung architecture contract, superseding docs/2026-09-14-LAYER-CONTRACT-AND-ICM-MAP.md for architecture claims - Corpus-grounded by hop count and source, WD-3 and WD-5 owner-surface markers ruled beneath their kept NAVIGATOR DECISION cells, help-map interface named for Phase 343 item 4, amendment ledger seeded
 
 ### Pending Todos
 
@@ -7275,8 +7293,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T14:31:46.353Z
-Stopped at: Completed 344-04-PLAN.md
+Last session: 2026-09-14T14:52:15.739Z
+Stopped at: Completed 344-06-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to
