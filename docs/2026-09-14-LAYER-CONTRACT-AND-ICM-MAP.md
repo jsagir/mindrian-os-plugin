@@ -12,6 +12,8 @@ grounding:
 
 # MindrianOS Layer Contract and ICM Nested-Part Map
 
+**Superseded 2026-09-14:** this draft's two successors have landed: docs/LAYER-CONTRACT.md for the five engineering layers (PROMPT, CONTEXT, HARNESS, LOOP, GRAPH), and docs/ICM-NESTED-PART-CONTRACT.md for the ICM nested parts. This draft is retained as the measurement snapshot it always was, with its own file and line citations intact. Its section 7 open decisions now live in the decision ledger in docs/LAYER-DECLARATION-CONTRACT.md.
+
 ## 0. Why this document exists
 
 The graph-engineering transcript draws a ladder of five engineering scopes, each one wider than the one before, and states two rules about them: the layers ACCUMULATE, they do not substitute (a good graph node is a well-designed loop; a good loop needs a solid harness), and a loop is a special case of a graph (one node, one self-edge). MindrianOS implements all five rungs and has never named them. The only two places in the plugin that mention the five layers are Phase 343 item 4 and Phase 344, both registered on 2026-09-14 and both unplanned (`.planning/ROADMAP.md:694`, `:705`). Everything else in the repo uses an orthogonal vocabulary, the ICM Layers 0-4 (identity, routing, contracts, reference, artifacts).

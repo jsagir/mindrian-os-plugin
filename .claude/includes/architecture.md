@@ -4,11 +4,7 @@ The folder structure IS the wicked problem as a near-decomposable hierarchy (ICM
 
 ## ICM Layers 0-4
 
-- Layer 0 Identity = the venture's current problem formulation (STATE.md)
-- Layer 1 Routing = problem type x wickedness -> which agent/skill responds
-- Layer 2 Contracts = pipeline stage contracts encode cascade rules
-- Layer 3 Reference = Brain graph + methodology + assumption registry
-- Layer 4 Artifacts = room entries = claims with validity status + cross-refs
+The canonical ICM Layer 0 through Layer 4 statement lives in docs/MINDRIAN-CANON.md (Appendix B); this file does not restate it. For the five engineering layers (PROMPT, CONTEXT, HARNESS, LOOP, GRAPH), see docs/LAYER-CONTRACT.md.
 
 Cascade rule: detect impact -> soft-edit affected sections -> APPROVE / REJECT (with reason) / DEFER -> decision becomes graph data.
 

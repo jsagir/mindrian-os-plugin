@@ -6,6 +6,8 @@ Detailed architecture decisions from the research session.
 
 Source: Paper 2603.16021v2
 
+**Superseded 2026-09-14:** the canonical ICM Layer 0 through Layer 4 statement is docs/MINDRIAN-CANON.md (Appendix B). The table below is retained for provenance, not as a current source of truth. Its Layer 1 row names `ROUTING.md`: that file was never built and exists nowhere on disk. It is a ghost, and nothing may be implemented against it.
+
 | Layer | Purpose | MindrianOS Name | Budget |
 |-------|---------|------------------|--------|
 | 0 | Identity | ROOM.md | ~300 tok |
@@ -104,7 +106,7 @@ has already cost a session.
 
 ## Workspace Structure
 
-ROOM.md, ROUTING.md, STATE.md (master). room/ (8 sections), rooms/ (recursive). references/ (Layer 3), pipelines/ (ICM stages). .planning/ (VENTURE.md, ROOM-STATE.md, JOURNEY.md, CONTINUE.md). bank/, journal/, exports/, 00_Context/, scripts/.
+ROOM.md, ROUTING.md (ghost, never built), STATE.md (master). room/ (8 sections), rooms/ (recursive). references/ (Layer 3), pipelines/ (ICM stages). .planning/ (VENTURE.md, ROOM-STATE.md, JOURNEY.md, CONTINUE.md). bank/, journal/, exports/, 00_Context/, scripts/.
 
 ## Three Surfaces
 
