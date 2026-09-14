@@ -3,16 +3,33 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 344-05-PLAN.md
-last_updated: "2026-09-14T13:23:36.547Z"
-last_activity: 2026-09-14 -- Phase 344 execution started
+stopped_at: Completed 344-03-PLAN.md
+last_updated: "2026-09-14T13:58:12.849Z"
+last_activity: 2026-09-14 -- 344-03 completed (navigator ratified all twelve working decisions, layer backfill applied to all 113 commands)
 progress:
   total_phases: 97
   completed_phases: 27
   total_plans: 274
-  completed_plans: 224
-  percent: 28
+  completed_plans: 225
+  percent: 82
 ---
+
+<!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` returned {"previous_plan":4,"current_plan":5,"total_plans":9}
+     -- disconnected from actual completion (344-05 was already complete before this session, per
+     its own on-disk SUMMARY; 344-04 has none yet), corrected in the body's Current Position
+     section below rather than trusted at face value. `state.update-progress` correctly computed
+     `percent: 82` (completed_plans 225 / total_plans 274) in its own returned JSON but persisted
+     the stale `percent: 28` into the frontmatter -- hand-corrected to 82. `state.record-metric
+     --phase 344 --plan 03 --duration 35min --tasks 3 --files 227` correctly appended the
+     `Phase 344 P03 | 35min | 3 tasks | 227 files` row to the Performance Metrics table, but in the
+     SAME write clobbered `stopped_at` back to "Completed 344-05-PLAN.md" and `percent` back to 28
+     -- hand-corrected both a second time. Both `state.add-decision --phase 344` calls truncated
+     frontmatter `last_activity` to its first clause each time (dropping the parenthetical) without
+     re-clobbering `stopped_at` or `percent`. `state.record-session --stopped-at "Completed
+     344-03-PLAN.md" --resume-file "344-04-PLAN.md"` correctly restored `stopped_at` this time. One
+     final hand-correction pass restored `percent: 82` and the full `last_activity` string. Same
+     root cause as every other note in this file, not re-investigated further here. -->
 
 <!-- NOTE (344-01 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
      this file): `state.update-progress` correctly computed `percent: 93` (completed_plans 222 /
@@ -4272,19 +4289,22 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - EXECUTING
-Plan: 4 of 9
-Status: Ready to execute
-Last activity: 2026-09-14 -- Phase 344 execution started
-  (23-entry files allowlist, 4 negations), npm-shrinkwrap.json shipped (zero dev entries, all
-  5 sqlite-vec platform packages), @huggingface/transformers removed from dependencies, and two
-  harness policies stood up (release-payload-ceiling blocking, registry-drift logged). Both plan
-  341-01 EXPECTED-RED tripwires now green. npm pack --dry-run --json: entryCount ~1830,
-  unpackedSize ~29.1 MB, well under both ceilings. bash tests/run-all-341.sh: PASS=18 FAIL=0
-  SKIP=10 EXPECTED-RED=0. bash tests/run-all-310.sh: PASS=9 FAIL=0 SKIP=2 (zero regression).
-  node scripts/doctor.cjs --acceptance --pre-tag: 17/17 points passed. Zero real git push, npm
-  publish, or GitHub network call anywhere in this plan's own tests. Plan 341-05 (cold-install
-  proof on Windows/Mac/Linux, per D-13) is next; the release ceremony itself is untouched, per
-  this plan's own stated scope.
+Plan: 344-01/02/03/05 complete (non-linear wave execution); 344-04/06/07/08/09 pending
+Status: Ready to execute (344-04 is the next unblocked plan in wave order)
+Last activity: 2026-09-14 -- 344-03 completed (navigator ratified all twelve working decisions;
+  the layer backfill applied to all 113 commands/*.md; tests/test-344-layer-backfill.cjs RED then
+  GREEN; command-registry.json, harness-manifest.json, and 112 skill mirrors regenerated as
+  auto-fixed pre-commit-guard blockers; doctor --acceptance 20/20 post-commit)
+
+<!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
+     this file): `state.advance-plan` returned {"previous_plan":4,"current_plan":5,"total_plans":9}
+     -- a naive linear increment disconnected from actual completion, since this phase executes in
+     non-linear waves (344-05 was already complete before this session started, per its own SUMMARY
+     on disk and the "stopped_at: Completed 344-05-PLAN.md" frontmatter already present; 344-04 has
+     no SUMMARY yet). Hand-corrected the Plan/Status lines above to name the true non-linear state
+     (01/02/03/05 complete, 04/06/07/08/09 pending) rather than trust the counter's "Plan: 5 of 9"
+     implication, matching the same correction pattern documented at the 254-05 and 272-10 notes
+     below. Root cause not re-investigated -- same tracked bug class as every other note here. -->
 
 <!-- NOTE (341-planned, 2026-09-09, resync-clobber pattern, same class as every note in this
      file): `state.planned-phase --phase 341 --plans 10` reported `updated: ["Status"]` but wrote
@@ -5543,6 +5563,7 @@ Progress: [█████████░] 92%
 | Phase 344 P01 | 6min | 3 tasks | 6 files |
 | Phase 344 P02 | 5min | 3 tasks | 7 files |
 | Phase 344 P05 | 55min | 2 tasks | 4 files |
+| Phase 344 P03 | 35min | 3 tasks | 227 files |
 
 ## Accumulated Context
 
@@ -6148,7 +6169,6 @@ Progress: [█████████░] 92%
 - Phase 345 PLANNED 2026-09-14: 9 plans / 8 waves, VERIFICATION PASSED (two labeling notes); STRAT-01..18; goal record as a top-level `goal` key per the icm-architect ruling; payload-free goal:<slug> anchor minted before the card; sensor written inert in 345-04 and registered across seven places only after the 345-05 checkpoint; fixture proof that 0 SOURCED_FROM edges becomes 1. Next: /gsd-execute-phase 345 after 344 closes
 - Phase 346 PLANNED 2026-09-14: 8 plans / 6 waves, VERIFICATION PASSED, no warnings; ARB-01..16; code identifier `arbitration` (posture and stance are bound); the two existing axes reused, only enforce-versus-judge new; one checkpoint (346-07) before attachment to decide() via applyProjectionLift; replay eval against the 07-02 WATCH incidents with the sourced 86 percent before-number. Next: /gsd-execute-phase 346 after 345
 - Phase 347 PLANNED 2026-09-14: 12 plans / 9 waves, VERIFICATION PASSED (two non-blocking notes); SHARED-01..13; the chain-state record is a room-graph node with typed pointer edges, a projection of pipeline-state.json (WD-347-2); D-164-S2 not reversed, fan-out delegated to cell-fanout.cjs (WD-347-1); one checkpoint (347-05) before the dispatcher reads the projection; waves 6-9 hard-block on 344-09. Next: /gsd-execute-phase 347 (waves 1-5 can run now)
-
 
 ### Decisions
 
@@ -7094,6 +7114,8 @@ Progress: [█████████░] 92%
 - [Phase 344]: The layer gate is fail-closed unconditionally with no --strict opt-out, a deliberate deviation from check-shape-declaration.cjs's advisory posture
 - [Phase 344-05]: seeds/ omitted from data/icm-parts.json per WD-4, omission recorded in _doc.omissions rather than silently forgotten
 - [Phase 344-05]: Plan's rule-8 fix_supported citation (tests/test-298-contract-parity.cjs) is stale; the actual gate is tests/test-doctor-module-contract-parity.cjs. Ran both.
+- [Phase 344]: Navigator ratified all twelve working decisions (WD-1..WD-12) in docs/LAYER-DECLARATION-CONTRACT.md as written at the 344-03 checkpoint
+- [Phase 344]: Skill-mirror and harness-manifest regeneration auto-applied under Rule 3 in 344-03 Task 3, even though neither file is in the plan's files_modified list, because the pre-commit hook hard-blocks a staged commands/*.md or command-registry.json change against either artifact going stale
 
 ### Pending Todos
 
@@ -7233,8 +7255,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T13:23:36.427Z
-Stopped at: Completed 344-05-PLAN.md
+Last session: 2026-09-14T13:58:12.703Z
+Stopped at: Completed 344-03-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

@@ -1539,7 +1539,7 @@ constitutionally.
 - [x] **LAYER-05**: `layer` reaches `data/command-registry.json` through
       `scripts/build-command-registry.cjs` and inherits that generator's `--check` staleness gate.
 
-- [ ] **LAYER-06**: Every `commands/*.md` file carries a `layer:` frontmatter key written by
+- [x] **LAYER-06**: Every `commands/*.md` file carries a `layer:` frontmatter key written by
       `scripts/backfill-layer.cjs`, whose apply pass is idempotent and leaves every other
       frontmatter key, every body line and every byte outside the layer block unchanged.
 
