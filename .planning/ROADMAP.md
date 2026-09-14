@@ -713,6 +713,39 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 344 to break down)
 
+### Phase 345: The strategy node (graph-engineering learning 3b, blind upward movement, 2026-09-14): a loop cannot question its own goal, it can only hit it. In MindrianOS the goal of every execution reach is the room's JTBD and its problem-type rung, and nothing re-examines either on a slower cadence than the reaches that execute against them, so a room can hit its stated goal for weeks while the goal itself has gone stale (the transcript's sales agent hitting 500 emails a day at a 0.11 percent response rate until a slower strategy node rewrote the target to five real conversations a week). Deliverables. (1) A scheduled strategy reach, registered in SENSOR_REGISTRY with its own cadence (every N sessions of a room, or on a stall signal such as repeated reaches with no new claim, no filed artifact, or a contradiction left unresolved), that climbs the taxonomy ladder through Theo's classify_problem_type and taxonomy_ladder with generic handles only (Part 8), re-reads the room's JTBD against what the room graph now holds, and proposes a rewritten JTBD or a different rung at a Decision Gate; it never rewrites silently, and the navigator's choice is written as a typed decision node with SOURCED_FROM provenance. (2) A goal-hierarchy record in the room: the JTBD carries its parent question (the rung above) so the ladder can be climbed mechanically, and every execution reach logs which goal version it ran under. (3) Doctrine, written into the larry-personality skill: the reframe is the strategy node's move; when circling, climb, do not ask another clarifying question. Consults icm-architect and langtalks-graph-expert (loop and harness engineering nodes present; the graph-engineering note cites the structured source directly until its extraction lands).
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 344
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 345 to break down)
+
+### Phase 346: The arbitration node (graph-engineering learning 3c, conflict between loops, 2026-09-14): when two independent loops optimize different metrics inside one system they fight like two thermostats in one room, and each looks healthy on its own dashboard. MindrianOS has this failure live: the enforcement loop (hard-fail checks, render-coverage gates, mandatory card dispatch) and the judgment loop (Larry's reframe, the Ask-Tell dial, GUIDED-first teaching) pull against each other, recorded as the 2026-07-02 WATCH item "Larry feels less like Larry since v1.15.beta.x, hard-fail checks may have replaced judgment". Deliverables. (1) One explicit arbiter, a single ranked decision per turn, that resolves teach-versus-deliver, guided-versus-autonomous, and enforce-versus-judge from context rather than from whichever rule fired last: inputs are the role_blend axis, the room JTBD, the problem-type rung, escape-hatch phrases ("just tell me", "bottom line"), stall count, and surface capability; output is a logged posture decision with its reasons, written through memory_event so it can be audited later. (2) Every hard rule that currently short-circuits judgment is catalogued and classified: keep as a hard floor (Canon Part 8 egress, Part 12 voice glyph, no fabricated numbers), or demote to an arbiter input with a weight. (3) An eval that replays the WATCH item's transcript set through the arbiter and measures whether the persona regression closes, with the 07-02 grading trend as the before-number. Consults langtalks-graph-expert (Agent Factory agent-evaluation note, verification-loops source) and the hooked-model skill for the first-step surface.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 345
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 346 to break down)
+
+### Phase 347: The shared-state contract for chains (graph-engineering learning 5, node / edge / shared state, 2026-09-14): state is what turns a set of agents into a system rather than a flock of birds that forgets everything, and it is essentially memory. Three building blocks, each with a MindrianOS counterpart that is not yet a contract. Deliverables. (1) Shared state: the object that flows along every chain edge (chain_run, /mos:pipeline, act-chain, act-swarm, the five-perspective meeting fan-out, the Workflow harness-as-code) is a typed room-graph record (task description, current draft, notes, judgment results, gate decisions) read and written through navigation.cjs, never conversation prose handed between subagents; a test proves each step's input is reconstructible from the room graph alone. (2) Nodes: every node gets clean, scoped, independent context assembled for that node (context_assemble with the node's own focus and budget), not the parent's transcript, so a writer node sees the researcher's structured notes and not the raw sources; the fan-out and fan-in shapes (coordinator distributes, collects, aggregates) are named primitives in the chain executor rather than ad hoc Agent calls. (3) Edges: routing is explicit and readable; conditional edges (review passes goes forward, fails goes back), fan-out and fan-in are declared in the resolved chain, and visualize_chain renders the real routing including halts and the reviewer node, so a navigator can read the control-flow path of any run after the fact. (4) The reviewer node is always the navigator at the gate for material steps and may be an independent reviewer subagent for autonomous_safe steps, never the same node that did the work; true self-review means a different node. Builds on Phase 273 (chokepoint hardening) and the langtalks corpus edges (Memory part_of context engineering; orchestration layer via agent harness to multi-agent systems, ep33 LangGraph). Consults icm-architect and langtalks-graph-expert.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 346
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 347 to break down)
+
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
 **Requirements**: TBD
