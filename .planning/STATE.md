@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 343-03-PLAN.md
-last_updated: "2026-09-14T17:52:32.393Z"
-last_activity: "2026-09-14 -- 343-03 completed (navigation folder contract lib/core/navigation/CONTEXT.md
-  replacing stale ROOM.md, one routing row in .claude/includes/architecture.md, corrected
-  docs/lazygraph-schema.md path, five annotated .room-graph skip-list sites, tests/test-343-path-hygiene.cjs)"
+stopped_at: Completed 343-04-PLAN.md
+last_updated: "2026-09-14T18:10:35.844Z"
+last_activity: "2026-09-14 -- 343-04 completed (SENS_PRIORITY reshaped to per-id counter-metric
+  records, a fourth fail-closed arm on the SENS_PRIORITY completeness gate,
+  tests/test-343-counter-metric-declaration.cjs, docs/COUNTER-METRIC-DOCTRINE.md)"
 progress:
   total_phases: 97
   completed_phases: 29
   total_plans: 274
-  completed_plans: 234
-  percent: 85
+  completed_plans: 235
+  percent: 86
 ---
 
 <!-- NOTE (344-03 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
@@ -4356,8 +4356,29 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
-Plan: 343-03 complete (3/9 plans)
-Status: Plan 343-03 shipped the navigation folder contract and path hygiene:
+Plan: 343-04 complete (4/9 plans)
+Status: Plan 343-04 shipped the counter-metric declaration and its fourth gate
+  arm: lib/core/sensors/sensor-priority.cjs's SENS_PRIORITY reshaped from
+  twenty id strings to twenty frozen { id, optimizes, watched_by, why }
+  records (WD-8, order and rank contract byte-identical to the prior table),
+  a derived SENS_PRIORITY_IDS, 18 of 20 sensors paired and two (SENS-01,
+  SENS-05) explicit null/null with a stated why;
+  scripts/build-connector-registry.cjs's sensorPriorityCompletenessErrors
+  gains a fourth fail-closed arm enforcing the pairing (own-key check, null
+  as declaration versus absent key as gap, null-together-or-non-null-together)
+  and is now exported with an injectable table for the test seam;
+  tests/test-343-counter-metric-declaration.cjs (8 checks, written RED first
+  then GREEN) and a matching arm 6 in tests/test-245-priority-complete.cjs;
+  docs/COUNTER-METRIC-DOCTRINE.md (122 lines) carrying the counting rule
+  quoted verbatim from data/harness-policies/_schema.json and the first
+  pair's 2026-09-14 reading (7,794 filed, 0 contradicted, 7,791 never
+  cited) with its honest interpretation and drift warning. Four commits:
+  d90c7a46 (table to records), 4679cabe (RED test), 164e516d (GREEN gate
+  arm), 7515450c (doctrine). bash tests/run-all-343.sh confirmed PASS=7
+  FAIL=0 SKIP=4; node scripts/doctor.cjs --acceptance confirmed 20/20 on a
+  clean tree. No deviations; plan executed exactly as written. Full detail
+  in 343-04-SUMMARY.md.
+Previously: Plan 343-03 shipped the navigation folder contract and path hygiene:
   lib/core/navigation/CONTEXT.md (72 lines, replacing the stale 15-line ROOM.md) answering both
   ICM walk-test questions - the two write chokepoints (node-insert.cjs:202 vs edges.cjs
   writeEdge), a claim's actual provenance (typed-claim.cjs:121 is the dominant zero-edge
@@ -5761,6 +5782,7 @@ Progress: [█████████░] 92%
 | Phase 343 P01 | 55min | 3 tasks | 3 files |
 | Phase 343 P02 | 95min | 3 tasks | 8 files |
 | Phase 343 P03 | 55min | 3 tasks | 9 files |
+| Phase 343 P04 | 70min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -7334,6 +7356,8 @@ Progress: [█████████░] 92%
 - [Phase 343]: CENSUS-01..17 minted; WD-1..21 recorded WORKING in docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md (tracked, since .planning/ is gitignored); tests/run-all-343.sh stood up with seven run_if-guarded legs for later waves
 - [Phase 343]: 343-03: routing row lands in .claude/includes/architecture.md, not the CLAUDE.md GSD sentinel block, because that block regenerates from a gitignored source and would silently drop a hand-added row
 - [Phase 343]: 343-03: five stale .room-graph skip-list entries are annotated, never removed, per WD-16, since every skip-list already carries .mindrian and removing an inert entry still changes traversal
+- [Phase 343]: SENS_PRIORITY reshaped to per-id { id, optimizes, watched_by, why } records (WD-8); 18 of 20 sensors paired, SENS-01/SENS-05 explicit null/null - one home per fact over a third index-parallel array; a fourth fail-closed build gate arm now enforces the pairing
+- [Phase 343]: docs/COUNTER-METRIC-DOCTRINE.md ships with the counting rule quoted verbatim and the first pair's 2026-09-14 reading (7,794 filed, 0 contradicted, 7,791 never cited) - prevents 0 contradicted from reading as a perfect score; sets no threshold and produces no score per SEED-074
 
 ### Pending Todos
 
@@ -7473,8 +7497,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T17:52:12.799Z
-Stopped at: Completed 343-02-PLAN.md
+Last session: 2026-09-14T18:10:35.678Z
+Stopped at: Completed 343-04-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

@@ -1683,9 +1683,16 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
       `docs/lazygraph-schema.md`'s correction notice names `<roomDir>/.mindrian/room.db`, and
       every stale in-code site carries the collision note.
 
-- [ ] **CENSUS-08**: every registered sensor declares what it optimizes and its paired
+- [x] **CENSUS-08**: every registered sensor declares what it optimizes and its paired
       watcher in ONE keyed table, and the build gate fails closed in both directions on a
-      sensor with no declaration and a declaration with no sensor.
+      sensor with no declaration and a declaration with no sensor. Measured:
+      `lib/core/sensors/sensor-priority.cjs`'s `SENS_PRIORITY` carries all twenty records
+      with an own-key `optimizes`/`watched_by` pair (18 non-null, 2 explicit null/null);
+      `scripts/build-connector-registry.cjs --check` exits 0 on the intact table and the
+      mutation proofs (a deleted `watched_by` key, an `optimizes` set non-null with
+      `watched_by` left null) each redden it naming the sensor id, reverted after proof;
+      `node tests/test-343-counter-metric-declaration.cjs` and the extended
+      `node tests/test-245-priority-complete.cjs` both pass (8/8 checks each).
 
 - [ ] **CENSUS-09**: the first counter-metric pair is computed from `room.db` with the
       existing edge vocabulary and reported as counts plus one boolean, never a score,
