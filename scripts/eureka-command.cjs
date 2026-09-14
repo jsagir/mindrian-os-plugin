@@ -168,6 +168,8 @@ function entityExtractStatusPath(roomDir) {
 // walking to MAX_WALK_DEPTH (generous; a room directory is never
 // pathologically deep), still skipping dot-directories (`.mindrian`,
 // `.room-graph`, `.git`) at every depth, never just the top one.
+// Fleet-level .room-graph/ is the live rooms registry database. Retained.
+// Room-level .room-graph/ is dead; real path is .mindrian/room.db (CONTEXT.md).
 var MAX_WALK_DEPTH = 8;
 function newestArtifactMtimeMs(roomDir) {
   let newest = 0;

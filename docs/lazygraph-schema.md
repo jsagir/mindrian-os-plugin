@@ -1,6 +1,6 @@
 # LazyGraph Schema Reference
 
-> **CORRECTION (2026-06-14, KuzuDB-drift sweep): the local per-room graph is SQLite (`room/.room-graph/room.db`), NOT KuzuDB.** The Brain is Neo4j + Pinecone. Mentions of "KuzuDB" / ".lazygraph" / "KuzuDB edge types" below describe the RETIRED LazyGraph engine; the typed-edge model (INFORMS / CONTRADICTS / CONVERGES / INVALIDATES / ENABLES ...) is unchanged and now lives in SQLite. Canonical rule: local graph is SQLite (do not reintroduce KuzuDB as a current claim).
+> **CORRECTION (2026-06-14, KuzuDB-drift sweep): the local per-room graph is SQLite (`<roomDir>/.mindrian/room.db`, source: `lib/core/room-db.cjs:255-256`), NOT KuzuDB.** The Brain is Neo4j + Pinecone. Mentions of "KuzuDB" / ".lazygraph" / "KuzuDB edge types" below describe the RETIRED LazyGraph engine; the typed-edge model (INFORMS / CONTRADICTS / CONVERGES / INVALIDATES / ENABLES ...) is unchanged and now lives in SQLite. Canonical rule: local graph is SQLite (do not reintroduce KuzuDB as a current claim). The 2026-06-14 correction fixed the engine name and left the path wrong (it named a dead per-room path colliding with the fleet-level rooms registry name, not a room's own database); the path was corrected 2026-09-14 by Phase 343.
 
 
 > KuzuDB embedded graph schema for per-project knowledge graphs.

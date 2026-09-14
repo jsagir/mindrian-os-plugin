@@ -45,6 +45,8 @@ SKIP_DIRS = {
     ".heal-backup",
     ".private",
     ".intelligence",
+    # Fleet-level .room-graph/ is the live rooms registry database. Retained.
+    # Room-level .room-graph/ is dead; real path is .mindrian/room.db (CONTEXT.md).
     ".room-graph",
     ".rs-engine-checkpoints",
     ".session-binding",
