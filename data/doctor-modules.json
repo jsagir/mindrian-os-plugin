@@ -201,6 +201,15 @@
       "fix_supported": false,
       "runner": "lib/core/doctor/eureka-fts-health-module.cjs",
       "description": "Per-registered-room eureka_fts (lexical trigger index) presence, population and staleness census, read through the read-only navigation door so the census never mutates what it measures (RESEARCH BLOCKER B-2). An absent index is reported, not failed: absent is the correct default state of every room today. A stale index (rows pointing at deleted nodes) is a real defect and reports status warn."
+    },
+    {
+      "id": "icm-part-wiring",
+      "introduced_version": "2.0.0-beta.38",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/icm-part-wiring-module.cjs",
+      "description": "Declaration counts for ICM nested parts, producers resolved against the command registry, consumers resolved on disk, per-layer declaring-surface counts, and an opt-in per-room section-contract heading census behind --cascade-rooms. Check-only: raw counts and totals, no health or completeness claim, per SEED-074's hard guard on downstream claims."
     }
   ]
 }

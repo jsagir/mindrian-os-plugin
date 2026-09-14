@@ -142,22 +142,21 @@ record('declarations counts are internally consistent', () => {
 // ---------------------------------------------------------------------------
 record('status skip, no throw, when data/icm-parts.json is absent', () => {
   const scratchRoot = makeScratchHome('missing-icm-parts');
+  const savedIcmParts = process.env.ICM_PARTS_PATH_OVERRIDE;
+  const savedCmdRegistry = process.env.COMMAND_REGISTRY_PATH_OVERRIDE;
   try {
-    const fakeRepoRoot = path.join(scratchRoot, 'fake-repo');
-    fs.mkdirSync(path.join(fakeRepoRoot, 'lib', 'core', 'doctor'), { recursive: true });
-    fs.mkdirSync(path.join(fakeRepoRoot, 'data'), { recursive: true });
-    // Copy the module itself so __dirname-relative requires resolve inside the
-    // fake repo, but do NOT copy data/icm-parts.json.
-    const moduleSrc = fs.readFileSync(MODULE_PATH, 'utf8');
-    const fakeModulePath = path.join(fakeRepoRoot, 'lib', 'core', 'doctor', 'icm-part-wiring-module.cjs');
-    fs.writeFileSync(fakeModulePath, moduleSrc);
-    // command-registry.json still absent too; the skip must fire on the
-    // icm-parts.json read, whichever is checked first.
-    delete require.cache[require.resolve(fakeModulePath)];
+    // Point the env-seam override at a path that deliberately does not
+    // exist, so the module's own loadJson() reports absence without any
+    // synthetic repo tree (the module's require graph, shared.cjs and its
+    // own active-plugin-root.cjs dependency, still resolves from the real
+    // lib/core/doctor/ directory this way).
+    process.env.ICM_PARTS_PATH_OVERRIDE = path.join(scratchRoot, 'nonexistent-icm-parts.json');
+    process.env.COMMAND_REGISTRY_PATH_OVERRIDE = path.join(scratchRoot, 'nonexistent-command-registry.json');
+    delete require.cache[require.resolve(MODULE_PATH)];
     let threw = null;
     let result;
     try {
-      const m = require(fakeModulePath);
+      const m = require(MODULE_PATH);
       result = m.check({});
     } catch (e) {
       threw = e;
@@ -168,6 +167,11 @@ record('status skip, no throw, when data/icm-parts.json is absent', () => {
     assert.equal(typeof result.detail, 'string');
     assert.ok(result.detail.length > 0, 'skip must carry a reason');
   } finally {
+    if (savedIcmParts === undefined) delete process.env.ICM_PARTS_PATH_OVERRIDE;
+    else process.env.ICM_PARTS_PATH_OVERRIDE = savedIcmParts;
+    if (savedCmdRegistry === undefined) delete process.env.COMMAND_REGISTRY_PATH_OVERRIDE;
+    else process.env.COMMAND_REGISTRY_PATH_OVERRIDE = savedCmdRegistry;
+    delete require.cache[require.resolve(MODULE_PATH)];
     rmrf(scratchRoot);
   }
 });
@@ -239,15 +243,13 @@ try {
 // ---------------------------------------------------------------------------
 record('an icm-parts.json fixture where every part has zero consumers still returns status ok', () => {
   const scratchRoot = makeScratchHome('all-zero-consumers');
+  const savedIcmParts = process.env.ICM_PARTS_PATH_OVERRIDE;
+  const savedCmdRegistry = process.env.COMMAND_REGISTRY_PATH_OVERRIDE;
   try {
-    const fakeRepoRoot = path.join(scratchRoot, 'fake-repo');
-    fs.mkdirSync(path.join(fakeRepoRoot, 'lib', 'core', 'doctor'), { recursive: true });
-    fs.mkdirSync(path.join(fakeRepoRoot, 'data'), { recursive: true });
-    const moduleSrc = fs.readFileSync(MODULE_PATH, 'utf8');
-    const fakeModulePath = path.join(fakeRepoRoot, 'lib', 'core', 'doctor', 'icm-part-wiring-module.cjs');
-    fs.writeFileSync(fakeModulePath, moduleSrc);
+    const fixtureIcmParts = path.join(scratchRoot, 'icm-parts.json');
+    const fixtureCmdRegistry = path.join(scratchRoot, 'command-registry.json');
     fs.writeFileSync(
-      path.join(fakeRepoRoot, 'data', 'icm-parts.json'),
+      fixtureIcmParts,
       JSON.stringify({
         _doc: { omissions: [] },
         parts: [
@@ -259,18 +261,23 @@ record('an icm-parts.json fixture where every part has zero consumers still retu
         ],
       }, null, 2)
     );
-    fs.writeFileSync(
-      path.join(fakeRepoRoot, 'data', 'command-registry.json'),
-      JSON.stringify({ commands: [] }, null, 2)
-    );
-    delete require.cache[require.resolve(fakeModulePath)];
-    const m = require(fakeModulePath);
+    fs.writeFileSync(fixtureCmdRegistry, JSON.stringify({ commands: [] }, null, 2));
+
+    process.env.ICM_PARTS_PATH_OVERRIDE = fixtureIcmParts;
+    process.env.COMMAND_REGISTRY_PATH_OVERRIDE = fixtureCmdRegistry;
+    delete require.cache[require.resolve(MODULE_PATH)];
+    const m = require(MODULE_PATH);
     const r = m.check({});
     assert.equal(r.status, 'ok', 'status must be ok even when every part has zero consumers');
     assert.notEqual(r.status, 'warn', 'status must never be warn');
     assert.equal(r.declarations.parts_with_consumer, 0);
     assert.equal(r.declarations.parts_total, 1);
   } finally {
+    if (savedIcmParts === undefined) delete process.env.ICM_PARTS_PATH_OVERRIDE;
+    else process.env.ICM_PARTS_PATH_OVERRIDE = savedIcmParts;
+    if (savedCmdRegistry === undefined) delete process.env.COMMAND_REGISTRY_PATH_OVERRIDE;
+    else process.env.COMMAND_REGISTRY_PATH_OVERRIDE = savedCmdRegistry;
+    delete require.cache[require.resolve(MODULE_PATH)];
     rmrf(scratchRoot);
   }
 });
@@ -315,14 +322,21 @@ record('no banned adjective appears anywhere in the cascade payload strings', ()
 // Test 7: no source line contains a frozen count (a bare 3+ digit integer
 // literal outside a version string), per the plan's acceptance criterion.
 // ---------------------------------------------------------------------------
-record('no source line in the module contains a frozen 3+ digit count', () => {
+record('no executable source line in the module contains a frozen 3+ digit count', () => {
+  // Prose (docblock '*' lines and inline '//' comments) legitimately cites
+  // phase numbers, threat IDs and version-like strings (T-344-23, "232.1",
+  // etc.); the plan's own acceptance criterion excludes "a version string"
+  // from this guard. The guard's real job is catching a hardcoded surface
+  // or part count baked into EXECUTABLE code, so only non-comment lines are
+  // checked here.
   const src = fs.readFileSync(MODULE_PATH, 'utf8');
   const lines = src.split('\n');
   for (const line of lines) {
-    if (/^\s*\*/.test(line)) continue; // docblock prose lines are exempt
-    const m = line.match(/[0-9]{3}/);
+    const trimmed = line.trim();
+    if (trimmed.startsWith('*') || trimmed.startsWith('//') || trimmed.startsWith('/*')) continue;
+    const m = trimmed.match(/[0-9]{3}/);
     if (m) {
-      throw new Error('possible frozen count on line: ' + line.trim());
+      throw new Error('possible frozen count on line: ' + trimmed);
     }
   }
 });
