@@ -60,28 +60,29 @@ function run(records) {
 {
   const errs = run(cloneRecords());
   assert.strictEqual(errs.length, 0, 'the intact table must produce zero errors: ' + errs.join(' | '));
-  ok('the intact table (all twenty records) produces zero completeness/pairing errors');
+  ok('the intact table (all twenty-one records) produces zero completeness/pairing errors');
 }
 
 // ---------------------------------------------------------------------------
-// The rank contract is unchanged: literal pre-343-04 order, every registered
-// id ranks in-range, every non-member ranks worst.
+// The rank contract: pre-343-04 order with SENS-19 (343-06, WD-7) inserted in
+// Group A between SENS-11 and SENS-14; every registered id ranks in-range,
+// every non-member ranks worst.
 // ---------------------------------------------------------------------------
 {
   const want = [
-    'SENS-08', 'SENS-17', 'SENS-10', 'SENS-11', 'SENS-14', 'SENS-02', 'SENS-RECENCY',
+    'SENS-08', 'SENS-17', 'SENS-10', 'SENS-11', 'SENS-19', 'SENS-14', 'SENS-02', 'SENS-RECENCY',
     'SENS-01', 'SENS-06', 'SENS-13', 'SENS-15', 'SENS-12', 'SENS-07', 'SENS-03',
     'SENS-05', 'SENS-04', 'SENS-09', 'SENS-SHOW', 'SENS-18',
     'SENS-16',
   ];
-  assert.deepStrictEqual(SENS_PRIORITY_IDS.slice(), want, 'SENS_PRIORITY_IDS order changed from the pre-343-04 table');
+  assert.deepStrictEqual(SENS_PRIORITY_IDS.slice(), want, 'SENS_PRIORITY_IDS order changed unexpectedly');
   for (let i = 0; i < want.length; i++) {
-    assert.strictEqual(sensorPriorityRank(want[i]), i, 'rank for ' + want[i] + ' changed from its pre-343-04 position');
+    assert.strictEqual(sensorPriorityRank(want[i]), i, 'rank for ' + want[i] + ' changed from its expected position');
   }
   assert.strictEqual(sensorPriorityRank('SENS-NOPE'), SENS_PRIORITY.length, 'unknown id must rank worst');
   assert.strictEqual(sensorPriorityRank(''), SENS_PRIORITY.length, 'empty string must rank worst');
   assert.strictEqual(sensorPriorityRank(null), SENS_PRIORITY.length, 'null must rank worst');
-  ok('sensorPriorityRank ranks every id exactly as the pre-conversion literal order, non-members rank worst');
+  ok('sensorPriorityRank ranks every id in the expected order (SENS-19 in Group A per WD-7), non-members rank worst');
 }
 
 // ---------------------------------------------------------------------------

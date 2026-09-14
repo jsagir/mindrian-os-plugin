@@ -114,5 +114,50 @@ const detectorSource = fs.readFileSync(DETECTOR_PATH, 'utf8');
 assert.strictEqual(/navigation-engine/.test(detectorSource), false, 'the detector must never reference navigation-engine');
 ok('the detector file contains no reference to navigation-engine (the routing fence)');
 
+// ---------------------------------------------------------------------------
+// Task 2: the six in-file registration places.
+// ---------------------------------------------------------------------------
+
+const insightSensors = require(path.join(REPO, 'lib', 'core', 'insight-sensors.cjs'));
+const { SENSOR_REGISTRY, SENSOR_REGISTRY_IDS } = insightSensors;
+const { SENS_PRIORITY, sensorPriorityRank } = require(path.join(REPO, 'lib', 'core', 'sensors', 'sensor-priority.cjs'));
+
+assert.strictEqual(
+  SENSOR_REGISTRY.length,
+  SENSOR_REGISTRY_IDS.length,
+  'SENSOR_REGISTRY and SENSOR_REGISTRY_IDS must stay the same length'
+);
+ok('SENSOR_REGISTRY and SENSOR_REGISTRY_IDS are the same length');
+
+const sens19Index = SENSOR_REGISTRY_IDS.indexOf('SENS-19');
+assert.notStrictEqual(sens19Index, -1, 'SENSOR_REGISTRY_IDS must contain SENS-19');
+assert.strictEqual(
+  SENSOR_REGISTRY_IDS.indexOf('SENS-19', sens19Index + 1),
+  -1,
+  'SENSOR_REGISTRY_IDS must contain SENS-19 exactly once'
+);
+assert.strictEqual(
+  SENSOR_REGISTRY[sens19Index],
+  sensorGraphIntegrity,
+  "SENSOR_REGISTRY_IDS's SENS-19 index must point at the same function as sensorGraphIntegrity"
+);
+ok('SENSOR_REGISTRY_IDS names SENS-19 exactly once, at the index whose SENSOR_REGISTRY entry is the detector function');
+
+assert.strictEqual(insightSensors.sensorGraphIntegrity, sensorGraphIntegrity, 'insight-sensors.cjs must export sensorGraphIntegrity by name');
+ok('sensorGraphIntegrity is present on the module exports');
+
+const sens19Record = SENS_PRIORITY.find((r) => r.id === 'SENS-19');
+assert.ok(sens19Record, 'SENS_PRIORITY must contain a SENS-19 record');
+for (const key of ['id', 'optimizes', 'watched_by', 'why']) {
+  assert.ok(Object.prototype.hasOwnProperty.call(sens19Record, key), 'the SENS-19 record must carry its own "' + key + '" key');
+}
+ok('SENS_PRIORITY contains a SENS-19 record with all four keys');
+
+assert.ok(
+  sensorPriorityRank('SENS-19') < sensorPriorityRank('SENS-16'),
+  'SENS-19 must outrank SENS-16 (SENS-19 is Group A, SENS-16 is Group D)'
+);
+ok('sensorPriorityRank(SENS-19) is less than sensorPriorityRank(SENS-16): Group A placement took effect');
+
 console.log('');
 console.log('PASS test-343-sensor-registration.cjs (' + checks + ' checks so far)');
