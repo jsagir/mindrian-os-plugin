@@ -1646,15 +1646,89 @@ constitutionally.
       stays open per this document's own rule: a row that cannot be closed with a measurement
       stays open with a stated reason rather than closed on an assertion.
 
+### Phase 343 - The room-graph census and the counter-metric rule (CENSUS)
+
+These seventeen IDs were minted in the Phase 343 plan set (2026-09-14), scoped to Phase 343
+only: a per-room counts-only census organ, the same measurement registered as an insight
+sensor, a counter-metric declaration on every sensor, the help family map's layer labels, and
+a seventh release-lockstep place verifying Theo's command-layer stamp.
+
+- [ ] **CENSUS-01**: `lib/core/doctor/room-graph-integrity-module.cjs` reports exactly three
+      measurable defect statements plus self-loop and unresolved-CONTRADICTS counts, per room
+      and fleet-wide, counts only, `status` never `warn`, and exports no `fix` of any kind.
+
+- [ ] **CENSUS-02**: every room is reached through `openRoomDbReadOnlyForCaller`;
+      `sqlite_master` (name, sql) and file `mtimeMs` are byte-identical after a sweep; the
+      payload carries room NAMES and integers only, never a node id and never a filesystem
+      path.
+
+- [ ] **CENSUS-03**: every column-dependent statement gates on `PRAGMA table_info(nodes)`; a
+      column absent in a legacy schema reports `null` plus a `schema_variant` marker, never
+      `0`.
+
+- [ ] **CENSUS-04**: "stub or placeholder node" and "memory-event provenance edge" ship as
+      `not_measurable` records carrying their reason in the module's own output, never as
+      defect statements that structurally cannot fire.
+
+- [ ] **CENSUS-05**: the module's output names `lib/core/navigation/typed-claim.cjs:121` as
+      the cause of the unanchored count, reports the count as two columns (legacy cohort and
+      new writes), and states that the fix is Phase 273 territory.
+
+- [ ] **CENSUS-06**: `lib/core/navigation/CONTEXT.md` replaces the stale `ROOM.md` and states
+      the two write chokepoints and their split, the two named exclusions, the four
+      claim-producing paths, the provenance-edge ghost, the D-169-11 no-FK decision and the
+      three schema variants; one routing row in `CLAUDE.md` points at it.
+
+- [ ] **CENSUS-07**: the `.room-graph` name collision is stated once in a tracked file,
+      `docs/lazygraph-schema.md`'s correction notice names `<roomDir>/.mindrian/room.db`, and
+      every stale in-code site carries the collision note.
+
+- [ ] **CENSUS-08**: every registered sensor declares what it optimizes and its paired
+      watcher in ONE keyed table, and the build gate fails closed in both directions on a
+      sensor with no declaration and a declaration with no sensor.
+
+- [ ] **CENSUS-09**: the first counter-metric pair is computed from `room.db` with the
+      existing edge vocabulary and reported as counts plus one boolean, never a score,
+      carrying the unread-log counting rule.
+
+- [ ] **CENSUS-10**: SENS-19 is registered in all six lockstep places plus the ctx producer
+      block, placed in `SENS_PRIORITY` Group A.
+
+- [ ] **CENSUS-11**: SENS-19 is pure and synchronous, reuses the frozen `contradiction`
+      reach, fires on a PER-ROOM threshold crossing, and never reaches `decide()` or writes
+      `routing_source`.
+
+- [ ] **CENSUS-12**: the release lockstep count has exactly one home; `CLAUDE.md` carries a
+      pointer with no number and the other stated counts are corrected or annotated.
+
+- [ ] **CENSUS-13**: `scripts/release.sh` verifies Theo's command-layer stamp for the CURRENT
+      version before any mutation and fails closed on a mismatch and on a network error.
+
+- [ ] **CENSUS-14**: the help family map labels every command by its `layer:` value read
+      from `data/command-registry.json`, and the six loop-versus-graph signals are written as
+      the stated rule for when `chain_resolve` composes a chain versus runs one framework.
+
+- [ ] **CENSUS-15**: every working decision of this phase lands in a tracked `docs/` file
+      with a status and a date, because `.planning/` is gitignored here.
+
+- [ ] **CENSUS-16**: every CENSUS id closes with a `Measured:` clause citing a command and
+      its observed output, and the phase validation map is filled.
+
+- [ ] **CENSUS-17**: `lib/core/doctor/room-graph-integrity-module.cjs` counts edge rows
+      whose `type` is outside the exported `ALLOWED_EDGE_TYPES`, per room and fleet-wide,
+      names the offending types, and names the writers that bypass the chokepoint without
+      fixing them.
+
 ## Traceability
 
-199 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
+216 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
 TAIL-01, SEED-A..B, CARRY-01..03 (23, milestone-wide), plus RADAR-01..31 minus the three retired
 IDs (28 active, Phase 265), MCPFIX-01..04 (Phase 266), MEMOP-01..15 (Phase 270), GUARD-01..10
 (Phase 267.3), CHOKE-01..06 (Phase 273), PYPORT-01..07 (Phase 272), ANCHOR-01..10 (Phase 274),
 plus WIRE-01..04 / COMP-01..02 (Phase 254), plus LOCUS-01..10 (Phase 257), plus HOOK-01..12
 (Phase 267.2), plus TOOLHON-01..14 (Phase 276), plus FLIP-01..12 (Phase 339), plus ICML-01..16
-(Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344). All minted
+(Phase 275), plus CANON-01..10 (Phase 340), plus LAYER-01..16 (Phase 344), plus CENSUS-01..17
+(Phase 343). All minted
 2026-08-27 except CHOKE-01..06 and
 PYPORT-01..07 (both minted 2026-08-31), ANCHOR-01..10 (minted 2026-09-01), WIRE-01..04 /
 COMP-01..02 (minted 2026-09-02), HOOK-01..12, TOOLHON-01..14 and FLIP-01..12
@@ -1695,7 +1769,10 @@ CANON-01..10 were proposed in `340-CONTEXT.md`'s `<phase_requirements>` recommen
 LAYER-01..16 were minted in the Phase 344 plan set (2026-09-14), ratifying `344-RESEARCH.md`'s
 proposed `LAYER-` family, and are registered here at plan time as `- [ ]` rows to be finalized
 with measured proof at phase close by `344-09-PLAN.md`.
-Roadmap phases must map all 199 active requirements with no orphans.
+CENSUS-01..17 were minted in the Phase 343 plan set (2026-09-14), scoped to Phase 343 only, and
+are registered here at plan time as `- [ ]` rows to be closed with measured proof by
+`343-09-PLAN.md`, per the Phase 254/257/339 precedent.
+Roadmap phases must map all 216 active requirements with no orphans.
 
 **Caveat, carried on the MCPFIX, MEMOP, GUARD, PYPORT, ANCHOR, WIRE/COMP, LOCUS, HOOK, TOOLHON, ICML,
 FLIP and CANON
