@@ -289,6 +289,52 @@ function main() {
   const groupsAfter = fs.readFileSync(REAL_GROUPS_PATH, 'utf8');
   assert(groupsBefore === groupsAfter, 'data/help-groups.json is byte-identical before and after every render in this test');
 
+  // --- Arm 9 (Task 3): the command surface ------------------------------
+  // commands/help.md names the generated registry and the signals doc, and
+  // never copies the closed layer vocabulary or a per-layer count into its
+  // own PROSE (D-04: read from the data file every time, no drifting copy).
+  //
+  // "This prose" (the plan's own words) means the markdown body Larry reads
+  // and follows, NOT the YAML frontmatter block: help.md's own `layer:` /
+  // `layer_why:` frontmatter is 344-03's backfill declaring what /mos:help
+  // ITSELF is (a single value, a fact this command's own file owns), never
+  // a copied list of the five-member vocabulary. `layer_why`'s free-text
+  // sentence also happens to use the plain English word "context" and
+  // help.md's own layer is "harness" -- neither is the vocabulary being
+  // enumerated, so the body-only scan below is the correct scope for the
+  // "did we copy the vocabulary as a list" question the plan is asking.
+  const HELP_MD_PATH = path.join(REPO_ROOT, 'commands', 'help.md');
+  const helpMd = fs.readFileSync(HELP_MD_PATH, 'utf8');
+  const helpMdBody = helpMd.replace(/^---\n[\s\S]*?\n---\n/, '');
+
+  assert(
+    helpMd.indexOf('data/command-registry.json') !== -1,
+    'commands/help.md names data/command-registry.json as the layer source'
+  );
+  assert(
+    helpMd.indexOf('docs/LOOP-VERSUS-GRAPH-SIGNALS.md') !== -1,
+    'commands/help.md points at docs/LOOP-VERSUS-GRAPH-SIGNALS.md'
+  );
+
+  const vocabHits = ['prompt', 'context', 'harness', 'loop', 'graph'].filter((word) =>
+    new RegExp('\\b' + word + '\\b', 'i').test(helpMdBody)
+  );
+  assert(
+    vocabHits.length < 4,
+    'commands/help.md prose (frontmatter excluded) does not read as a hardcoded copy of the closed layer vocabulary (hits: ' +
+      JSON.stringify(vocabHits) +
+      ')'
+  );
+
+  // A per-layer count is a number directly beside one of the five layer
+  // names (e.g. "18 graph commands") -- NOT the pre-existing, unrelated
+  // per-family/per-card counts ("11 command families", "4 options") this
+  // file already carries for a different reason.
+  assert(
+    !/\b\d+\s+(prompt|context|harness|loop|graph)\b/i.test(helpMdBody),
+    'commands/help.md prose carries no numeric per-layer count'
+  );
+
   console.log('');
   console.log('PASS=' + pass + ' FAIL=' + fail);
   process.exit(fail > 0 ? 1 : 0);
