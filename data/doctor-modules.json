@@ -176,6 +176,15 @@
       "description": "Per-registered-room room.db node-row and edge-row counts, read through the new read-only navigation door so the census never mutates what it measures. Check-only: raw counts and totals, no health or density claim, per SEED-074's hard guard on downstream claims."
     },
     {
+      "id": "room-graph-integrity",
+      "introduced_version": "2.0.0-beta.40",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/room-graph-integrity-module.cjs",
+      "description": "Room-graph integrity counts (Phase 343): edge rows whose source or target id has no node row, claim nodes with no SOURCED_FROM or DERIVED_FROM out-edge, proposed nodes past the review window, edge rows carrying a type outside the writeEdge allowlist, unresolved CONTRADICTS edges and self-referencing edges. Reads through the read-only navigation door; scopes to the active room by default and every registered room plus fleet totals under --cascade-rooms. Check-only: raw counts only, no claim in either direction, per SEED-074's hard guard."
+    },
+    {
       "id": "graph-derive-health",
       "introduced_version": "1.15.3-beta.49",
       "cadence": "always",
