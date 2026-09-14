@@ -248,6 +248,104 @@ scenario('no key or string in the returned object carries a banned adjective or 
   }
 });
 
+// ================= Task 2: the doctor organ's extended payload =================
+
+const DOCTOR_MODULE_PATH = path.join(REPO, 'lib', 'core', 'doctor', 'room-graph-integrity-module.cjs');
+
+function makeScratchRegistry(scratch, rooms, activeName) {
+  const registryDir = path.join(scratch, '.rooms');
+  fs.mkdirSync(registryDir, { recursive: true });
+  const registryRooms = {};
+  for (const name of Object.keys(rooms)) {
+    registryRooms[name] = rooms[name];
+  }
+  const registry = { active: activeName || null, rooms: registryRooms };
+  fs.writeFileSync(path.join(registryDir, 'registry.json'), JSON.stringify(registry, null, 2));
+  return scratch;
+}
+
+function withScratchRoomsHome(scratch, fn) {
+  const prior = process.env.MINDRIAN_ROOMS_HOME;
+  process.env.MINDRIAN_ROOMS_HOME = scratch;
+  try {
+    return fn();
+  } finally {
+    if (prior === undefined) delete process.env.MINDRIAN_ROOMS_HOME;
+    else process.env.MINDRIAN_ROOMS_HOME = prior;
+  }
+}
+
+// Two fleet fixtures: one that diverges (past-lag claims, zero contradicted,
+// all uncited), one that does not (a contradicted past-lag claim present).
+function makeRoomDir(scratch, name, seedFn) {
+  const roomDir = path.join(scratch, name);
+  fs.mkdirSync(roomDir, { recursive: true });
+  const db = roomDb.openRoomDb(roomDir);
+  seedFn(db);
+  roomDb.closeRoomDb(db);
+  return roomDir;
+}
+
+scenario('doctor organ: fleet sweep reports per-room claim_counter_metric and three-integer totals', () => {
+  const scratch = makeScratchDir('organ-ccm');
+  const now = Date.now();
+  const fortyDaysAgo = now - (40 * 86400000);
+
+  makeRoomDir(scratch, 'room-diverged', (db) => {
+    rawInsertNode(db, 'claim_1', 'claim', { createdAt: fortyDaysAgo });
+    rawInsertNode(db, 'claim_2', 'claim', { createdAt: fortyDaysAgo });
+  });
+  makeRoomDir(scratch, 'room-not-diverged', (db) => {
+    rawInsertNode(db, 'valid_a', 'artifact');
+    rawInsertNode(db, 'claim_1', 'claim', { createdAt: fortyDaysAgo });
+    rawInsertEdge(db, 'valid_a', 'claim_1', 'CONTRADICTS');
+  });
+  makeScratchRegistry(
+    scratch,
+    { 'room-diverged': { path: 'room-diverged' }, 'room-not-diverged': { path: 'room-not-diverged' } },
+    'room-diverged'
+  );
+
+  withScratchRoomsHome(scratch, () => {
+    delete require.cache[DOCTOR_MODULE_PATH];
+    const mod = require(DOCTOR_MODULE_PATH);
+    const r = mod.check({ flags: { cascadeRooms: true } });
+    assert.equal(r.status, 'ok');
+    assert.equal(r.rooms.length, 2);
+
+    const diverged = r.rooms.find((room) => room.room === 'room-diverged');
+    const notDiverged = r.rooms.find((room) => room.room === 'room-not-diverged');
+    assert.ok(diverged.claim_counter_metric);
+    assert.ok(notDiverged.claim_counter_metric);
+    assert.strictEqual(diverged.claim_counter_metric.divergence, true);
+    assert.strictEqual(notDiverged.claim_counter_metric.divergence, false);
+
+    assert.ok(r.totals.claim_counter_metric);
+    const t = r.totals.claim_counter_metric;
+    assert.equal(typeof t.rooms_diverged, 'number');
+    assert.equal(typeof t.rooms_not_diverged, 'number');
+    assert.equal(typeof t.rooms_not_measurable, 'number');
+    assert.equal(t.rooms_diverged, 1);
+    assert.equal(t.rooms_not_diverged, 1);
+    assert.equal(t.rooms_not_measurable, 0);
+    assert.equal(t.claims_filed, 3);
+    assert.equal(t.claims_with_contradicts_edge, 1);
+
+    // No absolute path and no node id leaked anywhere in the payload.
+    const strings = [];
+    (function collect(v) {
+      if (typeof v === 'string') { strings.push(v); return; }
+      if (Array.isArray(v)) { v.forEach(collect); return; }
+      if (v && typeof v === 'object') { Object.values(v).forEach(collect); }
+    })(r);
+    for (const s of strings) {
+      assert.equal(path.isAbsolute(s), false, 'payload string looks like an absolute path: ' + s);
+      assert.equal(s.indexOf('claim_1') === -1, true, 'payload string leaks a node id: ' + s);
+    }
+  });
+  rmrf(scratch);
+});
+
 for (const f of openFixtures) {
   try { f.close(); } catch (_) { /* best-effort */ }
   rmrf(f.roomDir);
