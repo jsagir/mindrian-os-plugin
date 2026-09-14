@@ -2240,7 +2240,17 @@ function renderHumanReport(report) {
       else if (check.status === 'warn') { glyph = '⚠'; color = C.yellow; }
       else if (check.status === 'error') { glyph = '⚠'; color = C.red; }
       else { glyph = '⊘'; color = C.dim; }
-      bodyRows.push('  ' + color + '■' + C.reset + ' ' + name.padEnd(28) + color + glyph + C.reset + ' ' + (check.detail || check.status));
+      // Quick 260914-ntk (Finding 3): fix the RENDERER, not the producers.
+      // checkBrainSmoke() returns { ok, layers, overall_ms } with neither
+      // `detail` nor `status`, so both operands were undefined and the row
+      // printed the literal word "undefined". The renderer is the one place
+      // making the universal { status, detail } shape assumption -- normalizing
+      // every producer would mean touching class M, install-state and every
+      // future async carve-out instead of the one line that renders them.
+      // Standalone --brain-smoke renders correctly today only because it takes
+      // a different path (Object.assign({class:'S'}, result) near the class S
+      // dispatch), which is why this bug appears only under a combined run.
+      bodyRows.push('  ' + color + '■' + C.reset + ' ' + name.padEnd(28) + color + glyph + C.reset + ' ' + (check.detail || check.status || (check.ok ? 'ok' : 'unknown')));
       // Phase 217 Plan-01: action_lines sub-line support. The structural home
       // for the hand-coded hint sub-lines (class H/K/N) that later migration
       // plans delete: a cadence:always module returns action_lines[] and the
@@ -2268,7 +2278,13 @@ function renderHumanReport(report) {
       else if (entry.status === 'partial') { glyph = '⚠'; color = C.yellow; }
       else if (entry.status === 'error') { glyph = '⚠'; color = C.red; }
       else { glyph = '⊘'; color = C.dim; }
-      bodyRows.push('  ' + color + glyph + C.reset + ' fix ' + (entry.tool || 'unknown-tool') + ': ' + (entry.detail || entry.status));
+      // Quick 260914-ntk (Finding 3): same renderer-not-producer fix as the
+      // check-row above. install-state recovery entries use
+      // { class, surface, action, ok, note }, with `detail` present only on the
+      // failure branch and `note` (not `detail`) carrying the success-path
+      // human sentence. Order matters: note before action, because note is the
+      // human sentence and action is a machine token.
+      bodyRows.push('  ' + color + glyph + C.reset + ' fix ' + (entry.tool || 'unknown-tool') + ': ' + (entry.detail || entry.note || entry.status || entry.action || (entry.ok ? 'ok' : 'unknown')));
     }
   }
 
