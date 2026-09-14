@@ -46,6 +46,7 @@ A release is a release only when ALL of the following are in sync (enforced by `
 5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` version + `source.version == <version>` (npm source, `package: @mindrian_os/cli`, no `v` prefix; the git `ref`/`url` pin was retired by Phase 341 D-01/D-06 as of v2.0.0-beta.31, 2026-09-10).
 6. The npm publish of `@mindrian_os/cli` at NEW_VERSION (Step 9.5).
 7. The mindrian-website sync (Step 9.6b), which carries the npx COMMAND string (`npx @mindrian_os/cli`) -- update it on rename, not just the version.
+8. Theo's command-layer re-emit against the version just released (Phase 343 Plan 07, WD-13). Verified retroactively, at the START of the NEXT release, by the LAGGING `scripts/release-lib/theo-stamp-gate.sh` preflight sourced into `release.sh`'s preamble before Step 1: it asserts Theo's `mappedBy` stamp equals the CURRENT plugin version and fails closed on a mismatch or an unreachable Theo. `--no-theo-check` is the audited opt-out; under `--dry-run` the gate reports the verdict without aborting (WD-20).
 
 The install minisite (formerly Step 9.6a) is NOT counted as a place here: it was retired on 2026-06-09, and `NO_MINISITE=1` is the default (`release.sh:113`).
 

@@ -22,6 +22,13 @@
 # What it does:
 #   0. Parse bump mode (+ flags). Refuse unknown.
 #   0.5. semver preflight (require node_modules/semver; do NOT auto-npm-install).
+#   0.6. Theo command-registry stamp gate (Phase 343 Plan 07, WD-13): asserts
+#        Theo's command-layer stamp matches the CURRENT plugin version, before
+#        any mutation. Fails closed on a mismatch or an unreadable stamp;
+#        --no-theo-check opt-out (audit-logged, --no-minisite precedent);
+#        under --dry-run performs the read and reports without aborting
+#        (WD-20). See docs/RELEASE-CEREMONY-RULING-SYSTEM.md RULE 5 for the
+#        single enumeration of the release lockstep this gate is a part of.
 #   1. Compute NEW_VERSION via semver.inc() in a node one-liner.
 #   2. Pre-release verification (scripts/verify-release).
 #   3-6. Bump plugin.json + package.json + marketplace.json (+ npm source pinned
@@ -38,8 +45,12 @@
 #   9.5. npm publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B so the
 #        working tree still says vN). dist-tag: @next for -beta./alpha./rc./next.,
 #        @latest for clean X.Y.Z.
-#   9.6. Sync install minisite to NEW_VERSION (HARD 7-place lockstep, Phase 126
-#        Plan 04). Bumps ~/mindrianos-install-site/lib/os.ts + app/page.tsx via
+#   9.6. Sync install minisite to NEW_VERSION (retired 2026-06-09, off by
+#        default under NO_MINISITE=1; --minisite re-enables. NOT one of the
+#        counted lockstep places -- see docs/RELEASE-CEREMONY-RULING-SYSTEM.md
+#        RULE 5, which carries the single count; this comment carries no
+#        number of its own -- Phase 126 Plan 04). Bumps
+#        ~/mindrianos-install-site/lib/os.ts + app/page.tsx via
 #        line-anchored content-based sed (NOT line numbers); grep-verify with
 #        rollback on mismatch; git commit; git push origin main (NOT vercel CLI;
 #        Vercel auto-deploys on push); curl live-poll $MINDRIAN_MINISITE_URL
@@ -94,6 +105,16 @@ if [ ! -f "$RELEASE_LIB_DIR/verify-tag-push.sh" ]; then
 fi
 . "$RELEASE_LIB_DIR/verify-tag-push.sh"
 
+# Phase 343 Plan 07 (CENSUS-13, WD-13): source the Theo stamp gate the same
+# way and for the same reason -- a missing library discovered at its call
+# site would fail after mutation has already started. Function definitions
+# only; the gate itself is CALLED below, at Step 0.6, after flags are parsed.
+if [ ! -f "$RELEASE_LIB_DIR/theo-stamp-gate.sh" ]; then
+  echo -e "${RED}scripts/release-lib/theo-stamp-gate.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/theo-stamp-gate.sh"
+
 # --- Step 0: Parse bump type + flags ---
 BUMP_MODE=""
 ALLOW_AHEAD=0
@@ -102,7 +123,8 @@ DRY_RUN=0
 NO_MINISITE=1   # install-minisite RETIRED 2026-06-09 (navigator: official site is mindrian-os.com only); off by default, --minisite re-enables
 NO_WEBSITE=0    # official Mindrian website (mindrian-os.com) stays ON by default; --no-website opts out
 STRICT_SHAPE=0  # Phase 235 (CIRS-03): shape-declaration gate is advisory by default; --strict-shape restores the pre-210 hard-fail
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--dry-run]"
+NO_THEO_CHECK=0 # Phase 343 Plan 07 (WD-13/T-343-06): Theo stamp gate is ON by default; --no-theo-check is the audited opt-out (--no-minisite / --no-website precedent), never silent
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -118,6 +140,7 @@ for arg in "$@"; do
     --minisite)          NO_MINISITE=0 ;;
     --no-website)        NO_WEBSITE=1 ;;
     --strict-shape)      STRICT_SHAPE=1 ;;
+    --no-theo-check)     NO_THEO_CHECK=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -133,6 +156,19 @@ if [ ! -d "$PLUGIN_DIR/node_modules/semver" ]; then
   echo -e "${RED}node_modules/semver missing -- run 'npm install' first.${NC}"
   echo "  release.sh needs the semver package for pre-release bump algebra."
   echo "  (Do NOT run 'npm install' from inside this script -- the operator must do it.)"
+  exit 1
+fi
+
+# --- Step 0.6: Theo command-registry stamp gate (Phase 343 Plan 07, WD-13) ---
+# LAGGING gate: asserts Theo's command-layer stamp matches the CURRENT
+# plugin version -- the one this release is about to supersede -- before
+# any mutation, and before NEW_VERSION is even computed below. Runs
+# unconditionally, including under --dry-run (WD-20: performs the real
+# read and prints the verdict, but never aborts under --dry-run, so a Theo
+# outage cannot red scripts/doctor.cjs --acceptance, which shells this
+# script with --dry-run). See docs/RELEASE-CEREMONY-RULING-SYSTEM.md
+# RULE 5 (place 8) and docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md WD-13/WD-20.
+if ! mos_theo_stamp_gate "$PLUGIN_DIR" "$DRY_RUN" "$NO_THEO_CHECK"; then
   exit 1
 fi
 
