@@ -731,14 +731,22 @@ Plans:
 
 ### Phase 345: The strategy node (graph-engineering learning 3b, blind upward movement, 2026-09-14): a loop cannot question its own goal, it can only hit it. In MindrianOS the goal of every execution reach is the room's JTBD and its problem-type rung, and nothing re-examines either on a slower cadence than the reaches that execute against them, so a room can hit its stated goal for weeks while the goal itself has gone stale (the transcript's sales agent hitting 500 emails a day at a 0.11 percent response rate until a slower strategy node rewrote the target to five real conversations a week). Deliverables. (1) A scheduled strategy reach, registered in SENSOR_REGISTRY with its own cadence (every N sessions of a room, or on a stall signal such as repeated reaches with no new claim, no filed artifact, or a contradiction left unresolved), that climbs the taxonomy ladder through Theo's classify_problem_type and taxonomy_ladder with generic handles only (Part 8), re-reads the room's JTBD against what the room graph now holds, and proposes a rewritten JTBD or a different rung at a Decision Gate; it never rewrites silently, and the navigator's choice is written as a typed decision node with SOURCED_FROM provenance. (2) A goal-hierarchy record in the room: the JTBD carries its parent question (the rung above) so the ladder can be climbed mechanically, and every execution reach logs which goal version it ran under. (3) Doctrine, written into the larry-personality skill: the reframe is the strategy node's move; when circling, climb, do not ask another clarifying question. Consults icm-architect and langtalks-graph-expert (loop and harness engineering nodes present; the graph-engineering note cites the structured source directly until its extraction lands).
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** The room's goal carries its parent question and its problem-type rung, a slower GRAPH-layer watcher proposes a re-aim at a Decision Gate on a throttled cadence rather than nagging, the navigator's choice is written as a typed decision node with SOURCED_FROM provenance to a real payload-free anchor, every execution reach records the goal version it ran under, and the reframe has a named owner in doctrine.
+**Requirements**: STRAT-01 .. STRAT-18
 **Depends on:** Phase 344
-**Plans:** 0 plans
+**Plans:** 9 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 345 to break down)
+- [ ] 345-01-PLAN.md - mint STRAT-01..18 with nine reversible working decisions, the single home for the persisted rung vocabulary, and the phase test aggregator with the mcp__theo__ and em-dash tripwires
+- [ ] 345-02-PLAN.md - the goal record: a top-level goal key on jtbd-state.json carried through every writer, with setGoal as the only writer and SCHEMA_VERSION unchanged
+- [ ] 345-03-PLAN.md - the cadence and stall counters over memory_event, the three-mechanism cool-down, two net-new event types, and the null-default stall input named for Phase 346
+- [ ] 345-04-PLAN.md - sensorStrategyReach written, pure, synchronous and registered nowhere, with one named test per refusal branch
+- [ ] 345-05-PLAN.md - the material step: one blocking navigator checkpoint, then the seven-place SENS-19 lockstep with place 7 pinned from the far end through decide()
+- [ ] 345-06-PLAN.md - the idempotent payload-free goal anchor minted before the card, the local climb with an optional Theo ladder render, and the four-option proposal card
+- [ ] 345-07-PLAN.md - the gate ratification on both surfaces: the single writer of a ratified goal, and the fixture proof that the fleet-wide zero SOURCED_FROM edges moves to one
+- [ ] 345-08-PLAN.md - the doctrine amended in place in three agreeing copies, two L2 contract Inputs pointers, and the rung-vocabulary correction before a rung is stored
+- [ ] 345-09-PLAN.md - phase close: full gate sweep, eighteen requirements closed with measured proof, validation map filled, close-out record and six carried-forward items
 
 ### Phase 346: The arbitration node (graph-engineering learning 3c, conflict between loops, 2026-09-14): when two independent loops optimize different metrics inside one system they fight like two thermostats in one room, and each looks healthy on its own dashboard. MindrianOS has this failure live: the enforcement loop (hard-fail checks, render-coverage gates, mandatory card dispatch) and the judgment loop (Larry's reframe, the Ask-Tell dial, GUIDED-first teaching) pull against each other, recorded as the 2026-07-02 WATCH item "Larry feels less like Larry since v1.15.beta.x, hard-fail checks may have replaced judgment". Deliverables. (1) One explicit arbiter, a single ranked decision per turn, that resolves teach-versus-deliver, guided-versus-autonomous, and enforce-versus-judge from context rather than from whichever rule fired last: inputs are the role_blend axis, the room JTBD, the problem-type rung, escape-hatch phrases ("just tell me", "bottom line"), stall count, and surface capability; output is a logged posture decision with its reasons, written through memory_event so it can be audited later. (2) Every hard rule that currently short-circuits judgment is catalogued and classified: keep as a hard floor (Canon Part 8 egress, Part 12 voice glyph, no fabricated numbers), or demote to an arbiter input with a weight. (3) An eval that replays the WATCH item's transcript set through the arbiter and measures whether the persona regression closes, with the 07-02 grading trend as the before-number. Consults langtalks-graph-expert (Agent Factory agent-evaluation note, verification-loops source) and the hooked-model skill for the first-step surface.
 
@@ -753,14 +761,51 @@ Plans:
 
 ### Phase 347: The shared-state contract for chains (graph-engineering learning 5, node / edge / shared state, 2026-09-14): state is what turns a set of agents into a system rather than a flock of birds that forgets everything, and it is essentially memory. Three building blocks, each with a MindrianOS counterpart that is not yet a contract. Deliverables. (1) Shared state: the object that flows along every chain edge (chain_run, /mos:pipeline, act-chain, act-swarm, the five-perspective meeting fan-out, the Workflow harness-as-code) is a typed room-graph record (task description, current draft, notes, judgment results, gate decisions) read and written through navigation.cjs, never conversation prose handed between subagents; a test proves each step's input is reconstructible from the room graph alone. (2) Nodes: every node gets clean, scoped, independent context assembled for that node (context_assemble with the node's own focus and budget), not the parent's transcript, so a writer node sees the researcher's structured notes and not the raw sources; the fan-out and fan-in shapes (coordinator distributes, collects, aggregates) are named primitives in the chain executor rather than ad hoc Agent calls. (3) Edges: routing is explicit and readable; conditional edges (review passes goes forward, fails goes back), fan-out and fan-in are declared in the resolved chain, and visualize_chain renders the real routing including halts and the reviewer node, so a navigator can read the control-flow path of any run after the fact. (4) The reviewer node is always the navigator at the gate for material steps and may be an independent reviewer subagent for autonomous_safe steps, never the same node that did the work; true self-review means a different node. Builds on Phase 273 (chokepoint hardening) and the langtalks corpus edges (Memory part_of context engineering; orchestration layer via agent harness to multi-agent systems, ep33 LangGraph). Consults icm-architect and langtalks-graph-expert.
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 346
-**Plans:** 0 plans
+**Goal:** What flows between chain steps is a typed room-graph record rather than conversation prose, each node gets its own scoped context, routing is declared and readable including halts and the reviewer node, and the reviewer is provably never the worker.
+**Requirements**: SHARED-01 .. SHARED-13 (minted 2026-09-14 in docs/2026-09-14-CHAIN-SHARED-STATE-CONTRACT.md, scoped to Phase 347 only, registered in .planning/REQUIREMENTS.md at phase close by 347-12-PLAN.md per the ICML / TOOLHON / CANON precedent)
+**Depends on:** Phase 346. Six of the twelve plans additionally carry a hard dependency on Phase 344 closing (344-09), because Phase 344 claims commands/*.md, agents/*.md, lib/mcp/tools/*.cjs, lib/mcp/tool-router.cjs, .planning/REQUIREMENTS.md, .planning/ROADMAP.md and docs/OPEN-HANDOFFS.md in its own files_modified, and because 347-06 amends Phase 344 working decision WD-5.
+**Plans:** 12 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 347 to break down)
+**Wave 1**
+
+- [ ] 347-01-PLAN.md - the tracked shared-state contract (node shape, edge contract, five-kind mapping, SHARED-01..13, the five working decisions with reversal cost), the written-once test aggregator, and the layer: graph tripwire
+
+**Wave 2**
+
+- [ ] 347-02-PLAN.md - the reconstructibility proof and the writer contract pins, authored BEFORE the writer, plus the three-schema-variant fixture room
+
+**Wave 3**
+
+- [ ] 347-03-PLAN.md - lib/core/navigation/chain-state.cjs: the chain_state writer with its mandatory SOURCED_FROM anchor, the FEEDS_INTO-ordered reader, and three additive navigation.cjs re-exports
+
+**Wave 4**
+
+- [ ] 347-04-PLAN.md - one record per step on both runChain paths as a PROJECTION, with the precedence rule written into pipeline-state.cjs's own sole-truth header
+
+**Wave 5**
+
+- [ ] 347-05-PLAN.md - the live-path change: one blocking navigator checkpoint, then the dispatcher reads the predecessor record onto a content_is_data shared_state field
+
+**Wave 6**
+
+- [ ] 347-06-PLAN.md - the per-node focus knob on getRoomContext and context_assemble, plus the chain_state exclusion from the ranked neighborhood (blocked on 344)
+- [ ] 347-07-PLAN.md - routing declared on the resolved chain, one named resolveSuccessor, the bounded back-edge, and fan-out delegated to cell-fanout.cjs with D-164-S2 unreversed
+
+**Wave 7**
+
+- [ ] 347-08-PLAN.md - the resume remainder resolved by step id through the shared successor authority, killing slice(idx + 1) (blocked on 344)
+- [ ] 347-10-PLAN.md - the reviewer rule: a new read-only sibling reviewer agent, the never-the-worker identity guard, and the honest requires_host_dispatch directive with the Tri-Polar call stated (blocked on 344)
+
+**Wave 8**
+
+- [ ] 347-09-PLAN.md - visualize-chain rewired to the real recorded run with halts, conditional arrows, the fan-out subgraph and the reviewer node; the hardcoded six-step literal deleted (blocked on 344)
+- [ ] 347-11-PLAN.md - the five-perspective meeting fan-out migrated as the first consumer, with the extractors' full-transcript recall protected (blocked on 344)
+
+**Wave 9**
+
+- [ ] 347-12-PLAN.md - phase close: SHARED-01..13 registered with Measured proof, the validation map filled, the close-out record, the handoff entry and the rethinking-mindrianos filing
 
 ---
 Original goal statement (superseded, kept for paper trail): Bump vendored `@modelcontextprotocol/sdk` from 1.29.0 to 1.30.0+ and adopt the 2026-07-28 stateless-first MCP spec (SEP-2575) across both MCP servers (mindrian-os local server, mcp-server-brain). Scope: (1) enable stateless mode on both servers, removing dependence on the `initialize`/session handshake this repo currently assumes; (2) rework `lib/mcp/gate-render.cjs`'s elicitation implementation from held-open-SSE-stream to the new Multi Round-Trip Requests (MRTR) pattern (`input_required`/`inputResponses`); (3) verify backward compatibility per the Tri-Polar rule (CLI/Desktop/Cowork); (4) re-test the full MCP layer against the new model.
