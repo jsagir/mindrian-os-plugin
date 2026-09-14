@@ -192,6 +192,35 @@ scenario('countClaimCounterMetric: legacy three-column schema reports strict nul
   assert.strictEqual(r.divergence, null, 'strict null, never false');
 });
 
+scenario('countClaimCounterMetric: unreadable-variant schema with real claims reports strict null, never 0 (CR-01)', () => {
+  // schemaVariant() returns 'unreadable' for three distinct conditions, not
+  // only "genuinely empty": a thrown PRAGMA, a zero-column nodes table, AND
+  // (this fixture) a nodes table whose columns match none of the three known
+  // marker columns. This last case can carry real, non-empty claim data --
+  // SQL_CLAIMS_FILED only needs the `type` column, present on every
+  // generation -- so it must NEVER be treated as the empty-graph vacuous
+  // case. claimsFiled > 0 here, so the past-lag pair must be strict null.
+  const roomDir = makeScratchDir('pair-unreadable-populated');
+  fs.mkdirSync(path.join(roomDir, '.mindrian'), { recursive: true });
+  const db = new DatabaseSync(path.join(roomDir, '.mindrian', 'room.db'));
+  openFixtures.push({ db, roomDir, close: () => db.close() });
+  db.exec(
+    'CREATE TABLE nodes (id TEXT PRIMARY KEY, type TEXT NOT NULL, weird_unmapped_column TEXT);'
+    + 'CREATE TABLE edges (source TEXT NOT NULL, target TEXT NOT NULL, type TEXT NOT NULL);'
+  );
+  db.prepare('INSERT INTO nodes (id, type) VALUES (?, ?)').run('claim_1', 'claim');
+  db.prepare('INSERT INTO nodes (id, type) VALUES (?, ?)').run('claim_2', 'claim');
+
+  const r = countClaimCounterMetric(db);
+  assert.equal(r.claims_filed, 2, 'claims_filed is measurable via the type column alone');
+  assert.strictEqual(
+    r.claims_filed_past_citation_lag, null,
+    'unreadable-but-populated must read null, never 0 (0 would assert "measured, not diverged")'
+  );
+  assert.strictEqual(r.claims_no_incoming_edge_past_citation_lag, null, 'strict null, not falsy 0');
+  assert.strictEqual(r.divergence, null, 'strict null, never a false "not diverged" reading');
+});
+
 scenario('countClaimCounterMetric: no nodes/edges table returns zeros and false, never throws', () => {
   const db = new DatabaseSync(':memory:');
   const r = countClaimCounterMetric(db);
