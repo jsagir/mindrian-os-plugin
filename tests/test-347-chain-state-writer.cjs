@@ -80,8 +80,23 @@ function edgeRows(db, edgeType) {
 }
 
 function reviewStatusColumnPresent(db) {
+  // Fixed under 347-03 (Deviation, Rule 1 - bug): the original check asked
+  // only "does a review_status column exist", but node-insert.cjs::insertNode
+  // gates its ENTIRE write branch on the source_path marker column
+  // (isMigratedSchema), not on review_status's own presence -- an
+  // un-migrated schema takes the legacy 3-column INSERT unconditionally and
+  // silently drops every override, review_status included, even when a
+  // review_status column physically exists. The fixture's "mid" variant
+  // proves this: 12 columns, review_status present, source_path
+  // deliberately absent (fixture-room-347.cjs's own documented point), so
+  // insertNode still writes it through the legacy branch and review_status
+  // never lands. review_status is therefore only ACTUALLY persisted when
+  // both the column exists AND the schema carries the migrated marker.
   try {
-    return db.prepare('PRAGMA table_info(nodes)').all().some((c) => c && c.name === 'review_status');
+    const cols = db.prepare('PRAGMA table_info(nodes)').all();
+    const hasReviewStatusCol = cols.some((c) => c && c.name === 'review_status');
+    const hasMigratedMarker = cols.some((c) => c && c.name === 'source_path');
+    return hasReviewStatusCol && hasMigratedMarker;
   } catch (_e) {
     return false;
   }
