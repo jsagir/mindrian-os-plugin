@@ -1566,7 +1566,7 @@ constitutionally.
       row, and the GRAPH rung states that graph engineering is not in the corpus and cites the
       structured note directly.
 
-- [ ] **LAYER-12**: `docs/ICM-NESTED-PART-CONTRACT.md` carries one row per part declared in
+- [x] **LAYER-12**: `docs/ICM-NESTED-PART-CONTRACT.md` carries one row per part declared in
       `data/icm-parts.json` with IS today, NEEDS TO BE and the gap, using Phase 275 as the
       baseline and the Reads / Does / Writes / Human check / Change-impact shape.
 

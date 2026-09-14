@@ -715,7 +715,7 @@ Plans:
 **Goal:** Every engineering layer of MindrianOS and every ICM nested part of a room is named, contracted, declared in machine-readable form on the surface that owns it, and measured by a counts-only organ, with one canonical ICM L0-L4 statement and three pointers to it.
 **Requirements**: LAYER-01 .. LAYER-16
 **Depends on:** Phase 343
-**Plans:** 6/9 plans executed
+**Plans:** 7/9 plans executed
 
 Plans:
 
@@ -725,7 +725,7 @@ Plans:
 - [x] 344-04-PLAN.md - the same declaration across agents, pipelines, qualifying skills and every MCP tool connector descriptor; gate green over the whole tree
 - [x] 344-05-PLAN.md - data/icm-parts.json plus the counts-only doctor organ that gives the per-section CONTEXT.md contract its first code consumer
 - [x] 344-06-PLAN.md - docs/LAYER-CONTRACT.md: five rungs, corpus grounding with hop counts, one owner surface each, the help-map interface and an amendment ledger
-- [ ] 344-07-PLAN.md - docs/ICM-NESTED-PART-CONTRACT.md: IS / NEEDS TO BE / gap per part, in the repo's own L2 contract shape, locked to the declaration file in both directions
+- [x] 344-07-PLAN.md - docs/ICM-NESTED-PART-CONTRACT.md: IS / NEEDS TO BE / gap per part, in the repo's own L2 contract shape, locked to the declaration file in both directions
 - [ ] 344-08-PLAN.md - one canonical ICM L0-L4 statement and three pointers, the ROUTING.md ghost marked, and the Canon Appendix B wording drafted and handed to Phase 340
 - [ ] 344-09-PLAN.md - phase close: full gate sweep, requirements closed with measured proof, validation map filled, close-out record in docs/ and the rethinking-mindrianos room
 
