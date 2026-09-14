@@ -1106,23 +1106,33 @@ async function refreshNames() {
 //
 // Canon Part 8: both requires are pure LOCAL modules, zero Brain/network.
 // ---------------------------------------------------------------------------
-function sensorPriorityCompletenessErrors() {
+function sensorPriorityCompletenessErrors(injected) {
   const errs = [];
   let SENSOR_REGISTRY;
   let SENSOR_REGISTRY_IDS;
   let SENS_PRIORITY;
-  try {
-    const sensors = require(path.join(REPO_ROOT, 'lib', 'core', 'insight-sensors.cjs'));
-    const priority = require(path.join(REPO_ROOT, 'lib', 'core', 'sensors', 'sensor-priority.cjs'));
-    SENSOR_REGISTRY = sensors.SENSOR_REGISTRY;
-    SENSOR_REGISTRY_IDS = sensors.SENSOR_REGISTRY_IDS;
-    SENS_PRIORITY = priority.SENS_PRIORITY;
-  } catch (e) {
-    errs.push(
-      'SENSOR PRIORITY GATE: could not load the sensor modules: ' +
-        (e && e.message ? e.message : String(e))
-    );
-    return errs;
+  if (injected && typeof injected === 'object') {
+    // Phase 343 Plan 04 (CENSUS-08): the test seam. tests/test-343-counter-metric-declaration.cjs
+    // calls this SAME function with an in-memory shallow copy of the real
+    // table, so there is exactly one implementation of the rule to drift out
+    // of step -- never a second, test-only reimplementation.
+    SENSOR_REGISTRY = injected.SENSOR_REGISTRY;
+    SENSOR_REGISTRY_IDS = injected.SENSOR_REGISTRY_IDS;
+    SENS_PRIORITY = injected.SENS_PRIORITY;
+  } else {
+    try {
+      const sensors = require(path.join(REPO_ROOT, 'lib', 'core', 'insight-sensors.cjs'));
+      const priority = require(path.join(REPO_ROOT, 'lib', 'core', 'sensors', 'sensor-priority.cjs'));
+      SENSOR_REGISTRY = sensors.SENSOR_REGISTRY;
+      SENSOR_REGISTRY_IDS = sensors.SENSOR_REGISTRY_IDS;
+      SENS_PRIORITY = priority.SENS_PRIORITY;
+    } catch (e) {
+      errs.push(
+        'SENSOR PRIORITY GATE: could not load the sensor modules: ' +
+          (e && e.message ? e.message : String(e))
+      );
+      return errs;
+    }
   }
 
   if (!Array.isArray(SENSOR_REGISTRY) || !Array.isArray(SENSOR_REGISTRY_IDS) || !Array.isArray(SENS_PRIORITY)) {
@@ -1140,8 +1150,14 @@ function sensorPriorityCompletenessErrors() {
     );
   }
 
+  // Phase 343 Plan 04 (WD-8): SENS_PRIORITY's elements are now
+  // { id, optimizes, watched_by, why } records, not bare id strings. Arms (2)
+  // and (3) below read `.id` off each record; the error wording each arm
+  // produces is otherwise byte-identical to the pre-343-04 gate.
+  const priorityIds = SENS_PRIORITY.map((r) => r && r.id);
+
   // (2) Every registered sensor must have a doctrine rank.
-  const missingFromPriority = SENSOR_REGISTRY_IDS.filter((id) => SENS_PRIORITY.indexOf(id) === -1);
+  const missingFromPriority = SENSOR_REGISTRY_IDS.filter((id) => priorityIds.indexOf(id) === -1);
   if (missingFromPriority.length) {
     errs.push(
       'SENSOR PRIORITY GATE: registered sensor(s) with NO SENS_PRIORITY entry: ' +
@@ -1153,7 +1169,7 @@ function sensorPriorityCompletenessErrors() {
 
   // (3) The table must carry no phantom entry for a sensor that is not
   // registered, so the doctrine cannot quietly outlive the code.
-  const missingFromRegistry = SENS_PRIORITY.filter((id) => SENSOR_REGISTRY_IDS.indexOf(id) === -1);
+  const missingFromRegistry = priorityIds.filter((id) => SENSOR_REGISTRY_IDS.indexOf(id) === -1);
   if (missingFromRegistry.length) {
     errs.push(
       'SENSOR PRIORITY GATE: SENS_PRIORITY entr(ies) with NO registered sensor: ' +
@@ -1161,6 +1177,65 @@ function sensorPriorityCompletenessErrors() {
         '. Remove each from lib/core/sensors/sensor-priority.cjs, or register the sensor ' +
         'in SENSOR_REGISTRY + SENSOR_REGISTRY_IDS.'
     );
+  }
+
+  // (4) Phase 343 Plan 04 (CENSUS-08, WD-8, T-343-17): every record must
+  // declare its counter-metric pairing. `optimizes` and `watched_by` must
+  // both be OWN keys (hasOwnProperty, not truthiness, so explicit `null`
+  // passes and an absent key fails), each must be `null` or a non-empty
+  // string, and the two must be null together or non-null together: an
+  // optimized quantity with no watcher is exactly the condition this rule
+  // forbids, and a watcher with no optimized quantity is an incoherent
+  // declaration. This rides the SAME gate as arms 1-3 on purpose -- no
+  // second gate is minted (CIRS gate_impact).
+  const validPairValue = (v) => v === null || (typeof v === 'string' && v.length > 0);
+  for (const r of SENS_PRIORITY) {
+    const id = (r && r.id) || '(unidentified record)';
+    const hasOptimizes = !!r && Object.prototype.hasOwnProperty.call(r, 'optimizes');
+    const hasWatchedBy = !!r && Object.prototype.hasOwnProperty.call(r, 'watched_by');
+    if (!hasOptimizes) {
+      errs.push(
+        'SENSOR PRIORITY GATE: ' + id + ' is missing its "optimizes" key. Add the pairing to its ' +
+          'record in lib/core/sensors/sensor-priority.cjs, or use explicit null with a stated why ' +
+          'when the sensor optimizes nothing measurable.'
+      );
+    }
+    if (!hasWatchedBy) {
+      errs.push(
+        'SENSOR PRIORITY GATE: ' + id + ' is missing its "watched_by" key. Add the pairing to its ' +
+          'record in lib/core/sensors/sensor-priority.cjs, or use explicit null with a stated why ' +
+          'when the sensor optimizes nothing measurable.'
+      );
+    }
+    if (!hasOptimizes || !hasWatchedBy) continue;
+
+    const optimizes = r.optimizes;
+    const watchedBy = r.watched_by;
+    if (!validPairValue(optimizes)) {
+      errs.push(
+        'SENSOR PRIORITY GATE: ' + id + '.optimizes must be null or a non-empty string, got: ' +
+          JSON.stringify(optimizes) + '. Fix the record in lib/core/sensors/sensor-priority.cjs.'
+      );
+    }
+    if (!validPairValue(watchedBy)) {
+      errs.push(
+        'SENSOR PRIORITY GATE: ' + id + '.watched_by must be null or a non-empty string, got: ' +
+          JSON.stringify(watchedBy) + '. Fix the record in lib/core/sensors/sensor-priority.cjs.'
+      );
+    }
+    if (validPairValue(optimizes) && validPairValue(watchedBy)) {
+      const optimizesIsNull = optimizes === null;
+      const watchedByIsNull = watchedBy === null;
+      if (optimizesIsNull !== watchedByIsNull) {
+        errs.push(
+          'SENSOR PRIORITY GATE: ' + id + ' declares optimizes=' + JSON.stringify(optimizes) +
+            ' but watched_by=' + JSON.stringify(watchedBy) + '. An optimized quantity with no ' +
+            'watcher is exactly what this rule forbids, and a watcher with no optimized quantity ' +
+            'is an incoherent declaration; both fields must be null together or non-null together. ' +
+            'Fix the record in lib/core/sensors/sensor-priority.cjs.'
+        );
+      }
+    }
   }
 
   return errs;
@@ -1332,5 +1407,10 @@ if (require.main === module) {
     normalizeMcpToolEntry,
     buildMcpToolRegistry,
     serializeMcpToolRegistry,
+    // Phase 343 Plan 04 (CENSUS-08): exported so
+    // tests/test-343-counter-metric-declaration.cjs can drive the SENS_PRIORITY
+    // completeness/pairing gate directly, with an injected in-memory table,
+    // rather than mutating the real file on disk.
+    sensorPriorityCompletenessErrors,
   };
 }
