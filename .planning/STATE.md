@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 344-01-PLAN.md
-last_updated: "2026-09-14T12:42:32.170Z"
+stopped_at: Completed 344-02-PLAN.md
+last_updated: "2026-09-14T13:00:48.047Z"
 last_activity: 2026-09-14 -- Phase 344 execution started
 progress:
   total_phases: 97
   completed_phases: 27
-  total_plans: 240
-  completed_plans: 222
-  percent: 93
+  total_plans: 256
+  completed_plans: 223
+  percent: 28
 ---
 
 <!-- NOTE (344-01 execute-plan, 2026-09-14, resync-clobber pattern, same class as every note in
@@ -4272,7 +4272,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 344 (the-layer-contract-name-describe-and-pin-every-engineering-l) - EXECUTING
-Plan: 2 of 9
+Plan: 3 of 9
 Status: Ready to execute
 Last activity: 2026-09-14 -- Phase 344 execution started
   (23-entry files allowlist, 4 negations), npm-shrinkwrap.json shipped (zero dev entries, all
@@ -5541,6 +5541,7 @@ Progress: [█████████░] 92%
 | Phase 341 P04 | 100min | 3 tasks | 15 files |
 | Phase 341 P05 | 130min | 3 tasks | 11 files |
 | Phase 344 P01 | 6min | 3 tasks | 6 files |
+| Phase 344 P02 | 5min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -7083,6 +7084,8 @@ Progress: [█████████░] 92%
 - [Phase 341]: tests/run-all-310.sh leg 3 retired its Step 5.5/Step 1 normalization special-casing after the fixture was regenerated wholesale in Plan 05
 - [Phase 344]: WD-1..WD-12 seeded WORKING in docs/LAYER-DECLARATION-CONTRACT.md decision ledger (five navigator-reserved, seven design-fork/mechanical)
 - [Phase 344]: Classification rubric orders widest-scope-first (graph, loop, harness, context, prompt, none), first match wins
+- [Phase 344]: MCP tool connector descriptors join the layer gate's denominator only on a real-repo run; a synthetic CHECK_LAYER_DECLARATION_ROOT tree scopes to the four markdown classes only
+- [Phase 344]: The layer gate is fail-closed unconditionally with no --strict opt-out, a deliberate deviation from check-shape-declaration.cjs's advisory posture
 
 ### Pending Todos
 
@@ -7222,8 +7225,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
-Last session: 2026-09-14T12:42:15.609Z
-Stopped at: Completed 344-01-PLAN.md
+Last session: 2026-09-14T13:00:47.952Z
+Stopped at: Completed 344-02-PLAN.md
 
 **Phase 271 Plan 04 (2026-08-27, hand-appended; deliberately does NOT touch the "Last
 session"/"Stopped at" pointer above, which another session in this shared working tree set to

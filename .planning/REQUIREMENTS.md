@@ -1432,6 +1432,7 @@ corresponding plan's own SUMMARY.md or re-run live by 275-08 to obtain.
    is a command-surface build with a different blast radius than this schema phase, deliberately
    left for a future phase. Target shape: SEED-084 `## ADDENDUM 2026-09-04j` (the primary
    source's own Dilutive-vs-Non-Dilutive Funding Options nesting).
+
 2. **`marketing-sales`** as a candidate section: the 2026-04-14 Notion primary source upgraded
    this from "no evidence" to "real intended content, never built" (Marketing Strategies, Sales
    Strategies and Pipelines). Not added this phase (zero code/Theo grounding at decision time);
@@ -1530,12 +1531,12 @@ constitutionally.
       forks raised in research are recorded in a tracked decision ledger, each with a WORKING or
       RULED status and a date.
 
-- [ ] **LAYER-04**: `scripts/check-layer-declaration.cjs` enumerates every declaring surface from
+- [x] **LAYER-04**: `scripts/check-layer-declaration.cjs` enumerates every declaring surface from
       disk through the imported four-class walk, names each undeclared or out-of-vocabulary
       surface, owns its own fail-closed exit contract, and is declared in
       `data/harness-policies/gate-layer-declaration.json`.
 
-- [ ] **LAYER-05**: `layer` reaches `data/command-registry.json` through
+- [x] **LAYER-05**: `layer` reaches `data/command-registry.json` through
       `scripts/build-command-registry.cjs` and inherits that generator's `--check` staleness gate.
 
 - [ ] **LAYER-06**: Every `commands/*.md` file carries a `layer:` frontmatter key written by
