@@ -279,5 +279,81 @@ function seedDanglingEdges(db, sourceId, count) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// WR-03 (343 review): the shared reach_id 'contradiction' collision must
+// resolve DETERMINISTICALLY per the SENS_PRIORITY doctrine table
+// (lib/core/sensors/sensor-priority.cjs), never by SENSOR_REGISTRY file
+// order.
+//
+// CORRECTION to the review's own citation: the review named SENS-08 as
+// SENS-19's collision partner. Read against the live code, SENS-08
+// (sensorMemoryCortex) ALWAYS fires reach_id 'cross_room'
+// (lib/core/sensors/sensor-memory-cortex.cjs:91) -- it never mints
+// 'contradiction'. The ONLY other sensor that ever fires reach_id
+// 'contradiction' is SENS-06 (sensorArtifactFiled, lib/core/insight-
+// sensors.cjs:708, when the freshest cascade finding's type contains
+// 'CONTRADICT'). This arm pins the REAL collision (SENS-06 vs SENS-19)
+// rather than the one the review described, since a test asserting a rule
+// the code does not implement (an SENS-08 vs SENS-19 collision that cannot
+// occur) would be worse than no test at all.
+//
+// SENS_PRIORITY places SENS-19 in Group A (a confirmed room-state fact) and
+// SENS-06 in Group B (a transient marker-file signal); Group A precedes
+// Group B in its entirety, so SENS-19 must win every run.
+// ---------------------------------------------------------------------------
+{
+  assert.ok(
+    sensorPriorityRank('SENS-19') < sensorPriorityRank('SENS-06'),
+    'doctrine precondition: SENS-19 (Group A) must outrank SENS-06 (Group B)'
+  );
+
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-343-wr03-'));
+  let db = null;
+  try {
+    const fixture = buildFixtureRoom(tmp);
+    db = openRoomDb(fixture.roomDir, { allowExtension: true });
+    const sourceId = fixture.ids.hubs[fixture.ids.sections[0]];
+    seedDanglingEdges(db, sourceId, 30); // fires SENS-19's contradiction reach
+
+    // Fires SENS-06's contradiction reach too: a fresh last-cascade.json
+    // marker whose first finding's type carries 'CONTRADICT'. No session_id
+    // is set, so isMarkerOwnedByCaller's fail-open rule applies regardless
+    // of the (absent) caller session id.
+    const sideDir = path.join(fixture.roomDir, '.mindrian');
+    fs.mkdirSync(sideDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(sideDir, 'last-cascade.json'),
+      JSON.stringify({
+        proactive_intelligence: {
+          newFindings: [{ type: 'CONTRADICTS_CLAIM' }],
+        },
+      })
+    );
+
+    const decision = engine.decide({ text: 'anything' }, { roomDb: db, roomDir: fixture.roomDir });
+    const hits = findContradictionFact(decision);
+
+    assert.strictEqual(
+      hits.length, 2,
+      'both SENS-06 and SENS-19 must surface as facts -- neither silently dropped nor merged: '
+        + JSON.stringify(hits)
+    );
+    const sensorIds = hits.map((h) => h.evidence && h.evidence.sensor_id);
+    assert.ok(
+      sensorIds.includes('SENS-19') && sensorIds.includes('SENS-06'),
+      'both sensor stamps must be present: ' + JSON.stringify(sensorIds)
+    );
+    assert.strictEqual(
+      hits[0].evidence.sensor_id, 'SENS-19',
+      'the doctrine-ranked winner (SENS-19, Group A) must sort first, never SENS-06 (Group B): '
+        + JSON.stringify(sensorIds)
+    );
+    ok('WR-03: the SENS-06/SENS-19 shared contradiction collision resolves deterministically, SENS-19 first, every run');
+  } finally {
+    if (db) { try { closeRoomDb(db); } catch (_e) { /* ignore */ } }
+    try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
+  }
+}
+
 console.log('');
 console.log('PASS test-343-sensor-registration.cjs (' + checks + ' checks, including the end-to-end decide() arms)');
