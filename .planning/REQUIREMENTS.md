@@ -1656,32 +1656,51 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
 - [x] **CENSUS-01**: `lib/core/doctor/room-graph-integrity-module.cjs` reports exactly three
       measurable defect statements plus self-loop and unresolved-CONTRADICTS counts, per room
       and fleet-wide, counts only, `status` never `warn`, and exports no `fix` of any kind.
+      Measured: `node tests/test-343-room-graph-integrity.cjs` 21/21 checks pass (2026-09-15);
+      `grep -n "fix_supported" data/doctor-modules.json` shows the `room-graph-integrity` row
+      set to `false`; live fleet run (`room-graph-integrity-module.cjs::check({flags:
+      {cascadeRooms:true}})`) returns `status: "ok"` across 55 rooms with no `warn`.
 
 - [x] **CENSUS-02**: every room is reached through `openRoomDbReadOnlyForCaller`;
       `sqlite_master` (name, sql) and file `mtimeMs` are byte-identical after a sweep; the
       payload carries room NAMES and integers only, never a node id and never a filesystem
-      path.
+      path. Measured: `grep -n "openRoomDbReadOnlyForCaller" lib/core/doctor/room-graph-integrity-module.cjs`
+      shows the sole open call (line 149); `node tests/test-343-room-graph-integrity.cjs`
+      21/21 checks pass, including the named mutation-immunity and no-leaked-path/no-node-id
+      arms (2026-09-15).
 
 - [x] **CENSUS-03**: every column-dependent statement gates on `PRAGMA table_info(nodes)`; a
       column absent in a legacy schema reports `null` plus a `schema_variant` marker, never
-      `0`.
+      `0`. Measured: `node tests/test-343-room-graph-integrity.cjs` 21/21 checks pass
+      (2026-09-15), including the pinned legacy-schema strict-null arm.
 
 - [x] **CENSUS-04**: "stub or placeholder node" and "memory-event provenance edge" ship as
       `not_measurable` records carrying their reason in the module's own output, never as
-      defect statements that structurally cannot fire.
+      defect statements that structurally cannot fire. Measured: `node -e "console.log(require('./lib/core/navigation/graph-integrity-counts.cjs').NOT_MEASURABLE.map(r=>r.term))"`
+      returns `[ 'stub_or_placeholder_node', 'memory_event_provenance_edge' ]`, each carrying
+      its own `reason` field (2026-09-15).
 
 - [x] **CENSUS-05**: the module's output names `lib/core/navigation/typed-claim.cjs:121` as
       the cause of the unanchored count, reports the count as two columns (legacy cohort and
-      new writes), and states that the fix is Phase 273 territory.
+      new writes), and states that the fix is Phase 273 territory. Measured:
+      `grep -n "typed-claim.cjs:121" lib/core/navigation/graph-integrity-counts.cjs` returns
+      the `WRITER_NOTE` line (2026-09-15); live fleet run reports
+      `claim_nodes_no_anchor_legacy: 7824`, `claim_nodes_no_anchor_new: 0` as two distinct
+      columns.
 
 - [x] **CENSUS-06**: `lib/core/navigation/CONTEXT.md` replaces the stale `ROOM.md` and states
       the two write chokepoints and their split, the two named exclusions, the four
       claim-producing paths, the provenance-edge ghost, the D-169-11 no-FK decision and the
-      three schema variants; one routing row in `CLAUDE.md` points at it.
+      three schema variants; one routing row in `CLAUDE.md` points at it. Measured:
+      `node tests/test-343-path-hygiene.cjs` reports 27/27 checks pass (2026-09-15); `test -f
+      lib/core/navigation/ROOM.md` exits 1 (deleted); `grep -q "lib/core/navigation/CONTEXT.md"
+      .claude/includes/architecture.md` exits 0.
 
 - [x] **CENSUS-07**: the `.room-graph` name collision is stated once in a tracked file,
       `docs/lazygraph-schema.md`'s correction notice names `<roomDir>/.mindrian/room.db`, and
-      every stale in-code site carries the collision note.
+      every stale in-code site carries the collision note. Measured:
+      `node tests/test-343-path-hygiene.cjs` 27/27 checks pass (2026-09-15), including the
+      five two-line-proximity annotation arms and the corrected-path positive/negative pair.
 
 - [x] **CENSUS-08**: every registered sensor declares what it optimizes and its paired
       watcher in ONE keyed table, and the build gate fails closed in both directions on a
@@ -1696,39 +1715,82 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
 
 - [x] **CENSUS-09**: the first counter-metric pair is computed from `room.db` with the
       existing edge vocabulary and reported as counts plus one boolean, never a score,
-      carrying the unread-log counting rule.
+      carrying the unread-log counting rule. Measured: `node tests/test-343-counter-metric-pair.cjs`
+      9/9 checks pass (2026-09-15); live fleet run returns `claims_filed: 7836,
+      claims_with_contradicts_edge: 0, claims_no_incoming_edge_past_citation_lag: 7026,
+      rooms_diverged: 12` -- four counts and a per-room boolean, no ratio field present in the
+      payload.
 
 - [x] **CENSUS-10**: SENS-19 is registered in all six lockstep places plus the ctx producer
-      block, placed in `SENS_PRIORITY` Group A.
+      block, placed in `SENS_PRIORITY` Group A. Measured: `node tests/test-343-sensor-registration.cjs`
+      17/17 checks pass (2026-09-15), including the six-place registration-parity arm and the
+      Group A rank assertion (`sensorPriorityRank('SENS-19') < sensorPriorityRank('SENS-16')`).
 
 - [x] **CENSUS-11**: SENS-19 is pure and synchronous, reuses the frozen `contradiction`
       reach, fires on a PER-ROOM threshold crossing, and never reaches `decide()` or writes
-      `routing_source`.
+      `routing_source`. Measured: `node tests/test-343-sensor-registration.cjs` 17/17 checks
+      pass (2026-09-15), including the three end-to-end `decide()` arms (above-threshold fires
+      one `contradiction` reach, below-threshold fires none, missing `ctx.roomDb` fires none
+      and never throws) and the `trace.routing_source` fence in all three.
 
 - [x] **CENSUS-12**: the release lockstep count has exactly one home; `CLAUDE.md` carries a
-      pointer with no number and the other stated counts are corrected or annotated.
+      pointer with no number and the other stated counts are corrected or annotated. Measured:
+      `grep -n "RULE 5" CLAUDE.md` returns line 64, carrying no number of its own
+      ("...for the single enumeration, this line carries no number of its own"); `docs/RELEASE-CEREMONY-RULING-SYSTEM.md`
+      RULE 5 enumerates all 8 places, place 8 naming this plan's Theo gate (2026-09-15).
 
 - [x] **CENSUS-13**: `scripts/release.sh` verifies Theo's command-layer stamp for the CURRENT
       version before any mutation and fails closed on a mismatch and on a network error.
+      Navigator ruled `ship-as-designed` at the 343-07 Task 2 checkpoint (WD-13/WD-20 RULED,
+      `docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md`). Measured: `grep -n "mos_theo_stamp_gate"
+      scripts/release.sh` shows the gate call wired at line 171, before the `NEW_VERSION`
+      computation; `node tests/test-343-theo-stamp-gate.cjs` reports 5/5 hermetic arms passing
+      (2026-09-15); live (non-hermetic) probe on this tree: `bash scripts/release.sh patch
+      --dry-run` reports the real mismatch `command-registry@2.0.0-beta.12` vs repo
+      `2.0.0-beta.40` and does not abort under `--dry-run` (WD-20) -- this mismatch is the
+      expected state until Theo re-emits (Theo Phase 19), not a defect in the gate.
 
 - [x] **CENSUS-14**: the help family map labels every command by its `layer:` value read
       from `data/command-registry.json`, and the six loop-versus-graph signals are written as
       the stated rule for when `chain_resolve` composes a chain versus runs one framework.
+      Measured: `node tests/test-343-help-layer-label.cjs` reports `PASS=24 FAIL=0`
+      (2026-09-15); `test -f docs/LOOP-VERSUS-GRAPH-SIGNALS.md` exits 0; 344-03 confirmed
+      landed (all 113 `data/command-registry.json` entries carry a `layer` field, per
+      343-08-SUMMARY.md's precondition check), so this row closes rather than staying open on
+      the 344-03 dependency.
 
 - [x] **CENSUS-15**: every working decision of this phase lands in a tracked `docs/` file
       with a status and a date, because `.planning/` is gitignored here. Measured:
       `docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md` exists and is tracked (`git check-ignore -q
       docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md` exits 1, non-zero); its Section 2 table
-      carries all of WD-1 through WD-21, each row's status column reading WORKING and its
-      date column reading 2026-09-14 (343-01-SUMMARY.md).
+      carries all of WD-1 through WD-21, each dated 2026-09-14 (343-01-SUMMARY.md). At phase
+      close (this task, 2026-09-15) every row's status column was settled to RULED (2, WD-13
+      and WD-20, navigator checkpoint ruling) or STANDING (19, shipped unchallenged); `grep -c
+      "WORKING" docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md` fell from 21 to 3, and all 3 remaining
+      hits are prose sentences explaining the legend, not bare status-column rows.
 
-- [ ] **CENSUS-16**: every CENSUS id closes with a `Measured:` clause citing a command and
-      its observed output, and the phase validation map is filled.
+- [x] **CENSUS-16**: every CENSUS id closes with a `Measured:` clause citing a command and
+      its observed output, and the phase validation map is filled. Measured:
+      `grep -c "Measured:" .planning/REQUIREMENTS.md` reports 110 on the whole file after this
+      task, versus 93 before it (`git show HEAD:.planning/REQUIREMENTS.md | grep -c
+      "Measured:"`), a rise of 17, exceeding the required +12; every CENSUS-01..17 row above is
+      `- [x]` with its own `Measured:` clause naming a command and its observed output;
+      `343-VALIDATION.md` is filled in this plan's Task 2 with a real per-task command per row
+      (2026-09-15).
 
 - [x] **CENSUS-17**: `lib/core/doctor/room-graph-integrity-module.cjs` counts edge rows
       whose `type` is outside the exported `ALLOWED_EDGE_TYPES`, per room and fleet-wide,
       names the offending types, and names the writers that bypass the chokepoint without
-      fixing them.
+      fixing them. Measured: `grep -n "ALLOWED_EDGE_TYPES" lib/core/navigation/graph-integrity-counts.cjs`
+      confirms the set-difference is computed against the live export from `edges.cjs`
+      (line 82), never a copied literal; live fleet run reports `edge_rows_type_outside_allowlist:
+      1822` across seven offending type names (`ADVISED_BY`, `BELONGS_TO`, `HSI_CONNECTION`,
+      `PRESENTED`, `REVERSE_SALIENT`, `SHARES_THEME`, `WHITESPACE_DETECTED`), and the
+      `WRITER_NOTE` field names `graph-ops.cjs`/`build-ecosystem-graph.cjs` as the bypassing
+      writers without a fix shipped for them (2026-09-15) -- this count (1,822 across 7 types)
+      is higher than the 343-01 research-time baseline (1,294 across 3 types: `BELONGS_TO`
+      1,032, `WHITESPACE_DETECTED` 215, `HSI_CONNECTION` 47); the fleet has drifted since
+      2026-09-14 exactly as `docs/343-ROOM-GRAPH-CENSUS-DECISIONS.md` Section 3 warns it would.
 
 ## Traceability
 
