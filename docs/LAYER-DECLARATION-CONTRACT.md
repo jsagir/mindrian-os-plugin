@@ -59,18 +59,18 @@ The exemption rule is the R16 sibling, stated verbatim so the two mandates canno
 
 | id | decision | status | ruled-by | date | notes |
 |---|---|---|---|---|---|
-| WD-1 | The canonical ICM L0-L4 statement is `docs/MINDRIAN-CANON.md` Appendix B; the other three statements become pointers | WORKING | | 2026-09-14 | Navigator's to rule. Least-wrong candidate per `344-RESEARCH.md` Q2; the alternative statements (`.claude/includes/architecture.md`, `docs/ARCHITECTURE-DEEP-DIVE.md`, `templates/icm/CLAUDE.md`) are read, not re-derived |
-| WD-2 | `MINTO.md` is a reasoning product that sits UNDER the per-section `CONTEXT.md` L2 contract; `CONTEXT.md` is L2 | WORKING | | 2026-09-14 | Navigator's to rule |
-| WD-3 | The PROMPT owner surface is `skills/larry-personality/SKILL.md` as the single source, everything else generated. Scoped here to a declaration only; the generation step is a follow-up phase | WORKING | | 2026-09-14 | Navigator's to rule |
-| WD-4 | `seeds/` is NOT a room part and is removed from the ICM part list | WORKING | | 2026-09-14 | Navigator's to rule |
-| WD-5 | One context assembler is the goal. This phase declares that goal and measures the two budgets; it changes no assembly path | WORKING | | 2026-09-14 | Navigator's to rule |
-| WD-6 | A surface declares its OWN rung, one value, not the highest rung it transitively touches | WORKING | | 2026-09-14 | Design fork. A highest-rung reading would collapse every chain-touching surface onto `graph` |
-| WD-7 | The mandate covers four classes (commands, agents, pipelines, qualifying skills) plus MCP tool connector descriptors | WORKING | | 2026-09-14 | Design fork |
-| WD-8 | `layer:` is a Canon Part 11 born-clause CANDIDATE: drafted here as a prose contract, not enforced constitutionally in this phase | WORKING | | 2026-09-14 | Design fork |
-| WD-9 | `body_shape` normalization is OUT of scope. Its vocabulary is declared beside `layer` and its 19 distinct values are counted; enforcement is a separate phase | WORKING | | 2026-09-14 | Design fork |
-| WD-10 | The doctor module reads live rooms through the Phase 232.1 read-only door only, counts only, and opens no database at all in its shipped form | WORKING | | 2026-09-14 | Design fork |
-| WD-11 | A sixth vocabulary member `none` exists for a surface that engineers no rung, mirroring `data/hitl-shape-declaration-schema.json`'s own literal `none` | WORKING | | 2026-09-14 | Settled mechanically by this plan |
-| WD-12 | `layer_why` is REQUIRED only when the declared value is `none`, and optional otherwise | WORKING | | 2026-09-14 | Settled mechanically by this plan |
+| WD-1 | The canonical ICM L0-L4 statement is `docs/MINDRIAN-CANON.md` Appendix B; the other three statements become pointers | RULED | navigator | 2026-09-14 | Navigator's to rule. Least-wrong candidate per `344-RESEARCH.md` Q2; the alternative statements (`.claude/includes/architecture.md`, `docs/ARCHITECTURE-DEEP-DIVE.md`, `templates/icm/CLAUDE.md`) are read, not re-derived. Ratified as written at the 344-03 checkpoint |
+| WD-2 | `MINTO.md` is a reasoning product that sits UNDER the per-section `CONTEXT.md` L2 contract; `CONTEXT.md` is L2 | RULED | navigator | 2026-09-14 | Navigator's to rule. Ratified as written at the 344-03 checkpoint |
+| WD-3 | The PROMPT owner surface is `skills/larry-personality/SKILL.md` as the single source, everything else generated. Scoped here to a declaration only; the generation step is a follow-up phase | RULED | navigator | 2026-09-14 | Navigator's to rule. Ratified as written at the 344-03 checkpoint |
+| WD-4 | `seeds/` is NOT a room part and is removed from the ICM part list | RULED | navigator | 2026-09-14 | Navigator's to rule. Ratified as written at the 344-03 checkpoint |
+| WD-5 | One context assembler is the goal. This phase declares that goal and measures the two budgets; it changes no assembly path | RULED | navigator | 2026-09-14 | Navigator's to rule. Ratified as written at the 344-03 checkpoint |
+| WD-6 | A surface declares its OWN rung, one value, not the highest rung it transitively touches | RULED | navigator | 2026-09-14 | Design fork. A highest-rung reading would collapse every chain-touching surface onto `graph`. Ratified as written at the 344-03 checkpoint |
+| WD-7 | The mandate covers four classes (commands, agents, pipelines, qualifying skills) plus MCP tool connector descriptors | RULED | navigator | 2026-09-14 | Design fork. Ratified as written at the 344-03 checkpoint |
+| WD-8 | `layer:` is a Canon Part 11 born-clause CANDIDATE: drafted here as a prose contract, not enforced constitutionally in this phase | RULED | navigator | 2026-09-14 | Design fork. Ratified as written at the 344-03 checkpoint |
+| WD-9 | `body_shape` normalization is OUT of scope. Its vocabulary is declared beside `layer` and its 19 distinct values are counted; enforcement is a separate phase | RULED | navigator | 2026-09-14 | Design fork. Ratified as written at the 344-03 checkpoint |
+| WD-10 | The doctor module reads live rooms through the Phase 232.1 read-only door only, counts only, and opens no database at all in its shipped form | RULED | navigator | 2026-09-14 | Design fork. Ratified as written at the 344-03 checkpoint |
+| WD-11 | A sixth vocabulary member `none` exists for a surface that engineers no rung, mirroring `data/hitl-shape-declaration-schema.json`'s own literal `none` | RULED | navigator | 2026-09-14 | Settled mechanically by this plan. Ratified as written at the 344-03 checkpoint |
+| WD-12 | `layer_why` is REQUIRED only when the declared value is `none`, and optional otherwise | RULED | navigator | 2026-09-14 | Settled mechanically by this plan. Ratified as written at the 344-03 checkpoint |
 
 ---
 
