@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Browse and apply 25 methodology models."
 argument-hint: "[list|set|show]"
 body_shape: C (Information Card)
+layer: "harness"
+layer_why: "Opens the routing profile and lets the navigator switch which model routes which kind of work; a configuration/registry toggle over the harness."
 hitl_shape: "F.1"
 hitl_why: "The routing profile offers a single next-move selection."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 24): first delivery at commands/models.md:88, the resolved profile/model routing table, a configuration-state readout of the plugin's own operator settings.

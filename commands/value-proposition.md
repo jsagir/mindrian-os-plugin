@@ -9,6 +9,7 @@ name: validate-proposition
 description: Score your value proposition against 3 VP gates
 help_jtbd: "Compose the value proposition canvas for your room."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The value-map and customer-profile fits are assessed as an independent set, an unordered basket."
 serves_jtbd: ["validate-idea", "prepare-pitch"]

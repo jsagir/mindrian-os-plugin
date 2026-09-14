@@ -4,6 +4,8 @@ description: Correct the reference clock when the model-known date diverges from
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Keep one trustworthy now so time deltas never drift."
 body_shape: E
+layer: "context"
+layer_why: "Writes the true calendar date into the room's temporal reference, a session/context fact correction, not a methodology cycle or scaffolding change."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one reference correction for a single approve-or-reject decision."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 4): first delivery at commands/correct-reference-now.md:76, a one-line confirmation that a LOCAL clock-seam correction was applied.

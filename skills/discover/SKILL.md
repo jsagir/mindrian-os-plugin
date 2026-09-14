@@ -4,6 +4,7 @@ description: Discover a client, product, and its users before any build
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Run a Larry-led six-movement discovery conversation that lands a scaffolded Data Room plus a Discovery Brief."
 body_shape: B (Semantic Tree)
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "Discovery resolves to a single next move the navigator confirms."
 body_shape_detail: Six conversation movements as nested nodes; synthesis as a batch write

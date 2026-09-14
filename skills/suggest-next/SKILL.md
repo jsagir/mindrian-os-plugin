@@ -4,6 +4,7 @@ description: Suggest the next move using the room graph
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get the next move Larry recommends, ranked."
 body_shape: B
+layer: "graph"
 hitl_shape: "F.1"
 hitl_why: "It offers a short numbered set of next moves for the navigator to pick one."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 16): first delivery at commands/suggest-next.md:60, the framework chain and step-numbered command sequence derived from the room, with nothing deferred to a later run (rests on rubric rule TB-4).

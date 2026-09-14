@@ -3,6 +3,8 @@ name: splash
 description: Display the MindrianOS Mondrian banner
 help_jtbd: "See the MindrianOS welcome panel + version."
 body_shape: E
+layer: "none"
+layer_why: "Displays the decorative MindrianOS Mondrian banner; engineers no rung at all, the rubric's own literal none case."
 hitl_shape: "F.1"
 hitl_why: "The banner splash offers one next move to enter the room."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 19): first delivery at commands/splash.md:39, the hardcoded owned-emotion tagline, static first-touch copy that never varies, not a computed reward.

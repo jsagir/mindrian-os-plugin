@@ -4,6 +4,8 @@ description: "[Deprecated] Open room diagrams in the browser (use /mos:dashboard
 help_jtbd: "Generate visualizations of your room's graph (deprecated: use /mos:dashboard --mermaid)."
 argument-hint: "[structure|graph|chart]"
 body_shape: D (Document View)
+layer: "none"
+layer_why: "Deprecated alias for /mos:dashboard --mermaid; the underlying job is a render-only knowledge-graph view."
 hitl_shape: "F.1"
 hitl_why: "A rendered view offers one next move on what to open next."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 23): first delivery at commands/visualize.md:55, a soft-alias stub passing through /mos:dashboard --mermaid's output verbatim (router sub-case).

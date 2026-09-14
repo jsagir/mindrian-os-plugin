@@ -4,6 +4,8 @@ description: View, launch, or navigate the Data Room
 help_jtbd: "Open your current room's view in this terminal."
 argument-hint: "[overview|<section>]"
 body_shape: C
+layer: "none"
+layer_why: "Opens the room view with its current state; a render-only default entry-point view."
 hitl_shape: "F.1"
 hitl_why: "Room navigation offers one next move from the current room."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 11): first delivery at commands/room.md:121, the default overview's Semantic Tree, a predictable structural readout of what the navigator has already filed.

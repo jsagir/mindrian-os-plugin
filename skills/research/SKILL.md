@@ -4,6 +4,7 @@ description: Research the web and wire findings as typed graph evidence
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Run context-aware research that files findings as typed EvidenceClaim graph nodes."
 body_shape: C
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Research subquestions fan out independently and are verified as an any-order basket."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 10, navigator-ruled): first delivery at commands/research.md:256, the top-5 web findings framed and percent match-scored against the room's own existing claim graph.

@@ -3,6 +3,8 @@ name: mos
 description: State-aware router that picks the right next surface for the navigator
 help_jtbd: "Meet the navigator where they are: onboard, status, or next move."
 body_shape: E
+layer: "harness"
+layer_why: "Picks the right /mos:* surface to invoke when the navigator does not know which one to use; a routing/dispatch mechanism, the ICM Layer 1 routing job implemented as harness scaffolding."
 hitl_shape: "F.1"
 hitl_why: "The entry command offers one next move into the system."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 25): first delivery at commands/mos.md:97, the routing envelope naming the resolved target; a pure dispatcher over onboard/status/suggest-next with zero net-new behavior of its own (the router sub-case).

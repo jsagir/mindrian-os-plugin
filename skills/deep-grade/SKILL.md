@@ -4,6 +4,7 @@ description: Grade a venture against 100+ calibrated projects
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get the rigorous grading pass (Brain-enriched, 100+ student calibration)."
 body_shape: C
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The artifact is graded on independent components against the calibrated set, an any-order basket."
 serves_jtbd: ["audit-room", "compare-options"]

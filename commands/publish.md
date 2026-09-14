@@ -3,6 +3,8 @@ name: publish
 description: Publish the Data Room presentation to Vercel
 help_jtbd: "Publish your room to a live URL."
 body_shape: E
+layer: "harness"
+layer_why: "Deploys the presentation to Vercel hosting infrastructure with a one-click link; wiring a real external tool, not merely rendering a view."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one publish action for a single approve-or-defer decision."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 13): first delivery at commands/publish.md:149, the parsed deploy output hands over the live shareable URL for the whole Data Room.

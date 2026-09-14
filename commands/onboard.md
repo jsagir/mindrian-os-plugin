@@ -3,6 +3,8 @@ name: onboard
 description: Walk through MindrianOS and build your first room
 help_jtbd: "Walk through the first 15 minutes with Larry."
 body_shape: B (Semantic Tree)
+layer: "loop"
+layer_why: "A single guided walkthrough cycle that builds the navigator's first room to a stopping condition, the same shape as a methodology command's cycle-to-artifact."
 hitl_shape: "F.1"
 hitl_why: "Onboarding presents each step and offers one next move to continue."
 body_shape_detail: Steps as conversational flow, context building as nested nodes

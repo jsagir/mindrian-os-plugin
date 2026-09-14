@@ -4,6 +4,8 @@ description: Run sentinel scans across the room
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Scout the competitive landscape for a specific axis."
 body_shape: E (Action Report)
+layer: "harness"
+layer_why: "Fires the sentinel background checks proactively across the room, a measurement/scanning mechanism over the harness, the same job class as a doctor organ."
 hitl_shape: "F.8"
 hitl_why: "Sentinel scans run as an independent set of watches with no ordering constraint."
 serves_jtbd: ["explore", "understand-market"]

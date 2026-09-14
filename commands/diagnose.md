@@ -3,6 +3,7 @@ name: diagnose
 description: Classify problem type against the PWS matrix
 help_jtbd: "See where your room is weakest and what to do next."
 body_shape: A
+layer: "graph"
 hitl_stages:
   - stage: "classify-problem"
     shapes: ["F.0", "F.1"]

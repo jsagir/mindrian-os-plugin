@@ -3,6 +3,8 @@ name: radar
 description: Track Claude capabilities that may help MindrianOS
 help_jtbd: "Get a radar view of where your room is strong + weak."
 body_shape: A
+layer: "none"
+layer_why: "Tracks new Claude capabilities and displays them; a capability-awareness diagnostic view, engineering no rung."
 hitl_shape: "F.8"
 hitl_why: "Tracked capabilities are surfaced as an independent watch set the navigator reviews in any order."
 serves_jtbd: ["understand-market"]

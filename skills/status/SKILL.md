@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "See your room's section-by-section status at a glance."
 argument-hint: "[section] [--stale-only]"
 body_shape: E (Action Report)
+layer: "none"
+layer_why: "Shows the governing thought per section plus health glyphs for a fast read; a read-only diagnostic display."
 hitl_shape: "F.1"
 hitl_why: "Status offers one next move based on where the room stands."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 21): first delivery at commands/status.md:51, quoting docs/reward-before-investment-rule.md:59 verbatim, "A /mos:status output is not a reward (predictable report)."

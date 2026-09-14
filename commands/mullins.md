@@ -3,6 +3,7 @@ name: mullins
 description: Run Mullins 7-Domains on a business opportunity
 help_jtbd: "Run the Mullins 7-domains evaluation."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The seven Mullins domains are examined independently in any order, an unordered basket of assessment jobs."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 11): first delivery at commands/mullins.md:83, the seven domains rated with a sentence of evidence each and the weakest two surfaced.

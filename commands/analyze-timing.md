@@ -3,6 +3,7 @@ name: analyze-timing
 description: Place a technology on the S-Curve timing clock
 help_jtbd: "Find the timing window your venture sits inside."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "S-curve timing resolves to a single next-move read the navigator confirms."
 serves_jtbd: ["understand-market"]

@@ -4,6 +4,7 @@ description: Build a bounded multi-ring consequence wheel from a seed concept
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Trace the 1st/2nd/3rd-order consequences of a change and locate the hidden opportunities."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.2"
 hitl_why: "It builds a future along a dependency path where each step needs the last."
 serves_jtbd: ["find-problem", "connect-domains"]

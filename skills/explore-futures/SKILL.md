@@ -4,6 +4,7 @@ description: Synthesize TTA + Scenario + S-Curve futures
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Branch into future scenarios from where you stand today."
 body_shape: "methodology"
+layer: "graph"
 hitl_stages:
   - stage: "build-path"
     shapes: ["F.2"]

@@ -4,6 +4,7 @@ description: Grade a grant application against a local IIA grant rubric (Tnufa f
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Grade your room or a pasted draft against a real grant rubric, see exactly which room section to build next, or decompose a finished application into a room."
 body_shape: C
+layer: "graph"
 hitl_stages:
   - stage: "file-verdict"
     shapes: ["F.8"]

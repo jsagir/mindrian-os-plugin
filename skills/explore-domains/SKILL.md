@@ -4,6 +4,7 @@ description: Map domains through IKA + Feynman decomposition
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get the 5-lens decomposition of your problem domain."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Candidate domains are mapped as an independent territory set the navigator ranks in any order."
 serves_jtbd: ["find-problem", "understand-market", "explore"]

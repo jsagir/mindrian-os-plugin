@@ -3,6 +3,7 @@ name: causal
 description: Trace causal edges in the room's graph
 help_jtbd: "Trace cause-and-effect chains across your room's claims."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "Causes are extracted, traced, then predicted in a fixed order, an ordered walk."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 2): first delivery at commands/causal.md:140, the extracted cause / mechanism / effect table, each row carrying a confidence and a falsifiable prediction.

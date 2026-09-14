@@ -3,6 +3,7 @@ name: find-bottlenecks
 description: Find lagging components via Reverse Salient
 help_jtbd: "Find the lagging component blocking your venture (Hughes reverse salient)."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Reverse-salient bottlenecks are listed as an independent set the navigator prioritizes in any order."
 serves_jtbd: ["find-bottleneck"]

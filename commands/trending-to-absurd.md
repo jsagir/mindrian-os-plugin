@@ -3,6 +3,7 @@ name: trending-to-absurd
 description: Push graph-seeded trends to their absurd extreme to surface disruptive opportunities
 help_jtbd: "Surface the disruptive opportunities hiding past the edge of today's trends."
 body_shape: "methodology"
+layer: "graph"
 hitl_stages:
   - stage: "trend-selection"
     shapes: ["F.3"]

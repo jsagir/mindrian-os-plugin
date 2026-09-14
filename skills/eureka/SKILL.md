@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Rank cross-domain opportunity pairs and surface the weak-signal tail."
 argument-hint: "[run|status|report|html|enable]"
 body_shape: E (Action Report)
+layer: "loop"
+layer_why: "Ranks cross-domain pairs into fundable-opportunity flags in one analysis cycle to a stopping condition, the same shape as a methodology command."
 hitl_shape: "F.8"
 hitl_why: "Ranked opportunity candidates are surfaced as an independent any-order set to review and act on in any order."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 9, argued in full): first delivery at commands/eureka.md:216, the ranked cross-domain opportunity table with the weak-signal tail flagged, over the navigator's own room content.

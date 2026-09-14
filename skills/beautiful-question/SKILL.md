@@ -4,6 +4,7 @@ description: Reframe a challenge as Why / What-if / How
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Reformulate the problem before solving the wrong one."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The Why then What-if then How progression is a fixed-order walk."
 serves_jtbd: ["find-problem", "explore"]

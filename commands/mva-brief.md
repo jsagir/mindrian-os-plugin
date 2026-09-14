@@ -3,6 +3,8 @@ name: mva-brief
 description: Run the 30-second MVA pipeline for the user's current venture sentence
 help_jtbd: "Build a Minimum Viable Argument brief from your room."
 body_shape: E
+layer: "graph"
+layer_why: "Explicitly runs a 6-agent fan-out and deploys a shareable brief, the rubric's own step 1 fan-out signal by name."
 hitl_shape: "F.1"
 hitl_why: "The 30-second brief closes with a numbered option or free-text choice, the canonical F.1 Next Move."
 argument-hint: (no args -- reads pending state from UserPromptSubmit detection)

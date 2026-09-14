@@ -4,6 +4,8 @@ description: Open the Data Room wiki of room sections
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Open your room as a localhost wiki, hyperlinks via graph."
 body_shape: D (Document View)
+layer: "none"
+layer_why: "Opens the Data Room as linked wiki pages; a render-only view of already-filed content."
 hitl_shape: "F.1"
 hitl_why: "The wiki view offers one next move on which article to open."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 25): first delivery at commands/wiki.md:48, the bare-invocation live Express server rendering room content, ephemeral, nothing persisted unless --export.

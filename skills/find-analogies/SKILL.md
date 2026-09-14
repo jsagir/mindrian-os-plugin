@@ -4,6 +4,7 @@ description: Find cross-domain analogies with SAPPhIRE + TRIZ
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Find cross-domain analogies from 1,427 methodology embeddings."
 body_shape: D (Comparison Matrix)
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Cross-domain analogies are returned as an unordered set of candidates to pick from in any order."
 serves_jtbd: ["connect-domains"]

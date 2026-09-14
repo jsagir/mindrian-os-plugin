@@ -2,6 +2,8 @@
 description: Emit a clean structured conversation-flow report of the session so far (not a transcript)
 help_jtbd: "Get a clean, forwardable report of how this conversation actually flowed."
 body_shape: E
+layer: "harness"
+layer_why: "Measures whether a prior conversation fired the right things at the right time and reports compliance, the same measurement job class as a doctor organ."
 hitl_shape: "none"
 hitl_why: "A read-only conversation-flow report that emits a structured artifact and takes no navigator decision, so it reaches no genuine fork."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 1): first delivery at commands/mva-report.md:34, Larry's judged read-back of the conversation (frames, per-turn moves, conclusion-or-circled verdict), not a rendered transcript.

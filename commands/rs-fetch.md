@@ -3,6 +3,7 @@ name: rs-fetch
 description: Run the full Reverse Salient discovery pipeline for a topic
 help_jtbd: "Fetch the latest reverse salient analysis for your room."
 body_shape: E (Action Report)
+layer: "graph"
 hitl_stages:
   - stage: "build-path"
     shapes: ["F.2"]

@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
 argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--post-update] [--bind-check] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
 body_shape: E (Action Report)
+layer: "harness"
+layer_why: "Diagnoses install-cache drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one diagnosed repair for a single approve-or-defer decision."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 7): first delivery at commands/doctor.md:42, one status row per check plus a tallied summary, which the rule doc names outright as not a reward.

@@ -4,6 +4,8 @@ description: "[Deprecated] Navigate room hierarchy with graph-aware tree (use /m
 help_jtbd: "Group rooms into portfolios (deprecated: use /mos:rooms organize)."
 argument-hint: "[tree|propose|move <room> <group>]"
 body_shape: B (Semantic Tree)
+layer: "harness"
+layer_why: "Deprecated alias for /mos:rooms organize; the underlying job is managing the room portfolio hierarchy, a registry operation."
 hitl_shape: "F.8"
 hitl_why: "Filing and tidy jobs are surfaced as an independent set with no ordering constraint."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/organize.md:58, a soft-alias stub passing through /mos:rooms organize's output verbatim (router sub-case).

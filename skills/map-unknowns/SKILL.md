@@ -4,6 +4,7 @@ description: Map known, unknown, and unknowable (Rumsfeld)
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Map the unknowns your venture has not yet addressed."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Knowns and unknowns are laid out as an independent matrix set with no fixed order."
 serves_jtbd: ["validate-idea"]

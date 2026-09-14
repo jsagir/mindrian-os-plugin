@@ -4,6 +4,7 @@ description: Run a governed research pass against your room, oriented by its act
 help_jtbd: "Turn one question about your venture into evidenced claims in the graph, without wiring the research legs yourself."
 argument-hint: '[--dry-run] [--topic <text>]'
 body_shape: E (Action Report) + F.1 (calibrate + fan-approve gates) + F.5 (synthesize ruling)
+layer: "graph"
 hitl_stages:
   - stage: "calibrate"
     shapes: ["F.1"]

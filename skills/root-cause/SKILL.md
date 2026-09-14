@@ -4,6 +4,7 @@ description: Trace root cause via 5-Whys, Fishbone, Fault Tree
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Trace the root cause of a symptom in your venture."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The 5-Whys and fishbone drill down in a fixed order, an ordered walk toward the root."
 serves_jtbd: ["find-problem"]

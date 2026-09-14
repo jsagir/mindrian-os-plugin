@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Browse banked opportunities by HSI score."
 argument-hint: "[list|add|scan]"
 body_shape: E (Action Report)
+layer: "harness"
+layer_why: "Surfaces the Opportunity Bank registry with HSI scores and manages it as a live pipeline; a registry-management operation over the harness."
 hitl_shape: "F.8"
 hitl_why: "Opportunities are surfaced across multiple ADD signals as an independent any-order set."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 4, navigator-ruled): first delivery at commands/opportunities.md:75, the scan subcommand's live Grants.gov/Simpler Grants search matched against the room's own domain, geography and stage.

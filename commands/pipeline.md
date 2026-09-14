@@ -3,6 +3,7 @@ name: pipeline
 description: Chain a multi-step methodology pipeline
 help_jtbd: "Chain methodologies stage-by-stage."
 body_shape: E
+layer: "graph"
 hitl_stages:
   - stage: "build-path"
     shapes: ["F.2"]

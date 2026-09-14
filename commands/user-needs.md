@@ -3,6 +3,7 @@ name: user-needs
 description: Map user needs with importance vs satisfaction
 help_jtbd: "Map user needs against your value proposition."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "User needs are gathered as an any-order set with no ordering constraint between them."
 serves_jtbd: ["find-problem"]

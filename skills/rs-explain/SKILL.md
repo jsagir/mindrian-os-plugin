@@ -4,6 +4,7 @@ description: Bidirectional NL-Graph entry point. NL question to graph queries to
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Explain a reverse salient finding in plain language."
 body_shape: E (Action Report)
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "It presents the reverse-salient explanation and one next move to take."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 12): first delivery at commands/rs-explain.md:70, the Larry-voiced NL explanation triangulated across room.db, Aura and the methodology Brain.

@@ -4,6 +4,8 @@ description: "Manually trigger auto-explore on a specific file (Desktop fallback
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Let Larry decompose your domain before you even ask."
 body_shape: "methodology"
+layer: "loop"
+layer_why: "Runs the same domain-decomposition cycle the PostToolUse hook fires automatically, a single agent cycle to a stopping condition, kind:utility only because it is hook-triggered rather than navigator-typed."
 hitl_shape: "F.3"
 hitl_why: "The rabbit-hole exploration asks how deep to keep going, a depth budget."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 3): first delivery at commands/auto-explore.md:65, the F.1 dispatch contract carrying the domain-decomposition finding computed over the navigator's own freshly-filed artifact.

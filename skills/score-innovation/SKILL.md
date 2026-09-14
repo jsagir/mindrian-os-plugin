@@ -4,6 +4,7 @@ description: Score cross-domain innovation via HSI
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Score the innovation potential of your venture."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The six HSI components are graded independently, an unordered basket of scoring jobs."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 14): first delivery at commands/score-innovation.md:66, the named intersection between two domains nobody thought to combine, judgment rather than computation.

@@ -4,6 +4,7 @@ description: Place a technology on the S-Curve timing clock
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Find the timing window your venture sits inside."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "S-curve timing resolves to a single next-move read the navigator confirms."
 serves_jtbd: ["understand-market"]

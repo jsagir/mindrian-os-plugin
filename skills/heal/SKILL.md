@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Repair drift in your room's structure (deprecated: use /mos:doctor --heal-room)."
 argument-hint: "[room-dir]"
 body_shape: E (Action Report)
+layer: "harness"
+layer_why: "Deprecated alias for /mos:doctor --heal-room; the underlying job is repairing structural drift, the rubric's own step 3 repair signal."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one drift repair for a single approve-or-defer decision."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 16): first delivery at commands/heal.md:56, a soft-alias stub forwarding verbatim to doctor's own already-ruled diagnostic-surface heal output.

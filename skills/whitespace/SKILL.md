@@ -4,6 +4,7 @@ description: Detect whitespace gaps in the room's coverage
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Map the whitespace zones in your domain."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Coverage gaps are surfaced as an independent set examined in any order."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 24, navigator-ruled): first delivery at commands/whitespace.md:152, the map subcommand's density grid pairing each gap with a recommended framework.

@@ -3,6 +3,7 @@ name: leadership
 description: Diagnose the leadership shape your team needs
 help_jtbd: "Apply adaptive leadership (Heifetz) to your venture stage."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "The leadership shape is diagnosed to a single next-move read."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 9): first delivery at commands/leadership.md:72, the opening adapts to the team data already filed and hands back a read of the team shape before anything is asked.

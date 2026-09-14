@@ -3,6 +3,8 @@ name: present
 description: Generate the 6-view presentation and open it
 help_jtbd: "Render your room as a presentation deck."
 body_shape: E (Action Report)
+layer: "none"
+layer_why: "Generates and opens the 6-view presentation of an already-built room; a render-only view, engineering no new rung."
 hitl_shape: "F.1"
 hitl_why: "The 6-view present offers one next move on which view to open."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 6): first delivery at commands/present.md:87, six persisted self-contained HTML views the navigator can send to anyone, distinct from dashboard's ephemeral live render.

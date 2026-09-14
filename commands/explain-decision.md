@@ -2,6 +2,8 @@
 description: Show Navigation Engine decision trace for last turn
 help_jtbd: "See why Larry recommended what he recommended."
 body_shape: F.1
+layer: "none"
+layer_why: "Shows the Navigation Engine trace for the last turn; a pure diagnostic render of a decision already made, not itself an engineering rung."
 hitl_shape: "F.1"
 hitl_why: "It explains a decision and offers one next move to take."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 10): first delivery at commands/explain-decision.md:61, a rendered audit trace of a PAST recommendation, read verbatim from a log rather than reasoned fresh.

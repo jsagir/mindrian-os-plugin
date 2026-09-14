@@ -3,6 +3,8 @@ name: show
 description: Name the job; Larry shows or shares your work
 help_jtbd: "Name the job; I'll show or share your work."
 body_shape: F.1
+layer: "harness"
+layer_why: "Asks the navigator's job in plain language and routes to the matching view command; a dispatch mechanism, the same routing job class as /mos:mos and /mos:help."
 hitl_shape: "F.1"
 hitl_why: "A show or splash view offers one next move on what to open next."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 15): first delivery at commands/show.md:50, a pure router that builds no view of its own and inherits its target's reward (the documented router sub-case).

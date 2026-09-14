@@ -3,6 +3,7 @@ visibility: admin
 description: Drain the dog-food queue into the mindrian room and regenerate ## Live (auto)
 help_jtbd: "Manually flush captured plugin edits into the mindrian dataroom."
 body_shape: E
+layer: "context"
 hitl_shape: "F.0"
 hitl_why: "It offers one dogfood-flush action to approve or defer."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 8): first delivery at commands/dogfood-flush.md:77, an F.0 Action Report of events flushed, the maintainer's own internal bookkeeping.

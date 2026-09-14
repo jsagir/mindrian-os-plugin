@@ -3,6 +3,7 @@ name: futures
 description: Build a bounded multi-ring consequence wheel from a seed concept
 help_jtbd: "Trace the 1st/2nd/3rd-order consequences of a change and locate the hidden opportunities."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.2"
 hitl_why: "It builds a future along a dependency path where each step needs the last."
 serves_jtbd: ["find-problem", "connect-domains"]

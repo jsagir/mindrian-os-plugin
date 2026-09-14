@@ -4,6 +4,7 @@ description: Build a 2x2 scenario matrix of plausible futures
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Branch into scenarios and compare outcomes."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.5"
 hitl_why: "The 2x2 produces four parallel scenario branches the navigator resolves among."
 serves_jtbd: ["compare-options", "plan-execution"]

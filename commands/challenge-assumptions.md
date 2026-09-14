@@ -3,6 +3,7 @@ name: challenge-assumptions
 description: Stress-test assumptions with Devil's Advocate
 help_jtbd: "Stress-test the assumptions your room is built on."
 body_shape: "methodology"
+layer: "graph"
 hitl_shape: "F.8"
 hitl_why: "Each assumption is stress-tested independently, an any-order basket of challenges."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 3): first delivery at commands/challenge-assumptions.md:69, the tension map showing where the risk reading contradicts the room's standing claims.

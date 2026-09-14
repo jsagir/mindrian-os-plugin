@@ -4,6 +4,8 @@ description: Track Claude capabilities that may help MindrianOS
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a radar view of where your room is strong + weak."
 body_shape: A
+layer: "none"
+layer_why: "Tracks new Claude capabilities and displays them; a capability-awareness diagnostic view, engineering no rung."
 hitl_shape: "F.8"
 hitl_why: "Tracked capabilities are surfaced as an independent watch set the navigator reviews in any order."
 serves_jtbd: ["understand-market"]

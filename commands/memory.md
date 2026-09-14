@@ -4,6 +4,8 @@ description: Inspect and operate on the three memory layers (within-session, acr
 help_jtbd: "Inspect what the room remembers about your sessions."
 argument-hint: "[query <jtbd> | cross-room | resume | park <jtbd> | complete <jtbd> | --opt-out]"
 body_shape: E (Action Report)
+layer: "none"
+layer_why: "Shows the three memory layers (within-session, across-session, cross-room); a read-only diagnostic display of existing state."
 hitl_shape: "F.8"
 hitl_why: "The three memory layers are queried and written as an independent set of operations in any order."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 23): first delivery at commands/memory.md:68, a cross-layer census of in_flight/parked/completed counts, a state readout rather than an analysis.

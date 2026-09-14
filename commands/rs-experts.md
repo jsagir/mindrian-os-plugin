@@ -3,6 +3,7 @@ name: rs-experts
 description: Resolve the expert network for a topic from the local room mirror
 help_jtbd: "Surface the expert profiles for a reverse salient."
 body_shape: D (Comparison Matrix)
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "A synthetic expert panel is generated as an independent set consulted in any order."
 serves_jtbd: ["find-bottleneck", "connect-domains"]

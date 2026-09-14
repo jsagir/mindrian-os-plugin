@@ -4,6 +4,7 @@ description: Forecast whether a dual-use technology will diffuse and who adopts 
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Judge whether your technology will spread, who moves first, and how long the first-mover window stays open."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "Adoption is traced through its ordered diffusion stages, a fixed-order walk."
 serves_jtbd: ["understand-market"]

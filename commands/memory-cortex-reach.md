@@ -3,6 +3,8 @@ name: memory-cortex-reach
 description: Reach into your memory cortex when a governing thought goes stale or a contradiction lands
 help_jtbd: "Bring the memory cortex to a Decision Gate when a governing thought goes stale or a contradiction lands."
 body_shape: F.1
+layer: "harness"
+layer_why: "Surfaces a stale governing thought or a fresh contradiction against a claim by reading the memory cortex, a harness-level memory measurement, the rubric's own step 3 memory_event signal."
 hitl_shape: "F.1"
 hitl_why: "A memory reach resolves to a single next move on the recalled item."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 22, navigator-ruled NEEDS-RULING): first delivery at commands/memory-cortex-reach.md:57, a Decision Gate whose actual cortex content is surfaced by the orchestrator only after approval (the show router sub-case).

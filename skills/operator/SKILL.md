@@ -6,6 +6,8 @@ compatibility: Requires Claude Code (or a host implementing disable-model-invoca
 help_jtbd: "See or change the conversation operator state."
 argument-hint: "[history] [set <op>] [reset] [--json]"
 body_shape: E (Action Report)
+layer: "prompt"
+layer_why: "Shows or sets how Larry should render this session (JUST_TALK, EXPLORE_CAPTURE, and so on); shapes the output style of subsequent turns, the rubric's own step 5 signal."
 hitl_shape: "F.1"
 hitl_why: "The operator view offers one next move on the current state."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 3): first delivery at commands/operator.md:78, the bare-invocation state readout of the conversation-operator's own current value and history.

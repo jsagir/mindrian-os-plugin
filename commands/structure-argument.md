@@ -3,6 +3,7 @@ name: structure-argument
 description: Structure an argument with Minto + SCQA + MECE
 help_jtbd: "Build a Minto-Pyramid argument from your room's evidence."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The Minto pyramid is built top-down in a fixed order, an ordered walk where each level needs the last."
 serves_jtbd: ["validate-idea", "explore"]

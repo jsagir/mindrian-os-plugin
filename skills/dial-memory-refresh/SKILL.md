@@ -5,6 +5,7 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Refresh the human-readable Dial Memory section rendered from the graph."
 body_shape: E
+layer: "context"
 hitl_shape: "F.0"
 hitl_why: "It offers a single refresh action to approve or defer."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 7): first delivery at commands/dial-memory-refresh.md:57, an F.0 Action Report of sections refreshed/skipped/failed, a regeneration-status report.

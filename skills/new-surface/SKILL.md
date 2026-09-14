@@ -4,6 +4,8 @@ description: Generate a new command, agent, or skill surface with its connector 
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Scaffold a new /mos surface (command/agent/skill) with its 11-key connector frontmatter, then regenerate the registry and manifest."
 body_shape: E
+layer: "harness"
+layer_why: "Emits a new command/agent/skill .md file with the correct connector descriptor; adding a tool to the harness, the rubric's own step 3 signal verbatim."
 hitl_shape: "F.0"
 hitl_why: "It proposes one new surface for a single approve-or-reject decision."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 2): first delivery at commands/new-surface.md:111, the emitted surface path and registry confirmation, a correctly-wired skeleton the navigator still has to hand-fill.

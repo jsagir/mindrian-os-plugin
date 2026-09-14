@@ -4,6 +4,8 @@ description: Route the user's 3-option footer selection after a 30-second MVA br
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Compose option packages for your MVA."
 body_shape: E
+layer: "harness"
+layer_why: "Routes the navigator's pick from the 3-option MVA footer into the correct next move; a dispatch mechanism, not new methodology output."
 hitl_shape: "F.8"
 hitl_why: "Candidate options are surfaced as an independent set to weigh in any order before a pick."
 argument-hint: <1|2|3> [<sha8>]

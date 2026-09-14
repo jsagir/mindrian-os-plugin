@@ -4,6 +4,7 @@ description: Spot dominant designs with Utterback-Abernathy
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Identify the dominant designs in your market."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "The dominant design is identified as a single next-move call."
 serves_jtbd: ["understand-market"]

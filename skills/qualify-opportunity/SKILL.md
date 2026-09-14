@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Decide which harvested opportunity candidates deserve to file into the bank."
 argument-hint: "[review]"
 body_shape: E (Action Report)
+layer: "loop"
+layer_why: "Presents a single human-ratified decision gate over one harvested candidate and files the qualify/reject verdict, the same single-hitl-fork cycle shape as a methodology command."
 hitl_shape: "F.1"
 hitl_why: "Opportunity qualification is a material navigator decision; nothing files without approval."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 7): first delivery at commands/qualify-opportunity.md:58, the F.1 card's Q1..Q8 rubric verdict lines showing why the candidate qualified, before the file/skip verb picker.

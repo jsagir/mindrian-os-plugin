@@ -13,7 +13,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report) + F.1 (Next-Move gate)",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "plan-execution"
       ],
@@ -32,7 +32,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "A (Mondrian Board)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -51,7 +51,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -74,7 +74,7 @@
       ],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-problem"
       ],
@@ -95,7 +95,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-bottleneck"
       ],
@@ -117,7 +117,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -136,7 +136,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-problem",
         "understand-market",
@@ -159,7 +159,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-problem",
         "explore"
@@ -181,7 +181,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "B (Semantic Tree)",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "explore",
         "decide-pursue"
@@ -201,7 +201,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "context",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -222,7 +222,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "explore"
       ],
@@ -243,7 +243,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "decide-pursue",
         "prepare-pitch"
@@ -265,7 +265,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-problem",
         "find-bottleneck"
@@ -287,7 +287,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "validate-idea",
         "surface-contradiction"
@@ -309,7 +309,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "compare-options"
       ],
@@ -328,7 +328,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "context",
       "serves_jtbd": [
         "temporal-correction"
       ],
@@ -347,7 +347,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room",
         "prepare-pitch"
@@ -367,7 +367,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "F.1",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -390,7 +390,7 @@
       ],
       "autonomous_safe": true,
       "body_shape": "C",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "audit-room",
         "compare-options"
@@ -412,7 +412,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "A",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "decide-pursue"
       ],
@@ -433,7 +433,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "E",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -452,7 +452,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "E",
-      "layer": null,
+      "layer": "context",
       "serves_jtbd": [
         "validate-idea",
         "audit-room"
@@ -474,7 +474,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -495,7 +495,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "B (Semantic Tree)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "explore"
       ],
@@ -514,7 +514,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -533,7 +533,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "E",
-      "layer": null,
+      "layer": "context",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -554,7 +554,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -573,7 +573,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "connect-domains",
         "explore"
@@ -593,7 +593,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "F.1",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -614,7 +614,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-problem",
         "understand-market",
@@ -637,7 +637,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "compare-options",
         "explore"
@@ -657,7 +657,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "explore"
       ],
@@ -678,7 +678,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "understand-market",
         "explore"
@@ -698,7 +698,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -717,7 +717,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "E",
-      "layer": null,
+      "layer": "context",
       "serves_jtbd": [
         "validate-idea",
         "audit-room"
@@ -737,7 +737,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "file-meeting"
       ],
@@ -758,7 +758,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "D (Comparison Matrix)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "connect-domains"
       ],
@@ -779,7 +779,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-bottleneck"
       ],
@@ -800,7 +800,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "connect-domains"
       ],
@@ -819,7 +819,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "B (Semantic Tree)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "prepare-pitch",
         "decide-pursue"
@@ -841,7 +841,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-problem",
         "connect-domains"
@@ -863,7 +863,7 @@
       ],
       "autonomous_safe": true,
       "body_shape": "C",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "prepare-pitch",
         "decide-pursue"
@@ -887,7 +887,7 @@
       ],
       "autonomous_safe": true,
       "body_shape": "C",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -906,7 +906,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "C (Room Card)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room",
         "explore"
@@ -928,7 +928,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "C (Dashboard Grid)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -947,7 +947,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -966,7 +966,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "F.1",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "explore"
       ],
@@ -985,7 +985,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1004,7 +1004,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "explore",
         "build"
@@ -1024,7 +1024,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "action-report",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "build"
       ],
@@ -1043,7 +1043,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report) + F.1 (calibrate + fan-approve gates) + F.5 (synthesize ruling)",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "plan-execution"
       ],
@@ -1064,7 +1064,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1085,7 +1085,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "explore"
       ],
@@ -1106,7 +1106,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "prepare-pitch",
         "validate-idea"
@@ -1128,7 +1128,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -1149,7 +1149,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "validate-idea"
       ],
@@ -1168,7 +1168,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "F.1",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "navigate"
       ],
@@ -1187,7 +1187,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1206,7 +1206,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "C (Information Card)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "compare-options"
       ],
@@ -1227,7 +1227,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "C",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "explore"
       ],
@@ -1246,7 +1246,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "explore"
       ],
@@ -1267,7 +1267,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -1286,7 +1286,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "explore"
       ],
@@ -1305,7 +1305,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "explore"
       ],
@@ -1324,7 +1324,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1343,7 +1343,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "explore"
       ],
@@ -1362,7 +1362,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "explore"
       ],
@@ -1381,7 +1381,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "B (Semantic Tree)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "explore"
       ],
@@ -1400,7 +1400,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "prompt",
       "serves_jtbd": [
         "explore"
       ],
@@ -1419,7 +1419,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "explore"
       ],
@@ -1438,7 +1438,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "B (Semantic Tree)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1459,7 +1459,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "C (Room Card)",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -1478,7 +1478,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "plan-execution"
       ],
@@ -1497,7 +1497,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -1516,7 +1516,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -1535,7 +1535,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1554,7 +1554,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "explore"
       ],
@@ -1573,7 +1573,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "D",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room",
         "explore"
@@ -1593,7 +1593,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "A",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -1612,7 +1612,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "file-meeting"
       ],
@@ -1633,7 +1633,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "C",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "explore",
         "understand-market"
@@ -1653,7 +1653,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "C",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1672,7 +1672,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "B (Semantic Tree)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1693,7 +1693,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-problem"
       ],
@@ -1714,7 +1714,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "D (Comparison Matrix)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-bottleneck",
         "connect-domains"
@@ -1736,7 +1736,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-bottleneck"
       ],
@@ -1757,7 +1757,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "find-bottleneck",
         "surface-contradiction"
@@ -1779,7 +1779,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-bottleneck"
       ],
@@ -1800,7 +1800,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "compare-options",
         "plan-execution"
@@ -1820,7 +1820,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "plan-execution"
       ],
@@ -1841,7 +1841,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "compare-options",
         "validate-idea"
@@ -1861,7 +1861,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "explore",
         "understand-market"
@@ -1881,7 +1881,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "explore"
       ],
@@ -1900,7 +1900,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "F.1",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "prepare-pitch",
         "explore"
@@ -1920,7 +1920,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "prompt",
       "serves_jtbd": [
         "explore"
       ],
@@ -1945,7 +1945,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "prepare-pitch",
         "audit-room"
@@ -1965,7 +1965,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "C (Room Card)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "file-meeting"
       ],
@@ -1984,7 +1984,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "explore"
       ],
@@ -2003,7 +2003,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "F.0",
-      "layer": null,
+      "layer": "prompt",
       "serves_jtbd": [
         "navigate"
       ],
@@ -2022,7 +2022,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E (Action Report)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room",
         "explore"
@@ -2045,7 +2045,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "validate-idea",
         "explore"
@@ -2065,7 +2065,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "B",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "plan-execution",
         "explore"
@@ -2087,7 +2087,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-bottleneck"
       ],
@@ -2108,7 +2108,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "explore",
         "compare-options"
@@ -2130,7 +2130,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "graph",
       "serves_jtbd": [
         "understand-market",
         "explore"
@@ -2150,7 +2150,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "harness",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -2171,7 +2171,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "find-problem"
       ],
@@ -2194,7 +2194,7 @@
       ],
       "autonomous_safe": true,
       "body_shape": "C",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "validate-idea"
       ],
@@ -2215,7 +2215,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "validate-idea",
         "prepare-pitch"
@@ -2235,7 +2235,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "E",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -2254,7 +2254,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "D (Document View)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room",
         "prepare-pitch"
@@ -2276,7 +2276,7 @@
       "inputs": [],
       "autonomous_safe": true,
       "body_shape": "methodology",
-      "layer": null,
+      "layer": "loop",
       "serves_jtbd": [
         "connect-domains",
         "find-problem"
@@ -2296,7 +2296,7 @@
       "inputs": [],
       "autonomous_safe": false,
       "body_shape": "D (Document View)",
-      "layer": null,
+      "layer": "none",
       "serves_jtbd": [
         "audit-room",
         "prepare-pitch"

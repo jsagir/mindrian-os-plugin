@@ -4,6 +4,7 @@ description: Classify problem type against the PWS matrix
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "See where your room is weakest and what to do next."
 body_shape: A
+layer: "graph"
 hitl_stages:
   - stage: "classify-problem"
     shapes: ["F.0", "F.1"]

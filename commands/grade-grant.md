@@ -3,6 +3,7 @@ name: grade-grant
 description: Grade a grant application against a local IIA grant rubric (Tnufa first) -- from a pasted draft OR straight from your room -- and get a build roadmap per room section
 help_jtbd: "Grade your room or a pasted draft against a real grant rubric, see exactly which room section to build next, or decompose a finished application into a room."
 body_shape: C
+layer: "graph"
 hitl_stages:
   - stage: "file-verdict"
     shapes: ["F.8"]

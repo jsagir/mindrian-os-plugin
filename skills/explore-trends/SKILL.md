@@ -4,6 +4,7 @@ description: Push trends to extremes to surface future problems
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Surface the macro trends your venture is riding."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.3"
 hitl_why: "It pushes one trend toward its extreme and asks how far to go, a depth budget."
 serves_jtbd: ["understand-market", "explore"]

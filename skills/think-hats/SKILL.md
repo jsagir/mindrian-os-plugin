@@ -4,6 +4,7 @@ description: Rotate through De Bono's Six Thinking Hats
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Get a six-thinking-hats pass from the AI team."
 body_shape: "methodology"
+layer: "graph"
 hitl_shape: "F.9"
 hitl_why: "The six thinking hats fire in a fixed sequence where the order is the method, an ordered walk."
 # Phase 118-06 reward-before-investment declaration. Grounded in the shipped

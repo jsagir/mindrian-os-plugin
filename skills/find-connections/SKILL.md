@@ -4,6 +4,7 @@ description: Find cross-domain patterns that touch your work
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Surface non-obvious connections in your room's graph."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Candidate connections across the room are returned as an independent set to pick from in any order."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 8): first delivery at commands/find-connections.md:88, the aha moments: unexpected cross-domain links and the analogy handed back in the navigator's own terms.

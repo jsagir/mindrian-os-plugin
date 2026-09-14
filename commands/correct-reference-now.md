@@ -3,6 +3,8 @@ name: correct-reference-now
 description: Correct the reference clock when the model-known date diverges from the seeded floor
 help_jtbd: "Keep one trustworthy now so time deltas never drift."
 body_shape: E
+layer: "context"
+layer_why: "Writes the true calendar date into the room's temporal reference, a session/context fact correction, not a methodology cycle or scaffolding change."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one reference correction for a single approve-or-reject decision."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 4): first delivery at commands/correct-reference-now.md:76, a one-line confirmation that a LOCAL clock-seam correction was applied.

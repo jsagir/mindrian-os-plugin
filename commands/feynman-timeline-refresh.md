@@ -2,6 +2,7 @@
 description: Refresh FEYNMAN.md ## Timeline (auto) section for one or all room sections
 help_jtbd: "Refresh the human-readable Timeline section in FEYNMAN.md."
 body_shape: E
+layer: "context"
 hitl_shape: "F.0"
 hitl_why: "It offers a single timeline-refresh action to approve or defer."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 12): first delivery at commands/feynman-timeline-refresh.md:49, an F.0 Action Report of sections refreshed/skipped/failed, a regeneration-status report.

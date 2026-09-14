@@ -4,6 +4,8 @@ description: "[Deprecated] Show the latest HMI compliance poll (use /mos:doctor 
 help_jtbd: "Audit UI Ruling System compliance (deprecated: use /mos:doctor --ui-compliance --json)."
 argument-hint: "[--json]"
 body_shape: E (Action Report)
+layer: "harness"
+layer_why: "Deprecated alias for /mos:doctor --ui-compliance; the underlying job is measuring UI Ruling System compliance, a doctor-organ measurement."
 hitl_shape: "F.1"
 hitl_why: "HMI status offers one next move on the current interface state."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 18): first delivery at commands/hmi-status.md:59, a soft-alias stub forwarding verbatim to doctor's already-ruled UI-compliance status scan.

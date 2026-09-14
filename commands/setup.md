@@ -3,6 +3,8 @@ name: setup
 description: Configure optional integrations (Brain, Velma)
 help_jtbd: "Add optional integrations: graph, Brain, MCP servers."
 body_shape: E
+layer: "harness"
+layer_why: "Walks through wiring optional integrations (Brain, Velma); a configuration/tool-wiring operation over the harness."
 interactive_first_reward: schema_preview
 hitl_shape: "F.8"
 hitl_why: "Integrations are configured as an independent set the navigator connects in any order."

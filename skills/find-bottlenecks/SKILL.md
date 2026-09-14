@@ -4,6 +4,7 @@ description: Find lagging components via Reverse Salient
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Find the lagging component blocking your venture (Hughes reverse salient)."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Reverse-salient bottlenecks are listed as an independent set the navigator prioritizes in any order."
 serves_jtbd: ["find-bottleneck"]

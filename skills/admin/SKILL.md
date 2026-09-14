@@ -6,6 +6,8 @@ compatibility: References Tier-1 hook mechanics (Claude Code, Grok Build, or Ope
 help_jtbd: "Inspect plugin internals when you suspect something is off."
 argument-hint: "[subcommand]"
 body_shape: A (Mondrian Board)
+layer: "harness"
+layer_why: "Opens the admin panel to inspect and rotate Brain API keys, a credential/registry management operation over the harness, not new methodology output."
 hitl_shape: "F.1"
 hitl_why: "Brain-key admin offers one next move to confirm an action."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 1): first delivery at commands/admin.md:132, the "Current State" active-key/pending-request/total-request counts, a status roster of the plugin's own key registry.

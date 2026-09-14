@@ -3,6 +3,8 @@ name: new-project
 description: Start a new venture project and create its room
 help_jtbd: "Start a new room in ~/MindrianRooms/ from a conversation."
 body_shape: E
+layer: "harness"
+layer_why: "Creates room scaffolding and registers the new room in the room registry; the rubric's own step 3 signal names both \"add scaffolding\" and \"a registry\" verbatim."
 hitl_shape: "F.1"
 hitl_why: "Creating a project offers one next move to confirm and enter it."
 argument-hint: "[name]"

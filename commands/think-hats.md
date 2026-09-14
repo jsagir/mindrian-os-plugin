@@ -3,6 +3,7 @@ name: think-hats
 description: Rotate through De Bono's Six Thinking Hats
 help_jtbd: "Get a six-thinking-hats pass from the AI team."
 body_shape: "methodology"
+layer: "graph"
 hitl_shape: "F.9"
 hitl_why: "The six thinking hats fire in a fixed sequence where the order is the method, an ordered walk."
 # Phase 118-06 reward-before-investment declaration. Grounded in the shipped

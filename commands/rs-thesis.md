@@ -3,6 +3,7 @@ name: rs-thesis
 description: Read the thesis for a prior Reverse Salient discovery
 help_jtbd: "Compose the thesis statement from your reverse salient findings."
 body_shape: E (Action Report)
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The reverse-salient thesis is assembled through ordered stages, a fixed-order walk."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 14): first delivery at commands/rs-thesis.md:55, a lookup of an already-computed thesis by discovery_id, a rendered log rather than fresh analysis.

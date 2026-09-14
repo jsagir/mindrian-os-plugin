@@ -4,6 +4,7 @@ description: "[Renaming to /mos:fingerprint v1.14.0] Run Wave-1 algorithmic fing
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Run the 4 Wave-1 algorithms (Disruption Index, Blindspot, Novelty, Surprise). Renaming to /mos:fingerprint in v1.14.0."
 body_shape: E
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "Diagnostics offers one next move on what to inspect."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 6): first delivery at commands/diagnostics.md:62, a one-screen scalar dashboard of four computed room metrics, a status roster rather than a reasoned reframe.

@@ -4,6 +4,8 @@ description: Define Cowork scheduled tasks for the room
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "View and manage scheduled background sweeps."
 body_shape: E (Action Report)
+layer: "harness"
+layer_why: "Defines a recurring Cowork job against the room, adding a scheduling mechanism to the harness."
 hitl_shape: "F.1"
 hitl_why: "Scheduled tasks offers one next move to confirm a schedule change."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 15): first delivery inferred from hitl_why plus the Configuration section at commands/scheduled-tasks.md:290, a view-then-confirm shape over the plugin's own scheduler configuration.

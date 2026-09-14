@@ -5,6 +5,8 @@ help_jtbd: "Ship investor-ready PDF or Obsidian vault of your room."
 argument-hint: "[hub|thesis|summary|report]"
 disable-model-invocation: true
 body_shape: E (Action Report)
+layer: "none"
+layer_why: "Packages an already-built room view as a shareable HTML artifact; a render/export of existing state, engineering no new rung."
 hitl_shape: "F.1"
 hitl_why: "Export offers a single next move to confirm the export scope."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 11, argued in full): first delivery at commands/export.md:68, a filed, shareable HTML artifact of the whole Data Room, the "filed document" leg of live_deliverable's own definition.

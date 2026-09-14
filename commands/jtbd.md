@@ -4,6 +4,7 @@ description: "Show, set, list, or inspect the active JTBD: the per-room signal t
 help_jtbd: "Surface the job-to-be-done you are in right now."
 argument-hint: "[set <jtbd> | clear | list | history] [--json]"
 body_shape: E (Action Report)
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "Setting the active JTBD is a single next-move selection."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 21): first delivery at commands/jtbd.md:93, the classifier's own inferred JTBD label plus confidence and history, a state readout of the tool's internal signal.

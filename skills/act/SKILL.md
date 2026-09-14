@@ -5,6 +5,7 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 help_jtbd: "Run the next move Larry recommends, without typing the /mos: command yourself."
 argument-hint: '[--chain] [--swarm] [--dry-run]'
 body_shape: E (Action Report) + F.1 (Next-Move gate)
+layer: "graph"
 hitl_stages:
   - stage: "best-pick"
     shapes: ["F.7"]

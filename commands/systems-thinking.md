@@ -3,6 +3,7 @@ name: systems-thinking
 description: Map feedback loops, stocks, and flows
 help_jtbd: "Apply systems-thinking lenses to a problem."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Stocks, flows, and loops are surfaced as an independent set with no ordering constraint."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 17): first delivery at commands/systems-thinking.md:116, the EXECUTE step hands over one question or observation per turn, one lens at a time.

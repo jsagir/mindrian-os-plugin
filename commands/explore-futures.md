@@ -3,6 +3,7 @@ name: explore-futures
 description: Synthesize TTA + Scenario + S-Curve futures
 help_jtbd: "Branch into future scenarios from where you stand today."
 body_shape: "methodology"
+layer: "graph"
 hitl_stages:
   - stage: "build-path"
     shapes: ["F.2"]

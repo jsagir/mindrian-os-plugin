@@ -2,6 +2,7 @@
 description: Refresh the Dial Memory (auto) section in each room section's memory MD
 help_jtbd: "Refresh the human-readable Dial Memory section rendered from the graph."
 body_shape: E
+layer: "context"
 hitl_shape: "F.0"
 hitl_why: "It offers a single refresh action to approve or defer."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 7): first delivery at commands/dial-memory-refresh.md:57, an F.0 Action Report of sections refreshed/skipped/failed, a regeneration-status report.

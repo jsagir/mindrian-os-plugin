@@ -3,6 +3,8 @@ name: pws-brain
 description: "RETIRED TEST HARNESS (superseded 2026-07-22): compared the then-production mindrian-brain MCP against the neo4j-agent Aura Agent over Neo4j. Both routes are superseded by the unified pws-brain-mcp Memgraph backend. Kept for deliberate historical re-runs only."
 help_jtbd: "Ask one generic methodology question and see how the production Brain and the experimental Aura Agent each answer it, side by side."
 body_shape: E (Action Report)
+layer: "none"
+layer_why: "Runs the same methodology question against the experimental Aura Agent next to the production Brain and shows both; a diagnostic comparison view."
 body_shape_detail: two labeled answer blocks (A production Brain, B Aura Agent) plus a short observed-differences note
 hitl_shape: "none"
 hitl_why: "A read-only comparison report that runs one question through two backends and takes no navigator decision, so it reaches no genuine fork."

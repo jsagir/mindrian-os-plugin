@@ -3,6 +3,7 @@ name: build-thesis
 description: Run the Ten-Questions investment thesis gate
 help_jtbd: "Compose the investment-grade thesis from your room's evidence."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The Ten Questions are answered in a fixed order that builds the thesis, an ordered walk."
 serves_jtbd: ["decide-pursue", "prepare-pitch"]

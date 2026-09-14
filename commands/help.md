@@ -4,6 +4,8 @@ description: "11-family command map: cards to pick, family lists, per-command he
 help_jtbd: "Pick a card, arrow to a command, run it. The command map as a 3-card selector."
 argument-hint: "[command-name | family-id | 2 | 3 | --list]"
 body_shape: F.1
+layer: "harness"
+layer_why: "A command-family selector that dispatches the navigator to the right surface; routing/dispatch scaffolding, not new methodology or context."
 hitl_shape: "F.1"
 hitl_why: "Help offers one next move on where to go next."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 17): first delivery at commands/help.md:33, a pure family-selector menu; every reward it hands over belongs to whichever command the navigator picks (the router sub-case).

@@ -3,6 +3,7 @@ name: dominant-designs
 description: Spot dominant designs with Utterback-Abernathy
 help_jtbd: "Identify the dominant designs in your market."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "The dominant design is identified as a single next-move call."
 serves_jtbd: ["understand-market"]

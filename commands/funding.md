@@ -4,6 +4,8 @@ description: Track grant opportunities through their lifecycle
 help_jtbd: "See the grants and funding paths matching your room."
 argument-hint: "[list|add|update]"
 body_shape: B (Semantic Tree)
+layer: "harness"
+layer_why: "Manages the grant/investor pipeline lifecycle (spotted to applied to decided) as a tracked registry, a harness-scaffolding operation."
 hitl_shape: "F.8"
 hitl_why: "Grant-lifecycle candidates are surfaced as an independent set the navigator triages in any order."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 13, navigator-ruled NEEDS-RULING): first delivery at commands/funding.md:57, a stage/deadline/staleness tracking report of the navigator's own pipeline, not the Tavily-sourced discovery flow the rule doc's worked example names.

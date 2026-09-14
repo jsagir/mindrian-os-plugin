@@ -4,6 +4,8 @@ description: Materialize a confirmed SyntheticExpert node into a room-scoped SKI
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Turn a confirmed SyntheticExpert graph node into an invokable skills/<expert>/SKILL.md via the shipped surface generator, so the expert persona is reachable anywhere in the room."
 body_shape: E
+layer: "prompt"
+layer_why: "Projects a confirmed SyntheticExpert persona into the conversation; shapes the voice/persona of subsequent requests, the rubric's own step 5 signal verbatim."
 hitl_shape: "F.0"
 hitl_why: "It proposes materializing one confirmed SyntheticExpert into a skill for a single approve-or-reject decision."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 16): first delivery at commands/skill.md:100, the materialized skill file's emitted path, infrastructure enabling a later persona invocation rather than the value itself.

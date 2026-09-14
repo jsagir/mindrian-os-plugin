@@ -3,6 +3,7 @@ name: grade
 description: Grade problem-discovery quality (6 components)
 help_jtbd: "Get a fast grade on your room with feedback."
 body_shape: C
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The six grading components are scored independently, an unordered basket of scoring jobs."
 serves_jtbd: ["audit-room"]

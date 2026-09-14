@@ -4,6 +4,7 @@ description: Fill the Lean Canvas in one page (9 boxes)
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Lay out the 9-block Lean Canvas for your room."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The nine canvas blocks are an independent any-order set the navigator fills in whatever sequence fits, so it renders an unordered basket."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 10): first delivery at commands/lean-canvas.md:64, Larry challenges the first box rather than handing over a nine-box form to fill.

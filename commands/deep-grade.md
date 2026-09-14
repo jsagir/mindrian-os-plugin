@@ -3,6 +3,7 @@ name: deep-grade
 description: Grade a venture against 100+ calibrated projects
 help_jtbd: "Get the rigorous grading pass (Brain-enriched, 100+ student calibration)."
 body_shape: C
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The artifact is graded on independent components against the calibrated set, an any-order basket."
 serves_jtbd: ["audit-room", "compare-options"]

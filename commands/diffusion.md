@@ -3,6 +3,7 @@ name: diffusion
 description: Forecast whether a dual-use technology will diffuse and who adopts first
 help_jtbd: "Judge whether your technology will spread, who moves first, and how long the first-mover window stays open."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "Adoption is traced through its ordered diffusion stages, a fixed-order walk."
 serves_jtbd: ["understand-market"]

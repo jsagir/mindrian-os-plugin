@@ -4,6 +4,8 @@ description: File a meeting transcript into the Data Room
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Turn a meeting recording into structured room intelligence."
 body_shape: E
+layer: "loop"
+layer_why: "Captures a transcript and files the resulting intelligence into room sections in one filing cycle to completion, the same shape as a methodology command that produces an artifact."
 hitl_shape: "F.8"
 hitl_why: "Extracted nuggets are routed as an independent set the navigator files in any order."
 argument-hint: "[--latest|--paste|<file>]"

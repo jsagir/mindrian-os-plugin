@@ -5,6 +5,8 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 compatibility: Requires Claude Code (or a host implementing disable-model-invocation semantics); Tier-1 hook mechanics referenced in this skill.
 help_jtbd: "Pull the Brain's framework recommendations for your current section."
 body_shape: E
+layer: "context"
+layer_why: "Rebuilds a room section's Brain-derived context on demand, changing what the model sees this turn without engineering new methodology."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one derived Brain packet for a single APPROVE, REJECT, or DEFER."
 argument-hint: "[section] [--all] [--cross-room] [--dry-run] [--review-anchors] [--orphan-census] [--cross-label-dups]"

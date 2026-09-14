@@ -4,6 +4,7 @@ description: Map feedback loops, stocks, and flows
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Apply systems-thinking lenses to a problem."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Stocks, flows, and loops are surfaced as an independent set with no ordering constraint."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 17): first delivery at commands/systems-thinking.md:116, the EXECUTE step hands over one question or observation per turn, one lens at a time.

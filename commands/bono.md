@@ -3,6 +3,7 @@ name: bono
 description: Run a BONO research debate over a what-if hypothesis
 help_jtbd: "Spawn a parallel research swarm, debate it as inter-hat arguments over a graph-proposed what-if, and land a navigator-confirmed synthesis."
 body_shape: B (Semantic Tree)
+layer: "graph"
 hitl_stages:
   - stage: "topic-confirm"
     shapes: ["F.1"]

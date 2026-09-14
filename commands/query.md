@@ -3,6 +3,8 @@ name: query
 description: "[Deprecated] Query the knowledge graph in natural language (use /mos:graph)"
 help_jtbd: "Ask your room any question; get the answer as graph paths (deprecated: use /mos:graph)."
 body_shape: D
+layer: "none"
+layer_why: "Deprecated alias for /mos:graph; the underlying job is a read-only natural-language graph query and render."
 hitl_shape: "F.1"
 hitl_why: "A natural-language graph query returns a result with one next move."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 8): first delivery at commands/query.md:54, a soft-alias stub passing through /mos:graph's output verbatim (router sub-case).

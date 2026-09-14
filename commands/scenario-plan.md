@@ -3,6 +3,7 @@ name: scenario-plan
 description: Build a 2x2 scenario matrix of plausible futures
 help_jtbd: "Branch into scenarios and compare outcomes."
 body_shape: "methodology"
+layer: "loop"
 hitl_shape: "F.5"
 hitl_why: "The 2x2 produces four parallel scenario branches the navigator resolves among."
 serves_jtbd: ["compare-options", "plan-execution"]
