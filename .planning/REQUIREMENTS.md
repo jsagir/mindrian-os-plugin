@@ -1698,10 +1698,10 @@ a seventh release-lockstep place verifying Theo's command-layer stamp.
       existing edge vocabulary and reported as counts plus one boolean, never a score,
       carrying the unread-log counting rule.
 
-- [ ] **CENSUS-10**: SENS-19 is registered in all six lockstep places plus the ctx producer
+- [x] **CENSUS-10**: SENS-19 is registered in all six lockstep places plus the ctx producer
       block, placed in `SENS_PRIORITY` Group A.
 
-- [ ] **CENSUS-11**: SENS-19 is pure and synchronous, reuses the frozen `contradiction`
+- [x] **CENSUS-11**: SENS-19 is pure and synchronous, reuses the frozen `contradiction`
       reach, fires on a PER-ROOM threshold crossing, and never reaches `decide()` or writes
       `routing_source`.
 

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "Plan 343-05 computed the first counter-metric pair (CENSUS-09): claim-counter-metric.cjs"
-stopped_at: Completed 343-05-PLAN.md
-last_updated: "2026-09-14T18:57:33.413Z"
-last_activity: "2026-09-14 -- 343-05 completed (first counter-metric pair computed, doctrine Section 7 dated reading)"
+status: "Plan 343-06 registered SENS-19 (CENSUS-10, CENSUS-11): the room-graph integrity sensor"
+stopped_at: Completed 343-06-PLAN.md
+last_updated: "2026-09-14T19:18:34.792Z"
+last_activity: "2026-09-14 -- 343-06 completed (SENS-19 registered in all six places plus the ctx producer block, proved through decide() end to end)"
 progress:
   total_phases: 98
   completed_phases: 28
   total_plans: 274
-  completed_plans: 236
+  completed_plans: 237
   percent: 86
 ---
 
@@ -4354,9 +4354,28 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - IN PROGRESS
-Plan: 343-05, 343-08 complete (6/9 plans; 343-06, 343-07, 343-09 remain, executed out of wave
+Plan: 343-05, 343-06, 343-08 complete (7/9 plans; 343-07, 343-09 remain, executed out of wave
   order per the plan's own recorded WD-11/WD-17 dependency inversion on 344-03)
-Status: Plan 343-05 computed the first counter-metric pair declared in 343-04: lib/core/
+Status: Plan 343-06 registered SENS-19 (CENSUS-10, CENSUS-11), the room-graph integrity sensor:
+  lib/core/sensors/sensor-graph-integrity.cjs fires the frozen contradiction reach at posture hold
+  when edge_rows_missing_endpoint plus claim_nodes_no_anchor_new crosses
+  INTEGRITY_DEFECT_THRESHOLD (25, WD-19); registered in all six lockstep places in
+  lib/core/insight-sensors.cjs and lib/core/sensors/sensor-priority.cjs (Group A per WD-7, between
+  SENS-11 and SENS-14) plus the one ungated ctx-producer block in lib/core/navigation-engine.cjs
+  (after the SENS-16 block, measuring the caller-threaded BOUND room only, WD-5, via the SAME
+  countGraphIntegrity statement home the 343-02 doctor organ uses). tests/test-343-sensor-
+  registration.cjs (17 checks): the detector's threshold/exclusion/frozen/sync contract, the
+  six-place registration arm, and three end-to-end decide() arms on a real seeded room.db fixture
+  (above threshold fires exactly one SENS-19-stamped contradiction reach, below threshold and no
+  handle fire none, routing_source stays untouched in every case). Mutation proof performed and
+  reverted: commenting out the producer block failed the end-to-end arm while
+  build-connector-registry --check stayed green, confirming place 7 is the one ungated place.
+  Commits 055279d1 (detector, TDD), 6792e536 (registration), 81e07a00 (producer + e2e proof),
+  beb80d0e (Rule 3 fix: regenerated data/harness-manifest.json's decide_engine digest after
+  navigation-engine.cjs changed). One more Rule 3 fix: tests/test-343-counter-metric-
+  declaration.cjs's pinned SENS_PRIORITY order literal updated to include SENS-19's WD-7
+  insertion point. Full detail in 343-06-SUMMARY.md.
+Previously: Plan 343-05 computed the first counter-metric pair declared in 343-04: lib/core/
   navigation/claim-counter-metric.cjs (countClaimCounterMetric(db), CITATION_LAG_DAYS=30) counts
   claims_filed, claims_filed_past_citation_lag, claims_with_contradicts_edge, and
   claims_no_incoming_edge_past_citation_lag over the shipped CONTRADICTS edge vocabulary, plus a
@@ -5819,6 +5838,7 @@ Progress: [█████████░] 92%
 | Phase 343 P04 | 70min | 3 tasks | 5 files |
 | Phase 343 P08 | 25min | 3 tasks | 5 files |
 | Phase 343 P05 | 65min | 2 tasks | 4 files |
+| Phase 343 P06 | 80min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
