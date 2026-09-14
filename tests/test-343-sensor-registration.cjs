@@ -15,10 +15,16 @@
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 
 const REPO = path.resolve(__dirname, '..');
 const DETECTOR_PATH = path.join(REPO, 'lib', 'core', 'sensors', 'sensor-graph-integrity.cjs');
+
+const { buildFixtureRoom } = require('./helpers/fixture-room-219.cjs');
+const { openRoomDb, closeRoomDb } = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
+const navigation = require(path.join(REPO, 'lib', 'core', 'navigation.cjs'));
+const engine = require(path.join(REPO, 'lib', 'core', 'navigation-engine.cjs'));
 
 let checks = 0;
 function ok(label) {
@@ -159,5 +165,119 @@ assert.ok(
 );
 ok('sensorPriorityRank(SENS-19) is less than sensorPriorityRank(SENS-16): Group A placement took effect');
 
+// ---------------------------------------------------------------------------
+// Task 3: the ctx producer block, proved through decide() end to end.
+//
+// Calling the detector directly with a hand-built ctx does NOT satisfy this
+// task (the plan's own instruction): the failure this arm exists to catch is
+// a MISSING PRODUCER BLOCK, and a hand-built ctx hides exactly that. Every
+// assertion below runs through engine.decide() with a real, seeded room.db
+// handle threaded on ctx exactly as a real caller would thread it.
+//
+// A NOTE ON WHAT decide() ACTUALLY RETURNS: trace.context_assembly.facts
+// (buildContextAssembly, lib/core/navigation-engine.cjs) is the ONE place a
+// fired sensor reach survives decide()'s return value; by design (Canon Part
+// 8 flattening) each fact carries only { reach_id, posture, evidence,
+// first_seen, last_updated } -- never the sensor's raw `dispatch` string.
+// SENS-19 is, as of this plan, the ONLY registered sensor that fires the
+// `contradiction` reach_id (grep confirms zero other sensors mint
+// reach_id:'contradiction'), so a fact with reach_id === 'contradiction' is
+// unambiguously SENS-19's, and evidence.sensor_id === 'SENS-19' is the
+// central-stamp proof the plan asks for. The sensor's own `dispatch` value
+// ('room-graph-integrity') is pinned directly against the detector's return
+// value in the Task 1 arms above; this arm proves the SAME detector actually
+// fires when reached through the full decide() pipeline, which is what a
+// missing producer block would break.
+// ---------------------------------------------------------------------------
+
+function findContradictionFact(decision) {
+  const facts = decision
+    && decision.decision_trace
+    && decision.decision_trace.context_assembly
+    && Array.isArray(decision.decision_trace.context_assembly.facts)
+    ? decision.decision_trace.context_assembly.facts
+    : [];
+  return facts.filter((f) => f && f.reach_id === 'contradiction');
+}
+
+function seedDanglingEdges(db, sourceId, count) {
+  for (let i = 0; i < count; i += 1) {
+    const res = navigation.writeEdge(db, {
+      source_id: sourceId,
+      target_id: 'ghost-343-06-' + i,
+      edge_type: 'SUPPORTS',
+    });
+    assert.ok(res && res.ok === true, 'seeding a dangling edge must succeed: ' + JSON.stringify(res));
+  }
+}
+
+// ---- ABOVE THRESHOLD: decide() fires the contradiction reach, SENS-19-stamped. ----
+{
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-343-06-above-'));
+  let db = null;
+  try {
+    const fixture = buildFixtureRoom(tmp);
+    db = openRoomDb(fixture.roomDir, { allowExtension: true });
+    const sourceId = fixture.ids.hubs[fixture.ids.sections[0]];
+    seedDanglingEdges(db, sourceId, 30); // > INTEGRITY_DEFECT_THRESHOLD (25)
+
+    const decision = engine.decide({ text: 'anything' }, { roomDb: db, roomDir: fixture.roomDir });
+    const hits = findContradictionFact(decision);
+    assert.strictEqual(hits.length, 1, 'exactly one contradiction reach must fire end to end: ' + JSON.stringify(hits));
+    assert.strictEqual(hits[0].evidence.sensor_id, 'SENS-19', 'the central stamp must name SENS-19');
+    assert.strictEqual(hits[0].reach_id, 'contradiction');
+    assert.strictEqual(hits[0].posture, 'hold');
+    assert.ok(hits[0].evidence.edge_rows_missing_endpoint >= 26, 'evidence must carry the measured defect count');
+    assert.strictEqual(
+      decision.decision_trace.routing_source,
+      undefined,
+      'decide() must never write routing_source (the sensor layer is not a second selection brain)'
+    );
+    ok('ABOVE THRESHOLD: decide() with a seeded room.db handle fires exactly one SENS-19-stamped contradiction reach');
+  } finally {
+    if (db) { try { closeRoomDb(db); } catch (_e) { /* ignore */ } }
+    try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
+  }
+}
+
+// ---- BELOW THRESHOLD: the same pipeline, no contradiction reach. ----
+{
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-343-06-below-'));
+  let db = null;
+  try {
+    const fixture = buildFixtureRoom(tmp);
+    db = openRoomDb(fixture.roomDir, { allowExtension: true });
+    const sourceId = fixture.ids.hubs[fixture.ids.sections[0]];
+    seedDanglingEdges(db, sourceId, 2); // well under INTEGRITY_DEFECT_THRESHOLD (25)
+
+    const decision = engine.decide({ text: 'anything' }, { roomDb: db, roomDir: fixture.roomDir });
+    const hits = findContradictionFact(decision);
+    assert.strictEqual(hits.length, 0, 'a below-threshold room must never produce a contradiction reach: ' + JSON.stringify(hits));
+    assert.strictEqual(decision.decision_trace.routing_source, undefined, 'routing_source must stay untouched below threshold too');
+    ok('BELOW THRESHOLD: decide() with a seeded room.db handle under the count produces no contradiction reach');
+  } finally {
+    if (db) { try { closeRoomDb(db); } catch (_e) { /* ignore */ } }
+    try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
+  }
+}
+
+// ---- NO HANDLE: ctx.roomDb absent -> no reach, never throws. ----
+{
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-343-06-nohandle-'));
+  try {
+    const fixture = buildFixtureRoom(tmp);
+    let decision;
+    assert.doesNotThrow(() => {
+      decision = engine.decide({ text: 'anything' }, { roomDir: fixture.roomDir });
+    }, 'decide() with no ctx.roomDb must never throw');
+    const hits = findContradictionFact(decision);
+    assert.strictEqual(hits.length, 0, 'no room.db handle must never produce a contradiction reach');
+    assert.strictEqual(decision.decision_trace.routing_source, undefined, 'routing_source must stay untouched with no handle too');
+    ok('NO HANDLE: decide() with ctx.roomDb absent produces no reach and never throws');
+  } finally {
+    try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
+  }
+}
+
 console.log('');
-console.log('PASS test-343-sensor-registration.cjs (' + checks + ' checks so far)');
+console.log('PASS test-343-sensor-registration.cjs (' + checks + ' checks, including the end-to-end decide() arms)');
