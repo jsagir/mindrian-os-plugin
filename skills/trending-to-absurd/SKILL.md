@@ -44,6 +44,7 @@ hitl_stages:
     shapes: ["F.1"]
     mode: "ordered"
 hitl_why: "Two ordered Shape F Decision Gates per its own frontmatter description: trend selection then opportunity pick, never collapsed into one silent choice."
+layer: "graph"
 ---
 
 # Trending-to-the-Absurd -- The Visionary Innovation Companion

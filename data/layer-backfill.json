@@ -1,4 +1,59 @@
 {
+  "agents/analogy-query-fetcher.md": {
+    "layer": "loop",
+    "layer_why": "Fetches ONE approved query and extracts a structural SAPPhIRE mapping in a single bounded pass; a worker's own cycle invoked by find-analogies.md's fan-out, not the graph that dispatches it (WD-6)."
+  },
+  "agents/brain-query.md": {
+    "layer": "loop",
+    "layer_why": "A single natural-language Brain lookup that synthesizes one result and closes with an F.1 next move; the rubric's own single hitl_shape fork signal."
+  },
+  "agents/competitor-watch-fetcher.md": {
+    "layer": "loop",
+    "layer_why": "Searches for ONE competitor's recent developments and checks them against supplied claims in a single bounded pass; a worker's own cycle invoked by scout.md's fan-out, not the graph that dispatches it (WD-6)."
+  },
+  "agents/framework-runner.md": {
+    "layer": "graph"
+  },
+  "agents/grading.md": {
+    "layer": "loop",
+    "layer_why": "Grades room artifacts against the calibrated set in one pass and closes with an F.8 unordered-basket fork; a single agent's cycle to a stopping condition."
+  },
+  "agents/grant-reviewer.md": {
+    "layer": "loop",
+    "layer_why": "Examines the seven rubric categories as an independent panel and renders one holistic verdict per invocation; a single agent's cycle closing with an F.8 fork."
+  },
+  "agents/investor.md": {
+    "layer": "loop",
+    "layer_why": "Surfaces objections in one adversarial pass and closes with an F.1 next move; a single agent's cycle, not multi-step coordination."
+  },
+  "agents/larry-extended.md": {
+    "layer": "loop",
+    "layer_why": "One persona-blended conversational turn delivering methodology guidance and closing with an F.1 next move; the default agent hosts reach dispatches but its own engineered rung is the single response cycle."
+  },
+  "agents/meeting-perspective-extractor.md": {
+    "layer": "loop",
+    "layer_why": "Extracts atomic claims through ONE perspective lens in a single bounded read-only pass; a worker's own cycle invoked by file-meeting.md's fan-out, not the graph that dispatches it (WD-6)."
+  },
+  "agents/opportunity-scanner.md": {
+    "layer": "loop",
+    "layer_why": "Scans grants and funding matches in one pass and surfaces them as an F.8 unordered basket; a single agent's cycle to a stopping condition."
+  },
+  "agents/persona-analyst.md": {
+    "layer": "loop",
+    "layer_why": "Generates the De Bono hat panel in one pass and closes with an F.8 unordered-basket fork; a single agent's cycle."
+  },
+  "agents/research.md": {
+    "layer": "loop",
+    "layer_why": "Runs one hypothesis-driven research pass, fans subquestions out internally, and files sourced evidence closing with an F.8 fork; a single agent's own cycle, not the graph that dispatches it."
+  },
+  "agents/reverse-salient-agent.md": {
+    "layer": "loop",
+    "layer_why": "Surfaces one reverse-salient finding per invocation as a persona-framed F.0 gate and files a memory_event; a single agent's cycle to a stopping condition, sibling to larry-extended's own loop rung, not the detection graph it draws from."
+  },
+  "agents/vault-section-reviewer.md": {
+    "layer": "loop",
+    "layer_why": "Confirms or corrects a stub classifier's section guess for ONE guessed-section group in a single bounded read-only pass; a worker's own cycle invoked by vault.md's fan-out, not the graph that dispatches it (WD-6)."
+  },
   "commands/act.md": {
     "layer": "graph"
   },
@@ -449,5 +504,318 @@
     "layer": "none",
     "layer_why": "Opens the Data Room as linked wiki pages; a render-only view of already-filed content.",
     "rubric_stopped_at": 3
+  },
+  "pipelines/PWS_grading/CHAIN.md": {
+    "layer": "graph"
+  },
+  "pipelines/analogy/CHAIN.md": {
+    "layer": "graph"
+  },
+  "pipelines/discovery/CHAIN.md": {
+    "layer": "graph"
+  },
+  "pipelines/thesis/CHAIN.md": {
+    "layer": "graph"
+  },
+  "skills/act/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/analyze-needs/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/analyze-systems/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/analyze-timing/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/auto-explore/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "Runs the same domain-decomposition cycle the PostToolUse hook fires automatically, a single agent cycle to a stopping condition, kind:utility only because it is hook-triggered rather than navigator-typed."
+  },
+  "skills/beautiful-question/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/bono/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/brain-derive/SKILL.md": {
+    "layer": "context",
+    "layer_why": "Rebuilds a room section's Brain-derived context on demand, changing what the model sees this turn without engineering new methodology."
+  },
+  "skills/build-knowledge/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/build-thesis/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/causal/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/challenge-assumptions/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/client-discovery-interview/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "Runs a fixed six-movement discovery interview to a stopping condition, filing a Discovery Brief artifact with an F.1 next-move gate between movements; a single agent cycle, not a multi-step coordination graph."
+  },
+  "skills/compare-ventures/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/dashboard/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Opens the live or snapshot De Stijl view; a render-only view of already-produced room state, the rubric's own literal none example."
+  },
+  "skills/deck/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "One governed flow (pick a shape, Feynman or HEART) that runs to completion and files a deck artifact, the same single-cycle shape as a methodology command, kind:mechanical only because it composes existing content rather than analyzing new content."
+  },
+  "skills/deep-grade/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/diagnose/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/diagnostics/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/dial-memory-refresh/SKILL.md": {
+    "layer": "context"
+  },
+  "skills/diffusion/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/discover/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/dominant-designs/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/eureka/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "Ranks cross-domain pairs into fundable-opportunity flags in one analysis cycle to a stopping condition, the same shape as a methodology command."
+  },
+  "skills/explain-decision/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Shows the Navigation Engine trace for the last turn; a pure diagnostic render of a decision already made, not itself an engineering rung."
+  },
+  "skills/explore-domains/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/explore-futures/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/explore-opportunity/SKILL.md": {
+    "layer": "graph",
+    "layer_why": "Explicitly runs the analysis chain (deep dive across multiple methodology steps) for a qualified opportunity -- a command that dispatches a chain, the rubric's own step 1 signal."
+  },
+  "skills/explore-trends/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/file-meeting/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "Captures a transcript and files the resulting intelligence into room sections in one filing cycle to completion, the same shape as a methodology command that produces an artifact."
+  },
+  "skills/find-analogies/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/find-bottlenecks/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/find-connections/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/funding/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Manages the grant/investor pipeline lifecycle (spotted to applied to decided) as a tracked registry, a harness-scaffolding operation."
+  },
+  "skills/futures/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/grade-grant/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/grade/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/graph/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Translates a plain-English question into a graph traversal and displays the result; a read-only query/render view, not new engineering."
+  },
+  "skills/hat-briefing/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/ignite/SKILL.md": {
+    "layer": "graph",
+    "layer_why": "Walks three sequential birth gates (starting point, blueprint approve, first win), each an independent human-ratified checkpoint -- the rubric's own step 1 signal for halting at a material step for an independent reviewer, repeated three times."
+  },
+  "skills/ingest-methodology/SKILL.md": {
+    "layer": "graph",
+    "layer_why": "Runs the maintainer's named 7-step pipeline (encode, Part-8 bound, and on) end to end, a multi-step coordinated flow over shared state."
+  },
+  "skills/intel-pipeline/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/jtbd/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/leadership/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/lean-canvas/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/macro-trends/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/map-unknowns/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/memory-cortex-reach/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Surfaces a stale governing thought or a fresh contradiction against a claim by reading the memory cortex, a harness-level memory measurement, the rubric's own step 3 memory_event signal."
+  },
+  "skills/memory/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Shows the three memory layers (within-session, across-session, cross-room); a read-only diagnostic display of existing state."
+  },
+  "skills/mos-deck-engine/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "Runs a single 6-stage Feynman simplification cycle end to end and files a deck artifact; one continuous methodology run, not a multi-agent or multi-gate coordination."
+  },
+  "skills/mos-reason/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/mullins-scaffold/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Creates the Seven Domains room-scaffolding folders on the navigator's F.1 confirmation; adding room scaffolding is the rubric's own step 3 signal verbatim."
+  },
+  "skills/mullins/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/mva-brief/SKILL.md": {
+    "layer": "graph",
+    "layer_why": "Explicitly runs a 6-agent fan-out and deploys a shareable brief, the rubric's own step 1 fan-out signal by name."
+  },
+  "skills/mva-option/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Routes the navigator's pick from the 3-option MVA footer into the correct next move; a dispatch mechanism, not new methodology output."
+  },
+  "skills/mva-pipeline/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "Detects a venture sentence and relays the pre-computed 30-second MVA brief through one F.1 next-move choice; a single bounded cycle to a stopping condition, not new methodology or scaffolding."
+  },
+  "skills/new-project/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Creates room scaffolding and registers the new room in the room registry; the rubric's own step 3 signal names both \"add scaffolding\" and \"a registry\" verbatim."
+  },
+  "skills/new-surface/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Emits a new command/agent/skill .md file with the correct connector descriptor; adding a tool to the harness, the rubric's own step 3 signal verbatim."
+  },
+  "skills/operator/SKILL.md": {
+    "layer": "prompt",
+    "layer_why": "Shows or sets how Larry should render this session (JUST_TALK, EXPLORE_CAPTURE, and so on); shapes the output style of subsequent turns, the rubric's own step 5 signal."
+  },
+  "skills/opportunities/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Surfaces the Opportunity Bank registry with HSI scores and manages it as a live pipeline; a registry-management operation over the harness."
+  },
+  "skills/persona/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/pipeline/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/present/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Generates and opens the 6-view presentation of an already-built room; a render-only view, engineering no new rung."
+  },
+  "skills/qualify-opportunity/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "Presents a single human-ratified decision gate over one harvested candidate and files the qualify/reject verdict, the same single-hitl-fork cycle shape as a methodology command."
+  },
+  "skills/reanalyze/SKILL.md": {
+    "layer": "loop",
+    "layer_why": "Re-runs the cascade pattern detection cycle on an already-filed meeting to a stopping condition, the same shape as a methodology re-run."
+  },
+  "skills/research/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/room/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Opens the room view with its current state; a render-only default entry-point view."
+  },
+  "skills/root-cause/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/rs-experts/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/rs-explain/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/rs-fetch/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/rs-thesis/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/scenario-plan/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/score-innovation/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/scout/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Fires the sentinel background checks proactively across the room, a measurement/scanning mechanism over the harness, the same job class as a doctor organ."
+  },
+  "skills/show/SKILL.md": {
+    "layer": "harness",
+    "layer_why": "Asks the navigator's job in plain language and routes to the matching view command; a dispatch mechanism, the same routing job class as /mos:mos and /mos:help."
+  },
+  "skills/skill/SKILL.md": {
+    "layer": "prompt",
+    "layer_why": "Projects a confirmed SyntheticExpert persona into the conversation; shapes the voice/persona of subsequent requests, the rubric's own step 5 signal verbatim."
+  },
+  "skills/speakers/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Shows a filed meeting's participants, roles and attendance; a read-only diagnostic display."
+  },
+  "skills/status/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Shows the governing thought per section plus health glyphs for a fast read; a read-only diagnostic display."
+  },
+  "skills/structure-argument/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/suggest-next/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/systems-thinking/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/think-hats/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/trending-to-absurd/SKILL.md": {
+    "layer": "graph"
+  },
+  "skills/user-needs/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/validate/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/value-proposition/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/whitespace/SKILL.md": {
+    "layer": "loop"
+  },
+  "skills/wiki/SKILL.md": {
+    "layer": "none",
+    "layer_why": "Opens the Data Room as linked wiki pages; a render-only view of already-filed content."
   }
 }

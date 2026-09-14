@@ -26,6 +26,8 @@ connector:
   web_scope: null
 hitl_shape: "F.8"
 hitl_why: "Grant and funding matches are surfaced as an independent set reviewed in any order."
+layer: "loop"
+layer_why: "Scans grants and funding matches in one pass and surfaces them as an F.8 unordered basket; a single agent's cycle to a stopping condition."
 ---
 
 <!-- Phase 95.6 D-10: external-signal access (WebSearch + mcp__tavily-mcp__*) declared explicitly via allowed-tools; no Brain access needed (grant discovery is a public-signal scan, not a methodology lookup); no implicit MCP inheritance. -->

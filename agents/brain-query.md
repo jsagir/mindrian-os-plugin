@@ -22,6 +22,8 @@ connector:
   web_scope: null
 hitl_shape: "F.1"
 hitl_why: "A single natural-language Brain lookup returns a synthesized result with one next move."
+layer: "loop"
+layer_why: "A single natural-language Brain lookup that synthesizes one result and closes with an F.1 next move; the rubric's own single hitl_shape fork signal."
 ---
 
 <!-- Phase 95.6 D-10: Brain access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__*); no implicit MCP inheritance. -->

@@ -28,6 +28,8 @@ connector:
   filing: memory_event_only
   plan_gated: false
   web_scope: null
+layer: "loop"
+layer_why: "Examines the seven rubric categories as an independent panel and renders one holistic verdict per invocation; a single agent's cycle closing with an F.8 fork."
 ---
 
 <!-- grade-grant reviewer-panel examination mode: this agent has TWO roles, mirroring

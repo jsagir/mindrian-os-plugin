@@ -37,6 +37,8 @@ connector:
   surface: F.0
 hitl_shape: "F.0"
 hitl_why: "It surfaces each reverse-salient finding as an F.0 mini Decision Gate (APPROVE, REJECT with reason, or DEFER) per its own frontmatter."
+layer: "loop"
+layer_why: "Surfaces one reverse-salient finding per invocation as a persona-framed F.0 gate and files a memory_event; a single agent's cycle to a stopping condition, sibling to larry-extended's own loop rung, not the detection graph it draws from."
 ---
 
 Wave-0 stub. Body composition lands in Wave 2 (89-07-02-PLAN.md) per docs/AGENTIC-SURFACING-PATTERN.md.

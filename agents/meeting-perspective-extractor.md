@@ -20,6 +20,8 @@ allowed-tools:
 connector:
   excluded: true
   reason: "Invoked BY commands/file-meeting.md's Step 3a dispatch as one of five parallel extraction workers; it is never a problem-state-triggered reach itself, and it never reaches a Decision-Gate fork (it returns structured JSON only), so it is exempt from an hitl_shape declaration by construction (CLAUDE.md Part 11's render-only/pure-capability exemption)."
+layer: "loop"
+layer_why: "Extracts atomic claims through ONE perspective lens in a single bounded read-only pass; a worker's own cycle invoked by file-meeting.md's fan-out, not the graph that dispatches it (WD-6)."
 ---
 
 # Meeting Perspective Extractor

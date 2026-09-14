@@ -23,6 +23,7 @@ hitl_stages:
     shapes: ["F.8"]
     mode: "ordered"
 hitl_why: "Five ordered stages of cross-domain analogy: decompose then abstract then search then transfer then validate, each stage feeding the next."
+layer: "graph"
 ---
 
 # Design-by-Analogy Pipeline

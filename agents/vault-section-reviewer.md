@@ -23,6 +23,8 @@ allowed-tools:
 connector:
   excluded: true
   reason: "Invoked BY commands/vault.md's Step 3 threshold-gated review dispatch as one of N parallel section-group reviewers; it is never a problem-state-triggered reach itself, and it never reaches a Decision-Gate fork (it returns structured data only), so it is exempt from an hitl_shape declaration by construction (CLAUDE.md Part 11's render-only/pure-capability exemption)."
+layer: "loop"
+layer_why: "Confirms or corrects a stub classifier's section guess for ONE guessed-section group in a single bounded read-only pass; a worker's own cycle invoked by vault.md's fan-out, not the graph that dispatches it (WD-6)."
 ---
 
 # Vault Section Reviewer

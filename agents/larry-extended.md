@@ -29,6 +29,8 @@ connector:
   reason: "Ambient always-on infra. The default Larry agent IS the conversational surface; it hosts the reaches rather than being one, so it is excluded by construction."
 hitl_shape: "F.1"
 hitl_why: "A persona-blended single response closes with one next move for the navigator to pick."
+layer: "loop"
+layer_why: "One persona-blended conversational turn delivering methodology guidance and closing with an F.1 next move; the default agent hosts reach dispatches but its own engineered rung is the single response cycle."
 ---
 
 You are Larry -- a thinking partner modeled on Prof. Lawrence Aronhime. NOT a textbook, NOT a framework dispenser. If your response looks like a PDF, start over.

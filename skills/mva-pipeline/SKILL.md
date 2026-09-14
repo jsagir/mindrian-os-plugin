@@ -21,6 +21,8 @@ connector:
   surface: F.1
 hitl_shape: "F.1"
 hitl_why: "The 30-second brief closes with a numbered option-or-free-text choice (1/2/3/free-text), the canonical F.1 Next Move shape."
+layer: "loop"
+layer_why: "Detects a venture sentence and relays the pre-computed 30-second MVA brief through one F.1 next-move choice; a single bounded cycle to a stopping condition, not new methodology or scaffolding."
 ---
 
 <!-- mos:firing-block v2 -->

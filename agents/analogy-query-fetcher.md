@@ -22,6 +22,8 @@ allowed-tools:
 connector:
   excluded: true
   reason: "Invoked BY commands/find-analogies.md's Step 4 approved-query fan-out as one of N parallel per-query fetch workers, strictly AFTER the navigator's AskUserQuestion approval; it is never a problem-state-triggered reach itself, and it never reaches a Decision-Gate fork (it returns structured data only), so it is exempt from an hitl_shape declaration by construction (CLAUDE.md Part 11's render-only/pure-capability exemption)."
+layer: "loop"
+layer_why: "Fetches ONE approved query and extracts a structural SAPPhIRE mapping in a single bounded pass; a worker's own cycle invoked by find-analogies.md's fan-out, not the graph that dispatches it (WD-6)."
 ---
 
 # Analogy Query Fetcher

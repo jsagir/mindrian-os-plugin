@@ -22,6 +22,8 @@ connector:
   surface: F.0
 hitl_shape: "F.8"
 hitl_why: "Artifacts are graded on independent components against the calibrated set, an unordered basket."
+layer: "loop"
+layer_why: "Grades room artifacts against the calibrated set in one pass and closes with an F.8 unordered-basket fork; a single agent's cycle to a stopping condition."
 ---
 
 <!-- Phase 95.6 D-10: Brain access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__my-neo4j__*); no implicit MCP inheritance. -->

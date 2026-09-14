@@ -17,6 +17,7 @@ hitl_stages:
     shapes: ["F.8"]
     mode: "ordered"
 hitl_why: "Three ordered stages from territory to customer needs: explore-domains then think-hats then analyze-needs, each stage feeding the next."
+layer: "graph"
 ---
 
 # Discovery Pipeline

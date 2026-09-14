@@ -27,6 +27,8 @@ connector:
   surface: F.1
 hitl_shape: "F.8"
 hitl_why: "Research subquestions fan out independently and are verified as an any-order basket."
+layer: "loop"
+layer_why: "Runs one hypothesis-driven research pass, fans subquestions out internally, and files sourced evidence closing with an F.8 fork; a single agent's own cycle, not the graph that dispatches it."
 ---
 
 <!-- Phase 95.6 D-10: Brain + Tavily access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__* / mcp__tavily-mcp__*); no implicit MCP inheritance. -->

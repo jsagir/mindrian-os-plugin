@@ -17,6 +17,7 @@ hitl_stages:
     shapes: ["F.9"]
     mode: "ordered"
 hitl_why: "Three ordered stages from structured argument to stress-tested thesis: structure-argument then challenge-assumptions then build-thesis, each stage feeding the next."
+layer: "graph"
 ---
 
 # Thesis Pipeline

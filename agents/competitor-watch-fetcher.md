@@ -24,6 +24,8 @@ allowed-tools:
 connector:
   excluded: true
   reason: "Invoked BY commands/scout.md's Step 4b competitor fan-out as one of up to 5 parallel per-competitor watch workers; it is never a problem-state-triggered reach itself, and it never reaches a Decision-Gate fork (it returns structured data only), so it is exempt from an hitl_shape declaration by construction (CLAUDE.md Part 11's render-only/pure-capability exemption)."
+layer: "loop"
+layer_why: "Searches for ONE competitor's recent developments and checks them against supplied claims in a single bounded pass; a worker's own cycle invoked by scout.md's fan-out, not the graph that dispatches it (WD-6)."
 ---
 
 # Competitor Watch Fetcher

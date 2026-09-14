@@ -20,6 +20,7 @@ hitl_stages:
     shapes: ["F.9"]
     mode: "ordered"
 hitl_why: "Four ordered stages from a pitch's quote-anchored evidence to packaged formative feedback: deep-grade then mullins then build-thesis (scored, non-gating) then structure-argument, each stage feeding the next. Under the frozen course-tier rubric (references/methodology/rubric-huji.md) the chain runs score-and-continue, never halting on the build-thesis 6/10 gate."
+layer: "graph"
 ---
 
 # PWS Grading Pipeline

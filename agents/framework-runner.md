@@ -21,6 +21,7 @@ hitl_stages:
     shapes: ["F.9"]
     mode: "ordered"
 hitl_why: "It runs one methodology per invocation along a dependency path (F.2) as a fixed-order stage walk (F.9)."
+layer: "graph"
 ---
 
 <!-- Phase 95.6 D-10: NO Brain access by design -- the caller (/mos:act) does all Brain queries + framework selection before invoking this agent; it executes the chosen methodology from local references/methodology/*.md via Read/Bash. There is no implicit MCP inheritance to depend on. -->
