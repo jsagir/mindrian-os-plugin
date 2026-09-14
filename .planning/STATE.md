@@ -4355,6 +4355,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 343 (the-room-graph-audit-node-and-the-counter-metric-rule-graph-) - CLOSED
 Plan: 343-09 complete (9/9 plans) - PHASE 343 CLOSED, 2026-09-15
+Verified: 2026-09-15 gsd-verifier passed (17/17 CENSUS, 5/5 goal truths re-run live; run-all-343
+  PASS=11 FAIL=0 SKIP=0, doctor --acceptance 20/20). Code review 343-REVIEW.md: 1 Critical + 6
+  Warnings; fix pass landed CR-01, WR-01..05 (0828b0e3, 3ff2f07d, d5168e52, 49722d12, d89ba540);
+  WR-06 (sync SENS-19 producer read per decide()) skipped: an mtime-keyed memo is unsafe under
+  WAL, a WAL-safe cache is a design change, carried as an open note.
 Status: Plan 343-09 closed the phase (CENSUS-16): ran the full gate sweep (bash tests/run-all-343.sh
   PASS=11 FAIL=0 SKIP=0; build-connector-registry/orchestration-projection/render-coverage/
   substrate/help-coverage checks all clean; test-298-contract-parity 20/20; test-245-priority-
