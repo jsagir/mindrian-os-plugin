@@ -1518,74 +1518,123 @@ every engineering layer of MindrianOS (PROMPT, CONTEXT, HARNESS, LOOP, GRAPH) an
 nested part of a room, drafted as a Canon Part 11 born-clause candidate and not yet enforced
 constitutionally.
 
-- [ ] **LAYER-01**: `data/layer-declaration-schema.json` ships the closed layer vocabulary with a
+- [x] **LAYER-01**: `data/layer-declaration-schema.json` ships the closed layer vocabulary with a
       validation_rule, a fail-closed default_on_miss, a surface_count_principle, and the own-rung
-      classification rubric, read by a plain require().
+      classification rubric, read by a plain require(). Measured: `node tests/test-344-layer-schema.cjs`
+      exits 0 (10/10 assertions, 2026-09-14); `_doc.default_on_miss` begins with the literal string
+      `reject`; `_doc.classification_rubric` is six ordered first-match-wins steps, one terminal per
+      vocabulary member.
 
-- [ ] **LAYER-02**: `docs/LAYER-DECLARATION-CONTRACT.md` states the frontmatter contract for
+- [x] **LAYER-02**: `docs/LAYER-DECLARATION-CONTRACT.md` states the frontmatter contract for
       every invocable surface class and for the MCP tool connector descriptor, and names itself a
       Canon Part 11 born-clause candidate that is drafted here and not enforced constitutionally
-      in this phase.
+      in this phase. Measured: the file exists under tracked `docs/` (not gitignored `.planning/`),
+      states the `layer:`/`layer_why` frontmatter shape, the five declaring classes including MCP
+      tool connector descriptors, and the WD-8 born-clause-candidate framing verbatim.
 
-- [ ] **LAYER-03**: The five navigator decisions from the input spec section 7 and the design
+- [x] **LAYER-03**: The five navigator decisions from the input spec section 7 and the design
       forks raised in research are recorded in a tracked decision ledger, each with a WORKING or
-      RULED status and a date.
+      RULED status and a date. Measured: `grep -c "^| WD-" docs/LAYER-DECLARATION-CONTRACT.md`
+      returns 12; every row's status column reads RULED, ruled-by navigator, dated 2026-09-14
+      (344-03-SUMMARY.md).
 
 - [x] **LAYER-04**: `scripts/check-layer-declaration.cjs` enumerates every declaring surface from
       disk through the imported four-class walk, names each undeclared or out-of-vocabulary
       surface, owns its own fail-closed exit contract, and is declared in
-      `data/harness-policies/gate-layer-declaration.json`.
+      `data/harness-policies/gate-layer-declaration.json`. Measured: `node
+      scripts/check-layer-declaration.cjs` exits 0 on the real tree ("OK: 284 surfaces enumerated,
+      247 declared, 37 exempt"); `node tests/test-344-layer-gate.cjs` 17/17 assertions pass,
+      including the undeclared/out-of-vocabulary/missing-schema non-zero-exit proofs; `data/harness-
+      policies/gate-layer-declaration.json` exists with `runner: scripts/check-layer-declaration.cjs`.
 
 - [x] **LAYER-05**: `layer` reaches `data/command-registry.json` through
       `scripts/build-command-registry.cjs` and inherits that generator's `--check` staleness gate.
+      Measured: `node scripts/build-command-registry.cjs --check` exits 0; `node
+      tests/test-344-registry-layer-lift.cjs` 4/4 assertions pass, confirming every entry carries a
+      `layer` key and every non-null value is a vocabulary member.
 
 - [x] **LAYER-06**: Every `commands/*.md` file carries a `layer:` frontmatter key written by
       `scripts/backfill-layer.cjs`, whose apply pass is idempotent and leaves every other
       frontmatter key, every body line and every byte outside the layer block unchanged.
+      Measured: `grep -L "^layer:" commands/*.md` returns nothing (0 files); `node
+      scripts/backfill-layer.cjs --check` exits 0 (a re-run changes nothing); `node
+      tests/test-344-layer-backfill.cjs` 6/6 assertions pass, including the strip-and-compare
+      byte-identity proof against every one of the 113 command files enumerated from disk.
 
 - [x] **LAYER-07**: Every `agents/*.md`, every `pipelines/*/CHAIN.md`, every qualifying
       `skills/*/SKILL.md`, and every MCP tool connector descriptor carries its layer through the
-      same map and the same generator path.
+      same map and the same generator path. Measured: `node tests/test-344-surface-layer-parity.cjs`
+      9/9 assertions pass over the real repo tree; `node scripts/check-layer-declaration.cjs`
+      reports `undeclared: 0` across all 284 enumerated surfaces (113 commands, 14 agents, 4
+      pipelines, 126 skills, 27 mcp tools; declared 247, exempt 37).
 
 - [x] **LAYER-08**: `lib/core/doctor/icm-part-wiring-module.cjs` reports layer-declaration counts
       and ICM part producer and consumer counts as raw counts, with status never 'warn', no `fix`
-      export, and no health or completeness adjective in any rendered string.
+      export, and no health or completeness adjective in any rendered string. Measured: `node
+      tests/test-344-icm-part-wiring-doctor.cjs` 14/14 assertions pass, including
+      `typeof require('.../icm-part-wiring-module.cjs').fix === 'undefined'` and the banned-adjective
+      walk over both the repo-side and cascade payload strings.
 
 - [x] **LAYER-09**: `data/icm-parts.json` declares every ICM nested part of a room with its
       producer surfaces and its consumer modules, and the per-section `CONTEXT.md` headings
       "Commands that write here" and "Inputs" are read as the room-side declaration, giving the
-      L2 contract its first code consumer.
+      L2 contract its first code consumer. Measured: `data/icm-parts.json` carries 18 rows, each
+      with `producers`/`consumers`/`icm_layer`/`engineering_layer`; `_doc.omissions` records `seeds/`
+      per WD-4 with its reason; `node tests/test-344-icm-part-wiring-doctor.cjs`'s
+      `countSectionContractHeadings` assertion confirms the two headings are read as the L2
+      declaration under `--cascade-rooms`.
 
 - [x] **LAYER-10**: `docs/LAYER-CONTRACT.md` is the pinned layer contract with one section per
       vocabulary member carrying definition, core question, implementing components with file
       paths, the layer above and below, what is thin or missing, and the single owner surface,
-      plus an amendment ledger.
+      plus an amendment ledger. Measured: `node tests/test-344-layer-contract-doc.cjs` 10/10
+      assertions pass, deriving the expected rung list from `data/layer-declaration-schema.json`
+      itself and confirming all six required subsections per rung, in order, plus a populated
+      amendment ledger table.
 
 - [x] **LAYER-11**: Every corpus-grounded claim in `docs/LAYER-CONTRACT.md` carries its source id
       and hop count from the phase langtalks consult, every single-source rung says so in its own
       row, and the GRAPH rung states that graph engineering is not in the corpus and cites the
-      structured note directly.
+      structured note directly. Measured: `node tests/test-344-layer-contract-doc.cjs`'s grounding-
+      table assertions confirm hop counts cited alongside sources and at least one literal `ABSENT`
+      row for graph engineering (honesty clause 3).
 
 - [x] **LAYER-12**: `docs/ICM-NESTED-PART-CONTRACT.md` carries one row per part declared in
       `data/icm-parts.json` with IS today, NEEDS TO BE and the gap, using Phase 275 as the
-      baseline and the Reads / Does / Writes / Human check / Change-impact shape.
+      baseline and the Reads / Does / Writes / Human check / Change-impact shape. Measured: `node
+      tests/test-344-icm-parts-contract.cjs` 9/9 assertions pass, bidirectionally locking the
+      document's 18 `### Part:` subsections to `data/icm-parts.json`'s 18 declared ids, each
+      carrying the five contract headings and the three IS/NEEDS TO BE/Gap labels.
 
 - [x] **LAYER-13**: Exactly one of the four ICM L0-L4 statements carries the full mapping and the
       other three carry a pointer naming it; the `ROUTING.md` ghost is marked as never built
-      rather than deleted.
+      rather than deleted. Measured: `node tests/test-344-single-canonical-icm-map.cjs` exits 0
+      (6/6 assertions), confirming `docs/MINDRIAN-CANON.md` Appendix B is the sole full-mapping
+      file, the other three each name it, and every `ROUTING.md` mention carries a ghost marker
+      with no file named `ROUTING.md` existing on disk.
 
 - [x] **LAYER-14**: The proposed Canon Appendix B wording is drafted in a tracked file and handed
       to Phase 340 as a named input, and Phase 344 lands zero bytes in `docs/MINDRIAN-CANON.md`.
+      Measured: `docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md` exists with the literal
+      L0/L4 wording; `git status --short docs/MINDRIAN-CANON.md` is empty.
 
 - [x] **LAYER-15**: `docs/LAYER-CONTRACT.md` names `data/command-registry.json`'s `layer` field
       as the single interface Phase 343 item 4 consumes for the help family map, states that lane
       and layer are orthogonal axes, carries no frozen surface count, and `data/help-groups.json`
-      is unchanged by this phase.
+      is unchanged by this phase. Measured: `git status --short data/help-groups.json` is empty;
+      `node tests/test-344-layer-contract-doc.cjs` confirms the document names both
+      `data/command-registry.json` and `data/layer-declaration-schema.json`.
 
-- [ ] **LAYER-16**: `bash tests/run-all-344.sh` runs green, `node scripts/doctor.cjs
+- [x] **LAYER-16**: `bash tests/run-all-344.sh` runs green, `node scripts/doctor.cjs
       --acceptance` and `node scripts/run-harness.cjs --check` are unregressed, every LAYER id is
       finalized with measured proof, and the phase record lands in `docs/OPEN-HANDOFFS.md` and in
-      the rethinking-mindrianos research room.
+      the rethinking-mindrianos research room. Measured: `bash tests/run-all-344.sh` exits 0
+      (`PASS=13 FAIL=0 SKIP=0`, 2026-09-14); `node scripts/doctor.cjs --acceptance` 20/20; `node
+      scripts/run-harness.cjs --check` exits 0 (9 pass, 0 fail, 3 ghost, 2 declared); every LAYER-01
+      through LAYER-15 row above carries its own `Measured:` clause; the close-out record lands at
+      `docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md`, `docs/OPEN-HANDOFFS.md` carries a
+      dated row naming it, and the research trail is mirrored to
+      `~/MindrianRooms/rethinking-mindrianos/research/2026-09-14-layer-contract-and-icm-map/`.
 
 ## Traceability
 
